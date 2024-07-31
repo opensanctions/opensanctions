@@ -134,16 +134,16 @@ def test_custom_export_config(testdataset2_export: Dataset):
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
         resources = {r["name"] for r in index["resources"]}
-        for r in {"names.txt", "pep-positions.json"}:
+        for r in {"names.txt", "securities.csv"}:
             assert r in resources
-        for r in default_exports - {"names.txt", "pep-positions.json"}:
+        for r in default_exports - {"names.txt", "securities.csv"}:
             assert r not in resources
 
     with open(dataset_path / "resources.json") as resources_file:
         resources = {r["name"] for r in load(resources_file)["resources"]}
-        for r in {"names.txt", "pep-positions.json"}:
+        for r in {"names.txt", "securities.csv"}:
             assert r in resources
-        for r in default_exports - {"names.txt", "pep-positions.json"}:
+        for r in default_exports - {"names.txt", "securities.csv"}:
             assert r not in resources
 
 
