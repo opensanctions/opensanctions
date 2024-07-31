@@ -49,8 +49,6 @@ inputs:
 
 config:
   type: zavod.runner.local_enricher:LocalEnricher
-  index_options:
-    max_candidates: 1
   dataset: ee_ariregister
   strip_namespace: true
   threshold: 0.7
