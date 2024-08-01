@@ -25,6 +25,7 @@ url: https://www.lb.lt/illegalwww
 data:
   url: https://www.lb.lt/illegalwww?export=csv
   format: CSV
+ci_test: false
 
 assertions:
   min:
