@@ -12,6 +12,8 @@ exports:
 deploy:
   memory: "1000Mi"
   memory_limit: "2000Mi"
+  disk: 30Gi
+  disk_limit: 100Gi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Enrichment of companies and other entities found in the Kazakhstan state register of legal entities.
@@ -57,9 +59,9 @@ inputs:
 
 config:
   type: zavod.runner.local_enricher:LocalEnricher
-  api: https://api.graph.opensanctions.org/
+  index_options:
+    max_candidates: 1
   dataset: kz_companies
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
   fuzzy: false
   threshold: 0.7

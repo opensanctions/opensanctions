@@ -133,6 +133,7 @@ class Dataset(NKDataset):
         data = self.to_dict()
         assert self._type in ("collection", "source", "external"), self._type
         data.pop("resources", None)
+        data.pop("version", None)
         # data.pop("children", None)
         # data.pop("datasets", None)
         data["type"] = self._type

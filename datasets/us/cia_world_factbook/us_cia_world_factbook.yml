@@ -37,6 +37,12 @@ data:
 lookups:
   unparsed_holders:
     options:
+      # Australia
+      - match: "represented by Governor General Samantha (Sam) MOSTYN (since 1 July 2024)"
+        holders:
+          - role: Governor General
+            name: Samantha MOSTYN
+            start date: 1 July 2024
       # San-Marino
       - match: co-chiefs of state Captains Regent Filippo TAMAGNINI and Gaetano TROINA (for the period 1 October 2023 - 1 April 2024)
         holders:
@@ -128,11 +134,10 @@ lookups:
           - role: Supreme Assembly Chairman
             name: Emomali RAHMON
             start_date: 19 November 1992
-      - match: "Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces General Abd-al-Fatah al-BURHAN Abd-al-Rahman"
+      - match: "Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces General Abd-al-Fattah al-BURHAN Abd-al-Rahman"
         holders:
           - role: Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces
-            name: General Abd-al-Fatah al-BURHAN Abd-al-Rahman
-            start_date:
+            name: General Abd-al-Fattah al-BURHAN Abd-al-Rahman
       # South Sudan
       - match: "Vice Presidents Riek MACHAR Teny Dhurgon, TABAN Deng Gai, James Wani IGGA, Rebecca Nyandeng Chol GARANG de Mabior, Hussein ABDELBAGI Ayii (all since 22 February 2020)"
         holders:
@@ -253,7 +258,7 @@ lookups:
             name: Upendra YADAV
             start_date: 10 March 2024
       # Mali
-      - match: "Transition Prime Minister Choguel MAIGA (appointed by Transition President Assimi GOITA on 7 June 2021)note: former transition Prime Minister Moctar OUANE was arrested and detained by the military on 24 May 2021 and resigned on 26 May 2021"
+      - match: "Transition Prime Minister Choguel MAIGA (appointed by Transition President Assimi GOITA on 7 June 2021)"
         holders:
           - role: Transition Prime Minister
             name: Choguel MAIGA
@@ -569,7 +574,7 @@ lookups:
             name: MBUMBA
             start_date: 4 February 2024
       # Niger
-      - match: President of the National Council for Safeguarding of the Homeland (CNSP) General Abdourahame TIANI (since 28 July 2023)
+      - match: President of the National Council for the Safeguard of the Homeland (CNSP) General Abdourahame TIANI (since 28 July 2023)
         holders:
           - role: President of the National Council for Safeguarding of the Homeland
             name: General Abdourahame TIANI
@@ -658,12 +663,26 @@ lookups:
           - role: Acting President
             name: Mohammad Mokhber
             start_date: 20 May 2024
+      - match: President-elect Masoud PEZESHKIAN (assumes office on 30 July 2024)
+        holders:
+          - role: President-elect
+            name: Masoud PEZESHKIAN
+            start_date: 30 July 2024
       # Afghanistan
       - match: "Taliban Leader HAYBATULLAH Akhundzada (since 15 August 2021)"
         holders:
           - role: Taliban Leader
             name: HAYBATULLAH Akhundzada
             start_date: 15 August 2021
+      # Vatican
+      - match: "President of the Pontifical Commission for the State of Vatican City and President of the Governorate of the Vatican City State Fernando VERGEZ ALZAGA (since 1 October 2021)"
+        holders:
+          - role: President of the Pontifical Commission for the State of Vatican City
+            name: Fernando VERGEZ ALZAGA
+            start_date: 1 October 2021
+          - role: President of the Governorate of the Vatican City State
+            name: Fernando VERGEZ ALZAGA
+            start_date: 1 October 2021
       # Not additional heads, just notes
       - regex:
           - subsequently, the Houthis and supporters of Yemen's first president, Ali Abdullah SALEH, seized the presidential palace and placed HADI under house arrest

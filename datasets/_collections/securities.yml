@@ -1,5 +1,5 @@
 type: collection
-title: Sanctioned securities
+title: Sanctioned Securities
 coverage:
   frequency: daily
 exports:
@@ -26,7 +26,7 @@ children:
   - ch_seco_sanctions
   - eu_fsf
   - eu_sanctions_map
-  - eu_reg_2878_sanctions
+  - eu_journal_sanctions
   - eu_esma_saris
   - eu_esma_sanctions
   - ext_eu_esma_firds

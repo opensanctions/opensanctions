@@ -57,6 +57,9 @@ lookups:
       - match: Décision constatant la perte de l’honorabilité professionnelle de Monsieur Fabien GAGLIO
         names:
           - Fabien Gaglio
+      - match: Sanction administrative prononcée à l’encontre du réviseur d’entreprises agréé, Monsieur Thierry GRUN
+        names:
+          - Thierry Grun
   # If the name isn't in the subtitle, map the detail URL to the name, if one is present in the PDFs.
   url_to_names:
     lowercase: true
@@ -73,6 +76,9 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-12-fevrier-2024/
         names:
           - Madame Someya QALAM
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-2-avril-2024/
+        names:
+          - abrdn Investments Luxembourg S.A.
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
@@ -118,4 +124,5 @@ lookups:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du-16-05-2019-2/
           - https://www.cssf.lu/fr/Document/sanction-administrative-du-16-05-2019-3/
           - https://www.cssf.lu/fr/Document/sanctions-administratives-du-17-janvier-2024/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-14-mai-2024/
         names: []

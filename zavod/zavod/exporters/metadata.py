@@ -1,5 +1,6 @@
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+from nomenklatura.versions import Version
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -18,13 +19,18 @@ from zavod.util import write_json
 log = get_logger(__name__)
 
 
-def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
+def get_base_dataset_metadata(
+    dataset: Dataset, version: Optional[Version] = None
+) -> Dict[str, Any]:
     meta = {
         "issue_levels": {},
         "issue_count": 0,
         "updated_at": settings.RUN_TIME_ISO,
         "index_url": make_published_url(dataset.name, INDEX_FILE),
     }
+    if version is not None:
+        meta["version"] = version.id
+        meta["updated_at"] = version.dt.isoformat()
 
     # This reads the file produced by the statistics exporter which
     # contains entity counts for the dataset, aggregated by various
@@ -36,11 +42,19 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
             meta.update(stats)
 
     resources = DatasetResources(dataset)
-    meta["resources"] = [
-        r.to_opensanctions_dict()
-        for r in resources.all()
-        if r.name not in ARTIFACT_FILES
-    ]
+    res_datas: List[Dict[str, Any]] = []
+    for res in resources.all():
+        if res.name in ARTIFACT_FILES:
+            # TODO: we could make artifact URLs here?
+            continue
+        res_data = res.to_opensanctions_dict()
+        if version is not None:
+            # Attach a cache-busting version identifier to the resource URLs:
+            url = res_data.get("url")
+            if url is not None and "?" not in url:
+                res_data["url"] = f"{url}?v={version.id}"
+        res_datas.append(res_data)
+    meta["resources"] = res_datas
     return meta
 
 
@@ -56,14 +70,13 @@ def write_dataset_index(dataset: Dataset) -> None:
         version=version.id,
         is_collection=dataset.is_collection,
     )
-    meta = get_base_dataset_metadata(dataset)
+    meta = get_base_dataset_metadata(dataset, version=version)
     meta.update(dataset.to_opensanctions_dict())
     if not dataset.is_collection:
         issues = DatasetIssues(dataset)
         meta["issue_levels"] = issues.by_level()
         meta["issue_count"] = sum(meta["issue_levels"].values())
     meta["last_export"] = settings.RUN_TIME_ISO
-    meta["version"] = version.id.lower()
     meta["issues_url"] = make_artifact_url(dataset.name, version.id, ISSUES_FILE)
 
     delta_index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
@@ -102,7 +115,6 @@ def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
     meta.update(dataset.to_opensanctions_dict())
     if len(meta["resources"]) == 0:
         log.warn("Dataset has no resources", dataset=dataset.name)
-    # assert len(meta["resources"]), (dataset, meta["resources"])
     return meta
 
 

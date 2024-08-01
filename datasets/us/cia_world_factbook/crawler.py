@@ -19,12 +19,15 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
     "<em>note</em>"
     "|<strong>chief of state:</strong> Notification Statement:"
     "|Prime Minister HUN MANET succeeded"
-    "|<strong>note 1:</strong>"
+    "|<strong>note [1-6]:</strong>"
+    "|<strong>note </strong>-"
+    "|<strong>note:</strong>"
     "|<em>2013:</em>"  # Georgia
-    "|note 1:.+"  # Afghanistan
+    "|note:.+"  # Afghanistan
+    "|note [1-6]:.+"  # Afghanistan
     ")"
 )
-REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
+REGEX_RELEVANT_CATEGORY = re.compile(r"^(chief of state|head of government): ")
 REGEX_HOLDER = re.compile(
     (
         "((New Zealand is )?represented by )?"
@@ -37,7 +40,7 @@ REGEX_HOLDER = re.compile(
         "|President of the Territorial Assembly"
         "|President of the Swiss Confederation"
         r"|President of the Government of Spain \(prime minister-equivalent\)"
-        "|President of the Pontifical Commission for the State of Vatican City"
+        "|President of the Pontifical Commission for the State of Vatican City and President of the Governorate of the Vatican City State"
         "|(First |Second |Executive |Co-)?(Vice |Deputy )President(-elect)?"
         "|President(-elect)?"
         "|(Acting |Transition |Caretaker |Interim |Sultan and |(First |Second |Third )?Deputy )?Prime Minister"
