@@ -57,7 +57,9 @@ def crawl_registrant(context: Context, item: Dict[str, Any]) -> None:
     business_name = item.pop("Business_Name", "").strip()
     if business_name:
         business_entity = context.make("LegalEntity")
-        business_entity.id = context.make_slug("reg", registration_number, "biz", business_name)
+        business_entity.id = context.make_slug(
+            "reg", registration_number, "biz", business_name
+        )
         business_entity.add("name", business_name)
         business_entity.add("country", "us")
 
