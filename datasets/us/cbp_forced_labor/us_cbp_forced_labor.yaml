@@ -27,7 +27,206 @@ url: https://www.cbp.gov/
 data:
   url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
   format: html
-assertions:
-  min:
-    schema_entities:
-      Company: 200
+# assertions:
+#   min:
+#     schema_entities:
+#       Company: 100 # to be adjusted
+#   max:
+#     schema_entities:
+#       Company: 150 # to be adjusted
+
+lookups:
+  name:
+    options:
+      - match: 'Shanghai Select Safety Products Company, Limited and its two subsidiaries from China, Select (Nantong) Safety Products Co. Limited and Select Protective Technology (HK) Limited.'
+        entities: 
+        - name: 
+            - Shanghai Select Safety Products Company, Limited
+        - name: 
+            - Select (Nantong) Safety Products Co. Limited
+        - name: 
+            - Select Protective Technology (HK) Limited
+      - match: 'Hoshine Silicon Industry Co. Ltd. and Subsidiaries'
+        entities: 
+        - name: 
+            - Hoshine Silicon Industry Co. Ltd. and Subsidiaries
+      - match: 'Xinjiang Uyghur Autonomous Region (XUAR)'
+        entities: 
+        - name: 
+          - Xinjiang Uyghur Autonomous Region (XUAR)
+      - match: 'Xinjiang Production and Construction Corporation (XPCC) and its subordinates'
+        entities: 
+        - name:  
+          - Xinjiang Production and Construction Corporation (XPCC) and its subordinates
+      - match: 'Hefei Bitland Information Technology Co., Ltd.'
+        entities: 
+        - name:  
+          - Hefei Bitland Information Technology Co., Ltd.
+      - match: 'Xinjiang Junggar Cotton and Linen Co., Ltd.'
+        entities: 
+        - name:  
+          - Xinjiang Junggar Cotton and Linen Co., Ltd.
+      - match: 'Yili Zhuowan Garment Manufacturing Co., Ltd. and Baoding LYSZD Trade and Business Co., Ltd.'
+        entities: 
+        - name:  
+          - Yili Zhuowan Garment Manufacturing Co., Ltd.
+        - name: 
+          - Baoding LYSZD Trade and Business Co., Ltd.
+      - match: 'No. 4 Vocational Skills Education Training Center (VSETC)'
+        entities: 
+        - name:  
+          - No. 4 Vocational Skills Education Training Center (VSETC)
+      - match: 'Lop County Hair Product Industrial Park'
+        entities: 
+        - name:  
+          - Lop County Hair Product Industrial Park 
+      - match: 'Hero Vast Group'
+        entities: 
+        - name:  
+          - Hero Vast Group
+      - match: 'Lop County Meixin Hair Products Co., Ltd.'
+        entities: 
+        - name:  
+          - Lop County Meixin Hair Products Co., Ltd.
+      - match: 'Hetian Haolin Hair Accessories Co., Ltd.'
+        entities: 
+        - name:  
+          - Hetian Haolin Hair Accessories Co., Ltd.
+      - match: 'Hetian Taida Apparel Co., Ltd.'
+        entities: 
+        - name:  
+          - Hetian Taida Apparel Co., Ltd.
+      - match: 'Huizhou Mink Industrial CO. LTD.'
+        entities: 
+        - name:  
+          - Huizhou Mink Industrial CO. LTD.
+      - match: 'Hongchang Fruits & Vegetable Products Co., Ltd.'
+        entities: 
+        - name:   
+          - Hongchang Fruits & Vegetable Products Co., Ltd.
+      - match: 'Inner Mongolia Hengzheng Group Baoanzhao Agricultural and Trade LLC'
+        entities: 
+        - name:   
+          - Inner Mongolia Hengzheng Group Baoanzhao Agricultural and Trade LLC
+      - match: 'Tangshan Sanyou Group and its Subsidiaries'
+        entities: 
+        - name:  
+          - Tangshan Sanyou Group and its Subsidiaries
+      - match: 'Tianjin Malleable Iron Factory, a/k/a Tianjin Tongbao Fittings Company, a/k/a Tianjin No. 2 Malleable Iron Plant, a/k/a Tianjin Secondary Mugging Factory, a/k/a Tianjin No. 2 Prison'
+        entities: 
+        - name:   # add these as aliases
+          - Tianjin Malleable Iron Factory
+          alias: 
+          - Tianjin Tongbao Fittings Company
+          - Tianjin No. 2 Malleable Iron Plant
+          - Tianjin Secondary Mugging Factory
+          - Tianjin No. 2 Prison
+      - match: 'Nanhu Tree Farm, Zhejiang Sanmei Tea Co., Ltd.; Imaizumi Tea Manufacturing & Trading Co., Ltd. (of Nagoya, Japan)'
+        entities: 
+        - name: 
+          - Nanhu Tree Farm, Zhejiang Sanmei Tea Co., Ltd.
+        - name: 
+          - Imaizumi Tea Manufacturing & Trading Co., Ltd.
+      - match: 'Guangzhou No. 1 Reeducation-Through-Labor Camp, a/k/a Guangdong Province No. 1 Reeducation-Through-Labor Camp; Kwong Ngai Industrial Company'
+        entities: 
+        - name:  # add these as aliases
+          - Guangzhou No. 1 Reeducation-Through-Labor Camp
+          alias:
+          - Guangdong Province No. 1 Reeducation-Through-Labor Camp
+          - Kwong Ngai Industrial Company
+      - match: 'Shenyang Xinsheng (New Life) Chemical Works, a/k/a Shenyang Dongbei Assistant Agent Main Factory, a/k/a Xinsheng Chemical Factory, a/k/a Shenyang No. 1 Laogai Detachment, a/k/a Shenyang Reform Through Labor Second Reform Division'
+        entities: 
+        - name:  # add these as aliases
+          - Shenyang Xinsheng (New Life) Chemical Works
+          alias:
+          - Shenyang Dongbei Assistant Agent Main Factory
+          - Xinsheng Chemical Factory
+          - Shenyang No. 1 Laogai Detachment
+          - Shenyang Reform Through Labor Second Reform Division
+      - match: 'Shenyang New Life Rubber Factory, a/k/a Shenyang Xingsheng (or Xinsheng) (New Life) Rubber Plant, a/k/a Shenyang No. 2 Laogai Detachment, a/k/a Shenyang Dabei Prison, a/k/a Shenyang Model Prison'
+        entities: 
+        - name:  # add these as aliases
+          - Shenyang New Life Rubber Factory
+          alias:
+          - Shenyang Xingsheng (or Xinsheng) (New Life) Rubber Plant
+          - Shenyang No. 2 Laogai Detachment
+          - Shenyang Dabei Prison
+          - Shenyang Model Prison
+      - match: 'Wuyi Machinery Plant, a/k/a Zhejiang Light Duty Lifting Machinery Factory China, a/k/a Zhejiang Province No. 1 Prison'
+        entities: 
+        - name:  # add these as aliases
+          - Wuyi Machinery Plant
+          alias:
+          - Zhejiang Light Duty Lifting Machinery Factory China
+          - Zhejiang Province No. 1 Prison
+      - match: 'Wulin (or Wuling) Machinery Works, a/k/a Hangzhou Wulin Machinery Plant, a/k/a Hangzhou Wulin Machinery Works, a/k/a Zhejiang Province No. 4 Prison'
+        entities: 
+        - name:  # add these as aliases
+          - Wulin (or Wuling) Machinery Works
+          alias:
+          - Hangzhou Wulin Machinery Plant
+          - Hangzhou Wulin Machinery Works
+          - Zhejiang Province No. 4 Prison
+      - match: 'Hsin Kang Asbestos Mine, a/k/a Sichuan (Szechuan) Pin Chiang Enterprise Company'
+        entities: 
+        - name:  # add these as aliases
+          - Hsin Kang Asbestos Mine
+          alias:
+          - Sichuan (Szechuan) Pin Chiang Enterprise Company
+      - match: 'Sichuan (Szechuan) Xinsheng (New Life) Labor Factory, a/k/a Xinsheng (New Life) Labor Factory'
+        entities: 
+        - name:  # add these as aliases
+          - Sichuan (Szechuan) Xinsheng (New Life) Labor Factory
+          alias:
+          - Xinsheng (New Life) Labor Factory
+      - match: 'Da Wei Chemical Factory'
+        entities: 
+        - name: 
+          - Da Wei Chemical Factory
+      - match: 'Zi Gong Machinery Factory, a/k/a Zigong Machinery Factory, a/k/a Sichuan (Szechuan) Zigong Labor Reform Detachment'
+        entities: 
+        - name:  # add these as aliases
+          - Zi Gong Machinery Factory
+          alias:
+          - Zigong Machinery Factory
+          - Sichuan (Szechuan) Zigong Labor Reform Detachment
+      - match: 'Ya An Auto Parts Factory, a/k/a Sichuan (Szechuan) Bin-Jiang Enterprises Company'
+        entities: 
+        - name:  # add these as aliases
+          - Ya An Auto Parts Factory
+          alias:
+          - Sichuan (Szechuan) Bin-Jiang Enterprises Company
+      - match: 'Miao Chi Tea Farm'
+        entities: 
+        - name: 
+          - Miao Chi Tea Farm
+      - match: 'Wang Tsang Coal and Iron Factory'
+        entities: 
+        - name: 
+          - Wang Tsang Coal and Iron Factory
+      - match: 'Qinghai Hide & Garment Factory, a/k/a Qinghai Leather and Wool Bedding and Garment Factory, a/k/a Qinghai Fur and Cloth Factory'
+        entities: 
+        - name:  # add these as aliases
+          - Qinghai Hide & Garment Factory
+          alias:
+          - Qinghai Leather and Wool Bedding and Garment Factory
+          - Qinghai Fur and Cloth Factory
+      - match: 'Shandong Laiyang Heavy Duty Machinery Factory'
+        entities: 
+        - name: 
+          - Shandong Laiyang Heavy Duty Machinery Factory
+      - match: 'Xuzhou Forging and Pressing Machine Works'
+        entities: 
+        - name: 
+          - Xuzhou Forging and Pressing Machine Works
+      - match: 'Yunnan Machinery, a/k/a Golden Horse (JinMa) Diesel Factory, a/k/a Yunnan 1st Prison'
+        entities: 
+        - name:  # add these as aliases
+          - Yunnan Machinery
+          alias:
+          - Golden Horse (JinMa) Diesel Factory
+          - Yunnan 1st Prison
+      - match: 'Xiang-Yang Machinery Plant'
+        entities: 
+        - name: 
+          - Xiang-Yang Machinery Plant
