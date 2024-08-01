@@ -230,3 +230,72 @@ lookups:
         entities: 
         - name: 
           - Xiang-Yang Machinery Plant
+      - match: 'Artisanal Small Mines'
+        entities: 
+        - name: 
+          - Artisanal Small Mines
+      - match: 'Central Romana Corporation Limited'
+        entities: 
+        - name: 
+          - Central Romana Corporation Limited
+      - match: 'Mangalore Ganesh Beedie Works'
+        entities: 
+        - name: 
+          - Mangalore Ganesh Beedie Works
+      - match: 'Fuchu Prison; Union Kogyo Co., Ltd.'
+        entities: 
+        - name: 
+          - Fuchu Prison
+        - name:
+          - Union Kogyo Co., Ltd.
+      - match: 'Tobacco produced in Malawi and products containing tobacco produced in Malawi'
+        entities: 
+        - name: # find a way to treat
+          - Tobacco produced in Malawi and products containing tobacco produced in Malawi
+      - match: 'Brightway Holdings Sdn Bhd, Laglove (M) Sdn Bhd, and Biopro (M) Sdn Bhd (collectively, Brightway Group)'
+        entities: 
+        - name: 
+          - Brightway Group
+        - alias: 
+          - Brightway Holdings Sdn Bhd
+          - Laglove (M) Sdn Bhd
+          - Biopro (M) Sdn Bhd
+      - match: 'FGV Holdings Berhad and its subsidiaries and joint ventures'
+        entities: 
+        - name: 
+          - FGV Holdings Berhad and its subsidiaries and joint ventures
+      - match: 'Agropecuarios Tom S.A. de C.V. and Horticola Tom S.A. de C.V. and their subsidiaries'
+        entities: 
+        - name: 
+          - Agropecuarios Tom S.A. de C.V.
+        - name: 
+          - Horticola Tom S.A. de C.V.
+      - match: 'Kumar Carpet Pvt., Singhe Carpet Pvt., Ltd., Norsang Carpet Industries Pvt., Ltd., Annapurna Carpet, Everest Carpet, Valley Carpet, and K.K. Carpet Industries; Kathmandu.'
+        entities: 
+        - name: 
+          - Kumar Carpet Pvt.
+        - name: 
+          - Singhe Carpet Pvt., Ltd.
+        - name: 
+          - Norsang Carpet Industries Pvt., Ltd.
+        - name: 
+          - Annapurna Carpet
+        - name: 
+          - Everest Carpet
+        - name: 
+          - Valley Carpet
+        - name: 
+          - K.K. Carpet Industries
+      - match: 'All Turkmenistan Cotton or products produced in whole or in part with Turkmenistan cotton.'
+        entities: 
+        - name: 
+          - All Turkmenistan Cotton or products produced in whole or in part with Turkmenistan cotton.
+      - match: 'Marange Diamond Fields'
+        entities: 
+        - name: 
+          - Marange Diamond Fields
+      - match: 'Fishing Vessel: Hangton No. 112'
+        entities: 
+        - name: # update the way to treat
+          - 'Fishing Vessel: Hangton No. 112'
+        
