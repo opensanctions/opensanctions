@@ -32,7 +32,7 @@ lookups:
   name:
     options:
       - match: 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Держгідрографія" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Госгидрография", Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Держгідрографія") '
-        values: 
+        values:
           - 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Держгідрографія"'
           - 'Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Госгидрография"'
       - match: 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Derzhhidrohrafiia" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Hoshydrohrafyia", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Derzhhidrohrafiia") '
@@ -64,7 +64,7 @@ lookups:
           - 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Kerchenskyi torhovelnyi port"'
           - 'Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Kerchenskyi torhovyi port"'
       - match: 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Kerchenskyi torhovelnyi port" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Kerchenskyi torhovyi port", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Kerchenskyi torhovelnyi port") '
-        values: 
+        values:
           - 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Kerchenskyi torhovelnyi port"'
           - 'Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Kerchenskyi torhovyi port"'
       - match: 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Євпаторійський торговельний порт" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Евпаторийский торговый порт", Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Євпаторійський торговельний порт") '
@@ -87,20 +87,20 @@ lookups:
         values:
           - 'Federalne derzhavne unitarne pidpryiemstvo "Ordena Trudovoho Chervonoho Prapora naukovo- doslidnyi instytut radio"'
           - 'Federalne derzhavne unitarne pidpryiemstvo "Ordena Trudovoho Chervonoho Prapora rosiiskyi naukovo-doslidnyi instytut radio imeni M.I.Kryvoshieieva"'
-      - match: 'Holovne upravlinnia sanatorno-kurortnykh zakladiv v Avtonomnii Respublitsi Krym Derzhavnoho upravlinnia spravamy (Terytorialne upravlinnia Upravlinnia spravamy Prezydenta Rosiiskoyi Federatsiyi v Respublitsi Krym, Terrytoryalnoe upravlenye Upravlenyia delamy Prezydenta Rossyiskoi Federatsyy v Respublyke Krym) '
+      - match: "Holovne upravlinnia sanatorno-kurortnykh zakladiv v Avtonomnii Respublitsi Krym Derzhavnoho upravlinnia spravamy (Terytorialne upravlinnia Upravlinnia spravamy Prezydenta Rosiiskoyi Federatsiyi v Respublitsi Krym, Terrytoryalnoe upravlenye Upravlenyia delamy Prezydenta Rossyiskoi Federatsyy v Respublyke Krym) "
         values:
-          - 'Holovne upravlinnia sanatorno-kurortnykh zakladiv v Avtonomnii Respublitsi Krym Derzhavnoho upravlinnia spravamy'
-          - 'Terytorialne upravlinnia Upravlinnia spravamy Prezydenta Rosiiskoyi Federatsiyi v Respublitsi Krym'
+          - "Holovne upravlinnia sanatorno-kurortnykh zakladiv v Avtonomnii Respublitsi Krym Derzhavnoho upravlinnia spravamy"
+          - "Terytorialne upravlinnia Upravlinnia spravamy Prezydenta Rosiiskoyi Federatsiyi v Respublitsi Krym"
       - match: 'ДЕРЖАВНЕ ПІДПРИЄМСТВО "ВИПРОБУВАЛЬНИЙ ЦЕНТР "ОМЕГА" (Филиал федерального государственного унитарного предприятия Ордена Трудового Красного Знамени Научно-исследовательский институт радио – Севастопольский «Испытательный центр «Омега», Філія федерального державного унітарного підприємства Ордена Трудового Червоного Прапора Науково-дослідний інститут радіо – Севастопольський «Випробувальний центр «Омега») '
         values:
           - 'ДЕРЖАВНЕ ПІДПРИЄМСТВО "ВИПРОБУВАЛЬНИЙ ЦЕНТР "ОМЕГА"'
-          - 'Филиал федерального государственного унитарного предприятия Ордена Трудового Красного Знамени Научно-исследовательский институт радио – Севастопольский «Испытательный центр «Омега»'
-          - 'Філія федерального державного унітарного підприємства Ордена Трудового Червоного Прапора Науково-дослідний інститут радіо – Севастопольський «Випробувальний центр «Омега»)'
+          - "Филиал федерального государственного унитарного предприятия Ордена Трудового Красного Знамени Научно-исследовательский институт радио – Севастопольский «Испытательный центр «Омега»"
+          - "Філія федерального державного унітарного підприємства Ордена Трудового Червоного Прапора Науково-дослідний інститут радіо – Севастопольський «Випробувальний центр «Омега»)"
       - match: 'DERZhAVNE PIDPRYIeMSTVO "VYPROBUVALNYI TsENTR "OMEHA" (Fylyal federalnoho hosudarstvennoho unytarnoho predpryiatyia Ordena Trudovoho Krasnoho Znameny Nauchno-yssledovatelskyi ynstytut radyo – Sevastopolskyi «Yspytatelnyi tsentr «Omeha», Filiia federalnoho derzhavnoho unitarnoho pidpryiemstva Ordena Trudovoho Chervonoho Prapora Naukovo-doslidnyi instytut radio – Sevastopolskyi «Vyprobuvalnyi tsentr «Omeha») '
         values:
           - 'DERZhAVNE PIDPRYIeMSTVO "VYPROBUVALNYI TsENTR "OMEHA"'
-          - 'Fylyal federalnoho hosudarstvennoho unytarnoho predpryiatyia Ordena Trudovoho Krasnoho Znameny Nauchno-yssledovatelskyi ynstytut radyo – Sevastopolskyi «Yspytatelnyi tsentr «Omeha»'
-          - 'Filiia federalnoho derzhavnoho unitarnoho pidpryiemstva Ordena Trudovoho Chervonoho Prapora Naukovo-doslidnyi instytut radio – Sevastopolskyi «Vyprobuvalnyi tsentr «Omeha»)'
+          - "Fylyal federalnoho hosudarstvennoho unytarnoho predpryiatyia Ordena Trudovoho Krasnoho Znameny Nauchno-yssledovatelskyi ynstytut radyo – Sevastopolskyi «Yspytatelnyi tsentr «Omeha»"
+          - "Filiia federalnoho derzhavnoho unitarnoho pidpryiemstva Ordena Trudovoho Chervonoho Prapora Naukovo-doslidnyi instytut radio – Sevastopolskyi «Vyprobuvalnyi tsentr «Omeha»)"
       - match: 'Товариство з обмеженою відповідальністю Розрахункова небанківська кредитна організація "Платежный центр" (Общество с ограниченной ответственностью Расчётная небанковская кредитная организация "Платежный центр", Товариство з обмеженою відповідальністю Розрахункова небанківська кредитна організація "Платіжний центр") '
         values:
           - 'Товариство з обмеженою відповідальністю Розрахункова небанківська кредитна організація "Платежный центр"'
@@ -256,8 +256,6 @@ lookups:
           - Перереєстрація
         contains:
           - Перереєстрація
-        prop: notes
-        contains: 
           - перереєстроване відповідно до
         prop: notes
         weight: 2
@@ -347,13 +345,12 @@ lookups:
           - Дата реєстрації
         value: incorporationDate
       - match:
-         - Кореспондентський рахунок
-         - Розрахунковий рахунок 
-        value: bikCode 
-      - match: 
-          - 'Блокування Інтернет-провайдерами доступу до ресурсів, у тому числі до їх субдоменів, зокрема'
+          - Кореспондентський рахунок
+          - Розрахунковий рахунок
+        value: bikCode
+      - match:
+          - "Блокування Інтернет-провайдерами доступу до ресурсів, у тому числі до їх субдоменів, зокрема"
         prop: website
-
 
   overrides:
     options:

@@ -175,26 +175,7 @@ def crawl_legal(context: Context, item: Dict[str, Any]) -> None:
 
 
 def crawl(context: Context) -> None:
-    # for item in fetch_data(context, "/v2/subjects?subjectType=individual"):
-    #     crawl_indiviudal(context, item)
+    for item in fetch_data(context, "/v2/subjects?subjectType=individual"):
+        crawl_indiviudal(context, item)
     for item in fetch_data(context, "/v2/subjects?subjectType=legal"):
-        sids = [
-            # 10048,
-            15605,
-            # 15604,
-            # 15603,
-            # 15602,
-            # 15601,
-            # 15583,
-            # 13138,
-            # 10346,
-            # 10339,
-            # 10257,
-            # 10256,
-            # 10255,
-            # 10048,
-        ]
-        for sid in sids:
-            if item.get("sid") != sid:
-                continue
-            crawl_legal(context, item)
+        crawl_legal(context, item)
