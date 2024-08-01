@@ -9,11 +9,12 @@ summary: >
   Blacklist of entities not authorized to offer financial products or services in France
 description: |
   This dataset contains entities who have been the subject of a warning published by
-  the Autorité des marchés financiers (AMF) and/or ususing the identity of a
+  the Autorité des marchés financiers (AMF) and/or using the identity of a
   regulated actor.  The file shared contains the following information:
-    - Name = fraudulent website address, (generalized) email address or name of the malicious actor
-    - Category = the product category concerned or the reason for blacklisting
-    - Registration date = date on which the site/actor was published on the blacklists
+
+    - The website address, (generalized) email address or name of the malicious actor
+    - The product category concerned or the reason for blacklisting
+    - The date on which the site/actor was published on the blacklists
 publisher:
   name: Autorité des marchés financiers
   acronym: AMF
