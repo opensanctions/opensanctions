@@ -2,87 +2,70 @@ from lxml import html
 import re
 from zavod import Context, helpers as h
 from normality import slugify
-from typing import Dict, Generator, cast
-from typing import List
+from typing import Dict, Generator, List, Any
 
 REGEX_DATE = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
 
 
-def convert_date(date_str: str) -> List[str]:
-    """Convert various date formats to 'YYYY-MM-DD'."""
-    dates = REGEX_DATE.findall(date_str)
-    parsed = []
-    formats = ["%m/%d/%Y"]  # 'MM/DD/YYYY' format
-    for str in dates:
-        parsed.extend(h.parse_date(str, formats))
-    return parsed
-
-
-def crawl_item(context: Context, row: Dict[str, str]):
+def crawl_item(context: Context, row: Dict[str, Any]):
     # Create the entity based on the schema
-    name = row.pop("Entities")  # Updated field to pull entity names
-    schema = context.lookup_value("target_type", name)
-    if schema is None:
-        schema = "Company"
-    entity = context.make(schema)
-    entity.id = context.make_id(name)
+    id = row.pop("id")
+    name = row.pop("entities")
+    date_str = row.pop("date")
+    merchandise = row.get("merchandise")
+    status = row.get("status")
+    status_notes = row.get("status_notes")
+    listing_date = h.parse_date((date_str), formats="%m/%d/%Y")
+
+    entity = context.make("Company")
+    entity.id = context.make_id(name, listing_date)
     entity.add("name", name)
-
-    # Add details to topics and sanctions
-    status_element = row.get("Status")
-    if status_element.lower() == "active":
+    entity.add("idNumber", id)
+    entity.add("notes", listing_date)
+    entity.add("notes", merchandise)
+    if status in ["Active", "Partially Active"]:
         entity.add("topics", "sanction")
-    else:
-        entity.add("topics", "reg.warn")
-
-    # Create and add details to the sanction
-    sanction = h.make_sanction(context, entity)
-
-    # Extract fields from the row
-    listing_date = row.get("Date").text_content()
-    listing_date_parsed = convert_date(listing_date)
-    sanction.add("listingDate", listing_date_parsed)
-
-    # Extract Source URL if exists in Status Notes or similar field
-    status_notes = row.get("Status Notes").text_content()
-    if "href" in status_notes:  # rudimentary check for an anchor tag
-        anchors = html.fromstring(status_notes).findall(".//a")
-        sanction.add("sourceUrl", [a.get("href") for a in anchors])
-
-    context.emit(entity, target=True)
-    context.emit(sanction)
+    entity.add("notes", status_notes)
+    context.emit(entity, target=True)  # Emit the entity
 
 
-# Parse the table and yield rows as dictionaries.
 def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None]:
-    headers = None
-    for row in table.findall(".//tr"):
-        if headers is None:
-            headers = []
-            for el in row.findall("./th"):
-                elt = cast(html.HtmlElement, el)
-                headers.append(slugify(elt.text_content()))
-            continue
+    """Parse the HTML table and yield rows as dictionaries."""
+    headers: List[str] = []
 
-        cells = row.findall("./td")
+    # First, grab the headers from the second row (after skipping the title row)
+    header_row = table.findall(".//tr")[1]  # Access the second row (index 1)
+
+    # Extract headers from the header row
+    for el in header_row.findall("./td"):
+        headers.append(slugify(el.text_content().strip()))
+
+    # Now proceed to parse the body rows
+    for row in table.findall(".//tr")[
+        2:
+    ]:  # Start from the third row (index 2), after the headers
+        cells = row.findall("./td")  # Get all cell elements in the current row
+
         if len(cells) == 0:
             continue  # Skip empty rows
 
         if len(headers) == len(cells):  # Ensure header and cell count match
-            yield {hdr: c for hdr, c in zip(headers, cells)}
+            yield {
+                "id": cells[0].text_content().strip(),
+                "date": cells[1].text_content().strip(),
+                "merchandise": cells[2].text_content().strip(),
+                "entities": cells[3].text_content().strip(),
+                "status": cells[4].text_content().strip(),
+                "status_notes": cells[5].text_content().strip(),
+            }
 
 
-# Main crawl function to fetch and process data.
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)  # Fetch the HTML document
-    doc.make_links_absolute(context.data_url)  # Make links absolute if needed
-    accordion_content = doc.xpath(
-        "//div[@class='usa-accordion__content usa-prose']"
-    )  # Adjusted to find the correct div
-
-    # As there might be multiple accordions, we process each
-    for accordion in accordion_content:
-        table = accordion.find(".//table")  # Find the table within the accordion
-        if table is not None:
-            for row in parse_table(table):
-                crawl_item(context, row)
+    doc = context.fetch_html(context.data_url)
+    doc.make_links_absolute(context.data_url)
+    table = doc.xpath(
+        "//table[contains(@class, 'usa-table')]"
+    )  # Use XPath to find the desired table
+    if isinstance(table, list) and table:
+        for row in parse_table(table[0]):  # First table found
+            crawl_item(context, row)
