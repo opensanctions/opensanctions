@@ -1,16 +1,14 @@
 from lxml import html
-import re
 from zavod import Context, helpers as h
 from normality import slugify
 from typing import Dict, Generator, List, Any
 
-REGEX_DATE = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
-
 
 def crawl_item(context: Context, row: Dict[str, Any]):
     # Create the entity based on the schema
-    id = row.pop("id")
+    internal_id = row.pop("id")
     name = row.pop("entities")
+    if name in 
     date_str = row.pop("date")
     merchandise = row.get("merchandise")
     status = row.get("status")
@@ -18,13 +16,15 @@ def crawl_item(context: Context, row: Dict[str, Any]):
     listing_date = h.parse_date((date_str), formats="%m/%d/%Y")
 
     entity = context.make("Company")
-    entity.id = context.make_id(name, listing_date)
+    entity.id = context.make_id(name, internal_id)
     entity.add("name", name)
     entity.add("idNumber", id)
     entity.add("notes", listing_date)
     entity.add("notes", merchandise)
     if status in ["Active", "Partially Active"]:
         entity.add("topics", "sanction")
+        sanction = h.make_sanction(context, entity)
+        sanction.add("listingDate", listing_date)
     entity.add("notes", status_notes)
     context.emit(entity, target=True)  # Emit the entity
 
