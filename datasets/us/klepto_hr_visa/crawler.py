@@ -10,14 +10,14 @@ from zavod.util import ElementOrTree
 
 
 REGEX_ITEM = re.compile(
-    "(\d+\. )?(\(U\) )?(?P<name>[\w \.'’“”-]+),? ?\((?P<country>[\w /]+)\) (– )?(?P<reason>.+)$"
+    r"(\d+\. )?(\(U\) )?(?P<name>[\w \.'’“”-]+),? ?\((?P<country>[\w /]+)\) (– )?(?P<reason>.+)$"
 )
 
 
 def crawl_section(context: Context, url: str, section: ElementOrTree):
     listing_titles = section.xpath(".//h3[contains(@class, 'report__section-title')]")
     if len(listing_titles) == 1:
-        year = re.match("(\d{4})$", listing_titles[0]).group(1)
+        year = re.match(r"(\d{4})$", listing_titles[0]).group(1)
     else:
         year = None
 
@@ -73,20 +73,8 @@ def report_unblock_validator(doc: ElementOrTree) -> bool:
 
 
 def crawl_report(context: Context, url: str):
-    actions = [
-        {
-            "action": "waitForSelector",
-            "selector": {
-                "type": "xpath",
-                "value": ".//section[@class='entry-content']",
-            },
-            "timeout": 15,
-        },
-    ]
     context.log.info(f"Crawling {url}")
-    doc = fetch_html(
-        context, url, report_unblock_validator, actions=actions, cache_days=1
-    )
+    doc = fetch_html(context, url, report_unblock_validator, cache_days=1)
     for section in doc.findall(".//section[@class='entry-content']"):
         crawl_section(context, url, section)
 
@@ -96,21 +84,10 @@ def index_unblock_validator(doc: ElementOrTree) -> bool:
 
 
 def crawl(context: Context) -> Optional[str]:
-    actions = [
-        {
-            "action": "waitForSelector",
-            "selector": {
-                "type": "xpath",
-                "value": ".//nav[@id='report-nav']",
-            },
-            "timeout": 15,
-        },
-    ]
     doc = fetch_html(
         context,
         context.data_url,
         index_unblock_validator,
-        actions=actions,
         cache_days=1,
     )
     for option in doc.find(".//nav[@id='report-nav']").xpath(".//option"):
