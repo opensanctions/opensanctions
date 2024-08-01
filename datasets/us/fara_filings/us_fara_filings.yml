@@ -33,15 +33,67 @@ publisher:
   url: https://www.justice.gov/
 
 data:
-  url: https://efile.fara.gov/api/v1/Registrants/json/Active
-  format: json
+  url: https://efile.fara.gov/ords/fara/f?p=API:BULKDATA
+  format: XML
 
 assertions:
   min:
     schema_entities:
-      Company: 6820
-      LegalEntity: 17130
+      LegalEntity: 18000
   max:
     schema_entities:
-      Person: 6850
-      LegalEntity: 17200
+      LegalEntity: 25000
+
+lookups:
+  type.country:
+    options:
+      - match:
+          - INTERNATIONAL
+          - UNKNOWN
+          - NETHERLANDS ANTILLES
+          - VIRGIN ISLANDS
+          - GUADELOUPE & MARTINIQUE
+          - CHANNEL ISLANDS
+          - SAHARAWI ARAB DEMOCRATIC REPUBLIC
+          - BRITISH WEST INDIES
+          - SPANISH SAHARA
+          - SULU AND NORTH BORNEO
+          - UNITED KINGDOM OF CORALLAND
+          - SOUTH MOLUCCAS REPUBLIC OF
+          - COMORO  ISLANDS
+          - PORTUGUESE TIMOR
+          - ST. EUSTATIUS
+          - UNITED STATES MISCELLANEOUS CARIBBEAN ISLANDS
+          - DAHOMEY
+          - MUSCAT
+        value: null
+      - match:
+          - GERMANY FEDERAL REPUBLIC OF
+          - WEST BERLIN
+        value: DE
+      - match: KOSOVA
+        value: XK
+      - match:
+          - BOPHUTHATSWANA
+          - TRANSKEI
+          - CISKEI
+          - VENDA
+        value: ZA
+      - match: CEYLON (SRI LANKA)
+        value: LK
+      - match: BIAFRA
+        value: NG
+      - match:
+          - SOUTHERN YEMAN
+          - YEMEN PEOPLES DEMOCRATIC REPUBLIC OF YEMEN
+        value: YE
+      - match: TAHITI
+        value: PF
+      - match: ST. EUSTATIU
+        value: NL
+      - match: CENTRAL AND SOUTHERN LINE ISLANDS
+        value: KI
+      - match: BRITISH SOLOMON ISLANDS
+        value: SB
+      - match: SOUTHWEST AFRICA
+        value: NA

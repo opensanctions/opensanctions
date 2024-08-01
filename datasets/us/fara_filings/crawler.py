@@ -1,162 +1,133 @@
-import time
-from itertools import count
-from requests.exceptions import HTTPError, RetryError
-from typing import Any, Dict, Generator, Optional
+import io
+from pathlib import Path
+from zipfile import ZipFile
+from typing import Any, Dict, Generator
 from zavod import Context, helpers as h
+from pantomime.types import ZIP
+from lxml import etree
 
-SLEEP = 5
 DATE_FORMAT = ["%m/%d/%Y"]
+REGISTRANTS_URL = "https://efile.fara.gov/bulk/zip/FARA_All_Registrants.xml.zip"
+REGISTRANTS_NAME = "FARA_All_Registrants.xml"
+PRINCIPALS_URL = "https://efile.fara.gov/bulk/zip/FARA_All_ForeignPrincipals.xml.zip"
+PRINCIPALS_NAME = "FARA_All_ForeignPrincipals.xml"
 
 
-def http_get(
-    context: Context,
-    url,
-    cache_days: Optional[int] = None,
-) -> Optional[Dict[str, Any]]:
-    for attempt in count(1):
-        try:
-            return context.fetch_json(url, cache_days=cache_days)
-        except (RetryError, HTTPError) as err:
-            if isinstance(err, RetryError) or err.response.status_code == 429:
-                if attempt > 5:
-                    raise RuntimeError("Rate limit exceeded.")
-                context.log.warn(
-                    f"Rate limit exceeded, sleeping {SLEEP}s...",
-                    error=str(err),
-                )
-                time.sleep(SLEEP * 5)
-            else:
-                context.log.exception("Failed to fetch data: %s" % url)
-                return None
+def read_rows(
+    context: Context, zip_path: Path, file_name
+) -> Generator[Dict[str, Any], None, None]:
+    with ZipFile(zip_path, "r") as zip:
+        with zip.open(file_name) as zfh:
+            fh = io.TextIOWrapper(zfh, encoding="iso-8859-1")
+            doc = etree.parse(fh)
+            for node in doc.findall(".//ROW"):
+                yield {el.tag: el.text for el in node}
 
 
-def fetch_registrants(context: Context) -> Generator[dict, None, None]:
-    # ** Loop through both Active and Terminated registrants **
-    for status in ("Active", "Terminated"):
-        url = f"https://efile.fara.gov/api/v1/Registrants/json/{status}"
-        data = http_get(context, url, cache_days=1)
-        # Check if data is a dictionary
-        if not isinstance(data, dict):
-            context.log.error("Response data is not in the expected dictionary format.")
-            return
-
-        registrants = data.get("REGISTRANTS_ACTIVE")
-        registrants = registrants or data.get("REGISTRANTS_TERMINATED")
-        assert len(registrants["ROW"]) > 0, "No registrants found in the response."
-        for item in registrants["ROW"]:
-            assert isinstance(
-                item, dict
-            ), "Registrant data is not in the expected format."
-            yield item
+def registrant_id(context: Context, registration_number: str) -> str:
+    return context.make_slug("reg", registration_number)
 
 
-def fetch_principals(
-    context: Context, registration_number: Optional[str]
-) -> Generator[dict, None, None]:
-    """Fetch principal information for a given registration number."""
-    # ** Loop through both Active and Terminated principals links **
+def crawl_registrant(context: Context, item: Dict[str, Any]) -> None:
+    # Extract relevant fields from each item
+    address = h.make_address(
+        context,
+        street=item.pop("Address_1", None),
+        street2=item.pop("Address_2", None),
+        city=item.pop("City", None),
+        postal_code=item.pop("Zip", None),
+        state=item.pop("State", None),
+    )
+    registration_date = h.parse_date(item.pop("Registration_Date", None), DATE_FORMAT)
+    termination_date = h.parse_date(item.pop("Termination_Date", None), DATE_FORMAT)
+    registration_number = item.pop("Registration_Number")
 
-    for status, days in (("Active", 5), ("Terminated", 180)):
-        url = f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/{status}/{registration_number}"
-        data = http_get(context, url, cache_days=1)
-        if not isinstance(data, dict):
-            context.log.error(f"Failed to fetch data for principals: {url}.")
-            return
+    entity = context.make("LegalEntity")
+    entity.id = registrant_id(context, registration_number)
+    entity.add("name", item.pop("Name").strip() or None)
+    entity.add("topics", "poi")
+    h.copy_address(entity, address)
+    entity.add("registrationNumber", registration_number)
+    entity.add("createdAt", registration_date)
+    entity.add("country", "us")
+    if termination_date:
+        entity.add("description", f"Terminated registration {termination_date[0]}")
+    context.emit(entity, target=not bool(termination_date))
 
-        principals = data.get("FOREIGNPRINCIPALS_ACTIVE")
-        principals = principals or data.get("FOREIGNPRINCIPALS_TERMINATED")
-        if isinstance(principals, str):
-            return
-        rows = principals.get("ROW", [])
-        if isinstance(rows, dict):
-            rows = [rows]
-        if not len(rows) > 0:
-            msg = f"No principals found for reg number {registration_number}."
-            context.log.info(msg)
-            return
+    business_name = item.pop("Business_Name", "").strip()
+    if business_name:
+        business_entity = context.make("LegalEntity")
+        business_entity.id = context.make_slug("reg", "biz", business_name)
+        business_entity.add("name", business_name)
+        business_entity.add("country", "us")
+        business_entity.add("topics", "poi")
+        context.emit(business_entity)
+        link = context.make("UnknownLink")
+        link.id = context.make_slug("link", business_entity.id)
+        link.add("subject", entity)
+        link.add("object", business_entity)
+        context.emit(link)
 
-        for item in rows:
-            yield item
+    context.audit_data(item)
+
+
+def crawl_principal(context: Context, item: Dict[str, Any]) -> None:
+    # Add relevant agency client information to the company entity
+    p_name = item.pop("Foreign_principal")
+    address = h.make_address(
+        context,
+        street=item.pop("Address_1", None),
+        street2=item.pop("Address_2", None),
+        city=item.pop("City", None),
+        postal_code=item.pop("Zip", None),
+        state=item.pop("State", None),
+    )
+    registration_number = item.pop("Registration_number")
+
+    # Now create a new Company entity for the agency client
+    principal = context.make("LegalEntity")
+    full_address = address.get("full") if address else None
+    principal.id = context.make_slug("principal", p_name, full_address, strict=False)
+    principal.add("name", p_name)
+    principal.add("country", item.pop("Country_location_represented"))
+    h.copy_address(principal, address)
+
+    # Emit the new agency client entity
+    context.emit(principal)
+    # Create a relationship between the company and the agency client
+    representation = context.make("Representation")
+    representation.id = context.make_id("rep", registration_number, principal.id)
+    representation.add("agent", registrant_id(context, registration_number))
+    representation.add("client", principal)
+
+    p_registration_date = h.parse_date(
+        item.pop("FP_registration_date"),
+        DATE_FORMAT,
+    )
+    p_termination_date = h.parse_date(
+        item.pop("FP_termination_date", None),
+        DATE_FORMAT,
+    )
+    representation.add("startDate", p_registration_date)
+    representation.add("endDate", p_termination_date)
+
+    context.audit_data(
+        item,
+        [
+            "Registrant_name",
+            "Registration_date",
+        ],
+    )
+    context.emit(representation)
 
 
 def crawl(context: Context) -> None:
-    for item in fetch_registrants(context):
-        # Extract relevant fields from each item
-        address = h.make_address(
-            context,
-            street=item.pop("Address_1", None),
-            street2=item.pop("Address_2", None),
-            city=item.pop("City", None),
-            postal_code=item.pop("Zip", None),
-            state=item.pop("State", None),
-            country_code="us",
-        )
-        registration_date = h.parse_date(item.pop("Registration_Date"), DATE_FORMAT)
-        registration_number = item.pop("Registration_Number")
+    registrants_path = context.fetch_resource(REGISTRANTS_NAME, REGISTRANTS_URL)
+    context.export_resource(registrants_path, ZIP, title=context.SOURCE_TITLE)
+    for item in read_rows(context, registrants_path, REGISTRANTS_NAME):
+        crawl_registrant(context, item)
 
-        # Create a Company entity for each item
-        company = context.make("Company")
-        company.id = context.make_slug(
-            "reg", registration_number
-        )  # Create a unique ID based on name and address
-        company.add("name", item.pop("Name"))
-        h.copy_address(company, address)
-        company.add("incorporationDate", registration_date)
-        company.add("registrationNumber", registration_number)
-
-        context.audit_data(item)
-        context.emit(company)
-
-        context.log.info(f"Fetching principals for {registration_number}...")
-
-        # Fetch agency client information
-        for principal_item in fetch_principals(context, registration_number):
-            # Add relevant agency client information to the company entity
-            p_name = principal_item.pop("Foreign_principal")
-            address = h.make_address(
-                context,
-                street=principal_item.pop("Address_1", None),
-                street2=principal_item.pop("Address_2", None),
-                city=principal_item.pop("City", None),
-                postal_code=principal_item.pop("Zip", None),
-                state=principal_item.pop("State", None),
-                country=principal_item.pop("Country_location_represented", None),
-            )
-
-            # Now create a new Company entity for the agency client
-            principal = context.make("LegalEntity")
-            principal.id = context.make_id(registration_number, p_name)
-            principal.add("name", p_name)
-            h.copy_address(principal, address)
-
-            # Emit the new agency client entity
-            context.emit(principal)
-            # Create a relationship between the company and the agency client
-            representation = context.make("Representation")
-            representation.id = context.make_id("rep", company.id, principal.id)
-            representation.add("agent", company)
-            representation.add("client", principal)
-
-            p_registration_date = h.parse_date(
-                principal_item.pop("Foreign_principal_registration_date", None),
-                DATE_FORMAT,
-            )
-            p_termination_date = h.parse_date(
-                principal_item.pop("Foreign_principal_termination_date", None),
-                DATE_FORMAT,
-            )
-            representation.add("startDate", p_registration_date)
-            representation.add("endDate", p_termination_date)
-
-            context.audit_data(
-                principal_item,
-                [
-                    "Registration_number",
-                    "ROWNUM",
-                    "Registrant_name",
-                    "Registration_date",
-                ],
-            )
-            context.emit(representation)
-
-        time.sleep(SLEEP)
+    principals_path = context.fetch_resource(PRINCIPALS_NAME, PRINCIPALS_URL)
+    context.export_resource(principals_path, ZIP, title=context.SOURCE_TITLE)
+    for item in read_rows(context, principals_path, PRINCIPALS_NAME):
+        crawl_principal(context, item)
