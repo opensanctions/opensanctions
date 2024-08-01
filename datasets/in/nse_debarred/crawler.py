@@ -75,12 +75,8 @@ def crawl_item(input_dict: dict, context: Context):
 
     sanction = h.make_sanction(context, entity, key=CURRENT_NSE_CIRCULAR_NO)
 
-    sanction.add(
-        "date", h.parse_date(CURRENT_ORDER_DATE, formats=["%Y-%m-%d"])
-    )
-    sanction.add(
-        "description", "Order Particulars: " + CURRENT_ORDER_PARTICULARS
-    )
+    sanction.add("date", h.parse_date(CURRENT_ORDER_DATE, formats=["%Y-%m-%d"]))
+    sanction.add("description", "Order Particulars: " + CURRENT_ORDER_PARTICULARS)
 
     sanction.add("duration", input_dict.pop("period"))
 
@@ -90,7 +86,13 @@ def crawl_item(input_dict: dict, context: Context):
     # There is some random data in the 17 and 18 columns
     context.audit_data(
         input_dict,
-        ignore=["din_cin_of_entities_debarred", "date_of_nse_circular", "column_17", "column_18", "column_9"],
+        ignore=[
+            "din_cin_of_entities_debarred",
+            "date_of_nse_circular",
+            "column_17",
+            "column_18",
+            "column_9",
+        ],
     )
 
 
