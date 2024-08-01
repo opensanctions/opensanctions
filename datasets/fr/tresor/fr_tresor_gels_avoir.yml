@@ -4191,7 +4191,7 @@ lookups:
           jurisdiction: kp
           description: centre de rétention
           address: "Comté d’Onsong, province de Hamgyong du Nord, République populaire démocratique de Corée (RPDC)"
-      - match: "Date de création: 15.12.2023 - Lieu de création: Kenya: /"
+      - match: "Date de création: 15.12.2023  - Lieu de création: Kenya: /"
         props:
           jurisdiction: ke
           incorporationDate: 2023-12-15
@@ -4293,7 +4293,7 @@ lookups:
           jurisdiction: ir
           incorporationDate: 1992
           registrationNumber: 339747
-      - match: "Lieu d'enregistrement: Iran - Date d'enregistrement: 2000 (en tant que Qeshm Air) et renommée Yas Air en 2008 - Entités associées: Corps des gardiens de la révolution islamique (IRGC) - Sites internet: pouyaair.com; yasair.com: Type d'entité: compagnie aérienne de fret"
+      - match: "Lieu d'enregistrement: Iran - Date d'enregistrement: 2000 (en tant que Qeshm Air) et renommée Yas Air en 2008 - Entités associées:  Corps des gardiens de la révolution islamique (IRGC) - Sites internet: pouyaair.com; yasair.com: Type d'entité: compagnie aérienne de fret"
         associates:
           - Corps des gardiens de la révolution islamique (IRGC)
         props:
@@ -4301,7 +4301,7 @@ lookups:
           incorporationDate:
             - 2000
             - 2008
-          websites:
+          website:
             - pouyaair.com
             - yasair.com
           sector: compagnie aérienne de fret
@@ -4316,10 +4316,10 @@ lookups:
       - match: "Aerospace Industries Organisation [Organisation des industries aérospatiales] (AIO): Entités associées"
         associates:
           - Aerospace Industries Organisation (AIO)
-      - match: "Entités associées: Iran's Aerospace Industries Organisation [Organisation des industries aérospatiales] (AIO)"
+      - match: "Entités associées: Iran's Aerospace Industries  Organisation [Organisation des industries  aérospatiales] (AIO)"
         associates:
           - Iran's Aerospace Industries Organisation (AIO)
-      - match: "Lieu d'enregistrement: Iran - Établissement principal: Iran - Entités associées: Corps des gardiens de la révolution islamique (IRGC); Fater Institute: Type d'entité: entreprise publique"
+      - match: "Lieu d'enregistrement: Iran - Établissement principal: Iran -  Entités associées: Corps des gardiens de la révolution islamique (IRGC); Fater Institute: Type d'entité: entreprise publique"
         associates:
           - Corps des gardiens de la révolution islamique (IRGC)
           - Fater Institute
