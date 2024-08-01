@@ -1,7 +1,9 @@
 import csv
 from typing import Dict
+from pantomime.types import CSV
+
 from zavod import Context
-import shutil
+from zavod.shed.zyte_api import fetch_resource
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -10,11 +12,11 @@ def crawl_row(context: Context, row: Dict[str, str]):
     brand_name = row.pop("Prekės ženklas")
 
     entity = context.make("Organization")
-    entity.id = context.make_slug(domain, prefix="lt-illegal-website")
+    entity.id = context.make_slug(company_name or domain)
 
-    entity.add("name", company_name)
+    entity.add("name", company_name or brand_name or domain)
     entity.add("website", domain)
-    entity.add("alias", brand_name)
+    entity.add("alias", brand_name if not company_name else None)
     entity.add("topics", "crime.fin")
 
     context.emit(entity, target=True)
@@ -22,11 +24,12 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
-    # data is being read from a copy in the crawler directory as the source is cloudfare protected
-    assert context.dataset.base_path is not None
-    data_path = context.dataset.base_path / "data"
-    path = context.get_resource_path("source.csv")
-    shutil.copyfile(data_path, path)
+    cached, path, type, charset = fetch_resource(
+        context, "source.csv", context.data_url
+    )
+    assert cached or type == CSV, type
+    assert cached or charset == "utf-8", charset
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh, delimiter=";"):
             crawl_row(context, row)
