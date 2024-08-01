@@ -1,0 +1,4 @@
+id,type,name,issuer,topics,is_target
+lei-a,Organization,AAA Inc,,bank,true
+isin-a,Security,AAA USD ISK,osv-lei-a,,false
+isin-b,Security,AAA USD EUR,osv-lei-a,,false

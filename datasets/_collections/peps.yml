@@ -45,6 +45,7 @@ children:
   - fr_assemblee
   - fr_senat
   - fr_maires
+  - ge_declarations
   - hk_legco
   - hk_principal_officials
   - hr_public_officials

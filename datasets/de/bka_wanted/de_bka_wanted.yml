@@ -1,0 +1,71 @@
+title: "Germany BKA Wanted Fugitives"
+entry_point: crawler.py
+prefix: de-bka
+summary: "List of Individuals Wanted for Arrest on German BKA Website"
+description: |
+  This dataset publishes the list of people wanted for arrest on the
+  German Federal Criminal Police Office (BKA).
+
+  It includes details such as the fugitive's name, nationality, offense,
+  time of crime and crime scene.
+url: https://www.bka.de/SiteGlobals/Forms/Suche/Fahndungsliste_Personenfahndung_Formular.html
+publisher:
+  name: Bundeskriminalamt
+  acronym: BKA
+  description: |
+    Bundeskriminalamt, The German Federal Criminal Police Office (BKA), is
+    the federal investigative police agency under the Federal Ministry of the Interior.
+  country: de
+  url: https://www.bka.de/DE/Home/home_node.html
+  official: true
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: monthly
+  start: "2024-07-05"
+data:
+  url: https://www.bka.de/SiteGlobals/Forms/Suche/Fahndungsliste_Personenfahndung_Formular.html
+  format: HTML
+  lang: deu
+lookups:
+  type.gender:
+    lowercase: true
+    options:
+      - match:
+          - männlich
+        value: male
+      - match:
+          - weiblich
+        value: female
+
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - Russisch
+        value: ru
+      - match:
+          - Afghanisch
+        value: af
+      - match:
+          - Albanisch
+        value: al
+      - match:
+          - Armenisch
+        value: am
+      - match:
+          - Georgisch
+        value: ge
+      - match:
+          - österreichisch
+        value: at
+      - match:
+          - irakisch
+        value: iq
+      - match:
+          - türkisch
+        value: tr
+assertions:
+  min:
+    schema_entities:
+      Person: 20

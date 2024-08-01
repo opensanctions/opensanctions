@@ -8,7 +8,7 @@ from zavod import Context, helpers as h
 from zavod.logic.pep import OccupancyStatus, categorise
 
 
-REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）\[编辑\]$")
+REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")
 REGEX_STRIP_NOTE = re.compile(r"\[註 \d+\]")
 SKIP_SUBHEADERS = {
     "中央提名",
@@ -21,15 +21,23 @@ SKIP_SUBHEADERS = {
 IGNORE_DUPES = {"cn-npc-22933e40a3e1f8cb38f88643263186428150bf6d"}
 
 
+def clean_text(text: str) -> str:
+    return collapse_spaces(strip_note(text))
+
+
 def crawl_item(
     context: Context,
     input_dict: dict,
+    delegation: str,
 ):
-    name = input_dict.pop("name")
-    ethnicity = input_dict.pop("ethnicity")
-    gender = input_dict.pop("gender")
-    birth_date = input_dict.pop("date_of_birth", None)
-    delegation = input_dict.pop("delegation")
+    name = clean_text(input_dict.pop("name").text_content())
+    ethnicity = clean_text(input_dict.pop("ethnicity").text_content())
+    gender = clean_text(input_dict.pop("gender").text_content())
+    birth_date_el = input_dict.pop("date_of_birth", None)
+    if birth_date_el is not None:
+        birth_date = birth_date_el.text_content()
+    else:
+        birth_date = None
 
     entity = context.make("Person")
     entity.id = context.make_id(name, ethnicity, gender, birth_date, delegation)
@@ -38,8 +46,14 @@ def crawl_item(
     entity.add("gender", gender)
     entity.add("ethnicity", ethnicity, lang="chi")
     entity.add("birthDate", h.parse_date(birth_date, formats=["%Y年%m月"]))
-    entity.add("political", input_dict.pop("party"))
-    entity.add("position", input_dict.pop("position", None), lang="chi")
+    party = clean_text(input_dict.pop("party").text_content())
+    entity.add("political", party, lang="chi")
+
+    positions = input_dict.pop("position", None)
+    if positions is not None:
+        for br in positions.xpath(".//br"):
+            br.tail = br.tail + "\n" if br.tail else "\n"
+        entity.add("position", positions.text_content().split("\n"), lang="chi")
     entity.add(
         "description", delegation + " delegation" if delegation else None, lang="chi"
     )
@@ -58,8 +72,10 @@ def crawl_item(
         categorisation=categorisation,
         status=OccupancyStatus.UNKNOWN,
     )
-
-    entity.add("description", input_dict.pop("remarks", None))
+    remarks_el = input_dict.pop("remarks", None)
+    if remarks_el is not None:
+        remarks = clean_text(remarks_el.text_content())
+        entity.add("description", remarks, lang="chi")
 
     if occupancy:
         context.emit(position)
@@ -75,8 +91,8 @@ def strip_note(text: str) -> str:
 
 
 def parse_table(
-    context: Context, table: HtmlElement, delegation: str
-) -> Generator[Dict[str, str], None, None]:
+    context: Context, table: HtmlElement
+) -> Generator[Dict[str, HtmlElement], None, None]:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
@@ -95,11 +111,8 @@ def parse_table(
                 context.log.warning("Unexpected subheader {subheader}")
             continue
         # populate cells
-        cells = [
-            collapse_spaces(strip_note(el.text_content())) for el in row.findall("./td")
-        ]
+        cells = row.findall("./td")
         row = {hdr: c for hdr, c in zip(headers, cells)}
-        row["delegation"] = delegation
         yield row
 
 
@@ -112,12 +125,12 @@ def crawl(context: Context):
         if not delegation_match:
             continue
         delegation_name = delegation_match.group(1)
-        table = h3.getnext().getnext()
+        table = h3.getparent().getnext().getnext()
         if table.tag != "table":
             table = table.getnext()
         assert table.tag == "table"
-        for row in parse_table(context, table, delegation_name):
-            id = crawl_item(context, row)
+        for row in parse_table(context, table):
+            id = crawl_item(context, row, delegation_name)
             ids[id] += 1
     context.log.info(f"{len(ids)} unique IDs")
     for id, count in ids.items():

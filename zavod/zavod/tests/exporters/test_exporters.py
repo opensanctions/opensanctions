@@ -184,7 +184,7 @@ def test_ftm_referents(testdataset1: Dataset):
     )
     testdataset1.resolve = True
     crawl_dataset(testdataset1)
-    harnessed_export(FtMExporter, testdataset1)
+    harnessed_export(FtMExporter, testdataset1, linker=resolver)
 
     entities = list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))
     assert len(entities) == 11
@@ -208,13 +208,13 @@ def test_ftm_referents(testdataset1: Dataset):
     collection_path = settings.DATA_PATH / "datasets" / collection.name
     crawl_dataset(dataset2)
     other_dataset_id = "td2-freddie-bloggs"
-    harnessed_export(FtMExporter, collection)
+    harnessed_export(FtMExporter, collection, linker=resolver)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
     assert len(entities) == 29
 
     resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
     clear_data_path(collection.name)
-    harnessed_export(FtMExporter, collection)
+    harnessed_export(FtMExporter, collection, linker=resolver)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
     assert len(entities) == 28  # After deduplication there's one less entity
     assert [] == [e for e in entities if e.id == other_dataset_id]

@@ -70,3 +70,5 @@ lookups:
         value: vc
       - match: YEMEN ARAB REPUBLIC
         value: ye
+      - match: Cymraes
+        value: gb-wls

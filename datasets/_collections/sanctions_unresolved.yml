@@ -10,7 +10,7 @@ exports:
   - senzing.json
 resolve: false
 summary: >
-  This is a testing dataset.
+  Includes all entities from the sanctions collection without any de-duplication
 description: |
   A version of [the sanctions dataset](/datasets/sanctions/) where no 
   de-duplication has been applied.

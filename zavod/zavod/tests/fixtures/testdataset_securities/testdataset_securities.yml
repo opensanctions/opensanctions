@@ -1,0 +1,22 @@
+entry_point: testentrypoint_securities
+title: OpenSanctions Securities Validation Dataset
+prefix: osv
+hidden: true
+resolve: false
+summary: >
+  This dataset is used to validate and test the OpenSanctions data processing pipeline.
+description: |
+  **Do not include this data in production screening**
+
+  This dataset contains a series of fictional characters. It is used to test the proper
+  functioning of the OpenSanctions data delivery mechanism.
+publisher:
+  name: OpenSanctions
+  description: |
+    Manually created by the project team.
+  url: https://www.opensanctions.org
+  official: false
+url: https://github.com/opensanctions/opensanctions
+data:
+  url: https://example.com
+  format: HTML

@@ -1,0 +1,49 @@
+title: "FinCEN 311 and 9714 Special Measures"
+url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2024-07-16
+summary: >
+  FinCEN, part of the U.S. Department of the Treasury, fights money laundering, safeguards the financial system, and promotes national
+  security through gathering and sharing financial intelligence.
+description: |
+  FinCEN, a bureau of the U.S. Department of the Treasury, aims to safeguard the financial system, combat money laundering, 
+  and promote national security by collecting, analyzing, and disseminating financial intelligence. It exercises regulatory 
+  functions under the Bank Secrecy Act, works with international organizations, and supports law enforcement at all levels. As 
+  the Financial Intelligence Unit for the United States, FinCEN exchanges financial information with counterparts worldwide to 
+  support financial crime investigations.
+entry_point: crawler.py
+prefix: us-fincen
+publisher:
+  name: Financial Crimes Enforcement Network
+  acronym: FinCEN
+  official: true
+  description: |
+    FinCEN, a bureau of the US Treasury, collects and analyzes financial transaction information to combat money laundering and 
+    terrorist financing.
+
+  country: us
+  url: https://www.fincen.gov
+data:
+  url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
+  format: html
+lookups:
+  target_type:
+    options:
+      - match:
+          - "Burma****"
+          - "Democratic People’s Republic of Korea"
+          - "Islamic Republic of Iran"
+          - "Nauru"
+          - "Ukraine"
+        value: PublicBody
+assertions:
+  min:
+    schema_entities:
+      PublicBody: 4
+      Company: 20
+  max: 
+    schema_entities:
+      PublicBody: 5
+      Company: 40

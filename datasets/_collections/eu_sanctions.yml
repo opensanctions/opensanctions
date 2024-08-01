@@ -1,0 +1,31 @@
+type: collection
+title: European Union Sanctions
+hidden: true
+deploy:
+  schedule: "2 */2 * * *"
+  memory: "1500Mi"
+ci_test: false
+summary: >
+  Consolidated list of sanctioned entities designated by different
+  european institutions and member states.
+description: |
+  This collection combines all designated entities from the various sanctions
+  lists inside the EU.
+children:
+  - be_fod_sanctions
+  - bg_omnio_poi
+  - cz_national_sanctions
+  - eu_fsf
+  - eu_journal_sanctions
+  - eu_sanctions_map
+  - eu_travel_bans
+  - eu_esma_saris
+  - ee_international_sanctions
+  - fr_tresor_gels_avoir
+  - lt_fiu_freezes
+  - lt_magnitsky_amendments
+  - lv_fiu_sanctions
+  - lv_magnitsky_list
+  - nl_terrorism_list
+  - pl_finanse_sanctions
+  - pl_mswia_sanctions

@@ -34,17 +34,17 @@ NAME_PARTS: Dict[MayStr, MayStr] = {
 }
 # Some metadata is dirty text in <other-information> tags
 # TODO: take in charge multiple values
-REGEX_WEBSITE = re.compile("Website ?: ((https?:|www\.)\S*)")
+REGEX_WEBSITE = re.compile(r"Website ?: ((https?:|www\.)\S*)")
 REGEX_EMAIL = re.compile(
-    "E-?mail( address)? ?: ([A-Za-z0-9._-]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+)"
+    r"E-?mail( address)? ?: ([A-Za-z0-9._-]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+)"
 )
-REGEX_PHONE = re.compile("(Tel\.|Telephone)( number)? ?: (\+?[0-9- ()]+)")
-REGEX_INN = re.compile("Taxpayer [Ii]dentification [Nn]umber ?: (\d+)\.?")
+REGEX_PHONE = re.compile(r"(Tel\.|Telephone)( number)? ?: (\+?[0-9- ()]+)")
+REGEX_INN = re.compile(r"Taxpayer [Ii]dentification [Nn]umber ?: (\d+)\.?")
 REGEX_REGNUM = re.compile(
-    "(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?: (\d+)\.?"
+    r"(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?: (\d+)\.?"
 )
-REGEX_TAX = re.compile("Tax [Rr]egistration [Nn]umber ?: (\d+)\.?")
-REGEX_IMO = re.compile("IMO [Nn]umber ?: (\d+)\.?")
+REGEX_TAX = re.compile(r"Tax [Rr]egistration [Nn]umber ?: (\d+)\.?")
+REGEX_IMO = re.compile(r"IMO [Nn]umber ?: (\d+)\.?")
 FORMATS = ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%d %b %Y", "%b, %Y"]
 
 

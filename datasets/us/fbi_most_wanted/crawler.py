@@ -25,7 +25,7 @@ IGNORE_FIELDS = (
     "Build",
     "Scars and Marks",
 )
-SPLIT_DATES = re.compile("([^,]+,[^,]+)")
+SPLIT_DATES = re.compile(r"([^,]+,[^,]+)")
 
 
 def index_validator(doc: etree._Element) -> bool:
@@ -97,6 +97,13 @@ def crawl_person(context: Context, url: str) -> None:
 
     caution = doc.findtext('.//div[@class="wanted-person-caution"]/p')
     person.add("notes", caution)
+
+    aliases = doc.findtext('.//div[@class="wanted-person-aliases"]/p')
+    if aliases is not None:
+        for alias in aliases.split(","):
+            alias = alias.strip()
+            prop = "alias" if " " in alias else "weakAlias"
+            person.add(prop, alias)
 
     # context.inspect(person)
     context.emit(person, target=True)

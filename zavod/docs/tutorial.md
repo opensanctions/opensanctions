@@ -61,7 +61,8 @@ prefix: eu-fsf
 # This section provides information about the original publisher of the data,
 # often a government authority:
 publisher:
-    name: European Union External Action Service (EEAS)
+    name: European Union External Action Service
+    acronym: EEAS
     official: true
     description: The EEAS is the EU's diplomatic service, and carries out the EU's foreign and security policy. 
     country: eu

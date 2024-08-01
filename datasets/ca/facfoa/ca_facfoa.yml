@@ -2,7 +2,7 @@ title: "Canadian Freezing Assets of Corrupt Foreign Officials Act"
 entry_point: crawler.py
 prefix: ca-facfoa
 coverage:
-  frequency: daily
+  frequency: never
   start: 2023-04-12
 deploy:
   schedule: "0 5 * * 4"
@@ -16,8 +16,6 @@ description: |
   Implemented regimes:
   * [Tunisia](https://laws-lois.justice.gc.ca/eng/regulations/SOR-2011-78/index.html)
   * [Ukraine](https://laws-lois.justice.gc.ca/eng/regulations/SOR-2014-44/index.html)
-
-  **This data is static, current as at 12 April 2023.**
 url: https://www.publicsafety.gc.ca/cnt/ntnl-scrt/cntr-trrrsm/lstd-ntts/crrnt-lstd-ntts-en.aspx
 publisher:
   name: "Government of Canada"

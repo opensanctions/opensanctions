@@ -26,6 +26,7 @@ def crawl(context: Context) -> None:
             entity.id = qid or context.make_id(name)
             entity.add("wikidataId", qid)
             entity.add("name", name, lang="eng")
+            entity.add("alias", row.pop("Alias"), lang="eng")
             entity.add("alias", row.pop("Chinese name"), lang="zho")
             entity.add("country", row.pop("Country", None))
             entity.add("notes", row.pop("Summary", None), lang="eng")
