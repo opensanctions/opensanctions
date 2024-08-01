@@ -17,6 +17,7 @@ description: |
     - The date on which the site/actor was published on the blacklists
 publisher:
   name: Autorité des marchés financiers
+  name_en: Financial Markets Authority 
   acronym: AMF
   description: |
    The Autorité des marchés financiers is the securities commission in France.
