@@ -1,12 +1,12 @@
 import os
 from banal import ensure_list, ensure_dict, as_bool
-from typing import Dict, Any, Optional, List, Set
+from typing import TYPE_CHECKING, Dict, Any, Optional, List, Set
 from normality import slugify
 from pathlib import Path
 from functools import cached_property
 from datapatch import get_lookups, Lookup
 from nomenklatura.dataset import Dataset as NKDataset
-from nomenklatura.dataset import DataCatalog, DataCoverage
+from nomenklatura.dataset import DataCoverage
 from nomenklatura.util import datetime_iso
 
 from zavod import settings
@@ -15,12 +15,15 @@ from zavod.meta.assertion import Assertion, parse_assertions
 from zavod.meta.http import HTTP
 from zavod.meta.data import Data
 
+if TYPE_CHECKING:
+    from zavod.meta.catalog import DataCatalog
+
 log = get_logger(__name__)
 
 
 class Dataset(NKDataset):
-    def __init__(self, catalog: "DataCatalog[Dataset]", data: Dict[str, Any]):
-        super().__init__(catalog, data)
+    def __init__(self, data: Dict[str, Any]):
+        super().__init__(data)
         assert self.name == slugify(self.name, sep="_"), "Dataset name is invalid"
         if len(self.summary or "") < 50:
             log.warning(
@@ -28,7 +31,6 @@ class Dataset(NKDataset):
                 dataset=self.name,
                 summary=self.summary,
             )
-        self.catalog: "DataCatalog[Dataset]" = catalog  # type: ignore
         self.prefix: str = data.get("prefix", slugify(self.name, sep="-")).strip()
         assert self.prefix == slugify(self.prefix, sep="-"), (
             "Dataset prefix is invalid: %s" % self.prefix
@@ -128,7 +130,7 @@ class Dataset(NKDataset):
             data["full_dataset"] = self.full_dataset
         return data
 
-    def to_opensanctions_dict(self) -> Dict[str, Any]:
+    def to_opensanctions_dict(self, catalog: "DataCatalog[Dataset]") -> Dict[str, Any]:
         """Generate a backward-compatible metadata export."""
         data = self.to_dict()
         assert self._type in ("collection", "source", "external"), self._type
@@ -143,9 +145,7 @@ class Dataset(NKDataset):
             data["externals"] = [s.name for s in self.leaves if s._type == "external"]
         else:
             collections = [
-                p.name
-                for p in self.catalog.datasets
-                if self in p.datasets and p != self
+                p.name for p in catalog.datasets if self in p.datasets and p != self
             ]
             data["collections"] = collections
         if self.entry_point is not None:

@@ -2,7 +2,7 @@ from followthemoney.helpers import check_person_cutoff
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
 from nomenklatura.cache import Cache
-from nomenklatura.enrich import Enricher, EnrichmentException, get_enricher
+from nomenklatura.enrich import Enricher, EnrichmentException, make_enricher
 
 from zavod.meta import Dataset, get_multi_dataset
 from zavod.entity import Entity
@@ -13,12 +13,7 @@ from zavod.store import get_store
 
 def dataset_enricher(dataset: Dataset, cache: Cache) -> Enricher:
     """Load and configure the enricher interface."""
-    config = dict(dataset.config)
-    enricher_type = config.pop("type")
-    enricher_cls = get_enricher(enricher_type)
-    if enricher_cls is None:
-        raise RuntimeError("Could load enricher: %s" % enricher_type)
-    return enricher_cls(dataset, cache, config)  # type: ignore
+    return make_enricher(dataset, cache, dict(dataset.config))
 
 
 def save_match(

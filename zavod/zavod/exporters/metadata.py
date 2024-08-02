@@ -4,7 +4,7 @@ from nomenklatura.versions import Version
 
 from zavod import settings
 from zavod.logs import get_logger
-from zavod.meta import Dataset
+from zavod.meta import Dataset, get_catalog
 from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE
 from zavod.archive import CATALOG_FILE, DELTA_INDEX_FILE, DELTA_EXPORT_FILE
 from zavod.archive import ARTIFACT_FILES
@@ -60,6 +60,7 @@ def get_base_dataset_metadata(
 
 def write_dataset_index(dataset: Dataset) -> None:
     """Export dataset metadata to index.json."""
+    catalog = get_catalog()
     version = get_latest(dataset.name, backfill=True)
     if version is None:
         raise ValueError(f"No version found for dataset: {dataset.name}")
@@ -71,7 +72,7 @@ def write_dataset_index(dataset: Dataset) -> None:
         is_collection=dataset.is_collection,
     )
     meta = get_base_dataset_metadata(dataset, version=version)
-    meta.update(dataset.to_opensanctions_dict())
+    meta.update(dataset.to_opensanctions_dict(catalog))
     if not dataset.is_collection:
         issues = DatasetIssues(dataset)
         meta["issue_levels"] = issues.by_level()
