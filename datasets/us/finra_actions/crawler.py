@@ -101,7 +101,9 @@ def crawl(context: Context):
         response.make_links_absolute(url)
         table = response.find(".//table")
 
-        rows = parse_table(table)
+        rows = list(parse_table(table))
+        if len(rows) == 0:
+            context.log.info("No rows found")
         for item in rows:
             crawl_item(item, context)
 
