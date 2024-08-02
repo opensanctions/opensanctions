@@ -23,7 +23,6 @@ publisher:
     with the regulation and facilitation of international trade, collection of import duties, and 
     enforcement of U.S. trade laws.
 country: us
-url: https://www.cbp.gov/
 data:
   url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
   format: html
@@ -53,65 +52,65 @@ lookups:
       - match: 'Xinjiang Uyghur Autonomous Region (XUAR)'
         entities: 
           - name: 
-            - Xinjiang Uyghur Autonomous Region (XUAR)
+              - Xinjiang Uyghur Autonomous Region (XUAR)
       - match: 'Xinjiang Production and Construction Corporation (XPCC) and its subordinates'
         entities: 
           - name:  
-            - Xinjiang Production and Construction Corporation (XPCC) and its subordinates
+              - Xinjiang Production and Construction Corporation (XPCC) and its subordinates
       - match: 'Hefei Bitland Information Technology Co., Ltd.'
         entities: 
           - name:  
-            - Hefei Bitland Information Technology Co., Ltd.
+              - Hefei Bitland Information Technology Co., Ltd.
       - match: 'Xinjiang Junggar Cotton and Linen Co., Ltd.'
         entities: 
           - name:  
-            - Xinjiang Junggar Cotton and Linen Co., Ltd.
+              - Xinjiang Junggar Cotton and Linen Co., Ltd.
       - match: 'Yili Zhuowan Garment Manufacturing Co., Ltd. and Baoding LYSZD Trade and Business Co., Ltd.'
         entities: 
           - name:  
-            - Yili Zhuowan Garment Manufacturing Co., Ltd.
+              - Yili Zhuowan Garment Manufacturing Co., Ltd.
           - name: 
-            - Baoding LYSZD Trade and Business Co., Ltd.
+              - Baoding LYSZD Trade and Business Co., Ltd.
       - match: 'No. 4 Vocational Skills Education Training Center (VSETC)'
         entities: 
           - name:  
-            - No. 4 Vocational Skills Education Training Center (VSETC)
+              - No. 4 Vocational Skills Education Training Center (VSETC)
       - match: 'Lop County Hair Product Industrial Park'
         entities: 
           - name:  
-            - Lop County Hair Product Industrial Park 
+              - Lop County Hair Product Industrial Park 
       - match: 'Hero Vast Group'
         entities: 
           - name:  
-            - Hero Vast Group
+              - Hero Vast Group
       - match: 'Lop County Meixin Hair Products Co., Ltd.'
         entities: 
           - name:  
-            - Lop County Meixin Hair Products Co., Ltd.
+              - Lop County Meixin Hair Products Co., Ltd.
       - match: 'Hetian Haolin Hair Accessories Co., Ltd.'
         entities: 
           - name:  
-            - Hetian Haolin Hair Accessories Co., Ltd.
+              - Hetian Haolin Hair Accessories Co., Ltd.
       - match: 'Hetian Taida Apparel Co., Ltd.'
         entities: 
           - name:  
-            - Hetian Taida Apparel Co., Ltd.
+              - Hetian Taida Apparel Co., Ltd.
       - match: 'Huizhou Mink Industrial CO. LTD.'
         entities: 
           - name:  
-            - Huizhou Mink Industrial CO. LTD.
+              - Huizhou Mink Industrial CO. LTD.
       - match: 'Hongchang Fruits & Vegetable Products Co., Ltd.'
         entities: 
           - name:   
-            - Hongchang Fruits & Vegetable Products Co., Ltd.
+              - Hongchang Fruits & Vegetable Products Co., Ltd.
       - match: 'Inner Mongolia Hengzheng Group Baoanzhao Agricultural and Trade LLC'
         entities: 
           - name:   
-            - Inner Mongolia Hengzheng Group Baoanzhao Agricultural and Trade LLC
+              - Inner Mongolia Hengzheng Group Baoanzhao Agricultural and Trade LLC
       - match: 'Tangshan Sanyou Group and its Subsidiaries'
         entities: 
           - name:  
-            - Tangshan Sanyou Group and its Subsidiaries
+              - Tangshan Sanyou Group and its Subsidiaries
       - match: 'Tianjin Malleable Iron Factory, a/k/a Tianjin Tongbao Fittings Company, a/k/a Tianjin No. 2 Malleable Iron Plant, a/k/a Tianjin Secondary Mugging Factory, a/k/a Tianjin No. 2 Prison'
         entities: 
           - name:  
@@ -350,8 +349,3 @@ lookups:
         entities: 
           - name:
             - 'Fishing Vessel: Da Wang'
-
-      
-
-
-        
