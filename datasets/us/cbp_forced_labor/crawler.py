@@ -1,15 +1,21 @@
-from lxml import html, etree
-from zavod import Context, context, helpers as h
+from zavod import Context, helpers as h
 from normality import slugify
-from typing import Dict, Generator, List, Any
-
-
-EXPECTED_SECTIONS = {"Withhold Release Orders", "Findings"}
+from typing import Dict, Generator, Any
+from lxml.html import HtmlElement
 
 
 def crawl_item(context: Context, row: Dict[str, Any]):
     try:
-        # Create the entity based on the schema
+        # Ensure all necessary keys are in the row
+        # Map the '#' header to 'id'
+        if "id" in row:
+            row["id"] = row.pop("id")
+        elif None in row:
+            row["id"] = row.pop(None)
+
+        if "status-notes" in row:
+            row["status_notes_text"] = row.pop("status-notes")
+
         country = row.pop("main_header")
         internal_id = row.pop("id")
         name = row.pop("entities")
@@ -20,8 +26,8 @@ def crawl_item(context: Context, row: Dict[str, Any]):
         merchandise = row.pop("merchandise")
         status = row.pop("status")
         status_notes = row.pop("status_notes_text")
-        status_notes_link = row.pop("status_notes_link")
-        print(f"Processing entity: {name}, ID: {internal_id}")
+        # status_notes_link = row.pop("status_notes_link")
+        # print(f"Processing entity: {name}, ID: {internal_id}")
 
         if name_result:
             for match_entity in name_result.entities:
@@ -40,159 +46,55 @@ def crawl_item(context: Context, row: Dict[str, Any]):
                     sanction = h.make_sanction(context, entity)
                     sanction.add("listingDate", listing_date)
                 entity.add("notes", status_notes)
-                entity.add("notes", status_notes_link)
-                print(f"Emitting entity: {entity}")
+                # entity.add("notes", status_notes_link)
+                # print(f"Emitting entity: {entity}")
                 context.emit(entity, target=True)  # Emit the entity\
 
     except Exception as e:
         print(f"Error processing row {row}: {e}")
         context.log.error(f"Error processing row {row}: {e}")
 
-    # def parse_table(doc: html.HtmlElement) -> Generator[Dict[str, str], None, None]:
-    # """Parse multiple HTML tables in the document and yield rows as dictionaries."""
-    # table_ids = [
-    #     "accordion-33324",
-    #     "accordion-33328",
-    #     "accordion-33330",
-    #     "accordion-33332",
-    #     "accordion-33334",
-    #     "accordion-33336",
-    #     "accordion-33338",
-    #     "accordion-33340",
-    #     "accordion-33342",
-    # ]
 
-    # for table_id in table_ids:
-    #     # Fetch each table using its specific ID
-    #     table = doc.xpath(
-    #         f"//*[@id='{table_id}']//table[contains(@class, 'usa-table')]"
-    #     )
-    #     if not table:
-    #         print(f"No table found for ID: {table_id}")
-    #         continue  # Skip if no table is found
+def parse_table(
+    table: HtmlElement, main_header: str
+) -> Generator[Dict[str, str], None, None]:
+    headers = []
+    header_found = False
 
-    #     table = table[0]  # Extract the first occurrence for this ID
-    #     print(f"Processing table with ID: {table_id}")
-    #     headers: List[str] = []
-
-    #     # Capture the main header to identify the country or section
-    #     main_header_row = table.xpath(".//thead/tr/th")
-    #     main_header = (
-    #         main_header_row[0].text_content().strip() if main_header_row else ""
-    #     )
-    #     print(f"Main header found: {main_header}")
-
-    #     # Then, grab the headers from the second row (after the main header)
-    #     header_row = table.xpath(".//tr[2]")[0]  # Access the second row (index 1)
-
-    #     # Extract headers from the header row
-    #     for index, el in enumerate(header_row.findall("./td")):
-    #         if index == 0:
-    #             headers.append("#")
-    #         else:
-    #             if el is not None:
-    #                 header_text = el.text_content().strip()
-    #                 if header_text:
-    #                     headers.append(slugify(header_text))
-    #     print(f"Headers identified: {headers}")
-    #     # Now proceed to parse the body rows
-    #     for row in table.xpath(".//tr[position() > 2]"):  # Start from the third row
-    #         cells = row.findall("./td")
-    #         if len(cells) == 0:
-    #             continue  # Skip empty rows
-    #         if len(headers) == len(cells):  # Ensure header and cell count match
-    #             id_cell = cells[0].find(".//p")
-    #             id_text = id_cell.text_content().strip() if id_cell is not None else ""
-    #             status_notes_cell = cells[5]
-    #             status_notes_text = status_notes_cell.text_content().strip()
-    #             anchor = status_notes_cell.find(".//a")
-    #             status_notes_link = anchor.get("href") if anchor is not None else ""
-    #             entity_data = {
-    #                 "main_header": main_header,
-    #                 "id": id_text,
-    #                 "date": cells[1].text_content().strip(),
-    #                 "merchandise": cells[2].text_content().strip(),
-    #                 "entities": cells[3].text_content().strip(),
-    #                 "status": cells[4].text_content().strip(),
-    #                 "status_notes_text": status_notes_text,
-    #                 "status_notes_link": status_notes_link,
-    #             }
-    #             print(f"Yielding entity data: {entity_data}")
-    #             yield entity_data
-
-
-#def parse_table(doc: html.HtmlElement) -> Generator[Dict[str, str], None, None]:
-#    """Parse multiple HTML tables in the document and yield rows as dictionaries."""
-#
-#
-#        headers: List[str] = []
-#
-#        # Capture the main header to identify the country or section
-#        main_header_row = table.xpath(".//thead/tr/th")
-#        main_header = (
-#            main_header_row[0].text_content().strip() if main_header_row else ""
-#        )
-#
-#        # Grab the headers from the second row in the table which has the header cells
-#        header_row = table.xpath(".//tr")[1]  # Access the second row (index 1)
-#
-#        # Extract headers from the header row, assuming they are within <p> tags inside <td> elements
-#        for index, el in enumerate(header_row.xpath(".//td/p/strong")):
-#            if index == 0:
-#                headers.append("#")
-#            else:
-#                header_text = el.text_content().strip()
-#                if header_text:
-#                    headers.append(slugify(header_text))
-#
-#        # Debug information to ensure headers are captured correctly
-#        # context.log.info(f"Main header found: {main_header}")
-#        # context.log.info(f"Headers identified: {headers}")
-#
-#        # Now proceed to parse the body rows
-#        for row in table.xpath(".//tr[position() > 2]"):  # Start from the third row
-#            cells = row.xpath("./td")
-#            if len(cells) == 0:
-#                continue  # Skip empty rows
-#            if len(headers) != len(cells):
-#                continue  # Skip if headers and cells do not match
-#
-#            id_cell = cells[0].find(".//p")
-#            id_text = id_cell.text_content().strip() if id_cell is not None else ""
-#
-#            status_notes_cell = cells[5]
-#            status_notes_text = status_notes_cell.text_content().strip()
-#            anchor = status_notes_cell.find(".//a")
-#            status_notes_link = anchor.get("href") if anchor is not None else ""
-#
-#            yield {
-#                "main_header": main_header,
-#                "id": id_text,
-#                "date": cells[1].text_content().strip(),
-#                "merchandise": cells[2].text_content().strip(),
-#                "entities": cells[3].text_content().strip(),
-#                "status": cells[4].text_content().strip(),
-#                "status_notes_text": status_notes_text,
-#                "status_notes_link": status_notes_link,
-#            }
-
-
-
-def parse_table(table: HtmlElement) -> Generator[Dict[str, str], None, None]:
-    headers = None
     for row in table.findall(".//tr"):
-        if headers is None:
-            headers = []
-            for el in row.findall("./th"):
-                # Workaround because lxml-stubs doesn't yet support HtmlElement
-                # https://github.com/lxml/lxml-stubs/pull/71
-                eltree = cast(HtmlElement, el)
-                headers.append(slugify(eltree.text_content()))
+        # Check if this row is the main header row
+        main_header_cell = row.find(".//th[@colspan='6'][@scope='col']")
+        if main_header_cell is not None:
+            continue  # Skip the main header row as it's already provided
+
+        # Otherwise, check if it's the detailed header row
+        if not header_found:
+            for el in row.findall(".//td/p/strong"):
+                header_text = el.text_content().strip()
+                # Handle special case for 'id'
+                if header_text == "#":
+                    header_text = "id"
+                headers.append(slugify(header_text))
+            header_found = True
+            # print(f"Headers: {headers}")
             continue
 
-        cells = row.findall("./td")
-        assert len(headers) == len(cells), (headers, cells)
-        yield {hdr: c for hdr, c in zip(headers, cells)}
+        # Proceed to parse data rows
+        cells = row.findall(".//td")
+        if len(cells) == 0:
+            continue  # Skip empty rows
+        if len(headers) != len(cells):  # Ensure headers and cells match
+            print(
+                f"Header-cell mismatch: headers {headers}, cells {[c.text_content().strip() for c in cells]}"
+            )
+            continue  # Skip rows where headers and cells do not match
+
+        row_data = {
+            header: cell.text_content().strip() for header, cell in zip(headers, cells)
+        }
+        row_data["main_header"] = main_header  # Add main_header to each row
+        # print(f"Parsed row: {row_data}")
+        yield row_data
 
 
 def crawl(context: Context):
@@ -200,14 +102,14 @@ def crawl(context: Context):
     doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
 
-    print("Iterating over tables and rows...")
+    # print("Iterating over tables and rows...")
 
-    for accordion in doc.xpath("//div[contains(@class, 'usa-section-accordion')]"):    
+    for accordion in doc.xpath("//div[contains(@class, 'usa-section-accordion')]"):
         heading_el = accordion.find(".//h2")
         heading_text = heading_el.text_content()
         table = accordion.find(".//table")
-        print(heading_text, table)
-        #for item in parse_table(doc):
-        #    print(f"Processing row: {item}")
-        #    crawl_item(context, item)
-    print("Finished processing all tables.")
+        # print(heading_text, table)
+        for item in parse_table(table, main_header=heading_text):
+            # print(f"Processing row: {item}")
+            crawl_item(context, item)
+    # print("Finished processing all tables.")

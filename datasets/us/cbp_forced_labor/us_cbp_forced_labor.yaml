@@ -114,7 +114,7 @@ lookups:
           - Tangshan Sanyou Group and its Subsidiaries
       - match: 'Tianjin Malleable Iron Factory, a/k/a Tianjin Tongbao Fittings Company, a/k/a Tianjin No. 2 Malleable Iron Plant, a/k/a Tianjin Secondary Mugging Factory, a/k/a Tianjin No. 2 Prison'
         entities: 
-        - name:   # add these as aliases
+        - name:  
           - Tianjin Malleable Iron Factory
           alias: 
           - Tianjin Tongbao Fittings Company
@@ -129,14 +129,14 @@ lookups:
           - Imaizumi Tea Manufacturing & Trading Co., Ltd.
       - match: 'Guangzhou No. 1 Reeducation-Through-Labor Camp, a/k/a Guangdong Province No. 1 Reeducation-Through-Labor Camp; Kwong Ngai Industrial Company'
         entities: 
-        - name:  # add these as aliases
+        - name: 
           - Guangzhou No. 1 Reeducation-Through-Labor Camp
           alias:
           - Guangdong Province No. 1 Reeducation-Through-Labor Camp
           - Kwong Ngai Industrial Company
       - match: 'Shenyang Xinsheng (New Life) Chemical Works, a/k/a Shenyang Dongbei Assistant Agent Main Factory, a/k/a Xinsheng Chemical Factory, a/k/a Shenyang No. 1 Laogai Detachment, a/k/a Shenyang Reform Through Labor Second Reform Division'
         entities: 
-        - name:  # add these as aliases
+        - name:  
           - Shenyang Xinsheng (New Life) Chemical Works
           alias:
           - Shenyang Dongbei Assistant Agent Main Factory
@@ -145,7 +145,7 @@ lookups:
           - Shenyang Reform Through Labor Second Reform Division
       - match: 'Shenyang New Life Rubber Factory, a/k/a Shenyang Xingsheng (or Xinsheng) (New Life) Rubber Plant, a/k/a Shenyang No. 2 Laogai Detachment, a/k/a Shenyang Dabei Prison, a/k/a Shenyang Model Prison'
         entities: 
-        - name:  # add these as aliases
+        - name: 
           - Shenyang New Life Rubber Factory
           alias:
           - Shenyang Xingsheng (or Xinsheng) (New Life) Rubber Plant
@@ -154,14 +154,14 @@ lookups:
           - Shenyang Model Prison
       - match: 'Wuyi Machinery Plant, a/k/a Zhejiang Light Duty Lifting Machinery Factory China, a/k/a Zhejiang Province No. 1 Prison'
         entities: 
-        - name:  # add these as aliases
+        - name:  
           - Wuyi Machinery Plant
           alias:
           - Zhejiang Light Duty Lifting Machinery Factory China
           - Zhejiang Province No. 1 Prison
       - match: 'Wulin (or Wuling) Machinery Works, a/k/a Hangzhou Wulin Machinery Plant, a/k/a Hangzhou Wulin Machinery Works, a/k/a Zhejiang Province No. 4 Prison'
         entities: 
-        - name:  # add these as aliases
+        - name:  
           - Wulin (or Wuling) Machinery Works
           alias:
           - Hangzhou Wulin Machinery Plant
@@ -169,13 +169,13 @@ lookups:
           - Zhejiang Province No. 4 Prison
       - match: 'Hsin Kang Asbestos Mine, a/k/a Sichuan (Szechuan) Pin Chiang Enterprise Company'
         entities: 
-        - name:  # add these as aliases
+        - name:  
           - Hsin Kang Asbestos Mine
           alias:
           - Sichuan (Szechuan) Pin Chiang Enterprise Company
       - match: 'Sichuan (Szechuan) Xinsheng (New Life) Labor Factory, a/k/a Xinsheng (New Life) Labor Factory'
         entities: 
-        - name:  # add these as aliases
+        - name:  
           - Sichuan (Szechuan) Xinsheng (New Life) Labor Factory
           alias:
           - Xinsheng (New Life) Labor Factory
@@ -185,14 +185,14 @@ lookups:
           - Da Wei Chemical Factory
       - match: 'Zi Gong Machinery Factory, a/k/a Zigong Machinery Factory, a/k/a Sichuan (Szechuan) Zigong Labor Reform Detachment'
         entities: 
-        - name:  # add these as aliases
+        - name: 
           - Zi Gong Machinery Factory
           alias:
           - Zigong Machinery Factory
           - Sichuan (Szechuan) Zigong Labor Reform Detachment
       - match: 'Ya An Auto Parts Factory, a/k/a Sichuan (Szechuan) Bin-Jiang Enterprises Company'
         entities: 
-        - name:  # add these as aliases
+        - name:  
           - Ya An Auto Parts Factory
           alias:
           - Sichuan (Szechuan) Bin-Jiang Enterprises Company
@@ -206,7 +206,7 @@ lookups:
           - Wang Tsang Coal and Iron Factory
       - match: 'Qinghai Hide & Garment Factory, a/k/a Qinghai Leather and Wool Bedding and Garment Factory, a/k/a Qinghai Fur and Cloth Factory'
         entities: 
-        - name:  # add these as aliases
+        - name:  
           - Qinghai Hide & Garment Factory
           alias:
           - Qinghai Leather and Wool Bedding and Garment Factory
@@ -221,7 +221,7 @@ lookups:
           - Xuzhou Forging and Pressing Machine Works
       - match: 'Yunnan Machinery, a/k/a Golden Horse (JinMa) Diesel Factory, a/k/a Yunnan 1st Prison'
         entities: 
-        - name:  # add these as aliases
+        - name: 
           - Yunnan Machinery
           alias:
           - Golden Horse (JinMa) Diesel Factory
@@ -250,13 +250,13 @@ lookups:
           - Union Kogyo Co., Ltd.
       - match: 'Tobacco produced in Malawi and products containing tobacco produced in Malawi'
         entities: 
-        - name: # find a way to treat
+        - name:
           - Tobacco produced in Malawi and products containing tobacco produced in Malawi
       - match: 'Brightway Holdings Sdn Bhd, Laglove (M) Sdn Bhd, and Biopro (M) Sdn Bhd (collectively, Brightway Group)'
         entities: 
         - name: 
           - Brightway Group
-        - alias: 
+          alias: 
           - Brightway Holdings Sdn Bhd
           - Laglove (M) Sdn Bhd
           - Biopro (M) Sdn Bhd
@@ -296,6 +296,61 @@ lookups:
           - Marange Diamond Fields
       - match: 'Fishing Vessel: Hangton No. 112'
         entities: 
-        - name: # update the way to treat
+        - name:
           - 'Fishing Vessel: Hangton No. 112'
+      - match: 'Fishing Vessels owned by Dalian Ocean Fishing Co. Ltd.'
+        entities: 
+        - name: 
+          - Fishing Vessels owned by Dalian Ocean Fishing Co. Ltd.
+      - match: 'Fishing Vessel: Lien Yi Hsing No. 12'
+        entities: 
+        - name:
+          - 'Fishing Vessel: Lien Yi Hsing No. 12'
+      - match: 'Fishing Vessel: Da Wang'
+        entities: 
+        - name:
+          - 'Fishing Vessel: Da Wang'
+      - match: 'Fishing Vessel: Yu Long No. 2'
+        entities: 
+        - name:
+          - 'Fishing Vessel: Yu Long No. 2'
+      - match: 'Inner Mongolia Hengzheng Group Baoanzhao Agriculture, Industry, and Trade Co., Ltd.'
+        entities: 
+        - name:
+          - Inner Mongolia Hengzheng Group Baoanzhao Agriculture, Industry, and Trade Co., Ltd.
+      - match: 'Tianjin Malleable Iron Factory'
+        entities: 
+        - name:
+          - Tianjin Malleable Iron Factory
+      - match: 'Qinghai Hide and Garment Factory'
+        entities: 
+        - name:
+          - Qinghai Hide and Garment Factory
+      - match: 'Xuzhou Forging and Pressing Machine Works'  
+        entities: 
+        - name:
+          - Xuzhou Forging and Pressing Machine Works
+      - match: 'Golden Horse ("Jinma") Diesel Engine Factory'
+        entities: 
+        - name:
+          - Golden Horse ("Jinma") Diesel Engine Factory
+      - match: 'State Penitentiary, Ciudad Victoria, Tamaulipas, Mexico'
+        entities: 
+        - name:
+          - State Penitentiary
+          address:
+          - Ciudad Victoria, Tamaulipas, Mexico
+      - match: 'State Penitentiary, Ciudad Victoria, Tamaulipas, Mexico'
+        entities: 
+        - name:
+          - State Penitentiary
+          address:
+          - Ciudad Victoria, Tamaulipas, Mexico
+      - match: 'Fishing Vessel: Da Wang'
+        entities: 
+        - name:
+          - 'Fishing Vessel: Da Wang'
+      
+
+
         
