@@ -1,15 +1,15 @@
 import os
 import re
+import requests
 from typing import Any, Dict
+from normality import slugify
 from datetime import timedelta
 from base64 import b64encode
 from rigour.time import utc_now
-
-import requests
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.padding import PKCS7
 from cryptography.hazmat.backends import default_backend
-from normality import slugify
+
 from zavod import Context
 from zavod import helpers as h
 
@@ -19,7 +19,9 @@ from zavod import helpers as h
 EXPECTED_FAILS = 20000
 
 KOSOVO_REGISTRY_KEY = os.environ.get("OPENSANCTIONS_KOSOVO_REGISTRY_KEY", "")
-assert KOSOVO_REGISTRY_KEY, "Please provide the Kosovo API key in the environment variable OPENSANCTIONS_KOSOVO_REGISTRY_KEY"
+assert (
+    KOSOVO_REGISTRY_KEY
+), "Please provide the Kosovo API key in the env var OPENSANCTIONS_KOSOVO_REGISTRY_KEY"
 
 FIELDS_MAPPING = {
     "EmriBiznesit": {"field": "name", "lang": "sqi"},
