@@ -1,4 +1,4 @@
-title: "CBP Withhold Release Orders and Findings"
+title: "US CBP Withhold Release Orders and Findings"
 url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
 entry_point: crawler.py
 prefix: cbp-forced-labor
@@ -19,14 +19,14 @@ publisher:
   official: true
   url: https://www.cbp.gov/
   description: |
-    The CBP is a unified border agency within the Department of Homeland Security (DHS) charged 
-    with the regulation and facilitation of international trade, collection of import duties, and 
-    enforcement of U.S. trade laws.
+    The CBP is a unified border agency within the Department of Homeland Security (DHS) 
+    charged with the regulation and facilitation of international trade, collection of 
+    import duties, and enforcement of U.S. trade laws.
 country: us
 data:
   url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
   format: html
-  
+
 assertions:
   min:
     schema_entities:
