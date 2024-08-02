@@ -40,12 +40,12 @@ lookups:
     options:
       - match: 'Shanghai Select Safety Products Company, Limited and its two subsidiaries from China, Select (Nantong) Safety Products Co. Limited and Select Protective Technology (HK) Limited.'
         entities: 
-        - name: 
-            - Shanghai Select Safety Products Company, Limited
-        - name: 
-            - Select (Nantong) Safety Products Co. Limited
-        - name: 
-            - Select Protective Technology (HK) Limited
+          - name: 
+              - Shanghai Select Safety Products Company, Limited
+          - name: 
+              - Select (Nantong) Safety Products Co. Limited
+          - name: 
+              - Select Protective Technology (HK) Limited
       - match: 'Hoshine Silicon Industry Co. Ltd. and Subsidiaries'
         entities: 
         - name: 
