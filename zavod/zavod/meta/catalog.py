@@ -19,6 +19,8 @@ class ArchiveBackedCatalog(DataCatalog[Dataset]):
         dataset = Dataset(data)
         dataset.base_path = path.parent
         self.add(dataset)
+        for name in dataset._children:
+            self.get(name)
         return dataset
 
     def get(self, name: str) -> Optional[Dataset]:

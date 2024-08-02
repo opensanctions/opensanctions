@@ -1,7 +1,6 @@
 from followthemoney.helpers import check_person_cutoff
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
-from nomenklatura.cache import Cache
 from nomenklatura.enrich import Enricher, EnrichmentException, make_enricher
 
 from zavod.meta import Dataset, get_multi_dataset
@@ -11,15 +10,10 @@ from zavod.dedupe import get_resolver
 from zavod.store import get_store
 
 
-def dataset_enricher(dataset: Dataset, cache: Cache) -> Enricher:
-    """Load and configure the enricher interface."""
-    return make_enricher(dataset, cache, dict(dataset.config))
-
-
 def save_match(
     context: Context,
     resolver: Resolver[Entity],
-    enricher: Enricher,
+    enricher: Enricher[Dataset],
     entity: Entity,
     match: Entity,
     threshold: float,
@@ -53,7 +47,10 @@ def enrich(context: Context) -> None:
     store = get_store(scope, resolver)
     store.sync()
     view = store.view(scope)
-    enricher = dataset_enricher(context.dataset, context.cache)
+    config = dict(context.dataset.config)
+    enricher = make_enricher(context.dataset, context.cache, config)
+    if enricher is None:
+        raise RuntimeError("Cannot load enricher: %r" % config)
     threshold = float(context.dataset.config.get("threshold", 0.7))
     try:
         for entity_idx, entity in enumerate(view.entities()):

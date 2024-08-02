@@ -16,7 +16,7 @@ from zavod.meta.http import HTTP
 from zavod.meta.data import Data
 
 if TYPE_CHECKING:
-    from zavod.meta.catalog import DataCatalog
+    from zavod.meta.catalog import ArchiveBackedCatalog
 
 log = get_logger(__name__)
 
@@ -130,7 +130,7 @@ class Dataset(NKDataset):
             data["full_dataset"] = self.full_dataset
         return data
 
-    def to_opensanctions_dict(self, catalog: "DataCatalog[Dataset]") -> Dict[str, Any]:
+    def to_opensanctions_dict(self, catalog: "ArchiveBackedCatalog") -> Dict[str, Any]:
         """Generate a backward-compatible metadata export."""
         data = self.to_dict()
         assert self._type in ("collection", "source", "external"), self._type

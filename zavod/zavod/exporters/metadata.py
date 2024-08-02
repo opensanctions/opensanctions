@@ -106,6 +106,7 @@ def write_dataset_index(dataset: Dataset) -> None:
 def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
     """Get a metadata description of a single dataset, retaining timestamp information
     for the last export, but updating some other metadata."""
+    catalog = get_catalog()
     meta = get_base_dataset_metadata(dataset)
     path = get_dataset_artifact(dataset.name, INDEX_FILE)
     if path.is_file():
@@ -113,7 +114,7 @@ def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
             meta.update(json.load(fh))
     else:
         log.error("No index file found", dataset=dataset.name, report_issue=False)
-    meta.update(dataset.to_opensanctions_dict())
+    meta.update(dataset.to_opensanctions_dict(catalog))
     if len(meta["resources"]) == 0:
         log.info("Dataset has no resources", dataset=dataset.name)
     return meta
