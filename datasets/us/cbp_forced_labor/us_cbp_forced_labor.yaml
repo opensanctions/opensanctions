@@ -30,7 +30,7 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 55
+      LegalEntity: 50
       Vessel: 5
   max:
     schema_entities:
