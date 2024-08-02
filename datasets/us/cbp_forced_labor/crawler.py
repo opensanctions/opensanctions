@@ -13,18 +13,15 @@ def crawl_item(context: Context, row: Dict[str, Any]):
         # Map the special case headers to expected names
         if "#" in row:
             row["id"] = row.pop("#")
-        if "status-notes" in row:
-            row["status_notes_text"] = row.pop("status-notes")
-
         # Extract required keys and handle them
-        country = row.pop("main_header", None)
-        internal_id = row.pop("id", None)
-        name = row.pop("entities", None)
+        country = row.pop("main_header")
+        internal_id = row.pop("id")
+        name = row.pop("entities")
         name_result = context.lookup("name", name)
-        listing_date = h.parse_date(row.pop("date", None), formats=["%m/%d/%Y"])
-        merchandise = row.pop("merchandise", None)
-        status = row.pop("status", None)
-        status_notes = row.pop("status_notes_text", None)
+        listing_date = h.parse_date(row.pop("date"), formats=["%m/%d/%Y"])
+        merchandise = row.pop("merchandise")
+        status = row.pop("status")
+        status_notes = row.pop("status-notes")
         status_notes_link = row.pop("status_notes_link", None)
 
         # print(f"Processing entity: {name}, ID: {internal_id}")
@@ -40,6 +37,9 @@ def crawl_item(context: Context, row: Dict[str, Any]):
                         entity.add("name", match_entity.get("name"))
                         if status in ["Active", "Partially Active"]:
                             entity.add("topics", "sanction")
+                            sanction = h.make_sanction(context, entity)
+                            sanction.add("listingDate", listing_date)
+                            entity.add("notes", status_notes)
         else:
             entity = context.make("LegalEntity")
             if name_result is not None and name_result.entities:
@@ -73,7 +73,7 @@ def crawl_item(context: Context, row: Dict[str, Any]):
 
 def parse_table(
     table: HtmlElement, main_header: str
-) -> Generator[Dict[str, str], None, None]:
+) -> Generator[Dict[str, Any], None, None]:
     headers = []
     header_found = False
 
@@ -108,6 +108,17 @@ def parse_table(
             header: cell.text_content().strip() for header, cell in zip(headers, cells)
         }
         row_data["main_header"] = main_header  # Add main_header to each row
+
+        # Look for link near status-notes
+        for cell in cells:
+            link = cell.find(".//a")
+            if link is not None:
+                link_url = link.get("href")
+                if (
+                    "status-notes" in row_data
+                    and cell.text_content().strip() == row_data["status-notes"]
+                ):
+                    row_data["status_notes_link"] = link_url
         yield row_data
 
 
