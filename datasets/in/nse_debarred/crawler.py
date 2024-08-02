@@ -10,24 +10,23 @@ SEBI_DEBARRMENT_URL = "https://nsearchives.nseindia.com/content/press/prs_ra_seb
 OTHER_DEBARRMENT_URL = (
     "https://nsearchives.nseindia.com/content/press/prs_ra_others.xls"
 )
-CURRENT_ORDER_DATE = None
-CURRENT_ORDER_PARTICULARS = None
-CURRENT_NSE_CIRCULAR_NO = None
 
 
-def parse_sheet(
-    sheet,
-) -> Generator[dict, None, None]:
+def parse_sheet(sheet) -> Generator[dict, None, None]:
     headers = None
-    for row in sheet:
+    for row_ix, row in enumerate(sheet):
         cells = []
-        for cell in row:
+        urls = []
+        for cell_ix, cell in enumerate(row):
             if cell.ctype == xlrd.XL_CELL_DATE:
                 # Convert Excel date format to Python datetime
                 date_value = xlrd.xldate_as_datetime(cell.value, sheet.book.datemode)
                 cells.append(date_value)
             else:
                 cells.append(cell.value)
+            url = sheet.hyperlink_map.get((row_ix, cell_ix))
+            if url:
+                urls.append(url.url_or_path)
         if headers is None:
             headers = []
             for idx, cell in enumerate(cells):
@@ -43,51 +42,51 @@ def parse_sheet(
             record[header] = stringify(value)
         if len(record) == 0:
             continue
+        if all(v is None for v in record.values()):
+            continue
+        record["urls"] = urls
         yield record
 
 
 def crawl_item(input_dict: dict, context: Context):
-    global CURRENT_ORDER_DATE
-    global CURRENT_ORDER_PARTICULARS
-    global CURRENT_NSE_CIRCULAR_NO
-
     name = input_dict.pop("entity_individual_name")
-    pan = input_dict.pop("pan")
-    # It's a target if it wasn't revoked
-    target = (input_dict["period"] is None) or ("Revoked" not in input_dict["period"])
-    topics = "sanction" if target else "reg.action"
-
     if name is None:
         return
+    pan = input_dict.pop("pan")
+    # It's a target if it wasn't revoked
+    period = input_dict.pop("period")
+    is_revoked = period and "revoked" in period.lower()
+    topics = "reg.warn" if is_revoked else "debarment"
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name, pan)
     entity.add("name", name)
     entity.add("taxNumber", pan)
     entity.add("topics", topics)
+    din_cin: str = input_dict.pop("din_cin_of_entities_debarred", None)
+    if din_cin and din_cin.lower != "not available":
+        entity.add("description", din_cin)
+        din_cin = din_cin.replace("DIN ", "").replace("CIN ", "")
+        entity.add("registrationNumber", din_cin.split(" "))
 
-    if input_dict.get("nse_circular_no"):
-        CURRENT_NSE_CIRCULAR_NO = input_dict.pop("nse_circular_no")
-    if input_dict.get("order_particulars"):
-        CURRENT_ORDER_PARTICULARS = input_dict.pop("order_particulars")
-    if input_dict.get("order_date"):
-        CURRENT_ORDER_DATE = input_dict.pop("order_date")
+    sanction = h.make_sanction(context, entity, key=input_dict.pop("nse_circular_no"))
+    sanction.add(
+        "date", h.parse_date(input_dict.pop("order_date"), formats=["%Y-%m-%d"])
+    )
+    sanction.add(
+        "description", "Order Particulars: " + input_dict.pop("order_particulars")
+    )
+    sanction.add("duration", period)
+    sanction.add("sourceUrl", input_dict.pop("source_url"))
+    sanction.add("sourceUrl", input_dict.pop("urls"))
 
-    sanction = h.make_sanction(context, entity, key=CURRENT_NSE_CIRCULAR_NO)
-
-    sanction.add("date", h.parse_date(CURRENT_ORDER_DATE, formats=["%Y-%m-%d"]))
-    sanction.add("description", "Order Particulars: " + CURRENT_ORDER_PARTICULARS)
-
-    sanction.add("duration", input_dict.pop("period"))
-
-    context.emit(entity, target=target)
+    context.emit(entity, target=not is_revoked)
     context.emit(sanction)
 
     # There is some random data in the 17 and 18 columns
     context.audit_data(
         input_dict,
         ignore=[
-            "din_cin_of_entities_debarred",
             "date_of_nse_circular",
             "column_17",
             "column_18",
@@ -97,20 +96,33 @@ def crawl_item(input_dict: dict, context: Context):
 
 
 def crawl(context: Context):
-
+    items = []
     path_sebi = context.fetch_resource("sebi.xls", SEBI_DEBARRMENT_URL)
     context.export_resource(path_sebi, XLS, title=context.SOURCE_TITLE)
-
     wb_sebi = xlrd.open_workbook(path_sebi)
-
     for item in parse_sheet(wb_sebi["Sheet 1"]):
-        crawl_item(item, context)
+        item["source_url"] = SEBI_DEBARRMENT_URL
+        items.append(item)
 
     path_other = context.fetch_resource("other.xls", OTHER_DEBARRMENT_URL)
     context.export_resource(path_other, XLS, title=context.SOURCE_TITLE)
-
     wb_other = xlrd.open_workbook(path_other)
-
     for item in parse_sheet(wb_other["Sheet1"]):
+        item["source_url"] = OTHER_DEBARRMENT_URL
+        items.append(item)
+
+    for item in items:
+        # Fill down
+        if item.get("order_date"):
+            order_date = item.get("order_date")
+        else:
+            item["order_date"] = order_date
+
+        if item.get("order_particulars"):
+            particulars = item.get("order_particulars")
+            nse_circular_num = item.get("nse_circular_no")
+        else:
+            item["order_particulars"] = particulars
+            item["nse_circular_no"] = nse_circular_num
 
         crawl_item(item, context)
