@@ -127,16 +127,21 @@ lookups:
         values:
           - 'Tovarystvo z obmezhenoiu vidpovidalnistiu "Transportni avtomatyzovani informatsiini systemy – TAIS"'
           - 'Obshchestvo s ohranychennoi otvetstvennostiu "Transportnye avtomatyzyrovannye ynformatsyonnye systemy – TAYS"'
-      - match: 'Телеканали "РТР-Планета", інформаційний канал "Росія-24", які входять до структури Федерального державного унітарного підприємства "Всеросійська державна телевізійна і радіомовна компанія" (Телеканали "РТР-Планета", інформаційний канал "Росія-24", які входять до структури Федерального державного унітарного підприємства "Всеросійська державна телевізійна і радіомовна компанія", Телеканалы "РТР-Планета", информационный канал "Россия-24", которые входят в структуру Федерального государственного унитарного предприятия "Всероссийская государственная телевизионная и радиовещательная компания") '
+      - match: 'Телеканали "РТР-Планета", інформаційний канал "Росія-24", які входять до структури Федерального державного унітарного підприємства "Всеросійська державна телевізійна і радіомовна компанія" (Телеканали "РТР-Планета", інформаційний канал "Росія-24", які входять до структури Федерального державного унітарного підприємства "Всеросійська державна телевізійна і радіомовна компанія", Телеканалы "РТР-Планета", информационный канал "Россия-24", которые входят в структуру Федерального государственного унитарного предприятия "Всероссийская государственная телевизионная и радиовещательная компания")'
         values:
           - '"РТР-Планета"'
           - '"Росія-24"'
           - '"Россия-24"'
-      - match: 'Telekanaly "RTR-Planeta", informatsiinyi kanal "Rosiia-24", yaki vkhodiat do struktury Federalnoho derzhavnoho unitarnoho pidpryiemstva "Vserosiiska derzhavna televiziina i radiomovna kompaniia" (Telekanaly "RTR-Planeta", informatsiinyi kanal "Rosiia-24", yaki vkhodiat do struktury Federalnoho derzhavnoho unitarnoho pidpryiemstva "Vserosiiska derzhavna televiziina i radiomovna kompaniia", Telekanaly "RTR-Planeta", ynformatsyonnyi kanal "Rossyia-24", kotorye vkhodiat v strukturu Federalnoho hosudarstvennoho unytarnoho predpryiatyia "Vserossyiskaia hosudarstvennaia televyzyonnaia y radyoveshchatelnaia kompanyia") '
+          - Всероссийская государственная телевизионная и радиовещательная компания
+      - match: 'Telekanaly "RTR-Planeta", informatsiinyi kanal "Rosiia-24", yaki vkhodiat do struktury Federalnoho derzhavnoho unitarnoho pidpryiemstva "Vserosiiska derzhavna televiziina i radiomovna kompaniia" (Telekanaly "RTR-Planeta", informatsiinyi kanal "Rosiia-24", yaki vkhodiat do struktury Federalnoho derzhavnoho unitarnoho pidpryiemstva "Vserosiiska derzhavna televiziina i radiomovna kompaniia", Telekanaly "RTR-Planeta", ynformatsyonnyi kanal "Rossyia-24", kotorye vkhodiat v strukturu Federalnoho hosudarstvennoho unytarnoho predpryiatyia "Vserossyiskaia hosudarstvennaia televyzyonnaia y radyoveshchatelnaia kompanyia")'
         values:
           - '"RTR-Planeta"'
           - '"Rosiia-24"'
           - '"Rossia-24"'
+      - match: 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Sluzhba kapitana Kerchenskoho morskoho rybnoho portu" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Sluzhba kapytana Kerchenskoho morskoho rybnoho porta", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Sluzhba kapitana Kerchenskoho morskoho rybnoho portu")'
+        values:
+          - 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Sluzhba kapitana Kerchenskoho morskoho rybnoho portu"'
+          - 'Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Sluzhba kapytana Kerchenskoho morskoho rybnoho porta"'
 
   type.country:
     normalize: true
@@ -326,7 +331,7 @@ lookups:
           - Permanent residence permit - посвідка на постійне проживання
         prop: idNumber
       - contains:
-          - Сайт так званого´
+          - Сайт так званого
         prop: website
         weight: 2  # To fix the issue when same entity contains website and notes
       - contains:
