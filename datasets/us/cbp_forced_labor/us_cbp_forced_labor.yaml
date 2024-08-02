@@ -7,8 +7,8 @@ coverage:
   frequency: daily
   start: 2024-08-01
 summary: >
-  The CBP provides a list of Withhold Release Orders (WROs) related to imports that may 
-  involve forced labor.
+  The CBP provides a list of Withhold Release Orders (WROs) and Findings List related to 
+  imports that may involve forced labor.
 description: |
   The CBP Withhold Release Orders and Findings dataset includes information about specific 
   shipments and products that may be tainted by forced labor practices. The data provides 
@@ -26,13 +26,16 @@ country: us
 data:
   url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
   format: html
-# assertions:
-#   min:
-#     schema_entities:
-#       Company: 100 # to be adjusted
-#   max:
-#     schema_entities:
-#       Company: 150 # to be adjusted
+  
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 55
+      Vessel: 5
+  max:
+    schema_entities:
+      LegalEntity: 70
+      Vessel: 10 
 
 lookups:
   name:
