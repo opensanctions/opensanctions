@@ -59,9 +59,10 @@ inputs:
 
 config:
   type: zavod.runner.local_enricher:LocalEnricher
+  index_options:
+    max_candidates: 1
   api: https://api.graph.opensanctions.org/
   dataset: eu_esma_firds
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
   fuzzy: false
   threshold: 0.6
@@ -78,4 +79,3 @@ config:
     - Company
     - Organization
     - Security
-  cache_days: 30

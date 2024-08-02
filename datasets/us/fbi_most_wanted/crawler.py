@@ -25,7 +25,7 @@ IGNORE_FIELDS = (
     "Build",
     "Scars and Marks",
 )
-SPLIT_DATES = re.compile("([^,]+,[^,]+)")
+SPLIT_DATES = re.compile(r"([^,]+,[^,]+)")
 
 
 def index_validator(doc: etree._Element) -> bool:
