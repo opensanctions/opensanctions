@@ -5,6 +5,7 @@ from datetime import datetime
 import xlrd
 
 from zavod import Context, helpers as h
+from zavod.entity import Entity
 
 SEBI_DEBARRMENT_URL = "https://nsearchives.nseindia.com/content/press/prs_ra_sebi.xls"
 OTHER_DEBARRMENT_URL = (
@@ -48,18 +49,53 @@ def parse_sheet(sheet) -> Generator[dict, None, None]:
         yield record
 
 
+def crawl_ownership(context: Context, owner: Entity, asset_name: str, target=False):
+    asset = context.make("LegalEntity")
+    asset.id = context.make_id(owner.id, asset_name)
+    asset.add("name", asset_name)
+    ownership = context.make("Ownership")
+    ownership.id = context.make_id("own", owner.id, asset_name)
+    ownership.add("owner", owner)
+    ownership.add("asset", asset)
+    context.emit(ownership)
+    context.emit(asset, target=target)
+    return asset
+
+
 def crawl_item(input_dict: dict, context: Context):
     name = input_dict.pop("entity_individual_name")
+    pan = input_dict.pop("pan")
     if name is None:
         return
-    pan = input_dict.pop("pan")
+
+    entity = context.make("LegalEntity")
+    entity.id = context.make_id(name, pan)
+
+    asset = None
+    debarreds = []
+
+    names = h.multi_split(name, ["Proprietor of", "Owner of"])
+    if len(names) == 2:
+        name = names[0]
+        crawl_ownership(context, entity, [1])
+
+    names = h.multi_split(name, ["Proprietor", "Owner", "Prop."])
+    if len(names) == 2 and names[0].strip():
+        name = names[1]
+        asset_name = names[0]
+        asset_is_debarred = False
+        if "and its" in asset_name:
+            asset_name = asset_name.replace("and its", "")
+            asset_is_debarred = True
+        asset = crawl_ownership(context, entity, asset_name, target=asset_is_debarred)
+        if asset_is_debarred:
+            debarreds.append(asset)
+
     # It's a target if it wasn't revoked
     period = input_dict.pop("period")
     is_revoked = period and "revoked" in period.lower()
     topics = "reg.warn" if is_revoked else "debarment"
 
-    entity = context.make("LegalEntity")
-    entity.id = context.make_id(name, pan)
     entity.add("name", name)
     entity.add("taxNumber", pan)
     entity.add("topics", topics)
@@ -69,19 +105,23 @@ def crawl_item(input_dict: dict, context: Context):
         din_cin = din_cin.replace("DIN ", "").replace("CIN ", "")
         entity.add("registrationNumber", din_cin.split(" "))
 
-    sanction = h.make_sanction(context, entity, key=input_dict.pop("nse_circular_no"))
-    sanction.add(
-        "date", h.parse_date(input_dict.pop("order_date"), formats=["%Y-%m-%d"])
-    )
-    sanction.add(
-        "description", "Order Particulars: " + input_dict.pop("order_particulars")
-    )
-    sanction.add("duration", period)
-    sanction.add("sourceUrl", input_dict.pop("source_url"))
-    sanction.add("sourceUrl", input_dict.pop("urls"))
+    nse_circular_no = input_dict.pop("nse_circular_no")
+    order_date = h.parse_date(input_dict.pop("order_date"), formats=["%Y-%m-%d"])
+    order_particulars = input_dict.pop("order_particulars")
+    source_url = input_dict.pop("source_url")
+    urls = input_dict.pop("urls")
+    debarreds.append(entity)
 
-    context.emit(entity, target=not is_revoked)
-    context.emit(sanction)
+    for debarred in debarreds:
+        sanction = h.make_sanction(context, debarred, key=nse_circular_no)
+        sanction.add("date", order_date)
+        sanction.add("description", "Order Particulars: " + order_particulars)
+        sanction.add("duration", period)
+        sanction.add("sourceUrl", source_url)
+        sanction.add("sourceUrl", urls)
+
+        context.emit(entity, target=not is_revoked)
+        context.emit(sanction)
 
     # There is some random data in the 17 and 18 columns
     context.audit_data(
