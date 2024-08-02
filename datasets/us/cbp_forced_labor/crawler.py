@@ -10,8 +10,8 @@ def crawl_item(context: Context, row: Dict[str, Any]):
         # Map the '#' header to 'id'
         if "id" in row:
             row["id"] = row.pop("id")
-        elif None in row:
-            row["id"] = row.pop(None)
+        # elif None in row:
+        #     row["id"] = row.pop(None)
 
         if "status-notes" in row:
             row["status_notes_text"] = row.pop("status-notes")
@@ -20,14 +20,11 @@ def crawl_item(context: Context, row: Dict[str, Any]):
         internal_id = row.pop("id")
         name = row.pop("entities")
         name_result = context.lookup("name", name)
-        listing_date = h.parse_date(
-            row.pop("date"), formats=["%m/%d/%Y"]
-        )  # "%d/%m/%Y"])
+        listing_date = h.parse_date(row.pop("date"), formats=["%m/%d/%Y"])
         merchandise = row.pop("merchandise")
         status = row.pop("status")
         status_notes = row.pop("status_notes_text")
         # status_notes_link = row.pop("status_notes_link")
-        # print(f"Processing entity: {name}, ID: {internal_id}")
 
         if name_result:
             for match_entity in name_result.entities:
@@ -76,7 +73,6 @@ def parse_table(
                     header_text = "id"
                 headers.append(slugify(header_text))
             header_found = True
-            # print(f"Headers: {headers}")
             continue
 
         # Proceed to parse data rows
@@ -93,7 +89,6 @@ def parse_table(
             header: cell.text_content().strip() for header, cell in zip(headers, cells)
         }
         row_data["main_header"] = main_header  # Add main_header to each row
-        # print(f"Parsed row: {row_data}")
         yield row_data
 
 
@@ -102,14 +97,10 @@ def crawl(context: Context):
     doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
 
-    # print("Iterating over tables and rows...")
-
     for accordion in doc.xpath("//div[contains(@class, 'usa-section-accordion')]"):
         heading_el = accordion.find(".//h2")
         heading_text = heading_el.text_content()
         table = accordion.find(".//table")
-        # print(heading_text, table)
+
         for item in parse_table(table, main_header=heading_text):
-            # print(f"Processing row: {item}")
             crawl_item(context, item)
-    # print("Finished processing all tables.")
