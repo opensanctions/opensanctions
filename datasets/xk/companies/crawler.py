@@ -1,8 +1,9 @@
 import os
 import re
 from typing import Any, Dict
-from datetime import datetime, timezone, timedelta
+from datetime import timedelta
 from base64 import b64encode
+from rigour.time import utc_now
 
 import requests
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -18,9 +19,7 @@ from zavod import helpers as h
 EXPECTED_FAILS = 20000
 
 KOSOVO_REGISTRY_KEY = os.environ.get("OPENSANCTIONS_KOSOVO_REGISTRY_KEY", "")
-assert (
-    KOSOVO_REGISTRY_KEY
-), "Please provide the Kosovo API key in the environment variable OPENSANCTIONS_KOSOVO_REGISTRY_KEY"
+assert KOSOVO_REGISTRY_KEY, "Please provide the Kosovo API key in the environment variable OPENSANCTIONS_KOSOVO_REGISTRY_KEY"
 
 FIELDS_MAPPING = {
     "EmriBiznesit": {"field": "name", "lang": "sqi"},
@@ -97,7 +96,7 @@ def get_the_key() -> str:
 
     # Message to encrypt
     # Looks like we can safely use timestamp in the future.
-    data = (datetime.now(timezone.utc) + timedelta(seconds=60)).isoformat()
+    data = (utc_now() + timedelta(seconds=60)).isoformat()
 
     # Padding the data according to PKCS7
     padder = PKCS7(algorithms.AES.block_size).padder()
