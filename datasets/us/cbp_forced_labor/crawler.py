@@ -27,10 +27,10 @@ def crawl_item(context: Context, row: Dict[str, Any]):
         # print(f"Processing entity: {name}, ID: {internal_id}")
 
         if re.search(pattern, country, re.IGNORECASE):
-            entity = context.make("Vessel")
             if name_result is not None and name_result.entities:
                 for match_entity in name_result.entities:
                     if match_entity.get("name"):
+                        entity = context.make("Vessel")
                         entity.id = context.make_id(
                             match_entity.get("name"), internal_id
                         )
@@ -40,13 +40,14 @@ def crawl_item(context: Context, row: Dict[str, Any]):
                             sanction = h.make_sanction(context, entity)
                             sanction.add("listingDate", listing_date)
                             entity.add("notes", status_notes)
+                        context.emit(entity, target=True)
         else:
-            entity = context.make("LegalEntity")
             if name_result is not None and name_result.entities:
                 for match_entity in name_result.entities:
                     if match_entity.get(
                         "name"
                     ):  # create multiple entries for each entity
+                        entity = context.make("LegalEntity")
                         entity.id = context.make_id(
                             match_entity.get("name"), internal_id
                         )
@@ -65,8 +66,8 @@ def crawl_item(context: Context, row: Dict[str, Any]):
                         entity.add("notes", status_notes)
                     if status_notes_link:
                         entity.add("notes", status_notes_link)
+                    context.emit(entity, target=True)
 
-        context.emit(entity, target=True)
     except Exception as e:
         print(f"Error processing row {row}: {e}")
 
