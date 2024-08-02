@@ -35,12 +35,29 @@ def check_name(context: Context, entity: Entity, subject_id: str, name: str) -> 
 def crawl_common(
     context: Context, subject_id: str, entity: Entity, item: Dict[str, Any]
 ) -> None:
+
+    # Ukranian
     name = item.pop("name")
-    if check_name(context, entity, subject_id, name):
-        entity.add("name", name, lang="ukr")
+    name_result = context.lookup("name", name)
+    if name_result is not None:
+        for name in name_result.values:
+            if check_name(context, entity, subject_id, name):
+                # Sometimes a Russian and Ukranian version
+                entity.add("name", name)
+    else:
+        if check_name(context, entity, subject_id, name):
+            entity.add("name", name, lang="ukr")
+
+    # Transliterated
     name_translit = item.pop("translit")
-    if check_name(context, entity, subject_id, name_translit):
-        entity.add("name", name_translit, lang="eng")
+    name_result = context.lookup("name", name_translit)
+    if name_result is not None:
+        for name in name_result.values:
+            if check_name(context, entity, subject_id, name):
+                entity.add("name", name, lang="eng")
+    else:
+        if check_name(context, entity, subject_id, name_translit):
+            entity.add("name", name_translit, lang="eng")
 
     identifiers = item.pop("identifiers") or []
     for ident in identifiers:
@@ -160,6 +177,5 @@ def crawl_legal(context: Context, item: Dict[str, Any]) -> None:
 def crawl(context: Context) -> None:
     for item in fetch_data(context, "/v2/subjects?subjectType=individual"):
         crawl_indiviudal(context, item)
-
     for item in fetch_data(context, "/v2/subjects?subjectType=legal"):
         crawl_legal(context, item)
