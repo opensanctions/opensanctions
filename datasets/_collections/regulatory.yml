@@ -19,6 +19,8 @@ children:
   - ch_finma_rulings
   - ch_finma_warnings
   - eu_esma_sanctions
+  - fr_illegal_financial_services
+  - in_nse_debarred
   - lt_illegal_gambling
   - lt_illegal_websites
   - lu_administrative_sanctions

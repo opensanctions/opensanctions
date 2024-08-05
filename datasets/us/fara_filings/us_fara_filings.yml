@@ -1,4 +1,4 @@
-title: "Foreign Agents Registration Act"
+title: US Foreign Agents Registration Act list
 url: https://efile.fara.gov/ords/fara/f?p=107:21
 entry_point: crawler.py
 prefix: us-fara
@@ -14,8 +14,7 @@ coverage:
   frequency: daily
   start: 2024-07-29
 summary: >
-   The US Foreign Agents Registration Act (FARA) dataset provides information about entities 
-   and individuals registered under the FARA act.
+   Entities and individuals registered under the Foreign Agents Registration Act (FARA).
 description: |
    The Foreign Agents Registration Act (FARA) was established in 1938. FARA mandates that 
    certain agents of foreign principals engaged in political or other specified activities 
