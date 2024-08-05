@@ -44,6 +44,7 @@ children:
 
   # misc
   - research
+  - securities
   - ann_graph_topics
   - wd_oligarchs
   - wd_curated
