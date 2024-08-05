@@ -4,72 +4,64 @@ from typing import Dict, Generator, Any
 from lxml.html import HtmlElement
 import re
 
-pattern = r"\bFishing\s+Vessels\b"
+REGEX_VESSEL = re.compile(r"\bFishing\s+Vessels\b")
 
 
 def crawl_item(context: Context, row: Dict[str, Any]):
-    try:
-        # Ensure all necessary keys are in the row
-        # Map the special case headers to expected names
-        if "#" in row:
-            row["id"] = row.pop("#")
-        # Extract required keys and handle them
-        country = row.pop("main_header")
-        internal_id = row.pop("id")
-        name = row.pop("entities")
-        name_result = context.lookup("name", name)
-        listing_date = h.parse_date(row.pop("date"), formats=["%m/%d/%Y"])
-        merchandise = row.pop("merchandise")
-        status = row.pop("status")
-        status_notes = row.pop("status-notes")
-        status_notes_link = row.pop("status_notes_link", None)
+    # Ensure all necessary keys are in the row
+    # Map the special case headers to expected names
+    if "#" in row:
+        row["id"] = row.pop("#")
+    # Extract required keys and handle them
+    country = row.pop("main_header")
+    internal_id = row.pop("id")
+    name = row.pop("entities")
+    name_result = context.lookup("name", name)
+    listing_date = h.parse_date(row.pop("date"), formats=["%m/%d/%Y"])
+    merchandise = row.pop("merchandise")
+    status = row.pop("status")
+    status_notes = row.pop("status-notes")
+    status_notes_link = row.pop("status_notes_link", None)
 
-        # print(f"Processing entity: {name}, ID: {internal_id}")
-
-        if re.search(pattern, country, re.IGNORECASE):
-            if name_result is not None and name_result.entities:
-                for match_entity in name_result.entities:
-                    if match_entity.get("name"):
-                        entity = context.make("Vessel")
-                        entity.id = context.make_id(
-                            match_entity.get("name"), internal_id
-                        )
-                        entity.add("name", match_entity.get("name"))
-                        if status in ["Active", "Partially Active"]:
-                            entity.add("topics", "sanction")
-                            sanction = h.make_sanction(context, entity)
-                            sanction.add("listingDate", listing_date)
-                            entity.add("notes", status_notes)
-                        context.emit(entity, target=True)
-        else:
-            if name_result is not None and name_result.entities:
-                for match_entity in name_result.entities:
-                    if match_entity.get(
-                        "name"
-                    ):  # create multiple entries for each entity
-                        entity = context.make("LegalEntity")
-                        entity.id = context.make_id(
-                            match_entity.get("name"), internal_id
-                        )
-                        entity.add("name", match_entity.get("name"))
-
-                        if "alias" in match_entity:
-                            entity.add("alias", match_entity.get("alias"))
-                    entity.add("idNumber", internal_id)
-                    entity.add("sector", merchandise)
-                    if country:
-                        entity.add("country", country)
+    if REGEX_VESSEL.search(country, re.IGNORECASE):
+        if name_result:
+            for match_entity in name_result.entities:
+                if match_entity.get("name"):
+                    entity = context.make("Vessel")
+                    entity.id = context.make_id(match_entity.get("name"), internal_id)
+                    entity.add("name", match_entity.get("name"))
                     if status in ["Active", "Partially Active"]:
                         entity.add("topics", "sanction")
                         sanction = h.make_sanction(context, entity)
                         sanction.add("listingDate", listing_date)
                         entity.add("notes", status_notes)
-                    if status_notes_link:
-                        entity.add("notes", status_notes_link)
+                        context.emit(sanction)
                     context.emit(entity, target=True)
+    else:
+        if name_result:
+            for match_entity in name_result.entities:
+                if match_entity.get("name"):  # create multiple entries for each entity
+                    entity = context.make("LegalEntity")
+                    entity.id = context.make_id(match_entity.get("name"), internal_id)
+                    entity.add("name", match_entity.get("name"))
 
-    except Exception as e:
-        print(f"Error processing row {row}: {e}")
+                    if "alias" in match_entity:
+                        entity.add("alias", match_entity.get("alias"))
+                entity.add("idNumber", internal_id)
+                entity.add("sector", merchandise)
+                if country:
+                    entity.add("country", country)
+                if status in ["Active", "Partially Active"]:
+                    entity.add("topics", "sanction")
+                    sanction = h.make_sanction(context, entity)
+                    sanction.add("listingDate", listing_date)
+                    entity.add("notes", status_notes)
+                    is_active = True
+                else:
+                    is_active = False
+                if status_notes_link:
+                    entity.add("notes", status_notes_link)
+                context.emit(entity, target=True)
 
 
 def parse_table(
