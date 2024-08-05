@@ -29,7 +29,7 @@ class LocalEnricher(Enricher[DS]):
     Candidates are selected for matching using search index. Candidates are then scored
     by the matching algorithm to determine if they are a match.
 
-    Entities that have the same rounded score from the blocking index index can be
+    Entities that have the same rounded score from the blocking index can be
     considered to be binned together. Many match candidates with very similar names
     might score the same, or similarly and only one or a small number might eventually be
     considered a match.
@@ -38,10 +38,10 @@ class LocalEnricher(Enricher[DS]):
     so use `max_bin` to configure the number of bins to step through before halting
     a given search.
 
-    e.g. if the second 116 in 118, 118, 118, 116, 116, 107 is the
-    positive match, cutting off at rank 4 would miss it out, but cutting off at bin 4
-    means all 116s are considered, the positive match is included, but other cases with
-    a bigger spread of results only score a small number of items.
+    e.g. if the second 116 in index scores 118, 118, 118, 116, 116, 107 is the
+    positive match, cutting off at rank 4 would miss it out, but cutting off at bin 2
+    means all 116s are considered, the positive match is included. Other cases where
+    index scores are more spread out would score a smaller number of items.
 
     Args:
         `config`: a dictionary of configuration options.
