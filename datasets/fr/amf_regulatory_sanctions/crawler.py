@@ -63,9 +63,9 @@ def crawl(context: Context) -> None:
         title = item.get("title")
         entities = item.get("text_egard", "")
         entity_names = re.split(r"<br />\r\n| et |;", entities)
-        total_amount = re.sub(
-            r"[^\d]", "", item.get("text", "")
-        )  # Extract the numerical value only
+        # total_amount = re.sub(
+        #     r"[^\d]", "", item.get("text", "")
+        # )  # Extract the numerical value only
         link = item.get("link", {}).get("url", "")
         date_epoch = item.get("date")
         # appeal = item.get("recours")
