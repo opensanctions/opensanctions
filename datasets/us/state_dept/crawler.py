@@ -15,21 +15,10 @@ def bio_unblock_validator(doc: ElementTree) -> bool:
 
 
 def crawl_bio_page(context: Context, url: str):
-    actions = [
-        {
-            "action": "waitForSelector",
-            "selector": {
-                "type": "xpath",
-                "value": "//h1[contains(@class, 'featured-content__headline')]",
-            },
-            "timeout": 15,
-        },
-    ]
     doc = fetch_html(
         context,
         url,
         bio_unblock_validator,
-        actions=actions,
         javascript=True,
         cache_days=30,
     )
@@ -126,21 +115,10 @@ def index_unblock_validator(doc: ElementTree) -> bool:
 
 
 def crawl(context: Context) -> Optional[str]:
-    actions = [
-        {
-            "action": "waitForSelector",
-            "selector": {
-                "type": "xpath",
-                "value": "//a[contains(@class, 'biography-collection__link')]",
-            },
-            "timeout": 15,
-        },
-    ]
     doc = fetch_html(
         context,
         context.data_url,
         index_unblock_validator,
-        actions=actions,
         cache_days=1,
     )
     crawl_index_page(context, doc)

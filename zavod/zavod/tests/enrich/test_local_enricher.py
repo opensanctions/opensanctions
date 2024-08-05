@@ -1,6 +1,5 @@
 from copy import deepcopy
-from nomenklatura.enrich import get_enricher
-from nomenklatura.enrich.common import Enricher
+from nomenklatura.enrich import make_enricher
 from nomenklatura.entity import CompositeEntity
 import shutil
 
@@ -42,10 +41,9 @@ AAA_BANK = {
 def load_enricher(context: Context, dataset_data, target_dataset: str):
     dataset_data_copy = deepcopy(dataset_data)
     dataset_data_copy["config"]["dataset"] = target_dataset
-    enricher_cls = get_enricher(PATH)
-    assert issubclass(enricher_cls, Enricher)
+    dataset_data_copy["config"]["type"] = PATH
     dataset = Dataset.make(dataset_data_copy)
-    return enricher_cls(dataset, context.cache, dataset.config)
+    return make_enricher(dataset, context.cache, dataset.config)
 
 
 def test_enrich(vcontext: Context):

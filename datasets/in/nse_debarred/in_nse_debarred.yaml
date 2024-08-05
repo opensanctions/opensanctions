@@ -1,0 +1,73 @@
+title: India National Stock Exchange Debarred Entities
+entry_point: crawler.py
+prefix: in-nse-deb
+coverage:
+  frequency: daily
+  start: "2024-05-20"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of Debarred Entities based on orders / directions from SEBI and other Competent Authorities
+description: |
+  This dataset contains a list of entities that have been debarred by the National
+  Stock Exchange of India (NSE) based on orders / directions from the Securities
+  and Exchange Board of India (SEBI) and other Competent Authorities.
+  The debarred entities are prohibited from selling securities in the market.
+
+publisher:
+  name: National Stock Exchange of India Limited
+  acronym: NSE
+  description: |
+    National Stock Exchange of India Limited (NSE) is a stock exchange
+    based in Mumbai, India. NSE is under the ownership of various domestic and foreign companies.
+  url: https://www.nseindia.com
+  official: true
+  country: "in"
+url: "https://www.nseindia.com/regulations/member-sebi-debarred-entities"
+data:
+  url: https://www.nseindia.com/regulations/member-sebi-debarred-entities
+  format: HTML
+
+lookups:
+  type.name:
+    options:
+      - match: AABCM8687M
+        value: Hanuman Tea Co. Ltd
+      - match: AAACM9510G
+        value: Karnavati Spinners Ltd
+      - match: AAACM9346G
+        value: Kaytee Cotsynth Industries Ltd
+      - match: AADCS4025R
+        value: Khemsons Global Ltd
+      - match: AAACV3430A
+        value: Kongarar Integrated Fibres Ltd
+      - match: AAACD7740B
+        value: Morinda Overseas & Industries Ltd
+      - match: AAACR2591J
+        value: Nexus Software Ltd
+      - match: AAACI6862P
+        value: P.C.I.Chemicals And Pharmaceuticals Ltd
+      - match: AACFR2090K
+        value: Sanvan Software Ltd
+      - match: AAACH4113J
+        values: SYP Agro Foods Ltd
+  type.url:
+    options:
+      - match: hhttps://archives.nseindia.com/content/circulars/INVG47850.zip
+        value: https://archives.nseindia.com/content/circulars/INVG47850.zip
+      - match: hhttps://archives.nseindia.com/content/circulars/INVG47840.zip
+        value: https://archives.nseindia.com/content/circulars/INVG47840.zip
+      - match: hhttps://archives.nseindia.com/content/circulars/INVG47830.zip
+        value: https://archives.nseindia.com/content/circulars/INVG47830.zip
+      - match: hhttps://archives.nseindia.com/content/circulars/INVG47829.zip
+        value: https://archives.nseindia.com/content/circulars/INVG47829.zip
+      - match: hhttps://archives.nseindia.com/content/circulars/INVG47751.zip
+        value: https://archives.nseindia.com/content/circulars/INVG47751.zip
+      - match: hhttps://archives.nseindia.com/content/circulars/INVG47784.zip
+        value: https://archives.nseindia.com/content/circulars/INVG47784.zip
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 13000
+  max:
+    schema_entities:
+      LegalEntity: 20000
