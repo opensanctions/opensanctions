@@ -2,8 +2,11 @@ from typing import Generator, Dict
 from lxml.etree import _Element
 from normality import collapse_spaces
 from datetime import datetime
-
+from lxml import etree
+import re
 from zavod import Context, helpers as h
+
+prohibitions_url = "https://www.gfsc.gg/commission/enforcement/prohibitions"
 
 
 def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
@@ -28,6 +31,62 @@ def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
             continue
 
         yield {hdr: c for hdr, c in zip(headers, cells)}
+
+
+def parse_html(doc: etree.ElementTree):
+    items = doc.findall('.//details[@class="helix-item helix-item-accordion"]')
+    if not items:
+        raise ValueError("Cannot find any details")
+
+    for item in items:
+        # Extract the summary and content details
+        summary = item.find('.//summary/h3[@class="item-title"]')
+        content = item.find('.//div[@class="generic-content field--name-copy"]')
+
+        # Extract name, DOB, and address
+        name_info = summary.text.strip()
+        title_match = re.search(
+            r"^(?P<name>.*?)\s*\(?\s*[Dd]ate of Birth\s*(?P<dob>\d{1,2}\s+[A-Za-z]+\s+\d{4})\s*\)?\s+of\s+(?P<address>.*)$",
+            name_info,
+        )
+        if not title_match:
+            continue
+
+        name = title_match.group(1).strip()
+        birth_date = title_match.group(2).strip()
+        address = title_match.group(3).strip()
+
+        # Extract prohibition details
+        prohibition_info = content.xpath(".//text()")
+
+        # Join all text within the given div element and normalize whitespace
+        if prohibition_info:
+            joined_text = " ".join(prohibition_info)
+            prohibition_details = re.sub(r"\s+", " ", joined_text).strip()
+        else:
+            prohibition_details = ""
+
+        if "," in prohibition_details:
+            prohibition_details = f'"{prohibition_details}"'
+
+        yield {
+            "name": name,
+            "birth_date": birth_date,
+            "address": address,
+            "prohibition_details": prohibition_details,
+        }
+
+
+def crawl_prohibitions(item: Dict[str, str], context: Context):
+    name = item.pop("name")
+
+    person = context.make("Person")
+    person.id = context.make_id(name)
+    person.add("name", name)
+    person.add("birthDate", h.parse_date(item.pop("birth_date"), formats=["%d %B %Y"]))
+    person.add("address", item.pop("address"))
+    person.add("notes", item.pop("prohibition_details"))
+    context.emit(person)
 
 
 def crawl_item(item: Dict[str, str], context: Context):
@@ -67,8 +126,12 @@ def crawl_item(item: Dict[str, str], context: Context):
 
 
 def crawl(context: Context) -> None:
-
+    # Fetch and process the HTML from the main data URL
     response = context.fetch_html(context.data_url)
-
     for item in parse_table(response.find(".//table")):
         crawl_item(item, context)
+
+    # Fetch and process the HTML for prohibitions
+    prohibitions = context.fetch_html(prohibitions_url)
+    for item in parse_html(prohibitions):
+        crawl_prohibitions(item, context)

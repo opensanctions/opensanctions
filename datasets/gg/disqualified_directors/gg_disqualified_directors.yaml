@@ -1,12 +1,14 @@
-title: Guernsey Disqualified Directors
+title: Guernsey Financial Services Commission - Prohibitions and Disqualified Directors
 entry_point: crawler.py
-prefix: gg-dir
+prefix: gg-gfsc
 coverage:
   frequency: daily
   start: "2024-07-26"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Company directors who have been disqualified by the Court
+  The Commission has prohibited the individuals named below from carrying out the functions 
+  described below.
+# to be adjusted
 description: |
   The Royal Court of Guernsey has the power to disqualify individuals from
   being appointed as a director or other officer of a company, or participating
@@ -14,18 +16,34 @@ description: |
   (Companies (Guernsey) Law 2008).
 
   This dataset lists persons disqualified in this way as published by the Guernsey Registry.
+  This is the list of prohibition orders made by the Commission. Prohibition Orders made after 
+  1 November 2021 are included on this list pursuant to section 34 of the Enforcement Powers Law. 
+  Prior to that date, the list was made pursuant to section 34F(1) of the Protection of Investors 
+  (Bailiwick of Guernsey) Law, 1987, section 28B(1) of The Insurance Business (Bailiwick of Guernsey) 
+  Law, 2002, section 18B(1) of The Insurance Managers and Insurance Intermediaries (Bailiwick of 
+  Guernsey) Law, 2002 and sections 17B(1) of each of the Banking Supervision (Bailiwick of Guernsey) 
+  Law, 1994 and The Regulation of Fiduciaries, Administration Businesses and Company Directors, etc. 
+  (Bailiwick of Guernsey) Law, 2000, as amended in each case.
+# to be adjusted
 publisher:
-  name: Guernsey Registry
-  acronym: GR
+  name: Guernsey Financial Services Commission
+  acronym: GFSC
   description: |
-   Website that provides information on the various registers maintained
-   by the Registry as required under Guernsey legislation.
+   The Guernsey Financial Services Commission is the regulatory body for the finance industry in the Bailiwick 
+   of Guernsey. We seek to secure good regulatory outcomes with integrity, proportionality, and professional excellence; 
+   thereby generating confidence in the Bailiwick as a jurisdiction.
+
+   We are an independent public body funded entirely by the licensees that we regulate by charging them fees. We are 
+   accountable to the States of Guernsey which is responsible for the Bailiwick’s financial services industry and for 
+   establishing the regulatory regime. 
+  # to be adjusted
   url: https://www.guernseyregistry.com/homepage
   official: true
   country: "gg"
-url: "https://www.guernseyregistry.com/article/4036/Disqualified-Directors"
+url: https://www.gfsc.gg/commission/enforcement
 data:
   url: https://www.guernseyregistry.com/article/4036/Disqualified-Directors
+  # url: https://www.gfsc.gg/commission/enforcement/prohibitions
   format: HTML
 
 assertions:
