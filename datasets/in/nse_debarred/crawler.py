@@ -49,7 +49,9 @@ def parse_sheet(sheet) -> Generator[dict, None, None]:
         yield record
 
 
-def crawl_ownership(context: Context, owner: Entity, asset_name: str, is_debarred=False):
+def crawl_ownership(
+    context: Context, owner: Entity, asset_name: str, is_debarred=False
+):
     asset = context.make("LegalEntity")
     asset.id = context.make_id(owner.id, asset_name)
     asset.add("name", asset_name)
@@ -89,7 +91,9 @@ def crawl_item(input_dict: dict, context: Context):
         if "and its" in asset_name:
             asset_name = asset_name.replace("and its", "")
             asset_is_debarred = True
-        asset = crawl_ownership(context, entity, asset_name, is_debarred=asset_is_debarred)
+        asset = crawl_ownership(
+            context, entity, asset_name, is_debarred=asset_is_debarred
+        )
         if asset_is_debarred:
             debarreds.append(asset)
 
