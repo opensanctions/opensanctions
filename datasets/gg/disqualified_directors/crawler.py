@@ -86,6 +86,10 @@ def crawl_prohibitions(item: Dict[str, str], context: Context):
     person.add("birthDate", h.parse_date(item.pop("birth_date"), formats=["%d %B %Y"]))
     person.add("address", item.pop("address"))
     person.add("notes", item.pop("prohibition_details"))
+    person.add(
+        "program", "Prohibition Orders by the Guernsey Financial Services Commission"
+    )
+    person.add("topics", "corp.disqual")
     context.emit(person)
 
 
@@ -96,6 +100,10 @@ def crawl_item(item: Dict[str, str], context: Context):
     person.id = context.make_id(name)
     person.add("name", name)
     person.add("country", "gg")
+    person.add(
+        "program",
+        "Disqualified Directors by the Guernsey Financial Services Commission",
+    )
 
     end_date = h.parse_date(
         item.pop("End of disqualification period"), formats=["%d.%m.%Y"]
