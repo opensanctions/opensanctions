@@ -1,12 +1,14 @@
+from pathlib import Path
 from lxml import html, etree
 from time import sleep
 from base64 import b64decode
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
 from zavod import settings
+from zavod.archive import dataset_data_path
 from zavod.context import Context
 from zavod.runtime.http_ import request_hash
 
@@ -19,9 +21,10 @@ class UnblockFailedException(RuntimeError):
         super().__init__(f"Unblocking failed for URL: {url}")
 
 
-def get_charset(headers: List[Dict[str, str]]) -> str:
-    content_type = [h["value"] for h in headers if h["name"] == "content-type"][0]
-    return content_type.split("charset=")[-1]
+def get_content_type(headers: List[Dict[str, str]]) -> Tuple[str, str]:
+    header = [h["value"] for h in headers if h["name"].lower() == "content-type"][0]
+    media_type, charset = header.split("; charset=")
+    return media_type.lower(), charset.lower()
 
 
 def configure_session(session: Session) -> None:
@@ -32,6 +35,62 @@ def configure_session(session: Session) -> None:
         allowed_methods=["POST"],
     )
     session.mount(ZYTE_API_URL, HTTPAdapter(max_retries=zyte_retries))
+
+
+def fetch_resource(
+    context: Context,
+    filename: str,
+    url: str,
+) -> Tuple[bool, Path, str | None, str | None]:
+    """
+    Fetch a resource using Zyte API and save to filesystem.
+
+    The content type and charset can be used to assert expected
+    types (and successful unblocking by Zyte) and for appropriate
+    text decoding when the encoding can vary.
+
+    Args:
+        context: The context object.
+        filename: The name to use when saving the file.
+        url: The URL of the resource.
+
+    Returns:
+        A tuple of:
+        - A boolean indicating whether the file was cached.
+        - The path to the saved file.
+        - The media type of the response, None if cached.
+        - The charset of the response, None if cached.
+    """
+    data_path = dataset_data_path(context.dataset.name)
+    out_path = data_path.joinpath(filename)
+    if out_path.exists():
+        return True, out_path, None, None
+
+    if settings.ZYTE_API_KEY is None:
+        raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
+
+    context.log.info("Fetching file", url=url)
+    zyte_data: Dict[str, Any] = {
+        "httpResponseBody": True,
+        "httpResponseHeaders": True,
+    }
+    context.log.debug(f"Zyte API request: {url}", data=zyte_data)
+    zyte_data["url"] = url
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    configure_session(context.http)
+
+    api_response = context.http.post(
+        ZYTE_API_URL,
+        auth=(settings.ZYTE_API_KEY, ""),
+        json=zyte_data,
+    )
+    api_response.raise_for_status()
+
+    file_base64 = api_response.json()["httpResponseBody"]
+    with open(out_path, "wb") as fh:
+        fh.write(b64decode(file_base64))
+    media_type, charset = get_content_type(api_response.json()["httpResponseHeaders"])
+    return False, out_path, media_type, charset
 
 
 def fetch_html(
@@ -106,7 +165,9 @@ def fetch_html(
     text = api_response.json()[html_source]
     assert text is not None
     if html_source == "httpResponseBody":
-        charset = get_charset(api_response.json()["httpResponseHeaders"])
+        media_type, charset = get_content_type(
+            api_response.json()["httpResponseHeaders"]
+        )
         text = b64decode(text).decode(charset)
     doc = html.fromstring(text)
 

@@ -1,5 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from shutil import copyfile
+from rigour.time import utc_now
 
 from zavod import settings
 from zavod.meta import Dataset
@@ -16,7 +17,7 @@ def test_timestamps(testdataset1: Dataset):
     for stmt in stmts:
         assert stmt.first_seen == prev_time
 
-    dt = datetime.utcnow().replace(microsecond=0) + timedelta(days=1)
+    dt = utc_now().replace(microsecond=0) + timedelta(days=1)
     default = dt.isoformat(sep="T", timespec="seconds")
 
     index = TimeStampIndex(dataset=testdataset1)

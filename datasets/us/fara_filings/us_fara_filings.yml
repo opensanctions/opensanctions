@@ -4,6 +4,12 @@ entry_point: crawler.py
 prefix: us-fara
 ci_test: false
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+exports:
+  - statistics.json
+  - entities.delta.json
+  - entities.ftm.json
+  - names.txt
+  - senzing.json
 coverage:
   frequency: daily
   start: 2024-07-29

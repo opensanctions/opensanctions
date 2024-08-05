@@ -1,3 +1,4 @@
+from datetime import datetime
 import io
 from pathlib import Path
 from zipfile import ZipFile
@@ -45,27 +46,30 @@ def crawl_registrant(context: Context, item: Dict[str, Any]) -> None:
     entity = context.make("LegalEntity")
     entity.id = registrant_id(context, registration_number)
     entity.add("name", item.pop("Name").strip() or None)
-    entity.add("topics", "poi")
     h.copy_address(entity, address)
     entity.add("registrationNumber", registration_number)
     entity.add("createdAt", registration_date)
     entity.add("country", "us")
     if termination_date:
         entity.add("description", f"Terminated registration {termination_date[0]}")
-    context.emit(entity, target=not bool(termination_date))
+    context.emit(entity)
 
     business_name = item.pop("Business_Name", "").strip()
     if business_name:
         business_entity = context.make("LegalEntity")
-        business_entity.id = context.make_slug("reg", "biz", business_name)
+        business_entity.id = context.make_slug(
+            "reg", registration_number, "biz", business_name
+        )
         business_entity.add("name", business_name)
         business_entity.add("country", "us")
-        business_entity.add("topics", "poi")
+
         context.emit(business_entity)
         link = context.make("UnknownLink")
         link.id = context.make_slug("link", business_entity.id)
         link.add("subject", entity)
         link.add("object", business_entity)
+
+        context.emit(business_entity)
         context.emit(link)
 
     context.audit_data(item)
@@ -87,7 +91,7 @@ def crawl_principal(context: Context, item: Dict[str, Any]) -> None:
     # Now create a new Company entity for the agency client
     principal = context.make("LegalEntity")
     full_address = address.get("full") if address else None
-    principal.id = context.make_slug("principal", p_name, full_address, strict=False)
+    principal.id = context.make_id("principal", p_name, full_address)
     principal.add("name", p_name)
     principal.add("country", item.pop("Country_location_represented"))
     h.copy_address(principal, address)
@@ -122,12 +126,18 @@ def crawl_principal(context: Context, item: Dict[str, Any]) -> None:
 
 
 def crawl(context: Context) -> None:
-    registrants_path = context.fetch_resource(REGISTRANTS_NAME, REGISTRANTS_URL)
+    registrants_path = context.fetch_resource(
+        REGISTRANTS_NAME,
+        REGISTRANTS_URL + "?cachebust=" + datetime.now().isoformat(),
+    )
     context.export_resource(registrants_path, ZIP, title=context.SOURCE_TITLE)
     for item in read_rows(context, registrants_path, REGISTRANTS_NAME):
         crawl_registrant(context, item)
 
-    principals_path = context.fetch_resource(PRINCIPALS_NAME, PRINCIPALS_URL)
+    principals_path = context.fetch_resource(
+        PRINCIPALS_NAME,
+        PRINCIPALS_URL + "?cachebust=" + datetime.now().isoformat(),
+    )
     context.export_resource(principals_path, ZIP, title=context.SOURCE_TITLE)
     for item in read_rows(context, principals_path, PRINCIPALS_NAME):
         crawl_principal(context, item)

@@ -22,7 +22,7 @@ from zavod.store import get_store
 log = logging.getLogger(__name__)
 
 
-class LocalEnricher(Enricher):
+class LocalEnricher(Enricher[DS]):
     """
     Uses a local index to look up entities in a given dataset.
 

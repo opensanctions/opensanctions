@@ -3,6 +3,8 @@ from lxml import html
 from zavod import Context
 from typing import Dict
 
+from zavod.shed.zyte_api import fetch_html
+
 
 def clean_birth_place(birth_place: str) -> str:
     birth_place = re.sub(r"\s*-\s*", " -", birth_place)  # Standardize hyphen format
@@ -61,8 +63,12 @@ def parse_card(card: html.HtmlElement) -> Dict[str, str]:
     return {"Name": name, "Crime": crime_text, "Birth Place": birth_place}
 
 
+def unblock_validator(doc: html.HtmlElement) -> bool:
+    return len(doc.xpath(".//div[contains(@class, 'card-body')]")) > 0
+
+
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)
+    doc = fetch_html(context, context.data_url, unblock_validator)
     # Find all <div class="card-body">
     cards = doc.xpath(".//div[contains(@class, 'card-body')]")
     if not cards:

@@ -8,11 +8,11 @@ from zavod.exc import RunFailedException
 from zavod.archive import dataset_data_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.loader import load_entry_point
-from zavod.runner.enrich import dataset_enricher
+from zavod.runner.enrich import enrich
 
 # HACK: Importing the enrich module in the test avoids a segfault otherwise happening
 # on OS X, probably related to the nested use of import_module.
-assert dataset_enricher is not None
+assert enrich is not None
 
 
 def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
