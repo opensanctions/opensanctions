@@ -1,0 +1,40 @@
+title: France AMF Regulatory sanctions
+prefix: fr-amf
+url: https://www.amf-france.org/fr/sanction-transaction/Decisions-de-la-commission-des-sanctions
+coverage:
+  frequency: daily
+  start: 2024-08-05
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+entry_point: crawler.py
+summary: >-
+  Decisions of the Sanctions Commission of the AMF (Autorité des marchés financiers).
+description: |
+  This dataset lists the decisions of the Sanctions Commission of the AMF (Autorité 
+  des marchés financiers) in France. The data includes detailed information about the 
+  sanctions imposed, the entities involved, and the reasons for the sanctions. The 
+  Sanctions Commission is responsible for ensuring the compliance of market participants 
+  with the financial regulations in France.
+publisher:
+  name: Autorité des marchés financiers (AMF)
+  description: |
+    The Autorité des marchés financiers (AMF) is an independent public body responsible 
+    for safeguarding investments in financial products, ensuring that investors receive 
+    material information, and maintaining orderly financial markets. The AMF publishes 
+    comprehensive information about its regulatory and supervisory activities, including 
+    decisions of the Sanctions Commission, on its official website.
+  country: fr
+  url: https://www.amf-france.org/en
+  official: true
+data:
+  url: https://www.amf-france.org/fr/rest/listing_sanction/91,184,183,325,90,461,89,242,86,462,181/all/all?t=1722860865328&_=1722860865172
+  format: JSON
+# assertions:
+#   min:
+#     schema_entities:
+#       Person: 300
+#       Position: 1
+#     country_entities:
+#       fr: 1
+#   max:
+#     schema_entities:
+#       Position: 1
