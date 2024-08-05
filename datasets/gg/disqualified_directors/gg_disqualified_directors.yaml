@@ -6,50 +6,33 @@ coverage:
   start: "2024-07-26"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  The Commission has prohibited the individuals named below from carrying out the functions 
-  described below.
-# to be adjusted
+  List of individuals disqualified as company directors or prohibited from specific functions 
+  by the Guernsey Financial Services Commission. 
 description: |
-  The Royal Court of Guernsey has the power to disqualify individuals from
-  being appointed as a director or other officer of a company, or participating
-  in the formation, management or promotion of a company
-  (Companies (Guernsey) Law 2008).
-
-  This dataset lists persons disqualified in this way as published by the Guernsey Registry.
-  This is the list of prohibition orders made by the Commission. Prohibition Orders made after 
-  1 November 2021 are included on this list pursuant to section 34 of the Enforcement Powers Law. 
-  Prior to that date, the list was made pursuant to section 34F(1) of the Protection of Investors 
-  (Bailiwick of Guernsey) Law, 1987, section 28B(1) of The Insurance Business (Bailiwick of Guernsey) 
-  Law, 2002, section 18B(1) of The Insurance Managers and Insurance Intermediaries (Bailiwick of 
-  Guernsey) Law, 2002 and sections 17B(1) of each of the Banking Supervision (Bailiwick of Guernsey) 
-  Law, 1994 and The Regulation of Fiduciaries, Administration Businesses and Company Directors, etc. 
-  (Bailiwick of Guernsey) Law, 2000, as amended in each case.
-# to be adjusted
+  This dataset includes two separate lists: one of individuals disqualified from being company 
+  directors under the Companies (Guernsey) Law 2008, and another of prohibition orders issued 
+  by the Guernsey Financial Services Commission, detailing individuals prohibited from specific 
+  functions since 1 November 2021.
 publisher:
   name: Guernsey Financial Services Commission
   acronym: GFSC
   description: |
-   The Guernsey Financial Services Commission is the regulatory body for the finance industry in the Bailiwick 
-   of Guernsey. We seek to secure good regulatory outcomes with integrity, proportionality, and professional excellence; 
-   thereby generating confidence in the Bailiwick as a jurisdiction.
-
-   We are an independent public body funded entirely by the licensees that we regulate by charging them fees. We are 
-   accountable to the States of Guernsey which is responsible for the Bailiwick’s financial services industry and for 
-   establishing the regulatory regime. 
-  # to be adjusted
-  url: https://www.guernseyregistry.com/homepage
+   The Guernsey Financial Services Commission (GFSC) is the regulatory body for the finance industry
+   in the Bailiwick of Guernsey. The GFSC is an independent public body funded entirely by the fees 
+   charged to the licensees it regulates and is accountable to the States of Guernsey, which oversees 
+   the Bailiwick's financial services industry and regulatory framework.
+  url: https://www.gfsc.gg
   official: true
   country: "gg"
 url: https://www.gfsc.gg/commission/enforcement
 data:
-  url: https://www.guernseyregistry.com/article/4036/Disqualified-Directors
-  # url: https://www.gfsc.gg/commission/enforcement/prohibitions
+  url: https://www.guernseyregistry.com/article/4036/Disqualified-Directors # url for the second list is accessed through the crawler.py
   format: HTML
 
 assertions:
   min:
     schema_entities:
-      Person: 4
+      Person: 35
   max:
     schema_entities:
-      Person: 20
+      Person: 45
