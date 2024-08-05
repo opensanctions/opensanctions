@@ -80,9 +80,23 @@ def parse_html(doc: etree.ElementTree):
 def crawl_prohibitions(item: Dict[str, str], context: Context):
     name = item.pop("name")
 
+    # Check for title and set gender
+    title_match = re.match(r"(Mr|Mrs|Ms)\s+(?P<name>.+)", name)
+    gender = None
+    if title_match:
+        title = title_match.group(1)
+        name = title_match.group("name")  # Remove title from the name
+        if title == "Mr":
+            gender = "male"
+        elif title in ["Mrs", "Ms"]:
+            gender = "female"
+
     person = context.make("Person")
     person.id = context.make_id(name)
     person.add("name", name)
+    # Add gender if detected
+    if gender:
+        person.add("gender", gender)
     person.add("birthDate", h.parse_date(item.pop("birth_date"), formats=["%d %B %Y"]))
     person.add("address", item.pop("address"))
     person.add("notes", item.pop("prohibition_details"))
