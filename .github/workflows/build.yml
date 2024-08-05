@@ -20,8 +20,8 @@ jobs:
     strategy:
       matrix:
         python:
-          - "3.10"
           - "3.11"
+          - "3.12"
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -38,6 +38,7 @@ jobs:
       - name: Install zavod dependencies
         working-directory: zavod
         run: |
+          pip install setuptools wheel
           pip install --no-cache-dir -q -e ".[dev]"
           pip freeze
       - name: Check zavod type annotations (strict)

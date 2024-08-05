@@ -8,12 +8,12 @@ from banal import hash_data
 from collections import Counter
 from typing import Any, BinaryIO, Dict, Generator
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from requests.exceptions import RequestException
 
 log = logging.getLogger("delta")
 DATE_FORMAT = "%Y%m%d"
-DEFAULT_CUR = datetime.utcnow()
+DEFAULT_CUR = datetime.now(timezone.utc)
 DEFAULT_PREV = DEFAULT_CUR - timedelta(days=1)
 URL_PATTERN = "https://data.opensanctions.org/datasets/%s/%s/entities.ftm.json"
 DATA_PATH_TXT = os.environ.get("DELTA_DATA_PATH", "data")

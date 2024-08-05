@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from zavod.context import Context
-from zavod.meta import Dataset, get_catalog
+from zavod.meta import Dataset
 from zavod.helpers.positions import make_position, make_occupancy
 
 
@@ -111,7 +111,6 @@ def test_occupancy_not_same_start_end_id(testdataset1: Dataset):
 def test_occupancy_dataset_coverage():
     # If coverage end is in the future, we trust the future end date
     dataset1 = Dataset(
-        get_catalog(),
         {"name": "dataset1", "title": "Dataset 1", "coverage": {"end": "2021-01-04"}},
     )
     context1 = Context(dataset1)
@@ -131,7 +130,6 @@ def test_occupancy_dataset_coverage():
 
     # If coverage end date has passed, we don't trust the future end date
     dataset2 = Dataset(
-        get_catalog(),
         {"name": "dataset2", "title": "Dataset 2", "coverage": {"end": "2021-01-02"}},
     )
     context2 = Context(dataset2)

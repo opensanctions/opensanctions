@@ -1,5 +1,6 @@
 import orjson
 from pathlib import Path
+from rigour.time import utc_now
 from banal import is_mapping, hash_data
 from datetime import datetime
 from followthemoney.proxy import EntityProxy
@@ -54,7 +55,7 @@ class DatasetIssues(object):
         if not report_issue:
             return
         record = {
-            "timestamp": datetime_iso(datetime.utcnow()),
+            "timestamp": datetime_iso(utc_now()),
             "module": data.pop("logger", None),
             "level": data.pop("level"),
             "message": data.pop("event", None),
