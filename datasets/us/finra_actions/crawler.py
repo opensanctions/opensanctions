@@ -13,8 +13,8 @@ for a bit longer (2024-07-31)
 """
 
 from typing import Generator, Dict, Tuple, Optional
-from lxml.etree import _Element, tostring
-from normality import collapse_spaces, slugify
+from lxml.etree import _Element
+from normality import slugify
 from zavod import Context, helpers as h
 
 
@@ -75,36 +75,25 @@ def crawl_item(input_dict: dict, context: Context):
 
 def crawl(context: Context):
     # Each page only displays 15 rows at a time, so we need to loop until we find an empty table
-
-    base_url = context.data_url
-
     page_num = 0
-
     while True:
         context.log.info(f"Crawling page {page_num}")
-        url = base_url + "?page=" + str(page_num)
-        response = context.fetch_html(url, cache_days=7)
-        table = response.find(".//table")
-
-        if collapse_spaces(tostring(response)) == "":
-            raise Exception("Empty response")
-
-        if table is None:
-            if response.find(".//div[@class='view-empty']") is not None:
-                break
-
-            context.log.info(
-                "Table not found. Retrying", url=url, html=tostring(response)
-            )
-            response = context.fetch_html(url, cache_days=0)
-
+        url = context.data_url + "?page=" + str(page_num)
+        # Caching for longer than 1 day can easily lead to missing entries as
+        # the new stuff show up on the first page, and cached pages pages won't
+        # include the stuff that were shifted off the previous uncached page.
+        response = context.fetch_html(url, cache_days=1)
         response.make_links_absolute(url)
         table = response.find(".//table")
 
-        rows = list(parse_table(table))
-        if len(rows) == 0:
-            context.log.info("No rows found")
-        for item in rows:
+        if table is None:
+            context.log.info("No table found")
+            break
+        if response.find(".//div[@class='view-empty']") is not None:
+            context.log.info("Reached empty state")
+            break
+
+        for item in parse_table(table):
             crawl_item(item, context)
 
         page_num += 1
