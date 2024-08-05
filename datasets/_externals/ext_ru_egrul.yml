@@ -10,6 +10,7 @@ coverage:
   end: 2022-01-01
 exports:
   - statistics.json
+  - entities.delta.json
 deploy:
   # schedule: "@daily"
   disk: "50Gi"

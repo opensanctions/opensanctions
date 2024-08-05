@@ -6,6 +6,7 @@ disabled: false
 hidden: false
 exports:
   - statistics.json
+  - entities.delta.json
 deploy:
   schedule: "1 12 * * *"
   memory: "1000Mi"

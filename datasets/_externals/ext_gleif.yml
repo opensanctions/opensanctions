@@ -9,6 +9,7 @@ coverage:
   start: 2022-05-30
 exports:
   - statistics.json
+  - entities.delta.json
 deploy:
   schedule: "1 10 * * *"
   memory: "1500Mi"
