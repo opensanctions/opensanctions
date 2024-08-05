@@ -27,14 +27,13 @@ publisher:
   official: true
 data:
   url: https://www.amf-france.org/fr/rest/listing_sanction/91,184,183,325,90,461,89,242,86,462,181/all/all?t=1722860865328&_=1722860865172
-  format: JSON
-# assertions:
-#   min:
-#     schema_entities:
-#       Person: 300
-#       Position: 1
-#     country_entities:
-#       fr: 1
-#   max:
-#     schema_entities:
-#       Position: 1
+  format: json
+assertions:
+  min:
+    schema_entities:
+      Person: 250
+      LegalEntity: 570
+  max:
+    schema_entities:
+      Person: 280
+      LegalEntity: 595
