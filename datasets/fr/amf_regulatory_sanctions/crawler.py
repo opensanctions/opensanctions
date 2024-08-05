@@ -90,7 +90,9 @@ def crawl(context: Context) -> None:
                 person = context.make("Person")
                 person.id = context.make_id(title, listing_date, name)
                 # Remove M. or Mme. before adding the person's name
-                cleaned_name = re.sub(r"^M\. |^Mme\.|^MM\. ", "", name).strip()
+                cleaned_name = re.sub(
+                    r"^M\. |^Mme\.|^MM\. ", "", name
+                ).strip()  # add Madame?
                 person.add("name", cleaned_name)
                 if name.startswith("Mme."):
                     person.add("gender", "female")
@@ -98,6 +100,7 @@ def crawl(context: Context) -> None:
                     person.add("gender", "male")
                 # Set other fields for person
                 person.add("notes", theme)
+                person.add("notes", title)
                 if link:
                     person.add("sourceUrl", f"https://www.amf-france.org{link}")
                 if "download" in item:
@@ -118,6 +121,7 @@ def crawl(context: Context) -> None:
                 entity.id = context.make_id(title, listing_date, name)
                 entity.add("name", name)
                 entity.add("notes", theme)
+                entity.add("notes", title)
                 if link:
                     entity.add("sourceUrl", f"https://www.amf-france.org{link}")
                 if "download" in item:
