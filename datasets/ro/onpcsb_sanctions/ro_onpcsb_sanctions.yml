@@ -7,8 +7,7 @@ coverage:
   frequency: never
   start: 2024-07-25
 summary: >
-  Information on suspected terrorism involvement approved by the Government of
-  Romania and based on the UN Security Council data.
+  Individuals and organisations suspected of terrorism involvement
 description: |
   The dataset contains a list of individuals and organizations suspected of
   committing or funding terrorist activities. It was approved by the Government
