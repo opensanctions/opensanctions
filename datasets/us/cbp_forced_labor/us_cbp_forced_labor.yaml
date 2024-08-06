@@ -212,7 +212,7 @@ lookups:
           - name: Tobacco produced in Malawi and products containing tobacco produced in Malawi
       - match: 'Brightway Holdings Sdn Bhd, Laglove (M) Sdn Bhd, and Biopro (M) Sdn Bhd (collectively, Brightway Group)'
         entities: 
-          - name:  Brightway Group
+          - name: Brightway Group
             alias: 
               - Brightway Holdings Sdn Bhd
               - Laglove (M) Sdn Bhd
