@@ -118,7 +118,6 @@ def parse_table(
 
 
 def crawl(context: Context):
-    print("Fetching and parsing the HTML document...")
     doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
 
