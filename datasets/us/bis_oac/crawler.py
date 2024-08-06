@@ -13,8 +13,7 @@ DATE_FORMAT = ["%d-%b"]  # 'DD-MMM' format
 def crawl_row(context: Context, row: Dict[str, str]):
     requester = row.pop("REQUESTER")
     requesting_country = row.pop("REQUESTING COUNTRY")
-    date_listed = row.pop("DATE LISTED")
-    date_listed_iso = h.parse_date(date_listed, DATE_FORMAT)
+    date_listed = h.parse_date(row.pop("DATE LISTED"), DATE_FORMAT)
 
     if not requester or not requesting_country or not date_listed:
         context.log.warning(
@@ -26,8 +25,12 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.id = context.make_id(requester, date_listed)
     entity.add("name", requester)
     entity.add("country", requesting_country)
-    entity.add("notes", date_listed_iso)
+    entity.add("topics", "export.risk")
+
+    sanction = h.make_sanction(context, entity)
+    sanction.add("listingDate", date_listed)
     context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 def crawl_xls(context: Context, url: str):
