@@ -39,16 +39,9 @@ def parse_entry(context: Context, node: _Element):
     if program is not None and "/" in program:
         country, _ = program.split("/", 1)
 
-    item = node.findtext("./Item")
     entity = context.make("LegalEntity")
     country_code = registry.country.clean(country)
-    entity.id = context.make_slug(
-        schedule,
-        item,
-        country_code,
-        entity_name,
-        strict=False,
-    )
+    entity.id = context.make_id(schedule, country_code, entity_name)
     if given_name is not None or last_name is not None or dob is not None:
         entity.add_schema("Person")
         h.apply_name(entity, first_name=given_name, last_name=last_name)
@@ -64,7 +57,7 @@ def parse_entry(context: Context, node: _Element):
     sanction = h.make_sanction(context, entity)
     sanction.add("program", program)
     sanction.add("reason", schedule)
-    sanction.add("authorityId", item)
+    sanction.add("authorityId", node.findtext("./Item"))
 
     names = node.findtext("./Aliases")
     if names is not None:
