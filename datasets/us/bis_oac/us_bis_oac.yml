@@ -13,10 +13,8 @@ summary: >
 description: |
   This list is provided to assist U.S. persons to fulfill the reporting requirements of the 
   antiboycott regulations by raising awareness regarding certain sources of boycott-related 
-  requests. Each entity on this list has been reported by a U.S. person to BIS on a boycott 
-  request report form, as required by section 760.5 of the EAR, as having made a boycott-related 
-  request in connection with a transaction in the interstate or foreign commerce of the United 
-  States. The list is not exhaustive and will be updated quarterly.
+  requests. These entities have been reported to the BIS for making boycott-related requests 
+  in U.S. transactions. The list is updated quarterly and is not exhaustive.
 # to be adjusted
 entry_point: crawler.py
 prefix: us-bis-oac
@@ -25,15 +23,10 @@ publisher:
   acronym: BIS
   official: true
   description: |
-    BIS is part of the U.S. Department of Commerce, where it manages the intersection 
-    between business and the foreign policy and security interests of the U.S.
-    The Office of Antiboycott Compliance (OAC) within BIS is charged with administering 
-    and enforcing the Anti-Boycott Act of 2018, Part II of the Export Control Reform Act 
-    of 2018 (ECRA), and the antiboycott provisions set forth in part 760 of the Export 
-    Administration Regulations, 15 CFR parts 730-774 (EAR). These authorities discourage, 
-    and in some circumstances, prohibit U.S. companies from taking certain actions in 
-    furtherance or support of a boycott maintained by a foreign country against a country 
-    friendly to the United States (unsanctioned foreign boycott).
+     BIS, part of the U.S. Department of Commerce, manages the intersection of business and 
+     U.S. foreign policy and security interests. The Office of Antiboycott Compliance (OAC) 
+     within BIS enforces the Anti-Boycott Act of 2018, which discourages and sometimes 
+     prohibits U.S. companies from supporting unsanctioned foreign boycotts.
   # to be adjusted
   country: us
   url: https://www.bis.gov
