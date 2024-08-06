@@ -9,7 +9,7 @@ from zavod import Context, helpers as h
 PROHIBITIONS_URL = "https://www.gfsc.gg/commission/enforcement/prohibitions"
 
 REGEX_DETAILS = re.compile(
-    r"^(?P<name>.*?)\s*\(?\s*[Dd]ate of Birth\s*(?P<dob>\d{1,2}\s+[A-Za-z]+\s+\d{4})\s*\)?\s+of\s+(?P<address>.*)$"
+    r"^(?P<name>.*?)\s*\(?\s*[Dd]ate of Birth\s*(?P<dob>(\d{1,2}\s+[A-Za-z]+\s+\d{4}|\d{2}/\d{2}/\d{4}))\s*\)?\s+of\s+(?P<address>.*)$"
 )
 
 
@@ -37,7 +37,7 @@ def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def parse_html(doc: etree.ElementTree):
+def parse_html(doc: etree.ElementTree, context: Context):
     items = doc.xpath('.//details[contains(@class, "helix-item-accordion")]')
     if not items:
         raise Exception("Cannot find any details")
@@ -50,13 +50,15 @@ def parse_html(doc: etree.ElementTree):
         # Extract name, DOB, and address
         name_info = summary.text.strip()
         title_match = re.search(REGEX_DETAILS, name_info)
-        name = title_match.group("name").strip()
         if not title_match:
+            context.log.warning(
+                f"Cannot extract name, date of birth, and address from {name_info}"
+            )
             continue
 
-        name = title_match.group(1).strip()
-        birth_date = title_match.group(2).strip()
-        address = title_match.group(3).strip()
+        name = title_match.group("name").strip()
+        birth_date = title_match.group("dob").strip()
+        address = title_match.group("address").strip()
 
         # Extract prohibition details
         prohibition_info = content.xpath(".//text()")
@@ -100,7 +102,10 @@ def crawl_prohibitions(item: Dict[str, str], context: Context):
     # Add gender if detected
     if gender:
         person.add("gender", gender)
-    person.add("birthDate", h.parse_date(item.pop("birth_date"), formats=["%d %B %Y"]))
+    person.add(
+        "birthDate",
+        h.parse_date(item.pop("birth_date"), formats=["%d %B %Y", "%d/%m/%Y"]),
+    )
     person.add("address", address)
     if "Guernsey" in address:
         person.add("country", "gg")
@@ -159,6 +164,6 @@ def crawl(context: Context) -> None:
         crawl_item(item, context)
 
     # Fetch and process the HTML for prohibitions
-    prohibitions = context.fetch_html(prohibitions_url)
-    for item in parse_html(prohibitions):
+    prohibitions = context.fetch_html(PROHIBITIONS_URL)
+    for item in parse_html(prohibitions, context):
         crawl_prohibitions(item, context)
