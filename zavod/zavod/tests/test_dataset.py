@@ -52,7 +52,7 @@ def test_basic():
     url = make_published_url(test_ds.name, "foo.json")
     assert url.startswith("https://data.opensanctions.org/datasets/"), url
     assert url.endswith(f"{test_ds.name}/foo.json"), url
-    os_data = test_ds.to_opensanctions_dict()
+    os_data = test_ds.to_opensanctions_dict(catalog)
     assert os_data["name"] == "test", os_data
     assert os_data["collections"] == ["collection"], os_data
     assert test_ds.resolve is False
@@ -67,7 +67,7 @@ def test_basic():
     assert coll_ds.is_collection is True
     assert len(coll_ds.children) == 1
     assert coll_ds.data is None
-    os_data = coll_ds.to_opensanctions_dict()
+    os_data = coll_ds.to_opensanctions_dict(catalog)
     assert "collections" not in os_data, os_data
     assert os_data["sources"] == ["test"], os_data
     # When resolve isn't set in the metadata, it defaults to True.
@@ -97,7 +97,8 @@ def test_validation(testdataset1: Dataset, testdataset3: Dataset):
 
 
 def test_validation_os_dict(testdataset1: Dataset, collection: Dataset):
-    osa = testdataset1.to_opensanctions_dict()
+    catalog = get_catalog()
+    osa = testdataset1.to_opensanctions_dict(catalog)
     assert osa["name"] == "testdataset1"
     assert osa["type"] == "source"
     assert osa["publisher"]["name"] == "OpenSanctions"
@@ -110,7 +111,7 @@ def test_validation_os_dict(testdataset1: Dataset, collection: Dataset):
     assert "description" in osa
     assert osa["entry_point"] == "testentrypoint1"
 
-    osac = collection.to_opensanctions_dict()
+    osac = collection.to_opensanctions_dict(catalog)
     assert osac["name"] == "collection"
     assert osac["type"] == "collection"
     assert len(osac["datasets"]) == 1, osac["datasets"]
