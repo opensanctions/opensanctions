@@ -6,7 +6,11 @@ from lxml import etree
 import re
 from zavod import Context, helpers as h
 
-prohibitions_url = "https://www.gfsc.gg/commission/enforcement/prohibitions"
+PROHIBITIONS_URL = "https://www.gfsc.gg/commission/enforcement/prohibitions"
+
+REGEX_DETAILS = re.compile(
+    r"^(?P<name>.*?)\s*\(?\s*[Dd]ate of Birth\s*(?P<dob>\d{1,2}\s+[A-Za-z]+\s+\d{4})\s*\)?\s+of\s+(?P<address>.*)$"
+)
 
 
 def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
@@ -34,9 +38,9 @@ def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
 
 
 def parse_html(doc: etree.ElementTree):
-    items = doc.findall('.//details[@class="helix-item helix-item-accordion"]')
+    items = doc.xpath('.//details[contains(@class, "helix-item-accordion")]')
     if not items:
-        raise ValueError("Cannot find any details")
+        raise Exception("Cannot find any details")
 
     for item in items:
         # Extract the summary and content details
@@ -45,10 +49,8 @@ def parse_html(doc: etree.ElementTree):
 
         # Extract name, DOB, and address
         name_info = summary.text.strip()
-        title_match = re.search(
-            r"^(?P<name>.*?)\s*\(?\s*[Dd]ate of Birth\s*(?P<dob>\d{1,2}\s+[A-Za-z]+\s+\d{4})\s*\)?\s+of\s+(?P<address>.*)$",
-            name_info,
-        )
+        title_match = re.search(REGEX_DETAILS, name_info)
+        name = title_match.group("name").strip()
         if not title_match:
             continue
 
@@ -62,7 +64,7 @@ def parse_html(doc: etree.ElementTree):
         # Join all text within the given div element and normalize whitespace
         if prohibition_info:
             joined_text = " ".join(prohibition_info)
-            prohibition_details = re.sub(r"\s+", " ", joined_text).strip()
+            prohibition_details = collapse_spaces(joined_text)
         else:
             prohibition_details = ""
 
@@ -82,6 +84,7 @@ def crawl_prohibitions(item: Dict[str, str], context: Context):
 
     # Check for title and set gender
     title_match = re.match(r"(Mr|Mrs|Ms)\s+(?P<name>.+)", name)
+    address = item.pop("address")
     gender = None
     if title_match:
         title = title_match.group(1)
@@ -98,13 +101,15 @@ def crawl_prohibitions(item: Dict[str, str], context: Context):
     if gender:
         person.add("gender", gender)
     person.add("birthDate", h.parse_date(item.pop("birth_date"), formats=["%d %B %Y"]))
-    person.add("address", item.pop("address"))
+    person.add("address", address)
+    if "Guernsey" in address:
+        person.add("country", "gg")
     person.add("notes", item.pop("prohibition_details"))
     person.add(
         "program", "Prohibition Orders by the Guernsey Financial Services Commission"
     )
     person.add("topics", "corp.disqual")
-    context.emit(person)
+    context.emit(person, target=True)
 
 
 def crawl_item(item: Dict[str, str], context: Context):
