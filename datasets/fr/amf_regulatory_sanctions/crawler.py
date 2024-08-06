@@ -1,8 +1,8 @@
-import requests
 from typing import Any, Generator, Optional, Tuple, Union
 from zavod import Context
 from datetime import datetime
 import re
+from html import unescape  # at the top
 
 # Regex patterns for cleaning theme
 theme_patterns = {
@@ -30,7 +30,7 @@ def get_value(
 
 
 def parse_json(context: Context) -> Generator[dict, None, None]:
-    response = requests.get(
+    response = context.fetch_json(
         "https://www.amf-france.org/fr/rest/listing_sanction/91,184,183,325,90,461,89,242,86,462,181/all/all?t=1722860865328&_=1722860865172"
     )
     if response.status_code != 200:
@@ -56,9 +56,7 @@ def crawl(context: Context) -> None:
     # General data
     for data in parse_json(context):
         # Extract relevant fields from each item
-        theme = data.get("theme")
-        for pattern, replacement in theme_patterns.items():
-            theme = pattern.sub(replacement, theme)
+        theme = unescape(str(data.get("theme")))
         item = data.get("infos", {})
         title = item.get("title")
         entities = item.get("text_egard", "")
