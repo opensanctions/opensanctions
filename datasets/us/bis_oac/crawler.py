@@ -6,7 +6,6 @@ from normality import collapse_spaces, stringify
 from rigour.mime.types import XLS
 import pandas as pd
 
-
 DATE_FORMAT = ["%d-%b"]  # 'DD-MMM' format
 
 
