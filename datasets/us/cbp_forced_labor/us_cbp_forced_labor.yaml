@@ -39,6 +39,7 @@ assertions:
 
 lookups:
   name:
+    normalize: true
     options:
       - match: 'Shanghai Select Safety Products Company, Limited and its two subsidiaries from China, Select (Nantong) Safety Products Co. Limited and Select Protective Technology (HK) Limited.'
         entities: 
@@ -53,7 +54,7 @@ lookups:
           - name: Xinjiang Uyghur Autonomous Region (XUAR)
       - match: 'Xinjiang Production and Construction Corporation (XPCC) and its subordinates'
         entities: 
-          - name: Xinjiang Production and Construction Corporation (XPCC) and its subordinates
+          - name: Xinjiang Production and Construction Corporation (XPCC)
       - match: 'Hefei Bitland Information Technology Co., Ltd.'
         entities: 
           - name: Hefei Bitland Information Technology Co., Ltd.
@@ -106,8 +107,8 @@ lookups:
         entities: 
           - name: Nanhu Tree Farm, Zhejiang Sanmei Tea Co., Ltd.
           - name: Imaizumi Tea Manufacturing & Trading Co., Ltd.
-          - address: Nagoya, Japan
-          - country: Japan
+            address: Nagoya, Japan
+            country: Japan
       - match: 'Guangzhou No. 1 Reeducation-Through-Labor Camp, a/k/a Guangdong Province No. 1 Reeducation-Through-Labor Camp; Kwong Ngai Industrial Company'
         entities: 
           - name: Guangzhou No. 1 Reeducation-Through-Labor Camp
@@ -205,6 +206,8 @@ lookups:
       - match: 'Mangalore Ganesh Beedie Works'
         entities: 
           - name: Mangalore Ganesh Beedie Works
+      - match: 'Fuchu Prison; Union Kogyo Co., Ltd.'
+        entities:
           - name: Fuchu Prison
           - name: Union Kogyo Co., Ltd.
       - match: 'Tobacco produced in Malawi and products containing tobacco produced in Malawi'
