@@ -40,7 +40,8 @@ def crawl_vessel(context: Context, row: Dict[str, Any]):
             continue
         entity = context.make("Vessel")
         entity.id = context.make_id(match_entity.get("name"), internal_id)
-        entity.add("name", match_entity.get("name"))
+        for prop, value in match_entity.items():
+            entity.add(prop, value)
         entity.add("notes", status_notes)
         entity.add("notes", status_notes_link)
         if status in ["Active", "Partially Active"]:
@@ -73,11 +74,10 @@ def crawl_company(context: Context, row: Dict[str, Any], country: str):
             continue
         entity = context.make("LegalEntity")  # create multiple entries for each entity
         entity.id = context.make_id(match_entity.get("name"), internal_id)
-        entity.add("name", match_entity.get("name"))
+        for prop, value in match_entity.items():
+            entity.add(prop, value)
         entity.add("notes", status_notes)
         entity.add("notes", status_notes_link)
-        if "alias" in match_entity:
-            entity.add("alias", match_entity.get("alias"))
         entity.add("idNumber", internal_id)
         entity.add("sector", merchandise)
         if country:

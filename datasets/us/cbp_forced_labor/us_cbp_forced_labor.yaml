@@ -1,14 +1,13 @@
 title: "US CBP Withhold Release Orders and Findings"
 url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
 entry_point: crawler.py
-prefix: cbp-forced-labor
+prefix: us-cbpfl
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
   start: 2024-08-01
 summary: >
-  The CBP provides a list of Withhold Release Orders (WROs) and Findings List related to 
-  imports that may involve forced labor.
+  Withhold Release Orders (WROs) and Findings related to imports that may involve forced labor.
 description: |
   The CBP Withhold Release Orders and Findings dataset includes information about specific 
   shipments and products that may be tainted by forced labor practices. The data provides 
@@ -48,7 +47,8 @@ lookups:
           - name: Select Protective Technology (HK) Limited
       - match: 'Hoshine Silicon Industry Co. Ltd. and Subsidiaries'
         entities: 
-          - name: Hoshine Silicon Industry Co. Ltd. and Subsidiaries
+          - name: Hoshine Silicon Industry Co. Ltd.
+            notes: and Subsidiaries
       - match: 'Xinjiang Uyghur Autonomous Region (XUAR)'
         entities: 
           - name: Xinjiang Uyghur Autonomous Region (XUAR)
@@ -94,7 +94,8 @@ lookups:
           - name: Inner Mongolia Hengzheng Group Baoanzhao Agricultural and Trade LLC
       - match: 'Tangshan Sanyou Group and its Subsidiaries'
         entities: 
-          - name: Tangshan Sanyou Group and its Subsidiaries
+          - name: Tangshan Sanyou Group
+            notes: and its Subsidiaries
       - match: 'Tianjin Malleable Iron Factory, a/k/a Tianjin Tongbao Fittings Company, a/k/a Tianjin No. 2 Malleable Iron Plant, a/k/a Tianjin Secondary Mugging Factory, a/k/a Tianjin No. 2 Prison'
         entities: 
           - name: Tianjin Malleable Iron Factory
@@ -222,11 +223,14 @@ lookups:
               - Biopro (M) Sdn Bhd
       - match: 'FGV Holdings Berhad and its subsidiaries and joint ventures'
         entities: 
-          - name: FGV Holdings Berhad and its subsidiaries and joint ventures
+          - name: FGV Holdings Berhad
+            notes: and its subsidiaries and joint ventures
       - match: 'Agropecuarios Tom S.A. de C.V. and Horticola Tom S.A. de C.V. and their subsidiaries'
         entities: 
           - name: Agropecuarios Tom S.A. de C.V.
+            notes: and their subsidiaries
           - name: Horticola Tom S.A. de C.V.
+            notes: and their subsidiaries
       - match: 'Kumar Carpet Pvt., Singhe Carpet Pvt., Ltd., Norsang Carpet Industries Pvt., Ltd., Annapurna Carpet, Everest Carpet, Valley Carpet, and K.K. Carpet Industries; Kathmandu.'
         entities: 
           - name: Kumar Carpet Pvt.
