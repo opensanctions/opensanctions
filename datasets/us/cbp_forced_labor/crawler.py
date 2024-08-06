@@ -55,17 +55,18 @@ def crawl_item(context: Context, row: Dict[str, Any]):
                     entity.add("topics", "sanction")
                     sanction = h.make_sanction(context, entity)
                     sanction.add("listingDate", listing_date)
+                    context.emit(sanction)
                     entity.add("notes", status_notes)
                     is_active = True
                 else:
                     is_active = False
                 if status_notes_link:
                     entity.add("notes", status_notes_link)
-                context.emit(entity, target=True)
+                context.emit(entity, target=is_active)
 
 
 def parse_table(
-    table: HtmlElement, main_header: str
+    context: Context, table: HtmlElement, main_header: str
 ) -> Generator[Dict[str, Any], None, None]:
     headers = []
     header_found = False
@@ -90,12 +91,13 @@ def parse_table(
         # Proceed to parse data rows
         cells = row.findall(".//td")
         if len(cells) == 0:
-            continue  # Skip empty rows
-        if len(headers) != len(cells):  # Ensure headers and cells match
-            print(
-                f"Header-cell mismatch: headers {headers}, cells {[c.text_content().strip() for c in cells]}"
+            context.log.warning("No cells found in the row.", cells=cells)
+        if len(headers) != len(cells):
+            context.log.warning(
+                "Header-cell mismatch.",
+                headers=headers,
+                cells=[c.text_content().strip() for c in cells],
             )
-            continue  # Skip rows where headers and cells do not match
 
         row_data = {
             header: cell.text_content().strip() for header, cell in zip(headers, cells)
@@ -125,5 +127,5 @@ def crawl(context: Context):
         heading_text = heading_el.text_content()
         table = accordion.find(".//table")
 
-        for item in parse_table(table, main_header=heading_text):
+        for item in parse_table(context, table, main_header=heading_text):
             crawl_item(context, item)
