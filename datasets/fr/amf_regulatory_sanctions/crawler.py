@@ -2,21 +2,24 @@ from typing import Any, Generator, Optional, Tuple, Union
 from zavod import Context
 from datetime import datetime
 import re
-from html import unescape  # at the top
+from html import unescape
 
 # Regex patterns for cleaning theme
-theme_patterns = {
-    re.compile(r"Manquement d&#039;initié"): "Manquement d'initié",
-    re.compile(r"Obligation d&#039;information"): "Obligation d'information",
-    re.compile(r"Manipulation de marché"): "Manipulation de marché",
-    re.compile(r"CIF, CIP ou autres prestataires"): "CIF, CIP ou autres prestataires",
-    re.compile(r"Instrument financier"): "Instrument financier",
-    re.compile(r"Produit d&#039;épargne collective"): "Produit d'épargne collective",
-    re.compile(r"Obligations professionnelles"): "Obligations professionnelles",
-    re.compile(r"Infrastructure de marché"): "Infrastructure de marché",
-    re.compile(r"Procédure"): "Procédure",
-    re.compile(r"PSI"): "PSI",
-}
+# theme_patterns = {
+#     re.compile(r"Manquement d&#039;initié"): "Manquement d'initié",
+#     re.compile(r"Obligation d&#039;information"): "Obligation d'information",
+#     re.compile(r"Manipulation de marché"): "Manipulation de marché",
+#     re.compile(r"CIF, CIP ou autres prestataires"): "CIF, CIP ou autres prestataires",
+#     re.compile(r"Instrument financier"): "Instrument financier",
+#     re.compile(r"Produit d&#039;épargne collective"): "Produit d'épargne collective",
+#     re.compile(r"Obligations professionnelles"): "Obligations professionnelles",
+#     re.compile(r"Infrastructure de marché"): "Infrastructure de marché",
+#     re.compile(r"Procédure"): "Procédure",
+#     re.compile(r"PSI"): "PSI",
+# }
+
+CLEAN_NAME = re.compile(r"^M\. |^Mme\.|^MM\. ", re.IGNORECASE)
+CLEAN_ENTITY = re.compile(r"<br />\r\n| et |;", re.IGNORECASE)
 
 
 def get_value(
