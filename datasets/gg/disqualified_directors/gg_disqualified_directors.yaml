@@ -1,4 +1,4 @@
-title: Guernsey Financial Services Commission - Prohibitions and Disqualified Directors
+title: Guernsey FSC Prohibitions and Disqualified Directors
 entry_point: crawler.py
 prefix: gg-gfsc
 coverage:
@@ -13,6 +13,8 @@ description: |
   directors under the Companies (Guernsey) Law 2008, and another of prohibition orders issued 
   by the Guernsey Financial Services Commission, detailing individuals prohibited from specific 
   functions since 1 November 2021.
+  
+  Disqualified directors are sourced from the [Guernsey Registry](https://www.guernseyregistry.com/article/4036/Disqualified-Directors).
 publisher:
   name: Guernsey Financial Services Commission
   acronym: GFSC
