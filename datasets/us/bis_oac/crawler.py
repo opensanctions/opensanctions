@@ -34,15 +34,15 @@ def crawl_xls(context: Context, url: str):
     path = context.fetch_resource("source.xls", url)
     context.export_resource(path, XLS, title=context.SOURCE_TITLE)
     try:
-        xls = pd.read_excel(path)  # Load all sheets into a dictionary
+        xls = pd.read_excel(path, sheet_name=None)  # Load all sheets into a dictionary
     except Exception as e:
         context.log.error(f"Failed to open Excel file: {e}")
         return
 
-    for sheet in xls.items():
+    for sheet_name, sheet in xls.items():
         headers = [collapse_spaces(h) for h in sheet.columns]
         for _, row in sheet.iterrows():
-            data = {headers[i]: stringify(row[i]) for i in range(len(headers))}
+            data = {headers[i]: stringify(row.iloc[i]) for i in range(len(headers))}
             crawl_row(context, data)
 
 
