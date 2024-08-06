@@ -22,9 +22,9 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.6.*",
-        "nomenklatura[leveldb,tantivy] == 3.12.5",
+        "nomenklatura[leveldb,tantivy] == 3.13.0",
         "plyvel == 1.5.1",
-        "rigour == 0.5.2",
+        "rigour == 0.5.3",
         "datapatch >= 1.1,< 1.3",
         "fingerprints == 1.2.*",
         "addressformatting == 1.3.*",
@@ -58,7 +58,7 @@ setup(
     },
     extras_require={
         "dev": [
-            "black==24.4.2",
+            "black==24.8.0",
             "wheel>=0.29.0",
             "twine",
             "mypy",

@@ -89,6 +89,7 @@ children:
   - pl_finanse_sanctions
   - pl_mswia_sanctions
   - ps_local_freezing
+  - ro_onpcsb_sanctions
   - rs_apml_domestic
   - qa_nctc_sanctions
   - sg_terrorists

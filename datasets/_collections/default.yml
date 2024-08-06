@@ -44,6 +44,7 @@ children:
 
   # misc
   - research
+  - securities
   - ann_graph_topics
   - wd_oligarchs
   - wd_curated
@@ -58,4 +59,5 @@ children:
   - ransomwhere
   - kp_rusi_reports
   - iso9362_bic
+  # - us_fara_filings
 ci_test: false

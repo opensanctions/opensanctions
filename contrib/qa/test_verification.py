@@ -2,7 +2,7 @@ import os
 import csv
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 DATE_FMT = "%Y-%m-%dT%H:%M:%S"
 ADDR_TEXT = "Lauensteiner Str. 49, 01277 Dresden"
@@ -42,7 +42,7 @@ def test_entities_json():
             else:
                 assert last_seen_dataset == last_seen
             assert first_seen <= last_seen
-            assert first_seen <= datetime.utcnow()
+            assert first_seen <= datetime.now(timezone.utc)
             assert isinstance(props, dict)
             if entity_id == "NK-JsVssJtnUWyf2Seb3yzYHN":
                 assert schema == "Person"
@@ -78,7 +78,7 @@ def test_targets_nested_json():
                 fp = props["familyPerson"]
                 assert len(fp) == 1
                 rel = fp[0]
-                assert rel["target"] == False
+                assert not rel["target"]
                 assert "first_seen" in rel
                 assert len(rel["datasets"]) == 1
                 assert len(rel["referents"]) == 0
@@ -118,7 +118,7 @@ def test_index_json():
     with open(validation_path("index.json"), "r") as fh:
         data = json.load(fh)
         assert data["name"] == "validation"
-        assert data["hidden"] == True
+        assert data["hidden"]
         assert len(data["resources"]) == 6
         print(list(data.keys()))
         assert datetime.strptime(data["last_change"], DATE_FMT)

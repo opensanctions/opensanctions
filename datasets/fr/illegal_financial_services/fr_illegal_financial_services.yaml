@@ -1,4 +1,4 @@
-title: French Illegal Financial Services Blacklist
+title: France AMF Illegal Financial Services list
 entry_point: crawler.py
 prefix: fr-il-fin
 coverage:
