@@ -57,6 +57,7 @@ def parse_entry(context: Context, node: _Element):
     sanction = h.make_sanction(context, entity)
     sanction.add("program", program)
     sanction.add("reason", schedule)
+    sanction.add("authorityId", node.findtext("./Item"))
 
     names = node.findtext("./Aliases")
     if names is not None:
