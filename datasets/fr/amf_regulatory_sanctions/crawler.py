@@ -4,22 +4,8 @@ from datetime import datetime
 import re
 from html import unescape
 
-# Regex patterns for cleaning theme
-# theme_patterns = {
-#     re.compile(r"Manquement d&#039;initié"): "Manquement d'initié",
-#     re.compile(r"Obligation d&#039;information"): "Obligation d'information",
-#     re.compile(r"Manipulation de marché"): "Manipulation de marché",
-#     re.compile(r"CIF, CIP ou autres prestataires"): "CIF, CIP ou autres prestataires",
-#     re.compile(r"Instrument financier"): "Instrument financier",
-#     re.compile(r"Produit d&#039;épargne collective"): "Produit d'épargne collective",
-#     re.compile(r"Obligations professionnelles"): "Obligations professionnelles",
-#     re.compile(r"Infrastructure de marché"): "Infrastructure de marché",
-#     re.compile(r"Procédure"): "Procédure",
-#     re.compile(r"PSI"): "PSI",
-# }
-
-CLEAN_NAME = re.compile(r"^M\. |^Mme\.|^MM\. ", re.IGNORECASE)
 CLEAN_ENTITY = re.compile(r"<br />\r\n| et |;", re.IGNORECASE)
+CLEAN_NAME = re.compile(r"^M\. |^Mme\.|^MM\.|^Madame ", re.IGNORECASE)
 
 
 def get_value(
@@ -36,22 +22,14 @@ def parse_json(context: Context) -> Generator[dict, None, None]:
     response = context.fetch_json(
         "https://www.amf-france.org/fr/rest/listing_sanction/91,184,183,325,90,461,89,242,86,462,181/all/all?t=1722860865328&_=1722860865172"
     )
-    if response.status_code != 200:
-        context.log.error(
-            f"Failed to fetch data: {response.status_code}, {response.text}"
-        )
-        return
-
-    data = response.json()
-    if "data" not in data or not data["data"]:
+    if "data" not in response:
         context.log.info("No data available.")
         return
 
     context.log.info(
-        f"Fetched {len(data['data'])} results."
+        f"Fetched {len(response['data'])} results."
     )  # Log the number of results
-
-    for item in data["data"]:
+    for item in response["data"]:
         yield item
 
 
@@ -63,7 +41,8 @@ def crawl(context: Context) -> None:
         item = data.get("infos", {})
         title = item.get("title")
         entities = item.get("text_egard", "")
-        entity_names = re.split(r"<br />\r\n| et |;", entities)
+        # entity_names = re.split(r"<br />\r\n| et |;", entities)
+        entity_names = re.split(CLEAN_ENTITY, entities)
         # total_amount = re.sub(
         #     r"[^\d]", "", item.get("text", "")
         # )  # Extract the numerical value only
@@ -86,16 +65,15 @@ def crawl(context: Context) -> None:
             if (
                 name.startswith("M.")
                 or name.startswith("Mme.")
+                or name.startswith("Madame")
                 or name.startswith("MM.")
             ):
                 person = context.make("Person")
                 person.id = context.make_id(title, listing_date, name)
                 # Remove M. or Mme. before adding the person's name
-                cleaned_name = re.sub(
-                    r"^M\. |^Mme\.|^MM\. ", "", name
-                ).strip()  # add Madame?
+                cleaned_name = re.sub(CLEAN_NAME, "", name).strip()
                 person.add("name", cleaned_name)
-                if name.startswith("Mme."):
+                if name.startswith("Mme." or "Madame"):
                     person.add("gender", "female")
                 elif name.startswith("M." or "MM."):
                     person.add("gender", "male")
