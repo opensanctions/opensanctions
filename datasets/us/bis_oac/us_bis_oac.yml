@@ -8,14 +8,12 @@ summary: >
   The antiboycott provisions of the EAR encourage, and in specified cases, require U.S. 
   persons to refuse to participate in unsanctioned foreign boycotts. They have the effect 
   of preventing U.S. persons from advancing foreign policies of other nations that run 
-  counter to U.S. policy.
-# to be adjusted
+  counter to U.S. policy. 
 description: |
   This list is provided to assist U.S. persons to fulfill the reporting requirements of the 
   antiboycott regulations by raising awareness regarding certain sources of boycott-related 
   requests. These entities have been reported to the BIS for making boycott-related requests 
-  in U.S. transactions. The list is updated quarterly and is not exhaustive.
-# to be adjusted
+  in U.S. transactions. The list is updated quarterly and is not exhaustive. 
 entry_point: crawler.py
 prefix: us-bis-oac
 publisher:
@@ -27,7 +25,6 @@ publisher:
      U.S. foreign policy and security interests. The Office of Antiboycott Compliance (OAC) 
      within BIS enforces the Anti-Boycott Act of 2018, which discourages and sometimes 
      prohibits U.S. companies from supporting unsanctioned foreign boycotts.
-  # to be adjusted
   country: us
   url: https://www.bis.gov
 data:
