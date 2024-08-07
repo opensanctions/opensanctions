@@ -6,6 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
+from email.message import Message
 
 from zavod import settings
 from zavod.archive import dataset_data_path
@@ -23,12 +24,14 @@ class UnblockFailedException(RuntimeError):
 
 def get_content_type(headers: List[Dict[str, str]]) -> Tuple[str, str | None]:
     header = [h["value"] for h in headers if h["name"].lower() == "content-type"][0]
-    values = header.split("; charset=")
-    if len(values) == 1:
-        return values[0].lower(), None
-    if len(values) == 2:
-        return values[0].lower(), values[1].lower()
-    raise Exception(f"Unexpected content type header: {header}")
+    # I kid you not, this is the https://peps.python.org/pep-0594/#cgi recommended
+    # way to replace cgi.parse_header
+    message = Message()
+    message["Content-Type"] = header
+    charset = message.get_param("charset")
+
+    assert charset is None or isinstance(charset, str), header
+    return message.get_content_type(), charset
 
 
 def configure_session(session: Session) -> None:
