@@ -72,8 +72,7 @@ def crawl(context: Context):
     context.log.info("Fetching data from the source")
     url = fetch_excel_url(context)
     path = context.fetch_resource(
-        "source.xls", url
+        "source.xlsx", url
     )  # Even though its initial name is source.xls, actual file is in xlsx format
-    actual_path = path.with_suffix(".xlsx")
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    crawl_xlsx(context, actual_path)
+    crawl_xlsx(context, path)
