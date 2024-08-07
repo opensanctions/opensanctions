@@ -6,7 +6,6 @@ from zavod import helpers as h
 from normality import collapse_spaces, stringify
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
-from typing import List, Optional, Iterable
 
 
 DATE_FORMAT = ["%Y-%m-%d"]  # 'YYYY-MM-DD' format
