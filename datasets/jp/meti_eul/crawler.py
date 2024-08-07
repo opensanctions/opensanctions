@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.gpt import run_image_prompt
-from zavod.shed.zyte_api import fetch_html
+from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 prompt = """
 Extract structured data from the following page of a PDF document. Return 
@@ -38,7 +38,9 @@ def crawl_pdf_url(context: Context) -> str:
 
 def crawl(context: Context):
     pdf_url = crawl_pdf_url(context)
-    path = context.fetch_resource("source.pdf", pdf_url)
+    cached, path, media_type, charset = fetch_resource(context, "source.pdf", pdf_url)
+    if not cached:
+        assert media_type == PDF, media_type
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     last_no = 0
     for page_path in h.make_pdf_page_images(path):

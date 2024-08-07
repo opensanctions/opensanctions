@@ -21,10 +21,14 @@ class UnblockFailedException(RuntimeError):
         super().__init__(f"Unblocking failed for URL: {url}")
 
 
-def get_content_type(headers: List[Dict[str, str]]) -> Tuple[str, str]:
+def get_content_type(headers: List[Dict[str, str]]) -> Tuple[str, str | None]:
     header = [h["value"] for h in headers if h["name"].lower() == "content-type"][0]
-    media_type, charset = header.split("; charset=")
-    return media_type.lower(), charset.lower()
+    values = header.split("; charset=")
+    if len(values) == 1:
+        return values[0].lower(), None
+    if len(values) == 2:
+        return values[0].lower(), values[1].lower()
+    raise Exception(f"Unexpected content type header: {header}")
 
 
 def configure_session(session: Session) -> None:
@@ -168,6 +172,7 @@ def fetch_html(
         media_type, charset = get_content_type(
             api_response.json()["httpResponseHeaders"]
         )
+        assert charset is not None, zyte_data
         text = b64decode(text).decode(charset)
     doc = html.fromstring(text)
 
