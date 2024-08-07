@@ -50,6 +50,9 @@ class PinregSession:
             else:
                 self.context.log.exception("Failed to fetch deklaracija", id=id_str)
                 raise
+        except Exception:
+            self.context.log.exception("Failed to fetch deklaracija", id=id_str)
+            raise
 
 
 def make_person(context: Context, declaration_id: int, data: dict) -> Entity:
