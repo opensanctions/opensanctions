@@ -3,9 +3,12 @@ from zavod import Context
 from datetime import datetime
 import re
 from html import unescape
+from urllib.parse import urljoin
 
 CLEAN_ENTITY = re.compile(r"<br />\r\n| et |;", re.IGNORECASE)
 CLEAN_NAME = re.compile(r"^M\. |^Mme\.|^MM\.|^Madame ", re.IGNORECASE)
+
+BASE_URL = "https://www.amf-france.org"
 
 
 def get_value(
@@ -19,9 +22,7 @@ def get_value(
 
 
 def parse_json(context: Context) -> Generator[dict, None, None]:
-    response = context.fetch_json(
-        "https://www.amf-france.org/fr/rest/listing_sanction/91,184,183,325,90,461,89,242,86,462,181/all/all?t=1722860865328&_=1722860865172"
-    )
+    response = context.fetch_json(context.data_url)
     if "data" not in response:
         context.log.info("No data available.")
         return
@@ -81,7 +82,8 @@ def crawl(context: Context) -> None:
                 person.add("notes", theme)
                 person.add("notes", title)
                 if link:
-                    person.add("sourceUrl", f"https://www.amf-france.org{link}")
+                    full_link = urljoin(BASE_URL, link)
+                    person.add("sourceUrl", full_link)
                 if "download" in item:
                     download_links = (
                         item["download"].get("sanction", {}).get("links", {})
@@ -89,9 +91,8 @@ def crawl(context: Context) -> None:
                     if download_links:
                         download_url = download_links.get("url")
                         if download_url:
-                            person.add(
-                                "sourceUrl", f"https://www.amf-france.org{download_url}"
-                            )
+                            full_download_url = urljoin(BASE_URL, download_url)
+                            person.add("sourceUrl", full_download_url)
 
                 context.emit(person)
 
@@ -102,7 +103,8 @@ def crawl(context: Context) -> None:
                 entity.add("notes", theme)
                 entity.add("notes", title)
                 if link:
-                    entity.add("sourceUrl", f"https://www.amf-france.org{link}")
+                    full_link = urljoin(BASE_URL, link)
+                    entity.add("sourceUrl", full_link)
                 if "download" in item:
                     download_links = (
                         item["download"].get("sanction", {}).get("links", {})
@@ -110,8 +112,7 @@ def crawl(context: Context) -> None:
                     if download_links:
                         download_url = download_links.get("url")
                         if download_url:
-                            entity.add(
-                                "sourceUrl", f"https://www.amf-france.org{download_url}"
-                            )
+                            full_download_url = urljoin(BASE_URL, download_url)
+                            entity.add("sourceUrl", full_download_url)
 
                 context.emit(entity)
