@@ -72,7 +72,11 @@ inputs:
   - sanctions
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
+  type: zavod.runner.local_enricher:LocalEnricher
+  limit: 100
+  max_bin: 14
+  index_options:
+    max_candidates: 200
   api: https://api.graph.opensanctions.org/
   dataset: ua_edr
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
