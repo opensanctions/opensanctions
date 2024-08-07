@@ -52,6 +52,7 @@ def crawl_person(context: Context, url: str) -> None:
     person = context.make("Person")
     person.id = context.make_slug(name)
     person.add("topics", "crime")
+    person.add("topics", "wanted")
     person.add("name", name)
     person.add("sourceUrl", url)
     # last_name, first_name = name.split(" ", 1)
@@ -80,6 +81,16 @@ def crawl_person(context: Context, url: str) -> None:
             person.add("gender", value)
         elif "Race" in key:
             person.add("ethnicity", value)
+        elif "Hair" in key:
+            person.add("hairColor", value)
+        elif "Eyes" in key:
+            person.add("eyeColor", value)
+        elif "Height" in key:
+            person.add("height", value)
+        elif "Weight" in key:
+            person.add("weight", value)
+        elif "Scars and Marks" in key:
+            person.add("identifyingMarks", value)
         elif "Date(s) of Birth Used" in key:
             dates = SPLIT_DATES.split(value)
             for date in dates:

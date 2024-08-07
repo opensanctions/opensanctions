@@ -17,6 +17,7 @@ def crawl_person(context: Context, item: _Element, url: str) -> None:
     person = context.make("Person")
     person.id = context.make_slug(name.text.strip())
     person.add("topics", "crime")
+    person.add("topics", "wanted")
     person.add("name", name.text.strip())
 
     # Person page
@@ -44,6 +45,10 @@ def crawl_person(context: Context, item: _Element, url: str) -> None:
                 person.add("ethnicity", value.text.strip())
             elif label_text == "additional-information":
                 person.add("notes", [article.text.strip(), value.text.strip()])
+            elif label_text == "height":
+                person.add("height", value.text.strip())
+            elif label_text == "hair-colour":
+                person.add("hairColor", value.text.strip())
 
     context.emit(person, target=True)
 

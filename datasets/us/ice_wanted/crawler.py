@@ -87,6 +87,10 @@ def crawl_person(context: Context, url: str, wanted_for: str):
         doc,
         '//div[contains(@class, "field--name-field-hair")]//div[contains(@class, "field__item")]',
     )
+    scars_marks = get_element_text(
+        doc,
+        '//div[contains(@class, "field--name-field-scars-marks")]//div[contains(@class, "field__item")]',
+    )
     wanted_title = get_element_text(
         doc,
         './/div[contains(@class, "field--name-field-wanted-for")]',
@@ -99,22 +103,28 @@ def crawl_person(context: Context, url: str, wanted_for: str):
     person.add("name", name)
     person.add("alias", alias.split("; "))
     person.add("topics", "crime")
+    person.add("topics", "wanted")
     person.add("sourceUrl", url)
     person.add("summary", summary)
     person.add("position", occupation)
     person.add("gender", gender)
     person.add("birthPlace", place_of_birth)
     person.add("address", last_known_location)
+    person.add("height", height)
+    person.add("weight", weight)
+    person.add("eyeColor", eyes)
+    person.add("hairColor", hair)
+    person.add("identifyingMarks", scars_marks)
 
     person.add(
         "description",
         [
             f"Age: {age}",
-            f"Weight: {weight}",
-            f"Height: {height}",
+            # f"Weight: {weight}",
+            # f"Height: {height}",
             f"Skin tone: {skin_tone}",
-            f"Eyes: {eyes}",
-            f"Hair: {hair}",
+            # f"Eyes: {eyes}",
+            # f"Hair: {hair}",
         ],
     )
     person.add(
