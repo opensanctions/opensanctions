@@ -81,7 +81,7 @@ def crawl_item(input_dict: dict, context: Context):
     names = h.multi_split(name, ["Proprietor of", "Owner of"])
     if len(names) == 2:
         name = names[0]
-        crawl_ownership(context, entity, [1])
+        crawl_ownership(context, entity, names[1])
 
     names = h.multi_split(name, ["Proprietor", "Owner", "Prop."])
     if len(names) == 2 and names[0].strip():
