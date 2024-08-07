@@ -1,3 +1,4 @@
+import re
 from urllib.parse import urljoin
 from typing import Dict
 from zavod import Context
@@ -5,16 +6,28 @@ from zavod import helpers as h
 from normality import collapse_spaces, stringify
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
+from typing import List, Optional, Iterable
 
 
-DATE_FORMAT = ["%d-%b"]  # 'DD-MMM' format
+DATE_FORMAT = ["%Y-%m-%d"]  # 'YYYY-MM-DD' format
+DATE_CLEAN = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+def extract_date(date_str: str) -> str:
+    """Extract date from a string using regex."""
+    match = re.search(DATE_CLEAN, date_str)
+    if match:
+        return match.group(0)
+    return ""
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
     requester = row.pop("REQUESTER", "").strip()
     requesting_country = row.pop("REQUESTING COUNTRY", "").strip()
-    date_listed = h.parse_date(row.pop("DATE LISTED", ""), DATE_FORMAT)
-
+    # Extract and parse the date part only
+    raw_date = row.pop("DATE LISTED", "").strip()
+    date_part = extract_date(raw_date)
+    date_listed = h.parse_date(date_part, DATE_FORMAT)[0]
     if not requester or not requesting_country or not date_listed:
         context.log.warning(
             "Missing requester, requesting country, or date listed", row=row
