@@ -38,3 +38,9 @@ assertions:
     schema_entities:
       Person: 280
       LegalEntity: 595
+lookups:
+  type.name:
+    options:
+      - match: "A...B..."
+        value: null
+
