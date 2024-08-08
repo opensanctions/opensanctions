@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Optional
 
-from requests import HTTPError
-
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.logic.pep import OccupancyStatus, categorise
