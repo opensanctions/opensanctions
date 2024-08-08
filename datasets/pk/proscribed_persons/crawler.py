@@ -27,6 +27,7 @@ def crawl_person(context: Context, row: dict):
     entity.add("name", person_name)
     entity.add("fatherName", father_name)
     entity.add("topics", "crime.terror")
+    entity.add("topics", "wanted")
     entity.add("address", f"{district}, {province}")
 
     sanction = h.make_sanction(context, entity)

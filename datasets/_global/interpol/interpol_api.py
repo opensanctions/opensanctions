@@ -12,10 +12,10 @@ CACHE_SHORT = 3
 CACHE_LONG = 14
 IGNORE_FIELDS = [
     "languages_spoken_ids",
-    "hairs_id",
-    "height",
-    "weight",
-    "eyes_colors_id",
+    # "hairs_id",
+    # "height",
+    # "weight",
+    # "eyes_colors_id",
 ]
 MAX_RESULTS = 160
 SEEN_URLS: Set[str] = set()
@@ -100,11 +100,16 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     entity.add("gender", notice.pop("sex_id", None))
     entity.add("birthPlace", notice.pop("place_of_birth", None))
     entity.add("notes", notice.pop("distinguishing_marks", None))
+    entity.add("hairColor", notice.pop("hairs_id", None))
+    entity.add("height", notice.pop("height", None))
+    entity.add("weight", notice.pop("weight", None))
+    entity.add("eyeColor", notice.pop("eyes_colors_id", None))
 
     dob_raw = notice.pop("date_of_birth", None)
     entity.add("birthDate", h.parse_date(dob_raw, FORMATS))
     if "v1/red" in url:
         entity.add("topics", "crime")
+        entity.add("topics", "wanted")
 
     for warrant in notice.pop("arrest_warrants", []):
         sanction = h.make_sanction(context, entity)
