@@ -114,7 +114,7 @@ def crawl_person(context: Context, url: str, wanted_for: str):
     person.add("weight", weight)
     person.add("eyeColor", eyes)
     person.add("hairColor", hair)
-    person.add("identifyingMarks", scars_marks)
+    person.add("appearance", scars_marks)
 
     person.add(
         "description",
