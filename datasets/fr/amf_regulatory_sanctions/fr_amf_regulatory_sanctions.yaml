@@ -49,3 +49,9 @@ lookups:
           - Michael Aubourg
           - Davide Blei
           - Cyril de Bournet
+  name_fixes:
+    options: []
+  roughly_invalid_names:
+    options:
+      - match: X
+        value: null

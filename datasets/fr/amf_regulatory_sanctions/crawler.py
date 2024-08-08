@@ -94,6 +94,12 @@ def get_value(
     return default
 
 
+def roughly_valid_name(name: str) -> bool:
+    if not re.search("\w{3}", name):
+        return False
+    return len(name) > 3
+
+
 def is_valid_name(name: str) -> bool:
     # Split the names by comma and strip each part
     name_parts = [part.strip() for part in name.split(",")]  # split_comma_names(name)
@@ -108,6 +114,7 @@ def is_valid_name(name: str) -> bool:
         # Check if part is "Société" followed by a single letter
         if (
             part == "Société"
+            or part.startswith("sociétés")
             or part.startswith("Société")
             or part.startswith("société")
             or part.startswith("sociétés")
@@ -177,7 +184,7 @@ def process_person(
                 full_download_url = urljoin(BASE_URL, download_url)
                 person.add("sourceUrl", full_download_url)
 
-    context.emit(person)
+    context.emit(person, target=True)
 
 
 def process_entity(
@@ -193,7 +200,24 @@ def process_entity(
     entity = context.make("LegalEntity")
     entity.id = context.make_id(title, listing_date, name)
     # Clean and add name
+
+    # Not warning if this one isn't defined, just an overall check
+    precursor_res = context.lookup("name_fixes", name)
+    if precursor_res:
+        name = precursor_res.value
+
     cleaned_name = clean_name(name, CLEAN_ENTITY_REGEX)
+
+    # Catch things that still don't look right
+    if not roughly_valid_name(cleaned_name):
+        name_fix_res = context.lookup("roughly_invalid_names", cleaned_name)
+        if name_fix_res is None:
+            context.log.warning("...")
+            return
+        cleaned_name = name_fix_res.value
+    if cleaned_name is None:
+        return
+    
     print(cleaned_name)
     entity.add("name", cleaned_name)
     entity.add("notes", theme)
@@ -208,7 +232,7 @@ def process_entity(
             if download_url:
                 full_download_url = urljoin(BASE_URL, download_url)
                 entity.add("sourceUrl", full_download_url)
-    context.emit(entity)
+    context.emit(entity, target=True)
 
 
 def crawl(context: Context) -> None:
