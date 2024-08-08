@@ -3,7 +3,7 @@ from normality import slugify, collapse_spaces
 from lxml.html import HtmlElement
 
 
-def parse_table(table: HtmlElement) -> Generator[Dict[str, str], None, None]:
+def parse_table(table: HtmlElement) -> Generator[Dict[str, HtmlElement], None, None]:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
@@ -15,6 +15,10 @@ def parse_table(table: HtmlElement) -> Generator[Dict[str, str], None, None]:
                 headers.append(slugify(eltree.text_content()))
             continue
 
-        cells = [collapse_spaces(el.text_content()) for el in row.findall("./td")]
+        cells = row.findall("./td")
         assert len(headers) == len(cells), (headers, cells)
         yield {hdr: c for hdr, c in zip(headers, cells)}
+
+
+def cells_to_str(row: Dict[str, HtmlElement]) -> Dict[str, str | None]:
+    return {k: collapse_spaces(v.text_content()) for k, v in row.items()}
