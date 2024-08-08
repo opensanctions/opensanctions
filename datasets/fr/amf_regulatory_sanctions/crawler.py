@@ -6,7 +6,6 @@ from html import unescape
 from urllib.parse import urljoin
 
 CLEAN_ENTITY = re.compile(r"<br />\r\n| et |;", re.IGNORECASE)
-VALID_NAME_REGEX = re.compile(r"^[A-Za-z\s]+$")
 BASE_URL = "https://www.amf-france.org"
 # Add constants for specific keywords we want to omit from notes.
 OMIT_KEYWORDS = [
@@ -45,6 +44,19 @@ CLEAN_ENTITY_REGEX = re.compile(
 CLEAN_PERSON_REGEX = re.compile(
     r"\b(M\. |Mme\.|Mme |MM\.|MM\. |Madame|Monsieur )\b", re.IGNORECASE
 )
+
+
+def parse_json(context: Context) -> Generator[dict, None, None]:
+    response = context.fetch_json(context.data_url)
+    if "data" not in response:
+        context.log.info("No data available.")
+        return
+
+    context.log.info(
+        f"Fetched {len(response['data'])} results."
+    )  # Log the number of results
+    for item in response["data"]:
+        yield item
 
 
 def clean_name(name: str, clean_regex) -> str:
@@ -181,19 +193,6 @@ def process_entity(
                 full_download_url = urljoin(BASE_URL, download_url)
                 entity.add("sourceUrl", full_download_url)
     context.emit(entity)
-
-
-def parse_json(context: Context) -> Generator[dict, None, None]:
-    response = context.fetch_json(context.data_url)
-    if "data" not in response:
-        context.log.info("No data available.")
-        return
-
-    context.log.info(
-        f"Fetched {len(response['data'])} results."
-    )  # Log the number of results
-    for item in response["data"]:
-        yield item
 
 
 def crawl(context: Context) -> None:
