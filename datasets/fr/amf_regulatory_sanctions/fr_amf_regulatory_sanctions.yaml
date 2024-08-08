@@ -43,4 +43,11 @@ lookups:
     options:
       - match: "A...B..."
         value: null
+      - match: Gérard Monnet, Michael Aubourg, Davide Blei, Cyril de Bournet
+        value: 
+          - Gérard Monnet
+          - Michael Aubourg
+          - Davide Blei
+          - Cyril de Bournet
+
 

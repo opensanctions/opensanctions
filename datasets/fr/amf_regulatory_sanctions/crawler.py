@@ -6,7 +6,6 @@ from html import unescape
 from urllib.parse import urljoin
 
 CLEAN_ENTITY = re.compile(r"<br />\r\n| et |;", re.IGNORECASE)
-CLEAN_NAME = re.compile(r"^M\. |^Mme\.|^MM\.|^Madame ", re.IGNORECASE)
 VALID_NAME_REGEX = re.compile(r"^[A-Za-z\s]+$")
 BASE_URL = "https://www.amf-france.org"
 # Add constants for specific keywords we want to omit from notes.
@@ -43,14 +42,16 @@ CLEAN_ENTITY_REGEX = re.compile(
     r"\b(" + "|".join(OMIT_KEYWORDS) + r")\b", re.IGNORECASE
 )
 
-CLEAN_PERSON_REGEX = re.compile(r"\b(M\.|Mme\.|MM\.|Madame)\b", re.IGNORECASE)
+CLEAN_PERSON_REGEX = re.compile(
+    r"\b(M\. |Mme\.|Mme |MM\.|MM\. |Madame|Monsieur )\b", re.IGNORECASE
+)
 
 
 def clean_name(name: str, clean_regex) -> str:
     # Unescape and clean the name
     unescaped_name = unescape(name)
     cleaned_name = re.sub(clean_regex, "", unescaped_name).strip()
-    return cleaned_name
+    return print(cleaned_name)
 
 
 def determine_gender(name: str) -> str:
@@ -83,7 +84,7 @@ def is_valid_name(name: str) -> bool:
         for prefix in OMIT_TITLES:
             if part.startswith(prefix):
                 part = part[len(prefix) :].strip()
-        print(part)
+        # print(part)
 
         # Check if part is "Société" followed by a single letter
         if (
@@ -120,13 +121,20 @@ def process_person(
     """Process a person entry."""
     person = context.make("Person")
     person.id = context.make_id(title, listing_date, name)
-    # Remove M. or Mme. before adding the person's name
-    cleaned_name = re.sub(CLEAN_NAME, "", name).strip()  # unescaped and title removed
-    person.add("name", cleaned_name)
+
+    # Determine gender based on title prefix
+    gender = ""
     if name.startswith("Mme.") or name.startswith("Madame"):
-        person.add("gender", "female")
-    elif name.startswith("M.") or name.startswith("MM."):  # add Monsieur
-        person.add("gender", "male")
+        gender = "female"
+    elif name.startswith("M.") or name.startswith("MM.") or name.startswith("Monsieur"):
+        gender = "male"
+
+    if gender:
+        person.add("gender", gender)
+
+    # Clean the name after determining the gender
+    cleaned_name = clean_name(name, CLEAN_PERSON_REGEX)
+    person.add("name", cleaned_name)
 
     # Set other fields for person
     person.add("notes", theme)
