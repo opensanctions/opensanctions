@@ -3,6 +3,7 @@ from normality import collapse_spaces, slugify
 from rigour.mime.types import CSV
 from typing import Dict, List, Tuple
 import csv
+from lxml.html import HtmlElement
 
 from zavod import helpers as h
 from zavod.context import Context
@@ -97,23 +98,26 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
 
 
 def crawl_table_row(
-    context: Context, seen: set, row: Dict[str, str | List[Tuple[str, str]]]
+    context: Context,
+    seen: set,
+    row: Dict[str, HtmlElement],
 ):
-    name_id = row.pop("declarante").split(" - ")
+    str_row = h.cells_to_str(row)
+    name_id = str_row.pop("declarante").split(" - ")
     if len(name_id) != 2:
         context.log.warning("Invalid name/id", name_id=name_id)
         return
-    role = row.pop("cargo")
-    entity_name = row.pop("entidad")
+    role = str_row.pop("cargo")
+    entity_name = str_row.pop("entidad")
     key = slugify([name_id[1], role, entity_name])
     if key in seen:
         return
 
-    if row.pop("fecha-publicacion") < backdate(datetime.now(), 365 * 5):
+    if str_row.pop("fecha-publicacion") < backdate(datetime.now(), 365 * 5):
         context.log.warning("Skipping potentially too old position", key=key)
         return
 
-    if row.pop("es-contratista") != "NO":
+    if str_row.pop("es-contratista") != "NO":
         context.log.warning("Unexpectedly found a contractor", key=key)
         return
 
@@ -121,7 +125,7 @@ def crawl_table_row(
     person.id = context.make_slug(name_id[1], prefix="co-cedula")
     person.add("name", name_id[0])
     person.add("idNumber", name_id[1])
-    links = row.pop("enlaces-externos")
+    links = h.links_to_dict(row.pop("enlaces-externos"))
     person.add("website", links.pop("consultar-hoja-de-vida", None))
     person.add(
         "notes",
@@ -159,29 +163,7 @@ def crawl_table_row(
     context.emit(person, target=True)
     context.emit(position)
     context.emit(occupancy)
-    context.audit_data(row, ["descargar"])
-
-
-def parse_table(table) -> List[Dict[str, str | Dict[str, str]]]:
-    headers = None
-    for row in table.findall(".//tr"):
-        if headers is None:
-            headers = []
-            for el in row.findall("./th"):
-                headers.append(slugify(el.text_content()))
-            continue
-        cells = []
-        for el in row.findall("./td"):
-            anchors = el.findall("./a")
-            links = {}
-            for anchor in anchors:
-                links[slugify(anchor.text_content())] = anchor.get("href")
-            if links:
-                cells.append(links)
-            else:
-                cells.append(collapse_spaces(el.text_content()))
-        assert len(headers) == len(cells), (headers, cells)
-        yield {hdr: c for hdr, c in zip(headers, cells)}
+    context.audit_data(str_row, ["descargar", "enlaces-externos"])
 
 
 def crawl(context: Context):
@@ -203,5 +185,5 @@ def crawl(context: Context):
         else:
             next_link = None
 
-        for row in parse_table(doc.find(".//table")):
+        for row in h.parse_table(doc.find(".//table")):
             crawl_table_row(context, seen, row)
