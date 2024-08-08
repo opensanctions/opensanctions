@@ -1,0 +1,30 @@
+title: South Africa National and Provincial Legislatores # to be updated
+entry_point: crawler.py
+prefix: za-pmg-leg
+coverage:
+  frequency: daily
+  start: 2024-08-08
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: > # to be updated
+  Current members of the National Assembly and National Council of Provinces 
+  in South Africa, as well as provincial legislatures and executives.
+description: | # to be updated
+    This dataset comprises information about current members of South Africa's 
+    National Assembly and National Council of Provinces, as well as provincial 
+    legislatures and executives. It includes members of the National Legislature, 
+    which consists of the National Assembly and the National Council of Provinces, 
+    and the Executive branch, including individuals holding titles such as "Minister 
+    of ...". Additionally, it covers members of Provincial Legislatures and Provincial 
+    Executives, including members of the Executive Committee.
+publisher: 
+  name: Parliamentary Monitoring Group (PMG)
+  description: | # to be updated
+   PMG provides details about the activities of Parliament and 
+   various stakeholders in South Africa.
+  url: https://pmg.org.za/
+  official: true
+  country: "za"
+url: https://pa.org.za/help/api
+data:
+  url: https://pa.org.za/media_root/popolo_json/pombola.json
+  format: JSON
