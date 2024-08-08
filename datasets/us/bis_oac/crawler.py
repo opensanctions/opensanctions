@@ -34,7 +34,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         return
 
     entity = context.make("Company")
-    entity.id = context.make_id(requester, date_listed)
+    entity.id = context.make_id(requester, requesting_country, date_listed)
     entity.add("name", requester)
     entity.add("country", requesting_country)
     entity.add("topics", "export.risk")
