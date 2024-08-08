@@ -53,5 +53,23 @@ lookups:
     options: []
   roughly_invalid_names:
     options:
-      - match: X
+      - match: 
+          - A
+          - B
+          - X
+          - F
+          - Y
+          - "A, B"
+          - "D, A, la SOCIÉTÉ Z, B"
+          - Mme X
+          - Mlle B
+          - "de X, anciennement dénommée X'"
+          - Mme W, MM X Y
+          - "co limited, M. B, M. C, M. A"
+          - "co, M. A, M. B, M. D, Mme C"
+          - de Mme A
+          - de Madame A
+          - "D, A, la SOCIÉTÉ Z, B"
+          - ""
+          - "A...B..."
         value: null
