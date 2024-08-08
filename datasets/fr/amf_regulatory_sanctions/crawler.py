@@ -16,6 +16,13 @@ OMIT_KEYWORDS = [
     "Caisse",
     "cabinet",
     "La sociétés",
+    "les CABINETS",
+    "les sociétés",
+    "LA",
+    "de gestion",
+    "hui dénommée",
+    "Melle",
+    "cogérants de",
 ]
 
 OMIT_TITLES = (
@@ -42,8 +49,11 @@ CLEAN_ENTITY_REGEX = re.compile(
 )
 
 CLEAN_PERSON_REGEX = re.compile(
-    r"\b(M\. |Mme\.|Mme |MM\.|MM\. |Madame|Monsieur )\b", re.IGNORECASE
+    r"\b(M\. |Mme\.|Mme |MM\.|MM\. |Madame|Monsieur |Monsieur)\b", re.IGNORECASE
 )
+
+# SINGLE_LETTER_REGEX = re.compile(r"^[A-Z]$", re.IGNORECASE)
+SINGLE_LETTER_REGEX = re.compile(r"^[A-Z]\s*$", re.IGNORECASE)
 
 
 def parse_json(context: Context) -> Generator[dict, None, None]:
@@ -63,7 +73,7 @@ def clean_name(name: str, clean_regex) -> str:
     # Unescape and clean the name
     unescaped_name = unescape(name)
     cleaned_name = re.sub(clean_regex, "", unescaped_name).strip()
-    return print(cleaned_name)
+    return cleaned_name
 
 
 def determine_gender(name: str) -> str:
@@ -85,9 +95,6 @@ def get_value(
 
 
 def is_valid_name(name: str) -> bool:
-    # Define the regex for invalid single letter names or sequences
-    invalid_single_letter_regex = re.compile(r"^[A-Z]$")
-
     # Split the names by comma and strip each part
     name_parts = [part.strip() for part in name.split(",")]  # split_comma_names(name)
 
@@ -103,11 +110,19 @@ def is_valid_name(name: str) -> bool:
             part == "Société"
             or part.startswith("Société")
             or part.startswith("société")
+            or part.startswith("sociétés")
             or part.startswith("Banque")
             or part.startswith("la société")
             or part.startswith("Caisse")
             or part.startswith("cabinet")
             or part.startswith("La sociétés")
+            or part.startswith("les CABINETS")
+            or part.startswith("les sociétés")
+            or part.startswith("LA")
+            or part.startswith("de gestion")
+            or part.startswith("hui dénommée")
+            or part.startswith("Melle")
+            or part.startswith("cogérants de")
             and len(part.split()) == 2
             and part.split()[-1].isalpha()
             and len(part.split()[-1]) == 1
@@ -115,7 +130,7 @@ def is_valid_name(name: str) -> bool:
             return False
 
         # Check if the part is now a single letter
-        if invalid_single_letter_regex.match(part):
+        if SINGLE_LETTER_REGEX.match(part):
             return False
 
     return True
@@ -179,6 +194,7 @@ def process_entity(
     entity.id = context.make_id(title, listing_date, name)
     # Clean and add name
     cleaned_name = clean_name(name, CLEAN_ENTITY_REGEX)
+    print(cleaned_name)
     entity.add("name", cleaned_name)
     entity.add("notes", theme)
     entity.add("notes", title)
@@ -226,6 +242,7 @@ def crawl(context: Context) -> None:
                 or name.startswith("Mme.")
                 or name.startswith("Madame")
                 or name.startswith("MM.")
+                or name.startswith("Monsieur")
             ):
                 process_person(context, title, listing_date, name, theme, link, item)
             else:
