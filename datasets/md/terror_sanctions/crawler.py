@@ -39,10 +39,11 @@ def crawl(context: Context):
 
     table = doc.find(".//table")
     for row in h.parse_table(table):
-        birth_dates = parse_birth_dates(row.pop("data-de-nastere"))
+        str_row = h.cells_to_str(row)
+        birth_dates = parse_birth_dates(str_row.pop("data-de-nastere"))
         schema = "LegalEntity" if birth_dates == [] else "Person"
         entity = context.make(schema)
-        name, aliases = parse_names(row.pop("persoana-fizica-entitate"))
+        name, aliases = parse_names(str_row.pop("persoana-fizica-entitate"))
         entity.id = context.make_id(name, *sorted(birth_dates))
         entity.add("name", name)
         entity.add("topics", "sanction")
@@ -52,10 +53,12 @@ def crawl(context: Context):
             entity.add("birthDate", birth_dates)
 
         sanction = h.make_sanction(context, entity)
-        sanction.add("program", row.pop("sanctiuni-teroriste") or None, lang="mol")
-        sanction.add("program", row.pop("sanctiuni-de-proliferare") or None, lang="mol")
+        sanction.add("program", str_row.pop("sanctiuni-teroriste") or None, lang="mol")
+        sanction.add(
+            "program", str_row.pop("sanctiuni-de-proliferare") or None, lang="mol"
+        )
 
         context.emit(entity, target=True)
         context.emit(sanction)
 
-        context.audit_data(row)
+        context.audit_data(str_row)

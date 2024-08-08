@@ -53,6 +53,16 @@ data:
   url: https://antiteror.sis.md/lista-terorista-xls
   format: HTML
 
+assertions:
+  min:
+    schema_entities:
+      Person: 480
+      LegalEntity: 250
+  max:
+    schema_entities:
+      Person: 600
+      LegalEntity: 350
+
 lookups:
   type.date:
     options:
