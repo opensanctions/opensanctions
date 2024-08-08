@@ -33,26 +33,20 @@ class PinregSession:
 
     def get_deklaracija_by_id(self, id: int) -> Optional[dict[any]]:
         id_str = f"{id:06d}"
-        try:
-            return self.context.fetch_json(
-                url=f"https://pinreg.vtek.lt/external/deklaracijos/{id_str}/perziura/viesa",
-                params={"v": self._guest_token},
-                headers={
-                    "Accept": "application/json",
-                    "Referer": f"https://pinreg.vtek.lt/app/pid-perziura/{id_str}",
-                },
-                cache_days=30,
-            )
-        except HTTPError as ex:
-            response = ex.response.json()
-            if response.pop("status") == 404:
-                self.context.log.debug(f"deklaracija {id_str} does not exist")
-            else:
-                self.context.log.exception("Failed to fetch deklaracija", id=id_str)
-                raise
-        except Exception:
-            self.context.log.exception("Failed to fetch deklaracija", id=id_str)
-            raise
+        self.context.log.info(f"fetching declaration {id_str}")
+        r = self.context.http.get(
+            url=f"https://pinreg.vtek.lt/external/deklaracijos/{id_str}/perziura/viesa",
+            params={"v": self._guest_token},
+            headers={
+                "Accept": "application/json",
+                "Referer": f"https://pinreg.vtek.lt/app/pid-perziura/{id_str}",
+            },
+        )
+        if r.status_code == 404:
+            return None
+        if r.status_code != 200:
+            r.raise_for_status()
+        return r.json()
 
 
 def make_person(context: Context, declaration_id: int, data: dict) -> Entity:
