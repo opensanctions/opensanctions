@@ -10,29 +10,30 @@ from zavod.helpers.text import multi_split
 
 CLEAN_ENTITY = re.compile(r"(<br />\r\n| et |;)", re.IGNORECASE)
 BASE_URL = "https://www.amf-france.org"
-OMIT_PREFIXES = [
-    r"^Société$",
-    r"^sociétés",
-    r"^Société",
-    r"^société",
-    r"^Banque",
-    r"^la société",
-    r"^Caisse",
-    r"^cabinet",
-    r"^La sociétés",
-    r"^les CABINETS",
-    r"^les sociétés",
-    r"^LA",
-    r"^de gestion",
-    r"^hui dénommée",
-    r"^Melle",
-    r"^cogérants de",
-]
+# OMIT_PREFIXES = [
+#    r"^Société$",
+#    r"^sociétés",
+#    r"^Société",
+#    r"^société",
+#    r"^Banque",
+#    r"^la société",
+#    r"^Caisse",
+#    r"^cabinet",
+#    r"^La sociétés",
+#    r"^les CABINETS",
+#    r"^les sociétés",
+#    r"^LA",
+#    r"^de gestion",
+#    r"^hui dénommée",
+#    r"^Melle",
+#    r"^cogérants de",
+# ]
 
-OMIT_PREFIXES_REGEX = re.compile("|".join(OMIT_PREFIXES), re.IGNORECASE)
+# OMIT_PREFIXES_REGEX = re.compile("|".join(OMIT_PREFIXES), re.IGNORECASE)
 
 # Add constants for specific keywords we want to omit from notes.
 OMIT_KEYWORDS = [
+    "Sociétés",
     "Société",
     "société",
     "Banque",
@@ -44,57 +45,56 @@ OMIT_KEYWORDS = [
     "les sociétés",
     "LA",
     "de gestion",
-    "hui dénommée",
-    "Melle",
-    "cogérants de",
+    "hui dénommée",  # TODO: Check this one
+    "cogérants de",  # TODO: Check this one
+    "cabinets",
+    "SCS",  # Société en commandite simple
 ]
 
-OMIT_TITLES = (
-    "M.",
-    "Mme.",
-    "MME",
-    "Madame",
-    "MM.",
-    "MM",
-    "Monsieur",
-    "de",
-    "Mme",
-    "de MM.",
-    "de M.",
-    "de Mmes",
-    "Mlle",
-    "M. ",
-    "MM. ",
-    "s",
-)
+# OMIT_TITLES = (
+#     "M.",
+#     "Mme.",
+#     "MME",
+#     "Madame",
+#     "MM.",
+#     "MM",
+#     "Monsieur",
+#     "de",
+#     "Mme",
+#     "de MM.",
+#     "de M.",
+#     "de Mmes",
+#     "Mlle",
+#     "M. ",
+#     "MM. ",
+#     "s",
+# )
+#
+# female_prefixes = ["Mme", "Madame", "MME", "Mme.", "de Mmes", "Mlle"]
+# male_prefixes = [
+#     "M.",
+#     "MM.",
+#     "Monsieur",
+#     "M",
+#     "MM",
+#     "de MM.",
+#     "de M.",
+#     "M. ",
+#     "MM. ",
+# ]
 
-female_prefixes = ["Mme", "Madame", "MME", "Mme.", "de Mmes", "Mlle"]
-male_prefixes = [
-    "M.",
-    "MM.",
-    "Monsieur",
-    "M",
-    "MM",
-    "de MM.",
-    "de M.",
-    "M. ",
-    "MM. ",
-]
-
-CLEAN_ENTITY_REGEX = re.compile(
-    r"\b(" + "|".join(OMIT_KEYWORDS) + r")\b", re.IGNORECASE
-)
+CLEAN_ENTITY_REGEX = re.compile(r"^(de )?(" + "|".join(OMIT_KEYWORDS) + r")\b", re.IGNORECASE)
 
 CLEAN_PERSON_REGEX = re.compile(
-    r"\b(M\. |Mme\.|Mme |MM\.|MM\. |Madame|Monsieur |Monsieur|Mme)\b", re.IGNORECASE
+    r"^(de )?(M|Mme|MM|Madame|Monsieur|Monsieur|Melle)[\. \b]", re.IGNORECASE
 )
 
 # SINGLE_LETTER_REGEX = re.compile(r"^[A-Z]$", re.IGNORECASE)
-SINGLE_LETTER_REGEX = re.compile(r"^[A-Z]\s*$", re.IGNORECASE)
+SINGLE_LETTER_REGEX = re.compile(r"^[^\w]*[A-Z][^\w]*$", re.IGNORECASE)
 
-OMIT_KEYWORDS_REGEX = re.compile(
-    r"(Sociétés?| Banque| Caisse| société| La sociétés| la société) [a-zA-Zé]\b"
-)
+# OMIT_KEYWORDS_REGEX = re.compile(
+#    r"(Sociétés?| Banque| Caisse| société| La sociétés| la société) [a-zA-Zé]\b"
+# )
 
 
 def parse_json(context: Context) -> Generator[dict, None, None]:
@@ -110,23 +110,23 @@ def parse_json(context: Context) -> Generator[dict, None, None]:
         yield item
 
 
-def clean_name(name: str, clean_regex) -> str:
-    # Unescape and clean the name
-    unescaped_name = unescape(name)
-    cleaned_name = re.sub(clean_regex, "", unescaped_name).strip()
-    return cleaned_name
-
-
-def determine_gender(name: str) -> str:
-    for prefix in female_prefixes:
-        if name.startswith(prefix):
-            return "female"
-
-    for prefix in male_prefixes:
-        if name.startswith(prefix):
-            return "male"
-
-    return ""
+# def clean_name(name: str, clean_regex) -> str:
+#    # Unescape and clean the name
+#    unescaped_name = unescape(name)
+#    cleaned_name = re.sub(clean_regex, "", unescaped_name).strip()
+#    return cleaned_name
+#
+#
+# def determine_gender(name: str) -> str:
+#    for prefix in female_prefixes:
+#        if name.startswith(prefix):
+#            return "female"
+#
+#    for prefix in male_prefixes:
+#        if name.startswith(prefix):
+#            return "male"
+#
+#    return ""
 
 
 def get_value(
@@ -139,156 +139,197 @@ def get_value(
     return default
 
 
-def roughly_valid_name(name: str) -> bool:
-    if not re.search("\w{3}", name):
-        return False
-    return len(name) > 3
+# def roughly_valid_name(name: str) -> bool:
+#    if not re.search("\w{3}", name):
+#        return False
+#    return len(name) > 3
 
 
-def is_valid_name(name: str) -> bool:
-    # Split the names by comma and strip each part
-    name_parts = [part.strip() for part in name.split(",")]  # split_comma_names(name)
-
-    for part in name_parts:
-        for prefix in OMIT_TITLES:
-            if part.startswith(prefix):
-                part = part.replace(prefix, "", 1)
-
-        # print(part)
-        # Check if part is "Société" followed by a single letter
-        # if (
-        #     part == "Société"
-        #     or part.startswith("sociétés")
-        #     or part.startswith("Société")
-        #     or part.startswith("société")
-        #     or part.startswith("sociétés")
-        #     or part.startswith("Banque")
-        #     or part.startswith("la société")
-        #     or part.startswith("Caisse")
-        #     or part.startswith("cabinet")
-        #     or part.startswith("La sociétés")
-        #     or part.startswith("les CABINETS")
-        #     or part.startswith("les sociétés")
-        #     or part.startswith("LA")
-        #     or part.startswith("de gestion")
-        #     or part.startswith("hui dénommée")
-        #     or part.startswith("Melle")
-        #     or part.startswith("cogérants de")
-        #     and len(part.split()) == 2
-        #     and part.split()[-1].isalpha()
-        #     and len(part.split()[-1]) == 1
-        # ):
-        #     return False
-        if OMIT_PREFIXES_REGEX.match(part):
-            return False
-        # Check if the part is now a single letter
-        if SINGLE_LETTER_REGEX.match(part):
-            return False
-
-    return True
-
-
-def process_person(
-    context: Context,
-    title: str,
-    listing_date: str,
-    name: str,
-    theme: str,
-    link: str,
-    item: dict,
-):
-    """Process a person entry."""
-    person = context.make("Person")
-    person.id = context.make_id(title, listing_date, name)
-
-    gender = determine_gender(name)
-    person.add("gender", gender)
-
-    # Clean the name after determining the gender
-    cleaned_name = clean_name(name, CLEAN_PERSON_REGEX)
-
-    # Catch things that still don't look right
-    if not roughly_valid_name(cleaned_name):
-        name_fix_res = context.lookup("roughly_invalid_names", cleaned_name)
-        if name_fix_res is None:
-            context.log.warning("...")
-            return
-        cleaned_name = name_fix_res.value
-    if cleaned_name is None:
-        return
-    person.add("name", cleaned_name)
-
-    # Set other fields for person
-    person.add("notes", theme)
-    person.add("notes", title)
-    if link:
-        full_link = urljoin(BASE_URL, link)
-        person.add("sourceUrl", full_link)
-    if "download" in item:
-        download_links = item["download"].get("sanction", {}).get("links", {})
-        if download_links:
-            download_url = download_links.get("url")
-            if download_url:
-                full_download_url = urljoin(BASE_URL, download_url)
-                person.add("sourceUrl", full_download_url)
-
-    context.emit(person, target=True)
+# def is_valid_name(name: str) -> bool:
+#    # Split the names by comma and strip each part
+#    name_parts = [part.strip() for part in name.split(",")]  # split_comma_names(name)
+#
+#    for part in name_parts:
+#        for prefix in OMIT_TITLES:
+#            if part.startswith(prefix):
+#                part = part.replace(prefix, "", 1)
+#
+#        # print(part)
+#        # Check if part is "Société" followed by a single letter
+#        # if (
+#        #     part == "Société"
+#        #     or part.startswith("sociétés")
+#        #     or part.startswith("Société")
+#        #     or part.startswith("société")
+#        #     or part.startswith("sociétés")
+#        #     or part.startswith("Banque")
+#        #     or part.startswith("la société")
+#        #     or part.startswith("Caisse")
+#        #     or part.startswith("cabinet")
+#        #     or part.startswith("La sociétés")
+#        #     or part.startswith("les CABINETS")
+#        #     or part.startswith("les sociétés")
+#        #     or part.startswith("LA")
+#        #     or part.startswith("de gestion")
+#        #     or part.startswith("hui dénommée")
+#        #     or part.startswith("Melle")
+#        #     or part.startswith("cogérants de")
+#        #     and len(part.split()) == 2
+#        #     and part.split()[-1].isalpha()
+#        #     and len(part.split()[-1]) == 1
+#        # ):
+#        #     return False
+#        if OMIT_PREFIXES_REGEX.match(part):
+#            return False
+#        # Check if the part is now a single letter
+#        if SINGLE_LETTER_REGEX.match(part):
+#            return False
+#
+#    return True
 
 
-def process_entity(
-    context: Context,
-    title: str,
-    listing_date: str,
-    name: str,
-    theme: str,
-    link: str,
-    item: dict,
-):
-    """Process a legal entity entry."""
-    entity = context.make("LegalEntity")
-    entity.id = context.make_id(title, listing_date, name)
-    # Clean and add name
+# def process_person(
+#    context: Context,
+#    title: str,
+#    listing_date: str,
+#    name: str,
+#    theme: str,
+#    link: str,
+#    item: dict,
+# ):
+#    """Process a person entry."""
+#    person = context.make("Person")
+#    person.id = context.make_id(title, listing_date, name)
+#
+#    gender = determine_gender(name)
+#    person.add("gender", gender)
+#
+#    # Clean the name after determining the gender
+#    cleaned_name = clean_name(name, CLEAN_PERSON_REGEX)
+#
+#    # Catch things that still don't look right
+#    if not roughly_valid_name(cleaned_name):
+#        name_fix_res = context.lookup("roughly_invalid_names", cleaned_name)
+#        if name_fix_res is None:
+#            context.log.warning("...")
+#            return
+#        cleaned_name = name_fix_res.value
+#    if cleaned_name is None:
+#        return
+#    person.add("name", cleaned_name)
+#
+#    # Set other fields for person
+#    person.add("notes", theme)
+#    person.add("notes", title)
+#    if link:
+#        full_link = urljoin(BASE_URL, link)
+#        person.add("sourceUrl", full_link)
+#    if "download" in item:
+#        download_links = item["download"].get("sanction", {}).get("links", {})
+#        if download_links:
+#            download_url = download_links.get("url")
+#            if download_url:
+#                full_download_url = urljoin(BASE_URL, download_url)
+#                person.add("sourceUrl", full_download_url)
+#
+#    context.emit(person, target=True)
 
-    # Not warning if this one isn't defined, just an overall check
-    precursor_res = context.lookup("name_fixes", name)
-    if precursor_res:
-        name = precursor_res.value
 
-    cleaned_name = clean_name(name, CLEAN_ENTITY_REGEX)
+# def process_entity(
+#    context: Context,
+#    title: str,
+#    listing_date: str,
+#    name: str,
+#    theme: str,
+#    link: str,
+#    item: dict,
+# ):
+#    """Process a legal entity entry."""
+#    entity = context.make("LegalEntity")
+#    entity.id = context.make_id(title, listing_date, name)
+#    # Clean and add name
+#
+#    # Not warning if this one isn't defined, just an overall check
+#    precursor_res = context.lookup("name_fixes", name)
+#    if precursor_res:
+#        name = precursor_res.value
+#
+#    cleaned_name = clean_name(name, CLEAN_ENTITY_REGEX)
+#
+#    # Catch things that still don't look right
+#    if not roughly_valid_name(cleaned_name):
+#        name_fix_res = context.lookup("roughly_invalid_names", cleaned_name)
+#        if name_fix_res is None:
+#            context.log.warning("...")
+#            return
+#        cleaned_name = name_fix_res.value
+#    if cleaned_name is None:
+#        return
+#
+#    print(cleaned_name)
+#    entity.add("name", cleaned_name)
+#    entity.add("notes", theme)
+#    entity.add("notes", title)
+#    if link:
+#        full_link = urljoin(BASE_URL, link)
+#        entity.add("sourceUrl", full_link)
+#    if "download" in item:
+#        download_links = item["download"].get("sanction", {}).get("links", {})
+#        if download_links:
+#            download_url = download_links.get("url")
+#            if download_url:
+#                full_download_url = urljoin(BASE_URL, download_url)
+#                entity.add("sourceUrl", full_download_url)
+#    context.emit(entity, target=True)
 
-    # Catch things that still don't look right
-    if not roughly_valid_name(cleaned_name):
-        name_fix_res = context.lookup("roughly_invalid_names", cleaned_name)
-        if name_fix_res is None:
-            context.log.warning("...")
-            return
-        cleaned_name = name_fix_res.value
-    if cleaned_name is None:
-        return
-
-    print(cleaned_name)
-    entity.add("name", cleaned_name)
-    entity.add("notes", theme)
-    entity.add("notes", title)
-    if link:
-        full_link = urljoin(BASE_URL, link)
-        entity.add("sourceUrl", full_link)
-    if "download" in item:
-        download_links = item["download"].get("sanction", {}).get("links", {})
-        if download_links:
-            download_url = download_links.get("url")
-            if download_url:
-                full_download_url = urljoin(BASE_URL, download_url)
-                entity.add("sourceUrl", full_download_url)
-    context.emit(entity, target=True)
-
-
+REGEX_A_AND_B = re.compile(r"\b[A-Z] et [A-Z]\b")
 def split_names(names_str: str) -> List[str]:
-    names = multi_split(names_str, ["<br />","\r","\n","et",";"])
+    names = multi_split(
+        names_str,
+        [
+            "<br />",
+            "\r",
+            "\n",
+            # "X coming to the rights and obligations of the company Y"
+            # Ideally we'd link X and Y
+            #"venant au droits et obligations de la société",
+            #"venant aux droits et obligations de la société",
+            #"venant aux droits de",
+            #"aux droits de laquelle vient la société",
+            "ainsi que la société",
+            "aujourd'hui dénommée",
+            "(ex ",
+            "du groupe",
+            " et de ",
+            " et la ",
+            " et société de gestion",
+            " et M.",
+            " et MM.",
+            " et Mme ",
+            " et Banque",
+            "et société",
+            ";",
+            ",",
+        ],
+    )
+    for name in names:
+        if REGEX_A_AND_B.search(name):
+            names.remove(name)
+            names.extend(name.split(" et "))
     return names
 
 
+CLEAN_STRIP_ARTIFACTS_REGEX = re.compile(r"(\($|^\))", re.IGNORECASE)
+
+
 def clean_name(name: str) -> str | None:
+    # print("NAME %r" % name)
+    name = name.strip()
+    name = CLEAN_STRIP_ARTIFACTS_REGEX.sub("", name).strip()
+    name = CLEAN_PERSON_REGEX.sub("", name).strip()
+    name = CLEAN_ENTITY_REGEX.sub("", name).strip()
+    if SINGLE_LETTER_REGEX.match(name):
+        return None
     return name
 
 
@@ -296,7 +337,7 @@ def clean_names(names_str: str) -> List[str]:
     names = split_names(names_str)
     cleaned_names = []
     for name in names:
-        cleaned_name = clean_name(name, CLEAN_ENTITY_REGEX)
+        cleaned_name = clean_name(name)
         if cleaned_name:
             cleaned_names.append(cleaned_name)
     return cleaned_names
@@ -309,10 +350,12 @@ def crawl(context: Context) -> None:
         theme = unescape(str(data.get("theme")))
         item = data.get("infos", {})
         title = item.get("title")
-        names_str = item.get("text_egard", "")
+        names_str = unescape(item.get("text_egard", ""))
         names = clean_names(names_str)
-        print("\n", names_str)
-        pprint(names)
+        print("%r" % names_str)
+        for name in names:
+            print("  %r" % name)
+        print()
         continue
         link = item.get("link", {}).get("url", "")
         date_epoch = item.get("date")
