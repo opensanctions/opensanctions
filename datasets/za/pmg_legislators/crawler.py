@@ -1,76 +1,62 @@
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+
+# from zavod.logic.pep import categorise
+from popolo_data.importer import Popolo
+
+# popolo = Popolo.from_filename("context.data_url")
 
 
-def crawl_item(input_dict: dict, position, categorisation, context: Context):
+def crawl_item(person, context: Context):
+    # Create a Person entity
     entity = context.make("Person")
-    entity.id = context.make_id(
-        input_dict.get("id", ""),
-        input_dict.get("name", {}).get("family_name", ""),
-        input_dict.get("name", {}).get("given_name", ""),
-    )
+    entity.id = context.make_id(person.id)
+    entity.add("name", person.name)
+    entity.add("alias", person.other_names)
+    entity.add("notes", person.id)
+    # entity.add("gender", person.get("gender", "").lower())
 
-    gender = input_dict.get("gender", "").lower()
-    entity.add("gender", gender)
-    entity.add("email", input_dict.get("email", ""))
-    entity.add("address", input_dict.get("address", {}).get("label", ""))
-    # Extract phone numbers
-    phone_details = input_dict.get("contact_details", [])
-    for contact in phone_details:
-        if contact.get("type") == "phone":
-            entity.add("phone", contact.get("value"))
-        elif contact.get("type") == "website":
-            entity.add("website", contact.get("value"))
+    # Emit the person entity
+    context.emit(entity)
 
-    entity.add("website", input_dict.get("contact_details", {}).get("website", ""))
-    # Process memberships
-    memberships = input_dict.get("memberships", [])
-    for membership in memberships:
+    # Process memberships for executive committee roles
+    position_roles = ["Member of the Executive Committee"]
+    for membership in person.memberships:
         role = membership.get("role", "")
-        organization = membership.get("organization_id", "")
-        occupancy = h.make_occupancy(
-            context,
-            entity,
-            position if organization in {position.prefix} else role,
-            True,
-            categorisation=categorisation,
-        )
-        occupancy.add("role", role)
-        occupancy.add("organization_id", organization)
-        context.emit(occupancy)
+        if any(position_role in role for position_role in position_roles):
+            occupancy = context.make("Membership")
+            occupancy.id = context.make_id(person.id, membership.organization_id, role)
+            occupancy.add("person_id", entity.id)
+            occupancy.add("role", role)
+            occupancy.add("organization_id", membership.organization_id)
+            occupancy.add("start_date", membership.get("start_date", ""))
+            occupancy.add("end_date", membership.get("end_date", ""))
 
-    context.emit(entity, target=True)
+            # Emit the membership entity
+            context.emit(occupancy)
 
 
-def crawl(context: Context):
-    """
-    Entrypoint to the crawler.
-    The crawler works by fetching the data from the URL as JSON.
-    Finally, we create the entities.
-    :param context: The context object.
-    """
-    data_url = "https://pa.org.za/media_root/popolo_json/pombola.json"
-    response = context.fetch_json(data_url)
+def crawl(context):
+    # Load the Popolo data
+    response = context.fetch_json(context.data_url)
     if response is None:
         return
 
-    positions = [
-        ("Member of the National Assembly", "national-assembly"),
-        (
-            "Member of the National Council of Provinces",
-            "national-council-of-provinces",
-        ),
-        ("Minister", "executive"),
-        ("Member of the Provincial Legislature", "provincial-legislature"),
-        ("Member of the Executive Committee", "executive-committee"),
-    ]
+    popolo = Popolo(response)
 
-    for position_name, position_id in positions:
-        position = h.make_position(context, position_name, country="za")
-        # categorisation = categorise(context, position, is_pep=True)
+    for person in popolo.persons:
+        crawl_item(person, context)
+
+    # Emit positions after processing all persons
+    position_roles = ["Member of the Executive Committee"]
+    for position_name in position_roles:
+        position = context.make("Position")
+        position_id = context.make_id(position_name)
+        if not position_id:
+            context.log.warning(
+                f"No ID generated for position {position_name}. Skipping position creation."
+            )
+            continue
+        position.id = position_id
+        position.add("name", position_name)
+
         context.emit(position)
-
-        for person in response.get("persons", []):
-            for membership in person.get("memberships", []):
-                if membership.get("organization_id") == position_id:
-                    crawl_item(person, position_name, categorisation, context)
