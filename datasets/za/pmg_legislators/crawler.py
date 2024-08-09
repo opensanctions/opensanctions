@@ -11,6 +11,18 @@ from urllib.parse import unquote
 PHONE_SPLITS = [",", "/", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)"]
 PHONE_REMOVE = re.compile(r"(ex|ext|extension|fax|tel|\:|\-)", re.IGNORECASE)
 
+# List of regex patterns for positions of interest
+POSITIONS_OF_INTEREST = [
+    re.compile(r"National\s+Legislature", re.IGNORECASE),
+    re.compile(r"National\s+Assembly", re.IGNORECASE),
+    re.compile(r"National\s+Council of Provinces", re.IGNORECASE),
+    re.compile(r"Minister of", re.IGNORECASE),
+    re.compile(r"Provincial\s+Legislature", re.IGNORECASE),
+    re.compile(r"Member of the Provincial Legislature", re.IGNORECASE),
+    re.compile(r"Member of the Executive Committee", re.IGNORECASE),
+    re.compile(r"National\s+Executive", re.IGNORECASE),
+]
+
 
 def clean_emails(emails):
     out = []
@@ -92,6 +104,16 @@ def parse_membership(
         return None
     org_id = data.get("organization_id")
     role = data.get("role")
+    role = data.get("role")
+    if role is None:
+        # context.log.error("Role is missing in membership data.")
+        return None
+
+    # Check if the role matches the positions of interest
+    if not any(re.findall(position, role) for position in POSITIONS_OF_INTEREST):
+        context.log.info(f"Skipping role {role} not of interest.")
+        return None
+
     position_property = post_summary(
         org_name, role, [data.get("start_date")], [data.get("end_date")], []
     )
