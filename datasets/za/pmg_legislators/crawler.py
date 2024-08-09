@@ -1,11 +1,9 @@
-# from urllib.parse import urljoin, unquote
 from typing import Dict, Optional, Set
 from followthemoney.helpers import post_summary
 from zavod import Context
 from zavod import helpers as h
 import re
 from urllib.parse import unquote
-
 # from zavod.logic.pep import categorise
 
 # add headers to the request
