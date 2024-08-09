@@ -2,10 +2,36 @@
 from typing import Dict, Optional, Set
 from followthemoney.helpers import post_summary
 from zavod import Context
-# from zavod import helpers as h
+from zavod import helpers as h
+import re
+from urllib.parse import unquote
+
 # from zavod.logic.pep import categorise
 
 # add headers to the request
+
+PHONE_SPLITS = [",", "/", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)"]
+PHONE_REMOVE = re.compile(r"(ex|ext|extension|fax|tel|\:|\-)", re.IGNORECASE)
+
+
+def clean_emails(emails):
+    out = []
+    for email in h.multi_split(emails, ["/", ",", " or "]):
+        if email is None:
+            return
+        email = unquote(email)
+        email = email.strip()
+        email = email.rstrip(".")
+        out.append(email)
+    return out
+
+
+def clean_phones(phones):
+    out = []
+    for phone in h.multi_split(phones, PHONE_SPLITS):
+        phone = PHONE_REMOVE.sub("", phone)
+        out.append(phone)
+    return out
 
 
 def parse_person(context: Context, data: dict):
@@ -22,7 +48,15 @@ def parse_person(context: Context, data: dict):
     person.add("lastName", data.get("family_name"))
     person.add("birthDate", data.get("birth_date"))
     person.add("deathDate", data.get("death_date"))
+
+    for contact_detail in data.pop("contact_details", []):
+        value = contact_detail.get("value")
+        if "email" == contact_detail.get("type"):
+            person.add("email", clean_emails(value))
+        if "phone" == contact_detail.get("type"):
+            person.add("phone", clean_phones(value))
     context.emit(person, target=True)
+
     return person
 
 
