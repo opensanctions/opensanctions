@@ -1,9 +1,7 @@
 import re
 from datetime import datetime, date, timezone
-from types import NoneType
 from typing import Union, Iterable, Set, Optional, List
 from prefixdate import parse_formats
-from followthemoney.property import Property
 from followthemoney.types import registry
 
 from zavod.logs import get_logger
@@ -12,7 +10,7 @@ from zavod.meta.dataset import Dataset
 
 log = get_logger(__name__)
 NUMBERS = re.compile(r"\d+")
-DateValue = Union[str, date, datetime, NoneType]
+DateValue = Union[str, date, datetime, None]
 
 __all__ = ["parse_date", "check_no_year", "parse_formats", "extract_years"]
 
@@ -79,7 +77,7 @@ def replace_months(dataset: Dataset, text: str) -> str:
     return spec.months_re.sub(lambda m: spec._mappings[m.group()], text)
 
 
-def apply_date(entity: Entity, prop: Union[Property, str], text: DateValue) -> None:
+def apply_date(entity: Entity, prop: str, text: DateValue) -> None:
     """Apply a date value to an entity, parsing it if necessary and cleaning it up.
 
     Args:
@@ -88,7 +86,7 @@ def apply_date(entity: Entity, prop: Union[Property, str], text: DateValue) -> N
         text: The date value to be applied.
     """
     prop_ = entity.schema.get(prop)
-    if prop is None or prop_.type != registry.date:
+    if prop_ is None or prop_.type != registry.date:
         log.warning("Property is not a date: %s", prop_)
         return
     if text is None:
@@ -114,15 +112,13 @@ def apply_date(entity: Entity, prop: Union[Property, str], text: DateValue) -> N
     return entity.add(prop_, text)
 
 
-def apply_dates(
-    entity: Entity, prop_: Union[Property, str], texts: Iterable[DateValue]
-) -> None:
+def apply_dates(entity: Entity, prop: str, texts: Iterable[DateValue]) -> None:
     """Apply a list of date values to an entity, parsing them if necessary and cleaning them up.
 
     Args:
         entity: The entity to which the date will be applied.
-        prop_: The property to which the date will be applied.
+        prop: The property to which the date will be applied.
         texts: The iterable of date values to be applied.
     """
     for text in texts:
-        apply_date(entity, prop_, text)
+        apply_date(entity, prop, text)
