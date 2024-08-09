@@ -48,15 +48,35 @@ def parse_person(context: Context, data: dict):
     person.add("lastName", data.get("family_name"))
     person.add("birthDate", data.get("birth_date"))
     person.add("deathDate", data.get("death_date"))
+    person.add("notes", data.pop("summary", None))
+    person.add("title", data.pop("honorific_prefix", None))
+    person.add("topics", "role.pep")
+
+    for link in data.pop("links", []):
+        url = link.get("url")
+        if link.get("note") in ("website", "blog", "twitter", "facebook"):
+            person.add("website", url)
 
     for contact_detail in data.pop("contact_details", []):
         value = contact_detail.get("value")
-        if "email" == contact_detail.get("type"):
+        if "email" == contact_detail.get("type"):  # might want to remove later
             person.add("email", clean_emails(value))
         if "phone" == contact_detail.get("type"):
             person.add("phone", clean_phones(value))
-    context.emit(person, target=True)
+        if "cell" == contact_detail.get("type"):
+            person.add("phone", clean_phones(value))
+        if "address" == contact_detail.get("type"):
+            person.add("address", value)
+        if "postal_address" == contact_detail.get("type"):
+            person.add("address", value)
 
+    for ident in data.pop("identifiers", []):
+        identifier = ident.get("identifier")
+        scheme = ident.get("scheme")
+        if scheme == "wikidata" and identifier.startswith("Q"):
+            person.add("wikidataId", identifier)
+
+    context.emit(person, target=True)
     return person
 
 
@@ -72,6 +92,7 @@ def parse_membership(
     if not org_name:
         context.log.error(f"Organization with ID {org_id} not found.")
         return None
+    org_id = data.get("organization_id")
     role = data.get("role")
     position_property = post_summary(
         org_name, role, [data.get("start_date")], [data.get("end_date")], []
