@@ -1,11 +1,14 @@
-from typing import Any, Generator, Optional, Tuple, Union
+from typing import Any, Generator, List, Optional, Tuple, Union
 from zavod import Context
 from datetime import datetime
 import re
 from html import unescape
 from urllib.parse import urljoin
+from pprint import pprint
 
-CLEAN_ENTITY = re.compile(r"<br />\r\n| et |;", re.IGNORECASE)
+from zavod.helpers.text import multi_split
+
+CLEAN_ENTITY = re.compile(r"(<br />\r\n| et |;)", re.IGNORECASE)
 BASE_URL = "https://www.amf-france.org"
 OMIT_PREFIXES = [
     r"^Société$",
@@ -280,6 +283,25 @@ def process_entity(
     context.emit(entity, target=True)
 
 
+def split_names(names_str: str) -> List[str]:
+    names = multi_split(names_str, ["<br />","\r","\n","et",";"])
+    return names
+
+
+def clean_name(name: str) -> str | None:
+    return name
+
+
+def clean_names(names_str: str) -> List[str]:
+    names = split_names(names_str)
+    cleaned_names = []
+    for name in names:
+        cleaned_name = clean_name(name, CLEAN_ENTITY_REGEX)
+        if cleaned_name:
+            cleaned_names.append(cleaned_name)
+    return cleaned_names
+
+
 def crawl(context: Context) -> None:
     # General data
     for data in parse_json(context):
@@ -287,8 +309,11 @@ def crawl(context: Context) -> None:
         theme = unescape(str(data.get("theme")))
         item = data.get("infos", {})
         title = item.get("title")
-        entities = item.get("text_egard", "")
-        entity_names = re.split(CLEAN_ENTITY, entities)
+        names_str = item.get("text_egard", "")
+        names = clean_names(names_str)
+        print("\n", names_str)
+        pprint(names)
+        continue
         link = item.get("link", {}).get("url", "")
         date_epoch = item.get("date")
         if date_epoch:
