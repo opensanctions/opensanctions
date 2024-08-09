@@ -1,3 +1,4 @@
+from collections import defaultdict
 from decimal import Decimal
 import logging
 from typing import Generator, List, Tuple, Type
@@ -12,7 +13,9 @@ from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura.index.tantivy_index import TantivyIndex
 from nomenklatura.matching import get_algorithm, LogicV1
 from nomenklatura.resolver.linker import Linker
+from nomenklatura.judgement import Judgement
 
+from zavod.dedupe import get_resolver
 from zavod.entity import Entity
 from zavod.archive import dataset_state_path
 from zavod.meta import get_catalog
@@ -82,6 +85,10 @@ class LocalEnricher(Enricher[DS]):
         self._cutoff = float(config.pop("cutoff", 0.5))
         self._limit = int(config.pop("limit", 5))
         self._max_bin = int(config.pop("max_bin", 10))
+        
+        self.resolver = get_resolver()
+        self.match_ranks = defaultdict(list)
+        self.match_bins = defaultdict(list)
 
     def entity_from_statements(self, class_: Type[CE], entity: CompositeEntity) -> CE:
         if type(entity) is class_:
@@ -104,13 +111,22 @@ class LocalEnricher(Enricher[DS]):
         last_rounded_score = None
         bin = 0
 
-        for match_id, index_score in self._index.match(store_type_entity):
+        for rank, (match_id, index_score) in enumerate(self._index.match(store_type_entity)):
+
             rounded_score = round(Decimal(index_score), 0)
             if rounded_score != last_rounded_score:
                 bin += 1
                 last_rounded_score = rounded_score
             if bin >= self._max_bin:
                 break
+
+
+            judgement = self.resolver.get_judgement(match_id, entity.id)
+            if judgement != Judgement.POSITIVE:
+                continue
+            self.match_ranks[rank].append(match_id)
+            self.match_bins[bin].append(match_id)
+            log.info(f"Matched {entity.id} with {match_id} at rank {rank} bin {bin}")
 
             match = self._view.get_entity(match_id.id)
             if match is None:
@@ -160,3 +176,11 @@ class LocalEnricher(Enricher[DS]):
 
     def expand(self, entity: CE, match: CE) -> Generator[CE, None, None]:
         yield from self._traverse_nested(match)
+    
+    def __del__(self):
+        for rank, ids in self.match_ranks.items():
+            log.info(f"Rank {rank}: {len(self.match_ranks[rank])}  {self.match_ranks[rank][:3]}")
+        for bin, ids in self.match_bins.items():
+            log.info(f"Bin {bin}: {len(self.match_bins[bin])}  {self.match_bins[bin][:3]}")
+
+        
