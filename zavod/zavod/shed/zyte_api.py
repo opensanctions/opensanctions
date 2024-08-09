@@ -29,9 +29,11 @@ def get_content_type(headers: List[Dict[str, str]]) -> Tuple[str, str | None]:
     message = Message()
     message["Content-Type"] = header
     charset = message.get_param("charset")
+    charset = charset.lower() if isinstance(charset, str) else None
+    media_type = message.get_content_type().lower()
 
     assert charset is None or isinstance(charset, str), header
-    return message.get_content_type(), charset
+    return media_type, charset
 
 
 def configure_session(session: Session) -> None:
