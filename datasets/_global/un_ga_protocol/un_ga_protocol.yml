@@ -42,5 +42,7 @@ lookups:
         value: ""
   type.date:
     options:
-      - match: Jul-21
+      - match: 
+          - Jul-21
+          - Jul-19
         value: null
