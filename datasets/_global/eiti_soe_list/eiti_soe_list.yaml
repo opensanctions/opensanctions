@@ -1,0 +1,40 @@
+title: SOE List
+entry_point: crawler.py
+prefix: eiti-soe
+coverage:
+  frequency: daily
+  start: "2024-08-09"
+deploy:
+  schedule: "@weekly"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of all SOEs operating in EITI implementing countries.
+description: |
+  This dataset covers SOEs’ payments to government and other disclosures related to oil, 
+  gas and mining activities in EITI implementing countries.
+publisher:
+  name: Extractive Industries Transparency Initiative 
+  acronym: EITI
+  description: |
+    As the energy transition gains traction, it will have a transformative impact on the extractive 
+    industries and global economy. The EITI Standard can play a role in building awareness of how the 
+    transition will affect extractive sector activities and revenues and in supporting the responsible 
+    and transparent production of minerals that are critical for a sustainable future. The EITI provides 
+    data that can help identify and close channels for corruption – not only in mining, oil and gas but 
+    increasingly in the renewables sector.    
+    
+    In each country that has joined the EITI, a multi-stakeholder group, composed of government, companies 
+    and civil society, supports implementation of the EITI Standard. 
+  url: https://eiti.org
+  official: false
+url: https://soe-database.eiti.org/eiti_database/SOE~20List
+data:
+  url: https://soe-database.eiti.org/eiti_database/SOE~20List.json
+  format: JSON
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 83
+  max: 
+    schema_entities:
+      LegalEntity: 87
