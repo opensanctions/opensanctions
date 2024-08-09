@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
 from zavod.helpers.dates import parse_date, check_no_year, extract_years
@@ -45,6 +47,9 @@ def test_replace_months(testdataset1: Dataset):
 def test_apply_date(testdataset1: Dataset):
     data = {"id": "doe", "schema": "Person", "properties": {"name": ["John Doe"]}}
     person = Entity(testdataset1, data)
+    apply_date(person, "birthDate", None)
+    assert not len(person.get("birthDate"))
+
     apply_date(person, "birthDate", "2024-01-23")
     assert "2024-01-23" in person.pop("birthDate")
     apply_date(person, "birthDate", "14. März 2021")
@@ -64,3 +69,8 @@ def test_apply_date(testdataset1: Dataset):
     apply_dates(person, "birthDate", ["circa 2024"])
     assert "2024" in person.pop("birthDate")
     testdataset1.dates.year_only = False
+
+    now = datetime.now()
+    apply_date(person, "birthDate", now)
+    bd = now.astimezone(timezone.utc).date().isoformat()
+    assert bd in person.pop("birthDate")

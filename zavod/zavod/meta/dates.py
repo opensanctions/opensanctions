@@ -23,7 +23,7 @@ class DatesSpec(object):
                 continue
 
             for form_ in ensure_list(forms):
-                form = str(form_)
+                form = str(form_).lower()
                 if len(form) < 1:
                     log.warning(f"Invalid month name: {form}")
                     continue

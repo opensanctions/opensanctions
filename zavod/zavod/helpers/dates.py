@@ -12,7 +12,15 @@ log = get_logger(__name__)
 NUMBERS = re.compile(r"\d+")
 DateValue = Union[str, date, datetime, None]
 
-__all__ = ["parse_date", "check_no_year", "parse_formats", "extract_years"]
+__all__ = [
+    "parse_date",
+    "check_no_year",
+    "parse_formats",
+    "extract_years",
+    "apply_date",
+    "apply_dates",
+    "replace_months",
+]
 
 
 def extract_years(text: str) -> List[str]:
@@ -74,7 +82,7 @@ def replace_months(dataset: Dataset, text: str) -> str:
         A string in which month names are normalized.
     """
     spec = dataset.dates
-    return spec.months_re.sub(lambda m: spec._mappings[m.group()], text)
+    return spec.months_re.sub(lambda m: spec._mappings[m.group().lower()], text)
 
 
 def apply_date(entity: Entity, prop: str, text: DateValue) -> None:
