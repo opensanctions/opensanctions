@@ -81,4 +81,3 @@ def crawl(context: Context):
             count_company += 1
         else:
             context.log.warn(f"Entity type not handled: {record_type}")
-    print(count_person, count_company, sep="\n")
