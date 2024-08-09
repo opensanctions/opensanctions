@@ -1,4 +1,9 @@
+from datetime import datetime, timezone
+
+from zavod.entity import Entity
+from zavod.meta.dataset import Dataset
 from zavod.helpers.dates import parse_date, check_no_year, extract_years
+from zavod.helpers.dates import replace_months, apply_date, apply_dates
 
 FORMATS = ["%b %Y", "%d.%m.%Y", "%Y-%m"]
 
@@ -32,3 +37,40 @@ def test_parse_date():
     assert parse_date("circa then", FORMATS, "foo") == ["foo"]
     assert parse_date("circa then", FORMATS) == ["circa then"]
     assert parse_date("23.5.", FORMATS) == ["23.5."]
+
+
+def test_replace_months(testdataset1: Dataset):
+    assert replace_months(testdataset1, "3. März 2021") == "3. mar 2021"
+    assert replace_months(testdataset1, "3. März2021") == "3. März2021"
+
+
+def test_apply_date(testdataset1: Dataset):
+    data = {"id": "doe", "schema": "Person", "properties": {"name": ["John Doe"]}}
+    person = Entity(testdataset1, data)
+    apply_date(person, "birthDate", None)
+    assert not len(person.get("birthDate"))
+
+    apply_date(person, "birthDate", "2024-01-23")
+    assert "2024-01-23" in person.pop("birthDate")
+    apply_date(person, "birthDate", "14. März 2021")
+    assert "2021-03-14" in person.pop("birthDate")
+
+    apply_date(person, "birthDate", "banana")
+    assert "banana" not in person.pop("birthDate")
+
+    apply_dates(person, "birthDate", ["banana"])
+    assert "banana" not in person.pop("birthDate")
+
+    testdataset1.dates.year_only = False
+    apply_dates(person, "birthDate", ["circa 2024"])
+    assert "2024" not in person.pop("birthDate")
+
+    testdataset1.dates.year_only = True
+    apply_dates(person, "birthDate", ["circa 2024"])
+    assert "2024" in person.pop("birthDate")
+    testdataset1.dates.year_only = False
+
+    now = datetime.now()
+    apply_date(person, "birthDate", now)
+    bd = now.astimezone(timezone.utc).date().isoformat()
+    assert bd in person.pop("birthDate")

@@ -14,6 +14,7 @@ from zavod.logs import get_logger
 from zavod.meta.assertion import Assertion, parse_assertions
 from zavod.meta.http import HTTP
 from zavod.meta.data import Data
+from zavod.meta.dates import DatesSpec
 
 if TYPE_CHECKING:
     from zavod.meta.catalog import ArchiveBackedCatalog
@@ -104,6 +105,10 @@ class Dataset(NKDataset):
         """Whether this dataset should be automatically run in CI environments."""
 
         self.http: HTTP = HTTP(data.get("http", {}))
+        """HTTP configuration for this dataset."""
+
+        self.dates: DatesSpec = DatesSpec(data.get("dates", {}))
+        """Date parsing configuration for this dataset."""
 
     @cached_property
     def lookups(self) -> Dict[str, Lookup]:

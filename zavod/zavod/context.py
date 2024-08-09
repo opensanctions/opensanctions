@@ -477,7 +477,7 @@ class Context:
                 self.log.warn(
                     "Unused lookup option",
                     lookup=name,
-                    option=option,
+                    option=repr(option),
                     clauses=option.clauses,
                 )
             # print(lookup.unmatched_yaml())

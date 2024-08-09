@@ -25,6 +25,11 @@ http:
   backoff_factor: 0.5
   retry_methods: [POST]
   retry_statuses: [418]
+dates:
+  formats:
+    - "%d. %b %Y"
+  months:
+    mar: März
 
 lookups:
   plants:
