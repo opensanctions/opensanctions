@@ -5,6 +5,8 @@ from zavod import Context
 # from zavod import helpers as h
 # from zavod.logic.pep import categorise
 
+# add headers to the request
+
 
 def parse_person(context: Context, data: dict):
     person_id = data.get("id")
@@ -18,6 +20,8 @@ def parse_person(context: Context, data: dict):
     person.add("gender", data.get("gender"))
     person.add("firstName", data.get("given_name"))
     person.add("lastName", data.get("family_name"))
+    person.add("birthDate", data.get("birth_date"))
+    person.add("deathDate", data.get("death_date"))
     context.emit(person, target=True)
     return person
 
