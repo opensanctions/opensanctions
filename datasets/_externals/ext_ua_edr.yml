@@ -77,6 +77,7 @@ config:
   max_bin: 14
   index_options:
     max_candidates: 200
+    memory_budget: 50
   api: https://api.graph.opensanctions.org/
   dataset: ua_edr
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
