@@ -40,4 +40,3 @@ assertions:
     schema_entities:
       Person: 3500
       Organization: 1000
-      Sanction: 4500
