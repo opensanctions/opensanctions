@@ -125,9 +125,7 @@ def crawl(context: Context) -> None:
         item = data.get("infos", {})
         title = item.get("title")
         names_str = unescape(item.get("text_egard", ""))
-        # print("original", names_str)
         names_str = clean_names_str(names_str)
-        # print("cleaned", names_str)
         if not names_str:
             continue
 
@@ -149,20 +147,15 @@ def crawl(context: Context) -> None:
 
         for entity in entities_res.entities:
             process_entity(context, title, listing_date, entity, theme, link, item)
-            # entity.id = context.make_id(entity)
             # Make it so you don't need a blank relations field in each entry
             if not entities_res.relationships:
                 continue
 
             for rel in entities_res.relationships:
-                print(" ", rel)
+                # print(" ", rel)
                 relation = context.make(rel["schema"])
                 relation.id = context.make_id(rel["from"], rel["to"])
-                relation.add(
-                    rel["from_prop"], context.lookup_value("entities", rel["from"])
-                )
-                relation.add(
-                    rel["to_prop"], context.lookup_value("entities", rel["to"])
-                )
+                relation.add(rel["from_prop"], context.make_id("entities", rel["from"]))
+                relation.add(rel["to_prop"], context.make_id("entities", rel["to"]))
                 relation.add("role", rel.get("role"))
                 context.emit(relation)
