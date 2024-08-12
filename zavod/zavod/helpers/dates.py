@@ -82,7 +82,9 @@ def replace_months(dataset: Dataset, text: str) -> str:
         A string in which month names are normalized.
     """
     spec = dataset.dates
-    return spec.months_re.sub(lambda m: spec._mappings[m.group().lower()], text)
+    if spec.months_re is None:
+        return text
+    return spec.months_re.sub(lambda m: spec.mappings[m.group().lower()], text)
 
 
 def apply_date(entity: Entity, prop: str, text: DateValue) -> None:
