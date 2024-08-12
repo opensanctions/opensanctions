@@ -84,7 +84,7 @@ def process_entity(
 ) -> None:
     """Process a legal entity entry."""
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(name)
+    entity.id = context.make_id(name, listing_date)
 
     entity.add("name", name)
     entity.add("notes", title)
@@ -150,8 +150,8 @@ def crawl(context: Context) -> None:
 
             for rel in entities_res.relationships:
                 # Create or get the existing relation target entity
-                rel_from_id = context.make_id(rel["from"])
-                rel_to_id = context.make_id(rel["to"])
+                rel_from_id = context.make_id(rel["from"], listing_date)
+                rel_to_id = context.make_id(rel["to"], listing_date)
 
                 relation = context.make(rel["schema"])
                 relation.id = context.make_id(rel_from_id, rel_to_id)
