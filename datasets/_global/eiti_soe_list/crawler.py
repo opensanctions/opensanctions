@@ -6,13 +6,12 @@ def crawl_entity(context: Context, item: Dict[str, Any]) -> None:
     entity = context.make("LegalEntity")
 
     soe = item.pop("SOE")
-    year = item.pop("Year")
     country = item.pop("Country")
     fin_statement = item.pop("Audited Financial Statement or Equivalent")
     website = item.pop("Public Listing or Website")
 
     # Making a unique ID for the entity
-    entity.id = context.make_id(soe, year, country)
+    entity.id = context.make_id(soe, country)
 
     # Adding fields to the entity
     entity.add("name", soe)
@@ -30,10 +29,10 @@ def crawl_entity(context: Context, item: Dict[str, Any]) -> None:
 
 def crawl(context: Context):
     data = context.fetch_json(context.data_url)
-    if not data or not data.get("rows"):
-        context.log.error("No data found or 'rows' key is missing.")
+    if not data:
+        context.log.error("No data found")
         return
 
     # Processing each item in the 'rows' list
-    for item in data["rows"]:
+    for item in data.pop("rows"):
         crawl_entity(context, item)

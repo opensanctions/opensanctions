@@ -10,8 +10,10 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of all SOEs operating in EITI implementing countries.
 description: |
-  This dataset covers SOEs’ payments to government and other disclosures related to oil, 
-  gas and mining activities in EITI implementing countries.
+  This dataset covers state-owned enterprises (SOE) that are required to make government 
+  payments and disclose information regarding oil, gas, and mining activities in 
+  EITI-implementing countries. The information is provided to facilitate the detection and 
+  prevention of corruption.
 publisher:
   name: Extractive Industries Transparency Initiative 
   acronym: EITI
