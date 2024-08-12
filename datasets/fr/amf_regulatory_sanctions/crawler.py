@@ -1,10 +1,11 @@
 from typing import Any, Generator, Optional, Tuple, Union
 
 from normality import collapse_spaces
-from zavod import Context
+from zavod import Context, helpers as h
 import re
 from html import unescape
 from urllib.parse import urljoin
+from lxml import html
 
 
 CLEAN_ENTITY = re.compile(r"(<br />\r\n| et |;)", re.IGNORECASE)
@@ -88,12 +89,14 @@ def process_entity(
     entity = context.make("LegalEntity")
     entity.id = context.make_id(title, listing_date, name)
 
-    # Add name directly without cleaning
     entity.add("name", name)
-
-    # Add additional information
-    entity.add("notes", theme)
     entity.add("notes", title)
+    entity.add("topics", "reg.action")
+
+    sanction = h.make_sanction(context, entity)
+    sanction.add("reason", theme)
+    sanction.add("listingDate", listing_date)
+    context.emit(sanction)
 
     if link and isinstance(link, str):
         full_link = urljoin(BASE_URL, link)
@@ -108,15 +111,16 @@ def process_entity(
                 full_download_url = urljoin(BASE_URL, download_url)
                 entity.add("sourceUrl", full_download_url)
 
-    context.emit(entity, target=True)
+    if link is not None and "url" in link:
+        url_link = item["link"].get("url")
+        entity.add("sourceUrl", url_link)
+
+    context.emit(entity, target=False)
 
 
 def crawl(context: Context) -> None:
     # General data
     for data in parse_json(context):
-        # print("data", data)
-
-        # Extract relevant fields from each item
         theme = unescape(str(data.get("theme")))
         item = data.get("infos", {})
         title = item.get("title")
@@ -136,24 +140,40 @@ def crawl(context: Context) -> None:
         # No entities for remaining names str
         if not entities_res.entities:
             continue
-
-        penalty = item.pop("text")
+        penalty = item.get("text")
         # print("penalty", penalty)
-        # html.fromstring(penalty)
+        html.fromstring(penalty)
+
         # Todo: figure out if we can assume cases like all/none exonorated and what topic we should give.
         # Perhaps we should just give all reg.action?
-
         listing_date = item.get("date", "")
         link = item.get("link", "")
 
         for entity in entities_res.entities:
-            # make entities here
             process_entity(context, title, listing_date, entity, theme, link, item)
             # print("   ", entity)
 
-        # Make it so you don't need a blank relations field in each entry
-        if not entities_res.relationships:
-            continue
-        for rel in entities_res.relationships:
-            # make relations here
-            print("   ", rel)
+            # Make it so you don't need a blank relations field in each entry
+            if not entities_res.relationships:
+                continue
+            for rel in entities_res.relationships:
+                succession = context.make("Succession")
+                predecessor = rel.get("predecessor")
+                successor = rel.get("successor")
+
+                if predecessor and successor:
+                    succession.id = context.make_id(
+                        entity, "succession", predecessor, successor
+                    )
+                    succession.add("predecessor", predecessor)
+                    succession.add("successor", successor)
+                    succession.add("publisherUrl", context.data_url)
+                    context.emit(succession)
+
+                    succession_entity = context.make("LegalEntity")
+                    succession_entity.id = context.make_id(successor)
+                    succession_entity.add("name", successor)
+                    context.emit(succession)
+                    context.emit(succession_entity)
+
+                print("   ", rel)

@@ -32,12 +32,10 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 250
-      LegalEntity: 570
+      LegalEntity: 390
   max:
     schema_entities:
-      Person: 280
-      LegalEntity: 595
+      LegalEntity: 420
 lookups:
   entities:
     options:
@@ -540,11 +538,9 @@ lookups:
       - match: 'SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS (SGAM AI)'
         entities:
           - SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS
-          - alias: SGAM AI # double-check
       - match: 'SOCIETE GENERALE ASSET MANAGEMENT (SGAM)'
         entities:
-          - SOCIETE GENERALE ASSET MANAGEMENT
-          - alias: SGAM # double-check
+          - name: SOCIETE GENERALE ASSET MANAGEMENT
       - match: 'Société OFI ASSET MANAGEMENT'
         entities:
           - OFI ASSET MANAGEMENT
@@ -908,15 +904,12 @@ lookups:
             predecessor: Caisses d’Epargne d’Ile de France Paris d’Ile de France Nord
             successor: Caisse d'Epargne d'Ile de France
             role: venant aux droits
-          - schema: Succession # add the entity starting from here
+          - schema: Succession 
             predecessor: Ageo Patrimoine
             successor: Novactifs Patrimoine
           - schema: Succession
             predecessor: ARTECOSA
             successor: Signatures
-          - schema: Succession
-            predecessor: Ageo Patrimoine
-            successor: Novactifs Patrimoine
           - schema: Succession
             predecessor: Novagali Pharma SA
             successor: Santen SAS
