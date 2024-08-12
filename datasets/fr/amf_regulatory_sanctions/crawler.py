@@ -144,36 +144,25 @@ def crawl(context: Context) -> None:
         # print("penalty", penalty)
         html.fromstring(penalty)
 
-        # Todo: figure out if we can assume cases like all/none exonorated and what topic we should give.
-        # Perhaps we should just give all reg.action?
         listing_date = item.get("date", "")
         link = item.get("link", "")
 
         for entity in entities_res.entities:
             process_entity(context, title, listing_date, entity, theme, link, item)
-            # print("   ", entity)
-
+            # entity.id = context.make_id(entity)
             # Make it so you don't need a blank relations field in each entry
             if not entities_res.relationships:
                 continue
+
             for rel in entities_res.relationships:
-                succession = context.make("Succession")
-                predecessor = rel.get("predecessor")
-                successor = rel.get("successor")
-
-                if predecessor and successor:
-                    succession.id = context.make_id(
-                        entity, "succession", predecessor, successor
-                    )
-                    succession.add("predecessor", predecessor)
-                    succession.add("successor", successor)
-                    succession.add("publisherUrl", context.data_url)
-                    context.emit(succession)
-
-                    succession_entity = context.make("LegalEntity")
-                    succession_entity.id = context.make_id(successor)
-                    succession_entity.add("name", successor)
-                    context.emit(succession)
-                    context.emit(succession_entity)
-
-                print("   ", rel)
+                print(" ", rel)
+                relation = context.make(rel["schema"])
+                relation.id = context.make_id(rel["from"], rel["to"])
+                relation.add(
+                    rel["from_prop"], context.lookup_value("entities", rel["from"])
+                )
+                relation.add(
+                    rel["to_prop"], context.lookup_value("entities", rel["to"])
+                )
+                relation.add("role", rel.get("role"))
+                context.emit(relation)

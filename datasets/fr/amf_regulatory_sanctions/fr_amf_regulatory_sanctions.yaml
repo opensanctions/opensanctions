@@ -908,7 +908,8 @@ lookups:
             role: venant aux droits
           - schema: Succession
             from_prop: predecessor
-            from: ["Caisses d'Epargne d'Aquitaine Nord", "Poitou-Charentes"]
+            from: Caisses d'Epargne d'Aquitaine Nord
+            from: Poitou-Charentes
             to_prop: successor
             to: Aquitaine Poitou-Charentes
             role: venant aux droits
@@ -920,7 +921,8 @@ lookups:
             role: venant aux droits
           - schema: Succession 
             from_prop: predecessor
-            from: ["Caisses d'Epargne de Rhone-Alpes Lyon", "des Alpes"]
+            from: Caisses d'Epargne de Rhone-Alpes Lyon
+            from: des Alpes
             to_prop: successor
             to: Rhone-Alpes
             role: venant aux droits
