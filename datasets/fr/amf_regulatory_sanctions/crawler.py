@@ -61,11 +61,8 @@ PREFIXES = [
 
 
 comma_prefix_anon = "(,|et) +(" + "|".join(PREFIXES) + r")[\. \b]+[A-Z]\b"
-print("comma_prefix_anon", comma_prefix_anon)
 prefix_anon = "(" + "|".join(PREFIXES) + r")[\. \b]+[A-Z]\b"
-print("prefix_anon", prefix_anon)
 comma_anon = r"(,|et) +[A-Z]\b"
-print("comma_anon", comma_anon)
 
 
 def clean_names_str(names_str: str) -> Optional[str]:
@@ -87,7 +84,7 @@ def process_entity(
 ) -> None:
     """Process a legal entity entry."""
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(title, listing_date, name)
+    entity.id = context.make_id(name)
 
     entity.add("name", name)
     entity.add("notes", title)
@@ -152,10 +149,13 @@ def crawl(context: Context) -> None:
                 continue
 
             for rel in entities_res.relationships:
-                # print(" ", rel)
+                # Create or get the existing relation target entity
+                rel_from_id = context.make_id(rel["from"])
+                rel_to_id = context.make_id(rel["to"])
+
                 relation = context.make(rel["schema"])
-                relation.id = context.make_id(rel["from"], rel["to"])
-                relation.add(rel["from_prop"], context.make_id("entities", rel["from"]))
-                relation.add(rel["to_prop"], context.make_id("entities", rel["to"]))
+                relation.id = context.make_id(rel_from_id, rel_to_id)
+                relation.add(rel["from_prop"], rel_from_id)
+                relation.add(rel["to_prop"], rel_to_id)
                 relation.add("role", rel.get("role"))
                 context.emit(relation)
