@@ -20,10 +20,11 @@ from zavod.logs import get_logger, configure_logging
 import click
 import logging
 from pathlib import Path
-from typing import Generator, Optional, Set
+from typing import Generator, Optional, Set, Tuple
 
 from zavod.logs import get_logger, configure_logging
 from zavod.meta import load_dataset_from_path
+from zavod.meta.dataset import Dataset
 from zavod.store import Store, View, get_store
 
 log = get_logger(__name__)
@@ -59,38 +60,49 @@ def resolve(view: View, resolver: Resolver, ids: Set[str]) -> Optional[Entity]:
     return cluster
 
 
-@click.command()
-@click.argument("dataset_path", type=InFile)
-@click.argument("outfile", type=OutFile)
-def main(dataset_path: Path, outfile: Path):
-    configure_logging(level=logging.INFO)
-
-    dataset = load_dataset_from_path(dataset_path)
+def generate_pairs(
+    dataset: Dataset,
+) -> Generator[Tuple[Entity, Entity, Judgement], None, None]:
     resolver = ChronAggResolver(Path(settings.RESOLVER_PATH))
     store = get_store(dataset, Linker({}))
     store.sync()
     view = store.view(dataset, external=False)
 
+    for edge in resolver.chrono_edges(resolver.path):
+        if edge.judgement == Judgement.NO_JUDGEMENT:
+            continue
+
+        judgement = edge.judgement
+        if judgement == Judgement.UNSURE:
+            judgement = Judgement.NEGATIVE
+
+        # TODO: Should this be using their canonical IDs?
+        source_cluster_ids = resolver.connected(edge.source)
+        target_cluster_ids = resolver.connected(edge.target)
+
+        resolver._register(edge)
+        resolver.connected.cache_clear()
+
+        # Lazily resolve
+        source = resolve(view, resolver, source_cluster_ids)
+        target = resolve(view, resolver, target_cluster_ids)
+        if source is None or target is None:
+            continue
+
+        yield source, target, judgement
+
+
+@click.command()
+@click.argument("dataset_path", type=InFile)
+@click.argument("outfile", type=OutFile)
+def main(dataset_path: Path, outfile: Path):
+    configure_logging(level=logging.INFO)
+    dataset = load_dataset_from_path(dataset_path)
+
     with open(outfile, "w") as out_fh:
-        for idx, edge in enumerate(resolver.chrono_edges(resolver.path)):
-            if edge.judgement == Judgement.NO_JUDGEMENT:
-                continue
-
-            judgement = edge.judgement
-            if judgement == Judgement.UNSURE:
-                judgement = Judgement.NEGATIVE
-
-            source_cluster_ids = resolver.connected(edge.source)
-            target_cluster_ids = resolver.connected(edge.target)
-
-            resolver._register(edge)
-            resolver.connected.cache_clear()
-
-            # Lazily resolve
-            source = resolve(view, resolver, source_cluster_ids)
-            target = resolve(view, resolver, target_cluster_ids)
-            if source is None or target is None:
-                continue
+        for idx, (source, target, judgement) in enumerate(generate_pairs(dataset)):
+            if idx > 0 and idx % 1000 == 0:
+                log.info("Exported %d pairs..." % idx)
 
             out_fh.write(
                 json.dumps(
