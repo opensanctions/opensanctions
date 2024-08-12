@@ -39,37 +39,47 @@ assertions:
       Person: 280
       LegalEntity: 595
 lookups:
-  type.name:
+  entities:
     options:
-      - match: "A...B..."
-        value: null
-      - match: Gérard Monnet, Michael Aubourg, Davide Blei, Cyril de Bournet
-        value: 
+      - match:
+          - "A...B..."
+          - "."
+          - ","
+        entities: []
+      - match: MM. Gérard Monnet, Michael Aubourg, Davide Blei, Cyril de Bournet et Marco Perelli-Cippo
+        entities: 
           - Gérard Monnet
           - Michael Aubourg
           - Davide Blei
           - Cyril de Bournet
-  name_fixes:
-    options: []
-  roughly_invalid_names:
-    options:
-      - match: 
-          - A
-          - B
-          - X
-          - F
-          - Y
-          - "A, B"
-          - "D, A, la SOCIÉTÉ Z, B"
-          - Mme X
-          - Mlle B
-          - "de X, anciennement dénommée X'"
-          - Mme W, MM X Y
-          - "co limited, M. B, M. C, M. A"
-          - "co, M. A, M. B, M. D, Mme C"
-          - de Mme A
-          - de Madame A
-          - "D, A, la SOCIÉTÉ Z, B"
-          - ""
-          - "A...B..."
-        value: null
+          - Marco Perelli-Cippo
+      - match: La société Traditia<br /> Monsieur Philippe Le Gouz de Saint Seine
+        entities:
+          - Traditia
+          - Philippe Le Gouz de Saint Seine
+      - match: LA CAISSE D'EPARGNE ET DE PREVOYANCE ILE DE FRANCE, LA CAISSE D'EPARGNE ET DE PREVOYANCE NORMANDIE, LA CAISSE D'EPARGNE ET DE PREVOYANCE PROVENCE ALPES CORSE, LA CAISSE D'EPARGNE ET DE PREVOYANCE LOIRE DROME ARDECHE, ET LA SOCIETE X VENANT AUX DROITS DE LA SOCIETE ECUREUIL GESTION
+        entities:
+          - Caisse d'Epargne et de Prévoyance Ile de France
+          - Caisse d'Epargne et de Prévoyance Normandie
+          - Caisse d'Epargne et de Prévoyance Provence Alpes Corse
+          - Caisse d'Epargne et de Prévoyance Loire Drôme Ardèche
+          - Ecureuil Gestion
+      - match: 'venant aux droits de la société Néville Gestion'
+        entities:
+          - Neville Gestion
+      - match: 'CAISSE NATIONALE DES CAISSES D’EPARGNE ET DE PREVOYANCE, CAISSES D’EPARGNE DE PROVENCE ALPES CORSE, BOURGOGNE FRANCHE-COMTE, ILE DE FRANCE (venant aux droits des CAISSES D’EPARGNE D’ILE DE FRANCE PARIS ’ILE DE FRANCE NORD), AQUITAINE POITOU-CHARENTES (venant aux droits des CAISSES D’EPARGNE D’AQUITAINE NORD et de POITOU-CHARENTES), NORMANDIE (venant aux droits de la CAISSE D’EPARGNE DE BASSE NORMANDIE), COTE D’AZUR, ET RHONE-ALPES (venant aux droits des CAISSES D’EPARGNE DE RHONE-ALPES LYON et DES ALPES)'
+        entities:
+          - Caisse Nationale des Caisses d'Epargne et de Prévoyance
+          - Caisse d'Epargne de Provence Alpes Corse
+          - Caisse d'Epargne de Bourgogne Franche-Comté
+          - Caisse d'Epargne d'Ile de France
+          - Caisses d’Epargne d’Ile de France Paris d’Ile de France Nord
+          - Caisse d'Epargne d'Aquitaine Poitou-Charentes
+          - Caisse d'Epargne de Normandie
+          - Caisse d'Epargne de Côte d'Azur
+          - Caisse d'Epargne de Rhône-Alpes
+        relationships:
+          - schema: Succession
+            predecessor: Caisses d’Epargne d’Ile de France Paris d’Ile de France Nord
+            successor: Caisse d'Epargne d'Ile de France
+            role: venant aux droits

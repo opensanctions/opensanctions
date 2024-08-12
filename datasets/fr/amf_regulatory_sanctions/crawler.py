@@ -1,8 +1,11 @@
 from typing import Any, Generator, List, Optional, Tuple, Union
+
+from normality import collapse_spaces
 from zavod import Context
 from datetime import datetime
 import re
 from html import unescape
+from lxml import html
 from urllib.parse import urljoin
 from pprint import pprint
 
@@ -10,91 +13,6 @@ from zavod.helpers.text import multi_split
 
 CLEAN_ENTITY = re.compile(r"(<br />\r\n| et |;)", re.IGNORECASE)
 BASE_URL = "https://www.amf-france.org"
-# OMIT_PREFIXES = [
-#    r"^Société$",
-#    r"^sociétés",
-#    r"^Société",
-#    r"^société",
-#    r"^Banque",
-#    r"^la société",
-#    r"^Caisse",
-#    r"^cabinet",
-#    r"^La sociétés",
-#    r"^les CABINETS",
-#    r"^les sociétés",
-#    r"^LA",
-#    r"^de gestion",
-#    r"^hui dénommée",
-#    r"^Melle",
-#    r"^cogérants de",
-# ]
-
-# OMIT_PREFIXES_REGEX = re.compile("|".join(OMIT_PREFIXES), re.IGNORECASE)
-
-# Add constants for specific keywords we want to omit from notes.
-OMIT_KEYWORDS = [
-    "Sociétés",
-    "Société",
-    "société",
-    "Banque",
-    "la société",
-    "Caisse",
-    "cabinet",
-    "La sociétés",
-    "les CABINETS",
-    "les sociétés",
-    "LA",
-    "de gestion",
-    "hui dénommée",  # TODO: Check this one
-    "cogérants de",  # TODO: Check this one
-    "cabinets",
-    "SCS",  # Société en commandite simple
-]
-
-# OMIT_TITLES = (
-#     "M.",
-#     "Mme.",
-#     "MME",
-#     "Madame",
-#     "MM.",
-#     "MM",
-#     "Monsieur",
-#     "de",
-#     "Mme",
-#     "de MM.",
-#     "de M.",
-#     "de Mmes",
-#     "Mlle",
-#     "M. ",
-#     "MM. ",
-#     "s",
-# )
-#
-# female_prefixes = ["Mme", "Madame", "MME", "Mme.", "de Mmes", "Mlle"]
-# male_prefixes = [
-#     "M.",
-#     "MM.",
-#     "Monsieur",
-#     "M",
-#     "MM",
-#     "de MM.",
-#     "de M.",
-#     "M. ",
-#     "MM. ",
-# ]
-
-CLEAN_ENTITY_REGEX = re.compile(r"^(de )?(" + "|".join(OMIT_KEYWORDS) + r")\b", re.IGNORECASE)
-
-CLEAN_PERSON_REGEX = re.compile(
-    r"^(de )?(M|Mme|MM|Madame|Monsieur|Monsieur|Melle)[\. \b]", re.IGNORECASE
-)
-
-# SINGLE_LETTER_REGEX = re.compile(r"^[A-Z]$", re.IGNORECASE)
-SINGLE_LETTER_REGEX = re.compile(r"^[^\w]*[A-Z][^\w]*$", re.IGNORECASE)
-
-# OMIT_KEYWORDS_REGEX = re.compile(
-#    r"(Sociétés?| Banque| Caisse| société| La sociétés| la société) [a-zA-Zé]\b"
-# )
 
 
 def parse_json(context: Context) -> Generator[dict, None, None]:
@@ -110,24 +28,6 @@ def parse_json(context: Context) -> Generator[dict, None, None]:
         yield item
 
 
-# def clean_name(name: str, clean_regex) -> str:
-#    # Unescape and clean the name
-#    unescaped_name = unescape(name)
-#    cleaned_name = re.sub(clean_regex, "", unescaped_name).strip()
-#    return cleaned_name
-#
-#
-# def determine_gender(name: str) -> str:
-#    for prefix in female_prefixes:
-#        if name.startswith(prefix):
-#            return "female"
-#
-#    for prefix in male_prefixes:
-#        if name.startswith(prefix):
-#            return "male"
-#
-#    return ""
-
 
 def get_value(
     data: dict, keys: Tuple[str, ...], default: Optional[Any] = None
@@ -138,54 +38,6 @@ def get_value(
             return val
     return default
 
-
-# def roughly_valid_name(name: str) -> bool:
-#    if not re.search("\w{3}", name):
-#        return False
-#    return len(name) > 3
-
-
-# def is_valid_name(name: str) -> bool:
-#    # Split the names by comma and strip each part
-#    name_parts = [part.strip() for part in name.split(",")]  # split_comma_names(name)
-#
-#    for part in name_parts:
-#        for prefix in OMIT_TITLES:
-#            if part.startswith(prefix):
-#                part = part.replace(prefix, "", 1)
-#
-#        # print(part)
-#        # Check if part is "Société" followed by a single letter
-#        # if (
-#        #     part == "Société"
-#        #     or part.startswith("sociétés")
-#        #     or part.startswith("Société")
-#        #     or part.startswith("société")
-#        #     or part.startswith("sociétés")
-#        #     or part.startswith("Banque")
-#        #     or part.startswith("la société")
-#        #     or part.startswith("Caisse")
-#        #     or part.startswith("cabinet")
-#        #     or part.startswith("La sociétés")
-#        #     or part.startswith("les CABINETS")
-#        #     or part.startswith("les sociétés")
-#        #     or part.startswith("LA")
-#        #     or part.startswith("de gestion")
-#        #     or part.startswith("hui dénommée")
-#        #     or part.startswith("Melle")
-#        #     or part.startswith("cogérants de")
-#        #     and len(part.split()) == 2
-#        #     and part.split()[-1].isalpha()
-#        #     and len(part.split()[-1]) == 1
-#        # ):
-#        #     return False
-#        if OMIT_PREFIXES_REGEX.match(part):
-#            return False
-#        # Check if the part is now a single letter
-#        if SINGLE_LETTER_REGEX.match(part):
-#            return False
-#
-#    return True
 
 
 # def process_person(
@@ -282,81 +134,92 @@ def get_value(
 #                entity.add("sourceUrl", full_download_url)
 #    context.emit(entity, target=True)
 
-REGEX_A_AND_B = re.compile(r"\b[A-Z] et [A-Z]\b")
-def split_names(names_str: str) -> List[str]:
-    names = multi_split(
-        names_str,
-        [
-            "<br />",
-            "\r",
-            "\n",
-            # "X coming to the rights and obligations of the company Y"
-            # Ideally we'd link X and Y
-            #"venant au droits et obligations de la société",
-            #"venant aux droits et obligations de la société",
-            #"venant aux droits de",
-            #"aux droits de laquelle vient la société",
-            "ainsi que la société",
-            "aujourd'hui dénommée",
-            "(ex ",
-            "du groupe",
-            " et de ",
-            " et la ",
-            " et société de gestion",
-            " et M.",
-            " et MM.",
-            " et Mme ",
-            " et Banque",
-            "et société",
-            ";",
-            ",",
-        ],
-    )
-    for name in names:
-        if REGEX_A_AND_B.search(name):
-            names.remove(name)
-            names.extend(name.split(" et "))
-    return names
+PREFIXES = [
+    "Sociétés",
+    "Société",
+    "société",
+    "Banque",
+    "la société",
+    "Caisse",
+    "cabinet",
+    "La sociétés",
+    "les CABINETS",
+    "les sociétés",
+    "LA",
+    "de gestion",
+    "cabinets",
+    "SCS",  # Société en commandite simple
+    r"M\.?",
+    "Mme",
+    r"MM\.?",
+    "Madame",
+    "Monsieur",
+    "Monsieur",
+    "Melle",
+]
 
 
-CLEAN_STRIP_ARTIFACTS_REGEX = re.compile(r"(\($|^\))", re.IGNORECASE)
+comma_prefix_anon = "(,|et) +(" + "|".join(PREFIXES) + r")[\. \b]+[A-Z]\b"
+print("comma_prefix_anon", comma_prefix_anon)
+prefix_anon = "(" + "|".join(PREFIXES) + r")[\. \b]+[A-Z]\b"
+print("prefix_anon", prefix_anon)
+comma_anon =r"(,|et) +[A-Z]\b"
+print("comma_anon", comma_anon)
 
 
-def clean_name(name: str) -> str | None:
-    # print("NAME %r" % name)
-    name = name.strip()
-    name = CLEAN_STRIP_ARTIFACTS_REGEX.sub("", name).strip()
-    name = CLEAN_PERSON_REGEX.sub("", name).strip()
-    name = CLEAN_ENTITY_REGEX.sub("", name).strip()
-    if SINGLE_LETTER_REGEX.match(name):
-        return None
-    return name
-
-
-def clean_names(names_str: str) -> List[str]:
-    names = split_names(names_str)
-    cleaned_names = []
-    for name in names:
-        cleaned_name = clean_name(name)
-        if cleaned_name:
-            cleaned_names.append(cleaned_name)
-    return cleaned_names
+def clean_names_str(names_str: str) -> str:
+    names_str = re.sub(comma_prefix_anon, "", names_str)
+    names_str = re.sub(prefix_anon, "", names_str)
+    names_str = re.sub(comma_anon, "", names_str)
+    names_str = collapse_spaces(names_str)
+    return names_str
 
 
 def crawl(context: Context) -> None:
     # General data
     for data in parse_json(context):
+        #print("data", data)
+
         # Extract relevant fields from each item
         theme = unescape(str(data.get("theme")))
         item = data.get("infos", {})
         title = item.get("title")
         names_str = unescape(item.get("text_egard", ""))
-        names = clean_names(names_str)
-        print("%r" % names_str)
-        for name in names:
-            print("  %r" % name)
-        print()
-        continue
+        print("original", names_str)
+        names_str = clean_names_str(names_str)
+        print("cleaned", names_str)
+        if not names_str:
+            continue
+
+        entities_res = context.lookup("entities", names_str)
+        # No mapping yet
+        if entities_res is None:
+            context.log.warning("No entity mapping for %r" % names_str)
+            continue
+
+        # No entities for remaining names str
+        if not entities_res.entities:
+            continue
+
+        penalty = item.pop("text")
+        print("penalty", penalty)
+        # html.fromstring(penalty)
+        # Todo: figure out if we can assume cases like all/none exonorated and what topic we should give.
+        # Perhaps we should just give all reg.action?
+
+        for entity in entities_res.entities:
+            # make entities here
+            print("   ", entity)
+
+        # Make it so you don't need a blank relations field in each entry
+        if not entities_res.relationships:
+            continue
+        for rel in entities_res.relationships:
+            # make relations here
+            print("   ", rel)
+
+
+        continue # just skip this stuff that should probably happen in the loop for now
         link = item.get("link", {}).get("url", "")
         date_epoch = item.get("date")
         if date_epoch:
@@ -380,3 +243,4 @@ def crawl(context: Context) -> None:
                 process_person(context, title, listing_date, name, theme, link, item)
             else:
                 process_entity(context, title, listing_date, name, theme, link, item)
+    #print(SPLIT_NAMES_REGEX.pattern)
