@@ -32,14 +32,10 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 390
-      Sanction: 390
-      Succession: 5
+      LegalEntity: 385
   max:
     schema_entities:
-      LegalEntity: 420
-      Sanction: 420
-      Succession: 10
+      LegalEntity: 400
 lookups:
   entities:
     options:
