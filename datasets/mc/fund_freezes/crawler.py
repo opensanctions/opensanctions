@@ -4,6 +4,31 @@ import re
 from typing import Dict
 
 
+def clean_address(text):
+    if not text:
+        return None
+
+    # regex to match entries wih pattern from a) to z)
+    patterns = [
+        r"\b[a-z]\)\s(.*?)(?=\s[a-z]\)|$)",
+    ]
+    for pattern in patterns:
+        matches = re.findall(pattern, text, re.DOTALL | re.VERBOSE)
+        if matches:
+            return [match.strip(", ") for match in matches]
+    else:
+        return text.split("\n")
+
+
+def extract_passport_no(text):
+    if not text:
+        return None
+    pattern = r"\b[A-Z0-9]{5,}\b"
+    matches = re.findall(pattern, text)
+
+    return matches
+
+
 def crawl_person(context: Context, record):
     person_details = record.get("mesureDetails")
     first_name = person_details.pop("prenom")
@@ -23,7 +48,7 @@ def crawl_person(context: Context, record):
     person.add("birthPlace", place_of_birth)
     person.add("nationality", re.split(r",\s*|/|;", nationality))
     person.add("title", title)
-    person.add("passportNumber", passport)
+    person.add("passportNumber", extract_passport_no(passport))
 
     context.emit(person, target=True)
     context.audit_data(person_details, ignore=["autoriteMesure"])
@@ -46,8 +71,8 @@ def crawl_common(context: Context, data: Dict[str, str], schema: str):
     entity = context.make(schema)
     entity.id = context.make_id("mc-freezes", data.get("mesureId"))
     entity.add("name", name)
-    entity.add("alias", alias)
-    entity.add("address", address)
+    entity.add("alias", re.split(r"[;”]", alias))
+    entity.add("address", clean_address(address))
     entity.add("notes", notes)
     entity.add("topics", "sanction")
 
@@ -63,7 +88,6 @@ def crawl_common(context: Context, data: Dict[str, str], schema: str):
 
 def crawl_company(context: Context, record):
     org = crawl_common(context, record, "Organization")
-
     context.emit(org, target=True)
 
 
