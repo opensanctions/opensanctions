@@ -96,13 +96,18 @@ lookups:
         entities:
           - Caisse Nationale des Caisses d'Epargne et de Prévoyance
           - Caisse d'Epargne de Provence Alpes Corse
-          - Caisse d'Epargne de Bourgogne Franche-Comté
-          - Caisse d'Epargne d'Ile de France
-          - Caisses d’Epargne d’Ile de France Paris d’Ile de France Nord
-          - Caisse d'Epargne d'Aquitaine Poitou-Charentes
-          - Caisse d'Epargne de Normandie
-          - Caisse d'Epargne de Côte d'Azur
-          - Caisse d'Epargne de Rhône-Alpes
+          - Bourgogne Franche-Comté
+          - Ile de France
+          - Caisses d'Epargne d'Ile de France Paris 'Ile de France Nord
+          - Aquitaine Poitou-Charentes
+          - Caisses d'Epargne d'Aquitaine Nord
+          - Poitou-Charentes
+          - Normandie
+          - Caisse d'Epargne de Basse Normandie
+          - Cote d'Azur
+          - Rhone-Alpes
+          - Caisses d'Epargne de Rhone-Alpes Lyon
+          - des Alpes
       - match: 'la société Skylar France et M. Cédric Chaboud'
         entities:
           - Skylar France
@@ -313,12 +318,10 @@ lookups:
           - Cédric Chaboud
       - match: 'Société Novactifs Patrimoine (anciennement Ageo Patrimoine)'
         entities:
-          - Novactifs Patrimoine
-          - Ageo Patrimoine
+          - ['Novactifs Patrimoine', 'Ageo Patrimoine']
       - match: 'Société Signatures (anciennement ARTECOSA) ...B...'
         entities:
-          - Signatures
-          - ARTECOSA
+          - ['Signatures', 'ARTECOSA']
       - match: 'Société Ycap Asset Management'
         entities:
           - Ycap Asset Management
@@ -328,8 +331,7 @@ lookups:
       - match: ', Bryan Garnier & Co Limited, Santen SAS (anciennement Novagali Pharma SA),B,C'
         entities:
           - Bryan Garnier & Co Limited
-          - Santen SAS
-          - Novagali Pharma SA
+          - ['Santen SAS', 'Novagali Pharma SA']
       - match: 'Société Générale'
         entities:
           - Société Générale
@@ -381,8 +383,7 @@ lookups:
           - Bernheim Dreyfus & co
       - match: 'Société Héraclès (anciennement dénommée 1855)'
         entities:
-          - Héraclès
-          - '1855'
+          - ['Héraclès', '1855']
       - match: 'Société Air France-KLM et de'
         entities:
           - Air France-KLM
@@ -613,8 +614,7 @@ lookups:
       - match: 'Sociétés INFOGRAMES ENTERTAINMENT et NATEXIS BLEICHROEDER, aux droits de laquelle vient la société NATIXIS SECURITIES.'
         entities:
           - INFOGRAMES ENTERTAINMENT
-          - NATEXIS BLEICHROEDER
-          - NATIXIS SECURITIES
+          - ['NATEXIS BLEICHROEDER', 'NATIXIS SECURITIES']
       - match: 'La société Biosynex<br /> La société ALA Financière<br /> La société Axodev<br /> La société AJT Financière <br /> M. Larry Abensur<br /> M. Thierry Paper<br /> M. Thomas Lamy<br /> M. Elie Fraenckel'
         entities:
           - Biosynex
@@ -901,21 +901,27 @@ lookups:
 
         relationships:
           - schema: Succession
-            predecessor: Caisses d’Epargne d’Ile de France Paris d’Ile de France Nord
-            successor: Caisse d'Epargne d'Ile de France
+            from_prop: predecessor
+            from: Caisses d'Epargne d'Ile de France Paris 'Ile de France Nord
+            to_prop: successor
+            to: Ile de France
+            role: venant aux droits
+          - schema: Succession
+            from_prop: predecessor
+            from: ["Caisses d'Epargne d'Aquitaine Nord", "Poitou-Charentes"]
+            to_prop: successor
+            to: Aquitaine Poitou-Charentes
+            role: venant aux droits
+          - schema: Succession
+            from_prop: predecessor
+            from: Caisse d'Epargne de Basse Normandie
+            to_prop: successor
+            to: Normandie
             role: venant aux droits
           - schema: Succession 
-            predecessor: Ageo Patrimoine
-            successor: Novactifs Patrimoine
-          - schema: Succession
-            predecessor: ARTECOSA
-            successor: Signatures
-          - schema: Succession
-            predecessor: Novagali Pharma SA
-            successor: Santen SAS
-          - schema: Succession
-            predecessor: Héraclès
-            successor: '1855'
-          - schema: Succession
-            predecessor: NATEXIS BLEICHROEDER
-            successor: NATIXIS SECURITIES
+            from_prop: predecessor
+            from: ["Caisses d'Epargne de Rhone-Alpes Lyon", "des Alpes"]
+            to_prop: successor
+            to: Rhone-Alpes
+            role: venant aux droits
+
