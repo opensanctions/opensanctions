@@ -117,7 +117,7 @@ lookups:
           - Digne Conseils & Gestion
           - Patrice Digne
       - match: la Société de gestion des fonds d'investissement de Bretagne . Florent de Kersauson 
-        entities: # double-check
+        entities:
           - Société de Gestion des Fonds d'Investissement de Bretagne
           - Florent de Kersauson
       - match: La société Electricité de France S.A. et Henri Proglio
