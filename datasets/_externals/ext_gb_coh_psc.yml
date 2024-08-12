@@ -15,7 +15,8 @@ deploy:
   memory: "800Mi"
   memory_limit: "1500Mi"
   disk: "20Gi"
-  # premium: true
+  disk_limit: 50Gi
+  premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   The database of beneficial owners of companies incorporated in England, Wales,
