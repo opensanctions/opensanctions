@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Optional
 
-from requests import HTTPError
-
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.logic.pep import OccupancyStatus, categorise
@@ -14,6 +12,14 @@ MAX_GAP = 200
 # import random
 # DEKLARACIJA_ID_RANGE = random.sample(DEKLARACIJA_ID_RANGE, 5000)
 GUEST_ID = 9179496
+SKIP_ROLES = {
+    "Gydytojas, odontologas ar farmacijos specialistas",  # doctor, dentist or pharmacist
+    "Darbuotojas",  # employee
+    "Juridinio asmens darbuotojas",  # employee of a legal entity
+    "Karjeros valstybės tarnautojas",  # career civil servant, as opposed to "Karjeros valstybės tarnautojas struktūrinio padalinio vadovas ar jo pavaduotojas" - Career civil servant, head of a structural unit or his deputy
+    "Statutinis valstybės tarnautojas",  # statutory civil servant
+    "Asmenys, perkančiosios organizacijos ar perkančiojo subjekto vadovo paskirti atlikti supaprastintus pirkimus",  # persons appointed by the contracting authority or contracting entity to carry out simplified procurements
+}
 
 
 class PinregSession:
@@ -25,22 +31,20 @@ class PinregSession:
 
     def get_deklaracija_by_id(self, id: int) -> Optional[dict[any]]:
         id_str = f"{id:06d}"
-        try:
-            return self.context.fetch_json(
-                url=f"https://pinreg.vtek.lt/external/deklaracijos/{id_str}/perziura/viesa",
-                params={"v": self._guest_token},
-                headers={
-                    "Accept": "application/json",
-                    "Referer": f"https://pinreg.vtek.lt/app/pid-perziura/{id_str}",
-                },
-                cache_days=30,
-            )
-        except HTTPError as ex:
-            response = ex.response.json()
-            if response.pop("status") == 404:
-                self.context.log.debug(f"deklaracija {id_str} does not exist")
-            else:
-                raise
+        self.context.log.info(f"fetching declaration {id_str}")
+        r = self.context.http.get(
+            url=f"https://pinreg.vtek.lt/external/deklaracijos/{id_str}/perziura/viesa",
+            params={"v": self._guest_token},
+            headers={
+                "Accept": "application/json",
+                "Referer": f"https://pinreg.vtek.lt/app/pid-perziura/{id_str}",
+            },
+        )
+        if r.status_code == 404:
+            return None
+        if r.status_code != 200:
+            r.raise_for_status()
+        return r.json()
 
 
 def make_person(context: Context, declaration_id: int, data: dict) -> Entity:
@@ -104,9 +108,12 @@ def parse_affiliations(
                     "Foreign declared role", name=person.get("name"), entity=entity_name
                 )
                 continue
+            main_duty = role.pop("pareiguTipasPavadinimas")
+            if main_duty in SKIP_ROLES:
+                continue
             position = h.make_position(
                 context,
-                name=", ".join([position_name, entity_name]),
+                name=main_duty,
                 topics=None,
                 country="LT",
             )
@@ -127,13 +134,8 @@ def parse_affiliations(
                 categorisation=categorisation,
                 status=status,
             )
-            context.audit_data(
-                role,
-                ignore=[
-                    "teisejoKodas",  # code
-                    "pareiguTipasPavadinimas",  # nature of duties
-                ],
-            )
+            occupancy.add("description", ", ".join([position_name, entity_name]))
+            context.audit_data(role)
             if occupancy:
                 entities.append((position, occupancy))
         context.audit_data(
@@ -149,6 +151,31 @@ def parse_affiliations(
             ],
         )
     return entities
+
+
+# CATEGORIES_URL = "https://pinreg.vtek.lt/external/klasifikatoriai/grupuoti/viesi?savybesKodasGrupavimui=PAREIGU_POBUDZIO_GRUPE"
+
+# def search_category():
+#     categories = context.fetch_json(CATEGORIES_URL)
+#     for group in categories:
+#         group_name = group.get("grupesPavadinimas")
+#         group_res = context.lookup("groups", group_name)
+#         if not group_res:
+#             context.log.warning("Unknown group", group=group)
+#             continue
+#         for category in group.get("klasifikatoriai"):
+#             if group_res.include == "some":
+#                 category_res = context.lookup("categories", category.get("pavadinimas"))
+#                 if not category_res:
+#                     context.log.warning("Unknown category", category=category, group_name=group_name)
+#                     continue
+#                 if category_res.include == "none":
+#                     continue
+#                 assert category_res.include == "all", (category, category_res.include)
+#             else:
+#                 assert group_res.include == "all", (group, group_res.include)
+#
+#             # search the category
 
 
 def crawl(context: Context) -> None:

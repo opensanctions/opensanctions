@@ -8,6 +8,7 @@ coverage:
   start: 2024-03-12
 exports:
   - statistics.json
+  - entities.delta.json
 deploy:
   schedule: "1 10 * * *"
   memory: 2500Mi
@@ -59,8 +60,6 @@ inputs:
 
 config:
   type: zavod.runner.local_enricher:LocalEnricher
-  index_options:
-    max_candidates: 1
   api: https://api.graph.opensanctions.org/
   dataset: eu_esma_firds
   strip_namespace: true

@@ -4353,3 +4353,8 @@ lookups:
             - 1987
             - 2001
           idNumber: 10102191894
+      - match: "Lieu d’enregistrement: 676811 Amurskaya oblast, Belogorskiy Rayon, Vozhaevka, Fédération de Russie: Numéro d'identification fiscale: 2811005250"
+        props:
+          jurisdiction: ru
+          address: "676811 Amurskaya oblast, Belogorskiy Rayon, Vozhaevka"
+          innCode: 2811005250

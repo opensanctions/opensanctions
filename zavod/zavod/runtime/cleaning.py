@@ -46,6 +46,17 @@ def value_clean(
             if prop.type == registry.date:
                 # none of the information in OpenSanctions is time-critical
                 clean = clean[: Precision.DAY.value]
+
+            if len(clean) > prop.type.max_length:
+                log.warning(
+                    "Property value exceeds type length",
+                    entity_id=entity.id,
+                    prop=prop.name,
+                    value=value,
+                    clean=clean,
+                )
+                # clean = clean[: prop.type.max_length]
+
             yield prop_, clean
             continue
         if prop.type == registry.phone:

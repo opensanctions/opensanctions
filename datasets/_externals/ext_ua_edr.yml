@@ -13,7 +13,7 @@ exports:
 deploy:
   schedule: "1 20 * * *"
   memory: "1000Mi"
-  memory_limit: "2000Mi"
+  memory_limit: "3000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
@@ -72,7 +72,12 @@ inputs:
   - sanctions
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
+  type: zavod.runner.local_enricher:LocalEnricher
+  limit: 100
+  max_bin: 14
+  index_options:
+    max_candidates: 200
+    memory_budget: 50
   api: https://api.graph.opensanctions.org/
   dataset: ua_edr
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}

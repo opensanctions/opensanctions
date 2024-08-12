@@ -9,6 +9,12 @@ FIELDS = {
     "Date of birth": "birthDate",
     "Crime": "notes",
     "Nationality": "nationality",
+    "Eye colour": "eyeColor",
+    "Hair color": "hairColor",
+    "Approximate height": "height",
+    "Ethnic origin": "ethnicity",
+    "Identifiers": "appearance",
+    "State of case": "notes",
 }
 
 
@@ -37,6 +43,7 @@ def crawl_person(context: Context, person_id: str, url: str):
     person = context.make("Person")
     person.id = context.make_slug(person_id)
     person.add("topics", "crime")
+    person.add("topics", "wanted")
     person.add("sourceUrl", url)
 
     title = doc.findtext(".//title")
@@ -57,6 +64,7 @@ def crawl_person(context: Context, person_id: str, url: str):
             if item_time is not None:
                 value = item_time.get("datetime").split("T")[0]
             person.add(prop, value)
+
             # print(label, value)
         # context.inspect(field)
 
