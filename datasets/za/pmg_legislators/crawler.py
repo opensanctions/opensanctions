@@ -63,9 +63,12 @@ def parse_person(context: Context, data: dict):
         #     context.log.warning(f"Invalid wikidata ID: {identifier}")
 
     person = context.make("Person")
-    person.id = person_entity_id(
-        context, person_id
-    )  # find a way to include those without qid
+    if person_qid:
+        person.id = person_qid
+    else:
+        person.id = person_entity_id(
+            context, person_id
+        )  # find a way to include those without qid
     person.add("name", data.get("name"))
     person.add("alias", [o.get("name") for o in data.get("other_names", [])])
     person.add("gender", data.get("gender"))
@@ -85,12 +88,8 @@ def parse_person(context: Context, data: dict):
 
     for contact_detail in data.pop("contact_details", []):
         value = contact_detail.get("value")
-        if "email" == contact_detail.get("type"):  # might want to remove later
+        if "email" == contact_detail.get("type"):
             person.add("email", clean_emails(value))
-        # if "phone" == contact_detail.get("type"):
-        #     person.add("phone", clean_phones(value))
-        # if "cell" == contact_detail.get("type"):
-        #     person.add("phone", clean_phones(value))
         if "address" == contact_detail.get("type"):
             person.add("address", value)
         if "postal_address" == contact_detail.get("type"):
@@ -128,10 +127,19 @@ def parse_membership(
     position_property = post_summary(
         org_name, role, [data.get("start_date")], [data.get("end_date")], []
     )
+    person_qid = None
+    for ident in data.pop("identifiers", []):
+        identifier = ident.get("identifier")
+        scheme = ident.get("scheme")
 
+        if scheme == "wikidata" and is_qid(identifier):
+            person_qid = identifier
     # Creating and emitting the Person entity
     person = context.make("Person")
-    person.id = person_entity_id(context, person_id)
+    if person_qid:
+        person.id = person_qid
+    else:
+        person.id = person_entity_id(context, person_id)
     person.add("position", position_property)
     context.emit(person, target=True)
 
@@ -177,7 +185,7 @@ def parse_membership(
     if occupancy:
         context.emit(occupancy)
 
-    context.emit(person, target=True)
+    # context.emit(person, target=True)
     return person_id
 
 
@@ -233,6 +241,7 @@ def crawl(context: Context):
         person_id = parse_membership(context, membership, organizations, events)
         if person_id:
             peps.add(person_id)
+
             # context.log.info(f"Processed person ID: {person_id}")
 
     # Process persons
