@@ -10,10 +10,11 @@ summary: >-
   Decisions of the Sanctions Commission of the AMF (Autorité des marchés financiers).
 description: |
   This dataset lists the decisions of the Sanctions Commission of the AMF (Autorité 
-  des marchés financiers) in France. The data includes detailed information about the 
-  sanctions imposed, the entities involved, and the reasons for the sanctions. The 
-  Sanctions Commission is responsible for ensuring the compliance of market participants 
-  with the financial regulations in France.
+  des marchés financiers) in France. It includes information about the sanctions imposed 
+  and the entities involved, with brief notes on the reasons for the sanctions. Detailed 
+  reports are linked where available for more comprehensive information. The Sanctions 
+  Commission is responsible for ensuring the compliance of market participants with the 
+  financial regulations in France.
 publisher:
   name: Autorité des marchés financiers (AMF)
   name_en: Financial Markets Authority
@@ -91,23 +92,66 @@ lookups:
           - Ecureuil Gestion
       - match: 'venant aux droits de la société Néville Gestion'
         entities:
-          - Neville Gestion
       - match: 'CAISSE NATIONALE DES CAISSES D’EPARGNE ET DE PREVOYANCE, CAISSES D’EPARGNE DE PROVENCE ALPES CORSE, BOURGOGNE FRANCHE-COMTE, ILE DE FRANCE (venant aux droits des CAISSES D’EPARGNE D’ILE DE FRANCE PARIS ’ILE DE FRANCE NORD), AQUITAINE POITOU-CHARENTES (venant aux droits des CAISSES D’EPARGNE D’AQUITAINE NORD et de POITOU-CHARENTES), NORMANDIE (venant aux droits de la CAISSE D’EPARGNE DE BASSE NORMANDIE), COTE D’AZUR, ET RHONE-ALPES (venant aux droits des CAISSES D’EPARGNE DE RHONE-ALPES LYON et DES ALPES)'
         entities:
-          - Caisse Nationale des Caisses d'Epargne et de Prévoyance
-          - Caisse d'Epargne de Provence Alpes Corse
-          - Bourgogne Franche-Comté
-          - Ile de France
-          - Caisses d'Epargne d'Ile de France Paris 'Ile de France Nord
-          - Aquitaine Poitou-Charentes
-          - Caisses d'Epargne d'Aquitaine Nord
-          - Poitou-Charentes
-          - Normandie
-          - Caisse d'Epargne de Basse Normandie
-          - Cote d'Azur
-          - Rhone-Alpes
-          - Caisses d'Epargne de Rhone-Alpes Lyon
-          - des Alpes
+          - la Caisse Nationale des Caisses d'Epargne et de Prévoyance
+          - la Caisse d'Epargne de Provence Alpes Corse
+          - la Caisse d'Epargne de Provence Bourgogne Franche-Comté
+          - la Caisse d'Epargne d'Ile de France
+          - la Caisse d'Epargne d'Ile de France Paris
+          - la Caisse d'Epargne d'Ile de France Nord
+          - la Caisse d'Epargne d'Aquitaine Poitou-Charentes
+          - la Caisse d'Epargne d'Aquitaine Nord
+          - la Caisse d'Epargne de Poitou-Charentes
+          - la Caisse d'Epargne de Normandie
+          - la Caisse d'Epargne de Basse Normandie
+          - la Caisse d'Epargne de Cote d'Azur
+          - la Caisse d'Epargne de Rhone-Alpes
+          - la Caisses d'Epargne de Rhone-Alpes Lyon
+          - la Caisses d'Epargne des Alpes
+        relationships:
+          - schema: Succession
+            from_prop: predecessor
+            from: la Caisse d'Epargne d'Ile de France Nord
+            to_prop: successor
+            to: la Caisse d'Epargne d'Ile de France
+            role: venant aux droits
+          - schema: Succession
+            from_prop: predecessor
+            from: la Caisse d'Epargne d'Ile de France Paris
+            to_prop: successor
+            to: la Caisse d'Epargne d'Ile de France
+            role: venant aux droits
+          - schema: Succession
+            from_prop: predecessor
+            from: la Caisse d'Epargne d'Aquitaine Nord
+            to_prop: successor
+            to: la Caisse d'Epargne d'Aquitaine Poitou-Charentes
+            role: venant aux droits
+          - schema: Succession
+            from_prop: predecessor
+            from: la Caisse d'Epargne de Poitou-Charentes
+            to_prop: successor
+            to: la Caisse d'Epargne d'Aquitaine Poitou-Charentes
+            role: venant aux droits
+          - schema: Succession
+            from_prop: predecessor
+            from: la Caisse d'Epargne de Basse Normandie
+            to_prop: successor
+            to: la Caisse d'Epargne de Normandie
+            role: venant aux droits
+          - schema: Succession 
+            from_prop: predecessor
+            from: la Caisses d'Epargne de Rhone-Alpes Lyon
+            to_prop: successor
+            to: la Caisse d'Epargne de Rhone-Alpes
+            role: venant aux droits
+          - schema: Succession
+            from_prop: predecessor
+            from: la Caisses d'Epargne des Alpes
+            to_prop: successor
+            to: la Caisse d'Epargne de Rhone-Alpes
+            role: venant aux droits
       - match: 'la société Skylar France et M. Cédric Chaboud'
         entities:
           - Skylar France
@@ -898,41 +942,3 @@ lookups:
       - match: 'et Refco Securities SA'
         entities:
           - Refco Securities SA
-
-        relationships:
-          - schema: Succession
-            from_prop: predecessor
-            from: Caisses d'Epargne d'Ile de France Paris 'Ile de France Nord
-            to_prop: successor
-            to: Ile de France
-            role: venant aux droits
-          - schema: Succession
-            from_prop: predecessor
-            from: Caisses d'Epargne d'Aquitaine Nord
-            to_prop: successor
-            to: Aquitaine Poitou-Charentes
-            role: venant aux droits
-          - schema: Succession
-            from_prop: predecessor
-            from: Caisse d'Epargne de Basse Normandie
-            to_prop: successor
-            to: Normandie
-            role: venant aux droits
-          - schema: Succession
-            from_prop: predecessor
-            from: Poitou-Charentes
-            to_prop: successor
-            to: Aquitaine Poitou-Charentes
-            role: venant aux droits
-          - schema: Succession 
-            from_prop: predecessor
-            from: Caisses d'Epargne de Rhone-Alpes Lyon
-            to_prop: successor
-            to: Rhone-Alpes
-            role: venant aux droits
-          - schema: Succession
-            from_prop: predecessor
-            from: des Alpes
-            to_prop: successor
-            to: Rhone-Alpes
-            role: venant aux droits

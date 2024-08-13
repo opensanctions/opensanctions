@@ -12,7 +12,7 @@ CLEAN_ENTITY = re.compile(r"(<br />\r\n| et |;)", re.IGNORECASE)
 BASE_URL = "https://www.amf-france.org"
 
 
-def parse_json(context: Context) -> Generator[dict, None, None]:
+def fetch_items(context: Context) -> Generator[dict, None, None]:
     response = context.fetch_json(context.data_url)
     if "data" not in response:
         context.log.info("No data available.")
@@ -73,7 +73,11 @@ def clean_names_str(names_str: str) -> Optional[str]:
     return names_str
 
 
-def process_entity(
+def entity_id(context, name, listing_date):
+    return context.make_id(name, listing_date)
+
+
+def crawl_entity(
     context: Context,
     title: str,
     listing_date: str,
@@ -84,7 +88,7 @@ def process_entity(
 ) -> None:
     """Process a legal entity entry."""
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(name, listing_date)
+    entity.id = entity_id(context, name, listing_date)
 
     entity.add("name", name)
     entity.add("notes", title)
@@ -112,12 +116,12 @@ def process_entity(
         url_link = item["link"].get("url")
         entity.add("sourceUrl", url_link)
 
-    context.emit(entity, target=False)
+    context.emit(entity, target=True)
 
 
 def crawl(context: Context) -> None:
     # General data
-    for data in parse_json(context):
+    for data in fetch_items(context):
         theme = unescape(str(data.get("theme")))
         item = data.get("infos", {})
         title = item.get("title")
@@ -143,15 +147,17 @@ def crawl(context: Context) -> None:
         link = item.get("link", "")
 
         for entity in entities_res.entities:
-            process_entity(context, title, listing_date, entity, theme, link, item)
+            crawl_entity(context, title, listing_date, entity, theme, link, item)
             # Make it so you don't need a blank relations field in each entry
             if not entities_res.relationships:
                 continue
 
             for rel in entities_res.relationships:
                 # Create or get the existing relation target entity
-                rel_from_id = context.make_id(rel["from"], listing_date)
-                rel_to_id = context.make_id(rel["to"], listing_date)
+                # rel_from_id = context.make_id(rel["from"], listing_date)
+                rel_from_id = entity_id(context, rel["from"], listing_date)
+                rel_to_id = entity_id(context, rel["to"], listing_date)
+                # rel_to_id = context.make_id(rel["to"], listing_date)
 
                 relation = context.make(rel["schema"])
                 relation.id = context.make_id(rel_from_id, rel_to_id)
