@@ -17,6 +17,7 @@ ALIAS_SPLITS = [
     ";",
 ]
 
+
 def parse_table(
     table: _Element,
 ) -> Generator[Dict[str, Tuple[str, Optional[str]]], None, None]:
