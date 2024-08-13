@@ -1,0 +1,76 @@
+title: Monaco National Fund Freezing List
+entry_point: crawler.py
+prefix: mc-freezes
+coverage:
+  frequency: daily
+  start: 2024-08-09
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  A list of entities subject to fund and economic resource freezing procedures
+description: |
+  This dataset publishes a national list of indivi1duals and entities subject to the freezing of funds and economic resources
+  in the Principality as mandated by the Sovereign Ordinance No. 8,664 of May 26, 2021.
+
+  This list is managed and regularly updated by the Budget and Treasury Department. It aligns with those established 
+  by the United Nations, the European Union, France and also includes designations made by the Minister of State under UN 
+  Security Council Resolution 1373 (2001).
+
+  Updates to the list are published via ministerial decisions.
+  [Read More](https://geldefonds.gouv.mc/a-propos-de-la-liste-nationale-de-gel-des-fonds)
+publisher:
+  name: la Principauté de Monaco
+  name_en: The Principality of Monaco
+  description: Official Monaco Government
+  url: https://www.gouv.mc/
+  country: mc
+  official: true
+url: https://geldefonds.gouv.mc/
+data:
+  url: https://geldefonds.gouv.mc/directdownload/sanctions.json
+  format: JSON
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - contains:
+          - RPDC
+          - République populaire démocratique de Corée
+        value: kp
+      - contains:
+          - PAKISTAN
+        value: pk
+      - contains:
+          - JORDANIE
+        value: jo
+      - contains:
+          - CENTRAFRIQUE
+        value: cf
+      - contains:
+          - RUSSIE
+        value: ru
+      - contains:
+          - INDONÉSIE
+        value: id
+      - contains:
+          - RDC
+        value: cg
+      - match:
+          - FRANCE-ALGERIE
+        values:
+          - fr
+          - al
+      - contains:
+          - Tchadienne
+        value: td
+      - contains:
+          - SYRIE
+        value: sy
+      - match:
+          - UKRAINE et
+        value: ua
+assertions:
+  min:
+    schema_entities:
+      Person: 3500
+      Organization: 1000
