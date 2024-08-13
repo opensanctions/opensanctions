@@ -1,3 +1,5 @@
+from functools import reduce
+from operator import concat
 from typing import Generator, Dict, Tuple, Optional
 from lxml.etree import _Element
 from normality import slugify
@@ -6,7 +8,14 @@ import re
 
 # It will match the following substrings: DD (any month) YYYY
 DATE_PATTERN = r"\b(\d{1,2} (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4})\b"
-
+ALIAS_SPLITS = [
+    "formerly designated under the description",
+    "formerly designated under description",
+    "also known as",
+    "Also known as",
+    "; and",
+    ";",
+]
 
 def parse_table(
     table: _Element,
@@ -38,9 +47,9 @@ def parse_table(
 
 def crawl_item(input_dict: dict, context: Context):
     # aliases will be either a list of size one or None if there is no aliases
-    name, *aliases = input_dict.pop("terrorist-entity")[0].split("Also known as ")
-
-    aliases = aliases[0].split(", ") if aliases else []
+    name, *aliases = h.multi_split(input_dict.pop("terrorist-entity")[0], ALIAS_SPLITS)
+    alias_lists = [h.multi_split(alias, [", and", ","]) for alias in aliases]
+    aliases = reduce(concat, alias_lists, [])
 
     organization = context.make("Organization")
     organization.id = context.make_slug(name)
