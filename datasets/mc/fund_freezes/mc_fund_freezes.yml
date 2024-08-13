@@ -8,11 +8,13 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of entities subject to fund and economic resource freezing procedures
 description: |
-  This dataset publishes a national list of individuals and entities subject to the freezing of funds and economic resources 
-  in the Principality as mandated by the Sovereign Ordinance No. 8,664 of May 26, 2021
+  This dataset publishes a national list of indivi1duals and entities subject to the freezing of funds and economic resources
+  in the Principality as mandated by the Sovereign Ordinance No. 8,664 of May 26, 2021.
+
   This list is managed and regularly updated by the Budget and Treasury Department. It aligns with those established 
   by the United Nations, the European Union, France and also includes designations made by the Minister of State under UN 
-  Security Council Resolution 1373 (2001). 
+  Security Council Resolution 1373 (2001).
+
   Updates to the list are published via ministerial decisions.
   [Read More](https://geldefonds.gouv.mc/a-propos-de-la-liste-nationale-de-gel-des-fonds)
 publisher:

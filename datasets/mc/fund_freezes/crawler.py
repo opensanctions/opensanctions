@@ -32,6 +32,7 @@ def extract_passport_no(text):
 def crawl_person(context: Context, record):
     person_details = record.get("mesureDetails")
     first_name = person_details.pop("prenom")
+    last_name = record.get("nom")
     gender = person_details.pop("sexe")
     dob = person_details.pop("dateNaissance")
     if dob:
@@ -42,7 +43,7 @@ def crawl_person(context: Context, record):
     passport = person_details.pop("passeport")
 
     person = crawl_common(context, record, "Person")
-    person.add("firstName", first_name)
+    h.apply_name(person, first_name=first_name, last_name=last_name)
     person.add("gender", gender)
     person.add("birthDate", dob)
     person.add("birthPlace", place_of_birth)
@@ -57,7 +58,6 @@ def crawl_person(context: Context, record):
 def crawl_common(context: Context, data: Dict[str, str], schema: str):
     entity_details = data.get("mesureDetails")
 
-    name = data.get("nom")
     alias = entity_details.pop("alias")
     address = entity_details.pop("adresse")
     notes = entity_details.pop("autresInfos")
@@ -70,7 +70,6 @@ def crawl_common(context: Context, data: Dict[str, str], schema: str):
 
     entity = context.make(schema)
     entity.id = context.make_id("mc-freezes", data.get("mesureId"))
-    entity.add("name", name)
     entity.add("alias", re.split(r"[;”]", alias))
     entity.add("address", clean_address(address))
     entity.add("notes", notes)
@@ -88,6 +87,8 @@ def crawl_common(context: Context, data: Dict[str, str], schema: str):
 
 def crawl_company(context: Context, record):
     org = crawl_common(context, record, "Organization")
+    org.add("name", record.get("nom"))
+
     context.emit(org, target=True)
 
 
