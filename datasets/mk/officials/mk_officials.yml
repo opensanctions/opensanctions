@@ -33,3 +33,9 @@ publisher:
 data:
   url: https://registar.dksk.mk/rest/institution-submission-form/paged
   format: JSON
+
+lookups:
+  type.name:
+    options:
+      match: претседател на управен одбор, Република Северна Македонија Национална установа-ЗАВОД ЗА ЗАШТИТА НА СПОМЕНИЦИТЕ НА КУЛТУРАТА И МУЗЕЈ-Охрид,Republika e Maqedonisё sё Veriut,Institucioni Nacional ENTI I MBROJTJES SЁ MONUMENTEVE TЁ KULTURЁS DHE MUZEUT-Ohёr
+      value: претседател на управен одбор, Република Северна Македонија Национална установа-ЗАВОД ЗА ЗАШТИТА НА СПОМЕНИЦИТЕ НА КУЛТУРАТА И МУЗЕЈ-Охрид
