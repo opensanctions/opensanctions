@@ -25,8 +25,8 @@ def crawl(context: Context):
             sanction.add("program", row.pop("list"))
             sanction.add("sourceUrl", row.pop("source_url"))
 
-            sanction.add("startDate", row.pop("start_date"))
-            sanction.add("endDate", row.pop("end_date"))
+            sanction.add("startDate", row.pop("start_date", None))
+            sanction.add("endDate", row.pop("end_date", None))
 
             if sanction.has("endDate"):
                 continue
