@@ -89,6 +89,82 @@ lookups:
           - n/a
           - na
         value: null
+      - match: Special Karaj Road, Mehrabad Airport, Tehran, Iran; Sepahbod Gharani 36, Tehran, Iran; Plant No. 1, opp. Of 2nd Phase of Shahrak e Ekbatan, Karaj Special Road, Mehrabad Airport, 10000 Tehran, Iran; P.O. Box 83145/311, Tehran, Iran; P.O. Box 14155/1449, Tehran, Iran; Ekbatan City, Karaj Rd, Azadi Sq, Tehran, Iran
+        values: 
+          - Special Karaj Road, Mehrabad Airport, Tehran, Iran
+          - Sepahbod Gharani 36, Tehran, Iran
+          - Plant No. 1, opp. Of 2nd Phase of Shahrak e Ekbatan, Karaj Special Road, Mehrabad Airport, 10000 Tehran, Iran
+          - P.O. Box 83145/311, Tehran, Iran
+          - P.O. Box 14155/1449, Tehran, Iran
+          - Ekbatan City, Karaj Rd, Azadi Sq, Tehran, Iran
+      - match: PO Box 83145 311, 28 km Esfahan – Tehran Freeway, Shahin Shahr, Esfahan, Iran; PO Box 14155 5568, No 27 Ahahamat Ave, Vallie Asr Square, Tehran 15946, Iran; PO Box 81465 935, Esfahan, Iran; Shahih Shar Industrial Zone, Isfahan, Iran; PO Box 8140, No 107, Sepahbod Gharany Ave, Tehran, Iran
+        values:
+          - PO Box 83145 311, 28 km Esfahan – Tehran Freeway, Shahin Shahr, Esfahan, Iran
+          - PO Box 14155 5568, No 27 Ahahamat Ave, Vallie Asr Square, Tehran 15946, Iran
+          - PO Box 81465 935, Esfahan, Iran
+          - Shahih Shar Industrial Zone, Isfahan, Iran
+          - PO Box 8140, No 107, Sepahbod Gharany Ave, Tehran, Iran
+      - match: Unit 2, No. 3, 2nd Alley, Asad Abadi St, Vali-e asr St, 14316 Iran (Central Office); Flat 3, no. 3, 2nd Street, asad Abadi Ave, Tehran 14316 Iran (office); 3, 2nd Street, Assad-Abadi Ave., Vali-Asr Ave. 14316 Tehran, Iran; No. 3, 2nd St., Yousefabad Forked Rod., Vali-e Asr Ave., Tehran 14316 Iran; G.T.B. Complex, 44th Km. of Kashan-Delijan Road, Kashan (Factory); Km 44 Kashan-Delijan Rd., Kashan, Iran (office)
+        values:
+          - Unit 2, No. 3, 2nd Alley, Asad Abadi St, Vali-e asr St, 14316 Iran (Central Office)
+          - Flat 3, no. 3, 2nd Street, asad Abadi Ave, Tehran 14316 Iran (office)
+          - 3, 2nd Street, Assad-Abadi Ave., Vali-Asr Ave. 14316 Tehran, Iran
+          - No. 3, 2nd St., Yousefabad Forked Rod., Vali-e Asr Ave., Tehran 14316 Iran
+          - G.T.B. Complex, 44th Km. of Kashan-Delijan Road, Kashan (Factory)
+          - Km 44 Kashan-Delijan Rd., Kashan, Iran (office)
+      - match: Chohar Mir Road, Kandahar Bazaar, Quetta City, Baluchistan Province, Pakistan; ii) Room number 1, Abdul Sattar Plaza, Hafiz Saleem Street, Munsafi Road, Quetta, Baluchistan Province, Pakistan; iii) Shop number 3, Dr Bano Road, Quetta, Baluchistan Province, Pakistan; iv) Office number 3, Near Fatima Jinnah Road, Dr Bano Road, Quetta, Baluchistan Province, Pakistan;
+        values:
+          - Chohar Mir Road, Kandahar Bazaar, Quetta City, Baluchistan Province, Pakistan
+          - Room number 1, Abdul Sattar Plaza, Hafiz Saleem Street, Munsafi Road, Quetta, Baluchistan Province, Pakistan
+          - Shop number 3, Dr Bano Road, Quetta, Baluchistan Province, Pakistan
+          - Office number 3, Near Fatima Jinnah Road, Dr Bano Road, Quetta, Baluchistan Province, Pakistan
+      - match: 'Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com;'
+        value: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
+      - match: 'Shops number 21 and 22, 2nd Floor, Kandahar City Sarafi Market, Kandahar City, Kandahar Province, Afghanistan, ii) New Sarafi Market, 2nd Floor, Kandahar City, Kandahar Province, Afghanistan, iii) Safi Market, Kandahar City, Kandahar Province, Afghanistan;'
+        values: 
+          - Shops number 21 and 22, 2nd Floor, Kandahar City Sarafi Market, Kandahar City, Kandahar Province, Afghanistan
+          - New Sarafi Market, 2nd Floor, Kandahar City, Kandahar Province, Afghanistan
+          - Safi Market, Kandahar City, Kandahar Province, Afghanistan
+      - match: Shop number 1584, Furqan (variant Fahr Khan) Center, Chalhor Mal Road, Quetta, Baluchistan Province, Pakistan, ii) Flat number 4, Furaqn Center, Jamaluddin Afghani Road, Quetta, Baluchistan Province, Pakistan, iii) Office number 4, 2nd Floor, Muslim Plaza Building, Doctor Banu Road, Quetta, Baluchistan Province, Pakistan, iv) Cholom Road, Quetta, Baluchistan Province, Pakistan,
+        values:
+          - Shop number 1584, Furqan (variant Fahr Khan) Center, Chalhor Mal Road, Quetta, Baluchistan Province, Pakistan
+          - Flat number 4, Furaqn Center, Jamaluddin Afghani Road, Quetta, Baluchistan Province, Pakistan
+          - Office number 4, 2nd Floor, Muslim Plaza Building, Doctor Banu Road, Quetta, Baluchistan Province, Pakistan
+          - Cholom Road, Quetta, Baluchistan Province, Pakistan
+      - match: No. 40, D5A Street, Kien A Residential Area, Phuoc Long B Ward, District 9, Ho Chi Minh, Vietnam; 2nd Floor, Viet Sky Office Building, No. 251/1 Ngyuen Van Troi, Ward 10, Phu Nhuan District, Ho Chi Minh, Vietnam; No. 12 Tan Trao, Tan Phu Ward, District 7, Ho Chi Minh City, Vietnam.
+        values:
+          - No. 40, D5A Street, Kien A Residential Area, Phuoc Long B Ward, District 9, Ho Chi Minh, Vietnam
+          - 2nd Floor, Viet Sky Office Building, No. 251/1 Ngyuen Van Troi, Ward 10, Phu Nhuan District, Ho Chi Minh, Vietnam
+          - No. 12 Tan Trao, Tan Phu Ward, District 7, Ho Chi Minh City, Vietnam
+      - match: 'Head Office, Suite 707, Oriental Finance Building, 140 Dong Feng Xi Road, Guangzhou 510000, China; Marine Logistics Office, Suite 912, Nan You Building, 142 Dongfeng Xi Road, Guangzhou, China; Air Logistics Office, Suite 419, Nan You Building, 142 Dongfeng Xi Road, Guangzhou, China; Marine Warehouse, Baiyun Area, Shijing Town, 20 Qingfeng Qinglong Road, Guangzhou, China; Baramkeh Free Zone, Damascus, Syria; Jebel Ali Free Zone, W.H. # WF06, Jebel Ali, United Arab Emirates; Ras Al Khor Industrial 3, Warehouse # 2, Al Aweer, United Arab Emirates; Exit 19 Al Manakh area, W.H. #364, Riyadh, Saudi Arabia'
+        values:
+          - Suite 707, Oriental Finance Building, 140 Dong Feng Xi Road, Guangzhou 510000, China
+          - Suite 912, Nan You Building, 142 Dongfeng Xi Road, Guangzhou, China
+          - Suite 419, Nan You Building, 142 Dongfeng Xi Road, Guangzhou, China
+          - Baiyun Area, Shijing Town, 20 Qingfeng Qinglong Road, Guangzhou, China
+          - Baramkeh Free Zone, Damascus, Syria
+          - 'Jebel Ali Free Zone, W.H. # WF06, Jebel Ali, United Arab Emirates'
+          - 'Ras Al Khor Industrial 3, Warehouse # 2, Al Aweer, United Arab Emirates'
+          - 'Exit 19 Al Manakh area, W.H. #364, Riyadh, Saudi Arabia'
+      - match: 'Jl. Siliwangi Raya Blok D3 no. 7, Jl. Pamulang Permai 1, Pamulang Barat, Tangerang Selatan, 15417, Indonesia; Jl. Witana Harja III Blok C/137, Pamulang Barat, Pamulang, Tangerang Selatan, Banten, Indonesia; Komp. Setia Bina Sarana Jl. Ciremai Raya Blok AB 3 No. 9 RT 05/RW 07, Harapan Jaya, Bekasi 17124, Indonesia; Markaz Syria Today – WHC Iblien Village, Jabalzawiyah, Idlib Province, Syria; Shapporo-shi, Hokkaido, Japan'
+        values:
+          - Jl. Siliwangi Raya Blok D3 no. 7, Jl. Pamulang Permai 1, Pamulang Barat, Tangerang Selatan, 15417, Indonesia
+          - Jl. Witana Harja III Blok C/137, Pamulang Barat, Pamulang, Tangerang Selatan, Banten, Indonesia
+          - Komp. Setia Bina Sarana Jl. Ciremai Raya Blok AB 3 No. 9 RT 05/RW 07, Harapan Jaya, Bekasi 17124, Indonesia
+          - Markaz Syria Today – WHC Iblien Village, Jabalzawiyah, Idlib Province, Syria
+          - Shapporo-shi, Hokkaido, Japan
+      - match: Kavousieh, Moddares Highway, Shahid General Houshang Vahid Dastgerdi Street, Number 247, Ground Floor, Tehran, 1917717552; No. 247, Shahid Dastgerdi (Zafar) St., Nelson Mandela Boulevard (Africa), Tehran, 1917717553; Zafar St. Africa Blvd., Tehran, Iran
+        values:
+          - Kavousieh, Moddares Highway, Shahid General Houshang Vahid Dastgerdi Street, Number 247, Ground Floor, Tehran, 1917717552
+          - No. 247, Shahid Dastgerdi (Zafar) St., Nelson Mandela Boulevard (Africa), Tehran, 1917717553
+          - Zafar St. Africa Blvd., Tehran, Iran
+      - match: 3rd Km of Khalaj Road, Seyyedi Street, Mashad, 91638, Iran; Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran; P.O. Box 91735-549, Mashad, Iran; Khalaj Rd., End of Seyyedi Alley, Mashad, Iran; Moqan St., Pasdaran St., Pasdaran Cross Rd., Tehran, Iran
+        values:
+          - 3rd Km of Khalaj Road, Seyyedi Street, Mashad, 91638, Iran
+          - Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran
+          - P.O. Box 91735-549, Mashad, Iran
+          - Khalaj Rd., End of Seyyedi Alley, Mashad, Iran
+          - Moqan St., Pasdaran St., Pasdaran Cross Rd., Tehran, Iran
 
   type.country:
     lowercase: true
