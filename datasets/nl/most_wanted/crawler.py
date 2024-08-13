@@ -22,7 +22,7 @@ FIELDS = {
     "lenght": "height",
     "height": "height",
     "other": None,
-    "tattoo": "identifyingMarks",
+    "tattoo": "appearance",
     "build": None,
     "eye_colour": "eyeColor",
     "eye_color": "eyeColor",

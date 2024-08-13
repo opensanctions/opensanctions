@@ -1,35 +1,8 @@
 import csv
-import re
-from typing import Dict, List
-import zavod.helpers as h
+from typing import Dict
+
 from zavod import Context
-
-DATE_FORMATS = ["%d.%m.%Y", "%d. %m %Y"]
-MONTHS_DE = {
-    "Januar": 1,
-    "Februar": 2,
-    "März": 3,
-    "April": 4,
-    "Mai": 5,
-    "Juni": 6,
-    "Juli": 7,
-    "August": 8,
-    "September": 9,
-    "Oktober": 10,
-    "November": 11,
-    "Dezember": 12,
-}
-
-
-def parse_date_time(text: str) -> List[str]:
-    if not text:
-        return None
-    for de, number in MONTHS_DE.items():
-        # Replace German month names with numbers
-        text = re.sub(rf"\b{de}\b", str(number) + ".", text)
-    text = text.replace(" ", "")
-    date = h.parse_date(text, DATE_FORMATS)
-    return date
+from zavod import helpers as h
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -39,7 +12,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     alias = row.pop("alias")
     notes = row.pop("notes")
     reason = row.pop("reason")
-    birth_date = parse_date_time(row.pop("date of birth"))
+    birth_date = row.pop("date of birth")
     country = row.pop("country")
     birth_place = row.pop("place of birth")
     id_number = row.pop("ID card no.")
@@ -54,7 +27,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.add("name", full_name)
         for name in other_names:  # Add other_name parts to alias
             entity.add("alias", name.strip())
-        entity.add("birthDate", birth_date)
+        h.apply_date(entity, "birthDate", birth_date)
         entity.add("birthPlace", birth_place, lang="spa")
         entity.add("country", country, lang="deu")
         entity.add("idNumber", id_number)

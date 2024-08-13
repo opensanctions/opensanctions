@@ -90,7 +90,7 @@ def crawl_person(context: Context, url: str) -> None:
         elif "Weight" in key:
             person.add("weight", value)
         elif "Scars and Marks" in key:
-            person.add("identifyingMarks", value)
+            person.add("appearance", value)
         elif "Date(s) of Birth Used" in key:
             dates = SPLIT_DATES.split(value)
             for date in dates:

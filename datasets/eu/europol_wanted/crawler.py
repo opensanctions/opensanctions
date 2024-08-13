@@ -13,7 +13,7 @@ FIELDS = {
     "Hair color": "hairColor",
     "Approximate height": "height",
     "Ethnic origin": "ethnicity",
-    "Identifiers": "identifyingMarks",
+    "Identifiers": "appearance",
     "State of case": "notes",
 }
 

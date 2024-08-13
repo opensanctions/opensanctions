@@ -771,6 +771,11 @@ lookups:
           - on 19 May 2024, President Ebrahim RAISI died in a helicopter crash
           # Angola - already emitted in chief of state entry incl date.
           - President Joao Manuel Goncalves LOURENCO
+          # Bangladesh
+          - vacant
+          - on 5 August 2024, Prime Minister Sheikh HASINA Wazed resigned, and the army announced it is in talks to form a new government
+          # Burma
+          - '<strong>note 1: </strong>the military took over the government on 1 February 2021 and declared a state of emergency<strong><br /><br />note 2:</strong> prior to the military takeover, the a state counsellor served the equivalent term of the president and was similar to a prime minister in that the holder acted as a link between the parliament and the executive branch<br /><br /><br />'
         holders: []
 
   type.country:
