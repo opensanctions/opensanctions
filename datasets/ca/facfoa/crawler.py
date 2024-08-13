@@ -20,11 +20,18 @@ def crawl(context: Context):
             proxy.add("birthDate", row.pop("dob"))
             proxy.add("birthPlace", row.pop("pob"))
             proxy.add("notes", row.pop("notes"))
-            proxy.add("topics", "sanction")
 
             sanction = h.make_sanction(context, proxy)
             sanction.add("program", row.pop("list"))
             sanction.add("sourceUrl", row.pop("source_url"))
+
+            sanction.add("startDate", row.pop("start_date"))
+            sanction.add("endDate", row.pop("end_date"))
+
+            if sanction.has("endDate"):
+                continue
+
+            proxy.add("topics", "sanction")
             context.emit(sanction)
             context.emit(proxy, target=True)
             context.audit_data(row)
