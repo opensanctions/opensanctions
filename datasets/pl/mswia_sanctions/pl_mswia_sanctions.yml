@@ -38,6 +38,13 @@ data:
   lang: pol
 
 lookups:
+  type.identifier:
+    normalize: true
+    options:
+      - match: 0001008314 REGON 523931831
+        values:
+          - 0001008314
+          - 523931831
   details:
     normalize: true
     lowercase: true
