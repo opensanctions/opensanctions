@@ -4,7 +4,8 @@ from zavod import Context
 from zavod import helpers as h
 import re
 from urllib.parse import unquote
-# from zavod.logic.pep import categorise
+from rigour.ids.wikidata import is_qid
+from zavod.logic.pep import categorise
 
 # add headers to the request
 
@@ -47,10 +48,24 @@ def clean_phones(phones):
 def parse_person(context: Context, data: dict):
     person_id = data.get("id")
     if not person_id:
-        context.log.error(f"Missing ID in person data: {data}")
+        # context.log.error(f"Missing ID in person data: {data}")
         return
+
+    person_qid = None
+    for ident in data.pop("identifiers", []):
+        identifier = ident.get("identifier")
+        scheme = ident.get("scheme")
+
+        if scheme == "wikidata" and is_qid(identifier):
+            person_qid = identifier
+            break
+        # else:
+        #     context.log.warning(f"Invalid wikidata ID: {identifier}")
+
     person = context.make("Person")
-    person.id = person_entity_id(context, person_id)
+    person.id = person_entity_id(
+        context, person_id
+    )  # find a way to include those without qid
     person.add("name", data.get("name"))
     person.add("alias", [o.get("name") for o in data.get("other_names", [])])
     person.add("gender", data.get("gender"))
@@ -60,6 +75,7 @@ def parse_person(context: Context, data: dict):
     person.add("deathDate", data.get("death_date"))
     person.add("notes", data.pop("summary", None))
     person.add("title", data.pop("honorific_prefix", None))
+    person.add("wikidataId", person_qid)
     person.add("topics", "role.pep")
 
     for link in data.pop("links", []):
@@ -71,39 +87,35 @@ def parse_person(context: Context, data: dict):
         value = contact_detail.get("value")
         if "email" == contact_detail.get("type"):  # might want to remove later
             person.add("email", clean_emails(value))
-        if "phone" == contact_detail.get("type"):
-            person.add("phone", clean_phones(value))
-        if "cell" == contact_detail.get("type"):
-            person.add("phone", clean_phones(value))
+        # if "phone" == contact_detail.get("type"):
+        #     person.add("phone", clean_phones(value))
+        # if "cell" == contact_detail.get("type"):
+        #     person.add("phone", clean_phones(value))
         if "address" == contact_detail.get("type"):
             person.add("address", value)
         if "postal_address" == contact_detail.get("type"):
             person.add("address", value)
-
-    for ident in data.pop("identifiers", []):
-        identifier = ident.get("identifier")
-        scheme = ident.get("scheme")
-        if scheme == "wikidata" and identifier.startswith("Q"):
-            person.add("wikidataId", identifier)
 
     context.emit(person, target=True)
     return person
 
 
 def parse_membership(
-    context: Context, data: dict, organizations: Dict[str, str]
+    context: Context, data: dict, organizations: Dict[str, str], events
 ) -> Optional[str]:
+    from typing import Dict
+
     person_id = data.get("person_id")
     if not person_id:
-        context.log.error("Missing person_id in membership data.")
+        # context.log.error("Missing person_id in membership data.")
         return None
+
     org_id = data.get("organization_id")
     org_name = organizations.get(org_id)
     if not org_name:
-        context.log.error(f"Organization with ID {org_id} not found.")
+        # context.log.error(f"Organization with ID {org_id} not found.")
         return None
-    org_id = data.get("organization_id")
-    role = data.get("role")
+
     role = data.get("role")
     if role is None:
         # context.log.error("Role is missing in membership data.")
@@ -111,17 +123,63 @@ def parse_membership(
 
     # Check if the role matches the positions of interest
     if not any(re.findall(position, role) for position in POSITIONS_OF_INTEREST):
-        context.log.info(f"Skipping role {role} not of interest.")
+        # context.log.info(f"Skipping role {role} not of interest.")
         return None
 
+    # Creating the position property
     position_property = post_summary(
         org_name, role, [data.get("start_date")], [data.get("end_date")], []
     )
+
+    # Creating and emitting the Person entity
     person = context.make("Person")
     person.id = person_entity_id(context, person_id)
     person.add("position", position_property)
     context.emit(person, target=True)
+
     # context.log.info(f"Processed membership for person ID: {person_id}")
+    position_label = f"{role.title()} of the {org_name}"
+    position = h.make_position(
+        context,
+        position_label,
+        country="za",
+        topics=["gov.national", "gov.legislative"],
+    )
+
+    is_pep = True
+    categorisation = categorise(context, position, is_pep=is_pep)
+
+    period_id = data.get("legislative_period_id")
+    period = events.get(period_id, {})
+    role = data.pop("role", None)
+    role = role or period.get("name")
+
+    # If the role is not "member", we might want to log a warning.
+    # if role != "member":
+    #     context.log.warning("Unexpected role", role=role)
+
+    starts = [data.get("start_date"), period.get("start_date")]
+    ends = [data.get("end_date"), period.get("end_date")]
+    position_property = post_summary(org_name, role, starts, ends, [])
+    context.emit(position)
+
+    # Creating and emitting the Occupancy entity
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        no_end_implies_current=False,
+        start_date=data.get("start_date") or period.get("start_date"),
+        end_date=data.get("end_date") or period.get("end_date"),
+        birth_date=data.get("birth_date"),
+        death_date=data.get("death_date"),
+        categorisation=categorisation,
+    )
+
+    if occupancy:
+        context.emit(occupancy)
+
+    context.emit(person, target=True)
     return person_id
 
 
@@ -130,16 +188,21 @@ def person_entity_id(context: Context, person_id: str) -> str:
 
 
 def crawl(context: Context):
+    from typing import Dict, Set
+
+    # Fetch data from the provided URL
     data = context.fetch_json(context.data_url)
     if not data:
         context.log.error("No data found.")
         return
 
-    persons = data.get("persons", [])
+    # Extract and prepare organizations
     organizations = {org["id"]: org["name"] for org in data.get("organizations", [])}
-    all_memberships = []
 
     # Collect all memberships from all persons
+    persons = data.get("persons", [])
+    all_memberships = []
+
     for person in persons:
         memberships = person.get("memberships", [])
         for membership in memberships:
@@ -150,11 +213,28 @@ def crawl(context: Context):
         context.log.error("No 'memberships' key found or it's empty.")
         return
 
+    # Prepare events
+    events = data.pop("events", [])
+    events = {e.get("id"): e for e in events}
+
+    # Prepare birth and death dates dictionaries
+    birth_dates: Dict[str, str] = {}
+    death_dates: Dict[str, str] = {}
+
+    for person in data.get("persons"):
+        death_date = person.get("death_date", None)
+        if death_date is not None:
+            death_dates[person.get("id")] = death_date
+
+        birth_date = person.get("birth_date", None)
+        if birth_date is not None:
+            birth_dates[person.get("id")] = birth_date
+
+    # Process memberships and collect PEPs
     peps: Set[str] = set()
 
-    # Process memberships
     for membership in all_memberships:
-        person_id = parse_membership(context, membership, organizations)
+        person_id = parse_membership(context, membership, organizations, events)
         if person_id:
             peps.add(person_id)
             # context.log.info(f"Processed person ID: {person_id}")
