@@ -103,8 +103,6 @@ def parse_person(context: Context, data: dict):
 def parse_membership(
     context: Context, data: dict, organizations: Dict[str, str], events
 ) -> Optional[str]:
-    from typing import Dict
-
     person_id = data.get("person_id")
     if not person_id:
         # context.log.error("Missing person_id in membership data.")
@@ -188,8 +186,6 @@ def person_entity_id(context: Context, person_id: str) -> str:
 
 
 def crawl(context: Context):
-    from typing import Dict, Set
-
     # Fetch data from the provided URL
     data = context.fetch_json(context.data_url)
     if not data:
