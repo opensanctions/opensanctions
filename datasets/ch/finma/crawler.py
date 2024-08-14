@@ -44,7 +44,7 @@ def crawl(context: Context, data: Dict[str, Any]):
                 date = h.parse_date(value, FORMATS)
                 entity.add("modifiedAt", date)
             elif header in ("Remarks", "Details"):
-                entity.add("address", value)
+                entity.add("description", value)
             elif header == "Internet":
                 entity.add("website", value)
             elif header in ("Commercial register"):
