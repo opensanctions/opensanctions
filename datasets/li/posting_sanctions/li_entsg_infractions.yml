@@ -1,23 +1,24 @@
 title: Liechtenstein Posted Workers Act (EntsG) Sanctions
 prefix: li-entsg
-entry_point: crawler.py
-# disabled: true
+entry_point: crawler.py:crawl_infractions
 coverage:
-  frequency: never
-  start: 2023-08-23
-  end: 2023-10-03
-deploy:
-  schedule: "@monthly"
+  frequency: weekly
+  start: 2023-07-10
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Companies and persons against whom a legally binding sanction
-  has been imposed in accordance with articles 7 and 9 of the
-  Liechtenstein Posted Workers Act (Entsendegesetz, EntsG)
+  has been imposed for an infraction, in accordance with article 9
+  of the Liechtenstein Posted Workers Act (Entsendegesetz, EntsG)
 description: |
   The Office of Economic Affairs of the Principality of Liechtenstein
   publishes a list of companies and persons against whom a legally binding
   sanction has been imposed in accordance with articles 7 and 9 of the
   Liechtenstein Posted Workers Act (Entsendegesetz, EntsG).
+
+  The companies and persons on this list have been legally sanctioned
+  for minor first-time infractions in accordance with article 9.
+  (Debarments in accordance with article 7 are published on a different
+  list).
 
   * [Posted Workers Act (Entsendegesetz, EntsG)](https://www.gesetze.li/konso/2000.88)
   * [Posted Workers Decree (Entsendeverordnung, EntsV)](https://www.gesetze.li/konso/2019.371)
@@ -36,8 +37,8 @@ publisher:
 url: https://www.llv.li/de/unternehmen/berichtspflichten-bewilligungen/grenzueberschreitende-dienstleistungen/entsendung-von-arbeitnehmern/sanktionsliste-gemaess-art.-7-abs.-4-entsg
 
 data:
-  url: https://www.llv.li/de/unternehmen/berichtspflichten-bewilligungen/grenzueberschreitende-dienstleistungen/entsendung-von-arbeitnehmern/sanktionsliste-gemaess-art.-7-abs.-4-entsg
-  format: HTML
+  url: https://www.llv.li/serviceportal2/amtsstellen/amt-fuer-volkswirtschaft/wirtschaft/entsendegesetz/uebertretungen.pdf
+  format: PDF
 
 lookups:
   classifications:
