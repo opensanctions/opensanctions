@@ -44,3 +44,193 @@ lookups:
         value: YE
       - match: Холандия
         value: NL
+  type.address: 
+    lowercase: true
+    normalize: true
+    options: 
+      - match: Kitab Ghar, Darul Ifta Wal Irshad, Nazimabad No. 4, Karachi, Pakistan; (2) 302b-40, Good Earth Court, Opposite Pia Planitarium, Block 13a, Gulshan -I Iqbal, Karachi; (3) 617 Clifton Center, Block 5, 6th Floor, Clifton, Karachi; (4) 605 Landmark Plaza, 11 Chundrigar Road, Opposite Jang Building, Karachi, Pakistan; (5) Jamia Masjid, Sulaiman Park, Begum Pura, Lahore, Pakistan;
+        values: 
+          - Kitab Ghar, Darul Ifta Wal Irshad, Nazimabad No. 4, Karachi, Pakistan
+          - 302b-40, Good Earth Court, Opposite Pia Planitarium, Block 13a, Gulshan -I Iqbal, Karachi
+          - 617 Clifton Center, Block 5, 6th Floor, Clifton, Karachi
+          - 605 Landmark Plaza, 11 Chundrigar Road, Opposite Jang Building, Karachi, Pakistan
+          - Jamia Masjid, Sulaiman Park, Begum Pura, Lahore, Pakistan
+      - match: "8820 Mobile Avenue, IA, Oak Lawn, Illinois, 60453 U.S.A.; P.O. Box 548, Worth, Illinois, 60482 U.S.A.;(Formerly located at) 9838 S. Roberts Road, Suite 1W, Palos Hills, Illinois, 60465 U.S.A.; (Formerly located at) 20- 24 Branford Place, Suite 705, Newark, New Jersey, 07102 U.S.A. ; Bashir Safar Ugli 69, Baku, Azerbaijan; 69 Boshir Safaroglu St., Baku, Azerbaijan; Sarajevo, Bosnia-Herzegovina; Zenica, Bosnia-Herzegovina; (Last known address) 3 King Street, South Waterloo, Ontario, N2J 3Z6 Canada; (Last known address) P.O. Box 1508 Station 1, Mississauga, Ontario, L4Y 4G2 Canada; (Last known address) 2465 Cawthra Rd., #203, Mississauga, Ontario, L5A 3P2 Canada; Ottawa, Canada; Grozny, Chechnya; 91 Paihonggou, Lanzhou, Gansu, China 730000; Hrvatov 30, 41000, Zagreb, Croatia; Makhachkala, Daghestan; Duisi, Georgia; Tbilisi, Georgia; Nazran, Ingushetia; Burgemeester Kessensingel 40, Masstricht, Netherlands; Stichting Benevolence International Nederland (a.k.a. Benevolence International Nederland, a.k.a. BIN). Radeborg 14B, 6228 CV Maastricht, Netherlands ; House 111, First Floor, Street 64, F-10/3, Islamabad, Pakistan; P.O. Box 1055, Peshawar, Pakistan; Azovskaya 6, km. 3, off. 401, Moscow, Russia 113149; Ulitsa Oktyabr'skaya, dom. 89, Moscow, Russia 127521; P.O. Box 1937, Khartoum, Sudan; P.O. Box 7600, Jeddah 21472, Saudi Arabia; P.O. Box 10845, Riyadh 11442, Saudi Arabia; Dushanbe, Tajikistan; United Kingdom"
+        values: 
+          - 8820 Mobile Avenue, IA, Oak Lawn, Illinois, 60453 U.S.A.
+          - P.O. Box 548, Worth, Illinois, 60482 U.S.A.
+          - 9838 S. Roberts Road, Suite 1W, Palos Hills, Illinois, 60465 U.S.A.
+          - 20- 24 Branford Place, Suite 705, Newark, New Jersey, 07102 U.S.A.
+          - Bashir Safar Ugli 69, Baku, Azerbaijan
+          - 69 Boshir Safaroglu St., Baku, Azerbaijan
+          - Sarajevo, Bosnia-Herzegovina
+          - Zenica, Bosnia-Herzegovina
+          - 3 King Street, South Waterloo, Ontario, N2J 3Z6 Canada
+          - P.O. Box 1508 Station 1, Mississauga, Ontario, L4Y 4G2 Canada
+          - "2465 Cawthra Rd., #203, Mississauga, Ontario, L5A 3P2 Canada"
+          - Ottawa, Canada
+          - Grozny, Chechnya
+          - 91 Paihonggou, Lanzhou, Gansu, China 730000
+          - Hrvatov 30, 41000, Zagreb, Croatia
+          - Makhachkala, Daghestan
+          - Duisi, Georgia
+          - Tbilisi, Georgia
+          - Nazran, Ingushetia
+          - Burgemeester Kessensingel 40, Masstricht, Netherlands
+          - Stichting Benevolence International Nederland (a.k.a. Benevolence International Nederland, a.k.a. BIN). Radeborg 14B, 6228 CV Maastricht, Netherlands
+          - House 111, First Floor, Street 64, F-10/3, Islamabad, Pakistan
+          - P.O. Box 1055, Peshawar, Pakistan
+          - Azovskaya 6, km. 3, off. 401, Moscow, Russia 113149
+          - Ulitsa Oktyabr'skaya, dom. 89, Moscow, Russia 127521
+          - P.O. Box 1937, Khartoum, Sudan
+          - P.O. Box 7600, Jeddah 21472, Saudi Arabia
+          - P.O. Box 10845, Riyadh 11442, Saudi Arabia
+          - Dushanbe, Tajikistan
+          - United Kingdom
+      - match: "8820 Mobile Avenue, IA, Oak Lawn, Илиноис, 60453 САЩ; P.O. Box 548, Worth, Илиноис, 60482 САЩ; (преди се е намирал на) 9838 S. Roberts Road, Suite 1W, Palos Hills, Илиноис, 60465 САЩ; (преди се е намирал на) 20-24 Branford Place, Suite 705, Нюарк, Ню Джързи, 07102 САЩ ; Bashir Safar Ugli 69, Баку, Азербайджан; 69 Boshir Safaroglu St., Баку, Азербайджан; Сараево, Босна и Херцеговина; Зеница, Босна и Херцеговинa; 3 King Street, Южно Ватерлоо, Онтарио, N2J 3Z6 Канада; P.O. Box 1508 Station 1, Мисисога, Онтарио, L4Y 4G2 Канада; 2465 Cawthra Rd., #203, Мисисога, Онтарио, L5A 3P2 Канада; Отава, Канада; Грозни, Чечня; 91 Paihonggou, Lanzhou, Гансу, Китай 730000; Hrvatov 30, 41000, Загреб, Хърватска; Махачкала, Дагестан; Дуйзи, Грузия; Тбилиси, Грузия; Назран, Ингушетия; Burgemeester Kessensingel 40, Маастрихт, Холандия; Стихтинг Биневълънс Интернешнъл Нидерланд ; House 111, First Floor, Street 64, F-10/3, Исламабад, Пакистан; P.O. Box 1055, Пешавар, Пакистан; Azovskaya 6, km. 3, off. 401, Москва, Русия 113149; Ulitsa Oktyabr'skaya, dom. 89, Москва, Русия 127521; P.O. Box 1937, Хартуд, Судан; P.O. Box 7600, Джеда 21472, Саудитска Арабия; P.O. Box 10845, Риад 11442, Саудитска Арабия; Душанбе, Таджикистан; Обединено Кралство"
+        values: 
+          - 8820 Mobile Avenue, IA, Oak Lawn, Илиноис, 60453 САЩ
+          - P.O. Box 548, Worth, Илиноис, 60482 САЩ
+          - 9838 S. Roberts Road, Suite 1W, Palos Hills, Илиноис, 60465 САЩ
+          - 20-24 Branford Place, Suite 705, Нюарк, Ню Джързи, 07102 САЩ
+          - Bashir Safar Ugli 69, Баку, Азербайджан
+          - 69 Boshir Safaroglu St., Баку, Азербайджан
+          - Сараево, Босна и Херцеговина
+          - Зеница, Босна и Херцеговинa
+          - 3 King Street, Южно Ватерлоо, Онтарио, N2J 3Z6 Канада
+          - P.O. Box 1508 Station 1, Мисисога, Онтарио, L4Y 4G2 Канада
+          - "2465 Cawthra Rd., #203, Мисисога, Онтарио, L5A 3P2 Канада"
+          - Отава, Канада
+          - Грозни, Чечня
+          - 91 Paihonggou, Lanzhou, Гансу, Китай 730000
+          - Hrvatov 30, 41000, Загреб, Хърватска
+          - Махачкала, Дагестан
+          - Дуйзи, Грузия
+          - Тбилиси, Грузия
+          - Назран, Ингушетия
+          - Burgemeester Kessensingel 40, Маастрихт, Холандия
+          - Стихтинг Биневълънс Интернешнъл Нидерланд
+          - House 111, First Floor, Street 64, F-10/3, Исламабад, Пакистан
+          - P.O. Box 1055, Пешавар, Пакистан
+          - Azovskaya 6, km. 3, off. 401, Москва, Русия 113149
+          - Ulitsa Oktyabr'skaya, dom. 89, Москва, Русия 127521
+          - P.O. Box 1937, Хартуд, Судан
+          - P.O. Box 7600, Джеда 21472, Саудитска Арабия
+          - P.O. Box 10845, Риад 11442, Саудитска Арабия
+          - Душанбе, Таджикистан
+          - Обединено Кралство
+      - match: (Last known address) 2465 Cawthra Rd., Unit 203, Mississauga, Ontario, L5A 3P2 Canada; (Last known address) P.O. Box 1508, Station B, Mississauga, Ontario, L4Y 4G2 Canada; 3) (Last known address) P.O. Box 40015, 75 King Street South, Waterloo, Ontario, N2J 4V1 Canada; 4) (Last known address) 92 King Street, 201, Waterloo, Ontario, N2J 1P5 Canada
+        values: 
+          - 2465 Cawthra Rd., Unit 203, Mississauga, Ontario, L5A 3P2 Canada
+          - P.O. Box 1508, Station B, Mississauga, Ontario, L4Y 4G2 Canada
+          - P.O. Box 40015, 75 King Street South, Waterloo, Ontario, N2J 4V1 Canada
+          - 92 King Street, 201, Waterloo, Ontario, N2J 1P5 Canada
+      - match: 2465 Cawthra Rd., Unit 203, Мисисога, Онтарио, L5A 3P2 Канада; P.O. Box 1508, Station B, Мисисога, Онтарио, L4Y 4G2 Канада; P.O. Box 40015, 75 King Street South, Ватерлоо, Онтарио, N2J 4V1 Канада; 92 King Street, 201, Ватерлоо, Онтарио, N2J 1P5 Канада
+        values: 
+          - 2465 Cawthra Rd., Unit 203, Мисисога, Онтарио, L5A 3P2 Канада
+          - P.O. Box 1508, Station B, Мисисога, Онтарио, L4Y 4G2 Канада
+          - P.O. Box 40015, 75 King Street South, Ватерлоо, Онтарио, N2J 4V1 Канада
+          - 92 King Street, 201, Ватерлоо, Онтарио, N2J 1P5 Канада
+      - match: Salke Lagumdzije 12, 71000 Sarajevo, Bosnia-Herzegovina; Hadzije Mazica Put 16F, 72000 Zenica,Bosnia-Herzegovina; Sehidska Street, Breza, Bosnia-Herzegovina; Kanal 1, 72000 Zenica, Bosnia-Herzegovina; Hamze Celenke 35, Ilidza, Sarajevo, Bosnia-Herzegovina
+        values: 
+          - Salke Lagumdzije 12, 71000 Sarajevo, Bosnia-Herzegovina
+          - Hadzije Mazica Put 16F, 72000 Zenica, Bosnia-Herzegovina
+          - Sehidska Street, Breza, Bosnia-Herzegovina
+          - Kanal 1, 72000 Zenica, Bosnia-Herzegovina
+          - Hamze Celenke 35, Ilidza, Sarajevo, Bosnia-Herzegovina
+      - match: Salke Lagumdzije 12, 71000 Сараево, Босна и Херцеговина; Hadzije Mazica Put 16F, 72000 Зеница, Босна и Херцеговинa; Sehidska Street, Бреза, Босна и Херцеговинa; Kanal 1, 72000 Зеница, Босна и Херцеговинa; Hamze Celenke 35, Ilidza, Сараево, Босна и Херцеговинa
+        values: 
+          - Salke Lagumdzije 12, 71000 Сараево, Босна и Херцеговина
+          - Hadzije Mazica Put 16F, 72000 Зеница, Босна и Херцеговинa
+          - Sehidska Street, Бреза, Босна и Херцеговинa
+          - Kanal 1, 72000 Зеница, Босна и Херцеговинa
+          - Hamze Celenke 35, Ilidza, Сараево, Босна и Херцеговинa
+      - match: 9935 South 76th Avenue, Unit 1, Bridgeview, Illinois 60455, U.S.A., P.O. Box 1406, Bridgeview, Illinois 60455, U.S.A. ; 49 rue du Lazaret, 67100 Strasebourg, France ; Vaatjesstraat, 29, 2580 Putte, Belgium; Rue des Bataves 69, 1040 Etterbeek, Brussels, Belgium; P.O. Box 6, 1040 Etterbeek 2, Brussels, Belgium; Mula Mustafe Baseskije Street No. 72, Sarajevo, Bosnia; Put Mladih Muslimana Street 30/A, Sarajevo, Bosnia; Rr. Skenderbeu 76, Lagjja Sefa, Gjakova, Kosovo; Ylli Morina Road, Djakovica, Kosovo; Rruga e Kavajes, Building No. 3, Apartment No. 61, P.O. Box 2892, Tirana, Albania; House 267 Street No. 54, Sector F - 11/4, Islamabad, Pakistan; Saray Cad. No. 37 B Blok, Yesilyurt Apt. 2/4, Sirinevler, Turkey; Afghanistan, Azerbaijan, Bangladesh, Chechnya (Russia), China, Eritrea, Ethiopia, Georgia, India, Ingushetia (Russia), Iraq, Jordan, Kashmir, Lebanon, West Bank and Gaza, Sierra Leone, Somalia and Syria
+        values: 
+          - 9935 South 76th Avenue, Unit 1, Bridgeview, Illinois 60455, U.S.A.
+          - P.O. Box 1406, Bridgeview, Illinois 60455, U.S.A.
+          - 49 rue du Lazaret, 67100 Strasebourg, France
+          - Vaatjesstraat, 29, 2580 Putte, Belgium
+          - Rue des Bataves 69, 1040 Etterbeek, Brussels, Belgium
+          - P.O. Box 6, 1040 Etterbeek 2, Brussels, Belgium
+          - Mula Mustafe Baseskije Street No. 72, Sarajevo, Bosnia
+          - Put Mladih Muslimana Street 30/A, Sarajevo, Bosnia
+          - Rr. Skenderbeu 76, Lagjja Sefa, Gjakova, Kosovo
+          - Ylli Morina Road, Djakovica, Kosovo
+          - Rruga e Kavajes, Building No. 3, Apartment No. 61, P.O. Box 2892, Tirana, Albania
+          - House 267 Street No. 54, Sector F - 11/4, Islamabad, Pakistan
+          - Saray Cad. No. 37 B Blok, Yesilyurt Apt. 2/4, Sirinevler, Turkey
+          - Afghanistan
+          - Azerbaijan
+          - Bangladesh
+          - Chechnya (Russia)
+          - China
+          - Eritrea
+          - Ethiopia
+          - Georgia
+          - India
+          - Ingushetia (Russia)
+          - Iraq
+          - Jordan
+          - Kashmir
+          - Lebanon
+          - West Bank and Gaza
+          - Sierra Leone
+          - Somalia
+          - Syria
+      - match: 9935 South 76th Avenue, Unit 1, Бриджвю, Илиноис 60455, U.S.A., P.O. Box 1406, Бриджвю, Илиноис 60455, U.S.A. ; 49 rue du Lazaret, 67100 Страсбург, Франция, Vaatjesstraat, 29, 2580 Пут, Белгия; Rue des Bataves 69, 1040 Etterbeek, Брюксел, Белгия; P.O. Box 6, 1040 Etterbeek 2, Брюксел, Белгия; Mula Mustafe Baseskije Street No. 72, Сараево, Босна; Put Mladih Muslimana Street 30/A, Сараево, Босна; Rr. Skenderbeu 76, Lagjja Sefa, Гякова, Косово; Ylli Morina Road, Дяковица, Косово; Rruga e Kavajes, Building No. 3, Apartment No. 61, P.O. Box 2892, Тирана, Албания; House 267 Street No. 54, Sector F - 11/4, Исламабад, Пакистан; Saray Cad. No. 37 B Blok, Yesilyurt Apt. 2/4, Сириневлер, Турция; други външни местонахождения: Афганистан, Азербайджан, Бангладеш, Чечня (Русия), Китай, Еритрея, Етиопия, Грузия, Индия, Ингушетия (Русия), Ирак, Йордания, Кашмир, Ливан, Западен бряг и Газа, Сиера Леоне, Сомалия и Сирия
+        values: 
+          - 9935 South 76th Avenue, Unit 1, Бриджвю, Илиноис 60455, U.S.A.
+          - P.O. Box 1406, Бриджвю, Илиноис 60455, U.S.A.
+          - 49 rue du Lazaret, 67100 Страсбург, Франция
+          - Vaatjesstraat, 29, 2580 Пут, Белгия
+          - Rue des Bataves 69, 1040 Etterbeek, Брюксел, Белгия
+          - P.O. Box 6, 1040 Etterbeek 2, Брюксел, Белгия
+          - Mula Mustafe Baseskije Street No. 72, Сараево, Босна
+          - Put Mladih Muslimana Street 30/A, Сараево, Босна
+          - Rr. Skenderbeu 76, Lagjja Sefa, Гякова, Косово
+          - Ylli Morina Road, Дяковица, Косово
+          - Rruga e Kavajes, Building No. 3, Apartment No. 61, P.O. Box 2892, Тирана, Албания
+          - House 267 Street No. 54, Sector F - 11/4, Исламабад, Пакистан
+          - Saray Cad. No. 37 B Blok, Yesilyurt Apt. 2/4, Сириневлер, Турция
+          - Афганистан
+          - Азербайджан
+          - Бангладеш
+          - Чечня (Русия)
+          - Китай
+          - Еритрея
+          - Етиопия
+          - Грузия
+          - Индия
+          - Ингушетия (Русия)
+          - Ирак
+          - Йордания
+          - Кашмир
+          - Ливан
+          - Западен бряг и Газа
+          - Сиера Леоне
+          - Сомалия
+          - Сирия
+  type.name: 
+    options: 
+      - match: '"The Base", Al Qaeda, Islamic Salvation Foundation, The Group for the Preservation of the Holy Sites, The Islamic Army for the Liberation of Holy Places, The World Islamic Front for Jihad Against Jews and Crusaders, Usama Bin Laden Network, Usama Bin Laden Organization'  
+        values: 
+          - The Base
+          - Al Qaeda
+          - Islamic Salvation Foundation
+          - The Group for the Preservation of the Holy Sites
+          - The Islamic Army for the Liberation of Holy Places
+          - The World Islamic Front
+          - Usama Bin Laden Network
+          - Usama Bin Laden Organization
+      - match: '"Дъ Бейз", Ал Каеда, Исламик Салвейшн Фаундейшн, Дъ Груп фор дъ Презервейшн ъф дъ Холи Сайтс, Ди Исламик Арми фор дъ Либерейшн ъф Холи Плейсис, Дъ Уърлд Исламик Фронт фор Джихад агейнст Джус енд Крусейдърс, Усама Бин Ладен Нетуърк, Усама Бин Ладен Органайзейшн'
+        values: 
+          - Дъ Бейз
+          - Ал Каеда
+          - Исламик Салвейшн Фаундейшн
+          - Дъ Груп фор дъ Презервейшн ъф дъ Холи Сайтс
+          - Ди Исламик Арми фор дъ Либерейшн ъф Холи Плейсис
+          - Дъ Уърлд Исламик Фронт
+          - Усама Бин Ладен Нетуърк
+          - Усама Бин Ладен Органайзейшн
+
