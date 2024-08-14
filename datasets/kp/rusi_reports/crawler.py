@@ -37,35 +37,58 @@ def extract_codes(text: str) -> Dict[str, str]:
 def parse_entity(context: Context, data: Dict[str, Any]) -> None:
     if data["schema"] in IGNORE_SCHEMATA:
         return
+
     entity = context.make(data["schema"])
     entity.id = context.make_slug(data["id"])
 
+    properties = data.get("properties", {})
     idNumberCodes = {}
-    processed_id_numbers = set()
+    processed_id_numbers = []
 
-    for prop_name, values in data["properties"].items():
-        prop = entity.schema.get(prop_name)
+    # Process idNumber field
+    if "idNumber" in properties:
+        id_number_values = properties.pop("idNumber")
+
+        for value in id_number_values:
+            codes = extract_codes(value)
+
+            for code_type, code_value in codes.items():
+                if code_type == "kppCode" and entity.schema.name != "Company":
+                    continue  # Skip adding KPP code if the entity is not a Company
+                if code_type not in idNumberCodes:
+                    idNumberCodes[code_type] = []
+                idNumberCodes[code_type].append(code_value)
+                value = value.replace(
+                    code_value, ""
+                ).strip()  # Replace matched code with ""
+
+            # Only keep non-empty values that have more than just the labels
+            if value.strip() and any(char.isdigit() for char in value):
+                processed_id_numbers.append(value.strip())
+
+        # Add the processed idNumbers back to properties if any are left
+        if processed_id_numbers:
+            properties["idNumber"] = processed_id_numbers
+
+        # Add the identified codes to the properties
+        for code_type, code_values in idNumberCodes.items():
+            if code_type not in properties:
+                properties[code_type] = []
+            properties[code_type].extend(code_values)
+
+    for prop_name, values in properties.items():
         if prop_name in IGNORE_PROPS:
             continue
 
-        if prop_name == "idNumber":
-            for value in values:
-                codes = extract_codes(value)
-                for code_type, code_value in codes.items():
-                    if code_type == "kppCode" and entity.schema.name != "Company":
-                        continue  # Skip adding KPP code if the entity is not a Company
-                    idNumberCodes[code_type] = code_value
-                    entity.add(code_type, code_value)
-                    # Filter out processed idNumbers
-            values = [v for v in values if v not in processed_id_numbers]
-
+        prop = entity.schema.get(prop_name)
         if prop is None:
             alias_prop = context.lookup_value("props", prop_name)
             if alias_prop is None:
-                context.log.warn("Unknown property: %s" % prop_name, entity=entity)
+                context.log.warn(f"Unknown property: {prop_name}", entity=entity)
                 continue
             prop = entity.schema.get(alias_prop)
-            assert prop is not None
+
+        assert prop is not None
         for value in values:
             if prop.type == registry.entity:
                 value = context.make_slug(value)
