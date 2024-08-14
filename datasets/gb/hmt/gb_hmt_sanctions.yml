@@ -37,6 +37,12 @@ data:
 # https://www.gov.uk/government/publications/the-uk-sanctions-list
 
 lookups:
+  type.identifier:
+    options:
+      - match: Legal Entity Number 2534006SJ05GGKETEY75 (Russia)  Registration Number 1027739179160 (Russia)
+        values:
+          - 2534006SJ05GGKETEY75
+          - 1027739179160
   companies:
     normalize: true
     options:
