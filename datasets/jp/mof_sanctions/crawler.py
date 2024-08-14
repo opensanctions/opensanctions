@@ -19,7 +19,9 @@ SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
 SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
 # WTF full-width brackets!
 SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
-SPLITS = SPLITS + ["; a.k.a.", "; a.k.a "]
+SPLITS = SPLITS + ["; a.k.a.", "; a.k.a ", ", a.k.a.", ", f.k.a."]
+
+ALIAS_SPLITS = SPLITS + ["(%s)", "; "]
 
 # DATE FORMATS
 FORMATS = ["%Y年%m月%d日", "%Y年%m月%d", "%Y年%m月", "%Y.%m.%d"]
@@ -86,7 +88,6 @@ def parse_names(names: List[str]) -> List[str]:
 
 def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
     for note in notes:
-
         cryptos = h.extract_cryptos(note)
         for key, curr in cryptos.items():
             wallet = context.make("CryptoWallet")
@@ -125,19 +126,27 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
         return
     entity.add("name", parse_names(name_english), lang="eng")
     entity.add("name", parse_names(name_japanese))
-    entity.add("alias", parse_names(row.pop("alias", [])))
+    entity.add("alias", parse_names(h.multi_split(row.pop("alias", []), ALIAS_SPLITS)))
     entity.add("alias", parse_names(row.pop("known_alias", [])))
-    entity.add("weakAlias", parse_names(row.pop("weak_alias", [])))
-    entity.add("weakAlias", parse_names(row.pop("nickname", [])))
+    entity.add(
+        "weakAlias", parse_names(h.multi_split(row.pop("weak_alias", []), ALIAS_SPLITS))
+    )
+    entity.add(
+        "weakAlias", parse_names(h.multi_split(row.pop("nickname", []), ALIAS_SPLITS))
+    )
     entity.add("previousName", parse_names(row.pop("past_alias", [])))
     entity.add("previousName", parse_names(row.pop("old_name", [])))
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
     birth_date = parse_date(row.pop("birth_date", []))
     entity.add_cast("Person", "birthDate", birth_date)
     entity.add_cast("Person", "birthPlace", row.pop("birth_place", []))
-    entity.add_cast("Person", "passportNumber", row.pop("passport_number", []))
-    entity.add("idNumber", row.pop("id_number", []))
-    entity.add("idNumber", row.pop("identification_number", []))
+    entity.add_cast(
+        "Person",
+        "passportNumber",
+        h.multi_split(row.pop("passport_number", []), SPLITS),
+    )
+    entity.add("idNumber", h.multi_split(row.pop("id_number", []), SPLITS))
+    entity.add("idNumber", h.multi_split(row.pop("identification_number", []), SPLITS))
     parse_notes(context, entity, row.pop("other_information", []))
     parse_notes(context, entity, row.pop("details", []))
     # entity.add("notes", h.clean_note(row.pop("other_information", None)))
@@ -166,7 +175,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     sanction.add("reason", row.pop("root_nomination", None))
     sanction.add("reason", row.pop("reason_res1483", None))
     sanction.add("authorityId", row.pop("notification_number", None))
-    sanction.add("unscId", row.pop("designated_un", None))
+    sanction.add("unscId", h.multi_split(row.pop("designated_un", None), DATE_SPLITS))
 
     sanction.add("startDate", parse_date(row.pop("notification_date", [])))
     sanction.add("startDate", parse_date(row.pop("designated_date", [])))
