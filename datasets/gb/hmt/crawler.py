@@ -1,3 +1,4 @@
+import re
 from typing import Optional, Dict, Any, List
 from banal import first
 from normality import stringify, collapse_spaces
@@ -74,6 +75,15 @@ def split_new(text):
     return h.multi_split(text, [". ", ", "])
 
 
+def split_reg_no(text: str):
+    text = text.replace("Tax ID No", "; Tax ID No")
+    text = text.replace("Government Gazette Number", "; Government Gazette Number")
+    text = text.replace("Legal Entity Number", "; Legal Entity Number")
+    text = text.replace("Business Identification Number", "; Business Identification Number")
+    text = text.replace("Tax Identification Number", "; Tax Identification Number")
+    return [s.strip() for s in h.multi_split(text, [";", "(1)", "(2)", "(3)"])]
+
+
 def parse_row(context: Context, row: Dict[str, Any]):
     group_type = row.pop("GroupTypeDescription")
     schema = TYPES.get(group_type)
@@ -109,8 +119,8 @@ def parse_row(context: Context, row: Dict[str, Any]):
     entity_type = row.pop("Entity_Type", None)
     entity.add_cast("LegalEntity", "legalForm", entity_type)
 
-    reg_number = row.pop("Entity_BusinessRegNumber", None)
-    entity.add_cast("LegalEntity", "registrationNumber", reg_number)
+    reg_number = row.pop("Entity_BusinessRegNumber", "")
+    entity.add_cast("LegalEntity", "registrationNumber", split_reg_no(reg_number))
 
     row.pop("Ship_Length", None)
     entity.add_cast("Vessel", "flag", row.pop("Ship_Flag", None))
