@@ -3,6 +3,8 @@ from rigour.mime.types import XML
 from zavod import Context
 from zavod import helpers as h
 
+ALIAS_SPLITS = ["; ", ", "]
+
 
 def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.data_url)
@@ -19,8 +21,7 @@ def crawl(context: Context):
         entity.add("sourceUrl", link)
         aliases = node.findtext("./summary")
         if aliases != "N/A":
-            aliases = aliases.split(", ")
-            entity.add("alias", aliases)
+            entity.add("alias", h.multi_split(aliases, ALIAS_SPLITS))
         entity.add("notes", node.findtext("./content"))
         entity.add("createdAt", node.findtext("./published"))
         entity.add("modifiedAt", node.findtext("./updated"))
