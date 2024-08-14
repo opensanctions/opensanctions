@@ -133,3 +133,7 @@ lookups:
         value: https://twitter.com/EuroPalForum
       - match: "טוויטר: Addameer"
         value: https://twitter.com/Addameer
+  type.identifier: 
+    options:
+      - match:
+    
