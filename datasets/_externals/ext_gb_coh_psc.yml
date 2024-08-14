@@ -66,6 +66,7 @@ config:
   max_bin: 14
   index_options:
     max_candidates: 200
+    memory_budget: 50
   dataset: gb_coh_psc
   strip_namespace: true
   threshold: 0.5
