@@ -71,3 +71,24 @@ lookups:
       - match:
           - gelar
         value: title
+  type.address:
+    lowercase: true
+    options:
+      - match: B-3B-19 Glenview Villa, Jalan 49 Off Jalan Kuari, Taman Pinggiran Cheras, 56000, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia (per 30 Januari 2014) 90-00-04 Flat Sri Kota, Bandar Tun Razak, 56100, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia (per 23 Apil. 2010) 96-06-06 Flat Sri Kota, Bandar Tun Razak, 56100, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia (per 6 April 2007) Suriah (sejak tahun 2014)
+        values: 
+          - B-3B-19 Glenview Villa, Jalan 49 Off Jalan Kuari, Taman Pinggiran Cheras, 56000, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia
+          - 90-00-04 Flat Sri Kota, Bandar Tun Razak, 56100, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia
+          - 96-06-06 Flat Sri Kota, Bandar Tun Razak, 56100, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia
+          - Suriah
+      - match: 'Kantor cabang 1: Sanatan (variant Sanatin) Bazaar, Sanatan Bazaar Street, near Trench (variant Tranch) Road, Chaman, Baluchistan, Pakistan Kantor cabang 2: Quetta, Pakistan Kantor cabang 3: Lahore, Pakistan Kantor cabang 4: Peshawar, Pakistan Kantor cabang 5: Karachi, Pakistan Kantor cabang 6: Islamabad, Pakistan Kantor cabang 7: Kandahar, Afghanistan Kantor cabang 8: Herat, Afghanistan Kantor cabang 9: Helmand, Afghanistan Kantor cabang 10: Dubai, United Arab Emirat'
+        values:
+          - Sanatan (variant Sanatin) Bazaar, Sanatan Bazaar Street, near Trench (variant Tranch) Road, Chaman, Baluchistan, Pakistan
+          - Quetta, Pakistan
+          - Lahore, Pakistan
+          - Peshawar, Pakistan
+          - Karachi, Pakistan
+          - Islamabad, Pakistan
+          - Kandahar, Afghanistan
+          - Herat, Afghanistan
+          - Helmand, Afghanistan
+          - Dubai, United Arab Emirat
