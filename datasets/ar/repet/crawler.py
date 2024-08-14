@@ -14,6 +14,7 @@ NAME_QUALITY = {
     "f.k.a.": "previousName",
     "": None,
 }
+ALIAS_SPLITS = ["original script", ";"]
 
 
 def values(data):
@@ -69,7 +70,7 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     entity.add("topics", "sanction")
     entity.add("notes", h.clean_note(data.pop("COMMENTS1")))
     entity.add("notes", h.clean_note(data.pop("NOTE", None)))
-    entity.add("alias", data.pop("NAME_ORIGINAL_SCRIPT"))
+    entity.add("alias", h.multi_split(data.pop("NAME_ORIGINAL_SCRIPT"), ALIAS_SPLITS))
 
     h.apply_name(
         entity,
