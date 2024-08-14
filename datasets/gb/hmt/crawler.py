@@ -1,4 +1,3 @@
-import re
 from typing import Optional, Dict, Any, List
 from banal import first
 from normality import stringify, collapse_spaces
@@ -79,7 +78,9 @@ def split_reg_no(text: str):
     text = text.replace("Tax ID No", "; Tax ID No")
     text = text.replace("Government Gazette Number", "; Government Gazette Number")
     text = text.replace("Legal Entity Number", "; Legal Entity Number")
-    text = text.replace("Business Identification Number", "; Business Identification Number")
+    text = text.replace(
+        "Business Identification Number", "; Business Identification Number"
+    )
     text = text.replace("Tax Identification Number", "; Tax Identification Number")
     return [s.strip() for s in h.multi_split(text, [";", "(1)", "(2)", "(3)"])]
 

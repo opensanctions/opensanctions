@@ -7,6 +7,7 @@ from zavod import helpers as h
 
 REGEX_PASSPORT = re.compile(r"^[A-Z0-9-]{6,20}$")
 
+
 def parse_date(date: Optional[str]) -> List[str]:
     if date is None:
         return []
