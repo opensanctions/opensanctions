@@ -36,12 +36,13 @@ def parse_date(date):
 
 def parse_alias(context: Context, entity: Entity, alias: Dict[str, str]):
     name_prop = NAME_QUALITY[alias.pop("QUALITY", None)]
-    h.apply_name(
-        entity,
-        full=alias.pop("ALIAS_NAME", None),
-        quiet=True,
-        name_prop=name_prop,
-    )
+    for name in alias.pop("ALIAS_NAME", None).split(";"):
+        h.apply_name(
+            entity,
+            full=name,
+            quiet=True,
+            name_prop=name_prop,
+        )
     context.audit_data(alias, ignore=["NOTE"])
 
 
