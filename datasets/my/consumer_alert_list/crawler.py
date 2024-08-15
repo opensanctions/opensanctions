@@ -4,6 +4,7 @@ from lxml import html
 import re
 from zavod import Context, helpers as h
 from normality import collapse_spaces
+from followthemoney.types.identifier import IdentifierType
 
 from zavod.shed.zyte_api import fetch_html
 
@@ -42,6 +43,8 @@ def crawl_item(input_dict: dict, context: Context):
     entity.id = context.make_id(name)
 
     entity.add("name", name)
+    if len(name) > IdentifierType.max_length:
+        entity.add("description", name)
     entity.add("topics", "poi")
 
     # There can be multiple websites for each entity
