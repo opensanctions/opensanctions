@@ -7,7 +7,7 @@ from zavod import helpers as h
 
 FORMATS = ["%d/%b/%Y"]
 REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
-
+NAME_SPLITS = ["; (\d+)"]
 # MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
 
 
@@ -33,6 +33,7 @@ def crawl(context: Context):
             if splitter in name:
                 name, registration_number = name.split(splitter, 1)
                 registration_number = registration_number.replace(")", "")
+                name = h.multi_split(name, NAME_SPLITS)
 
         country = cells.pop("nationality") or ""
         country = country.replace("Non ADB Member Country", "")
