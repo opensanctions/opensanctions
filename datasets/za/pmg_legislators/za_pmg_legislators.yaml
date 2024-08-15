@@ -12,8 +12,7 @@ description: |
     This dataset includes information about current members of South Africa's
     National Assembly, National Council of Provinces, provincial legislatures,
     and provincial executives. It covers various positions in the National
-    Legislature and Executive branch, including Ministers and members of the
-    Executive Committee.
+    Legislature and Executive branch.
 publisher: 
   name: Parliamentary Monitoring Group (PMG)
   description: |
@@ -29,7 +28,7 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 450
+      Person: 500
   max:
     schema_entities:
       Person: 1200
