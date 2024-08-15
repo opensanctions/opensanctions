@@ -5,33 +5,40 @@ from followthemoney.types import registry
 from zavod import Context
 import re
 
+from zavod.entity import Entity
+
 IGNORE_SCHEMATA = ["Event", "Documentation", "Document"]
 IGNORE_PROPS = ["proof"]
 
 # Unified regex pattern to extract codes
-REGEX_CODES = re.compile(
-    r"All-Russian Classifier of Enterprises and Organizations \(OKPO\): (\d+)|"
-    r"Primary State Registration Number \(OGRN\): (\d+)|"
-    r"Taxpayer Identification Number \(INN\): (\d+)|"
-    r"Reason for Registration Code \(KPP\): (\d+)"
-)
+REGEX_CODES = {
+    "okpoCode": re.compile(
+        r"All-Russian Classifier of Enterprises and Organizations \(OKPO\): (\d+)"
+    ),
+    "ogrnCode": re.compile(r"Primary State Registration Number \(OGRN\): (\d+)"),
+    "innCode": re.compile(r"Taxpayer Identification Number \(INN\): (\d+)"),
+    "kppCode": re.compile(r"Reason for Registration Code \(KPP\): (\d+)"),
+}
 
 
-def extract_codes(text: str) -> Dict[str, str]:
-    matches = REGEX_CODES.findall(text)
-    # Ensure matches are not empty and construct the dictionary safely
-    codes = {}
-    for match in matches:
-        if match[0]:  # OKPO match
-            codes["okpoCode"] = match[0]
-        if match[1]:  # OGRN match
-            codes["ogrnCode"] = match[1]
-        if match[2]:  # INN match
-            codes["innCode"] = match[2]
-        if match[3]:  # KPP match
-            codes["kppCode"] = match[3]
+def parse_identifiers(entity: Entity, properties: Dict[str, Any]) -> None:
+    if "idNumber" in properties:
+        id_numbers = properties.get("idNumber")
+        new_id_numbers = []
 
-    return codes
+        for value in id_numbers:
+            for prop, regex in REGEX_CODES.items():
+                match = regex.search(value)
+                if match:
+                    if prop not in entity.schema.properties:
+                        continue
+                    value = regex.sub("", value, 1)
+                    if prop not in properties:
+                        properties[prop] = []
+                    properties[prop].append(match.group(1))
+            if value:
+                new_id_numbers.append(value)
+        properties["idNumber"] = new_id_numbers
 
 
 def parse_entity(context: Context, data: Dict[str, Any]) -> None:
@@ -42,39 +49,7 @@ def parse_entity(context: Context, data: Dict[str, Any]) -> None:
     entity.id = context.make_slug(data["id"])
 
     properties = data.get("properties", {})
-    idNumberCodes = {}
-    processed_id_numbers = []
-
-    # Process idNumber field
-    if "idNumber" in properties:
-        id_number_values = properties.pop("idNumber")
-
-        for value in id_number_values:
-            codes = extract_codes(value)
-
-            for code_type, code_value in codes.items():
-                if code_type == "kppCode" and entity.schema.name != "Company":
-                    continue  # Skip adding KPP code if the entity is not a Company
-                if code_type not in idNumberCodes:
-                    idNumberCodes[code_type] = []
-                idNumberCodes[code_type].append(code_value)
-                value = value.replace(
-                    code_value, ""
-                ).strip()  # Replace matched code with ""
-
-            # Only keep non-empty values that have more than just the labels
-            if value.strip() and any(char.isdigit() for char in value):
-                processed_id_numbers.append(value.strip())
-
-        # Add the processed idNumbers back to properties if any are left
-        if processed_id_numbers:
-            properties["idNumber"] = processed_id_numbers
-
-        # Add the identified codes to the properties
-        for code_type, code_values in idNumberCodes.items():
-            if code_type not in properties:
-                properties[code_type] = []
-            properties[code_type].extend(code_values)
+    parse_identifiers(entity, properties)
 
     for prop_name, values in properties.items():
         if prop_name in IGNORE_PROPS:
