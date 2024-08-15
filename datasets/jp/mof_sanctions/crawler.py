@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 from typing import Dict, List, Optional
 from normality import collapse_spaces, stringify
 from normality.cleaning import decompose_nfkd
-
+from followthemoney.types.identifier import IdentifierType
 from zavod import Context, Entity
 from zavod import helpers as h
 
@@ -41,6 +41,11 @@ DATE_SPLITS = SPLITS + [
 ]
 # Date of revision | revision | part of an OR phrase
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
+
+
+def keep_long_ids(entity, identifier):
+    if len(identifier) > IdentifierType.max_length:
+        entity.add("notes", identifier)
 
 
 def str_cell(cell: Cell) -> Optional[str]:
@@ -121,6 +126,10 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity = context.make(schema)
     name_english = row.pop("name_english")
     name_japanese = row.pop("name_japanese")
+    passport_number = row.pop("passport_number", [])
+    id_number = row.pop("id_number", [])
+    identification_number = row.pop("identification_number", [])
+
     entity.id = context.make_id(*name_english, *name_japanese)
     if entity.id is None:
         # context.inspect((sheet, row))
@@ -141,13 +150,20 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     birth_date = parse_date(row.pop("birth_date", []))
     entity.add_cast("Person", "birthDate", birth_date)
     entity.add_cast("Person", "birthPlace", row.pop("birth_place", []))
+
+    keep_long_ids(entity, passport_number)
     entity.add_cast(
         "Person",
         "passportNumber",
-        h.multi_split(row.pop("passport_number", []), SPLITS),
+        h.multi_split(passport_number, SPLITS),
     )
-    entity.add("idNumber", h.multi_split(row.pop("id_number", []), SPLITS))
-    entity.add("idNumber", h.multi_split(row.pop("identification_number", []), SPLITS))
+    keep_long_ids(entity, id_number)
+    entity.add("idNumber", h.multi_split(id_number, SPLITS))
+    keep_long_ids(entity, identification_number)
+    entity.add(
+        "idNumber",
+        h.multi_split(identification_number, SPLITS),
+    )
     parse_notes(context, entity, row.pop("other_information", []))
     parse_notes(context, entity, row.pop("details", []))
     # entity.add("notes", h.clean_note(row.pop("other_information", None)))
