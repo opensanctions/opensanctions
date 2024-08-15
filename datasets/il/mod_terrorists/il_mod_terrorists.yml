@@ -133,3 +133,22 @@ lookups:
         value: https://twitter.com/EuroPalForum
       - match: "טוויטר: Addameer"
         value: https://twitter.com/Addameer
+  type.identifier: 
+    lowercase: true
+    normalize: true
+    options:
+      - match: "מס' דרכון סורי: 3987189\nמ\"ז סורי: 1308001550\nמס' ת\"ז סורית: 5877002"
+        values:
+          - 3987189
+          - 1308001550
+          - 5877002
+      - match: >
+          מס' זהות (טרינידד וטובגו): 19670704052
+           מספר דרכון (טרינידד וטובגו):
+           162181TB
+           מספר דרכון (אמריקאי):
+           420985453
+        values: 
+          - 19670704052
+          - 162181TB
+          - 420985453
