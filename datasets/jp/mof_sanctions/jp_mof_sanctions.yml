@@ -219,25 +219,8 @@ lookups:
           - Philippines
           - Russia
         value: null
-      - match: Chohar Mir Road, Kandahari Bazaar, Quetta City, Baluchistan Province, Pakistan; (ii)Room number 1, Abdul Sattar Plaza, Hafiz Saleem Street, Munsafi Road, Quetta, Baluchistan Province, Pakistan (iii)Shop number 3, Dr. Bano Road, Quetta, Baluchistan Province, Pakistan (iv)Office number 3, Near Fatima Jinnah Road, Dr. Bano Road, Quetta, Baluchistan Province, Pakistan
-        values: 
-          - Chohar Mir Road, Kandahari Bazaar, Quetta City, Baluchistan Province, Pakistan
-          - Room number 1, Abdul Sattar Plaza, Hafiz Saleem Street, Munsafi Road, Quetta, Baluchistan Province, Pakistan
-          - Shop number 3, Dr. Bano Road, Quetta, Baluchistan Province, Pakistan
-          - Office number 3, Near Fatima Jinnah Road, Dr. Bano Road, Quetta, Baluchistan Province, Pakistan
       - match: 'Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com'
         value: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
-      - match: Shops number 21 and 22, 2nd Floor, Kandahar City Sarafi Market, Kandahar City, Kandahar Province, Afghanistan (ii)New Sarafi Market, 2nd Floor, Kandahar City, Kandahar Province, Afghanistan (iii)Safi Market, Kandahar City, Kandahar Province, Afghanistan
-        values:
-          - Shops number 21 and 22, 2nd Floor, Kandahar City Sarafi Market, Kandahar City, Kandahar Province, Afghanistan
-          - New Sarafi Market, 2nd Floor, Kandahar City, Kandahar Province, Afghanistan
-          - Safi Market, Kandahar City, Kandahar Province, Afghanistan
-      - match: Shop number 1584, Furqan (variant Fahr Khan) Center, Chalhor Mal Road, Quetta, Baluchistan Province, Pakistan (ii)Flat number 4, Furqan Center, Jamaluddin Afghani Road, Quetta, Baluchistan Province, Pakistan (iii)Office number 4, 2nd Floor , Muslim Plaza Building, Doctor Banu Road, Quetta, Baluchistan Province, Pakistan (iv)Cholmon Road, Quetta, Baluchistan Province, Pakistan
-        values:
-          - Shop number 1584, Furqan (variant Fahr Khan) Center, Chalhor Mal Road, Quetta, Baluchistan Province, Pakistan
-          - Flat number 4, Furqan Center, Jamaluddin Afghani Road, Quetta, Baluchistan Province, Pakistan
-          - Office number 4, 2nd Floor , Muslim Plaza Building, Doctor Banu Road, Quetta, Baluchistan Province, Pakistan
-          - Cholmon Road, Quetta, Baluchistan Province, Pakistan
   type.country:
     lowercase: true
     normalize: true

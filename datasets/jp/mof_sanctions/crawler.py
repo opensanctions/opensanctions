@@ -19,6 +19,7 @@ SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
 SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
 # WTF full-width brackets!
 SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
+SPLITS = SPLITS + ["(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(viii)"]
 SPLITS = SPLITS + ["; a.k.a.", "; a.k.a ", ", a.k.a.", ", f.k.a."]
 
 ALIAS_SPLITS = SPLITS + ["; "]
