@@ -21,7 +21,7 @@ SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
 SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
 SPLITS = SPLITS + ["; a.k.a.", "; a.k.a ", ", a.k.a.", ", f.k.a."]
 
-ALIAS_SPLITS = SPLITS + ["(%s)", "; "]
+ALIAS_SPLITS = SPLITS + ["; "]
 
 # DATE FORMATS
 FORMATS = ["%Y年%m月%d日", "%Y年%m月%d", "%Y年%m月", "%Y.%m.%d"]
