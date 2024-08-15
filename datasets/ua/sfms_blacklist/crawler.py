@@ -12,6 +12,7 @@ FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 REGEX_ID_NUMBER = re.compile(r"\w?[\d-]*\d{6,}[\d-]*")
 SPLITS = [";", "i)", "ii)", "iii)", "iv)", "v)", "vi)", "vii)", "viii)", "ix)", "x)"]
 
+
 def parse_date(date: Optional[str]) -> List[str]:
     if date is None:
         return []
