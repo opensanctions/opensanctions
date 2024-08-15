@@ -1,6 +1,7 @@
 import os
 from urllib.parse import urljoin
 from typing import Dict, Any, List, Optional
+import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -9,6 +10,9 @@ PASSWORD = os.environ.get("OPENSANCTIONS_NSDC_PASSWORD")
 API_KEY = os.environ.get("OPENSANCTIONS_NSDC_API_KEY")
 CODES = {"DN": "UA-DPR", "LN": "UA-LPR"}
 CACHE_LONG = 7
+# They seem to mix up ukr, ukr, rus and ukr, rus, ukr so not assuming
+REGEX_NAME_3_PARTS = re.compile(r"^([^\(]+)\(([^,]+),([^,]+)\)$")
+REGEX_ADDR_2_PARTS = re.compile(r"^([^\(]{75,})\((.{75,})\)$")
 
 
 def fetch_data(
@@ -20,44 +24,26 @@ def fetch_data(
     return context.fetch_json(url, headers=headers, cache_days=cache_days)
 
 
-def check_name(context: Context, entity: Entity, subject_id: str, name: str) -> bool:
-    if len(name) > 300:
-        context.log.warn(
-            "Entity name too long",
-            id=entity.id,
-            name=name,
-            subject_id=subject_id,
-        )
-        return False
-    return True
+def clean_address(value: str) -> List[str]:
+    if match := REGEX_ADDR_2_PARTS.match(value):
+        return match.groups()
+    return value
 
 
 def crawl_common(
     context: Context, subject_id: str, entity: Entity, item: Dict[str, Any]
 ) -> None:
-
-    # Ukranian
     name = item.pop("name")
-    name_result = context.lookup("name", name)
-    if name_result is not None:
-        for name in name_result.values:
-            if check_name(context, entity, subject_id, name):
-                # Sometimes a Russian and Ukranian version
-                entity.add("name", name)
+    if match := REGEX_NAME_3_PARTS.match(name):
+        entity.add("name", match.groups())
     else:
-        if check_name(context, entity, subject_id, name):
-            entity.add("name", name, lang="ukr")
+        entity.add("name", name, lang="ukr")
 
-    # Transliterated
     name_translit = item.pop("translit")
-    name_result = context.lookup("name", name_translit)
-    if name_result is not None:
-        for name in name_result.values:
-            if check_name(context, entity, subject_id, name):
-                entity.add("name", name, lang="eng")
+    if match := REGEX_NAME_3_PARTS.match(name_translit):
+        entity.add("name", match.groups())
     else:
-        if check_name(context, entity, subject_id, name_translit):
-            entity.add("name", name_translit, lang="eng")
+        entity.add("name", name_translit, lang="eng")
 
     identifiers = item.pop("identifiers") or []
     for ident in identifiers:
@@ -111,6 +97,8 @@ def crawl_common(
 
         if result is not None:
             if result.prop is not None:
+                if result.prop == "address":
+                    value = clean_address(value)
                 entity.add(result.prop, value, lang="ukr")
         elif key in ("КПП",):
             if entity.schema.is_a("Organization"):

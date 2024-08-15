@@ -48,6 +48,8 @@ lookups:
           - Somalia
           - Turkey
         value: null
+      - match: "Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com"
+        value: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
   type.country:
     lowercase: true
     normalize: true
