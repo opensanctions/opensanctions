@@ -1,6 +1,6 @@
 name: build
 
-on:
+"on":
   - push
   - pull_request
   - workflow_dispatch

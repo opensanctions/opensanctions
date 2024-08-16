@@ -1,10 +1,7 @@
 from zavod import Context
 from zavod import helpers as h
 from typing import Dict
-import urllib3
-import requests
 import datetime
-import ssl
 
 IGNORE_COLUMNS = [
     "ID",
