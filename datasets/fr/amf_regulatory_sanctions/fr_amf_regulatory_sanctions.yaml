@@ -3,7 +3,7 @@ prefix: fr-amf
 url: https://www.amf-france.org/fr/sanction-transaction/Decisions-de-la-commission-des-sanctions
 coverage:
   frequency: daily
-  start: 2024-08-05
+  start: 2024-08-16
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 entry_point: crawler.py
 summary: >-
@@ -37,10 +37,10 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 385
+      LegalEntity: 375
   max:
     schema_entities:
-      LegalEntity: 400
+      LegalEntity: 450
 lookups:
   entities:
     options:
