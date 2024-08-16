@@ -1,4 +1,3 @@
-from typing import Dict
 from urllib.parse import unquote
 from zavod import Context
 from zavod import helpers as h
