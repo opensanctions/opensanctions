@@ -32,3 +32,25 @@ assertions:
   max:
     schema_entities:
       Person: 2000
+
+lookups:
+  type.email:
+    lowercase: true
+    options:
+      - match: lsigaqa lsigaqa@parliament.gov.za
+        value: lsigaqa@parliament.gov.za
+      - match: mphahleles@limpopoleg@gov.za
+        value: null
+      - match: Phiwokuhle.msane @kznhealth.gov.za
+        value: Phiwokuhle.msane@kznhealth.gov.za
+      - match: 072 314 5359
+        value: null
+      - match: 081 277 5664
+        value: null
+      - match: 078 189 0068
+        value: null
+  type.gender: 
+    lowercase: true
+    options: 
+     - match: Mal
+       value: Male 
