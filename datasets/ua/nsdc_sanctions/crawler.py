@@ -2,6 +2,7 @@ import os
 from urllib.parse import urljoin
 from typing import Dict, Any, List, Optional
 import re
+from followthemoney.types import registry
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -30,6 +31,11 @@ def clean_address(value: str) -> List[str]:
     return value
 
 
+def note_long_identifier(entity: Entity, value: str) -> None:
+    if len(value) > registry.identifier.max_length:
+        entity.add("notes", value, lang="ukr")
+
+
 def crawl_common(
     context: Context, subject_id: str, entity: Entity, item: Dict[str, Any]
 ) -> None:
@@ -50,12 +56,14 @@ def crawl_common(
         ident_id = ident.pop("id")
         ident_value = ident.pop("code")
         if ident_id == "tax:inn":
-            entity.add("innCode", ident_value)
+            entity.add("innCode", ident_value.split(";"))
         elif ident_id in ("reg:odrn", "reg:odrnip"):
             entity.add("ogrnCode", ident_value)
         elif ident_id == "reg:okpo":
+            note_long_identifier(entity, ident_value)
             entity.add("okpoCode", ident_value)
         elif ident_id in ("reg:person_ro", "reg:person_il"):
+            note_long_identifier(entity, ident_value)
             entity.add("idNumber", ident_value)
         elif ident_id in (
             "reg:edrpou",
