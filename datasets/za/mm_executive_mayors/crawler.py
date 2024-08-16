@@ -1,0 +1,51 @@
+from typing import Dict
+from urllib.parse import unquote
+from zavod import Context
+from zavod import helpers as h
+import re
+
+
+def clean_emails(emails):
+    out = []
+    for email in h.multi_split(emails, ["/", ",", " or "]):
+        if email is None:
+            continue
+        email = unquote(email).strip().rstrip(".")
+        out.append(email)
+    return out
+
+
+def clean_phones(phones):
+    out = []
+    for phone in h.multi_split(
+        phones, [",", "/", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)"]
+    ):
+        phone = re.sub(
+            r"(ex|ext|extension|fax|tel|\:|\-)", "", phone, flags=re.IGNORECASE
+        )
+        out.append(phone.strip())
+    return out
+
+
+def crawl(context: Context):
+    # Fetch the data from the provided URL
+    data = context.fetch_json(context.data_url)
+
+    # Process the relevant persons
+    for person_data in data.get("data", []):
+        if person_data.get("role.role") == "Deputy Mayor/Executive Mayor":
+            municipality = (person_data.get("municipality.demarcation_code"),)
+            name = (person_data.get("contact_details.name"),)
+            entity = context.make("Person")
+            entity.id = context.make_id(municipality, name)
+            entity.add("name", person_data.get("contact_details.name"))
+            entity.add("title", person_data.get("contact_details.title"))
+            # entity.add("role", "Deputy Mayor/Executive Mayor")
+            entity.add(
+                "email", clean_emails(person_data.get("contact_details.email_address"))
+            )
+            entity.add(
+                "phone", clean_phones(person_data.get("contact_details.phone_number"))
+            )
+            entity.add("topics", "role.pep")
+            context.emit(entity, target=True)
