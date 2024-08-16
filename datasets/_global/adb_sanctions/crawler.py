@@ -45,7 +45,7 @@ def crawl(context: Context):
                     registration_number = registration_number.replace(")", "").strip()
                     break
 
-            country = cells.pop("nationality", "") or ""
+            country = cells.get("nationality") or ""
             country = country.replace("Non ADB Member Country", "").strip()
             country = country.replace("Rep. of", "").strip()
 
@@ -54,7 +54,7 @@ def crawl(context: Context):
             entity.add("name", part)
 
             # Handle missing 'othername_logo' key gracefully
-            entity.add("alias", cells.pop("othername_logo", None))
+            entity.add("alias", cells.get("othername_logo"))
             entity.add("topics", "debarment")
             entity.add("country", country)
             entity.add("registrationNumber", registration_number)
