@@ -26,6 +26,13 @@ POSITIONS_OF_INTEREST = [
     re.compile(r"National\s+Executive", re.IGNORECASE),
 ]
 
+GOV_POSITIONS = [
+    re.compile(r"National\s+Legislature", re.IGNORECASE),
+    re.compile(r"Member of the National\s+Assembly", re.IGNORECASE),
+    re.compile(r"Minister of", re.IGNORECASE),
+    re.compile(r"National\s+Executive", re.IGNORECASE),
+]
+
 
 def clean_emails(emails):
     out = []
@@ -108,7 +115,6 @@ def crawl_membership(
     organizations: Dict[str, str],
     events,
 ) -> Optional[str]:
-
     org_id = membership.get("organization_id")
     org_name = organizations.get(org_id)
     if not org_name:
