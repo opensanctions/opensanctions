@@ -53,6 +53,7 @@ children:
   - is_althingi
   - ky_judicial
   - ky_parliament
+  - lt_pep_declarations
   - lt_seimas
   - lv_saeima
   - mk_officials
