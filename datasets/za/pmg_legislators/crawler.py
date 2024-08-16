@@ -61,6 +61,7 @@ def crawl_person(context: Context, person_data: dict, organizations, events):
         return
 
     person_qid = None
+    person_slug = None
     for ident in person_data.pop("identifiers", []):
         identifier = ident.get("identifier")
         scheme = ident.get("scheme")
@@ -68,16 +69,16 @@ def crawl_person(context: Context, person_data: dict, organizations, events):
         if scheme == "wikidata" and is_qid(identifier):
             person_qid = identifier
             break
-        # else:
-        #     context.log.warning(f"Invalid wikidata ID: {identifier}")
+
+        if scheme == "pombola-slug":
+            person_id = identifier
+            person_slug = identifier
 
     person = context.make("Person")
     if person_qid:
         person.id = person_qid
     else:
-        person.id = person_entity_id(
-            context, person_id
-        )  # find a way to include those without qid
+        person.id = person_entity_id(context, person_id)
     person.add("name", person_data.get("name"))
     person.add("alias", [o.get("name") for o in person_data.get("other_names", [])])
     person.add("gender", person_data.get("gender"))
@@ -89,6 +90,10 @@ def crawl_person(context: Context, person_data: dict, organizations, events):
     person.add("title", person_data.pop("honorific_prefix", None))
     person.add("wikidataId", person_qid)
     person.add("topics", "role.pep")
+
+    if person_slug:
+        source_url = f"https://pa.org.za/person/{person_slug}/"
+        person.add("sourceUrl", source_url)
 
     for link in person_data.pop("links", []):
         url = link.get("url")
