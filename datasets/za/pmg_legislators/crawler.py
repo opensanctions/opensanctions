@@ -1,6 +1,6 @@
 from followthemoney.helpers import post_summary
 from rigour.ids.wikidata import is_qid
-from typing import Dict, Optional, Set
+from typing import Dict, Optional
 from urllib.parse import unquote
 import re
 
