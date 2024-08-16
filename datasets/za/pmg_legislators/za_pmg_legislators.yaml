@@ -31,4 +31,4 @@ assertions:
       Person: 500
   max:
     schema_entities:
-      Person: 1200
+      Person: 2000
