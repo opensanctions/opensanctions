@@ -52,5 +52,5 @@ lookups:
   type.gender: 
     lowercase: true
     options: 
-     - match: Mal
-       value: Male 
+      - match: Mal
+        value: Male 
