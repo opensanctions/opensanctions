@@ -115,3 +115,10 @@ lookups:
         value: 1966-02-02T05:00
       - match: 2015-04-07-04:00
         value: 2015-04-07T04:00
+  type.identifier:
+    normalize: true
+    options:
+      - match: >
+          Central African Republic armed forces (FACA) Military identification
+          number 911-10-77
+        value: FACA 911-10-77
