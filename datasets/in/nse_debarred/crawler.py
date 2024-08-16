@@ -103,7 +103,8 @@ def crawl_item(input_dict: dict, context: Context):
     topics = "reg.warn" if is_revoked else "debarment"
 
     entity.add("name", name)
-    entity.add("taxNumber", pan)
+    if "not provided" not in pan.lower():
+        entity.add("taxNumber", pan)
     entity.add("topics", topics)
     din_cin: str = input_dict.pop("din_cin_of_entities_debarred", None)
     if din_cin and din_cin.lower != "not available":
