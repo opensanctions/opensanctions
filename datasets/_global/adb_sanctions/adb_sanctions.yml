@@ -75,27 +75,27 @@ lookups:
       - match: Room 505, No. 85, 3rd Street of Yongfa New Village, Pingnan Street, Pingnan County, Guigang City, Guangxi Zhuang Autonomous Region (formerly the third team of Generals of Fucheng Village), PEOPLE’S REPUBLIC OF CHINA 中国广西壮族自治区贵港市平南县平南街道(原附城村大将三队)永发新村三街85号505室
         value: Room 505, No. 85, 3rd Street of Yongfa New Village, Pingnan Street, Pingnan County, Guigang City, Guangxi Zhuang Autonomous Region, PEOPLE’S REPUBLIC OF CHINA
 
-  type.name: 
-    lowercase: true
-    options:
-      - match: Mandala Agricultural Development Corporation (Madecor) (Madecor affiliates, including, but not limited to:(1)Community- Based Resources Management Systems Foundation (COBARMS); (2) Dessau Soprin Madecor (DSM), Inc.; (3) Forest Industries resources Systems and Technologies, Inc. (FIRST); (4) International Manpower Resources Services, Inc. (IMaRSI); (5) Kaalalay Foundation, Inc.; (6) Madecor Environmental Management Services, Inc. (MEMSI); (7) Madecor Environmental Management Systems; (8) Madecor Group; (9) Madecor Hill Development and Management Corporation; (10) Madecor Livestock, Inc.; (11) Madecor Plantation Svcs., Inc.; (12) Madecor Scientific and Specialty Products,Inc. (13) Makiling Plant and Products Exchange, Inc. (MPPE); and (14) Tree Care and Maintenance Services Foundation, Inc. (TREE CARE); and (15) Asian Institute of Development Studies, Inc. (AIDSI).
-        values: 
-          - Mandala Agricultural Development Corporation (Madecor)
-          - Community-Based Resources Management Systems Foundation (COBARMS)
-          - Dessau Soprin Madecor (DSM), Inc.
-          - Forest Industries Resources Systems and Technologies, Inc. (FIRST)
-          - International Manpower Resources Services, Inc. (IMaRSI)
-          - Kaalalay Foundation, Inc.
-          - Madecor Environmental Management Services, Inc. (MEMSI)
-          - Madecor Environmental Management Systems
-          - Madecor Group
-          - Madecor Hill Development and Management Corporation
-          - Madecor Livestock, Inc.
-          - Madecor Plantation Svcs., Inc.
-          - Madecor Scientific and Specialty Products, Inc.
-          - Makiling Plant and Products Exchange, Inc. (MPPE)
-          - Tree Care and Maintenance Services Foundation, Inc. (TREE CARE)
-          - Asian Institute of Development Studies, Inc. (AIDSI)
+  # type.name: 
+  #   lowercase: true
+  #   options:
+  #     - match: Mandala Agricultural Development Corporation (Madecor) (Madecor affiliates, including, but not limited to:(1)Community- Based Resources Management Systems Foundation (COBARMS); (2) Dessau Soprin Madecor (DSM), Inc.; (3) Forest Industries resources Systems and Technologies, Inc. (FIRST); (4) International Manpower Resources Services, Inc. (IMaRSI); (5) Kaalalay Foundation, Inc.; (6) Madecor Environmental Management Services, Inc. (MEMSI); (7) Madecor Environmental Management Systems; (8) Madecor Group; (9) Madecor Hill Development and Management Corporation; (10) Madecor Livestock, Inc.; (11) Madecor Plantation Svcs., Inc.; (12) Madecor Scientific and Specialty Products,Inc. (13) Makiling Plant and Products Exchange, Inc. (MPPE); and (14) Tree Care and Maintenance Services Foundation, Inc. (TREE CARE); and (15) Asian Institute of Development Studies, Inc. (AIDSI).
+  #       values: 
+  #         - Mandala Agricultural Development Corporation (Madecor)
+  #         - Community-Based Resources Management Systems Foundation (COBARMS)
+  #         - Dessau Soprin Madecor (DSM), Inc.
+  #         - Forest Industries Resources Systems and Technologies, Inc. (FIRST)
+  #         - International Manpower Resources Services, Inc. (IMaRSI)
+  #         - Kaalalay Foundation, Inc.
+  #         - Madecor Environmental Management Services, Inc. (MEMSI)
+  #         - Madecor Environmental Management Systems
+  #         - Madecor Group
+  #         - Madecor Hill Development and Management Corporation
+  #         - Madecor Livestock, Inc.
+  #         - Madecor Plantation Svcs., Inc.
+  #         - Madecor Scientific and Specialty Products, Inc.
+  #         - Makiling Plant and Products Exchange, Inc. (MPPE)
+  #         - Tree Care and Maintenance Services Foundation, Inc. (TREE CARE)
+  #         - Asian Institute of Development Studies, Inc. (AIDSI)
 
   type.country:
     lowercase: true

@@ -10,67 +10,69 @@ REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
 NAME_SPLITS = ["; "]
 # MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
 
-HEADERS = {
-    "sec-ch-ua": '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
-    "Referer": "https://lnadbg4.adb.org/oga0009p.nsf/sancALL1P?OpenView&count=999",
-    "sec-ch-ua-mobile": "?0",
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
-    "sec-ch-ua-platform": "macOS",
-}
-
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.html", context.data_url, headers=HEADERS)
+    path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+
     with open(path, "r", encoding="ISO-8859-1") as fh:
         doc = html.parse(fh)
 
     table = doc.find("//div[@id='viewcontainer']/table")
     headers = None
+
     for row in table.findall(".//tr"):
         if headers is None:
             headers = [slugify(c.text_content(), "_") for c in row.findall("./th")]
             continue
+
         cells = [collapse_spaces(c.text_content()) for c in row.findall("./td")]
         cells = dict(zip(headers, cells))
         cells.pop(None, None)
 
-        full_name = name = cells.pop("name") or ""
-        registration_number = None
+        full_name = cells.pop("name") or ""
 
-        for name in full_name:  # to be fixed
-            name = h.multi_split(full_name, NAME_SPLITS)
+        # Split the full name using NAME_SPLITS first
+        name_parts = h.multi_split(full_name, NAME_SPLITS)
+
+        for part in name_parts:
+            registration_number = None
+
+            # Further split each part using REG_NRS
             for splitter in REG_NRS:
-                if splitter in name:
-                    name, registration_number = name.split(splitter, 1)
-                    registration_number = registration_number.replace(")", "")
+                if splitter in part:
+                    part, registration_number = part.split(splitter, 1)
+                    registration_number = registration_number.replace(")", "").strip()
+                    break
 
-                    country = cells.pop("nationality") or ""
-                    country = country.replace("Non ADB Member Country", "")
-                    country = country.replace("Rep. of", "")
-                    entity = context.make("LegalEntity")
-                    entity.id = context.make_id(full_name, country)
-                    entity.add("name", name)
-                    entity.add("alias", cells.pop("othername_logo"))
-                    entity.add("topics", "debarment")
-                    entity.add("country", country)
-                    entity.add("registrationNumber", registration_number)
+            country = cells.pop("nationality", "") or ""
+            country = country.replace("Non ADB Member Country", "").strip()
+            country = country.replace("Rep. of", "").strip()
 
-                    sanction = h.make_sanction(context, entity)
-                    sanction.add("reason", cells.pop("grounds"))
-                    sanction.add("program", cells.pop("sanction_type"))
-                    date_range = cells.pop("effect_date_lapse_date") or ""
-                    if "|" in date_range:
-                        start_date, end_date = date_range.split("|")
-                        sanction.add(
-                            "startDate", h.parse_date(start_date.strip(), FORMATS)
-                        )
-                        sanction.add("endDate", h.parse_date(end_date.strip(), FORMATS))
+            entity = context.make("LegalEntity")
+            entity.id = context.make_id(part, country)
+            entity.add("name", part)
 
-                    address = h.make_address(
-                        context, full=cells.pop("address"), country=country
-                    )
-                    h.apply_address(context, entity, address)
+            # Handle missing 'othername_logo' key gracefully
+            entity.add("alias", cells.pop("othername_logo", None))
+            entity.add("topics", "debarment")
+            entity.add("country", country)
+            entity.add("registrationNumber", registration_number)
 
-                    context.emit(entity, target=True)
-                    context.emit(sanction)
+            sanction = h.make_sanction(context, entity)
+            sanction.add("reason", cells.get("grounds"))
+            sanction.add("program", cells.get("sanction_type"))
+
+            date_range = cells.get("effect_date_lapse_date", "") or ""
+            if "|" in date_range:
+                start_date, end_date = date_range.split("|")
+                sanction.add("startDate", h.parse_date(start_date.strip(), FORMATS))
+                sanction.add("endDate", h.parse_date(end_date.strip(), FORMATS))
+
+            address = h.make_address(
+                context, full=cells.get("address"), country=country
+            )
+
+            h.apply_address(context, entity, address)
+            context.emit(entity, target=True)
+            context.emit(sanction)
