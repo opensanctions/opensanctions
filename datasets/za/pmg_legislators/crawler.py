@@ -69,7 +69,7 @@ def crawl_person(context: Context, person_data: dict, organizations, events):
 
     person_qid = None
     person_slug = None
-    for ident in person_data.pop("identifiers", []):
+    for ident in person_data.pop("identifiers"):
         identifier = ident.get("identifier")
         scheme = ident.get("scheme")
 
