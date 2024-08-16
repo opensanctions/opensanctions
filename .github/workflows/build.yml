@@ -15,6 +15,7 @@ jobs:
     env:
       OPENSANCTIONS_RESOLVER_PATH: /dev/null
       ZAVOD_SYNC_POSITIONS: false
+      OPENSSL_CONF: "contrib/openssl.cnf"
 
     runs-on: ubuntu-latest
     strategy:
