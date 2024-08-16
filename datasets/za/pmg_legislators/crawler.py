@@ -96,7 +96,6 @@ def crawl_person(context: Context, person_data: dict, organizations, events):
     person.add("notes", person_data.pop("summary", None))
     person.add("title", person_data.pop("honorific_prefix", None))
     person.add("wikidataId", person_qid)
-    person.add("topics", "role.pep")
 
     if person_slug:
         source_url = f"https://pa.org.za/person/{person_slug}/"
