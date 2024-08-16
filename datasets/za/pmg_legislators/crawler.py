@@ -17,7 +17,7 @@ PHONE_REMOVE = re.compile(r"(ex|ext|extension|fax|tel|\:|\-)", re.IGNORECASE)
 # List of regex patterns for positions of interest
 POSITIONS_OF_INTEREST = [
     re.compile(r"National\s+Legislature", re.IGNORECASE),
-    re.compile(r"National\s+Assembly", re.IGNORECASE),
+    re.compile(r"Member of the National\s+Assembly", re.IGNORECASE),
     re.compile(r"National\s+Council of Provinces", re.IGNORECASE),
     re.compile(r"Minister of", re.IGNORECASE),
     re.compile(r"Provincial\s+Legislature", re.IGNORECASE),
@@ -120,11 +120,6 @@ def crawl_membership(
         # context.log.error("Role is missing in membership data.")
         return None
 
-    # Check if the role matches the positions of interest
-    if not any(re.findall(position, role) for position in POSITIONS_OF_INTEREST):
-        # context.log.info(f"Skipping role {role} not of interest.")
-        return None
-
     # Creating the position property
     position_property = post_summary(
         org_name, role, [membership.get("start_date")], [membership.get("end_date")], []
@@ -133,6 +128,12 @@ def crawl_membership(
 
     # context.log.info(f"Processed membership for person ID: {person_id}")
     position_label = f"{role.title()} of the {org_name}"
+
+    # Check if the role matches the positions of interest
+    if not any(re.findall(regex, position_label) for regex in POSITIONS_OF_INTEREST):
+        # context.log.info(f"Skipping role {role} not of interest.")
+        return None
+
     position = h.make_position(
         context,
         position_label,
