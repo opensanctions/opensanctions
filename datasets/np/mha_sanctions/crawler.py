@@ -102,7 +102,11 @@ def crawl_row(context: Context, row: Dict[str, str]):
             context.emit(entity, target=True)
         else:
             if not sanction_status == "REMOVED":
-                context.log.warning("Unexpected sanction status", value=sanction_status, entity=entity.id)
+                context.log.warning(
+                    "Unexpected sanction status",
+                    value=sanction_status,
+                    entity=entity.id,
+                )
             context.emit(entity, target=False)
     else:
         context.log.warning("Unhandled entity type", type=entity_type)
