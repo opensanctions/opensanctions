@@ -33,6 +33,13 @@ GOV_POSITIONS = [
     re.compile(r"National\s+Executive", re.IGNORECASE),
 ]
 
+LEG_POSITIONS = [
+    re.compile(r"National\s+Legislature", re.IGNORECASE),
+    re.compile(r"Member of the National\s+Assembly", re.IGNORECASE),
+    re.compile(r"Provincial\s+Legislature", re.IGNORECASE),
+    re.compile(r"Member of the Provincial Legislature", re.IGNORECASE),
+]
+
 
 def clean_emails(emails):
     out = []
@@ -145,11 +152,25 @@ def crawl_membership(
         # context.log.info(f"Skipping role {role} not of interest.")
         return None
 
+    # Initialize the topics list
+    topics = []
+
+    # Check if the role matches GOV_POSITIONS or LEG_POSITIONS
+    if any(re.findall(regex, position_label) for regex in GOV_POSITIONS):
+        topics.append("gov.national")
+
+    if any(re.findall(regex, position_label) for regex in LEG_POSITIONS):
+        topics.append("gov.legislative")
+
+    # If neither matches, we can skip this role
+    if not topics:
+        return None
+
     position = h.make_position(
         context,
         position_label,
         country="za",
-        topics=["gov.national", "gov.legislative"],
+        topics=topics,
     )
 
     # Always PEP because filtered by known position label patterns
@@ -185,6 +206,8 @@ def crawl_membership(
         context.emit(entity, target=True)
         context.emit(position)
         context.emit(occupancy)
+
+    return None
 
 
 def person_entity_id(context: Context, person_id: str) -> str:
