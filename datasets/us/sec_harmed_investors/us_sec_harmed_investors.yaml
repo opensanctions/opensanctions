@@ -995,3 +995,17 @@ lookups:
         names:
           - Terraform Labs Pte Ltd.
           - Do Hyeong Kwon
+      - match: neil burkholz, frank bianco, palm financial management llc, and shore management systems llc
+        names:
+          - Neil Burkholz
+          - Frank Bianco
+          - Palm Financial Management LLC
+          - Shore Management Systems LLC
+      - match: christopher w. burns, investus advisers llc d/b/a dynamic money llc, investus financial llc, and peer connect llc
+        names:
+          - Christopher W. Burns
+          - Investus Advisers LLC
+          - Dynamic Money LLC
+          - Investus Financial LLC
+          - Peer Connect LLC
+      
