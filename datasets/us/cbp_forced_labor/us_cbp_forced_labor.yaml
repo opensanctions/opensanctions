@@ -5,7 +5,7 @@ prefix: us-cbpfl
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
-  start: 2024-08-01
+  start: 2024-08-16
 summary: >
   Withhold Release Orders (WROs) and Findings related to imports that may involve forced labor.
 description: |
