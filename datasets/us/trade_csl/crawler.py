@@ -3,12 +3,14 @@ from typing import Any, Dict, List, Optional, Generator
 from banal import ensure_list
 from rigour.mime.types import JSON
 from followthemoney.types import registry
+import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
+REGEX_AUTHORITY_ID_SEP = re.compile(r"(\d+ F\.?R\.?)")
 
 
 def parse_date(text: Optional[str]) -> List[str]:
@@ -66,6 +68,13 @@ def parse_addresses(
                 yield addr
 
 
+def clean_authority(value: Optional[str]) -> Optional[List[str]]:
+    if value is None:
+        return
+    value = REGEX_AUTHORITY_ID_SEP.sub(r", \1", value)
+    return h.multi_split(value, [";", ", "])
+
+
 def parse_result(context: Context, result: Dict[str, Any]):
     for k, v in list(result.items()):
         if isinstance(v, str) and len(v.strip()) == 0:
@@ -99,6 +108,8 @@ def parse_result(context: Context, result: Dict[str, Any]):
             name = name.replace("?s ", "'s ")
             name = name.replace("?", " ")
         entity.add("name", name)
+    if len(name) > registry.name.max_length:
+        entity.add("notes", name)
 
     if is_ofac:
         context.emit(entity, target=True)
@@ -154,7 +165,10 @@ def parse_result(context: Context, result: Dict[str, Any]):
     sanction.add("program", result.pop("programs", []))
     sanction.add("provisions", result.pop("license_policy", []))
     sanction.add("reason", result.pop("license_requirement", []))
-    sanction.add("authorityId", result.pop("federal_register_notice", None))
+    sanction.add(
+        "authorityId",
+        clean_authority(result.pop("federal_register_notice", None)),
+    )
     sanction.add("startDate", result.pop("start_date", None))
     sanction.add("endDate", result.pop("end_date", None))
     sanction.add("country", "us")
