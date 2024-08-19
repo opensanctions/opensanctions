@@ -77,8 +77,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("sourceUrl", row.pop("Source_URL_BG"), lang="bul")
     entity.add("notes", row.pop("Notes"))
     entity.add("notes", row.pop("Notes_BG"), lang="bul")
-    entity.add("address", row.pop("Addresses"))
-    entity.add("address", row.pop("Addresses_BG"), lang="bul")
+    entity.add("address", row.pop("Addresses").split("; "))
+    entity.add("address", row.pop("Addresses_BG").split("; "), lang="bul")
     # context.inspect(row)
     context.emit(entity, target=True)
 

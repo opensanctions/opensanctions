@@ -14,6 +14,7 @@ NAME_QUALITY = {
     "f.k.a.": "previousName",
     "": None,
 }
+ALIAS_SPLITS = ["original script", ";"]
 
 
 def values(data):
@@ -35,12 +36,13 @@ def parse_date(date):
 
 def parse_alias(context: Context, entity: Entity, alias: Dict[str, str]):
     name_prop = NAME_QUALITY[alias.pop("QUALITY", None)]
-    h.apply_name(
-        entity,
-        full=alias.pop("ALIAS_NAME", None),
-        quiet=True,
-        name_prop=name_prop,
-    )
+    for name in alias.pop("ALIAS_NAME", None).split(";"):
+        h.apply_name(
+            entity,
+            full=name,
+            quiet=True,
+            name_prop=name_prop,
+        )
     context.audit_data(alias, ignore=["NOTE"])
 
 
@@ -69,7 +71,7 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     entity.add("topics", "sanction")
     entity.add("notes", h.clean_note(data.pop("COMMENTS1")))
     entity.add("notes", h.clean_note(data.pop("NOTE", None)))
-    entity.add("alias", data.pop("NAME_ORIGINAL_SCRIPT"))
+    entity.add("alias", h.multi_split(data.pop("NAME_ORIGINAL_SCRIPT"), ALIAS_SPLITS))
 
     h.apply_name(
         entity,
