@@ -75,9 +75,11 @@ lookups:
         value: Botswana
       - match: Citizen Of Seychelles
         value: Seychelles
-      - match: 
-          - Brithish
+      - match: Brithish
         value: Great Britain
+      - match: South Sudanese
+        value: South Sudan
+      
   type.date:
     options:
       - match: "3018-12-12"
