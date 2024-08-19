@@ -6,10 +6,14 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
-roles_of_interest = [
+ROLES_OF_INTEREST = [
     "Mayor/Executive Mayor",
     "Municipal Manager",
 ]
+
+REESTABLISHED_MUNICIPALITIES_URL = (
+    "https://municipaldata.treasury.gov.za/api/cubes/demarcation_changes/facts"
+)
 
 
 def clean_emails(emails):
@@ -36,18 +40,33 @@ def clean_phones(phones):
 
 def crawl(context: Context):
     # Fetch the data from the provided URL
-    data = context.fetch_json(context.data_url)
+    executive_mayors = context.fetch_json(context.data_url)
+
+    # Fetch the reestablished municipalities data from the specific URL
+    reestablished_muni = context.fetch_json(REESTABLISHED_MUNICIPALITIES_URL)
+
+    reestablished_municipalities = {}
+    if reestablished_muni and "data" in reestablished_muni:
+        for fact in reestablished_muni.get("data", []):
+            if fact.get("old_code_transition.code") == "disestablished":
+                reestablished_municipalities[fact.get("old_demarcation.code")] = (
+                    fact.get("new_demarcation.code")
+                )
 
     # Process the relevant persons
-    for person_data in data.get("data", []):
-        if person_data.get("role.role") in roles_of_interest:
-            municipality = (person_data.get("municipality.demarcation_code"),)
-            name = (person_data.get("contact_details.name"),)
+    for person_data in executive_mayors.get("data", []):
+        if person_data.get("role.role") in ROLES_OF_INTEREST:
+            municipality_code = person_data.get("municipality.demarcation_code")
+
+            # Update the municipality code if it was reestablished
+            if municipality_code in reestablished_municipalities:
+                municipality_code = reestablished_municipalities[municipality_code]
+
+            name = person_data.get("contact_details.name")
             entity = context.make("Person")
-            entity.id = context.make_id(municipality, name)
+            entity.id = context.make_id(name, municipality_code)
             entity.add("name", person_data.get("contact_details.name"))
             entity.add("title", person_data.get("contact_details.title"))
-            # entity.add("role", "Deputy Mayor/Executive Mayor")
             entity.add(
                 "email", clean_emails(person_data.get("contact_details.email_address"))
             )
@@ -57,8 +76,7 @@ def crawl(context: Context):
             # entity.add("topics", "role.pep")
 
             role = person_data.get("role.role")
-            muni_name = person_data.get("municipality.demarcation_code")
-            position_label = f"{role} of the {muni_name}"
+            position_label = f"{role} of the {municipality_code}"
 
             position = h.make_position(
                 context,
@@ -83,7 +101,6 @@ def crawl(context: Context):
                 )
 
             if occupancy:
-                print(f"PEP: {position_label}")
                 context.emit(entity, target=True)
                 context.emit(position)
                 context.emit(occupancy)
