@@ -32,6 +32,10 @@ POLAND_PROGRAM = "art. 118 ustawy z dnia 1 marca 2018 r. o przeciwdziałaniu pra
 UN_SC_CONSOLIDATED_URL = "https://scsanctions.un.org/resources/xml/en/consolidated.xml"
 UN_SC_PREFIXES = ["TA", "QD"]
 UN_SC_PREFIX = "unsc"
+KNOWN_HASHES = {
+    "https://www.gov.pl/attachment/2fc03b3b-a5f6-4d08-80d1-728cdb71d2d6": "",
+    "https://www.gov.pl/attachment/56238b34-8a26-4431-a05a-e1d039f0defa": "",
+}
 
 
 def parse_date(string):
@@ -77,16 +81,10 @@ def check_updates(context: Context):
     doc.make_links_absolute(context.dataset.url)
     materials = doc.findall(".//a[@class='file-download']")
 
-    # Dictionary of known URLs and their corresponding hashes
-    known_hashes = {
-        "https://www.gov.pl/attachment/2fc03b3b-a5f6-4d08-80d1-728cdb71d2d6": "",
-        "https://www.gov.pl/attachment/56238b34-8a26-4431-a05a-e1d039f0defa": "",
-    }
-
-    # Update the hashes in the dictionary
-    for url in known_hashes.keys():
+    # # Update the hashes in the dictionary
+    for url in KNOWN_HASHES.keys():
         file_content = context.http.get(url).content
-        known_hashes[url] = get_sha1_hash(file_content)
+        KNOWN_HASHES[url] = get_sha1_hash(file_content)
 
     # Process the materials
     if len(materials) == 0:
@@ -94,34 +92,13 @@ def check_updates(context: Context):
     else:
         for material in materials:
             url = material.get("href")
-            if url in known_hashes:
-                # Fetch the file
-                file_content = context.http.get(url).content
-                file_hash = get_sha1_hash(file_content)
-
-                # Assert the hash for that link
-                h.assert_url_hash(context, url, file_hash, known_hashes[url])
-                context.log.info(f"Hash matched for {url}")
-            else:
-                context.log.warning(
-                    f"URL {url} not found in known hashes dictionary. Manual check required."
-                )
+            if url in KNOWN_HASHES:
+                h.assert_url_hash(context, url, KNOWN_HASHES[url])
 
     # Assert the hash of the page content for <article class="article-area__article ">
     article = doc.find(".//article[@class='article-area__article ']")
-    if article is not None:
-        article_content = article.text_content().encode("utf-8")
-        page_hash = get_sha1_hash(article_content)
-        print(page_hash)
-
-        expected_page_hash = "7710d49b47cec8b17298a58dff0086aae41dbb84"
-
-        # Assert the DOM hash
-        h.assert_dom_hash(article, expected_page_hash)
-    else:
-        context.log.warning(
-            "Article section with class 'article-area__article ' not found"
-        )
+    expected_page_hash = "726c2ff5c7f2964161b4a3529733b0d9ae812644"
+    h.assert_dom_hash(article, expected_page_hash, raise_exc=True)
 
 
 # def check_updates(context: Context):
