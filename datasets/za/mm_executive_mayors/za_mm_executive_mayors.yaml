@@ -42,7 +42,7 @@ lookups:
     options:
       - match:
           - khumalomolefe24@.com
-          - nompumelelo dywili@gmail.com
+          - "nompumelelo dywili@gmail.com"
         value: null
-      - match: gustav .bock@namakhoi.gov.za
+      - match: "gustav .bock@namakhoi.gov.za"
         value: gustav.bock@namakhoi.gov.za
