@@ -19,7 +19,6 @@
 from normality import collapse_spaces
 from rigour.mime.types import CSV
 from typing import Dict
-from hashlib import sha1
 import csv
 
 from zavod import Context
@@ -33,8 +32,8 @@ UN_SC_CONSOLIDATED_URL = "https://scsanctions.un.org/resources/xml/en/consolidat
 UN_SC_PREFIXES = ["TA", "QD"]
 UN_SC_PREFIX = "unsc"
 KNOWN_HASHES = {
-    "https://www.gov.pl/attachment/2fc03b3b-a5f6-4d08-80d1-728cdb71d2d6": "",
-    "https://www.gov.pl/attachment/56238b34-8a26-4431-a05a-e1d039f0defa": "",
+    "https://www.gov.pl/attachment/2fc03b3b-a5f6-4d08-80d1-728cdb71d2d6": "94c0607177fec8a07ca3e7d82c3d61be36ea20ee",
+    "https://www.gov.pl/attachment/56238b34-8a26-4431-a05a-e1d039f0defa": "3b8c0419879991e4dfd663aeed7b2df3c7472c55",
 }
 
 
@@ -72,19 +71,10 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def get_sha1_hash(content):
-    return sha1(content).hexdigest()
-
-
 def check_updates(context: Context):
     doc = context.fetch_html(context.dataset.url)
     doc.make_links_absolute(context.dataset.url)
     materials = doc.findall(".//a[@class='file-download']")
-
-    # # Update the hashes in the dictionary
-    for url in KNOWN_HASHES.keys():
-        file_content = context.http.get(url).content
-        KNOWN_HASHES[url] = get_sha1_hash(file_content)
 
     # Process the materials
     if len(materials) == 0:
@@ -94,6 +84,11 @@ def check_updates(context: Context):
             url = material.get("href")
             if url in KNOWN_HASHES:
                 h.assert_url_hash(context, url, KNOWN_HASHES[url])
+            else:
+                context.log.warning(
+                    "Unknown materials download URL. Check if we want to scrape it.",
+                    url=url,
+                )
 
     # Assert the hash of the page content for <article class="article-area__article ">
     article = doc.find(".//article[@class='article-area__article ']")
