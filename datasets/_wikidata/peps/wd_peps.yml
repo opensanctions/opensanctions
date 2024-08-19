@@ -1904,3 +1904,7 @@ lookups:
         code: "BA"
         label: "Bosna"
         decision: "national"
+      - match: "Q854850"
+        code: ""
+        label: "Bharatpur State"
+        decision: "ignore"
