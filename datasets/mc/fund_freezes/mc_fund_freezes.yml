@@ -33,43 +33,47 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - contains:   
-          - RPDC
+      - match:
+          - République populaire démocratique de Corée (RPDC)
           - République populaire démocratique de Corée
         value: kp
-      - contains:
-          - PAKISTAN
+      - match:
+          - PAKISTAN (présumée)
         value: pk
-      - contains:
-          - JORDANIE
+      - match:
+          - JORDANIE (présumée)
         value: jo
-      - contains:
+      - match:
           - CENTRAFRIQUE
         value: cf
-      - contains:
-          - RUSSIE
+      - match:
+          - ou RUSSIE
+          - RUSSIE (l’Union européenne ne reconnait pas les passeports délivrés par la Fédération de Russie en Crimée)
         value: ru
-        weight: 0.8
+      - match: Ukraine Russie
+        values:
+          - ua
+          - ru
       - match:
           - BIÉLORUSSIE
         value: by
-        weight: 3
-      - contains:
-          - INDONÉSIE
+      - match:
+          - INDONÉSIE (en décembre 2003)
         value: id
-      - contains:
+      - match:
+          - "Présumée : RDC"
           - RDC
-        value: cg
+        value: cd
       - match:
           - FRANCE-ALGERIE
         values:
           - fr
           - al
-      - contains:
+      - match:
           - Tchadienne
         value: td
-      - contains:
-          - SYRIE
+      - match:
+          - SYRIE (présumée)
         value: sy
       - match:
           - UKRAINE et
