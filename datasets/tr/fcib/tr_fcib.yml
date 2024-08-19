@@ -1,0 +1,45 @@
+title: "Türkiye Asset Freezing Sanctions List (MASAK)"
+url: https://en.hmb.gov.tr/fcib-tf-current-list
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2024-08-19
+summary: >
+  Individuals, entities, and organizations whose assets are frozen by the Republic of 
+  Türkiye under several legal frameworks. These measures target various subjects based 
+  on United Nations Security Council resolutions, requests from foreign countries, domestic 
+  decisions, and efforts to counter the financing of proliferation of weapons of mass 
+  destruction.
+description: |
+    The asset freezing decisions published by the Republic of Türkiye include comprehensive 
+    lists of individuals, entities, and organizations subject to financial sanctions. These 
+    sanctions are implemented under the following categories:
+
+    United Nations Security Council Resolutions: Asset freezes pursuant to Article 5 of 
+    Law No. 6415, targeting individuals and entities designated under UNSC resolutions.
+
+    Requests from Foreign Countries: Asset freezes pursuant to Article 6 of Law No. 6415, 
+    targeting individuals and entities based on requests made by foreign governments.
+    
+    Domestic Freezing Decisions: Asset freezes pursuant to Article 7 of Law No. 6415, 
+    targeting individuals and entities through domestic legal actions and decisions.
+
+    Countering Financing of Proliferation of Mass-Destruction Weapons: Asset freezes within 
+    the scope of Articles 3.A and 3.B of Law No. 7262, aimed at preventing the financing of 
+    proliferation of weapons of mass destruction
+entry_point: crawler.py
+prefix: tr-fcib
+publisher:
+  name: Republic of Türkiye Ministry of Treasury and Finance - Financial Crimes Investigation Board
+  acronym: MASAK
+  official: true
+  description: |
+     The Turkish Financial Crimes Investigation Board (MASAK), a part of the Ministry of 
+     Treasury and Finance, is responsible for preventing and combating financial crimes, 
+     including money laundering and financing of terrorism. It implements measures to freeze 
+     assets of designated individuals, entities, and organizations.
+  country: tr
+  url: https://en.hmb.gov.tr
+data:
+  url: https://en.hmb.gov.tr/fcib-tf-current-list
+  format: html
