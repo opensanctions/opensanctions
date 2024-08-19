@@ -35,3 +35,14 @@ assertions:
   max:
     schema_entities:
       Person: 600
+
+lookups:
+  type.email:
+    lowercase: true
+    options:
+      - match:
+          - khumalomolefe24@.com
+          - nompumelelo dywili@gmail.com
+        value: null
+      - match: gustav .bock@namakhoi.gov.za
+        value: gustav.bock@namakhoi.gov.za
