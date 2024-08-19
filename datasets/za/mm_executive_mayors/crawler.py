@@ -1,7 +1,16 @@
 from urllib.parse import unquote
+import re
+from followthemoney.helpers import post_summary
+
 from zavod import Context
 from zavod import helpers as h
-import re
+from zavod.logic.pep import categorise
+
+roles_of_interest = [
+    "Deputy Mayor/Executive Mayor",
+    "Mayor/Executive Mayor",
+    "Municipal Manager",
+]
 
 
 def clean_emails(emails):
@@ -32,7 +41,7 @@ def crawl(context: Context):
 
     # Process the relevant persons
     for person_data in data.get("data", []):
-        if person_data.get("role.role") == "Deputy Mayor/Executive Mayor":
+        if person_data.get("role.role") in roles_of_interest:
             municipality = (person_data.get("municipality.demarcation_code"),)
             name = (person_data.get("contact_details.name"),)
             entity = context.make("Person")
@@ -46,5 +55,36 @@ def crawl(context: Context):
             entity.add(
                 "phone", clean_phones(person_data.get("contact_details.phone_number"))
             )
-            entity.add("topics", "role.pep")
-            context.emit(entity, target=True)
+            # entity.add("topics", "role.pep")
+
+            role = person_data.get("role.role")
+            muni_name = person_data.get("municipality.demarcation_code")
+            position_label = f"{role} of the {muni_name}"
+
+            position = h.make_position(
+                context,
+                position_label,
+                country="za",
+                topics=["gov.muni"],
+            )
+            # position_property = post_summary(
+            #     org_name,
+            #     role,
+            # )
+            # entity.add("position", position_property)
+
+            categorisation = categorise(context, position, True)
+
+            if categorisation.is_pep:
+                occupancy = h.make_occupancy(
+                    context,
+                    entity,
+                    position,
+                    # no_end_implies_current=False,
+                )
+
+            if occupancy:
+                print(f"PEP: {position_label}")
+                context.emit(entity, target=True)
+                context.emit(position)
+                context.emit(occupancy)
