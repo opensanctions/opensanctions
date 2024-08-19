@@ -7,7 +7,6 @@ from zavod import helpers as h
 from zavod.logic.pep import categorise
 
 roles_of_interest = [
-    "Deputy Mayor/Executive Mayor",
     "Mayor/Executive Mayor",
     "Municipal Manager",
 ]

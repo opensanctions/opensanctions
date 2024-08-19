@@ -5,15 +5,15 @@ prefix: za-treasury
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
-  start: 2024-08-16
+  start: 2024-08-19
 summary: >
   Profiles of municipal heads in South Africa, focusing on key political figures 
-  such as the Mayor, Deputy Mayor, and Municipal Manager.
+  such as the Mayor and Municipal Manager.
 description: |
   The dataset contains information about Politically Exposed Persons (PEPs) within 
-  each municipality in South Africa. This dataset includes details about individuals 
-  holding influential positions, such as Mayor/Executive Mayor, Deputy Mayor/Executive 
-  Mayor, and Municipal Manager, in various municipalities.
+  each municipality in South Africa. It includes details about individuals 
+  holding influential positions, such as Mayor/Executive Mayor and Municipal Manager, 
+  in various municipalities.
 publisher:
   name: National Treasury of South Africa
   acronym: NT
