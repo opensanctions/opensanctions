@@ -1,4 +1,4 @@
-title:  "South African Executive Mayors"
+title: "South African Executive Mayors"
 url: https://municipalmoney.gov.za/profiles/municipality-NC076-thembelihle/
 entry_point: crawler.py
 prefix: za-treasury
@@ -10,17 +10,20 @@ summary: >
   Profiles of municipal heads in South Africa, focusing on key political figures 
   such as the Mayor and Municipal Manager.
 description: |
-  The dataset contains information about Politically Exposed Persons (PEPs) within 
-  each municipality in South Africa. It includes details about individuals 
-  holding influential positions, such as Mayor/Executive Mayor and Municipal Manager, 
-  in various municipalities.
+  The dataset provides information on Politically Exposed Persons (PEPs) across all 
+  municipalities in South Africa. It focuses on individuals holding key positions 
+  of influence, including Mayor/Executive Mayor and Municipal Manager, within each 
+  municipality.
+
 publisher:
   name: National Treasury of South Africa
   acronym: NT
   official: true
   description: |
-    The National Treasury is responsible for managing South Africa's national government 
-    finances and ensuring sustainable economic development.
+    The National Treasury of South Africa manages the national government's finances, 
+    ensures transparency and accountability, coordinates macroeconomic policy, and supports 
+    resource allocation to reduce poverty and vulnerability among marginalized populations.
+    [Source: Official Website](https://nationalgovernment.co.za/units/view/27/national-treasury)
   country: za
   url: https://www.treasury.gov.za/
 
