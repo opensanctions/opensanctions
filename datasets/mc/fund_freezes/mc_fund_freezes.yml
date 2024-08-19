@@ -3,12 +3,12 @@ entry_point: crawler.py
 prefix: mc-freezes
 coverage:
   frequency: daily
-  start: 2024-08-09
+  start: 2024-08-16
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of entities subject to fund and economic resource freezing procedures
 description: |
-  This dataset publishes a national list of indivi1duals and entities subject to the freezing of funds and economic resources
+  This dataset publishes a national list of individuals and entities subject to the freezing of funds and economic resources
   in the Principality as mandated by the Sovereign Ordinance No. 8,664 of May 26, 2021.
 
   This list is managed and regularly updated by the Budget and Treasury Department. It aligns with those established 
@@ -74,3 +74,7 @@ assertions:
     schema_entities:
       Person: 3500
       Organization: 1000
+  max:
+    schema_entities:
+      Person: 4200
+      Organization: 1400
