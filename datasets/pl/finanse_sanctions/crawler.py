@@ -19,6 +19,7 @@
 from normality import collapse_spaces
 from rigour.mime.types import CSV
 from typing import Dict
+from hashlib import sha1
 import csv
 
 from zavod import Context
@@ -67,28 +68,84 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
+def get_sha1_hash(content):
+    return sha1(content).hexdigest()
+
+
 def check_updates(context: Context):
     doc = context.fetch_html(context.dataset.url)
     doc.make_links_absolute(context.dataset.url)
     materials = doc.findall(".//a[@class='file-download']")
-    if len(materials) != 1:
-        context.log.warning(
-            f"Expected 1 materials downloads but found {len(materials)}"
-        )
+
+    # Dictionary of known URLs and their corresponding hashes
+    known_hashes = {
+        "https://www.gov.pl/attachment/2fc03b3b-a5f6-4d08-80d1-728cdb71d2d6": "",
+        "https://www.gov.pl/attachment/56238b34-8a26-4431-a05a-e1d039f0defa": "",
+    }
+
+    # Update the hashes in the dictionary
+    for url in known_hashes.keys():
+        file_content = context.http.get(url).content
+        known_hashes[url] = get_sha1_hash(file_content)
+
+    # Process the materials
+    if len(materials) == 0:
+        context.log.warning("No materials downloads found")
     else:
-        url = materials[0].get("href")
-        if url != PDF_URL:
-            context.log.warning(
-                "Materials download URL has changed. Time to update manually.", url=url
-            )
-        else:
-            res = context.http.head(url)
-            last_modified = res.headers.get("last-modified")
-            if last_modified != "Wed, 27 Sep 2023 10:56:50 GMT":
+        for material in materials:
+            url = material.get("href")
+            if url in known_hashes:
+                # Fetch the file
+                file_content = context.http.get(url).content
+                file_hash = get_sha1_hash(file_content)
+
+                # Assert the hash for that link
+                h.assert_url_hash(context, url, file_hash, known_hashes[url])
+                context.log.info(f"Hash matched for {url}")
+            else:
                 context.log.warning(
-                    "Materials download file has been updated. Time to update manually.",
-                    last_modified=last_modified,
+                    f"URL {url} not found in known hashes dictionary. Manual check required."
                 )
+
+    # Assert the hash of the page content for <article class="article-area__article ">
+    article = doc.find(".//article[@class='article-area__article ']")
+    if article is not None:
+        article_content = article.text_content().encode("utf-8")
+        page_hash = get_sha1_hash(article_content)
+        print(page_hash)
+
+        expected_page_hash = "7710d49b47cec8b17298a58dff0086aae41dbb84"
+
+        # Assert the DOM hash
+        h.assert_dom_hash(article, expected_page_hash)
+    else:
+        context.log.warning(
+            "Article section with class 'article-area__article ' not found"
+        )
+
+
+# def check_updates(context: Context):
+#     doc = context.fetch_html(context.dataset.url)
+#     doc.make_links_absolute(context.dataset.url)
+#     materials = doc.findall(".//a[@class='file-download']")
+#     if len(materials) != 1:
+#         context.log.warning(
+#             f"Expected 1 materials downloads but found {len(materials)}"
+#         )
+#     else:
+#         url = materials[0].get("href")
+#         if url != PDF_URL:
+#             context.log.warning(
+#                 "Materials download URL has changed. Time to update manually.", url=url
+#             )
+#         else:
+#             res = context.http.head(url)
+#             last_modified = res.headers.get("last-modified")
+#             if last_modified != "Wed, 27 Sep 2023 10:56:50 GMT":
+#                 context.log.warning(
+#                     "Materials download file has been updated. Time to update manually.",
+#                     last_modified=last_modified,
+#                 )
 
 
 def crawl(context: Context):
