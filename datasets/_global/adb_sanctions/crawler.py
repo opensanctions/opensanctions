@@ -36,6 +36,7 @@ def crawl(context: Context):
         name_parts = h.multi_split(full_name, NAME_SPLITS)
 
         for part in name_parts:
+            name_optional_regno = part
             registration_number = None
 
             # Further split each part using REG_NRS
@@ -46,11 +47,11 @@ def crawl(context: Context):
                     break
 
             country = cells.get("nationality") or ""
-            country = country.replace("Non ADB Member Country", "").strip()
+            country = country.replace("Non ADB Member Country", "")
             country = country.replace("Rep. of", "").strip()
 
             entity = context.make("LegalEntity")
-            entity.id = context.make_id(part, country)
+            entity.id = context.make_id(name_optional_regno, country)
             entity.add("name", part)
 
             # Handle missing 'othername_logo' key gracefully
