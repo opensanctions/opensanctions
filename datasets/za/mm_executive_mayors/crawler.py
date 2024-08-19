@@ -1,6 +1,6 @@
+# from followthemoney.helpers import post_summary
 from urllib.parse import unquote
 import re
-from followthemoney.helpers import post_summary
 
 from zavod import Context
 from zavod import helpers as h
@@ -73,7 +73,6 @@ def crawl(context: Context):
             entity.add(
                 "phone", clean_phones(person_data.get("contact_details.phone_number"))
             )
-            # entity.add("topics", "role.pep")
 
             role = person_data.get("role.role")
             position_label = f"{role} of the {municipality_code}"
