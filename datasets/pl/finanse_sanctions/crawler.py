@@ -96,30 +96,6 @@ def check_updates(context: Context):
     h.assert_dom_hash(article, expected_page_hash, raise_exc=True)
 
 
-# def check_updates(context: Context):
-#     doc = context.fetch_html(context.dataset.url)
-#     doc.make_links_absolute(context.dataset.url)
-#     materials = doc.findall(".//a[@class='file-download']")
-#     if len(materials) != 1:
-#         context.log.warning(
-#             f"Expected 1 materials downloads but found {len(materials)}"
-#         )
-#     else:
-#         url = materials[0].get("href")
-#         if url != PDF_URL:
-#             context.log.warning(
-#                 "Materials download URL has changed. Time to update manually.", url=url
-#             )
-#         else:
-#             res = context.http.head(url)
-#             last_modified = res.headers.get("last-modified")
-#             if last_modified != "Wed, 27 Sep 2023 10:56:50 GMT":
-#                 context.log.warning(
-#                     "Materials download file has been updated. Time to update manually.",
-#                     last_modified=last_modified,
-#                 )
-
-
 def crawl(context: Context):
     check_updates(context)
 
