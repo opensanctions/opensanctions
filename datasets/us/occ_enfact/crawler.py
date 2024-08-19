@@ -11,6 +11,7 @@ IGNORE = [
     "HasPdf",
     "HasTerminationPdf",
     "TerminationDocumentNumber",
+    "TerminationDocuments",
 ]
 
 
@@ -26,9 +27,9 @@ def crawl(context: Context):
     for record in data:
         # orig_record = dict(record)
         charter_no = record.pop("CharterNumber")
-        doc_number = record.pop("DocumentNumber", None)
+        doc_numbers = record.pop("StartDocuments", None)
         docket_number = record.pop("DocketNumber", None)
-        bank_name = record.pop("BankName")
+        bank_name = record.pop("Institution")
         bank = context.make("Company")
         bank.id = context.make_slug(charter_no, bank_name)
         if bank.id is not None:
@@ -37,17 +38,22 @@ def crawl(context: Context):
             bank.add("country", "us")
             bank.add("topics", "fin.bank")
             context.emit(bank)
-        company_name = record.pop("CompanyName")
-        first_name = record.pop("FirstName")
-        last_name = record.pop("LastName")
+        company_name = record.pop("Company")
+        person_name = record.pop("Individual")
         entity = context.make("Company")
-        if company_name:
+        if company_name and company_name != person_name:
             entity.id = context.make_id(charter_no, bank_name, company_name)
             entity.add("name", company_name)
-        elif first_name or last_name:
+        elif person_name:
+            # Roughly make first and last name for ID consistent with original IDs
+            parts = person_name.split(" ")
+            forenames, lastname = parts[:-1], parts[-1]
             entity = context.make("Person")
-            entity.id = context.make_id(charter_no, bank_name, first_name, last_name)
-            h.apply_name(entity, first_name=first_name, last_name=last_name)
+            entity.id = context.make_id(
+                charter_no, bank_name, " ".join(forenames), lastname
+            )
+
+            h.apply_name(entity, full=person_name)
         if entity.id is None:
             entity.id = bank.id
         if entity.id is None:
@@ -57,17 +63,15 @@ def crawl(context: Context):
         entity.add("country", "us")
         entity.add("topics", "crime.fin")
 
-        addr = h.make_address(
-            context,
-            city=record.pop("CityName"),
-            state=record.pop("StateName"),
-            country_code="us",
-        )
-        record.pop("StateAbbreviation")
-        h.apply_address(context, entity, addr)
+        location = record.pop("Location")
+        if location:
+            addr = h.make_address(context, full=location)
+            h.apply_address(context, entity, addr)
 
-        sanction = h.make_sanction(context, entity, key=(docket_number, doc_number))
-        sanction.add("startDate", record.pop("CompleteDate", None))
+        sanction = h.make_sanction(
+            context, entity, key=(docket_number, sorted(doc_numbers))
+        )
+        sanction.add("startDate", parse_date(record.pop("StartDate")))
         # sanction.add("endDate", record.pop("TerminationDate", None))
         sanction.add("program", record.pop("EnforcementTypeDescription", None))
         sanction.add("authorityId", docket_number)

@@ -22,14 +22,21 @@ def crawl_row(context: Context, row: Dict[str, str]):
     address_2 = row.pop("address_2")
     city = row.pop("city")
     country = row.pop("country")
-    address = h.make_address(
-        context,
-        full=address_1,
-        remarks=address_2,
-        po_box=po_box,
-        city=city,
-        country=country,
-    )
+    addresses = []
+    if ";" in address_1:
+        addresses.extend(
+            [h.make_address(context, full=a) for a in address_1.split(";")]
+        )
+    else:
+        address = h.make_address(
+            context,
+            full=address_1,
+            remarks=address_2,
+            po_box=po_box,
+            city=city,
+            country=country,
+        )
+        addresses.append(address)
     entity_type = row.pop("type")
 
     if entity_type == "Person":
@@ -44,7 +51,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
         # Handle multiple nationalities
         entity.add("nationality", [n.strip() for n in nationality.split("/")])
         entity.add("passportNumber", passport_number)
-        h.copy_address(entity, address)
+        for address in addresses:
+            h.copy_address(entity, address)
         entity.add("taxNumber", fiscal_code)
         entity.add("phone", phone_number)
         entity.add("position", position)
@@ -60,7 +68,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.id = context.make_id(full_name, po_box, address_1)
         entity.add("name", full_name)
         entity.add("alias", other_name)
-        h.copy_address(entity, address)
+        for address in addresses:
+            h.copy_address(entity, address)
         entity.add("topics", "sanction")
         entity.add(
             "program",

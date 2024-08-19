@@ -22,6 +22,7 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
     "|<strong>note [1-6]:</strong>"
     "|<strong>note </strong>-"
     "|<strong>note:</strong>"
+    "|<strong>note 1: </strong>"
     "|<em>2013:</em>"  # Georgia
     "|note:.+"  # Afghanistan
     "|note [1-6]:.+"  # Afghanistan
@@ -181,7 +182,7 @@ def crawl_country(context: Context, country: str) -> None:
         label_els = category_els.findall("./strong")
         if len(label_els) != 1:
             context.log.warning(
-                "Error parsing label", html=category_html, url=source_url
+                "Error parsing label.", html=category_html, url=source_url
             )
             continue
         label_text = label_els[0].text_content()

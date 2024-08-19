@@ -42,6 +42,7 @@ data:
 lookups:
   type.address:
     lowercase: true
+    normalize: true
     options:
       - match:
           - Lebanon
@@ -50,6 +51,25 @@ lookups:
           - Somalia
           - Turkey
         value: null
+      - match: 90-00-04 Flat Sri Kota, Bandar Tun Razak, 56100 Kuala Lumpur Wilayah Persekutuan Kuala Lumpur Malaysia, 96-06-06 Flat Sri Kota, Bandar Tun Razak, 56100 Kuala Lumpur Wilayah Persekutuan Kuala Lumpur Malaysia, B-3B-19 Glenview Villa, Jalan 49 Off Jalan Kuari, Taman Pinggiran Cheras, 56000 Kuala Lumpur Wilayah Persekutuan Kuala Lumpur Malaysia, Syrian Arab Republic
+        values:
+          - 90-00-04 Flat Sri Kota, Bandar Tun Razak, 56100 Kuala Lumpur Wilayah Persekutuan Kuala Lumpur Malaysia
+          - 96-06-06 Flat Sri Kota, Bandar Tun Razak, 56100 Kuala Lumpur Wilayah Persekutuan Kuala Lumpur Malaysia
+          - B-3B-19 Glenview Villa, Jalan 49 Off Jalan Kuari, Taman Pinggiran Cheras, 56000 Kuala Lumpur Wilayah Persekutuan Kuala Lumpur Malaysia
+      - match: Kayla Village, near Miram Shah, North Waziristan Agency (NWA), Federally Administered Tribal Areas (FATA) Pakistan, Near Dergey Manday Madrasa in Dergey Manday Village, near Miram Shah, North Waziristan Agency (NWA), Federally Administered Tribal Areas (FATA) Pakistan, Peshawar Pakistan, Sarana Zadran Village Paktia Province Afghanistan
+        values:
+          - Kayla Village, near Miram Shah, North Waziristan Agency (NWA), Federally Administered Tribal Areas (FATA) Pakistan
+          - Near Dergey Manday Madrasa in Dergey Manday Village, near Miram Shah, North Waziristan Agency (NWA), Federally Administered Tribal Areas (FATA) Pakistan
+          - Sarana Zadran Village Paktia Province Afghanistan
+      - match: "Basse-Kotto Central African Republic, Bas-Uolo Democratic Republic of the Congo, Haute-Kotto Central African Republic, Haut-Mbomou Central African Republic, Haut-Uolo Democratic Republic of the Congo, Mbomou Central African Republic, Reported address: Kafia Kingi, Vakaga Central African Republic"
+        values:
+          - Basse-Kotto Central African Republic
+          - Bas-Uolo Democratic Republic of the Congo
+          - Haute-Kotto Central African Republic
+          - Haut-Mbomou Central African Republic
+          - Haut-Uolo Democratic Republic of the Congo
+          - Mbomou Central African Republic
+          - Kafia Kingi, Vakaga Central African Republic
   type.country:
     lowercase: true
     normalize: true
@@ -74,3 +94,7 @@ lookups:
         value: Ethiopia
       - match: Indonesia (as at Dec. 2003)
         value: Indonesia
+  type.identifier:
+    options:
+      - match: Central African Republic armed forces (FACA) Military identification number 911-10-77
+        value: FACA 911-10-77

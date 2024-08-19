@@ -219,6 +219,8 @@ lookups:
           - Philippines
           - Russia
         value: null
+      - match: 'Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com'
+        value: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
   type.country:
     lowercase: true
     normalize: true
@@ -314,3 +316,90 @@ lookups:
         value: "2008-12-19"
       - match: （year unknown）
         value: null
+  type.identifier: 
+    options:
+      - match: 
+          - アルジェリア出生証明書、１９７３年９月２５日に Mehdia, Tiaret Province, Algeria で出生した Djamel Mostefa について発行
+          - （Vedensiky District, Repubic of Chechnya, Russian Federationにて、内務省により発行）
+          - N°235/MISPAT/DIRCAB/DGPC/DGAEI/SI/SP、2019年3月15日発行（中央アフリカ共和国内務大臣発行）
+          - （2003年8月15日、Department of the Federal Migration Service of the Russian Federation for the Republic Karachayevo-Cherkessiaにて発行）
+        value: null
+      - match: アフガニスタン旅券番号：OR1961825（2003年2月4日に発行、2006年2月2日に失効、Akhter Mohmadの名義で発行)
+        value: OR1961825
+      - match: アフガニスタン旅券番号：TR024417（2003年12月20日に発行、2006年12月29日に失効、Haji Gulab Gulの名義で発行)
+        value: TR024417
+      - match: イエメン旅券 541939 （2000年7月31日Al-Hudaydah, YemenにおいてMuhammad Muhammad Abdullah Al-Ahdalの名前に対して発行）
+        value: 541939
+      - match: デンマーク偽造運転免許証 no. 20645897、１９７３年８月２２日にモロッコで出生した Ali Barkani に対して発給
+        value: 20645897
+      - match: ドイツ連邦ＩＤカード 1007850441 （2001年3月27日ドイツのキール（Kiel）市当局が発行、2011年3月26日失効）
+        value: 1007850441
+      - match: パキスタン旅券 4117921 （Dilawar Khan Zain Khanの名義で2008年9月9日に発行、2013年9月9日に失効）
+        value: 4117921
+      - match: クウェート国民ID番号（Kuwaiti Civil Identification number） 281020505755 （Said Jan 'Abd al-Salamの名義）
+        value: 281020505755
+      - match: =サウジアラビア旅券　F654645（2005年4月30日発行、2010年3月7日失効、ヒジュラ暦では、1426年6月24日発行、1431年3月21日失効）
+        value: F654645
+      - match: パキスタン旅券　FA0157612（2009年7月23日発行、2014年7月22日失効、2013年時点で公式に失効措置済み。アラー・ムハンマドの名義で発行されている）
+        value: FA0157612
+      - match: アフガニスタン国民IDカード（tazkira）番号 57388（Lashkar Gah District, Helmand Province, Afghanistanにて発行
+        value: 57388
+      - match: パキスタン旅券 NC5140251 （2009年10月23日発行、2014年10月22日失効、2013年時点で公式に失効措置済み）
+        value: NC5140251
+      - match: フランス旅券05AT521433（2005年11月30日Sous-Prefecture of police of Lorient, Franceにより発行)
+        value: 05AT521433
+      - match: フランス国民IDカード番号050456101445（2005年5月19日Sous-Prefecture of police of Lorient, Franceにより発行）
+        value: 050456101445
+      - match: インドネシア旅券番号　W344982（1985年3月4日Jakarta, Indonesia生まれのAngga Dimas Peshadaとして発行）
+        value: W344982
+      - match: インドネシア旅券番号　A2823222（1975年7月14日Rembang, Jawa Tengah, Indonesia生まれのWiji Joko Santosoとして2012年5月28日発行、2017年5月28日失効）
+        value: A2823222
+      - match: ロシア外国人旅行旅券番号　514448632（2010年9月8日にAlexandria, Egyptにて、ロシア連邦総領事館により発行）
+        value: 514448632
+      - match: トリニダード・トバゴ旅券番号TA959547、2013年11月19日発行（トリニダード・トバゴ移民局発行､2018年11月18日失効）
+        value: TA959547
+      - match: トリニダード・トバゴ旅券番号T1071839、2004年11月8日発行（トリニダード・トバゴ入国管理部門発行、2014年11月7日失効）
+        value: T1071839
+      - match: イラク番号 A6489694、2013年9月2日発行（2021年8月31日失効；氏名のアラビア語表記：منصور ال محمد مصطفى سالم）
+        value: A6489694
+      - match: イラク国民ＩＤカード番号00813602、2011年9月18日発行（氏名のアラビア語表記：منصور ال محمد مصطفى سالم）
+        value: 00813602
+      - match: イラク国民ＩＤカード番号00405771、2013年5月20日にイラクにて発行（氏名のアラビア語表記：عمر محمود إرحيم الفياض）
+        value: 00405771
+      - match: 199110092、旅券失効日：2014年3月17日（北朝鮮旅券）；472220503、旅券失効日：2018年6月6日（北朝鮮旅券）；654220197、旅券失効日：2019年5月7日（北朝鮮旅券）
+        values: 
+          - 199110092
+          - 472220503
+          - 654220197
+      - match: 108220348（北朝鮮旅券）、旅券失効日：2023年5月18日; 745220480（北朝鮮旅券）、旅券失効日：2020年1月2日
+        values:
+          - 108220348
+          - 745220480
+      - match: D00002264、2013年6月11日発行（南スーダン共和国ジュバにて外務省が発行したサミュエル・ペーター・ムデ（Samuel Peter Mudde）名義の外交旅券。有効期限は2017年6月11日）
+        value: D00002264
+      - match: Ｐ04838205（2018年6月10日発行（スーダン共和国バフリで発行。2023年6月9日に失効。旅券番号はモハメド・アダム・ブレマ・アブダラ（Mohamed Adam Brema Abdallah）の名義で発行。）。）
+        value: P04838205
+      - match: イエメン旅券17979(Ahmed Ali Abdullah Saleh名義)（下記の外交官身分証明書番号31/2013/20/003140に言及あり。）
+        values: 
+          - 17979
+          - 31/2013/20/003140
+      - match: アフガニスタン旅券 OR801168 （Said Jan ‘Abd al-Salamの名義で2006年2月28日に発行、2011年2月27日に失効）
+        value: OR801168
+      - match: サウジアラビア旅券　F654645（2005年4月30日発行、2010年3月7日失効、ヒジュラ暦では、1426年6月24日発行、1431年3月21日失効）
+        value: F654645
+      - match: アフガニスタン国民IDカード（tazkira）番号 57388（Lashkar Gah District, Helmand Province, Afghanistanにて発行）
+        value: 57388
+      - match: フランス旅券05AT521433（2005年11月30日Sous-Prefecture of police of Lorient, Franceにより発行）
+        value: 05AT521433
+      - match: 旅券番号：927234267；108120258（北朝鮮旅券）、旅券発行日：2018年2月14日、旅券失効日：2023年2月14日
+        values:
+          - 927234267
+          - 108120258
+  type.name: 
+    lowercase: true
+    normalize: true
+    options:
+      - match: Federal State Unitary Enterprise Russian Federal Nuclear Center-Academician　E.I. Zababakhin All-Russian Scientific Research Institute of Technical Physics, RFNC - All-Russia Research Institute of Technical Physics named after Academician E.I. Zababakhin
+        values: 
+          - "Federal State Unitary Enterprise Russian Federal Nuclear Center-Academician　E.I. Zababakhin All-Russian Scientific Research Institute of Technical Physics"
+          - RFNC - All-Russia Research Institute of Technical Physics named after Academician E.I. Zababakhin

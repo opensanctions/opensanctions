@@ -10,6 +10,7 @@ from zavod import Context
 from zavod import helpers as h
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
+ADDRESS_SPLITS = [";", "ii) ", "iii) "]
 FORMATS = ["%Y-%m-%d", "%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
 FORMATS = FORMATS + ["%b. %Y", "%d %B. %Y", "%Y", "%m/%Y"]
 
@@ -110,8 +111,9 @@ def parse_reference(
         addr = row.pop("address")
         if addr is not None:
             for part in h.multi_split(addr, SPLITS):
-                address = h.make_address(context, full=part)
-                h.apply_address(context, entity, address)
+                for sub_part in h.multi_split(part, ADDRESS_SPLITS):
+                    address = h.make_address(context, full=sub_part)
+                    h.apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
         country = clean_country(row.pop("citizenship"))
         if entity.schema.is_a("Person"):

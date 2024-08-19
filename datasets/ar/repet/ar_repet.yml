@@ -110,3 +110,17 @@ lookups:
           - null
           - Unknown
         value: null
+  type.name:
+    lowercase: true
+    options:
+      - match: Hay’at Tahrir al-Sham (HTS) (هيئة تحرير الشام (original script); Hay’at Tahrir al-Sham; Hay’et Tahrir al-Sham; Hayat Tahrir al-Sham; Assembly for the Liberation of Syria; Assembly for the Liberation of the Levant; Liberation of al-Sham Commission; Liberation of the Levant Organisation Tahrir al-Sham; Tahrir al-Sham Hay’at)
+        values: 
+          - Hay’at Tahrir al-Sham
+          - هيئة تحرير الشام
+          - Hay’et Tahrir al-Sham
+          - Hayat Tahrir al-Sham
+          - Assembly for the Liberation of Syria
+          - Assembly for the Liberation of the Levant
+          - Liberation of al-Sham Commission
+          - Liberation of the Levant Organisation Tahrir al-Sham
+          - Tahrir al-Sham Hay’at

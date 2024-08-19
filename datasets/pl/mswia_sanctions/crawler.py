@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 from typing import List, Optional
 from normality import slugify
 from rigour.mime.types import XLSX
+from followthemoney.types import registry
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -112,7 +113,11 @@ def crawl_excel(context: Context, url: str):
 
             sanction = h.make_sanction(context, entity)
             provisions = row.pop("zastosowane_srodki_sankcyjne")
-            sanction.add("provisions", provisions)
+            if len(provisions) > registry.string.max_length:
+                sanction.add("description", provisions)
+                sanction.add("provisions", "See description.")
+            else:
+                sanction.add("provisions", provisions)
 
             sanction.add("startDate", listing_date)
             sanction.add("endDate", row.pop("data_wykreslenia_z_listy", None))

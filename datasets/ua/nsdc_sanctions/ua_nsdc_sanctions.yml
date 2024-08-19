@@ -29,120 +29,6 @@ data:
   format: JSON
 
 lookups:
-  name:
-    options:
-      - match: 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Служба капітана Керченського морського рибного порту" (Филиал Государственного унитарного предприятия "Республики Крым" "Служба капитана Керченского морского рыбного порта", Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Служба капітана Керченського морського рибного порту")'
-        values:
-          - 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Служба капітана Керченського морського рибного порту"'
-          - 'Филиал Государственного унитарного предприятия "Республики Крым" "Служба капитана Керченского морского рыбного порта"'
-      - match: 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Держгідрографія" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Госгидрография", Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Держгідрографія") '
-        values:
-          - 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Держгідрографія"'
-          - 'Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Госгидрография"'
-      - match: 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Derzhhidrohrafiia" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Hoshydrohrafyia", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Derzhhidrohrafiia") '
-        values:
-          - 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Derzhhidrohrafiia"'
-          - 'Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Hoshydrohrafyia"'
-      - match: 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Ялтинський торговельний порт" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Ялтинский торговый порт", Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Ялтинський торговельний порт") '
-        values:
-          - 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Ялтинський торговельний порт"'
-          - 'Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Ялтинский торговый порт"'
-      - match: 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Ialtynskyi torhovelnyi port" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Ialtynskyi torhovyi port", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Ialtynskyi torhovelnyi port") '
-        values:
-          - 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Ialtynskyi torhovelnyi port"'
-          - 'Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Ialtynskyi torhovyi port"'
-      - match: 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Феодосійський торговельний порт" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Феодосийский торговый порт, Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Феодосійський торговельний порт") '
-        values:
-          - 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Феодосійський торговельний порт"'
-          - 'Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Феодосийский торговый порт"'
-      - match: 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Feodosiiskyi torhovelnyi port" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Feodosyiskyi torhovyi port, Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Feodosiiskyi torhovelnyi port") '
-        values:
-          - 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Feodosiiskyi torhovelnyi port"'
-          - 'Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Feodosyiskyi torhovyi port"'
-      - match: 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Керченський торговельний порт" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Керченский торговый порт", Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Керченський торговельний порт") '
-        values:
-          - 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Керченський торговельний порт"'
-          - 'Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Керченский торговый порт"'
-      - match: 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Kerchenskyi torhovelnyi port" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Kerchenskyi torhovyi port", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Kerchenskyi torhovelnyi port") '
-        values:
-          - 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Kerchenskyi torhovelnyi port"'
-          - 'Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Kerchenskyi torhovyi port"'
-      - match: 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Kerchenskyi torhovelnyi port" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Kerchenskyi torhovyi port", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Kerchenskyi torhovelnyi port") '
-        values:
-          - 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Kerchenskyi torhovelnyi port"'
-          - 'Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Kerchenskyi torhovyi port"'
-      - match: 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Євпаторійський торговельний порт" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Евпаторийский торговый порт", Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Євпаторійський торговельний порт") '
-        values:
-          - 'Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Євпаторійський торговельний порт"'
-          - 'Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Евпаторийский торговый порт"'
-      - match: 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Ievpatoriiskyi torhovelnyi port" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Evpatoryiskyi torhovyi port", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Ievpatoriiskyi torhovelnyi port") '
-        values:
-          - 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Ievpatoriiskyi torhovelnyi port"'
-          - 'Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Evpatoryiskyi torhovyi port"'
-      - match: 'Derzhavne unitarne pidpryiemstvo "Navchalno-doslidnyi pleminnyi ptakhivnytskyi zavod imeni Frunze" (Hosudarstvennoe unytarnoe predpryiatye "Uchebno-opytnyi plemennoi ptytsevodcheskyi zavod ymeny Frunze", Derzhavne unitarne pidpryiemstvo "Navchalno-doslidnyi pleminnyi ptakhivnytskyi zavod imeni Frunze") '
-        values:
-          - 'Derzhavne unitarne pidpryiemstvo "Navchalno-doslidnyi pleminnyi ptakhivnytskyi zavod imeni Frunze"'
-          - 'Hosudarstvennoe unytarnoe predpryiatye "Uchebno-opytnyi plemennoi ptytsevodcheskyi zavod ymeny Frunze"'
-      - match: 'Федеральне державне унітарне підприємство "Ордена Трудового Червоного Прапора науково- дослідний інститут радіо" (Федеральне державне унітарне підприємство "Ордена Трудового Червоного Прапора російський науково-дослідний інститут радіо імені М.Й.Кривошєєва", Федеральное государственное унитарное предприятие "Ордена Трудового Красного Знамени российский научно-исследовательский институт радио имени М.И.Кривошеева") '
-        values:
-          - 'Федеральне державне унітарне підприємство "Ордена Трудового Червоного Прапора науково- дослідний інститут радіо"'
-          - 'Федеральне державне унітарне підприємство "Ордена Трудового Червоного Прапора російський науково-дослідний інститут радіо імені М.Й.Кривошєєва"'
-      - match: 'Federalne derzhavne unitarne pidpryiemstvo "Ordena Trudovoho Chervonoho Prapora naukovo- doslidnyi instytut radio" (Federalne derzhavne unitarne pidpryiemstvo "Ordena Trudovoho Chervonoho Prapora rosiiskyi naukovo-doslidnyi instytut radio imeni M.I.Kryvoshieieva", Federalnoe hosudarstvennoe unytarnoe predpryiatye "Ordena Trudovoho Krasnoho Znameny rossyiskyi nauchno-yssledovatelskyi ynstytut radyo ymeny M.Y.Kryvosheeva") '
-        values:
-          - 'Federalne derzhavne unitarne pidpryiemstvo "Ordena Trudovoho Chervonoho Prapora naukovo- doslidnyi instytut radio"'
-          - 'Federalne derzhavne unitarne pidpryiemstvo "Ordena Trudovoho Chervonoho Prapora rosiiskyi naukovo-doslidnyi instytut radio imeni M.I.Kryvoshieieva"'
-      - match: "Holovne upravlinnia sanatorno-kurortnykh zakladiv v Avtonomnii Respublitsi Krym Derzhavnoho upravlinnia spravamy (Terytorialne upravlinnia Upravlinnia spravamy Prezydenta Rosiiskoyi Federatsiyi v Respublitsi Krym, Terrytoryalnoe upravlenye Upravlenyia delamy Prezydenta Rossyiskoi Federatsyy v Respublyke Krym) "
-        values:
-          - "Holovne upravlinnia sanatorno-kurortnykh zakladiv v Avtonomnii Respublitsi Krym Derzhavnoho upravlinnia spravamy"
-          - "Terytorialne upravlinnia Upravlinnia spravamy Prezydenta Rosiiskoyi Federatsiyi v Respublitsi Krym"
-      - match: 'ДЕРЖАВНЕ ПІДПРИЄМСТВО "ВИПРОБУВАЛЬНИЙ ЦЕНТР "ОМЕГА" (Филиал федерального государственного унитарного предприятия Ордена Трудового Красного Знамени Научно-исследовательский институт радио – Севастопольский «Испытательный центр «Омега», Філія федерального державного унітарного підприємства Ордена Трудового Червоного Прапора Науково-дослідний інститут радіо – Севастопольський «Випробувальний центр «Омега») '
-        values:
-          - 'ДЕРЖАВНЕ ПІДПРИЄМСТВО "ВИПРОБУВАЛЬНИЙ ЦЕНТР "ОМЕГА"'
-          - "Филиал федерального государственного унитарного предприятия Ордена Трудового Красного Знамени Научно-исследовательский институт радио – Севастопольский «Испытательный центр «Омега»"
-          - "Філія федерального державного унітарного підприємства Ордена Трудового Червоного Прапора Науково-дослідний інститут радіо – Севастопольський «Випробувальний центр «Омега»)"
-      - match: 'DERZhAVNE PIDPRYIeMSTVO "VYPROBUVALNYI TsENTR "OMEHA" (Fylyal federalnoho hosudarstvennoho unytarnoho predpryiatyia Ordena Trudovoho Krasnoho Znameny Nauchno-yssledovatelskyi ynstytut radyo – Sevastopolskyi «Yspytatelnyi tsentr «Omeha», Filiia federalnoho derzhavnoho unitarnoho pidpryiemstva Ordena Trudovoho Chervonoho Prapora Naukovo-doslidnyi instytut radio – Sevastopolskyi «Vyprobuvalnyi tsentr «Omeha») '
-        values:
-          - 'DERZhAVNE PIDPRYIeMSTVO "VYPROBUVALNYI TsENTR "OMEHA"'
-          - "Fylyal federalnoho hosudarstvennoho unytarnoho predpryiatyia Ordena Trudovoho Krasnoho Znameny Nauchno-yssledovatelskyi ynstytut radyo – Sevastopolskyi «Yspytatelnyi tsentr «Omeha»"
-          - "Filiia federalnoho derzhavnoho unitarnoho pidpryiemstva Ordena Trudovoho Chervonoho Prapora Naukovo-doslidnyi instytut radio – Sevastopolskyi «Vyprobuvalnyi tsentr «Omeha»)"
-      - match: 'Товариство з обмеженою відповідальністю Розрахункова небанківська кредитна організація "Платежный центр" (Общество с ограниченной ответственностью Расчётная небанковская кредитная организация "Платежный центр", Товариство з обмеженою відповідальністю Розрахункова небанківська кредитна організація "Платіжний центр") '
-        values:
-          - 'Товариство з обмеженою відповідальністю Розрахункова небанківська кредитна організація "Платежный центр"'
-          - 'Общество с ограниченной ответственностью Расчётная небанковская кредитная организация "Платежный центр"'
-      - match: 'Tovarystvo z obmezhenoiu vidpovidalnistiu Rozrakhunkova nebankivska kredytna orhanizatsiia "Platezhnyi tsentr" (Obshchestvo s ohranychennoi otvetstvennostiu Raschёtnaia nebankovskaia kredytnaia orhanyzatsyia "Platezhnyi tsentr", Tovarystvo z obmezhenoiu vidpovidalnistiu Rozrakhunkova nebankivska kredytna orhanizatsiia "Platizhnyi tsentr") '
-        values:
-          - 'Tovarystvo z obmezhenoiu vidpovidalnistiu Rozrakhunkova nebankivska kredytna orhanizatsiia "Platezhnyi tsentr"'
-          - 'Obshchestvo s ohranychennoi otvetstvennostiu Raschёtnaia nebankovskaia kredytnaia orhanyzatsyia "Platezhnyi tsentr"'
-      - match: 'Платіжна організація міжнародної платіжної системи "Колібрі", якою управляє публічне акціонерне товариство "Сбербанк Росії" (Платіжна організація міжнародної платіжної системи "Колібрі", якою керує публічне акціонерне товариство "Ощадбанк Росії", публичное акционерное общество "Сбербанк России", стара назва – "Бліц") '
-        values:
-          - 'Платіжна організація міжнародної платіжної системи "Колібрі"'
-      - match: 'Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri", yakoiu upravliaie publichne aktsionerne tovarystvo "Sberbank Rosiyi" (Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri", yakoiu keruie publichne aktsionerne tovarystvo "Oshchadbank Rosiyi", publychnoe aktsyonernoe obshchestvo "Sberbank Rossyy", stara nazva – "Blits") '
-        values:
-          - 'Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri"'
-      - match: 'Товариство з обмеженою відповідальністю "Транспортні автоматизовані інформаційні системи – ТАІС" (Общество с ограниченной ответственностью "Транспортные автоматизированные информационные системы – ТАИС", Товариство з обмеженою відповідальністю "Транспортні автоматизовані інформаційні системи – ТАЇС") '
-        values:
-          - 'Товариство з обмеженою відповідальністю "Транспортні автоматизовані інформаційні системи – ТАІС"'
-          - 'Общество с ограниченной ответственностью "Транспортные автоматизированные информационные системы – ТАИС"'
-      - match: 'Tovarystvo z obmezhenoiu vidpovidalnistiu "Transportni avtomatyzovani informatsiini systemy – TAIS" (Obshchestvo s ohranychennoi otvetstvennostiu "Transportnye avtomatyzyrovannye ynformatsyonnye systemy – TAYS", Tovarystvo z obmezhenoiu vidpovidalnistiu "Transportni avtomatyzovani informatsiini systemy – TAYiS") '
-        values:
-          - 'Tovarystvo z obmezhenoiu vidpovidalnistiu "Transportni avtomatyzovani informatsiini systemy – TAIS"'
-          - 'Obshchestvo s ohranychennoi otvetstvennostiu "Transportnye avtomatyzyrovannye ynformatsyonnye systemy – TAYS"'
-      - match: 'Телеканали "РТР-Планета", інформаційний канал "Росія-24", які входять до структури Федерального державного унітарного підприємства "Всеросійська державна телевізійна і радіомовна компанія" (Телеканали "РТР-Планета", інформаційний канал "Росія-24", які входять до структури Федерального державного унітарного підприємства "Всеросійська державна телевізійна і радіомовна компанія", Телеканалы "РТР-Планета", информационный канал "Россия-24", которые входят в структуру Федерального государственного унитарного предприятия "Всероссийская государственная телевизионная и радиовещательная компания")'
-        values:
-          - '"РТР-Планета"'
-          - '"Росія-24"'
-          - '"Россия-24"'
-          - Всероссийская государственная телевизионная и радиовещательная компания
-      - match: 'Telekanaly "RTR-Planeta", informatsiinyi kanal "Rosiia-24", yaki vkhodiat do struktury Federalnoho derzhavnoho unitarnoho pidpryiemstva "Vserosiiska derzhavna televiziina i radiomovna kompaniia" (Telekanaly "RTR-Planeta", informatsiinyi kanal "Rosiia-24", yaki vkhodiat do struktury Federalnoho derzhavnoho unitarnoho pidpryiemstva "Vserosiiska derzhavna televiziina i radiomovna kompaniia", Telekanaly "RTR-Planeta", ynformatsyonnyi kanal "Rossyia-24", kotorye vkhodiat v strukturu Federalnoho hosudarstvennoho unytarnoho predpryiatyia "Vserossyiskaia hosudarstvennaia televyzyonnaia y radyoveshchatelnaia kompanyia")'
-        values:
-          - '"RTR-Planeta"'
-          - '"Rosiia-24"'
-          - '"Rossia-24"'
-      - match: 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Sluzhba kapitana Kerchenskoho morskoho rybnoho portu" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Sluzhba kapytana Kerchenskoho morskoho rybnoho porta", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Sluzhba kapitana Kerchenskoho morskoho rybnoho portu")'
-        values:
-          - 'Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Sluzhba kapitana Kerchenskoho morskoho rybnoho portu"'
-          - 'Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Sluzhba kapytana Kerchenskoho morskoho rybnoho porta"'
-
   type.country:
     normalize: true
     options:
@@ -231,7 +117,58 @@ lookups:
         value: ceo@stg-m.ru
       - match: "mh@mako-holding.com (Україна)"
         value: mg@mako-holding.com
-
+  type.address:
+    options:
+      - match: 193230, Російська Федерація, м. СанктПетербург, вул. Зольна, буд. 15, будова 1, приміщ. 1-Н, частина приміщення 194 (офіс 206) (193230, Российская Федерация, г. Санкт-Петербург, ул. Зольная, д. 15, строение 1, помещ. 1-Н, часть помещения 194 (офис 206).
+        values:
+          - 193230, Російська Федерація, м. СанктПетербург, вул. Зольна, буд. 15, будова 1, приміщ. 1-Н, частина приміщення 194 (офіс 206)
+          - 193230, Российская Федерация, г. Санкт-Петербург, ул. Зольная, д. 15, строение 1, помещ. 1-Н, часть помещения 194 (офис 206).
+      - match: Україна, 299029, тимчасово окупована територія Автономної Республіки Крим, м. Севастополь, вул. Музики Миколи, буд. 96, кв. 102 (Украина, 299029, временно оккупированная территория Автономной Республики Крым, г. Севастополь, ул. Музыки Николая, д. 96, кв. 102);
+        values:
+          - Україна, 299029, тимчасово окупована територія Автономної Республіки Крим, м. Севастополь, вул. Музики Миколи, буд. 96, кв. 102
+          - Украина, 299029, временно оккупированная территория Автономной Республики Крым, г. Севастополь, ул. Музыки Николая, д. 96, кв. 102
+      - match: Україна, 295001, тимчасово окупована територія Автономної Республіки Крим, м. Сімферополь, вул. Сергєєва-Ценського, буд. 64, кв. 9 (Украина, 295001, временно оккупированная территория Автономной Республики Крым, г. Симферополь, ул. Сергеева-Ценского, д. 64, кв. 9);
+        values:
+          - Україна, 295001, тимчасово окупована територія Автономної Республіки Крим, м. Сімферополь, вул. Сергєєва-Ценського, буд. 64, кв. 9
+          - Украина, 295001, временно оккупированная территория Автономной Республики Крым, г. Симферополь, ул. Сергеева-Ценского, д. 64, кв. 9
+  type.name:
+    options:
+      - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»
+        value: Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий
+      - match: Платіжна організація міжнародної платіжної системи "Колібрі", якою управляє публічне акціонерне товариство "Сбербанк Росії" (Платіжна організація міжнародної платіжної системи "Колібрі", якою керує публічне акціонерне товариство "Ощадбанк Росії", публичное акционерное общество "Сбербанк России", стара назва – "Бліц")
+        values:
+          - Платіжна організація міжнародної платіжної системи "Колібрі", якою управляє публічне акціонерне товариство "Сбербанк Росії"
+          - Платіжна організація міжнародної платіжної системи "Колібрі", якою керує публічне акціонерне товариство "Ощадбанк Росії"
+          - публичное акционерное общество "Сбербанк России", стара назва – "Бліц"
+      - match: Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri", yakoiu upravliaie publichne aktsionerne tovarystvo "Sberbank Rosiyi" (Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri", yakoiu keruie publichne aktsionerne tovarystvo "Oshchadbank Rosiyi", publychnoe aktsyonernoe obshchestvo "Sberbank Rossyy", stara nazva – "Blits")
+        values:
+          - Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri", yakoiu upravliaie publichne aktsionerne tovarystvo "Sberbank Rosiyi"
+          - Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri", yakoiu keruie publichne aktsionerne tovarystvo "Oshchadbank Rosiyi"
+          - publychnoe aktsyonernoe obshchestvo "Sberbank Rossyy", stara nazva – "Blits"
+      - match: Телеканали "РТР-Планета", інформаційний канал "Росія-24", які входять до структури Федерального державного унітарного підприємства "Всеросійська державна телевізійна і радіомовна компанія" (Телеканали "РТР-Планета", інформаційний канал "Росія-24", які входять до структури Федерального державного унітарного підприємства "Всеросійська державна телевізійна і радіомовна компанія", Телеканалы "РТР-Планета", информационный канал "Россия-24", которые входят в структуру Федерального государственного унитарного предприятия "Всероссийская государственная телевизионная и радиовещательная компания")
+        values:
+          - РТР-Планета
+          - Росія-24
+          - Россия-24
+          - "Всеросійська державна телевізійна і радіомовна компанія"
+          - "Всероссийская государственная телевизионная и радиовещательная компания"
+      - match: Telekanaly "RTR-Planeta", informatsiinyi kanal "Rosiia-24", yaki vkhodiat do struktury Federalnoho derzhavnoho unitarnoho pidpryiemstva "Vserosiiska derzhavna televiziina i radiomovna kompaniia" (Telekanaly "RTR-Planeta", informatsiinyi kanal "Rosiia-24", yaki vkhodiat do struktury Federalnoho derzhavnoho unitarnoho pidpryiemstva "Vserosiiska derzhavna televiziina i radiomovna kompaniia", Telekanaly "RTR-Planeta", ynformatsyonnyi kanal "Rossyia-24", kotorye vkhodiat v strukturu Federalnoho hosudarstvennoho unytarnoho predpryiatyia "Vserossyiskaia hosudarstvennaia televyzyonnaia y radyoveshchatelnaia kompanyia")
+        values:
+          - RTR-Planeta
+          - Rosiia-24
+          - Vserosiiska derzhavna televiziina i radiomovna kompaniia
+          - Vserosiiska derzhavna televiziina i radiomovna kompanii
+          - Vserossyiskaia hosudarstvennaia televyzyonnaia y radyoveshchatelnaia kompanyia
+      - match: Акціонерне товариство ''Банк ''Сприяння громадським ініціативам'', АТ ''Собінбанк'' (Акционерное общество ''Банк ''Содействие общественным инициативам'', АТ ''Собинбанк'', Акціонерне товариство ''Банк ''Сприяння громадським ініціативам'', АТ ''Собінбанк'')
+        values:
+          - Акціонерне товариство ''Банк ''Сприяння громадським ініціативам'', АТ ''Собінбанк''
+          - Акционерное общество ''Банк ''Содействие общественным инициативам'', АТ ''Собинбанк''
+  type.identifier:
+    options:
+      - match: 20432 (Ємен, виданий у 2018 р., військовий ідентифікаційний номер Ємену)
+        value: 20432 (військовий ідентифікаційний номер Ємену)
+      - match: 2771303400 [UA] Україна (відомості згідно з Державним реєстром фізичних осіб)
+        value: 2771303400 [UA]
   attributes:
     options:
       - match:
