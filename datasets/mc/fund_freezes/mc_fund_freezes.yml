@@ -33,7 +33,7 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - contains:
+      - contains:   
           - RPDC
           - République populaire démocratique de Corée
         value: kp
@@ -49,6 +49,11 @@ lookups:
       - contains:
           - RUSSIE
         value: ru
+        weight: 0.8
+      - match:
+          - BIÉLORUSSIE
+        value: by
+        weight: 3
       - contains:
           - INDONÉSIE
         value: id
