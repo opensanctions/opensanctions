@@ -314,6 +314,7 @@ lookups:
           - Egypt Eyalet
           - West Pakistan
           - Colony and Protectorate of Nigeria
+          - Colony of Jamaica
           - Federation of Nigeria
           - First Nigerian Republic
           - Second Nigerian Republic
@@ -426,6 +427,8 @@ lookups:
           - Jaipur State
           - Idrisid dynasty
           - British rule in Myanmar
+          - Unified Team
+          - Free City of Kraków
         value: null
       - match:
           - Cherokee Nation
