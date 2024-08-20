@@ -43,13 +43,13 @@ def crawl(context: Context):
     executive_mayors = context.fetch_json(context.data_url)
 
     # Fetch the reestablished municipalities data from the specific URL
-    disestablished_municipalities_data = context.fetch_json(DEMARCATION_CHANGES_URL)
+    disestablished_munis = context.fetch_json(DEMARCATION_CHANGES_URL)
 
     # Initialize a set to store disestablished municipality codes
     disestablished_municipalities = set()
 
     # Process the disestablished municipalities
-    for fact in disestablished_municipalities_data.get("data", []):
+    for fact in disestablished_munis.get("data", []):
         if fact.get("old_code_transition.code") == "disestablished":
             # Add the old demarcation code to the set
             disestablished_municipalities.add(fact.get("old_demarcation.code"))
