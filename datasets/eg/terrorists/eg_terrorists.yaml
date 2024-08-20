@@ -82,8 +82,9 @@ lookups:
           - Egyptian
           - Canadian
       - match: مصرية
-        value:
-          - Egyptian
+        value: Egyptian
+      - match: سوداني
+        value: Sudan
 
 assertions:
   min:
