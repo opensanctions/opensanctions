@@ -71,7 +71,9 @@ def crawl(context: Context):
         surname = row.pop("Surname")[1]
         first_name = row.pop("First name(s)")[1]
         entity.add("alias", row.pop("Alias")[1])
-        sanction.add("listingDate", row.pop("Date of ministerial decision (DD/MM/JJJJ)")[1])
+        sanction.add(
+            "listingDate", row.pop("Date of ministerial decision (DD/MM/JJJJ)")[1]
+        )
         sanction.add("sourceUrl", row.get("Link official notification")[1])
         sanction.add("authorityId", row.pop("Link official notification")[2])
 
