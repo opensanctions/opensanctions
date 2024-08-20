@@ -5,7 +5,7 @@ prefix: za-treasury
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
-  start: 2024-08-19
+  start: 2024-08-20
 summary: >
   Profiles of municipal heads in South Africa, focusing on key political figures 
   such as the Mayor and Municipal Manager.
