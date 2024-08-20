@@ -43,3 +43,22 @@ publisher:
 data:
   url: https://en.hmb.gov.tr/fcib-tf-current-list
   format: html
+
+lookups:
+  type.country:
+    lowercase: true
+    options:
+      - match: TÜRKİYE CUMHURİYETİ
+        value: Turkey
+      - match: IRAK
+        value: Irak
+      - match: 
+          - BİRLEŞİK KRALLIK
+          - İNGİLTERE
+        value: United Kingdom
+      - match: USSR, AZERBAIDJAN REPUBLIC
+        value: null
+      - contains: RF
+        value: Russia
+      - match: TİRİNİDAD VE TOBAGO
+        value: Trinidad and Tobago

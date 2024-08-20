@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from openpyxl import load_workbook
 from typing import Dict
-from normality import collapse_spaces, stringify
+from normality import collapse_spaces, stringify, normalize
 from zavod import Context
 from zavod import helpers as h
 
@@ -63,7 +63,17 @@ COLUMN_NAMES_MAP = {
     "Doğum Tarihi/Kuruluş": "birth_date",
     "Doğum Yeri": "birth_place",
     "GERÇEK/TÜZEL KİŞİ/KURULUŞ/ORGANİZASYON ADI SOYADI ÜNVANI": "full_name",
+    "TCKN/VKN/GKN PASAPORT NO": "passport_other_info",
 }
+
+
+def normalize_header(header: str) -> str:
+    """Normalize header strings by collapsing spaces and removing newlines."""
+    if header is None:
+        return None
+    # Replace newlines and tabs with spaces, then collapse multiple spaces into one
+    header = header.replace("\n", " ").replace("\r", " ").replace("\t", " ")
+    return collapse_spaces(header).strip()
 
 
 def str_cell(cell: object) -> str:
@@ -77,12 +87,12 @@ def str_cell(cell: object) -> str:
 
 def crawl_row(context: Context, row: Dict[str, str]):
     # name = row.pop("ADI SOYADI-ÜNVANI")  # NAME-SURNAME-TITLE
-    name = row.pop("full_name")
-    identifier = row.pop("passport_other_info", "")  # ID NUMBER
-    nationality = row.pop("nationality", "")  # NATIONALITY
+    name = row.get("full_name")
+    identifier = row.get("passport_other_info", "")  # ID NUMBER
+    nationality = row.get("nationality", "")  # NATIONALITY
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(identifier, name)
+    entity.id = context.make_id(name)
     entity.add("name", name)
     entity.add("idNumber", identifier)
     entity.add("country", nationality)
@@ -104,7 +114,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 def process_sheet(context: Context, sheet):
     headers = [
-        collapse_spaces(str(c.value))
+        normalize_header(str(c.value))
         for c in list(sheet.iter_rows(min_row=1, max_row=1))[0]
     ]
 
