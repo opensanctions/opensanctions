@@ -135,6 +135,9 @@ def pick_country(context, *qids):
     Returns the country for the first national decision country of the given qids, or None
     """
     for qid in qids:
+        # e.g. https://www.wikidata.org/.well-known/genid/091bf3144103c0cbaca1bd6eb3762d4d
+        if qid is None or not is_qid(qid):
+            continue
         country = context.lookup("country_decisions", qid)
         if country is not None and country.decision == DECISION_NATIONAL:
             return country

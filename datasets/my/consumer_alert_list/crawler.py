@@ -75,21 +75,11 @@ def unblock_validator(doc: html.HtmlElement) -> bool:
 
 
 def crawl(context: Context):
-    actions = [
-        {
-            "action": "waitForSelector",
-            "selector": {
-                "type": "xpath",
-                "value": "//select[@name='example_length']",
-            },
-            "timeout": 15,
-        },
-    ]
     doc = fetch_html(
         context,
         context.data_url,
         unblock_validator,
-        actions=actions,
+        html_source="httpResponseBody",
     )
 
     for item in parse_table(doc.find(TABLE_XPATH)):

@@ -4,5 +4,6 @@ SELECT ?country ?countryLabel ?countryDescription WHERE {
     MINUS {
       ?country wdt:P31 wd:Q1145276 .
     }
+    FILTER (!wikibase:isSomeValue(?country))
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 }

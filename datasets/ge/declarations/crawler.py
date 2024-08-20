@@ -3,7 +3,7 @@ from typing import Set
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
 import re
-
+from followthemoney.types import registry
 from normality import slugify
 
 from zavod.context import Context
@@ -250,6 +250,11 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     person.add("sourceUrl", declaration_url)
 
     position_kat = item.pop("Position")
+    occupancy_description = None
+    if len(position_kat) > registry.name.max_length:
+        occupancy_description = position_kat
+        position_kat = context.lookup_value("positions", position_kat, position_kat)
+
     organization = item.pop("Organisation")
     if len(position_kat) < 35:
         position_kat = f"{position_kat}, {organization}"
@@ -278,6 +283,7 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     )
     if not occupancy:
         return
+    occupancy.add("description", occupancy_description, lang="kat")
     context.emit(position)
     context.emit(occupancy)
     context.emit(person, target=True)
