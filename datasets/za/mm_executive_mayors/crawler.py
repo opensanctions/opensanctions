@@ -1,4 +1,3 @@
-# from followthemoney.helpers import post_summary
 from urllib.parse import unquote
 import re
 
@@ -6,12 +5,13 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
-ROLES_OF_INTEREST = [
+ROLES_OF_INTEREST = {
     "Mayor/Executive Mayor",
     "Municipal Manager",
-]
+    "Chief Financial Officer",
+}
 
-REESTABLISHED_MUNICIPALITIES_URL = (
+DEMARCATION_CHANGES_URL = (
     "https://municipaldata.treasury.gov.za/api/cubes/demarcation_changes/facts"
 )
 
@@ -43,29 +43,31 @@ def crawl(context: Context):
     executive_mayors = context.fetch_json(context.data_url)
 
     # Fetch the reestablished municipalities data from the specific URL
-    reestablished_muni = context.fetch_json(REESTABLISHED_MUNICIPALITIES_URL)
+    disestablished_municipalities_data = context.fetch_json(DEMARCATION_CHANGES_URL)
 
-    reestablished_municipalities = {}
-    if reestablished_muni and "data" in reestablished_muni:
-        for fact in reestablished_muni.get("data", []):
-            if fact.get("old_code_transition.code") == "disestablished":
-                reestablished_municipalities[fact.get("old_demarcation.code")] = (
-                    fact.get("new_demarcation.code")
-                )
+    # Initialize a set to store disestablished municipality codes
+    disestablished_municipalities = set()
+
+    # Process the disestablished municipalities
+    for fact in disestablished_municipalities_data.get("data", []):
+        if fact.get("old_code_transition.code") == "disestablished":
+            # Add the old demarcation code to the set
+            disestablished_municipalities.add(fact.get("old_demarcation.code"))
 
     # Process the relevant persons
     for person_data in executive_mayors.get("data", []):
         if person_data.get("role.role") in ROLES_OF_INTEREST:
             municipality_code = person_data.get("municipality.demarcation_code")
 
-            # Update the municipality code if it was reestablished
-            if municipality_code in reestablished_municipalities:
-                municipality_code = reestablished_municipalities[municipality_code]
+            # Skip the municipality code if it was disestablished
+            if municipality_code in disestablished_municipalities:
+                continue
 
             name = person_data.get("contact_details.name")
+
             entity = context.make("Person")
             entity.id = context.make_id(name, municipality_code)
-            entity.add("name", person_data.get("contact_details.name"))
+            entity.add("name", name)
             entity.add("title", person_data.get("contact_details.title"))
             entity.add(
                 "email", clean_emails(person_data.get("contact_details.email_address"))
@@ -75,19 +77,14 @@ def crawl(context: Context):
             )
 
             role = person_data.get("role.role")
-            position_label = f"{role} of the {municipality_code}"
 
             position = h.make_position(
                 context,
-                position_label,
+                role,
                 country="za",
                 topics=["gov.muni"],
+                subnational_area=municipality_code,
             )
-            # position_property = post_summary(
-            #     org_name,
-            #     role,
-            # )
-            # entity.add("position", position_property)
 
             categorisation = categorise(context, position, True)
 

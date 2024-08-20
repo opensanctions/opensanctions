@@ -1,4 +1,4 @@
-title: "South African Executive Mayors"
+title: "South Africa Municipal Leadership"
 url: https://municipalmoney.gov.za/profiles/municipality-NC076-thembelihle/
 entry_point: crawler.py
 prefix: za-treasury
@@ -34,10 +34,10 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 550
+      Person: 750
   max:
     schema_entities:
-      Person: 600
+      Person: 800
 
 lookups:
   type.email:
