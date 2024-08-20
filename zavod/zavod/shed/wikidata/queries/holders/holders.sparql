@@ -19,5 +19,6 @@ WHERE {
       OPTIONAL { ?body p:P576 [ a wikibase:BestRank ; psv:P576 [ wikibase:timeValue ?bodyAbolished ] ] }
       OPTIONAL { ?body p:P582 [ a wikibase:BestRank ; psv:P582 [ wikibase:timeValue ?bodyEnd ] ] }
     }
+    FILTER (!wikibase:isSomeValue(?person))
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr". }
 }
