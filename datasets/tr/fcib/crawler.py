@@ -9,8 +9,8 @@ from zavod import helpers as h
 XLSX_LINK = [
     "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/B-YABANCI-ULKE-TALEPLERINE-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-6.-MADDE.xlsx",
     "https://ms.hmb.gov.tr/uploads/sites/2/2024/06/C-6415-SAYILI-KANUN-7.-MADDE.xlsx",
+    "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/D-7262-SAYILI-KANUN-3.A-VE-3.B-MADDELERI.xlsx",
 ]
-#     # "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/D-7262-SAYILI-KANUN-3.A-VE-3.B-MADDELERI.xlsx",
 
 
 ALIAS_SPLITS = [
@@ -51,9 +51,9 @@ def str_cell(cell: object) -> str:
 
 def crawl_row(context: Context, row: Dict[str, str]):
     # name = row.pop("ADI SOYADI-ÜNVANI")  # NAME-SURNAME-TITLE
-    name = row.pop("name")
-    identifier = row.pop("passport_number")  # ID NUMBER
-    nationality = row.pop("nationality")  # NATIONALITY
+    name = row.get("name")
+    identifier = row.get("passport_number")  # ID NUMBER
+    nationality = row.get("nationality")  # NATIONALITY
     if not name:
         return  # in the C xslsx file, there are empty rows
 
@@ -76,6 +76,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
     # )  # OFFICIAL GAZETTE DATE
 
     context.emit(entity)
+
+    entity_name = row.get("legal_entity_name")
+    if entity_name:
+        legal_entity = context.make("LegalEntity")
+        legal_entity.id = context.make_id(entity_name)
+        legal_entity.add("name", entity_name)
+        context.emit(legal_entity)
 
 
 def process_sheet(context: Context, sheet):

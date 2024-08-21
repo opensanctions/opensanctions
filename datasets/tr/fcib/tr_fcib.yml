@@ -62,21 +62,38 @@ lookups:
         value: Russia
       - match: TİRİNİDAD VE TOBAGO
         value: Trinidad and Tobago
+      - match: KORE DEMOKRATİK HALK CUMHURİYETİ
+        value: North Korea
   columns:
     lowercase: true
     normalize: true
     options:
-      - match:
-          - Sıra No
+      - match: Sıra No
         value: sequence_no
+      - match: MVD YAPTIRIM TÜRÜ
+        value: sanction_type
+      - match: DOĞUM TARİHİ/KURULUŞ
+        value: date_of_birth_establishment
+      - match: DOĞUM YERİ
+        value: place_of_birth
+      - match: Görevi
+        value: position
+      - match: Adres
+        value: address
+      - match: Listeye Alınma Tarihi
+        value: listing date
+      - match: Diğer Bilgiler
+        value: other information
+      - match: Tüzel Kuruluş/Organizasyon Ünvanı 
+        value: legal_entity_name
       - match:
           - ADI SOYADI-ÜNVANI
           - GERÇEK/TÜZEL KİŞİ/KURULUŞ/ORGANİZASYON ADI SOYADI ÜNVANI
           - Gerçek Kişi Soyadı Ünvanı # Real Person Surname Title 
-          - Tüzel Kuruluş/Organizasyon Ünvanı # Legal Entity/Organisation Title 
+         # - Tüzel Kuruluş/Organizasyon Ünvanı # Legal Entity/Organisation Title 
         value: name
       - match: Eski Adı
-        value: Former Name
+        value: former_name
       - match:
           - TCKN-VKN-PASAPORT NO
           - Pasaport No/ Diğer Muhtelif  Bilgiler 
@@ -87,31 +104,22 @@ lookups:
           - Uyruğu
         value: nationality
       - match:
-          - MVD YAPTIRIM TÜRÜ
-        value: SANCTION TYPE
-      - match:
           - ANNE ADI
           - Anne Adı
-        value: MOTHER NAME
+        value: mother_name
       - match:
           - BABA ADI
           - Baba Adı
-        value: FATHER NAME
+        value: father_name
       - match:
           - DOĞUM TARİHİ
           - Doğum Tarihi
-        value: DATE OF BIRTH
-      - match: 
-          - DOĞUM TARİHİ/KURULUŞ
-        value: DATE OF BIRTH/ESTABLISHMENT
-      - match:
-          - DOĞUM YERİ
-        value: PLACE OF BIRTH
+        value: date_of_birth
       - match: 
           - RESMİ GAZETE TARİH-SAYISI
           - RESMİ GAZETE TARİH SAYISI
           - R.Gazete Tarih Sayı
-        value: OFFICIAL GAZETTE DATE-NUMBER
+        value: official_gazette_date
       - match: 
           - KULLANDIĞI BİLİNEN DİĞER İSİMLERİ
           - Kullandığı Bilinen Diğer İsmler
@@ -119,21 +127,12 @@ lookups:
       - match:
           - TABİ OLDUĞU DİĞER UYRUKLAR
           - TABİ OLDUĞU DİĞER UYRUK
-        value: OTHER NATIONALITIES
+        value: other_nationality
       - match: 
           - ÖRGÜTÜ
           - Örgütü
-        value: ORGANIZATION
+        value: organization
       - match: 
           - KARAR TARİH-SAYISI # DATE-NUMBER OF DECISION
           - BKK-CBK Karar Tarih ve Sayısı #  Date and Number of Decision
-        value: DECISION DATE-NUMBER
-      - match:
-          - Görevi
-        value: POSITION
-      - match: Adres
-        value: address
-      - match: Listeye Alınma Tarihi
-        value: listing date
-      - match: Diğer Bilgiler
-        value: other information
+        value: decision_date
