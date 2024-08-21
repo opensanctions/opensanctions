@@ -96,9 +96,10 @@ lookups:
         value: previous_name
       - match:
           - TCKN-VKN-PASAPORT NO
-          - Pasaport No/ Diğer Muhtelif  Bilgiler 
           - TCKN/ VKN/GKN PASAPORT NO
         value: passport_number
+      - match: Pasaport No/ Diğer Muhtelif  Bilgiler # Passport No/ Other Miscellaneous Information
+        value: passport_number_other_info
       - match: 
           - UYRUĞU
           - Uyruğu

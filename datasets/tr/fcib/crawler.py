@@ -13,7 +13,7 @@ XLSX_LINK = [
 ]
 
 
-ALIAS_SPLITS = [
+SPLITS = [
     "a)",
     "b)",
     "c)",
@@ -57,36 +57,48 @@ def crawl_row(context: Context, row: Dict[str, str]):
     alias = row.pop("alias")
     previous_name = row.pop("previous_name", "")
     internal_id = row.pop("sequence_no")
-    pass_no = row.pop("passport_number")  # Person
-    nationality = row.pop("nationality")
+    pass_no = row.pop("passport_number", "")  # Person
+    identifier = row.pop("passport_number_other_info", "")  # LegalEntity
+    nationality_country = row.pop("nationality_country", "")
 
     legal_entity_name = row.pop("legal_entity_name", "")  # LegalEntity
     birth_establishment_date = row.pop("date_of_birth_establishment", "")  # LegalEntity
     birth_place = row.pop("birth_place", "")  # Person
     birth_date = row.pop("birth_date", "")  # Person
-    # position = row.pop("position", "")
-    # address = row.pop("address")
-    # notes = row.pop("other_information")
-    # organization = row.pop("organization")
+    position = row.pop("position", "")
+    address = row.pop("address", "")
+    notes = row.pop("other_information", "")
+    organization = row.pop("organization", "")
 
     sanction_type = row.pop("sanction_type", "")
     listing_date = row.pop("listing_date", "")
-    # official_gazette_date = row.pop("official_gazette_date")
+    official_gazette_date = row.pop("official_gazette_date")
 
-    if birth_date or birth_place or pass_no or nationality:
+    if birth_date or birth_place:
         person = context.make("Person")
         person.id = context.make_id(name, internal_id)
         person.add("name", name)
         person.add(
             "alias",
-            h.multi_split(alias, ALIAS_SPLITS),
+            h.multi_split(alias, SPLITS),
         )
-        person.add("nationality", nationality)
+        person.add("nationality", nationality_country)
         person.add("previousName", previous_name)
         person.add("birthPlace", birth_place)
-        person.add("birthDate", birth_date)
+        person.add("birthDate", h.multi_split(birth_date, SPLITS))
         person.add("birthDate", birth_establishment_date)
+        person.add("passportNumber", pass_no)
+        person.add("position", position)
+        person.add("address", h.multi_split(address, SPLITS))
+        person.add("notes", notes)
+
+        sanction = h.make_sanction(context, person)
+        sanction.add("description", sanction_type)
+        sanction.add("reason", organization)
+        sanction.add("listingDate", listing_date)
+
         context.emit(person)
+        context.emit(sanction)
 
     else:
         entity = context.make("LegalEntity")
@@ -95,19 +107,22 @@ def crawl_row(context: Context, row: Dict[str, str]):
         )
         entity.add("name", name)
         entity.add("name", legal_entity_name)
+        entity.add("previousName", previous_name)
+        entity.add("alias", h.multi_split(alias, SPLITS))
+        entity.add("idNumber", identifier)
         entity.add("idNumber", pass_no)
-        # entity.add("country", nationality)
-        entity.add(
-            "alias",
-            h.multi_split(alias, ALIAS_SPLITS),
-        )
+        entity.add("country", nationality_country)
+        entity.add("address", h.multi_split(address, SPLITS))
+        entity.add("notes", notes)
         entity.add("incorporationDate", birth_establishment_date)
 
         sanction = h.make_sanction(context, entity)
         sanction.add("description", sanction_type)
+        sanction.add("reason", organization)
         sanction.add("listingDate", listing_date)
 
         context.emit(entity)
+        context.emit(sanction)
 
     entity_name = row.get("legal_entity_name")
     if entity_name:
