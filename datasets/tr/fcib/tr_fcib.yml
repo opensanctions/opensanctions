@@ -62,3 +62,81 @@ lookups:
         value: Russia
       - match: TİRİNİDAD VE TOBAGO
         value: Trinidad and Tobago
+  columns:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - Sıra No
+        value: Sequence No
+      - match:
+          - ADI SOYADI-ÜNVANI
+          - GERÇEK/TÜZEL KİŞİ/KURULUŞ/ORGANİZASYON ADI SOYADI ÜNVANI
+          - Gerçek Kişi Soyadı Ünvanı # Real Person Surname Title 
+          - Tüzel Kuruluş/Organizasyon Ünvanı # Legal Entity/Organisation Title 
+        value: name
+      - match: Eski Adı
+        value: Former Name
+      - match:
+          - TCKN-VKN-PASAPORT NO
+          - |
+          TCKN/
+          VKN/GKN
+          PASAPORT NO
+          - Pasaport No/ Diğer Muhtelif  Bilgiler 
+        value: PASSPORT NUMBER
+      - match: 
+          - UYRUĞU
+          - Uyruğu
+        value: nationality
+      - match:
+          - MVD YAPTIRIM TÜRÜ
+        value: SANCTION TYPE
+      - match:
+          - ANNE ADI
+          - Anne Adı
+        value: MOTHER NAME
+      - match:
+          - BABA ADI
+          - Baba Adı
+        value: FATHER NAME
+      - match:
+          - DOĞUM TARİHİ
+          - Doğum Tarihi
+        value: DATE OF BIRTH
+      - match: 
+          - DOĞUM TARİHİ/KURULUŞ
+        value: DATE OF BIRTH/ESTABLISHMENT
+      - match:
+          - DOĞUM YERİ
+        value: PLACE OF BIRTH
+      - match: 
+          - RESMİ GAZETE TARİH-SAYISI
+          - RESMİ GAZETE TARİH SAYISI
+          - R.Gazete Tarih Sayı
+        value: OFFICIAL GAZETTE DATE-NUMBER
+      - match: 
+          - KULLANDIĞI BİLİNEN DİĞER İSİMLERİ
+          - Kullandığı Bilinen Diğer İsmler
+        value: alias
+      - match:
+          - TABİ OLDUĞU DİĞER UYRUKLAR
+          - TABİ OLDUĞU DİĞER UYRUK
+        value: OTHER NATIONALITIES
+      - match: 
+          - ÖRGÜTÜ
+          - Örgütü
+        value: ORGANIZATION
+      - match: 
+          - KARAR TARİH-SAYISI # DATE-NUMBER OF DECISION
+          - BKK-CBK Karar Tarih ve Sayısı #  Date and Number of Decision
+        value: DECISION DATE-NUMBER
+      - match:
+          - Görevi
+        value: POSITION
+      - match: Adres
+        value: address
+      - match: Listeye Alınma Tarihi
+        value: listing date
+      - match: Diğer Bilgiler
+        value: other information
