@@ -1,7 +1,8 @@
 from datetime import datetime, date
+from normality import collapse_spaces, stringify
 from openpyxl import load_workbook
 from typing import Dict
-from normality import collapse_spaces, stringify, normalize
+
 from zavod import Context
 from zavod import helpers as h
 
@@ -72,7 +73,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     sanction_type = row.pop("sanction_type", "")
     listing_date = row.pop("listing_date", "")
-    official_gazette_date = row.pop("official_gazette_date")
+    # official_gazette_date = row.pop("official_gazette_date")
 
     if birth_date or birth_place:
         person = context.make("Person")
