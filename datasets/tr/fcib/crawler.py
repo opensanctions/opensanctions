@@ -83,24 +83,29 @@ def crawl_row(context: Context, row: Dict[str, str]):
         )
         person.add("nationality", nationality)
         person.add("previousName", previous_name)
+        person.add("birthPlace", birth_place)
+        person.add("birthDate", birth_date)
+        person.add("birthDate", birth_establishment_date)
         context.emit(person)
 
     else:
         entity = context.make("LegalEntity")
-        entity.id = context.make_id(name)
+        entity.id = context.make_id(
+            name,
+        )
         entity.add("name", name)
+        entity.add("name", legal_entity_name)
         entity.add("idNumber", pass_no)
-        entity.add("country", nationality)
-        # entity.add("birthDate", row.pop("birth_date"))  # BIRTH DATE
-        # entity.add("birthPlace", row.pop("birth_place"))  # BIRTH PLACE
+        # entity.add("country", nationality)
         entity.add(
             "alias",
             h.multi_split(alias, ALIAS_SPLITS),
         )
+        entity.add("incorporationDate", birth_establishment_date)
 
         sanction = h.make_sanction(context, entity)
         sanction.add("description", sanction_type)
-        sanction.add("listingDate", listing_date)  # OFFICIAL GAZETTE DATE
+        sanction.add("listingDate", listing_date)
 
         context.emit(entity)
 
