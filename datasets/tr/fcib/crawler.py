@@ -51,9 +51,9 @@ def str_cell(cell: object) -> str:
 
 def crawl_row(context: Context, row: Dict[str, str]):
     # name = row.pop("ADI SOYADI-ÜNVANI")  # NAME-SURNAME-TITLE
-    name = row.get("name")
-    identifier = row.get("passport_number")  # ID NUMBER
-    nationality = row.get("nationality")  # NATIONALITY
+    name = row.pop("name")
+    identifier = row.pop("passport_number")  # ID NUMBER
+    nationality = row.pop("nationality")  # NATIONALITY
     if not name:
         return  # in the C xslsx file, there are empty rows
 
