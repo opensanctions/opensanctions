@@ -56,6 +56,7 @@ SANCTION_FEATURES = {
     "Executive Order 14014 Directive Information:": "summary",
     "Executive Order 13662 Directive Determination -": "summary",
     "Executive Order 13846 information:": "summary",
+    "Executive Order 14059 information:": "summary",
     "Additional Sanctions Information -": "summary",
     "Secondary sanctions risk:": "summary",
     "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:": "summary",  # noqa
