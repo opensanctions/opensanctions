@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from normality import collapse_spaces, stringify, slugify
 from openpyxl import load_workbook
-from typing import Dict
+from typing import Dict, Iterable
 
 from zavod import Context
 from zavod import helpers as h
@@ -62,14 +62,14 @@ def str_cell(cell: object) -> str:
 def crawl_row(context: Context, row: Dict[str, str], program: str):
     name = row.pop("name")
     if not name:
-        return  # in the C xslsx file, there are empty rows
+        return  # in the XLSX file, there are empty rows
+
     alias = row.pop("alias")
     previous_name = row.pop("previous_name", "")
     internal_id = row.pop("sequence_no")
     pass_no = row.pop("passport_number", "")  # Person
     identifier = row.pop("passport_number_other_info", "")  # LegalEntity
     nationality_country = row.pop("nationality_country", "")
-
     legal_entity_name = row.pop("legal_entity_name", "")  # LegalEntity
     birth_establishment_date = h.parse_date(
         row.pop("date_of_birth_establishment", ""), DATE_FORMAT
@@ -80,19 +80,15 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
     address = row.pop("address", "")
     notes = row.pop("other_information", "")
     organization = row.pop("organization", "")
-
     sanction_type = row.pop("sanction_type", "")
     listing_date = row.pop("listing_date", "")
-    # official_gazette_date = row.pop("official_gazette_date")
+    # official_gazette_date = row.pop("official_gazette_date", "")
 
     if birth_date or birth_place:
         person = context.make("Person")
         person.id = context.make_id(name, internal_id)
         person.add("name", name)
-        person.add(
-            "alias",
-            h.multi_split(alias, SPLITS),
-        )
+        person.add("alias", h.multi_split(alias, SPLITS))
         person.add("nationality", nationality_country)
         person.add("previousName", previous_name)
         person.add("birthPlace", birth_place)
@@ -111,12 +107,9 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
 
         context.emit(person)
         context.emit(sanction)
-
     else:
         entity = context.make("LegalEntity")
-        entity.id = context.make_id(
-            name,
-        )
+        entity.id = context.make_id(name)
         entity.add("name", name)
         entity.add("name", legal_entity_name)
         entity.add("previousName", previous_name)
@@ -138,11 +131,9 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
         context.emit(sanction)
 
 
-def parse_sheet(context: Context, sheet, program: str):
-    # First, normalize and map the headers using lookup
+def parse_sheet(context: Context, sheet) -> Iterable[Dict[str, str]]:
     first_row = list(sheet.iter_rows(min_row=1, max_row=1))[0]
     headers = []
-
     for cell in first_row:
         normalized_header = normalize_header(str(cell.value))
         header = context.lookup_value("columns", normalized_header)
@@ -153,14 +144,11 @@ def parse_sheet(context: Context, sheet, program: str):
             header = slugify(str(cell.value))  # Use slugified header if no match found
         headers.append(header)
 
-    # Process each subsequent row in the sheet
     for cells in sheet.iter_rows(min_row=2, values_only=True):
-        row = {headers[i]: stringify(cells[i]) for i in range(len(headers))}
-        crawl_row(context, row, program)
+        yield {headers[i]: stringify(cells[i]) for i in range(len(headers))}
 
 
 def crawl_xlsx(context: Context, url: str, counter: int, program: str):
-    # Create a unique filename for each resource
     path = context.fetch_resource(f"source_{counter}.xlsx", url)
     context.export_resource(
         path,
@@ -168,24 +156,19 @@ def crawl_xlsx(context: Context, url: str, counter: int, program: str):
         title=f"{context.SOURCE_TITLE} - {program}",
     )
     wb = load_workbook(path, read_only=True)
-
     for sheet in wb.worksheets:
         context.log.info(f"Processing sheet {sheet.title} with program {program}")
-        parse_sheet(context, sheet, program)
+        for row in parse_sheet(context, sheet):
+            crawl_row(context, row, program)
 
 
 def crawl(context: Context):
     context.log.info("Fetching data from the provided XLSX links")
-
-    # Iterate over each tuple in the XLSX_LINK list
     for i, (url, program) in enumerate(XLSX_LINK):
         context.log.info(f"Processing URL: {url}")
         context.log.info(f"Program description: {program}")
-
-        # Process the XLSX file with a unique counter
         if url.endswith(".xlsx"):
             crawl_xlsx(context, url, i, program)
         else:
             raise ValueError(f"Unknown file type: {url}")
-
     context.log.info("Finished processing the Frozen Assets List")
