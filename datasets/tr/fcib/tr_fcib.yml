@@ -103,7 +103,7 @@ lookups:
       - match: 
           - UYRUĞU
           - Uyruğu
-        value: nationality
+        value: nationality_country
       - match:
           - ANNE ADI
           - Anne Adı
