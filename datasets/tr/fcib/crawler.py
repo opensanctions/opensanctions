@@ -51,31 +51,58 @@ def str_cell(cell: object) -> str:
 
 def crawl_row(context: Context, row: Dict[str, str]):
     # name = row.pop("ADI SOYADI-ÜNVANI")  # NAME-SURNAME-TITLE
-    name = row.get("name")
-    identifier = row.get("passport_number")  # ID NUMBER
-    nationality = row.get("nationality")  # NATIONALITY
+    name = row.pop("name")
     if not name:
         return  # in the C xslsx file, there are empty rows
+    alias = row.pop("alias")
+    previous_name = row.pop("previous_name", "")
+    internal_id = row.pop("sequence_no")
+    pass_no = row.pop("passport_number")  # Person
+    nationality = row.pop("nationality")
 
-    entity = context.make("LegalEntity")
-    entity.id = context.make_id(name)
-    entity.add("name", name)
-    entity.add("idNumber", identifier)
-    entity.add("country", nationality)
-    # # entity.add("birthDate", row.pop("DOĞUM TARİHİ"))  # BIRTH DATE
-    # # entity.add("birthPlace", row.pop("DOĞUM YERİ"))  # BIRTH PLACE
-    # entity.add(
-    #     "alias",
-    #     h.multi_split(row.pop("KULLANDIĞI BİLİNEN DİĞER İSİMLERİ"), ALIAS_SPLITS),
-    # )  # OTHER KNOWN NAMES
+    legal_entity_name = row.pop("legal_entity_name", "")  # LegalEntity
+    birth_establishment_date = row.pop("date_of_birth_establishment", "")  # LegalEntity
+    birth_place = row.pop("birth_place", "")  # Person
+    birth_date = row.pop("birth_date", "")  # Person
+    # position = row.pop("position", "")
+    # address = row.pop("address")
+    # notes = row.pop("other_information")
+    # organization = row.pop("organization")
 
-    # sanction = h.make_sanction(context, entity)
-    # sanction.add("description", row.pop("MVD YAPTIRIM TÜRÜ"))  # SANCTION TYPE
-    # sanction.add(
-    #     "listingDate", row.pop("RESMİ GAZETE TARİH-SAYISI")
-    # )  # OFFICIAL GAZETTE DATE
+    sanction_type = row.pop("sanction_type", "")
+    listing_date = row.pop("listing_date", "")
+    # official_gazette_date = row.pop("official_gazette_date")
 
-    context.emit(entity)
+    if birth_date or birth_place or pass_no or nationality:
+        person = context.make("Person")
+        person.id = context.make_id(name, internal_id)
+        person.add("name", name)
+        person.add(
+            "alias",
+            h.multi_split(alias, ALIAS_SPLITS),
+        )
+        person.add("nationality", nationality)
+        person.add("previousName", previous_name)
+        context.emit(person)
+
+    else:
+        entity = context.make("LegalEntity")
+        entity.id = context.make_id(name)
+        entity.add("name", name)
+        entity.add("idNumber", pass_no)
+        entity.add("country", nationality)
+        # entity.add("birthDate", row.pop("birth_date"))  # BIRTH DATE
+        # entity.add("birthPlace", row.pop("birth_place"))  # BIRTH PLACE
+        entity.add(
+            "alias",
+            h.multi_split(alias, ALIAS_SPLITS),
+        )
+
+        sanction = h.make_sanction(context, entity)
+        sanction.add("description", sanction_type)
+        sanction.add("listingDate", listing_date)  # OFFICIAL GAZETTE DATE
+
+        context.emit(entity)
 
     entity_name = row.get("legal_entity_name")
     if entity_name:

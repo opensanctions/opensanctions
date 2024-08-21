@@ -75,15 +75,15 @@ lookups:
       - match: DOĞUM TARİHİ/KURULUŞ
         value: date_of_birth_establishment
       - match: DOĞUM YERİ
-        value: place_of_birth
+        value: birth_place
       - match: Görevi
         value: position
       - match: Adres
         value: address
       - match: Listeye Alınma Tarihi
-        value: listing date
+        value: listing_date
       - match: Diğer Bilgiler
-        value: other information
+        value: other_information
       - match: Tüzel Kuruluş/Organizasyon Ünvanı 
         value: legal_entity_name
       - match:
@@ -93,7 +93,7 @@ lookups:
          # - Tüzel Kuruluş/Organizasyon Ünvanı # Legal Entity/Organisation Title 
         value: name
       - match: Eski Adı
-        value: former_name
+        value: previous_name
       - match:
           - TCKN-VKN-PASAPORT NO
           - Pasaport No/ Diğer Muhtelif  Bilgiler 
@@ -114,7 +114,7 @@ lookups:
       - match:
           - DOĞUM TARİHİ
           - Doğum Tarihi
-        value: date_of_birth
+        value: birth_date
       - match: 
           - RESMİ GAZETE TARİH-SAYISI
           - RESMİ GAZETE TARİH SAYISI
