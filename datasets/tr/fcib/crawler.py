@@ -30,42 +30,6 @@ ALIAS_SPLITS = [
     "n)",
 ]
 
-# Extended COLUMN_NAMES_MAP to include all possible variations
-COLUMN_NAMES_MAP = {
-    "Gerçek Kişi Soyadı Ünvanı": "full_name",
-    "Eski Adı": "former_name",
-    "Tüzel Kuruluş/Organizasyon Ünvanı": "organization_name",
-    "Kullandığı Bilinen Diğer İsmler": "other_known_names",
-    "Pasaport No/ Diğer Muhtelif Bilgiler": "passport_other_info",
-    "Görevi": "position",
-    "Adres": "address",
-    "Uyruğu": "nationality",
-    "Listeye Alınma Tarihi": "date_listed",
-    "Diğer Bilgiler": "other_information",
-    "Anne Adı": "mother_name",
-    "Baba Adı": "father_name",
-    "Doğum Tarihi": "birth_date",
-    "Örgütü": "organization",
-    "R.Gazete Tarih Sayı": "official_gazette_date_number",
-    "BKK-CBK Karar Tarih ve Sayısı": "decision_date_number",
-    "ADI SOYADI-ÜNVANI": "full_name",
-    "TCKN-VKN-PASAPORT NO": "passport_other_info",
-    "UYRUĞU": "nationality",
-    "MVD YAPTIRIM TÜRÜ": "other_information",
-    "DOĞUM TARİHİ": "birth_date",
-    "DOĞUM YERİ": "birth_place",
-    "RESMİ GAZETE TARİH-SAYISI": "official_gazette_date_number",
-    "KULLANDIĞI BİLİNEN DİĞER İSİMLERİ": "other_known_names",
-    "TABİ OLDUĞU DİĞER UYRUKLAR": "other_nationalities",
-    "OYU DİĞER UYRUKLAR": "other_nationalities",
-    "KARAR TARİH-SAYISI": "decision_date_number",
-    "RESMİ GAZETE TARİH SAYISI": "official_gazette_date_number",
-    "Doğum Tarihi/Kuruluş": "birth_date",
-    "Doğum Yeri": "birth_place",
-    "GERÇEK/TÜZEL KİŞİ/KURULUŞ/ORGANİZASYON ADI SOYADI ÜNVANI": "full_name",
-    "TCKN/VKN/GKN PASAPORT NO": "passport_other_info",
-}
-
 
 def normalize_header(header: str) -> str:
     """Normalize header strings by collapsing spaces and removing newlines."""
@@ -87,9 +51,11 @@ def str_cell(cell: object) -> str:
 
 def crawl_row(context: Context, row: Dict[str, str]):
     # name = row.pop("ADI SOYADI-ÜNVANI")  # NAME-SURNAME-TITLE
-    name = row.get("full_name")
-    identifier = row.get("passport_other_info", "")  # ID NUMBER
-    nationality = row.get("nationality", "")  # NATIONALITY
+    name = row.get("name")
+    identifier = row.get("passport_number")  # ID NUMBER
+    nationality = row.get("nationality")  # NATIONALITY
+    if not name:
+        return  # in the C xslsx file, there are empty rows
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name)
@@ -113,19 +79,23 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def process_sheet(context: Context, sheet):
-    headers = [
-        normalize_header(str(c.value))
-        for c in list(sheet.iter_rows(min_row=1, max_row=1))[0]
-    ]
+    # First, normalize and map the headers using lookup
+    first_row = list(sheet.iter_rows(min_row=1, max_row=1))[0]
+    headers = []
 
-    # Translate headers to standardized English names
-    standardized_headers = [COLUMN_NAMES_MAP.get(header, header) for header in headers]
+    for cell in first_row:
+        normalized_header = normalize_header(str(cell.value))
+        header = context.lookup_value("columns", normalized_header)
+        if header is None:
+            context.log.warning(
+                "Unknown column title", column=normalized_header, sheet=sheet.title
+            )
+            header = normalized_header  # Use normalized header if no match found
+        headers.append(header)
 
+    # Process each subsequent row in the sheet
     for cells in sheet.iter_rows(min_row=2, values_only=True):
-        row = {
-            standardized_headers[i]: stringify(cells[i])
-            for i in range(len(standardized_headers))
-        }
+        row = {headers[i]: stringify(cells[i]) for i in range(len(headers))}
         crawl_row(context, row)
 
 

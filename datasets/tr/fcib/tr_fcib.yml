@@ -3,7 +3,7 @@ url: https://en.hmb.gov.tr/fcib-tf-current-list
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
-  start: 2024-08-20
+  start: 2024-08-21
 summary: >
   Individuals, entities, and organizations whose assets are frozen by the Republic of 
   Türkiye under several legal frameworks. These measures target various subjects based 
@@ -68,7 +68,7 @@ lookups:
     options:
       - match:
           - Sıra No
-        value: Sequence No
+        value: sequence_no
       - match:
           - ADI SOYADI-ÜNVANI
           - GERÇEK/TÜZEL KİŞİ/KURULUŞ/ORGANİZASYON ADI SOYADI ÜNVANI
@@ -79,12 +79,9 @@ lookups:
         value: Former Name
       - match:
           - TCKN-VKN-PASAPORT NO
-          - |
-          TCKN/
-          VKN/GKN
-          PASAPORT NO
           - Pasaport No/ Diğer Muhtelif  Bilgiler 
-        value: PASSPORT NUMBER
+          - TCKN/ VKN/GKN PASAPORT NO
+        value: passport_number
       - match: 
           - UYRUĞU
           - Uyruğu
