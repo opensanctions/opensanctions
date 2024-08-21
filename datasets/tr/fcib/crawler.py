@@ -5,14 +5,12 @@ from normality import collapse_spaces, stringify, normalize
 from zavod import Context
 from zavod import helpers as h
 
-# Constants
+DATE_FORMAT = "%d.%m.%Y"
 XLSX_LINK = [
     "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/B-YABANCI-ULKE-TALEPLERINE-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-6.-MADDE.xlsx",
     "https://ms.hmb.gov.tr/uploads/sites/2/2024/06/C-6415-SAYILI-KANUN-7.-MADDE.xlsx",
     "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/D-7262-SAYILI-KANUN-3.A-VE-3.B-MADDELERI.xlsx",
 ]
-
-
 SPLITS = [
     "a)",
     "b)",
@@ -62,9 +60,11 @@ def crawl_row(context: Context, row: Dict[str, str]):
     nationality_country = row.pop("nationality_country", "")
 
     legal_entity_name = row.pop("legal_entity_name", "")  # LegalEntity
-    birth_establishment_date = row.pop("date_of_birth_establishment", "")  # LegalEntity
+    birth_establishment_date = h.parse_date(
+        row.pop("date_of_birth_establishment", ""), DATE_FORMAT
+    )  # LegalEntity
     birth_place = row.pop("birth_place", "")  # Person
-    birth_date = row.pop("birth_date", "")  # Person
+    birth_date = h.parse_date(row.pop("birth_date", ""), DATE_FORMAT)  # Person
     position = row.pop("position", "")
     address = row.pop("address", "")
     notes = row.pop("other_information", "")
