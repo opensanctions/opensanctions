@@ -6,12 +6,16 @@ import requests
 import hashlib
 from lxml import html
 import csv
-from typing import List, Any
+from lxml import etree
+from urllib.parse import urljoin
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 DATE_FORMAT = "%d.%m.%Y"
+
+MAIN_URL = "https://en.hmb.gov.tr"
 
 CSV_LINK = "https://docs.google.com/spreadsheets/d/1SFH2gKt2gFVCNvl2wnNuFZT3m-iVNYlXiWHXRquddFI/pub?gid=594686664&single=true&output=csv"
 
@@ -244,49 +248,28 @@ def crawl_xlsx(context: Context, url: str, counter: int, program: str):
 #     # context.log.info("Finished processing CSV data")
 
 
+def unblock_validator(doc: etree._Element) -> bool:
+    return doc.find('.//table[@class="table table-bordered"]') is not None
+
+
 def crawl(context: Context):
     # Fetch the main page HTML
-    doc = context.fetch_html(context.data_url)
-    print(html.tostring(doc, pretty_print=True, encoding="unicode"))
-    # Find the div with the relevant links
-    container = doc.xpath(
-        '//div[@class="col-xl-9 col-12 order-xl-last page-content-inner"]'
-    )
-    if not container:
-        raise ValueError("No container found in the document")
+    doc = fetch_html(context, context.data_url, unblock_validator)
+    # print(html.tostring(doc, pretty_print=True, encoding="unicode"))
 
     # Find the table with the relevant links
-    tables = doc.findall(
-        '//div[@class="col-xl-3 col-12 order-xl-first order-last page-sidebar"]'
-    )
-    if not tables:
+    table = doc.find('.//table[@class="table table-bordered"]')
+    if table is None:
         raise ValueError("No table found in the document")
 
-    # Process each table element found
-    for table in tables:
-        links = table.xpath(".//a")
-        # Extract partial links and navigate to each section
-        for link in links:
-            partial_link = link.get("href")
-            section_url = f"https://en.hmb.gov.tr{partial_link}"
-            section_doc = context.fetch_html(section_url)
-            # Find the document link
-            doc_links = section_doc.xpath(
-                '//a[contains(@href, ".xlsx") or contains(@href, ".docx")]'
-            )
-            for doc_link in doc_links:
-                full_doc_link = f"https://ms.hmb.gov.tr{doc_link.get('href')}"
-                # Check if the link is an XLSX link and compare it with the predefined list
-                if full_doc_link.endswith(".xlsx"):
-                    matched = False
-                    for url, program in XLSX_LINK:
-                        if url == full_doc_link:
-                            matched = True
-                            print(f"Found matching XLSX link: {full_doc_link}")
-                            break
-                    if not matched:
-                        print(f"Unexpected XLSX link found: {full_doc_link}")
-                # If the link is a DOCX link, compute its hash
-                elif full_doc_link.endswith(".docx"):
-                    doc_hash = hash_file_content(full_doc_link)
-                    print(f"DOCX link hash: {doc_hash}")
+    # Find all the <a> tags within the table
+    links = table.findall(".//a")
+    if not links:
+        raise ValueError("No links found in the table")
+
+    # Construct the full URLs
+    full_urls = [urljoin(MAIN_URL, link.get("href")) for link in links]
+
+    # Print all the parsed links
+    for url in full_urls:
+        print(url)
