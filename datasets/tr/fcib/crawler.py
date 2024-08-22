@@ -17,7 +17,9 @@ DATE_FORMAT = "%d.%m.%Y"
 
 MAIN_URL = "https://en.hmb.gov.tr"
 
-CSV_LINK = "https://docs.google.com/spreadsheets/d/1SFH2gKt2gFVCNvl2wnNuFZT3m-iVNYlXiWHXRquddFI/pub?gid=594686664&single=true&output=csv"
+DOCX_LINK = "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/A-6415-SAYILI-KANUN-5.-MADDE.docx"  # original link for assertion
+CSV_LINK = "https://docs.google.com/spreadsheets/d/1SFH2gKt2gFVCNvl2wnNuFZT3m-iVNYlXiWHXRquddFI/pub?gid=594686664&single=true&output=csv"  # Google Sheets link based on the original link
+
 
 XLSX_LINK = [
     (
