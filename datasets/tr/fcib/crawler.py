@@ -1,13 +1,10 @@
 from datetime import datetime, date
+from lxml import etree
 from normality import collapse_spaces, stringify, slugify
 from openpyxl import load_workbook
 from typing import Dict, Iterable
-import requests
-import hashlib
-from lxml import html
-import csv
-from lxml import etree
 from urllib.parse import urljoin
+import csv
 
 from zavod import Context
 from zavod import helpers as h
@@ -53,6 +50,20 @@ SPLITS = [
     "n)",
 ]
 
+ADDRESS_SPLITS = [
+    "Şube 1:",
+    "Şube 2:",
+    "Şube 3:",
+    "Şube 4:",
+    "Şube 5:",
+    "Şube 6:",
+    "Şube 7:",
+    "Şube 8:",
+    "Şube 9:",
+    "Şube 10:",
+    "Şube 11:",
+]
+
 
 def clean_row(row: Dict[str, str]) -> Dict[str, str]:
     """Clean non-standard spaces from row keys and values."""
@@ -60,20 +71,6 @@ def clean_row(row: Dict[str, str]) -> Dict[str, str]:
         k.replace("\xa0", " ").strip(): v.replace("\xa0", " ").strip()
         for k, v in row.items()
     }
-
-
-# Helper function to fetch and parse HTML
-# def fetch_html(url):
-#     response = requests.get(url)
-#     response.raise_for_status()
-#     return html.fromstring(response.content)
-
-
-# Helper function to hash file content
-def hash_file_content(url):
-    response = requests.get(url)
-    response.raise_for_status()
-    return hashlib.sha1(response.content).hexdigest()
 
 
 def normalize_header(header: str) -> str:
@@ -197,56 +194,31 @@ def crawl_xlsx(context: Context, url: str, counter: int, program: str):
             crawl_row(context, row, program)
 
 
-# def crawl_csv_row(context: Context, row: Dict[str, str]):
-#     row = clean_row(row)
-#     full_name = row.get("full_name", "")
-#     if not full_name:
-#         return  # in the XLSX file, there are empty rows
-#     birth_date = row.get("date_of_birth_iso", "").strip()
+def crawl_csv_row(context: Context, row: Dict[str, str]):
+    row = clean_row(row)
+    full_name = row.get("full_name", "")
+    if not full_name:
+        return  # in the XLSX file, there are empty rows
+    birth_date = row.get("date_of_birth_iso", "").strip()
 
-#     if not full_name:
-#         context.log.error("Missing name in row: %s", row)
-#         return
+    if not full_name:
+        context.log.error("Missing name in row: %s", row)
+        return
 
-#     person_unsc = context.make("Person")
-#     person_unsc.id = context.make_id(
-#         full_name, birth_date
-#     )  # Use both name and birth_date for ID
-#     person_unsc.add("name", full_name)
-#     person_unsc.add("alias", row.pop("aliases", ""))
-#     person_unsc.add("birthDate", birth_date)
-#     person_unsc.add("nationality", row.pop("nationality", ""))
-#     person_unsc.add("idNumber", row.pop("passport_number", ""))
-#     person_unsc.add("idNumber", row.pop("national_identity_number", ""))
-#     person_unsc.add("address", row.pop("address", ""))
-#     person_unsc.add("notes", row.pop("additional_information", ""))
+    person = context.make("Person")
+    person.id = context.make_id(
+        full_name, birth_date
+    )  # Use both name and birth_date for ID
+    person.add("name", full_name)
+    person.add("alias", row.pop("aliases", ""))
+    person.add("birthDate", birth_date)
+    person.add("nationality", row.pop("nationality", ""))
+    person.add("idNumber", row.pop("passport_number", ""))
+    person.add("idNumber", row.pop("national_identity_number", ""))
+    person.add("address", row.pop("address", ""))
+    person.add("notes", row.pop("additional_information", ""))
 
-#     context.emit(person_unsc)
-#     context.log.info(f"Emitted entity for person: {full_name}")
-
-
-# def crawl(context: Context):
-#     context.log.info("Fetching data from the provided XLSX links")
-#     for i, (url, program) in enumerate(XLSX_LINK):
-#         context.log.info(f"Processing URL: {url}")
-#         context.log.info(f"Program description: {program}")
-#         if url.endswith(".xlsx"):
-#             crawl_xlsx(context, url, i, program)
-#         else:
-#             raise ValueError(f"Unknown file type: {url}")
-#     context.log.info("Finished processing the Frozen Assets List")
-
-#     # # Fetch the CSV file from the source URL
-#     # context.log.info("Fetching data from Google Sheets CSV link")
-#     # path = context.fetch_resource("source.csv", CSV_LINK)
-#     # with open(path, "r", encoding="latin-1") as fh:
-#     #     reader = csv.DictReader(fh)
-#     #     print(reader.fieldnames)
-#     #     for row in reader:
-#     #         print(row)
-#     #         crawl_csv_row(context, row)
-
-#     # context.log.info("Finished processing CSV data")
+    context.emit(person)
 
 
 def unblock_validator(doc: etree._Element) -> bool:
@@ -256,7 +228,6 @@ def unblock_validator(doc: etree._Element) -> bool:
 def crawl(context: Context):
     # Fetch the main page HTML
     doc = fetch_html(context, context.data_url, unblock_validator)
-    # print(html.tostring(doc, pretty_print=True, encoding="unicode"))
 
     # Find the table with the relevant links
     table = doc.find('.//table[@class="table table-bordered"]')
@@ -274,7 +245,6 @@ def crawl(context: Context):
     found_links = []
     # Print all the parsed links
     for url in full_urls:
-        print(url)
         section_doc = fetch_html(context, url, unblock_validator)
 
         # Determine whether to search for .docx or .xlsx based on URL
@@ -285,10 +255,33 @@ def crawl(context: Context):
             # Look for .xlsx link
             doc_links = section_doc.xpath('//a[contains(@href, ".xlsx")]')
 
+            # Extract and construct full document links
         for doc_link in doc_links:
             full_doc_link = urljoin(MAIN_URL, doc_link.get("href"))
             found_links.append(full_doc_link)
 
-    # Print all the extracted links
-    for link in found_links:
-        print(link)
+    # Check if all expected links are found
+    expected_links = [DOCX_LINK, *(link for link, _ in XLSX_LINK)]
+    all_links_found = all(link in found_links for link in expected_links)
+    if all_links_found:
+        # the actual crawling part if all links are verified
+        context.log.info("Fetching data from the provided XLSX links")
+        for i, (url, program) in enumerate(XLSX_LINK):
+            context.log.info(f"Processing URL: {url}")
+            if url.endswith(".xlsx"):
+                crawl_xlsx(context, url, i, program)
+            else:
+                raise ValueError(f"Unknown file type: {url}")
+        context.log.info("Finished processing the Frozen Assets List")
+
+        # Fetch the CSV file from the source URL
+        context.log.info("Fetching data from Google Sheets CSV link")
+        path = context.fetch_resource("source.csv", CSV_LINK)
+        with open(path, "r", encoding="utf-8") as fh:
+            reader = csv.DictReader(fh)
+            for row in reader:
+                crawl_csv_row(context, row)
+        context.log.info("Finished processing CSV data")
+    else:
+        missing_links = [link for link in expected_links if link not in found_links]
+        print(f"Warning: The following expected links were not found: {missing_links}")
