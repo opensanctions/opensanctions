@@ -5,6 +5,7 @@ from openpyxl import load_workbook
 from typing import Dict, Iterable
 from urllib.parse import urljoin
 import csv
+import re
 
 from zavod import Context
 from zavod import helpers as h
@@ -50,7 +51,7 @@ SPLITS = [
     "n)",
 ]
 
-NEW_LINE_SPLIT = ["\n"]
+NEW_LINE_SPLIT = ["\n"] + SPLITS
 
 ADDRESS_SPLITS = (
     [
@@ -69,6 +70,27 @@ ADDRESS_SPLITS = (
     + SPLITS
     + NEW_LINE_SPLIT
 )
+
+REGEX_ID_NUMBER = re.compile(r"^[^,]+")
+
+
+def clean_id_numbers(passport_numbers):
+    cleaned_numbers = []
+    for number in h.multi_split(passport_numbers, NEW_LINE_SPLIT):
+        match = REGEX_ID_NUMBER.match(number.strip())
+        if match:
+            cleaned_numbers.append(match.group(0))
+    return cleaned_numbers
+
+
+def parse_birth_date(birth_date: str) -> str:
+    """Parses the birth date and returns only the year if the date is January 1st."""
+    # Check if the birth date ends with '01-01' indicating January 1st
+    if birth_date.endswith("01-01"):
+        # Return only the year part
+        return birth_date[:4]
+    # Otherwise, return the full date
+    return birth_date
 
 
 def clean_row(row: Dict[str, str]) -> Dict[str, str]:
@@ -207,7 +229,7 @@ def crawl_csv_row(
     full_name = row.get("full_name", "")
     if not full_name:
         return  # in the XLSX file, there are empty rows
-    birth_date = row.get("date_of_birth_iso", "").strip()
+    birth_date = parse_birth_date(row.get("date_of_birth_iso", ""))
 
     if not full_name:
         context.log.error("Missing name in row: %s", row)
@@ -220,14 +242,13 @@ def crawl_csv_row(
     person.add("name", full_name)
     person.add("alias", h.multi_split(row.pop("aliases", ""), NEW_LINE_SPLIT))
     person.add("birthDate", birth_date)
-    person.add("nationality", row.pop("nationality", ""))
-    person.add(
-        "idNumber", h.multi_split(row.pop("passport_number", ""), NEW_LINE_SPLIT)
-    )
-    person.add(
-        "idNumber",
-        h.multi_split(row.pop("national_identity_number", ""), NEW_LINE_SPLIT),
-    )
+    person.add("nationality", h.multi_split(row.pop("nationality", ""), SPLITS))
+    cleaned_passport_numbers = clean_id_numbers(row.pop("passport_number", ""))
+    for cleaned_number in cleaned_passport_numbers:
+        person.add("idNumber", cleaned_number)
+    cleaned_id_numbers = clean_id_numbers(row.pop("idNumber", ""))
+    for cleaned_number in cleaned_id_numbers:
+        person.add("idNumber", cleaned_number)
     person.add("address", h.multi_split(row.pop("address", ""), ADDRESS_SPLITS))
     person.add("notes", row.pop("additional_information", ""))
 

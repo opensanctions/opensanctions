@@ -47,6 +47,7 @@ data:
 lookups:
   type.country:
     lowercase: true
+    normalize: true
     options:
       - match: TÜRKİYE CUMHURİYETİ
         value: Turkey
@@ -55,9 +56,13 @@ lookups:
       - match: 
           - BİRLEŞİK KRALLIK
           - İNGİLTERE
+          - Britanya
+          - Britanyalı
+          - İngiliz
+          - Büyük Britanya ve Kuzey İrlanda Birleşik Krallığı
+          - Kuzey İrlanda ve Büyük Britanya Birleşik Krallığı
+          - Londra, Kuzey İrlanda ve Büyük Britanya Birleşik Krallığı
         value: United Kingdom
-      - match: USSR, AZERBAIDJAN REPUBLIC
-        value: null
       - contains: RF
         value: Russia
       - match: TİRİNİDAD VE TOBAGO
@@ -66,6 +71,98 @@ lookups:
         value: North Korea
       - match: MARSHALL ADALARI
         value: Marshall Islands
+      - match: 
+          - Fransa
+          - Fransız
+        value: France
+      - match: Rusya Federasyonu
+        value: Russia
+      - match: 
+          - Almanya
+          - Alman
+        value: Germany
+      - match: Malezya
+        value: Malaysia
+      - match: Ürdün
+        value: Jordan
+      - match: Cezayir
+        value: Algeria
+      - match: Suriye Arap Cumhuriyeti
+        value: Syria
+      - match: Moritanya
+        value: Mauritania
+      - match: Amerika Birleşik Devletleri
+        value: United States
+      - match: "Trinidad and Tobago United States of America"
+        values: 
+          - Trinidad and Tobago
+          - United States
+      - match:
+          - Filistin
+          - Filistin Devleti
+      - match: "Afgan Pakistan"
+        values: 
+          - Afghanistan
+          - Pakistan  
+      - match: "Alman Fas"
+        values: 
+          - Germany
+          - Morocco
+      - match: "Fransa Tunus"
+        values: 
+          - France
+          - Tunisia
+      - match: "Almanya Cezayir"
+        values: 
+          - Germany
+          - Algeria
+      - match: "Rusya Federasyonu Gürcistan"
+        values: 
+          - Russia
+          - Georgia\
+      - match: "IRAK SURİYE"
+        values: 
+          - Iraq
+          - Syria
+      - match: "Moritanya Mali"
+        values: 
+          - Mauritania
+          - Mali
+      - match: "Malezya Endonezya"
+        values: 
+          - Malaysia
+          - Indonesia
+      - match: "Ürdün Amerika Birleşik Devletleri"
+        values: 
+          - Jordan
+          - United States
+      - match: Endonezya (Aralık 2003 itibariyl
+        value: Indonesia
+      - match: "Cezayir Filistin"
+        values:
+          - Algeria
+          - Palestine
+      - match: 
+          - USSR, AZERBAIDJAN REPUBLIC
+          - "-"
+          - 2002 yılında Kuveyt vatandaşlığından çıkarılmıştır.
+          - SSCB (1991’e kadar)
+        value: null
+  type.name: 
+    lowercase: true
+    normalize: true
+    options: 
+      - match: Hay’at Tahrir al-Sham(HTS) (orjinal yazımı;(ﻟﺸﺎﻡ ﺍ ﻳﺮ ﺗﺤﺮ ﻫﻴﻨﺔ ); Hay’at Tahrir al-Sham; Hay’et Tahrir al-Sham; Hayat Tahrir al-Sham; Suriye Kurtuluş Meclisi; Levant Kurtuluş Meclisi; al-Sham Komisyonu Kurtuluşu; Tahrir al-Sham Levant Organizasyonu Kurtuluşu; Tahrir al-Sham Hay’at
+        values: 
+          - Hay’at Tahrir al-Sham
+          - HTS
+          - Hay’et Tahrir al-Sham
+          - Hayat Tahrir al-Sham
+          - Suriye Kurtuluş Meclisi
+          - Levant Kurtuluş Meclisi
+          - al-Sham Komisyonu Kurtuluşu
+          - Tahrir al-Sham Levant Organizasyonu Kurtuluşu
+          - Tahrir al-Sham Hay’at
   type.date:
     lowercase: true
     normalize: true
@@ -114,23 +211,94 @@ lookups:
         value: 1979-08-01
       - match: 6 Mayısl969
         value: 1969-05-06
-      - match: 645120196 (Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
+      - match: "a) 1982-04-19 b) 1982-04-18 c) 1982-04-06"
+        values: 
+          - 1982-04-19
+          - 1982-04-18
+          - 1982-04-06
+      - match: "['1977', '1982']"
+        values: 
+          - 1977
+          - 1982
+      - match: "a) 1962-02-20 b) 1959"
+        values: 
+          - 1962-02-20
+          - 1959
+      - match: "['1962', '1963']"
+        values: 
+          - 1962
+          - 1963
+      - match: "['1953', '1958']"
+        values: 
+          - 1953
+          - 1958
+      - match: 
+          - 645120196 (Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
+          - a) 1
         value: null
   type.identifier: 
     lowercase: true
     normalize: true
     options: 
-      - match: 
-          - "Telephone: +850-2-181118208. Fax: +850-2-381-4432. Email: daesong@star-co.net.kp"
-          - "Telephone: +850-2-181118208. Fax: +850-2-381-4432. Email: daesong@star-co.net.kp"
-          - "Telephone: +850-218111-8550 Fax: +850-2-381-4410/4416 Email: mhs-ip@star-co.net.kp."
-        value: null
       - match: 290320764 (Kore Demokratik Halk Cumhuriyeti tarafından verilmiştir.)
         value: 290320764
       - match: "TCKN:50755897264 VKN:  4641915128"
         values: 
           - 50755897264
           - 4641915128
+      - match: a) Afghanistan passport number OR801168, issued on 28 February 2006, expired on 27 February 2011
+        value: OR801168
+      - match: b) Pakistan passport number 4117921, issued on 9 September 2008, expired on 9 September 2013
+        value: 4117921
+      - match: Kuveyt Sivil Kimlik Numarası 281020505755, Said Jan 'Abd al-Salam
+        value: 281020505755
+      - match: CV9157521, Pakistan, düzenlenme tarihi 8 Eylül 2008, geçerlilik bitiş tarihi 7 Eylül 2013
+        value: CV9157521
+      - match: 3573010405480001, Endonezya, Mochammad Achwan adına düzenlenmiştir
+        value: 3573010405480001
+      - match: A1037434, Mali, düzenleme tarihi 10 Ağustos 2001, geçerliliğin bittiği tarih 31 Aralık 2014
+        value: A1037434
+      - match: Alman Seyahat Belgesi (“Reiseausweis”) A 0139243, removed in September 2012
+        value: A 0139243
+      - match: 1739010, Kuveyt, düzenleme tarihi 26 Mayıs 2003, geçerlilik bitiş tarihi 25 Mayıs 2008
+        value: 1739010
+      - match: G737411, Tunus, düzenlenme tarihi 24 Ekim 1990, geçerlilik bitiş tarihi 20 Eylül 1997
+        value: G737411
+      - match: L 191609, Tunus, düzenlenme tarihi 28 Şubat 1996, geçerlilik bitiş tarihi 27 Şubat 2001
+        value: L 191609
+      - match: F654645, Suudi Arabistan, düzenlenme tarihi 30 Nisan 2005, geçerlilik bitiş tarihi 7 Mart 2010
+        value: F654645
+      - match: L851940, Tunus, düzenlenme tarihi 9 Eylül 1998, geçerlilik bitiş tarihi 8 Eylül 2003
+        value: L851940
+      - match: 456682, Suudi Arabistan, düzenlenme tarihi 6 Kasım 1990, geçerlilik bitiş tarihi 13 Eylül 1995
+        value: 456682
+      - match: P229856, Tunus, düzenlenme tarihi 1 Kasım 2002, geçerlilik bitiş tarihi 31 Ekim 2007
+        value: P229856
+      - match: 849594, Kuveyt, düzenlenme tarihi 27 Kasım 1998, geçerlilik bitiş tarihi 24 Haziran 2003
+        value: 849594
+      - match: M788439, Tunus, düzenlenme tarihi 20 Ekim 2001, geçerlilik bitiş tarihi 19 Ekim 2006
+        value: M788439
+      - match: E590976, Tunus, düzenlenme tarihi 19 Haziran 1987 geçerlilik bitiş tarihi 18 Haziran 1992
+        value: E590976
+      - match: W374031, Tunus, 11 Nisan 2011'de düzenlenen Tunus Ulusal Kimlik Numarası
+        value: W374031
+      - match: a) Pakistan pasaport numarası AT0712501, düzenlenme tarihi 12 Mart 2008, geçerlilik bitiş tarihi 11 Mart 2013
+        value: AT0712501
+      - match: 'Geçici Alman Pasaport Numarası: 28642163, Almanya, (Hamburg’da düzenlenmiştir.)'
+        value: 28642163
+      - match: 954242, Fas, düzenlenme tarihi 28 Haziran 1995 Meknas, Fas (süresi bitmiş)
+        value: 954242
+      - match: M408665, Tunus, düzenlenme tarihi 4 Ekim 2000, geçerlilik bitiş tarihi 3 Ekim 2005
+        value: M408665
+      - match: L723315, Tunus, düzenlenme tarihi 5 Mayıs 1998, geçerlilik bitiş tarihi 4 Mayıs 2003
+        value: L723315
+      - match: 
+          - "Telephone: +850-2-181118208. Fax: +850-2-381-4432. Email: daesong@star-co.net.kp"
+          - "Telephone: +850-2-181118208. Fax: +850-2-381-4432. Email: daesong@star-co.net.kp"
+          - "Telephone: +850-218111-8550 Fax: +850-2-381-4410/4416 Email: mhs-ip@star-co.net.kp."
+          - Hicri Takvime göre düzenlenme tarihi 24/06/1426, Hicri Takvime göre bitiş tarihi 21/03/1431
+          - 1993 yılında Muhammad Jamal Abd-Al Rahim Ahmad Al-Kashif adına düzenlenen Mısır Pasaportu.
+        value: null
   columns:
     lowercase: true
     normalize: true
