@@ -224,11 +224,11 @@ def crawl_xlsx(context: Context, url: str, counter: int, program: str):
 
 def crawl_csv_row(
     context: Context, row: Dict[str, str]
-):  # check for the Legal Entities in the data
+):  # TODO check for the Legal Entities in the data
     row = clean_row(row)
     full_name = row.get("full_name", "")
     if not full_name:
-        return  # in the XLSX file, there are empty rows
+        return  # in the XLSX file, there are empty rows TODO
     birth_date = parse_birth_date(row.get("date_of_birth_iso", ""))
 
     if not full_name:
