@@ -19,7 +19,6 @@ MAIN_URL = "https://en.hmb.gov.tr"
 
 CSV_LINK = "https://docs.google.com/spreadsheets/d/1SFH2gKt2gFVCNvl2wnNuFZT3m-iVNYlXiWHXRquddFI/pub?gid=594686664&single=true&output=csv"
 
-
 XLSX_LINK = [
     (
         "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/B-YABANCI-ULKE-TALEPLERINE-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-6.-MADDE.xlsx",
@@ -270,6 +269,24 @@ def crawl(context: Context):
     # Construct the full URLs
     full_urls = [urljoin(MAIN_URL, link.get("href")) for link in links]
 
+    found_links = []
     # Print all the parsed links
     for url in full_urls:
         print(url)
+        section_doc = fetch_html(context, url, unblock_validator)
+
+        # Determine whether to search for .docx or .xlsx based on URL
+        if "5madde_ing" in url:
+            # Look for .docx link
+            doc_links = section_doc.xpath('//a[contains(@href, ".docx")]')
+        else:
+            # Look for .xlsx link
+            doc_links = section_doc.xpath('//a[contains(@href, ".xlsx")]')
+
+        for doc_link in doc_links:
+            full_doc_link = urljoin(MAIN_URL, doc_link.get("href"))
+            found_links.append(full_doc_link)
+
+    # Print all the extracted links
+    for link in found_links:
+        print(link)
