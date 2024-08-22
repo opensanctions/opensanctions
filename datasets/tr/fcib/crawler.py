@@ -50,19 +50,25 @@ SPLITS = [
     "n)",
 ]
 
-ADDRESS_SPLITS = [
-    "Şube 1:",
-    "Şube 2:",
-    "Şube 3:",
-    "Şube 4:",
-    "Şube 5:",
-    "Şube 6:",
-    "Şube 7:",
-    "Şube 8:",
-    "Şube 9:",
-    "Şube 10:",
-    "Şube 11:",
-]
+NEW_LINE_SPLIT = ["\n"]
+
+ADDRESS_SPLITS = (
+    [
+        "Şube 1:",
+        "Şube 2:",
+        "Şube 3:",
+        "Şube 4:",
+        "Şube 5:",
+        "Şube 6:",
+        "Şube 7:",
+        "Şube 8:",
+        "Şube 9:",
+        "Şube 10:",
+        "Şube 11:",
+    ]
+    + SPLITS
+    + NEW_LINE_SPLIT
+)
 
 
 def clean_row(row: Dict[str, str]) -> Dict[str, str]:
@@ -194,7 +200,9 @@ def crawl_xlsx(context: Context, url: str, counter: int, program: str):
             crawl_row(context, row, program)
 
 
-def crawl_csv_row(context: Context, row: Dict[str, str]):
+def crawl_csv_row(
+    context: Context, row: Dict[str, str]
+):  # check for the Legal Entities in the data
     row = clean_row(row)
     full_name = row.get("full_name", "")
     if not full_name:
@@ -210,12 +218,17 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         full_name, birth_date
     )  # Use both name and birth_date for ID
     person.add("name", full_name)
-    person.add("alias", row.pop("aliases", ""))
+    person.add("alias", h.multi_split(row.pop("aliases", ""), NEW_LINE_SPLIT))
     person.add("birthDate", birth_date)
     person.add("nationality", row.pop("nationality", ""))
-    person.add("idNumber", row.pop("passport_number", ""))
-    person.add("idNumber", row.pop("national_identity_number", ""))
-    person.add("address", row.pop("address", ""))
+    person.add(
+        "idNumber", h.multi_split(row.pop("passport_number", ""), NEW_LINE_SPLIT)
+    )
+    person.add(
+        "idNumber",
+        h.multi_split(row.pop("national_identity_number", ""), NEW_LINE_SPLIT),
+    )
+    person.add("address", h.multi_split(row.pop("address", ""), ADDRESS_SPLITS))
     person.add("notes", row.pop("additional_information", ""))
 
     context.emit(person)
@@ -227,7 +240,7 @@ def unblock_validator(doc: etree._Element) -> bool:
 
 def crawl(context: Context):
     # Fetch the main page HTML
-    doc = fetch_html(context, context.data_url, unblock_validator)
+    doc = fetch_html(context, context.data_url, unblock_validator, cache_days=3)
 
     # Find the table with the relevant links
     table = doc.find('.//table[@class="table table-bordered"]')
@@ -245,7 +258,7 @@ def crawl(context: Context):
     found_links = []
     # Print all the parsed links
     for url in full_urls:
-        section_doc = fetch_html(context, url, unblock_validator)
+        section_doc = fetch_html(context, url, unblock_validator, cache_days=3)
 
         # Determine whether to search for .docx or .xlsx based on URL
         if "5madde_ing" in url:
