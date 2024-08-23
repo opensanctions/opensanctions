@@ -338,7 +338,8 @@ class Context:
             try:
                 return orjson.loads(text)
             except Exception:
-                fingerprint = request_hash(url, auth=auth, method=method, data=data)
+                cache_url = build_url(url, params)
+                fingerprint = request_hash(cache_url, auth=auth, method=method, data=data)
                 self.clear_url(fingerprint)
                 raise
 
@@ -380,7 +381,8 @@ class Context:
             try:
                 return html.fromstring(text)
             except Exception:
-                fingerprint = request_hash(url, auth=auth, method=method, data=data)
+                cache_url = build_url(url, params)
+                fingerprint = request_hash(cache_url, auth=auth, method=method, data=data)
                 self.clear_url(fingerprint)
                 raise
         raise ValueError("Invalid HTML document: %s" % url)
