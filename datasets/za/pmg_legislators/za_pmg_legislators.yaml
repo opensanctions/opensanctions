@@ -13,13 +13,14 @@ description: |
     National Assembly, National Council of Provinces, provincial legislatures,
     and provincial executives. It covers various positions in the National
     Legislature and Executive branch.
+
+    This data source is licensed under the [Creative Commons Attribution-ShareAlike license (CC-BY-SA)](https://creativecommons.org/licenses/by-sa/4.0/).
 publisher: 
   name: Parliamentary Monitoring Group (PMG)
   description: |
    The Parliamentary Monitoring Group (PMG) provides comprehensive details
-   about parliamentary activities and various stakeholders in South Africa.
+  official: false
   url: https://pmg.org.za/
-  official: true
   country: "za"
 url: https://pa.org.za/help/api
 data:
