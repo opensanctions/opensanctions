@@ -234,18 +234,19 @@ def crawl_csv_row(
     if not full_name:
         context.log.error("Missing name in row: %s", row)
         return
-    schema = row.pop("schema")
+    schema = row.get("schema", "")
     if schema == "Organization":
-        legal_entity = context.make("Organization")
-        legal_entity.id = context.make_id(full_name)
-        legal_entity.add("name", full_name)
-        legal_entity.add("alias", h.multi_split(row.pop("aliases", ""), NEW_LINE_SPLIT))
-        legal_entity.add("previousName", row.pop("known_former_name", ""))
-        legal_entity.add(
+        organization = context.make("Organization")
+        organization.id = context.make_id(full_name)
+        organization.add("name", full_name)
+        organization.add("name", row.pop("original_script_name", ""))
+        organization.add("alias", h.multi_split(row.pop("aliases", ""), NEW_LINE_SPLIT))
+        organization.add("previousName", row.pop("known_former_name", ""))
+        organization.add(
             "address", h.multi_split(row.pop("address", ""), ADDRESS_SPLITS)
         )
-        legal_entity.add("notes", row.pop("additional_information", ""))
-        context.emit(legal_entity)
+        organization.add("notes", row.pop("additional_information", ""))
+        context.emit(organization)
 
     else:  # schema == "Person"
         person = context.make("Person")
