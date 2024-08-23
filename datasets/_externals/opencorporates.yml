@@ -116,3 +116,12 @@ lookups:
         value: South Korea
       - match: HNK
         value: HK
+
+  type.name:
+    options:
+      - match: "CÔNG TY CỔ PHẦN SẢN XUẤT KINH DOANH TỔNG HỢP VĨNH HƯNG (DOANH NGHIỆP ĐÃ GIẢI THỂ THEO THÔNG BÁO SỐ: 27/TB-ĐKKD NGÀY 16/05/2006 CỦA PHÒNG ĐĂNG KÝ KINH DOANH - SỞ KẾ HOẠCH VÀ ĐẦU TƯ HÀ NỘI). (THÔNG BÁO ĐÓNG MÃ SỐ THUẾ, NGỪNG HOẠT ĐỘNG, THÔNG BÁO SÓ: 1051 C"
+        value: CÔNG TY CỔ PHẦN SẢN XUẤT KINH DOANH TỔNG HỢP VĨNH HƯNG
+      - match: 'DOANH NGHIỆP TƯ NHÂN SẢN XUẤT THƯƠNG MẠI DỊCH VỤ TỔNG HỢP AN KHÁNH (TÊN CŨ: DOANH NGHIỆP TƯ NHÂN THƯƠNG MẠI AN KHÁNH) "CẤP LẠI MÃ SỐ DN TỪ ĐKKD SỐ: 0101000898 DO PHÒNG ĐKKD - SỞ KẾ HOẠCH VÀ ĐẦU TƯ THÀNH PHỐ HÀ NỘI CẤP NGÀY 02/05/2003"(CẤP LẠI LẦN 1 NGÀY 10/09/2010)'
+        values:
+          - DOANH NGHIỆP TƯ NHÂN SẢN XUẤT THƯƠNG MẠI DỊCH VỤ TỔNG HỢP AN KHÁNH
+          - DOANH NGHIỆP TƯ NHÂN THƯƠNG MẠI AN KHÁNH
