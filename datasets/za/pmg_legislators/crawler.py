@@ -63,9 +63,6 @@ def clean_phones(phones):
 
 def crawl_person(context: Context, person_data: dict, organizations, events):
     person_id = person_data.get("id")
-    if not person_id:
-        # context.log.error(f"Missing ID in person data: {data}")
-        return
 
     person_qid = None
     person_slug = None
@@ -151,25 +148,11 @@ def crawl_membership(
         # context.log.info(f"Skipping role {role} not of interest.")
         return None
 
-    # Initialize the topics list
-    topics = []
-
-    # Check if the role matches GOV_POSITIONS or LEG_POSITIONS
-    if any(re.findall(regex, position_label) for regex in GOV_POSITIONS):
-        topics.append("gov.national")
-
-    if any(re.findall(regex, position_label) for regex in LEG_POSITIONS):
-        topics.append("gov.legislative")
-
-    # If neither matches, we can skip this role
-    if not topics:
-        return None
-
     position = h.make_position(
         context,
         position_label,
         country="za",
-        topics=topics,
+        topics=None,
     )
 
     # Always PEP because filtered by known position label patterns
