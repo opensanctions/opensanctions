@@ -344,7 +344,7 @@ lookups:
       - match:
           - ADI SOYADI-ÜNVANI
           - GERÇEK/TÜZEL KİŞİ/KURULUŞ/ORGANİZASYON ADI SOYADI ÜNVANI
-          - Gerçek Kişi Soyadı Ünvanı # Real Person Surname Title 
+          - Gerçek Kişi Soyadı Ünvanı   # Real Person Surname Title 
          # - Tüzel Kuruluş/Organizasyon Ünvanı # Legal Entity/Organisation Title 
         value: name
       - match: Eski Adı
@@ -353,7 +353,7 @@ lookups:
           - TCKN-VKN-PASAPORT NO
           - TCKN/ VKN/GKN PASAPORT NO
         value: passport_number
-      - match: Pasaport No/ Diğer Muhtelif  Bilgiler # Passport No/ Other Miscellaneous Information
+      - match: Pasaport No/ Diğer Muhtelif  Bilgiler   # Passport No/ Other Miscellaneous Information
         value: passport_number_other_info
       - match: 
           - UYRUĞU
@@ -389,6 +389,6 @@ lookups:
           - Örgütü
         value: organization
       - match: 
-          - KARAR TARİH-SAYISI # DATE-NUMBER OF DECISION
-          - BKK-CBK Karar Tarih ve Sayısı #  Date and Number of Decision
+          - KARAR TARİH-SAYISI   # DATE-NUMBER OF DECISION
+          - BKK-CBK Karar Tarih ve Sayısı   #  Date and Number of Decision
         value: decision_date
