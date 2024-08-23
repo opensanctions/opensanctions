@@ -195,15 +195,17 @@ def test_context_fetchers_exceptions(testdataset1: Dataset):
     with pytest.raises(ValueError, match="Unsupported HTTP method.+"):
         context.fetch_text("https://test.com/bla", cache_days=0, method="PLOP")
 
+    # Test that JSON decode failure clears its cache entry
+
+    context.cache.clear()
     with pytest.raises(orjson.JSONDecodeError, match="unexpected.+"):
         with requests_mock.Mocker() as m:
-            m.get("/bla", text='{"msg": "Hello, World!"')
-            context.fetch_json("https://test.com/bla", cache_days=10)
-
-    fingerprint = request_hash("https://test.com/bla", method="GET")
+            m.get("/bla", text='{"msg": "Jason who? The object doesn\'t close."')
+            params = {"query": "test"}
+            context.fetch_json("https://test.com/bla", params=params, cache_days=10)
 
     # Checking that cleanup function wiped the cache properly
-    assert context.cache.get(fingerprint, max_age=10) is None
+    assert list(context.cache.all(None)) == []
 
     context.close()
 
