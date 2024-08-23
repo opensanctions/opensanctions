@@ -1,8 +1,8 @@
 from urllib.parse import urljoin, urlparse
-from typing import Dict, Optional, Set, IO, List, Any
+from typing import Dict, Optional, Set, IO, List, Any, Tuple
 from collections import defaultdict
 from zipfile import ZipFile
-
+from followthemoney.types import registry
 from lxml import etree
 from lxml.etree import _Element as Element, tostring
 
@@ -11,6 +11,7 @@ from addressformatting import AddressFormatter
 from zavod import Context, Entity
 from zavod import helpers as h
 
+MIN_NAME_LENGTH = 40
 INN_URL = "https://egrul.itsoft.ru/%s.xml"
 # original source: "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
 aformatter = AddressFormatter()
@@ -446,6 +447,48 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     entity.add("address", address)
 
 
+def categorise_names(
+    full_names: List[str], short_names: List[str]
+) -> Tuple[List[str], List[str]]:
+    """
+    If any names are too long, and any names are short enough but not too short
+    to be meaningful, use all the short enough names and put the too-long names
+    in description.
+
+    Otherwise use all the names and let length validation alert as usual.
+
+    This would let
+    ППОО МБУ ДО ДШИ №6 ИМЕНИ Г.В.СВИРИДОВА РРО РПСРК
+    PPOO MBU DO DSHI №6 NAMED AFTER G.V.SVIRIDOV RRO RPSRK
+    in names and put
+    ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ МУНИЦИПАЛЬНОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ ДОПОЛНИТЕЛЬНОГО ОБРАЗОВАНИЯ ДЕТСКАЯ ШКОЛА ИСКУССТВ №6 ИМЕНИ Г.В.СВИРИДОВА Г.РОСТОВА-НА-ДОНУ РОСТОВСКОГО РЕГИОНАЛЬНОГО ОТДЕЛЕНИЯ РОССИЙСКОГО ПРОФЕССИОНАЛЬНОГО СОЮЗА РАБОТНИКОВ КУЛЬТУРЫ
+    PRIMARY TRADE UNION PUBLIC ORGANIZATION OF THE MUNICIPAL BUDGETARY INSTITUTION OF ADDITIONAL EDUCATION CHILDREN'S ARTS SCHOOL №6 NAMED AFTER G.V.SVIRIDOVA ROSTOV-ON-DON ROSTOV REGIONAL BRANCH OF THE RUSSIAN TRADE UNION OF CULTURAL WORKERS
+    in description.
+    """
+    descriptions = set()
+    sufficient_short = set()
+    too_short = set()
+    too_long = set()
+
+    for name in short_names + full_names:
+        if len(name) < registry.name.max_length:
+            if len(name) > MIN_NAME_LENGTH:
+                sufficient_short.add(name)
+            else:
+                too_short.add(name)
+        else:
+            too_long.add(name)
+    if too_long and sufficient_short:
+        for name in short_names + full_names:
+            if len(name) > registry.name.max_length:
+                descriptions.add(name)
+        ok = sufficient_short.union(too_short)
+        assert len(ok.union(descriptions)) == len(full_names + short_names)
+        return list(ok), list(descriptions)
+    else:
+        return full_names + short_names, []
+
+
 def parse_company(context: Context, el: Element) -> None:
     """
     Parse a company from the XML element and emit entities.
@@ -458,18 +501,29 @@ def parse_company(context: Context, el: Element) -> None:
     entity = context.make("Company")
     inn = el.get("ИНН")
     ogrn = el.get("ОГРН")
-    name_full: Optional[str] = None
-    name_short: Optional[str] = None
+    names_full: List[str] = []
+    names_short: List[str] = []
 
     for name_el in el.findall("./СвНаимЮЛ"):
         name_full = name_el.get("НаимЮЛПолн")
+        if name_full:
+            names_full.append(name_full)
         name_short = name_el.get("НаимЮЛСокр")
+        if name_short and name_short != "-":
+            names_short.append(name_short)
+        for sub_name_el in name_el.findall("./СвНаимЮЛСокр"):
+            name_short = sub_name_el.get("НаимСокр")
+            if name_short and name_short != "-":
+                names_short.append(name_short)
 
-    name = name_full or name_short
+    name = names_full[0] if names_full else names_short[0] if names_short else None
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
-    entity.add("name", name_full)
-    entity.add("name", name_short)
+    names, descriptions = categorise_names(names_full, names_short)
+    entity.add("name", names_full)
+    entity.add("name", names_short)
+    entity.add("description", descriptions)
+
     entity.add("ogrnCode", ogrn)
     entity.add("innCode", inn)
     entity.add("kppCode", el.get("КПП"))
