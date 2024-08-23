@@ -232,6 +232,10 @@ lookups:
         values: 
           - 1953
           - 1958
+      - match: 1968-1970
+        values: 
+          - 1968
+          - 1970
       - match: 
           - 645120196 (Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
           - a) 1
@@ -298,6 +302,19 @@ lookups:
           - "Telephone: +850-218111-8550 Fax: +850-2-381-4410/4416 Email: mhs-ip@star-co.net.kp."
           - Hicri Takvime göre düzenlenme tarihi 24/06/1426, Hicri Takvime göre bitiş tarihi 21/03/1431
           - 1993 yılında Muhammad Jamal Abd-Al Rahim Ahmad Al-Kashif adına düzenlenen Mısır Pasaportu.
+          - "-"
+        value: null
+  type.string:
+    lowercase: true
+    normalize: true
+    options: 
+      - match: "-"
+        value: null
+  type.address: 
+    lowercase: true
+    normalize: true
+    options: 
+      - match: "-"
         value: null
   columns:
     lowercase: true

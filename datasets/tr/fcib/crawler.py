@@ -89,6 +89,8 @@ def parse_birth_date(birth_date: str) -> str:
     if birth_date.endswith("01-01"):
         # Return only the year part
         return birth_date[:4]
+    if birth_date.endswith("T00:00:00Z"):
+        return birth_date[:4]
     # Otherwise, return the full date
     return birth_date
 
@@ -222,14 +224,12 @@ def crawl_xlsx(context: Context, url: str, counter: int, program: str):
             crawl_row(context, row, program)
 
 
-def crawl_csv_row(
-    context: Context, row: Dict[str, str]
-):  # TODO check for the Legal Entities in the data
+def crawl_csv_row(context: Context, row: Dict[str, str]):
     row = clean_row(row)
     full_name = row.get("full_name", "")
-    if not full_name:
-        return  # in the XLSX file, there are empty rows TODO
-    birth_date = parse_birth_date(row.get("date_of_birth_iso", ""))
+    if not full_name:  # one person with no name
+        return
+    birth_dates = h.multi_split(row.get("date_of_birth_iso", ""), NEW_LINE_SPLIT)
 
     if not full_name:
         context.log.error("Missing name in row: %s", row)
@@ -246,16 +246,23 @@ def crawl_csv_row(
             "address", h.multi_split(row.pop("address", ""), ADDRESS_SPLITS)
         )
         organization.add("notes", row.pop("additional_information", ""))
+        organization.add("topics", "sanction")
+
+        sanction = h.make_sanction(context, organization)
+        sanction.add("program", row.pop("program"))
+
+        context.emit(sanction)
         context.emit(organization)
 
     else:  # schema == "Person"
         person = context.make("Person")
         person.id = context.make_id(
-            full_name, birth_date
+            full_name, birth_dates
         )  # Use both name and birth_date for ID
         person.add("name", full_name)
         person.add("alias", h.multi_split(row.pop("aliases", ""), NEW_LINE_SPLIT))
-        person.add("birthDate", birth_date)
+        for birth_date in birth_dates:
+            person.add("birthDate", parse_birth_date(birth_date))
         person.add("nationality", h.multi_split(row.pop("nationality", ""), SPLITS))
         cleaned_passport_numbers = clean_id_numbers(row.pop("passport_number", ""))
         for cleaned_number in cleaned_passport_numbers:
@@ -266,6 +273,10 @@ def crawl_csv_row(
         person.add("address", h.multi_split(row.pop("address", ""), ADDRESS_SPLITS))
         person.add("notes", row.pop("additional_information", ""))
 
+        sanction = h.make_sanction(context, person)
+        sanction.add("program", row.pop("program"))
+
+        context.emit(sanction)
         context.emit(person)
 
 
