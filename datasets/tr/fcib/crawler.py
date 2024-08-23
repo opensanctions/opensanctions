@@ -234,25 +234,38 @@ def crawl_csv_row(
     if not full_name:
         context.log.error("Missing name in row: %s", row)
         return
+    schema = row.pop("schema")
+    if schema == "Organization":
+        legal_entity = context.make("Organization")
+        legal_entity.id = context.make_id(full_name)
+        legal_entity.add("name", full_name)
+        legal_entity.add("alias", h.multi_split(row.pop("aliases", ""), NEW_LINE_SPLIT))
+        legal_entity.add("previousName", row.pop("known_former_name", ""))
+        legal_entity.add(
+            "address", h.multi_split(row.pop("address", ""), ADDRESS_SPLITS)
+        )
+        legal_entity.add("notes", row.pop("additional_information", ""))
+        context.emit(legal_entity)
 
-    person = context.make("Person")
-    person.id = context.make_id(
-        full_name, birth_date
-    )  # Use both name and birth_date for ID
-    person.add("name", full_name)
-    person.add("alias", h.multi_split(row.pop("aliases", ""), NEW_LINE_SPLIT))
-    person.add("birthDate", birth_date)
-    person.add("nationality", h.multi_split(row.pop("nationality", ""), SPLITS))
-    cleaned_passport_numbers = clean_id_numbers(row.pop("passport_number", ""))
-    for cleaned_number in cleaned_passport_numbers:
-        person.add("idNumber", cleaned_number)
-    cleaned_id_numbers = clean_id_numbers(row.pop("idNumber", ""))
-    for cleaned_number in cleaned_id_numbers:
-        person.add("idNumber", cleaned_number)
-    person.add("address", h.multi_split(row.pop("address", ""), ADDRESS_SPLITS))
-    person.add("notes", row.pop("additional_information", ""))
+    else:  # schema == "Person"
+        person = context.make("Person")
+        person.id = context.make_id(
+            full_name, birth_date
+        )  # Use both name and birth_date for ID
+        person.add("name", full_name)
+        person.add("alias", h.multi_split(row.pop("aliases", ""), NEW_LINE_SPLIT))
+        person.add("birthDate", birth_date)
+        person.add("nationality", h.multi_split(row.pop("nationality", ""), SPLITS))
+        cleaned_passport_numbers = clean_id_numbers(row.pop("passport_number", ""))
+        for cleaned_number in cleaned_passport_numbers:
+            person.add("idNumber", cleaned_number)
+        cleaned_id_numbers = clean_id_numbers(row.pop("idNumber", ""))
+        for cleaned_number in cleaned_id_numbers:
+            person.add("idNumber", cleaned_number)
+        person.add("address", h.multi_split(row.pop("address", ""), ADDRESS_SPLITS))
+        person.add("notes", row.pop("additional_information", ""))
 
-    context.emit(person)
+        context.emit(person)
 
 
 def unblock_validator(doc: etree._Element) -> bool:
