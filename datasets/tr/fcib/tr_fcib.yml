@@ -43,6 +43,8 @@ publisher:
 data:
   url: https://en.hmb.gov.tr/fcib-tf-current-list
   format: html
+dates:
+    formats: ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S"]
 
 lookups:
   type.country:
@@ -372,7 +374,7 @@ lookups:
           - RESMİ GAZETE TARİH-SAYISI
           - RESMİ GAZETE TARİH SAYISI
           - R.Gazete Tarih Sayı
-        value: official_gazette_date
+        value: gazette_date
       - match: 
           - KULLANDIĞI BİLİNEN DİĞER İSİMLERİ
           - Kullandığı Bilinen Diğer İsmler

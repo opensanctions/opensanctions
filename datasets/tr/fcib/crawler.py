@@ -11,7 +11,7 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
-DATE_FORMAT = "%d.%m.%Y"
+DATE_FORMAT = ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S"]
 
 MAIN_URL = "https://en.hmb.gov.tr"
 
@@ -72,6 +72,7 @@ ADDRESS_SPLITS = (
 )
 
 REGEX_ID_NUMBER = re.compile(r"^[^,]+")
+REGEX_GAZZETE_DATE = re.compile(r"(\d{2}\.\d{2}\.\d{4})")
 
 
 def clean_id_numbers(passport_numbers):
@@ -91,7 +92,6 @@ def parse_birth_date(birth_date: str) -> str:
         return birth_date[:4]
     if birth_date.endswith("T00:00:00Z"):
         return birth_date[:4]
-    # Otherwise, return the full date
     return birth_date
 
 
@@ -135,7 +135,7 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
     legal_entity_name = row.pop("legal_entity_name", "")  # LegalEntity
     birth_establishment_date = h.parse_date(
         row.pop("date_of_birth_establishment", ""), DATE_FORMAT
-    )  # LegalEntity
+    )
     birth_place = row.pop("birth_place", "")  # Person
     birth_date = h.parse_date(row.pop("birth_date", ""), DATE_FORMAT)  # Person
     position = row.pop("position", "")
@@ -144,7 +144,10 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
     organization = row.pop("organization", "")
     sanction_type = row.pop("sanction_type", "")
     listing_date = row.pop("listing_date", "")
-    # official_gazette_date = row.pop("official_gazette_date", "")
+    gazette_date = row.pop("gazette_date", "")
+    if gazette_date:
+        matched_date = REGEX_GAZZETE_DATE.search(gazette_date)
+        gazette_date = matched_date.group(0) if matched_date else ""
 
     if birth_date or birth_place:
         person = context.make("Person")
@@ -154,8 +157,8 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
         person.add("nationality", nationality_country)
         person.add("previousName", previous_name)
         person.add("birthPlace", birth_place)
-        person.add("birthDate", h.multi_split(birth_date, SPLITS))
-        person.add("birthDate", birth_establishment_date)
+        h.apply_dates(person, "birthDate", h.multi_split(birth_date, SPLITS))
+        h.apply_dates(person, "birthDate", birth_establishment_date)
         person.add("passportNumber", pass_no)
         person.add("position", position)
         person.add("address", h.multi_split(address, SPLITS))
@@ -165,7 +168,8 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
         sanction.add("description", sanction_type)
         sanction.add("reason", organization)
         sanction.add("program", program)  # depends on the xlsx file
-        sanction.add("listingDate", listing_date)
+        h.apply_date(sanction, "listingDate", listing_date)
+        h.apply_date(sanction, "listingDate", gazette_date)
 
         context.emit(person)
         context.emit(sanction)
@@ -187,7 +191,8 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
         sanction.add("description", sanction_type)
         sanction.add("reason", organization)
         sanction.add("program", program)  # depends on the xlsx file
-        sanction.add("listingDate", listing_date)
+        h.apply_date(sanction, "listingDate", listing_date)
+        h.apply_date(sanction, "listingDate", gazette_date)
 
         context.emit(entity)
         context.emit(sanction)
@@ -262,7 +267,7 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         person.add("name", full_name)
         person.add("alias", h.multi_split(row.pop("aliases", ""), NEW_LINE_SPLIT))
         for birth_date in birth_dates:
-            person.add("birthDate", parse_birth_date(birth_date))
+            h.apply_date(person, "birthDate", parse_birth_date(birth_date))
         person.add("nationality", h.multi_split(row.pop("nationality", ""), SPLITS))
         cleaned_passport_numbers = clean_id_numbers(row.pop("passport_number", ""))
         for cleaned_number in cleaned_passport_numbers:
