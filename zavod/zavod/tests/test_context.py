@@ -197,14 +197,23 @@ def test_context_fetchers_exceptions(testdataset1: Dataset):
         context.fetch_text("https://test.com/bla", cache_days=0, method="PLOP")
 
     params = {"query": "test"}
+    data = {"foo": "bar"}
+    auth = ("user", "pass")
     # Test that JSON decode failure clears its cache entry
 
     context.cache.clear()
     with pytest.raises(orjson.JSONDecodeError, match="unexpected.+"):
         with requests_mock.Mocker() as m:
-            m.get("/bla", text='{"msg": "Jason who? The object doesn\'t close."')
+            m.post("/bla", text='{"msg": "Jason who? The object doesn\'t close."')
 
-            context.fetch_json("https://test.com/bla", params=params, cache_days=10)
+            context.fetch_json(
+                "https://test.com/bla",
+                method="POST",
+                auth=auth,
+                params=params,
+                data=data,
+                cache_days=10,
+            )
 
     # Checking that cleanup function wiped the cache properly
     assert list(context.cache.all(None)) == []
@@ -213,8 +222,15 @@ def test_context_fetchers_exceptions(testdataset1: Dataset):
 
     with pytest.raises(etree.ParserError, match="Document is empty"):
         with requests_mock.Mocker() as m:
-            m.get("/bla", text="<")
-            context.fetch_html("https://test.com/bla", params=params, cache_days=10)
+            m.post("/bla", text="<")
+            context.fetch_html(
+                "https://test.com/bla",
+                method="POST",
+                auth=auth,
+                params=params,
+                data=data,
+                cache_days=10,
+            )
 
     # Checking that cleanup function wiped the cache properly
     assert list(context.cache.all(None)) == []
