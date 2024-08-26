@@ -1,0 +1,23 @@
+title: New York Terminated Provider List
+entry_point: crawler.py
+prefix: us-medny
+coverage:
+  frequency: daily
+  start: "2024-08-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been terminated for cause from New York's Medicaid program.
+description: |
+  The New York State Office of the Medicaid Inspector General maintains a list of providers
+  whose Medicaid provider agreement has been terminated. Providers listed are not allowed to receive
+  reimbursement for Medicaid services in any capacity.
+publisher:
+  name: New York State Office of the Medicaid Inspector General
+  acronym: OMIG
+  url: https://omig.ny.gov
+  official: true
+  country: "us"
+url: "https://omig.ny.gov/medicaid-fraud/medicaid-exclusions"
+data:
+  url: https://apps.omig.ny.gov/exclusions/exporttoexcel.aspx
+  format: XLSX
