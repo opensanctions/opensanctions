@@ -1,5 +1,6 @@
 from lxml import html, etree
 from zavod import Context
+import orjson
 
 BASE_URL = "https://www.navy.mil"
 API_URL = "https://www.navy.mil/API/ArticleCS/Public/GetList?moduleID=709&dpage=%d&TabId=119&language=en-US"
@@ -26,20 +27,33 @@ def crawl_entity(context: Context, item_html: str) -> None:
 
 def process_page(context: Context, page_number: int):
     url = API_URL % page_number
-    data = context.fetch_json(url)
+    try:
+        data = context.fetch_json(url)
+    except orjson.JSONDecodeError as e:
+        context.log.error(f"Failed to decode JSON from {url}: {e}")
+        return False, False
+    except Exception as e:
+        context.log.error(f"Failed to fetch JSON from {url}: {e}")
+        return False, False
 
     if not data:
+        context.log.error(f"No data found for page {page_number}")
         return False, False
 
     if isinstance(data, dict):
         html_data = data.get("data")
         done = data.get("done", True)
     else:
-        root = etree.fromstring(data)
-        html_data = root.find(".//data").text
-        done = root.find(".//done").text.lower() == "true"
+        try:
+            root = etree.fromstring(data)
+            html_data = root.find(".//data").text
+            done = root.find(".//done").text.lower() == "true"
+        except etree.XMLSyntaxError as e:
+            context.log.error(f"Failed to parse XML for page {page_number}: {e}")
+            return False, False
 
     if not html_data:
+        context.log.error(f"No HTML data found for page {page_number}")
         return False, done
 
     items = html.fromstring(html_data).findall(".//li")
