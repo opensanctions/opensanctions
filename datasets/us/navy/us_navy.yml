@@ -1,6 +1,7 @@
 title: "US Navy Leadership"
 url: https://www.navy.mil/Leadership/
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 coverage:
   frequency: daily
   start: 2024-08-23
