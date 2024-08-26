@@ -1,0 +1,24 @@
+title: Iowa Terminated Provider List
+entry_point: crawler.py
+prefix: us-media
+coverage:
+  frequency: daily
+  start: "2024-08-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been terminated for cause from Iowa's Medicaid program.
+description: |
+  Federal regulation requires states to provide notice when the enrollment of a Medicaid enrolled provider has
+  been terminated “for cause”. Services rendered or ordered by sanctioned providers are not eligible for
+  Medicaid reimbursement. In addition, services provided by entities owned or managed by sanctioned providers
+  are not eligible for Medicaid reimbursement.
+publisher:
+  name: Iowa Health & Human Services
+  acronym: HHS
+  url: https://hhs.iowa.gov
+  official: true
+  country: "us"
+url: "https://hhs.iowa.gov/programs/welcome-iowa-medicaid/provider-services/excluded-individuals-and-entities"
+data:
+  url: https://hhs.iowa.gov/programs/welcome-iowa-medicaid/provider-services/excluded-individuals-and-entities
+  format: HTML
