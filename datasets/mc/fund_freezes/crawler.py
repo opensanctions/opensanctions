@@ -1,7 +1,8 @@
-from zavod import Context
-from zavod import helpers as h
 import re
 from typing import Dict
+
+from zavod import Context
+from zavod import helpers as h
 
 
 def clean_address(text):
@@ -39,7 +40,6 @@ def crawl_person(context: Context, record):
         dob = h.parse_date(dob, ["%d/%m/%Y"])
     place_of_birth = person_details.pop("lieuNaissance")
     nationality = person_details.pop("nationalite")
-    title = person_details.pop("titre")
     passport = person_details.pop("passeport")
 
     person = crawl_common(context, record, "Person")
@@ -48,7 +48,7 @@ def crawl_person(context: Context, record):
     person.add("birthDate", dob)
     person.add("birthPlace", place_of_birth)
     person.add("nationality", re.split(r",\s*|/|;", nationality))
-    person.add("title", title)
+    person.add("position", person_details.pop("titre"))
     person.add("passportNumber", extract_passport_no(passport))
 
     context.emit(person, target=True)
