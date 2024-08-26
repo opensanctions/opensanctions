@@ -79,6 +79,9 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-2-avril-2024/
         names:
           - abrdn Investments Luxembourg S.A.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-22-aout-2024/
+        names:
+          - ADLER Group S.A.
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
