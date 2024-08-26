@@ -25,5 +25,5 @@ publisher:
   country: us
   url: https://www.navy.mil
 data:
-  url: https://www.navy.mil/Leadership/Flag-Officer-Biographies/
-  format: html
+  url: https://www.navy.mil/API/ArticleCS/Public/GetList?moduleID=709&dpage=18&TabId=119&language=en-US
+  format: json
