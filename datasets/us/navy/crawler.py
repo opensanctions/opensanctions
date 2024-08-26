@@ -1,12 +1,14 @@
 from lxml import html, etree
-from zavod import Context
 import orjson
+
+from zavod import Context, helpers as h
+from zavod.logic.pep import categorise
 
 BASE_URL = "https://www.navy.mil"
 API_URL = "https://www.navy.mil/API/ArticleCS/Public/GetList?moduleID=709&dpage=%d&TabId=119&language=en-US"
 
 
-def crawl_entity(context: Context, item_html: str) -> None:
+def crawl_person(context: Context, item_html: str) -> None:
     doc = html.fromstring(item_html)
     link_el = doc.find(".//a")
     if link_el is None:
@@ -14,15 +16,30 @@ def crawl_entity(context: Context, item_html: str) -> None:
 
     url = link_el.get("href")
     name = link_el.find(".//h2").text_content().strip()
-    position = link_el.find(".//h3").text_content().strip()
+    role = link_el.find(".//h3").text_content().strip()
+
+    position = h.make_position(context, role, country="us", topics=["mil"])
 
     entity = context.make("Person")
-    entity.id = context.make_id(name)
+    entity.id = context.make_id(name, position)
     entity.add("name", name)
     entity.add("sourceUrl", url)
     entity.add("position", position)
 
-    context.emit(entity, target=True)
+    categorisation = categorise(context, position, is_pep=True)
+
+    if not categorisation.is_pep:
+        return
+    occupancy = h.make_occupancy(
+        context,
+        entity,
+        position,
+    )
+
+    if occupancy:
+        context.emit(entity, target=True)
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def process_page(context: Context, page_number: int):
@@ -59,7 +76,7 @@ def process_page(context: Context, page_number: int):
     items = html.fromstring(html_data).findall(".//li")
     for item in items:
         item_html = html.tostring(item, encoding="unicode")
-        crawl_entity(context, item_html)
+        crawl_person(context, item_html)
 
     return True, done
 
