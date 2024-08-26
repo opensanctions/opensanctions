@@ -113,7 +113,15 @@ def crawl_person(context: Context, person_data: dict, organizations, events):
             person.add("address", value)
 
     for membership in person_data.pop("memberships", []):
-        crawl_membership(context, person, membership, organizations, events)
+        crawl_membership(
+            context,
+            person,
+            membership,
+            organizations,
+            events,
+            person_data.get("birth_date"),
+            person_data.get("death_date"),
+        )
 
 
 def crawl_membership(
@@ -122,6 +130,8 @@ def crawl_membership(
     membership: dict,
     organizations: Dict[str, str],
     events,
+    birth_date: str,
+    death_date: str,
 ) -> Optional[str]:
     org_id = membership.get("organization_id")
     org_name = organizations.get(org_id)
@@ -177,11 +187,11 @@ def crawl_membership(
         entity,
         position,
         no_end_implies_current=False,
-        start_date=membership.get("start_date") or period.get("start_date"),
-        end_date=membership.get("end_date") or period.get("end_date"),
-        birth_date=membership.get("birth_date"),
-        death_date=membership.get("death_date"),
+        start_date=membership.pop("start_date", ""),  # or period.pop("start_date", ""),
+        end_date=membership.pop("end_date", ""),  # or period.pop("end_date", ""),
         categorisation=categorisation,
+        birth_date=birth_date,
+        death_date=death_date,
     )
 
     if occupancy:
@@ -218,7 +228,7 @@ def crawl(context: Context):
         if death_date is not None:
             death_dates[person.get("id")] = death_date
 
-        birth_date = person.get("birth_date", None)
+        birth_date = person.get("birth_date")
         if birth_date is not None:
             birth_dates[person.get("id")] = birth_date
 
