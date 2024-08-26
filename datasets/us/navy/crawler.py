@@ -1,11 +1,31 @@
 from lxml import html, etree
 import orjson
+from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
+from zavod.shed.zyte_api import fetch_html
 
 BASE_URL = "https://www.navy.mil"
 API_URL = "https://www.navy.mil/API/ArticleCS/Public/GetList?moduleID=709&dpage=%d&TabId=119&language=en-US"
+
+
+def emit_person(context: Context, country: str, source_url: str, role: str, name: str):
+    person = context.make("Person")
+    person.id = context.make_id(country, name, role)
+    person.add("name", name)
+    person.add("position", role)
+    person.add("sourceUrl", source_url)
+
+    position = h.make_position(context, role, country=country, topics=["mil"])
+
+    categorisation = categorise(context, position, is_pep=True)
+    if categorisation.is_pep:
+        occupancy = h.make_occupancy(context, person, position)
+        if occupancy:
+            context.emit(person, target=True)
+            context.emit(position)
+            context.emit(occupancy)
 
 
 def crawl_person(context: Context, item_html: str) -> None:
@@ -13,33 +33,10 @@ def crawl_person(context: Context, item_html: str) -> None:
     link_el = doc.find(".//a")
     if link_el is None:
         return
-
     url = link_el.get("href")
     name = link_el.find(".//h2").text_content().strip()
     role = link_el.find(".//h3").text_content().strip()
-
-    position = h.make_position(context, role, country="us", topics=["mil"])
-
-    entity = context.make("Person")
-    entity.id = context.make_id(name, position)
-    entity.add("name", name)
-    entity.add("sourceUrl", url)
-    entity.add("position", position)
-
-    categorisation = categorise(context, position, is_pep=True)
-
-    if not categorisation.is_pep:
-        return
-    occupancy = h.make_occupancy(
-        context,
-        entity,
-        position,
-    )
-
-    if occupancy:
-        context.emit(entity, target=True)
-        context.emit(position)
-        context.emit(occupancy)
+    emit_person(context, "us", url, role, name)
 
 
 def process_page(context: Context, page_number: int):
@@ -81,11 +78,38 @@ def process_page(context: Context, page_number: int):
     return True, done
 
 
+def unblock_validator(doc: html.HtmlElement) -> bool:
+    return len(doc.xpath(".//div[contains(@class, 'DNNModuleContent')]")) > 0
+
+
+def parse_html(context):
+    doc = fetch_html(
+        context, context.data_url, unblock_validator=unblock_validator, cache_days=3
+    )
+    for div in doc.xpath(
+        './/div[contains(@class, "DNNModuleContent") and contains(@class, "ModPhotoDashboardC")]'
+    ):
+        leader_divs = div.xpath('.//div[contains(@class, "leader-title")]/a')
+        for leader_div in leader_divs:
+            leader_url = urljoin(BASE_URL, leader_div.get("href"))
+            name_element = leader_div.find(".//h3")
+            role_element = leader_div.find(".//h2")
+            if name_element is None or role_element is None:
+                context.log.info(
+                    f"Skipping incomplete leader entry: {html.tostring(leader_div, pretty_print=True, encoding='unicode')}"
+                )
+                continue
+            name = name_element.text_content().strip()
+            role = role_element.text_content().strip()
+            if not name or not role:
+                continue  # Skip if either name or role is empty
+            emit_person(context, "us", leader_url, role, name)
+
+
 def crawl(context: Context):
     page_number = 1
     done = False
     error_pages = []
-
     while not done:
         context.log.info(f"Fetching page {page_number}")
         success, done_flag = process_page(context, page_number)
@@ -100,3 +124,6 @@ def crawl(context: Context):
         success, _ = process_page(context, page_number)
         if not success:
             context.log.error(f"Failed again for page {page_number}")
+
+    # Parse additional page
+    parse_html(context)

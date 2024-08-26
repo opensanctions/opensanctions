@@ -26,8 +26,8 @@ publisher:
   country: us
   url: https://www.navy.mil
 data:
-  url: https://www.navy.mil/API/ArticleCS/Public/GetList?moduleID=709&dpage=18&TabId=119&language=en-US
-  format: json
+  url: https://www.navy.mil/Leadership/
+  format: html
 
   assertions:
   min:
