@@ -112,6 +112,9 @@ lookups:
           - S4MR473KX
           - S4MR479RJ
         value: Person
+      - match:
+          - S4MR3P8BT
+        value: Organization
   type.address:
     lowercase: true
     options:
