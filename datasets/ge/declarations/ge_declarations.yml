@@ -29,11 +29,11 @@ publisher:
   country: ge
   url: https://acb.gov.ge/
   description: |
-     The Anti-Corruption Bureau determines the general policy of fighting against
-     corruption, to develop a national anti-corruption strategy and action plan and
-     to monitor the implementation of the mentioned plan. It seeks to prevent, detect and
-     prevent conflicts of interest in public institutions and develop relevant proposals
-     and recommendations.
+    The Anti-Corruption Bureau determines the general policy of fighting against
+    corruption, to develop a national anti-corruption strategy and action plan and
+    to monitor the implementation of the mentioned plan. It seeks to prevent, detect and
+    prevent conflicts of interest in public institutions and develop relevant proposals
+    and recommendations.
   official: true
 ci_test: false
 
@@ -70,12 +70,3 @@ lookups:
         value: უფროსი პროკურორი
       - match: გენერალური პროკურატურა - სახელმწიფო უსაფრთხოების სამსახურში, სახელმწიფო დაცვის სპეციალურ სამსახურში, დაზვერვის სამსახურში, თავდაცვის სამინისტროსა და შინაგან საქმეთა სამინისტროს სახელმწიფო საქვეუწყებო დაწესებულება - საქართველოს სასაზღვრო პოლიციაში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის დეპარტამენტის უფროსი
         value: საგამოძიებო საპროცესო მართვისა და ოპერატიულ-სამძებრო საქმიანობის ზედამხედველობის დეპარტამენტის უფროსი
-      - match: State Representative in the Administrative-Territorial Units of Georgia (Municipalities of Baghdati, Vani, Zestaponi, Terjola, Samtredia, Sachkhere, Tkibuli, Tskaltubo, Chiatura, Kharagauli, Khoni and City of Kutaisi) Administration of the State Representative
-        value: State Representative
-      - match: Deputy State Representative in the Administrative-Territorial Units of Georgia (Baghdati, Vani, Zestaponi, Terjola, Samtredia, Sachkhere, Tkibuli, Tskaltubo, Chiatura, Kharagauli, Khoni Municipalities, and the city of Kutaisi) Administration of the State Representative
-        value: Deputy State Representative
-      - match: Former Ambassador Extraordinary and Plenipotentiary in the Embassy of Georgia to the Republic of Austria and to the Organization for Security and Co-operation in Europe, and Permanent Representative of Georgia to the International Organizations based in Vienna
-        values: 
-          - Former Ambassador Extraordinary and Plenipotentiary in the Embassy of Georgia to the Republic of Austria
-          - Former Ambassador Extraordinary and Plenipotentiary to the Organization for Security and Co-operation in Europe
-          - Permanent Representative of Georgia to the International Organizations based in Vienna
