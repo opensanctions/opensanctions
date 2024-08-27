@@ -7,7 +7,6 @@ import click
 import json
 import networkx as nx
 
-
 from zavod.entity import Entity
 from zavod.logs import get_logger, configure_logging
 from zavod.meta import load_dataset_from_path
@@ -20,10 +19,11 @@ InFile = click.Path(dir_okay=False, readable=True, file_okay=True, path_type=Pat
 OutFile = click.Path(dir_okay=False, writable=True, file_okay=True, path_type=Path)
 
 
-class ChronAggResolver(Resolver):
-    def chrono_edges(self, path: Path) -> Generator[Edge, None, None]:
+class ChronoResolver(Resolver):
+    def load_chrono(self) -> Generator[Edge, None, None]:
+        """Load the edges chronologically as the generator is consumed."""
         edges = []
-        with open(path, "r") as fh:
+        with open(self.path, "r") as fh:
             while True:
                 line = fh.readline()
                 if not line:
@@ -31,7 +31,10 @@ class ChronAggResolver(Resolver):
                 edge = Edge.from_line(line)
                 edges.append(edge)
         edges.sort(key=lambda e: e.timestamp)
-        yield from edges
+        for edge in edges:
+            self._register(edge)
+            self.connected.cache_clear()
+            yield edge
 
 
 def lazy_resolve(view: View, resolver: Resolver, id: Identifier) -> Optional[Entity]:
@@ -55,7 +58,7 @@ def generate_pairs(
     resolver_path: Path,
     dataset: Dataset,
 ) -> Generator[Tuple[Entity, Entity, Judgement], None, None]:
-    resolver = ChronAggResolver(resolver_path)
+    chrono_resolver = ChronoResolver(resolver_path)
     store = get_store(dataset, Linker({}))
     store.sync()
     view = store.view(dataset, external=False)
@@ -64,7 +67,7 @@ def generate_pairs(
     positive_count = 0
     negative_count = 0
 
-    for edge in resolver.chrono_edges(resolver.path):
+    for edge in chrono_resolver.load_chrono():
         if edge.judgement == Judgement.NO_JUDGEMENT:
             continue
 
@@ -72,11 +75,8 @@ def generate_pairs(
         if judgement == Judgement.UNSURE:
             judgement = Judgement.NEGATIVE
 
-        resolver._register(edge)
-        resolver.connected.cache_clear()
-
-        source = lazy_resolve(view, resolver, edge.source)
-        target = lazy_resolve(view, resolver, edge.target)
+        source = lazy_resolve(view, chrono_resolver, edge.source)
+        target = lazy_resolve(view, chrono_resolver, edge.target)
         if source is None or target is None:
             something_missing_count += 1
             continue
@@ -102,7 +102,7 @@ def generate_groups(
     """
 
     log.info("Loading resolver...")
-    resolver = Resolver.load(resolver_path)
+    complete_resolver = Resolver.load(resolver_path)
 
     log.info("Generating pairs...")
     g = nx.Graph()
@@ -112,8 +112,8 @@ def generate_groups(
         if i % 10000 == 0 and i > 0:
             log.info(f"Generated {i} pairs...")
 
-        source_canonical = resolver.get_canonical(source.id)
-        target_canonical = resolver.get_canonical(target.id)
+        source_canonical = complete_resolver.get_canonical(source.id)
+        target_canonical = complete_resolver.get_canonical(target.id)
         # add to graph
         g.add_node(source_canonical)
         g.add_node(target_canonical)
