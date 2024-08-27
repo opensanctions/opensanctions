@@ -29,11 +29,11 @@ publisher:
   country: ge
   url: https://acb.gov.ge/
   description: |
-     The Anti-Corruption Bureau determines the general policy of fighting against
-     corruption, to develop a national anti-corruption strategy and action plan and
-     to monitor the implementation of the mentioned plan. It seeks to prevent, detect and
-     prevent conflicts of interest in public institutions and develop relevant proposals
-     and recommendations.
+    The Anti-Corruption Bureau determines the general policy of fighting against
+    corruption, to develop a national anti-corruption strategy and action plan and
+    to monitor the implementation of the mentioned plan. It seeks to prevent, detect and
+    prevent conflicts of interest in public institutions and develop relevant proposals
+    and recommendations.
   official: true
 ci_test: false
 
