@@ -1,16 +1,13 @@
-from collections import defaultdict
-from random import shuffle
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver, Linker, Edge
-from nomenklatura.matching.pairs import JudgedPair
+from nomenklatura.resolver.identifier import Identifier
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Generator
+from typing import Dict, List, Optional, Tuple, Generator
 import click
 import json
 import networkx as nx
 
 
-from zavod import settings
 from zavod.entity import Entity
 from zavod.logs import get_logger, configure_logging
 from zavod.meta import load_dataset_from_path
@@ -37,9 +34,13 @@ class ChronAggResolver(Resolver):
         yield from edges
 
 
-def resolve(view: View, resolver: Resolver, ids: Set[str]) -> Optional[Entity]:
+def lazy_resolve(view: View, resolver: Resolver, id: Identifier) -> Optional[Entity]:
+    """
+    Get an entity merging all connected entities from the view.
+    """
     cluster: Optional[Entity] = None
-    for ident in ids:
+
+    for ident in resolver.connected(id):
         entity = view.get_entity(ident.id)
         if entity is None:
             continue
@@ -71,16 +72,11 @@ def generate_pairs(
         if judgement == Judgement.UNSURE:
             judgement = Judgement.NEGATIVE
 
-        # TODO: Should this be using their canonical IDs?
-        source_cluster_ids = resolver.connected(edge.source)
-        target_cluster_ids = resolver.connected(edge.target)
-
         resolver._register(edge)
         resolver.connected.cache_clear()
 
-        # Lazily resolve
-        source = resolve(view, resolver, source_cluster_ids)
-        target = resolve(view, resolver, target_cluster_ids)
+        source = lazy_resolve(view, resolver, edge.source)
+        target = lazy_resolve(view, resolver, edge.target)
         if source is None or target is None:
             something_missing_count += 1
             continue
@@ -99,7 +95,7 @@ def generate_pairs(
 
 def generate_groups(
     resolver_path: Path, dataset: Dataset
-) -> Generator[List[Dict[str, Entity | str]], None, None]:
+) -> Generator[Dict[str, Entity | str | int], None, None]:
     """
     Each list of pairs is a disconnected subgraph.
     Negative judgements are considered edges too.
@@ -110,7 +106,9 @@ def generate_groups(
 
     log.info("Generating pairs...")
     g = nx.Graph()
-    for i, (source, target, judgement) in enumerate(generate_pairs(resolver_path, dataset)):
+    for i, (source, target, judgement) in enumerate(
+        generate_pairs(resolver_path, dataset)
+    ):
         if i % 10000 == 0 and i > 0:
             log.info(f"Generated {i} pairs...")
 
@@ -129,18 +127,13 @@ def generate_groups(
 
     log.info("Generating disjoint subgraphs...")
     for ix, subgraph_nodes in enumerate(nx.connected_components(g)):
-        for _, _, data in (
-            g.subgraph(subgraph_nodes)
-            .copy()
-            .edges(data=True)
-        ):
+        for _, _, data in g.subgraph(subgraph_nodes).copy().edges(data=True):
             yield {
                 "left": data["source"].to_dict(),
                 "right": data["target"].to_dict(),
                 "judgement": data["judgement"].value,
                 "group": ix,
             }
-            
 
 
 @click.command()
