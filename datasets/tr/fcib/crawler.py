@@ -3,9 +3,9 @@ from lxml import etree
 from normality import collapse_spaces, stringify, slugify
 from openpyxl import load_workbook
 from typing import Dict, Iterable
-from urllib.parse import urljoin
 import csv
 import re
+from pantomime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
@@ -13,24 +13,30 @@ from zavod.shed.zyte_api import fetch_html
 
 DATE_FORMAT = ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S"]
 
-MAIN_URL = "https://en.hmb.gov.tr"
-
-DOCX_LINK = "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/A-6415-SAYILI-KANUN-5.-MADDE.docx"  # original link for assertion
-CSV_LINK = "https://docs.google.com/spreadsheets/d/1SFH2gKt2gFVCNvl2wnNuFZT3m-iVNYlXiWHXRquddFI/pub?gid=594686664&single=true&output=csv"  # Google Sheets link based on the original link
-
+# original link for assertion
+DOCX_LINK = (
+    "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/A-6415-SAYILI-KANUN-5.-MADDE.docx"
+)
+# Google Sheets link based on the original link
+CSV_LINK = "https://docs.google.com/spreadsheets/d/1SFH2gKt2gFVCNvl2wnNuFZT3m-iVNYlXiWHXRquddFI/pub?gid=594686664&single=true&output=csv"
+A_PROGRAM = "Asset freezes pursuant to Article 5 of Law No. 6415, targeting individuals and entities designated under UNSC resolutions."
+A_SHORT = "A - UNSC resolutions"
 
 XLSX_LINK = [
     (
         "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/B-YABANCI-ULKE-TALEPLERINE-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-6.-MADDE.xlsx",
         "Asset freezes pursuant to Article 6 of Law No. 6415, targeting individuals and entities based on requests made by foreign governments.",
+        "B - Foreign government requests",
     ),
     (
         "https://ms.hmb.gov.tr/uploads/sites/2/2024/06/C-6415-SAYILI-KANUN-7.-MADDE.xlsx",
         "Asset freezes pursuant to Article 7 of Law No. 6415, targeting individuals and entities through domestic legal actions and decisions.",
+        "C - Domestic legal actions",
     ),
     (
         "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/D-7262-SAYILI-KANUN-3.A-VE-3.B-MADDELERI.xlsx",
         "Asset freezes within the scope of Articles 3.A and 3.B of Law No. 7262, aimed at preventing the financing of proliferation of weapons of mass destruction.",
+        "D - Prevention of proliferation of weapons of mass destruction",
     ),
 ]
 
@@ -90,8 +96,6 @@ def parse_birth_date(birth_date: str) -> str:
     if birth_date.endswith("01-01"):
         # Return only the year part
         return birth_date[:4]
-    if birth_date.endswith("T00:00:00Z"):
-        return birth_date[:4]
     return birth_date
 
 
@@ -128,7 +132,6 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
 
     alias = row.pop("alias")
     previous_name = row.pop("previous_name", "")
-    internal_id = row.pop("sequence_no")
     pass_no = row.pop("passport_number", "")  # Person
     identifier = row.pop("passport_number_other_info", "")  # LegalEntity
     nationality_country = row.pop("nationality_country", "")
@@ -151,7 +154,7 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
 
     if birth_date or birth_place:
         person = context.make("Person")
-        person.id = context.make_id(name, internal_id)
+        person.id = context.make_id(name, birth_date, birth_place, pass_no, identifier)
         person.add("name", name)
         person.add("alias", h.multi_split(alias, SPLITS))
         person.add("nationality", nationality_country)
@@ -163,6 +166,7 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
         person.add("position", position)
         person.add("address", h.multi_split(address, SPLITS))
         person.add("notes", notes)
+        person.add("topics", "sanction")
 
         sanction = h.make_sanction(context, person)
         sanction.add("description", sanction_type)
@@ -171,11 +175,11 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
         h.apply_date(sanction, "listingDate", listing_date)
         h.apply_date(sanction, "listingDate", gazette_date)
 
-        context.emit(person)
+        context.emit(person, target=True)
         context.emit(sanction)
     else:
         entity = context.make("LegalEntity")
-        entity.id = context.make_id(name)
+        entity.id = context.make_id(name, birth_date, birth_place, pass_no, identifier)
         entity.add("name", name)
         entity.add("name", legal_entity_name)
         entity.add("previousName", previous_name)
@@ -186,6 +190,7 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
         entity.add("address", h.multi_split(address, SPLITS))
         entity.add("notes", notes)
         entity.add("incorporationDate", birth_establishment_date)
+        entity.add("topics", "sanction")
 
         sanction = h.make_sanction(context, entity)
         sanction.add("description", sanction_type)
@@ -194,7 +199,7 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
         h.apply_date(sanction, "listingDate", listing_date)
         h.apply_date(sanction, "listingDate", gazette_date)
 
-        context.emit(entity)
+        context.emit(entity, target=True)
         context.emit(sanction)
 
 
@@ -215,12 +220,12 @@ def parse_sheet(context: Context, sheet) -> Iterable[Dict[str, str]]:
         yield {headers[i]: stringify(cells[i]) for i in range(len(headers))}
 
 
-def crawl_xlsx(context: Context, url: str, counter: int, program: str):
-    path = context.fetch_resource(f"source_{counter}.xlsx", url)
+def crawl_xlsx(context: Context, url: str, program: str, short_name: str):
+    path = context.fetch_resource(f"{short_name}.xlsx", url)
     context.export_resource(
         path,
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        title=f"{context.SOURCE_TITLE} - {program}",
+        XLSX,
+        title=f"{context.SOURCE_TITLE} - {short_name}",
     )
     wb = load_workbook(path, read_only=True)
     for sheet in wb.worksheets:
@@ -229,15 +234,13 @@ def crawl_xlsx(context: Context, url: str, counter: int, program: str):
             crawl_row(context, row, program)
 
 
-def crawl_csv_row(context: Context, row: Dict[str, str]):
+def crawl_csv_row(context: Context, idx: int, row: Dict[str, str]):
     row = clean_row(row)
     full_name = row.get("full_name", "")
-    if not full_name:  # one person with no name
-        return
     birth_dates = h.multi_split(row.get("date_of_birth_iso", ""), NEW_LINE_SPLIT)
 
     if not full_name:
-        context.log.error("Missing name in row: %s", row)
+        context.log.warning(f"Missing name in row {idx}", row=row)
         return
     schema = row.get("schema", "")
     if schema == "Organization":
@@ -254,10 +257,10 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         organization.add("topics", "sanction")
 
         sanction = h.make_sanction(context, organization)
-        sanction.add("program", row.pop("program"))
+        sanction.add("program", A_PROGRAM)
 
         context.emit(sanction)
-        context.emit(organization)
+        context.emit(organization, target=True)
 
     else:  # schema == "Person"
         person = context.make("Person")
@@ -277,12 +280,13 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
             person.add("idNumber", cleaned_number)
         person.add("address", h.multi_split(row.pop("address", ""), ADDRESS_SPLITS))
         person.add("notes", row.pop("additional_information", ""))
-
+        person.add("topics", "sanction")
+        
         sanction = h.make_sanction(context, person)
         sanction.add("program", row.pop("program"))
 
         context.emit(sanction)
-        context.emit(person)
+        context.emit(person, target=True)
 
 
 def unblock_validator(doc: etree._Element) -> bool:
@@ -292,21 +296,18 @@ def unblock_validator(doc: etree._Element) -> bool:
 def crawl(context: Context):
     # Fetch the main page HTML
     doc = fetch_html(context, context.data_url, unblock_validator, cache_days=3)
+    doc.make_links_absolute(context.data_url)
 
     # Find the table with the relevant links
     table = doc.find('.//table[@class="table table-bordered"]')
-    if table is None:
-        raise ValueError("No table found in the document")
 
     # Find all the <a> tags within the table
     links = table.findall(".//a")
-    if not links:
-        raise ValueError("No links found in the table")
 
     # Construct the full URLs
-    full_urls = [urljoin(MAIN_URL, link.get("href")) for link in links]
+    full_urls = [link.get("href") for link in links]
 
-    found_links = []
+    found_links = set()
     # Print all the parsed links
     for url in full_urls:
         section_doc = fetch_html(context, url, unblock_validator, cache_days=3)
@@ -321,31 +322,35 @@ def crawl(context: Context):
 
             # Extract and construct full document links
         for doc_link in doc_links:
-            full_doc_link = urljoin(MAIN_URL, doc_link.get("href"))
-            found_links.append(full_doc_link)
+            found_links.add(doc_link.get("href"))
 
     # Check if all expected links are found
-    expected_links = [DOCX_LINK, *(link for link, _ in XLSX_LINK)]
-    all_links_found = all(link in found_links for link in expected_links)
-    if all_links_found:
-        # the actual crawling part if all links are verified
-        context.log.info("Fetching data from the provided XLSX links")
-        for i, (url, program) in enumerate(XLSX_LINK):
-            context.log.info(f"Processing URL: {url}")
-            if url.endswith(".xlsx"):
-                crawl_xlsx(context, url, i, program)
-            else:
-                raise ValueError(f"Unknown file type: {url}")
-        context.log.info("Finished processing the Frozen Assets List")
+    expected_links = set([DOCX_LINK, *(link for link, _, _ in XLSX_LINK)])
+    new_links = found_links - expected_links
+    assert not new_links, f"Unexpected links found: {new_links}"
 
-        # Fetch the CSV file from the source URL
-        context.log.info("Fetching data from Google Sheets CSV link")
-        path = context.fetch_resource("source.csv", CSV_LINK)
-        with open(path, "r", encoding="utf-8") as fh:
-            reader = csv.DictReader(fh)
-            for row in reader:
-                crawl_csv_row(context, row)
-        context.log.info("Finished processing CSV data")
-    else:
-        missing_links = [link for link in expected_links if link not in found_links]
-        print(f"Warning: The following expected links were not found: {missing_links}")
+    missing_links = expected_links - found_links
+    assert not missing_links, f"Expected links not found: {missing_links}"
+
+    # the actual crawling part if all links are verified
+    context.log.info("Fetching data from the provided XLSX links")
+    for url, program, short in XLSX_LINK:
+        context.log.info(f"Processing URL: {url}")
+        crawl_xlsx(context, url, program, short)
+    context.log.info("Finished processing the Excel files")
+
+    h.assert_url_hash(context, DOCX_LINK, "a10a6c6bd467409aef9b622ddfea3b4b1b7be6e7")
+    # Fetch the CSV file from the source URL
+    context.log.info("Fetching data from Google Sheets CSV link")
+    path = context.fetch_resource(f"{A_SHORT}.csv", CSV_LINK)
+    context.export_resource(
+        path,
+        "text/csv",
+        title=f"{context.SOURCE_TITLE} - {A_SHORT}",
+    )
+    with open(path, "r", encoding="utf-8") as fh:
+        reader = csv.DictReader(fh)
+        for idx, row in enumerate(reader):
+            crawl_csv_row(context, idx, row)
+    context.log.info("Finished processing CSV data")
+
