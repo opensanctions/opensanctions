@@ -77,17 +77,12 @@ ADDRESS_SPLITS = (
     + NEW_LINE_SPLIT
 )
 
-REGEX_ID_NUMBER = re.compile(r"^[^,]+")
+REGEX_ID_NUMBER = re.compile(r"([A-Z]{0,2}[0-9/-]{6,20})")
 REGEX_GAZZETE_DATE = re.compile(r"(\d{2}\.\d{2}\.\d{4})")
 
 
 def clean_id_numbers(passport_numbers):
-    cleaned_numbers = []
-    for number in h.multi_split(passport_numbers, NEW_LINE_SPLIT):
-        match = REGEX_ID_NUMBER.match(number.strip())
-        if match:
-            cleaned_numbers.append(match.group(0))
-    return cleaned_numbers
+    return REGEX_ID_NUMBER.findall(passport_numbers)
 
 
 def parse_birth_date(birth_date: str) -> str:
@@ -236,57 +231,54 @@ def crawl_xlsx(context: Context, url: str, program: str, short_name: str):
 
 def crawl_csv_row(context: Context, idx: int, row: Dict[str, str]):
     row = clean_row(row)
-    full_name = row.get("full_name", "")
-    birth_dates = h.multi_split(row.get("date_of_birth_iso", ""), NEW_LINE_SPLIT)
-
+    full_name = row.pop("full_name")
+    birth_dates = h.multi_split(row.pop("date_of_birth_iso"), NEW_LINE_SPLIT)
+    birth_place = row.pop("place_of_birth")
     if not full_name:
         context.log.warning(f"Missing name in row {idx}", row=row)
         return
-    schema = row.get("schema", "")
-    if schema == "Organization":
-        organization = context.make("Organization")
-        organization.id = context.make_id(full_name)
-        organization.add("name", full_name)
-        organization.add("name", row.pop("original_script_name", ""))
-        organization.add("alias", h.multi_split(row.pop("aliases", ""), NEW_LINE_SPLIT))
-        organization.add("previousName", row.pop("known_former_name", ""))
-        organization.add(
-            "address", h.multi_split(row.pop("address", ""), ADDRESS_SPLITS)
-        )
-        organization.add("notes", row.pop("additional_information", ""))
-        organization.add("topics", "sanction")
+    
+    match row.pop("schema"):
+        case "Organization":
+            entity = context.make("Organization")
+            entity.id = context.make_id(full_name)
+        case "Person":
+            entity = context.make("Person")
+            entity.id = context.make_id(full_name, birth_place, birth_dates)
+            for birth_date in birth_dates:
+                h.apply_date(entity, "birthDate", parse_birth_date(birth_date))
+            entity.add("birthPlace", birth_place)
+            entity.add("nationality", h.multi_split(row.pop("nationality"), SPLITS))
+            cleaned_passport_numbers = clean_id_numbers(row.pop("passport_number"))
+            for cleaned_number in cleaned_passport_numbers:
+                entity.add("passportNumber", cleaned_number)
 
-        sanction = h.make_sanction(context, organization)
-        sanction.add("program", A_PROGRAM)
+        case _schema:
+            context.log.warning(f"Unhandled schema in row {idx}", row=row, schema=_schema)
 
-        context.emit(sanction)
-        context.emit(organization, target=True)
+    entity.add("name", full_name)
+    entity.add("name", row.pop("original_script_name"))
+    entity.add("alias", h.multi_split(row.pop("aliases"), NEW_LINE_SPLIT))
+    entity.add("previousName", row.pop("known_former_names"))
+    cleaned_id_numbers = clean_id_numbers(row.pop("national_identity_number"))
+    for cleaned_number in cleaned_id_numbers:
+        entity.add("idNumber", cleaned_number)
+    entity.add("address", h.multi_split(row.pop("address"), ADDRESS_SPLITS))
+    entity.add("notes", row.pop("additional_information"))
+    entity.add("topics", "sanction")
 
-    else:  # schema == "Person"
-        person = context.make("Person")
-        person.id = context.make_id(
-            full_name, birth_dates
-        )  # Use both name and birth_date for ID
-        person.add("name", full_name)
-        person.add("alias", h.multi_split(row.pop("aliases", ""), NEW_LINE_SPLIT))
-        for birth_date in birth_dates:
-            h.apply_date(person, "birthDate", parse_birth_date(birth_date))
-        person.add("nationality", h.multi_split(row.pop("nationality", ""), SPLITS))
-        cleaned_passport_numbers = clean_id_numbers(row.pop("passport_number", ""))
-        for cleaned_number in cleaned_passport_numbers:
-            person.add("idNumber", cleaned_number)
-        cleaned_id_numbers = clean_id_numbers(row.pop("idNumber", ""))
-        for cleaned_number in cleaned_id_numbers:
-            person.add("idNumber", cleaned_number)
-        person.add("address", h.multi_split(row.pop("address", ""), ADDRESS_SPLITS))
-        person.add("notes", row.pop("additional_information", ""))
-        person.add("topics", "sanction")
-        
-        sanction = h.make_sanction(context, person)
-        sanction.add("program", row.pop("program"))
+    sanction = h.make_sanction(context, entity)
+    sanction.add("program", A_PROGRAM)
+    #sanction.add("sourceUrl", row.pop("link"))
 
-        context.emit(sanction)
-        context.emit(person, target=True)
+    context.emit(sanction)
+    context.emit(entity, target=True)
+    context.audit_data(row, ignore=[
+        "title",
+        "section",
+        "date_of_birth_original",
+        "position",
+    ])
 
 
 def unblock_validator(doc: etree._Element) -> bool:
@@ -353,4 +345,3 @@ def crawl(context: Context):
         for idx, row in enumerate(reader):
             crawl_csv_row(context, idx, row)
     context.log.info("Finished processing CSV data")
-
