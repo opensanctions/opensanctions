@@ -18,8 +18,9 @@ description: |
   Updates to the list are published via ministerial decisions.
   [Read More](https://geldefonds.gouv.mc/a-propos-de-la-liste-nationale-de-gel-des-fonds)
 publisher:
-  name: la Principauté de Monaco
+  name: La Principauté de Monaco
   name_en: The Principality of Monaco
+  acronym: Monaco
   description: Official Monaco Government
   url: https://www.gouv.mc/
   country: mc
