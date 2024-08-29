@@ -48,6 +48,13 @@ assertions:
       Person: 17000
 
 lookups:
+  type.name:
+    options:
+      - match: Former Ambassador Extraordinary and Plenipotentiary in the Embassy of Georgia to the Republic of Austria and to the Organization for Security and Co-operation in Europe, and Permanent Representative of Georgia to the International Organizations based in Vienna
+        value: Former Ambassador Extraordinary and Plenipotentiary to the Republic of Austria
+  #
+  # These are checked before adding the position name and doing the transliteration
+  #
   positions:
     options:
       - match: საქართველოს გენერალური პროკურატურის სუს, სდსს, დაზვერვის სამსახურში, თავდაცვის სამინისტროსა და შსს სსდ-საქართველოს სასაზღვრო პოლიციაში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის დეპარტამენტის სუს კონტრდაზვერვის დეპარტამენტში, კონტრტერორისტულ ცენტრში, შსს სსდ-საქართველოს სასაზღვრო პოლიციაში, სდსს და დაზვერვის სამსახურში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის სამმართველოს უფროსი პროკურორი

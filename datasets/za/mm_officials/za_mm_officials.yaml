@@ -45,6 +45,7 @@ lookups:
           - khumalomolefe24@.com
           - "nompumelelo dywili@gmail.com"
           - te Mphithikezi@merafong.go.za
+          - tlm.mayor@tsantsaban
         value: null
       - match: "gustav .bock@namakhoi.gov.za"
         value: gustav.bock@namakhoi.gov.za
@@ -62,6 +63,11 @@ lookups:
         value: deputymayorpa@umvoti.gov.za
       - match: cmoodien@mosselbay.gov za
         value: cmoodien@mosselbay.gov.za
+      - match: mmsoffice@map.fs.gov.za and nthabisengmo@map.fs.go
+        values:
+          - mmsoffice@map.fs.gov.za
+          - nthabisengmo@map.fs.gov.za
+
 
   roles:
     lowercase: true
