@@ -41,6 +41,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         company = context.make("Company")
         company.id = context.make_id(business_name)
         company.add("name", business_name)
+        company.add("topics", "debarment")
 
         link = context.make("UnknownLink")
         link.id = context.make_id(names, business_name)
