@@ -20,8 +20,9 @@ description: |
   not available as structured data. Check linked reports to confirm decisions with respect
   to matching entities.
 publisher:
-  name: Autorité des marchés financiers (AMF)
+  name: Autorité des marchés financiers
   name_en: Financial Markets Authority
+  acronym: AMF
   description: |
     The Autorité des marchés financiers (AMF) is an independent public body responsible 
     for safeguarding investments in financial products, ensuring that investors receive 
@@ -241,10 +242,18 @@ lookups:
           - Portal Conseil
           - Exec Finance
           - Louis Carlotta
+      - match: 'Sociétés Invest Securities, Portal Conseil, Exec Finance'
+        entities:
+          - Invest Securities
+          - Portal Conseil
+          - Exec Finance
       - match: 'Société Prado Paradis Patrimoine; Mme Solange Dahan'
         entities:
           - Prado Paradis Patrimoine
           - Solange Dahan
+      - match: 'Société Prado Paradis Patrimoine;'
+        entities:
+          - Prado Paradis Patrimoine
       - match: 'Société Octo Asset Management'
         entities:
           - Octo Asset Management

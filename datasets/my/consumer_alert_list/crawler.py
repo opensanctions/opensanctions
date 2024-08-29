@@ -1,18 +1,18 @@
 from typing import Generator, Dict
-from lxml.etree import _Element
 from lxml import html
 import re
-from zavod import Context, helpers as h
+import json
 from normality import collapse_spaces
-from followthemoney.types.identifier import IdentifierType
+from followthemoney.types import registry
 
+from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 REGEX_URLS = r"(https?://[^\s]+)"
 TABLE_XPATH = ".//div[@class='article-content']//table"
 
 
-def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
+def parse_table(table_data) -> Generator[Dict[str, str], None, None]:
     """
     Parse the table and returns the information as a list of dict
 
@@ -22,11 +22,12 @@ def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
     Raises:
         AssertionError: If the headers don't match what we expect.
     """
-    headers = [th.text_content() for th in table.findall(".//*/th")]
-    for row in table.findall(".//*/tr")[1:]:
+    header_tr = html.fromstring(table_data["header_tr"])
+    headers = [th.text_content() for th in header_tr.findall(".//th")]
+    for row in table_data["rows"]:
         cells = []
-        for el in row.findall(".//td"):
-            cells.append(collapse_spaces(el.text_content()))
+        for el in row:
+            cells.append(collapse_spaces(html.fromstring(el).text_content()))
         assert len(cells) == len(headers)
 
         # The table has a last row with all empty values
@@ -43,7 +44,7 @@ def crawl_item(input_dict: dict, context: Context):
     entity.id = context.make_id(name)
 
     entity.add("name", name)
-    if len(name) > IdentifierType.max_length:
+    if len(name) > registry.name.max_length:
         entity.add("description", name)
     entity.add("topics", "poi")
 
@@ -71,11 +72,12 @@ def crawl_item(input_dict: dict, context: Context):
 
 
 def unblock_validator(doc: html.HtmlElement) -> bool:
-    return doc.find(TABLE_XPATH) is not None
+    return doc.find(".//script[@id='dataContainer']") is not None
 
 
 def crawl(context: Context):
     actions = [
+        # Wait for jQuery DataTable to instantiate
         {
             "action": "waitForSelector",
             "selector": {
@@ -84,13 +86,28 @@ def crawl(context: Context):
             },
             "timeout": 15,
         },
+        # Serialize the full dataset
+        {
+            "action": "evaluate",
+            "source": """
+                var dataContainer = document.createElement("script");
+                dataContainer.setAttribute("id", "dataContainer");
+                document.body.appendChild(dataContainer).textContent = JSON.stringify({
+                    "header_tr": table.header()[0].innerHTML,
+                    "rows": table.data().toArray(),
+                });
+            """,
+        },
     ]
     doc = fetch_html(
         context,
         context.data_url,
         unblock_validator,
         actions=actions,
+        cache_days=1,
     )
 
-    for item in parse_table(doc.find(TABLE_XPATH)):
+    table_data = json.loads(doc.find(".//script[@id='dataContainer']").text)
+
+    for item in parse_table(table_data):
         crawl_item(item, context)

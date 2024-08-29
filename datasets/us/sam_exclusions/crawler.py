@@ -129,7 +129,8 @@ def crawl(context: Context) -> None:
             quiet=True,
         )
 
-        entity.add("country", row.get("Country"))
+        state = row.pop("State / Province", None)
+        country = row.pop("Country", None)
         address = h.make_address(
             context,
             street=row.pop("Address 1", None),
@@ -137,8 +138,8 @@ def crawl(context: Context) -> None:
             # street3=row.pop("Address 3", None),
             city=row.pop("City", None),
             postal_code=zip_code,
-            country=row.pop("Country", None),
-            state=row.pop("State / Province", None),
+            country=country,
+            state=state,
         )
         h.copy_address(entity, address)
         # h.apply_address(context, entity, address)

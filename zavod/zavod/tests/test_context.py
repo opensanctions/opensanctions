@@ -5,6 +5,7 @@ import pytest
 import requests_mock
 from requests.adapters import HTTPAdapter
 import orjson
+from lxml import etree
 
 from zavod import settings
 from zavod.context import Context
@@ -195,15 +196,44 @@ def test_context_fetchers_exceptions(testdataset1: Dataset):
     with pytest.raises(ValueError, match="Unsupported HTTP method.+"):
         context.fetch_text("https://test.com/bla", cache_days=0, method="PLOP")
 
+    params = {"query": "test"}
+    data = {"foo": "bar"}
+    auth = ("user", "pass")
+    # Test that JSON decode failure clears its cache entry
+
+    context.cache.clear()
     with pytest.raises(orjson.JSONDecodeError, match="unexpected.+"):
         with requests_mock.Mocker() as m:
-            m.get("/bla", text='{"msg": "Hello, World!"')
-            context.fetch_json("https://test.com/bla", cache_days=10)
+            m.post("/bla", text='{"msg": "Jason who? The object doesn\'t close."')
 
-    fingerprint = request_hash("https://test.com/bla", method="GET")
+            context.fetch_json(
+                "https://test.com/bla",
+                method="POST",
+                auth=auth,
+                params=params,
+                data=data,
+                cache_days=10,
+            )
 
     # Checking that cleanup function wiped the cache properly
-    assert context.cache.get(fingerprint, max_age=10) is None
+    assert list(context.cache.all(None)) == []
+
+    # Test that HTML parse failure clears its cache entry
+
+    with pytest.raises(etree.ParserError, match="Document is empty"):
+        with requests_mock.Mocker() as m:
+            m.post("/bla", text="<")
+            context.fetch_html(
+                "https://test.com/bla",
+                method="POST",
+                auth=auth,
+                params=params,
+                data=data,
+                cache_days=10,
+            )
+
+    # Checking that cleanup function wiped the cache properly
+    assert list(context.cache.all(None)) == []
 
     context.close()
 
