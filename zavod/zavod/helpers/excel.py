@@ -1,4 +1,4 @@
-from typing import Generator, Optional, Union
+from typing import Dict, Generator, Optional, Union
 from datetime import datetime
 from normality import slugify, stringify
 from xlrd.book import Book  # type: ignore
@@ -62,7 +62,7 @@ def parse_sheet(
     sheet: Worksheet,
     skiprows: int = 0,
     header_lookup: Optional[str] = None,
-) -> Generator[dict, None, None]:
+) -> Generator[Dict[str, str | None], None, None]:
     """
     Parse an Excel sheet into a sequence of dictionaries.
 
@@ -89,7 +89,11 @@ def parse_sheet(
                 if header is None:
                     header = f"column_{idx}"
                 if header_lookup:
-                    header = context.lookup_value(header_lookup, header, header)
+                    header = context.lookup_value(
+                        header_lookup,
+                        stringify(header),
+                        stringify(header),
+                    )
                 headers.append(slugify(header, sep="_"))
             continue
 
@@ -99,5 +103,7 @@ def parse_sheet(
                 value = value.date()
             record[header] = stringify(value)
         if len(record) == 0:
+            continue
+        if all(v is None for v in record.values()):
             continue
         yield record
