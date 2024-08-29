@@ -57,7 +57,7 @@ def convert_excel_date(value: Optional[Union[str, int, float]]) -> Optional[str]
     return datetime_iso(dt)
 
 
-def parse_sheet(
+def parse_xlsx_sheet(
     context: Context,
     sheet: Worksheet,
     skiprows: int = 0,

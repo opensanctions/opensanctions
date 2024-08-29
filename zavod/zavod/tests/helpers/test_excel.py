@@ -1,7 +1,7 @@
 import xlrd  # type: ignore
 from openpyxl import load_workbook
 from zavod.context import Context
-from zavod.helpers.excel import convert_excel_cell, convert_excel_date, parse_sheet
+from zavod.helpers.excel import convert_excel_cell, convert_excel_date, parse_xlsx_sheet
 from zavod.tests.conftest import FIXTURES_PATH
 
 XLS_BOOK = FIXTURES_PATH / "book.xls"
@@ -33,10 +33,10 @@ def test_excel_date():
     assert convert_excel_date(None) is None
 
 
-def test_parse_sheet(vcontext: Context):
+def test_parse_xlsx_sheet(vcontext: Context):
     book = load_workbook(XLSX_BOOK.as_posix())
     sheet = book.active
-    rows = list(parse_sheet(vcontext, sheet))
+    rows = list(parse_xlsx_sheet(vcontext, sheet))
     assert len(rows) == 1
     assert rows[0] == {
         "numeric": "1",
