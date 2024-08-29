@@ -1,74 +1,62 @@
-from typing import Dict, Generator
+from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
-from normality import slugify, stringify
-from datetime import datetime
-import openpyxl
 
 from zavod import Context, helpers as h
 
 
-def parse_sheet(
-    context: Context,
-    sheet: openpyxl.worksheet.worksheet.Worksheet,
-    skiprows: int = 0,
-) -> Generator[dict, None, None]:
-    headers = None
-
-    row_counter = 0
-
-    for row in sheet.iter_rows():
-        # Increment row counter
-        row_counter += 1
-
-        # Skip the desired number of rows
-        if row_counter <= skiprows:
-            continue
-        cells = [c.value for c in row]
-        if headers is None:
-            headers = []
-            for idx, cell in enumerate(cells):
-                if cell is None:
-                    cell = f"column_{idx}"
-                headers.append(slugify(cell))
-            continue
-
-        record = {}
-        for header, value in zip(headers, cells):
-            if isinstance(value, datetime):
-                value = value.date()
-            record[header] = stringify(value)
-        if len(record) == 0:
-            continue
-        yield record
-
-
 def crawl_item(row: Dict[str, str], context: Context):
 
-    name = row.pop("name")
-
-    if not name:
+    if not row.get("name"):
         return
 
+    names = row.pop("name").split("/")
+    termination_date = row.pop("termination_date")
+    comments = row.pop("comments")
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(name)
-    entity.add("name", name)
-    entity.add("alias", row.pop("d-b-a-business-name"))
+    entity.id = context.make_id(names, row.get("npi"))
+
+    for name in names:
+        entity.add("name", name)
+
     if row.get("npi") != "N/A":
-        entity.add("notes", "NPI: " + row.pop("npi"))
+        entity.add("npiCode", row.pop("npi"))
     else:
         row.pop("npi")
 
-    entity.add("topics", "sanction")
+    entity.add("topics", "debarment")
+    entity.add("sector", row.pop("provider_type"))
+    entity.add("description", row.pop("kmap_provider"))
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("startDate", row.pop("termination-date"))
-    sanction.add("summary", row.pop("comments"))
+    sanction.add("startDate", termination_date)
+    sanction.add("summary", comments)
 
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    context.audit_data(row, ignore=["provider-type", "kmap-provider"])
+    business_name = row.pop("d_b_a_business_name")
+
+    if business_name is not None:
+        company = context.make("Company")
+        company.id = context.make_id(business_name)
+        company.add("name", business_name)
+
+        link = context.make("UnknownLink")
+        link.id = context.make_id(names, business_name)
+        link.add("object", entity)
+        link.add("subject", company)
+        link.add("role", "d/b/a")
+
+        company_sanction = h.make_sanction(context, company)
+        company_sanction.add("startDate", termination_date)
+        company_sanction.add("summary", comments)
+
+        context.emit(company, target=True)
+        context.emit(company_sanction)
+        context.emit(link)
+
+    context.audit_data(row)
 
 
 def crawl_excel_url(context: Context):
@@ -85,5 +73,5 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
-    for item in parse_sheet(context, wb.active, skiprows=1):
+    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
         crawl_item(item, context)
