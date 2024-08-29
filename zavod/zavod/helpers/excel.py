@@ -1,9 +1,13 @@
-from typing import Optional, Union
+from typing import Dict, Generator, Optional, Union
 from datetime import datetime
+from normality import slugify, stringify
 from xlrd.book import Book  # type: ignore
 from xlrd.sheet import Cell  # type: ignore
 from xlrd.xldate import xldate_as_datetime  # type: ignore
 from nomenklatura.util import datetime_iso
+from openpyxl.worksheet.worksheet import Worksheet
+
+from zavod.context import Context
 
 
 def convert_excel_cell(book: Book, cell: Cell) -> Optional[str]:
@@ -51,3 +55,55 @@ def convert_excel_date(value: Optional[Union[str, int, float]]) -> Optional[str]
         return None
     dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + value - 2)
     return datetime_iso(dt)
+
+
+def parse_sheet(
+    context: Context,
+    sheet: Worksheet,
+    skiprows: int = 0,
+    header_lookup: Optional[str] = None,
+) -> Generator[Dict[str, str | None], None, None]:
+    """
+    Parse an Excel sheet into a sequence of dictionaries.
+
+    Args:
+        context: Crawler context.
+        sheet: The Excel sheet.
+        skiprows: The number of rows to skip.
+        header_lookup: The lookup key for translating headers.
+    """
+    headers = None
+    row_counter = 0
+
+    for row in sheet.iter_rows():
+        # Increment row counter
+        row_counter += 1
+
+        # Skip the desired number of rows
+        if row_counter <= skiprows:
+            continue
+        cells = [c.value for c in row]
+        if headers is None:
+            headers = []
+            for idx, header in enumerate(cells):
+                if header is None:
+                    header = f"column_{idx}"
+                if header_lookup:
+                    header = context.lookup_value(
+                        header_lookup,
+                        stringify(header),
+                        stringify(header),
+                    )
+                headers.append(slugify(header, sep="_"))
+            continue
+
+        record = {}
+        for header, value in zip(headers, cells):
+            if isinstance(value, datetime):
+                value = value.date()
+            record[header] = stringify(value)
+        if len(record) == 0:
+            continue
+        if all(v is None for v in record.values()):
+            continue
+        yield record
