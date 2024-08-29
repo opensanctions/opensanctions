@@ -1,8 +1,12 @@
 from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
+import re
 
 from zavod import Context, helpers as h
+
+# Regular expression to match the comma before "Inc."
+INC_PATTERN = r",\s*Inc\."
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -38,9 +42,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     business_name = row.pop("d_b_a_business_name")
 
     if business_name is not None:
+        business_name = re.sub(INC_PATTERN, " Inc.", business_name)
+        names = business_name.split("/")
         company = context.make("Company")
         company.id = context.make_id(business_name)
-        company.add("name", business_name)
+
+        for name in names:
+            company.add("name", name)
         company.add("topics", "debarment")
 
         link = context.make("UnknownLink")
