@@ -103,11 +103,12 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
         sanction.add("provisions", provisions)
 
     h.apply_date(sanction, "startDate", listing_date)
-    h.apply_date(sanction, "endDate", row.pop("data_wykreslenia_z_listy", None))
-
-    entity.add("topics", "sanction")
+    end_date = row.pop("data_wykreslenia_z_listy", None)
+    h.apply_date(sanction, "endDate", end_date)
+    if not end_date:
+        entity.add("topics", "sanction")
     context.audit_data(row)
-    context.emit(entity, target=True)
+    context.emit(entity, target=not end_date)
     context.emit(sanction)
 
 
