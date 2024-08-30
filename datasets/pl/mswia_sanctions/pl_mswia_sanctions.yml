@@ -36,6 +36,8 @@ data:
   url: https://www.gov.pl/web/mswia/lista-osob-i-podmiotow-objetych-sankcjami
   format: HTML
   lang: pol
+dates:
+  formats: ["%d.%m.%Y"]
 
 lookups:
   type.identifier:
@@ -111,3 +113,7 @@ lookups:
       - match: "urodzonej 6 lipca 1972 r."
         props:
           birthDate: 1972-07-06
+      - match: "adres: Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan, nr identyfikacyjny BIN: 220540011771"
+        props:
+          address: "Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan"
+          idNumber: "220540011771"
