@@ -30,7 +30,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("provider_type"))
-    entity.add("description", row.pop("kmap_provider"))
+    entity.add("description", "KMAP Provider Number " + row.pop("kmap_provider"))
 
     sanction = h.make_sanction(context, entity)
     sanction.add("startDate", termination_date)
