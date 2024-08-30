@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Tuple, Generator
 import click
 import json
 import networkx as nx
+from pprint import pprint
 
 from zavod.entity import Entity
 from zavod.logs import get_logger, configure_logging
@@ -20,10 +21,11 @@ OutFile = click.Path(dir_okay=False, writable=True, file_okay=True, path_type=Pa
 
 
 class ChronoResolver(Resolver):
-    def load_chrono(self) -> Generator[Edge, None, None]:
-        """Load the edges chronologically as the generator is consumed."""
+    @staticmethod
+    def restore_chrono(path: Path) -> Generator[Edge, None, None]:
+        """Load the edges chronologically but don't add them."""
         edges = []
-        with open(self.path, "r") as fh:
+        with open(path, "r") as fh:
             while True:
                 line = fh.readline()
                 if not line:
@@ -32,9 +34,13 @@ class ChronoResolver(Resolver):
                 edges.append(edge)
         edges.sort(key=lambda e: e.timestamp)
         for edge in edges:
-            self._register(edge)
-            self.connected.cache_clear()
             yield edge
+
+    def register(self, edge: Edge) -> None:
+        """Add edges to the resolver."""
+        log.debug("Registering edge", edge=edge)
+        self._register(edge)
+        self.connected.cache_clear()
 
 
 def lazy_resolve(view: View, resolver: Resolver, id: Identifier) -> Optional[Entity]:
@@ -51,6 +57,8 @@ def lazy_resolve(view: View, resolver: Resolver, id: Identifier) -> Optional[Ent
             cluster = entity
         else:
             cluster.merge(entity)
+    if cluster:
+        cluster.id = resolver.get_canonical(id)
     return cluster
 
 
@@ -58,7 +66,7 @@ def generate_pairs(
     resolver_path: Path,
     dataset: Dataset,
 ) -> Generator[Tuple[Entity, Entity, Judgement], None, None]:
-    chrono_resolver = ChronoResolver(resolver_path)
+    chrono_resolver = ChronoResolver()
     store = get_store(dataset, Linker({}))
     store.sync()
     view = store.view(dataset, external=False)
@@ -67,7 +75,7 @@ def generate_pairs(
     positive_count = 0
     negative_count = 0
 
-    for edge in chrono_resolver.load_chrono():
+    for edge in ChronoResolver.restore_chrono(resolver_path):
         if edge.judgement == Judgement.NO_JUDGEMENT:
             continue
 
@@ -77,8 +85,18 @@ def generate_pairs(
 
         source = lazy_resolve(view, chrono_resolver, edge.source)
         target = lazy_resolve(view, chrono_resolver, edge.target)
-        if source is None or target is None:
+
+        # Register after loading to get merged entity next time it's referenced.
+        chrono_resolver.register(edge)
+
+        missing = []
+        if source is None:
+            missing.append(edge.source.id)
+        if target is None:
+            missing.append(edge.target.id)
+        if missing:
             something_missing_count += 1
+            log.debug("Couldn't find source and or target in store.", missing=missing)
             continue
 
         if judgement == Judgement.POSITIVE:
