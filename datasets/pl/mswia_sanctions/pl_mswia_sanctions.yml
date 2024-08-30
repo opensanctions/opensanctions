@@ -36,6 +36,8 @@ data:
   url: https://www.gov.pl/web/mswia/lista-osob-i-podmiotow-objetych-sankcjami
   format: HTML
   lang: pol
+dates:
+  formats: ["%d.%m.%Y"]
 
 lookups:
   type.identifier:
