@@ -8,6 +8,27 @@ from zavod.logic.pep import categorise
 DEMARCATION_CHANGES_URL = (
     "https://municipaldata.treasury.gov.za/api/cubes/demarcation_changes/facts"
 )
+MUNICIPALITIES_URL = (
+    "https://municipaldata.treasury.gov.za/api/cubes/municipalities/facts"
+)
+REGEX_NAME_CLEAN = re.compile(
+    r"""
+    \((
+        Acting\sCity\sManager|
+        Acting\sCfo|
+        Assistant\sDirector|
+        Deputy\sCFO|
+        Acting|
+        CFO|
+        DA|
+        ANC|
+        PDC|
+    )\)|
+    \(Municipal\sManage|
+    Acting\sMunicipal\sManager|
+    """,
+    re.VERBOSE + re.IGNORECASE,
+)
 
 
 def clean_emails(emails):
@@ -32,17 +53,24 @@ def clean_phones(phones):
     return out
 
 
+def clean_name(name):
+    return REGEX_NAME_CLEAN.sub("", name).strip()
+
+
 def crawl(context: Context):
-    # Fetch the data from the provided URL
-    officials = context.fetch_json(context.data_url).get("data")
+    officials = context.fetch_json(context.data_url, cache_days=1).get("data")
 
-    # Fetch the reestablished municipalities data from the specific URL
-    demarcation_changes = context.fetch_json(DEMARCATION_CHANGES_URL).get("data")
+    # All munis
+    municipalities = dict()
+    for muni in context.fetch_json(MUNICIPALITIES_URL, cache_days=1).get("data"):
+        municipalities[muni.get("municipality.demarcation_code")] = muni
 
-    # Initialize a set to store disestablished municipality codes
+    # Disestablished muni codes
+    demarcation_changes = context.fetch_json(
+        DEMARCATION_CHANGES_URL,
+        cache_days=1,
+    ).get("data")
     disestablished_municipalities = set()
-
-    # Process the disestablished municipalities
     for fact in demarcation_changes:
         if fact.get("old_code_transition.code") == "disestablished":
             # Add the old demarcation code to the set
@@ -56,7 +84,7 @@ def crawl(context: Context):
         if municipality_code in disestablished_municipalities:
             continue
 
-        name = person_data.get("contact_details.name")
+        name = clean_name(person_data.get("contact_details.name"))
 
         entity = context.make("Person")
         entity.id = context.make_id(name, municipality_code)
@@ -80,7 +108,7 @@ def crawl(context: Context):
 
         position = h.make_position(
             context,
-            role,
+            f"{role} of {municipalities[municipality_code].get('municipality.long_name')}",
             country="za",
             topics=["gov.muni"],
             subnational_area=municipality_code,
