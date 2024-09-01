@@ -1,4 +1,4 @@
-title: Georgia Terminated Provider List
+title: US Georgia Healthcare provider exclusions
 entry_point: crawler.py
 prefix: us-medge
 coverage:

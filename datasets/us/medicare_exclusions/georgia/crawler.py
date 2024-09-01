@@ -63,9 +63,9 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.add("lastName", last_name)
 
     if row.get("npi"):
-        entity.add("notes", "NPI: ", row.pop("npi"))
+        entity.add("npiCode", row.pop("npi"))
 
-    entity.add("topics", "sanction")
+    entity.add("topics", "debarment")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("startDate", h.parse_date(row.pop("sancdate"), formats=["%Y%m%d"]))
