@@ -121,6 +121,8 @@ lookups:
           - "-"
           - Unknown
           - XX
+          - XX, XX, USA
+          - XX, USA
         value: null
   type.country:
     lowercase: true

@@ -73,4 +73,5 @@ children:
   - uy_pep
   - ve_asamblea_nacional
   - wd_peps
+  - za_mm_officials
 ci_test: false

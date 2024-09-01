@@ -429,6 +429,8 @@ lookups:
           - British rule in Myanmar
           - Unified Team
           - Free City of Kraków
+          - Emirate of Bahrain (1783–1971)
+          - Khwarazmian Empire
         value: null
       - match:
           - Cherokee Nation
@@ -701,6 +703,7 @@ lookups:
           - two-spirit
           - intersex
           - eunuch
+          - muxe
         value: other
       - match: transgender
         value: null
