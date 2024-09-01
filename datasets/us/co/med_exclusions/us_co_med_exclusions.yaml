@@ -1,4 +1,4 @@
-title: Colorado Terminated Provider List
+title: US Colorado Medicaid Terminated Provider List
 entry_point: crawler.py
 prefix: us-medco
 coverage:
@@ -23,3 +23,11 @@ url: "https://hcpf.colorado.gov/provider-termination"
 data:
   url: https://hcpf.colorado.gov/provider-termination
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 200 
+  max:
+    schema_entities:
+      LegalEntity: 400 
