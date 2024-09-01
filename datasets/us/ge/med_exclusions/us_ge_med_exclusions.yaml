@@ -22,3 +22,14 @@ url: "https://dch.georgia.gov/office-inspector-general/georgia-oig-exclusions-li
 data:
   url: https://dch.georgia.gov/office-inspector-general/georgia-oig-exclusions-list
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1000 
+      Company: 150 
+  max:
+    schema_entities:
+      Person: 1200 
+      Company: 300 
+      

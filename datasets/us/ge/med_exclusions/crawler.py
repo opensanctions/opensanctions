@@ -1,71 +1,34 @@
-from typing import Dict, Generator
+from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
-from normality import slugify, stringify
-from datetime import datetime
-import openpyxl
 
 from zavod import Context, helpers as h
 
 
-def parse_sheet(
-    context: Context,
-    sheet: openpyxl.worksheet.worksheet.Worksheet,
-    skiprows: int = 0,
-) -> Generator[dict, None, None]:
-    headers = None
-
-    row_counter = 0
-
-    for row in sheet.iter_rows():
-        # Increment row counter
-        row_counter += 1
-
-        # Skip the desired number of rows
-        if row_counter <= skiprows:
-            continue
-        cells = [c.value for c in row]
-        if headers is None:
-            headers = []
-            for idx, cell in enumerate(cells):
-                if cell is None:
-                    cell = f"column_{idx}"
-                headers.append(slugify(cell))
-            continue
-
-        record = {}
-        for header, value in zip(headers, cells):
-            if isinstance(value, datetime):
-                value = value.date()
-            record[header] = stringify(value)
-        if len(record) == 0:
-            continue
-        yield record
-
-
 def crawl_item(row: Dict[str, str], context: Context):
 
-    first_name = row.pop("first-name")
-    last_name = row.pop("last-name")
-    business_name = row.pop("business-name")
+    first_name = row.pop("first_name")
+    last_name = row.pop("last_name")
+    business_name = row.pop("business_name")
 
     if not first_name and not last_name and not business_name:
         return
 
     if business_name:
         entity = context.make("Company")
-        entity.id = context.make_id(business_name)
+        entity.id = context.make_id(business_name, row.get("npi"))
         entity.add("name", business_name)
     else:
         entity = context.make("Person")
-        entity.id = context.make_id(first_name, last_name)
-        entity.add("firstName", first_name)
-        entity.add("lastName", last_name)
+        entity.id = context.make_id(first_name, last_name, row.get("npi"))
+        h.apply_name(entity, first_name=first_name, last_name=last_name)
 
     if row.get("npi"):
         entity.add("npiCode", row.pop("npi"))
 
     entity.add("topics", "debarment")
+    entity.add("country", "us")
+    entity.add("sector", row.pop("general"))
 
     sanction = h.make_sanction(context, entity)
     sanction.add("startDate", h.parse_date(row.pop("sancdate"), formats=["%Y%m%d"]))
@@ -74,7 +37,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.emit(sanction)
 
     # general is the medical field of the professional
-    context.audit_data(row, ignore=["general", "state"])
+    context.audit_data(row, ignore=["state"])
 
 
 def crawl_excel_url(context: Context):
@@ -91,5 +54,5 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
-    for item in parse_sheet(context, wb["Sheet1"], skiprows=2):
+    for item in h.parse_xlsx_sheet(context, wb["Sheet1"], skiprows=2):
         crawl_item(item, context)
