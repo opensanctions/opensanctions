@@ -55,8 +55,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         last_name = row.pop("last-name")
         entity = context.make("Person")
         entity.id = context.make_id(first_name, last_name)
-        entity.add("firstName", first_name)
-        entity.add("lastName", last_name)
+        h.apply_name(entity, first_name=first_name, last_name=last_name)
     elif enrollment_type == "Organization":
         business_name = row.pop("legal-business-name")
         entity = context.make("Organization")
@@ -70,6 +69,8 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.add("notes", "NPI: " + row.pop("npi"))
 
     entity.add("topics", "sanction")
+    entity.add("description", "State license type/number: {}/{}".format(row.pop("state-license-type"), row.pop("state-license-number")))
+    entity.add("sector", row.pop("specialty"))
 
     sanction = h.make_sanction(context, entity)
     sanction.add(
@@ -96,9 +97,6 @@ def crawl_item(row: Dict[str, str], context: Context):
         row,
         ignore=[
             "eligible-to-reapply-date",
-            "state-license-number",
-            "state-license-type",
-            "specialty",
         ],
     )
 
