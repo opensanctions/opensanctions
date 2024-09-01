@@ -1,4 +1,4 @@
-title: New York Terminated Provider List
+title: US New York Medicaid Terminated Provider List
 entry_point: crawler.py
 prefix: us-medny
 coverage:
@@ -21,3 +21,11 @@ url: "https://omig.ny.gov/medicaid-fraud/medicaid-exclusions"
 data:
   url: https://apps.omig.ny.gov/exclusions/exporttoexcel.aspx
   format: XLSX
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 7500
+  max:
+    schema_entities:
+      LegalEntity: 9000
