@@ -22,3 +22,14 @@ url: "https://hhs.iowa.gov/programs/welcome-iowa-medicaid/provider-services/excl
 data:
   url: https://hhs.iowa.gov/programs/welcome-iowa-medicaid/provider-services/excluded-individuals-and-entities
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 150 
+      Person:  600
+  max:
+    schema_entities:
+      Organization: 300 
+      Person:  800
+      
