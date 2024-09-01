@@ -251,16 +251,18 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
 
     position_kat = item.pop("Position")
     occupancy_description = None
-    if len(position_kat) > registry.name.max_length:
-        occupancy_description = position_kat
-        position_kat = context.lookup_value("positions", position_kat, position_kat)
-
     organization = item.pop("Organisation")
-    if len(position_kat) < 35:
-        position_kat = f"{position_kat}, {organization}"
+
     if "კანდიდატი" in position_kat:  # Candidate
         context.log.debug(f"Skipping candidate {position_kat}")
         return
+
+    if len(position_kat) < 35:
+        position_kat = f"{position_kat}, {organization}"
+
+    if len(position_kat) > registry.name.max_length:
+        occupancy_description = position_kat
+        position_kat = context.lookup_value("positions", position_kat, position_kat)
 
     position = h.make_position(
         context,

@@ -1908,3 +1908,7 @@ lookups:
         code: ""
         label: "Bharatpur State"
         decision: "ignore"
+      - match: "Q129619467"
+        code: ""
+        label: "First Republic of Seychelles"
+        decision: "ignore"

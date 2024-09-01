@@ -29,11 +29,11 @@ publisher:
   country: ge
   url: https://acb.gov.ge/
   description: |
-     The Anti-Corruption Bureau determines the general policy of fighting against
-     corruption, to develop a national anti-corruption strategy and action plan and
-     to monitor the implementation of the mentioned plan. It seeks to prevent, detect and
-     prevent conflicts of interest in public institutions and develop relevant proposals
-     and recommendations.
+    The Anti-Corruption Bureau determines the general policy of fighting against
+    corruption, to develop a national anti-corruption strategy and action plan and
+    to monitor the implementation of the mentioned plan. It seeks to prevent, detect and
+    prevent conflicts of interest in public institutions and develop relevant proposals
+    and recommendations.
   official: true
 ci_test: false
 
@@ -48,6 +48,13 @@ assertions:
       Person: 17000
 
 lookups:
+  type.name:
+    options:
+      - match: Former Ambassador Extraordinary and Plenipotentiary in the Embassy of Georgia to the Republic of Austria and to the Organization for Security and Co-operation in Europe, and Permanent Representative of Georgia to the International Organizations based in Vienna
+        value: Former Ambassador Extraordinary and Plenipotentiary to the Republic of Austria
+  #
+  # These are checked before adding the position name and doing the transliteration
+  #
   positions:
     options:
       - match: საქართველოს გენერალური პროკურატურის სუს, სდსს, დაზვერვის სამსახურში, თავდაცვის სამინისტროსა და შსს სსდ-საქართველოს სასაზღვრო პოლიციაში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის დეპარტამენტის სუს კონტრდაზვერვის დეპარტამენტში, კონტრტერორისტულ ცენტრში, შსს სსდ-საქართველოს სასაზღვრო პოლიციაში, სდსს და დაზვერვის სამსახურში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის სამმართველოს უფროსი პროკურორი

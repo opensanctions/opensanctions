@@ -21,8 +21,8 @@ FRENCH_TO_ENGLISH_MONTHS = {
 
 SUBTITLE_PATTERN = re.compile(
     r"""
-^(Sanctions?|amende)\s(administrative|administratives)\s
-(prononcées?\sà\sl’encontre\sd[eu]|imposée\sà)\s
+^(Sanctions?|amende)\s(administratives?)\s
+((prononcées?\s)?à\sl’encontre\sd[eu]|imposée\sà)\s
 (
     gestionnaire\sde\sfonds\sd’investissement\salternatifs?|
     gestionnaire\sde\sfonds\sd’investissement|

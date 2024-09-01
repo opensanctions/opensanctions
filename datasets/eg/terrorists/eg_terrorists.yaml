@@ -50,7 +50,7 @@ lookups:
       - match: رقم القضية 
         value: case_number
       - match: رقم قرار ادراج الارهابيين
-        value: terrorist_desgination_decision_number
+        value: terrorist_designation_decision_number
       - match: تاريخ النشر
         value: date_of_publication
       - match: عدد النشر
