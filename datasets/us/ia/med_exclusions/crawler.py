@@ -1,6 +1,7 @@
 from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
+from datetime import datetime
 
 from zavod import Context, helpers as h
 
@@ -30,7 +31,6 @@ def crawl_item(row: Dict[str, str], context: Context):
     if row.get("npi"):
         entity.add("npiCode", row.pop("npi"))
 
-    entity.add("topics", "debarment")
     entity.add(
         "description",
         "State license type/number: {}/{}".format(
@@ -47,17 +47,31 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction.add("reason", row.pop("authority"))
     sanction.add("description", row.pop("type_of_sanction"))
 
-    if row.get("sanction_end_date") not in ["Indefinite", "Federal Authority"]:
+    if row.get("sanction_end_date") and row.get("sanction_end_date") not in [
+        "Indefinite",
+        "Federal Authority",
+    ]:
+
+        target = (
+            datetime.strptime(row.get("sanction_end_date"), "%Y-%m-%d")
+            >= datetime.today()
+        )
+
         sanction.add(
             "endDate",
             h.parse_date(
                 row.pop("sanction_end_date"), formats=["%Y-%m-%d", "%m/%d/%Y"]
             ),
         )
+
     else:
         row.pop("sanction_end_date")
+        target = True
 
-    context.emit(entity, target=True)
+    if target:
+        entity.add("topics", "debarment")
+
+    context.emit(entity, target=target)
     context.emit(sanction)
 
     context.audit_data(
