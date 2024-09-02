@@ -1,0 +1,34 @@
+title: US Mississippi Medicaid Terminated Provider List
+entry_point: crawler.py
+prefix: us-medms
+coverage:
+  frequency: daily
+  start: "2024-09-02"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been terminated for cause from Mississippi's Medicaid program.
+description: |
+  > The Mississippi Division of Medicaid maintains a list of providers whose Medicaid provider agreement has
+  > been terminated. Refer to the Miss. Code Ann. §43-13-121 and the Code of Federal Regulations (CFR)
+  > §455.416 for the reasons a provider’s enrollment may be denied or revoked.
+
+  [Provider Termination page] (https://medicaid.ms.gov/providers/provider-terminations/)
+publisher:
+  name: Mississippi Division of Medicaid
+  url: https://medicaid.ms.gov
+  official: true
+  country: "us"
+url: "https://medicaid.ms.gov/providers/provider-terminations/"
+data:
+  url: https://medicaid.ms.gov/providers/provider-terminations/
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 100 
+      Person: 40 
+  max:
+    schema_entities:
+      LegalEntity: 250 
+      Person: 100 
