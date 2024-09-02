@@ -2,10 +2,9 @@ title: Polish List of Persons and Entities Subject to Sanctions
 entry_point: crawler.py
 prefix: plmswia
 coverage:
+  schedule: "0 */8 * * *"
   frequency: daily
   start: "2022-04-29"
-deploy:
-  schedule: "0 */8 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Decisions by the Polish Interior Ministry regarding entities linked

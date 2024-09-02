@@ -2,10 +2,9 @@ title: UN Security Council Consolidated Sanctions
 entry_point: crawler.py
 prefix: unsc
 coverage:
+  schedule: "0 */4 * * *"
   frequency: daily
   start: "2015-12-05"
-deploy:
-  schedule: "0 */4 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The Security Council's set of sanctions serve as the foundation for most

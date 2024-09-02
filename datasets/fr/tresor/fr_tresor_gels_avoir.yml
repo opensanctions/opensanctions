@@ -2,10 +2,9 @@ title: French National Asset Freezing System
 entry_point: crawler.py
 prefix: fr-ga
 coverage:
+  schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-02-12
-deploy:
-  schedule: "30 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The register lists all persons, entities and vessels subject to asset

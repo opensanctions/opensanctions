@@ -4,7 +4,6 @@ prefix: qa-nctc
 coverage:
   frequency: daily
   start: 2023-02-19
-deploy:
   schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >

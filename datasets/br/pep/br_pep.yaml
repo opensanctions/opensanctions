@@ -2,7 +2,7 @@ title: Brazil Politically Exposed Persons
 entry_point: crawler.py
 prefix: br-pep
 coverage:
-  frequency: daily
+  frequency: weekly
   start: "2023-12-06"
 deploy:
   memory: 1Gi

@@ -4,8 +4,6 @@ prefix: ca-nro
 coverage:
   frequency: daily
   start: 2024-01-22
-deploy:
-  schedule: "0 5 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   List of universities, research institutes

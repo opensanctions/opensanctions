@@ -2,10 +2,9 @@ title: Israel Terrorists Organizations and Unauthorized Associations lists
 entry_point: crawler.py
 prefix: il-nbctf
 coverage:
+  schedule: "0 */6 * * *"
   frequency: daily
   start: 2021-10-22
-deploy:
-  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Terrorist organizations and individuals as designated by the Israeli government
