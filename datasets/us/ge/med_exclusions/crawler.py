@@ -36,7 +36,6 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    # general is the medical field of the professional
     context.audit_data(row, ignore=["state"])
 
 

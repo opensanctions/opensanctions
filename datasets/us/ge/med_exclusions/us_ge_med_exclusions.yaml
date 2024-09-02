@@ -6,12 +6,12 @@ coverage:
   start: "2024-08-15"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  This dataset contains a list of providers who have been terminated for cause from Georgia's Medicaid program.
+  Providers who have been terminated for cause from Georgia's Medicaid program.
 description: |
-  The Georgia Department of Community Health is authorized to exclude certain individuals and entities (providers)
-  from participating in federally funded health care programs, including Medicaid. Excluded individuals and
-  entities are not permitted to receive reimbursement for providing Medicare and Medicaid services in all categories
-  of service and in any capacity, including managed care. 
+  > The Georgia Department of Community Health is authorized to exclude certain individuals and entities (providers)
+  > from participating in federally funded health care programs, including Medicaid. Excluded individuals and
+  > entities are not permitted to receive reimbursement for providing Medicare and Medicaid services in all categories
+  > of service and in any capacity, including managed care. 
 publisher:
   name: Georgia Department of Community Health
   acronym: DCH
@@ -32,4 +32,3 @@ assertions:
     schema_entities:
       Person: 1200 
       Company: 300 
-      
