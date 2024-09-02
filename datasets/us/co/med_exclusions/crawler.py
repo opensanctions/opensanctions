@@ -21,8 +21,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     if row.get("npi") != "N/A":
         npis = re.split(r"; |& ", row.pop("npi"))
 
-        for npi in npis:
-            entity.add("npiCode", npi)
+        entity.add("npiCode", npis)
     else:
         row.pop("npi")
 
@@ -31,10 +30,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction.add("startDate", termination_effective_date)
     sanction.add("reason", row.pop("termination_authority"))
 
-    if "reinstatement_effective_date" in row:
-        reinstatement_effective_date = row.pop("reinstatement_effective_date")
-    else:
-        reinstatement_effective_date = None
+    reinstatement_date = row.pop("reinstatement_effective_date", None)
 
     if reinstatement_effective_date:
         target = (
