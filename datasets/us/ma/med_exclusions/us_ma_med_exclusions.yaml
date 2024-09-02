@@ -1,4 +1,4 @@
-title: Massachusetts Terminated Provider List
+title: US Massachusetts Medicaid Terminated Provider List
 entry_point: crawler.py
 prefix: us-medma
 coverage:
