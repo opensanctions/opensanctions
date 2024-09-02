@@ -592,11 +592,11 @@ def categorise_names(
     Otherwise use all the names and let length validation alert as usual.
 
     This would let
-    ППОО МБУ ДО ДШИ №6 ИМЕНИ Г.В.СВИРИДОВА РРО РПСРК
-    PPOO MBU DO DSHI №6 NAMED AFTER G.V.SVIRIDOV RRO RPSRK
+    ru: ППОО МБУ ДО ДШИ №6 ИМЕНИ Г.В.СВИРИДОВА РРО РПСРК
+    en: PPOO MBU DO DSHI №6 NAMED AFTER G.V.SVIRIDOV RRO RPSRK
     in names and put
-    ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ МУНИЦИПАЛЬНОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ ДОПОЛНИТЕЛЬНОГО ОБРАЗОВАНИЯ ДЕТСКАЯ ШКОЛА ИСКУССТВ №6 ИМЕНИ Г.В.СВИРИДОВА Г.РОСТОВА-НА-ДОНУ РОСТОВСКОГО РЕГИОНАЛЬНОГО ОТДЕЛЕНИЯ РОССИЙСКОГО ПРОФЕССИОНАЛЬНОГО СОЮЗА РАБОТНИКОВ КУЛЬТУРЫ
-    PRIMARY TRADE UNION PUBLIC ORGANIZATION OF THE MUNICIPAL BUDGETARY INSTITUTION OF ADDITIONAL EDUCATION CHILDREN'S ARTS SCHOOL №6 NAMED AFTER G.V.SVIRIDOVA ROSTOV-ON-DON ROSTOV REGIONAL BRANCH OF THE RUSSIAN TRADE UNION OF CULTURAL WORKERS
+    ru: ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ МУНИЦИПАЛЬНОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ ДОПОЛНИТЕЛЬНОГО ОБРАЗОВАНИЯ ДЕТСКАЯ ШКОЛА ИСКУССТВ №6 ИМЕНИ Г.В.СВИРИДОВА Г.РОСТОВА-НА-ДОНУ РОСТОВСКОГО РЕГИОНАЛЬНОГО ОТДЕЛЕНИЯ РОССИЙСКОГО ПРОФЕССИОНАЛЬНОГО СОЮЗА РАБОТНИКОВ КУЛЬТУРЫ
+    en: PRIMARY TRADE UNION PUBLIC ORGANIZATION OF THE MUNICIPAL BUDGETARY INSTITUTION OF ADDITIONAL EDUCATION CHILDREN'S ARTS SCHOOL №6 NAMED AFTER G.V.SVIRIDOVA ROSTOV-ON-DON ROSTOV REGIONAL BRANCH OF THE RUSSIAN TRADE UNION OF CULTURAL WORKERS
     in description.
     """
     descriptions = set()
@@ -605,7 +605,7 @@ def categorise_names(
     too_long = set()
 
     for name in short_names + full_names:
-        if len(name) < registry.name.max_length:
+        if len(name) <= registry.name.max_length:
             if len(name) > MIN_NAME_LENGTH:
                 sufficient_short.add(name)
             else:
