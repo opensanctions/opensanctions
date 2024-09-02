@@ -23,9 +23,9 @@ data:
   format: HTML
 
 assertions:
-   min:
-     schema_entities:
-       LegalEntity: 150 
-   max:
-     schema_entities:
-       LegalEntity: 350 
+  min:
+    schema_entities:
+      LegalEntity: 150 
+  max:
+    schema_entities:
+      LegalEntity: 350 
