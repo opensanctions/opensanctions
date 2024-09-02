@@ -1,0 +1,32 @@
+title: US Indiana Medicaid Terminated Provider List
+entry_point: crawler.py
+prefix: us-medin
+coverage:
+  frequency: daily
+  start: "2024-08-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been terminated for cause from Indiana's Medicaid program.
+description: |
+  Federal regulation requires states to provide notice when the enrollment of a Medicaid enrolled provider has
+  been terminated “for cause”. Services rendered or ordered by sanctioned providers are not eligible for
+  Medicaid reimbursement. In addition, services provided by entities owned or managed by sanctioned providers
+  are not eligible for Medicaid reimbursement.
+publisher:
+  name: Indiana Family and Social Services Administration
+  acronym: FSSA
+  url: https://www.in.gov/fssa/
+  official: true
+  country: "us"
+url: "https://www.in.gov/fssa/ompp/provider-information4/termination-of-provider-participation-in-medicaid-and-chip/"
+data:
+  url: https://www.in.gov/fssa/ompp/provider-information4/termination-of-provider-participation-in-medicaid-and-chip/
+  format: HTML
+
+assertions:
+   min:
+     schema_entities:
+       LegalEntity: 25 
+   max:
+     schema_entities:
+       LegalEntity: 60 
