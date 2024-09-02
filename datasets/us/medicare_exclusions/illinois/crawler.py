@@ -43,7 +43,7 @@ def parse_sheet(
         yield record
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: Dict[str, str], context: Context, is_excluded: bool):
 
     name = row.pop("provider-name")
 
@@ -58,8 +58,8 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.add("notes", "NPI: " + row.pop("npi"))
     else:
         row.pop("npi")
-
-    entity.add("topics", "sanction")
+    if is_excluded:
+        entity.add("topics", "debarment")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("startDate", row.pop("termination-effective-date"))
@@ -68,7 +68,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     if row.get("reinstatement-effective-date"):
         sanction.add("endDate", row.pop("reinstatement-effective-date"))
 
-    context.emit(entity, target=True)
+    context.emit(entity, target=is_excluded)
     context.emit(sanction)
 
     context.audit_data(row)
@@ -89,8 +89,8 @@ def crawl(context: Context) -> None:
 
     # Currently terminated providers
     for item in parse_sheet(context, wb["Termination List"]):
-        crawl_item(item, context)
+        crawl_item(item, context, True)
 
     # Providers that where terminated but are now reinstated
     for item in parse_sheet(context, wb["Reinstated Providers"]):
-        crawl_item(item, context)
+        crawl_item(item, context, False)
