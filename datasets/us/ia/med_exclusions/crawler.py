@@ -47,12 +47,12 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction.add("reason", row.pop("authority"))
     sanction.add("description", row.pop("type_of_sanction"))
 
-    if row.get("sanction_end_date") and row.get("sanction_end_date") not in [
+    if end_date and row.get("sanction_end_date") not in [
         "Indefinite",
         "Federal Authority",
     ]:
 
-        target = (
+        is_debarred = (
             datetime.strptime(row.get("sanction_end_date"), "%Y-%m-%d")
             >= datetime.today()
         )
