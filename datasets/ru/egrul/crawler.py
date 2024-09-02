@@ -1,3 +1,4 @@
+from functools import cache
 from urllib.parse import urljoin, urlparse
 from typing import Dict, Optional, Set, IO, List, Any, Tuple
 from collections import defaultdict
@@ -16,10 +17,22 @@ INN_URL = "https://egrul.itsoft.ru/%s.xml"
 # original source: "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
 aformatter = AddressFormatter()
 
+
+TYPES = {
+    "АВТОНОМНАЯ НЕКОММЕРЧЕСКАЯ ОРГАНИЗАЦИЯ": "АНО",
+    "ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ": "ГУП",
+    "ЗАКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО": "ЗАО",
+    "МЕЖРЕГИОНАЛЬНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ": "МОО",
+    "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ": "ООО",
+    "ОТКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО": "ОАО",
+    "ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО": "ПАО",
+    "ПРИВАТНЕ АКЦІОНЕРНЕ ТОВАРИСТВО": "ПАО",
+    "АКЦИОНЕРНОЕ ОБЩЕСТВО": "AO",
+}
+
+
 # Prefixes we believe we can trim without losing meaning to shorten names that are too long.
 TRIM_PREFIXES = [
-    "АВТОНОМНАЯ НЕКОММЕРЧЕСКАЯ",
-    "АКЦИОНЕРНОЕ ОБЩЕСТВО",
     "ГОСУДАРСТВЕННАЯ ОБЩЕОБРАЗОВАТЕЛЬНАЯ ШКОЛА-ИНТЕРНАТ",
     "ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ",
     "ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОГРАНИЧЕННЫМИ ВОЗМОЖНОСТЯМИ ЗДОРОВЬЯ СПЕЦИАЛЬНАЯ (КОРРЕКЦИОННАЯ)",
@@ -33,12 +46,10 @@ TRIM_PREFIXES = [
     "ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ",
     "ГОСУДАРСТВЕННОЕ ОБЩЕОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ",
     "ГОСУДАРСТВЕННОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОТКЛОНЕНИЯМИ В РАЗВИТИИ",
-    "ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ",
     "ГОСУДАРСТВЕННОЕ УНИТАРНОЕ СЕЛЬСКОХОЗЯЙСТВЕННОЕ ПРЕДПРИЯТИЕ",
     "ГОСУДАРСТВЕННОЕ УЧРЕЖДЕНИЕ",
     "ГОСУДАРСТВЕННОЕ",  # State
     "ДОЧЕРНЕЕ ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ",
-    "ЗАКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО",
     "КАЗЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ХАНТЫ-МАНСИЙСКОГО АВТОНОМНОГО ОКРУГА - ЮГРЫ ДЛЯ ДЕТЕЙ-СИРОТ И ДЕТЕЙ, ОСТАВШИХСЯ БЕЗ ПОПЕЧЕНИЯ РОДИТЕЛЕЙ",
     "МЕЖРЕГИОНАЛЬНЫЙ ПРОФСОЮЗ РАБОТНИКОВ ФИЛИАЛА",
     "МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ",
@@ -63,10 +74,8 @@ TRIM_PREFIXES = [
     "ОБЛАСТНОЕ ГОСУДАРСТВЕННОЕ КАЗЁННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ-СИРОТ И ДЕТЕЙ, ОСТАВШИХСЯ БЕЗ ПОПЕЧЕНИЯ РОДИТЕЛЕЙ",
     "ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ",
     "ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ",
-    "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ",
     "ОКРУЖНОЕ ГОСУДАРСТВЕННОЕ УЧРЕЖДЕНИЕ",
     "ОРГАНИЗАЦИЯ НАУЧНОГО ОБСЛУЖИВАНИЯ И СОЦИАЛЬНОЙ СФЕРЫ",
-    "ОТКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО",
     "ПЕРВИЧНАЯ ОРГАНИЗАЦИЯ ПРОФСОЮЗА ОБЛАСТНОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ ЗДРАВООХРАНЕНИЯ",
     "ПЕРВИЧНАЯ ОРГАНИЗАЦИЯ ПРОФСОЮЗА СОТРУДНИКОВ ГОСУДАРСТВЕННОГО БЮДЖЕТНОГО ОБРАЗОВАТЕЛЬНОГО УЧРЕЖДЕНИЯ ВЫСШЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ",
     "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ АКЦИОНЕРНОГО ОБЩЕСТВА",
@@ -106,6 +115,20 @@ TRIM_PREFIXES = [
     "ФЕДЕРАЛЬНОЕ КАЗЕННОЕ УЧРЕЖДЕНИЕ",
 ]
 REGEX_TRIM_PREFIX = re.compile("^(" + "|".join(TRIM_PREFIXES) + ")")
+
+
+@cache
+def type_sub():
+    return {re.combile(rf"\b{k}\b", re.I): v for k, v in TYPES.items()}
+
+
+def replace_acronyms(text: str) -> str:
+    """
+    Replace company types with their acronyms.
+    """
+    for k, v in type_sub().items():
+        text = k.sub(v, text)
+    return text
 
 
 def tag_text(el: Element) -> str:
@@ -538,11 +561,17 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     entity.add("address", address)
 
 
-def trim_prefixes(original_names: List[str]) -> Tuple[List[str], List[str]]:
+def shorten_long_names(original_names: List[str]) -> Tuple[List[str], List[str]]:
     names = []
     descriptions = []
     for name in names:
         if len(name) > registry.name.max_length:
+            trimmed = replace_acronyms(name)
+            if len(trimmed) <= registry.name.max_length:
+                names.append(trimmed)
+                descriptions.append(name)
+                continue
+
             trimmed = REGEX_TRIM_PREFIX.sub("", name)
             if trimmed != name and len(trimmed) < registry.name.max_length:
                 names.append(trimmed)
@@ -626,7 +655,7 @@ def parse_company(context: Context, el: Element) -> None:
     entity.add("jurisdiction", "ru")
     names, descriptions = categorise_names(names_full, names_short)
     entity.add("description", descriptions)
-    names, descriptions = trim_prefixes(names)
+    names, descriptions = shorten_long_names(names)
     entity.add("name", names)
     entity.add("description", descriptions)
     entity.add("ogrnCode", ogrn)
