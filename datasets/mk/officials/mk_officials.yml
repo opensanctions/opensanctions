@@ -3,7 +3,7 @@ title: "North Macedonia Elected and Appointed Officials"
 entry_point: crawler.py
 prefix: mk-officials
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2024-01-20
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >

@@ -3,10 +3,9 @@ entry_point: crawler.py
 prefix: gb-fcdo
 disabled: false
 coverage:
+  schedule: "0 */2 * * *"
   frequency: daily
   start: 2024-05-09
-deploy:
-  schedule: "0 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   UK sanctions collated by the Foreign, Commonwealth & Development Office

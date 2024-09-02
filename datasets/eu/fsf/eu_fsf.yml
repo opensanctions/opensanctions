@@ -2,10 +2,9 @@ title: "EU Financial Sanctions Files (FSF)"
 entry_point: crawler.py
 prefix: eu-fsf
 coverage:
+  schedule: "0 */2 * * *"
   frequency: daily
   start: 2021-01-24
-deploy:
-  schedule: "50 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   As part of the Common Foreign Security Policy the European Union publishes
