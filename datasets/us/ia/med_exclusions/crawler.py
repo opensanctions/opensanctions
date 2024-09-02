@@ -31,12 +31,17 @@ def crawl_item(row: Dict[str, str], context: Context):
     if row.get("npi"):
         entity.add("npiCode", row.pop("npi"))
 
-    entity.add(
-        "description",
-        "State license type/number: {}/{}".format(
-            row.pop("state_license_type"), row.pop("state_license_number")
-        ),
-    )
+    if row.get("state_license_number") != "N/A":
+        entity.add(
+            "description",
+            "State license type/number: {}/{}".format(
+                row.pop("state_license_type"), row.pop("state_license_number")
+            ),
+        )
+    else:
+        row.pop("state_license_type")
+        row.pop("state_license_number")
+
     entity.add("sector", row.pop("specialty"))
 
     sanction = h.make_sanction(context, entity)
