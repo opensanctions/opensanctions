@@ -1,0 +1,34 @@
+title: US Michigan Medicaid Terminated Provider List
+entry_point: crawler.py
+prefix: us-medmi
+coverage:
+  frequency: daily
+  start: "2024-09-02"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been terminated for cause from Michigan's Medicaid program.
+description: |
+  Pursuant to Section 1128 and Section 1902(a)(39) of the Social Security Act, the Medicaid Program will not
+  reimburse a provider for any services or items that were rendered or ordered/prescribed by a sanctioned
+  (e.g., suspended, excluded) provider.  The effect of the provider's sanction precludes them from furnishing,
+  ordering, or prescribing services or items to any Medicaid beneficiary.
+publisher:
+  name: Michigan Department of Health & Human Services
+  acronym: MDHHS
+  url: https://www.michigan.gov/mdhhs
+  official: true
+  country: "us"
+url: "https://www.michigan.gov/mdhhs/doing-business/providers/providers/billingreimbursement/list-of-sanctioned-providers"
+data:
+  url: https://www.michigan.gov/mdhhs/doing-business/providers/providers/billingreimbursement/list-of-sanctioned-providers
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 400 
+      Person: 100 
+  max:
+    schema_entities:
+      LegalEntity: 550 
+      Person: 250 
