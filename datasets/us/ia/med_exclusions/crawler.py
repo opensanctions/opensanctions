@@ -52,7 +52,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction.add("reason", row.pop("authority"))
     sanction.add("description", row.pop("type_of_sanction"))
 
-    if end_date and row.get("sanction_end_date") not in [
+    if row.get("sanction_end_date") and row.get("sanction_end_date") not in [
         "Indefinite",
         "Federal Authority",
     ]:
@@ -71,12 +71,12 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     else:
         row.pop("sanction_end_date")
-        target = True
+        is_debarred = True
 
-    if target:
+    if is_debarred:
         entity.add("topics", "debarment")
 
-    context.emit(entity, target=target)
+    context.emit(entity, target=is_debarred)
     context.emit(sanction)
 
     context.audit_data(
