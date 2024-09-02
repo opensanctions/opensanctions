@@ -1,6 +1,6 @@
 title: US Georgia Healthcare provider exclusions
 entry_point: crawler.py
-prefix: us-medge
+prefix: us-medga
 coverage:
   frequency: daily
   start: "2024-08-15"
