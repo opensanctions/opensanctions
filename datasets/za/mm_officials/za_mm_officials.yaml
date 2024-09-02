@@ -4,7 +4,7 @@ entry_point: crawler.py
 prefix: za-mm
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2024-08-20
 summary: >
   Profiles of municipal heads in South Africa, focusing on key political figures 

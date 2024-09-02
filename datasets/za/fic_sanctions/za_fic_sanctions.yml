@@ -2,10 +2,9 @@ title: South Africa Targeted Financial Sanctions
 entry_point: crawler.py
 prefix: zafic
 coverage:
+  schedule: "0 */6 * * *"
   frequency: daily
   start: 2022-02-06
-deploy:
-  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The South African FIC sanctions list, largely based on UN Security Council sanctions.

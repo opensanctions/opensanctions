@@ -4,11 +4,11 @@ prefix: ofac
 coverage:
   frequency: daily
   start: "2015-12-05"
+  schedule: "0 */2 * * *"
 deploy:
   memory: 1300Mi
   memory_limit: "2Gi"
   cpu: "200m"
-  schedule: "35 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The primary United States' sanctions list, specially designated nationals (SDN) part.
