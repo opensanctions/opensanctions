@@ -1,0 +1,33 @@
+title: US Colorado Medicaid Terminated Provider List
+entry_point: crawler.py
+prefix: us-medco
+coverage:
+  frequency: daily
+  start: "2024-08-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been terminated for cause from Colorado's Medicaid program.
+description: |
+  The Department of Health Care Policy & Financing (HCPF) maintains a list of providers whose participation in
+  Health First Colorado (Colorado's Medicaid program) has been terminated for cause. A provider who has been
+  terminated for cause may not receive reimbursement under the Medicaid program. A description of the reasons
+  a provider may be terminated for cause can be found under the definition of Good Cause at 10 CCR 2505-10,
+  Section 8.076.1.7.
+publisher:
+  name: Colorado Department of Health Care Policy & Financing
+  acronym: HCPF
+  url: https://hcpf.colorado.gov
+  official: true
+  country: "us"
+url: "https://hcpf.colorado.gov/provider-termination"
+data:
+  url: https://hcpf.colorado.gov/provider-termination
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 200 
+  max:
+    schema_entities:
+      LegalEntity: 400 
