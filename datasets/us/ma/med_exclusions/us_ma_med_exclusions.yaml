@@ -1,0 +1,31 @@
+title: Massachusetts Terminated Provider List
+entry_point: crawler.py
+prefix: us-medma
+coverage:
+  frequency: daily
+  start: "2024-08-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been terminated for cause from Massachusetts's Medicaid program.
+description: |
+  The MassHealth program maintains a list of providers who have been suspended or excluded
+  from participating in the MassHealth program. This list is updated monthly and reflects
+  suspensions or exclusions effective on or after March 23, 2010.
+publisher:
+  name: MassHealth
+  acronym: MASS
+  url: https://www.mass.gov
+  official: true
+  country: "us"
+url: "https://www.mass.gov/info-details/learn-about-suspended-or-excluded-masshealth-providers"
+data:
+  url: https://www.mass.gov/info-details/learn-about-suspended-or-excluded-masshealth-providers
+  format: HTML
+
+assertions:
+   min:
+     schema_entities:
+       LegalEntity: 150 
+   max:
+     schema_entities:
+       LegalEntity: 350 
