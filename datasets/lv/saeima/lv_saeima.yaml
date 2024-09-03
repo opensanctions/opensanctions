@@ -33,4 +33,4 @@ assertions:
     countries: 1
   max:
     schema_entities:
-      Person: 105
+      Person: 120

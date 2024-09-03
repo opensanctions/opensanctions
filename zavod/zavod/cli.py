@@ -225,7 +225,6 @@ def dump_file(
 @click.option("-s", "--schema", type=str, default=None)
 @click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
 @click.option("-t", "--threshold", type=float, default=None)
-@click.option("-", "--threshold", type=float, default=None)
 @click.option(
     "-m",
     "--conflicting-match-threshold",

@@ -99,7 +99,7 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
 def crawl_table_row(
     context: Context, seen: set, row: Dict[str, str | List[Tuple[str, str]]]
 ):
-    name_id = row.pop("declarante").split(" - ")
+    name_id = row.pop("declarante").split(" CEDULA DE CIUDADANIA - ")
     if len(name_id) != 2:
         context.log.warning("Invalid name/id", name_id=name_id)
         return
@@ -195,8 +195,12 @@ def crawl(context: Context):
     next_link = "https://www.funcionpublica.gov.co/fdci/consultaCiudadana/consultaPEP?find=FindNext&tipoRegistro=4&offset=0&max=50"
     while next_link:
         context.log.info("Fetching page", url=next_link)
-        doc = context.fetch_html(next_link, cache_days=1)
+        doc = context.fetch_html(next_link)
         doc.make_links_absolute(next_link)
+        step_anchors = doc.xpath("//a[contains(@class, 'step')]")
+        context.log.info("Pages", pagenums=[a.text_content() for a in step_anchors])
+        if not step_anchors:
+            context.log.warning("No pagination found", url=next_link)
         next_anchors = doc.xpath("//a[contains(@class, 'nextLink')]")
         if next_anchors:
             next_link = next_anchors[0].get("href")
