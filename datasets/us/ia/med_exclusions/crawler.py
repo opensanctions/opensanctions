@@ -1,4 +1,5 @@
 from typing import Dict
+from normality import slugify
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 from datetime import datetime
@@ -28,13 +29,13 @@ def crawl_item(row: Dict[str, str], context: Context):
         context.log.warning("Enrollment type not recognized: " + enrollment_type)
         return
 
-    if row.get("npi"):
-        entity.add("npiCode", row.pop("npi"))
+    entity.add("npiCode", row.pop("npi"))
+    entity.add("country", "us")
 
     if row.get("state_license_number") != "N/A":
         entity.add(
             "description",
-            "State license type/number: {}/{}".format(
+            "State license type / number: {} / {}".format(
                 row.pop("state_license_type"), row.pop("state_license_number")
             ),
         )
@@ -44,13 +45,17 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     entity.add("sector", row.pop("specialty"))
 
-    sanction = h.make_sanction(context, entity)
+    sanction_type = row.pop("type_of_sanction")
+    effective_date = row.pop("effective_date")
+    sanction = h.make_sanction(
+        context, entity, key=slugify(sanction_type, effective_date)
+    )
     sanction.add(
         "startDate",
-        h.parse_date(row.pop("effective_date"), formats=["%Y-%m-%d", "%m/%d/%Y"]),
+        h.parse_date(effective_date, formats=["%Y-%m-%d", "%m/%d/%Y"]),
     )
     sanction.add("reason", row.pop("authority"))
-    sanction.add("description", row.pop("type_of_sanction"))
+    sanction.add("description", sanction_type)
 
     if row.get("sanction_end_date") and row.get("sanction_end_date") not in [
         "Indefinite",
