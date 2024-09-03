@@ -2,7 +2,6 @@ from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 from datetime import datetime
-import re
 
 from zavod import Context, helpers as h
 
@@ -19,10 +18,9 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("name", name)
 
     if row.get("npi") != "N/A":
-        npis = re.split(r"; |& ", row.pop("npi"))
+        npis = h.multi_split(row.pop("npi"), ["; ", "|& "])
 
-        for npi in npis:
-            entity.add("npiCode", npi)
+        entity.add("npiCode", npis)
     else:
         row.pop("npi")
 
@@ -31,17 +29,11 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction.add("startDate", termination_effective_date)
     sanction.add("reason", row.pop("termination_authority"))
 
-    if "reinstatement_effective_date" in row:
-        reinstatement_effective_date = row.pop("reinstatement_effective_date")
-    else:
-        reinstatement_effective_date = None
+    reinstatement_date = row.pop("reinstatement_effective_date", None)
 
-    if reinstatement_effective_date:
-        target = (
-            datetime.strptime(reinstatement_effective_date, "%Y-%m-%d")
-            >= datetime.today()
-        )
-        sanction.add("endDate", reinstatement_effective_date)
+    if reinstatement_date:
+        target = datetime.strptime(reinstatement_date, "%Y-%m-%d") >= datetime.today()
+        sanction.add("endDate", reinstatement_date)
     else:
         target = True
 
@@ -56,20 +48,20 @@ def crawl_item(row: Dict[str, str], context: Context):
         if target:
             company.add("topics", "debarment")
 
-        # link = context.make("UnknownLink")
-        # link.id = context.make_id(dba)
-        # link.add("object", entity)
-        # link.add("subject", company)
-        # link.add("role", "d/b/a")
+        link = context.make("UnknownLink")
+        link.id = context.make_id(entity.id, company.id)
+        link.add("object", entity)
+        link.add("subject", company)
+        link.add("role", "d/b/a")
 
         company_sanction = h.make_sanction(context, company)
         company_sanction.add("startDate", termination_effective_date)
-        if reinstatement_effective_date:
-            company_sanction.add("endDate", reinstatement_effective_date)
+        if reinstatement_date:
+            company_sanction.add("endDate", reinstatement_date)
 
         context.emit(company, target=target)
         context.emit(company_sanction)
-        # context.emit(link)
+        context.emit(link)
 
     context.emit(entity, target=target)
     context.emit(sanction)
