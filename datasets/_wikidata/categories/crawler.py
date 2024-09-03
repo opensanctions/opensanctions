@@ -97,11 +97,11 @@ def crawl_category(
         entity = context.make("Person")
         entity.id = qid
         entity.add("wikidataId", qid)
-        # item = enricher.fetch_item(qid)
-        # if not check_item_relevant(context, enricher, item):
-        #     continue
+        item = enricher.fetch_item(qid)
+        if not check_item_relevant(context, enricher, item):
+            continue
 
-        # apply_name(entity, item)
+        apply_name(entity, item)
         if not entity.has("name"):
             name = title_name(row.pop("title"))
             entity.add("name", name)
