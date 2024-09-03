@@ -15,14 +15,11 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name, row.get("npi_num"))
     entity.add("name", name)
-    if row.get("npi_num"):
-        entity.add("npiCode", row.pop("npi_num"))
-    else:
-        row.pop("npi_num")
-
+    entity.add("npiCode", row.pop("npi_num"))
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("provider_type"))
     entity.add("idNumber", row.pop("license_num"))
+    entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
     sanction.add(

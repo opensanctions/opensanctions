@@ -20,8 +20,8 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(names, row.get("npi"))
 
-    for name in names:
-        entity.add("name", name)
+    entity.add("name", names)
+    entity.add("country", "us")
 
     if row.get("npi") != "N/A":
         entity.add("npiCode", row.pop("npi"))
@@ -47,9 +47,9 @@ def crawl_item(row: Dict[str, str], context: Context):
         company = context.make("Company")
         company.id = context.make_id(business_name)
 
-        for name in names:
-            company.add("name", name)
+        company.add("name", names)
         company.add("topics", "debarment")
+        company.add("country", "us")
 
         link = context.make("UnknownLink")
         link.id = context.make_id(names, business_name)
