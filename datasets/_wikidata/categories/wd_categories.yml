@@ -43,6 +43,7 @@ config:
       topic: role.pep
       country: ae
     - category: Political_office-holders_in_Qatar
+      depth: 7
       topics: role.pep
       country: qa
     - category: House_of_Thani
@@ -62,6 +63,7 @@ config:
       topic: role.pep
       country: bh
     - category: Political_office-holders_in_Bahrain
+      depth: 7
       topic: role.pep
       country: bh
     - category: 21st-century_Yemeni_politicians
@@ -72,6 +74,23 @@ config:
       topic: role.pep
     - category: Sultans_of_Oman
       topic: role.pep
+    - category: Political_office-holders_in_Brunei
+      depth: 7
+      topic: role.pep
+      country: bn
+
+    - category: Political_office-holders_in_Asia
+      topic: role.pep
+      depth: 8
+    - category: Political_office-holders_in_Oceania
+      topic: role.pep
+      depth: 8
+    - category: Political_office-holders_in_North_America
+      topic: role.pep
+      depth: 8
+    - category: Political_office-holders_in_Europe
+      topic: role.pep
+      depth: 8
 
     # Syria
     - category: Al-Assad_family
@@ -122,7 +141,52 @@ config:
     - category: Political_office-holders_in_Azerbaijan
       topic: role.pep
       country: az
-  
+    
+    # India 
+    - category: Political_office-holders_in_India
+      topic: role.pep
+      country: in
+    - category: Legislators_in_India
+      topic: role.pep
+      country: in
+    - category: Indian_government_officials
+      topic: role.pep
+    
+    # Nepal 
+    - category: Government_ministers_of_Nepal
+      topic: role.pep
+      country: np
+    - category: Political_office-holders_in_Nepal
+      topic: role.pep
+      country: np
+
+    # Malaysia
+    - category: Government_ministers_of_Malaysia
+      topic: role.pep
+      country: my
+    - category: Federal_political_office-holders_in_Malaysia
+      topic: role.pep
+      country: my
+    - category: Political_office-holders_in_Kenya
+      topic: role.pep
+      country: ke
+
+    # Africa
+    - category: Political_office-holders_in_Nigeria
+      topic: role.pep
+      country: ng
+    - category: Nigerian_politicians
+      topic: role.pep
+      country: ng
+    - category: Political_office-holders_in_Africa
+      topic: role.pep
+      depth: 8
+
+    # LatAm
+    - category: Political_office-holders_in_South_America
+      topic: role.pep
+
+    # Basics & essentials   
     - category: Sanctioned_people
     - category: Specially_Designated_Nationals_and_Blocked_Persons_List
     - category: Heads_of_government_in_Europe
@@ -229,6 +293,16 @@ config:
       topic: role.pep
     - category: United_Nations_High_Commissioner_for_Human_Rights_officials
       topic: role.pep
+    - category: African_Union_officials
+      topic: role.pep
+    - category: Directors-General_of_the_World_Trade_Organization
+      topic: role.pep
+    - category: Presidents_of_FIFA
+      topic: poi
+    - category: Presidents_of_the_International_Olympic_Committee
+      topic: poi
+    - category: Presidents_of_international_sport_federations
+      topic: poi
 
     # China
     - category: 21st-century_Chinese_politicians
