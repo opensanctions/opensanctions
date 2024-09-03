@@ -1,0 +1,33 @@
+title: US New Hampshire Medicaid Terminated Provider List
+entry_point: crawler.py
+prefix: us-mednh
+coverage:
+  frequency: daily
+  start: "2024-09-03"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been terminated for cause from New Hampshire's Medicaid program.
+description: |
+  The New Hampshire Department of Health & Human Services maintains a list of providers
+  whose Medicaid provider agreement has been terminated. Providers listed are not allowed to receive
+  reimbursement for Medicaid services in any capacity.
+publisher:
+  name: New Hampshire Department of Health & Human Services
+  acronym: DHHS
+  url: https://www.dhhs.nh.gov
+  official: true
+  country: "us"
+url: "https://www.dhhs.nh.gov/programs-services/medicaid/medicaid-provider-relations"
+data:
+  url: "https://www.dhhs.nh.gov/programs-services/medicaid/medicaid-provider-relations"
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 30 
+      Company: 10
+  max:
+    schema_entities:
+      Person: 60 
+      Company: 50
