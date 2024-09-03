@@ -1,0 +1,34 @@
+title: US Georgia Healthcare provider exclusions
+entry_point: crawler.py
+prefix: us-medga
+coverage:
+  frequency: daily
+  start: "2024-08-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Providers who have been terminated for cause from Georgia's Medicaid program.
+description: |
+  > The Georgia Department of Community Health is authorized to exclude certain individuals and entities (providers)
+  > from participating in federally funded health care programs, including Medicaid. Excluded individuals and
+  > entities are not permitted to receive reimbursement for providing Medicare and Medicaid services in all categories
+  > of service and in any capacity, including managed care. 
+publisher:
+  name: Georgia Department of Community Health
+  acronym: DCH
+  url: https://dch.georgia.gov
+  official: true
+  country: "us"
+url: "https://dch.georgia.gov/office-inspector-general/georgia-oig-exclusions-list"
+data:
+  url: https://dch.georgia.gov/office-inspector-general/georgia-oig-exclusions-list
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1000 
+      Company: 150 
+  max:
+    schema_entities:
+      Person: 1200 
+      Company: 300 
