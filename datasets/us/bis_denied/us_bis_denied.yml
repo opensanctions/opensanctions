@@ -2,10 +2,9 @@ title: US BIS Denied Persons List
 entry_point: crawler.py
 prefix: us-bis
 coverage:
+  schedule: "0 */8 * * *"
   frequency: daily
   start: "2015-12-05"
-deploy:
-  schedule: "0 */8 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The Bureau of Industry and Security publishes this list of entities which

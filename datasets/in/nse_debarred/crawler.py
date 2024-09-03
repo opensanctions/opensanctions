@@ -103,6 +103,7 @@ def crawl_item(input_dict: dict, context: Context):
     topics = "reg.warn" if is_revoked else "debarment"
 
     entity.add("name", name)
+    entity.add("jurisdiction", "in")
     if pan and "not provided" not in pan.lower():
         entity.add("taxNumber", pan)
     entity.add("topics", topics)

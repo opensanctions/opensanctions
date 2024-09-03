@@ -2,10 +2,10 @@ title: Swiss SECO Sanctions/Embargoes
 entry_point: crawler.py
 prefix: ch-seco
 coverage:
+  schedule: "0 */2 * * *"
   frequency: daily
   start: 2018-04-11
-deploy:
-  schedule: "10 */2 * * *"
+deploy:  
   memory: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-

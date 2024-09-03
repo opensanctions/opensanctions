@@ -1,9 +1,9 @@
 type: collection
 title: Regulatory Watchlists
 coverage:
+  schedule: "0 */8 * * *"
   frequency: daily
 deploy:
-  schedule: "1 */4 * * *"
   memory: "1500Mi"
 summary: >
   Entities that are subject to regulatory actions and restrictions

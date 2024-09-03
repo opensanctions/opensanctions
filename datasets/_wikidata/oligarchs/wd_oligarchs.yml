@@ -2,7 +2,7 @@ title: Russian Oligarch/Billionaires Database
 entry_point: crawler.py
 prefix: wdoli
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2022-03-09
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
