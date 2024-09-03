@@ -6,10 +6,6 @@ from io import BytesIO
 
 from zavod import Context, helpers as h
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15",
-}
-
 
 def crawl_item(row: Dict[str, str], context: Context):
 
@@ -30,6 +26,7 @@ def crawl_item(row: Dict[str, str], context: Context):
             first_name=first_name,
             last_name=row.pop("provider_individual_last_name"),
         )
+        person.add("country", "us")
         person.add("npiCode", npiCode)
         person.add("sector", sector)
         person.add("topics", "debarment")
@@ -43,6 +40,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         company = context.make("Company")
         company.id = context.make_id(business_name, npiCode)
         company.add("name", business_name)
+        company.add("country", "us")
         company.add("npiCode", npiCode)
         company.add("sector", sector)
         company.add("topics", "debarment")
@@ -64,7 +62,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    doc = html.fromstring(requests.get(context.data_url, headers=HEADERS).text)
+    doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
     return doc.xpath(
         "//*[contains(text(), 'Medicaid Provider Exclusion and Sanction List')]"
@@ -75,9 +73,10 @@ def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
 
-    response = requests.get(excel_url, headers=HEADERS)
+    path = context.fetch_resource("source.xlsx", excel_url)
+    context.export_resource(path, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(BytesIO(response.content), read_only=True)
+    wb = load_workbook(path, read_only=True)
 
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=2):
         crawl_item(item, context)
