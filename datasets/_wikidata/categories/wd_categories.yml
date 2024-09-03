@@ -355,6 +355,14 @@ config:
       topic: role.pep
     - category: White_House_Counsels
       topic: role.pep
+    - category: Lists_of_mayors_of_places_in_the_United_States
+      topic: role.pep
+    - category: Lists_of_political_office-holders_in_the_United_States
+      topic: role.pep
+    - category: Political_office-holders_in_the_United_States
+      topic: role.pep
+    - category: United_States_government_officials
+      topic: role.pep
 
     # Europe
     - category: Presidents_of_the_European_Commission
