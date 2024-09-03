@@ -42,6 +42,18 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSz_0mjJvc0HMOItvDusleWx6dxIufuMY2OjATSUMyEzazUZPfvJoEtIlI77GmGLVed8wtVq3d1m5VJ/pub?gid=0&single=true&output=csv
   format: CSV
 
+assertions:
+  min:
+    schema_entities:
+      Person: 10_000
+      Position: 3000
+    country_entities:
+      co: 1
+  max:
+    schema_entities:
+      Person: 15_000
+      Position: 6000
+
 lookups:
   positions:
     options:
