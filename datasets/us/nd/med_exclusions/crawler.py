@@ -1,12 +1,8 @@
 from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
-import re
 
 from zavod import Context, helpers as h
-
-# Regular expression to match the comma before "Inc."
-INC_PATTERN = r",\s*Inc\."
 
 
 def crawl_item(row: Dict[str, str], context: Context):
