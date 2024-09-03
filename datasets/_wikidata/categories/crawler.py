@@ -7,6 +7,7 @@ from nomenklatura.enrich.wikidata import WikidataEnricher
 from nomenklatura.enrich.wikidata.model import Item
 
 from zavod import Context, Entity
+from zavod import helpers as h
 
 LANGUAGES = ["eng", "esp", "fra", "deu", "rus"]
 URL = "https://petscan.wmcloud.org/"
@@ -64,48 +65,69 @@ def apply_name(entity: Entity, item: Item) -> None:
                 return
 
 
+def crawl_category(
+    context: Context, enricher: WikidataEnricher, category: Dict[str, Any]
+) -> None:
+    cache_days = int(category.pop("cache_days", 14))
+    topics: List[str] = category.pop("topics", [])
+    if "topic" in category:
+        topics.append(category.pop("topic"))
+    country: Optional[str] = category.pop("country", None)
+
+    query = dict(QUERY)
+    cat: str = category.pop("category", "")
+    query["categories"] = cat.strip()
+    query.update(category)
+
+    position_data: Dict[str, Any] = category.pop("position", {})
+    position: Optional[Entity] = None
+    if "name" in position_data:
+        position = h.make_position(context, **position_data, id_hash_prefix="wd-cat")
+
+    query_string = urlencode(query)
+    # print(query_string)
+    url = f"{URL}?{query_string}"
+    data = context.fetch_text(url, cache_days=cache_days)
+    wrapper = StringIO(data)
+    results = 0
+    emitted = 0
+    for row in csv.DictReader(wrapper):
+        results += 1
+        qid = row.pop("Wikidata")
+        entity = context.make("Person")
+        entity.id = qid
+        entity.add("wikidataId", qid)
+        # item = enricher.fetch_item(qid)
+        # if not check_item_relevant(context, enricher, item):
+        #     continue
+
+        # apply_name(entity, item)
+        if not entity.has("name"):
+            name = title_name(row.pop("title"))
+            entity.add("name", name)
+        entity.add("topics", topics)
+        entity.add("country", country)
+        context.emit(entity)
+        if position is not None:
+            occupancy = h.make_occupancy(context, entity, position)
+            if occupancy is not None:
+                context.emit(occupancy)
+
+        emitted += 1
+
+    if emitted > 0 and position is not None:
+        context.emit(position)
+
+    context.log.info(
+        "PETScanning category: %s" % cat,
+        topics=topics,
+        results=results,
+        emitted=emitted,
+    )
+
+
 def crawl(context: Context) -> None:
     enricher = WikidataEnricher(context.dataset, context.cache, context.dataset.config)
     categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
     for category in categories:
-        cache_days = int(category.pop("cache_days", 14))
-        topics: List[str] = category.pop("topics", [])
-        if "topic" in category:
-            topics.append(category.pop("topic"))
-        country: Optional[str] = category.pop("country", None)
-
-        query = dict(QUERY)
-        cat: str = category.pop("category", "")
-        query["categories"] = cat.strip()
-        query.update(category)
-
-        query_string = urlencode(query)
-        # print(query_string)
-        url = f"{URL}?{query_string}"
-        data = context.fetch_text(url, cache_days=cache_days)
-        wrapper = StringIO(data)
-        results = 0
-        emitted = 0
-        for row in csv.DictReader(wrapper):
-            results += 1
-            qid = row.pop("Wikidata")
-            entity = context.make("Person")
-            entity.id = qid
-            item = enricher.fetch_item(qid)
-            if not check_item_relevant(context, enricher, item):
-                continue
-
-            apply_name(entity, item)
-            if not entity.has("name"):
-                name = title_name(row.pop("title"))
-                entity.add("name", name)
-            entity.add("topics", topics)
-            entity.add("country", country)
-            context.emit(entity)
-            emitted += 1
-        context.log.info(
-            "PETScanning category: %s" % cat,
-            topics=topics,
-            results=results,
-            emitted=emitted,
-        )
+        crawl_category(context, enricher, category)
