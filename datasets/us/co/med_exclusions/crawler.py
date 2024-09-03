@@ -16,6 +16,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name, row.get("npi"))
     entity.add("name", name)
+    entity.add("country", "us")
 
     if row.get("npi") != "N/A":
         npis = h.multi_split(row.pop("npi"), ["; ", "|& "])
@@ -44,6 +45,8 @@ def crawl_item(row: Dict[str, str], context: Context):
     if dba:
         company = context.make("Company")
         company.id = context.make_id(dba)
+        company.add("name", dba)
+        company.add("country", "us")
 
         if target:
             company.add("topics", "debarment")
