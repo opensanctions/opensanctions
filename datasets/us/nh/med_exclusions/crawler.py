@@ -1,9 +1,7 @@
 from typing import Dict
-from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 import requests
 from lxml import html
-import re
 from io import BytesIO
 
 from zavod import Context, helpers as h
