@@ -62,6 +62,7 @@ inputs:
   - wd_peps
   - wd_oligarchs
   - wd_curated
+  - wd_categories
   - wanted
   # - ru_rupep
   - ru_navalny35
