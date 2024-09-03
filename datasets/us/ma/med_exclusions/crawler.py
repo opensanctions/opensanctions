@@ -1,11 +1,8 @@
 from typing import Dict
-from rigour.mime.types import XLSX
 from openpyxl import load_workbook
-import requests
-from lxml import html
-from io import BytesIO
 
 from zavod import Context, helpers as h
+
 
 def crawl_item(row: Dict[str, str], context: Context):
 
@@ -33,7 +30,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    doc = html.fromstring(requests.get(context.data_url).text)
+    doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
     return doc.xpath("//*[contains(text(), 'XLSX')]/../@href")[0]
 
@@ -41,9 +38,11 @@ def crawl_excel_url(context: Context):
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
-    excel_file = requests.get(excel_url).content
 
-    wb = load_workbook(BytesIO(excel_file), read_only=True)
+    path = context.fetch_resource("source.xlsx", excel_url)
+    context.export_resource(path, title=context.SOURCE_TITLE)
+
+    wb = load_workbook(path, read_only=True)
 
     for item in h.parse_xlsx_sheet(context, wb.active):
         crawl_item(item, context)
