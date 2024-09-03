@@ -452,7 +452,7 @@ config:
         name: Chief Justice of the United States
         country: us
         topics:
-          - gov.judge
+          - role.judge
     - category: United_States_presidential_advisors
       topic: role.pep
       position:
