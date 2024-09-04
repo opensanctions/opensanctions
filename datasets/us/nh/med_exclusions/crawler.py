@@ -1,8 +1,5 @@
 from typing import Dict
 from openpyxl import load_workbook
-import requests
-from lxml import html
-from io import BytesIO
 
 from zavod import Context, helpers as h
 
@@ -41,7 +38,9 @@ def crawl_item(row: Dict[str, str], context: Context):
         company.id = context.make_id(business_name, npiCode)
         company.add("name", business_name)
         company.add("country", "us")
-        company.add("npiCode", npiCode if npiCode and npiCode.lower() != "n/a" else None)
+        company.add(
+            "npiCode", npiCode if npiCode and npiCode.lower() != "n/a" else None
+        )
         company.add("sector", sector)
         company.add("topics", "debarment")
         company_sanction = h.make_sanction(context, company)
