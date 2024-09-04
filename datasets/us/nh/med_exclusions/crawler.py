@@ -58,6 +58,8 @@ def crawl_item(row: Dict[str, str], context: Context):
         link.add("subject", person)
         link.add("role", "d/b/a")
 
+        context.emit(link)
+
     context.audit_data(row)
 
 
