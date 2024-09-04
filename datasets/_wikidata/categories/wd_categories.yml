@@ -84,6 +84,17 @@ config:
       depth: 7
       topic: role.pep
       country: bn
+    - category: Politicians_from_the_Gaza_Strip
+      topic: role.pep
+      country: ps
+    - category: Hamas_military_members
+      topic: mil
+    - category: Members_of_the_Palestinian_Legislative_Council
+      topic: role.pep
+      country: ps
+    - category: 21st-century_Palestinian_politicians
+      topic: role.pep
+      country: ps
 
     - category: Political_office-holders_in_Asia
       topic: role.pep
@@ -214,7 +225,9 @@ config:
       search_max_results: 1000
       topic: poi
     - category: Chief_justices_by_country
-      topic: role.pep
+      topics:
+        - role.pep
+        - role.judge
     - category: Central_bankers
       topic: role.pep
     - category: Lists_of_military_chiefs_of_staff
