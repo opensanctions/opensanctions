@@ -277,6 +277,8 @@ config:
       position:
         name: Judge at the International Criminal Court
         country: zz
+        topics:
+          - role.judge
     - category: International_Criminal_Court_prosecutors
       topic: role.pep
       position:
@@ -337,6 +339,10 @@ config:
           - mil
     - category: Chairpersons_of_the_African_Union_Commission
       topic: role.pep
+      position:
+        name: Chairperson of the African Union Commission
+        topics:
+          - gov.igo
     - category: Secretaries_general_of_the_Organization_of_American_States
       topic: role.pep
       position:
@@ -354,8 +360,18 @@ config:
           - gov.igo
     - category: Secretaries_general_of_the_Arab_League
       topic: role.pep
+      position:
+        name: Secretary General of the Arab League
+        country: zz
+        topics:
+          - gov.igo
     - category: Secretaries-general_of_the_Gulf_Cooperation_Council
       topic: role.pep
+      position:
+        name: Secretary General of the Gulf Cooperation Council
+        country: zz
+        topics:
+          - gov.igo
     - category: Presidents_of_Interpol
       topic: role.pep
       position:
@@ -365,6 +381,11 @@ config:
           - gov.igo
     - category: Presidents_of_the_Inter-American_Development_Bank
       topic: role.pep
+      position:
+        name: President of the Inter-American Development Bank
+        country: zz
+        topics:
+          - gov.igo
     - category: Presidents_of_the_European_Bank_for_Reconstruction_and_Development
       topic: role.pep
     - category: United_Nations_High_Commissioner_for_Refugees_officials
