@@ -26,10 +26,11 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.add("birthDate", row.pop("date_of_birth"))
 
     if row.get("npi"):
-        entity.add("npiCode", row.pop("npi"))
+        entity.add("npiCode", row.pop("npi").split("\n"))
     else:
         row.pop("npi")
 
+    entity.add("country", "us")
     entity.add("sector", row.pop("provider_type_specialty"))
     entity.add("address", row.pop("provider_address"))
 
