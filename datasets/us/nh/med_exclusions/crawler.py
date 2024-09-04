@@ -27,7 +27,7 @@ def crawl_item(row: Dict[str, str], context: Context):
             last_name=row.pop("provider_individual_last_name"),
         )
         person.add("country", "us")
-        person.add("npiCode", npiCode)
+        person.add("npiCode", npiCode if npiCode.lower() != "n/a" else None)
         person.add("sector", sector)
         person.add("topics", "debarment")
         person_sanction = h.make_sanction(context, person)
@@ -41,7 +41,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         company.id = context.make_id(business_name, npiCode)
         company.add("name", business_name)
         company.add("country", "us")
-        company.add("npiCode", npiCode)
+        company.add("npiCode", npiCode if npiCode.lower() != "n/a" else None)
         company.add("sector", sector)
         company.add("topics", "debarment")
         company_sanction = h.make_sanction(context, company)

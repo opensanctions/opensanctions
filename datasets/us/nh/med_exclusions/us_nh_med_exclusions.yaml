@@ -1,4 +1,4 @@
-title: US New Hampshire Medicaid Terminated Provider List
+title: US New Hampshire Medicaid Exclusion and Sanction List
 entry_point: crawler.py
 prefix: us-mednh
 coverage:
@@ -6,13 +6,19 @@ coverage:
   start: "2024-09-03"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  This dataset contains a list of providers who have been terminated for cause from New Hampshire's Medicaid program.
+  Providers who have been terminated for cause from New Hampshire's Medicaid program.
 description: |
   The New Hampshire Department of Health & Human Services maintains a list of providers
   whose Medicaid provider agreement has been terminated. Providers listed are not allowed to receive
   reimbursement for Medicaid services in any capacity.
 publisher:
   name: New Hampshire Department of Health & Human Services
+  description: >
+    The New Hampshire Department of Health and Human Services (DHHS) is responsible
+    for the health, safety and well-being of the citizens of New Hampshire. DHHS provides
+    services for individuals, children, families and seniors, and administers programs and
+    services such as mental health, developmental disability, substance misuse, and public
+    health. 
   acronym: DHHS
   url: https://www.dhhs.nh.gov
   official: true
