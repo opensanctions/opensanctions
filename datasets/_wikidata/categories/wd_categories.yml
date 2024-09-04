@@ -190,9 +190,6 @@ config:
     - category: Federal_political_office-holders_in_Malaysia
       topic: role.pep
       country: my
-    - category: Political_office-holders_in_Kenya
-      topic: role.pep
-      country: ke
 
     # Africa
     - category: Political_office-holders_in_Nigeria
@@ -201,6 +198,9 @@ config:
     - category: Nigerian_politicians
       topic: role.pep
       country: ng
+    - category: Political_office-holders_in_Kenya
+      topic: role.pep
+      country: ke
     - category: Political_office-holders_in_Africa
       topic: role.pep
       depth: 8
