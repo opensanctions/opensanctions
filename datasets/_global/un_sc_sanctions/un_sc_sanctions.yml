@@ -1,5 +1,5 @@
 title: UN Security Council Consolidated Sanctions
-entry_point: crawler.py
+entry_point: zavod.shed.un_sc:crawl
 prefix: unsc
 coverage:
   frequency: daily
