@@ -48,6 +48,8 @@ config:
     # - category: Political_office-holders_in_Europe
     #   topic: role.pep
     #   depth: 8
+    # - category: Political_office-holders_in_South_America
+    #   topic: role.pep
 
     # Middle east:
     - category: Political_office-holders_in_the_United_Arab_Emirates
@@ -204,10 +206,6 @@ config:
     - category: Political_office-holders_in_Africa
       topic: role.pep
       depth: 8
-
-    # LatAm
-    - category: Political_office-holders_in_South_America
-      topic: role.pep
 
     # Basics & essentials   
     - category: Sanctioned_people
