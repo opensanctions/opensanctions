@@ -43,6 +43,7 @@ config:
       topic: role.pep
       country: ae
     - category: Political_office-holders_in_Qatar
+      depth: 7
       topics: role.pep
       country: qa
     - category: House_of_Thani
@@ -58,20 +59,44 @@ config:
       topic: role.pep
     - category: Crown_princes_of_Saudi_Arabia
       topic: role.pep
+      position:
+        name: Crown Prince of Saudi Arabia
+        country: sa
     - category: Government_ministers_of_Bahrain
       topic: role.pep
       country: bh
     - category: Political_office-holders_in_Bahrain
+      depth: 7
       topic: role.pep
       country: bh
     - category: 21st-century_Yemeni_politicians
       topic: role.pep
     - category: General_People's_Congress_(Yemen)_politicians
       topic: role.pep
+      position:
+        name: Member of the General People's Congress
+        country: ye
     - category: Presidents_of_Yemen
       topic: role.pep
     - category: Sultans_of_Oman
       topic: role.pep
+    - category: Political_office-holders_in_Brunei
+      depth: 7
+      topic: role.pep
+      country: bn
+
+    - category: Political_office-holders_in_Asia
+      topic: role.pep
+      depth: 8
+    - category: Political_office-holders_in_Oceania
+      topic: role.pep
+      depth: 8
+    - category: Political_office-holders_in_North_America
+      topic: role.pep
+      depth: 8
+    - category: Political_office-holders_in_Europe
+      topic: role.pep
+      depth: 8
 
     # Syria
     - category: Al-Assad_family
@@ -104,6 +129,9 @@ config:
       topic: role.pep
     - category: Members_of_the_State_Administration_Council
       topic: role.pep
+      position:
+        name: Member of the State Administration Council
+        country: mm
 
     # NK
     - category: Leaders_of_the_Workers'_Party_of_Korea_and_its_predecessors
@@ -112,6 +140,9 @@ config:
       topic: role.pep
     - category: Members_of_the_Supreme_People's_Assembly
       topic: role.pep
+      position:
+        name: Member of the Supreme People's Assembly
+        country: kp
     - category: Political_office-holders_in_North_Korea
       topic: role.pep
 
@@ -122,7 +153,52 @@ config:
     - category: Political_office-holders_in_Azerbaijan
       topic: role.pep
       country: az
-  
+    
+    # India 
+    - category: Political_office-holders_in_India
+      topic: role.pep
+      country: in
+    - category: Legislators_in_India
+      topic: role.pep
+      country: in
+    - category: Indian_government_officials
+      topic: role.pep
+    
+    # Nepal 
+    - category: Government_ministers_of_Nepal
+      topic: role.pep
+      country: np
+    - category: Political_office-holders_in_Nepal
+      topic: role.pep
+      country: np
+
+    # Malaysia
+    - category: Government_ministers_of_Malaysia
+      topic: role.pep
+      country: my
+    - category: Federal_political_office-holders_in_Malaysia
+      topic: role.pep
+      country: my
+    - category: Political_office-holders_in_Kenya
+      topic: role.pep
+      country: ke
+
+    # Africa
+    - category: Political_office-holders_in_Nigeria
+      topic: role.pep
+      country: ng
+    - category: Nigerian_politicians
+      topic: role.pep
+      country: ng
+    - category: Political_office-holders_in_Africa
+      topic: role.pep
+      depth: 8
+
+    # LatAm
+    - category: Political_office-holders_in_South_America
+      topic: role.pep
+
+    # Basics & essentials   
     - category: Sanctioned_people
     - category: Specially_Designated_Nationals_and_Blocked_Persons_List
     - category: Heads_of_government_in_Europe
@@ -141,6 +217,10 @@ config:
       topic: role.pep
     - category: Central_bankers
       topic: role.pep
+    - category: Lists_of_military_chiefs_of_staff
+      topic: mil
+    - category: Lists_of_admirals
+      topic: mil
     
     # Heads of international organisations
     - category: Executive_Directors_of_the_World_Food_Programme
@@ -152,20 +232,58 @@ config:
           - gov.igo
     - category: Secretaries-general_of_the_United_Nations
       topic: role.pep
+      position:
+        name: Secretary-General of the United Nations
+        country: zz
+        topics:
+          - gov.igo
     - category: Under-Secretaries-General_of_the_United_Nations
       topic: role.pep
+      position:
+        name: Under-Secretary-General of the United Nations
+        country: zz
+        topics:
+          - gov.igo
     - category: OSCE_Secretaries_General
       topic: role.pep
+      position:
+        name: Secretary General of the OSCE
+        country: zz
+        topics:
+          - gov.igo
     - category: Bank_for_International_Settlements
       topic: role.pep
+      position:
+        name: General Manager of the Bank for International Settlements
+        country: zz
+        topics:
+          - gov.igo
     - category: Council_of_Europe_Secretaries-General
       topic: role.pep
+      position:
+        name: Secretary General of the Council of Europe
+        country: eu
+        topics:
+          - gov.igo
     - category: Presidents_of_the_International_Criminal_Court
       topic: role.pep
+      position:
+        name: President of the International Criminal Court
+        country: zz
+        topics:
+          - gov.igo
     - category: International_Criminal_Court_judges
       topic: role.pep
+      position:
+        name: Judge at the International Criminal Court
+        country: zz
     - category: International_Criminal_Court_prosecutors
       topic: role.pep
+      position:
+        name: Prosecutor of the International Criminal Court
+        country: zz
+        topics:
+          - gov.igo
     - category: International_Criminal_Court_people
       topic: role.pep
     - category: Fugitives_wanted_by_the_International_Criminal_Court
@@ -174,16 +292,35 @@ config:
       topic: poi
     - category: Presidents_of_the_World_Bank_Group
       topic: role.pep
+      position:
+        name: President of the World Bank Group
+        country: zz
+        topics:
+          - gov.igo
     - category: Managing_directors_of_the_International_Monetary_Fund
       topic: role.pep
+      position:
+        name: Managing Director of the International Monetary Fund
+        country: zz
+        topics:
+          - gov.igo
     - category: International_Monetary_Fund_people
       topic: role.pep
     - category: International_Telecommunication_Union_people
       topic: role.pep
     - category: World_Health_Organization_director-generals
       topic: role.pep
+      position:
+        name: Director-General of the World Health Organization
+        country: zz
+        topics:
+          - gov.igo
     - category: Secretaries_general_of_OPEC
       topic: role.pep
+      position:
+        name: Secretary General of OPEC
+        topics:
+          - gov.igo
     - category: NATO_Supreme_Allied_Commanders
       topic: role.pep
       position:
@@ -193,10 +330,19 @@ config:
           - mil
     - category: Secretaries_general_of_NATO
       topic: role.pep
+      position:
+        name: Secretary General of NATO
+        topics:
+          - gov.igo
+          - mil
     - category: Chairpersons_of_the_African_Union_Commission
       topic: role.pep
     - category: Secretaries_general_of_the_Organization_of_American_States
       topic: role.pep
+      position:
+        name: Secretary General of the Organization of American States
+        topics:
+          - gov.igo
     - category: Organization_of_American_States_people
       topic: role.pep
     - category: Registrars_of_the_International_Criminal_Court
@@ -227,8 +373,33 @@ config:
       topic: role.pep
     - category: Presidents_of_the_United_Nations_General_Assembly
       topic: role.pep
+      position:
+        name: President of the United Nations General Assembly
+        country: zz
+        topics:
+          - gov.igo
     - category: United_Nations_High_Commissioner_for_Human_Rights_officials
       topic: role.pep
+    - category: African_Union_officials
+      topic: role.pep
+    - category: Directors-General_of_the_World_Trade_Organization
+      topic: role.pep
+    - category: Presidents_of_FIFA
+      topic: poi
+      position:
+        name: President of FIFA
+        country: zz
+        topics:
+          - gov.igo
+    - category: Presidents_of_the_International_Olympic_Committee
+      topic: poi
+      position:
+        name: President of the International Olympic Committee
+        country: zz
+        topics:
+          - gov.igo
+    - category: Presidents_of_international_sport_federations
+      topic: poi
 
     # China
     - category: 21st-century_Chinese_politicians
@@ -277,9 +448,30 @@ config:
       topic: role.pep
     - category: Chief_justices_of_the_United_States
       topic: role.pep
+      position:
+        name: Chief Justice of the United States
+        country: us
+        topics:
+          - role.judge
     - category: United_States_presidential_advisors
       topic: role.pep
+      position:
+        name: US Presidential Advisor
+        country: us
     - category: White_House_Counsels
+      topic: role.pep
+      position:
+        name: White House Counsel
+        country: us
+        topics:
+          - role.lawyer
+    - category: Lists_of_mayors_of_places_in_the_United_States
+      topic: role.pep
+    - category: Lists_of_political_office-holders_in_the_United_States
+      topic: role.pep
+    - category: Political_office-holders_in_the_United_States
+      topic: role.pep
+    - category: United_States_government_officials
       topic: role.pep
 
     # Europe
