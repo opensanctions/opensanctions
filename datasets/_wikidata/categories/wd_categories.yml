@@ -39,9 +39,9 @@ config:
     # - category: Political_office-holders_in_Asia
     #   topic: role.pep
     #   depth: 8
-    # - category: Political_office-holders_in_Oceania
-    #   topic: role.pep
-    #   depth: 8
+    - category: Political_office-holders_in_Oceania
+      topic: role.pep
+      depth: 8
     # - category: Political_office-holders_in_North_America
     #   topic: role.pep
     #   depth: 8

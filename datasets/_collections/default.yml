@@ -49,6 +49,7 @@ children:
   - ann_graph_topics
   - wd_oligarchs
   - wd_curated
+  - wd_categories
   - ru_navalny35
   - ru_billionaires_2021
   - ru_acf_bribetakers
