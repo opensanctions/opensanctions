@@ -42,9 +42,9 @@ REGEX_ID = re.compile(
     ^
     (?P<name>[\w‘“ ]+)
     (
-        \sPASAPORTE\-\s(?P<passport>\d+)|
-        \sCEDULA\sDE\sCIUDADANIA\s-\s(?P<cedula>\d+)|
-        \sCEDULA\sDE\sEXTRANJERIA\s-\s(?P<foreign>\d+)
+        \ PASAPORTE\-\ (?P<passport>\d+)|
+        \ CEDULA\ DE\ CIUDADANIA\ -\ (?P<cedula>\d+)|
+        \ CEDULA\ DE\ EXTRANJERIA\ -\ (?P<foreign>\d+)
     )
     $
     """,
