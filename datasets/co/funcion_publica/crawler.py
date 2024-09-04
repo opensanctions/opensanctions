@@ -3,6 +3,7 @@ from normality import collapse_spaces, slugify
 from rigour.mime.types import CSV
 from typing import Dict, List, Tuple
 import csv
+import re
 
 from zavod import helpers as h
 from zavod.context import Context
@@ -35,6 +36,20 @@ from zavod.logic.pep import OccupancyStatus, backdate, categorise
 # All
 # only public servers
 # contractors only
+
+REGEX_ID = re.compile(
+    r"""
+    ^
+    (?P<name>[\w‘“ ]+)
+    (
+        \sPASAPORTE\-\s(?P<passport>\d+)|
+        \sCEDULA\sDE\sCIUDADANIA\s-\s(?P<cedula>\d+)|
+        \sCEDULA\sDE\sEXTRANJERIA\s-\s(?P<foreign>\d+)
+    )
+    $
+    """,
+    re.VERBOSE,
+)
 
 
 def crawl_sheet_row(context: Context, row: Dict[str, str]):
@@ -99,13 +114,30 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
 def crawl_table_row(
     context: Context, seen: set, row: Dict[str, str | List[Tuple[str, str]]]
 ):
-    name_id = row.pop("declarante").split(" CEDULA DE CIUDADANIA - ")
-    if len(name_id) != 2:
+    person = context.make("Person")
+    name_id = row.pop("declarante")
+    match = REGEX_ID.search(name_id)
+    if match is None:
         context.log.warning("Invalid name/id", name_id=name_id)
         return
+    if match.group("passport"):
+        id_number = match.group("passport")
+        person.id = context.make_slug(id_number, prefix="co-passport")
+        person.add("passportNumber", id_number)
+    if match.group("foreign"):
+        id_number = match.group("foreign")
+        person.id = context.make_slug(id_number, prefix="co-foreign")
+        person.add("idNumber", id_number)
+    if match.group("cedula"):
+        id_number = match.group("cedula")
+        person.id = context.make_slug(id_number, prefix="co-cedula")
+        person.add("idNumber", id_number)
+
+    person.add("name", match.group("name"))
+
     role = row.pop("cargo")
     entity_name = row.pop("entidad")
-    key = slugify([name_id[1], role, entity_name])
+    key = slugify([id_number, role, entity_name])
     if key in seen:
         return
 
@@ -117,10 +149,6 @@ def crawl_table_row(
         context.log.warning("Unexpectedly found a contractor", key=key)
         return
 
-    person = context.make("Person")
-    person.id = context.make_slug(name_id[1], prefix="co-cedula")
-    person.add("name", name_id[0])
-    person.add("idNumber", name_id[1])
     links = row.pop("enlaces-externos")
     person.add("website", links.pop("consultar-hoja-de-vida", None))
     person.add(
