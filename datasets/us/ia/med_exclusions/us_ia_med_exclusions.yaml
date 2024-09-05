@@ -14,6 +14,8 @@ description: |
   owned or managed by sanctioned providers are not eligible for Medicaid reimbursement.
 publisher:
   name: Iowa Health & Human Services
+  description: Iowa Health & Human Services oversees Medicaid, public health, and welfare programs
+   in the state of Iowa.
   acronym: HHS
   url: https://hhs.iowa.gov
   official: true
