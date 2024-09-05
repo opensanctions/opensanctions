@@ -8,7 +8,7 @@ from pantomime.types import XLSX
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
-from zavod.shed.un_sc import crawl as crawl_un_sc, Regime
+from zavod.shed.un_sc import Regime, get_legal_entities, get_persons, load_un_sc
 
 DATE_FORMAT = ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S"]
 
@@ -53,6 +53,7 @@ SPLITS = [
 ]
 
 REGEX_GAZZETE_DATE = re.compile(r"(\d{2}\.\d{2}\.\d{4})")
+UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
 
 
 def crawl_row(context: Context, row: Dict[str, str], program: str):
@@ -187,5 +188,11 @@ def crawl(context: Context):
         crawl_xlsx(context, url, program, short)
     context.log.info("Finished processing the Excel files")
 
-    # Publish UN Security Council sanctions
-    crawl_un_sc(context, [Regime.TALIBAN, Regime.DAESH_AL_QAIDA])
+    # UN Security Council stubs
+    un_sc, doc = load_un_sc(context)
+
+    for _node, entity in get_persons(context, un_sc.prefix, doc, UN_SC_PREFIXES):
+        context.emit(entity, target=True)
+
+    for _node, entity in get_legal_entities(context, un_sc.prefix, doc, UN_SC_PREFIXES):
+        context.emit(entity, target=True)

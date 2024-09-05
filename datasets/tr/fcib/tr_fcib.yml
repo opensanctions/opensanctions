@@ -15,6 +15,7 @@ description: |
     The asset freezing decisions published by the Republic of Türkiye include comprehensive 
     lists of individuals, entities, and organizations subject to financial sanctions. These 
     sanctions are implemented under the following categories:
+    sanctions are implemented under the following categories:
 
     - United Nations Security Council Resolutions: Asset freezes pursuant to Article 5 of
       Law No. 6415, targeting individuals and entities designated under UNSC resolutions.
@@ -87,9 +88,6 @@ lookups:
         values:
           - suhh
           - az
-      - match:
-          - former Soviet Union
-        value: suhh
       # RF, KABARDONO-BALKARIA REGION etc
       - regex: ^rf\b.+region$
         value: ru

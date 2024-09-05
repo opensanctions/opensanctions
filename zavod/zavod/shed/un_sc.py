@@ -1,9 +1,6 @@
+from enum import Enum
 from pathlib import Path
 from typing import Generator, List, Optional, Tuple
-from enum import Enum
-from normality import collapse_spaces
-from lxml.etree import _Element as Element
-import re
 
 from zavod import Context, Entity
 from zavod.meta import load_dataset_from_path
@@ -13,28 +10,19 @@ from zavod import helpers as h
 
 
 class Regime(Enum):
-    SOMALIA = re.compile(r"SO.\.\d+")  # SO - 751 (1992)
-    DAESH_AL_QAIDA = re.compile(r"QD.\.\d+")  # non-State entity 1267/1989
-    IRAQ = re.compile(r"IQ.\.\d+")  # IQ - 1518 (2003)
-    DRC = re.compile(r"CD.\.\d+")  # CD - 1533 (2004)
-    SUDAN = re.compile(r"SD.\.\d+")  # SD - 1591 (2005)
-    NORTH_KOREA = re.compile(r"KP.\.\d+")  # KP - 1718 (2006)
-    LIBYA = re.compile(r"LY.\.\d+")  # LY - 1970 (2011)
-    TALIBAN = re.compile(r"TA.\.\d+")  # non-State entity - 1988 (2011)
-    GUINEA_BISSAU = re.compile(r"GB.\.\d+")  # GB - 2048 (2012)
-    CAR = re.compile(r"CF.\.\d+")  # CF - 2127 (2013)
-    YEMEN = re.compile(r"YE.\.\d+")  # YE - 2140 (2014)
-    SOUTH_SUDAN = re.compile(r"SS.\.\d+")  # SS - 2206 (2015)
-    HAITI = re.compile(r"HT.\.\d+")  # HT - 2653 (2022)
-
-
-NAME_QUALITY = {
-    "Low": "weakAlias",
-    "Good": "alias",
-    "a.k.a.": "alias",
-    "f.k.a.": "previousName",
-    "": None,
-}
+    SOMALIA = "SO"  #        SO - 751 (1992)
+    DAESH_AL_QAIDA = "QD"  # non-State entity 1267/1989
+    IRAQ = "IQ"  #           IQ - 1518 (2003)
+    DRC = "CD"  #            CD - 1533 (2004)
+    SUDAN = "SD"  #          SD - 1591 (2005)
+    NORTH_KOREA = "KP"  #    KP - 1718 (2006)
+    LIBYA = "LY"  #          LY - 1970 (2011)
+    TALIBAN = "TA"  #        non-State entity - 1988 (2011)
+    GUINEA_BISSAU = "GB"  #  GB - 2048 (2012)
+    CAR = "CF"  #            CF - 2127 (2013)
+    YEMEN = "YE"  #          YE - 2140 (2014)
+    SOUTH_SUDAN = "SS"  #    SS - 2206 (2015)
+    HAITI = "HT"  #          HT - 2653 (2022)
 
 
 def get_persons(
@@ -72,7 +60,7 @@ def get_entities(
         if (
             include_prefixes is None
             or perm_ref is None
-            or any([perm_ref.startswith(un_prefix) for un_prefix in include_prefixes])
+            or any([perm_ref.startswith(un_prefix.value) for un_prefix in include_prefixes])
         ):
             yield node, make_entity(context, prefix, schema, node)
 
@@ -96,181 +84,16 @@ def make_entity(
     return entity
 
 
-def values(node: Optional[ElementOrTree]) -> List[str]:
-    if node is None:
-        return []
-    return [c.text for c in node.findall("./VALUE") if c.text]
-
-
-def parse_alias(entity: Entity, node: Element) -> None:
-    names = node.findtext("./ALIAS_NAME")
-    quality = node.findtext("./QUALITY")
-    if quality is None:
-        return
-    name_prop = NAME_QUALITY[quality]
-    if names is None or name_prop is None:
-        return
-    name: str | None = None
-    for name in names.split("; "):
-        name = collapse_spaces(name)
-        if not (name and len(name)):
-            continue
-        entity.add(name_prop, name)
-
-
-def parse_address(context: Context, node: Element) -> Optional[Entity]:
-    return h.make_address(
-        context,
-        remarks=node.findtext("./NOTE"),
-        street=node.findtext("./STREET"),
-        city=node.findtext("./CITY"),
-        region=node.findtext("./STATE_PROVINCE"),
-        postal_code=node.findtext("./ZIP_CODE"),
-        country=node.findtext("./COUNTRY"),
-    )
-
-
-def parse_entity(
-    context: Context, regimes: List[Regime], node: ElementOrTree, entity: Entity
-) -> None:
-    if (sanction := parse_common(context, regimes, entity, node)) is None:
-        return
-
-    for alias in node.findall("./ENTITY_ALIAS"):
-        parse_alias(entity, alias)
-
-    for addr in node.findall("./ENTITY_ADDRESS"):
-        h.apply_address(context, entity, parse_address(context, addr))
-
-    context.emit(entity, target=True)
-    context.emit(sanction)
-
-
-def parse_individual(
-    un_sc: Dataset,
-    context: Context,
-    regimes: List[Regime],
-    node: ElementOrTree,
-    person: Entity,
-) -> None:
-    if (sanction := parse_common(context, regimes, person, node)) is None:
-        return
-
-    person.add("title", values(node.find("./TITLE")))
-    person.add("position", values(node.find("./DESIGNATION")))
-
-    for alias in node.findall("./INDIVIDUAL_ALIAS"):
-        parse_alias(person, alias)
-
-    for addr in node.findall("./INDIVIDUAL_ADDRESS"):
-        h.apply_address(context, person, parse_address(context, addr))
-
-    for doc in node.findall("./INDIVIDUAL_DOCUMENT"):
-        country = doc.findtext("./COUNTRY_OF_ISSUE")
-        country = country or doc.findtext("./ISSUING_COUNTRY")
-        doc_type = doc.findtext("./TYPE_OF_DOCUMENT")
-        if doc_type is None:
-            continue
-        result = un_sc.lookups["document_type"].match(doc_type)
-        if result is None:
-            context.log.warning(
-                "Unknown individual document type",
-                doc_type=doc_type,
-                number=doc.findtext("./NUMBER"),
-                country=country,
-            )
-            continue
-        passport = h.make_identification(
-            context,
-            person,
-            number=doc.findtext("./NUMBER"),
-            doc_type=doc_type,
-            summary=doc.findtext("./NOTE"),
-            start_date=doc.findtext("./DATE_OF_ISSUE"),
-            country=country,
-            passport=result.passport,
-            prefix=un_sc.prefix,
-        )
-        if passport is not None:
-            passport.add("type", doc.findtext("./TYPE_OF_DOCUMENT2"))
-            context.emit(passport)
-
-    for nat in node.findall("./NATIONALITY/VALUE"):
-        person.add("nationality", nat.text)
-
-    for dob in node.findall("./INDIVIDUAL_DATE_OF_BIRTH"):
-        date = dob.findtext("./DATE") or dob.findtext("./YEAR")
-        person.add("birthDate", date)
-
-    for pob in node.findall("./INDIVIDUAL_PLACE_OF_BIRTH"):
-        address = parse_address(context, pob)
-        if address is not None:
-            person.add("birthPlace", address.get("full"))
-            person.add("country", address.get("country"))
-
-    context.emit(person, target=True)
-    context.emit(sanction)
-
-
-def parse_common(
-    context: Context, regimes: List[Regime], entity: Entity, node: ElementOrTree
-) -> Optional[Entity]:
-    reference = node.findtext("./REFERENCE_NUMBER")
-    # Only apply sanction regime filter if values are given
-    if regimes:
-        if not reference:
-            context.log.warning("No reference number", entity_id=entity.id)
-            return None
-        if not any(regime.value.match(reference) for regime in regimes):
-            return None
-    entity.add("alias", node.findtext("./NAME_ORIGINAL_SCRIPT"))
-    entity.add("notes", h.clean_note(node.findtext("./COMMENTS1")))
-
-    sanction = h.make_sanction(context, entity)
-    entity.add("createdAt", node.findtext("./LISTED_ON"))
-    sanction.add("listingDate", node.findtext("./LISTED_ON"))
-    sanction.add("startDate", node.findtext("./LISTED_ON"))
-    sanction.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
-    entity.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
-    sanction.add("program", node.findtext("./UN_LIST_TYPE"))
-    sanction.add("unscId", reference)
-    return sanction
-
-
-def crawl_index(context: Context) -> Optional[str]:
-    doc = context.fetch_html(context.data_url, cache_days=1)
-    for link in doc.findall(".//a"):
-        href = link.get("href")
-        if href is None or "consolidated_en" not in href:
-            continue
-        if href.endswith(".xml"):
-            return href
-    return None
-
-
-def crawl(context: Context, regimes: List[Regime] = []) -> None:
-    """
-    Crawl the UN SC consolidated sanctions list.
-
-    Args:
-        context: The context object.
-        regimes: A list of sanction regimes to filter on.
-          If empty, all sanctions are accepted.
-    """
+def load_un_sc(context: Context) -> Tuple[Dataset, ElementOrTree]:
     un_sc_path = (
         Path(__file__).parent.parent.parent.parent
         / "datasets/_global/un_sc_sanctions/un_sc_sanctions.yml"
     )
-    un_sc = load_dataset_from_path(un_sc_path)
-    if not (un_sc and un_sc.data and un_sc.data.url):
+    dataset = load_dataset_from_path(un_sc_path)
+    if not (dataset and dataset.data and dataset.data.url):
         context.log.error("Could not look up un_sc_sanctions dataset or its data URL")
         return
-    path = context.fetch_resource("source.xml", un_sc.data.url)
+    path = context.fetch_resource("source.xml", dataset.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
-
-    for node, entity in get_persons(context, un_sc.prefix, doc):
-        parse_individual(un_sc, context, regimes, node, entity)
-
-    for node, entity in get_legal_entities(context, un_sc.prefix, doc):
-        parse_entity(context, regimes, node, entity)
+    return dataset, doc
