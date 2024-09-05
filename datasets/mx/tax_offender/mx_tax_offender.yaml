@@ -1,0 +1,43 @@
+title: Mexico Tax Offenders
+entry_point: crawler.py
+prefix: mx-taxo
+coverage:
+  frequency: weekly
+  start: 2024-09-05
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Entities that are considered tax offenders according to Article 69 of the Federal Tax Code
+description: |
+  The Tax Administration Service publishs information about individuals and entities identified
+  as tax offenders under Article 69 of the Federal Tax Code in Mexico. This dataset includes
+  details such as names, tax identification numbers, and the nature of the offenses.
+
+publisher:
+  name: Servicio de Administración Tributaria
+  acronym: SAT
+  description: Tax Administration Service
+  url: https://www.sat.gob.mx/home
+  official: true
+  country: "mx"
+url: "http://omawww.sat.gob.mx/cifras_sat/Paginas/datos/vinculo.html?page=ListCompleta69.html"
+data:
+  url: http://omawww.sat.gob.mx/cifras_sat/Paginas/datos/vinculo.html?page=ListCompleta69.html
+  format: HTML
+
+lookups:
+  type.address:
+    lowercase: true
+    normalize: true
+    options:
+      - match: >
+          Hemiciclo Piso 4 Oficina 22,<br> 
+          Col. Tabacalera, Alcaldía Cuauhtémoc,<br> 
+          Ciudad de México, C. P. 06030.<br> 
+          Tel.: 5345 3000 ext.: 3813,5216<br><br> 
+          Casa enlace<br> 
+          Calle 23 de agosto #209<br> 
+          Col. Jesús García, Villahermosa, Tabasco<br> 
+          Tel.: 993 365 7625
+        values: 
+          - "Hemiciclo Piso 4 Oficina 22, Col. Tabacalera, Alcaldía Cuauhtémoc, Ciudad de México, C. P. 06030."
+          - "Casa enlace Calle 23 de agosto #209 Col. Jesús García, Villahermosa, Tabasco"
