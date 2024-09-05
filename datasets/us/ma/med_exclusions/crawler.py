@@ -16,6 +16,8 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("name", name)
     entity.add("npiCode", row.pop("national_provider_identifier_npi"))
     entity.add("sector", row.pop("provider_type"))
+    entity.add("country", "us")
+    entity.add("idNumber", row.pop("unique_id"))
 
     entity.add("topics", "debarment")
 
@@ -26,7 +28,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    context.audit_data(row, ignore=["unique_id"])
+    context.audit_data(row)
 
 
 def crawl_excel_url(context: Context):
