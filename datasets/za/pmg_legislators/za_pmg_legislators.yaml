@@ -1,6 +1,6 @@
 title: South Africa National and Provincial Legislature and Executives
 entry_point: crawler.py
-prefix: za-pmg-leg
+prefix: za-pmg
 coverage:
   frequency: daily
   start: 2024-08-08
@@ -64,4 +64,3 @@ lookups:
           - 30 March 1988
           - 10th October 1979
         value: null
-

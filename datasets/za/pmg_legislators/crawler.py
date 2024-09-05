@@ -18,14 +18,18 @@ PHONE_REMOVE = re.compile(r"(ex|ext|extension|fax|tel|\:|\-)", re.IGNORECASE)
 
 # List of regex patterns for positions of interest
 POSITIONS_OF_INTEREST = [
-    re.compile(r"Member of the National\s+Assembly", re.IGNORECASE),
-    re.compile(r"National\s+Council of Provinces", re.IGNORECASE),
-    re.compile(r"Minister of", re.IGNORECASE),
-    re.compile(r"Provincial\s+Legislature", re.IGNORECASE),
-    re.compile(r"Member of.+Executive Committee", re.IGNORECASE),
-    re.compile(r"National\s+Executive", re.IGNORECASE),
-    re.compile(r"President", re.IGNORECASE),
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in [
+        r"Member of the National\s+Assembly",
+        r"National\s+Council of Provinces",
+        r"Minister of",
+        r"Provincial\s+Legislature",
+        r"Member of.+Executive Committee",
+        r"National\s+Executive",
+        r"President",
+    ]
 ]
+
 
 def clean_emails(emails):
     out = []
@@ -47,7 +51,7 @@ def clean_phones(phones):
     return out
 
 
-def crawl_person(context: Context, person_data: dict, organizations, events):
+def crawl_person(context: Context, person_data: dict, organizations):
     person_id = person_data.get("id")
 
     person_qid = None
@@ -68,14 +72,19 @@ def crawl_person(context: Context, person_data: dict, organizations, events):
     if person_qid:
         person.id = person_qid
     else:
-        person.id = person_entity_id(context, person_id)
+        assert person_id
+        person.id = context.make_id(person_id)
+
+    birth_date = person_data.get("birth_date")
+    death_date = person_data.get("death_date")
+
     person.add("name", person_data.get("name"))
     person.add("alias", [o.get("name") for o in person_data.get("other_names", [])])
     person.add("gender", person_data.get("gender"))
     person.add("firstName", person_data.get("given_name"))
     person.add("lastName", person_data.get("family_name"))
-    person.add("birthDate", person_data.get("birth_date"))
-    person.add("deathDate", person_data.get("death_date"))
+    person.add("birthDate", birth_date)
+    person.add("deathDate", death_date)
     person.add("title", person_data.pop("honorific_prefix", None))
     person.add("wikidataId", person_qid)
 
@@ -103,8 +112,8 @@ def crawl_person(context: Context, person_data: dict, organizations, events):
             person,
             membership,
             organizations,
-            person_data.get("birth_date"),
-            person_data.get("death_date"),
+            birth_date,
+            death_date,
         )
 
 
@@ -113,8 +122,8 @@ def crawl_membership(
     entity: Entity,
     membership: dict,
     organizations: Dict[str, str],
-    birth_date: str,
-    death_date: str,
+    birth_date: Optional[str],
+    death_date: Optional[str],
 ) -> Optional[str]:
     org_id = membership.get("organization_id")
     org_name = organizations.get(org_id)
@@ -173,14 +182,10 @@ def crawl_membership(
 
     if not occupancy:
         return
-    
+
     context.emit(entity, target=True)
     context.emit(position)
     context.emit(occupancy)
-
-
-def person_entity_id(context: Context, person_id: str) -> str:
-    return context.make_slug(person_id)
 
 
 def crawl(context: Context):
@@ -192,25 +197,5 @@ def crawl(context: Context):
     # Extract and prepare organizations
     organizations = {org["id"]: org["name"] for org in data.get("organizations")}
 
-    # Collect all memberships from all persons
-    persons = data.get("persons")
-
-    # Prepare events
-    events = {e.get("id"): e for e in data.pop("events")}
-
-    # Prepare birth and death dates dictionaries
-    birth_dates: Dict[str, str] = {}
-    death_dates: Dict[str, str] = {}
-
-    for person in persons:
-        death_date = person.get("death_date", None)
-        if death_date is not None:
-            death_dates[person.get("id")] = death_date
-
-        birth_date = person.get("birth_date")
-        if birth_date is not None:
-            birth_dates[person.get("id")] = birth_date
-
-    # Process persons
-    for person in persons:
-        crawl_person(context, person, organizations, events)
+    for person in data.get("persons"):
+        crawl_person(context, person, organizations)
