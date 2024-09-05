@@ -73,8 +73,10 @@ config:
       topic: poi
     - category: 21st-century_Saudi_Arabian_politicians
       topic: role.pep
+      country: sa
     - category: Crown_princes_of_Saudi_Arabia
       topic: role.pep
+      country: sa
       position:
         name: Crown Prince of Saudi Arabia
         country: sa
@@ -87,15 +89,19 @@ config:
       country: bh
     - category: 21st-century_Yemeni_politicians
       topic: role.pep
+      country: ye
     - category: General_People's_Congress_(Yemen)_politicians
       topic: role.pep
+      country: ye
       position:
         name: Member of the General People's Congress
         country: ye
     - category: Presidents_of_Yemen
       topic: role.pep
+      country: ye
     - category: Sultans_of_Oman
       topic: role.pep
+      country: om
     - category: Political_office-holders_in_Brunei
       depth: 7
       topic: role.pep
@@ -131,6 +137,7 @@ config:
       topic: role.pep
     - category: 21st-century_Russian_politicians
       topic: role.pep
+      country: ru
 
     # Myanmar
     - category: Individuals_related_to_Myanmar_sanctions
@@ -138,8 +145,10 @@ config:
       topic: poi
     - category: Prime_ministers_of_Myanmar
       topic: role.pep
+      country: mm
     - category: Heads_of_state_of_Myanmar
       topic: role.pep
+      country: mm
     - category: Members_of_the_State_Administration_Council
       topic: role.pep
       position:
@@ -149,15 +158,19 @@ config:
     # NK
     - category: Leaders_of_the_Workers'_Party_of_Korea_and_its_predecessors
       topic: role.pep
+      country: kp
     - category: Members_of_the_6th_Politburo_of_the_Workers'_Party_of_Korea
       topic: role.pep
+      country: kp
     - category: Members_of_the_Supreme_People's_Assembly
       topic: role.pep
+      country: kp
       position:
         name: Member of the Supreme People's Assembly
         country: kp
     - category: Political_office-holders_in_North_Korea
       topic: role.pep
+      country: kp
 
     # Caucasus
     - category: Government_ministers_of_Georgia_(country)
@@ -176,6 +189,7 @@ config:
       country: in
     - category: Indian_government_officials
       topic: role.pep
+      country: in
     
     # Nepal 
     - category: Government_ministers_of_Nepal
@@ -229,7 +243,9 @@ config:
     - category: Central_bankers
       topic: role.pep
     - category: Lists_of_military_chiefs_of_staff
-      topic: mil
+      topics:
+        - mil
+        - role.pep
     - category: Lists_of_admirals
       topic: mil
     
@@ -475,11 +491,14 @@ config:
       topic: poi
     - category: Current_justices_of_the_Supreme_Court_of_the_United_States
       topic: role.pep
+      country: us
     - category: Presidents_of_the_United_States
       depth: 0
       topic: role.pep
+      country: us
     - category: Chief_justices_of_the_United_States
       topic: role.pep
+      country: us
       position:
         name: Chief Justice of the United States
         country: us
@@ -487,11 +506,13 @@ config:
           - role.judge
     - category: United_States_presidential_advisors
       topic: role.pep
+      country: us
       position:
         name: US Presidential Advisor
         country: us
     - category: White_House_Counsels
       topic: role.pep
+      country: us
       position:
         name: White House Counsel
         country: us
@@ -499,13 +520,13 @@ config:
           - role.lawyer
     - category: Lists_of_mayors_of_places_in_the_United_States
       topic: role.pep
-    # TODO: re-enable
-    # - category: Lists_of_political_office-holders_in_the_United_States
-    #   topic: role.pep
-    # - category: Political_office-holders_in_the_United_States
-    #   topic: role.pep
-    # - category: United_States_government_officials
-    #   topic: role.pep
+    - category: Lists_of_political_office-holders_in_the_United_States
+      topic: role.pep
+      # country: us
+    - category: Political_office-holders_in_the_United_States
+      topic: role.pep
+    - category: United_States_government_officials
+      topic: role.pep
 
     # Europe
     - category: Presidents_of_the_European_Commission
