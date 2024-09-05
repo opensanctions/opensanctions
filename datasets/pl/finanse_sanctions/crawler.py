@@ -23,14 +23,13 @@ import csv
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.un_sc import get_legal_entities, get_persons
+from zavod.shed.un_sc import get_legal_entities, get_persons, Regime, load_un_sc
 
 FORMATS = ["%d.%m.%Y"]
 PDF_URL = "https://www.gov.pl/attachment/2fc03b3b-a5f6-4d08-80d1-728cdb71d2d6"
 POLAND_PROGRAM = "art. 118 ustawy z dnia 1 marca 2018 r. o przeciwdziałaniu praniu pieniędzy i finansowaniu terroryzmu"
-UN_SC_CONSOLIDATED_URL = "https://scsanctions.un.org/resources/xml/en/consolidated.xml"
-UN_SC_PREFIXES = ["TA", "QD"]
-UN_SC_PREFIX = "unsc"
+UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
+
 KNOWN_HASHES = {
     "https://www.gov.pl/attachment/2fc03b3b-a5f6-4d08-80d1-728cdb71d2d6": "94c0607177fec8a07ca3e7d82c3d61be36ea20ee",
     "https://www.gov.pl/attachment/56238b34-8a26-4431-a05a-e1d039f0defa": "3b8c0419879991e4dfd663aeed7b2df3c7472c55",
@@ -105,14 +104,11 @@ def crawl(context: Context):
         for row in csv.DictReader(fh):
             crawl_row(context, row)
 
-    path = context.fetch_resource("source.xml", UN_SC_CONSOLIDATED_URL)
-    context.export_resource(
-        path, "text/xml", title="UN Security Council Consolidated list"
-    )
-    doc = context.parse_resource_xml(path)
+    # UN Security Council stubs
+    un_sc, doc = load_un_sc(context)
 
-    for _node, entity in get_persons(context, UN_SC_PREFIX, doc, UN_SC_PREFIXES):
+    for _node, entity in get_persons(context, un_sc.prefix, doc, UN_SC_PREFIXES):
         context.emit(entity, target=True)
 
-    for _node, entity in get_legal_entities(context, UN_SC_PREFIX, doc, UN_SC_PREFIXES):
+    for _node, entity in get_legal_entities(context, un_sc.prefix, doc, UN_SC_PREFIXES):
         context.emit(entity, target=True)
