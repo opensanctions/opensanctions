@@ -167,7 +167,9 @@ lookups:
           - "-"
           - 2002 yılında Kuveyt vatandaşlığından çıkarılmıştır.
         value: null
-      - match: SSCB (1991’e kadar)
+      - match:
+          - SSCB (1991’e kadar)
+          - former Soviet Union
         value: suhh
   type.name: 
     lowercase: true

@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Generator, List, Optional, Tuple
 from enum import Enum
 from normality import collapse_spaces
@@ -5,6 +6,8 @@ from lxml.etree import _Element as Element
 import re
 
 from zavod import Context, Entity
+from zavod.meta import load_dataset_from_path
+from zavod.meta.dataset import Dataset
 from zavod.util import ElementOrTree
 from zavod import helpers as h
 
@@ -126,7 +129,7 @@ def parse_address(context: Context, node: Element):
 
 
 def parse_entity(context: Context, regimes: List[str], node: Element, entity: Entity):
-    if sanction := parse_common(context, regimes, entity, node) is None:
+    if (sanction := parse_common(context, regimes, entity, node)) is None:
         return
 
     for alias in node.findall("./ENTITY_ALIAS"):
@@ -139,8 +142,8 @@ def parse_entity(context: Context, regimes: List[str], node: Element, entity: En
     context.emit(sanction)
 
 
-def parse_individual(context: Context, regimes: List[str], node: Element, person: Entity):
-    if sanction := parse_common(context, regimes, person, node) is None:
+def parse_individual(un_sc: Dataset, context: Context, regimes: List[Regime], node: Element, person: Entity):
+    if (sanction := parse_common(context, regimes, person, node)) is None:
         return
 
     person.add("title", values(node.find("./TITLE")))
@@ -158,7 +161,7 @@ def parse_individual(context: Context, regimes: List[str], node: Element, person
         doc_type = doc.findtext("./TYPE_OF_DOCUMENT")
         if doc_type is None:
             continue
-        result = context.lookup("document_type", doc_type)
+        result = un_sc.lookups["document_type"].match(doc_type)
         if result is None:
             context.log.warning(
                 "Unknown individual document type",
@@ -198,10 +201,11 @@ def parse_individual(context: Context, regimes: List[str], node: Element, person
     context.emit(sanction)
 
 
-def parse_common(context: Context, regimes: List[str], entity: Entity, node: Element):
+def parse_common(context: Context, regimes: List[Regime], entity: Entity, node: Element) -> Optional[Entity]:
     reference = node.findtext("./REFERENCE_NUMBER")
+    # If sanction regime filter is specified, use it, otherwise accept all
     if regimes:
-        if not any (regime.match(reference) for regime in regimes):
+        if not any(regime.value.match(reference) for regime in regimes):
             return None
     entity.add("alias", node.findtext("./NAME_ORIGINAL_SCRIPT"))
     entity.add("notes", h.clean_note(node.findtext("./COMMENTS1")))
@@ -213,7 +217,7 @@ def parse_common(context: Context, regimes: List[str], entity: Entity, node: Ele
     sanction.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
     entity.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
     sanction.add("program", node.findtext("./UN_LIST_TYPE"))
-    sanction.add("unscId", node.findtext("./REFERENCE_NUMBER"))
+    sanction.add("unscId", reference)
     return sanction
 
 
@@ -228,16 +232,23 @@ def crawl_index(context: Context) -> Optional[str]:
     return None
 
 
-def crawl(context: Context, regimes: List[str] = []):
-    # xml_url = crawl_index(context)
-    # if xml_url is None:
-    #     raise ValueError("No XML file found on %s" % context.data_url)
-    path = context.fetch_resource("source.xml", context.data_url)
+def crawl(context: Context, regimes: List[Regime] = []):
+    """
+    Crawl the UN SC consolidated sanctions list.
+
+    Args:
+        context: The context object.
+        regimes: A list of sanction regimes to filter on.
+          If empty, all sanctions are accepted.
+    """
+    un_sc_path = Path(__file__).parent.parent.parent.parent / "datasets/_global/un_sc_sanctions/un_sc_sanctions.yml"
+    un_sc = load_dataset_from_path(un_sc_path)
+    path = context.fetch_resource("source.xml", un_sc.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
 
-    for node, entity in get_persons(context, context.dataset.prefix, doc):
-        parse_individual(context, regimes, node, entity)
+    for node, entity in get_persons(context, un_sc.prefix, doc):
+        parse_individual(un_sc, context, regimes, node, entity)
 
-    for node, entity in get_legal_entities(context, context.dataset.prefix, doc):
+    for node, entity in get_legal_entities(context, un_sc.prefix, doc):
         parse_entity(context, regimes, node, entity)

@@ -16,7 +16,7 @@ DATE_FORMAT = ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%
 
 # original link for assertion
 DOCX_LINK = (
-    "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/A-6415-SAYILI-KANUN-5.-MADDE.docx"
+    "https://ms.hmb.gov.tr/uploads/sites/2/2024/08/A-BIRLESMIS-MILLETLER-GUVENLIK-KONSEYI-KARARINA-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-5.-MADDEw.docx"
 )
 XLSX_LINKS = [
     (
@@ -25,7 +25,7 @@ XLSX_LINKS = [
         "B - Foreign government requests",
     ),
     (
-        "https://ms.hmb.gov.tr/uploads/sites/2/2024/06/C-6415-SAYILI-KANUN-7.-MADDE.xlsx",
+        "https://ms.hmb.gov.tr/uploads/sites/2/2024/09/C-IC-DONDURMA-KARARI-ILE-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-7.-MADDE-2.xlsx",
         "Asset freezes pursuant to Article 7 of Law No. 6415, targeting individuals and entities through domestic legal actions and decisions.",
         "C - Domestic legal actions",
     ),
