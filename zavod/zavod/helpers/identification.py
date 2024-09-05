@@ -19,6 +19,7 @@ def make_identification(
     authority: Optional[str] = None,
     key: Optional[str] = None,
     passport: bool = False,
+    prefix: Optional[str] = None,
 ) -> Optional[Entity]:
     """Create an `Identification` or `Passport` object linked to a passport holder.
 
@@ -54,7 +55,7 @@ def make_identification(
 
     if number is None:
         return None
-    proxy.id = context.make_id(entity.id, number, doc_type, key)
+    proxy.id = context.make_id(entity.id, number, doc_type, key, prefix=prefix)
     proxy.add("holder", entity.id)
     proxy.add("number", number)
     proxy.add("type", doc_type)
@@ -63,7 +64,6 @@ def make_identification(
     proxy.add("summary", summary)
     proxy.add("startDate", start_date)
     proxy.add("endDate", end_date)
-    # context.inspect(proxy.to_dict())
     if passport:
         entity.add("passportNumber", number)
     else:

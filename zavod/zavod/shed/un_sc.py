@@ -185,6 +185,7 @@ def parse_individual(
             start_date=doc.findtext("./DATE_OF_ISSUE"),
             country=country,
             passport=result.passport,
+            prefix=un_sc.prefix,
         )
         if passport is not None:
             passport.add("type", doc.findtext("./TYPE_OF_DOCUMENT2"))
