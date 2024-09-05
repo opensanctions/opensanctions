@@ -15,6 +15,8 @@ description: |
 publisher:
   name: Indiana Family and Social Services Administration
   acronym: FSSA
+  description: >
+    > The FSSA Office of Medicaid Policy and Planning efficiently and effectively administers Medicaid programs for the state of Indiana.
   url: https://www.in.gov/fssa/
   official: true
   country: "us"
