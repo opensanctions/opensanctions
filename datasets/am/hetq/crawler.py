@@ -52,6 +52,16 @@ EN_BIRTH = re.compile(
 )
 
 
+def fix_trans_spill(text: str) -> str:
+    """
+    Drop remaining text when encountering apparent spillage of some automatic
+    translation tool response that looks a bit like
+
+        ... Translations of prosecutor NounFrequency մեղադրող ...
+    """
+    return text.split("Translations of")[0].strip()
+
+
 def get_birth_info(
     context: Context, zipfh: ZipFile, person_id: int
 ) -> Tuple[Union[None, str], Union[None, str]]:
@@ -114,6 +124,7 @@ def crawl_person(
     if birth_place is not None:
         person.add("birthPlace", birth_place)
     position_name = data.get("position_en", "").strip()
+    position_name = fix_trans_spill(position_name)
     position_lang = "en"
     # Often position is only in Armenian
     if position_name == "":

@@ -46,6 +46,7 @@ def crawl_registrant(context: Context, item: Dict[str, Any]) -> None:
     entity = context.make("LegalEntity")
     entity.id = registrant_id(context, registration_number)
     entity.add("name", item.pop("Name").strip() or None)
+    entity.add("topics", "role.lobby")
     h.copy_address(entity, address)
     entity.add("registrationNumber", registration_number)
     entity.add("createdAt", registration_date)

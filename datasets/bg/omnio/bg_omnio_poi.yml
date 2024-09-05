@@ -44,3 +44,25 @@ lookups:
         value: YE
       - match: Холандия
         value: NL
+  type.name: 
+    options: 
+      - match: '"The Base", Al Qaeda, Islamic Salvation Foundation, The Group for the Preservation of the Holy Sites, The Islamic Army for the Liberation of Holy Places, The World Islamic Front for Jihad Against Jews and Crusaders, Usama Bin Laden Network, Usama Bin Laden Organization'  
+        values: 
+          - The Base
+          - Al Qaeda
+          - Islamic Salvation Foundation
+          - The Group for the Preservation of the Holy Sites
+          - The Islamic Army for the Liberation of Holy Places
+          - The World Islamic Front
+          - Usama Bin Laden Network
+          - Usama Bin Laden Organization
+      - match: '"Дъ Бейз", Ал Каеда, Исламик Салвейшн Фаундейшн, Дъ Груп фор дъ Презервейшн ъф дъ Холи Сайтс, Ди Исламик Арми фор дъ Либерейшн ъф Холи Плейсис, Дъ Уърлд Исламик Фронт фор Джихад агейнст Джус енд Крусейдърс, Усама Бин Ладен Нетуърк, Усама Бин Ладен Органайзейшн'
+        values: 
+          - Дъ Бейз
+          - Ал Каеда
+          - Исламик Салвейшн Фаундейшн
+          - Дъ Груп фор дъ Презервейшн ъф дъ Холи Сайтс
+          - Ди Исламик Арми фор дъ Либерейшн ъф Холи Плейсис
+          - Дъ Уърлд Исламик Фронт
+          - Усама Бин Ладен Нетуърк
+          - Усама Бин Ладен Органайзейшн

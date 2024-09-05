@@ -109,6 +109,8 @@ def query_position_holders(
             time.sleep(i)
 
     for binding in response.results:
+        if not is_qid(binding.plain("person")):
+            continue
         start_date = truncate_date(
             binding.plain("positionStart")
             or binding.plain("bodyStart")
@@ -135,6 +137,9 @@ def pick_country(context, *qids):
     Returns the country for the first national decision country of the given qids, or None
     """
     for qid in qids:
+        # e.g. https://www.wikidata.org/.well-known/genid/091bf3144103c0cbaca1bd6eb3762d4d
+        if qid is None or not is_qid(qid):
+            continue
         country = context.lookup("country_decisions", qid)
         if country is not None and country.decision == DECISION_NATIONAL:
             return country
@@ -207,6 +212,8 @@ def query_positions(
             position_countries[bind.plain("position")].add(country_res.code)
 
     for bind in country_results + politician_response.results:
+        if not is_qid(bind.plain("position")):
+            continue
         date_abolished = bind.plain("abolished")
         if date_abolished is not None and date_abolished < "2000-01-01":
             context.log.debug(f"Skipping abolished position: {bind.plain('position')}")
@@ -224,6 +231,8 @@ def query_countries(context: Context):
     )
     for binding in response.results:
         qid = binding.plain("country")
+        if not is_qid(qid):
+            continue
         label = binding.plain("countryLabel")
         if qid is None or qid == label:
             continue
@@ -242,6 +251,8 @@ def query_position_classes(context: Context):
     classes = []
     for binding in response.results:
         qid = binding.plain("class")
+        if not is_qid(qid):
+            continue
         label = binding.plain("classLabel")
         res = context.lookup("position_subclasses", qid)
         if res:

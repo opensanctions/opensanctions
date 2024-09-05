@@ -12,6 +12,8 @@ SPLITTERS = [
     " of ",
 ]
 
+PROVISIONS_SPLITS = ["Appeal", "Judicial Review"]
+
 
 def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
     """
@@ -69,7 +71,6 @@ def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
 
 
 def crawl_item(context: Context, input_dict: dict):
-
     dict_keys = list(input_dict.keys())
 
     for column in dict_keys:
@@ -99,7 +100,9 @@ def crawl_item(context: Context, input_dict: dict):
     sanction = h.make_sanction(context, entity)
     sanction.add("description", input_dict.pop("description"))
     sanction.add("reason", input_dict.pop("reason"))
-    sanction.add("provisions", input_dict.pop("Action Taken"))
+    sanction.add(
+        "provisions", h.multi_split(input_dict.pop("Action Taken"), PROVISIONS_SPLITS)
+    )
 
     sanction.add(
         "startDate",

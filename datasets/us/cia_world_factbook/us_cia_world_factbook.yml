@@ -2,7 +2,7 @@ title: US CIA World Factbook Heads of State and Government
 entry_point: crawler.py
 prefix: us-cia
 coverage:
-  frequency: daily
+  frequency: weekly
   start: "2023-09-21"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
@@ -683,6 +683,7 @@ lookups:
           - role: President of the Governorate of the Vatican City State
             name: Fernando VERGEZ ALZAGA
             start_date: 1 October 2021
+
       # Not additional heads, just notes
       - regex:
           - subsequently, the Houthis and supporters of Yemen's first president, Ali Abdullah SALEH, seized the presidential palace and placed HADI under house arrest
@@ -774,8 +775,8 @@ lookups:
           # Bangladesh
           - vacant
           - on 5 August 2024, Prime Minister Sheikh HASINA Wazed resigned, and the army announced it is in talks to form a new government
-          # Burma
-          - '<strong>note 1: </strong>the military took over the government on 1 February 2021 and declared a state of emergency<strong><br /><br />note 2:</strong> prior to the military takeover, the a state counsellor served the equivalent term of the president and was similar to a prime minister in that the holder acted as a link between the parliament and the executive branch<br /><br /><br />'
+          # Tunisia
+          - President Kais SAIED dismissed Prime Minister Ahmed HACHANI the same day he appointed Kamel MADDOURI
         holders: []
 
   type.country:

@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: in-nse-deb
 coverage:
   frequency: daily
-  start: "2024-05-20"
+  start: "2024-08-05"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of Debarred Entities based on orders / directions from SEBI and other Competent Authorities

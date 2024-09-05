@@ -1,10 +1,8 @@
-from zavod import Context, helpers as h
-from typing import Generator
-import openpyxl
 from openpyxl import load_workbook
 from pantomime.types import XLSX
-from normality import stringify, slugify
 from datetime import datetime
+
+from zavod import Context, helpers as h
 
 
 def arabic_to_latin(arabic_date):
@@ -32,44 +30,6 @@ def parse_date(date_str: str) -> datetime:
             return None
 
 
-def parse_sheet(
-    context: Context,
-    sheet: openpyxl.worksheet.worksheet.Worksheet,
-    skiprows: int = 0,
-) -> Generator[dict, None, None]:
-    headers = None
-
-    row_counter = 0
-
-    for row in sheet.iter_rows():
-        # Increment row counter
-        row_counter += 1
-
-        # Skip the desired number of rows
-        if row_counter <= skiprows:
-            continue
-        cells = [c.value for c in row]
-        if headers is None:
-            headers = []
-            for idx, cell in enumerate(cells):
-                if cell is None:
-                    cell = f"column_{idx}"
-                translated_cell = context.lookup_value("columns", cell)
-                if translated_cell is None:
-                    translated_cell = slugify(cell)
-                headers.append(translated_cell)
-            continue
-
-        record = {}
-        for header, value in zip(headers, cells):
-            if isinstance(value, datetime):
-                value = value.date()
-            record[header] = stringify(value)
-        if len(record) == 0:
-            continue
-        yield record
-
-
 def crawl_terrorist(input_dict: dict, context: Context):
 
     name = input_dict.pop("name")
@@ -88,7 +48,7 @@ def crawl_terrorist(input_dict: dict, context: Context):
     sanction = h.make_sanction(context, person, case_number)
     sanction.add("listingDate", parse_date(input_dict.pop("date_of_publication")))
     sanction.add("description", f"Case number: {case_number}")
-    sanction.add("authorityId", input_dict.pop("terrorist_desgination_decision_number"))
+    sanction.add("authorityId", input_dict.pop("terrorist_designation_decision_number"))
     sanction.add(
         "description",
         f"Publication Page: {input_dict.pop('number_of_publication')}",
@@ -163,11 +123,15 @@ def crawl(context: Context):
 
     wb = load_workbook(path, read_only=True)
 
-    for item in parse_sheet(context, wb["الإرهابيين"]):
+    for item in h.parse_xlsx_sheet(context, wb["الإرهابيين"], header_lookup="columns"):
         crawl_terrorist(item, context)
 
-    for item in parse_sheet(context, wb["الكيانات الإرهابية"], skiprows=1):
+    for item in h.parse_xlsx_sheet(
+        context, wb["الكيانات الإرهابية"], skiprows=1, header_lookup="columns"
+    ):
         crawl_terrorist_entities(item, context)
 
-    for item in parse_sheet(context, wb["الشخصيات الاعتبارية"], skiprows=1):
+    for item in h.parse_xlsx_sheet(
+        context, wb["الشخصيات الاعتبارية"], skiprows=1, header_lookup="columns"
+    ):
         crawl_legal_persons(item, context)

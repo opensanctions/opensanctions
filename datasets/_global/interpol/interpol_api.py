@@ -101,8 +101,14 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     entity.add("birthPlace", notice.pop("place_of_birth", None))
     entity.add("notes", notice.pop("distinguishing_marks", None))
     entity.add("hairColor", notice.pop("hairs_id", None))
-    entity.add("height", notice.pop("height", None))
-    entity.add("weight", notice.pop("weight", None))
+    height = notice.pop("height", None)
+    if isinstance(height, float):
+        height = "%.2f" % height
+    entity.add("height", height)
+    weight = notice.pop("weight", None)
+    if isinstance(weight, float):
+        weight = "%.2f" % weight
+    entity.add("weight", weight)
     entity.add("eyeColor", notice.pop("eyes_colors_id", None))
 
     dob_raw = notice.pop("date_of_birth", None)

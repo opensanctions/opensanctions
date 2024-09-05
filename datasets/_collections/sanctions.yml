@@ -1,7 +1,8 @@
 type: collection
 title: Consolidated Sanctions
+coverage:
+  schedule: "0 1,7,13,19 * * *"
 deploy:
-  schedule: "2 1,7,13,19 * * *"
   memory: "1500Mi"
   command: /etl/scripts/export-sanctions.sh
   # premium: true
@@ -80,10 +81,12 @@ children:
   - lt_magnitsky_amendments
   - lv_fiu_sanctions
   - lv_magnitsky_list
+  - mc_fund_freezes
   - md_terror_sanctions
   - my_moha_sanctions
   - ng_nigsac_sanctions
   - nl_terrorism_list
+  - np_mha_sanctions
   - nz_designated_terrorists
   - nz_russia_sanctions
   - pl_finanse_sanctions
@@ -99,7 +102,7 @@ children:
   - ua_nsdc_sanctions
   - ua_sfms_blacklist
   - un_sc_sanctions
-  - us_state_terrorist_exclusion
+  - us_cbp_forced_labor
   - us_bis_denied
   - us_cuba_sanctions
   - us_dhs_uflpa
@@ -108,6 +111,7 @@ children:
   - us_nteea_sec_353
   - us_ofac_cons
   - us_ofac_sdn
+  - us_state_terrorist_exclusion
   - us_trade_csl
   - za_fic_sanctions
 ci_test: false

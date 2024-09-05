@@ -5,14 +5,14 @@ full_dataset: ru_egrul
 disabled: false
 hidden: false
 coverage:
-  schedule: "daily"
+  frequency: weekly
+  schedule: "@weekly"
   start: 2022-01-01
   end: 2022-01-01
 exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  # schedule: "@daily"
   disk: "50Gi"
   memory: "1500Mi"
   memory_limit: "2000Mi"

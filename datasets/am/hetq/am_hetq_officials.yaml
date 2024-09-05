@@ -54,3 +54,11 @@ assertions:
   max:
     schema_entities:
       Person: 8000
+
+lookups:
+  type.name:
+    options:
+      - match: HH tntesakan zargats’man yev nerdrumneri nakhararut’yan ashkhatakazmi lits’enzavorman yev t’uyltvut’yunneri gortsakalut’yan pet 117/5000 Head of the Agency for Licensing and Permits of the Ministry of Economic Development and Investments of the Republic of Armenia
+        value: Head of the Agency for Licensing and Permits of the Ministry of Economic Development and Investments of the Republic of Armenia
+      - match: Deputy Head of the Control Division of the Investigation Divisions of the Yerjan City Administrative Districts Investigation Division of the Investigation Department of the RA Investigation Committee (Senior Investigator of the Criminal Investigation Department)
+        value: Deputy Head of the Control Division of the Investigation Divisions of the Yerjan City Administrative Districts Investigation Division of the Investigation Department

@@ -11,7 +11,7 @@ exports:
   - names.txt
   - senzing.json
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2024-07-29
 summary: >
    Entities and individuals registered under the Foreign Agents Registration Act (FARA).
