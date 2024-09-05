@@ -9,16 +9,25 @@ summary: >
  Current members of the National Assembly, National Council of Provinces,
  and provincial legislatures and executives in South Africa.
 description: |
-    This dataset includes information about current members of South Africa's
-    National Assembly, National Council of Provinces, provincial legislatures,
-    and provincial executives. It covers various positions in the National
-    Legislature and Executive branch.
+    This dataset includes information about current and recent members of South Africa
+    legislators using data from People's Assembly.
+
+    The national executive, the national legislatures (National Assembly and the
+    National Council of Provinces), as well as the nine provincial legislatures and
+    executives are covered.
 
     This data source is licensed under the [Creative Commons Attribution-ShareAlike license (CC-BY-SA)](https://creativecommons.org/licenses/by-sa/4.0/).
 publisher: 
-  name: Parliamentary Monitoring Group (PMG)
+  name: Parliamentary Monitoring Group
+  acronym: PMG
   description: |
-   The Parliamentary Monitoring Group (PMG) provides comprehensive details
+    PMG is a parliamentary monitoring organization that provides comprehensive information
+    on the work of the South African parliament. Detailed data about legislators,
+    the progress of bills through parliament, committee meetings and attendance is made
+    available to enable public oversight of the legislative process. Some of this information
+    is also available for provincial legislatures. PMG also maintains the People's Assembly
+    website enabling easier access to information about public representatives and
+    interaction with them.
   official: false
   url: https://pmg.org.za/
   country: "za"
