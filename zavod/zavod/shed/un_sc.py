@@ -29,7 +29,7 @@ def get_persons(
     context: Context,
     prefix: str,
     doc: ElementOrTree,
-    include_prefixes: Optional[List[str]] = None,
+    include_prefixes: Optional[List[Regime]] = None,
 ) -> Generator[Tuple[ElementOrTree, Entity], None, None]:
     yield from get_entities(
         context, prefix, doc, include_prefixes, "INDIVIDUAL", "Person"
@@ -40,7 +40,7 @@ def get_legal_entities(
     context: Context,
     prefix: str,
     doc: ElementOrTree,
-    include_prefixes: Optional[List[str]] = None,
+    include_prefixes: Optional[List[Regime]] = None,
 ) -> Generator[Tuple[ElementOrTree, Entity], None, None]:
     yield from get_entities(
         context, prefix, doc, include_prefixes, "ENTITY", "LegalEntity"
@@ -51,7 +51,7 @@ def get_entities(
     context: Context,
     prefix: str,
     doc: ElementOrTree,
-    include_prefixes: Optional[List[str]],
+    include_prefixes: Optional[List[Regime]],
     tag: str,
     schema: str,
 ) -> Generator[Tuple[ElementOrTree, Entity], None, None]:
@@ -60,7 +60,9 @@ def get_entities(
         if (
             include_prefixes is None
             or perm_ref is None
-            or any([perm_ref.startswith(un_prefix.value) for un_prefix in include_prefixes])
+            or any(
+                [perm_ref.startswith(un_prefix.value) for un_prefix in include_prefixes]
+            )
         ):
             yield node, make_entity(context, prefix, schema, node)
 
@@ -91,8 +93,7 @@ def load_un_sc(context: Context) -> Tuple[Dataset, ElementOrTree]:
     )
     dataset = load_dataset_from_path(un_sc_path)
     if not (dataset and dataset.data and dataset.data.url):
-        context.log.error("Could not look up un_sc_sanctions dataset or its data URL")
-        return
+        raise Exception("Could not look up un_sc_sanctions dataset or its data URL")
     path = context.fetch_resource("source.xml", dataset.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
