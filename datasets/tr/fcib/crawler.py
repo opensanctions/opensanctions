@@ -56,7 +56,7 @@ REGEX_GAZZETE_DATE = re.compile(r"(\d{2}\.\d{2}\.\d{4})")
 UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
 
 
-def crawl_row(context: Context, row: Dict[str, str], program: str):
+def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
     name = row.pop("name")
     if not name:
         return  # in the XLSX file, there are empty rows
@@ -64,34 +64,42 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
     pass_no = row.pop("passport_number", "")  # Person
     passport_other = row.pop("passport_number_other_info", "")  # LegalEntity
     birth_establishment_date = row.pop("date_of_birth_establishment", "")
+    if birth_establishment_date:
+        birth_establishment_date = birth_establishment_date.split("\n")
+    else:
+        birth_establishment_date = []
     birth_place = row.pop("birth_place", "")  # Person
     birth_dates = h.multi_split(row.pop("birth_date", ""), SPLITS)  # Person
     gazette_date = row.pop("gazette_date", "")
     nationality = row.pop("nationality", "")
+    mother_name = row.pop("mother_name", "")
+    father_name = row.pop("father_name", "")
     if gazette_date:
         matched_date = REGEX_GAZZETE_DATE.search(gazette_date)
         gazette_date = matched_date.group(0) if matched_date else ""
 
-    if birth_dates or birth_place:
+    # Birthplace is also used for organisations
+    if birth_dates or mother_name or father_name:
         entity = context.make("Person")
         entity.id = context.make_id(name, nationality, birth_dates, birth_place, pass_no)
         entity.add("nationality", nationality)
         entity.add("nationality", row.pop("other_nationality", ""))
         entity.add("birthPlace", birth_place)
         h.apply_dates(entity, "birthDate", birth_dates)
-        h.apply_date(entity, "birthDate", birth_establishment_date)
+        h.apply_dates(entity, "birthDate", birth_establishment_date)
         entity.add("passportNumber", collapse_spaces(passport_other))
         entity.add("passportNumber", collapse_spaces(pass_no))
         entity.add("position", row.pop("position", ""))
-        entity.add("motherName", row.pop("mother_name", ""))
-        entity.add("fatherName", row.pop("father_name", ""))
+        entity.add("motherName", mother_name)
+        entity.add("fatherName", father_name)
     else:
         entity = context.make("LegalEntity")
-        entity.id = context.make_id(name, passport_other)
+        entity.id = context.make_id(name, birth_place, nationality, passport_other)
         entity.add("name", row.pop("legal_entity_name", ""))
         entity.add("idNumber", collapse_spaces(passport_other))
-        h.apply_date(entity, "incorporationDate", birth_establishment_date)
+        h.apply_dates(entity, "incorporationDate", birth_establishment_date)
         entity.add("description", row.pop("position", ""))
+        entity.add("country", nationality)
 
 
     entity.add("name", name)
@@ -105,6 +113,7 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
     sanction.add("description", row.pop("sanction_type", ""))
     sanction.add("reason", row.pop("organization", ""))
     sanction.add("program", program)  # depends on the xlsx file
+    sanction.add("sourceUrl", url)
     h.apply_date(sanction, "listingDate", row.pop("listing_date", None))
     h.apply_date(sanction, "listingDate", gazette_date)
 
@@ -124,7 +133,7 @@ def crawl_xlsx(context: Context, url: str, program: str, short_name: str):
     for sheet in wb.worksheets:
         context.log.info(f"Processing sheet {sheet.title} with program {program}")
         for row in h.parse_xlsx_sheet(context, sheet, header_lookup="columns"):
-            crawl_row(context, row, program)
+            crawl_row(context, row, program, url)
 
 
 def unblock_validator(doc: etree._Element) -> bool:
