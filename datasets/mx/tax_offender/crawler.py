@@ -40,6 +40,7 @@ def crawl_item(input_dict: dict, context: Context):
     entity.id = context.make_id(input_dict.get("RFC"), input_dict.get("name"))
     entity.add("name", input_dict.pop("name"))
     entity.add("taxNumber", input_dict.pop("RFC"))
+    entity.add("topics", "debarment")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", input_dict.pop("reason"))
@@ -49,7 +50,6 @@ def crawl_item(input_dict: dict, context: Context):
             h.parse_date(input_dict.pop("start_date"), formats=["%d/%m/%Y", "%Y"]),
         )
     sanction.add("authority", input_dict.pop("authority"))
-    sanction.add("topics", "debarment")
 
     context.emit(entity, target=True)
     context.emit(sanction)
