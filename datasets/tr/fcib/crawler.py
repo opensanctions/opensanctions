@@ -55,15 +55,6 @@ SPLITS = [
 REGEX_GAZZETE_DATE = re.compile(r"(\d{2}\.\d{2}\.\d{4})")
 
 
-def normalize_header(header: str) -> str:
-    """Normalize header strings by collapsing spaces and removing newlines."""
-    if header is None:
-        return None
-    # Replace newlines and tabs with spaces, then collapse multiple spaces into one
-    header = header.replace("\n", " ").replace("\r", " ").replace("\t", " ")
-    return collapse_spaces(header).strip()
-
-
 def crawl_row(context: Context, row: Dict[str, str], program: str):
     name = row.pop("name")
     if not name:

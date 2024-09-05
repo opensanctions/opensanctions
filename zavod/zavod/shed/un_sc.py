@@ -13,19 +13,28 @@ from zavod import helpers as h
 
 
 class Regime(Enum):
-    SOMALIA = re.compile(r"SO.\.\d+")  # SO                 751 (1992)
-    DAESH_AL_QAIDA = re.compile(r"QD.\.\d+")  # non-State entity   1267/1989
-    IRAQ = re.compile(r"IQ.\.\d+")  # IQ                 1518 (2003)
-    DRC = re.compile(r"CD.\.\d+")  # CD                 1533 (2004)
-    SUDAN = re.compile(r"SD.\.\d+")  # SD                 1591 (2005)
-    NORTH_KOREA = re.compile(r"KP.\.\d+")  # KP                 1718 (2006)
-    LIBYA = re.compile(r"LY.\.\d+")  # LY                 1970 (2011)
-    TALIBAN = re.compile(r"TA.\.\d+")  # non-State entity   1988 (2011)
-    GUINEA_BISSAU = re.compile(r"GB.\.\d+")  # GB                 2048 (2012)
-    CAR = re.compile(r"CF.\.\d+")  # CF                 2127 (2013)
-    YEMEN = re.compile(r"YE.\.\d+")  # YE                 2140 (2014)
-    SOUTH_SUDAN = re.compile(r"SS.\.\d+")  # SS                 2206 (2015)
-    HAITI = re.compile(r"HT.\.\d+")  # HT                 2653 (2022)
+    SOMALIA = re.compile(r"SO.\.\d+")  # SO - 751 (1992)
+    DAESH_AL_QAIDA = re.compile(r"QD.\.\d+")  # non-State entity 1267/1989
+    IRAQ = re.compile(r"IQ.\.\d+")  # IQ - 1518 (2003)
+    DRC = re.compile(r"CD.\.\d+")  # CD - 1533 (2004)
+    SUDAN = re.compile(r"SD.\.\d+")  # SD - 1591 (2005)
+    NORTH_KOREA = re.compile(r"KP.\.\d+")  # KP - 1718 (2006)
+    LIBYA = re.compile(r"LY.\.\d+")  # LY - 1970 (2011)
+    TALIBAN = re.compile(r"TA.\.\d+")  # non-State entity - 1988 (2011)
+    GUINEA_BISSAU = re.compile(r"GB.\.\d+")  # GB - 2048 (2012)
+    CAR = re.compile(r"CF.\.\d+")  # CF - 2127 (2013)
+    YEMEN = re.compile(r"YE.\.\d+")  # YE - 2140 (2014)
+    SOUTH_SUDAN = re.compile(r"SS.\.\d+")  # SS - 2206 (2015)
+    HAITI = re.compile(r"HT.\.\d+")  # HT - 2653 (2022)
+
+
+NAME_QUALITY = {
+    "Low": "weakAlias",
+    "Good": "alias",
+    "a.k.a.": "alias",
+    "f.k.a.": "previousName",
+    "": None,
+}
 
 
 def get_persons(
@@ -87,36 +96,29 @@ def make_entity(
     return entity
 
 
-NAME_QUALITY = {
-    "Low": "weakAlias",
-    "Good": "alias",
-    "a.k.a.": "alias",
-    "f.k.a.": "previousName",
-    "": None,
-}
-
-
-def values(node):
+def values(node: Optional[ElementOrTree]) -> List[str]:
     if node is None:
         return []
-    return [c.text for c in node.findall("./VALUE")]
+    return [c.text for c in node.findall("./VALUE") if c.text]
 
 
-def parse_alias(entity: Entity, node: Element):
+def parse_alias(entity: Entity, node: Element) -> None:
     names = node.findtext("./ALIAS_NAME")
     quality = node.findtext("./QUALITY")
+    if quality is None:
+        return
     name_prop = NAME_QUALITY[quality]
     if names is None or name_prop is None:
         return
-
+    name: str | None = None
     for name in names.split("; "):
         name = collapse_spaces(name)
-        if not len(name):
+        if not (name and len(name)):
             continue
         entity.add(name_prop, name)
 
 
-def parse_address(context: Context, node: Element):
+def parse_address(context: Context, node: Element) -> Optional[Entity]:
     return h.make_address(
         context,
         remarks=node.findtext("./NOTE"),
@@ -128,7 +130,9 @@ def parse_address(context: Context, node: Element):
     )
 
 
-def parse_entity(context: Context, regimes: List[str], node: Element, entity: Entity):
+def parse_entity(
+    context: Context, regimes: List[Regime], node: ElementOrTree, entity: Entity
+) -> None:
     if (sanction := parse_common(context, regimes, entity, node)) is None:
         return
 
@@ -146,9 +150,9 @@ def parse_individual(
     un_sc: Dataset,
     context: Context,
     regimes: List[Regime],
-    node: Element,
+    node: ElementOrTree,
     person: Entity,
-):
+) -> None:
     if (sanction := parse_common(context, regimes, person, node)) is None:
         return
 
@@ -209,11 +213,14 @@ def parse_individual(
 
 
 def parse_common(
-    context: Context, regimes: List[Regime], entity: Entity, node: Element
+    context: Context, regimes: List[Regime], entity: Entity, node: ElementOrTree
 ) -> Optional[Entity]:
     reference = node.findtext("./REFERENCE_NUMBER")
-    # If sanction regime filter is specified, use it, otherwise accept all
+    # Only apply sanction regime filter if values are given
     if regimes:
+        if not reference:
+            context.log.warning("No reference number", entity_id=entity.id)
+            return None
         if not any(regime.value.match(reference) for regime in regimes):
             return None
     entity.add("alias", node.findtext("./NAME_ORIGINAL_SCRIPT"))
@@ -241,7 +248,7 @@ def crawl_index(context: Context) -> Optional[str]:
     return None
 
 
-def crawl(context: Context, regimes: List[Regime] = []):
+def crawl(context: Context, regimes: List[Regime] = []) -> None:
     """
     Crawl the UN SC consolidated sanctions list.
 
@@ -255,6 +262,9 @@ def crawl(context: Context, regimes: List[Regime] = []):
         / "datasets/_global/un_sc_sanctions/un_sc_sanctions.yml"
     )
     un_sc = load_dataset_from_path(un_sc_path)
+    if not (un_sc and un_sc.data and un_sc.data.url):
+        context.log.error("Could not look up un_sc_sanctions dataset or its data URL")
+        return
     path = context.fetch_resource("source.xml", un_sc.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
