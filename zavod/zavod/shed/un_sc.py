@@ -13,19 +13,19 @@ from zavod import helpers as h
 
 
 class Regime(Enum):
-    SOMALIA        = re.compile(r"SO.\.\d+")  # SO                 751 (1992)
+    SOMALIA = re.compile(r"SO.\.\d+")  # SO                 751 (1992)
     DAESH_AL_QAIDA = re.compile(r"QD.\.\d+")  # non-State entity   1267/1989
-    IRAQ           = re.compile(r"IQ.\.\d+")  # IQ                 1518 (2003)
-    DRC            = re.compile(r"CD.\.\d+")  # CD                 1533 (2004)
-    SUDAN          = re.compile(r"SD.\.\d+")  # SD                 1591 (2005)
-    NORTH_KOREA    = re.compile(r"KP.\.\d+")  # KP                 1718 (2006)
-    LIBYA          = re.compile(r"LY.\.\d+")  # LY                 1970 (2011)
-    TALIBAN        = re.compile(r"TA.\.\d+")  # non-State entity   1988 (2011)
-    GUINEA_BISSAU  = re.compile(r"GB.\.\d+")  # GB                 2048 (2012)
-    CAR            = re.compile(r"CF.\.\d+")  # CF                 2127 (2013)
-    YEMEN          = re.compile(r"YE.\.\d+")  # YE                 2140 (2014)
-    SOUTH_SUDAN    = re.compile(r"SS.\.\d+")  # SS                 2206 (2015)
-    HAITI          = re.compile(r"HT.\.\d+")  # HT                 2653 (2022)
+    IRAQ = re.compile(r"IQ.\.\d+")  # IQ                 1518 (2003)
+    DRC = re.compile(r"CD.\.\d+")  # CD                 1533 (2004)
+    SUDAN = re.compile(r"SD.\.\d+")  # SD                 1591 (2005)
+    NORTH_KOREA = re.compile(r"KP.\.\d+")  # KP                 1718 (2006)
+    LIBYA = re.compile(r"LY.\.\d+")  # LY                 1970 (2011)
+    TALIBAN = re.compile(r"TA.\.\d+")  # non-State entity   1988 (2011)
+    GUINEA_BISSAU = re.compile(r"GB.\.\d+")  # GB                 2048 (2012)
+    CAR = re.compile(r"CF.\.\d+")  # CF                 2127 (2013)
+    YEMEN = re.compile(r"YE.\.\d+")  # YE                 2140 (2014)
+    SOUTH_SUDAN = re.compile(r"SS.\.\d+")  # SS                 2206 (2015)
+    HAITI = re.compile(r"HT.\.\d+")  # HT                 2653 (2022)
 
 
 def get_persons(
@@ -142,7 +142,13 @@ def parse_entity(context: Context, regimes: List[str], node: Element, entity: En
     context.emit(sanction)
 
 
-def parse_individual(un_sc: Dataset, context: Context, regimes: List[Regime], node: Element, person: Entity):
+def parse_individual(
+    un_sc: Dataset,
+    context: Context,
+    regimes: List[Regime],
+    node: Element,
+    person: Entity,
+):
     if (sanction := parse_common(context, regimes, person, node)) is None:
         return
 
@@ -201,7 +207,9 @@ def parse_individual(un_sc: Dataset, context: Context, regimes: List[Regime], no
     context.emit(sanction)
 
 
-def parse_common(context: Context, regimes: List[Regime], entity: Entity, node: Element) -> Optional[Entity]:
+def parse_common(
+    context: Context, regimes: List[Regime], entity: Entity, node: Element
+) -> Optional[Entity]:
     reference = node.findtext("./REFERENCE_NUMBER")
     # If sanction regime filter is specified, use it, otherwise accept all
     if regimes:
@@ -241,7 +249,10 @@ def crawl(context: Context, regimes: List[Regime] = []):
         regimes: A list of sanction regimes to filter on.
           If empty, all sanctions are accepted.
     """
-    un_sc_path = Path(__file__).parent.parent.parent.parent / "datasets/_global/un_sc_sanctions/un_sc_sanctions.yml"
+    un_sc_path = (
+        Path(__file__).parent.parent.parent.parent
+        / "datasets/_global/un_sc_sanctions/un_sc_sanctions.yml"
+    )
     un_sc = load_dataset_from_path(un_sc_path)
     path = context.fetch_resource("source.xml", un_sc.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)

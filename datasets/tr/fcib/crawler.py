@@ -3,7 +3,6 @@ from lxml import etree
 from normality import collapse_spaces, stringify, slugify
 from openpyxl import load_workbook
 from typing import Dict, Iterable
-import csv
 import re
 from pantomime.types import XLSX
 
@@ -15,9 +14,7 @@ from zavod.shed.un_sc import crawl as crawl_un_sc, Regime
 DATE_FORMAT = ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S"]
 
 # original link for assertion
-DOCX_LINK = (
-    "https://ms.hmb.gov.tr/uploads/sites/2/2024/08/A-BIRLESMIS-MILLETLER-GUVENLIK-KONSEYI-KARARINA-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-5.-MADDEw.docx"
-)
+DOCX_LINK = "https://ms.hmb.gov.tr/uploads/sites/2/2024/08/A-BIRLESMIS-MILLETLER-GUVENLIK-KONSEYI-KARARINA-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-5.-MADDEw.docx"
 XLSX_LINKS = [
     (
         "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/B-YABANCI-ULKE-TALEPLERINE-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-6.-MADDE.xlsx",

@@ -214,10 +214,10 @@ lookups:
           - 2022-07-26
       - match: 16 Temmuz 2009 (değişiklik 2 Mart 2016, 5 Haziran 2017, 26 Temmuz 2022)
         values:
-        - 2009-07-16
-        - 2016-03-02
-        - 2017-06-05
-        - 2022-07-26
+          - 2009-07-16
+          - 2016-03-02
+          - 2017-06-05
+          - 2022-07-26
       - match: 2 Haziran 2017 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
         values:
           - 2017-06-02
