@@ -213,6 +213,10 @@ lookups:
       - match: "merrill, lynch, pierce, fenner & smith incorporated"
         names:
           - Merrill, Lynch, Pierce, Fenner & Smith Incorporated
+      - match: "merrill lynch, pierce, fenner & smith incorporated, bofa securities inc."
+        names:
+          - Merrill Lynch, Pierce, Fenner & Smith Incorporated
+          - BofA Securities Inc.
       - match: 'morgan keegan & company inc. (morgan keegan," "respondent" or "the firm")'
         names:
           - Morgan Keegan & Company Inc.

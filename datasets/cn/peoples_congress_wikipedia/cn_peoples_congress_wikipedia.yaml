@@ -34,6 +34,7 @@ url: https://zh.wikipedia.org/wiki/第十四届全国人民代表大会代表名
 data:
   url: https://zh.wikipedia.org/wiki/第十四届全国人民代表大会代表名单
   format: HTML
+ci_test: false
 
 lookups:
   type.gender:

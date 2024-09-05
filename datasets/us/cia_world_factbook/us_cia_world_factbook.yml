@@ -2,7 +2,7 @@ title: US CIA World Factbook Heads of State and Government
 entry_point: crawler.py
 prefix: us-cia
 coverage:
-  frequency: daily
+  frequency: weekly
   start: "2023-09-21"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >

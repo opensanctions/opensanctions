@@ -3,16 +3,16 @@ from normality import slugify, collapse_spaces
 from lxml.html import HtmlElement
 
 
-def parse_table(table: HtmlElement) -> Generator[Dict[str, str], None, None]:
+def parse_table(table: HtmlElement, header_tag: str = "th") -> Generator[Dict[str, str], None, None]:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
             headers = []
-            for el in row.findall("./th"):
+            for el in row.findall(f"./{header_tag}"):
                 # Workaround because lxml-stubs doesn't yet support HtmlElement
                 # https://github.com/lxml/lxml-stubs/pull/71
                 eltree = cast(HtmlElement, el)
-                headers.append(slugify(eltree.text_content()))
+                headers.append(slugify(eltree.text_content(), sep="_"))
             continue
 
         cells = [collapse_spaces(el.text_content()) for el in row.findall("./td")]

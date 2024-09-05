@@ -2,7 +2,7 @@ title: Latvian Saeima
 entry_point: crawler.py
 prefix: lv-sae
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2024-03-07
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
@@ -33,4 +33,4 @@ assertions:
     countries: 1
   max:
     schema_entities:
-      Person: 105
+      Person: 120

@@ -50,7 +50,7 @@ lookups:
       - match: رقم القضية 
         value: case_number
       - match: رقم قرار ادراج الارهابيين
-        value: terrorist_desgination_decision_number
+        value: terrorist_designation_decision_number
       - match: تاريخ النشر
         value: date_of_publication
       - match: عدد النشر
@@ -82,13 +82,14 @@ lookups:
           - Egyptian
           - Canadian
       - match: مصرية
-        value:
-          - Egyptian
+        value: Egyptian
+      - match: سوداني
+        value: Sudan
 
 assertions:
   min:
     schema_entities:
-      Person: 4000
+      Person: 4200
   max:
     schema_entities:
-      Person: 4400
+      Person: 5000

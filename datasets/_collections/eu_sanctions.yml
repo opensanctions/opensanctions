@@ -1,8 +1,9 @@
 type: collection
 title: European Union Sanctions
 hidden: true
+coverage:
+  schedule: "0 */6 * * *"
 deploy:
-  schedule: "2 */2 * * *"
   memory: "1500Mi"
 ci_test: false
 summary: >

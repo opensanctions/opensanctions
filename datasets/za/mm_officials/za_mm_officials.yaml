@@ -1,0 +1,85 @@
+title: "South Africa Municipal Leadership"
+url: https://municipalmoney.gov.za/
+entry_point: crawler.py
+prefix: za-mm
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: weekly
+  start: 2024-08-20
+summary: >
+  Profiles of municipal heads in South Africa, focusing on key political figures 
+  such as the Mayor and Municipal Manager.
+description: |
+  The dataset provides information on Politically Exposed Persons (PEPs) across all 
+  municipalities in South Africa. It focuses on individuals holding key positions 
+  of influence, including Mayor/Executive Mayor and Municipal Manager, within each 
+  municipality.
+
+publisher:
+  name: National Treasury of South Africa
+  acronym: NT
+  official: true
+  description: |
+    The Constitution of the Republic (Chapter 13) mandates the National Treasury to ensure
+    transparency, accountability and sound financial controls in the management of public finances.
+  country: za
+  url: https://www.treasury.gov.za/
+
+data:
+  url: https://municipaldata.treasury.gov.za/api/cubes/officials/facts
+  format: json
+
+assertions:
+  min:
+    schema_entities:
+      Person: 750
+  max:
+    schema_entities:
+      Person: 800
+
+lookups:
+  type.email:
+    lowercase: true
+    options:
+      - match:
+          - khumalomolefe24@.com
+          - "nompumelelo dywili@gmail.com"
+          - te Mphithikezi@merafong.go.za
+          - tlm.mayor@tsantsaban
+        value: null
+      - match: "gustav .bock@namakhoi.gov.za"
+        value: gustav.bock@namakhoi.gov.za
+      - match: margaret.sampson@capewinelands .gov.za
+        value: margaret.sampson@capewinelands.gov.za
+      - match: mmsoffice@map.fs.gov.za and nthabisengmo@map.fs.gov.za
+        values:
+          - mmsoffice@map.fs.gov.za
+          - nthabisengmo@map.fs.gov.za
+      - match: sizwe.ndlela5@gmail.com; sizwen@impendle.gov.za
+        values:
+          - sizwe.ndlela5@gmail.com
+          - sizwen@impendle.gov.za
+      - match: deputymayorpa@umvoti.gov .za
+        value: deputymayorpa@umvoti.gov.za
+      - match: cmoodien@mosselbay.gov za
+        value: cmoodien@mosselbay.gov.za
+      - match: mmsoffice@map.fs.gov.za and nthabisengmo@map.fs.go
+        values:
+          - mmsoffice@map.fs.gov.za
+          - nthabisengmo@map.fs.gov.za
+
+
+  roles:
+    lowercase: true
+    options:
+      - contains: "Secretary"
+        is_pep: false
+      - match:
+          - Deputy Mayor/Executive Mayor
+          - Speaker
+        is_pep: false
+      - match: 
+          - Mayor/Executive Mayor
+          - Municipal Manager
+          - Chief Financial Officer
+        is_pep: true

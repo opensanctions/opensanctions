@@ -2,11 +2,11 @@ title: UK HMT/OFSI Consolidated List of Targets
 entry_point: crawler.py
 prefix: gb-hmt
 coverage:
+  schedule: "0 */2 * * *"
   frequency: daily
   start: "2015-12-05"
 deploy:
   memory: "2Gi"
-  schedule: "0 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The United Kingom's consolidated international sanctions list.
