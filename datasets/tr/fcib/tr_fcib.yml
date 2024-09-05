@@ -203,10 +203,18 @@ lookups:
         value: 1979-08-01
       - match: 6 Mayısl969
         value: 1969-05-06
-      - match: 9.02.2021-11.05.2017
+      - match: 02.2021-11.05.2017  # 9.02.2021-11.05.2017 splitter victim
         values:
           - 2021-02-09
           - 2017-11-05
+      - match: 07.01.1985b)28.08.1983
+        values:
+          - 1985-01-07
+          - 1983-08-28
+      - match: 21.03.1996d)13.11.1977
+        values:
+          - 1996-03-21
+          - 1977-11-13
       - match: 
           - 645120196 (Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
         value: null

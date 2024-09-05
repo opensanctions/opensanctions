@@ -1,7 +1,7 @@
 from lxml import etree
 from normality import collapse_spaces
 from openpyxl import load_workbook
-from typing import Dict
+from typing import Dict, List, Optional
 import re
 from pantomime.types import XLSX
 
@@ -35,25 +35,15 @@ XLSX_LINKS = [
     ),
 ]
 
-SPLITS = [
-    "a)",
-    "b)",
-    "c)",
-    "d)",
-    "e)",
-    "f)",
-    "g)",
-    "h)",
-    "i)",
-    "j)",
-    "k)",
-    "l)",
-    "m)",
-    "n)",
-]
-
+REGEX_SPLIT = re.compile(r",?\s*\b\w[\.\)]|\n")
 REGEX_GAZZETE_DATE = re.compile(r"(\d{2}\.\d{2}\.\d{4})")
 UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
+
+
+def split(text: Optional[str]) -> List[str]:
+    if text is None:
+        return []
+    return [s.strip() for s in REGEX_SPLIT.split(text)]
 
 
 def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
@@ -63,13 +53,9 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
 
     pass_no = row.pop("passport_number", "")  # Person
     passport_other = row.pop("passport_number_other_info", "")  # LegalEntity
-    birth_establishment_date = row.pop("date_of_birth_establishment", "")
-    if birth_establishment_date:
-        birth_establishment_date = birth_establishment_date.split("\n")
-    else:
-        birth_establishment_date = []
-    birth_place = row.pop("birth_place", "")  # Person
-    birth_dates = h.multi_split(row.pop("birth_date", ""), SPLITS)  # Person
+    birth_establishment_date = split(row.pop("date_of_birth_establishment", ""))
+    birth_place = row.pop("birth_place", "")
+    birth_dates = split(row.pop("birth_date", ""))
     gazette_date = row.pop("gazette_date", "")
     nationality = row.pop("nationality", "")
     mother_name = row.pop("mother_name", "")
@@ -81,7 +67,9 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
     # Birthplace is also used for organisations
     if birth_dates or mother_name or father_name:
         entity = context.make("Person")
-        entity.id = context.make_id(name, nationality, birth_dates, birth_place, pass_no)
+        entity.id = context.make_id(
+            name, nationality, birth_dates, birth_place, pass_no
+        )
         entity.add("nationality", nationality)
         entity.add("nationality", row.pop("other_nationality", ""))
         entity.add("birthPlace", birth_place)
@@ -101,11 +89,10 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
         entity.add("description", row.pop("position", ""))
         entity.add("country", nationality)
 
-
     entity.add("name", name)
-    entity.add("alias", h.multi_split(row.pop("alias"), SPLITS))
+    entity.add("alias", split(row.pop("alias")))
     entity.add("previousName", row.pop("previous_name", ""))
-    entity.add("address", h.multi_split(row.pop("address", ""), SPLITS))
+    entity.add("address", split(row.pop("address", "")))
     entity.add("notes", row.pop("other_information", ""))
     entity.add("topics", "sanction")
 
