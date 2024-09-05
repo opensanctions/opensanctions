@@ -28,7 +28,7 @@ def crawl_item(unid: str, context: Context):
     email_el = response.xpath(
         './/*[text()=\'writeJsTrArr("form_email","E-pasta adrese")\']/../../span/a'
     )
-    entity.add("email", email_el[0].text_content())
+    entity.add("email", email_el[0].text_content() if email_el else None)
 
     position = h.make_position(context, "deputy of Saeima", country="lv")
     categorisation = categorise(context, position, is_pep=True)
