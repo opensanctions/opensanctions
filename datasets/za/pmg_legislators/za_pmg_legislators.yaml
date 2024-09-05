@@ -38,10 +38,12 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 500
+      Person: 1500
+      Position: 300
   max:
     schema_entities:
-      Person: 2000
+      Person: 2500
+      Position: 400
 
 lookups:
   type.email:
