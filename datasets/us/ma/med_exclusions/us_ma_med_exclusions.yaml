@@ -14,6 +14,8 @@ description: |
   > the provider type at the time of such action.
 publisher:
   name: MassHealth
+  description: MassHealth is the combination of the Medicaid and Children's Health Insurance
+   Program in Massachusetts.
   url: https://www.mass.gov
   official: true
   country: "us"
@@ -23,12 +25,12 @@ data:
   format: HTML
 
 http:
-   user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15"
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15"
 
 assertions:
   min:
     schema_entities:
-      LegalEntity: 150 
+      LegalEntity: 150
   max:
     schema_entities:
-      LegalEntity: 350 
+      LegalEntity: 350
