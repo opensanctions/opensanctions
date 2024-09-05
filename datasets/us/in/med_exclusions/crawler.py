@@ -4,8 +4,9 @@ from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
 
+
 def crawl_item(row: Dict[str, str], context: Context):
-    
+
     name = row.pop("provider_name")
 
     if not name:
@@ -15,7 +16,8 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.id = context.make_id(name, row.get("national_provider_identification_npi"))
     entity.add("name", name)
     entity.add("npiCode", row.pop("national_provider_identification_npi"))
-    entity.add("address", row.pop("service_location_address"))
+    entity.add("address", row.pop("service_location_address").split("\n"))
+    entity.add("country", "us")
 
     entity.add("topics", "debarment")
 
@@ -31,7 +33,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 def crawl_excel_url(context: Context):
     doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
-    return doc.xpath("//*[text()='Terminated providers']")[0].get('href')
+    return doc.xpath("//*[text()='Terminated providers']")[0].get("href")
 
 
 def crawl(context: Context) -> None:
