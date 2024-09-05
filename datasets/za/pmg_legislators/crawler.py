@@ -3,11 +3,13 @@ from rigour.ids.wikidata import is_qid
 from typing import Dict, Optional
 from urllib.parse import unquote
 import re
+from pantomime.types import JSON
+from orjson import loads
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.logic.pep import categorise
+from zavod.logic.pep import OccupancyStatus, categorise
 
 # add headers to the request
 
@@ -16,30 +18,14 @@ PHONE_REMOVE = re.compile(r"(ex|ext|extension|fax|tel|\:|\-)", re.IGNORECASE)
 
 # List of regex patterns for positions of interest
 POSITIONS_OF_INTEREST = [
-    re.compile(r"National\s+Legislature", re.IGNORECASE),
     re.compile(r"Member of the National\s+Assembly", re.IGNORECASE),
     re.compile(r"National\s+Council of Provinces", re.IGNORECASE),
     re.compile(r"Minister of", re.IGNORECASE),
     re.compile(r"Provincial\s+Legislature", re.IGNORECASE),
-    re.compile(r"Member of the Provincial Legislature", re.IGNORECASE),
-    re.compile(r"Member of the Executive Committee", re.IGNORECASE),
+    re.compile(r"Member of.+Executive Committee", re.IGNORECASE),
     re.compile(r"National\s+Executive", re.IGNORECASE),
+    re.compile(r"President", re.IGNORECASE),
 ]
-
-GOV_POSITIONS = [
-    re.compile(r"National\s+Legislature", re.IGNORECASE),
-    re.compile(r"Member of the National\s+Assembly", re.IGNORECASE),
-    re.compile(r"Minister of", re.IGNORECASE),
-    re.compile(r"National\s+Executive", re.IGNORECASE),
-]
-
-LEG_POSITIONS = [
-    re.compile(r"National\s+Legislature", re.IGNORECASE),
-    re.compile(r"Member of the National\s+Assembly", re.IGNORECASE),
-    re.compile(r"Provincial\s+Legislature", re.IGNORECASE),
-    re.compile(r"Member of the Provincial Legislature", re.IGNORECASE),
-]
-
 
 def clean_emails(emails):
     out = []
@@ -90,7 +76,6 @@ def crawl_person(context: Context, person_data: dict, organizations, events):
     person.add("lastName", person_data.get("family_name"))
     person.add("birthDate", person_data.get("birth_date"))
     person.add("deathDate", person_data.get("death_date"))
-    person.add("notes", person_data.pop("summary", None))
     person.add("title", person_data.pop("honorific_prefix", None))
     person.add("wikidataId", person_qid)
 
@@ -118,7 +103,6 @@ def crawl_person(context: Context, person_data: dict, organizations, events):
             person,
             membership,
             organizations,
-            events,
             person_data.get("birth_date"),
             person_data.get("death_date"),
         )
@@ -129,77 +113,70 @@ def crawl_membership(
     entity: Entity,
     membership: dict,
     organizations: Dict[str, str],
-    events,
     birth_date: str,
     death_date: str,
 ) -> Optional[str]:
     org_id = membership.get("organization_id")
     org_name = organizations.get(org_id)
-    if not org_name:
-        # context.log.error(f"Organization with ID {org_id} not found.")
-        return None
-
     role = membership.get("role")
     if role is None:
-        # context.log.error("Role is missing in membership data.")
         return None
+    area = membership.get("area")
 
-    # Creating the position property
-    position_property = post_summary(
-        org_name, role, [membership.get("start_date")], [membership.get("end_date")], []
-    )
+    start_date = membership.get("start_date")
+    end_date = membership.get("end_date")
+    position_property = post_summary(org_name, role, [start_date], [end_date], [])
     entity.add("position", position_property)
 
-    # context.log.info(f"Processed membership for person ID: {person_id}")
-    position_label = f"{role.title()} of the {org_name}"
+    subnational_area = None
+    if org_name and role:
+        if org_name == "National Executive":
+            position_label = role
+        else:
+            position_label = f"{role.title()} of the {org_name}"
+    elif org_name:
+        position_label = f"Member of the {org_name}"
+    else:
+        position_label = role
+        if area:
+            area_name = area.get("name")
+            if area.get("area_type") == "PRV":
+                position_label += f", {area_name}"
+                subnational_area = area_name
 
     # Check if the role matches the positions of interest
-    if not any(re.findall(regex, position_label) for regex in POSITIONS_OF_INTEREST):
-        # context.log.info(f"Skipping role {role} not of interest.")
+    if not any(regex.findall(position_label) for regex in POSITIONS_OF_INTEREST):
         return None
 
     position = h.make_position(
         context,
         position_label,
         country="za",
-        topics=None,
+        subnational_area=subnational_area,
     )
 
     # Always PEP because filtered by known position label patterns
     categorisation = categorise(context, position, is_pep=True)
-
-    period_id = membership.get("legislative_period_id")
-    period = events.get(period_id, {})
-    role = membership.pop("role", None)
-    role = role or period.get("name")
-
-    # If the role is not "member", we might want to log a warning.
-    # if role != "member":
-    #     context.log.warning("Unexpected role", role=role)
-
-    starts = [membership.get("start_date"), period.get("start_date")]
-    ends = [membership.get("end_date"), period.get("end_date")]
-    position_property = post_summary(org_name, role, starts, ends, [])
-
-    # Creating and emitting the Occupancy entity
+    override_status = OccupancyStatus.UNKNOWN if not (start_date or end_date) else None
     occupancy = h.make_occupancy(
         context,
         entity,
         position,
-        no_end_implies_current=False,
-        start_date=membership.pop("start_date", ""),  # or period.pop("start_date", ""),
-        end_date=membership.pop("end_date", ""),  # or period.pop("end_date", ""),
+        no_end_implies_current=True if (start_date or end_date) else False,
+        start_date=start_date,
+        end_date=end_date,
         categorisation=categorisation,
         birth_date=birth_date,
         death_date=death_date,
+        status=override_status,
     )
 
-    if occupancy:
-        context.emit(entity, target=True)
-        context.emit(position)
-        context.emit(occupancy)
-
-    return None
+    if not occupancy:
+        return
+    
+    context.emit(entity, target=True)
+    context.emit(position)
+    context.emit(occupancy)
 
 
 def person_entity_id(context: Context, person_id: str) -> str:
@@ -207,8 +184,10 @@ def person_entity_id(context: Context, person_id: str) -> str:
 
 
 def crawl(context: Context):
-    # Fetch data from the provided URL
-    data = context.fetch_json(context.data_url)
+    path = context.fetch_resource("pombola.json", context.data_url)
+    context.export_resource(path, JSON, context.SOURCE_TITLE)
+    with open(path, "r") as f:
+        data = loads(f.read())
 
     # Extract and prepare organizations
     organizations = {org["id"]: org["name"] for org in data.get("organizations")}

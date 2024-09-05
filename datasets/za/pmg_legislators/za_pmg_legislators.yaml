@@ -40,18 +40,28 @@ lookups:
     options:
       - match: lsigaqa lsigaqa@parliament.gov.za
         value: lsigaqa@parliament.gov.za
-      - match: mphahleles@limpopoleg@gov.za
-        value: null
       - match: Phiwokuhle.msane @kznhealth.gov.za
         value: Phiwokuhle.msane@kznhealth.gov.za
       - match: 072 314 5359
-        value: null
-      - match: 081 277 5664
-        value: null
-      - match: 078 189 0068
-        value: null
+      - match:
+          - 076 981 5767
+          - 078 189 0068
+          - 081 277 5664
+          - 064 864 1779
+          - 082 416 6475
+          - 084 652 9164
+          - 082 419 1616
+          - 083 617 8925
+          - mphahleles@limpopoleg@gov.za
+          - 071 582 8223
   type.gender: 
     lowercase: true
     options: 
       - match: Mal
         value: Male 
+      - match:
+          - 27th May 1991
+          - 30 March 1988
+          - 10th October 1979
+        value: null
+
