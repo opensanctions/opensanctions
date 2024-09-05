@@ -35,7 +35,8 @@ XLSX_LINKS = [
     ),
 ]
 
-REGEX_SPLIT = re.compile(r",?\s*\b\w[\.\)]|\n")
+# Exclude newlines to avoid splitting addresses unless they're numbered
+REGEX_SPLIT = re.compile(r",?\s*\b\w[\.\)]")
 REGEX_GAZZETE_DATE = re.compile(r"(\d{2}\.\d{2}\.\d{4})")
 UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
 
@@ -91,7 +92,7 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
 
     entity.add("name", name)
     entity.add("alias", split(row.pop("alias")))
-    entity.add("previousName", row.pop("previous_name", ""))
+    entity.add("previousName", split(row.pop("previous_name", "")))
     entity.add("address", split(row.pop("address", "")))
     entity.add("notes", row.pop("other_information", ""))
     entity.add("topics", "sanction")

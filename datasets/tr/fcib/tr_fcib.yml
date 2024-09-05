@@ -215,6 +215,14 @@ lookups:
         values:
           - 1996-03-21
           - 1977-11-13
+      - match: |
+          01.01.1970
+          01.09.1970
+          12.01.1970
+        values:
+          - 1970-01-01
+          - 1970-09-01
+          - 1970-12-01
       - match: 
           - 645120196 (Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
         value: null
