@@ -43,7 +43,20 @@ data:
   url: https://en.hmb.gov.tr/fcib-tf-current-list
   format: html
 dates:
-  formats: ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S"]
+  formats: ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%d %m %Y"]
+  months:
+    1: Ocak
+    2: Şubat
+    3: Mart
+    4: Nisan
+    5: Mayıs
+    6: Haziran
+    7: Temmuz
+    8: Ağustos
+    9: Eylül
+    10: Ekim
+    11: Kasım
+    12: Aralık
 
 assertions:
   # A 265 + 91 + 135 + 5
@@ -98,7 +111,14 @@ lookups:
   type.date:
     lowercase: true
     normalize: true
-    options: 
+    options:
+      - match: 10.08..1948
+        value: 1948-08-10
+      - match: 1967-1969
+        values:
+          - 1967
+          - 1968
+          - 1969
       - match: 30 Mart 2018 (değişiklik 26 Temmuz 2022)
         values:
           - 2018-03-30
@@ -191,6 +211,18 @@ lookups:
     options:
       - match: 290320764 (Kore Demokratik Halk Cumhuriyeti tarafından verilmiştir.)
         value: 290320764
+      - match: 645120378 (Kore Demokratik Halk Cumhuriyeti tarafından verilmiştir.)
+        value: 645120378
+      - match: 836420186, 28 Ekim. 2016 tarihinde basıldı (28 Ekim 2021 tarihinde kullanım süresi dolmaktadır)
+        value: 836420186
+      - match: a) 927234267 b) 108120258 (Demokratik Halk Cumhuriyeti tarafından 14 Şubat 2018 tarihinde verilmiştir. Son kullanma tarihi 14 Şubat 2023)
+        values:
+          - 927234267
+          - 108120258
+      - match: 563335509 (Kullanım süresi 27 Ağustos 2018 tarihinde dolmaktadır)
+        value: 563335509
+      - match: 472310168 (Kore Demokratik Halk Cumhuriyeti tarafından verilmiştir.)
+        value: 472310168
       - match: 
           - "Telephone: +850-2-181118208. Fax: +850-2-381-4432. Email: daesong@star-co.net.kp"
           - "Telephone: +850-2-181118208. Fax: +850-2-381-4432. Email: daesong@star-co.net.kp"
@@ -242,7 +274,7 @@ lookups:
       - match: 
           - UYRUĞU
           - Uyruğu
-        value: nationality_country
+        value: nationality
       - match:
           - ANNE ADI
           - Anne Adı

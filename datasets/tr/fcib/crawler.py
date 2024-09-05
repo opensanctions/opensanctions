@@ -61,77 +61,56 @@ def crawl_row(context: Context, row: Dict[str, str], program: str):
     if not name:
         return  # in the XLSX file, there are empty rows
 
-    alias = row.pop("alias")
-    previous_name = row.pop("previous_name", "")
     pass_no = row.pop("passport_number", "")  # Person
-    identifier = row.pop("passport_number_other_info", "")  # LegalEntity
-    nationality_country = row.pop("nationality_country", "")
-    legal_entity_name = row.pop("legal_entity_name", "")  # LegalEntity
-    birth_establishment_date = h.parse_date(
-        row.pop("date_of_birth_establishment", ""), DATE_FORMAT
-    )
+    passport_other = row.pop("passport_number_other_info", "")  # LegalEntity
+    birth_establishment_date = row.pop("date_of_birth_establishment", "")
     birth_place = row.pop("birth_place", "")  # Person
-    birth_date = h.parse_date(row.pop("birth_date", ""), DATE_FORMAT)  # Person
-    position = row.pop("position", "")
-    address = row.pop("address", "")
-    notes = row.pop("other_information", "")
-    organization = row.pop("organization", "")
-    sanction_type = row.pop("sanction_type", "")
-    listing_date = row.pop("listing_date", "")
+    birth_dates = h.multi_split(row.pop("birth_date", ""), SPLITS)  # Person
     gazette_date = row.pop("gazette_date", "")
+    nationality = row.pop("nationality", "")
     if gazette_date:
         matched_date = REGEX_GAZZETE_DATE.search(gazette_date)
         gazette_date = matched_date.group(0) if matched_date else ""
 
-    if birth_date or birth_place:
-        person = context.make("Person")
-        person.id = context.make_id(name, birth_date, birth_place, pass_no, identifier)
-        person.add("name", name)
-        person.add("alias", h.multi_split(alias, SPLITS))
-        person.add("nationality", nationality_country)
-        person.add("previousName", previous_name)
-        person.add("birthPlace", birth_place)
-        h.apply_dates(person, "birthDate", h.multi_split(birth_date, SPLITS))
-        h.apply_dates(person, "birthDate", birth_establishment_date)
-        person.add("passportNumber", collapse_spaces(pass_no))
-        person.add("position", position)
-        person.add("address", h.multi_split(address, SPLITS))
-        person.add("notes", notes)
-        person.add("topics", "sanction")
-
-        sanction = h.make_sanction(context, person)
-        sanction.add("description", sanction_type)
-        sanction.add("reason", organization)
-        sanction.add("program", program)  # depends on the xlsx file
-        h.apply_date(sanction, "listingDate", listing_date)
-        h.apply_date(sanction, "listingDate", gazette_date)
-
-        context.emit(person, target=True)
-        context.emit(sanction)
+    if birth_dates or birth_place:
+        entity = context.make("Person")
+        entity.id = context.make_id(name, nationality, birth_dates, birth_place, pass_no)
+        entity.add("nationality", nationality)
+        entity.add("nationality", row.pop("other_nationality", ""))
+        entity.add("birthPlace", birth_place)
+        h.apply_dates(entity, "birthDate", birth_dates)
+        h.apply_date(entity, "birthDate", birth_establishment_date)
+        entity.add("passportNumber", collapse_spaces(passport_other))
+        entity.add("passportNumber", collapse_spaces(pass_no))
+        entity.add("position", row.pop("position", ""))
+        entity.add("motherName", row.pop("mother_name", ""))
+        entity.add("fatherName", row.pop("father_name", ""))
     else:
         entity = context.make("LegalEntity")
-        entity.id = context.make_id(name, birth_date, birth_place, pass_no, identifier)
-        entity.add("name", name)
-        entity.add("name", legal_entity_name)
-        entity.add("previousName", previous_name)
-        entity.add("alias", h.multi_split(alias, SPLITS))
-        entity.add("idNumber", collapse_spaces(identifier))
-        entity.add("idNumber", collapse_spaces(pass_no))
-        entity.add("country", nationality_country)
-        entity.add("address", h.multi_split(address, SPLITS))
-        entity.add("notes", notes)
-        entity.add("incorporationDate", birth_establishment_date)
-        entity.add("topics", "sanction")
+        entity.id = context.make_id(name, passport_other)
+        entity.add("name", row.pop("legal_entity_name", ""))
+        entity.add("idNumber", collapse_spaces(passport_other))
+        h.apply_date(entity, "incorporationDate", birth_establishment_date)
+        entity.add("description", row.pop("position", ""))
 
-        sanction = h.make_sanction(context, entity)
-        sanction.add("description", sanction_type)
-        sanction.add("reason", organization)
-        sanction.add("program", program)  # depends on the xlsx file
-        h.apply_date(sanction, "listingDate", listing_date)
-        h.apply_date(sanction, "listingDate", gazette_date)
 
-        context.emit(entity, target=True)
-        context.emit(sanction)
+    entity.add("name", name)
+    entity.add("alias", h.multi_split(row.pop("alias"), SPLITS))
+    entity.add("previousName", row.pop("previous_name", ""))
+    entity.add("address", h.multi_split(row.pop("address", ""), SPLITS))
+    entity.add("notes", row.pop("other_information", ""))
+    entity.add("topics", "sanction")
+
+    sanction = h.make_sanction(context, entity)
+    sanction.add("description", row.pop("sanction_type", ""))
+    sanction.add("reason", row.pop("organization", ""))
+    sanction.add("program", program)  # depends on the xlsx file
+    h.apply_date(sanction, "listingDate", row.pop("listing_date", None))
+    h.apply_date(sanction, "listingDate", gazette_date)
+
+    context.emit(entity, target=True)
+    context.emit(sanction)
+    context.audit_data(row, ignore=["sequence_no", "decision_date"])
 
 
 def crawl_xlsx(context: Context, url: str, program: str, short_name: str):
