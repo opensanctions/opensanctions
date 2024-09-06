@@ -4,7 +4,7 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 coverage:
   frequency: daily
-  start: 2024-08-21
+  start: 2024-09-06
 summary: >
   Individuals, entities, and organizations whose assets are frozen by the Republic of
   Türkiye based on United Nations Security Council resolutions, requests from foreign

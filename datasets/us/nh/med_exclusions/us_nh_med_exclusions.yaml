@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-mednh
 coverage:
   frequency: daily
-  start: "2024-09-03"
+  start: "2024-09-06"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Providers who have been terminated for cause from New Hampshire's Medicaid program.
