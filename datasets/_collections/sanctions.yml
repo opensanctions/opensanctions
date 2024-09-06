@@ -99,6 +99,7 @@ children:
   - th_designated_person
   # disable until the new site is online:
   # - ua_nabc_sanctions
+  - tr_fcib
   - ua_nsdc_sanctions
   - ua_sfms_blacklist
   - un_sc_sanctions

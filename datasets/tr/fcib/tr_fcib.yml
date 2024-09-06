@@ -6,11 +6,10 @@ coverage:
   frequency: daily
   start: 2024-08-21
 summary: >
-  Individuals, entities, and organizations whose assets are frozen by the Republic of 
-  Türkiye under several legal frameworks. These measures target various subjects based 
-  on United Nations Security Council resolutions, requests from foreign countries, domestic 
-  decisions, and efforts to counter the financing of proliferation of weapons of mass 
-  destruction.
+  Individuals, entities, and organizations whose assets are frozen by the Republic of
+  Türkiye based on United Nations Security Council resolutions, requests from foreign
+  countries, domestic decisions, and efforts to counter the financing of proliferation
+  of weapons of mass destruction.
 description: |
     The asset freezing decisions published by the Republic of Türkiye include comprehensive 
     lists of individuals, entities, and organizations subject to financial sanctions. These 
@@ -66,7 +65,12 @@ assertions:
   min:
     schema_entities:
       Person: 1700
-      LegalEntity: 200
+      LegalEntity: 250
+    country_entities:
+      tr: 800
+      kp: 80
+      cn: 1
+    countries: 15
   max:
     schema_entities:
       Person: 2400
