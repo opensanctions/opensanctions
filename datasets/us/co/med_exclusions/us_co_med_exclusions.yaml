@@ -17,6 +17,10 @@ description: |
   [Provider Termination page](https://hcpf.colorado.gov/provider-termination)
 publisher:
   name: Colorado Department of Health Care Policy & Financing
+  description: |
+   The Department of Health Care Policy and Financing is the federally
+   designated Single State Agency to receive Medicaid funding from the
+   federal government in Colorado.
   acronym: HCPF
   url: https://hcpf.colorado.gov
   official: true

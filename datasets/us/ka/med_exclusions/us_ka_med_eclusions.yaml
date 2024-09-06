@@ -13,6 +13,8 @@ description: |
   reimbursement for Medicaid services in any capacity.
 publisher:
   name: Kansas Department of Health and Environment
+  description: The Kansas Department of Health and Environment manages Medicaid, public health programs,
+   and environmental regulations in the state of Kansas.
   acronym: KDHE
   url: https://www.kdhe.ks.gov/159/Medicaid-Health-Care-Finance
   official: true
