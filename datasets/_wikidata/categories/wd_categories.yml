@@ -42,9 +42,9 @@ config:
     - category: Political_office-holders_in_Oceania
       topic: role.pep
       depth: 8
-    # - category: Political_office-holders_in_North_America
-    #   topic: role.pep
-    #   depth: 8
+    - category: Political_office-holders_in_North_America
+      topic: role.pep
+      depth: 8
     # - category: Political_office-holders_in_Europe
     #   topic: role.pep
     #   depth: 8
@@ -138,6 +138,9 @@ config:
     - category: 21st-century_Russian_politicians
       topic: role.pep
       country: ru
+    - category: Political_office-holders_in_Kazakhstan
+      topic: role.pep
+      country: kz
 
     # Myanmar
     - category: Individuals_related_to_Myanmar_sanctions
@@ -551,3 +554,118 @@ config:
           - gov.head
     - category: Political_office-holders_of_the_European_Union
       topic: role.pep
+
+    # European countries
+    - category: Members_of_the_parliaments_of_the_Belgian_communities_and_regions
+      country: be
+      topic: role.pep
+    - category: Political_office-holders_in_Belarus
+      country: by
+      topic: role.pep
+    - category: Political_office-holders_in_Belarus
+      country: by
+      topic: role.pep
+    - category: Political_office-holders_in_Jersey
+      country: je
+      topic: role.pep
+    - category: Members_of_the_Scottish_Parliament
+      country: gb-sct
+      topic: role.pep
+    - category: Members_of_the_Scottish_Parliament
+      country: gb-sct
+      topic: role.pep
+    - category: Political_office-holders_in_Gibraltar
+      country: gi
+      topic: role.pep
+    - category: Members_of_the_States_of_Guernsey
+      country: gg
+      topic: role.pep
+    - category: Departmental_councillors_(France)
+      country: fr
+      topic: role.pep
+    - category: French_general_councillors
+      country: fr
+      topic: role.pep
+    - category: States_of_Alderney_Members
+      country: gg
+      topic: role.pep
+    - category: Members_of_the_Parliament_of_Åland
+      country: fi
+      topic: role.pep
+    - category: Members_of_Landtags_in_Austria
+      country: at
+      topic: role.pep
+    - category: Political_office-holders_in_Iceland
+      country: is
+      topic: role.pep
+
+    - category: Political_office-holders_in_the_Czech_Republic
+      country: cz
+      topic: role.pep
+    - category: Political_office-holders_in_Cyprus
+      country: cy
+      topic: role.pep
+    - category: Political_office-holders_in_Serbia
+      country: rs
+      topic: role.pep
+    - category: Political_office-holders_in_Slovakia
+      country: sk
+      topic: role.pep
+    - category: Political_office-holders_in_Spain
+      country: es
+      topic: role.pep
+    - category: Political_office-holders_in_Sweden
+      country: se
+      topic: role.pep
+    - category: Political_office-holders_in_Switzerland
+      country: ch
+      topic: role.pep
+    - category: Political_office-holders_in_Albania
+      country: al
+      topic: role.pep
+    - category: Political_office-holders_in_Northern_Cyprus
+      country: cy-trnc
+      topic: role.pep
+    - category: Political_office-holders_in_Kosovo
+      country: xk
+      topic: role.pep
+    - category: Political_office-holders_in_Montenegro
+      country: me
+      topic: role.pep
+    - category: Political_office-holders_in_North_Macedonia
+      country: mk
+      topic: role.pep
+    - category: Political_office-holders_in_Slovenia
+      country: si
+      topic: role.pep
+    - category: Political_office-holders_in_Bulgaria
+      country: bg
+      topic: role.pep
+    - category: Political_office-holders_in_Croatia
+      country: hr
+      topic: role.pep
+    - category: Political_office-holders_in_Malta
+      country: mt
+      topic: role.pep
+    - category: Political_office-holders_in_Moldova
+      country: md
+      topic: role.pep
+    - category: Political_office-holders_in_San_Marino
+      country: sm
+      topic: role.pep
+    - category: Political_office-holders_in_Armenia
+      country: am
+      topic: role.pep
+    - category: Political_office-holders_in_the_Isle_of_Man
+      country: im
+      topic: role.pep
+    - category: Political_office-holders_in_Liechtenstein
+      country: li
+      topic: role.pep
+    - category: Political_office-holders_in_Guernsey
+      country: gg
+      topic: role.pep
+    - category: Political_office-holders_in_the_Faroe_Islands
+      country: fo
+      topic: role.pep
+    

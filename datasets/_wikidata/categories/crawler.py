@@ -30,8 +30,12 @@ def title_name(title: str) -> str:
 def check_item_relevant(
     context: Context, enricher: WikidataEnricher, item: Item
 ) -> bool:
+    # if context.dry_run:
+    #     return True
     if not item.is_instance("Q5"):
         # context.log.warning("Not a person", qid=item.id)
+        return False
+    if item.is_instance("Q4164871"):
         return False
     for claim in item.claims:
         # P569 - birth date
