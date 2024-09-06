@@ -1,0 +1,77 @@
+title: South Africa National and Provincial Legislature and Executives
+entry_point: crawler.py
+prefix: za-pmg
+coverage:
+  frequency: daily
+  start: 2024-08-08
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: > 
+ Current members of the National Assembly, National Council of Provinces,
+ and provincial legislatures and executives in South Africa.
+description: |
+    This dataset includes information about current and recent members of South Africa
+    legislators using data from People's Assembly.
+
+    The national executive, the national legislatures (National Assembly and the
+    National Council of Provinces), as well as the nine provincial legislatures and
+    executives are covered.
+
+    This data source is licensed under the [Creative Commons Attribution-ShareAlike license (CC-BY-SA)](https://creativecommons.org/licenses/by-sa/4.0/).
+publisher: 
+  name: Parliamentary Monitoring Group
+  acronym: PMG
+  description: |
+    PMG is a parliamentary monitoring organization that provides comprehensive information
+    on the work of the South African parliament. Detailed data about legislators,
+    the progress of bills through parliament, committee meetings and attendance is made
+    available to enable public oversight of the legislative process. Some of this information
+    is also available for provincial legislatures. PMG also maintains the People's Assembly
+    website enabling easier access to information about public representatives and
+    interaction with them.
+  official: false
+  url: https://pmg.org.za/
+  country: "za"
+url: https://pa.org.za/help/api
+data:
+  url: https://pa.org.za/media_root/popolo_json/pombola.json
+  format: JSON
+assertions:
+  min:
+    schema_entities:
+      Person: 1500
+      Position: 300
+  max:
+    schema_entities:
+      Person: 2500
+      Position: 400
+
+lookups:
+  type.email:
+    lowercase: true
+    options:
+      - match: lsigaqa lsigaqa@parliament.gov.za
+        value: lsigaqa@parliament.gov.za
+      - match: Phiwokuhle.msane @kznhealth.gov.za
+        value: Phiwokuhle.msane@kznhealth.gov.za
+      - match: 072 314 5359
+      - match:
+          - 076 981 5767
+          - 078 189 0068
+          - 081 277 5664
+          - 064 864 1779
+          - 082 416 6475
+          - 084 652 9164
+          - 082 419 1616
+          - 083 617 8925
+          - mphahleles@limpopoleg@gov.za
+          - 071 582 8223
+  type.gender: 
+    lowercase: true
+    options: 
+      - match: Mal
+        value: Male 
+      - match:
+          - 27th May 1991
+          - 30 March 1988
+          - 10th October 1979
+        value: null
