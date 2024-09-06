@@ -96,7 +96,7 @@ def load_un_sc(context: Context) -> Tuple[Dataset, ElementOrTree]:
         raise Exception("Could not look up un_sc_sanctions dataset or its data URL")
     path = context.fetch_resource("source.xml", dataset.data.url)
     context.export_resource(
-        path, "text/xml", title="UN Security Council Consolidated list"
+        path, "text/xml", title="Source data - UN Security Council Consolidated list"
     )
     doc = context.parse_resource_xml(path)
     return dataset, doc
