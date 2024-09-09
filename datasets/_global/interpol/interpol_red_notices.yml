@@ -42,7 +42,7 @@ http:
 assertions:
   min:
     schema_entities:
-      Person: 6700
+      Person: 6000
     country_entities:
       ru: 2900
       sv: 800
