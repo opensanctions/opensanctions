@@ -511,7 +511,6 @@ lookups:
           - Republic of Genoa
           - Later Yan
           - Former Yan
-          - Pandya Kingdom
           - Indo-Parthian Kingdom
           - Indo-Scythians
           - Liao dynasty
@@ -537,6 +536,70 @@ lookups:
           - Madurai Nayak Kingdom
           - Urartu
           - Lagash
+          - Sunda Kingdom
+          - Golden Horde
+          - Rurik's state
+          - Shirvan
+          - Yarkent Khanate
+          - Empire of Trebizond
+          - Ifat Sultanate
+          - Kilwa Sultanate
+          - Sikh Empire
+          - Mongol Empire
+          - Qara Khitai
+          - Langkasuka
+          - Geumgwan Gaya
+          - Silla
+          - Pate Island
+          - Scythia Minor
+          - Aztec Triple Alliance
+          - Aztec Empire
+          - Bessarabia
+          - Gujarat Sultanate
+          - Culhuacán (altepetl)
+          - Aztec
+          - Ancient Corinth
+          - Grand Principality of Finland
+          - Haripuñjaya
+          - Maya civilization
+          - Erivan Khanate
+          - Bukharan People's Soviet Republic
+          - Lâm Ấp
+          - Edom
+          - Grand Duchy of Avram
+          - Baekje
+          - Moldavian Democratic Republic
+          - Characene
+          - Elam
+          - Qin
+          - Goguryeo
+          - Kingdom of Cappadocia
+          - Kingdom of Pontus
+          - Dambadeniya
+          - Ptolemaic Kingdom
+          - Pagan Kingdom
+          - Durrani Empire
+          - Ghassanids
+          - Licchavi
+          - Saka
+          - Cimmerians
+          - Kingdom of Mrauk U
+          - Later Lê dynasty
+          - Caucasian Albania
+          - Chu
+          - Kano
+          - Uruk
+          - Mitanni
+          - Southern Song dynasty
+          - Later Jin dynasty
+          - Southern Han
+          - Former Shu
+          - Ancient China
+          - Western Liang
+          - Qi
+          - Chinese Empire
+          - Southern Han
+          - Batavian Republic
         value: null
       - match:
           - Cherokee Nation
@@ -551,6 +614,9 @@ lookups:
           - Prairie Band Potawatomi Nation
           - White Earth Nation
           - Kingdom of Hawaiʻi
+          - Comanche
+          - Lac Courte Oreilles
+          - Hopi
         value: US
       - match:
           - Democratic Republic of Sudan
@@ -569,6 +635,20 @@ lookups:
         value: SB
       - match: French Guinea
         value: GN
+      - match: 
+          - Republic of Dahomey
+          - People's Republic of Benin
+        value: BJ
+      - match: Commonwealth of the Philippines
+        value: PH
+      - match: Dominion of Ceylon
+        value: LK
+      - match: Pate Island
+        value: KE
+      - match: República de Venezuela
+        value: VE
+      - match: Tajik Soviet Socialist Republic
+        value: TJ
       - match: Congress Poland
         value: PL
       - match:
@@ -769,6 +849,8 @@ lookups:
           - Manipur
           - Jodhpur 
           - Vijayanagara Empire
+          - Kingdom of Travancore
+          - Tripura
         value: India
       - match: 
           - Kingdom of Nejd and Hejaz
@@ -844,7 +926,9 @@ lookups:
           - eunuch
           - muxe
         value: other
-      - match: transgender
+      - match: 
+          - transgender
+          - agender
         value: null
       - match:
           - MALE
@@ -852,6 +936,7 @@ lookups:
           - cisgender male
           - cisgender man
           - transmasculine
+          - intersex man
         value: male
       - match:
           - undisclosed gender
