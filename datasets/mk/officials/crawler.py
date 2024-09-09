@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from zavod import Context
 from zavod import helpers as h
@@ -11,13 +11,15 @@ IGNORE_COLUMNS = [
 ]
 
 
-def make_position_name(position, institution) -> str:
+def make_position_name(position, institution) -> List[str]:
+    institution_langs = institution.split("\n") if institution else []
+
     if position is None and institution is not None:
-        return institution.strip()
+        return [i.strip() for i in institution_langs]
     if position is not None and institution is None:
-        return position.strip()
+        return [position.strip()]
     if position and institution:
-        return f"{position.strip()}, {institution.strip()}"
+        return [f"{position.strip()}, {i.strip()}" for i in institution_langs]
     raise ValueError("No position or institution")
 
 
@@ -28,7 +30,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
     last_name = row.pop("lastName")
     position_name = row.pop("workingPosition")
     position_institution = row.pop("institution")
-
     person.id = context.make_id(
         first_name, last_name, position_name, position_institution
     )
@@ -38,13 +39,14 @@ def crawl_row(context: Context, row: Dict[str, str]):
         first_name=first_name,
         last_name=last_name,
     )
-
+    position_names = make_position_name(position_name, position_institution)
     position = h.make_position(
         context,
-        make_position_name(position_name, position_institution),
+        position_names[0],
         country="mk",
         lang="mkd",
     )
+    position.add("name", position_names[1:])
 
     categorisation = categorise(context, position, is_pep=True)
 

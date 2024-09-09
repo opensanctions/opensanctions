@@ -8,6 +8,7 @@ from zavod import helpers as h
 
 TYPES = {"1": "Person", "2": "Organization"}
 FORMATS = ["%Y-%m-%d", "%Y-%m-%d-%H", "%d/%m/%Y", "X_%Y_X_X", "%d-%m-%Y", "%Y"]
+ALIAS_SPLITS = [";", "original script", "(", ")", "previously listed as"]
 
 
 def parse_dates(text: str) -> List[str]:
@@ -50,7 +51,7 @@ def crawl(context: Context):
         sanction = h.make_sanction(context, entity)
         entity.add("name", full_name_en, lang="eng")
         entity.add("name", item.pop("fullNameAr"), lang="ara")
-        entity.add("alias", item.pop("aliases", None))
+        entity.add("alias", h.multi_split(item.pop("aliases", ""), ALIAS_SPLITS))
         entity.add("topics", "sanction")
 
         first_name_ar = item.pop("firstNameAR")

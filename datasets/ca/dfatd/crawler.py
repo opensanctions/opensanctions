@@ -6,14 +6,7 @@ from followthemoney.types import registry
 from zavod import Context
 from zavod import helpers as h
 
-FORMATS = ["%Y", "%d-%m-%Y", "%b-%y"]
 ALIAS_SPLITS = [", ", " (a.k.a.", "; a.k.a. ", "ALIAS: ", "Hebrew: ", "Arabic: "]
-
-
-def parse_date(date):
-    if date is None:
-        return None
-    return h.parse_date(date.strip(), FORMATS)
 
 
 def crawl(context: Context):
@@ -39,20 +32,13 @@ def parse_entry(context: Context, node: _Element):
     if program is not None and "/" in program:
         country, _ = program.split("/", 1)
 
-    item = node.findtext("./Item")
     entity = context.make("LegalEntity")
     country_code = registry.country.clean(country)
-    entity.id = context.make_slug(
-        schedule,
-        item,
-        country_code,
-        entity_name,
-        strict=False,
-    )
+    entity.id = context.make_id(schedule, country_code, entity_name)
     if given_name is not None or last_name is not None or dob is not None:
         entity.add_schema("Person")
         h.apply_name(entity, first_name=given_name, last_name=last_name)
-        entity.add("birthDate", parse_date(dob))
+        h.apply_date(entity, "birthDate", dob)
     elif entity_name is not None:
         entity.add("name", entity_name.split("/"))
         # entity.add("incorporationDate", parse_date(dob))
@@ -64,7 +50,7 @@ def parse_entry(context: Context, node: _Element):
     sanction = h.make_sanction(context, entity)
     sanction.add("program", program)
     sanction.add("reason", schedule)
-    sanction.add("authorityId", item)
+    sanction.add("authorityId", node.findtext("./Item"))
 
     names = node.findtext("./Aliases")
     if names is not None:

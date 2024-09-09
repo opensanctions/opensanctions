@@ -4,7 +4,7 @@ url: https://opendata.kpu.go.id/dataset/0276bb839-2cacada2c-ae16c0def-ebbf9
 entry_point: crawler
 prefix: id-reg-2018
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2024-01-05
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-

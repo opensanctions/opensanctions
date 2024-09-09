@@ -1,7 +1,8 @@
 type: collection
 title: OpenSanctions Default
+coverage:
+  schedule: "0 */6 * * *"
 deploy:
-  schedule: "10 0,6,12,18 * * *"
   memory: "2000Mi"
   memory_limit: "2500Mi"
   cpu: "800m"
@@ -44,9 +45,11 @@ children:
 
   # misc
   - research
+  - securities
   - ann_graph_topics
   - wd_oligarchs
   - wd_curated
+  - wd_categories
   - ru_navalny35
   - ru_billionaires_2021
   - ru_acf_bribetakers
@@ -58,4 +61,5 @@ children:
   - ransomwhere
   - kp_rusi_reports
   - iso9362_bic
+  # - us_fara_filings
 ci_test: false

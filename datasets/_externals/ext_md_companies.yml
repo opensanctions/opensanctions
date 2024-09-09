@@ -5,12 +5,12 @@ full_dataset: md_companies
 disabled: false
 hidden: false
 coverage:
-  frequency: weekly
+  schedule: "@weekly"
   start: 2023-03-21
 exports:
   - statistics.json
+  - entities.delta.json
 deploy:
-  # schedule: "1 16 * * *"
   memory: "800Mi"
   memory_limit: "1500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -46,8 +46,6 @@ inputs:
 
 config:
   type: zavod.runner.local_enricher:LocalEnricher
-  index_options:
-    max_candidates: 1
   dataset: md_companies
   strip_namespace: true
   threshold: 0.7

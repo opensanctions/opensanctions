@@ -4,6 +4,8 @@ prefix: us-fcc-cov
 coverage:
   frequency: never
   start: "2021-04-22"
+deploy:
+  schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of companies that produce equipment and services covered

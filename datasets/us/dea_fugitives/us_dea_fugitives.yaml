@@ -4,6 +4,8 @@ prefix: us-dea-fugi
 coverage:
   frequency: daily
   start: 2024-03-27
+http:
+  retry_methods: [GET, POST]
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Fugitives from the US's Drug Enforcement Administration

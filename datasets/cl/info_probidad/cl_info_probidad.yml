@@ -43,6 +43,8 @@ data:
   url: https://datos.cplt.cl/catalogos/infoprobidad/csvdeclaraciones
   format: csv
 
+ci_test: false
+
 lookups:
   positions:
     options:
@@ -125,10 +127,13 @@ lookups:
           - "PRIMER SECRETARIO O CÓNSUL DE PRIMERA CLASE, CUARTA CATEGORÍA EXTERIOR"
           - "CONSEJERO O CÓNSUL GENERAL SEGUNDA CLASE, TERCERA CATEGORÍA EXTERIOR"
           - "SEGUNDO SECRETARIO O CÓNSUL DE SEGUNDA CLASE, QUINTA CATEGORÍA EXTERIOR"
+
       - is_pep: false
         match:
           - CANDIDATO A ELECCIONES PRIMARIAS ALCALDE 2024
           - CANDIDATO A ELECCIONES PRIMARIAS GORE 2024
+          - JEFE RELACIONES PUBLICAS
+
       - is_pep: null # haven't looked closely yet
         match:
           - "ABOGADA"

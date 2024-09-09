@@ -12,6 +12,7 @@ PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel
 FORMATS = ["%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d"]
 NA_VALUE = re.compile(r"^[\-\/]+$")
 END_TAG = re.compile(r"בוטל ביום", re.U)
+SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n"]
 
 
 def parse_date(date):
@@ -95,7 +96,9 @@ def crawl_individuals(context: Context):
         entity.add("topics", "crime.terror")
         entity.add("birthDate", parse_date(record.pop("d_o_b", None)))
         entity.add("nationality", record.pop("nationality_residency", None))
-        entity.add("idNumber", record.pop("individual_id", None))
+        id_number = record.pop("individual_id", "")
+        id_number = id_number.replace(":\n", ": ")
+        entity.add("idNumber", h.multi_split(id_number, SPLITS))
 
         sanction = h.make_sanction(context, entity)
         sanction.add("recordId", seq_id)
@@ -146,7 +149,7 @@ def crawl_organizations(context: Context):
         entity.add("incorporationDate", date)
         for field in list(record.keys()):
             if field.startswith("organization_name_"):
-                entity.add("alias", record.pop(field, None))
+                entity.add("alias", h.multi_split(record.pop(field, None), SPLITS))
             if field.startswith("telephone"):
                 entity.add("phone", record.pop(field, None))
             if field.startswith("website"):

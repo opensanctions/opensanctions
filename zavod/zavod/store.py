@@ -42,7 +42,10 @@ class Store(LevelDBStore[Dataset, Entity]):
         try:
             entity = super().assemble(statements)
         except InvalidData as inv:
-            log.error("Assemble error: %s" % inv)
+            dbg_stmts = [
+                [s.dataset, s.entity_id, s.schema, s.prop, s.value] for s in statements
+            ]
+            log.error("Assemble error: %s" % inv, statements=dbg_stmts)
             return None
         if entity is not None:
             if entity.id is not None:

@@ -1,7 +1,11 @@
 from typing import Dict, Optional, List
+import re
 
 from zavod import Context
 from zavod import helpers as h
+
+
+REGEX_PASSPORT = re.compile(r"^[A-Z0-9-]{6,20}$")
 
 
 def parse_date(date: Optional[str]) -> List[str]:
@@ -11,6 +15,30 @@ def parse_date(date: Optional[str]) -> List[str]:
     for dp in h.multi_split(date, [", "]):
         dates.update(h.parse_date(dp[:10], ["%d-%m-%Y", "%Y-%m-%d", "%Y-%m"]))
     return list(dates)
+
+
+def clean_passports(context: Context, text: str) -> List[str]:
+    values = text.split(", ")
+    passports = []
+    ids = []
+    is_id = None
+    for value in values:
+        if not value:
+            continue
+        if value.lower() == "national identification number":
+            is_id = True
+        elif value.lower() in "passport":
+            is_id = False
+        elif REGEX_PASSPORT.search(value):
+            if is_id:
+                ids.append(value)
+            else:
+                passports.append(value)
+            is_id = None
+        else:
+            passports.append(value)
+            is_id = None
+    return passports, ids
 
 
 def crawl_row(context: Context, data: Dict[str, str]):
@@ -63,8 +91,12 @@ def crawl_row(context: Context, data: Dict[str, str]):
     entity.add("alias", data.pop("SORT_KEY", None))
     data.pop("IndividualAlias", None)
 
-    entity.add_cast("Person", "passportNumber", data.pop("PASSPORT", None))
-    entity.add_cast("Person", "passportNumber", data.pop("IndividualDocument", None))
+    passports, ids = clean_passports(context, data.pop("PASSPORTS", ""))
+    entity.add_cast("Person", "passportNumber", passports)
+    entity.add_cast("Person", "idNumber", ids)
+    passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
+    entity.add_cast("Person", "passportNumber", passports)
+    entity.add_cast("Person", "idNumber", ids)
     data.pop("DATE_OF_ISSUE", None)
     data.pop("CITY_OF_ISSUE", None)
     entity.add("country", data.pop("COUNTRY_OF_ISSUE", None))

@@ -1,0 +1,90 @@
+title: Monaco National Fund Freezing List
+entry_point: crawler.py
+prefix: mc-freezes
+coverage:
+  frequency: daily
+  start: 2024-08-16
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  A list of entities subject to fund and economic resource freezing procedures
+description: |
+  This dataset publishes a national list of individuals and entities subject to the freezing of funds and economic resources
+  in the Principality as mandated by the Sovereign Ordinance No. 8,664 of May 26, 2021.
+
+  This list is managed and regularly updated by the Budget and Treasury Department. It aligns with those established 
+  by the United Nations, the European Union, France and also includes designations made by the Minister of State under UN 
+  Security Council Resolution 1373 (2001).
+
+  Updates to the list are published via ministerial decisions.
+  [Read More](https://geldefonds.gouv.mc/a-propos-de-la-liste-nationale-de-gel-des-fonds)
+publisher:
+  name: La Principauté de Monaco
+  name_en: The Principality of Monaco
+  acronym: Monaco
+  description: Official Monaco Government
+  url: https://www.gouv.mc/
+  country: mc
+  official: true
+url: https://geldefonds.gouv.mc/
+data:
+  url: https://geldefonds.gouv.mc/directdownload/sanctions.json
+  format: JSON
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - République populaire démocratique de Corée (RPDC)
+          - République populaire démocratique de Corée
+        value: kp
+      - match:
+          - PAKISTAN (présumée)
+        value: pk
+      - match:
+          - JORDANIE (présumée)
+        value: jo
+      - match:
+          - CENTRAFRIQUE
+        value: cf
+      - match:
+          - ou RUSSIE
+          - RUSSIE (l’Union européenne ne reconnait pas les passeports délivrés par la Fédération de Russie en Crimée)
+        value: ru
+      - match: Ukraine Russie
+        values:
+          - ua
+          - ru
+      - match:
+          - BIÉLORUSSIE
+        value: by
+      - match:
+          - INDONÉSIE (en décembre 2003)
+        value: id
+      - match:
+          - "Présumée : RDC"
+          - RDC
+        value: cd
+      - match:
+          - FRANCE-ALGERIE
+        values:
+          - fr
+          - al
+      - match:
+          - Tchadienne
+        value: td
+      - match:
+          - SYRIE (présumée)
+        value: sy
+      - match:
+          - UKRAINE et
+        value: ua
+assertions:
+  min:
+    schema_entities:
+      Person: 3500
+      Organization: 1000
+  max:
+    schema_entities:
+      Person: 4200
+      Organization: 1400

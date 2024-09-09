@@ -25,3 +25,22 @@ publisher:
 data:
   url: https://www.saps.gov.za/crimestop/wanted/list.php
   format: HTML
+
+lookups: 
+  type.number:
+    lowercase: true
+    options:
+      - match: "0 m"
+        value: null  
+      - match: "0 kg"
+        value: null 
+  type.string:
+    lowercase: true
+    options:
+      - match: "Unknown"
+        value: null
+  type.name:
+    lowercase: true
+    options:
+      - match: "0"
+        value: null

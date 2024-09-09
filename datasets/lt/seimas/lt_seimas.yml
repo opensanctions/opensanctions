@@ -5,7 +5,7 @@ url: https://www.lrs.lt/sip/portal.show?p_r=35299&p_k=2
 summary: >-
   Current and recent members of the Seimas, Lithuania's unicameral parliament
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2024-01-18
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description: |

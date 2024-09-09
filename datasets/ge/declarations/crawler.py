@@ -3,8 +3,8 @@ from typing import Set
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
 import re
-
-from normality import slugify
+from followthemoney.types import registry
+from normality import collapse_spaces, slugify
 
 from zavod.context import Context
 from zavod import helpers as h
@@ -18,6 +18,7 @@ from zavod.shed.trans import (
 
 DECLARATION_LIST_URL = "https://declaration.acb.gov.ge/Home/DeclarationList"
 REGEX_CHANGE_PAGE = re.compile(r"changePage\((\d+), \d+\)")
+REGEX_FORMER = re.compile(r"\(ყოფილი\)", re.IGNORECASE)
 FORMATS = ["%d.%m.%Y"]  # 04.12.2023
 _18_YEARS_AGO = (datetime.now() - timedelta(days=18 * 365)).isoformat()
 TRANSLIT_OUTPUT = {
@@ -101,6 +102,8 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
     # Skip family member enterprises
     if not (first_name in pep.get("firstName") and last_name in pep.get("lastName")):
         return
+    if item.pop("RelationName"):
+        return
     legal_form = item.pop("PartnershipFormName")
     if legal_form == "ინდივიდუალური მეწარმე":  # Individual enterprise
         return
@@ -148,6 +151,7 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
     context.audit_data(
         item,
         ignore=[
+            "OwnerId",
             "EndDateType",
             "EndDateName",
             "RegistrationAgency",
@@ -247,12 +251,21 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     person.add("sourceUrl", declaration_url)
 
     position_kat = item.pop("Position")
+    occupancy_description = None
     organization = item.pop("Organisation")
-    if len(position_kat) < 35:
-        position_kat = f"{position_kat}, {organization}"
+
     if "კანდიდატი" in position_kat:  # Candidate
         context.log.debug(f"Skipping candidate {position_kat}")
         return
+
+    position_kat = collapse_spaces(REGEX_FORMER.sub("", position_kat))
+
+    if len(position_kat) < 35:
+        position_kat = f"{position_kat}, {organization}"
+
+    if len(position_kat) > registry.name.max_length:
+        occupancy_description = position_kat
+        position_kat = context.lookup_value("positions", position_kat, position_kat)
 
     position = h.make_position(
         context,
@@ -275,6 +288,7 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     )
     if not occupancy:
         return
+    occupancy.add("description", occupancy_description, lang="kat")
     context.emit(position)
     context.emit(occupancy)
     context.emit(person, target=True)

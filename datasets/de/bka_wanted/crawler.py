@@ -56,6 +56,7 @@ def crawl_person(context: Context, url: str):
     person.id = context.make_id(name, offense)
     person.add("name", name)
     person.add("topics", "crime")
+    person.add("topics", "wanted")
     person.add("sourceUrl", url)
     person.add("notes", f"Delikt: {offense}")
 

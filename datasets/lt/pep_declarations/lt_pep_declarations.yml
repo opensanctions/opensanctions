@@ -1,0 +1,89 @@
+title: Lithuania PEPs from the register of private interests
+entry_point: crawler.py
+prefix: lt-pinreg
+coverage:
+  frequency: monthly
+  start: "2024-08-16"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Lithuanian PEPs based on official declarations of personal interests.
+description: |
+  The Law on Harmonization of Public and Private Interests Article 2, Paragraph 5
+  and Article 4, Paragraph 3 require persons in positions that can influence the
+  decisions of state institutions to declare their private interests.
+
+  The [list of roles required to submit declarations](https://vtek.lt/privaciu-interesu-deklaravimas/kas-turi-deklaruoti/)
+  includes state politicians, party leadership, public servants, judges, and senior
+  leadership or public administrative bodies.
+publisher:
+  name: Lithuanian Chief Official Ethics Commission
+  acronym: VTEK
+  url: https://vtek.lt/
+  official: true
+  country: "lt"
+  description: >
+    Supreme Official Ethics Commission (VTEK) works to ensure that public institutions
+    and the persons working in them ethically serve the people.
+url: https://pinreg.vtek.lt/app/
+data:
+  url: https://pinreg.vtek.lt/app/deklaraciju-paieska
+  format: JSON
+ci_test: false
+
+# categories we want: Maybe useful if we could get recaptcha tokens - need one per paginated search page request
+#
+#lookups:
+#  groups:
+#    options:
+#      - include: all
+#        match:
+#          - Valstybės politikų pareigos  # State politicians
+#          - Pareigos pirkimų procedūrose  # Duties in procurement procedures
+#          - Valstybės pareigūnų pareigos  # State officials
+#          - Valstybės tarnautojų pareigos  # State civil servants
+#          - Teisėjų pareigos  # Judges
+#  
+#      - include: some
+#        match:
+#          - Lietuvos banko darbuotojų pareigybės  # Bank of Lithuania employees
+#          - Viešųjų įstaigų darbuotojų pareigybės  # Public institution employees
+#          - Pareigos politinėse partijose  # Duties in political parties
+#          - Biudžetinių įstaigų darbuotojų pareigybės (dirbantys pagal darbo sutartį)  # Duties of employees of budgetary institutions (working under an employment contract)
+#          - Krašto apsaugos sistemoje tarnaujančiųjų pareigos  # Duties of those serving in the national defense system
+#          - Valstybės ar savivaldybės įmonių darbuotojų pareigybės  # Duties of employees of state or municipal enterprises
+#          - Pareigos AB ir UAB (kurių >1/2 priklauso valstybei ar savivaldybei)  # Duties of AB and UAB (more than 1/2 of which belong to the state or municipality)
+#          - Pareigos dukterinėse bendrovėse tų AB ir UAB, kurių >1/2 priklauso valstybei ar savivaldybei  # Duties in subsidiaries of those AB and UAB, more than 1/2 of which belong to the state or municipality
+#          - Kitos pareigos  # Other duties
+#
+#  categories:
+#    options:
+#      - include: all
+#        match:
+#          - Struktūrinio padalinio, padalinio, vidaus padalinio vadovas  # Structural unit, department, internal department manager
+#          - Struktūrinio padalinio vadovas ar jo pavaduotojas  # Head of a structural unit or his deputy
+#          - Valdybos pirmininkas, jo pavaduotojas ar valdybos narys  # Chairman of the Board, his deputy or board member
+#          - Partijos pirmininkas ar jo pavaduotojas  # Party chairman or his deputy
+#          - Gynybos štabo viršininkas  # Chief of Defense Staff
+#          - Kariuomenės pajėgų ir/ar junginių vadas  # Commander of military forces and/or units
+#          - Lietuvos kariuomenės vadas  # Commander of the Lithuanian Armed Forces
+#          - Valdybos narys  # Board member
+#          - Juridinio asmens struktūrinio padalinio vadovas ar jo pavaduotojas  # Head of a structural unit of a legal entity or his deputy
+#          - Lietuvos Respublikos Seimo komitetų patvirtinti ekspertai  # Experts approved by the Committees of the Seimas of the Republic of Lithuania
+#          - Ministerijos kolegijos narys  # Member of the Ministry's Collegium
+#          - Nacionalinės sveikatos tarybos nariai  # Members of the National Health Council
+#          - Privalomojo sveikatos draudimo tarybos narys  # Member of the Compulsory Health Insurance Council
+#          - Privalomojo sveikatos draudimo tarybos visuomeniniai patarėjai  # Public advisors to the Compulsory Health Insurance Council
+#          - Valstybės politiko visuomeninis konsultantas, padėjėjas, patarėjas  # Public consultant, assistant, advisor to a state politician
+#
+#      - include: none
+#        match:
+#          - Darbuotojas  # Employee
+#          - Gydytojas, odontologas ar farmacijos specialistas  # Doctor, dentist or pharmaceutical specialist
+#          - Kolegialaus valdymo organo narys  # Member of a collegial management body
+#          - Vadovas ar jo pavaduotojas  # Manager or his deputy
+#          - Juridinio asmens vadovas ar jo pavaduotojas  # Head of a legal entity or his deputy
+#          - Stebėtojų tarybos narys  # Member of the Supervisory Board
+#          - Profesinės karo tarnybos karys  # Professional military service member
+#          - Juridinio asmens darbuotojas  # Employee of a legal entity
+#          - Kitos pareigos, nenurodytos kituose klasifikatoriaus punktuose
+#

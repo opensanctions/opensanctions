@@ -5,7 +5,13 @@ from base64 import b64encode
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
 from zavod.runtime.cache import get_cache, get_engine, get_metadata
-from zavod.shed.zyte_api import UnblockFailedException, fetch_html
+from zavod.shed.zyte_api import (
+    UnblockFailedException,
+    fetch_html,
+    fetch_json,
+    fetch_resource,
+    fetch_text,
+)
 
 
 def test_browser_html(testdataset1: Dataset):
@@ -46,7 +52,7 @@ def test_browser_html(testdataset1: Dataset):
     context.close()
 
 
-def test_http_response_body(testdataset1: Dataset):
+def test_fetch_html_http_response_body(testdataset1: Dataset):
     context = Context(testdataset1)
 
     def validator(el):
@@ -60,7 +66,7 @@ def test_http_response_body(testdataset1: Dataset):
                     "<html><h1>Hello, World!</h1></html>".encode()
                 ).decode(),
                 "httpResponseHeaders": [
-                    {"name": "content-type", "value": "text/html charset=iso-8859-1"}
+                    {"name": "content-type", "value": "text/html; charset=iso-8859-1"}
                 ],
             },
         )
@@ -124,3 +130,126 @@ def test_caching(testdataset1: Dataset):
     get_cache.cache_clear()
     get_engine.cache_clear()
     get_metadata.cache_clear()
+
+
+def test_fetch_resource(testdataset1: Dataset):
+    context = Context(testdataset1)
+
+    with requests_mock.Mocker() as m:
+        m.post(
+            "https://api.zyte.com/v1/extract",
+            json={
+                "httpResponseBody": b64encode(
+                    "name,surname\nSally,Sue".encode()
+                ).decode(),
+                "httpResponseHeaders": [
+                    {"name": "content-type", "value": "text/csv; charset=latin-1"}
+                ],
+            },
+        )
+        cached, path, media_type, charset = fetch_resource(
+            context,
+            "source.csv",
+            "https://test.com/download.csv",
+        )
+        assert not cached
+        assert media_type == "text/csv"
+        assert charset == "latin-1"
+        with open(path) as f:
+            assert f.read() == "name,surname\nSally,Sue"
+        assert m.call_count == 1
+        request = m.request_history[0]
+        request_body = request.json()
+        assert request_body["httpResponseBody"] is True, request_body
+        assert request_body["httpResponseHeaders"] is True, request_body
+        assert request_body["url"] == "https://test.com/download.csv", request_body
+
+        cached, path, media_type, charset = fetch_resource(
+            context,
+            "source.csv",
+            "https://test.com/download.csv",
+        )
+        assert cached
+        assert media_type is None
+        assert charset is None
+        with open(path) as f:
+            assert f.read() == "name,surname\nSally,Sue"
+        assert m.call_count == 1
+
+    context.close()
+
+
+def test_fetch_text(testdataset1: Dataset):
+    context = Context(testdataset1)
+
+    with requests_mock.Mocker() as m:
+        m.post(
+            "https://api.zyte.com/v1/extract",
+            json={
+                "httpResponseBody": b64encode("Hello, World!".encode()).decode(),
+                "httpResponseHeaders": [
+                    {"name": "content-type", "value": "text/plain; charset=utf-8"}
+                ],
+            },
+        )
+        cached, media_type, charset, text = fetch_text(
+            context,
+            "https://test.com/download.txt",
+        )
+        assert not cached
+        assert media_type == "text/plain", media_type
+        assert charset == "utf-8", charset
+        assert text == "Hello, World!", text
+        assert m.call_count == 1
+
+    context.close()
+
+
+def test_fetch_json(testdataset1: Dataset):
+    context = Context(testdataset1)
+
+    with requests_mock.Mocker() as m:
+        m.post(
+            "https://api.zyte.com/v1/extract",
+            json={
+                "httpResponseBody": b64encode('{"name": "Sally"}'.encode()).decode(),
+                "httpResponseHeaders": [
+                    {"name": "content-type", "value": "application/json; charset=utf-8"}
+                ],
+            },
+        )
+        data = fetch_json(
+            context,
+            "https://test.com/data.json",
+        )
+        assert data == {"name": "Sally"}
+        assert m.call_count == 1
+
+        request = m.request_history[0]
+        request_body = request.json()
+        req_heads = request_body["customHttpRequestHeaders"]
+        expected_req_heads = [{"name": "Accept", "value": "application/json"}]
+        assert req_heads == expected_req_heads, request_body
+
+    context.close()
+
+
+def test_fetch_json_expect_json(testdataset1: Dataset):
+    context = Context(testdataset1)
+
+    with requests_mock.Mocker() as m:
+        m.post(
+            "https://api.zyte.com/v1/extract",
+            json={
+                "httpResponseBody": b64encode("Go away".encode()).decode(),
+                "httpResponseHeaders": [
+                    {"name": "content-type", "value": "text/html; charset=utf-8"}
+                ],
+            },
+        )
+        with pytest.raises(AssertionError) as exc:
+            fetch_json(
+                context,
+                "https://test.com/data.json",
+            )
+        assert "text/html" in str(exc.value), exc.value

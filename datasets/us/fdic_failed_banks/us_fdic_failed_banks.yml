@@ -4,7 +4,7 @@ entry_point: crawler.py
 prefix: us-fdic
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2024-07-05
 summary: >
   The FDIC provides a list of bank failures and the institutions that acquired them.

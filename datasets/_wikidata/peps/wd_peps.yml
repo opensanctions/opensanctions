@@ -6,7 +6,7 @@ coverage:
   frequency: daily
   start: 2022-12-27
 deploy:
-  schedule: "0 */6 * * *"
+  # schedule: "0 */6 * * *"
   memory: "2Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
@@ -1127,6 +1127,10 @@ lookups:
         code: ""
         label: "Kingdom of Valencia"
         decision: "ignore"
+      - match: "Q164079"
+        code: ""
+        label: "Kingdom of Hanover"
+        decision: "ignore"
       - match: "Q609850"
         code: "RU"
         label: "Rus"
@@ -1904,3 +1908,11 @@ lookups:
         code: "BA"
         label: "Bosna"
         decision: "national"
+      - match: "Q854850"
+        code: ""
+        label: "Bharatpur State"
+        decision: "ignore"
+      - match: "Q129619467"
+        code: ""
+        label: "First Republic of Seychelles"
+        decision: "ignore"
