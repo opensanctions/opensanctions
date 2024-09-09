@@ -433,6 +433,110 @@ lookups:
           - Free City of Kraków
           - Emirate of Bahrain (1783–1971)
           - Khwarazmian Empire
+          - Nanda Empire
+          - Maurya empire
+          - Magadha
+          - Gupta Empire
+          - Avanti
+          - Hindu
+          - Achaemenid Empire
+          - The Bad River Band of Lake Superior Chippewa
+          - Western Zhou
+          - Zhou dynasty
+          - Sultanate of Kano
+          - Ethiopian National Defense Force
+          - Tigray Defense Forces
+          - Tigray People's Liberation Front
+          - Türgesh
+          - Kununokuni
+          - Gojoseon
+          - Umayyad dynasty
+          - Champanagara
+          - Rawadid dynasty
+          - Southern Xiongnu
+          - Karakalpakstan
+          - Xia dynasty
+          - Chaldaeans
+          - Classical Athens
+          - Macedonian Empire
+          - Kush
+          - Kingdom of Aksum
+          - Beylik of Germiyan
+          - Panduranga (Champa)
+          - Champa
+          - Mataram Kingdom
+          - Sheba
+          - Anuradhapura Kingdom
+          - Chola dynasty
+          - Pandya Kingdom
+          - Kingdom of Armenia
+          - Persian Empire
+          - Yan
+          - Teng
+          - Captaincy General of the Philippines
+          - Dambadeniya
+          - Sultanate of Hobyo
+          - Bavand dynasty
+          - Kingdom of Israel
+          - Western Turkic Khaganate
+          - Ahom Kingdom
+          - Aceh Sultanate
+          - Tooro Kingdom
+          - Nabataean kingdom
+          - British Military Administration
+          - Yamhad
+          - Sultanate of Sulu
+          - Kingdom of Phnum
+          - Kingdom of Chenla
+          - Gutian people
+          - Serbian Despotate
+          - Vandal Kingdom
+          - Tulunid emirate
+          - Majeerteen Sultanate
+          - Caucasian Albania
+          - Ayyubid dynasty
+          - Hoysala Empire
+          - Maya people
+          - Empire of Nicaea
+          - Second Bulgarian Empire
+          - Despotate of Epirus
+          - Lampsacus
+          - Tarascan State
+          - Sayyid dynasty
+          - Sumer
+          - Siraces
+          - Scythie
+          - Kayanian dynasty
+          - Kingdom of Iberia
+          - Republic of Genoa
+          - Later Yan
+          - Former Yan
+          - Pandya Kingdom
+          - Indo-Parthian Kingdom
+          - Indo-Scythians
+          - Liao dynasty
+          - Wakoku
+          - Ethiopian Empire
+          - Khmer Empire
+          - Seleucid Empire
+          - Hasmonean Kingdom
+          - Gorkha Kingdom
+          - Numidia Kingdom
+          - Cayor
+          - Kingdom of Abkhazia
+          - Akkadian Empire
+          - Kizzuwatna
+          - Malacca sultanate
+          - Saud
+          - Kosala
+          - Akkad
+          - Twenty-fifth Dynasty of Egypt
+          - Limyra
+          - Persis
+          - Nubian Kingdom
+          - Madurai Nayak Kingdom
+          - Urartu
+          - Lagash
         value: null
       - match:
           - Cherokee Nation
@@ -444,6 +548,9 @@ lookups:
           - Sisseton Wahpeton Oyate
           - Confederate States
           - Muscogee (Creek) Nation
+          - Prairie Band Potawatomi Nation
+          - White Earth Nation
+          - Kingdom of Hawaiʻi
         value: US
       - match:
           - Democratic Republic of Sudan
@@ -454,6 +561,14 @@ lookups:
         value: CY
       - match: Socialist Republic of Romania
         value: RO
+      - match: People's Socialist Republic of Albania
+        value: AL
+      - match: Italian Libya
+        value: LY
+      - match: British Solomon Islands
+        value: SB
+      - match: French Guinea
+        value: GN
       - match: Congress Poland
         value: PL
       - match:
@@ -551,6 +666,10 @@ lookups:
       - match:
           - Kingdom of Egypt
           - Republic of Egypt
+          - حوش عيسى (كفر الشيخ)
+          - Ancient Egypt
+          - Old Kingdom of Egypt
+          - Middle Kingdom of Egypt
         value: Egypt
       - match: Captaincy General of Cuba
         value: Cuba
@@ -645,17 +764,28 @@ lookups:
           - KZ
       - match: Azerbaijan Democratic Republic
         value: AZ
-      - match: Gujarat
+      - match: 
+          - Gujarat
+          - Manipur
+          - Jodhpur 
+          - Vijayanagara Empire
         value: India
-      - match: Kingdom of Nejd and Hejaz
+      - match: 
+          - Kingdom of Nejd and Hejaz
+          - Hejaz
+          - Mecca
         value: Saudi Arabia
       - match: Estonian Soviet Socialist Republic
         values:
           - SUHH
           - EE
-      - match: Oaxaca
+      - match: 
+          - Oaxaca
+          - Sandia Pueblo
         value: MX
-      - match: Aceh
+      - match: 
+          - Aceh
+          - Bali Island
         value: Indonesia
       - match: French Cameroons
         value: Cameroon
@@ -670,6 +800,12 @@ lookups:
         value: OM
       - match: Funtua
         value: NG
+      - match: Puntland
+        value: SO
+      - match: 
+          - South African Republic
+          - Ciskei
+        value: ZA
   type.date:
     options:
       - match:
