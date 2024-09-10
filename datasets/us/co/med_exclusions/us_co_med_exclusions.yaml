@@ -29,6 +29,7 @@ url: "https://hcpf.colorado.gov/provider-termination"
 data:
   url: https://hcpf.colorado.gov/provider-termination
   format: HTML
+ci_test: false
 
 assertions:
   min:
