@@ -4,6 +4,7 @@ from openpyxl import load_workbook
 import re
 
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 # Regular expression to match the comma before "Inc."
 INC_PATTERN = r",\s*Inc\."
@@ -24,7 +25,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("country", "us")
 
     if row.get("npi") != "N/A":
-        entity.add("npiCode", row.pop("npi"))
+        entity.add("npiCode", h.multi_split(row.pop("npi"), [";", "\n"]))
     else:
         row.pop("npi")
 
@@ -68,8 +69,12 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
+def unblock_validator(doc) -> bool:
+    return bool(doc.xpath("//*[text()='Termination List (XLSX)']"))
+
+
 def crawl_excel_url(context: Context):
-    doc = context.fetch_html(context.data_url)
+    doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
     doc.make_links_absolute(context.data_url)
     return doc.xpath("//*[text()='Termination List (XLSX)']")[0].get("href")
 
