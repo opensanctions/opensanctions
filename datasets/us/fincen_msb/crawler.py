@@ -15,7 +15,7 @@ def crawl_row(context: Context, row: Dict[str, List[str]]):
     country = row.pop("FOREIGN LOCATION")
     listing_date = row.pop("RECEIVED DATE")
     if street and listing_date:  # check to exclude the footnotes
-        entity = context.make("Company")
+        entity = context.make("LegalEntity")
         entity.id = context.make_id(name, street, listing_date, city, state)
         entity.add("name", name)
         entity.add("alias", row.pop("DBA NAME"))
