@@ -132,8 +132,8 @@ lookups:
         value: other_information
       - match: リスト掲載日
         value: publication_date
-      - match: 指定日
-        value: designated_date
+      # - match: 指定日
+      #   value: designated_date
       - match:
           - 住 所
           - 住所・所在地
@@ -204,7 +204,7 @@ lookups:
       - match:
           - 国連制裁委員会による指定日
           - 国連制裁員会による指定日
-        value: designated_un
+        value: designated_date_un
       - match: 決議1483上の根拠
         value: reason_res1483
       - match: 詳 細
