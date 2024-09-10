@@ -4,8 +4,6 @@ prefix: no-nbim
 coverage:
   frequency: daily
   start: 2023-10-18
-deploy:
-  schedule: "0 3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Companies excluded from investment by Norway's Government Pension Fund Global, or listed for observation.

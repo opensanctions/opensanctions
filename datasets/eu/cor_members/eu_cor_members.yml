@@ -2,10 +2,8 @@ title: European Commitee of the Regions Members
 entry_point: crawler.py
 prefix: eu-cor
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2021-02-12
-deploy:
-  schedule: "0 5 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   ​The European Committee of the Regions (CoR) represents local and regional

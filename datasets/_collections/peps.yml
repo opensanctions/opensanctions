@@ -1,9 +1,9 @@
 type: collection
 title: Politically Exposed Persons (PEPs)
 coverage:
+  schedule: "0 */12 * * *"
   frequency: daily
 deploy:
-  schedule: "40 */12 * * *"
   memory: "1500Mi"
   memory_limit: "2000Mi"
   cpu: "500m"
@@ -73,4 +73,6 @@ children:
   - uy_pep
   - ve_asamblea_nacional
   - wd_peps
+  - za_mm_officials
+  - za_pmg_legislators
 ci_test: false

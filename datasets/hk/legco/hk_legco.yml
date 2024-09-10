@@ -2,7 +2,7 @@ name: hk_legco
 title: Hong Kong Legislative Council Members
 url: https://www.legco.gov.hk/en/members/legco-members/members-biographies.html
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2024-01-12
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-

@@ -260,6 +260,7 @@ def parse_entry(context: Context, target: Element, programs, places):
         elif value == "Registration number: ИНН":
             pass
         else:
+            # print(value, other.attrib)
             entity.add("notes", h.clean_note(value))
 
     sanction = h.make_sanction(context, entity)
@@ -288,9 +289,14 @@ def parse_entry(context: Context, target: Element, programs, places):
     foreign_id = target.findtext("./foreign-identifier")
     sanction.add("unscId", foreign_id)
 
+    justifications: List[Tuple[str, str]] = []
     for justification in node.findall("./justification"):
-        # TODO: should this go into sanction:reason?
-        entity.add("notes", h.clean_note(justification.text))
+        ssid = justification.get("ssid")
+        justifications.append((ssid, justification.text))
+
+    # TODO: should this go into sanction:reason?
+    notes = [n for (s, n) in sorted(justifications)]
+    entity.add("notes", h.clean_note("\n\n".join(notes)))
 
     for relation in node.findall("./relation"):
         rel_type = relation.get("relation-type")

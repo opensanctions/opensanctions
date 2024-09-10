@@ -62,6 +62,7 @@ inputs:
   - wd_peps
   - wd_oligarchs
   - wd_curated
+  - wd_categories
   - wanted
   # - ru_rupep
   - ru_navalny35
@@ -148,6 +149,7 @@ lookups:
           - Han dynasty
           - Holy Roman Empire
           - Imperial China
+          - Empire of China
           - Independent State of Croatia
           - Iraqi Republic (1958–1968)
           - Irish Free State
@@ -429,6 +431,8 @@ lookups:
           - British rule in Myanmar
           - Unified Team
           - Free City of Kraków
+          - Emirate of Bahrain (1783–1971)
+          - Khwarazmian Empire
         value: null
       - match:
           - Cherokee Nation
@@ -439,6 +443,7 @@ lookups:
           - Northern Cheyenne Indian Reservation
           - Sisseton Wahpeton Oyate
           - Confederate States
+          - Muscogee (Creek) Nation
         value: US
       - match:
           - Democratic Republic of Sudan
@@ -701,6 +706,7 @@ lookups:
           - two-spirit
           - intersex
           - eunuch
+          - muxe
         value: other
       - match: transgender
         value: null
@@ -711,3 +717,6 @@ lookups:
           - cisgender man
           - transmasculine
         value: male
+      - match:
+          - undisclosed gender
+        value: null
