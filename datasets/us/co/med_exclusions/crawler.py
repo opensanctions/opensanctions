@@ -4,7 +4,7 @@ from openpyxl import load_workbook
 from datetime import datetime
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -85,7 +85,11 @@ def crawl_excel_url(context: Context):
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
-    path = context.fetch_resource("list.xlsx", excel_url)
+    cached, path, mediatype, _charset = fetch_resource(
+        context, "source.xlsx", excel_url
+    )
+    if not cached:
+        assert mediatype == XLSX
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
