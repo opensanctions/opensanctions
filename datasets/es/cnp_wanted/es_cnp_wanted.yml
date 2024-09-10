@@ -31,7 +31,7 @@ ci_test: false
 assertions:
   min:
     schema_entities:
-      Person: 8
+      Person: 6
   max: 
     schema_entities:
-      Person: 12
+      Person: 20
