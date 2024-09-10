@@ -23,15 +23,15 @@ def crawl_item(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def parse_card(card: html.HtmlElement, context: Context) -> Dict[str, str]:
+def parse_container(container: html.HtmlElement, context: Context) -> Dict[str, str]:
     # Extract link
-    # link_element = card.xpath(
-    #     ".//a[contains(@href, 'colabora_masbucados_detalle')]/@href"
-    # )
-    link_element = card.xpath(".//a[starts-with(@href, 'colabora_masbucados_detalle')]")
-    link = urljoin(context.data_url, link_element[0]) if link_element else None
+    link_element = container.xpath(
+        ".//a[starts-with(@href, 'colabora_masbucados_detalle')]/@href"
+    )
+    link = urljoin(context.data_url, link_element[0])
 
-    # Extract names
+    # Extract names from the card element inside the container
+    card = container.xpath(".//div[contains(@class, 'card-body')]")[0]
     first_name_element = card.xpath(
         ".//h5[@class='card-title text-center']/div[1]/text()"
     )
@@ -42,8 +42,8 @@ def parse_card(card: html.HtmlElement, context: Context) -> Dict[str, str]:
     last_name = last_name_element[0].strip()
     full_name = f"{first_name} {last_name}"
 
-    # Extract description
-    description_element = card.xpath(".//p[@class='m-0  text-center']/text()")
+    # Adjusted XPath to ignore multiple spaces in the class attribute
+    description_element = card.xpath(".//p[contains(@class, 'text-center')]/text()")
     description = description_element[0].strip()
 
     return {
@@ -58,16 +58,17 @@ def unblock_validator(doc: html.HtmlElement) -> bool:
 
 
 def crawl(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator, cache_days=3)
-    # Find all <div class="card-body">
-    cards = doc.xpath(".//div[contains(@class, 'card-body')]")
-    if not cards:
-        context.log.warn("No cards found in the document.")
+    doc = fetch_html(context, context.data_url, unblock_validator)
+    # Find all containers that house both the link and the card
+    containers = doc.xpath(
+        ".//div[contains(@class, 'col-12 col-md-6 col-lg-4 col-xl-2 my-3 d-flex align-items-stretch justify-content-center m-md-3 m-lg-1')]"
+    )
+    if not containers:
+        context.log.warn("No containers found in the document.")
         return
-    for card in cards:
-        #  context.log.info(f"Processing card: {html.tostring(card).decode('utf-8')}")
-        row = parse_card(card, context)
+    for container in containers:
+        row = parse_container(container, context)
         if row["Name"] and row["Description"]:  # Ensure both fields are present
             crawl_item(context, row)
         else:
-            context.log.warn(f"Skipping a card with missing fields: {row}")
+            context.log.warn(f"Skipping a container with missing fields: {row}")
