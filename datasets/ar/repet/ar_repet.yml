@@ -127,10 +127,12 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: 
-          - Unidad de Información FinancieraArE.00005
-          - HArE.001 y HArE.002
-        value: null
+      - match: Unidad de Información FinancieraArE.00005
+        value: ArE.00005
+      - match: HArE.001 y HArE.002
+        values:
+          - HArE.001
+          - HArE.002
   type.string:
     lowercase: true
     options:
