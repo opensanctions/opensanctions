@@ -166,7 +166,7 @@ lookups:
         value: male
       - match: F
         value: female
-    type.string: 
+  type.string: 
     lowercase: true
     normalize: true
     options:
