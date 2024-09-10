@@ -1,6 +1,7 @@
 from lxml import html, etree
 import orjson
 from urllib.parse import urljoin
+import re
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
@@ -9,15 +10,22 @@ from zavod.shed.zyte_api import fetch_html
 BASE_URL = "https://www.navy.mil"
 API_URL = "https://www.navy.mil/API/ArticleCS/Public/GetList?moduleID=709&dpage=%d&TabId=119&language=en-US"
 
+TITLE_REGEX = re.compile(
+    r"^(.*)\b(Admiral|Adm\.)\s+(.*)$"
+)  # Regular expression to match either "Admiral" or "Adm."
 
-def emit_person(context: Context, country: str, source_url: str, role: str, name: str):
+
+def emit_person(
+    context: Context, country: str, source_url: str, role: str, name: str, title: str
+):
     person = context.make("Person")
     person.id = context.make_id(country, name, role)
     person.add("name", name)
     person.add("position", role)
     person.add("sourceUrl", source_url)
+    person.add("title", title)
 
-    position = h.make_position(context, role, country=country, topics=["mil"])
+    position = h.make_position(context, role, country=country, topics=["gov.security"])
 
     categorisation = categorise(context, position, is_pep=True)
     if categorisation.is_pep:
@@ -36,7 +44,18 @@ def crawl_person(context: Context, item_html: str) -> None:
     url = link_el.get("href")
     name = link_el.find(".//h2").text_content().strip()
     role = link_el.find(".//h3").text_content().strip()
-    emit_person(context, "us", url, role, name)
+
+    match = re.search(TITLE_REGEX, name)
+    if match:
+        # Extract the full title (including everything before "Admiral" or "Adm.")
+        title = match.group(1).strip() + " " + match.group(2).strip()
+        # Extract the name (everything after "Admiral" or "Adm.")
+        name = match.group(3).strip()
+    else:
+        # Log a warning if no title is found
+        context.log.warn(f"Failed to extract title from name: {name}")
+        title = None
+    emit_person(context, "us", url, role, name, title=title)
 
 
 def process_page(context: Context, page_number: int):
@@ -103,7 +122,7 @@ def parse_html(context):
             role = role_element.text_content().strip()
             if not name or not role:
                 continue  # Skip if either name or role is empty
-            emit_person(context, "us", leader_url, role, name)
+            emit_person(context, "us", leader_url, role, name, title=None)
 
 
 def crawl(context: Context):

@@ -16,7 +16,7 @@ entry_point: crawler.py
 prefix: us-navy
 publisher:
   name: United States Navy
-  acronym: USN
+  acronym: Navy
   official: true
   description: |
     The United States Navy is a branch of the United States Armed Forces responsible for 
