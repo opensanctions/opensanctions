@@ -29,6 +29,9 @@ publisher:
 data:
   url: https://www.fincen.gov/msb-state-selector
   format: html
+http:
+  retry_methods: [POST]
+
 assertions:
   min:
     schema_entities:
