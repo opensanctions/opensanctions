@@ -31,3 +31,20 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 200 
+
+lookups:
+  type.name:
+    options:
+      - match: 1760461909 (Nashville)
+        value: 1760461909
+      - match: 1669527370 for A location
+        value: 1669527370
+      - match: 1588845929 1619155512
+        values:
+          - 1588845929
+          - 1619155512
+      - match: n/a for B location
+        value: null
+      - match: 1386873693 (Mitten)
+        value: 1386873693
+
