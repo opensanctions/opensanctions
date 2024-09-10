@@ -7,7 +7,7 @@ from zavod import helpers as h
 
 
 def crawl_row(context: Context, row: Dict[str, List[str]]):
-    name = row.pop("LEGAL NAME", None)
+    name = row.pop("LEGAL NAME")
     street = row.pop("STREET ADDRESS")
     city = row.pop("CITY")
     state = row.pop("STATE")
@@ -19,6 +19,8 @@ def crawl_row(context: Context, row: Dict[str, List[str]]):
         entity.id = context.make_id(name, street, listing_date, city, state)
         entity.add("name", name)
         entity.add("alias", row.pop("DBA NAME"))
+        entity.add("sector", row.pop("MSB ACTIVITIES"))
+        entity.add("topics", "fin")
         h.make_address(
             context,
             street=street,
@@ -27,8 +29,6 @@ def crawl_row(context: Context, row: Dict[str, List[str]]):
             postal_code=zip_code,
             country=country,
         )
-        # entity.add("listing_date", listing_date)
-        entity.add("topics", "fin")
         context.emit(entity)
 
 
