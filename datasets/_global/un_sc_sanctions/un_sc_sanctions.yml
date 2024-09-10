@@ -121,3 +121,8 @@ lookups:
           Central African Republic armed forces (FACA) Military identification
           number 911-10-77
         value: FACA 911-10-77
+  type.string: 
+    normalize: true
+    options:
+      - match: Chaman, Baluchistan Province
+        value: null
