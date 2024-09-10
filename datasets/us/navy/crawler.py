@@ -1,6 +1,6 @@
 from lxml import html, etree
-import orjson
 from urllib.parse import urljoin
+import orjson
 import re
 
 from zavod import Context, helpers as h
