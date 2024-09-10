@@ -4,6 +4,7 @@ from openpyxl import load_workbook
 from datetime import datetime
 
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -19,7 +20,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("country", "us")
 
     if row.get("npi") != "N/A":
-        npis = h.multi_split(row.pop("npi"), ["; ", "|& "])
+        npis = h.multi_split(row.pop("npi"), ["; ", "&", " and "])
 
         entity.add("npiCode", npis)
     else:
@@ -72,8 +73,12 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
+def unblock_validator(doc) -> bool:
+    return bool(doc.find(".//*[@about='/provider-termination']"))
+
+
 def crawl_excel_url(context: Context):
-    doc = context.fetch_html(context.data_url)
+    doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
     return doc.find(".//*[@about='/provider-termination']").find(".//a").get("href")
 
 
