@@ -4,7 +4,7 @@ url: https://www.fincen.gov/msb-state-selector
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
-  start: 2024-09-09
+  start: 2024-09-10
 summary: >
   The Money Services Business (MSB) Registrant List from the Financial Crimes Enforcement
   Network (FinCEN) includes individuals and entities registered as MSBs operating in the 
@@ -32,3 +32,10 @@ publisher:
 data:
   url: https://www.fincen.gov/msb-state-selector
   format: html
+assertions:
+  min:
+    schema_entities:
+      Company: 29200
+  max:
+    schema_entities:
+      Company: 32000

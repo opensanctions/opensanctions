@@ -1,51 +1,47 @@
 from csv import DictReader
-import xlrd
-from datetime import datetime
 from typing import Dict, List
 from rigour.mime.types import CSV
-from normality import collapse_spaces, stringify
+
 from zavod import Context
 from zavod import helpers as h
 
 
-def crawl_row(context: Context, sheet: str, section: str, row: Dict[str, List[str]]):
-    entity = context.make("LegalEntity")
-    legal_name = row.pop("LEGAL NAME")
-    entity.id = context.make_id(legal_name)
-    entity.add("name", legal_name)
-    context.emit(entity, target=True)
-
-
-def crawl_xls(context: Context, path: str):
-    # Open the Excel workbook and iterate through sheets and rows
-    xls = xlrd.open_workbook(path)
-    for sheet in xls.sheets():
-        headers = None
-        for r in range(sheet.nrows):
-            row = [h.convert_excel_cell(xls, c) for c in sheet.row(r)]
-            if headers is not None:
-                data: Dict[str, List[str]] = {}
-                for header, cell in zip(headers, row):
-                    if header is None:
-                        continue
-                    values = []
-                    if isinstance(cell, datetime):
-                        cell = cell.date()
-                    for value in stringify(cell):
-                        if value is None:
-                            continue
-                        values.append(value)
-                    data[header] = values
-                crawl_row(context, sheet.name, "msb", data)
-            else:
-                headers = [collapse_spaces(cell) for cell in row]
+def crawl_row(context: Context, row: Dict[str, List[str]]):
+    name = row.pop("LEGAL NAME", None)
+    street = row.pop("STREET ADDRESS")
+    city = row.pop("CITY")
+    state = row.pop("STATE")
+    zip_code = row.pop("ZIP")
+    country = row.pop("FOREIGN LOCATION")
+    listing_date = row.pop("RECEIVED DATE")
+    if street and listing_date:  # check to exclude the footnotes
+        entity = context.make("Company")
+        entity.id = context.make_id(name, street, listing_date, city, state)
+        entity.add("name", name)
+        entity.add("alias", row.pop("DBA NAME"))
+        h.make_address(
+            context,
+            street=street,
+            city=city,
+            state=state,
+            postal_code=zip_code,
+            country=country,
+        )
+        # entity.add("listing_date", listing_date)
+        entity.add("topics", "fin")
+        context.emit(entity)
 
 
 def crawl(context: Context):
     # Perform the POST request with headers
-    path = context.fetch_resource("source.tsv", "https://msb.fincen.gov/retrieve.msb.list.php", data={"site": "AA"}, method="POST")
+    path = context.fetch_resource(
+        "source.tsv",
+        "https://msb.fincen.gov/retrieve.msb.list.php",
+        data={"site": "AA"},
+        method="POST",
+    )
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path) as fh:
         reader = DictReader(fh, delimiter="\t")
         for row in reader:
-            print(row)
+            crawl_row(context, row)
