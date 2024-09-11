@@ -117,7 +117,6 @@ def crawl_person(
         person.add("name", name_hy, lang="hy")
     if birth_date is not None:
         h.apply_date(person, "birthDate", birth_date)
-        # person.add("birthDate", h.parse_date(birth_date, DATE_FORMATS))
     if birth_place is not None:
         person.add("birthPlace", birth_place)
     position_name = data.get("position_en", "").strip()
