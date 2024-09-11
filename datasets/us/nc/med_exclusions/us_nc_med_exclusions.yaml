@@ -6,9 +6,10 @@ coverage:
   start: "2024-09-09"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  This dataset contains a list of providers who have been terminated for cause from North Carolina's Medicaid and other Health Programs.
+  Service providers who have been terminated for cause from North Carolina's Medicaid and other Health Programs.
 description: |
   NC Medicaid can bar providers from participaing in Medicare and/or other Health Programs.
+
   > An excluded provider is not entitled to bill or be reimbursed for medical services
   > provided to any federal or state health care program beneficiary. 
 publisher:
@@ -30,4 +31,4 @@ assertions:
       LegalEntity: 100
   max:
     schema_entities:
-      LegalEntity: 200
+      LegalEntity: 300
