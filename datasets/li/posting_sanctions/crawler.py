@@ -109,7 +109,7 @@ def parse_target(
     emp.id = context.make_id("Employment", person.id, company.id)
     emp.add("employee", person)
     emp.add("employer", company)
-    emp.add("date", date)
+    h.apply_date(emp, "date", date)
     emp.add("role", "Manager found responsible for breaking the law")
     context.emit(person, target=False)
     context.emit(emp, target=False)
@@ -125,8 +125,6 @@ def parse_debarments(context: Context, doc) -> None:
     for row in table.xpath("tbody/tr")[1:]:
         [start, name, addr, law, end] = row.xpath("descendant::*/text()")
         address = parse_address(context, addr)
-        start = h.parse_date(start, ["%d.%m.%Y"])
-        end = h.parse_date(end, ["%d.%m.%Y"])
         company = parse_target(context, name, address, start)
         if company is None:
             continue
@@ -135,8 +133,8 @@ def parse_debarments(context: Context, doc) -> None:
         sanction.id = context.make_id(
             "Sanction", "Debarment", company.id, law, start, end
         )
-        sanction.add("startDate", start)
-        sanction.add("endDate", end)
+        h.apply_date(sanction, "date", start)
+        h.apply_date(sanction, "endDate", end)
         sanction.add("description", "Debarment")
         sanction.add("program", "EntsG Sanctions")
         reason = (
@@ -155,13 +153,12 @@ def parse_infractions(context: Context, doc) -> None:
     for row in table.xpath("tbody/tr")[1:]:
         [date, name, addr, law] = row.xpath("descendant::*/text()")
         address = parse_address(context, addr)
-        date = h.parse_date(date, ["%d.%m.%Y"])
         company = parse_target(context, name, address, date)
         if company is None:
             continue
         sanction = h.make_sanction(context, company)
         sanction.id = context.make_id("Sanction", "Penalty", company.id, law, date)
-        sanction.add("date", date)
+        h.apply_date(sanction, "date", date)
         sanction.add("description", "Administrative Penalty")
         sanction.add("program", "EntsG Sanctions")
         sanction.add(

@@ -46,3 +46,5 @@ lookups:
         value: Person
       - match: Firm
         value: Company
+dates:
+  formats: ["%d.%m.%Y"]
