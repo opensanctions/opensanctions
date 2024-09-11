@@ -1,3 +1,4 @@
+import re
 from typing import Dict
 from followthemoney.types import registry
 
@@ -5,22 +6,22 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 TYPES = {"osoby": "Person", "podmioty": "Company"}
-BDAY_FORMATS = ("%d.%m.%Y", "%d %b %Y")
-MONTHS = {
-    "stycznia": "jan",
-    "lutego": "feb",
-    "marca": "mar",
-    "kwietnia": "apr",
-    "maja": "may",
-    "czerwca": "jun",
-    "lipca": "jul",
-    "lipiec": "jul",
-    "sierpnia": "aug",
-    "września": "sep",
-    "października": "oct",
-    "listopada": "nov",
-    "grudnia": "dec",
-}
+BDAY_FORMATS = ("%d.%m.%Y", "%d %b %Y", "%d %B %Y")
+# MONTHS = {
+#     "stycznia": "jan",
+#     "lutego": "feb",
+#     "marca": "mar",
+#     "kwietnia": "apr",
+#     "maja": "may",
+#     "czerwca": "jun",
+#     "lipca": "jul",
+#     "lipiec": "jul",
+#     "sierpnia": "aug",
+#     "września": "sep",
+#     "października": "oct",
+#     "listopada": "nov",
+#     "grudnia": "dec",
+# }
 CHOPSKA = [
     ("Nr NIP", "taxNumber"),
     ("NIP", "taxNumber"),
@@ -39,11 +40,11 @@ def parse_date(text):
     text = text.rstrip(" r.,")
     text = text.rstrip("r")
     text = text.strip()
-    for pl, en in MONTHS.items():
-        text = text.replace(pl, en)
-    prefix = h.parse_formats(text, BDAY_FORMATS)
-    if prefix.dt:
-        return prefix.text
+    # for pl, en in MONTHS.items():
+    #     text = text.replace(pl, en)
+    # prefix = h.parse_formats(text, BDAY_FORMATS)
+    # if prefix.dt:
+    return text
 
 
 def parse_details(context: Context, entity: Entity, text: str):
@@ -56,8 +57,11 @@ def parse_details(context: Context, entity: Entity, text: str):
     if not len(text.strip()):
         return
     bday = parse_date(text)
+    print(bday)
     if bday:
-        entity.add("birthDate", bday)
+        print(bday)
+        h.apply_date(entity, "birthDate", bday)
+        # entity.add("birthDate", bday)
         return
 
     result = context.lookup("details", text)
