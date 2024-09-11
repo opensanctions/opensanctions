@@ -693,13 +693,3 @@ lookups:
     options:
       - match: 00/00/0
         value: null
-  type.string: 
-    options: 
-      - match: Occupied Palestinian Territories
-        value: null
-      - match: P.O. Box 1985-777
-        value: 1985
-      - match: PO BOX 15875-1834
-        value: 15875
-      - match: P.O. Box 16535-76
-        value: 16535

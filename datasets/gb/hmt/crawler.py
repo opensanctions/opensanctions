@@ -3,12 +3,14 @@ from banal import first
 from normality import stringify, collapse_spaces
 from rigour.mime.types import XML
 from followthemoney.util import join_text
+import re
 
 from zavod import Context
 from zavod import helpers as h
 
 FORMATS = ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", ". "]
+REGEX_POSTCODE = re.compile(r"\d+")
 
 TYPES = {
     "Individual": "Person",
@@ -193,23 +195,35 @@ def parse_row(context: Context, row: Dict[str, Any]):
     )
     entity.add("alias", row.pop("NameNonLatinScript", None))
 
+    post_code, po_box = h.postcode_pobox(row.pop("PostCode", None))
+    if post_code is not None and not REGEX_POSTCODE.search(post_code):
+        city = post_code
+        post_code = None
+    else:
+        city = None
     full_address = join_text(
+        po_box,
         row.pop("Address1", None),
+        city,
         row.pop("Address2", None),
         row.pop("Address3", None),
         row.pop("Address4", None),
         row.pop("Address5", None),
         row.pop("Address6", None),
+        post_code,
         sep=", ",
     )
 
     country_name = first(countries)
     if country_name == "UK":  # Ukraine is a whole thing, people.
         country_name = "United Kingdom"
+
     address = h.make_address(
         context,
         full=full_address,
-        postal_code=row.pop("PostCode", None),
+        postal_code=post_code,
+        po_box=po_box,
+        city=city,
         country=country_name,
     )
     h.apply_address(context, entity, address)
