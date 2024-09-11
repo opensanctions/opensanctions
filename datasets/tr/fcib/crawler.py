@@ -14,26 +14,23 @@ DATE_FORMAT = ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%
 
 # original link for assertion
 DOCX_LINK = "https://ms.hmb.gov.tr/uploads/sites/2/2024/08/A-BIRLESMIS-MILLETLER-GUVENLIK-KONSEYI-KARARINA-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-5.-MADDEw.docx"
-XLSX_LINKS = [
-    (
-        "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/B-YABANCI-ULKE-TALEPLERINE-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-6.-MADDE.xlsx",
-        "Asset freezes pursuant to Article 6 of Law No. 6415, targeting individuals"
-        " and entities based on requests made by foreign governments.",
-        "B - Foreign government requests",
+
+# Mapping of letter prefix to full label (program) and short label
+LABEL_MAPPING = {
+    "6MADDE_ING": (
+        "Asset freezes pursuant to Article 6 of Law No. 6415, targeting individuals and entities based on requests made by foreign governments.",
+        "Foreign government requests",
     ),
-    (
-        "https://ms.hmb.gov.tr/uploads/sites/2/2024/09/C-IC-DONDURMA-KARARI-ILE-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-7.-MADDE-2.xlsx",
-        "Asset freezes pursuant to Article 7 of Law No. 6415, targeting individuals"
-        " and entities through domestic legal actions and decisions.",
-        "C - Domestic legal actions",
+    "7MADDE_ING": (
+        "Asset freezes pursuant to Article 7 of Law No. 6415, targeting individuals and entities through domestic legal actions and decisions.",
+        "Domestic legal actions",
     ),
-    (
-        "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/D-7262-SAYILI-KANUN-3.A-VE-3.B-MADDELERI.xlsx",
-        "Asset freezes within the scope of Articles 3.A and 3.B of Law No. 7262,"
-        " aimed at preventing the financing of proliferation of weapons of mass destruction.",
-        "D - Prevention of proliferation of weapons of mass destruction",
+    "3A3B": (
+        "Asset freezes within the scope of Articles 3.A and 3.B of Law No. 7262, aimed at preventing the financing of the proliferation of weapons of mass destruction.",
+        "Prevention of weapons of mass destruction proliferation",
     ),
-]
+}
+
 
 # Exclude newlines to avoid splitting addresses unless they're numbered
 REGEX_SPLIT = re.compile(r",?\s*\b\w[\.\)]")
@@ -135,40 +132,66 @@ def crawl(context: Context):
     table = doc.find('.//table[@class="table table-bordered"]')
     category_urls = [link.get("href") for link in table.findall(".//a")]
 
-    found_links = set()
+    # Ensure exactly 4 links are found
+    if len(category_urls) != 4:
+        context.log.warning(
+            f"Expected to find 4 category URLs, but found {len(category_urls)}"
+        )
 
+    found_bcd_links = []
+
+    # Process each category URL
     for url in category_urls:
-        section_doc = fetch_html(context, url, unblock_validator, cache_days=3)
-
-        # Determine whether to search for .docx or .xlsx based on URL
         if "5madde_ing" in url:
-            doc_links = section_doc.xpath('//a[contains(@href, ".docx")]')
-        else:
-            doc_links = section_doc.xpath('//a[contains(@href, ".xlsx")]')
+            # Skip the "A" section (UN Security Council list)
+            context.log.info("Skipping A section (UN Security Council list)")
+            continue
 
-        for doc_link in doc_links:
-            found_links.add(doc_link.get("href"))
+        # Fetch the content of the section
+        section_doc = fetch_html(context, url, unblock_validator, cache_days=3)
+        doc_links = section_doc.xpath('//a[contains(@href, ".xlsx")]')
 
-    expected_links = set([DOCX_LINK, *(link for link, _, _ in XLSX_LINKS)])
-    # Check if new links have appeared
-    new_links = found_links - expected_links
-    assert not new_links, f"Unexpected links found: {new_links}"
-    # Check if all expected links are found
-    missing_links = expected_links - found_links
-    assert not missing_links, f"Expected links not found: {missing_links}"
+        # Expect exactly one .xlsx link in each section
+        if len(doc_links) != 1:
+            context.log.warning(
+                f"Expected to find 1 .xlsx link in section {url}, but found {len(doc_links)}"
+            )
 
-    # the actual crawling part if all links are verified
-    context.log.info("Fetching data from the provided XLSX links")
-    for url, program, short in XLSX_LINKS:
-        context.log.info(f"Processing URL: {url}")
+        # Extract the link
+        doc_link = doc_links[0].get("href")
+
+        # Extract the prefix letter (e.g., B, C, D) from the filename or URL structure
+        prefix = url.split("/")[-1].split("-")[0].upper()
+
+        # Ensure we have a mapping for the letter
+        if prefix not in LABEL_MAPPING:
+            context.log.error(f"Unexpected prefix found: {prefix}")
+            continue
+
+        # Get the program and short label from the mapping
+        program, short_label = LABEL_MAPPING[prefix]
+
+        # Log and store the found links
+        context.log.info(f"Processing {short_label} - URL: {doc_link}")
+        found_bcd_links.append((doc_link, program, short_label))
+
+    # Ensure we found exactly 3 links for B, C, and D sections
+    if len(found_bcd_links) != 3:
+        context.log.warning(
+            f"Expected to find 3 (B, C, D) sections, but found {len(found_bcd_links)}"
+        )
+
+    # Process each found link
+    for url, program, short in found_bcd_links:
+        context.log.info(f"Processing URL: {url} - Program: {program}")
+        # Call the crawl_xlsx function to process the link
         crawl_xlsx(context, url, program, short)
+
     context.log.info("Finished processing the Excel files")
 
-    # UN Security Council stubs
+    # UN Security Council stubs (keep this part if necessary)
     un_sc, doc = load_un_sc(context)
-
     for _node, entity in get_persons(context, un_sc.prefix, doc, UN_SC_PREFIXES):
         context.emit(entity, target=True)
-
     for _node, entity in get_legal_entities(context, un_sc.prefix, doc, UN_SC_PREFIXES):
         context.emit(entity, target=True)
