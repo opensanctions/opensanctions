@@ -19,9 +19,10 @@ def crawl_row(context: Context, row: Dict[str, List[str]]):
         entity.id = context.make_id(name, street, listing_date, city, state)
         entity.add("name", name)
         entity.add("alias", row.pop("DBA NAME"))
-        entity.add("sector", row.pop("MSB ACTIVITIES"))
+        entity.add("sector", h.multi_split(row.pop("MSB ACTIVITIES"), " "))
         entity.add("topics", "fin")
-        h.make_address(
+        entity.add("country", country)
+        address = h.make_address(
             context,
             street=street,
             city=city,
@@ -29,7 +30,9 @@ def crawl_row(context: Context, row: Dict[str, List[str]]):
             postal_code=zip_code,
             country=country,
         )
+        h.copy_address(entity, address)
         context.emit(entity)
+        # context.audit_data(row)
 
 
 def crawl(context: Context):
