@@ -93,13 +93,3 @@ lookups:
           - Unknown
           - www.mtsbank.ru
         value: null
-  type.string: 
-    options:
-      - match: PO BOX 15875-1834
-        value: 15875
-      - match: P.O. Box 16135-189
-        value: 16135
-      - match: P.O. Box 16535-76
-        value: 16535
-      - match: P.O. Box 1985-777
-        value: 1985

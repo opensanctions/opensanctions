@@ -41,7 +41,7 @@ from zavod.helpers.text import clean_note, is_empty, remove_bracketed
 from zavod.helpers.text import multi_split
 from zavod.helpers.sanctions import make_sanction
 from zavod.helpers.addresses import make_address, format_address
-from zavod.helpers.addresses import copy_address, apply_address
+from zavod.helpers.addresses import copy_address, apply_address, postcode_pobox
 from zavod.helpers.dates import extract_years, parse_date, check_no_year
 from zavod.helpers.dates import parse_formats, apply_date, apply_dates
 from zavod.helpers.dates import replace_months
@@ -62,6 +62,7 @@ __all__ = [
     "format_address",
     "apply_address",
     "copy_address",
+    "postcode_pobox",
     "make_sanction",
     "make_identification",
     "extract_years",
