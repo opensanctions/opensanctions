@@ -1,4 +1,4 @@
-title: "MSB Registrant List"
+title: "US Money Services Business Registrant List"
 entry_point: crawler.py
 url: https://www.fincen.gov/msb-state-selector
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -14,7 +14,7 @@ description: |
   Network (FinCEN). These services include money transmitting businesses, currency dealers 
   or exchangers, check cashers, issuers of traveler's checks, money orders, or stored value,
   the US Postal Service, etc.
-prefix: us-fincen-msb
+prefix: us-msb
 publisher:
   name: Financial Crimes Enforcement Network
   acronym: FinCEN
@@ -28,7 +28,7 @@ publisher:
   url: https://www.fincen.gov
 data:
   url: https://www.fincen.gov/msb-state-selector
-  format: html
+  format: CSV
 http:
   retry_methods: [POST]
 
