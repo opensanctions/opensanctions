@@ -10,30 +10,10 @@ from zavod import Context, helpers as h
 from zavod.logic.pep import OccupancyStatus, categorise
 
 FORMATS = ["%d. %m %Y", "%d.%m.%Y", "%m/%Y"]
-MONTHS = {
-    "januar": "01",
-    "februar": "02",
-    "märz": "03",
-    "april": "04",
-    "mai": "05",
-    "juni": "06",
-    "juli": "07",
-    "august": "08",
-    "september": "09",
-    "oktober": "10",
-    "november": "11",
-    "dezember": "12",
-}
+
 PARTY_NAMES = defaultdict(int)
 PARTY_REGEX = re.compile(r"(\([\w ]+\)|, [\w ]+$)")
 MAX_POSITION_NAME_LENGTH = 120
-
-
-def parse_date_in_german(text):
-    text = text.lower()
-    for de, en in MONTHS.items():
-        text = text.replace(de, en)
-    return h.parse_date(text, FORMATS)
 
 
 def extract_dates(context, url, el):
@@ -195,7 +175,7 @@ def crawl_item(url_info_page: str, context: Context):
     person.add("sourceUrl", url_info_page)
     birth_date_in_german = info_page.findtext(".//span[@itemprop='birthDate']")
     if birth_date_in_german:
-        person.add("birthDate", parse_date_in_german(birth_date_in_german))
+        h.apply_date(person, "birthDate", birth_date_in_german)
     person.add(
         "birthPlace", info_page.findtext(".//span[@itemprop='birthPlace']"), lang="deu"
     )
@@ -218,7 +198,6 @@ def crawl_item(url_info_page: str, context: Context):
 
 
 def crawl(context: Context):
-
     response = context.fetch_html(context.data_url)
 
     # XPath to the url for the pages of each politician
