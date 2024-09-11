@@ -197,7 +197,6 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     )
 
     sanction.add("startDate", parse_date(row.pop("notification_date", [])))
-    # sanction.add("startDate", parse_date(row.pop("designated_date", [])))
     sanction.add("listingDate", parse_date(row.pop("publication_date", [])))
 
     # if len(row):

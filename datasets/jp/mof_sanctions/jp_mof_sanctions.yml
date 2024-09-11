@@ -132,8 +132,6 @@ lookups:
         value: other_information
       - match: リスト掲載日
         value: publication_date
-      # - match: 指定日
-      #   value: designated_date
       - match:
           - 住 所
           - 住所・所在地
