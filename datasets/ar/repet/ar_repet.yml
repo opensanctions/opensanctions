@@ -123,3 +123,18 @@ lookups:
           - Liberation of al-Sham Commission
           - Liberation of the Levant Organisation Tahrir al-Sham
           - Tahrir al-Sham Hay’at
+  type.identifier:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Unidad de Información FinancieraArE.00005
+        value: ArE.00005
+      - match: HArE.001 y HArE.002
+        values:
+          - HArE.001
+          - HArE.002
+  type.string:
+    lowercase: true
+    options:
+      - match: Chaman, Baluchistan Province
+        value: null
