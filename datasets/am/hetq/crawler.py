@@ -26,20 +26,20 @@ BORN = "ծնվել"  # Often Ծնվել (title case)
 IN_THE_YEAR = "թվականին"  # Often թ. (similar to Russian году / г.)
 # Note: these are in the dative in the text, but that is just a suffix
 # -ի so we do prefix matching.
-# MONTHS = [
-#     "հունվար",
-#     "փետրվար",
-#     "մարտ",
-#     "ապրիլ",
-#     "մայիս",
-#     "հունիս",
-#     "հուլիս",
-#     "օգոստոս",
-#     "սեպտեմբեր",
-#     "հոկտեմբեր",
-#     "նոյեմբեր",
-#     "դեկտեմբեր",
-# ]
+MONTHS = [
+    "հունվար",
+    "փետրվար",
+    "մարտ",
+    "ապրիլ",
+    "մայիս",
+    "հունիս",
+    "հուլիս",
+    "օգոստոս",
+    "սեպտեմբեր",
+    "հոկտեմբեր",
+    "նոյեմբեր",
+    "դեկտեմբեր",
+]
 # DATE_FORMATS = [
 #     "%B %d %Y",
 #     "%Y-%m-%d",
@@ -120,7 +120,8 @@ def crawl_person(
     if name_hy:
         person.add("name", name_hy, lang="hy")
     if birth_date is not None:
-        person.add("birthDate", h.parse_date(birth_date, DATE_FORMATS))
+        h.apply_date(person, "birthDate", birth_date)
+        # person.add("birthDate", h.parse_date(birth_date, DATE_FORMATS))
     if birth_place is not None:
         person.add("birthPlace", birth_place)
     position_name = data.get("position_en", "").strip()
