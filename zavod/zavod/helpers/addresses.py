@@ -1,13 +1,17 @@
 from functools import cache, lru_cache
-from typing import Optional
+from typing import Optional, Tuple
 from addressformatting import AddressFormatter
 from followthemoney.types import registry
 from followthemoney.util import join_text, make_entity_id
 from normality import slugify
+import re
 
 from zavod.entity import Entity
 from zavod.context import Context
 from zavod.runtime.lookups import type_lookup
+
+
+REGEX_POBOX = re.compile(r"^p\.?o\.? ?box [\d-]+$", re.IGNORECASE)
 
 
 @cache
@@ -230,3 +234,17 @@ def copy_address(entity: Entity, address: Optional[Entity]) -> None:
         for country in address.get("country"):
             if country not in entity.countries:
                 entity.add("country", country)
+
+
+def postcode_pobox(text: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
+    """
+    For when PO Box is stuffed into postcode, sometimes.
+
+    Returns:
+        Tuple of (postcode, po_box)
+    """
+    if text is None:
+        return None, None
+    if match := REGEX_POBOX.match(text):
+        return None, match.group(0)
+    return text, None

@@ -43,6 +43,10 @@ lookups:
         values:
           - 2534006SJ05GGKETEY75
           - 1027739179160
+      - match: QDi.042 and SOi.002
+        values:
+          - QDi.042
+          - SOi.002
   companies:
     normalize: true
     options:
