@@ -5,34 +5,67 @@ from rigour.mime.types import CSV
 from zavod import Context
 from zavod import helpers as h
 
+NAME_SPLITS = [
+    " DBA ",
+    "DBA-",
+    "/DBA ",
+    " dba ",
+]
+
+ALIAS_SPLITS = [
+    " dba ",
+    "dba ",
+    "DBA ",
+    "Dba/",
+    "DBA: ",
+    "DBA:",
+    "DBA - ",
+    " Dba ",
+    "(DBA) ",
+    "DBA-",
+    "- DBA",
+]
+
+IGNORE_COLUMNS = [
+    "STATES OF MSB ACTIVITIES",
+    "ALL STATES & TERRITORIES & FOREIGN FLAG**",
+    "# OF BRANCHES",
+    "AUTH SIGN DATE",
+]
+
 
 def crawl_row(context: Context, row: Dict[str, List[str]]):
-    name = row.pop("LEGAL NAME")
+    name = h.multi_split(row.pop("LEGAL NAME"), NAME_SPLITS)
     street = row.pop("STREET ADDRESS")
     city = row.pop("CITY")
     state = row.pop("STATE")
     zip_code = row.pop("ZIP")
     country = row.pop("FOREIGN LOCATION")
     listing_date = row.pop("RECEIVED DATE")
-    if street and listing_date:  # check to exclude the footnotes
-        entity = context.make("LegalEntity")
-        entity.id = context.make_id(name, street, listing_date, city, state)
-        entity.add("name", name)
-        entity.add("alias", row.pop("DBA NAME"))
-        entity.add("sector", h.multi_split(row.pop("MSB ACTIVITIES"), " "))
-        entity.add("topics", "fin")
-        entity.add("country", country)
-        address = h.make_address(
-            context,
-            street=street,
-            city=city,
-            state=state,
-            postal_code=zip_code,
-            country=country,
-        )
-        h.copy_address(entity, address)
-        context.emit(entity)
-        # context.audit_data(row)
+    if not (street and listing_date):
+        return  # check to exclude the footnotes
+
+    entity = context.make("LegalEntity")
+    entity.id = context.make_id(name, street, listing_date, city, state)
+    entity.add("name", name)
+    entity.add(
+        "alias",
+        h.multi_split(row.pop("DBA NAME"), ALIAS_SPLITS),
+    )
+    entity.add("sector", h.multi_split(row.pop("MSB ACTIVITIES"), " "))
+    entity.add("topics", "fin")
+    entity.add("country", country)
+    address = h.make_address(
+        context,
+        street=street,
+        city=city,
+        state=state,
+        postal_code=zip_code,
+        country=country,
+    )
+    h.copy_address(entity, address)
+    context.emit(entity)
+    context.audit_data(row, IGNORE_COLUMNS)
 
 
 def crawl(context: Context):
