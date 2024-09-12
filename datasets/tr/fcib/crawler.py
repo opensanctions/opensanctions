@@ -15,19 +15,19 @@ DATE_FORMAT = ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%
 # original link for assertion
 DOCX_LINK = "https://ms.hmb.gov.tr/uploads/sites/2/2024/08/A-BIRLESMIS-MILLETLER-GUVENLIK-KONSEYI-KARARINA-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-5.-MADDEw.docx"
 
-# Mapping of letter prefix to full label (program) and short label
+# Mapping of slug to full label (program) and short label
 LABEL_MAPPING = {
     "6MADDE_ING": (
         "Asset freezes pursuant to Article 6 of Law No. 6415, targeting individuals and entities based on requests made by foreign governments.",
-        "Foreign government requests",
+        "B - Foreign government requests",
     ),
     "7MADDE_ING": (
         "Asset freezes pursuant to Article 7 of Law No. 6415, targeting individuals and entities through domestic legal actions and decisions.",
-        "Domestic legal actions",
+        "C - Domestic legal actions",
     ),
     "3A3B": (
         "Asset freezes within the scope of Articles 3.A and 3.B of Law No. 7262, aimed at preventing the financing of the proliferation of weapons of mass destruction.",
-        "Prevention of weapons of mass destruction proliferation",
+        "D - Prevention of weapons of mass destruction proliferation",
     ),
 }
 
@@ -160,16 +160,16 @@ def crawl(context: Context):
         # Extract the link
         doc_link = doc_links[0].get("href")
 
-        # Extract the prefix letter (e.g., B, C, D) from the filename or URL structure
-        prefix = url.split("/")[-1].split("-")[0].upper()
+        # Extract the slug (e.g., 6MADDE_ING) from the filename or URL structure
+        slug = url.split("/")[-1].upper()
 
         # Ensure we have a mapping for the letter
-        if prefix not in LABEL_MAPPING:
-            context.log.error(f"Unexpected prefix found: {prefix}")
+        if slug not in LABEL_MAPPING:
+            context.log.error(f"Unexpected slug found: {slug}")
             continue
 
         # Get the program and short label from the mapping
-        program, short_label = LABEL_MAPPING[prefix]
+        program, short_label = LABEL_MAPPING[slug]
 
         # Log and store the found links
         context.log.info(f"Processing {short_label} - URL: {doc_link}")
@@ -178,7 +178,7 @@ def crawl(context: Context):
     # Ensure we found exactly 3 links for B, C, and D sections
     if len(found_bcd_links) != 3:
         context.log.warning(
-            f"Expected to find 3 (B, C, D) sections, but found {len(found_bcd_links)}"
+            f"Expected to find 3 (6MADDE_ING, 7MADDE_ING, 3A3B) sections, but found {len(found_bcd_links)}"
         )
 
     # Process each found link
@@ -189,7 +189,7 @@ def crawl(context: Context):
 
     context.log.info("Finished processing the Excel files")
 
-    # UN Security Council stubs (keep this part if necessary)
+    # UN Security Council stubs
     un_sc, doc = load_un_sc(context)
     for _node, entity in get_persons(context, un_sc.prefix, doc, UN_SC_PREFIXES):
         context.emit(entity, target=True)
