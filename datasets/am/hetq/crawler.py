@@ -40,10 +40,6 @@ MONTHS = [
     "նոյեմբեր",
     "դեկտեմբեր",
 ]
-DATE_FORMATS = [
-    "%B %d %Y",
-    "%Y-%m-%d",
-]
 HY_BIRTHDATE = re.compile(
     r"ծնվել է (\d+)\s*(?:թվականին|թվականի|թ.)(?:,?\s+(\S+)\s+(\d+)\s*[–-]\s*ին)?", re.I
 )
@@ -120,7 +116,7 @@ def crawl_person(
     if name_hy:
         person.add("name", name_hy, lang="hy")
     if birth_date is not None:
-        person.add("birthDate", h.parse_date(birth_date, DATE_FORMATS))
+        h.apply_date(person, "birthDate", birth_date)
     if birth_place is not None:
         person.add("birthPlace", birth_place)
     position_name = data.get("position_en", "").strip()

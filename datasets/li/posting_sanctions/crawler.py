@@ -8,21 +8,6 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 
-MONTHS_DE = {
-    # We won’t know until January 2024 if the site uses the Austrian name
-    # or the German/Swiss name for the month January.
-    "Januar": "January",
-    "Jänner": "January",
-    "Februar": "February",
-    "März": "March",
-    "Mai": "May",
-    "Juni": "June",
-    "Juli": "July",
-    "Oktober": "October",
-    "Dezember": "December",
-}
-
-
 COUNTRY_CODES = {
     "A": "at",  # Austria
     "D": "de",  # Germany
@@ -32,38 +17,30 @@ COUNTRY_CODES = {
 }
 
 
-ADDRESS_FIXES = {
-    "Alte Tiefenaustrasse 6, 3050 Bern": "Alte Tiefenaustrasse 6, CH-3050 Bern",
-    "Bachwisenstrasse 7c, 9200 CH-Gossau SG": "Bachwisenstrasse 7c, CH-9200 Gossau SG",
-    "Industrie Allmend 31, 4629 Fulenbach": "Industrie Allmend 31, CH-4629 Fulenbach",
-    "Hagenholzstrasse 81a, 8050 CH-Zürich": "Hagenholzstrasse 81a, CH-8050 Zürich",
-}
-
-
-def parse_data_time(doc) -> Optional[datetime]:
+def parse_data_time(doc, context) -> Optional[datetime]:
     text = doc.xpath("//p[starts-with(., 'Stand:')]/strong")[0].text
-    for de, en in MONTHS_DE.items():
-        # Adding space to prevent replacing Jänner -> January -> Januaryy
-        text = text.replace(de + " ", en + " ")
-    if date := h.parse_date(text, ["%d. %B %Y"]):
+    text = h.replace_months(context.dataset, text)
+    if date := h.parse_date(text, context.dataset.dates.formats):
         return datetime.strptime(date[0], "%Y-%m-%d")
     else:
         return None
 
 
 def parse_address(context: Context, addr: str) -> Optional[Entity]:
-    addr = ADDRESS_FIXES.get(addr, addr)
-    parts = [p.strip() for p in addr.split(",")]
+    addr_clean = context.lookup_value("address_override", addr, default=addr)
+    if addr_clean is None:
+        return None
+    parts = [p.strip() for p in addr_clean.split(",")]
     street = parts[0]
     country_code, postal_code, city = None, None, None
     if m := re.match(r"(A|D|F|I|[A-Z]{2})[- ]\s*([\d\-]+) (.+)", parts[-1]):
         country_code = COUNTRY_CODES.get(m.group(1), m.group(1).lower())
         postal_code, city = m.group(2), m.group(3)
     if not country_code or not city:
-        context.log.warn(f'Cannot parse address "{addr}"')
+        context.log.warn(f'Cannot parse address "{addr_clean}"')
     return h.make_address(
         context=context,
-        full=addr,
+        full=addr_clean,
         street=street,
         postal_code=postal_code,
         city=city,
@@ -109,7 +86,7 @@ def parse_target(
     emp.id = context.make_id("Employment", person.id, company.id)
     emp.add("employee", person)
     emp.add("employer", company)
-    emp.add("date", date)
+    h.apply_date(emp, "date", date)
     emp.add("role", "Manager found responsible for breaking the law")
     context.emit(person, target=False)
     context.emit(emp, target=False)
@@ -125,8 +102,6 @@ def parse_debarments(context: Context, doc) -> None:
     for row in table.xpath("tbody/tr")[1:]:
         [start, name, addr, law, end] = row.xpath("descendant::*/text()")
         address = parse_address(context, addr)
-        start = h.parse_date(start, ["%d.%m.%Y"])
-        end = h.parse_date(end, ["%d.%m.%Y"])
         company = parse_target(context, name, address, start)
         if company is None:
             continue
@@ -135,8 +110,8 @@ def parse_debarments(context: Context, doc) -> None:
         sanction.id = context.make_id(
             "Sanction", "Debarment", company.id, law, start, end
         )
-        sanction.add("startDate", start)
-        sanction.add("endDate", end)
+        h.apply_date(sanction, "date", start)
+        h.apply_date(sanction, "endDate", end)
         sanction.add("description", "Debarment")
         sanction.add("program", "EntsG Sanctions")
         reason = (
@@ -155,13 +130,12 @@ def parse_infractions(context: Context, doc) -> None:
     for row in table.xpath("tbody/tr")[1:]:
         [date, name, addr, law] = row.xpath("descendant::*/text()")
         address = parse_address(context, addr)
-        date = h.parse_date(date, ["%d.%m.%Y"])
         company = parse_target(context, name, address, date)
         if company is None:
             continue
         sanction = h.make_sanction(context, company)
         sanction.id = context.make_id("Sanction", "Penalty", company.id, law, date)
-        sanction.add("date", date)
+        h.apply_date(sanction, "date", date)
         sanction.add("description", "Administrative Penalty")
         sanction.add("program", "EntsG Sanctions")
         sanction.add(
@@ -181,7 +155,7 @@ def crawl(context: Context):
     context.export_resource(source_path, "text/html", title="Source HTML file")
     with open(source_path, "r") as fh:
         doc = lxml.html.fromstring(fh.read())  # invalid XML, need HTML parser
-    if data_time := parse_data_time(doc):
+    if data_time := parse_data_time(doc, context):
         context.log.info(f"Parsing data version of {data_time}")
         context.data_time = data_time
     else:

@@ -120,6 +120,19 @@ def test_context_get_fetchers(testdataset1: Dataset):
     with open(path, "r") as fh:
         assert fh.read() == long
 
+    with requests_mock.Mocker() as m:
+        m.post("/bla", text=long)
+        path = context.fetch_resource(
+            "world-post.txt",
+            "https://test.com/bla",
+            method="POST",
+            data={"foo": "bar"},
+        )
+    assert path.stem == "world-post"
+    assert m.request_history[0].body == "foo=bar"
+    with open(path, "r") as fh:
+        assert fh.read() == long
+
     path = context.get_resource_path("doc.xml")
     with open(path, "w") as fh:
         with open(XML_DOC, "r") as src:
