@@ -56,6 +56,7 @@ def crawl_item(input_dict: dict, context: Context):
         h.apply_date(sanction, "listingDate", input_dict.pop("listing_date"))
     sanction.add("authority", input_dict.pop("authority"))
     sanction.add("description", "Value: " + input_dict.pop("value"))
+    sanction.add("sourceUrl", input_dict.pop("source_url"))
 
     context.emit(entity, target=True)
     context.emit(sanction)
@@ -74,4 +75,5 @@ def crawl(context: Context):
                 # Each csv has a slightly different name for each attribute
                 # so we are going to normalize them
                 replace_key(item, context)
+                item["source_url"] = url
                 crawl_item(item, context)
