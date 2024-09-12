@@ -6,8 +6,8 @@ coverage:
   frequency: daily
   start: 2024-08-26
 summary: >
-  Information on the current leaders of the United States Navy, including biographies and
-  organizational roles within the Navy's command structure.
+  Current leaders of the United States Navy, including biographies and organizational roles 
+  within the Navy's command structure.
 description: |
   The US Navy leadership includes detailed profiles of senior leaders such as the Secretary 
   of the Navy, the Chief of Naval Operations, and other key figures. These profiles feature 
@@ -34,7 +34,7 @@ data:
   assertions:
   min:
     schema_entities:
-      Person: 280
+      Person: 290
   max:
     schema_entities:
-      Person: 300
+      Person: 320

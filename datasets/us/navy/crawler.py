@@ -14,6 +14,12 @@ TITLE_REGEX = re.compile(
     r"^(.*)\b(Admiral|Adm\.)\s+(.*)$"
 )  # Regular expression to match either "Admiral" or "Adm."
 
+# Allow-list of URLs that are allowed to be skipped
+ALLOWED_LEADER_URLS = [
+    "https://www.navy.mil/Leadership/Flag-Officer-Biographies/",
+    "https://www.secnav.navy.mil/donhr/About/Senior-Executives/Pages/Biographies.aspx",
+]
+
 
 def emit_person(
     context: Context, country: str, source_url: str, role: str, name: str, title: str
@@ -53,7 +59,7 @@ def crawl_person(context: Context, item_html: str) -> None:
         name = match.group(3).strip()
     else:
         # Log a warning if no title is found
-        context.log.warn(f"Failed to extract title from name: {name}")
+        context.log.info(f"Failed to extract title from name: {name}")
         title = None
     emit_person(context, "us", url, role, name, title=title)
 
@@ -111,22 +117,34 @@ def parse_html(context):
         leader_divs = div.xpath('.//div[contains(@class, "leader-title")]/a')
         for leader_div in leader_divs:
             leader_url = urljoin(BASE_URL, leader_div.get("href"))
+            # Check if the URL is in the allow-list, skip it if true
+            if leader_url in ALLOWED_LEADER_URLS:
+                continue
             name_element = leader_div.find(".//h3")
             role_element = leader_div.find(".//h2")
             if name_element is None or role_element is None:
-                context.log.info(
+                context.log.warning(
                     f"Skipping incomplete leader entry: {html.tostring(leader_div, pretty_print=True, encoding='unicode')}"
                 )
                 continue
             name = name_element.text_content().strip()
+            match = re.search(TITLE_REGEX, name)
+            if match:
+                # Extract the full title (including everything before "Admiral" or "Adm.")
+                title = match.group(1).strip() + " " + match.group(2).strip()
+                # Extract the name (everything after "Admiral" or "Adm.")
+                name = match.group(3).strip()
+            else:
+                # Log a warning if no title is found
+                context.log.info(f"Failed to extract title from name: {name}")
+                title = None
             role = role_element.text_content().strip()
-            if not name or not role:
-                continue  # Skip if either name or role is empty
-            emit_person(context, "us", leader_url, role, name, title=None)
+            assert name and role, f"Name or role missing: {name}, {role}"
+            emit_person(context, "us", leader_url, role, name, title=title)
 
 
 def crawl(context: Context):
-    page_number = 1
+    page_number = 0
     done = False
     error_pages = []
     while not done:
