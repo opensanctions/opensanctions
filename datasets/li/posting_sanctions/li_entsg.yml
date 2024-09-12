@@ -46,3 +46,36 @@ lookups:
         value: Person
       - match: Firm
         value: Company
+  address_override:
+    lowercase: true
+    normalize: true
+    options: 
+      - match: Alte Tiefenaustrasse 6, 3050 Bern
+        value: Alte Tiefenaustrasse 6, CH-3050 Bern
+      - match: Bachwisenstrasse 7c, 9200 CH-Gossau SG
+        value: Bachwisenstrasse 7c, CH-9200 Gossau SG
+      - match: Industrie Allmend 31, 4629 Fulenbach
+        value: Industrie Allmend 31, CH-4629 Fulenbach
+      - match: Hagenholzstrasse 81a, 8050 CH-Zürich
+        value: Hagenholzstrasse 81a, CH-8050 Zürich
+dates:
+  formats:
+    - "%d.%m.%Y"
+    - "%d %b %Y"
+    - "%d %B %Y"
+    - "%d. %m %Y"
+  months:
+    "01":
+      - "Januar"
+      - "Jänner"
+    "02": "Februar"
+    "03": "März"
+    "04": "April"
+    "05": "Mai"
+    "06": "Juni"
+    "07": "Juli"
+    "08": "August"
+    "09": "September"
+    "10": "Oktober"
+    "11": "November"
+    "12": "Dezember"
