@@ -20,6 +20,9 @@ description: |
 publisher:
   name: Michigan Department of Health & Human Services
   acronym: MDHHS
+  description: |
+   > The Michigan Department of Health and Human Services (MDHHS) is a principal department of state of Michigan,
+   > that provides public assistance, child and family welfare services, and oversees health policy and management.
   url: https://www.michigan.gov/mdhhs
   official: true
   country: "us"
