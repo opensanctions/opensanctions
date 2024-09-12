@@ -12,12 +12,12 @@ description: |
   of providers who needs to be terminated or excluded from the Medicaid
   program under 42 CFR 1002.210.
 publisher:
-  name: Montana Department of Public Health & Human Services 
+  name: Montana Department of Public Health & Human Services
   description: >
-   The Montana Department of Public Health & Human Services is the state
-   government agency responsible for providing a wide range of services
-   and programs, including public health initiatives, social services,
-   mental health support, and healthcare access.
+    The Montana Department of Public Health & Human Services is the state
+    government agency responsible for providing a wide range of services
+    and programs, including public health initiatives, social services,
+    mental health support, and healthcare access.
   acronym: DPHHS
   url: https://dphhs.mt.gov
   official: true

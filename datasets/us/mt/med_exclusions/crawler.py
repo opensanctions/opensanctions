@@ -7,7 +7,6 @@ from zavod import Context, helpers as h
 
 def crawl_item(row: Dict[str, str], context: Context):
 
-
     if ", " not in row.get("terminated_excluded_provider_s"):
         entity = context.make("Company")
         entity.id = context.make_id(row.get("terminated_excluded_provider_s"))
@@ -18,7 +17,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         last_name, first_name = row.pop("terminated_excluded_provider_s").split(", ")
         entity.add("firstName", first_name)
         entity.add("lastName", last_name)
-    
+
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("healthcare_profession"))
     entity.add("country", "us")
@@ -32,12 +31,15 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    context.audit_data(row, ignore=["column_3"])
+    context.audit_data(row, ignore=["column_3", "alias"])
+
 
 def crawl_excel_url(context: Context):
     doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
-    return doc.xpath(".//a[text()='Download Excluded or Terminated Provider list in Excel']")[0].get('href')
+    return doc.xpath(
+        ".//a[text()='Download Excluded or Terminated Provider list in Excel']"
+    )[0].get("href")
 
 
 def crawl(context: Context) -> None:
