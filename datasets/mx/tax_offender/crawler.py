@@ -19,16 +19,22 @@ URLs = [
 ]
 
 
-def replace_key(d: dict, possible_old_keys: List[str], new_key: str) -> dict:
+def replace_key(d: dict, context: Context) -> dict:
     """
-    This function returns the dictionary d with the first key found in possible_old_keys
+    This function returns the dictionary d with the keys replaced using the
+    column lookup. If there are two matches, then it raises an error
     replaced by the new key
     """
 
-    for possible_old_key in possible_old_keys:
-        if possible_old_key in d:
-            d[new_key] = d.pop(possible_old_key)
-            break
+    keys = list(d.keys())
+
+    for key in keys:
+        new_key = context.lookup_value("columns", key)
+        if new_key:
+            if new_key in d:
+                context.log.error("Multiple matches in the same dictionary")
+            else:
+                d[new_key] = d.pop(key)
     return d
 
 
@@ -71,51 +77,5 @@ def crawl(context: Context):
             for item in reader:
                 # Each csv has a slightly different name for each attribute
                 # so we are going to normalize them
-                replace_key(
-                    item,
-                    [
-                        "RAZÓN SOCIAL",
-                        "NOMBRE, DENOMINACIÓN O RAZÓN SOCIAL",
-                        "Contribuyente",
-                    ],
-                    "name",
-                )
-                replace_key(
-                    item,
-                    [
-                        "TIPO PERSONA",
-                        "TIPO DE PERSONA",
-                        "Tipo de persona",
-                        "Tipo persona",
-                    ],
-                    "person_type",
-                )
-                replace_key(
-                    item, ["SUPUESTO", " Motivo de condonación ", "Motivo"], "reason"
-                )
-                replace_key(
-                    item,
-                    [
-                        " Importe pesos ",
-                        "MONTO ",
-                        "MONTO",
-                        " MONTO ",
-                        " Importe condonado ",
-                    ],
-                    "value",
-                )
-                replace_key(
-                    item,
-                    [
-                        "FECHA DE CANCELACIÓN",
-                        "FECHA DE AUTORIZACIÓN",
-                        "FECHAS DE PRIMERA PUBLICACION",
-                        "Año",
-                    ],
-                    "start_date",
-                )
-                replace_key(
-                    item, ["ENTIDAD FEDERATIVA", "Entidad Federativa"], "authority"
-                )
-
+                replace_key(item, context)
                 crawl_item(item, context)

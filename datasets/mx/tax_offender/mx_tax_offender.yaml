@@ -32,6 +32,41 @@ dates:
   formats: ["%d/%m/%Y", "%Y"]
 
 lookups:
+  columns:
+    options:
+      - match:
+        - RAZÓN SOCIAL
+        - NOMBRE, DENOMINACIÓN O RAZÓN SOCIAL"
+        - Contribuyente
+        value: name
+      - match: 
+        - TIPO PERSONA
+        - TIPO DE PERSONA
+        - Tipo de persona
+        - Tipo persona
+        value: person_type
+      - match: 
+        - SUPUESTO
+        - " Motivo de condonación "
+        - "Motivo"
+        value: reason
+      - match:
+        - " Importe pesos "
+        - "MONTO "
+        - "MONTO"
+        - " MONTO "
+        - " Importe condonado "
+        value: value
+      - match: 
+        - "FECHA DE CANCELACIÓN"
+        - "FECHA DE AUTORIZACIÓN"
+        - "FECHAS DE PRIMERA PUBLICACION"
+        - "Año"
+        value: start_date
+      - match: 
+        - "ENTIDAD FEDERATIVA"
+        - "Entidad Federativa"
+        value: authority
   type.address:
     lowercase: true
     normalize: true
