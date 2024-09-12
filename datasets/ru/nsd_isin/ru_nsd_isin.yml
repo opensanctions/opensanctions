@@ -34,6 +34,21 @@ data:
   format: HTML
   lang: rus
 
+dates:
+  formats: "%d %b %Y"
+  months:
+    Sep: "сентября"
+    Aug: "августа"
+    Nov: "ноября"
+    Oct: "октября"
+    Jul: "июля"
+    Mar: "марта"
+    Apr: "апреля"
+    Jun: "июня"
+    Dec: "декабря"
+    May: "мая"
+    Feb: "февраля"
+    Jan: "января"
 lookups:
   type.name:
     normalize: true
