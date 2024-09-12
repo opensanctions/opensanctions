@@ -19,21 +19,6 @@ REGEX_MEMBER_GROUPS = (
     ")*$"
 )
 
-# MONTHS = {
-#     "ianuarie": "January",
-#     "februarie": "February",
-#     "martie": "March",
-#     "aprilie": "April",
-#     "mai": "May",
-#     "iunie": "June",
-#     "iulie": "July",
-#     "august": "August",
-#     "septembrie": "September",
-#     "octombrie": "October",
-#     "noiembrie": "November",
-#     "decembrie": "December",
-# }
-
 # Fondator/Administrator –
 # or
 # Fondator - TOLMAŢCHI VALERI Administrator - TOLMAŢCHI VALERI
