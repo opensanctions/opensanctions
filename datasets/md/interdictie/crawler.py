@@ -19,20 +19,20 @@ REGEX_MEMBER_GROUPS = (
     ")*$"
 )
 
-MONTHS = {
-    "ianuarie": "January",
-    "februarie": "February",
-    "martie": "March",
-    "aprilie": "April",
-    "mai": "May",
-    "iunie": "June",
-    "iulie": "July",
-    "august": "August",
-    "septembrie": "September",
-    "octombrie": "October",
-    "noiembrie": "November",
-    "decembrie": "December",
-}
+# MONTHS = {
+#     "ianuarie": "January",
+#     "februarie": "February",
+#     "martie": "March",
+#     "aprilie": "April",
+#     "mai": "May",
+#     "iunie": "June",
+#     "iulie": "July",
+#     "august": "August",
+#     "septembrie": "September",
+#     "octombrie": "October",
+#     "noiembrie": "November",
+#     "decembrie": "December",
+# }
 
 # Fondator/Administrator –
 # or
@@ -85,10 +85,10 @@ def crawl(context: Context):
         if delay:
             date_match = REGEX_DELAY.match(delay)
             if date_match:
-                delay_until_date = parse_date(date_match.group(1))
+                delay_until_date = parse_date(date_match.group(1), context)
             else:
                 delay_note = "Mențiuni: " + delay
-        start_date = parse_date(data.pop("data-inscrierii"))
+        start_date = parse_date(data.pop("data-inscrierii"), context)
         start_date = delay_until_date or start_date
 
         sanction_num, decision_date = parse_sanction_decision(
@@ -102,7 +102,8 @@ def crawl(context: Context):
         sanction.add("reason", reason, lang="ro")
         sanction.add("startDate", start_date)
         sanction.add(
-            "endDate", parse_date(data.pop("termenul-limita-de-includere-in-lista"))
+            "endDate",
+            parse_date(data.pop("termenul-limita-de-includere-in-lista"), context),
         )
         sanction.add("listingDate", start_date)
         sanction.add("status", delay_note, lang="rum")
@@ -114,20 +115,23 @@ def crawl(context: Context):
         context.emit(sanction)
 
 
-def parse_date(text):
-    text = text.lower()
-    for ro, en in MONTHS.items():
-        text = text.replace(ro, en)
+def parse_date(text: str, context: Context):
+    text = h.replace_months(context.dataset, text.lower())
     segments = text.split(", ")
     if len(segments) == 3:
         text = ", ".join(segments[1:])
-    return h.parse_date(text, ["%d/%m/%Y", "%d.%m.%Y", "%d %B, %Y"])
+    date_info = h.parse_formats(text, context.dataset.dates.formats)
+    if date_info and date_info.dt:
+        return date_info.text
+
+    context.log.warning("Failed to parse date", raw_date=text)
+    return None
 
 
 def parse_sanction_decision(context, text):
     match = REGEX_SANCTION_NUMBER.match(text)
     if match:
-        return match.group(1), parse_date(match.group(2))
+        return match.group(1), parse_date(match.group(2), context)
     else:
         context.log.warn(f'Failed to parse saction number and date from "{ text }"')
         return None, None
