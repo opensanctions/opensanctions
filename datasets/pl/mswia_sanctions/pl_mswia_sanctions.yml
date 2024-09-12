@@ -35,9 +35,6 @@ data:
   url: https://www.gov.pl/web/mswia/lista-osob-i-podmiotow-objetych-sankcjami
   format: HTML
   lang: pol
-dates:
-  formats: ["%d.%m.%Y"]
-
 lookups:
   type.identifier:
     normalize: true
@@ -117,7 +114,7 @@ lookups:
           address: "Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan"
           idNumber: "220540011771"
 dates:
-  formats: ["%d.%m.%Y", "%d %b %Y", "%d %B %Y", "%d. %m %Y", "%d. %m. %Y"]
+  formats: ["%d.%m.%Y", "%d %b %Y", "%d %B %Y", "%d. %m %Y", "%d. %m. %Y", "%d.%m.%Y"]
   months:
     "01": stycznia
     "02": lutego
