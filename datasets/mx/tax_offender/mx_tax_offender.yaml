@@ -28,6 +28,8 @@ url: "http://omawww.sat.gob.mx/cifras_sat/Paginas/datos/vinculo.html?page=ListCo
 data:
   url: http://omawww.sat.gob.mx/cifras_sat/Paginas/datos/vinculo.html?page=ListCompleta69.html
   format: HTML
+dates:
+  formats: ["%d/%m/%Y", "%Y"]
 
 lookups:
   type.address:

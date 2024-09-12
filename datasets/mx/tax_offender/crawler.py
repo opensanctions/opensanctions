@@ -45,11 +45,9 @@ def crawl_item(input_dict: dict, context: Context):
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", input_dict.pop("reason"))
     if input_dict.get("start_date"):
-        sanction.add(
-            "startDate",
-            h.parse_date(input_dict.pop("start_date"), formats=["%d/%m/%Y", "%Y"]),
-        )
+        h.apply_date(sanction, "start_date", input_dict.pop("start_date"))
     sanction.add("authority", input_dict.pop("authority"))
+    sanction.add("description", "Value: " + input_dict.pop("value"))
 
     context.emit(entity, target=True)
     context.emit(sanction)
@@ -57,7 +55,6 @@ def crawl_item(input_dict: dict, context: Context):
     context.audit_data(
         input_dict,
         ignore=[
-            "value",
             "Fecha de publicación (Con monto de acuerdo a la Ley de Transparencia",
             "FECHA DE PUBLICACIÓN",
         ],
