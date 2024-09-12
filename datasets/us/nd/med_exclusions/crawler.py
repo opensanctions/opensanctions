@@ -27,7 +27,10 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("provider_type"))
-
+    if row.get("medicaid_provider_id"):
+        entity.add("description", "Medicaid Provider ID: "+row.pop("medicaid_provider_id"))
+    if row.get("medicareprovidernumber"):
+        entity.add("description", "Medicare Provider Number: "+row.pop("medicareprovidernumber"))
     sanction = h.make_sanction(context, entity)
     termination_date = row.pop("exclusiondate").replace("Termination ", "")
     sanction.add(
@@ -42,8 +45,6 @@ def crawl_item(row: Dict[str, str], context: Context):
         row,
         ignore=[
             "providerverification",
-            "medicaid_provider_id",
-            "medicareprovidernumber",
             "state",
         ],
     )
