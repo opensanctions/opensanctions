@@ -1,7 +1,26 @@
 import csv
-from typing import List
 
 from zavod import Context, helpers as h
+
+ALLOW_FILES = [
+    "Cancelados",
+    "ReducciÃ³n de multas (ArtÃ\xadculo 74 del CÃ³digo Fiscal de la FederaciÃ³n)",
+    "Condonados de concurso mercantil (ArtÃ\xadculo 146B del CÃ³digo Fiscal de la FederaciÃ³n)",
+    "ReducciÃ³n de recargos (ArtÃ\xadculo 21 del CÃ³digo Fiscal de la FederaciÃ³n)",
+    "Condonados por decreto (Del 22 de enero y 26 de marzo de 2015)",
+    "Condonados del 01 de enero de 2007 al 04 de mayo de 2015",
+    "Cancelados ArtÃ\xadculo 146A del 01 de enero de 2007 al 04 de mayo de 2015",
+    "Retorno de inversiones",
+    "Exigibles",
+    "Firmes",
+    "No localizados",
+    "Sentencias",
+]
+
+DENY_FILES = [
+    "Documento tÃ©cnico y normativo",
+    "Certificado de Sello Digital (CSD) sin efectos",
+]
 
 URLs = [
     "http://omawww.sat.gob.mx/cifras_sat/Documents/Cancelados.csv",
@@ -47,7 +66,6 @@ def crawl_item(input_dict: dict, context: Context):
         return
     input_dict.pop("person_type")
 
-
     entity = context.make(schema)
     entity.id = context.make_id(input_dict.get("RFC"), input_dict.get("name"))
     entity.add("name", input_dict.pop("name"))
@@ -71,9 +89,23 @@ def crawl_item(input_dict: dict, context: Context):
     context.audit_data(input_dict)
 
 
+def get_files_urls(context: Context):
+    response = context.fetch_html(context.data_url)
+
+    for a in response.findall(".//a"):
+        if a.text_content() in ALLOW_FILES:
+            yield a.get("href")
+        elif a.text_content() in DENY_FILES:
+            continue
+        else:
+            context.log.warning(
+                "Unkown file found", label=a.text_content(), url=a.get("href")
+            )
+
+
 def crawl(context: Context):
 
-    for url in URLs:
+    for url in get_files_urls(context):
         fname = url.split("/")[-1]
         source_file = context.fetch_resource(fname, url)
         with open(source_file, "r", encoding="latin-1") as f:
