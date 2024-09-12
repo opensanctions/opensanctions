@@ -9,8 +9,6 @@ from normality import collapse_spaces
 from zavod import Context, helpers as h
 from zavod.logic.pep import OccupancyStatus, categorise
 
-FORMATS = ["%d. %m %Y", "%d.%m.%Y", "%m/%Y"]
-
 PARTY_NAMES = defaultdict(int)
 PARTY_REGEX = re.compile(r"(\([\w ]+\)|, [\w ]+$)")
 MAX_POSITION_NAME_LENGTH = 120
@@ -21,7 +19,8 @@ def extract_dates(context, url, el):
     inactive_dates_el = el.find('.//span[@class="inaktiv"]')
     if active_date_el is not None:
         start_date = h.parse_date(
-            active_date_el.text_content().replace("seit ", ""), FORMATS
+            active_date_el.text_content().replace("seit ", ""),
+            context.dataset.dates.formats,
         )
         end_date = None
         assume_current = True
@@ -29,8 +28,8 @@ def extract_dates(context, url, el):
         inactive_dates = inactive_dates_el.text_content()
         if " - " in inactive_dates:
             start_date, end_date = inactive_dates.split(" - ")
-            start_date = h.parse_date(start_date, FORMATS)
-            end_date = h.parse_date(end_date, FORMATS)
+            start_date = h.parse_date(start_date, context.dataset.dates.formats)
+            end_date = h.parse_date(end_date, context.dataset.dates.formats)
         else:
             start_date = None
             end_date = None
