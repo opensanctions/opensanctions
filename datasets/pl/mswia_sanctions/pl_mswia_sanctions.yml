@@ -113,8 +113,16 @@ lookups:
         props:
           address: "Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan"
           idNumber: "220540011771"
+  type.date:
+    options: 
+      - match: "15 11 1963 r. w wilnie (litwa) obywatel rosyjski nr pesel: 63111513931"
+        value: 1963-11-15
+      - match: "2 01 1968 r. w dzierżyńsku"
+        value: 1968-01-02
+      - match: 21 04 1964 r. we lwowie
+        value: 1964-04-21
 dates:
-  formats: ["%d.%m.%Y", "%d %b %Y", "%d %B %Y", "%d. %m %Y", "%d. %m. %Y", "%d.%m.%Y"]
+  formats: ["%d %m %Y", "%d.%m.%Y", "%d %B %Y"]
   months:
     "01": stycznia
     "02": lutego
@@ -122,7 +130,9 @@ dates:
     "04": kwietnia
     "05": maja
     "06": czerwca
-    "07": lipca
+    "07": 
+      - lipca
+      - lipiec
     "08": sierpnia
     "09": września
     "10": października

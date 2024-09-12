@@ -1,6 +1,6 @@
-import re
-from typing import Dict
+from typing import Dict, Optional, Tuple
 from followthemoney.types import registry
+import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -31,20 +31,60 @@ CHOPSKA = [
 ]
 
 
-def parse_date(text):
+# def parse_date(text, context):
+#     text = text.lower().strip()
+#     text = text.replace("urodzona", "")
+#     text = text.replace("urodzonego", "")
+#     text = text.replace("urodzony", "")
+#     text = text.replace("urodzonej", "")
+#     text = text.rstrip(" r.")
+#     text = text.rstrip(" r.,")
+#     text = text.rstrip("r")
+#     text = text.rstrip("r. w")
+#     text = text.rstrip("r.,")
+#     text = text.strip()
+
+#     text = h.replace_months(context.dataset, text)
+#     date_info = h.parse_formats(text, context.dataset.dates.formats)
+
+#     if date_info and date_info.dt:
+#         return date_info.text  # Return the parsed date as a string
+
+#     context.log.warning("Failed to parse date", raw_date=text)
+#     return None
+
+
+def parse_date(text: str, context: Context) -> Optional[str]:
+    # Clean up text
     text = text.lower().strip()
-    text = text.replace("urodzona", "")
-    text = text.replace("urodzonego", "")
-    text = text.replace("urodzony", "")
-    text = text.rstrip(" r.")
-    text = text.rstrip(" r.,")
-    text = text.rstrip("r")
-    text = text.strip()
-    # for pl, en in MONTHS.items():
-    #     text = text.replace(pl, en)
-    # prefix = h.parse_formats(text, BDAY_FORMATS)
-    # if prefix.dt:
-    return text
+
+    # Remove known non-date text components
+    text = re.sub(
+        r"(urodzona|urodzonego|urodzony|urodzonej|r\.,|r\.$|r\.,$|r$)", "", text
+    ).strip()
+
+    # Regex to extract potential date parts
+    match = re.search(r"(\d{1,2})\s+(\w+)\s+(\d{4})", text)
+    if match:
+        day, month_word, year = match.groups()
+        text = f"{day} {month_word} {year}"
+    else:
+        context.log.warning("Failed to extract date components", raw_date=text)
+        return None
+
+    # Apply month replacements according to the dataset configuration
+    text = h.replace_months(context.dataset, text)
+
+    # Log intermediate state
+    context.log.debug(f"Normalized date text: {text}")
+
+    # Parse the date using the configured formats
+    date_info = h.parse_formats(text, context.dataset.dates.formats)
+    if date_info and date_info.dt:
+        return date_info.text  # Return the parsed date as a string
+
+    context.log.warning("Failed to parse date", raw_date=text)
+    return None
 
 
 def parse_details(context: Context, entity: Entity, text: str):
@@ -52,17 +92,14 @@ def parse_details(context: Context, entity: Entity, text: str):
         parts = text.rsplit(chop, 1)
         text = parts[0]
         if len(parts) > 1:
-            entity.add(prop, parts[1])
+            entity.add(prop, parts[1].strip())
 
     if not len(text.strip()):
         return
-    bday = parse_date(text)
-    print(bday)
+
+    bday = parse_date(text, context)
     if bday:
-        print(bday)
         h.apply_date(entity, "birthDate", bday)
-        # entity.add("birthDate", bday)
-        return
 
     result = context.lookup("details", text)
     if result is None:
@@ -70,6 +107,28 @@ def parse_details(context: Context, entity: Entity, text: str):
     else:
         for prop, value in result.props.items():
             entity.add(prop, value)
+
+
+# def parse_details(context: Context, entity: Entity, text: str):
+#     for chop, prop in CHOPSKA:
+#         parts = text.rsplit(chop, 1)
+#         text = parts[0]
+#         if len(parts) > 1:
+#             entity.add(prop, parts[1])
+
+#     if not len(text.strip()):
+#         return
+#     bday = parse_date(text, context)
+#     if bday:
+#         h.apply_date(entity, "birthDate", bday)
+#         return
+
+#     result = context.lookup("details", text)
+#     if result is None:
+#         context.log.warning("Unhandled details", details=repr(text))
+#     else:
+#         for prop, value in result.props.items():
+#             entity.add(prop, value)
 
 
 def crawl_row(context: Context, row: Dict[str, str], table_title: str):
