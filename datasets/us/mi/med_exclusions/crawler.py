@@ -23,12 +23,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         person.add("topics", "debarment")
 
         link = context.make("UnknownLink")
-        link.id = context.make_id(
-            row.pop("first_name"),
-            row.pop("middle_name"),
-            row.pop("last_name"),
-            entity_name,
-        )
+        link.id = context.make_id(person.id, entity.id)
         link.add("object", entity)
         link.add("subject", person)
 
