@@ -15,7 +15,12 @@ description: |
 publisher:
   name: Servicio de Administración Tributaria
   acronym: SAT
-  description: Tax Administration Service
+  name_en: Tax Administration Service
+  description: |
+   > The SAT is responsible for collecting taxes, as well as applying fiscal and customs law,
+   > with the purpose of funding public spending in a proportional and equitable manner.
+   > Additionally, it is the bureau's responsibility to generate and collect information
+   > necessary for the formation and evaluation of fiscal policy.
   url: https://www.sat.gob.mx/home
   official: true
   country: "mx"
