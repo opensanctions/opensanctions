@@ -40,7 +40,13 @@ def replace_key(d: dict, context: Context) -> dict:
 
 def crawl_item(input_dict: dict, context: Context):
 
-    schema = "Person" if input_dict.pop("person_type") == "F" else "Company"
+    schema = context.lookup_value("person_type", input_dict.get("person_type"))
+
+    if not schema:
+        context.log.info(input_dict.get("person_type"))
+        return
+    input_dict.pop("person_type")
+
 
     entity = context.make(schema)
     entity.id = context.make_id(input_dict.get("RFC"), input_dict.get("name"))
@@ -55,7 +61,8 @@ def crawl_item(input_dict: dict, context: Context):
     if input_dict.get("listing_date"):
         h.apply_date(sanction, "listingDate", input_dict.pop("listing_date"))
     sanction.add("authority", input_dict.pop("authority"))
-    sanction.add("description", "Value: " + input_dict.pop("value"))
+    if input_dict.get("value"):
+        sanction.add("description", "Value: " + input_dict.pop("value"))
     sanction.add("sourceUrl", input_dict.pop("source_url"))
 
     context.emit(entity, target=True)

@@ -36,7 +36,7 @@ lookups:
     options:
       - match:
         - RAZÓN SOCIAL
-        - NOMBRE, DENOMINACIÓN O RAZÓN SOCIAL"
+        - NOMBRE, DENOMINACIÓN O RAZÓN SOCIAL
         - Contribuyente
         value: name
       - match: 
@@ -71,6 +71,18 @@ lookups:
         - "Fecha de publicación (Con monto de acuerdo a la Ley de Transparencia"
         - "FECHA DE PUBLICACIÓN"
         value: listing_date
+  person_type:
+    options:
+      - match: 
+        - F
+        - Persona F¡sica
+        - Persona fisica
+        value: Person
+      - match: 
+        - M
+        - Persona Moral
+        - Persona moral
+        value: LegalEntity
   type.address:
     lowercase: true
     normalize: true
