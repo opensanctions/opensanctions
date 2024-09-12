@@ -40,7 +40,7 @@ def crawl_item(input_dict: dict, context: Context):
     entity.id = context.make_id(input_dict.get("RFC"), input_dict.get("name"))
     entity.add("name", input_dict.pop("name"))
     entity.add("taxNumber", input_dict.pop("RFC"))
-    entity.add("topics", "debarment")
+    entity.add("topics", "crime.fin")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", input_dict.pop("reason"))
