@@ -79,3 +79,9 @@ lookups:
           - 1975-02-13
           - 1976-02-15
           - 1977-01-07
+dates:
+  formats: ["%d %B %Y", "%d.%m.%Y"]
+  months:
+    May: "Mei"
+    February: "Februari"
+    August: "Ogos"

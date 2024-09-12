@@ -11,8 +11,8 @@ from zavod.shed.zyte_api import fetch_html
 from zavod.shed.gpt import run_image_prompt
 
 
-FORMATS = ["%d %B %Y", "%d.%m.%Y"]
-MONTHS = {"Mei": "May", "Februari": "February", "Ogos": "August"}
+# FORMATS = ["%d %B %Y", "%d.%m.%Y"]
+# MONTHS = {"Mei": "May", "Februari": "February", "Ogos": "August"}
 
 PROMPT = """
 Extract structured data from the following page of a PDF document. Return 
@@ -46,12 +46,26 @@ def clean_row(row: Dict[str, Any]) -> Dict[str, List[str]]:
     return out
 
 
-def parse_date(date: Optional[str]) -> List[str]:
+# def parse_date(date: Optional[str]) -> List[str]:
+#     if date is None:
+#         return []
+#     for malay, eng in MONTHS.items():
+#         date = date.replace(malay, eng)
+#     return h.parse_date(date, FORMATS)
+
+
+def parse_date(date: Optional[str], context: Context) -> List[str]:
     if date is None:
         return []
-    for malay, eng in MONTHS.items():
-        date = date.replace(malay, eng)
-    return h.parse_date(date, FORMATS)
+
+    date = date.lower().strip()
+    date = h.replace_months(context.dataset, date)
+    date_info = h.parse_formats(date, context.dataset.dates.formats)
+    if date_info and date_info.dt:
+        return date_info.text
+
+    context.log.warning("Failed to parse date", raw_date=date)
+    return []
 
 
 def unblock_validator(el) -> bool:
@@ -71,7 +85,7 @@ def crawl_person(context: Context, data: Dict[str, List[str]]):
     entity.add("topics", "sanction")
     for fld in ["tarikh_lahir", "tarikhlahir"]:
         for dob in ensure_list(data.pop(fld, [])):
-            entity.add("birthDate", parse_date(dob))
+            entity.add("birthDate", parse_date(dob, context))
     entity.add("birthPlace", data.pop("tempat_lahir", []))
 
     entity.add("alias", data.pop("nama_lain", []))
@@ -89,7 +103,7 @@ def crawl_person(context: Context, data: Dict[str, List[str]]):
         "tarikh_disenaraihan",
     ]:
         for date in ensure_list(data.pop(fld, [])):
-            sanction.add("listingDate", parse_date(date))
+            sanction.add("listingDate", parse_date(date, context))
     sanction.add("authorityId", code)
 
     context.emit(entity, target=True)
@@ -112,7 +126,7 @@ def crawl_group(context: Context, data: Dict[str, List[str]]):
 
     sanction = h.make_sanction(context, entity)
     for date in ensure_list(data.pop("tarikh_disenaraikan", [])):
-        sanction.add("listingDate", parse_date(date))
+        sanction.add("listingDate", parse_date(date, context))
     sanction.add("authorityId", code)
 
     context.emit(entity, target=True)
