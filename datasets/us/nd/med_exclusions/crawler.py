@@ -1,8 +1,11 @@
 from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
+import re
 
 from zavod import Context, helpers as h
+
+AKA_MATCH = r"\(aka ([^)]+)\)"
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -13,6 +16,12 @@ def crawl_item(row: Dict[str, str], context: Context):
     provider_name = row.pop("provider_name")
     entity = context.make("LegalEntity")
     entity.id = context.make_id(provider_name, row.get("n_p_i"))
+
+    alias_match = re.search(AKA_MATCH, provider_name)
+    if alias_match:
+        entity.add("alias", alias_match.group(1))
+
+    provider_name = re.sub(AKA_MATCH, "", provider_name).strip()
     entity.add("name", provider_name)
 
     if row.get("n_p_i") != "N/A":
@@ -28,9 +37,14 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("provider_type"))
     if row.get("medicaid_provider_id"):
-        entity.add("description", "Medicaid Provider ID: "+row.pop("medicaid_provider_id"))
+        entity.add(
+            "description", "Medicaid Provider ID: " + row.pop("medicaid_provider_id")
+        )
     if row.get("medicareprovidernumber"):
-        entity.add("description", "Medicare Provider Number: "+row.pop("medicareprovidernumber"))
+        entity.add(
+            "description",
+            "Medicare Provider Number: " + row.pop("medicareprovidernumber"),
+        )
     sanction = h.make_sanction(context, entity)
     termination_date = row.pop("exclusiondate").replace("Termination ", "")
     sanction.add(
