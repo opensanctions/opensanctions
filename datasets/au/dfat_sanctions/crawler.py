@@ -11,11 +11,9 @@ from zavod import helpers as h
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 ADDRESS_SPLITS = [";", "ii) ", "iii) "]
-FORMATS = ["%Y-%m-%d", "%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
-FORMATS = FORMATS + ["%b. %Y", "%d %B. %Y", "%Y", "%m/%Y"]
 
 
-def clean_date(date):
+def clean_date(date, context):
     splits = [
         "a)",
         "b)",
@@ -49,7 +47,7 @@ def clean_date(date):
         part = part.strip().strip(",")
         if not len(part):
             continue
-        dates.update(h.parse_date(part, FORMATS))
+        dates.update(h.parse_date(part, context.dataset.dates.formats))
     return dates
 
 
@@ -120,7 +118,7 @@ def parse_reference(
             entity.add("nationality", country)
         else:
             entity.add("country", country)
-        dates = clean_date(row.pop("date_of_birth"))
+        dates = clean_date(row.pop("date_of_birth"), context)
         entity.add("birthDate", dates, quiet=True)
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
         entity.add("notes", h.clean_note(row.pop("additional_information")))
