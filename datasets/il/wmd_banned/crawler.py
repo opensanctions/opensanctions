@@ -1,14 +1,58 @@
 from zavod import Context
-from typing import Dict, List, Optional
+from typing import List, Optional, Tuple
 from rigour.mime.types import XLSX
 import openpyxl
 from zavod import helpers as h
 import shutil
-from pprint import pprint as pp
 import re
+import datetime
 
 
-def extract_passport_no(text):
+# Hebrew to Gregorian month mapping
+HEBRW_MONTHS = {
+    "ינואר": "January",
+    "פברואר": "February",
+    "מרץ": "March",
+    "אפריל": "April",
+    "מאי": "May",
+    "יוני": "June",
+    "יולי": "July",
+    "אוגוסט": "August",
+    "ספטמבר": "September",
+    "אוקטובר": "October",
+    "נובמבר": "November",
+    "דצמבר": "December",
+}
+
+
+def hebrew_to_datetime(date_str: str):
+    """
+    Convert a Hebrew date string to a Normal datetime.date object.
+    """
+    if not date_str:
+        return None
+
+    if isinstance(date_str, int):
+        return datetime.date(date_str, 1, 1)
+
+    date_str = re.sub("\n", "", date_str)
+    for heb_month, eng_month in HEBRW_MONTHS.items():
+        date_str = re.sub(heb_month, f"{eng_month} ", date_str, flags=re.IGNORECASE)
+        date_str = re.sub("ב", "", date_str, flags=re.IGNORECASE)
+
+    date_fmt = ["%d %B %Y", "%d %B. %Y"]
+    for fmt in date_fmt:
+        try:
+            date_obj = datetime.datetime.strptime(date_str, fmt)
+            return date_obj.date()
+        except ValueError:
+            pass
+
+
+def extract_passport_no(text: str):
+    """
+    Extract passport numbers from a given text.
+    """
     if not text:
         return None
     text = str(text)
@@ -18,7 +62,10 @@ def extract_passport_no(text):
     return matches
 
 
-def extract_n_pop_address(text):
+def extract_n_pop_address(text: str):
+    """
+    Extract address and update the text by removing the extracted address.
+    """
     if not text:
         return None, None
 
@@ -38,7 +85,20 @@ def extract_n_pop_address(text):
         return None, text
 
 
-def format_numbered_listings(text):
+def clean_name(name: str | List[str]):
+    """
+    Clean the given name (or list of names) by removing newlines, quotes, colons, and trailing dots
+    """
+    if isinstance(name, list):
+        return [re.sub(r"[\n':]|^\.*|\.*$", "", match).strip() for match in name]
+
+    return re.sub(r"[\n':]|^\.*|\.*$", "", name).strip()
+
+
+def format_numbered_listings(text: str):
+    """
+    Extract items from a text that follows numbered or lettered listings.
+    """
     if not text:
         return None
     patterns = [
@@ -48,19 +108,18 @@ def format_numbered_listings(text):
     for pattern in patterns:
         matches = re.findall(pattern, text, re.DOTALL | re.VERBOSE | re.IGNORECASE)
         if matches:
-            return list(
-                set(
-                    [
-                        match.replace("\n", "").replace("'", "").strip()
-                        for match in matches
-                    ]
-                )
-            )
+            return matches
+
     else:
         return text
 
 
-def sheet_to_dicts(sheet):
+def sheet_to_tuple(sheet):
+    """
+    Convert rows from an Excel sheet to a tuple.
+    Index of tuple is used to locate attributes in the crawler
+    as the headers/keys are in hebrew
+    """
     headers: Optional[List[str]] = None
     for row in sheet.iter_rows(min_row=0):
         cells = [c.value for c in row]
@@ -71,21 +130,22 @@ def sheet_to_dicts(sheet):
             continue
 
         if len(cells) == len(headers):
-            if 'מס"ד' in cells:  # cell that contains headers
+            if 'מס"ד' in cells:  # cell that contains headers, skip it
                 continue
 
             none_count = sum(1 for item in cells if not item)
-            if none_count > len(headers) // 2:  # headers with one or two elements
+            if (
+                none_count > len(headers) // 2
+            ):  #  cells that do not contain data up to half of the headers count, skip it as it is probably a subheader
                 continue
 
             yield cells
 
 
-def parse_sheet_row(context: Context, row: Dict[str, str]):
+def parse_sheet_row(context: Context, row: Tuple[str | int, ...]):
     assert (
         len(row) == 11
     ), "Crawler was developed with excel sheet of 11 columns, please check that attributes still conforms to index used"
-    row_copy = row.copy()
 
     other_info = row.pop(10)
     address_nationality = row.pop(9)
@@ -96,60 +156,61 @@ def parse_sheet_row(context: Context, row: Dict[str, str]):
     address = info_address or nat_address
 
     dob = row.pop(8)
-    # if dob:
-    #     dob = h.parse_date(dob, "%d %b. %Y")
+    dob = hebrew_to_datetime(dob)
+
     passport = row.pop(7)
     parse_name = row.pop(6)
-    name_split = re.split(r"\bA\.K\.A\b|;", parse_name, flags=re.IGNORECASE)
-    name = format_numbered_listings(name_split[0].strip())
-    alias = [format_numbered_listings(alias) for alias in name_split[1:]]
 
-    isreal_adoption_date = row.pop(5)  # permanent
+    # p
+    name_split = re.split(
+        r"\bA\.K\.A\b|;|ידוע גם|AKA:", parse_name, flags=re.IGNORECASE
+    )
+    name = format_numbered_listings(name_split[0].strip())
+
+    if isinstance(name, list) and len(name) > 1:
+        alias = name[1:]
+        name = name[0]
+    else:
+        alias = []
+
+    other_alias = [format_numbered_listings(alias) for alias in name_split[1:]]
+    flattened_alias = [
+        item
+        for sublist in other_alias
+        for item in (sublist if isinstance(sublist, list) else [sublist])
+    ]
+    alias += flattened_alias
+
+    name = clean_name(name)
+    alias = clean_name(alias)
+
+    isreal_adoption_date = row.pop(5)
+    isreal_adoption_date = hebrew_to_datetime(isreal_adoption_date)  # permanent
+
     isreal_temp_adoption_date = row.pop(4)
+    isreal_temp_adoption_date = hebrew_to_datetime(isreal_temp_adoption_date)
+
     serial_no = row.pop(3)
     originally_declared_by = row.pop(2)
     declaration_date = row.pop(1)
     if declaration_date:
         declaration_date = h.parse_date(declaration_date, "%d %b. %Y")
-    record_id = row.pop(0)
 
-    pp(
-        {
-            # "other_info": other_info,
-            # "notes": notes,
-            # "extracted_address": address,
-            # "ori_address": address or address_nationality,
-            # "clean_ori_address": format_numbered_listings(address),
-            # "nationality": format_numbered_listings(nationality),
-            # "dob": dob,
-            # "passport_ori": passport,
-            # "passport": extract_passport_no(passport),
-            "parse_name": parse_name,
-            "name": name,
-            "alias": alias,
-            # "isreal_adoption_date": isreal_adoption_date,
-            # "isreal_temp_adoption_date": isreal_temp_adoption_date,
-            # "serial_no": serial_no,
-            # "originally_declared_by": originally_declared_by,
-            # "declaration_date": declaration_date,
-            # "record_id": record_id,
-            # "add_nationality": address_nationality,
-        }
-    )
+    record_id = row.pop(0)
 
     if "iri" in serial_no.lower() or "pi" in serial_no.lower():
         entity = context.make("Person")
         entity.id = context.make_id("Person", f"{record_id}-{serial_no}")
         entity.add("passportNumber", extract_passport_no(passport))
         entity.add("nationality", nationality)
-        # entity.add("birthDate", dob)
+        entity.add("birthDate", dob)
 
     elif "ire" in serial_no.lower() or "pe" in serial_no.lower():
         entity = context.make("Organization")
         entity.id = context.make_id("Company", f"{record_id}-{serial_no}")
 
     else:
-        context.log.warn(f"Entity not recognized from serial number:{serial_no}")
+        context.log.warn(f"Entity not recognized from serial number: {serial_no}")
 
     entity.add("name", name)
     entity.add("alias", alias)
@@ -160,14 +221,10 @@ def parse_sheet_row(context: Context, row: Dict[str, str]):
     sanction.add("authority", originally_declared_by, lang="he")
     sanction.add("unscId", serial_no)
     sanction.add("listingDate", declaration_date)
-    # sanction.add("reason", reason)
-    # sanction.add("provisions", legal_basis)
-    # sanction.add("program", sanction_regime)
-    # sanction.add("endDate", expiration_date)
+    sanction.add("startDate", isreal_adoption_date)
 
     context.emit(entity, target=True)
     context.emit(sanction)
-    # print("===========")
 
 
 def crawl(context: Context):
@@ -179,10 +236,9 @@ def crawl(context: Context):
     shutil.copyfile(data_path, source_path)
 
     context.export_resource(source_path, XLSX, title=context.SOURCE_TITLE)
-    rows = sheet_to_dicts(
+    rows = sheet_to_tuple(
         openpyxl.load_workbook(source_path, read_only=True).worksheets[0]
     )
 
     for row in rows:
         parse_sheet_row(context, row)
-        # print("\n============")

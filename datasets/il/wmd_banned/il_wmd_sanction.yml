@@ -3,20 +3,22 @@ entry_point: crawler.py
 prefix: il-sanctioned
 coverage:
   frequency: daily
-  start: 2024-08-13
-# load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+  start: 2024-09-12
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   List of entities and individuals subject to sanctions under the Prevention of Distribution and Financing of Weapons of Mass Destruction Law
 description: |
   The list includes entities and individuals 
-   - Designated by the UN Security Council under Resolutions 2231 and 1718, and those 
-   restricted under the Trading with the Enemy Ordinance – 1939, and 
-   the Prevention of Distribution and Financing of Weapons of Mass Destruction Law – 2018. 
+   - Designated by the UN Security Council under Resolutions 2231 and 1718.
+   - Those restricted under the Trading with the Enemy Ordinance – 1939, and the Prevention of Distribution and Financing of Weapons of Mass Destruction Law – 2018. 
    
    Economic activity with these parties is restricted or forbidden under Israeli law.
+
 publisher:
   name: Ministry of Finance
   description: |
+    The Israeli Ministry of Finance is the primary economic ministry in Israel, overseeing the government's economic policies, fiscal targets, and budget management. 
+    It handles state revenues, tax collection, nonresident investments, and international economic relations.  [Read More](https://en.wikipedia.org/wiki/Ministry_of_Finance_(Israel))
   country: il
   url: https://www.gov.il/en/departments/ministry_of_finance/govil-landing-page
   official: true
@@ -38,8 +40,8 @@ lookups:
       - contains:
           - 1969
         value: null
-      # assertions:
-#   min:
-#     schema_entities:
-#       Person: 57 # In the name of the doc
-#       Organization: 50
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Organization: 100
