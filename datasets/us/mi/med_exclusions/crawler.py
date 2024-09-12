@@ -17,7 +17,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     if row.get("first_name"):
         person = context.make("Person")
         person.id = context.make_id(
-            row.get("first_name"), row.get("middle_name"), row.get("last_name")
+            row.get("first_name"), row.get("middle_name"), row.get("last_name"), row.get("npi"), row.pop("city")
         )
 
         person.add("topics", "debarment")
@@ -60,7 +60,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    context.audit_data(row, ignore=["city", "sanction_date2"])
+    context.audit_data(row, ignore=["sanction_date2"])
 
 
 def crawl_excel_url(context: Context):
