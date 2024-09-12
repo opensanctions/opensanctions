@@ -67,6 +67,10 @@ lookups:
         - "ENTIDAD FEDERATIVA"
         - "Entidad Federativa"
         value: authority
+      - match: 
+        - "Fecha de publicación (Con monto de acuerdo a la Ley de Transparencia"
+        - "FECHA DE PUBLICACIÓN"
+        value: listing_date
   type.address:
     lowercase: true
     normalize: true
