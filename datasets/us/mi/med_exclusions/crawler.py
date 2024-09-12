@@ -11,7 +11,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         return
 
     entity_name = row.pop("entity_name")
-    entity = context.make("LegalEntity")
+    entity = context.make("Company")
     entity.id = context.make_id(entity_name, row.get("npi"))
 
     if row.get("first_name"):
