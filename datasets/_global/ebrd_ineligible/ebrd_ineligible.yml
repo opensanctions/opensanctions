@@ -58,11 +58,11 @@ lookups:
     normalize: true
     lowercase: true 
     options:
-       - match: 
+      - match: 
           - Ongoing
           - Indefinite
           - Permanent
-         value: null
+        value: null
   type.address: 
     options: 
        - match: Xom Bo, Commune Thanh Liet District Thanh Tri Hanoi VIET NAM Room 3016, Building B Vinaconex Building Nguyen Xien Dai Kim Ward Hoang Mai District Hanoi 100000 VIET NAM No. 14, TT6B Urban West Nam Linh Dam Hoang Mai Hanoi 100000 VIET NAM No. 2/20, Lane 255 Hope Street Dong Tam Ward Hai Ba Trung District Hanoi VIET NAM
@@ -112,4 +112,16 @@ lookups:
       value: Farkhad Akhmedzhanovich Amraev
       match: Mr. Rabin Akhmedzhanovich Amraev and any entity controlled directly or indirectly by Mr. Rabin Akhmedzhanovich Amraev, which was established (i.e. in existence) on or before 31 December 2019
       value: Rabin Akhmedzhanovich Amraev
-#assertions:
+assertions:
+  min:
+    schema_entities:
+      Company: 225
+      LegalEntity: 1150
+    country_entities:
+      cn: 750
+      ru: 7
+      ke: 20
+  max:
+    schema_entities:
+      Company: 250
+      LegalEntity: 1190

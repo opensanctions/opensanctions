@@ -150,6 +150,7 @@ def crawl_third_party(context: Context):
             entity.add("name", name)
             entity.add("address", address)
             entity.add("country", nationality)
+            entity.add("topics", "debarment")
 
             sanction = h.make_sanction(context, entity)
             sanction.add("reason", data.pop("prohibited_practice"))
@@ -167,6 +168,6 @@ def crawl_third_party(context: Context):
 
 
 def crawl(context: Context):
-    # crawl_ebrd_initiated(context)
-    # crawl_third_party(context)
+    crawl_ebrd_initiated(context)
+    crawl_third_party(context)
     crawl_mutual_enforcement(context)
