@@ -2,10 +2,9 @@ title: Ukraine NSDC State Register of Sanctions
 entry_point: crawler.py
 prefix: ua-nsdc
 coverage:
+  schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-11-17
-deploy:
-  schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
@@ -169,6 +168,8 @@ lookups:
         value: 20432 (військовий ідентифікаційний номер Ємену)
       - match: 2771303400 [UA] Україна (відомості згідно з Державним реєстром фізичних осіб)
         value: 2771303400 [UA]
+      - match: 1149102085714 [RU] росія (ООО «Ювас-транс»)
+        value: 1149102085714 [RU]
   attributes:
     options:
       - match:

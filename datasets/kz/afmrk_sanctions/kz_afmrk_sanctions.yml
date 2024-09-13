@@ -4,8 +4,6 @@ prefix: kzafm
 coverage:
   frequency: daily
   start: 2021-12-13
-deploy:
-  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A combination of two lists of sanctioned individuals and entities published by the

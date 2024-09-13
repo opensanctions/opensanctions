@@ -30,13 +30,14 @@ def parse_addresses(
     for address in addresses:
         country_code = registry.country.clean(address.get("country"))
         city = address.get("city")
-        postal_code = address.get("postal_code")
+        postal_code, po_box = h.postcode_pobox(address.get("postal_code"))
         state = address.get("state")
 
         def contains_parts(addr):
             return (
                 (city is None or city in addr)
                 and (postal_code is None or postal_code in addr)
+                and (po_box is None or po_box in addr)
                 and (state is None or state in addr)
             )
 
@@ -50,6 +51,7 @@ def parse_addresses(
                     full=split_addr,
                     city=city,
                     postal_code=postal_code,
+                    po_box=po_box,
                     region=state,
                     country_code=country_code,
                 )
@@ -61,6 +63,7 @@ def parse_addresses(
                 street=address_str,
                 city=city,
                 postal_code=postal_code,
+                po_box=po_box,
                 region=state,
                 country_code=country_code,
             )

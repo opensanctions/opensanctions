@@ -112,6 +112,9 @@ lookups:
           - S4MR473KX
           - S4MR479RJ
         value: Person
+      - match:
+          - S4MR3P8BT
+        value: Organization
   type.address:
     lowercase: true
     options:
@@ -124,6 +127,10 @@ lookups:
           - XX, XX, USA
           - XX, USA
         value: null
+  type.string:
+    options:
+      - match: "P.O. Box Beirut-Hamra 113/5647"
+        value: "P.O. Box 113/5647"
   type.country:
     lowercase: true
     normalize: true

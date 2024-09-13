@@ -47,7 +47,7 @@ def value_clean(
                 # none of the information in OpenSanctions is time-critical
                 clean = clean[: Precision.DAY.value]
 
-            if len(clean) > prop.type.max_length:
+            if len(clean) > prop.max_length:
                 log.warning(
                     "Property value exceeds type length",
                     entity_id=entity.id,

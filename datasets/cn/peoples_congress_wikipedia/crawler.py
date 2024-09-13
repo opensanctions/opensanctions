@@ -6,6 +6,7 @@ import re
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import OccupancyStatus, categorise
+from zavod.shed.trans import apply_translit_full_name
 
 
 REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")
@@ -19,6 +20,7 @@ SKIP_SUBHEADERS = {
     "陕西省提名",
 }
 IGNORE_DUPES = {"cn-npc-22933e40a3e1f8cb38f88643263186428150bf6d"}
+TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 
 
 def clean_text(text: str) -> str:
@@ -43,6 +45,7 @@ def crawl_item(
     entity.id = context.make_id(name, ethnicity, gender, birth_date, delegation)
 
     entity.add("name", name, lang="chi")
+    apply_translit_full_name(context, entity, "chi", name, TRANSLIT_OUTPUT)
     entity.add("gender", gender)
     entity.add("ethnicity", ethnicity, lang="chi")
     entity.add("birthDate", h.parse_date(birth_date, formats=["%Y年%m月"]))

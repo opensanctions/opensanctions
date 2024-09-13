@@ -5,13 +5,13 @@ full_dataset: gleif
 disabled: false
 hidden: false
 coverage:
+  schedule: "1 10 * * *"
   frequency: weekly
   start: 2022-05-30
 exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  schedule: "1 10 * * *"
   memory: "1500Mi"
   memory_limit: "2500Mi"
   disk: "20Gi"

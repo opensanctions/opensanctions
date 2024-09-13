@@ -20,7 +20,6 @@ def read_table(
             # print(inspect(row))
             cells: List[CellValue] = []
             for cell in row.findall("./table-cell"):
-
                 value = text = str(cell.xpath("string()")) or ""
                 type_ = cell.get("value-type") or "empty"
                 if type_ == "date":
@@ -90,7 +89,7 @@ def crawl(context: Context):
             entity.add("birthDate", birth_date[1])
             entity.add("birthPlace", row.pop("Place of Birth")[1])
         else:
-            entity.add("createdAt", birth_date[1])
+            entity.add("incorporationDate", birth_date[1])
             entity.add("notes", row.pop("Place of Birth")[1].replace("n/a: ", ""))
 
         context.emit(sanction)

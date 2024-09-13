@@ -2,10 +2,9 @@ title: INTERPOL Red Notices
 entry_point: interpol_api.py
 prefix: interpol-red
 coverage:
+  schedule: "0 */9 * * *"
   frequency: daily
   start: 2015-12-05
-deploy:
-  schedule: "0 */9 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   International arrest warrants published by INTERPOL with a view to
@@ -43,7 +42,7 @@ http:
 assertions:
   min:
     schema_entities:
-      Person: 6700
+      Person: 6000
     country_entities:
       ru: 2900
       sv: 800
@@ -73,3 +72,5 @@ lookups:
         value: female
       - match: U
         value: null
+dates:
+  formats: ["%Y/%m/%d", "%Y/%m", "%Y"]

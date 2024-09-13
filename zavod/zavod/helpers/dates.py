@@ -90,6 +90,8 @@ def replace_months(dataset: Dataset, text: str) -> str:
 def apply_date(entity: Entity, prop: str, text: DateValue) -> None:
     """Apply a date value to an entity, parsing it if necessary and cleaning it up.
 
+    Uses the `dates` configuration of the dataset to parse the date.
+
     Args:
         entity: The entity to which the date will be applied.
         prop_: The property to which the date will be applied.

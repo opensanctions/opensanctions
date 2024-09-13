@@ -1,0 +1,35 @@
+title: US New York State Medicaid Exclusions
+entry_point: crawler.py
+prefix: us-medny
+coverage:
+  frequency: daily
+  start: "2024-09-06"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers deemed ineligible to participate in New York State's Medicaid program.
+description: |
+  The New York State Office of the Medicaid Inspector General maintains a list of providers
+  whose Medicaid provider agreement has been terminated. Providers listed are not allowed to receive
+  reimbursement for Medicaid services in any capacity.
+publisher:
+  name: New York State Office of the Medicaid Inspector General
+  description: >
+   > The Office of the Medicaid Inspector General is an independent entity created within
+   the New York State Department of Health to promote and protect the integrity of the Medicaid
+   program in New York State.
+  acronym: OMIG
+  url: https://omig.ny.gov
+  official: true
+  country: "us"
+url: "https://omig.ny.gov/medicaid-fraud/medicaid-exclusions"
+data:
+  url: https://apps.omig.ny.gov/exclusions/exporttoexcel.aspx
+  format: XLSX
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 7500
+  max:
+    schema_entities:
+      LegalEntity: 9000

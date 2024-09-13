@@ -1,79 +1,88 @@
-from lxml import html
-from normality import slugify, collapse_spaces
-from rigour.mime.types import HTML
+from typing import Dict
 
 from zavod import Context
 from zavod import helpers as h
 
-FORMATS = ["%d/%b/%Y"]
+# FORMATS = ["%d/%b/%Y"]
 REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
-NAME_SPLITS = ["; "]
+NAME_SPLITS = [
+    "; ",
+    "also known as",
+    "also doing business as",
+    "formerly operating as",
+    "also",
+    "formerly",
+    "f/k/a",
+    "(AKA",
+]
 # MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
 
 
+def crawl_row(context: Context, row: Dict[str, str]):
+    full_name = row.pop("name") or ""
+
+    # Split the full name using NAME_SPLITS first
+    name_parts = h.multi_split(full_name, NAME_SPLITS)
+
+    for part in name_parts:
+        name_optional_regno = part
+        registration_number = None
+
+        # Further split each part using REG_NRS
+        for splitter in REG_NRS:
+            if splitter in part:
+                part, registration_number = part.split(splitter, 1)
+                registration_number = registration_number.replace(")", "").strip()
+                break
+
+        country = row.get("nationality") or ""
+        country = country.replace("Non ADB Member Country", "")
+        country = country.replace("Rep. of", "").strip()
+
+        entity = context.make("LegalEntity")
+        entity.id = context.make_id(name_optional_regno, country)
+        entity.add("name", part)
+
+        # Handle missing 'othername_logo' key gracefully
+        entity.add("alias", row.get("othername_logo"))
+        entity.add("topics", "debarment")
+        entity.add("country", country)
+        entity.add("registrationNumber", registration_number)
+
+        sanction = h.make_sanction(context, entity)
+        sanction.add("reason", row.get("grounds"))
+        sanction.add("program", row.get("sanction_type"))
+
+        date_range = row.get("effect_date_lapse_date", "") or ""
+        if "|" in date_range:
+            start_date, end_date = date_range.split("|")
+            h.apply_date(sanction, "startDate", start_date.strip())
+            h.apply_date(sanction, "endDate", end_date.strip())
+
+        address = h.make_address(context, full=row.get("address"), country=country)
+
+        h.apply_address(context, entity, address)
+        context.emit(entity, target=True)
+        context.emit(sanction)
+
+
 def crawl(context: Context):
-    path = context.fetch_resource("source.html", context.data_url)
-    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+    url = None
+    next_url = context.data_url
+    next_xpath = ".//a//*[text() = 'Next Page »»']/parent::*/parent::a"
+    pages = 0
+    while url != next_url:
+        url = next_url
+        doc = context.fetch_html(url)
+        doc.make_links_absolute(url)
+        next_url = doc.xpath(next_xpath)[0].get("href")
 
-    with open(path, "r", encoding="ISO-8859-1") as fh:
-        doc = html.parse(fh)
+        print(next_url)
 
-    table = doc.find("//div[@id='viewcontainer']/table")
-    headers = None
+        table = doc.find(".//div[@id='viewcontainer']/table")
 
-    for row in table.findall(".//tr"):
-        if headers is None:
-            headers = [slugify(c.text_content(), "_") for c in row.findall("./th")]
-            continue
+        for row in h.parse_table(table):
+            crawl_row(context, row)
 
-        cells = [collapse_spaces(c.text_content()) for c in row.findall("./td")]
-        cells = dict(zip(headers, cells))
-        cells.pop(None, None)
-
-        full_name = cells.pop("name") or ""
-
-        # Split the full name using NAME_SPLITS first
-        name_parts = h.multi_split(full_name, NAME_SPLITS)
-
-        for part in name_parts:
-            name_optional_regno = part
-            registration_number = None
-
-            # Further split each part using REG_NRS
-            for splitter in REG_NRS:
-                if splitter in part:
-                    part, registration_number = part.split(splitter, 1)
-                    registration_number = registration_number.replace(")", "").strip()
-                    break
-
-            country = cells.get("nationality") or ""
-            country = country.replace("Non ADB Member Country", "")
-            country = country.replace("Rep. of", "").strip()
-
-            entity = context.make("LegalEntity")
-            entity.id = context.make_id(name_optional_regno, country)
-            entity.add("name", part)
-
-            # Handle missing 'othername_logo' key gracefully
-            entity.add("alias", cells.get("othername_logo"))
-            entity.add("topics", "debarment")
-            entity.add("country", country)
-            entity.add("registrationNumber", registration_number)
-
-            sanction = h.make_sanction(context, entity)
-            sanction.add("reason", cells.get("grounds"))
-            sanction.add("program", cells.get("sanction_type"))
-
-            date_range = cells.get("effect_date_lapse_date", "") or ""
-            if "|" in date_range:
-                start_date, end_date = date_range.split("|")
-                sanction.add("startDate", h.parse_date(start_date.strip(), FORMATS))
-                sanction.add("endDate", h.parse_date(end_date.strip(), FORMATS))
-
-            address = h.make_address(
-                context, full=cells.get("address"), country=country
-            )
-
-            h.apply_address(context, entity, address)
-            context.emit(entity, target=True)
-            context.emit(sanction)
+        pages += 1
+        assert pages <= 10, "More pages than expected."

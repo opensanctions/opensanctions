@@ -1,7 +1,8 @@
 type: collection
 title: Consolidated Sanctions
+coverage:
+  schedule: "0 1,7,13,19 * * *"
 deploy:
-  schedule: "2 1,7,13,19 * * *"
   memory: "1500Mi"
   command: /etl/scripts/export-sanctions.sh
   # premium: true
@@ -98,6 +99,7 @@ children:
   - th_designated_person
   # disable until the new site is online:
   # - ua_nabc_sanctions
+  - tr_fcib
   - ua_nsdc_sanctions
   - ua_sfms_blacklist
   - un_sc_sanctions

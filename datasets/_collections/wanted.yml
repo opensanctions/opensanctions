@@ -2,9 +2,9 @@ type: collection
 title: Wanted lists
 hidden: true
 coverage:
+  schedule: "0 */4 * * *"
   frequency: daily
 deploy:
-  schedule: "1 */4 * * *"
   memory: "1500Mi"
 summary: >
   All wanted individuals from national or international lists of wanted persons.

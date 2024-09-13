@@ -2,10 +2,9 @@ title: "Netherlands National Sanctionlist Terrorism"
 entry_point: crawler.py
 prefix: nl-dnst
 coverage:
+  schedule: "0 */6 * * *"
   frequency: daily
   start: 2022-08-22
-deploy:
-  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   The Dutch government's sanctions list of people suspected of involvement in

@@ -4,11 +4,11 @@ prefix: ofac
 coverage:
   frequency: daily
   start: "2015-12-05"
+  schedule: "0 */2 * * *"
 deploy:
   memory: 1300Mi
   memory_limit: "2Gi"
   cpu: "200m"
-  schedule: "35 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The primary United States' sanctions list, specially designated nationals (SDN) part.
@@ -441,3 +441,29 @@ lookups:
         value: female
       - match: MALE
         value: male
+  type.string: 
+    lowercase: true
+    normalize: true
+    options: 
+      - match: Codigo Postal 80000
+        value: 80000
+      - match: Codigo Postal 21297
+        value: 21297
+      - match: Codigo Postal 03300
+        value: 03300
+      - match: Codigo Postal 03100
+        value: 03100
+      - match: Codigo Postal 06700
+        value: 06700
+      - match: Codigo Postal 03020
+        value: 03020
+      - match: Codigo Postal 14410
+        value: 14410
+      - match: Codigo Postal 01480
+        value: 01480
+      - match: Codigo Postal 11550
+        value: 11550
+      - match: Codigo Postal 11560
+        value: 11560
+      - match: Codigo Postal 15230
+        value: 15230

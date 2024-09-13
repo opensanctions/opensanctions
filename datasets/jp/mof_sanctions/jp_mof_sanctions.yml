@@ -2,10 +2,9 @@ title: Japan Economic Sanctions and List of Eligible People
 entry_point: crawler.py
 prefix: ja-mof
 coverage:
+  schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-10-21
-deploy:
-  schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Sanctions imposed by Japan under its Foreign Exchange and Foreign Trade Law.
@@ -133,8 +132,6 @@ lookups:
         value: other_information
       - match: リスト掲載日
         value: publication_date
-      - match: 指定日
-        value: designated_date
       - match:
           - 住 所
           - 住所・所在地
@@ -205,7 +202,7 @@ lookups:
       - match:
           - 国連制裁委員会による指定日
           - 国連制裁員会による指定日
-        value: designated_un
+        value: designated_date_un
       - match: 決議1483上の根拠
         value: reason_res1483
       - match: 詳 細
@@ -273,6 +270,47 @@ lookups:
           - "（ヒジュラ暦）"
           - "の間"
           - "から"
+          - "10月17"
+          - "10月19"
+          - "10月3"
+          - "11月14"
+          - "11月24"
+          - "11月26"
+          - "11月29"
+          - "12月10"
+          - "12月2"
+          - "12月20"
+          - "12月21"
+          - "12月23"
+          - "12月29"
+          - "12月30"
+          - "12月31"
+          - "3月15"
+          - "3月18"
+          - "4月20"
+          - "5月1"
+          - "5月18"
+          - "5月29"
+          - "5月31"
+          - "6月2"
+          - "6月3"
+          - "7月18"
+          - "7月21"
+          - "7月23"
+          - "7月25"
+          - "7月27"
+          - "7月31"
+          - "8月13"
+          - "9月1"
+          - "9月21"
+          - "9月27"
+          - "､11月15"
+          - "､3月24"
+          - "､5月1"
+          - "訂）"
+          - "６月10"
+          - "７月17"
+          - "３月25"
         value: null
       - match: Born on 10 July 1942
         value: "1942-07-10"
