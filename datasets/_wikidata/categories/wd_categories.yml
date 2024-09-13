@@ -495,10 +495,20 @@ config:
     - category: Current_justices_of_the_Supreme_Court_of_the_United_States
       topic: role.pep
       country: us
+      position:
+        name: Justice of the Supreme Court of the United States
+        country: us
+        topics:
+          - role.judge
     - category: Presidents_of_the_United_States
       depth: 0
       topic: role.pep
       country: us
+      position:
+        name: President of the United States
+        country: us
+        topics:
+          - gov.head
     - category: Chief_justices_of_the_United_States
       topic: role.pep
       country: us
