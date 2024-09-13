@@ -50,7 +50,7 @@ lookups:
         value: iq
       - match: Lao Peoples Democratic Republic
         value: la
-      - contains: "Indonesia Indonesia"
+      - match: "Indonesia Indonesia"
         value: id
       - match: "China China"
         value: cn
