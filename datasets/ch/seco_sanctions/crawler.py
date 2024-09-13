@@ -239,11 +239,7 @@ def parse_entry(context: Context, target: Element, programs, places):
             "Date of registration"
         ):
             _, reg_date = value.split(":", 1)
-            reg_date = reg_date.strip()
-            entity.add(
-                "incorporationDate",
-                h.parse_date(reg_date, context.dataset.dates.formats),
-            )
+            h.apply_date(entity, "incorporationDate", reg_date.strip())
         elif entity.schema.is_a("LegalEntity") and value.startswith("Type of entity"):
             _, legalform = value.split(":", 1)
             entity.add("legalForm", legalform)
