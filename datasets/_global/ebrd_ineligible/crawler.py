@@ -60,8 +60,20 @@ def crawl_ebrd_initiated(context: Context):
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.parse(fh)
+    # Check for 'EBRD-initiated sanctions' section
+    section = doc.xpath("//h2[.//text()[contains(., 'EBRD-initiated sanctions')]]")
+    if not section:
+        context.log.warning("Section for 'EBRD-initiated sanctions' not found")
+        return
 
-    table = doc.find(".//article//table")
+    # Find the first table after the section
+    table = section[0].xpath(".//following::table[1]")
+    if not table:
+        context.log.warning("Table for 'EBRD-initiated sanctions' not found")
+        return
+
+    table = table[0]
+
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
