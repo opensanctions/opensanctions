@@ -6,7 +6,7 @@ coverage:
   start: "2024-08-15"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  This dataset contains a list of providers who have been terminated for cause from Kansas's Medicaid program.
+  This dataset contains a list of providers who have been terminated for cause from Kansas' Medicaid program.
 description: |
   The Kansas Department of Health and Environment Division of Health Care Finance maintains a list of providers
   whose Medicaid provider agreement has been terminated. Providers listed are not allowed to receive
