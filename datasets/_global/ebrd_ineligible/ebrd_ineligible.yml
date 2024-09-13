@@ -6,18 +6,27 @@ coverage:
   start: 2021-11-11
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
-  The EBRD published integrity sanctions. The entities and individuals listed
-  are ineligible to become a Bank Counterparty for the periods indicated
+  Entities that have been declared ineligible to become EBRD counterparties due to fraud, 
+  corruption, collusion, or other prohibited practices.
 description: |
-  The EBRD presents several separate tables of ineligble entities, including 
-  one with cross-debarred entities, those originated within EBRD, and sanctions
-  resulting from third-party finding. It's unclear if these overlap.
+  This dataset lists entities and individuals that are ineligible to participate in 
+  EBRD-financed projects. It includes detailed information such as the firm names, 
+  addresses, periods of ineligibility, and the specific prohibited practices they were 
+  involved in (e.g., fraud, corruption, collusion). The EBRD presents several separate 
+  tables of ineligble entities, including one with cross-debarred entities, those originated 
+  within EBRD, and sanctions resulting from third-party finding. It's unclear if these 
+  overlap.
 publisher:
   name: "European Bank for Reconstruction and Development"
   acronym: EBRD
   description: |
-    The European Bank for Reconstruction and Development (EBRD) was founded in 1991
-    to create a new post-Cold War era in central and eastern Europe.
+    Founded in 1991, the EBRD provides project financing mainly for private enterprises, 
+    usually together with other commercial lending partners, in countries that are committed 
+    to, and apply, democratic principles. It also works with public partners to support 
+    privatisation, restructuring and improvement of municipal services. It does this by 
+    financing investments, providing business services and getting involved in high-level 
+    policy dialogue in these countries to support private sector development.
+    [Source](https://economy-finance.ec.europa.eu/investment-support/coordination-european-financial-institutions/coordination-european-bank-reconstruction-and-development_en)
   country: zz
   url: https://ebrd.com/
   official: true
