@@ -51,6 +51,7 @@ def crawl_mutual_enforcement(context: Context):
 
             entity.add("topics", "debarment")
             context.emit(entity, target=True)
+            context.emit(sanction)
             context.audit_data(row)
 
 
