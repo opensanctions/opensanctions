@@ -1,5 +1,5 @@
-from typing import Dict, Optional, Tuple
 from followthemoney.types import registry
+from typing import Dict
 import re
 
 from zavod import Context, Entity

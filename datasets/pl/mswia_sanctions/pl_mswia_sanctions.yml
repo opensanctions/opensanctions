@@ -144,4 +144,18 @@ lookups:
     options:
       - match:
           - obywatel mołdawii i izraela
+          - 39a/2 leningradskoje szosse 125212 moskwa, rosja
+          - siedziba ul. garncarska 34 42-200 częstochowa
+          - plac dąbrowskiego 1, 00-057 warszawa
+          - ul. udalcowa 2, moskwa, federacja rosyjska
+          - "prowadzący działalność gospodarczą pod adresem: 00-844 warszawa, ul. grzybowska 87, regon 147421934"
         value: null
+assertions:
+  min:
+    schema_entities:
+      Person: 420
+      Company: 90
+  max:
+    schema_entities:
+      Person: 450
+      Company: 110
