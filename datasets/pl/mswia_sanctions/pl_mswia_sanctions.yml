@@ -35,6 +35,25 @@ data:
   url: https://www.gov.pl/web/mswia/lista-osob-i-podmiotow-objetych-sankcjami
   format: HTML
   lang: pol
+
+dates:
+  formats: ["%d %m %Y", "%d.%m.%Y", "%d %B %Y"]
+  months:
+    "01": stycznia
+    "02": lutego
+    "03": marca
+    "04": kwietnia
+    "05": maja
+    "06": czerwca
+    "07": 
+      - lipca
+      - lipiec
+    "08": sierpnia
+    "09": września
+    "10": października
+    "11": listopada
+    "12": grudnia
+
 lookups:
   type.identifier:
     normalize: true
@@ -121,20 +140,8 @@ lookups:
         value: 1968-01-02
       - match: 21 04 1964 r. we lwowie
         value: 1964-04-21
-dates:
-  formats: ["%d %m %Y", "%d.%m.%Y", "%d %B %Y"]
-  months:
-    "01": stycznia
-    "02": lutego
-    "03": marca
-    "04": kwietnia
-    "05": maja
-    "06": czerwca
-    "07": 
-      - lipca
-      - lipiec
-    "08": sierpnia
-    "09": września
-    "10": października
-    "11": listopada
-    "12": grudnia
+  preparse_date:
+    options:
+      - match:
+          - obywatel mołdawii i izraela
+        value: null

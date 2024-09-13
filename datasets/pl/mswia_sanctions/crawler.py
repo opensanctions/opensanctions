@@ -13,6 +13,7 @@ CHOPSKA = [
     ("Nr KRS", "registrationNumber"),
     ("KRS", "registrationNumber"),
     ("siedziba:", "address"),
+    ("adres:", "address"),
     (" r. w ", "birthPlace"),  # "year in" in Polish
 ]
 
@@ -26,6 +27,9 @@ def parse_date(text, context):
     text = re.split(r" r\.| r$", text)[0]
     text = text.strip()
     text = h.replace_months(context.dataset, text)
+    text = context.lookup_value("preparse_date", text, text)
+    if text is None:
+        return None
     date_info = h.parse_formats(text, context.dataset.dates.formats)
     if date_info and date_info.dt:
         return date_info.text  # Return the parsed date as a string
