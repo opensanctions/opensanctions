@@ -35,6 +35,9 @@ data:
   url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction
   format: XML
 
+dates:
+  formats: ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%d %b %Y", "%b, %Y"]
+
 lookups:
   relations:
     lowercase: true
