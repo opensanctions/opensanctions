@@ -104,6 +104,8 @@ lookups:
          value: Flat 2, 94 Zenkova Street, Almaty 050010, Kazakhstan
        - match: Currently Unknown. Previously:- Office 305, No. 56A, Samal-2 District, Almaty 050051, Kazakhstan
          value: Office 305, No. 56A, Samal-2 District, Almaty 050051, Kazakhstan
+       - match: Currently Unknown. Previously:- 4th floor, No. 56A, Samal-2 District, Almaty 050059, Kazakhstan
+         value: 4th floor, No. 56A, Samal-2 District, Almaty 050059, Kazakhstan
   type.name: 
     normalize: true
     lowercase: true
