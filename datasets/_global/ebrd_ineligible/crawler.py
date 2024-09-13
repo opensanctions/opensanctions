@@ -35,7 +35,7 @@ def crawl_mutual_enforcement(context: Context):
         for row in collected_rows:
             name = row.pop("Firm Name")
             address = row.pop("Address")
-            country = row.pop("Nationality")
+            country = collapse_spaces(row.pop("Nationality"))
             entity = context.make("LegalEntity")
             entity.id = context.make_id(name, address, country)
             entity.add("name", name)
