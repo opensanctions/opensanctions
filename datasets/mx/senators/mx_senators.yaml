@@ -27,6 +27,7 @@ url: "https://www.senado.gob.mx/65/datosAbiertos/senadoresDatosAb"
 data:
   url: https://micrositios.senado.gob.mx/datos_abiertos/
   format: JSON
+ci_test: false
 
 lookups:
   type.address:
