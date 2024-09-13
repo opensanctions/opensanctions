@@ -1,6 +1,6 @@
 title: US Kansas Medicaid Terminated Provider List
 entry_point: crawler.py
-prefix: us-medka
+prefix: us-medks
 coverage:
   frequency: daily
   start: "2024-08-15"
