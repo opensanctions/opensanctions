@@ -550,7 +550,6 @@ lookups:
           - Langkasuka
           - Geumgwan Gaya
           - Silla
-          - Pate Island
           - Scythia Minor
           - Aztec Triple Alliance
           - Aztec Empire
@@ -600,6 +599,14 @@ lookups:
           - Chinese Empire
           - Southern Han
           - Batavian Republic
+          - Sultanate of Banjar
+          - First Saudi Statelega
+          - Q6740477
+          - Hoan Vuong
+          - مسح
+          - guava
+          - Jodhpur State
+          - National University of Colombia
         value: null
       - match:
           - Cherokee Nation

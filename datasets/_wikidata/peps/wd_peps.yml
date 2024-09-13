@@ -1916,3 +1916,7 @@ lookups:
         code: ""
         label: "First Republic of Seychelles"
         decision: "ignore"
+      - match: "Q126362486"
+        code: ""
+        label: "Kerajaan Patipi"
+        decision: "ignore"

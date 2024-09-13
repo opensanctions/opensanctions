@@ -87,6 +87,7 @@ def crawl_person(context: Context, data: Dict[str, List[str]]):
         "tarikh_disenaraiaken",
         "tarikh_disenarai",
         "tarikh_disenaraihan",
+        "tarikh_disenarai",
     ]:
         for date in ensure_list(data.pop(fld, [])):
             sanction.add("listingDate", parse_date(date))
