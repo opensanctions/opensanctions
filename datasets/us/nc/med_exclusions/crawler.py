@@ -19,9 +19,8 @@ def crawl_item(row: Dict[str, str], context: Context):
         state=row.pop("state"),
         city=row.pop("city"),
         postal_code=row.pop("zip_code"),
-        country="us",
+        country="United States of America",
     )
-    h.apply_address(context, entity, address)
     h.copy_address(entity, address)
     entity.add("country", "us")
 
