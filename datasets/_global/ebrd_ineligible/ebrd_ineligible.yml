@@ -25,7 +25,11 @@ url: https://www.ebrd.com/ineligible-entities.html
 data:
   url: https://www.ebrd.com/ineligible-entities.html
   format: HTML
-
+dates:
+  formats: ["%d %b %Y", "%d-%b-%Y", "%d %B %Y", "%d/%m/%Y"]
+  months:
+    "Sep": "Sept"
+    "Jul": "July"
 lookups:
   type.country:
     options:

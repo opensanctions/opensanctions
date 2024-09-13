@@ -5,14 +5,6 @@ from rigour.mime.types import HTML
 from zavod import Context
 from zavod import helpers as h
 
-FORMATS = ["%d %b %Y", "%d-%b-%Y", "%d %B %Y"]
-
-
-def parse_date(text):
-    text = text.replace("Sept", "Sep")
-    text = text.replace("July", "Jul")
-    return h.parse_date(text, FORMATS)
-
 
 def crawl(context: Context):
     path = context.fetch_resource("source.html", context.data_url)
@@ -42,8 +34,8 @@ def crawl(context: Context):
 
         sanction = h.make_sanction(context, entity)
         sanction.add("reason", cells.pop("prohibited_practice"))
-        sanction.add("startDate", parse_date(cells.pop("from")))
-        sanction.add("endDate", parse_date(cells.pop("to")))
+        h.apply_date(sanction, "startDate", cells.pop("from"))
+        h.apply_date(sanction, "endDate", cells.pop("to"))
 
         full = cells.pop("address")
         address = h.make_address(context, full=full, country=nationality)
