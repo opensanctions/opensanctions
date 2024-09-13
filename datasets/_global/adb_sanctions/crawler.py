@@ -3,7 +3,7 @@ from typing import Dict
 from zavod import Context
 from zavod import helpers as h
 
-FORMATS = ["%d/%b/%Y"]
+# FORMATS = ["%d/%b/%Y"]
 REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
 NAME_SPLITS = [
     "; ",
@@ -56,8 +56,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
         date_range = row.get("effect_date_lapse_date", "") or ""
         if "|" in date_range:
             start_date, end_date = date_range.split("|")
-            sanction.add("startDate", h.parse_date(start_date.strip(), FORMATS))
-            sanction.add("endDate", h.parse_date(end_date.strip(), FORMATS))
+            h.apply_date(sanction, "startDate", start_date.strip())
+            h.apply_date(sanction, "endDate", end_date.strip())
 
         address = h.make_address(context, full=row.get("address"), country=country)
 
