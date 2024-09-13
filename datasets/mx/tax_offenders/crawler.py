@@ -1,4 +1,5 @@
 import csv
+from pantomime.types import CSV
 
 from zavod import Context, helpers as h
 
@@ -20,21 +21,6 @@ ALLOW_FILES = [
 DENY_FILES = [
     "Documento tÃ©cnico y normativo",
     "Certificado de Sello Digital (CSD) sin efectos",
-]
-
-URLs = [
-    "http://omawww.sat.gob.mx/cifras_sat/Documents/Cancelados.csv",
-    "http://omawww.sat.gob.mx/cifras_sat/Documents/ReduccionArt74CFF.csv",
-    "http://omawww.sat.gob.mx/cifras_sat/Documents/Condonadosart146BCFF.csv",
-    "http://omawww.sat.gob.mx/cifras_sat/Documents/Condonadosart21CFF.csv",
-    "http://omawww.sat.gob.mx/cifras_sat/Documents/CondonadosporDecreto.csv",
-    "http://omawww.sat.gob.mx/cifras_sat/Documents/Condonados_07_15.csv",
-    "http://omawww.sat.gob.mx/cifras_sat/Documents/Cancelados_07_15.csv",
-    "http://omawww.sat.gob.mx/cifras_sat/Documents/Retornoinversiones.csv",
-    "http://omawww.sat.gob.mx/cifras_sat/Documents/Exigibles.csv",
-    "http://omawww.sat.gob.mx/cifras_sat/Documents/Firmes.csv",
-    "http://omawww.sat.gob.mx/cifras_sat/Documents/No%20localizados.csv",
-    "http://omawww.sat.gob.mx/cifras_sat/Documents/Sentencias.csv",
 ]
 
 
@@ -71,17 +57,19 @@ def crawl_item(input_dict: dict, context: Context):
     entity.add("name", input_dict.pop("name"))
     entity.add("taxNumber", input_dict.pop("RFC"))
     entity.add("topics", "crime.fin")
+    entity.add("country", "mx")
 
-    sanction = h.make_sanction(context, entity)
-    sanction.add("reason", input_dict.pop("reason"))
+    reason = input_dict.pop("reason")
+    start_date = input_dict.pop("start_date")
+    sanction = h.make_sanction(context, entity, key=f"{reason}-{start_date}")
+    sanction.add("reason", reason)
     if input_dict.get("start_date"):
-        h.apply_date(sanction, "startDate", input_dict.pop("start_date"))
+        h.apply_date(sanction, "startDate", start_date)
     if input_dict.get("listing_date"):
         h.apply_date(sanction, "listingDate", input_dict.pop("listing_date"))
     sanction.add("authority", input_dict.pop("authority"))
     if input_dict.get("value"):
         sanction.add("description", "Value: " + input_dict.pop("value"))
-    sanction.add("sourceUrl", input_dict.pop("source_url"))
 
     context.emit(entity, target=True)
     context.emit(sanction)
@@ -94,7 +82,7 @@ def get_files_urls(context: Context):
 
     for a in response.findall(".//a"):
         if a.text_content() in ALLOW_FILES:
-            yield a.get("href")
+            yield a.text_content(), a.get("href")
         elif a.text_content() in DENY_FILES:
             continue
         else:
@@ -105,14 +93,15 @@ def get_files_urls(context: Context):
 
 def crawl(context: Context):
 
-    for url in get_files_urls(context):
+    for label, url in get_files_urls(context):
         fname = url.split("/")[-1]
         source_file = context.fetch_resource(fname, url)
+        context.export_resource(source_file, CSV, context.SOURCE_TITLE)
+
         with open(source_file, "r", encoding="latin-1") as f:
             reader = csv.DictReader(f)
             for item in reader:
                 # Each csv has a slightly different name for each attribute
                 # so we are going to normalize them
                 replace_key(item, context)
-                item["source_url"] = url
                 crawl_item(item, context)
