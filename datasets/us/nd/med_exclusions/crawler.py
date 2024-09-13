@@ -9,11 +9,10 @@ AKA_MATCH = r"\(aka ([^)]+)\)"
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
-    if not row.get("provider_name"):
+    provider_name = row.pop("provider_name")
+    if not provider_name:
         return
 
-    provider_name = row.pop("provider_name")
     entity = context.make("LegalEntity")
     entity.id = context.make_id(provider_name, row.get("n_p_i"))
 
@@ -22,34 +21,37 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.add("alias", alias_match.group(1))
 
     provider_name = re.sub(AKA_MATCH, "", provider_name).strip()
-    entity.add("name", provider_name)
+    name_parts = h.multi_split(provider_name, ["Owners:", "Owner:"])
+    if len(name_parts) > 1:
+        entity.add("description", f"Owners: {name_parts[1]}")
+    entity.add("name", name_parts[0])
+    entity.add("country", "US")
 
-    if row.get("n_p_i") != "N/A":
-        entity.add("npiCode", row.pop("n_p_i"))
-    else:
-        row.pop("n_p_i")
+    npi = row.pop("n_p_i")
+    if npi != "N/A":
+        entity.add("npiCode", npi)
 
-    if row.get("business_nameand_address") != "N/A":
-        entity.add("address", row.pop("business_nameand_address"))
-    else:
-        row.pop("business_nameand_address")
+    address = row.pop("business_nameand_address")
+    if address != "N/A":
+        entity.add("address", address)
 
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("provider_type"))
-    if row.get("medicaid_provider_id"):
-        entity.add(
-            "description", "Medicaid Provider ID: " + row.pop("medicaid_provider_id")
-        )
-    if row.get("medicareprovidernumber"):
+    medicaid_id = row.pop("medicaid_provider_id")
+    if medicaid_id and medicaid_id != "N/A":
+        entity.add("description", "Medicaid Provider ID: " + medicaid_id)
+    medicare_number = row.pop("medicareprovidernumber")
+    if medicare_number and medicare_number != "N/A":
         entity.add(
             "description",
-            "Medicare Provider Number: " + row.pop("medicareprovidernumber"),
+            "Medicare Provider Number: " + medicare_number,
         )
     sanction = h.make_sanction(context, entity)
-    termination_date = row.pop("exclusiondate").replace("Termination ", "")
-    sanction.add(
-        "startDate", h.parse_date(termination_date, formats=["%m/%d/%Y", "%m/%d/%y"])
-    )
+    termination_date = row.pop("exclusiondate")
+    termination_date = termination_date.replace("Termination ", "")
+    termination_date = termination_date.replace("Termination: ", "")
+    termination_date = termination_date.replace("Denial ", "").strip()
+    h.apply_date(sanction, "startDate", termination_date)
     sanction.add("reason", row.pop("reason_for_exclusion"))
 
     context.emit(entity, target=True)

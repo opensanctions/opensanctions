@@ -23,7 +23,8 @@ url: "https://www.hhs.nd.gov/healthcare/medicaid/provider/compliance/fraud-and-a
 data:
   url: https://www.hhs.nd.gov/healthcare/medicaid/provider/compliance/fraud-and-abuse
   format: HTML
-
+dates:
+  formats: ["%m/%d/%Y", "%m/%d/%y"]
 assertions:
   min:
     schema_entities:
