@@ -7,82 +7,28 @@ from zavod import helpers as h
 
 TYPES = {"osoby": "Person", "podmioty": "Company"}
 BDAY_FORMATS = ("%d.%m.%Y", "%d %b %Y", "%d %B %Y")
-# MONTHS = {
-#     "stycznia": "jan",
-#     "lutego": "feb",
-#     "marca": "mar",
-#     "kwietnia": "apr",
-#     "maja": "may",
-#     "czerwca": "jun",
-#     "lipca": "jul",
-#     "lipiec": "jul",
-#     "sierpnia": "aug",
-#     "września": "sep",
-#     "października": "oct",
-#     "listopada": "nov",
-#     "grudnia": "dec",
-# }
 CHOPSKA = [
     ("Nr NIP", "taxNumber"),
     ("NIP", "taxNumber"),
     ("Nr KRS", "registrationNumber"),
     ("KRS", "registrationNumber"),
     ("siedziba:", "address"),
+    (" r. w ", "birthPlace"),  # "year in" in Polish
 ]
 
 
-# def parse_date(text, context):
-#     text = text.lower().strip()
-#     text = text.replace("urodzona", "")
-#     text = text.replace("urodzonego", "")
-#     text = text.replace("urodzony", "")
-#     text = text.replace("urodzonej", "")
-#     text = text.rstrip(" r.")
-#     text = text.rstrip(" r.,")
-#     text = text.rstrip("r")
-#     text = text.rstrip("r. w")
-#     text = text.rstrip("r.,")
-#     text = text.strip()
-
-#     text = h.replace_months(context.dataset, text)
-#     date_info = h.parse_formats(text, context.dataset.dates.formats)
-
-#     if date_info and date_info.dt:
-#         return date_info.text  # Return the parsed date as a string
-
-#     context.log.warning("Failed to parse date", raw_date=text)
-#     return None
-
-
-def parse_date(text: str, context: Context) -> Optional[str]:
-    # Clean up text
+def parse_date(text, context):
     text = text.lower().strip()
-
-    # Remove known non-date text components
-    text = re.sub(
-        r"(urodzona|urodzonego|urodzony|urodzonej|r\.,|r\.$|r\.,$|r$)", "", text
-    ).strip()
-
-    # Regex to extract potential date parts
-    match = re.search(r"(\d{1,2})\s+(\w+)\s+(\d{4})", text)
-    if match:
-        day, month_word, year = match.groups()
-        text = f"{day} {month_word} {year}"
-    else:
-        context.log.warning("Failed to extract date components", raw_date=text)
-        return None
-
-    # Apply month replacements according to the dataset configuration
+    text = text.replace("urodzona", "")
+    text = text.replace("urodzonego", "")
+    text = text.replace("urodzony", "")
+    text = text.replace("urodzonej", "")
+    text = re.split(r" r\.| r$", text)[0]
+    text = text.strip()
     text = h.replace_months(context.dataset, text)
-
-    # Log intermediate state
-    context.log.debug(f"Normalized date text: {text}")
-
-    # Parse the date using the configured formats
     date_info = h.parse_formats(text, context.dataset.dates.formats)
     if date_info and date_info.dt:
         return date_info.text  # Return the parsed date as a string
-
     context.log.warning("Failed to parse date", raw_date=text)
     return None
 
@@ -100,6 +46,7 @@ def parse_details(context: Context, entity: Entity, text: str):
     bday = parse_date(text, context)
     if bday:
         h.apply_date(entity, "birthDate", bday)
+        return
 
     result = context.lookup("details", text)
     if result is None:
@@ -107,28 +54,6 @@ def parse_details(context: Context, entity: Entity, text: str):
     else:
         for prop, value in result.props.items():
             entity.add(prop, value)
-
-
-# def parse_details(context: Context, entity: Entity, text: str):
-#     for chop, prop in CHOPSKA:
-#         parts = text.rsplit(chop, 1)
-#         text = parts[0]
-#         if len(parts) > 1:
-#             entity.add(prop, parts[1])
-
-#     if not len(text.strip()):
-#         return
-#     bday = parse_date(text, context)
-#     if bday:
-#         h.apply_date(entity, "birthDate", bday)
-#         return
-
-#     result = context.lookup("details", text)
-#     if result is None:
-#         context.log.warning("Unhandled details", details=repr(text))
-#     else:
-#         for prop, value in result.props.items():
-#             entity.add(prop, value)
 
 
 def crawl_row(context: Context, row: Dict[str, str], table_title: str):
