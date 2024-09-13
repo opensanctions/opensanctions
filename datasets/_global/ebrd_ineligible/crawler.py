@@ -118,63 +118,55 @@ def crawl_third_party(context: Context):
         return
 
     table = table[0]
-    headers = None
-    headers_sub = None
-    all_headers = []
 
     for row_idx, row in enumerate(table.findall(".//tr")):
         cells = [collapse_spaces(c.text_content()) for c in row.findall("./td")]
 
         if row_idx == 0:
-            # Handle main headers on first row
-            headers = cells
+            # Skip the first row with "Firm name", "Address", etc.
+            continue
         elif row_idx == 1:
-            # Handle sub headers on second row
-            headers_sub = cells
-            all_headers = headers[:3] + headers_sub + headers[3:]
+            # Skip the second row with "From" and "To" headers
             continue
         else:
-            if headers_sub is not None and len(cells) != 8:
-                context.log.warning(
-                    f"Skipping row with unexpected number of cells: {cells}"
-                )
-                continue  # Skip rows that don't match the headers length
+            # Map cells based on the table structure
+            data = {
+                "firm_name": cells[0],
+                "address": cells[1],
+                "nationality": cells[2],
+                "ineligible_from": cells[3],
+                "ineligible_to": cells[4],
+                "enforcement_decision": cells[5],
+                "jurisdiction": cells[6],
+                "prohibited_practice": cells[7],
+            }
 
-            # Map cells to headers
-            data = dict(zip(all_headers, cells))
-            print(data)
+            name = data.pop("firm_name")
+            address = data.pop("address")
+            nationality = data.pop("nationality")
 
-            if "Prohibited practice" not in data:
-                continue
-
-            # Parse entity details
-            name = data.pop("Firm name")
-            address = data.pop("Address")
-            nationality = data.pop("Nationality")
-
-            # Create LegalEntity
             entity = context.make("LegalEntity")
             entity.id = context.make_id(name, address, nationality)
             entity.add("name", name)
             entity.add("address", address)
             entity.add("country", nationality)
 
-            # Create sanction entity
             sanction = h.make_sanction(context, entity)
-            sanction.add("reason", data.pop("Prohibited practice"))
-            sanction.add("authority", data.get("Jurisdiction of Judgement", ""))
-            h.apply_date(sanction, "startDate", data.pop("From"))
-            h.apply_date(sanction, "endDate", data.pop("To"))
+            sanction.add("reason", data.pop("prohibited_practice"))
+            sanction.add("authority", data.pop("jurisdiction"))
+            h.apply_date(sanction, "startDate", data.pop("ineligible_from"))
+            h.apply_date(sanction, "endDate", data.pop("ineligible_to"))
             h.apply_date(
                 sanction,
-                "date",
-                data.get("Date of Enforcement Commissioner’s Decision", ""),
+                "listingDate",
+                data.pop("enforcement_decision"),
             )
 
             context.emit(entity, target=True)
+            context.emit(sanction)
 
 
 def crawl(context: Context):
     # crawl_ebrd_initiated(context)
-    crawl_third_party(context)
-    # crawl_mutual_enforcement(context)
+    # crawl_third_party(context)
+    crawl_mutual_enforcement(context)
