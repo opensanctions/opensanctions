@@ -94,59 +94,84 @@ def crawl_ebrd_initiated(context: Context):
 
 
 def crawl_third_party(context: Context):
-    import lxml.html as html
-    from normality import slugify, collapse_spaces
-
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+
     with open(path, "r") as fh:
         doc = html.parse(fh)
 
+    # Find the section and corresponding table for 'Sanctions resulting from third party findings'
     section = doc.xpath(
         "//h2[.//strong[text()='Sanctions resulting from third party findings']]"
     )
     if not section:
-        context.log.warning("Section for third party findings not found")
+        context.log.warning(
+            "Section for 'Sanctions resulting from third party findings' not found"
+        )
         return
+
     table = section[0].xpath(".//following::table[1]")
     if not table:
-        context.log.warning("Table for third party findings not found")
+        context.log.warning(
+            "Table for 'Sanctions resulting from third party findings' not found"
+        )
         return
+
     table = table[0]
     headers = None
+    headers_sub = None
+    all_headers = []
 
-    for row in table.findall(".//tr"):
-        if headers is None:
-            headers = [slugify(c.text_content(), "_") for c in row.findall("./td")]
-            headers = headers[:-2] + ["from", "to"] + headers[-1:]
-            continue
-
+    for row_idx, row in enumerate(table.findall(".//tr")):
         cells = [collapse_spaces(c.text_content()) for c in row.findall("./td")]
-        cells = dict(zip(headers, cells))
 
-        if "prohibited_practice" not in cells:
+        if row_idx == 0:
+            # Handle main headers on first row
+            headers = cells
+        elif row_idx == 1:
+            # Handle sub headers on second row
+            headers_sub = cells
+            all_headers = headers[:3] + headers_sub + headers[3:]
             continue
+        else:
+            if headers_sub is not None and len(cells) != 8:
+                context.log.warning(
+                    f"Skipping row with unexpected number of cells: {cells}"
+                )
+                continue  # Skip rows that don't match the headers length
 
-        name = cells.pop("firm_name")
-        address = cells.pop("address")
-        country = cells.pop("nationality")
+            # Map cells to headers
+            data = dict(zip(all_headers, cells))
+            print(data)
 
-        entity = context.make("LegalEntity")
-        entity.id = context.make_id(name, address, country)
-        entity.add("name", name)
-        entity.add("address", address)
-        entity.add("country", country)
+            if "Prohibited practice" not in data:
+                continue
 
-        sanction = h.make_sanction(context, entity)
-        sanction.add("reason", cells.pop("prohibited_practice"))
-        # sanction.add("authority", cells.pop("jurisdiction_of_judgement"))
-        h.apply_date(sanction, "startDate", cells.pop("from"))
-        h.apply_date(sanction, "endDate", cells.pop("to"))
-        h.apply_date(
-            sanction, "date", cells.pop("date_of_enforcement_commissioner_s_decision")
-        )
+            # Parse entity details
+            name = data.pop("Firm name")
+            address = data.pop("Address")
+            nationality = data.pop("Nationality")
 
-        context.emit(entity, target=True)
+            # Create LegalEntity
+            entity = context.make("LegalEntity")
+            entity.id = context.make_id(name, address, nationality)
+            entity.add("name", name)
+            entity.add("address", address)
+            entity.add("country", nationality)
+
+            # Create sanction entity
+            sanction = h.make_sanction(context, entity)
+            sanction.add("reason", data.pop("Prohibited practice"))
+            sanction.add("authority", data.get("Jurisdiction of Judgement", ""))
+            h.apply_date(sanction, "startDate", data.pop("From"))
+            h.apply_date(sanction, "endDate", data.pop("To"))
+            h.apply_date(
+                sanction,
+                "date",
+                data.get("Date of Enforcement Commissioner’s Decision", ""),
+            )
+
+            context.emit(entity, target=True)
 
 
 def crawl(context: Context):
