@@ -33,6 +33,26 @@ data:
 dates:
   formats: ["%Y-%m-%d", "%m/%d/%Y"]
 
+lookups:
+  type.date:
+    lowercase: true
+    options:
+      - match:
+        - 05817/2023
+        - 111/14/2022
+        - 07/30/202
+        value: null
+      - match: 
+        - 0627/2023
+        value: 06-27-2023
+      - match: 
+        - 09/18/223
+        value: 09-18-2023
+      - match:
+        - 03/20/25024
+        value: 03-20-2024
+
+
 assertions:
   min:
     schema_entities:
