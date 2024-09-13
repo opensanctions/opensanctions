@@ -45,7 +45,6 @@ REGEX_REGNUM = re.compile(
 )
 REGEX_TAX = re.compile(r"Tax [Rr]egistration [Nn]umber ?: (\d+)\.?")
 REGEX_IMO = re.compile(r"IMO [Nn]umber ?: (\d+)\.?")
-FORMATS = ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%d %b %Y", "%b, %Y"]
 
 
 def parse_address(node: Element):
@@ -241,7 +240,10 @@ def parse_entry(context: Context, target: Element, programs, places):
         ):
             _, reg_date = value.split(":", 1)
             reg_date = reg_date.strip()
-            entity.add("incorporationDate", h.parse_date(reg_date, FORMATS))
+            entity.add(
+                "incorporationDate",
+                h.parse_date(reg_date, context.dataset.dates.formats),
+            )
         elif entity.schema.is_a("LegalEntity") and value.startswith("Type of entity"):
             _, legalform = value.split(":", 1)
             entity.add("legalForm", legalform)
