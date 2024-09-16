@@ -1,0 +1,36 @@
+title: US Alaska Medical Assistance Excluded Provider List
+entry_point: crawler.py
+prefix: us-medak
+coverage:
+  frequency: daily
+  start: "2024-09-16"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Individuals and business excluded from Alaska Medical Assistance Program
+description: |
+  The Alaska Department of Health publishes a list of Medical provider
+  who have been excluded from Alaska Medical Assistance Program.
+  > Exclusions are the result of criminal, administrative or civil
+  > adverse actions and are publically noticed at the time of exclusion.
+publisher:
+  name: Alaska Department of Health
+  url: https://health.alaska.gov/Pages/default.aspx
+  official: true
+  country: "us"
+url: "https://health.alaska.gov/Commissioner/Documents/PDF/AlaskaExcludedProviderList.pdf"
+data:
+  url: https://health.alaska.gov/Commissioner/Documents/PDF/AlaskaExcludedProviderList.pdf
+  format: PDF
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 15
+      Person: 230
+  max:
+    schema_entities:
+      Company: 35
+      Person: 300
