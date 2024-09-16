@@ -44,8 +44,33 @@ data:
   lang: msa
 http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36" (zavod; opensanctions.org)
+dates:
+  formats: ["%d %B %Y","%d %b %Y", "%d.%m.%Y"]
+  months:
+    May: Mei
+    February: Februari
+    August: Ogos
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Organization: 20
 
 lookups:
+  columns:
+    options:
+      - match: design_ation
+        value: designation
+      - match:
+          - idetification_card_number
+          - idetificationcard_number
+        value: id_number
+      - match:
+          - date_ofbirth
+        value: date_of_birth
+      - match: referen_ce
+        value: reference
   type.country:
     options:
       - match:
@@ -66,6 +91,7 @@ lookups:
           - Filipina (Pemaustautin Tetap di Malaysia)
           - Filipina (Pemastautin Tetap di Malaysia)
           - Filipina (Pemasautin Tetap di Malaysia)
+          - Filipina (PemastautinTetap di Malaysia)
         value: Philippines
       - match:
           - Pemastautin Tetap di Malaysia
@@ -73,7 +99,9 @@ lookups:
         value: Malaysia
   type.date:
     options:
-      - match: 20.02.1976 13.02.1975 15.02.1976 07.01.1977
+      - match:
+          - 20.02.1976 13.02.1975 15.02.1976 07.01.1977
+          - "20.02.197613.02.197515.02.197607.01.1977"
         values:
           - 1976-02-20
           - 1975-02-13
