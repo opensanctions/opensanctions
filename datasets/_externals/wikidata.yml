@@ -607,6 +607,24 @@ lookups:
           - guava
           - Jodhpur State
           - National University of Colombia
+          - Citizen Potawatomi Nation
+          - Kingdom of Thiruvithamkoor
+          - Lanna
+          - list of monarchs of Goryeo
+          - Wei
+          - Kingdom of Manipur
+          - Buyeo
+          - Emirate of Nekor
+          - 唐虞
+          - Xin dynasty
+          - Principality of Montenegro
+          - Afsharid Iran
+          - Alawite State
+          - Kasranids
+          - Seljuk dynasty
+          - Frankfurt
+          - Electoral Palatinate
+          - English people
         value: null
       - match:
           - Cherokee Nation
@@ -615,6 +633,7 @@ lookups:
           - Ho-Chunk Nation of Wisconsin
           - Navajo Nation
           - Northern Cheyenne Indian Reservation
+          - Echota Cherokee Tribe of Alabama
           - Sisseton Wahpeton Oyate
           - Confederate States
           - Muscogee (Creek) Nation
@@ -624,6 +643,7 @@ lookups:
           - Comanche
           - Lac Courte Oreilles
           - Hopi
+          - Ancient Hawaii
         value: US
       - match:
           - Democratic Republic of Sudan
@@ -656,7 +676,9 @@ lookups:
         value: VE
       - match: Tajik Soviet Socialist Republic
         value: TJ
-      - match: Congress Poland
+      - match:
+          - Congress Poland
+          - Duchy of Warsaw
         value: PL
       - match:
           - United Kingdom of the Netherlands
@@ -774,6 +796,7 @@ lookups:
       - match:
           - South Yemen
           - Yemen Arab Republic
+          - Kingdom of Yemen
         value: YE
       - match:
           - Kingdom of Sicily
