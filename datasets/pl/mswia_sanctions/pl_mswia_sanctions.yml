@@ -115,4 +115,18 @@ lookups:
       - match: "adres: Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan, nr identyfikacyjny BIN: 220540011771"
         props:
           address: "Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan"
-          idNumber: "220540011771"
+          registrationNumber: "220540011771"
+      - match: 'urodzony 6 września 1979 r. (PESEL: 79090613232)'
+        props:
+          birthDate: 1979-09-06
+          idNumber: "79090613232"
+      - match: 'adres: Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan (w języku rosyjskim: проезд Ярослава Гашека, 1 Петропавловск, Казахстан) nr identyfikacyjny BIN: 191040021834'
+        props:
+          address: "Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan"
+          registrationNumber: "191040021834"
+      - match: 'adres: ul. Bohaterów II Armii Wojska Polskiego 12, 59-900 Zgorzelec '
+        props:
+          address: "ul. Bohaterów II Armii Wojska Polskiego 12, 59-900 Zgorzelec"
+      - match: 'adres: ul. Towarowa 28, 00-839 Warszawa '
+        props:
+          address: "ul. Towarowa 28, 00-839 Warszawa"

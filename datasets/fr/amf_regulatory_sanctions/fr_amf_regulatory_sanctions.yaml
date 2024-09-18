@@ -955,3 +955,7 @@ lookups:
       - match: 'et Refco Securities SA'
         entities:
           - Refco Securities SA
+      - match: 'La société Sogenial Immobilier<br /> M. Jean-Marie Souclier'
+        entities:
+          - Sogenial Immobilier
+          - Jean-Marie Souclier
