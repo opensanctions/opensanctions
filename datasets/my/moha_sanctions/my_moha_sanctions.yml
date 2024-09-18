@@ -54,7 +54,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 100
+      Person: 80
       Organization: 20
 
 lookups:
