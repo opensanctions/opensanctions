@@ -47,6 +47,7 @@ def crawl_table(context: Context, table: _Element) -> None:
         entity.id = context.make_slug(key, reference)
         for name in row.pop("name"):
             entity.add("name", name.split("@"))
+        entity.add("topics", "sanction")
         entity.add("alias", row.pop("alias", []))
         entity.add("alias", row.pop("other_name", []))
         entity.add("address", row.pop("address"))
