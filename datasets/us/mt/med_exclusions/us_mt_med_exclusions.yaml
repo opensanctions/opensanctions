@@ -30,7 +30,9 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 7500
+      Person: 100
+      Company: 0
   max:
     schema_entities:
-      LegalEntity: 9000
+      Person: 300
+      Company: 15

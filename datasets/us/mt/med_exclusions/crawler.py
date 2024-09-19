@@ -18,6 +18,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.add("firstName", first_name)
         entity.add("lastName", last_name)
 
+    entity.add("alias", row.pop("alias"))
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("healthcare_profession"))
     entity.add("country", "us")
@@ -31,7 +32,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    context.audit_data(row, ignore=["column_3", "alias"])
+    context.audit_data(row, ignore=["column_3"])
 
 
 def crawl_excel_url(context: Context):
@@ -51,11 +52,11 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
-    current_item = {}
+    current_alias = []
     for item in h.parse_xlsx_sheet(context, wb.active):
         if item.get("terminated_excluded_provider_s").startswith("a.k.a."):
-            current_item["alias"].append(item.get("terminated_excluded_provider_s"))
+            current_alias.append(item.get("terminated_excluded_provider_s").replace("a.k.a ", ""))
         else:
-            current_item = item
-            current_item["alias"] = []
-            crawl_item(current_item, context)
+            item["alias"] = current_alias
+            crawl_item(item, context)
+            current_alias = []
