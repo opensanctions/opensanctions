@@ -55,7 +55,9 @@ def crawl(context: Context) -> None:
     current_alias = []
     for item in h.parse_xlsx_sheet(context, wb.active):
         if item.get("terminated_excluded_provider_s").startswith("a.k.a."):
-            current_alias.append(item.get("terminated_excluded_provider_s").replace("a.k.a ", ""))
+            current_alias.append(
+                item.get("terminated_excluded_provider_s").replace("a.k.a ", "")
+            )
         else:
             item["alias"] = current_alias
             crawl_item(item, context)
