@@ -4371,7 +4371,7 @@ lookups:
       - match: "Numéro d’enregistrement: 1027810239555"
         props:
           registrationNumber: 1027810239555
-      - match: "Type d'entité: société par actions. Lieu d'enregistrement: 127287, st. Khutorskaya 2nd, 38A, Moscou, Fédération de Russie - Date d'enregistrement: 28.11.2002 - Principal établissement: Fédération de Russie: /"
+      - match: "Type d'entité: société par actions. Lieu d'enregistrement: 127287, st. Khutorskaya 2nd, 38A, Moscou, Fédération de Russie - Date d'enregistrement: 28.11.2002 -  Principal établissement: Fédération de Russie: /"
         props:
           jurisdiction: ru
           address: "127287, st. Khutorskaya 2nd, 38A, Moscou"
@@ -4419,7 +4419,7 @@ lookups:
       - match: "Type d'entité: société par actions: /"
         props:
           legalForm: société par actions
-      - match: "Numéro d'enregistrement : 1065471010340"
+      - match: "Numéro d'enregistrement  : 1065471010340"
         props:
           registrationNumber: 1065471010340
       - match: "Type d'entité: entreprise fédérale d'État - Lieu d'enregistrement: Kuibyshev, région de Novosibirsk, Fédération de Russie - Date d'enregistrement: 15.6.2006 - Principal établissement: Kuibyshev, Fédération de Russie: /"
@@ -4454,7 +4454,7 @@ lookups:
           jurisdiction: ru
           legalForm: société par actions
           incorporationDate: 2003-01-17
-      - match: "NIF: 7805060220"
+      - match: "NIF:  7805060220"
         props:
           innCode: 7805060220
       - match: "INN: 7805060220"
@@ -4465,7 +4465,7 @@ lookups:
           jurisdiction: ru
           legalForm: société par actions non publique
           incorporationDate: 1995-07-19
-      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: passage piéton, propriété 3. bâtiment 2, 125373, Moscou, Fédération de Russie - Date d'enregistrement: 10.12.2021: /"
+      - match: "Type d'entité: société à responsabilité limitée  -  Lieu d'enregistrement: passage piéton, propriété 3. bâtiment 2, 125373, Moscou, Fédération de Russie - Date d'enregistrement: 10.12.2021: /"
         props:
           jurisdiction: ru
           address: "passage piéton, propriété 3. bâtiment 2, 125373, Moscou"
@@ -4486,7 +4486,7 @@ lookups:
       - match: "NIF: 7703438908"
         props:
           innCode: 7703438908
-      - match: "Type d'entité: entreprise de technologies de l’information- Lieu d'enregistrement: Russie - Date d'enregistrement: crée en 2009 - Principal établissement : Russie"
+      - match: "Type d'entité: entreprise de technologies de l’information- Lieu d'enregistrement: Russie - Date d'enregistrement:  crée en 2009 - Principal établissement : Russie"
         props:
           jurisdiction: ru
           legalForm: entreprise de technologies de l’information
@@ -4511,7 +4511,7 @@ lookups:
       - match: "INN: 7703367439"
         props:
           innCode: 7703367439
-      - match: "Type d'entité: société par actions - Date d'enregistrement: 23.4.2002 - Principal établissement: Russie: /"
+      - match: "Type d'entité: société par actions -  Date d'enregistrement: 23.4.2002  -  Principal établissement: Russie: /"
         props:
           jurisdiction: ru
           legalForm: société par actions
