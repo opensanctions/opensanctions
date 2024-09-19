@@ -1,7 +1,6 @@
 from zavod import Context
 from zavod import helpers as h
 from typing import Dict
-import datetime
 
 IGNORE_COLUMNS = [
     "ID",
