@@ -26,6 +26,30 @@ data:
   url: https://mzv.gov.cz/jnp/cz/o_ministerstvu/otevrena_data/vnitrostatni_sankcni_seznam/index.html
   format: CSV
 
+dates: 
+  formats: ["%d. %m %Y", "%d.%m.%Y"]
+  months:
+    "01": "ledna"
+    "02": "února"
+    "03": "března"
+    "04": "dubna"
+    "05": "května"
+    "06": "června"
+    "07": "července"
+    "08": "srpna"
+    "09": "září"
+    "10": "října"
+    "11": "listopadu"
+    "12": "prosince"
+assertions:
+  min:
+    schema_entities:
+      Person: 7
+      LegalEntity: 2
+  max:
+    schema_entities:
+      Person: 10
+      LegalEntity: 5
 lookups:
   type.country:
     lowercase: true
