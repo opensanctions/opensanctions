@@ -1,8 +1,8 @@
+import csv
 from lxml import html
 from normality import slugify, collapse_spaces
 from rigour.mime.types import CSV
 from rigour.mime.types import HTML
-import csv
 
 from zavod import Context
 from zavod import helpers as h
@@ -44,7 +44,7 @@ def crawl_mutual_enforcement(context: Context):
 
             sanction = h.make_sanction(context, entity)
             sanction.add("reason", row.pop("Prohibited Practice"))
-            sanction.add("publisher", row.pop("Originating Institution"))
+            sanction.set("authority", row.pop("Originating Institution"))
             h.apply_date(sanction, "startDate", row.pop("Ineligible From"))
             h.apply_date(sanction, "endDate", row.pop("Ineligible Until"))
             h.apply_date(sanction, "date", row.pop("Notice Effective At EBRD"))
@@ -135,49 +135,36 @@ def crawl_third_party(context: Context):
     for row_idx, row in enumerate(table.findall(".//tr")):
         cells = [collapse_spaces(c.text_content()) for c in row.findall("./td")]
 
-        if row_idx == 0:
+        if row_idx < 2:
             # Skip the first row with "Firm name", "Address", etc.
             continue
-        elif row_idx == 1:
-            # Skip the second row with "From" and "To" headers
-            continue
-        else:
-            # Map cells based on the table structure
-            data = {
-                "firm_name": cells[0],
-                "address": cells[1],
-                "nationality": cells[2],
-                "ineligible_from": cells[3],
-                "ineligible_to": cells[4],
-                "enforcement_decision": cells[5],
-                "jurisdiction": cells[6],
-                "prohibited_practice": cells[7],
-            }
+        # Map cells based on the table structure
+        (
+            firm_name,
+            address,
+            nationality,
+            ineligible_from,
+            ineligible_to,
+            enforcement_decision,
+            jurisdiction,
+            prohibited_practice,
+        ) = cells
+        entity = context.make("LegalEntity")
+        entity.id = context.make_id(firm_name, address, nationality)
+        entity.add("name", firm_name)
+        entity.add("address", address)
+        entity.add("country", nationality)
+        entity.add("topics", "debarment")
 
-            name = data.pop("firm_name")
-            address = data.pop("address")
-            nationality = data.pop("nationality")
+        sanction = h.make_sanction(context, entity)
+        sanction.add("reason", prohibited_practice)
+        sanction.add("authority", jurisdiction)
+        h.apply_date(sanction, "startDate", ineligible_from)
+        h.apply_date(sanction, "endDate", ineligible_to)
+        h.apply_date(sanction, "listingDate", enforcement_decision)
 
-            entity = context.make("LegalEntity")
-            entity.id = context.make_id(name, address, nationality)
-            entity.add("name", name)
-            entity.add("address", address)
-            entity.add("country", nationality)
-            entity.add("topics", "debarment")
-
-            sanction = h.make_sanction(context, entity)
-            sanction.add("reason", data.pop("prohibited_practice"))
-            sanction.add("authority", data.pop("jurisdiction"))
-            h.apply_date(sanction, "startDate", data.pop("ineligible_from"))
-            h.apply_date(sanction, "endDate", data.pop("ineligible_to"))
-            h.apply_date(
-                sanction,
-                "listingDate",
-                data.pop("enforcement_decision"),
-            )
-
-            context.emit(entity, target=True)
-            context.emit(sanction)
+        context.emit(entity, target=True)
+        context.emit(sanction)
 
 
 def crawl(context: Context):
