@@ -7,9 +7,6 @@ from zavod import Context, helpers as h
 def crawl_item(input_dict: dict, context: Context):
     name = input_dict.pop("Entity Name")
     description = input_dict.pop("Covered Equipment or Services")
-    start_date = h.parse_date(
-        input_dict.pop("Date of Inclusion on Covered List"), formats=["%B %d, %Y"]
-    )
 
     entity = context.make("Company")
     entity.id = context.make_slug(name)
@@ -33,7 +30,11 @@ def crawl_item(input_dict: dict, context: Context):
 
         subsidiary_sanction = h.make_sanction(context, subsidiary)
         subsidiary_sanction.add("description", description)
-        subsidiary_sanction.add("startDate", start_date)
+        h.apply_date(
+            subsidiary_sanction,
+            "startDate",
+            input_dict.get("Date of Inclusion on Covered List"),
+        )
 
         context.emit(subsidiary, target=True)
         context.emit(ownership)
@@ -41,7 +42,11 @@ def crawl_item(input_dict: dict, context: Context):
 
     sanction = h.make_sanction(context, entity)
     sanction.add("description", description)
-    sanction.add("startDate", start_date)
+    sanction.add("description", input_dict.pop("Notes 1"))
+    sanction.add("description", input_dict.pop("Notes 2"))
+    h.apply_date(
+        sanction, "startDate", input_dict.pop("Date of Inclusion on Covered List")
+    )
 
     context.emit(entity, target=True)
     context.emit(sanction)
@@ -54,7 +59,7 @@ def crawl(context: Context):
     table = doc.xpath('.//div[contains(@class, "page-body")]')[0]
     h.assert_dom_hash(
         table,
-        "8c0f889c0e7e0110f84f3c481e2055108c60c2c8",
+        "f6668ad669875ac3dd1920f284874279b01cf7ac",
     )
 
     path = context.fetch_resource("source.csv", context.data_url)

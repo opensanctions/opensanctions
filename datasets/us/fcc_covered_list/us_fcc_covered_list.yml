@@ -51,3 +51,5 @@ data:
   url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCtBj1fAWXKlV5yhN38V66umTej12IlkQGzXGWC5LR7RCEPHlLMaBwqWpey6oHkShbyYYgRGm_0AbO/pub?output=csv"
   format: CSV
   lang: eng
+dates:
+  formats: "%B %d, %Y"
