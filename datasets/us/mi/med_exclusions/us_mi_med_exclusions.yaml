@@ -1,0 +1,63 @@
+title: US Michigan Medicaid Sanctioned Provider List
+entry_point: crawler.py
+prefix: us-medmi
+coverage:
+  frequency: daily
+  start: "2024-09-02"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been terminated for cause from Michigan's Medicaid program.
+description: |
+  > Pursuant to Section 1128 and Section 1902(a)(39) of the Social Security Act, the Medicaid Program will not
+  > reimburse a provider for any services or items that were rendered or ordered/prescribed by a sanctioned
+  > (e.g., suspended, excluded) provider.  The effect of the provider's sanction precludes them from furnishing,
+  > ordering, or prescribing services or items to any Medicaid beneficiary. Claims for services/items
+  > rendered/ordered/prescribed by a sanctioned provider with dates of service or dispensing after the effective
+  > date of the sanction, will be rejected or disallowed if discovered during a post-payment review. Refills of
+  > prescriptions written by a sanctioned provider must not be dispensed beyond the effective date of the sanction
+  > letter. Claims for services/items rendered/ordered/prescribed by a provider for whom sanctions have been removed
+  > will be honored retroactively to the date the sanction ended.
+publisher:
+  name: Michigan Department of Health & Human Services
+  acronym: MDHHS
+  description: |
+    > The Michigan Department of Health and Human Services (MDHHS) is a principal department of state of Michigan,
+    > that provides public assistance, child and family welfare services, and oversees health policy and management.
+  url: https://www.michigan.gov/mdhhs
+  official: true
+  country: "us"
+url: "https://www.michigan.gov/mdhhs/doing-business/providers/providers/billingreimbursement/list-of-sanctioned-providers"
+data:
+  url: https://www.michigan.gov/mdhhs/doing-business/providers/providers/billingreimbursement/list-of-sanctioned-providers
+  format: HTML
+dates:
+  formats: ["%Y-%m-%d", "%m/%d/%Y"]
+
+lookups:
+  type.date:
+    lowercase: true
+    options:
+      - match:
+          - 05817/2023
+          - 111/14/2022
+          - 07/30/202
+        value: null
+      - match:
+          - 0627/2023
+        value: 06-27-2023
+      - match:
+          - 09/18/223
+        value: 09-18-2023
+      - match:
+          - 03/20/25024
+        value: 03-20-2024
+
+assertions:
+  min:
+    schema_entities:
+      Company: 400
+      Person: 3000
+  max:
+    schema_entities:
+      Company: 550
+      Person: 3500
