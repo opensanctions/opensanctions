@@ -689,11 +689,18 @@ lookups:
           - also spelled PAETONGTARN Shinawatra (since 18 August 2024)
         holders:
           - role: Prime Minister
-            name: PHAETHONGTHAN Chinnawat
-      - match: King WACHIRALONGKON
+            name:
+              - PHAETHONGTHAN Chinnawat
+              - PAETONGTARN Shinawatra
+      - match:
+          - King WACHIRALONGKON
+          - also spelled Vajiralongkorn (since 1 December 2016)
         holders:
           - role: King
-            name: WACHIRALONGKON
+            name:
+              - WACHIRALONGKON
+              - Vajiralongkorn
+
 
       # Not additional heads, just notes
       - regex:

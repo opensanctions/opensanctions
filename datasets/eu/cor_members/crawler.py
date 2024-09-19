@@ -4,7 +4,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import OccupancyStatus, categorise
 
-FORMATS = ("%d/%m/%Y",)
 
 STATUS = {
     "Active": OccupancyStatus.CURRENT,

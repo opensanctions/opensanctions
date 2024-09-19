@@ -3,7 +3,6 @@ from typing import Dict
 from zavod import Context
 from zavod import helpers as h
 
-# FORMATS = ["%d/%b/%Y"]
 REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
 NAME_SPLITS = [
     "; ",
