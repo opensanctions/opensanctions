@@ -2,8 +2,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
-FORMATS = ["%d/%m/%Y"]
-
 
 def crawl_person(context: Context, element) -> dict:
     """
@@ -51,10 +49,14 @@ def crawl_person(context: Context, element) -> dict:
     person_data["term"] = _extract_text(element, ".//td[4]/text()")
     person_data["term_start"] = _extract_text(element, ".//td[5]/text()")
     if person_data["term_start"]:
-        person_data["term_start"] = h.parse_date(person_data["term_start"], FORMATS)[0]
+        person_data["term_start"] = h.parse_date(
+            person_data["term_start"], context.dataset.dates.formats
+        )[0]
     person_data["term_end"] = _extract_text(element, ".//td[6]/text()")
     if person_data["term_end"]:
-        person_data["term_end"] = h.parse_date(person_data["term_end"], FORMATS)[0]
+        person_data["term_end"] = h.parse_date(
+            person_data["term_end"], context.dataset.dates.formats
+        )[0]
     person_data["block"] = _extract_text(element, ".//td[7]/text()")
 
     context.log.debug("Finished crawl person", person=person_data)
@@ -82,7 +84,7 @@ def crawl_personal_page(context: Context, person_data: dict):
         doc, './/p[@class="encabezadoProfesion"]/span/text()'
     )
     birth_date = _extract_text(doc, './/p[@class="encabezadoFecha"]/span/text()')
-    person_data["birth_date"] = h.parse_date(birth_date, FORMATS)
+    person_data["birth_date"] = h.parse_date(birth_date, context.dataset.dates.formats)
     person_data["email"] = _extract_text(
         doc, './/a[starts-with(@href, "mailto:")]/text()'
     )

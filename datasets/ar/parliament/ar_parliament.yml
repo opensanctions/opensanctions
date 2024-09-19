@@ -24,3 +24,5 @@ url: https://www.hcdn.gob.ar/diputados/
 data:
   url: https://www.hcdn.gob.ar/diputados/
   format: HTML
+dates: 
+  formats: ["%d/%m/%Y"]
