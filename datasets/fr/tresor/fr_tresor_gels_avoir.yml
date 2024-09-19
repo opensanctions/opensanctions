@@ -4489,7 +4489,7 @@ lookups:
       - match: "Type d'entité: entreprise de technologies de l’information- Lieu d'enregistrement: Russie - Date d'enregistrement:  crée en 2009 - Principal établissement : Russie"
         props:
           jurisdiction: ru
-          legalForm: entreprise de technologies de l’information
+          sector: entreprise de technologies de l’information
           incorporationDate: 2009
       - match: "Type d'entité: société par actions - Principal établissement: Russie: /"
         props:
