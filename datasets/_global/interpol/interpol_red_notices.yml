@@ -72,3 +72,5 @@ lookups:
         value: female
       - match: U
         value: null
+dates:
+  formats: ["%Y/%m/%d", "%Y/%m", "%Y"]

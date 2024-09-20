@@ -35,6 +35,9 @@ data:
   url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction
   format: XML
 
+dates:
+  formats: ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%d %b %Y", "%b, %Y"]
+
 lookups:
   relations:
     lowercase: true
@@ -73,6 +76,26 @@ lookups:
         values:
           - 2016-12-26
           - 2017-04-03
+      - match: 12.4.1993 (incorporation date 11.9.2002)
+        values:
+          - 2002-09-11
+          - 1993-04-12
+      - match: 2.7.1990 (incorporation date 30.7.2002)
+        values:
+          - 2002-07-30
+          - 1990-07-02
+      - match: 20.5.2019 (registered as a small and medium sized enterprise); 10.7.2023 (registered as a small sized enterprise)
+        values:
+          - 2019-05-20
+          - 2023-07-10
+      - match: 24.4.1991 as “БЕЛОРУССКИЙ МЕТАЛЛУРГИЧЕСКИЙ ЗАВОД”, 11.9.1996 as “Государственное предприятие – Белорусский металлургический завод”, 1.12.1997 as “Белорусский металлургический завод”, 3.11.1999 as “Республиканское унитарное предприятие ‘Белорусский металлургический завод’”, 1.1.2012 as “Открытое акционерное общество ‘Белорусский металлургический завод’”
+        values:
+          - 1991-04-24
+          - 1996-09-11
+          - 1997-12-01
+          - 1999-11-03
+          - 2012-01-01
+
   type.gender:
     lowercase: true
     normalize: true

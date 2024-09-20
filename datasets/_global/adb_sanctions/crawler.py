@@ -3,7 +3,6 @@ from typing import Dict
 from zavod import Context
 from zavod import helpers as h
 
-FORMATS = ["%d/%b/%Y"]
 REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
 NAME_SPLITS = [
     "; ",
@@ -18,7 +17,7 @@ NAME_SPLITS = [
 # MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str | None]):
     full_name = row.pop("name") or ""
 
     # Split the full name using NAME_SPLITS first
@@ -56,8 +55,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
         date_range = row.get("effect_date_lapse_date", "") or ""
         if "|" in date_range:
             start_date, end_date = date_range.split("|")
-            sanction.add("startDate", h.parse_date(start_date.strip(), FORMATS))
-            sanction.add("endDate", h.parse_date(end_date.strip(), FORMATS))
+            h.apply_date(sanction, "startDate", start_date.strip())
+            h.apply_date(sanction, "endDate", end_date.strip())
 
         address = h.make_address(context, full=row.get("address"), country=country)
 
@@ -81,8 +80,8 @@ def crawl(context: Context):
 
         table = doc.find(".//div[@id='viewcontainer']/table")
 
-        for row in h.parse_table(table):
-            crawl_row(context, row)
+        for row in h.parse_html_table(table):
+            crawl_row(context, h.cells_to_str(row))
 
         pages += 1
         assert pages <= 10, "More pages than expected."

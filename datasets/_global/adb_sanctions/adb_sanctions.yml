@@ -147,3 +147,5 @@ lookups:
           - Until Further Notice
           - Indefinitely
         value: null
+dates:
+  formats: ["%d/%b/%Y"]

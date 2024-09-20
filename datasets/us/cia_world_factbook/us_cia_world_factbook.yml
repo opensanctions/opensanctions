@@ -683,6 +683,24 @@ lookups:
           - role: President of the Governorate of the Vatican City State
             name: Fernando VERGEZ ALZAGA
             start_date: 1 October 2021
+      # Thailand
+      - match:
+          - "Prime Minister PHAETHONGTHAN Chinnawat"
+          - also spelled PAETONGTARN Shinawatra (since 18 August 2024)
+        holders:
+          - role: Prime Minister
+            name:
+              - PHAETHONGTHAN Chinnawat
+              - PAETONGTARN Shinawatra
+      - match:
+          - King WACHIRALONGKON
+          - also spelled Vajiralongkorn (since 1 December 2016)
+        holders:
+          - role: King
+            name:
+              - WACHIRALONGKON
+              - Vajiralongkorn
+
 
       # Not additional heads, just notes
       - regex:
@@ -777,6 +795,8 @@ lookups:
           - on 5 August 2024, Prime Minister Sheikh HASINA Wazed resigned, and the army announced it is in talks to form a new government
           # Tunisia
           - President Kais SAIED dismissed Prime Minister Ahmed HACHANI the same day he appointed Kamel MADDOURI
+          # Thailand
+          - also spelled Vajiralongkorn (since 1 December 2016)
         holders: []
 
   type.country:

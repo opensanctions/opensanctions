@@ -127,6 +127,10 @@ lookups:
           - XX, XX, USA
           - XX, USA
         value: null
+  type.string:
+    options:
+      - match: "P.O. Box Beirut-Hamra 113/5647"
+        value: "PO Box 113/5647"
   type.country:
     lowercase: true
     normalize: true

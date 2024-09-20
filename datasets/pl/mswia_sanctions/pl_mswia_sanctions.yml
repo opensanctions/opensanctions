@@ -54,6 +54,16 @@ dates:
     "11": listopada
     "12": grudnia
 
+assertions:
+  min:
+    schema_entities:
+      Person: 420
+      Company: 90
+  max:
+    schema_entities:
+      Person: 450
+      Company: 110
+
 lookups:
   type.identifier:
     normalize: true
@@ -62,6 +72,24 @@ lookups:
         values:
           - 0001008314
           - 523931831
+  type.date:
+    options: 
+      - match: "15 11 1963 r. w wilnie (litwa) obywatel rosyjski nr pesel: 63111513931"
+        value: 1963-11-15
+      - match: "2 01 1968 r. w dzierżyńsku"
+        value: 1968-01-02
+      - match: 21 04 1964 r. we lwowie
+        value: 1964-04-21
+  preparse_date:
+    options:
+      - match:
+          - obywatel mołdawii i izraela
+          - 39a/2 leningradskoje szosse 125212 moskwa, rosja
+          - siedziba ul. garncarska 34 42-200 częstochowa
+          - plac dąbrowskiego 1, 00-057 warszawa
+          - ul. udalcowa 2, moskwa, federacja rosyjska
+          - "prowadzący działalność gospodarczą pod adresem: 00-844 warszawa, ul. grzybowska 87, regon 147421934"
+        value: null
   details:
     normalize: true
     lowercase: true
@@ -132,30 +160,18 @@ lookups:
         props:
           address: "Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan"
           idNumber: "220540011771"
-  type.date:
-    options: 
-      - match: "15 11 1963 r. w wilnie (litwa) obywatel rosyjski nr pesel: 63111513931"
-        value: 1963-11-15
-      - match: "2 01 1968 r. w dzierżyńsku"
-        value: 1968-01-02
-      - match: 21 04 1964 r. we lwowie
-        value: 1964-04-21
-  preparse_date:
-    options:
-      - match:
-          - obywatel mołdawii i izraela
-          - 39a/2 leningradskoje szosse 125212 moskwa, rosja
-          - siedziba ul. garncarska 34 42-200 częstochowa
-          - plac dąbrowskiego 1, 00-057 warszawa
-          - ul. udalcowa 2, moskwa, federacja rosyjska
-          - "prowadzący działalność gospodarczą pod adresem: 00-844 warszawa, ul. grzybowska 87, regon 147421934"
-        value: null
-assertions:
-  min:
-    schema_entities:
-      Person: 420
-      Company: 90
-  max:
-    schema_entities:
-      Person: 450
-      Company: 110
+          registrationNumber: "220540011771"
+      - match: 'urodzony 6 września 1979 r. (PESEL: 79090613232)'
+        props:
+          birthDate: 1979-09-06
+          idNumber: "79090613232"
+      - match: 'adres: Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan (w języku rosyjskim: проезд Ярослава Гашека, 1 Петропавловск, Казахстан) nr identyfikacyjny BIN: 191040021834'
+        props:
+          address: "Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan"
+          registrationNumber: "191040021834"
+      - match: 'adres: ul. Bohaterów II Armii Wojska Polskiego 12, 59-900 Zgorzelec '
+        props:
+          address: "ul. Bohaterów II Armii Wojska Polskiego 12, 59-900 Zgorzelec"
+      - match: 'adres: ul. Towarowa 28, 00-839 Warszawa '
+        props:
+          address: "ul. Towarowa 28, 00-839 Warszawa"

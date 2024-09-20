@@ -23,7 +23,6 @@ SEEN_IDS: Set[str] = set()
 COUNTRIES_URL = (
     "https://www.interpol.int/en/How-we-work/Notices/Red-Notices/View-Red-Notices"
 )
-FORMATS = ["%Y/%m/%d", "%Y/%m", "%Y"]
 GENDERS = ["M", "F", "U"]
 AGE_MIN = 20
 AGE_MAX = 90
@@ -112,7 +111,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     entity.add("eyeColor", notice.pop("eyes_colors_id", None))
 
     dob_raw = notice.pop("date_of_birth", None)
-    entity.add("birthDate", h.parse_date(dob_raw, FORMATS))
+    h.apply_date(entity, "birthDate", dob_raw)
     if "v1/red" in url:
         entity.add("topics", "crime")
         entity.add("topics", "wanted")
