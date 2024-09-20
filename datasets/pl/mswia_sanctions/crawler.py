@@ -117,12 +117,12 @@ def crawl(context: Context):
     doc.make_links_absolute(context.data_url)
 
     table = doc.xpath(".//h3[text() = 'Osoby']/following-sibling::div//table")[0]
-    for row in h.parse_table(table, header_tag="td"):
-        crawl_row(context, row, "osoby")
+    for row in h.parse_html_table(table, header_tag="td"):
+        crawl_row(context, h.cells_to_str(row), "osoby")
 
     # Pretty special xpath because they have some <table><tr><table> thing going on
     table = doc.xpath(
         ".//h3[text() = 'Podmioty']/following-sibling::div//table//tr//table"
     )[0]
-    for row in h.parse_table(table, header_tag="td"):
-        crawl_row(context, row, "podmioty")
+    for row in h.parse_html_table(table, header_tag="td"):
+        crawl_row(context, h.cells_to_str(row), "podmioty")

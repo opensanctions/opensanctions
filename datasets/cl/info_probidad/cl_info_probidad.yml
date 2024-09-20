@@ -415,6 +415,7 @@ lookups:
           - "JUEZ  DE POLICIA  LOCAL"
           - "JUEZ (A) POLICÍA LOCAL"
           - "JUEZ DE POLICIA LOCAL"
+          - "JUEZ DE POLICIA LOCAL SUBROGANTE"
           - "JUEZ DE POLICÍA LOCAL"
           - "JUEZ POLICIA LOCAL"
           - "JUEZ POLICÍA LOCAL"
@@ -584,3 +585,4 @@ lookups:
           - "TECNOLOGO MEDICO "
           - "TENIENTE CORONEL"
           - "TERCER NIVEL JERARQUICO"
+          - "NINGUNO" # None

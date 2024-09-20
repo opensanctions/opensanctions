@@ -32,6 +32,17 @@ data:
   url: https://offshoreleaks-data.icij.org/offshoreleaks/csv/full-oldb.LATEST.zip
   format: CSV
 
+dates: 
+  formats: ["%d-%b-%Y", "%b %d, %Y", "%Y-%m-%d", "%Y", "%d/%m/%Y", "%d.%m.%Y", "%d/%m/%y"]
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 1300
+      Company: 2900
+  max:
+    schema_entities:
+      LegalEntity: 3200
+      Company: 25000
 lookups:
   relationships:
     lowercase: true

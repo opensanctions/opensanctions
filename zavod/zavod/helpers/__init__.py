@@ -48,7 +48,7 @@ from zavod.helpers.dates import replace_months
 from zavod.helpers.identification import make_identification
 from zavod.helpers.securities import make_security
 from zavod.helpers.excel import convert_excel_cell, convert_excel_date, parse_xlsx_sheet
-from zavod.helpers.html import parse_table
+from zavod.helpers.html import parse_html_table, cells_to_str, links_to_dict
 from zavod.helpers.crypto import extract_cryptos
 from zavod.helpers.change import assert_dom_hash, assert_url_hash, assert_html_url_hash
 from zavod.helpers.pdf import make_pdf_page_images
@@ -81,7 +81,9 @@ __all__ = [
     "apply_name",
     "make_position",
     "make_occupancy",
-    "parse_table",
+    "parse_html_table",
+    "cells_to_str",
+    "links_to_dict",
     "extract_cryptos",
     "assert_dom_hash",
     "assert_url_hash",

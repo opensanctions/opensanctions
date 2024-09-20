@@ -3,7 +3,6 @@ from typing import Dict
 from zavod import Context
 from zavod import helpers as h
 
-# FORMATS = ["%d/%b/%Y"]
 REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
 NAME_SPLITS = [
     "; ",
@@ -18,7 +17,7 @@ NAME_SPLITS = [
 # MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str | None]):
     full_name = row.pop("name") or ""
 
     # Split the full name using NAME_SPLITS first
@@ -81,8 +80,8 @@ def crawl(context: Context):
 
         table = doc.find(".//div[@id='viewcontainer']/table")
 
-        for row in h.parse_table(table):
-            crawl_row(context, row)
+        for row in h.parse_html_table(table):
+            crawl_row(context, h.cells_to_str(row))
 
         pages += 1
         assert pages <= 10, "More pages than expected."
