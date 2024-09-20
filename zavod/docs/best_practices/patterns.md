@@ -2,13 +2,41 @@
 
 The following are some patterns that have proved useful:
 
+## Common crawler code structure
+
+Our typical crawler structure consists of
+
+1. a `crawl` function as the entrypoint which
+    - fetches the data
+    - converts it into an iterable of dicts, one per record
+    - a loop over those records, calling...
+2. a function called once per record, e.g. `crawl_item` or `crawl_person` which
+    - unpacks the record dict
+    - ensures the necessary cleaning takes place
+    - creates one or more entities for the record (LegalEntity, Sanction, Position, relations, etc)
+    - emits the created entities
+
+We have a number of helpers to turn common formats into an iterable of dicts:
+
+- [`h.parse_html_table()`][zavod.helpers.parse_html_table]
+- [`h.parse_xlsx_sheet()`][zavod.helpers.parse_xlsx_sheet]
+
+We typically `from zavod import helpers as h`.
+
+When concise-enough to fit on a single line and only used once, we pop and add values on the same line:
+
+```python
+entity.add("name", row.pop("full_name"))
+entity.add("birthPlace", row.pop("place_of_birth"))
+```
+
 ## Detect unhandled data
 
 If a variable number of fields can extracted automatically (e.g. from a list or table):
 
 * Capture all fields provided by the data source in a `dict`.
 * `dict_obj.pop()` individual fields when adding them to entities.
-* Log warnings if there are unhandled fields remaining in the `dict` so that we notice and improve the crawler. The context method [`context.audit_data()`][zavod.context.Context.audit_data] can be used to warn about extra fields in a `dict`.
+* Log warnings if there are unhandled fields remaining in the `dict` so that we notice and improve the crawler. The context method [`context.audit_data()`][zavod.context.Context.audit_data] can be used to warn about extra fields in a `dict`. It takes the `ignore` argument to explicitly list fields that are unused.
 
 ## Generating consistent unique identifiers
 
@@ -33,3 +61,10 @@ sanction.add("reason", reason, lang="rom")
 ## Use datapatch lookups to clean or map values from external forms to OpenSanctions
 
 See [Datapatches](datapatch_lookups.md)
+
+e.g.
+
+- Fixing typos in dates
+- Translating column headings to English
+- Mapping source data entity types to FollowTheMoney entity types
+- Mapping relationship descriptions to FollowTheMoney relation entity types

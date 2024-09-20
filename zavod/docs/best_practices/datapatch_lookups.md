@@ -121,3 +121,25 @@ between two entities assumed to be created earlier - `entity`, and `other_entity
     It's usually a good idea to structure the code so that you warn if an unmatched
     value is encountered, instead of silently ignoring values and possibly excluding
     valid data from the dataset.
+
+
+## Translate headers using datapatch lookups
+
+e.g.
+
+```yaml
+  columns:
+    options:
+      - match:
+          - 日 本 語 表 記
+        value: name_japanese
+      - match: 英 語 表 記
+        value: name_english
+      - match:
+          - 別 名
+          - 別 称 ・ 別 名
+          - 別称・旧称
+          - 別称
+          - 別名
+        value: alias
+```
