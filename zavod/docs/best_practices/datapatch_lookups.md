@@ -128,6 +128,7 @@ between two entities assumed to be created earlier - `entity`, and `other_entity
 e.g.
 
 ```yaml
+lookups:
   columns:
     options:
       - match:
