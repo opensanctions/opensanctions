@@ -81,7 +81,7 @@ def crawl(context: Context):
         table = doc.find(".//div[@id='viewcontainer']/table")
 
         for row in h.parse_html_table(table):
-            crawl_row(context,  h.cells_to_str(row))
+            crawl_row(context, h.cells_to_str(row))
 
         pages += 1
         assert pages <= 10, "More pages than expected."
