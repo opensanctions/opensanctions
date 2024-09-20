@@ -12,6 +12,8 @@ CHOPSKA = [
     ("NIP", "taxNumber"),
     ("Nr KRS", "registrationNumber"),
     ("KRS", "registrationNumber"),
+    ("(PESEL:", "idNumber"),
+    ("PESEL:", "idNumber"),
     ("siedziba:", "address"),
     ("adres:", "address"),
     (" r. w ", "birthPlace"),  # "year in" in Polish
@@ -50,8 +52,10 @@ def parse_details(context: Context, entity: Entity, text: str):
     bday = parse_date(text, context)
     if bday:
         h.apply_date(entity, "birthDate", bday)
-        return
+        text = re.sub(r"urodzon. \d+[. ]\w+[. ]\d+ r\.?", "", text).strip()
 
+    if text == "":
+        return
     result = context.lookup("details", text)
     if result is None:
         context.log.warning("Unhandled details", details=repr(text))

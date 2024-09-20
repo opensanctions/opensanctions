@@ -94,6 +94,10 @@ lookups:
     normalize: true
     lowercase: true
     options:
+      - match:
+          - (
+          - ","
+        props: {}
       - match: ul. Udalcowa 2, Moskwa, Federacja Rosyjska
         props:
           address: ul. Udalcowa 2, Moskwa, Federacja Rosyjska
@@ -106,43 +110,37 @@ lookups:
       - match: urodzona 16 października 1975 r.
         props:
           birthDate: 1975-10-16
-      - match: urodzony 2 stycznia 1968 r. w Dzierżyńsku
+      - match: urodzony 2 stycznia 1968
         props:
           birthDate: 1968-01-02
-          birthPlace: Dzerzhinsk
-      - match: urodzony 21 kwietnia 1964 r. we Lwowie
+      - match: we Lwowie
         props:
-          birthDate: 1964-04-21
           birthPlace: Lviv
       - match: 13.05.2022 r.
         props:
           modifiedAt: 2022-05-13
-      - match: urodzony 8 września 1953 r. w Moskwie
+      - match: urodzony 8 września 1953
         props:
           birthDate: 1953-09-08
-          birthPlace: Moscow
-      - match: urodzony 27 sierpnia 1969 r. w Kaliningradzie (Federacja Rosyjska)
+      - match: urodzony 27 sierpnia 1969
         props:
           birthDate: 1969-08-27
-          birthPlace: Kaliningrad
-      - match: urodzony 18 lipca 1958 r. ob. Federacji Rosyjskiej
+      - match: ob. Federacji Rosyjskiej
         props:
-          birthDate: 1958-07-18
           country: ru
-      - match: urodzony 7 września 1960 r. w Leningradzie
+      - match: urodzony 7 września 1960
         props:
           birthDate: 1960-09-07
-          birthPlace: Leningrad
-      - match: urodzony 14 kwietnia 1957 r. w Drohobyczu
+      - match: urodzony 14 kwietnia 1957
         props:
           birthDate: 1957-04-14
           birthPlace: Drohobych
-      - match: "urodzony 15 listopada 1963 r. w Wilnie (Litwa) obywatel rosyjski nr PESEL: 63111513931"
+      - match: "urodzony 15 listopada 1963"
         props:
           birthDate: 1963-11-15
-          birthPlace: Vilnius
-          nationality: RU
-          idNumber: "63111513931"
+      - match: "urodzonego 24 listopada 1961 r."
+        props:
+          birthDate: 1961-11-24
       - match: Plac Dąbrowskiego 1, 00-057 Warszawa,
         props:
           address: Plac Dąbrowskiego 1, 00-057 Warszawa
@@ -161,9 +159,8 @@ lookups:
           address: "Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan"
           idNumber: "220540011771"
           registrationNumber: "220540011771"
-      - match: 'urodzony 6 września 1979 r. (PESEL: 79090613232)'
+      - match: '(PESEL: 79090613232)'
         props:
-          birthDate: 1979-09-06
           idNumber: "79090613232"
       - match: 'adres: Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan (w języku rosyjskim: проезд Ярослава Гашека, 1 Петропавловск, Казахстан) nr identyfikacyjny BIN: 191040021834'
         props:
