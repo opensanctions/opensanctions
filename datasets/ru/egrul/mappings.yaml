@@ -19,12 +19,12 @@ established:
     - ГОСУДАРСТВЕННОЕ # STATE
 
   ГОУ: # государственное образовательное учреждение
-    - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ # STATE EDUCATIONAL INSTITUTION
-    - ГОСУДАРСТВЕННОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОТКЛОНЕНИЯМИ В РАЗВИТИИ # STATE SPECIAL (CORRECTIONAL) EDUCATIONAL INSTITUTION FOR STUDENTS WITH DEVELOPMENTAL DISABILITIES
-    - ГОСУДАРСТВЕННОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ # STATE PRESCHOOL EDUCATIONAL INSTITUTION
-    - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ ДОШКОЛЬНОГО И МЛАДШЕГО ШКОЛЬНОГО ВОЗРАСТА НАЧАЛЬНАЯ ШКОЛА # STATE EDUCATIONAL INSTITUTION FOR PRESCHOOL AND PRIMARY SCHOOL CHILDREN
     - ГОСУДАРСТВЕННАЯ ОБЩЕОБРАЗОВАТЕЛЬНАЯ ШКОЛА-ИНТЕРНАТ # STATE GENERAL EDUCATIONAL BOARDING SCHOOL
+    - ГОСУДАРСТВЕННОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ # STATE PRESCHOOL EDUCATIONAL INSTITUTION
+    - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ # STATE EDUCATIONAL INSTITUTION
+    - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ ДОШКОЛЬНОГО И МЛАДШЕГО ШКОЛЬНОГО ВОЗРАСТА НАЧАЛЬНАЯ ШКОЛА # STATE EDUCATIONAL INSTITUTION FOR PRESCHOOL AND PRIMARY SCHOOL CHILDREN
     - ГОСУДАРСТВЕННОЕ ОБЩЕОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ # STATE GENERAL EDUCATIONAL INSTITUTION
+    - ГОСУДАРСТВЕННОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОТКЛОНЕНИЯМИ В РАЗВИТИИ # STATE SPECIAL (CORRECTIONAL) EDUCATIONAL INSTITUTION FOR STUDENTS WITH DEVELOPMENTAL DISABILITIES
 
   ГБОУ: # государственное бюджетное образовательное учреждение
     - ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОГРАНИЧЕННЫМИ ВОЗМОЖНОСТЯМИ ЗДОРОВЬЯ СПЕЦИАЛЬНАЯ (КОРРЕКЦИОННАЯ) # STATE BUDGETARY SPECIAL (CORRECTIONAL) EDUCATIONAL INSTITUTION FOR STUDENTS WITH DISABILITIES
@@ -37,9 +37,6 @@ established:
   ГНУ:
     - ГОСУДАРСТВЕННОЕ НАУЧНОЕ УЧРЕЖДЕНИЕ # STATE SCIENTIFIC INSTITUTION
 
-  ФГНУ:
-    - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ НАУЧНОЕ УЧРЕЖДЕНИЕ # FEDERAL STATE SCIENTIFIC INSTITUTION
-
   ГОУ ВПО: # can also be ГОУ ДПО in this case
     - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПОВЫШЕНИЯ КВАЛИФИКАЦИИ) СПЕЦИАЛИСТОВ # STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION (QUALIFICATION IMPROVEMENT)
     - ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ
@@ -47,6 +44,9 @@ established:
   ГУП: # государственное унитарное предприятие
     - ДОЧЕРНЕЕ ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ # SUBSIDIARY STATE UNITARY ENTERPRISE
     - ГОСУДАРСТВЕННОЕ УНИТАРНОЕ СЕЛЬСКОХОЗЯЙСТВЕННОЕ ПРЕДПРИЯТИЕ # STATE UNITARY AGRICULTURAL ENTERPRISE
+
+  ФГНУ:
+    - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ НАУЧНОЕ УЧРЕЖДЕНИЕ # FEDERAL STATE SCIENTIFIC INSTITUTION
 
   ФГУП:
     - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ # FEDERAL STATE UNITARY ENTERPRISE
@@ -71,10 +71,10 @@ established:
     - МУНИЦИПАЛЬНОЕ КАЗЕННОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ # MUNICIPAL TREASURY PRESCHOOL EDUCATIONAL INSTITUTION
 
   МРО:
-  - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА ВО ИМЯ СВЯТОГО ВЕЛИКОМУЧЕНИКА ГЕОРГИЯ ПОБЕДОНОСЦА С. АФОНЬЕВКА ВОЛОКОНОВСКОГО РАЙОНА БЕЛГОРОДСКОЙ ОБЛАСТИ РЕЛИГИОЗНОЙ ОРГАНИЗАЦИИ # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH IN THE NAME OF THE HOLY GREAT MARTYR GEORGE THE VICTORIOUS S. AFONYEVKA OF THE VOLOKONOVSKY DISTRICT OF THE BELGOROD REGION RELIGIOUS ORGANIZATION"
-  - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ # LOCAL RELIGIOUS ORGANIZATION
   - МЕСТНАЯ ПРАВОСЛАВНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ # LOCAL ORTHODOX RELIGIOUS ORGANIZATION
+  - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ # LOCAL RELIGIOUS ORGANIZATION
   - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH
+  - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА ВО ИМЯ СВЯТОГО ВЕЛИКОМУЧЕНИКА ГЕОРГИЯ ПОБЕДОНОСЦА С. АФОНЬЕВКА ВОЛОКОНОВСКОГО РАЙОНА БЕЛГОРОДСКОЙ ОБЛАСТИ РЕЛИГИОЗНОЙ ОРГАНИЗАЦИИ # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH IN THE NAME OF THE HOLY GREAT MARTYR GEORGE THE VICTORIOUS S. AFONYEVKA OF THE VOLOKONOVSKY DISTRICT OF THE BELGOROD REGION RELIGIOUS ORGANIZATION"
   
   ЦРО: # центральная религиозная организация
     - ЦЕНТРАЛЬНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ # CENTRAL RELIGIOUS ORGANIZATION
@@ -103,8 +103,8 @@ established:
     - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ УЧРЕЖДЕНИЕ # FEDERAL STATE BUDGETARY INSTITUTION
   
   ППО: # первичная профсоюзная организация
-    - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ # PRIMARY TRADE UNION ORGANIZATION
     - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ # PRIMARY TRADE UNION
+    - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ # PRIMARY TRADE UNION ORGANIZATION
     - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ КАЛАЧЕЕВСКОГО ЛИНЕЙНОГО ПРОИЗВОДСТВЕННОГО УПРАВЛЕНИЯ МАГИСТРАЛЬНЫХ ГАЗОПРОВОДОВ # PRIMARY TRADE UNION ORGANIZATION OF THE KALACHEEVSKY LINEAR PRODUCTION MANAGEMENT OF MAIN GAS PIPELINES
     - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ НИЖЕГОРОДСКОЙ ОБЛАСТНОЙ ОРГАНИЗАЦИИ ОБЩЕСТВЕННОЙ ОРГАНИЗАЦИИ # PRIMARY TRADE UNION ORGANIZATION OF THE NIZHNY NOVGOROD REGIONAL ORGANIZATION OF THE PUBLIC ORGANIZATION
 
@@ -137,9 +137,6 @@ established:
   ПОП ОБГУЗ: # первичная организация профсоюза областного бюджетного учреждения здравоохранения
     - ПЕРВИЧНАЯ ОРГАНИЗАЦИЯ ПРОФСОЮЗА ОБЛАСТНОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ ЗДРАВООХРАНЕНИЯ # PRIMARY TRADE UNION ORGANIZATION OF THE REGIONAL BUDGETARY HEALTHCARE INSTITUTION
 
-  ООО: 
-    - ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ # LIMITED LIABILITY COMPANY
-
   ОГКОУ: # областное государственное казенное образовательное учреждение
     - ОБЛАСТНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ # REGIONAL STATE TREASURY EDUCATIONAL INSTITUTION
     - ОБЛАСТНОЕ ГОСУДАРСТВЕННОЕ КАЗЁННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ-СИРОТ И ДЕТЕЙ, ОСТАВШИХСЯ БЕЗ ПОПЕЧЕНИЯ РОДИТЕЛЕЙ # REGIONAL STATE TREASURY EDUCATIONAL INSTITUTION FOR ORPHANS AND CHILDREN LEFT WITHOUT PARENTAL CARE
@@ -149,48 +146,51 @@ established:
     - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ - # LOCAL PUBLIC ORGANIZATION 
 
   МОО - ППО: # местная общественная организация - первичная профсоюзная организация
-    - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ" # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION ORGANIZATION OF WORKERS
-    - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION
-    - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ # LOCAL PUBLIC ORGANIZATION-PRIMARY TRADE UNION
     - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ # LOCAL PUBLIC ORGANIZATION - PRIMARY TRADE UNION
+    - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION
+    - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ" # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION ORGANIZATION OF WORKERS
+    - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ # LOCAL PUBLIC ORGANIZATION-PRIMARY TRADE UNION
   
-  МОО - ППО ГУП: 
+  МОО - ППО ГУП: # местная общественная организация - первичная профсоюзная организация государственного унитарного предприятия
     - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION ORGANIZATION OF THE STATE UNITARY ENTERPRISE 
 
 
   НПО: # неправительственная организация
    - ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ # NGO
 
-  НОУ ДПО:
+  НОУ ДПО: # негосударственное образовательное учреждение дополнительного профессионального образования
   - НЕГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ # NON-STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION
   - НЕГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ НАЧАЛЬНОГО И ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ # NON-STATE EDUCATIONAL INSTITUTION OF INITIAL AND FURTHER PROFESSIONAL EDUCATION
   - НЕГОСУДАРСТВЕНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПОВЫШЕНИЯ КВАЛИФИКАЦИИ) СПЕЦИАЛИСТОВ # NON-STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION (QUALIFICATION IMPROVEMENT) FOR SPECIALISTS
 
-  ЗАО: 
+  ООО: # общество с ограниченной ответственностью
+    - ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ # LIMITED LIABILITY COMPANY
+
+  ЗАО: # закрытое акционерное общество
     - ЗАКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО # CLOSED JOINT-STOCK COMPANY
   
-  ОАО:
+  ОАО: # открытое акционерное общество
     - ОТКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО # OPEN JOINT-STOCK COMPANY
   
-  АО: 
+  АО: # акционерное общество
     - АКЦИОНЕРНОЕ ОБЩЕСТВО # JOINT-STOCK COMPANY
   
-  ПАО: 
+  ПАО: # публичное акционерное общество
     - ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО # PUBLIC JOINT-STOCK COMPANY
 
-  НАО: 
+  НАО: # некоммерческое акционерное общество
     - НЕПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО # NON-PUBLIC JOINT-STOCK COMPANY
 
-  СПК: 
+  СПК: # сельскохозяйственный производственный кооператив
     - СЕЛЬСКОХОЗЯЙСТВЕННЫЙ ПРОИЗВОДСТВЕННЫЙ КООПЕРАТИВ # AGRICULTURAL PRODUCTION COOPERATIVE
   
-  МУП: 
+  МУП: # муниципальное унитарное предприятие
     - МУНИЦИПАЛЬНОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ # MUNICIPAL UNITARY ENTERPRISE
 
-  АНО: 
+  АНО: # автономная некоммерческая организация
     - АВТОНОМНАЯ НЕКОММЕРЧЕСКАЯ ОРГАНИЗАЦИЯ # AUTONOMOUS NON-COMMERCIAL ORGANIZATION
 
-  КФХ: 
+  КФХ: # крестьянское (фермерское) хозяйство
     - КРЕСТЬЯНСКОЕ (ФЕРМЕРСКОЕ) ХОЗЯЙСТВО # FARM (FARMING) HOUSEHOLD
     - КРЕСТЬЯНСКОЕ ФЕРМЕРСКОЕ ХОЗЯЙСТВО
     - КРЕСТЬЯНСКОЕ ХОЗЯЙСТВО
@@ -198,5 +198,5 @@ established:
   ООП: # партнёрство с ограниченной ответственностью
     - ПАРТНЁРСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ
   
-  ПТ: 
+  ПТ: # полное товарищество
     - ПОЛНОЕ ТОВАРИЩЕСТВО # FULL PARTNERSHIP
