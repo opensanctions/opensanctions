@@ -5,7 +5,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
-# CSV_LINK = "https://www.hcdn.gob.ar/system/modules/ar.gob.hcdn.diputados/formatters/generar-lista-diputados.csv"
 BASE_URL = "https://www.hcdn.gob.ar"
 
 
@@ -20,15 +19,20 @@ def crawl_person(context: Context, row, element):
     person.add("political", row.pop("Bloque").text_content())
     person.add("notes", row.pop("Distrito").text_content())
     # Extract the relative link to the person's page (e.g., '/diputados/sacevedo/')
-    relative_link = element.xpath(".//a/@href")[0]
-    full_url = BASE_URL + relative_link
-    # Get profession, birth_date, and email from personal page
-    profession, birth_date, email = crawl_personal_page(context, full_url)
-    # Call crawl_person with the current row data
-    # h.apply_date(person, "birthDate", birth_date)
-    person.add("birthDate", birth_date)
-    person.add("notes", profession)
-    person.add("email", email)
+    # Ensure the HTML element is correctly parsed for links
+    relative_link = element.xpath(".//a/@href")
+    if relative_link:
+        full_url = BASE_URL + relative_link[0]
+        # Get profession, birth_date, and email from personal page
+        profession, birth_date, email = crawl_personal_page(context, full_url)
+        person.add("birthDate", birth_date)
+        person.add("notes", profession)
+        person.add("email", email)
+    else:
+        context.log.warning(
+            "No link found for this person", first_name=first_name, last_name=last_name
+        )
+        return
 
     position = h.make_position(
         context,
@@ -84,6 +88,12 @@ def crawl(context: Context):
     with open(path, "r") as fh:
         doc = html.parse(fh)
 
+    # Find the table containing the deputy data
     table = doc.find(".//table")
-    for row in h.parse_table(table):
-        crawl_person(context, row)
+
+    # Iterate over each row in the table
+    for row_element in table.findall(".//tr"):
+        row = h.parse_table(row_element)
+
+        # Pass both the row data and the element to crawl_person
+        crawl_person(context, row, row_element)
