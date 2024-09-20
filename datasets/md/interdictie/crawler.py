@@ -11,12 +11,12 @@ REGEX_DELAY = re.compile(r".+(\d{2}[\.\/]\d{2}[\.\/]\d{4})$")
 # e.g. 6/23 from "6/23 din 02.05.2023"
 REGEX_SANCTION_NUMBER = re.compile(r".*(\d+\/\d+)[\w ]+(\d{2}[\.\/]\d{2}[\.\/]\d{4}).*")
 REGEX_MEMBER_GROUPS = (
-    "^(?P<unknown>[\w, \(\)%\.]+)?"
-    "("
-    "(ADMINISTRATORS: (?P<admin>[\w,\. ]+))"
-    "|OWNERS: ((?P<owners>[\w,\. \(\)%]+))"
-    "|UNKNOWN: ((?P<mixed>[\w,\. \(\)%]+))"
-    ")*$"
+    r"^(?P<unknown>[\w, \(\)%\.]+)?"
+    r"("
+    r"(ADMINISTRATORS: (?P<admin>[\w,\. ]+))"
+    r"|OWNERS: ((?P<owners>[\w,\. \(\)%]+))"
+    r"|UNKNOWN: ((?P<mixed>[\w,\. \(\)%]+))"
+    r")*$"
 )
 
 # Fondator/Administrator –
@@ -175,7 +175,7 @@ def crawl_control(context: Context, entity: Entity, date, text: str):
 def make_ownerships(context, company: Entity, date, owners: List[str]) -> Entity:
     for name in owners:
         name = name.strip()
-        match = re.match("^([^\d\.\()]+)(\(?(\d+\.?\d*) ?%\)?)?$", name)
+        match = re.match(r"^([^\d\.\()]+)(\(?(\d+\.?\d*) ?%\)?)?$", name)
         if match:
             name = match.group(1)
             owner = context.make("LegalEntity")
