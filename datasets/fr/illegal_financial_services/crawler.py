@@ -21,7 +21,6 @@ EMAIL_PATTERN = (
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     entity = context.make("LegalEntity")
     entity.id = context.make_id(row.get("nom"))
     entity.add("name", row.get("nom"))
@@ -35,7 +34,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     row.pop("nom")
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("date", row.pop("date_inscription"))
+    h.apply_date(sanction, "date", row.pop("date_inscription"))
     entity.add("sector", row.pop("categorie"), lang="fra")
 
     context.emit(entity, target=True)

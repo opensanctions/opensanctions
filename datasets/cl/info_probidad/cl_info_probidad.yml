@@ -127,10 +127,13 @@ lookups:
           - "PRIMER SECRETARIO O CÓNSUL DE PRIMERA CLASE, CUARTA CATEGORÍA EXTERIOR"
           - "CONSEJERO O CÓNSUL GENERAL SEGUNDA CLASE, TERCERA CATEGORÍA EXTERIOR"
           - "SEGUNDO SECRETARIO O CÓNSUL DE SEGUNDA CLASE, QUINTA CATEGORÍA EXTERIOR"
+
       - is_pep: false
         match:
           - CANDIDATO A ELECCIONES PRIMARIAS ALCALDE 2024
           - CANDIDATO A ELECCIONES PRIMARIAS GORE 2024
+          - JEFE RELACIONES PUBLICAS
+
       - is_pep: null # haven't looked closely yet
         match:
           - "ABOGADA"
@@ -412,6 +415,7 @@ lookups:
           - "JUEZ  DE POLICIA  LOCAL"
           - "JUEZ (A) POLICÍA LOCAL"
           - "JUEZ DE POLICIA LOCAL"
+          - "JUEZ DE POLICIA LOCAL SUBROGANTE"
           - "JUEZ DE POLICÍA LOCAL"
           - "JUEZ POLICIA LOCAL"
           - "JUEZ POLICÍA LOCAL"
@@ -581,3 +585,4 @@ lookups:
           - "TECNOLOGO MEDICO "
           - "TENIENTE CORONEL"
           - "TERCER NIVEL JERARQUICO"
+          - "NINGUNO" # None

@@ -2,7 +2,7 @@ title: US CIA World Factbook Heads of State and Government
 entry_point: crawler.py
 prefix: us-cia
 coverage:
-  frequency: daily
+  frequency: weekly
   start: "2023-09-21"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
@@ -683,6 +683,25 @@ lookups:
           - role: President of the Governorate of the Vatican City State
             name: Fernando VERGEZ ALZAGA
             start_date: 1 October 2021
+      # Thailand
+      - match:
+          - "Prime Minister PHAETHONGTHAN Chinnawat"
+          - also spelled PAETONGTARN Shinawatra (since 18 August 2024)
+        holders:
+          - role: Prime Minister
+            name:
+              - PHAETHONGTHAN Chinnawat
+              - PAETONGTARN Shinawatra
+      - match:
+          - King WACHIRALONGKON
+          - also spelled Vajiralongkorn (since 1 December 2016)
+        holders:
+          - role: King
+            name:
+              - WACHIRALONGKON
+              - Vajiralongkorn
+
+
       # Not additional heads, just notes
       - regex:
           - subsequently, the Houthis and supporters of Yemen's first president, Ali Abdullah SALEH, seized the presidential palace and placed HADI under house arrest
@@ -771,6 +790,13 @@ lookups:
           - on 19 May 2024, President Ebrahim RAISI died in a helicopter crash
           # Angola - already emitted in chief of state entry incl date.
           - President Joao Manuel Goncalves LOURENCO
+          # Bangladesh
+          - vacant
+          - on 5 August 2024, Prime Minister Sheikh HASINA Wazed resigned, and the army announced it is in talks to form a new government
+          # Tunisia
+          - President Kais SAIED dismissed Prime Minister Ahmed HACHANI the same day he appointed Kamel MADDOURI
+          # Thailand
+          - also spelled Vajiralongkorn (since 1 December 2016)
         holders: []
 
   type.country:

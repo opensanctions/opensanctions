@@ -2,10 +2,9 @@ title: French National Asset Freezing System
 entry_point: crawler.py
 prefix: fr-ga
 coverage:
+  schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-02-12
-deploy:
-  schedule: "30 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The register lists all persons, entities and vessels subject to asset
@@ -4358,3 +4357,191 @@ lookups:
           jurisdiction: ru
           address: "676811 Amurskaya oblast, Belogorskiy Rayon, Vozhaevka"
           innCode: 2811005250
+      - match: "Type d'entité: société par actions: /"
+        props:
+          legalForm: société par actions
+      - match: "numéro d'identification fiscale: 9718077239"
+        props: 
+          innCode: 9718077239
+      - match: "Lieu d'enregistrement: Fédération de Russie (107241, Moscou, sh. Shchelkovskoe, 23A, pomeshch. V kom. 33.) - Date d'enregistrement: 27.9.2017 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          address: "107241, Moscou, sh. Shchelkovskoe, 23A, pomeshch. V kom. 33."
+          incorporationDate: 2017-09-27
+      - match: "Numéro d’enregistrement: 1027810239555"
+        props:
+          registrationNumber: 1027810239555
+      - match: "Type d'entité: société par actions. Lieu d'enregistrement: 127287, st. Khutorskaya 2nd, 38A, Moscou, Fédération de Russie - Date d'enregistrement: 28.11.2002 -  Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          address: "127287, st. Khutorskaya 2nd, 38A, Moscou"
+          legalForm: société par actions
+          incorporationDate: 2002-11-28
+      - match: "Numéro d’enregistrement: 1027739642281"
+        props:
+          registrationNumber: 1027739642281
+      - match: "Type d'entité: société publique par actions - Lieu d'enregistrement: 107078, Moscou, Masha Poryvaeva str., 34, Fédération de Russie - Date d'enregistrement: 2.3.1993 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          address: "107078, Moscou, Masha Poryvaeva str., 34"
+          legalForm: société publique par actions
+          incorporationDate: 1993-03-02
+      - match: "OGRN: 1027739460737"
+        props:
+          ogrnCode: 1027739460737
+      - match: "Numéro d’enregistrement: 1057746595367"
+        props:
+          registrationNumber: 1057746595367
+      - match: "Numéro d’identification fiscale: 7704552473"
+        props:
+          innCode: 7704552473
+      - match: "Numéro d’enregistrement: 1037719005873"
+        props:
+          registrationNumber: 1037719005873
+      - match: "OGRN: 1207700135972"
+        props:
+          ogrnCode: 1207700135972
+      - match: "INN: 9706005582"
+        props:
+          innCode: 9706005582
+      - match: "OGRN: 1087746736296"
+        props:
+          ogrnCode: 1087746736296
+      - match: "INN: 7705846236"
+        props:
+          innCode: 7705846236
+      - match: "Numéro d’enregistrement: 1020300887793"
+        props:
+          registrationNumber: 1020300887793
+      - match: "Numéro d’enregistrement: 1021603617188"
+        props:
+          registrationNumber: 1021603617188
+      - match: "Type d'entité: société par actions: /"
+        props:
+          legalForm: société par actions
+      - match: "Numéro d'enregistrement  : 1065471010340"
+        props:
+          registrationNumber: 1065471010340
+      - match: "Type d'entité: entreprise fédérale d'État - Lieu d'enregistrement: Kuibyshev, région de Novosibirsk, Fédération de Russie - Date d'enregistrement: 15.6.2006 - Principal établissement: Kuibyshev, Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          address: "Kuibyshev, région de Novosibirsk"
+          legalForm: entreprise fédérale d'État
+          incorporationDate: 2006-06-15
+      - match: "NIF: 5452112527"
+        props:
+          innCode: 5452112527
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: 27 Kalanchevskaya str. Moscou, 107078, Fédération de Russie - Date d'enregistrement: 26.7.2022 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          address: "27 Kalanchevskaya str. Moscou, 107078"
+          legalForm: société par actions
+          incorporationDate: 2022-07-26
+      - match: "Numéro d'enregistrement: 1027700067328"
+        props:
+          registrationNumber: 1027700067328
+      - match: "OGRN: 1027739165640"
+        props:
+          ogrnCode: 1027739165640
+      - match: "INN: 7704116332"
+        props:
+          innCode: 7704116332
+      - match: "Numéro d'enregistrement : 1035001851125"
+        props:
+          registrationNumber: 1035001851125
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 17.1.2003 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2003-01-17
+      - match: "NIF:  7805060220"
+        props:
+          innCode: 7805060220
+      - match: "INN: 7805060220"
+        props:
+          innCode: 7805060220
+      - match: "Type d'entité: société par actions non publique - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 19.7.1995- Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions non publique
+          incorporationDate: 1995-07-19
+      - match: "Type d'entité: société à responsabilité limitée  -  Lieu d'enregistrement: passage piéton, propriété 3. bâtiment 2, 125373, Moscou, Fédération de Russie - Date d'enregistrement: 10.12.2021: /"
+        props:
+          jurisdiction: ru
+          address: "passage piéton, propriété 3. bâtiment 2, 125373, Moscou"
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2021-12-10
+      - match: "Numéro d'enregistrement: 1217700605209"
+        props:
+          registrationNumber: 1217700605209
+      - match: "Numéro d’enregistrement: 1115248002110"
+        props:
+          registrationNumber: 1115248002110
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 26.9.2011 - Lieu d'enregistrement: région de Nijni Novgorod, Fédération de Russie - Principal établissement: Fédération de Russie: Date d'enregistrement: 26.9.2011"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2011-09-26
+          address: "région de Nijni Novgorod"
+      - match: "NIF: 7703438908"
+        props:
+          innCode: 7703438908
+      - match: "Type d'entité: entreprise de technologies de l’information- Lieu d'enregistrement: Russie - Date d'enregistrement:  crée en 2009 - Principal établissement : Russie"
+        props:
+          jurisdiction: ru
+          sector: entreprise de technologies de l’information
+          incorporationDate: 2009
+      - match: "Type d'entité: société par actions - Principal établissement: Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+      - match: "Numéro d’enregistrement: 1026605611339"
+        props:
+          registrationNumber: 1026605611339
+      - match: "Numéro d’enregistrement: 1037739692385"
+        props:
+          registrationNumber: 1037739692385
+      - match: "Type d'entité: société par actions - Principal établissement: Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+      - match: "OGRN: 1027746003438"
+        props:
+          ogrnCode: 1027746003438
+      - match: "INN: 7703367439"
+        props:
+          innCode: 7703367439
+      - match: "Type d'entité: société par actions -  Date d'enregistrement: 23.4.2002  -  Principal établissement: Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-04-23
+      - match: "Numéro d’enregistrement: 1021801143374"
+        props:
+          registrationNumber: 1021801143374
+      - match: "Numéro d’enregistrement: 1050202782277"
+        props:
+          registrationNumber: 1050202782277
+      - match: "Type d'entité: société par actions: /"
+        props:
+          legalForm: société par actions
+      - match: "OGRN: 1027739019142"
+        props:
+          ogrnCode: 1027739019142
+      - match: "OGRN: 1037739350934"
+        props:
+          ogrnCode: 1037739350934
+      - match: "INN: 7702330228"
+        props:
+          innCode: 7702330228
+      - match: "NIF: 9709056472"
+        props:
+          innCode: 9709056472
+      - match: "Type d’entité: organisation autonome à but non lucratif - Lieu d’enregistrement: Russie - Principal établissement: Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: organisation autonome à but non lucratif
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 1.2.2008: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2008-02-01

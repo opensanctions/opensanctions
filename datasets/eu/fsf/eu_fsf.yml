@@ -2,10 +2,9 @@ title: "EU Financial Sanctions Files (FSF)"
 entry_point: crawler.py
 prefix: eu-fsf
 coverage:
+  schedule: "0 */2 * * *"
   frequency: daily
   start: 2021-01-24
-deploy:
-  schedule: "50 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   As part of the Common Foreign Security Policy the European Union publishes
@@ -47,19 +46,18 @@ description: |
   The data is published in a password-protected area but the generated download links
   can be used to programmatically update the material.
 
-  This dataset covers, inter alia, the following EU policy mechanisms:
+  This dataset covers, amongst others, the following EU policy mechanisms:
 
   - Council Regulation (EC) No 2580/2001 imposing sanctions based on Council Common Position 2001/931/CFSP
   - Council regulation (EU) 2016/1686 imposing sanctions based on Council Decision (CFSP) 2016/1693
 publisher:
-  name: European External Action Service
-  acronym: EEAS
+  name: Directorate‑General for Financial Stability, Financial Services and Capital Markets Union
+  acronym: DG FISMA
   description: |
-    The EEAS is the diplomatic service of the European Union, tasked both with foreign
-    policy and defense tasks. It is lead by the High Representative, the de-facto
-    foreign minister of the EU.
+    The Directorate‑General for Financial Stability, Financial Services and Capital Markets
+    Union is the Commission department responsible for EU policy on financial services.
   country: eu
-  url: https://eeas.europa.eu/
+  url: https://commission.europa.eu/about-european-commission/departments-and-executive-agencies/financial-stability-financial-services-and-capital-markets-union_en
   official: true
 url: https://www.eeas.europa.eu/eeas/european-union-sanctions_en#10710
 data:
@@ -168,3 +166,9 @@ lookups:
         value: male
       - match: F
         value: female
+  type.string: 
+    lowercase: true
+    normalize: true
+    options:
+      - match: PO Box 1406 - 60455
+        value: 60455

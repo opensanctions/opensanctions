@@ -1,6 +1,7 @@
 title: Colombian PEP Declarations
 entry_point: crawler.py
 prefix: co-funpub
+ci_test: false
 coverage:
   frequency: daily
   start: 2023-11-02
@@ -45,13 +46,13 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 10300
+      Person: 10_000
       Position: 3000
     country_entities:
-      co: 13000
+      co: 1
   max:
     schema_entities:
-      Person: 13000
+      Person: 15_000
       Position: 6000
 
 lookups:

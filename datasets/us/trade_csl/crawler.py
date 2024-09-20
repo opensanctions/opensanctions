@@ -3,12 +3,14 @@ from typing import Any, Dict, List, Optional, Generator
 from banal import ensure_list
 from rigour.mime.types import JSON
 from followthemoney.types import registry
+import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
+REGEX_AUTHORITY_ID_SEP = re.compile(r"(\d+ F\.?R\.?)")
 
 
 def parse_date(text: Optional[str]) -> List[str]:
@@ -28,13 +30,14 @@ def parse_addresses(
     for address in addresses:
         country_code = registry.country.clean(address.get("country"))
         city = address.get("city")
-        postal_code = address.get("postal_code")
+        postal_code, po_box = h.postcode_pobox(address.get("postal_code"))
         state = address.get("state")
 
         def contains_parts(addr):
             return (
                 (city is None or city in addr)
                 and (postal_code is None or postal_code in addr)
+                and (po_box is None or po_box in addr)
                 and (state is None or state in addr)
             )
 
@@ -48,6 +51,7 @@ def parse_addresses(
                     full=split_addr,
                     city=city,
                     postal_code=postal_code,
+                    po_box=po_box,
                     region=state,
                     country_code=country_code,
                 )
@@ -59,11 +63,19 @@ def parse_addresses(
                 street=address_str,
                 city=city,
                 postal_code=postal_code,
+                po_box=po_box,
                 region=state,
                 country_code=country_code,
             )
             if addr is not None:
                 yield addr
+
+
+def clean_authority(value: Optional[str]) -> Optional[List[str]]:
+    if value is None:
+        return
+    value = REGEX_AUTHORITY_ID_SEP.sub(r", \1", value)
+    return h.multi_split(value, [";", ", "])
 
 
 def parse_result(context: Context, result: Dict[str, Any]):
@@ -99,6 +111,8 @@ def parse_result(context: Context, result: Dict[str, Any]):
             name = name.replace("?s ", "'s ")
             name = name.replace("?", " ")
         entity.add("name", name)
+    if len(name) > registry.name.max_length:
+        entity.add("notes", name)
 
     if is_ofac:
         context.emit(entity, target=True)
@@ -154,7 +168,10 @@ def parse_result(context: Context, result: Dict[str, Any]):
     sanction.add("program", result.pop("programs", []))
     sanction.add("provisions", result.pop("license_policy", []))
     sanction.add("reason", result.pop("license_requirement", []))
-    sanction.add("authorityId", result.pop("federal_register_notice", None))
+    sanction.add(
+        "authorityId",
+        clean_authority(result.pop("federal_register_notice", None)),
+    )
     sanction.add("startDate", result.pop("start_date", None))
     sanction.add("endDate", result.pop("end_date", None))
     sanction.add("country", "us")

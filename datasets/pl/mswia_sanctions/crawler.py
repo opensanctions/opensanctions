@@ -1,8 +1,5 @@
-import openpyxl
-from urllib.parse import urljoin
-from typing import List, Optional
-from normality import slugify
-from rigour.mime.types import XLSX
+from typing import Dict
+from followthemoney.types import registry
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -71,67 +68,61 @@ def parse_details(context: Context, entity: Entity, text: str):
             entity.add(prop, value)
 
 
-def crawl_excel(context: Context, url: str):
-    path = context.fetch_resource("source.xlsx", url)
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+def crawl_row(context: Context, row: Dict[str, str], table_title: str):
+    listing_date = row.pop("data_umieszczenia_na_liscie")
+    if listing_date is None:
+        context.log.warn("No listing date", row=row)
+        return
 
-    workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    for sheet in workbook.worksheets:
-        schema = TYPES[sheet.title]
-        headers: Optional[List[str]] = None
-        for row in sheet.rows:
-            cells = [c.value for c in row]
-            if headers is None:
-                headers = [slugify(h, sep="_") for h in cells]
-                continue
-            row = dict(zip(headers, cells))
-            listing_date = row.pop("data_umieszczenia_na_liscie")
-            if listing_date is None:
-                # context.log.warn("No listing date", row=row)
-                continue
+    entity = context.make(TYPES[table_title])
+    name = row.pop("nazwisko_i_imie", None)
+    name = row.pop("nazwa_podmiotu", name)
+    if name is None:
+        context.log.warn("No name", row=row)
+        return
 
-            entity = context.make(schema)
-            name = row.pop("nazwisko_i_imie", None)
-            name = row.pop("nazwa_podmiotu", name)
-            if name is None:
-                context.log.warn("No name", row=row)
-                return
+    entity.id = context.make_slug(table_title, name)
+    names = name.split("(")
+    entity.add("name", names[0])
+    for alias in names[1:]:
+        entity.add("alias", alias.split(")")[0])
+    notes = row.pop("uzasadnienie_wpisu_na_liste")
+    entity.add("notes", notes)
 
-            entity.id = context.make_slug(sheet.title, name)
-            names = name.split("(")
-            entity.add("name", names[0])
-            for alias in names[1:]:
-                entity.add("alias", alias.split(")")[0])
-            notes = row.pop("uzasadnienie_wpisu_na_liste")
-            entity.add("notes", notes)
+    details = row.pop("dane_identyfikacyjne_podmiotu", None)
+    details = row.pop("dane_identyfikacyjne_osoby", details)
+    if details is not None:
+        parse_details(context, entity, details)
 
-            details = row.pop("dane_identyfikacyjne_podmiotu", None)
-            details = row.pop("dane_identyfikacyjne_osoby", details)
-            if details is not None:
-                parse_details(context, entity, details)
+    sanction = h.make_sanction(context, entity)
+    provisions = row.pop("zastosowane_srodki_sankcyjne")
+    if len(provisions) > registry.string.max_length:
+        sanction.add("description", provisions)
+        sanction.add("provisions", "See description.")
+    else:
+        sanction.add("provisions", provisions)
 
-            sanction = h.make_sanction(context, entity)
-            provisions = row.pop("zastosowane_srodki_sankcyjne")
-            sanction.add("provisions", provisions)
-
-            sanction.add("startDate", listing_date)
-            sanction.add("endDate", row.pop("data_wykreslenia_z_listy", None))
-
-            entity.add("topics", "sanction")
-            context.audit_data(row)
-            context.emit(entity, target=True)
-            context.emit(sanction)
+    h.apply_date(sanction, "startDate", listing_date)
+    end_date = row.pop("data_wykreslenia_z_listy", None)
+    h.apply_date(sanction, "endDate", end_date)
+    if not end_date:
+        entity.add("topics", "sanction")
+    context.audit_data(row)
+    context.emit(entity, target=not end_date)
+    context.emit(sanction)
 
 
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url)
+    doc.make_links_absolute(context.data_url)
 
-    xlsx_found = False
-    for a in doc.findall(".//a[@class='file-download']"):
-        if ".xlsx" in a.text_content():
-            xlsx_found = True
-            url = urljoin(context.data_url, a.get("href"))
-            crawl_excel(context, url)
+    table = doc.xpath(".//h3[text() = 'Osoby']/following-sibling::div//table")[0]
+    for row in h.parse_table(table, header_tag="td"):
+        crawl_row(context, row, "osoby")
 
-    if not xlsx_found:
-        context.log.error("Could not find XLSX file")
+    # Pretty special xpath because they have some <table><tr><table> thing going on
+    table = doc.xpath(
+        ".//h3[text() = 'Podmioty']/following-sibling::div//table//tr//table"
+    )[0]
+    for row in h.parse_table(table, header_tag="td"):
+        crawl_row(context, row, "podmioty")

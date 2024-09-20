@@ -33,6 +33,19 @@ data:
   url: https://lnadbg4.adb.org/oga0009p.nsf/sancALL1P?OpenView&count=999
   format: HTML
 
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 1300
+    country_entities:
+      cn: 350
+      id: 40
+      gb: 2
+    countries: 15
+  max:
+    schema_entities:
+      LegalEntity: 1800
+
 lookups:
   type.address:
     lowercase: true
@@ -43,6 +56,80 @@ lookups:
           - Peru
           - n/a
         value: null
+
+      - match: c/o Rana International Builders (M/s Rana International Builders) a.k.a. Rana Builders PVT. LTD., 55 West Panthopath Lake Circus Kalabagan, Sheltech Tower 7th Floor, E-Flat, Dhaka , BANGLADESH; 60 Shekh Rasal Square, BANGLADESH; 55 West Panthapath (Lake Circus Kalabagan), Sheltech Tower, 7th Floor, Dhaka 1205, BANGLADESH 52, Dhaka Housing, Shamoli, Dhaka, BANGLADESH
+        values:
+          - Rana International Builders (M/s Rana International Builders) a.k.a. Rana Builders PVT. LTD., 55 West Panthopath Lake Circus Kalabagan, Sheltech Tower 7th Floor, E-Flat, Dhaka, BANGLADESH
+          - 60 Shekh Rasal Square, BANGLADESH
+          - 55 West Panthapath (Lake Circus Kalabagan), Sheltech Tower, 7th Floor, Dhaka 1205, BANGLADESH
+          - 52, Dhaka Housing, Shamoli, Dhaka, BANGLADESH
+
+      - match: c/o Hoang Mai Construction Import and Export Joint Stock Company Xom Bo, Commune Thanh Liet, District Thanh Tri, Hanoi VIET NAM Room 3016, Building B, Vinaconex Building Nguyen Xien (Phòng 3016 Tòa B Vinaconex 2 Nguyễn Xiển) Dai Kim Ward, Hoang Mai District (Phýờng Ðại Kim, Quận Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 14, TT6B Urban West Nam Linh Dam, Hoang Mai (Số 14, TT6B Khu ðô thị Tây Nam Linh Ðàm, Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 2/20, Lane 255, Hope Street (Số 2/20, Ngõ 255, Phố Vọng) Dong Tam Ward, Hai Ba Trung District, Hanoi (Phýờng Ðồng Tâm, Quận Hai Bà Trýng, Hà Nội) VIET NAM
+        values:
+          - c/o Hoang Mai Construction Import and Export Joint Stock Company, Xom Bo, Commune Thanh Liet, District Thanh Tri, Hanoi, VIET NAM
+          - Room 3016, Building B, Vinaconex Building Nguyen Xien, (Phòng 3016 Tòa B Vinaconex 2 Nguyễn Xiển) Dai Kim Ward, Hoang Mai District (Phýờng Ðại Kim, Quận Hoàng Mai) , Hanoi 100000, VIET NAM
+          - No. 14, TT6B Urban West Nam Linh Dam, Hoang Mai, (Số 14, TT6B Khu ðô thị Tây Nam Linh Ðàm, Hoàng Mai), Hanoi Số 14, TT6B Khu ðô thị Tây Nam Linh Ðàm, Hoàng Mai
+          - No. 2/20, Lane 255, Hope Street, (Số 2/20, Ngõ 255, Phố Vọng), Dong Tam Ward, Hai Ba Trung District, Hanoi (Phýờng Ðồng Tâm, Quận Hai Bà Trýng, Hà Nội), VIET NAM
+
+      - match: Xom Bo, Commune Thanh Liet, District Thanh Tri, Hanoi VIET NAM Room 3016, Building B, Vinaconex Building Nguyen Xien (Phòng 3016 Tòa B Vinaconex 2 Nguyễn Xiển) Dai Kim Ward, Hoang Mai District (Phýờng Ðại Kim, Quận Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 14, TT6B Urban West Nam Linh Dam, Hoang Mai (Số 14, TT6B Khu ðô thị Tây Nam Linh Ðàm, Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 2/20, Lane 255, Hope Street (Số 2/20, Ngõ 255, Phố Vọng) Dong Tam Ward, Hai Ba Trung District, Hanoi (Phýờng Ðồng Tâm, Quận Hai Bà Trýng, Hà Nội) VIET NAM
+        values:
+          - Xom Bo, Commune Thanh Liet, District Thanh Tri, Hanoi 100000, VIET NAM
+          - Room 3016, Building B, Vinaconex Building Nguyen Xien, Dai Kim Ward, Hoang Mai District, Hanoi 100000, VIET NAM
+          - Phòng 3016 Tòa B Vinaconex 2 Nguyễn Xiển, Phýờng Ðại Kim, Quận Hoàng Mai, Hà Nội, VIET NAM
+          - No. 14, TT6B Urban West Nam Linh Dam, Hoang Mai, Hanoi 100000, VIET NAM
+          - Số 14, TT6B Khu ðô thị Tây Nam Linh Ðàm, Hoàng Mai, Hanoi 100000, VIET NAM
+          - No. 2/20, Lane 255, Hope Street, Dong Tam Ward, Hai Ba Trung District, Hanoi, VIET NAM
+          - Số 2/20, Ngõ 255, Phố Vọng, Phýờng Ðồng Tâm, Quận Hai Bà Trýng, Hà Nội, VIET NAM
+
+      - match: Lane Building 5, Building B, Jiang Field Road, Zhabei District, Shanghai 1228, PEOPLE’S REPUBLIC OF CHINA Building B, Building 5, Lane 1228, Jiangchang Road, Jing’an District, Shanghai City 200000 PEOPLE’S REPUBLIC OF CHINA Unit 109, 1st Floor, Songshan Resettlement Community Building, Zhanqian No. 2 Road Xinzhou District, Shangrao City, Jiangxi Province, PEOPLE’S REPUBLIC OF CHINA 4th Floor, Jinhao Plaza, Guangfeng County, Jiangxi Province, PEOPLE’S REPUBLIC OF CHINA
+        values:
+          - Lane Building 5, Building B, Jiang Field Road, Zhabei District, Shanghai 1228, PEOPLE’S REPUBLIC OF CHINA
+          - Building B, Building 5, Lane 1228, Jiangchang Road, Jing’an District, Shanghai City 200000 PEOPLE’S REPUBLIC OF CHINA
+          - Unit 109, 1st Floor, Songshan Resettlement Community Building, Zhanqian No. 2 Road, Xinzhou District, Shangrao City, Jiangxi Province, PEOPLE’S REPUBLIC OF CHINA
+          - 4th Floor, Jinhao Plaza, Guangfeng County, Jiangxi Province, PEOPLE’S REPUBLIC OF CHINA
+
+      - match: "LAST KNOWN ADDRESS: 23 CHENGNANZHONG ROAD, RONGAN BUILDING 5TH FLOOR, CHANGSHA, HUNAN, CHINA 70 North Chezhan Road, Wan Xiang Xin Tian Building, Furong District, Changsha, Hunan 410007, China Station Road No. 70, Wan Xiang Xin Tian Business Mansion 5, Building No. 31, 32F Furong District, Changsha, Hunan, China"
+        values:
+          - 23 Chengnanzhong Road, Rongan Building 5th Floor, Changsha, Hunan, China
+          - 70 North Chezhan Road, Wan Xiang Xin Tian Building, Furong District, Changsha, Hunan 410007, China
+          - Station Road No. 70, Wan Xiang Xin Tian Business Mansion 5, Building No. 31, 32F, Furong District, Changsha, Hunan, China
+
+      - match: Room 505, No. 85, 3rd Street of Yongfa New Village, Pingnan Street, Pingnan County, Guigang City, Guangxi Zhuang Autonomous Region (formerly the third team of Generals of Fucheng Village), PEOPLE’S REPUBLIC OF CHINA 中国广西壮族自治区贵港市平南县平南街道(原附城村大将三队)永发新村三街85号505室
+        values:
+          - Room 505, No. 85, 3rd Street of Yongfa New Village, Pingnan Street, Pingnan County, Guigang City, Guangxi Zhuang Autonomous Region, PEOPLE’S REPUBLIC OF CHINA
+          - 中国广西壮族自治区贵港市平南县平南街道(原附城村大将三队)永发新村三街85号505室
+
+      - match: "Canada office: #27 King’s College Circle, Toronto, Ontario M5S1A1, CANADA Cambodia office: 31BT, Phum Sansam Kosal 1, Boeng Tumpun, Mean Chey, Phnom Penh, 12351, CAMBODIA Lao PDR Office: #17 Khounboulom Boad, Chanthaboury, Vientiane Capital, LAO PDR Vietnam office: 5th Floor Sentinal Place Building, 41B Ly Thai To St., Hanoi, VIETNAM Myanmar office: #12 (0), Phi Thu Lane, 7 Mile, Mayangone, Ownship, Yangon, MYANMAR"
+        values: 27 King’s College Circle, Toronto, Ontario M5S1A1, CANADA
+          31BT, Phum Sansam Kosal 1, Boeng Tumpun, Mean Chey, Phnom Penh, 12351, CAMBODIA
+          17 Khounboulom Boad, Chanthaboury, Vientiane Capital, LAO PDR
+          5th Floor Sentinal Place Building, 41B Ly Thai To St., Hanoi, VIETNAM
+          12 (0), Phi Thu Lane, 7 Mile, Mayangone, Ownship, Yangon, MYANMAR
+
+      - match: c/o Ingenieros Consultores y Asesores Técnicos Sociedad de Responsabilidad Limitada de Capital Variable (INCAT S. de R.L. de C.V.) Colonia Hato de Enmedio, Sector 8, Bloque 108, Casa 3902, Calle Principal, in front of Hospital San Jorge, same place as Hotel La Estancia, Tegucigalpa, HONDURAS
+        value: c/o Ingenieros Consultores y Asesores Técnicos Sociedad de Responsabilidad Limitada de Capital Variable (INCAT S. de R.L. de C.V.) Colonia Hato de Enmedio, Sector 8, Bloque 108, Casa 3902, Calle Principal
+
+      - match: "No.21, Jiangsu East Road, Caomiaoiaozi Town, Weihai Lingang Economic and Technologica Development Zone, Shandong Province 山东省威海临港经济技术开发区草庙子镇江苏东路21号 (previous address: No.271-1 Eastern Kaiyuan Road, Lingang Economic and Technological Development Zone, Weihai, Shandong Province山东省威海临港经济技术开发区开元东路271-1号)"
+        values:
+          - No.21, Jiangsu East Road, Caomiaoiaozi Town, Weihai Lingang Economic and Technologica Development Zone, Shandong Province
+          - No.271-1 Eastern Kaiyuan Road, Lingang Economic and Technological Development Zone, Weihai, Shandong Province
+          - 山东省威海临港经济技术开发区草庙子镇江苏东路21号
+          - 山东省威海临港经济技术开发区开元东路271-1号
+
+      - match: 15TH FLOOR, TAIHONG YANGGUANG BUILDING, INTERSECTION OF ZHONGZHOU AVENUE AND XINYUAN ROAD, ZHENGZHOU, HENAN PROVINCE, 450002 People's Republic of China 5TH FLOOR, JINZHU BUILDING, NORTH OF THE NEW BRIDGE, HUANGCHUAN, HENAN PROVINCE, 465150 People's Republic of China
+        values:
+          - 15th Floor, Taihong Yangguang Building, Intersection of Zhongzhou Avenue and Xinyuan Road, Zhengzhou, Henan Province, 450002 People's Republic of China
+          - 5th Floor, Jinzhu Building, North of the New Bridge, Huangchuan, Henan Province, 465150 People's Republic of China
+
+  type.name:
+    options:
+      - match: PT. Putera Pandawa Asli (since 3 December 2018) formerly named PT. PPA Consultants (17 April 2007 to 2 December 2018). PT. Puspeng Agribisnis Consultants (29 January 2002 to 16 April 2007). PT. Puspeng Agribisnis or Pusat Pengembangan Agribisnis (17 May 1982 to 28 January 2002).
+        values:
+          - PT. Putera Pandawa Asli
+          - PT. PPA Consultants
+          - PT. Puspeng Agribisnis Consultants
+          - PT. Puspeng Agribisnis
+          - Pusat Pengembangan Agribisnis
   type.country:
     lowercase: true
     normalize: true
@@ -60,3 +147,5 @@ lookups:
           - Until Further Notice
           - Indefinitely
         value: null
+dates:
+  formats: ["%d/%b/%Y"]

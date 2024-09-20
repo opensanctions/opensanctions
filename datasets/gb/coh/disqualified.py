@@ -149,7 +149,7 @@ def crawl(context: Context) -> None:
                     "start_index": str(start_index),
                     "items_per_page": "100",
                 }
-                data = http_get(context, context.data_url, params=params, cache_days=5)
+                data = http_get(context, context.data_url, params=params, cache_days=1)
                 if data is None:
                     break
                 context.log.info("Search: %s" % letter, start_index=start_index)

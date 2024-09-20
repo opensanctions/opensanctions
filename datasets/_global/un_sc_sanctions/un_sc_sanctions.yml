@@ -2,10 +2,9 @@ title: UN Security Council Consolidated Sanctions
 entry_point: crawler.py
 prefix: unsc
 coverage:
+  schedule: "0 */4 * * *"
   frequency: daily
   start: "2015-12-05"
-deploy:
-  schedule: "0 */4 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The Security Council's set of sanctions serve as the foundation for most
@@ -115,3 +114,10 @@ lookups:
         value: 1966-02-02T05:00
       - match: 2015-04-07-04:00
         value: 2015-04-07T04:00
+  type.identifier:
+    normalize: true
+    options:
+      - match: >
+          Central African Republic armed forces (FACA) Military identification
+          number 911-10-77
+        value: FACA 911-10-77

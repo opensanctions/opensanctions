@@ -12,10 +12,10 @@ CACHE_SHORT = 3
 CACHE_LONG = 14
 IGNORE_FIELDS = [
     "languages_spoken_ids",
-    "hairs_id",
-    "height",
-    "weight",
-    "eyes_colors_id",
+    # "hairs_id",
+    # "height",
+    # "weight",
+    # "eyes_colors_id",
 ]
 MAX_RESULTS = 160
 SEEN_URLS: Set[str] = set()
@@ -23,7 +23,6 @@ SEEN_IDS: Set[str] = set()
 COUNTRIES_URL = (
     "https://www.interpol.int/en/How-we-work/Notices/Red-Notices/View-Red-Notices"
 )
-FORMATS = ["%Y/%m/%d", "%Y/%m", "%Y"]
 GENDERS = ["M", "F", "U"]
 AGE_MIN = 20
 AGE_MAX = 90
@@ -100,11 +99,22 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     entity.add("gender", notice.pop("sex_id", None))
     entity.add("birthPlace", notice.pop("place_of_birth", None))
     entity.add("notes", notice.pop("distinguishing_marks", None))
+    entity.add("hairColor", notice.pop("hairs_id", None))
+    height = notice.pop("height", None)
+    if isinstance(height, float):
+        height = "%.2f" % height
+    entity.add("height", height)
+    weight = notice.pop("weight", None)
+    if isinstance(weight, float):
+        weight = "%.2f" % weight
+    entity.add("weight", weight)
+    entity.add("eyeColor", notice.pop("eyes_colors_id", None))
 
     dob_raw = notice.pop("date_of_birth", None)
-    entity.add("birthDate", h.parse_date(dob_raw, FORMATS))
+    h.apply_date(entity, "birthDate", dob_raw)
     if "v1/red" in url:
         entity.add("topics", "crime")
+        entity.add("topics", "wanted")
 
     for warrant in notice.pop("arrest_warrants", []):
         sanction = h.make_sanction(context, entity)

@@ -5,10 +5,11 @@ the individuals on the Otkhozoria–Tatunashvili List.
 
 import re
 from typing import Dict
+from lxml.html import HtmlElement
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from lxml.html import HtmlElement
+from zavod.shed.trans import apply_translit_full_name
 
 TARGET = "ბრალდებული/ მსჯავრდებული"
 DEMOGRAPHICS = "დემოგრაფიული მონაცემები"
@@ -22,6 +23,7 @@ UNUSED_FIELDS = [
 ]
 DATE_FORMATS = ["%d.%m.%Y", "%Y"]
 PATROYNMIC = re.compile(r"\b(\S+)\s+ძე\s+")
+TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 
 
 def extract_name(context: Context, person: Entity, name: str):
@@ -32,7 +34,8 @@ def extract_name(context: Context, person: Entity, name: str):
         patronym = m.group(1)
         name = name[: m.start()] + name[m.end() :]
         context.log.debug(f"Patroynmic: {m.group(1)}")
-    h.apply_name(person, full=name, patronymic=patronym, lang="geo")
+    h.apply_name(person, full=name, patronymic=patronym, lang="kat")
+    apply_translit_full_name(context, person, "kat", name, TRANSLIT_OUTPUT)
 
 
 def crawl_row(context: Context, row: Dict[str, str]):

@@ -48,10 +48,16 @@ def crawl_item(fugitive_url: str, context: Context):
     entity.add("name", name)
     entity.add("sourceUrl", fugitive_url)
     entity.add("topics", "crime")
+    entity.add("topics", "wanted")
     entity.add("gender", info_dict.pop("Sex", None))
     entity.add("birthDate", info_dict.pop("Year of Birth", None))
     entity.add("address", info_dict.pop("Last Known Address", None))
     entity.add("ethnicity", info_dict.pop("Race", None))
+    entity.add("height", info_dict.pop("Height", None))
+    entity.add("weight", info_dict.pop("Weight", None))
+    entity.add("hairColor", info_dict.pop("Hair Color", None))
+    entity.add("eyeColor", info_dict.pop("Eye Color", None))
+    entity.add("notes", info_dict.pop("Notes", None))
 
     description = "".join(
         [

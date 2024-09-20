@@ -2,11 +2,11 @@ title: UK HMT/OFSI Consolidated List of Targets
 entry_point: crawler.py
 prefix: gb-hmt
 coverage:
+  schedule: "0 */2 * * *"
   frequency: daily
   start: "2015-12-05"
 deploy:
   memory: "2Gi"
-  schedule: "0 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The United Kingom's consolidated international sanctions list.
@@ -37,6 +37,16 @@ data:
 # https://www.gov.uk/government/publications/the-uk-sanctions-list
 
 lookups:
+  type.identifier:
+    options:
+      - match: Legal Entity Number 2534006SJ05GGKETEY75 (Russia)  Registration Number 1027739179160 (Russia)
+        values:
+          - 2534006SJ05GGKETEY75
+          - 1027739179160
+      - match: QDi.042 and SOi.002
+        values:
+          - QDi.042
+          - SOi.002
   companies:
     normalize: true
     options:

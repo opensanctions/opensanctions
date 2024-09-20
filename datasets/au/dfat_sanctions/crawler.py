@@ -10,11 +10,10 @@ from zavod import Context
 from zavod import helpers as h
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
-FORMATS = ["%Y-%m-%d", "%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
-FORMATS = FORMATS + ["%b. %Y", "%d %B. %Y", "%Y", "%m/%Y"]
+ADDRESS_SPLITS = [";", "ii) ", "iii) "]
 
 
-def clean_date(date):
+def clean_date(date, context):
     splits = [
         "a)",
         "b)",
@@ -48,7 +47,7 @@ def clean_date(date):
         part = part.strip().strip(",")
         if not len(part):
             continue
-        dates.update(h.parse_date(part, FORMATS))
+        dates.update(h.parse_date(part, context.dataset.dates.formats))
     return dates
 
 
@@ -110,15 +109,16 @@ def parse_reference(
         addr = row.pop("address")
         if addr is not None:
             for part in h.multi_split(addr, SPLITS):
-                address = h.make_address(context, full=part)
-                h.apply_address(context, entity, address)
+                for sub_part in h.multi_split(part, ADDRESS_SPLITS):
+                    address = h.make_address(context, full=sub_part)
+                    h.apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
         country = clean_country(row.pop("citizenship"))
         if entity.schema.is_a("Person"):
             entity.add("nationality", country)
         else:
             entity.add("country", country)
-        dates = clean_date(row.pop("date_of_birth"))
+        dates = clean_date(row.pop("date_of_birth"), context)
         entity.add("birthDate", dates, quiet=True)
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
         entity.add("notes", h.clean_note(row.pop("additional_information")))

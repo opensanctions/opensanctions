@@ -5,7 +5,9 @@ prefix: ro-onpcsb
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: never
-  start: 2024-07-25
+  start: 2024-08-05
+deploy:
+  schedule: "@monthly"
 summary: >
   Individuals and organisations suspected of terrorism involvement
 description: |
