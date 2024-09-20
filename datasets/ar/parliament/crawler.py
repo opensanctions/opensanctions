@@ -1,22 +1,31 @@
-import csv
+from rigour.mime.types import HTML
+from lxml import html
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
-CSV_LINK = "https://www.hcdn.gob.ar/system/modules/ar.gob.hcdn.diputados/formatters/generar-lista-diputados.csv"
+# CSV_LINK = "https://www.hcdn.gob.ar/system/modules/ar.gob.hcdn.diputados/formatters/generar-lista-diputados.csv"
+BASE_URL = "https://www.hcdn.gob.ar"
 
 
-def crawl_person(context: Context, profession, birth_date, email, row):
-    first_name = row.pop("Nombre")
-    last_name = row.pop("Apellido")
+def crawl_person(context: Context, row, element):
+    first_name = row.pop("Nombre").text_content()
+    last_name = row.pop("Apellido").text_content()
     # Create and emit the person entity
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name)
     h.apply_name(person, first_name=first_name, last_name=last_name, lang="spa")
     person.add("country", "ar")
-    person.add("political", row.pop("Bloque"))
-    person.add("notes", row.pop("Distrito"))
+    person.add("political", row.pop("Bloque").text_content())
+    person.add("notes", row.pop("Distrito").text_content())
+    # Extract the relative link to the person's page (e.g., '/diputados/sacevedo/')
+    relative_link = element.xpath(".//a/@href")[0]
+    full_url = BASE_URL + relative_link
+    # Get profession, birth_date, and email from personal page
+    profession, birth_date, email = crawl_personal_page(context, full_url)
+    # Call crawl_person with the current row data
+    # h.apply_date(person, "birthDate", birth_date)
     person.add("birthDate", birth_date)
     person.add("notes", profession)
     person.add("email", email)
@@ -70,18 +79,11 @@ def crawl_personal_page(context: Context, url):
 
 
 def crawl(context: Context):
-    base_url = "https://www.hcdn.gob.ar"
-    path = context.fetch_resource("source.csv", CSV_LINK)
-    with open(path, "r", encoding="utf-8") as fh:
-        reader = csv.DictReader(fh)
-        for row in reader:
-            doc = context.fetch_html(context.dataset.data.url, cache_days=1)
-            for element in doc.xpath("//tbody/tr"):
-                # Extract the relative link to the person's page (e.g., '/diputados/sacevedo/')
-                relative_link = element.xpath(".//a/@href")[0]
-                full_url = base_url + relative_link
+    path = context.fetch_resource("source.html", context.data_url)
+    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+    with open(path, "r") as fh:
+        doc = html.parse(fh)
 
-            # Get profession, birth_date, and email from personal page
-            profession, birth_date, email = crawl_personal_page(context, full_url)
-            # Call crawl_person with the current row data
-            crawl_person(context, profession, birth_date, email, row)
+    table = doc.find(".//table")
+    for row in h.parse_table(table):
+        crawl_person(context, row)
