@@ -1,7 +1,7 @@
 from datetime import datetime
-from normality import collapse_spaces, slugify
+from normality import slugify
 from rigour.mime.types import CSV
-from typing import Dict, List, Tuple
+from typing import Dict
 import csv
 from lxml.html import HtmlElement
 import re
