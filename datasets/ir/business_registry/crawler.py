@@ -1,6 +1,5 @@
 from urllib.parse import urljoin
 
-
 from zavod import Context, helpers as h
 
 
@@ -23,57 +22,53 @@ def crawl(context: Context):
             print("No more tables found.")
             break
 
-        # Iterate over rows in the table
-        rows = table.findall(".//tr")
-        for row in rows:
+        for row in table.findall(".//tr"):
             # Extract the company name and link
             company_elem = row.find(".//td[@headers='view-title-table-column']//a")
-            if company_elem is not None:
-                company_name = company_elem.text_content().strip()
-                company_link = urljoin(url, company_elem.get("href", "").strip())
-            else:
-                company_name = None
-                company_link = None
-
-            # Extract the nationality
-            nationality_elem = row.find(
-                ".//td[@headers='view-field-country-table-column']"
+            company_name = (
+                company_elem.text_content().strip()
+                if company_elem is not None
+                else None
             )
-            nationality = (
-                nationality_elem.text_content().strip()
-                if nationality_elem is not None
+            company_link = (
+                urljoin(url, company_elem.get("href", "").strip())
+                if company_elem is not None
                 else None
             )
 
-            # Extract the stock symbol
-            stock_symbol_elem = row.find(
-                ".//td[@headers='view-field-symbol-table-column']"
-            )
-            stock_symbol = (
-                stock_symbol_elem.text_content().strip()
-                if stock_symbol_elem is not None
-                else None
-            )
+            # Extract withdrawn status
             withdrawn_status_elem = row.xpath(
                 ".//td[@headers='view-status-of-business-table-column']//div[@class='featured']"
             )
             is_withdrawn = bool(withdrawn_status_elem)
 
-            # Only create an entity if we have a company name and nationality
-            if company_name and nationality:
+            # Instead of passing raw HtmlElement row, extract the data
+            extracted_data = {
+                "company_name": company_name,
+                "company_link": company_link,
+                "is_withdrawn": is_withdrawn,
+            }
+
+            # Process the row data
+            for row in h.parse_html_table(table):
+                str_row = h.cells_to_str(row)
+                nationality = str_row.pop("nationality")
                 entity = context.make("LegalEntity")
                 entity.id = context.make_id(company_name, nationality)
                 entity.add("name", company_name)
                 entity.add("country", nationality)
                 entity.add("sourceUrl", company_link)
-                entity.add("description", stock_symbol)
+                entity.add("description", str_row.pop("stock_symbol"))
                 if is_withdrawn is False:
                     entity.add("topics", "export.risk")
 
                 context.emit(entity, target=True)
-                context.audit_data(row)
+
+            # Now audit with cleaned-up data
+            context.audit_data(extracted_data)
 
         page_number += 1
         pages_processed += 1
 
+        # Limit to 4 pages
         assert pages_processed <= 4, "More pages than expected."
