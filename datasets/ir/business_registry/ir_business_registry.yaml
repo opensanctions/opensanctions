@@ -1,0 +1,45 @@
+title: "Iran Business Registry (IBR)"
+url: https://www.unitedagainstnucleariran.com/iran-business-registry
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2024-09-23
+summary: >
+  List of companies involved in international business with or in Iran, including their 
+  withdrawal status from Iranian business ties, maintained by United Against Nuclear Iran 
+  (UANI).
+description: |
+   The Iran Business Registry (IBR) tracks companies and entities engaged in business with 
+   or within Iran. The database relies on credible media, academic sources, and reports to 
+   document international trade and business operations involving Iran. The registry spans 
+   multiple sectors, including energy, logistics, healthcare, and more. Each entity is 
+   documented with information such as nationality, stock symbol, and whether the company 
+   has ceased business operations in Iran. 
+   
+   IBR plays a crucial role in promoting transparency and compliance with sanctions and 
+   humanitarian exemptions, helping companies navigate the complexities of Iranian trade 
+   regulations.
+entry_point: crawler.py
+prefix: ir-br
+publisher:
+  name: United Against Nuclear Ira
+  acronym: UANI
+  official: false
+  description: |
+    United Against Nuclear Iran (“UANI”) is a nonprofit and non-partisan policy organization formed 
+    to combat the threats posed by the Islamic Republic of Iran. UANI's diverse Advisory Board includes 
+    policy experts and distinguished former government officials.
+    [Source](https://www.unitedagainstnucleariran.com/about)
+  country: ir
+  url: https://www.unitedagainstnucleariran.com
+data:
+  url: https://www.unitedagainstnucleariran.com/iran-business-registry
+  format: html
+
+assertions:
+  min:
+    schema_entities:
+      Company: 20
+  max: 
+    schema_entities:
+      Company: 40
