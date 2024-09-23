@@ -31,7 +31,7 @@ data:
   url: https://www.michigan.gov/mdhhs/doing-business/providers/providers/billingreimbursement/list-of-sanctioned-providers
   format: HTML
 dates:
-  formats: ["%Y-%m-%d", "%m/%d/%Y"]
+  formats: ["%m/%d/%Y"]
 
 lookups:
   type.date:
@@ -39,18 +39,148 @@ lookups:
     options:
       - match:
           - 05817/2023
-          - 111/14/2022
           - 07/30/202
         value: null
-      - match:
-          - 0627/2023
-        value: 06-27-2023
-      - match:
-          - 09/18/223
-        value: 09-18-2023
-      - match:
-          - 03/20/25024
-        value: 03-20-2024
+      - match: 111/14/2022
+        value: 2022-11-14
+      - match: 0627/2023
+        value: 2023-06-27
+      - match: 09/18/223
+        value: 2023-09-18
+      - match: "03/20/25024"
+        value: 2024-03-20
+      - match: 2/14/18
+        value: 2018-02-14
+      - match: 6/14/18
+        value: 2018-06-14
+      - match: 11/13/18
+        value: 2018-11-13
+      - match: 0/12/2016
+        value: 2018-12-12
+      - match: 2/12/18
+        value: 2018-02-12
+      - match: 11/8/18
+        value: 2018-11-08
+      - match: 2/12/18
+        value: 2018-02-12
+      - match: 11/29/18
+        value: 2018-11-29
+      - match: 0219/2015
+        value: 2015-02-19
+      - match: 6/15/17
+        value: 2017-06-15
+      - match: 8/31/17
+        value: 2017-08-31
+      - match: 4/18/19
+        value: 2019-04-18
+      - match: 05/31/202304/19/2024
+        values:
+          - 2023-05-31
+          - 2024-04-19
+      - match: 
+          - MI-Licensing
+          - and
+          - Regulatory
+          - Affairs
+        value: null
+      - match: 5/21/18
+        value: 2018-05-21
+      - match: 9/20/18
+        value: 2018-09-20
+      - match: 9/28/18
+        value: 2018-09-28
+      - match: 2/4/19
+        value: 2019-02-04
+      - match: 9/30/201901/20/2020
+        values:
+          - 2019-09-30
+          - 2020-01-20
+      - match: 8/31/18
+        value: 2018-08-31
+      - match: 1/16/19
+        value: 2019-01-16
+      - match: 03/29/202307/10/2023
+        values:
+          - 2023-03-29
+          - 2023-07-10
+      - match: 4/24/18
+        value: 2018-04-24
+      - match: 12/18/20144/10/2015
+        values:
+          - 2014-12-18
+          - 2015-04-10
+      - match: MDHHS
+        value: null
+      - match: 0816/2022
+        value: 2022-08-16
+      - match: 3/22/18
+        value: 2018-03-22
+      - match: 6/8/18
+        value: 2018-06-08
+      - match: 05/06/20143/30/2015
+        value: null
+      - match: 6/20/18
+        value: 2018-06-20
+      - match: 05/06/20143/30/2015
+        values:
+          - 2014-05-06
+          - 2015-03-30
+      - match: 07/10/202311/15/2023
+        values:
+          - 2023-07-10
+          - 2023-11-15
+      - match: 06/27/20167/20/2016
+        values:
+          - 2016-06-27
+          - 2016-07-20
+      - match: 5/15/19
+        value: 2019-05-15
+      - match: 4/20/18
+        value: 2018-04-20
+      - match: 5/20/18
+        value: 2018-05-20
+      - match: 4/5/18
+        value: 2018-04-05
+      - match: 5/16/18
+        value: 2018-05-16
+      - match: 06/13/201906/13/2024
+        values:
+          - 2019-06-13
+          - 2024-06-13
+      - match: 9/29/17
+        value: 2017-09-29
+      - match: 11/13/18
+        value: 2018-11-13
+      - match: 10/11/202201/19/2023
+        values:
+          - 2022-10-11
+          - 2023-01-19
+      - match: 12/18/201811/09/2023
+        values:
+          - 2018-12-18
+          - 2023-11-09
+      - match: 8/31/18
+        value: 2018-08-31
+      - match: 04/20/202204/01/2024
+        values:
+          - 2022-04-20
+          - 2024-04-01
+      - match: 01/18/202104/20/2022
+        values:
+          - 2021-01-18
+          - 2022-04-20
+      - match: 07/10/202311/28/2023
+        values:
+          - 2023-07-10
+          - 2023-11-28
+      - match: 05/21/20134/19/2015
+        values:
+          - 2013-05-21
+          - 2015-04-19
+      - match: 02/18/20201/15/2023
+        value: 2023-01-15
+      - match: 12/21/16
+        value: 2016-12-21
 
 assertions:
   min:
