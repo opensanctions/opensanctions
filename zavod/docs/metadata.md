@@ -56,7 +56,7 @@ Remember to give the context that people from different countries need to make s
 
 ### Date formatting
 
-- `dates` - date formatting used by [helpers.apply_date and apply_dates](/helpers/#zavod.helpers.apply_date) but also accessible via the context for use in `helpers.parse_date`.
+- `dates` - date formatting used by [helpers.apply_date and apply_dates](helpers.md#zavod.helpers.apply_date) but also accessible via the context for use in `helpers.parse_date`.
   - `formats`: Array of date format strings for parsing dates into partial ISO dates
   - `months`: Map where values like `März` are translated into keys like `"3"` so that it could then be parsed by a format string like `%m`
 

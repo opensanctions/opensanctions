@@ -1,39 +1,29 @@
 import time
 from banal import first
 from typing import Dict, List
-from datetime import datetime
 from urllib.parse import urljoin
 from requests.exceptions import RequestException
 
 from zavod import Context
 from zavod import helpers as h
 
-MONTHS = {
-    "сентября": "Sep",
-    "августа": "Aug",
-    "ноября": "Nov",
-    "октября": "Oct",
-    "июля": "Jul",
-    "марта": "Mar",
-    "апреля": "Apr",
-    "июня": "Jun",
-    "декабря": "Dec",
-    "мая": "May",
-    "февраля": "Feb",
-    "января": "Jan",
-}
 
 NO_DATES = ["Без срока погашения", "не установлена"]
 
 
-def parse_date(text: str) -> str:
-    for ru, en in MONTHS.items():
-        text = text.replace(ru, en)
+def parse_date(text: str, context: Context) -> str:
     if text in NO_DATES:
         return ""
-    text = text.replace("\xa0", " ").replace("г.", "").strip()
-    dt = datetime.strptime(text, "%d %b %Y")
-    return dt.date().isoformat()
+    text = h.replace_months(
+        context.dataset, text.replace("\xa0", " ").replace("г.", "").strip().lower()
+    )
+    date_info = h.parse_formats(text, context.dataset.dates.formats)
+
+    if date_info and date_info.dt:
+        return date_info.text
+
+    context.log.warning("Failed to parse date", raw_date=text)
+    return None
 
 
 def crawl_item(context: Context, url: str):
@@ -65,7 +55,7 @@ def crawl_item(context: Context, url: str):
 
         if result.type == "date":
             try:
-                value = parse_date(value)
+                value = parse_date(value, context)
             except ValueError:
                 context.log.warning("Cannot parse date", key=key, value=value)
                 continue
