@@ -134,7 +134,12 @@ def crawl_row(context: Context, data: Dict[str, str]):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.xml", context.data_url)
+    path = context.fetch_resource(
+        "source.xml",
+        context.data_url,
+        method="POST",
+        data={"fileType": "xml"},
+    )
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
 
