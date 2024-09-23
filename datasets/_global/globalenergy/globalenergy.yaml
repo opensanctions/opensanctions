@@ -1,0 +1,41 @@
+title: "Global Energy Ownership Tracker - July 2024"
+url: https://globalenergymonitor.org/projects/global-energy-ownership-tracker/
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: never
+  start: 2024-09-23
+summary: >
+  The Global Energy Ownership Tracker provides information on the chain of ownership for 
+  various energy projects. The data maps each level of the chain from the direct owner 
+  (as in, the lowest-level identified owner in the chain of ownership) up to their
+description: |
+  The Global Energy Ownership Tracker provides information on the chain of ownership for 
+  various energy projects. The data maps each level of the chain from the direct owner 
+  (as in, the lowest-level identified owner in the chain of ownership) up to their 
+  highest-level ultimate parents (e.g., corporations, investment firms, and governments). 
+  Ownership links are reported with the percentage of ownership, including owners that have 
+  controlling interest as well as those with minority, non-controlling interests (if over a 
+  threshold of 5% ownership).
+entry_point: crawler.py
+prefix: energy-monitor
+publisher:
+  name: Global Energy Monitor
+  acronym: GEM
+  official: false
+  description: |
+    Global Energy Monitor develops and analyzes data on energy infrastructure, resources, and uses. 
+    It provides open access to information that is essential to building a sustainable energy future.
+  url: https://globalenergymonitor.org
+data:
+  url: https://globalenergymonitor.org/wp-content/uploads/2024/06/Global_Energy_Ownership_Tracker_June_2024.xlsx
+  format: xlsx
+
+assertions:
+  min:
+    schema_entities:
+      PublicBody: 4
+      Company: 20
+  max: 
+    schema_entities:
+      PublicBody: 5
+      Company: 40
