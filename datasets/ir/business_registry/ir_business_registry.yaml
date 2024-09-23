@@ -33,7 +33,7 @@ publisher:
   country: ir
   url: https://www.unitedagainstnucleariran.com
 data:
-  url: https://www.unitedagainstnucleariran.com/iran-business-registry
+  url: https://www.unitedagainstnucleariran.com/iran-business-registry?page=0
   format: html
 
 assertions:
