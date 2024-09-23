@@ -1,8 +1,11 @@
 from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
+import re
 
 from zavod import Context, helpers as h
+
+REGEX_AKA = re.compile(r"^a\.k\.a\.? ", re.IGNORECASE)
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -15,24 +18,17 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity = context.make("Person")
         entity.id = context.make_id(row.get("terminated_excluded_provider_s"))
         last_name, first_name = row.pop("terminated_excluded_provider_s").split(", ")
-        entity.add("firstName", first_name)
-        entity.add("lastName", last_name)
+        h.apply_name(entity, first_name=first_name, last_name=last_name)
 
-    entity.add("alias", row.pop("alias"))
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("healthcare_profession"))
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
-    sanction.add(
-        "startDate",
-        h.parse_date(row.pop("effective_date"), formats=["%m/%d/%Y"]),
-    )
-
-    context.emit(entity, target=True)
-    context.emit(sanction)
+    h.apply_date(sanction, "startDate", row.pop("effective_date")),
 
     context.audit_data(row, ignore=["column_3"])
+    return entity, sanction
 
 
 def crawl_excel_url(context: Context):
@@ -52,13 +48,21 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
+    entity = None
+    sanction = None
     current_alias = []
     for item in h.parse_xlsx_sheet(context, wb.active):
-        if item.get("terminated_excluded_provider_s").startswith("a.k.a."):
-            current_alias.append(
-                item.get("terminated_excluded_provider_s").replace("a.k.a ", "")
-            )
+        name = item.get("terminated_excluded_provider_s")
+        if REGEX_AKA.match(name):
+            current_alias.append(REGEX_AKA.sub("", name))
         else:
-            item["alias"] = current_alias
-            crawl_item(item, context)
+            # Move on to the next entity
+            if entity:
+                entity.add("name", current_alias)
+                context.emit(entity, target=True)
+                context.emit(sanction)
             current_alias = []
+            entity, sanction = crawl_item(item, context)
+    # Emit the last entity
+    context.emit(entity, target=True)
+    context.emit(sanction)
