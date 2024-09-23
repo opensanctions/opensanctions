@@ -45,7 +45,7 @@ dates:
     "04": kwietnia
     "05": maja
     "06": czerwca
-    "07": 
+    "07":
       - lipca
       - lipiec
     "08": sierpnia
@@ -72,24 +72,14 @@ lookups:
         values:
           - 0001008314
           - 523931831
-  type.date:
-    options: 
-      - match: "15 11 1963 r. w wilnie (litwa) obywatel rosyjski nr pesel: 63111513931"
-        value: 1963-11-15
-      - match: "2 01 1968 r. w dzierżyńsku"
-        value: 1968-01-02
-      - match: 21 04 1964 r. we lwowie
-        value: 1964-04-21
-  preparse_date:
+      - match: 79090613232)
+        value: 79090613232
+  type.country:
     options:
-      - match:
-          - obywatel mołdawii i izraela
-          - 39a/2 leningradskoje szosse 125212 moskwa, rosja
-          - siedziba ul. garncarska 34 42-200 częstochowa
-          - plac dąbrowskiego 1, 00-057 warszawa
-          - ul. udalcowa 2, moskwa, federacja rosyjska
-          - "prowadzący działalność gospodarczą pod adresem: 00-844 warszawa, ul. grzybowska 87, regon 147421934"
-        value: null
+      match: Mołdawii i Izraela
+      values:
+        - MD
+        - IL
   details:
     normalize: true
     lowercase: true
@@ -107,40 +97,25 @@ lookups:
       - match: 39A/2 Leningradskoje Szosse 125212 Moskwa, Rosja
         props:
           address: 39A/2 Leningradskoje Szosse 125212 Moskwa, Rosja
-      - match: urodzona 16 października 1975 r.
+      - match: w Dzierżyńsku
         props:
-          birthDate: 1975-10-16
-      - match: urodzony 2 stycznia 1968
-        props:
-          birthDate: 1968-01-02
+          birthPlace: Dzerzhinsk
       - match: we Lwowie
         props:
           birthPlace: Lviv
       - match: 13.05.2022 r.
         props:
           modifiedAt: 2022-05-13
-      - match: urodzony 8 września 1953
+      - match: w Moskwie
         props:
-          birthDate: 1953-09-08
-      - match: urodzony 27 sierpnia 1969
-        props:
-          birthDate: 1969-08-27
+          birthPlace: Moscow
       - match: ob. Federacji Rosyjskiej
         props:
           country: ru
-      - match: urodzony 7 września 1960
+      - match: "w Wilnie (Litwa) obywatel rosyjski nr"
         props:
-          birthDate: 1960-09-07
-      - match: urodzony 14 kwietnia 1957
-        props:
-          birthDate: 1957-04-14
-          birthPlace: Drohobych
-      - match: "urodzony 15 listopada 1963"
-        props:
-          birthDate: 1963-11-15
-      - match: "urodzonego 24 listopada 1961 r."
-        props:
-          birthDate: 1961-11-24
+          birthPlace: Vilnius
+          nationality: RU
       - match: Plac Dąbrowskiego 1, 00-057 Warszawa,
         props:
           address: Plac Dąbrowskiego 1, 00-057 Warszawa
@@ -151,9 +126,6 @@ lookups:
       - match: "obywatel Mołdawii i Izraela"
         props:
           nationality: ["MD", "IL"]
-      - match: "urodzonej 6 lipca 1972 r."
-        props:
-          birthDate: 1972-07-06
       - match: "adres: Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan, nr identyfikacyjny BIN: 220540011771"
         props:
           address: "Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan"
@@ -172,3 +144,18 @@ lookups:
       - match: 'adres: ul. Towarowa 28, 00-839 Warszawa '
         props:
           address: "ul. Towarowa 28, 00-839 Warszawa"
+      - match: w Leningradzie
+        props:
+          birthPlace: Leningrad
+      - match: w Drohobyczu
+        props:
+          birthPlace: Drohobych
+      - match: w Kaliningradzie (Federacja Rosyjska)
+        props:
+          birthPlace: Kaliningrad
+      - match: urodzonego 24 listopada 1961 r.
+        props:
+          birthDate: 1961-11-24
+      - match: urodzonej 6 lipca 1972 r.
+        props:
+          birthDate: 1972-07-06
