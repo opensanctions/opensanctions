@@ -32,9 +32,7 @@ data:
 assertions:
   min:
     schema_entities:
-      PublicBody: 4
-      Company: 20
+      LegalEntity: 9000
   max: 
     schema_entities:
-      PublicBody: 5
-      Company: 40
+      LegalEntity: 12000
