@@ -4,7 +4,9 @@ from lxml.html import HtmlElement
 
 
 def parse_html_table(
-    table: HtmlElement, header_tag: str = "th"
+    table: HtmlElement,
+    header_tag: str = "th",
+    skiprows: int = 0,
 ) -> Generator[Dict[str, HtmlElement], None, None]:
     """
     Parse an HTML table into a generator yielding a dict for each row.
@@ -18,7 +20,10 @@ def parse_html_table(
       - `zavod.helpers.links_to_dict`
     """
     headers = None
-    for row in table.findall(".//tr"):
+    for rownum, row in enumerate(table.findall(".//tr")):
+        if rownum < skiprows:
+            continue
+
         if headers is None:
             headers = []
             for el in row.findall(f"./{header_tag}"):
