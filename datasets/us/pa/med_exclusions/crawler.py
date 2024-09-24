@@ -16,6 +16,14 @@ def crawl_item(row: Dict[str, str], context: Context):
     npi = row.pop("IDN_NPI")
     title = row.pop("NAM_TITLE_PROVR")
 
+    if row.get("CAO").startswith("Out of State"):
+        state = row.pop("CAO").replace("Out of State ", "")
+        city = ""
+    else:
+        city = row.pop("CAO")
+        state = ""
+    address = h.make_address(context, city=city, state=state, country_code="us")
+
     if last_name := row.pop("NAM_LAST_PROVR"):
         person = context.make("Person")
         person.id = context.make_id(
@@ -28,6 +36,7 @@ def crawl_item(row: Dict[str, str], context: Context):
             last_name=last_name,
             suffix=row.pop("NAM_SUFFIX_PROVR"),
         )
+        h.apply_address(context, person, address)
 
         if row.get("NAM_PROVR_ALT"):
             person.add("alias", row.pop("NAM_PROVR_ALT"))
@@ -59,6 +68,9 @@ def crawl_item(row: Dict[str, str], context: Context):
         company.add("topics", "debarment")
         company.add("taxNumber", row.pop("NBR_FEIN"))
         company.add("npiCode", npi)
+        company.add("country", "us")
+
+        h.apply_address(context, company, address)
 
         if alias:
             company.add("alias", alias)
@@ -86,9 +98,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         link.add("subject", person)
         context.emit(link)
 
-    context.audit_data(
-        row, ignore=["CAO", "IND_CHGD", "DTE_CHANGE_LAST", "ProviderName"]
-    )
+    context.audit_data(row, ignore=["IND_CHGD", "DTE_CHANGE_LAST", "ProviderName"])
 
 
 def crawl(context: Context) -> None:
