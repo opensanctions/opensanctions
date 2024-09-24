@@ -8,6 +8,8 @@ from zavod.shed.gpt import run_image_prompt
 prompt = """
 Extract structured data from the following page of a PDF document. Return 
 a JSON list (`providers`) in which each object represents an medical provider.
+Distinct record rows alternate between grey and white backgrounds. The name
+of a provider might be split onto the next row within a record.
 Each object should have the following fields: `exclusion_date`, `last_name`,
 `first_name`, `provider_type`, `exclusion_authority`, `exclusion_reason`.
 Return an empty string for unset fields.

@@ -17,7 +17,7 @@ publisher:
   url: https://health.alaska.gov/Pages/default.aspx
   official: true
   country: "us"
-url: "https://health.alaska.gov/Commissioner/Documents/PDF/AlaskaExcludedProviderList.pdf"
+url: https://health.alaska.gov/Commissioner/Pages/ProgramIntegrity/default.aspx
 data:
   url: https://health.alaska.gov/Commissioner/Documents/PDF/AlaskaExcludedProviderList.pdf
   format: PDF
