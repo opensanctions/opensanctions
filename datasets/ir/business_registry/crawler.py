@@ -1,6 +1,12 @@
 from urllib.parse import urljoin
+from lxml import etree
 
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
+
+
+def unblock_validator(doc: etree._Element) -> bool:
+    return doc.find(".//div[@class='view-content']//table") is not None
 
 
 def crawl(context: Context):
@@ -13,7 +19,7 @@ def crawl(context: Context):
         context.log.info(f"Fetching URL: {url}")
 
         # Fetch the HTML and get the table
-        doc = context.fetch_html(url)
+        doc = fetch_html(context, url, unblock_validator, cache_days=3)
         table = doc.find(".//div[@class='view-content']//table")
         if table is None:
             context.log.info("No more tables found.")

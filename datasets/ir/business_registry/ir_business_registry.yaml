@@ -15,10 +15,6 @@ description: |
    multiple sectors, including energy, logistics, healthcare, and more. Each entity is 
    documented with information such as nationality, stock symbol, and whether the company 
    has ceased business operations in Iran. 
-   
-   IBR plays a crucial role in promoting transparency and compliance with sanctions and 
-   humanitarian exemptions, helping companies navigate the complexities of Iranian trade 
-   regulations.
 entry_point: crawler.py
 prefix: ir-br
 publisher:
