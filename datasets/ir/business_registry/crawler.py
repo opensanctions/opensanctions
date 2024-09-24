@@ -86,8 +86,10 @@ def crawl(context: Context):
             entity.add("description", stock_symbol)
             if is_withdrawn is False:
                 entity.add("topics", "export.risk")
+            else:
+                entity.add("topics", "export.control")
 
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.audit_data(str_row)
 
         page_number += 1
