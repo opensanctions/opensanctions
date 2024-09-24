@@ -27,12 +27,16 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.add("name", row.pop("last_name"))
     else:
         entity = context.make("Person")
-        entity.id = context.make_id(row.get("last_name"), row.get("first_name"))
+        entity.id = context.make_id(
+            row.get("last_name"), row.get("first_name"), row.get("exclusion_date")
+        )
         h.apply_name(
             entity, first_name=row.pop("first_name"), last_name=row.pop("last_name")
         )
 
     entity.add("sector", row.pop("provider_type"))
+    entity.add("topics", "debarment")
+    entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", row.pop("exclusion_reason"))

@@ -14,6 +14,12 @@ description: |
   > adverse actions and are publically noticed at the time of exclusion.
 publisher:
   name: Alaska Department of Health
+  description: |
+    The Alaska Department of Health is responsible for promoting public
+    health and well-being across the state by providing healthcare services,
+    managing public health programs, and addressing issues like disease
+    prevention, healthcare access, and emergency preparedness.
+  acronym: AK-DOH
   url: https://health.alaska.gov/Pages/default.aspx
   official: true
   country: "us"
