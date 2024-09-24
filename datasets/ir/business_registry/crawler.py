@@ -22,23 +22,21 @@ def crawl(context: Context):
         # Iterate through the parsed table
         for row in h.parse_html_table(table):
             str_row = h.cells_to_str(row)
-            company_elem = row.pop("company_sort_descending")
-            company_name = str_row.pop("company_sort_descending")
-            nationality = str_row.pop("nationality")
-            stock_symbol = str_row.pop("stock_symbol")
-            withdrawn = str_row.pop("withdrawn")
-            is_withdrawn = withdrawn is not None and withdrawn.strip() != ""
 
+            company_elem = row.pop("company_sort_descending")
             # Capture the link from the anchor tag
             company_link = urljoin(
                 url, company_elem.find(".//a").get("href", "").strip()
             )
-
             withdrawn_elem = row.pop("withdrawn")
             is_withdrawn = bool(withdrawn_elem)
 
+            company_name = str_row.pop("company_sort_descending")
+            nationality = str_row.pop("nationality")
+            stock_symbol = str_row.pop("stock_symbol")
+
             # Create and emit an entity
-            entity = context.make("LegalEntity")
+            entity = context.make("Company")
             entity.id = context.make_id(company_name, nationality)
             entity.add("name", company_name)
             entity.add("country", nationality)

@@ -3,7 +3,7 @@ url: https://www.unitedagainstnucleariran.com/iran-business-registry
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
-  start: 2024-09-23
+  start: 2024-09-24
 summary: >
   List of companies involved in international business with or in Iran, including their 
   withdrawal status from Iranian business ties, maintained by United Against Nuclear Iran 
@@ -39,7 +39,28 @@ data:
 assertions:
   min:
     schema_entities:
-      Company: 20
+      Company: 2500
   max: 
     schema_entities:
-      Company: 40
+      Company: 2900
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Hong Kong, Malaysia
+        value: 
+          - Hong Kong
+          - Malaysia
+      - match: Phiippines
+        value: Philippines
+      - match: Gemany
+        value: Germany
+      - match: China; Hong Kong
+        value: 
+          - China
+          - Hong Kong
+      - match: Netherlands/UK
+        value: 
+          - Netherlands
+          - United Kingdom
