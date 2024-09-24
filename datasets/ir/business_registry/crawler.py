@@ -9,7 +9,7 @@ from zavod.shed.zyte_api import fetch_html
 
 
 def unblock_validator(doc: etree._Element) -> bool:
-    return doc.find(".//div[@class='view-content']//table") is not None
+    return doc.find(".//div[@class='o-grid']") is not None
 
 
 def parse_html_table(
@@ -48,9 +48,7 @@ def parse_html_table(
             continue
 
         # Map the cells to headers and yield the result
-        yield {
-            header: cell.text_content().strip() for header, cell in zip(headers, cells)
-        }
+        yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
 def crawl(context: Context):
