@@ -8,10 +8,6 @@ from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 
-def unblock_validator(doc: etree._Element) -> bool:
-    return doc.find(".//div[@class='o-grid']") is not None
-
-
 def parse_html_table(
     context: Context,
     table: HtmlElement,
@@ -43,6 +39,10 @@ def parse_html_table(
             )
             continue
         yield {hdr: c for hdr, c in zip(headers, cells)}
+
+
+def unblock_validator(doc: etree._Element) -> bool:
+    return doc.find(".//div[@class='o-grid']") is not None
 
 
 def crawl(context: Context):
