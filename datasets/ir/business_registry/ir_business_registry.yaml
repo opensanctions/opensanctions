@@ -49,7 +49,7 @@ lookups:
     normalize: true
     options:
       - match: Hong Kong, Malaysia
-        value: 
+        values: 
           - Hong Kong
           - Malaysia
       - match: Phiippines
@@ -57,10 +57,10 @@ lookups:
       - match: Gemany
         value: Germany
       - match: China; Hong Kong
-        value: 
+        values: 
           - China
           - Hong Kong
       - match: Netherlands/UK
-        value: 
+        values: 
           - Netherlands
           - United Kingdom
