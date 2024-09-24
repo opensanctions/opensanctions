@@ -1,5 +1,8 @@
-from urllib.parse import urljoin
 from lxml import etree
+from lxml.html import HtmlElement
+from typing import Generator, Dict, Optional
+from urllib.parse import urljoin
+from normality import slugify
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
@@ -7,6 +10,47 @@ from zavod.shed.zyte_api import fetch_html
 
 def unblock_validator(doc: etree._Element) -> bool:
     return doc.find(".//div[@class='view-content']//table") is not None
+
+
+def parse_html_table(
+    table: HtmlElement,
+    header_tag: str = "th",
+    skiprows: int = 0,
+    header_lookup: Optional[str] = None,
+) -> Generator[Dict[str, str | None], None, None]:
+    headers = None
+    row_counter = 0
+    for row in table.findall(".//tr"):
+        # Increment row counter
+        row_counter += 1
+        if row_counter <= skiprows:
+            continue
+
+        if headers is None:
+            header_elements = row.findall(f"./{header_tag}")
+            if not header_elements:
+                continue
+
+            headers = [
+                slugify(el.text_content().strip(), sep="_") or f"column_{i}"
+                for i, el in enumerate(header_elements)
+            ]
+            continue
+
+        # Extract the table cells
+        cells = row.findall("./td")
+
+        # Handle cases where the number of headers and cells don't match
+        if len(cells) != len(headers):
+            print(
+                f"Skipping row {row_counter} due to mismatch in number of cells and headers."
+            )
+            continue
+
+        # Map the cells to headers and yield the result
+        yield {
+            header: cell.text_content().strip() for header, cell in zip(headers, cells)
+        }
 
 
 def crawl(context: Context):
@@ -26,7 +70,7 @@ def crawl(context: Context):
             break
 
         # Iterate through the parsed table
-        for row in h.parse_html_table(table):
+        for row in parse_html_table(table, skiprows=1):
             str_row = h.cells_to_str(row)
 
             company_elem = row.pop("company_sort_descending")
