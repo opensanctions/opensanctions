@@ -1,6 +1,6 @@
 title: US Oregon State Medicaid Fraud Convictions
 entry_point: crawler.py
-prefix: us-medny
+prefix: us-medor
 coverage:
   frequency: daily
   start: "2024-09-06"
@@ -12,12 +12,12 @@ description: |
   been convicted of fraud by the Oregon Health Authority's
   Program Integrity Audit Unit (PIAU) which audits Oregon
   Medicaid Providers and contractors for compliance with state
-  and federal requiriments in order to prevent fraud, wast
+  and federal requirements in order to prevent fraud, waste
   and abuse in Oregon's Medicaid Program.
 publisher:
   name: Oregon Health Authority's Program Integrity Audit Unit
   acronym: PIAU
-  description: >
+  description: |
     > The Oregon Health Authority's Program Integrity Audit Unit
     > (PIAU) supports the responsible stewardship of Medicaid
     > funds in three ways:
