@@ -1,8 +1,8 @@
 from lxml import etree
 from lxml.html import HtmlElement
-from typing import Generator, Dict, Optional
-from urllib.parse import urljoin
 from normality import slugify
+from typing import Generator, Dict
+from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
@@ -13,15 +13,14 @@ def unblock_validator(doc: etree._Element) -> bool:
 
 
 def parse_html_table(
+    context: Context,
     table: HtmlElement,
     header_tag: str = "th",
     skiprows: int = 0,
-    header_lookup: Optional[str] = None,
 ) -> Generator[Dict[str, str | None], None, None]:
     headers = None
     row_counter = 0
     for row in table.findall(".//tr"):
-        # Increment row counter
         row_counter += 1
         if row_counter <= skiprows:
             continue
@@ -37,17 +36,12 @@ def parse_html_table(
             ]
             continue
 
-        # Extract the table cells
         cells = row.findall("./td")
-
-        # Handle cases where the number of headers and cells don't match
         if len(cells) != len(headers):
-            print(
+            context.log.warning(
                 f"Skipping row {row_counter} due to mismatch in number of cells and headers."
             )
             continue
-
-        # Map the cells to headers and yield the result
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
@@ -68,7 +62,7 @@ def crawl(context: Context):
             break
 
         # Iterate through the parsed table
-        for row in parse_html_table(table, skiprows=1):
+        for row in parse_html_table(context, table, skiprows=1):
             str_row = h.cells_to_str(row)
 
             company_elem = row.pop("company_sort_descending")
