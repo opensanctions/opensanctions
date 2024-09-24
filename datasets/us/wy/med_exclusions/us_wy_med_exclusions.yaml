@@ -1,0 +1,39 @@
+title: US Wyoming Medicaid Provider Exclusion List
+entry_point: crawler.py
+prefix: us-medwy
+coverage:
+  frequency: daily
+  start: "2024-09-24"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers deemed ineligible to participate in Wyoming State's Medicaid program.
+description: |
+  The Wyoming Department of Health maintains a list of providers that have been excluded from
+  the state Medicaid program. Providers listed are not allowed to receive reimbursement for
+  Medicaid services in any capacity.
+publisher:
+  name: Wyoming Department of Health
+  description: >
+    > Wyoming Medicaid is a joint federal and state government program that pays for medical
+    > care for some low-income and medically needy individuals and families.
+  acronym: WDH
+  url: https://health.wyo.gov
+  official: true
+  country: "us"
+url: "https://health.wyo.gov/healthcarefin/medicaid/"
+data:
+  url: https://health.wyo.gov/wp-content/uploads/2021/07/2021_07_07_Wyoming-Medicaid-Exclusion-List-PDF_AP.pdf
+  format: PDF
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 50
+      Company: 5
+  max:
+    schema_entities:
+      Person: 150
+      Company: 20
