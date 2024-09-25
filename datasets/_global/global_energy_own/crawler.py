@@ -1,4 +1,3 @@
-from openpyxl import load_workbook
 import openpyxl
 from typing import Dict
 from pantomime.types import XLSX
@@ -55,19 +54,16 @@ IGNORE = [
 ]
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
-    id = row.pop("entity_id")
+def crawl_company(context: Context, row: Dict[str, str]):
+    # id = row.pop("entity_id")
     name = row.pop("entity_name")
+    if name == "unknown":
+        return
     original_name = row.pop("name_local", "")
     reg_country = row.pop("registration_country", "")
+    legal_entity_id = row.pop("legal_entity_identifier", "")
     entity_type = row.pop("entity_type", "")
 
-    # legal entity
-    # arrangement
-    # state body
-    # state
-    # unknown entity
-    # person
     if entity_type == "legal entity":
         schema = "Company"
     elif entity_type == "state body" or entity_type == "state":
@@ -78,12 +74,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
         schema = "Company"
 
     entity = context.make(schema)
-    entity.id = context.make_id(name, id, reg_country, entity_type)
+    entity.id = row.pop("entity_id")
+
     entity.add("name", name)
     entity.add("name", original_name)
     entity.add("alias", row.pop("name_other", ""))
     entity.add("weakAlias", row.pop("abbreviation", ""))
-    entity.add("idNumber", row.pop("legal_entity_identifier", ""))
+    entity.add("idNumber", legal_entity_id)
     entity.add("description", entity_type)
     entity.add("country", reg_country)
     entity.add("website", row.pop("home_page", ""))
@@ -105,12 +102,31 @@ def crawl_row(context: Context, row: Dict[str, str]):
     )
 
 
+def crawl_rel(context: Context, row: Dict[str, str]):
+    index = row.pop("index")
+    subject_entity_id = row.pop("subject_entity_id")
+    interested_party_id = row.pop("interested_party_id")
+
+    ownership = context.make("Ownership")
+    ownership.id = context.make_id(subject_entity_id, interested_party_id, index)
+    ownership.add("asset", subject_entity_id)
+    ownership.add("owner", interested_party_id)
+    ownership.add("percentage", row.pop("share_of_ownership"))
+    ownership.add("sourceUrl", row.pop("data_source_url"))
+
+    context.audit_data(row, ignore=["subject_entity_name", "interested_party_name"])
+    context.emit(ownership)
+
+
 def crawl(context: Context):
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    sheet = workbook["Immediate Owner Entities"]
 
-    for row in h.parse_xlsx_sheet(context, sheet=sheet):
-        crawl_row(context, row)
+    for row in h.parse_xlsx_sheet(context, sheet=workbook["Immediate Owner Entities"]):
+        crawl_company(context, row)
+    for row in h.parse_xlsx_sheet(context, sheet=workbook["Parent Entities"]):
+        crawl_company(context, row)
+    for row in h.parse_xlsx_sheet(context, sheet=workbook["Entity Relationships"]):
+        crawl_rel(context, row)
