@@ -60,12 +60,25 @@ def crawl_row(context: Context, row: Dict[str, str]):
     name = row.pop("entity_name")
     original_name = row.pop("name_local", "")
     reg_country = row.pop("registration_country", "")
-    # state = row.pop("registration_subdivision", "")
-    # city_region = row.pop("headquarters_subdivision", "")
     entity_type = row.pop("entity_type", "")
 
-    entity = context.make("Company")
-    entity.id = context.make_id(name, id, reg_country)
+    # legal entity
+    # arrangement
+    # state body
+    # state
+    # unknown entity
+    # person
+    if entity_type == "legal entity":
+        schema = "Company"
+    elif entity_type == "state body" or entity_type == "state":
+        schema = "PublicBody"
+    elif entity_type == "person":
+        schema = "Person"
+    else:
+        schema = "Company"
+
+    entity = context.make(schema)
+    entity.id = context.make_id(name, id, reg_country, entity_type)
     entity.add("name", name)
     entity.add("name", original_name)
     entity.add("alias", row.pop("name_other", ""))
@@ -74,8 +87,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("description", entity_type)
     entity.add("country", reg_country)
     entity.add("website", row.pop("home_page", ""))
-    entity.add("permId", row.pop("refinitiv_permid", ""))
-    entity.add("cikCode", row.pop("sec_central_index_key", ""))
+    if schema != "PublicBody" and schema != "Person":
+        entity.add("permId", row.pop("refinitiv_permid", ""))
+        entity.add("cikCode", row.pop("sec_central_index_key", ""))
     address = h.make_address(
         context,
         country=reg_country,
@@ -94,10 +108,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
 def crawl(context: Context):
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    wb = load_workbook(path, read_only=True)
-    for sheet in wb.worksheets:
-        for row in h.parse_xlsx_sheet(
-            context, sheet=workbook["Immediate Owner Entities"]
-        ):
-            crawl_row(context, row)
+    sheet = workbook["Immediate Owner Entities"]
+
+    for row in h.parse_xlsx_sheet(context, sheet=sheet):
+        crawl_row(context, row)
