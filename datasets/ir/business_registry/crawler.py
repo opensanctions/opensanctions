@@ -123,14 +123,18 @@ def crawl(context: Context):
             entity.add("name", company_name)
             entity.add("country", nationality)
             entity.add("sourceUrl", company_link)
-            entity.add("description", stock_symbol)
+            entity.add("ticker", stock_symbol)
             entity.add("sector", industry)
             entity.add("website", website)
             if emails is None:
                 continue
             for email in emails:
                 entity.add("email", email)
-            entity.add("parent", parent_company)
+            if parent_company is not None:
+                parent_com = context.make("Company")
+                parent_com.id = context.make_id(parent_company)
+                parent_com.add("name", parent_company)
+            entity.add("parent", parent_com)
             entity.add("subsidiaries", affiliates_subsidiaries)
             entity.add("notes", sources_text)
             if is_withdrawn is True:
