@@ -55,7 +55,7 @@ IGNORE = [
 
 
 def crawl_company(context: Context, row: Dict[str, str]):
-    # id = row.pop("entity_id")
+    id = row.pop("entity_id")
     name = row.pop("entity_name")
     if name == "unknown":
         return
@@ -81,7 +81,7 @@ def crawl_company(context: Context, row: Dict[str, str]):
     # unknown entity
     # person
     entity = context.make(schema)
-    entity.id = row.pop("entity_id")
+    entity.id = context.make_slug(id)
 
     entity.add("name", name)
     entity.add("name", original_name)
@@ -118,8 +118,8 @@ def crawl_rel(context: Context, row: Dict[str, str]):
 
     ownership = context.make("Ownership")
     ownership.id = context.make_id(subject_entity_id, interested_party_id, index)
-    ownership.add("asset", subject_entity_id)
-    ownership.add("owner", interested_party_id)
+    ownership.add("asset", context.make_slug(subject_entity_id))
+    ownership.add("owner", context.make_slug(interested_party_id))
     ownership.add("percentage", row.pop("share_of_ownership"))
     ownership.add("sourceUrl", row.pop("data_source_url"))
 
