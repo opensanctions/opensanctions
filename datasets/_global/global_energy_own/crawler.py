@@ -71,7 +71,7 @@ def crawl_company(context: Context, row: Dict[str, str]):
     elif entity_type == "person":
         schema = "Person"
     else:
-        schema = "Company"
+        schema = "Company"  # 3 universities end up being companies
 
     entity = context.make(schema)
     entity.id = row.pop("entity_id")
@@ -85,7 +85,9 @@ def crawl_company(context: Context, row: Dict[str, str]):
     entity.add("country", reg_country)
     entity.add("website", row.pop("home_page", ""))
     if schema != "PublicBody" and schema != "Person":
-        entity.add("permId", row.pop("refinitiv_permid", ""))
+        entity.add(
+            "permId", row.pop("refinitiv_permid", "")
+        )  # some public bodies have permids ([warning  ] Unexpected data found   [global_energy_own] data={'refinitiv_permid': '5000049834'} dataset=global_energy_own)
         entity.add("cikCode", row.pop("sec_central_index_key", ""))
     address = h.make_address(
         context,
