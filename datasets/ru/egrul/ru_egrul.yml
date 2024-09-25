@@ -315,100 +315,100 @@ config:
       - МУНИЦИПАЛЬНОЕ КАЗЕННОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # MUNICIPAL TREASURY PRESCHOOL EDUCATIONAL INSTITUTION
 
     МРО:
-    - МЕСТНАЯ ПРАВОСЛАВНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ # LOCAL ORTHODOX RELIGIOUS ORGANIZATION
-    - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ # LOCAL RELIGIOUS ORGANIZATION
-    - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH
-    - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА ВО ИМЯ СВЯТОГО ВЕЛИКОМУЧЕНИКА ГЕОРГИЯ ПОБЕДОНОСЦА С. АФОНЬЕВКА ВОЛОКОНОВСКОГО РАЙОНА БЕЛГОРОДСКОЙ ОБЛАСТИ РЕЛИГИОЗНОЙ ОРГАНИЗАЦИИ # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH IN THE NAME OF THE HOLY GREAT MARTYR GEORGE THE VICTORIOUS S. AFONYEVKA OF THE VOLOKONOVSKY DISTRICT OF THE BELGOROD REGION RELIGIOUS ORGANIZATION"
+    - МЕСТНАЯ ПРАВОСЛАВНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL ORTHODOX RELIGIOUS ORGANIZATION
+    - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL RELIGIOUS ORGANIZATION
+    - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА  # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH
+    - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА ВО ИМЯ СВЯТОГО ВЕЛИКОМУЧЕНИКА ГЕОРГИЯ ПОБЕДОНОСЦА С. АФОНЬЕВКА ВОЛОКОНОВСКОГО РАЙОНА БЕЛГОРОДСКОЙ ОБЛАСТИ РЕЛИГИОЗНОЙ ОРГАНИЗАЦИИ  # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH IN THE NAME OF THE HOLY GREAT MARTYR GEORGE THE VICTORIOUS S. AFONYEVKA OF THE VOLOKONOVSKY DISTRICT OF THE BELGOROD REGION RELIGIOUS ORGANIZATION"
     
-    ЦРО: # центральная религиозная организация
-      - ЦЕНТРАЛЬНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ # CENTRAL RELIGIOUS ORGANIZATION
+    ЦРО:  # центральная религиозная организация
+      - ЦЕНТРАЛЬНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # CENTRAL RELIGIOUS ORGANIZATION
 
-    РО: # религиозная организация
-      - РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ # RELIGIOUS ORGANIZATION
+    РО:  # религиозная организация
+      - РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # RELIGIOUS ORGANIZATION
 
     ФГУ: 
-      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ УЧРЕЖДЕНИЕ # FEDERAL STATE INSTITUTION
-      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ # FEDERAL STATE 
+      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ УЧРЕЖДЕНИЕ  # FEDERAL STATE INSTITUTION
+      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ  # FEDERAL STATE 
     
-    ФКУ: # федеральное казенное учреждение
-      - ФЕДЕРАЛЬНОЕ КАЗЕННОЕ УЧРЕЖДЕНИЕ # FEDERAL TREASURY INSTITUTION
+    ФКУ:  # федеральное казенное учреждение
+      - ФЕДЕРАЛЬНОЕ КАЗЕННОЕ УЧРЕЖДЕНИЕ  # FEDERAL TREASURY INSTITUTION
 
-    ФГБВОУ ВО: # федеральное государственное бюджетное военное образовательное учреждение высшего образования
-      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ВОЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ # FEDERAL STATE BUDGETARY MILITARY EDUCATIONAL INSTITUTION OF HIGHER EDUCATION
+    ФГБВОУ ВО:  # федеральное государственное бюджетное военное образовательное учреждение высшего образования
+      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ВОЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ  # FEDERAL STATE BUDGETARY MILITARY EDUCATIONAL INSTITUTION OF HIGHER EDUCATION
     
     ФГКВОУ: 
-      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ ВОЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ # FEDERAL STATE TREASURY MILITARY EDUCATIONAL INSTITUTION OF HIGHER EDUCATION
+      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ ВОЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ  # FEDERAL STATE TREASURY MILITARY EDUCATIONAL INSTITUTION OF HIGHER EDUCATION
     
-    ФГКОУ: # федеральное государственное казенное образовательное учреждение
-      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ СПЕЦИАЛИСТОВ # FEDERAL STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION (SPECIALISTS)
+    ФГКОУ:  # федеральное государственное казенное образовательное учреждение
+      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ СПЕЦИАЛИСТОВ  # FEDERAL STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION (SPECIALISTS)
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПЕРЕПОДГОТОВКИ И ПОВЫШЕНИЯ КВАЛИФИКАЦИИ)
 
-    ФГБУ: # федеральное государственное бюджетное учреждение
-      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ УЧРЕЖДЕНИЕ # FEDERAL STATE BUDGETARY INSTITUTION
+    ФГБУ:  # федеральное государственное бюджетное учреждение
+      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ УЧРЕЖДЕНИЕ  # FEDERAL STATE BUDGETARY INSTITUTION
     
-    ППО: # первичная профсоюзная организация
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ # PRIMARY TRADE UNION
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ # PRIMARY TRADE UNION ORGANIZATION
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ КАЛАЧЕЕВСКОГО ЛИНЕЙНОГО ПРОИЗВОДСТВЕННОГО УПРАВЛЕНИЯ МАГИСТРАЛЬНЫХ ГАЗОПРОВОДОВ # PRIMARY TRADE UNION ORGANIZATION OF THE KALACHEEVSKY LINEAR PRODUCTION MANAGEMENT OF MAIN GAS PIPELINES
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ НИЖЕГОРОДСКОЙ ОБЛАСТНОЙ ОРГАНИЗАЦИИ ОБЩЕСТВЕННОЙ ОРГАНИЗАЦИИ # PRIMARY TRADE UNION ORGANIZATION OF THE NIZHNY NOVGOROD REGIONAL ORGANIZATION OF THE PUBLIC ORGANIZATION
+    ППО:  # первичная профсоюзная организация
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ  # PRIMARY TRADE UNION
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ  # PRIMARY TRADE UNION ORGANIZATION
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ КАЛАЧЕЕВСКОГО ЛИНЕЙНОГО ПРОИЗВОДСТВЕННОГО УПРАВЛЕНИЯ МАГИСТРАЛЬНЫХ ГАЗОПРОВОДОВ  # PRIMARY TRADE UNION ORGANIZATION OF THE KALACHEEVSKY LINEAR PRODUCTION MANAGEMENT OF MAIN GAS PIPELINES
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ НИЖЕГОРОДСКОЙ ОБЛАСТНОЙ ОРГАНИЗАЦИИ ОБЩЕСТВЕННОЙ ОРГАНИЗАЦИИ  # PRIMARY TRADE UNION ORGANIZATION OF THE NIZHNY NOVGOROD REGIONAL ORGANIZATION OF THE PUBLIC ORGANIZATION
 
     ППО ООО: 
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ОБЩЕСТВА С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ # PRIMARY TRADE UNION ORGANIZATION OF LIMITED LIABILITY COMPANY
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ ДОЧЕРНЕГО ОБЩЕСТВА С ОГРАНИЧЕНОЙ ОТВЕТСТВЕННОСТЬЮ # PRIMARY TRADE UNION ORGANIZATION OF WORKERS OF A SUBSIDIARY LIMITED LIABILITY COMPANY
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ОБЩЕСТВА С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ  # PRIMARY TRADE UNION ORGANIZATION OF LIMITED LIABILITY COMPANY
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ ДОЧЕРНЕГО ОБЩЕСТВА С ОГРАНИЧЕНОЙ ОТВЕТСТВЕННОСТЬЮ  # PRIMARY TRADE UNION ORGANIZATION OF WORKERS OF A SUBSIDIARY LIMITED LIABILITY COMPANY
 
-    ППО ОАО: # первичная профсоюзная организация открытого акционерного общества
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ОТКРЫТОГО АКЦИОНЕРНОГО ОБЩЕСТВА # PRIMARY TRADE UNION ORGANIZATION OF AN OPEN JOINT-STOCK COMPANY
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ ОТКРЫТОГО АКЦИОНЕРНОГО ОБЩЕСТВА # PRIMARY TRADE UNION ORGANIZATION OF WORKERS OF AN OPEN JOINT-STOCK COMPANY
+    ППО ОАО:  # первичная профсоюзная организация открытого акционерного общества
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ОТКРЫТОГО АКЦИОНЕРНОГО ОБЩЕСТВА  # PRIMARY TRADE UNION ORGANIZATION OF AN OPEN JOINT-STOCK COMPANY
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ ОТКРЫТОГО АКЦИОНЕРНОГО ОБЩЕСТВА  # PRIMARY TRADE UNION ORGANIZATION OF WORKERS OF AN OPEN JOINT-STOCK COMPANY
 
-    ППО ГОУ: # первичная профсоюзная организация государственного образовательного учреждения
+    ППО ГОУ:  # первичная профсоюзная организация государственного образовательного учреждения
       - "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ГОСУДАРСТВЕННОГО ОБРАЗОВАТЕЛЬНОГО УЧРЕЖДЕНИЯ СРЕДНЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ"
       - "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ГОСУДАРСТВЕННОГО УЧРЕЖДЕНИЯ СРЕДНЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ"
 
-    ППО ФГБУ: # первичная профсоюзная организация федерального государственного бюджетного учреждения
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ # PRIMARY TRADE UNION ORGANIZATION OF THE FEDERAL STATE BUDGETARY INSTITUTION
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО БЮДЖЕТНОГО ОБРАЗОВАТЕЛЬНОГО УЧРЕЖДЕНИЯ ВЫСШЕГО ОБРАЗОВАНИЯ # PRIMARY TRADE UNION ORGANIZATION OF THE FEDERAL STATE BUDGETARY EDUCATIONAL INSTITUTION OF HIGHER EDUCATION
+    ППО ФГБУ:  # первичная профсоюзная организация федерального государственного бюджетного учреждения
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ  # PRIMARY TRADE UNION ORGANIZATION OF THE FEDERAL STATE BUDGETARY INSTITUTION
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО БЮДЖЕТНОГО ОБРАЗОВАТЕЛЬНОГО УЧРЕЖДЕНИЯ ВЫСШЕГО ОБРАЗОВАНИЯ  # PRIMARY TRADE UNION ORGANIZATION OF THE FEDERAL STATE BUDGETARY EDUCATIONAL INSTITUTION OF HIGHER EDUCATION
 
-    ППО ФГУП: # первичная профсоюзная организация федерального государственного унитарного предприятия
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ СОТРУДНИКОВ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ" # PRIMARY TRADE UNION ORGANIZATION OF THE FEDERAL STATE UNITARY ENTERPRISE
+    ППО ФГУП:  # первичная профсоюзная организация федерального государственного унитарного предприятия
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ СОТРУДНИКОВ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ"  # PRIMARY TRADE UNION ORGANIZATION OF THE FEDERAL STATE UNITARY ENTERPRISE
 
-    ППОО: # первичная профсоюзная общественная организация
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ # PRIMARY TRADE UNION PUBLIC ORGANIZATION
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ АТНИНСКОГО РАЙОННОГО УЗЛА ЭЛЕКТРИЧЕСКОЙ СВЯЗИ ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ УПРАВЛЕНИЕ ЭЛЕКТРИЧЕСКОЙ СВЯЗИ # PRIMARY TRADE UNION PUBLIC ORGANIZATION OF THE ATNINSKY DISTRICT NODE OF ELECTRIC COMMUNICATIONS OF THE STATE UNITARY ENTERPRISE ELECTRIC COMMUNICATIONS MANAGEMENT
+    ППОО:  # первичная профсоюзная общественная организация
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ  # PRIMARY TRADE UNION PUBLIC ORGANIZATION
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ АТНИНСКОГО РАЙОННОГО УЗЛА ЭЛЕКТРИЧЕСКОЙ СВЯЗИ ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ УПРАВЛЕНИЕ ЭЛЕКТРИЧЕСКОЙ СВЯЗИ  # PRIMARY TRADE UNION PUBLIC ORGANIZATION OF THE ATNINSKY DISTRICT NODE OF ELECTRIC COMMUNICATIONS OF THE STATE UNITARY ENTERPRISE ELECTRIC COMMUNICATIONS MANAGEMENT
     
-    ППОО АО: # первичная профсоюзная общественная организация акционерного общества
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ АКЦИОНЕРНОГО ОБЩЕСТВА # PRIMARY TRADE UNION PUBLIC ORGANIZATION OF THE JOINT-STOCK COMPANY
+    ППОО АО:  # первичная профсоюзная общественная организация акционерного общества
+      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ АКЦИОНЕРНОГО ОБЩЕСТВА  # PRIMARY TRADE UNION PUBLIC ORGANIZATION OF THE JOINT-STOCK COMPANY
 
-    ПОП ОБГУЗ: # первичная организация профсоюза областного бюджетного учреждения здравоохранения
-      - ПЕРВИЧНАЯ ОРГАНИЗАЦИЯ ПРОФСОЮЗА ОБЛАСТНОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ ЗДРАВООХРАНЕНИЯ # PRIMARY TRADE UNION ORGANIZATION OF THE REGIONAL BUDGETARY HEALTHCARE INSTITUTION
+    ПОП ОБГУЗ:  # первичная организация профсоюза областного бюджетного учреждения здравоохранения
+      - ПЕРВИЧНАЯ ОРГАНИЗАЦИЯ ПРОФСОЮЗА ОБЛАСТНОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ ЗДРАВООХРАНЕНИЯ  # PRIMARY TRADE UNION ORGANIZATION OF THE REGIONAL BUDGETARY HEALTHCARE INSTITUTION
 
-    ОГКОУ: # областное государственное казенное образовательное учреждение
-      - ОБЛАСТНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ # REGIONAL STATE TREASURY EDUCATIONAL INSTITUTION
-      - ОБЛАСТНОЕ ГОСУДАРСТВЕННОЕ КАЗЁННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ-СИРОТ И ДЕТЕЙ, ОСТАВШИХСЯ БЕЗ ПОПЕЧЕНИЯ РОДИТЕЛЕЙ # REGIONAL STATE TREASURY EDUCATIONAL INSTITUTION FOR ORPHANS AND CHILDREN LEFT WITHOUT PARENTAL CARE
+    ОГКОУ:  # областное государственное казенное образовательное учреждение
+      - ОБЛАСТНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # REGIONAL STATE TREASURY EDUCATIONAL INSTITUTION
+      - ОБЛАСТНОЕ ГОСУДАРСТВЕННОЕ КАЗЁННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ-СИРОТ И ДЕТЕЙ, ОСТАВШИХСЯ БЕЗ ПОПЕЧЕНИЯ РОДИТЕЛЕЙ  # REGIONAL STATE TREASURY EDUCATIONAL INSTITUTION FOR ORPHANS AND CHILDREN LEFT WITHOUT PARENTAL CARE
 
-    МОО: # местная общественная организация
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ # LOCAL PUBLIC ORGANIZATION
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ - # LOCAL PUBLIC ORGANIZATION 
+    МОО:  # местная общественная организация
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ  # LOCAL PUBLIC ORGANIZATION
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ -  # LOCAL PUBLIC ORGANIZATION 
 
-    МОО - ППО: # местная общественная организация - первичная профсоюзная организация
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ # LOCAL PUBLIC ORGANIZATION - PRIMARY TRADE UNION
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ" # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION ORGANIZATION OF WORKERS
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ # LOCAL PUBLIC ORGANIZATION-PRIMARY TRADE UNION
+    МОО - ППО:  # местная общественная организация - первичная профсоюзная организация
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ  # LOCAL PUBLIC ORGANIZATION - PRIMARY TRADE UNION
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ  # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ"  # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION ORGANIZATION OF WORKERS
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ  # LOCAL PUBLIC ORGANIZATION-PRIMARY TRADE UNION
     
-    МОО - ППО ГУП: # местная общественная организация - первичная профсоюзная организация государственного унитарного предприятия
+    МОО - ППО ГУП:  # местная общественная организация - первичная профсоюзная организация государственного унитарного предприятия
       - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION ORGANIZATION OF THE STATE UNITARY ENTERPRISE 
 
 
-    НПО: # неправительственная организация
-    - ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ # NGO
+    НПО:  # неправительственная организация
+    - ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ  # NGO
 
-    НОУ ДПО: # негосударственное образовательное учреждение дополнительного профессионального образования
-    - НЕГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ # NON-STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION
-    - НЕГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ НАЧАЛЬНОГО И ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ # NON-STATE EDUCATIONAL INSTITUTION OF INITIAL AND FURTHER PROFESSIONAL EDUCATION
-    - НЕГОСУДАРСТВЕНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПОВЫШЕНИЯ КВАЛИФИКАЦИИ) СПЕЦИАЛИСТОВ # NON-STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION (QUALIFICATION IMPROVEMENT) FOR SPECIALISTS
+    НОУ ДПО:  # негосударственное образовательное учреждение дополнительного профессионального образования
+    - НЕГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ  # NON-STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION
+    - НЕГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ НАЧАЛЬНОГО И ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ  # NON-STATE EDUCATIONAL INSTITUTION OF INITIAL AND FURTHER PROFESSIONAL EDUCATION
+    - НЕГОСУДАРСТВЕНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПОВЫШЕНИЯ КВАЛИФИКАЦИИ) СПЕЦИАЛИСТОВ  # NON-STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION (QUALIFICATION IMPROVEMENT) FOR SPECIALISTS
 
-    ЗАО: # закрытое акционерное общество
-      - ЗАКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО # CLOSED JOINT-STOCK COMPANY
+    ЗАО:  # закрытое акционерное общество
+      - ЗАКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО  # CLOSED JOINT-STOCK COMPANY
       - АКЦИОНЕНОЕ ОБЩЕСТВО ЗАКРЫТОГО ТИПА
       - АКЦИОНЕРОЕ ОБЩЕСТВО ЗАКРЫТОГО ТИПА 
       - АКЦОИНЕРНОЕ ОБЩЕСТВО ЗАКРЫТОГО ТИПА 
@@ -423,43 +423,43 @@ config:
       - АКЦИОНЕРОНОЕ ОБЩЕСТВО ЗАКРЫТОГО ТИПА
 
     
-    ОАО: # открытое акционерное общество
-      - ОТКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО # OPEN JOINT-STOCK COMPANY
+    ОАО:  # открытое акционерное общество
+      - ОТКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО  # OPEN JOINT-STOCK COMPANY
       - АКЦИОНЕPНОЕ ОБЩЕСТВО ОТКPЫТОГО ТИПА
-      - АКЦОНЕРНОЕ ОБЩЕСТВО ОТКРЫТОГО ТИПА # PUBLIC JOINT-STOCK COMPANY
+      - АКЦОНЕРНОЕ ОБЩЕСТВО ОТКРЫТОГО ТИПА  # PUBLIC JOINT-STOCK COMPANY
     
-    АО: # акционерное общество
-      - АКЦИОНЕРНОЕ ОБЩЕСТВО # JOINT-STOCK COMPANY
+    АО:  # акционерное общество
+      - АКЦИОНЕРНОЕ ОБЩЕСТВО  # JOINT-STOCK COMPANY
       - АКЦИОНЕРНЫЕ ОБЩЕСТВА
     
-    ПАО: # публичное акционерное общество
-      - ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО # PUBLIC JOINT-STOCK COMPANY
+    ПАО:  # публичное акционерное общество
+      - ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО  # PUBLIC JOINT-STOCK COMPANY
 
-    НАО: # некоммерческое акционерное общество
-      - НЕПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО # NON-PUBLIC JOINT-STOCK COMPANY
+    НАО:  # некоммерческое акционерное общество
+      - НЕПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО  # NON-PUBLIC JOINT-STOCK COMPANY
 
-    СПК: # сельскохозяйственный производственный кооператив
-      - СЕЛЬСКОХОЗЯЙСТВЕННЫЙ ПРОИЗВОДСТВЕННЫЙ КООПЕРАТИВ # AGRICULTURAL PRODUCTION COOPERATIVE
+    СПК:  # сельскохозяйственный производственный кооператив
+      - СЕЛЬСКОХОЗЯЙСТВЕННЫЙ ПРОИЗВОДСТВЕННЫЙ КООПЕРАТИВ  # AGRICULTURAL PRODUCTION COOPERATIVE
     
-    МУП: # муниципальное унитарное предприятие
-      - МУНИЦИПАЛЬНОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ # MUNICIPAL UNITARY ENTERPRISE
+    МУП:  # муниципальное унитарное предприятие
+      - МУНИЦИПАЛЬНОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ  # MUNICIPAL UNITARY ENTERPRISE
 
-    АНО: # автономная некоммерческая организация
-      - АВТОНОМНАЯ НЕКОММЕРЧЕСКАЯ ОРГАНИЗАЦИЯ # AUTONOMOUS NON-COMMERCIAL ORGANIZATION
+    АНО:  # автономная некоммерческая организация
+      - АВТОНОМНАЯ НЕКОММЕРЧЕСКАЯ ОРГАНИЗАЦИЯ  # AUTONOMOUS NON-COMMERCIAL ORGANIZATION
 
-    КФХ: # крестьянское (фермерское) хозяйство
-      - КРЕСТЬЯНСКОЕ (ФЕРМЕРСКОЕ) ХОЗЯЙСТВО # FARM (FARMING) HOUSEHOLD
+    КФХ:  # крестьянское (фермерское) хозяйство
+      - КРЕСТЬЯНСКОЕ (ФЕРМЕРСКОЕ) ХОЗЯЙСТВО  # FARM (FARMING) HOUSEHOLD
       - КРЕСТЬЯНСКОЕ ФЕРМЕРСКОЕ ХОЗЯЙСТВО
       - КРЕСТЬЯНСКОЕ ХОЗЯЙСТВО
-
-    ООП: # партнёрство с ограниченной ответственностью
+ 
+    ООП:  # партнёрство с ограниченной ответственностью
       - ПАРТНЁРСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ
     
-    ПТ: # полное товарищество
-      - ПОЛНОЕ ТОВАРИЩЕСТВО # FULL PARTNERSHIP
+    ПТ:  # полное товарищество
+      - ПОЛНОЕ ТОВАРИЩЕСТВО  # FULL PARTNERSHIP
     
-    ООО: # общество с ограниченной ответственностью
-      - ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ # LIMITED LIABILITY COMPANY
+    ООО:  # общество с ограниченной ответственностью
+      - ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ  # LIMITED LIABILITY COMPANY
       - ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ 
       - ОБЩЕСТВА С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ
       - Общество с ограниченной ответственностью
