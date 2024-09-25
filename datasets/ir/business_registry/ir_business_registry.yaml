@@ -1,6 +1,7 @@
 title: "Iran Business Registry (IBR)"
 url: https://www.unitedagainstnucleariran.com/iran-business-registry
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 coverage:
   frequency: daily
   start: 2024-09-24
