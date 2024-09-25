@@ -134,7 +134,7 @@ def crawl(context: Context):
                 parent_com = context.make("Company")
                 parent_com.id = context.make_id(parent_company)
                 parent_com.add("name", parent_company)
-            entity.add("parent", parent_com)
+                entity.add("parent", parent_com)
             entity.add("subsidiaries", affiliates_subsidiaries)
             entity.add("notes", sources_text)
             if is_withdrawn is True:
