@@ -48,12 +48,14 @@ def crawl(context: Context):
             entity.add("country", nationality)
             entity.add("sourceUrl", company_link)
             entity.add("description", stock_symbol)
-            if is_withdrawn:
+            if is_withdrawn is True:
                 entity.add("topics", "export.control")
+                target = False
             else:
                 entity.add("topics", "export.risk")
+                target = True
 
-            context.emit(entity, target=not is_withdrawn)
+            context.emit(entity, target=target)
             context.audit_data(str_row)
 
         page_number += 1
