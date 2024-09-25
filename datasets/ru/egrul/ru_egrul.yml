@@ -271,7 +271,7 @@ config:
       - ГОСУДАРСТВЕННОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОТКЛОНЕНИЯМИ В РАЗВИТИИ  # STATE SPECIAL (CORRECTIONAL) EDUCATIONAL INSTITUTION FOR STUDENTS WITH DEVELOPMENTAL DISABILITIES
 
     ГБОУ:  # государственное бюджетное образовательное учреждение
-      - ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОГРАНИЧЕННЫМИ ВОЗМОЖНОСТЯМИ ЗДОРОВЬЯ СПЕЦИАЛЬНАЯ (КОРРЕКЦИОННАЯ) # STATE BUDGETARY SPECIAL (CORRECTIONAL) EDUCATIONAL INSTITUTION FOR STUDENTS WITH DISABILITIES
+      - ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОГРАНИЧЕННЫМИ ВОЗМОЖНОСТЯМИ ЗДОРОВЬЯ СПЕЦИАЛЬНАЯ (КОРРЕКЦИОННАЯ)  # STATE BUDGETARY SPECIAL (CORRECTIONAL) EDUCATIONAL INSTITUTION FOR STUDENTS WITH DISABILITIES
 
     ГКУ:
       - ГОСУДАРСТВЕННОЕ КАЗЁННОЕ УЧРЕЖДЕНИЕ ЯМАЛО-НЕНЕЦКОГО АВТОНОМНОГО ОКРУГА  # STATE TREASURY INSTITUTION OF YAMALO-NENETS AUTONOMOUS OKRUG
@@ -315,10 +315,10 @@ config:
       - МУНИЦИПАЛЬНОЕ КАЗЕННОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # MUNICIPAL TREASURY PRESCHOOL EDUCATIONAL INSTITUTION
 
     МРО:
-    - МЕСТНАЯ ПРАВОСЛАВНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL ORTHODOX RELIGIOUS ORGANIZATION
-    - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL RELIGIOUS ORGANIZATION
-    - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА  # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH
-    - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА ВО ИМЯ СВЯТОГО ВЕЛИКОМУЧЕНИКА ГЕОРГИЯ ПОБЕДОНОСЦА С. АФОНЬЕВКА ВОЛОКОНОВСКОГО РАЙОНА БЕЛГОРОДСКОЙ ОБЛАСТИ РЕЛИГИОЗНОЙ ОРГАНИЗАЦИИ  # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH IN THE NAME OF THE HOLY GREAT MARTYR GEORGE THE VICTORIOUS S. AFONYEVKA OF THE VOLOKONOVSKY DISTRICT OF THE BELGOROD REGION RELIGIOUS ORGANIZATION"
+      - МЕСТНАЯ ПРАВОСЛАВНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL ORTHODOX RELIGIOUS ORGANIZATION
+      - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL RELIGIOUS ORGANIZATION
+      - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА  # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH
+      - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА ВО ИМЯ СВЯТОГО ВЕЛИКОМУЧЕНИКА ГЕОРГИЯ ПОБЕДОНОСЦА С. АФОНЬЕВКА ВОЛОКОНОВСКОГО РАЙОНА БЕЛГОРОДСКОЙ ОБЛАСТИ РЕЛИГИОЗНОЙ ОРГАНИЗАЦИИ  # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH IN THE NAME OF THE HOLY GREAT MARTYR GEORGE THE VICTORIOUS S. AFONYEVKA OF THE VOLOKONOVSKY DISTRICT OF THE BELGOROD REGION RELIGIOUS ORGANIZATION"
     
     ЦРО:  # центральная религиозная организация
       - ЦЕНТРАЛЬНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # CENTRAL RELIGIOUS ORGANIZATION
@@ -396,16 +396,16 @@ config:
       - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ  # LOCAL PUBLIC ORGANIZATION-PRIMARY TRADE UNION
     
     МОО - ППО ГУП:  # местная общественная организация - первичная профсоюзная организация государственного унитарного предприятия
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION ORGANIZATION OF THE STATE UNITARY ENTERPRISE 
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ  # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION ORGANIZATION OF THE STATE UNITARY ENTERPRISE 
 
 
     НПО:  # неправительственная организация
-    - ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ  # NGO
+      - ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ  # NGO
 
     НОУ ДПО:  # негосударственное образовательное учреждение дополнительного профессионального образования
-    - НЕГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ  # NON-STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION
-    - НЕГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ НАЧАЛЬНОГО И ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ  # NON-STATE EDUCATIONAL INSTITUTION OF INITIAL AND FURTHER PROFESSIONAL EDUCATION
-    - НЕГОСУДАРСТВЕНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПОВЫШЕНИЯ КВАЛИФИКАЦИИ) СПЕЦИАЛИСТОВ  # NON-STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION (QUALIFICATION IMPROVEMENT) FOR SPECIALISTS
+      - НЕГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ  # NON-STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION
+      - НЕГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ НАЧАЛЬНОГО И ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ  # NON-STATE EDUCATIONAL INSTITUTION OF INITIAL AND FURTHER PROFESSIONAL EDUCATION
+      - НЕГОСУДАРСТВЕНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПОВЫШЕНИЯ КВАЛИФИКАЦИИ) СПЕЦИАЛИСТОВ  # NON-STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION (QUALIFICATION IMPROVEMENT) FOR SPECIALISTS
 
     ЗАО:  # закрытое акционерное общество
       - ЗАКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО  # CLOSED JOINT-STOCK COMPANY
