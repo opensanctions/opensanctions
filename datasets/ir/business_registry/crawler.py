@@ -1,7 +1,4 @@
 from lxml import etree
-from lxml.html import HtmlElement
-from normality import slugify
-from typing import Generator, Dict
 from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
@@ -56,7 +53,7 @@ def crawl(context: Context):
             else:
                 entity.add("topics", "export.risk")
 
-            context.emit(entity)
+            context.emit(entity, target=not is_withdrawn)
             context.audit_data(str_row)
 
         page_number += 1
