@@ -1,0 +1,36 @@
+title: US Nevada Medicaid Sanctions/Office of Inspector General Exclusions List
+entry_point: crawler.py
+prefix: us-mednv
+coverage:
+  frequency: daily
+  start: "2024-09-24"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers who have been excluded/sanctioned from the Nevada Medicaid Program.
+description: |
+  The Nevada Department of Health and Human services maintains a list of providers
+  whose Medicaid provider agreement has been terminated. Providers listed are not allowed to receive
+  reimbursement for Medicaid services in any capacity.
+publisher:
+  name: Nevada Department of Health and Human Services Division of Health Care Financing and Policy
+  description: >
+   > The Division of Health Care Financing and Policy (DHCFP) works in partnership with the Centers
+   > for Medicare & Medicaid Services to assist in providing quality medical care for eligible
+   > individuals and families with low incomes and limited resources. Services are provided through
+   > a combination of traditional fee-for-service provider networks and managed care.
+  acronym: DHCFP
+  url: https://dhcfp.nv.gov/About/Home/
+  official: true
+  country: "us"
+url: "https://dhcfp.nv.gov/Providers/PI/PSExclusions/"
+data:
+  url: https://dhcfp.nv.gov/Providers/PI/PSExclusions/
+  format: PDF 
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 7500
+  max:
+    schema_entities:
+      LegalEntity: 9000
