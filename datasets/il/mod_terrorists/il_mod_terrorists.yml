@@ -60,6 +60,7 @@ lookups:
           - Ramallah
           - Khan Younis, Gaza
           - אזרחות פלסטינית
+          - Gaza
         value: PS
       - match: תוניס
         value: Tunisia

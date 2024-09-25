@@ -46,5 +46,5 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
-    for item in h.parse_xlsx_sheet(context, wb.active):
+    for item in h.parse_xlsx_sheet(context, wb["Exclusions List"]):
         crawl_item(item, context)
