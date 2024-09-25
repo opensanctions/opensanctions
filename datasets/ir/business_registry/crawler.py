@@ -19,12 +19,12 @@ def check_url_status(context: Context, url: str) -> bool:
         response = context.fetch_html(url, cache_days=1)
         return response is not None
     except Exception as e:
+        context.log.warning(f"Broken link detected: {url}")
         return False
 
 
 def crawl_subpage(context: Context, url: str):
     if not check_url_status(context, url):
-        context.log.warning(f"Broken link detected: {url}")
         return None, None, None, None
 
     context.log.debug(f"Starting to crawl personal page: {url}")
