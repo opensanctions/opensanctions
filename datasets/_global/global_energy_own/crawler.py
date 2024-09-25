@@ -59,30 +59,28 @@ def crawl_row(context: Context, row: Dict[str, str]):
     id = row.pop("entity_id")
     name = row.pop("entity_name")
     original_name = row.pop("name_local", "")
-    abbreviation = row.pop("abbreviation", "")
-    website = row.pop("home_page", "")
     reg_country = row.pop("registration_country", "")
-    state = row.pop("registration_subdivision", "")
-    city_region = row.pop("headquarters_subdivision", "")
-    legal_id = row.pop("legal_entity_identifier", "")
+    # state = row.pop("registration_subdivision", "")
+    # city_region = row.pop("headquarters_subdivision", "")
+    entity_type = row.pop("entity_type", "")
 
     entity = context.make("Company")
-    entity.id = context.make_id(name, id, reg_country, legal_id)
+    entity.id = context.make_id(name, id, reg_country)
     entity.add("name", name)
     entity.add("name", original_name)
     entity.add("alias", row.pop("name_other", ""))
-    entity.add("weakAlias", abbreviation)
-    entity.add("idNumber", legal_id)
-    entity.add("description", row.pop("entity_type", ""))
+    entity.add("weakAlias", row.pop("abbreviation", ""))
+    entity.add("idNumber", row.pop("legal_entity_identifier", ""))
+    entity.add("description", entity_type)
     entity.add("country", reg_country)
-    entity.add("website", website)
+    entity.add("website", row.pop("home_page", ""))
     entity.add("permId", row.pop("refinitiv_permid", ""))
     entity.add("cikCode", row.pop("sec_central_index_key", ""))
     address = h.make_address(
         context,
         country=reg_country,
-        state=state,
-        city=city_region,
+        state=row.pop("registration_subdivision", ""),
+        city=row.pop("headquarters_subdivision", ""),
     )
     h.copy_address(entity, address)
 
