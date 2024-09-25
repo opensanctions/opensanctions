@@ -77,11 +77,7 @@ def crawl(context: Context):
         if end_dates:
             end_date = end_dates[0]
             today = datetime.now().isoformat()[:10]
-            if len(end_date) == 4:
-                today = today[:4]
-                context.log.warning("Only parsed year", name=title, date=end_date)
-            is_active = today < end_date
-        else:
+            is_active = today < end_date or end_date == "Ongoing"
             is_active = True
 
         if is_active:
@@ -94,7 +90,7 @@ def crawl(context: Context):
         sanction.add("authority", row.pop("idb_sanction_source", None))
         sanction.add("program", row.pop("idb_sanction_type", None))
         h.apply_date(sanction, "startDate", row.pop("from", None))
-        sanction.add("endDate", end_date)
+        h.apply_date(sanction, "endDate", end_dates)
 
         context.emit(sanction)
         context.emit(entity, target=is_active)
