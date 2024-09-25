@@ -87,14 +87,14 @@ def crawl_subpage(context: Context, url: str, entity, entity_id):
             own1.add("asset", entity.id)
             own1.add("owner", parent.id)
             context.emit(own1)
-            # entity.add("parent", parent)
+            entity.add("parent", parent.id)
         if affiliates is not None:
             subsidiary = context.make("Company")
             subsidiary.id = context.make_id(affiliates, affiliates_url)
             subsidiary.add("name", affiliates)
             subsidiary.add("sourceUrl", affiliates_url)
             context.emit(subsidiary)
-            # entity.add("subsidiaries", affiliates)
+            entity.add("subsidiaries", subsidiary.id)
 
             own2 = context.make("Ownership")
             own2.id = context.make_id(entity_id, subsidiary.id)
