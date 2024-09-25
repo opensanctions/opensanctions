@@ -1,5 +1,6 @@
 from lxml import etree
 from urllib.parse import urljoin
+from typing import List, Optional, Tuple
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
@@ -23,28 +24,58 @@ def check_url_status(context: Context, url: str) -> bool:
         return False
 
 
-def crawl_subpage(context: Context, url: str):
+def crawl_subpage(
+    context: Context, url: str
+) -> Tuple[
+    Optional[str],
+    Optional[str],
+    Optional[List[str]],
+    Optional[str],
+    Optional[str],
+    Optional[List[str]],
+]:
     if not check_url_status(context, url):
-        return None, None, None, None
+        return None, None, None, None, None, None
 
     context.log.debug(f"Starting to crawl personal page: {url}")
-    doc = context.fetch_html(url, cache_days=1)
+    doc = context.fetch_html(url, cache_days=3)
 
-    # Extract additional details from the personal page
-    industry = extract_text(
-        doc, './/div[@class="c-full-node__info--row field_industry"]/span/text()'
+    (
+        industry,
+        website,
+        parent_company,
+        affiliates_subsidiaries,
+        sources_text,
+    ) = (None, None, None, None, [])
+    emails: List[str] = []
+
+    info_rows = doc.xpath('.//div[@class="c-full-node__info--row"]')
+
+    for row in info_rows:
+        label = extract_text(row, './label[@class="field-label-inline"]/text()')
+
+        if label == "Industry:":
+            industry = extract_text(row, "./span/text()")
+        elif label.lower() == "website:":
+            website = extract_text(row, "./span/a/@href")
+        elif label == "Contact Information:":
+            emails = row.xpath('./span/p/a[starts-with(@href, "mailto:")]/text()')
+        elif label == "Parent Company:":
+            parent_company = extract_text(row, "./span/a/text()")
+        elif label == "Affiliates/Subsidiaries:":
+            affiliates_subsidiaries = extract_text(row, "./span/a/text()")
+        elif label == "Sources:":
+            sources = row.xpath(".//span//p")
+            sources_text = [src.xpath("string()").strip() for src in sources]
+
+    return (
+        industry,
+        website,
+        emails,
+        parent_company,
+        affiliates_subsidiaries,
+        sources_text,
     )
-    website = extract_text(doc, './/div[@class="c-full-node__info--row"]/span/a/@href')
-    email = extract_text(
-        doc,
-        './/div[@class="c-full-node__info--row"]/span/p/a[starts-with(@href, "mailto:")]/text()',
-    )
-
-    # Extract sources
-    sources = doc.xpath('.//div[@class="c-full-node__info--row field_source"]//p')
-    sources_text = [src.xpath("string()").strip() for src in sources]
-
-    return industry, website, email, sources_text
 
 
 def crawl(context: Context):
@@ -77,9 +108,14 @@ def crawl(context: Context):
             nationality = str_row.pop("nationality")
             stock_symbol = str_row.pop("stock_symbol")
 
-            industry, website, email, sources_text = crawl_subpage(
-                context, company_link
-            )
+            (
+                industry,
+                website,
+                emails,
+                parent_company,
+                affiliates_subsidiaries,
+                sources_text,
+            ) = crawl_subpage(context, company_link)
 
             # Create and emit an entity
             entity = context.make("Company")
@@ -90,7 +126,12 @@ def crawl(context: Context):
             entity.add("description", stock_symbol)
             entity.add("sector", industry)
             entity.add("website", website)
-            entity.add("email", email)
+            if emails is None:
+                continue
+            for email in emails:
+                entity.add("email", email)
+            entity.add("parent", parent_company)
+            entity.add("subsidiaries", affiliates_subsidiaries)
             entity.add("notes", sources_text)
             if is_withdrawn is True:
                 entity.add("topics", "export.control")
