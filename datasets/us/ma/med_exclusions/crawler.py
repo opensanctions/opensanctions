@@ -1,15 +1,13 @@
-import re
-from openpyxl import load_workbook
 from typing import Dict
+from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
 
-NOTES_REGEX = re.compile(r"in\s+(.+)")
-
 
 def crawl_item(row: Dict[str, str], context: Context):
+
     name = row.pop("provider_name")
-    notes = row.pop("notes")
+
     if not name:
         return
 
@@ -19,20 +17,15 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("npiCode", row.pop("national_provider_identifier_npi"))
     entity.add("sector", row.pop("provider_type"))
     entity.add("country", "us")
-    entity.add("notes", notes)
+    entity.add("idNumber", row.pop("unique_id"))
 
-    # entity.add("topics", "debarment")
+    entity.add("topics", "debarment")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("startDate", row.pop("suspension_exclusion_effective_date"))
     sanction.add("reason", row.pop("suspension_exclusion_reason"))
-    if notes:
-        match = NOTES_REGEX.search(notes)
-        if match:
-            notes = match.group(1)
-    h.apply_date(sanction, "endDate", notes)
 
-    context.emit(entity)
+    context.emit(entity, target=True)
     context.emit(sanction)
 
     context.audit_data(row)
@@ -53,5 +46,5 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
+    for item in h.parse_xlsx_sheet(context, wb["Exclusions List"]):
         crawl_item(item, context)
