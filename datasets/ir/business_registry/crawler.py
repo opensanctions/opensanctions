@@ -19,7 +19,7 @@ def check_url_status(context: Context, url: str) -> bool:
         response = context.fetch_html(url, cache_days=1)
         return response is not None
     except Exception as e:
-        context.log.warning(f"Broken link detected: {url}")
+        context.log.warning(f"Broken link detected: {url} - {e}")
         return False
 
 
