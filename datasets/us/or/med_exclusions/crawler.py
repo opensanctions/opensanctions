@@ -1,6 +1,4 @@
-from typing import Dict
 from lxml import etree
-import requests
 
 from zavod import Context, helpers as h
 
@@ -31,10 +29,10 @@ NAMESPACES = {
 def crawl(context: Context) -> None:
 
     response = context.fetch_text(
-        context.data_url, headers=HEADERS, data=RESPONSE_DATA, method="POST"
+        context.data_url, headers=HEADERS, data=REQUEST_DATA, method="POST"
     )
 
-    tree = etree.fromstring(response.content)
+    tree = etree.fromstring(response.encode("utf-8"))
 
     for item in [
         row.get("ows_URL")
