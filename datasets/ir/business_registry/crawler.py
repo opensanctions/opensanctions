@@ -1,6 +1,6 @@
 from lxml import etree
 from urllib.parse import urljoin
-from typing import List, Optional, Tuple
+from typing import List
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
@@ -24,31 +24,22 @@ def check_url_status(context: Context, url: str) -> bool:
         return False
 
 
-def crawl_subpage(
-    context: Context, url: str
-) -> Tuple[
-    Optional[str],
-    Optional[str],
-    Optional[List[str]],
-    Optional[str],
-    Optional[str],
-    Optional[List[str]],
-]:
+def crawl_subpage(context: Context, url: str, entity, entity_id):
     if not check_url_status(context, url):
         return None, None, None, None, None, None
 
     context.log.debug(f"Starting to crawl personal page: {url}")
     doc = context.fetch_html(url, cache_days=3)
-
+    emails: List[str] = []
     (
         industry,
         website,
         parent_company,
-        affiliates_subsidiaries,
+        parent_url,
+        affiliates,
+        affiliates_url,
         sources_text,
-    ) = (None, None, None, None, [])
-    emails: List[str] = []
-
+    ) = (None, None, None, None, None, None, None)
     info_rows = doc.xpath('.//div[@class="c-full-node__info--row"]')
 
     for row in info_rows:
@@ -62,20 +53,56 @@ def crawl_subpage(
             emails = row.xpath('./span/p/a[starts-with(@href, "mailto:")]/text()')
         elif label == "Parent Company:":
             parent_company = extract_text(row, "./span/a/text()")
+            parent_url = extract_text(row, "./span/a/@href")
+            if parent_url:
+                parent_url = urljoin(url, parent_url)
         elif label == "Affiliates/Subsidiaries:":
-            affiliates_subsidiaries = extract_text(row, "./span/a/text()")
+            affiliates = extract_text(row, "./span/a/text()")
+            affiliates_url = extract_text(row, "./span/a/@href")
+            if affiliates_url:
+                affiliates_url = urljoin(url, affiliates_url)
         elif label == "Sources:":
             sources = row.xpath(".//span//p")
             sources_text = [src.xpath("string()").strip() for src in sources]
+            print(sources_text)
 
-    return (
-        industry,
-        website,
-        emails,
-        parent_company,
-        affiliates_subsidiaries,
-        sources_text,
-    )
+        entity.add("email", emails)
+        if sources_text is not None:
+            entity.add("notes", sources_text)
+        entity.add("website", website)
+        entity.add("sector", industry)
+        if emails is None:
+            continue
+        for email in emails:
+            entity.add("email", email)
+        if parent_company is not None:
+            parent = context.make("Company")
+            parent.id = context.make_id(parent_company, parent_url)
+            parent.add("name", parent_company)
+            parent.add("sourceUrl", parent_url)
+            context.emit(parent)
+
+            own1 = context.make("Ownership")
+            own1.id = context.make_id(entity_id, parent.id)
+            own1.add("asset", entity.id)
+            own1.add("owner", parent.id)
+            context.emit(own1)
+            # entity.add("parent", parent)
+        if affiliates is not None:
+            subsidiary = context.make("Company")
+            subsidiary.id = context.make_id(affiliates, affiliates_url)
+            subsidiary.add("name", affiliates)
+            subsidiary.add("sourceUrl", affiliates_url)
+            context.emit(subsidiary)
+            # entity.add("subsidiaries", affiliates)
+
+            own2 = context.make("Ownership")
+            own2.id = context.make_id(entity_id, subsidiary.id)
+            own2.add("asset", subsidiary.id)
+            own2.add("owner", entity.id)
+            context.emit(own2)
+
+    return None
 
 
 def crawl(context: Context):
@@ -108,41 +135,18 @@ def crawl(context: Context):
             nationality = str_row.pop("nationality")
             stock_symbol = str_row.pop("stock_symbol")
 
-            (
-                industry,
-                website,
-                emails,
-                parent_company,
-                affiliates_subsidiaries,
-                sources_text,
-            ) = crawl_subpage(context, company_link)
-
             # Create and emit an entity
             entity = context.make("Company")
             entity.id = context.make_id(company_name, nationality)
+            entity_id = entity.id
+
+            crawl_subpage(context, company_link, entity, entity_id)
             entity.add("name", company_name)
             entity.add("country", nationality)
             entity.add("sourceUrl", company_link)
             entity.add("ticker", stock_symbol)
-            entity.add("sector", industry)
-            entity.add("website", website)
-            if emails is None:
-                continue
-            for email in emails:
-                entity.add("email", email)
-            if parent_company is not None:
-                parent_com = context.make("Company")
-                parent_com.id = context.make_id(parent_company)
-                parent_com.add("name", parent_company)
-                entity.add("parent", parent_com)
-            if affiliates_subsidiaries is not None:
-                subsidiary = context.make("Company")
-                subsidiary.id = context.make_id(affiliates_subsidiaries)
-                subsidiary.add("name", affiliates_subsidiaries)
-                entity.add("subsidiaries", affiliates_subsidiaries)
-            entity.add("notes", sources_text)
+
             if is_withdrawn is True:
-                entity.add("topics", "export.control")
                 target = False
             else:
                 entity.add("topics", "export.risk")
