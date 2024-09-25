@@ -4,10 +4,21 @@ import requests
 
 from zavod import Context, helpers as h
 
-REQUEST_DATA = ""
+REQUEST_DATA = """
     <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <soap:Body>
-            <GetListItems xmlns="http://schemas.microsoft.com/sharepoint/soap/"><listName>Documents</listName><viewName>{9070D930-A5F7-4AFC-9EF4-943645B8E724}</viewName><queryOptions><QueryOptions><IncludeAttachmentUrls>TRUE</IncludeAttachmentUrls></QueryOptions></queryOptions></GetListItems></soap:Body></soap:Envelope>'
+            <GetListItems xmlns="http://schemas.microsoft.com/sharepoint/soap/">
+                <listName>Documents</listName>
+                <viewName>{9070D930-A5F7-4AFC-9EF4-943645B8E724}</viewName>
+                <queryOptions>
+                    <QueryOptions>
+                        <IncludeAttachmentUrls>TRUE</IncludeAttachmentUrls>
+                    </QueryOptions>
+                </queryOptions>
+            </GetListItems>
+        </soap:Body>
+    </soap:Envelope>
+"""
 HEADERS = {"Content-Type": "text/xml;charset='utf-8'"}
 NAMESPACES = {
     "soap": "http://schemas.xmlsoap.org/soap/envelope/",
