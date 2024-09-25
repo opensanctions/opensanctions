@@ -8,6 +8,11 @@ from zavod import helpers as h
 
 IGNORE = [
     "sequence_no",
+    "us_eia_860",
+    "parent_entity_ids",
+    "parents",
+    "headquarters_country",
+    "publicly_listed",
     "decision_date",
     "gcpt_announced_mw",
     "gcpt_cancelled_mw",
@@ -55,20 +60,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
     name = row.pop("entity_name")
     original_name = row.pop("name_local", "")
     abbreviation = row.pop("abbreviation", "")
-    # public_listing = row.pop("publicly_listed", "")
     website = row.pop("home_page", "")
     reg_country = row.pop("registration_country", "")
-    # subdivision = row.pop("subdivision", "")
-    # headquarters = row.pop("headquarters_country", "")
-    # headquarters_subdivision = row.pop("headquarters_subdivision", "")
-    # parent = row.pop("parents", "")
-    # parent_id = row.pop("parent_entity_ids", "")
+    state = row.pop("registration_subdivision", "")
+    city_region = row.pop("headquarters_subdivision", "")
     legal_id = row.pop("legal_entity_identifier", "")
-    # refinitiv_id = row.pop("refinitiv_permid", "")
-    # sec_index = row.pop("sec_central_index_key", "")
-    # eia_860 = row.pop("us_eia_860", "")
 
-    entity = context.make("LegalEntity")
+    entity = context.make("Company")
     entity.id = context.make_id(name, id, reg_country, legal_id)
     entity.add("name", name)
     entity.add("name", original_name)
@@ -78,6 +76,15 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("description", row.pop("entity_type", ""))
     entity.add("country", reg_country)
     entity.add("website", website)
+    entity.add("permId", row.pop("refinitiv_permid", ""))
+    entity.add("cikCode", row.pop("sec_central_index_key", ""))
+    address = h.make_address(
+        context,
+        country=reg_country,
+        state=state,
+        city=city_region,
+    )
+    h.copy_address(entity, address)
 
     context.emit(entity)
     context.audit_data(
