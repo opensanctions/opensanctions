@@ -72,7 +72,14 @@ def crawl_company(context: Context, row: Dict[str, str]):
         schema = "Person"
     else:
         schema = "Company"  # 3 universities end up being companies
+    # full list of entity types:
 
+    # legal entity
+    # arrangement; very few, mostly look like companies
+    # state body
+    # state
+    # unknown entity
+    # person
     entity = context.make(schema)
     entity.id = row.pop("entity_id")
 
