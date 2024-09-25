@@ -94,7 +94,7 @@ def crawl_subpage(context: Context, url: str, entity, entity_id):
             subsidiary.add("name", affiliates)
             subsidiary.add("sourceUrl", affiliates_url)
             context.emit(subsidiary)
-            entity.add("subsidiaries", subsidiary.id)
+            # entity.add("subsidiaries", subsidiary.id)
 
             own2 = context.make("Ownership")
             own2.id = context.make_id(entity_id, subsidiary.id)
