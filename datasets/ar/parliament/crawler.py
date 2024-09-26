@@ -1,12 +1,9 @@
 from lxml import html
 from rigour.mime.types import HTML
-from urllib.parse import urljoin
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
-
-BASE_URL = "https://www.hcdn.gob.ar"
 
 
 def _extract_text(element, xpath_query):
@@ -32,26 +29,32 @@ def crawl(context: Context):
 
     with open(path, "r") as fh:
         doc = html.parse(fh)
+        doc = doc.getroot()
+        doc.make_links_absolute(context.data_url)
 
     # Find the table containing the deputy data
     for row in h.parse_html_table(doc.find(".//table")):
         str_row = h.cells_to_str(row)
         name_el = row.pop("diputado")
-        rel_link = name_el.xpath(".//a/@href")
+        link = name_el.xpath(".//a/@href")
 
         name = str_row.pop("diputado")
         mandate = str_row.pop("mandato")
+        start_date = h.parse_date(
+            str_row.pop("inicia_mandato"), context.dataset.dates.formats
+        )[0]
+        end_date = h.parse_date(
+            str_row.pop("finaliza_mandato"), context.dataset.dates.formats
+        )[0]
 
         # Create and emit the person entity
         person = context.make("Person")
-        person.id = context.make_id(name, mandate)
+        person.id = context.make_id(name)
         person.add("name", name)
         person.add("country", "ar")
         person.add("political", str_row.pop("bloque"))
-        if rel_link:
-            full_url = urljoin(BASE_URL, rel_link[0])
-            # Get profession, birth_date, and email from personal page
-            profession, birth_date, email = crawl_personal_page(context, full_url)
+        if link:
+            profession, birth_date, email = crawl_personal_page(context, link[0])
             h.apply_date(person, "birthDate", birth_date)
             person.add("notes", profession)
             person.add("email", email)
@@ -65,7 +68,6 @@ def crawl(context: Context):
             name="Member of National Congress of Argentina",
             country="ar",
             summary=mandate,
-            description=str_row.pop("distrito"),
         )
         categorisation = categorise(context, position, is_pep=True)
 
@@ -75,14 +77,12 @@ def crawl(context: Context):
             person,
             position,
             False,
-            start_date=h.parse_date(
-                str_row.pop("inicia_mandato"), context.dataset.dates.formats
-            )[0],
-            end_date=h.parse_date(
-                str_row.pop("finaliza_mandato"), context.dataset.dates.formats
-            )[0],
+            start_date=start_date,
+            end_date=end_date,
             categorisation=categorisation,
         )
+        if occupancy:
+            occupancy.add("description", str_row.pop("distrito"))
 
         # Emit the entities
         context.emit(person, target=True)
