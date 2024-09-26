@@ -1,6 +1,5 @@
 from lxml import etree
 from urllib.parse import urljoin
-from typing import List
 
 from zavod import Context, Entity, helpers as h
 from zavod.shed.zyte_api import fetch_html
