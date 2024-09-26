@@ -28,6 +28,8 @@ data:
   url: https://health.alaska.gov/Commissioner/Documents/PDF/AlaskaExcludedProviderList.pdf
   format: PDF
 
+ci_test: false
+
 dates:
   formats: ["%m/%d/%Y"]
 
