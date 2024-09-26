@@ -5,15 +5,11 @@ from zavod import Context, helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     npiCode = row.pop("national_provider_identifier_npi")
     sector = row.pop("provider_individual_type")
     reason = row.pop("exclusion_sanction_reason")
     # There is one line with multiple dates, we are only going to consider the first one
-    startDate = h.parse_date(
-        row.pop("exclusion_sanction_effective_date").split(" ")[0],
-        formats=["%Y-%m-%d", "%m/%d/%Y"],
-    )
+    startDate = row.pop("exclusion_sanction_effective_date").split(" ")[0]
 
     if first_name := row.pop("provider_individual_first_name"):
         person = context.make("Person")
@@ -29,7 +25,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         person.add("topics", "debarment")
         person_sanction = h.make_sanction(context, person)
         person_sanction.add("reason", reason)
-        person_sanction.add("startDate", startDate)
+        h.apply_date(person_sanction, "startDate", startDate)
 
         context.emit(person, target=True)
         context.emit(person_sanction)
@@ -45,7 +41,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         company.add("topics", "debarment")
         company_sanction = h.make_sanction(context, company)
         company_sanction.add("reason", reason)
-        company_sanction.add("startDate", startDate)
+        h.apply_date(company_sanction, "startDate", startDate)
 
         context.emit(company, target=True)
         context.emit(company_sanction)
