@@ -2,7 +2,7 @@ from lxml import etree
 from urllib.parse import urljoin
 from typing import List
 
-from zavod import Context, helpers as h
+from zavod import Context, Entity, helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 
@@ -24,13 +24,12 @@ def check_url_status(context: Context, url: str) -> bool:
         return False
 
 
-def crawl_subpage(context: Context, url: str, entity, entity_id):
+def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
     if not check_url_status(context, url):
         return None, None, None, None, None, None
 
     context.log.debug(f"Starting to crawl personal page: {url}")
     doc = context.fetch_html(url, cache_days=3)
-    emails: List[str] = []
     (
         industry,
         website,
@@ -40,41 +39,41 @@ def crawl_subpage(context: Context, url: str, entity, entity_id):
         affiliates_url,
         sources_text,
     ) = (None, None, None, None, None, None, None)
-    info_rows = doc.xpath('.//div[@class="c-full-node__info--row"]')
+
+    info_rows = doc.xpath('.//div[contains(@class, "c-full-node__info--row")]')
 
     for row in info_rows:
         label = extract_text(row, './label[@class="field-label-inline"]/text()')
 
-        if label == "Industry:":
+        if "field_industry" in row.attrib.get("class", ""):
             industry = extract_text(row, "./span/text()")
-        elif label.lower() == "website:":
+            print("Industry:", industry)  # Debug print
+
+        elif "field_source" in row.attrib.get("class", ""):
+            sources = row.xpath(".//span//p")
+            sources_text = [src.xpath("string()").strip() for src in sources]
+            print("Sources:", sources_text)  # Debug print
+
+        elif label == "website:":
             website = extract_text(row, "./span/a/@href")
-        elif label == "Contact Information:":
-            emails = row.xpath('./span/p/a[starts-with(@href, "mailto:")]/text()')
+            print("Website:", website)  # Debug print
+
         elif label == "Parent Company:":
             parent_company = extract_text(row, "./span/a/text()")
             parent_url = extract_text(row, "./span/a/@href")
             if parent_url:
                 parent_url = urljoin(url, parent_url)
+
         elif label == "Affiliates/Subsidiaries:":
             affiliates = extract_text(row, "./span/a/text()")
             affiliates_url = extract_text(row, "./span/a/@href")
             if affiliates_url:
                 affiliates_url = urljoin(url, affiliates_url)
-        elif label == "Sources:":
-            sources = row.xpath(".//span//p")
-            sources_text = [src.xpath("string()").strip() for src in sources]
-            print(sources_text)
 
-        entity.add("email", emails)
-        if sources_text is not None:
-            entity.add("notes", sources_text)
+        entity.add("notes", sources_text)
         entity.add("website", website)
         entity.add("sector", industry)
-        if emails is None:
-            continue
-        for email in emails:
-            entity.add("email", email)
+
         if parent_company is not None:
             parent = context.make("Company")
             parent.id = context.make_id(parent_company, parent_url)
