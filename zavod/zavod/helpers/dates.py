@@ -15,6 +15,7 @@ DateValue = Union[str, date, datetime, None]
 
 __all__ = [
     "parse_date",
+    "extract_date",
     "check_no_year",
     "parse_formats",
     "extract_years",
@@ -76,7 +77,7 @@ def extract_date(
     context: Context, text: Optional[str], default: Optional[str] = None
 ) -> List[str]:
     """
-    Extract a date from the provided text using predefined formats in the metadata.
+    Extract a date from the provided text using predefined `formats` in the metadata.
     If the text doesn't match any format, return the default or original text.
     """
     if text is None:
