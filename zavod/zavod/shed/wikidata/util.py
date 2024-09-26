@@ -90,8 +90,8 @@ def is_country(enricher: WikidataEnricher, qid: str) -> bool:
     types = item_types(enricher, qid)
     allow = (
         "Q6256",  # country
-        "Q1048835",  # political territorial entity
-        "Q56061",  # administrative territorial entity
+        # "Q1048835",  # political territorial entity
+        # "Q56061",  # administrative territorial entity
         "Q10711424",  # state with limited recognition
         "Q15239622",  # disputed territory
     )
