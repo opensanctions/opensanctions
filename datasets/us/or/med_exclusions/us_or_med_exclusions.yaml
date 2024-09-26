@@ -3,17 +3,19 @@ entry_point: crawler.py
 prefix: us-medor
 coverage:
   frequency: daily
-  start: "2024-09-06"
+  start: "2024-09-26"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Medical providers convicted of fraud in the state of Oregon
+  Medical providers convicted of medicaid fraud in the state of Oregon
 description: |
-  This dataset contains information about entities that have
-  been convicted of fraud by the Oregon Health Authority's
-  Program Integrity Audit Unit (PIAU) which audits Oregon
+  Oregon Health Authority's
+  Program Integrity Audit Unit audits Oregon
   Medicaid Providers and contractors for compliance with state
   and federal requirements in order to prevent fraud, waste
   and abuse in Oregon's Medicaid Program.
+
+  This dataset contains information about entities that have
+  been convicted of state medicaid fraud.
 publisher:
   name: Oregon Health Authority's Program Integrity Audit Unit
   acronym: PIAU

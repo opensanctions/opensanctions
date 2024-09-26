@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-medmt
 coverage:
   frequency: daily
-  start: "2024-09-06"
+  start: "2024-09-26"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Medical providers excluded or terminated from Montana's Medicaid program.
