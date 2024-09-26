@@ -20,6 +20,7 @@ publisher:
   url: https://health.wyo.gov
   official: true
   country: "us"
+ci_test: false
 url: "https://health.wyo.gov/healthcarefin/medicaid/"
 data:
   url: https://health.wyo.gov/wp-content/uploads/2021/07/2021_07_07_Wyoming-Medicaid-Exclusion-List-PDF_AP.pdf
