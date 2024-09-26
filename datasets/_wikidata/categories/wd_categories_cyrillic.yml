@@ -1,0 +1,166 @@
+# Description: This file contains the categories in Russian language that are used to classify the Wikidata items
+config:
+  categories:
+      # Russia
+    - category: Награждённые медалью «За возвращение Крыма»  # Medal "For the Return of Crimea"
+      topic: 
+      language: ru
+    - category: Награждённые медалью «За защиту Крыма»  # Medal "For the Defense of Crimea"
+      topic: 
+      language: ru
+    - category: Герои Донецкой Народной Республики  # Heroes of the Donetsk People's Republic
+      topic: role.pep
+      language: ru
+    - category: Герои Луганской Народной Республики  # Heroes of the Luhansk People's Republic
+      topic: role.pep
+      language: ru
+    - category: Награждённые медалью «За укрепление боевого содружества» (Минобороны России)  # Medal "For Strengthening Combat Cooperation" (Ministry of Defense of Russia)
+      topic: 
+      country: ru
+      language: ru
+    - category: Лица, подвергнутые санкциям в связи с российско-украинской войной  # Persons subject to sanctions in connection with the Russo-Ukrainian War
+      topic: 
+      language: ru
+    - category: Сотрудники ЧВК «Вагнер»  # Employees of the PMC "Wagner"
+      topic: crime.war
+      language: ru
+    - category: Кандидаты в президенты России (2008)  # Candidates for the President of Russia (2008)
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Кандидаты в президенты России (2012)  # Candidates for the President of Russia (2012)
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Кандидаты в президенты России (2018)  # Candidates for the President of Russia (2018)
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Кандидаты в президенты России (2024)  # Candidates for the President of Russia (2024)
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Руководители Администрации президента России  # Heads of the Administration of the President of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Head of the Administration of the President of Russia
+    - category: Члены Совета безопасности России  # Members of the Security Council of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Действительные государственные советники Российской Федерации 1-го класса  # Actual State Counsellors of the Russian Federation 1st class
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Председатели Правительства РФ  # Prime Ministers of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Первые заместители председателя Правительства Российской Федерации  # First Deputy Prime Ministers of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Президенты Российской Федерации  # Presidents of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены совета директоров «Газпрома»  # Members of the Board of Directors of Gazprom
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены «Единой России»  # Members of "United Russia"
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены ЛДПР  # Members of the LDPR
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Военные преступники России  # Military criminals of Russia
+      topic: crime.war
+      country: ru
+      language: ru
+    - category: Командиры подразделений ДНР/ЛНР, убитые в результате покушений  # Commanders of units of the DPR/LPR killed as a result of assassination attempts
+      topic: 
+      language: ru
+    - category: Члены КПСС  # Members of the CPSU
+      topic: role.pep
+      language: ru
+    - category: Первое правительство Медведева  # First Medvedev Government
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Второе правительство Медведева  # Second Medvedev Government
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Правительство Зубкова  # Zubkov Government
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Генерал-полковники (Российская Федерация)  # Lieutenant Generals (Russian Federation)
+      topic: role.pep
+      country: ru
+      language: ru  
+    - category: Депутаты Государственной думы Российской Федерации от одномандатных округов  # Deputies of the State Duma of the Russian Federation from single-mandate districts
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственной думы Российской Федерации I созыва # Deputies of the State Duma of the Russian Federation I convocation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственной думы Российской Федерации II созыва # Deputies of the State Duma of the Russian Federation II convocation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственной думы Российской Федерации III созыва # Deputies of the State Duma of the Russian Federation III convocation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственной думы Российской Федерации IV созыва # Deputies of the State Duma of the Russian Federation IV convocation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственной думы Российской Федерации V созыва # Deputies of the State Duma of the Russian Federation V convocation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственной думы Российской Федерации VI созыва # Deputies of the State Duma of the Russian Federation VI convocation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственной думы Российской Федерации VII созыва # Deputies of the State Duma of the Russian Federation VII convocation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственной думы Российской Федерации VIII созыва # Deputies of the State Duma of the Russian Federation VIII convocation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Сотрудники ГРУ  # GRU employees
+      topic: 
+      language: ru 
+    - category: Сотрудники Службы внешней разведки России  # Employees of the Foreign Intelligence Service of Russia
+      topic: 
+      country: ru
+      language: ru
+    - category: Сотрудники ФСКН  # FSKN employees
+      topic: 
+      country: ru
+      language: ru
+    - category: Сотрудники ФСБ  # Employees of the FSB
+      topic:
+      country: ru
+      language: ru
+    - category: Сотрудники Федеральной службы охраны  # Employees of the Federal Protective Service
+      topic:
+      country: ru
+      language: ru
+
+    
+
+
+      # Belarus
