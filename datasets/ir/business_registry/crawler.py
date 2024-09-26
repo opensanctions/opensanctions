@@ -47,16 +47,13 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
 
         if "field_industry" in row.attrib.get("class", ""):
             industry = extract_text(row, "./span/text()")
-            print("Industry:", industry)  # Debug print
 
         elif "field_source" in row.attrib.get("class", ""):
             sources = row.xpath(".//span//p")
             sources_text = [src.xpath("string()").strip() for src in sources]
-            print("Sources:", sources_text)  # Debug print
 
         elif label == "website:":
             website = extract_text(row, "./span/a/@href")
-            print("Website:", website)  # Debug print
 
         elif label == "Parent Company:":
             parent_company = extract_text(row, "./span/a/text()")
