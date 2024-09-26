@@ -45,7 +45,10 @@ def test_extract_date(vcontext: Context):
     assert extract_date(vcontext, "foo", "bar") == ["bar"]
     assert extract_date(vcontext, "2. mar 2023") == ["2023-03-02"]
     # It doesn't replace months
-    assert extract_date(vcontext, "2. März 2023") == ["2. März 2023"]
+    date = "2. März 2023"
+    assert extract_date(vcontext, date) == ["2. März 2023"]
+    date = replace_months(vcontext.dataset, date)
+    assert extract_date(vcontext, date) == ["2023-03-02"]
 
 
 def test_replace_months(testdataset1: Dataset):
