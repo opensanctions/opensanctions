@@ -7,6 +7,7 @@ from followthemoney.types import registry
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
+from zavod.context import Context
 
 log = get_logger(__name__)
 NUMBERS = re.compile(r"\d+")
@@ -55,13 +56,20 @@ def check_no_year(text: Optional[str]) -> bool:
 
 
 def parse_date(
-    text: Optional[str], formats: Iterable[str], default: Optional[str] = None
+    context: Context,
+    text: Optional[str],
+    formats: Iterable[str] | None = None,
+    default: Optional[str] = None,
 ) -> List[str]:
     """Parse a date two ways: first, try and apply a set of structured formats and
     return a partial date if any of them parse correctly. Otherwise, apply
-    `extract_years` on the remaining string."""
+    extract_years on the remaining string."""
     if text is None:
         return [default] if default is not None else []
+
+    if formats is None and context is not None:
+        formats = context.dataset.dates.formats
+
     parsed = parse_formats(text, formats)
     if parsed.text is not None:
         return [parsed.text]
