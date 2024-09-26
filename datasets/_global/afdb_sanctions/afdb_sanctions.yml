@@ -62,6 +62,8 @@ lookups:
     options:
       - match: Guinée Conakry
         value: Guinea
+      - match: Khazakstan
+        value: Kazakhstan
   type.date:
     options:
       - match: 10/31/23
