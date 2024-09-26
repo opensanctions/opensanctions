@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from structlog.testing import capture_logs
 
-from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
 from zavod.helpers.dates import parse_date, check_no_year, extract_years, extract_date
@@ -41,15 +40,11 @@ def test_parse_date():
     assert parse_date("23.5.", FORMATS) == ["23.5."]
 
 
-def test_extract_date(vcontext: Context):
-    assert extract_date(vcontext, "foo") == ["foo"]
-    assert extract_date(vcontext, "foo", "bar") == ["bar"]
-    assert extract_date(vcontext, "2. mar 2023") == ["2023-03-02"]
-    # It doesn't replace months
-    date = "2. März 2023"
-    assert extract_date(vcontext, date) == ["2. März 2023"]
-    date = replace_months(vcontext.dataset, date)
-    assert extract_date(vcontext, date) == ["2023-03-02"]
+def test_extract_date(testdataset1: Dataset):
+    assert extract_date(testdataset1, "foo") == ["foo"]
+    assert extract_date(testdataset1, "foo", "bar") == ["bar"]
+    assert extract_date(testdataset1, "2. mar 2023") == ["2023-03-02"]
+    assert extract_date(testdataset1, "2. März 2023") == ["2023-03-02"]
 
 
 def test_replace_months(testdataset1: Dataset):
