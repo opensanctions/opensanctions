@@ -63,7 +63,6 @@ def parse_date(
     `extract_years` on the remaining string."""
     if text is None:
         return [default] if default is not None else []
-
     parsed = parse_formats(text, formats)
     if parsed.text is not None:
         return [parsed.text]
@@ -82,7 +81,6 @@ def extract_date(
     """
     if text is None:
         return [default] if default is not None else []
-
     parsed = parse_formats(text, context.dataset.dates.formats)
     if parsed.text is not None:
         return [parsed.text]
