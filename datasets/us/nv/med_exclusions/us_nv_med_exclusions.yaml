@@ -22,6 +22,7 @@ publisher:
   url: https://dhcfp.nv.gov/About/Home/
   official: true
   country: "us"
+ci_test: false
 url: "https://dhcfp.nv.gov/Providers/PI/PSExclusions/"
 data:
   url: https://dhcfp.nv.gov/Providers/PI/PSExclusions/
