@@ -78,8 +78,6 @@ def crawl(context: Context):
             end_date = end_dates[0]
             today = datetime.now().isoformat()[:10]
             is_active = today < end_date or end_date == "Ongoing"
-            is_active = True
-
         if is_active:
             entity.add("topics", "debarment")
 
@@ -90,7 +88,7 @@ def crawl(context: Context):
         sanction.add("authority", row.pop("idb_sanction_source", None))
         sanction.add("program", row.pop("idb_sanction_type", None))
         h.apply_date(sanction, "startDate", row.pop("from", None))
-        h.apply_date(sanction, "endDate", end_dates)
+        h.apply_date(sanction, "endDate", end_dates[0])
 
         context.emit(sanction)
         context.emit(entity, target=is_active)
