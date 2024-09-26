@@ -56,19 +56,13 @@ def check_no_year(text: Optional[str]) -> bool:
 
 
 def parse_date(
-    context: Context,
-    text: Optional[str],
-    formats: Iterable[str] | None = None,
-    default: Optional[str] = None,
+    text: Optional[str], formats: Iterable[str], default: Optional[str] = None
 ) -> List[str]:
     """Parse a date two ways: first, try and apply a set of structured formats and
     return a partial date if any of them parse correctly. Otherwise, apply
-    extract_years on the remaining string."""
+    `extract_years` on the remaining string."""
     if text is None:
         return [default] if default is not None else []
-
-    if formats is None and context is not None:
-        formats = context.dataset.dates.formats
 
     parsed = parse_formats(text, formats)
     if parsed.text is not None:
@@ -76,6 +70,22 @@ def parse_date(
     years = extract_years(text)
     if len(years):
         return years
+    return [default or text]
+
+
+def extract_date(
+    context: Context, text: Optional[str], default: Optional[str] = None
+) -> List[str]:
+    """
+    Extract a date from the provided text using predefined formats in the metadata.
+    If the text doesn't match any format, return the default or original text.
+    """
+    if text is None:
+        return [default] if default is not None else []
+
+    parsed = parse_formats(text, context.dataset.dates.formats)
+    if parsed.text is not None:
+        return [parsed.text]
     return [default or text]
 
 
