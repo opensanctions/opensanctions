@@ -140,6 +140,12 @@ config:
       topic: role.pep
       country: ru
       language: ru
+    - category: Председатели комитетов Государственной думы Российской Федерации  # Chairmen of the committees of the State Duma of the Russian Federation
+      topic: role.pep
+      country: ru 
+      language: ru
+      position: 
+        name: Chairman of the Committee of the State Duma of the Russian Federation
     - category: Сотрудники ГРУ  # GRU employees
       topic: 
       language: ru 
@@ -159,6 +165,11 @@ config:
       topic:
       country: ru
       language: ru
+    - category: Главы муниципальных образований  # Heads of municipal entities
+      topic: role.pep
+      country: ru
+      language: ru
+      
 
     
 
