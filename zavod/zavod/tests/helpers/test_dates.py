@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 
+from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
-from zavod.helpers.dates import parse_date, check_no_year, extract_years
+from zavod.helpers.dates import parse_date, check_no_year, extract_years, extract_date
 from zavod.helpers.dates import replace_months, apply_date, apply_dates
 
 FORMATS = ["%b %Y", "%d.%m.%Y", "%Y-%m"]
@@ -37,6 +38,14 @@ def test_parse_date():
     assert parse_date("circa then", FORMATS, "foo") == ["foo"]
     assert parse_date("circa then", FORMATS) == ["circa then"]
     assert parse_date("23.5.", FORMATS) == ["23.5."]
+
+
+def test_extract_date(vcontext: Context):
+    assert extract_date(vcontext, "foo") == ["foo"]
+    assert extract_date(vcontext, "foo", "bar") == ["bar"]
+    assert extract_date(vcontext, "2. mar 2023") == ["2023-03-02"]
+    # It doesn't replace months
+    assert extract_date(vcontext, "2. März 2023") == ["2. März 2023"]
 
 
 def test_replace_months(testdataset1: Dataset):
