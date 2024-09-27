@@ -152,12 +152,73 @@ config:
       language: ru
       position: 
         name: Deputy Chairman of the Federation Council of Russia
+    - category: Члены Совета Федерации России от Волгоградской области  # Members of the Federation Council of Russia from Volgograd Oblast
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Member of the Federation Council from Volgograd Oblast
+    - category: Члены Совета Федерации России от Камчатского края  # Members of the Federation Council of Russia from Kamchatka Krai
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Member of the Federation Council from Kamchatka Krai
+    - category: Члены Совета Федерации России от Республики Крым  # Members of the Federation Council of Russia from the Republic of Crimea
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Member of the Federation Council from the Republic of Crimea
+    - category: Члены Совета Федерации России от Приморского края  # Members of the Federation Council of Russia from Primorsky Krai
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Member of the Federation Council from Primorsky Krai
+    - category: Члены Совета Федерации России от Рязанской области  # Members of the Federation Council of Russia from Ryazan Oblast
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Member of the Federation Council from Ryazan Oblast
+    - category: Члены Совета Федерации России от Хабаровского края  # Members of the Federation Council of Russia from Khabarovsk Krai
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Member of the Federation Council from Khabarovsk Krai
 
       # "Судебная власть"  # Judiciary
           # "Судьи Конституционного Суда"  # Judges of the Constitutional Court
-
+    - category: Судьи Конституционного суда Российской Федерации  # Judges of the Constitutional Court of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Judge of the Constitutional Court of the Russian Federation
 
           # "Судьи Верховного Суда"  # Judges of the Supreme Court
+    - category: Председатели Верховного суда Российской Федерации  # Chairmen of the Supreme Court of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Chairman of the Supreme Court of the Russian Federation
+    - category: Судьи Верховного суда Российской Федерации  # Judges of the Supreme Court of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Judge of the Supreme Court of the Russian Federation
+
+          # "Судьи Высшего Арбитражного Суда"  # Judges of the Supreme Arbitration Court
+    - category: Судьи Высшего арбитражного суда Российской Федерации  # Judges of the Supreme Arbitration Court of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Judge of the Supreme Arbitration Court of the Russian Federation
 
       # Другие  # Other
     - category: Члены Совета безопасности России  # Members of the Security Council of Russia
@@ -205,9 +266,13 @@ config:
     # "Военные и службы безопасности"  # Military and security services
       # "Генералы и адмиралы"  # Generals and Admirals
     - category: Генерал-полковники (Российская Федерация)  # Lieutenant Generals (Russian Federation)
-      topic: role.pep
+      topic: 
       country: ru
       language: ru  
+    - category: Полковники (Российская Федерация)  # Colonels (Russian Federation)
+      topic: 
+      country: ru
+      language: ru
 
       # "Руководители служб безопасности (ФСБ, ГРУ и др.)"  # Heads of security services (FSB, GRU, etc.)
     - category: Сотрудники ГРУ  # GRU employees
@@ -227,6 +292,14 @@ config:
       language: ru
     - category: Сотрудники Федеральной службы охраны  # Employees of the Federal Protective Service
       topic:
+      country: ru
+      language: ru
+    - category: Награждённые медалью «За отличие в военной службе» (ФСБ) 1 степени  # Medal "For Excellence in Military Service" (FSB) 1st degree
+      topic: 
+      country: ru
+      language: ru
+    - category: Награждённые медалью «За отличие в военной службе» (ФСБ) 2 степени  # Medal "For Excellence in Military Service" (FSB) 2nd degree
+      topic: 
       country: ru
       language: ru
 
@@ -306,6 +379,12 @@ config:
       language: ru
     - category: Командиры подразделений ДНР/ЛНР, убитые в результате покушений  # Commanders of units of the DPR/LPR killed as a result of assassination attempts
       topic: 
+      language: ru
+    - category: Командиры подразделений ДНР/ЛНР  # Commanders of units of the DPR/LPR
+      topic:
+      language: ru
+    - category: Участники протестов на Юго-Восточной Украине (2014)  # Participants in protests in Southeastern Ukraine (2014)
+      topic:
       language: ru
 
 
