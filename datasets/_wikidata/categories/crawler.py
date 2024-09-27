@@ -176,6 +176,8 @@ def crawl_category(
                 context.emit(occupancy)
 
         emitted += 1
+        if emitted > 0 and emitted % 10000 == 0:
+            context.cache.flush()
 
     if emitted > 0 and position is not None:
         context.emit(position)
@@ -186,6 +188,7 @@ def crawl_category(
         results=results,
         emitted=emitted,
     )
+    context.cache.flush()
 
 
 def crawl(context: Context) -> None:
