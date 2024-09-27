@@ -39,13 +39,8 @@ def crawl(context: Context):
         link = name_el.xpath(".//a/@href")
 
         name = str_row.pop("diputado")
-        start_date = h.parse_date(
-            str_row.pop("inicia_mandato"), context.dataset.dates.formats
-        )[0]
-        end_date = h.parse_date(
-            str_row.pop("finaliza_mandato"), context.dataset.dates.formats
-        )[0]
-
+        start_date = h.extract_date(context.dataset, str_row.pop("inicia_mandato"))[0]
+        end_date = h.extract_date(context.dataset, str_row.pop("finaliza_mandato"))[0]
         # Create and emit the person entity
         person = context.make("Person")
         person.id = context.make_id(name)
