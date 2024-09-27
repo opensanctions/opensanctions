@@ -1,7 +1,6 @@
 from typing import Dict, List
 from lxml import etree
 from lxml.html import HtmlElement
-from urllib.parse import urljoin
 
 from normality import slugify
 from requests import RequestException
@@ -48,7 +47,7 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
     except RequestException as e:
         if e.response.status_code == 500:
             context.log.info(f"Broken link detected: {e}")
-            return None
+            return
         raise e
     doc.make_links_absolute(url)
 
@@ -119,7 +118,6 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
             "value_of_usg",
         ],
     )
-    return None
 
 
 def crawl(context: Context):
@@ -132,6 +130,7 @@ def crawl(context: Context):
 
         # Fetch the HTML and get the table
         doc = fetch_html(context, url, unblock_validator, cache_days=3)
+        doc.make_links_absolute(url)
         table = doc.find(".//div[@class='view-content']//table")
         if table is None:
             context.log.info("No more tables found.")
@@ -142,27 +141,21 @@ def crawl(context: Context):
             str_row = h.cells_to_str(row)
 
             company_elem = row.pop("company_sort_descending")
-            company_link = urljoin(
-                url, company_elem.find(".//a").get("href", "").strip()
-            )
-            withdrawn_elem = row.pop("withdrawn")
-            is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
-
+            company_link = company_elem.find(".//a").get("href", "").strip()
             company_name = str_row.pop("company_sort_descending")
-            nationality = str_row.pop("nationality")
-            stock_symbol = str_row.pop("stock_symbol")
 
             # Create and emit an entity
             entity = context.make("Company")
             entity.id = context.make_id(company_name, company_link, prefix="ir-br-co")
-            entity_id = entity.id
 
-            crawl_subpage(context, company_link, entity, entity_id)
+            crawl_subpage(context, company_link, entity, entity.id)
             entity.add("name", company_name)
-            entity.add("country", nationality)
+            entity.add("country", str_row.pop("nationality"))
             entity.add("sourceUrl", company_link)
-            entity.add("ticker", stock_symbol)
+            entity.add("ticker", str_row.pop("stock_symbol"))
 
+            withdrawn_elem = row.pop("withdrawn")
+            is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
             if is_withdrawn is True:
                 target = False
             else:
