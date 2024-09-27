@@ -4,6 +4,7 @@ from lxml.html import HtmlElement
 from urllib.parse import urljoin
 
 from normality import slugify
+from requests import RequestException
 
 from zavod import Context, Entity, helpers as h
 from zavod.shed.zyte_api import fetch_html
@@ -11,21 +12,6 @@ from zavod.shed.zyte_api import fetch_html
 
 def unblock_validator(doc: etree._Element) -> bool:
     return doc.find(".//div[@class='o-grid']") is not None
-
-
-def extract_text(doc, xpath_query):
-    result = doc.xpath(xpath_query)
-    assert len(result) == 1, (xpath_query, result)
-    return result[0].strip() if result else None
-
-
-def check_url_status(context: Context, url: str) -> bool:
-    try:
-        response = context.fetch_html(url, cache_days=1)
-        return response is not None
-    except Exception as e:
-        context.log.warning(f"Broken link detected: {url} - {e}")
-        return False
 
 
 def parse_facts_list(container: HtmlElement) -> Dict[str, List[HtmlElement]]:
@@ -56,14 +42,22 @@ def parse_facts_list(container: HtmlElement) -> Dict[str, List[HtmlElement]]:
 
 
 def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
-    if not check_url_status(context, url):
-        return None, None, None, None, None, None
+    context.log.debug(f"Starting to crawl company page: {url}")
+    try:
+        doc = context.fetch_html(url, cache_days=3)
+    except RequestException as e:
+        if e.response.status_code == 500:
+            context.log.info(f"Broken link detected: {e}")
+            return None
+        raise e
+    doc.make_links_absolute(url)
 
-    context.log.debug(f"Starting to crawl personal page: {url}")
-    doc = context.fetch_html(url, cache_days=3)
     facts_lists = doc.xpath('.//div[@class="c-full-node__info"]')
     assert len(facts_lists) == 1
     facts = parse_facts_list(facts_lists[0])
+
+    for industry in facts.pop("industry", []):
+        entity.add("sector", industry.text_content().strip())
 
     for sources in facts.pop("sources", []):
         for source in sources.xpath(".//p"):
@@ -76,37 +70,55 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
                     source_text += f" ({source_url})"
             entity.add("notes", source_text)
 
-        # entity.add("website", website)
-        # entity.add("sector", industry)
-    #
-    # if parent_company is not None:
-    #    parent = context.make("Company")
-    #    parent.id = context.make_id(parent_company, parent_url)
-    #    parent.add("name", parent_company)
-    #    parent.add("sourceUrl", parent_url)
-    #    context.emit(parent)
-    #
-    #    own1 = context.make("Ownership")
-    #    own1.id = context.make_id(entity_id, parent.id)
-    #    own1.add("asset", entity.id)
-    #    own1.add("owner", parent.id)
-    #    context.emit(own1)
-    #    entity.add("parent", parent.id)
-    # if affiliates is not None:
-    #    subsidiary = context.make("Company")
-    #    subsidiary.id = context.make_id(affiliates, affiliates_url)
-    #    subsidiary.add("name", affiliates)
-    #    subsidiary.add("sourceUrl", affiliates_url)
-    #    context.emit(subsidiary)
-    #    # entity.add("subsidiaries", subsidiary.id)
-    #
-    #    own2 = context.make("Ownership")
-    #    own2.id = context.make_id(entity_id, subsidiary.id)
-    #    own2.add("asset", subsidiary.id)
-    #    own2.add("owner", entity.id)
-    #    context.emit(own2)
+    for website in facts.pop("website", []):
+        entity.add("website", website.xpath(".//a/@href"))
 
-    context.audit_data(facts)
+    for owner in facts.pop("parent_company", []):
+        parent_company = owner.text_content().strip()
+        parent_urls = owner.xpath(".//a/@href")
+        parent = context.make("Company")
+        parent.id = context.make_id(parent_company, *parent_urls, prefix="ir-br-co")
+        parent.add("name", parent_company)
+        parent.add("sourceUrl", parent_urls)
+        context.emit(parent)
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(entity_id, parent.id, prefix="ir-br-own")
+        ownership.add("asset", entity.id)
+        ownership.add("owner", parent.id)
+        context.emit(ownership)
+
+    # Most of the time this is the subsidiary, but JX Nippon Oil & Energy
+    # and Japan Energy Corporation are only affiliates
+    for affiliate in facts.pop("affiliates_subsidiaries", []):
+        affiliate_name = affiliate.text_content().strip()
+        affiliates_urls = affiliate.xpath(".//a/@href")
+        subsidiary = context.make("Company")
+        subsidiary.id = context.make_id(
+            affiliate_name, *affiliates_urls, prefix="ir-br-co"
+        )
+        subsidiary.add("name", affiliate_name)
+        subsidiary.add("sourceUrl", affiliates_urls)
+        context.emit(subsidiary)
+
+        link = context.make("UnknownLink")
+        left = min(entity_id, subsidiary.id)
+        right = max(entity_id, subsidiary.id)
+        link.id = context.make_id(left, right, prefix="ir-br-link")
+        link.add("subject", left)
+        link.add("object", right)
+        link.add("role", "affiliate")
+        context.emit(link)
+
+    context.audit_data(
+        facts,
+        ignore=[
+            "country",
+            "symbol",
+            "contact_information",
+            "response",
+            "value_of_usg",
+        ],
+    )
     return None
 
 
@@ -142,7 +154,7 @@ def crawl(context: Context):
 
             # Create and emit an entity
             entity = context.make("Company")
-            entity.id = context.make_id(company_name, nationality)
+            entity.id = context.make_id(company_name, company_link, prefix="ir-br-co")
             entity_id = entity.id
 
             crawl_subpage(context, company_link, entity, entity_id)
