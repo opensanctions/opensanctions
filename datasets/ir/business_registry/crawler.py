@@ -1,5 +1,9 @@
+from typing import Dict, List
 from lxml import etree
+from lxml.html import HtmlElement
 from urllib.parse import urljoin
+
+from normality import slugify
 
 from zavod import Context, Entity, helpers as h
 from zavod.shed.zyte_api import fetch_html
@@ -11,6 +15,7 @@ def unblock_validator(doc: etree._Element) -> bool:
 
 def extract_text(doc, xpath_query):
     result = doc.xpath(xpath_query)
+    assert len(result) == 1, (xpath_query, result)
     return result[0].strip() if result else None
 
 
@@ -23,80 +28,85 @@ def check_url_status(context: Context, url: str) -> bool:
         return False
 
 
+def parse_facts_list(container: HtmlElement) -> Dict[str, List[HtmlElement]]:
+    """
+    Parse a list of facts into a dictionary.
+
+    Args:
+        container: The HtmlElement containing the description list rows
+
+    Returns:
+        Dictionary where the slugified text content of each data list label is the key,
+          and the value element is the value.
+    """
+    rows_xpath = './/div[contains(@class, "c-full-node__info--row")]'
+    key_xpath = './/label[contains(@class, "field-label-inline")]'
+    values_xpath = "./span"
+    data = {}
+    for row in container.xpath(rows_xpath):
+        key_els = row.xpath(key_xpath)
+        assert len(key_els) == 1, (key_xpath, row.text_content())
+        label = key_els[0].text_content()
+        key = slugify(label, sep="_")
+        assert bool(key), (label, key)
+        assert key not in data, (key, data)
+        value_els = row.xpath(values_xpath)
+        data[key] = value_els
+    return data
+
+
 def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
     if not check_url_status(context, url):
         return None, None, None, None, None, None
 
     context.log.debug(f"Starting to crawl personal page: {url}")
     doc = context.fetch_html(url, cache_days=3)
-    (
-        industry,
-        website,
-        parent_company,
-        parent_url,
-        affiliates,
-        affiliates_url,
-        sources_text,
-    ) = (None, None, None, None, None, None, None)
+    facts_lists = doc.xpath('.//div[@class="c-full-node__info"]')
+    assert len(facts_lists) == 1
+    facts = parse_facts_list(facts_lists[0])
 
-    info_rows = doc.xpath('.//div[contains(@class, "c-full-node__info--row")]')
+    for sources in facts.pop("sources", []):
+        for source in sources.xpath(".//p"):
+            source_text = source.text_content()
+            if "initWindowFocus" in source_text:
+                continue
+            for a in source.xpath(".//a"):
+                source_url = a.get("href")
+                if source_url:
+                    source_text += f" ({source_url})"
+            entity.add("notes", source_text)
 
-    for row in info_rows:
-        label = extract_text(row, './label[@class="field-label-inline"]/text()')
+        # entity.add("website", website)
+        # entity.add("sector", industry)
+    #
+    # if parent_company is not None:
+    #    parent = context.make("Company")
+    #    parent.id = context.make_id(parent_company, parent_url)
+    #    parent.add("name", parent_company)
+    #    parent.add("sourceUrl", parent_url)
+    #    context.emit(parent)
+    #
+    #    own1 = context.make("Ownership")
+    #    own1.id = context.make_id(entity_id, parent.id)
+    #    own1.add("asset", entity.id)
+    #    own1.add("owner", parent.id)
+    #    context.emit(own1)
+    #    entity.add("parent", parent.id)
+    # if affiliates is not None:
+    #    subsidiary = context.make("Company")
+    #    subsidiary.id = context.make_id(affiliates, affiliates_url)
+    #    subsidiary.add("name", affiliates)
+    #    subsidiary.add("sourceUrl", affiliates_url)
+    #    context.emit(subsidiary)
+    #    # entity.add("subsidiaries", subsidiary.id)
+    #
+    #    own2 = context.make("Ownership")
+    #    own2.id = context.make_id(entity_id, subsidiary.id)
+    #    own2.add("asset", subsidiary.id)
+    #    own2.add("owner", entity.id)
+    #    context.emit(own2)
 
-        if "field_industry" in row.attrib.get("class", ""):
-            industry = extract_text(row, "./span/text()")
-
-        elif "field_source" in row.attrib.get("class", ""):
-            sources = row.xpath(".//span//p")
-            sources_text = [src.xpath("string()").strip() for src in sources]
-
-        elif label == "website:":
-            website = extract_text(row, "./span/a/@href")
-
-        elif label == "Parent Company:":
-            parent_company = extract_text(row, "./span/a/text()")
-            parent_url = extract_text(row, "./span/a/@href")
-            if parent_url:
-                parent_url = urljoin(url, parent_url)
-
-        elif label == "Affiliates/Subsidiaries:":
-            affiliates = extract_text(row, "./span/a/text()")
-            affiliates_url = extract_text(row, "./span/a/@href")
-            if affiliates_url:
-                affiliates_url = urljoin(url, affiliates_url)
-
-        entity.add("notes", sources_text)
-        entity.add("website", website)
-        entity.add("sector", industry)
-
-        if parent_company is not None:
-            parent = context.make("Company")
-            parent.id = context.make_id(parent_company, parent_url)
-            parent.add("name", parent_company)
-            parent.add("sourceUrl", parent_url)
-            context.emit(parent)
-
-            own1 = context.make("Ownership")
-            own1.id = context.make_id(entity_id, parent.id)
-            own1.add("asset", entity.id)
-            own1.add("owner", parent.id)
-            context.emit(own1)
-            entity.add("parent", parent.id)
-        if affiliates is not None:
-            subsidiary = context.make("Company")
-            subsidiary.id = context.make_id(affiliates, affiliates_url)
-            subsidiary.add("name", affiliates)
-            subsidiary.add("sourceUrl", affiliates_url)
-            context.emit(subsidiary)
-            # entity.add("subsidiaries", subsidiary.id)
-
-            own2 = context.make("Ownership")
-            own2.id = context.make_id(entity_id, subsidiary.id)
-            own2.add("asset", subsidiary.id)
-            own2.add("owner", entity.id)
-            context.emit(own2)
-
+    context.audit_data(facts)
     return None
 
 
