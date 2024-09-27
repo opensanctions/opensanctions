@@ -39,7 +39,6 @@ def crawl(context: Context):
         link = name_el.xpath(".//a/@href")
 
         name = str_row.pop("diputado")
-        mandate = str_row.pop("mandato")
         start_date = h.parse_date(
             str_row.pop("inicia_mandato"), context.dataset.dates.formats
         )[0]
@@ -50,7 +49,9 @@ def crawl(context: Context):
         # Create and emit the person entity
         person = context.make("Person")
         person.id = context.make_id(name)
-        person.add("name", name)
+        first_name = h.multi_split(name, [", "])[1]
+        last_name = h.multi_split(name, [", "])[0]
+        h.apply_name(person, first_name=first_name, last_name=last_name)
         person.add("country", "ar")
         person.add("political", str_row.pop("bloque"))
         if link:
@@ -58,16 +59,14 @@ def crawl(context: Context):
             h.apply_date(person, "birthDate", birth_date)
             person.add("notes", profession)
             person.add("email", email)
+            person.add("sourceUrl", link)
         else:
             context.log.warning("No link found for this person", name=name)
             return
 
         # Create position and categorize
         position = h.make_position(
-            context,
-            name="Member of National Congress of Argentina",
-            country="ar",
-            summary=mandate,
+            context, name="Member of National Congress of Argentina", country="ar"
         )
         categorisation = categorise(context, position, is_pep=True)
 
@@ -88,4 +87,4 @@ def crawl(context: Context):
         context.emit(person, target=True)
         context.emit(position)
         context.emit(occupancy)
-    context.audit_data(str_row)
+    context.audit_data(str_row, ignore=["mandato"])
