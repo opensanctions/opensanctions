@@ -72,7 +72,7 @@ def crawl(context: Context):
             prop = "nationality" if schema == "Person" else "jurisdiction"
             entity.add(prop, country)
 
-        end_dates = h.parse_date(row.pop("to", None), context.dataset.dates.formats)
+        end_dates = h.extract_date(context.dataset, row.pop("to", None))
         is_active = False
         if end_dates:
             end_date = end_dates[0]
