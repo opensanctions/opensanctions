@@ -4,12 +4,14 @@ from datetime import timedelta
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlencode
 from nomenklatura.enrich.wikidata import WikidataEnricher
-from nomenklatura.enrich.wikidata.model import Item
+from nomenklatura.enrich.wikidata.model import Claim
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.shed.wikidata.util import item_countries, item_labels
+from zavod.shed.wikidata.util import is_historical_country
+from zavod.shed.wikidata.position import wikidata_position
 
-LANGUAGES = ["eng", "esp", "fra", "deu", "rus"]
 URL = "https://petscan.wmcloud.org/"
 QUERY = {
     "doit": "",
@@ -27,16 +29,57 @@ def title_name(title: str) -> str:
     return title.replace("_", " ")
 
 
-def check_item_relevant(
-    context: Context, enricher: WikidataEnricher, item: Item
-) -> bool:
-    # if context.dry_run:
-    #     return True
+def crawl_position(
+    context: Context, enricher: WikidataEnricher, person: Entity, claim: Claim
+) -> None:
+    item = enricher.fetch_item(claim.qid)
+    if item is None:
+        return
+    position = wikidata_position(context, enricher, item)
+    if position is None:
+        return
+
+    start_date: Optional[str] = None
+    for qual in claim.qualifiers.get("P580", []):
+        start_date = qual.text(enricher).text
+
+    end_date: Optional[str] = None
+    for qual in claim.qualifiers.get("P582", []):
+        end_date = qual.text(enricher).text
+
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        no_end_implies_current=False,
+        start_date=start_date,
+        end_date=end_date,
+        birth_date=person.first("birthDate"),
+    )
+    if occupancy is not None:
+        context.log.info("  -> %s (%s)" % (position.first("name"), position.id))
+        context.emit(position)
+        context.emit(occupancy)
+
+
+def crawl_person(
+    context: Context,
+    enricher: WikidataEnricher,
+    row: Dict[str, Any],
+) -> Optional[Entity]:
+    qid = row.pop("Wikidata")
+    entity = context.make("Person")
+    entity.id = qid
+    entity.add("wikidataId", qid)
+    item = enricher.fetch_item(qid)
     if not item.is_instance("Q5"):
         # context.log.warning("Not a person", qid=item.id)
-        return False
+        return None
     if item.is_instance("Q4164871"):
-        return False
+        return None
+
+    is_dated = False
+    is_historical = False
     for claim in item.claims:
         # P569 - birth date
         if claim.property == "P569":
@@ -47,26 +90,49 @@ def check_item_relevant(
                 continue
             if date.text > too_young.isoformat():
                 # context.log.warning("Person is too young", qid=item.id, date=date.text)
-                return False
+                return None
             if date.text < too_old.isoformat():
                 # context.log.warning("Person is too old", qid=item.id, date=date.text)
-                return False
+                return None
+            is_dated = True
+            entity.add("birthDate", date.text)
+
         # P570 - death date
         if claim.property == "P570":
             date = claim.text(enricher)
             # context.log.warning("Person is dead", qid=item.id, date=date)
             if date.text is not None:
-                return False
-        # print(item.id, claim.property, claim._value)
-    return True
+                return None
+            is_dated = True
 
+        # P27 - citizenship
+        if claim.property == "P27":
+            if is_historical_country(enricher, claim.qid):
+                is_historical = True
+            else:
+                citizenship = enricher.fetch_item(claim.qid)
+                if citizenship is not None:
+                    for text in item_countries(enricher, citizenship):
+                        text.apply(entity, "citizenship")
 
-def apply_name(entity: Entity, item: Item) -> None:
-    for lang in LANGUAGES:
-        for label in item.labels:
-            if label.lang == lang:
-                entity.add("name", label.text, lang=lang)
-                return
+    # No DoB/DoD, but linked to a historical country - skip:
+    if not is_dated and is_historical:
+        return None
+
+    for label in item_labels(item):
+        prop = "alias" if entity.has("name") else "name"
+        if prop == "name":
+            context.log.info("Person [%s]: %s" % (item.id, label.text))
+        label.apply(entity, prop)
+
+    for claim in item.claims:
+        if claim.property == "P39":
+            crawl_position(context, enricher, entity, claim)
+
+    if not entity.has("name"):
+        name = title_name(row.pop("title"))
+        entity.add("name", name)
+    return entity
 
 
 def crawl_category(
@@ -82,6 +148,7 @@ def crawl_category(
     cat: str = category.pop("category", "")
     query["categories"] = cat.strip()
     query.update(category)
+    context.log.info("Crawl category: %s" % cat)
 
     position_data: Dict[str, Any] = category.pop("position", {})
     position: Optional[Entity] = None
@@ -97,18 +164,9 @@ def crawl_category(
     emitted = 0
     for row in csv.DictReader(wrapper):
         results += 1
-        qid = row.pop("Wikidata")
-        entity = context.make("Person")
-        entity.id = qid
-        entity.add("wikidataId", qid)
-        item = enricher.fetch_item(qid)
-        if not check_item_relevant(context, enricher, item):
+        entity = crawl_person(context, enricher, row)
+        if entity is None:
             continue
-
-        apply_name(entity, item)
-        if not entity.has("name"):
-            name = title_name(row.pop("title"))
-            entity.add("name", name)
         entity.add("topics", topics)
         entity.add("country", country)
         context.emit(entity)

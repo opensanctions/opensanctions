@@ -12,6 +12,7 @@ NOTIFIED_SYNC_POSITIONS = False
 YEAR = 365  # days
 DEFAULT_AFTER_OFFICE = 5 * YEAR
 EXTENDED_AFTER_OFFICE = 20 * YEAR
+NO_EXPIRATION = 50 * YEAR
 AFTER_DEATH = 5 * YEAR
 MAX_AGE = 110 * YEAR
 MAX_OFFICE = 40 * YEAR
@@ -129,6 +130,8 @@ def backdate(date: datetime, days: int) -> str:
 
 def get_after_office(topics: List[str]) -> int:
     if "gov.national" in topics:
+        if "gov.head" in topics:
+            return NO_EXPIRATION
         return EXTENDED_AFTER_OFFICE
     if "gov.igo" in topics:
         return EXTENDED_AFTER_OFFICE
