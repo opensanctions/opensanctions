@@ -229,8 +229,10 @@ config:
       topic: role.pep
       country: ru
       language: ru
-
-
+    - category: Политики России  # Politicians of Russia
+      topic: role.pep
+      country: ru
+      language: ru
     # "Региональный уровень"  # Regional level
       # "Главы регионов"  # Heads of regions
     - category: Действующие главы регионов России  # Acting heads of regions of Russia
@@ -305,7 +307,10 @@ config:
 
     # "Политические партии"  # Political parties
       # "Лидеры партий"  # Party leaders
- 
+    - category: Руководители политических партий России  # Leaders of political parties in Russia
+      topic: role.pep
+      country: ru
+      language: ru
 
       # "Высшие должностные лица партий"  # Senior party officials
 
@@ -322,6 +327,179 @@ config:
     - category: Члены КПСС  # Members of the CPSU
       topic: role.pep
       language: ru
+    - category: Кандидаты в президенты России по партиям  # Candidates for the President of Russia by Parties
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Аграрной партии России  # Members of the Agrarian Party of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены партии «Альянс зелёных и социал-демократов»  # Members of the Alliance of Greens and Social Democrats
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Партии возрождения России  # Members of the Party for the Revival of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены «Гражданской платформы» (Россия)  # Members of the Civil Platform (Russia)
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены «Гражданской силы»  # Members of the Civil Force
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Демократической партии России  # Members of the Democratic Party of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Демократического союза  # Members of the Democratic Union
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены партии «Зелёные»  # Members of the Green Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены партии «Коммунисты России»  # Members of the Communists of Russia Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Конфедерации анархо-синдикалистов  # Members of the Confederation of Anarcho-Syndicalists
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены КПРФ  # Members of the Communist Party of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены «Левого фронта»  # Members of the Left Front
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены НБП  # Members of the National Bolshevik Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены партии «Наш дом — Россия»  # Members of the Our Home — Russia Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены партии Новые люди  # Members of the New People Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Народной партии Российской Федерации  # Members of the People's Party of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены ОВР  # Members of the United Russia Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Объединённой коммунистической партии  # Members of the United Communist Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены ПАРНАС  # Members of the PARNAS Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Партии дела  # Members of the Party of the Case
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены партии «Патриоты России»  # Members of the Patriots of Russia Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Партии пенсионеров  # Members of the Pensioners' Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены пиратской партии России  # Members of the Pirate Party of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены «Правого дела»  # Members of the Right Cause
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены РКРП-КПСС  # Members of the RKRP-CPSU
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены партии «Родина» (Россия)  # Members of the Rodina Party (Russia)
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Российской объединенной промышленной партии  # Members of the United Industrial Party of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Российской партии жизни  # Members of the Russian Party of Life
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Российского общенародного союза  # Members of the Russian Popular Union
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены партии «Россия будущего»  # Members of the Party of Future Russia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены «Партии Роста»  # Members of the Growth Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены СДПР  # Members of the SDP of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены СЛОН  # Members of the SLON Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Социалистической партии России  # Members of the Socialist Party of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены «Союза коммунистов»  # Members of the Union of Communists
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены «Справедливой России»  # Members of Fair Russia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены СПС  # Members of the SPS
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены Трудовой России  # Members of Labor Russia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены партии «Демократический выбор России»  # Members of the Democratic Choice of Russia Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены партии «Единство»  # Members of the Unity Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены партии «Свободная Россия»  # Members of the Free Russia Party
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Члены партии «Яблоко»  # Members of the Yabloko Party
+      topic: role.pep
+      country: ru
+      language: ru
+
 
     # "Дипломаты"  # Diplomats
       # "Послы"  # Ambassadors
@@ -332,7 +510,10 @@ config:
 
     # "Бизнес и олигархи"  # Business and oligarchs
       # "Крупные бизнесмены и олигархи"  # Large businessmen and oligarchs
-
+  - category: Менеджеры России
+    topic: 
+    country: ru
+    language: ru
 
     # "Религиозные лидеры"  # Religious leaders
       # "Руководители Русской православной церкви"  # Leaders of the Russian Orthodox Church
