@@ -5,7 +5,8 @@ from nomenklatura.enrich.wikidata.model import Item
 
 from zavod import Context, Entity
 from zavod.meta import Dataset
-from zavod.logic.pep import categorise
+
+# from zavod.logic.pep import categorise
 from zavod.shed.wikidata.util import item_types, item_countries, item_label
 
 Wikidata = WikidataEnricher[Dataset]
