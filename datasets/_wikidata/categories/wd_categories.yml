@@ -4,6 +4,9 @@ prefix: wd
 coverage:
   frequency: daily
   start: 2024-09-10
+  schedule: "0 */6 * * *"
+deploy:
+  memory: "4Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 exports:
