@@ -42,7 +42,6 @@ def test_parse_date():
 
 def test_extract_date(testdataset1: Dataset):
     assert extract_date(testdataset1, "foo") == ["foo"]
-    assert extract_date(testdataset1, "foo", "bar") == ["bar"]
     assert extract_date(testdataset1, "2. mar 2023") == ["2023-03-02"]
     assert extract_date(testdataset1, "2. März 2023") == ["2023-03-02"]
 

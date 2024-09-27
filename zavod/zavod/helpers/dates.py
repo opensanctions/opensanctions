@@ -88,15 +88,13 @@ def replace_months(dataset: Dataset, text: str) -> str:
     return spec.months_re.sub(lambda m: spec.mappings[m.group().lower()], text)
 
 
-def extract_date(
-    dataset: Dataset, text: DateValue, default: Optional[str] = None
-) -> List[str]:
+def extract_date(dataset: Dataset, text: DateValue) -> List[str]:
     """
     Extract a date from the provided text using predefined `formats` in the metadata.
-    If the text doesn't match any format, return the default or original text.
+    If the text doesn't match any format, return the original text.
     """
     if text is None:
-        return [default] if default is not None else []
+        return []
     if isinstance(text, date):
         return [text.isoformat()]
     elif isinstance(text, datetime):
@@ -113,7 +111,7 @@ def extract_date(
         years = extract_years(text)
         if len(years):
             return years
-    return [default or text]
+    return [text]
 
 
 def apply_date(entity: Entity, prop: str, text: DateValue) -> None:
@@ -138,9 +136,8 @@ def apply_date(entity: Entity, prop: str, text: DateValue) -> None:
     else:
         original = text
 
-    return entity.add(
-        prop_, extract_date(entity.dataset, text), original_value=original
-    )
+    dates = extract_date(entity.dataset, text)
+    return entity.add(prop_, dates, original_value=original)
 
 
 def apply_dates(entity: Entity, prop: str, texts: Iterable[DateValue]) -> None:
