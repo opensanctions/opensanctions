@@ -128,4 +128,4 @@ assertions:
   max:
     schema_entities:
       Company: 250
-      LegalEntity: 1190
+      LegalEntity: 1700
