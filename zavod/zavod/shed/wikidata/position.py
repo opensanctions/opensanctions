@@ -6,7 +6,7 @@ from nomenklatura.enrich.wikidata.model import Item
 from zavod import Context, Entity
 from zavod.meta import Dataset
 
-# from zavod.logic.pep import categorise
+from zavod.logic.pep import categorise
 from zavod.shed.wikidata.util import item_types, item_countries, item_label
 
 Wikidata = WikidataEnricher[Dataset]
@@ -81,6 +81,17 @@ def wikidata_position(
     for country in countries:
         country.apply(position, "country")
 
+    for claim in item.claims:
+        # inception:
+        if claim.property == "P571":
+            text = claim.text(enricher)
+            text.apply(position, "inceptionDate")
+
+        # abolished date:
+        if claim.property == "P576":
+            text = claim.text(enricher)
+            text.apply(position, "dissolutionDate")
+
     # Skip all positions that cannot be linked to a country.
     if not position.has("country"):
         return None
@@ -90,13 +101,8 @@ def wikidata_position(
             position.add("topics", topics)
 
     is_pep = True if "role.pep" in position.get("topics") else None
-    if not is_pep:
+    categorisation = categorise(context, position, is_pep=is_pep)
+    if not categorisation.is_pep:
         return None
-    # categorisation = categorise(context, position, is_pep=is_pep)
-    # if not categorisation.is_pep:
-    #     return None
-    # position.set("topics", categorisation.topics)
-    position.pop("topics")
-    topics = [t for t in position.pop("topics") if t != "role.pep"]
-    position.set("topics", topics)
+    position.set("topics", categorisation.topics)
     return position
