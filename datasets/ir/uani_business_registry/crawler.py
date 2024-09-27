@@ -1,16 +1,10 @@
 from typing import Dict, List
 from lxml import etree
 from lxml.html import HtmlElement
-
 from normality import slugify
-from requests import RequestException
 
 from zavod import Context, Entity, helpers as h
 from zavod.shed.zyte_api import fetch_html
-
-
-def unblock_validator(doc: etree._Element) -> bool:
-    return doc.find(".//div[@class='o-grid']") is not None
 
 
 def parse_facts_list(container: HtmlElement) -> Dict[str, List[HtmlElement]]:
@@ -40,15 +34,23 @@ def parse_facts_list(container: HtmlElement) -> Dict[str, List[HtmlElement]]:
     return data
 
 
+def is_500_page(doc: etree._Element) -> bool:
+    return (
+        "The website encountered an unexpected error. Try again later."
+        in doc.text_content()
+    )
+
+
+def detail_unblock_validator(doc: etree._Element) -> bool:
+    return bool(doc.xpath('.//div[@class="c-full-node__info"]')) or is_500_page(doc)
+
+
 def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
     context.log.debug(f"Starting to crawl company page: {url}")
-    try:
-        doc = context.fetch_html(url, cache_days=3)
-    except RequestException as e:
-        if e.response.status_code == 500:
-            context.log.info(f"Broken link detected: {e}")
-            return
-        raise e
+    doc = fetch_html(context, url, detail_unblock_validator, cache_days=3)
+    if is_500_page(doc):
+        context.log.info(f"Broken link detected: {url}")
+        return
     doc.make_links_absolute(url)
 
     facts_lists = doc.xpath('.//div[@class="c-full-node__info"]')
@@ -120,6 +122,10 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
     )
 
 
+def index_unblock_validator(doc: etree._Element) -> bool:
+    return doc.find(".//div[@class='o-grid']") is not None
+
+
 def crawl(context: Context):
     pages_processed = 0
 
@@ -129,7 +135,7 @@ def crawl(context: Context):
         context.log.info(f"Fetching URL: {url}")
 
         # Fetch the HTML and get the table
-        doc = fetch_html(context, url, unblock_validator, cache_days=3)
+        doc = fetch_html(context, url, index_unblock_validator, cache_days=3)
         doc.make_links_absolute(url)
         table = doc.find(".//div[@class='view-content']//table")
         if table is None:
