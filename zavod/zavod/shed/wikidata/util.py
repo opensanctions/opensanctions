@@ -53,7 +53,6 @@ def _item_types(enricher: Wikidata, path: List[str]) -> Set[str]:
     return types
 
 
-@lru_cache(maxsize=10000)
 def item_types(enricher: Wikidata, qid: str) -> Set[str]:
     """Get all the `instance of` and `subclass of` types for an item."""
     return _item_types(enricher, [qid])
@@ -108,7 +107,6 @@ def is_country(enricher: Wikidata, qid: str) -> bool:
     return False
 
 
-@lru_cache(maxsize=10000)
 def item_countries(enricher: Wikidata, item: Item) -> Set[LangText]:
     """Extract the countries linked to an item, traversing up an administrative hierarchy
     via jurisdiction/part of properties."""
