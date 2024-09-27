@@ -41,6 +41,23 @@ config:
       topic: role.pep
       country: ru
       language: ru
+      position: 
+        name: First Deputy Prime Minister of the Russian Federation
+    - category: Заместители председателя Правительства Российской Федерации  # Deputy Prime Ministers of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Deputy Prime Minister of the Russian Federation
+    - category: Руководители Аппарата Правительства Российской Федерации  # Heads of the Apparatus of the Government of the Russian Federation
+      topic: role.pep
+      country: ru
+      position: 
+        name: Head of the Apparatus of the Government of the Russian Federation
+    - category: Министры Российской Федерации  # Ministers of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
     - category: Первое правительство Медведева  # First Medvedev Government
       topic: role.pep
       country: ru
@@ -65,35 +82,35 @@ config:
       topic: role.pep
       country: ru
       language: ru
-    - category: Депутаты Государственной думы Российской Федерации I созыва # Deputies of the State Duma of the Russian Federation I convocation
+    - category: Депутаты Государственной думы Российской Федерации I созыва  # Deputies of the State Duma of the Russian Federation I convocation
       topic: role.pep
       country: ru
       language: ru
-    - category: Депутаты Государственной думы Российской Федерации II созыва # Deputies of the State Duma of the Russian Federation II convocation
+    - category: Депутаты Государственной думы Российской Федерации II созыва  # Deputies of the State Duma of the Russian Federation II convocation
       topic: role.pep
       country: ru
       language: ru
-    - category: Депутаты Государственной думы Российской Федерации III созыва # Deputies of the State Duma of the Russian Federation III convocation
+    - category: Депутаты Государственной думы Российской Федерации III созыва  # Deputies of the State Duma of the Russian Federation III convocation
       topic: role.pep
       country: ru
       language: ru
-    - category: Депутаты Государственной думы Российской Федерации IV созыва # Deputies of the State Duma of the Russian Federation IV convocation
+    - category: Депутаты Государственной думы Российской Федерации IV созыва  # Deputies of the State Duma of the Russian Federation IV convocation
       topic: role.pep
       country: ru
       language: ru
-    - category: Депутаты Государственной думы Российской Федерации V созыва # Deputies of the State Duma of the Russian Federation V convocation
+    - category: Депутаты Государственной думы Российской Федерации V созыва  # Deputies of the State Duma of the Russian Federation V convocation
       topic: role.pep
       country: ru
       language: ru
-    - category: Депутаты Государственной думы Российской Федерации VI созыва # Deputies of the State Duma of the Russian Federation VI convocation
+    - category: Депутаты Государственной думы Российской Федерации VI созыва  # Deputies of the State Duma of the Russian Federation VI convocation
       topic: role.pep
       country: ru
       language: ru
-    - category: Депутаты Государственной думы Российской Федерации VII созыва # Deputies of the State Duma of the Russian Federation VII convocation
+    - category: Депутаты Государственной думы Российской Федерации VII созыва  # Deputies of the State Duma of the Russian Federation VII convocation
       topic: role.pep
       country: ru
       language: ru
-    - category: Депутаты Государственной думы Российской Федерации VIII созыва # Deputies of the State Duma of the Russian Federation VIII convocation
+    - category: Депутаты Государственной думы Российской Федерации VIII созыва  # Deputies of the State Duma of the Russian Federation VIII convocation
       topic: role.pep
       country: ru
       language: ru
@@ -105,7 +122,36 @@ config:
         name: Chairman of the Committee of the State Duma of the Russian Federation
 
           # "Члены Совета Федерации"  # Members of the Federation Council
-
+    - category: Депутаты Совета Федерации России (1993—1995)  # Deputies of the Federation Council of Russia (1993-1995)
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Deputy of the Federation Council of Russia (1993-1995)
+    - category: Члены Совета Федерации России (1996—2000)  # Members of the Federation Council of Russia (1996-2000)
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Member of the Federation Council of Russia (1996-2000)
+    - category: Члены Совета Федерации России (с 2000)  #  Members of the Federation Council of Russia (since 2000)
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Member of the Federation Council of Russia
+    - category: Председатели Совета Федерации России  # Chairmen of the Federation Council of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Chairman of the Federation Council of Russia
+    - category: Заместители председателя Совета Федерации России  # Deputy Chairmen of the Federation Council of Russia
+      topic: role.pep
+      country: ru 
+      language: ru
+      position: 
+        name: Deputy Chairman of the Federation Council of Russia
 
       # "Судебная власть"  # Judiciary
           # "Судьи Конституционного Суда"  # Judges of the Constitutional Court
@@ -126,14 +172,22 @@ config:
 
     # "Региональный уровень"  # Regional level
       # "Главы регионов"  # Heads of regions
-
-
+    - category: Действующие главы регионов России  # Acting heads of regions of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Acting head of the region of Russia
       # "Региональные законодатели"  # Regional legislators
 
 
       # "Мэры крупных городов"  # Mayors of major cities
-
-
+    - category: Мэры Москвы  # Mayors of Moscow
+      topic: role.pep
+      country: ru
+      language: ru
+      position: 
+        name: Mayor of Moscow
     # "Местное самоуправление"  # Local self-government
       # "Главы муниципалитетов и местных советов"  # Heads of municipalities and local councils
     - category: Главы муниципальных образований  # Heads of municipal entities
