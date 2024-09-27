@@ -82,6 +82,9 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-19-juillet-2024/
         names:
           - Dock Financial S.A.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-26-septembre-2024/
+        names:
+          - learnd SE
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
