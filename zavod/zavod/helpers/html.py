@@ -14,7 +14,7 @@ def parse_html_table(
     Returns:
         Generator of dict per row, where the keys are the _-slugified table headings
             and the values are the HtmlElement of the cell.
-    
+
     See also:
       - `zavod.helpers.cells_to_str`
       - `zavod.helpers.links_to_dict`
