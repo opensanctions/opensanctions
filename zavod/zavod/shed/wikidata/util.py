@@ -1,4 +1,4 @@
-from functools import cache
+from functools import lru_cache
 from typing import List, Optional, Set
 
 from nomenklatura.enrich.wikidata import WikidataEnricher
@@ -12,6 +12,10 @@ SPECIAL_COUNTRIES = {
     "Q237",  # Vatican city
     "Q36704",  # Yugoslavia
     "Q458",  # European Union
+    "Q8646",  # Hong Kong
+    "Q14773",  # Macao
+    "Q865",  # Taiwan
+    "Q33946",  # Czechoslovakia
     "Q1246",  # Kosovo
     "Q16746854",  # Luhansk PR
     "Q16150196",  # Donetsk PR
@@ -24,7 +28,7 @@ LANGUAGES = ["eng", "esp", "fra", "deu", "rus", "ara"]
 Wikidata = WikidataEnricher[Dataset]
 
 
-@cache
+@lru_cache(maxsize=10000)
 def _item_type_props(enricher: Wikidata, qid: str) -> List[str]:
     item = enricher.fetch_item(qid)
     if item is None:
@@ -49,7 +53,7 @@ def _item_types(enricher: Wikidata, path: List[str]) -> Set[str]:
     return types
 
 
-@cache
+@lru_cache(maxsize=10000)
 def item_types(enricher: Wikidata, qid: str) -> Set[str]:
     """Get all the `instance of` and `subclass of` types for an item."""
     return _item_types(enricher, [qid])
@@ -73,7 +77,7 @@ def item_label(item: Item) -> Optional[LangText]:
     return None
 
 
-@cache
+@lru_cache(maxsize=2000)
 def is_historical_country(enricher: Wikidata, qid: str) -> bool:
     types = item_types(enricher, qid)
     if "Q3024240" in types:  # historical country
@@ -85,7 +89,7 @@ def is_historical_country(enricher: Wikidata, qid: str) -> bool:
     return False
 
 
-@cache
+@lru_cache(maxsize=2000)
 def is_country(enricher: Wikidata, qid: str) -> bool:
     if qid in SPECIAL_COUNTRIES:
         return True
@@ -104,7 +108,7 @@ def is_country(enricher: Wikidata, qid: str) -> bool:
     return False
 
 
-@cache
+@lru_cache(maxsize=10000)
 def item_countries(enricher: Wikidata, item: Item) -> Set[LangText]:
     """Extract the countries linked to an item, traversing up an administrative hierarchy
     via jurisdiction/part of properties."""
