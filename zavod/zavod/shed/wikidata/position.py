@@ -21,8 +21,8 @@ SUB_TYPES = {
     "Q48352": ("role.pep", "gov.head"),  # head of state
     "Q4175034": "gov.legislative",  # legislator
     "Q486839": ("role.pep", "gov.legislative"),  # member of parliament
-    "Q83307": "gov.executive",  # minister
-    "Q7330070": "gov.executive",  # foreign minister
+    "Q83307": ("role.pep", "gov.executive"),  # minister
+    "Q7330070": ("role.pep", "gov.executive"),  # foreign minister
     "Q14212": ("gov.head", "gov.executive"),  # prime minister
     # "Q108290289": "role.pep",  # senior government officials
     "Q16533": "gov.judicial",  # judge
@@ -37,7 +37,7 @@ SUB_TYPES = {
 
 
 def wikidata_position(
-    context: Context, enricher: Wikidata, item: Item, need_country: bool = False
+    context: Context, enricher: Wikidata, item: Item
 ) -> Optional[Entity]:
     types = item_types(enricher, item.id)
     if len(types.intersection(POSITION_BASICS)) == 0:
@@ -59,7 +59,8 @@ def wikidata_position(
     for country in countries:
         country.apply(position, "country")
 
-    if need_country and not position.has("country"):
+    # Skip all positions that cannot be linked to a country.
+    if not position.has("country"):
         return None
 
     for sub_type, topics in SUB_TYPES.items():

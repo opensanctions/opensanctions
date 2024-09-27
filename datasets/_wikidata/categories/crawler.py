@@ -32,10 +32,10 @@ def title_name(title: str) -> str:
 def crawl_position(
     context: Context, enricher: WikidataEnricher, person: Entity, claim: Claim
 ) -> None:
-    pos_item = enricher.fetch_item(claim.qid)
-    if pos_item is None:
+    item = enricher.fetch_item(claim.qid)
+    if item is None:
         return
-    position = wikidata_position(context, enricher, pos_item, need_country=True)
+    position = wikidata_position(context, enricher, item)
     if position is None:
         return
 
