@@ -166,7 +166,6 @@ config:
         name: Member of the Federation Council from Kamchatka Krai
     - category: Члены Совета Федерации России от Республики Крым  # Members of the Federation Council of Russia from the Republic of Crimea
       topic: role.pep
-      country: ru
       language: ru
       position: 
         name: Member of the Federation Council from the Republic of Crimea
@@ -241,8 +240,362 @@ config:
       language: ru
       position: 
         name: Acting head of the region of Russia
+    
       # "Региональные законодатели"  # Regional legislators
-
+    - category: Депутаты Государственного совета Крыма # Deputies of the State Council of Crimea
+      topic: role.pep
+      language: ru
+    - category: Депутаты Законодательного собрания Севастополя # Deputies of the Legislative Assembly of Sevastopol
+      topic: role.pep
+      language: ru
+    - category: Главы парламентов субъектов Российской Федерации # Heads of Parliaments of the Subjects of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственного совета Адыгеи # Deputies of the State Council of Adygea
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственного собрания Республики Алтай # Deputies of the State Assembly of the Altai Republic
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Алтайского краевого законодательного собрания # Deputies of the Altai Krai Legislative Assembly
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Амурской области # Deputies of the Legislative Assembly of the Amur Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Архангельского областного собрания депутатов # Deputies of the Arkhangelsk Regional Assembly of Deputies
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Думы Астраханской области # Deputies of the Astrakhan Region Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственного собрания Башкортостана # Deputies of the State Assembly of Bashkortostan
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Белгородской областной Думы # Deputies of the Belgorod Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Брянской областной Думы # Deputies of the Bryansk Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Народного Хурала Республики Бурятии # Deputies of the People's Hural of the Republic of Buryatia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Владимирской области # Deputies of the Legislative Assembly of the Vladimir Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Волгоградской областной Думы # Deputies of the Volgograd Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Вологодской области # Deputies of the Legislative Assembly of the Vologda Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Воронежской областной думы # Deputies of the Voronezh Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Народного собрания Дагестана # Deputies of the People's Assembly of Dagestan
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Еврейской автономной области # Deputies of the Legislative Assembly of the Jewish Autonomous Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного Собрания Забайкальского края # Deputies of the Legislative Assembly of the Trans-Baikal Territory
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Ивановской областной Думы # Deputies of the Ivanovo Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Народного собрания Ингушетии # Deputies of the National Assembly of Ingushetia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Иркутской области # Deputies of the Legislative Assembly of the Irkutsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Парламента Кабардино-Балкарии # Deputies of the Parliament of Kabardino-Balkaria
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Калининградской областной думы # Deputies of the Kaliningrad Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Народного Хурала (Парламента) Республики Калмыкия # Deputies of the People's Hural (Parliament) of the Republic of Kalmykia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Калужской области # Deputies of the Legislative Assembly of the Kaluga Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Камчатского края # Deputies of the Legislative Assembly of the Kamchatka Territory
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Народного Собрания (Парламента) Карачаево-Черкесии # Deputies of the National Assembly (Parliament) of Karachay-Cherkessia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Республики Карелия # Deputies of the Legislative Assembly of the Republic of Karelia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Совета народных депутатов Кемеровской области # Deputies of the Council of People's Deputies of the Kemerovo Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Кировской области # Deputies of the Legislative Assembly of the Kirov Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственного Совета Республики Коми # Deputies of the State Council of the Komi Republic
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Думы Корякского автономного округа # Deputies of the Duma of the Koryak Autonomous Okrug
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Костромской областной Думы # Deputies of the Kostroma Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Краснодарского края # Deputies of the Legislative Assembly of the Krasnodar Territory
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Красноярского края # Deputies of the Legislative Assembly of the Krasnoyarsk Territory
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Курганской областной Думы # Deputies of the Kurgan Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Курской областной думы # Deputies of the Kursk Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Ленинградской области # Deputies of the Legislative Assembly of the Leningrad Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Липецкого областного Совета депутатов # Deputies of the Lipetsk Regional Council of Deputies
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Магаданской областной думы # Deputies of the Magadan Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственного собрания Республики Марий Эл # Deputies of the State Assembly of the Mari El Republic
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственного Собрания Республики Мордовия # Deputies of the State Assembly of the Republic of Mordovia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Московской городской думы # Deputies of the Moscow City Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Московской областной думы # Deputies of the Moscow Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Мурманской областной Думы # Deputies of the Murmansk Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Собрания депутатов Ненецкого автономного округа # Deputies of the Assembly of Deputies of the Nenets Autonomous Okrug
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Нижегородской области # Deputies of the Legislative Assembly of the Nizhny Novgorod Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Новгородской областной думы # Deputies of the Novgorod Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Новосибирской области # Deputies of the Legislative Assembly of the Novosibirsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Омской области # Deputies of the Legislative Assembly of the Omsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Оренбургской области # Deputies of the Legislative Assembly of the Orenburg Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Орловского областного Совета народных депутатов # Deputies of the Oryol Regional Council of People's Deputies
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Пензенской области # Deputies of the Legislative Assembly of the Penza Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Пермского края # Deputies of the Legislative Assembly of the Perm Territory
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Приморского края # Deputies of the Legislative Assembly of the Primorsky Territory
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Псковского областного Собрания депутатов # Deputies of the Pskov Regional Assembly of Deputies
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Ростовской области # Deputies of the Legislative Assembly of the Rostov Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Рязанской областной Думы # Deputies of the Ryazan Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Самарской Губернской думы # Deputies of the Samara Provincial Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Санкт-Петербурга # Deputies of the Legislative Assembly of St. Petersburg
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Саратовской областной думы # Deputies of the Saratov Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Сахалинской областной думы # Deputies of the Sakhalin Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Свердловской области # Deputies of the Legislative Assembly of the Sverdlovsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Свердловской областной думы # Deputies of the Sverdlovsk Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Парламента Республики Северная Осетия — Алания # Deputies of the Parliament of the Republic of North Ossetia — Alania
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Смоленской областной думы # Deputies of the Smolensk Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Думы Ставропольского края # Deputies of the Duma of the Stavropol Territory
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Тамбовской областной думы # Deputies of the Tambov Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственного Совета Республики Татарстан # Deputies of the State Council of the Republic of Tatarstan
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Тверской области # Deputies of the Legislative Assembly of the Tver Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательной думы Томской области # Deputies of the Legislative Duma of the Tomsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Тульской областной думы # Deputies of the Tula Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Верховного хурала (парламента) Республики Тыва # Deputies of the Supreme Hural (parliament) of the Republic of Tuva
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Тюменской областной Думы # Deputies of the Tyumen Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственного Совета Удмуртской Республики # Deputies of the State 
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Ульяновской области # Deputies of the Legislative Assembly of the Ulyanovsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательной думы Хабаровского края # Deputies of the Legislative Duma of the Khabarovsk Territory
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Верховного Совета Республики Хакасия # Deputies of the Supreme Council of the Republic of Khakassia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Думы Ханты-Мансийского автономного округа — Югры # Deputies of the Duma of the Khanty-Mansi Autonomous Okrug — Yugra
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Челябинской области # Deputies of the Legislative Assembly of the Chelyabinsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Парламента Чеченской Республики # Deputies of the Parliament of the Chechen Republic
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственного Совета Чувашской Республики # Deputies of the State Council of the Chuvash Republic
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Думы Чукотского автономного округа # Deputies of the Duma of the Chukotka Autonomous Okrug
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания (Суглана) Эвенкийского автономного округа # Deputies of the Legislative Assembly (Suglan) of the Evenki Autonomous Okrug
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Государственного Собрания (Ил Тумэн) Республики Саха (Якутия) # Deputies of the State Assembly (Il Tumen) of the Republic of Sakha (Yakutia)
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Законодательного собрания Ямало-Ненецкого автономного округа # Deputies of the Legislative Assembly of the Yamalo-Nenets Autonomous Okrug
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Депутаты Ярославской областной думы # Deputies of the Yaroslavl Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
 
       # "Мэры крупных городов"  # Mayors of major cities
     - category: Мэры Москвы  # Mayors of Moscow
@@ -251,12 +604,20 @@ config:
       language: ru
       position: 
         name: Mayor of Moscow
+        
     # "Местное самоуправление"  # Local self-government
       # "Главы муниципалитетов и местных советов"  # Heads of municipalities and local councils
     - category: Главы муниципальных образований  # Heads of municipal entities
       topic: role.pep
       country: ru
       language: ru
+    - category: Главы районов России # Heads of districts of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Главы сельских поселений России  # Heads of rural settlements of Russia
+      topic: role.pep
+      country: ru
 
     # "Государственные компании и крупные институты"  # State-owned companies and major institutions
       # "Генеральные директора и члены правления государственных компаний"  # CEOs and board members of state-owned companies
