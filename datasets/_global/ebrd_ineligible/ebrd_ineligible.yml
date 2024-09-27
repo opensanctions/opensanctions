@@ -120,7 +120,7 @@ assertions:
   min:
     schema_entities:
       Company: 225
-      LegalEntity: 1150
+      LegalEntity: 1250
     country_entities:
       cn: 750
       ru: 7
