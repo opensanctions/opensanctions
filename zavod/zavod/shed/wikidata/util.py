@@ -5,6 +5,8 @@ from nomenklatura.enrich.wikidata import WikidataEnricher
 from nomenklatura.enrich.wikidata.lang import LangText
 from nomenklatura.enrich.wikidata.model import Item
 
+from zavod.entity import Entity
+
 SPECIAL_COUNTRIES = {
     "Q15180",  # Soviet Union
     "Q237",  # Vatican city
@@ -19,9 +21,11 @@ SPECIAL_COUNTRIES = {
 }
 LANGUAGES = ["eng", "esp", "fra", "deu", "rus", "ara"]
 
+Wikidata = WikidataEnricher[Entity]
+
 
 @cache
-def _item_type_props(enricher: WikidataEnricher, qid: str) -> List[str]:
+def _item_type_props(enricher: Wikidata, qid: str) -> List[str]:
     item = enricher.fetch_item(qid)
     if item is None:
         return []
@@ -34,7 +38,7 @@ def _item_type_props(enricher: WikidataEnricher, qid: str) -> List[str]:
     return types
 
 
-def _item_types(enricher: WikidataEnricher, path: List[str]) -> Set[str]:
+def _item_types(enricher: Wikidata, path: List[str]) -> Set[str]:
     qid = path[-1]
     types = set([qid])
     if len(path) > 6:
@@ -46,7 +50,7 @@ def _item_types(enricher: WikidataEnricher, path: List[str]) -> Set[str]:
 
 
 @cache
-def item_types(enricher: WikidataEnricher, qid: str) -> Set[str]:
+def item_types(enricher: Wikidata, qid: str) -> Set[str]:
     """Get all the `instance of` and `subclass of` types for an item."""
     return _item_types(enricher, [qid])
 
@@ -70,7 +74,7 @@ def item_label(item: Item) -> Optional[LangText]:
 
 
 @cache
-def is_historical_country(enricher: WikidataEnricher, qid: str) -> bool:
+def is_historical_country(enricher: Wikidata, qid: str) -> bool:
     types = item_types(enricher, qid)
     if "Q3024240" in types:  # historical country
         return True
@@ -82,7 +86,7 @@ def is_historical_country(enricher: WikidataEnricher, qid: str) -> bool:
 
 
 @cache
-def is_country(enricher: WikidataEnricher, qid: str) -> bool:
+def is_country(enricher: Wikidata, qid: str) -> bool:
     if qid in SPECIAL_COUNTRIES:
         return True
     if is_historical_country(enricher, qid):
@@ -101,7 +105,7 @@ def is_country(enricher: WikidataEnricher, qid: str) -> bool:
 
 
 @cache
-def item_countries(enricher: WikidataEnricher, item: Item) -> Set[LangText]:
+def item_countries(enricher: Wikidata, item: Item) -> Set[LangText]:
     """Extract the countries linked to an item, traversing up an administrative hierarchy
     via jurisdiction/part of properties."""
     countries: Set[LangText] = set()

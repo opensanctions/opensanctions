@@ -7,6 +7,8 @@ from zavod import Context, Entity
 from zavod.logic.pep import categorise
 from zavod.shed.wikidata.util import item_types, item_countries, item_label
 
+Wikidata = WikidataEnricher[Entity]
+
 POSITION_BASICS = {
     "Q4164871",  # position
     "Q29645880",  # ambassador of a country
@@ -35,7 +37,7 @@ SUB_TYPES = {
 
 
 def wikidata_position(
-    context: Context, enricher: WikidataEnricher, item: Item, need_country: bool = False
+    context: Context, enricher: Wikidata, item: Item, need_country: bool = False
 ) -> Optional[Entity]:
     types = item_types(enricher, item.id)
     if len(types.intersection(POSITION_BASICS)) == 0:
