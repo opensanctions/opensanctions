@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional, List
 from datetime import datetime, timedelta
-from functools import cache
+from functools import cache, lru_cache
 
 from zavod.context import Context
 from zavod import settings
@@ -24,11 +24,13 @@ class OccupancyStatus(Enum):
     UNKNOWN = "unknown"
 
 
-class PositionCategorisation:
+class PositionCategorisation(object):
     is_pep: Optional[bool]
     """Whether the position denotes a politically exposed person or not"""
     topics: List[str]
-    """The [role and scope](https://www.opensanctions.org/docs/topics/#politically-exposed-persons) of the position, as a list of topics"""
+    """The topics linked to the position, as a list"""
+
+    __slots__ = ["topics", "is_pep"]
 
     def __init__(self, topics: List[str], is_pep: Optional[bool]):
         self.topics = topics
@@ -55,7 +57,7 @@ def get_categorisation(
         return None
 
 
-@cache
+@lru_cache(maxsize=5000)
 def categorise(
     context: Context,
     position: Entity,
