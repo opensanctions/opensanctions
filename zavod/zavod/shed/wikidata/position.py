@@ -89,8 +89,13 @@ def wikidata_position(
             position.add("topics", topics)
 
     is_pep = True if "role.pep" in position.get("topics") else None
-    categorisation = categorise(context, position, is_pep=is_pep)
-    if not categorisation.is_pep:
+    if not is_pep:
         return None
-    position.set("topics", categorisation.topics)
+    # categorisation = categorise(context, position, is_pep=is_pep)
+    # if not categorisation.is_pep:
+    #     return None
+    # position.set("topics", categorisation.topics)
+    position.pop("topics")
+    topics = [t for t in position.pop("topics") if t != "role.pep"]
+    position.set("topics", topics)
     return position
