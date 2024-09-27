@@ -560,6 +560,7 @@ lookups:
           - "Q108377574"  # Islamic religious occupation
           - "Q21051103"  # warden
           - "Q2382776"  # no-show job
+          - "Q68887"  # Mirwaiz
 
   country_decisions:
     options:

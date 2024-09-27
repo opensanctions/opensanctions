@@ -35,7 +35,7 @@ publisher:
   official: true
 url: "https://www.fic.gov.za/International/sanctions/SitePages/Home.aspx"
 data:
-  url: https://transfer.fic.gov.za/public/folder/XNK-dueZDUma9kOqjPWrAA/Downloads/Consolidated%20United%20Nations%20Security%20Council%20Sanctions%20List.xml
+  url: https://tfs.fic.gov.za/Pages/TFSListDownload?fileType=xml
   format: XML
 
 lookups:

@@ -1,49 +1,37 @@
-from typing import Dict
 from followthemoney.types import registry
+from typing import Dict
+import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
 TYPES = {"osoby": "Person", "podmioty": "Company"}
-BDAY_FORMATS = ("%d.%m.%Y", "%d %b %Y")
-MONTHS = {
-    "stycznia": "jan",
-    "lutego": "feb",
-    "marca": "mar",
-    "kwietnia": "apr",
-    "maja": "may",
-    "czerwca": "jun",
-    "lipca": "jul",
-    "lipiec": "jul",
-    "sierpnia": "aug",
-    "września": "sep",
-    "października": "oct",
-    "listopada": "nov",
-    "grudnia": "dec",
-}
 CHOPSKA = [
     ("Nr NIP", "taxNumber"),
     ("NIP", "taxNumber"),
     ("Nr KRS", "registrationNumber"),
     ("KRS", "registrationNumber"),
+    ("(PESEL:", "idNumber"),
+    ("PESEL:", "idNumber"),
     ("siedziba:", "address"),
 ]
 
 
-def parse_date(text):
+def parse_date(text, context):
     text = text.lower().strip()
     text = text.replace("urodzona", "")
     text = text.replace("urodzonego", "")
     text = text.replace("urodzony", "")
-    text = text.rstrip(" r.")
-    text = text.rstrip(" r.,")
-    text = text.rstrip("r")
+    text = text.replace("urodzonej", "")
+    text = re.split(r" r\.| r$", text)[0]
     text = text.strip()
-    for pl, en in MONTHS.items():
-        text = text.replace(pl, en)
-    prefix = h.parse_formats(text, BDAY_FORMATS)
-    if prefix.dt:
-        return prefix.text
+    text = h.replace_months(context.dataset, text)
+    if text is None:
+        return None
+    date_info = h.parse_formats(text, context.dataset.dates.formats)
+    if date_info and date_info.dt:
+        return date_info.text  # Return the parsed date as a string
+    return None
 
 
 def parse_details(context: Context, entity: Entity, text: str):
@@ -51,15 +39,18 @@ def parse_details(context: Context, entity: Entity, text: str):
         parts = text.rsplit(chop, 1)
         text = parts[0]
         if len(parts) > 1:
-            entity.add(prop, parts[1])
+            entity.add(prop, parts[1].strip())
 
     if not len(text.strip()):
         return
-    bday = parse_date(text)
-    if bday:
-        entity.add("birthDate", bday)
-        return
 
+    bday = parse_date(text, context)
+    if bday:
+        h.apply_date(entity, "birthDate", bday)
+        text = re.sub(r"urodzon. \d+[. ]\w+[. ]\d+ r\.?", "", text).strip()
+
+    if text == "":
+        return
     result = context.lookup("details", text)
     if result is None:
         context.log.warning("Unhandled details", details=repr(text))
