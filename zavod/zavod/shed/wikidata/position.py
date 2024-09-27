@@ -4,10 +4,11 @@ from nomenklatura.enrich.wikidata import WikidataEnricher
 from nomenklatura.enrich.wikidata.model import Item
 
 from zavod import Context, Entity
+from zavod.meta import Dataset
 from zavod.logic.pep import categorise
 from zavod.shed.wikidata.util import item_types, item_countries, item_label
 
-Wikidata = WikidataEnricher[Entity]
+Wikidata = WikidataEnricher[Dataset]
 
 POSITION_BASICS = {
     "Q4164871",  # position
@@ -16,23 +17,43 @@ POSITION_BASICS = {
     "Q707492",  # military chief of staff
 }
 SUB_TYPES = {
-    "Q30185": "gov.muni",  # mayor
+    "Q30185": ("role.pep", "gov.executive", "gov.muni"),  # mayor
+    "Q17279032": ("role.pep"),  # elective office
+    "Q109862464": ("gov.executive", "gov.muni"),  # lord mayor
     "Q2285706": ("role.pep", "gov.head"),  # head of government
     "Q48352": ("role.pep", "gov.head"),  # head of state
+    "Q3099723": ("role.pep", "gov.head"),  # minister-president
     "Q4175034": "gov.legislative",  # legislator
     "Q486839": ("role.pep", "gov.legislative"),  # member of parliament
     "Q83307": ("role.pep", "gov.executive"),  # minister
     "Q7330070": ("role.pep", "gov.executive"),  # foreign minister
     "Q14212": ("gov.head", "gov.executive"),  # prime minister
-    # "Q108290289": "role.pep",  # senior government officials
+    "Q15966511": ("role.pep", "gov.executive", "gov.state"),  # deputy minister
+    "Q46403368": ("role.pep", "gov.national"),  # deputy at the national level
+    "Q20086425": ("role.pep", "gov.legislative"),  # shadow minister
+    "Q108290289": "role.pep",  # senior government officials
     "Q16533": "gov.judicial",  # judge
+    "Q6635529": (
+        "role.pep",
+        "gov.executive",
+    ),  # provincial leader of the People's Republic of China
+    "Q117826617": ("role.pep", "gov.judicial"),  # supreme court judge
+    "Q55736868": (
+        "role.pep",
+        "gov.judicial",
+        "gov.national",
+    ),  # national sup court judge
+    "Q1501926": ("role.pep", "gov.judicial"),  # attorney general
+    "Q3368517": ("role.pep", "gov.judicial"),  # public prosecutor general
+    "Q109607046": ("role.pep", "gov.judicial"),  # deputy public prosecutor general
     "Q107363151": ("role.pep", "gov.financial"),  # central bank governor
-    "Q1553195": "pol.party",  # party leader
+    "Q1553195": ("role.pep", "pol.party"),  # party leader
+    "Q836971": "pol.party",  # party secretary
     "Q116182667": "role.diplo",  # diplomat
     "Q29645880": ("role.pep", "role.diplo"),  # ambassador of a country
     "Q29645886": ("role.pep", "role.diplo"),  # ambassador to a country
     "Q303618": "role.diplo",  # diplomatic rank
-    "Q707492": ("role.pep", "gov.security"),  # military chief of staff
+    "Q707492": ("role.pep", "gov.national", "gov.security"),  # military chief of staff
 }
 
 

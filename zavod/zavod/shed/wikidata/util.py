@@ -5,7 +5,7 @@ from nomenklatura.enrich.wikidata import WikidataEnricher
 from nomenklatura.enrich.wikidata.lang import LangText
 from nomenklatura.enrich.wikidata.model import Item
 
-from zavod.entity import Entity
+from zavod.meta import Dataset
 
 SPECIAL_COUNTRIES = {
     "Q15180",  # Soviet Union
@@ -21,7 +21,7 @@ SPECIAL_COUNTRIES = {
 }
 LANGUAGES = ["eng", "esp", "fra", "deu", "rus", "ara"]
 
-Wikidata = WikidataEnricher[Entity]
+Wikidata = WikidataEnricher[Dataset]
 
 
 @cache
@@ -31,7 +31,7 @@ def _item_type_props(enricher: Wikidata, qid: str) -> List[str]:
         return []
     types: List[str] = []
     for claim in item.claims:
-        if claim.qualifiers.get("P582"):
+        if claim.qualifiers.get("P582") or claim.qid is None:
             continue
         if claim.property in ("P31", "P279"):
             types.append(claim.qid)
@@ -110,7 +110,9 @@ def item_countries(enricher: Wikidata, item: Item) -> Set[LangText]:
     via jurisdiction/part of properties."""
     countries: Set[LangText] = set()
     if is_country(enricher, item.id):
-        return [item_label(item)]
+        text = item_label(item)
+        if text is not None:
+            return set([text])
 
     for claim in item.claims:
         # country:
@@ -126,7 +128,7 @@ def item_countries(enricher: Wikidata, item: Item) -> Set[LangText]:
     for claim in item.claims:
         # jurisdiction, capital of, part of:
         if claim.property in ("P1001", "P1376", "P361"):
-            if claim.qualifiers.get("P582"):
+            if claim.qualifiers.get("P582") or claim.qid is None:
                 continue
             # if claim.qid in seen:
             #     continue
