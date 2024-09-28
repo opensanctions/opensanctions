@@ -36,6 +36,30 @@ data:
   url: https://petscan.wmcloud.org/
   format: CSV
 
+lookups:
+  type.country:
+    options:
+      - match:
+          - member states of the United Nations
+          - member of the United Nations Security Council
+        value: zz
+      - match: Pakistan Occupied Kashmir
+        value: pk
+      - match:
+          - Galicia
+          - Ceuta
+        value: es
+  type.date:
+    options:
+      - match: 1935-06-31
+        value: 1935-06
+      - match: 1935-06-31
+        value: 1935-06
+      - match: 2019-11-31
+        value: 2019-11
+      - match: 2012-02-30
+        value: 2012-02
+
 config:
   categories:
     # Mega collections:
