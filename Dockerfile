@@ -1,5 +1,8 @@
 FROM ubuntu:24.04 as build
 ENV DEBIAN_FRONTEND noninteractive
+
+ARG BUILD_DATE=static
+
 RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \
     && apt-get -qq -y install --no-install-recommends \
