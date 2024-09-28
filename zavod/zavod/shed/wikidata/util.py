@@ -22,6 +22,8 @@ SPECIAL_COUNTRIES = {
     "Q15966495",  # Crimea Rep
     "Q174193",  # United Kingdom of Great Britain and Ireland
     "Q174193",  # United Kingdom of Great Britain and Ireland
+    "Q160016",  # member states of the United Nations
+    "Q61964031",  # member of the UN SC
 }
 LANGUAGES = ["eng", "esp", "fra", "deu", "rus", "ara"]
 
@@ -35,7 +37,9 @@ def _item_type_props(enricher: Wikidata, qid: str) -> List[str]:
         return []
     types: List[str] = []
     for claim in item.claims:
-        if claim.qualifiers.get("P582") or claim.qid is None:
+        # historical countries are always historical:
+        ended = claim.qualifiers.get("P582") is not None and claim.qid != "Q3024240"
+        if ended or claim.qid is None:
             continue
         if claim.property in ("P31", "P279"):
             types.append(claim.qid)
@@ -95,6 +99,13 @@ def is_country(enricher: Wikidata, qid: str) -> bool:
     if is_historical_country(enricher, qid):
         return False
     types = item_types(enricher, qid)
+
+    deny = {
+        "Q12885585",  # Native American tribe
+    }
+    if len(types.intersection(deny)) > 0:
+        return False
+
     allow = (
         "Q6256",  # country
         # "Q1048835",  # political territorial entity
