@@ -51,13 +51,13 @@ lookups:
         value: es
   type.date:
     options:
-      - match: 1935-06-31
+      - match: "1935-06-31"
         value: 1935-06
-      - match: 1935-06-31
+      - match: "1935-06-31"
         value: 1935-06
-      - match: 2019-11-31
+      - match: "2019-11-31"
         value: 2019-11
-      - match: 2012-02-30
+      - match: "2012-02-30"
         value: 2012-02
 
 config:
