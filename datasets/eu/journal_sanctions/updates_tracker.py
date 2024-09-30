@@ -178,4 +178,4 @@ def crawl(context: Context):
 
         # Log a confirmation message if no discrepancies were found
         if not new_url_found and not date_changed:
-            context.log.info("All URLs are the same and dates match.")
+            context.log.info("URL is the same and dates match.")
