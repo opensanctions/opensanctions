@@ -44,6 +44,9 @@ config:
       language: ru
       position: 
         name: Head of the Administration of the President of Russia
+        topics:
+          - gov.executive
+          - gov.national
 
           # "Премьер-министр и министры"  # Prime Minister and Ministers
     - category: Председатели Правительства РФ  # Prime Ministers of the Russian Federation
