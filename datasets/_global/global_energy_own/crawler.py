@@ -112,12 +112,8 @@ def crawl_company(context: Context, row: Dict[str, str]):
 
 
 def crawl_rel(context: Context, row: Dict[str, str]):
-    # index = row.pop("index")
     subject_entity_id = row.pop("subject_entity_id")
     interested_party_id = row.pop("interested_party_id")
-    if interested_party_id == "E100001015587":
-        print("E100001015587")
-        return
 
     ownership = context.make("Ownership")
     ownership.id = context.make_id(subject_entity_id, interested_party_id)
