@@ -7,8 +7,14 @@ from zavod.shed.gpt import run_image_prompt
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 prompt = """
-Extract structured data from the following page of a PDF document. Return 
-a JSON list (`rows`) in which each object represents a row in the table.
+Extract structured data from the following page of a PDF document.
+This PDF contains a table on each page where values can wrap onto the
+next line within a cell, and values are centred vertically in the cell.
+Country is first in japanese and then in latin script on the next line.
+Company name is always in latin script, possibly wrapping onto the next line,
+and sometimes in japanese script on another line. Include all hyphenated parts
+of the name. Records are separated by a horizontal line.
+Return a JSON list (`rows`) in which each object represents a row in the table.
 Each object should have the following fields: `no` (string), `country`
 (latin script version only), `name` (company or organization name in latin
 script), `name_jpn` (company or organization name in japanese script, or
@@ -23,11 +29,11 @@ def unblock_validator(el) -> bool:
 
 
 def crawl_pdf_url(context: Context) -> str:
-    html = fetch_html(context, context.data_url, unblock_validator)
+    html = fetch_html(context, context.data_url, unblock_validator, cache_days=1)
     for a in html.findall(".//a"):
         if a.text is not None and "Review of the End User List" in a.text:
             review_url = urljoin(context.data_url, a.get("href"))
-            html = fetch_html(context, review_url, unblock_validator)
+            html = fetch_html(context, review_url, unblock_validator, cache_days=1)
             for a in html.findall(".//a"):
                 if a.text is None or "End User List" not in a.text:
                     continue
@@ -53,6 +59,7 @@ def crawl(context: Context):
                     "Row number is not continuous",
                     no=no,
                     last_no=last_no,
+                    url=pdf_url,
                 )
             last_no = no
             name = holder.get("name")
