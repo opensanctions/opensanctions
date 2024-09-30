@@ -21,7 +21,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         city = ""
     else:
         city = row.pop("CAO")
-        state = ""
+        state = "PA"
     address = h.make_address(context, city=city, state=state, country_code="us")
 
     if last_name := row.pop("NAM_LAST_PROVR"):
