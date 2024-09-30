@@ -124,7 +124,7 @@ CELEX_URLS = [
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02017R2063-20240515",
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02017D2074-20240515",
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014R1352-20230216",
-    "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014D0932-20230215",
+    "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014D0932-20230216",
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02011D0101-20240206",
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02004R0314-20231129",
 ]
@@ -141,42 +141,40 @@ def crawl(context: Context):
         new_url_found = False
         date_changed = False
         logged_urls = set()  # Track URLs that have already been logged
+        logged_date_changes = set()  # Track URLs with logged date changes
 
-        for item in regime["data"]:
-            regime_url = f"{REGIME_URL}/{item['id']}"
-            regime_data = context.fetch_json(regime_url, cache_days=1)["data"]
-            legal_acts = regime_data.pop("legal_acts", None)
+        if legal_acts:
+            for act in legal_acts["data"]:
+                url = act.pop("url")
+                if url and CELEX_DATE_REGEX.match(url):
+                    # Extract the last 8 characters (date) from the URL
+                    date = url[-8:]
+                    url_without_date = url[:-8]
 
-            if legal_acts:
-                for act in legal_acts["data"]:
-                    url = act.get("url")
-                    if url and CELEX_DATE_REGEX.match(url):
-                        # Extract the last 8 characters (date) from the URL
-                        date = url[-8:]
-                        url_without_date = url[:-8]
+                    # Find a matching URL by ignoring the last 8 characters (date)
+                    matched_existing_url = next(
+                        (
+                            _url
+                            for _url in existing_urls
+                            if _url[:-8] == url_without_date
+                        ),
+                        None,
+                    )
 
-                        # Find a matching URL by ignoring the last 8 characters (date)
-                        matched_existing_url = next(
-                            (
-                                _url
-                                for _url in existing_urls
-                                if _url[:-8] == url_without_date
-                            ),
-                            None,
-                        )
-
-                        if matched_existing_url is None and (url not in logged_urls):
-                            context.log.warning(f"New URL found: {url}")
-                            new_url_found = True
-                            logged_urls.add(url)
-                        else:
-                            existing_date = matched_existing_url[-8:]
-                            if existing_date != date and url not in logged_urls:
-                                context.log.warning(
-                                    f"Date changed for URL: {matched_existing_url}. New date: {date}"
-                                )
-                                logged_urls.add(url)
-                                date_changed = True
+                    if matched_existing_url is None and url not in logged_urls:
+                        context.log.warning(f"New URL found: {url}")
+                        new_url_found = True
+                        logged_urls.add(url)
+                    else:
+                        existing_date = matched_existing_url[-8:]
+                        if (
+                            existing_date != date
+                            and matched_existing_url not in logged_date_changes
+                        ):
+                            context.log.warning(
+                                f"Date changed for URL: {matched_existing_url}. New date: {date}"
+                            )
+                            logged_date_changes.add(matched_existing_url)
 
         # Log a confirmation message if no discrepancies were found
         if not new_url_found and not date_changed:
