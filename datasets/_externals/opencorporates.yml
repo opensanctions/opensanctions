@@ -35,6 +35,7 @@ publisher:
 ci_test: false
 
 inputs:
+  - ir_uani_business_registry
   - sanctions
   # - ext_cy_companies
   # - ext_cz_business_register
