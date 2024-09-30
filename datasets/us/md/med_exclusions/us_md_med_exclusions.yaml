@@ -1,0 +1,39 @@
+title: US Maryland Sanctioned Providers
+entry_point: crawler.py
+prefix: us-medmd
+coverage:
+  frequency: daily
+  start: "2024-09-30"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers deemed ineligible to participate in Maryland's Medicaid program.
+description: |
+  Maryland Medicaid suspends or excludes some providers from working with the Medicaid
+  program. Providers listed are not allowed to receive reimbursement for Medicaid
+  services in any capacity.
+publisher:
+  name: Maryland Department of Health
+  description: >
+   > The Maryland Department of Health is an agency of the government of Maryland
+   responsible for public health issues.
+  acronym: MDH
+  url: https://health.maryland.gov/Pages/Home.aspx
+  official: true
+  country: "us"
+url: "https://health.maryland.gov/mmcp/provider/Pages/sanctioned_list.aspx"
+data:
+  url: https://health.maryland.gov/mmcp/SiteAssets/pages/Provider-Information/MMA%20Providers%20and%20Other%20Entities%20Sanctioned%20List.pdf
+  format: PDF
+
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 7500
+  max:
+    schema_entities:
+      LegalEntity: 9000
