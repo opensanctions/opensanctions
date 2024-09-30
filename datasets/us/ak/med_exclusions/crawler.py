@@ -26,9 +26,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.id = context.make_id(
             row.get("last_name"), first_name, row.get("exclusion_date")
         )
-        h.apply_name(
-            entity, first_name=first_name, last_name=row.pop("last_name")
-        )
+        h.apply_name(entity, first_name=first_name, last_name=row.pop("last_name"))
     else:
         entity = context.make("Company")
         entity.id = context.make_id(row.get("last_name"))
