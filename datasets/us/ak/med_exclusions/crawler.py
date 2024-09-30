@@ -8,6 +8,8 @@ from zavod.shed.gpt import run_image_prompt
 prompt = """
 Extract structured data from the following page of a PDF document. Return 
 a JSON list (`providers`) in which each object represents an medical provider.
+Distinct record rows alternate between grey and white backgrounds. The name
+of a provider might be split onto the next row within a record.
 Each object should have the following fields: `exclusion_date`, `last_name`,
 `first_name`, `provider_type`, `exclusion_authority`, `exclusion_reason`.
 Return an empty string for unset fields.
@@ -25,12 +27,16 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.add("name", row.pop("last_name"))
     else:
         entity = context.make("Person")
-        entity.id = context.make_id(row.get("last_name"), row.get("first_name"))
+        entity.id = context.make_id(
+            row.get("last_name"), row.get("first_name"), row.get("exclusion_date")
+        )
         h.apply_name(
             entity, first_name=row.pop("first_name"), last_name=row.pop("last_name")
         )
 
     entity.add("sector", row.pop("provider_type"))
+    entity.add("topics", "debarment")
+    entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", row.pop("exclusion_reason"))
