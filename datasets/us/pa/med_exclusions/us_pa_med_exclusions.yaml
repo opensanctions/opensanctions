@@ -8,7 +8,7 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Medical providers who are precluded from participation in the Medical Assistance Program
 description: |
-  The Medicheck List dataset contains information about providers, individuals, and entities
+  The Medicheck List dataset contains information about providers
   who are excluded from participating in the Medical Assistance (MA) Program. Healthcare
   providers are required by law to screen all employees, contractors, and entities against
   this list at the time of hire or contracting and perform monthly checks thereafter.
