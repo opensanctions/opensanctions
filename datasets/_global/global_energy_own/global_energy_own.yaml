@@ -39,3 +39,10 @@ assertions:
   max: 
     schema_entities:
       Company: 17000
+
+lookups:
+  type.url:
+    lowercase: true
+    options:
+      - match: nan,nan
+        value: null

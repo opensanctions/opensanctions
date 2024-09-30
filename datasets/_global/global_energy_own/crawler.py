@@ -57,7 +57,7 @@ IGNORE = [
 def crawl_company(context: Context, row: Dict[str, str]):
     id = row.pop("entity_id")
     name = row.pop("entity_name")
-    if name == "unknown":
+    if name == "unknown" or name is None:
         return
     original_name = row.pop("name_local", "")
     reg_country = row.pop("registration_country", "")
@@ -87,7 +87,7 @@ def crawl_company(context: Context, row: Dict[str, str]):
     entity.add("name", original_name)
     entity.add("alias", row.pop("name_other", ""))
     entity.add("weakAlias", row.pop("abbreviation", ""))
-    entity.add("idNumber", legal_entity_id)
+    entity.add("leiCode", legal_entity_id)
     entity.add("description", entity_type)
     entity.add("country", reg_country)
     entity.add("website", row.pop("home_page", ""))
@@ -112,18 +112,23 @@ def crawl_company(context: Context, row: Dict[str, str]):
 
 
 def crawl_rel(context: Context, row: Dict[str, str]):
-    index = row.pop("index")
+    # index = row.pop("index")
     subject_entity_id = row.pop("subject_entity_id")
     interested_party_id = row.pop("interested_party_id")
+    if interested_party_id == "E100001015587":
+        print("E100001015587")
+        return
 
     ownership = context.make("Ownership")
-    ownership.id = context.make_id(subject_entity_id, interested_party_id, index)
+    ownership.id = context.make_id(subject_entity_id, interested_party_id)
     ownership.add("asset", context.make_slug(subject_entity_id))
     ownership.add("owner", context.make_slug(interested_party_id))
     ownership.add("percentage", row.pop("share_of_ownership"))
     ownership.add("sourceUrl", row.pop("data_source_url"))
 
-    context.audit_data(row, ignore=["subject_entity_name", "interested_party_name"])
+    context.audit_data(
+        row, ignore=["subject_entity_name", "interested_party_name", "index"]
+    )
     context.emit(ownership)
 
 
