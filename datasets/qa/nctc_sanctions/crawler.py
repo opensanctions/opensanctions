@@ -11,28 +11,39 @@ FORMATS = ["%Y-%m-%d", "%Y-%m-%d-%H", "%d/%m/%Y", "X_%Y_X_X", "%d-%m-%Y", "%Y"]
 ALIAS_SPLITS = [";", "original script", "(", ")", "previously listed as"]
 
 
-def parse_dates(text: str) -> List[str]:
+def parse_dates(context: Context, text: str) -> List[str]:
     if not len(text):
         return []
     dates = set()
     type_, text = text.split("_", 1)
     if text == "X_X_X_X":
         return []
-    for part in h.multi_split(text, [":", ";", "؛", " to "]):
+    for part in h.multi_split(
+        text,
+        [":", ";", "؛", " to ", "حوالي", "_", "والي"],
+    ):
         part = part.replace("___", " ")
         part = part.replace("_X_X_X", " ")
         part = part.strip()
         if part == "00":
             continue
-        parsed = parse_formats(part, FORMATS)
-        if parsed.text is not None:
-            dates.add(parsed.text)
-        else:
-            dates.update(h.extract_years(part))
-    # if not len(dates):
-    #     print(text)
-    # return [text]
+            # Extract dates using the `extract_date` function.
+        parsed_dates = h.extract_date(context.dataset, part)
+
+        # Add all the extracted dates to the set
+        dates.update(parsed_dates)
+    #     parsed = parse_formats(part, FORMATS)
+    #     if parsed.text is not None:
+    #         dates.add(parsed.text)
+    #     else:
+    #         dates.update(h.extract_years(part))
+    # # if not len(dates):
+    # #     print(text)
+    # # return [text]
     return dates
+
+
+# h.extract_date
 
 
 def crawl(context: Context):
@@ -63,7 +74,7 @@ def crawl(context: Context):
         fourth_name_ar = item.pop("fourthNameAR")
         fourth_name_en = item.pop("fourthNameEN")
         dob_format = item.pop("dobFormat")
-        dobs = parse_dates(dob_format)
+        dobs = parse_dates(context, dob_format)
         if entity.schema.is_a("Person"):
             entity.add("passportNumber", item.pop("passportNo"))
             entity.add("idNumber", item.pop("qid"))
