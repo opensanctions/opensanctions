@@ -51,7 +51,6 @@ IGNORE = [
     "gspt_mothballed_ttpa",
     "gspt_cancelled_ttpa",
     "total",
-    "refinitiv_permid",  # TEMPORARY
 ]
 
 
@@ -60,10 +59,9 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     name = row.pop("entity_name")
     # Skip entities
     if (
-        name == "unknown"
-        or name is None
-        or id == "E100001015587"
-        or id == "E100000132388"
+        name is None
+        or id == "E100001015587"  # small shareholders
+        or id == "E100000132388"  # unknown
     ):
         skipped.add(id)
         return
@@ -80,14 +78,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         schema = "Person"
     else:
         schema = "Company"  # 3 universities end up being companies
-    # full list of entity types:
 
-    # legal entity
-    # arrangement; very few, mostly look like companies
-    # state body
-    # state
-    # unknown entity
-    # person
     entity = context.make(schema)
     entity.id = context.make_slug(id)
 
@@ -100,7 +91,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     entity.add("country", reg_country)
     entity.add("website", row.pop("home_page", ""))
     if schema != "PublicBody" and schema != "Person":
-        # entity.add("permId", row.pop("refinitiv_permid", ""))
+        entity.add("permId", row.pop("refinitiv_permid", ""))
         entity.add("cikCode", row.pop("sec_central_index_key", ""))
     address = h.make_address(
         context,
@@ -120,14 +111,16 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
 def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     subject_entity_id = row.pop("subject_entity_id")
     interested_party_id = row.pop("interested_party_id")
+    interested_party_name = row.pop("interested_party_name")
 
     # Skip the relationship if either ID is in the skipped set
     if subject_entity_id in skipped or interested_party_id in skipped:
-        # context.log.warning(
-        #     f"Skipping relationship due to invalid or missing entity ID: "
-        #     f"subject_entity_id={subject_entity_id}, interested_party_id={interested_party_id}"
-        # )
         return
+
+    entity = context.make("LegalEntity")
+    entity.id = context.make_slug(interested_party_id)
+    entity.add("name", interested_party_name)
+    context.emit(entity)
 
     ownership = context.make("Ownership")
     ownership.id = context.make_id(subject_entity_id, interested_party_id)
@@ -139,8 +132,7 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     context.audit_data(
         row, ignore=["subject_entity_name", "interested_party_name", "index"]
     )
-    if subject_entity_id not in skipped and interested_party_id not in skipped:
-        context.emit(ownership)
+    context.emit(ownership)
 
 
 def crawl(context: Context):
