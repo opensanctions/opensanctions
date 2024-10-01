@@ -67,7 +67,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         return
     original_name = row.pop("name_local", "")
     reg_country = row.pop("registration_country", "")
-    legal_entity_id = row.pop("legal_entity_identifier", "")
+    lei_code = row.pop("legal_entity_identifier", "")
     entity_type = row.pop("entity_type", "")
 
     if entity_type == "legal entity":
@@ -86,8 +86,10 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     entity.add("name", original_name)
     entity.add("alias", row.pop("name_other", ""))
     entity.add("weakAlias", row.pop("abbreviation", ""))
-    entity.add("leiCode", legal_entity_id)
-    entity.add("description", entity_type)
+    if lei_code != "unknown":
+        entity.add("leiCode", lei_code)
+    if entity_type != "unknown entity":
+        entity.add("description", entity_type)
     entity.add("country", reg_country)
     entity.add("website", row.pop("home_page", ""))
     if schema != "PublicBody" and schema != "Person":
