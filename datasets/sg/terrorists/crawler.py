@@ -22,7 +22,9 @@ def crawl(context: Context):
             continue
         for item in node.findall(".//tr"):
             number = item.find(".//td[@class='sProvP1No']").text_content()
-            text = item.findtext(".//td[@class='sProvP1']")
+            text = item.find(".//td[@class='sProvP1']").text_content()
+            if text.startswith("[Deleted"):
+                continue
             text = text.strip().rstrip(";").rstrip(".")
             if "(" in text:
                 name, _ = text.split("(", 1)
