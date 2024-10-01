@@ -18,15 +18,17 @@ def parse_dates(context: Context, text: str) -> List[str]:
         return []
     for part in h.multi_split(
         text,
-        [":", ";", "؛", " to ", "_"],  # "حوالي", "_"],  # "والي"],
+        [":", ";", "؛", " to ", "حوالي", "_", "والي"],
     ):
         part = part.replace("___", " ")
         part = part.replace("_X_X_X", " ")
+        part = part.replace("X_X_", " ")
         part = part.strip()
         if part == "00":
             continue
         parsed_dates = h.extract_date(context.dataset, part)
-        dates.update(parsed_dates)
+        if parsed_dates:
+            dates.update(parsed_dates)
     return dates
 
 
@@ -63,7 +65,8 @@ def crawl(context: Context):
             entity.add("passportNumber", item.pop("passportNo"))
             entity.add("idNumber", item.pop("qid"))
             entity.add("nationality", item.pop("nationality"))
-            entity.add("birthDate", dobs, original_value=dob_format)
+            h.apply_dates(entity, "birthDate", dobs)
+            # entity.add("birthDate", dobs, original_value=dob_format)
             entity.add("firstName", first_name_ar, lang="ara")
             entity.add("firstName", first_name_en, lang="eng")
             entity.add("secondName", second_name_ar, lang="ara")
