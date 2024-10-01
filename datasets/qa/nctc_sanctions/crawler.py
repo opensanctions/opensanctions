@@ -27,19 +27,8 @@ def parse_dates(context: Context, text: str) -> List[str]:
         part = part.strip()
         if part == "00":
             continue
-            # Extract dates using the `extract_date` function.
         parsed_dates = h.extract_date(context.dataset, part)
-
-        # Add all the extracted dates to the set
         dates.update(parsed_dates)
-    #     parsed = parse_formats(part, FORMATS)
-    #     if parsed.text is not None:
-    #         dates.add(parsed.text)
-    #     else:
-    #         dates.update(h.extract_years(part))
-    # # if not len(dates):
-    # #     print(text)
-    # # return [text]
     return dates
 
 
