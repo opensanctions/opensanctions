@@ -39,8 +39,8 @@ def crawl_registrant(context: Context, item: Dict[str, Any]) -> None:
         postal_code=item.pop("Zip", None),
         state=item.pop("State", None),
     )
-    termination_date = h.parse_date(
-        item.pop("Termination_Date", None), context.dataset.dates.formats
+    termination_date = h.extract_date(
+        context.dataset, item.pop("Termination_Date", None)
     )
     registration_number = item.pop("Registration_Number")
 
