@@ -1,5 +1,5 @@
 import openpyxl
-from typing import Dict
+from typing import Dict, Set
 from pantomime.types import XLSX
 
 from zavod import Context
@@ -51,13 +51,21 @@ IGNORE = [
     "gspt_mothballed_ttpa",
     "gspt_cancelled_ttpa",
     "total",
+    "refinitiv_permid",  # TEMPORARY
 ]
 
 
-def crawl_company(context: Context, row: Dict[str, str]):
+def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     id = row.pop("entity_id")
     name = row.pop("entity_name")
-    if name == "unknown" or name is None:
+    # Skip entities
+    if (
+        name == "unknown"
+        or name is None
+        or id == "E100001015587"
+        or id == "E100000132388"
+    ):
+        skipped.add(id)
         return
     original_name = row.pop("name_local", "")
     reg_country = row.pop("registration_country", "")
@@ -92,9 +100,7 @@ def crawl_company(context: Context, row: Dict[str, str]):
     entity.add("country", reg_country)
     entity.add("website", row.pop("home_page", ""))
     if schema != "PublicBody" and schema != "Person":
-        entity.add(
-            "permId", row.pop("refinitiv_permid", "")
-        )  # some public bodies have permids ([warning  ] Unexpected data found   [global_energy_own] data={'refinitiv_permid': '5000049834'} dataset=global_energy_own)
+        # entity.add("permId", row.pop("refinitiv_permid", ""))
         entity.add("cikCode", row.pop("sec_central_index_key", ""))
     address = h.make_address(
         context,
@@ -111,9 +117,17 @@ def crawl_company(context: Context, row: Dict[str, str]):
     )
 
 
-def crawl_rel(context: Context, row: Dict[str, str]):
+def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     subject_entity_id = row.pop("subject_entity_id")
     interested_party_id = row.pop("interested_party_id")
+
+    # Skip the relationship if either ID is in the skipped set
+    if subject_entity_id in skipped or interested_party_id in skipped:
+        # context.log.warning(
+        #     f"Skipping relationship due to invalid or missing entity ID: "
+        #     f"subject_entity_id={subject_entity_id}, interested_party_id={interested_party_id}"
+        # )
+        return
 
     ownership = context.make("Ownership")
     ownership.id = context.make_id(subject_entity_id, interested_party_id)
@@ -125,7 +139,8 @@ def crawl_rel(context: Context, row: Dict[str, str]):
     context.audit_data(
         row, ignore=["subject_entity_name", "interested_party_name", "index"]
     )
-    context.emit(ownership)
+    if subject_entity_id not in skipped and interested_party_id not in skipped:
+        context.emit(ownership)
 
 
 def crawl(context: Context):
@@ -133,10 +148,11 @@ def crawl(context: Context):
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
+    skipped: Set[str] = set()
 
     for row in h.parse_xlsx_sheet(context, sheet=workbook["Immediate Owner Entities"]):
-        crawl_company(context, row)
+        crawl_company(context, row, skipped)
     for row in h.parse_xlsx_sheet(context, sheet=workbook["Parent Entities"]):
-        crawl_company(context, row)
+        crawl_company(context, row, skipped)
     for row in h.parse_xlsx_sheet(context, sheet=workbook["Entity Relationships"]):
-        crawl_rel(context, row)
+        crawl_rel(context, row, skipped)
