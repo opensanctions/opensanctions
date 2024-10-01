@@ -30,9 +30,6 @@ def parse_dates(context: Context, text: str) -> List[str]:
     return dates
 
 
-# h.extract_date
-
-
 def crawl(context: Context):
     path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
