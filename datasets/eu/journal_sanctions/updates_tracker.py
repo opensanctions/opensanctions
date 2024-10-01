@@ -1,7 +1,6 @@
 import re
 
 from zavod import Context
-from zavod import helpers as h
 
 REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
 
@@ -19,7 +18,7 @@ OJ_REGEX = re.compile(
 # https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.LI.2018.199.01.0007.01.ENG&toc=OJ:L:2018:199I:TOC
 
 
-OJ_URLS = [
+OJ_URLS = [  # EU Council Implementing Regulation (Oficcial Journal updates), amendments not yet included in the consolidated basic legal act
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202402113",
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202401968",
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202402075",
@@ -33,9 +32,10 @@ OJ_URLS = [
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202402055",
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202402056",
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202402207",
+    "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202402208",
 ]
 
-CELEX_URLS = [
+CELEX_URLS = [  # EC Council Decision or Regulation (consolidated text)
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02011D0486-20220205",
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02011R0753-20220413",
     "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02006R0765-20240701",
@@ -130,6 +130,57 @@ CELEX_URLS = [
 ]
 
 
+# def crawl(context: Context):
+#     regime = context.fetch_json(REGIME_URL, cache_days=1)
+#     for item in regime["data"]:
+#         regime_url = f"{REGIME_URL}/{item['id']}"
+#         regime_data = context.fetch_json(regime_url, cache_days=1)["data"]
+#         legal_acts = regime_data.pop("legal_acts", None)
+
+#         existing_urls = set(CELEX_URLS)
+#         new_url_found = False
+#         date_changed = False
+#         logged_urls = set()  # Track URLs that have already been logged
+#         logged_date_changes = set()  # Track URLs with logged date changes
+
+#         if legal_acts:
+#             for act in legal_acts["data"]:
+#                 url = act.pop("url")
+#                 if url and CELEX_DATE_REGEX.match(url):
+#                     # Extract the last 8 characters (date) from the URL
+#                     date = url[-8:]
+#                     url_without_date = url[:-8]
+
+#                     # Find a matching URL by ignoring the last 8 characters (date)
+#                     matched_existing_url = next(
+#                         (
+#                             _url
+#                             for _url in existing_urls
+#                             if _url[:-8] == url_without_date
+#                         ),
+#                         None,
+#                     )
+
+#                     if matched_existing_url is None and url not in logged_urls:
+#                         context.log.warning(f"New URL found: {url}")
+#                         new_url_found = True
+#                         logged_urls.add(url)
+#                     else:
+#                         existing_date = matched_existing_url[-8:]
+#                         if (
+#                             existing_date != date
+#                             and matched_existing_url not in logged_date_changes
+#                         ):
+#                             context.log.warning(
+#                                 f"Date changed for URL: {matched_existing_url}. New date: {date}"
+#                             )
+#                             logged_date_changes.add(matched_existing_url)
+
+#         # Log a confirmation message if no discrepancies were found
+#         if not new_url_found and not date_changed:
+#             context.log.info("URL is the same and dates match.")
+
+
 def crawl(context: Context):
     regime = context.fetch_json(REGIME_URL, cache_days=1)
     for item in regime["data"]:
@@ -137,45 +188,16 @@ def crawl(context: Context):
         regime_data = context.fetch_json(regime_url, cache_days=1)["data"]
         legal_acts = regime_data.pop("legal_acts", None)
 
-        existing_urls = set(CELEX_URLS)
-        new_url_found = False
-        date_changed = False
         logged_urls = set()  # Track URLs that have already been logged
-        logged_date_changes = set()  # Track URLs with logged date changes
+        oj_url_set = set(OJ_URLS)
 
-        if legal_acts:
-            for act in legal_acts["data"]:
-                url = act.pop("url")
-                if url and CELEX_DATE_REGEX.match(url):
-                    # Extract the last 8 characters (date) from the URL
-                    date = url[-8:]
-                    url_without_date = url[:-8]
+        for act in legal_acts["data"]:
+            url = act.pop("url")
+            if url and OJ_REGEX.match(url):
+                if url and url not in oj_url_set and url not in logged_urls:
+                    context.log.warning(f"New URL found: {url}")
+                    logged_urls.add(url)
 
-                    # Find a matching URL by ignoring the last 8 characters (date)
-                    matched_existing_url = next(
-                        (
-                            _url
-                            for _url in existing_urls
-                            if _url[:-8] == url_without_date
-                        ),
-                        None,
-                    )
-
-                    if matched_existing_url is None and url not in logged_urls:
-                        context.log.warning(f"New URL found: {url}")
-                        new_url_found = True
-                        logged_urls.add(url)
-                    else:
-                        existing_date = matched_existing_url[-8:]
-                        if (
-                            existing_date != date
-                            and matched_existing_url not in logged_date_changes
-                        ):
-                            context.log.warning(
-                                f"Date changed for URL: {matched_existing_url}. New date: {date}"
-                            )
-                            logged_date_changes.add(matched_existing_url)
-
-        # Log a confirmation message if no discrepancies were found
-        if not new_url_found and not date_changed:
-            context.log.info("URL is the same and dates match.")
+    # Log a confirmation message if all URLs are found in the OJ_URLS
+    if not logged_urls:
+        context.log.info("All URLs are present in the OJ_URLS list.")
