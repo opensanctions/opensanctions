@@ -26,8 +26,7 @@ def crawl(context: Context):
             if text.startswith("[Deleted"):
                 continue
             text = text.strip().rstrip(";").rstrip(".")
-            if "(" in text:
-                name, _ = text.split("(", 1)
+            name, _ = text.split("(", 1)
             names = h.multi_split(name, ["s/o", "@"])
 
             entity = context.make("Person")
