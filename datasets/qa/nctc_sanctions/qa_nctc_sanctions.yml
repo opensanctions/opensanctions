@@ -60,4 +60,5 @@ lookups:
         value: 2015-04-07T04:00
       - match: X
         value: null
-      - match: "والي 1962"
+      # - match: "والي 1962"
+      #   value: 1962

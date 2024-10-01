@@ -18,7 +18,7 @@ def parse_dates(context: Context, text: str) -> List[str]:
         return []
     for part in h.multi_split(
         text,
-        [":", ";", "؛", " to ", "حوالي", "_", "والي"],
+        [":", ";", "؛", " to ", "_"],  # "حوالي", "_"],  # "والي"],
     ):
         part = part.replace("___", " ")
         part = part.replace("_X_X_X", " ")
