@@ -30,7 +30,7 @@ publisher:
   country: us
   official: true
 data:
-  url: "https://www.cia.gov/the-world-factbook/page-data/sq/d/1627106492.json"
+  url: "https://www.cia.gov/the-world-factbook/page-data/countries/page-data.json"
   format: JSON
   lang: eng
 

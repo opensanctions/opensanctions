@@ -64,6 +64,7 @@ inputs:
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
+  - ir_uani_business_registry
   - opencorporates
   - sanctions
 

@@ -52,7 +52,9 @@ lookups:
         value: la
       - match: "Indonesia Indonesia"
         value: id
-      - match: "China China"
+      - match: 
+          - "China China"
+          - Peoples Republic of China
         value: cn
   type.date:
     normalize: true
@@ -118,7 +120,7 @@ assertions:
   min:
     schema_entities:
       Company: 225
-      LegalEntity: 1150
+      LegalEntity: 1250
     country_entities:
       cn: 750
       ru: 7
@@ -126,4 +128,4 @@ assertions:
   max:
     schema_entities:
       Company: 250
-      LegalEntity: 1190
+      LegalEntity: 1700

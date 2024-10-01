@@ -34,5 +34,5 @@ publisher:
   url: https://en.terorarananlar.pol.tr/
 
 data:
-  url: https://www.terorarananlar.pol.tr/ISAYWebPart/TArananlar/GetTerorleArananlarList
+  url: https://terorarananlar.pol.tr/ISAYWebPart/TArananlar/GetTerorleArananlarList
   format: JSON

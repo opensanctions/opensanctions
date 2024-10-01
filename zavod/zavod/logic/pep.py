@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional, List
 from datetime import datetime, timedelta
-from functools import cache
+from functools import cache, lru_cache
 
 from zavod.context import Context
 from zavod import settings
@@ -12,6 +12,7 @@ NOTIFIED_SYNC_POSITIONS = False
 YEAR = 365  # days
 DEFAULT_AFTER_OFFICE = 5 * YEAR
 EXTENDED_AFTER_OFFICE = 20 * YEAR
+NO_EXPIRATION = 50 * YEAR
 AFTER_DEATH = 5 * YEAR
 MAX_AGE = 110 * YEAR
 MAX_OFFICE = 40 * YEAR
@@ -23,11 +24,13 @@ class OccupancyStatus(Enum):
     UNKNOWN = "unknown"
 
 
-class PositionCategorisation:
+class PositionCategorisation(object):
     is_pep: Optional[bool]
     """Whether the position denotes a politically exposed person or not"""
     topics: List[str]
-    """The [role and scope](https://www.opensanctions.org/docs/topics/#politically-exposed-persons) of the position, as a list of topics"""
+    """The topics linked to the position, as a list"""
+
+    __slots__ = ["topics", "is_pep"]
 
     def __init__(self, topics: List[str], is_pep: Optional[bool]):
         self.topics = topics
@@ -54,7 +57,7 @@ def get_categorisation(
         return None
 
 
-@cache
+@lru_cache(maxsize=5000)
 def categorise(
     context: Context,
     position: Entity,
@@ -129,6 +132,8 @@ def backdate(date: datetime, days: int) -> str:
 
 def get_after_office(topics: List[str]) -> int:
     if "gov.national" in topics:
+        if "gov.head" in topics:
+            return NO_EXPIRATION
         return EXTENDED_AFTER_OFFICE
     if "gov.igo" in topics:
         return EXTENDED_AFTER_OFFICE

@@ -1,4 +1,5 @@
 from typing import Optional
+from urllib.parse import urljoin
 from normality import slugify, collapse_spaces
 import re
 from lxml import html
@@ -230,8 +231,16 @@ def crawl_country(context: Context, country: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    data = context.fetch_json(context.data_url, cache_days=1)
-    countries = data["data"]["countries"]["nodes"]
+    page_data = context.fetch_json(context.data_url, cache_days=1)
+    countries = None
+    for hash in page_data["staticQueryHashes"]:
+        url = urljoin(
+            context.data_url, f"/the-world-factbook/page-data/sq/d/{hash}.json"
+        )
+        data = context.fetch_json(url, cache_days=1)["data"]
+        if "countries" in data:
+            countries = data["countries"]["nodes"]
+            break
     for c in countries:
         redirect = c["redirect"]
         name = c["name"] if redirect is None else redirect["name"]

@@ -4,7 +4,7 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 coverage:
   frequency: daily
-  start: 2024-08-26
+  start: 2024-09-13
 summary: >
   Current leaders of the United States Navy, including biographies and organizational roles 
   within the Navy's command structure.

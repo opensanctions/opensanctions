@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 from typing import Callable, Optional
 from lxml.etree import _Element, tostring
+from lxml.html import HtmlElement
 from followthemoney.schema import Schema
 
 from typing import Dict, List, Any, MutableMapping
@@ -166,20 +167,29 @@ def format_json(_: Any, __: str, ed: Event) -> Event:
     return ed
 
 
+def stringify(value: Any) -> Any:
+    """Stringify the types that aren't already JSON serializable."""
+
+    if isinstance(value, (_Element, HtmlElement)):
+        return tostring(value, pretty_print=False, encoding=str).strip()
+    if isinstance(value, Path):
+        try:
+            value = value.relative_to(settings.DATA_PATH)
+        except ValueError:
+            pass
+        return str(value)
+    if isinstance(value, Schema):
+        return value.name
+    if isinstance(value, list):
+        return [stringify(v) for v in value]
+    if isinstance(value, dict):
+        for key, value_ in value.items():
+            value[key] = stringify(value_)
+    return value
+
+
 def log_issue(_: Any, __: str, ed: Event) -> Event:
-    data: Dict[str, Any] = dict(ed)
-    for key, value in data.items():
-        if isinstance(value, _Element):
-            value = tostring(value, pretty_print=False, encoding=str)
-        if isinstance(value, Path):
-            try:
-                value = value.relative_to(settings.DATA_PATH)
-            except ValueError:
-                pass
-            value = str(value)
-        if isinstance(value, Schema):
-            value = value.name
-        data[key] = value
+    data: Dict[str, Any] = stringify(dict(ed))
 
     context = data.pop("context", None)
     level: Optional[str] = data.get("level")
