@@ -1,5 +1,5 @@
 import openpyxl
-from typing import Dict, Set
+from typing import Dict
 from pantomime.types import XLSX
 
 from zavod import Context
@@ -54,7 +54,7 @@ IGNORE = [
 ]
 
 
-def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
+def crawl_company(context: Context, row: Dict[str, str]):
     id = row.pop("entity_id")
     name = row.pop("entity_name")
     # Skip entities
@@ -63,7 +63,6 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         or id == "E100001015587"  # small shareholders
         or id == "E100000132388"  # unknown
     ):
-        skipped.add(id)
         return
     original_name = row.pop("name_local", "")
     reg_country = row.pop("registration_country", "")
@@ -108,14 +107,10 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     )
 
 
-def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
+def crawl_rel(context: Context, row: Dict[str, str]):
     subject_entity_id = row.pop("subject_entity_id")
     interested_party_id = row.pop("interested_party_id")
     interested_party_name = row.pop("interested_party_name")
-
-    # Skip the relationship if either ID is in the skipped set
-    if subject_entity_id in skipped or interested_party_id in skipped:
-        return
 
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(interested_party_id)
@@ -140,11 +135,10 @@ def crawl(context: Context):
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    skipped: Set[str] = set()
 
     for row in h.parse_xlsx_sheet(context, sheet=workbook["Immediate Owner Entities"]):
-        crawl_company(context, row, skipped)
+        crawl_company(context, row)
     for row in h.parse_xlsx_sheet(context, sheet=workbook["Parent Entities"]):
-        crawl_company(context, row, skipped)
+        crawl_company(context, row)
     for row in h.parse_xlsx_sheet(context, sheet=workbook["Entity Relationships"]):
-        crawl_rel(context, row, skipped)
+        crawl_rel(context, row)
