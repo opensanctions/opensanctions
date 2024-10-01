@@ -17,7 +17,6 @@ INCLUDING2_RE = re.compile(r"(.*),?\s*including\s+(.*)", re.IGNORECASE)
 COMMA_AND_RE = re.compile(r",\s+|\s+and\s+", re.IGNORECASE)
 ALIAS_RE = re.compile(r"\s+\(([^)]+)\)")
 JUNK = " ,.;\t\r\n"
-DATE_FORMATS = ["%d.%m.%Y"]
 
 
 def parse_comment(context: Context, text: str) -> List[str]:
@@ -28,7 +27,8 @@ def parse_comment(context: Context, text: str) -> List[str]:
     m = ADDITION_RE.search(text)
     if m is None:
         return []
-    return h.parse_date(m.group(2), DATE_FORMATS)
+    return h.extract_date(context.dataset, m.group(2))
+    # return h.parse_date(m.group(2), DATE_FORMATS)
 
 
 def crawl_group(context: Context, text: str, change_stack: List[str]):
