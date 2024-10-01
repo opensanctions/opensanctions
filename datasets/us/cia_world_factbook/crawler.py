@@ -234,7 +234,9 @@ def crawl(context: Context) -> None:
     page_data = context.fetch_json(context.data_url, cache_days=1)
     countries = None
     for hash in page_data["staticQueryHashes"]:
-        url = urljoin(context.data_url, f"/the-world-factbook/page-data/sq/d/{hash}.json")
+        url = urljoin(
+            context.data_url, f"/the-world-factbook/page-data/sq/d/{hash}.json"
+        )
         data = context.fetch_json(url, cache_days=1)["data"]
         if "countries" in data:
             countries = data["countries"]["nodes"]
