@@ -72,9 +72,7 @@ def make_affiliation_entities(
         no_end_implies_current=True,
         categorisation=categorisation,
         propagate_country=True,
-        # start_date=h.parse_date(start_date, DATE_FORMATS).pop(),
         start_date=h.extract_date(context.dataset, start_date).pop(),
-        # end_date=h.parse_date(end_date, DATE_FORMATS).pop(),
         end_date=h.extract_date(context.dataset, end_date).pop(),
     )
     entities = []
