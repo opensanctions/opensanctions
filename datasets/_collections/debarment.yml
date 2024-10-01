@@ -33,11 +33,14 @@ children:
   - us_ia_med_exclusions
   - us_ks_med_exclusions
   - us_ma_med_exclusions
+  - us_mi_med_exclusions
   - us_ms_med_exclusions
+  - us_mt_med_exclusions
   - us_nc_med_exclusions
   - us_nd_med_exclusions
   - us_nh_med_exclusions
   - us_ny_med_exclusions
+  - us_or_med_exclusions
   - us_sam_exclusions
   - us_special_leg
   - worldbank_debarred

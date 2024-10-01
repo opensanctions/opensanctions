@@ -1,16 +1,7 @@
 import csv
-from typing import Optional, List
 
 from zavod import Context
 from zavod import helpers as h
-
-FORMAT = ["%d.%m.%y"]
-
-
-def parse_date(date: Optional[str]) -> Optional[List[str]]:
-    if date is None:
-        return None
-    return h.parse_date(date, FORMAT)
 
 
 def crawl(context: Context) -> None:
@@ -34,8 +25,8 @@ def crawl(context: Context) -> None:
             sanction = h.make_sanction(context, entity)
             sanction.set("authority", row.pop("Body", None))
             sanction.add("program", row.pop("List", None))
-            sanction.add("startDate", parse_date(row.pop("Date", None)))
-            sanction.add("endDate", parse_date(row.pop("End date", None)))
+            h.apply_date(sanction, "startDate", row.pop("Date", None))
+            h.apply_date(sanction, "endDate", row.pop("End date", None))
             sanction.add("sourceUrl", row.pop("Source URL", None))
             context.emit(sanction)
             context.emit(entity, target=True)

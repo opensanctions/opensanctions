@@ -4,6 +4,9 @@ prefix: wd
 coverage:
   frequency: daily
   start: 2024-09-10
+  schedule: "0 */6 * * *"
+deploy:
+  memory: "4Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 exports:
@@ -33,23 +36,43 @@ data:
   url: https://petscan.wmcloud.org/
   format: CSV
 
+lookups:
+  type.country:
+    options:
+      - match:
+          - member states of the United Nations
+          - member of the United Nations Security Council
+        value: zz
+      - match: Pakistan Occupied Kashmir
+        value: pk
+      - match:
+          - Galicia
+          - Ceuta
+        value: es
+  type.date:
+    options:
+      - match: "1935-06-31"
+        value: 1935-06
+      - match: "1935-06-31"
+        value: 1935-06
+      - match: "2019-11-31"
+        value: 2019-11
+      - match: "2012-02-30"
+        value: 2012-02
+
 config:
   categories:
     # Mega collections:
     - category: Political_office-holders_in_Asia
-      topic: role.pep
       depth: 8
     - category: Political_office-holders_in_Oceania
-      topic: role.pep
       depth: 8
     - category: Political_office-holders_in_North_America
-      topic: role.pep
       depth: 8
     # - category: Political_office-holders_in_Europe
     #   topic: role.pep
     #   depth: 8
     - category: Political_office-holders_in_South_America
-      topic: role.pep
 
     # Middle east:
     - category: Political_office-holders_in_the_United_Arab_Emirates

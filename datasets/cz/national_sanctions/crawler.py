@@ -9,34 +9,6 @@ from rigour.names import pick_name
 
 from zavod import Context, helpers as h
 
-CZECH_MONTH_MAPPING = {
-    "ledna": "January",
-    "února": "February",
-    "března": "March",
-    "dubna": "April",
-    "května": "May",
-    "června": "June",
-    "července": "July",
-    "srpna": "August",
-    "září": "September",
-    "října": "October",
-    "listopadu": "November",
-    "prosince": "December",
-}
-
-
-def translate_date(date: str) -> str:
-    """
-    Translates Czech month names to English month names in a given date string.
-    """
-    for czech_month, eng_month in CZECH_MONTH_MAPPING.items():
-        date = date.replace(czech_month, eng_month)
-    return date
-
-
-def parse_date(string):
-    return h.parse_date(string, formats=["%d. %B %Y"])
-
 
 def crawl_item(row: Dict[str, str], context: Context):
     # Jméno fyzické osoby
@@ -83,8 +55,7 @@ def crawl_item(row: Dict[str, str], context: Context):
             first_name=pick_name(first_names),
             last_name=pick_name(names),
         )
-
-        entity.add("birthDate", parse_date(translate_date(birth_date)))
+        h.apply_date(entity, "birthDate", birth_date)
         entity.add("nationality", countries.split(", "), lang="ces")
 
     # Další identifikační údaje
@@ -93,10 +64,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     entity.add("topics", "sanction")
     sanction = h.make_sanction(context, entity)
-    sanction.add(
-        "startDate",
-        parse_date(translate_date(row.pop("datum_zapisu"))),
-    )
+    h.apply_date(sanction, "startDate", row.pop("datum_zapisu"))
 
     # Popis postižitelného jednání -> Description of punishable conduct
     sanction.add("reason", row.pop("popis_postizitelneho_jednani"), lang="ces")

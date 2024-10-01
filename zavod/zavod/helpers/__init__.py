@@ -43,7 +43,7 @@ from zavod.helpers.sanctions import make_sanction
 from zavod.helpers.addresses import make_address, format_address
 from zavod.helpers.addresses import copy_address, apply_address, postcode_pobox
 from zavod.helpers.dates import extract_years, parse_date, check_no_year
-from zavod.helpers.dates import parse_formats, apply_date, apply_dates
+from zavod.helpers.dates import parse_formats, apply_date, apply_dates, extract_date
 from zavod.helpers.dates import replace_months
 from zavod.helpers.identification import make_identification
 from zavod.helpers.securities import make_security
@@ -72,6 +72,7 @@ __all__ = [
     "check_no_year",
     "apply_date",
     "apply_dates",
+    "extract_date",
     "replace_months",
     "convert_excel_cell",
     "convert_excel_date",

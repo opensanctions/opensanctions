@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-medks
 coverage:
   frequency: daily
-  start: "2024-08-15"
+  start: "2024-09-13"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   This dataset contains a list of providers who have been terminated for cause from Kansas' Medicaid program.
