@@ -24,7 +24,8 @@ def crawl(context: Context):
             number = item.find(".//td[@class='sProvP1No']").text_content()
             text = item.findtext(".//td[@class='sProvP1']")
             text = text.strip().rstrip(";").rstrip(".")
-            name, _ = text.split("(", 1)
+            if "(" in text:
+                name, _ = text.split("(", 1)
             names = h.multi_split(name, ["s/o", "@"])
 
             entity = context.make("Person")
