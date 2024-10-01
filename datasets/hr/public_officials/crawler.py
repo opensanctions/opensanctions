@@ -33,8 +33,6 @@ EXPECTED_COLUMNS = [
     "Datum kraja obnašanja dužnosti",
 ]
 
-# DATE_FORMATS = ["%d/%m/%Y"]
-
 
 def make_position_name(data: dict) -> Optional[str]:
     title = data.pop("dužnost")
