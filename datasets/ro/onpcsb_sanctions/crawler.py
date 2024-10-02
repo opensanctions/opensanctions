@@ -6,6 +6,7 @@ from zavod import Context, helpers as h
 def crawl_row(context: Context, row: Dict[str, str]):
     full_name = row.pop("name")
     other_name = h.multi_split(row.pop("other name"), [",", ";"])
+    birth_date_1 = row.pop("date of birth") or None
     birth_place = row.pop("place of birth")
     nationality = row.pop("nationality")
     passport_number = row.pop("passport no.")
@@ -36,7 +37,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     if entity_type == "Person":
         entity = context.make("Person")
-        entity.id = context.make_id(full_name, birth_place)
+        entity.id = context.make_id(full_name, birth_date_1, birth_place)
         entity.add("name", full_name)
         entity.add("alias", other_name)
         h.apply_date(entity, "birthDate", row.pop("date of birth", None))
