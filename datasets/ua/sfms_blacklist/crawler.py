@@ -8,19 +8,29 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.helpers.xml import ElementOrTree
 
-FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 REGEX_ID_NUMBER = re.compile(r"\w?[\d-]*\d{6,}[\d-]*")
 SPLITS = [";", "i)", "ii)", "iii)", "iv)", "v)", "vi)", "vii)", "viii)", "ix)", "x)"]
 
 
-def parse_date(date: Optional[str]) -> List[str]:
+def parse_date(context: Context, date: Optional[str]) -> List[str]:
     if date is None:
         return []
     date = date.replace(".", "")
+    date = date.replace("Approximately ", "")
+    date = date.replace("approximately ", "")
+    date = date.replace("Between ", "")
+    date = date.replace("Circa ", "")
+    date = date.replace("circa ", "")
     if ";" in date:
         date, _ = date.split(";", 1)
+    if "-" in date:
+        date, _ = date.split("-", 1)
+    if "or" in date:
+        date, _ = date.split("or", 1)
+    if date.startswith("c "):
+        date = date.replace("c ", "")
     date = date.strip()
-    return h.parse_date(date, FORMATS)
+    return h.extract_date(context.dataset, date)
 
 
 def clean_id(entity: Entity, text: Optional[str]) -> Generator[str, None, None]:
@@ -88,7 +98,7 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
         entity.add_cast("Person", "birthPlace", pob.text)
 
     for dob in entry.findall("./date-of-birth-list"):
-        date = parse_date(dob.text)
+        date = parse_date(context, dob.text)
         entity.add_cast("Person", "birthDate", date)
 
     for nat in entry.findall("./nationality-list"):

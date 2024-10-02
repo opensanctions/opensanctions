@@ -37,6 +37,8 @@ data:
   url: https://fiu.gov.ua/assets/userfiles/Terror/BlackListFull.xml
   format: XML
 
+dates: 
+  formats: ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 lookups:
   type.address:
     lowercase: true
@@ -128,3 +130,7 @@ lookups:
         values:
           - 1980-12-19
           - 1980-01-19
+      - match: 19 December 1980,
+        value: "1980-12-19"
+      - match: (30
+        value: null
