@@ -7,7 +7,6 @@ from zavod.entity import Entity
 from zavod.logic.pep import OccupancyStatus, categorise
 from zavod.shed.zyte_api import fetch_json
 
-DATE_FORMATS = ["%B %d, %Y"]
 CACHE_SHORT = 1
 CACHE_LONG = 30
 STATUSES: Dict[int, int] = defaultdict(int)
@@ -149,14 +148,11 @@ def crawl_item(
         person.add("birthPlace", content.pop("PlaceOfBirth"), lang=lang_iso_639_2)
 
     if lang_iso_639_1 == "en":
-
         birth_date = None
         death_date = None
         if content:
-            birth_date = h.parse_date(content.pop("DateOfBirth"), DATE_FORMATS)
-            death_date = h.parse_date(content.pop("DeathDate"), DATE_FORMATS)
-            person.add("birthDate", birth_date)
-            person.add("deathDate", death_date)
+            h.apply_date(person, "birthDate", content.pop("DateOfBirth"))
+            h.apply_date(person, "deathDate", content.pop("DeathDate"))
 
         crawl_positions(context, person, member_id, birth_date, death_date, is_current)
     if lang_iso_639_1 == "he":
