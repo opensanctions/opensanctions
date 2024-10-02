@@ -6,15 +6,28 @@ from rigour.mime.types import HTML
 from zavod import Context
 from zavod import helpers as h
 
+SPLITS = [
+    "si",
+    ";",
+    "sau",
+    "a)",
+    "b)",
+    "c)",
+    "d)",
+    "Aproximativ ",
+    "Intre",
+    "între",
+    "și",
+    "la",
+    "din pasaport fals",
+    "presupusă:",
+]
 
-FORMATS = ["%d.%m.%Y"]
-SPLITS = ["si", ";", "sau", "a)", "b)", "c)"]
 
-
-def parse_birth_dates(string: str) -> List[str]:
+def parse_birth_dates(context: Context, string: str) -> List[str]:
     strings = h.multi_split(string, SPLITS)
     # flatten
-    return [date for s in strings for date in h.parse_date(s, FORMATS)]
+    return [date for s in strings for date in h.extract_date(context.dataset, s)]
 
 
 def clean_name(string: str):
@@ -40,7 +53,7 @@ def crawl(context: Context):
     table = doc.find(".//table")
     for row in h.parse_html_table(table):
         str_row = h.cells_to_str(row)
-        birth_dates = parse_birth_dates(str_row.pop("data_de_nastere"))
+        birth_dates = parse_birth_dates(context, str_row.pop("data_de_nastere"))
         schema = "LegalEntity" if birth_dates == [] else "Person"
         entity = context.make(schema)
         name, aliases = parse_names(str_row.pop("persoana_fizica_entitate"))
