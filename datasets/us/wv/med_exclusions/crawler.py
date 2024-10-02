@@ -73,7 +73,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", crawl_pdf_url(context))
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
-    for page_path in h.make_pdf_page_images(path)[1:]:
+    for page_path in h.make_pdf_page_images(path):
         data = run_image_prompt(context, prompt, page_path)
         assert "providers" in data, data
         for item in data.get("providers", []):
