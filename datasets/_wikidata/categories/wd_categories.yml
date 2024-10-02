@@ -45,7 +45,6 @@ lookups:
         value: zz
       - match: 
           - Pakistan Occupied Kashmir
-          - Kashmir
         value: pk
       - match:
           - Galicia
@@ -54,7 +53,7 @@ lookups:
       - match: Romanov Empire
         value: ru
       - match: Persian Empire
-        value: ir
+        value: null
   type.date:
     options:
       - match: "1935-06-31"
