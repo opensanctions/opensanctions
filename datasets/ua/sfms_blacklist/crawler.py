@@ -1,5 +1,5 @@
 import re
-from typing import Generator, List, Optional
+from typing import Generator, Optional
 from datetime import datetime
 from followthemoney.types.identifier import IdentifierType
 
