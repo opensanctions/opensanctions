@@ -43,8 +43,7 @@ lookups:
           - member states of the United Nations
           - member of the United Nations Security Council
         value: zz
-      - match: 
-          - Pakistan Occupied Kashmir
+      - match: Pakistan Occupied Kashmir
         value: pk
       - match:
           - Galicia
