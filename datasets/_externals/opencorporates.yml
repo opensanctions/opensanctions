@@ -152,7 +152,7 @@ lookups:
           - DOANH NGHIỆP TƯ NHÂN SẢN XUẤT THƯƠNG MẠI DỊCH VỤ TỔNG HỢP AN KHÁNH
           - DOANH NGHIỆP TƯ NHÂN THƯƠNG MẠI AN KHÁNH
       - match: '"BISER" DRUŠTVO SA OGRANIČENOM ODGOVORNOŠĆU BIJELO POLJE (RJ. OS. SUDA U B.P. I.BR.716/11 OD 13.09.2011.GOD. ODREĐENA ZABRANA RASPOLAGANJA, OPTEREĆENJA I OTUĐENJA UDJELOM OSNIVAČA DAMIRA MARTINOVIĆA) (UPISAN U KAZNENU EV. NA OSNOVU PRESUDE OS.SU. B.P. K.BR.44/2013 OD 28.02.2014.G.)'
-        value: "BISER" DRUŠTVO SA OGRANIČENOM ODGOVORNOŠĆU
+        value: '"BISER" DRUŠTVO SA OGRANIČENOM ODGOVORNOŠĆU'
       - match: "Augen-Partner-Gruppe Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang Dr. med. Christoph Mathey Dr. med. Johanna Stuckenbrock Dr. med. Astrid Spang Praxissitz 78166 Donaueschingen, Karlstraße 38: Dr. med. Tilmann Freytag Dr. med. Johannes Kohler Praxissitz 88662 Überlingen, Johann-Kraus-Straße 9: Dr. med. Birgit Langenberger Dr. med. Andreas Kammerzell Praxissitz 72379 Hechingen, Weilheimer Straße 31: Conka Tekeva-Rohrbach Augenärzte Partnerschaftsgesellschaft"
         value: Augen-Partner-Gruppe Standortübergreifende Berufsausübungsgemeinschaft
       - match: 
