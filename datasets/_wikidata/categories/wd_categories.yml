@@ -49,6 +49,10 @@ lookups:
           - Galicia
           - Ceuta
         value: es
+      - match: Romanov Empire
+        value: ru
+      - match: Persian Empire
+        value: null
   type.date:
     options:
       - match: "1935-06-31"
