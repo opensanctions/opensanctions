@@ -3,14 +3,9 @@ from typing import Dict
 from zavod import Context, helpers as h
 
 
-DATE_FORMATS = ["%m/%d/%Y", "%Y"]
-
-
 def crawl_row(context: Context, row: Dict[str, str]):
     full_name = row.pop("name")
     other_name = h.multi_split(row.pop("other name"), [",", ";"])
-    birth_date_1 = h.parse_date(row.pop("date of birth") or None, DATE_FORMATS)
-    birth_date_2 = h.parse_date(row.pop("date of birth 2") or None, DATE_FORMATS)
     birth_place = row.pop("place of birth")
     nationality = row.pop("nationality")
     passport_number = row.pop("passport no.")
@@ -41,12 +36,11 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     if entity_type == "Person":
         entity = context.make("Person")
-        entity.id = context.make_id(full_name, birth_date_1, birth_place)
+        entity.id = context.make_id(full_name, birth_place)
         entity.add("name", full_name)
         entity.add("alias", other_name)
-        entity.add("birthDate", birth_date_1)
-        if birth_date_2:
-            entity.add("birthDate", birth_date_2)
+        h.apply_date(entity, "birthDate", row.pop("date of birth", None))
+        h.apply_date(entity, "birthDate", row.pop("date of birth 2", None))
         entity.add("birthPlace", birth_place)
         # Handle multiple nationalities
         entity.add("nationality", [n.strip() for n in nationality.split("/")])
