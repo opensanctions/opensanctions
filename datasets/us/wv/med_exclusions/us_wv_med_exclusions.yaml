@@ -1,4 +1,4 @@
-title: US West Virginia Medicaid Provider Sanctioned/Exclusion
+title: US West Virginia Medicaid Provider Exclusions and Terminations
 entry_point: crawler.py
 prefix: us-medwv
 coverage:
