@@ -74,5 +74,5 @@ def crawl(context: Context) -> None:
     for page_path in h.make_pdf_page_images(path):
         data = run_image_prompt(context, prompt, page_path)
         assert "providers" in data, data
-        for item in data.get("providers", []):
+        for item in data.get("providers"):
             crawl_item(item, context)
