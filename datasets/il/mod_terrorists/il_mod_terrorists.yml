@@ -37,6 +37,12 @@ data:
   url: https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx
   format: XLSX
 
+dates: 
+  formats: ["%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d", "%d %m %Y", "%m %Y"]
+  months: 
+    "03": מרס
+    "05": "May"
+
 lookups:
   type.country:
     lowercase: true
@@ -115,6 +121,20 @@ lookups:
         value: null
       - match: 16/6/67
         value: "1967-06-16"
+      - match: 23 Apr. 1968
+        value: "1968-04-23"
+      - match: 25 Jun. 1964
+        value: "1964-06-25"
+      - match: 5 Dec. 1969
+        value: "1969-12-05"
+      - match: 1964-1971
+        values: 
+          - 1964
+          - 1971
+      - match: 1965-1969
+        values: 
+          - 1965
+          - 1969
   type.email:
     options:
       - match: admin@europalforum org.uk
