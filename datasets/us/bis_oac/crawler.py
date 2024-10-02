@@ -1,11 +1,9 @@
 from csv import DictReader
-import mimetypes
 from normality import collapse_spaces, stringify
 from openpyxl import load_workbook
-from rigour.mime.types import XLSX, XLS, CSV
+from rigour.mime.types import XLS, CSV
 from typing import Dict
 from urllib.parse import urljoin
-from shutil import move
 from email.message import Message
 
 from zavod import Context
