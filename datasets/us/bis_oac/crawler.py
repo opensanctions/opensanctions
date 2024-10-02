@@ -1,45 +1,27 @@
-import re
-from urllib.parse import urljoin
+from normality import collapse_spaces, stringify
+from openpyxl import load_workbook
+from rigour.mime.types import XLSX
 from typing import Dict
+from urllib.parse import urljoin
+
 from zavod import Context
 from zavod import helpers as h
-from normality import collapse_spaces, stringify
-from rigour.mime.types import XLSX
-from openpyxl import load_workbook
-
-
-DATE_FORMAT = ["%Y-%m-%d"]  # 'YYYY-MM-DD' format
-DATE_CLEAN = re.compile(r"\d{4}-\d{2}-\d{2}")
-
-
-def extract_date(date_str: str) -> str:
-    """Extract date from a string using regex."""
-    match = re.search(DATE_CLEAN, date_str)
-    if match:
-        return match.group(0)
-    return ""
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
     requester = row.pop("REQUESTER", "").strip()
     requesting_country = row.pop("REQUESTING COUNTRY", "").strip()
-    # Extract and parse the date part only
-    raw_date = row.pop("DATE LISTED", "").strip()
-    date_part = extract_date(raw_date)
-    date_listed = h.parse_date(date_part, DATE_FORMAT)[0]
-    if not requester or not requesting_country or not date_listed:
-        context.log.warning(
-            "Missing requester, requesting country, or date listed", row=row
-        )
+    if not requester or not requesting_country:
+        context.log.warning("Missing requester, requesting country", row=row)
         return
 
     entity = context.make("Company")
-    entity.id = context.make_id(requester, requesting_country, date_listed)
+    entity.id = context.make_id(requester, requesting_country)
     entity.add("name", requester)
     entity.add("country", requesting_country)
     entity.add("topics", "export.risk")
     sanction = h.make_sanction(context, entity)
-    sanction.add("listingDate", date_listed)
+    h.apply_date(sanction, "listingDate", row.pop("DATE LISTED", ""))
 
     context.emit(entity, target=True)
     context.emit(sanction)

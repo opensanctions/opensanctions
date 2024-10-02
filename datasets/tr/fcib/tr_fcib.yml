@@ -42,7 +42,7 @@ data:
   url: https://en.hmb.gov.tr/fcib-tf-current-list
   format: html
 dates:
-  formats: ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%d %m %Y"]
+  formats: ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%d %m %Y"]
   months:
     1: Ocak
     2: Şubat
