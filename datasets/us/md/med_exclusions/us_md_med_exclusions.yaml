@@ -14,16 +14,16 @@ description: |
 publisher:
   name: Maryland Department of Health
   description: >
-   > The Maryland Department of Health is an agency of the government of Maryland
-   responsible for public health issues.
+    > The Maryland Department of Health is an agency of the government of Maryland
+    responsible for public health issues.
   acronym: MDH
   url: https://health.maryland.gov/Pages/Home.aspx
   official: true
   country: "us"
 url: "https://health.maryland.gov/mmcp/provider/Pages/sanctioned_list.aspx"
 data:
-  url: https://health.maryland.gov/mmcp/SiteAssets/pages/Provider-Information/MMA%20Providers%20and%20Other%20Entities%20Sanctioned%20List.pdf
-  format: PDF
+  url: https://health.maryland.gov/mmcp/provider/Pages/sanctioned_list.aspx
+  format: XLSX
 
 ci_test: false
 
