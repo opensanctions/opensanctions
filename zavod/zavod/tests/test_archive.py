@@ -1,5 +1,9 @@
 import shutil
+from typing import cast
+from google.auth.credentials import AnonymousCredentials
+
 from zavod import settings
+from zavod.archive.backend import GoogleCloudBackend
 from zavod.meta import Dataset
 from zavod.runtime.versions import make_version
 from zavod.archive import get_dataset_artifact, publish_resource, publish_artifact
@@ -64,3 +68,14 @@ def test_artifact_backfill(testdataset1: Dataset):
     assert versions_file.exists()
     local_path = get_dataset_artifact(testdataset1.name, name)
     assert local_path.exists()
+
+
+def test_gcp_client(monkeypatch):
+    try:
+        monkeypatch.setattr(settings, "ARCHIVE_BACKEND", "AnonymousGoogleCloudBackend")
+        get_archive_backend.cache_clear()
+        backend = cast(GoogleCloudBackend, get_archive_backend())
+        backend_type = type(backend.client._credentials)
+        assert backend_type is AnonymousCredentials
+    finally:
+        get_archive_backend.cache_clear()
