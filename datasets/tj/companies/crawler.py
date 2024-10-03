@@ -111,7 +111,7 @@ def crawl_page(
     retries: int,
 ) -> int:
     """
-    Crawls a single page of the Tadjikistan data portal and emits the data.
+    Crawls a single page of the Tajikistan data portal and emits the data.
     Args:
         context: The context object for the current dataset.
         section: section of the registry (currently there are three)
@@ -148,7 +148,13 @@ def crawl_page(
     try:
         max_page = max(map(lambda x: int(x.strip("[]")), pages))
     except Exception:
-        context.log.error("Failed to parse max page", pages=pages, payload=raw_payload)
+        context.log.error(
+            "Failed to parse max page",
+            pages=pages,
+            payload=raw_payload,
+            section=section,
+            page_number=page_number,
+        )
         # example error seen here:
         # {'error':{'message':'Истекло время ожидания (Timeout). Время ожидания
         # истекло до завершения операции или сервер не отвечает.'}
