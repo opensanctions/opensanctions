@@ -13,9 +13,10 @@ description: |
   Medicaid services in any capacity.
 publisher:
   name: Wyoming Department of Health
-  description: >
-    > Wyoming Medicaid is a joint federal and state government program that pays for medical
-    > care for some low-income and medically needy individuals and families.
+  description: |
+    Wyoming Department of Health is the state agency responsible for overseeing public health
+    programs, services, and policies, including disease prevention, healthcare access, and
+    emergency preparedness across Wyoming.
   acronym: WDH
   url: https://health.wyo.gov
   official: true
@@ -23,8 +24,8 @@ publisher:
 ci_test: false
 url: "https://health.wyo.gov/healthcarefin/medicaid/"
 data:
-  url: https://health.wyo.gov/wp-content/uploads/2021/07/2021_07_07_Wyoming-Medicaid-Exclusion-List-PDF_AP.pdf
-  format: PDF
+  url: https://health.wyo.gov/healthcarefin/medicaid/
+  format: HTML
 
 dates:
   formats: ["%m/%d/%Y"]

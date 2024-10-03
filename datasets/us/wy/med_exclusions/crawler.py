@@ -1,4 +1,5 @@
 from typing import Dict
+import re
 
 from zavod import Context, helpers as h
 from rigour.mime.types import PDF
@@ -14,10 +15,18 @@ prompt = """
  Return an empty string for unset fields.
 """
 
+AKA_PATTERN = r"\ba\.?k\.?a[\. -]*"
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15",
+}
+
 
 def crawl_item(row: Dict[str, str], context: Context):
 
-    address = h.make_address(context, city=row.pop("city"), state=row.pop("state"))
+    address = h.make_address(
+        context, city=row.pop("city"), state=row.pop("state"), country_code="US"
+    )
     sector = row.pop("provider_type")
     provider_number = row.pop("provider_number")
     exclusion_date = row.pop("exclusion_date")
@@ -38,23 +47,32 @@ def crawl_item(row: Dict[str, str], context: Context):
         context.emit(person, target=True)
         context.emit(sanction)
 
+    is_business = False
+
     if business_name := row.pop("business_name"):
-        company = context.make("Company")
-        company.id = context.make_id(business_name, provider_number)
-        company.add("name", business_name)
-        h.apply_address(context, company, address)
-        company.add("sector", sector)
-        company.add("description", "Provider Number: " + provider_number)
-        company.add("topics", "debarment")
-        company.add("country", "us")
+        if re.match(AKA_PATTERN, business_name, flags=re.IGNORECASE):
+            cleaned_name = re.sub(AKA_PATTERN, "", business_name, flags=re.IGNORECASE)
+            for name in cleaned_name.split(","):
+                person.add("alias", name)
 
-        company_sanction = h.make_sanction(context, person)
-        h.apply_date(company_sanction, "startDate", exclusion_date)
+        else:
+            is_business = True
+            company = context.make("Company")
+            company.id = context.make_id(business_name, provider_number)
+            company.add("name", business_name)
+            h.apply_address(context, company, address)
+            company.add("sector", sector)
+            company.add("description", "Provider Number: " + provider_number)
+            company.add("topics", "debarment")
+            company.add("country", "us")
 
-        context.emit(company, target=True)
-        context.emit(company_sanction)
+            company_sanction = h.make_sanction(context, company)
+            h.apply_date(company_sanction, "startDate", exclusion_date)
 
-    if last_name and business_name:
+            context.emit(company, target=True)
+            context.emit(company_sanction)
+
+    if last_name and is_business:
         link = context.make("UnknownLink")
         link.id = context.make_id(person.id, company.id)
         link.add("object", company)
@@ -65,10 +83,15 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
+def crawl_excel_url(context: Context):
+    doc = context.fetch_html(context.data_url)
+    return doc.xpath(".//a[text()='Wyoming Provider Exclusion List ']")[0].get("href")
+
+
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.pdf", context.data_url)
+    path = context.fetch_resource("source.pdf", crawl_excel_url(context))
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-    for page_path in h.make_pdf_page_images(path)[1:]:
+    for page_path in h.make_pdf_page_images(path):
         data = run_image_prompt(context, prompt, page_path)
         assert "providers" in data, data
         for item in data.get("providers", []):
