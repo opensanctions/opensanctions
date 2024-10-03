@@ -8,7 +8,7 @@ from zavod import helpers as h
 
 # Don't use the cache at all - the forms use unique session IDs each time.
 CACHE_DAYS = None
-RETRIES = 3
+RETRIES = 7
 BASE_URL = "https://registry.andoz.tj/{section}.aspx?lang=ru"
 
 
@@ -156,8 +156,9 @@ def crawl_page(
         # Timeout has expired. The timeout occurred before the operation was
         # completed or the server did not respond.
         if retries > 0:
-            context.log.info("No pagination controls, retrying.")
-            sleep(2 ** (RETRIES - retries))
+            seconds = 10 * (2 ** (RETRIES - retries))
+            context.log.info("No pagination controls, retrying.", seconds=seconds)
+            sleep(seconds)
             return crawl_page(
                 context=context,
                 section=section,
