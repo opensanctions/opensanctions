@@ -72,6 +72,6 @@ For development you may also want to install `yamllint` - we use that to check f
   resolver JSON lines file. It can be an empty file. e.g. `data/resolver.ijson`
 * `ZAVOD_SYNC_POSITIONS` (default `True`) - When true, attempts to sync PEP positions with our positions database, requiring `ZAVOD_OPENSANCTIONS_API_KEY` to be set with a valid key. Usually best set to `False` in development.
 * `ZAVOD_ARCHIVE_BACKEND` default `FileSystemBackend`.
-    - `AnonymousGoogleCloudBackend` is nice for crawler development - it allows backfilling from the OpenSanctions data lake which is handy for delta comparisons to previous production runs.
+    - `AnonymousGoogleCloudBackend` is nice for crawler development - it allows backfilling from the OpenSanctions data lake which is handy for delta comparisons to previous production runs. Requires `ZAVOD_ARCHIVE_BUCKET` to be set.
     - `GoogleCloudBackend` additionally allows publishing to the data lake. gcloud environment credentials are required. 
 * `ZAVOD_ARCHIVE_BUCKET` - e.g. `data.opensanctions.org`
