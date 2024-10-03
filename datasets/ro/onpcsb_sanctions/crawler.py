@@ -6,7 +6,8 @@ from zavod import Context, helpers as h
 def crawl_row(context: Context, row: Dict[str, str]):
     full_name = row.pop("name")
     other_name = h.multi_split(row.pop("other name"), [",", ";"])
-    birth_date_1 = h.extract_date(context.dataset, row.pop("date of birth") or None)
+    birth_date_1_orig = row.pop("date of birth")
+    birth_date_1 = h.extract_date(context.dataset, birth_date_1_orig or None)
     birth_place = row.pop("place of birth")
     nationality = row.pop("nationality")
     passport_number = row.pop("passport no.")
@@ -40,7 +41,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.id = context.make_id(full_name, birth_date_1, birth_place)
         entity.add("name", full_name)
         entity.add("alias", other_name)
-        h.apply_dates(entity, "birthDate", birth_date_1)
+        entity.add("birthDate", birth_date_1, original_value=birth_date_1_orig)
         h.apply_date(entity, "birthDate", row.pop("date of birth 2", None))
         entity.add("birthPlace", birth_place)
         # Handle multiple nationalities
