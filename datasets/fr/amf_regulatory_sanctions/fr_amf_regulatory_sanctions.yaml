@@ -959,3 +959,6 @@ lookups:
         entities:
           - Sogenial Immobilier
           - Jean-Marie Souclier
+      - match: 'Société Forest Invest'
+        entities:
+          - Forest Invest
