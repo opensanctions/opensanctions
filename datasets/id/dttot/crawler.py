@@ -7,7 +7,6 @@ from zavod import Context
 from zavod import helpers as h
 
 
-FORMATS = ["%d %B %Y"]
 DATETIME_FORMAT = "%Y%m%d%H%M%S"
 addr_delim = re.compile(r"[\W][a-zA-Z]\)|;")
 
@@ -56,22 +55,6 @@ def value_or_none(row, headers, key):
         return None
 
 
-def parse_dates(value: str):
-    """Dates come in arbitrary formats, but the most common ones seem to be
-    01/04/1983 and 01 apr 1983. Sometimes there are multiple dates in the same cell.
-    """
-    if value is None or value == "00/00/0000":
-        return []
-    if isinstance(value, list):
-        for v in value:
-            yield from parse_dates(v)
-        return
-    if isinstance(value, (float, int)):
-        yield h.convert_excel_date(value)
-        return
-    yield from h.parse_date(value, FORMATS, default=value)
-
-
 def row_to_dict(row, headers: dict) -> dict:
     return {k: row[headers[k]].value for k in headers if value_or_none(row, headers, k)}
 
@@ -117,6 +100,9 @@ def crawl(context: Context):
         entity.add("notes", drow.pop("description", None), lang="ind")
         entity.add_cast("Person", "birthPlace", drow.pop("birth_place", None))
         dob_raw = drow.pop("birth_date", [])
-        entity.add_cast("Person", "birthDate", list(parse_dates(dob_raw)))
+        if dob_raw and dob_raw != "00/00/0000":
+            entity.add_schema("Person")
+            for date in h.multi_split(str(dob_raw).strip(), ["atau"]):
+                h.apply_date(entity, "birthDate", date)
         context.emit(entity, target=True)
         context.emit(sanction)

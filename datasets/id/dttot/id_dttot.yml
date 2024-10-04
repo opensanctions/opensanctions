@@ -25,6 +25,18 @@ publisher:
 data:
   url: https://www.ppatk.go.id/link/read/23/dttot-proliferasi-wmd.html
   format: HTML
+
+dates: 
+  formats: ["%d %B %Y", "%d/%m/%Y", "%d %B %Y;"]
+  months: 
+    "January": "Januari"
+    "March": "Maret"
+    "June": "Juni"
+    "July": "Juli"
+    "August": "Agustus"
+    "October": "Oktober"
+    "December": "Desember"
+
 lookups:
   type:
     options:
@@ -93,3 +105,16 @@ lookups:
           - Herat, Afghanistan
           - Helmand, Afghanistan
           - Dubai, United Arab Emirat
+  type.date: 
+    normalize: true
+    options: 
+      - match: 4 Januari1973/4 November 1974/4 November 1973
+        values: 
+          - 1973-01-04
+          - 1974-11-04
+          - 1973-11-04
+      - match: 5 Juni 1973/6 Juni 1973/5 Desember 1973
+        values: 
+          - 1973-06-05
+          - 1973-06-06
+          - 1973-12-05
