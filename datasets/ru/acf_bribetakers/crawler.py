@@ -44,7 +44,7 @@ def parse_result(context: Context, row: Dict[str, Any]):
         entity.add("alias", tl)
     if dob and NO_YEAR.match(dob):
         dob = None
-    entity.add("birthDate", h.extract_date(context.dataset, dob), original_value=dob)
+    h.apply_date(entity, "birthDate", dob)
     entity.add("gender", row.pop("gender"))
     entity.add("createdAt", published_at)
 
