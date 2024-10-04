@@ -153,7 +153,7 @@ def occupancy_status(
     categorisation: Optional[PositionCategorisation] = None,
 ) -> Optional[OccupancyStatus]:
     if death_date is not None and death_date < backdate(current_time, AFTER_DEATH):
-        # If they did longer ago than AFTER_DEATH threshold, don't consider a PEP.
+        # If they died longer ago than AFTER_DEATH threshold, don't consider a PEP.
         return None
 
     if birth_date is not None and birth_date < backdate(current_time, MAX_AGE):
