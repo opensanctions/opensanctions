@@ -53,6 +53,8 @@ IGNORE = [
     "total",
 ]
 
+SELF_OWNED = {"E100000002239"}
+
 
 def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     id = row.pop("entity_id")
@@ -119,6 +121,8 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     if subject_entity_id in skipped or interested_party_id in skipped:
         return
 
+    if subject_entity_id == interested_party_id and subject_entity_id in SELF_OWNED:
+        return
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(interested_party_id)
     entity.add("name", interested_party_name)
