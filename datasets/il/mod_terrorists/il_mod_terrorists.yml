@@ -38,7 +38,7 @@ data:
   format: XLSX
 
 dates: 
-  formats: ["%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d", "%d %m %Y", "%m %Y"]
+  formats: ["%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d", "%d %m %Y", "%m %Y", "%d %b. %Y"]
   months: 
     "03": מרס
     "05": "May"
@@ -121,12 +121,6 @@ lookups:
         value: null
       - match: 16/6/67
         value: "1967-06-16"
-      - match: 23 Apr. 1968
-        value: "1968-04-23"
-      - match: 25 Jun. 1964
-        value: "1964-06-25"
-      - match: 5 Dec. 1969
-        value: "1969-12-05"
       - match: 1964-1971
         values: 
           - 1964

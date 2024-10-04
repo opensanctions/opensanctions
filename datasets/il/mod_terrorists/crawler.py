@@ -12,24 +12,19 @@ PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel
 NA_VALUE = re.compile(r"^[\-\/]+$")
 END_TAG = re.compile(r"בוטל ביום", re.U)
 SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n"]
+DATE_SPLITS = ["OR", ";", " - ", "a) ", "b) ", "c) "]
 
 
-def parse_date(context: Context, date):
-    dates = []
-    for part in h.multi_split(date, ["OR", ";", " - ", "a) ", "b) ", "c) "]):
-        dates.extend(h.extract_date(context.dataset, part))
-    return dates
-
-
-def parse_interval(context: Context, entity, date):
+def parse_interval(sanction, date):
     if date is None:
         return
     date = date.strip()
     if "בוטל ביום" in date:
         date, _ = date.rsplit(" ", 1)
-        entity.add("endDate", parse_date(context, date))
+        h.apply_date(sanction, "endDate", _)
     else:
-        entity.add("startDate", parse_date(context, date))
+        for part in h.multi_split(date, DATE_SPLITS):
+            h.apply_date(sanction, "startDate", part)
 
 
 def lang_pick(record, field):
@@ -93,7 +88,8 @@ def crawl_individuals(context: Context):
         entity.add("name", name_he, lang="heb")
         entity.add("name", name_ar, lang="ara")
         entity.add("topics", "crime.terror")
-        entity.add("birthDate", parse_date(context, record.pop("d_o_b", None)))
+        for part in h.multi_split(record.pop("d_o_b", None), DATE_SPLITS):
+            h.apply_date(entity, "birthDate", part)
         entity.add("nationality", record.pop("nationality_residency", None))
         id_number = record.pop("individual_id", "")
         id_number = id_number.replace(":\n", ": ")
@@ -110,7 +106,7 @@ def crawl_individuals(context: Context):
         record.pop("date_of_foreign_designation_date", None)
 
         for field in ("date_of_designation_in_israel",):
-            parse_interval(context, sanction, record.pop(field, None))
+            parse_interval(sanction, record.pop(field, None))
 
         context.emit(entity, target=True)
         context.emit(sanction)
@@ -144,8 +140,8 @@ def crawl_organizations(context: Context):
         entity.add("registrationNumber", record.pop("corporation_id", None))
         entity.add("legalForm", lang_pick(record, "corporation_type"))
         entity.add("jurisdiction", lang_pick(record, "location_of_formation"))
-        date = parse_date(context, record.pop("date_of_corporation", None))
-        entity.add("incorporationDate", date)
+        for part in h.multi_split(record.pop("date_of_corporation", None), DATE_SPLITS):
+            h.apply_date(entity, "incorporationDate", part)
         for field in list(record.keys()):
             if field.startswith("organization_name_"):
                 entity.add("alias", h.multi_split(record.pop(field, None), SPLITS))
@@ -189,7 +185,7 @@ def crawl_organizations(context: Context):
             "date_of_permenant_designation",
             "date_designation_in_west_bank",
         ):
-            parse_interval(context, sanction, record.pop(field, None))
+            parse_interval(sanction, record.pop(field, None))
 
         context.emit(entity, target=True)
         context.emit(sanction)
