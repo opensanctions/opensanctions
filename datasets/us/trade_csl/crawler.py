@@ -12,17 +12,6 @@ from zavod import helpers as h
 REGEX_AUTHORITY_ID_SEP = re.compile(r"(\d+ F\.?R\.?)")
 
 
-def parse_date(context: Context, text: Optional[str]) -> List[str]:
-    if text is None or not len(text):
-        return []
-    text = text.replace("circa", "")
-    text = text.strip()
-    dates: List[str] = []
-    for part in h.multi_split(text, [" to "]):
-        dates.extend(h.extract_date(context.dataset, part))
-    return dates
-
-
 def parse_addresses(
     context: Context, addresses: List[Dict[str, str]]
 ) -> Generator[Entity, None, None]:
@@ -127,7 +116,9 @@ def parse_result(context: Context, result: Dict[str, Any]):
         entity.add("nationality", result.pop("nationalities", None))
         entity.add("nationality", result.pop("citizenships", None))
         for dob in ensure_list(result.pop("dates_of_birth", "")):
-            entity.add("birthDate", parse_date(context, dob))
+            dob = h.multi_split(dob, ["circa ", " to "])
+            for date in dob:
+                h.apply_date(entity, "birthDate", date)
         entity.add("birthPlace", result.pop("places_of_birth", None))
     elif entity.schema.is_a("Vessel"):
         entity.add("flag", result.pop("vessel_flag", None))
