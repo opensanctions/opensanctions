@@ -1,5 +1,5 @@
 import csv
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 
 from zavod import Context
 import zavod.helpers as h
@@ -65,8 +65,8 @@ def crawl_ojeu(context: Context) -> None:
     """Check what new legislation is available in OJEU that concerns sanctions."""
     known_urls: List[str] = context.dataset.config.get("ojeu_urls", [])
     regime = context.fetch_json(REGIME_URL)
-    numbers: Set[str] = set()
-    new_numbers: Set[str] = set()
+    old_numbers: Set[str] = set()
+    new_numbers: Set[Tuple[str, str]] = set()
     for item in regime["data"]:
         regime_url = f"{REGIME_URL}/{item['id']}"
         regime_json = context.fetch_json(regime_url, cache_days=1)
@@ -80,29 +80,22 @@ def crawl_ojeu(context: Context) -> None:
             if number is None:
                 continue
             if url not in known_urls:
-                context.log.warning(
-                    "New OJEU URL found",
-                    url=url,
-                    number=number,
-                    title=act.get("title"),
-                )
-                new_numbers.add(number)
-            numbers.add(number)
+                new_numbers.add((number, url))
+            else:
+                old_numbers.add(number)
 
-    if len(new_numbers):
-        context.log.info("New OJEU numbers", numbers=new_numbers)
-
-    numbers.discard("31992R3541")
-    numbers.discard("31993R3275")
-    numbers.discard("32014R0833")
-    numbers.discard("32014R0269")
-
-    ascending = sorted(numbers)
-    for num in ascending:
+    for num, url in sorted(new_numbers):
+        if num in old_numbers:
+            continue
         query = f"MS={num} OR EA={num} OR LB={num} ORDER BY XC DESC"
         name = f"OJEU-TRACK-{num}"
-        # context.log.info("Query for EUR-Lex", query=query, name=name)
-        print(f"[{name}] {query}")
+        context.log.warning(
+            "Create new RSS query for EUR-Lex",
+            query=query,
+            name=name,
+            url=url,
+        )
+        # print(f"[{name}] {query}")
 
 
 def crawl(context: Context):
