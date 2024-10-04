@@ -20,9 +20,6 @@ def parse_dates(context: Context, text: str) -> List[str]:
         text,
         [":", ";", "؛", " to ", "حوالي", "_", "والي"],
     ):
-        part = part.replace("___", " ")
-        part = part.replace("_X_X_X", " ")
-        part = part.replace("X_X_", " ")
         part = part.strip()
         if part == "00":
             continue
@@ -66,7 +63,6 @@ def crawl(context: Context):
             entity.add("idNumber", item.pop("qid"))
             entity.add("nationality", item.pop("nationality"))
             h.apply_dates(entity, "birthDate", dobs)
-            # entity.add("birthDate", dobs, original_value=dob_format)
             entity.add("firstName", first_name_ar, lang="ara")
             entity.add("firstName", first_name_en, lang="eng")
             entity.add("secondName", second_name_ar, lang="ara")
