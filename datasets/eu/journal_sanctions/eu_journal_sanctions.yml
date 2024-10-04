@@ -1,5 +1,5 @@
 title: EU Council Official Journal Sanctioned Entities
-entry_point: updates_tracker.py
+entry_point: crawler.py
 prefix: eu-oj
 coverage:
   schedule: "@hourly"
@@ -11,14 +11,14 @@ publisher:
   acronym: Council
   country: eu
   url: https://european-union.europa.eu/institutions-law-budget/institutions-and-bodies/search-all-eu-institutions-and-bodies/council-european-union_en
-  description: > 
+  description: >
     The Council of the EU is the representative body of EU member governments. 
     Together with the European Parliament, which directly represents the people
     of the EU, it negotiates and adopts EU laws and adopts the EU budget. It is
     also responsible for coordinating EU policies, developing EU foreign policy
     and concluding agreements between the EU and other countries and organizations.
   official: true
-url: https://eur-lex.europa.eu/eli/reg/2023/2878
+url: https://docs.google.com/spreadsheets/d/1rauQMdCYTjTwmSzqfUvur1SfkCGYwfRn6_e5_oX39EY/edit?gid=0#gid=0
 summary: >-
   Supplemental list of people, companies, and organizations sanctioned
   for involvement in Russia's invasion of Ukraine.
@@ -27,7 +27,7 @@ description: |
   as a primary data source for sanctioned entities. However, sanctions are first
   published in the Official Journal of the EU (OJEU) and take immediate effect
   when published.
-  
+
   The transposition of those new sanctions into the consolidated file has often
   involved a significant delay (over 20 days in one case). That means that relying
   on the the consolidated list along would lead to significant legal risk. This
@@ -36,3 +36,122 @@ description: |
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vQZckYoLdt6O3awOs8piaaWCtFlaKtCNpBWcb36bqakVid31-a-JqmHBri0vch2ggB9R-7yq3jiCarN/pub?gid=0&single=true&output=csv
   format: CSV
+
+config:
+  ojeu_urls:
+    - "http://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:32006E0625"
+    - "http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31992R3541"
+    - "http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31993R3275"
+    - "http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31994D0315"
+    - "http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31994D0366"
+    - "http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31994D0366"
+    - "http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31994R1264"
+    - "http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31994R1733"
+    - "http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31994R1733"
+    - "http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31996E0668"
+    - "http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32004E0698"
+    - "https://eur-lex.europa.eu/eli/reg/2014/692/2022-10-06"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?qid=1571925577358&uri=CELEX:01996R2271-20180807"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02001E0931-20240221"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02001R2580-20240221"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02002R0881-20240507"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02003E0495-20230216"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02003R0147-20240320"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02003R1210-20231013"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02004R0314-20231129"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02005E0888-20230216"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02005E0888-20230216"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02005R1183-20240726"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02006R0305-20230216"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02006R0305-20230216"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02006R0765-20240701"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02006R1412-20220413"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02009R1284-20231129"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02010D0231-20240617"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02010D0413-20240730"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02010D0573-20231028"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02010D0638-20231129"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02010D0788-20240726"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02010R0356-20240617"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02011D0072-20240131"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02011D0101-20240206"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02011D0173-20240327"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02011D0235-20240626"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02011D0486-20220205"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02011R0101-20240131"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02011R0359-20240626"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02011R0753-20220413"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02012D0285-20230805"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02012D0642-20240805"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02012R0036-20240529"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02012R0267-20240913"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02012R0377-20230805"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02013D0184-20240430"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02013D0255-20240529"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02013D0798-20231111"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02013R0401-20240430"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014D0119-20240306"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014D0145-20240628"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014D0386-20240619"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014D0450-20230404"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014D0512-20240724"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014D0932-20230216"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014R0208-20240306"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014R0224-20231111"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014R0269-20240628"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014R0747-20230404"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014R0833-20240625"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014R1352-20230216"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02015D0740-20240619"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02015D1333-20240724"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02015D1763-20231129"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02015R0735-20240619"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02015R1755-20231129"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02016D0849-20240730"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02016D1693-20240325"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02016R0044-20240724"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02016R1686-20240325"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02017D1775-20240424"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02017D2074-20240515"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02017R1509-20240730"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02017R1770-20240424"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02017R2063-20240515"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02018D1544-20240717"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02018R1542-20240717"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02019D0797-20240624"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02019D1720-20231129"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02019D1894-20231111"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02019R0796-20240624"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02019R1716-20231129"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02019R1890-20231111"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02020D1999-20240722"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02020R1998-20240722"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02021D1277-20240717"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02021R1275-20231129"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02022D0266-20240221"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02022D2319-20240626"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02022R0263-20221007"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02022R2309-20240626"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02023D0891-20240430"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02023D1532-20240717"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02023D2135-20240624"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02023R0888-20240430"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02023R1529-20240531"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02023R2147-20240624"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02024D0254-20240202"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02024D0385-20240628"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02024R0287-20240202"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02024R0386-20240628"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02024R1485-20240527"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202302287"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202302406"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202401484"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202401776"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202401793"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202401968"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202401971"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202402055"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202402056"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202402113"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202402208"
+    - "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.LI.2018.199.01.0007.01.ENG&toc=OJ:L:2018:199I:TOC"
