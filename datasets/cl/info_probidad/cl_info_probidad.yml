@@ -129,9 +129,9 @@ lookups:
           - "SEGUNDO SECRETARIO O CÓNSUL DE SEGUNDA CLASE, QUINTA CATEGORÍA EXTERIOR"
 
       - is_pep: false
+        contains: CANDIDATO
+      - is_pep: false
         match:
-          - CANDIDATO A ELECCIONES PRIMARIAS ALCALDE 2024
-          - CANDIDATO A ELECCIONES PRIMARIAS GORE 2024
           - JEFE RELACIONES PUBLICAS
 
       - is_pep: null # haven't looked closely yet
@@ -183,20 +183,6 @@ lookups:
           - "AUXILIAR"
           - "BIOQUIMICO"
           - "C1"
-          - "CANDIDATO A ALCALDE 2021"
-          - "CANDIDATO A CONCEJAL 2021"
-          - "CANDIDATO A CONSEJERO CONSTITUCIONAL 2023"
-          - "CANDIDATO A CONSEJERO CONSTITUCIONAL DE PUEBLO INDIGENA 2023"
-          - "CANDIDATO A CORE 2017"
-          - "CANDIDATO A CORE 2021"
-          - "CANDIDATO A DIPUTADO 2017"
-          - "CANDIDATO A DIPUTADO 2021"
-          - "CANDIDATO A ELECCIONES PRIMARIAS PRESIDENTE 2021"
-          - "CANDIDATO A GORE 2021"
-          - "CANDIDATO A SENADOR 2017"
-          - "CANDIDATO A SENADOR 2021"
-          - "CANDIDATO PRIMARIAS ALCALDE 2020"
-          - "CANDIDATO PRIMARIAS GORE 2020"
           - "CATEGORÍA A NIVEL 4"
           - "CHOFER"
           - "CIRUJANO DENTISTA"
@@ -210,6 +196,7 @@ lookups:
           - "CONSEJERO(A)"
           - "CONSEJERO/A"
           - "CONSEJERO/A CONSEJO DE CONCESIONES "
+          - "CONSEJEROS"
           - "CONSERVADOR"
           - "CONSERVADOR Y ARCHIVERO"
           - "CONTRALOR"
