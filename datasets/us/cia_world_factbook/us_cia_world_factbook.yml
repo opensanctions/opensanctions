@@ -534,7 +534,9 @@ lookups:
       - match: Prime Minister SONEXAY (also spelled SONXAI) Siphandon (since 30 December 2022)
         holders:
           - role: Prime Minister
-            name: SONEXAY Siphandon
+            name:
+              - SONEXAY Siphandon
+              - SONXAI Siphandon
             start_date: 30 December 2022
       # Congo, Democratic republic of the
       - match: Deputy Prime Ministers Christophe LUTUNDULA (since 12 April 2021),Vital KAMERHE (since 23 March 2023), Peter KAZADI (23 March 2023), Jean-Pierre BEMBA (since 23 March 2023), Jean-Pierre LIHAU (since 12 April 2021)
