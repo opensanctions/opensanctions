@@ -131,11 +131,13 @@ def make_occupancy(
         status: Overrides determining PEP occupancy status
     """
 
-    parsed_start_dates = h.extract_date(context.dataset, start_date)
-    assert len(parsed_start_dates) <= 1
+    clean_start_dates = h.extract_date(context.dataset, start_date)
+    assert len(clean_start_dates) <= 1
+    clean_start_date = clean_start_dates[0] if clean_start_dates else None
 
-    parsed_end_dates = h.extract_date(context.dataset, end_date)
-    assert len(parsed_end_dates) <= 1
+    clean_end_dates = h.extract_date(context.dataset, end_date)
+    assert len(clean_end_dates) <= 1
+    clean_end_date = clean_end_dates[0] if clean_end_dates else None
 
     if categorisation is not None:
         assert categorisation.is_pep, person
@@ -147,8 +149,8 @@ def make_occupancy(
             position,
             no_end_implies_current,
             current_time,
-            parsed_start_dates[0] if parsed_start_dates else None,
-            parsed_end_dates[0] if parsed_end_dates else None,
+            clean_start_date,
+            clean_end_date,
             birth_date,
             death_date,
             categorisation,
@@ -163,15 +165,15 @@ def make_occupancy(
         person.id,
         position.id,
         "started",
-        start_date,
+        clean_start_date,
         "ended",
-        end_date,
+        clean_end_date,
     ]
     occupancy.id = context.make_id(*parts)
     occupancy.add("holder", person)
     occupancy.add("post", position)
-    occupancy.add("startDate", start_date)
-    occupancy.add("endDate", end_date)
+    occupancy.add("startDate", clean_start_date)
+    occupancy.add("endDate", clean_end_date)
     occupancy.add("status", status.value)
 
     person.add("topics", "role.pep")
