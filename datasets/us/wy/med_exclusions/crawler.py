@@ -1,5 +1,9 @@
+from pathlib import Path
 from typing import Dict
 import re
+
+from normality import collapse_spaces, slugify
+import pdfplumber
 
 from zavod import Context, helpers as h
 from rigour.mime.types import PDF
@@ -17,9 +21,28 @@ prompt = """
 
 AKA_PATTERN = r"\ba\.?k\.?a[\. -]*"
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15",
-}
+
+
+def parse_pdf_table(context: Context, path: Path):
+    headers = None
+    pdf = pdfplumber.open(path.as_posix())
+    options = {"join_y_tolerance": 100}
+    for page_num, page in enumerate(pdf.pages, 1):
+        for row_num, row in enumerate(page.extract_table(options), 1):
+            im = page.to_image()
+            im.draw_rects(page.find_table(options).cells)
+            im.save(f"page-{page_num}.png")
+            print(row)
+            if headers is None:
+                if row_num < 2:
+                    continue
+                headers = []
+                for cell in row:
+                    headers.append(slugify(collapse_spaces(cell), sep="_"))
+                continue
+            assert len(headers) == len(row), (headers, row)
+            yield dict(zip(headers, row))
+
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -30,11 +53,19 @@ def crawl_item(row: Dict[str, str], context: Context):
     sector = row.pop("provider_type")
     provider_number = row.pop("provider_number")
     exclusion_date = row.pop("exclusion_date")
+    last_name = row.pop("last_name")
+    first_name = row.pop("first_name")
+    business_name = row.pop("business_name")
 
-    if last_name := row.pop("last_name"):
+    if not last_name and (first_name and business_name):
+        context.log.info("Fixing shifted names", [last_name, first_name, business_name])
+        last_name = first_name
+        first_name = business_name
+
+    if last_name:
         person = context.make("Person")
         person.id = context.make_id(row.get("first_name"), last_name, provider_number)
-        h.apply_name(person, first_name=row.pop("first_name"), last_name=last_name)
+        h.apply_name(person, first_name=first_name, last_name=last_name)
         h.apply_address(context, person, address)
         person.add("sector", sector)
         person.add("description", "Provider Number: " + provider_number)
@@ -49,7 +80,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     is_business = False
 
-    if business_name := row.pop("business_name"):
+    if business_name:
         if re.match(AKA_PATTERN, business_name, flags=re.IGNORECASE):
             cleaned_name = re.sub(AKA_PATTERN, "", business_name, flags=re.IGNORECASE)
             for name in cleaned_name.split(","):
@@ -91,8 +122,6 @@ def crawl_excel_url(context: Context):
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", crawl_excel_url(context))
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-    for page_path in h.make_pdf_page_images(path):
-        data = run_image_prompt(context, prompt, page_path)
-        assert "providers" in data, data
-        for item in data.get("providers", []):
-            crawl_item(item, context)
+    for item in parse_pdf_table(context, path):
+        print(item)
+        crawl_item(item, context)
