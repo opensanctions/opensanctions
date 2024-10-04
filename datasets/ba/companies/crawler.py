@@ -389,7 +389,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
         entity.add("sourceUrl", record["details_url"])
         entity.add("modifiedAt", record["date_of_last_decision"])
         entity.add("retrievedAt", datetime.datetime.now().isoformat())
-        context.emit(entity, target=True)
+        context.emit(entity)
 
         for person in founders_people:
             if person["name"] in FOUNDER_DENY_LIST:
