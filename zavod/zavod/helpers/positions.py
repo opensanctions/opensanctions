@@ -4,7 +4,7 @@ from datetime import datetime
 
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod import settings
+from zavod import settings, helpers as h
 from zavod.logic.pep import occupancy_status, OccupancyStatus, PositionCategorisation
 
 
@@ -130,6 +130,13 @@ def make_occupancy(
         end_date: Set if the date the person left the position is known.
         status: Overrides determining PEP occupancy status
     """
+
+    parsed_start_dates = h.extract_date(context.dataset, start_date)
+    assert len(parsed_start_dates) <= 1
+
+    parsed_end_dates = h.extract_date(context.dataset, end_date)
+    assert len(parsed_end_dates) <= 1
+
     if categorisation is not None:
         assert categorisation.is_pep, person
 
@@ -140,8 +147,8 @@ def make_occupancy(
             position,
             no_end_implies_current,
             current_time,
-            start_date,
-            end_date,
+            parsed_start_dates[0] if parsed_start_dates else None,
+            parsed_end_dates[0] if parsed_end_dates else None,
             birth_date,
             death_date,
             categorisation,
