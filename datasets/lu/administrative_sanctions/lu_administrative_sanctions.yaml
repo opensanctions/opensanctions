@@ -85,6 +85,9 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-26-septembre-2024/
         names:
           - learnd SE
+      - match: https://www.cssf.lu/fr/Document/mesure-administrative-du-1er-octobre-2024/
+        names:
+          - Alvotech
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/

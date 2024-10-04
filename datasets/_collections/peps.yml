@@ -1,6 +1,7 @@
 type: collection
 title: Politically Exposed Persons (PEPs)
 coverage:
+  start: "2021-12-01"
   schedule: "0 */12 * * *"
   frequency: daily
 deploy:
