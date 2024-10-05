@@ -1,8 +1,0 @@
-SELECT ?country ?countryLabel ?countryDescription WHERE {
-    VALUES ?type { wd:Q15634554 wd:Q1335818 wd:Q3624078 wd:Q6256 }
-    ?country wdt:P31 ?type .
-    MINUS {
-      ?country wdt:P31 wd:Q1145276 .
-    }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-}

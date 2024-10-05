@@ -5,9 +5,9 @@ from nomenklatura.enrich.wikidata.model import Item
 
 from zavod import Context, Entity
 from zavod.meta import Dataset
-
 from zavod.logic.pep import categorise
-from zavod.shed.wikidata.util import item_types, item_countries, item_label
+from zavod.shed.wikidata.country import is_country, item_countries
+from zavod.shed.wikidata.util import item_types, item_label
 
 Wikidata = WikidataEnricher[Dataset]
 
@@ -82,8 +82,18 @@ def wikidata_position(
         country.apply(position, "country")
 
     for claim in item.claims:
+        # jurisdiction:
+        if claim.property == "P1001":
+            if not is_country(enricher, claim.qid):
+                text = claim.text(enricher)
+                text.apply(position, "subnationalArea")
+
         # inception:
         if claim.property == "P571":
+            text = claim.text(enricher)
+            text.apply(position, "inceptionDate")
+
+        if claim.property == "P580":
             text = claim.text(enricher)
             text.apply(position, "inceptionDate")
 
@@ -92,8 +102,25 @@ def wikidata_position(
             text = claim.text(enricher)
             text.apply(position, "dissolutionDate")
 
+    # Second round:
+    for claim in item.claims:
+        # start date:
+        if claim.property == "P580" and not position.has("inceptionDate"):
+            text = claim.text(enricher)
+            text.apply(position, "inceptionDate")
+
+        # end date:
+        if claim.property == "P582" and not position.has("dissolutionDate"):
+            text = claim.text(enricher)
+            text.apply(position, "dissolutionDate")
+
     # Skip all positions that cannot be linked to a country.
     if not position.has("country"):
+        return None
+
+    # Check for the intl. recognized end of history:
+    end_date = max(position.get("dissolutionDate"), default=None)
+    if end_date is not None and end_date < "1990-12-26":
         return None
 
     for sub_type, topics in SUB_TYPES.items():

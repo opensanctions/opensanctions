@@ -1,6 +1,5 @@
 import csv
 from io import StringIO
-from datetime import timedelta
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlencode
 from nomenklatura.enrich.wikidata import WikidataEnricher
@@ -8,9 +7,8 @@ from nomenklatura.enrich.wikidata.model import Claim
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.shed.wikidata.util import item_countries, item_labels
-from zavod.shed.wikidata.util import is_historical_country
 from zavod.shed.wikidata.position import wikidata_position
+from zavod.shed.wikidata.human import wikidata_basic_human
 
 URL = "https://petscan.wmcloud.org/"
 QUERY = {
@@ -68,62 +66,10 @@ def crawl_person(
     row: Dict[str, Any],
 ) -> Optional[Entity]:
     qid = row.pop("Wikidata")
-    entity = context.make("Person")
-    entity.id = qid
-    entity.add("wikidataId", qid)
     item = enricher.fetch_item(qid)
-    if not item.is_instance("Q5"):
-        # context.log.warning("Not a person", qid=item.id)
+    entity = wikidata_basic_human(context, enricher, item, strict=True)
+    if entity is None:
         return None
-    if item.is_instance("Q4164871"):
-        return None
-
-    is_dated = False
-    is_historical = False
-    for claim in item.claims:
-        # P569 - birth date
-        if claim.property == "P569":
-            too_young = context.data_time - timedelta(days=365 * 18)
-            too_old = context.data_time - timedelta(days=365 * 110)
-            date = claim.text(enricher)
-            if date.text is None:
-                continue
-            if date.text > too_young.isoformat():
-                # context.log.warning("Person is too young", qid=item.id, date=date.text)
-                return None
-            if date.text < too_old.isoformat():
-                # context.log.warning("Person is too old", qid=item.id, date=date.text)
-                return None
-            is_dated = True
-            entity.add("birthDate", date.text)
-
-        # P570 - death date
-        if claim.property == "P570":
-            date = claim.text(enricher)
-            # context.log.warning("Person is dead", qid=item.id, date=date)
-            if date.text is not None:
-                return None
-            is_dated = True
-
-        # P27 - citizenship
-        if claim.property == "P27":
-            if is_historical_country(enricher, claim.qid):
-                is_historical = True
-            else:
-                citizenship = enricher.fetch_item(claim.qid)
-                if citizenship is not None:
-                    for text in item_countries(enricher, citizenship):
-                        text.apply(entity, "citizenship")
-
-    # No DoB/DoD, but linked to a historical country - skip:
-    if not is_dated and is_historical:
-        return None
-
-    for label in item_labels(item):
-        prop = "alias" if entity.has("name") else "name"
-        if prop == "name":
-            context.log.info("Person [%s]: %s" % (item.id, label.text))
-        label.apply(entity, prop)
 
     for claim in item.claims:
         if claim.property == "P39":
