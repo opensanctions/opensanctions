@@ -1,7 +1,7 @@
 import time
 from banal import ensure_list
 from collections import defaultdict
-from typing import Dict, Optional, Any, List, Generator
+from typing import Dict, Optional, Any, List, Generator, Set
 from rigour.ids.wikidata import is_qid
 
 
@@ -18,6 +18,17 @@ from zavod.shed.wikidata.human import wikidata_basic_human
 
 DECISION_NATIONAL = "national"
 RETRIES = 5
+
+
+class CrawlState(object):
+    def __init__(self, context: Context):
+        self.ctx = context
+        self.enricher: WikidataEnricher[Dataset] = WikidataEnricher(
+            context.dataset, context.cache, context.dataset.config
+        )
+        self.log = context.log
+        self.seen_positions: Set[str] = set()
+        self.seen_humans: Set[str] = set()
 
 
 def keyword(topics: List[str]) -> Optional[str]:
@@ -48,8 +59,7 @@ def truncate_date(text: Optional[str]) -> Optional[str]:
 
 
 def crawl_holder(
-    context: Context,
-    enricher: WikidataEnricher[Dataset],
+    state: CrawlState,
     categorisation: PositionCategorisation,
     position: Entity,
     holder: Dict[str, str],
@@ -57,20 +67,20 @@ def crawl_holder(
     qid: Optional[str] = holder.get("person_qid")
     if qid is None or not is_qid(qid):
         return
-    item = enricher.fetch_item(qid)
+    item = state.enricher.fetch_item(qid)
     if item is None:
         return
-    entity = wikidata_basic_human(context, enricher, item, strict=False)
+    entity = wikidata_basic_human(state.ctx, state.enricher, item, strict=False)
     if entity is None:
         return
-    context.log.info(f"Crawling person {qid} ({entity.caption})")
+    state.log.info(f"Crawling person {qid} ({entity.caption})")
     occupancy = h.make_occupancy(
-        context,
+        state.ctx,
         entity,
         position,
         False,
-        death_date=entity.first("deathDate"),
-        birth_date=entity.first("birthDate"),
+        death_date=max(entity.get("deathDate"), default=None),
+        birth_date=max(entity.get("birthDate"), default=None),
         end_date=date_value(holder.get("end_date")),
         start_date=date_value(holder.get("start_date")),
         categorisation=categorisation,
@@ -84,9 +94,11 @@ def crawl_holder(
     # print(holder.person_qid, death, start_date, end_date)
     entity.add("keywords", keyword(categorisation.topics))
 
-    context.emit(position)
-    context.emit(occupancy)
-    context.emit(entity, target=True)
+    state.ctx.emit(position)
+    state.ctx.emit(occupancy)
+    if qid not in state.seen_humans:
+        state.seen_humans.add(qid)
+        state.ctx.emit(entity, target=True)
 
 
 def query_position_holders(
@@ -248,12 +260,12 @@ def query_position_classes(context: Context):
 
 
 def crawl(context: Context):
-    enricher = WikidataEnricher(context.dataset, context.cache, context.dataset.config)
+    state = CrawlState(context)
     seen_positions = set()
     position_classes = query_position_classes(context)
     local_countries = ensure_list(context.dataset.config.get("countries_local", {}))
 
-    for country in all_countries(context, enricher):
+    for country in all_countries(context, state.enricher):
         include_local = country.code in local_countries
         context.log.info(f"Crawling country: {country.qid} ({country.label})")
         for wd_position in query_positions(context, position_classes, country):
@@ -274,7 +286,7 @@ def crawl(context: Context):
                 continue
 
             for holder in query_position_holders(context, wd_position):
-                crawl_holder(context, enricher, categorisation, position, holder)
+                crawl_holder(state, categorisation, position, holder)
         context.cache.flush()
 
     entity = context.make("Person")
