@@ -57,6 +57,12 @@ SUB_TYPES = {
     "Q707492": ("role.pep", "gov.national", "gov.security"),  # military chief of staff
 }
 
+IGNORE_TYPES = {
+    "Q114962596",  # historical position
+    "Q193622",  # order
+    "Q60754876",  # grade of an order
+}
+
 
 def wikidata_position(
     context: Context, enricher: Wikidata, item: Item
@@ -64,7 +70,7 @@ def wikidata_position(
     types = item_types(enricher, item.id)
     if len(types.intersection(POSITION_BASICS)) == 0:
         return None
-    if "Q114962596" in types:  # historical position
+    if len(types.intersection(IGNORE_TYPES)) > 0:
         return None
 
     position = context.make("Position")
