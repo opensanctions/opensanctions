@@ -1,6 +1,6 @@
 from typing import NamedTuple, Optional, Set
 from functools import lru_cache
-from followthemoney.types import registry
+from followthemoney.types.country import CountryType
 from nomenklatura.enrich.wikidata import WikidataEnricher
 from nomenklatura.enrich.wikidata.lang import LangText
 from nomenklatura.enrich.wikidata.model import Item
@@ -12,6 +12,7 @@ from zavod.shed.wikidata.util import item_types, item_label
 
 
 Wikidata = WikidataEnricher[Dataset]
+countries_type = CountryType()
 
 SPECIAL_COUNTRIES = {
     "Q15180",  # Soviet Union
@@ -185,14 +186,14 @@ def item_countries(enricher: Wikidata, item: Item) -> Set[LangText]:
 
 
 def all_countries(context: Context, enricher: Wikidata) -> Set[Country]:
-    countries = set()
+    countries: Set[Country] = set()
     for qid in SPECIAL_COUNTRIES:
         item = enricher.fetch_item(qid)
         if item is not None:
             text = item_label(item)
             if text is not None:
-                code = registry.country.clean(text.text)
-                countries.add(Country(qid, code, text.text))
+                code = countries_type.clean(text.text)
+                countries.add(Country(qid, code, text.text or qid))
 
     query = """
     SELECT ?country WHERE {
@@ -202,15 +203,15 @@ def all_countries(context: Context, enricher: Wikidata) -> Set[Country]:
     """
     response = run_raw_query(context, query)
     for result in response.results:
-        qid = result.plain("country")
-        if not is_country(enricher, qid):
+        rqid = result.plain("country")
+        if rqid is None or not is_country(enricher, rqid):
             continue
-        item = enricher.fetch_item(qid)
+        item = enricher.fetch_item(rqid)
         if item is None:
             continue
         text = item_label(item)
         if text is not None:
-            code = registry.country.clean(text.text)
+            code = countries_type.clean(text.text)
             if code is None:
                 context.log.warn(
                     "Country name does not map to code sheet",
@@ -218,11 +219,11 @@ def all_countries(context: Context, enricher: Wikidata) -> Set[Country]:
                     qid=item.id,
                 )
                 continue
-            countries.add(Country(qid, code, text.text))
+            countries.add(Country(qid, code, text.text or qid))
 
-    reference = dict(registry.country.names.items())
+    reference = dict(countries_type.names.items())
     for country in countries:
-        cc = registry.country.clean(country.label)
+        cc = countries_type.clean(country.label)
         if cc in reference:
             reference.pop(cc)
 

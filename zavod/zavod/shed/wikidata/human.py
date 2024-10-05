@@ -59,7 +59,7 @@ def wikidata_basic_human(
         if claim.property == "P27":
             if is_historical_country(enricher, claim.qid):
                 is_historical = True
-            else:
+            elif claim.qid is not None:
                 citizenship = enricher.fetch_item(claim.qid)
                 if citizenship is not None:
                     for text in item_countries(enricher, citizenship):
