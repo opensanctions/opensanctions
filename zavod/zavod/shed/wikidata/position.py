@@ -5,9 +5,9 @@ from nomenklatura.enrich.wikidata.model import Item
 
 from zavod import Context, Entity
 from zavod.meta import Dataset
-
 from zavod.logic.pep import categorise
-from zavod.shed.wikidata.util import item_types, item_countries, item_label
+from zavod.shed.wikidata.country import is_country, item_countries
+from zavod.shed.wikidata.util import item_types, item_label
 
 Wikidata = WikidataEnricher[Dataset]
 
@@ -82,13 +82,35 @@ def wikidata_position(
         country.apply(position, "country")
 
     for claim in item.claims:
+        # jurisdiction:
+        if claim.property == "P1001":
+            if not is_country(enricher, claim.qid):
+                text = claim.text(enricher)
+                text.apply(position, "subnationalArea")
+
         # inception:
         if claim.property == "P571":
             text = claim.text(enricher)
             text.apply(position, "inceptionDate")
 
+        if claim.property == "P580":
+            text = claim.text(enricher)
+            text.apply(position, "inceptionDate")
+
         # abolished date:
         if claim.property == "P576":
+            text = claim.text(enricher)
+            text.apply(position, "dissolutionDate")
+
+    # Second round:
+    for claim in item.claims:
+        # start date:
+        if claim.property == "P580" and not position.has("inceptionDate"):
+            text = claim.text(enricher)
+            text.apply(position, "inceptionDate")
+
+        # end date:
+        if claim.property == "P582" and not position.has("dissolutionDate"):
             text = claim.text(enricher)
             text.apply(position, "dissolutionDate")
 
