@@ -1,4 +1,4 @@
-from typing import Set
+from typing import NamedTuple, Optional, Set
 from functools import lru_cache
 from collections import namedtuple
 from followthemoney.types import registry
@@ -97,7 +97,11 @@ BLOCK_ITEMS = {
 }
 SKIP_CODES = {"zz", "dd", "csxx", "zr"}
 
-Country = namedtuple("Country", ["qid", "code", "label"])
+
+class Country(NamedTuple):
+    qid: str
+    code: Optional[str]
+    label: str
 
 
 @lru_cache(maxsize=2000)
@@ -188,7 +192,7 @@ def all_countries(context: Context, enricher: Wikidata) -> Set[Country]:
         if item is not None:
             text = item_label(item)
             if text is not None:
-                code = registry.country.clean_text(text.text)
+                code = registry.country.clean(text.text)
                 countries.add(Country(qid, code, text.text))
 
     query = """
@@ -207,7 +211,7 @@ def all_countries(context: Context, enricher: Wikidata) -> Set[Country]:
             continue
         text = item_label(item)
         if text is not None:
-            code = registry.country.clean_text(text.text)
+            code = registry.country.clean(text.text)
             if code is None:
                 context.log.warn(
                     "Country name does not map to code sheet",
@@ -219,7 +223,7 @@ def all_countries(context: Context, enricher: Wikidata) -> Set[Country]:
 
     reference = dict(registry.country.names.items())
     for country in countries:
-        cc = registry.country.clean_text(country.label)
+        cc = registry.country.clean(country.label)
         if cc in reference:
             reference.pop(cc)
 
