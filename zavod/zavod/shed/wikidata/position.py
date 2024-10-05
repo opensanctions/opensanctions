@@ -118,6 +118,11 @@ def wikidata_position(
     if not position.has("country"):
         return None
 
+    # Check for the intl. recognized end of history:
+    end_date = max(position.get("dissolutionDate"), default=None)
+    if end_date is not None and end_date < "1990-12-26":
+        return None
+
     for sub_type, topics in SUB_TYPES.items():
         if sub_type in types:
             position.add("topics", topics)

@@ -1,6 +1,5 @@
 from typing import NamedTuple, Optional, Set
 from functools import lru_cache
-from collections import namedtuple
 from followthemoney.types import registry
 from nomenklatura.enrich.wikidata import WikidataEnricher
 from nomenklatura.enrich.wikidata.lang import LangText
