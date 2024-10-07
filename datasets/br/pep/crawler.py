@@ -66,7 +66,7 @@ def create_entity(raw_entity: Dict[str, Any], context: Context) -> None:
         position,
         False,
         start_date=raw_entity["Data_Início_Exercício"],
-        end_date=raw_entity["Data_Fim_Exercício"],
+        end_date=raw_entity["Data_Fim_Exercício"].replace("Não informada", "") or None,
         categorisation=categorisation,
     )
 

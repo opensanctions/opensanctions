@@ -35,6 +35,8 @@ url: https://pa.org.za/help/api
 data:
   url: https://pa.org.za/media_root/popolo_json/pombola.json
   format: JSON
+dates:
+  formats: ["%Y-%m-%d", "%Y-%m", "%Y"]
 assertions:
   min:
     schema_entities:

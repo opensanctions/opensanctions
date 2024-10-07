@@ -78,7 +78,7 @@ lookups:
           - Kandidatin zur EU-Wahl 2024
         name: Kandidat zur EU-Wahl 2024
 dates:
-  formats: ["%d. %m %Y", "%d.%m.%Y", "%m/%Y"]
+  formats: ["%d. %m %Y", "%d.%m.%Y", "%m/%Y", "%Y-%m-%d", "%Y-%m", "%Y"]
   months:
     "01": Januar
     "02": Februar

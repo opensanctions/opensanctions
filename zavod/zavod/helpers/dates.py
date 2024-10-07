@@ -88,10 +88,18 @@ def replace_months(dataset: Dataset, text: str) -> str:
     return spec.months_re.sub(lambda m: spec.mappings[m.group().lower()], text)
 
 
-def extract_date(dataset: Dataset, text: DateValue) -> List[str]:
+def extract_date(
+    dataset: Dataset, text: DateValue, strict_label: Optional[str] = None
+) -> List[str]:
     """
     Extract a date from the provided text using predefined `formats` in the metadata.
-    If the text doesn't match any format, return the original text.
+    If the text doesn't match any format, returns the original text
+    or raises ValueError if strict_label is provided.
+
+    Args:
+        dataset: The dataset which contains a date format specification.
+        text: The text to extract a date from.
+        strict_label: The label to describe the date if it doesn't parse.
     """
     if text is None:
         return []
@@ -111,6 +119,8 @@ def extract_date(dataset: Dataset, text: DateValue) -> List[str]:
         years = extract_years(text)
         if len(years):
             return years
+    if strict_label is not None:
+        raise ValueError(f"Invalid {strict_label}: {repr(text)}")
     return [text]
 
 

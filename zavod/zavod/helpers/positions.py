@@ -131,13 +131,21 @@ def make_occupancy(
         status: Overrides determining PEP occupancy status
     """
 
-    clean_start_dates = h.extract_date(context.dataset, start_date)
+    clean_start_dates = h.extract_date(context.dataset, start_date, "start_date")
     assert len(clean_start_dates) <= 1
     clean_start_date = clean_start_dates[0] if clean_start_dates else None
 
-    clean_end_dates = h.extract_date(context.dataset, end_date)
+    clean_end_dates = h.extract_date(context.dataset, end_date, "end_date")
     assert len(clean_end_dates) <= 1
     clean_end_date = clean_end_dates[0] if clean_end_dates else None
+
+    clean_birth_dates = h.extract_date(context.dataset, birth_date, "birth_date")
+    assert len(clean_birth_dates) <= 1
+    clean_birth_date = clean_birth_dates[0] if clean_birth_dates else None
+
+    clean_death_dates = h.extract_date(context.dataset, death_date, "death_date")
+    assert len(clean_death_dates) <= 1
+    clean_death_date = clean_death_dates[0] if clean_death_dates else None
 
     if categorisation is not None:
         assert categorisation.is_pep, person
@@ -151,8 +159,8 @@ def make_occupancy(
             current_time,
             clean_start_date,
             clean_end_date,
-            birth_date,
-            death_date,
+            clean_birth_date,
+            clean_death_date,
             categorisation,
         )
     if status is None:

@@ -33,10 +33,3 @@ ci_test: false
 
 dates: 
   formats: ["%d/%m/%Y"]
-lookups: 
-  type.date: 
-    lowercase: true
-    normalize: true
-    options:
-      - match: Não informada
-        value: null
