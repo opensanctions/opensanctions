@@ -47,7 +47,7 @@ def crawl(context: Context):
 
         position = h.make_position(
             context,
-            role,
+            name="Member of the Cabinet",
             summary=position_summary,
             country="th",
             topics=["gov.executive", "gov.national"],
