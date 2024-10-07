@@ -11,18 +11,20 @@ from zavod.shed.wikidata.country import is_historical_country, item_countries
 from zavod.shed.wikidata.util import item_labels, item_types
 
 Wikidata = WikidataEnricher[Dataset]
-BLOCKED_PERSON = {"Q1045488"}
+BLOCKED_PERSONS = {"Q1045488"}
 
 
 def wikidata_basic_human(
     context: Context, enricher: Wikidata, item: Item, strict: bool = False
 ) -> Optional[Entity]:
-    if item.id in BLOCKED_PERSON:
+    if item.id in BLOCKED_PERSONS:
         return None
     types = item_types(enricher, item.id)
     if "Q5" not in types:
         return None
-    if item.is_instance("Q4164871"):
+    if "Q4164871" in types:  # human is also a position
+        return None
+    if "Q95074" in types:  # fictional character
         return None
     entity = context.make("Person")
     entity.id = item.id
