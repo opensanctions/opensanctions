@@ -3,6 +3,13 @@ from lxml import html
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 from zavod.shed.zyte_api import fetch_html
+from zavod.shed.trans import (
+    apply_translit_full_name,
+    make_position_translation_prompt,
+)
+
+TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
+POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
 
 
 def unblock_validator(doc: html.HtmlElement) -> bool:
@@ -41,7 +48,8 @@ def crawl(context: Context):
 
         person = context.make("Person")
         person.id = context.make_id(name, role)
-        person.add("name", name)
+        person.add("name", name, lang="tha")
+        apply_translit_full_name(context, person, "kat", name, TRANSLIT_OUTPUT)
         person.add("position", role)
         person.add("topics", "role.pep")
 
@@ -50,7 +58,11 @@ def crawl(context: Context):
             name="Member of the Cabinet",
             summary=position_summary,
             country="th",
+            lang="tha",
             topics=["gov.executive", "gov.national"],
+        )
+        apply_translit_full_name(
+            context, position, "kat", role, TRANSLIT_OUTPUT, POSITION_PROMPT
         )
 
         categorisation = categorise(context, position, is_pep=True)
