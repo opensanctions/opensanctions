@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: 2024-10-07
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   List of the current members of the Thai Cabinet of Ministers. 
   It includes the names and official positions of each cabinet member.
