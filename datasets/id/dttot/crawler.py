@@ -64,6 +64,10 @@ def parse_dates(value: str):
     """
     if value is None or value == "00/00/0000":
         return []
+    if isinstance(value, str):
+        for s in h.multi_split(value, ["-", " atau ", " dan "]):
+            yield from h.parse_date(s, FORMATS, default=value)
+        return
     if isinstance(value, list):
         for v in value:
             yield from parse_dates(v)
@@ -104,14 +108,14 @@ def crawl(context: Context):
         drow = row_to_dict(sh.row(rx), headers)
         entity = context.make(get_schema(context, row, headers))
         names = h.multi_split(drow.pop("name"), ["alias", "ALIAS"])
-        entity.id = context.make_id(drow.pop("id"), *names)
+        entity.id = context.make_id(drow.pop("id"), )
         sanction = h.make_sanction(context, entity)
         entity.add("topics", "sanction")
         sanction.add("program", "DTTOT")
         entity.add("name", names[0])
         entity.add("alias", names[1:])
         if addr := drow.pop("address", None):
-            if type(addr) != str:
+            if not isinstance(addr, str):
                 continue
             for addr in addr_delim.split(addr):
                 h.apply_address(
@@ -119,7 +123,7 @@ def crawl(context: Context):
                 )
         entity.add("country", drow.pop("country", None))
         entity.add("notes", drow.pop("description", None), lang="ind")
-        dob_raw = drow.pop("birth_date", [])
+        dob_raw = drow.pop("birth_date", "")
         entity.add_cast("Person", "birthDate", list(parse_dates(dob_raw)))
         if entity.schema.is_a("Person"):
             entity.add("birthPlace", drow.pop("birth_place", None))
