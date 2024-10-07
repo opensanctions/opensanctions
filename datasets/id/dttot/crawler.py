@@ -108,7 +108,7 @@ def crawl(context: Context):
         drow = row_to_dict(sh.row(rx), headers)
         entity = context.make(get_schema(context, row, headers))
         names = h.multi_split(drow.pop("name"), ["alias", "ALIAS"])
-        entity.id = context.make_id(drow.pop("id"), )
+        entity.id = context.make_id(drow.pop("id"), names[0])
         sanction = h.make_sanction(context, entity)
         entity.add("topics", "sanction")
         sanction.add("program", "DTTOT")
