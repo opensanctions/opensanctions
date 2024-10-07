@@ -44,8 +44,6 @@ def crawl_item(row: Dict[str, str], context: Context):
         sanction = h.make_sanction(context, person)
         h.apply_date(sanction, "startDate", exclusion_date)
 
-        context.emit(person, target=True)
-        context.emit(sanction)
 
     is_business = False
 
@@ -72,6 +70,11 @@ def crawl_item(row: Dict[str, str], context: Context):
             context.emit(company, target=True)
             context.emit(company_sanction)
 
+    # we have to emit the person latter because of the possibility of alias
+    if last_name:
+        context.emit(person, target=True)
+        context.emit(sanction)
+
     if last_name and is_business:
         link = context.make("UnknownLink")
         link.id = context.make_id(person.id, company.id)
@@ -79,6 +82,8 @@ def crawl_item(row: Dict[str, str], context: Context):
         link.add("subject", person)
 
         context.emit(link)
+
+
 
     context.audit_data(row)
 
