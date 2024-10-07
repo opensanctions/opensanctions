@@ -46,6 +46,8 @@ def find_last_link(context: Context, html: etree._Element) -> str:
     last_href = last_link.get("href")
     if last_href is None:
         raise ValueError("No href found")
+    # Fix backend URL pasted in instead of public URL or something
+    last_href = last_href.replace("https://be.ppatk.go.id/", "https://www.ppatk.go.id/")
     return last_href
 
 
@@ -109,14 +111,19 @@ def crawl(context: Context):
         entity.add("name", names[0])
         entity.add("alias", names[1:])
         if addr := drow.pop("address", None):
+            if type(addr) != str:
+                continue
             for addr in addr_delim.split(addr):
                 h.apply_address(
                     context, entity, h.make_address(context, addr, lang="ind")
                 )
         entity.add("country", drow.pop("country", None))
         entity.add("notes", drow.pop("description", None), lang="ind")
-        entity.add_cast("Person", "birthPlace", drow.pop("birth_place", None))
         dob_raw = drow.pop("birth_date", [])
         entity.add_cast("Person", "birthDate", list(parse_dates(dob_raw)))
+        if entity.schema.is_a("Person"):
+            entity.add("birthPlace", drow.pop("birth_place", None))
+        else:
+            entity.add("description", drow.pop("birth_place", None))
         context.emit(entity, target=True)
         context.emit(sanction)
