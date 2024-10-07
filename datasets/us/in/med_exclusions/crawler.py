@@ -19,12 +19,10 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("address", row.pop("service_location_address").split("\n"))
     entity.add("country", "us")
 
-    entity.add("topics", "debarment")
-
     sanction = h.make_sanction(context, entity)
     sanction.add("startDate", row.pop("termination_effective_date"))
 
-    context.emit(entity, target=True)
+    context.emit(entity, target=False)
     context.emit(sanction)
 
     context.audit_data(row)
