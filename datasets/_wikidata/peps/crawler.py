@@ -1,34 +1,19 @@
 import time
-from banal import ensure_list
+import countrynames
 from collections import defaultdict
-from typing import Dict, Optional, Any, List, Generator, Set
+from typing import Dict, Optional, Any, List, Generator
+from fingerprints import clean_brackets
 from rigour.ids.wikidata import is_qid
 
-
-from nomenklatura.enrich.wikidata import WikidataEnricher
-
-from zavod import Context, Dataset
+from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import PositionCategorisation, categorise
-from zavod.shed.wikidata.country import all_countries, Country
-from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
-from zavod.shed.wikidata.human import wikidata_basic_human
 
+from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
 
 DECISION_NATIONAL = "national"
 RETRIES = 5
-
-
-class CrawlState(object):
-    def __init__(self, context: Context):
-        self.ctx = context
-        self.enricher: WikidataEnricher[Dataset] = WikidataEnricher(
-            context.dataset, context.cache, context.dataset.config
-        )
-        self.log = context.log
-        self.seen_positions: Set[str] = set()
-        self.seen_humans: Set[str] = set()
 
 
 def keyword(topics: List[str]) -> Optional[str]:
@@ -59,46 +44,42 @@ def truncate_date(text: Optional[str]) -> Optional[str]:
 
 
 def crawl_holder(
-    state: CrawlState,
+    context: Context,
     categorisation: PositionCategorisation,
     position: Entity,
     holder: Dict[str, str],
 ) -> None:
+    entity = context.make("Person")
     qid: Optional[str] = holder.get("person_qid")
-    if qid is None or not is_qid(qid):
+    if qid is None or not is_qid(qid) or qid == "Q1045488":
         return
-    item = state.enricher.fetch_item(qid)
-    if item is None:
-        return
-    entity = wikidata_basic_human(state.ctx, state.enricher, item, strict=False)
-    if entity is None:
-        return
-    state.log.info(f"Crawling person {qid} ({entity.caption})")
+    entity.id = qid
+
     occupancy = h.make_occupancy(
-        state.ctx,
+        context,
         entity,
         position,
         False,
-        death_date=max(entity.get("deathDate"), default=None),
-        birth_date=max(entity.get("birthDate"), default=None),
+        death_date=date_value(holder.get("person_death")),
+        birth_date=date_value(holder.get("person_birth")),
         end_date=date_value(holder.get("end_date")),
         start_date=date_value(holder.get("start_date")),
         categorisation=categorisation,
+        propagate_country=len(position.get("country")) == 1,
     )
     if not occupancy:
         return
 
-    if not len(entity.countries):
-        entity.add("country", position.countries)
     # TODO: decide all entities with no P39 dates as false?
     # print(holder.person_qid, death, start_date, end_date)
+
+    if holder.get("person_label") != qid:
+        entity.add("name", clean_brackets(holder.get("person_label")).strip())
     entity.add("keywords", keyword(categorisation.topics))
 
-    state.ctx.emit(position)
-    state.ctx.emit(occupancy)
-    if qid not in state.seen_humans:
-        state.seen_humans.add(qid)
-        state.ctx.emit(entity, target=True)
+    context.emit(position)
+    context.emit(occupancy)
+    context.emit(entity, target=True)
 
 
 def query_position_holders(
@@ -112,6 +93,7 @@ def query_position_holders(
         try:
             response = run_query(
                 context,
+                context.data_url,
                 "holders/holders",
                 vars,
                 cache_days=CACHE_MEDIUM * i,
@@ -165,14 +147,14 @@ def pick_country(context, *qids):
 
 
 def query_positions(
-    context: Context, position_classes: List[str], country: Country
+    context: Context, position_classes, country
 ) -> Generator[Dict[str, Any], None, None]:
     """
     Yields an item for each position with all countries selected by pick_country().
 
     May return duplicates
     """
-    context.log.info(f"Crawling positions for {country.qid} ({country.label})")
+    context.log.info(f"Crawling positions for {country['qid']} ({country['label']})")
     position_countries = defaultdict(set)
 
     # a.1) Instances of one or more subclasses of Q4164871 (position) by jurisdiction/country
@@ -182,12 +164,13 @@ def query_positions(
             f"Querying descendants of {position_class['qid']} ({position_class['label']})"
         )
         vars = {
-            "COUNTRY": country.qid,
+            "COUNTRY": country["qid"],
             "CLASS": position_class.get("qid"),
             "RELATION": "wdt:P31/wdt:P279*",
         }
         country_response = run_query(
             context,
+            context.data_url,
             "positions/country",
             vars,
             cache_days=CACHE_MEDIUM,
@@ -196,12 +179,12 @@ def query_positions(
     # a.2) Instances of Q4164871 (position) by jurisdiction/country
     context.log.info("Querying instances of Q4164871 (position)")
     vars = {
-        "COUNTRY": country.qid,
+        "COUNTRY": country["qid"],
         "CLASS": "Q4164871",
         "RELATION": "wdt:P31",
     }
     country_response = run_query(
-        context, "positions/country", vars, cache_days=CACHE_MEDIUM
+        context, context.data_url, "positions/country", vars, cache_days=CACHE_MEDIUM
     )
     country_results.extend(country_response.results)
 
@@ -210,14 +193,14 @@ def query_positions(
             context,
             bind.plain("country"),
             bind.plain("jurisdiction"),
-            country.qid,
+            country["qid"],
         )
         if country_res is not None:
-            position_countries[bind.plain("position")].add(country.code)
+            position_countries[bind.plain("position")].add(country_res.code)
 
     # b) Positions held by politicans from that country
     politician_response = run_query(
-        context, "positions/politician", vars, cache_days=CACHE_MEDIUM
+        context, context.data_url, "positions/politician", vars, cache_days=CACHE_MEDIUM
     )
     for bind in politician_response.results:
         country_res = pick_country(
@@ -242,8 +225,29 @@ def query_positions(
         }
 
 
+def query_countries(context: Context):
+    response = run_query(
+        context, context.data_url, "countries/all", cache_days=CACHE_MEDIUM
+    )
+    for binding in response.results:
+        qid = binding.plain("country")
+        if not is_qid(qid):
+            continue
+        label = binding.plain("countryLabel")
+        if qid is None or qid == label:
+            continue
+        code = countrynames.to_code(label)
+        yield {
+            "qid": qid,
+            "code": code,
+            "label": label,
+        }
+
+
 def query_position_classes(context: Context):
-    response = run_query(context, "positions/subclasses", cache_days=CACHE_MEDIUM)
+    response = run_query(
+        context, context.data_url, "positions/subclasses", cache_days=CACHE_MEDIUM
+    )
     classes = []
     for binding in response.results:
         qid = binding.plain("class")
@@ -260,19 +264,31 @@ def query_position_classes(context: Context):
 
 
 def crawl(context: Context):
-    state = CrawlState(context)
+    seen_countries = set()
     seen_positions = set()
     position_classes = query_position_classes(context)
-    local_countries = ensure_list(context.dataset.config.get("countries_local", {}))
 
-    for country in all_countries(context, state.enricher):
-        include_local = country.code in local_countries
-        context.log.info(f"Crawling country: {country.qid} ({country.label})")
+    for country in query_countries(context):
+        include_local = False
+        if country["qid"] in seen_countries:
+            continue
+        seen_countries.add(country["qid"])
+
+        context.log.info(f"Crawling country: {country['qid']} ({country['label']})")
+
+        country_res = context.lookup("country_decisions", country["qid"])
+        if country_res is None:
+            context.log.warning("Country without decision", country=country)
+            continue
+        if country_res.decision != DECISION_NATIONAL:
+            continue
+        if getattr(country_res, "include_local", False):
+            include_local = True
+
         for wd_position in query_positions(context, position_classes, country):
             if wd_position["qid"] in seen_positions:
                 continue
 
-            seen_positions.add(wd_position["qid"])
             position = h.make_position(
                 context,
                 wd_position["label"],
@@ -286,8 +302,8 @@ def crawl(context: Context):
                 continue
 
             for holder in query_position_holders(context, wd_position):
-                crawl_holder(state, categorisation, position, holder)
-        context.cache.flush()
+                crawl_holder(context, categorisation, position, holder)
+            seen_positions.add(wd_position["qid"])
 
     entity = context.make("Person")
     entity.id = "Q21258544"
