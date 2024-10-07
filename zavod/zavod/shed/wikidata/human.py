@@ -53,6 +53,7 @@ def wikidata_basic_human(
             # context.log.warning("Person is dead", qid=item.id, date=date)
             if strict and date.text is not None:
                 return None
+            entity.add("deathDate", date.text)
             is_dated = True
 
         # P27 - citizenship
@@ -66,7 +67,7 @@ def wikidata_basic_human(
                         text.apply(entity, "citizenship")
 
     # No DoB/DoD, but linked to a historical country - skip:
-    if strict and not is_dated and is_historical:
+    if strict and (not is_dated and is_historical):
         return None
 
     for label in item_labels(item):
