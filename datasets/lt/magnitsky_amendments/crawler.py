@@ -29,13 +29,11 @@ def crawl(context: Context):
     # Open the file and process its content within the `with` block
     with open(path, "r", encoding="utf-8") as fh:
         data = json.load(fh)
-        # print(f"Fetched data: {data}")  # Debug statement to confirm data fetch
 
     # Checking data limits
     check_data_limits(data)
 
     for entry in data.get("list", []):
-        # print(f"Processing entry: {entry}")  # Debug statement for each entry
 
         # Create a Person entity
         person = context.make("Person")
@@ -43,7 +41,6 @@ def crawl(context: Context):
         person.id = person_id
         person.add("name", f"{entry.get('vardas')} {entry.get('pavarde')}", lang="lit")
         h.apply_date(person, "birthDate", entry.get("gimimoData"))
-        # person.add("birthDate", h.parse_date(entry.get("gimimoData"), DATE_FORMATS))
         person.add("topics", "sanction")
         gender = map_gender(entry.get("lytis"))
         if gender:
@@ -61,8 +58,10 @@ def crawl(context: Context):
         # Create a Sanction entity
         sanction = h.make_sanction(context, person)
         sanction.add("reason", entry.get("priezastis"), lang="lit")
-        for date in h.multi_split(entry.get("priezastis"), ["galiojanti nuo "]):
-            h.apply_date(sanction, "startDate", date)
+
+        # I'm not sure whether this is the start of the sanction or the legislation.
+        # for date in h.multi_split(entry.get("priezastis"), ["galiojanti nuo "]):
+        #     h.apply_date(sanction, "startDate", date)
         h.apply_date(sanction, "endDate", entry.get("uzdraustaIki"))
 
         # Emit entities
