@@ -9,7 +9,7 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import PositionCategorisation, categorise
-from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
+from zavod.shed.wikidata.query import run_query, run_raw_query, CACHE_MEDIUM
 
 DECISION_NATIONAL = "national"
 RETRIES = 5
@@ -223,7 +223,17 @@ def query_positions(
 
 
 def query_countries(context: Context):
-    response = run_query(context, "countries/all", cache_days=CACHE_MEDIUM)
+    query = """
+    SELECT ?country ?countryLabel ?countryDescription WHERE {
+        VALUES ?type { wd:Q15634554 wd:Q1335818 wd:Q3624078 wd:Q6256 }
+        ?country wdt:P31 ?type .
+        MINUS {
+        ?country wdt:P31 wd:Q1145276 .
+        }
+    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+    }
+    """
+    response = run_raw_query(context, query, cache_days=CACHE_MEDIUM)
     for binding in response.results:
         qid = binding.plain("country")
         if not is_qid(qid):
