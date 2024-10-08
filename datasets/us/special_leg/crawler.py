@@ -11,13 +11,14 @@ def crawl_row(context: Context, row: Dict[str, str]):
     name = row.pop("name")
     report_date = row.pop("report-date")
     topics = row.pop("topics")
+    source_url = row.pop("source_url")
     entity = context.make(schema)
     entity.id = context.make_slug(name)
     entity.add("topics", topics)
     h.apply_name(entity, name)
     entity.add("alias", row.pop("aliases").split(";"))
     entity.add("country", row.pop("country"))
-    entity.add("sourceUrl", row.pop("source_url").strip())
+    entity.add("sourceUrl", source_url.strip())
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "listingDate", report_date)
     h.apply_date(sanction, "endDate", row.pop("end-date"))
@@ -25,6 +26,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     sanction.add("reason", row.pop("reason"))
     sanction.add("description", f"Published in {report_date} report.")
     sanction.set("authority", row.pop("authority", sanction.get("authority")))
+    sanction.set("sourceUrl", source_url)
 
     target = False
     if topics is not None:
