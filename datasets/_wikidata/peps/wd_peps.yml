@@ -79,6 +79,12 @@ config:
     - gb
 
 lookups:
+  type.country:
+    options:
+      - match:
+          - Romanov Empire
+          - British overseas territories
+        value: null
   type.date:
     options:
       - match:

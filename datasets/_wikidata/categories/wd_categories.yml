@@ -51,7 +51,9 @@ lookups:
         value: es
       - match: Romanov Empire
         value: ru
-      - match: Persian Empire
+      - match:
+          - Persian Empire
+          - British overseas territories
         value: null
   type.date:
     options:
