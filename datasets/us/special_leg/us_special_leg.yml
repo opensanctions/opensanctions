@@ -59,4 +59,4 @@ data:
   lang: eng
 
 dates: 
-  formats: ["%Y"]
+  formats: ["%Y", "%B %Y"]
