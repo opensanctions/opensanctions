@@ -24,12 +24,6 @@ SPLITS = [
 ]
 
 
-# def parse_birth_dates(context: Context, string: str) -> List[str]:
-#     strings = h.multi_split(string, SPLITS)
-#     # flatten
-#     return [date for s in strings for date in h.extract_date(context.dataset, s)]
-
-
 def clean_name(string: str):
     name = re.sub(r"^[\]\), ]+", "", string)
     name = re.sub(r"[\[\(\., ]+$", "", string)
@@ -59,6 +53,8 @@ def crawl(context: Context):
             for date in h.multi_split(dob, SPLITS):
                 dob_parsed = h.extract_date(context.dataset, date)
                 birth_dates.extend(dob_parsed)
+        else:
+            birth_dates = []
         schema = "LegalEntity" if birth_dates == [] else "Person"
         entity = context.make(schema)
         name, aliases = parse_names(str_row.pop("persoana_fizica_entitate"))
@@ -68,8 +64,8 @@ def crawl(context: Context):
         if aliases:
             entity.add("alias", aliases)
         if birth_dates:
-            h.apply_dates(entity, "birthDate", birth_dates)
-            # entity.add("birthDate", birth_dates)
+            for date in birth_dates:
+                h.apply_date(entity, "birthDate", date)
 
         sanction = h.make_sanction(context, entity)
         sanction.add("program", str_row.pop("sanctiuni_teroriste") or None, lang="mol")
