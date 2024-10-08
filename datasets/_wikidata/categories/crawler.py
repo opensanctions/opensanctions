@@ -1,14 +1,16 @@
 import csv
 from io import StringIO
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 from urllib.parse import urlencode
 from nomenklatura.enrich.wikidata import WikidataEnricher
 from nomenklatura.enrich.wikidata.model import Claim
 
-from zavod import Context, Entity
+from zavod import Context, Entity, Dataset
 from zavod import helpers as h
 from zavod.shed.wikidata.position import wikidata_position
 from zavod.shed.wikidata.human import wikidata_basic_human
+from zavod.shed.wikidata.query import run_raw_query
+from zavod.shed.wikidata.util import item_label
 
 URL = "https://petscan.wmcloud.org/"
 QUERY = {
@@ -23,67 +25,77 @@ QUERY = {
 }
 
 
+class CrawlState(object):
+    def __init__(self, context: Context):
+        self.context = context
+        self.enricher: WikidataEnricher[Dataset] = WikidataEnricher(
+            context.dataset, context.cache, context.dataset.config
+        )
+        self.log = context.log
+        self.ignore_positions: Set[str] = set()
+        self.persons: Set[str] = set()
+        self.person_title: Dict[str, str] = {}
+        self.person_countries: Dict[str, Set[str]] = {}
+        self.person_topics: Dict[str, Set[str]] = {}
+        self.person_positions: Dict[str, Set[Entity]] = {}
+        self.emitted_positions: Set[str] = set()
+
+
 def title_name(title: str) -> str:
     return title.replace("_", " ")
 
 
-def crawl_position(
-    context: Context, enricher: WikidataEnricher, person: Entity, claim: Claim
-) -> None:
-    item = enricher.fetch_item(claim.qid)
+def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
+    item = state.enricher.fetch_item(claim.qid)
     if item is None:
+        state.ignore_positions.add(claim.qid)
         return
-    position = wikidata_position(context, enricher, item)
+    position = wikidata_position(state.context, state.enricher, item)
     if position is None:
+        state.ignore_positions.add(item.id)
         return
 
     start_date: Optional[str] = None
     for qual in claim.qualifiers.get("P580", []):
-        start_date = qual.text(enricher).text
+        start_date = qual.text(state.enricher).text
 
     end_date: Optional[str] = None
     for qual in claim.qualifiers.get("P582", []):
-        end_date = qual.text(enricher).text
+        end_date = qual.text(state.enricher).text
 
     occupancy = h.make_occupancy(
-        context,
+        state.context,
         person,
         position,
         no_end_implies_current=False,
         start_date=start_date,
         end_date=end_date,
-        birth_date=person.first("birthDate"),
+        birth_date=max(person.get("birthDate"), default=None),
+        death_date=max(person.get("deathDate"), default=None),
     )
     if occupancy is not None:
-        context.log.info("  -> %s (%s)" % (position.first("name"), position.id))
-        context.emit(position)
-        context.emit(occupancy)
+        state.log.info("  -> %s (%s)" % (position.first("name"), position.id))
+        if position.id not in state.emitted_positions:
+            state.emitted_positions.add(position.id)
+            state.context.emit(position)
+        state.context.emit(occupancy)
+
+    # TODO: implement support for 'officeholder' (P1308) here
 
 
-def crawl_person(
-    context: Context,
-    enricher: WikidataEnricher,
-    row: Dict[str, Any],
-) -> Optional[Entity]:
-    qid = row.pop("Wikidata")
-    item = enricher.fetch_item(qid)
-    entity = wikidata_basic_human(context, enricher, item, strict=True)
+def crawl_person(state: CrawlState, qid: str) -> Optional[Entity]:
+    item = state.enricher.fetch_item(qid)
+    entity = wikidata_basic_human(state.context, state.enricher, item, strict=True)
     if entity is None:
         return None
 
     for claim in item.claims:
         if claim.property == "P39":
-            crawl_position(context, enricher, entity, claim)
-
-    if not entity.has("name"):
-        name = title_name(row.pop("title"))
-        entity.add("name", name)
+            crawl_position(state, entity, claim)
     return entity
 
 
-def crawl_category(
-    context: Context, enricher: WikidataEnricher, category: Dict[str, Any]
-) -> None:
+def crawl_category(state: CrawlState, category: Dict[str, Any]) -> None:
     cache_days = int(category.pop("cache_days", 14))
     topics: List[str] = category.pop("topics", [])
     if "topic" in category:
@@ -94,51 +106,139 @@ def crawl_category(
     cat: str = category.pop("category", "")
     query["categories"] = cat.strip()
     query.update(category)
-    context.log.info("Crawl category: %s" % cat)
+    state.log.info("Crawl category: %s" % cat)
 
     position_data: Dict[str, Any] = category.pop("position", {})
     position: Optional[Entity] = None
     if "name" in position_data:
-        position = h.make_position(context, **position_data, id_hash_prefix="wd-cat")
+        position = h.make_position(
+            state.context, **position_data, id_hash_prefix="wd-cat"
+        )
 
     query_string = urlencode(query)
-    # print(query_string)
     url = f"{URL}?{query_string}"
-    data = context.fetch_text(url, cache_days=cache_days)
+    data = state.context.fetch_text(url, cache_days=cache_days)
     wrapper = StringIO(data)
     results = 0
     emitted = 0
     for row in csv.DictReader(wrapper):
         results += 1
-        entity = crawl_person(context, enricher, row)
-        if entity is None:
+        person_qid = row["Wikidata"]
+        if person_qid is None:
             continue
-        entity.add("topics", topics)
-        entity.add("country", country)
-        context.emit(entity)
-        if position is not None:
-            occupancy = h.make_occupancy(context, entity, position)
-            if occupancy is not None:
-                context.emit(occupancy)
+        state.persons.add(person_qid)
 
-        emitted += 1
-        if emitted > 0 and emitted % 10000 == 0:
-            context.cache.flush()
+        if person_qid not in state.person_topics:
+            state.person_topics[person_qid] = set()
+        state.person_topics[person_qid].update(topics)
+        if person_qid not in state.person_countries:
+            state.person_countries[person_qid] = set()
+        if country is not None:
+            state.person_countries[person_qid].add(country)
+        if person_qid not in state.person_positions:
+            state.person_positions[person_qid] = set()
+        if position is not None:
+            state.person_positions[person_qid].add(position)
+        if row.get("title") is not None:
+            state.person_title[person_qid] = row.get("title")
 
     if emitted > 0 and position is not None:
-        context.emit(position)
+        state.context.emit(position)
 
-    context.log.info(
+    state.log.info(
         "PETScanning category: %s" % cat,
         topics=topics,
         results=results,
         emitted=emitted,
     )
-    context.cache.flush()
+    state.context.cache.flush()
+
+
+def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
+    persons: Set[str] = set([])
+    if position_qid in state.ignore_positions:
+        return persons
+    item = state.enricher.fetch_item(position_qid)
+    if item is None:
+        state.ignore_positions.add(position_qid)
+        return persons
+    position = wikidata_position(state.context, state.enricher, item)
+    if position is None:
+        state.ignore_positions.add(position_qid)
+        return persons
+    label = item_label(item)
+    query = f"""
+    SELECT ?person WHERE {{
+        ?person wdt:P39 wd:{position_qid} .
+        ?person wdt:P31 wd:Q5
+    }}
+    """
+    response = run_raw_query(state.context, query, cache_days=7)
+    for result in response.results:
+        person_qid = result.plain("person")
+        if person_qid is not None:
+            persons.add(person_qid)
+
+    for claim in item.claims:
+        if claim.property == "P1308":  # officeholder
+            if claim.qid is not None:
+                persons.add(claim.qid)
+
+    state.log.info("Found %d holders of %s [%s]" % (len(persons), label, position_qid))
+    return persons
+
+
+def crawl_position_seeds(state: CrawlState) -> None:
+    seeds: List[Dict[str, Any]] = state.context.dataset.config.get("seeds", [])
+    roles = set()
+    for seed in seeds:
+        query = f"""
+        SELECT ?role WHERE {{
+            ?role (wdt:P279|wdt:P31)+ wd:{seed}
+        }}
+        """
+        roles.add(seed)
+        response = run_raw_query(state.context, query, cache_days=7)
+        # print("QUERY", seed, len(response.results))
+        for result in response.results:
+            role = result.plain("role")
+            roles.add(role)
+
+    state.log.info("Found %d seed positions" % len(roles))
+    for role in roles:
+        state.persons.update(crawl_position_holder(state, role))
 
 
 def crawl(context: Context) -> None:
-    enricher = WikidataEnricher(context.dataset, context.cache, context.dataset.config)
+    state = CrawlState(context)
+    crawl_position_seeds(state)
     categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
     for category in categories:
-        crawl_category(context, enricher, category)
+        crawl_category(state, category)
+        state.context.cache.flush()
+
+    for person_qid in sorted(state.persons):
+        entity = crawl_person(state, person_qid)
+        if entity is None:
+            continue
+
+        if not entity.has("name") and person_qid in state.person_title:
+            name = title_name(state.person_title[person_qid])
+            entity.add("name", name)
+        entity.add("topics", state.person_topics.get(person_qid, []))
+        entity.add("country", state.person_countries.get(person_qid, []))
+
+        positions = state.person_positions.get(person_qid, [])
+        for position in positions:
+            occupancy = h.make_occupancy(state.context, entity, position)
+            if occupancy is not None:
+                state.context.emit(occupancy)
+            if position.id not in state.emitted_positions:
+                state.emitted_positions.add(position.id)
+                state.context.emit(position)
+
+        state.log.info(
+            "Crawled person %s: %s %r"
+            % (entity.id, entity.caption, entity.get("topics"))
+        )
+        state.context.emit(entity)
