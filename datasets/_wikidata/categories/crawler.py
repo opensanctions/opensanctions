@@ -166,6 +166,11 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
     if position is None:
         state.ignore_positions.add(position_qid)
         return persons
+
+    # TEMP: skip municipal governments
+    if "gov.muni" in position.get("topics"):
+        return persons
+
     label = item_label(item)
     query = f"""
     SELECT ?person WHERE {{
