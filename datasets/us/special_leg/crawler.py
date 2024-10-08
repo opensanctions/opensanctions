@@ -7,16 +7,28 @@ from zavod import Context
 
 def crawl_row(context: Context, row: Dict[str, str]):
     """Process one row of the CSV data"""
+    schema = row.pop("schema")
     name = row.pop("name")
-    entity = context.make("Company")
+    report_date = row.pop("report-date")
+    topics = row.pop("topics")
+    entity = context.make(schema)
     entity.id = context.make_slug(name)
-    entity.add("topics", row.pop("topics").split(";"))
+    entity.add("topics", topics)
     h.apply_name(entity, name)
     entity.add("alias", row.pop("aliases").split(";"))
+    entity.add("country", row.pop("country"))
     entity.add("sourceUrl", row.pop("source_url").strip())
     sanction = h.make_sanction(context, entity)
+    h.apply_date(sanction, "listingDate", report_date)
+    h.apply_date(sanction, "endDate", row.pop("end-date"))
     sanction.add("program", row.pop("program"))
-    context.emit(entity, target=True)
+    sanction.add("reason", row.pop("reason"))
+    sanction.add("description", f"Published in {report_date} report.")
+
+    target = False
+    if topics is not None:
+        target = True
+    context.emit(entity, target=target)
     context.emit(sanction)
     context.audit_data(row)
 
