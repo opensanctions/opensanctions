@@ -1,10 +1,25 @@
 import csv
 from typing import Dict, List, Optional, Set, Tuple
+import os
+from zeep import Client
+from zeep.wsse.username import UsernameToken
+from zeep.settings import Settings
+from lxml import etree
+from banal import hash_data
 
 from zavod import Context
 import zavod.helpers as h
 
 REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
+
+EURLEX_WS_URL = "https://eur-lex.europa.eu/EURLexWebService"
+EURLEX_WS_USERNAME = os.environ.get("EURLEX_WS_USERNAME")
+EURLEX_WS_PASSWORD = os.environ.get("EURLEX_WS_PASSWORD")
+client = Client(
+    "https://eur-lex.europa.eu/EURLexWebService?wsdl",
+    wsse=UsernameToken(EURLEX_WS_USERNAME, EURLEX_WS_PASSWORD),
+    settings=Settings(raw_response=True),
+)
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -41,7 +56,11 @@ def crawl_csv(context: Context):
             crawl_row(context, row)
 
 
-def get_ojeu_number(context: Context, url: str) -> Optional[str]:
+def get_original_celex(context: Context, url: str) -> Optional[str]:
+    """
+    Gets the CELEX number of the original act, when given what could be a URL
+    to a consolidated version of the act.
+    """
     doc = context.fetch_html(url, cache_days=90)
     for link in doc.findall('.//div[@class="consLegLinks"]//a'):
         if "legal act" in link.text:
@@ -57,8 +76,25 @@ def get_ojeu_number(context: Context, url: str) -> Optional[str]:
             number = title.split("\xa0")[-1]
             number = number.split("-", 1)[0]
             return number
-    context.log.error(f"Could not extract OJ number from URL: {url}")
+    context.log.error(f"Could not extract CELEX number from URL: {url}")
     return None
+
+
+def expert_query(context: Context, expert_query: str) -> etree.Element:
+    args = [expert_query, 1, 100, "en"]
+    key = hash_data(args)
+    response_text = context.cache.get(key, max_age=7)
+    if response_text is None:
+        response = client.service.doQuery(*args)
+        response_text = response.text
+        root = etree.fromstring(response_text.encode("utf-8"))
+        # only set if we could parse xml
+        context.cache.set(key, response_text)
+        context.log.debug("Cache MISS", expert_query)
+        return h.remove_namespace(root)
+    root = etree.fromstring(response_text.encode("utf-8"))
+    context.log.debug("Cache HIT", expert_query)
+    return h.remove_namespace(root)
 
 
 def crawl_ojeu(context: Context) -> None:
@@ -69,6 +105,7 @@ def crawl_ojeu(context: Context) -> None:
     new_numbers: Set[Tuple[str, str]] = set()
     for item in regime["data"]:
         regime_url = f"{REGIME_URL}/{item['id']}"
+        print(regime_url)
         regime_json = context.fetch_json(regime_url, cache_days=1)
         legal_acts = regime_json.pop("data").pop("legal_acts", None)
 
@@ -76,26 +113,22 @@ def crawl_ojeu(context: Context) -> None:
             url: str = act.pop("url")
             if "eur-lex.europa.eu" not in url:
                 continue
-            number = get_ojeu_number(context, url)
-            if number is None:
-                continue
-            if url not in known_urls:
-                new_numbers.add((number, url))
-            else:
-                old_numbers.add(number)
-
-    for num, url in sorted(new_numbers):
-        if num in old_numbers:
-            continue
-        query = f"MS={num} OR EA={num} OR LB={num} ORDER BY XC DESC"
-        name = f"OJEU-TRACK-{num}"
-        context.log.warning(
-            "Create new RSS query for EUR-Lex",
-            query=query,
-            name=name,
-            url=url,
-        )
-        # print(f"[{name}] {query}")
+            number = get_original_celex(context, url)
+            print("   ", number, url)
+            query = f"MS={number} OR EA={number} OR LB={number} ORDER BY XC DESC"
+            print("   ", query)
+            soap_response = expert_query(context, query)
+            #if number == "32022R0263":
+            #    print(etree.tostring(soap_response).decode("utf-8"))
+            for result in soap_response.xpath(".//result"):
+                for title in result.xpath(".//EXPRESSION_TITLE/VALUE/text()"):
+                    print("       ", title)
+                for eli in result.xpath(".//RESOURCE_LEGAL_ELI/VALUE/text()"):
+                    print("         ", eli)
+                for in_force in result.xpath(".//RESOURCE_LEGAL_IN-FORCE/VALUE/text()"):
+                    print(f"         in_force={in_force}")
+                print(f"         in_oj={result.find('.//RESOURCE_LEGAL_PUBLISHED_IN_OFFICIAL-JOURNAL') is not None}")
+                
 
 
 def crawl(context: Context):
