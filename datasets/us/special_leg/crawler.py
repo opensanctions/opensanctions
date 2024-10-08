@@ -24,7 +24,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     sanction.add("program", row.pop("program"))
     sanction.add("reason", row.pop("reason"))
     sanction.add("description", f"Published in {report_date} report.")
-    sanction.set("authority", row.pop("authority"))
+    sanction.set("authority", row.pop("authority", sanction.get("authority")))
 
     target = False
     if topics is not None:
