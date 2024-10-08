@@ -11,18 +11,20 @@ from zavod.shed.wikidata.country import is_historical_country, item_countries
 from zavod.shed.wikidata.util import item_labels, item_types
 
 Wikidata = WikidataEnricher[Dataset]
-BLOCKED_PERSON = {"Q1045488"}
+BLOCKED_PERSONS = {"Q1045488"}
 
 
 def wikidata_basic_human(
     context: Context, enricher: Wikidata, item: Item, strict: bool = False
 ) -> Optional[Entity]:
-    if item.id in BLOCKED_PERSON:
+    if item.id in BLOCKED_PERSONS:
         return None
     types = item_types(enricher, item.id)
     if "Q5" not in types:
         return None
-    if item.is_instance("Q4164871"):
+    if "Q4164871" in types:  # human is also a position
+        return None
+    if "Q95074" in types:  # fictional character
         return None
     entity = context.make("Person")
     entity.id = item.id
@@ -53,6 +55,7 @@ def wikidata_basic_human(
             # context.log.warning("Person is dead", qid=item.id, date=date)
             if strict and date.text is not None:
                 return None
+            entity.add("deathDate", date.text)
             is_dated = True
 
         # P27 - citizenship
@@ -66,7 +69,7 @@ def wikidata_basic_human(
                         text.apply(entity, "citizenship")
 
     # No DoB/DoD, but linked to a historical country - skip:
-    if strict and not is_dated and is_historical:
+    if strict and (not is_dated and is_historical):
         return None
 
     for label in item_labels(item):

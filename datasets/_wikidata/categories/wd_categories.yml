@@ -51,7 +51,9 @@ lookups:
         value: es
       - match: Romanov Empire
         value: ru
-      - match: Persian Empire
+      - match:
+          - Persian Empire
+          - British overseas territories
         value: null
   type.date:
     options:
@@ -65,6 +67,39 @@ lookups:
         value: 2012-02
 
 config:
+  seeds:
+    - "Q109862464" # lord mayor
+    - "Q2285706" # head of government
+    - "Q48352" # head of state
+    - "Q183318" # dictator
+    - "Q7645115" # supreme leader
+    - "Q3099723" # minister-president
+    - "Q4175034" # legislator
+    - "Q486839" # member of parliament
+    - "Q83307" # minister
+    - "Q7330070" # foreign minister
+    - "Q14212" # prime minister
+    - "Q15966511" # deputy minister
+    - "Q46403368" # deputy at the national level
+    - "Q20086425" # shadow minister
+    - "Q108290289" # senior government officials
+    - "Q6635529" # provincial leader of the People's Republic of China
+    - "Q117826617" # supreme court judge
+    - "Q55736868" # national sup court judge
+    - "Q1501926" # attorney general
+    - "Q3368517" # public prosecutor general
+    - "Q109607046" # deputy public prosecutor general
+    - "Q107363151" # central bank governor
+    - "Q1553195" # party leader
+    - "Q2746259" # party chair
+    - "Q836971" # party secretary
+    - "Q29645880" # ambassador of a country
+    - "Q29645886" # ambassador to a country
+    - "Q707492" # military chief of staff
+    - "Q105434600" # high civil servant
+    # skip:
+    # - "Q30185" # mayor
+    # - "Q17279032" # elective office
   categories:
     # Mega collections:
     - category: Political_office-holders_in_Asia
