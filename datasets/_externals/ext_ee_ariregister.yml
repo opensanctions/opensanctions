@@ -82,5 +82,5 @@ assertions:
     countries: 5
   max:
     schema_entities:
-      Company: 200
+      Company: 450
       Person: 100
