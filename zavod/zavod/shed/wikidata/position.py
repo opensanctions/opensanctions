@@ -1,4 +1,5 @@
-from typing import Optional
+from banal import ensure_list
+from typing import Optional, Set
 
 from nomenklatura.enrich.wikidata import WikidataEnricher
 from nomenklatura.enrich.wikidata.model import Item
@@ -129,13 +130,32 @@ def wikidata_position(
     if end_date is not None and end_date < "1990-12-26":
         return None
 
-    for sub_type, topics in SUB_TYPES.items():
+    topics: Set[str] = set()
+    for sub_type, type_topics in SUB_TYPES.items():
         if sub_type in types:
-            position.add("topics", topics)
+            topics.update(ensure_list(type_topics))
 
-    is_pep = True if "role.pep" in position.get("topics") else None
+    is_pep = "role.pep" in topics
+    topics.discard("role.pep")
+
+    if "gov.state" in topics:
+        topics.discard("gov.muni")
+    if "gov.national" in topics:
+        topics.discard("gov.state")
+    if "gov.igo" in topics:
+        topics.discard("gov.national")
+    # All mayors are also heads of local government, but that looks a bit silly:
+    if "gov.muni" in topics:
+        topics.discard("gov.head")
+
+    position.add("topics", topics)
     categorisation = categorise(context, position, is_pep=is_pep)
     if not categorisation.is_pep:
         return None
-    position.set("topics", categorisation.topics)
+    real_topics = set(categorisation.topics)
+    real_topics.discard("role.pep")
+    if "gov.muni" in real_topics:
+        real_topics.discard("gov.head")
+
+    position.set("topics", real_topics)
     return position
