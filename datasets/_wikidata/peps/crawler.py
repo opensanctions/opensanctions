@@ -223,7 +223,7 @@ def query_positions(
 
 
 def query_countries(context: Context):
-    response = run_query(context, "countries/all", cache_days=CACHE_MEDIUM)
+    response = run_query(context, "countries", cache_days=CACHE_MEDIUM)
     for binding in response.results:
         qid = binding.plain("country")
         if not is_qid(qid):
