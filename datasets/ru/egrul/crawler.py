@@ -464,7 +464,9 @@ def load_abbreviations(context) -> List[tuple[str, re.Pattern]]:
     abbreviations = []
     for canonical, phrases in yaml.items():
         # Join the phrases into a single regex pattern, escaping only necessary characters
-        phrase_pattern = "|".join(escape_special_chars(phrase) for phrase in phrases)
+        phrase_pattern = "|".join(
+            f"^\\b{escape_special_chars(phrase)}\\b" for phrase in phrases
+        )
         compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
         abbreviations.append((canonical, compiled_pattern))
     return abbreviations
@@ -661,14 +663,25 @@ def parse_examples(context: Context):
     # This subset contains a mix of companies with different address structures
     # and an example of successor/predecessor relationship
     for inn in [
-        "7709383684",
-        "7704667322",
-        "9710075695",
-        "7813654884",
-        "1122031001454",
-        "1025002029580",
-        "1131001011283",
-        "1088601000047",
+        "2465088643",
+        "3702050590",
+        "4629036778",
+        "1026103055923",
+        "4630023396",
+        "2724032674",
+        "2901018688",
+        "3702050590",
+        "3729024252",
+        "4217029588",
+        "5407228110",
+        # "7709383684",
+        # "7704667322",
+        # "9710075695",
+        # "7813654884",
+        # "1122031001454",
+        # "1025002029580",
+        # "1131001011283",
+        # "1088601000047",
     ]:
         path = context.fetch_resource("%s.xml" % inn, INN_URL % inn)
         with open(path, "rb") as fh:
