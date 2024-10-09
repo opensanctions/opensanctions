@@ -25,14 +25,14 @@ jobs:
         with:
           repository: opensanctions/eu_journal
           ref: 'main'
-          token:  "${{ secrets.EU_JOURNAL_GUTHUB_TOKEN }}"
+          token:  "${{ secrets.EU_JOURNAL_PAT }}"
           path: eu_journal
       - name: set up the repository
         working-directory: eu_journal
         run: |
           git config user.name "EU Journal Bot"
-          git config user.email "tech+eu-journal-bot@opensanctions.org"
-          git config --unset-all http.https://github.com/.extraheader
+          git config user.email "184417265+eu-journal-bot@users.noreply.github.com"
+          #git config --unset-all http.https://github.com/.extraheader
       - name: Check for EU Journal updates
         env:
           EURLEX_WS_USERNAME: "${{ secrets.EURLEX_WS_USERNAME }}"
@@ -40,10 +40,11 @@ jobs:
           EU_JOURNAL_SEEN_PATH: "${{ github.workspace }}/eu_journal/seen.txt"
           SLACK_WEBHOOK_URL: "${{ secrets.EU_JOURNAL_SLACK_WEBHOOK_URL }}"
         run: |
-          python contrib/eu_journal_updates.py
-      - name: Commit changes, if any
+          #python contrib/eu_journal_updates.py
+          echo "fake" >> "${{ github.workspace }}/eu_journal/seen.txt"
+      - name: Commit and push changes, if any
         working-directory: eu_journal
         run: |
           git update-index --refresh || \
             (git add seen.txt && git commit -m "Update seen.txt")
-          git push origin main
+          #git push --verbose origin main
