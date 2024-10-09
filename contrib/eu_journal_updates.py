@@ -103,12 +103,16 @@ def query_celex(
     page_num=1,
     cache_days: Optional[int] = None,
 ):
-    context.log.info(f"Querying CELEX {celex} page {page_num}")
     query = f"MS={celex} OR EA={celex} OR LB={celex} ORDER BY XC DESC"
+    context.log.info(f"Querying CELEX {celex}", page=page_num, query=query)
     soap_response = expert_query(
-        context, client, query, page_num=1, cache_days=cache_days
+        context, client, query, page_num=page_num, cache_days=cache_days
     )
     total_hits = int(soap_response.find(".//totalhits").text)
+    num_hits = int(soap_response.find(".//numhits").text)
+    context.log.debug(
+        f"Page: {page_num}, Total hits: {total_hits}, num hits: {num_hits}"
+    )
 
     for result in soap_response.xpath(".//result"):
         journal_publication = result.findall(
