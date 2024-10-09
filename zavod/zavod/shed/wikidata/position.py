@@ -19,6 +19,8 @@ POSITION_BASICS: Set[str] = {
 }
 SUB_TYPES: Dict[str, Set[str]] = {
     "Q30185": {"role.pep", "gov.executive", "gov.muni"},  # mayor
+    "Q15113603": {"role.pep", "gov.muni"},  # municipal councillor
+    "Q708492": {"role.pep", "gov.muni"},  # council member
     "Q17279032": {"role.pep"},  # elective office
     "Q109862464": {"gov.executive", "gov.muni"},  # lord mayor
     "Q2285706": {"role.pep", "gov.head"},  # head of government
@@ -31,6 +33,12 @@ SUB_TYPES: Dict[str, Set[str]] = {
     "Q14212": {"gov.head", "gov.executive"},  # prime minister
     "Q15966511": {"role.pep", "gov.executive", "gov.state"},  # deputy minister
     "Q46403368": {"role.pep", "gov.national"},  # deputy at the national level
+    "Q20058725": {"role.pep", "gov.legislative"},  # Brazilian federal deputy
+    "Q106088317": {
+        "role.pep",
+        "gov.legislative",
+        "gov.state",
+    },  # state legislator of the United States
     "Q20086425": {"role.pep", "gov.legislative"},  # shadow minister
     "Q108290289": {"role.pep"},  # senior government officials
     "Q16533": {"gov.judicial"},  # judge
