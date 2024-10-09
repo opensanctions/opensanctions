@@ -1,3 +1,4 @@
+import re
 from lxml import html
 
 from zavod import Context, helpers as h
@@ -10,6 +11,12 @@ from zavod.shed.trans import (
 
 TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
+# ROLE_PATTERNS = re.compile(
+#     r"(รองนายกรัฐมนตรี.*|รัฐมนตรีว่าการ.*|รัฐมนตรีประจำ.*|รัฐมนตรีช่วยว่าการ.*|นายกรัฐมนตรี)"
+# )
+ROLE_PATTERNS = re.compile(
+    r"(?P<name>.+?)\s*(?P<role>รองนายกรัฐมนตรี.*|รัฐมนตรีว่าการ.*|รัฐมนตรีประจำ.*|รัฐมนตรีช่วยว่าการ.*|นายกรัฐมนตรี)"
+)
 
 
 def unblock_validator(doc: html.HtmlElement) -> bool:
@@ -37,30 +44,28 @@ def crawl(context: Context):
     )
     persons.append(prime_minister)
 
+    h_tags = [".//h6", ".//h5", ".//h3", ".//h4"]  # order of iteration matters
     for person in persons:
-        # Find all h4, h5, h6 tags in a single call
-        h_tags = [".//h4", ".//h5", ".//h6"]
+        collected_texts = []
         for h_tag in h_tags:
             name_fields = person.findall(h_tag)
-            if name_fields:
-                for field in name_fields:
-                    text_content = field.text_content().strip()
-                    print(f"Field: {text_content}")
+            for field in name_fields:
+                text_content = field.text_content().strip()
+                if text_content:
+                    collected_texts.append(text_content)
 
-                collected_text = " ".join(
-                    [
-                        field.text_content().strip()
-                        for field in name_fields
-                        if field is not None
-                    ]
-                )
-                # print(f"Collected text: {collected_text}")
+        # Join all collected text with a space
+        collected_text = " ".join(collected_texts)
 
-        for text in h.multi_split(
-            collected_text, ["นายกรัฐมนตรี", "รองนายกรัฐมนตรี", " รัฐมนตรีว่าการ"]
-        ):  # prime minister, deputy prime minister, minister
-            name = text.strip()[0]
-            role = text.strip()[1]
+        # Split the text based on "Prime Minister", "Deputy Prime Minister", "Minister" in Thai
+        match = ROLE_PATTERNS.search(collected_text)
+        if match:
+            name = match.group("name").strip()
+            role = match.group("role").strip()
+            print(f"Name: {name}, Role: {role}")
+        else:
+            # If no role can be matched, print the entire text
+            print(f"Name: {collected_text}, Role: None")
 
         position_summary = doc.find(".//h2[@style='text-align: center;']")
         position_summary = position_summary.text_content().strip()
