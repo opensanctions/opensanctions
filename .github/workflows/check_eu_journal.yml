@@ -2,6 +2,7 @@ name: eu-journal
 
 on:
   workflow_dispatch: {}
+  push: {}  # Temporarily run when it's not in main
   schedule:
     - cron: "0 * * * *"
 
