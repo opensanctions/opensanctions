@@ -190,8 +190,6 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
                 persons.add(claim.qid)
 
     state.log.info("Found %d holders of %s [%s]" % (len(persons), label, position_qid))
-    if len(persons) > 50:
-        state.context.cache.flush()
     return persons
 
 
@@ -225,7 +223,7 @@ def crawl(context: Context) -> None:
         crawl_category(state, category)
         state.context.cache.flush()
 
-    for person_qid in sorted(state.persons):
+    for idx, person_qid in enumerate(state.persons):
         entity = crawl_person(state, person_qid)
         if entity is None:
             continue
@@ -250,3 +248,5 @@ def crawl(context: Context) -> None:
             % (entity.id, entity.caption, entity.get("topics"))
         )
         state.context.emit(entity)
+        if idx > 0 and idx % 1000 == 0:
+            state.context.cache.flush()
