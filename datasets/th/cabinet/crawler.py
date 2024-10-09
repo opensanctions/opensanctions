@@ -30,33 +30,37 @@ def crawl(context: Context):
     main_container = doc.find(".//div[@class='wonderplugintabs-panel-inner']")
 
     prime_minister = main_container.find(
-        ".//div[@style='min-height: 400; max-height: 600;']"  # to be updated
+        ".//div[@style='min-height: 480; max-height: 600; display: flex; align-items: center; flex-direction: column; justify-content: center; width: 100%;']"  # to be updated
     )
     persons = main_container.findall(
         ".//div[@style='min-height: 360; max-height: 500;']"
     )
     persons.append(prime_minister)
+
     for person in persons:
-        name_field = person.find(".//h4[1]")
-        if name_field is None or not name_field.text_content().strip():
-            name_field = person.find(".//h5[1]")
-            if name_field is None:
-                name_field = person.find(".//h6[1]")
+        # Find all h4, h5, h6 tags in a single call
+        h_tags = [".//h4", ".//h5", ".//h6"]
+        for h_tag in h_tags:
+            name_fields = person.findall(h_tag)
+            if name_fields:
+                for field in name_fields:
+                    text_content = field.text_content().strip()
+                    print(f"Field: {text_content}")
 
-        name = name_field.text_content().strip() if name_field is not None else None
-        if not name:
-            context.log.warning(f"Name missing for {person}")
+                collected_text = " ".join(
+                    [
+                        field.text_content().strip()
+                        for field in name_fields
+                        if field is not None
+                    ]
+                )
+                # print(f"Collected text: {collected_text}")
 
-        # Extract the text from the second <h4>, falling back to <h5> and <h6> if necessary
-        role_field = person.find(".//h4[2]")
-        if role_field is None or not role_field.text_content().strip():
-            role_field = person.find(".//h5[2]")
-            if role_field is None:
-                role_field = person.find(".//h6[2]")
-
-        role = role_field.text_content().strip() if role_field is not None else None
-        if not role:
-            context.log.warning(f"Position missing for {name}")
+        for text in h.multi_split(
+            collected_text, ["นายกรัฐมนตรี", "รองนายกรัฐมนตรี", " รัฐมนตรีว่าการ"]
+        ):  # prime minister, deputy prime minister, minister
+            name = text.strip()[0]
+            role = text.strip()[1]
 
         position_summary = doc.find(".//h2[@style='text-align: center;']")
         position_summary = position_summary.text_content().strip()
