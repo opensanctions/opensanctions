@@ -27,6 +27,7 @@ PAGE_SIZE = 100
 
 SEEN_PATH = Path(os.environ["EU_JOURNAL_SEEN_PATH"])
 
+# This selects the channel and includes a secret authorising sending messages.
 SLACK_WEBHOOK_URL = os.environ["SLACK_WEBHOOK_URL"]
 
 

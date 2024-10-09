@@ -2,9 +2,8 @@ name: eu-journal
 
 on:
   workflow_dispatch: {}
-  push: {}  # Temporarily run when it's not in main
   schedule:
-    - cron: "0 * * * *"
+    - cron: "0 */2 * * *"
 
 jobs:
   check_eu_journal:
@@ -32,7 +31,6 @@ jobs:
         run: |
           git config user.name "EU Journal Bot"
           git config user.email "184417265+eu-journal-bot@users.noreply.github.com"
-          #git config --unset-all http.https://github.com/.extraheader
       - name: Check for EU Journal updates
         env:
           EURLEX_WS_USERNAME: "${{ secrets.EURLEX_WS_USERNAME }}"
@@ -40,11 +38,10 @@ jobs:
           EU_JOURNAL_SEEN_PATH: "${{ github.workspace }}/eu_journal/seen.txt"
           SLACK_WEBHOOK_URL: "${{ secrets.EU_JOURNAL_SLACK_WEBHOOK_URL }}"
         run: |
-          #python contrib/eu_journal_updates.py
-          echo "fake" >> "${{ github.workspace }}/eu_journal/seen.txt"
+          python contrib/eu_journal_updates.py
       - name: Commit and push changes, if any
         working-directory: eu_journal
         run: |
           git update-index --refresh || \
             (git add seen.txt && git commit -m "Update seen.txt")
-          #git push --verbose origin main
+          git push --verbose origin main
