@@ -526,8 +526,6 @@ def parse_company(context: Context, el: Element) -> None:
 
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
-    print(name_full)
-    print(name_short)
     entity.add("name", name_full)
     entity.add("name", name_short)
     entity.add("ogrnCode", ogrn)
