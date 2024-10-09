@@ -6,7 +6,7 @@ coverage:
   start: 2024-09-10
   schedule: "0 22 * * *"
 deploy:
-  memory: "4Gi"
+  memory: "2Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 exports:
@@ -97,9 +97,9 @@ config:
     - "Q29645886" # ambassador to a country
     - "Q707492" # military chief of staff
     - "Q105434600" # high civil servant
+    - "Q17279032" # elective office
     # skip:
     # - "Q30185" # mayor
-    # - "Q17279032" # elective office
   categories:
     # Mega collections:
     - category: Political_office-holders_in_Asia

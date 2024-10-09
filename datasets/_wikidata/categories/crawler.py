@@ -190,6 +190,8 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
                 persons.add(claim.qid)
 
     state.log.info("Found %d holders of %s [%s]" % (len(persons), label, position_qid))
+    if len(persons) > 50:
+        state.context.cache.flush()
     return persons
 
 
@@ -212,6 +214,7 @@ def crawl_position_seeds(state: CrawlState) -> None:
     state.log.info("Found %d seed positions" % len(roles))
     for role in roles:
         state.persons.update(crawl_position_holder(state, role))
+    state.context.cache.flush()
 
 
 def crawl(context: Context) -> None:
