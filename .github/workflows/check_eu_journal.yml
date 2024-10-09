@@ -33,7 +33,6 @@ jobs:
           git config user.email "tech+eu-journal-bot@opensanctions.org"
           git config --unset-all http.https://github.com/.extraheader
       - name: Check for EU Journal updates
-        working-directory: eu_journal
         env:
           EURLEX_WS_USERNAME: "${{ secrets.EURLEX_WS_USERNAME }}"
           EURLEX_WS_PASSWORD: "${{ secrets.EURLEX_WS_PASSWORD }}"
@@ -44,4 +43,6 @@ jobs:
       - name: Commit changes, if any
         working-directory: eu_journal
         run: |
-          git update-index --refresh && git add seen.txt && git commit -m "Update seen.txt" && git push origin main
+          git update-index --refresh || \
+            (git add seen.txt && git commit -m "Update seen.txt")
+          git push origin main
