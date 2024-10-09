@@ -3,6 +3,7 @@ from pathlib import Path
 import sys
 from typing import Optional
 import os
+from urllib.parse import urlencode
 import click
 from zeep import Client
 from zeep.wsse.username import UsernameToken
@@ -57,6 +58,14 @@ def expert_query(
     cache_days: Optional[int] = None,
 ) -> _Element:
     args = [query, page_num, PAGE_SIZE, "en"]
+    # Our search language is English. That means we don't get titles for most
+    # documents that don't have an English version. I have seen german
+    # and french titles for these series. That might be due to user language
+    # preferences.
+    #
+    # The only documents I've seen this happen on were corrections -
+    # I guess to that language version of the notice in the journal.
+    # e.g. 32022D0266R(01), 32022D0266R(02), 32022D0266R(03), ...
     key = hash_data(args)
     response_text = context.cache.get(key, max_age=cache_days)
     if response_text is None:
@@ -65,10 +74,11 @@ def expert_query(
         root = etree.fromstring(response_text.encode("utf-8"))
         # only set if we could parse xml
         context.cache.set(key, response_text)
-        context.log.debug("Cache MISS", query)
+        context.cache.flush()
+        context.log.debug("Cache MISS", args=args)
         return h.remove_namespace(root)
     root = etree.fromstring(response_text.encode("utf-8"))
-    context.log.debug("Cache HIT", query)
+    context.log.debug("Cache HIT", args=args)
     return h.remove_namespace(root)
 
 
@@ -115,32 +125,46 @@ def query_celex(
     )
 
     for result in soap_response.xpath(".//result"):
-        journal_publication = result.findall(
-            ".//RESOURCE_LEGAL_PUBLISHED_IN_OFFICIAL-JOURNAL"
-        )
-        if len(journal_publication) == 0:
-            continue
+        # OJ numbers seem to be in multiple possible places so this excludes too many.
+        # Compare acts to corrigenda.
+        # journal_publication = result.findall(
+        #    ".//RESOURCE_LEGAL_PUBLISHED_IN_OFFICIAL-JOURNAL"
+        # )
+        # if len(journal_publication) == 0:
+        #    continue
 
-        in_force = result.xpath(".//RESOURCE_LEGAL_IN-FORCE/VALUE")
-        if in_force == [] or in_force[0].text != "true":
-            continue
+        # Skipping not in_force documents means missing corrigendum notices
+        # in_force = result.xpath(".//RESOURCE_LEGAL_IN-FORCE/VALUE")
+        # if in_force == [] or in_force[0].text != "true":
+        #    continue
 
         titles = result.xpath(".//EXPRESSION_TITLE/VALUE/text()")
-        assert len(titles) == 1
+        assert len(titles) <= 1, titles
+        # title appears to only be missing for documents without a version in english,
+        # german or french.
+        if not titles:
+            continue
+
         result_celex = result.xpath(".//ID_CELEX/VALUE/text()")
         assert len(result_celex) == 1, result_celex
-        celex_url = f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{result_celex[0]}"
-        # One document may have multiple dates - in one example the enactment date was the latest of the dates.
+        celex_url = "https://eur-lex.europa.eu/legal-content/EN/TXT/?" + urlencode(
+            {"uri": f"CELEX:{result_celex[0]}"}
+        )
+        # One document may have multiple dates - in one example the enactment date
+        # was the latest of the dates.
         # document_dates = result.xpath(".//WORK_DATE_DOCUMENT/VALUE/text()")
+        # oj_pub_dates = result.xpath(
+        #    ".//RESOURCE_LEGAL_PUBLISHED_IN_OFFICIAL-JOURNAL//DATE_PUBLICATION/VALUE/text()"
+        # )
 
         # one EUR-Lex entry may be in multiple journals - perhaps when translations are published?
-        oj_refs = []
-        for journal in journal_publication:
-            oj_class = journal.find(".//OFFICIAL-JOURNAL_CLASS/VALUE").text
-            oj_number = journal.find(".//OFFICIAL-JOURNAL_NUMBER/VALUE").text
-            oj_year = journal.find(".//OFFICIAL-JOURNAL_YEAR/VALUE").text
-            # OJ C 326/2015
-            # oj_refs.append(f"{oj_class} {oj_number}/{oj_year}")
+        # oj_refs = []
+        # for journal in journal_publication:
+        #    oj_class = journal.find(".//OFFICIAL-JOURNAL_CLASS/VALUE").text
+        #    oj_number = journal.find(".//OFFICIAL-JOURNAL_NUMBER/VALUE").text
+        #    oj_year = journal.find(".//OFFICIAL-JOURNAL_YEAR/VALUE").text
+        # OJ C 326/2015
+        # oj_refs.append(f"{oj_class} {oj_number}/{oj_year}")
 
         yield {
             "title": titles[0],
@@ -188,7 +212,7 @@ def crawl_updates(context: Context, cache_days: Optional[int] = None):
 
 
 def item_message(item):
-    return f"""New Official Journal of the EU notice about {item["regime"]}:
+    return f"""New document on EUR-Lex regarding '{item["regime"]}':
 <{item["celex_url"]}|{slack_escape(item["title"])}>
 """
 
@@ -203,9 +227,12 @@ def send_message(context, message):
 
 @click.command()
 @click.option("--debug", is_flag=True, default=False)
-@click.option("--dry-run", is_flag=True, default=False)
+@click.option("--slack", is_flag=True, default=False)
+@click.option("--update-seen", is_flag=True, default=False)
 @click.option("--cache_days", type=int, default=None)
-def main(debug=False, dry_run=False, cache_days: Optional[int] = None) -> None:
+def main(
+    debug=False, slack=False, update_seen=False, cache_days: Optional[int] = None
+) -> None:
     """Check what new legislation is available in OJEU that concerns sanctions."""
     configure_logging(level=logging.DEBUG if debug else logging.INFO)
     dataset = load_dataset_from_path(DATASET_PATH)
@@ -230,16 +257,16 @@ def main(debug=False, dry_run=False, cache_days: Optional[int] = None) -> None:
     # Announce the new files
     errors = []
     for message in messages:
-        if dry_run:
-            error = None
-            context.log.info(f"Dry run - would send message: {message}")
-        else:
+        if slack:
             error = send_message(context, message)
+        else:
+            error = None
+            context.log.info(f"Message: {message}")
         if error:
             errors.append(error)
 
     # Add to seen file so we don't process them again
-    if new and not dry_run:
+    if new and update_seen:
         with open(SEEN_PATH.as_posix(), "a") as fh:
             for celex in new.keys():
                 fh.write(celex + "\n")
