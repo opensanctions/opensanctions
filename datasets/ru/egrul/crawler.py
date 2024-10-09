@@ -375,23 +375,17 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     # КЛАДР - Классификатор адресов Российской Федерации (old one, since 17.11.2005)
 
     # According to this source: https://www.garant.ru/products/ipo/prime/doc/74812994/
-    if (
-        el.tag
-        in [
-            "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
-            "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
-            "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
-        ]
-    ):
+    if el.tag in [
+        "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
+        "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
+        "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
+    ]:
         pass
-    elif (
-        el.tag
-        in [
-            "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
-            "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
-            # Сведения о месте нахождения юридического лица
-        ]
-    ):
+    elif el.tag in [
+        "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
+        "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
+        # Сведения о месте нахождения юридического лица
+    ]:
         return None  # ignore this one entirely
     else:
         context.log.warn("Unknown address type", tag=el.tag)
