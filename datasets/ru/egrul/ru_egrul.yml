@@ -242,7 +242,7 @@ lookups:
       - match: Финляндская Республика
         value: FI
 
-config:
+config:  # TODO: sort descending so that the most specific matches are first
   types: 
     МОУ:  # муниципальное образовательное учреждение
       - МУНИЦИПАЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ ДОШКОЛЬНОГО И МЛАДШЕГО ШКОЛЬНОГО ВОЗРАСТА  # MUNICIPAL EDUCATIONAL INSTITUTION FOR PRESCHOOL AND PRIMARY SCHOOL CHILDREN
