@@ -1,13 +1,13 @@
-import csv
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Optional
 import os
 import click
 from zeep import Client
 from zeep.wsse.username import UsernameToken
 from zeep.settings import Settings
 from lxml import etree
+from lxml.etree import _Element
 from banal import hash_data
 
 from zavod import Context
@@ -22,14 +22,11 @@ REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
 EURLEX_WS_URL = "https://eur-lex.europa.eu/EURLexWebService"
 EURLEX_WS_USERNAME = os.environ.get("EURLEX_WS_USERNAME")
 EURLEX_WS_PASSWORD = os.environ.get("EURLEX_WS_PASSWORD")
-client = Client(
-    "https://eur-lex.europa.eu/EURLexWebService?wsdl",
-    wsse=UsernameToken(EURLEX_WS_USERNAME, EURLEX_WS_PASSWORD),
-    settings=Settings(raw_response=True),
-)
+
+SEEN_PATH = Path(os.environ["EU_JOURNAL_SEEN_PATH"])
 
 
-def expert_query(context: Context, expert_query: str) -> etree.Element:
+def expert_query(context: Context, client, expert_query: str) -> _Element:
     args = [expert_query, 1, 100, "en"]
     key = hash_data(args)
     response_text = context.cache.get(key, max_age=7)
@@ -70,17 +67,16 @@ def get_original_celex(context: Context, url: str) -> Optional[str]:
     return None
 
 
-@click.command()
-def main() -> None:
-    """Check what new legislation is available in OJEU that concerns sanctions."""
-    configure_logging(level=logging.INFO)
-    dataset = load_dataset_from_path(DATASET_PATH)
-    context = Context(dataset)
-    known_urls: List[str] = context.dataset.config.get("ojeu_urls", [])
-    regime = context.fetch_json(REGIME_URL)
-    old_numbers: Set[str] = set()
-    new_numbers: Set[Tuple[str, str]] = set()
-    for item in regime["data"]:
+def crawl_updates(context: Context):
+    client = Client(
+        "https://eur-lex.europa.eu/EURLexWebService?wsdl",
+        wsse=UsernameToken(EURLEX_WS_USERNAME, EURLEX_WS_PASSWORD),
+        settings=Settings(raw_response=True),
+    )
+    regimes = context.fetch_json(REGIME_URL)
+    in_force_count = 0
+    in_oj_count = 0
+    for item in regimes["data"]:
         regime_url = f"{REGIME_URL}/{item['id']}"
         print(item["specification"])
         print(regime_url)
@@ -92,21 +88,41 @@ def main() -> None:
             if "eur-lex.europa.eu" not in url:
                 continue
             number = get_original_celex(context, url)
-            print("   ", number, url)
             query = f"MS={number} OR EA={number} OR LB={number} ORDER BY XC DESC"
-            print("   ", query)
-            soap_response = expert_query(context, query)
+            soap_response = expert_query(context, client, query)
             if number == "32022R0263":
                 print(etree.tostring(soap_response).decode("utf-8"))
             for result in soap_response.xpath(".//result"):
-                for title in result.xpath(".//EXPRESSION_TITLE/VALUE/text()"):
-                    print("       ", title)
-                for eli in result.xpath(".//RESOURCE_LEGAL_ELI/VALUE/text()"):
-                    print("         ", eli)
-                for in_force in result.xpath(".//RESOURCE_LEGAL_IN-FORCE/VALUE/text()"):
-                    print(f"         in_force={in_force}")
-                print(f"         in_oj={result.find('.//RESOURCE_LEGAL_PUBLISHED_IN_OFFICIAL-JOURNAL') is not None}")
-                
+                in_oj = result.find(".//RESOURCE_LEGAL_PUBLISHED_IN_OFFICIAL-JOURNAL")
+                if in_oj is None:
+                    continue
+                in_oj_count += 1
+
+                in_force = result.xpath(".//RESOURCE_LEGAL_IN-FORCE/VALUE")
+                if in_force == [] or in_force[0].text != "true":
+                    continue
+                in_force_count += 1
+
+                titles = result.xpath(".//EXPRESSION_TITLE/VALUE/text()")
+                assert len(titles) == 1
+                yield {
+                    "title": titles[0],
+                    # date
+                }
+    assert in_oj_count > 2000, in_oj_count
+    assert in_force_count > 1000, in_force_count
+
+
+@click.command()
+@click.option("--debug", is_flag=True, default=False)
+@click.option("--cache_days", default=None)
+def main(debug=False, cache_days: Optional[int] = None) -> None:
+    """Check what new legislation is available in OJEU that concerns sanctions."""
+    configure_logging(level=logging.DEBUG if debug else logging.INFO)
+    dataset = load_dataset_from_path(DATASET_PATH)
+    context = Context(dataset)
+    list(crawl_updates(context))
+
 
 if __name__ == "__main__":
     main()
