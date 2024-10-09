@@ -74,8 +74,6 @@ lookups:
       - match: 
           - Vacant
         value: null
-
-
   roles:
     lowercase: true
     options:

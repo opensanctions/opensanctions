@@ -87,7 +87,7 @@ def crawl(context: Context):
         name = clean_name(person_data.get("contact_details.name"))
         name = context.lookup_value("normalize_name", name, name)
         if h.is_empty(name):
-            return
+            continue
         if "vacant" in name.lower():
             context.log.warning("Double-check vacant position", name=name)
 
