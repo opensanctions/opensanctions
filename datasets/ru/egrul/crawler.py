@@ -514,18 +514,20 @@ def parse_company(context: Context, el: Element) -> None:
         name_short = name_el.get("НаимЮЛСокр")
         # Replace phrases with abbreviations in both full and short names
         if name_full:
-            print(name_full)
+            # print(name_full)
             name_full = substitute_abbreviations(name_full, abbreviations)
-            print(name_full)
+            # print(name_full)
         if name_short:
-            print(name_short)
+            # print(name_short)
             name_short = substitute_abbreviations(name_short, abbreviations)
-            print(name_short)
+            # print(name_short)
 
         name = name_full or name_short
 
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
+    print(name_full)
+    print(name_short)
     entity.add("name", name_full)
     entity.add("name", name_short)
     entity.add("ogrnCode", ogrn)
