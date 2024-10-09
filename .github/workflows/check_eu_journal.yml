@@ -39,7 +39,7 @@ jobs:
           EU_JOURNAL_SEEN_PATH: "${{ github.workspace }}/eu_journal/seen.txt"
           SLACK_WEBHOOK_URL: "${{ secrets.EU_JOURNAL_SLACK_WEBHOOK_URL }}"
         run: |
-          python contrib/eu_journal.py
+          python contrib/eu_journal_updates.py
       - name: Commit changes, if any
         working-directory: eu_journal
         run: |
