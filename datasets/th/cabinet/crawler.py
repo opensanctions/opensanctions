@@ -9,6 +9,28 @@ from zavod.shed.trans import (
     make_position_translation_prompt,
 )
 
+NAME_PROMPT = """
+Translate and transliterate the following Thai names into English. Provide a JSON object
+with the fields described below for each name:
+- `"original_name"`: The original Thai name
+- `"translated_name"`: The name translated into English
+
+Ensure that the translation reflects common English equivalents for titles and honorifics. 
+Consider any prefixes, titles, or components that may be present in the Thai names.
+
+**Output Example:**
+
+```json
+{
+  "original_name": "นายอนุทิน ชาญวีรกูล",
+  "transliterated_name": "Anutin Charnvirakul"
+}
+```
+
+Focus on providing both an accurate English translation and common romanized form where applicable, 
+maintaining standard conventions in English nomenclature.
+
+"""
 TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
 ROLE_PATTERNS = re.compile(
@@ -70,7 +92,9 @@ def crawl(context: Context):
         person = context.make("Person")
         person.id = context.make_id(name, role)
         person.add("name", name, lang="tha")
-        apply_translit_full_name(context, person, "tha", name, TRANSLIT_OUTPUT)
+        apply_translit_full_name(
+            context, person, "tha", name, TRANSLIT_OUTPUT, prompt=NAME_PROMPT
+        )
         person.add("topics", "role.pep")
 
         position = h.make_position(
