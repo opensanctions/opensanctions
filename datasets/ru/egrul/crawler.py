@@ -453,13 +453,9 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     entity.add("address", address)
 
 
-def load_abbreviations(context):
+def load_abbreviations(context) -> List[tuple[str, re.Pattern]]:
     """
-    Load abbreviations and compile regex patterns from the context's YAML config.
-
-    Args:
-    context: Context object containing the dataset configuration.
-
+    Load abbreviations and compile regex patterns from the YAML config.
     Returns:
     List[Tuple[str, re.Pattern]]: A list of tuples containing canonical abbreviations
     and their compiled regex patterns for substitution.
@@ -474,15 +470,9 @@ def load_abbreviations(context):
     return abbreviations
 
 
-def substitute_abbreviations(name, abbreviations):
+def substitute_abbreviations(name, abbreviations) -> str:
     """
     Substitute matched phrases in a company name with their canonical abbreviations.
-
-    Args:
-    name (str): The company name to process.
-    abbreviations (List[Tuple[str, re.Pattern]]): List containing the abbreviations
-    and their associated regex patterns.
-
     Returns:
     str: The updated company name with substitutions applied.
     """
@@ -492,10 +482,6 @@ def substitute_abbreviations(name, abbreviations):
 
 
 def escape_special_chars(phrase):
-    """
-    Escape only special regex characters in a given phrase.
-    """
-    # Define regex meta-characters that need escaping
     special_chars = ".^$*+?{}[]\\|()"
     escaped_phrase = "".join(
         f"\\{char}" if char in special_chars else char for char in phrase
