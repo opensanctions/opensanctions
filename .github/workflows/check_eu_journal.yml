@@ -47,4 +47,4 @@ jobs:
         run: |
           git update-index --refresh || \
             (git add seen.txt && git commit -m "Update seen.txt")
-          #git push --verbose origin main
+          git push --verbose origin main
