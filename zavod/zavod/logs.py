@@ -30,6 +30,7 @@ REDACT_IGNORE_LIST = {
     # The URL redaction will handle these
     "ZAVOD_DATABASE_URI",
     "OPENSANCTIONS_DATABASE_URI",
+    "EU_JOURNAL_SEEN_PATH",
 }
 REDACT_MIN_LENGTH = 5
 URI_WITH_CREDENTIALS = r"(\w+)://[^:]+:[^@]+@"

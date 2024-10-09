@@ -22,24 +22,31 @@ REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
 EURLEX_WS_URL = "https://eur-lex.europa.eu/EURLexWebService"
 EURLEX_WS_USERNAME = os.environ.get("EURLEX_WS_USERNAME")
 EURLEX_WS_PASSWORD = os.environ.get("EURLEX_WS_PASSWORD")
+PAGE_SIZE = 100
 
 SEEN_PATH = Path(os.environ["EU_JOURNAL_SEEN_PATH"])
 
 
-def expert_query(context: Context, client, expert_query: str) -> _Element:
-    args = [expert_query, 1, 100, "en"]
+def expert_query(
+    context: Context,
+    client,
+    query: str,
+    page_num: int,
+    cache_days: Optional[int] = None,
+) -> _Element:
+    args = [query, page_num, PAGE_SIZE, "en"]
     key = hash_data(args)
-    response_text = context.cache.get(key, max_age=7)
+    response_text = context.cache.get(key, max_age=cache_days)
     if response_text is None:
         response = client.service.doQuery(*args)
         response_text = response.text
         root = etree.fromstring(response_text.encode("utf-8"))
         # only set if we could parse xml
         context.cache.set(key, response_text)
-        context.log.debug("Cache MISS", expert_query)
+        context.log.debug("Cache MISS", query)
         return h.remove_namespace(root)
     root = etree.fromstring(response_text.encode("utf-8"))
-    context.log.debug("Cache HIT", expert_query)
+    context.log.debug("Cache HIT", query)
     return h.remove_namespace(root)
 
 
@@ -67,61 +74,132 @@ def get_original_celex(context: Context, url: str) -> Optional[str]:
     return None
 
 
-def crawl_updates(context: Context):
+def query_celex(
+    context: Context,
+    client: Client,
+    celex: str,
+    page_num=1,
+    cache_days: Optional[int] = None,
+):
+    context.log.info(f"Querying CELEX {celex} page {page_num}")
+    query = f"MS={celex} OR EA={celex} OR LB={celex} ORDER BY XC DESC"
+    soap_response = expert_query(
+        context, client, query, page_num=1, cache_days=cache_days
+    )
+    total_hits = int(soap_response.find(".//totalhits").text)
+
+    for result in soap_response.xpath(".//result"):
+        journal_publication = result.findall(
+            ".//RESOURCE_LEGAL_PUBLISHED_IN_OFFICIAL-JOURNAL"
+        )
+        if len(journal_publication) == 0:
+            continue
+
+        in_force = result.xpath(".//RESOURCE_LEGAL_IN-FORCE/VALUE")
+        if in_force == [] or in_force[0].text != "true":
+            continue
+
+        titles = result.xpath(".//EXPRESSION_TITLE/VALUE/text()")
+        assert len(titles) == 1
+        result_celex = result.xpath(".//ID_CELEX/VALUE/text()")
+        assert len(result_celex) == 1, result_celex
+        celex_url = f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{result_celex[0]}"
+        # One document may have multiple dates - in one example the enactment date was the latest of the dates.
+        # document_dates = result.xpath(".//WORK_DATE_DOCUMENT/VALUE/text()")
+
+        # one EUR-Lex entry may be in multiple journals - perhaps when translations are published?
+        oj_refs = []
+        for journal in journal_publication:
+            oj_class = journal.find(".//OFFICIAL-JOURNAL_CLASS/VALUE").text
+            oj_number = journal.find(".//OFFICIAL-JOURNAL_NUMBER/VALUE").text
+            oj_year = journal.find(".//OFFICIAL-JOURNAL_YEAR/VALUE").text
+            # OJ C 326/2015
+            #oj_refs.append(f"{oj_class} {oj_number}/{oj_year}")
+
+        yield {
+            "title": titles[0],
+            "celex": result_celex[0],
+            "celex_url": celex_url,
+            #"oj_refs": oj_refs,
+        }
+    if page_num * PAGE_SIZE < total_hits:
+        yield from query_celex(
+            context, client, celex, page_num=page_num + 1, cache_days=cache_days
+        )
+
+
+def crawl_updates(context: Context, cache_days: Optional[int] = None):
+    """
+    Get all the EUR-Lex entries about all regimes that are in the official journal
+    and are in force.
+
+    Entries may be returned more than once.
+    """
     client = Client(
         "https://eur-lex.europa.eu/EURLexWebService?wsdl",
         wsse=UsernameToken(EURLEX_WS_USERNAME, EURLEX_WS_PASSWORD),
         settings=Settings(raw_response=True),
     )
     regimes = context.fetch_json(REGIME_URL)
-    in_force_count = 0
-    in_oj_count = 0
     for item in regimes["data"]:
         regime_url = f"{REGIME_URL}/{item['id']}"
-        print(item["specification"])
-        print(regime_url)
-        regime_json = context.fetch_json(regime_url, cache_days=1)
+        context.log.info("Crawling regime", title=item["specification"], url=regime_url)
+        regime_json = context.fetch_json(regime_url, cache_days=cache_days)
         legal_acts = regime_json.pop("data").pop("legal_acts", None)
 
         for act in legal_acts["data"]:
             url: str = act.pop("url")
             if "eur-lex.europa.eu" not in url:
                 continue
-            number = get_original_celex(context, url)
-            query = f"MS={number} OR EA={number} OR LB={number} ORDER BY XC DESC"
-            soap_response = expert_query(context, client, query)
-            if number == "32022R0263":
-                print(etree.tostring(soap_response).decode("utf-8"))
-            for result in soap_response.xpath(".//result"):
-                in_oj = result.find(".//RESOURCE_LEGAL_PUBLISHED_IN_OFFICIAL-JOURNAL")
-                if in_oj is None:
-                    continue
-                in_oj_count += 1
+            celex = get_original_celex(context, url)
+            for item in query_celex(
+                context, client, celex, page_num=1, cache_days=cache_days
+            ):
+                item["regime"] = item["title"]
+                yield item
 
-                in_force = result.xpath(".//RESOURCE_LEGAL_IN-FORCE/VALUE")
-                if in_force == [] or in_force[0].text != "true":
-                    continue
-                in_force_count += 1
 
-                titles = result.xpath(".//EXPRESSION_TITLE/VALUE/text()")
-                assert len(titles) == 1
-                yield {
-                    "title": titles[0],
-                    # date
-                }
-    assert in_oj_count > 2000, in_oj_count
-    assert in_force_count > 1000, in_force_count
+def item_message(item):
+    return f"""New Official Journal of the EU notice about {item["regime"]}:
+[{item["title"]}]({item["celex_url"]})
+"""
 
 
 @click.command()
 @click.option("--debug", is_flag=True, default=False)
-@click.option("--cache_days", default=None)
+@click.option("--cache_days", type=int, default=None)
 def main(debug=False, cache_days: Optional[int] = None) -> None:
     """Check what new legislation is available in OJEU that concerns sanctions."""
     configure_logging(level=logging.DEBUG if debug else logging.INFO)
     dataset = load_dataset_from_path(DATASET_PATH)
     context = Context(dataset)
-    list(crawl_updates(context))
+
+    context.log.info("Loading seen items", path=SEEN_PATH)
+    with open(SEEN_PATH.as_posix(), "r") as fh:
+        seen = set(i.strip() for i in fh.readlines())
+    context.log.info(f"Seen {len(seen)} items.")
+
+    # Get all the new items
+    new = dict()
+    for item in crawl_updates(context, cache_days=cache_days):
+        if item["celex"] in seen:
+            continue
+        new[item["celex"]] = item
+    context.log.info(f"Found {len(new)} new items.")
+
+    # Prepare the messages in advance to reduce the chance of partial failure
+    messages = [item_message(i) for i in new.values()]
+
+    # Announce the new files
+    for message in messages:
+        print(message)
+
+    # Add to seen file so we don't process them again
+    if new:
+        with open(SEEN_PATH.as_posix(), "a") as fh:
+            for celex in new.keys():
+                fh.write(celex + "\n")
+        context.log.info(f"Updated seen file with new items.")
 
 
 if __name__ == "__main__":
