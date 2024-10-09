@@ -1,3 +1,4 @@
+import re
 from urllib.parse import urljoin, urlparse
 from typing import Dict, Optional, Set, IO, List, Any
 from collections import defaultdict
@@ -374,17 +375,23 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     # КЛАДР - Классификатор адресов Российской Федерации (old one, since 17.11.2005)
 
     # According to this source: https://www.garant.ru/products/ipo/prime/doc/74812994/
-    if el.tag in [
-        "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
-        "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
-        "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
-    ]:
+    if (
+        el.tag
+        in [
+            "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
+            "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
+            "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
+        ]
+    ):
         pass
-    elif el.tag in [
-        "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
-        "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
-        # Сведения о месте нахождения юридического лица
-    ]:
+    elif (
+        el.tag
+        in [
+            "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
+            "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
+            # Сведения о месте нахождения юридического лица
+        ]
+    ):
         return None  # ignore this one entirely
     else:
         context.log.warn("Unknown address type", tag=el.tag)
@@ -446,6 +453,44 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     entity.add("address", address)
 
 
+def load_abbreviations(context):
+    """
+    Load abbreviations and compile regex patterns from the context's YAML config.
+
+    Args:
+    context: Context object containing the dataset configuration.
+
+    Returns:
+    List[Tuple[str, re.Pattern]]: A list of tuples containing canonical abbreviations
+    and their compiled regex patterns for substitution.
+    """
+    yaml = context.dataset.config.get("types")
+    abbreviations = []
+    for canonical, phrases in yaml.items():
+        # Join the phrases into a single regex pattern, escaping each phrase
+        phrase_pattern = "|".join(re.escape(phrase) for phrase in phrases)
+        compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
+        abbreviations.append((canonical, compiled_pattern))
+    return abbreviations
+
+
+def substitute_abbreviations(name, abbreviations):
+    """
+    Substitute matched phrases in a company name with their canonical abbreviations.
+
+    Args:
+    name (str): The company name to process.
+    abbreviations (List[Tuple[str, re.Pattern]]): List containing the abbreviations
+    and their associated regex patterns.
+
+    Returns:
+    str: The updated company name with substitutions applied.
+    """
+    for canonical, pattern in abbreviations:
+        name = pattern.sub(canonical, name)
+    return name
+
+
 def parse_company(context: Context, el: Element) -> None:
     """
     Parse a company from the XML element and emit entities.
@@ -461,11 +506,20 @@ def parse_company(context: Context, el: Element) -> None:
     name_full: Optional[str] = None
     name_short: Optional[str] = None
 
+    # Load abbreviations once using the context
+    abbreviations = load_abbreviations(context)
+
     for name_el in el.findall("./СвНаимЮЛ"):
         name_full = name_el.get("НаимЮЛПолн")
         name_short = name_el.get("НаимЮЛСокр")
+        # Replace phrases with abbreviations in both full and short names
+        if name_full:
+            name_full = substitute_abbreviations(name_full, abbreviations)
+        if name_short:
+            name_short = substitute_abbreviations(name_short, abbreviations)
 
     name = name_full or name_short
+
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
     entity.add("name", name_full)
@@ -667,5 +721,6 @@ def crawl_archive(context: Context, url: str) -> None:
 
 def crawl(context: Context) -> None:
     # TODO: thread pool execution
-    for archive_url in sorted(crawl_index(context, context.data_url)):
-        crawl_archive(context, archive_url)
+    parse_examples(context)
+    # for archive_url in sorted(crawl_index(context, context.data_url)):
+    #     crawl_archive(context, archive_url)
