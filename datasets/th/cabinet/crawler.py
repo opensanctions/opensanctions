@@ -11,9 +11,6 @@ from zavod.shed.trans import (
 
 TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
-# ROLE_PATTERNS = re.compile(
-#     r"(รองนายกรัฐมนตรี.*|รัฐมนตรีว่าการ.*|รัฐมนตรีประจำ.*|รัฐมนตรีช่วยว่าการ.*|นายกรัฐมนตรี)"
-# )
 ROLE_PATTERNS = re.compile(
     r"(?P<name>.+?)\s*(?P<role>รองนายกรัฐมนตรี.*|รัฐมนตรีว่าการ.*|รัฐมนตรีประจำ.*|รัฐมนตรีช่วยว่าการ.*|นายกรัฐมนตรี)"
 )
@@ -73,7 +70,7 @@ def crawl(context: Context):
         person = context.make("Person")
         person.id = context.make_id(name, role)
         person.add("name", name, lang="tha")
-        # apply_translit_full_name(context, person, "tha", name, TRANSLIT_OUTPUT)
+        apply_translit_full_name(context, person, "tha", name, TRANSLIT_OUTPUT)
         person.add("topics", "role.pep")
 
         position = h.make_position(
@@ -84,9 +81,9 @@ def crawl(context: Context):
             lang="tha",
             topics=["gov.executive", "gov.national"],
         )
-        # apply_translit_full_name(
-        #     context, position, "tha", role, TRANSLIT_OUTPUT, POSITION_PROMPT
-        # )
+        apply_translit_full_name(
+            context, position, "tha", role, TRANSLIT_OUTPUT, POSITION_PROMPT
+        )
 
         categorisation = categorise(context, position, is_pep=True)
         if categorisation.is_pep:
