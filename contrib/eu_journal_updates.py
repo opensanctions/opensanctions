@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+import sys
 from typing import Optional
 import os
 import click
@@ -25,6 +26,26 @@ EURLEX_WS_PASSWORD = os.environ.get("EURLEX_WS_PASSWORD")
 PAGE_SIZE = 100
 
 SEEN_PATH = Path(os.environ["EU_JOURNAL_SEEN_PATH"])
+
+SLACK_WEBHOOK_URL = os.environ["SLACK_WEBHOOK_URL"]
+
+
+SLACK_ESCAPES = [
+    ("&", "&amp;"),
+    ("<", "&lt;"),
+    (">", "&gt;"),
+]
+
+
+def slack_escape(string):
+    """
+    https://api.slack.com/reference/surfaces/formatting#escaping
+    > You shouldn't HTML entity-encode the entire text, as only the specific
+    > characters shown above will be decoded for display in Slack.
+    """
+    for char, escape in SLACK_ESCAPES:
+        string = string.replace(char, escape)
+    return string
 
 
 def expert_query(
@@ -114,13 +135,13 @@ def query_celex(
             oj_number = journal.find(".//OFFICIAL-JOURNAL_NUMBER/VALUE").text
             oj_year = journal.find(".//OFFICIAL-JOURNAL_YEAR/VALUE").text
             # OJ C 326/2015
-            #oj_refs.append(f"{oj_class} {oj_number}/{oj_year}")
+            # oj_refs.append(f"{oj_class} {oj_number}/{oj_year}")
 
         yield {
             "title": titles[0],
             "celex": result_celex[0],
             "celex_url": celex_url,
-            #"oj_refs": oj_refs,
+            # "oj_refs": oj_refs,
         }
     if page_num * PAGE_SIZE < total_hits:
         yield from query_celex(
@@ -141,9 +162,11 @@ def crawl_updates(context: Context, cache_days: Optional[int] = None):
         settings=Settings(raw_response=True),
     )
     regimes = context.fetch_json(REGIME_URL)
-    for item in regimes["data"]:
-        regime_url = f"{REGIME_URL}/{item['id']}"
-        context.log.info("Crawling regime", title=item["specification"], url=regime_url)
+    for regime in regimes["data"]:
+        regime_url = f"{REGIME_URL}/{regime['id']}"
+        context.log.info(
+            "Crawling regime", title=regime["specification"], url=regime_url
+        )
         regime_json = context.fetch_json(regime_url, cache_days=cache_days)
         legal_acts = regime_json.pop("data").pop("legal_acts", None)
 
@@ -155,20 +178,29 @@ def crawl_updates(context: Context, cache_days: Optional[int] = None):
             for item in query_celex(
                 context, client, celex, page_num=1, cache_days=cache_days
             ):
-                item["regime"] = item["title"]
+                item["regime"] = regime["specification"]
                 yield item
 
 
 def item_message(item):
     return f"""New Official Journal of the EU notice about {item["regime"]}:
-[{item["title"]}]({item["celex_url"]})
+<{item["celex_url"]}|{slack_escape(item["title"])}>
 """
+
+
+def send_message(context, message):
+    response = context.http.post(SLACK_WEBHOOK_URL, json={"text": message})
+    if response.status_code == 200:
+        return None
+    else:
+        return f"Error {response.status_code}\nMessage: {message}\nResponse: {response.text}"
 
 
 @click.command()
 @click.option("--debug", is_flag=True, default=False)
+@click.option("--dry-run", is_flag=True, default=False)
 @click.option("--cache_days", type=int, default=None)
-def main(debug=False, cache_days: Optional[int] = None) -> None:
+def main(debug=False, dry_run=False, cache_days: Optional[int] = None) -> None:
     """Check what new legislation is available in OJEU that concerns sanctions."""
     configure_logging(level=logging.DEBUG if debug else logging.INFO)
     dataset = load_dataset_from_path(DATASET_PATH)
@@ -191,15 +223,28 @@ def main(debug=False, cache_days: Optional[int] = None) -> None:
     messages = [item_message(i) for i in new.values()]
 
     # Announce the new files
+    errors = []
     for message in messages:
-        print(message)
+        if dry_run:
+            error = None
+            context.log.info(f"Dry run - would send message: {message}")
+        else:
+            error = send_message(context, message)
+        if error:
+            errors.append(error)
 
     # Add to seen file so we don't process them again
-    if new:
+    if new and not dry_run:
         with open(SEEN_PATH.as_posix(), "a") as fh:
             for celex in new.keys():
                 fh.write(celex + "\n")
         context.log.info(f"Updated seen file with new items.")
+
+    # If there were sending errors, log them and exit nonzero to alert us.
+    if errors:
+        for error in errors:
+            context.log.error(error)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
