@@ -467,8 +467,8 @@ def load_abbreviations(context):
     yaml = context.dataset.config.get("types")
     abbreviations = []
     for canonical, phrases in yaml.items():
-        # Join the phrases into a single regex pattern, escaping each phrase
-        phrase_pattern = "|".join(re.escape(phrase) for phrase in phrases)
+        # Join the phrases into a single regex pattern, escaping only necessary characters
+        phrase_pattern = "|".join(escape_special_chars(phrase) for phrase in phrases)
         compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
         abbreviations.append((canonical, compiled_pattern))
     return abbreviations
@@ -489,6 +489,18 @@ def substitute_abbreviations(name, abbreviations):
     for canonical, pattern in abbreviations:
         name = pattern.sub(canonical, name)
     return name
+
+
+def escape_special_chars(phrase):
+    """
+    Escape only special regex characters in a given phrase.
+    """
+    # Define regex meta-characters that need escaping
+    special_chars = ".^$*+?{}[]\\|()"
+    escaped_phrase = "".join(
+        f"\\{char}" if char in special_chars else char for char in phrase
+    )
+    return escaped_phrase
 
 
 def parse_company(context: Context, el: Element) -> None:
@@ -514,11 +526,15 @@ def parse_company(context: Context, el: Element) -> None:
         name_short = name_el.get("НаимЮЛСокр")
         # Replace phrases with abbreviations in both full and short names
         if name_full:
+            print(name_full)
             name_full = substitute_abbreviations(name_full, abbreviations)
+            print(name_full)
         if name_short:
+            print(name_short)
             name_short = substitute_abbreviations(name_short, abbreviations)
+            print(name_short)
 
-    name = name_full or name_short
+        name = name_full or name_short
 
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
