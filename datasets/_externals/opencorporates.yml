@@ -88,7 +88,14 @@ lookups:
         value: Panama
       - match: "Stralauer Allee 4, 10245 Berlin Gegenstand: Zweck der Stiftungsgesellschaft ist die schnelle und unbürokratische Unterstützung von Mitarbeitern der CCE AG und der Coca-Cola GmbH, die sich aufgrund unverschuldeter Ereignisse in finanziellen Notsituationen befinden und die Voraussetzungen des § 53 Nr. 1 oder 2 der Abgabenordnung erfüllen"
         value: Stralauer Allee 4, 10245 Berlin
-
+      - match: "Leinestraße 21, 12049 Berlin Gegenstand: Handel und Vertrieb von Bohrgeräten sowie Beratung über geologische Bohrungen und Geothermie sowie Dienstleistungen in der Bohrtechnik, insbesondere auch im Spezial-/Tiefbau Stamm- bzw. Grundkapital:25)000,00 EUR Vertretungsregelung: Ist ein Geschäftsführer bestellt, so vertritt er die Gesellschaft allein."
+        value: Leinestraße 21, 12049 Berlin
+      - match: "Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang, Dr. med. Christoph Mathey, Jolanta Pleyer, Dr. med. Astrid Spang. Praxissitz 78549 Spaichingen, Robert-Koch-Straße 31: Dr. med. Andreas Kammerzell. Praxissitz 78166 Donaueschingen, Wasserstraße 22: Dr. med. Tilman Freytag, Dr. med. Johannes Kohler. Praxissitz 88662 Überlingen, Mühlenstraße 12: Dr. med. Thomas Braus, Dr. med. Birgit Langenberger. Praxissitz 72379 Hechingen, Kirchplatz 2: Conka Tekeva-Rohrbach. Augenärzte Partnerschaftsgesellschaft"
+        values:
+          - 78532 Tuttlingen, Zeppelinstraße 21
+          - 78549 Spaichingen, Robert-Koch-Straße 31
+          - 88662 Überlingen, Mühlenstraße 12
+          - 72379 Hechingen, Kirchplatz 2
 
   type.country:
     lowercase: true
