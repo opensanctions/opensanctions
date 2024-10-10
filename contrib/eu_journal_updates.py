@@ -124,7 +124,7 @@ def query_celex(
     except requests.exceptions.HTTPError as e:
         context.log.error(f"Error querying EUR-Lex", error=e, response=e.response.text)
         return
-    total_hits = int(soap_response.find(".//totalhits"))
+    total_hits = int(soap_response.find(".//totalhits").text)
     num_hits = int(soap_response.find(".//numhits").text)
     context.log.debug(
         f"Page: {page_num}, Total hits: {total_hits}, num hits: {num_hits}"
