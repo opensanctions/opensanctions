@@ -453,7 +453,7 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     entity.add("address", address)
 
 
-def load_abbreviations(context) -> List[Tuple[str, re.Pattern, List[str]]]:
+def compile_abbreviations(context) -> List[Tuple[str, re.Pattern, List[str]]]:
     """
     Load abbreviations and compile regex patterns from the YAML config.
     Returns:
@@ -531,7 +531,7 @@ def parse_company(context: Context, el: Element) -> None:
     name_short: Optional[str] = None
 
     # Load abbreviations once using the context
-    abbreviations = load_abbreviations(context)
+    abbreviations = compile_abbreviations(context)
 
     for name_el in el.findall("./СвНаимЮЛ"):
         name_full = name_el.get("НаимЮЛПолн")
@@ -576,7 +576,8 @@ def parse_company(context: Context, el: Element) -> None:
 
     for successor in el.findall("./СвПреем"):
         succ_name = successor.get("НаимЮЛПолн")
-        succ_name_short = substitute_abbreviations(succ_name, abbreviations)
+        if succ_name:
+            succ_name_short = substitute_abbreviations(succ_name, abbreviations)
         print(succ_name_short)
         succ_inn = successor.get("ИНН")
         succ_ogrn = successor.get("ОГРН")
@@ -607,7 +608,8 @@ def parse_company(context: Context, el: Element) -> None:
     # To @pudo: Also adding this for the predecessor
     for predecessor in el.findall("./СвПредш"):
         pred_name = predecessor.get("НаимЮЛПолн")
-        pred_name_short = substitute_abbreviations(pred_name, abbreviations)
+        if pred_name:
+            pred_name_short = substitute_abbreviations(pred_name, abbreviations)
         print(pred_name_short)
         pred_inn = predecessor.get("ИНН")
         pred_ogrn = predecessor.get("ОГРН")
