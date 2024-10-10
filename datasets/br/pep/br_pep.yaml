@@ -31,12 +31,11 @@ data:
   format: csv
 ci_test: false
 
-dates: 
+dates:
   formats: ["%d/%m/%Y"]
-lookups: 
-  type.date: 
-    lowercase: true
-    normalize: true
+
+lookups:
+  type.date:
     options:
       - match: Não informada
         value: null

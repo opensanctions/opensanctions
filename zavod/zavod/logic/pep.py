@@ -152,6 +152,7 @@ def occupancy_status(
     death_date: Optional[str] = None,
     categorisation: Optional[PositionCategorisation] = None,
 ) -> Optional[OccupancyStatus]:
+    current_iso = current_time.isoformat()
     if death_date is not None and death_date < backdate(current_time, AFTER_DEATH):
         # If they died longer ago than AFTER_DEATH threshold, don't consider a PEP.
         return None
@@ -171,10 +172,10 @@ def occupancy_status(
         topics = position.get("topics")
     else:
         topics = categorisation.topics
+    after_office = get_after_office(topics)
 
     if end_date:
-        if end_date < current_time.isoformat():  # end_date is in the past
-            after_office = get_after_office(topics)
+        if end_date < current_iso:  # end_date is in the past
             if end_date < backdate(current_time, after_office):
                 # end_date is beyond after-office threshold
                 return None
@@ -184,7 +185,7 @@ def occupancy_status(
         elif (
             context.dataset.coverage
             and context.dataset.coverage.end
-            and context.dataset.coverage.end < current_time.isoformat()
+            and context.dataset.coverage.end < current_iso
         ):  # end_date is in the future and dataset is beyond its coverage.
             # Don't trust future end dates beyond the known coverage date of the dataset
             context.log.warning(
@@ -199,6 +200,14 @@ def occupancy_status(
             return OccupancyStatus.CURRENT
 
     else:  # No end date
+        dis_date = max(position.get("dissolutionDate"), default=None)
+        # dissolution date is in the past:
+        if dis_date is not None and dis_date < current_iso:
+            if dis_date > backdate(current_time, after_office):
+                return OccupancyStatus.ENDED
+            else:
+                return None
+
         if start_date is not None and start_date < backdate(current_time, MAX_OFFICE):
             # start_date is older than MAX_OFFICE threshold for assuming they're still
             # a PEP
