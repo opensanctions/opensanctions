@@ -38,6 +38,11 @@ SUB_TYPES: Dict[str, Set[str]] = {
         "role.pep",
         "gov.executive",
     },  # provincial leader of the People's Republic of China
+    "Q3526627": {
+        "role.pep",
+        "gov.legislative",
+        "gov.state",
+    },  # member of a Legislative Assembly of India
     "Q117826617": {"role.pep", "gov.judicial"},  # supreme court judge
     "Q55736868": {
         "role.pep",
