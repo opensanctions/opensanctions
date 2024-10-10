@@ -58,10 +58,8 @@ def crawl(context: Context):
         # Create a Sanction entity
         sanction = h.make_sanction(context, person)
         sanction.add("reason", entry.get("priezastis"), lang="lit")
-
-        # I'm not sure whether this is the start of the sanction or the legislation.
-        # for date in h.multi_split(entry.get("priezastis"), ["galiojanti nuo "]):
-        #     h.apply_date(sanction, "startDate", date)
+        for date in h.multi_split(entry.get("priezastis"), ["galiojanti nuo "]):
+            h.apply_date(sanction, "startDate", date)
         h.apply_date(sanction, "endDate", entry.get("uzdraustaIki"))
 
         # Emit entities
