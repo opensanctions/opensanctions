@@ -44,3 +44,10 @@ lookups:
           - Jul-21
           - Jul-19
         value: null
+  normalize_name: 
+    lowercase: true
+    normalize: true
+    options: 
+      - match: 
+          - none
+        value: null
