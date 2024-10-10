@@ -25,9 +25,21 @@ def test_occupancy_status(testdataset1: Dataset):
     person = context.make("Person")
     person.id = "thabo"
 
-    def status(implies, start, end, birth=None, death=None, position_topics=[]):
+    def status(
+        implies,
+        start,
+        end,
+        birth=None,
+        death=None,
+        position_topics=[],
+        dissolution_date=None,
+    ):
         pos = make_position(
-            context, name="A position", country="ls", topics=position_topics
+            context,
+            name="A position",
+            country="ls",
+            topics=position_topics,
+            dissolution_date=dissolution_date,
         )
         return occupancy_status(
             context,
@@ -67,6 +79,17 @@ def test_occupancy_status(testdataset1: Dataset):
         status(False, "1950-01-01", "2001-01-01", position_topics=["gov.national"])
         is None
     )
+    # Still a PEP when the position dissolved within DEFAULT_AFTER_OFFICE threshold
+    assert (
+        status(False, "1981-01-01", None, None, None, [], "2017-01-01")
+        is OccupancyStatus.ENDED
+    )
+    # Not a PEP when the position dissolved before DEFAULT_AFTER_OFFICE threshold,
+    # even though it started within MAX_OFFICE threshold.
+    assert status(False, "2001-01-01", None, None, None, [], "2015-01-01") is None
+    # Even if no_end_date_implies_current is True, because we know the position is dissolved.
+    assert status(True, "2001-01-01", None, None, None, [], "2015-01-01") is None
+
     categorisation_override = occupancy_status(
         context,
         person,
@@ -80,7 +103,6 @@ def test_occupancy_status(testdataset1: Dataset):
 
     # Not a PEP when end date is unknown but start date > MAX_OFFICE
     assert status(False, "1981-01-01", None) is None
-    assert status(True, "1981-01-01", None) is None
     assert status(True, "1981-01-01", None) is None
 
     # Unknown when started really long ago but < MAX_OFFICE ago

@@ -203,7 +203,7 @@ def occupancy_status(
         dis_date = max(position.get("dissolutionDate"), default=None)
         # dissolution date is in the past:
         if dis_date is not None and dis_date < current_iso:
-            if dis_date < backdate(current_time, after_office):
+            if dis_date > backdate(current_time, after_office):
                 return OccupancyStatus.ENDED
             else:
                 return None
