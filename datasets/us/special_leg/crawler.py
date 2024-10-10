@@ -29,10 +29,10 @@ def crawl_row(context: Context, row: Dict[str, str]):
     sanction.set("sourceUrl", source_url)
 
     target = False
-    if topics is not None:
+    if topics != "":
         target = True
     context.emit(entity, target=target)
-    context.emit(sanction)
+    context.emit(sanction, target=target)
     context.audit_data(row)
 
 
