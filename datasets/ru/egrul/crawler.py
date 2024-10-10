@@ -493,7 +493,7 @@ def substitute_abbreviations(
     # Iterate over all abbreviation groups
     for canonical, pattern, phrases in abbreviations:
         match = pattern.search(name)
-        if match:  # If a match is found
+        if match:
             # Check if this is a better match than previous matches (longer phrase)
             matched_phrase = match.group(0)
             if best_match is None or len(matched_phrase) > len(best_match):
@@ -687,7 +687,7 @@ def parse_examples(context: Context):
     # and an example of successor/predecessor relationship
     for inn in [
         # "2465088643",
-        "3702050590",
+        # "3702050590",
         # "4629036778",
         # "1026103055923",
         # "4630023396",
@@ -695,6 +695,14 @@ def parse_examples(context: Context):
         # "2901018688",
         # "3702050590",
         # "3729024252",
+        "4631007213",
+        "5401141128",
+        "1717007989",
+        "7714142772",
+        "7734211135",
+        "7802065830",
+        "7819015041",
+        "7816156358",
         # "4217029588",
         # "5407228110",
         # "7709383684",

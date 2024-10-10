@@ -260,7 +260,7 @@ config:
     ГУ:  # государственное учреждение
       - ГОСУДАРСТВЕННОЕ УЧРЕЖДЕНИЕ  # STATE INSTITUTION
       - ОКРУЖНОЕ ГОСУДАРСТВЕННОЕ УЧРЕЖДЕНИЕ  # DISTRICT STATE INSTITUTION
-      #- ГОСУДАРСТВЕННОЕ  # STATE
+      # - ГОСУДАРСТВЕННОЕ  # STATE
 
     ГОУ:  # государственное образовательное учреждение
       - ГОСУДАРСТВЕННАЯ ОБЩЕОБРАЗОВАТЕЛЬНАЯ ШКОЛА-ИНТЕРНАТ  # STATE GENERAL EDUCATIONAL BOARDING SCHOOL
@@ -276,7 +276,7 @@ config:
     ГКУ:
       - ГОСУДАРСТВЕННОЕ КАЗЁННОЕ УЧРЕЖДЕНИЕ ЯМАЛО-НЕНЕЦКОГО АВТОНОМНОГО ОКРУГА  # STATE TREASURY INSTITUTION OF YAMALO-NENETS AUTONOMOUS OKRUG
       - ГОСУДАРСТВЕННОЕ КАЗЕННОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # STATE TREASURY SPECIAL (CORRECTIONAL) EDUCATIONAL INSTITUTION
-      - ГОСУДАРСТВЕННОЕ КАЗЕННОЕ  # STATE TREASURY
+      # - ГОСУДАРСТВЕННОЕ КАЗЕННОЕ  # STATE TREASURY
 
     ГНУ:
       - ГОСУДАРСТВЕННОЕ НАУЧНОЕ УЧРЕЖДЕНИЕ  # STATE SCIENTIFIC INSTITUTION
@@ -329,7 +329,7 @@ config:
 
     ФГУ:  # федеральное государственное учреждение
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ УЧРЕЖДЕНИЕ  # FEDERAL STATE INSTITUTION
-      #- ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ  # FEDERAL STATE 
+      # - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ  # FEDERAL STATE 
     ФКУ:  # федеральное казенное учреждение
       - ФЕДЕРАЛЬНОЕ КАЗЕННОЕ УЧРЕЖДЕНИЕ  # FEDERAL TREASURY INSTITUTION
 
@@ -347,7 +347,7 @@ config:
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ УЧРЕЖДЕНИЕ  # FEDERAL STATE BUDGETARY INSTITUTION
     
     ППО:  # первичная профсоюзная организация
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ  # PRIMARY TRADE UNION
+      # - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ  # PRIMARY TRADE UNION
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ  # PRIMARY TRADE UNION ORGANIZATION
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ КАЛАЧЕЕВСКОГО ЛИНЕЙНОГО ПРОИЗВОДСТВЕННОГО УПРАВЛЕНИЯ МАГИСТРАЛЬНЫХ ГАЗОПРОВОДОВ  # PRIMARY TRADE UNION ORGANIZATION OF THE KALACHEEVSKY LINEAR PRODUCTION MANAGEMENT OF MAIN GAS PIPELINES
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ НИЖЕГОРОДСКОЙ ОБЛАСТНОЙ ОРГАНИЗАЦИИ ОБЩЕСТВЕННОЙ ОРГАНИЗАЦИИ  # PRIMARY TRADE UNION ORGANIZATION OF THE NIZHNY NOVGOROD REGIONAL ORGANIZATION OF THE PUBLIC ORGANIZATION
