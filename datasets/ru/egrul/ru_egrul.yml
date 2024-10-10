@@ -242,7 +242,7 @@ lookups:
       - match: Финляндская Республика
         value: FI
 
-config:  # TODO: sort descending so that the most specific matches are first
+config:
   types: 
     МОУ:  # муниципальное образовательное учреждение
       - МУНИЦИПАЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ ДОШКОЛЬНОГО И МЛАДШЕГО ШКОЛЬНОГО ВОЗРАСТА  # MUNICIPAL EDUCATIONAL INSTITUTION FOR PRESCHOOL AND PRIMARY SCHOOL CHILDREN
@@ -326,10 +326,9 @@ config:  # TODO: sort descending so that the most specific matches are first
     РО:  # религиозная организация
       - РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # RELIGIOUS ORGANIZATION
 
-    ФГУ: 
+    ФГУ:  # федеральное государственное учреждение
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ УЧРЕЖДЕНИЕ  # FEDERAL STATE INSTITUTION
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ  # FEDERAL STATE 
-    
     ФКУ:  # федеральное казенное учреждение
       - ФЕДЕРАЛЬНОЕ КАЗЕННОЕ УЧРЕЖДЕНИЕ  # FEDERAL TREASURY INSTITUTION
 

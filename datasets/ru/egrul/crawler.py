@@ -375,17 +375,23 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     # КЛАДР - Классификатор адресов Российской Федерации (old one, since 17.11.2005)
 
     # According to this source: https://www.garant.ru/products/ipo/prime/doc/74812994/
-    if el.tag in [
-        "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
-        "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
-        "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
-    ]:
+    if (
+        el.tag
+        in [
+            "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
+            "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
+            "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
+        ]
+    ):
         pass
-    elif el.tag in [
-        "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
-        "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
-        # Сведения о месте нахождения юридического лица
-    ]:
+    elif (
+        el.tag
+        in [
+            "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
+            "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
+            # Сведения о месте нахождения юридического лица
+        ]
+    ):
         return None  # ignore this one entirely
     else:
         context.log.warn("Unknown address type", tag=el.tag)
@@ -457,9 +463,11 @@ def load_abbreviations(context) -> List[tuple[str, re.Pattern]]:
     yaml = context.dataset.config.get("types")
     abbreviations = []
     for canonical, phrases in yaml.items():
+        # Sort abbreviations by the length of the pattern (we want to match the longest ones first)
+        phrases_sorted = sorted(phrases, key=len, reverse=True)
         # Join the phrases into a single regex pattern, escaping only necessary characters
         phrase_pattern = "|".join(
-            f"^\\b{escape_special_chars(phrase)}\\b" for phrase in phrases
+            f"^\\b{escape_special_chars(phrase)}\\b" for phrase in phrases_sorted
         )
         compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
         abbreviations.append((canonical, compiled_pattern))
@@ -510,10 +518,11 @@ def parse_company(context: Context, el: Element) -> None:
         if name_full:
             # print(name_full)
             name_full = substitute_abbreviations(name_full, abbreviations)
-            # print(name_full)
+            print(name_full)
         if name_short:
             # print(name_short)
             name_short = substitute_abbreviations(name_short, abbreviations)
+            print(name_short)
             # print(name_short)
 
         name = name_full or name_short
@@ -551,6 +560,8 @@ def parse_company(context: Context, el: Element) -> None:
 
     for successor in el.findall("./СвПреем"):
         succ_name = successor.get("НаимЮЛПолн")
+        succ_name = substitute_abbreviations(succ_name, abbreviations)
+        print(succ_name)
         succ_inn = successor.get("ИНН")
         succ_ogrn = successor.get("ОГРН")
         successor_id = entity_id(
@@ -580,6 +591,8 @@ def parse_company(context: Context, el: Element) -> None:
     # To @pudo: Also adding this for the predecessor
     for predecessor in el.findall("./СвПредш"):
         pred_name = predecessor.get("НаимЮЛПолн")
+        pred_name = substitute_abbreviations(pred_name, abbreviations)
+        print(pred_name)
         pred_inn = predecessor.get("ИНН")
         pred_ogrn = predecessor.get("ОГРН")
         predecessor_id = entity_id(
@@ -662,12 +675,12 @@ def parse_examples(context: Context):
         "4629036778",
         "1026103055923",
         "4630023396",
-        "2724032674",
-        "2901018688",
-        "3702050590",
-        "3729024252",
-        "4217029588",
-        "5407228110",
+        # "2724032674",
+        # "2901018688",
+        # "3702050590",
+        # "3729024252",
+        # "4217029588",
+        # "5407228110",
         # "7709383684",
         # "7704667322",
         # "9710075695",
