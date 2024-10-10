@@ -5,6 +5,7 @@ from typing import Optional
 import os
 from urllib.parse import urlencode
 import click
+import requests
 from zeep import Client
 from zeep.wsse.username import UsernameToken
 from zeep.settings import Settings
@@ -70,6 +71,7 @@ def expert_query(
     response_text = context.cache.get(key, max_age=cache_days) if cache_days else None
     if response_text is None:
         response = client.service.doQuery(*args)
+        response.raise_for_status()
         response_text = response.text
         root = etree.fromstring(response_text.encode("utf-8"))
         # only set if we could parse xml
@@ -115,15 +117,14 @@ def query_celex(
 ):
     query = f"MS={celex} OR EA={celex} OR LB={celex} ORDER BY XC DESC"
     context.log.info(f"Querying CELEX {celex}", page=page_num, query=query)
-    soap_response = expert_query(
-        context, client, query, page_num=page_num, cache_days=cache_days
-    )
-    total_hits_el = soap_response.find(".//totalhits")
-    if total_hits_el is None:
-        context.log.error("Unsuccessful query", response=etree.tostring(soap_response))
-        sys.exit(1)
-
-    total_hits = int(total_hits_el.text)
+    try:
+        soap_response = expert_query(
+            context, client, query, page_num=page_num, cache_days=cache_days
+        )
+    except requests.exceptions.HTTPError as e:
+        context.log.error(f"Error querying EUR-Lex", error=e, response=e.response.text)
+        return
+    total_hits = int(soap_response.find(".//totalhits"))
     num_hits = int(soap_response.find(".//numhits").text)
     context.log.debug(
         f"Page: {page_num}, Total hits: {total_hits}, num hits: {num_hits}"
