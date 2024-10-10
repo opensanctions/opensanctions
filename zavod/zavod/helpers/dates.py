@@ -10,6 +10,8 @@ from zavod.meta.dataset import Dataset
 
 log = get_logger(__name__)
 NUMBERS = re.compile(r"\d+")
+# We always want to accept ISO prefix dates.
+ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 DateValue = Union[str, date, datetime, None]
 
 __all__ = [
@@ -112,7 +114,8 @@ def extract_date(
         return [iso]
 
     replaced_text = replace_months(dataset, text)
-    parsed = parse_formats(replaced_text, dataset.dates.formats)
+    formats = dataset.dates.formats + ALWAYS_FORMATS
+    parsed = parse_formats(replaced_text, formats)
     if parsed.text is not None:
         return [parsed.text]
     if dataset.dates.year_only:
