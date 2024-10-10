@@ -96,6 +96,8 @@ lookups:
           - 78549 Spaichingen, Robert-Koch-Straße 31
           - 88662 Überlingen, Mühlenstraße 12
           - 72379 Hechingen, Kirchplatz 2
+      - match: "Platz vor dem Neuen Tor 2, 10115 Berlin Gegenstand: Erbringung persönlicher und sachlicher Leistungen im Zusammenhang mit der Durchführung von Ausbildungsprogrammen und Zertifizierungsvorbereitungen, insbesondere im Bereich der Projekt- und Programmorganisation Stamm- bzw. Grundkapital:33)400,00 EUR Vertretungsregelung: Ist ein Geschäftsführer bestellt, so vertritt er die Gesellschaft allein."
+        value: Platz vor dem Neuen Tor 2, 10115 Berlin
 
   type.country:
     lowercase: true
