@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from structlog.testing import capture_logs
+import pytest
 
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
@@ -44,6 +45,15 @@ def test_extract_date(testdataset1: Dataset):
     assert extract_date(testdataset1, "foo") == ["foo"]
     assert extract_date(testdataset1, "2. mar 2023") == ["2023-03-02"]
     assert extract_date(testdataset1, "2. März 2023") == ["2023-03-02"]
+
+    # Check always-accepted formats
+    assert "%Y-%m" not in testdataset1.dates.formats
+    assert extract_date(testdataset1, "2023-01", "stuff") == ["2023-01"]
+
+    # Check strict format
+    with pytest.raises(ValueError) as excinfo:
+        extract_date(testdataset1, "foo", "stuff")
+    assert "Invalid stuff: 'foo'" in str(excinfo.value)
 
 
 def test_replace_months(testdataset1: Dataset):
