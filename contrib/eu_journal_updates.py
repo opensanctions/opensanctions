@@ -67,7 +67,7 @@ def expert_query(
     # I guess to that language version of the notice in the journal.
     # e.g. 32022D0266R(01), 32022D0266R(02), 32022D0266R(03), ...
     key = hash_data(args)
-    response_text = context.cache.get(key, max_age=cache_days)
+    response_text = context.cache.get(key, max_age=cache_days) if cache_days else None
     if response_text is None:
         response = client.service.doQuery(*args)
         response_text = response.text
@@ -118,7 +118,12 @@ def query_celex(
     soap_response = expert_query(
         context, client, query, page_num=page_num, cache_days=cache_days
     )
-    total_hits = int(soap_response.find(".//totalhits").text)
+    total_hits_el = soap_response.find(".//totalhits")
+    if total_hits_el is None:
+        context.log.error("Unsuccessful query", response=etree.tostring(soap_response))
+        sys.exit(1)
+
+    total_hits = int(total_hits_el.text)
     num_hits = int(soap_response.find(".//numhits").text)
     context.log.debug(
         f"Page: {page_num}, Total hits: {total_hits}, num hits: {num_hits}"
