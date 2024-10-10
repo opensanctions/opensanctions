@@ -122,7 +122,7 @@ config:
       country: ae
     - category: Political_office-holders_in_Qatar
       depth: 7
-      topics: role.pep
+      topic: role.pep
       country: qa
     - category: House_of_Thani
       topic: role.pep
@@ -308,11 +308,13 @@ config:
     - category: Chief_justices_by_country
       topics:
         - role.judge
+        - role.pep
     - category: Central_bankers
       topic: role.pep
     - category: Lists_of_military_chiefs_of_staff
       topics:
         - mil
+        - role.pep
     - category: Lists_of_admirals
       topic: mil
 
@@ -675,7 +677,6 @@ config:
     - category: Political_office-holders_in_Iceland
       country: is
       topic: role.pep
-
     - category: Political_office-holders_in_the_Czech_Republic
       country: cz
       topic: role.pep
