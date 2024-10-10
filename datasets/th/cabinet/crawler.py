@@ -8,7 +8,7 @@ from zavod.shed.zyte_api import fetch_html
 ROLE_PATTERNS = re.compile(
     r"(?P<name>.+?)\s*(?P<role>รองนายกรัฐมนตรี.*|รัฐมนตรีว่าการ.*|รัฐมนตรีประจำ.*|รัฐมนตรีช่วยว่าการ.*|นายกรัฐมนตรี)"
 )
-# Pattern specifically for "นายกรัฐมนตรี"
+# Pattern specifically for "นายกรัฐมนตรี" (Prime Minister)
 PRIME_MINISTER_PATTERN = re.compile(r"(?P<role>นายกรัฐมนตรี)\s*(?P<name>.*)")
 
 
@@ -50,7 +50,7 @@ def crawl(context: Context):
         # Join all collected text with a space
         collected_text = " ".join(collected_texts)
 
-        # Split the text based on "Prime Minister", "Deputy Prime Minister", "Minister" in Thai
+        # Mtach the text based on "Prime Minister", "Deputy Prime Minister", "Minister" in Thai
         match = ROLE_PATTERNS.search(collected_text)
         if match:
             name = match.group("name").strip()
