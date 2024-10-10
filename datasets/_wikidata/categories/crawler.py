@@ -54,7 +54,6 @@ def crawl_position(
         no_end_implies_current=False,
         start_date=start_date,
         end_date=end_date,
-        birth_date=person.first("birthDate"),
     )
     if occupancy is not None:
         context.log.info("  -> %s (%s)" % (position.first("name"), position.id))
