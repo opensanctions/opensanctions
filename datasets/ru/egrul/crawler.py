@@ -1,6 +1,6 @@
 import re
 from urllib.parse import urljoin, urlparse
-from typing import Dict, Optional, Set, IO, List, Any
+from typing import Dict, Optional, Set, IO, List, Any, Tuple
 from collections import defaultdict
 from zipfile import ZipFile
 
@@ -375,17 +375,23 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     # КЛАДР - Классификатор адресов Российской Федерации (old one, since 17.11.2005)
 
     # According to this source: https://www.garant.ru/products/ipo/prime/doc/74812994/
-    if el.tag in [
-        "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
-        "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
-        "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
-    ]:
+    if (
+        el.tag
+        in [
+            "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
+            "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
+            "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
+        ]
+    ):
         pass
-    elif el.tag in [
-        "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
-        "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
-        # Сведения о месте нахождения юридического лица
-    ]:
+    elif (
+        el.tag
+        in [
+            "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
+            "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
+            # Сведения о месте нахождения юридического лица
+        ]
+    ):
         return None  # ignore this one entirely
     else:
         context.log.warn("Unknown address type", tag=el.tag)
@@ -447,35 +453,57 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     entity.add("address", address)
 
 
-def load_abbreviations(context) -> List[tuple[str, re.Pattern]]:
+def load_abbreviations(context) -> List[Tuple[str, re.Pattern, List[str]]]:
     """
     Load abbreviations and compile regex patterns from the YAML config.
     Returns:
-    List[Tuple[str, re.Pattern]]: A list of tuples containing canonical abbreviations
+    List[Tuple[str, re.Pattern, List[str]]]: A list of tuples containing canonical abbreviations
     and their compiled regex patterns for substitution.
     """
-    yaml = context.dataset.config.get("types")
+    yaml = context.dataset.config.get(
+        "types"
+    )  # Get the YAML config containing abbreviations
     abbreviations = []
     for canonical, phrases in yaml.items():
-        # Sort abbreviations by the length of the pattern (we want to match the longest ones first)
+        # Sort phrases by length (longest first) for more precise matching
         phrases_sorted = sorted(phrases, key=len, reverse=True)
-        # Join the phrases into a single regex pattern, escaping only necessary characters
         phrase_pattern = "|".join(
             f"^\\b{escape_special_chars(phrase)}\\b" for phrase in phrases_sorted
         )
         compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
-        abbreviations.append((canonical, compiled_pattern))
+        # Append the canonical form, compiled regex pattern, and sorted phrases to the list
+        abbreviations.append((canonical, compiled_pattern, phrases_sorted))
+
     return abbreviations
 
 
-def substitute_abbreviations(name, abbreviations) -> str:
+def substitute_abbreviations(
+    name: str, abbreviations: List[Tuple[str, re.Pattern, List[str]]]
+) -> str:
     """
-    Substitute matched phrases in a company name with their canonical abbreviations.
-    Returns:
-    str: The updated company name with substitutions applied.
+    Substitute abbreviations in the name using the compiled regex patterns.
+    :param name: The input name where abbreviations should be substituted.
+    :param abbreviations: A list of tuples with canonical abbreviations, regex patterns,
+                          and original phrases.
+    :return: The modified text with substitutions applied.
     """
-    for canonical, pattern in abbreviations:
-        name = pattern.sub(canonical, name)
+    best_match = None
+    best_canonical = None
+
+    # Iterate over all abbreviation groups
+    for canonical, pattern, phrases in abbreviations:
+        match = pattern.search(name)
+        if match:  # If a match is found
+            # Check if this is a better match than previous matches (longer phrase)
+            matched_phrase = match.group(0)
+            if best_match is None or len(matched_phrase) > len(best_match):
+                best_match = matched_phrase
+                best_canonical = canonical
+
+    # Substitute only the best match found
+    if best_canonical and best_match:
+        name = re.sub(re.escape(best_match), best_canonical, name, count=1)
+
     return name
 
 
@@ -658,11 +686,11 @@ def parse_examples(context: Context):
     # This subset contains a mix of companies with different address structures
     # and an example of successor/predecessor relationship
     for inn in [
-        "2465088643",
+        # "2465088643",
         "3702050590",
-        "4629036778",
-        "1026103055923",
-        "4630023396",
+        # "4629036778",
+        # "1026103055923",
+        # "4630023396",
         # "2724032674",
         # "2901018688",
         # "3702050590",
