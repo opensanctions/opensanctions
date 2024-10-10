@@ -5,35 +5,6 @@ from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 from zavod.shed.zyte_api import fetch_html
 
-# from zavod.shed.trans import (
-#     apply_translit_full_name,
-#     make_position_translation_prompt,
-# )
-
-# NAME_PROMPT = """
-# Translate and transliterate the following Thai names into English. Provide a JSON object
-# with the fields described below for each name:
-# - `"original_name"`: The original Thai name
-# - `"translated_name"`: The name translated into English
-
-# Ensure that the translation reflects common English equivalents for titles and honorifics.
-# Consider any prefixes, titles, or components that may be present in the Thai names.
-
-# **Output Example:**
-
-# ```json
-# {
-#   "original_name": "นายอนุทิน ชาญวีรกูล",
-#   "transliterated_name": "Anutin Charnvirakul"
-# }
-# ```
-
-# Focus on providing both an accurate English translation and common romanized form where applicable,
-# maintaining standard conventions in English nomenclature.
-
-# """
-# TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
-# POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
 ROLE_PATTERNS = re.compile(
     r"(?P<name>.+?)\s*(?P<role>รองนายกรัฐมนตรี.*|รัฐมนตรีว่าการ.*|รัฐมนตรีประจำ.*|รัฐมนตรีช่วยว่าการ.*|นายกรัฐมนตรี)"
 )
@@ -59,7 +30,7 @@ def crawl(context: Context):
     main_container = doc.find(".//div[@class='wonderplugintabs-panel-inner']")
 
     prime_minister = main_container.find(
-        ".//div[@style='min-height: 480; max-height: 600; display: flex; align-items: center; flex-direction: column; justify-content: center; width: 100%;']"  # to be updated
+        ".//div[@class='col-lg-1 col-md-1 col-sm-1 col-xs-12']"
     )
     persons = main_container.findall(
         ".//div[@style='min-height: 360; max-height: 500;']"
@@ -96,9 +67,6 @@ def crawl(context: Context):
         person = context.make("Person")
         person.id = context.make_id(name, role)
         person.add("name", name, lang="tha")
-        # apply_translit_full_name(
-        #     context, person, "tha", name, TRANSLIT_OUTPUT, prompt=NAME_PROMPT
-        # )
         person.add("topics", "role.pep")
 
         position = h.make_position(
@@ -109,9 +77,6 @@ def crawl(context: Context):
             lang="tha",
             topics=["gov.executive", "gov.national"],
         )
-        # apply_translit_full_name(
-        #     context, position, "tha", role, TRANSLIT_OUTPUT, POSITION_PROMPT
-        # )
 
         categorisation = categorise(context, position, is_pep=True)
         if categorisation.is_pep:
