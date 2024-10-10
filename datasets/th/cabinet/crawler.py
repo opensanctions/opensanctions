@@ -50,7 +50,7 @@ def crawl(context: Context):
         # Join all collected text with a space
         collected_text = " ".join(collected_texts)
 
-        # Mtach the text based on "Prime Minister", "Deputy Prime Minister", "Minister" in Thai
+        # Match the text based on "Prime Minister", "Deputy Prime Minister", "Minister" in Thai
         match = ROLE_PATTERNS.search(collected_text)
         if match:
             name = match.group("name").strip()
