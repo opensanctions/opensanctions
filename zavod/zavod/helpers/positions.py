@@ -160,7 +160,6 @@ def make_occupancy(
         assert categorisation.is_pep, person
 
     if status is None:
-        end_date_ = occupancy.get("endDate") or position.get("dissolutionDate")
         status = occupancy_status(
             context,
             person,
@@ -168,7 +167,7 @@ def make_occupancy(
             no_end_implies_current,
             current_time,
             max(occupancy.get("startDate"), default=None),
-            max(end_date_, default=None),
+            max(occupancy.get("endDate"), default=None),
             max(person.get("birthDate"), default=None),
             max(person.get("deathDate"), default=None),
             categorisation,
