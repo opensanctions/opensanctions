@@ -53,14 +53,14 @@ def crawl_holder(
     if qid is None or not is_qid(qid) or qid == "Q1045488":
         return
     entity.id = qid
+    entity.add("birthDate", holder.get("person_birth"))
+    entity.add("deathDate", holder.get("person_death"))
 
     occupancy = h.make_occupancy(
         context,
         entity,
         position,
         False,
-        death_date=date_value(holder.get("person_death")),
-        birth_date=date_value(holder.get("person_birth")),
         end_date=date_value(holder.get("end_date")),
         start_date=date_value(holder.get("start_date")),
         categorisation=categorisation,
