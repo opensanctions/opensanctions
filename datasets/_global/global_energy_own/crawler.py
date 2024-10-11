@@ -61,11 +61,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     id = row.pop("entity_id")
     name = row.pop("entity_name")
     # Skip entities
-    if (
-        name is None
-        or id == SMALL_SHAREHOLDERS
-        or id == UNKNOWN
-    ):
+    if name is None or id == SMALL_SHAREHOLDERS or id == UNKNOWN:
         skipped.add(id)
         return
     original_name = row.pop("name_local")
