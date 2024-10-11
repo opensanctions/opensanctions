@@ -37,7 +37,7 @@ data:
   url: https://sanctions.acf.international/api/villains/
   format: JSON
 
-dates: 
+dates:
   formats: ["%d.%m.%Y", "%d-%m-%Y", "%Y-%m-%d"]
 lookups:
   descriptions:
@@ -64,6 +64,8 @@ lookups:
           - 8 сентября
           - 10 октября
         value: null
+      - match: "10.20.1976"
+        value: 1976-10-20
       - match: ".05.1959"
         value: "1959-05"
       - match: "06.09.964"

@@ -7,6 +7,17 @@ from zavod import Context
 from zavod import helpers as h
 
 NO_YEAR = re.compile(r"^\d{1,2}\.\d{1,2}\.?$")
+IGNORE_COLUMNS = [
+    "canada",
+    "us",
+    "uk",
+    "eu",
+    "monaco",
+    "switzerland",
+    "australia",
+    "japan",
+    "korea",
+]
 
 
 def parse_result(context: Context, row: Dict[str, Any]):
@@ -42,14 +53,13 @@ def parse_result(context: Context, row: Dict[str, Any]):
     for tl in transliterations.split("\n"):
         tl = h.remove_bracketed(tl)
         entity.add("alias", tl)
-    if dob and NO_YEAR.match(dob):
-        dob = None
-    h.apply_date(entity, "birthDate", dob)
+    if dob is not None and not NO_YEAR.match(dob):
+        h.apply_date(entity, "birthDate", dob)
     entity.add("gender", row.pop("gender"))
     entity.add("createdAt", published_at)
 
     context.emit(entity, target=True)
-    # context.inspect(row)
+    context.audit_data(row, ignore=IGNORE_COLUMNS)
 
 
 def crawl(context: Context):
