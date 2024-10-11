@@ -70,8 +70,6 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
         no_end_implies_current=False,
         start_date=start_date,
         end_date=end_date,
-        birth_date=max(person.get("birthDate"), default=None),
-        death_date=max(person.get("deathDate"), default=None),
     )
     if occupancy is not None:
         state.log.info("  -> %s (%s)" % (position.first("name"), position.id))

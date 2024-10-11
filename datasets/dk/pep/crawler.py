@@ -33,15 +33,6 @@ def header_names(cells):
     return headers
 
 
-def parse_date(date: str) -> datetime:
-    dates = h.parse_date(date, formats=["%d.%m.%Y"])
-
-    if dates:
-        return dates[0]
-
-    return None
-
-
 def parse_old_pep(
     sheet: openpyxl.worksheet.worksheet.Worksheet,
 ) -> Generator[dict, None, None]:
@@ -132,7 +123,8 @@ def crawl_current_pep_item(context: Context, country: str, lang: str, input_dict
     entity.id = context.make_slug(first_name, last_name)
     h.apply_name(entity, first_name=first_name, last_name=last_name)
 
-    entity.add("birthDate", parse_date(input_dict.pop("birth-date")))
+    birth_date = input_dict.pop("birth-date")
+    h.apply_date(entity, "birthDate", birth_date.strip() if birth_date else None)
     list_name = input_dict.pop("list-name")
     affiliation = input_dict.pop("position")
 
@@ -161,7 +153,7 @@ def crawl_current_pep_item(context: Context, country: str, lang: str, input_dict
         entity,
         position,
         True,
-        start_date=parse_date(input_dict.pop("start-date")),
+        start_date=input_dict.pop("start-date").strip(),
         categorisation=categorisation,
     )
 
@@ -184,8 +176,7 @@ def crawl_old_pep_item(context: Context, country: str, lang: str, input_dict: di
     h.apply_name(entity, first_name=first_name, last_name=last_name)
 
     if "fodselsdato" in input_dict:
-        birth_date = input_dict.pop("fodselsdato")
-        entity.add("birthDate", parse_date(birth_date))
+        h.apply_date(entity, "birthDate", input_dict.pop("fodselsdato").strip())
 
     position = h.make_position(
         context, input_dict.pop(position_col), country=country, lang=lang
@@ -196,7 +187,7 @@ def crawl_old_pep_item(context: Context, country: str, lang: str, input_dict: di
         entity,
         position,
         True,
-        end_date=parse_date(input_dict.pop("fjernet_fra_pep_listen_dato")),
+        end_date=input_dict.pop("fjernet_fra_pep_listen_dato").strip(),
         categorisation=categorise(context, position, is_pep=True),
     )
 
