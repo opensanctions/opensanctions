@@ -376,23 +376,17 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     # КЛАДР - Классификатор адресов Российской Федерации (old one, since 17.11.2005)
 
     # According to this source: https://www.garant.ru/products/ipo/prime/doc/74812994/
-    if (
-        el.tag
-        in [
-            "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
-            "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
-            "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
-        ]
-    ):
+    if el.tag in [
+        "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
+        "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
+        "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
+    ]:
         pass
-    elif (
-        el.tag
-        in [
-            "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
-            "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
-            # Сведения о месте нахождения юридического лица
-        ]
-    ):
+    elif el.tag in [
+        "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
+        "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
+        # Сведения о месте нахождения юридического лица
+    ]:
         return None  # ignore this one entirely
     else:
         context.log.warn("Unknown address type", tag=el.tag)
@@ -464,19 +458,18 @@ def compile_abbreviations(context) -> List[Tuple[str, re.Pattern, List[str]]]:
     yaml = context.dataset.config.get("types")
     abbreviations = []
     for canonical, phrases in yaml.items():
-        # Sort phrases by length (longest first) for more precise matching
-        phrases_sorted = sorted(phrases, key=len, reverse=True)
         # we want to match the whole word and allow for ",' at the beginning
-        phrase_pattern = "|".join(
-            f"^[ \"']?\\b{re.escape(phrase)}\\b" for phrase in phrases_sorted
-        )
-        # print(f"Canonical: {canonical}")
-        # print(f"Phrase Pattern: {phrase_pattern}")
+        for phrase in phrases:
+            phrase_pattern = rf"^[ \"']?{re.escape(phrase)}"
 
-        compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
-        # Append the canonical form, compiled regex pattern, and sorted phrases to the list
-        abbreviations.append((canonical, compiled_pattern, phrases_sorted))
+            # print(f"Canonical: {canonical}")
+            # print(f"Phrase Pattern: {phrase_pattern}")
 
+            compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
+            # Append the canonical form, compiled regex pattern, and sorted phrases to the list
+            abbreviations.append((canonical, compiled_pattern, phrase))
+
+    abbreviations.sort(key=lambda x: len(x[2]), reverse=True)
     return abbreviations
 
 
@@ -490,9 +483,6 @@ def substitute_abbreviations(
                           and original phrases.
     :return: The modified text with substitutions applied.
     """
-    original_name = name  # Save the original name for use as the descriptions
-    best_match = None
-    best_canonical = None
 
     # Iterate over all abbreviation groups
     for canonical, pattern, phrases in abbreviations:
@@ -500,17 +490,11 @@ def substitute_abbreviations(
         if match:
             # Check if this is a better match than previous matches (longer phrase)
             matched_phrase = match.group(0)
-            if best_match is None or len(matched_phrase) > len(best_match):
-                best_match = matched_phrase
-                best_canonical = canonical
+            modified_name = name.replace(matched_phrase, canonical)
+            return modified_name, name
 
-    # Substitute only the best match found
-    if best_canonical and best_match:
-        modified_name = re.sub(re.escape(best_match), best_canonical, name, count=1)
-
-        return modified_name, original_name
     # If no match, return the original name and None as description
-    return original_name, None
+    return name, None
 
 
 # def escape_special_chars(phrase):
