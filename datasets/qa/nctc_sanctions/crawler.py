@@ -9,10 +9,10 @@ TYPES = {"1": "Person", "2": "Organization"}
 ALIAS_SPLITS = [";", "original script", "(", ")", "previously listed as"]
 
 
-def parse_dates(context: Context, text: str) -> List[str]:
+def parse_dates(text: str) -> List[str]:
     if not len(text):
         return []
-    dates = set()
+    dates = []
     type_, text = text.split("_", 1)
     if text == "X_X_X_X":
         return []
@@ -23,9 +23,8 @@ def parse_dates(context: Context, text: str) -> List[str]:
         part = part.strip()
         if part == "00":
             continue
-        parsed_dates = h.extract_date(context.dataset, part)
-        if parsed_dates:
-            dates.update(parsed_dates)
+        dates.append(part)
+
     return dates
 
 
@@ -57,7 +56,7 @@ def crawl(context: Context):
         fourth_name_ar = item.pop("fourthNameAR")
         fourth_name_en = item.pop("fourthNameEN")
         dob_format = item.pop("dobFormat")
-        dobs = parse_dates(context, dob_format)
+        dobs = parse_dates(dob_format)
         if entity.schema.is_a("Person"):
             entity.add("passportNumber", item.pop("passportNo"))
             entity.add("idNumber", item.pop("qid"))

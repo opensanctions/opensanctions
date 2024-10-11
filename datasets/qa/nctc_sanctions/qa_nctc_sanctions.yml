@@ -40,7 +40,7 @@ data:
   format: JSON
 
 dates: 
-  formats: ["%Y-%m-%d", "%Y-%m-%d-%H", "%d/%m/%Y", "X_%Y_X_X", "%d-%m-%Y", "%Y"]
+  formats: ["%Y-%m-%d-%H", "%d/%m/%Y", "X_%Y_X_X", "%d-%m-%Y"]
 lookups:
   type.country:
     lowercase: true
