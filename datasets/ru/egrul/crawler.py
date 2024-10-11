@@ -461,9 +461,7 @@ def compile_abbreviations(context) -> List[Tuple[str, re.Pattern, List[str]]]:
     List[Tuple[str, re.Pattern, List[str]]]: A list of tuples containing canonical abbreviations
     and their compiled regex patterns for substitution.
     """
-    yaml = context.dataset.config.get(
-        "types"
-    )  # Get the YAML config containing abbreviations
+    yaml = context.dataset.config.get("types")
     abbreviations = []
     for canonical, phrases in yaml.items():
         # Sort phrases by length (longest first) for more precise matching
@@ -793,21 +791,21 @@ def parse_examples(context: Context):
         # "2727024872",
         # "2727024872",
         # "2727024872",
-        "4220015338",
-        "7707106068",
-        "4630023396",
-        "4629033569",
-        "6163040716",
-        "6163040723",
-        "7717084127",
-        "4220015338",
-        "4516008089",
-        "5505023697",
-        "2509009024",
-        "4212018208",
-        "7415010030",
-        "2727024872",
-        "5407228110",
+        # "4220015338",
+        # "7707106068",
+        # "4630023396",
+        # "4629033569",
+        # "6163040716",
+        # "6163040723",
+        # "7717084127",
+        # "4220015338",
+        # "4516008089",
+        # "5505023697",
+        # "2509009024",
+        # "4212018208",
+        # "7415010030",
+        # "2727024872",
+        # "5407228110",
         # "4227002176",
         # "2313012520",
         # "2350007630",
@@ -846,7 +844,7 @@ def parse_examples(context: Context):
         # "3664245363",
         # "3664245363",
         # "3702050590",
-        # "3702050590",
+        "3702050590",
         # "3664011301",
         # "3702050590",
         # "7717035419",

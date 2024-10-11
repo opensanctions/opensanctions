@@ -244,6 +244,9 @@ lookups:
 
 config:
   types: 
+    Д/С: 
+      - ДЕТСКИЙ САД  # KINDERGARTEN
+
     МОУ:  # муниципальное образовательное учреждение
       - МУНИЦИПАЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ ДОШКОЛЬНОГО И МЛАДШЕГО ШКОЛЬНОГО ВОЗРАСТА  # MUNICIPAL EDUCATIONAL INSTITUTION FOR PRESCHOOL AND PRIMARY SCHOOL CHILDREN
 
@@ -264,15 +267,27 @@ config:
     ГОУ:  # государственное образовательное учреждение
       - ГОСУДАРСТВЕННАЯ ОБЩЕОБРАЗОВАТЕЛЬНАЯ ШКОЛА-ИНТЕРНАТ  # STATE GENERAL EDUCATIONAL BOARDING SCHOOL
       - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # STATE EDUCATIONAL INSTITUTION
-      - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ ДОШКОЛЬНОГО И МЛАДШЕГО ШКОЛЬНОГО ВОЗРАСТА НАЧАЛЬНАЯ ШКОЛА  # STATE EDUCATIONAL INSTITUTION FOR PRESCHOOL AND PRIMARY SCHOOL CHILDREN
       - ГОСУДАРСТВЕННОЕ ОБЩЕОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # STATE GENERAL EDUCATIONAL INSTITUTION
-      - ГОСУДАРСТВЕННОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОТКЛОНЕНИЯМИ В РАЗВИТИИ  # STATE SPECIAL (CORRECTIONAL) EDUCATIONAL INSTITUTION FOR STUDENTS WITH DEVELOPMENTAL DISABILITIES
 
-    ГБОУ:  # государственное бюджетное образовательное учреждение
-      - ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОГРАНИЧЕННЫМИ ВОЗМОЖНОСТЯМИ ЗДОРОВЬЯ СПЕЦИАЛЬНАЯ (КОРРЕКЦИОННАЯ)  # STATE BUDGETARY SPECIAL (CORRECTIONAL) EDUCATIONAL INSTITUTION FOR STUDENTS WITH DISABILITIES
+    ГОУ ДДМШВ: 
+      - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ ДОШКОЛЬНОГО И МЛАДШЕГО ШКОЛЬНОГО ВОЗРАСТА
+    
+    ГАУСО: 
+      - ГОСУДАРСТВЕННОЕ АВТОНОМНОЕ УЧРЕЖДЕНИЕ СОЦИАЛЬНОГО ОБСЛУЖИВАНИЯ
 
+    ГБСКОУ:  # государственное бюджетное образовательное учреждение
+      - ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОГРАНИЧЕННЫМИ ВОЗМОЖНОСТЯМИ ЗДОРОВЬЯ  # STATE BUDGET SPECIAL (CORRECTIONAL) EDUCATIONAL INSTITUTION FOR STUDENTS, TRAINEES WITH DISABILITIES
+
+    ГСКОУ: 
+      - ГОСУДАРСТВЕННОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ
+      - ГОСУДАРСТВЕННОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ С ОТКЛОНЕНИЯМИ В РАЗВИТИИ 
+      - ГОСУДАРСТВЕННОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ С ОТКЛОНЕНИЯМИ В РАЗВИТИИ - 
+    
     ГДОУ:  # государственное дошкольное образовательное учреждение
       - ГОСУДАРСТВЕННОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # STATE PRESCHOOL EDUCATIONAL INSTITUTION
+
+    ГДОУ - Д/С:  # государственное дошкольное образовательное учреждение - детский сад
+      - ГОСУДАРСТВЕННОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ - ДЕТСКИЙ САД  # STATE PRESCHOOL EDUCATIONAL INSTITUTION - KINDERGARTEN
 
     ГКУ:  # государственное казенное учреждение
       - ГОСУДАРСТВЕННОЕ КАЗЁННОЕ УЧРЕЖДЕНИЕ ЯМАЛО-НЕНЕЦКОГО АВТОНОМНОГО ОКРУГА  # STATE TREASURY INSTITUTION OF YAMALO-NENETS AUTONOMOUS OKRUG
@@ -290,6 +305,9 @@ config:
       - ДОЧЕРНЕЕ ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ  # SUBSIDIARY STATE UNITARY ENTERPRISE
       - ГОСУДАРСТВЕННОЕ УНИТАРНОЕ СЕЛЬСКОХОЗЯЙСТВЕННОЕ ПРЕДПРИЯТИЕ  # STATE UNITARY AGRICULTURAL ENTERPRISE
 
+    ГУДП:
+      - ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ДОЧЕРНЕЕ ПРЕДПРИЯТИЕ  # STATE UNITARY SUBSIDIARY ENTERPRISE
+    
     ФГНУ:  # федеральное государственное научное учреждение
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ НАУЧНОЕ УЧРЕЖДЕНИЕ  # FEDERAL STATE SCIENTIFIC INSTITUTION
 
@@ -308,6 +326,9 @@ config:
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ  # FEDERAL STATE EDUCATIONAL INSTITUTION OF HIGHER PROFESSIONAL EDUCATION
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ  # FEDERAL STATE BUDGETARY EDUCATIONAL INSTITUTION OF HIGHER PROFESSIONAL EDUCATION
 
+    ФГКВОУ ВПО:  # федеральное государственное казенное военное образовательное учреждение высшего образования
+      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ ВОЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ  # FEDERAL STATE TREASURY MILITARY EDUCATIONAL INSTITUTION OF HIGHER EDUCATION
+    
     МАОУ:  # муниципальное автономное общеобразовательное учреждение
       - МУНИЦИПАЛЬНОЕ АВТОНОМНОЕ ОБЩЕОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ МУНИЦИПАЛЬНОГО ОБРАЗОВАНИЯ ГОРОД КРАСНОДАР  # MUNICIPAL AUTONOMOUS GENERAL EDUCATIONAL INSTITUTION OF THE CITY OF KRASNODAR
 
@@ -349,6 +370,9 @@ config:
     ФГБУ:  # федеральное государственное бюджетное учреждение
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ УЧРЕЖДЕНИЕ  # FEDERAL STATE BUDGETARY INSTITUTION
     
+    ФГБУ ДПО: 
+      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ
+
     ППО:  # первичная профсоюзная организация
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ  # PRIMARY TRADE UNION ORGANIZATION
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ КАЛАЧЕЕВСКОГО ЛИНЕЙНОГО ПРОИЗВОДСТВЕННОГО УПРАВЛЕНИЯ МАГИСТРАЛЬНЫХ ГАЗОПРОВОДОВ  # PRIMARY TRADE UNION ORGANIZATION OF THE KALACHEEVSKY LINEAR PRODUCTION MANAGEMENT OF MAIN GAS PIPELINES
@@ -392,11 +416,12 @@ config:
       - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ -  # LOCAL PUBLIC ORGANIZATION 
 
     МОО - ППО:  # местная общественная организация - первичная профсоюзная организация
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ  # LOCAL PUBLIC ORGANIZATION - PRIMARY TRADE UNION
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ  # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ # LOCAL PUBLIC ORGANIZATION - PRIMARY TRADE UNION
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION
       - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ"  # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION ORGANIZATION OF WORKERS
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ  # LOCAL PUBLIC ORGANIZATION-PRIMARY TRADE UNION
-    
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ # LOCAL PUBLIC ORGANIZATION-PRIMARY TRADE UNION
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ – ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL PUBLIC ORGANIZATION-PRIMARY TRADE UNION ORGANIZATION
+
     МОО - ППО ГУП:  # местная общественная организация - первичная профсоюзная организация государственного унитарного предприятия
       - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ  # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION ORGANIZATION OF THE STATE UNITARY ENTERPRISE 
 
