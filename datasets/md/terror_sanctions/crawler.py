@@ -48,24 +48,16 @@ def crawl(context: Context):
     for row in h.parse_html_table(table):
         str_row = h.cells_to_str(row)
         dob = str_row.pop("data_de_nastere")
-        if dob:
-            birth_dates = []
-            for date in h.multi_split(dob, SPLITS):
-                dob_parsed = h.extract_date(context.dataset, date)
-                birth_dates.extend(dob_parsed)
-        else:
-            birth_dates = []
-        schema = "LegalEntity" if birth_dates == [] else "Person"
-        entity = context.make(schema)
+        entity = context.make("LegalEntity")
         name, aliases = parse_names(str_row.pop("persoana_fizica_entitate"))
-        entity.id = context.make_id(name, *sorted(birth_dates))
+        entity.id = context.make_id(name, dob)
         entity.add("name", name)
         entity.add("topics", "sanction")
         if aliases:
             entity.add("alias", aliases)
-        if birth_dates:
-            for date in birth_dates:
-                h.apply_date(entity, "birthDate", date)
+        for date in h.multi_split(dob, SPLITS):
+            entity.add_schema("Person")
+            h.apply_date(entity, "birthDate", date)
 
         sanction = h.make_sanction(context, entity)
         sanction.add("program", str_row.pop("sanctiuni_teroriste") or None, lang="mol")

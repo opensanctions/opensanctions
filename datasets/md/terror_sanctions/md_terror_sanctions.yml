@@ -52,7 +52,7 @@ url: https://antiteror.sis.md/advanced-page-type/listele-teroriste
 data:
   url: https://antiteror.sis.md/lista-terorista-xls
   format: HTML
-dates: 
+dates:
   formats: ["%d.%m.%Y", "%d %b. %Y", "%b. %Y", "%b.%Y"]
 assertions:
   min:
