@@ -82,9 +82,6 @@ def crawl_bio_page(context: Context, url: str):
     start_date, end_date = dates.split(" - ")
     if end_date == "Present":
         end_date = None
-    start_date = h.extract_date(context.dataset, start_date)[0]
-
-    end_date = h.extract_date(context.dataset, start_date)[0] if end_date else None
 
     occupancy = h.make_occupancy(
         context,
