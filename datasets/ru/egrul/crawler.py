@@ -467,8 +467,13 @@ def compile_abbreviations(context) -> List[Tuple[str, re.Pattern, List[str]]]:
     for canonical, phrases in yaml.items():
         # Sort phrases by length (longest first) for more precise matching
         phrases_sorted = sorted(phrases, key=len, reverse=True)
+        # phrase_pattern = "|".join(
+        #     f"^\\b{escape_special_chars(phrase)}\\b" for phrase in phrases_sorted
+        # )
         phrase_pattern = "|".join(
-            f"^\\b{escape_special_chars(phrase)}\\b" for phrase in phrases_sorted
+            # Allow optional single or double quotes at the start of the string
+            f"^[\"']?{escape_special_chars(phrase)}\\b"
+            for phrase in phrases_sorted
         )
         compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
         # Append the canonical form, compiled regex pattern, and sorted phrases to the list
@@ -479,7 +484,7 @@ def compile_abbreviations(context) -> List[Tuple[str, re.Pattern, List[str]]]:
 
 def substitute_abbreviations(
     name: str, abbreviations: List[Tuple[str, re.Pattern, List[str]]]
-) -> str:
+) -> Tuple[str, Optional[str]]:
     """
     Substitute abbreviations in the name using the compiled regex patterns.
     :param name: The input name where abbreviations should be substituted.
@@ -487,6 +492,7 @@ def substitute_abbreviations(
                           and original phrases.
     :return: The modified text with substitutions applied.
     """
+    original_name = name  # Save the original name for use as the descriptions
     best_match = None
     best_canonical = None
 
@@ -502,9 +508,12 @@ def substitute_abbreviations(
 
     # Substitute only the best match found
     if best_canonical and best_match:
-        name = re.sub(re.escape(best_match), best_canonical, name, count=1)
+        modified_name = re.sub(re.escape(best_match), best_canonical, name, count=1)
 
-    return name
+        return modified_name, original_name
+        # Return modified name and original as description
+    # If no match, return the original name and None as description
+    return original_name, None
 
 
 def escape_special_chars(phrase):
@@ -538,9 +547,10 @@ def parse_company(context: Context, el: Element) -> None:
         name_short = name_el.get("НаимЮЛСокр")
         # Replace phrases with abbreviations in both full and short names
         if name_full:
-            name_full_short = substitute_abbreviations(name_full, abbreviations)
-            print(name_full_short)
-
+            name_full_short, initial_name = substitute_abbreviations(
+                name_full, abbreviations
+            )
+            # print(name_full_short)
         name = name_full or name_short
 
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
@@ -552,6 +562,9 @@ def parse_company(context: Context, el: Element) -> None:
     entity.add("kppCode", el.get("КПП"))
     entity.add("legalForm", el.get("ПолнНаимОПФ"))
     entity.add("incorporationDate", el.get("ДатаОГРН"))
+    if name_full:
+        entity.add("description", initial_name)
+        # print(initial_name)
 
     for term_el in el.findall("./СвПрекрЮЛ"):
         entity.add("dissolutionDate", term_el.get("ДатаПрекрЮЛ"))
@@ -577,8 +590,9 @@ def parse_company(context: Context, el: Element) -> None:
     for successor in el.findall("./СвПреем"):
         succ_name = successor.get("НаимЮЛПолн")
         if succ_name:
-            succ_name_short = substitute_abbreviations(succ_name, abbreviations)
-        print(succ_name_short)
+            succ_name_short, succ_initial_name = substitute_abbreviations(
+                succ_name, abbreviations
+            )
         succ_inn = successor.get("ИНН")
         succ_ogrn = successor.get("ОГРН")
         successor_id = entity_id(
@@ -597,7 +611,9 @@ def parse_company(context: Context, el: Element) -> None:
             succ_entity.add("name", succ_name_short)
             succ_entity.add("innCode", succ_inn)
             succ_entity.add("ogrnCode", succ_ogrn)
-
+            if succ_initial_name:
+                succ_entity.add("description", succ_initial_name)
+                # print(succ_initial_name)
             # To @pudo: not sure if I got your idea right
             succ_entity.add("innCode", inn)
             succ_entity.add("ogrnCode", ogrn)
@@ -609,8 +625,10 @@ def parse_company(context: Context, el: Element) -> None:
     for predecessor in el.findall("./СвПредш"):
         pred_name = predecessor.get("НаимЮЛПолн")
         if pred_name:
-            pred_name_short = substitute_abbreviations(pred_name, abbreviations)
-        print(pred_name_short)
+            pred_name_short, pred_initial_name = substitute_abbreviations(
+                pred_name, abbreviations
+            )
+        # print(pred_name_short)
         pred_inn = predecessor.get("ИНН")
         pred_ogrn = predecessor.get("ОГРН")
         predecessor_id = entity_id(
@@ -629,6 +647,9 @@ def parse_company(context: Context, el: Element) -> None:
             pred_entity.add("name", pred_name_short)
             pred_entity.add("innCode", pred_inn)
             pred_entity.add("ogrnCode", pred_ogrn)
+            if pred_initial_name:
+                pred_entity.add("description", pred_initial_name)
+                # print(pred_initial_name)
 
             # To @pudo: not sure if I got your idea right
             pred_entity.add("innCode", inn)
@@ -688,33 +709,278 @@ def parse_examples(context: Context):
     # This subset contains a mix of companies with different address structures
     # and an example of successor/predecessor relationship
     for inn in [
-        # "2465088643",
-        # "3702050590",
-        # "4629036778",
-        # "1026103055923",
-        # "4630023396",
-        # "2724032674",
-        # "2901018688",
-        # "3702050590",
-        # "3729024252",
-        "4631007213",
-        "5401141128",
-        "1717007989",
-        "7714142772",
-        "7734211135",
+        "5001079186",
+        "3664245363",
+        "6670096267",
+        "2318026780",
+        "7717525244",
+        "2465088643",
+        "1001048945",
+        "3702050590",
         "7802065830",
-        "7819015041",
-        "7816156358",
-        # "4217029588",
-        # "5407228110",
-        # "7709383684",
-        # "7704667322",
-        # "9710075695",
-        # "7813654884",
-        # "1122031001454",
-        # "1025002029580",
-        # "1131001011283",
-        # "1088601000047",
+        "7810271523",
+        "7810271523",
+        "7724185623",
+        "3664011301",
+        "2452042345",
+        "2308025481",
+        "8901016554",
+        "3234016940",
+        "5001000242",
+        "5047011261",
+        "7717525244",
+        "1430007433",
+        "7718084063",
+        "4516008089",
+        "4516008089",
+        "4516008089",
+        "3203003490",
+        "4629032237",
+        "4629032237",
+        "4629031995",
+        "2309147242",
+        "2309147242",
+        "7813088036",
+        "7719285421",
+        "7719289627",
+        "8618004740",
+        "7714034350",
+        "4629036778",
+        "1326136150",
+        "5054006463",
+        "7733181368",
+        "7720280379",
+        "3123021704",
+        "2904009307",
+        "2904009307",
+        "2904009307",
+        "2727023043",
+        "2727023043",
+        "2727023043",
+        "2724032674",
+        "7604016856",
+        "3329022081",
+        "7701104579",
+        "7705331389",
+        "7725025164",
+        "1655021564",
+        "1655021596",
+        "8601025269",
+        "6162027367",
+        "6162027367",
+        "6162067923",
+        "7704189122",
+        "7704189122",
+        "7804046294",
+        "1650283990",
+        "1650306340",
+        "4223028864",
+        "4223028864",
+        "4223028864",
+        "7704218895",
+        "7704279665",
+        "2465015109",
+        "3102009368",
+        "5047011261",
+        "5047011261",
+        "5001079186",
+        "2634045630",
+        "7728176940",
+        "3629002897",
+        "3629002897",
+        "3629002897",
+        "3629002897",
+        "7704189122",
+        "9102184811",
+        "7724181918",
+        "7710363643",
+        "2727024872",
+        "2727024872",
+        "2727024872",
+        "4220015338",
+        "7707106068",
+        "4630023396",
+        "4629033569",
+        "6163040716",
+        "6163040723",
+        "7717084127",
+        "4220015338",
+        "4516008089",
+        "5505023697",
+        "2509009024",
+        "4212018208",
+        "7415010030",
+        "2727024872",
+        "5407228110",
+        "4227002176",
+        "2313012520",
+        "2350007630",
+        "3525075812",
+        "4220013147",
+        "2538057590",
+        "4217029588",
+        "2277007747",
+        "6659060524",
+        "2709009568",
+        "6141011775",
+        "2727023043",
+        "2208007827",
+        "2724032674",
+        "2727024720",
+        "2727024865",
+        "2904009307",
+        "4223028864",
+        "2208007834",
+        "6162027367",
+        "5444102388",
+        "5407209541",
+        "1611003825",
+        "6154148086",
+        "1001048945",
+        "2901018688",
+        "4629034770",
+        "2310067136",
+        "7706453157",
+        "7732109880",
+        "2625002693",
+        "2625002693",
+        "6659060524",
+        "6659060524",
+        "6659060524",
+        "3664245363",
+        "3664245363",
+        "3702050590",
+        "3702050590",
+        "3664011301",
+        "3702050590",
+        "7717035419",
+        "7717035419",
+        "7717035419",
+        "7719079027",
+        "7718084063",
+        "1516622134",
+        "7718120723",
+        "7701350687",
+        "7604016528",
+        "7604016912",
+        "7728437776",
+        "4025040235",
+        "4025040235",
+        "5050079661",
+        "7707329811",
+        "5047011261",
+        "7704189122",
+        "7726077493",
+        "7729673159",
+        "7711075077",
+        "6165032534",
+        "6231027635",
+        "2350007630",
+        "2350007630",
+        "2350007630",
+        "7728221664",
+        "7728128009",
+        "7722070190",
+        "8301010110",
+        "7725097930",
+        "2634045125",
+        "2020000450",
+        "0275001922",
+        "7714142772",
+        "7703280548",
+        "7714142772",
+        "7703027665",
+        "2308041067",
+        "7720069954",
+        "2727024720",
+        "2727024720",
+        "2727024720",
+        "4217029588",
+        "9717017050",
+        "2452042345",
+        "2452042345",
+        "7810271523",
+        "7810271523",
+        "7810271523",
+        "7810271523",
+        "7810271523",
+        "7810271523",
+        "5050083241",
+        "7724209994",
+        "3666059891",
+        "3914004772",
+        "7804046294",
+        "4427000225",
+        "6715002180",
+        "3410060464",
+        "5402003554",
+        "8618004740",
+        "6670096267",
+        "4629037919",
+        "7707039365",
+        "4613000127",
+        "8506002889",
+        "7722070169",
+        "7723002972",
+        "7701115531",
+        "7720069143",
+        "0275001922",
+        "0275001922",
+        "0275013195",
+        "2634045125",
+        "2309147242",
+        "2309147242",
+        "2727024865",
+        "2727024865",
+        "2727024865",
+        "2208007834",
+        "2208007834",
+        "2208007834",
+        "2709009568",
+        "2709009568",
+        "2709009568",
+        "7729348110",
+        "7717024230",
+        "7704189122",
+        "6163022918",
+        "6163022918",
+        "7718120723",
+        "9102175415",
+        "7706300224",
+        "3123071529",
+        "7415010030",
+        "7325137723",
+        "6316028638",
+        "7704246211",
+        "9103073737",
+        "7707039630",
+        "2208007827",
+        "6450525810",
+        "3661057435",
+        "3661057435",
+        "5102007396",
+        "2801212152",
+        "2309147242",
+        "6452088763",
+        "7711069066",
+        "7729773273",
+        "7710155192",
+        "2904009307",
+        "7805145481",
+        "7802139176",
+        "2465015109",
+        "2309075140",
+        "2310067136",
+        "1215084690",
+        "6027090203",
+        "6164047104",
+        "5047011261",
+        "5001079186",
+        "3661057435",
+        "3661057435",
+        "2309147242",
+        "3661057435",
+        "3661057435",
     ]:
         path = context.fetch_resource("%s.xml" % inn, INN_URL % inn)
         with open(path, "rb") as fh:
@@ -770,5 +1036,20 @@ def crawl_archive(context: Context, url: str) -> None:
 def crawl(context: Context) -> None:
     # TODO: thread pool execution
     parse_examples(context)
+    # api_response = context.fetch_json(
+    #     "https://data.opensanctions.org/artifacts/ext_ru_egrul/20241003233502-jjy/issues.json",
+    #     cache_days=1,
+    # )
+    # entity_ids = []
+    # # Iterate through the issues in the response
+    # issues = api_response.get("issues", [])
+    # for issue in issues:
+    #     # Extract entity_id from the data field, if it exists
+    #     entity_data = issue.get("data", {})
+    #     entity_id = entity_data.get("entity_id")
+    #     if entity_id and entity_id.startswith("ru-inn-"):
+    #         cleaned_id = entity_id.replace("ru-inn-", "")
+    #         entity_ids.append(cleaned_id)
+    # print(entity_ids)
     # for archive_url in sorted(crawl_index(context, context.data_url)):
     #     crawl_archive(context, archive_url)
