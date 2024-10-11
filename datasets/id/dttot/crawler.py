@@ -46,6 +46,8 @@ def find_last_link(context: Context, html: etree._Element) -> str:
     last_href = last_link.get("href")
     if last_href is None:
         raise ValueError("No href found")
+    # Fix backend URL pasted in instead of public URL or something
+    last_href = last_href.replace("https://be.ppatk.go.id/", "https://www.ppatk.go.id/")
     return last_href
 
 
