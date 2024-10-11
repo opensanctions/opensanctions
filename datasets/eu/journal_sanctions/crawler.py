@@ -17,6 +17,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
     entity.add("topics", "sanction")
+    if row.get("DOB"):
+        entity.add("birthDate", row.pop("DOB", None))
     entity.add("country", country)
     h.apply_name(entity, name)
     alias = row.pop("Alias").strip()

@@ -635,6 +635,7 @@ lookups:
           - Sultanate of Harar
           - Novgorod Republic
           - First Republic of Armenia
+          - Cimmeria
         value: null
       - match:
           - Cherokee Nation
@@ -672,7 +673,7 @@ lookups:
         value: SB
       - match: French Guinea
         value: GN
-      - match: 
+      - match:
           - Republic of Dahomey
           - People's Republic of Benin
         value: BJ
@@ -862,13 +863,16 @@ lookups:
         value: HR
       - contains: Ba'athist Iraq
         value: Iraq
+      - match:
+          - First Republic of Armenia
+        value: AM
       - match: Armenian Soviet Socialist Republic
         values:
           - SUHH
           - AM
       - match: Kingdom of Serbia
         value: Serbia
-      - match: 
+      - match:
           - Federation of Malaya
           - Kedah Sultanate
         value: Malaysia
@@ -884,15 +888,15 @@ lookups:
           - KZ
       - match: Azerbaijan Democratic Republic
         value: AZ
-      - match: 
+      - match:
           - Gujarat
           - Manipur
-          - Jodhpur 
+          - Jodhpur
           - Vijayanagara Empire
           - Kingdom of Travancore
           - Tripura
         value: India
-      - match: 
+      - match:
           - Kingdom of Nejd and Hejaz
           - Hejaz
           - Mecca
@@ -901,11 +905,11 @@ lookups:
         values:
           - SUHH
           - EE
-      - match: 
+      - match:
           - Oaxaca
           - Sandia Pueblo
         value: MX
-      - match: 
+      - match:
           - Aceh
           - Bali Island
         value: Indonesia
@@ -924,7 +928,7 @@ lookups:
         value: NG
       - match: Puntland
         value: SO
-      - match: 
+      - match:
           - South African Republic
           - Ciskei
         value: ZA
@@ -966,7 +970,7 @@ lookups:
           - eunuch
           - muxe
         value: other
-      - match: 
+      - match:
           - transgender
           - agender
         value: null
