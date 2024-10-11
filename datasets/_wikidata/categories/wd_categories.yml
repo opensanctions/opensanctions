@@ -51,9 +51,15 @@ lookups:
         value: es
       - match: Romanov Empire
         value: ru
+      - match: Ambazonia
+        value: cm
+      - match: Republic of Mahabad
+        value: ir
       - match:
           - Persian Empire
+          - Medo-persia
           - British overseas territories
+          - East Turkistan Government in Exile
         value: null
   type.date:
     options:
@@ -65,6 +71,16 @@ lookups:
         value: 2019-11
       - match: "2012-02-30"
         value: 2012-02
+      - match: "2020-04-31"
+        value: 2020-04
+      - match: "1973-09-31"
+        value: 1973-09
+      - match: "2023-02-31"
+        value: 2023-02
+      - match: "1949-02-29"
+        value: 1949-02
+      - match: "2021-06-31"
+        value: 2021-06
 
 config:
   seeds:
