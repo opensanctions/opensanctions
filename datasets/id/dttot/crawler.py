@@ -1,13 +1,13 @@
 import re
+from typing import Any, Dict
 import xlrd  # type: ignore
 from lxml import etree
 from datetime import datetime
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 
 
-FORMATS = ["%d %B %Y"]
 DATETIME_FORMAT = "%Y%m%d%H%M%S"
 addr_delim = re.compile(r"[\W][a-zA-Z]\)|;")
 
@@ -51,42 +51,34 @@ def find_last_link(context: Context, html: etree._Element) -> str:
     return last_href
 
 
-def value_or_none(row, headers, key):
-    try:
-        return row[headers[key]].value
-    except Exception:
-        return None
+def row_to_dict(row, headers: Dict[str, str]) -> dict:
+    out: Dict[str, Any] = {}
+    for norm, col in headers.items():
+        value = row[col].value
+        if isinstance(value, str):
+            value = value.strip()
+        if value is None or value == "-" or value == "":
+            continue
+        out[norm] = value
+    return out
 
 
-def parse_dates(value: str):
+def apply_date(entity: Entity, prop: str, value: str) -> None:
     """Dates come in arbitrary formats, but the most common ones seem to be
     01/04/1983 and 01 apr 1983. Sometimes there are multiple dates in the same cell.
     """
     if value is None or value == "00/00/0000":
-        return []
-    if isinstance(value, str):
-        for s in h.multi_split(value, ["-", " atau ", " dan "]):
-            yield from h.parse_date(s, FORMATS, default=value)
-        return
+        return None
     if isinstance(value, list):
         for v in value:
-            yield from parse_dates(v)
-        return
-    if isinstance(value, (float, int)):
-        yield h.convert_excel_date(value)
-        return
-    yield from h.parse_date(value, FORMATS, default=value)
-
-
-def row_to_dict(row, headers: dict) -> dict:
-    return {k: row[headers[k]].value for k in headers if value_or_none(row, headers, k)}
-
-
-def get_schema(context: Context, row, headers):
-    schema = context.lookup_value("type", row[headers["type"]].value)
-    if schema:
-        return schema
-    return "LegalEntity"
+            apply_date(entity, prop, v)
+    elif isinstance(value, (float, int)):
+        entity.add(prop, h.convert_excel_date(value), original_value=str(value))
+    elif isinstance(value, str):
+        for value in h.multi_split(value, ["atau"]):
+            h.apply_date(entity, prop, value)
+    else:
+        raise ValueError(f"Unexpected value type {type(value)}")
 
 
 def crawl(context: Context):
@@ -102,32 +94,30 @@ def crawl(context: Context):
             val = in_header[col_idx].value.strip().lower()
         except Exception:
             continue
-        headers[context.lookup_value("headers", val)] = col_idx
+        headers[context.lookup_value("headers", val, val)] = col_idx
     for rx in range(1, sh.nrows):
-        row = sh.row(rx)
         drow = row_to_dict(sh.row(rx), headers)
-        entity = context.make(get_schema(context, row, headers))
+        item_id = drow.pop("id")
+        schema = context.lookup_value("type", drow.pop("type"), "LegalEntity")
+        entity = context.make(schema)
         names = h.multi_split(drow.pop("name"), ["alias", "ALIAS"])
-        entity.id = context.make_id(drow.pop("id"), names[0])
-        sanction = h.make_sanction(context, entity)
+        entity.id = context.make_id(item_id, *names)
         entity.add("topics", "sanction")
-        sanction.add("program", "DTTOT")
         entity.add("name", names[0])
         entity.add("alias", names[1:])
         if addr := drow.pop("address", None):
-            if not isinstance(addr, str):
-                continue
+            addr = str(addr).strip("-").strip()
             for addr in addr_delim.split(addr):
-                h.apply_address(
-                    context, entity, h.make_address(context, addr, lang="ind")
-                )
+                entity.add("address", addr, lang="ind")
         entity.add("country", drow.pop("country", None))
         entity.add("notes", drow.pop("description", None), lang="ind")
-        dob_raw = drow.pop("birth_date", "")
-        entity.add_cast("Person", "birthDate", list(parse_dates(dob_raw)))
-        if entity.schema.is_a("Person"):
-            entity.add("birthPlace", drow.pop("birth_place", None))
-        else:
-            entity.add("description", drow.pop("birth_place", None))
+        if not entity.schema.is_a("Organization"):
+            entity.add_cast("Person", "birthPlace", drow.pop("birth_place", None))
+            dob_raw = drow.pop("birth_date", [])
+            if dob_raw and dob_raw != "00/00/0000":
+                entity.add_schema("Person")
+                apply_date(entity, "birthDate", dob_raw)
+        sanction = h.make_sanction(context, entity)
+        sanction.add("authorityId", item_id)
         context.emit(entity, target=True)
         context.emit(sanction)
