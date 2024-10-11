@@ -86,6 +86,9 @@ def parse_entry(context: Context, entry: Element) -> None:
         context.log.warning("Unknown subject type", type=subject_type)
         return
     schema = context.lookup_value("schema_override", entity_id, schema)
+    if schema is None:
+        context.log.warning("Broken schema override", entity_id=entity_id)
+        return
 
     entity = context.make(schema)
     entity.id = entity_id
