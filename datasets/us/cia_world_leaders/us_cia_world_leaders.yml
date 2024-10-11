@@ -116,3 +116,11 @@ lookups:
         topics:
           - gov.national
           - gov.security
+  normalize_name: 
+    lowercase: true
+    normalize: true
+    options: 
+      - match: 
+          - (VACANT)
+          - vacant
+        value: null

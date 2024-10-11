@@ -46,7 +46,7 @@ def crawl_infobox(context: Context, person: Entity, infobox: HtmlElement):
         birthdate = m.group(1)
         birthdate = WS.sub(" ", birthdate)
         birthdate = birthdate.strip(" .;,")
-        context.log.debug(f"Birthdate: {birthdate}")
+        context.log.debug(f"Birthdate: '{birthdate}'")
         h.apply_date(person, "birthDate", birthdate)
 
     m = BIRTHPLACE.search(text)

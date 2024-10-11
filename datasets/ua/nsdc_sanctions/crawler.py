@@ -74,6 +74,8 @@ def crawl_common(
             "reg:cy",
             "reg:sy",
             "reg:cz_person",
+            "reg:ch",
+            "reg:nin",
             None,
         ):
             entity.add("registrationNumber", ident_value)
@@ -91,6 +93,18 @@ def crawl_common(
                 country=ident.get("iso2"),
                 summary=ident.get("note"),
                 passport=True,
+            )
+            if doc is not None:
+                context.emit(doc)
+        elif ident_id in ("doc:residence"):
+            doc = h.make_identification(
+                context,
+                entity,
+                doc_type=ident_id,
+                number=ident_value,
+                country=ident.get("iso2"),
+                summary=ident.get("note"),
+                passport=False,
             )
             if doc is not None:
                 context.emit(doc)

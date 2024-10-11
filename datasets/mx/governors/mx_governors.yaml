@@ -28,3 +28,6 @@ url: "https://www.conago.org.mx/gobernadores/historicos"
 data:
   url: https://www.conago.org.mx/gobernadores/historicos
   format: HTML
+
+dates: 
+  formats: ["%d/%m/%Y"]

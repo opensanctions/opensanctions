@@ -45,6 +45,10 @@ def test_extract_date(testdataset1: Dataset):
     assert extract_date(testdataset1, "2. mar 2023") == ["2023-03-02"]
     assert extract_date(testdataset1, "2. März 2023") == ["2023-03-02"]
 
+    # Check always-accepted formats
+    assert "%Y-%m" not in testdataset1.dates.formats
+    assert extract_date(testdataset1, "2023-01") == ["2023-01"]
+
 
 def test_replace_months(testdataset1: Dataset):
     assert replace_months(testdataset1, "3. März 2021") == "3. mar 2021"

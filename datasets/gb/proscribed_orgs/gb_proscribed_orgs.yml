@@ -39,3 +39,13 @@ publisher:
 data:
   url: https://www.legislation.gov.uk/ukpga/2000/11/schedule/2?view=plain
   format: HTML
+
+dates: 
+  formats: ["%d.%m.%Y"]
+assertions:
+  min:
+    schema_entities:
+      Organization: 90
+  max:
+    schema_entities:
+      Organization: 140
