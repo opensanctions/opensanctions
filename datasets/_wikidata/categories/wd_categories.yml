@@ -4,9 +4,9 @@ prefix: wd
 coverage:
   frequency: daily
   start: 2024-09-10
-  schedule: "0 */6 * * *"
+  schedule: "0 22 * * *"
 deploy:
-  memory: "4Gi"
+  memory: "2Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 exports:
@@ -49,6 +49,18 @@ lookups:
           - Galicia
           - Ceuta
         value: es
+      - match: Romanov Empire
+        value: ru
+      - match: Ambazonia
+        value: cm
+      - match: Republic of Mahabad
+        value: ir
+      - match:
+          - Persian Empire
+          - Medo-persia
+          - British overseas territories
+          - East Turkistan Government in Exile
+        value: null
   type.date:
     options:
       - match: "1935-06-31"
@@ -59,8 +71,51 @@ lookups:
         value: 2019-11
       - match: "2012-02-30"
         value: 2012-02
+      - match: "2020-04-31"
+        value: 2020-04
+      - match: "1973-09-31"
+        value: 1973-09
+      - match: "2023-02-31"
+        value: 2023-02
+      - match: "1949-02-29"
+        value: 1949-02
+      - match: "2021-06-31"
+        value: 2021-06
 
 config:
+  seeds:
+    - "Q109862464" # lord mayor
+    - "Q2285706" # head of government
+    - "Q48352" # head of state
+    - "Q183318" # dictator
+    - "Q7645115" # supreme leader
+    - "Q3099723" # minister-president
+    - "Q4175034" # legislator
+    - "Q486839" # member of parliament
+    - "Q83307" # minister
+    - "Q7330070" # foreign minister
+    - "Q14212" # prime minister
+    - "Q15966511" # deputy minister
+    - "Q46403368" # deputy at the national level
+    - "Q20086425" # shadow minister
+    - "Q108290289" # senior government officials
+    - "Q6635529" # provincial leader of the People's Republic of China
+    - "Q117826617" # supreme court judge
+    - "Q55736868" # national sup court judge
+    - "Q1501926" # attorney general
+    - "Q3368517" # public prosecutor general
+    - "Q109607046" # deputy public prosecutor general
+    - "Q107363151" # central bank governor
+    - "Q1553195" # party leader
+    - "Q2746259" # party chair
+    - "Q836971" # party secretary
+    - "Q29645880" # ambassador of a country
+    - "Q29645886" # ambassador to a country
+    - "Q707492" # military chief of staff
+    - "Q105434600" # high civil servant
+    - "Q17279032" # elective office
+    # skip:
+    # - "Q30185" # mayor
   categories:
     # Mega collections:
     - category: Political_office-holders_in_Asia
@@ -83,7 +138,7 @@ config:
       country: ae
     - category: Political_office-holders_in_Qatar
       depth: 7
-      topics: role.pep
+      topic: role.pep
       country: qa
     - category: House_of_Thani
       topic: role.pep
@@ -148,7 +203,7 @@ config:
     - category: Syrian_individuals_subject_to_U.S._Department_of_the_Treasury_sanctions
     - category: Syrian_individuals_subject_to_United_Kingdom_sanctions
     - category: Individuals_sanctioned_by_the_United_States_Department_of_State
-    
+
     # Russia
     - category: United_Russia_politicians
       topic: role.pep
@@ -180,6 +235,8 @@ config:
       position:
         name: Member of the State Administration Council
         country: mm
+        topics:
+          - gov.executive
 
     # NK
     - category: Leaders_of_the_Workers'_Party_of_Korea_and_its_predecessors
@@ -194,6 +251,8 @@ config:
       position:
         name: Member of the Supreme People's Assembly
         country: kp
+        topics:
+          - gov.legislative
     - category: Political_office-holders_in_North_Korea
       topic: role.pep
       country: kp
@@ -205,8 +264,8 @@ config:
     - category: Political_office-holders_in_Azerbaijan
       topic: role.pep
       country: az
-    
-    # India 
+
+    # India
     - category: Political_office-holders_in_India
       topic: role.pep
       country: in
@@ -216,8 +275,8 @@ config:
     - category: Indian_government_officials
       topic: role.pep
       country: in
-    
-    # Nepal 
+
+    # Nepal
     - category: Government_ministers_of_Nepal
       topic: role.pep
       country: np
@@ -247,7 +306,7 @@ config:
       topic: role.pep
       depth: 8
 
-    # Basics & essentials   
+    # Basics & essentials
     - category: Sanctioned_people
     - category: Specially_Designated_Nationals_and_Blocked_Persons_List
     - category: Heads_of_government_in_Europe
@@ -264,8 +323,8 @@ config:
       topic: poi
     - category: Chief_justices_by_country
       topics:
-        - role.pep
         - role.judge
+        - role.pep
     - category: Central_bankers
       topic: role.pep
     - category: Lists_of_military_chiefs_of_staff
@@ -274,7 +333,7 @@ config:
         - role.pep
     - category: Lists_of_admirals
       topic: mil
-    
+
     # Heads of international organisations
     - category: Executive_Directors_of_the_World_Food_Programme
       topic: role.pep
@@ -332,6 +391,7 @@ config:
         country: zz
         topics:
           - role.judge
+          - gov.igo
     - category: International_Criminal_Court_prosecutors
       topic: role.pep
       position:
@@ -367,7 +427,7 @@ config:
       topic: role.pep
       position:
         name: Director-General of the World Health Organization
-        country: zz
+        country: un
         topics:
           - gov.igo
     - category: Secretaries_general_of_OPEC
@@ -408,7 +468,6 @@ config:
       topic: role.pep
       position:
         name: Registrar of the International Criminal Court
-        country: zz
         topics:
           - gov.igo
     - category: Secretaries_general_of_the_Arab_League
@@ -443,13 +502,15 @@ config:
       topic: role.pep
     - category: United_Nations_High_Commissioner_for_Refugees_officials
       topic: role.pep
+      country: un
     - category: United_Nations_Development_Programme_officials
       topic: role.pep
+      country: un
     - category: Presidents_of_the_United_Nations_General_Assembly
       topic: role.pep
       position:
         name: President of the United Nations General Assembly
-        country: zz
+        country: un
         topics:
           - gov.igo
     - category: United_Nations_High_Commissioner_for_Human_Rights_officials
@@ -483,7 +544,7 @@ config:
       country: cn
     - category: General_secretaries_and_Chairmen_of_the_Chinese_Communist_Party
       topic: role.pep
-      country: cn 
+      country: cn
     - category: Governors_of_Zhejiang
       topic: role.pep
       country: cn
@@ -505,7 +566,7 @@ config:
     - category: Lists_of_Chinese_province_governors
       topic: role.pep
       country: cn
-      
+
     # United States
     - category: People_associated_with_Russian_interference_in_the_2016_United_States_elections
       topic: poi
@@ -554,6 +615,7 @@ config:
         country: us
         topics:
           - role.lawyer
+          - gov.executive
     - category: Lists_of_mayors_of_places_in_the_United_States
       topic: role.pep
     - category: Lists_of_political_office-holders_in_the_United_States
@@ -631,7 +693,6 @@ config:
     - category: Political_office-holders_in_Iceland
       country: is
       topic: role.pep
-
     - category: Political_office-holders_in_the_Czech_Republic
       country: cz
       topic: role.pep

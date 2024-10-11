@@ -32,6 +32,8 @@ url: https://www.finanstilsynet.dk/lovgivning/pep-listen
 data:
   url: https://www.finanstilsynet.dk/lovgivning/pep-listen
   format: XLSX
+dates:
+  formats: ["%d.%m.%Y"]
 
 assertions:
   min:

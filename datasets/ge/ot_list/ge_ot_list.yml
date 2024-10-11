@@ -35,6 +35,8 @@ publisher:
     the Constitutional Court, local self-government acts, and public
     statements.
   official: true
+dates: 
+  formats: ["%d.%m.%Y", "%Y"]
 assertions:
   min:
     schema_entities:

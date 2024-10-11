@@ -31,11 +31,13 @@ publisher:
 data:
   url: https://www.asambleanacional.gob.ve/diputados
   format: HTML
-ci_test: false
 
 dates: 
-  formats: ["%d/%m/%Y", "%d/%m/%y", "%d-%m-%Y", "%d-%m-%y", "%d de %b de %Y", "%d – %m – %y"]
-
+  formats: ["%d/%m/%Y", "%d/%m/%y", "%d-%m-%Y", "%d-%m-%y", "%d %b %Y", "%d – %m – %y"]
+  months:
+    Mar: de marzo de
+    Apr: de Abril de
+    Jul: de julio de
 lookups:
   type.date:
     options:

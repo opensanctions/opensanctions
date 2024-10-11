@@ -33,3 +33,6 @@ data:
   url: https://www.state.gov/biographies-list/
   format: HTML
   lang: eng
+
+dates: 
+  formats: ["%B %d, %Y"]

@@ -105,8 +105,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
             entity,
             position,
             no_end_implies_current=False,
-            start_date=row.pop("Start date") or None,
-            end_date=row.pop("End date") or None,
+            start_date=row.pop("Start date", None),
+            end_date=row.pop("End date", None),
             categorisation=categorisation,
         )
         context.emit(entity, target=True)

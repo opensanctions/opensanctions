@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict
 from collections import defaultdict
 from rigour.langs import iso_639_alpha3
 
@@ -18,8 +18,6 @@ def crawl_position(
     context: Context,
     person: Entity,
     position: Entity,
-    birth_date: List[str],
-    death_date: List[str],
     tenure,
     status=None,
 ):
@@ -31,8 +29,6 @@ def crawl_position(
         # These are already ISO
         start_date=tenure.pop("FromDate"),
         end_date=tenure.pop("ToDate"),
-        birth_date=birth_date[0] if birth_date else None,
-        death_date=death_date[0] if death_date else None,
         status=status,
     )
     if not occupancy:
@@ -77,14 +73,7 @@ def crawl_position_no_tenure(
     PEPS.add(person.id)
 
 
-def crawl_positions(
-    context: Context,
-    person: Entity,
-    member_id,
-    birth_date,
-    death_date,
-    is_current: bool,
-):
+def crawl_positions(context: Context, person: Entity, member_id, is_current: bool):
     position = h.make_position(
         context,
         "Knesset Member",
@@ -118,7 +107,7 @@ def crawl_positions(
         return
     for row in response:
         for tenure in row.pop("Tenure"):
-            crawl_position(context, person, position, birth_date, death_date, tenure)
+            crawl_position(context, person, position, tenure)
 
 
 def crawl_item(
@@ -148,13 +137,11 @@ def crawl_item(
         person.add("birthPlace", content.pop("PlaceOfBirth"), lang=lang_iso_639_2)
 
     if lang_iso_639_1 == "en":
-        birth_date = None
-        death_date = None
         if content:
             h.apply_date(person, "birthDate", content.pop("DateOfBirth"))
             h.apply_date(person, "deathDate", content.pop("DeathDate"))
 
-        crawl_positions(context, person, member_id, birth_date, death_date, is_current)
+        crawl_positions(context, person, member_id, is_current)
     if lang_iso_639_1 == "he":
         if person.id in PEPS:
             context.emit(person, target=True)
