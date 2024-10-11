@@ -248,7 +248,7 @@ config:
       - ДЕТСКИЙ САД  # KINDERGARTEN
 
     МОУ:  # муниципальное образовательное учреждение
-      - МУНИЦИПАЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ ДОШКОЛЬНОГО И МЛАДШЕГО ШКОЛЬНОГО ВОЗРАСТА  # MUNICIPAL EDUCATIONAL INSTITUTION FOR PRESCHOOL AND PRIMARY SCHOOL CHILDREN
+      - МУНИЦИПАЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # MUNICIPAL EDUCATIONAL INSTITUTION
 
     МАУ:  # муниципальное автономное учреждение
       - МУНИЦИПАЛЬНОЕ АВТОНОМНОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # MUNICIPAL AUTONOMOUS PRESCHOOL EDUCATIONAL INSTITUTION
@@ -262,13 +262,17 @@ config:
 
     ГУ:  # государственное учреждение
       - ГОСУДАРСТВЕННОЕ УЧРЕЖДЕНИЕ  # STATE INSTITUTION
+
+    ОГУ:  # окружное государственное учреждение 
       - ОКРУЖНОЕ ГОСУДАРСТВЕННОЕ УЧРЕЖДЕНИЕ  # DISTRICT STATE INSTITUTION
 
     ГОУ:  # государственное образовательное учреждение
-      - ГОСУДАРСТВЕННАЯ ОБЩЕОБРАЗОВАТЕЛЬНАЯ ШКОЛА-ИНТЕРНАТ  # STATE GENERAL EDUCATIONAL BOARDING SCHOOL
       - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # STATE EDUCATIONAL INSTITUTION
       - ГОСУДАРСТВЕННОЕ ОБЩЕОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # STATE GENERAL EDUCATIONAL INSTITUTION
 
+    ГО ШК-Инт: 
+      - ГОСУДАРСТВЕННАЯ ОБЩЕОБРАЗОВАТЕЛЬНАЯ ШКОЛА-ИНТЕРНАТ  # STATE GENERAL EDUCATIONAL BOARDING SCHOOL
+    
     ГОУ ДДМШВ: 
       - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ ДОШКОЛЬНОГО И МЛАДШЕГО ШКОЛЬНОГО ВОЗРАСТА
     
@@ -290,19 +294,25 @@ config:
       - ГОСУДАРСТВЕННОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ - ДЕТСКИЙ САД  # STATE PRESCHOOL EDUCATIONAL INSTITUTION - KINDERGARTEN
 
     ГКУ:  # государственное казенное учреждение
-      - ГОСУДАРСТВЕННОЕ КАЗЁННОЕ УЧРЕЖДЕНИЕ ЯМАЛО-НЕНЕЦКОГО АВТОНОМНОГО ОКРУГА  # STATE TREASURY INSTITUTION OF YAMALO-NENETS AUTONOMOUS OKRUG
+      - ГОСУДАРСТВЕННОЕ КАЗЁННОЕ УЧРЕЖДЕНИЕ  # STATE TREASURY INSTITUTION
+
+    ГКС(к)ОУ:  # государственное казённое специальное (коррекционное) образовательное учреждение
       - ГОСУДАРСТВЕННОЕ КАЗЕННОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # STATE TREASURY SPECIAL (CORRECTIONAL) EDUCATIONAL INSTITUTION
 
     ГНУ:  # государственное научное учреждение
       - ГОСУДАРСТВЕННОЕ НАУЧНОЕ УЧРЕЖДЕНИЕ  # STATE SCIENTIFIC INSTITUTION
 
     ГОУ ВПО:  # can also be ГОУ ДПО in this case
-      - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПОВЫШЕНИЯ КВАЛИФИКАЦИИ) СПЕЦИАЛИСТОВ  # STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION (QUALIFICATION IMPROVEMENT)
       - ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ
       - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ  # STATE EDUCATIONAL INSTITUTION OF HIGHER PROFESSIONAL EDUCATION
 
+    ГОУ ДПО:  # государственное образовательное учреждение дополнительного профессионального образования
+      - ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПОВЫШЕНИЯ КВАЛИФИКАЦИИ) СПЕЦИАЛИСТОВ  # STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION (QUALIFICATION IMPROVEMENT)
+
     ГУП:  # государственное унитарное предприятие
       - ДОЧЕРНЕЕ ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ  # SUBSIDIARY STATE UNITARY ENTERPRISE
+
+    ГУСП: 
       - ГОСУДАРСТВЕННОЕ УНИТАРНОЕ СЕЛЬСКОХОЗЯЙСТВЕННОЕ ПРЕДПРИЯТИЕ  # STATE UNITARY AGRICULTURAL ENTERPRISE
 
     ГУДП:
@@ -313,10 +323,14 @@ config:
 
     ФГУП:  # федеральное государственное унитарное предприятие
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ  # FEDERAL STATE UNITARY ENTERPRISE
-      - ФЕДЕРАЛЬНОЕ ДОЧЕРНЕЕ ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ  # FEDERAL SUBSIDIARY STATE UNITARY ENTERPRISE
 
-    ФГБОУ:  # федеральное государственное бюджетное образовательное учреждение
+    ДОЧЕРНЕЕ ФГУП: 
+      - ФЕДЕРАЛЬНОЕ ДОЧЕРНЕЕ ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ  # FEDERAL SUBSIDIARY STATE UNITARY ENTERPRISE
+    
+    ФГБДОУ: 
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # FEDERAL STATE BUDGETARY PRESCHOOL EDUCATIONAL INSTITUTION
+    
+    ФГБОУ ДПО:  # федеральное государственное бюджетное образовательное учреждение
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ  # FEDERAL STATE BUDGETARY EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION
 
     ФГБОУ ВО:  # федеральное государственное бюджетное образовательное учреждение высшего образования
@@ -339,9 +353,7 @@ config:
     МРО:
       - МЕСТНАЯ ПРАВОСЛАВНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL ORTHODOX RELIGIOUS ORGANIZATION
       - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL RELIGIOUS ORGANIZATION
-      - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА  # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH
-      - МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА ВО ИМЯ СВЯТОГО ВЕЛИКОМУЧЕНИКА ГЕОРГИЯ ПОБЕДОНОСЦА С. АФОНЬЕВКА ВОЛОКОНОВСКОГО РАЙОНА БЕЛГОРОДСКОЙ ОБЛАСТИ РЕЛИГИОЗНОЙ ОРГАНИЗАЦИИ  # LOCAL RELIGIOUS ORGANIZATION ORTHODOX PARISH OF THE CHURCH IN THE NAME OF THE HOLY GREAT MARTYR GEORGE THE VICTORIOUS S. AFONYEVKA OF THE VOLOKONOVSKY DISTRICT OF THE BELGOROD REGION RELIGIOUS ORGANIZATION"
-    
+
     ЦРО:  # центральная религиозная организация
       - ЦЕНТРАЛЬНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ  # CENTRAL RELIGIOUS ORGANIZATION
 
@@ -360,10 +372,12 @@ config:
     ФГКВОУ: 
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ ВОЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ  # FEDERAL STATE TREASURY MILITARY EDUCATIONAL INSTITUTION OF HIGHER EDUCATION
     
-    ФГКОУ:  # федеральное государственное казенное образовательное учреждение
-      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ СПЕЦИАЛИСТОВ  # FEDERAL STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION (SPECIALISTS)
+    ФГКОУ ДПО:  # федеральное государственное казенное образовательное учреждение
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПЕРЕПОДГОТОВКИ И ПОВЫШЕНИЯ КВАЛИФИКАЦИИ)
 
+    ФГКОУ ДПО:  # федеральное государственное казенное образовательное учреждение высшего профессионального образования
+      - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ СПЕЦИАЛИСТОВ  # FEDERAL STATE EDUCATIONAL INSTITUTION OF FURTHER PROFESSIONAL EDUCATION (SPECIALISTS)
+    
     ФГДОУ:  # федеральное государственное дошкольное образовательное учреждение
       - ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ  # FEDERAL STATE PRESCHOOL EDUCATIONAL INSTITUTION
     
@@ -376,20 +390,21 @@ config:
     ППО:  # первичная профсоюзная организация
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ  # PRIMARY TRADE UNION ORGANIZATION
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ КАЛАЧЕЕВСКОГО ЛИНЕЙНОГО ПРОИЗВОДСТВЕННОГО УПРАВЛЕНИЯ МАГИСТРАЛЬНЫХ ГАЗОПРОВОДОВ  # PRIMARY TRADE UNION ORGANIZATION OF THE KALACHEEVSKY LINEAR PRODUCTION MANAGEMENT OF MAIN GAS PIPELINES
-      #- ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ НИЖЕГОРОДСКОЙ ОБЛАСТНОЙ ОРГАНИЗАЦИИ ОБЩЕСТВЕННОЙ ОРГАНИЗАЦИИ  # PRIMARY TRADE UNION ORGANIZATION OF THE NIZHNY NOVGOROD REGIONAL ORGANIZATION OF THE PUBLIC ORGANIZATION
 
     ППО ООО:  # первичная профсоюзная организация общества с ограниченной ответственностью
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ОБЩЕСТВА С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ  # PRIMARY TRADE UNION ORGANIZATION OF LIMITED LIABILITY COMPANY
+
+    ППО ДОЧЕРНЕГО ООО: 
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ ДОЧЕРНЕГО ОБЩЕСТВА С ОГРАНИЧЕНОЙ ОТВЕТСТВЕННОСТЬЮ  # PRIMARY TRADE UNION ORGANIZATION OF WORKERS OF A SUBSIDIARY LIMITED LIABILITY COMPANY
 
     ППО ОАО:  # первичная профсоюзная организация открытого акционерного общества
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ОТКРЫТОГО АКЦИОНЕРНОГО ОБЩЕСТВА  # PRIMARY TRADE UNION ORGANIZATION OF AN OPEN JOINT-STOCK COMPANY
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ ОТКРЫТОГО АКЦИОНЕРНОГО ОБЩЕСТВА  # PRIMARY TRADE UNION ORGANIZATION OF WORKERS OF AN OPEN JOINT-STOCK COMPANY
 
-    ППО ГОУ:  # первичная профсоюзная организация государственного образовательного учреждения
+    ППО ГОУСПО:  # первичная профсоюзная организация государственного образовательного учреждения
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ГОСУДАРСТВЕННОГО ОБРАЗОВАТЕЛЬНОГО УЧРЕЖДЕНИЯ СРЕДНЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ГОСУДАРСТВЕННОГО УЧРЕЖДЕНИЯ СРЕДНЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ
-
+    # review from here
     ППО ФГБУ:  # первичная профсоюзная организация федерального государственного бюджетного учреждения
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ  # PRIMARY TRADE UNION ORGANIZATION OF THE FEDERAL STATE BUDGETARY INSTITUTION
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО БЮДЖЕТНОГО ОБРАЗОВАТЕЛЬНОГО УЧРЕЖДЕНИЯ ВЫСШЕГО ОБРАЗОВАНИЯ  # PRIMARY TRADE UNION ORGANIZATION OF THE FEDERAL STATE BUDGETARY EDUCATIONAL INSTITUTION OF HIGHER EDUCATION
