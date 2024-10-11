@@ -1,5 +1,5 @@
 import re
-from typing import Generator, List, Optional
+from typing import Generator, Optional
 from datetime import datetime
 from followthemoney.types.identifier import IdentifierType
 
@@ -8,19 +8,19 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.helpers.xml import ElementOrTree
 
-FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 REGEX_ID_NUMBER = re.compile(r"\w?[\d-]*\d{6,}[\d-]*")
 SPLITS = [";", "i)", "ii)", "iii)", "iv)", "v)", "vi)", "vii)", "viii)", "ix)", "x)"]
-
-
-def parse_date(date: Optional[str]) -> List[str]:
-    if date is None:
-        return []
-    date = date.replace(".", "")
-    if ";" in date:
-        date, _ = date.split(";", 1)
-    date = date.strip()
-    return h.parse_date(date, FORMATS)
+DATES_SPLITS = [
+    ";",
+    "Approximately",
+    "Circa",
+    "Between",
+    "circa",
+    "approximately",
+    "or ",
+    "born in ",
+    " in ",
+]
 
 
 def clean_id(entity: Entity, text: Optional[str]) -> Generator[str, None, None]:
@@ -88,8 +88,11 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
         entity.add_cast("Person", "birthPlace", pob.text)
 
     for dob in entry.findall("./date-of-birth-list"):
-        date = parse_date(dob.text)
-        entity.add_cast("Person", "birthDate", date)
+        if dob.text is not None:
+            entity.add_schema("Person")
+            dates = h.multi_split(dob.text, DATES_SPLITS)
+            for date in dates:
+                h.apply_date(entity, "birthDate", date)
 
     for nat in entry.findall("./nationality-list"):
         for country in h.multi_split(nat.text, [";", ","]):
