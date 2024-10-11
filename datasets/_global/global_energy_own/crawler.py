@@ -52,7 +52,8 @@ IGNORE = [
     "gspt_cancelled_ttpa",
     "total",
 ]
-
+SMALL_SHAREHOLDERS = "E100001015587"
+UNKNOWN = "E100000132388"
 SELF_OWNED = {"E100000002239"}
 
 
@@ -62,15 +63,15 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     # Skip entities
     if (
         name is None
-        or id == "E100001015587"  # small shareholders
-        or id == "E100000132388"  # unknown
+        or id == SMALL_SHAREHOLDERS
+        or id == UNKNOWN
     ):
         skipped.add(id)
         return
-    original_name = row.pop("name_local", "")
-    reg_country = row.pop("registration_country", "")
-    lei_code = row.pop("legal_entity_identifier", "")
-    entity_type = row.pop("entity_type", "")
+    original_name = row.pop("name_local")
+    reg_country = row.pop("registration_country")
+    lei_code = row.pop("legal_entity_identifier")
+    entity_type = row.pop("entity_type")
 
     if entity_type == "legal entity":
         schema = "Company"
@@ -86,22 +87,26 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
 
     entity.add("name", name)
     entity.add("name", original_name)
-    entity.add("alias", row.pop("name_other", ""))
-    entity.add("weakAlias", row.pop("abbreviation", ""))
+    entity.add("alias", row.pop("name_other"))
+    entity.add("weakAlias", row.pop("abbreviation"))
     if lei_code != "unknown":
         entity.add("leiCode", lei_code)
     if entity_type != "unknown entity":
         entity.add("description", entity_type)
     entity.add("country", reg_country)
-    entity.add("website", row.pop("home_page", ""))
-    if schema != "PublicBody" and schema != "Person":
-        entity.add("permId", row.pop("refinitiv_permid", ""))
-        entity.add("cikCode", row.pop("sec_central_index_key", ""))
+    homepage = row.pop("home_page")
+    if homepage and ",http" in homepage:
+        homepage = homepage.split(",")
+    entity.add("website", homepage)
+    if schema != "Person":
+        entity.add("permId", row.pop("refinitiv_permid"))
+        if schema != "PublicBody":
+            entity.add("cikCode", row.pop("sec_central_index_key"))
     address = h.make_address(
         context,
         country=reg_country,
-        state=row.pop("registration_subdivision", ""),
-        city=row.pop("headquarters_subdivision", ""),
+        state=row.pop("registration_subdivision"),
+        city=row.pop("headquarters_subdivision"),
     )
     h.copy_address(entity, address)
 
@@ -132,7 +137,8 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     ownership.id = context.make_id(subject_entity_id, interested_party_id)
     ownership.add("asset", context.make_slug(subject_entity_id))
     ownership.add("owner", context.make_slug(interested_party_id))
-    ownership.add("percentage", row.pop("share_of_ownership"))
+    percentage = row.pop("share_of_ownership")
+    ownership.add("percentage", "%.2f" % float(percentage) if percentage else None)
     ownership.add("sourceUrl", row.pop("data_source_url"))
 
     context.audit_data(
