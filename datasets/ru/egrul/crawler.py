@@ -1,19 +1,134 @@
+from functools import cache
 from urllib.parse import urljoin, urlparse
-from typing import Dict, Optional, Set, IO, List, Any
+from typing import Dict, Optional, Set, IO, List, Any, Tuple
 from collections import defaultdict
 from zipfile import ZipFile
-
+from followthemoney.types import registry
 from lxml import etree
 from lxml.etree import _Element as Element, tostring
-
+import re
 from addressformatting import AddressFormatter
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
+MIN_NAME_LENGTH = 40
 INN_URL = "https://egrul.itsoft.ru/%s.xml"
 # original source: "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
 aformatter = AddressFormatter()
+
+
+TYPES = {
+    "АВТОНОМНАЯ НЕКОММЕРЧЕСКАЯ ОРГАНИЗАЦИЯ": "АНО",
+    "ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ": "ГУП",
+    "ЗАКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО": "ЗАО",
+    "МЕЖРЕГИОНАЛЬНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ": "МОО",
+    "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ": "ООО",
+    "ОТКРЫТОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО": "ОАО",
+    "ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО": "ПАО",
+    "ПРИВАТНЕ АКЦІОНЕРНЕ ТОВАРИСТВО": "ПАО",
+    "АКЦИОНЕРНОЕ ОБЩЕСТВО": "AO",
+}
+
+
+# Prefixes we believe we can trim without losing meaning to shorten names that are too long.
+TRIM_PREFIXES = [
+    "ГОСУДАРСТВЕННАЯ ОБЩЕОБРАЗОВАТЕЛЬНАЯ ШКОЛА-ИНТЕРНАТ",
+    "ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ",
+    "ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОГРАНИЧЕННЫМИ ВОЗМОЖНОСТЯМИ ЗДОРОВЬЯ СПЕЦИАЛЬНАЯ (КОРРЕКЦИОННАЯ)",
+    "ГОСУДАРСТВЕННОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ",
+    "ГОСУДАРСТВЕННОЕ КАЗЕННОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ",
+    "ГОСУДАРСТВЕННОЕ КАЗЁННОЕ УЧРЕЖДЕНИЕ ЯМАЛО-НЕНЕЦКОГО АВТОНОМНОГО ОКРУГА",
+    "ГОСУДАРСТВЕННОЕ КАЗЕННОЕ",
+    "ГОСУДАРСТВЕННОЕ НАУЧНОЕ УЧРЕЖДЕНИЕ",
+    "ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ ДОШКОЛЬНОГО И МЛАДШЕГО ШКОЛЬНОГО ВОЗРАСТА НАЧАЛЬНАЯ ШКОЛА",
+    "ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПОВЫШЕНИЯ КВАЛИФИКАЦИИ) СПЕЦИАЛИСТОВ",
+    "ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ",
+    "ГОСУДАРСТВЕННОЕ ОБЩЕОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ",
+    "ГОСУДАРСТВЕННОЕ СПЕЦИАЛЬНОЕ (КОРРЕКЦИОННОЕ) ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ОБУЧАЮЩИХСЯ, ВОСПИТАННИКОВ С ОТКЛОНЕНИЯМИ В РАЗВИТИИ",
+    "ГОСУДАРСТВЕННОЕ УНИТАРНОЕ СЕЛЬСКОХОЗЯЙСТВЕННОЕ ПРЕДПРИЯТИЕ",
+    "ГОСУДАРСТВЕННОЕ УЧРЕЖДЕНИЕ",
+    "ГОСУДАРСТВЕННОЕ",  # State
+    "ДОЧЕРНЕЕ ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ",
+    "КАЗЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ХАНТЫ-МАНСИЙСКОГО АВТОНОМНОГО ОКРУГА - ЮГРЫ ДЛЯ ДЕТЕЙ-СИРОТ И ДЕТЕЙ, ОСТАВШИХСЯ БЕЗ ПОПЕЧЕНИЯ РОДИТЕЛЕЙ",
+    "МЕЖРЕГИОНАЛЬНЫЙ ПРОФСОЮЗ РАБОТНИКОВ ФИЛИАЛА",
+    "МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ",
+    "МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ -",
+    "МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ",
+    "МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ",
+    "МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ",
+    "МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ",
+    "МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА ВО ИМЯ СВЯТОГО ВЕЛИКОМУЧЕНИКА ГЕОРГИЯ ПОБЕДОНОСЦА С. АФОНЬЕВКА ВОЛОКОНОВСКОГО РАЙОНА БЕЛГОРОДСКОЙ ОБЛАСТИ РЕЛИГИОЗНОЙ ОРГАНИЗАЦИИ",
+    "МЕСТНАЯ РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ",
+    "МУНИЦИПАЛЬНОЕ АВТОНОМНОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ",
+    "МУНИЦИПАЛЬНОЕ АВТОНОМНОЕ ОБЩЕОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ МУНИЦИПАЛЬНОГО ОБРАЗОВАНИЯ ГОРОД КРАСНОДАР",
+    "МУНИЦИПАЛЬНОЕ БЮДЖЕТНОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ",
+    "МУНИЦИПАЛЬНОЕ БЮДЖЕТНОЕ ОБЩЕОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ",
+    "МУНИЦИПАЛЬНОЕ КАЗЕННОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ",
+    "МУНИЦИПАЛЬНОЕ КАЗЕННОЕ УЧРЕЖДЕНИЕ",
+    "МУНИЦИПАЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ ДОШКОЛЬНОГО И МЛАДШЕГО ШКОЛЬНОГО ВОЗРАСТА",
+    "МУНИЦИПАЛЬНОЕ ОБЩЕОБРАЗОВАТЕЛЬНОЕ БЮДЖЕТНОЕ УЧРЕЖДЕНИЕ",
+    "НЕГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ",
+    "НЕГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ НАЧАЛЬНОГО И ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ",
+    "НЕГОСУДАРСТВЕНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПОВЫШЕНИЯ КВАЛИФИКАЦИИ) СПЕЦИАЛИСТОВ",
+    "ОБЛАСТНОЕ ГОСУДАРСТВЕННОЕ КАЗЁННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДЛЯ ДЕТЕЙ-СИРОТ И ДЕТЕЙ, ОСТАВШИХСЯ БЕЗ ПОПЕЧЕНИЯ РОДИТЕЛЕЙ",
+    "ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ",
+    "ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ",
+    "ОКРУЖНОЕ ГОСУДАРСТВЕННОЕ УЧРЕЖДЕНИЕ",
+    "ОРГАНИЗАЦИЯ НАУЧНОГО ОБСЛУЖИВАНИЯ И СОЦИАЛЬНОЙ СФЕРЫ",
+    "ПЕРВИЧНАЯ ОРГАНИЗАЦИЯ ПРОФСОЮЗА ОБЛАСТНОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ ЗДРАВООХРАНЕНИЯ",
+    "ПЕРВИЧНАЯ ОРГАНИЗАЦИЯ ПРОФСОЮЗА СОТРУДНИКОВ ГОСУДАРСТВЕННОГО БЮДЖЕТНОГО ОБРАЗОВАТЕЛЬНОГО УЧРЕЖДЕНИЯ ВЫСШЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ АКЦИОНЕРНОГО ОБЩЕСТВА",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ АТНИНСКОГО РАЙОННОГО УЗЛА ЭЛЕКТРИЧЕСКОЙ СВЯЗИ ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ УПРАВЛЕНИЕ ЭЛЕКТРИЧЕСКОЙ СВЯЗИ",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ГОСУДАРСТВЕННОГО ОБРАЗОВАТЕЛЬНОГО УЧРЕЖДЕНИЯ СРЕДНЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ГОСУДАРСТВЕННОГО УЧРЕЖДЕНИЯ СРЕДНЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ КАЛАЧЕЕВСКОГО ЛИНЕЙНОГО ПРОИЗВОДСТВЕННОГО УПРАВЛЕНИЯ МАГИСТРАЛЬНЫХ ГАЗОПРОВОДОВ",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ НИЖЕГОРОДСКОЙ ОБЛАСТНОЙ ОРГАНИЗАЦИИ ОБЩЕСТВЕННОЙ ОРГАНИЗАЦИИ",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ОБЩЕСТВА С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ОТКРЫТОГО АКЦИОНЕРНОГО ОБЩЕСТВА",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ РАБОТНИКОВ ДОЧЕРНЕГО ОБЩЕСТВА С ОГРАНИЧЕНОЙ ОТВЕТСТВЕННОСТЬЮ",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ СОТРУДНИКОВ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО БЮДЖЕТНОГО ОБРАЗОВАТЕЛЬНОГО УЧРЕЖДЕНИЯ ВЫСШЕГО ОБРАЗОВАНИЯ",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ",
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ",  # Primary trade union organization
+    "ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ",  # Primary trade union
+    "ПРАВОСЛАВНЫЙ ПРИХОД ХРАМА СВЯТИТЕЛЯ ПАВЛА МИТРОПОЛИТА ТОБОЛЬСКОГО",
+    "ПРОФЕССИОНАЛЬНАЯ ОБРАЗОВАТЕЛЬНАЯ АВТОНОМНАЯ НЕКОММЕРЧЕСКАЯ ОРГАНИЗАЦИЯ",
+    "ПРОФЕССИОНАЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ",
+    "РЕЛИГИОЗНАЯ ОРГАНИЗАЦИЯ",
+    "УПРАВЛЯЮЩИЙ ТОВАРИЩ ИНВЕСТИЦИОННОГО ТОВАРИЩЕСТВА",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ВОЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ДОШКОЛЬНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ УЧРЕЖДЕНИЕ",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ ВОЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ (ПЕРЕПОДГОТОВКИ И ПОВЫШЕНИЯ КВАЛИФИКАЦИИ)",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ СПЕЦИАЛИСТОВ",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ДОПОЛНИТЕЛЬНОГО ПРОФЕССИОНАЛЬНОГО ОБРАЗОВАНИЯ СПЕЦИАЛИСТОВ",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ",
+    "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ",  # Federal state
+    "ФЕДЕРАЛЬНОЕ ДОЧЕРНЕЕ ГОСУДАРСТВЕННОЕ УНИТАРНОЕ ПРЕДПРИЯТИЕ",
+    'ФЕДЕРАЛЬНОЕ КАЗЕННОЕ УЧРЕЖДЕНИЕ "ОТДЕЛ ОХРАНЫ ФЕДЕРАЛЬНОГО КАЗЕННОГО УЧРЕЖДЕНИЯ',
+    "ФЕДЕРАЛЬНОЕ КАЗЕННОЕ УЧРЕЖДЕНИЕ",
+]
+REGEX_TRIM_PREFIX = re.compile("^(" + "|".join(TRIM_PREFIXES) + ")")
+
+
+@cache
+def type_sub():
+    return {re.combile(rf"\b{k}\b", re.I): v for k, v in TYPES.items()}
+
+
+def replace_acronyms(text: str) -> str:
+    """
+    Replace company types with their acronyms.
+    """
+    for k, v in type_sub().items():
+        text = k.sub(v, text)
+    return text
 
 
 def tag_text(el: Element) -> str:
@@ -446,6 +561,68 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     entity.add("address", address)
 
 
+def shorten_long_names(original_names: List[str]) -> Tuple[List[str], List[str]]:
+    names = []
+    descriptions = []
+    for name in names:
+        if len(name) > registry.name.max_length:
+            trimmed = replace_acronyms(name)
+            if len(trimmed) <= registry.name.max_length:
+                names.append(trimmed)
+                descriptions.append(name)
+                continue
+
+            trimmed = REGEX_TRIM_PREFIX.sub("", name)
+            if trimmed != name and len(trimmed) < registry.name.max_length:
+                names.append(trimmed)
+                descriptions.append(name)
+            else:
+                names.append(name)
+    return names, descriptions
+
+
+def categorise_names(
+    full_names: List[str], short_names: List[str]
+) -> Tuple[List[str], List[str]]:
+    """
+    If any names are too long, and any names are short enough but not too short
+    to be meaningful, use all the short enough names and put the too-long names
+    in description.
+
+    Otherwise use all the names and let length validation alert as usual.
+
+    This would let
+    ru: ППОО МБУ ДО ДШИ №6 ИМЕНИ Г.В.СВИРИДОВА РРО РПСРК
+    en: PPOO MBU DO DSHI №6 NAMED AFTER G.V.SVIRIDOV RRO RPSRK
+    in names and put
+    ru: ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ МУНИЦИПАЛЬНОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ ДОПОЛНИТЕЛЬНОГО ОБРАЗОВАНИЯ ДЕТСКАЯ ШКОЛА ИСКУССТВ №6 ИМЕНИ Г.В.СВИРИДОВА Г.РОСТОВА-НА-ДОНУ РОСТОВСКОГО РЕГИОНАЛЬНОГО ОТДЕЛЕНИЯ РОССИЙСКОГО ПРОФЕССИОНАЛЬНОГО СОЮЗА РАБОТНИКОВ КУЛЬТУРЫ
+    en: PRIMARY TRADE UNION PUBLIC ORGANIZATION OF THE MUNICIPAL BUDGETARY INSTITUTION OF ADDITIONAL EDUCATION CHILDREN'S ARTS SCHOOL №6 NAMED AFTER G.V.SVIRIDOVA ROSTOV-ON-DON ROSTOV REGIONAL BRANCH OF THE RUSSIAN TRADE UNION OF CULTURAL WORKERS
+    in description.
+    """
+    descriptions = set()
+    sufficient_short = set()
+    too_short = set()
+    too_long = set()
+
+    for name in short_names + full_names:
+        if len(name) <= registry.name.max_length:
+            if len(name) > MIN_NAME_LENGTH:
+                sufficient_short.add(name)
+            else:
+                too_short.add(name)
+        else:
+            too_long.add(name)
+    if too_long and sufficient_short:
+        for name in short_names + full_names:
+            if len(name) > registry.name.max_length:
+                descriptions.add(name)
+        ok = sufficient_short.union(too_short)
+        assert len(ok.union(descriptions)) == len(full_names + short_names)
+        return list(ok), list(descriptions)
+    else:
+        return full_names + short_names, []
+
+
 def parse_company(context: Context, el: Element) -> None:
     """
     Parse a company from the XML element and emit entities.
@@ -458,18 +635,29 @@ def parse_company(context: Context, el: Element) -> None:
     entity = context.make("Company")
     inn = el.get("ИНН")
     ogrn = el.get("ОГРН")
-    name_full: Optional[str] = None
-    name_short: Optional[str] = None
+    names_full: List[str] = []
+    names_short: List[str] = []
 
     for name_el in el.findall("./СвНаимЮЛ"):
         name_full = name_el.get("НаимЮЛПолн")
+        if name_full:
+            names_full.append(name_full)
         name_short = name_el.get("НаимЮЛСокр")
+        if name_short and name_short != "-":
+            names_short.append(name_short)
+        for sub_name_el in name_el.findall("./СвНаимЮЛСокр"):
+            name_short = sub_name_el.get("НаимСокр")
+            if name_short and name_short != "-":
+                names_short.append(name_short)
 
-    name = name_full or name_short
+    name = names_full[0] if names_full else names_short[0] if names_short else None
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
-    entity.add("name", name_full)
-    entity.add("name", name_short)
+    names, descriptions = categorise_names(names_full, names_short)
+    entity.add("description", descriptions)
+    names, descriptions = shorten_long_names(names)
+    entity.add("name", names)
+    entity.add("description", descriptions)
     entity.add("ogrnCode", ogrn)
     entity.add("innCode", inn)
     entity.add("kppCode", el.get("КПП"))
