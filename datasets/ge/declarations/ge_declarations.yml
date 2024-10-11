@@ -37,6 +37,8 @@ publisher:
   official: true
 ci_test: false
 
+dates:
+  formats: ["%d.%m.%Y"]
 assertions:
   min:
     schema_entities:

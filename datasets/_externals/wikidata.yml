@@ -272,6 +272,7 @@ lookups:
           - Xiongnu
           - Yuan dynasty
           - Zand dynasty
+          - Zengid dynasty
           - Ziyarid dynasty
           - al-Andalus
           - emirate of Córdoba
@@ -630,6 +631,8 @@ lookups:
           - Republic of Florence
           - County palatine of Cephalonia and Zakynthos
           - Second French Empire
+          - Arabs
+          - Sultanate of Harar
         value: null
       - match:
           - Cherokee Nation

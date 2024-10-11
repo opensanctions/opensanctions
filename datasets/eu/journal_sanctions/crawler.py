@@ -1,7 +1,3 @@
-"""
-Add supplemental list of EU sanctions from annex in Regulation  2023/2878
-"""
-
 import csv
 from typing import Dict, Iterable
 
