@@ -33,11 +33,11 @@ data:
   format: HTML
 
 dates: 
-  formats: ["%d/%m/%Y", "%d/%m/%y", "%d-%m-%Y", "%d-%m-%y", "%d de %b de %Y", "%d – %m – %y"]
+  formats: ["%d/%m/%Y", "%d/%m/%y", "%d-%m-%Y", "%d-%m-%y", "%d %b %Y", "%d – %m – %y"]
   months:
-    Mar: marzo
-    Apr: Abril
-    Jul: julio
+    Mar: de marzo de
+    Apr: de Abril de
+    Jul: de julio de
 lookups:
   type.date:
     options:
