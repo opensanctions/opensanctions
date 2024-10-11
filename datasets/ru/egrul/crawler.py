@@ -468,8 +468,11 @@ def compile_abbreviations(context) -> List[Tuple[str, re.Pattern, List[str]]]:
         phrases_sorted = sorted(phrases, key=len, reverse=True)
         # we want to match the whole word and allow for ",' at the beginning
         phrase_pattern = "|".join(
-            f"^[ \"']?\\b{escape_special_chars(phrase)}\\b" for phrase in phrases_sorted
+            f"^[ \"']?\\b{re.escape(phrase)}\\b" for phrase in phrases_sorted
         )
+        # print(f"Canonical: {canonical}")
+        # print(f"Phrase Pattern: {phrase_pattern}")
+
         compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
         # Append the canonical form, compiled regex pattern, and sorted phrases to the list
         abbreviations.append((canonical, compiled_pattern, phrases_sorted))
@@ -494,8 +497,6 @@ def substitute_abbreviations(
     # Iterate over all abbreviation groups
     for canonical, pattern, phrases in abbreviations:
         match = pattern.search(name)
-        print(canonical)
-        print(pattern)
         if match:
             # Check if this is a better match than previous matches (longer phrase)
             matched_phrase = match.group(0)
@@ -512,12 +513,12 @@ def substitute_abbreviations(
     return original_name, None
 
 
-def escape_special_chars(phrase):
-    special_chars = ".^$*+?{}[]\\|()"
-    escaped_phrase = "".join(
-        f"\\{char}" if char in special_chars else char for char in phrase
-    )
-    return escaped_phrase
+# def escape_special_chars(phrase):
+#     special_chars = ".^$*+?{}[]\\|()"
+#     escaped_phrase = "".join(
+#         f"\\{char}" if char in special_chars else char for char in phrase
+#     )
+#     return escaped_phrase
 
 
 def parse_company(context: Context, el: Element) -> None:
@@ -543,9 +544,12 @@ def parse_company(context: Context, el: Element) -> None:
         name_short = name_el.get("НаимЮЛСокр")
         # Replace phrases with abbreviations in both full and short names
         if name_full:
+            print(name_full)
+            print("Name: %r" % name_full)
             name_full_short, initial_name = substitute_abbreviations(
                 name_full, abbreviations
             )
+            print(name_full_short)
             # print(name_full_short)
         name = name_full or name_short
 
@@ -755,26 +759,26 @@ def parse_examples(context: Context):
         # "2727023043",
         # "2724032674",
         # "7604016856",
-        "3329022081",
-        "7701104579",
-        "7705331389",
-        "7725025164",
-        "1655021564",
-        "1655021596",
-        "8601025269",
-        "6162027367",
-        "6162027367",
-        "6162067923",
+        # "3329022081",
+        # "7701104579",
+        # "7705331389",
+        # "7725025164",
+        # "1655021564",
+        # "1655021596",
+        # "8601025269",
+        # "6162027367",
+        # "6162027367",
+        # "6162067923",
         "7704189122",
-        "7704189122",
-        "7804046294",
-        "1650283990",
-        "1650306340",
-        "4223028864",
-        "4223028864",
-        "4223028864",
-        "7704218895",
-        "7704279665",
+        # "7704189122",
+        # "7804046294",
+        # "1650283990",
+        # "1650306340",
+        # "4223028864",
+        # "4223028864",
+        # "4223028864",
+        # "7704218895",
+        # "7704279665",
         # "2465015109",
         # "3102009368",
         # "5047011261",
