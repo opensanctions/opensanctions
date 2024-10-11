@@ -7,7 +7,7 @@ from zavod.logic.pep import categorise
 from zavod.shed.zyte_api import fetch_html
 
 
-DATE_FORMAT = ["%B %d, %Y"]
+# DATE_FORMAT = ["%B %d, %Y"]
 
 
 def bio_unblock_validator(doc: ElementTree) -> bool:
@@ -82,8 +82,6 @@ def crawl_bio_page(context: Context, url: str):
     start_date, end_date = dates.split(" - ")
     if end_date == "Present":
         end_date = None
-    start_date = h.parse_date(start_date, DATE_FORMAT)[0]
-    end_date = h.parse_date(end_date, DATE_FORMAT)[0] if end_date else None
 
     occupancy = h.make_occupancy(
         context,

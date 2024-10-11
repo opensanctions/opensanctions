@@ -1,21 +1,23 @@
 import re
 import json
-from typing import Any, Dict, Iterable, Optional
+from typing import Any, Dict
 from rigour.mime.types import JSON
 
 from zavod import Context
 from zavod import helpers as h
 
 NO_YEAR = re.compile(r"^\d{1,2}\.\d{1,2}\.?$")
-DATE_FORMATS = ["%d.%m.%Y", "%d-%m-%Y", "%Y-%m-%d"]
-
-
-def parse_date(date: str) -> Optional[Iterable[str]]:
-    if date is None:
-        return None
-    if NO_YEAR.match(date):
-        return None
-    return h.parse_date(date, DATE_FORMATS)
+IGNORE_COLUMNS = [
+    "canada",
+    "us",
+    "uk",
+    "eu",
+    "monaco",
+    "switzerland",
+    "australia",
+    "japan",
+    "korea",
+]
 
 
 def parse_result(context: Context, row: Dict[str, Any]):
@@ -51,12 +53,13 @@ def parse_result(context: Context, row: Dict[str, Any]):
     for tl in transliterations.split("\n"):
         tl = h.remove_bracketed(tl)
         entity.add("alias", tl)
-    entity.add("birthDate", parse_date(dob), original_value=dob)
+    if dob is not None and not NO_YEAR.match(dob):
+        h.apply_date(entity, "birthDate", dob)
     entity.add("gender", row.pop("gender"))
     entity.add("createdAt", published_at)
 
     context.emit(entity, target=True)
-    # context.inspect(row)
+    context.audit_data(row, ignore=IGNORE_COLUMNS)
 
 
 def crawl(context: Context):
