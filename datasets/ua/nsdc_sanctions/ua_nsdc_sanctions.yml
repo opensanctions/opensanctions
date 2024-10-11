@@ -130,6 +130,10 @@ lookups:
         values:
           - Україна, 295001, тимчасово окупована територія Автономної Республіки Крим, м. Сімферополь, вул. Сергєєва-Ценського, буд. 64, кв. 9
           - Украина, 295001, временно оккупированная территория Автономной Республики Крым, г. Симферополь, ул. Сергеева-Ценского, д. 64, кв. 9
+      - match: Китайська Народна Республіка, м. Шеньчжень (518116, Guangdong Province, Longgang District, Shenzhen City, No. 201, Jiaye Square, China;No. 4044 Pingshan Avenue, Pingshan Community, Pingshan Street, Pingshan District, Shenzhen, Guangdong Province, China)
+        values:
+          - Китайська Народна Республіка, м. Шеньчжень (518116, Guangdong Province, Longgang District, Shenzhen City, No. 201, Jiaye Square, China)
+          - Китайська Народна Республіка, м. Шеньчжень (No. 4044 Pingshan Avenue, Pingshan Community, Pingshan Street, Pingshan District, Shenzhen, Guangdong Province, China)
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»

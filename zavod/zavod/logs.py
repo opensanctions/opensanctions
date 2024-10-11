@@ -24,8 +24,10 @@ REDACT_IGNORE_LIST = {
     "PWD",
     "VIRTUAL_ENV",
     "HOME",
+    "EU_JOURNAL_SEEN_PATH",
     "ZAVOD_DATA_PATH",
     "ZAVOD_RESOLVER_PATH",
+    "ZAVOD_SYNC_POSITIONS",
     "OPENSANCTIONS_RESOLVER_PATH",
     # The URL redaction will handle these
     "ZAVOD_DATABASE_URI",

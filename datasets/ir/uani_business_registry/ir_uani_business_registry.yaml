@@ -1,4 +1,4 @@
-title: "Iran Business Registry (IBR)"
+title: "Iran UANI Business Registry"
 url: https://www.unitedagainstnucleariran.com/iran-business-registry
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
@@ -19,14 +19,13 @@ description: |
 entry_point: crawler.py
 prefix: ir-br
 publisher:
-  name: United Against Nuclear Ira
+  name: United Against Nuclear Iran
   acronym: UANI
   official: false
   description: |
     United Against Nuclear Iran (“UANI”) is a nonprofit and non-partisan policy organization formed 
     to combat the threats posed by the Islamic Republic of Iran. UANI's diverse Advisory Board includes 
     policy experts and distinguished former government officials.
-    [Source](https://www.unitedagainstnucleariran.com/about)
   country: us
   url: https://www.unitedagainstnucleariran.com
 data:

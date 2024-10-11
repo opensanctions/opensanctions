@@ -19,7 +19,7 @@ from zavod import Context
 # Other companies with Na engleskom jeziku: don't error.
 EXPECTED_ERRORS = 10
 
-# Unfortunatelly no cache for the listing page, as the state of the current
+# Unfortunately no cache for the listing page, as the state of the current
 # page is stored in the session and no cache for details page, as
 # the url is always changing
 CACHE_DAYS = None
@@ -268,7 +268,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
             BASE_URL, details_page.xpath('//*[@id="podmeni"]/p/a')[0].attrib["href"]
         )
     except IndexError:
-        context.log.warning("Details page empty")
+        context.log.warning("Details page empty", url=record["details_url"])
     else:
         founders_page = context.fetch_html(founders_url)
 
@@ -389,7 +389,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
         entity.add("sourceUrl", record["details_url"])
         entity.add("modifiedAt", record["date_of_last_decision"])
         entity.add("retrievedAt", datetime.datetime.now().isoformat())
-        context.emit(entity, target=True)
+        context.emit(entity)
 
         for person in founders_people:
             if person["name"] in FOUNDER_DENY_LIST:
@@ -417,6 +417,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
                 context.log.warning(
                     "Possible note instead of name (containing dioničari)",
                     name=comp["name"],
+                    url=record["details_url"],
                 )
 
             founder_company = context.make("LegalEntity")

@@ -79,6 +79,9 @@ def write_dataset_index(dataset: Dataset) -> None:
         meta["issue_count"] = sum(meta["issue_levels"].values())
     meta["last_export"] = settings.RUN_TIME_ISO
     meta["issues_url"] = make_artifact_url(dataset.name, version.id, ISSUES_FILE)
+    meta["statistics_url"] = make_artifact_url(
+        dataset.name, version.id, STATISTICS_FILE
+    )
 
     delta_index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
     if delta_index_path.is_file():

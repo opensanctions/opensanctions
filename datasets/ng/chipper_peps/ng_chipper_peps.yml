@@ -30,6 +30,8 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vS-0_pci6BoFHpxfPXbDeMD53jvti_TmovR406JK-Z-9lYPCqbUmTk6vZC0hTSRFxHYGTzJJyFRDCxz/pub?output=csv
   format: CSV
 
+dates: 
+  formats: ["%m/%d/%Y"]
 lookups:
   type.gender:
     options:

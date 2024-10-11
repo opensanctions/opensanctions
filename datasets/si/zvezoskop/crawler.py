@@ -10,9 +10,6 @@ from zavod.entity import Entity
 from zavod.logic.pep import categorise
 
 
-FORMATS = ["%d/%m/%Y"]
-
-
 def make_person_id(context: Context, id: str) -> str:
     return context.make_slug("person", id)
 

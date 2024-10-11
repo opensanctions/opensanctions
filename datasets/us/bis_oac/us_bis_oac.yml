@@ -32,6 +32,9 @@ data:
   url: https://www.bis.gov/OAC
   format: html
 
+dates:
+  formats: ["%y-%b"]
+
 lookups:
   type.country:
     lowercase: true

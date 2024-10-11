@@ -228,6 +228,9 @@ lookups:
         entities:
           - Biophytis
           - Stanislas Veillet
+      - match: Société Biophytis
+        entities:
+          - Biophytis
       - match: ', Natixis Asset Management Finance, Natixis Investment Managers International<br />'
         entities:
           - Natixis Asset Management Finance
@@ -959,3 +962,6 @@ lookups:
         entities:
           - Sogenial Immobilier
           - Jean-Marie Souclier
+      - match: 'Société Forest Invest'
+        entities:
+          - Forest Invest

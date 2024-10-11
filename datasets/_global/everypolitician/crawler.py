@@ -155,7 +155,13 @@ def parse_person(context: Context, data, country, lastmod) -> None:
 
 
 def parse_membership(
-    context: Context, country, data, organizations, events, birth_dates, death_dates
+    context: Context,
+    country,
+    data,
+    organizations,
+    events,
+    birth_dates: Dict[str, str],
+    death_dates: Dict[str, str],
 ) -> Optional[str]:
     person_id = data.pop("person_id", None)
     org_name = organizations.get(data.pop("organization_id", None))

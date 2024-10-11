@@ -31,3 +31,6 @@ publisher:
 data:
   url: https://www.sukobinteresa.hr/export/registar_duznosnika.csv
   format: CSV
+
+dates: 
+  formats: ["%d/%m/%Y"]
