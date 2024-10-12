@@ -40,6 +40,9 @@ def wikidata_basic_human(
             date = claim.text(enricher)
             if date.text is None:
                 continue
+            # Skip people from too far ago
+            if date.text < "1900-01-01":
+                return None
             if strict and date.text > too_young.isoformat():
                 # context.log.warning("Person is too young", qid=item.id, date=date.text)
                 return None
