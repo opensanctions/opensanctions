@@ -53,7 +53,12 @@ def crawl_holder(
     if qid is None or not is_qid(qid) or qid == "Q1045488":
         return
     entity.id = qid
-    entity.add("birthDate", holder.get("person_birth"))
+    birth_date = holder.get("person_birth")
+    if birth_date is not None and birth_date < "1900-01-01":
+        # Avoid constructing a proxy which emits a warning
+        # before we discard it.
+        return
+    entity.add("birthDate", birth_date)
     entity.add("deathDate", holder.get("person_death"))
 
     occupancy = h.make_occupancy(
