@@ -860,7 +860,9 @@ lookups:
           - TM
       - match: Republic of Serbian Krajina
         value: HR
-      - contains: Ba'athist Iraq
+      - contains:
+          - Ba'athist Iraq
+          - Kurdistan
         value: Iraq
       - match:
           - First Republic of Armenia
@@ -948,6 +950,16 @@ lookups:
         value: 1973-09
       - match: "1765-09-31"
         value: 1765-09
+      - match: "2018-02-29"
+        value: 2018-02
+      - match: "1999-06-31"
+        value: 1999-06
+      - match: "2004-04-31"
+        value: 2004-04
+      - match: "2011-02-31"
+        value: 2011-02
+      - match: "1991-02-29"
+        value: 1991-02
   type.gender:
     lowercase: true
     normalize: true
