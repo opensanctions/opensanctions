@@ -96,7 +96,9 @@ config:
     - "Q7330070" # foreign minister
     - "Q14212" # prime minister
     - "Q15966511" # deputy minister
+    - "Q26204040" # deputy minister
     - "Q46403368" # deputy at the national level
+    - "Q132050" # governor
     - "Q20086425" # shadow minister
     - "Q108290289" # senior government officials
     - "Q6635529" # provincial leader of the People's Republic of China

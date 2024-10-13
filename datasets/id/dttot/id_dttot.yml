@@ -116,11 +116,28 @@ lookups:
     lowercase: true
     options:
       - match:
+          - Asia Tenggara
+        value: null
+      - match:
           - Republik Arab Suriah
           - Republik Arab Syria
         value: Syria
       - match: Philippina
         value: Philippines
+      - match: Trinidad and Tobaga;
+        value: Trinidad and Tobago
+      - match: Britania Raya
+        value: GB
+      - match: Taza, Maroko
+        value: Morocco
+      - match: Afganistan/Pakistan
+        values:
+          - Afghanistan
+          - Pakistan
+      - match: Perancis,Tunisia
+        values:
+          - France
+          - Tunisia
   type.date:
     normalize: true
     options:
@@ -136,3 +153,27 @@ lookups:
           - 1973-12-05
       - match: sekira 1958
         value: 1958
+      - match: 20/02/1973 20/02/1980
+        values:
+          - 1973-02-20
+          - 1980-02-20
+      - match: 00/00/1954-1955
+        values:
+          - 1954
+          - 1955
+      - match: 00/00/1955-1958
+        values:
+          - 1955
+          - 1958
+      - match: 00/00/1961-1962
+        values:
+          - 1961
+          - 1962
+      - match: 00/00/1970-1974
+        values:
+          - 1970
+          - 1974
+      - match: 00/00/1966-1967
+        values:
+          - 1966
+          - 1967

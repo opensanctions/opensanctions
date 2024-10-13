@@ -135,7 +135,7 @@ def get_after_office(topics: List[str]) -> int:
         if "gov.head" in topics:
             return NO_EXPIRATION
         return EXTENDED_AFTER_OFFICE
-    if "gov.igo" in topics:
+    if "gov.igo" in topics or "role.diplo" in topics:
         return EXTENDED_AFTER_OFFICE
     return DEFAULT_AFTER_OFFICE
 

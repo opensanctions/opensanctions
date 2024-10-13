@@ -30,8 +30,11 @@ SUB_TYPES: Dict[str, Set[str]] = {
     "Q7330070": {"role.pep", "gov.executive"},  # foreign minister
     "Q14212": {"gov.head", "gov.executive"},  # prime minister
     "Q15966511": {"role.pep", "gov.executive", "gov.state"},  # deputy minister
+    "Q132050": {"role.pep", "gov.executive"},  # governor
+    "Q26204040": {"role.pep", "gov.executive"},  # deputy minister
     "Q46403368": {"role.pep", "gov.national"},  # deputy at the national level
     "Q20086425": {"role.pep", "gov.legislative"},  # shadow minister
+    "Q303329": {"role.pep", "gov.legislative"},  # shadow cabinet
     "Q108290289": {"role.pep"},  # senior government officials
     "Q16533": {"gov.judicial"},  # judge
     "Q6635529": {
