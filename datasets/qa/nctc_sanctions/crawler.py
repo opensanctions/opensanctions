@@ -1,5 +1,4 @@
 import json
-from typing import List
 from rigour.mime.types import JSON
 
 from zavod import Context
@@ -7,25 +6,6 @@ from zavod import helpers as h
 
 TYPES = {"1": "Person", "2": "Organization"}
 ALIAS_SPLITS = [";", "original script", "(", ")", "previously listed as"]
-
-
-def parse_dates(text: str) -> List[str]:
-    if not len(text):
-        return []
-    dates = []
-    type_, text = text.split("_", 1)
-    if text == "X_X_X_X":
-        return []
-    for part in h.multi_split(
-        text,
-        [":", ";", "؛", " to ", "حوالي", "_", "والي"],
-    ):
-        part = part.strip()
-        if part == "00":
-            continue
-        dates.append(part)
-
-    return dates
 
 
 def crawl(context: Context):
@@ -56,12 +36,11 @@ def crawl(context: Context):
         fourth_name_ar = item.pop("fourthNameAR")
         fourth_name_en = item.pop("fourthNameEN")
         dob_format = item.pop("dobFormat")
-        dobs = parse_dates(dob_format)
         if entity.schema.is_a("Person"):
             entity.add("passportNumber", item.pop("passportNo"))
             entity.add("idNumber", item.pop("qid"))
             entity.add("nationality", item.pop("nationality"))
-            h.apply_dates(entity, "birthDate", dobs)
+            h.apply_date(entity, "birthDate", dob_format)
             entity.add("firstName", first_name_ar, lang="ara")
             entity.add("firstName", first_name_en, lang="eng")
             entity.add("secondName", second_name_ar, lang="ara")
