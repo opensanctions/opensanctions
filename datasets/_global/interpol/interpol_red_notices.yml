@@ -45,8 +45,8 @@ assertions:
       Person: 6000
     country_entities:
       ru: 2900
-      sv: 800
-      ar: 250
+      sv: 750
+      ar: 150
       af: 5
     countries: 125
   max:
