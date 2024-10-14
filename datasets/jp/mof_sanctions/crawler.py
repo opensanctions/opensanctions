@@ -68,7 +68,7 @@ def parse_date(text: List[str]) -> List[str]:
         cleaned = DATE_CLEAN.sub("", date_)
         if cleaned:
             normal = decompose_nfkd(cleaned)
-            if normal: 
+            if normal:
                 dates.append(normal)
     return dates
 
