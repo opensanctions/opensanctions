@@ -18,7 +18,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.log.debug(f"Unique ID {entity.id}")
     entity.add("topics", "sanction")
     if row.get("DOB"):
-        entity.add("birthDate", row.pop("DOB", None))
+        h.apply_dates(entity, "birthDate", row.pop("DOB").split(";"))
     entity.add("country", country)
     for version in name.split(";"):
         if version.strip():
