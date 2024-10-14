@@ -103,7 +103,7 @@ def parse_row(context: Context, row: Dict[str, Any]):
     sanction.add("authority", row.pop("ListingType", None))
     h.apply_date(sanction, "listingDate", listing_date)
     h.apply_date(sanction, "startDate", designated_date)
-    
+
     h.apply_date(entity, "createdAt", listing_date)
     if not entity.has("createdAt"):
         h.apply_date(entity, "createdAt", designated_date)
