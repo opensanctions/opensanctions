@@ -43,6 +43,10 @@ lookups:
       - match:
           - Jul-21
           - Jul-19
+          - 09-Sep-2227-May-21  # none of these are on chatGPT
+          - 09-Sep-2207-May-13
+          - 09-Sep-22 28-Feb-17
+          - 09-Sep-2207
         value: null
   normalize_name: 
     lowercase: true
