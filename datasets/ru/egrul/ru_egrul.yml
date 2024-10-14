@@ -501,9 +501,9 @@ config:
       - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ -  # LOCAL PUBLIC ORGANIZATION 
 
     МОО - ППО:  # местная общественная организация - первичная профсоюзная организация
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ # LOCAL PUBLIC ORGANIZATION - PRIMARY TRADE UNION
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION
-      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ # LOCAL PUBLIC ORGANIZATION-PRIMARY TRADE UNION
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL PUBLIC ORGANIZATION - PRIMARY TRADE UNION
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL PUBLIC ORGANIZATION PRIMARY TRADE UNION
+      - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ-ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL PUBLIC ORGANIZATION-PRIMARY TRADE UNION
       - МЕСТНАЯ ОБЩЕСТВЕННАЯ ОРГАНИЗАЦИЯ – ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ  # LOCAL PUBLIC ORGANIZATION-PRIMARY TRADE UNION ORGANIZATION
 
     МОО - ППО ГУП:  # местная общественная организация - первичная профсоюзная организация государственного унитарного предприятия
