@@ -676,8 +676,8 @@ def parse_examples(context: Context):
     # This subset contains a mix of companies with different address structures
     # and an example of successor/predecessor relationship
     for inn in [
-        '7714034350',
-        '7729348110',
+        "7714034350",
+        "7729348110",
     ]:
         path = context.fetch_resource("%s.xml" % inn, INN_URL % inn)
         with open(path, "rb") as fh:
