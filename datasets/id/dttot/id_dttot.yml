@@ -128,7 +128,9 @@ lookups:
         value: Trinidad and Tobago
       - match: Britania Raya
         value: GB
-      - match: Taza, Maroko
+      - match: 
+          - Taza, Maroko
+          - Jerman,Maroko
         value: Morocco
       - match: Afganistan/Pakistan
         values:
@@ -177,3 +179,11 @@ lookups:
         values:
           - 1966
           - 1967
+      - match: 00/00/1960-1962
+        values:
+          - 1960
+          - 1962
+      - match: 00/00/1956-1957
+        values:
+          - 1956
+          - 1957

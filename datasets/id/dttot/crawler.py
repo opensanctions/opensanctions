@@ -75,7 +75,7 @@ def apply_date(entity: Entity, prop: str, value: str) -> None:
     elif isinstance(value, (float, int)):
         entity.add(prop, h.convert_excel_date(value), original_value=str(value))
     elif isinstance(value, str):
-        for value in h.multi_split(value, ["atau"]):
+        for value in h.multi_split(value, ["atau", "dan"]):
             h.apply_date(entity, prop, value)
     else:
         raise ValueError(f"Unexpected value type {type(value)}")
