@@ -4,14 +4,6 @@ from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
 
-SANCTION_TYPES = {
-    "MCFU-A": "Medicaid Fraud Control Unit Adult Abuse",
-    "LB": "Licensing Board",
-    "HD": "Health Department",
-    "HHS": "Department of Health and Human Services Medicaid Medicare Services",
-    "F": "Individual or Entity Convicted of Medicaid Fraud",
-}
-
 
 def crawl_item(row: Dict[str, str], context: Context):
 

@@ -11,6 +11,10 @@ description: |
   Maryland Medicaid suspends or excludes some providers from working with the Medicaid
   program. Providers listed are not allowed to receive reimbursement for Medicaid
   services in any capacity.
+
+  > For sanction type LB on the Sanctioned Providers list, verify the provider’s
+  > license status through the
+  > [Maryland State Board](https://health.maryland.gov/Pages/boards.ASPX).
 publisher:
   name: Maryland Department of Health
   description: >
@@ -31,7 +35,9 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 7500
+      Person: 1200
+      Company: 120
   max:
     schema_entities:
-      LegalEntity: 9000
+      Person: 1800
+      Company: 200
