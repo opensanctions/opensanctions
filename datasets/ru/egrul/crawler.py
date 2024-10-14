@@ -493,7 +493,7 @@ def substitute_abbreviations(
     return name, None
 
 
-def parse_company(context: Context, el: Element, abbreviations) -> None:
+def parse_company(context: Context, el: Element) -> None:
     """
     Parse a company from the XML element and emit entities.
     Args:
@@ -676,8 +676,8 @@ def parse_examples(context: Context):
     # This subset contains a mix of companies with different address structures
     # and an example of successor/predecessor relationship
     for inn in [
-        # "5001079186",
-        # "3664245363",
+        '7714034350',
+        '7729348110',
     ]:
         path = context.fetch_resource("%s.xml" % inn, INN_URL % inn)
         with open(path, "rb") as fh:
@@ -733,7 +733,7 @@ def crawl_archive(context: Context, url: str) -> None:
 def crawl(context: Context) -> None:
     # TODO: thread pool execution
     parse_examples(context)
-    # api_response = context.fetch_json(
+    # api_response = context.fetch_json( # function to test warnings
     #     "https://data.opensanctions.org/artifacts/ext_ru_egrul/20241003233502-jjy/issues.json",
     #     cache_days=1,
     # )
@@ -748,5 +748,5 @@ def crawl(context: Context) -> None:
     #         cleaned_id = entity_id.replace("ru-inn-", "")
     #         entity_ids.append(cleaned_id)
     # print(entity_ids)
-    # for archive_url in sorted(crawl_index(context, context.data_url)):
+    # for archive_url in sorted(crawl_index(context, context.data_url)): # original code
     #     crawl_archive(context, archive_url)
