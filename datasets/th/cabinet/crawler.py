@@ -29,26 +29,27 @@ def crawl(context: Context):
     )
     main_container = doc.find(".//div[@class='wonderplugintabs-panel-inner']")
 
-    prime_minister = main_container.find(
-        ".//div[@class='col-lg-1 col-md-1 col-sm-1 col-xs-12']"
+    # For lack of anything more semantic, we select persons based on sizing of their containers
+    prime_minister_containers = main_container.xpath(
+        ".//div[contains(@style, 'min-height: 480; max-height: 600')]"
     )
+    assert len(prime_minister_containers) == 1, prime_minister_containers
+    prime_minister = prime_minister_containers[0]
     persons = main_container.findall(
         ".//div[@style='min-height: 360; max-height: 500;']"
     )
     persons.append(prime_minister)
 
-    h_tags = [".//h6", ".//h5", ".//h3", ".//h4"]  # order of iteration matters
     for person in persons:
-        collected_texts = []
-        for h_tag in h_tags:
-            name_fields = person.findall(h_tag)
-            for field in name_fields:
-                text_content = field.text_content().strip()
-                if text_content:
-                    collected_texts.append(text_content)
+        # Ensure there's whitespace between headings
+        for heading in person.xpath(
+            ".//*[self::h3 or self::h4 or self::h5 or self::h6]"
+        ):
+            heading.tail = heading.tail + "\n" if heading.tail else "\n"
 
-        # Join all collected text with a space
-        collected_text = " ".join(collected_texts)
+        collected_text = person.text_content().strip()
+        if not collected_text:
+            continue
 
         # Match the text based on "Prime Minister", "Deputy Prime Minister", "Minister" in Thai
         match = ROLE_PATTERNS.search(collected_text)
@@ -60,9 +61,9 @@ def crawl(context: Context):
             if match:
                 name = match.group("name").strip()
                 role = match.group("role").strip()
-
-        position_summary = doc.find(".//h2[@style='text-align: center;']")
-        position_summary = position_summary.text_content().strip()
+            else:
+                context.log.warning("Could not match name and role", collected_text)
+                continue
 
         person = context.make("Person")
         person.id = context.make_id(name, role)
@@ -72,7 +73,6 @@ def crawl(context: Context):
         position = h.make_position(
             context,
             name=role,
-            summary=position_summary,
             country="th",
             lang="tha",
             topics=["gov.executive", "gov.national"],
@@ -82,7 +82,7 @@ def crawl(context: Context):
         if categorisation.is_pep:
             occupancy = h.make_occupancy(context, person, position)
             if occupancy:
-                context.emit(person)
+                context.emit(person, target=True)
                 context.emit(position)
                 context.emit(occupancy)
 
