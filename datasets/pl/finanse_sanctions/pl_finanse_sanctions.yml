@@ -37,6 +37,8 @@ data:
   format: CSV
   lang: pol
 
+dates: 
+  formats: ["%d.%m.%Y r."]
 lookups:
   type.country:
     normalize: true
