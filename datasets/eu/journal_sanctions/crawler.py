@@ -20,10 +20,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if row.get("DOB"):
         entity.add("birthDate", row.pop("DOB", None))
     entity.add("country", country)
-    h.apply_name(entity, name)
-    alias = row.pop("Alias").strip()
-    if alias:
-        h.apply_name(entity, alias, alias=True)
+    for version in name.split(";"):
+        if version.strip():
+            h.apply_name(entity, version.strip())
+    alias = row.pop("Alias")
+    for version in alias.split(";"):
+        if version.strip():
+            h.apply_name(entity, version.strip(), alias=True)
     entity.add("sourceUrl", row.pop("Source URL").strip())
     context.audit_data(row)
     sanction = h.make_sanction(context, entity)
@@ -38,8 +41,7 @@ def crawl_csv(context: Context, reader: Iterable[Dict[str, str]]):
 
 
 def crawl(context: Context):
-    """Crawl the OHCHR database as converted to CSV"""
-    path = context.fetch_resource("reg_2878_database.csv", context.data_url)
+    path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "rt") as infh:
         reader = csv.DictReader(infh)
         crawl_csv(context, reader)
