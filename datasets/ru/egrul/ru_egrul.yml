@@ -465,9 +465,6 @@ config:
     ППО ФБУ:
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ФЕДЕРАЛЬНОГО БЮДЖЕТНОГО УЧРЕЖДЕНИЯ  # PRIMARY TRADE UNION ORGANIZATION OF THE FEDERAL BUDGETARY INSTITUTION
     
-    ППО ФГБОУ ВО:  
-      - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО БЮДЖЕТНОГО ОБРАЗОВАТЕЛЬНОГО УЧРЕЖДЕНИЯ ВЫСШЕГО ОБРАЗОВАНИЯ  # PRIMARY TRADE UNION ORGANIZATION OF THE FEDERAL STATE BUDGETARY EDUCATIONAL INSTITUTION OF HIGHER EDUCATION
-
     ППО ФГУП:  # первичная профсоюзная организация федерального государственного унитарного предприятия
       - ПЕРВИЧНАЯ ПРОФСОЮЗНАЯ ОРГАНИЗАЦИЯ СОТРУДНИКОВ ФЕДЕРАЛЬНОГО ГОСУДАРСТВЕННОГО УНИТАРНОГО ПРЕДПРИЯТИЯ  # PRIMARY TRADE UNION ORGANIZATION OF THE FEDERAL STATE UNITARY ENTERPRISE
     
