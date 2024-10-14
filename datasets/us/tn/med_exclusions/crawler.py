@@ -9,7 +9,7 @@ from zavod.shed.gpt import run_image_prompt
 
 prompt = """
   Extract structured data from the following page of a PDF document. Return 
-   a JSON list (`providers`) in which each object represents an medical provider.
+   a JSON list (`providers`) in which each object represents a medical provider.
    Each object should have the following fields: `last_name`, `first_name`,
    `npi`, `effective_date`, `reason`.
    Return an empty string for unset fields.
@@ -17,23 +17,20 @@ prompt = """
 
 
 def crawl_item(row: Dict[str, str], context: Context):
+    first_name = row.pop("first_name")
+    last_name = row.pop("last_name")
+    npi = row.pop("npi")
 
-    if not row.get("first_name"):
-        entity = context.make("Company")
-        entity.id = context.make_id(row.get("last_name"), row.get("npi"))
-        entity.add("name", row.pop("last_name"))
-
-    else:
+    if first_name:
         entity = context.make("Person")
-        entity.id = context.make_id(
-            row.get("last_name"), row.get("first_name"), row.get("npi")
-        )
-        h.apply_name(
-            entity, first_name=row.pop("first_name"), last_name=row.pop("last_name")
-        )
+        entity.id = context.make_id(last_name, first_name, npi)
+        h.apply_name(entity, first_name=first_name, last_name=last_name)
+    else:
+        entity = context.make("Company")
+        entity.id = context.make_id(last_name, npi)
+        entity.add("name", last_name)
 
-    if npi := row.pop("npi"):
-        entity.add("npiCode", npi)
+    entity.add("npiCode", npi)
     entity.add("topics", "debarment")
     entity.add("country", "us")
 

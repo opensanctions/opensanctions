@@ -9,8 +9,22 @@ summary: >
   Medical providers terminated from Tennesse's Medicaid program.
 description: |
   The TennCare Office of Program Integrity maintains a list of providers
-  whose Medicaid provider agreement has been terminated. Providers listed
-  are not allowed to receive reimbursement for Medicaid services in any capacity.
+  whose Medicaid provider agreement has been terminated.  According to the
+  [TennCare Policy Manual](https://www.tn.gov/content/dam/tn/tenncare/documents2/pi11-002.pdf):
+
+  > All TennCare contractors, subcontractors, and providers are required to screen
+  > their owners, employees, and subcontractors both initially and on an ongoing
+  > monthly basis, against the HHS-OIG List of Excluded Individuals/Entities (LEIE),
+  > General Services Administration (GSA) System for Award Management (SAM), and the
+  > TennCare Terminated Provider List to identify individuals and entities excluded
+  > or debarred from participating in federal health care programs. According to the
+  > terms of TennCare’s managed care contracts, MCCs are prohibited from executing
+  > provider agreements with providers who have been excluded from participation in
+  > federal health care programs pursuant to sections 1128 and 1156 of the Social
+  > Security Act. Furthermore, the MCCs’ provider agreements require that providers
+  > do not employ or contract with any individual or entity that has been excluded
+  > or debarred.
+
 publisher:
   name: TennCare Office of Program Integrity
   description: >
