@@ -13,7 +13,6 @@ DATA_URL = (
     "https://www.cia.gov/the-world-factbook/page-data/countries/%s/page-data.json"
 )
 
-DATES = ["%d %B %Y"]
 
 REGEX_SKIP_CATEGORY_HTML = re.compile(
     "("
@@ -127,8 +126,6 @@ def emit_person(
     person.add("sourceUrl", source_url)
 
     position_topics = ["gov.national", "gov.head"]
-    start_date = h.parse_date(start_date, DATES, None)
-    end_date = h.parse_date(end_date, DATES, None)
     position = h.make_position(
         context,
         role,
