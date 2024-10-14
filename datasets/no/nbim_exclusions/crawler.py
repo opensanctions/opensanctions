@@ -6,7 +6,7 @@ from zavod import helpers as h
 from zavod.util import ElementOrTree
 
 
-DATE_FORMATS = ["%d.%m.%Y"]
+# DATE_FORMATS = ["%d.%m.%Y"]
 
 
 def parse_table(table: ElementOrTree) -> List[Dict[str, Any]]:
@@ -60,9 +60,7 @@ def crawl(context: Context):
         sanction.add("sourceUrl", url)
         sanction.add("program", data.pop("category"))
         sanction.add("reason", data.pop("criterion"))
-        sanction.add(
-            "listingDate", h.parse_date(data.pop("publishing-date"), DATE_FORMATS)
-        )
+        h.apply_date(sanction, "listingDate", data.pop("publishing-date"))
 
         context.emit(entity, target=True)
         context.emit(sanction)
