@@ -1,5 +1,4 @@
 from typing import Dict
-from normality import collapse_spaces
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
@@ -31,8 +30,8 @@ def crawl_item(row: Dict[str, str], context: Context):
     if row.get("license_no"):
         entity.add("description", "License No: " + row.pop("license_no"))
 
-    street_address = (row.pop("address") or "")
-    city_state_zip = (row.pop("city_state_zip") or "")
+    street_address = row.pop("address") or ""
+    city_state_zip = row.pop("city_state_zip") or ""
     if street_address or city_state_zip:
         entity.add("address", f"{street_address}, {city_state_zip}")
 
