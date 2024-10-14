@@ -1,3 +1,19 @@
+###############################################################################
+#
+# Common issues
+#
+# - Assertion failed for value 60: <Assertion entity_count gte 590 filter: schema=Person>
+#
+#     Vastly fewer entities than expected. All entities are loaded from a single page
+#     and it's not clear why we don't get a complete response. It could be because
+#     the page loads slowly and the action timeout is reached before the page is fully
+#     loaded.
+#
+#     Usually this works on the next run.
+#
+###
+
+
 from lxml import etree
 
 from zavod import Context, helpers as h
