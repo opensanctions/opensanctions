@@ -242,6 +242,9 @@ def parse_entry(context: Context, target: Element, programs, places):
         if not value:
             continue
         res = context.lookup("other_information", value)
+        if not res:
+            context.log.warning("More information available", value=value)
+            continue
         # Add artisinal properties
         for item in res.properties:
             entity.add(item.prop, value.value)
