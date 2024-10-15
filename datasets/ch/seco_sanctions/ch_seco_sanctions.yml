@@ -48,7 +48,6 @@ lookups:
         source: subject
         target: object
         text: role
-
   type.address:
     lowercase: true
     options:
@@ -95,7 +94,6 @@ lookups:
           - 1997-12-01
           - 1999-11-03
           - 2012-01-01
-
   type.gender:
     lowercase: true
     normalize: true
@@ -104,3 +102,20 @@ lookups:
         value: male
       - match: Female
         value: female
+  properties:
+    lowercase: true
+    options:
+      - match: "website"
+        property: "website"
+      - match: "e-mail"
+        property: "email"
+      - match: "telephone"
+        property: "phone"
+      - match: "taxpayer_identification_number"
+        property: "innCode"
+      - match: "state_registration_number"
+        property: "registrationNumber"
+      - match: "tax_registration_number"
+        property: "taxNumber"
+      - match: "imo_number"
+        property: "imoNumber"
