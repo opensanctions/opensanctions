@@ -39,14 +39,21 @@ data:
 
 dates:
   formats: ["%d.%m.%Y", "%d-%m-%Y", "%Y-%m-%d"]
+
 lookups:
+  censored:
+    normalize: true
+    lowercase: true
+    options:
+      - match:
+          - "Usmanov Alisher Burkhanovich"
+        value: null
   descriptions:
     normalize: true
     options:
       - contains:
           - he remains involved in the system
         value: null
-
   tags:
     lowercase: true
     options:
