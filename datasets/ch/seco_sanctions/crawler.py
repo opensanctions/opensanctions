@@ -33,11 +33,15 @@ NAME_PARTS: Dict[MayStr, MayStr] = {
     "other": None,
 }
 OTHER_INFO_REGEXES = [
-    re.compile(r"(?P<whole>(?P<key>Website) ?: (?P<value>(https?:|www\.)\S*)")),
+    re.compile(r"(?P<whole>(?P<key>Website) ?: (?P<value>(https?:|www\.)\S*)"), # REGEX_WEBSITE
     re.compile(
             r"(?P<whole>(?P<key>E-?mail( address)? ?: (?P<value>[A-Za-z0-9._-]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+))"
-        ),
-    ...
+        ), # REGEX_EMAIL
+    re.compile(r"(Tel\.|Telephone)( number)? ?: (\+?[0-9- ()]+)"), # REGEX_PHONE
+    re.compile(r"Taxpayer [Ii]dentification [Nn]umber ?: (\d+)\.?"), # REGEX_INN
+    re.compile(r"(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?: (\d+)\.?"), # REGEX_REGNUM
+    re.compile(r"Tax [Rr]egistration [Nn]umber ?: (\d+)\.?"), # REGEX_TAX
+    re.compile(r"IMO [Nn]umber ?: (\d+)\.?"), # REGEX_IMO
 ]
 
 def parse_address(node: Element):
