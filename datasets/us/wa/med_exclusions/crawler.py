@@ -16,12 +16,14 @@ def crawl_item(row: Dict[str, str], context: Context):
         aliases = name_parts[1:]
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(name, row.get("npi_or_p1"))
+    npi_or_p1 = row.pop("npi_or_p1")
+    entity.id = context.make_id(name, npi_or_p1)
     entity.add("name", name)
-    if row.get("npi_or_p1").startswith("P1"):
-        entity.add("description", "P1: " + row.pop("npi_or_p1"))
-    else:
-        entity.add("npiCode", row.pop("npi_or_p1"))
+    for number in npi_or_p1.split("\n"):
+        if number.startswith("P1"):
+            entity.add("description", number)
+        else:
+            entity.add("npiCode", number)
     entity.add("alias", aliases)
     entity.add("topics", "debarment")
     entity.add("idNumber", row.pop("license"))
@@ -51,5 +53,5 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=3):
+    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
         crawl_item(item, context)
