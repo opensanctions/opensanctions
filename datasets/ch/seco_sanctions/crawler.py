@@ -34,16 +34,17 @@ NAME_PARTS: Dict[MayStr, MayStr] = {
     "other": None,
 }
 OTHER_INFO_REGEXES = [
-    re.compile(r"(?P<whole>(?P<key>Website) ?: (?P<value>(https?:|www\.)\S*)"), # REGEX_WEBSITE
+    re.compile(r"(?P<whole>(?P<key>Website) ?: (?P<value>(https?:|www\.)\S*))"), # REGEX_WEBSITE
     re.compile(
-            r"(?P<whole>(?P<key>E-?mail( address)? ?: (?P<value>[A-Za-z0-9._-]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+))"
+            r"(?P<whole>(?P<key>(E-?mail( address)? ?:) (?P<value>[A-Za-z0-9._-]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+)))"
         ), # REGEX_EMAIL
-    re.compile(r"(?P<whole>(?P<key>Tel\.|Telephone)( number)? ?: (?P<value>\+?[0-9- ()]+))"), # REGEX_PHONE
-    re.compile(r"(?P<whole>(?P<key>Taxpayer [Ii]dentification [Nn]umber) ?: (?P<value>\d+)\.?)"), # REGEX_INN
-    re.compile(r"(?P<whole>(?P<key>ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number) ?: (?P<value>\d+)\.?"), # REGEX_REGNUM
-    re.compile(r"(?P<whole>(?P<key>Tax [Rr]egistration [Nn]umber) ?: (?P<value>\d+)\.?)"), # REGEX_TAX
-    re.compile(r"(?P<whole>(?P<key>IMO [Nn]umber) ?: (?P<value>\d+)\.?)"), # REGEX_IMO
+    re.compile(r"(?P<whole>(?P<key>(Tel\.|Telephone)( number)? ?:) (?P<value>\+?[0-9- ()]+))"), # REGEX_PHONE
+    re.compile(r"(?P<whole>(?P<key>(Taxpayer [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)"), # REGEX_INN
+    re.compile(r"(?P<whole>(?P<key>(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number) ?:) (?P<value>\d+)\.?"), # REGEX_REGNUM
+    re.compile(r"(?P<whole>(?P<key>(Tax [Rr]egistration [Nn]umber) ?:) (?P<value>\d+)\.?)"), # REGEX_TAX
+    re.compile(r"(?P<whole>(?P<key>(IMO [Nn]umber) ?:) (?P<value>\d+)\.?)"), # REGEX_IMO
 ]
+# Tax Identification Number: 232008937900
 
 def parse_address(node: Element):
     address = {
@@ -233,9 +234,11 @@ def parse_entry(context: Context, target: Element, programs, places):
             match = regex.match(value)
             if match is None:
                 continue
-            prop = context.lookup("properties", slugify(match.group("key")))
+            print(match, match.group("key"), match.group("value"), regex)
+            prop = context.lookup_value("properties", slugify(match.group("key")))
             print(prop)
-            entity.add(prop, match.group("value"))
+            if prop is not None:
+                entity.add(prop, match.group("value"))
             value.replace(match.group("whole"), "")  # remove matched part
         # See what remains
         value = value.strip()
@@ -245,18 +248,25 @@ def parse_entry(context: Context, target: Element, programs, places):
         if not res:
             context.log.warning("More information available", value=value)
             continue
+        if not (res.properties or res.relations):
+            context.log.warning("No properties or relations", value=value)
+            continue
         # Add artisinal properties
-        for item in res.properties:
-            entity.add(item.prop, value.value)
+        if res.properties:
+            for item in res.properties:
+                entity.add(item["prop"], item["value"])
         # Create relations and related entities
-        for rel in res.relations:
-            other_entity = context.make(rel.other_schema)
-            other_entity.add("name", rel.other_name)
-            rel_entity = context.make(rel.rel_schema)
-            rel_entity.id = context.make_slug(entity.id, other_entity.id)
-            rel_entity.add(rel.source, entity.id)
-            rel_entity.add(rel.target, other_entity.id)
-            context.emit(rel_entity)
+        if res.relations:
+            for rel in res.relations:
+                other_entity = context.make(rel["other_schema"])
+                other_entity.id = context.make_id(rel["other_name"], entity.id)
+                other_entity.add("name", rel["other_name"])
+                rel_entity = context.make(rel["rel_schema"])
+                rel_entity.id = context.make_slug(entity.id, other_entity.id)
+                rel_entity.add(rel["this_prop"], entity.id)
+                rel_entity.add(rel["other_prop"], other_entity.id)
+                context.emit(rel_entity)
+                context.emit(other_entity)
 
     sanction = h.make_sanction(context, entity)
     sanction.add("authorityId", entity_ssid)

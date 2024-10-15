@@ -111,11 +111,25 @@ lookups:
         property: "email"
       - match: "telephone"
         property: "phone"
-      - match: "taxpayer_identification_number"
+      - match: "taxpayer-identification-number"
         property: "innCode"
-      - match: "state_registration_number"
+      - match: "state-registration-number"
         property: "registrationNumber"
-      - match: "tax_registration_number"
+      - match: "tax-registration-number"
         property: "taxNumber"
-      - match: "imo_number"
+      - match: "imo-number"
         property: "imoNumber"
+  other_information: 
+    lowercase: true
+    options: 
+      - match: "Gender: male. Physical description: eye colour: brown; hair colour: black. Telephone number: +223 60 36 01 01. Languages spoken: Arabic and French. Distinguishing marks: eyeglasses"
+        properties: 
+          - prop: gender
+            value: male 
+      - match: Businessman, shareholder and former head of Synesis LLC
+        relations: 
+          - other_schema: Company
+            other_name: Synesis LLC
+            rel_schema: Ownership
+            this_prop: owner
+            other_prop: asset
