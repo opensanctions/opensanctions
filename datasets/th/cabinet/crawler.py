@@ -1,5 +1,6 @@
 import re
 from lxml import html
+from normality import collapse_spaces
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
@@ -11,7 +12,7 @@ ROLE_PATTERNS = re.compile(
 )
 # Pattern specifically for "นายกรัฐมนตรี" (Prime Minister)
 PRIME_MINISTER_PATTERN = re.compile(r"(?P<role>นายกรัฐมนตรี)\s*(?P<name>.*)")
-REGEX_TITLES = re.compile(r"^(นางสาว|นาย|พลตำรวจเอก|พันตำรวจเอก|พลเอก)")
+REGEX_TITLES = re.compile(r"^(นางสาว|นาง|นาย|พลตำรวจเอก|พันตำรวจเอก|พลเอก)")
 POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
 TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 
@@ -44,7 +45,7 @@ def crawl(context: Context):
         ):
             heading.tail = heading.tail + "\n" if heading.tail else "\n"
 
-        collected_text = person.text_content().strip()
+        collected_text = collapse_spaces(person.text_content())
         if not collected_text:
             continue
 
@@ -64,6 +65,10 @@ def crawl(context: Context):
 
         person = context.make("Person")
         person.id = context.make_id(name, role)
+        title_match = REGEX_TITLES.match(name)
+        if not title_match:
+            context.log.warning("Could not match title in name.", name=name)
+            continue
         name = REGEX_TITLES.sub("", name)
         person.add("name", name, lang="tha")
         person.add("topics", "role.pep")
@@ -86,8 +91,3 @@ def crawl(context: Context):
                 context.emit(person, target=True)
                 context.emit(position)
                 context.emit(occupancy)
-
-    # Find the date of the last update
-    last_upd = doc.find(".//h5[@style='text-align: center;']")
-    date_last_upd = last_upd.text_content().strip()
-    assert date_last_upd == "ปรับปรุงข้อมูล ณ วันที่ 4 กันยายน 2567"  # September 4, 2024
