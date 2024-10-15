@@ -3,6 +3,7 @@ from lxml import html
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
+from zavod.shed.trans import apply_translit_full_name, make_position_translation_prompt
 from zavod.shed.zyte_api import fetch_html
 
 ROLE_PATTERNS = re.compile(
@@ -10,17 +11,14 @@ ROLE_PATTERNS = re.compile(
 )
 # Pattern specifically for "นายกรัฐมนตรี" (Prime Minister)
 PRIME_MINISTER_PATTERN = re.compile(r"(?P<role>นายกรัฐมนตรี)\s*(?P<name>.*)")
+REGEX_TITLES = re.compile(r"^(นางสาว|นาย|พลตำรวจเอก|พันตำรวจเอก|พลเอก)")
+POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
+TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 
 
 def unblock_validator(doc: html.HtmlElement) -> bool:
-    return (
-        len(
-            doc.xpath(
-                ".//div[contains(@class, 'col-lg-2 col-md-2 col-sm-6 col-xs-12')]"
-            )
-        )
-        > 0
-    )
+    xpath = ".//div[contains(@style, 'min-height: 480; max-height: 600')]"
+    return len(doc.xpath(xpath)) > 0
 
 
 def crawl(context: Context):
@@ -39,7 +37,6 @@ def crawl(context: Context):
         ".//div[@style='min-height: 360; max-height: 500;']"
     )
     persons.append(prime_minister)
-
     for person in persons:
         # Ensure there's whitespace between headings
         for heading in person.xpath(
@@ -67,6 +64,7 @@ def crawl(context: Context):
 
         person = context.make("Person")
         person.id = context.make_id(name, role)
+        name = REGEX_TITLES.sub("", name)
         person.add("name", name, lang="tha")
         person.add("topics", "role.pep")
 
@@ -77,6 +75,9 @@ def crawl(context: Context):
             lang="tha",
             topics=["gov.executive", "gov.national"],
         )
+        apply_translit_full_name(
+            context, position, "tha", role, TRANSLIT_OUTPUT, POSITION_PROMPT
+        )
 
         categorisation = categorise(context, position, is_pep=True)
         if categorisation.is_pep:
@@ -86,7 +87,7 @@ def crawl(context: Context):
                 context.emit(position)
                 context.emit(occupancy)
 
-        # Find the date of the last update
+    # Find the date of the last update
     last_upd = doc.find(".//h5[@style='text-align: center;']")
     date_last_upd = last_upd.text_content().strip()
     assert date_last_upd == "ปรับปรุงข้อมูล ณ วันที่ 4 กันยายน 2567"  # September 4, 2024
