@@ -225,7 +225,10 @@ def crawl(context: Context) -> None:
             name = title_name(state.person_title[person_qid])
             entity.add("name", name)
         entity.add("topics", state.person_topics.get(person_qid, []))
-        entity.add("country", state.person_countries.get(person_qid, []))
+
+        for country in state.person_countries.get(person_qid, []):
+            if country not in entity.countries:
+                entity.add("country", country)
 
         positions = state.person_positions.get(person_qid, [])
         for position in positions:
