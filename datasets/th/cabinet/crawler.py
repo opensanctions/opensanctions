@@ -23,9 +23,7 @@ def unblock_validator(doc: html.HtmlElement) -> bool:
 
 
 def crawl(context: Context):
-    doc = fetch_html(
-        context, context.data_url, unblock_validator=unblock_validator, cache_days=3
-    )
+    doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
     main_container = doc.find(".//div[@class='wonderplugintabs-panel-inner']")
 
     # For lack of anything more semantic, we select persons based on sizing of their containers
