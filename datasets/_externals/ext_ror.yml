@@ -1,3 +1,4 @@
+type: external
 title: Research Organizations Registry
 entry_point: zavod.runner.enrich:enrich
 full_dataset: ror
@@ -5,16 +6,13 @@ disabled: false
 hidden: false
 prefix: ror
 coverage:
-  frequency: monthly
+  frequency: weekly
   start: "2024-10-14"
 exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  disk: "50Gi"
   memory: "1500Mi"
-  memory_limit: "2000Mi"
-  premium: true
 ci_test: false
 summary: >
   Identifiers for research organizations, maintained by the Research Organization Registry.
