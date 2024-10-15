@@ -22,6 +22,9 @@ IGNORE_COLUMNS = [
 
 def parse_result(context: Context, row: Dict[str, Any]):
     name_en = row.pop("name_en")
+    result = context.lookup("censored", name_en)
+    if result is not None:
+        return
     name_ru = row.pop("name_ru")
     dob = row.pop("birthdate")
     published_at = row.pop("published_at")
