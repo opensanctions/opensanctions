@@ -7,9 +7,6 @@ from zavod.logic.pep import categorise
 from zavod.shed.zyte_api import fetch_html
 
 
-# DATE_FORMAT = ["%B %d, %Y"]
-
-
 def bio_unblock_validator(doc: ElementTree) -> bool:
     return len(doc.xpath(".//h1[contains(@class, 'featured-content__headline')]")) > 0
 
