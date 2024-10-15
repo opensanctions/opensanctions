@@ -342,7 +342,6 @@ lookups:
           - Kaduna State
           - Pahang
           - Hirshabelle
-          - Kurdistan
           - Ifriqiya
           - Regency of Algiers
           - Sultanate of Darfur
@@ -635,6 +634,7 @@ lookups:
           - Sultanate of Harar
           - Novgorod Republic
           - Cimmeria
+          - Rattanakosin Kingdom
         value: null
       - match:
           - Cherokee Nation
@@ -862,7 +862,6 @@ lookups:
         value: HR
       - contains:
           - Ba'athist Iraq
-          - Kurdistan
         value: Iraq
       - match:
           - First Republic of Armenia

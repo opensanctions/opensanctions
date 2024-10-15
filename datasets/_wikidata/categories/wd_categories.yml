@@ -81,6 +81,16 @@ lookups:
         value: 1949-02
       - match: "2021-06-31"
         value: 2021-06
+      - match: "2018-02-29"
+        value: 2018-02
+      - match: "2011-02-31"
+        value: 2011-02
+      - match: "1991-02-29"
+        value: 1991-02
+      - match: "2004-04-31"
+        value: 2004-04
+      - match: "1999-06-31"
+        value: 1999-06
 
 config:
   seeds:
