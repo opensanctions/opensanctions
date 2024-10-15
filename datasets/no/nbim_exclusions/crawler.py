@@ -6,9 +6,6 @@ from zavod import helpers as h
 from zavod.util import ElementOrTree
 
 
-# DATE_FORMATS = ["%d.%m.%Y"]
-
-
 def parse_table(table: ElementOrTree) -> List[Dict[str, Any]]:
     rows = []
     headers = None
