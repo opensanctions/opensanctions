@@ -20,6 +20,7 @@ def crawl_bio_page(context: Context, url: str):
         url,
         bio_unblock_validator,
         javascript=True,
+        geolocation="US",
         cache_days=30,
     )
     name = collapse_spaces(
@@ -117,10 +118,17 @@ def crawl(context: Context) -> Optional[str]:
         context,
         context.data_url,
         index_unblock_validator,
+        geolocation="US",
         cache_days=1,
     )
     crawl_index_page(context, doc)
     while next_link := get_next_link(doc):
         context.log.info(f"Crawling index page {next_link}")
-        doc = fetch_html(context, next_link, index_unblock_validator, cache_days=1)
+        doc = fetch_html(
+            context,
+            next_link,
+            index_unblock_validator,
+            geolocation="US",
+            cache_days=1,
+        )
         crawl_index_page(context, doc)
