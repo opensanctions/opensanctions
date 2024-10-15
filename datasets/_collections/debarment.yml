@@ -32,8 +32,10 @@ children:
   - us_ga_med_exclusions
   - us_hhs_exclusions
   - us_ia_med_exclusions
+  - us_in_med_exclusions
   - us_ks_med_exclusions
   - us_ma_med_exclusions
+  - us_md_med_exclusions
   - us_mi_med_exclusions
   - us_ms_med_exclusions
   - us_mt_med_exclusions
@@ -45,6 +47,7 @@ children:
   - us_pa_med_exclusions
   - us_sam_exclusions
   - us_special_leg
+  - us_tn_med_exclusions
   - us_wv_med_exclusions
   - worldbank_debarred
 ci_test: false

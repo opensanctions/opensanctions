@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-medwa
 coverage:
   frequency: daily
-  start: "2024-10-07"
+  start: "2024-10-15"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Medical providers terminated or excluded from Washington State's Medicaid program.
@@ -14,7 +14,7 @@ description: |
   been excluded from participation (see 42 CFR 1001).
 publisher:
   name: Washington State Health Care Authority
-  description: >
+  description: |
     > HCA purchases and coordinates health care services including behavioral health
     > treatment for more than 2.7 million Washington residents and provides behavioral
     > health prevention, crisis, and recovery supports to all Washington residents.

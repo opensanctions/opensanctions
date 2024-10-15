@@ -1,12 +1,12 @@
-title: US Tennesse Terminated Providers List
+title: US Tennessee Terminated Providers List
 entry_point: crawler.py
 prefix: us-medtn
 coverage:
   frequency: daily
-  start: "2024-09-27"
+  start: "2024-10-15"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Medical providers terminated from Tennesse's Medicaid program.
+  Medical providers terminated from Tennessee's Medicaid program.
 description: |
   The TennCare Office of Program Integrity maintains a list of providers
   whose Medicaid provider agreement has been terminated.  According to the
