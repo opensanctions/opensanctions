@@ -6,6 +6,7 @@ from typing import Dict, Optional, Tuple, List
 from followthemoney.types import registry
 from followthemoney.util import join_text
 from lxml.etree import _Element as Element
+from slugify import slugify
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -37,11 +38,11 @@ OTHER_INFO_REGEXES = [
     re.compile(
             r"(?P<whole>(?P<key>E-?mail( address)? ?: (?P<value>[A-Za-z0-9._-]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+))"
         ), # REGEX_EMAIL
-    re.compile(r"(Tel\.|Telephone)( number)? ?: (\+?[0-9- ()]+)"), # REGEX_PHONE
-    re.compile(r"Taxpayer [Ii]dentification [Nn]umber ?: (\d+)\.?"), # REGEX_INN
-    re.compile(r"(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?: (\d+)\.?"), # REGEX_REGNUM
-    re.compile(r"Tax [Rr]egistration [Nn]umber ?: (\d+)\.?"), # REGEX_TAX
-    re.compile(r"IMO [Nn]umber ?: (\d+)\.?"), # REGEX_IMO
+    re.compile(r"(?P<whole>(?P<key>Tel\.|Telephone)( number)? ?: (\+?[0-9- ()]+)"), # REGEX_PHONE
+    re.compile(r"(?P<whole>(?P<key>Taxpayer [Ii]dentification [Nn]umber ?: (\d+)\.?"), # REGEX_INN
+    re.compile(r"(?P<whole>(?P<key>ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?: (\d+)\.?"), # REGEX_REGNUM
+    re.compile(r"(?P<whole>(?P<key>Tax [Rr]egistration [Nn]umber ?: (\d+)\.?"), # REGEX_TAX
+    re.compile(r"(?P<whole>(?P<key>IMO [Nn]umber ?: (\d+)\.?"), # REGEX_IMO
 ]
 
 def parse_address(node: Element):
@@ -233,6 +234,7 @@ def parse_entry(context: Context, target: Element, programs, places):
             if match is None:
                 continue
             prop = context.lookup("properties", slugify(match.group("key")))
+            print(prop)
             entity.add(prop, match.group("value"))
             value.replace(match.group("whole"), "")  # remove matched part
         # See what remains
