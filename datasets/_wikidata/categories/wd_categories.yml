@@ -775,6 +775,8 @@ config:
       country: fo
       topic: role.pep
 
+    ############################################################################
+    # Russia deep dive based on Russian Wikipedia
     # "Федеральный уровень"  # Federal level
     # "Исполнительная власть"  # Executive power
     - category: Кандидаты в президенты России (2008) # Candidates for the President of Russia (2008)
@@ -1016,6 +1018,7 @@ config:
       language: ru
       position:
         name: Member of the Federation Council
+        country: ua-cri
         topics:
           - gov.legislative
           - gov.national
@@ -1117,7 +1120,7 @@ config:
         topics:
           - gov.national
           - gov.executive
-    - category: Политики России # Politicians of Russia
+    - category: Государственные_деятели_Российской_Федерации # Statesmen of the Russian Federation
       country: ru
       language: ru
 
@@ -2076,14 +2079,14 @@ config:
     # "Ректоры и директора государственных университетов и исследовательских институтов"  # Rectors and directors of state universities and research institutes
 
     # "Руководители служб безопасности (ФСБ, ГРУ и др.)"  # Heads of security services (FSB, GRU, etc.)
-    - category: Сотрудники ГРУ # GRU employees
-      language: ru
-      position:
-        name: Employee of the GRU
-        country: ru
-        topics:
-          - gov.security
-          - gov.national
+    # - category: Сотрудники ГРУ # GRU employees
+    #   language: ru
+    #   position:
+    #     name: Employee of the GRU
+    #     country: ru
+    #     topics:
+    #       - gov.security
+    #       - gov.national
     - category: Сотрудники Службы внешней разведки России # Employees of the Foreign Intelligence Service of Russia
       country: ru
       language: ru
@@ -2142,14 +2145,17 @@ config:
         country: ru
         topics:
           - pol.party
-    - category: Члены КПСС # Members of the CPSU
-      topic: role.pep
-      language: ru
-      position:
-        name: Member of the CPSU
-        country: ru
-        topics:
-          - pol.party
+
+    # 32k members - need to filter for modern
+    # - category: Члены КПСС # Members of the CPSU
+    #   topic: role.pep
+    #   language: ru
+    #   position:
+    #     name: Member of the CPSU
+    #     country: ru
+    #     topics:
+    #       - pol.party
+
     # - category: Кандидаты в президенты России по партиям  # Candidates for the President of Russia by Parties
     #   topic: role.pep
     #   country: ru

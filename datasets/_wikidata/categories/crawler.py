@@ -118,7 +118,6 @@ def crawl_category(state: CrawlState, category: Dict[str, Any]) -> None:
     data = state.context.fetch_text(url, cache_days=cache_days)
     wrapper = StringIO(data)
     results = 0
-    emitted = 0
     for row in csv.DictReader(wrapper):
         results += 1
         person_qid = row["Wikidata"]
@@ -140,14 +139,10 @@ def crawl_category(state: CrawlState, category: Dict[str, Any]) -> None:
         if row.get("title") is not None:
             state.person_title[person_qid] = row.get("title")
 
-    if emitted > 0 and position is not None:
-        state.context.emit(position)
-
     state.log.info(
         "PETScanning category: %s" % cat,
         topics=topics,
         results=results,
-        emitted=emitted,
     )
     state.context.cache.flush()
 
