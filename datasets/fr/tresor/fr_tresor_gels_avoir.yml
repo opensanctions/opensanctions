@@ -4558,6 +4558,7 @@ lookups:
         props:
           innCode: 9707028663
       - match: "KPP: 770701001"
+        schema: Company
         props:
           kppCode: 770701001
       - match: "Principal établissement: province du Khorasan (Iran): /"
