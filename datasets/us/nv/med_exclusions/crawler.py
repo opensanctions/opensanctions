@@ -8,18 +8,23 @@ from zavod import Context, helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
+    # We already crawl the federal dataset on another crawler
+    sanction_tier = row.pop("nevada_medicaid_sanction_tier")
+    if sanction_tier.lower() == "Federal":
+        return
+
     entity = context.make("LegalEntity")
     name = row.pop("excluded_providers_entities_and_or_individuals")
     npi = row.pop("sanctioned_exclude_d_npi")
     entity.id = context.make_id(name, npi)
-    entity.add("name", name)
+    entity.add("name", name.split(" aka "))
     entity.add("npiCode", npi)
     entity.add("country", "us")
 
     if associated_entity_name := row.pop("associated_legal_entity"):
         associated_entity = context.make("LegalEntity")
         associated_entity.id = context.make_id(associated_entity_name, entity.id)
-        associated_entity.add("name", associated_entity_name)
+        associated_entity.add("name", associated_entity_name.split(" aka "))
         associated_entity.add("country", "us")
 
         link = context.make("UnknownLink")
@@ -35,7 +40,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     ):
         person = context.make("Person")
         person.id = context.make_id(controlling_interest_name, entity.id)
-        person.add("name", controlling_interest_name)
+        person.add("name", controlling_interest_name.split(" aka "))
         person.add("country", "us")
 
         link = context.make("Ownership")
@@ -47,7 +52,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         context.emit(person)
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("provisions", f'Tier: {row.pop("nevada_medicaid_sanction_tier")}')
+    sanction.add("provisions", f"Tier: {sanction_tier}")
     h.apply_dates(
         sanction, "startDate", row.pop("contract_termination_date").split("\n")
     )
@@ -79,14 +84,16 @@ def parse_pdf_table(context: Context, path: Path, save_debug_images=False):
     pdf = pdfplumber.open(path.as_posix())
     settings = {}
     for page_num, page in enumerate(pdf.pages, 1):
+        # Find the bottom of the bottom-most rectangle on the page
         bottom = max(page.height - rect["y0"] for rect in page.rects)
+        settings["explicit_horizontal_lines"] = [bottom]
         if save_debug_images:
             im = page.to_image()
-            settings["explicit_horizontal_lines"] = [bottom]
             im.draw_hline(bottom, stroke=(0, 0, 255), stroke_width=1)
             im.draw_rects(page.find_table(settings).cells)
             im.save(f"page-{page_num}.png")
         assert bottom < (page.height - 5), (bottom, page.height)
+
         headers = None
         for row in page.extract_table(settings):
             if headers is None:
