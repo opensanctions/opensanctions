@@ -30,9 +30,7 @@ def crawl_entity(context: Context, item: Dict[str, Any]) -> None:
 def crawl(context: Context):
     data = context.fetch_json(context.data_url)
     if not data:
-        context.log.error("No data found")
-        return
+        raise ValueError("No data was returned!")
 
-    # Processing each item in the 'rows' list
     for item in data.pop("rows"):
         crawl_entity(context, item)

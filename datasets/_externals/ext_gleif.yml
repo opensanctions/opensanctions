@@ -15,7 +15,6 @@ deploy:
   memory: "1500Mi"
   memory_limit: "2500Mi"
   disk: "20Gi"
-  # premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   A concatenated data file of all entities which have been issued Legal
