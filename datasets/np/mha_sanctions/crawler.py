@@ -28,7 +28,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         for a in alias:  # Add aliases
             entity.add("alias", a.strip())
         for date in birth_dates:
-                h.apply_date(entity, "birthDate", date)
+            h.apply_date(entity, "birthDate", date)
         for p in birth_place:
             entity.add("birthPlace", p.strip())
         for n in nationality:
