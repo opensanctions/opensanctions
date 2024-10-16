@@ -75,11 +75,20 @@ def crawl_item(row: Dict[str, str], context: Context):
     )
 
 
-def parse_pdf_table(context: Context, path: Path):
+def parse_pdf_table(context: Context, path: Path, save_debug_images=False):
     pdf = pdfplumber.open(path.as_posix())
+    settings = {}
     for page_num, page in enumerate(pdf.pages, 1):
+        bottom = max(page.height - rect["y0"] for rect in page.rects)
+        if save_debug_images:
+            im = page.to_image()
+            settings["explicit_horizontal_lines"] = [bottom]
+            im.draw_hline(bottom, stroke=(0, 0, 255), stroke_width=1)
+            im.draw_rects(page.find_table(settings).cells)
+            im.save(f"page-{page_num}.png")
+        assert bottom < (page.height - 5), (bottom, page.height)
         headers = None
-        for row in page.extract_table():
+        for row in page.extract_table(settings):
             if headers is None:
                 headers = [slugify(collapse_spaces(cell), sep="_") for cell in row]
                 continue
