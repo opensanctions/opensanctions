@@ -256,7 +256,7 @@ def fetch_company(context: Context, company_id: int) -> int:
                 "NumriPunetoreve",
             ],
         )
-        context.emit(entity, target=True)
+        context.emit(entity)
         return True
 
     except requests.exceptions.HTTPError as exc:

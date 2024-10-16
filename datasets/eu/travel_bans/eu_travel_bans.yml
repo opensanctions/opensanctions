@@ -50,6 +50,8 @@ lookups:
         value: Person
       - match: enterprise
         value: Organization
+  schema_override:
+    options: []
   contact_info:
     options:
       - match: PHONE

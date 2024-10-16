@@ -24,6 +24,7 @@ children:
   - md_interdictie
   - ps_ohchr_settlement
   - si_conflicts
+  - us_ak_med_exclusions
   - us_co_med_exclusions
   - us_ddtc_debarred
   - us_dod_chinese_milcorps
@@ -31,8 +32,10 @@ children:
   - us_ga_med_exclusions
   - us_hhs_exclusions
   - us_ia_med_exclusions
+  - us_in_med_exclusions
   - us_ks_med_exclusions
   - us_ma_med_exclusions
+  - us_md_med_exclusions
   - us_mi_med_exclusions
   - us_ms_med_exclusions
   - us_mt_med_exclusions
@@ -41,7 +44,10 @@ children:
   - us_nh_med_exclusions
   - us_ny_med_exclusions
   - us_or_med_exclusions
+  - us_pa_med_exclusions
   - us_sam_exclusions
   - us_special_leg
+  - us_tn_med_exclusions
+  - us_wv_med_exclusions
   - worldbank_debarred
 ci_test: false

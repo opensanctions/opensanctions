@@ -10,8 +10,6 @@ from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 from zavod.shed.un_sc import Regime, get_legal_entities, get_persons, load_un_sc
 
-DATE_FORMAT = ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S"]
-
 # original link for assertion
 DOCX_LINK = "https://ms.hmb.gov.tr/uploads/sites/2/2024/08/A-BIRLESMIS-MILLETLER-GUVENLIK-KONSEYI-KARARINA-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-5.-MADDEw.docx"
 

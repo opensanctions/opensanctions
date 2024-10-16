@@ -2,6 +2,7 @@ type: collection
 title: European Union Sanctions
 hidden: true
 coverage:
+  start: "2024-07-01"
   schedule: "0 */6 * * *"
 deploy:
   memory: "1500Mi"
@@ -13,6 +14,7 @@ description: |
   This collection combines all designated entities from the various sanctions
   lists inside the EU.
 children:
+  - at_nbter_sanctions
   - be_fod_sanctions
   - bg_omnio_poi
   - cz_national_sanctions
@@ -20,7 +22,6 @@ children:
   - eu_journal_sanctions
   - eu_sanctions_map
   - eu_travel_bans
-  - eu_esma_saris
   - ee_international_sanctions
   - fr_tresor_gels_avoir
   - lt_fiu_freezes

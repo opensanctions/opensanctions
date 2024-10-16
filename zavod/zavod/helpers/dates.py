@@ -10,6 +10,8 @@ from zavod.meta.dataset import Dataset
 
 log = get_logger(__name__)
 NUMBERS = re.compile(r"\d+")
+# We always want to accept ISO prefix dates.
+ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 DateValue = Union[str, date, datetime, None]
 
 __all__ = [
@@ -91,7 +93,7 @@ def replace_months(dataset: Dataset, text: str) -> str:
 def extract_date(dataset: Dataset, text: DateValue) -> List[str]:
     """
     Extract a date from the provided text using predefined `formats` in the metadata.
-    If the text doesn't match any format, return the original text.
+    If the text doesn't match any format, returns the original text.
     """
     if text is None:
         return []
@@ -104,7 +106,8 @@ def extract_date(dataset: Dataset, text: DateValue) -> List[str]:
         return [iso]
 
     replaced_text = replace_months(dataset, text)
-    parsed = parse_formats(replaced_text, dataset.dates.formats)
+    formats = dataset.dates.formats + ALWAYS_FORMATS
+    parsed = parse_formats(replaced_text, formats)
     if parsed.text is not None:
         return [parsed.text]
     if dataset.dates.year_only:
@@ -126,7 +129,7 @@ def apply_date(entity: Entity, prop: str, text: DateValue) -> None:
     """
     prop_ = entity.schema.get(prop)
     if prop_ is None or prop_.type != registry.date:
-        log.warning("Property is not a date: %s", prop_)
+        log.warning("Property is not a date: %s" % prop)
         return
 
     if text is None:

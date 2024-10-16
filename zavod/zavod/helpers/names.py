@@ -149,6 +149,7 @@ def apply_name(
         set_name_part(entity, "firstName", given_name, quiet, lang)
         set_name_part(entity, "firstName", first_name, quiet, lang)
         set_name_part(entity, "secondName", second_name, quiet, lang)
+        set_name_part(entity, "middleName", middle_name, quiet, lang)
         set_name_part(entity, "fatherName", patronymic, quiet, lang)
         set_name_part(entity, "motherName", matronymic, quiet, lang)
         set_name_part(entity, "lastName", last_name, quiet, lang)

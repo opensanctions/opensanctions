@@ -6,7 +6,6 @@ from zavod import Context, helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     name = row.pop("provider_name")
 
     if not name:
@@ -22,10 +21,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
-    sanction.add(
-        "startDate",
-        h.parse_date(row.pop("exclusion_effective_date"), formats=["%m/%d/%Y"]),
-    )
+    h.apply_date(sanction, "startDate", row.pop("exclusion_effective_date"))
 
     context.emit(entity, target=True)
     context.emit(sanction)

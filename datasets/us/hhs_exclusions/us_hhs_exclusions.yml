@@ -41,6 +41,8 @@ data:
   format: CSV
   lang: eng
 
+dates: 
+  formats: ["%Y%m%d"]
 assertions:
   min:
     schema_entities:

@@ -41,6 +41,9 @@ data:
   url: https://efile.fara.gov/ords/fara/f?p=API:BULKDATA
   format: XML
 
+dates:
+  formats: ["%m/%d/%Y"]
+
 assertions:
   min:
     schema_entities:

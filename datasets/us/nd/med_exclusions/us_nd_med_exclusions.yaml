@@ -14,8 +14,9 @@ description: |
 publisher:
   name: North Dakota Health and Human Services
   acronym: NDHHS
-  description: North Dakota Health and Human Services is a state agency that provides essential health care,
-   social services, and public assistance programs to support the well-being of residents.
+  description:
+    North Dakota Health and Human Services is a state agency that provides essential health care,
+    social services, and public assistance programs to support the well-being of residents.
   url: https://www.hhs.nd.gov
   official: true
   country: "us"
@@ -28,7 +29,13 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 100 
+      LegalEntity: 100
   max:
     schema_entities:
-      LegalEntity: 300 
+      LegalEntity: 300
+
+lookups:
+  type.date:
+    options:
+      - match: Termnation 9/19/2024
+        value: 2024-09-19

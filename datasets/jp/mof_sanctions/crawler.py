@@ -10,6 +10,7 @@ from typing import Dict, List, Optional
 from normality import collapse_spaces, stringify
 from normality.cleaning import decompose_nfkd
 from followthemoney.types.identifier import IdentifierType
+
 from zavod import Context, Entity
 from zavod import helpers as h
 
@@ -24,8 +25,6 @@ SPLITS = SPLITS + ["; a.k.a.", "; a.k.a ", ", a.k.a.", ", f.k.a."]
 
 ALIAS_SPLITS = SPLITS + ["; "]
 
-# DATE FORMATS
-FORMATS = ["%Y年%m月%d日", "%Y年%m月%d", "%Y年%m月", "%Y.%m.%d"]
 DATE_SPLITS = SPLITS + [
     "、",
     "；",
@@ -69,8 +68,8 @@ def parse_date(text: List[str]) -> List[str]:
         cleaned = DATE_CLEAN.sub("", date_)
         if cleaned:
             normal = decompose_nfkd(cleaned)
-            for parsed in h.parse_date(normal, FORMATS, default=date_):
-                dates.append(parsed)
+            if normal:
+                dates.append(normal)
     return dates
 
 
@@ -147,8 +146,10 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add("previousName", parse_names(row.pop("past_alias", [])))
     entity.add("previousName", parse_names(row.pop("old_name", [])))
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
-    birth_date = parse_date(row.pop("birth_date", []))
-    entity.add_cast("Person", "birthDate", birth_date)
+    if entity.schema.is_a("Person"):
+        birth_date = parse_date(row.pop("birth_date", []))
+        if birth_date != []:
+            h.apply_dates(entity, "birthDate", birth_date)
     entity.add_cast("Person", "birthPlace", row.pop("birth_place", []))
 
     keep_long_ids(entity, passport_number)
@@ -192,9 +193,9 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     sanction.add("reason", row.pop("root_nomination", None))
     sanction.add("reason", row.pop("reason_res1483", None))
     sanction.add("authorityId", row.pop("notification_number", None))
-    sanction.add("startDate", parse_date(row.pop("designated_date_un", [])))
-    sanction.add("startDate", parse_date(row.pop("notification_date", [])))
-    sanction.add("listingDate", parse_date(row.pop("publication_date", [])))
+    h.apply_dates(sanction, "startDate", parse_date(row.pop("designated_date_un", [])))
+    h.apply_dates(sanction, "startDate", parse_date(row.pop("notification_date", [])))
+    h.apply_dates(sanction, "listingDate", parse_date(row.pop("publication_date", [])))
 
     # if len(row):
     #     context.inspect(row)

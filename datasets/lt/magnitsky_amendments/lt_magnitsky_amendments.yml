@@ -29,3 +29,14 @@ data:
   url: https://www.migracija.lt/external/nam/search?pageNo=0&pageSize=400&language=lt
   file_name: source.json
   format: JSON
+
+lookups: 
+  type.date:
+    lowercase: true
+    normalize: true
+    options:
+      - match: 
+          - UTPĮ 133 str. 4 d.,
+          - UTPĮ 133 str. 5 d. nustatytas uždraudimo atvykti pagrindas  # Grounds for refusal of entry laid down in Article 133(5) of the UTPA
+          - užsienietis gali kelti grėsmę valstybės saugumui  # the foreigner may pose a threat to national security
+        value: null

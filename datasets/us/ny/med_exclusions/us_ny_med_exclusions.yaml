@@ -26,6 +26,9 @@ data:
   url: https://apps.omig.ny.gov/exclusions/exporttoexcel.aspx
   format: XLSX
 
+
+dates:
+  formats: ["%m/%d/%Y"]
 assertions:
   min:
     schema_entities:

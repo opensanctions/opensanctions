@@ -118,11 +118,19 @@ class GoogleCloudBackend(ArchiveBackend):
     def __init__(self) -> None:
         if settings.ARCHIVE_BUCKET is None:
             raise ConfigurationException("No backfill bucket configured")
-        client = Client()
-        self.bucket = client.get_bucket(settings.ARCHIVE_BUCKET)
+        self.client = Client()
+        self.bucket = self.client.get_bucket(settings.ARCHIVE_BUCKET)
 
     def get_object(self, name: str) -> GoogleCloudObject:
         return GoogleCloudObject(self, name)
+
+
+class AnonymousGoogleCloudBackend(GoogleCloudBackend):
+    def __init__(self) -> None:
+        if settings.ARCHIVE_BUCKET is None:
+            raise ConfigurationException("No backfill bucket configured")
+        self.client = Client.create_anonymous_client()
+        self.bucket = self.client.get_bucket(settings.ARCHIVE_BUCKET)
 
 
 class FileSystemObject(ArchiveObject):
@@ -182,6 +190,7 @@ class FileSystemBackend(ArchiveBackend):
 
 backends: Dict[str, Type[ArchiveBackend]] = {
     "GoogleCloudBackend": GoogleCloudBackend,
+    "AnonymousGoogleCloudBackend": AnonymousGoogleCloudBackend,
     "FileSystemBackend": FileSystemBackend,
 }
 

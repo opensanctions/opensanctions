@@ -18,6 +18,7 @@ COLOURS = {
     "yeşil": "green",
     "turuncu": "orange",
     "gri": "grey",
+    "sarı": "yellow",
 }
 
 

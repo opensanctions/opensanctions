@@ -71,6 +71,12 @@ def parse_sanctions(context: Context, entity: Entity, entry: Element) -> None:
 
 
 def parse_entry(context: Context, entry: Element) -> None:
+    eu_ref = entry.get("euReferenceNumber")
+    if eu_ref is not None:
+        entity_id = context.make_slug(eu_ref, prefix="eu-fsf")
+    else:
+        entity_id = context.make_slug("logical", entry.get("logicalId"))
+
     subject_type = entry.find("./subjectType")
     if subject_type is None:
         context.log.warning("Unknown subject type", entry=entry)
@@ -79,13 +85,13 @@ def parse_entry(context: Context, entry: Element) -> None:
     if schema is None:
         context.log.warning("Unknown subject type", type=subject_type)
         return
+    schema = context.lookup_value("schema_override", entity_id, schema)
+    if schema is None:
+        context.log.warning("Broken schema override", entity_id=entity_id)
+        return
 
     entity = context.make(schema)
-    eu_ref = entry.get("euReferenceNumber")
-    if eu_ref is not None:
-        entity.id = context.make_slug(eu_ref, prefix="eu-fsf")
-    else:
-        entity.id = context.make_slug("logical", entry.get("logicalId"))
+    entity.id = entity_id
     entity.add("notes", h.clean_note(entry.findtext("./remark")))
     entity.add("topics", "sanction")
     parse_sanctions(context, entity, entry)

@@ -47,6 +47,8 @@ data:
   url: https://api.trade.gov/static/consolidated_screening_list/consolidated.json
   format: JSON
 
+dates: 
+  formats: ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 lookups:
   type:
     options:
