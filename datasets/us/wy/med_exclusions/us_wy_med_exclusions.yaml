@@ -6,7 +6,7 @@ coverage:
   start: "2024-09-24"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Medical providers deemed ineligible to participate in Wyoming State's Medicaid program.
+  Medical providers deemed ineligible to participate in Wyoming's Medicaid program.
 description: |
   The Wyoming Department of Health maintains a list of providers that have been excluded from
   the state Medicaid program. Providers listed are not allowed to receive reimbursement for

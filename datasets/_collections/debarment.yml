@@ -50,5 +50,6 @@ children:
   - us_special_leg
   - us_tn_med_exclusions
   - us_wv_med_exclusions
+  - us_wy_med_exclusions
   - worldbank_debarred
 ci_test: false
