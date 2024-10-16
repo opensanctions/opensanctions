@@ -65,6 +65,8 @@ inputs:
   - ext_ru_egrul
   - ext_ua_edr
   - ir_uani_business_registry
+  - eu_esma_sanctions
+  - eu_esma_saris
   - opencorporates
   - sanctions
 
