@@ -42,6 +42,7 @@ children:
   - us_nc_med_exclusions
   - us_nd_med_exclusions
   - us_nh_med_exclusions
+  - us_nv_med_exclusions
   - us_ny_med_exclusions
   - us_or_med_exclusions
   - us_pa_med_exclusions
@@ -49,5 +50,6 @@ children:
   - us_special_leg
   - us_tn_med_exclusions
   - us_wv_med_exclusions
+  - us_wy_med_exclusions
   - worldbank_debarred
 ci_test: false
