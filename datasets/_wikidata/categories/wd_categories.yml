@@ -53,7 +53,9 @@ lookups:
         value: ru
       - match: Ambazonia
         value: cm
-      - match: Republic of Mahabad
+      - match: 
+          - Republic of Mahabad
+          - Kurdistan
         value: ir
       - match:
           - Persian Empire
