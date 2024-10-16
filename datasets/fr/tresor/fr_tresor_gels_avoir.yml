@@ -4545,3 +4545,36 @@ lookups:
         props:
           legalForm: société par actions
           incorporationDate: 2008-02-01
+      - match: "Principal établissement: province de Téhéran (Iran): /"
+        props:
+          address: "province de Téhéran (Iran)"
+      - match: "Type d’entité: organisation autonome non commerciale: /"
+        props:
+          legalForm: organisation autonome non commerciale
+      - match: "Numéros d’enregistrement - Immatriculation (numéro OGRN): 1247700291200"
+        props:
+          ogrnCode: 1247700291200
+      - match: "INN (numéro d’identification fiscale): 9707028663"
+        props:
+          innCode: 9707028663
+      - match: "KPP: 770701001"
+        props:
+          kppCode: 770701001
+      - match: "Principal établissement: province du Khorasan (Iran): /"
+        props:
+          address: "province du Khorasan (Iran)"
+      - match: "Numéro d’enregistrement: Iran: 427320"
+        props:
+          registrationNumber: 
+      - match: "Type d’entité: entité publique - Lieu d’enregistrement: Téhéran, Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: entité publique
+          address: "Téhéran, Iran"
+      - match: "Numéro d’enregistrement - Type d’entité: société à responsabilité limitée: 466887"
+        props:
+          registrationNumber: 466887
+          legalForm: société à responsabilité limitée
+      - match: "Numéro d’identification national: 14004684489"
+        props:
+          idNumber: 14004684489
