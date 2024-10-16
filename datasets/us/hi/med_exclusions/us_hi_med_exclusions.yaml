@@ -41,3 +41,9 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 9000
+
+lookups:
+  type.date:
+    options:
+      match: "-"
+      value: null

@@ -1,19 +1,10 @@
+from pathlib import Path
 from typing import Dict
+from normality import collapse_spaces, slugify
+import pdfplumber
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
-
-from zavod.shed.gpt import run_image_prompt
-
-prompt = """
-Extract structured data from the following page of a PDF document. Return 
-a JSON list (`providers`) in which each object represents an medical provider.
-The name of a provider might be split onto the next row within a record.
-Each object should have the following fields: `last_name`,
-`first_name`, `middle_initial`, `medicaid_provider_id`, `provider_type`,
-`exclusion_date`, `reinstatement_date`.
-Return an empty string for unset fields.
-"""
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -26,15 +17,15 @@ def crawl_item(row: Dict[str, str], context: Context):
         h.apply_name(
             entity,
             first_name=first_name,
-            last_name=row.pop("last_name"),
+            last_name=row.pop("last_name_or_business_name"),
             middle_name=row.pop("middle_initial"),
         )
     else:
         entity = context.make("Company")
-        entity.id = context.make_id(row.get("last_name"))
-        entity.add("name", row.pop("last_name"))
+        entity.id = context.make_id(row.get("last_name_or_business_name"))
+        entity.add("name", row.pop("last_name_or_business_name"))
 
-    entity.add("sector", row.pop("provider_type"))
+    entity.add("sector", row.pop("last_known_program_or_provider_type"))
     entity.add("description", "Provider ID: " + row.pop("medicaid_provider_id"))
     entity.add("country", "us")
 
@@ -54,11 +45,26 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
+def parse_pdf_table(context: Context, path: Path, save_debug_images=False):
+    pdf = pdfplumber.open(path.as_posix())
+    settings = {}
+    for page_num, page in enumerate(pdf.pages, 1):
+        if save_debug_images:
+            im = page.to_image()
+            im.draw_rects(page.find_table(settings).cells)
+            im.save(f"page-{page_num}.png")
+
+        headers = None
+        for row in page.extract_table(settings):
+            if headers is None:
+                headers = [slugify(collapse_spaces(cell), sep="_") for cell in row]
+                continue
+            assert len(headers) == len(row), (headers, row)
+            yield dict(zip(headers, row))
+
+
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", context.data_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-    for page_path in h.make_pdf_page_images(path):
-        data = run_image_prompt(context, prompt, page_path, max_tokens=4096)
-        assert "providers" in data, data
-        for item in data.get("providers", []):
-            crawl_item(item, context)
+    for item in parse_pdf_table(context, path):
+        crawl_item(item, context)
