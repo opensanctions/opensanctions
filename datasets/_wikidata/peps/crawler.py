@@ -69,7 +69,7 @@ def crawl_holder(
         end_date=date_value(holder.get("end_date")),
         start_date=date_value(holder.get("start_date")),
         categorisation=categorisation,
-        propagate_country=len(position.get("country")) == 1,
+        # propagate_country=len(position.get("country")) == 1,
     )
     if not occupancy:
         return
