@@ -58,15 +58,12 @@ def crawl_item(row: Dict[str, str], context: Context):
         sanction = h.make_sanction(context, person)
         h.apply_date(sanction, "startDate", exclusion_date)
 
-
     is_business = False
 
     if business_name:
         if re.match(AKA_PATTERN, business_name, flags=re.IGNORECASE):
             cleaned_name = re.sub(AKA_PATTERN, "", business_name, flags=re.IGNORECASE)
-            for name in cleaned_name.split(","):
-                person.add("alias", name)
-
+            person.add("alias", cleaned_name)
         else:
             is_business = True
             company = context.make("Company")
@@ -96,8 +93,6 @@ def crawl_item(row: Dict[str, str], context: Context):
         link.add("subject", person)
 
         context.emit(link)
-
-
 
     context.audit_data(row)
 
