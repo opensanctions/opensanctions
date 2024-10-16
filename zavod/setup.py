@@ -42,7 +42,7 @@ setup(
         "prefixdate",
         "psycopg2-binary",
         "pyicu == 2.13.1",
-        "pywikibot==9.3.1",
+        "pywikibot==9.4.1",
         "openai >= 1.33.0, < 2.0.0",
         "requests[security]",
         "requests_oauthlib",
@@ -59,7 +59,7 @@ setup(
     },
     extras_require={
         "dev": [
-            "black==24.8.0",
+            "black==24.10.0",
             "wheel>=0.29.0",
             "twine",
             "mypy",

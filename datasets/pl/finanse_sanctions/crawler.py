@@ -25,7 +25,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.shed.un_sc import get_legal_entities, get_persons, Regime, load_un_sc
 
-FORMATS = ["%d.%m.%Y"]
 PDF_URL = "https://www.gov.pl/attachment/2fc03b3b-a5f6-4d08-80d1-728cdb71d2d6"
 POLAND_PROGRAM = "art. 118 ustawy z dnia 1 marca 2018 r. o przeciwdziałaniu praniu pieniędzy i finansowaniu terroryzmu"
 UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
@@ -34,10 +33,6 @@ KNOWN_HASHES = {
     "https://www.gov.pl/attachment/2fc03b3b-a5f6-4d08-80d1-728cdb71d2d6": "94c0607177fec8a07ca3e7d82c3d61be36ea20ee",
     "https://www.gov.pl/attachment/56238b34-8a26-4431-a05a-e1d039f0defa": "3b8c0419879991e4dfd663aeed7b2df3c7472c55",
 }
-
-
-def parse_date(string):
-    return h.parse_date(string.replace(" r.", ""), FORMATS)
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -50,7 +45,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     birth_country = birthplace.split(",")[-1]
     entity.add("birthPlace", birthplace, lang="pol")
     entity.add("birthCountry", birth_country, lang="pol")
-    entity.add("birthDate", parse_date(row.pop("Data urodzenia")))
+    h.apply_date(entity, "birthDate", row.pop("Data urodzenia"))
     entity.add("address", row.pop("location full") or None)
     entity.add("country", row.pop("location country") or None)
 
@@ -58,7 +53,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("listingDate", parse_date(row.pop("Data umieszczenia na liście")))
+    h.apply_date(sanction, "listingDate", row.pop("Data umieszczenia na liście"))
     sanction.add(
         "reason", collapse_spaces(row.pop("Uzasadnienie wpisu na listę")), lang="pol"
     )

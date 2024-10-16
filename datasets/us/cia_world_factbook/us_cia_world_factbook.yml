@@ -34,6 +34,8 @@ data:
   format: JSON
   lang: eng
 
+dates: 
+  formats: ["%d %B %Y"]
 lookups:
   unparsed_holders:
     options:
@@ -531,6 +533,13 @@ lookups:
           - role: Vice President
             name: BOUNTHONG Chitmany
             start_date: 22 March 2021
+      - match: Prime Minister SONEXAY (also spelled SONXAI) Siphandon (since 30 December 2022)
+        holders:
+          - role: Prime Minister
+            name:
+              - SONEXAY Siphandon
+              - SONXAI Siphandon
+            start_date: 30 December 2022
       # Congo, Democratic republic of the
       - match: Deputy Prime Ministers Christophe LUTUNDULA (since 12 April 2021),Vital KAMERHE (since 23 March 2023), Peter KAZADI (23 March 2023), Jean-Pierre BEMBA (since 23 March 2023), Jean-Pierre LIHAU (since 12 April 2021)
         holders:
@@ -700,7 +709,7 @@ lookups:
             name:
               - WACHIRALONGKON
               - Vajiralongkorn
-
+                
 
       # Not additional heads, just notes
       - regex:

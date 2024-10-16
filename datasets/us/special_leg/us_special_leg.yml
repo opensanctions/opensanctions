@@ -26,10 +26,19 @@ description: |
   confirmed as engaging in problematic activity as described in Section 1286(c)(8)(A)
   of the law. Those lists are included in the version as of FY22.
 
-  Section 5949 of the [James M. Inhofe National Defense Authorization Act for Fiscal Year 202 (Public Law 117-263)](https://www.congress.gov/117/bills/hr7776/BILLS-117hr7776enr.pdf)
+  Section 5949 of the [James M. Inhofe National Defense Authorization Act for Fiscal Year 2023 (Public Law 117-263)](https://www.congress.gov/117/bills/hr7776/BILLS-117hr7776enr.pdf)
   lists a number of entities from whom specific goods or services may not be
   procured by executive agencies for use in critical systems. The same restrictions
   apply to to their subsidiaries, successors, and affiliates.
+
+  Section 353 of the [Corrupt and Undemocratic Actors Report: 2023](https://www.state.gov/wp-content/uploads/2023/07/353-Report-Accessible-7.18.2023.pdf) 
+  reports Foreign Persons who have Knowingly Engaged in Actions that Undermine Democratic 
+  Processes or Institutions, Significant Corruption, or Obstruction of Investigations Into 
+  Such Acts of Corruption in El Salvador, Guatemala, Honduras, and Nicaragua. 
+  
+  Since the December 2023 expiration of the Section 353 sanctions authority, individuals 
+  designated under the act have been eligible to apply for new visas.
+  [Source: Congressional Research Service](https://crsreports.congress.gov/product/pdf/IF/IF12486#:~:text=117%2D54)%2C%20requires%20the,into%20such%20acts%20of%20corruption%2C%20requires%20the,into%20such%20acts%20of%20corruption))
 
   Additional pieces of legislation may be added to this dataset from time to time.
 
@@ -48,3 +57,6 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSVatiUNMn-TatTYOQhYOPbEBRBwmoBG6LtaJklPPzLju1x-qrJxxBlsDwuis3IyKz77dHp3xvvnMRb/pub?gid=0&single=true&output=csv
   format: CSV
   lang: eng
+
+dates: 
+  formats: ["%Y", "%B %Y"]

@@ -104,8 +104,9 @@ def crawl_person(
     """Create person and position/occupancy if applicable."""
     birth_date, birth_place = get_birth_info(context, zipfh, person_id)
     name_en = data.get("name_en", "").strip()
+    name_en = context.lookup_value("normalize_name", name_en, name_en)
     name_hy = data.get("name_hy", "").strip()
-    if name_en == "" and name_hy == "":
+    if h.is_empty(name_en) and h.is_empty(name_hy):
         context.log.warning(f"Skipping person {person_id} with no name")
         return None
     person = context.make("Person")

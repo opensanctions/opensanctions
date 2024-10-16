@@ -6,15 +6,22 @@ from rigour.mime.types import HTML
 from zavod import Context
 from zavod import helpers as h
 
-
-FORMATS = ["%d.%m.%Y"]
-SPLITS = ["si", ";", "sau", "a)", "b)", "c)"]
-
-
-def parse_birth_dates(string: str) -> List[str]:
-    strings = h.multi_split(string, SPLITS)
-    # flatten
-    return [date for s in strings for date in h.parse_date(s, FORMATS)]
+SPLITS = [
+    "si",
+    ";",
+    "sau",
+    "a)",
+    "b)",
+    "c)",
+    "d)",
+    "Aproximativ ",
+    "Intre",
+    "între",
+    "și",
+    "la",
+    "din pasaport fals",
+    "presupusă:",
+]
 
 
 def clean_name(string: str):
@@ -40,17 +47,17 @@ def crawl(context: Context):
     table = doc.find(".//table")
     for row in h.parse_html_table(table):
         str_row = h.cells_to_str(row)
-        birth_dates = parse_birth_dates(str_row.pop("data_de_nastere"))
-        schema = "LegalEntity" if birth_dates == [] else "Person"
-        entity = context.make(schema)
+        dob = str_row.pop("data_de_nastere")
+        entity = context.make("LegalEntity")
         name, aliases = parse_names(str_row.pop("persoana_fizica_entitate"))
-        entity.id = context.make_id(name, *sorted(birth_dates))
+        entity.id = context.make_id(name, dob)
         entity.add("name", name)
         entity.add("topics", "sanction")
         if aliases:
             entity.add("alias", aliases)
-        if birth_dates:
-            entity.add("birthDate", birth_dates)
+        for date in h.multi_split(dob, SPLITS):
+            entity.add_schema("Person")
+            h.apply_date(entity, "birthDate", date)
 
         sanction = h.make_sanction(context, entity)
         sanction.add("program", str_row.pop("sanctiuni_teroriste") or None, lang="mol")

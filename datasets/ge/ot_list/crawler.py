@@ -21,7 +21,6 @@ UNUSED_FIELDS = [
     "მოკლე ფაბულა",
     "შენიშვნა",
 ]
-DATE_FORMATS = ["%d.%m.%Y", "%Y"]
 PATROYNMIC = re.compile(r"\b(\S+)\s+ძე\s+")
 TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 
@@ -48,7 +47,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     person.id = context.make_id(row.pop("index"), name, status)
     context.log.debug(f"Unique ID {person.id}")
     if birth_date != UNKNOWN:
-        person.add("birthDate", h.parse_date(birth_date, DATE_FORMATS))
+        h.apply_date(person, "birthDate", birth_date)
     person.add("topics", "sanction")
     person.add("country", "ge")
     extract_name(context, person, name)

@@ -342,7 +342,6 @@ lookups:
           - Kaduna State
           - Pahang
           - Hirshabelle
-          - Kurdistan
           - Ifriqiya
           - Regency of Algiers
           - Sultanate of Darfur
@@ -632,6 +631,10 @@ lookups:
           - County palatine of Cephalonia and Zakynthos
           - Second French Empire
           - Arabs
+          - Sultanate of Harar
+          - Novgorod Republic
+          - Cimmeria
+          - Rattanakosin Kingdom
         value: null
       - match:
           - Cherokee Nation
@@ -669,7 +672,7 @@ lookups:
         value: SB
       - match: French Guinea
         value: GN
-      - match: 
+      - match:
           - Republic of Dahomey
           - People's Republic of Benin
         value: BJ
@@ -857,15 +860,19 @@ lookups:
           - TM
       - match: Republic of Serbian Krajina
         value: HR
-      - contains: Ba'athist Iraq
+      - contains:
+          - Ba'athist Iraq
         value: Iraq
+      - match:
+          - First Republic of Armenia
+        value: AM
       - match: Armenian Soviet Socialist Republic
         values:
           - SUHH
           - AM
       - match: Kingdom of Serbia
         value: Serbia
-      - match: 
+      - match:
           - Federation of Malaya
           - Kedah Sultanate
         value: Malaysia
@@ -881,15 +888,15 @@ lookups:
           - KZ
       - match: Azerbaijan Democratic Republic
         value: AZ
-      - match: 
+      - match:
           - Gujarat
           - Manipur
-          - Jodhpur 
+          - Jodhpur
           - Vijayanagara Empire
           - Kingdom of Travancore
           - Tripura
         value: India
-      - match: 
+      - match:
           - Kingdom of Nejd and Hejaz
           - Hejaz
           - Mecca
@@ -898,11 +905,11 @@ lookups:
         values:
           - SUHH
           - EE
-      - match: 
+      - match:
           - Oaxaca
           - Sandia Pueblo
         value: MX
-      - match: 
+      - match:
           - Aceh
           - Bali Island
         value: Indonesia
@@ -921,7 +928,7 @@ lookups:
         value: NG
       - match: Puntland
         value: SO
-      - match: 
+      - match:
           - South African Republic
           - Ciskei
         value: ZA
@@ -942,6 +949,16 @@ lookups:
         value: 1973-09
       - match: "1765-09-31"
         value: 1765-09
+      - match: "2018-02-29"
+        value: 2018-02
+      - match: "1999-06-31"
+        value: 1999-06
+      - match: "2004-04-31"
+        value: 2004-04
+      - match: "2011-02-31"
+        value: 2011-02
+      - match: "1991-02-29"
+        value: 1991-02
   type.gender:
     lowercase: true
     normalize: true
@@ -963,7 +980,7 @@ lookups:
           - eunuch
           - muxe
         value: other
-      - match: 
+      - match:
           - transgender
           - agender
         value: null

@@ -8,7 +8,6 @@ import re
 from zavod import Context
 from zavod import helpers as h
 
-FORMATS = ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", ". "]
 REGEX_POSTCODE = re.compile(r"\d+")
 
@@ -89,6 +88,10 @@ def split_reg_no(text: str):
 
 def parse_row(context: Context, row: Dict[str, Any]):
     group_type = row.pop("GroupTypeDescription")
+    listing_date = row.pop("DateListed")
+    designated_date = row.pop("DateDesignated", None)
+    last_updated = row.pop("LastUpdated")
+
     schema = TYPES.get(group_type)
     if schema is None:
         context.log.error("Unknown group type", group_type=group_type)
@@ -98,14 +101,12 @@ def parse_row(context: Context, row: Dict[str, Any]):
     sanction = h.make_sanction(context, entity)
     sanction.add("program", row.pop("RegimeName"))
     sanction.add("authority", row.pop("ListingType", None))
-    listed_date = h.parse_date(row.pop("DateListed"), FORMATS)
-    sanction.add("listingDate", listed_date)
-    designated_date = h.parse_date(row.pop("DateDesignated", None), FORMATS)
-    sanction.add("startDate", designated_date)
+    h.apply_date(sanction, "listingDate", listing_date)
+    h.apply_date(sanction, "startDate", designated_date)
 
-    entity.add("createdAt", listed_date)
+    h.apply_date(entity, "createdAt", listing_date)
     if not entity.has("createdAt"):
-        entity.add("createdAt", designated_date)
+        h.apply_date(entity, "createdAt", designated_date)
 
     sanction.add("authorityId", row.pop("UKSanctionsListRef", None))
     sanction.add("unscId", row.pop("UNRef", None))
@@ -114,9 +115,8 @@ def parse_row(context: Context, row: Dict[str, Any]):
     sanction.add("summary", row.pop("GroupSanctions", None))
     sanction.add("modifiedAt", row.pop("DateAdditionalSanctions", None))
 
-    last_updated = h.parse_date(row.pop("LastUpdated"), FORMATS)
-    sanction.add("modifiedAt", last_updated)
-    entity.add("modifiedAt", last_updated)
+    h.apply_date(sanction, "modifiedAt", last_updated)
+    h.apply_date(entity, "modifiedAt", last_updated)
 
     # TODO: derive topics and schema from this??
     entity_type = row.pop("Entity_Type", None)
@@ -156,8 +156,10 @@ def parse_row(context: Context, row: Dict[str, Any]):
     pobs = split_items(row.pop("Individual_TownOfBirth", None))
     entity.add_cast("Person", "birthPlace", pobs)
 
-    dob = h.parse_date(row.pop("Individual_DateOfBirth", None), FORMATS)
-    entity.add_cast("Person", "birthDate", dob)
+    dob = row.pop("Individual_DateOfBirth", None)
+    if dob is not None:
+        entity.add_schema("Person")
+        h.apply_date(entity, "birthDate", dob)
 
     cob = parse_countries(row.pop("Individual_CountryOfBirth", None))
     entity.add_cast("Person", "birthCountry", cob)

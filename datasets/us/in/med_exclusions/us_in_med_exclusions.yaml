@@ -1,0 +1,71 @@
+title: US Indiana Medicaid Terminated Provider List
+entry_point: crawler.py
+prefix: us-medin
+coverage:
+  frequency: daily
+  start: "2024-10-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Providers who have been terminated for cause from Indiana Medicaid and CHIP.
+description: |
+  This dataset lists providers terminated from participation in Indiana Medicaid and CHIP.
+
+  > Federal regulation requires states to provide notice when the enrollment of a
+  > Medicaid enrolled provider has been terminated “for cause”. The following list
+  > reflects examples of conduct for which provider enrollments may be terminated
+  > and meets the definition of “for cause” as defined by CMS. The list is not meant
+  > to be exhaustive:
+  >
+  > - Adverse licensure actions
+  > - Federal exclusion
+  > - Fraudulent conduct
+  > - Abuse of billing privileges
+  > - Misuse of billing number
+  > - Falsified enrollment information
+  > - Falsified medical records
+
+  According to Indiana Office of Medicaid Policy and Planning (OMPP) provider relations,
+  Indiana does not have an ‘exclusion’ list. The Provider Termination list that
+  is posted on OMPP’s website is simply a means to let individuals or entities
+  who may have received services or care from the provider previously, know that
+  the provider is not participating with the Medicaid Program due to compliance concerns.
+
+  Providers whose enrollments have been terminated for compliance concerns could
+  be eligible to re-enrol when the compliance issues have been resolved.
+
+  > In general, if the provider has requested to enrol with the Medicaid program
+  > again and their application has been processed and approved, the “Terminated”
+  > list would be updated to remove the provider’s name. However, 
+  > the best way to determine if a provider on the Terminated list has re-enrolled
+  > with Indiana Medicaid is to use the Provider Locator on our website
+  > [Indiana Medicaid: Providers: IHCP Provider Locator](https://www.in.gov/medicaid/providers/provider-references/ihcp-provider-locator/)
+  > that can be used to identify the individuals and business entities that are
+  > currently enrolled with Indiana Medicaid.
+publisher:
+  name: Indiana Family and Social Services Administration
+  acronym: FSSA
+  description: >
+    The FSSA Office of Medicaid Policy and Planning (OMPP) administers Medicaid
+    programs for the state of Indiana.
+  url: https://www.in.gov/fssa/
+  official: true
+  country: "us"
+url: "https://www.in.gov/fssa/ompp/provider-information4/termination-of-provider-participation-in-medicaid-and-chip/"
+data:
+  url: https://www.in.gov/fssa/ompp/provider-information4/termination-of-provider-participation-in-medicaid-and-chip/
+  format: HTML
+
+exports:
+  - statistics.json
+  - entities.delta.json
+  - entities.ftm.json
+  - names.txt
+  - senzing.json
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 25 
+  max:
+    schema_entities:
+      LegalEntity: 60 

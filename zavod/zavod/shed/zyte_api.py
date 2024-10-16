@@ -195,6 +195,7 @@ def fetch_html(
     actions: list[Dict[str, Any]] = [],
     html_source: str = "browserHtml",
     javascript: Optional[bool] = None,
+    geolocation: Optional[str] = None,
     cache_days: Optional[int] = None,
     fingerprint: Optional[str] = None,
     retries: int = 3,
@@ -231,6 +232,8 @@ def fetch_html(
     }
     if javascript is not None:
         zyte_data["javascript"] = javascript
+    if geolocation is not None:
+        zyte_data["geolocation"] = geolocation
 
     if fingerprint is None:
         # Slight abuse of the cache key to produce keys of the usual style.
