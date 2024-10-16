@@ -76,6 +76,7 @@ def crawl_common(
             "reg:cz_person",
             "reg:ch",
             "reg:nin",
+            "reg:cn",
             None,
         ):
             entity.add("registrationNumber", ident_value)
