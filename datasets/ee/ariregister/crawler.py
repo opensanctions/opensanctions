@@ -1,6 +1,5 @@
 import ijson  # type: ignore
 import zipfile
-from datetime import datetime
 from typing import Any, Generator, Optional, Tuple, Dict, TypeVar, Union
 from followthemoney.util import make_entity_id
 
@@ -36,15 +35,6 @@ def get_value(
     return default
 
 
-def parse_date(value: Optional[str] = None) -> Optional[str]:
-    if not value:
-        return None
-    try:
-        return datetime.strptime(value, "%d.%m.%Y").date().isoformat()
-    except ValueError:
-        return None
-
-
 def get_address(data: Item) -> Optional[str]:
     value = data.pop("aadress_ads__ads_normaliseeritud_taisaadress", None)
     if value is not None:
@@ -75,8 +65,9 @@ def make_proxy(context: Context, row: Item, schema: Optional[str] = None) -> Ent
 def make_officer(context: Context, data: Item, company_id: str) -> Entity:
     legal_form = data.pop("isiku_tyyp", None)
     id_number = get_value(data, ("isikukood_registrikood", "isikukood"))
-    first_name, last_name = data.pop("eesnimi", None), get_value(
-        data, ("nimi_arinimi", "nimi")
+    first_name, last_name = (
+        data.pop("eesnimi", None),
+        get_value(data, ("nimi_arinimi", "nimi")),
     )
     proxy = context.make("LegalEntity")
     address = get_address(data)
@@ -119,8 +110,8 @@ def make_rel(
 ) -> Entity:
     rel = context.make(schema)
     rel.id = context.make_id(rel.schema.name, company.id, officer.id, role)
-    rel.add("startDate", parse_date(data.pop("algus_kpv")))
-    rel.add("endDate", parse_date(data.pop("lopp_kpv")))
+    h.apply_date(rel, "startDate", data.pop("algus_kpv"))
+    h.apply_date(rel, "endDate", data.pop("lopp_kpv"))
     rel.add("role", role)
     if schema == "Ownership":
         rel.add("owner", officer)
@@ -128,6 +119,9 @@ def make_rel(
     elif schema == "Directorship":
         rel.add("director", officer)
         rel.add("organization", company)
+    elif schema == "Representation":
+        rel.add("agent", officer)
+        rel.add("client", company)
     return rel
 
 
@@ -138,7 +132,7 @@ def parse_general(context: Context, row: Item):
     proxy.add("legalForm", legal_form)
     for item in data.pop("staatused"):
         if item["staatus"] == "R":
-            proxy.add("incorporationDate", parse_date(item["algus_kpv"]))
+            h.apply_date(proxy, "incorporationDate", item["algus_kpv"])
     for item in get_value(data, ("aadressid", "kontaktisiku_aadressid"), []):
         proxy.add("address", get_address(item))
     proxy.add(
@@ -175,6 +169,8 @@ def parse_officer(context: Context, row: Item):
             rel.add("percentage", data.pop("osaluse_protsent"))
             rel.add("sharesValue", data.pop("osaluse_suurus"))
             rel.add("sharesCurrency", data.pop("osaluse_valuuta"))
+        elif rel_type == "KISIK":
+            rel = make_rel(context, company, officer, "Representation", data, role)
         else:
             rel = make_rel(context, company, officer, "Directorship", data, role)
         context.emit(officer)
