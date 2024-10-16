@@ -1,67 +1,90 @@
+from pathlib import Path
 from typing import Dict
+from normality import collapse_spaces, slugify
 from rigour.mime.types import PDF
+import pdfplumber
 
 from zavod import Context, helpers as h
-from zavod.shed.gpt import run_image_prompt
-
-prompt = """
-  Extract structured data from the following page of a PDF document. Return 
-  a JSON list (`providers`) in which each object represents an medical provider.
-  Each object should have the following fields: `name`, `npi`,
-  `medical_provider`, `provider_type`, `associated_legal_entity`,
-  `persons_controlling_interest`, `termination_date`, `sanction_tier`, `period`, `end_date`,
-  `oig_exclusion_date`, `oig_reinstate_date`.
-  Return an empty string for unset fields.
-"""
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
-    # We already crawl the federal dataset on another crawler
-    if row.pop("sanction_tier") == "Federal":
-        return
-
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(row.get("name"), row.get("npi"))
-    entity.add("name", row.pop("name"))
-    entity.add("npiCode", row.pop("npi"))
-    entity.add("topics", "debarment")
-    entity.add("sector", row.pop("provider_type"))
-    entity.add("idNumber", row.pop("license_num"))
+    name = row.pop("excluded_providers_entities_and_or_individuals")
+    npi = row.pop("sanctioned_exclude_d_npi")
+    entity.id = context.make_id(name, npi)
+    entity.add("name", name)
+    entity.add("npiCode", npi)
     entity.add("country", "us")
 
     if associated_entity_name := row.pop("associated_legal_entity"):
         associated_entity = context.make("LegalEntity")
-        associated_entity.id = context.make_id(associated_entity_name)
+        associated_entity.id = context.make_id(associated_entity_name, entity.id)
         associated_entity.add("name", associated_entity_name)
+        associated_entity.add("country", "us")
 
         link = context.make("UnknownLink")
-        link.id = context.make_id(entity.id, associated_entity.id)
+        link.id = context.make_id(entity.id, "related to", associated_entity.id)
         link.add("object", entity)
         link.add("subject", associated_entity)
 
+        context.emit(associated_entity)
         context.emit(link)
 
-    if controlling_interest_name := row.pop("persons_controlling_interest"):
+    if controlling_interest_name := row.pop(
+        "persons_with_controlling_interest_of_5_or_more"
+    ):
         person = context.make("Person")
-
-        person.id = context.make_id(controlling_interest_name)
+        person.id = context.make_id(controlling_interest_name, entity.id)
         person.add("name", controlling_interest_name)
+        person.add("country", "us")
 
         link = context.make("Ownership")
-        link.id = context.make_id(entity.id, associated_entity.id)
+        link.id = context.make_id(entity.id, "own", person.id)
         link.add("asset", entity)
         link.add("owner", person)
 
-    sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("termination_date"))
-    if row.pop("sanction_period") != "Permanent":
-        h.apply_date(sanction, "endDate", row.pop("end_date"))
+        context.emit(link)
+        context.emit(person)
 
-    context.emit(entity, target=True)
+    sanction = h.make_sanction(context, entity)
+    sanction.add("provisions", f'Tier: {row.pop("nevada_medicaid_sanction_tier")}')
+    h.apply_dates(
+        sanction, "startDate", row.pop("contract_termination_date").split("\n")
+    )
+    ended = False
+    h.apply_date(
+        sanction, "endDate", row.pop("nevada_medicaid_sanction_period_end_date")
+    )
+    end_date = sanction.get("endDate")
+    ended = end_date != [] and end_date[0] < context.data_time_iso
+    if not ended:
+        entity.add("topics", "debarment")
+
+    context.emit(entity, target=not ended)
     context.emit(sanction)
 
-    context.audit_data(row, ignore=["oig_exclusion_date", "oig_reinstate_date"])
+    context.audit_data(
+        row,
+        ignore=[
+            "oig_exclusion_date",
+            "oig_reinstate_date",
+            "medicaid_provider",
+            "nevada_medicaid_sanction_period",
+            "provider_type",
+        ],
+    )
+
+
+def parse_pdf_table(context: Context, path: Path):
+    pdf = pdfplumber.open(path.as_posix())
+    for page_num, page in enumerate(pdf.pages, 1):
+        headers = None
+        for row in page.extract_table():
+            if headers is None:
+                headers = [slugify(collapse_spaces(cell), sep="_") for cell in row]
+                continue
+            assert len(headers) == len(row), (headers, row)
+            yield dict(zip(headers, row))
 
 
 def crawl_pdf_url(context: Context):
@@ -74,8 +97,5 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", crawl_pdf_url(context))
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
-    for page_path in h.make_pdf_page_images(path)[1:]:
-        data = run_image_prompt(context, prompt, page_path)
-        assert "providers" in data, data
-        for item in data.get("providers", []):
-            crawl_item(item, context)
+    for item in parse_pdf_table(context, path):
+        crawl_item(item, context)
