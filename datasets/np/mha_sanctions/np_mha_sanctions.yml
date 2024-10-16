@@ -44,6 +44,8 @@ assertions:
       Person: 20
       Organization: 55
 
+dates: 
+  formats: ["%m/%d/%Y"]
 lookups:
   type.identifier:
     normalize: true
