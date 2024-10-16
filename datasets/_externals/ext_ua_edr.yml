@@ -12,10 +12,10 @@ coverage:
 exports:
   - statistics.json
 deploy:
+  schedule: "@monthly"
   memory: "1000Mi"
   memory_limit: "3000Mi"
   disk_limit: 50Gi
-  premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
