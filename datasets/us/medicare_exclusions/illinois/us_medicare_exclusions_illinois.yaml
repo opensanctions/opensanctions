@@ -1,0 +1,25 @@
+title: Illinois Terminated Provider List
+entry_point: crawler.py
+prefix: us-medil
+coverage:
+  frequency: daily
+  start: "2024-08-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been terminated for cause from Illinois's Medicaid program.
+description: |
+  State law grants the Illinois Department of Healthcare and Family Services the authority to
+  impose sanctions on entities and individuals, as set forth in 305 Ill. Comp. Stat. 5/12-4.25
+  and Title 89 of the Illinois Administrative Code. Services rendered or ordered by sanctioned
+  providers are not eligible for Medicaid reimbursement. In addition, services provided by
+  entities owned or managed by sanctioned providers are not eligible for Medicaid reimbursement.
+publisher:
+  name: Illinois Department of Healthcare and Family Services
+  acronym: HFS
+  url: https://hfs.illinois.gov
+  official: true
+  country: "us"
+url: "https://ilhfspartner3.dynamics365portals.us/sanctions/"
+data:
+  url: https://ilhfspartner3.dynamics365portals.us/sanctions/
+  format: HTML
