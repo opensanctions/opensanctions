@@ -10,14 +10,17 @@ from zavod import Context, helpers as h
 def crawl_item(row: Dict[str, str], context: Context):
     # We already crawl the federal dataset on another crawler
     sanction_tier = row.pop("nevada_medicaid_sanction_tier")
-    if sanction_tier.lower() == "Federal":
+    if sanction_tier.lower() == "federal":
         return
 
     entity = context.make("LegalEntity")
     name = row.pop("excluded_providers_entities_and_or_individuals")
+    if name.startswith("Effective February"):
+        return
+
     npi = row.pop("sanctioned_exclude_d_npi")
     entity.id = context.make_id(name, npi)
-    entity.add("name", name.split(" aka "))
+    entity.add("name", h.multi_split(name, [" aka ", " dba ", " DBA "]))
     entity.add("npiCode", npi)
     entity.add("country", "us")
 
