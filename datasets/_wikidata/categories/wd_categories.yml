@@ -53,6 +53,8 @@ lookups:
         value: ru
       - match: Ambazonia
         value: cm
+      - match: Kurdistan
+        value: iq-kr
       - match: Republic of Mahabad
         value: ir
       - match:
