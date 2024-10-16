@@ -1,26 +1,14 @@
+from normality import collapse_spaces, slugify
 from pathlib import Path
+from rigour.mime.types import PDF
 from typing import Dict
+import pdfplumber
 import re
 
-from normality import collapse_spaces, slugify
-import pdfplumber
-
 from zavod import Context, helpers as h
-from rigour.mime.types import PDF
 
-
-from zavod.shed.gpt import run_image_prompt
-
-prompt = """
- Extract structured data from the following page of a PDF document. Return 
- a JSON list (`providers`) in which each object represents an medical provider.
- Each object should have the following fields: `last_name`, `first_name`,
- `business_name`, `provider_type`, `provider_number`, `city`, `state`, `exclusion_date`.
- Return an empty string for unset fields.
-"""
 
 AKA_PATTERN = r"\ba\.?k\.?a[\. -]*"
-
 
 
 def parse_pdf_table(context: Context, path: Path):
@@ -29,10 +17,6 @@ def parse_pdf_table(context: Context, path: Path):
     options = {"join_y_tolerance": 100}
     for page_num, page in enumerate(pdf.pages, 1):
         for row_num, row in enumerate(page.extract_table(options), 1):
-            im = page.to_image()
-            im.draw_rects(page.find_table(options).cells)
-            im.save(f"page-{page_num}.png")
-            print(row)
             if headers is None:
                 if row_num < 2:
                     continue
@@ -44,9 +28,7 @@ def parse_pdf_table(context: Context, path: Path):
             yield dict(zip(headers, row))
 
 
-
 def crawl_item(row: Dict[str, str], context: Context):
-
     address = h.make_address(
         context, city=row.pop("city"), state=row.pop("state"), country_code="US"
     )
@@ -61,6 +43,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         context.log.info("Fixing shifted names", [last_name, first_name, business_name])
         last_name = first_name
         first_name = business_name
+        business_name = None
 
     if last_name:
         person = context.make("Person")
@@ -123,5 +106,4 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", crawl_excel_url(context))
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for item in parse_pdf_table(context, path):
-        print(item)
         crawl_item(item, context)
