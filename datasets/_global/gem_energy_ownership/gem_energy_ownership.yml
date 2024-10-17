@@ -1,11 +1,16 @@
 title: "Global Energy Ownership Tracker"
-url: https://globalenergymonitor.org/projects/global-energy-ownership-tracker/
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+entry_point: crawler.py
+prefix: gem-own
 coverage:
   frequency: never
   schedule: "45 20 15 * *"
   start: 2024-09-23
   end: 2024-06-30
+deploy:
+  schedule: "@monthly"
+exports:
+  - statistics.json
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Information on the chain of ownership for various energy projects. The data maps 
   each level of the chain from the direct owner up to their highest-level ultimate parents.
@@ -22,12 +27,11 @@ description: |
   This data is from the Global Energy Ownership Tracker by Global Energy Monitor which
   they license under the
   [Creative Commons CC BY 4.0 International license](https://creativecommons.org/licenses/by/4.0/).
-entry_point: crawler.py
-prefix: energy-monitor
+url: https://globalenergymonitor.org/projects/global-energy-ownership-tracker/
 publisher:
   name: Global Energy Monitor
   country: zz
-  acronym: gem
+  acronym: GEM
   official: false
   description: |
     Global Energy Monitor develops and analyzes data on energy infrastructure, resources, and uses. 
@@ -41,7 +45,7 @@ assertions:
   min:
     schema_entities:
       Company: 12000
-  max: 
+  max:
     schema_entities:
       Company: 17000
 
