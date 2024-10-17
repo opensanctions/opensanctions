@@ -94,6 +94,9 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
 def export(dataset_path: Path, clear: bool = False) -> None:
     try:
         dataset = _load_dataset(dataset_path)
+        if dataset.disabled:
+            log.info("Dataset is disabled, skipping: %s" % dataset.name)
+            sys.exit(0)
         linker = get_dataset_linker(dataset)
         store = get_store(dataset, linker)
         store.sync(clear=clear)
