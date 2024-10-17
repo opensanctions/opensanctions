@@ -1,0 +1,32 @@
+title: Singapore Economic Development Board
+entry_point: crawler.py
+prefix: edb
+coverage:
+  frequency: weekly
+  start: 2024-10-16
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Business profiles and leadership roles of key executives at the Singapore Economic 
+  Development Board (EDB), a government agency under the Ministry of Trade and Industry
+  responsible for enhancing Singapore’s position as a global center for business, innovation, 
+  and talent.
+description: |
+  As a government agency under the Ministry of Trade and Industry, EDB drives investment promotion 
+  and industry development in the manufacturing and internationally tradeable services sectors.
+
+  EDB supports companies by providing critical information, connecting them to key partners, 
+  and offering access to government incentives or investments, transformation, and growth. 
+publisher:
+  name: Singapore Economic Development Board (EDB)
+  acronym: EDB
+  description: |
+    The Singapore Economic Development Board (EDB) is Singapore’s lead government agency 
+    responsible for strategies to enhance the country's status as a global hub for business, 
+    innovation, and talent.
+  url: https://www.edb.gov.sg
+  country: sg
+  official: true
+url: https://www.edb.gov.sg/en/about-edb/our-team/board-members.html
+data:
+  url: https://www.edb.gov.sg/en/about-edb/our-team/board-members.html
+  format: HTML
