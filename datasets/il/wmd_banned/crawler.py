@@ -140,7 +140,7 @@ def parse_sheet_row(context: Context, row: Dict):
     entity.add("alias", alias)
     entity.add("notes", notes)
     entity.add("address", address)
-    entity.add("topics", "debarment")
+    entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("authority", originally_declared_by, lang="he")
@@ -156,18 +156,39 @@ def parse_sheet_row(context: Context, row: Dict):
     context.audit_data(row, ignore=["isreal_temp_adoption_date_hb"])
 
 
+def crawl_excel_url(context: Context):
+    doc = context.fetch_html(
+        context.data_url,
+    )
+    doc.make_links_absolute(
+        context.data_url,
+    )
+
+    return doc.xpath(
+        '//a[contains(@id,"filesToDownload_item")][contains(@href, "xlsx")]'
+    )[0].get("href")
+
+
 def crawl(context: Context):
-    assert context.dataset.base_path is not None
+    try:
+        excel_url = crawl_excel_url(context)
+        source_path = context.fetch_resource("source.xlsx", excel_url)
 
-    data_path = context.dataset.base_path / "data.xlsx"
-    source_path = context.get_resource_path("source.xlsx")
+    except Exception as e:
+        context.log.error(f"Failed to fetch excel file - {e}")
 
-    shutil.copyfile(data_path, source_path)
+        context.log.warn("Using local copy of the excel file")
+        assert context.dataset.base_path is not None
+        data_path = context.dataset.base_path / "data.xlsx"
+        source_path = context.get_resource_path("source.xlsx")
+        shutil.copyfile(data_path, source_path)
+
     context.export_resource(source_path, XLSX, title=context.SOURCE_TITLE)
 
+    wb = openpyxl.load_workbook(source_path, read_only=True)
     for row in h.parse_xlsx_sheet(
         context,
-        openpyxl.load_workbook(source_path, read_only=True).worksheets[0],
+        wb.active,
         header_lookup="columns",
         skiprows=2,
     ):

@@ -27,8 +27,8 @@ publisher:
   official: true
 url: https://www.gov.il/en/pages/declared_elements_list
 data:
-  url: https://www.gov.il/BlobFolder/generalpage/declared_elements_list/en/sanctions_headquarters_declared_elements_list-file2.xlsx
-  format: XLSX
+  url: https://www.gov.il/en/pages/declared_elements_list
+  format: HTML
 lookups:
   type.country:
     lowercase: true
