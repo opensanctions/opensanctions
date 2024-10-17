@@ -46,7 +46,7 @@ def crawl(context: Context) -> None:
             context,
             doc,
             "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "8b563dccdbbb8d497572d3687f7be976fa9702cc",
+            "46e270bfefd3174adcb0e8c80c8e952bca5a772f",
         )
     )
     expected_sources.add(
