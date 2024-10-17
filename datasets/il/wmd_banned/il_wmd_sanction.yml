@@ -43,7 +43,32 @@ lookups:
       - contains:
           - 1969
         value: null
-
+  columns:
+    # lowercase: true
+    # normalize: true
+    options:
+      - match: פרטי זיהוי אחרים או פרטים נוספים
+        value: other_info
+      - match: מדינת אזרחות/ תושבות (יחיד)  מדינת התאגדות (ארגון)
+        value: address_nationality
+      - match: תאריך לידה (יחיד)  תאריך התאגדות (ארגון)
+        value: dob
+      - match: מספרי דרכון/זיהוי (יחיד)  מספר רישום (ארגון)  
+        value: passport
+      - match: שם הישות:  בשפת המקור; בתעתיק לטיני (לרבות אפשרויות האיות הידועות על שמות וכינויים אלה)
+        value: name
+      - contains:  (אימוץ קבוע)
+        value: isreal_adoption_date
+      - contains:  (אימוץ אוטומטי זמני)
+        value: isreal_temp_adoption_date
+      - match:   מספר החלטה ומספר סידורי ברשומות, כפי שניתנה ע"י הגורם הבינ"ל המוסמך שהכריז במקור
+        value: serial_no
+      - match:  זהות הגורם הזר המוסמך שהכריז במקור
+        value: originally_declared_by
+      - match: מועד ההכרזה המקורי: מועד ההכרזה ע"י הגורם הזר המוסמך שהכרזתו אומצה בישראל
+        value: declaration_date
+      - match: מס"ד
+        value: record_id
 dates:
   formats: ["%d %b %Y"]
   months:

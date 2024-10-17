@@ -8,55 +8,68 @@ import re
 import datetime
 
 
-# Hebrew to Gregorian month mapping
-HEBRW_MONTHS = {
-    "ינואר": "January",
-    "פברואר": "February",
-    "מרץ": "March",
-    "אפריל": "April",
-    "מאי": "May",
-    "יוני": "June",
-    "יולי": "July",
-    "אוגוסט": "August",
-    "ספטמבר": "September",
-    "אוקטובר": "October",
-    "נובמבר": "November",
-    "דצמבר": "December",
-}
+from typing import Dict, Generator, Optional, Union
+from datetime import datetime
+from normality import slugify, stringify
+from xlrd.book import Book  # type: ignore
+from xlrd.sheet import Cell  # type: ignore
+from xlrd.xldate import xldate_as_datetime  # type: ignore
+from nomenklatura.util import datetime_iso
+from openpyxl.worksheet.worksheet import Worksheet
+
+from zavod.context import Context
 
 
-def hebrew_to_datetime(date_str: str):
-    if date_str.isnumeric():
-        return
+def parse_xlsx_sheet(
+    context: Context,
+    sheet: Worksheet,
+    skiprows: int = 0,
+    header_lookup: Optional[str] = None,
+) -> Generator[Dict[str, str | None], None, None]:
+    """
+    Parse an Excel sheet into a sequence of dictionaries.
 
-    if date_str:
-        date_str = str(date_str).replace("ב", "")
-        date_str = str(date_str).replace(".", " ")
-        date_str = str(date_str).replace("יולי", "Juli")
-        # """
-        # Convert a Hebrew date string to a Normal datetime.date object.
-        # """
-        # if not date_str:
-        #     return None
+    Args:
+        context: Crawler context.
+        sheet: The Excel sheet.
+        skiprows: The number of rows to skip.
+        header_lookup: The lookup key for translating headers.
+    """
+    headers = None
+    row_counter = 0
 
-        # if isinstance(date_str, int):
-        #     return datetime.date(date_str, 1, 1)
+    for row in sheet.iter_rows():
+        # Increment row counter
+        row_counter += 1
 
-        # date_str = re.sub("\n", "", date_str)
-        # for heb_month, eng_month in HEBRW_MONTHS.items():
-        #     date_str = re.sub(heb_month, f"{eng_month} ", date_str, flags=re.IGNORECASE)
-        #     date_str = re.sub("ב", "", date_str, flags=re.IGNORECASE)
+        # Skip the desired number of rows
+        if row_counter <= skiprows:
+            continue
+        cells = [c.value for c in row]
+        if headers is None:
+            headers = []
+            for idx, header in enumerate(cells):
+                if header is None:
+                    header = f"column_{idx}"
+                if header_lookup:
+                    header = context.lookup_value(
+                        header_lookup,
+                        stringify(header),
+                        stringify(header),
+                    )
+                headers.append(slugify(header, sep="_"))
+            continue
 
-        # date_fmt = ["%d %B %Y", "%d %B. %Y"]
-        # for fmt in date_fmt:
-        #     try:
-        #         date_obj = datetime.datetime.strptime(date_str, fmt)
-        #         return date_obj.date()
-        #     except ValueError:
-        #         pass
-
-        # return h.apply_date(date_str)
-        return str(date_str)
+        record = {}
+        for header, value in zip(headers, cells):
+            if isinstance(value, datetime):
+                value = value.date()
+            record[header] = stringify(value)
+        if len(record) == 0:
+            continue
+        if all(v is None for v in record.values()):
+            continue
+        yield record
 
 
 def extract_passport_no(text: str):
@@ -277,5 +290,13 @@ def crawl(context: Context):
         openpyxl.load_workbook(source_path, read_only=True).worksheets[0]
     )
 
-    for row in rows:
-        parse_sheet_row(context, row)
+    # for row in rows:
+    #     parse_sheet_row(context, row)
+
+    #
+    for row in parse_xlsx_sheet(
+        context,
+        openpyxl.load_workbook(source_path, read_only=True).worksheets[0],
+        header_lookup="columns",
+    ):
+        print(row)
