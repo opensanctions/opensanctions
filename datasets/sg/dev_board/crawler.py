@@ -3,20 +3,18 @@ from zavod.logic.pep import categorise
 from zavod.shed.zyte_api import fetch_html
 
 
-LINKS = [
-        # Executive Management
-        "https://www.edb.gov.sg/en/about-edb/our-team/executive-management.html",
-        # Board Members
-         "https://www.edb.gov.sg/en/about-edb/our-team/board-members.html", 
-        # International Advisory Council
-         "https://www.edb.gov.sg/en/about-edb/our-team/international-advisory-council.html", 
-         ]
+LINKS = {
+    # Mapping URLs to their respective position names
+    "https://www.edb.gov.sg/en/about-edb/our-team/executive-management.html": "Member of the Executive Committee",
+    "https://www.edb.gov.sg/en/about-edb/our-team/board-members.html": "Board Member",
+    "https://www.edb.gov.sg/en/about-edb/our-team/international-advisory-council.html": "Member of the International Advisory Council",
+}
 
 def unblock_validator(doc) -> bool:
     return doc.find(".//section[@class='container']") is not None
 
 
-def emit_person(context: Context, name, role, link):
+def emit_person(context: Context, name, role, link, position_name):
     person = context.make("Person")
     person.id = context.make_id(name, role)
     person.add("name", name)
@@ -27,7 +25,7 @@ def emit_person(context: Context, name, role, link):
 
     position = h.make_position(
         context,
-        name="EDB Board Member",
+        name=position_name,
         country="sg",
         topics=["gov.executive", "gov.national"],
     )
@@ -41,7 +39,7 @@ def emit_person(context: Context, name, role, link):
             context.emit(occupancy)
 
 def crawl(context: Context):
-    for url in LINKS:
+    for url, position_name in LINKS.items():
         doc = fetch_html(context, url, unblock_validator, cache_days=3)
         doc.make_links_absolute(url)
         main_containers = doc.findall(".//section[@class='profile-listing analytics ']")
@@ -54,4 +52,4 @@ def crawl(context: Context):
                 name = profile.find(".//h5").text_content().strip()
                 role = profile.find(".//p").text_content().strip()
                 link = profile.find(".//a").get("href") if profile.find(".//a") is not None else None
-                emit_person(context, name, role, link)
+                emit_person(context, name, role, link, position_name)
