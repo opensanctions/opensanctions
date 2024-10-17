@@ -2,7 +2,7 @@ title: ransomwhe.re ransomware addresses
 entry_point: crawler.py
 prefix: rwre
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2022-02-16
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >

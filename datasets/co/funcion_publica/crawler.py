@@ -1,8 +1,10 @@
 from datetime import datetime
-from normality import collapse_spaces, slugify
+from normality import slugify
 from rigour.mime.types import CSV
-from typing import Dict, List, Tuple
+from typing import Dict
 import csv
+from lxml.html import HtmlElement
+import re
 
 from zavod import helpers as h
 from zavod.context import Context
@@ -35,6 +37,20 @@ from zavod.logic.pep import OccupancyStatus, backdate, categorise
 # All
 # only public servers
 # contractors only
+
+REGEX_ID = re.compile(
+    r"""
+    ^
+    (?P<name>[\w‘“ ]+)
+    (
+        \ PASAPORTE\ -\ (?P<passport>\d+)|
+        \ CEDULA\ DE\ CIUDADANIA\ -\ (?P<cedula>\d+)|
+        \ CEDULA\ DE\ EXTRANJERIA\ -\ (?P<foreign>\d+)
+    )
+    $
+    """,
+    re.VERBOSE,
+)
 
 
 def crawl_sheet_row(context: Context, row: Dict[str, str]):
@@ -97,38 +113,56 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
 
 
 def crawl_table_row(
-    context: Context, seen: set, row: Dict[str, str | List[Tuple[str, str]]]
+    context: Context,
+    seen: set,
+    row: Dict[str, HtmlElement],
 ):
-    name_id = row.pop("declarante").split(" - ")
-    if len(name_id) != 2:
+    str_row = h.cells_to_str(row)
+    name_id = str_row.pop("declarante")
+    person = context.make("Person")
+    match = REGEX_ID.search(name_id)
+    if match is None:
         context.log.warning("Invalid name/id", name_id=name_id)
         return
-    role = row.pop("cargo")
-    entity_name = row.pop("entidad")
-    key = slugify([name_id[1], role, entity_name])
+    if match.group("passport"):
+        id_number = match.group("passport")
+        person.id = context.make_slug(id_number, prefix="co-passport")
+        person.add("passportNumber", id_number)
+    if match.group("foreign"):
+        id_number = match.group("foreign")
+        person.id = context.make_slug(id_number, prefix="co-foreign")
+        person.add("idNumber", id_number)
+    if match.group("cedula"):
+        id_number = match.group("cedula")
+        person.id = context.make_slug(id_number, prefix="co-cedula")
+        person.add("idNumber", id_number)
+
+    person.add("name", match.group("name"))
+
+    role = str_row.pop("cargo")
+    entity_name = str_row.pop("entidad")
+    key = slugify([id_number, role, entity_name])
+
     if key in seen:
         return
 
-    if row.pop("fecha-publicacion") < backdate(datetime.now(), 365 * 5):
+    if str_row.pop("fecha_publicacion") < backdate(datetime.now(), 365 * 5):
         context.log.warning("Skipping potentially too old position", key=key)
         return
 
-    if row.pop("es-contratista") != "NO":
+    if str_row.pop("es_contratista") != "NO":
         context.log.warning("Unexpectedly found a contractor", key=key)
         return
 
-    person = context.make("Person")
-    person.id = context.make_slug(name_id[1], prefix="co-cedula")
-    person.add("name", name_id[0])
-    person.add("idNumber", name_id[1])
-    links = row.pop("enlaces-externos")
-    person.add("website", links.pop("consultar-hoja-de-vida", None))
+    links = h.links_to_dict(row.pop("enlaces_externos"))
+
+    person.add("website", links.pop("consultar_hoja_de_vida", None))
     person.add(
         "notes",
         (
             "Find their declarations of assets and income, conflicts of interest"
             " and income and complementary taxes (Law 2013 of 2019) at "
-            f'{links.pop("consultar-declaraciones-ley-2013-de-2019")}'
+            f'{links.pop("consultar_declaraciones_ley_2013_de_2019")}'
         ),
     )
 
@@ -159,29 +193,7 @@ def crawl_table_row(
     context.emit(person, target=True)
     context.emit(position)
     context.emit(occupancy)
-    context.audit_data(row, ["descargar"])
-
-
-def parse_table(table) -> List[Dict[str, str | Dict[str, str]]]:
-    headers = None
-    for row in table.findall(".//tr"):
-        if headers is None:
-            headers = []
-            for el in row.findall("./th"):
-                headers.append(slugify(el.text_content()))
-            continue
-        cells = []
-        for el in row.findall("./td"):
-            anchors = el.findall("./a")
-            links = {}
-            for anchor in anchors:
-                links[slugify(anchor.text_content())] = anchor.get("href")
-            if links:
-                cells.append(links)
-            else:
-                cells.append(collapse_spaces(el.text_content()))
-        assert len(headers) == len(cells), (headers, cells)
-        yield {hdr: c for hdr, c in zip(headers, cells)}
+    context.audit_data(str_row, ["descargar", "enlaces_externos"])
 
 
 def crawl(context: Context):
@@ -195,13 +207,17 @@ def crawl(context: Context):
     next_link = "https://www.funcionpublica.gov.co/fdci/consultaCiudadana/consultaPEP?find=FindNext&tipoRegistro=4&offset=0&max=50"
     while next_link:
         context.log.info("Fetching page", url=next_link)
-        doc = context.fetch_html(next_link, cache_days=1)
+        doc = context.fetch_html(next_link)
         doc.make_links_absolute(next_link)
+        step_anchors = doc.xpath("//a[contains(@class, 'step')]")
+        context.log.info("Pages", pagenums=[a.text_content() for a in step_anchors])
+        if not step_anchors:
+            context.log.warning("No pagination found", url=next_link)
         next_anchors = doc.xpath("//a[contains(@class, 'nextLink')]")
         if next_anchors:
             next_link = next_anchors[0].get("href")
         else:
             next_link = None
 
-        for row in parse_table(doc.find(".//table")):
+        for row in h.parse_html_table(doc.find(".//table")):
             crawl_table_row(context, seen, row)

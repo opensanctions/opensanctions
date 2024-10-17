@@ -68,7 +68,7 @@ def crawl_ownership(
 
 def crawl_item(input_dict: dict, context: Context):
     name = input_dict.pop("entity_individual_name")
-    pan = input_dict.pop("pan")
+    pan = input_dict.pop("pan", "")
     if name is None:
         return
 
@@ -103,10 +103,16 @@ def crawl_item(input_dict: dict, context: Context):
     topics = "reg.warn" if is_revoked else "debarment"
 
     entity.add("name", name)
-    entity.add("taxNumber", pan)
+    entity.add("jurisdiction", "in")
+    if pan and "not provided" not in pan.lower():
+        entity.add("taxNumber", pan)
     entity.add("topics", topics)
-    din_cin: str = input_dict.pop("din_cin_of_entities_debarred", None)
-    if din_cin and din_cin.lower != "not available":
+    din_cin: str = input_dict.pop("din_cin_of_entities_debarred", "")
+    if (
+        din_cin
+        and "not available" not in din_cin.lower()
+        and "not provided" not in din_cin.lower()
+    ):
         entity.add("description", din_cin)
         din_cin = din_cin.replace("DIN ", "").replace("CIN ", "")
         entity.add("registrationNumber", din_cin.split(" "))

@@ -1,9 +1,10 @@
 type: collection
 title: Regulatory Watchlists
 coverage:
+  start: "2024-07-01"
+  schedule: "0 */8 * * *"
   frequency: daily
 deploy:
-  schedule: "1 */4 * * *"
   memory: "1500Mi"
 summary: >
   Entities that are subject to regulatory actions and restrictions
@@ -20,6 +21,7 @@ children:
   - ch_finma_warnings
   - eu_esma_sanctions
   - fr_illegal_financial_services
+  - fr_amf_regulatory_sanctions
   - in_nse_debarred
   - lt_illegal_gambling
   - lt_illegal_websites
@@ -30,6 +32,7 @@ children:
   - no_nbim_exclusions
   - ph_sec_advisories
   - ps_ohchr_settlement
+  - us_bis_oac
   - us_ddtc_debarred
   - us_ddtc_enforcements
   - us_dod_chinese_milcorps

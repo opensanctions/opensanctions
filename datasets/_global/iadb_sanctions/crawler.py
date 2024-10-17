@@ -8,8 +8,6 @@ from rigour.mime.types import XLSX
 from zavod import Context
 from zavod import helpers as h
 
-FORMATS = ["%m/%d/%Y %H:00:00 AM", "%b %d, %Y"]
-
 
 def parse_countries(countries: Optional[str]) -> List[str]:
     parsed: List[str] = []
@@ -74,18 +72,12 @@ def crawl(context: Context):
             prop = "nationality" if schema == "Person" else "jurisdiction"
             entity.add(prop, country)
 
-        end_dates = h.parse_date(row.pop("to", None), FORMATS)
+        end_dates = h.extract_date(context.dataset, row.pop("to", None))
         is_active = False
         if end_dates:
             end_date = end_dates[0]
             today = datetime.now().isoformat()[:10]
-            if len(end_date) == 4:
-                today = today[:4]
-                context.log.warning("Only parsed year", name=title, date=end_date)
-            is_active = today < end_date
-        else:
-            is_active = True
-
+            is_active = today < end_date or end_date == "Ongoing"
         if is_active:
             entity.add("topics", "debarment")
 
@@ -95,8 +87,8 @@ def crawl(context: Context):
         sanction.add("authority", row.pop("source", None))
         sanction.add("authority", row.pop("idb_sanction_source", None))
         sanction.add("program", row.pop("idb_sanction_type", None))
-        sanction.add("startDate", h.parse_date(row.pop("from", None), FORMATS))
-        sanction.add("endDate", end_date)
+        h.apply_date(sanction, "startDate", row.pop("from", None))
+        h.apply_date(sanction, "endDate", end_dates[0])
 
         context.emit(sanction)
         context.emit(entity, target=is_active)

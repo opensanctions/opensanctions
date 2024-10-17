@@ -2,10 +2,9 @@ title: Ukraine SFMS Blacklist
 entry_point: crawler.py
 prefix: ua-sfms
 coverage:
+  schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-02-12
-deploy:
-  schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Ukraine's financial intelligence unit publishes this list of sanctioned
@@ -38,6 +37,8 @@ data:
   url: https://fiu.gov.ua/assets/userfiles/Terror/BlackListFull.xml
   format: XML
 
+dates: 
+  formats: ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y", "%d %b. %Y", "%d %b.%Y", "%d.%m.%Y", "%b. %Y", "c. %Y", "%B %d, %Y"]
 lookups:
   type.address:
     lowercase: true
@@ -48,6 +49,8 @@ lookups:
           - Somalia
           - Turkey
         value: null
+      - match: "Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com"
+        value: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
   type.country:
     lowercase: true
     normalize: true
@@ -87,43 +90,52 @@ lookups:
         value: Iraq
   type.date:
     options:
-      - match: 05021981
-        value: "1981-02-05"
       - match: 11 November 1960, 11 November 1967, 11 November 1969, 1 January 1969
         values:
           - 1960-11-11
           - 1967-11-11
           - 1969-11-11
           - 1969-01-01
-      - match: 01011964
-        value: "1964-01-01"
-      - match: 4 Apr1976
-        value: "1976-04-04"
       - match: February 8,1965
         value: "1965-02-08"
-      - match: 22 Sept 1978
-        value: "1978-09-22"
-      - match: Approximately (30-35 years old)
-        value: null
-      - match: 17 Nov1968
-        value: "1968-11-17"
-      - match: April 15, 1982
-        value: "1982-04-15"
-      - match: March 25, 1957
-        value: "1957-03-25"
-      - match: 21 Mar1987
-        value: "1987-03-21"
-      - match: 29 Apr1994
-        value: "1994-04-29"
-      - match: 25 Sep1984
-        value: "1984-09-25"
-      - match: c 1957 or 14 March 1942
-        values:
-          - "1957"
-          - 1942-03-14
-      - match: 26 Jun1959
-        value: "1959-06-26"
-      - match: 19 December 1980, or 19 January 1980
+      - match: 19 December 1980,
         values:
           - 1980-12-19
-          - 1980-01-19
+      - match: 22 Sept. 1978
+        value: "1978-09-22"
+      - match: Approximatelty 1975
+        value: 1975
+      - match: 1979-1982
+        values: 
+          - 1979
+          - 1982
+      - match: 1962-1963
+        values:
+          - 1962
+          - 1963
+      - match: 1954-1955
+        values:
+          - 1954
+          - 1955
+      - match: 1966-1967
+        values:
+          - 1966
+          - 1967
+      - match: 1956-1957
+        values:
+          - 1956
+          - 1957
+      - match: 1970-1973
+        values:
+          - 1970
+          - 1973
+      - match: 1960-1962
+        values:
+          - 1960
+          - 1962
+      - match: 
+          - Kandahar
+          - Logar
+          - (24/06/1402 (Hijri Calendar))
+          - (30-35 years old)
+        value: null

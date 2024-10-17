@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: np-mha
 coverage:
   frequency: never
-  start: "2024-07-29"
+  start: "2024-08-16"
 deploy:
   schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -43,3 +43,10 @@ assertions:
     schema_entities:
       Person: 20
       Organization: 55
+
+lookups:
+  type.identifier:
+    normalize: true
+    options:
+      - match: Tunisian number M7gg33 1, issued on 2g Sep. 2001 (expired 27 Sep. 2006)
+        value: Tunisian number M7gg33 1

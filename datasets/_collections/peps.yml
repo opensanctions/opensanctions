@@ -1,9 +1,10 @@
 type: collection
 title: Politically Exposed Persons (PEPs)
 coverage:
+  start: "2021-12-01"
+  schedule: "0 */12 * * *"
   frequency: daily
 deploy:
-  schedule: "40 */12 * * *"
   memory: "1500Mi"
   memory_limit: "2000Mi"
   cpu: "500m"
@@ -53,6 +54,7 @@ children:
   - is_althingi
   - ky_judicial
   - ky_parliament
+  - lt_pep_declarations
   - lt_seimas
   - lv_saeima
   - mk_officials
@@ -66,10 +68,13 @@ children:
   - us_cia_world_factbook
   - us_cia_world_leaders
   - us_congress
+  - us_navy
   - us_plural_legislators
   - us_state_dept
   - un_ga_protocol
   - uy_pep
   - ve_asamblea_nacional
   - wd_peps
+  - za_mm_officials
+  - za_pmg_legislators
 ci_test: false

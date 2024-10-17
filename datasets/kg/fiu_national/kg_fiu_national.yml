@@ -4,8 +4,6 @@ prefix: kg-fiu
 coverage:
   frequency: daily
   start: 2021-01-31
-deploy:
-  schedule: "0 */7 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A simple list of sanctioned individuals and entities published by the
@@ -28,6 +26,15 @@ data:
   url: https://fiu.gov.kg/sked/9?language=ru
   format: xml
 
+dates:  
+  formats: ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]
+assertions:
+  min:
+    schema_entities:
+      Person: 1000
+  max:
+    schema_entities:
+      Person: 1400
 lookups:
   type.date:
     options:

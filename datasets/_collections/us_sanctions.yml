@@ -1,8 +1,10 @@
 type: collection
 title: United States Sanctions
 hidden: true
+coverage:
+  start: "2024-07-01"
+  schedule: "0 */6 * * *"
 deploy:
-  schedule: "25 3 * * *"
   memory: "1500Mi"
 ci_test: false
 summary: >

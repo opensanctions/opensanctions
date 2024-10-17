@@ -3,8 +3,8 @@ from typing import Set
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
 import re
-
-from normality import slugify
+from followthemoney.types import registry
+from normality import collapse_spaces, slugify
 
 from zavod.context import Context
 from zavod import helpers as h
@@ -18,7 +18,7 @@ from zavod.shed.trans import (
 
 DECLARATION_LIST_URL = "https://declaration.acb.gov.ge/Home/DeclarationList"
 REGEX_CHANGE_PAGE = re.compile(r"changePage\((\d+), \d+\)")
-FORMATS = ["%d.%m.%Y"]  # 04.12.2023
+REGEX_FORMER = re.compile(r"\(ყოფილი\)", re.IGNORECASE)
 _18_YEARS_AGO = (datetime.now() - timedelta(days=18 * 365)).isoformat()
 TRANSLIT_OUTPUT = {
     "eng": ("Latin", "English"),
@@ -111,7 +111,7 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
     company.add("name", name, lang="kat")
     apply_translit_full_name(context, company, "kat", name, TRANSLIT_OUTPUT)
     company.add("address", item.pop("EnterpriseAddress"), lang="kat")
-    company.add("incorporationDate", h.parse_date(item.pop("RegisterDate"), FORMATS))
+    h.apply_date(company, "incorporationDate", item.pop("RegisterDate"))
     company.add("legalForm", legal_form, lang="kat")
     company.add("sourceUrl", source)
     context.emit(company)
@@ -121,8 +121,8 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
     ownership.add("owner", pep)
     ownership.add("asset", company)
     ownership.add("percentage", item.pop("Share"))
-    ownership.add("startDate", h.parse_date(item.pop("StartDate"), FORMATS))
-    ownership.add("endDate", h.parse_date(item.pop("EndDate", None), FORMATS))
+    h.apply_date(ownership, "startDate", item.pop("StartDate"))
+    h.apply_date(ownership, "endDate", item.pop("EndDate", None))
     ownership.add("description", item.pop("Comment", None), lang="kat")
     context.emit(ownership)
 
@@ -205,7 +205,7 @@ def crawl_family(
     """Returns slug of family member if they're a minor"""
     first_name = rel.pop("FirstName")
     last_name = rel.pop("LastName")
-    birth_date = h.parse_date(rel.pop("BirthDate"), FORMATS)
+    birth_date = h.extract_date(context.dataset, rel.pop("BirthDate"))
     if birth_date[0] > _18_YEARS_AGO:
         context.log.debug("Skipping minor", birth_date=birth_date)
         return name_slug(first_name, last_name)
@@ -237,7 +237,7 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     first_name = item.pop("FirstName")
     last_name = item.pop("LastName")
     birth_place = item.pop("BirthPlace")
-    birth_date = h.parse_date(item.pop("BirthDate"), FORMATS)
+    birth_date = h.extract_date(context.dataset, item.pop("BirthDate"))[0]
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, birth_date, birth_place)
     h.apply_name(person, first_name=first_name, last_name=last_name, lang="kat")
@@ -250,12 +250,21 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     person.add("sourceUrl", declaration_url)
 
     position_kat = item.pop("Position")
+    occupancy_description = None
     organization = item.pop("Organisation")
-    if len(position_kat) < 35:
-        position_kat = f"{position_kat}, {organization}"
+
     if "კანდიდატი" in position_kat:  # Candidate
         context.log.debug(f"Skipping candidate {position_kat}")
         return
+
+    position_kat = collapse_spaces(REGEX_FORMER.sub("", position_kat))
+
+    if len(position_kat) < 35:
+        position_kat = f"{position_kat}, {organization}"
+
+    if len(position_kat) > registry.name.max_length:
+        occupancy_description = position_kat
+        position_kat = context.lookup_value("positions", position_kat, position_kat)
 
     position = h.make_position(
         context,
@@ -278,6 +287,7 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     )
     if not occupancy:
         return
+    occupancy.add("description", occupancy_description, lang="kat")
     context.emit(position)
     context.emit(occupancy)
     context.emit(person, target=True)

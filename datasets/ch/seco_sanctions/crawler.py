@@ -45,7 +45,6 @@ REGEX_REGNUM = re.compile(
 )
 REGEX_TAX = re.compile(r"Tax [Rr]egistration [Nn]umber ?: (\d+)\.?")
 REGEX_IMO = re.compile(r"IMO [Nn]umber ?: (\d+)\.?")
-FORMATS = ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%d %b %Y", "%b, %Y"]
 
 
 def parse_address(node: Element):
@@ -240,8 +239,7 @@ def parse_entry(context: Context, target: Element, programs, places):
             "Date of registration"
         ):
             _, reg_date = value.split(":", 1)
-            reg_date = reg_date.strip()
-            entity.add("incorporationDate", h.parse_date(reg_date, FORMATS))
+            h.apply_date(entity, "incorporationDate", reg_date.strip())
         elif entity.schema.is_a("LegalEntity") and value.startswith("Type of entity"):
             _, legalform = value.split(":", 1)
             entity.add("legalForm", legalform)
@@ -260,6 +258,7 @@ def parse_entry(context: Context, target: Element, programs, places):
         elif value == "Registration number: ИНН":
             pass
         else:
+            # print(value, other.attrib)
             entity.add("notes", h.clean_note(value))
 
     sanction = h.make_sanction(context, entity)
@@ -288,9 +287,14 @@ def parse_entry(context: Context, target: Element, programs, places):
     foreign_id = target.findtext("./foreign-identifier")
     sanction.add("unscId", foreign_id)
 
+    justifications: List[Tuple[str, str]] = []
     for justification in node.findall("./justification"):
-        # TODO: should this go into sanction:reason?
-        entity.add("notes", h.clean_note(justification.text))
+        ssid = justification.get("ssid")
+        justifications.append((ssid, justification.text))
+
+    # TODO: should this go into sanction:reason?
+    notes = [n for (s, n) in sorted(justifications)]
+    entity.add("notes", h.clean_note("\n\n".join(notes)))
 
     for relation in node.findall("./relation"):
         rel_type = relation.get("relation-type")

@@ -79,6 +79,15 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-2-avril-2024/
         names:
           - abrdn Investments Luxembourg S.A.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-19-juillet-2024/
+        names:
+          - Dock Financial S.A.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-26-septembre-2024/
+        names:
+          - learnd SE
+      - match: https://www.cssf.lu/fr/Document/mesure-administrative-du-1er-octobre-2024/
+        names:
+          - Alvotech
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
@@ -125,4 +134,6 @@ lookups:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du-16-05-2019-3/
           - https://www.cssf.lu/fr/Document/sanctions-administratives-du-17-janvier-2024/
           - https://www.cssf.lu/fr/Document/sanction-administrative-du-14-mai-2024/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-22-mai-2024/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-1er-juillet-2024/
         names: []

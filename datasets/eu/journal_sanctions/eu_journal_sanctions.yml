@@ -2,24 +2,23 @@ title: EU Council Official Journal Sanctioned Entities
 entry_point: crawler.py
 prefix: eu-oj
 coverage:
+  schedule: "@hourly"
   frequency: never
   start: 2023-12-18
-deploy:
-  schedule: "@hourly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 publisher:
   name: Council of the European Union
   acronym: Council
   country: eu
   url: https://european-union.europa.eu/institutions-law-budget/institutions-and-bodies/search-all-eu-institutions-and-bodies/council-european-union_en
-  description: > 
+  description: >
     The Council of the EU is the representative body of EU member governments. 
     Together with the European Parliament, which directly represents the people
     of the EU, it negotiates and adopts EU laws and adopts the EU budget. It is
     also responsible for coordinating EU policies, developing EU foreign policy
     and concluding agreements between the EU and other countries and organizations.
   official: true
-url: https://eur-lex.europa.eu/eli/reg/2023/2878
+url: https://docs.google.com/spreadsheets/d/1rauQMdCYTjTwmSzqfUvur1SfkCGYwfRn6_e5_oX39EY/edit?gid=0#gid=0
 summary: >-
   Supplemental list of people, companies, and organizations sanctioned
   for involvement in Russia's invasion of Ukraine.
@@ -28,7 +27,7 @@ description: |
   as a primary data source for sanctioned entities. However, sanctions are first
   published in the Official Journal of the EU (OJEU) and take immediate effect
   when published.
-  
+
   The transposition of those new sanctions into the consolidated file has often
   involved a significant delay (over 20 days in one case). That means that relying
   on the the consolidated list along would lead to significant legal risk. This

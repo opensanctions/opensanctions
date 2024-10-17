@@ -103,7 +103,25 @@ def crawl(context: Context) -> None:
             entity.add("topics", "sanction")
         else:
             entity.add("topics", "debarment")
-        entity.add("notes", row.pop("Cross-Reference", None))
+        cross_ref = row.pop("Cross-Reference", None)
+        if (
+            cross_ref is not None
+            and cross_ref.startswith("(also ")
+            and cross_ref.endswith(")")
+        ):
+            cross_ref = cross_ref[len("(also ") :].rstrip(")")
+            cross_ref = cross_ref.replace(", LLC", " LLC")
+            cross_ref = cross_ref.replace(", INC", " INC")
+            cross_ref = cross_ref.replace(", JR", " JR")
+            aliases = []
+            for alias in cross_ref.split(", "):
+                if len(alias) < 5 and len(aliases):
+                    aliases[-1] += ", " + alias
+                else:
+                    aliases.append(alias)
+            entity.add("alias", aliases, lang="eng")
+        else:
+            entity.add("notes", cross_ref, lang="eng")
         entity.add_cast(
             "Organization",
             "registrationNumber",
@@ -129,7 +147,8 @@ def crawl(context: Context) -> None:
             quiet=True,
         )
 
-        entity.add("country", row.get("Country"))
+        state = row.pop("State / Province", None)
+        country = row.pop("Country", None)
         address = h.make_address(
             context,
             street=row.pop("Address 1", None),
@@ -137,8 +156,8 @@ def crawl(context: Context) -> None:
             # street3=row.pop("Address 3", None),
             city=row.pop("City", None),
             postal_code=zip_code,
-            country=row.pop("Country", None),
-            state=row.pop("State / Province", None),
+            country=country,
+            state=state,
         )
         h.copy_address(entity, address)
         # h.apply_address(context, entity, address)

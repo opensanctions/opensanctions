@@ -104,8 +104,13 @@ def parse_affiliations(
             position_name: Optional[str] = role.pop("pareigos")
             assert position_name, (person, position_name)
             if not entity_is_lithuanian:
-                context.log.warning(
-                    "Foreign declared role", name=person.get("name"), entity=entity_name
+                context.log.info(
+                    "Foreign declared role",
+                    name=person.get("name"),
+                    entity=entity_name,
+                    role=role,
+                    affiliation=affiliation,
+                    position=position_name,
                 )
                 continue
             main_duty = role.pop("pareiguTipasPavadinimas")

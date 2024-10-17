@@ -2,7 +2,7 @@ title: Mexico Governors
 entry_point: crawler.py
 prefix: mx-gov
 coverage:
-  frequency: daily
+  frequency: weekly
   start: "2024-02-03"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
@@ -28,3 +28,6 @@ url: "https://www.conago.org.mx/gobernadores/historicos"
 data:
   url: https://www.conago.org.mx/gobernadores/historicos
   format: HTML
+
+dates: 
+  formats: ["%d/%m/%Y"]

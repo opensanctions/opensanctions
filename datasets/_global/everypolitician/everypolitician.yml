@@ -8,6 +8,7 @@ coverage:
   end: "2019-05-21"
 deploy:
   memory: "2000Mi"
+  schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   All members of national legislatures in the world, collected from hundreds of

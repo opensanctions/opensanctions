@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: lt-pinreg
 coverage:
   frequency: monthly
-  start: "2024-07-31"
+  start: "2024-08-16"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Lithuanian PEPs based on official declarations of personal interests.
@@ -13,8 +13,8 @@ description: |
   decisions of state institutions to declare their private interests.
 
   The [list of roles required to submit declarations](https://vtek.lt/privaciu-interesu-deklaravimas/kas-turi-deklaruoti/)
-  includes state politicians, party leadership, public servants, judges, and even
-  medical personnel in positions of influence in their institutions.
+  includes state politicians, party leadership, public servants, judges, and senior
+  leadership or public administrative bodies.
 publisher:
   name: Lithuanian Chief Official Ethics Commission
   acronym: VTEK

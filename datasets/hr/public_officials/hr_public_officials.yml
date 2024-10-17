@@ -3,7 +3,7 @@ title: Croatia State Registry of Public Officials
 prefix: hr-pub
 url: https://www.sukobinteresa.hr/hr/registar-duznosnika
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2024-04-24
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
@@ -31,3 +31,6 @@ publisher:
 data:
   url: https://www.sukobinteresa.hr/export/registar_duznosnika.csv
   format: CSV
+
+dates: 
+  formats: ["%d/%m/%Y"]

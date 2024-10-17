@@ -32,6 +32,11 @@ def crawl(context: Context):
         assert "holders" in data, data
         for holder in data.get("holders", []):
             person_name = holder.get("person_name")
+            person_name = context.lookup_value(
+                "normalize_name", person_name, person_name
+            )
+            if h.is_empty(person_name):
+                continue
             full_title = holder.get("full_title")
             country = holder.get("country")
             norm_name = context.lookup_value("names", person_name, person_name)

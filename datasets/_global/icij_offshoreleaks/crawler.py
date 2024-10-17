@@ -13,20 +13,7 @@ from zavod import helpers as h
 log = get_logger("offshoreleaks")
 
 SCHEMATA: Dict[str, str] = {}
-DATE_FORMATS = [
-    "%d-%b-%Y",
-    "%b %d, %Y",
-    "%Y-%m-%d",
-    "%Y",
-    "%d/%m/%Y",
-    "%d.%m.%Y",
-    "%d/%m/%y",
-]
 NODE_URL = "https://offshoreleaks.icij.org/nodes/%s"
-
-
-def parse_date(text):
-    return h.parse_date(text, DATE_FORMATS)
 
 
 def parse_countries(text):
@@ -85,25 +72,15 @@ def make_row_entity(context: Context, row: Dict[str, str], schema):
     proxy.add("sourceUrl", NODE_URL % node_id)
     proxy.add("legalForm", row.pop("company_type", None))
     proxy.add("legalForm", row.pop("type", None))
-    date = parse_date(row.pop("incorporation_date", None))
-    proxy.add("incorporationDate", date)
-    date = parse_date(row.pop("inactivation_date", None))
-    proxy.add("dissolutionDate", date)
-    date = parse_date(row.pop("struck_off_date", None))
-    proxy.add("dissolutionDate", date)
+    h.apply_date(proxy, "incorporationDate", row.pop("incorporation_date", None))
+    h.apply_date(proxy, "dissolutionDate", row.pop("inactivation_date", None))
+    h.apply_date(proxy, "dissolutionDate", row.pop("struck_off_date", None))
 
     if proxy.schema.is_a("Organization"):
         proxy.add("topics", "corp.offshore")
 
-    closed_date = parse_date(row.pop("closed_date", None))
-    # if proxy.has("dissolutionDate"):
-    #     log.warning("Company has both dissolution date and closed date: %r", proxy)
-    proxy.add("dissolutionDate", closed_date)
-
-    dorm_date = parse_date(row.pop("dorm_date", None))
-    # if proxy.has("dissolutionDate"):
-    #     log.warning("Company has both dissolution date and dorm date: %r", proxy)
-    proxy.add("dissolutionDate", dorm_date)
+    h.apply_date(proxy, "dissolutionDate", row.pop("closed_date", None))
+    h.apply_date(proxy, "dissolutionDate", row.pop("dorm_date", None))
 
     proxy.add("status", row.pop("status", None))
     proxy.add("publisher", row.pop("sourceID", None))
@@ -174,8 +151,6 @@ def make_row_relationship(context: Context, row: Dict[str, str]):
     end_ent.id = end
     link = row.pop("link", None)
     source_id = row.pop("sourceID", None)
-    start_date = parse_date(row.pop("start_date"))
-    end_date = parse_date(row.pop("end_date"))
 
     try:
         res = context.lookup("relationships", link)
@@ -216,8 +191,8 @@ def make_row_relationship(context: Context, row: Dict[str, str]):
     if res.schema is not None:
         rel = context.make(res.schema)
         rel.id = context.make_slug(_start, _end, link)
-        rel.add("startDate", start_date)
-        rel.add("endDate", end_date)
+        h.apply_date(rel, "startDate", row.pop("start_date"))
+        h.apply_date(rel, "endDate", row.pop("end_date"))
         rel.add(res.status, row.pop("status"))
         rel.add(res.link, link)
         rel.add("publisher", source_id)

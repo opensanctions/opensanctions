@@ -54,6 +54,12 @@ Remember to give the context that people from different countries need to make s
     - `url`- The link to a bulk download or API base URL or endpoint - ideally something you can use within the crawler via `context.data_url` to request the data, and which ideally returns a useful response when followed by dataset users. It's not the end of the world if you make other requests to expand the data available to the crawler.
     - `format` a string defining the format of the data at that URL, e.g. `JSON`, `HTML`, `XML`. A Zip file containing thousands of YAML files might be more usefully annoted with `YAML` than `ZIP` because it conveys the structural syntax of the data.
 
+### Date formatting
+
+- `dates` - date formatting used by [helpers.apply_date and apply_dates](helpers.md#zavod.helpers.apply_date) but also accessible via the context for use in `helpers.parse_date`.
+  - `formats`: Array of date format strings for parsing dates into partial ISO dates
+  - `months`: Map where values like `März` are translated into keys like `"3"` so that it could then be parsed by a format string like `%m`
+
 ### HTTP options
 
 HTTP requests for GET requests are automatically retried for connection and HTTP errors. Some of this retry behaviour can be configured from the dataset metadata if needed.

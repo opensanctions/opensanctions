@@ -1,6 +1,7 @@
 from typing import Optional
 from normality import collapse_spaces
 from lxml.etree import _Element as Element
+import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -36,13 +37,21 @@ def parse_alias(entity: Entity, node: Element):
 
 
 def parse_address(context: Context, node: Element):
+    post_code = node.findtext("./ZIP_CODE")
+    state_province = node.findtext("./STATE_PROVINCE")
+    if post_code and not re.search(r"\d", post_code):
+        if state_province is None:
+            state_province = post_code
+        else:
+            state_province = f"{state_province}, {post_code}"
+        post_code = None
     return h.make_address(
         context,
         remarks=node.findtext("./NOTE"),
         street=node.findtext("./STREET"),
         city=node.findtext("./CITY"),
-        region=node.findtext("./STATE_PROVINCE"),
-        postal_code=node.findtext("./ZIP_CODE"),
+        region=state_province,
+        postal_code=post_code,
         country=node.findtext("./COUNTRY"),
     )
 

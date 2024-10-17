@@ -4,8 +4,6 @@ prefix: kzafm
 coverage:
   frequency: daily
   start: 2021-12-13
-deploy:
-  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A combination of two lists of sanctioned individuals and entities published by the
@@ -35,3 +33,14 @@ url: https://websfm.kz/terrorism
 data:
   url: https://api.websfm.kz/v1/sanctions/sanction-terrorist-old/
   format: xml
+dates: 
+  formats: ["%d.%m.%Y"]
+assertions:
+  min:
+    schema_entities:
+      Person: 2350
+      Organization: 60
+  max:
+    schema_entities:
+      Person: 3000
+      Organization: 120

@@ -1,8 +1,10 @@
 type: collection
 title: European Union Sanctions
 hidden: true
+coverage:
+  start: "2024-07-01"
+  schedule: "0 */6 * * *"
 deploy:
-  schedule: "2 */2 * * *"
   memory: "1500Mi"
 ci_test: false
 summary: >

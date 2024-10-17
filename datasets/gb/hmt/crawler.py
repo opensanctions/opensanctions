@@ -3,12 +3,14 @@ from banal import first
 from normality import stringify, collapse_spaces
 from rigour.mime.types import XML
 from followthemoney.util import join_text
+import re
 
 from zavod import Context
 from zavod import helpers as h
 
 FORMATS = ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", ". "]
+REGEX_POSTCODE = re.compile(r"\d+")
 
 TYPES = {
     "Individual": "Person",
@@ -74,6 +76,17 @@ def split_new(text):
     return h.multi_split(text, [". ", ", "])
 
 
+def split_reg_no(text: str):
+    text = text.replace("Tax ID No", "; Tax ID No")
+    text = text.replace("Government Gazette Number", "; Government Gazette Number")
+    text = text.replace("Legal Entity Number", "; Legal Entity Number")
+    text = text.replace(
+        "Business Identification Number", "; Business Identification Number"
+    )
+    text = text.replace("Tax Identification Number", "; Tax Identification Number")
+    return [s.strip() for s in h.multi_split(text, [";", "(1)", "(2)", "(3)"])]
+
+
 def parse_row(context: Context, row: Dict[str, Any]):
     group_type = row.pop("GroupTypeDescription")
     schema = TYPES.get(group_type)
@@ -109,8 +122,8 @@ def parse_row(context: Context, row: Dict[str, Any]):
     entity_type = row.pop("Entity_Type", None)
     entity.add_cast("LegalEntity", "legalForm", entity_type)
 
-    reg_number = row.pop("Entity_BusinessRegNumber", None)
-    entity.add_cast("LegalEntity", "registrationNumber", reg_number)
+    reg_number = row.pop("Entity_BusinessRegNumber", "")
+    entity.add_cast("LegalEntity", "registrationNumber", split_reg_no(reg_number))
 
     row.pop("Ship_Length", None)
     entity.add_cast("Vessel", "flag", row.pop("Ship_Flag", None))
@@ -182,23 +195,35 @@ def parse_row(context: Context, row: Dict[str, Any]):
     )
     entity.add("alias", row.pop("NameNonLatinScript", None))
 
+    post_code, po_box = h.postcode_pobox(row.pop("PostCode", None))
+    if post_code is not None and not REGEX_POSTCODE.search(post_code):
+        city = post_code
+        post_code = None
+    else:
+        city = None
     full_address = join_text(
+        po_box,
         row.pop("Address1", None),
+        city,
         row.pop("Address2", None),
         row.pop("Address3", None),
         row.pop("Address4", None),
         row.pop("Address5", None),
         row.pop("Address6", None),
+        post_code,
         sep=", ",
     )
 
     country_name = first(countries)
     if country_name == "UK":  # Ukraine is a whole thing, people.
         country_name = "United Kingdom"
+
     address = h.make_address(
         context,
         full=full_address,
-        postal_code=row.pop("PostCode", None),
+        postal_code=post_code,
+        po_box=po_box,
+        city=city,
         country=country_name,
     )
     h.apply_address(context, entity, address)
