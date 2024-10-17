@@ -1,6 +1,5 @@
 import openpyxl
 from typing import Dict, Set
-from pantomime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
@@ -145,7 +144,7 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
 
 def crawl(context: Context):
     path = context.fetch_resource("source.xlsx", context.data_url)
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+    # context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     skipped: Set[str] = set()
