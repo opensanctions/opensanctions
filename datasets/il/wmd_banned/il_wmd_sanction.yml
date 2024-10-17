@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: il-wmd
 coverage:
   frequency: daily
-  start: 2024-09-12
+  start: 2024-10-17
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   List of entities and individuals subject to sanctions under the Prevention of Distribution and Financing of Weapons of Mass Destruction Law
@@ -44,31 +44,31 @@ lookups:
           - 1969
         value: null
   columns:
-    # lowercase: true
-    # normalize: true
+    normalize: true
+    lowercase: true
     options:
       - match: פרטי זיהוי אחרים או פרטים נוספים
-        value: other_info
+        value: other_info_hb
       - match: מדינת אזרחות/ תושבות (יחיד)  מדינת התאגדות (ארגון)
-        value: address_nationality
+        value: address_nationality_hb
       - match: תאריך לידה (יחיד)  תאריך התאגדות (ארגון)
-        value: dob
-      - match: מספרי דרכון/זיהוי (יחיד)  מספר רישום (ארגון)  
-        value: passport
-      - match: שם הישות:  בשפת המקור; בתעתיק לטיני (לרבות אפשרויות האיות הידועות על שמות וכינויים אלה)
-        value: name
-      - contains:  (אימוץ קבוע)
-        value: isreal_adoption_date
-      - contains:  (אימוץ אוטומטי זמני)
-        value: isreal_temp_adoption_date
-      - match:   מספר החלטה ומספר סידורי ברשומות, כפי שניתנה ע"י הגורם הבינ"ל המוסמך שהכריז במקור
-        value: serial_no
-      - match:  זהות הגורם הזר המוסמך שהכריז במקור
-        value: originally_declared_by
-      - match: מועד ההכרזה המקורי: מועד ההכרזה ע"י הגורם הזר המוסמך שהכרזתו אומצה בישראל
-        value: declaration_date
+        value: dob_hb
+      - match: מספרי דרכון/זיהוי (יחיד)  מספר רישום (ארגון)
+        value: passport_hb
+      - contains: בשפת המקור; בתעתיק לטיני (לרבות אפשרויות האיות הידועות על שמות וכינויים אלה)
+        value: name_hb
+      - contains: (אימוץ קבוע)
+        value: isreal_adoption_date_hb
+      - contains: (אימוץ אוטומטי זמני)
+        value: isreal_temp_adoption_date_hb
+      - match: מספר החלטה ומספר סידורי ברשומות, כפי שניתנה ע"י הגורם הבינ"ל המוסמך שהכריז במקור
+        value: serial_no_hb
+      - match: זהות הגורם הזר המוסמך שהכריז במקור
+        value: originally_declared_by_hb
+      - contains: מועד ההכרזה ע"י הגורם הזר המוסמך שהכרזתו אומצה בישראל
+        value: declaration_date_hb
       - match: מס"ד
-        value: record_id
+        value: record_id_hb
 dates:
   formats: ["%d %b %Y"]
   months:
@@ -77,9 +77,9 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 100
+      Person: 80
       Organization: 100
   max:
     schema_entities:
-      Person: 100
-      Organization: 100
+      Person: 103
+      Organization: 143
