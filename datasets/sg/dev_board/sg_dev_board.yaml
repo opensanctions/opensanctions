@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: 2024-10-16
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   Business profiles and leadership roles of key executives at the Singapore Economic 
   Development Board (EDB), a government agency under the Ministry of Trade and Industry
