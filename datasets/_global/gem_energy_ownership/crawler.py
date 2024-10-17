@@ -1,6 +1,6 @@
 import openpyxl
 from typing import Dict, Set
-from pantomime.types import XLSX
+# from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
