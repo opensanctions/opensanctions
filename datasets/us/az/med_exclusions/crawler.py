@@ -1,10 +1,10 @@
 from pathlib import Path
 from typing import Dict
+from rigour.mime.types import PDF
 
 import pdfplumber
 from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
-
 
 
 def parse_pdf_table(
