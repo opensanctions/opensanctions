@@ -495,7 +495,7 @@ def substitute_abbreviations(
     return name, None
 
 
-def parse_company(context: Context, el: Element) -> None:
+def parse_company(context: Context, el: Element, abbreviations) -> None:
     """
     Parse a company from the XML element and emit entities.
     Args:
@@ -509,9 +509,6 @@ def parse_company(context: Context, el: Element) -> None:
     ogrn = el.get("ОГРН")
     name_full: Optional[str] = None
     name_short: Optional[str] = None
-
-    # Load abbreviations once using the context
-    abbreviations = compile_abbreviations(context)
 
     for name_el in el.findall("./СвНаимЮЛ"):
         name_full = name_el.get("НаимЮЛПолн")
@@ -653,7 +650,7 @@ def parse_sole_trader(context: Context, el: Element) -> None:
     context.emit(entity)
 
 
-def parse_xml(context: Context, handle: IO[bytes]) -> None:
+def parse_xml(context: Context, handle: IO[bytes], abbreviations) -> None:
     """
     Parse an XML file and emit entities from СвЮЛ/СвИп elements found
     Args:
@@ -664,12 +661,12 @@ def parse_xml(context: Context, handle: IO[bytes]) -> None:
     """
     doc = etree.parse(handle)
     for el in doc.findall(".//СвЮЛ"):
-        parse_company(context, el)
+        parse_company(context, el, abbreviations)
     for el in doc.findall(".//СвИП"):
         parse_sole_trader(context, el)
 
 
-def parse_examples(context: Context):
+def parse_examples(context: Context, abbreviations):
     """
     Parse some example INN numbers from cached xml files (debug purposes only).
     Args:
@@ -691,7 +688,7 @@ def parse_examples(context: Context):
     ]:
         path = context.fetch_resource("%s.xml" % inn, INN_URL % inn)
         with open(path, "rb") as fh:
-            parse_xml(context, fh)
+            parse_xml(context, fh, abbreviations)
 
 
 def crawl_index(context: Context, url: str) -> Set[str]:
@@ -716,7 +713,7 @@ def crawl_index(context: Context, url: str) -> Set[str]:
     return archives
 
 
-def crawl_archive(context: Context, url: str) -> None:
+def crawl_archive(context: Context, url: str, abbreviations) -> None:
     """
     Crawl an archive and parse the XML files inside.
     Args:
@@ -734,7 +731,7 @@ def crawl_archive(context: Context, url: str) -> None:
                 if not name.lower().endswith(".xml"):
                     continue
                 with zip.open(name, "r") as fh:
-                    parse_xml(context, fh)
+                    parse_xml(context, fh, abbreviations)
 
     finally:
         path.unlink(missing_ok=True)
@@ -742,22 +739,8 @@ def crawl_archive(context: Context, url: str) -> None:
 
 def crawl(context: Context) -> None:
     # TODO: thread pool execution
-
-    parse_examples(context)
-    # api_response = context.fetch_json( # function to test warnings
-    #     "https://data.opensanctions.org/artifacts/ext_ru_egrul/20241003233502-jjy/issues.json",
-    #     cache_days=1,
-    # )
-    # entity_ids = []
-    # # Iterate through the issues in the response
-    # issues = api_response.get("issues", [])
-    # for issue in issues:
-    #     # Extract entity_id from the data field, if it exists
-    #     entity_data = issue.get("data", {})
-    #     entity_id = entity_data.get("entity_id")
-    #     if entity_id and entity_id.startswith("ru-inn-"):
-    #         cleaned_id = entity_id.replace("ru-inn-", "")
-    #         entity_ids.append(cleaned_id)
-    # print(entity_ids)
-    # for archive_url in sorted(crawl_index(context, context.data_url)): # original code
-    #     crawl_archive(context, archive_url)
+    # Load abbreviations once using the context
+    abbreviations = compile_abbreviations(context)
+    #parse_examples(context)
+    for archive_url in sorted(crawl_index(context, context.data_url)): # original code
+        crawl_archive(context, archive_url, abbreviations)
