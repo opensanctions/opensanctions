@@ -15,6 +15,7 @@ from zavod import helpers as h
 INN_URL = "https://egrul.itsoft.ru/%s.xml"
 # original source: "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
 aformatter = AddressFormatter()
+AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
 
 
 def tag_text(el: Element) -> str:
@@ -447,11 +448,11 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     entity.add("address", address)
 
 
-def compile_abbreviations(context) -> List[Tuple[str, re.Pattern, List[str]]]:
+def compile_abbreviations(context) -> AbbreviationList:
     """
     Load abbreviations and compile regex patterns from the YAML config.
     Returns:
-    List[Tuple[str, re.Pattern, List[str]]]: A list of tuples containing canonical abbreviations
+    AbbreviationList: A list of tuples containing canonical abbreviations
     and their compiled regex patterns for substitution.
     """
     types = context.dataset.config.get("organizational_types")
@@ -470,7 +471,7 @@ def compile_abbreviations(context) -> List[Tuple[str, re.Pattern, List[str]]]:
 
 
 def substitute_abbreviations(
-    name: str, abbreviations: List[Tuple[str, re.Pattern, List[str]]]
+    name: str, abbreviations: AbbreviationList
 ) -> Tuple[str, Optional[str]]:
     """
     Substitute abbreviations in the name using the compiled regex patterns.
