@@ -43,12 +43,13 @@ def emit_person(context: Context, name, role, link, title, position_name):
             context.emit(position)
             context.emit(occupancy)
 
+
 def crawl(context: Context):
     for url, position_name in LINKS.items():
         doc = fetch_html(context, url, unblock_validator, cache_days=3)
         doc.make_links_absolute(url)
         main_containers = doc.findall(".//section[@class='profile-listing analytics ']")
-        
+
         # Loop through each section to find and process the profiles
         for section in main_containers:
             profiles = section.findall(".//div[@class='profile-content-container']")
@@ -62,5 +63,9 @@ def crawl(context: Context):
                 else:
                     context.log.warn(f"Could not extract title from name: {name}")
                 role = profile.find(".//p").text_content().strip()
-                link = profile.find(".//a").get("href") if profile.find(".//a") is not None else None
+                link = (
+                    profile.find(".//a").get("href")
+                    if profile.find(".//a") is not None
+                    else None
+                )
                 emit_person(context, name, role, link, title, position_name)
