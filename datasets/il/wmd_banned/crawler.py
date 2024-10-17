@@ -26,27 +26,37 @@ HEBRW_MONTHS = {
 
 
 def hebrew_to_datetime(date_str: str):
-    """
-    Convert a Hebrew date string to a Normal datetime.date object.
-    """
-    if not date_str:
-        return None
+    if date_str.isnumeric():
+        return
 
-    if isinstance(date_str, int):
-        return datetime.date(date_str, 1, 1)
+    if date_str:
+        date_str = str(date_str).replace("ב", "")
+        date_str = str(date_str).replace(".", " ")
+        date_str = str(date_str).replace("יולי", "Juli")
+        # """
+        # Convert a Hebrew date string to a Normal datetime.date object.
+        # """
+        # if not date_str:
+        #     return None
 
-    date_str = re.sub("\n", "", date_str)
-    for heb_month, eng_month in HEBRW_MONTHS.items():
-        date_str = re.sub(heb_month, f"{eng_month} ", date_str, flags=re.IGNORECASE)
-        date_str = re.sub("ב", "", date_str, flags=re.IGNORECASE)
+        # if isinstance(date_str, int):
+        #     return datetime.date(date_str, 1, 1)
 
-    date_fmt = ["%d %B %Y", "%d %B. %Y"]
-    for fmt in date_fmt:
-        try:
-            date_obj = datetime.datetime.strptime(date_str, fmt)
-            return date_obj.date()
-        except ValueError:
-            pass
+        # date_str = re.sub("\n", "", date_str)
+        # for heb_month, eng_month in HEBRW_MONTHS.items():
+        #     date_str = re.sub(heb_month, f"{eng_month} ", date_str, flags=re.IGNORECASE)
+        #     date_str = re.sub("ב", "", date_str, flags=re.IGNORECASE)
+
+        # date_fmt = ["%d %B %Y", "%d %B. %Y"]
+        # for fmt in date_fmt:
+        #     try:
+        #         date_obj = datetime.datetime.strptime(date_str, fmt)
+        #         return date_obj.date()
+        #     except ValueError:
+        #         pass
+
+        # return h.apply_date(date_str)
+        return str(date_str)
 
 
 def extract_passport_no(text: str):
@@ -83,6 +93,22 @@ def extract_n_pop_address(text: str):
 
     else:
         return None, text
+
+
+def clean_date(date_str: str):
+    """
+    Clean the  date string by replacing newlines, colons, and dots with a
+    space character and return a split of dates
+    """
+    if not date_str:
+        return []
+    date_str = str(date_str).lower()
+    date_str = re.sub(r"[:\n\.]|dob|\xa0", " ", date_str).strip()
+
+    # print("================")
+    # print(date_str)
+    # print(h.multi_split(date_str, ["a)", " b)", "c)", "d)", "e)"]))
+    return h.multi_split(date_str, ["a)", " b)", "c)", "d)", "e)"])
 
 
 def clean_name(name: str | List[str]):
@@ -156,7 +182,8 @@ def parse_sheet_row(context: Context, row: Tuple[str | int, ...]):
     address = info_address or nat_address
 
     dob = row.pop(8)
-    dob = hebrew_to_datetime(dob)
+    # dob = hebrew_to_datetime(dob)
+    # dob = h.parse_date(dob, "%d %b. %Y")  #
 
     passport = row.pop(7)
     parse_name = row.pop(6)
@@ -185,16 +212,16 @@ def parse_sheet_row(context: Context, row: Tuple[str | int, ...]):
     alias = clean_name(alias)
 
     isreal_adoption_date = row.pop(5)
-    isreal_adoption_date = hebrew_to_datetime(isreal_adoption_date)  # permanent
+    # isreal_adoption_date = hebrew_to_datetime(isreal_adoption_date)  # permanent
 
     isreal_temp_adoption_date = row.pop(4)
-    isreal_temp_adoption_date = hebrew_to_datetime(isreal_temp_adoption_date)
+    # isreal_temp_adoption_date = hebrew_to_datetime(isreal_temp_adoption_date)
 
     serial_no = row.pop(3)
     originally_declared_by = row.pop(2)
     declaration_date = row.pop(1)
-    if declaration_date:
-        declaration_date = h.parse_date(declaration_date, "%d %b. %Y")
+    # if declaration_date:
+    #     declaration_date = h.parse_date(declaration_date, "%d %b. %Y")
 
     record_id = row.pop(0)
 
@@ -203,7 +230,12 @@ def parse_sheet_row(context: Context, row: Tuple[str | int, ...]):
         entity.id = context.make_id("Person", f"{record_id}-{serial_no}")
         entity.add("passportNumber", extract_passport_no(passport))
         entity.add("nationality", nationality)
-        entity.add("birthDate", dob)
+
+        h.apply_dates(
+            entity,
+            "birthDate",
+            clean_date(dob),
+        )
 
     elif "ire" in serial_no.lower() or "pe" in serial_no.lower():
         entity = context.make("Organization")
@@ -219,9 +251,14 @@ def parse_sheet_row(context: Context, row: Tuple[str | int, ...]):
 
     sanction = h.make_sanction(context, entity)
     sanction.add("authority", originally_declared_by, lang="he")
-    sanction.add("unscId", serial_no)
-    sanction.add("listingDate", declaration_date)
-    sanction.add("startDate", isreal_adoption_date)
+
+    h.apply_dates(sanction, "listingDate", clean_date(declaration_date))
+
+    h.apply_dates(
+        sanction,
+        "startDate",
+        clean_date(isreal_adoption_date),
+    )
 
     context.emit(entity, target=True)
     context.emit(sanction)
