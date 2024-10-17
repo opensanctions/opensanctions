@@ -15,8 +15,10 @@ from zavod import helpers as h
 INN_URL = "https://egrul.itsoft.ru/%s.xml"
 # original source: "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
 aformatter = AddressFormatter()
-AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
 
+AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
+# global variable to store the compiled abbreviations
+abbreviations: Optional[AbbreviationList] = None
 
 def tag_text(el: Element) -> str:
     """
@@ -471,7 +473,7 @@ def compile_abbreviations(context) -> AbbreviationList:
 
 
 def substitute_abbreviations(
-    name: str, abbreviations: AbbreviationList
+    name: str, abbreviations: AbbreviationList | None
 ) -> Tuple[str, Optional[str]]:
     """
     Substitute abbreviations in the name using the compiled regex patterns.
@@ -480,7 +482,8 @@ def substitute_abbreviations(
                           and original phrases.
     :return: Tuple with the modified text with substitutions applied, and the original if shortened, otherwise None.
     """
-
+    if abbreviations is None:
+        raise ValueError("Abbreviations not compiled")
     # Iterate over all abbreviation groups
     for canonical, regex, phrases in abbreviations:
         match = regex.search(name)
@@ -495,7 +498,7 @@ def substitute_abbreviations(
     return name, None
 
 
-def parse_company(context: Context, el: Element, abbreviations) -> None:
+def parse_company(context: Context, el: Element) -> None:
     """
     Parse a company from the XML element and emit entities.
     Args:
@@ -650,7 +653,7 @@ def parse_sole_trader(context: Context, el: Element) -> None:
     context.emit(entity)
 
 
-def parse_xml(context: Context, handle: IO[bytes], abbreviations) -> None:
+def parse_xml(context: Context, handle: IO[bytes]) -> None:
     """
     Parse an XML file and emit entities from СвЮЛ/СвИп elements found
     Args:
@@ -661,12 +664,12 @@ def parse_xml(context: Context, handle: IO[bytes], abbreviations) -> None:
     """
     doc = etree.parse(handle)
     for el in doc.findall(".//СвЮЛ"):
-        parse_company(context, el, abbreviations)
+        parse_company(context, el)
     for el in doc.findall(".//СвИП"):
         parse_sole_trader(context, el)
 
 
-def parse_examples(context: Context, abbreviations):
+def parse_examples(context: Context):
     """
     Parse some example INN numbers from cached xml files (debug purposes only).
     Args:
@@ -688,7 +691,7 @@ def parse_examples(context: Context, abbreviations):
     ]:
         path = context.fetch_resource("%s.xml" % inn, INN_URL % inn)
         with open(path, "rb") as fh:
-            parse_xml(context, fh, abbreviations)
+            parse_xml(context, fh)
 
 
 def crawl_index(context: Context, url: str) -> Set[str]:
@@ -713,7 +716,7 @@ def crawl_index(context: Context, url: str) -> Set[str]:
     return archives
 
 
-def crawl_archive(context: Context, url: str, abbreviations) -> None:
+def crawl_archive(context: Context, url: str) -> None:
     """
     Crawl an archive and parse the XML files inside.
     Args:
@@ -731,7 +734,7 @@ def crawl_archive(context: Context, url: str, abbreviations) -> None:
                 if not name.lower().endswith(".xml"):
                     continue
                 with zip.open(name, "r") as fh:
-                    parse_xml(context, fh, abbreviations)
+                    parse_xml(context, fh)
 
     finally:
         path.unlink(missing_ok=True)
@@ -740,7 +743,8 @@ def crawl_archive(context: Context, url: str, abbreviations) -> None:
 def crawl(context: Context) -> None:
     # TODO: thread pool execution
     # Load abbreviations once using the context
+    global abbreviations
     abbreviations = compile_abbreviations(context)
     # parse_examples(context)
     for archive_url in sorted(crawl_index(context, context.data_url)):  # original code
-        crawl_archive(context, archive_url, abbreviations)
+        crawl_archive(context, archive_url)
