@@ -2,6 +2,7 @@ title: Mexico Tax Offenders
 entry_point: crawler.py
 prefix: mx-taxo
 disabled: true
+hidden: true
 coverage:
   frequency: weekly
   start: 2024-09-05
