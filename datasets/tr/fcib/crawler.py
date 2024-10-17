@@ -90,7 +90,7 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
     entity.add("previousName", split(row.pop("previous_name", "")))
     entity.add("address", split(row.pop("address", "")))
     entity.add("notes", row.pop("other_information", ""))
-    entity.add("topics", "sanction")
+    entity.add("topics", "sanction.counter")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("description", row.pop("sanction_type", ""))
