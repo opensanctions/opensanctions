@@ -1,0 +1,40 @@
+title: Singapore Economic Development Board
+entry_point: crawler.py
+prefix: edb
+coverage:
+  frequency: weekly
+  start: 2024-10-16
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+summary: >
+  Profiles and leadership roles of key executives at the Singapore Economic 
+  Development Board (EDB). 
+description: |
+  The dataset features individuals associated with the Singapore Economic 
+  Development Board (EDB), covering members of the Executive Committee, 
+  Board Members, and the International Advisory Council. Each profile includes 
+  the individual's title, full name, and their specific role or position within 
+  the EDB. 
+  
+  For members of the Executive Committee, the dataset also includes source URLs 
+  linking to their business profiles for additional information. 
+publisher:
+  name: Singapore Economic Development Board (EDB)
+  acronym: EDB
+  description: |
+    The Singapore Economic Development Board (EDB) operates as a key government 
+    agency within the Ministry of Trade and Industry. Its mission is to promote 
+    investment and drive industry development in both the manufacturing sector 
+    and internationally tradeable services.
+
+    EDB provides support to corporations by delivering vital intelligence, 
+    facilitating connections with essential partners, and offering access to 
+    government-backed incentives aimed at fostering innovation, transformation, 
+    and business expansion.
+  url: https://www.edb.gov.sg
+  country: sg
+  official: true
+url: https://www.edb.gov.sg/en/about-edb/our-team/board-members.html
+data:
+  url: https://www.edb.gov.sg/en/about-edb/our-team/board-members.html
+  format: HTML
