@@ -14,16 +14,17 @@ def crawl(context: Context):
     for profile in profiles:
         name = profile.find(".//h5").text_content().strip()
         role = profile.find(".//p").text_content().strip()
-        print(name, role)
 
         person = context.make("Person")
         person.id = context.make_id(name, role)
         person.add("name", name)
+        person.add("position", role)
         person.add("topics", "role.pep")
 
         position = h.make_position(
             context,
-            name=role,
+            name="EDB Board Member",
+            country="sg",
             topics=["gov.executive", "gov.national"],
         )
 
