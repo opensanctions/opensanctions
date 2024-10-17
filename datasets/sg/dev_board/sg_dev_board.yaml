@@ -7,23 +7,30 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
-  Business profiles and leadership roles of key executives at the Singapore Economic 
-  Development Board (EDB), a government agency under the Ministry of Trade and Industry
-  responsible for enhancing Singapore’s position as a global center for business, innovation, 
-  and talent.
+  Profiles and leadership roles of key executives at the Singapore Economic 
+  Development Board (EDB). 
 description: |
-  As a government agency under the Ministry of Trade and Industry, EDB drives investment promotion 
-  and industry development in the manufacturing and internationally tradeable services sectors.
-
-  EDB supports companies by providing critical information, connecting them to key partners, 
-  and offering access to government incentives or investments, transformation, and growth. 
+  The dataset features individuals associated with the Singapore Economic 
+  Development Board (EDB), covering members of the Executive Committee, 
+  Board Members, and the International Advisory Council. Each profile includes 
+  the individual's title, full name, and their specific role or position within 
+  the EDB. 
+  
+  For members of the Executive Committee, the dataset also includes source URLs 
+  linking to their business profiles for additional information. 
 publisher:
   name: Singapore Economic Development Board (EDB)
   acronym: EDB
   description: |
-    The Singapore Economic Development Board (EDB) is Singapore’s lead government agency 
-    responsible for strategies to enhance the country's status as a global hub for business, 
-    innovation, and talent.
+    The Singapore Economic Development Board (EDB) operates as a key government 
+    agency within the Ministry of Trade and Industry. Its mission is to promote 
+    investment and drive industry development in both the manufacturing sector 
+    and internationally tradeable services.
+
+    EDB provides support to corporations by delivering vital intelligence, 
+    facilitating connections with essential partners, and offering access to 
+    government-backed incentives aimed at fostering innovation, transformation, 
+    and business expansion.
   url: https://www.edb.gov.sg
   country: sg
   official: true
