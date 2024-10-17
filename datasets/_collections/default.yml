@@ -63,5 +63,6 @@ children:
   - wd_categories
   - wd_curated
   - wd_oligarchs
+  - eiti_soe
   # - us_fara_filings
 ci_test: false
