@@ -20,6 +20,7 @@ AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
 # global variable to store the compiled abbreviations
 abbreviations: Optional[AbbreviationList] = None
 
+
 def tag_text(el: Element) -> str:
     """
     Convert an XML element to a string, preserving the encoding.
