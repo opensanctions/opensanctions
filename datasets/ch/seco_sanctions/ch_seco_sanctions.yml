@@ -48,7 +48,6 @@ lookups:
         source: subject
         target: object
         text: role
-
   type.address:
     lowercase: true
     options:
@@ -95,7 +94,6 @@ lookups:
           - 1997-12-01
           - 1999-11-03
           - 2012-01-01
-
   type.gender:
     lowercase: true
     normalize: true
@@ -104,3 +102,34 @@ lookups:
         value: male
       - match: Female
         value: female
+  properties:
+    lowercase: true
+    options:
+      - match: "website"
+        property: "website"
+      - match: "e-mail"
+        property: "email"
+      - match: "telephone"
+        property: "phone"
+      - match: "taxpayer-identification-number"
+        property: "innCode"
+      - match: "state-registration-number"
+        property: "registrationNumber"
+      - match: "tax-registration-number"
+        property: "taxNumber"
+      - match: "imo-number"
+        property: "imoNumber"
+  other_information: 
+    lowercase: true
+    options: 
+      - match: "Gender: male. Physical description: eye colour: brown; hair colour: black. Telephone number: +223 60 36 01 01. Languages spoken: Arabic and French. Distinguishing marks: eyeglasses"
+        properties: 
+          - prop: gender
+            value: male 
+      - match: Businessman, shareholder and former head of Synesis LLC
+        relations: 
+          - other_schema: Company
+            other_name: Synesis LLC
+            rel_schema: Ownership
+            this_prop: owner
+            other_prop: asset
