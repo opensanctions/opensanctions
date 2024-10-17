@@ -1,3 +1,5 @@
+import re
+
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 from zavod.shed.zyte_api import fetch_html
@@ -9,19 +11,22 @@ LINKS = {
     "https://www.edb.gov.sg/en/about-edb/our-team/board-members.html": "Board Member",
     "https://www.edb.gov.sg/en/about-edb/our-team/international-advisory-council.html": "Member of the International Advisory Council",
 }
+TITLE_REGEX = re.compile(r"^(Mr|Ms|Miss|Prof|Dr)\.? (?P<name>.+)$")
+
 
 def unblock_validator(doc) -> bool:
     return doc.find(".//section[@class='container']") is not None
 
 
-def emit_person(context: Context, name, role, link, position_name):
+def emit_person(context: Context, name, role, link, title, position_name):
     person = context.make("Person")
     person.id = context.make_id(name, role)
     person.add("name", name)
+    person.add("title", title)
     person.add("position", role)
+    person.add("topics", "role.pep")
     if link is not None:
         person.add("sourceUrl", link)
-    person.add("topics", "role.pep")
 
     position = h.make_position(
         context,
@@ -50,6 +55,12 @@ def crawl(context: Context):
             for profile in profiles:
                 # Extract the name, role, and link
                 name = profile.find(".//h5").text_content().strip()
+                name_match = TITLE_REGEX.match(name)
+                if name_match:
+                    name = name_match.group("name")
+                    title = name_match.group(1)
+                else:
+                    context.log.warn(f"Could not extract title from name: {name}")
                 role = profile.find(".//p").text_content().strip()
                 link = profile.find(".//a").get("href") if profile.find(".//a") is not None else None
-                emit_person(context, name, role, link, position_name)
+                emit_person(context, name, role, link, title, position_name)
