@@ -1,0 +1,85 @@
+title: Israel Prevention of Distribution and Financing of WMDs designations
+entry_point: crawler.py
+prefix: il-wmd
+coverage:
+  frequency: daily
+  start: 2024-10-17
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >-
+  List of entities and individuals subject to sanctions under the Prevention of Distribution and Financing of Weapons of Mass Destruction Law
+description: |
+  This is a list of Designated entities and individuals subject to sanctions whose activity in Israel, and with whom economic activity 
+  by Israeli parties, is restricted or banned under the Trading with the Enemy Ordinance – 1939, and the Prevention of Distribution and 
+  Financing of Weapons of Mass Destruction Law – 2018.
+   
+  > According to Section 5 of [the Prevention of Distribution and Financing of Weapons of Mass Destruction Law – 2018](https://www.gov.il/BlobFolder/dynamiccollectorresultitem/mass-destruction-weapons-english/he/legal-docs_mass_distruction_weapons_english.pdf), 
+  economic activity with a designated entity or individual or a party related to a designated entity or individual is forbidden, 
+  and the termination of existing economic activity is mandatory. It is also mandatory to report suspicion of such activity to the Israeli Police.
+publisher:
+  name: Isreali Ministry of Finance
+  description: |
+    The Isreali Ministry of Finance is the government's main financial authority, responsible for developing and implementing economic policies. 
+    It sets fiscal targets, prepares and oversees the State Budget, and manages state revenues through tax collection. 
+    Additionally, it promotes foreign investment, manages government debt, and regulates the insurance and pension markets. 
+    The ministry also conducts economic research and maintains international economic relations.
+  country: il
+  url: https://www.gov.il/en/departments/ministry_of_finance/govil-landing-page
+  official: true
+url: https://www.gov.il/en/pages/declared_elements_list
+data:
+  url: https://www.gov.il/en/pages/declared_elements_list
+  format: HTML
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - contains:
+          - Democratic People's Republic of
+        value: kp
+      - contains:
+          - Iran
+        value: ir
+      - contains:
+          - 1969
+        value: null
+  columns:
+    normalize: true
+    lowercase: true
+    options:
+      - match: פרטי זיהוי אחרים או פרטים נוספים
+        value: other_info_hb
+      - match: מדינת אזרחות/ תושבות (יחיד)  מדינת התאגדות (ארגון)
+        value: address_nationality_hb
+      - match: תאריך לידה (יחיד)  תאריך התאגדות (ארגון)
+        value: dob_hb
+      - match: מספרי דרכון/זיהוי (יחיד)  מספר רישום (ארגון)
+        value: passport_hb
+      - contains: בשפת המקור; בתעתיק לטיני (לרבות אפשרויות האיות הידועות על שמות וכינויים אלה)
+        value: name_hb
+      - contains: (אימוץ קבוע)
+        value: isreal_adoption_date_hb
+      - contains: (אימוץ אוטומטי זמני)
+        value: isreal_temp_adoption_date_hb
+      - match: מספר החלטה ומספר סידורי ברשומות, כפי שניתנה ע"י הגורם הבינ"ל המוסמך שהכריז במקור
+        value: serial_no_hb
+      - match: זהות הגורם הזר המוסמך שהכריז במקור
+        value: originally_declared_by_hb
+      - contains: מועד ההכרזה ע"י הגורם הזר המוסמך שהכרזתו אומצה בישראל
+        value: declaration_date_hb
+      - match: מס"ד
+        value: record_id_hb
+dates:
+  formats: ["%d %b %Y"]
+  months:
+    Jul: ביולי
+
+assertions:
+  min:
+    schema_entities:
+      Person: 80
+      Organization: 100
+  max:
+    schema_entities:
+      Person: 103
+      Organization: 143
