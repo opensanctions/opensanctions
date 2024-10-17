@@ -487,10 +487,10 @@ def substitute_abbreviations(
         if match:
             # Check if this is a better match than previous matches (longer phrase)
             matched_phrase = match.group(0)
-            modified_name = regex.sub(canonical, name)  
+            modified_name = regex.sub(canonical, name)
             if modified_name != name:
                 modified_name = name.replace(matched_phrase, canonical)
-                return modified_name, name 
+                return modified_name, name
     # If no match, return the original name and None as description
     return name, None
 
@@ -675,7 +675,7 @@ def parse_examples(context: Context, abbreviations):
     # This subset contains a mix of companies with different address structures
     # and an example of successor/predecessor relationship
     for inn in [
-        "7714034350", # organizational form abbreviations testing
+        "7714034350",  # organizational form abbreviations testing
         "7729348110",
         # "7709383684",
         # "7704667322",
@@ -741,6 +741,6 @@ def crawl(context: Context) -> None:
     # TODO: thread pool execution
     # Load abbreviations once using the context
     abbreviations = compile_abbreviations(context)
-    #parse_examples(context)
-    for archive_url in sorted(crawl_index(context, context.data_url)): # original code
+    # parse_examples(context)
+    for archive_url in sorted(crawl_index(context, context.data_url)):  # original code
         crawl_archive(context, archive_url, abbreviations)
