@@ -243,7 +243,7 @@ lookups:
         value: FI
 
 config:
-  types: 
+  organizational_types: 
     ОТДЕЛ ГПС:  
       - ОТДЕЛ ГОСУДАРСТВЕННОЙ ПРОТИВОПОЖАРНОЙ СЛУЖБЫ  # DEPARTMENT OF THE STATE FIRE SERVICE
     

@@ -454,17 +454,17 @@ def compile_abbreviations(context) -> List[Tuple[str, re.Pattern, List[str]]]:
     List[Tuple[str, re.Pattern, List[str]]]: A list of tuples containing canonical abbreviations
     and their compiled regex patterns for substitution.
     """
-    yaml = context.dataset.config.get("types")
+    types = context.dataset.config.get("organizational_types")
     abbreviations = []
-    for canonical, phrases in yaml.items():
+    for canonical, phrases in types.items():
         # we want to match the whole word and allow for ["] or ['] at the beginning
         for phrase in phrases:
             phrase_pattern = rf"^[ \"']?{re.escape(phrase)}"
 
             compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
-            # Append the canonical form, compiled regex pattern, and sorted phrases to the list
+            # Append the canonical form, compiled regex pattern, and phrase to the list
             abbreviations.append((canonical, compiled_pattern, phrase))
-
+    # Reverse-sort by length so that...
     abbreviations.sort(key=lambda x: len(x[2]), reverse=True)
     return abbreviations
 
@@ -477,18 +477,19 @@ def substitute_abbreviations(
     :param name: The input name where abbreviations should be substituted.
     :param abbreviations: A list of tuples with canonical abbreviations, regex patterns,
                           and original phrases.
-    :return: The modified text with substitutions applied.
+    :return: Tuple with the modified text with substitutions applied, and the original if shortened, otherwise None.
     """
 
     # Iterate over all abbreviation groups
-    for canonical, pattern, phrases in abbreviations:
-        match = pattern.search(name)
+    for canonical, regex, phrases in abbreviations:
+        match = regex.search(name)
         if match:
             # Check if this is a better match than previous matches (longer phrase)
             matched_phrase = match.group(0)
-            modified_name = name.replace(matched_phrase, canonical)
-            return modified_name, name
-
+            modified_name = regex.sub(canonical, name)  
+            if modified_name != name:
+                modified_name = name.replace(matched_phrase, canonical)
+                return modified_name, name 
     # If no match, return the original name and None as description
     return name, None
 
@@ -516,7 +517,7 @@ def parse_company(context: Context, el: Element) -> None:
         name_short = name_el.get("НаимЮЛСокр")
         # Replace phrases with abbreviations in both full and short names
         if name_full:
-            name_full_short, initial_name = substitute_abbreviations(
+            name_full_short, original_name = substitute_abbreviations(
                 name_full, abbreviations
             )
         name = name_full or name_short
@@ -531,7 +532,7 @@ def parse_company(context: Context, el: Element) -> None:
     entity.add("legalForm", el.get("ПолнНаимОПФ"))
     entity.add("incorporationDate", el.get("ДатаОГРН"))
     if name_full:
-        entity.add("description", initial_name)
+        entity.add("description", original_name)
 
     for term_el in el.findall("./СвПрекрЮЛ"):
         entity.add("dissolutionDate", term_el.get("ДатаПрекрЮЛ"))
@@ -676,8 +677,16 @@ def parse_examples(context: Context):
     # This subset contains a mix of companies with different address structures
     # and an example of successor/predecessor relationship
     for inn in [
-        "7714034350",
+        "7714034350", # organizational form abbreviations testing
         "7729348110",
+        # "7709383684",
+        # "7704667322",
+        # "9710075695",
+        # "7813654884",
+        # "1122031001454",
+        # "1025002029580",
+        # "1131001011283",
+        # "1088601000047"
     ]:
         path = context.fetch_resource("%s.xml" % inn, INN_URL % inn)
         with open(path, "rb") as fh:
@@ -732,6 +741,7 @@ def crawl_archive(context: Context, url: str) -> None:
 
 def crawl(context: Context) -> None:
     # TODO: thread pool execution
+
     parse_examples(context)
     # api_response = context.fetch_json( # function to test warnings
     #     "https://data.opensanctions.org/artifacts/ext_ru_egrul/20241003233502-jjy/issues.json",
