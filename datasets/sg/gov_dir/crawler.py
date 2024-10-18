@@ -48,9 +48,7 @@ def crawl(context: Context):
 
             # Print the agency name
             agency_name_elem = board_doc.find(".//div[@id='agencyName']/h1")
-            agency_name = (
-                agency_name_elem.text_content().strip()
-            )  # if agency_name_elem is not None else None
+            agency_name = agency_name_elem.text_content().strip()
             print(f"Agency name: {agency_name}\n")
 
             # Find section headers and officials
@@ -62,16 +60,20 @@ def crawl(context: Context):
                 print(f"Section header: {section_name}")
 
                 # Identify positions related to the current section
-                section_body = (
-                    section.getnext()
-                )  # assuming the body follows directly after header
+                section_body = section.getnext()
                 if section_body is not None:
                     officials = section_body.findall(".//li[@id]")
                     for official in officials:
-                        position_elem = official.find(".//div[@class='rank']")
                         position = (
-                            position_elem.text_content().strip()
-                        )  # if position_elem is not None else None
+                            official.find(".//div[@class='rank']")
+                            .text_content()
+                            .strip()
+                        )
+                        if any(
+                            keyword in position.lower()
+                            for keyword in ["pa to", "assistant"]
+                        ):
+                            continue
                         full_name = (
                             official.find(".//div[@class='name']")
                             .text_content()
