@@ -515,7 +515,7 @@ def parse_company(context: Context, el: Element) -> None:
     for name_el in el.findall("./СвНаимЮЛ"):
         name_full = name_el.get("НаимЮЛПолн")
         name_short = name_el.get("НаимЮЛСокр")
-        # Replace phrases with abbreviations in both full and short names
+        # Replace entity type phrase with abbreviation in both full and short names
         if name_full:
             name_full_short, original_name = substitute_abbreviations(
                 name_full, abbreviations
@@ -531,8 +531,7 @@ def parse_company(context: Context, el: Element) -> None:
     entity.add("kppCode", el.get("КПП"))
     entity.add("legalForm", el.get("ПолнНаимОПФ"))
     entity.add("incorporationDate", el.get("ДатаОГРН"))
-    if name_full:
-        entity.add("description", original_name)
+    entity.add("description", original_name)
 
     for term_el in el.findall("./СвПрекрЮЛ"):
         entity.add("dissolutionDate", term_el.get("ДатаПрекрЮЛ"))
@@ -558,7 +557,7 @@ def parse_company(context: Context, el: Element) -> None:
     for successor in el.findall("./СвПреем"):
         succ_name = successor.get("НаимЮЛПолн")
         if succ_name:
-            succ_name_short, succ_initial_name = substitute_abbreviations(
+            succ_name_short, succ_original_name = substitute_abbreviations(
                 succ_name, abbreviations
             )
         succ_inn = successor.get("ИНН")
@@ -579,9 +578,7 @@ def parse_company(context: Context, el: Element) -> None:
             succ_entity.add("name", succ_name_short)
             succ_entity.add("innCode", succ_inn)
             succ_entity.add("ogrnCode", succ_ogrn)
-            if succ_initial_name:
-                succ_entity.add("description", succ_initial_name)
-                # print(succ_initial_name)
+            succ_entity.add("description", succ_original_name)
             # To @pudo: not sure if I got your idea right
             succ_entity.add("innCode", inn)
             succ_entity.add("ogrnCode", ogrn)
@@ -592,11 +589,9 @@ def parse_company(context: Context, el: Element) -> None:
     # To @pudo: Also adding this for the predecessor
     for predecessor in el.findall("./СвПредш"):
         pred_name = predecessor.get("НаимЮЛПолн")
-        if pred_name:
-            pred_name_short, pred_initial_name = substitute_abbreviations(
-                pred_name, abbreviations
-            )
-        # print(pred_name_short)
+        pred_name_short, pred_original_name = substitute_abbreviations(
+            pred_name, abbreviations
+        )
         pred_inn = predecessor.get("ИНН")
         pred_ogrn = predecessor.get("ОГРН")
         predecessor_id = entity_id(
@@ -615,9 +610,8 @@ def parse_company(context: Context, el: Element) -> None:
             pred_entity.add("name", pred_name_short)
             pred_entity.add("innCode", pred_inn)
             pred_entity.add("ogrnCode", pred_ogrn)
-            if pred_initial_name:
-                pred_entity.add("description", pred_initial_name)
-                # print(pred_initial_name)
+            if pred_original_name:
+                pred_entity.add("description", pred_original_name)
 
             # To @pudo: not sure if I got your idea right
             pred_entity.add("innCode", inn)
@@ -745,5 +739,5 @@ def crawl(context: Context) -> None:
     global abbreviations
     abbreviations = compile_abbreviations(context)
     # parse_examples(context)
-    for archive_url in sorted(crawl_index(context, context.data_url)):  # original code
+    for archive_url in sorted(crawl_index(context, context.data_url)):
         crawl_archive(context, archive_url)
