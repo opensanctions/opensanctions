@@ -520,8 +520,7 @@ def parse_company(context: Context, el: Element) -> None:
             name_full_short, original_name = substitute_abbreviations(
                 name_full, abbreviations
             )
-        name = name_full or name_short
-
+    name = name_full or name_short
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
     entity.add("name", name_full_short)
@@ -610,8 +609,7 @@ def parse_company(context: Context, el: Element) -> None:
             pred_entity.add("name", pred_name_short)
             pred_entity.add("innCode", pred_inn)
             pred_entity.add("ogrnCode", pred_ogrn)
-            if pred_original_name:
-                pred_entity.add("description", pred_original_name)
+            pred_entity.add("description", pred_original_name)
 
             # To @pudo: not sure if I got your idea right
             pred_entity.add("innCode", inn)
