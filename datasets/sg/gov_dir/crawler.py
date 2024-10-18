@@ -49,15 +49,15 @@ def crawl(context: Context):
             org_name_elem = board_doc.find(".//div[@id='agencyName']/h1")
             for br in org_name_elem.xpath(".//br"):
                 if br.tail is None:
-                    br.tail = '\n'
+                    br.tail = "\n"
                 else:
-                    br.tail = '\n' + br.tail
+                    br.tail = "\n" + br.tail
             # Get the text content and split it by newline
             org_name = org_name_elem.text_content()
             org_parts = org_name.split("\n")
             ministry = org_parts[0].strip() if len(org_parts) > 0 else ""
             agency = org_parts[1].strip() if len(org_parts) > 1 else ""
- 
+
             section_headers = board_doc.findall(".//div[@class='section-header']")
 
             # Iterate through sections and their officials
@@ -91,9 +91,14 @@ def crawl(context: Context):
                             .strip()
                         )
                         # phone numbers are also available
-                        #print(f"Position: {position}")
-                        if section_name.lower() == "board members" or section_name.lower() == "council members":
-                            position = f"{position} of the Board of {agency} of the {ministry}"
+                        # print(f"Position: {position}")
+                        if (
+                            section_name.lower() == "board members"
+                            or section_name.lower() == "council members"
+                        ):
+                            position = (
+                                f"{position} of the Board of {agency} of the {ministry}"
+                            )
                         elif "Senior Statutory Board Officers" in section_name:
                             position = f"{position} of {agency} of the {ministry}"
                         else:
