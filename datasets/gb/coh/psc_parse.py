@@ -48,7 +48,7 @@ IGNORE_BASE_COLUMNS = [
 ]
 
 
-def company_id(context: Context, company_nr: str) -> str:
+def company_id(company_nr: str) -> str:
     nr = company_nr.lower()
     return f"oc-companies-gb-{nr}"
 
@@ -102,14 +102,10 @@ def parse_base_data(context: Context) -> None:
     data_path = context.fetch_resource("base_data.zip", base_data_url)
 
     context.log.info("Loading: %s" % data_path)
-    for idx, row in enumerate(read_base_data_csv(data_path)):
-        if idx > 0 and idx % 10000 == 0:
-            context.log.info("Companies: %d..." % idx)
-        # if idx > 0 and idx % 1000000 == 0:
-        #     return
+    for row in read_base_data_csv(data_path):
         company_nr = row.pop("CompanyNumber")
         entity = context.make("Company")
-        entity.id = company_id(context, company_nr)
+        entity.id = company_id(company_nr)
         entity.add("name", row.pop("CompanyName"))
         entity.add("registrationNumber", company_nr)
         entity.add("status", row.pop("CompanyStatus"))
@@ -253,7 +249,7 @@ def parse_psc_data(context: Context) -> None:
         # psc.add("jurisdiction", ident.pop("place_registered", None), quiet=True)
         # if len(ident):
         #     pprint(ident)
-        asset_id = company_id(context, company_nr)
+        asset_id = company_id(company_nr)
         link = context.make("Ownership")
         link.id = context.make_slug("stmt", company_nr, psc_id)
         link.add("owner", psc.id)

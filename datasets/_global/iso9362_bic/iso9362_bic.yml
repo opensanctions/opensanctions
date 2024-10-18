@@ -6,7 +6,6 @@ entry_point: crawler.py
 coverage:
   schedule: "@monthly"
   start: 2024-04-04
-  end: 2024-03-16
 exports:
   - statistics.json
   - entities.ftm.json
@@ -39,6 +38,8 @@ data:
   url: https://www.iso9362.org/bicservice/public/v1/bicdata/_pdf
   format: PDF
   lang: eng
+http:
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36
 
 lookups:
   type.country:
