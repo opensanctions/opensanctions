@@ -1,4 +1,5 @@
 # import re
+from lxml import html
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
@@ -21,13 +22,13 @@ def crawl(context: Context):
     boards_dict = {}
     for board in statutory_boards:
         link = board.get("href")
-        name = board.text_content().strip()
-        if link is None or name == "":
-            context.log.error(f"No link or name found for {name}")
-        boards_dict[name] = link
+        org_name = board.text_content().strip()
+        if link is None or org_name == "":
+            context.log.error(f"No link or name found for {org_name}")
+        boards_dict[org_name] = link
 
-    for name, link in boards_dict.items():
-        print(f"Fetching data for {name}: {link}")
+    for org_name, link in boards_dict.items():
+        print(f"Fetching data for {org_name}: {link}")
         if link is not None: 
             board_doc = fetch_html(
             context, link, board_unblock_validator, html_source="httpResponseBody", cache_days=3
@@ -37,24 +38,40 @@ def crawl(context: Context):
                 #print(person.text_content())
                 position = official.find(".//div[@class='rank']").text_content().strip()
                 full_name = official.find(".//div[@class='name']").text_content().strip()
-                role = official.find(".//div[@class='detail']").text_content().strip()
+                #details = official.find(".//div[@class='detail']").text_content().strip()
                 email = official.find(".//div[@class='email info-contact']").text_content().strip()
                 # data also contains phone numbrs in some cases
-                print(f"Position: {position}, Name: {full_name}, Role: {role}, Email: {email}")
+                #print(f"Position: {position}, Name: {full_name}, Role: {role}, Email: {email}")
+                details_elem = official.find(".//div[@class='detail']")
+                details_html = html.tostring(details_elem, encoding='unicode')
+                details_text = details_html.replace('<br>', '\n').replace('<br/>', '\n')
+                details_text_content = html.fromstring(details_text).text_content().strip()
+                details = h.multi_split(details_text_content, ["\n"])
+                print(f"Details: {details}")
+                if len(details) > 1:
+                    context.log.warn(f"More than one detail found for {official.get('id')}: {details_text_content}")
+                else:
+                    role = details[0].strip()
+                
                 person = context.make("Person")
                 person.id = context.make_id(full_name, position)
                 person.add("name", full_name)
+                person.add("sourceUrl", link)
+                person.add("topics", "role.pep")
                 if role is not None:
                     person.add("position", role)
-                person.add("topics", "role.pep")
-                if link is not None:
-                    person.add("sourceUrl", link)
-
+                if email is not None:
+                    person.add("email", email)
+                if role != "":
+                    position = role
+                else:
+                    position = position
+                #print(f"Position: {position}")
                 position = h.make_position(
                     context,
-                    name="position name", # adjust the logic dependign on the institution
+                    name=f"{position} at {org_name}",
                     country="sg",
-                    topics=["gov.executive", "gov.national"],
+                    # topics=["gov.executive", "gov.national"],
                 )
 
                 categorisation = categorise(context, position, is_pep=True)
