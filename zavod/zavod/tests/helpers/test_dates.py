@@ -94,15 +94,13 @@ def test_apply_date(testdataset1: Dataset):
 
     # Year only
 
-    extract_date.cache_clear()
     testdataset1.dates.year_only = False
     with capture_logs() as cap_logs:
-        apply_dates(person, "birthDate", ["circa 2024"])
+        apply_dates(person, "birthDate", ["ca 2024"])
     assert "2024" not in person.pop("birthDate")
     assert len(cap_logs) == 1, cap_logs
     assert cap_logs[0]["prop"] == "birthDate", cap_logs
 
-    extract_date.cache_clear()
     testdataset1.dates.year_only = True
     with capture_logs() as cap_logs:
         apply_dates(person, "birthDate", ["circa 2024"])
