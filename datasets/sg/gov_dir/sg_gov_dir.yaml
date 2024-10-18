@@ -7,7 +7,8 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
-  Officials of statutory boards in Singapore.
+  Officials of statutory boards in Singapore and their roles within the
+  respective institutions.
 description: |
   This dataset lists officials from statutory boards, detailing their titles, 
   full names, and roles within their respective institutions. It includes key 
