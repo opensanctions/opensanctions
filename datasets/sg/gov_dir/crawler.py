@@ -91,8 +91,15 @@ def crawl(context: Context):
                             .strip()
                         )
                         # phone numbers are also available
-                        print(f"Position: {position}")
+                        #print(f"Position: {position}")
+                        if section_name.lower() == "board members" or section_name.lower() == "council members":
+                            position = f"{position} of the Board of {agency} of the {ministry}"
+                        elif "Senior Statutory Board Officers" in section_name:
+                            position = f"{position} of {agency} of the {ministry}"
+                        else:
+                            position = f"{position} of {agency} of the {ministry}"
 
+                        print(f"Formatted Position: {position}")
                         person = context.make("Person")
                         person.id = context.make_id(full_name, position)
                         person.add("name", full_name)
