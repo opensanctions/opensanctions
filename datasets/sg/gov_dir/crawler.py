@@ -50,15 +50,18 @@ def crawl(context: Context):
                 print(f"Details: {details}")
                 if len(details) > 1:
                     context.log.warn(f"More than one detail found for {official.get('id')}: {details_text_content}")
+                    role = ""
                 else:
-                    role = details[0].strip()
+                    if details != []:
+                        role = details[0].strip()
+                        print(f"Role: {role}")
                 
                 person = context.make("Person")
                 person.id = context.make_id(full_name, position)
                 person.add("name", full_name)
                 person.add("sourceUrl", link)
                 person.add("topics", "role.pep")
-                if role is not None:
+                if role != "":
                     person.add("position", role)
                 if email is not None:
                     person.add("email", email)
