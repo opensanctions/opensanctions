@@ -47,9 +47,18 @@ def crawl(context: Context):
             )
 
             # Print the agency name
-            agency_name_elem = board_doc.find(".//div[@id='agencyName']/h1")
-            agency_name = agency_name_elem.text_content().strip()
-            print(f"Agency name: {agency_name}\n")
+            org_name_elem = board_doc.find(".//div[@id='agencyName']/h1")
+            for br in org_name_elem.xpath("./br"):
+                br.tail = br.tail + "\n" if br.tail else "\n"
+            
+            org_name = org_name_elem.text_content().strip()
+            org_parts = h.multi_split(org_name, "\n")
+            print(f"Org name: {org_parts}")
+
+            ministry = org_parts[0].strip()
+            agency = org_parts[1].strip() if len(org_parts) > 1 else ""
+
+            print(f"Agency name: {agency}\n", f"Ministry: {ministry}")
 
             # Find section headers and officials
             section_headers = board_doc.findall(".//div[@class='section-header']")
@@ -103,7 +112,9 @@ def crawl(context: Context):
                             # topics=["gov.executive", "gov.national"],
                         )
 
-                        categorisation = categorise(context, position, is_pep=True)
+                        categorisation = categorise(
+                            context, position, is_pep=True
+                        )  # adjust
                         if categorisation.is_pep:
                             occupancy = h.make_occupancy(context, person, position)
                             if occupancy:
