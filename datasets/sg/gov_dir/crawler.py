@@ -46,21 +46,18 @@ def crawl(context: Context):
                 cache_days=3,
             )
 
-            # Print the agency name
             org_name_elem = board_doc.find(".//div[@id='agencyName']/h1")
-            for br in org_name_elem.xpath("./br"):
-                br.tail = br.tail + "\n" if br.tail else "\n"
-            
-            org_name = org_name_elem.text_content().strip()
-            org_parts = h.multi_split(org_name, "\n")
-            print(f"Org name: {org_parts}")
-
-            ministry = org_parts[0].strip()
+            for br in org_name_elem.xpath(".//br"):
+                if br.tail is None:
+                    br.tail = '\n'
+                else:
+                    br.tail = '\n' + br.tail
+            # Get the text content and split it by newline
+            org_name = org_name_elem.text_content()
+            org_parts = org_name.split("\n")
+            ministry = org_parts[0].strip() if len(org_parts) > 0 else ""
             agency = org_parts[1].strip() if len(org_parts) > 1 else ""
-
-            print(f"Agency name: {agency}\n", f"Ministry: {ministry}")
-
-            # Find section headers and officials
+ 
             section_headers = board_doc.findall(".//div[@class='section-header']")
 
             # Iterate through sections and their officials
