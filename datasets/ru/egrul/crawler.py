@@ -468,7 +468,7 @@ def compile_abbreviations(context) -> AbbreviationList:
             compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
             # Append the canonical form, compiled regex pattern, and phrase to the list
             abbreviations.append((canonical, compiled_pattern, phrase))
-    # Reverse-sort by length so that...
+    # Reverse-sort by length so that the most specific phrase would match first.
     abbreviations.sort(key=lambda x: len(x[2]), reverse=True)
     return abbreviations
 
@@ -477,24 +477,22 @@ def substitute_abbreviations(
     name: str, abbreviations: AbbreviationList | None
 ) -> Tuple[str, Optional[str]]:
     """
-    Substitute abbreviations in the name using the compiled regex patterns.
+    Substitute organisation type in the name with its abbreviation
+    using the compiled regex patterns.
+
     :param name: The input name where abbreviations should be substituted.
     :param abbreviations: A list of tuples with canonical abbreviations, regex patterns,
                           and original phrases.
-    :return: Tuple with the modified text with substitutions applied, and the original if shortened, otherwise None.
+    :return: Tuple with the modified text with substitutions applied,
+        and the original if shortened, otherwise None.
     """
     if abbreviations is None:
         raise ValueError("Abbreviations not compiled")
     # Iterate over all abbreviation groups
     for canonical, regex, phrases in abbreviations:
-        match = regex.search(name)
-        if match:
-            # Check if this is a better match than previous matches (longer phrase)
-            matched_phrase = match.group(0)
-            modified_name = regex.sub(canonical, name)
-            if modified_name != name:
-                modified_name = name.replace(matched_phrase, canonical)
-                return modified_name, name
+        modified_name = regex.sub(canonical, name)
+        if modified_name != name:
+            return modified_name, name
     # If no match, return the original name and None as description
     return name, None
 
