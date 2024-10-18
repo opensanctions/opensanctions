@@ -4567,7 +4567,7 @@ lookups:
       - match: "Numéro d’enregistrement: Iran: 427320"
         props:
           registrationNumber: 
-      - match: "Type d’entité: entité publique - Lieu d’enregistrement: Téhéran, Iran: /"
+      - match: "Type d’entité: entité publique  - Lieu d’enregistrement: Téhéran, Iran: /"
         props:
           jurisdiction: ir
           legalForm: entité publique
