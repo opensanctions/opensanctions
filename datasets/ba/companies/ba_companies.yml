@@ -8,17 +8,11 @@ coverage:
 exports:
   - statistics.json
   - entities.ftm.json
+  - entities.delta.json
 deploy:
   premium: true
 resolve: false
 ci_test: false
-http:
-  total_retries: 5
-  backoff_factor: 3
-  retry_statuses: [503, 429, 403]
-  retry_methods: [GET, POST]
-  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36 (zavod; opensanctions.org)
-
 summary: |
   Information from the Registers of business entities in Bosnia and Herzegovina.
 description: |
@@ -55,3 +49,10 @@ publisher:
 data:
   url: https://bizreg.pravosudje.ba/pls/apex/f?p=186
   format: HTML
+  lang: bos
+http:
+  total_retries: 5
+  backoff_factor: 3
+  retry_statuses: [503, 429, 403]
+  retry_methods: [GET, POST]
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36 (zavod; opensanctions.org)
