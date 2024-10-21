@@ -45,22 +45,22 @@ def crawl_item(row: Dict[str, str], context: Context):
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
     sanction.add("provisions", row.pop("action"))
 
+    ended = False
+
     if row.get("expiration_date") and row.get("expiration_date").upper() not in [
         "PERMANENT",
         "DECEASED",
     ]:
-        is_debarred = (
-            datetime.strptime(row.get("expiration_date"), "%m/%d/%Y") > datetime.today()
-        )
         h.apply_date(sanction, "endDate", row.pop("expiration_date"))
+        end_date = sanction.get("endDate")
+        ended = end_date != [] and end_date[0] < context.data_time_iso
     else:
         row.pop("expiration_date")
-        is_debarred = True
 
-    if is_debarred:
+    if not ended:
         entity.add("topics", "debarment")
 
-    context.emit(entity, target=is_debarred)
+    context.emit(entity, target=not ended)
     context.emit(sanction)
 
     context.audit_data(row)
