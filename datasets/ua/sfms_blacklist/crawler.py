@@ -1,21 +1,35 @@
-from typing import List, Optional
+import re
+from typing import Generator, Optional
 from datetime import datetime
+from followthemoney.types.identifier import IdentifierType
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 from zavod.helpers.xml import ElementOrTree
 
-FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
+REGEX_ID_NUMBER = re.compile(r"\w?[\d-]*\d{6,}[\d-]*")
+SPLITS = [";", "i)", "ii)", "iii)", "iv)", "v)", "vi)", "vii)", "viii)", "ix)", "x)"]
+DATES_SPLITS = [
+    ";",
+    "Approximately",
+    "Circa",
+    "Between",
+    "circa",
+    "approximately",
+    "or ",
+    "born in ",
+    " in ",
+]
 
 
-def parse_date(date: Optional[str]) -> List[str]:
-    if date is None:
+def clean_id(entity: Entity, text: Optional[str]) -> Generator[str, None, None]:
+    if text is None:
         return []
-    date = date.replace(".", "")
-    if ";" in date:
-        date, _ = date.split(";", 1)
-    date = date.strip()
-    return h.parse_date(date, FORMATS)
+    for substring in text.split(";"):
+        if len(substring) > IdentifierType.max_length:
+            entity.add("notes", substring)
+            yield from REGEX_ID_NUMBER.findall(substring)
 
 
 def parse_entry(context: Context, entry: ElementOrTree) -> None:
@@ -52,29 +66,33 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
         entity.add("title", node.text, quiet=True)
 
     for doc in entry.findall("./document-list"):
-        passport = h.make_identification(
-            context,
-            entity,
-            number=doc.findtext("./document-id"),
-            summary=doc.findtext("./document-reg"),
-            country=doc.findtext("./document-country"),
-            passport=True,
-        )
-        if passport is not None:
-            context.emit(passport)
+        for number in clean_id(entity, doc.findtext("./document-id")):
+            passport = h.make_identification(
+                context,
+                entity,
+                number=number,
+                summary=doc.findtext("./document-reg"),
+                country=doc.findtext("./document-country"),
+                passport=True,
+            )
+            if passport is not None:
+                context.emit(passport)
 
     for doc in entry.findall("./id-number-list"):
-        entity.add("idNumber", doc.text)
+        entity.add("idNumber", list(clean_id(entity, doc.text)))
 
     for node in entry.findall("./address-list"):
-        entity.add("address", node.findtext("./address"))
+        entity.add("address", h.multi_split(node.findtext("./address"), SPLITS))
 
     for pob in entry.findall("./place-of-birth-list"):
         entity.add_cast("Person", "birthPlace", pob.text)
 
     for dob in entry.findall("./date-of-birth-list"):
-        date = parse_date(dob.text)
-        entity.add_cast("Person", "birthDate", date)
+        if dob.text is not None:
+            entity.add_schema("Person")
+            dates = h.multi_split(dob.text, DATES_SPLITS)
+            for date in dates:
+                h.apply_date(entity, "birthDate", date)
 
     for nat in entry.findall("./nationality-list"):
         for country in h.multi_split(nat.text, [";", ","]):

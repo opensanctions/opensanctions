@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from zavod.context import Context
-from zavod.meta import Dataset, get_catalog
+from zavod.meta import Dataset
 from zavod.helpers.positions import make_position, make_occupancy
 
 
@@ -70,10 +70,10 @@ def test_make_occupancy(testdataset1: Dataset):
         no_end_implies_current=True,
         current_time=datetime(2021, 1, 3),
         start_date="2021-01-01",
-        end_date="2021-01-02",
+        end_date="2. Jan 2021",
     )
 
-    assert occupancy.id == "osv-0675000c8483d6a9163a48e4eb222fd5e4a2a886"
+    assert occupancy.id == "osv-45f94082953295c5fe58c51dfca41103375b01bf"
     assert occupancy.get("holder") == ["thabo"]
     assert occupancy.get("post") == ["osv-40a302b7f09ea065880a3c840855681b18ead5a4"]
     assert occupancy.get("startDate") == ["2021-01-01"]
@@ -111,7 +111,6 @@ def test_occupancy_not_same_start_end_id(testdataset1: Dataset):
 def test_occupancy_dataset_coverage():
     # If coverage end is in the future, we trust the future end date
     dataset1 = Dataset(
-        get_catalog(),
         {"name": "dataset1", "title": "Dataset 1", "coverage": {"end": "2021-01-04"}},
     )
     context1 = Context(dataset1)
@@ -131,7 +130,6 @@ def test_occupancy_dataset_coverage():
 
     # If coverage end date has passed, we don't trust the future end date
     dataset2 = Dataset(
-        get_catalog(),
         {"name": "dataset2", "title": "Dataset 2", "coverage": {"end": "2021-01-02"}},
     )
     context2 = Context(dataset2)

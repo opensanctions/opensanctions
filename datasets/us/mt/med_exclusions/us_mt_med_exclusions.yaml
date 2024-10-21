@@ -1,0 +1,42 @@
+title: US Montana Medicaid Excluded and Terminated Providers
+entry_point: crawler.py
+prefix: us-medmt
+coverage:
+  frequency: daily
+  start: "2024-09-26"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers excluded or terminated from Montana's Medicaid program.
+description: |
+  The Montana Department of Public Health & Human Services maintains a list 
+  of providers who needs to be terminated or excluded from the Medicaid
+  program under 42 CFR 1002.210.
+publisher:
+  name: Montana Department of Public Health & Human Services
+  description: >
+    The Montana Department of Public Health & Human Services is the state
+    government agency responsible for providing a wide range of services
+    and programs, including public health initiatives, social services,
+    mental health support, and healthcare access.
+  acronym: DPHHS
+  url: https://dphhs.mt.gov
+  official: true
+  country: "us"
+url: "https://dphhs.mt.gov/montanahealthcareprograms/terminatedexcludedproviders"
+data:
+  url: https://dphhs.mt.gov/montanahealthcareprograms/terminatedexcludedproviders
+  format: HTML
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Company: 0
+  max:
+    schema_entities:
+      Person: 300
+      Company: 15

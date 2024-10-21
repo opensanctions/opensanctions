@@ -8,6 +8,7 @@ coverage:
   start: 2024-03-12
 exports:
   - statistics.json
+  - entities.delta.json
 deploy:
   schedule: "1 10 * * *"
   memory: 2500Mi
@@ -61,20 +62,19 @@ config:
   type: zavod.runner.local_enricher:LocalEnricher
   api: https://api.graph.opensanctions.org/
   dataset: eu_esma_firds
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
   fuzzy: false
   threshold: 0.6
   algorithm: logic-v1
-  # topics:
-  #   - sanction
-  #   - sanction.linked
-  #   - debarment
-  #   - asset.frozen
-  #   - poi
-  #   - gov.soe
+  topics:
+    - sanction
+    - sanction.linked
+    - sanction.counter
+    - debarment
+    - asset.frozen
+    - poi
+    - gov.soe
   schemata:
     - Company
     - Organization
     - Security
-  cache_days: 30

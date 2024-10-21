@@ -25,7 +25,7 @@ IGNORE_FIELDS = (
     "Build",
     "Scars and Marks",
 )
-SPLIT_DATES = re.compile("([^,]+,[^,]+)")
+SPLIT_DATES = re.compile(r"([^,]+,[^,]+)")
 
 
 def index_validator(doc: etree._Element) -> bool:
@@ -52,6 +52,7 @@ def crawl_person(context: Context, url: str) -> None:
     person = context.make("Person")
     person.id = context.make_slug(name)
     person.add("topics", "crime")
+    person.add("topics", "wanted")
     person.add("name", name)
     person.add("sourceUrl", url)
     # last_name, first_name = name.split(" ", 1)
@@ -80,6 +81,16 @@ def crawl_person(context: Context, url: str) -> None:
             person.add("gender", value)
         elif "Race" in key:
             person.add("ethnicity", value)
+        elif "Hair" in key:
+            person.add("hairColor", value)
+        elif "Eyes" in key:
+            person.add("eyeColor", value)
+        elif "Height" in key:
+            person.add("height", value)
+        elif "Weight" in key:
+            person.add("weight", value)
+        elif "Scars and Marks" in key:
+            person.add("appearance", value)
         elif "Date(s) of Birth Used" in key:
             dates = SPLIT_DATES.split(value)
             for date in dates:
@@ -97,6 +108,13 @@ def crawl_person(context: Context, url: str) -> None:
 
     caution = doc.findtext('.//div[@class="wanted-person-caution"]/p')
     person.add("notes", caution)
+
+    aliases = doc.findtext('.//div[@class="wanted-person-aliases"]/p')
+    if aliases is not None:
+        for alias in aliases.split(","):
+            alias = alias.strip()
+            prop = "alias" if " " in alias else "weakAlias"
+            person.add(prop, alias)
 
     # context.inspect(person)
     context.emit(person, target=True)

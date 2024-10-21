@@ -4,9 +4,6 @@ prefix: afdb
 coverage:
   frequency: daily
   start: 2021-11-08
-  end: 2024-06-04
-deploy:
-  schedule: "@daily"
 ci_test: false
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
@@ -40,6 +37,11 @@ url: https://www.afdb.org/en/projects-operations/debarment-and-sanctions-procedu
 data:
   url: https://www.afdb.org/en/projects-operations/debarment-and-sanctions-procedures
   format: HTML
+
+dates:
+  formats: ["%d-%b-%Y", "%d-%m-%Y"]
+  months:
+    "Sep": "Sept"
 assertions:
   min:
     schema_entities:
@@ -65,6 +67,8 @@ lookups:
     options:
       - match: Guinée Conakry
         value: Guinea
+      - match: Khazakstan
+        value: Kazakhstan
   type.date:
     options:
       - match: 10/31/23

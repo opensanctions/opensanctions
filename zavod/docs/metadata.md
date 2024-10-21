@@ -40,7 +40,9 @@ Remember to give the context that people from different countries need to make s
 ### Publisher
 
 - `publisher`
-    - `name` - The publisher's official name. If this is by default in a primary non-english language from the originating country, use that language here, and the english form in `publisher.description`.
+    - `name` - The publisher's official name. If this is by default in a primary non-english language from the originating country, use that language here, and the english form in `publisher.name_en`.
+    - `name_en` - Their name in English, ideally the official form, otherwise a translation.
+    - `acronym` - Add if there's an official acronym, e.g. check in their domain name, footer, about page.
     - `description` - This can be one to two paragraphs of text. Use the publisher description field to explain to someone from a country other than the publisher who the publisher is, and why they do what they do. 
     - `url` - The home page of their official website
     - `country` - The Alpha-2 or two-letter ISO 3166-1 
@@ -51,6 +53,12 @@ Remember to give the context that people from different countries need to make s
 - `data`
     - `url`- The link to a bulk download or API base URL or endpoint - ideally something you can use within the crawler via `context.data_url` to request the data, and which ideally returns a useful response when followed by dataset users. It's not the end of the world if you make other requests to expand the data available to the crawler.
     - `format` a string defining the format of the data at that URL, e.g. `JSON`, `HTML`, `XML`. A Zip file containing thousands of YAML files might be more usefully annoted with `YAML` than `ZIP` because it conveys the structural syntax of the data.
+
+### Date formatting
+
+- `dates` - date formatting used by [helpers.apply_date and apply_dates](helpers.md#zavod.helpers.apply_date) but also accessible via the context for use in `helpers.parse_date`.
+  - `formats`: Array of date format strings for parsing dates into partial ISO dates
+  - `months`: Map where values like `März` are translated into keys like `"3"` so that it could then be parsed by a format string like `%m`
 
 ### HTTP options
 

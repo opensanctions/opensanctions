@@ -2,10 +2,9 @@ title: "Canadian Consolidated Autonomous Sanctions List"
 entry_point: crawler.py
 prefix: ca-sema
 coverage:
+  schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-02-12
-deploy:
-  schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Sanctions imposed by Canada on specific countries, organizations, or individuals 
@@ -39,6 +38,9 @@ data:
   url: "https://www.international.gc.ca/world-monde/assets/office_docs/international_relations-relations_internationales/sanctions/sema-lmes.xml"
   format: XML
 
+dates:
+  formats: ["%Y", "%d-%m-%Y", "%b-%y"]
+
 lookups:
   type.country:
     lowercase: true
@@ -60,6 +62,10 @@ lookups:
         values:
           - 1972-08-10
           - 1972-08-11
+      - match: 1963-1964
+        values: 
+          - 1963
+          - 1964
       - match:
           - "31801"
           - "31948"

@@ -6,7 +6,7 @@ coverage:
   frequency: daily
   start: 2022-12-27
 deploy:
-  schedule: "0 */6 * * *"
+  # schedule: "0 */6 * * *"
   memory: "2Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
@@ -46,9 +46,9 @@ publisher:
     sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
   url: https://www.wikidata.org
   official: false
-url: https://www.opensanctions.org/datasets/peps
+url: https://www.opensanctions.org/pep/
 data:
-  url: https://query.wikidata.org/sparql
+  url: https://query.wikidata.org/
   format: JSON
 ci_test: false
 http:
@@ -62,7 +62,7 @@ http:
 assertions:
   min:
     schema_entities:
-      Person: 160000
+      Person: 170000
       Position: 10000
     country_entities:
       us: 20000
@@ -71,9 +71,20 @@ assertions:
     countries: 19
   max:
     schema_entities:
-      Person: 180000
+      Person: 200000
+
+config:
+  countries_local:
+    - us
+    - gb
 
 lookups:
+  type.country:
+    options:
+      - match:
+          - Romanov Empire
+          - British overseas territories
+        value: null
   type.date:
     options:
       - match:
@@ -368,6 +379,7 @@ lookups:
           - "Q480319" # title of authority
       - maybe_pep: false
         match:
+          - "Q8191099" # affiliate
           - "Q102300761" # rector of the Federal University of Bahia
           - "Q11271" # Benevolent Dictator for Life
           - "Q29182" # bishop
@@ -559,6 +571,7 @@ lookups:
           - "Q108377574" # Islamic religious occupation
           - "Q21051103" # warden
           - "Q2382776" # no-show job
+          - "Q68887" # Mirwaiz
 
   country_decisions:
     options:
@@ -1126,6 +1139,10 @@ lookups:
         code: ""
         label: "Kingdom of Valencia"
         decision: "ignore"
+      - match: "Q164079"
+        code: ""
+        label: "Kingdom of Hanover"
+        decision: "ignore"
       - match: "Q609850"
         code: "RU"
         label: "Rus"
@@ -1329,6 +1346,10 @@ lookups:
       - match: "Q241"
         code: "CU"
         label: "Cuba"
+        decision: "national"
+      - match: "Q14905932"
+        code: "CU"
+        label: "Republic of Cuba"
         decision: "national"
       - match: "Q252"
         code: "ID"
@@ -1894,4 +1915,36 @@ lookups:
       - match: "Q126726574"
         code: ""
         label: "Kingdom of Martabam-hongsawatoi"
+        decision: "ignore"
+      - match: "Q127424576"
+        code: ""
+        label: "Kingdom of Notsé"
+        decision: "ignore"
+      - match: "Q188736"
+        code: "BA"
+        label: "Bosna"
+        decision: "national"
+      - match: "Q854850"
+        code: ""
+        label: "Bharatpur State"
+        decision: "ignore"
+      - match: "Q129619467"
+        code: ""
+        label: "First Republic of Seychelles"
+        decision: "ignore"
+      - match: "Q126362486"
+        code: ""
+        label: "Kerajaan Patipi"
+        decision: "ignore"
+      - match: "Q2961631"
+        code: ""
+        label: "Chaumontois"
+        decision: "ignore"
+      - match: "Q65040683"
+        code: ""
+        label: "Jobberman"
+        decision: "ignore"
+      - match: "Q19716180"
+        code: ""
+        label: "Pays Catalan"
         decision: "ignore"

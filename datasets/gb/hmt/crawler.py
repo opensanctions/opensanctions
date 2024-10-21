@@ -3,12 +3,13 @@ from banal import first
 from normality import stringify, collapse_spaces
 from rigour.mime.types import XML
 from followthemoney.util import join_text
+import re
 
 from zavod import Context
 from zavod import helpers as h
 
-FORMATS = ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", ". "]
+REGEX_POSTCODE = re.compile(r"\d+")
 
 TYPES = {
     "Individual": "Person",
@@ -74,8 +75,23 @@ def split_new(text):
     return h.multi_split(text, [". ", ", "])
 
 
+def split_reg_no(text: str):
+    text = text.replace("Tax ID No", "; Tax ID No")
+    text = text.replace("Government Gazette Number", "; Government Gazette Number")
+    text = text.replace("Legal Entity Number", "; Legal Entity Number")
+    text = text.replace(
+        "Business Identification Number", "; Business Identification Number"
+    )
+    text = text.replace("Tax Identification Number", "; Tax Identification Number")
+    return [s.strip() for s in h.multi_split(text, [";", "(1)", "(2)", "(3)"])]
+
+
 def parse_row(context: Context, row: Dict[str, Any]):
     group_type = row.pop("GroupTypeDescription")
+    listing_date = row.pop("DateListed")
+    designated_date = row.pop("DateDesignated", None)
+    last_updated = row.pop("LastUpdated")
+
     schema = TYPES.get(group_type)
     if schema is None:
         context.log.error("Unknown group type", group_type=group_type)
@@ -85,14 +101,12 @@ def parse_row(context: Context, row: Dict[str, Any]):
     sanction = h.make_sanction(context, entity)
     sanction.add("program", row.pop("RegimeName"))
     sanction.add("authority", row.pop("ListingType", None))
-    listed_date = h.parse_date(row.pop("DateListed"), FORMATS)
-    sanction.add("listingDate", listed_date)
-    designated_date = h.parse_date(row.pop("DateDesignated", None), FORMATS)
-    sanction.add("startDate", designated_date)
+    h.apply_date(sanction, "listingDate", listing_date)
+    h.apply_date(sanction, "startDate", designated_date)
 
-    entity.add("createdAt", listed_date)
+    h.apply_date(entity, "createdAt", listing_date)
     if not entity.has("createdAt"):
-        entity.add("createdAt", designated_date)
+        h.apply_date(entity, "createdAt", designated_date)
 
     sanction.add("authorityId", row.pop("UKSanctionsListRef", None))
     sanction.add("unscId", row.pop("UNRef", None))
@@ -101,16 +115,15 @@ def parse_row(context: Context, row: Dict[str, Any]):
     sanction.add("summary", row.pop("GroupSanctions", None))
     sanction.add("modifiedAt", row.pop("DateAdditionalSanctions", None))
 
-    last_updated = h.parse_date(row.pop("LastUpdated"), FORMATS)
-    sanction.add("modifiedAt", last_updated)
-    entity.add("modifiedAt", last_updated)
+    h.apply_date(sanction, "modifiedAt", last_updated)
+    h.apply_date(entity, "modifiedAt", last_updated)
 
     # TODO: derive topics and schema from this??
     entity_type = row.pop("Entity_Type", None)
     entity.add_cast("LegalEntity", "legalForm", entity_type)
 
-    reg_number = row.pop("Entity_BusinessRegNumber", None)
-    entity.add_cast("LegalEntity", "registrationNumber", reg_number)
+    reg_number = row.pop("Entity_BusinessRegNumber", "")
+    entity.add_cast("LegalEntity", "registrationNumber", split_reg_no(reg_number))
 
     row.pop("Ship_Length", None)
     entity.add_cast("Vessel", "flag", row.pop("Ship_Flag", None))
@@ -143,8 +156,10 @@ def parse_row(context: Context, row: Dict[str, Any]):
     pobs = split_items(row.pop("Individual_TownOfBirth", None))
     entity.add_cast("Person", "birthPlace", pobs)
 
-    dob = h.parse_date(row.pop("Individual_DateOfBirth", None), FORMATS)
-    entity.add_cast("Person", "birthDate", dob)
+    dob = row.pop("Individual_DateOfBirth", None)
+    if dob is not None:
+        entity.add_schema("Person")
+        h.apply_date(entity, "birthDate", dob)
 
     cob = parse_countries(row.pop("Individual_CountryOfBirth", None))
     entity.add_cast("Person", "birthCountry", cob)
@@ -182,23 +197,35 @@ def parse_row(context: Context, row: Dict[str, Any]):
     )
     entity.add("alias", row.pop("NameNonLatinScript", None))
 
+    post_code, po_box = h.postcode_pobox(row.pop("PostCode", None))
+    if post_code is not None and not REGEX_POSTCODE.search(post_code):
+        city = post_code
+        post_code = None
+    else:
+        city = None
     full_address = join_text(
+        po_box,
         row.pop("Address1", None),
+        city,
         row.pop("Address2", None),
         row.pop("Address3", None),
         row.pop("Address4", None),
         row.pop("Address5", None),
         row.pop("Address6", None),
+        post_code,
         sep=", ",
     )
 
     country_name = first(countries)
     if country_name == "UK":  # Ukraine is a whole thing, people.
         country_name = "United Kingdom"
+
     address = h.make_address(
         context,
         full=full_address,
-        postal_code=row.pop("PostCode", None),
+        postal_code=post_code,
+        po_box=po_box,
+        city=city,
         country=country_name,
     )
     h.apply_address(context, entity, address)

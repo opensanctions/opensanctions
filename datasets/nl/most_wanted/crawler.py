@@ -18,20 +18,20 @@ FIELDS = {
     "place_of_birth": "birthPlace",
     "other_physical_charateristics": None,
     "other_physical_characteristics": None,
-    "length": None,
-    "lenght": None,
-    "height": None,
+    "length": "height",
+    "lenght": "height",
+    "height": "height",
     "other": None,
-    "tattoo": None,
+    "tattoo": "appearance",
     "build": None,
-    "eye_colour": None,
-    "eye_color": None,
-    "eyes": None,
+    "eye_colour": "eyeColor",
+    "eye_color": "eyeColor",
+    "eyes": "eyeColor",
     "skin_colour": None,
-    "hair_colour": None,
-    "hair": None,
-    "hair_color": None,
-    "haircolor": None,
+    "hair_colour": "hairColor",
+    "hair": "hairColor",
+    "hair_color": "hairColor",
+    "haircolor": "hairColor",
     "case": None,
     "police_region": None,
 }
@@ -42,6 +42,7 @@ def crawl_person(context: Context, list_item: _Element):
     person = context.make("Person")
     person.id = context.make_id(source_url)
     person.add("topics", "crime")
+    person.add("topics", "wanted")
     person.add("sourceUrl", source_url)
 
     doc = context.fetch_html(source_url)

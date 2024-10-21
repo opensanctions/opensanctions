@@ -2,9 +2,10 @@ type: collection
 title: Wanted lists
 hidden: true
 coverage:
+  start: "2021-09-01"
+  schedule: "0 */4 * * *"
   frequency: daily
 deploy:
-  schedule: "1 */4 * * *"
   memory: "1500Mi"
 summary: >
   All wanted individuals from national or international lists of wanted persons.
@@ -12,14 +13,17 @@ description: |
   Used internally for de-duplication.
 children:
   - de_bka_wanted
+  - es_cnp_wanted
   - eu_europol_wanted
   - gb_nca_most_wanted
   - interpol_red_notices
   - nl_most_wanted
+  - ph_most_wanted
   - pk_proscribed_persons
   - tr_wanted
   - us_dea_fugitives
   - us_fbi_most_wanted
+  - us_ice_wanted
   - us_ss_wanted
   - za_wanted
 ci_test: false

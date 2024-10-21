@@ -2,10 +2,9 @@ title: Israel Terrorists Organizations and Unauthorized Associations lists
 entry_point: crawler.py
 prefix: il-nbctf
 coverage:
+  schedule: "0 */6 * * *"
   frequency: daily
   start: 2021-10-22
-deploy:
-  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Terrorist organizations and individuals as designated by the Israeli government
@@ -38,6 +37,12 @@ data:
   url: https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx
   format: XLSX
 
+dates: 
+  formats: ["%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d", "%d %m %Y", "%m %Y", "%d %b. %Y"]
+  months: 
+    "03": מרס
+    "05": "May"
+
 lookups:
   type.country:
     lowercase: true
@@ -61,6 +66,7 @@ lookups:
           - Ramallah
           - Khan Younis, Gaza
           - אזרחות פלסטינית
+          - Gaza
         value: PS
       - match: תוניס
         value: Tunisia
@@ -100,6 +106,8 @@ lookups:
           - IRAQ AND LEVANT-KHORASAN
         values:
           - Iraq
+      - match: Saada, Yemen
+        value: Yemen
   type.date:
     options:
       - match:
@@ -113,6 +121,14 @@ lookups:
         value: null
       - match: 16/6/67
         value: "1967-06-16"
+      - match: 1964-1971
+        values: 
+          - 1964
+          - 1971
+      - match: 1965-1969
+        values: 
+          - 1965
+          - 1969
   type.email:
     options:
       - match: admin@europalforum org.uk

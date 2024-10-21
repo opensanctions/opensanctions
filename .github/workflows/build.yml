@@ -1,9 +1,11 @@
 name: build
 
 on:
-  - push
-  - pull_request
-  - workflow_dispatch
+  workflow_dispatch: {}
+  push: {}
+  pull_request: {}
+  schedule:
+    - cron: "30 0 * * *"
 
 permissions:
   packages: write
@@ -15,28 +17,26 @@ jobs:
     env:
       OPENSANCTIONS_RESOLVER_PATH: /dev/null
       ZAVOD_SYNC_POSITIONS: false
+      OPENSSL_CONF: "contrib/openssl.cnf"
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python:
-          - "3.10"
-          - "3.11"
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python }}
+          python-version: "3.12"
           cache: "pip"
       - name: Install system dependencies
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
+          sudo apt-get update
           sudo apt-get install -y -qq libicu-dev poppler-utils
       - name: Install zavod dependencies
         working-directory: zavod
         run: |
+          pip install setuptools wheel
           pip install --no-cache-dir -q -e ".[dev]"
           pip freeze
       - name: Check zavod type annotations (strict)
@@ -57,7 +57,7 @@ jobs:
           python setup.py sdist bdist_wheel
       - name: Get any modified dataset files
         id: changed-files
-        uses: tj-actions/changed-files@v44
+        uses: tj-actions/changed-files@v45
         with:
           files: "datasets/**"
       - name: Crawl modified datasets
@@ -105,8 +105,8 @@ jobs:
     needs: [python]
     steps:
       - uses: actions/checkout@v4
-      # - name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v2
+      - name: Set build date
+        run: echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -119,11 +119,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push release
         uses: docker/build-push-action@v6
+        env:
+          BUILD_DATE: ${{ env.BUILD_DATE }}
         with:
           context: .
           pull: true
           push: true
           tags: ghcr.io/opensanctions/opensanctions:latest
+          build-args: |
+            BUILD_DATE=${{ env.BUILD_DATE }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

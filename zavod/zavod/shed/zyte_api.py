@@ -1,12 +1,21 @@
+from pathlib import Path
 from lxml import html, etree
 from time import sleep
 from base64 import b64decode
-from typing import Any, Callable, Dict, List, Optional
-
+from typing import Any, Callable, Dict, List, Optional, Tuple
+from requests import Session
+from requests.adapters import HTTPAdapter
+from urllib3 import Retry
+from email.message import Message
+import json
 
 from zavod import settings
+from zavod.archive import dataset_data_path
 from zavod.context import Context
 from zavod.runtime.http_ import request_hash
+
+
+ZYTE_API_URL = "https://api.zyte.com/v1/extract"
 
 
 class UnblockFailedException(RuntimeError):
@@ -14,9 +23,169 @@ class UnblockFailedException(RuntimeError):
         super().__init__(f"Unblocking failed for URL: {url}")
 
 
-def get_charset(headers: List[Dict[str, str]]) -> str:
-    content_type = [h["value"] for h in headers if h["name"] == "content-type"][0]
-    return content_type.split("charset=")[-1]
+def get_content_type(headers: List[Dict[str, str]]) -> Tuple[str, str | None]:
+    header = [h["value"] for h in headers if h["name"].lower() == "content-type"][0]
+    # I kid you not, this is the https://peps.python.org/pep-0594/#cgi recommended
+    # way to replace cgi.parse_header
+    message = Message()
+    message["Content-Type"] = header
+    charset = message.get_param("charset")
+    charset = charset.lower() if isinstance(charset, str) else None
+    media_type = message.get_content_type().lower()
+
+    assert charset is None or isinstance(charset, str), header
+    return media_type, charset
+
+
+def configure_session(session: Session) -> None:
+    zyte_retries = Retry(
+        total=10,
+        backoff_factor=3,
+        status_forcelist=list(Retry.RETRY_AFTER_STATUS_CODES) + [520],
+        allowed_methods=["POST"],
+    )
+    session.mount(ZYTE_API_URL, HTTPAdapter(max_retries=zyte_retries))
+
+
+def fetch_resource(
+    context: Context,
+    filename: str,
+    url: str,
+) -> Tuple[bool, Path, str | None, str | None]:
+    """
+    Fetch a resource using Zyte API and save to filesystem.
+
+    The content type and charset can be used to assert expected
+    types (and successful unblocking by Zyte) and for appropriate
+    text decoding when the encoding can vary.
+
+    Args:
+        context: The context object.
+        filename: The name to use when saving the file.
+        url: The URL of the resource.
+
+    Returns:
+        A tuple of:
+        - A boolean indicating whether the file was cached.
+        - The path to the saved file.
+        - The media type of the response, None if cached.
+        - The charset of the response, None if cached.
+    """
+    data_path = dataset_data_path(context.dataset.name)
+    out_path = data_path.joinpath(filename)
+    if out_path.exists():
+        return True, out_path, None, None
+
+    if settings.ZYTE_API_KEY is None:
+        raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
+
+    context.log.info("Fetching file", url=url)
+    zyte_data: Dict[str, Any] = {
+        "httpResponseBody": True,
+        "httpResponseHeaders": True,
+    }
+    context.log.debug(f"Zyte API request: {url}", data=zyte_data)
+    zyte_data["url"] = url
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    configure_session(context.http)
+
+    api_response = context.http.post(
+        ZYTE_API_URL,
+        auth=(settings.ZYTE_API_KEY, ""),
+        json=zyte_data,
+    )
+    api_response.raise_for_status()
+
+    file_base64 = api_response.json()["httpResponseBody"]
+    with open(out_path, "wb") as fh:
+        fh.write(b64decode(file_base64))
+    media_type, charset = get_content_type(api_response.json()["httpResponseHeaders"])
+    return False, out_path, media_type, charset
+
+
+def fetch_text(
+    context: Context,
+    url: str,
+    headers: List[Dict[str, str]] = [],
+    cache_days: Optional[int] = None,
+    expected_media_type: Optional[str] = None,
+    expected_charset: Optional[str] = None,
+    geolocation: Optional[str] = None,
+) -> Tuple[bool, str | None, str | None, str]:
+    if settings.ZYTE_API_KEY is None:
+        raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
+
+    zyte_data: Dict[str, Any] = {
+        "httpResponseBody": True,
+        "httpResponseHeaders": True,
+        "customHttpRequestHeaders": headers,
+    }
+    if geolocation is not None:
+        zyte_data["geolocation"] = geolocation
+
+    # Slight abuse of the cache key to produce keys of the usual style.
+    # Technically this isn't the data that's sent
+    # to the target server (url), but technically we're not caching the response
+    # from Zyte API either, we're caching its HTML contents.
+    fingerprint = request_hash(url, data=zyte_data)
+
+    if cache_days is not None:
+        text = context.cache.get(fingerprint, max_age=cache_days)
+        if text is not None:
+            context.log.debug("HTTP cache hit", url=url, fingerprint=fingerprint)
+            try:
+                return True, None, None, text
+            except Exception:
+                context.clear_url(fingerprint)
+                raise
+
+    context.log.debug(f"Zyte API request: {url}", data=zyte_data)
+    zyte_data["url"] = url
+    configure_session(context.http)
+
+    api_response = context.http.post(
+        ZYTE_API_URL,
+        auth=(settings.ZYTE_API_KEY, ""),
+        json=zyte_data,
+    )
+    api_response.raise_for_status()
+
+    media_type, charset = get_content_type(api_response.json()["httpResponseHeaders"])
+    assert charset is not None, zyte_data
+    text_b64 = api_response.json()["httpResponseBody"]
+    assert text_b64 is not None
+    text = b64decode(text_b64).decode(charset)
+
+    if expected_media_type:
+        assert media_type == expected_media_type, (media_type, charset, text)
+    if expected_charset:
+        assert charset == expected_charset, (media_type, charset, text)
+
+    if cache_days is not None:
+        context.cache.set(fingerprint, text)
+
+    return False, media_type, charset, text
+
+
+def fetch_json(
+    context: Context,
+    url: str,
+    cache_days: Optional[int] = None,
+    expected_media_type: Optional[str] = "application/json",
+    expected_charset: Optional[str] = "utf-8",
+    geolocation: Optional[str] = None,
+) -> Any:
+    headers = [{"name": "Accept", "value": "application/json"}]
+    _, _, _, text = fetch_text(
+        context,
+        url,
+        headers=headers,
+        cache_days=cache_days,
+        expected_media_type=expected_media_type,
+        expected_charset=expected_charset,
+        geolocation=geolocation,
+    )
+    return json.loads(text)
 
 
 def fetch_html(
@@ -26,6 +195,7 @@ def fetch_html(
     actions: list[Dict[str, Any]] = [],
     html_source: str = "browserHtml",
     javascript: Optional[bool] = None,
+    geolocation: Optional[str] = None,
     cache_days: Optional[int] = None,
     fingerprint: Optional[str] = None,
     retries: int = 3,
@@ -41,6 +211,7 @@ def fetch_html(
         unblock_validator: A function that checks if the page is unblocked
             successfully. This is important to ensure we don't cache pages
             that weren't actually unblocked successfully.
+        actions: A list of dicts of actions to attempt on a rendered page.
         html_source: browserHtml | httpResponseBody
         javascript: Whether to execute JavaScript on the page.
         cache_days: The number of days to cache the page.
@@ -61,6 +232,8 @@ def fetch_html(
     }
     if javascript is not None:
         zyte_data["javascript"] = javascript
+    if geolocation is not None:
+        zyte_data["geolocation"] = geolocation
 
     if fingerprint is None:
         # Slight abuse of the cache key to produce keys of the usual style.
@@ -80,8 +253,9 @@ def fetch_html(
 
     context.log.debug(f"Zyte API request: {url}", data=zyte_data)
     zyte_data["url"] = url
+    configure_session(context.http)
     api_response = context.http.post(
-        "https://api.zyte.com/v1/extract",
+        ZYTE_API_URL,
         auth=(settings.ZYTE_API_KEY, ""),
         json=zyte_data,
     )
@@ -89,7 +263,10 @@ def fetch_html(
     text = api_response.json()[html_source]
     assert text is not None
     if html_source == "httpResponseBody":
-        charset = get_charset(api_response.json()["httpResponseHeaders"])
+        media_type, charset = get_content_type(
+            api_response.json()["httpResponseHeaders"]
+        )
+        assert charset is not None, zyte_data
         text = b64decode(text).decode(charset)
     doc = html.fromstring(text)
 

@@ -6,16 +6,6 @@ from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 
-FORMATS = ["%d-%b-%Y"]
-
-
-def parse_date(text):
-    if text is None:
-        return None
-    text = text.replace("Sept", "Sep")
-    return h.parse_date(text, FORMATS)
-
-
 def unblock_validator(doc: etree._Element) -> bool:
     return doc.find(".//table[@id='datatable-1']") is not None
 
@@ -52,8 +42,8 @@ def crawl(context: Context):
 
         sanction = h.make_sanction(context, entity)
         sanction.add("reason", cells.pop("basis"))
-        sanction.add("startDate", parse_date(cells.pop("from")))
-        sanction.add("endDate", parse_date(cells.pop("to")))
+        h.apply_date(sanction, "startDate", cells.pop("from"))
+        h.apply_date(sanction, "endDate", cells.pop("to"))
 
         context.emit(entity, target=True)
         context.emit(sanction)

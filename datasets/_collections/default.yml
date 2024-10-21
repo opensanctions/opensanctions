@@ -1,7 +1,9 @@
 type: collection
 title: OpenSanctions Default
+coverage:
+  start: 2021-09-01
+  schedule: "0 */6 * * *"
 deploy:
-  schedule: "10 0,6,12,18 * * *"
   memory: "2000Mi"
   memory_limit: "2500Mi"
   cpu: "800m"
@@ -34,6 +36,7 @@ description: |
   dates or full given names.
 children:
   - sanctions
+  - eu_sanctions
   - crime
   - peps
   - debarment
@@ -42,19 +45,24 @@ children:
   - enrichers
 
   # misc
-  - research
   - ann_graph_topics
-  - wd_oligarchs
-  - wd_curated
-  - ru_navalny35
-  - ru_billionaires_2021
-  - ru_acf_bribetakers
-  - ru_nsd_isin
-  - sy_obsalytics_opensyr
+  - iso9362_bic
+  - ir_uani_business_registry
+  - kp_rusi_reports
   - md_rise_profiles
+  - ransomwhere
+  - research
+  - ru_acf_bribetakers
+  - ru_billionaires_2021
   - ru_dossier_center_poi
   - ru_myrotvorets_wagner
-  - ransomwhere
-  - kp_rusi_reports
-  - iso9362_bic
+  - ru_navalny35
+  - ru_nsd_isin
+  - securities
+  - sy_obsalytics_opensyr
+  - wd_categories
+  - wd_curated
+  - wd_oligarchs
+  - eiti_soe
+  # - us_fara_filings
 ci_test: false

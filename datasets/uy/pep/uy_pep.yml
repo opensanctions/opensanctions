@@ -4,7 +4,7 @@ url: https://www.gub.uy/secretaria-nacional-lucha-contra-lavado-activos-financia
 prefix: uy-pep
 summary: List of Politically Exposed Persons (PEP) in Uruguay
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2024-01-11
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description: |

@@ -8,6 +8,7 @@ coverage:
   start: 2023-03-21
 exports:
   - statistics.json
+  - entities.delta.json
 deploy:
   # schedule: "1 14 * * *"
   memory: "1000Mi"

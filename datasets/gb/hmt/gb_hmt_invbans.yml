@@ -2,11 +2,11 @@ title: UK HMT/OFSI Investment Bans
 entry_point: crawler.py
 prefix: gb-invban
 coverage:
+  schedule: "0 */6 * * *"
   frequency: daily
   start: 2023-10-17
 deploy:
   memory: "2Gi"
-  schedule: "0 */12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Separate from the main sanctions list, this list of persons names entities

@@ -4,7 +4,7 @@ from nomenklatura.versions import Version
 
 from zavod import settings
 from zavod.logs import get_logger
-from zavod.meta import Dataset
+from zavod.meta import Dataset, get_catalog
 from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE
 from zavod.archive import CATALOG_FILE, DELTA_INDEX_FILE, DELTA_EXPORT_FILE
 from zavod.archive import ARTIFACT_FILES
@@ -60,6 +60,7 @@ def get_base_dataset_metadata(
 
 def write_dataset_index(dataset: Dataset) -> None:
     """Export dataset metadata to index.json."""
+    catalog = get_catalog()
     version = get_latest(dataset.name, backfill=True)
     if version is None:
         raise ValueError(f"No version found for dataset: {dataset.name}")
@@ -71,13 +72,16 @@ def write_dataset_index(dataset: Dataset) -> None:
         is_collection=dataset.is_collection,
     )
     meta = get_base_dataset_metadata(dataset, version=version)
-    meta.update(dataset.to_opensanctions_dict())
+    meta.update(dataset.to_opensanctions_dict(catalog))
     if not dataset.is_collection:
         issues = DatasetIssues(dataset)
         meta["issue_levels"] = issues.by_level()
         meta["issue_count"] = sum(meta["issue_levels"].values())
     meta["last_export"] = settings.RUN_TIME_ISO
     meta["issues_url"] = make_artifact_url(dataset.name, version.id, ISSUES_FILE)
+    meta["statistics_url"] = make_artifact_url(
+        dataset.name, version.id, STATISTICS_FILE
+    )
 
     delta_index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
     if delta_index_path.is_file():
@@ -105,6 +109,7 @@ def write_dataset_index(dataset: Dataset) -> None:
 def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
     """Get a metadata description of a single dataset, retaining timestamp information
     for the last export, but updating some other metadata."""
+    catalog = get_catalog()
     meta = get_base_dataset_metadata(dataset)
     path = get_dataset_artifact(dataset.name, INDEX_FILE)
     if path.is_file():
@@ -112,9 +117,9 @@ def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
             meta.update(json.load(fh))
     else:
         log.error("No index file found", dataset=dataset.name, report_issue=False)
-    meta.update(dataset.to_opensanctions_dict())
+    meta.update(dataset.to_opensanctions_dict(catalog))
     if len(meta["resources"]) == 0:
-        log.warn("Dataset has no resources", dataset=dataset.name)
+        log.info("Dataset has no resources", dataset=dataset.name)
     return meta
 
 

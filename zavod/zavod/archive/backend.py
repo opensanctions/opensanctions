@@ -30,7 +30,12 @@ class ArchiveObject(object):
     def backfill(self, dest: Path) -> None:
         raise NotImplementedError
 
-    def publish(self, source: Path, mime_type: Optional[str] = None) -> None:
+    def publish(
+        self,
+        source: Path,
+        mime_type: Optional[str] = None,
+        ttl: Optional[int] = False,
+    ) -> None:
         raise NotImplementedError
 
     def republish(self, source: str) -> None:
@@ -84,9 +89,16 @@ class GoogleCloudObject(ArchiveObject):
             raise RuntimeError("Object does not exist: %s" % self.name)
         self.blob.download_to_filename(dest)
 
-    def publish(self, source: Path, mime_type: Optional[str] = None) -> None:
+    def publish(
+        self,
+        source: Path,
+        mime_type: Optional[str] = None,
+        ttl: Optional[int] = None,
+    ) -> None:
         self._blob = self.backend.bucket.blob(self.name)
-        log.info(f"Uploading blob: {source.name}", blob_name=self.name)
+        if ttl is not None:
+            self._blob.cache_control = f"public, max-age={ttl}"
+        log.info(f"Uploading blob: {source.name}", blob_name=self.name, max_age=ttl)
         self._blob.upload_from_filename(source, content_type=mime_type)
 
     def republish(self, source: str) -> None:
@@ -106,11 +118,19 @@ class GoogleCloudBackend(ArchiveBackend):
     def __init__(self) -> None:
         if settings.ARCHIVE_BUCKET is None:
             raise ConfigurationException("No backfill bucket configured")
-        client = Client()
-        self.bucket = client.get_bucket(settings.ARCHIVE_BUCKET)
+        self.client = Client()
+        self.bucket = self.client.get_bucket(settings.ARCHIVE_BUCKET)
 
     def get_object(self, name: str) -> GoogleCloudObject:
         return GoogleCloudObject(self, name)
+
+
+class AnonymousGoogleCloudBackend(GoogleCloudBackend):
+    def __init__(self) -> None:
+        if settings.ARCHIVE_BUCKET is None:
+            raise ConfigurationException("No backfill bucket configured")
+        self.client = Client.create_anonymous_client()
+        self.bucket = self.client.get_bucket(settings.ARCHIVE_BUCKET)
 
 
 class FileSystemObject(ArchiveObject):
@@ -138,7 +158,12 @@ class FileSystemObject(ArchiveObject):
         )
         shutil.copyfile(self.path, dest)
 
-    def publish(self, source: Path, mime_type: str | None = None) -> None:
+    def publish(
+        self,
+        source: Path,
+        mime_type: str | None = None,
+        ttl: Optional[int] = None,
+    ) -> None:
         log.info(
             f"Copying file: {self.path.name} to archive",
             source=source,
@@ -165,6 +190,7 @@ class FileSystemBackend(ArchiveBackend):
 
 backends: Dict[str, Type[ArchiveBackend]] = {
     "GoogleCloudBackend": GoogleCloudBackend,
+    "AnonymousGoogleCloudBackend": AnonymousGoogleCloudBackend,
     "FileSystemBackend": FileSystemBackend,
 }
 

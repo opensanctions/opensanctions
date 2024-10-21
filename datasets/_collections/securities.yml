@@ -1,6 +1,7 @@
 type: collection
 title: Sanctioned Securities
 coverage:
+  start: "2023-12-04"
   frequency: daily
 exports:
   - statistics.json
@@ -26,7 +27,7 @@ children:
   - ch_seco_sanctions
   - eu_fsf
   - eu_sanctions_map
-  - eu_reg_2878_sanctions
+  - eu_journal_sanctions
   - eu_esma_saris
   - eu_esma_sanctions
   - ext_eu_esma_firds

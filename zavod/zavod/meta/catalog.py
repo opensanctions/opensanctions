@@ -16,10 +16,11 @@ class ArchiveBackedCatalog(DataCatalog[Dataset]):
             data = yaml.safe_load(fh)
         if "name" not in data:
             data["name"] = path.stem
-        dataset = Dataset(self, data)
+        dataset = Dataset(data)
         dataset.base_path = path.parent
-        if dataset is not None:
-            self.add(dataset)
+        self.add(dataset)
+        for name in dataset._children:
+            self.get(name)
         return dataset
 
     def get(self, name: str) -> Optional[Dataset]:

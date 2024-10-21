@@ -10,7 +10,7 @@ from zavod.logic.pep import categorise
 
 
 PHONE_SPLITS = [",", "/", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)"]
-PHONE_REMOVE = re.compile("(ex|ext|extension|fax|tel|\:|\-)", re.IGNORECASE)
+PHONE_REMOVE = re.compile(r"(ex|ext|extension|fax|tel|\:|\-)", re.IGNORECASE)
 
 
 def clean_emails(emails):
@@ -155,7 +155,13 @@ def parse_person(context: Context, data, country, lastmod) -> None:
 
 
 def parse_membership(
-    context: Context, country, data, organizations, events, birth_dates, death_dates
+    context: Context,
+    country,
+    data,
+    organizations,
+    events,
+    birth_dates: Dict[str, str],
+    death_dates: Dict[str, str],
 ) -> Optional[str]:
     person_id = data.pop("person_id", None)
     org_name = organizations.get(data.pop("organization_id", None))

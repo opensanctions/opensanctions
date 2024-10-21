@@ -57,6 +57,24 @@ def crawl_person(context: Context, url: str):
         doc, ".//strong[contains(text(),'NATION')]/following-sibling::text()[1]"
     )
     nationality = nationality.split("/")
+
+    citizenship = get_element_text(
+        doc, ".//strong[contains(text(),'CITIZENSHIP')]/following-sibling::text()[1]"
+    )
+    citizenship = citizenship.split("/")
+
+    height = get_element_text(
+        doc, ".//strong[contains(text(),'HEIGHT')]/following-sibling::text()[1]"
+    )
+    weight = get_element_text(
+        doc, ".//strong[contains(text(),'WEIGHT')]/following-sibling::text()[1]"
+    )
+    hair = get_element_text(
+        doc, ".//strong[contains(text(),'HAIR COLOR')]/following-sibling::text()[1]"
+    )
+    eyes = get_element_text(
+        doc, ".//strong[contains(text(),'EYE COLOR')]/following-sibling::text()[1]"
+    )
     case_summary = get_element_text(
         doc, '//h2[contains(text(), "CASE")]//following-sibling::p'
     )
@@ -74,11 +92,17 @@ def crawl_person(context: Context, url: str):
     person.id = context.make_slug(person_id)
     person.add("name", name)
     person.add("topics", "crime")
+    person.add("topics", "wanted")
     person.add("sourceUrl", url)
     person.add("alias", alias.split(","))
     person.add("birthDate", h.parse_date(date_of_birth, ["%b %d, %Y", "%B %d, %Y"]))
     person.add("summary", case_summary)
     person.add("notes", f"Relevant links: {', '.join(links)}")
     person.add("nationality", nationality)
+    person.add("citizenship", citizenship)
+    person.add("height", height)
+    person.add("weight", weight)
+    person.add("hairColor", hair)
+    person.add("eyeColor", eyes)
 
     context.emit(person, target=True)

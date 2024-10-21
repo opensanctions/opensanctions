@@ -9,6 +9,7 @@ coverage:
   start: 2024-05-24
 exports:
   - statistics.json
+  - entities.delta.json
 deploy:
   memory: "1000Mi"
   memory_limit: "2000Mi"
@@ -59,9 +60,7 @@ inputs:
 
 config:
   type: zavod.runner.local_enricher:LocalEnricher
-  api: https://api.graph.opensanctions.org/
   dataset: kz_companies
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
   fuzzy: false
   threshold: 0.7

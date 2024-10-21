@@ -12,7 +12,6 @@ from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
-from zavod.exporters.peps import PEPSummaryExporter
 from zavod.exporters.securities import SecuritiesExporter
 from zavod.exporters.statements import StatementsCSVExporter
 from zavod.exporters.delta import DeltaExporter
@@ -38,7 +37,6 @@ EXPORTERS: Dict[str, Type[Exporter]] = {
     NamesExporter.FILE_NAME: NamesExporter,
     SimpleCSVExporter.FILE_NAME: SimpleCSVExporter,
     SenzingExporter.FILE_NAME: SenzingExporter,
-    PEPSummaryExporter.FILE_NAME: PEPSummaryExporter,
     SecuritiesExporter.FILE_NAME: SecuritiesExporter,
     StatementsCSVExporter.FILE_NAME: StatementsCSVExporter,
     DeltaExporter.FILE_NAME: DeltaExporter,
@@ -90,5 +88,6 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         write_delta_index(dataset)
         write_dataset_index(dataset)
         write_catalog(dataset)
+        log.info("Exported dataset: %s" % dataset.name, dataset=dataset.name)
     finally:
         context.close()

@@ -7,30 +7,17 @@ from zavod.logic.pep import categorise
 from zavod.shed.zyte_api import fetch_html
 
 
-DATE_FORMAT = ["%B %d, %Y"]
-
-
 def bio_unblock_validator(doc: ElementTree) -> bool:
     return len(doc.xpath(".//h1[contains(@class, 'featured-content__headline')]")) > 0
 
 
 def crawl_bio_page(context: Context, url: str):
-    actions = [
-        {
-            "action": "waitForSelector",
-            "selector": {
-                "type": "xpath",
-                "value": "//h1[contains(@class, 'featured-content__headline')]",
-            },
-            "timeout": 15,
-        },
-    ]
     doc = fetch_html(
         context,
         url,
         bio_unblock_validator,
-        actions=actions,
         javascript=True,
+        geolocation="US",
         cache_days=30,
     )
     name = collapse_spaces(
@@ -93,8 +80,6 @@ def crawl_bio_page(context: Context, url: str):
     start_date, end_date = dates.split(" - ")
     if end_date == "Present":
         end_date = None
-    start_date = h.parse_date(start_date, DATE_FORMAT)[0]
-    end_date = h.parse_date(end_date, DATE_FORMAT)[0] if end_date else None
 
     occupancy = h.make_occupancy(
         context,
@@ -126,25 +111,21 @@ def index_unblock_validator(doc: ElementTree) -> bool:
 
 
 def crawl(context: Context) -> Optional[str]:
-    actions = [
-        {
-            "action": "waitForSelector",
-            "selector": {
-                "type": "xpath",
-                "value": "//a[contains(@class, 'biography-collection__link')]",
-            },
-            "timeout": 15,
-        },
-    ]
     doc = fetch_html(
         context,
         context.data_url,
         index_unblock_validator,
-        actions=actions,
+        geolocation="US",
         cache_days=1,
     )
     crawl_index_page(context, doc)
     while next_link := get_next_link(doc):
         context.log.info(f"Crawling index page {next_link}")
-        doc = fetch_html(context, next_link, index_unblock_validator, cache_days=1)
+        doc = fetch_html(
+            context,
+            next_link,
+            index_unblock_validator,
+            geolocation="US",
+            cache_days=1,
+        )
         crawl_index_page(context, doc)

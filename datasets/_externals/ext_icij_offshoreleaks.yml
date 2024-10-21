@@ -6,11 +6,11 @@ disabled: false
 hidden: false
 exports:
   - statistics.json
+  - entities.delta.json
 deploy:
   schedule: "1 12 * * *"
   memory: "1000Mi"
   memory_limit: "1500Mi"
-  # premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   start: 2022-05-23

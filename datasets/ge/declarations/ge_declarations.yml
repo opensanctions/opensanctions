@@ -1,0 +1,81 @@
+title: Georgia Public Official Asset Declarations
+entry_point: crawler.py
+prefix: ge-dec
+coverage:
+  frequency: weekly
+  start: 2024-07-25
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >-
+  Politically exposed persons from Georgia based on property declarations of public officials.
+description: |
+  The Georgian Anti-Corruption law of 2015 requires public officials to submit
+  annual declarations of their assets, as well as members of their family and their assets.
+
+  Officials making declarations here include national and sub-national members of the executive,
+  legislature and judiciary. These are included in our dataset as Politically Exposed Persons,
+  as well as their members of family. We exclude candidates who have not yet been elected.
+
+  **Note:** This crawler uses an LLM-based approach to transliterate person and company names
+  and translate position labels.
+url: https://declaration.acb.gov.ge/
+data:
+  # Don't fetch this without query parameters - it just selects everything and times out
+  url: https://declaration.acb.gov.ge/Api/Declarations
+  format: HTML
+publisher:
+  name: ანტიკორუფციული ბიურო
+  name_en: Anti-Corruption bureau of Georgia
+  acronym: ACB
+  country: ge
+  url: https://acb.gov.ge/
+  description: |
+    The Anti-Corruption Bureau determines the general policy of fighting against
+    corruption, to develop a national anti-corruption strategy and action plan and
+    to monitor the implementation of the mentioned plan. It seeks to prevent, detect and
+    prevent conflicts of interest in public institutions and develop relevant proposals
+    and recommendations.
+  official: true
+ci_test: false
+
+dates:
+  formats: ["%d.%m.%Y"]
+assertions:
+  min:
+    schema_entities:
+      Person: 13000
+    country_entities:
+      ge: 1
+  max:
+    schema_entities:
+      Person: 17000
+
+lookups:
+  type.name:
+    options:
+      - match: Former Ambassador Extraordinary and Plenipotentiary in the Embassy of Georgia to the Republic of Austria and to the Organization for Security and Co-operation in Europe, and Permanent Representative of Georgia to the International Organizations based in Vienna
+        value: Former Ambassador Extraordinary and Plenipotentiary to the Republic of Austria
+  #
+  # These are checked before adding the position name and doing the transliteration
+  #
+  positions:
+    options:
+      - match: საქართველოს გენერალური პროკურატურის სუს, სდსს, დაზვერვის სამსახურში, თავდაცვის სამინისტროსა და შსს სსდ-საქართველოს სასაზღვრო პოლიციაში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის დეპარტამენტის სუს კონტრდაზვერვის დეპარტამენტში, კონტრტერორისტულ ცენტრში, შსს სსდ-საქართველოს სასაზღვრო პოლიციაში, სდსს და დაზვერვის სამსახურში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის სამმართველოს უფროსი პროკურორი
+        value: უფროსი პროკურორი
+      - match: გენერალური პროკურატურის სუს, სდსს, დაზვერვის სამსახურში, თავდაცვის სამინისტროსა და სსდ-საქართველოს სასაზღვრო პოლიციაში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის დეპარტამენტის თავდაცვის სამინისტროში გამოძიების საპროცესო ხელმძღვანელობის სამმართველოს პროკურორი
+        value: პროკურორი
+      - match: სახელმწიფო უსაფრთხოების სამსახურის კონტრდაზვერვის დეპარტამენტში, კონტრტერორისტულ ცენტრში, შინაგან საქმეთა სამინისტროს სახელმწიფო საქვეუწყებო დაწესებულება – საქართველოს სასაზღვრო პოლიციაში, სახელმწიფო დაცვის სპეციალურ სამსახურში და დაზვერვის სამსახურში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის სამმართველოს პროკურორი
+        value: პროკურორი
+      - match: გენერალური პროკურატურის სახელმწიფო უსაფრთხოების სამსახურში, სახელმწიფო დაცვის სპეციალურ სამსახურში, დაზვერვის სამსახურში, თავდაცვის სამინისტროსა და შინაგან საქმეთა სამინისტროს სახელმწიფო საქვეუწყებო დაწესებულება - საქართველოს სასაზღვრო პოლიციაში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის დეპარტამენტის უფროსის მოადგილე
+        value: საქართველოს სასაზღვრო პოლიციაში გამოძიების საპროცესო მართვისა და ოპერატიულ-სამძებრო საქმიანობის ზედამხედველობის დეპარტამენტის უფროსის მოადგილე
+      - match: სახელმწიფო უსაფრთხოების სამსახურის კონტრდაზვერვის დეპარტამენტში, კონტრტერორისტულ ცენტრში, შინაგან საქმეთა სამინისტროს სახელმწიფო საქვეუწყებო დაწესებულება - საქართველოს სასაზღვრო პოლიციაში, სახელმწიფო დაცვის სპეციალურ სამსახურში და დაზვერვის სამსახურში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის სამმართველოს უფროსი
+        value: გამოძიების პროცესზე ზედამხედველობის დეპარტამენტის უფროსი
+      - match: სახელმწიფო რწმუნებული, საქართველოს ადმინისტრაციულ-ტერიტორიულ ერთეულებში (ბაღდათის, ვანის, ზესტაფონის, თერჯოლის, სამტრედიის, საჩხერის, ტყიბულის, წყალტუბოს, ჭიათურის, ხარაგაულის, ხონის მუნიციპალიტეტები და ქ. ქუთაისი) სახელმწიფო რწმუნებულის ადმინისტრაცია
+        value: სახელმწიფო რწმუნებული
+      - match: გენერალური პროკურატურის სახელმწიფო უსაფრთხოების სამსახურში, სახელმწიფო დაცვის სპეციალურ სამსახურში, დაზვერვის სამსახურში, თავდაცვის სამინისტროსა და შინაგან საქმეთა სამინისტროს სახელმწიფო საქვეუწყებო დაწესებულება - საქართველოს სასაზღვრო პოლიციაში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის დეპარტამენტის უფროსი
+        value: საგამოძიებო პროცესის ზედამხედველობის დეპარტამენტის უფროსი
+      - match: სახელმწიფო რწმუნებულის მოადგილე, საქართველოს ადმინისტრაციულ-ტერიტორიულ ერთეულებში (ბაღდათის, ვანის, ზესტაფონის, თერჯოლის, სამტრედიის, საჩხერის, ტყიბულის, წყალტუბოს, ჭიათურის, ხარაგაულის, ხონის მუნიციპალიტეტები და ქ. ქუთაისი) სახელმწიფო რწმუნებულის ადმინისტრაცია
+        value: სახელმწიფო კომისრის მოადგილე
+      - match: სახელმწიფო უსაფრთხოების სამსახურის კონტრდაზვერვის დეპარტამენტში, კონტრტერორისტულ ცენტრში, შინაგან საქმეთა სამინისტროს სახელმწიფო საქვეუწყებო დაწესებულება – საქართველოს სასაზღვრო პოლიციაში, სახელმწიფო დაცვის სპეციალურ სამსახურში და დაზვერვის სამსახურში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის სამმართველოს უფროსი პროკურორი
+        value: უფროსი პროკურორი
+      - match: გენერალური პროკურატურა - სახელმწიფო უსაფრთხოების სამსახურში, სახელმწიფო დაცვის სპეციალურ სამსახურში, დაზვერვის სამსახურში, თავდაცვის სამინისტროსა და შინაგან საქმეთა სამინისტროს სახელმწიფო საქვეუწყებო დაწესებულება - საქართველოს სასაზღვრო პოლიციაში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის დეპარტამენტის უფროსი
+        value: საგამოძიებო საპროცესო მართვისა და ოპერატიულ-სამძებრო საქმიანობის ზედამხედველობის დეპარტამენტის უფროსი

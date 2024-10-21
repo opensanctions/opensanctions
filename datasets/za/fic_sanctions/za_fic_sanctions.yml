@@ -2,10 +2,9 @@ title: South Africa Targeted Financial Sanctions
 entry_point: crawler.py
 prefix: zafic
 coverage:
+  schedule: "0 */6 * * *"
   frequency: daily
   start: 2022-02-06
-deploy:
-  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The South African FIC sanctions list, largely based on UN Security Council sanctions.
@@ -36,12 +35,13 @@ publisher:
   official: true
 url: "https://www.fic.gov.za/International/sanctions/SitePages/Home.aspx"
 data:
-  url: https://transfer.fic.gov.za/public/folder/XNK-dueZDUma9kOqjPWrAA/Downloads/Consolidated%20United%20Nations%20Security%20Council%20Sanctions%20List.xml
+  url: https://tfs.fic.gov.za/Pages/TFSListDownload?fileType=xml
   format: XML
 
 lookups:
   type.address:
     lowercase: true
+    normalize: true
     options:
       - match:
           - Lebanon
@@ -50,6 +50,25 @@ lookups:
           - Somalia
           - Turkey
         value: null
+      - match: 90-00-04 Flat Sri Kota, Bandar Tun Razak, 56100 Kuala Lumpur Wilayah Persekutuan Kuala Lumpur Malaysia, 96-06-06 Flat Sri Kota, Bandar Tun Razak, 56100 Kuala Lumpur Wilayah Persekutuan Kuala Lumpur Malaysia, B-3B-19 Glenview Villa, Jalan 49 Off Jalan Kuari, Taman Pinggiran Cheras, 56000 Kuala Lumpur Wilayah Persekutuan Kuala Lumpur Malaysia, Syrian Arab Republic
+        values:
+          - 90-00-04 Flat Sri Kota, Bandar Tun Razak, 56100 Kuala Lumpur Wilayah Persekutuan Kuala Lumpur Malaysia
+          - 96-06-06 Flat Sri Kota, Bandar Tun Razak, 56100 Kuala Lumpur Wilayah Persekutuan Kuala Lumpur Malaysia
+          - B-3B-19 Glenview Villa, Jalan 49 Off Jalan Kuari, Taman Pinggiran Cheras, 56000 Kuala Lumpur Wilayah Persekutuan Kuala Lumpur Malaysia
+      - match: Kayla Village, near Miram Shah, North Waziristan Agency (NWA), Federally Administered Tribal Areas (FATA) Pakistan, Near Dergey Manday Madrasa in Dergey Manday Village, near Miram Shah, North Waziristan Agency (NWA), Federally Administered Tribal Areas (FATA) Pakistan, Peshawar Pakistan, Sarana Zadran Village Paktia Province Afghanistan
+        values:
+          - Kayla Village, near Miram Shah, North Waziristan Agency (NWA), Federally Administered Tribal Areas (FATA) Pakistan
+          - Near Dergey Manday Madrasa in Dergey Manday Village, near Miram Shah, North Waziristan Agency (NWA), Federally Administered Tribal Areas (FATA) Pakistan
+          - Sarana Zadran Village Paktia Province Afghanistan
+      - match: "Basse-Kotto Central African Republic, Bas-Uolo Democratic Republic of the Congo, Haute-Kotto Central African Republic, Haut-Mbomou Central African Republic, Haut-Uolo Democratic Republic of the Congo, Mbomou Central African Republic, Reported address: Kafia Kingi, Vakaga Central African Republic"
+        values:
+          - Basse-Kotto Central African Republic
+          - Bas-Uolo Democratic Republic of the Congo
+          - Haute-Kotto Central African Republic
+          - Haut-Mbomou Central African Republic
+          - Haut-Uolo Democratic Republic of the Congo
+          - Mbomou Central African Republic
+          - Kafia Kingi, Vakaga Central African Republic
   type.country:
     lowercase: true
     normalize: true
@@ -74,3 +93,7 @@ lookups:
         value: Ethiopia
       - match: Indonesia (as at Dec. 2003)
         value: Indonesia
+  type.identifier:
+    options:
+      - match: Central African Republic armed forces (FACA) Military identification number 911-10-77
+        value: FACA 911-10-77

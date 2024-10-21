@@ -1,4 +1,5 @@
 from typing import Optional
+from urllib.parse import urljoin
 from normality import slugify, collapse_spaces
 import re
 from lxml import html
@@ -12,7 +13,6 @@ DATA_URL = (
     "https://www.cia.gov/the-world-factbook/page-data/countries/%s/page-data.json"
 )
 
-DATES = ["%d %B %Y"]
 
 REGEX_SKIP_CATEGORY_HTML = re.compile(
     "("
@@ -22,12 +22,13 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
     "|<strong>note [1-6]:</strong>"
     "|<strong>note </strong>-"
     "|<strong>note:</strong>"
+    "|<strong>note 1: </strong>"
     "|<em>2013:</em>"  # Georgia
     "|note:.+"  # Afghanistan
     "|note [1-6]:.+"  # Afghanistan
     ")"
 )
-REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
+REGEX_RELEVANT_CATEGORY = re.compile(r"^(chief of state|head of government): ")
 REGEX_HOLDER = re.compile(
     (
         "((New Zealand is )?represented by )?"
@@ -125,8 +126,6 @@ def emit_person(
     person.add("sourceUrl", source_url)
 
     position_topics = ["gov.national", "gov.head"]
-    start_date = h.parse_date(start_date, DATES, None)
-    end_date = h.parse_date(end_date, DATES, None)
     position = h.make_position(
         context,
         role,
@@ -140,8 +139,8 @@ def emit_person(
             context,
             person,
             position,
-            start_date=start_date[0] if start_date else None,
-            end_date=end_date[0] if end_date else None,
+            start_date=start_date,
+            end_date=end_date,
             status=OccupancyStatus.CURRENT,
             categorisation=categorisation,
         )
@@ -181,7 +180,7 @@ def crawl_country(context: Context, country: str) -> None:
         label_els = category_els.findall("./strong")
         if len(label_els) != 1:
             context.log.warning(
-                "Error parsing label", html=category_html, url=source_url
+                "Error parsing label.", html=category_html, url=source_url
             )
             continue
         label_text = label_els[0].text_content()
@@ -229,8 +228,16 @@ def crawl_country(context: Context, country: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    data = context.fetch_json(context.data_url, cache_days=1)
-    countries = data["data"]["countries"]["nodes"]
+    page_data = context.fetch_json(context.data_url, cache_days=1)
+    countries = None
+    for hash in page_data["staticQueryHashes"]:
+        url = urljoin(
+            context.data_url, f"/the-world-factbook/page-data/sq/d/{hash}.json"
+        )
+        data = context.fetch_json(url, cache_days=1)["data"]
+        if "countries" in data:
+            countries = data["countries"]["nodes"]
+            break
     for c in countries:
         redirect = c["redirect"]
         name = c["name"] if redirect is None else redirect["name"]

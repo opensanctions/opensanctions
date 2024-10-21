@@ -1,10 +1,30 @@
 import re
-from typing import Iterable, Set, Optional, List
+from functools import lru_cache
 from prefixdate import parse_formats
+from datetime import datetime, date, timezone
+from typing import Union, Iterable, Set, Optional, List
+from followthemoney.types import registry
 
+from zavod.logs import get_logger
+from zavod.entity import Entity
+from zavod.meta.dataset import Dataset
+
+log = get_logger(__name__)
 NUMBERS = re.compile(r"\d+")
+# We always want to accept ISO prefix dates.
+ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
+DateValue = Union[str, date, datetime, None]
 
-__all__ = ["parse_date", "check_no_year", "parse_formats", "extract_years"]
+__all__ = [
+    "parse_date",
+    "extract_date",
+    "check_no_year",
+    "parse_formats",
+    "extract_years",
+    "apply_date",
+    "apply_dates",
+    "replace_months",
+]
 
 
 def extract_years(text: str) -> List[str]:
@@ -53,3 +73,85 @@ def parse_date(
     if len(years):
         return years
     return [default or text]
+
+
+def replace_months(dataset: Dataset, text: str) -> str:
+    """Re-write month names to the latin form to get a date string ready for parsing.
+
+    Args:
+        dataset: The dataset which contains a date format specification.
+        text: The string inside of which month names will be replaced.
+
+    Returns:
+        A string in which month names are normalized.
+    """
+    spec = dataset.dates
+    if spec.months_re is None:
+        return text
+    return spec.months_re.sub(lambda m: spec.mappings[m.group().lower()], text)
+
+
+@lru_cache(maxsize=5000)
+def extract_date(dataset: Dataset, text: DateValue) -> List[str]:
+    """
+    Extract a date from the provided text using predefined `formats` in the metadata.
+    If the text doesn't match any format, returns the original text.
+    """
+    if text is None:
+        return []
+    if isinstance(text, date):
+        return [text.isoformat()]
+    elif isinstance(text, datetime):
+        if text.tzinfo is not None:
+            text = text.astimezone(timezone.utc)
+        iso = text.date().isoformat()
+        return [iso]
+
+    replaced_text = replace_months(dataset, text)
+    formats = dataset.dates.formats + ALWAYS_FORMATS
+    parsed = parse_formats(replaced_text, formats)
+    if parsed.text is not None:
+        return [parsed.text]
+    if dataset.dates.year_only:
+        years = extract_years(text)
+        if len(years):
+            return years
+    return [text]
+
+
+def apply_date(entity: Entity, prop: str, text: DateValue) -> None:
+    """Apply a date value to an entity, parsing it if necessary and cleaning it up.
+
+    Uses the `dates` configuration of the dataset to parse the date.
+
+    Args:
+        entity: The entity to which the date will be applied.
+        prop: The property to which the date will be applied.
+        text: The date value to be applied.
+    """
+    prop_ = entity.schema.get(prop)
+    if prop_ is None or prop_.type != registry.date:
+        log.warning("Property is not a date: %s" % prop)
+        return
+
+    if text is None:
+        return None
+    if isinstance(text, datetime) or isinstance(text, date):
+        original = str(text)
+    else:
+        original = text
+
+    dates = extract_date(entity.dataset, text)
+    return entity.add(prop_, dates, original_value=original)
+
+
+def apply_dates(entity: Entity, prop: str, texts: Iterable[DateValue]) -> None:
+    """Apply a list of date values to an entity, parsing them if necessary and cleaning them up.
+
+    Args:
+        entity: The entity to which the date will be applied.
+        prop: The property to which the date will be applied.
+        texts: The iterable of date values to be applied.
+    """
+    for text in texts:
+        apply_date(entity, prop, text)

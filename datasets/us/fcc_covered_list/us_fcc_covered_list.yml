@@ -4,7 +4,8 @@ prefix: us-fcc-cov
 coverage:
   frequency: never
   start: "2021-04-22"
-  end: "2024-04-22"
+deploy:
+  schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of companies that produce equipment and services covered
@@ -50,3 +51,5 @@ data:
   url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCtBj1fAWXKlV5yhN38V66umTej12IlkQGzXGWC5LR7RCEPHlLMaBwqWpey6oHkShbyYYgRGm_0AbO/pub?output=csv"
   format: CSV
   lang: eng
+dates:
+  formats: "%B %d, %Y"

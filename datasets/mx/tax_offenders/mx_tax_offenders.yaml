@@ -1,0 +1,137 @@
+title: Mexico Tax Offenders
+entry_point: crawler.py
+prefix: mx-taxo
+disabled: true
+hidden: true
+coverage:
+  frequency: weekly
+  start: 2024-09-05
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Entities that are considered tax offenders according to Article 69 of the Federal Tax Code
+description: |
+  The Tax Administration Service publishs information about individuals and entities identified
+  as tax offenders under Article 69 of the Federal Tax Code in Mexico. This dataset includes
+  details such as names, tax identification numbers, and the nature of the offenses.
+
+publisher:
+  name: Servicio de Administración Tributaria
+  acronym: SAT
+  name_en: Tax Administration Service
+  description: |
+    > The SAT is responsible for collecting taxes, as well as applying fiscal and customs law,
+    > with the purpose of funding public spending in a proportional and equitable manner.
+    > Additionally, it is the bureau's responsibility to generate and collect information
+    > necessary for the formation and evaluation of fiscal policy.
+  url: https://www.sat.gob.mx/home
+  official: true
+  country: "mx"
+url: "http://omawww.sat.gob.mx/cifras_sat/Paginas/datos/vinculo.html?page=ListCompleta69.html"
+data:
+  url: http://omawww.sat.gob.mx/cifras_sat/Paginas/datos/ListCompleta69.html
+  format: HTML
+dates:
+  formats: ["%d/%m/%Y", "%Y"]
+
+# 23006 cancelados 07 15
+# 357802 firmes
+# 167421 cancelados
+# 10216 Condonados 07 15
+# 17 Condonados art 146
+# 4 condonados art 21
+# 7 condonados por decreto
+# 5593 Exigibles
+# 53181 no localizados
+# 106681
+# 74 retorno invest
+# 563
+# 724565 total
+#
+# But some have multiple entries across one or more files
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 160000
+      Person: 370000
+  max:
+    schema_entities:
+      LegalEntity: 180000
+      Person: 450000
+
+lookups:
+  columns:
+    options:
+      - match:
+          - RAZÓN SOCIAL
+          - NOMBRE, DENOMINACIÓN O RAZÓN SOCIAL
+          - Contribuyente
+        value: name
+      - match:
+          - TIPO PERSONA
+          - TIPO DE PERSONA
+          - Tipo de persona
+          - Tipo persona
+        value: person_type
+      - match:
+          - SUPUESTO
+          - " Motivo de condonación "
+          - "Motivo"
+        value: reason
+      - match:
+          - " Importe pesos "
+          - "MONTO "
+          - "MONTO"
+          - " MONTO "
+          - " Importe condonado "
+        value: value
+      - match:
+          - "FECHA DE CANCELACIÓN"
+          - "FECHA DE AUTORIZACIÓN"
+          - "FECHAS DE PRIMERA PUBLICACION"
+          - "Año"
+        value: start_date
+      - match:
+          - "ENTIDAD FEDERATIVA"
+          - "Entidad Federativa"
+        value: authority
+      - match:
+          - "Fecha de publicación (Con monto de acuerdo a la Ley de Transparencia"
+          - "FECHA DE PUBLICACIÓN"
+        value: listing_date
+  person_type:
+    options:
+      - match:
+          - F
+          - Persona F¡sica
+          - Persona fisica
+        value: Person
+      - match:
+          - M
+          - Persona Moral
+          - Persona moral
+        value: LegalEntity
+  type.address:
+    lowercase: true
+    normalize: true
+    options:
+      - match: >
+          Hemiciclo Piso 4 Oficina 22,<br> 
+          Col. Tabacalera, Alcaldía Cuauhtémoc,<br> 
+          Ciudad de México, C. P. 06030.<br> 
+          Tel.: 5345 3000 ext.: 3813,5216<br><br> 
+          Casa enlace<br> 
+          Calle 23 de agosto #209<br> 
+          Col. Jesús García, Villahermosa, Tabasco<br> 
+          Tel.: 993 365 7625
+        values:
+          - "Hemiciclo Piso 4 Oficina 22, Col. Tabacalera, Alcaldía Cuauhtémoc, Ciudad de México, C. P. 06030."
+          - "Casa enlace Calle 23 de agosto #209 Col. Jesús García, Villahermosa, Tabasco"
+  type.name:
+    options:
+      - match: SINDICATO DE TRABAJADORES DE SERVICIO DE TUBEROS PLOMEROS MECANICOS ELECTRICOS SOLDADORES PAILEROS ALBAÑILES PERFORADORES EDIF INST DE RECREACION AREAS DEPORTIVAS BODEGAS DESBASTADO EN GRAL SIMILARES Y CONEXOS DEL ESTADO DE TABASCO SIN TIPO DE SOCIEDAD
+        value: SINDICATO DE TRABAJADORES DE SERVICIO DE TUBEROS PLOMEROS MECANICOS ELECTRICOS SOLDADORES PAILEROS ALBAÑILES PERFORADORES EDIF INST DE RECREACION AREAS DEPORTIVAS BODEGAS DESBASTADO EN GRAL SIMILARES Y CONEXOS DEL ESTADO DE TABASCO
+      - match: ORGANISMO OPERADOR MUNICIPAL DE AGUA POTABLE ALCANTARILLADO Y SANEAMIENTO DE BAHIA DE BANDERAS, NAYARIT CONSEJO DE AGUA POTABLE, ALCANTARILLADO Y SANEAMIENTO DE LA LOCALIDAD DE SAN JUAN DE ABAJO, MUNICIPIO DE BAHIA DE BANDERAS, NAYARIT SIN TIPO DE SOCIEDAD
+        value: ORGANISMO OPERADOR MUNICIPAL DE AGUA POTABLE ALCANTARILLADO Y SANEAMIENTO DE BAHIA DE BANDERAS, NAYARIT CONSEJO DE AGUA POTABLE, ALCANTARILLADO Y SANEAMIENTO DE LA LOCALIDAD DE SAN JUAN DE ABAJO, MUNICIPIO DE BAHIA DE BANDERAS, NAYARIT
+      - match: SECCION NO 101 SINDICATO NACIONAL DE ALIJADORES EMPLEADOS EN AGENCIAS ADUANALES MARINOS EN LA ESPECIALIDAD DE TRIPULANTES EN EMBARCACIONES Y ARTEFACTOS NAVALES TRABAJADORES EN MANIOBRAS DE CARGADURIA EN GENERAL OPERADORES DE SISTEMAS AUTOMATIZADOS GRUAS
+        value: SECC 101 SINDICATO NACIONAL DE ALIJADORES EMPLEADOS EN AGENCIAS ADUANALES MARINOS EN LA ESPECIALIDAD DE TRIPULANTES EN EMBARCACIONES Y ARTEFACTOS NAVALES TRABAJADORES EN MANIOBRAS DE CARGADURIA EN GENERAL OPERADORES DE SISTEMAS AUTOMATIZADOS GRUAS

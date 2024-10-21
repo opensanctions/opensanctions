@@ -42,7 +42,7 @@ def make_legal_entity(context: Context, designation: ElementOrTree, entity: Enti
             entity.add("email", email.strip())
     # Add addresses
     for address in designation.iterfind(".//Addresses//Address"):
-        # context.inspect(address)
+        postcode, pobox = h.postcode_pobox(address.findtext("./AddressPostalCode"))
         addr = h.make_address(
             context,
             street=address.findtext("./AddressLine1"),
@@ -51,7 +51,8 @@ def make_legal_entity(context: Context, designation: ElementOrTree, entity: Enti
             place=address.findtext("./AddressLine4"),
             region=address.findtext("./AddressLine5"),
             city=address.findtext("./AddressLine6"),
-            postal_code=address.findtext("./AddressPostalCode"),
+            postal_code=postcode,
+            po_box=pobox,
             country=address.findtext("./AddressCountry"),
         )
         h.copy_address(entity, addr)

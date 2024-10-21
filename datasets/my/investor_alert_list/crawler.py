@@ -5,7 +5,6 @@ from zavod import Context
 
 
 def crawl_item(input_dict: dict, context: Context):
-
     name = input_dict.pop("name")
 
     # If it's a potential clone, we remove the "potential clone" from the name
@@ -20,6 +19,7 @@ def crawl_item(input_dict: dict, context: Context):
     entity.add("address", addresses)
     entity.add("notes", input_dict.pop("remark").split("\n"))
     entity.add("topics", "crime.fin")
+    entity.add("sourceUrl", input_dict.pop("url"))
     if potential_clone:
         entity.add("description", "Potential clone entity")
 
@@ -33,7 +33,6 @@ def crawl_item(input_dict: dict, context: Context):
 
 
 def crawl(context: Context):
-
     response = context.fetch_html(context.data_url)
 
     # We first try to find the script with the data

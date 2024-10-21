@@ -16,6 +16,7 @@ children:
   - ext_eu_esma_firds
   - ext_gb_coh_psc
   - ext_gleif
+  - ext_ror
   - ext_icij_offshoreleaks
   - ext_lv_business_register
   - ext_kz_companies

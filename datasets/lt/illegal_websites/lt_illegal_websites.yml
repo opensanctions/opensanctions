@@ -1,10 +1,9 @@
 title: Lithuania Illegal Financial Services
 entry_point: crawler.py
-prefix: lt-illegal-websites
+prefix: lt-web
 coverage:
   start: 2024-03-06
-  end: 2024-03-06
-  frequency: never
+  frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of websites that are offering illegal financial services in Lithuania
@@ -26,3 +25,12 @@ url: https://www.lb.lt/illegalwww
 data:
   url: https://www.lb.lt/illegalwww?export=csv
   format: CSV
+ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 50
+  max:
+    schema_entities:
+      Organization: 200

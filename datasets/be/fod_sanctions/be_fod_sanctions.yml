@@ -46,6 +46,10 @@ lookups:
         value: Person
       - match: enterprise
         value: Organization
+  schema_override:
+    options:
+      - match: eu-fsf-eu-11935-5
+        value: Organization
   contact_info:
     options:
       - match: PHONE
@@ -139,3 +143,9 @@ lookups:
         value: male
       - match: F
         value: female
+  type.string: 
+    lowercase: true
+    normalize: true
+    options:
+      - match: PO Box 1406 - 60455
+        value: 60455

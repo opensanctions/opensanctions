@@ -9,27 +9,22 @@ from zavod import helpers as h
 
 ORG_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx"
 PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel%20designation%20Individuals_XL.xlsx"
-FORMATS = ["%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d"]
 NA_VALUE = re.compile(r"^[\-\/]+$")
 END_TAG = re.compile(r"בוטל ביום", re.U)
+SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n"]
+DATE_SPLITS = ["OR", ";", " - ", "a) ", "b) ", "c) "]
 
 
-def parse_date(date):
-    dates = []
-    for part in h.multi_split(date, ["OR", ";", " - "]):
-        dates.extend(h.parse_date(part, FORMATS))
-    return dates
-
-
-def parse_interval(entity, date):
+def parse_interval(sanction, date):
     if date is None:
         return
     date = date.strip()
     if "בוטל ביום" in date:
         date, _ = date.rsplit(" ", 1)
-        entity.add("endDate", parse_date(date))
+        h.apply_date(sanction, "endDate", _)
     else:
-        entity.add("startDate", parse_date(date))
+        for part in h.multi_split(date, DATE_SPLITS):
+            h.apply_date(sanction, "startDate", part)
 
 
 def lang_pick(record, field):
@@ -93,9 +88,12 @@ def crawl_individuals(context: Context):
         entity.add("name", name_he, lang="heb")
         entity.add("name", name_ar, lang="ara")
         entity.add("topics", "crime.terror")
-        entity.add("birthDate", parse_date(record.pop("d_o_b", None)))
+        for part in h.multi_split(record.pop("d_o_b", None), DATE_SPLITS):
+            h.apply_date(entity, "birthDate", part)
         entity.add("nationality", record.pop("nationality_residency", None))
-        entity.add("idNumber", record.pop("individual_id", None))
+        id_number = record.pop("individual_id", "")
+        id_number = id_number.replace(":\n", ": ")
+        entity.add("idNumber", h.multi_split(id_number, SPLITS))
 
         sanction = h.make_sanction(context, entity)
         sanction.add("recordId", seq_id)
@@ -142,11 +140,11 @@ def crawl_organizations(context: Context):
         entity.add("registrationNumber", record.pop("corporation_id", None))
         entity.add("legalForm", lang_pick(record, "corporation_type"))
         entity.add("jurisdiction", lang_pick(record, "location_of_formation"))
-        date = parse_date(record.pop("date_of_corporation", None))
-        entity.add("incorporationDate", date)
+        for part in h.multi_split(record.pop("date_of_corporation", None), DATE_SPLITS):
+            h.apply_date(entity, "incorporationDate", part)
         for field in list(record.keys()):
             if field.startswith("organization_name_"):
-                entity.add("alias", record.pop(field, None))
+                entity.add("alias", h.multi_split(record.pop(field, None), SPLITS))
             if field.startswith("telephone"):
                 entity.add("phone", record.pop(field, None))
             if field.startswith("website"):

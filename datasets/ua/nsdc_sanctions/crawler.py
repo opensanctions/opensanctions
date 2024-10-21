@@ -1,6 +1,8 @@
 import os
 from urllib.parse import urljoin
 from typing import Dict, Any, List, Optional
+import re
+from followthemoney.types import registry
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -9,6 +11,9 @@ PASSWORD = os.environ.get("OPENSANCTIONS_NSDC_PASSWORD")
 API_KEY = os.environ.get("OPENSANCTIONS_NSDC_API_KEY")
 CODES = {"DN": "UA-DPR", "LN": "UA-LPR"}
 CACHE_LONG = 7
+# They seem to mix up ukr, ukr, rus and ukr, rus, ukr so not assuming
+REGEX_NAME_3_PARTS = re.compile(r"^([^\(]+)\(([^,]+),([^,]+)\)$")
+REGEX_ADDR_2_PARTS = re.compile(r"^([^\(]{75,})\((.{75,})\)$")
 
 
 def fetch_data(
@@ -20,20 +25,45 @@ def fetch_data(
     return context.fetch_json(url, headers=headers, cache_days=cache_days)
 
 
+def clean_address(value: str) -> List[str]:
+    if match := REGEX_ADDR_2_PARTS.match(value):
+        return match.groups()
+    return value
+
+
+def note_long_identifier(entity: Entity, value: str) -> None:
+    if len(value) > registry.identifier.max_length:
+        entity.add("notes", value, lang="ukr")
+
+
 def crawl_common(
     context: Context, subject_id: str, entity: Entity, item: Dict[str, Any]
 ) -> None:
+    name = item.pop("name")
+    if match := REGEX_NAME_3_PARTS.match(name):
+        entity.add("name", match.groups())
+    else:
+        entity.add("name", name, lang="ukr")
+
+    name_translit = item.pop("translit")
+    if match := REGEX_NAME_3_PARTS.match(name_translit):
+        entity.add("name", match.groups())
+    else:
+        entity.add("name", name_translit, lang="eng")
+
     identifiers = item.pop("identifiers") or []
     for ident in identifiers:
         ident_id = ident.pop("id")
         ident_value = ident.pop("code")
         if ident_id == "tax:inn":
-            entity.add("innCode", ident_value)
+            entity.add("innCode", ident_value.split(";"))
         elif ident_id in ("reg:odrn", "reg:odrnip"):
             entity.add("ogrnCode", ident_value)
         elif ident_id == "reg:okpo":
+            note_long_identifier(entity, ident_value)
             entity.add("okpoCode", ident_value)
         elif ident_id in ("reg:person_ro", "reg:person_il"):
+            note_long_identifier(entity, ident_value)
             entity.add("idNumber", ident_value)
         elif ident_id in (
             "reg:edrpou",
@@ -43,6 +73,10 @@ def crawl_common(
             "reg:nl",
             "reg:cy",
             "reg:sy",
+            "reg:cz_person",
+            "reg:ch",
+            "reg:nin",
+            "reg:cn",
             None,
         ):
             entity.add("registrationNumber", ident_value)
@@ -63,6 +97,18 @@ def crawl_common(
             )
             if doc is not None:
                 context.emit(doc)
+        elif ident_id in ("doc:residence"):
+            doc = h.make_identification(
+                context,
+                entity,
+                doc_type=ident_id,
+                number=ident_value,
+                country=ident.get("iso2"),
+                summary=ident.get("note"),
+                passport=False,
+            )
+            if doc is not None:
+                context.emit(doc)
         else:
             context.log.warn("Unknown identifier type", id=ident_id, value=ident_value)
 
@@ -75,6 +121,8 @@ def crawl_common(
 
         if result is not None:
             if result.prop is not None:
+                if result.prop == "address":
+                    value = clean_address(value)
                 entity.add(result.prop, value, lang="ukr")
         elif key in ("КПП",):
             if entity.schema.is_a("Organization"):
@@ -118,12 +166,8 @@ def crawl_common(
 
 def crawl_indiviudal(context: Context, item: Dict[str, Any]) -> None:
     subject_id = item.pop("sid")
-
-    name = item.pop("name")
     entity = context.make("Person")
-    entity.id = context.make_slug(subject_id, name)
-    entity.add("name", name, lang="ukr")
-    entity.add("name", item.pop("translit"), lang="eng")
+    entity.id = context.make_slug(subject_id, item.get("name"))
     entity.add("alias", item.pop("aliases"))
     entity.add("nationality", item.pop("citizenships"))
     entity.add("birthDate", item.pop("bd"))
@@ -133,11 +177,8 @@ def crawl_indiviudal(context: Context, item: Dict[str, Any]) -> None:
 
 def crawl_legal(context: Context, item: Dict[str, Any]) -> None:
     subject_id = item.pop("sid")
-    name = item.pop("name")
     entity = context.make("Organization")
-    entity.id = context.make_slug(subject_id, name)
-    entity.add("name", name, lang="ukr")
-    entity.add("name", item.pop("translit"), lang="eng")
+    entity.id = context.make_slug(subject_id, item.get("name"))
     entity.add("alias", item.pop("aliases"))
     entity.add("jurisdiction", item.pop("citizenships"))
     entity.add("incorporationDate", item.pop("bd"))
@@ -148,6 +189,5 @@ def crawl_legal(context: Context, item: Dict[str, Any]) -> None:
 def crawl(context: Context) -> None:
     for item in fetch_data(context, "/v2/subjects?subjectType=individual"):
         crawl_indiviudal(context, item)
-
     for item in fetch_data(context, "/v2/subjects?subjectType=legal"):
         crawl_legal(context, item)

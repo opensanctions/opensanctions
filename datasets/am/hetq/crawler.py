@@ -40,16 +40,22 @@ MONTHS = [
     "նոյեմբեր",
     "դեկտեմբեր",
 ]
-DATE_FORMATS = [
-    "%B %d %Y",
-    "%Y-%m-%d",
-]
 HY_BIRTHDATE = re.compile(
     r"ծնվել է (\d+)\s*(?:թվականին|թվականի|թ.)(?:,?\s+(\S+)\s+(\d+)\s*[–-]\s*ին)?", re.I
 )
 EN_BIRTH = re.compile(
     r"born\s+(?:on\s+)?(\S+)\s+(\d+)\s*(?:,|in)\s*(\d+)(?:\s*in\s+([^\.]+))?", re.I
 )
+
+
+def fix_trans_spill(text: str) -> str:
+    """
+    Drop remaining text when encountering apparent spillage of some automatic
+    translation tool response that looks a bit like
+
+        ... Translations of prosecutor NounFrequency մեղադրող ...
+    """
+    return text.split("Translations of")[0].strip()
 
 
 def get_birth_info(
@@ -98,8 +104,9 @@ def crawl_person(
     """Create person and position/occupancy if applicable."""
     birth_date, birth_place = get_birth_info(context, zipfh, person_id)
     name_en = data.get("name_en", "").strip()
+    name_en = context.lookup_value("normalize_name", name_en, name_en)
     name_hy = data.get("name_hy", "").strip()
-    if name_en == "" and name_hy == "":
+    if h.is_empty(name_en) and h.is_empty(name_hy):
         context.log.warning(f"Skipping person {person_id} with no name")
         return None
     person = context.make("Person")
@@ -110,10 +117,11 @@ def crawl_person(
     if name_hy:
         person.add("name", name_hy, lang="hy")
     if birth_date is not None:
-        person.add("birthDate", h.parse_date(birth_date, DATE_FORMATS))
+        h.apply_date(person, "birthDate", birth_date)
     if birth_place is not None:
         person.add("birthPlace", birth_place)
     position_name = data.get("position_en", "").strip()
+    position_name = fix_trans_spill(position_name)
     position_lang = "en"
     # Often position is only in Armenian
     if position_name == "":
