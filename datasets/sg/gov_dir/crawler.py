@@ -82,7 +82,12 @@ def crawl(context: Context):
                             )
                             if any(
                                 keyword in position.lower()
-                                for keyword in ["pa to", "assistant", "secretary to", "please contact"]
+                                for keyword in [
+                                    "pa to",
+                                    "assistant",
+                                    "secretary to",
+                                    "please contact",
+                                ]
                             ):
                                 continue
                             full_name = (
@@ -96,10 +101,13 @@ def crawl(context: Context):
                                 .strip()
                             )
                             # phone numbers are also available
-                            is_ministry = data_url == "https://www.sgdi.gov.sg/ministries"
+                            is_ministry = (
+                                data_url == "https://www.sgdi.gov.sg/ministries"
+                            )
                             is_board_member = (
                                 data_url == "https://www.sgdi.gov.sg/statutory-boards"
-                                and section_name.lower() in {"board members", "council members"}
+                                and section_name.lower()
+                                in {"board members", "council members"}
                             )
                             if is_ministry:
                                 position = f"{position} of the {ministry}"
@@ -107,7 +115,7 @@ def crawl(context: Context):
                                 position = f"{position} of the Board of the {agency}"
                             else:
                                 position = f"{position} of the {agency}"
-                            
+
                             position = re.sub(
                                 "Board Member of the Board of",
                                 "Member of the Board of",
@@ -141,9 +149,7 @@ def crawl(context: Context):
                                 # topics=["gov.executive", "gov.national"],
                             )
 
-                            categorisation = categorise(
-                                context, position, is_pep=True
-                            )
+                            categorisation = categorise(context, position, is_pep=True)
                             if categorisation.is_pep:
                                 occupancy = h.make_occupancy(context, person, position)
                                 if occupancy:
