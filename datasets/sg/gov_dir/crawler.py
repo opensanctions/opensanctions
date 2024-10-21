@@ -5,7 +5,9 @@ from zavod.logic.pep import categorise
 from zavod.shed.zyte_api import fetch_html
 
 
-TITLE_REGEX = re.compile(r"^(Mr|Ms|Miss|Mrs|Prof|Dr|Professor|Er. Dr.|Dr.|A/Prof|Clinical A/Prof|Adj A/Prof|Assoc Prof \(Ms\)|Er. Prof.| Er Prof)\.? (?P<name>.+)$")
+TITLE_REGEX = re.compile(
+    r"^(Mr|Ms|Miss|Mrs|Prof|Dr|Professor|Er. Dr.|Dr.|A/Prof|Clinical A/Prof|Adj A/Prof|Assoc Prof \(Ms\)|Er. Prof.| Er Prof)\.? (?P<name>.+)$"
+)
 
 
 def unblock_validator(doc) -> bool:
@@ -36,7 +38,7 @@ def crawl(context: Context):
         boards_dict[org_name] = link
 
     for org_name, link in boards_dict.items():
-        #print(f"Fetching data for {org_name}: {link}")
+        # print(f"Fetching data for {org_name}: {link}")
 
         if link is not None:
             board_doc = fetch_html(
@@ -56,7 +58,7 @@ def crawl(context: Context):
             # Get the text content and split it by newline
             org_name = org_name_elem.text_content()
             org_parts = org_name.split("\n")
-            ministry = org_parts[0].strip() if len(org_parts) > 0 else ""
+            # ministry = org_parts[0].strip() if len(org_parts) > 0 else ""
             agency = org_parts[1].strip() if len(org_parts) > 1 else ""
 
             section_headers = board_doc.findall(".//div[@class='section-header']")
@@ -64,7 +66,7 @@ def crawl(context: Context):
             # Iterate through sections and their officials
             for section in section_headers:
                 section_name = section.text_content().strip()
-                #print(f"Section header: {section_name}")
+                # print(f"Section header: {section_name}")
 
                 # Identify positions related to the current section
                 section_body = section.getnext()
@@ -97,18 +99,21 @@ def crawl(context: Context):
                             section_name.lower() == "board members"
                             or section_name.lower() == "council members"
                         ):
-                            position = (
-                                f"{position} of the Board of {agency}"
-                            )
+                            position = f"{position} of the Board of {agency}"
                         else:
                             position = f"{position} of {agency}"
-
-                        #print(f"Formatted Position: {position}")
+                        position = re.sub(
+                            "Board Member of the Board of",
+                            "Member of the Board of",
+                            position,
+                            re.I,
+                        )
+                        # print(f"Formatted Position: {position}")
                         match = TITLE_REGEX.match(full_name)
                         if match:
                             full_name = match.group("name")
                             title = match.group(1)
-                        
+
                         person = context.make("Person")
                         person.id = context.make_id(full_name, position)
                         person.add("name", full_name)
