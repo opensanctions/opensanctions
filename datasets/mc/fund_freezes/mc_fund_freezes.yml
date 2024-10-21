@@ -29,7 +29,70 @@ url: https://geldefonds.gouv.mc/
 data:
   url: https://geldefonds.gouv.mc/directdownload/sanctions.json
   format: JSON
+  lang: fra
+dates:
+  formats:
+    - "%d/%m/%Y"
+    - "%d/%m/%Y,"
+    - "vers %Y"
+    - "vers %Y,"
+    - "entre %Y"
+    - "entre %Y,"
+    - "et %Y"
+    - "approximativement %Y"
 lookups:
+  schemata:
+    options:
+      - match: Personne physique
+        value: Person
+      - match: Personne morale
+        value: Organization
+      - match: Navire
+        value: Vessel
+  type.date:
+    options:
+      - match: 24/06/1402 (calendrier hégirien)
+        value: 1982-06-24
+      - match: (Gamel Mohamed) 25/05/1966,
+        value: 1966-05-25
+      - match: "08/1961,"
+        value: 1961-08
+      - match: Entre août et septembre 1977,
+        value: 1977
+      - match: au milieu des années 1940, probablement 1947 1947
+        value: 1947
+      - match: Othman Ahmed Othman Al Omairah 1973
+        value: 1973
+      - match: Peut-être 21/04/1964
+        value: "1964-04-21"
+      - match: calendrier hégirien iranien 1340,
+        value: 1961
+      - match: calendrier grégorien 1961
+        value: 1961
+      - match: calendrier hégirien iranien 1343,
+        value: 1965
+      - match: calendrier grégorien 1965
+        value: 1965
+      - match: "Date de naissance possible: 27/12/1977"
+        value: 1977-12-27
+      - match: (Abid Hammadou) 12/12/1965
+        value: 1965-12-12
+      - match: vers le 03/04/1973
+        value: 1973-04-03
+      - match: (Abd el Wanis Abd Gawwad Abd el Latif Bahaa) 09/05/1986
+        value: 1986-05-09
+      - match: 01/10/1983 15/03/1983 01/01/1980
+        value: 1983
+      - match: Entre 1957 et 1962 1962
+        value: 1962
+      - match: mars/avril 1965
+        value: 1965
+      - match:
+          - Entre le 01/01/1961 et le 31/12/1963,
+          - Entre le 01/01/1961 et le 31/12/1963
+          - au milieu des années 1940 1940,
+          - entre 1975 et 1979
+        value: null
   type.country:
     lowercase: true
     normalize: true
