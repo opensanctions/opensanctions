@@ -62,7 +62,7 @@ def crawl_row(
         person,
         position,
         no_end_implies_current=True,
-        start_date=h.extract_date(context.dataset, start_date)[0],
+        start_date=start_date,
         categorisation=categorisation,
     )
     if occupancy is not None:

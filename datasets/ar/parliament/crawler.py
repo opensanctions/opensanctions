@@ -39,10 +39,12 @@ def crawl(context: Context):
         link = name_el.xpath(".//a/@href")
 
         name = str_row.pop("diputado")
-        if name == "DIPUTADO PENDIENTE DE INCORPORACIÓN":
+        if "diputado pendiente de incorporación" in name.lower():
             continue
+
         start_date = h.extract_date(context.dataset, str_row.pop("inicia_mandato"))[0]
         end_date = h.extract_date(context.dataset, str_row.pop("finaliza_mandato"))[0]
+
         # Create and emit the person entity
         person = context.make("Person")
         person.id = context.make_id(name)
@@ -73,8 +75,8 @@ def crawl(context: Context):
             person,
             position,
             False,
-            start_date=start_date,
-            end_date=end_date,
+            start_date=str_row.pop("inicia_mandato"),
+            end_date=str_row.pop("finaliza_mandato"),
             categorisation=categorisation,
         )
         if occupancy:

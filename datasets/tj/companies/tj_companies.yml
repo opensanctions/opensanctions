@@ -11,6 +11,8 @@ exports:
   - entities.ftm.json
 deploy:
   premium: true
+  disk: 50Gi
+  memory: 2Gi
 resolve: false
 ci_test: false
 http:
