@@ -98,10 +98,10 @@ def crawl(context: Context):
                             or section_name.lower() == "council members"
                         ):
                             position = (
-                                f"{position} of the Board of {agency} of the {ministry}"
+                                f"{position} of the Board of {agency}"
                             )
                         else:
-                            position = f"{position} of {agency} of the {ministry}"
+                            position = f"{position} of {agency}"
 
                         #print(f"Formatted Position: {position}")
                         match = TITLE_REGEX.match(full_name)
@@ -114,7 +114,6 @@ def crawl(context: Context):
                         person.add("name", full_name)
                         person.add("sourceUrl", link)
                         person.add("topics", "role.pep")
-                        person.add("position", position)
                         person.add("title", title)
                         if email is not None:
                             if email.startswith("https://"):
@@ -124,7 +123,7 @@ def crawl(context: Context):
 
                         position = h.make_position(
                             context,
-                            name=f"{position} at {org_name}",
+                            name=position,
                             country="sg",
                             # topics=["gov.executive", "gov.national"],
                         )
