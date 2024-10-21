@@ -281,18 +281,18 @@ def parse_entry(context: Context, target: Element, programs, places):
         # Add auto-parsed properties
         for regex in OTHER_INFO_REGEXES:
             match = regex.match(value)
-            if match is not None:
+            # if match is not None:
                 # context.log.info("Match", value=value, match=match)
                 # print(value)
                 # print(match)
                 # print(match.group("key"))
-                print(slugify(match.group("key")))
+                # print(slugify(match.group("key")))
                 # print(match.group("value"))
             if match is None:
                 #context.log.warning("No match", value=value, regex=regex.pattern)
                 continue
             prop = context.lookup_value("properties", slugify(match.group("key")))
-            print(prop)
+            # print(prop)
             if prop is not None:
                 if prop != "imoNumber":
                     entity.add(prop, match.group("value"))

@@ -1036,8 +1036,14 @@ lookups:
         properties: 
           - prop: description
             value: ENTRY INTO FORCE ON 21 JUNE 2022
-
-
+      - match: Belongs to the Kharoti tribe. Believed to be in the Afghanistan/Pakistan border area as at Jan 2011. Father’s name is Ghulam Qader. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010.
+        properties: 
+          - prop: description
+            value: Belongs to the Kharoti tribe. Believed to be in the Afghanistan/Pakistan border area as at Jan 2011. Father’s name is Ghulam Qader. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010.
+      - match: Mohammad Ilyas Kashmiri was the commander of Harakat-ul Jihad Islami (QE.H.130.10.) and provides support to Al-Qaida (QE.A.4.01) operations. Reportedly deceased in Pakistan on 11 June 2011.
+        properties: 
+          - prop: description
+            value: Mohammad Ilyas Kashmiri was the commander of Harakat-ul Jihad Islami (QE.H.130.10.) and provides support to Al-Qaida (QE.A.4.01) operations. Reportedly deceased in Pakistan on 11 June 2011.
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
           - other_schema: Company
