@@ -1,5 +1,6 @@
+import re
 from urllib.parse import urljoin, urlparse
-from typing import Dict, Optional, Set, IO, List, Any
+from typing import Dict, Optional, Set, IO, List, Any, Tuple
 from collections import defaultdict
 from zipfile import ZipFile
 
@@ -14,6 +15,10 @@ from zavod import helpers as h
 INN_URL = "https://egrul.itsoft.ru/%s.xml"
 # original source: "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
 aformatter = AddressFormatter()
+
+AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
+# global variable to store the compiled abbreviations
+abbreviations: Optional[AbbreviationList] = None
 
 
 def tag_text(el: Element) -> str:
@@ -446,6 +451,54 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     entity.add("address", address)
 
 
+def compile_abbreviations(context) -> AbbreviationList:
+    """
+    Load abbreviations and compile regex patterns from the YAML config.
+    Returns:
+    AbbreviationList: A list of tuples containing canonical abbreviations
+    and their compiled regex patterns for substitution.
+    """
+    types = context.dataset.config.get("organizational_types")
+    abbreviations = []
+    for canonical, phrases in types.items():
+        # we want to match the whole word and allow for ["] or ['] at the beginning
+        for phrase in phrases:
+            phrase_pattern = rf"^[ \"']?{re.escape(phrase)}"
+
+            compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
+            # Append the canonical form, compiled regex pattern, and phrase to the list
+            abbreviations.append((canonical, compiled_pattern, phrase))
+    # Reverse-sort by length so that the most specific phrase would match first.
+    abbreviations.sort(key=lambda x: len(x[2]), reverse=True)
+    return abbreviations
+
+
+def substitute_abbreviations(
+    name: Optional[str], abbreviations: Optional[AbbreviationList]
+) -> Tuple[Optional[str], Optional[str]]:
+    """
+    Substitute organisation type in the name with its abbreviation
+    using the compiled regex patterns.
+
+    :param name: The input name where abbreviations should be substituted.
+    :param abbreviations: A list of tuples with canonical abbreviations, regex patterns,
+                          and original phrases.
+    :return: Tuple with the modified text with substitutions applied,
+        and the original if shortened, otherwise None.
+    """
+    if abbreviations is None:
+        raise ValueError("Abbreviations not compiled")
+    if name is None:
+        return None, None
+    # Iterate over all abbreviation groups
+    for canonical, regex, phrases in abbreviations:
+        modified_name = regex.sub(canonical, name)
+        if modified_name != name:
+            return modified_name, name
+    # If no match, return the original name and None as description
+    return name, None
+
+
 def parse_company(context: Context, el: Element) -> None:
     """
     Parse a company from the XML element and emit entities.
@@ -464,17 +517,24 @@ def parse_company(context: Context, el: Element) -> None:
     for name_el in el.findall("./СвНаимЮЛ"):
         name_full = name_el.get("НаимЮЛПолн")
         name_short = name_el.get("НаимЮЛСокр")
-
-    name = name_full or name_short
+        name_full_short, original_name = substitute_abbreviations(
+            name_full, abbreviations
+        )
+        name_short_shortened, name_short_original = substitute_abbreviations(
+            name_short, abbreviations
+        )
+    name = name_full or name_short_shortened
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
-    entity.add("name", name_full)
-    entity.add("name", name_short)
+    entity.add("name", name_full_short)
+    entity.add("name", name_short_shortened)
     entity.add("ogrnCode", ogrn)
     entity.add("innCode", inn)
     entity.add("kppCode", el.get("КПП"))
     entity.add("legalForm", el.get("ПолнНаимОПФ"))
     entity.add("incorporationDate", el.get("ДатаОГРН"))
+    entity.add("description", original_name)
+    entity.add("description", name_short_original)
 
     for term_el in el.findall("./СвПрекрЮЛ"):
         entity.add("dissolutionDate", term_el.get("ДатаПрекрЮЛ"))
@@ -499,6 +559,9 @@ def parse_company(context: Context, el: Element) -> None:
 
     for successor in el.findall("./СвПреем"):
         succ_name = successor.get("НаимЮЛПолн")
+        succ_name_short, succ_original_name = substitute_abbreviations(
+            succ_name, abbreviations
+        )
         succ_inn = successor.get("ИНН")
         succ_ogrn = successor.get("ОГРН")
         successor_id = entity_id(
@@ -514,10 +577,10 @@ def parse_company(context: Context, el: Element) -> None:
             succ.add("predecessor", entity.id)
             succ_entity = context.make("Company")
             succ_entity.id = successor_id
-            succ_entity.add("name", succ_name)
+            succ_entity.add("name", succ_name_short)
             succ_entity.add("innCode", succ_inn)
             succ_entity.add("ogrnCode", succ_ogrn)
-
+            succ_entity.add("description", succ_original_name)
             # To @pudo: not sure if I got your idea right
             succ_entity.add("innCode", inn)
             succ_entity.add("ogrnCode", ogrn)
@@ -528,6 +591,9 @@ def parse_company(context: Context, el: Element) -> None:
     # To @pudo: Also adding this for the predecessor
     for predecessor in el.findall("./СвПредш"):
         pred_name = predecessor.get("НаимЮЛПолн")
+        pred_name_short, pred_original_name = substitute_abbreviations(
+            pred_name, abbreviations
+        )
         pred_inn = predecessor.get("ИНН")
         pred_ogrn = predecessor.get("ОГРН")
         predecessor_id = entity_id(
@@ -543,9 +609,10 @@ def parse_company(context: Context, el: Element) -> None:
             pred.add("successor", entity.id)
             pred_entity = context.make("Company")
             pred_entity.id = predecessor_id
-            pred_entity.add("name", pred_name)
+            pred_entity.add("name", pred_name_short)
             pred_entity.add("innCode", pred_inn)
             pred_entity.add("ogrnCode", pred_ogrn)
+            pred_entity.add("description", pred_original_name)
 
             # To @pudo: not sure if I got your idea right
             pred_entity.add("innCode", inn)
@@ -605,14 +672,16 @@ def parse_examples(context: Context):
     # This subset contains a mix of companies with different address structures
     # and an example of successor/predecessor relationship
     for inn in [
-        "7709383684",
-        "7704667322",
-        "9710075695",
-        "7813654884",
-        "1122031001454",
-        "1025002029580",
-        "1131001011283",
-        "1088601000047",
+        "7714034350",  # organizational form abbreviations testing
+        "7729348110",
+        # "7709383684",
+        # "7704667322",
+        # "9710075695",
+        # "7813654884",
+        # "1122031001454",
+        # "1025002029580",
+        # "1131001011283",
+        # "1088601000047"
     ]:
         path = context.fetch_resource("%s.xml" % inn, INN_URL % inn)
         with open(path, "rb") as fh:
@@ -667,5 +736,9 @@ def crawl_archive(context: Context, url: str) -> None:
 
 def crawl(context: Context) -> None:
     # TODO: thread pool execution
+    # Load abbreviations once using the context
+    global abbreviations
+    abbreviations = compile_abbreviations(context)
+    # parse_examples(context)
     for archive_url in sorted(crawl_index(context, context.data_url)):
         crawl_archive(context, archive_url)
