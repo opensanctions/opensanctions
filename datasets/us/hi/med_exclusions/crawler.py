@@ -1,10 +1,13 @@
 import pdfplumber
+import re
 from pathlib import Path
 from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
 from normality import collapse_spaces, slugify
+
+AKA_SPLIT = r"\baka\b|\ba\.k\.a\b|\bAKA"
 
 
 def parse_pdf_table(
@@ -33,24 +36,49 @@ def parse_pdf_table(
 
 def crawl_item(row: Dict[str, str], context: Context):
 
-    if first_name := row.pop("first_name"):
+    if raw_first_name := row.pop("first_name"):
         entity = context.make("Person")
+
+        raw_last_name = row.pop("last_name")
+        raw_middle_initial = row.pop("middle_initial")
+
         entity.id = context.make_id(
-            row.get("last_name"), first_name, row.get("exclusion_date")
+            raw_last_name, raw_middle_initial, raw_first_name, row.get("exclusion_date")
         )
-        h.apply_name(
-            entity,
-            first_name=first_name,
-            last_name=row.pop("last_name"),
-            middle_name=row.pop("middle_initial"),
-        )
+
+        # There is some cases where there is a business name with "DBA"
+        if " DBA " in raw_last_name:
+            raw_last_name, business_name = raw_last_name.split(" DBA ")
+            company = context.make("Company")
+            company.id = context.make_id(business_name)
+            company.add("name", business_name)
+            link = context.make("UnknownLink")
+            link.id = context.make_id(entity.id, company.id)
+            link.add("object", entity)
+            link.add("subject", company)
+            link.add("role", "d/b/a")
+            context.emit(company)
+            context.emit(link)
+
+        for first_name in re.split(AKA_SPLIT, raw_first_name):
+            for last_name in re.split(AKA_SPLIT, raw_last_name):
+                for middle_initial in re.split(AKA_SPLIT, raw_middle_initial):
+                    h.apply_name(
+                        entity,
+                        first_name=first_name,
+                        last_name=last_name,
+                        middle_name=middle_initial,
+                    )
     else:
         entity = context.make("Company")
         entity.id = context.make_id(row.get("last_name"))
         entity.add("name", row.pop("last_name"))
 
     entity.add("sector", row.pop("provider_type"))
-    entity.add("description", "Provider ID: " + row.pop("medicaid_provider_id"))
+    if row.get("medicaid_provider_id") != "NONE":
+        entity.add("description", "Provider ID: " + row.pop("medicaid_provider_id"))
+    else:
+        row.pop("medicaid_provider_id")
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
