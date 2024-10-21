@@ -69,7 +69,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", context.data_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-    for page_path in h.make_pdf_page_images(path)[1:]:
+    for page_path in h.make_pdf_page_images(path):
         data = run_image_prompt(context, prompt, page_path, max_tokens=4096)
         assert "providers" in data, data
         for item in data.get("providers", []):
