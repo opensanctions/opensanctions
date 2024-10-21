@@ -1,10 +1,8 @@
 import re
+import pdfplumber
+from pathlib import Path
+from typing import Dict, List, Optional
 from datetime import datetime
-from io import IOBase
-from typing import Optional
-
-from pdfminer.high_level import extract_pages
-from pdfminer.layout import LAParams, LTTextBoxHorizontal
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -84,7 +82,7 @@ def parse_target(
     company = context.make("Company")
     company.id = context.make_id("Company", company_name)
     company.add("name", company_name)
-    h.apply_address(context, company, address)
+    h.copy_address(company, address)
     if m is None:
         return company
 
@@ -120,63 +118,42 @@ def parse_target(
     return company
 
 
-def extract_rows(pdf: IOBase) -> list[str]:
-    # PDFMiner has a built-in layout analysis engine, but does not work well
-    # for the layout of the debarment PDFs published by Liechtenstein.
-    # Therefore we find all text boxes on a page, group them by lines,
-    # and then extract (and clean up) the text in those boxes.
-    lines = [[]]
-    params = LAParams(boxes_flow=None, line_margin=0)
-    for page in extract_pages(pdf, laparams=params):
-        y = 1e9
-        boxes = [b for b in page if isinstance(b, LTTextBoxHorizontal)]
-        for box in sorted(boxes, key=lambda b: -b.y0):
-            if abs(box.y0 - y) < 2.0:
-                lines[-1].append(box)
-            else:
-                lines.append([box])
-                y = box.y0
-    # PDFMiner is sometimes too eager grouping words into text boxes.
-    # For the Liechtenstein PDFs, we can work around this.
-    fixup = re.compile(r"\d{2}\.\d{2}\.\d{4} .+$")
-    rows = []
-    for line in lines:
-        row = [
-            # Clean up whitespace.
-            " ".join(box.get_text().replace("\u00A0", " ").split())
-            for box in sorted(line, key=lambda b: b.x0)
-        ]
-        if len(row) > 0:
-            if fixup.match(row[0]):
-                date, rest = row[0].split(" ", 1)
-                row = [date, rest] + row[1:]
-            rows.append(row)
+def extract_rows(path: Path) -> List[Dict[str, str]]:
+    pdf = pdfplumber.open(path.as_posix())
+    settings = {
+        "vertical_strategy": "lines",
+        "horizontal_strategy": "lines",
+        "text_tolerance": 1,
+    }
+    headers: Optional[List[str]] = None
+    rows: List[Dict[str, str]] = []
+    for page in pdf.pages:
+        cropped = page.crop((0, 50, page.width, page.height - 10))
+        for row in cropped.extract_table(settings):
+            if headers is None:
+                headers = row
+                continue
+            rows.append({k: v for k, v in zip(headers, row)})
     return rows
 
 
 def crawl_debarments(context: Context) -> None:
     path = context.fetch_resource("sperren.pdf", context.data_url)
-    with open(path, "rb") as pdf:
-        rows = extract_rows(pdf)
-    if data_time := parse_data_time(rows):
-        context.log.info(f"Parsing data version of {data_time}")
-        context.data_time = data_time
-    else:
-        context.log.warn("Failed to parse data_time")
-    for row in rows:
-        if len(row) != 5 or row[-1] == "Ende der Sperre":
+    for row in extract_rows(path):
+        if len(row) != 5:
             continue
-        [start, name, addr, law, end] = row
-        address = parse_address(context, addr)
-        start = h.parse_date(start, ["%d.%m.%Y"])
-        end = h.parse_date(end, ["%d.%m.%Y"])
+        address = parse_address(context, row.pop("Adresse"))
+        name = row.pop("Betrieb")
+        start = h.parse_date(row.pop("In Rechtskraft"), ["%d.%m.%Y"])
+        end = h.parse_date(row.pop("Ende der Sperre"), ["%d.%m.%Y"])
         company = parse_target(context, name, address, start)
         if company is None:
             continue
         company.add("topics", "debarment")
+        violation = row.pop("Verstoss")
         sanction = h.make_sanction(context, company)
         sanction.id = context.make_id(
-            "Sanction", "Debarment", company.id, law, start, end
+            "Sanction", "Debarment", company.id, violation, start, end
         )
         sanction.add("startDate", start)
         sanction.add("endDate", end)
@@ -184,7 +161,7 @@ def crawl_debarments(context: Context) -> None:
         sanction.add("program", "EntsG Sanctions")
         reason = (
             "Repeated or severe infraction against "
-            f"Liechtenstein Posted Workers Act, {law}"
+            f"Liechtenstein Posted Workers Act, {violation}"
         )
         sanction.add("reason", reason)
         context.emit(sanction)
@@ -193,32 +170,28 @@ def crawl_debarments(context: Context) -> None:
 
 def crawl_infractions(context: Context) -> None:
     path = context.fetch_resource("uebertretungen.pdf", context.data_url)
-    with open(path, "rb") as pdf:
-        rows = extract_rows(pdf)
-    if data_time := parse_data_time(rows):
-        context.log.info(f"Parsing data version of {data_time}")
-        context.data_time = data_time
-    else:
-        context.log.warn("Failed to parse data_time")
-    for row in rows:
-        if len(row) == 1 or row[0].startswith("In Rechtskraft"):
-            continue
+    for row in extract_rows(path):
         if len(row) != 4:
             context.log.warn(f"Cannot split row: {row}")
             continue
-        [date, name, addr, law] = row
-        address = parse_address(context, addr)
-        date = h.parse_date(date, ["%d.%m.%Y"])
+        address = parse_address(context, row.pop("Adresse"))
+        effective = row.pop("In Rechtskraft")
+        name = row.pop("Betrieb/ verantwortliche natürliche Person")
+        date = h.parse_date(effective, ["%d.%m.%Y"])
         company = parse_target(context, name, address, date)
         if company is None:
             continue
+        violation = row.pop("Verstoss")
         sanction = h.make_sanction(context, company)
-        sanction.id = context.make_id("Sanction", "Penalty", company.id, law, date)
+        sanction.id = context.make_id(
+            "Sanction", "Penalty", company.id, violation, date
+        )
         sanction.add("date", date)
         sanction.add("description", "Administrative Penalty")
         sanction.add("program", "EntsG Sanctions")
         sanction.add(
-            "reason", f"Infraction against Liechtenstein Posted Workers Act, {law}"
+            "reason",
+            f"Infraction against Liechtenstein Posted Workers Act, {violation}",
         )
         company.add("topics", "debarment")
         context.emit(sanction)
