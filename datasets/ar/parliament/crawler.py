@@ -39,6 +39,9 @@ def crawl(context: Context):
         link = name_el.xpath(".//a/@href")
 
         name = str_row.pop("diputado")
+        if name == "DIPUTADO PENDIENTE DE INCORPORACIÓN":
+            context.log.warning("Ignoring pending deputy", name=name)
+            continue
         start_date = h.extract_date(context.dataset, str_row.pop("inicia_mandato"))[0]
         end_date = h.extract_date(context.dataset, str_row.pop("finaliza_mandato"))[0]
         # Create and emit the person entity
