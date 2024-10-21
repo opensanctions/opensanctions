@@ -133,6 +133,7 @@ lookups:
         value: imoNumber
       - match: 
           - position-s
+          - position
           - function
           - designation
         value: position
@@ -143,7 +144,13 @@ lookups:
       - match: 
           - id-number
           - national-id-number
+          - id-card-number
         value: idNumber
+      - match: rank
+        value: title
+      - match: 
+          - type-of-entity
+        value: Null
   other_information: 
     lowercase: true
     options: 
@@ -511,6 +518,12 @@ lookups:
         properties: 
           - prop: position
             value: Former Deputy Chairman of the Investigative Committee
+      - match: Major of the 64th Separate Motorised Rifle Brigade of the 35th Combined Arms Army of the Russian Federation
+        properties: 
+          - prop: title
+            value: Major
+          - prop: position
+            value: Major of the 64th Separate Motorised Rifle Brigade of the 35th Combined Arms Army of the Russian Federation
       - match: Chairman of the Constitutional Court of the Republic of Belarus
         properties: 
           - prop: position
@@ -795,6 +808,235 @@ lookups:
         properties: 
           - prop: description
             value: As of mid-2008, Yemen continues to serve as a hub for illegal arms shipments to the Horn of Africa, particularly arms shipments by boat to Somalia. There are unconfirmed reports that Faris Mana'a has participated in shipments to Somalia on numerous occasions. In 2004, Mana'a was involved in weapons contracts from Eastern Europe for weapons allegedly marketed to Somali fighters. Despite the Somalia UN arms embargo since 1992, Mana'a's interest in trafficking arms into Somalia can be traced back at least to 2003. Mana'a made an offer to buy thousands of arms in 2003 from Eastern Europe, and indicated that he planned to sell some of the arms in Somalia.
+      - match: "Appointed as anti-balaka zone commander (COMZONE) of Boda on 11 Apr 2014 and on 28 Jun 2014, for the entire Lobaye Province. Under his command, targeted killings, clashes and attacks against humanitarian organizations and aid workers have continued to take place. Physical description: eye colour: brown; hair colour: black; height: 160cm; weight: 60kg. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice web link available."
+        properties: 
+          - prop: description
+            value: "Appointed as anti-balaka zone commander (COMZONE) of Boda on 11 Apr 2014 and on 28 Jun 2014, for the entire Lobaye Province. Under his command, targeted killings, clashes and attacks against humanitarian organizations and aid workers have continued to take place. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice web link available."
+          - prop: eyeColor
+            value: brown
+          - prop: hairColor
+            value: black
+          - prop: height
+            value: 160cm
+          - prop: weight
+            value: 60kg
+      - match: "Is a diamond smuggler and a three-star general of the Séléka and close confident of former CAR interim president Michel Djotodia. Physical description: hair colour: black; height: 180cm; belongs to the Fulani ethnic group. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. Reportedly deceased as at 11 Oct 2015."
+        properties: 
+          - prop: description
+            value: Is a diamond smuggler and a three-star general of the Séléka and close confident of former CAR interim president Michel Djotodia. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. Reportedly deceased as at 11 Oct 2015.
+          - prop: hairColor
+            value: black
+          - prop: height
+            value: 180cm
+      - match: Naval Forces. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice available.
+        properties: 
+          - prop: description
+            value: Naval Forces. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice available.
+      - match: Emerged in northern Uganda in the 1980s. Has engaged in the abduction, killing and mutilation of thousands of civilians in Central Africa, including hundreds in the Central African Republic. The leader is Joseph Kony (CFi.009, SSID 33976).
+        properties: 
+          - prop: description
+            value: Emerged in northern Uganda in the 1980s. Has engaged in the abduction, killing and mutilation of thousands of civilians in Central Africa, including hundreds in the Central African Republic. The leader is Joseph Kony (CFi.009, SSID 33976).
+      - match: Kony is the founder and leader of the Lord’s Resistance Army (LRA) (CFe.002, SSID 34021). Under his leadership, the LRA has engaged in the abduction, killing, and mutilation of thousands of civilians across Central Africa. The LRA has been responsible for kidnapping, displacing, committing sexual violence against, and killing hundreds of individuals across CAR, and has looted and destroyed civilian property.
+        properties: 
+          - prop: description
+            value: Kony is the founder and leader of the Lord’s Resistance Army (LRA) (CFe.002, SSID 34021). Under his leadership, the LRA has engaged in the abduction, killing, and mutilation of thousands of civilians across Central Africa. The LRA has been responsible for kidnapping, displacing, committing sexual violence against, and killing hundreds of individuals across CAR, and has looted and destroyed civilian property.
+      - match: Ali Kony is a deputy in the Lord’s Resistance Army (LRA) (SSID 300-34021), a designated entity and the son of LRA leader Joseph Kony (SSID 300-3976), a designated individual. Ali was incorporated into the LRA’s leadership hierarchy in 2010. He is part of a group of senior LRA officers who are based with Joseph Kony.
+        properties: 
+          - prop: name
+            value: Ali Kony
+          - prop: description
+            value: Ali Kony is a deputy in the Lord’s Resistance Army (LRA) (SSID 300-34021), a designated entity and the son of LRA leader Joseph Kony (SSID 300-3976), a designated individual. Ali was incorporated into the LRA’s leadership hierarchy in 2010. He is part of a group of senior LRA officers who are based with Joseph Kony.
+      - match: Salim Kony is a deputy in the Lord’s Resistance Army (LRA) (SSID 300-34021), a designated entity and the son of LRA leader Joseph Kony (SSID 300-33976), a designated individual. Salim was incorporated into the LRA’s leadership hierarchy in 2010. He is part of a group of senior LRA officers who are based with Joseph Kony.
+        properties: 
+          - prop: name
+            value: Salim Kony
+          - prop: description
+            value: Salim Kony is a deputy in the Lord’s Resistance Army (LRA) (SSID 300-34021), a designated entity and the son of LRA leader Joseph Kony (SSID 300-33976), a designated individual. Salim was incorporated into the LRA’s leadership hierarchy in 2010. He is part of a group of senior LRA officers who are based with Joseph Kony.
+      - match: Hissène was formerly the Minister of Youth and Sports as part of the Cabinet for the Central African Republic’s former President Michel Djotodia. Prior to that, he was the head of the Convention of Patriots for Justice and Peace, a political party. He also established himself as a leader of armed militias in Bangui, in particular in the “PK5” (3rd district) neighborhood. In Oct 2016, Abdoulaye Hissène was appointed President of the Conseil National de Défense et de Sécurité, a body which was created at the time to gather military leaders and commanding fighters from all ex-Séléka factions. He has remained in this position since then, but has actual control over FPRC fighters only. Father's name is Abdoulaye. Mother's name is Absita Moussa. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice available.
+        properties: 
+          - prop: description
+            value: Hissène was formerly the Minister of Youth and Sports as part of the Cabinet for the Central African Republic’s former President Michel Djotodia. Prior to that, he was the head of the Convention of Patriots for Justice and Peace, a political party. He also established himself as a leader of armed militias in Bangui, in particular in the “PK5” (3rd district) neighborhood. In Oct 2016, Abdoulaye Hissène was appointed President of the Conseil National de Défense et de Sécurité, a body which was created at the time to gather military leaders and commanding fighters from all ex-Séléka factions. He has remained in this position since then, but has actual control over FPRC fighters only. Father's name is Abdoulaye. Mother's name is Absita Moussa. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice available.
+      - match: President and commander-in-chief of the Front Démocratique du Peuple Centrafricain (FDPC). Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: President and commander-in-chief of the Front Démocratique du Peuple Centrafricain (FDPC). Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Founder and leader of the Unité pour la Paix en Centrafrique (UPC). INTERPOL-UN Security Council Special Notice available.
+        properties: 
+          - prop: description
+            value: Founder and leader of the Unité pour la Paix en Centrafrique (UPC). INTERPOL-UN Security Council Special Notice available.
+      - match: Abd al-Khaliq al-Huthi has engaged in acts that threaten the peace, security, or stability of Yemen, such as acts that obstruct the implementation of the agreement of 23 Nov 2011 between the Government of Yemen and those in opposition to it, which provides for a peaceful transition of power in Yemen, and acts that obstruct the political process in Yemen.
+        properties: 
+          - prop: description
+            value: Abd al-Khaliq al-Huthi has engaged in acts that threaten the peace, security, or stability of Yemen, such as acts that obstruct the implementation of the agreement of 23 Nov 2011 between the Government of Yemen and those in opposition to it, which provides for a peaceful transition of power in Yemen, and acts that obstruct the political process in Yemen.
+      - match: Ali Abdullah Saleh has engaged in acts that threaten the peace, security, or stability of Yemen, such as acts that obstruct the implementation of the agreement of 23 Nov 2011 between the Government of Yemen and those in opposition to it, which provides for a peaceful transition of power in Yemen, and acts that obstruct the political process in Yemen.
+        properties: 
+          - prop: description
+            value: Ali Abdullah Saleh has engaged in acts that threaten the peace, security, or stability of Yemen, such as acts that obstruct the implementation of the agreement of 23 Nov 2011 between the Government of Yemen and those in opposition to it, which provides for a peaceful transition of power in Yemen, and acts that obstruct the political process in Yemen.
+      - match: Per the 23 Nov 2011 agreement backed by the Gulf Cooperation Council, Ali Abdullah Saleh stepped down as President of Yemen after more than 30 years.
+        properties: 
+          - prop: description
+            value: Per the 23 Nov 2011 agreement backed by the Gulf Cooperation Council, Ali Abdullah Saleh stepped down as President of Yemen after more than 30 years.
+      - match: As of fall 2012, Ali Abdullah Saleh had reportedly become one of the primary supporters of violent Huthi actions in northern Yemen.
+        properties: 
+          - prop: description
+            value: As of fall 2012, Ali Abdullah Saleh had reportedly become one of the primary supporters of violent Huthi actions in northern Yemen.
+      - match: More recently, as of Sep 2014, Saleh has been destabilizing Yemen by using others to undermine the central government and create enough instability to threaten a coup. According to a Sep 2014 report by the United Nations Panel of Experts for Yemen, interlocutors alleged that Saleh supports violent actions of some Yemenis by providing them funds and political support, as well as ensuring that GPC members continue to contribute to the destabilization of Yemen through various means.
+        properties: 
+          - prop: description
+            value: More recently, as of Sep 2014, Saleh has been destabilizing Yemen by using others to undermine the central government and create enough instability to threaten a coup. According to a Sep 2014 report by the United Nations Panel of Experts for Yemen, interlocutors alleged that Saleh supports violent actions of some Yemenis by providing them funds and political support, as well as ensuring that GPC members continue to contribute to the destabilization of Yemen through various means.
+      - match: The Sep 2014 United Nations Panel of Experts report on Yemen also states that allegations have been made that Ali Abdullah Saleh has been using Al-Qaida in the Arabian Peninsula (AQAP) operatives to conduct assassinations and attacks against military installations in order to weaken President Hadi and create discontent within the army and broader Yemeni population.
+        properties: 
+          - prop: description
+            value: The Sep 2014 United Nations Panel of Experts report on Yemen also states that allegations have been made that Ali Abdullah Saleh has been using Al-Qaida in the Arabian Peninsula (AQAP) operatives to conduct assassinations and attacks against military installations in order to weaken President Hadi and create discontent within the army and broader Yemeni population.
+      - match: Abdullah Yahya al Hakim has engaged in acts that threaten the peace, security, or stability of Yemen, such as acts that obstruct the implementation of the agreement of 23 Nov 2011, between the Government of Yemen and those in opposition to it, which provides for a peaceful transition of power in Yemen, and that obstruct the political process in Yemen.
+        properties: 
+          - prop: description
+            value: Abdullah Yahya al Hakim has engaged in acts that threaten the peace, security, or stability of Yemen, such as acts that obstruct the implementation of the agreement of 23 Nov 2011, between the Government of Yemen and those in opposition to it, which provides for a peaceful transition of power in Yemen, and that obstruct the political process in Yemen.
+      - match: In Jun 2014, Abdullah Yahya al Hakim reportedly held a meeting in order to plot a coup against Yemeni President Abdrabuh Mansour Hadi. Al Hakim met with military and security commanders, and tribal chieftains; leading partisan figures loyal to former Yemeni President Ali Abdullah Saleh also attended the meeting, which aimed to coordinate military efforts to take over Sana’a, Yemen’s capital.
+        properties: 
+          - prop: description
+            value: In Jun 2014, Abdullah Yahya al Hakim reportedly held a meeting in order to plot a coup against Yemeni President Abdrabuh Mansour Hadi. Al Hakim met with military and security commanders, and tribal chieftains; leading partisan figures loyal to former Yemeni President Ali Abdullah Saleh also attended the meeting, which aimed to coordinate military efforts to take over Sana’a, Yemen’s capital.
+      - match: In a 29 Aug 2014 public statement, the President of the United Nations Security Council stated that the Council condemned the actions of forces commanded by Abdullah Yahya al Hakim who overran Amran, Yemen, including the Yemeni Army Brigade headquarters on 8 Jul 2014. Al Hakim led the Jul 2014 violent takeover of the Amran Governorate and was the military commander responsible for making decisions regarding ongoing conflicts in the Amran Governorate and Hamdan, Yemen.
+        properties: 
+          - prop: description
+            value: In a 29 Aug 2014 public statement, the President of the United Nations Security Council stated that the Council condemned the actions of forces commanded by Abdullah Yahya al Hakim who overran Amran, Yemen, including the Yemeni Army Brigade headquarters on 8 Jul 2014. Al Hakim led the Jul 2014 violent takeover of the Amran Governorate and was the military commander responsible for making decisions regarding ongoing conflicts in the Amran Governorate and Hamdan, Yemen.
+      - match: As of early Sep 2014, Abdullah Yahya al Hakim remained in Sana’a to oversee combat operations in case fighting began. His role was to organize military operations so as to be able to topple the Yemeni Government, and he was also responsible for securing and controlling all routes in and out of Sana’a.
+        properties: 
+          - prop: description
+            value: As of early Sep 2014, Abdullah Yahya al Hakim remained in Sana’a to oversee combat operations in case fighting began. His role was to organize military operations so as to be able to topple the Yemeni Government, and he was also responsible for securing and controlling all routes in and out of Sana’a.
+      - match: Ahmed Ali Saleh has played a key role in facilitating the Houthi military expansion. Has engaged in acts that threaten the peace, security, and stability of Yemen.
+        properties: 
+          - prop: name
+            value: Ahmed Ali Saleh
+          - prop: description
+            value: Ahmed Ali Saleh has played a key role in facilitating the Houthi military expansion. Has engaged in acts that threaten the peace, security, and stability of Yemen.
+      - match: Ahmed Ali Saleh has been working to undermine President Hadi’s authority, thwart Hadi’s attempts to reform the military, and hinder Yemen’s peaceful transition to democracy. Saleh played a key role in facilitating the Houthi military expansion. As of mid-Feb 2013, Ahmed Ali Saleh had issued thousands of new rifles to Republican Guard brigades and unidentified tribal shaykhs. The weapons were originally procured in 2010 and reserved to purchase the loyalties of the recipients for political gain at a later date.
+        properties: 
+          - prop: description
+            value: Ahmed Ali Saleh has been working to undermine President Hadi’s authority, thwart Hadi’s attempts to reform the military, and hinder Yemen’s peaceful transition to democracy. Saleh played a key role in facilitating the Houthi military expansion. As of mid-Feb 2013, Ahmed Ali Saleh had issued thousands of new rifles to Republican Guard brigades and unidentified tribal shaykhs. The weapons were originally procured in 2010 and reserved to purchase the loyalties of the recipients for political gain at a later date.
+      - match: After Saleh’s father, former Republic of Yemen President Ali Abdullah Saleh, stepped down as President of Yemen in 2011, Ahmed Ali Saleh retained his post as commander of Yemen’s Republican Guard. A little over a year later, Saleh was dismissed by President Hadi but he retained significant influence within the Yemeni military, even after he was removed from command. Ali Abdullah Saleh was designated by the UN under UNSCR 2140 in Nov 2014.
+        properties: 
+          - prop: name
+            value: Ahmed Ali Abdullah Saleh
+          - prop: description
+            value: After Saleh’s father, former Republic of Yemen President Ali Abdullah Saleh, stepped down as President of Yemen in 2011, Ahmed Ali Saleh retained his post as commander of Yemen’s Republican Guard. A little over a year later, Saleh was dismissed by President Hadi but he retained significant influence within the Yemeni military, even after he was removed from command. Ali Abdullah Saleh was designated by the UN under UNSCR 2140 in Nov 2014.
+      - match: Ahmed Ali Abdullah Saleh comes from an area known as Bayt Al-Ahmar, which lies some 20 kilometres southeast of the capital, Sana'a.
+        properties: 
+          - prop: description
+            value: Ahmed Ali Abdullah Saleh comes from an area known as Bayt Al-Ahmar, which lies some 20 kilometres southeast of the capital, Sana'a.
+      - match: Abdul Malik al Houthi is a leader of a group that has engaged in acts that threaten the peace, security, or stability of Yemen.
+        properties: 
+          - prop: name
+            value: Abdul Malik al Houthi
+          - prop: description
+            value: Abdul Malik al Houthi is a leader of a group that has engaged in acts that threaten the peace, security, or stability of Yemen.
+      - match: In Sep 2014, Houthi forces captured Sanaa and in Jan 2015 they attempted to unilaterally replace the legitimate government of Yemen with an illegitimate governing authority that the Houthis dominated. Al-Houthi assumed the leadership of Yemen’s Houthi movement in 2004 after the death of his brother, Hussein Badredden al-Houthi. As leader of the group, al-Houthi has repeatedly threatened Yemeni authorities with further unrest if they do not respond to his demands and detained President Hadi, Prime Minister, and key cabinet members. Hadi subsequently escaped to Aden. The Houthis then launched another offensive towards Aden assisted by military units loyal to former president Saleh and his son, Ahmed Ali Saleh.
+        properties: 
+          - prop: description
+            value: In Sep 2014, Houthi forces captured Sanaa and in Jan 2015 they attempted to unilaterally replace the legitimate government of Yemen with an illegitimate governing authority that the Houthis dominated. Al-Houthi assumed the leadership of Yemen’s Houthi movement in 2004 after the death of his brother, Hussein Badredden al-Houthi. As leader of the group, al-Houthi has repeatedly threatened Yemeni authorities with further unrest if they do not respond to his demands and detained President Hadi, Prime Minister, and key cabinet members. Hadi subsequently escaped to Aden. The Houthis then launched another offensive towards Aden assisted by military units loyal to former president Saleh and his son, Ahmed Ali Saleh.
+      - match: Sultan Saleh Aida Aida Zabin has engaged in acts that threaten the peace, security and stability of Yemen, including violations of applicable international humanitarian law and human rights abuses in Yemen. Zabin has played a prominent role in a policy of intimidation and use of systematic arrest, detention, torture, sexual violence and rape against politically active women. Zabin as director for CID is directly responsible for, or by virtue of his authority responsible for, and complicit in the use of multiple places of detention including house arrest, police stations, formal prisons and detention centres and undisclosed detention centres. In these sites, women, including at least one minor, were forcibly disappeared, repeatedly interrogated, raped, tortured, denied timely medical treatment and subjected to forced labour. Zabin himself directly inflicted torture in some cases.
+        properties: 
+          - prop: description
+            value: Sultan Saleh Aida Aida Zabin has engaged in acts that threaten the peace, security and stability of Yemen, including violations of applicable international humanitarian law and human rights abuses in Yemen. Zabin has played a prominent role in a policy of intimidation and use of systematic arrest, detention, torture, sexual violence and rape against politically active women. Zabin as director for CID is directly responsible for, or by virtue of his authority responsible for, and complicit in the use of multiple places of detention including house arrest, police stations, formal prisons and detention centres and undisclosed detention centres. In these sites, women, including at least one minor, were forcibly disappeared, repeatedly interrogated, raped, tortured, denied timely medical treatment and subjected to forced labour. Zabin himself directly inflicted torture in some cases.
+      - match: "As Houthi ‘Assistant Minister of Defence for Logistics’, assisted the Houthis in acquiring smuggled arms and weapons. As ‘Judicial Custodian’ directly involved in the widespread and unlawful appropriation of assets and entities owned by private individuals under arrest by the Houthis or forced to take refuge outside of Yemen. Physical Description: Eye Colour: Brown; Hair: Grey; Complexion: Medium; Build: Slim; Height (ft/in): Unknown; Weight (lbs): Unknown; and Clan: Member of the Hashid tribal confederacy. INTERPOL-UN Security Council Special Notice web link available."
+        properties: 
+          - prop: description
+            value: "As Houthi ‘Assistant Minister of Defence for Logistics’, assisted the Houthis in acquiring smuggled arms and weapons. As ‘Judicial Custodian’ directly involved in the widespread and unlawful appropriation of assets and entities owned by private individuals under arrest by the Houthis or forced to take refuge outside of Yemen. Physical Description: Eye Colour: Brown; Hair: Grey; Complexion: Medium; Build: Slim; Height (ft/in): Unknown; Weight (lbs): Unknown; and Clan: Member of the Hashid tribal confederacy. INTERPOL-UN Security Council Special Notice web link available."
+          - prop: eyeColor
+            value: brown
+          - prop: hairColor
+            value: grey
+          - prop: appearance
+            value: slim
+      - match: Houthi Military Chief of General Staff, plays the leading role in orchestrating the Houthis’ military efforts that are directly threatening the peace, security and stability of Yemen, including in Marib, as well as cross-border attacks against Saudi Arabia. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Houthi Military Chief of General Staff, plays the leading role in orchestrating the Houthis’ military efforts that are directly threatening the peace, security and stability of Yemen, including in Marib, as well as cross-border attacks against Saudi Arabia. INTERPOL-UN Security Council Special Notice web link available.
+      - match: "Low quality a.k.a.: Mohammad Al-Ghamari born 1984"
+        properties: 
+          - prop: alias
+            value: Mohammad Al-Ghamari
+          - prop: birthDate
+            value: 1984
+      - match: A prominent leader of Houthi forces and commander of forces in Hudaydah, Hajjah, Al Mahwit, and Raymah, Yemen – threatening the peace, security, and stability of Yemen. As of 2021, Al-Madani was assigned to the offensive targeting Marib. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: A prominent leader of Houthi forces and commander of forces in Hudaydah, Hajjah, Al Mahwit, and Raymah, Yemen – threatening the peace, security, and stability of Yemen. As of 2021, Al-Madani was assigned to the offensive targeting Marib. INTERPOL-UN Security Council Special Notice web link available.
+      - match: "Former Deputy Head of the Houthi National Security Bureau (NSB), oversaw detainees of the NSB who were subjected to torture and other mistreatment while detained, planned and directed illegal arrests and detention of humanitarian workers and the unlawful diversion of humanitarian assistance in violation of international humanitarian law. Physical Description: Eye Color: Brown; Hair: Brown. INTERPOL-UN Security Council Special Notice web link available."
+        properties: 
+          - prop: description
+            value: Former Deputy Head of the Houthi National Security Bureau (NSB), oversaw detainees of the NSB who were subjected to torture and other mistreatment while detained, planned and directed illegal arrests and detention of humanitarian workers and the unlawful diversion of humanitarian assistance in violation of international humanitarian law. INTERPOL-UN Security Council Special Notice web link available.
+          - prop: eyeColor
+            value: brown
+          - prop: hairColor
+            value: brown
+      - match: "Houthi Naval Forces Chief of Staff, who has masterminded lethal attacks against international shipping in the Red Sea, plays a leading role in Houthi naval efforts that directly threaten the peace, security, and stability of Yemen. Physical Description: Eye Color: Brown; Hair: Brown. INTERPOL-UN Security Council Special Notice web link available."
+        properties: 
+          - prop: description
+            value: Houthi Naval Forces Chief of Staff, who has masterminded lethal attacks against international shipping in the Red Sea, plays a leading role in Houthi naval efforts that directly threaten the peace, security, and stability of Yemen. INTERPOL-UN Security Council Special Notice web link available.
+          - prop: eyeColor
+            value: brown
+          - prop: hairColor
+            value: brown
+      - match: "Ahmad al-Hamzi, the commander of the Houthi Air Force and Air Defense Forces, as well as its UAV program, plays a leading role in Houthi military efforts that directly threaten the peace, security, and stability of Yemen. Physical Description: Eye Color: Brown; Hair: Brown. INTERPOL-UN Security Council Special Notice web link available."
+        properties: 
+          - prop: name
+            value: Ahmad al-Hamzi
+          - prop: description
+            value: Ahmad al-Hamzi, the commander of the Houthi Air Force and Air Defense Forces, as well as its UAV program, plays a leading role in Houthi military efforts that directly threaten the peace, security, and stability of Yemen. INTERPOL-UN Security Council Special Notice web link available.
+          - prop: eyeColor
+            value: brown
+          - prop: hairColor
+            value: brown
+      - match: A close associate of Mullah Mohammed Omar (TI.O.4.01). Member of Taliban Supreme Council as at Dec 2009. Belongs to Kakar tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010
+        properties: 
+          - prop: description
+            value: A close associate of Mullah Mohammed Omar (TI.O.4.01). Member of Taliban Supreme Council as at Dec 2009. Belongs to Kakar tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010
+      - match: In July 2003 he was in custody in Kabul, Afghanistan. Released from custody in 2007. Believed to be in Afghanistan/Pakistan border area. Member of the Taliban leadership council as of mid-2013. Belongs to Andar tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+        properties: 
+          - prop: description
+            value: In July 2003 he was in custody in Kabul, Afghanistan. Released from custody in 2007. Believed to be in Afghanistan/Pakistan border area. Member of the Taliban leadership council as of mid-2013. Belongs to Andar tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+      - match: Senior Taliban official with military and financial responsibilities as at 2011. Leader of the Taliban’s Military Council as of 2010. In 2008 and 2009, served as a Taliban finance officer and distributed money to Taliban commanders in Afghanistan/Pakistan border area.
+        properties: 
+          - prop: description
+            value: Senior Taliban official with military and financial responsibilities as at 2011. Leader of the Taliban’s Military Council as of 2010. In 2008 and 2009, served as a Taliban finance officer and distributed money to Taliban commanders in Afghanistan/Pakistan border area.
+      - match: Senior member of the Haqqani Network (TE.H.12.12.), which operates out of North Waziristan in the Federally Administered Tribal Areas of Pakistan. Has previously traveled to, and raised funds in, Dubai, United Arab Emirates. Brother of Jalaluddin Haqqani (TI.H.40.01.) and uncle of Sirajuddin Jallaloudine Haqqani (TI.H.144.07.).
+        properties: 
+          - prop: description
+            value: Senior member of the Haqqani Network (TE.H.12.12.), which operates out of North Waziristan in the Federally Administered Tribal Areas of Pakistan. Has previously traveled to, and raised funds in, Dubai, United Arab Emirates. Brother of Jalaluddin Haqqani (TI.H.40.01.) and uncle of Sirajuddin Jallaloudine Haqqani (TI.H.144.07.).
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 19 Jun 2009.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 19 Jun 2009.
+      - match: Member of Taliban Supreme Council as at 2011. Belongs to Nurzai tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+        properties: 
+          - prop: description
+            value: Member of Taliban Supreme Council as at 2011. Belongs to Nurzai tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+      - match: Originally from Ghazni Province, but later lived in Uruzgan. Taliban Shadow Governor for Uruzgan Province as of late 2012. Serves as a member of the Military Commission as of Jul 2016. Belongs to Hottak tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+        properties: 
+          - prop: description
+            value: Originally from Ghazni Province, but later lived in Uruzgan. Taliban Shadow Governor for Uruzgan Province as of late 2012. Serves as a member of the Military Commission as of Jul 2016. Belongs to Hottak tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+      - match: Key commander of the Haqqani Network (TE.H.12.12.), which is based in Afghanistan/Pakistan border area. Acts as deputy, spokesperson and advisor for Haqqani Network senior leader Sirajuddin Jallaloudine Haqqani (TI.H.144.07). Liaises with the Taliban Supreme Council. Has travelled abroad. Liaises with and provides Taliban commanders in Ghazni Province, Afghanistan, with money, weapons, communications equipment and supplies. Reportedly deceased as of 2013.
+        properties: 
+          - prop: description
+            value: Key commander of the Haqqani Network (TE.H.12.12.), which is based in Afghanistan/Pakistan border area. Acts as deputy, spokesperson and advisor for Haqqani Network senior leader Sirajuddin Jallaloudine Haqqani (TI.H.144.07). Liaises with the Taliban Supreme Council. Has travelled abroad. Liaises with and provides Taliban commanders in Ghazni Province, Afghanistan, with money, weapons, communications equipment and supplies. Reportedly deceased as of 2013.
+      - match: Member of leadership council as of early 2010 and head of finance for the Islamic Movement of Uzbekistan (SSID 10-17586). Coordinated financial and logistical support for the Islamic Movement of Uzbekistan in Afghanistan and Pakistan between 2009-2012. Transferred and delivered funds to Fazal Rahim (SSID 10-16540). Reportedly deceased in an airstrike in Chordar, Kunduz Province of Afghanistan in Dec 2015. Review pursuant to Security Council resolution 2253 (2015) was concluded on 7 Jun 2018. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021.
+        properties: 
+          - prop: description
+            value: Member of leadership council as of early 2010 and head of finance for the Islamic Movement of Uzbekistan (SSID 10-17586). Coordinated financial and logistical support for the Islamic Movement of Uzbekistan in Afghanistan and Pakistan between 2009-2012. Transferred and delivered funds to Fazal Rahim (SSID 10-16540). Reportedly deceased in an airstrike in Chordar, Kunduz Province of Afghanistan in Dec 2015. Review pursuant to Security Council resolution 2253 (2015) was concluded on 7 Jun 2018. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021.
+      - match: Father's name is Abu Bakar Ba'asyir (QI.B.217.06.). Brother of Abdul Rahim Ba’aysir (QI.B.293.11). Belongs to the leadership of and is involved in recruitment and fundraising for Jemmah Anshorut Tauhid (JAT) (QE.J.133.12.) Associated with Jemaah Islamiyah (QE.J.92.02.). Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Father's name is Abu Bakar Ba'asyir (QI.B.217.06.). Brother of Abdul Rahim Ba’aysir (QI.B.293.11). Belongs to the leadership of and is involved in recruitment and fundraising for Jemmah Anshorut Tauhid (JAT) (QE.J.133.12.) Associated with Jemaah Islamiyah (QE.J.92.02.). Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: ENTRY INTO FORCE ON 21 JUNE 2022
+        properties: 
+          - prop: description
+            value: ENTRY INTO FORCE ON 21 JUNE 2022
+
 
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
