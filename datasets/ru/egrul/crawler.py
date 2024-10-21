@@ -474,8 +474,8 @@ def compile_abbreviations(context) -> AbbreviationList:
 
 
 def substitute_abbreviations(
-    name: str, abbreviations: AbbreviationList | None
-) -> Tuple[str, Optional[str]]:
+    name: Optional[str], abbreviations: Optional[AbbreviationList]
+) -> Tuple[Optional[str], Optional[str]]:
     """
     Substitute organisation type in the name with its abbreviation
     using the compiled regex patterns.
@@ -488,6 +488,8 @@ def substitute_abbreviations(
     """
     if abbreviations is None:
         raise ValueError("Abbreviations not compiled")
+    if name is None:
+        return None, None
     # Iterate over all abbreviation groups
     for canonical, regex, phrases in abbreviations:
         modified_name = regex.sub(canonical, name)
