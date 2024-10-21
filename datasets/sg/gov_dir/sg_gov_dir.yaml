@@ -32,3 +32,33 @@ url: https://www.sgdi.gov.sg
 data:
   url: https://www.sgdi.gov.sg/statutory-boards
   format: HTML
+
+lookups: 
+  type.name:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Group Director and Chief Technology Officer (Built Environment Research and Innovation Institute & Built Environment Technology Alliance) of BUILDING AND CONSTRUCTION AUTHORITY of the MINISTRY OF NATIONAL DEVELOPMENT at MINISTRY OF NATIONAL DEVELOPMENT BUILDING AND CONSTRUCTION AUTHORITY
+        value: Group Director and Chief Technology Officer of BUILDING AND CONSTRUCTION AUTHORITY of the MINISTRY OF NATIONAL DEVELOPMENT at MINISTRY OF NATIONAL DEVELOPMENT BUILDING AND CONSTRUCTION AUTHORITY
+      - match: Deputy Chief Executive Officer (Environmental Protection) & Director-General of Environmental Protection of NATIONAL ENVIRONMENT AGENCY of the MINISTRY OF SUSTAINABILITY AND THE ENVIRONMENT at MINISTRY OF SUSTAINABILITY AND THE ENVIRONMENT NATIONAL ENVIRONMENT AGENCY
+        value: Deputy Chief Executive Officer and Director-General of Environmental Protection of NATIONAL ENVIRONMENT AGENCY of the MINISTRY OF SUSTAINABILITY AND THE ENVIRONMENT at MINISTRY OF SUSTAINABILITY AND THE ENVIRONMENT NATIONAL ENVIRONMENT AGENCY
+  type.email:
+    lowercase: true
+    normalize: true
+    options:
+      - match: amelia_tang@pmo@gov.sg
+        value: amelia_tang@pmo.gov.sg
+      - match: kiat_tan@nparks.gov.sg / kiat.tan@gardensbythebay.com.sg
+        values:
+          - kiat_tan@nparks.gov.sg
+          - kiat.tan@gardensbythebay.com.sg
+      - match: Robert.phua@ubp.com; robertphua@gmail.com
+        values:
+          - Robert.phua@ubp.com
+          - robertphua@gmail.com
+      - match: desmond_choo@pa.gov.sg / desmond_choo@ntuc.org.sg
+        values:
+          - desmond_choo@pa.gov.sg
+          - desmond_choo@ntuc.org.sg
+      - match: Ng_huck_hui@hq.a-star. edu.sg
+        value: Ng_huck_hui@hq.a-star.edu.sg

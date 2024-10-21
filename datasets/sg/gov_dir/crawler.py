@@ -35,7 +35,7 @@ def crawl(context: Context):
         boards_dict[org_name] = link
 
     for org_name, link in boards_dict.items():
-        print(f"Fetching data for {org_name}: {link}")
+        #print(f"Fetching data for {org_name}: {link}")
 
         if link is not None:
             board_doc = fetch_html(
@@ -63,7 +63,7 @@ def crawl(context: Context):
             # Iterate through sections and their officials
             for section in section_headers:
                 section_name = section.text_content().strip()
-                print(f"Section header: {section_name}")
+                #print(f"Section header: {section_name}")
 
                 # Identify positions related to the current section
                 section_body = section.getnext()
@@ -99,12 +99,10 @@ def crawl(context: Context):
                             position = (
                                 f"{position} of the Board of {agency} of the {ministry}"
                             )
-                        elif "Senior Statutory Board Officers" in section_name:
-                            position = f"{position} of {agency} of the {ministry}"
                         else:
                             position = f"{position} of {agency} of the {ministry}"
 
-                        print(f"Formatted Position: {position}")
+                        #print(f"Formatted Position: {position}")
                         person = context.make("Person")
                         person.id = context.make_id(full_name, position)
                         person.add("name", full_name)
@@ -112,7 +110,10 @@ def crawl(context: Context):
                         person.add("topics", "role.pep")
                         person.add("position", position)
                         if email is not None:
-                            person.add("email", email)
+                            if email.startswith("https://"):
+                                person.add("website", email)
+                            else:
+                                person.add("email", email)
 
                         position = h.make_position(
                             context,
