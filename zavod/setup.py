@@ -38,7 +38,6 @@ setup(
         "orjson == 3.10.6",
         "ijson > 3.2, < 4.0",
         "pantomime == 0.6.1",
-        "pdfminer.six",
         "prefixdate",
         "psycopg2-binary",
         "pyicu == 2.13.1",
