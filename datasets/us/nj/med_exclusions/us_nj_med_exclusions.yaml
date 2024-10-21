@@ -33,7 +33,12 @@ lookups:
     lowercase: true
     options:
       - match: 5/222024
-        value: 5/22/2024
+        value: 2024-05-22
+      - match:
+        - PERMANENT
+        - DECEASED
+        - N/A
+        value: null
 
 assertions:
   min:
