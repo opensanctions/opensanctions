@@ -34,9 +34,9 @@ NAME_PARTS: Dict[MayStr, MayStr] = {
     "other": None,
 }
 
+Passport number: 0801 547363
 OTHER_INFO_REGEXES = [
 re.compile(r"(?P<whole>(?P<key>Website:) (?P<value>(https?:\/\/|www\.)\S+))"), # REGEX_WEBSITE
-
 re.compile(
             r"(?P<whole>(?P<key>E-?mail(?: address)?\s*:) (?P<value>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}))"
         ), # REGEX_EMAIL
@@ -51,9 +51,11 @@ re.compile(r"(?P<whole>(?P<key>(Function) ?:) (?P<value>.+))"), # REGEX_FUNCTION
 re.compile(r"(?P<whole>(?P<key>(Position\(s\)) ?:) (?P<value>.+))"), # REGEX_POSITION
 re.compile(r"(?P<whole>(?P<key>(Designation) ?:) (?P<value>.+))"), # REGEX_DESIGNATION
 re.compile(r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)"), # REGEX_TIN
-
+re.compile(
+    r"(?P<whole>(?P<key>National [Ii]dentification [Nn]umber ?:) (?P<value>\d+)) ?\(passport\)?"), # REGEX_PASS
+re.compile(r"(?P<whole>(?P<key>(ID number) ?:) (?P<value>\d+)\.?)"), # REGEX_ID
+re.compile(r"(?P<whole>(?P<key>(National ID number) ?:) (?P<value>\d+)\.?)")
 ]
-# Tax Identification Number: 232008937900
 
 def parse_address(node: Element):
     address = {
@@ -241,13 +243,13 @@ def parse_entry(context: Context, target: Element, programs, places):
         # Add auto-parsed properties
         for regex in OTHER_INFO_REGEXES:
             match = regex.match(value)
-            # if match is not None: 
-            #     context.log.info("Match", value=value, match=match)
-            #     print(value)
-            #     print(match)
-            #     print(match.group("key"))
-            #     print(slugify(match.group("key")))
-            #     print(match.group("value"))
+            if match is not None: 
+                context.log.info("Match", value=value, match=match)
+                print(value)
+                print(match)
+                print(match.group("key"))
+                print(slugify(match.group("key")))
+                print(match.group("value"))
             if match is None:
                 #context.log.warning("No match", value=value, regex=regex.pattern)
                 continue

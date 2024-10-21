@@ -139,6 +139,10 @@ lookups:
         value: position
       - match: designation
         value: position
+      - match: passport-number
+        value: passportNumber
+      - match: national-identification-number
+        value: passportNumber
   other_information: 
     lowercase: true
     options: 
@@ -676,6 +680,62 @@ lookups:
         properties: 
           - prop: country
             value: Serbia
+      - match: Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice available.
+        properties: 
+          - prop: description
+            value: Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice available.
+      - match: Mother's name is Martine Kofio. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice available.
+        properties: 
+          - prop: description
+            value: Mother's name is Martine Kofio. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice available.
+      - match: Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice web link available.
+      - match: NOT SUBJECT TO FINANCIAL SANCTIONS ACCORDING TO ARTICLE 2(1)(a)
+        properties: 
+          - prop: description
+            value: NOT SUBJECT TO FINANCIAL SANCTIONS ACCORDING TO ARTICLE 2(1)(a)
+      - match: Has controlled and commanded a large group of armed militia men. Father’s name (adoptive father) is Ekatom Saragba (also spelled Yekatom Saragba). Brother of Yves Saragba, an anti-Balaka commander in Batalimo, Lobaye province, and a former FACA soldier. Physical description: eye colour: black; hair colour: bold; complexion: black; height: 170cm; weight: 100kg. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Has controlled and commanded a large group of armed militia men. Father’s name (adoptive father) is Ekatom Saragba (also spelled Yekatom Saragba). Brother of Yves Saragba, an anti-Balaka commander in Batalimo, Lobaye province, and a former FACA soldier. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice web link available. 
+          - prop: eyeColor
+            value: black
+          - prop: hairColor
+            value: bold
+          - prop: height
+            value: 170cm
+          - prop: weight
+            value: 100kg
+          - prop: ethnicity
+            value: black
+      - match: Reportedly defunct. Registered in Bosnia and Herzegovina as a citizens’ association under the name of “Citizens’ Association for Support and Prevention of lies – Furqan” on 26 Sep. 1997. Al Furqan ceased its work by decision of the Ministry of Justice of the Bosnia and Herzegovina Federation (decision number 03-054-286/97 dated 8 Nov. 2002). Al Furqan was no longer in existence as of Dec. 2008. Review pursuant to Security Council resolution 1822 (2008) was concluded on 15 Jun. 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb. 2019. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 November 2021. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Reportedly defunct. Registered in Bosnia and Herzegovina as a citizens’ association under the name of “Citizens’ Association for Support and Prevention of lies – Furqan” on 26 Sep. 1997. Al Furqan ceased its work by decision of the Ministry of Justice of the Bosnia and Herzegovina Federation (decision number 03-054-286/97 dated 8 Nov. 2002). Al Furqan was no longer in existence as of Dec. 2008. Review pursuant to Security Council resolution 1822 (2008) was concluded on 15 Jun. 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb. 2019. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 November 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Electronics and explosives expert for Tehrik-e Taliban Pakistan (TTP) (QE.T.132.11). Involved in attack planning for TTP. Provided financial and logistical support for TTP and participated in TTP-sponsored militant training. Reportedly deceased. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. NTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Electronics and explosives expert for Tehrik-e Taliban Pakistan (TTP) (QE.T.132.11). Involved in attack planning for TTP. Provided financial and logistical support for TTP and participated in TTP-sponsored militant training. Reportedly deceased. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. NTERPOL-UN Security Council Special Notice web link available.
+      - match: Acting emir of Jemmah Anshorut Tauhid (JAT) (QE.J.133.12.). Associated with Abu Bakar Ba’asyir (QI.B.217.06), Abdul Rahim Ba’aysir (QI.B.293.11) and Jemaah Islamiyah (QE.J.92.02.). Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Acting emir of Jemmah Anshorut Tauhid (JAT) (QE.J.133.12.). Associated with Abu Bakar Ba’asyir (QI.B.217.06), Abdul Rahim Ba’aysir (QI.B.293.11) and Jemaah Islamiyah (QE.J.92.02.). Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Father’s name is Mahmoud ben Sasi. Mother’s name is Maryam bint al-Tijani. Inadmissible to the Schengen area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Father’s name is Mahmoud ben Sasi. Mother’s name is Maryam bint al-Tijani. Inadmissible to the Schengen area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Mother’s name is Zina al-Zarkaoui. Sentenced to seven years and one month of imprisonment by the Court of Appeals of Milan in Italy. Released on 31 Mar 2014 on early release. Review pursuant to Security Council resolution 1822 (2008) was concluded on 6 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Mother’s name is Zina al-Zarkaoui. Sentenced to seven years and one month of imprisonment by the Court of Appeals of Milan in Italy. Released on 31 Mar 2014 on early release. Review pursuant to Security Council resolution 1822 (2008) was concluded on 6 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      
+
 
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
