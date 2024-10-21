@@ -6,7 +6,7 @@ from zavod.shed.zyte_api import fetch_html
 
 
 TITLE_REGEX = re.compile(
-    r"^(Mr|Ms|Miss|Mrs|Prof|Dr|Professor Sir|Professor|Er. Dr.|Dr.|A/Prof|Clinical A/Prof|Adj A/Prof|Assoc Prof \(Ms\)|Er. Prof.| Er Prof)\.? (?P<name>.+)$"
+    r"^(Mr|MR|Ms|Miss|Mrs|Prof|Dr|Professor Sir|Professor|Er. Dr.|Er.|Ar.|Dr.|A/Prof|Clinical A/Prof|Adj A/Prof|Assoc Prof \(Ms\)|Er. Prof.| Er Prof)\.? (?P<name>.+)$"
 )
 DATA_URLS = [
     "https://www.sgdi.gov.sg/statutory-boards",
