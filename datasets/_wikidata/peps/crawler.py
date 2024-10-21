@@ -58,7 +58,8 @@ def crawl_holder(
     start_date = holder.get("end_date")
     end_date = holder.get("start_date")
     if any(
-        (d and (d < "1900-01-01")) for d in [start_date, end_date, birth_date, death_date]
+        (d and (d < "1900-01-01"))
+        for d in [start_date, end_date, birth_date, death_date]
     ):
         # Avoid constructing a proxy which emits a warning
         # before we discard it.
