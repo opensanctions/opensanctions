@@ -38,8 +38,6 @@ def crawl(context: Context):
         boards_dict[org_name] = link
 
     for org_name, link in boards_dict.items():
-        # print(f"Fetching data for {org_name}: {link}")
-
         if link is not None:
             board_doc = fetch_html(
                 context,
@@ -66,8 +64,6 @@ def crawl(context: Context):
             # Iterate through sections and their officials
             for section in section_headers:
                 section_name = section.text_content().strip()
-                # print(f"Section header: {section_name}")
-
                 # Identify positions related to the current section
                 section_body = section.getnext()
                 if section_body is not None:
@@ -94,7 +90,6 @@ def crawl(context: Context):
                             .strip()
                         )
                         # phone numbers are also available
-                        # print(f"Position: {position}")
                         if (
                             section_name.lower() == "board members"
                             or section_name.lower() == "council members"
