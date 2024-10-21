@@ -107,42 +107,43 @@ lookups:
     options:
       - match: website
         value: website
-      - match: email
+      - match: 
+          - email
+          - e-mail-address
+          - e-mail
         value: email
-      - match: e-mail-address
-        value: email
-      - match: e-mail
-        value: email
-      - match: telephone-number
-        value: phone
-      - match: tel
-        value: phone
-      - match: telephone
+      - match: 
+          - telephone-number
+          - tel
+          - telephone
         value: phone
       - match: taxpayer-identification-number
         value: innCode
-      - match: ogrn-main-state-registration-number
-        value: ogrnCode
-      - match: state-registration-number
+      - match: 
+          - ogrn-main-state-registration-number
+          - state-registration-number
         value: ogrnCode
       - match: registration-number
         value: registrationNumber
-      - match: tax-registration-number
-        value: taxNumber
-      - match: tax-identification-number
+      - match: 
+          - tax-registration-number
+          - tax-identification-number
         value: taxNumber
       - match: imo-number
         value: imoNumber
-      - match: function
+      - match: 
+          - position-s
+          - function
+          - designation
         value: position
-      - match: position-s
-        value: position
-      - match: designation
-        value: position
-      - match: passport-number
+      - match: 
+          - national-identification-number
+          - passport-number
         value: passportNumber
-      - match: national-identification-number
-        value: passportNumber
+      - match: 
+          - id-number
+          - national-id-number
+        value: idNumber
   other_information: 
     lowercase: true
     options: 
@@ -696,7 +697,7 @@ lookups:
         properties: 
           - prop: description
             value: NOT SUBJECT TO FINANCIAL SANCTIONS ACCORDING TO ARTICLE 2(1)(a)
-      - match: Has controlled and commanded a large group of armed militia men. Father’s name (adoptive father) is Ekatom Saragba (also spelled Yekatom Saragba). Brother of Yves Saragba, an anti-Balaka commander in Batalimo, Lobaye province, and a former FACA soldier. Physical description: eye colour: black; hair colour: bold; complexion: black; height: 170cm; weight: 100kg. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice web link available.
+      - match: "Has controlled and commanded a large group of armed militia men. Father’s name (adoptive father) is Ekatom Saragba (also spelled Yekatom Saragba). Brother of Yves Saragba, an anti-Balaka commander in Batalimo, Lobaye province, and a former FACA soldier. Physical description: eye colour: black; hair colour: bold; complexion: black; height: 170cm; weight: 100kg. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice web link available."
         properties: 
           - prop: description
             value: Has controlled and commanded a large group of armed militia men. Father’s name (adoptive father) is Ekatom Saragba (also spelled Yekatom Saragba). Brother of Yves Saragba, an anti-Balaka commander in Batalimo, Lobaye province, and a former FACA soldier. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. INTERPOL-UN Security Council Special Notice web link available. 
@@ -734,8 +735,66 @@ lookups:
         properties: 
           - prop: description
             value: Mother’s name is Zina al-Zarkaoui. Sentenced to seven years and one month of imprisonment by the Court of Appeals of Milan in Italy. Released on 31 Mar 2014 on early release. Review pursuant to Security Council resolution 1822 (2008) was concluded on 6 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
-      
-
+      - match: Member of Taliban Supreme Council and advisor to Mullah Mohammed Omar (TI.O.4.01) as at June 2010. Leads a Taliban “front” (mahaz) as of mid-2013. Believed to be in Afghanistan/Pakistan border area. Belongs to Sadat ethnic group. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+        properties: 
+          - prop: description
+            value: Member of Taliban Supreme Council and advisor to Mullah Mohammed Omar (TI.O.4.01) as at June 2010. Leads a Taliban “front” (mahaz) as of mid-2013. Believed to be in Afghanistan/Pakistan border area. Belongs to Sadat ethnic group. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Taliban member responsible for Jawzjan Province in Northern Afghanistan until 2008. Involved in drug trafficking. Believed to be in Afghanistan/Pakistan border area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 1 Jun 2010.
+        properties: 
+          - prop: description
+            value: Taliban member responsible for Jawzjan Province in Northern Afghanistan until 2008. Involved in drug trafficking. Believed to be in Afghanistan/Pakistan border area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 1 Jun 2010.
+      - match: Involved in drug trafficking as of 2011, primarily through Gerd-e-Jangal, Afghanistan. Active in the provinces of Khost, Paktia and Paktika, Afghanistan as of May 2007. Taliban "Governor" of Kandahar as of May 2007. Deputy to Mullah Abdul Ghani Baradar (TI.B.24.01) in the Taliban Supreme Council as of 2009. Taliban official responsible for four southern provinces of Afghanistan. Following the arrest of Mullah Baradar in February 2010 he was temporarily-in-charge of the Taliban Supreme Council. Believed to be in Afghanistan/Pakistan border area. Belongs to Ishaqzay tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010. Reportedly killed in May 2016.
+        properties: 
+          - prop: description
+            value: Involved in drug trafficking as of 2011, primarily through Gerd-e-Jangal, Afghanistan. Active in the provinces of Khost, Paktia and Paktika, Afghanistan as of May 2007. Taliban "Governor" of Kandahar as of May 2007. Deputy to Mullah Abdul Ghani Baradar (TI.B.24.01) in the Taliban Supreme Council as of 2009. Taliban official responsible for four southern provinces of Afghanistan. Following the arrest of Mullah Baradar in February 2010 he was temporarily-in-charge of the Taliban Supreme Council. Believed to be in Afghanistan/Pakistan border area. Belongs to Ishaqzay tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010. Reportedly killed in May 2016.
+      - match: Reported to have operated in Somalia and Ethiopia and to have merged with Harakat Al-Shabaab Al-Mujaahidiin (Al-Shabaab), which was accepted as an affiliate of Al-Qaida (QE.A.4.01) by Aiman Muhammed Rabi al-Zawahiri (QI.A.6.01) in Feb 2012, and is also subject to the sanctions measures set out in Security Council resolution 1844 (2008) concerning Somalia and Eritrea (see https://www.un.org/sc/suborg/en/sanctions/751). Leadership included Hassan Dahir Aweys (QI.D.42.01). AIAI has received funds through the Al-Haramain Islamic Foundation (Somalia). Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Reported to have operated in Somalia and Ethiopia and to have merged with Harakat Al-Shabaab Al-Mujaahidiin (Al-Shabaab), which was accepted as an affiliate of Al-Qaida (QE.A.4.01) by Aiman Muhammed Rabi al-Zawahiri (QI.A.6.01) in Feb 2012, and is also subject to the sanctions measures set out in Security Council resolution 1844 (2008) concerning Somalia and Eritrea (see https://www.un.org/sc/suborg/en/sanctions/751). Leadership included Hassan Dahir Aweys (QI.D.42.01). AIAI has received funds through the Al-Haramain Islamic Foundation (Somalia). Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: NOT SUBJECT TO FINANCIAL SANCTIONS ACCORDING TO ARTICLE 1
+        properties: 
+          - prop: description
+            value: NOT SUBJECT TO FINANCIAL SANCTIONS ACCORDING TO ARTICLE 1
+      - match: According to the Statement by the Chairman of the Security Council Committee established pursuant to resolution 751 (1992) concerning Somalia to the Security Council delivered on 29 Jul 2009, both Al-Shabaab and Hisb’ul Islam publicly and repeatedly claimed responsibility for the attacks by their forces on the Transitional Federal Government (TFG) and AMISOM. Al-Shabaab had also claimed responsibility for the killing of TFG officials, and on 19 Jul 2009 had raided and shut down the field offices of UNOPS, UNDSS and UNDP in the Bay and Bakool regions, in violation of paragraph 8 (c) of resolution 1844 (2008). Al-Shabaab has also repeatedly obstructed access to, or distribution of humanitarian assistance in Somalia.
+        properties: 
+          - prop: description
+            value: According to the Statement by the Chairman of the Security Council Committee established pursuant to resolution 751 (1992) concerning Somalia to the Security Council delivered on 29 Jul 2009, both Al-Shabaab and Hisb’ul Islam publicly and repeatedly claimed responsibility for the attacks by their forces on the Transitional Federal Government (TFG) and AMISOM. Al-Shabaab had also claimed responsibility for the killing of TFG officials, and on 19 Jul 2009 had raided and shut down the field offices of UNOPS, UNDSS and UNDP in the Bay and Bakool regions, in violation of paragraph 8 (c) of resolution 1844 (2008). Al-Shabaab has also repeatedly obstructed access to, or distribution of humanitarian assistance in Somalia.
+      - match: "The United Nations Security Council’s Report of the Secretary-General on the situation in Somalia, dated 20 Jul 2009, contained the following paragraphs involving the activities of al-Shabaab in Somalia: Insurgent groups, such as Al-Shabaab, are alleged to be extorting money from private companies and recruiting young people to join the fight against the Government in Mogadishu, including child soldiers. Al-Shabaab has confirmed the presence of foreign fighters within its ranks and has stated openly that it is working with Al-Qaeda in Mogadishu to remove the Government of Somalia. The foreign fighters, many of whom reportedly originate from Pakistan and Afghanistan, appear to be well trained and battle-tested. They have been observed wearing hoods and directing offensive operations against Government forces in Mogadishu and neighbouring regions. Al-Shabaab has intensified its strategy to coerce and intimidate the Somali population, as reflected in the carefully selected high gain assassinations and arrests of clan elders, several of whom have been murdered. On 19 Jun 2009, Omar Hashi Aden, the Minister of National Security, was killed in a large-scale suicide car bomb in Beletwyne. Over 30 other people were killed in the attack, which was strongly condemned by the international community and a broad cross-section of Somali society."
+        properties: 
+          - prop: description
+            value: "The United Nations Security Council’s Report of the Secretary-General on the situation in Somalia, dated 20 Jul 2009, contained the following paragraphs involving the activities of al-Shabaab in Somalia: Insurgent groups, such as Al-Shabaab, are alleged to be extorting money from private companies and recruiting young people to join the fight against the Government in Mogadishu, including child soldiers. Al-Shabaab has confirmed the presence of foreign fighters within its ranks and has stated openly that it is working with Al-Qaeda in Mogadishu to remove the Government of Somalia. The foreign fighters, many of whom reportedly originate from Pakistan and Afghanistan, appear to be well trained and battle-tested. They have been observed wearing hoods and directing offensive operations against Government forces in Mogadishu and neighbouring regions. Al-Shabaab has intensified its strategy to coerce and intimidate the Somali population, as reflected in the carefully selected high gain assassinations and arrests of clan elders, several of whom have been murdered. On 19 Jun 2009, Omar Hashi Aden, the Minister of National Security, was killed in a large-scale suicide car bomb in Beletwyne. Over 30 other people were killed in the attack, which was strongly condemned by the international community and a broad cross-section of Somali society."
+      - match: "According to the Dec 2008 report from the UN Security Council Somalia Monitoring Group (2008/769), Al-Shabaab is responsible for a variety of attacks within Somalia over the last several years, including: the reported killing and beheading of a Somali driver working for the World Food Programme in Sep 2008, the bombing of a market in Puntland that killed 20 and wounded over 100 on 6 Feb 2008, a campaign of bombings and targeted killings in Somaliland intended to disrupt the 2006 parliamentary elections and the murders of several foreign aid workers in 2003 and 2004."
+        properties: 
+          - prop: description
+            value: "According to the Dec 2008 report from the UN Security Council Somalia Monitoring Group (2008/769), Al-Shabaab is responsible for a variety of attacks within Somalia over the last several years, including: the reported killing and beheading of a Somali driver working for the World Food Programme in Sep 2008, the bombing of a market in Puntland that killed 20 and wounded over 100 on 6 Feb 2008, a campaign of bombings and targeted killings in Somaliland intended to disrupt the 2006 parliamentary elections and the murders of several foreign aid workers in 2003 and 2004."
+      - match: According to reporting, Al-Shabaab raided United Nations compounds in Somalia on 20 Jul 2009, and issued a decree banning three agencies of the United Nations from the Al-Shabaab controlled areas of Somalia. Additionally, Somali Transitional Federal Government forces fought Al-Shabaab and Hizbul Islam insurgents from 11-12 Jul 2009 resulting in the deaths of over 60 people. In the fighting on 11 Jul 2009, Al-Shabaab landed four mortars inside Villa Somalia that resulted in the deaths of three African Union Mission to Somalia (AMISOM) soldiers and injuries to eight others.
+        properties: 
+          - prop: description
+            value: According to reporting, Al-Shabaab raided United Nations compounds in Somalia on 20 Jul 2009, and issued a decree banning three agencies of the United Nations from the Al-Shabaab controlled areas of Somalia. Additionally, Somali Transitional Federal Government forces fought Al-Shabaab and Hizbul Islam insurgents from 11-12 Jul 2009 resulting in the deaths of over 60 people. In the fighting on 11 Jul 2009, Al-Shabaab landed four mortars inside Villa Somalia that resulted in the deaths of three African Union Mission to Somalia (AMISOM) soldiers and injuries to eight others.
+      - match: According to an article published by the British Broadcasting Corporation on 22 Feb 2009, Al-Shabaab claimed responsibility for a suicide car bomb attack on an African Union military base in Mogadishu. According to the article, the African Union confirmed that 11 African Union peacekeepers were killed and 15 others were hurt.
+        properties: 
+          - prop: description
+            value: According to an article published by the British Broadcasting Corporation on 22 Feb 2009, Al-Shabaab claimed responsibility for a suicide car bomb attack on an African Union military base in Mogadishu. According to the article, the African Union confirmed that 11 African Union peacekeepers were killed and 15 others were hurt.
+      - match: According to an article published by Reuters on 14 Jul 2009, Al-Shabaab militants made gains in 2009 in guerrilla-style attacks on Somali and African Union forces.
+        properties: 
+          - prop: description
+            value: According to an article published by Reuters on 14 Jul 2009, Al-Shabaab militants made gains in 2009 in guerrilla-style attacks on Somali and African Union forces.
+      - match: According to an article published by Voice of America on 10 Jul 2009, Al-Shabaab was involved in an attack on Somali government forces in May 2009. According to an article posted on the website of the Council on Foreign Relations authored on 27 Feb 2009, Al-Shabaab has waged an insurgency against Somalia’s transitional government and its Ethiopian supporters since 2006. Al-Shabaab killed eleven Burundian soldiers in the deadliest attack on AU peacekeepers since their deployment and states that Al-Shabaab engaged in heavy fighting that killed at least fifteen people in Mogadishu.
+        properties: 
+          - prop: description
+            value: According to an article published by Voice of America on 10 Jul 2009, Al-Shabaab was involved in an attack on Somali government forces in May 2009. According to an article posted on the website of the Council on Foreign Relations authored on 27 Feb 2009, Al-Shabaab has waged an insurgency against Somalia’s transitional government and its Ethiopian supporters since 2006. Al-Shabaab killed eleven Burundian soldiers in the deadliest attack on AU peacekeepers since their deployment and states that Al-Shabaab engaged in heavy fighting that killed at least fifteen people in Mogadishu.
+      - match: Abubaker Shariff Ahmed was arrested in late Dec 2010 by Kenyan authorities on suspicion of involvement in the bombing of a Nairobi bus terminal. Abubaker Shariff Ahmed is also a leader of a Kenya-based youth organization in Mombasa with ties to al-Shabaab.
+        properties: 
+          - prop: description
+            value: Abubaker Shariff Ahmed was arrested in late Dec 2010 by Kenyan authorities on suspicion of involvement in the bombing of a Nairobi bus terminal. Abubaker Shariff Ahmed is also a leader of a Kenya-based youth organization in Mombasa with ties to al-Shabaab.
+      - match: As of mid-2008, Yemen continues to serve as a hub for illegal arms shipments to the Horn of Africa, particularly arms shipments by boat to Somalia. There are unconfirmed reports that Faris Mana'a has participated in shipments to Somalia on numerous occasions. In 2004, Mana'a was involved in weapons contracts from Eastern Europe for weapons allegedly marketed to Somali fighters. Despite the Somalia UN arms embargo since 1992, Mana'a's interest in trafficking arms into Somalia can be traced back at least to 2003. Mana'a made an offer to buy thousands of arms in 2003 from Eastern Europe, and indicated that he planned to sell some of the arms in Somalia.
+        properties: 
+          - prop: description
+            value: As of mid-2008, Yemen continues to serve as a hub for illegal arms shipments to the Horn of Africa, particularly arms shipments by boat to Somalia. There are unconfirmed reports that Faris Mana'a has participated in shipments to Somalia on numerous occasions. In 2004, Mana'a was involved in weapons contracts from Eastern Europe for weapons allegedly marketed to Somali fighters. Despite the Somalia UN arms embargo since 1992, Mana'a's interest in trafficking arms into Somalia can be traced back at least to 2003. Mana'a made an offer to buy thousands of arms in 2003 from Eastern Europe, and indicated that he planned to sell some of the arms in Somalia.
 
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
