@@ -26,7 +26,7 @@ publisher:
   country: "us"
 url: "https://medquest.hawaii.gov/en/plans-providers/provider-exclusion-reinstatement-list.html"
 data:
-  url: https://medquest.hawaii.gov/content/dam/formsanddocuments/plans-and-providers/Med%20Prov%20Excl-Rein%20List-UPDATED-09.26.2024.pdf
+  url: https://medquest.hawaii.gov/en/plans-providers/provider-exclusion-reinstatement-list.html
   format: PDF
 
 ci_test: false
@@ -37,7 +37,16 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 7500
+      Person: 150
   max:
     schema_entities:
-      LegalEntity: 9000
+      Person: 300
+      Company: 20
+
+lookups:
+  type.date:
+    options:
+      match:
+        - "Indefinite"
+        - "-"
+      value: null

@@ -1,19 +1,34 @@
+import pdfplumber
+from pathlib import Path
 from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
+from normality import collapse_spaces, slugify
 
-from zavod.shed.gpt import run_image_prompt
 
-prompt = """
-Extract structured data from the following page of a PDF document. Return 
-a JSON list (`providers`) in which each object represents an medical provider.
-The name of a provider might be split onto the next row within a record.
-Each object should have the following fields: `last_name`,
-`first_name`, `middle_initial`, `medicaid_provider_id`, `provider_type`,
-`exclusion_date`, `reinstatement_date`.
-Return an empty string for unset fields.
-"""
+def parse_pdf_table(
+    context: Context, path: Path, save_debug_images=False, headers=None
+):
+    pdf = pdfplumber.open(path.as_posix())
+    settings = {}
+    for page_num, page in enumerate(pdf.pages, 1):
+        # Find the bottom of the bottom-most rectangle on the page
+        bottom = max(page.height - rect["y0"] for rect in page.rects)
+        settings["explicit_horizontal_lines"] = [bottom]
+        if save_debug_images:
+            im = page.to_image()
+            im.draw_hline(bottom, stroke=(0, 0, 255), stroke_width=1)
+            im.draw_rects(page.find_table(settings).cells)
+            im.save(f"page-{page_num}.png")
+        assert bottom < (page.height - 5), (bottom, page.height)
+
+        for row in page.extract_table(settings)[1:]:
+            if headers is None:
+                headers = [slugify(collapse_spaces(cell), sep="_") for cell in row]
+                continue
+            assert len(headers) == len(row), (headers, row)
+            yield dict(zip(headers, row))
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -40,25 +55,38 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("exclusion_date"))
-    if row.get("reinstatement_date") != "Indefinite":
-        h.apply_date(sanction, "endDate", row.pop("reinstatement_date"))
-        is_debarred = False
-    else:
-        row.pop("reinstatement_date")
-        is_debarred = True
+    h.apply_date(sanction, "endDate", row.pop("reinstatement_date"))
+    end_date = sanction.get("endDate")
+    ended = end_date != [] and end_date[0] < context.data_time_iso
+    if not ended:
         entity.add("topics", "debarment")
 
-    context.emit(entity, target=is_debarred)
+    context.emit(entity, target=not ended)
     context.emit(sanction)
 
     context.audit_data(row)
 
 
+def crawl_pdf_url(context: Context):
+    doc = context.fetch_html(context.data_url)
+    doc.make_links_absolute(context.data_url)
+    return doc.xpath(".//a[contains(text(), 'Med Prov Excl-Rein List')]")[0].get("href")
+
+
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.pdf", context.data_url)
+    path = context.fetch_resource("source.pdf", crawl_pdf_url(context))
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-    for page_path in h.make_pdf_page_images(path):
-        data = run_image_prompt(context, prompt, page_path, max_tokens=4096)
-        assert "providers" in data, data
-        for item in data.get("providers", []):
-            crawl_item(item, context)
+    for item in parse_pdf_table(
+        context,
+        path,
+        headers=[
+            "last_name",
+            "first_name",
+            "middle_initial",
+            "medicaid_provider_id",
+            "provider_type",
+            "exclusion_date",
+            "reinstatement_date",
+        ],
+    ):
+        crawl_item(item, context)
