@@ -1,10 +1,11 @@
-# import re
+import re
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 from zavod.shed.zyte_api import fetch_html
 
-# TITLE_REGEX = re.compile(r"^(Mr|Ms|Miss|Prof|Dr)\.? (?P<name>.+)$")
+
+TITLE_REGEX = re.compile(r"^(Mr|Ms|Miss|Mrs|Prof|Dr|Professor|Er. Dr.|Dr.|A/Prof|Clinical A/Prof|Adj A/Prof|Assoc Prof \(Ms\)|Er. Prof.| Er Prof)\.? (?P<name>.+)$")
 
 
 def unblock_validator(doc) -> bool:
@@ -103,12 +104,18 @@ def crawl(context: Context):
                             position = f"{position} of {agency} of the {ministry}"
 
                         #print(f"Formatted Position: {position}")
+                        match = TITLE_REGEX.match(full_name)
+                        if match:
+                            full_name = match.group("name")
+                            title = match.group(1)
+                        
                         person = context.make("Person")
                         person.id = context.make_id(full_name, position)
                         person.add("name", full_name)
                         person.add("sourceUrl", link)
                         person.add("topics", "role.pep")
                         person.add("position", position)
+                        person.add("title", title)
                         if email is not None:
                             if email.startswith("https://"):
                                 person.add("website", email)
