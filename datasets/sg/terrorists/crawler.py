@@ -50,7 +50,7 @@ def crawl(context: Context):
                     continue
                 if match.startswith(DOB):
                     dob = match.replace(DOB, "").strip()
-                    entity.add("birthDate", h.parse_date(dob, ["%d %B %Y"]))
+                    h.apply_date(entity, "birthDate", dob)
                     continue
                 if match.startswith(PASSPORT):
                     passport = match.replace(PASSPORT, "").strip()
