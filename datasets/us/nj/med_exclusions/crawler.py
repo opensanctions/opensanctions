@@ -6,18 +6,6 @@ from rigour.mime.types import PDF
 import pdfplumber
 from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
-from zavod.shed.gpt import run_image_prompt
-
-prompt = """
-Extract structured data from the following page of a PDF document. Return 
-a JSON list (`providers`) in which each object represents an medical provider.
-Distinct record rows alternate between grey and white backgrounds. The name
-of a provider might be split onto the next row within a record.
-Each object should have the following fields: `provider_name`, `title`,
-`npi_number`, `street`, `city`, `state`, `zip`, `action`, `effective_date`,
-`expiration_date`.
-Return an empty string for unset fields.
-"""
 
 
 def parse_pdf_table(
@@ -68,6 +56,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     for npi in row.pop("npi_number").split("/"):
         entity.add("npiCode", npi)
     entity.add("country", "us")
+    entity.add("address", address)
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
@@ -91,6 +80,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     context.emit(entity, target=not ended)
     context.emit(sanction)
+    context.emit(address)
 
     context.audit_data(row)
 
