@@ -1,18 +1,19 @@
 title: Singapore Government Directory
 entry_point: crawler.py
-prefix: sg-gov-dir
+prefix: sg-gov
 coverage:
   frequency: weekly
   start: 2024-10-18
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
-  Officials of statutory boards in Singapore and their roles within the
-  respective institutions.
+  Officials of ministries and statutory boards in Singapore and their roles
+  within the respective institutions.
 description: |
-  This dataset lists officials from statutory boards, detailing their titles, 
-  full names, and roles within their respective institutions. It includes key 
-  public officials and provides source URLs for additional context where available.
+  This dataset lists officials from ministries and statutory boards, detailing 
+  their titles, full names, and roles within their respective institutions. It 
+  includes key public officials and provides source URLs for additional context 
+  where available.
 publisher:
   name: Singapore Government Directory
   acronym: SGD
@@ -33,6 +34,13 @@ data:
   url: https://www.sgdi.gov.sg/statutory-boards
   format: HTML
 
+assertions:
+  min:
+    schema_entities:
+      Person: 1050
+  max:
+    schema_entities:
+      Person: 1400
 lookups: 
   type.name:
     lowercase: true
