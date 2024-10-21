@@ -14,8 +14,8 @@ description: |
 publisher:
   name: New Jersey Office of the Insurance Fraud Prosecutor
   description: >
-   > The OIFP serves as the focal point for all criminal, civil and administrative
-   > prosecutions of Medicaid and insurance fraud.
+    > The OIFP serves as the focal point for all criminal, civil and administrative
+    > prosecutions of Medicaid and insurance fraud.
   acronym: OIFP
   url: https://www.njoag.gov
   official: true
@@ -25,13 +25,22 @@ data:
   url: https://www.nj.gov/comptroller/doc/nj_debarment_list.pdf
   format: PDF
 
-
 dates:
   formats: ["%m/%d/%Y"]
+
+lookups:
+  type.date:
+    lowercase: true
+    options:
+      - match: 5/222024
+        value: 5/22/2024
+
 assertions:
   min:
     schema_entities:
-      LegalEntity: 7500
+      Company: 800
+      Person: 2500
   max:
     schema_entities:
-      LegalEntity: 9000
+      Company: 950
+      Person: 3000
