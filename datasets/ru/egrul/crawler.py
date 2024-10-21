@@ -517,22 +517,24 @@ def parse_company(context: Context, el: Element) -> None:
     for name_el in el.findall("./СвНаимЮЛ"):
         name_full = name_el.get("НаимЮЛПолн")
         name_short = name_el.get("НаимЮЛСокр")
-        # Replace entity type phrase with abbreviation in both full and short names
-        if name_full:
-            name_full_short, original_name = substitute_abbreviations(
-                name_full, abbreviations
-            )
-    name = name_full or name_short
+        name_full_short, original_name = substitute_abbreviations(
+            name_full, abbreviations
+        )
+        name_short_shortened, name_short_original = substitute_abbreviations(
+            name_short, abbreviations
+        )
+    name = name_full or name_short_shortened
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
     entity.add("name", name_full_short)
-    entity.add("name", name_short)
+    entity.add("name", name_short_shortened)
     entity.add("ogrnCode", ogrn)
     entity.add("innCode", inn)
     entity.add("kppCode", el.get("КПП"))
     entity.add("legalForm", el.get("ПолнНаимОПФ"))
     entity.add("incorporationDate", el.get("ДатаОГРН"))
     entity.add("description", original_name)
+    entity.add("description", name_short_original)
 
     for term_el in el.findall("./СвПрекрЮЛ"):
         entity.add("dissolutionDate", term_el.get("ДатаПрекрЮЛ"))
@@ -557,10 +559,9 @@ def parse_company(context: Context, el: Element) -> None:
 
     for successor in el.findall("./СвПреем"):
         succ_name = successor.get("НаимЮЛПолн")
-        if succ_name:
-            succ_name_short, succ_original_name = substitute_abbreviations(
-                succ_name, abbreviations
-            )
+        succ_name_short, succ_original_name = substitute_abbreviations(
+            succ_name, abbreviations
+        )
         succ_inn = successor.get("ИНН")
         succ_ogrn = successor.get("ОГРН")
         successor_id = entity_id(
