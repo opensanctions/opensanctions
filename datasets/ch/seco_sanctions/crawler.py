@@ -33,16 +33,25 @@ NAME_PARTS: Dict[MayStr, MayStr] = {
     "whole-name": None,
     "other": None,
 }
+
 OTHER_INFO_REGEXES = [
-    re.compile(r"(?P<whole>(?P<key>Website) ?: (?P<value>(https?:|www\.)\S*))"), # REGEX_WEBSITE
-    re.compile(
-            r"(?P<whole>(?P<key>(E-?mail( address)? ?:) (?P<value>[A-Za-z0-9._-]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+)))"
+re.compile(r"(?P<whole>(?P<key>Website:) (?P<value>(https?:\/\/|www\.)\S+))"), # REGEX_WEBSITE
+
+re.compile(
+            r"(?P<whole>(?P<key>E-?mail(?: address)?\s*:) (?P<value>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}))"
         ), # REGEX_EMAIL
-    re.compile(r"(?P<whole>(?P<key>(Tel\.|Telephone)( number)? ?:) (?P<value>\+?[0-9- ()]+))"), # REGEX_PHONE
-    re.compile(r"(?P<whole>(?P<key>(Taxpayer [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)"), # REGEX_INN
-    re.compile(r"(?P<whole>(?P<key>(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number) ?:) (?P<value>\d+)\.?"), # REGEX_REGNUM
-    re.compile(r"(?P<whole>(?P<key>(Tax [Rr]egistration [Nn]umber) ?:) (?P<value>\d+)\.?)"), # REGEX_TAX
-    re.compile(r"(?P<whole>(?P<key>(IMO [Nn]umber) ?:) (?P<value>\d+)\.?)"), # REGEX_IMO
+re.compile(r"(?P<whole>(?P<key>(Tel\.|Telephone)( number)? ?:) (?P<value>\+?[0-9- ()]+))"), # REGEX_PHONE (matches the whole string)
+re.compile(r"(?P<whole>(?P<key>(Taxpayer [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)"), # REGEX_INN
+re.compile(r"(?P<whole>(?P<key>(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number) ?:) (?P<value>\d+)\.?"), # REGEX_REGNUM
+re.compile(r"(?P<whole>(?P<key>(Tax [Rr]egistration [Nn]umber) ?:) (?P<value>\d+)\.?)"), # REGEX_TAX
+re.compile(r"(?P<whole>(?P<key>(IMO [Nn]umber) ?:) (?P<value>\d+)\.?)"), # REGEX_IMO
+re.compile(r"(?P<whole>(?P<key>(State [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)"), # REGEX_IDNP
+re.compile(r"(?P<whole>(?P<key>(Passport number) ?:) (?P<value>[A-Z]{2}\d{7}))"), # REGEX_PASSPORT
+re.compile(r"(?P<whole>(?P<key>(Function) ?:) (?P<value>.+))"), # REGEX_FUNCTION (add splits [;])
+re.compile(r"(?P<whole>(?P<key>(Position\(s\)) ?:) (?P<value>.+))"), # REGEX_POSITION
+re.compile(r"(?P<whole>(?P<key>(Designation) ?:) (?P<value>.+))"), # REGEX_DESIGNATION
+re.compile(r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)"), # REGEX_TIN
+
 ]
 # Tax Identification Number: 232008937900
 
@@ -232,14 +241,25 @@ def parse_entry(context: Context, target: Element, programs, places):
         # Add auto-parsed properties
         for regex in OTHER_INFO_REGEXES:
             match = regex.match(value)
+            # if match is not None: 
+            #     context.log.info("Match", value=value, match=match)
+            #     print(value)
+            #     print(match)
+            #     print(match.group("key"))
+            #     print(slugify(match.group("key")))
+            #     print(match.group("value"))
             if match is None:
+                #context.log.warning("No match", value=value, regex=regex.pattern)
                 continue
-            print(match, match.group("key"), match.group("value"), regex)
             prop = context.lookup_value("properties", slugify(match.group("key")))
             print(prop)
             if prop is not None:
-                entity.add(prop, match.group("value"))
-            value.replace(match.group("whole"), "")  # remove matched part
+                if prop != "imoNumber":
+                    entity.add(prop, match.group("value"))
+                elif prop == "imoNumber" and entity.schema.name == "Vessel":
+                    entity.add(prop, match.group("value"))
+
+            value = value.replace(match.group("whole"), "")  # remove matched part
         # See what remains
         value = value.strip()
         if not value:

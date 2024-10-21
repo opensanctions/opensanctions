@@ -105,20 +105,40 @@ lookups:
   properties:
     lowercase: true
     options:
-      - match: "website"
-        property: "website"
-      - match: "e-mail"
-        property: "email"
-      - match: "telephone"
-        property: "phone"
-      - match: "taxpayer-identification-number"
-        property: "innCode"
-      - match: "state-registration-number"
-        property: "registrationNumber"
-      - match: "tax-registration-number"
-        property: "taxNumber"
-      - match: "imo-number"
-        property: "imoNumber"
+      - match: website
+        value: website
+      - match: email
+        value: email
+      - match: e-mail-address
+        value: email
+      - match: e-mail
+        value: email
+      - match: telephone-number
+        value: phone
+      - match: tel
+        value: phone
+      - match: telephone
+        value: phone
+      - match: taxpayer-identification-number
+        value: innCode
+      - match: ogrn-main-state-registration-number
+        value: ogrnCode
+      - match: state-registration-number
+        value: ogrnCode
+      - match: registration-number
+        value: registrationNumber
+      - match: tax-registration-number
+        value: taxNumber
+      - match: tax-identification-number
+        value: taxNumber
+      - match: imo-number
+        value: imoNumber
+      - match: function
+        value: position
+      - match: position-s
+        value: position
+      - match: designation
+        value: position
   other_information: 
     lowercase: true
     options: 
@@ -126,6 +146,537 @@ lookups:
         properties: 
           - prop: gender
             value: male 
+          - prop: eyeColor
+            value: brown
+          - prop: hairColor
+            value: black
+          - prop: phone
+            value: +223 60 36 01 01
+          - prop: appearance
+            value: eyeglasses
+      - match: Travel ban according to article 3 paragraph 1 and financial sanctions according to article 1 do not apply until 15 March 2016.
+        properties: 
+          - prop: description
+            value: Travel ban according to article 3 paragraph 1 and financial sanctions according to article 1 do not apply until 15 March 2016.
+      - match: Former Minister of Internal Affairs; former Head of the President’s Security Service
+        properties: 
+          - prop: position
+            value: Former Minister of Internal Affairs
+          - prop: position
+            value: Former Head of the President’s Security Service
+      - match: Former Commander of the Special Rapid Response Unit (SOBR); Commander of an OMON unit
+        properties: 
+          - prop: position
+            value: Former Commander of the Special Rapid Response Unit (SOBR)
+          - prop: position
+            value: Commander of an OMON unit
+      - match: Former Minister of Internal Affairs; former Deputy Head of the Presidential Administration
+        properties: 
+          - prop: position
+            value: Former Minister of Internal Affairs
+          - prop: position
+            value: Former Deputy Head of the Presidential Administration
+      - match: Financial sanctions according to article 1 do not apply until 15 March 2016.
+        properties: 
+          - prop: description
+            value: Financial sanctions according to article 1 do not apply until 15 March 2016.
+      - match: Former Head of the Belarus President Property Management Directorate
+        properties: 
+          - prop: position
+            value: Former Head of the Belarus President Property Management Directorate
+      - match: Member of the Central Electoral Commission (CEC)
+        properties: 
+          - prop: position
+            value: Member of the Central Electoral Commission (CEC)
+      - match: Former Head of the Department of Internal Affairs of Gomel/Homyel Region/Oblast Executive Committee; Head of the Academy of the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Former Head of the Department of Internal Affairs of Gomel/Homyel Region/Oblast Executive Committee
+          - prop: position
+            value: Head of the Academy of the Ministry of Internal Affairs
+      - match: Former Head of the Department of Internal Affairs of Brest Region/Oblast Executive Committee, Major-General of Militia (police force); Head of the Department of Internal Affairs of the Minsk Region/Oblast Executive Committee
+        properties: 
+          - prop: position
+            value: Former Head of the Department of Internal Affairs of Brest Region/Oblast Executive Committee
+          - prop: title
+            value: Major-General of Militia (police force)
+          - prop: position
+            value: Head of the Department of Internal Affairs of the Minsk Region/Oblast Executive Committee
+      - match: Former Member of the Central Electoral Commission (CEC)
+        properties: 
+          - prop: position
+            value: Former Member of the Central Electoral Commission (CEC)
+      - match: Head of the Penal Correction Department in the Ministry of Internal Affairs, Major-General of Militia (police force)
+        properties: 
+          - prop: position
+            value: Head of the Penal Correction Department in the Ministry of Internal Affairs
+          - prop: title
+            value: Major-General of Militia (police force)
+      - match: Travel ban according to article 3 paragraph 1 and financial sanctions according to article 1 do not apply.
+        properties: 
+          - prop: description
+            value: Travel ban according to article 3 paragraph 1 and financial sanctions according to article 1 do not apply.
+      - match: Former First Deputy Minister of Internal Affairs; Deputy Minister of Internal Affairs - Chief of the Criminal Militia, Colonel of Militia (police force)
+        properties: 
+          - prop: position
+            value: Former First Deputy Minister of Internal Affairs
+          - prop: position
+            value: Deputy Minister of Internal Affairs - Chief of the Criminal Militia
+          - prop: title
+            value: Colonel of Militia (police force)
+      - match: Former Deputy Minister of Internal Affairs, Former Commander of the Internal Troops; First Deputy Minister of Internal Affairs, Head of the Public Security Police, Major General of Militia (police force)
+        properties: 
+          - prop: position
+            value: Former Deputy Minister of Internal Affairs
+          - prop: position
+            value: Former Commander of the Internal Troops
+          - prop: position
+            value: First Deputy Minister of Internal Affairs
+          - prop: position
+            value: Head of the Public Security Police
+          - prop: title
+            value: Major General of Militia (police force)
+      - match: Head of OMON (‘Special Purpose Police Detachment’) in Brest, Lieutenant Colonel
+        properties: 
+          - prop: position
+            value: Head of OMON (‘Special Purpose Police Detachment’) in Brest
+          - prop: title
+            value: Lieutenant Colonel
+      - match: First Deputy Chairman of the State Security Committee (KGB)
+        properties: 
+          - prop: position
+            value: First Deputy Chairman of the State Security Committee (KGB)
+      - match: Chair of Social Humanities and Legal Disciplines at Gomel/Homyel State Technical University, former Member of the Central Electoral Commission (CEC)
+        properties: 
+          - prop: position
+            value: Chair of Social Humanities and Legal Disciplines at Gomel/Homyel State Technical University
+          - prop: position
+            value: Former Member of the Central Electoral Commission (CEC)
+      - match: Former Head of the Police Department in Moskovski District, Minsk; Deputy head of the Minsk City Police Department, Head of Criminal Police
+        properties: 
+          - prop: position
+            value: Former Head of the Police Department in Moskovski District, Minsk
+          - prop: position
+            value: Deputy head of the Minsk City Police Department
+          - prop: position
+            value: Head of Criminal Police
+      - match: Former Prosecutor General of the Republic of Belarus; Ambassador of the Republic of Belarus to Armenia
+        properties: 
+          - prop: position
+            value: Former Prosecutor General of the Republic of Belarus
+          - prop: position
+            value: Ambassador of the Republic of Belarus to Armenia
+      - match: Former Deputy Minister Internal Affairs; Lieutenant-General of Militia (police force); Aide to the President of the Republic of Belarus - Inspector for the Minsk Region/Oblast
+        properties: 
+          - prop: position
+            value: Former Deputy Minister Internal Affairs
+          - prop: title
+            value: Lieutenant-General of Militia (police force)
+          - prop: position
+            value: Aide to the President of the Republic of Belarus - Inspector for the Minsk Region/Oblast
+      - match: Former Deputy Chairman of the State Security Committee (KGB); Deputy Chairman of the Presidium of the National Academy of Sciences
+        properties: 
+          - prop: position
+            value: Former Deputy Chairman of the State Security Committee (KGB)
+          - prop: position
+            value: Deputy Chairman of the Presidium of the National Academy of Sciences
+      - match: Deputy Chairman of the Central Electoral Commission (CEC)
+        properties: 
+          - prop: position
+            value: Deputy Chairman of the Central Electoral Commission (CEC)
+      - match: Former Deputy Chairman of the State Security Committee (KGB); Aide to the President of the Republic of Belarus - Inspector for Minsk Region/Oblast
+        properties: 
+          - prop: position
+            value: Former Deputy Chairman of the State Security Committee (KGB)
+          - prop: position
+            value: Aide to the President of the Republic of Belarus - Inspector for Minsk Region/Oblast
+      - match: Head of the Department for Safety and Security, Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Head of the Department for Safety and Security, Ministry of Internal Affairs
+      - match: Former Minister of Internal Affairs; Lieutenant General of Militia (police force); Aide to the President of the Republic of Belarus - Inspector for the Grodno/Hrodna Region/Oblast
+        properties: 
+          - prop: position
+            value: Former Minister of Internal Affairs
+          - prop: title
+            value: Lieutenant General of Militia (police force)
+          - prop: position
+            value: Aide to the President of the Republic of Belarus - Inspector for the Grodno/Hrodna Region/Oblast
+      - match: Former Deputy Minister of Internal Affairs, Major-General of Militia (police force); Minister of Justice
+        properties: 
+          - prop: position
+            value: Former Deputy Minister of Internal Affairs
+          - prop: title
+            value: Major-General of Militia (police force)
+          - prop: position
+            value: Minister of Justice
+      - match: =First Deputy Commander of the Interior Troops, former Commander of the Special Rapid Response Unit (SOBR), Lieutenant Colonel
+        properties: 
+          - prop: position
+            value: First Deputy Commander of the Interior Troops
+          - prop: position
+            value: Former Commander of the Special Rapid Response Unit (SOBR)
+          - prop: title
+            value: Lieutenant Colonel
+      - match: Former First Deputy Head of the District Department of Internal Affairs in Moskovsky District, Minsk, Head of Criminal Police; Head of the District Department of Internal Affairs in Leninsky District, Minsk
+        properties: 
+          - prop: position
+            value: Former First Deputy Head of the District Department of Internal Affairs in Moskovsky District, Minsk
+          - prop: position
+            value: Head of Criminal Police
+          - prop: position
+            value: Head of the District Department of Internal Affairs in Leninsky District, Minsk
+      - match: Former Chairman of the State Security Committee (KGB); Former State Secretary of the Security Council; Aide to the President of the Republic of Belarus – Inspector for the Brest Region/Oblast
+        properties: 
+          - prop: position
+            value: Former Chairman of the State Security Committee (KGB)
+          - prop: position
+            value: Former State Secretary of the Security Council
+          - prop: position
+            value: Aide to the President of the Republic of Belarus – Inspector for the Brest Region/Oblast
+      - match: Head of OMON (‘Special Purpose Police Detachment’) for the Minsk City Executive Committee
+        properties: 
+          - prop: position
+            value: Head of OMON (‘Special Purpose Police Detachment’) for the Minsk City Executive Committee
+      - match: Director of the Akrestina detention centre, Minsk
+        properties: 
+          - prop: position
+            value: Director of the Akrestina detention centre, Minsk
+      - match: Russia
+        properties: 
+          - prop: country
+            value: Russia
+      - match: First Deputy Commander of the Interior Troops, former Commander of the Special Rapid Response Unit (SOBR), Lieutenant Colonel
+        properties: 
+          - prop: position
+            value: First Deputy Commander of the Interior Troops
+          - prop: position
+            value: Former Commander of the Special Rapid Response Unit (SOBR)
+          - prop: title
+            value: Lieutenant Colonel
+      - match: Former First Deputy Head of the Department of Internal Affairs of Gomel/Homyel Region/Oblast Executive Committee, Head of Criminal Police; Head of the Department of Internal Affairs of the Brest Region/Oblast Executive Committee
+        properties: 
+          - prop: position
+            value: Former First Deputy Head of the Department of Internal Affairs of Gomel/Homyel Region/Oblast Executive Committee
+          - prop: position
+            value: Head of Criminal Police
+          - prop: position
+            value: Head of the Department of Internal Affairs of the Brest Region/Oblast Executive Committee
+      - match: Former Head of OMON (‘Special Purpose Police Detachment’) in Vitebsk/Viciebsk
+        properties: 
+          - prop: position
+            value: Former Head of OMON (‘Special Purpose Police Detachment’) in Vitebsk/Viciebsk
+      - match: Former Chairwoman of the Central Electoral Commission (CEC)
+        properties: 
+          - prop: position
+            value: Former Chairwoman of the Central Electoral Commission (CEC)
+      - match: Head of the Legal Support Department of the Permanent Committee of the Union State of Belarus and Russia, former Member of the Central Electoral Commission (CEC)
+        properties: 
+          - prop: position
+            value: Head of the Legal Support Department of the Permanent Committee of the Union State of Belarus and Russia
+          - prop: position
+            value: Former Member of the Central Electoral Commission (CEC)
+      - match: Former Head of the Main Internal Affairs Directorate of the Minsk City Executive Committee; Minister of Internal Affairs, Major General of Militia (police force)
+        properties: 
+          - prop: position
+            value: Former Head of the Main Internal Affairs Directorate of the Minsk City Executive Committee
+          - prop: position
+            value: Minister of Internal Affairs
+          - prop: title
+            value: Major General of Militia (police force)
+      - match: First Deputy Head of the Department of Internal Affairs of Gomel/Homyel Region/Oblast Executive Committee, Head of Public Safety Police
+        properties: 
+          - prop: position
+            value: First Deputy Head of the Department of Internal Affairs of Gomel/Homyel Region/Oblast Executive Committee
+          - prop: position
+            value: Head of Public Safety Police
+      - match: Former Deputy Head of the Department of Internal Affairs of Gomel/Homyel Region/Oblast Executive Committee, Head of Public Safety Police, Former Deputy Chairman of the Investigative Committee
+        properties: 
+          - prop: position
+            value: Former Deputy Head of the Department of Internal Affairs of Gomel/Homyel Region/Oblast Executive Committee
+          - prop: position
+            value: Head of Public Safety Police
+          - prop: position
+            value: Former Deputy Chairman of the Investigative Committee
+      - match: Head of OMON (‘Special Purpose Police Detachment’) in Gomel/Homyel
+        properties: 
+          - prop: position
+            value: Head of OMON (‘Special Purpose Police Detachment’) in Gomel/Homyel
+      - match: Former Secretary of the Central Electoral Commission (CEC)
+        properties: 
+          - prop: position
+            value: Former Secretary of the Central Electoral Commission (CEC)
+      - match: Managing Director of OOO Bergia Group, former Member of the Central Electoral Commission (CEC)
+        properties: 
+          - prop: position
+            value: Managing Director of OOO Bergia Group
+          - prop: position
+            value: Former Member of the Central Electoral Commission (CEC)
+      - match: First Deputy Head of the District Department of Internal Affairs in Moskovski District, Minsk, Head of Public Safety Police
+        properties: 
+          - prop: position
+            value: First Deputy Head of the District Department of Internal Affairs in Moskovski District, Minsk
+          - prop: position
+            value: Head of Public Safety Police
+      - match: Deputy Chairman of the State Security Committee (KGB)
+        properties: 
+          - prop: position
+            value: Deputy Chairman of the State Security Committee (KGB)
+      - match: Former Deputy Commander of the Internal Troops
+        properties: 
+          - prop: position
+            value: Former Deputy Commander of the Internal Troops
+      - match: Former First Deputy Chairman of the Investigative Committee, currently Chairman of the State Committee for Forensic Expertise
+        properties: 
+          - prop: position
+            value: Former First Deputy Chairman of the Investigative Committee
+          - prop: position
+            value: Chairman of the State Committee for Forensic Expertise
+      - match: Former State Secretary of the Security Council; Ambassador of the Republic of Belarus to Azerbaijan
+        properties: 
+          - prop: position
+            value: Former State Secretary of the Security Council
+          - prop: position
+            value: Ambassador of the Republic of Belarus to Azerbaijan
+      - match: Former National Security Advisor to the President, Member of the Security Council; President of the National Olympic Committee of Belarus
+        properties: 
+          - prop: position
+            value: Former National Security Advisor to the President
+          - prop: position
+            value: Member of the Security Council
+          - prop: position
+            value: President of the National Olympic Committee of Belarus
+      - match: ALFA Unit Commander
+        properties: 
+          - prop: position
+            value: ALFA Unit Commander
+      - match: President of the Republic of Belarus
+        properties: 
+          - prop: position
+            value: President of the Republic of Belarus
+      - match: Former Chairman of the Investigative Committee; Member of the reserve of the Investigative Committee
+        properties: 
+          - prop: position
+            value: Former Chairman of the Investigative Committee
+          - prop: position
+            value: Member of the reserve of the Investigative Committee
+      - match: Press Secretary of the President of Belarus
+        properties: 
+          - prop: position
+            value: Press Secretary of the President of Belarus
+      - match: "Maiden name: Kirsanova (Russian spelling: Кирсанова) or Selyun (Russian spelling: Селюн)"   
+        properties: 
+          - prop: previousName
+            value: Kirsanova
+          - prop: previousName
+            value: Selyun
+          - prop: previousName
+            value: Кирсанова
+          - prop: previousName
+            value: Селюн
+      - match: Chairman of the State Security Committee (KGB), former Chairman of the State Control Committee
+        properties: 
+          - prop: position
+            value: Chairman of the State Security Committee (KGB)
+          - prop: position
+            value: Former Chairman of the State Control Committee
+      - match: Head of Operational-Analytical Center
+        properties: 
+          - prop: position
+            value: Head of Operational-Analytical Center
+      - match: Deputy Minister of Information
+        properties: 
+          - prop: position
+            value: Deputy Minister of Information
+      - match: Former Head of the Main Directorate of Law and Order Protection and Prevention at the Ministry of Internal Affairs; Head of the Administration of the Leninsky District of Minsk
+        properties: 
+          - prop: position
+            value: Former Head of the Main Directorate of Law and Order Protection and Prevention at the Ministry of Internal Affairs
+          - prop: position
+            value: Head of the Administration of the Leninsky District of Minsk
+      - match: Deputy Chairman of the Investigative Committee
+        properties: 
+          - prop: position
+            value: Deputy Chairman of the Investigative Committee
+      - match: Chief of Staff of the Presidential Administration
+        properties: 
+          - prop: position
+            value: Chief of Staff of the Presidential Administration
+      - match: Former Deputy Chairman of the Investigative Committee
+        properties: 
+          - prop: position
+            value: Former Deputy Chairman of the Investigative Committee
+      - match: Chairman of the Constitutional Court of the Republic of Belarus
+        properties: 
+          - prop: position
+            value: Chairman of the Constitutional Court of the Republic of Belarus
+      - match: Former Deputy Head of the Police Department of the Sovetsky District of Minsk, Head of the Public Security Police; First Deputy Head of the Centre of Advanced Studies and Specialists of the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Former Deputy Head of the Police Department of the Sovetsky District of Minsk
+          - prop: position
+            value: Head of the Public Security Police
+          - prop: position
+            value: First Deputy Head of the Centre of Advanced Studies and Specialists of the Ministry of Internal Affairs
+      - match: Deputy Prime Minister, former Chairman of the Minsk City Executive Committee
+        properties: 
+          - prop: position
+            value: Deputy Prime Minister
+          - prop: position
+            value: Former Chairman of the Minsk City Executive Committee
+      - match: Judge of the Sovetsky district court in Minsk
+        properties: 
+          - prop: position
+            value: Judge of the Sovetsky district court in Minsk
+      - match: Deputy Head of the Presidential Administration, former Minister of Information
+        properties: 
+          - prop: position
+            value: Deputy Head of the Presidential Administration
+          - prop: position
+            value: Former Minister of Information
+      - match: Deputy Head of the public militia of the Academy of the Ministry of Internal Affairs, Police Colonel, former Deputy Head of the Main Department and Head of the Department of Law Enforcement in the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Deputy Head of the public militia of the Academy of the Ministry of Internal Affairs
+          - prop: title
+            value: Police Colonel
+          - prop: position
+            value: Former Deputy Head of the Main Department and Head of the Department of Law Enforcement in the Ministry of Internal Affairs
+      - match: Minister counsellor at the Belarusian embassy in Moscow, Russia, Former First Deputy Minister of Information
+        properties: 
+          - prop: position
+            value: Minister counsellor at the Belarusian embassy in Moscow
+          - prop: country
+            value: Russia
+          - prop: position
+            value: Former First Deputy Minister of Information
+      - match: Deputy Head of Criminal Police in the Main Internal Affairs Directorate of the Minsk City Executive Committee, former Police Colonel, Chief of the Sovetsky District Police Department of Minsk
+        properties: 
+          - prop: position
+            value: Deputy Head of Criminal Police in the Main Internal Affairs Directorate of the Minsk City Executive Committee
+          - prop: title
+            value: Police Colonel
+          - prop: position
+            value: Chief of the Sovetsky District Police Department of Minsk
+      - match: Judge of the Partizanski district court in Minsk
+        properties: 
+          - prop: position
+            value: Judge of the Partizanski district court in Minsk
+      - match: Judge of the Oktyabrsky district court in Minsk
+        properties: 
+          - prop: position
+            value: Judge of the Oktyabrsky district court in Minsk
+      - match: Former Head of the Prevention Department of the Main Department of Law Enforcement and Prevention of the Public Security Police of the Ministry of Internal Affairs; Associate professor at the Academy of the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Former Head of the Prevention Department of the Main Department of Law Enforcement and Prevention of the Public Security Police of the Ministry of Internal Affairs
+          - prop: position
+            value: Associate professor at the Academy of the Ministry of Internal Affairs
+      - match: Police Lieutenant Colonel, Head of the District Police Department in Molodechno
+        properties: 
+          - prop: title
+            value: Police Lieutenant Colonel
+          - prop: position
+            value: Head of the District Police Department in Molodechno
+      - match: Deputy Head of the Vitebsk/Viciebsk Region/Oblast Office of the Department of Financial Investigations of the State Control Committee, former Senior Inspector for Special Matters of the Department of Financial Investigations of the State Control Committee
+        properties: 
+          - prop: position
+            value: Deputy Head of the Vitebsk/Viciebsk Region/Oblast Office of the Department of Financial Investigations of the State Control Committee
+          - prop: position
+            value: Former Senior Inspector for Special Matters of the Department of Financial Investigations of the State Control Committee
+      - match: Judge of the Central district court in Minsk
+        properties: 
+          - prop: position
+            value: Judge of the Central district court in Minsk
+      - match: Governor of the Grodno/Hrodna Region/Oblast, former Minister of Healthcare
+        properties: 
+          - prop: position
+            value: Governor of the Grodno/Hrodna Region/Oblast
+          - prop: position
+            value: Former Minister of Healthcare
+      - match: Former Chief of Staff and First Deputy Commander of the Internal Troops of the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Former Chief of Staff and First Deputy Commander of the Internal Troops of the Ministry of Internal Affairs
+      - match: Judge of the Leninsky district court in Mogilev/Mahiliou
+        properties: 
+          - prop: position
+            value: Judge of the Leninsky district court in Mogilev/Mahiliou
+      - match: Deputy Head of the Directorate for the Protection of Law and Order and Prevention, former Deputy Head of the department for mass events of the GUVD (Main Department of Internal Affairs) of the Minsk City Executive Committee
+        properties: 
+          - prop: position
+            value: Deputy Head of the Directorate for the Protection of Law and Order and Prevention
+          - prop: position
+            value: Former Deputy Head of the department for mass events of the GUVD (Main Department of Internal Affairs) of the Minsk City Executive Committee
+      - match: Chair of the Council of the Republic of the National Assembly of Belarus
+        properties: 
+          - prop: position
+            value: Chair of the Council of the Republic of the National Assembly of Belarus
+      - match: Deputy Chief of Public Security Police in Grodno/Hrodna
+        properties: 
+          - prop: position
+            value: Deputy Chief of Public Security Police in Grodno/Hrodna
+      - match: Former Deputy Head of the Belarus President Property Management Directorate
+        properties: 
+          - prop: position
+            value: Former Deputy Head of the Belarus President Property Management Directorate
+      - match: Chairman of the Belarusian State Television and Radio Company, Head of Belteleradio Company
+        properties: 
+          - prop: position
+            value: Chairman of the Belarusian State Television and Radio Company
+          - prop: position
+            value: Head of Belteleradio Company
+      - match: Judge of the Sovetsky district court in Gomel/Homyel
+        properties: 
+          - prop: position
+            value: Judge of the Sovetsky district court in Gomel/Homyel
+      - match: Chairman of the Tsentralny District Court in Minsk, former Chairman of the Moskovski district court in Minsk
+        properties: 
+          - prop: position
+            value: Chairman of the Tsentralny District Court in Minsk
+          - prop: position
+            value: Former Chairman of the Moskovski district court in Minsk
+      - match: Judge of the Zavodsky district court in Minsk
+        properties: 
+          - prop: position
+            value: Judge of the Zavodsky district court in Minsk
+      - match: Lawyer at the legal aid office of the Kastrychnitski district in Minsk, former Judge of the Central district court in Minsk
+        properties: 
+          - prop: position
+            value: Lawyer at the legal aid office of the Kastrychnitski district in Minsk
+          - prop: position
+            value: Former Judge of the Central district court in Minsk
+      - match: Prosecutor General of Belarus
+        properties: 
+          - prop: position
+            value: Prosecutor General of Belarus
+          - prop: country
+            value: Belarus
+      - match: Chairman of Minsk Regional Executive Committee
+        properties: 
+          - prop: position
+            value: Chairman of Minsk Regional Executive Committee
+      - match: NOT SUBJECT TO TRAVEL RESTRICTIONS ACCORDING TO ARTICLE 3(1) UNTIL 10 JANUARY 2025
+        properties: 
+          - prop: description
+            value: NOT SUBJECT TO TRAVEL RESTRICTIONS ACCORDING TO ARTICLE 3(1) UNTIL 10 JANUARY 2025
+      - match: China
+        properties: 
+          - prop: country
+            value: China
+      - match: Thailand
+        properties: 
+          - prop: country
+            value: Thailand
+      - match: Kazakhstan
+        properties: 
+          - prop: country
+            value: Kazakhstan
+      - match: Serbia
+        properties: 
+          - prop: country
+            value: Serbia
+
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
           - other_schema: Company
