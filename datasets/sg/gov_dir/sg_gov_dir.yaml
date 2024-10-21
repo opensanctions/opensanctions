@@ -42,14 +42,6 @@ assertions:
     schema_entities:
       Person: 1400
 lookups: 
-  type.name:
-    lowercase: true
-    normalize: true
-    options:
-      - match: Group Director and Chief Technology Officer (Built Environment Research and Innovation Institute & Built Environment Technology Alliance) of BUILDING AND CONSTRUCTION AUTHORITY of the MINISTRY OF NATIONAL DEVELOPMENT at MINISTRY OF NATIONAL DEVELOPMENT BUILDING AND CONSTRUCTION AUTHORITY
-        value: Group Director and Chief Technology Officer of BUILDING AND CONSTRUCTION AUTHORITY of the MINISTRY OF NATIONAL DEVELOPMENT at MINISTRY OF NATIONAL DEVELOPMENT BUILDING AND CONSTRUCTION AUTHORITY
-      - match: Deputy Chief Executive Officer (Environmental Protection) & Director-General of Environmental Protection of NATIONAL ENVIRONMENT AGENCY of the MINISTRY OF SUSTAINABILITY AND THE ENVIRONMENT at MINISTRY OF SUSTAINABILITY AND THE ENVIRONMENT NATIONAL ENVIRONMENT AGENCY
-        value: Deputy Chief Executive Officer and Director-General of Environmental Protection of NATIONAL ENVIRONMENT AGENCY of the MINISTRY OF SUSTAINABILITY AND THE ENVIRONMENT at MINISTRY OF SUSTAINABILITY AND THE ENVIRONMENT NATIONAL ENVIRONMENT AGENCY
   type.email:
     lowercase: true
     normalize: true
