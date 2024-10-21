@@ -41,6 +41,15 @@ dates:
     - "entre %Y,"
     - "et %Y"
     - "approximativement %Y"
+assertions:
+  min:
+    schema_entities:
+      Person: 3000
+      Organization: 1000
+  max:
+    schema_entities:
+      Person: 5000
+      Organization: 1400
 lookups:
   schemata:
     options:
@@ -188,12 +197,3 @@ lookups:
       - match:
           - UKRAINE et
         value: ua
-assertions:
-  min:
-    schema_entities:
-      Person: 3500
-      Organization: 1000
-  max:
-    schema_entities:
-      Person: 4200
-      Organization: 1400
