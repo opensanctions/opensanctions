@@ -110,7 +110,7 @@ def crawl(context: Context):
                                 in {"board members", "council members"}
                             )
                             if is_ministry:
-                                position = f"{position} of the {ministry}"
+                                position = f"{position} in the {ministry}"
                             elif is_board_member:
                                 position = f"{position} of the Board of the {agency}"
                             else:
