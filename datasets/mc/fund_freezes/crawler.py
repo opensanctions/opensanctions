@@ -43,6 +43,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
 
     entity = context.make(schema)
     entity.id = context.make_id("mc-freezes", entity_id)
+    entity.add("topics", "sanction")
     details = data.pop("mesureDetails")
     alias = details.pop("alias")
     entity.add("alias", re.split(r"[;”]", alias))
