@@ -16,7 +16,7 @@ DATA_URLS = [
 
 def position_name(body_type, rank, public_body, agency, section_name):
     is_public_body = body_type.lower() == "public body"
-    is_board_member = body_type.lower() == "agency" or section_name.lower() in {
+    is_board_member = section_name.lower() in {
         "board members",
         "council members",
     }
@@ -97,6 +97,8 @@ def crawl_person(context, official, link, public_body, agency, section_name, dat
         body_type = "agency"
 
     pep_status = is_pep(rank=position)  # checking before formatting the position name
+    if section_name.lower() == "members of parliament": # pep_status override for MPs
+        pep_status = True
     position = position_name(body_type, position, public_body, agency, section_name)
 
     match = TITLE_REGEX.match(full_name)
