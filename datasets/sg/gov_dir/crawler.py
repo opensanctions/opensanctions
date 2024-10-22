@@ -1,5 +1,6 @@
 import re
 from lxml import etree
+from normality import collapse_spaces
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
@@ -14,30 +15,31 @@ DATA_URLS = [
     "https://www.sgdi.gov.sg/organs-of-state",
 ]
 
+POSITION_REPLACEMENTS = [
+    (r"Senior Statutory Board Officers & Their Personal Assistants,", ""),
+    (r"Senior Management & Their Personal Assistants,", ""),
+    (r"Political Appointees & Their Personal Assistants,", ""),
+    (r"Political Appointees and Their Personal Assistants,", ""),
+    (r"Member, Board Members,", "Member of the board of the"),
+    (r"Board Member of the board of the", "Member of the board of the"),
+    (r"Member, Council Members", "Member of the Council"),
+    (r"Board Member of the board of the", "Member of the board of the"),
+    (r"Chairman, Board Members", "Chairman of the Board"),
+    (r"Vice President, Board Members", "Vice President of the Board"),
+    (r"President, Board Members", "President of the Board"),
+    (r"Mufti, Council Members,", "Mufti"),
+    (r", , ", ", "),
+]
 
-def position_name(body_type, rank, public_body, agency, section_name):
-    is_public_body = body_type.lower() == "public body"
-    is_board_member = section_name.lower() in {
-        "board members",
-        "council members",
-    }
 
-    if is_public_body and is_board_member:
-        position = f"{rank} of the Board of the {public_body}"
-    elif is_public_body:
-        position = f"{rank} in the {public_body}"
-    elif is_board_member:
-        position = f"{rank} of the Board of the {agency}"
+def make_position_name(rank, public_body, agency, section_name):
+    if agency:
+        position = f"{rank}, {section_name}, {agency}"
     else:
-        position = f"{rank} of the {agency}"
+        position = f"{rank}, {section_name}, {public_body}"
 
-    position = re.sub(
-        r"(Board Member of the Board of|Member of the Board of the Board of)",
-        "Member of the Board of",
-        position,
-        flags=re.I,
-    )
-
+    for pattern, replacement in POSITION_REPLACEMENTS:
+        position = re.sub(pattern, replacement, position, flags=re.I)
     return position
 
 
@@ -76,10 +78,10 @@ def is_pep(rank: str) -> bool | None:
         return None
 
 
-def crawl_person(context, official, link, public_body, agency, section_name, data_url):
-    position = official.find(".//div[@class='rank']").text_content().strip()
+def crawl_person(context: Context, official, link, public_body, agency, section_name, data_url):
+    rank = official.find(".//div[@class='rank']").text_content().strip()
     if any(
-        keyword in position.lower()
+        keyword in rank.lower()
         for keyword in [
             "pa to",
             "assistant",
@@ -92,19 +94,13 @@ def crawl_person(context, official, link, public_body, agency, section_name, dat
     email = official.find(".//div[@class='email info-contact']").text_content().strip()
     # phone numbers are also available
 
-    if "ministries" or "organs-of-state" in data_url:
-        body_type = "public body"
-    elif "statutory-boards" in data_url:
-        body_type = "agency"
+    pep_status = is_pep(rank)  # checking before formatting the position name
+    position_name = make_position_name(rank, public_body, agency, section_name)
 
-    pep_status = is_pep(rank=position)  # checking before formatting the position name
-    position = position_name(body_type, position, public_body, agency, section_name)
-
-    if (
-        section_name.lower() == "members of parliament"
-    ):  # pep_status and position override for MPs
+    # Override status and position name for MPs
+    if collapse_spaces(section_name.lower()) == "members of parliament":
         pep_status = True
-        position = "Member of Parliament"
+        position_name = "Member of Parliament"
     match = TITLE_REGEX.match(full_name)
     title = None
     if match:
@@ -112,7 +108,7 @@ def crawl_person(context, official, link, public_body, agency, section_name, dat
         title = match.group(1)
 
     person = context.make("Person")
-    person.id = context.make_id(full_name, position)
+    person.id = context.make_id(full_name, rank, agency, public_body)
     person.add("name", full_name)
     person.add("sourceUrl", link)
     person.add("topics", "role.pep")
@@ -125,12 +121,7 @@ def crawl_person(context, official, link, public_body, agency, section_name, dat
             for email in email.split("; "):
                 person.add("email", email)
 
-    position = h.make_position(
-        context,
-        name=position,
-        country="sg",
-        # topics=["gov.executive", "gov.national"],
-    )
+    position = h.make_position(context, name=position_name, country="sg")
     categorisation = categorise(context, position, is_pep=pep_status)
     if categorisation.is_pep:
         occupancy = h.make_occupancy(context, person, position)
