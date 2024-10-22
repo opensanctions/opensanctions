@@ -3,12 +3,16 @@ from typing import List, Optional
 import pdfplumber
 
 from zavod import Context
+from zavod.shed.internal_data import fetch_internal_data
+
 
 EXTRACT_ARGS = {"text_x_tolerance_ratio": 0.6}
 
 
 def crawl(context: Context) -> None:
-    data_path = context.fetch_resource("source.pdf", context.data_url)
+    data_path = context.get_resource_path("source.pdf")
+    fetch_internal_data("iso9362_bic/20241021/ISOBIC.pdf", data_path)
+    # data_path = context.fetch_resource("source.pdf", context.data_url)
     pdf = pdfplumber.open(data_path.as_posix())
     for idx, page in enumerate(pdf.pages):
         if idx == 0:
