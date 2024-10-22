@@ -6,7 +6,7 @@ from typing import Dict, Optional, Tuple, List
 from followthemoney.types import registry
 from followthemoney.util import join_text
 from lxml.etree import _Element as Element
-from slugify import slugify
+from normality import slugify
 
 from zavod import Context, Entity
 from zavod import helpers as h
