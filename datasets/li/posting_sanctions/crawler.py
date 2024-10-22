@@ -1,11 +1,13 @@
 import re
-import lxml
-import shutil
-from datetime import datetime
-from typing import Optional
+import pdfplumber
+from pathlib import Path
+from typing import Dict, List, Optional
 
 from zavod import Context, Entity
 from zavod import helpers as h
+
+DEBARMENT_URL = "https://www.llv.li/serviceportal2/amtsstellen/amt-fuer-volkswirtschaft/wirtschaft/entsendegesetz/sperren.pdf"
+INFRACTION_URL = "https://www.llv.li/serviceportal2/amtsstellen/amt-fuer-volkswirtschaft/wirtschaft/entsendegesetz/uebertretungen.pdf"
 
 
 COUNTRY_CODES = {
@@ -13,34 +15,25 @@ COUNTRY_CODES = {
     "D": "de",  # Germany
     "F": "fr",  # France
     "I": "it",  # Italy
+    "CH": "ch",  # Switzerland
     "SL": "si",  # Slovenia
 }
 
 
-def parse_data_time(doc, context) -> Optional[datetime]:
-    text = doc.xpath("//p[starts-with(., 'Stand:')]/strong")[0].text
-    text = h.replace_months(context.dataset, text)
-    if date := h.parse_date(text, context.dataset.dates.formats):
-        return datetime.strptime(date[0], "%Y-%m-%d")
-    else:
-        return None
-
-
 def parse_address(context: Context, addr: str) -> Optional[Entity]:
-    addr_clean = context.lookup_value("address_override", addr, default=addr)
-    if addr_clean is None:
-        return None
-    parts = [p.strip() for p in addr_clean.split(",")]
+    addr = addr.replace("‐", "-")
+    addr = context.lookup_value("address_override", addr, default=addr)
+    parts = [p.strip() for p in addr.split(",")]
     street = parts[0]
     country_code, postal_code, city = None, None, None
-    if m := re.match(r"(A|D|F|I|[A-Z]{2})[- ]\s*([\d\-]+) (.+)", parts[-1]):
+    if m := re.match(r"(A|D|F|I|[A-Z]{2})-\s*([\d\-]+) (.+)", parts[-1], re.UNICODE):
         country_code = COUNTRY_CODES.get(m.group(1), m.group(1).lower())
         postal_code, city = m.group(2), m.group(3)
     if not country_code or not city:
-        context.log.warn(f'Cannot parse address "{addr_clean}"')
+        context.log.warn(f'Cannot parse address "{addr}"')
     return h.make_address(
         context=context,
-        full=addr_clean,
+        full=addr,
         street=street,
         postal_code=postal_code,
         city=city,
@@ -52,12 +45,16 @@ def parse_target(
     context: Context, name: str, address: Optional[Entity], date: str
 ) -> Optional[Entity]:
     name = " ".join(name.replace("\u00a0", " ").split())
-    person = context.make("Person")
     m = re.search(r"^(.+), (Frau|Herr[n]?) (.+)$", name)
+
+    company_name = m.group(1).strip() if m else name.strip()
+    company = context.make("Company")
+    company.id = context.make_id("Company", company_name)
+    company.add("name", company_name)
+    h.copy_address(company, address)
     if m is None:
-        context.log.warn(f'Cannot parse target "{name}"')
-        return None
-    company_name = m.group(1)
+        return company
+
     gender = {"Frau": "female", "Herr": "male", "Herrn": "male"}[m.group(2)]
     w = m.group(3).split()
     if len(w) >= 3 and " ".join(w[-2:] + w[:-2]) in name:
@@ -67,6 +64,7 @@ def parse_target(
         # "Schreindorfer Benedikt Clemens, Herr Benedikt Clemens Schreindorfer"
         # "Wilhelm Alexander, Herr Alexander Wilhelm"
         given_name, family_name = " ".join(w[:-1]), w[-1]
+    person = context.make("Person")
     person.id = context.make_id("Person", given_name, family_name, gender)
     h.apply_name(person, given_name=given_name, last_name=family_name)
     person.add("gender", gender)
@@ -77,11 +75,6 @@ def parse_target(
         context.emit(person, target=True)
         return person
 
-    company = context.make("Company")
-    company.id = context.make_id("Company", company_name)
-    company.add("name", company_name)
-    h.apply_address(context, company, address)
-
     emp = context.make("Employment")
     emp.id = context.make_id("Employment", person.id, company.id)
     emp.add("employee", person)
@@ -90,75 +83,85 @@ def parse_target(
     emp.add("role", "Manager found responsible for breaking the law")
     context.emit(person, target=False)
     context.emit(emp, target=False)
-
     return company
 
 
-def parse_debarments(context: Context, doc) -> None:
-    table = doc.xpath(
-        "//h2[text()='Laufende und abgelaufene Entsendesperren"
-        + " (Art. 7 Abs. 2 Entsendegesetz)']/following::table[1]"
-    )[0]
-    for row in table.xpath("tbody/tr")[1:]:
-        [start, name, addr, law, end] = row.xpath("descendant::*/text()")
-        address = parse_address(context, addr)
-        company = parse_target(context, name, address, start)
+def extract_rows(path: Path) -> List[Dict[str, str]]:
+    pdf = pdfplumber.open(path.as_posix())
+    settings = {
+        "vertical_strategy": "lines",
+        "horizontal_strategy": "lines",
+        "text_tolerance": 1,
+    }
+    headers: Optional[List[str]] = None
+    rows: List[Dict[str, str]] = []
+    for page in pdf.pages:
+        cropped = page.crop((0, 50, page.width, page.height - 10))
+        for row in cropped.extract_table(settings):
+            if headers is None:
+                headers = row
+                continue
+            rows.append({k: v for k, v in zip(headers, row)})
+    return rows
+
+
+def crawl_debarments(context: Context) -> None:
+    path = context.fetch_resource("sperren.pdf", DEBARMENT_URL)
+    for row in extract_rows(path):
+        if len(row) != 5:
+            continue
+        address = parse_address(context, row.pop("Adresse"))
+        name = row.pop("Betrieb")
+        effective = row.pop("In Rechtskraft")
+        end = row.pop("Ende der Sperre")
+        company = parse_target(context, name, address, effective)
         if company is None:
             continue
-        company.add("topics", "debarment")
+        violation = row.pop("Verstoss")
         sanction = h.make_sanction(context, company)
         sanction.id = context.make_id(
-            "Sanction", "Debarment", company.id, law, start, end
+            "Sanction", "Debarment", company.id, violation, effective, end
         )
-        h.apply_date(sanction, "date", start)
+        h.apply_date(sanction, "startDate", effective)
         h.apply_date(sanction, "endDate", end)
         sanction.add("description", "Debarment")
         sanction.add("program", "EntsG Sanctions")
-        reason = (
-            "Repeated or severe infraction against "
-            f"Liechtenstein Posted Workers Act, {law}"
-        )
-        sanction.add("reason", reason)
+        sanction.add("reason", violation)
+
+        end_date = max(sanction.get("endDate"), default=None)
+        if end_date is None or end_date > context.data_time_iso:
+            company.add("topics", "debarment")
+
         context.emit(sanction)
         context.emit(company, target=True)
 
 
-def parse_infractions(context: Context, doc) -> None:
-    table = doc.xpath(
-        "//h2[text()='Übertretungen (Art. 9 Entsendegesetz)']/following::table[1]"
-    )[0]
-    for row in table.xpath("tbody/tr")[1:]:
-        [date, name, addr, law] = row.xpath("descendant::*/text()")
-        address = parse_address(context, addr)
-        company = parse_target(context, name, address, date)
+def crawl_infractions(context: Context) -> None:
+    path = context.fetch_resource("uebertretungen.pdf", INFRACTION_URL)
+    for row in extract_rows(path):
+        if len(row) != 4:
+            context.log.warn(f"Cannot split row: {row}")
+            continue
+        address = parse_address(context, row.pop("Adresse"))
+        effective = row.pop("In Rechtskraft")
+        name = row.pop("Betrieb/ verantwortliche natürliche Person")
+        company = parse_target(context, name, address, effective)
         if company is None:
             continue
+        company.add("topics", "reg.warn")
+        violation = row.pop("Verstoss")
         sanction = h.make_sanction(context, company)
-        sanction.id = context.make_id("Sanction", "Penalty", company.id, law, date)
-        h.apply_date(sanction, "date", date)
+        sanction.id = context.make_id(
+            "Sanction", "Penalty", company.id, violation, effective
+        )
+        h.apply_date(sanction, "date", effective)
         sanction.add("description", "Administrative Penalty")
         sanction.add("program", "EntsG Sanctions")
-        sanction.add(
-            "reason", f"Infraction against Liechtenstein Posted Workers Act, {law}"
-        )
-        company.add("topics", "debarment")
+        sanction.add("reason", violation)
         context.emit(sanction)
         context.emit(company, target=True)
 
 
-def crawl(context: Context):
-    assert context.dataset.base_path is not None
-    data_path = context.dataset.base_path / "data.html"
-    source_path = context.get_resource_path("source.html")
-    shutil.copyfile(data_path, source_path)
-    # source_path = context.fetch_resource("source.html", context.data_url)
-    context.export_resource(source_path, "text/html", title="Source HTML file")
-    with open(source_path, "r") as fh:
-        doc = lxml.html.fromstring(fh.read())  # invalid XML, need HTML parser
-    if data_time := parse_data_time(doc, context):
-        context.log.info(f"Parsing data version of {data_time}")
-        context.data_time = data_time
-    else:
-        context.log.warn("Failed to parse data_time")
-    parse_debarments(context, doc)
-    parse_infractions(context, doc)
+def crawl(context: Context) -> None:
+    crawl_debarments(context)
+    crawl_infractions(context)
