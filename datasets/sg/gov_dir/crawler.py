@@ -29,10 +29,10 @@ def position_name(body_type, rank, ministry, agency, section_name):
         position = f"{rank} of the {agency}"
 
     position = re.sub(
-        r"(Board Member of the Board of|Member of the Board of the Board of)", 
-        "Member of the Board of", 
-        position, 
-        flags=re.I
+        r"(Board Member of the Board of|Member of the Board of the Board of)",
+        "Member of the Board of",
+        position,
+        flags=re.I,
     )
 
     return position
