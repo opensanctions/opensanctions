@@ -6,9 +6,7 @@ coverage:
   start: 2023-07-10
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
-  Companies and persons against whom a legally binding sanction
-  has been imposed for an infraction, in accordance with article 9
-  of the Liechtenstein Posted Workers Act (Entsendegesetz, EntsG)
+  Companies and persons against whom a sanction has been imposed for violating the Entsendegesetz
 description: |
   The Office of Economic Affairs of the Principality of Liechtenstein
   publishes a list of companies and persons against whom a legally binding
@@ -16,13 +14,11 @@ description: |
   Liechtenstein Posted Workers Act (Entsendegesetz, EntsG).
 
   The companies and persons on this list have been legally sanctioned
-  for minor first-time infractions in accordance with article 9.
-  (Debarments in accordance with article 7 are published on a different
-  list).
+  for minor first-time infractions in accordance with article 9,
+  as well as for major or repeated infractions in accordance with article 7.
 
   * [Posted Workers Act (Entsendegesetz, EntsG)](https://www.gesetze.li/konso/2000.88)
   * [Posted Workers Decree (Entsendeverordnung, EntsV)](https://www.gesetze.li/konso/2019.371)
-
 publisher:
   name: Office of Economic Affairs
   acronym: AVW
@@ -33,12 +29,11 @@ publisher:
   country: li
   url: https://www.llv.li/de/landesverwaltung/amt-fuer-volkswirtschaft
   official: true
-
 url: https://www.llv.li/de/unternehmen/berichtspflichten-bewilligungen/grenzueberschreitende-dienstleistungen/entsendung-von-arbeitnehmern/sanktionsliste-gemaess-art.-7-abs.-4-entsg
-
 data:
   url: https://www.llv.li/serviceportal2/amtsstellen/amt-fuer-volkswirtschaft/wirtschaft/entsendegesetz/uebertretungen.pdf
   format: PDF
+  lang: deu
 
 lookups:
   classifications:
@@ -50,7 +45,7 @@ lookups:
   address_override:
     lowercase: true
     normalize: true
-    options: 
+    options:
       - match: Alte Tiefenaustrasse 6, 3050 Bern
         value: Alte Tiefenaustrasse 6, CH-3050 Bern
       - match: Bachwisenstrasse 7c, 9200 CH-Gossau SG

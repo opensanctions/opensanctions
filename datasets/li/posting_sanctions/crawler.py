@@ -2,26 +2,12 @@ import re
 import pdfplumber
 from pathlib import Path
 from typing import Dict, List, Optional
-from datetime import datetime
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
-MONTHS_DE = {
-    "Januar": 1,
-    "Jänner": 1,
-    "Februar": 2,
-    "März": 3,
-    "April": 4,
-    "Mai": 5,
-    "Juni": 6,
-    "Juli": 7,
-    "August": 8,
-    "September": 9,
-    "Oktober": 10,
-    "November": 11,
-    "Dezember": 12,
-}
+DEBARMENT_URL = "https://www.llv.li/serviceportal2/amtsstellen/amt-fuer-volkswirtschaft/wirtschaft/entsendegesetz/sperren.pdf"
+INFRACTION_URL = "https://www.llv.li/serviceportal2/amtsstellen/amt-fuer-volkswirtschaft/wirtschaft/entsendegesetz/uebertretungen.pdf"
 
 
 COUNTRY_CODES = {
@@ -41,15 +27,6 @@ ADDRESS_FIXES = {
     "Tiefenackerstrasse 59 CH‐9450 Altstätten": "Tiefenackerstrasse 59, CH‐9450 Altstätten",
     "Unterdorfstrasse 94, 9443 Widnau": "Unterdorfstrasse 94, CH‐9443 Widnau",
 }
-
-
-def parse_data_time(rows: list[str]) -> Optional[datetime]:
-    for row in rows:
-        if m := re.match(r"^Stand: .+ (\d+)\. ([A-Za-zä]+) (\d{4})$", row[0]):
-            return datetime(
-                year=int(m.group(3)), month=MONTHS_DE[m.group(2)], day=int(m.group(1))
-            )
-    return None
 
 
 def parse_address(context: Context, addr: str) -> Optional[Entity]:
@@ -138,7 +115,7 @@ def extract_rows(path: Path) -> List[Dict[str, str]]:
 
 
 def crawl_debarments(context: Context) -> None:
-    path = context.fetch_resource("sperren.pdf", context.data_url)
+    path = context.fetch_resource("sperren.pdf", DEBARMENT_URL)
     for row in extract_rows(path):
         if len(row) != 5:
             continue
@@ -169,7 +146,7 @@ def crawl_debarments(context: Context) -> None:
 
 
 def crawl_infractions(context: Context) -> None:
-    path = context.fetch_resource("uebertretungen.pdf", context.data_url)
+    path = context.fetch_resource("uebertretungen.pdf", INFRACTION_URL)
     for row in extract_rows(path):
         if len(row) != 4:
             context.log.warn(f"Cannot split row: {row}")
@@ -196,3 +173,8 @@ def crawl_infractions(context: Context) -> None:
         company.add("topics", "debarment")
         context.emit(sanction)
         context.emit(company, target=True)
+
+
+def crawl(context: Context) -> None:
+    crawl_debarments(context)
+    crawl_infractions(context)
