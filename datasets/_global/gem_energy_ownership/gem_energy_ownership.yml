@@ -38,7 +38,7 @@ publisher:
     It provides open access to information that is essential to building a sustainable energy future.
   url: https://globalenergymonitor.org
 data:
-  url: data.opensanctions.org/contrib/globalenergy/Global_Energy_Ownership_Tracker_June_2024.xlsx
+  url: https://globalenergymonitor.org/projects/global-energy-ownership-tracker/download-data/
   format: xlsx
 
 assertions:
