@@ -50,7 +50,9 @@ lookups:
     options:
       - match: eu-fsf-eu-11935-5
         value: Organization
-      - match: eu-fsf-eu-9442-82
+      - match:
+          - eu-fsf-eu-9442-82  # Unica
+          - eu-fsf-eu-9443-81  # New Konk
         value: Vessel
   contact_info:
     options:

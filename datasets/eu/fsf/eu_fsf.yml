@@ -73,7 +73,9 @@ lookups:
         value: Organization
   schema_override:
     options: 
-      - match: eu-fsf-eu-9442-82
+      - match: 
+          - eu-fsf-eu-9442-82  # Unica
+          - eu-fsf-eu-9443-81  # New Konk
         value: Vessel
   contact_info:
     options:
