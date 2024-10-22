@@ -72,7 +72,9 @@ lookups:
       - match: enterprise
         value: Organization
   schema_override:
-    options: []
+    options: 
+      - match: eu-fsf-eu-9442-82
+        value: Vessel
   contact_info:
     options:
       - match: PHONE
