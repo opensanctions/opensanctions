@@ -1,4 +1,5 @@
 import re
+from lxml import etree
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
@@ -154,26 +155,31 @@ def crawl_body(context: Context, org_name, link, data_url):
     public_body = org_parts[0].strip() if len(org_parts) > 0 else ""
     agency = org_parts[1].strip() if len(org_parts) > 1 else ""
 
-    section_headers = board_doc.findall(".//div[@class='section-header']")
+    sections = board_doc.xpath(".//div[contains(@class, 'section-toggle')]")
 
     # Iterate through sections and their officials
-    for section in section_headers:
-        section_name = section.text_content().strip()
+    for section in sections:
+        headers = section.xpath(".//*[contains(@class, 'section-header')]")
+        assert len(headers) == 1, etree.tostring(headers)
+        if "porto-subtitle" in headers[0].get("class"):
+            # Skip portfolio: a list of legislation related to the body
+            continue
+        section_name = headers[0].text_content().strip()
         # Identify positions related to the current section
-        section_body = section.getnext()
-        if section_body is not None:
-            officials = section_body.findall(".//li[@id]")
-            for official in officials:
-                crawl_person(
-                    context, official, link, public_body, agency, section_name, data_url
-                )
+        section_bodies = section.xpath(".//*[contains(@class, 'section-body')]")
+        assert len(section_bodies) == 1, etree.tostring(section_bodies)
+        officials = section_bodies[0].findall(".//li[@id]")
+        for official in officials:
+            crawl_person(
+                context, official, link, public_body, agency, section_name, data_url
+            )
 
     section_info = board_doc.findall(".//div[@class='section-info']")
     for section in section_info:
         for official in section.findall(".//li[@id]"):
             crawl_person(context, official, link, public_body, agency, "", data_url)
 
-    if not any([section_headers, section_info]):
+    if not any([sections, section_info]):
         context.log.error("No officials found", url=link)
 
 
