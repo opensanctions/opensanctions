@@ -7,13 +7,13 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
-  Officials of ministries and statutory boards in Singapore and their roles
-  within the respective institutions.
+  Senior officials of ministries, statutory boards and other public bodies in Singapore.
 description: |
-  This dataset lists officials from ministries and statutory boards, detailing 
-  their titles, full names, and roles within their respective institutions. It 
-  includes key public officials and provides source URLs for additional context 
-  where available.
+  This dataset lists senior officials of ministries statutory boards and agencies, and
+  other public bodies, such as judicial and financial oversight institutions.
+  
+  Their names and roles within their respective institutions are included along with source
+  URLs for additional context where available.
 publisher:
   name: Singapore Government Directory
   acronym: SGD
@@ -22,7 +22,7 @@ publisher:
     to enhance communication between the public and public service entities. 
     It facilitates access to essential information about government ministries, 
     statutory boards, and various public services.
-    
+
     The directory aims to provide a transparent overview of the roles and 
     responsibilities of public officials, promoting greater engagement between the 
     government and citizens.
@@ -52,10 +52,6 @@ lookups:
         values:
           - kiat_tan@nparks.gov.sg
           - kiat.tan@gardensbythebay.com.sg
-      - match: Robert.phua@ubp.com; robertphua@gmail.com
-        values:
-          - Robert.phua@ubp.com
-          - robertphua@gmail.com
       - match: desmond_choo@pa.gov.sg / desmond_choo@ntuc.org.sg
         values:
           - desmond_choo@pa.gov.sg

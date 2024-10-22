@@ -16,19 +16,22 @@ DATA_URLS = [
 ]
 
 POSITION_REPLACEMENTS = [
-    (r"Senior Statutory Board Officers & Their Personal Assistants,", ""),
-    (r"Senior Management & Their Personal Assistants,", ""),
-    (r"Political Appointees & Their Personal Assistants,", ""),
-    (r"Political Appointees and Their Personal Assistants,", ""),
-    (r"Member, Board Members,", "Member of the board of the"),
-    (r"Board Member of the board of the", "Member of the board of the"),
-    (r"Member, Council Members", "Member of the Council"),
-    (r"Board Member of the board of the", "Member of the board of the"),
-    (r"Chairman, Board Members", "Chairman of the Board"),
-    (r"Vice President, Board Members", "Vice President of the Board"),
-    (r"President, Board Members", "President of the Board"),
-    (r"Mufti, Council Members,", "Mufti"),
-    (r", , ", ", "),
+    (re.compile(p, re.I), r)
+    for p, r in [
+        (r"Senior Statutory Board Officers & Their Personal Assistants,", ""),
+        (r"Senior Management & Their Personal Assistants,", ""),
+        (r"Political Appointees & Their Personal Assistants,", ""),
+        (r"Political Appointees and Their Personal Assistants,", ""),
+        (r"Member, Board Members,", "Member of the board of the"),
+        (r"Board Member of the board of the", "Member of the board of the"),
+        (r"Member, Council Members", "Member of the Council"),
+        (r"Board Member of the board of the", "Member of the board of the"),
+        (r"Chairman, Board Members", "Chairman of the Board"),
+        (r"Vice President, Board Members", "Vice President of the Board"),
+        (r"President, Board Members", "President of the Board"),
+        (r"Mufti, Council Members,", "Mufti"),
+        (r", , ", ", "),
+    ]
 ]
 
 
@@ -38,8 +41,8 @@ def make_position_name(rank, public_body, agency, section_name):
     else:
         position = f"{rank}, {section_name}, {public_body}"
 
-    for pattern, replacement in POSITION_REPLACEMENTS:
-        position = re.sub(pattern, replacement, position, flags=re.I)
+    for regex, replacement in POSITION_REPLACEMENTS:
+        position = regex.sub(replacement, position)
     return position
 
 
@@ -78,7 +81,7 @@ def is_pep(rank: str) -> bool | None:
         return None
 
 
-def crawl_person(context: Context, official, link, public_body, agency, section_name, data_url):
+def crawl_person(context: Context, official, link, public_body, agency, section_name):
     rank = official.find(".//div[@class='rank']").text_content().strip()
     if any(
         keyword in rank.lower()
@@ -131,7 +134,7 @@ def crawl_person(context: Context, official, link, public_body, agency, section_
             context.emit(occupancy)
 
 
-def crawl_body(context: Context, org_name, link, data_url):
+def crawl_body(context: Context, org_name, link):
     board_doc = context.fetch_html(link, cache_days=1)
 
     org_name_elem = board_doc.find(".//div[@id='agencyName']/h1")
@@ -161,14 +164,12 @@ def crawl_body(context: Context, org_name, link, data_url):
         assert len(section_bodies) == 1, etree.tostring(section_bodies)
         officials = section_bodies[0].findall(".//li[@id]")
         for official in officials:
-            crawl_person(
-                context, official, link, public_body, agency, section_name, data_url
-            )
+            crawl_person(context, official, link, public_body, agency, section_name)
 
     section_info = board_doc.findall(".//div[@class='section-info']")
     for section in section_info:
         for official in section.findall(".//li[@id]"):
-            crawl_person(context, official, link, public_body, agency, "", data_url)
+            crawl_person(context, official, link, public_body, agency, "")
 
     if not any([sections, section_info]):
         context.log.error("No officials found", url=link)
@@ -181,13 +182,13 @@ def crawl(context: Context):
         bodies = doc.findall(
             ".//div[@class='directory-list']//ul[@class='ministries']//li//a"
         )
-        boards_dict = {}
         for board in bodies:
             link = board.get("href")
             org_name = board.text_content().strip()
-            if link is None or org_name == "":
-                context.log.error(f"No link or name found for {org_name}")
-            boards_dict[org_name] = link
-        for org_name, link in boards_dict.items():
-            if link is not None:
-                crawl_body(context, org_name, link, data_url)
+            if link is None:
+                context.log.warning("No link found", org_name=org_name)
+                continue
+            if org_name == "":
+                context.log.warning("No org name found", link=link)
+                continue
+            crawl_body(context, org_name, link)
