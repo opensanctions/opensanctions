@@ -130,7 +130,7 @@ def crawl_debarments(context: Context) -> None:
 
         end_date = max(sanction.get("endDate"), default=None)
         if end_date is None or end_date > context.data_time_iso:
-            company.add("topics", "reg.action")
+            company.add("topics", "debarment")
 
         context.emit(sanction)
         context.emit(company, target=True)
