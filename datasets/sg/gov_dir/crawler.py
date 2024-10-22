@@ -13,9 +13,13 @@ DATA_URLS = [
     "https://www.sgdi.gov.sg/ministries",
 ]
 
-def position_name(body_type, rank, ministry=None, agency=None, section_name=None):
+
+def position_name(body_type, rank, ministry, agency, section_name):
     is_ministry = body_type.lower() == "ministry"
-    is_board_member = body_type.lower() == "agency" and section_name.lower() in {"board members", "council members"}
+    is_board_member = body_type.lower() == "agency" and section_name.lower() in {
+        "board members",
+        "council members",
+    }
 
     if is_ministry:
         position = f"{rank} in the {ministry}"
@@ -23,41 +27,51 @@ def position_name(body_type, rank, ministry=None, agency=None, section_name=None
         position = f"{rank} of the Board of the {agency}"
     else:
         position = f"{rank} of the {agency}"
-        
+
     position = re.sub(
-        "Board Member of the Board of",
-        "Member of the Board of",
-        position,
-        flags=re.I
+        "Board Member of the Board of", "Member of the Board of", position, flags=re.I
     )
-    
+
     return position
 
 
 def is_pep(rank: str) -> bool | None:
     rank_lower = rank.lower()
-    
+
     # Check for PEP indicators
-    if any(keyword in rank_lower for keyword in ["minister", "president", "member", "executive officer", "director", "chairman", "ceo"]):
+    if any(
+        keyword in rank_lower
+        for keyword in [
+            "minister",
+            "president",
+            "member",
+            "executive officer",
+            "director",
+            "chairman",
+            "ceo",
+        ]
+    ):
         return True
-    elif any(keyword in rank_lower for keyword in ["pa to",
+    elif any(
+        keyword in rank_lower
+        for keyword in [
+            "pa to",
             "assistant",
             "secretary to",
-            "please contact",]):
+            "please contact",
+        ]
+    ):
         return False
     else:
         return None
+
 
 def unblock_validator(doc) -> bool:
     return doc.find(".//div[@class='directory-list']") is not None
 
 
 def crawl_person(context, official, link, ministry, agency, section_name, data_url):
-    position = (
-        official.find(".//div[@class='rank']")
-        .text_content()
-        .strip()
-    )
+    position = official.find(".//div[@class='rank']").text_content().strip()
     if any(
         keyword in position.lower()
         for keyword in [
@@ -68,24 +82,16 @@ def crawl_person(context, official, link, ministry, agency, section_name, data_u
         ]
     ):
         return
-    full_name = (
-        official.find(".//div[@class='name']")
-        .text_content()
-        .strip()
-    )
-    email = (
-        official.find(".//div[@class='email info-contact']")
-        .text_content()
-        .strip()
-    )
+    full_name = official.find(".//div[@class='name']").text_content().strip()
+    email = official.find(".//div[@class='email info-contact']").text_content().strip()
     # phone numbers are also available
-    
+
     if "ministries" in data_url:
         body_type = "ministry"
     elif "statutory-boards" in data_url:
         body_type = "agency"
-    
-    pep_status = is_pep(rank=position) # checking before formatting the position name
+
+    pep_status = is_pep(rank=position)  # checking before formatting the position name
     position = position_name(body_type, position, ministry, agency, section_name)
 
     match = TITLE_REGEX.match(full_name)
@@ -150,8 +156,10 @@ def crawl_body(context: Context, org_name, link, data_url):
         if section_body is not None:
             officials = section_body.findall(".//li[@id]")
             for official in officials:
-                crawl_person(context, official, link,  ministry, agency, section_name, data_url)
-    
+                crawl_person(
+                    context, official, link, ministry, agency, section_name, data_url
+                )
+
 
 def crawl(context: Context):
     for url in DATA_URLS:
