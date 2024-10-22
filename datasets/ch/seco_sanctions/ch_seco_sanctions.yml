@@ -1044,6 +1044,44 @@ lookups:
         properties: 
           - prop: description
             value: Mohammad Ilyas Kashmiri was the commander of Harakat-ul Jihad Islami (QE.H.130.10.) and provides support to Al-Qaida (QE.A.4.01) operations. Reportedly deceased in Pakistan on 11 June 2011.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 25 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 25 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Considered a fugitive from justice by the Italian authorities and sentenced in absentia to 6 years detention on 20 Nov 2008. Sentenced in Tunisia to 4 years imprisonment for terrorist activity and in detention in Tunisia as at Jun. 2009. Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 Jul 2009. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Considered a fugitive from justice by the Italian authorities and sentenced in absentia to 6 years detention on 20 Nov 2008. Sentenced in Tunisia to 4 years imprisonment for terrorist activity and in detention in Tunisia as at Jun. 2009. Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 Jul 2009. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: "Italian Fiscal Code: TLLLHR69C26Z352G. Extradited from France to Italy on 6 Sep 2006. Released from prison in Italy on 15 Jan 2007. Sentenced in absentia in Tunisia to twenty years of imprisonment. Mother's name is Essayda Bint Salih Al-Tlili. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Apr 2010."
+        properties: 
+          - prop: description
+            value: "Extradited from France to Italy on 6 Sep 2006. Released from prison in Italy on 15 Jan 2007. Sentenced in absentia in Tunisia to twenty years of imprisonment. Mother's name is Essayda Bint Salih Al-Tlili. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Apr 2010."
+          - prop: taxNumber
+            value: TLLLHR69C26Z352G
+      - match: Member of Libyan Islamic Fighting Group (QE.L.11.01). Review pursuant to Security Council resolution 1822 (2008) was concluded on 24 Nov 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description 
+            value: Member of Libyan Islamic Fighting Group (QE.L.11.01). Review pursuant to Security Council resolution 1822 (2008) was concluded on 24 Nov 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Reportedly born in South Waziristan, Pakistan, and believed to be residing in Pakistan. Emir of Tehrik-e Taliban Pakistan (TTP) (QE.T.132.11.) for South Waziristan Agency, Federally Administered Tribal Areas, Pakistan.
+        properties: 
+          - prop: birthPlace
+            value: Pakistan
+          - prop: country
+            value: Pakistan
+      - match: Leader of Al-Qaida (QE.A.4.01). Former operational and military leader of Egyptian Islamic Jihad (QE.A.3.01), was a close associate of Usama Bin Laden. Believed to be in the Afghanistan/Pakistan border area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Leader of Al-Qaida (QE.A.4.01). Former operational and military leader of Egyptian Islamic Jihad (QE.A.3.01), was a close associate of Usama Bin Laden. Believed to be in the Afghanistan/Pakistan border area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: INTERPOL File No. 2003/25507, Control No. A-652/6-2003. Operative of Al-Qaida in the Arabian Peninsula (QE.A.129.10.) and cell leader in Shabwa Province, Yemen. Reportedly deceased on 6 May 2012 in Yemen.
+        properties: 
+          - prop: description
+            value: INTERPOL File No. 2003/25507, Control No. A-652/6-2003. Operative of Al-Qaida in the Arabian Peninsula (QE.A.129.10.) and cell leader in Shabwa Province, Yemen. Reportedly deceased on 6 May 2012 in Yemen.
+          - prop: country
+            value: Yemen
+      - match: Reportedly defunct. Used to be officially registered in Bosnia and Herzegovina under registry number 24. Al-Haramain & Al Masjed Al-Aqsa Charity Foundation ceased its work by decision of the Ministry of Justice of the Bosnia and Herzegovina Federation (decision on cessation of operation number 03-05-2-203/04). It was no longer in existence as of Dec 2008. Its premises and humanitarian activities were transferred under Government supervision to a new entity called Sretna Buducnost. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Reportedly defunct. Used to be officially registered in Bosnia and Herzegovina under registry number 24. Al-Haramain & Al Masjed Al-Aqsa Charity Foundation ceased its work by decision of the Ministry of Justice of the Bosnia and Herzegovina Federation (decision on cessation of operation number 03-05-2-203/04). It was no longer in existence as of Dec 2008. Its premises and humanitarian activities were transferred under Government supervision to a new entity called Sretna Buducnost. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
           - other_schema: Company
