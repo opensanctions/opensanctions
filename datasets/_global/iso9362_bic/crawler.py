@@ -4,11 +4,12 @@ import pdfplumber
 
 from zavod import Context
 
+STATIC_URL = "https://data.opensanctions.org/contrib/iso9362_bic/20241021/ISOBIC.pdf"
 EXTRACT_ARGS = {"text_x_tolerance_ratio": 0.6}
 
 
 def crawl(context: Context) -> None:
-    data_path = context.fetch_resource("source.pdf", context.data_url)
+    data_path = context.fetch_resource("source.pdf", STATIC_URL)
     pdf = pdfplumber.open(data_path.as_posix())
     for idx, page in enumerate(pdf.pages):
         if idx == 0:
