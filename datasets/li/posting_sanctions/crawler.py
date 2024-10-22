@@ -79,11 +79,10 @@ def parse_target(
     emp.id = context.make_id("Employment", person.id, company.id)
     emp.add("employee", person)
     emp.add("employer", company)
-    emp.add("date", date)
+    h.apply_date(emp, "date", date)
     emp.add("role", "Manager found responsible for breaking the law")
     context.emit(person, target=False)
     context.emit(emp, target=False)
-
     return company
 
 
@@ -113,26 +112,26 @@ def crawl_debarments(context: Context) -> None:
             continue
         address = parse_address(context, row.pop("Adresse"))
         name = row.pop("Betrieb")
-        start = h.parse_date(row.pop("In Rechtskraft"), ["%d.%m.%Y"])
-        end = h.parse_date(row.pop("Ende der Sperre"), ["%d.%m.%Y"])
-        company = parse_target(context, name, address, start)
+        effective = row.pop("In Rechtskraft")
+        end = row.pop("Ende der Sperre")
+        company = parse_target(context, name, address, effective)
         if company is None:
             continue
-        company.add("topics", "debarment")
         violation = row.pop("Verstoss")
         sanction = h.make_sanction(context, company)
         sanction.id = context.make_id(
-            "Sanction", "Debarment", company.id, violation, start, end
+            "Sanction", "Debarment", company.id, violation, effective, end
         )
-        sanction.add("startDate", start)
-        sanction.add("endDate", end)
+        h.apply_date(sanction, "startDate", effective)
+        h.apply_date(sanction, "endDate", end)
         sanction.add("description", "Debarment")
         sanction.add("program", "EntsG Sanctions")
-        reason = (
-            "Repeated or severe infraction against "
-            f"Liechtenstein Posted Workers Act, {violation}"
-        )
-        sanction.add("reason", reason)
+        sanction.add("reason", violation)
+
+        end_date = max(sanction.get("endDate"), default=None)
+        if end_date is None or end_date > context.data_time_iso:
+            company.add("topics", "reg.action")
+
         context.emit(sanction)
         context.emit(company, target=True)
 
@@ -146,23 +145,19 @@ def crawl_infractions(context: Context) -> None:
         address = parse_address(context, row.pop("Adresse"))
         effective = row.pop("In Rechtskraft")
         name = row.pop("Betrieb/ verantwortliche natürliche Person")
-        date = h.parse_date(effective, ["%d.%m.%Y"])
-        company = parse_target(context, name, address, date)
+        company = parse_target(context, name, address, effective)
         if company is None:
             continue
+        company.add("topics", "reg.warn")
         violation = row.pop("Verstoss")
         sanction = h.make_sanction(context, company)
         sanction.id = context.make_id(
-            "Sanction", "Penalty", company.id, violation, date
+            "Sanction", "Penalty", company.id, violation, effective
         )
-        sanction.add("date", date)
+        h.apply_date(sanction, "date", effective)
         sanction.add("description", "Administrative Penalty")
         sanction.add("program", "EntsG Sanctions")
-        sanction.add(
-            "reason",
-            f"Infraction against Liechtenstein Posted Workers Act, {violation}",
-        )
-        company.add("topics", "debarment")
+        sanction.add("reason", violation)
         context.emit(sanction)
         context.emit(company, target=True)
 
