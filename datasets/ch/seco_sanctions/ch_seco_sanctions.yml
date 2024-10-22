@@ -1082,6 +1082,273 @@ lookups:
         properties: 
           - prop: description
             value: Reportedly defunct. Used to be officially registered in Bosnia and Herzegovina under registry number 24. Al-Haramain & Al Masjed Al-Aqsa Charity Foundation ceased its work by decision of the Ministry of Justice of the Bosnia and Herzegovina Federation (decision on cessation of operation number 03-05-2-203/04). It was no longer in existence as of Dec 2008. Its premises and humanitarian activities were transferred under Government supervision to a new entity called Sretna Buducnost. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Apprehended in July 2004 and in custody for trial in the United States of America, as at October 2010. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Apprehended in July 2004 and in custody for trial in the United States of America, as at October 2010. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 15 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 15 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: "Physical description: 180 cm tall, dark hair, 7-9 cm long scar on the face, part of the tongue is missing, has a speech defect. Resides in the Russian Federation as at Nov 2010. International arrest warrant issued in the year 2000. INTERPOL Special Notice contains biometric information.Reportedly deceased as of Apr 2014. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021."
+        properties: 
+          - prop: height
+            value: 180 cm
+          - prop: hairColor
+            value: dark
+          - prop: appearance
+            values: 
+              - scar on the face
+              - part of the tongue is missing
+              - speech defect
+          - prop: description
+            value: Resides in the Russian Federation as at Nov 2010. International arrest warrant issued in the year 2000. INTERPOL Special Notice contains biometric information.Reportedly deceased as of Apr 2014. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021.
+      - match: Has travelled to Kuwait, Saudi Arabia, Libya and the United Arab Emirates to raise funds for the Taliban. Treasurer to Abdul Ghani Baradar Abdul Ahmad Turk (TI.B.24.01). Believed to be in Afghanistan/Pakistan border area.
+        properties:
+          - prop: description
+            value: Has travelled to Kuwait, Saudi Arabia, Libya and the United Arab Emirates to raise funds for the Taliban. Treasurer to Abdul Ghani Baradar Abdul Ahmad Turk (TI.B.24.01). Believed to be in Afghanistan/Pakistan border area.
+      - match: Mother’s name is Salihah Amir. Inadmissible to the Schengen area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010.
+        properties: 
+          - prop: description
+            value: Mother’s name is Salihah Amir. Inadmissible to the Schengen area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010.
+      - match: Senior leader of Jemaah Islamiyah (QE.J.92.02.). Brother of Gun Gun Rusman Gunawan (QI.G.218.06.). In custody of the United States of America, as of July 2007. Review pursuant to Security Council resolution 1822 (2008) was concluded on 13 Apr 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Senior leader of Jemaah Islamiyah (QE.J.92.02.). Brother of Gun Gun Rusman Gunawan (QI.G.218.06.). In custody of the United States of America, as of July 2007. Review pursuant to Security Council resolution 1822 (2008) was concluded on 13 Apr 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Stateless Palestinian. Sentenced to 5 years and 6 months imprisonment in Germany on 6 Dec 2007. Review pursuant to Security Council resolution 1822 (2008) was concluded on 24 Nov 2009.
+        properties: 
+          - prop: description
+            value: Stateless Palestinian. Sentenced to 5 years and 6 months imprisonment in Germany on 6 Dec 2007. Review pursuant to Security Council resolution 1822 (2008) was concluded on 24 Nov 2009.
+      - match: "Italian Fiscal Code: LBR HBB 61S17 Z352F. In detention in Tunisia as of Dec 2009. Reportedly fled to Afghanistan in June 2014. Mother’s name is Fatima al-Galasi. Review pursuant to Security Council resolution 1822 (2008) was concluded on 9 Apr 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available."
+        properties: 
+          - prop: description
+            value: In detention in Tunisia as of Dec 2009. Reportedly fled to Afghanistan in June 2014. Mother’s name is Fatima al-Galasi. Review pursuant to Security Council resolution 1822 (2008) was concluded on 9 Apr 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+          - prop: taxNumber
+            value: LBR HBB 61S17 Z352F
+      - match: Co-owner of Haji Khairullah Haji Sattar Money Exchange (TE.H.10.12.) and associated also with Khairullah Barakzai (TI.K.163.12.). Belongs to Barakzai tribe. Father’s name is Hajji ‘Abd-al-Manaf.
+        properties: 
+          - prop: description
+            value: Co-owner of Haji Khairullah Haji Sattar Money Exchange (TE.H.10.12.) and associated also with Khairullah Barakzai (TI.K.163.12.). Belongs to Barakzai tribe. Father’s name is Hajji ‘Abd-al-Manaf.
+      - match: In detention in the Philippines as at May 2011. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: In detention in the Philippines as at May 2011. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Member of Taliban Miram Shah Shura, as of May 2007. Taliban Shadow Governor for Logar Province as of late 2012. Believed to be in Afghanistan/Pakistan border area. Belongs to Sahak tribe (Ghilzai). Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+        properties: 
+          - prop: description
+            value: Member of Taliban Miram Shah Shura, as of May 2007. Taliban Shadow Governor for Logar Province as of late 2012. Believed to be in Afghanistan/Pakistan border area. Belongs to Sahak tribe (Ghilzai). Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+      - match: Associated with the Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01). Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Associated with the Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01). Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: "Physical description: 5 feet 2 inches; 157,4 cm. Name of father: Ali Muhammad. Mati ur-Rehman is the chief operational commander of Lashkar i Jhangvi (LJ) (QE.L.96.03.). Associated with Harakat-ul Jihad Islami (QE.H.130.10). Reportedly deceased. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available."
+        properties: 
+          - prop: height
+            values: 
+              - 157.4 cm
+              - 5 feet 2 inches
+          - prop: description
+            value: "Name of father: Ali Muhammad. Mati ur-Rehman is the chief operational commander of Lashkar i Jhangvi (LJ) (QE.L.96.03.). Associated with Harakat-ul Jihad Islami (QE.H.130.10). Reportedly deceased. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available."
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 25 May 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 25 May 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Reportedly a member of Jama'a Nusrat ul-Islam wa al-Muslimin (JNIM, QDe.159) as of November 2023. Convicted in absentia by Algerian tribunal on 28 Mar. 1996. Algerian international arrest warrant number 03/09 of 6 Jun. 2009 issued by the Tribunal of Sidi Mhamed, Algiers, Algeria. Algerian extradition request number 2307/09 of 3 Sep. 2009, presented to Malian authorities. Father’s name is Ali Belkalem. Mother’s name is Fatma Saadoudi. Member of The Organization of Al-Qaida in the Islamic Maghreb (QDe.014). Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec. 2019. Photograph and fingerprints available for inclusion in INTERPOL-UNSC Special Notice. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Reportedly a member of Jama'a Nusrat ul-Islam wa al-Muslimin (JNIM, QDe.159) as of November 2023. Convicted in absentia by Algerian tribunal on 28 Mar. 1996. Algerian international arrest warrant number 03/09 of 6 Jun. 2009 issued by the Tribunal of Sidi Mhamed, Algiers, Algeria. Algerian extradition request number 2307/09 of 3 Sep. 2009, presented to Malian authorities. Father’s name is Ali Belkalem. Mother’s name is Fatma Saadoudi. Member of The Organization of Al-Qaida in the Islamic Maghreb (QDe.014). Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec. 2019. Photograph and fingerprints available for inclusion in INTERPOL-UNSC Special Notice. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Absorbed into Al-Qaida (QE.A.4.01.). Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Absorbed into Al-Qaida (QE.A.4.01.). Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Chief of operations of Lashkar-e-Tayyiba (listed under permanent reference number QE.L.118.05.). Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Chief of operations of Lashkar-e-Tayyiba (listed under permanent reference number QE.L.118.05.). Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Linked to the Riyadus-Salikhin Reconnaissance and Sabotage Battalion of Chechen Martyrs (RSRSBCM) (QE.R.100.03) and the Special Purpose Islamic Regiment (SPIR) (QE.S.101.03). Review pursuant to Security Council resolution 1822 (2008) was concluded on 17 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021.
+        properties: 
+          - prop: description
+            value: Linked to the Riyadus-Salikhin Reconnaissance and Sabotage Battalion of Chechen Martyrs (RSRSBCM) (QE.R.100.03) and the Special Purpose Islamic Regiment (SPIR) (QE.S.101.03). Review pursuant to Security Council resolution 1822 (2008) was concluded on 17 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021.
+      - match: A leader of the Haqqani Network (TE.H.12.12.), which operates out of North Waziristan in the Federally Administered Tribal Areas of Pakistan. Son of Jalaluddin Haqqani (TI.H.40.01). Has travelled to Saudi Arabia and the United Arab Emirates to raise funds for the Taliban. Reportedly deceased as of 2013.
+        properties: 
+          - prop: description
+            value: A leader of the Haqqani Network (TE.H.12.12.), which operates out of North Waziristan in the Federally Administered Tribal Areas of Pakistan. Son of Jalaluddin Haqqani (TI.H.40.01). Has travelled to Saudi Arabia and the United Arab Emirates to raise funds for the Taliban. Reportedly deceased as of 2013.
+      - match: Present in Somalia as of Apr 2009 following transfer from United Kingdom. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Present in Somalia as of Apr 2009 following transfer from United Kingdom. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: In detention in Algeria as of November 2023. Sentenced to 18 years imprisonment for conducting terrorist activities by the Algiers Criminal Court on 25 January 2023. Arrest warrant issued by the German authorities on 9 Oct 2003 and 18 July 2018 respectively for involvement in kidnapping, robbery and extortion. Former member of the Katibat Tarek Ibn Ziad of The Organization of Al-Qaida in the Islamic Maghreb (QDe.014). Father’s name: Sliman. Mother’s name Oum Hani Djermane. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: In detention in Algeria as of November 2023. Sentenced to 18 years imprisonment for conducting terrorist activities by the Algiers Criminal Court on 25 January 2023. Arrest warrant issued by the German authorities on 9 Oct 2003 and 18 July 2018 respectively for involvement in kidnapping, robbery and extortion. Former member of the Katibat Tarek Ibn Ziad of The Organization of Al-Qaida in the Islamic Maghreb (QDe.014). Father’s name: Sliman. Mother’s name Oum Hani Djermane. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Co-founded by Aiman Muhammed Rabi al-Zawahiri (QI.A.6.01), who was also its military leader. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Co-founded by Aiman Muhammed Rabi al-Zawahiri (QI.A.6.01), who was also its military leader. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Belongs to Mangal tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010
+        properties: 
+          - prop: description
+            value: Belongs to Mangal tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010
+      - match: Believed to be in Afghanistan/Pakistan border area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+        properties: 
+          - prop: description
+            value: Believed to be in Afghanistan/Pakistan border area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+      - match: Member of the Taliban Quetta Shura as at 2009. Taliban member responsible for Uruzgan Province, Afghanistan, as at 2011. Review pursuant to Security Council resolution 1822 (2008) was concluded on 1 Jun 2010.
+        properties: 
+          - prop: description
+            value: Member of the Taliban Quetta Shura as at 2009. Taliban member responsible for Uruzgan Province, Afghanistan, as at 2011. Review pursuant to Security Council resolution 1822 (2008) was concluded on 1 Jun 2010.
+      - match: Senior lieutenant of Usama bin Laden. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 November 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Senior lieutenant of Usama bin Laden. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 November 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Member of the Taliban Quetta Shura. Believed to be in Afghanistan/Pakistan border area. Belongs to Nurzay tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+        properties: 
+          - prop: description
+            value: Member of the Taliban Quetta Shura. Believed to be in Afghanistan/Pakistan border area. Belongs to Nurzay tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+      - match: Mainly active in the Russian Federation, Afghanistan and Pakistan. Led by Doku Khamatovich Umarov (QI.U.290.11.). Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Mainly active in the Russian Federation, Afghanistan and Pakistan. Led by Doku Khamatovich Umarov (QI.U.290.11.). Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Reportedly deceased in Nov 2016. Father's name is Mohamed. Mother's name is Zohra Chemkha. Member of the Council of The Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01) (AQIM). Head of AI Mouakaoune Biddam (QE.M.139.14), AI Moulathamoun (QE.M.140.14) and AI Mourabitoun (QE.M.141.14). Review pursuant to Security Council resolution 1822 (2008) was concluded on 30 Jul 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Reportedly deceased in Nov 2016. Father's name is Mohamed. Mother's name is Zohra Chemkha. Member of the Council of The Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01) (AQIM). Head of AI Mouakaoune Biddam (QE.M.139.14), AI Moulathamoun (QE.M.140.14) and AI Mourabitoun (QE.M.141.14). Review pursuant to Security Council resolution 1822 (2008) was concluded on 30 Jul 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: AQAP is a regional affiliate of Al-Qaida (SSID 10-17297) and an armed group operating primarily in Arabian Peninsula. Location: Yemen. Alternative location: Saudi Arabia (2004 – 2006). Formed in Jan 2009 when Al-Qaida in Yemen combined with Saudi Arabian Al-Qaida operatives. Leader of AQAP is Qasim Mohamed Mahdi Al-Rimi (SSID 10-14546). Ansar al-Shari'a was formed in early 2011 by AQAP and has taken responsibility for multiple attacks in Yemen against both government and civilian targets. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: AQAP is a regional affiliate of Al-Qaida (SSID 10-17297) and an armed group operating primarily in Arabian Peninsula. Location: Yemen. Alternative location: Saudi Arabia (2004 – 2006). Formed in Jan 2009 when Al-Qaida in Yemen combined with Saudi Arabian Al-Qaida operatives. Leader of AQAP is Qasim Mohamed Mahdi Al-Rimi (SSID 10-14546). Ansar al-Shari'a was formed in early 2011 by AQAP and has taken responsibility for multiple attacks in Yemen against both government and civilian targets. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Wa’el Hamza Abd al-Fatah Julaidan served as its Director General. Banned in Pakistan. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Wa’el Hamza Abd al-Fatah Julaidan served as its Director General. Banned in Pakistan. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: One foot lost in landmine explosion. Believed to be in Afghanistan/Pakistan border area. Belongs to Nurzai tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+        properties: 
+          - prop: appearance
+            value: One foot lost in landmine explosion.
+          - prop: description
+            value: Believed to be in Afghanistan/Pakistan border area. Belongs to Nurzai tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+      - match: Graduate of the Haqqaniya madrasa in Akora Khattak, Pakistan. Believed to have had close relations with Taliban Leader Mullah Mohammed Omar (TI.O.4.01). Believed to be in Afghanistan/Pakistan border area. Member of Taliban Supreme Council as at June 2010. Belongs to Barakzay tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. Reportedly deceased as of Jan 2016.
+        properties: 
+          - prop: description
+            value: Graduate of the Haqqaniya madrasa in Akora Khattak, Pakistan. Believed to have had close relations with Taliban Leader Mullah Mohammed Omar (TI.O.4.01). Believed to be in Afghanistan/Pakistan border area. Member of Taliban Supreme Council as at June 2010. Belongs to Barakzay tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010. Photo available for inclusion in the INTERPOL-UN Security Council Special Notice. Reportedly deceased as of Jan 2016.
+      - match: "Other Foreign Locations: Afghanistan, Bangladesh, Eritrea, Ethiopia, India, Iraq, West Bank and Gaza, Somalia and Syria. Federal Employer Identification Number (United States of America): 36-3804626. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available."
+        properties: 
+          - prop: description
+            value: "Other Foreign Locations: Afghanistan, Bangladesh, Eritrea, Ethiopia, India, Iraq, West Bank and Gaza, Somalia and Syria. Federal Employer Identification Number (United States of America): 36-3804626. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available."
+      - match: 'Reportedly defunct. Headquarters were in Pakistan. Operations in Afghanistan: Herat Jalalabad, Kabul, Kandahar, Mazar Sherif. Also operations in Kosovo, Chechnya. Involved in the financing of Al-Qaida and the Taliban. Until 21 Oct. 2008, this entity appeared also as "Aid Organization of the Ulema, Pakistan" (QE.A.73.02.). The two entries Al Rashid Trust (QE.A.5.01.) and Aid Organization of the Ulema, Pakistan (QE.A.73.02.) were consolidated into this entity on 21 Oct 2008. Founded by Mufti Rashid Ahmad Ledahyanoy (QI.L.30.01). Associated with Jaish-i-Mohammed (QE.J.19.01). Banned in Pakistan since Oct 2001. Review pursuant to Security Council resolution 1822 (2008) was concluded on 6 May 2010. No indication of any activity under the name of Al-Rashid Trust has emerged as of November 2023. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.'
+        properties: 
+          - prop: description
+            value: 'Reportedly defunct. Headquarters were in Pakistan. Operations in Afghanistan: Herat Jalalabad, Kabul, Kandahar, Mazar Sherif. Also operations in Kosovo, Chechnya. Involved in the financing of Al-Qaida and the Taliban. Until 21 Oct. 2008, this entity appeared also as "Aid Organization of the Ulema, Pakistan" (QE.A.73.02.). The two entries Al Rashid Trust (QE.A.5.01.) and Aid Organization of the Ulema, Pakistan (QE.A.73.02.) were consolidated into this entity on 21 Oct 2008. Founded by Mufti Rashid Ahmad Ledahyanoy (QI.L.30.01). Associated with Jaish-i-Mohammed (QE.J.19.01). Banned in Pakistan since Oct 2001. Review pursuant to Security Council resolution 1822 (2008) was concluded on 6 May 2010. No indication of any activity under the name of Al-Rashid Trust has emerged as of November 2023. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.'
+      - match: Released from custody in Germany in Apr 2012. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Released from custody in Germany in Apr 2012. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: "Physical description: eye colour: black; hair colour: gray; height: 5 feet 6 inches – 168 cm; weight: 140 pounds – 64 kg; build: slight; right arm is amputated above his elbow. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Wanted by the Philippines authorities for terrorist offences and by authorities of the United States of America for involvement in the kidnapping of its national. Photos included in INTERPOL-UN Security Council Special Notice. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020."
+        properties: 
+          - prop: eyeColor
+            value: black
+          - prop: hairColor
+            value: gray
+          - prop: height
+            values: 
+              - 5 feet 6 inches
+              - 168 cm
+          - prop: weight
+            values:
+              - 140 pounds
+              - 64 kg
+          - prop: appearance
+            value: right arm is amputated above his elbow.
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Wanted by the Philippines authorities for terrorist offences and by authorities of the United States of America for involvement in the kidnapping of its national. Photos included in INTERPOL-UN Security Council Special Notice. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Member of Taliban Supreme Council as at June 2008. Deputy of Mullah Mohammed Omar (TI.O.4.01) as at Mar. 2010. Member of the Supervision Commission of the Taliban as of mid-2013. Involved in drug trafficking. Believed to be in Afghanistan/Pakistan border area. Belongs to Achekzai tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010.
+        properties: 
+          - prop: description
+            value: Member of Taliban Supreme Council as at June 2008. Deputy of Mullah Mohammed Omar (TI.O.4.01) as at Mar. 2010. Member of the Supervision Commission of the Taliban as of mid-2013. Involved in drug trafficking. Believed to be in Afghanistan/Pakistan border area. Belongs to Achekzai tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010.
+      - match: General Director of the Environmental Health Department of the Municipality of Riyadh, Saudi Arabia (as at Feb 2010). Review pursuant to Security Council resolution 1822 (2008) was concluded on 25 May 2010.
+        properties: 
+          - prop: description
+            value: General Director of the Environmental Health Department of the Municipality of Riyadh, Saudi Arabia (as at Feb 2010). Review pursuant to Security Council resolution 1822 (2008) was concluded on 25 May 2010.
+      - match: Kuwaiti citizenship withdrawn in 2002. Left Kuwait for Pakistan in June 2001. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Kuwaiti citizenship withdrawn in 2002. Left Kuwait for Pakistan in June 2001. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Italian Fiscal Code DRMTMN54H07Z301T. Deported from Italy to Algeria on 22 Aug 2008. Father in law of Djamel Lounici (QI.L.155.04). Review pursuant to Security Council resolution 1822 (2008) was concluded on 28 Sep 2009.
+        properties: 
+          - prop: description
+            value: Deported from Italy to Algeria on 22 Aug 2008. Father in law of Djamel Lounici (QI.L.155.04). Review pursuant to Security Council resolution 1822 (2008) was concluded on 28 Sep 2009.
+          - prop: taxNumber
+            value: DRMTMN54H07Z301T
+      - match: "Mother's name: Khadija Majid Mohammed. Member of Ansar Al-Islam (QE.A.98.03). Sentenced on 15 Jul 2008 to 10 years imprisonment in Germany. Review pursuant to Security Council resolution 1822 (2008) was concluded on 30 Jul 2009."
+        properties: 
+          - prop: description
+            value: "Mother's name: Khadija Majid Mohammed. Member of Ansar Al-Islam (QE.A.98.03). Sentenced on 15 Jul 2008 to 10 years imprisonment in Germany. Review pursuant to Security Council resolution 1822 (2008) was concluded on 30 Jul 2009."
+      - match: Headed by Abdelmalek Droukdel (QI.D.232.07.). Zone of operation includes Algeria and parts of Mali, Mauritania, Niger, Tunisia and Morocco. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Headed by Abdelmalek Droukdel (QI.D.232.07.). Zone of operation includes Algeria and parts of Mali, Mauritania, Niger, Tunisia and Morocco. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Active in terrorist operations in Eastern Afghanistan. Collects money from drug traffickers. Believed to be in Afghanistan/Pakistan border area. Member of the Taliban Supreme Council as at 2009. Family is originally from Neka District, Paktia Province, Afghanistan. Responsible for attack on Afghan parliamentarians in November 2007 in Baghlan; owns land in central Baghlan Province. Belongs to Zadran tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+        properties: 
+          - prop: description
+            value: Active in terrorist operations in Eastern Afghanistan. Collects money from drug traffickers. Believed to be in Afghanistan/Pakistan border area. Member of the Taliban Supreme Council as at 2009. Family is originally from Neka District, Paktia Province, Afghanistan. Responsible for attack on Afghan parliamentarians in November 2007 in Baghlan; owns land in central Baghlan Province. Belongs to Zadran tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+      - match: Associated with Islamic Movement of Uzbekistan (QE.I.10.01.). Brother of Yassin Chouka (QI.C.301.12.) Arrest warrant issued by the investigating judge of the German Federal Court of Justice on 5 Oct 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description 
+            value: Associated with Islamic Movement of Uzbekistan (QE.I.10.01.). Brother of Yassin Chouka (QI.C.301.12.) Arrest warrant issued by the investigating judge of the German Federal Court of Justice on 5 Oct 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Confirmed to have died on 16 Apr 2004 in northern Niger. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+        properties: 
+          - prop: description
+            value: Confirmed to have died on 16 Apr 2004 in northern Niger. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+      - match: Member of the Rajah Solaiman Movement (QE.R.128.08.). Father's name is Amorsolo Jarabata Pareja. Mother's name is Leonila Cambaya Rosalejos. Review pursuant to Security Council resolution 1822 (2008) was concluded on 13 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Member of the Rajah Solaiman Movement (QE.R.128.08.). Father's name is Amorsolo Jarabata Pareja. Mother's name is Leonila Cambaya Rosalejos. Review pursuant to Security Council resolution 1822 (2008) was concluded on 13 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Father’s name is Mohamed Ayman Ghabra. Mother’s name is Dalal. Review pursuant to Security Council resolution 1822 (2008) was concluded on 5 Oct 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Father’s name is Mohamed Ayman Ghabra. Mother’s name is Dalal. Review pursuant to Security Council resolution 1822 (2008) was concluded on 5 Oct 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Saudi citizenship withdrawn, Afghan nationality given by the Taliban regime. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Confirmed to have died in Pakistan in May 2011.
+        properties: 
+          - prop: description
+            value: Saudi citizenship withdrawn, Afghan nationality given by the Taliban regime. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Confirmed to have died in Pakistan in May 2011.
+          - prop: deathDate
+            value: 2011-05
+      - match: Bosanska Idealna Futura was officially registered in Bosnia and Herzegovina as an association and humanitarian organization under registry number 59. It was the legal successor of the Bosnia and Herzegovina offices of Benevolence International Foundation (QE.B.93.02.), doing business as BECF Charitable Educational Center, Benevolence Educational Center. Bosanska Idealna Futura was no longer in existence as at Dec 2008. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Jun 2010.
+        properties: 
+          - prop: description
+            value: Bosanska Idealna Futura was officially registered in Bosnia and Herzegovina as an association and humanitarian organization under registry number 59. It was the legal successor of the Bosnia and Herzegovina offices of Benevolence International Foundation (QE.B.93.02.), doing business as BECF Charitable Educational Center, Benevolence Educational Center. Bosanska Idealna Futura was no longer in existence as at Dec 2008. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Jun 2010.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 14 Sep 2009.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 14 Sep 2009.
+      - match: Member of Taliban Supreme Council and member of Taliban Cultural Commission as at 2010. Believed to be in Afghanistan/Pakistan border area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010.
+        properties: 
+          - prop: description
+            value: Member of Taliban Supreme Council and member of Taliban Cultural Commission as at 2010. Believed to be in Afghanistan/Pakistan border area. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010.
+      - match: Taliban financier. Owns businesses in Japan and frequently travels to Dubai, United Arab Emirates, and Japan. As of 2009, facilitated Taliban activities, including through recruitment and the provision of logistical support. Believed to be in the Afghanistan/Pakistan border area. Belongs to Noorzai tribe. Brother of Faizullah Khan Noorzai (TI.M.153.11.). Father's name is Haji Akhtar Muhammad.
+        properties: 
+          - prop: description
+            value: Taliban financier. Owns businesses in Japan and frequently travels to Dubai, United Arab Emirates, and Japan. As of 2009, facilitated Taliban activities, including through recruitment and the provision of logistical support. Believed to be in the Afghanistan/Pakistan border area. Belongs to Noorzai tribe. Brother of Faizullah Khan Noorzai (TI.M.153.11.). Father's name is Haji Akhtar Muhammad.
+      - match: Deputy Commander of Ezatullah Haqqani Khan Sayyid (TI.E.64.01) as at Mar 2010. Member of Taliban Peshawar Military Council as at June 2010. Belongs to Pashai ethnic group. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+        properties: 
+          - prop: description
+            value: Deputy Commander of Ezatullah Haqqani Khan Sayyid (TI.E.64.01) as at Mar 2010. Member of Taliban Peshawar Military Council as at June 2010. Belongs to Pashai ethnic group. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010.
+      - match: Associated with the Armed Islamic Group (GIA) (QE.A.6.01) and the Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01). Review pursuant to Security Council resolution 1822 (2008) was concluded on 30 Jul 2009.
+        properties: 
+          - prop: description
+            value: Associated with the Armed Islamic Group (GIA) (QE.A.6.01) and the Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01). Review pursuant to Security Council resolution 1822 (2008) was concluded on 30 Jul 2009.
+      - match: Involved in drug trafficking. Taliban member responsible for military affairs in Takhar province, Afghanistan, as of May 2007. Facilitated fund raising in the Gulf on behalf of the Taliban since 2003. Also facilitated meetings between Taliban officials and wealthy supporters and arranged for more than a dozen individuals to travel to Kabul, Afghanistan, for suicide attacks. Believed to be in the Gulf region. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+        properties: 
+          - prop: description
+            value: Involved in drug trafficking. Taliban member responsible for military affairs in Takhar province, Afghanistan, as of May 2007. Facilitated fund raising in the Gulf on behalf of the Taliban since 2003. Also facilitated meetings between Taliban officials and wealthy supporters and arranged for more than a dozen individuals to travel to Kabul, Afghanistan, for suicide attacks. Believed to be in the Gulf region. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+      - match: Chief of suicide operations for the Haqqani Network (TE.H.12.12.) under Sirajuddin Jallaloudine Haqqani (TI.H.144.07.) and in charge of all operations in Kabul, Takhar, Kunduz and Baghlan provinces. Oversees training of suicide attackers and provides instructions on how to construct improvised explosives devices (IEDs).
+        properties: 
+          - prop: description
+            value: Chief of suicide operations for the Haqqani Network (TE.H.12.12.) under Sirajuddin Jallaloudine Haqqani (TI.H.144.07.) and in charge of all operations in Kabul, Takhar, Kunduz and Baghlan provinces. Oversees training of suicide attackers and provides instructions on how to construct improvised explosives devices (IEDs).
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 25 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties:
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 25 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
           - other_schema: Company
