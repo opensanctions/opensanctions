@@ -5,23 +5,26 @@ from zavod.logic.pep import categorise
 
 
 TITLE_REGEX = re.compile(
-    r"^(Mr|MR|Ms|Miss|Mrs|Prof|Dr|Professor Sir|Professor|Er. Dr.|Er.|Ar.|Dr.|A/Prof|Clinical A/Prof|Adj A/Prof|Assoc Prof \(Ms\)|Er. Prof.| Er Prof)\.? (?P<name>.+)$"
+    r"^(Mr|MR|Ms|Miss|Mrs|Prof|Dr|Professor Sir|Professor|Er. Dr.|Er.|Ar.|Dr.|A/Prof|Clinical A/Prof|Adj A/Prof|Assoc Prof \(Ms\)|Er. Prof.| Er Prof|Justice)\.? (?P<name>.+)$"
 )
 DATA_URLS = [
     "https://www.sgdi.gov.sg/statutory-boards",
     "https://www.sgdi.gov.sg/ministries",
+    "https://www.sgdi.gov.sg/organs-of-state",
 ]
 
 
-def position_name(body_type, rank, ministry, agency, section_name):
-    is_ministry = body_type.lower() == "ministry"
-    is_board_member = body_type.lower() == "agency" and section_name.lower() in {
+def position_name(body_type, rank, public_body, agency, section_name):
+    is_public_body = body_type.lower() == "public body"
+    is_board_member = body_type.lower() == "agency" or section_name.lower() in {
         "board members",
         "council members",
     }
 
-    if is_ministry:
-        position = f"{rank} in the {ministry}"
+    if is_public_body and is_board_member:
+        position = f"{rank} of the Board of the {public_body}"
+    elif is_public_body:
+        position = f"{rank} in the {public_body}"
     elif is_board_member:
         position = f"{rank} of the Board of the {agency}"
     else:
@@ -51,6 +54,10 @@ def is_pep(rank: str) -> bool | None:
             "director",
             "chairman",
             "ceo",
+            "mayor",
+            "auditor-general",
+            "justice",
+            "judge",
         ]
     ):
         return True
@@ -68,7 +75,7 @@ def is_pep(rank: str) -> bool | None:
         return None
 
 
-def crawl_person(context, official, link, ministry, agency, section_name, data_url):
+def crawl_person(context, official, link, public_body, agency, section_name, data_url):
     position = official.find(".//div[@class='rank']").text_content().strip()
     if any(
         keyword in position.lower()
@@ -84,13 +91,13 @@ def crawl_person(context, official, link, ministry, agency, section_name, data_u
     email = official.find(".//div[@class='email info-contact']").text_content().strip()
     # phone numbers are also available
 
-    if "ministries" in data_url:
-        body_type = "ministry"
+    if "ministries" or "organs-of-state" in data_url:
+        body_type = "public body"
     elif "statutory-boards" in data_url:
         body_type = "agency"
 
     pep_status = is_pep(rank=position)  # checking before formatting the position name
-    position = position_name(body_type, position, ministry, agency, section_name)
+    position = position_name(body_type, position, public_body, agency, section_name)
 
     match = TITLE_REGEX.match(full_name)
     title = None
@@ -109,7 +116,8 @@ def crawl_person(context, official, link, ministry, agency, section_name, data_u
         if email.startswith("https://"):
             person.add("website", email)
         else:
-            person.add("email", email)
+            for email in email.split("; "):
+                person.add("email", email)
 
     position = h.make_position(
         context,
@@ -138,7 +146,7 @@ def crawl_body(context: Context, org_name, link, data_url):
     # Get the text content and split it by newline
     org_name = org_name_elem.text_content()
     org_parts = org_name.split("\n")
-    ministry = org_parts[0].strip() if len(org_parts) > 0 else ""
+    public_body = org_parts[0].strip() if len(org_parts) > 0 else ""
     agency = org_parts[1].strip() if len(org_parts) > 1 else ""
 
     section_headers = board_doc.findall(".//div[@class='section-header']")
@@ -152,13 +160,13 @@ def crawl_body(context: Context, org_name, link, data_url):
             officials = section_body.findall(".//li[@id]")
             for official in officials:
                 crawl_person(
-                    context, official, link, ministry, agency, section_name, data_url
+                    context, official, link, public_body, agency, section_name, data_url
                 )
 
     section_info = board_doc.findall(".//div[@class='section-info']")
-    for section in section_headers:
-        for official in section_body.findall(".//li[@id]"):
-            crawl_person(context, official, link, ministry, agency, "", data_url)
+    for section in section_info:
+        for official in section.findall(".//li[@id]"):
+            crawl_person(context, official, link, public_body, agency, "", data_url)
 
     if not any([section_headers, section_info]):
         context.log.error("No officials found", url=link)
