@@ -15,26 +15,18 @@ COUNTRY_CODES = {
     "D": "de",  # Germany
     "F": "fr",  # France
     "I": "it",  # Italy
+    "CH": "ch",  # Switzerland
     "SL": "si",  # Slovenia
 }
 
 
-ADDRESS_FIXES = {
-    "Alte Tiefenaustrasse 6, 3050 Bern": "Alte Tiefenaustrasse 6, CH‐3050 Bern",
-    "Bachwisenstrasse 7c, 9200 CH-Gossau SG": "Bachwisenstrasse 7c, CH‐9200 Gossau SG",
-    "Industrie Allmend 31, 4629 Fulenbach": "Industrie Allmend 31, CH‐4629 Fulenbach",
-    "Hagenholzstrasse 81a, 8050 CH‐Zürich": "Hagenholzstrasse 81a, CH‐8050 Zürich",
-    "Tiefenackerstrasse 59 CH‐9450 Altstätten": "Tiefenackerstrasse 59, CH‐9450 Altstätten",
-    "Unterdorfstrasse 94, 9443 Widnau": "Unterdorfstrasse 94, CH‐9443 Widnau",
-}
-
-
 def parse_address(context: Context, addr: str) -> Optional[Entity]:
-    addr = ADDRESS_FIXES.get(addr, addr)
+    addr = addr.replace("‐", "-")
+    addr = context.lookup_value("address_override", addr, default=addr)
     parts = [p.strip() for p in addr.split(",")]
     street = parts[0]
     country_code, postal_code, city = None, None, None
-    if m := re.match(r"(A|D|F|I|[A-Z]{2})[‐ ]\s*([\d‐\-]+) (.+)", parts[-1]):
+    if m := re.match(r"(A|D|F|I|[A-Z]{2})-\s*([\d\-]+) (.+)", parts[-1], re.UNICODE):
         country_code = COUNTRY_CODES.get(m.group(1), m.group(1).lower())
         postal_code, city = m.group(2), m.group(3)
     if not country_code or not city:

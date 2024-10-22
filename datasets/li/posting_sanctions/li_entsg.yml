@@ -54,6 +54,10 @@ lookups:
         value: Industrie Allmend 31, CH-4629 Fulenbach
       - match: Hagenholzstrasse 81a, 8050 CH-Zürich
         value: Hagenholzstrasse 81a, CH-8050 Zürich
+      - match: Tiefenackerstrasse 59 CH‐9450 Altstätten
+        value: Tiefenackerstrasse 59, CH-9450 Altstätten
+      - match: Langenhagstrasse 31, CH 9424 Rheineck
+        value: Langenhagstrasse 31, CH-9424 Rheineck
 dates:
   formats:
     - "%d.%m.%Y"
