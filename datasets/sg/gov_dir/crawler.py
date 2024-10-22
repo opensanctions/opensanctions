@@ -2,7 +2,6 @@ import re
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
-from zavod.shed.zyte_api import fetch_html
 
 
 TITLE_REGEX = re.compile(
@@ -69,10 +68,6 @@ def is_pep(rank: str) -> bool | None:
         return None
 
 
-def unblock_validator(doc) -> bool:
-    return doc.find(".//div[@class='directory-list']") is not None
-
-
 def crawl_person(context, official, link, ministry, agency, section_name, data_url):
     position = official.find(".//div[@class='rank']").text_content().strip()
     if any(
@@ -132,10 +127,7 @@ def crawl_person(context, official, link, ministry, agency, section_name, data_u
 
 
 def crawl_body(context: Context, org_name, link, data_url):
-    board_doc = context.fetch_html(
-        link,
-        cache_days=3,
-    )
+    board_doc = context.fetch_html(link, cache_days=1)
 
     org_name_elem = board_doc.find(".//div[@id='agencyName']/h1")
     for br in org_name_elem.xpath(".//br"):
@@ -163,17 +155,19 @@ def crawl_body(context: Context, org_name, link, data_url):
                     context, official, link, ministry, agency, section_name, data_url
                 )
 
+    section_info = board_doc.findall(".//div[@class='section-info']")
+    for section in section_headers:
+        for official in section_body.findall(".//li[@id]"):
+            crawl_person(context, official, link, ministry, agency, "", data_url)
+
+    if not any([section_headers, section_info]):
+        context.log.error("No officials found", url=link)
+
 
 def crawl(context: Context):
     for url in DATA_URLS:
         data_url = url
-        doc = fetch_html(
-            context,
-            data_url,
-            unblock_validator,
-            html_source="httpResponseBody",
-            cache_days=3,
-        )
+        doc = context.fetch_html(data_url, cache_days=1)
         bodies = doc.findall(
             ".//div[@class='directory-list']//ul[@class='ministries']//li//a"
         )
