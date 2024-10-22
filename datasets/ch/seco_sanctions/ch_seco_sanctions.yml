@@ -1097,10 +1097,11 @@ lookups:
           - prop: hairColor
             value: dark
           - prop: appearance
-            values: 
-              - scar on the face
-              - part of the tongue is missing
-              - speech defect
+            value: scar on the face
+          - prop: appearance
+            value: part of the tongue is missing
+          - prop: appearance
+            value: speech defect
           - prop: description
             value: Resides in the Russian Federation as at Nov 2010. International arrest warrant issued in the year 2000. INTERPOL Special Notice contains biometric information.Reportedly deceased as of Apr 2014. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021.
       - match: Has travelled to Kuwait, Saudi Arabia, Libya and the United Arab Emirates to raise funds for the Taliban. Treasurer to Abdul Ghani Baradar Abdul Ahmad Turk (TI.B.24.01). Believed to be in Afghanistan/Pakistan border area.
@@ -1144,9 +1145,9 @@ lookups:
       - match: "Physical description: 5 feet 2 inches; 157,4 cm. Name of father: Ali Muhammad. Mati ur-Rehman is the chief operational commander of Lashkar i Jhangvi (LJ) (QE.L.96.03.). Associated with Harakat-ul Jihad Islami (QE.H.130.10). Reportedly deceased. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available."
         properties: 
           - prop: height
-            values: 
-              - 157.4 cm
-              - 5 feet 2 inches
+            value: 157.4 cm
+          - prop: height
+            value: 5 feet 2 inches
           - prop: description
             value: "Name of father: Ali Muhammad. Mati ur-Rehman is the chief operational commander of Lashkar i Jhangvi (LJ) (QE.L.96.03.). Associated with Harakat-ul Jihad Islami (QE.H.130.10). Reportedly deceased. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available."
       - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 25 May 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
@@ -1177,10 +1178,10 @@ lookups:
         properties: 
           - prop: description
             value: Present in Somalia as of Apr 2009 following transfer from United Kingdom. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
-      - match: In detention in Algeria as of November 2023. Sentenced to 18 years imprisonment for conducting terrorist activities by the Algiers Criminal Court on 25 January 2023. Arrest warrant issued by the German authorities on 9 Oct 2003 and 18 July 2018 respectively for involvement in kidnapping, robbery and extortion. Former member of the Katibat Tarek Ibn Ziad of The Organization of Al-Qaida in the Islamic Maghreb (QDe.014). Father’s name: Sliman. Mother’s name Oum Hani Djermane. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: 'In detention in Algeria as of November 2023. Sentenced to 18 years imprisonment for conducting terrorist activities by the Algiers Criminal Court on 25 January 2023. Arrest warrant issued by the German authorities on 9 Oct 2003 and 18 July 2018 respectively for involvement in kidnapping, robbery and extortion. Former member of the Katibat Tarek Ibn Ziad of The Organization of Al-Qaida in the Islamic Maghreb (QDe.014). Father’s name: Sliman. Mother’s name Oum Hani Djermane. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.'
         properties: 
           - prop: description
-            value: In detention in Algeria as of November 2023. Sentenced to 18 years imprisonment for conducting terrorist activities by the Algiers Criminal Court on 25 January 2023. Arrest warrant issued by the German authorities on 9 Oct 2003 and 18 July 2018 respectively for involvement in kidnapping, robbery and extortion. Former member of the Katibat Tarek Ibn Ziad of The Organization of Al-Qaida in the Islamic Maghreb (QDe.014). Father’s name: Sliman. Mother’s name Oum Hani Djermane. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+            value: 'In detention in Algeria as of November 2023. Sentenced to 18 years imprisonment for conducting terrorist activities by the Algiers Criminal Court on 25 January 2023. Arrest warrant issued by the German authorities on 9 Oct 2003 and 18 July 2018 respectively for involvement in kidnapping, robbery and extortion. Former member of the Katibat Tarek Ibn Ziad of The Organization of Al-Qaida in the Islamic Maghreb (QDe.014). Father’s name: Sliman. Mother’s name Oum Hani Djermane. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.'
       - match: Co-founded by Aiman Muhammed Rabi al-Zawahiri (QI.A.6.01), who was also its military leader. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
         properties: 
           - prop: description
@@ -1213,10 +1214,10 @@ lookups:
         properties: 
           - prop: description
             value: Reportedly deceased in Nov 2016. Father's name is Mohamed. Mother's name is Zohra Chemkha. Member of the Council of The Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01) (AQIM). Head of AI Mouakaoune Biddam (QE.M.139.14), AI Moulathamoun (QE.M.140.14) and AI Mourabitoun (QE.M.141.14). Review pursuant to Security Council resolution 1822 (2008) was concluded on 30 Jul 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
-      - match: AQAP is a regional affiliate of Al-Qaida (SSID 10-17297) and an armed group operating primarily in Arabian Peninsula. Location: Yemen. Alternative location: Saudi Arabia (2004 – 2006). Formed in Jan 2009 when Al-Qaida in Yemen combined with Saudi Arabian Al-Qaida operatives. Leader of AQAP is Qasim Mohamed Mahdi Al-Rimi (SSID 10-14546). Ansar al-Shari'a was formed in early 2011 by AQAP and has taken responsibility for multiple attacks in Yemen against both government and civilian targets. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: "AQAP is a regional affiliate of Al-Qaida (SSID 10-17297) and an armed group operating primarily in Arabian Peninsula. Location: Yemen. Alternative location: Saudi Arabia (2004 – 2006). Formed in Jan 2009 when Al-Qaida in Yemen combined with Saudi Arabian Al-Qaida operatives. Leader of AQAP is Qasim Mohamed Mahdi Al-Rimi (SSID 10-14546). Ansar al-Shari'a was formed in early 2011 by AQAP and has taken responsibility for multiple attacks in Yemen against both government and civilian targets. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available."
         properties: 
           - prop: description
-            value: AQAP is a regional affiliate of Al-Qaida (SSID 10-17297) and an armed group operating primarily in Arabian Peninsula. Location: Yemen. Alternative location: Saudi Arabia (2004 – 2006). Formed in Jan 2009 when Al-Qaida in Yemen combined with Saudi Arabian Al-Qaida operatives. Leader of AQAP is Qasim Mohamed Mahdi Al-Rimi (SSID 10-14546). Ansar al-Shari'a was formed in early 2011 by AQAP and has taken responsibility for multiple attacks in Yemen against both government and civilian targets. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+            value: "AQAP is a regional affiliate of Al-Qaida (SSID 10-17297) and an armed group operating primarily in Arabian Peninsula. Location: Yemen. Alternative location: Saudi Arabia (2004 – 2006). Formed in Jan 2009 when Al-Qaida in Yemen combined with Saudi Arabian Al-Qaida operatives. Leader of AQAP is Qasim Mohamed Mahdi Al-Rimi (SSID 10-14546). Ansar al-Shari'a was formed in early 2011 by AQAP and has taken responsibility for multiple attacks in Yemen against both government and civilian targets. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available."
       - match: Wa’el Hamza Abd al-Fatah Julaidan served as its Director General. Banned in Pakistan. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
         properties: 
           - prop: description
@@ -1250,13 +1251,13 @@ lookups:
           - prop: hairColor
             value: gray
           - prop: height
-            values: 
-              - 5 feet 6 inches
-              - 168 cm
+            value: 5 feet 6 inches
+          - prop: height
+            value: 168 cm
           - prop: weight
-            values:
-              - 140 pounds
-              - 64 kg
+            value: 140 pounds
+          - prop: weight
+            value: 64 kg
           - prop: appearance
             value: right arm is amputated above his elbow.
           - prop: description
