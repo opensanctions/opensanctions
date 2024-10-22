@@ -13,28 +13,24 @@ DATA_URLS = [
     "https://www.sgdi.gov.sg/ministries",
 ]
 
-def position_name(data_url, section_name, position, ministry=None, agency=None):
-    is_ministry = (
-        data_url == "https://www.sgdi.gov.sg/ministries"
-    )
-    is_board_member = (
-        data_url == "https://www.sgdi.gov.sg/statutory-boards"
-        and section_name.lower()
-        in {"board members", "council members"}
-    )
-    if is_ministry:
-        position = f"{position} in the {ministry}"
-    elif is_board_member:
-        position = f"{position} of the Board of the {agency}"
-    else:
-        position = f"{position} of the {agency}"
+def position_name(body_type, rank, ministry=None, agency=None, section_name=None):
+    is_ministry = body_type.lower() == "ministry"
+    is_board_member = body_type.lower() == "agency" and section_name.lower() in {"board members", "council members"}
 
+    if is_ministry:
+        position = f"{rank} in the {ministry}"
+    elif is_board_member:
+        position = f"{rank} of the Board of the {agency}"
+    else:
+        position = f"{rank} of the {agency}"
+        
     position = re.sub(
         "Board Member of the Board of",
         "Member of the Board of",
         position,
-        re.I,
+        flags=re.I
     )
+    
     return position
 
 
@@ -42,7 +38,7 @@ def is_pep(rank: str) -> bool | None:
     rank_lower = rank.lower()
     
     # Check for PEP indicators
-    if any(keyword in rank_lower for keyword in ["minister", "president", "member", "executive officer", "director", "chairman"]):
+    if any(keyword in rank_lower for keyword in ["minister", "president", "member", "executive officer", "director", "chairman", "ceo"]):
         return True
     elif any(keyword in rank_lower for keyword in ["pa to",
             "assistant",
@@ -83,9 +79,15 @@ def crawl_person(context, official, link, ministry, agency, section_name, data_u
         .strip()
     )
     # phone numbers are also available
+    
+    if "ministries" in data_url:
+        body_type = "ministry"
+    elif "statutory-boards" in data_url:
+        body_type = "agency"
+    
+    pep_status = is_pep(rank=position) # checking before formatting the position name
+    position = position_name(body_type, position, ministry, agency, section_name)
 
-    position = position_name(data_url, section_name, position, ministry, agency)
-    # print(f"Formatted Position: {position}")
     match = TITLE_REGEX.match(full_name)
     title = None
     if match:
@@ -104,18 +106,13 @@ def crawl_person(context, official, link, ministry, agency, section_name, data_u
             person.add("website", email)
         else:
             person.add("email", email)
-    pep_status = is_pep(rank=position)
-    print(pep_status)
-    print(position)
+
     position = h.make_position(
         context,
         name=position,
         country="sg",
         # topics=["gov.executive", "gov.national"],
     )
-    # is_pep = is_pep(rank=position.name)
-    # #print(position.name)
-    # print(is_pep)
     categorisation = categorise(context, position, is_pep=pep_status)
     if categorisation.is_pep:
         occupancy = h.make_occupancy(context, person, position)
