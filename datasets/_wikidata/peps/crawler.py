@@ -55,8 +55,8 @@ def crawl_holder(
     entity.id = qid
     birth_date = holder.get("person_birth")
     death_date = holder.get("person_death")
-    start_date = holder.get("end_date")
-    end_date = holder.get("start_date")
+    start_date = holder.get("start_date")
+    end_date = holder.get("end_date")
     if any(
         (d and (d < "1900-01-01"))
         for d in [start_date, end_date, birth_date, death_date]
@@ -75,7 +75,7 @@ def crawl_holder(
         end_date=end_date,
         start_date=start_date,
         categorisation=categorisation,
-        # propagate_country=len(position.get("country")) == 1,
+        propagate_country=("role.diplo" not in categorisation.topics),
     )
     if not occupancy:
         return
