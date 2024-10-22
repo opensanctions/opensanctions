@@ -5,6 +5,7 @@ from rigour.mime.types import PDF
 import pdfplumber
 from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_resource
 
 
 def parse_pdf_table(
@@ -54,7 +55,11 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.pdf", context.data_url)
+    cached, path, media_type, charset = fetch_resource(
+        context, "source.pdf", context.data_url, geolocation="us"
+    )
+    if not cached:
+        assert media_type == PDF, media_type
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     previous_item = None
     for item in parse_pdf_table(context, path):
