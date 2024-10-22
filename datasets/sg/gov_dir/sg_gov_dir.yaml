@@ -37,10 +37,10 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 1050
+      Person: 1300
   max:
     schema_entities:
-      Person: 1400
+      Person: 1600
 lookups: 
   type.email:
     lowercase: true
