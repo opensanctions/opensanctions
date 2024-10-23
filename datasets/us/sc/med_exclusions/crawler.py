@@ -1,0 +1,79 @@
+from typing import Dict
+from rigour.mime.types import XLSX
+from openpyxl import load_workbook
+
+from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html, fetch_resource
+import re
+
+ALIAS_PATTERN = r"^(.*?)(?:\s(?:a\.k\.a\.|aka|f/k/a|dba)\s(.*))?$"
+
+
+def crawl_item(row: Dict[str, str], context: Context):
+
+    address = h.make_address(
+        context,
+        city=row.pop("city"),
+        state=row.pop("state"),
+        postal_code=row.pop("zip"),
+        country_code="US",
+    )
+
+    entity = context.make("LegalEntity")
+    entity.id = context.make_id(row.get("individual_entity"), row.get("npi"))
+    match = re.match(ALIAS_PATTERN, row.pop("individual_entity").strip())
+
+    entity.add("name", match.group(1))
+    if match.group(2):
+        entity.add("alias", match.group(2).strip())
+
+    if row.get("npi") != "Not Found":
+        for npi in row.pop("npi").split(","):
+            entity.add("npiCode", npi)
+    else:
+        row.pop("npi")
+
+    entity.add("topics", "debarment")
+    entity.add("sector", row.pop("last_known_profession_provider_type"))
+    entity.add("country", "us")
+    h.apply_address(context, entity, address)
+
+    sanction = h.make_sanction(context, entity)
+    h.apply_date(sanction, "startDate", row.pop("date_excluded"))
+
+    context.emit(entity, target=True)
+    context.emit(sanction)
+    context.emit(address)
+
+    context.audit_data(row)
+
+
+def unblock_validator(doc) -> bool:
+    return (
+        len(doc.xpath(".//a[contains(text(), 'South Carolina Excluded Providers')]"))
+        > 0
+    )
+
+
+def crawl_excel_url(context: Context):
+    doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
+    return doc.xpath(".//a[contains(text(), 'South Carolina Excluded Providers')]")[
+        0
+    ].get("href")
+
+
+def crawl(context: Context) -> None:
+
+    excel_url = crawl_excel_url(context)
+
+    cached, group_path, mediatype, _charset = fetch_resource(
+        context, "source.xlsx", excel_url, geolocation="US"
+    )
+    if not cached:
+        assert mediatype == XLSX
+    context.export_resource(group_path, XLSX, title=context.SOURCE_TITLE)
+
+    wb = load_workbook(group_path, read_only=True)
+
+    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=2):
+        crawl_item(item, context)
