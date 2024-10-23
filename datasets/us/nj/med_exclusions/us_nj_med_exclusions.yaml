@@ -1,0 +1,51 @@
+title: US New Jersey Ineligible Medicare Providers
+entry_point: crawler.py
+prefix: us-mednj
+coverage:
+  frequency: daily
+  start: "2024-10-03"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers deemed ineligible to participate in New Jersey State's Medicaid program.
+description: |
+  The New Jersey Medicaid Fraud Division maintains a list of providers
+  whose Medicaid provider agreement has been terminated. Providers listed are ineligible to receive
+  reimbursement for Medicaid services in any capacity.
+publisher:
+  name: New Jersey Office of the Insurance Fraud Prosecutor
+  description: >
+    > The OIFP serves as the focal point for all criminal, civil and administrative
+    > prosecutions of Medicaid and insurance fraud.
+  acronym: OIFP
+  url: https://www.njoag.gov
+  official: true
+  country: "us"
+url: "https://www.njoag.gov/about/divisions-and-offices/office-of-the-insurance-fraud-prosecutor-home/medicaid-fraud-control-unit/"
+data:
+  url: https://www.nj.gov/comptroller/doc/nj_debarment_list.pdf
+  format: PDF
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+lookups:
+  type.date:
+    lowercase: true
+    options:
+      - match: 5/222024
+        value: 2024-05-22
+      - match:
+          - PERMANENT
+          - DECEASED
+          - N/A
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Company: 800
+      Person: 2500
+  max:
+    schema_entities:
+      Company: 950
+      Person: 3000
