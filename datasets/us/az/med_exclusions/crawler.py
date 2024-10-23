@@ -64,6 +64,8 @@ def crawl(context: Context) -> None:
     previous_item = None
     for item in parse_pdf_table(context, path):
 
+        context.log.info(item)
+
         # There are some cases where the name is same but they have multiple NPIs
         if not item.get("name_provider"):
             for key in item.keys():
@@ -73,7 +75,9 @@ def crawl(context: Context) -> None:
         previous_item = item.copy()
 
         # If there are multiple providers in the same dictionary we are going to split into two
-        if item.get("name_provider") and len(item.get("name_provider").split("\n")) > 1:
+        if (item.get("name_provider")
+            and len(item.get("name_provider").split("\n")) > 1
+            and len(item.get("action_type_suspend_terminate").split("\n")) > 1):
             item1, item2 = {}, {}
 
             for key, value in item.items():
