@@ -1666,6 +1666,70 @@ lookups:
         properties: 
           - prop: description
             value: Member of the Islamic Jihad Union (IJU), also known as the Islamic Jihad Group (QE.I.119.05.). Released from detention in Germany on 7 July 2011.
+      - match: Arrested in Paris on 3 October 2010 under ICC warrant for war crimes and crimes against humanity committed by FDLR troops in the Kivus in 2009. Transferred to The Hague on 25 January 2011 and released by the ICC in late 2011. Elected FDLR Executive Secretary on 29 November 2014 for a five-year term.
+        properties: 
+          - prop: description
+            value: Arrested in Paris on 3 October 2010 under ICC warrant for war crimes and crimes against humanity committed by FDLR troops in the Kivus in 2009. Transferred to The Hague on 25 January 2011 and released by the ICC in late 2011. Elected FDLR Executive Secretary on 29 November 2014 for a five-year term.
+      - match: Machanga Ltd last filed an annual return in 2004 and was listed as “status inactive” according to the authorities of the Republic of Uganda.
+        properties: 
+          - prop: description
+            value: Machanga Ltd last filed an annual return in 2004 and was listed as “status inactive” according to the authorities of the Republic of Uganda.
+      - match: Founding member of Lashkar-e-Tayyiba (QE.L.118.05.) and deputy to Lashkar-e-Tayyiba leader Hafiz Muhammad Saeed (QI.S.263.08.). Confirmed deceased. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Founding member of Lashkar-e-Tayyiba (QE.L.118.05.) and deputy to Lashkar-e-Tayyiba leader Hafiz Muhammad Saeed (QI.S.263.08.). Confirmed deceased. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Reportedly defunct. Review pursuant to Security Council resolution 1822 (2008) was concluded on 28 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Reportedly defunct. Review pursuant to Security Council resolution 1822 (2008) was concluded on 28 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Member of Taliban Supreme Military Council as well as Taliban Supreme Council as at June 2010. Belongs to Popalzai tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+        properties: 
+          - prop: description
+            value: Member of Taliban Supreme Military Council as well as Taliban Supreme Council as at June 2010. Belongs to Popalzai tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+      - match: Believed to be in Afghanistan/Pakistan border area. Belongs to Baloch ethnic group. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010.
+        properties: 
+          - prop: description
+            value: Believed to be in Afghanistan/Pakistan border area. Belongs to Baloch ethnic group. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010.
+      - match: Member of the Taliban Gerd-e-Jangal Shura and Head of the Taliban Prisoners and Refugees Committee. Belongs to Ishaqzai tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+        properties: 
+          - prop: description
+            value: Member of the Taliban Gerd-e-Jangal Shura and Head of the Taliban Prisoners and Refugees Committee. Belongs to Ishaqzai tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Jun 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Jun 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021.
+      - match: Al-Qaida (QE.A.4.01.) facilitator, courier and operative. As of 2010, facilitated activities for senior Pakistan-based Al-Qaida operatives. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Al-Qaida (QE.A.4.01.) facilitator, courier and operative. As of 2010, facilitated activities for senior Pakistan-based Al-Qaida operatives. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Father's name is Mohamed Elsayed Elsebai. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Father's name is Mohamed Elsayed Elsebai. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: 'Regional offices in Pakistan: Bahawalpur, Bawalnagar, Gilgit, Islamabad, Mirpur Khas, Tando-Jan-Muhammad. Akhtarabad Medical Camp is in Spin Boldak, Afghanistan. Registered by members of Jaish-i-Mohammed (QE.J.19.01). Associated with Harakat ul-Mujahidin/ HUM (QE.H.8.01), Lashkar I Jhanghvi (LJ) (QE.L.96.03) and Lashkar-e-Tayyiba (QE.L.118.05). Banned in Pakistan. Review pursuant to Security Council resolution 1822 (2008) was concluded on 14 Sep 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.'
+        properties: 
+          - prop: description
+            value: 'Regional offices in Pakistan: Bahawalpur, Bawalnagar, Gilgit, Islamabad, Mirpur Khas, Tando-Jan-Muhammad. Akhtarabad Medical Camp is in Spin Boldak, Afghanistan. Registered by members of Jaish-i-Mohammed (QE.J.19.01). Associated with Harakat ul-Mujahidin/ HUM (QE.H.8.01), Lashkar I Jhanghvi (LJ) (QE.L.96.03) and Lashkar-e-Tayyiba (QE.L.118.05). Banned in Pakistan. Review pursuant to Security Council resolution 1822 (2008) was concluded on 14 Sep 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.'
+      - match: Senior Taliban member as at 2011 with financial duties, including raising funds on behalf of the leadership. Has provided logistical support for Taliban operations and channeled proceeds from drug trafficking to arms purchases. Has acted as secretary to Taliban leader Mullah Mohammed Omar (TI.O.4.01) and as his messenger at senior-level meetings of the Taliban. Also associated with Gul Agha Ishakzai (TI.I.147.10). Member of Mullah Mohammed Omar’s (TI.O.4.01) inner circle during the Taliban regime.
+        properties: 
+          - prop: description
+            value: Senior Taliban member as at 2011 with financial duties, including raising funds on behalf of the leadership. Has provided logistical support for Taliban operations and channeled proceeds from drug trafficking to arms purchases. Has acted as secretary to Taliban leader Mullah Mohammed Omar (TI.O.4.01) and as his messenger at senior-level meetings of the Taliban. Also associated with Gul Agha Ishakzai (TI.I.147.10). Member of Mullah Mohammed Omar’s (TI.O.4.01) inner circle during the Taliban regime.
+      - match: Father of Sirajuddin Jallaloudine Haqqani (TI.H.144.07.), Nasiruddin Haqqani (TI.H.146.10) and Badruddin Haqqani (TI.H.151.11) (deceased). Brother of Mohammad Ibrahim Omari (TI.O.42.01) and Khalil Ahmed Haqqani (TI.H.150.11). He is an active Taliban leader. Believed to be in Afghanistan/Pakistan border area. Head of the Taliban Miram Shah Shura as at 2008. Belongs to Zadran tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010. Reportedly deceased as of Sep 2018. INTERPOL-UN Security Council Special Notice available.
+        properties: 
+          - prop: description
+            value: Father of Sirajuddin Jallaloudine Haqqani (TI.H.144.07.), Nasiruddin Haqqani (TI.H.146.10) and Badruddin Haqqani (TI.H.151.11) (deceased). Brother of Mohammad Ibrahim Omari (TI.O.42.01) and Khalil Ahmed Haqqani (TI.H.150.11). He is an active Taliban leader. Believed to be in Afghanistan/Pakistan border area. Head of the Taliban Miram Shah Shura as at 2008. Belongs to Zadran tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 27 Jul 2010. Reportedly deceased as of Sep 2018. INTERPOL-UN Security Council Special Notice available.
+      - match: 'Italian Fiscal code: BGHFCL66R28Z352G. Sentenced to 7 years imprisonment in Italy on 29 Jun 2007 by the Brescia Second Appeals Court. In detention in Italy as at Jun 2009. Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 Jul 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.'
+        properties: 
+          - prop: description
+            value: 'Italian Fiscal code: BGHFCL66R28Z352G. Sentenced to 7 years imprisonment in Italy on 29 Jun 2007 by the Brescia Second Appeals Court. In detention in Italy as at Jun 2009. Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 Jul 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.'
+      - match: Spiritual leader of the Rajah Solaiman Movement (SSID 10-17700). Associated with Khadafi Abubakar Janjalani (deceased) and the International Islamic Relief Organization, Philippines, branch offices. In detention in the Philippines as of May 2011. Review pursuant to Security Council resolution 1822 (2008) was concluded on 13 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Spiritual leader of the Rajah Solaiman Movement (SSID 10-17700). Associated with Khadafi Abubakar Janjalani (deceased) and the International Islamic Relief Organization, Philippines, branch offices. In detention in the Philippines as of May 2011. Review pursuant to Security Council resolution 1822 (2008) was concluded on 13 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Has acted on behalf of and provided financial, material and logistical support to Al-Qaida (QE.A.4.01) and the Libyan Islamic Fighting Group (LIFG QE.L.11.01). Arrested in the United Arab Emirates (UAE) in Jan 2007 on charges of being a member of Al-Qaida and the LIFG. Following his conviction in the UAE in late 2007, he was transferred to Bahrain in early 2008 to serve out the remainder of his sentence. Following his release in 2008, he resumed fundraising activities for Al-Qaida, at least through 2012. He also collected money for the Taliban.
+        properties: 
+          - prop: description
+            value: Has acted on behalf of and provided financial, material and logistical support to Al-Qaida (QE.A.4.01) and the Libyan Islamic Fighting Group (LIFG QE.L.11.01). Arrested in the United Arab Emirates (UAE) in Jan 2007 on charges of being a member of Al-Qaida and the LIFG. Following his conviction in the UAE in late 2007, he was transferred to Bahrain in early 2008 to serve out the remainder of his sentence. Following his release in 2008, he resumed fundraising activities for Al-Qaida, at least through 2012. He also collected money for the Taliban.
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
           - other_schema: Company
