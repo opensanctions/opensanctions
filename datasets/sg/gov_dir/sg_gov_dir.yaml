@@ -3,13 +3,13 @@ entry_point: crawler.py
 prefix: sg-gov
 coverage:
   frequency: weekly
-  start: 2024-10-18
+  start: 2024-10-23
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
   Senior officials of ministries, statutory boards and other public bodies in Singapore.
 description: |
-  This dataset lists senior officials of ministries statutory boards and agencies, and
+  This dataset lists senior officials of ministries, statutory boards and agencies, and
   other public bodies, such as judicial and financial oversight institutions.
   
   Their names and roles within their respective institutions are included along with source
