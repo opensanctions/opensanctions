@@ -4296,7 +4296,7 @@ lookups:
         associates:
           - Corps des gardiens de la révolution islamique (IRGC)
         props:
-          jurisdiction: ir     
+          jurisdiction: ir
           incorporationDate:
             - 2000
             - 2008
@@ -4361,7 +4361,7 @@ lookups:
         props:
           legalForm: société par actions
       - match: "numéro d'identification fiscale: 9718077239"
-        props: 
+        props:
           innCode: 9718077239
       - match: "Lieu d'enregistrement: Fédération de Russie (107241, Moscou, sh. Shchelkovskoe, 23A, pomeshch. V kom. 33.) - Date d'enregistrement: 27.9.2017 - Principal établissement: Fédération de Russie: /"
         props:
@@ -4566,8 +4566,8 @@ lookups:
           address: "province du Khorasan (Iran)"
       - match: "Numéro d’enregistrement: Iran: 427320"
         props:
-          registrationNumber: 
-      - match: "Type d’entité: entité publique - Lieu d’enregistrement: Téhéran, Iran: /"
+          registrationNumber:
+      - match: "Type d’entité: entité publique  - Lieu d’enregistrement: Téhéran, Iran: /"
         props:
           jurisdiction: ir
           legalForm: entité publique
@@ -4579,3 +4579,8 @@ lookups:
       - match: "Numéro d’identification national: 14004684489"
         props:
           idNumber: 14004684489
+      - match: "Type d’entité: entité publique - Lieu d’enregistrement: Téhéran, Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: entité publique
+          address: "Téhéran, Iran"

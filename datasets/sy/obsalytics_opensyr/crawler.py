@@ -27,7 +27,7 @@ TYPES = {
     # TODO: command-control relationship
 }
 
-IGNORE = ["opensyr-node-1357"]
+IGNORE = ["opensyr-node-1357", "opensyr-node-74"]
 
 directorship_titles = [
     "عضو مجلس إدارة",
@@ -244,7 +244,6 @@ def extract_relation(
     type_: str,
     props: Dict[str, str],
 ) -> None:
-
     if type_ in ["له_منصب"]:
         position_type = props.get("041_نوع_المنصب", None)
         position_title = props.get("042_اسم_المنصب", None)

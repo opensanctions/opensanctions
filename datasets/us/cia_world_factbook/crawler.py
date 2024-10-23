@@ -139,8 +139,8 @@ def emit_person(
             context,
             person,
             position,
-            start_date=start_date[0] if start_date else None,
-            end_date=end_date[0] if end_date else None,
+            start_date=start_date,
+            end_date=end_date,
             status=OccupancyStatus.CURRENT,
             categorisation=categorisation,
         )

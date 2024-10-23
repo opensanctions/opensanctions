@@ -54,7 +54,13 @@ def crawl_holder(
         return
     entity.id = qid
     birth_date = holder.get("person_birth")
-    if birth_date is not None and birth_date < "1900-01-01":
+    death_date = holder.get("person_death")
+    start_date = holder.get("start_date")
+    end_date = holder.get("end_date")
+    if any(
+        (d and (d < "1900-01-01"))
+        for d in [start_date, end_date, birth_date, death_date]
+    ):
         # Avoid constructing a proxy which emits a warning
         # before we discard it.
         return
@@ -66,10 +72,10 @@ def crawl_holder(
         entity,
         position,
         False,
-        end_date=date_value(holder.get("end_date")),
-        start_date=date_value(holder.get("start_date")),
+        end_date=end_date,
+        start_date=start_date,
         categorisation=categorisation,
-        # propagate_country=len(position.get("country")) == 1,
+        propagate_country=("role.diplo" not in categorisation.topics),
     )
     if not occupancy:
         return
@@ -124,7 +130,6 @@ def query_position_holders(
             or binding.plain("bodyEnd")
             or binding.plain("bodyAbolished")
         )
-
         yield {
             "person_qid": binding.plain("person"),
             "person_label": binding.plain("personLabel"),

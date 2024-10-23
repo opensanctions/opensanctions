@@ -46,6 +46,9 @@ lookups:
           - Sterling Watters Group LP
           - Sterling Watters Capital Advisors LLC
           - Sterling Watters Capital Management Inc
+      - match: haligiannis, angelo
+        names:
+          - Angelo Haligiannis
       - match: angelo mozilo, david sambol and eric sieracki (former executives of countrywide financial corporation)
         names:
           - Angelo Mozilo
@@ -1008,3 +1011,15 @@ lookups:
           - Dynamic Money LLC
           - Investus Financial LLC
           - Peer Connect LLC
+      - match: austal limited and austal usa llc
+        names:
+          - Austal Limited
+          - Austal USA LLC
+      - match: legacy hospitality ii llc, legendary capital reit iii llc, and corey r. maple
+        names:
+          - Legacy Hospitality II LLC
+          - Legendary Capital REIT III LLC
+          - Corey R. Maple
+      - match: moravec, matthew
+        names:
+          - Matthew Moravec

@@ -73,13 +73,13 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 @click.argument("dataset_path", type=InPath)
 @click.option("-c", "--clear", is_flag=True, default=False)
 def validate(dataset_path: Path, clear: bool = False) -> None:
+    dataset = _load_dataset(dataset_path)
+    if dataset.disabled:
+        log.info("Dataset is disabled, skipping: %s" % dataset.name)
+        sys.exit(0)
+    linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
     try:
-        dataset = _load_dataset(dataset_path)
-        if dataset.disabled:
-            log.info("Dataset is disabled, skipping: %s" % dataset.name)
-            sys.exit(0)
-        linker = get_dataset_linker(dataset)
-        store = get_store(dataset, linker)
         store.sync(clear=clear)
         validate_dataset(dataset, store.view(dataset, external=False))
     except Exception:
@@ -92,13 +92,13 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
 @click.argument("dataset_path", type=InPath)
 @click.option("-c", "--clear", is_flag=True, default=False)
 def export(dataset_path: Path, clear: bool = False) -> None:
+    dataset = _load_dataset(dataset_path)
+    if dataset.disabled:
+        log.info("Dataset is disabled, skipping: %s" % dataset.name)
+        sys.exit(0)
+    linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
     try:
-        dataset = _load_dataset(dataset_path)
-        if dataset.disabled:
-            log.info("Dataset is disabled, skipping: %s" % dataset.name)
-            sys.exit(0)
-        linker = get_dataset_linker(dataset)
-        store = get_store(dataset, linker)
         store.sync(clear=clear)
         export_dataset(dataset, store.view(dataset, external=False))
     except Exception:
@@ -158,7 +158,7 @@ def run(
     except Exception:
         log.exception("Validation failed for %r" % dataset.name)
         publish_failure(dataset, latest=latest)
-        view.store.close()
+        store.close()
         sys.exit(1)
     # Export and Publish
     try:

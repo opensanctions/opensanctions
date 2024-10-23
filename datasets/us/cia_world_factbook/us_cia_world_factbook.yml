@@ -35,7 +35,7 @@ data:
   lang: eng
 
 dates: 
-  formats: ["%d %B %Y"]
+  formats: ["%d %B %Y", "%B %Y"]
 lookups:
   unparsed_holders:
     options:
@@ -46,16 +46,16 @@ lookups:
             name: Samantha MOSTYN
             start date: 1 July 2024
       # San-Marino
-      - match: co-chiefs of state Captains Regent Filippo TAMAGNINI and Gaetano TROINA (for the period 1 October 2023 - 1 April 2024)
+      - match: co-chiefs of state Captains Regent Francesca CIVERCHIA and Dalibor RICCARDI (for the period 1 October 2024 - 30 March 2025)
         holders:
           - role: Co-chief of state
-            name: Filippo TAMAGNINI
-            start_date: 1 October 2023
-            end_date: 1 April 2024
+            name: Francesca CIVERCHIA
+            start_date: 1 October 2024
+            end_date: 30 March 2025
           - role: Co-chief of state
-            name: Gaetano Troina
-            start_date: 1 October 2023
-            end_date: 1 April 2024
+            name: Dalibor RICCARDI
+            start_date: 1 October 2024
+            end_date: 30 March 2025
       - match: "chief of state: TUIMALEALI'IFANO Va’aletoa Sualauvi II (since 21 July 2017)"
         holders:
           - role: chief of state

@@ -65,9 +65,9 @@ assertions:
       Person: 170000
       Position: 10000
     country_entities:
-      us: 20000
-      cn: 8000
-      bn: 20
+      us: 18000
+      cn: 7000
+      bn: 10
     countries: 19
   max:
     schema_entities:
@@ -1943,4 +1943,8 @@ lookups:
       - match: "Q65040683"
         code: ""
         label: "Jobberman"
+        decision: "ignore"
+      - match: "Q19716180"
+        code: ""
+        label: "Pays Catalan"
         decision: "ignore"
