@@ -146,7 +146,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     schema = SCHEMATA.get(nature)
     schema = context.lookup_value("schema_override", entity_id, schema)
     if schema is None:
-        context.log.warning("Unknown entity type", nature=nature)
+        context.log.error("Unknown entity type", nature=nature)
         return
     entity = context.make(schema)
     entity.id = entity_id
