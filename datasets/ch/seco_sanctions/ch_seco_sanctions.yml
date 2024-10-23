@@ -1426,10 +1426,246 @@ lookups:
         properties: 
           - prop: description
             value: INTERPOL-UN Security Council Special Notice web link available.
-
-
-          
-        
+      - match: Member of the Rajah Solaiman Movement (QE.R.128.08.). Arrested by the Philippines authorities on 14 Mar 2011. Review pursuant to Security Council resolution 1822 (2008) was concluded on 13 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Member of the Rajah Solaiman Movement (QE.R.128.08.). Arrested by the Philippines authorities on 14 Mar 2011. Review pursuant to Security Council resolution 1822 (2008) was concluded on 13 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: 'Italian Fiscal Code: SSYBLK62T26Z336L. Sentenced to 8 years imprisonment in Italy on 2 Feb 2004. Considered a fugitive from justice by the Italian authorities. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021.'
+        properties: 
+          - prop: description
+            value: Sentenced to 8 years imprisonment in Italy on 2 Feb 2004. Considered a fugitive from justice by the Italian authorities. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021.
+          - prop: taxNumber
+            value: SSYBLK62T26Z336L
+      - match: Founding member of Jemaah Islamiyah (JI) (SSID 10-17610) who worked on Al-Qaida’s (SSID 10-17297) biological weapons program, provided support to those involved in Al-Qaida’s 11 Sep 2001 attacks in the United States of America, and was involved in JI bombing operations. Detained in Malaysia from 2001 to 2008. Arrested in Malaysia in 2013 and sentenced to 7 years in Jan 2016 for failing to report information relating to terrorist acts. Completed detention on 20 Nov 2019. Served a two-year restricted residence order in Selangor Malaysia until 21 Nov 2021. Review pursuant to Security Council resolution 1989 (2011) was concluded on 6 Mar 2014. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Founding member of Jemaah Islamiyah (JI) (SSID 10-17610) who worked on Al-Qaida’s (SSID 10-17297) biological weapons program, provided support to those involved in Al-Qaida’s 11 Sep 2001 attacks in the United States of America, and was involved in JI bombing operations. Detained in Malaysia from 2001 to 2008. Arrested in Malaysia in 2013 and sentenced to 7 years in Jan 2016 for failing to report information relating to terrorist acts. Completed detention on 20 Nov 2019. Served a two-year restricted residence order in Selangor Malaysia until 21 Nov 2021. Review pursuant to Security Council resolution 1989 (2011) was concluded on 6 Mar 2014. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Arrested on 9 Oct 2002. In detention in Italy until 27 Apr 2012. Sentenced in absentia to 20 years of imprisonment by the Tunis Military Court on 11 May 2005 for membership of a terrorist organization. Father's name is Mohamed Sharif. Mother's name is Fatima. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010.
+        properties: 
+          - prop: description
+            value: Arrested on 9 Oct 2002. In detention in Italy until 27 Apr 2012. Sentenced in absentia to 20 years of imprisonment by the Tunis Military Court on 11 May 2005 for membership of a terrorist organization. Father's name is Mohamed Sharif. Mother's name is Fatima. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010.
+      - match: Its directors included Mahmood Sultan Bashir-Ud-Din (QI.B.55.01), Majeed Abdul Chaudhry (QI.A.54.01) and Mohammed Tufail (QI.T.56.01). Banned in Pakistan. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Its directors included Mahmood Sultan Bashir-Ud-Din (QI.B.55.01), Majeed Abdul Chaudhry (QI.A.54.01) and Mohammed Tufail (QI.T.56.01). Banned in Pakistan. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Extradited from Italy to Tunisia on 13 Dec 2008. Imprisoned in Mornaguia Prison on 29 Nov 2011 pursuant to an order issued by the Court of First Instance of Grombalia for excavation of artefacts without a licence (case No. 12680/2011). Released on 27 Dec 2011 after charges against him were dismissed. Inadmissible to the Schengen area. Mother’s name is Mabrukah al-Yazidi. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010.
+        properties: 
+          - prop: description
+            value: Extradited from Italy to Tunisia on 13 Dec 2008. Imprisoned in Mornaguia Prison on 29 Nov 2011 pursuant to an order issued by the Court of First Instance of Grombalia for excavation of artefacts without a licence (case No. 12680/2011). Released on 27 Dec 2011 after charges against him were dismissed. Inadmissible to the Schengen area. Mother’s name is Mabrukah al-Yazidi. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010.
+      - match: Father’s name is Sheikh Ibrahim Ali Kaskar, mother’s name is Amina Bi, wife’s name is Mehjabeen Shaikh. International arrest warrant issued by the Government of India. Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Father’s name is Sheikh Ibrahim Ali Kaskar, mother’s name is Amina Bi, wife’s name is Mehjabeen Shaikh. International arrest warrant issued by the Government of India. Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Associated with Al-Qaida-related groups in the United Kingdom and other countries. Convicted in absentia in Jordan for involvement in terrorist acts in 1998. Arrested in Feb 2001 in the United Kingdom, was further detained between Oct 2002 and Mar 2005 and between Aug 2005 and Jun 2008. In custody since Dec 2008. Deported to Jordan from the United Kingdom on 7 Jul 2013 to face terrorism charges. Review pursuant to Security Council resolution 1822 (2008) was concluded on 19 Oct 2009. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Associated with Al-Qaida-related groups in the United Kingdom and other countries. Convicted in absentia in Jordan for involvement in terrorist acts in 1998. Arrested in Feb 2001 in the United Kingdom, was further detained between Oct 2002 and Mar 2005 and between Aug 2005 and Jun 2008. In custody since Dec 2008. Deported to Jordan from the United Kingdom on 7 Jul 2013 to face terrorism charges. Review pursuant to Security Council resolution 1822 (2008) was concluded on 19 Oct 2009. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: He was one of the leaders of the Islamic Jihad Group (QE.I.119.05.). Reportedly deceased in Pakistan in Sep 2009. Review pursuant to Security Council resolution 1822 (2008) was concluded on 4 May 2009.
+        properties:
+          - prop: description
+            value: He was one of the leaders of the Islamic Jihad Group (QE.I.119.05.). Reportedly deceased in Pakistan in Sep 2009. Review pursuant to Security Council resolution 1822 (2008) was concluded on 4 May 2009.
+      - match: In custody in Jordan since 26 Feb 2015 for recruitment and support to Islamic State in Iraq and the Levant (ISIL), listed as Al-Qaida in Iraq (SSID 10-17311). Father’s name is Mohammad Hijazi. Mother’s name is Sakina. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: In custody in Jordan since 26 Feb 2015 for recruitment and support to Islamic State in Iraq and the Levant (ISIL), listed as Al-Qaida in Iraq (SSID 10-17311). Father’s name is Mohammad Hijazi. Mother’s name is Sakina. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Reportedly deceased in 2006. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+        properties: 
+          - prop: description
+            value: Reportedly deceased in 2006. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Headquarters was in Kandahar, Afghanistan as at 2001. Wafa was a component of Al-Qaida (QE.A.4.01) in 2001. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Headquarters was in Kandahar, Afghanistan as at 2001. Wafa was a component of Al-Qaida (QE.A.4.01) in 2001. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: "Italian Fiscal Code: BDL MMD 65M10 Z352S. Mother's name: Shadhliah Ben Amir. Resided in Italy as at Aug 2009. Review pursuant to Security Council resolution 1822 (2008) was concluded on 9 Apr 2010."
+        properties: 
+          - prop: taxNumber
+            value: BDL MMD 65M10 Z352S
+          - prop: description
+            value: "Mother's name: Shadhliah Ben Amir. Resided in Italy as at Aug 2009. Review pursuant to Security Council resolution 1822 (2008) was concluded on 9 Apr 2010."
+      - match: Belgian nationality withdrawn on 26 Jan 2009. In detention in Nivelles, Belgium, as of Oct 2010. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Belgian nationality withdrawn on 26 Jan 2009. In detention in Nivelles, Belgium, as of Oct 2010. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Mother’s name is Beya Al-Saidani. Deported from Italy to Tunisia on 2 Jun 2008. Imprisoned in Tunisia in Aug 2014. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Mother’s name is Beya Al-Saidani. Deported from Italy to Tunisia on 2 Jun 2008. Imprisoned in Tunisia in Aug 2014. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: 'Mother’s name: Fatima Muthanna Yahya. Photo available for inclusion in the INTERPOL- UN Security Council Special Notice. Leader of Al-Qaida in the Arabian Peninsula (SSID 10-17330) since Jun 2015, pledged loyalty to Aiman al-Zawahiri (SSID 10-14766). Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.'
+        properties: 
+          - prop: description
+            value: 'Mother’s name: Fatima Muthanna Yahya. Photo available for inclusion in the INTERPOL- UN Security Council Special Notice. Leader of Al-Qaida in the Arabian Peninsula (SSID 10-17330) since Jun 2015, pledged loyalty to Aiman al-Zawahiri (SSID 10-14766). Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.'
+      - match: Stateless Palestinian. In detention since 22 May 2005. His brother is Yasser Mohamed Ismail Abu Shaweesh (QI.A.201.05). Review pursuant to Security Council resolution 1822 (2008) was concluded on 24 Nov 2009.
+        properties: 
+          - prop: description
+            value: Stateless Palestinian. In detention since 22 May 2005. His brother is Yasser Mohamed Ismail Abu Shaweesh (QI.A.201.05). Review pursuant to Security Council resolution 1822 (2008) was concluded on 24 Nov 2009.
+      - match: In approximately 2005, ran a "basic training" camp for Al-Qaida (QE.A.4.01.) in Pakistan. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022.  INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: In approximately 2005, ran a "basic training" camp for Al-Qaida (QE.A.4.01.) in Pakistan. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022.  INTERPOL-UN Security Council Special Notice web link available.
+      - match: "Family background: from the Hawiye's Habergidir, Ayr clan. Senior leader of Al-Itihaad Al-Islamiya (AIAI) (QE.A.2.01.) and Hizbul Islam in Somalia. Since 12 April 2010, also subject to the sanctions measures set out in Security Council resolution 1844 (2008) concerning Somalia and Eritrea (see http://www.un.org/sc/committees/751/index.shtml). Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available."
+        properties: 
+          - prop: description
+            value: "Family background: from the Hawiye's Habergidir, Ayr clan. Senior leader of Al-Itihaad Al-Islamiya (AIAI) (QE.A.2.01.) and Hizbul Islam in Somalia. Since 12 April 2010, also subject to the sanctions measures set out in Security Council resolution 1844 (2008) concerning Somalia and Eritrea (see http://www.un.org/sc/committees/751/index.shtml). Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available."
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 1 Jun 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 1 Jun 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Deputy to Mullah Mohammed Omar (TI.O.4.01). Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010.
+        properties: 
+          - prop: description
+            value: Deputy to Mullah Mohammed Omar (TI.O.4.01). Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010.
+      - match: Belongs to Mangal tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+        properties: 
+          - prop: description
+            value: Belongs to Mangal tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+      - match: Founded and led by Najmiddin Kamolitdinovich Jalolov and Suhayl Fatilloevich Buranov. Associated with the Islamic Movement of Uzbekistan (QE.I.10.01) and Emarat Kavkaz (QE.E.131.11). Active in the Afghanistan/Pakistan border area, Central Asia, South Asia region and some European States. Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Founded and led by Najmiddin Kamolitdinovich Jalolov and Suhayl Fatilloevich Buranov. Associated with the Islamic Movement of Uzbekistan (QE.I.10.01) and Emarat Kavkaz (QE.E.131.11). Active in the Afghanistan/Pakistan border area, Central Asia, South Asia region and some European States. Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+      - match: "Description: Height 1.65m. Weight: 85 kg. Black hair and eyes. White skin. Leader of Islamic State in Iraq and the Levant, listed as Al-Qaida in Iraq (AQI) (QE.J.115.04) (AQI). Currently based in Iraq and Syria. Declared himself \"caliph\" in Mosul in 2014. Responsible for managing and directing AQI large scale operations. Wife's name: Saja Hamid al-Dulaimi. Wife's name: Asma Fawzi Mohammed al-Kubaissi. Wanted by the Iraqi security forces. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021."
+        properties: 
+          - prop: height
+            value: 1.65m
+          - prop: weight
+            value: 85 kg
+          - prop: hairColor
+            value: black
+          - prop: eyeColor
+            value: black
+          - prop: appearance
+            value: White skin
+          - prop: description
+            value: "Leader of Islamic State in Iraq and the Levant, listed as Al-Qaida in Iraq (AQI) (QE.J.115.04) (AQI). Currently based in Iraq and Syria. Declared himself \"caliph\" in Mosul in 2014. Responsible for managing and directing AQI large scale operations. Wife's name: Saja Hamid al-Dulaimi. Wife's name: Asma Fawzi Mohammed al-Kubaissi. Wanted by the Iraqi security forces. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021."
+      - match: Member of the Rajah Solaiman Movement (QE.R.128.08.), Abu Sayyaf Group (QE.A.1.01.) and Jemaah Islamiyah (QE.J.92.02.). Father's name is Honorio Devera. Mother's name is Fausta Abogne. In detention in the Philippines as of May 2011. Review pursuant to Security Council resolution 1822 (2008) was concluded on 13 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Member of the Rajah Solaiman Movement (QE.R.128.08.), Abu Sayyaf Group (QE.A.1.01.) and Jemaah Islamiyah (QE.J.92.02.). Father's name is Honorio Devera. Mother's name is Fausta Abogne. In detention in the Philippines as of May 2011. Review pursuant to Security Council resolution 1822 (2008) was concluded on 13 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Members in Afghanistan merged with Al-Qaida (QE.A.4.01) in Nov 2007. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Members in Afghanistan merged with Al-Qaida (QE.A.4.01) in Nov 2007. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Deported from Italy to Algeria on 12 Aug 2006. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Dec 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Deported from Italy to Algeria on 12 Aug 2006. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Dec 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Arrested on 28 Nov 2001 and found guilty in Germany of being an accessory to murder and of membership in a terrorist organization and sentenced to 15 years of imprisonment on 8 Jan 2007. Father's name is Brahim Brik. Mother's name is Habiba Abbes. Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Arrested on 28 Nov 2001 and found guilty in Germany of being an accessory to murder and of membership in a terrorist organization and sentenced to 15 years of imprisonment on 8 Jan 2007. Father's name is Brahim Brik. Mother's name is Habiba Abbes. Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Based primarily in Pakistan’s Punjab region and in the city of Karachi. Active in Pakistan although banned as at 2010. Review pursuant to Security Council resolution 2161 (2014) was concluded on 23 Dec 2016. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Based primarily in Pakistan’s Punjab region and in the city of Karachi. Active in Pakistan although banned as at 2010. Review pursuant to Security Council resolution 2161 (2014) was concluded on 23 Dec 2016. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Mother's name is Radhiyah Makki. Sentenced to eight years and ten months of imprisonment for membership of a terrorist association by the Appeal Court of Milan, Italy, on 7 Feb 2008. Sentence confirmed by the Italian Supreme Court on 15 Jan 2009, which became definitive as of Feb 2008. Deported from Italy to Tunisia on 27 Nov 2013. Review pursuant to Security Council resolution 1822 (2008) was concluded on 6 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Mother's name is Radhiyah Makki. Sentenced to eight years and ten months of imprisonment for membership of a terrorist association by the Appeal Court of Milan, Italy, on 7 Feb 2008. Sentence confirmed by the Italian Supreme Court on 15 Jan 2009, which became definitive as of Feb 2008. Deported from Italy to Tunisia on 27 Nov 2013. Review pursuant to Security Council resolution 1822 (2008) was concluded on 6 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Senior member of Jemaah Islamiyah (SSID 10-17610) involved in planning and funding multiple terrorist attacks in the Philippines and Indonesia. Provided training to Abu Sayyaf Group (SSID 10-17131). Convicted for his role in the 2002 Bali bombings and sentenced to 20 years in prison in Jun 2012. Remains in custody in Indonesia as at May 2015. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021.
+        properties: 
+          - prop: description
+            value: Senior member of Jemaah Islamiyah (SSID 10-17610) involved in planning and funding multiple terrorist attacks in the Philippines and Indonesia. Provided training to Abu Sayyaf Group (SSID 10-17131). Convicted for his role in the 2002 Bali bombings and sentenced to 20 years in prison in Jun 2012. Remains in custody in Indonesia as at May 2015. INTERPOL-UN Security Council Special Notice web link available. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021.
+      - match: 'Operational commander of Al-Qaida in the Arabian Peninsula (AQAP) (QE.A.129.10.). Has been involved in raising funds and stockpiling arms for AQAP operations and activities in Yemen. Known associate of Qasim Yahya Mahdi al-Rimi (QI.A.282.10.) and Fahd Mohammed Ahmed al-Quso (QI.A.288.10.). INTERPOL Orange Notice (file number 2009/52/OS/CCC, #14). INTERPOL Red Notice (Control Number A-596/3-2009, File Number 2009/3731). Father’s name is Ahmed Othman Al Omirah. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.'
+        properties:
+          - prop: description
+            value: 'Operational commander of Al-Qaida in the Arabian Peninsula (AQAP) (QE.A.129.10.). Has been involved in raising funds and stockpiling arms for AQAP operations and activities in Yemen. Known associate of Qasim Yahya Mahdi al-Rimi (QI.A.282.10.) and Fahd Mohammed Ahmed al-Quso (QI.A.288.10.). INTERPOL Orange Notice (file number 2009/52/OS/CCC, #14). INTERPOL Red Notice (Control Number A-596/3-2009, File Number 2009/3731). Father’s name is Ahmed Othman Al Omirah. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.'
+      - match: Associated with Islamic Movement of Uzbekistan (QE.I.10.01.). Brother of Monir Chouka (QI.C.300.12.). Arrest warrant issued by the investigating judge of the German Federal Court of Justice on 5 Oct 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Associated with Islamic Movement of Uzbekistan (QE.I.10.01.). Brother of Monir Chouka (QI.C.300.12.). Arrest warrant issued by the investigating judge of the German Federal Court of Justice on 5 Oct 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Founder of Al-Rashid Trust (QE.A.5.01). Reportedly deceased in Pakistan on 18 Feb 2002. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+        properties: 
+          - prop: description
+            value: Founder of Al-Rashid Trust (QE.A.5.01). Reportedly deceased in Pakistan on 18 Feb 2002. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+      - match: Associated with Lashkar-e-Tayyiba (QE.L.118.05.). In detention as at Jun 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Associated with Lashkar-e-Tayyiba (QE.L.118.05.). In detention as at Jun 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Taliban member responsible for Ghazni Province, Afghanistan, as of May 2007. Head of an intelligence network. Believed to be in Afghanistan/Pakistan border area. Belongs to Suleimankheil tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010.
+        properties: 
+          - prop: description
+            value: Taliban member responsible for Ghazni Province, Afghanistan, as of May 2007. Head of an intelligence network. Believed to be in Afghanistan/Pakistan border area. Belongs to Suleimankheil tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 9 Jul 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 9 Jul 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 15 Nov 2021. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Associated with the Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01). Review pursuant to Security Council resolution 1822 (2008) was concluded on 6 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Associated with the Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01). Review pursuant to Security Council resolution 1822 (2008) was concluded on 6 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Taliban member responsible for Nuristan Province, Afghanistan, as of May 2007. Belongs to Nuristani tribe. Reportedly deceased in early 2012. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+        properties: 
+          - prop: description
+            value: Taliban member responsible for Nuristan Province, Afghanistan, as of May 2007. Belongs to Nuristani tribe. Reportedly deceased in early 2012. Review pursuant to Security Council resolution 1822 (2008) was concluded on 23 Jul 2010.
+      - match: Believed to be in Afghanistan/Pakistan border area. Belongs to Baloch ethnic group. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+        properties: 
+          - prop: description
+            value: Believed to be in Afghanistan/Pakistan border area. Belongs to Baloch ethnic group. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+      - match: Active in China, South Asia and Central Asia. Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Active in China, South Asia and Central Asia. Review pursuant to Security Council resolution 1822 (2008) was concluded on 20 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Associated with Hafiz Muhammad Saeed (QI.S.263.08) who is the leader of Lashkar-e-Tayyiba. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+        properties: 
+          - prop: description
+            value: Associated with Hafiz Muhammad Saeed (QI.S.263.08) who is the leader of Lashkar-e-Tayyiba. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Sentenced to six years of imprisonment for international terrorism in 2008. Deported from Italy to Tunisia on 10 Feb 2013. Inadmissible to the Schengen area. Mother’s name is Khadijah al-Drissi. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Sentenced to six years of imprisonment for international terrorism in 2008. Deported from Italy to Tunisia on 10 Feb 2013. Inadmissible to the Schengen area. Mother’s name is Khadijah al-Drissi. Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Afghanistan. Review pursuant to Security Council resolution 1822 (2008) was concluded on 15 Jun 2010.
+        properties: 
+          - prop: country
+            value: Afghanistan
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 15 Jun 2010.
+      - match: Reportedly defunct. In 2002-2004, Taibah International – Bosnia offices used premises of the Culture Home in Hadzici, Sarajevo, Bosnia and Herzegovina. The organization was officially registered in Bosnia and Herzegovina as a branch of Taibah International Aid Association under registry number 7. Taibah International – Bosnia offices ceased its work by decision of the Ministry of Justice of the Bosnia and Herzegovina Federation (decision on cessation of operation number 03-05-2-70/03). Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Reportedly defunct. In 2002-2004, Taibah International – Bosnia offices used premises of the Culture Home in Hadzici, Sarajevo, Bosnia and Herzegovina. The organization was officially registered in Bosnia and Herzegovina as a branch of Taibah International Aid Association under registry number 7. Taibah International – Bosnia offices ceased its work by decision of the Ministry of Justice of the Bosnia and Herzegovina Federation (decision on cessation of operation number 03-05-2-70/03). Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Arrested in Karachi, Pakistan, 30 Sep 2002. In custody of the United States of America, as of May 2010. Review pursuant to Security Council resolution 1822 (2008) was concluded on 25 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Arrested in Karachi, Pakistan, 30 Sep 2002. In custody of the United States of America, as of May 2010. Review pursuant to Security Council resolution 1822 (2008) was concluded on 25 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: He was one of the leaders of the Islamic Jihad Group (QE.I.119.05.). Reportedly deceased in Pakistan in 2009. Review pursuant to Security Council resolution 1822 (2008) was concluded on 4 May 2009.
+        properties: 
+          - prop: description
+            value: He was one of the leaders of the Islamic Jihad Group (QE.I.119.05.). Reportedly deceased in Pakistan in 2009. Review pursuant to Security Council resolution 1822 (2008) was concluded on 4 May 2009.
+      - match: Afghanistan. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: country
+            value: Afghanistan
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Muhammad Saeed is the leader of Lashkar-e-Tayyiba (QE.L.118.05.).
+        properties: 
+          - prop: position
+            value: Leader of Lashkar-e-Tayyiba (QE.L.118.05.)
+          - prop: name
+            value: Muhammad Saeed
+      - match: In custody of the Government of Pakistan serving a 78 year imprisonment sentence since 12 February 2020 as a result of conviction in seven terror financing cases.
+        properties: 
+          - prop: position
+            value: In custody of the Government of Pakistan serving a 78 year imprisonment sentence since 12 February 2020 as a result of conviction in seven terror financing cases.
+      - match: INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: INTERPOL-UN Security Council Special Notice web link available.
+      - match: Member of the Islamic Jihad Union (IJU), also known as the Islamic Jihad Group (QE.I.119.05.). Released from detention in Germany on 7 July 2011.
+        properties: 
+          - prop: description
+            value: Member of the Islamic Jihad Union (IJU), also known as the Islamic Jihad Group (QE.I.119.05.). Released from detention in Germany on 7 July 2011.
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
           - other_schema: Company
