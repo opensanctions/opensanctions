@@ -35,10 +35,10 @@ data:
 lookups:
   schema_override:
     options:
-    - match: 
-        - fr-ga-5143
-        - fr-ga-5142
-      value: Vessel
+      - match:
+          - fr-ga-5143
+          - fr-ga-5142
+        value: Vessel
   type.address:
     lowercase: true
     options:
