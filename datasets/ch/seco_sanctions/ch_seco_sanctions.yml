@@ -1350,6 +1350,86 @@ lookups:
         properties:
           - prop: description
             value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 25 May 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Considered a fugitive from justice by the Italian authorities (as of Oct 2019). Left Sudan to Tunisia in 2011. Review pursuant to Security Council resolution 1822 (2008) was concluded on 15 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Considered a fugitive from justice by the Italian authorities (as of Oct 2019). Left Sudan to Tunisia in 2011. Review pursuant to Security Council resolution 1822 (2008) was concluded on 15 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Brother of Nurjaman Riduan Isamuddin (QI.I.87.03). Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Brother of Nurjaman Riduan Isamuddin (QI.I.87.03). Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Brother of Youcef Abbes (QI.A.166.04). Review pursuant to Security Council resolution 1822 (2008) was concluded on 28 Sep 2009.
+        properties: 
+          - prop: description
+            value: Brother of Youcef Abbes (QI.A.166.04). Review pursuant to Security Council resolution 1822 (2008) was concluded on 28 Sep 2009.
+      - match: He is a cousin of Akram Turki Hishan Al Mazidih (QI.A.276.10). Terrorist attack organizer for the Islamic State in Iraq and the Levant, listed as Al-Qaida in Iraq (AQI) (QE.J.115.04) as of 2015. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022.  INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: He is a cousin of Akram Turki Hishan Al Mazidih (QI.A.276.10). Terrorist attack organizer for the Islamic State in Iraq and the Levant, listed as Al-Qaida in Iraq (AQI) (QE.J.115.04) as of 2015. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022.  INTERPOL-UN Security Council Special Notice web link available.
+      - match: Abdul Rahman Yasin is in Iraq. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Abdul Rahman Yasin is in Iraq. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 4 Dec 2019. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Close associate of Usama bin Laden and facilitator of terrorist travel. In custody of the United States of America as at Jul 2007. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010.
+        properties: 
+          - prop: description
+            value: Close associate of Usama bin Laden and facilitator of terrorist travel. In custody of the United States of America as at Jul 2007. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jun 2010.
+      - match: 'NOTE: Only the Pakistan and Afghanistan offices of this entity are designated. Associated with Abu Bakr al-Jaziri (QI.A.58.02) and Afghan Support Committee (ASC) (QE.A.69.02). Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.'
+        properties: 
+          - prop: description
+            value: Only the Pakistan and Afghanistan offices of this entity are designated. Associated with Abu Bakr al-Jaziri (QI.A.58.02) and Afghan Support Committee (ASC) (QE.A.69.02). Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2368 (2017) was concluded on 24 Nov 2020.
+      - match: Reportedly deceased in Jun 2020. Head of The Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01.). Sentenced in absentia to life imprisonment in Algeria on 21 Mar 2007. Father's name is Rabah Droukdel. Mother's name is Z'hour Zdigha. Review pursuant to Security Council resolution 1822 (2008) was concluded on 4 May 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Reportedly deceased in Jun 2020. Head of The Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01.). Sentenced in absentia to life imprisonment in Algeria on 21 Mar 2007. Father's name is Rabah Droukdel. Mother's name is Z'hour Zdigha. Review pursuant to Security Council resolution 1822 (2008) was concluded on 4 May 2009. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: Taliban member responsible for Nangarhar Province as at 2011. Believed to be in Afghanistan/Pakistan border area. Belongs to Zadran tribe. Close associate of Sirajuddin Jallaloudine Haqqani (TI.H.144.07). Review pursuant to Security Council resolution 1822 (2008) was concluded on 1 Jun 2010.
+        properties: 
+          - prop: description
+            value: Taliban member responsible for Nangarhar Province as at 2011. Believed to be in Afghanistan/Pakistan border area. Belongs to Zadran tribe. Close associate of Sirajuddin Jallaloudine Haqqani (TI.H.144.07). Review pursuant to Security Council resolution 1822 (2008) was concluded on 1 Jun 2010.
+      - match: Arrested in Indonesia in 2021. Was the acting Jemaah Islamiyah (JI, QDe.092) emir before his arrest, and remains a senior figure of JI. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: Arrested in Indonesia in 2021. Was the acting Jemaah Islamiyah (JI, QDe.092) emir before his arrest, and remains a senior figure of JI. Review pursuant to Security Council resolution 1822 (2008) was concluded on 8 Jun 2010. Review pursuant to Security Council resolution 2253 (2015) was concluded on 21 Feb 2019. Review pursuant to Security Council resolution 2610 (2021) was concluded on 8 Nov 2022. INTERPOL-UN Security Council Special Notice web link available.
+      - match: 'Italian Fiscal Code: JMM MDI 68A25 Z352D. Italian Judicial Authorities have issued a warrant of arrest against him, which had not been executed as of Sep 2007. Imprisoned in Sousse Prison on 28 Jul 2002 and sentenced to 10 years of imprisonment and administrative supervision. Released on 31 Jan 2011 under a general amnesty. Mother’s name is Jamilah  Review pursuant to Security Council resolution 1822 (2008) was concluded on 9 Apr 2010.'
+        properties: 
+          - prop: description 
+            value: Italian Judicial Authorities have issued a warrant of arrest against him, which had not been executed as of Sep 2007. Imprisoned in Sousse Prison on 28 Jul 2002 and sentenced to 10 years of imprisonment and administrative supervision. Released on 31 Jan 2011 under a general amnesty. Mother’s name is Jamilah  Review pursuant to Security Council resolution 1822 (2008) was concluded on 9 Apr 2010.
+          - prop: taxNumber
+            value: JMM MDI 68A25 Z352D
+      - match: Member of the Taliban Supreme Council as at June 2007. Believed to be in Afghanistan/Pakistan border area. Belongs to Sulaimankhel tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010.
+        properties: 
+          - prop: description
+            value: Member of the Taliban Supreme Council as at June 2007. Believed to be in Afghanistan/Pakistan border area. Belongs to Sulaimankhel tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 21 Jul 2010.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+      - match: Review pursuant to Security Council resolution 1822 (2008) was concluded on 15 Jun 2010.
+        properties: 
+          - prop: description
+            value: Review pursuant to Security Council resolution 1822 (2008) was concluded on 15 Jun 2010.
+      - match: Belongs to Hotak tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+        properties: 
+          - prop: description
+            value: Belongs to Hotak tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+      - match: Lost one leg in 1980s. Interim leader of Taliban Supreme Council from February to April 2010. In charge of recruitment activities as of mid-2013. Believed to be in Afghanistan/Pakistan border area. Belongs to Isakzai tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+        properties: 
+          - prop: description
+            value: Lost one leg in 1980s. Interim leader of Taliban Supreme Council from February to April 2010. In charge of recruitment activities as of mid-2013. Believed to be in Afghanistan/Pakistan border area. Belongs to Isakzai tribe. Review pursuant to Security Council resolution 1822 (2008) was concluded on 29 Jul 2010.
+      - match: "Italian Fiscal Code: BDA YSF 66P04 Z352Q. Inadmissible to Schengen area. Mother's name is Fatima Abdaoui. Member of an organization operating in Italy directly linked with The Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01.). Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010."
+        properties: 
+          - prop: description
+            value: Inadmissible to Schengen area. Mother's name is Fatima Abdaoui. Member of an organization operating in Italy directly linked with The Organization of Al-Qaida in the Islamic Maghreb (QE.T.14.01.). Review pursuant to Security Council resolution 1822 (2008) was concluded on 22 Apr 2010.
+          - prop: taxNumber
+            value: BDA YSF 66P04 Z352Q
+      - match: INTERPOL-UN Security Council Special Notice web link available.
+        properties: 
+          - prop: description
+            value: INTERPOL-UN Security Council Special Notice web link available.
+
+
+          
+        
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
           - other_schema: Company
