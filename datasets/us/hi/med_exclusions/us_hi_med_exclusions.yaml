@@ -1,4 +1,4 @@
-title: US Hawaii State Medicaid Exclusions
+title: US Hawaii Medicaid Exclusions and Reinstatements
 entry_point: crawler.py
 prefix: us-medhi
 coverage:
@@ -10,6 +10,7 @@ summary: >
 description: |
   The State of Hawai'i Department of Human Services maintains a list of providers
   who have been excluded from the state program.
+
    > An excluded provider is an individual or entity that is not allowed to receive
    > reimbursement for providing Medicare and Medicaid services in any capacity,
    > even if they are not on this listing by the Med-QUEST Division.
@@ -29,14 +30,14 @@ description: |
    > participating in the Medicaid program.
 
 publisher:
-  name: Hawai'i Department of Human Services
+  name: Hawai'i Department of Human Services, Med-QUEST Division
   description: |
-    The Hawaii Department of Human Services is a state agency that provides
-    essential programs and services to support the well-being of individuals and
-    families, including healthcare, financial assistance, and social services,
-    with a focus on improving economic security and fostering self-sufficiency.
+    The Med-QUEST Division's stated mission is to
+
+    > empower Hawai'i’s residents to improve and sustain wellbeing by developing,
+    > promoting and administering innovative and high-quality healthcare programs with aloha
   acronym: DHS
-  url: https://humanservices.hawaii.gov
+  url: https://medquest.hawaii.gov/
   official: true
   country: "us"
 url: "https://medquest.hawaii.gov/en/plans-providers/provider-exclusion-reinstatement-list.html"

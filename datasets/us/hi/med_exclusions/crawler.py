@@ -7,31 +7,24 @@ from rigour.mime.types import PDF
 from zavod import Context, helpers as h
 from normality import collapse_spaces, slugify
 
-AKA_SPLIT = r"\baka\b|\ba\.k\.a\b|\bAKA"
+AKA_SPLIT = r"\baka\b|\ba\.k\.a\b|\bAKA\b|\bor\b"
 
 
-def parse_pdf_table(
-    context: Context, path: Path, save_debug_images=False, headers=None
-):
+def parse_pdf_table(context: Context, path: Path, save_debug_images=False):
     pdf = pdfplumber.open(path.as_posix())
     settings = {}
     for page_num, page in enumerate(pdf.pages, 1):
-        # Find the bottom of the bottom-most rectangle on the page
-        bottom = max(page.height - rect["y0"] for rect in page.rects)
-        settings["explicit_horizontal_lines"] = [bottom]
         if save_debug_images:
             im = page.to_image()
-            im.draw_hline(bottom, stroke=(0, 0, 255), stroke_width=1)
-            im.draw_rects(page.find_table(settings).cells)
             im.save(f"page-{page_num}.png")
-        assert bottom < (page.height - 5), (bottom, page.height)
-
-        for row in page.extract_table(settings)[1:]:
+        headers = None
+        for row in page.extract_table(settings):
             if headers is None:
                 headers = [slugify(collapse_spaces(cell), sep="_") for cell in row]
                 continue
             assert len(headers) == len(row), (headers, row)
-            yield dict(zip(headers, row))
+            values = [collapse_spaces(cell) for cell in row]
+            yield dict(zip(headers, values))
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -39,7 +32,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     if raw_first_name := row.pop("first_name"):
         entity = context.make("Person")
 
-        raw_last_name = row.pop("last_name")
+        raw_last_name = row.pop("last_name_or_business_name")
         raw_middle_initial = row.pop("middle_initial")
 
         entity.id = context.make_id(
@@ -71,10 +64,10 @@ def crawl_item(row: Dict[str, str], context: Context):
                     )
     else:
         entity = context.make("Company")
-        entity.id = context.make_id(row.get("last_name"))
-        entity.add("name", row.pop("last_name"))
+        entity.id = context.make_id(row.get("last_name_or_business_name"))
+        entity.add("name", row.pop("last_name_or_business_name"))
 
-    entity.add("sector", row.pop("provider_type"))
+    entity.add("sector", row.pop("last_known_program_or_provider_type"))
     if row.get("medicaid_provider_id") != "NONE":
         entity.add("description", "Provider ID: " + row.pop("medicaid_provider_id"))
     else:
@@ -104,17 +97,6 @@ def crawl_pdf_url(context: Context):
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", crawl_pdf_url(context))
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-    for item in parse_pdf_table(
-        context,
-        path,
-        headers=[
-            "last_name",
-            "first_name",
-            "middle_initial",
-            "medicaid_provider_id",
-            "provider_type",
-            "exclusion_date",
-            "reinstatement_date",
-        ],
-    ):
+    for item in parse_pdf_table(context, path):
+        print(item)
         crawl_item(item, context)
