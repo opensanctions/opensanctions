@@ -35,9 +35,9 @@ lookups:
       - match: 5/222024
         value: 2024-05-22
       - match:
-        - PERMANENT
-        - DECEASED
-        - N/A
+          - PERMANENT
+          - DECEASED
+          - N/A
         value: null
 
 assertions:
