@@ -141,7 +141,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     # context.inspect(data)
     nature = data.pop("Nature")
     reg_id = data.pop("IdRegistre")
-    
+
     entity_id = context.make_slug(reg_id)
     schema = SCHEMATA.get(nature)
     schema = context.lookup_value("schema_override", entity_id, schema)
