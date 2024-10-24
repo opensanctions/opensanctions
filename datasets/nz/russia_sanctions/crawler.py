@@ -34,7 +34,7 @@ def parse_date(value: Any) -> Any:
         return value.date()
     if isinstance(value, (int, time)):
         return None
-    return h.parse_date(value.strip(), ["%d/%m/%Y"])
+    return value.strip()
 
 
 def parse_associates(context: Context, target: Entity, value: str) -> None:
@@ -100,7 +100,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     entity.add("address", data.pop("Address"))
     dob = parse_date(data.pop("DOB"))
     if entity.schema.is_a("Person"):
-        entity.add("birthDate", dob)
+        h.apply_date(entity, "birthDate", dob)
     else:
         entity.add("incorporationDate", dob)
     entity.add("nationality", data.pop("Citizenship"), quiet=True)
@@ -116,7 +116,8 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     sanction = h.make_sanction(context, entity)
     sanction.add("program", "Russia Sanctions Act 2022")
     sanction.add("startDate", data.pop("Date of Sanction"))
-    sanction.add("modifiedAt", parse_date(data.pop("Date of Additional Sanction")))
+    modified_at = parse_date(data.pop("Date of Additional Sanction"))
+    h.apply_date(sanction, "modifiedAt", modified_at)
     sanction.add("status", data.pop("Sanction Status"))
     sanction.add("reason", data.pop("General Rationale for Sanction"))
     for scope in SCOPES:
