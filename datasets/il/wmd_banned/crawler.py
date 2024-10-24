@@ -1,12 +1,18 @@
-from zavod import Context
-from typing import Dict
 from rigour.mime.types import XLSX
-import openpyxl
+from typing import Dict
 from zavod import helpers as h
-import shutil
+import openpyxl
 import re
 
-from zavod.shed.zyte_api import fetch_resource
+from zavod import Context
+from zavod.entity import Entity
+from zavod.shed.zyte_api import fetch_html, fetch_resource
+
+# a.k.a. and variations
+# ידוע גם ("also known as")
+# ועוד ידוע: ("and also known")
+# a), b), ...
+REGEX_NAME_SPLIT = r"\b[AF]\.?K\.?A[:\.\b]|;|ידוע גם:?|ועוד ידוע:?|\b[a-z]\)"
 
 
 def extract_passport_no(text: str):
@@ -58,6 +64,28 @@ def clean_date(date_str: str):
     return h.multi_split(date_str, ["a)", " b)", "c)", "d)", "e)", "and", "between"])
 
 
+def apply_names(context: Context, entity: Entity, names_string: str) -> None:
+    name_split = re.split(REGEX_NAME_SPLIT, names_string, flags=re.IGNORECASE)
+    name = name_split[0]
+    aliases = name_split[1:]
+    parts = name.split("2:")
+    if entity.schema.is_a("Person") and len(parts) > 1:
+        last_name = parts[0].replace("1:", "").strip()
+        forenames_str = re.sub(r"\d:\s*na", "", parts[1])
+        forenames = re.split(r"\d:", forenames_str)
+        first_name = forenames.pop(0).strip()
+        second_name = forenames.pop(0).strip() if forenames else None
+        if forenames:
+            context.log.warn("More names found", names=forenames)
+        h.apply_name(
+            entity, first_name=first_name, second_name=second_name, last_name=last_name
+        )
+    else:
+        h.apply_name(entity, full=name)
+    for alias in aliases:
+        h.apply_name(entity, full=alias, alias=True)
+
+
 def parse_sheet_row(context: Context, row: Dict):
     record_id = row.pop("record_id_hb")
     if not record_id.isnumeric():  # not a record
@@ -84,36 +112,7 @@ def parse_sheet_row(context: Context, row: Dict):
 
     dob = row.pop("dob_hb")
     passport = row.pop("passport_hb")
-    parse_name = row.pop("name_hb")
-
-    name_split = h.multi_split(
-        parse_name,
-        [
-            "a)",
-            "b)",
-            "c)",
-            "d)",
-            "e)",
-            "f)",
-            "g)",
-            "h)",
-            "i)",
-            "j)",
-            "k)",
-            "l)",
-            "m)",
-            "n)",
-            "o)",
-            "A.k.a.:",
-            "A.K.A.:",
-            "ידוע גם:",
-            "1:",
-            "2:",
-            "\n",
-        ],
-    )
-    name = name_split[0]
-    alias = name_split[1:] if len(name_split) else None
+    names_string = row.pop("name_hb")
 
     isreal_adoption_date = row.pop("isreal_adoption_date_hb")
     serial_no = row.pop("serial_no_hb")
@@ -138,8 +137,7 @@ def parse_sheet_row(context: Context, row: Dict):
     else:
         context.log.warn(f"Entity not recognized from serial number: {serial_no}")
 
-    entity.add("name", name)
-    entity.add("alias", alias)
+    apply_names(context, entity, names_string)
     entity.add("notes", notes)
     entity.add("address", address)
     entity.add("topics", "sanction")
@@ -158,13 +156,13 @@ def parse_sheet_row(context: Context, row: Dict):
     context.audit_data(row, ignore=["isreal_temp_adoption_date_hb"])
 
 
+def unblock_validator(doc):
+    return len(doc.xpath("//article")) > 0
+
+
 def crawl_excel_url(context: Context):
-    doc = context.fetch_html(
-        context.data_url,
-    )
-    doc.make_links_absolute(
-        context.data_url,
-    )
+    doc = fetch_html(context, context.data_url, unblock_validator, cache_days=1)
+    doc.make_links_absolute(context.data_url)
 
     return doc.xpath(
         '//a[contains(@id,"filesToDownload_item")][contains(@href, "xlsx")]'
@@ -173,7 +171,9 @@ def crawl_excel_url(context: Context):
 
 def crawl(context: Context):
     excel_url = crawl_excel_url(context)
-    cached, source_path, media_type, _ = fetch_resource(context, "source.xlsx", excel_url, geolocation="il")
+    cached, source_path, media_type, _ = fetch_resource(
+        context, "source.xlsx", excel_url
+    )
     if not cached:
         assert media_type == XLSX, media_type
     context.export_resource(source_path, XLSX, title=context.SOURCE_TITLE)
