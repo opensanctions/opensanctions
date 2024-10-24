@@ -6,6 +6,7 @@ from typing import Dict, Optional, Tuple, List
 from followthemoney.types import registry
 from followthemoney.util import join_text
 from lxml.etree import _Element as Element
+from normality import slugify
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -32,19 +33,66 @@ NAME_PARTS: Dict[MayStr, MayStr] = {
     "whole-name": None,
     "other": None,
 }
-# Some metadata is dirty text in <other-information> tags
-# TODO: take in charge multiple values
-REGEX_WEBSITE = re.compile(r"Website ?: ((https?:|www\.)\S*)")
-REGEX_EMAIL = re.compile(
-    r"E-?mail( address)? ?: ([A-Za-z0-9._-]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+)"
-)
-REGEX_PHONE = re.compile(r"(Tel\.|Telephone)( number)? ?: (\+?[0-9- ()]+)")
-REGEX_INN = re.compile(r"Taxpayer [Ii]dentification [Nn]umber ?: (\d+)\.?")
-REGEX_REGNUM = re.compile(
-    r"(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?: (\d+)\.?"
-)
-REGEX_TAX = re.compile(r"Tax [Rr]egistration [Nn]umber ?: (\d+)\.?")
-REGEX_IMO = re.compile(r"IMO [Nn]umber ?: (\d+)\.?")
+
+
+OTHER_INFO_REGEXES = [
+    re.compile(
+        r"(?P<whole>(?P<key>Website:) (?P<value>(https?:\/\/|www\.)\S+))"
+    ),  # REGEX_WEBSITE
+    re.compile(
+        r"(?P<whole>(?P<key>E-?mail(?: address)?\s*:) (?P<value>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}))"
+    ),  # REGEX_EMAIL
+    re.compile(
+        r"(?P<whole>(?P<key>(Tel\.|Telephone)( number)? ?:| Tel ?:| Tel.:|Phone:|Phone number:) (?P<value>\+?[0-9- ()]+))"
+    ),  # REGEX_PHONE (matches the whole string)
+    re.compile(
+        r"(?P<whole>(?P<key>(Fax) ?:) (?P<value>\+?[0-9- ()]+))"
+    ),  # REGEX_FAX
+    re.compile(
+        r"(?P<whole>(?P<key>(Taxpayer [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)"
+    ),  # REGEX_INN
+    re.compile(
+        r"(?P<whole>(?P<key>(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number) ?:) (?P<value>\d+)\.?"
+    ),  # REGEX_REGNUM
+    re.compile(
+        r"(?P<whole>(?P<key>(Tax [Rr]egistration [Nn]umber) ?:) (?P<value>\d+)\.?)"
+    ),  # REGEX_TAX
+    re.compile(
+        r"(?P<whole>(?P<key>(IMO [Nn]umber) ?:) (?P<value>\d+)\.?)"
+    ),  # REGEX_IMO
+    re.compile(
+        r"(?P<whole>(?P<key>(State [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)"
+    ),  # REGEX_IDNP
+    re.compile(
+        r"(?P<whole>(?P<key>(Passport number) ?:) (?P<value>[A-Z]{2}\d{7}))"
+    ),  # REGEX_PASSPORT
+    re.compile(
+        r"(?P<whole>(?P<key>(Function) ?:) (?P<value>.+))"
+    ),  # REGEX_FUNCTION (add splits [;])
+    re.compile(r"(?P<whole>(?P<key>(Title) ?:) (?P<value>.+))"),  # REGEX_FUNCTION
+    re.compile(r"(?P<whole>(?P<key>(Rank) ?:) (?P<value>.+))"),  # REGEX_POSITION
+    re.compile(
+        r"(?P<whole>(?P<key>(Position\(s\)) ?:|) (?P<value>.+))"
+    ),  # REGEX_POSITION
+    re.compile(r"(?P<whole>(?P<key>(Position) ?:) (?P<value>.+))"),  # REGEX_POSITION
+    re.compile(
+        r"(?P<whole>(?P<key>(Designation) ?:) (?P<value>.+))"
+    ),  # REGEX_DESIGNATION
+    re.compile(
+        r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:|Tax ID number:|Tax ID No.) (?P<value>\d+)\.?)"
+    ),  # REGEX_TIN
+    re.compile(
+        r"(?P<whole>(?P<key>National [Ii]dentification [Nn]umber ?:| National ID number:) (?P<value>\d+)) ?\(passport\)?"
+    ),  # REGEX_PASS
+    re.compile(r"(?P<whole>(?P<key>(ID number) ?:|ID Card Number:) (?P<value>\d+)\.?)"),  # REGEX_ID
+    # re.compile(r"(?P<whole>(?P<key>(National ID number) ?:) (?P<value>\d+)\.?)"),
+    re.compile(
+        r"(?P<whole>(?P<key>(Principal place of business) ?:|(Place of registration) ?:) (?P<value>\d+)\.?)"
+    ),
+    re.compile(
+        r"(?P<whole>(?P<key>(Type of entity) ?:) (?P<value>.+))"
+    ),
+]
 
 
 def parse_address(node: Element):
@@ -230,36 +278,55 @@ def parse_entry(context: Context, target: Element, programs, places):
         if other.text is None:
             continue
         value = other.text.strip()
-        imo_num = REGEX_IMO.fullmatch(value)
-        reg_num = REGEX_REGNUM.fullmatch(value)
-        inn_match = REGEX_INN.fullmatch(value)
-        if entity.schema.is_a("Vessel") and imo_num:
-            entity.add("imoNumber", imo_num.group(1))
-        elif entity.schema.is_a("LegalEntity") and value.startswith(
-            "Date of registration"
-        ):
-            _, reg_date = value.split(":", 1)
-            h.apply_date(entity, "incorporationDate", reg_date.strip())
-        elif entity.schema.is_a("LegalEntity") and value.startswith("Type of entity"):
-            _, legalform = value.split(":", 1)
-            entity.add("legalForm", legalform)
-        elif entity.schema.is_a("LegalEntity") and reg_num:
-            entity.add("registrationNumber", reg_num.group(3))
-        elif inn_match:
-            entity.add("innCode", inn_match.group(1))
-        elif tax := REGEX_TAX.fullmatch(value):
-            entity.add("taxNumber", tax.group(1))
-        elif website := REGEX_WEBSITE.fullmatch(value):
-            entity.add("website", website.group(1))
-        elif email := REGEX_EMAIL.fullmatch(value):
-            entity.add("email", email.group(2))
-        elif phonenumber := REGEX_PHONE.fullmatch(value):
-            entity.add("phone", phonenumber.group(3))
-        elif value == "Registration number: ИНН":
-            pass
-        else:
-            # print(value, other.attrib)
-            entity.add("notes", h.clean_note(value))
+        # Add auto-parsed properties
+        for regex in OTHER_INFO_REGEXES:
+            match = regex.match(value)
+            # if match is not None:
+                # context.log.info("Match", value=value, match=match)
+                # print(value)
+                # print(match)
+                # print(match.group("key"))
+                # print(slugify(match.group("key")))
+                # print(match.group("value"))
+            if match is None:
+                #context.log.warning("No match", value=value, regex=regex.pattern)
+                continue
+            prop = context.lookup_value("properties", slugify(match.group("key")))
+            # print(prop)
+            if prop is not None:
+                if prop != "imoNumber":
+                    entity.add(prop, match.group("value"))
+                elif prop == "imoNumber" and entity.schema.name == "Vessel":
+                    entity.add(prop, match.group("value"))
+
+            value = value.replace(match.group("whole"), "")  # remove matched part
+        # See what remains
+        value = value.strip()
+        if not value:
+            continue
+        res = context.lookup("other_information", value)
+        if not res:
+            context.log.warning("More information available", value=value)
+            continue
+        if not (res.properties or res.relations):
+            context.log.warning("No properties or relations", value=value)
+            continue
+        # Add artisinal properties
+        if res.properties:
+            for item in res.properties:
+                entity.add(item["prop"], item["value"])
+        # Create relations and related entities
+        if res.relations:
+            for rel in res.relations:
+                other_entity = context.make(rel["other_schema"])
+                other_entity.id = context.make_id(rel["other_name"], entity.id)
+                other_entity.add("name", rel["other_name"])
+                rel_entity = context.make(rel["rel_schema"])
+                rel_entity.id = context.make_slug(entity.id, other_entity.id)
+                rel_entity.add(rel["this_prop"], entity.id)
+                rel_entity.add(rel["other_prop"], other_entity.id)
+                context.emit(rel_entity)
+                context.emit(other_entity)
 
     sanction = h.make_sanction(context, entity)
     sanction.add("authorityId", entity_ssid)
