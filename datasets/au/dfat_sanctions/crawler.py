@@ -126,7 +126,7 @@ def parse_reference(
         dates = clean_date(row.pop("date_of_birth"))
         if dates != ["na"]:
             for date in dates:
-                h.apply_date(entity,"birthDate", date)
+                h.apply_date(entity, "birthDate", date)
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
         entity.add("notes", h.clean_note(row.pop("additional_information")))
         listing_info = row.pop("listing_information")
