@@ -38,4 +38,4 @@ data:
   format: CSV
 
 dates:
-  formats: ["%d.%m.%Y"]
+  formats: ["%d.%m.%Y", "%d %B %Y"]
