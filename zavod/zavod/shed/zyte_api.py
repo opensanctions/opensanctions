@@ -51,6 +51,7 @@ def fetch_resource(
     context: Context,
     filename: str,
     url: str,
+    geolocation: Optional[str] = None,
 ) -> Tuple[bool, Path, str | None, str | None]:
     """
     Fetch a resource using Zyte API and save to filesystem.
@@ -84,6 +85,8 @@ def fetch_resource(
         "httpResponseBody": True,
         "httpResponseHeaders": True,
     }
+    if geolocation is not None:
+        zyte_data["geolocation"] = geolocation
     context.log.debug(f"Zyte API request: {url}", data=zyte_data)
     zyte_data["url"] = url
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -260,6 +263,9 @@ def fetch_html(
         json=zyte_data,
     )
     api_response.raise_for_status()
+    for action in api_response.json().get("actions", []):
+        context.log.info("Zyte action result", **action)
+
     text = api_response.json()[html_source]
     assert text is not None
     if html_source == "httpResponseBody":
