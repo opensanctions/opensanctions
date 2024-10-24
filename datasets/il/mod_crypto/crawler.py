@@ -84,8 +84,7 @@ def crawl(context: Context):
                 wallet.set("topics", "crime.terror")
                 sanction = h.make_sanction(context, wallet)
                 sanction.set("authorityId", aso_id)
-                sanction.set(
-                    "startDate",
-                    h.parse_date(row.get("Publication date", ""), formats=["%m/%d/%Y"]),
-                )
+                start_date = row.get("Publication date", "")
+                h.apply_date(sanction, "startDate", start_date)
                 context.emit(wallet, target=True)
+                context.emit(sanction)
