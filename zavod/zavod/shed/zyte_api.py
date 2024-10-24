@@ -263,6 +263,9 @@ def fetch_html(
         json=zyte_data,
     )
     api_response.raise_for_status()
+    for action in api_response.json().get("actions", []):
+        context.log.info("Zyte action result", **action)
+
     text = api_response.json()[html_source]
     assert text is not None
     if html_source == "httpResponseBody":

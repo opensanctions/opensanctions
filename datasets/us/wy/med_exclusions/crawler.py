@@ -6,6 +6,7 @@ import pdfplumber
 import re
 
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 
 AKA_PATTERN = r"\ba\.?k\.?a[\. -]*"
@@ -97,13 +98,22 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
+def unblock_validator(doc):
+    return len(doc.xpath(".//a[text()='Wyoming Provider Exclusion List ']")) > 0
+
+
 def crawl_excel_url(context: Context):
-    doc = context.fetch_html(context.data_url)
+    doc = fetch_html(context, context.data_url, unblock_validator, geolocation="us")
     return doc.xpath(".//a[text()='Wyoming Provider Exclusion List ']")[0].get("href")
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.pdf", crawl_excel_url(context))
+    url = crawl_excel_url(context)
+    cached, path, mediatype, _charset = fetch_resource(
+        context, "source.pdf", url, geolocation="us"
+    )
+    if not cached:
+        assert mediatype == PDF, mediatype
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for item in parse_pdf_table(context, path):
         crawl_item(item, context)
