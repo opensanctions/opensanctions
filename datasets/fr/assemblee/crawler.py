@@ -29,7 +29,7 @@ def is_not_nil(value: Any) -> bool:
 
 
 def crawl_collabos(
-    context, person: Entity, uid: str, mandat: Dict[str, Any]
+    context: Context, person: Entity, uid: str, mandat: Dict[str, Any]
 ) -> Iterator[Entity]:
     """Add staff (parliamentry collaborators) as associates."""
     collabos = mandat.pop("collaborateurs")
@@ -48,10 +48,7 @@ def crawl_collabos(
         prefix = c.pop("qualite")
         first_name = c.pop("prenom")
         last_name = c.pop("nom")
-        if prefix is None: 
-            context.log.warning(f"Collaborator {first_name} {last_name} has no prefix")
-            prefix = ""
-        collabo.id = context.make_slug(uid, "collabo", prefix, first_name, last_name)
+        collabo.id = context.make_slug(uid, "collabo", prefix, first_name, last_name, strict=False)
         h.apply_name(
             collabo,
             prefix=prefix,
@@ -62,7 +59,7 @@ def crawl_collabos(
         yield collabo
 
         link = context.make("Associate")
-        link.id = context.make_slug(uid, "associate", prefix, first_name, last_name)
+        link.id = context.make_slug(uid, "associate", prefix, first_name, last_name, strict=False)
         link.set("person", person)
         link.set("associate", collabo)
         link.set("relationship", "collaborateur")
