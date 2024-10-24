@@ -6,6 +6,8 @@ from zavod import helpers as h
 import shutil
 import re
 
+from zavod.shed.zyte_api import fetch_resource
+
 
 def extract_passport_no(text: str):
     """
@@ -170,19 +172,10 @@ def crawl_excel_url(context: Context):
 
 
 def crawl(context: Context):
-    try:
-        excel_url = crawl_excel_url(context)
-        source_path = context.fetch_resource("source.xlsx", excel_url)
-
-    except Exception as e:
-        context.log.error(f"Failed to fetch excel file - {e}")
-
-        context.log.warn("Using local copy of the excel file")
-        assert context.dataset.base_path is not None
-        data_path = context.dataset.base_path / "data.xlsx"
-        source_path = context.get_resource_path("source.xlsx")
-        shutil.copyfile(data_path, source_path)
-
+    excel_url = crawl_excel_url(context)
+    cached, source_path, media_type, _ = fetch_resource(context, "source.xlsx", excel_url, geolocation="il")
+    if not cached:
+        assert media_type == XLSX, media_type
     context.export_resource(source_path, XLSX, title=context.SOURCE_TITLE)
 
     wb = openpyxl.load_workbook(source_path, read_only=True)
