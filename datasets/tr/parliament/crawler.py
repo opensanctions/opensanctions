@@ -31,7 +31,7 @@ UNBLOCK_ACTIONS = [
         "action": "waitForTimeout",
         "timeout": 15,
         "onError": "return",
-    }
+    },
 ]
 
 
