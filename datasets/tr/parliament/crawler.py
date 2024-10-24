@@ -26,6 +26,11 @@ UNBLOCK_ACTIONS = [
         "waitUntil": "networkidle0",
         "timeout": 31,
         "onError": "return",
+    },
+    {
+        "action": "waitForTimeout",
+        "timeout": 15,
+        "onError": "return",
     }
 ]
 
