@@ -48,6 +48,9 @@ def crawl_collabos(
         prefix = c.pop("qualite")
         first_name = c.pop("prenom")
         last_name = c.pop("nom")
+        if prefix is None: 
+            context.log.warning(f"Collaborator {first_name} {last_name} has no prefix")
+            prefix = ""
         collabo.id = context.make_slug(uid, "collabo", prefix, first_name, last_name)
         h.apply_name(
             collabo,

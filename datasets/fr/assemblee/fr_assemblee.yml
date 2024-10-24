@@ -61,3 +61,7 @@ lookups:
         value: Korea
       - match: Antilles françaises
         value: France
+  type.url: 
+    options: 
+      - match: "/tribun/resources/html/defautDeclarationActeur.html"
+        value: Null
