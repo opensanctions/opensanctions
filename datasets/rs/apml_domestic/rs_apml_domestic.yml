@@ -32,6 +32,8 @@ data:
   url: https://www.apml.gov.rs/english/lists-of-designated-persons-search-engine
   format: PDF
 
+dates: 
+  formats: ["%d.%m.%Y"]
 lookups:
   type.country:
     options:
