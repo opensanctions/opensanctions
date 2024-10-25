@@ -61,7 +61,9 @@ def crawl(context: Context):
         context.log.error("Cannot find fact detailed list", url=url)
         return
 
-    items_rows = mw_grid.findall('.//div[@class="com-content-category-blog__item blog-item"]')
+    items_rows = mw_grid.findall(
+        './/div[@class="com-content-category-blog__item blog-item"]'
+    )
     if items_rows is None:
         context.log.error("Cannot find any rows", url=url)
         return
