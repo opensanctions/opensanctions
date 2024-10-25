@@ -31,6 +31,7 @@ children:
   - us_fcc_covered_list
   - us_ga_med_exclusions
   - us_hhs_exclusions
+  - us_hi_med_exclusions
   - us_ia_med_exclusions
   - us_in_med_exclusions
   - us_ks_med_exclusions
