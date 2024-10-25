@@ -39,7 +39,23 @@ data:
   # url: "https://data.opensanctions.org/datasets/20231015/au_dfat_sanctions/source.xlsx"
   format: XLSX
 dates:
-  formats: ["%Y-%m-%d", "%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y", "%b. %Y", "%d %B. %Y", "%Y", "%m/%Y", "%B %Y", "%d-%b-%Y", "%b %Y", "%d. %b %Y", "c. %Y", "%B, %Y"]
+  formats:
+    - "%Y-%m-%d"
+    - "%d/%m/%Y"
+    - "%d %b. %Y" 
+    - "%d %b.%Y"
+    - "%d %b %Y"
+    - "%d %B %Y"
+    - "%b. %Y"
+    - "%d %B. %Y"
+    - "%Y"
+    - "%m/%Y"
+    - "%B %Y"
+    - "%d-%b-%Y"
+    - "%b %Y"
+    - "%d. %b %Y"
+    - "c. %Y"
+    - "%B, %Y"
 lookups:
   type:
     normalize: true
@@ -198,10 +214,14 @@ lookups:
       - match: 1970-1973
         values: 
           - 1970
+          - 1971
+          - 1972
           - 1973
       - match: 1979-1982
         values:
           - 1979
+          - 1980
+          - 1981
           - 1982
       - match: 1954-1955
         values:
@@ -226,6 +246,10 @@ lookups:
       - match: 1945-1950
         values:
           - 1945
+          - 1946
+          - 1947
+          - 1948
+          - 1949
           - 1950
       - match: Aug. and Sep 1977
         values: 
