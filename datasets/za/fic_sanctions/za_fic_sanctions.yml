@@ -38,6 +38,15 @@ data:
   url: https://tfs.fic.gov.za/Pages/TFSListDownload?fileType=xml
   format: XML
 
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 175
+      Person: 650
+  max:
+    schema_entities:
+      LegalEntity: 230
+      Person: 900
 dates: 
   formats: ["%d-%m-%Y"]
 lookups:

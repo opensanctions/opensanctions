@@ -145,3 +145,6 @@ def crawl(context: Context):
                     continue
                 data[field.tag] = value
             crawl_row(context, data)
+    potential_table = doc.find(".//Table2")
+    if potential_table is not None:
+        context.log.warning("Table2 found in source, but not yet implemented")
