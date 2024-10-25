@@ -25,6 +25,7 @@ def clean_date(date):
         "h)",
         "i)",
         " or ",
+        " and ",
         " to ",
         "alt DOB:",
         "alt DOB",
@@ -38,8 +39,6 @@ def clean_date(date):
         "Circa",
     ]
     dates = []
-    if isinstance(date, float):
-        date = str(int(date))
     if isinstance(date, datetime):
         date = date.date().isoformat()
     if isinstance(date, int):
