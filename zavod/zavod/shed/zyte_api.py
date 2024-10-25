@@ -51,6 +51,7 @@ def fetch_resource(
     context: Context,
     filename: str,
     url: str,
+    geolocation: Optional[str] = None,
 ) -> Tuple[bool, Path, str | None, str | None]:
     """
     Fetch a resource using Zyte API and save to filesystem.
@@ -84,6 +85,8 @@ def fetch_resource(
         "httpResponseBody": True,
         "httpResponseHeaders": True,
     }
+    if geolocation is not None:
+        zyte_data["geolocation"] = geolocation
     context.log.debug(f"Zyte API request: {url}", data=zyte_data)
     zyte_data["url"] = url
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -112,6 +115,16 @@ def fetch_text(
     expected_charset: Optional[str] = None,
     geolocation: Optional[str] = None,
 ) -> Tuple[bool, str | None, str | None, str]:
+    """
+    Fetch a text document using the Zyte API.
+
+    Returns:
+        A tuple of:
+        - A boolean indicating whether the text was cached.
+        - The media type of the response, None if cached.
+        - The charset of the response, None if cached.
+        - The text content.
+    """
     if settings.ZYTE_API_KEY is None:
         raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
 
@@ -151,10 +164,13 @@ def fetch_text(
     api_response.raise_for_status()
 
     media_type, charset = get_content_type(api_response.json()["httpResponseHeaders"])
-    assert charset is not None, zyte_data
     text_b64 = api_response.json()["httpResponseBody"]
     assert text_b64 is not None
-    text = b64decode(text_b64).decode(charset)
+    bytes = b64decode(text_b64)
+    if charset is None:
+        text = bytes.decode()
+    else:
+        text = bytes.decode(charset)
 
     if expected_media_type:
         assert media_type == expected_media_type, (media_type, charset, text)
@@ -260,6 +276,9 @@ def fetch_html(
         json=zyte_data,
     )
     api_response.raise_for_status()
+    for action in api_response.json().get("actions", []):
+        context.log.info("Zyte action result", **action)
+
     text = api_response.json()[html_source]
     assert text is not None
     if html_source == "httpResponseBody":

@@ -15,7 +15,6 @@ deploy:
   memory: "1500Mi"
   memory_limit: "2500Mi"
   disk: "20Gi"
-  # premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   A concatenated data file of all entities which have been issued Legal
@@ -65,6 +64,8 @@ inputs:
   - ext_ru_egrul
   - ext_ua_edr
   - ir_uani_business_registry
+  - eu_esma_sanctions
+  - eu_esma_saris
   - opencorporates
   - sanctions
 

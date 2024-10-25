@@ -2,6 +2,7 @@ from stdnum.pk import cnic as cnic_validator  # type: ignore
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_json
 
 
 def crawl_person(context: Context, row: dict):
@@ -40,7 +41,7 @@ def crawl_person(context: Context, row: dict):
 
 
 def crawl(context: Context):
-    data = context.fetch_json(context.data_url, cache_days=1)
+    data = fetch_json(context, context.data_url, cache_days=1, geolocation="PK")
 
     for record in data:
         crawl_person(context, record)

@@ -8,10 +8,10 @@ coverage:
 deploy:
   disk: 50Gi
   memory: 2Gi
-  premium: true
 exports:
   - statistics.json
   - entities.ftm.json
+  - entities.delta.json
 resolve: false
 ci_test: false
 summary: >-
@@ -30,12 +30,38 @@ publisher:
   official: true
 data:
   url: https://avaandmed.ariregister.rik.ee/en/downloading-open-data
+  lang: est
+
+dates:
+  formats: ["%d.%m.%Y"]
 
 lookups:
+  type.email:
+    options:
+      - match: ylo@mooste..ee
+        value: ylo@mooste.ee
+      - match: ylarisaviste@hotmail.com>
+        value: ylarisaviste@hotmail.com
+      - match: annelymetste@gmail.com>
+        value: annelymetste@gmail.com
+      - match: vip69lf@.mail.ru
+        value: vip69lf@mail.ru
+      - match: kaja.joerandvahur@gmai. com
+        value: kaja.joerandvahur@gmail.com
+      - match: Urmas.tammsaa@.eesti.ee
+        value: urmas.tammsaa@eesti.ee
+      - match: valentina_ _1947@mail.ru
+        value: null
+      - contains: elev.eks@skf.com
+        value: elev.eks@skf.com
+      - match: contact@1office.co,
+        value: contact@1office.co
   type.country:
     options:
       - match: GER
         value: DE
+      - match: ANT
+        value: AG
       - match: DEN
         value: DK
       - match: LAT
@@ -76,3 +102,5 @@ lookups:
         value: CL
       - match: IVB
         value: VG
+      - match: XKX
+        value: XK

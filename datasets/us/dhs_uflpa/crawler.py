@@ -5,7 +5,6 @@ from zavod.helpers.xml import ElementOrTree
 
 import re
 
-FORMATS = ["%B %d, %Y"]
 
 # NAME (and one alias: NAME)
 # NAME (including one alias: NAME) and subsidiaries
@@ -106,13 +105,12 @@ def crawl_program(
             ownership.add(object, entity)
             ownerships.append(ownership)
 
-        effective_date = h.parse_date(data.pop("effective-date"), FORMATS)
         companies = [main_company] + subsidiaries
         sanctions = []
         for entity in companies:
             sanction = h.make_sanction(context, entity, section)
             sanction.add("program", program)
-            sanction.add("startDate", effective_date)
+            h.apply_date(sanction, "startDate", data.pop("effective-date"))
             sanctions.append(sanction)
 
         for entity in companies:

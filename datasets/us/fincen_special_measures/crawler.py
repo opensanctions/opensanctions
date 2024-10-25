@@ -12,11 +12,7 @@ REGEX_DATE = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
 def convert_date(date_str: str) -> List[str]:
     """Convert various date formats to 'YYYY-MM-DD'."""
     dates = REGEX_DATE.findall(date_str)
-    parsed = []
-    formats = ["%m/%d/%Y"]  # 'MM/DD/YYYY' format
-    for str in dates:
-        parsed.extend(h.parse_date(str, formats))
-    return parsed
+    return dates
 
 
 def crawl_item(context: Context, row: Dict[str, str]):
@@ -53,16 +49,18 @@ def crawl_item(context: Context, row: Dict[str, str]):
     finding_date = row.get("finding").text_content()
     nprm_date = row.get("notice-of-proposed-rulemaking").text_content()
     listing_date = finding_date if finding_date else nprm_date
-    listing_date = convert_date(listing_date)
-    sanction.add("listingDate", listing_date)
+    for date in convert_date(listing_date):
+        h.apply_date(sanction, "listingDate", date)
 
     final_rule_date = row.get("final-rule").text_content()
     if final_rule_date != "---":
-        sanction.add("startDate", convert_date(final_rule_date))
+        for date in convert_date(final_rule_date):
+            h.apply_date(sanction, "startDate", date)
 
     # rescinded_date = row.get("rescinded").text_content()
     if rescinded_date != "---" and rescinded_date != "":
-        sanction.add("endDate", convert_date(rescinded_date))
+        for date in convert_date(rescinded_date):
+            h.apply_date(sanction, "endDate", date)
         context.emit(entity, target=True)
     else:
         context.emit(entity, target=False)

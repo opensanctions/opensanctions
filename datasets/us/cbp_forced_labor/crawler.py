@@ -26,7 +26,7 @@ def crawl_vessel(context: Context, row: Dict[str, Any]):
     internal_id = row.pop("id")
     name = row.pop("entities")
     name_result = context.lookup("name", name)
-    listing_date = h.parse_date(row.pop("date"), formats=["%m/%d/%Y"])
+    listing_date = row.pop("date")
     status = row.pop("status")
     status_notes = row.pop("status-notes")
     status_notes_link = row.pop("status_notes_link", None)
@@ -48,7 +48,7 @@ def crawl_vessel(context: Context, row: Dict[str, Any]):
             is_active = True
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
-            sanction.add("listingDate", listing_date)
+            h.apply_date(sanction, "listingDate", listing_date)
             context.emit(sanction)
         else:
             is_active = False
@@ -59,7 +59,7 @@ def crawl_company(context: Context, row: Dict[str, Any], country: str):
     internal_id = row.pop("id")
     name = row.pop("entities")
     name_result = context.lookup("name", name)
-    listing_date = h.parse_date(row.pop("date"), formats=["%m/%d/%Y"])
+    listing_date = row.pop("date")
     merchandise = row.pop("merchandise")
     status = row.pop("status")
     status_notes = row.pop("status-notes")
@@ -86,7 +86,7 @@ def crawl_company(context: Context, row: Dict[str, Any], country: str):
             is_active = True
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
-            sanction.add("listingDate", listing_date)
+            h.apply_date(sanction, "listingDate", listing_date)
             context.emit(sanction)
         else:
             is_active = False

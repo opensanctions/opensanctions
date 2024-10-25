@@ -1,7 +1,8 @@
 import re
+from functools import lru_cache
+from prefixdate import parse_formats
 from datetime import datetime, date, timezone
 from typing import Union, Iterable, Set, Optional, List
-from prefixdate import parse_formats
 from followthemoney.types import registry
 
 from zavod.logs import get_logger
@@ -90,6 +91,7 @@ def replace_months(dataset: Dataset, text: str) -> str:
     return spec.months_re.sub(lambda m: spec.mappings[m.group().lower()], text)
 
 
+@lru_cache(maxsize=5000)
 def extract_date(dataset: Dataset, text: DateValue) -> List[str]:
     """
     Extract a date from the provided text using predefined `formats` in the metadata.

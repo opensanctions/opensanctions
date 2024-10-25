@@ -229,7 +229,7 @@ def crawl_page(
         entity.add("taxNumber", item["inn"])
         entity.add("registrationNumber", item["ein"])
 
-        context.emit(entity, target=True)
+        context.emit(entity)
 
     return max_page
 

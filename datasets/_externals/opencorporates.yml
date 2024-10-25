@@ -8,7 +8,7 @@ coverage:
 exports:
   - statistics.json
 deploy:
-  memory: "2000Mi"
+  memory: "4000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   The largest open database of company data in the world, with data from over 140 registries.
@@ -36,7 +36,8 @@ ci_test: false
 
 inputs:
   - ir_uani_business_registry
-  - sanctions
+  - us_sanctions
+  - eu_sanctions
   # - ext_cy_companies
   # - ext_cz_business_register
   # - ext_ee_ariregister
@@ -47,8 +48,6 @@ inputs:
   # - ext_md_companies
   # - opencorporates
   # - ext_ru_egrul
-  # - ru_rupep
-  # - ru_rupep_companies
   # - ext_ua_edr
   # - debarment
 
@@ -76,7 +75,7 @@ lookups:
           - CHANNEL ISLANDS
           - Channel Islands
           - YYY
-          - VIRGIN ISLANDS  # which???!?
+          - VIRGIN ISLANDS # which???!?
         value: null
       - match: "PROVINCIA PANAMÁ, OBSERVACIONES EN ATENCIÓN A LO ESTABLECIDO EN LOS ARTÍCULOS 1, 2 Y 3 DEL DECRETO EJECUTIVO 905 DE 20 SEPTIEMBRE DE 2019 Y LA LEY 52 DE 27 DE FEBRERO DE 2016, EL REGISTRO PÚBLICO PROCEDE A CAMBIAR AL ?ESTATUS SUSPENDIDO? EL PRESENTE FOLIO MERCANTIL; LO ANTERIOR DANDO CUMPLIMIENTO Y DEJANDO CONSTANCIA DE LOS EFECTOS JURÍDICOS QUE ELLO IMPLICA, SEGÚN LO ESTIPULADO EN EL PARÁGRAFO 3 DEL ARTÍCULO 9 DE LA LEY 52 DE 2016, QUE MODIFICÓ EL ARTÍCULO 318-A DEL CÓDIGO FISCAL. A SABER LOS EFECTOS JURÍDICOS DE LA ANOTACIÓN DE ESTATUS SUSPENDIDO EN EL PRESENTE FOLIO, IMPLICAN: 1. IMPOSIBILIDAD PARA INICIAR PROCESOS LEGALES, REALIZAR NEGOCIOS O DISPONER DE SUS ACTIVOS. 2. IMPOSIBILIDAD PARA HACER RECLAMOS O EJERCER ALGÚN DERECHO. 3. IMPOSIBILIDAD PARA REALIZAR NINGUNA ACCIÓN CORPORATIVA QUE RESULTE OBLIGANTE PARA LA PERSONA JURÍDICA. NO OBSTANTE, CUANDO LOS DERECHOS CORPORATIVOS DE UNA PERSONA JURÍDICA HAYAN SIDO SUSPENDIDOS, ESTA PODRÁ: 1. HACER UNA SOLICITUD DE REACTIVACIÓN. 2. GESTIONAR LA DEFENSA DE CUALQUIER PROCESO INICIADO EN SU CONTRA. 3. CONTINUAR CON PROCESOS LEGALES INSTITUIDOS EN SU NOMBRE ANTES DE LA FECHA DE SUSPENSIÓN."
         value: Panama
@@ -126,12 +125,12 @@ lookups:
         value: GE
       - match: QUEBEC H2Y 1L6
         value: CA
-      - match: 
+      - match:
           - Corée du Sud ( Rép. de )
           - COREE (REPUBLIQUE DE)
           - SKO
         value: South Korea
-      - match: 
+      - match:
           - HNK
           - Chine (Hong-Kong SAR)
         value: HK
@@ -141,7 +140,7 @@ lookups:
         value: PL
       - match: Scotland, Uk
         value: GB
-      - match: 
+      - match:
           - Azerbaïdjan ( Rép. )
           - Azerbaijan Republic
         value: AZ
@@ -149,8 +148,6 @@ lookups:
         value: SI
       - match: Antilles néerlandaises
         value: NL
-
-      
 
   type.name:
     options:
@@ -164,9 +161,10 @@ lookups:
         value: '"BISER" DRUŠTVO SA OGRANIČENOM ODGOVORNOŠĆU'
       - match: "Augen-Partner-Gruppe Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang Dr. med. Christoph Mathey Dr. med. Johanna Stuckenbrock Dr. med. Astrid Spang Praxissitz 78166 Donaueschingen, Karlstraße 38: Dr. med. Tilmann Freytag Dr. med. Johannes Kohler Praxissitz 88662 Überlingen, Johann-Kraus-Straße 9: Dr. med. Birgit Langenberger Dr. med. Andreas Kammerzell Praxissitz 72379 Hechingen, Weilheimer Straße 31: Conka Tekeva-Rohrbach Augenärzte Partnerschaftsgesellschaft"
         value: Augen-Partner-Gruppe Standortübergreifende Berufsausübungsgemeinschaft
-      - match: 
+      - match:
           - "Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang, Privatdozent Dr. med. Robert Degenring, Jolanta Pleyer, Dr. med. Astrid Spang, Praxissitz 78549 Spaichingen, Robert-Koch-Straße 31: Dr. med. Andreas Kammerzell, Praxissitz 78166 Donaueschingen, Friedrichstraße 2: Dr. med. Tilman Freytag, Praxissitz 78166 Donaueschingen, Käferstraße 9: Dr. med. Gerd H. Walter, Augenärzte Partnerschaftsgesellschaft"
           - "Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang, Dr. med. Christoph Mathey, Jolanta Pleyer, Dr. med. Astrid Spang, Praxissitz 78549 Spaichingen, Robert-Koch-Straße 31: Dr. med. Andreas Kammerzell, Praxissitz 78166 Donaueschingen, Wasserstraße 22: Dr. med. Tilman Freytag, Dr. med. Johannes Kohler Augenärzte Partnerschaftsgesellschaft"
           - "Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang, Dr. med. Christoph Mathey, Jolanta Pleyer, Dr. med. Astrid Spang. Praxissitz 78549 Spaichingen, Robert-Koch-Straße 31: Dr. med. Andreas Kammerzell. Praxissitz 78166 Donaueschingen, Wasserstraße 22: Dr. med. Tilman Freytag, Dr. med. Johannes Kohler. Praxissitz 88662 Überlingen, Mühlenstraße 12: Dr. med. Thomas Braus, Dr. med. Birgit Langenberger. Praxissitz 72379 Hechingen, Kirchplatz 2: Dr. med. Axel Riester. Augenärzte Partnerschaftsgesellschaft"
           - "Augen-Partner-Gruppe Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang Dr. med. Christoph Mathey Jolanta Pleyer Dr. med. Astrid Spang Praxissitz 78166 Donaueschingen, Karlstraße 38: Dr. med. Tilman Freytag Dr. med. Johannes Kohler Praxissitz 88662 Überlingen, Johann-Kraus-Straße 9: Dr. med. Birgit Langenberger Dr. med. Andreas Kammerzell Praxissitz 72379 Hechingen, Weilheimer Straße 31: Conka Tekeva-Rohrbach Praxissitz 78549 Spaichingen (Zweigpraxis), Robert-Koch-Straße 31: Dr. med. Stephan Spang Dr. med. Christoph Mathey Jolanta Pleyer Dr. med. Astrid Spang Dr. med. Tilman Freytag Dr. med. Johannes Kohler Dr. med. Birgit Langenberger Dr. med. Andreas Kammerzell Conka Tekeva-Rohrbach Augenärzte Partnerschaftsgesellschaft"
+          - "Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang, Dr. med. Christoph Mathey, Jolanta Pleyer, Dr. med. Astrid Spang. Praxissitz 78549 Spaichingen, Robert-Koch-Straße 31: Dr. med. Andreas Kammerzell. Praxissitz 78166 Donaueschingen, Wasserstraße 22: Dr. med. Tilman Freytag, Dr. med. Johannes Kohler. Praxissitz 88662 Überlingen, Mühlenstraße 12: Dr. med. Thomas Braus, Dr. med. Birgit Langenberger. Praxissitz 72379 Hechingen, Kirchplatz 2: Conka Tekeva-Rohrbach. Augenärzte Partnerschaftsgesellschaft"
         value: null

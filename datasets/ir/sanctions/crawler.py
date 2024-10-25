@@ -69,7 +69,7 @@ def crawl(context: Context):
         params = {"page": page}
         qs = urlencode(params)
         url = f"{context.data_url}?{qs}"
-        doc = fetch_html(context, url, unblock_validator, cache_days=7)
+        doc = fetch_html(context, url, unblock_validator, cache_days=1, retries=6)
         pagenums = [
             int(el.text_content())
             for el in doc.xpath('//*[contains(@class, "pageinationnum")]')

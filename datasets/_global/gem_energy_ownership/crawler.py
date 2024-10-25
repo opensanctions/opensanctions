@@ -1,6 +1,5 @@
 import openpyxl
 from typing import Dict, Set
-from pantomime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
@@ -55,6 +54,7 @@ IGNORE = [
 SMALL_SHAREHOLDERS = "E100001015587"
 UNKNOWN = "E100000132388"
 SELF_OWNED = {"E100000002239"}
+STATIC_URL = "https://data.opensanctions.org/contrib/globalenergy/Global_Energy_Ownership_Tracker_June_2024.xlsx"
 
 
 def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
@@ -144,8 +144,8 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.xlsx", context.data_url)
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+    path = context.fetch_resource("source.xlsx", STATIC_URL)
+    # context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     skipped: Set[str] = set()

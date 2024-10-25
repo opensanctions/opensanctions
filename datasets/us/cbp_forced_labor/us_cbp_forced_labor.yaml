@@ -26,6 +26,8 @@ data:
   url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
   format: html
 
+dates: 
+  formats: ["%m/%d/%Y"]
 assertions:
   min:
     schema_entities:
