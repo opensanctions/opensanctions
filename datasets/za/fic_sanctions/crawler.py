@@ -6,7 +6,35 @@ from zavod import helpers as h
 
 
 REGEX_PASSPORT = re.compile(r"^[A-Z0-9-]{6,20}$")
-
+ALIAS_SPLITS = ["a.k.a.,", 
+                "f.k.a.,", 
+                "; ", 
+                "f.k.a,", 
+                "f.n.a.,", 
+                "Formerly known as,", 
+                " Good,", 
+                "Formerly Known As,"]
+ADDRESS_SPLITS = ["Branch Office 1:", 
+                  "Branch Office 2:", 
+                  "Branch Office 3:", 
+                  "Branch Office 4:", 
+                  "Branch Office 5:", 
+                  "Branch Office 6:", 
+                  "Branch Office 7:", 
+                  "Branch Office 8:", 
+                  "Branch Office 9:", 
+                  "Branch Office 10:", 
+                  "Branch Office 11:",
+                  "Branch Office 12:",
+                  "Branch Office 13:",
+                  "Branch Office 14:",
+                  "Branch Office 15:",
+                  "Branch Office 16:",
+                  "v)",
+                  "iv)",
+                  "iii)",
+                  "ii)",
+                  "i)",]
 
 def parse_date(date: Optional[str]) -> List[str]:
     if date is None:
@@ -41,35 +69,48 @@ def clean_passports(context: Context, text: str) -> List[str]:
     return passports, ids
 
 
-
-# def crawl_person(context: Context, data: Dict[str, str]):
-
-
 def crawl_row(context: Context, data: Dict[str, str]):
-    entity = context.make("LegalEntity")
     full_name = data.pop("FullName", None)
-    ind_id = data.pop("INDIVIDUAL_Id", data.pop("IndividualID"))
-    entity.id = context.make_slug(ind_id, full_name)
+    if full_name is not None:
+        ent_id = data.pop("IndividualID")
+        schema = "Person"
+    else:
+        full_name = data.pop("FirstName")
+        ent_id = data.pop("EntityID")
+        schema = "LegalEntity"
+    entity = context.make(schema)
+    entity.id = context.make_slug(ent_id, full_name)
     assert entity.id, data
     entity.add("name", full_name)
     entity.add("notes", h.clean_note(data.pop("Comments", None)))
-    entity.add("address", data.pop("IndividualAddress", None))
-    entity.add_cast("Person", "nationality", data.pop("Nationality", None))
-    entity.add_cast("Person", "title", data.pop("Title", None))
-    entity.add_cast("Person", "position", data.pop("Designation", None))
-    entity.add_cast("Person", "birthPlace", data.pop("IndividualPlaceOfBirth", None))
-    dob = parse_date(data.pop("IndividualDateOfBirth", None))
-    entity.add_cast("Person", "birthDate", dob)
+    if entity.schema.is_a("Person"):
+        entity.add("address", data.pop("IndividualAddress", None))
+        entity.add("nationality", data.pop("Nationality", None))
+        entity.add("title", data.pop("Title", None))
+        entity.add("position", data.pop("Designation", None))
+        entity.add("birthPlace", data.pop("IndividualPlaceOfBirth", None))
+        dob = parse_date(data.pop("IndividualDateOfBirth", None))
+        entity.add("birthDate", dob)
 
-    alias = data.pop("IndividualAlias", None)
-    if alias is not None: 
-        for a in h.multi_split(alias, [", ", "Good", "Low"]):
-            entity.add("alias", a)
+        aliases = data.pop("IndividualAlias", None)
+        for alias in h.multi_split(aliases, [", ", "Good", "Low"]):
+            entity.add("alias", alias)
+        passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
+        entity.add("passportNumber", passports)
+        entity.add("idNumber", ids)
 
-    passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
-    entity.add_cast("Person", "passportNumber", passports)
-    entity.add_cast("Person", "idNumber", ids)
-
+    if entity.schema.is_a("LegalEntity"):
+        address = data.pop("EntityAddress", None)
+        for address in h.multi_split(address, ADDRESS_SPLITS):
+            address = address.rstrip(",")
+            entity.add("address", address)
+        aliases = data.pop("EntityAlias", None)
+        for alias in h.multi_split(aliases, ALIAS_SPLITS): 
+            alias = alias.rstrip(",")  # if we split on a comma, we will separate ", LTD" from the name
+            if "?" in alias:
+                continue
+            entity.add("alias", alias)
+ 
     sanction = h.make_sanction(context, entity)
     listed_on = data.pop("ListedOn", None)
     listed_at = parse_date(listed_on)
@@ -92,20 +133,13 @@ def crawl(context: Context):
     )
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
-
-    for row in doc.findall(".//Table"):
-        data = {}
-        for field in row.getchildren():
-            value = field.text
-            if value == "NA":
-                continue
-            data[field.tag] = value
-        crawl_row(context, data)
-    # for row in doc.findall(".//Table1"):
-    #     data = {}
-    #     for field in row.getchildren():
-    #         value = field.text
-    #         if value == "NA":
-    #             continue
-    #         data[field.tag] = value
-    #     crawl_row(context, data)
+    tables = [".//Table", ".//Table1"]
+    for table in tables:
+        for row in doc.findall(table):
+            data = {}
+            for field in row.getchildren():
+                value = field.text
+                if value == "NA":
+                    continue
+                data[field.tag] = value
+            crawl_row(context, data)
