@@ -1,20 +1,34 @@
-from datetime import datetime
+from pathlib import Path
 from typing import Dict
 from rigour.mime.types import PDF
 
+import pdfplumber
+from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
-from zavod.shed.gpt import run_image_prompt
 
-prompt = """
-Extract structured data from the following page of a PDF document. Return 
-a JSON list (`providers`) in which each object represents an medical provider.
-Distinct record rows alternate between grey and white backgrounds. The name
-of a provider might be split onto the next row within a record.
-Each object should have the following fields: `provider_name`, `title`,
-`npi_number`, `street`, `city`, `state`, `zip`, `action`, `effective_date`,
-`expiration_date`.
-Return an empty string for unset fields.
-"""
+
+def parse_pdf_table(
+    context: Context, path: Path, save_debug_images=False, headers=None
+):
+    pdf = pdfplumber.open(path.as_posix())
+    settings = {}
+    for page_num, page in enumerate(pdf.pages, 1):
+        # Find the bottom of the bottom-most rectangle on the page
+        bottom = max(page.height - rect["y0"] for rect in page.rects)
+        settings["explicit_horizontal_lines"] = [bottom]
+        if save_debug_images:
+            im = page.to_image()
+            im.draw_hline(bottom, stroke=(0, 0, 255), stroke_width=1)
+            im.draw_rects(page.find_table(settings).cells)
+            im.save(f"page-{page_num}.png")
+        assert bottom < (page.height - 5), (bottom, page.height)
+
+        for row in page.extract_table(settings)[1:]:
+            if headers is None:
+                headers = [slugify(collapse_spaces(cell), sep="_") for cell in row]
+                continue
+            assert len(headers) == len(row), (headers, row)
+            yield dict(zip(headers, row))
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -38,30 +52,25 @@ def crawl_item(row: Dict[str, str], context: Context):
         h.apply_name(entity, full=row.pop("provider_name"))
         entity.add("title", row.pop("title"))
 
-    entity.add("npiCode", row.pop("npi_number"))
+    for npi in row.pop("npi_number").split("/"):
+        entity.add("npiCode", npi)
     entity.add("country", "us")
+    entity.add("address", address)
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("effective_date"))
     sanction.add("provisions", row.pop("action"))
 
-    if row.get("expiration_date") and row.get("expiration_date").upper() not in [
-        "PERMANENT",
-        "DECEASED",
-    ]:
-        is_debarred = (
-            datetime.strptime(row.get("expiration_date"), "%m/%d/%Y") > datetime.today()
-        )
-        h.apply_date(sanction, "endDate", row.pop("expiration_date"))
-    else:
-        row.pop("expiration_date")
-        is_debarred = True
+    h.apply_date(sanction, "startDate", row.pop("effective_date"))
+    h.apply_date(sanction, "endDate", row.pop("expiration_date"))
+    end_date = sanction.get("endDate")
+    ended = end_date != [] and end_date[0] < context.data_time_iso
 
-    if is_debarred:
+    if not ended:
         entity.add("topics", "debarment")
 
-    context.emit(entity, target=is_debarred)
+    context.emit(entity, target=not ended)
     context.emit(sanction)
+    context.emit(address)
 
     context.audit_data(row)
 
@@ -69,8 +78,21 @@ def crawl_item(row: Dict[str, str], context: Context):
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", context.data_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-    for page_path in h.make_pdf_page_images(path)[1:]:
-        data = run_image_prompt(context, prompt, page_path, max_tokens=4096)
-        assert "providers" in data, data
-        for item in data.get("providers", []):
-            crawl_item(item, context)
+
+    for item in parse_pdf_table(
+        context,
+        path,
+        headers=[
+            "provider_name",
+            "title",
+            "npi_number",
+            "street",
+            "city",
+            "state",
+            "zip",
+            "action",
+            "effective_date",
+            "expiration_date",
+        ],
+    ):
+        crawl_item(item, context)
