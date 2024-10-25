@@ -29,6 +29,24 @@ url: https://www.gov.il/en/pages/declared_elements_list
 data:
   url: https://www.gov.il/en/pages/declared_elements_list
   format: HTML
+
+dates:
+  formats: ["%d %b %Y"]
+  months:
+    Mar: במרץ
+    Apr: באפריל
+    Jul: ביולי
+
+assertions:
+  min:
+    schema_entities:
+      Person: 80
+      Organization: 100
+  max:
+    schema_entities:
+      Person: 103
+      Organization: 143
+
 lookups:
   type.country:
     lowercase: true
@@ -43,6 +61,23 @@ lookups:
       - contains:
           - 1969
         value: null
+  type.identifier:
+    options:
+      - match: "563120368, issued on 22 Mar. 2013 (Passport expiration date: March 22, 2018)"
+        value: "563120368, issued 22 Mar. 2013, expires March 22, 2018"
+  schema:
+    options:
+      - contains:
+          - " IRi."
+          - " KPi."
+          - " Pi."
+        value: Person
+      - contains:
+          - " IRe."
+          - " KPe."
+          - " Kpe."
+          - " Pe."
+        value: Organization
   columns:
     normalize: true
     lowercase: true
@@ -52,9 +87,9 @@ lookups:
       - match: מדינת אזרחות/ תושבות (יחיד)  מדינת התאגדות (ארגון)
         value: address_nationality
       - match: תאריך לידה (יחיד)  תאריך התאגדות (ארגון)
-        value: dob
+        value: birth_incorp_date
       - match: מספרי דרכון/זיהוי (יחיד)  מספר רישום (ארגון)
-        value: passport
+        value: passports_ids
       - contains: בשפת המקור; בתעתיק לטיני (לרבות אפשרויות האיות הידועות על שמות וכינויים אלה)
         value: name
       - contains: (אימוץ קבוע)
@@ -73,17 +108,3 @@ lookups:
         value: declaration_date
       - match: מס"ד
         value: record_id
-dates:
-  formats: ["%d %b %Y"]
-  months:
-    Jul: ביולי
-
-assertions:
-  min:
-    schema_entities:
-      Person: 80
-      Organization: 100
-  max:
-    schema_entities:
-      Person: 103
-      Organization: 143
