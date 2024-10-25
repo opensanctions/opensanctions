@@ -58,7 +58,7 @@ def crawl(context: Context):
     doc = context.fetch_html(url)
     mw_grid = doc.find('.//div[@class="blog most-wanted-grid"]')
     if mw_grid is None:
-        context.log.debug("Cannot find fact detailed list", url=url)
+        context.log.error("Cannot find fact detailed list", url=url)
         return
 
     items_rows = mw_grid.findall("./div")
