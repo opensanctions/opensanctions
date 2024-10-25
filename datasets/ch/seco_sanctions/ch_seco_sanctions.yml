@@ -2338,6 +2338,182 @@ lookups:
         properties: 
           - prop: position
             value: Judge of the Judicial Collegium for Civil Cases at the Supreme Court
+      - match: Deputy Head of the Penal Correction Department of the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Deputy Head of the Penal Correction Department of the Ministry of Internal Affairs
+      - match: Judge of the Oktyabrsky District Court of Minsk
+        properties: 
+          - prop: position
+            value: Judge of the Oktyabrsky District Court of Minsk
+      - match: Vice Chancellor of the Belarusian State Economic University for Educational Work
+        properties: 
+          - prop: position
+            value: Vice Chancellor of the Belarusian State Economic University for Educational Work
+      - match: Director of the Aviation Department of the Ministry of Transport and Communications, former Commander of the Air Force and Air Defence of the Armed Forces
+        properties: 
+          - prop: position
+            value: Director of the Aviation Department of the Ministry of Transport and Communications
+          - prop: position
+            value: Former Commander of the Air Force and Air Defence of the Armed Forces
+      - match: Head of the Leninsky District Police Department of Minsk
+        properties: 
+          - prop: position
+            value: Head of the Leninsky District Police Department of Minsk
+      - match: Deputy Chairman of the Court of the Leninsky District of Minsk
+        properties: 
+          - prop: position
+            value: Deputy Chairman of the Court of the Leninsky District of Minsk
+      - match: Political observer of "Belarus Today" ("Sovietskaia Belarus - Belarus Segodnya")
+        properties: 
+          - prop: position
+            value: Political observer of "Belarus Today" ("Sovietskaia Belarus - Belarus Segodnya")
+      - match: Judge of the Sovetsky District Court of Minsk
+        properties: 
+          - prop: position
+            value: Judge of the Sovetsky District Court of Minsk
+      - match: Minister of Defense
+        properties: 
+          - prop: position
+            value: Minister of Defense
+      - match: First Deputy Head of the Penal Correction Department Of the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: First Deputy Head of the Penal Correction Department Of the Ministry of Internal Affairs
+      - match: Deputy Chairwoman/judge at the Frunzensky District Court in Minsk
+        properties: 
+          - prop: position
+            value: Deputy Chairwoman/judge at the Frunzensky District Court in Minsk
+      - match: Head of the Oktyabrsky District Police Department, Former Head of the Partizanski District Police Department of Minsk
+        properties: 
+          - prop: position
+            value: Head of the Oktyabrsky District Police Department
+          - prop: position
+            value: Former Head of the Partizanski District Police Department of Minsk
+      - match: Head of the Department of ideological work and personnel support at the Ministry of Internal Affairs of Belarus, former Deputy Head of the Penal Correction Department of the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Head of the Department of ideological work and personnel support at the Ministry of Internal Affairs of Belarus
+          - prop: position
+            value: Former Deputy Head of the Penal Correction Department of the Ministry of Internal Affairs
+      - match: Judge at the Frunzensky District Court in Minsk
+        properties: 
+          - prop: position
+            value: Judge at the Frunzensky District Court in Minsk
+      - match: Head of Division of the KGB Investigation Department
+        properties: 
+          - prop: position
+            value: Head of Division of the KGB Investigation Department
+      - match: Head of the Main Department of Internal Affairs of the Minsk City Executive Committee
+        properties: 
+          - prop: position
+            value: Head of the Main Department of Internal Affairs of the Minsk City Executive Committee
+      - match: Minister of Transport and Communications
+        properties: 
+          - prop: position
+            value: Minister of Transport and Communications
+      - match: Deputy Chair of the National State Television and Radio Company (Belteleradio Company)
+        properties: 
+          - prop: position
+            value: Deputy Chair of the National State Television and Radio Company (Belteleradio Company)
+      - match: Deputy Minister of Internal Affairs, Former Head of the Main Department for Combating Organized Crime and Corruption of the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Deputy Minister of Internal Affairs
+          - prop: position
+            value: Former Head of the Main Department for Combating Organized Crime and Corruption of the Ministry of Internal Affairs
+      - match: Judge at Sovetsky District Court in Minsk
+        properties: 
+          - prop: position
+            value: Judge at Sovetsky District Court in Minsk
+      - match: Judge of the Lida City Court
+        properties: 
+          - prop: position
+            value: Judge of the Lida City Court
+      - match: Co-host of programme “Platform” on state-owned television channel “Belarus 1”
+        properties: 
+          - prop: position
+            value: Co-host of programme “Platform” on state-owned television channel “Belarus 1”
+      - match: Member of organisation “Rusj molodaja”
+        properties: 
+          - prop: position
+            value: Member of organisation “Rusj molodaja”
+      - match: Head of the Department for Supervision of Compliance with the Law of Court Decisions in Criminal Cases of the Prosecutor’s Office of the Gomel Region/Oblast; senior legal adviser
+        properties: 
+          - prop: position
+            value: Head of the Department for Supervision of Compliance with the Law of Court Decisions in Criminal Cases of the Prosecutor’s Office of the Gomel Region/Oblast
+          - prop: position
+            value: Senior legal adviser
+      - match: Judge at the Gomel Regional Court
+        properties: 
+          - prop: position
+            value: Judge at the Gomel Regional Court
+      - match: Head of the Main Department for Combating Organised Crime and Corruption in Belarus (GUBOPiK)
+        properties: 
+          - prop: position
+            value: Head of the Main Department for Combating Organised Crime and Corruption in Belarus (GUBOPiK)
+      - match: Employee of state-owned television channel “ONT”, author and anchor of several programmes (“Propaganda”, “To be completed”)
+        properties: 
+          - prop: position
+            value: Employee of state-owned television channel “ONT”
+          - prop: position
+            value: Author and anchor of several programmes (“Propaganda”, “To be completed”)
+      - match: Special correspondent of “SB Belarus Segodnya” newspaper, presenter on state-owned television channel “Belarus 1”
+        properties: 
+          - prop: position
+            value: Special correspondent of “SB Belarus Segodnya” newspaper
+          - prop: position
+            value: Presenter on state-owned television channel “Belarus 1”
+      - match: Employee of state-owned television channel “CTV”, author and host of several programmes (“Secret Springs of Politics”, “Order of Judas”, “Panopticon”)
+        properties: 
+          - prop: position
+            value: Employee of state-owned television channel “CTV”
+          - prop: position
+            value: Author and host of several programmes (“Secret Springs of Politics”, “Order of Judas”, “Panopticon”)
+      - match: Director-General of the Open Joint Stock Company “Belaruskali”, Chairman of the supervisory board of JSC Belarussian Potash Company.
+        properties: 
+          - prop: position
+            value: Director-General of the Open Joint Stock Company “Belaruskali”
+          - prop: position
+            value: Chairman of the supervisory board of JSC Belarussian Potash Company
+      - match: Member of the Standing Committee of the Council of the Republic of the National Assembly of the Republic of Belarus for Foreign Affairs and National Security
+        properties: 
+          - prop: position
+            value: Member of the Standing Committee of the Council of the Republic of the National Assembly of the Republic of Belarus for Foreign Affairs and National Security
+      - match: Chairperson of the Central Commission of the Republic of Belarus on Elections and Holding Republican Referenda
+        properties: 
+          - prop: position
+            value: Chairperson of the Central Commission of the Republic of Belarus on Elections and Holding Republican Referenda
+      - match: Judge of the Supreme Court of Belarus, former Judge at the court of the Moskovsky district of Minsk
+        properties: 
+          - prop: position
+            value: Judge of the Supreme Court of Belarus
+          - prop: position
+            value: Former Judge at the court of the Moskovsky district of Minsk
+      - match: Judge at Baranovichi District Court
+        properties: 
+          - prop: position
+            value: Judge at Baranovichi District Court
+      - match: Judge of Ivanovsky District Court
+        properties: 
+          - prop: position
+            value: Judge of Ivanovsky District Court
+      - match: Head of Penal Colony No.°4 for women in Gomel
+        properties: 
+          - prop: position
+            value: Head of Penal Colony No.°4 for women in Gomel
+      - match: Shklov District Court, Mogilev Region, Judge
+        properties: 
+          - prop: position
+            value: Shklov District Court, Mogilev Region, Judge
+      - match: Grodno Regional Court, Judge
+        properties: 
+          - prop: position
+            value: Grodno Regional Court, Judge
+      - match: Gomel Regional Court, Judge
+        properties: 
+          - prop: position
+            value: Gomel Regional Court, Judge
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
           - other_schema: Company
