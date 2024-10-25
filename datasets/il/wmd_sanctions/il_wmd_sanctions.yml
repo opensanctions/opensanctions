@@ -48,27 +48,27 @@ lookups:
     lowercase: true
     options:
       - match: פרטי זיהוי אחרים או פרטים נוספים
-        value: other_info_hb
+        value: other_info
       - match: מדינת אזרחות/ תושבות (יחיד)  מדינת התאגדות (ארגון)
-        value: address_nationality_hb
+        value: address_nationality
       - match: תאריך לידה (יחיד)  תאריך התאגדות (ארגון)
-        value: dob_hb
+        value: dob
       - match: מספרי דרכון/זיהוי (יחיד)  מספר רישום (ארגון)
-        value: passport_hb
+        value: passport
       - contains: בשפת המקור; בתעתיק לטיני (לרבות אפשרויות האיות הידועות על שמות וכינויים אלה)
-        value: name_hb
+        value: name
       - contains: (אימוץ קבוע)
-        value: isreal_adoption_date_hb
+        value: isreal_adoption_date
       - contains: (אימוץ אוטומטי זמני)
-        value: isreal_temp_adoption_date_hb
+        value: isreal_temp_adoption_date
       - match: מספר החלטה ומספר סידורי ברשומות, כפי שניתנה ע"י הגורם הבינ"ל המוסמך שהכריז במקור
-        value: serial_no_hb
+        value: serial_no
       - match: זהות הגורם הזר המוסמך שהכריז במקור
-        value: originally_declared_by_hb
+        value: originally_declared_by
       - contains: מועד ההכרזה ע"י הגורם הזר המוסמך שהכרזתו אומצה בישראל
-        value: declaration_date_hb
+        value: declaration_date
       - match: מס"ד
-        value: record_id_hb
+        value: record_id
 dates:
   formats: ["%d %b %Y"]
   months:

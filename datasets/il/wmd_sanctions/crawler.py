@@ -87,12 +87,12 @@ def apply_names(context: Context, entity: Entity, names_string: str) -> None:
 
 
 def parse_sheet_row(context: Context, row: Dict):
-    record_id = row.pop("record_id_hb")
+    record_id = row.pop("record_id")
     if not record_id.isnumeric():  # not a record
         return
 
-    other_info = row.pop("other_info_hb")
-    address_nationality = row.pop("address_nationality_hb")
+    other_info = row.pop("other_info")
+    address_nationality = row.pop("address_nationality")
 
     # Extract address if it exists from either the info or nationality attibrutes
     info_address, notes = extract_n_pop_address(other_info)
@@ -110,14 +110,14 @@ def parse_sheet_row(context: Context, row: Dict):
         ],
     )
 
-    dob = row.pop("dob_hb")
-    passport = row.pop("passport_hb")
-    names_string = row.pop("name_hb")
+    dob = row.pop("dob")
+    passport = row.pop("passport")
+    names_string = row.pop("name")
 
-    isreal_adoption_date = row.pop("isreal_adoption_date_hb")
-    serial_no = row.pop("serial_no_hb")
-    originally_declared_by = row.pop("originally_declared_by_hb")
-    declaration_date = row.pop("declaration_date_hb")
+    isreal_adoption_date = row.pop("isreal_adoption_date")
+    serial_no = row.pop("serial_no")
+    originally_declared_by = row.pop("originally_declared_by")
+    declaration_date = row.pop("declaration_date")
 
     if "iri" in serial_no.lower() or "pi" in serial_no.lower():
         entity = context.make("Person")
@@ -153,7 +153,7 @@ def parse_sheet_row(context: Context, row: Dict):
 
     context.emit(entity, target=True)
     context.emit(sanction)
-    context.audit_data(row, ignore=["isreal_temp_adoption_date_hb"])
+    context.audit_data(row, ignore=["isreal_temp_adoption_date"])
 
 
 def unblock_validator(doc):
