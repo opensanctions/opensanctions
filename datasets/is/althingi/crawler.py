@@ -2,15 +2,24 @@ import re
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
+from zavod.shed.zyte_api import fetch_html
 
 EMAIL_PATTERN = r"tpostur\('([^']+)'"
 SUFFIX_PATTERN = r"(?<=\d)(st|nd|rd|th)"
 
 
+def detail_unblock_validator(doc):
+    return len(doc.xpath(".//*[text()='Date of Birth:']")) > 0
+
+
 def crawl_item(member_url: str, name: str, context: Context):
-
-    response = context.fetch_html(member_url)
-
+    response = fetch_html(
+        context,
+        member_url,
+        detail_unblock_validator,
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
     birth_date = response.xpath(".//*[text()='Date of Birth:']/..")[0].text_content()
     party = response.xpath(".//*[text()='Party:']/..")[0].text_content()
     telephone = response.find(".//*[@class='tel']").text_content()
@@ -61,10 +70,18 @@ def crawl_item(member_url: str, name: str, context: Context):
         context.emit(occupancy)
 
 
+def index_unblock_validator(doc):
+    return len(doc.xpath("//*[@id='members']")) > 0
+
+
 def crawl(context: Context):
-
-    response = context.fetch_html(context.data_url)
-
+    response = fetch_html(
+        context,
+        context.data_url,
+        index_unblock_validator,
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
     response.make_links_absolute(context.data_url)
 
     for a_tag in response.findall(".//*[@id='members']/tbody/tr/td/b/a"):
