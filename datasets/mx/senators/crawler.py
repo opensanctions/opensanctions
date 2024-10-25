@@ -95,6 +95,8 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
             "id",
             "twitter",
             "instagram",
+            "telefono",
+            "extension",
         ],
     )
 
