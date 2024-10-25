@@ -38,6 +38,8 @@ data:
   url: https://tfs.fic.gov.za/Pages/TFSListDownload?fileType=xml
   format: XML
 
+dates: 
+  formats: ["%d-%m-%Y", "%Y-%m-%d", "%Y-%m"]
 lookups:
   type.address:
     lowercase: true
