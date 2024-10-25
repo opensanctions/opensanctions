@@ -2008,6 +2008,336 @@ lookups:
             value: As SPLA Deputy Chief of Staff for Logistics, Riak was one of the senior officials of the Government of South Sudan who planned and oversaw an offensive in Unity state in 2015 that resulted in widespread destruction and large population displacement.
           - prop: position
             value: SPLA Deputy Chief of Staff for Logistics
+      - match: Deputy Chairman of the Standing Committee on International Affairs in the House of Representatives of the National Assembly, member of the delegation of the National Assembly for contacts with the Parliamentary Assembly of the Council of Europe
+        properties: 
+          - prop: position
+            value: Deputy Chairman of the Standing Committee on International Affairs in the House of Representatives of the National Assembly
+          - prop: position
+            value: Member of the delegation of the National Assembly for contacts with the Parliamentary Assembly of the Council of Europe
+      - match: Former Press Secretary of the Ministry of Internal Affairs of Belarus; Head of the Main Directorate for Ideology and Youth of the Minsk City Executive Committee
+        properties: 
+          - prop: position
+            value: Former Press Secretary of the Ministry of Internal Affairs of Belarus
+          - prop: position
+            value: Head of the Main Directorate for Ideology and Youth of the Minsk City Executive Committee
+      - match: Member of the House of Representatives of the National Assembly of the Republic of Belarus, Deputy Chairperson of the Standing Commission on Law
+        properties: 
+          - prop: position
+            value: Member of the House of Representatives of the National Assembly of the Republic of Belarus
+          - prop: position
+            value: Deputy Chairperson of the Standing Commission on Law
+      - match: Former Head of the Pervomaysky District Police Department of Minsk; First Deputy Head of the Internal Affairs Directorate of the Grodno/Hrodna Regional Executive Committee
+        properties: 
+          - prop: position
+            value: Former Head of the Pervomaysky District Police Department of Minsk
+          - prop: position
+            value: First Deputy Head of the Internal Affairs Directorate of the Grodno/Hrodna Regional Executive Committee
+      - match: Member of the House of Representatives of the National Assembly of the Republic of Belarus, Chairperson of the Standing Commission on Law
+        properties: 
+          - prop: position
+            value: Member of the House of Representatives of the National Assembly of the Republic of Belarus
+          - prop: position
+            value: Chairperson of the Standing Commission on Law 
+      - match: Member of the Chamber of Representatives, Chair of the Committee on Human Rights and Media
+        properties: 
+          - prop: position
+            value: Member of the Chamber of Representatives
+          - prop: position
+            value: Chair of the Committee on Human Rights and Media
+      - match: Chair of the Belarusian political organisation Belaya Rus
+        properties: 
+          - prop: position
+            value: Chair of the Belarusian political organisation Belaya Rus
+      - match: Judge at the Leninsky District Court in Minsk
+        properties: 
+          - prop: position
+            value: Judge at the Leninsky District Court in Minsk
+      - match: First Deputy Head of the Main Investigation Department, Investigative Committee
+        properties: 
+          - prop: position
+            value: First Deputy Head of the Main Investigation Department, Investigative Committee
+      - match: Deputy Prosecutor General of the Republic of Belarus, State Counselor of Justice of the 3rd class
+        properties: 
+          - prop: position
+            value: Deputy Prosecutor General of the Republic of Belarus
+          - prop: position
+            value: State Counselor of Justice of the 3rd class
+      - match: Senior Investigator of the Frunzensky District Department of the Investigative Committee
+        properties: 
+          - prop: position
+            value: Senior Investigator of the Frunzensky District Department of the Investigative Committee
+      - match: Deputy Head of the Oktyabrsky District Police Department of Minsk (Until Dec 17 2020). From Dec 17 2020 - the Head of the Partizanski District Police Department of Minsk
+        properties: 
+          - prop: position
+            value: Head of the Partizanski District Police Department of Minsk
+          - prop: description
+            value: Deputy Head of the Oktyabrsky District Police Department of Minsk (Until Dec 17 2020). From Dec 17 2020 - the Head of the Partizanski District Police Department of Minsk
+      - match: Head of Akrestina Temporary Detention Centre
+        properties: 
+          - prop: position
+            value: Head of Akrestina Temporary Detention Centre
+      - match: Chief of the Main Staff, First Deputy Commander of the Air Force
+        properties: 
+          - prop: position
+            value: Chief of the Main Staff, First Deputy Commander of the Air Force
+      - match: Senior Police Sergeant of the Akrestina Offenders' Isolation Centre
+        properties: 
+          - prop: position
+            value: Senior Police Sergeant of the Akrestina Offenders' Isolation Centre
+      - match: Head of Investigation Team, Main Investigation Department, Investigative Committee
+        properties: 
+          - prop: position
+            value: Head of Investigation Team, Main Investigation Department, Investigative Committee
+      - match: Head of Akrestina isolation centre for offenders
+        properties: 
+          - prop: position
+            value: Head of Akrestina isolation centre for offenders
+      - match: Head of the Investigation team of the Investigative Committee
+        properties: 
+          - prop: position
+            value: Head of the Investigation team of the Investigative Committee
+      - match: First Deputy Head of the Presidential Administration
+        properties: 
+          - prop: position
+            value: First Deputy Head of the Presidential Administration
+      - match: Head of the Prison No. 8 in Zhodino
+        properties: 
+          - prop: position
+            value: Head of the Prison No. 8 in Zhodino
+      - match: Head of the Main Investigation Department, Central Office of Investigative Committee
+        properties: 
+          - prop: position
+            value: Head of the Main Investigation Department, Central Office of Investigative Committee
+      - match: Prosecutor at the Minsk City Prosecutor’s Office, former Assistant Prosecutor at the Frunzensky District Court in Minsk
+        properties: 
+          - prop: position
+            value: Prosecutor at the Minsk City Prosecutor’s Office
+          - prop: position
+            value: Former Assistant Prosecutor at the Frunzensky District Court in Minsk
+      - match: Deputy Prosecutor General of the Republic of Belarus
+        properties: 
+          - prop: position
+            value: Deputy Prosecutor General of the Republic of Belarus
+      - match: Deputy Head of the Frunzensky District Police Department of Minsk
+        properties: 
+          - prop: position
+            value: Deputy Head of the Frunzensky District Police Department of Minsk
+      - match: Former Head of the Oktyabrskiy District Police Department of Minsk, Head of the Directorate of internal security of the State Forensic Examination Committee
+        properties: 
+          - prop: position
+            value: Former Head of the Oktyabrskiy District Police Department of Minsk
+          - prop: position
+            value: Head of the Directorate of internal security of the State Forensic Examination Committee
+      - match: Head of Moskovski District Police Department of Minsk, former Deputy Head of the Zavodsky District Police Department of Minsk
+        properties: 
+          - prop: position
+            value: Head of Moskovski District Police Department of Minsk
+          - prop: position
+            value: Former Deputy Head of the Zavodsky District Police Department of Minsk
+      - match: Head of the Directorate of Sentence Enforcement of the Penal Correction Department of the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Head of the Directorate of Sentence Enforcement of the Penal Correction Department of the Ministry of Internal Affairs
+      - match: First Deputy Minister of Education, former Rector of the Brest State Technical University
+        properties: 
+          - prop: position
+            value: First Deputy Minister of Education
+          - prop: position
+            value: Former Rector of the Brest State Technical University
+      - match: Deputy Chairman of the of the Oktyabrsky District Court of Minsk
+        properties: 
+          - prop: position
+            value: Deputy Chairman of the of the Oktyabrsky District Court of Minsk
+      - match: Deputy Chairman of the Leninsky District Court of Brest, former Judge of the Leninsky District Court of Brest
+        properties: 
+          - prop: position
+            value: Deputy Chairman of the Leninsky District Court of Brest
+          - prop: position
+            value: Former Judge of the Leninsky District Court of Brest
+      - match: Deputy Head of the Leninsky District Police Department
+        properties: 
+          - prop: position
+            value: Deputy Head of the Leninsky District Police Department
+      - match: Chairman of the Investigative Committee of Belarus (appointed on 11 Mar 2021)
+        properties: 
+          - prop: position
+            value: Chairman of the Investigative Committee of Belarus
+          - prop: description
+            value: Chairman of the Investigative Committee of Belarus (appointed on 11 Mar 2021)
+      - match: Former Deputy Prosecutor General of the Republic of Belarus (until 11 Mar 2021)
+        properties: 
+          - prop: position
+            value: Former Deputy Prosecutor General of the Republic of Belarus
+          - prop: description
+            value: Former Deputy Prosecutor General of the Republic of Belarus (until 11 Mar 2021)
+      - match: Rector of the Belarusian State Academy of Arts (BSAA)
+        properties: 
+          - prop: position
+            value: Rector of the Belarusian State Academy of Arts (BSAA)
+      - match: Judge of the Minsk City Court, former judge at the Fruzensky district court in Minsk
+        properties: 
+          - prop: position
+            value: Judge of the Minsk City Court
+          - prop: position
+            value: Former judge at the Fruzensky district court in Minsk
+      - match: Deputy Head of the Akrestina Temporary Detention Centre
+        properties: 
+          - prop: position
+            value: Deputy Head of the Akrestina Temporary Detention Centre
+      - match: Former Deputy Head of the Penal Correction Department of the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Former Deputy Head of the Penal Correction Department of the Ministry of Internal Affairs
+      - match: Deputy Head of the Pervomaisky Police District in Minsk
+        properties: 
+          - prop: position
+            value: Deputy Head of the Pervomaisky Police District in Minsk
+      - match: Head, and former Deputy Head, of the Frunzensky District Police Department of Minsk
+        properties: 
+          - prop: position
+            value: Head of the Frunzensky District Police Department of Minsk
+          - prop: position
+            value: Former Deputy Head of the Frunzensky District Police Department of Minsk
+      - match: Judge of the Moskovsky District Court of Minsk
+        properties: 
+          - prop: position
+            value: Judge of the Moskovsky District Court of Minsk
+      - match: Rector of the Belarusian State Medical University
+        properties: 
+          - prop: position
+            value: Rector of the Belarusian State Medical University
+      - match: Head of the Rear Support Department at the Ministry of Internal Affairs of Belarus, former Deputy Head of the Penal Correction Department of the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Head of the Rear Support Department at the Ministry of Internal Affairs of Belarus
+          - prop: position
+            value: Former Deputy Head of the Penal Correction Department of the Ministry of Internal Affairs
+      - match: Deputy Head of the Akrestina Temporary Detention Centre
+        properties: 
+          - prop: position
+            value: Deputy Head of the Akrestina Temporary Detention Centre
+      - match: Head of the Zavodsky District Police Department of Minsk
+        properties: 
+          - prop: position
+            value: Head of the Zavodsky District Police Department of Minsk
+      - match: Judge of the Pervomaisky District Court of Minsk
+        properties: 
+          - prop: position
+            value: Judge of the Pervomaisky District Court of Minsk
+      - match: Former Lieutenant General and Chairman of the State Border Committee of the Republic of Belarus (appointed on 29 Dec 2016), Chief State Border Delegate
+        properties: 
+          - prop: position
+            value: Former Lieutenant General and Chairman of the State Border Committee of the Republic of Belarus
+          - prop: position
+            value: Chief State Border Delegate
+          - prop: description
+            value: Former Lieutenant General and Chairman of the State Border Committee of the Republic of Belarus (appointed on 29 Dec 2016), Chief State Border Delegate
+      - match: Deputy Chairman of the State Control Committee, Director of the Financial Investigations Department of the State Control Committee
+        properties: 
+          - prop: position
+            value: Deputy Chairman of the State Control Committee
+          - prop: position
+            value: Director of the Financial Investigations Department of the State Control Committee
+      - match: Major General of Financial Police
+        properties: 
+          - prop: position
+            value: Major General of Financial Police
+      - match: Director of the Republican Unitary Enterprise ‘Brest Center for Standardization, Metrology and Certification’, former Deputy Director of the Financial Investigations Department of the State Control Committee of the Republic of Belarus
+        properties: 
+          - prop: position
+            value: Director of the Republican Unitary Enterprise ‘Brest Center for Standardization, Metrology and Certification’
+          - prop: position
+            value: Former Deputy Director of the Financial Investigations Department of the State Control Committee of the Republic of Belarus
+      - match: Colonel of the Financial Police
+        properties: 
+          - prop: position
+            value: Colonel of the Financial Police
+      - match: Judge at the Supreme Court of the Republic of Belarus
+        properties: 
+          - prop: position
+            value: Judge at the Supreme Court of the Republic of Belarus
+      - match: Head of Separate Service for Active Measures (ASAM) of the Special Forces of the State Border Committee
+        properties: 
+          - prop: position
+            value: Head of Separate Service for Active Measures (ASAM) of the Special Forces of the State Border Committee
+      - match: Senior Prosecutor of the Department of Public Prosecution of the General Prosecutor’s Office
+        properties: 
+          - prop: position
+            value: Senior Prosecutor of the Department of Public Prosecution of the General Prosecutor’s Office
+      - match: Judge at the Supreme Court of the Republic of Belarus
+        properties: 
+          - prop: position
+            value: Judge at the Supreme Court of the Republic of Belarus
+      - match: Judge at the Minsk Regional Court
+        properties: 
+          - prop: position
+            value: Judge at the Minsk Regional Court
+      - match: Head of the Department of Information and Digital Diplomacy (spokesperson) of the Ministry of Foreign Affairs of Belarus
+        properties: 
+          - prop: position
+            value: Head of the Department of Information and Digital Diplomacy (spokesperson) of the Ministry of Foreign Affairs of Belarus
+      - match: Head of the Brest Border Group, former Head of the Smorgon Border Group, Military Unit 2044 (appointed in March 2018), State Border Delegate
+        properties: 
+          - prop: position
+            value: Head of the Brest Border Group
+          - prop: position
+            value: Former Head of the Smorgon Border Group, Military Unit 2044
+          - prop: position
+            value: State Border Delegate
+          - prop: description
+            value: Head of the Brest Border Group, former Head of the Smorgon Border Group, Military Unit 2044 (appointed in March 2018), State Border Delegate
+      - match: Colonel, Head of the Lida Border Detachment, Military Unit 1234 (appointed on 27 Sep 2016), State Border Delegate
+        properties: 
+          - prop: title
+            value: Colonel
+          - prop: position
+            value: Head of the Lida Border Detachment, Military Unit 1234
+          - prop: position
+            value: State Border Delegate
+          - prop: description
+            value: Colonel, Head of the Lida Border Detachment, Military Unit 1234 (appointed on 27 Sep 2016), State Border Delegate
+      - match: Member of Lida District Council of Deputies of the 28th convocation (took office on 2 Feb 2018)
+        properties: 
+          - prop: position
+            value: Member of Lida District Council of Deputies of the 28th convocation
+          - prop: description
+            value: Member of Lida District Council of Deputies of the 28th convocation (took office on 2 Feb 2018)
+      - match: Colonel, Deputy Chairman of the State Border Committee, former Head of the Brest Border Group
+        properties: 
+          - prop: title
+            value: Colonel
+          - prop: position
+            value: Deputy Chairman of the State Border Committee
+          - prop: position
+            value: Former Head of the Brest Border Group
+      - match: Judge at the Central District of the City of Minsk Court
+        properties: 
+          - prop: position
+            value: Judge at the Central District of the City of Minsk Court
+      - match: 'Chairman of the Management Board of State-controlled TV channel ONT, host of the “Markov: Nothing Personal” programme'
+        properties: 
+          - prop: position
+            value: Chairman of the Management Board of State-controlled TV channel ONT
+          - prop: position
+            value: 'Host of the “Markov: Nothing Personal” programme'
+      - match: Head of the Polotsk Border Detachment
+        properties: 
+          - prop: position
+            value: Head of the Polotsk Border Detachment
+      - match: Colonel, Chairman of the State Border Committee, former Head of the Grodno Border Group (appointed on 1 Oct 2014), Military Unit 2141, State Border Delegate
+        properties: 
+          - prop: title
+            value: Colonel
+          - prop: position
+            value: Chairman of the State Border Committee
+          - prop: position
+            value: Former Head of the Grodno Border Group
+          - prop: description
+            value: Colonel, Chairman of the State Border Committee, former Head of the Grodno Border Group (appointed on 1 Oct 2014), Military Unit 2141, State Border Delegate
+      - match: Judge of the Judicial Collegium for Civil Cases at the Supreme Court
+        properties: 
+          - prop: position
+            value: Judge of the Judicial Collegium for Civil Cases at the Supreme Court
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
           - other_schema: Company
