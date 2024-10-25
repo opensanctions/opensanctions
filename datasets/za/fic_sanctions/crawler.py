@@ -41,9 +41,13 @@ def clean_passports(context: Context, text: str) -> List[str]:
     return passports, ids
 
 
+
+# def crawl_person(context: Context, data: Dict[str, str]):
+
+
 def crawl_row(context: Context, data: Dict[str, str]):
     entity = context.make("LegalEntity")
-    full_name = data.pop("FullName")
+    full_name = data.pop("FullName", None)
     ind_id = data.pop("INDIVIDUAL_Id", data.pop("IndividualID"))
     entity.id = context.make_slug(ind_id, full_name)
     assert entity.id, data
@@ -62,19 +66,15 @@ def crawl_row(context: Context, data: Dict[str, str]):
         for a in h.multi_split(alias, [", ", "Good", "Low"]):
             entity.add("alias", a)
 
-    passports, ids = clean_passports(context, data.pop("PASSPORTS", ""))
-    entity.add_cast("Person", "passportNumber", passports)
-    entity.add_cast("Person", "idNumber", ids)
     passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
     entity.add_cast("Person", "passportNumber", passports)
     entity.add_cast("Person", "idNumber", ids)
 
     sanction = h.make_sanction(context, entity)
-    inserted_at = parse_date(data.pop("DateInserted", None))
-    listed_on = data.pop("ListedON", data.pop("ListedOn", None))
+    listed_on = data.pop("ListedOn", None)
     listed_at = parse_date(listed_on)
-    entity.add("createdAt", inserted_at or listed_at)
-    sanction.add("listingDate", listed_at or inserted_at)
+    entity.add("createdAt", listed_at)
+    sanction.add("listingDate", listed_at)
     sanction.add("unscId", data.pop("ReferenceNumber", None))
 
     entity.add("topics", "sanction")
@@ -101,3 +101,11 @@ def crawl(context: Context):
                 continue
             data[field.tag] = value
         crawl_row(context, data)
+    # for row in doc.findall(".//Table1"):
+    #     data = {}
+    #     for field in row.getchildren():
+    #         value = field.text
+    #         if value == "NA":
+    #             continue
+    #         data[field.tag] = value
+    #     crawl_row(context, data)
