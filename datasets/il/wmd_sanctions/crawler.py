@@ -132,7 +132,7 @@ def crawl_row(context: Context, row: Dict):
 
     if "iri" in serial_no.lower() or "pi" in serial_no.lower():
         entity = context.make("Person")
-        entity.id = context.make_id("Person", f"{record_id}-{serial_no}")
+        entity.id = context.make_id("Person", serial_no, names_string)
         entity.add("passportNumber", extract_passport_no(passport))
         entity.add("nationality", nationality)
         h.apply_dates(
