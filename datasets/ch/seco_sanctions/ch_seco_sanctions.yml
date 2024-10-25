@@ -2514,6 +2514,132 @@ lookups:
         properties: 
           - prop: position
             value: Gomel Regional Court, Judge
+      - match: Former head of the Penal Colony IK-17 Shklov, Lieutenant Colonel of the Internal Service
+        properties: 
+          - prop: position
+            value: Former head of the Penal Colony IK-17 Shklov
+          - prop: position
+            value: Lieutenant Colonel of the Internal Service
+      - match: District Inspector, Department of Internal Affairs of the Slutsk District Executive Committee
+        properties: 
+          - prop: position
+            value: District Inspector, Department of Internal Affairs of the Slutsk District Executive Committee
+      - match: Head of Penal Colony No.°2; Lieutenant colonel of the internal service
+        properties: 
+          - prop: position
+            value: Head of Penal Colony No.°2
+          - prop: position
+            value: Lieutenant colonel of the internal service
+      - match: Judicial Collegium for Criminal Cases of the Minsk City Court, Judge
+        properties: 
+          - prop: position
+            value: Judicial Collegium for Criminal Cases of the Minsk City Court, Judge
+      - match: Head of Penal Colony No.°14 in Novosady
+        properties: 
+          - prop: position
+            value: Head of Penal Colony No.°14 in Novosady
+      - match: Former head of correctional colony No 1 in Novopolotsk
+        properties: 
+          - prop: position
+            value: Former head of correctional colony No 1 in Novopolotsk
+      - match: Senior Prosecutor of the Department of the Prosecutor General’s Office
+        properties: 
+          - prop: position
+            value: Senior Prosecutor of the Department of the Prosecutor General’s Office
+      - match: Former Deputy Head of the Municipal Department of Internal Affairs in Zhodino – Head of the Public Security Police; First Deputy Head of the District Department of Internal Affairs in Borisov – Head of the Public Security Police as of 29 Oct 2021
+        properties: 
+          - prop: position
+            value: Former Deputy Head of the Municipal Department of Internal Affairs in Zhodino – Head of the Public Security Police
+          - prop: position
+            value: First Deputy Head of the District Department of Internal Affairs in Borisov – Head of the Public Security Police as of 29 Oct 2021
+      - match: Head of the Reporters Department of the TV News Agency in National State TV channel Belarus 1 TV
+        properties: 
+          - prop: position
+            value: Head of the Reporters Department of the TV News Agency in National State TV channel Belarus 1 TV
+      - match: Judge of Court of Bobruisk District and Bobruisk
+        properties: 
+          - prop: position
+            value: Judge of Court of Bobruisk District and Bobruisk
+      - match: Judge at the Minsk Municipal Court
+        properties: 
+          - prop: position
+            value: Judge at the Minsk Municipal Court
+      - match: Judge of Glubokoye District Court
+        properties: 
+          - prop: position
+            value: Judge of Glubokoye District Court
+      - match: Deputy Chief of the Public Security Militia, Internal Affairs Directorate of the Minsk Regional Executive Committee
+        properties: 
+          - prop: position
+            value: Deputy Chief of the Public Security Militia, Internal Affairs Directorate of the Minsk Regional Executive Committee
+      - match: Director of the National Library of Belarus; former Head of the Belarus governmental society “Knowledge”, and Dean of the Faculty of Philosophy and Social Sciences of the Belarus State University, candidate of Historical Science
+        properties: 
+          - prop: position
+            value: Director of the National Library of Belarus
+          - prop: position
+            value: Former Head of the Belarus governmental society “Knowledge”
+          - prop: position
+            value: Dean of the Faculty of Philosophy and Social Sciences of the Belarus State University
+          - prop: description
+            value: Candidate of Historical Science
+      - match: Judge of Supreme Court of Belarus
+        properties: 
+          - prop: position
+            value: Judge of Supreme Court of Belarus
+      - match: Judge at the Minsk City Court
+        properties: 
+          - prop: position
+            value: Judge at the Minsk City Court
+      - match: Judge of Dokshitsy District Court
+        properties: 
+          - prop: position
+            value: Judge of Dokshitsy District Court
+      - match: Judge at Navapolatsk City Court
+        properties: 
+          - prop: position
+            value: Judge at Navapolatsk City Court
+      - match: Judge of Mazyr District Court
+        properties: 
+          - prop: position
+            value: Judge of Mazyr District Court
+      - match: Major and head of the regime department of Penal Colony No 17 Shklow
+        properties: 
+          - prop: position
+            value: Major and head of the regime department of Penal Colony No 17 Shklow
+      - match: Judge of Leninsky district court of Hrodna/Grodno
+        properties: 
+          - prop: position
+            value: Judge of Leninsky district court of Hrodna/Grodno
+      - match: Judge of the court of the Bobruisk region and the city of Bobruisk
+        properties: 
+          - prop: position
+            value: Judge of the court of the Bobruisk region and the city of Bobruisk
+      - match: Host of the “Senate” television programme on the STV (СТВ) channel; chairman of the Youth Council (Youth Parliament at the National Assembly of the Republic of Belarus); member of the Youth Chamber commission on tourism and environment at the Parliamentary Assembly of the Union State of Belarus and Russia; chairman of the youth civic alliance Moving Forward
+        properties: 
+          - prop: position
+            value: Host of the “Senate” television programme on the STV (СТВ) channel
+          - prop: position
+            value: Chairman of the Youth Council (Youth Parliament at the National Assembly of the Republic of Belarus)
+          - prop: position
+            value: Member of the Youth Chamber commission on tourism and environment at the Parliamentary Assembly of the Union State of Belarus and Russia
+          - prop: position
+            value: Chairman of the youth civic alliance Moving Forward
+      - match: Judge of the Minsk Regional Court
+        properties: 
+          - prop: position
+            value: Judge of the Minsk Regional Court
+      - match: Deputy head of the Department of State Prosecution of the Office for Supervision of Compliance with the Law of Court Decisions in Criminal Cases, Prosecutor General’s Office
+        properties: 
+          - prop: position
+            value: Deputy head of the Department of State Prosecution of the Office for Supervision of Compliance with the Law of Court Decisions in Criminal Cases, Prosecutor General’s Office
+      - match: Judge of the Zhlobinsky District Court of the Gomel Region
+        properties: 
+          - prop: position
+            value: Judge of the Zhlobinsky District Court of the Gomel Region
+      - match: Deputy head of the Main Department for Combating Organised Crime and Corruption (GUBOPiK) of the Ministry of Internal Affairs
+        properties: 
+          - prop: position
+            value: Deputy head of the Main Department for Combating Organised Crime and Corruption (GUBOPiK) of the Ministry of Internal Affairs
       - match: Businessman, shareholder and former head of Synesis LLC
         relations: 
           - other_schema: Company
