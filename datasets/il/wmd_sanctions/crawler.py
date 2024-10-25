@@ -133,7 +133,6 @@ def crawl_row(context: Context, row: Dict):
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("authority", row.pop("originally_declared_by"), lang="he")
     h.apply_dates(
         sanction, "startDate", clean_date(row.pop("isreal_temp_adoption_date"))
     )
@@ -141,7 +140,7 @@ def crawl_row(context: Context, row: Dict):
 
     context.emit(entity, target=True)
     context.emit(sanction)
-    context.audit_data(row, ignore=["declaration_date"])
+    context.audit_data(row, ignore=["declaration_date", "originally_declared_by"])
 
 
 def unblock_validator(doc):
