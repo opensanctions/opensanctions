@@ -1,4 +1,4 @@
-from typing import Dict, Optional, List
+from typing import Dict, List
 import re
 
 from zavod import Context
@@ -38,16 +38,8 @@ ADDRESS_SPLITS = [
     "iii)",
     "ii)",
     "i)",
+    "(Formerly located at)"
 ]
-
-
-def parse_date(date: Optional[str]) -> List[str]:
-    if date is None:
-        return []
-    dates = set()
-    for dp in h.multi_split(date, [", "]):
-        dates.update(h.parse_date(dp[:10], ["%d-%m-%Y", "%Y-%m-%d", "%Y-%m"]))
-    return list(dates)
 
 
 def clean_passports(context: Context, text: str) -> List[str]:
@@ -94,8 +86,8 @@ def crawl_row(context: Context, data: Dict[str, str]):
         entity.add("title", data.pop("Title", None))
         entity.add("position", data.pop("Designation", None))
         entity.add("birthPlace", data.pop("IndividualPlaceOfBirth", None))
-        dob = parse_date(data.pop("IndividualDateOfBirth", None))
-        entity.add("birthDate", dob)
+        dob = data.pop("IndividualDateOfBirth", None)
+        h.apply_date(entity, "birthDate", dob)
 
         aliases = data.pop("IndividualAlias", None)
         for alias in h.multi_split(aliases, [", ", "Good", "Low"]):
@@ -120,9 +112,10 @@ def crawl_row(context: Context, data: Dict[str, str]):
 
     sanction = h.make_sanction(context, entity)
     listed_on = data.pop("ListedOn", None)
-    listed_at = parse_date(listed_on)
-    entity.add("createdAt", listed_at)
-    sanction.add("listingDate", listed_at)
+    #entity.add("createdAt", listed_on)
+    h.apply_date(entity, "createdAt", listed_on) # do we want it to be set to the listingDate?
+    h.apply_date(sanction, "listingDate", listed_on)
+
     sanction.add("unscId", data.pop("ReferenceNumber", None))
 
     entity.add("topics", "sanction")
