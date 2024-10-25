@@ -6,35 +6,40 @@ from zavod import helpers as h
 
 
 REGEX_PASSPORT = re.compile(r"^[A-Z0-9-]{6,20}$")
-ALIAS_SPLITS = ["a.k.a.,", 
-                "f.k.a.,", 
-                "; ", 
-                "f.k.a,", 
-                "f.n.a.,", 
-                "Formerly known as,", 
-                " Good,", 
-                "Formerly Known As,"]
-ADDRESS_SPLITS = ["Branch Office 1:", 
-                  "Branch Office 2:", 
-                  "Branch Office 3:", 
-                  "Branch Office 4:", 
-                  "Branch Office 5:", 
-                  "Branch Office 6:", 
-                  "Branch Office 7:", 
-                  "Branch Office 8:", 
-                  "Branch Office 9:", 
-                  "Branch Office 10:", 
-                  "Branch Office 11:",
-                  "Branch Office 12:",
-                  "Branch Office 13:",
-                  "Branch Office 14:",
-                  "Branch Office 15:",
-                  "Branch Office 16:",
-                  "v)",
-                  "iv)",
-                  "iii)",
-                  "ii)",
-                  "i)",]
+ALIAS_SPLITS = [
+    "a.k.a.,",
+    "f.k.a.,",
+    "; ",
+    "f.k.a,",
+    "f.n.a.,",
+    "Formerly known as,",
+    " Good,",
+    "Formerly Known As,",
+]
+ADDRESS_SPLITS = [
+    "Branch Office 1:",
+    "Branch Office 2:",
+    "Branch Office 3:",
+    "Branch Office 4:",
+    "Branch Office 5:",
+    "Branch Office 6:",
+    "Branch Office 7:",
+    "Branch Office 8:",
+    "Branch Office 9:",
+    "Branch Office 10:",
+    "Branch Office 11:",
+    "Branch Office 12:",
+    "Branch Office 13:",
+    "Branch Office 14:",
+    "Branch Office 15:",
+    "Branch Office 16:",
+    "v)",
+    "iv)",
+    "iii)",
+    "ii)",
+    "i)",
+]
+
 
 def parse_date(date: Optional[str]) -> List[str]:
     if date is None:
@@ -105,12 +110,14 @@ def crawl_row(context: Context, data: Dict[str, str]):
             address = address.rstrip(",")
             entity.add("address", address)
         aliases = data.pop("EntityAlias", None)
-        for alias in h.multi_split(aliases, ALIAS_SPLITS): 
-            alias = alias.rstrip(",")  # if we split on a comma, we will separate ", LTD" from the name
+        for alias in h.multi_split(aliases, ALIAS_SPLITS):
+            alias = alias.rstrip(
+                ","
+            )  # if we split on a comma, we will separate ", LTD" from the name
             if "?" in alias:
                 continue
             entity.add("alias", alias)
- 
+
     sanction = h.make_sanction(context, entity)
     listed_on = data.pop("ListedOn", None)
     listed_at = parse_date(listed_on)
