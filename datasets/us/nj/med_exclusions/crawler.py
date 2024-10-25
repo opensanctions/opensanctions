@@ -1,34 +1,7 @@
-from pathlib import Path
 from typing import Dict
 from rigour.mime.types import PDF
 
-import pdfplumber
-from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
-
-
-def parse_pdf_table(
-    context: Context, path: Path, save_debug_images=False, headers=None
-):
-    pdf = pdfplumber.open(path.as_posix())
-    settings = {}
-    for page_num, page in enumerate(pdf.pages, 1):
-        # Find the bottom of the bottom-most rectangle on the page
-        bottom = max(page.height - rect["y0"] for rect in page.rects)
-        settings["explicit_horizontal_lines"] = [bottom]
-        if save_debug_images:
-            im = page.to_image()
-            im.draw_hline(bottom, stroke=(0, 0, 255), stroke_width=1)
-            im.draw_rects(page.find_table(settings).cells)
-            im.save(f"page-{page_num}.png")
-        assert bottom < (page.height - 5), (bottom, page.height)
-
-        for row in page.extract_table(settings)[1:]:
-            if headers is None:
-                headers = [slugify(collapse_spaces(cell), sep="_") for cell in row]
-                continue
-            assert len(headers) == len(row), (headers, row)
-            yield dict(zip(headers, row))
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -37,7 +10,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         context,
         street=row.pop("street"),
         city=row.pop("city"),
-        state=row.pop("state"),
+        state=row.pop("sta_te"),
         country_code="US",
         postal_code=row.pop("zip"),
     )
@@ -55,9 +28,11 @@ def crawl_item(row: Dict[str, str], context: Context):
     for npi in row.pop("npi_number").split("/"):
         entity.add("npiCode", npi)
     entity.add("country", "us")
-    entity.add("address", address)
+    h.apply_address(context, entity, address)
+    h.copy_address(entity, address)
 
-    sanction = h.make_sanction(context, entity)
+    sanction_key = f"{row.get('effective_date')}-{row.get('action')}"
+    sanction = h.make_sanction(context, entity, key=sanction_key)
     sanction.add("provisions", row.pop("action"))
 
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
@@ -79,20 +54,5 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", context.data_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
-    for item in parse_pdf_table(
-        context,
-        path,
-        headers=[
-            "provider_name",
-            "title",
-            "npi_number",
-            "street",
-            "city",
-            "state",
-            "zip",
-            "action",
-            "effective_date",
-            "expiration_date",
-        ],
-    ):
+    for item in h.parse_pdf_table(path, headers_per_page=True):
         crawl_item(item, context)

@@ -43,7 +43,7 @@ def parse_pdf_table(
     page_settings: Callable[[Page], Dict] = None,
 ) -> Generator[Dict[str, str], None, None]:
     """
-    Parse the largest table on each page of a PDF file and yield its rows as dictionaries.
+    Parse the largest table on each page of a PDF file and yield their rows as dictionaries.
 
     Multiline header values are slugified like  "first_row-second_row".
 
@@ -51,8 +51,10 @@ def parse_pdf_table(
         path: Path to the PDF file.
         save_debug_images: Save a PNG image of each page.
         headers_per_page: Set to true if the headers are repeated on each page.
-        page_settings: A function that takes a `pdfplumber.Page` object and returns a
-            dictionary of settings for `extract_table`.
+        preserve_header_newlines: Don't slugify newlines in headers -
+            e.g. for when the line breaks are meaningful.
+        page_settings: A function that takes a `pdfplumber.page.Page` object and returns
+            a dictionary of settings for `extract_table`.
     """
     pdf = pdfplumber.open(path)
     headers = None
