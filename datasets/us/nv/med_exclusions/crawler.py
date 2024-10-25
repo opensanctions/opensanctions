@@ -1,8 +1,6 @@
-from pathlib import Path
 from typing import Dict
-from normality import collapse_spaces, slugify
 from rigour.mime.types import PDF
-import pdfplumber
+from pdfplumber.page import Page
 
 from zavod import Context, helpers as h
 
@@ -83,27 +81,11 @@ def crawl_item(row: Dict[str, str], context: Context):
     )
 
 
-def parse_pdf_table(context: Context, path: Path, save_debug_images=False):
-    pdf = pdfplumber.open(path.as_posix())
-    settings = {}
-    for page_num, page in enumerate(pdf.pages, 1):
-        # Find the bottom of the bottom-most rectangle on the page
-        bottom = max(page.height - rect["y0"] for rect in page.rects)
-        settings["explicit_horizontal_lines"] = [bottom]
-        if save_debug_images:
-            im = page.to_image()
-            im.draw_hline(bottom, stroke=(0, 0, 255), stroke_width=1)
-            im.draw_rects(page.find_table(settings).cells)
-            im.save(f"page-{page_num}.png")
-        assert bottom < (page.height - 5), (bottom, page.height)
-
-        headers = None
-        for row in page.extract_table(settings):
-            if headers is None:
-                headers = [slugify(collapse_spaces(cell), sep="_") for cell in row]
-                continue
-            assert len(headers) == len(row), (headers, row)
-            yield dict(zip(headers, row))
+def page_settings(page: Page):
+    # Find the bottom of the bottom-most rectangle on the page
+    bottom = max(page.height - rect["y0"] for rect in page.rects)
+    assert bottom < (page.height - 5), (bottom, page.height)
+    return {"explicit_horizontal_lines": [bottom]}
 
 
 def crawl_pdf_url(context: Context):
@@ -116,5 +98,8 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", crawl_pdf_url(context))
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
-    for item in parse_pdf_table(context, path):
+    for item in h.parse_pdf_table(
+        path, headers_per_page=True, page_settings=page_settings
+    ):
+        print
         crawl_item(item, context)
