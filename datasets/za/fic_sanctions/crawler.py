@@ -38,7 +38,7 @@ ADDRESS_SPLITS = [
     "iii)",
     "ii)",
     "i)",
-    "(Formerly located at)"
+    "(Formerly located at)",
 ]
 
 
@@ -112,8 +112,10 @@ def crawl_row(context: Context, data: Dict[str, str]):
 
     sanction = h.make_sanction(context, entity)
     listed_on = data.pop("ListedOn", None)
-    #entity.add("createdAt", listed_on)
-    h.apply_date(entity, "createdAt", listed_on) # do we want it to be set to the listingDate?
+    # entity.add("createdAt", listed_on)
+    h.apply_date(
+        entity, "createdAt", listed_on
+    )  # do we want it to be set to the listingDate?
     h.apply_date(sanction, "listingDate", listed_on)
 
     sanction.add("unscId", data.pop("ReferenceNumber", None))
