@@ -36,6 +36,7 @@ url: https://www.gov.il/en/pages/declared_elements_list
 data:
   url: https://www.gov.il/en/pages/declared_elements_list
   format: HTML
+ci_test: false
 
 dates:
   formats: ["%d %b %Y"]
