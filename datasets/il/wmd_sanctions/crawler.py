@@ -13,6 +13,12 @@ from zavod.shed.zyte_api import fetch_html, fetch_resource
 # ועוד ידוע: ("and also known")
 # a), b), ...
 REGEX_NAME_SPLIT = r"\b[AF]\.?K\.?A[:\.\b]|;|ידוע גם:?|ועוד ידוע:?|\b[a-z]\)"
+SKIP_ROWS = {
+    'הכרזות – איראן יחידים – סה"כ 23 גורמים מוכרזים:',
+    'הכרזות – איראן ארגונים/קבוצות – סה"כ 61 גורמים מוכרזים:',
+    'הכרזות – צפון קוריאה יחידים – סה"כ 80 גורמים מוכרזים:',
+    'הכרזות – צפון קוריאה ארגונים/קבוצות – סה"כ 75 גורמים מוכרזים:',
+}
 
 
 def extract_passport_no(text: str):
@@ -86,9 +92,14 @@ def apply_names(context: Context, entity: Entity, names_string: str) -> None:
         h.apply_name(entity, full=alias, alias=True)
 
 
-def parse_sheet_row(context: Context, row: Dict):
+def crawl_row(context: Context, row: Dict):
     record_id = row.pop("record_id")
     if not record_id.isnumeric():  # not a record
+        if record_id not in SKIP_ROWS:
+            context.log.warning(
+                "Skipping unexpected row that doesn't look like a record",
+                record_id=record_id,
+            )
         return
 
     other_info = row.pop("other_info")
@@ -179,10 +190,19 @@ def crawl(context: Context):
     context.export_resource(source_path, XLSX, title=context.SOURCE_TITLE)
 
     wb = openpyxl.load_workbook(source_path, read_only=True)
-    for row in h.parse_xlsx_sheet(
-        context,
-        wb.active,
-        header_lookup="columns",
-        skiprows=2,
+    for row_num, row in enumerate(
+        h.parse_xlsx_sheet(
+            context,
+            wb.active,
+            header_lookup="columns",
+            skiprows=2,
+        )
     ):
-        parse_sheet_row(context, row)
+        # Check that additional header rows are consistent with first row
+        if row["record_id"] == 'מס"ד':
+            for key, value in row.items():
+                translated_header = context.lookup_value("columns", value)
+                assert translated_header == key, (row_num, key, translated_header, value)
+            continue
+
+        crawl_row(context, row)
