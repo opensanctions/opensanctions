@@ -197,7 +197,7 @@ def crawl_item(url_info_page: str, context: Context):
 
 
 def crawl(context: Context):
-    response = context.fetch_html(context.data_url, cache_days=1)
+    response = context.fetch_html(context.data_url)
 
     # XPath to the url for the pages of each politician
     xpath_politician_page = '//div[(@class="abgeordneter row")]/*/a/@href'
