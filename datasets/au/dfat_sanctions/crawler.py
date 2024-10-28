@@ -13,7 +13,7 @@ SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 ADDRESS_SPLITS = [";", "ii) ", "iii) "]
 
 
-def clean_date(date, context):
+def clean_date(date):
     splits = [
         "a)",
         "b)",
@@ -25,16 +25,20 @@ def clean_date(date, context):
         "h)",
         "i)",
         " or ",
-        " to ",
         " and ",
+        " to ",
         "alt DOB:",
         "alt DOB",
         ";",
         ">>",
+        "Approximately",
+        "approximately",
+        "Approx",
+        "Between",
+        "circa",
+        "Circa",
     ]
-    dates = set()
-    if isinstance(date, float):
-        date = str(int(date))
+    dates = []
     if isinstance(date, datetime):
         date = date.date().isoformat()
     if isinstance(date, int):
@@ -47,7 +51,7 @@ def clean_date(date, context):
         part = part.strip().strip(",")
         if not len(part):
             continue
-        dates.update(h.parse_date(part, context.dataset.dates.formats))
+        dates.append(part)
     return dates
 
 
@@ -118,8 +122,9 @@ def parse_reference(
             entity.add("nationality", country)
         else:
             entity.add("country", country)
-        dates = clean_date(row.pop("date_of_birth"), context)
-        entity.add("birthDate", dates, quiet=True)
+        dates = clean_date(row.pop("date_of_birth"))
+        if dates != ["na"]:
+            h.apply_dates(entity, "birthDate", dates)
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
         entity.add("notes", h.clean_note(row.pop("additional_information")))
         listing_info = row.pop("listing_information")
