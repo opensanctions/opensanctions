@@ -2,7 +2,7 @@ from normality import collapse_spaces, slugify
 from pathlib import Path
 from pdfplumber.page import Page
 from tempfile import mkdtemp
-from typing import Callable, Dict, Generator, List, Optional, Tuple
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
 import pdfplumber
 import subprocess
 
@@ -32,21 +32,21 @@ def make_pdf_page_images(pdf_path: Path) -> List[Path]:
 def header_slug(text: str, preserve_newlines: bool) -> str:
     if preserve_newlines:
         rows = text.split("\n")
-        return "\n".join(slugify(row, sep="_") for row in rows)
+        return "\n".join(slugify(row, sep="_") or "" for row in rows)
     else:
-        return slugify(collapse_spaces(text), sep="_")
+        return slugify(collapse_spaces(text) or "-", sep="_") or ""
 
 
 def parse_pdf_table(
     context: Context,
     path: Path,
-    headers_per_page=False,
-    preserve_header_newlines=False,
-    start_page=1,
+    headers_per_page: bool = False,
+    preserve_header_newlines: bool = False,
+    start_page: Optional[int] = None,
     end_page: Optional[int] = None,
-    skiprows=0,
-    page_settings: Callable[[Page], Tuple[Page, Dict]] = None,
-    save_debug_images=False,
+    skiprows: int = 0,
+    page_settings: Optional[Callable[[Page], Tuple[Page, Dict[str, Any]]]] = None,
+    save_debug_images: bool = False,
 ) -> Generator[Dict[str, str], None, None]:
     """
     Parse the largest table on each page of a PDF file and yield their rows as dictionaries.
@@ -65,10 +65,23 @@ def parse_pdf_table(
             a tuple of a Page that will be used to extract a table, and a dictionary of
             settings for `extract_table`. The page could be e.g. a cropped version of the
             original.
-        save_debug_images: Save a PNG image of each page.
+
+    Pro tip:
+        Save debug images in the page settings function to help with debugging.
+
+        - https://github.com/jsvine/pdfplumber?tab=readme-ov-file#drawing-methods
+        - https://github.com/jsvine/pdfplumber?tab=readme-ov-file#visually-debugging-the-table-finder
+
+        ```
+        def settings_func(page):
+            cropped = page.crop((0, 93, page.width, page.height))
+            im = cropped.to_image()
+            im.save(f"page-{cropped.page_number}.png")
+            return (cropped, PAGE_SETTINGS)
+        ```
     """
     start_page_idx = start_page - 1 if isinstance(start_page, int) else None
-    end_page_idx = end_page - 1 if isinstance(end_page, int) else None
+    end_page_idx = end_page if isinstance(end_page, int) else None
     pdf = pdfplumber.open(path)
     headers = None
     for page in pdf.pages[start_page_idx:end_page_idx]:
@@ -83,15 +96,16 @@ def parse_pdf_table(
         else:
             settings = {}
 
-        if save_debug_images:
-            im = page.to_image()
-            im.save(f"page-{page.page_number}.png")
-
-        for row_num, row in enumerate(page.extract_table(settings)):
+        rows = page.extract_table(settings)
+        if rows is None:
+            raise Exception(f"No table found on page {page.page_number} of {path}")
+        for row_num, row in enumerate(rows):
             if headers is None:
                 if row_num < skiprows:
                     continue
-                headers = [header_slug(cell, preserve_header_newlines) for cell in row]
+                headers = [
+                    header_slug(cell or "", preserve_header_newlines) for cell in row
+                ]
                 continue
             assert len(headers) == len(row), (headers, row)
             yield dict(zip(headers, row))
