@@ -101,7 +101,9 @@ def crawl_item(item: Dict[str, str | None], context: Context):
         "Disqualified Directors by the Guernsey Financial Services Commission",
     )
 
-    end_date = h.extract_date(context.dataset, item.pop("end_of_disqualification_period"))
+    end_date = h.extract_date(
+        context.dataset, item.pop("end_of_disqualification_period")
+    )
 
     if end_date and end_date[0] < datetime.now().isoformat():
         ended = True
