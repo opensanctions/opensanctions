@@ -77,10 +77,7 @@ def crawl_prohibitions(item: Dict[str, str], context: Context):
     # Add gender if detected
     if gender:
         person.add("gender", gender)
-    person.add(
-        "birthDate",
-        h.parse_date(item.pop("birth_date"), formats=["%d %B %Y", "%d/%m/%Y"]),
-    )
+    h.apply_date(person, "birthDate", item.pop("birth_date"))
     person.add("address", address)
     if "Guernsey" in address:
         person.add("country", "gg")
@@ -104,9 +101,7 @@ def crawl_item(item: Dict[str, str | None], context: Context):
         "Disqualified Directors by the Guernsey Financial Services Commission",
     )
 
-    end_date = h.parse_date(
-        item.pop("end_of_disqualification_period"), formats=["%d.%m.%Y"]
-    )
+    end_date = h.extract_date(context.dataset, item.pop("end_of_disqualification_period"))
 
     if end_date and end_date[0] < datetime.now().isoformat():
         ended = True
@@ -115,16 +110,10 @@ def crawl_item(item: Dict[str, str | None], context: Context):
         person.add("topics", "corp.disqual")
 
     sanction = h.make_sanction(context, person)
-    sanction.add(
-        "startDate",
-        h.parse_date(item.pop("date_of_disqualification"), formats=["%d.%m.%Y"]),
-    )
+    h.apply_date(sanction, "startDate", item.pop("date_of_disqualification"))
     sanction.add("authority", item.pop("applicant_for_disqualification"))
     sanction.add("duration", item.pop("period_of_disqualification"))
-    sanction.add(
-        "endDate",
-        end_date,
-    )
+    sanction.add("endDate", end_date)
 
     context.emit(person, target=not ended)
     context.emit(sanction)

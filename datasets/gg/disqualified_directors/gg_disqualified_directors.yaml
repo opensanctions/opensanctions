@@ -31,6 +31,8 @@ data:
   url: https://www.guernseyregistry.com/article/4036/Disqualified-Directors
   format: HTML
 
+dates: 
+  formats: ["%d.%m.%Y", "%d %B %Y" , "%d/%m/%Y"]
 assertions:
   min:
     schema_entities:
