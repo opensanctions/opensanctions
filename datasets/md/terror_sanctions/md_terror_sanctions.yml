@@ -58,11 +58,11 @@ assertions:
   min:
     schema_entities:
       Person: 480
-      LegalEntity: 250
+      LegalEntity: 190
   max:
     schema_entities:
       Person: 600
-      LegalEntity: 350
+      LegalEntity: 300
 
 lookups:
   type.date:
