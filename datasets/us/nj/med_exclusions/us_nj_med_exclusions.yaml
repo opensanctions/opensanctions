@@ -1,4 +1,4 @@
-title: US New Jersey Ineligible Medicare Providers
+title: US New Jersey Ineligible Medicaid Providers
 entry_point: crawler.py
 prefix: us-mednj
 coverage:
@@ -6,16 +6,27 @@ coverage:
   start: "2024-10-03"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Medical providers deemed ineligible to participate in New Jersey State's Medicaid program.
+  Medical providers disqualified from participating in New Jersey State's Medicaid program.
 description: |
-  The New Jersey Medicaid Fraud Division maintains a list of providers
-  whose Medicaid provider agreement has been terminated. Providers listed are ineligible to receive
-  reimbursement for Medicaid services in any capacity.
+  > [The New Jersey Medicaid Fraud Division] audits and investigates health care
+  > providers, recipients, and managed care organizations (MCOs) that coordinate
+  > the provision of an individual's health care needs. MFD evaluates the care
+  > provided to Medicaid recipients and works to detect fraud, waste, and abuse
+  > in the program. The Division pursues civil and administrative enforcement
+  > actions, and, when necessary, disqualifies providers from participating in the
+  > Medicaid program.
+
+  See also the
+  [Medicaid Fraud Control Unit](https://www.njoag.gov/about/divisions-and-offices/office-of-the-insurance-fraud-prosecutor-home/medicaid-fraud-control-unit/)
+  in the New Jersey Office of the Insurance Fraud Prosecutor, and the
+  [Medical Debarment Search](https://www.nj.gov/treasury/revenue/debarment/debarsearch-medical.shtml)
+  tool at the New Jersey Treasury.
 publisher:
-  name: New Jersey Office of the Insurance Fraud Prosecutor
+  name: New Jersey Office of the State Comptroller
   description: >
-    > The OIFP serves as the focal point for all criminal, civil and administrative
-    > prosecutions of Medicaid and insurance fraud.
+    The New Jersey Office of the State Comptroller works to improve efficiency,
+    transparency, and analysis to the operation of all levels of government in
+    New Jersey. It has an Audit, Investigations, Medicaid Fraud, and Procurement division.
   acronym: OIFP
   url: https://www.njoag.gov
   official: true
