@@ -1,5 +1,4 @@
-from typing import Generator, Dict
-from lxml.etree import _Element
+from typing import Dict
 from normality import collapse_spaces
 from datetime import datetime
 from lxml import etree
@@ -9,7 +8,7 @@ from zavod import Context, helpers as h
 PROHIBITIONS_URL = "https://www.gfsc.gg/commission/enforcement/prohibitions"
 
 REGEX_DETAILS = re.compile(
-    r"^(?P<name>.*?)\s*\(?\s*[Dd]ate of Birth\s*(?P<dob>(\d{1,2}\s+[A-Za-z]+\s+\d{4}|\d{2}/\d{2}/\d{4}))\s*\)?\s+of\s+(?P<address>.*)$"
+    r"^(?P<name>.*?)\s*\(?\s*[Dd]ate of Birth\s*(?P<dob>(\d{1,2}\s+[A-Za-z]+\s+\d{4}|\d{2}/\d{2}/\d{4}))\s*\)?\s*(?:last known address\s*)?of\s+(?P<address>.*)$"
 )
 
 
