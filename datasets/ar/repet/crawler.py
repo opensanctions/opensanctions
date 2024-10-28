@@ -138,7 +138,9 @@ def crawl_persons(context: Context):
             passport.add("type", type_)
             passport.add("number", number)
             passport.add("type", doc.pop("TYPE_OF_DOCUMENT2", None))
-            h.apply_date(passport, "startDate", parse_date(doc.pop("DATE_OF_ISSUE", None)))
+            h.apply_date(
+                passport, "startDate", parse_date(doc.pop("DATE_OF_ISSUE", None))
+            )
             passport.add("country", doc.pop("ISSUING_COUNTRY", None))
             passport.add("country", doc.pop("COUNTRY_OF_ISSUE", None))
             passport.add("summary", doc.pop("NOTE", None))
