@@ -59,7 +59,7 @@ def crawl(context: Context):
 
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     last_no = 0
-    for holder in h.parse_pdf_table(path, preserve_header_newlines=True):
+    for holder in h.parse_pdf_table(context, path, preserve_header_newlines=True):
         holder = english_headers(holder)
         no = int(holder.pop("no"))
         if no != last_no + 1:

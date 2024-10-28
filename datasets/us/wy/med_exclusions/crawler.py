@@ -1,8 +1,5 @@
-from normality import collapse_spaces, slugify
-from pathlib import Path
 from rigour.mime.types import PDF
 from typing import Dict
-import pdfplumber
 import re
 
 from zavod import Context, helpers as h
@@ -10,23 +7,7 @@ from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 
 AKA_PATTERN = r"\ba\.?k\.?a[\. -]*"
-
-
-def parse_pdf_table(context: Context, path: Path):
-    headers = None
-    pdf = pdfplumber.open(path.as_posix())
-    options = {"join_y_tolerance": 100}
-    for page_num, page in enumerate(pdf.pages, 1):
-        for row_num, row in enumerate(page.extract_table(options), 1):
-            if headers is None:
-                if row_num < 2:
-                    continue
-                headers = []
-                for cell in row:
-                    headers.append(slugify(collapse_spaces(cell), sep="_"))
-                continue
-            assert len(headers) == len(row), (headers, row)
-            yield dict(zip(headers, row))
+PAGE_SETTINGS = {"join_y_tolerance": 100}
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -114,6 +95,12 @@ def crawl(context: Context) -> None:
     )
     if not cached:
         assert mediatype == PDF, mediatype
+
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-    for item in parse_pdf_table(context, path):
+    for item in h.parse_pdf_table(
+        context,
+        path,
+        skiprows=1,
+        page_settings=lambda page: (page, PAGE_SETTINGS),
+    ):
         crawl_item(item, context)

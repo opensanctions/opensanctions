@@ -85,7 +85,7 @@ def page_settings(page: Page):
     # Find the bottom of the bottom-most rectangle on the page
     bottom = max(page.height - rect["y0"] for rect in page.rects)
     assert bottom < (page.height - 5), (bottom, page.height)
-    return {"explicit_horizontal_lines": [bottom]}
+    return page, {"explicit_horizontal_lines": [bottom]}
 
 
 def crawl_pdf_url(context: Context):
@@ -99,7 +99,9 @@ def crawl(context: Context) -> None:
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
     for item in h.parse_pdf_table(
-        path, headers_per_page=True, page_settings=page_settings
+        context,
+        path,
+        headers_per_page=True,
+        page_settings=page_settings,
     ):
-        print
         crawl_item(item, context)

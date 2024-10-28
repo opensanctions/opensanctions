@@ -54,5 +54,5 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", context.data_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
-    for item in h.parse_pdf_table(path, headers_per_page=True):
+    for item in h.parse_pdf_table(context, path, headers_per_page=True):
         crawl_item(item, context)
