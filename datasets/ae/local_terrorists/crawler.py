@@ -1,4 +1,6 @@
 import xlrd
+import re
+
 from typing import List, Optional
 from pathlib import Path
 from normality import collapse_spaces
@@ -7,6 +9,12 @@ from rigour.mime.types import XLS
 
 from zavod import Context
 from zavod import helpers as h
+
+
+DATES = [
+    re.compile(r"رفع الإدراج بموجب قرار مجلس الوزراء رقم \(\d+\) لسنة (\d{4})"),
+    re.compile(r"مدرج بموجب قرار مجلس الوزراء رقم \(\d+\) لسنة (\d{4})"),
+]
 
 
 def parse_row(
@@ -27,7 +35,7 @@ def parse_row(
         if header in ["index", "issuer"]:
             continue
         if type_ == "date":
-            value = h.parse_date(value, ["%d/%m/%Y"])
+            value = h.extract_date(context.dataset, value)
         if header == "category":
             schema = context.lookup_value("categories", value)
             if schema is None:
@@ -36,6 +44,10 @@ def parse_row(
                 entity.add_schema(schema)
             continue
         if header in ("program", "listingDate", "endDate", "provisions"):
+            for date in DATES:
+                match = date.match(value[0])
+                if match is not None:
+                    value = match.group(1)
             sanction.add(header, value, lang=lang)
             continue
         if header in ["city", "country", "street"]:
