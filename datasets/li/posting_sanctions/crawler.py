@@ -1,7 +1,6 @@
 import re
-import pdfplumber
-from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional, Tuple
+from pdfplumber.page import Page
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -101,40 +100,31 @@ def crawl_named(
     return company
 
 
-def extract_rows(path: Path) -> List[Dict[str, str]]:
-    pdf = pdfplumber.open(path.as_posix())
+def page_settings(page: Page) -> Tuple[Page, Dict]:
+    cropped = page.crop((0, 50, page.width, page.height - 10))
     settings = {
         "vertical_strategy": "lines",
         "horizontal_strategy": "lines",
         "text_tolerance": 1,
     }
-    headers: Optional[List[str]] = None
-    rows: List[Dict[str, str]] = []
-    for page in pdf.pages:
-        cropped = page.crop((0, 50, page.width, page.height - 10))
-        for row in cropped.extract_table(settings):
-            if headers is None:
-                headers = row
-                continue
-            rows.append({k: v for k, v in zip(headers, row)})
-    return rows
+    return cropped, settings
 
 
 def crawl_debarments(context: Context) -> None:
     path = context.fetch_resource("sperren.pdf", DEBARMENT_URL)
-    for row in extract_rows(path):
+    for row in h.parse_pdf_table(context, path, page_settings=page_settings):
         if len(row) != 5:
             continue
-        address = parse_address(context, row.pop("Adresse"))
-        name = row.pop("Betrieb")
-        effective = row.pop("In Rechtskraft")
-        end = row.pop("Ende der Sperre")
+        address = parse_address(context, row.pop("adresse"))
+        name = row.pop("betrieb")
+        effective = row.pop("in_rechtskraft")
+        end = row.pop("ende_der_sperre")
         entity = crawl_named(
             context, name, address, effective, DEBARMENT_URL, "Debarment"
         )
         if entity is None:
             continue
-        violation = row.pop("Verstoss")
+        violation = row.pop("verstoss")
         sanction = h.make_sanction(context, entity)
         sanction.id = context.make_id(
             "Sanction", "Debarment", entity.id, violation, effective, end
@@ -159,20 +149,20 @@ def crawl_debarments(context: Context) -> None:
 
 def crawl_infractions(context: Context) -> None:
     path = context.fetch_resource("uebertretungen.pdf", INFRACTION_URL)
-    for row in extract_rows(path):
+    for row in h.parse_pdf_table(context, path, page_settings=page_settings):
         if len(row) != 4:
             context.log.warn(f"Cannot split row: {row}")
             continue
-        address = parse_address(context, row.pop("Adresse"))
-        effective = row.pop("In Rechtskraft")
-        name = row.pop("Betrieb/ verantwortliche natürliche Person")
+        address = parse_address(context, row.pop("adresse"))
+        effective = row.pop("in_rechtskraft")
+        name = row.pop("betrieb_verantwortliche_naturliche_person")
         entity = crawl_named(
             context, name, address, effective, INFRACTION_URL, "Infraction"
         )
         if entity is None:
             continue
         entity.add("topics", "reg.warn")
-        violation = row.pop("Verstoss")
+        violation = row.pop("verstoss")
         sanction = h.make_sanction(context, entity)
         sanction.id = context.make_id(
             "Sanction", "Penalty", entity.id, violation, effective
