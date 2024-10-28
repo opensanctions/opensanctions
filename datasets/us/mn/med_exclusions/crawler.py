@@ -41,12 +41,12 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("country", "us")
     h.apply_address(context, entity, address)
 
-    sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("effectivedateofexclusion"))
+    start_date = row.pop("effectivedateofexclusion")
+    sanction = h.make_sanction(context, entity, key=start_date)
+    h.apply_date(sanction, "startDate", start_date)
 
     context.emit(entity, target=True)
     context.emit(sanction)
-    context.emit(address)
 
     context.audit_data(row)
 
@@ -77,11 +77,10 @@ def crawl(context: Context) -> None:
         context, "group.xlsx", group_url, geolocation="US"
     )
     if not cached:
-        assert mediatype == XLSX
+        assert mediatype == XLSX, mediatype
     context.export_resource(group_path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(group_path, read_only=True)
-
     for item in h.parse_xlsx_sheet(context, wb.active):
         crawl_item(item, context)
 
@@ -89,10 +88,9 @@ def crawl(context: Context) -> None:
         context, "individuals.xlsx", individuals_url, geolocation="US"
     )
     if not cached:
-        assert mediatype == XLSX
+        assert mediatype == XLSX, mediatype
     context.export_resource(individuals_path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(individuals_path, read_only=True)
-
     for item in h.parse_xlsx_sheet(context, wb.active):
         crawl_item(item, context)
