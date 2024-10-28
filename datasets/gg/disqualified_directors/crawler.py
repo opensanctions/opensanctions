@@ -13,30 +13,6 @@ REGEX_DETAILS = re.compile(
 )
 
 
-def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
-    """
-    Parse the table and returns the information as a list of dict
-
-    Returns:
-        A generator that yields a dictionary of the table columns and values. The keys are the
-        column names and the values are the column values.
-    Raises:
-        AssertionError: If the headers don't match what we expect.
-    """
-    headers = [th.text_content() for th in table.findall(".//*/th")]
-    for row in table.findall(".//*/tr")[1:]:
-        cells = []
-        for el in row.findall(".//td"):
-            cells.append(collapse_spaces(el.text_content()))
-        assert len(cells) == len(headers)
-
-        # The table has a last row with all empty values
-        if all(c == "" for c in cells):
-            continue
-
-        yield {hdr: c for hdr, c in zip(headers, cells)}
-
-
 def parse_html(doc: etree.ElementTree, context: Context):
     items = doc.xpath('.//details[contains(@class, "helix-item-accordion")]')
     if not items:
@@ -117,8 +93,8 @@ def crawl_prohibitions(item: Dict[str, str], context: Context):
     context.emit(person, target=True)
 
 
-def crawl_item(item: Dict[str, str], context: Context):
-    name = item.pop("Name of disqualified director")
+def crawl_item(item: Dict[str, str | None], context: Context):
+    name = item.pop("name_of_disqualified_director")
 
     person = context.make("Person")
     person.id = context.make_id(name)
@@ -130,7 +106,7 @@ def crawl_item(item: Dict[str, str], context: Context):
     )
 
     end_date = h.parse_date(
-        item.pop("End of disqualification period"), formats=["%d.%m.%Y"]
+        item.pop("end_of_disqualification_period"), formats=["%d.%m.%Y"]
     )
 
     if end_date and end_date[0] < datetime.now().isoformat():
@@ -142,10 +118,10 @@ def crawl_item(item: Dict[str, str], context: Context):
     sanction = h.make_sanction(context, person)
     sanction.add(
         "startDate",
-        h.parse_date(item.pop("Date of disqualification"), formats=["%d.%m.%Y"]),
+        h.parse_date(item.pop("date_of_disqualification"), formats=["%d.%m.%Y"]),
     )
-    sanction.add("authority", item.pop("Applicant for disqualification"))
-    sanction.add("duration", item.pop("Period of disqualification"))
+    sanction.add("authority", item.pop("applicant_for_disqualification"))
+    sanction.add("duration", item.pop("period_of_disqualification"))
     sanction.add(
         "endDate",
         end_date,
@@ -160,8 +136,8 @@ def crawl_item(item: Dict[str, str], context: Context):
 def crawl(context: Context) -> None:
     # Fetch and process the HTML from the main data URL
     response = context.fetch_html(context.data_url)
-    for item in parse_table(response.find(".//table")):
-        crawl_item(item, context)
+    for item in h.parse_html_table(response.find(".//table")):
+        crawl_item(h.cells_to_str(item), context)
 
     # Fetch and process the HTML for prohibitions
     prohibitions = context.fetch_html(PROHIBITIONS_URL)
