@@ -38,6 +38,10 @@ data:
   format: XML
 http:
   user_agent: curl/8.7.1
+  backoff_factor: 3
+  max_retries: 5
+  retry_statuses: [413, 429, 503, 504]
+
 
 dates: 
   formats: ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y", "%d %b. %Y", "%d %b.%Y", "%d.%m.%Y", "%b. %Y", "c. %Y", "%B %d, %Y"]
