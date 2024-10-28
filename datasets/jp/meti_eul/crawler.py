@@ -1,8 +1,7 @@
-from pathlib import Path
-from normality import collapse_spaces, slugify
+from typing import Dict
+from normality import collapse_spaces
 from rigour.mime.types import PDF
 from urllib.parse import urljoin
-import pdfplumber
 import re
 
 from zavod import Context
@@ -38,26 +37,18 @@ def crawl_pdf_url(context: Context) -> str:
     raise ValueError("No PDF found")
 
 
-def parse_pdf_table(context: Context, path: Path):
-    headers = None
-    pdf = pdfplumber.open(path.as_posix())
-    for page in pdf.pages:
-        for row in page.extract_table():
-            if headers is None:
-                headers = []
-                for cell in row:
-                    parts = cell.split("\n")
-                    if len(parts) == 1:
-                        header = parts[0]
-                    elif len(parts) == 2:
-                        header = parts[1]
-                    else:
-                        context.log.error("Unexpected header", header=cell)
-                        return
-                    headers.append(slugify(header, sep="_"))
-                continue
-            assert len(headers) == len(row), (headers, row)
-            yield dict(zip(headers, row))
+def english_headers(row: Dict[str, str]) -> Dict[str, str]:
+    new_row = {}
+    for key, value in row.items():
+        parts = key.split("\n")
+        if len(parts) == 1:
+            new_key = parts[0]
+        elif len(parts) == 2:
+            new_key = parts[1]
+        else:
+            raise Exception("Unexpected header", header=key, row=row)
+        new_row[new_key] = value
+    return new_row
 
 
 def crawl(context: Context):
@@ -68,7 +59,8 @@ def crawl(context: Context):
 
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     last_no = 0
-    for holder in parse_pdf_table(context, path):
+    for holder in h.parse_pdf_table(context, path, preserve_header_newlines=True):
+        holder = english_headers(holder)
         no = int(holder.pop("no"))
         if no != last_no + 1:
             context.log.warn(

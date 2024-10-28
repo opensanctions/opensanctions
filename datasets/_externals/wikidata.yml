@@ -637,6 +637,10 @@ lookups:
           - Odoyevsky principality
           - Later Zhou dynasty
           - Khorasan
+          - Shirvan Khanate
+          - Adal Sultanate
+          - Johor Sultanate
+          - Duchy of Saxony
         value: null
       - match:
           - Cherokee Nation
@@ -666,7 +670,12 @@ lookups:
         value: CY
       - match: Socialist Republic of Romania
         value: RO
-      - match: People's Socialist Republic of Albania
+      - match: 
+          - People's Socialist Republic of Albania
+          - Independent Albania
+          - Principality of Albania
+          - Albanian Republic
+          - Albanian Kingdom
         value: AL
       - match: Italian Libya
         value: LY

@@ -27,12 +27,7 @@ data:
   format: HTML
 
 dates:
-  formats:
-    - "%d %B %Y"
-    - "%d/%m/%Y"
-    - "%d/%m/%Y;"
-    - "%d %B %Y;"
-    - "00/00/%Y"
+  formats: ["%d %B %Y", "%d/%m/%Y", "%d/%m/%Y;", "%d %B %Y;", "00/00/%Y"]
   months:
     "January": "Januari"
     "March": "Maret"

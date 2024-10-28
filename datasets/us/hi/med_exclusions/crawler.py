@@ -1,30 +1,11 @@
-import pdfplumber
 import re
-from pathlib import Path
 from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
-from normality import collapse_spaces, slugify
+from normality import collapse_spaces
 
 AKA_SPLIT = r"\baka\b|\ba\.k\.a\b|\bAKA\b|\bor\b"
-
-
-def parse_pdf_table(context: Context, path: Path, save_debug_images=False):
-    pdf = pdfplumber.open(path.as_posix())
-    settings = {}
-    for page_num, page in enumerate(pdf.pages, 1):
-        if save_debug_images:
-            im = page.to_image()
-            im.save(f"page-{page_num}.png")
-        headers = None
-        for row in page.extract_table(settings):
-            if headers is None:
-                headers = [slugify(collapse_spaces(cell), sep="_") for cell in row]
-                continue
-            assert len(headers) == len(row), (headers, row)
-            values = [collapse_spaces(cell) for cell in row]
-            yield dict(zip(headers, values))
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -97,6 +78,7 @@ def crawl_pdf_url(context: Context):
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", crawl_pdf_url(context))
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-    for item in parse_pdf_table(context, path):
-        print(item)
+    for item in h.parse_pdf_table(context, path, headers_per_page=True):
+        for key, value in item.items():
+            item[key] = collapse_spaces(value)
         crawl_item(item, context)

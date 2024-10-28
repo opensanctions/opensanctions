@@ -25,6 +25,7 @@ def clean_date(date):
         "h)",
         "i)",
         " or ",
+        " and ",
         " to ",
         "alt DOB:",
         "alt DOB",
@@ -38,8 +39,6 @@ def clean_date(date):
         "Circa",
     ]
     dates = []
-    if isinstance(date, float):
-        date = str(int(date))
     if isinstance(date, datetime):
         date = date.date().isoformat()
     if isinstance(date, int):
@@ -125,8 +124,7 @@ def parse_reference(
             entity.add("country", country)
         dates = clean_date(row.pop("date_of_birth"))
         if dates != ["na"]:
-            for date in dates:
-                h.apply_date(entity, "birthDate", date)
+            h.apply_dates(entity, "birthDate", dates)
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
         entity.add("notes", h.clean_note(row.pop("additional_information")))
         listing_info = row.pop("listing_information")

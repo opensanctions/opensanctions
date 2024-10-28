@@ -51,7 +51,7 @@ from zavod.helpers.excel import convert_excel_cell, convert_excel_date, parse_xl
 from zavod.helpers.html import parse_html_table, cells_to_str, links_to_dict
 from zavod.helpers.crypto import extract_cryptos
 from zavod.helpers.change import assert_dom_hash, assert_url_hash, assert_html_url_hash
-from zavod.helpers.pdf import make_pdf_page_images
+from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
 
 __all__ = [
     "clean_note",
@@ -91,4 +91,5 @@ __all__ = [
     "assert_html_url_hash",
     "split_comma_names",
     "make_pdf_page_images",
+    "parse_pdf_table",
 ]

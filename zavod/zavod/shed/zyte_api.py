@@ -115,6 +115,16 @@ def fetch_text(
     expected_charset: Optional[str] = None,
     geolocation: Optional[str] = None,
 ) -> Tuple[bool, str | None, str | None, str]:
+    """
+    Fetch a text document using the Zyte API.
+
+    Returns:
+        A tuple of:
+        - A boolean indicating whether the text was cached.
+        - The media type of the response, None if cached.
+        - The charset of the response, None if cached.
+        - The text content.
+    """
     if settings.ZYTE_API_KEY is None:
         raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
 
@@ -154,10 +164,13 @@ def fetch_text(
     api_response.raise_for_status()
 
     media_type, charset = get_content_type(api_response.json()["httpResponseHeaders"])
-    assert charset is not None, zyte_data
     text_b64 = api_response.json()["httpResponseBody"]
     assert text_b64 is not None
-    text = b64decode(text_b64).decode(charset)
+    bytes = b64decode(text_b64)
+    if charset is None:
+        text = bytes.decode()
+    else:
+        text = bytes.decode(charset)
 
     if expected_media_type:
         assert media_type == expected_media_type, (media_type, charset, text)

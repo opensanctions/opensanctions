@@ -2,7 +2,6 @@ import csv
 import io
 import re
 from typing import Dict, Optional
-from urllib.parse import urljoin
 from rigour.mime.types import CSV
 from normality import slugify
 from rigour.names import pick_name
@@ -92,11 +91,12 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 def crawl_csv_url(context: Context):
     doc = context.fetch_html(context.data_url)
-    for a in doc.findall(".//div[@id='content']//a"):
-        href = a.get("href")
-        if href is not None and href.endswith(".csv"):
-            return urljoin(context.data_url, href)
-    raise ValueError("No XLSX file found")
+    # (etree.tostring(doc))
+    doc.make_links_absolute(context.data_url)
+    anchor = doc.xpath('//a[@title="Vnitrostátní sankční seznam"]')
+    if len(anchor) == 0:
+        raise Exception("No sanctions file link found")
+    return anchor[0].get("href")
 
 
 def crawl(context: Context) -> None:
