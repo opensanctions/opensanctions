@@ -43,7 +43,10 @@ def parse_row(
             elif not entity.schema.is_a("Vessel"):
                 entity.add_schema(schema)
             continue
-        if header in ("program", "listingDate", "endDate", "provisions"):
+        if header in ("program", "provisions"):
+            sanction.add(header, value, lang=lang)
+            continue
+        if header in ("listingDate", "endDate"):
             for date in DATES:
                 match = date.match(value[0])
                 if match is not None:
