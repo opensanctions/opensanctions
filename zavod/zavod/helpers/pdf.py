@@ -34,7 +34,7 @@ def header_slug(text: str, preserve_newlines: bool) -> str:
         rows = text.split("\n")
         return "\n".join(slugify(row, sep="_") or "" for row in rows)
     else:
-        return slugify(collapse_spaces(text) or "-", sep="_") or ""
+        return slugify(collapse_spaces(text) or "", sep="_") or ""
 
 
 def parse_pdf_table(
@@ -50,8 +50,6 @@ def parse_pdf_table(
 ) -> Generator[Dict[str, str], None, None]:
     """
     Parse the largest table on each page of a PDF file and yield their rows as dictionaries.
-
-    Multiline header values are slugified like  "first_row-second_row".
 
     Arguments:
         path: Path to the PDF file.
