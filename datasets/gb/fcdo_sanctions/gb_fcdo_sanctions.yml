@@ -34,6 +34,7 @@ data:
 
 dates: 
   formats: ["%d/%m/%Y", "dd/mm/%Y", "dd/%m/%Y"]
+
 lookups:
   languages:
     options:
@@ -95,3 +96,7 @@ lookups:
           - Unknown
           - www.mtsbank.ru
         value: null
+  type.date:
+    options:
+      match: 00/00/1975
+      value: 1975
