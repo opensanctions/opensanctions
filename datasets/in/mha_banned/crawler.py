@@ -38,7 +38,7 @@ def crawl(context: Context) -> None:
             context,
             doc,
             "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "582fd09cb946aa1bfc186da33d43642fa160cb3c",
+            "37e23f4c96612550d0ae5c3af9495f748ea5c19e",
         )
     )
     expected_sources.add(
@@ -46,7 +46,7 @@ def crawl(context: Context) -> None:
             context,
             doc,
             "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "46e270bfefd3174adcb0e8c80c8e952bca5a772f",
+            "13641fb9679332e789624b5ebbafd7e80c79c42c",
         )
     )
     expected_sources.add(
