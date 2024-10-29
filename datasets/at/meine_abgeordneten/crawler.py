@@ -14,22 +14,19 @@ PARTY_REGEX = re.compile(r"(\([\w ]+\)|, [\w ]+$)")
 MAX_POSITION_NAME_LENGTH = 120
 
 
-def extract_dates(context, url, el):
+def extract_dates(context: Context, url, el):
     active_date_el = el.find('.//span[@class="aktiv"]')
     inactive_dates_el = el.find('.//span[@class="inaktiv"]')
     if active_date_el is not None:
-        start_date = h.parse_date(
-            active_date_el.text_content().replace("seit ", ""),
-            context.dataset.dates.formats,
-        )
+        start_date = h.extract_date(context.dataset, active_date_el.text_content().replace("seit ", ""))
         end_date = None
         assume_current = True
     elif inactive_dates_el is not None:
-        inactive_dates = inactive_dates_el.text_content()
+        inactive_dates = inactive_dates_el.text_content().replace("ab ", "")
         if " - " in inactive_dates:
             start_date, end_date = inactive_dates.split(" - ")
-            start_date = h.parse_date(start_date, context.dataset.dates.formats)
-            end_date = h.parse_date(end_date, context.dataset.dates.formats)
+            start_date = h.extract_date(context.dataset, start_date.strip())
+            end_date = h.extract_date(context.dataset, end_date.strip())
         else:
             start_date = None
             end_date = None
@@ -106,7 +103,7 @@ def crawl_mandate(context, url, person, el):
         )
         return
 
-    position = h.make_position(context, position_name, country="at")
+    position = h.make_position(context, position_name, country="at", lang="deu")
     categorisation = categorise(context, position, is_pep=True)
     if not categorisation.is_pep:
         return
@@ -134,7 +131,7 @@ def crawl_mandate(context, url, person, el):
 def crawl_title(context, url, person, el):
     h1 = el.find(".//h1")
     position_name = h1.getnext().text_content().strip()
-    position = h.make_position(context, position_name, country="at")
+    position = h.make_position(context, position_name, country="at", lang="deu")
     categorisation = categorise(context, position, is_pep=None)
     if not categorisation.is_pep:
         if categorisation.is_pep is None:
@@ -170,7 +167,7 @@ def crawl_item(url_info_page: str, context: Context):
     id = os.path.basename(urlparse(url_info_page).path)
     person.id = context.make_slug(id)
 
-    h.apply_name(person, first_name=first_name, last_name=last_name)
+    h.apply_name(person, first_name=first_name, last_name=last_name, lang="deu")
     person.add("sourceUrl", url_info_page)
     birth_date_in_german = info_page.findtext(".//span[@itemprop='birthDate']")
     if birth_date_in_german:
