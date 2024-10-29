@@ -79,6 +79,7 @@ def crawl_row(context: Context, data: Dict[str, str]):
     entity.id = context.make_slug(ent_id, full_name)
     assert entity.id, data
     entity.add("name", full_name)
+    entity.add("topics", "sanction")
     entity.add("notes", h.clean_note(data.pop("Comments", None)))
     if entity.schema.is_a("Person"):
         entity.add("address", data.pop("IndividualAddress", None))
@@ -103,24 +104,18 @@ def crawl_row(context: Context, data: Dict[str, str]):
             entity.add("address", address)
         aliases = data.pop("EntityAlias", None)
         for alias in h.multi_split(aliases, ALIAS_SPLITS):
-            alias = alias.rstrip(
-                ","
-            )  # if we split on a comma, we will separate ", LTD" from the name
+            # if we split on a comma, we will separate ", LTD" from the name
+            alias = alias.rstrip(",")
             if "?" in alias:
                 continue
             entity.add("alias", alias)
+    listed_on = data.pop("ListedOn", None)
+    h.apply_date(entity, "createdAt", listed_on)
 
     sanction = h.make_sanction(context, entity)
-    listed_on = data.pop("ListedOn", None)
-    # entity.add("createdAt", listed_on)
-    h.apply_date(
-        entity, "createdAt", listed_on
-    )  # do we want it to be set to the listingDate?
     h.apply_date(sanction, "listingDate", listed_on)
-
     sanction.add("unscId", data.pop("ReferenceNumber", None))
 
-    entity.add("topics", "sanction")
     context.audit_data(data, ignore=["ApplicationStatus"])
     context.emit(entity, target=True)
     context.emit(sanction)
