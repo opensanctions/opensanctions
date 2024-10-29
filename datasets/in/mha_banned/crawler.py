@@ -17,8 +17,12 @@ def parse_names(field: str) -> List[str]:
 
 
 def assert_link_hash(
-    context: Context, doc: _Element, label: str, expected: str
-) -> bool:
+    context: Context,
+    doc: _Element,
+    label: str,
+    expected: str,
+    xpath: Optional[str] = None,
+) -> str:
     label_xpath = f".//td[contains(text(), '{label}')]"
     label_cells = doc.xpath(label_xpath)
     assert len(label_cells) == 1
@@ -26,22 +30,16 @@ def assert_link_hash(
     assert len(anchors) == 1
     link = anchors[0]
     url = link.get("href")
-    if url:
-        return h.assert_url_hash(context, url, expected)
-    return context.log.warning("No URL found", label=label)
-
-
-def assert_source(
-    context, doc, name: str, expected_hash: str, xpath: Optional[str] = None
-) -> bool:
-    result = False
     if xpath:
-        result = h.assert_html_url_hash(
-            context, context.dataset.url, expected_hash, path=xpath
-        )
+        success = h.assert_html_url_hash(context, url, expected, path=xpath)
+        if not success:
+            print(f"Hash assertion for {url} with XPath {xpath} failed")
     else:
-        result = assert_link_hash(context, doc, name, expected_hash)
-    return result
+        success = h.assert_url_hash(context, url, expected)
+        if not success:
+            print(f"Hash assertion for {url} failed")
+
+    return url if success else None
 
 
 def crawl(context: Context) -> None:
@@ -50,25 +48,25 @@ def crawl(context: Context) -> None:
     expected_sources: Set[bool] = set()
 
     expected_sources.add(
-        assert_source(
+        assert_link_hash(
             context,
             doc,
             "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "bc7f802b66cd39002af5b1844bac6ce0239bcbfc",
-            xpath='.//div[@id="block-mhanew-content"]//div[2]',
+            "50cbbee5d7777188e5fd8d2e5b74ddcc6b537716",
+            xpath='.//div[@id="block-mhanew-content"]//div[3]//table',
         )
     )
     expected_sources.add(
-        assert_source(
+        assert_link_hash(
             context,
             doc,
             "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "bc7f802b66cd39002af5b1844bac6ce0239bcbfc",
-            xpath='.//div[@id="block-mhanew-content"]//div[2]',
+            "66cc60e0bb6937ec88c620eadc3ec213a1ede29c",
+            xpath='.//div[@id="block-mhanew-content"]//div[2]//div[2]//table',
         )
     )
     expected_sources.add(
-        assert_source(
+        assert_link_hash(
             context,
             doc,
             "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
