@@ -680,6 +680,16 @@ lookups:
         values:
           - azia@aziaship.com
           - business@aziaship.com
+      - match: (1) perla0606@mail.ru (2) dvp32@sev.gov.ru (3) andrewperla@gmail.com
+        values:
+          - perla0606@mail.ru
+          - dvp32@sev.gov.ru
+          - andrewperla@gmail.com
+      - match: (1) natupikin@mail.ru (2) kurnikoff@yandex.ru (3) nikolay.tupikin@gmail.com
+        values:
+          - natupikin@mail.ru
+          - kurnikoff@yandex.ru
+          - nikolay.tupikin@gmail.com
   type.gender:
     lowercase: true
     normalize: true
