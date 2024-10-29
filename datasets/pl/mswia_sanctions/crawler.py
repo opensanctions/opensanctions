@@ -73,11 +73,11 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
 
     entity.id = context.make_slug(table_title, name)
     names = name.split("(")
-    entity.add("name", names[0])
+    entity.add("name", names[0], lang="pol")
     for alias in names[1:]:
         entity.add("alias", alias.split(")")[0])
     notes = row.pop("uzasadnienie_wpisu_na_liste")
-    entity.add("notes", notes)
+    entity.add("notes", notes, lang="pol")
 
     details = row.pop("dane_identyfikacyjne_podmiotu", None)
     details = row.pop("dane_identyfikacyjne_osoby", details)
@@ -87,10 +87,10 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
     sanction = h.make_sanction(context, entity)
     provisions = row.pop("zastosowane_srodki_sankcyjne")
     if len(provisions) > registry.string.max_length:
-        sanction.add("description", provisions)
+        sanction.add("description", provisions, lang="pol")
         sanction.add("provisions", "See description.")
     else:
-        sanction.add("provisions", provisions)
+        sanction.add("provisions", provisions, lang="pol")
 
     h.apply_date(sanction, "startDate", listing_date)
     end_date = row.pop("data_wykreslenia_z_listy", None)
