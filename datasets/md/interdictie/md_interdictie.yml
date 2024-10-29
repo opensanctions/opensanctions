@@ -35,20 +35,20 @@ lookups:
       - match: "-"
         value: null
 dates:
-  formats: ["%d %m, %Y", "%d.%m.%Y", "%d/%m/%Y"]
+  formats: ["%d %m %Y", "%d.%m.%Y", "%d/%m/%Y"]
   months:
-    "01": ianuarie
-    "02": februarie
-    "03": martie
-    "04": aprilie
-    "05": mai
-    "06": iunie
-    "07": iulie
-    "08": august
-    "09": septembrie
-    "10": octombrie
-    "11": noiembrie
-    "12": decembrie
+    "01": Ianuarie
+    "02": Februarie
+    "03": Martie
+    "04": Aprilie
+    "05": Mai
+    "06": Iunie
+    "07": Iulie
+    "08": August
+    "09": Septembrie
+    "10": Octombrie
+    "11": Noiembrie
+    "12": Decembrie
 assertions:
   min:
     schema_entities:

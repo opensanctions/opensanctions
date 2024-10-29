@@ -57,11 +57,11 @@ def crawl(context: Context):
         entity = context.make("Company")
         name = data.pop("denumirea-si-forma-de-organizare-a-operatorului-economic")
         entity.id = context.make_id(name, "md")
-        entity.add("name", name)
+        entity.add("name", name, lang="ron")
         entity.add("topics", "debarment")
 
         addr_string = data.pop("adresa-si-datele-de-contact-ale-operatorului-economic")
-        address = h.make_address(context, full=addr_string, country_code="md")
+        address = h.make_address(context, full=addr_string, country_code="md", lang="ron")
         h.apply_address(context, entity, address)
 
         delay_until_date = None
@@ -84,14 +84,11 @@ def crawl(context: Context):
         reason = data.pop(
             "expunerea-succinta-a-temeiului-de-includere-in-lista-a-operatorului-economic"
         )
-        sanction.add("reason", reason, lang="ro")
-        sanction.add("startDate", start_date)
-        sanction.add(
-            "endDate",
-            parse_date(data.pop("termenul-limita-de-includere-in-lista"), context),
-        )
-        sanction.add("listingDate", start_date)
-        sanction.add("status", delay_note, lang="rum")
+        sanction.add("reason", reason, lang="ron")
+        h.apply_date(sanction, "startDate", start_date)
+        h.apply_date(sanction, "endDate", parse_date(data.pop("termenul-limita-de-includere-in-lista"), context))
+        h.apply_date(sanction, "listingDate", start_date)
+        sanction.add("status", delay_note, lang="ron")
 
         owners_and_admins = data.pop("date-privind-administratotul-si-fondatorii")
         crawl_control(context, entity, decision_date, owners_and_admins)
@@ -101,13 +98,12 @@ def crawl(context: Context):
 
 
 def parse_date(text: str, context: Context):
-    text = h.replace_months(context.dataset, text.lower())
     segments = text.split(", ")
     if len(segments) == 3:
-        text = ", ".join(segments[1:])
-    date_info = h.parse_formats(text, context.dataset.dates.formats)
-    if date_info and date_info.dt:
-        return date_info.text
+        text = " ".join(segments[1:])
+    date_info = text
+    if date_info:
+        return date_info
 
     context.log.warning("Failed to parse date", raw_date=text)
     return None
@@ -180,14 +176,14 @@ def make_ownerships(context, company: Entity, date, owners: List[str]) -> Entity
             name = match.group(1)
             owner = context.make("LegalEntity")
             owner.id = context.make_id(company.id, name)
-            owner.add("name", name, lang="rum")
+            owner.add("name", name, lang="ron")
 
             ownership = context.make("Ownership")
             ownership.id = context.make_id(owner.id, "owns", company.id)
             ownership.add("owner", owner)
             ownership.add("asset", company)
             if date:
-                ownership.add("date", date)
+                h.apply_date(ownership, "date", date)
             percent = match.group(3)
             if percent:
                 ownership.add("percentage", percent)
@@ -202,14 +198,14 @@ def make_members(context, company: Entity, date, members: List[str]):
         if name:
             member = context.make("LegalEntity")
             member.id = context.make_id(company.id, name)
-            member.add("name", name, lang="rum")
+            member.add("name", name, lang="ron")
 
             membership = context.make("Membership")
             membership.id = context.make_id(member.id, "in", company.id)
             membership.add("member", member)
             membership.add("organization", company)
             if date:
-                membership.add("date", date)
+                h.apply_date(membership, "date", date)
 
             yield member
             yield membership
