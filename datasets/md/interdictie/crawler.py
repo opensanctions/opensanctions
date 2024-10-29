@@ -61,7 +61,9 @@ def crawl(context: Context):
         entity.add("topics", "debarment")
 
         addr_string = data.pop("adresa-si-datele-de-contact-ale-operatorului-economic")
-        address = h.make_address(context, full=addr_string, country_code="md", lang="ron")
+        address = h.make_address(
+            context, full=addr_string, country_code="md", lang="ron"
+        )
         h.apply_address(context, entity, address)
 
         delay_until_date = None
@@ -86,7 +88,11 @@ def crawl(context: Context):
         )
         sanction.add("reason", reason, lang="ron")
         h.apply_date(sanction, "startDate", start_date)
-        h.apply_date(sanction, "endDate", parse_date(data.pop("termenul-limita-de-includere-in-lista"), context))
+        h.apply_date(
+            sanction,
+            "endDate",
+            parse_date(data.pop("termenul-limita-de-includere-in-lista"), context),
+        )
         h.apply_date(sanction, "listingDate", start_date)
         sanction.add("status", delay_note, lang="ron")
 
