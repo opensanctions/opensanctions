@@ -28,7 +28,7 @@ def parse_date(text, context):
     if text is None:
         return None
     date_info = text
-    if date_info and len(date_info) < 25: # avoid longer strings that are not dates
+    if date_info and len(date_info) < 25:  # avoid longer strings that are not dates
         return date_info
     return None
 
