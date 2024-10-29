@@ -60,6 +60,7 @@ url: "https://mcweb.apps.prd.cammis.medi-cal.ca.gov/references/sandi"
 data:
   url: https://mcweb.apps.prd.cammis.medi-cal.ca.gov/references/sandi
   format: XLSX
+ci_test: false
 
 
 dates:
