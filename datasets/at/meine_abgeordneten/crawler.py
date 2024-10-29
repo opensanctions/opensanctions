@@ -18,7 +18,9 @@ def extract_dates(context: Context, url, el):
     active_date_el = el.find('.//span[@class="aktiv"]')
     inactive_dates_el = el.find('.//span[@class="inaktiv"]')
     if active_date_el is not None:
-        start_date = h.extract_date(context.dataset, active_date_el.text_content().replace("seit ", ""))
+        start_date = h.extract_date(
+            context.dataset, active_date_el.text_content().replace("seit ", "")
+        )
         end_date = None
         assume_current = True
     elif inactive_dates_el is not None:
