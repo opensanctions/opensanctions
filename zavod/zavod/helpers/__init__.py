@@ -47,7 +47,8 @@ from zavod.helpers.dates import parse_formats, apply_date, apply_dates, extract_
 from zavod.helpers.dates import replace_months
 from zavod.helpers.identification import make_identification
 from zavod.helpers.securities import make_security
-from zavod.helpers.excel import convert_excel_cell, convert_excel_date, parse_xlsx_sheet
+from zavod.helpers.excel import convert_excel_cell, convert_excel_date, parse_xls_sheet
+from zavod.helpers.excel import parse_xlsx_sheet
 from zavod.helpers.html import parse_html_table, cells_to_str, links_to_dict
 from zavod.helpers.crypto import extract_cryptos
 from zavod.helpers.change import assert_dom_hash, assert_url_hash, assert_html_url_hash
@@ -68,6 +69,7 @@ __all__ = [
     "extract_years",
     "parse_date",
     "parse_formats",
+    "parse_xls_sheet",
     "parse_xlsx_sheet",
     "check_no_year",
     "apply_date",
