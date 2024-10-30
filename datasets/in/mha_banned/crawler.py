@@ -1,6 +1,6 @@
 import csv
 from lxml.etree import _Element
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Optional
 from rigour.mime.types import CSV
 
 from zavod import Context
@@ -16,40 +16,58 @@ def parse_names(field: str) -> List[str]:
     return names
 
 
-def assert_link_hash(context: Context, doc: _Element, label: str, expected: str) -> str:
+def get_link_by_label(doc: _Element, label: str) -> Optional[str]:
     label_xpath = f".//td[contains(text(), '{label}')]"
     label_cells = doc.xpath(label_xpath)
     assert len(label_cells) == 1
+
     anchors = label_cells[0].xpath("./following-sibling::td//a")
     assert len(anchors) == 1
+
     link = anchors[0]
-    url = link.get("href")
-    h.assert_url_hash(context, url, expected)
-    return url
+    return link.get("href")
+
+
+def assert_link_hash(
+    context: Context,
+    doc: _Element,
+    label: str,
+    expected: str,
+    xpath: Optional[str] = None,
+) -> str:
+    url = get_link_by_label(doc, label)
+    if xpath:
+        success = h.assert_html_url_hash(context, url, expected, path=xpath)
+    else:
+        success = h.assert_url_hash(context, url, expected)
+
+    return url if success else None
 
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.dataset.url)
     doc.make_links_absolute(context.dataset.url)
-    expected_sources: Set[str] = set()
+    linked_sources: Set[str] = set()
 
-    expected_sources.add(
+    linked_sources.add(
         assert_link_hash(
             context,
             doc,
             "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "582fd09cb946aa1bfc186da33d43642fa160cb3c",
+            "50cbbee5d7777188e5fd8d2e5b74ddcc6b537716",
+            xpath='.//div[@id="block-mhanew-content"]//table',
         )
     )
-    expected_sources.add(
+    linked_sources.add(
         assert_link_hash(
             context,
             doc,
             "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "46e270bfefd3174adcb0e8c80c8e952bca5a772f",
+            "66cc60e0bb6937ec88c620eadc3ec213a1ede29c",
+            xpath='.//div[@id="block-mhanew-content"]//table',
         )
     )
-    expected_sources.add(
+    linked_sources.add(
         assert_link_hash(
             context,
             doc,
@@ -65,7 +83,7 @@ def crawl(context: Context) -> None:
         for row in csv.DictReader(fh):
             entity = context.make(row.pop("Type", "LegalEntity"))
             source_url = row.pop("SourceURL")
-            if source_url not in expected_sources:
+            if source_url not in linked_sources:
                 context.log.warn(
                     "Source URL not in overview page. Perhaps it's out of date?",
                     url=source_url,
