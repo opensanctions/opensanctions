@@ -82,27 +82,29 @@ def crawl(context: Context) -> None:
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
             entity = context.make(row.pop("Type", "LegalEntity"))
+            name = row.pop("Name")
+            aliases = row.pop("Aliases")
+            weak_aliases = row.pop("Weak")
             source_url = row.pop("SourceURL")
             if source_url not in linked_sources:
                 context.log.warn(
                     "Source URL not in overview page. Perhaps it's out of date?",
                     url=source_url,
                 )
-            id_ = row.pop("ID")
-            name = row.pop("Name")
             if name is None:
                 context.log.warn("No name", row=row)
                 continue
-            entity.id = context.make_id(id_, name, source_url)
+            entity.id = context.make_id(name, aliases, weak_aliases)
             assert entity.id is not None, row
             named_ids[name] = entity.id
             entity.add("name", name)
             entity.add("notes", row.pop("Notes"))
             entity.add("topics", "sanction")
             entity.add("sourceUrl", source_url)
-            entity.add("alias", parse_names(row.pop("Aliases")))
-            entity.add("weakAlias", parse_names(row.pop("Weak")))
+            entity.add("alias", parse_names(aliases))
+            entity.add("weakAlias", parse_names(weak_aliases))
 
+            id_ = row.pop("ID")
             sanction = h.make_sanction(context, entity, id_)
             sanction.add("program", row.pop("Designation"))
             sanction.add("authorityId", id_)
