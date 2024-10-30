@@ -47,7 +47,7 @@ def assert_link_hash(
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.dataset.url)
     doc.make_links_absolute(context.dataset.url)
-    linked_sources: Set[bool] = set()
+    linked_sources: Set[str] = set()
 
     linked_sources.add(
         assert_link_hash(
