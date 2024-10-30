@@ -965,3 +965,7 @@ lookups:
       - match: 'Société Forest Invest'
         entities:
           - Forest Invest
+      - match: Société Financière Henry IV Société Nouvelle
+        entities:
+          - Financière Henry IV
+          - Nouvelle
