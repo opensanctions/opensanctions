@@ -180,7 +180,7 @@ def test_fetch_resource(testdataset1: Dataset):
         assert "text/csv" in str(exc.value), exc.value
         with pytest.raises(AssertionError) as exc:
             fetch_resource(context, "source3.csv", url, expected_charset="UTF-8")
-        assert "text/csv" in str(exc.value), exc.value
+        assert "latin-1" in str(exc.value), exc.value
         # Except when the file exists locally
         fetch_resource(context, "source2.csv", url, expected_media_type="text/plain")
         fetch_resource(context, "source3.csv", url, expected_charset="UTF-8")
