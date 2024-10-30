@@ -54,7 +54,7 @@ def fetch_resource(
     expected_media_type: Optional[str] = None,
     expected_charset: Optional[str] = None,
     geolocation: Optional[str] = None,
-) -> Tuple[bool, Path, str | None, str | None]:
+) -> Tuple[bool, str | None, str | None, Path]:
     """
     Fetch a resource using Zyte API and save to filesystem.
 
