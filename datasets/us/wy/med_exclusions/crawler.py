@@ -90,11 +90,9 @@ def crawl_excel_url(context: Context):
 
 def crawl(context: Context) -> None:
     url = crawl_excel_url(context)
-    cached, path, mediatype, _charset = fetch_resource(
-        context, "source.pdf", url, geolocation="us"
+    _, _, _, path = fetch_resource(
+        context, "source.pdf", url, geolocation="us", expected_media_type=PDF
     )
-    if not cached:
-        assert mediatype == PDF, mediatype
 
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for item in h.parse_pdf_table(
