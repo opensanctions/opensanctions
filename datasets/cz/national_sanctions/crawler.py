@@ -27,7 +27,16 @@ def crawl_item(row: Dict[str, str], context: Context):
         idx = name.index("Zápis byl zrušen")
         name = name[:idx].strip()
         cancel_text = name[idx:].strip()
-    names = name.split("/")
+
+    if re.search(r"\d/\d", name):
+        res = context.lookup("names_override", name)
+        if res is None:
+            context.log.warning(f"Name override not found for {name}")
+            names = [name]
+        else:
+            names = res.names
+    else:
+        names = name.split("/")
 
     # Datum narození fyzické osoby
     # -> Date of birth of the natural person
