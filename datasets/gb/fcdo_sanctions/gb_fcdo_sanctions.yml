@@ -66,6 +66,8 @@ lookups:
         value: srp
       - match: Turkish
         value: tur
+      - match: Burmese
+        value: mya
   name_type:
     lowercase: true
     normalize: true
