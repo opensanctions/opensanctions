@@ -69,13 +69,9 @@ lookups:
         value: Israel
       - match: "Česká republika"
         value: Czech Republic
-  type.name: 
+  names_override:
     lowercase: true
     normalize: true
     options:
-      - match: Voice of Europe s.r.o. V souladu s § 7 odst. 3 písm. a) zákona č. 1
-        value: Voice of Europe s.r.o.
-      - match: 
-          - 1508 a rozhodnutím Rady (SZBP) 2024
-          - 2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon) byl zápis pozměněn ke dni 27. května 2024 a ke dni 26. června 2024, vzhledem k zařazení subjektu na sankční seznamy Evropské unie rozhodnutím Rady (SZBP) 2024
-        value: null
+      - match: "Voice of Europe s.r.o. V souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon) byl zápis pozměněn ke dni 27. května 2024 a ke dni 26. června 2024, vzhledem k zařazení subjektu na sankční seznamy Evropské unie rozhodnutím Rady (SZBP) 2024/1508 a rozhodnutím Rady (SZBP) 2024/1770."
+        names: ["Voice of Europe s.r.o."]
