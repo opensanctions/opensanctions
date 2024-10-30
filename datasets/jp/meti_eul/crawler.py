@@ -53,11 +53,11 @@ def english_headers(row: Dict[str, str]) -> Dict[str, str]:
 
 def crawl(context: Context):
     pdf_url = crawl_pdf_url(context)
-    cached, path, media_type, charset = fetch_resource(context, "source.pdf", pdf_url)
-    if not cached:
-        assert media_type == PDF, media_type
-
+    _, _, _, path = fetch_resource(
+        context, "source.pdf", pdf_url, expected_media_type=PDF
+    )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
+
     last_no = 0
     for holder in h.parse_pdf_table(context, path, preserve_header_newlines=True):
         holder = english_headers(holder)

@@ -51,31 +51,40 @@ def fetch_resource(
     context: Context,
     filename: str,
     url: str,
+    expected_media_type: Optional[str] = None,
+    expected_charset: Optional[str] = None,
     geolocation: Optional[str] = None,
-) -> Tuple[bool, Path, str | None, str | None]:
+) -> Tuple[bool, str | None, str | None, Path]:
     """
     Fetch a resource using Zyte API and save to filesystem.
 
     The content type and charset can be used to assert expected
     types (and successful unblocking by Zyte) and for appropriate
-    text decoding when the encoding can vary.
+    text decoding when the encoding can vary. Do so via the expected_
+    arguments unless more logic is required.
 
     Args:
         context: The context object.
         filename: The name to use when saving the file.
         url: The URL of the resource.
+        expected_media_type: If set, assert that the media type in the
+            response content-type header matches this value. Not enforced
+            when the file already exists locally.
+        expected_charset: If set, assert that the charset in the response
+            content-type header matches this value. Not enforced
+            when the file already exists locally.
 
     Returns:
         A tuple of:
-        - A boolean indicating whether the file was cached.
-        - The path to the saved file.
-        - The media type of the response, None if cached.
-        - The charset of the response, None if cached.
+            - A boolean indicating whether the file was cached.
+            - The path to the saved file.
+            - The media type of the response, None if cached.
+            - The charset of the response, None if cached.
     """
     data_path = dataset_data_path(context.dataset.name)
     out_path = data_path.joinpath(filename)
     if out_path.exists():
-        return True, out_path, None, None
+        return True, None, None, out_path
 
     if settings.ZYTE_API_KEY is None:
         raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
@@ -103,7 +112,13 @@ def fetch_resource(
     with open(out_path, "wb") as fh:
         fh.write(b64decode(file_base64))
     media_type, charset = get_content_type(api_response.json()["httpResponseHeaders"])
-    return False, out_path, media_type, charset
+
+    if expected_media_type:
+        assert media_type == expected_media_type, (media_type, charset, url)
+    if expected_charset:
+        assert charset == expected_charset, (media_type, charset, url)
+
+    return False, media_type, charset, out_path
 
 
 def fetch_text(
@@ -118,12 +133,26 @@ def fetch_text(
     """
     Fetch a text document using the Zyte API.
 
+    The content type and charset can be used to assert expected
+    types (and successful unblocking by Zyte) and for appropriate
+    text decoding when the encoding can vary. Do so via the expected_
+    arguments unless more logic is required.
+
+    Args:
+        context: The context object.
+        url: The URL of the text document.
+        headers: A list of dicts of headers to send with the request.
+        expected_media_type: If set, assert that the media type in the
+            response content-type header matches this value.
+        expected_charset: If set, assert that the charset in the response
+            content-type header matches this value.
+
     Returns:
         A tuple of:
-        - A boolean indicating whether the text was cached.
-        - The media type of the response, None if cached.
-        - The charset of the response, None if cached.
-        - The text content.
+            - A boolean indicating whether the text was cached.
+            - The media type of the response, None if cached.
+            - The charset of the response, None if cached.
+            - The text content.
     """
     if settings.ZYTE_API_KEY is None:
         raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")

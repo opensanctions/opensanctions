@@ -73,22 +73,26 @@ def crawl_excel_urls(context: Context):
 def crawl(context: Context) -> None:
 
     group_url, individuals_url = crawl_excel_urls(context)
-    cached, group_path, mediatype, _charset = fetch_resource(
-        context, "group.xlsx", group_url, geolocation="US"
+    _, _, _, group_path = fetch_resource(
+        context,
+        "group.xlsx",
+        group_url,
+        geolocation="US",
+        expected_media_type=XLSX,
     )
-    if not cached:
-        assert mediatype == XLSX, mediatype
     context.export_resource(group_path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(group_path, read_only=True)
     for item in h.parse_xlsx_sheet(context, wb.active):
         crawl_item(item, context)
 
-    cached, individuals_path, mediatype, _charset = fetch_resource(
-        context, "individuals.xlsx", individuals_url, geolocation="US"
+    _, _, _, individuals_path = fetch_resource(
+        context,
+        "individuals.xlsx",
+        individuals_url,
+        geolocation="US",
+        expected_media_type=XLSX,
     )
-    if not cached:
-        assert mediatype == XLSX, mediatype
     context.export_resource(individuals_path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(individuals_path, read_only=True)

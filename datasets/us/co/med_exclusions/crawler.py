@@ -85,11 +85,9 @@ def crawl_excel_url(context: Context):
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
-    cached, path, mediatype, _charset = fetch_resource(
-        context, "source.xlsx", excel_url
+    _, _, _, path = fetch_resource(
+        context, "source.xlsx", excel_url, expected_media_type=XLSX
     )
-    if not cached:
-        assert mediatype == XLSX
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)

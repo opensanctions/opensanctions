@@ -158,11 +158,9 @@ def crawl_excel_url(context: Context):
 
 def crawl(context: Context):
     excel_url = crawl_excel_url(context)
-    cached, source_path, media_type, _ = fetch_resource(
-        context, "source.xlsx", excel_url
+    _, _, _, source_path = fetch_resource(
+        context, "source.xlsx", excel_url, expected_media_type=XLSX
     )
-    if not cached:
-        assert media_type == XLSX, media_type
     context.export_resource(source_path, XLSX, title=context.SOURCE_TITLE)
 
     wb = openpyxl.load_workbook(source_path, read_only=True)
