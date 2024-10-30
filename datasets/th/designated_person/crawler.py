@@ -27,10 +27,8 @@ def crawl_item(url: str, context: Context):
 
     en_name = info_dict.pop("Individual/Entity Name (English)").strip()
     th_name = info_dict.pop("Individual/Entity Name (Thailand)").strip()
-    birth_date = info_dict.pop("Date of Birth", None) or None
-    birth_date_parsed = (
-        h.parse_date(birth_date, formats=["%d-%m-%Y"]) if birth_date else None
-    )
+    birth_date = info_dict.pop("Date of Birth")
+    birth_date_parsed = (h.extract_date(context.dataset, birth_date))[0]
 
     entity = context.make("Person")
     entity.id = context.make_slug(en_name, birth_date_parsed)
