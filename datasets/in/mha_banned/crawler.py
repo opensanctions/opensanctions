@@ -16,6 +16,18 @@ def parse_names(field: str) -> List[str]:
     return names
 
 
+def get_link_by_label(doc: _Element, label: str) -> Optional[str]:
+    label_xpath = f".//td[contains(text(), '{label}')]"
+    label_cells = doc.xpath(label_xpath)
+    assert len(label_cells) == 1
+
+    anchors = label_cells[0].xpath("./following-sibling::td//a")
+    assert len(anchors) == 1
+
+    link = anchors[0]
+    return link.get("href")
+
+
 def assert_link_hash(
     context: Context,
     doc: _Element,
@@ -23,21 +35,12 @@ def assert_link_hash(
     expected: str,
     xpath: Optional[str] = None,
 ) -> str:
-    label_xpath = f".//td[contains(text(), '{label}')]"
-    label_cells = doc.xpath(label_xpath)
-    assert len(label_cells) == 1
-    anchors = label_cells[0].xpath("./following-sibling::td//a")
-    assert len(anchors) == 1
-    link = anchors[0]
-    url = link.get("href")
-    if xpath:
-        success = h.assert_html_url_hash(context, url, expected, path=xpath)
-        if not success:
-            print(f"Hash assertion for {url} with XPath {xpath} failed")
-    else:
-        success = h.assert_url_hash(context, url, expected)
-        if not success:
-            print(f"Hash assertion for {url} failed")
+    url = get_link_by_label(doc, label)
+    if url:
+        if xpath:
+            success = h.assert_html_url_hash(context, url, expected, path=xpath)
+        else:
+            success = h.assert_url_hash(context, url, expected)
 
     return url if success else None
 
@@ -45,27 +48,27 @@ def assert_link_hash(
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.dataset.url)
     doc.make_links_absolute(context.dataset.url)
-    expected_sources: Set[bool] = set()
+    linked_sources: Set[bool] = set()
 
-    expected_sources.add(
+    linked_sources.add(
         assert_link_hash(
             context,
             doc,
             "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
             "50cbbee5d7777188e5fd8d2e5b74ddcc6b537716",
-            xpath='.//div[@id="block-mhanew-content"]//div[3]//table',
+            xpath='.//div[@id="block-mhanew-content"]//table',
         )
     )
-    expected_sources.add(
+    linked_sources.add(
         assert_link_hash(
             context,
             doc,
             "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
             "66cc60e0bb6937ec88c620eadc3ec213a1ede29c",
-            xpath='.//div[@id="block-mhanew-content"]//div[2]//div[2]//table',
+            xpath='.//div[@id="block-mhanew-content"]//table',
         )
     )
-    expected_sources.add(
+    linked_sources.add(
         assert_link_hash(
             context,
             doc,
@@ -81,6 +84,11 @@ def crawl(context: Context) -> None:
         for row in csv.DictReader(fh):
             entity = context.make(row.pop("Type", "LegalEntity"))
             source_url = row.pop("SourceURL")
+            if source_url not in linked_sources:
+                context.log.warn(
+                    "Source URL not in overview page. Perhaps it's out of date?",
+                    url=source_url,
+                )
             id_ = row.pop("ID")
             name = row.pop("Name")
             if name is None:
