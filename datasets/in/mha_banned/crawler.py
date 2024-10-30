@@ -36,11 +36,10 @@ def assert_link_hash(
     xpath: Optional[str] = None,
 ) -> str:
     url = get_link_by_label(doc, label)
-    if url:
-        if xpath:
-            success = h.assert_html_url_hash(context, url, expected, path=xpath)
-        else:
-            success = h.assert_url_hash(context, url, expected)
+    if xpath:
+        success = h.assert_html_url_hash(context, url, expected, path=xpath)
+    else:
+        success = h.assert_url_hash(context, url, expected)
 
     return url if success else None
 
