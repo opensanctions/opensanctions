@@ -9,7 +9,8 @@ summary: >
   Medical providers excluded from South Carolina's Medicaid program.
 description: |
   According to their [website](https://www.scdhhs.gov/fraud):
-  > The Bureau of Internal Audit and Program Integriy compiles a list of 
+
+  > The Bureau of Internal Audit and Program Integrity compiles a list of 
   > individuals and entities that have been excluded by the federal government
   > and/or the State of South Carolina. Anyone appearing on the following lists 
   > should not submit claims for Medicaid reimbursement and should not be affiliated
@@ -21,7 +22,7 @@ description: |
   This dataset specifically only includes providers excluded by the State of South Carolina.
 publisher:
   name: South Carolina Department of Health and Human Services
-  description: >
+  description: |
     > The Department of Health and Human Services is the administrator of Healthy Connections,
     > South Carolina's Medicaid Program. Medicaid provides health coverage for eligible
     > residents of South Carolina, including:
