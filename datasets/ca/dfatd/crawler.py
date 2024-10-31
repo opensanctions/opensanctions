@@ -51,6 +51,7 @@ def parse_entry(context: Context, node: _Element):
     sanction.add("program", program)
     sanction.add("reason", schedule)
     sanction.add("authorityId", node.findtext("./Item"))
+    h.apply_date(sanction, "listingDate", node.findtext("./DateOfListing"))
 
     names = node.findtext("./Aliases")
     if names is not None:
