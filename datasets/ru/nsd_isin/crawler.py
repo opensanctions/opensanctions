@@ -14,8 +14,7 @@ NO_DATES = ["Без срока погашения", "не установлена
 def parse_date(text: str) -> str:
     if text in NO_DATES:
         return ""
-    text = text.replace("\xa0", " ").replace("г.", "").strip().lower()
-    date_info = text
+    date_info = text.replace("\xa0", " ").replace("г.", "").strip().lower()
     return date_info
 
 
@@ -45,13 +44,12 @@ def crawl_item(context: Context, url: str):
 
         if result.prop is None:
             continue
-
-        if result.type == "date":
-            try:
-                value = h.extract_date(context.dataset, parse_date(value))[0]
-            except ValueError:
-                context.log.warning("Cannot parse date", key=key, value=value)
-                continue
+        # if result.type == "date":
+        #     try:
+        #         value = h.extract_date(context.dataset, parse_date(value))[0]
+        #     except ValueError:
+        #         context.log.warning("Cannot parse date", key=key, value=value)
+        #         continue
 
         if result.prop not in values[result.entity]:
             values[result.entity][result.prop] = []
@@ -80,7 +78,7 @@ def crawl_item(context: Context, url: str):
         issuer.id = context.make_id(isin_code, issuer_name)
     issuer.add("country", "ru")
     for prop, prop_val in values["issuer"].items():
-        issuer.add(prop, prop_val, lang="rus")
+        issuer.add(prop, prop_val)
     context.emit(issuer)
 
 
