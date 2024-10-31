@@ -50,5 +50,8 @@ lookups:
           - "0"
           - "unknown"
           - "Unknown"
+          - ""
           - "n/a"
+          - "Unknown, unknown"
+          - unknown, unknown
         value: null
