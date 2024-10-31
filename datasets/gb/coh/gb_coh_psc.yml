@@ -15,6 +15,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+  - entities.delta.json
   - senzing.json
 resolve: false
 ci_test: false
@@ -33,6 +34,10 @@ publisher:
 data:
   url: "http://download.companieshouse.gov.uk/en_pscdata.html"
   format: JSON
+  lang: eng
+
+dates:
+  formats: ["%d/%m/%Y"]
 
 lookups:
   type.country:
