@@ -20,15 +20,13 @@ def extract_dates(context: Context, url, el):
     if active_date_el is not None:
         start_date = h.extract_date(
             context.dataset, active_date_el.text_content().replace("seit ", "")
-        )
+        )[0]
         end_date = None
         assume_current = True
     elif inactive_dates_el is not None:
         inactive_dates = inactive_dates_el.text_content().replace("ab ", "")
         if " - " in inactive_dates:
             start_date, end_date = inactive_dates.split(" - ")
-            start_date = h.extract_date(context.dataset, start_date.strip())
-            end_date = h.extract_date(context.dataset, end_date.strip())
         else:
             start_date = None
             end_date = None
@@ -40,12 +38,10 @@ def extract_dates(context: Context, url, el):
         start_date = None
         end_date = None
         assume_current = False
-    start_date = start_date[0] if start_date else None
-    end_date = end_date[0] if end_date else None
-    if start_date == "?":
-        start_date = None
-    if end_date == "?":
-        end_date = None
+    # if start_date == "?":
+    #     start_date = None
+    # if end_date == "?":
+    #     end_date = None
     return start_date, end_date, assume_current
 
 
