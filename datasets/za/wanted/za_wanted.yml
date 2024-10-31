@@ -30,9 +30,13 @@ lookups:
   type.number:
     lowercase: true
     options:
-      - match: "0 m"
+      - match: 
+          - "0 m"
+          - "n/a m"
         value: null  
-      - match: "0 kg"
+      - match: 
+          - "0 kg"
+          - "n/a kg"
         value: null 
   type.string:
     lowercase: true
@@ -42,5 +46,9 @@ lookups:
   type.name:
     lowercase: true
     options:
-      - match: "0"
+      - match: 
+          - "0"
+          - "unknown"
+          - "Unknown"
+          - "n/a"
         value: null
