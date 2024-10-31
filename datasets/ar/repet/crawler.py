@@ -91,8 +91,8 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     h.apply_dates(entity, "createdAt", submitted_on)
     h.apply_dates(entity, "createdAt", listed_on)
     if modified_at != []:
-        h.apply_date(entity, "createdAt", modified_at[0])
-        h.apply_date(entity, "modifiedAt", modified_at[0])
+        h.apply_date(entity, "createdAt", min(modified_at))
+        h.apply_date(entity, "modifiedAt", max(modified_at))
 
     h.apply_dates(sanction, "listingDate", submitted_on)
     h.apply_dates(sanction, "listingDate", listed_on)
