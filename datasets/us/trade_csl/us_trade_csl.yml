@@ -108,4 +108,5 @@ lookups:
   type.string:
     options:
       - match: British Virgin Islands
-        value: null
+        prop: country
+        value: VG
