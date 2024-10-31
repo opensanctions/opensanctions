@@ -1,7 +1,7 @@
-from typing import Dict, Generator, Optional, Union
+from typing import Dict, Generator, List, Optional, Union
 from datetime import datetime
 from normality import slugify, stringify
-from xlrd import XL_CELL_DATE
+from xlrd import XL_CELL_DATE  # type: ignore
 from xlrd.book import Book  # type: ignore
 from xlrd.sheet import Cell, Sheet  # type: ignore
 from xlrd.xldate import xldate_as_datetime  # type: ignore
@@ -64,12 +64,12 @@ def parse_xls_sheet(
     skiprows: int = 0,
     join_header_rows: int = 0,
 ) -> Generator[Dict[str, str | None], None, None]:
-    headers = None
+    headers: List[str] | None = None
     for row_ix, row in enumerate(sheet):
         if row_ix < skiprows:
             continue
         cells = []
-        urls = []
+        record: Dict[str, str | None] = {}
         for cell_ix, cell in enumerate(row):
             if cell.ctype == XL_CELL_DATE:
                 # Convert Excel date format to zavod date
@@ -80,8 +80,9 @@ def parse_xls_sheet(
 
             # Add link to key ..._url
             if url := sheet.hyperlink_map.get((row_ix, cell_ix)):
+                assert headers is not None, ("URLs not supported in headers yet.", row)
                 key = f"{headers[cell_ix]}_url"
-                urls.append(url.url_or_path)
+                record[key] = str(url.url_or_path)
 
         if headers is None or join_header_rows > 0:
             if headers:
@@ -97,10 +98,9 @@ def parse_xls_sheet(
                 for idx, cell in enumerate(cells):
                     if not cell:
                         cell = f"column_{idx}"
-                    headers.append(slugify(cell, "_"))
+                    headers.append(slugify(cell, "_") or "")
             continue
 
-        record = {}
         for header, value in zip(headers, cells):
             record[header] = stringify(value)
 

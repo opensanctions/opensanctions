@@ -27,6 +27,16 @@ data:
   url: https://www.nseindia.com/regulations/member-sebi-debarred-entities
   format: HTML
 
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 13500
+    country_entities:
+      in: 13500
+  max:
+    schema_entities:
+      LegalEntity: 18000
+
 lookups:
   type.name:
     options:

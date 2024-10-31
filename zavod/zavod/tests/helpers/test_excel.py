@@ -10,20 +10,19 @@ from zavod.helpers.excel import (
 from zavod.tests.conftest import FIXTURES_PATH
 
 XLS_BOOK = FIXTURES_PATH / "book.xls"
-XLS_BOOK_SPLIT = FIXTURES_PATH / "book_split_headers.xls"
 XLSX_BOOK = FIXTURES_PATH / "book.xlsx"
 
 
 def test_excel_cell():
     book = xlrd.open_workbook(XLS_BOOK.as_posix())
-    for sheet in book.sheets():
-        row = sheet.row(0)
-        cells = [convert_excel_cell(book, cell) for cell in row]
-        assert cells[0] == "numeric"
-        row = sheet.row(1)
-        cells = [convert_excel_cell(book, cell) for cell in row]
-        assert cells[0] == "1"
-        assert cells[1] == "2023-07-26T00:00:00"
+    sheet = book.sheet_by_name("basic")
+    row = sheet.row(0)
+    cells = [convert_excel_cell(book, cell) for cell in row]
+    assert cells[0] == "numeric"
+    row = sheet.row(1)
+    cells = [convert_excel_cell(book, cell) for cell in row]
+    assert cells[0] == "1"
+    assert cells[1] == "2023-07-26T00:00:00"
 
 
 def test_excel_date():
@@ -41,19 +40,21 @@ def test_excel_date():
 
 def test_parse_xls_sheet(vcontext: Context):
     book = xlrd.open_workbook(XLS_BOOK.as_posix())
-    sheet = book.sheet_by_index(0)
+    sheet = book.sheet_by_name("basic")
     rows = list(parse_xls_sheet(vcontext, sheet))
     assert len(rows) == 1, rows
     assert rows[0] == {
         "numeric": "1",
         "text": "Hello, World!",
         "date": "2023-07-26",
+        "numeric_url": "http://example.com/1",
+        "text_url": "http://example.com/hello",
     }
 
 
 def test_parse_xls_sheet_split_header(vcontext: Context):
-    book = xlrd.open_workbook(XLS_BOOK_SPLIT.as_posix())
-    sheet = book.sheet_by_index(0)
+    book = xlrd.open_workbook(XLS_BOOK.as_posix())
+    sheet = book.sheet_by_name("split headers")
     rows = list(parse_xls_sheet(vcontext, sheet, skiprows=1, join_header_rows=1))
     assert len(rows) == 1, rows
     assert rows[0] == {
