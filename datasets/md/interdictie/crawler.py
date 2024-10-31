@@ -49,13 +49,11 @@ def crawl(context: Context):
         entity = context.make("Company")
         name = row.pop("denumirea_si_forma_de_organizare_a_operatorului_economic")
         entity.id = context.make_id(name, "md")
-        entity.add("name", name, lang="ron")
+        entity.add("name", name)
         entity.add("topics", "debarment")
 
         addr_string = row.pop("adresa_si_datele_de_contact_ale_operatorului_economic")
-        address = h.make_address(
-            context, full=addr_string, country_code="md", lang="ron"
-        )
+        address = h.make_address(context, full=addr_string, country_code="md")
         h.apply_address(context, entity, address)
 
         delay_until_date = None
@@ -78,7 +76,7 @@ def crawl(context: Context):
         reason = row.pop(
             "expunerea_succinta_a_temeiului_de_includere_in_lista_a_operatorului_economic"
         )
-        sanction.add("reason", reason, lang="ron")
+        sanction.add("reason", reason)
         h.apply_date(sanction, "startDate", start_date)
         h.apply_date(
             sanction,
@@ -86,7 +84,7 @@ def crawl(context: Context):
             parse_date(row.pop("termenul_limita_de_includere_in_lista"), context),
         )
         h.apply_date(sanction, "listingDate", start_date)
-        sanction.add("status", delay_note, lang="ron")
+        sanction.add("status", delay_note)
 
         owners_and_admins = row.pop("date_privind_administratotul_si_fondatorii")
         crawl_control(context, entity, decision_date, owners_and_admins)
@@ -174,7 +172,7 @@ def make_ownerships(context, company: Entity, date, owners: List[str]) -> Entity
             name = match.group(1)
             owner = context.make("LegalEntity")
             owner.id = context.make_id(company.id, name)
-            owner.add("name", name, lang="ron")
+            owner.add("name", name)
 
             ownership = context.make("Ownership")
             ownership.id = context.make_id(owner.id, "owns", company.id)
@@ -196,7 +194,7 @@ def make_members(context, company: Entity, date, members: List[str]):
         if name:
             member = context.make("LegalEntity")
             member.id = context.make_id(company.id, name)
-            member.add("name", name, lang="ron")
+            member.add("name", name)
 
             membership = context.make("Membership")
             membership.id = context.make_id(member.id, "in", company.id)

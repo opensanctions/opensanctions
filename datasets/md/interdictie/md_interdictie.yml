@@ -28,6 +28,7 @@ url: https://tender.gov.md/ro/lista-de-interdictie
 data:
   url: https://tender.gov.md/ro/lista-de-interdictie
   format: HTML
+  lang: ron
 lookups:
   type.address:
     lowercase: true
