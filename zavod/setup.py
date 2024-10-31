@@ -41,7 +41,7 @@ setup(
         "pdfplumber == 0.11.4",
         "prefixdate",
         "psycopg2-binary",
-        "pyicu == 2.13.1",
+        "pyicu == 2.14",
         "pywikibot==9.5.0",
         "openai >= 1.33.0, < 2.0.0",
         "requests[security]",
