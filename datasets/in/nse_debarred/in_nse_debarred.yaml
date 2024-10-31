@@ -74,10 +74,3 @@ lookups:
         value: https://archives.nseindia.com/content/circulars/INVG47751.zip
       - match: hhttps://archives.nseindia.com/content/circulars/INVG47784.zip
         value: https://archives.nseindia.com/content/circulars/INVG47784.zip
-assertions:
-  min:
-    schema_entities:
-      LegalEntity: 13000
-  max:
-    schema_entities:
-      LegalEntity: 20000

@@ -1,7 +1,4 @@
-from typing import Generator
 from rigour.mime.types import XLS
-from normality import stringify, slugify
-from datetime import datetime
 import xlrd
 
 from zavod import Context, helpers as h
