@@ -46,7 +46,7 @@ data:
   format: HTML
 
 dates: 
-  formats: ["%d/%m/%Y"]
+  formats: ["%d/%m/%Y", "%Y"]
 lookups:
   categories:
     options:
