@@ -27,6 +27,7 @@ def extract_dates(context: Context, url, el):
         inactive_dates = inactive_dates_el.text_content().replace("ab ", "")
         if " - " in inactive_dates:
             start_date, end_date = inactive_dates.split(" - ")
+            end_date = end_date.strip()
         else:
             start_date = None
             end_date = None
@@ -38,10 +39,6 @@ def extract_dates(context: Context, url, el):
         start_date = None
         end_date = None
         assume_current = False
-    # if start_date == "?":
-    #     start_date = None
-    # if end_date == "?":
-    #     end_date = None
     return start_date, end_date, assume_current
 
 
