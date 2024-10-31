@@ -2,7 +2,7 @@ import re
 from itertools import product
 from datetime import datetime
 from prefixdate import parse_parts
-from typing import Dict, Optional, Tuple, List
+from typing import Dict, Optional, Tuple, List, Pattern
 from followthemoney.types import registry
 from followthemoney.util import join_text
 from lxml.etree import _Element as Element
@@ -35,64 +35,83 @@ NAME_PARTS: Dict[MayStr, MayStr] = {
 }
 
 
-OTHER_INFO_REGEXES = [
-    re.compile(
-        r"(?P<whole>(?P<key>Website:) (?P<value>(https?:\/\/|www\.)\S+))"
-    ),  # REGEX_WEBSITE
-    re.compile(
-        r"(?P<whole>(?P<key>E-?mail(?: address)?\s*:) (?P<value>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}))"
-    ),  # REGEX_EMAIL
-    re.compile(
-        r"(?P<whole>(?P<key>(Tel\.|Telephone)( number)? ?:| Tel ?:| Tel.:|Phone:|Phone number:) (?P<value>\+?[0-9- ()]+))"
-    ),  # REGEX_PHONE (matches the whole string)
-    re.compile(
-        r"(?P<whole>(?P<key>(Fax) ?:) (?P<value>\+?[0-9- ()]+))"
-    ),  # REGEX_FAX
-    re.compile(
-        r"(?P<whole>(?P<key>(Taxpayer [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)"
-    ),  # REGEX_INN
-    re.compile(
-        r"(?P<whole>(?P<key>(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number) ?:) (?P<value>\d+)\.?"
-    ),  # REGEX_REGNUM
-    re.compile(
-        r"(?P<whole>(?P<key>(Tax [Rr]egistration [Nn]umber) ?:) (?P<value>\d+)\.?)"
-    ),  # REGEX_TAX
-    re.compile(
-        r"(?P<whole>(?P<key>(IMO [Nn]umber) ?:) (?P<value>\d+)\.?)"
-    ),  # REGEX_IMO
-    re.compile(
-        r"(?P<whole>(?P<key>(State [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)"
-    ),  # REGEX_IDNP
-    re.compile(
-        r"(?P<whole>(?P<key>(Passport number) ?:) (?P<value>[A-Z]{2}\d{7}))"
-    ),  # REGEX_PASSPORT
-    re.compile(
-        r"(?P<whole>(?P<key>(Function) ?:) (?P<value>.+))"
-    ),  # REGEX_FUNCTION (add splits [;])
-    re.compile(r"(?P<whole>(?P<key>(Title) ?:) (?P<value>.+))"),  # REGEX_FUNCTION
-    re.compile(r"(?P<whole>(?P<key>(Rank) ?:) (?P<value>.+))"),  # REGEX_POSITION
-    re.compile(
-        r"(?P<whole>(?P<key>(Position\(s\)) ?:|) (?P<value>.+))"
-    ),  # REGEX_POSITION
-    re.compile(r"(?P<whole>(?P<key>(Position) ?:) (?P<value>.+))"),  # REGEX_POSITION
-    re.compile(
-        r"(?P<whole>(?P<key>(Designation) ?:) (?P<value>.+))"
-    ),  # REGEX_DESIGNATION
-    re.compile(
-        r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:|Tax ID number:|Tax ID No.) (?P<value>\d+)\.?)"
-    ),  # REGEX_TIN
-    re.compile(
-        r"(?P<whole>(?P<key>National [Ii]dentification [Nn]umber ?:| National ID number:) (?P<value>\d+)) ?\(passport\)?"
-    ),  # REGEX_PASS
-    re.compile(r"(?P<whole>(?P<key>(ID number) ?:|ID Card Number:) (?P<value>\d+)\.?)"),  # REGEX_ID
-    # re.compile(r"(?P<whole>(?P<key>(National ID number) ?:) (?P<value>\d+)\.?)"),
-    re.compile(
-        r"(?P<whole>(?P<key>(Principal place of business) ?:|(Place of registration) ?:) (?P<value>\d+)\.?)"
+OTHER_INFO_DEFINITIONS = [
+    (
+        r"(?P<whole>(?P<key>Website:) (?P<value>(https?:\/\/|www\.)\S+))",
+        "REGEX_WEBSITE",
     ),
-    re.compile(
-        r"(?P<whole>(?P<key>(Type of entity) ?:) (?P<value>.+))"
+    (
+        r"(?P<whole>(?P<key>E-?mail(?: address)?\s*:) (?P<value>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}))",
+        "REGEX_EMAIL",
     ),
+    (
+        r"(?P<whole>(?P<key>(Tel\.|Telephone)( number)? ?:| Tel ?:| Tel.:|Phone:|Phone number:) (?P<value>\+?[0-9- ()]+))",
+        "REGEX_PHONE",
+    ),
+    (r"(?P<whole>(?P<key>(Fax) ?:) (?P<value>\+?[0-9- ()]+))", "REGEX_FAX"),
+    (
+        r"(?P<whole>(?P<key>(Taxpayer [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)",
+        "REGEX_INN",
+    ),
+    (
+        r"(?P<whole>(?P<key>(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number) ?:) (?P<value>\d+)\.?",
+        "REGEX_REGNUM",
+    ),
+    (
+        r"(?P<whole>(?P<key>(Tax [Rr]egistration [Nn]umber) ?:) (?P<value>\d+)\.?)",
+        "REGEX_TAX",
+    ),
+    (r"(?P<whole>(?P<key>(IMO [Nn]umber) ?:) (?P<value>\d+)\.?)", "REGEX_IMO"),
+    (
+        r"(?P<whole>(?P<key>(State [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)",
+        "REGEX_IDNP",
+    ),
+    (
+        r"(?P<whole>(?P<key>(Passport number) ?:) (?P<value>[A-Z]{2}\d{7}))",
+        "REGEX_PASSPORT",
+    ),
+    (r"(?P<whole>(?P<key>(Function) ?:) (?P<value>.+))", "REGEX_FUNCTION"),
+    (r"(?P<whole>(?P<key>(Title) ?:) (?P<value>.+))", "REGEX_TITLE"),
+    (r"(?P<whole>(?P<key>(Rank) ?:) (?P<value>.+))", "REGEX_RANK"),
+    (r"(?P<whole>(?P<key>(Position\(s\)) ?:|) (?P<value>.+))", "REGEX_POSITION_S"),
+    (r"(?P<whole>(?P<key>(Position) ?:) (?P<value>.+))", "REGEX_POSITION"),
+    (r"(?P<whole>(?P<key>(Designation) ?:) (?P<value>.+))", "REGEX_DESIGNATION"),
+    (
+        r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:|Tax ID number:|Tax ID No.) (?P<value>\d+)\.?)",
+        "REGEX_TIN",
+    ),
+    (
+        r"(?P<whole>(?P<key>National [Ii]dentification [Nn]umber ?:| National ID number:) (?P<value>\d+)) ?\(passport\)?",
+        "REGEX_NIN",
+    ),
+    (
+        r"(?P<whole>(?P<key>(ID number) ?:|ID Card Number:) (?P<value>\d+)\.?)",
+        "REGEX_ID",
+    ),
+    (
+        r"(?P<whole>(?P<key>(Principal place of business) ?:|(Place of registration) ?:) (?P<value>\d+)\.?)",
+        "REGEX_PLACE_OF_BUSINESS",
+    ),
+    (r"(?P<whole>(?P<key>(Type of entity) ?:) (?P<value>.+))", "REGEX_TYPE_OF_ENTITY"),
 ]
+
+
+OTHER_INFO_REGEXES: List[Tuple[Pattern, str]] = [
+    (re.compile(pattern), name) for pattern, name in OTHER_INFO_DEFINITIONS
+]
+
+
+def process_entry(value, regex_patterns):
+    for regex, name in regex_patterns:
+        match = regex.match(value)
+        if match:
+            return {
+                "name": name,
+                "whole": match.group("whole"),
+                "key": match.group("key"),
+                "value": match.group("value"),
+            }
+    return None
 
 
 def parse_address(node: Element):
@@ -279,31 +298,30 @@ def parse_entry(context: Context, target: Element, programs, places):
             continue
         value = other.text.strip()
         # Add auto-parsed properties
-        for regex in OTHER_INFO_REGEXES:
-            match = regex.match(value)
-            # if match is not None:
-                # context.log.info("Match", value=value, match=match)
-                # print(value)
-                # print(match)
-                # print(match.group("key"))
-                # print(slugify(match.group("key")))
-                # print(match.group("value"))
-            if match is None:
-                #context.log.warning("No match", value=value, regex=regex.pattern)
-                continue
-            prop = context.lookup_value("properties", slugify(match.group("key")))
-            # print(prop)
+        result = process_entry(value, OTHER_INFO_REGEXES)
+        if result:
+            context.log.info("Match found", value=value, match=result)
+            print(f"Original Value: {value}")
+            print(f"Match: {result}")
+            print(f"Key: {result['key']}")
+            print(f"Slugified Key: {slugify(result['key'])}")
+            print(f"Value: {result['value']}")
+
+            prop = context.lookup_value("properties", slugify(result["key"]))
             if prop is not None:
                 if prop != "imoNumber":
-                    entity.add(prop, match.group("value"))
+                    entity.add(prop, result["value"])
                 elif prop == "imoNumber" and entity.schema.name == "Vessel":
-                    entity.add(prop, match.group("value"))
+                    entity.add(prop, result["value"])
 
-            value = value.replace(match.group("whole"), "")  # remove matched part
-        # See what remains
+            # Remove matched part from original value
+            value = value.replace(result["whole"], "")
+
         value = value.strip()
         if not value:
             continue
+        # context.log.warning("Unprocessed remaining value", value=value)
+
         res = context.lookup("other_information", value)
         if not res:
             context.log.warning("More information available", value=value)
