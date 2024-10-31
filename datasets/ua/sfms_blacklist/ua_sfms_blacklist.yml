@@ -36,6 +36,7 @@ data:
   # url: https://fiu.gov.ua/assets/userfiles/Terror/zBlackListFull.xml
   url: https://fiu.gov.ua/assets/userfiles/Terror/BlackListFull.xml
   format: XML
+ci_test: false
 
 dates: 
   formats: ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y", "%d %b. %Y", "%d %b.%Y", "%d.%m.%Y", "%b. %Y", "c. %Y", "%B %d, %Y"]
