@@ -36,12 +36,6 @@ data:
   # url: https://fiu.gov.ua/assets/userfiles/Terror/zBlackListFull.xml
   url: https://fiu.gov.ua/assets/userfiles/Terror/BlackListFull.xml
   format: XML
-http:
-  user_agent: curl/8.7.1
-  backoff_factor: 3
-  max_retries: 5
-  retry_statuses: [413, 429, 503, 504]
-
 
 dates: 
   formats: ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y", "%d %b. %Y", "%d %b.%Y", "%d.%m.%Y", "%b. %Y", "c. %Y", "%B %d, %Y"]
@@ -64,12 +58,9 @@ lookups:
       - match:
           - Kuwaiti citizenship withdrawn in 2002
           - Stateless Palestinian
-          - "682"
         value: null
       - contains: Syrian Arab Republic
         value: Syria
-      - match: Sanaa, Yemen
-        value: YE
       - match: Jordanian of Palestinian origin
         value: JO
       - match:
@@ -84,16 +75,8 @@ lookups:
         values:
           - US
           - SY
-      - match: Alexandria, Egypt
-        value: Egypt
       - match: Possibly Ethiopian
         value: Ethiopia
-      - match: South Sudan number
-        value: South Sudan
-      - match: United Kingdom of Great Britain and Northern Irela
-        value: GB
-      - match: Baghdad, Iraq
-        value: Iraq
   type.date:
     options:
       - match: 11 November 1960, 11 November 1967, 11 November 1969, 1 January 1969
