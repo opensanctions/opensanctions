@@ -11,19 +11,11 @@ from zavod import helpers as h
 NO_DATES = ["Без срока погашения", "не установлена"]
 
 
-def parse_date(text: str, context: Context) -> str:
+def parse_date(text: str) -> str:
     if text in NO_DATES:
         return ""
-    text = h.replace_months(
-        context.dataset, text.replace("\xa0", " ").replace("г.", "").strip().lower()
-    )
-    date_info = h.parse_formats(text, context.dataset.dates.formats)
-
-    if date_info and date_info.dt:
-        return date_info.text
-
-    context.log.warning("Failed to parse date", raw_date=text)
-    return None
+    date_info = text.replace("\xa0", " ").replace("г.", "").strip().lower()
+    return date_info
 
 
 def crawl_item(context: Context, url: str):
@@ -53,13 +45,6 @@ def crawl_item(context: Context, url: str):
         if result.prop is None:
             continue
 
-        if result.type == "date":
-            try:
-                value = parse_date(value, context)
-            except ValueError:
-                context.log.warning("Cannot parse date", key=key, value=value)
-                continue
-
         if result.prop not in values[result.entity]:
             values[result.entity][result.prop] = []
 
@@ -73,7 +58,11 @@ def crawl_item(context: Context, url: str):
     security.add("sourceUrl", url)
     security.add("topics", "sanction")
     for prop, prop_val in values["security"].items():
-        security.add(prop, prop_val)
+        if prop in ["issueDate", "maturityDate", "createdAt"]:
+            parsed = [parse_date(p) for p in prop_val]
+            h.apply_dates(security, prop, parsed)
+        else:
+            security.add(prop, prop_val)
     context.emit(security, target=True)
 
     issuer = context.make("LegalEntity")
