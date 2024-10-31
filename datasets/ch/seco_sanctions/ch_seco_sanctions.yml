@@ -117,11 +117,13 @@ lookups:
           - tel
           - telephone
         value: phone
-      - match: taxpayer-identification-number
+      - match: 
+          - taxpayer-identification-number
         value: innCode
       - match: 
           - ogrn-main-state-registration-number
           - state-registration-number
+          - ogrn
         value: ogrnCode
       - match: registration-number
         value: registrationNumber
@@ -145,11 +147,21 @@ lookups:
           - id-number
           - national-id-number
           - id-card-number
+          - state-identification-number-idnp
         value: idNumber
       - match: rank
         value: title
+      - match: principal-place-of-business
+        value: address
+      - match: place-of-registration
+        value: jurisdiction
+      - match: active-region
+        value: country
+      # - match: kpp
+      #   value: kppCode # remap to kppCode
       - match: 
           - type-of-entity
+          - owner-and-chairman
         value: Null
   other_information: 
     lowercase: true

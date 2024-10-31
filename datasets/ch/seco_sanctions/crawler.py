@@ -63,8 +63,8 @@ OTHER_INFO_DEFINITIONS = [
     ),
     (r"(?P<whole>(?P<key>(IMO [Nn]umber) ?:) (?P<value>\d+)\.?)", "REGEX_IMO"),
     (
-        r"(?P<whole>(?P<key>(State [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)",
-        "REGEX_IDNP",
+        r"(?P<whole>(?P<key>State [Ii]dentification [Nn]umber(?: \([A-Z]+\))? ?:)\s*(?P<value>\d+))",
+        "REGEX_STATE_ID",
     ),
     (
         r"(?P<whole>(?P<key>(Passport number) ?:) (?P<value>[A-Z]{2}\d{7}))",
@@ -89,12 +89,78 @@ OTHER_INFO_DEFINITIONS = [
         "REGEX_ID",
     ),
     (
-        r"(?P<whole>(?P<key>(Principal place of business) ?:|(Place of registration) ?:) (?P<value>\d+)\.?)",
-        "REGEX_PLACE_OF_BUSINESS",
+        r"(?P<whole>(?P<key>Place of registration ?:)\s*(?P<value>.+))",
+        "REGEX_PLACE_OF_REG",
     ),
     (r"(?P<whole>(?P<key>(Type of entity) ?:) (?P<value>.+))", "REGEX_TYPE_OF_ENTITY"),
+    (
+        r"(?P<whole>(?P<key>Principal place of business ?:)\s*(?P<value>.+))",
+        "REGEX_PLACE_OF_BUSINESS",
+    ),
+    (
+        r"(?P<whole>(?P<key>OGRN ?:)\s*(?P<value>\d+))",
+        "REGEX_OGRN",
+    ),
+    (
+        r"(?P<whole>(?P<key>KPP ?:)\s*(?P<value>\d+))",
+        "REGEX_KPP",
+    ),
+    (
+        r"(?P<whole>(?P<key>Owner and chairman ?:)\s*(?P<value>.+))",
+        "REGEX_OWNER_CHAIRMAN",
+    ),
+    (
+        r"(?P<whole>(?P<key>Active region ?:)\s*(?P<value>.+))",
+        "REGEX_ACTIVE_REGION",
+    ),
+    (
+        r"(?P<whole>(?P<key>Date range:)\s*(?P<value>DOB a\) between \d{4}–\d{4}(?:, DOB b\) between \d{4}–\d{4})?\.))",
+        "REGEX_DATE_RANGE",
+    ),
+    (
+        r"(?P<whole>(?P<key>Nationality:)\s*(?P<value>[\w\s]+ until \d{4}\.))",
+        "REGEX_NATIONALITY",
+    ),
+    (
+        r"(?P<whole>(?P<key>Address:)\s*(?P<value>[\w\s]+ in [\w\s]+\.))",
+        "REGEX_ADDRESS",
+    ),
+    (
+        r"(?P<whole>(?P<key>Associated entities:)\s*(?P<value>[^;]+(?:; [^;]+)*))",
+        "REGEX_ASSOCIATED_ENTITIES",
+    ),
+    (r"(?P<whole>(?P<key>National ID\.:)\s*(?P<value>\d+))", "REGEX_NATIONAL_ID"),
+    (r"(?P<whole>(?P<key>Fax no\.:)\s*(?P<value>\+?[0-9\s-]+))", "REGEX_FAX_NO"),
+    (r"(?P<whole>(?P<key>Economic code:)\s*(?P<value>\d+))", "REGEX_ECONOMIC_CODE"),
+    (
+        r"(?P<whole>(?P<key>Telephone no\.:)\s*(?P<value>[\+\d\s;\-]+))",
+        "REGEX_TELEPHONE_NO",
+    ),
+    (
+        r"(?P<whole>(?P<key>Syrian National ID Number:)\s*(?P<value>\d+))",
+        "REGEX_SYRIAN_NATIONAL_ID",
+    ),
+    (r"(?P<whole>(?P<key>Tel:)\s*(?P<value>\+?[0-9\s-]+))", "REGEX_TEL"),
+    (
+        r"(?P<whole>(?P<key>Date of registration:)\s*(?P<value>\d{1,2} [A-Za-z]+ \d{4}))",
+        "REGEX_DATE_OF_REGISTRATION",
+    ),
+    (r"(?P<whole>(?P<key>Tax payer ID:)\s*(?P<value>\d+))", "REGEX_TAX_PAYER_ID"),
 ]
 
+# value=Date range: DOB a) between 1958–1963.
+# value=Nationality: USSR until 1991.
+# value=Address: Believed to be in Pakistan or Afghanistan.
+# value=Associated entities: Islamic Revolutionary Guard Corps (IRGC); Khatam al-Anbiya Construction Headquarters (KAA)
+# value=National ID.: 0035011785
+# value=Fax no.: +98 35 1523096
+# value=Economic code: 411315443678
+# value=Telephone no.: +98 21 2258929; +98 21 35243153; +98 21 3130626
+# value=Date range: DOB a) between 1955–1958, DOB b) between 1945–1950.
+# value=Syrian National ID Number: 01020018085
+# value=Tel: +963 11 6691100
+# value=Date of registration: 27 April 1990
+# value=Tax payer ID: 7706569306
 
 OTHER_INFO_REGEXES: List[Tuple[Pattern, str]] = [
     (re.compile(pattern), name) for pattern, name in OTHER_INFO_DEFINITIONS
@@ -300,12 +366,12 @@ def parse_entry(context: Context, target: Element, programs, places):
         # Add auto-parsed properties
         result = process_entry(value, OTHER_INFO_REGEXES)
         if result:
-            context.log.info("Match found", value=value, match=result)
-            print(f"Original Value: {value}")
-            print(f"Match: {result}")
-            print(f"Key: {result['key']}")
-            print(f"Slugified Key: {slugify(result['key'])}")
-            print(f"Value: {result['value']}")
+            # context.log.info("Match found", value=value, match=result)
+            # print(f"Original Value: {value}")
+            # print(f"Match: {result}")
+            # print(f"Key: {result['key']}")
+            # print(f"Slugified Key: {slugify(result['key'])}")
+            # print(f"Value: {result['value']}")
 
             prop = context.lookup_value("properties", slugify(result["key"]))
             if prop is not None:
