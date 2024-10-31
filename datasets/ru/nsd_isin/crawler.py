@@ -44,12 +44,6 @@ def crawl_item(context: Context, url: str):
 
         if result.prop is None:
             continue
-        # if result.type == "date":
-        #     try:
-        #         value = h.extract_date(context.dataset, parse_date(value))[0]
-        #     except ValueError:
-        #         context.log.warning("Cannot parse date", key=key, value=value)
-        #         continue
 
         if result.prop not in values[result.entity]:
             values[result.entity][result.prop] = []
@@ -64,7 +58,11 @@ def crawl_item(context: Context, url: str):
     security.add("sourceUrl", url)
     security.add("topics", "sanction")
     for prop, prop_val in values["security"].items():
-        security.add(prop, prop_val)
+        if prop in ["issueDate", "maturityDate", "createdAt"]:
+            parsed = [parse_date(p) for p in prop_val]
+            h.apply_dates(security, prop, parsed)
+        else:
+            security.add(prop, prop_val)
     context.emit(security, target=True)
 
     issuer = context.make("LegalEntity")
