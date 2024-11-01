@@ -115,7 +115,7 @@ OTHER_INFO_DEFINITIONS = [
     ),
     (
         r"(?P<whole>(?P<key>Date range:)\s*(?P<value>DOB between (?:\d{4}–\d{4}|\d{4}\s*and\s*\d{4})(?:\.\s*Date range: DOB between (?:\d{4}–\d{4}|\d{4}\s*and\s*\d{4}))*\.?))",
-        "REGEX_DATE_RANGE",
+        "REGEX_DATE_RANGE",  # Date range: DOB c) between 1968–1970.
     ),
     (
         r"(?P<whole>(?P<key>Nationality:)\s*(?P<value>[\w\s]+ until \d{4}\.))",
@@ -422,12 +422,12 @@ def parse_entry(context: Context, target: Element, programs, places):
         # Add auto-parsed properties
         result = process_entry(value, OTHER_INFO_REGEXES)
         if result:
-            context.log.info("Match found", value=value, match=result)
-            print(f"Original Value: {value}")
-            print(f"Match: {result}")
-            print(f"Key: {result['key']}")
-            print(f"Slugified Key: {slugify(result['key'])}")
-            print(f"Value: {result['value']}")
+            # context.log.info("Match found", value=value, match=result)
+            # print(f"Original Value: {value}")
+            # print(f"Match: {result}")
+            # print(f"Key: {result['key']}")
+            # print(f"Slugified Key: {slugify(result['key'])}")
+            # print(f"Value: {result['value']}")
 
             prop = context.lookup_value("properties", slugify(result["key"]))
             if prop is not None:
@@ -442,10 +442,10 @@ def parse_entry(context: Context, target: Element, programs, places):
             value = value.replace(result["whole"], "")
 
         value = value.strip()
-        print(f"Remaining Value: {value}")
+        # print(f"Remaining Value: {value}")
         if not value:
             continue
-        context.log.warning("Unprocessed remaining value", value=value)
+        # context.log.warning("Unprocessed remaining value", value=value)
 
         res = context.lookup("other_information", value)
         if not res:
