@@ -25,7 +25,7 @@ def crawl_item_belarus(raw_name: str, context: Context):
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
-    entity.add("name", name)
+    entity.add("name", name, lang="eng")
     entity.add("topics", "sanction")
 
     for name in or_names:
@@ -49,7 +49,7 @@ def crawl_item_human_rights(raw_name: str, context: Context):
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
-    h.apply_name(entity, first_name=first_name, last_name=last_name)
+    h.apply_name(entity, first_name=first_name, last_name=last_name, lang="eng")
     entity.add("topics", "sanction")
 
     for alias in aliases:
