@@ -146,7 +146,12 @@ lookups:
           - ogrn-main-state-registration-number
           - state-registration-number
           - ogrn
+          - registration-number-ogrn
         value: ogrnCode
+      - match: inn
+        value: innCode
+      - match: okpo
+        value: okpoCode
       - match: registration-number
         value: registrationNumber
       - match: 
@@ -174,6 +179,8 @@ lookups:
           - identity-document-number
           - personal-id
           - registration-number-snr
+          - unp  # double-check
+          - national-identification-no
         value: idNumber
       - match: rank
         value: title
