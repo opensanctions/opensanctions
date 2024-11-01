@@ -264,6 +264,7 @@ lookups:
           - England, Uk
           - Englad
           - Gb-Eng
+          - E&W
         contains:
           - United Kingdom
           - United Kingdon
@@ -305,5 +306,10 @@ lookups:
         weight: 100
       - contains:
           - British
+          - Britian
+          - London
+          - Enlgand
+        match:
+          - Englan
         value: gb
         weight: -1
