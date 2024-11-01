@@ -61,6 +61,18 @@ lookups:
     options:
       - contains: Syrian Arab Republic
         value: Syria
+      - match: Uzbekistan
+        value: Uzbekistan
+      - match: Syria
+        value: Syria
+      - match: United Arab Emirates
+        value: UAE
+      - match: Armenia
+        value: Armenia
+      - match: Hong Kong, China
+        values: 
+          - Hong Kong
+          - China
   type.date:
     options:
       - match: 1.2.1994/6.3.2000
@@ -105,17 +117,27 @@ lookups:
   properties:
     lowercase: true
     options:
-      - match: website
+      - match: 
+          - dob
+          - date-range
+        value: birthDate
+      - match: 
+          - website
+          - company-website
         value: website
       - match: 
           - email
           - e-mail-address
           - e-mail
+          - company-email
         value: email
+      - match: date-of-registration
+        value: incorporationDate
       - match: 
           - telephone-number
           - tel
           - telephone
+          - company-phone
         value: phone
       - match: 
           - taxpayer-identification-number
@@ -148,6 +170,10 @@ lookups:
           - national-id-number
           - id-card-number
           - state-identification-number-idnp
+          - wagner-group-id
+          - identity-document-number
+          - personal-id
+          - registration-number-snr
         value: idNumber
       - match: rank
         value: title
@@ -155,10 +181,20 @@ lookups:
         value: address
       - match: place-of-registration
         value: jurisdiction
-      - match: active-region
+      - match: 
+          - active-region
+          - suspected-location
         value: country
       # - match: kpp
       #   value: kppCode # remap to kppCode
+      - match: 
+          - associated-entities
+          - other-identifying-information
+          - associated-individuals
+          - associated-entities-and-individuals
+          - other-associated-entities
+          - status
+        value: description
       - match: 
           - type-of-entity
           - owner-and-chairman

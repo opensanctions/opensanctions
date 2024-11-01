@@ -78,7 +78,7 @@ OTHER_INFO_DEFINITIONS = [
     (r"(?P<whole>(?P<key>(Designation) ?:) (?P<value>.+))", "REGEX_DESIGNATION"),
     (
         r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:|Tax ID number:|Tax ID No.) (?P<value>\d+)\.?)",
-        "REGEX_TIN",
+        "REGEX_TIN",  # here we also wan tot tak eit all; example: value=Tax ID No.: 3050100254 (Ukraine)
     ),
     (
         r"(?P<whole>(?P<key>National [Ii]dentification [Nn]umber ?:| National ID number:) (?P<value>\d+)) ?\(passport\)?",
@@ -114,7 +114,7 @@ OTHER_INFO_DEFINITIONS = [
         "REGEX_ACTIVE_REGION",
     ),
     (
-        r"(?P<whole>(?P<key>Date range:)\s*(?P<value>DOB a\) between \d{4}–\d{4}(?:, DOB b\) between \d{4}–\d{4})?\.))",
+        r"(?P<whole>(?P<key>Date range:)\s*(?P<value>DOB between (?:\d{4}–\d{4}|\d{4}\s*and\s*\d{4})(?:\.\s*Date range: DOB between (?:\d{4}–\d{4}|\d{4}\s*and\s*\d{4}))*\.?))",
         "REGEX_DATE_RANGE",
     ),
     (
@@ -133,34 +133,64 @@ OTHER_INFO_DEFINITIONS = [
     (r"(?P<whole>(?P<key>Fax no\.:)\s*(?P<value>\+?[0-9\s-]+))", "REGEX_FAX_NO"),
     (r"(?P<whole>(?P<key>Economic code:)\s*(?P<value>\d+))", "REGEX_ECONOMIC_CODE"),
     (
-        r"(?P<whole>(?P<key>Telephone no\.:)\s*(?P<value>[\+\d\s;\-]+))",
+        r"(?P<whole>(?P<key>Telephone no\.:)\s*(?P<value>(?:[\+\d\s-]+)(?:[,;]\s*[\+\d\s-]+)*))",
         "REGEX_TELEPHONE_NO",
     ),
     (
         r"(?P<whole>(?P<key>Syrian National ID Number:)\s*(?P<value>\d+))",
         "REGEX_SYRIAN_NATIONAL_ID",
     ),
-    (r"(?P<whole>(?P<key>Tel:)\s*(?P<value>\+?[0-9\s-]+))", "REGEX_TEL"),
+    (
+        r"(?P<whole>(?P<key>Tel:)\s*(?P<value>(?:\+?[0-9\s-]+)(?:[,;]\s*\+?[0-9\s-]+)*))",
+        "REGEX_TEL",
+    ),
     (
         r"(?P<whole>(?P<key>Date of registration:)\s*(?P<value>\d{1,2} [A-Za-z]+ \d{4}))",
         "REGEX_DATE_OF_REGISTRATION",
     ),
     (r"(?P<whole>(?P<key>Tax payer ID:)\s*(?P<value>\d+))", "REGEX_TAX_PAYER_ID"),
+    (r"(?P<whole>(?P<key>Wagner Group ID:)\s*(?P<value>.+))", "REGEX_WAGNER_GROUP_ID"),
+    (r"(?P<whole>(?P<key>Website:)\s*(?P<value>.+))", "REGEX_WEBSITE"),
+    (
+        r"(?P<whole>(?P<key>Associated individuals:)\s*(?P<value>.+))",
+        "REGEX_ASSOCIATED_INDIVIDUALS",
+    ),
+    (
+        r"(?P<whole>(?P<key>Other identifying information:)\s*(?P<value>.+))",
+        "REGEX_OTHER_IDENTIFYING_INFORMATION",
+    ),
+    (
+        r"(?P<whole>(?P<key>Associated entities and individuals:)\s*(?P<value>.+))",
+        "REGEX_ASSOCIATED_ENTITIES_AND_INDIVIDUALS",
+    ),
+    (
+        r"(?P<whole>(?P<key>Other associated entities:)\s*(?P<value>.+))",
+        "REGEX_OTHER_ASSOCIATED_ENTITIES",
+    ),
+    (
+        r"(?P<whole>(?P<key>Identity document number:)\s*(?P<value>.+))",
+        "REGEX_IDENTITY_DOCUMENT_NUMBER",
+    ),
+    (r"(?P<whole>(?P<key>Company website:)\s*(?P<value>.+))", "REGEX_COMPANY_WEBSITE"),
+    (r"(?P<whole>(?P<key>Company email:)\s*(?P<value>.+))", "REGEX_COMPANY_EMAIL"),
+    (r"(?P<whole>(?P<key>Company phone:)\s*(?P<value>.+))", "REGEX_COMPANY_PHONE"),
+    (r"(?P<whole>(?P<key>Personal ID:)\s*(?P<value>.+))", "REGEX_PERSONAL_ID"),
+    (r"(?P<whole>(?P<key>DOB:)\s*(?P<value>.+))", "REGEX_DOB"),
+    (
+        r"(?P<whole>(?P<key>Registration number \(SNR\):)\s*(?P<value>.+))",
+        "REGEX_REGISTRATION_NUMBER_SNR",
+    ),
+    (r"(?P<whole>(?P<key>Status:)\s*(?P<value>.+))", "REGEX_STATUS"),
+    (
+        r"(?P<whole>(?P<key>Suspected location:)\s*(?P<value>.+))",
+        "REGEX_SUSPECTED_LOCATION",
+    ),
+    (
+        r"(?P<whole>(?P<key>Date of registration:)\s*(?P<value>.+))",
+        "REGEX_DATE_OF_REGISTRATION",
+    ),
 ]
 
-# value=Date range: DOB a) between 1958–1963.
-# value=Nationality: USSR until 1991.
-# value=Address: Believed to be in Pakistan or Afghanistan.
-# value=Associated entities: Islamic Revolutionary Guard Corps (IRGC); Khatam al-Anbiya Construction Headquarters (KAA)
-# value=National ID.: 0035011785
-# value=Fax no.: +98 35 1523096
-# value=Economic code: 411315443678
-# value=Telephone no.: +98 21 2258929; +98 21 35243153; +98 21 3130626
-# value=Date range: DOB a) between 1955–1958, DOB b) between 1945–1950.
-# value=Syrian National ID Number: 01020018085
-# value=Tel: +963 11 6691100
-# value=Date of registration: 27 April 1990
-# value=Tax payer ID: 7706569306
 
 OTHER_INFO_REGEXES: List[Tuple[Pattern, str]] = [
     (re.compile(pattern), name) for pattern, name in OTHER_INFO_DEFINITIONS
@@ -366,12 +396,12 @@ def parse_entry(context: Context, target: Element, programs, places):
         # Add auto-parsed properties
         result = process_entry(value, OTHER_INFO_REGEXES)
         if result:
-            # context.log.info("Match found", value=value, match=result)
-            # print(f"Original Value: {value}")
-            # print(f"Match: {result}")
-            # print(f"Key: {result['key']}")
-            # print(f"Slugified Key: {slugify(result['key'])}")
-            # print(f"Value: {result['value']}")
+            context.log.info("Match found", value=value, match=result)
+            print(f"Original Value: {value}")
+            print(f"Match: {result}")
+            print(f"Key: {result['key']}")
+            print(f"Slugified Key: {slugify(result['key'])}")
+            print(f"Value: {result['value']}")
 
             prop = context.lookup_value("properties", slugify(result["key"]))
             if prop is not None:
