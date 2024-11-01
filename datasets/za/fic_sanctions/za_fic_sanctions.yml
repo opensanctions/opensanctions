@@ -171,6 +171,5 @@ lookups:
   type.name: 
     options: 
       - match: 
-          - "None, None"
           - None
         value: null
