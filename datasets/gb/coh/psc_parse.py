@@ -114,7 +114,6 @@ def parse_base_data(context: Context) -> None:
             entity.add("sector", clean_sector(sector))
         inc_date = row.pop("IncorporationDate")
         h.apply_date(entity, "incorporationDate", inc_date)
-        entity.add("incorporationDate", inc_date)
         dis_date = row.pop("DissolutionDate")
         h.apply_date(entity, "dissolutionDate", dis_date)
 
@@ -243,7 +242,12 @@ def parse_psc_data(context: Context) -> None:
         psc.add("registrationNumber", reg_nr, quiet=True)
         psc.add("legalForm", ident.pop("legal_form", None), quiet=True)
         psc.add("legalForm", ident.pop("legal_authority", None), quiet=True)
-        psc.add("jurisdiction", ident.pop("country_registered", None), quiet=True)
+        psc.add(
+            "jurisdiction",
+            ident.pop("country_registered", None),
+            quiet=True,
+            fuzzy=True,
+        )
         # psc.add("jurisdiction", ident.pop("place_registered", None), quiet=True)
         # if len(ident):
         #     pprint(ident)
