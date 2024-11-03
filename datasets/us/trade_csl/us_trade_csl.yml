@@ -47,7 +47,7 @@ data:
   url: https://api.trade.gov/static/consolidated_screening_list/consolidated.json
   format: JSON
 
-dates: 
+dates:
   formats: ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 lookups:
   type:
@@ -107,5 +107,6 @@ lookups:
         value: Ministry of Defence of the Russian Federation
   type.string:
     options:
-      match: British Virgin Islands
-      prop: country
+      - match: British Virgin Islands
+        prop: country
+        value: VG
