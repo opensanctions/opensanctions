@@ -35,7 +35,7 @@ data:
   lang: rus
 
 dates:
-  formats: "%d %b %Y"
+  formats: ["%d %b %Y"]
   months:
     Sep: "сентября"
     Aug: "августа"

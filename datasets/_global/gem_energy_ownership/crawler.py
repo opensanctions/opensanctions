@@ -51,8 +51,14 @@ IGNORE = [
     "gspt_cancelled_ttpa",
     "total",
 ]
-SMALL_SHAREHOLDERS = "E100001015587"
-UNKNOWN = "E100000132388"
+SKIP_IDS = {
+    "E100001015587",  # Small shareholders
+    "E100000132388",  # Unknown
+    "E100000001753",  # Other
+    "E100000126067",  # Non-promoter shareholders
+    "E100000125842",  # Co-investment by natural persons
+    "E100000123261",  # natural persons
+}
 SELF_OWNED = {"E100000002239"}
 STATIC_URL = "https://data.opensanctions.org/contrib/globalenergy/Global_Energy_Ownership_Tracker_June_2024.xlsx"
 
@@ -61,7 +67,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     id = row.pop("entity_id")
     name = row.pop("entity_name")
     # Skip entities
-    if name is None or id == SMALL_SHAREHOLDERS or id == UNKNOWN:
+    if name is None or id in SKIP_IDS:
         skipped.add(id)
         return
     original_name = row.pop("name_local")

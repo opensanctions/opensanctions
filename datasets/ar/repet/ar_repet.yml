@@ -27,6 +27,8 @@ data:
   url: https://repet.jus.gob.ar/
   format: JSON
 
+dates: 
+  formats: ["%d/%m/%Y"]
 lookups:
   doc_types:
     lowercase: true
