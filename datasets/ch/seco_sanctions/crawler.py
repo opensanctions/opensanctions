@@ -71,7 +71,7 @@ OTHER_INFO_DEFINITIONS = [
         "REGEX_INN",
     ),
     (
-        r"(?P<whole>(?P<key>(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number) ?:) (?P<value>\d+)\.?",
+        r"(?P<whole>(?P<key>(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?:) (?P<value>\d+)\.?)",
         "REGEX_REGNUM",
     ),
     (
