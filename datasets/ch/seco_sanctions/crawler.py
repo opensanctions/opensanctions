@@ -51,11 +51,13 @@ OTHER_INFO_DEFINITIONS = [
     r"(?P<whole>(?P<key>(Taxpayer [Ii]dentification [Nn]umber) ?:) (?P<value>.+)\.?)",
     r"(?P<whole>(?P<key>(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?:) (?P<value>.+)\.?)",
     r"(?P<whole>(?P<key>(Tax [Rr]egistration [Nn]umber) ?:) (?P<value>.+)\.?)",
-    r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:|Tax ID number:|Tax ID No. ?:?|Tax Number:) (?P<value>.+)\.?)",
+    r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:|Tax ID number:|Tax ID No. ?:?|Tax [Nn]umber:) (?P<value>.+)\.?)",
     r"(?P<whole>(?P<key>National [Ii]dentification [Nn]umber ?:|National ID number:)\s*(?P<value>\d+)\s*(?P<extra>\(passport\))?)",
     r"(?P<whole>(?P<key>State [Ii]dentification [Nn]umber(?: \([A-Z]+\))? ?:)\s*(?P<value>.+)\s*(?P<extra>\([^)]+\))?)",
     r"(?P<whole>(?P<key>(Passport number) ?:) (?P<value>[A-Za-z0-9]+)\.?)",
+    r"(?P<whole>(?P<key>(Passport number, national ID number, other numbers of identity documents) ?:) (?P<value>[A-Za-z0-9]+)\s*(?P<extra>\(passport\))?)",
     r"(?P<whole>(?P<key>National ID\.:)\s*(?P<value>.+))",
+    r"(?P<whole>(?P<key>National identification no:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>(TIN|KPP|OGRN|UNP|OKPO|INN|PPC|BIN) ?:?)\s*(?P<value>\d+))",
     # r"^(?P<whole>(?P<key>Registration number:)\s*(?P<value>\d+))$",
     # r"^(?P<whole>(?P<key>Registration number:)\s*(?P<value>\d+)(?:\s*\((?P<extra>[^\)]+)\))?)$",
@@ -71,6 +73,7 @@ OTHER_INFO_DEFINITIONS = [
     r"(?P<whole>(?P<key>Principal place of business ?:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Suspected location:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Location of activities:)\s*(?P<value>.+))",
+    r"(?P<whole>(?P<key>Headquarters:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Nationality:)\s*(?P<value>[\w\s]+ until \d{4}\.))",
     r"(?P<whole>(?P<key>Address:)\s*(?P<value>[\w\s]+ in [\w\s]+\.))",
     # Date related
@@ -89,6 +92,7 @@ OTHER_INFO_DEFINITIONS = [
     r"(?P<whole>(?P<key>Owner and chairman ?:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Active region ?:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>(Type of entity) ?:) (?P<value>.+))",
+    r"(?P<whole>(?P<key>(Profession) ?:?) (?P<value>.+))",
     # Others
     r"(?P<whole>(?P<key>Associated entities:)\s*(?P<value>[^;]+(?:; [^;]+)*))",
     r"(?P<whole>(?P<key>Associated individuals:)\s*(?P<value>.+))",
@@ -102,15 +106,14 @@ OTHER_INFO_DEFINITIONS = [
     r"(?P<whole>(?P<key>Callsign:)\s*(?P<value>[\w\s]+))",
 ]
 # [Old reference # E.29.II.3]
-# value=Profession: actor, film director, screenwriter and producer
-# value=Headquarters: Managua, Nicaragua
 # value=Tax Identification Number (Ukraine): 2929001847
-# value=Passport number, national ID number, other numbers of identity documents: 771373760000
-# value=National identification no: Haiti 004-341-263-3
 # value=Facebook: https://www.facebook.com/profile.php?id=100063824414668
 # value=VK: https://vk.com/official_cniitm
 # value=Principal places of business: United Arab Emirates, Russian Federation, European Union
 # Tax ID No.: 663004268009
+# value=Social media: Cossack National Guard http://vk.com/kazak_ nac_guard
+# value=Social media and other information: https://vk.com/luguard; http://vk.com/club68692201; https://vk.com/luguardnew
+# value=Additional information: INN/KPP 7303026762 / 732701001
 
 OTHER_INFO_REGEXES = [re.compile(pattern) for pattern in OTHER_INFO_DEFINITIONS]
 
@@ -318,7 +321,7 @@ def parse_entry(context: Context, target: Element, programs, places):
             # print("Original Value %r:" % value)
             # print(f"Match: {result}")
             # print(f"Key: {result['key']}")
-            # print(f"Slugified Key: {slugify(result['key'])}")
+            print(f"Slugified Key: {slugify(result['key'])}")
             # print(f"Value: {result['value']}")
 
             prop = context.lookup_value("properties", slugify(result["key"]))
@@ -329,12 +332,12 @@ def parse_entry(context: Context, target: Element, programs, places):
                     h.apply_date(entity, prop, result["value"])
                 elif prop == "imoNumber" and entity.schema.name == "Vessel":
                     entity.add(prop, result["value"])
-            # else:
-            #     context.log.warning(
-            #         "Unrecognized property",
-            #         key=result["key"],
-            #         slugified_key=slugify(result["key"]),
-            #     )
+            else:
+                context.log.warning(
+                    "Unrecognized property",
+                    key=result["key"],
+                    slugified_key=slugify(result["key"]),
+                )
 
             # # Remove matched part from original value
             # pattern = re.escape(

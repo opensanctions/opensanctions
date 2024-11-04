@@ -130,6 +130,7 @@ lookups:
           - e-mail-address
           - e-mail
           - company-email
+          - email-address
         value: email
       - match: date-of-registration
         value: incorporationDate
@@ -138,6 +139,8 @@ lookups:
           - tel
           - telephone
           - company-phone
+          - phone
+          - phone-number
         value: phone
       - match: 
           - taxpayer-identification-number
@@ -147,17 +150,20 @@ lookups:
           - state-registration-number
           - ogrn
           - registration-number-ogrn
-          - registration-number
         value: ogrnCode
       - match: inn
         value: innCode
       - match: okpo
         value: okpoCode
-      # - match: registration-number
-      #   value: registrationNumber
+      - match: registration-number
+        value: registrationNumber
       - match: 
           - tax-registration-number
           - tax-identification-number
+          - tax-number
+          - tax-id-number
+          - tax-id-no
+          - tax-payer-id
         value: taxNumber
       - match: imo-number
         value: imoNumber
@@ -166,10 +172,12 @@ lookups:
           - position
           - function
           - designation
+          - profession
         value: position
       - match: 
           - national-identification-number
           - passport-number
+          - syrian-national-id-number
         value: passportNumber
       - match: 
           - id-number
@@ -182,12 +190,18 @@ lookups:
           - registration-number-snr
           - unp  # double-check
           - national-identification-no
+          - passport-number-national-id-number-other-numbers-of-identity-documents
         value: idNumber
-      - match: rank
+      - match: 
+          - rank
+          - title
         value: title
       - match: 
           - principal-place-of-business
           - place-of-registration
+          - headquarters
+          - location-of-activities
+          - address
         value: address
       - match: 
           - active-region
@@ -195,6 +209,10 @@ lookups:
         value: country
       # - match: kpp
       #   value: kppCode # remap to kppCode
+      - match: callsign
+        value: weakAlias
+      - match: nationality
+        value: nationality
       - match: 
           - associated-entities
           - other-identifying-information
@@ -202,11 +220,18 @@ lookups:
           - associated-entities-and-individuals
           - other-associated-entities
           - status
-        value: description
-      - match: 
           - type-of-entity
-          - owner-and-chairman
-        value: Null
+          - fax # remove later 
+          - tin  # remove later
+          - kpp # remove later
+          - owner-and-chairman # remove later
+          - ppc # remove later
+          - bin # remove later
+          - fax-no # remove later
+        value: description
+      # - match: 
+      #     - owner-and-chairman
+      #   value: Null
   other_information: 
     lowercase: true
     options: 
