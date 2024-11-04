@@ -2,7 +2,7 @@ import re
 from itertools import product
 from datetime import datetime
 from prefixdate import parse_parts
-from typing import Dict, Optional, Tuple, List, Pattern
+from typing import Dict, Optional, Tuple, List
 from followthemoney.types import registry
 from followthemoney.util import join_text
 from lxml.etree import _Element as Element
@@ -38,8 +38,8 @@ NAME_PARTS: Dict[MayStr, MayStr] = {
 OTHER_INFO_DEFINITIONS = [
     # Website related
     r"(?P<whole>(?P<key>Website:) (?P<value>(https?:\/\/|www\.)\S+))",
-    r"(?P<whole>(?P<key>Website:)\s*(?P<value>.+))"
-    r"(?P<whole>(?P<key>Company website:)\s*(?P<value>.+))"
+    r"(?P<whole>(?P<key>Website:)\s*(?P<value>.+))",
+    r"(?P<whole>(?P<key>Company website:)\s*(?P<value>.+))",
     # Email related
     r"(?P<whole>(?P<key>E-?mail(?: address)?\s*:) (?P<value>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}))",
     r"(?P<whole>(?P<key>Company email:)\s*(?P<value>.+))",
@@ -57,12 +57,13 @@ OTHER_INFO_DEFINITIONS = [
     r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:|Tax ID number:|Tax ID No.) (?P<value>\d+)\.?)",
     r"(?P<whole>(?P<key>National [Ii]dentification [Nn]umber ?:| National ID number:) (?P<value>\d+)) ?\(passport\)?",
     r"(?P<whole>(?P<key>State [Ii]dentification [Nn]umber(?: \([A-Z]+\))? ?:)\s*(?P<value>\d+)\s*(?P<extra>\([^)]+\))?)",
-    r"(?P<whole>(?P<key>(Passport number) ?:) (?P<value>[A-Z]{2}\d{7}))",
+    r"(?P<whole>(?P<key>(Passport number) ?:) (?P<value>[A-Za-z0-9]+)\.?)",
     r"(?P<whole>(?P<key>National ID\.:)\s*(?P<value>\d+))",
     r"(?P<whole>(?P<key>INN:)\s*(?P<value>\d+))",
     r"(?P<whole>(?P<key>OKPO:)\s*(?P<value>\d+))",
     r"(?P<whole>(?P<key>UNP:)\s*(?P<value>\d+))",
-    r"^(?P<whole>(?P<key>Registration number:)\s*(?P<value>\d+))$",
+    # r"^(?P<whole>(?P<key>Registration number:)\s*(?P<value>\d+))$",
+    # r"^(?P<whole>(?P<key>Registration number:)\s*(?P<value>\d+)(?:\s*\((?P<extra>[^\)]+)\))?)$",
     r"(?P<whole>(?P<key>Registration number \(OGRN\):)\s*(?P<value>\d+))",
     r"(?P<whole>(?P<key>Registration number \(SNR\):)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>(ID number) ?:|ID Card Number:) (?P<value>[A-Za-z0-9]+)\.?)",
@@ -80,8 +81,9 @@ OTHER_INFO_DEFINITIONS = [
     r"(?P<whole>(?P<key>Address:)\s*(?P<value>[\w\s]+ in [\w\s]+\.))",
     # Date related
     r"(?P<whole>(?P<key>Date range:)\s*(?P<value>DOB between (?:\d{4}–\d{4}|\d{4}\s*and\s*\d{4})(?:\.\s*Date range: DOB between (?:\d{4}–\d{4}|\d{4}\s*and\s*\d{4}))*\.?))",
-    r"(?P<whole>(?P<key>Date of registration:)\s*(?P<value>\d{1,2} [A-Za-z]+ \d{4}))",
-    r"(?P<whole>(?P<key>Date of registration:)\s*(?P<value>.+))",
+    # r"(?P<whole>(?P<key>Date of registration:)\s*(?P<value>\d{1,2} [A-Za-z]+ \d{4}))",
+    r"(?P<whole>(?P<key>Date of registration:)\s*(?P<value>[\w\s./\\-]+))",
+    # r"(?P<whole>(?P<key>Date of registration:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>DOB:)\s*(?P<value>.+))",
     # Role and Title related
     r"(?P<whole>(?P<key>(Function) ?:) (?P<value>.+))",
@@ -92,13 +94,13 @@ OTHER_INFO_DEFINITIONS = [
     r"(?P<whole>(?P<key>(Designation) ?:) (?P<value>.+))",
     r"(?P<whole>(?P<key>Owner and chairman ?:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Active region ?:)\s*(?P<value>.+))",
-    r"(?P<whole>(?P<key>(Type of entity) ?:) (?P<value>.+))"
+    r"(?P<whole>(?P<key>(Type of entity) ?:) (?P<value>.+))",
     # Others
     r"(?P<whole>(?P<key>Associated entities:)\s*(?P<value>[^;]+(?:; [^;]+)*))",
     r"(?P<whole>(?P<key>Associated individuals:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Other identifying information:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Associated entities and individuals:)\s*(?P<value>.+))",
-    r"(?P<whole>(?P<key>Other associated entities:)\s*(?P<value>.+))"
+    r"(?P<whole>(?P<key>Other associated entities:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Identity document number:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Personal ID:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Tax payer ID:)\s*(?P<value>\d+))",
@@ -106,15 +108,17 @@ OTHER_INFO_DEFINITIONS = [
     r"(?P<whole>(?P<key>Callsign:)\s*(?P<value>[\w\s]+))",
 ]
 # [Old reference # E.29.II.3]
-#
+# value=Profession: actor, film director, screenwriter and producer
+# value=Headquarters: Managua, Nicaragua
+# value=Tax Identification Number (Ukraine): 2929001847
+# value=Passport number, national ID number, other numbers of identity documents: 771373760000
+# value=National identification no: Haiti 004-341-263-3
 
-OTHER_INFO_REGEXES: List[Tuple[Pattern, str]] = [
-    (re.compile(pattern), name) for pattern, name in OTHER_INFO_DEFINITIONS
-]
+OTHER_INFO_REGEXES = [re.compile(pattern) for pattern in OTHER_INFO_DEFINITIONS]
 
 
 def process_entry(value, regex_patterns):
-    for regex, name in regex_patterns:
+    for regex in regex_patterns:
         match = regex.match(value)
         if match:
             return {
@@ -313,11 +317,11 @@ def parse_entry(context: Context, target: Element, programs, places):
         result = process_entry(value, OTHER_INFO_REGEXES)
         if result:
             # context.log.info("Match found", value=value, match=result)
-            print("Original Value %r:" % value)
-            print(f"Match: {result}")
-            print(f"Key: {result['key']}")
-            print(f"Slugified Key: {slugify(result['key'])}")
-            print(f"Value: {result['value']}")
+            # print("Original Value %r:" % value)
+            # print(f"Match: {result}")
+            # print(f"Key: {result['key']}")
+            # print(f"Slugified Key: {slugify(result['key'])}")
+            # print(f"Value: {result['value']}")
 
             prop = context.lookup_value("properties", slugify(result["key"]))
             if prop is not None:
@@ -327,12 +331,12 @@ def parse_entry(context: Context, target: Element, programs, places):
                     h.apply_date(entity, prop, result["value"])
                 elif prop == "imoNumber" and entity.schema.name == "Vessel":
                     entity.add(prop, result["value"])
-            else:
-                context.log.warning(
-                    "Unrecognized property",
-                    key=result["key"],
-                    slugified_key=slugify(result["key"]),
-                )
+            # else:
+            #     context.log.warning(
+            #         "Unrecognized property",
+            #         key=result["key"],
+            #         slugified_key=slugify(result["key"]),
+            #     )
 
             # # Remove matched part from original value
             # pattern = re.escape(
