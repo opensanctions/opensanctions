@@ -185,10 +185,10 @@ lookups:
         value: idNumber
       - match: rank
         value: title
-      - match: principal-place-of-business
+      - match: 
+          - principal-place-of-business
+          - place-of-registration
         value: address
-      - match: place-of-registration
-        value: jurisdiction
       - match: 
           - active-region
           - suspected-location

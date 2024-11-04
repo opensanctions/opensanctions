@@ -37,39 +37,42 @@ NAME_PARTS: Dict[MayStr, MayStr] = {
 
 OTHER_INFO_DEFINITIONS = [
     # Website related
-    r"(?P<whole>(?P<key>Website:) (?P<value>(https?:\/\/|www\.)\S+))",
+    # r"(?P<whole>(?P<key>Website:) (?P<value>(https?:\/\/|www\.)\S+))",
     r"(?P<whole>(?P<key>Website:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Company website:)\s*(?P<value>.+))",
     # Email related
-    r"(?P<whole>(?P<key>E-?mail(?: address)?\s*:) (?P<value>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}))",
+    r"(?P<whole>(?P<key>E-?mail(?: address)?\s*:) (?P<value>.+))",
     r"(?P<whole>(?P<key>Company email:)\s*(?P<value>.+))",
     # Phone/Fax related
-    r"(?P<whole>(?P<key>(Tel\.|Telephone)( number)? ?:| Tel ?:| Tel.:|Phone:|Phone number:)\s*(?P<value>(?:\+?[0-9\- ()]+)(?:,\s*\+?[0-9\- ()]+)*))",
-    r"(?P<whole>(?P<key>Telephone no\.:)\s*(?P<value>(?:[\+\d\s-]+)(?:[,;]\s*[\+\d\s-]+)*))",
-    r"(?P<whole>(?P<key>Tel:)\s*(?P<value>(?:\+?[0-9\s-]+)(?:[,;]\s*\+?[0-9\s-]+)*))",
+    r"(?P<whole>(?P<key>(Tel\.|Telephone)( number)? ?:| Tel ?:| Tel.:|Phone:|Phone number:)\s*(?P<value>.+))",
+    r"(?P<whole>(?P<key>Telephone no\.:)\s*(?P<value>.+))",
+    r"(?P<whole>(?P<key>Tel:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Company phone:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>(Fax) ?:) (?P<value>\+?[0-9- ()]+))",
     r"(?P<whole>(?P<key>Fax no\.:)\s*(?P<value>\+?[0-9\s-]+))",
     # Identification numbers
-    r"(?P<whole>(?P<key>(Taxpayer [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)",
-    r"(?P<whole>(?P<key>(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?:) (?P<value>\d+)\.?)",
-    r"(?P<whole>(?P<key>(Tax [Rr]egistration [Nn]umber) ?:) (?P<value>\d+)\.?)",
-    r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:|Tax ID number:|Tax ID No.) (?P<value>\d+)\.?)",
-    r"(?P<whole>(?P<key>National [Ii]dentification [Nn]umber ?:| National ID number:) (?P<value>\d+)) ?\(passport\)?",
-    r"(?P<whole>(?P<key>State [Ii]dentification [Nn]umber(?: \([A-Z]+\))? ?:)\s*(?P<value>\d+)\s*(?P<extra>\([^)]+\))?)",
+    r"(?P<whole>(?P<key>(Taxpayer [Ii]dentification [Nn]umber) ?:) (?P<value>.+)\.?)",
+    r"(?P<whole>(?P<key>(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?:) (?P<value>.+)\.?)",
+    r"(?P<whole>(?P<key>(Tax [Rr]egistration [Nn]umber) ?:) (?P<value>.+)\.?)",
+    r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:|Tax ID number:|Tax ID No. ?:?|Tax Number:) (?P<value>.+)\.?)",
+    # r"(?P<whole>(?P<key>National [Ii]dentification [Nn]umber ?:| National ID number:) (?P<value>.+) ?\(passport\))?",
+    r"(?P<whole>(?P<key>State [Ii]dentification [Nn]umber(?: \([A-Z]+\))? ?:)\s*(?P<value>.+)\s*(?P<extra>\([^)]+\))?)",
     r"(?P<whole>(?P<key>(Passport number) ?:) (?P<value>[A-Za-z0-9]+)\.?)",
-    r"(?P<whole>(?P<key>National ID\.:)\s*(?P<value>\d+))",
-    r"(?P<whole>(?P<key>INN:)\s*(?P<value>\d+))",
-    r"(?P<whole>(?P<key>OKPO:)\s*(?P<value>\d+))",
-    r"(?P<whole>(?P<key>UNP:)\s*(?P<value>\d+))",
+    r"(?P<whole>(?P<key>National ID\.:)\s*(?P<value>.+))",
+    r"(?P<whole>(?P<key>INN ?:?)\s*(?P<value>.+))",
+    r"(?P<whole>(?P<key>OKPO ?:?)\s*(?P<value>.+))",
+    r"(?P<whole>(?P<key>UNP ?:?)\s*(?P<value>.+))",
+    r"(?P<whole>(?P<key>KPP ?:?)\s*(?P<value>\d+))",
+    r"(?P<whole>(?P<key>OGRN ?:?)\s*(?P<value>\d+))",
+    r"(?P<whole>(?P<key>TIN ?:?)\s*(?P<value>\d+))",
+    r"(?P<whole>(?P<key>PPC ?:?)\s*(?P<value>\d+))",
+    r"(?P<whole>(?P<key>BIN ?:?)\s*(?P<value>\d+))",
     # r"^(?P<whole>(?P<key>Registration number:)\s*(?P<value>\d+))$",
     # r"^(?P<whole>(?P<key>Registration number:)\s*(?P<value>\d+)(?:\s*\((?P<extra>[^\)]+)\))?)$",
     r"(?P<whole>(?P<key>Registration number \(OGRN\):)\s*(?P<value>\d+))",
     r"(?P<whole>(?P<key>Registration number \(SNR\):)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>(ID number) ?:|ID Card Number:) (?P<value>[A-Za-z0-9]+)\.?)",
     r"(?P<whole>(?P<key>Economic code:)\s*(?P<value>\d+))",
-    r"(?P<whole>(?P<key>KPP ?:)\s*(?P<value>\d+))",
-    r"(?P<whole>(?P<key>OGRN ?:)\s*(?P<value>\d+))",
     r"(?P<whole>(?P<key>Syrian National ID Number:)\s*(?P<value>\d+))",
     r"(?P<whole>(?P<key>(IMO [Nn]umber) ?:) (?P<value>\d+)\.?)",
     r"(?P<whole>(?P<key>Wagner Group ID:)\s*(?P<value>.+))",
@@ -77,6 +80,7 @@ OTHER_INFO_DEFINITIONS = [
     r"(?P<whole>(?P<key>Place of registration ?:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Principal place of business ?:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Suspected location:)\s*(?P<value>.+))",
+    r"(?P<whole>(?P<key>Location of activities:)\s*(?P<value>.+))",
     r"(?P<whole>(?P<key>Nationality:)\s*(?P<value>[\w\s]+ until \d{4}\.))",
     r"(?P<whole>(?P<key>Address:)\s*(?P<value>[\w\s]+ in [\w\s]+\.))",
     # Date related
@@ -113,6 +117,10 @@ OTHER_INFO_DEFINITIONS = [
 # value=Tax Identification Number (Ukraine): 2929001847
 # value=Passport number, national ID number, other numbers of identity documents: 771373760000
 # value=National identification no: Haiti 004-341-263-3
+# value=Facebook: https://www.facebook.com/profile.php?id=100063824414668
+# value=VK: https://vk.com/official_cniitm
+# value=Principal places of business: United Arab Emirates, Russian Federation, European Union
+# Tax ID No.: 663004268009
 
 OTHER_INFO_REGEXES = [re.compile(pattern) for pattern in OTHER_INFO_DEFINITIONS]
 
