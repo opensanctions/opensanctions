@@ -35,7 +35,7 @@ data:
   lang: eng
 
 dates: 
-  formats: ["%d %B %Y", "%B %Y"]
+  formats: ["%d %B %Y", "%B %Y", "%d %b %Y"]
 lookups:
   unparsed_holders:
     options:
