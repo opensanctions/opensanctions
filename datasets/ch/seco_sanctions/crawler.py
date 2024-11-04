@@ -36,19 +36,36 @@ NAME_PARTS: Dict[MayStr, MayStr] = {
 
 
 OTHER_INFO_DEFINITIONS = [
+    # Website related
     (
         r"(?P<whole>(?P<key>Website:) (?P<value>(https?:\/\/|www\.)\S+))",
         "REGEX_WEBSITE",
     ),
+    (r"(?P<whole>(?P<key>Website:)\s*(?P<value>.+))", "REGEX_WEBSITE"),
+    (r"(?P<whole>(?P<key>Company website:)\s*(?P<value>.+))", "REGEX_COMPANY_WEBSITE"),
+    # Email related
     (
         r"(?P<whole>(?P<key>E-?mail(?: address)?\s*:) (?P<value>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}))",
         "REGEX_EMAIL",
     ),
+    (r"(?P<whole>(?P<key>Company email:)\s*(?P<value>.+))", "REGEX_COMPANY_EMAIL"),
+    # Phone/Fax related
     (
         r"(?P<whole>(?P<key>(Tel\.|Telephone)( number)? ?:| Tel ?:| Tel.:|Phone:|Phone number:)\s*(?P<value>(?:\+?[0-9\- ()]+)(?:,\s*\+?[0-9\- ()]+)*))",
         "REGEX_PHONE",
-    ),  # +7(495)926-28-30, +7(495)649-89-89
+    ),
+    (
+        r"(?P<whole>(?P<key>Telephone no\.:)\s*(?P<value>(?:[\+\d\s-]+)(?:[,;]\s*[\+\d\s-]+)*))",
+        "REGEX_TELEPHONE_NO",
+    ),
+    (
+        r"(?P<whole>(?P<key>Tel:)\s*(?P<value>(?:\+?[0-9\s-]+)(?:[,;]\s*\+?[0-9\s-]+)*))",
+        "REGEX_TEL",
+    ),
+    (r"(?P<whole>(?P<key>Company phone:)\s*(?P<value>.+))", "REGEX_COMPANY_PHONE"),
     (r"(?P<whole>(?P<key>(Fax) ?:) (?P<value>\+?[0-9- ()]+))", "REGEX_FAX"),
+    (r"(?P<whole>(?P<key>Fax no\.:)\s*(?P<value>\+?[0-9\s-]+))", "REGEX_FAX_NO"),
+    # Identification numbers
     (
         r"(?P<whole>(?P<key>(Taxpayer [Ii]dentification [Nn]umber) ?:) (?P<value>\d+)\.?)",
         "REGEX_INN",
@@ -61,7 +78,14 @@ OTHER_INFO_DEFINITIONS = [
         r"(?P<whole>(?P<key>(Tax [Rr]egistration [Nn]umber) ?:) (?P<value>\d+)\.?)",
         "REGEX_TAX",
     ),
-    (r"(?P<whole>(?P<key>(IMO [Nn]umber) ?:) (?P<value>\d+)\.?)", "REGEX_IMO"),
+    (
+        r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:|Tax ID number:|Tax ID No.) (?P<value>\d+)\.?)",
+        "REGEX_TIN",
+    ),
+    (
+        r"(?P<whole>(?P<key>National [Ii]dentification [Nn]umber ?:| National ID number:) (?P<value>\d+)) ?\(passport\)?",
+        "REGEX_NIN",
+    ),
     (
         r"(?P<whole>(?P<key>State [Ii]dentification [Nn]umber(?: \([A-Z]+\))? ?:)\s*(?P<value>\d+)\s*(?P<extra>\([^)]+\))?)",
         "REGEX_STATE_ID",
@@ -70,40 +94,117 @@ OTHER_INFO_DEFINITIONS = [
         r"(?P<whole>(?P<key>(Passport number) ?:) (?P<value>[A-Z]{2}\d{7}))",
         "REGEX_PASSPORT",
     ),
-    (r"(?P<whole>(?P<key>(Function) ?:) (?P<value>.+))", "REGEX_FUNCTION"),
-    (r"(?P<whole>(?P<key>(Title) ?:) (?P<value>.+))", "REGEX_TITLE"),
-    (r"(?P<whole>(?P<key>(Rank) ?:) (?P<value>.+))", "REGEX_RANK"),
-    (r"(?P<whole>(?P<key>(Position\(s\)) ?:|) (?P<value>.+))", "REGEX_POSITION_S"),
-    (r"(?P<whole>(?P<key>(Position) ?:) (?P<value>.+))", "REGEX_POSITION"),
-    (r"(?P<whole>(?P<key>(Designation) ?:) (?P<value>.+))", "REGEX_DESIGNATION"),
+    (r"(?P<whole>(?P<key>National ID\.:)\s*(?P<value>\d+))", "REGEX_NATIONAL_ID"),
     (
-        r"(?P<whole>(?P<key>(Tax [Ii]dentification [Nn]umber) ?:|Tax ID number:|Tax ID No.) (?P<value>\d+)\.?)",
-        "REGEX_TIN",  # here we also wan tot tak eit all; example: value=Tax ID No.: 3050100254 (Ukraine)
+        r"(?P<whole>(?P<key>INN:)\s*(?P<value>\d+))",
+        "REGEX_INN",
     ),
     (
-        r"(?P<whole>(?P<key>National [Ii]dentification [Nn]umber ?:| National ID number:) (?P<value>\d+)) ?\(passport\)?",
-        "REGEX_NIN",
+        r"(?P<whole>(?P<key>OKPO:)\s*(?P<value>\d+))",
+        "REGEX_OKPO",
+    ),
+    (
+        r"(?P<whole>(?P<key>UNP:)\s*(?P<value>\d+))",
+        "REGEX_UNP",
+    ),
+    (
+        r"(?P<whole>(?P<key>Registration number: (?:\(OGRN\))?:)\s*(?P<value>\d+))",
+        "REGEX_REGISTRATION_NUMBER",
+    ),
+    (
+        r"(?P<whole>(?P<key>Registration number \(SNR\):)\s*(?P<value>.+))",
+        "REGEX_REGISTRATION_NUMBER_SNR",
     ),
     (
         r"(?P<whole>(?P<key>(ID number) ?:|ID Card Number:) (?P<value>\d+)\.?)",
         "REGEX_ID",
     ),
     (
-        r"(?P<whole>(?P<key>Place of registration ?:)\s*(?P<value>.+))",
-        "REGEX_PLACE_OF_REG",
+        r"(?P<whole>(?P<key>Economic code:)\s*(?P<value>\d+))",
+        "REGEX_ECONOMIC_CODE",
     ),
-    (r"(?P<whole>(?P<key>(Type of entity) ?:) (?P<value>.+))", "REGEX_TYPE_OF_ENTITY"),
     (
-        r"(?P<whole>(?P<key>Principal place of business ?:)\s*(?P<value>.+))",
-        "REGEX_PLACE_OF_BUSINESS",
+        r"(?P<whole>(?P<key>KPP ?:)\s*(?P<value>\d+))",
+        "REGEX_KPP",
     ),
     (
         r"(?P<whole>(?P<key>OGRN ?:)\s*(?P<value>\d+))",
         "REGEX_OGRN",
     ),
     (
-        r"(?P<whole>(?P<key>KPP ?:)\s*(?P<value>\d+))",
-        "REGEX_KPP",
+        r"(?P<whole>(?P<key>Syrian National ID Number:)\s*(?P<value>\d+))",
+        "REGEX_SYRIAN_NATIONAL_ID",
+    ),
+    (
+        r"(?P<whole>(?P<key>(IMO [Nn]umber) ?:) (?P<value>\d+)\.?)",
+        "REGEX_IMO",
+    ),
+    (
+        r"(?P<whole>(?P<key>Wagner Group ID:)\s*(?P<value>.+))",
+        "REGEX_WAGNER_GROUP_ID",
+    ),
+    # Place and Location related
+    (
+        r"(?P<whole>(?P<key>Place of registration ?:)\s*(?P<value>.+))",
+        "REGEX_PLACE_OF_REG",
+    ),
+    (
+        r"(?P<whole>(?P<key>Principal place of business ?:)\s*(?P<value>.+))",
+        "REGEX_PLACE_OF_BUSINESS",
+    ),
+    (
+        r"(?P<whole>(?P<key>Suspected location:)\s*(?P<value>.+))",
+        "REGEX_SUSPECTED_LOCATION",
+    ),
+    (
+        r"(?P<whole>(?P<key>Nationality:)\s*(?P<value>[\w\s]+ until \d{4}\.))",
+        "REGEX_NATIONALITY",
+    ),
+    (
+        r"(?P<whole>(?P<key>Address:)\s*(?P<value>[\w\s]+ in [\w\s]+\.))",
+        "REGEX_ADDRESS",
+    ),
+    # Date related
+    (
+        r"(?P<whole>(?P<key>Date range:)\s*(?P<value>DOB between (?:\d{4}–\d{4}|\d{4}\s*and\s*\d{4})(?:\.\s*Date range: DOB between (?:\d{4}–\d{4}|\d{4}\s*and\s*\d{4}))*\.?))",
+        "REGEX_DATE_RANGE",
+    ),
+    (
+        r"(?P<whole>(?P<key>Date of registration:)\s*(?P<value>\d{1,2} [A-Za-z]+ \d{4}))",
+        "REGEX_DATE_OF_REGISTRATION",
+    ),
+    (
+        r"(?P<whole>(?P<key>Date of registration:)\s*(?P<value>.+))",
+        "REGEX_DATE_OF_REGISTRATION",
+    ),
+    (
+        r"(?P<whole>(?P<key>DOB:)\s*(?P<value>.+))",
+        "REGEX_DOB",
+    ),
+    # Role and Title related
+    (
+        r"(?P<whole>(?P<key>(Function) ?:) (?P<value>.+))",
+        "REGEX_FUNCTION",
+    ),
+    (
+        r"(?P<whole>(?P<key>(Title) ?:) (?P<value>.+))",
+        "REGEX_TITLE",
+    ),
+    (
+        r"(?P<whole>(?P<key>(Rank) ?:) (?P<value>.+))",
+        "REGEX_RANK",
+    ),
+    (
+        r"(?P<whole>(?P<key>(Position\(s\)) ?:|) (?P<value>.+))",
+        "REGEX_POSITION_S",
+    ),
+    (
+        r"(?P<whole>(?P<key>(Position) ?:) (?P<value>.+))",
+        "REGEX_POSITION",
+    ),
+    (
+        r"(?P<whole>(?P<key>(Designation) ?:) (?P<value>.+))",
+        "REGEX_DESIGNATION",
     ),
     (
         r"(?P<whole>(?P<key>Owner and chairman ?:)\s*(?P<value>.+))",
@@ -114,43 +215,14 @@ OTHER_INFO_DEFINITIONS = [
         "REGEX_ACTIVE_REGION",
     ),
     (
-        r"(?P<whole>(?P<key>Date range:)\s*(?P<value>DOB between (?:\d{4}–\d{4}|\d{4}\s*and\s*\d{4})(?:\.\s*Date range: DOB between (?:\d{4}–\d{4}|\d{4}\s*and\s*\d{4}))*\.?))",
-        "REGEX_DATE_RANGE",  # Date range: DOB c) between 1968–1970.
+        r"(?P<whole>(?P<key>(Type of entity) ?:) (?P<value>.+))",
+        "REGEX_TYPE_OF_ENTITY",
     ),
-    (
-        r"(?P<whole>(?P<key>Nationality:)\s*(?P<value>[\w\s]+ until \d{4}\.))",
-        "REGEX_NATIONALITY",
-    ),
-    (
-        r"(?P<whole>(?P<key>Address:)\s*(?P<value>[\w\s]+ in [\w\s]+\.))",
-        "REGEX_ADDRESS",
-    ),
+    # Others
     (
         r"(?P<whole>(?P<key>Associated entities:)\s*(?P<value>[^;]+(?:; [^;]+)*))",
         "REGEX_ASSOCIATED_ENTITIES",
     ),
-    (r"(?P<whole>(?P<key>National ID\.:)\s*(?P<value>\d+))", "REGEX_NATIONAL_ID"),
-    (r"(?P<whole>(?P<key>Fax no\.:)\s*(?P<value>\+?[0-9\s-]+))", "REGEX_FAX_NO"),
-    (r"(?P<whole>(?P<key>Economic code:)\s*(?P<value>\d+))", "REGEX_ECONOMIC_CODE"),
-    (
-        r"(?P<whole>(?P<key>Telephone no\.:)\s*(?P<value>(?:[\+\d\s-]+)(?:[,;]\s*[\+\d\s-]+)*))",
-        "REGEX_TELEPHONE_NO",
-    ),
-    (
-        r"(?P<whole>(?P<key>Syrian National ID Number:)\s*(?P<value>\d+))",
-        "REGEX_SYRIAN_NATIONAL_ID",
-    ),
-    (
-        r"(?P<whole>(?P<key>Tel:)\s*(?P<value>(?:\+?[0-9\s-]+)(?:[,;]\s*\+?[0-9\s-]+)*))",
-        "REGEX_TEL",
-    ),
-    (
-        r"(?P<whole>(?P<key>Date of registration:)\s*(?P<value>\d{1,2} [A-Za-z]+ \d{4}))",
-        "REGEX_DATE_OF_REGISTRATION",
-    ),
-    (r"(?P<whole>(?P<key>Tax payer ID:)\s*(?P<value>\d+))", "REGEX_TAX_PAYER_ID"),
-    (r"(?P<whole>(?P<key>Wagner Group ID:)\s*(?P<value>.+))", "REGEX_WAGNER_GROUP_ID"),
-    (r"(?P<whole>(?P<key>Website:)\s*(?P<value>.+))", "REGEX_WEBSITE"),
     (
         r"(?P<whole>(?P<key>Associated individuals:)\s*(?P<value>.+))",
         "REGEX_ASSOCIATED_INDIVIDUALS",
@@ -171,51 +243,13 @@ OTHER_INFO_DEFINITIONS = [
         r"(?P<whole>(?P<key>Identity document number:)\s*(?P<value>.+))",
         "REGEX_IDENTITY_DOCUMENT_NUMBER",
     ),
-    (r"(?P<whole>(?P<key>Company website:)\s*(?P<value>.+))", "REGEX_COMPANY_WEBSITE"),
-    (r"(?P<whole>(?P<key>Company email:)\s*(?P<value>.+))", "REGEX_COMPANY_EMAIL"),
-    (r"(?P<whole>(?P<key>Company phone:)\s*(?P<value>.+))", "REGEX_COMPANY_PHONE"),
     (r"(?P<whole>(?P<key>Personal ID:)\s*(?P<value>.+))", "REGEX_PERSONAL_ID"),
-    (r"(?P<whole>(?P<key>DOB:)\s*(?P<value>.+))", "REGEX_DOB"),
     (
-        r"(?P<whole>(?P<key>Registration number \(SNR\):)\s*(?P<value>.+))",
-        "REGEX_REGISTRATION_NUMBER_SNR",
+        r"(?P<whole>(?P<key>Tax payer ID:)\s*(?P<value>\d+))",
+        "REGEX_TAX_PAYER_ID",
     ),
     (r"(?P<whole>(?P<key>Status:)\s*(?P<value>.+))", "REGEX_STATUS"),
-    (
-        r"(?P<whole>(?P<key>Suspected location:)\s*(?P<value>.+))",
-        "REGEX_SUSPECTED_LOCATION",
-    ),
-    (
-        r"(?P<whole>(?P<key>Date of registration:)\s*(?P<value>.+))",
-        "REGEX_DATE_OF_REGISTRATION",
-    ),
-    (
-        r"(?P<whole>(?P<key>National identification no:)\s*(?P<value>.*))",
-        "REGEX_NATIONAL_ID",
-    ),
-    (
-        r"(?P<whole>(?P<key>INN:)\s*(?P<value>\d+))",
-        "REGEX_INN",
-    ),
-    (
-        r"(?P<whole>(?P<key>OKPO:)\s*(?P<value>\d+))",
-        "REGEX_OKPO",
-    ),
-    (
-        r"(?P<whole>(?P<key>Registration number: (?:\(OGRN\))?:)\s*(?P<value>\d+))",
-        "REGEX_REGISTRATION_NUMBER",
-    ),
-    # (
-    #     r"(?P<whole>\[(?P<key>Old reference # .+?)\])",
-    #     "REGEX_OLD_REFERENCE",
-    # ),
-    (
-        r"(?P<whole>(?P<key>UNP:)\s*(?P<value>\d+))",
-        "REGEX_UNP",
-    ),
 ]
-
-
 # [Old reference # E.29.II.3]
 
 OTHER_INFO_REGEXES: List[Tuple[Pattern, str]] = [
