@@ -107,8 +107,9 @@ OTHER_INFO_DEFINITIONS = [
         r"(?P<whole>(?P<key>UNP:)\s*(?P<value>\d+))",
         "REGEX_UNP",
     ),
+    (r"^(?P<whole>(?P<key>Registration number:)\s*(?P<value>\d+))$", "REGEX_REGNUM"),
     (
-        r"(?P<whole>(?P<key>Registration number: (?:\(OGRN\))?:)\s*(?P<value>\d+))",
+        r"(?P<whole>(?P<key>Registration number \(OGRN\):)\s*(?P<value>\d+))",
         "REGEX_REGISTRATION_NUMBER",
     ),
     (
@@ -116,7 +117,7 @@ OTHER_INFO_DEFINITIONS = [
         "REGEX_REGISTRATION_NUMBER_SNR",
     ),
     (
-        r"(?P<whole>(?P<key>(ID number) ?:|ID Card Number:) (?P<value>\d+)\.?)",
+        r"(?P<whole>(?P<key>(ID number) ?:|ID Card Number:) (?P<value>[A-Za-z0-9]+)\.?)",
         "REGEX_ID",
     ),
     (
@@ -249,8 +250,13 @@ OTHER_INFO_DEFINITIONS = [
         "REGEX_TAX_PAYER_ID",
     ),
     (r"(?P<whole>(?P<key>Status:)\s*(?P<value>.+))", "REGEX_STATUS"),
+    (
+        r"(?P<whole>(?P<key>Callsign:)\s*(?P<value>[\w\s]+))",
+        "REGEX_CALLSIGN",
+    ),
 ]
 # [Old reference # E.29.II.3]
+#
 
 OTHER_INFO_REGEXES: List[Tuple[Pattern, str]] = [
     (re.compile(pattern), name) for pattern, name in OTHER_INFO_DEFINITIONS
@@ -457,11 +463,11 @@ def parse_entry(context: Context, target: Element, programs, places):
         result = process_entry(value, OTHER_INFO_REGEXES)
         if result:
             # context.log.info("Match found", value=value, match=result)
-            # print(f"Original Value: {value}")
-            # print(f"Match: {result}")
-            # print(f"Key: {result['key']}")
-            # print(f"Slugified Key: {slugify(result['key'])}")
-            # print(f"Value: {result['value']}")
+            print("Original Value %r:" % value)
+            print(f"Match: {result}")
+            print(f"Key: {result['key']}")
+            print(f"Slugified Key: {slugify(result['key'])}")
+            print(f"Value: {result['value']}")
 
             prop = context.lookup_value("properties", slugify(result["key"]))
             if prop is not None:
@@ -471,14 +477,29 @@ def parse_entry(context: Context, target: Element, programs, places):
                     h.apply_date(entity, prop, result["value"])
                 elif prop == "imoNumber" and entity.schema.name == "Vessel":
                     entity.add(prop, result["value"])
+            else:
+                context.log.warning(
+                    "Unrecognized property",
+                    key=result["key"],
+                    slugified_key=slugify(result["key"]),
+                )
 
-            # Remove matched part from original value
-            value = value.replace(result["whole"], "")
+            # # Remove matched part from original value
+            # pattern = re.escape(
+            #     result["whole"]
+            # )  # Escape any special characters in result["whole"]
+            # value_before = value
+            # value = re.sub(
+            #     pattern, "", value
+            # ).strip()  # Strip any leading/trailing whitespace
 
-        value = value.strip()
-        # print(f"Remaining Value: {value}")
-        if not value:
-            continue
+            # print(
+            #     f"Value before: {value_before}, value after: {value}",
+            # )
+            value = value.replace(result["whole"], "").strip()
+            # print(f"Remaining Value: {value}")
+            if not value:
+                continue
         # context.log.warning("Unprocessed remaining value", value=value)
 
         res = context.lookup("other_information", value)

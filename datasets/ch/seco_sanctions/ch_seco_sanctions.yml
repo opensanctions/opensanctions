@@ -147,13 +147,14 @@ lookups:
           - state-registration-number
           - ogrn
           - registration-number-ogrn
+          - registration-number
         value: ogrnCode
       - match: inn
         value: innCode
       - match: okpo
         value: okpoCode
-      - match: registration-number
-        value: registrationNumber
+      # - match: registration-number
+      #   value: registrationNumber
       - match: 
           - tax-registration-number
           - tax-identification-number
