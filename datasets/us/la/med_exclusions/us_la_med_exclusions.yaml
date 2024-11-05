@@ -36,6 +36,7 @@ ci_test: false
 
 dates:
   formats: ["%m/%d/%Y %I:%M:%S %p"]
+
 assertions:
   min:
     schema_entities:
@@ -45,3 +46,9 @@ assertions:
     schema_entities:
       Company: 250
       Person: 1700
+
+lookups:
+  type.date:
+    options:
+      match: 9199-09-01T00:00:00
+      value: 1999-09-01
