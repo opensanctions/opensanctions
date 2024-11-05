@@ -62,10 +62,53 @@ def bic_to_int_code(bic):
         return None
 
 
-# Example usage
-bic = "040173771"
-code = bic_to_int_code(bic)
-print(code)
+# bic = "040173771"
+# code = bic_to_int_code(bic)
+# print(code)
+
+
+def credit_info_by_int_code(internal_code):
+    url = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
+
+    # Create the SOAP request body
+    body = f"""<?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+        <soap:Body>
+            <CreditInfoByIntCodeExXML xmlns="http://web.cbr.ru/">
+                <InternalCode>{internal_code}</InternalCode>
+            </CreditInfoByIntCodeExXML>
+        </soap:Body>
+    </soap:Envelope>"""
+
+    headers = {
+        "Content-Type": "text/xml; charset=utf-8",
+        "SOAPAction": "http://web.cbr.ru/CreditInfoByIntCodeExXML",
+    }
+
+    response = requests.post(url, data=body, headers=headers)
+    # Check if the request was successful
+    if response.status_code != 200:
+        raise Exception(
+            f"Request failed with status {response.status_code}: {response.text}"
+        )
+
+    # Parse the XML response
+    tree = etree.fromstring(response.content)
+    namespace = {
+        "soap": "http://schemas.xmlsoap.org/soap/envelope/",
+        "ns": "http://web.cbr.ru/",
+    }
+
+    # Extract the result
+    result = tree.find(".//ns:CreditInfoByIntCodeExXMLResult", namespaces=namespace)
+    if result is not None:
+        # Convert the XML element to a string, stripping any whitespace
+        xml_data = (
+            etree.tostring(result, encoding="utf-8", method="text")
+            .decode("utf-8")
+            .strip()
+        )
+        print(xml_data)
 
 
 def crawl(context: Context):
@@ -82,7 +125,7 @@ def crawl(context: Context):
         du_date = record.get("DU")
         reg_date = record.find("RegNum").get("date")
         bic = record.findtext("Bic")
-        bics.add(bic)
+        # bics.add(bic)
         name = record.findtext("ShortName")
         reg_num = record.findtext("RegNum")
         entity = context.make("Company")
@@ -94,6 +137,13 @@ def crawl(context: Context):
         h.apply_date(entity, "modifiedAt", du_date)
         context.emit(entity)
 
-    for bic in bics:
+        # codes = set()
+        # for bic in bics:
         code = bic_to_int_code(bic)
-        print(f"{bic} -> {code}")
+        print(code)
+        # codes.add(code)
+        # for code in codes:
+        data = credit_info_by_int_code(code)
+        print(data)
+        # print(data)
+        # print(data)
