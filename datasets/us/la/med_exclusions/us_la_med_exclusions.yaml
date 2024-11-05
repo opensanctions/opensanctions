@@ -1,4 +1,4 @@
-title: US Louisiana Medicaid Exclusions
+title: US Louisiana Department of Health Adverse Actions List
 entry_point: crawler.py
 prefix: us-medla
 coverage:
@@ -19,9 +19,11 @@ description: |
   > reinstatement. Resumption of participation in the Medicaid Program following exclusion is
   > neither automatic nor a right. Applications for reinstatement will be reviewed by the
   > state and given fair and impartial consideration. La.-R.S. 46:437.13 (C) (2008).
+
+  Entities from this list due to the OIG LEIE are not re-listed in this dataset.
 publisher:
   name: Louisiana Department of Health
-  description: >
+  description: |
     > The Louisiana Department of Health protects and promotes health and ensures access to
     > medical, preventive and rehabilitative services for all citizens of the state of Louisiana.
   acronym: LDH
@@ -40,12 +42,12 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 150
-      Person: 1400
+      Company: 200
+      Person: 3000
   max:
     schema_entities:
-      Company: 250
-      Person: 1700
+      Company: 350
+      Person: 3800
 
 lookups:
   type.date:

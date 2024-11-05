@@ -1,6 +1,7 @@
 from itertools import product
 from typing import Dict
 import re
+from normality import slugify
 from rigour.mime.types import CSV
 import csv
 
@@ -15,14 +16,19 @@ def crawl_item(row: Dict[str, str], context: Context):
     if row.pop(" Type of Exclusion") == "OIG":
         return
 
-    if raw_first_name := row.pop("First Name"):
-        raw_last_name = row.pop(" Last Name or Entity Name")
+    raw_last_entity_name = row.pop(" Last Name or Entity Name")
+    npi = row.pop(" NPI#").strip()
+    address = row.pop(" State and Zip")
+    birth_date = row.pop(" Birthdate")
 
+    if raw_first_name := row.pop("First Name").strip():
         entity = context.make("Person")
-        entity.id = context.make_id(raw_first_name, raw_last_name)
+        entity.id = context.make_id(
+            raw_first_name, raw_last_entity_name, birth_date, address, npi
+        )
 
         first_names = REGEX_AKA.split(raw_first_name)
-        last_names = REGEX_AKA.split(raw_last_name)
+        last_names = REGEX_AKA.split(raw_last_entity_name)
 
         for first_name, last_name in product(first_names, last_names):
             first_name = first_name.strip()
@@ -35,40 +41,37 @@ def crawl_item(row: Dict[str, str], context: Context):
                 last_name=last_name,
             )
         if not entity.has("name"):
-            h.apply_name(entity, first_name=raw_first_name, last_name=raw_last_name)
-        h.apply_date(entity, "birthDate", row.pop(" Birthdate"))
+            h.apply_name(
+                entity, first_name=raw_first_name, last_name=raw_last_entity_name
+            )
+        h.apply_date(entity, "birthDate", birth_date)
     else:
-        raw_name = row.pop(" Last Name or Entity Name")
-
         entity = context.make("Company")
-        entity.id = context.make_id(raw_name)
+        entity.id = context.make_id(raw_last_entity_name, address, npi)
 
-        names = REGEX_DBA.split(raw_name)
+        names = REGEX_DBA.split(raw_last_entity_name)
         entity.add("name", names[0])
         entity.add("alias", names[1:])
-        row.pop(" Birthdate")
 
-    if affiliate := row.pop(" Affiliated Entity").strip():
-        affiliated = context.make("LegalEntity")
-        affiliated.id = context.make_id(affiliate)
-        affiliated.add("name", affiliate)
-        link = context.make("UnknownLink")
-        link.id = context.make_id(entity.id, affiliated.id)
-        link.add("object", entity)
-        link.add("subject", affiliated)
-        link.add("role", "Affiliated")
-        context.emit(affiliated)
-        context.emit(link)
+    if affiliate_name := row.pop(" Affiliated Entity").strip():
+        affiliate = context.make("LegalEntity")
+        affiliate.id = context.make_id(affiliate_name)
+        if slugify(affiliate) != slugify(raw_last_entity_name):
+            affiliate.add("name", affiliate_name)
+            link = context.make("UnknownLink")
+            link.id = context.make_id("link", entity.id, affiliate.id)
+            link.add("object", entity)
+            link.add("subject", affiliate)
+            link.add("role", "Affiliated")
+            context.emit(affiliate)
+            context.emit(link)
 
     entity.add("country", "us")
     entity.add("sector", row.pop(" Title or Provider Type"))
-    entity.add("topics", "debarment")
-    entity.add("address", row.pop(" State and Zip"))
+    entity.add("address", address)
 
-    if row.get(" NPI#") and row.get(" NPI#") != "NRF":
-        entity.add("npiCode", row.pop(" NPI#"))
-    else:
-        row.pop(" NPI#")
+    if npi != "NRF":
+        entity.add("npiCode", npi)
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", row.pop(" Reason for Exclusion"))
     sanction.add("reason", row.pop(" Reason for Termination"))
@@ -78,9 +81,11 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     if (reinstate := row.pop(" Reinstate")) and ("9999" not in reinstate):
         h.apply_date(sanction, "endDate", reinstate)
-        is_debarred = False
-    else:
+    end_date = max(sanction.get("endDate"), default=None)
+    if end_date is None or end_date > context.data_time_iso:
         is_debarred = True
+    else:
+        is_debarred = False
 
     if is_debarred:
         entity.add("topics", "debarment")
