@@ -10,14 +10,14 @@ summary: >
   Banks registered in Russia, including their unique identifiers such as BIK codes and OGRN numbers.
 description: |
   The dataset lists Russian banks, including their official names, Russian bank identifiers (BIK codes), 
-  and registration codes (OGRN). Additionally, it includes incorporation datses of each institution. 
+  and registration codes (OGRN). Additionally, it includes incorporation dates of each institution. 
 publisher:
   name: Bank of Russia
   acronym: CBR
   description: |
     The Central Bank of the Russian Federation, commonly known as the Bank of Russia, is the central bank of Russia.
-    It is responsible for protecting the ruble and promoting stable growth within the Russian financial system. 
-    The bank issues and maintains financial regulations across Russia, ensuring stability within the banking sector.
+    It is responsible for protecting the ruble and promoting growth within the Russian financial system. The bank 
+    issues and maintains financial regulations across Russia, ensuring stability within the banking sector.
   url:  https://www.cbr.ru/eng/
   country: ru
   official: true
