@@ -159,9 +159,17 @@ def crawl_common(
         sanction.add("authority", action.pop("issuers", None), lang="ukr")
         context.emit(sanction)
 
-    entity.add("topics", "sanction")
-    context.audit_data(item, ignore=["status"])
-    context.emit(entity, target=True)
+    status = item.pop("status")
+    res = context.lookup("sanctioned_status", status)
+    if res is None:
+        context.log.warn("Unknown status", status=status, entity=entity.id)
+        is_sanctioned = True
+    else:
+        is_sanctioned = res.value.lower() == "true"
+    if is_sanctioned:
+        entity.add("topics", "sanction")
+    context.audit_data(item)
+    context.emit(entity, target=is_sanctioned)
 
 
 def crawl_indiviudal(context: Context, item: Dict[str, Any]) -> None:

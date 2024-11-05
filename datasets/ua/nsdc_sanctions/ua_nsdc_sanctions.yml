@@ -28,6 +28,14 @@ data:
   format: JSON
 
 lookups:
+  sanctioned_status:
+    options:
+      - match: active
+        value: true
+      - match: expired
+        value: false
+      - match: excluded
+        value: false
   type.country:
     normalize: true
     options:
