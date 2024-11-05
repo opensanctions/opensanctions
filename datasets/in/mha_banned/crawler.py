@@ -29,19 +29,12 @@ def get_link_by_label(doc: _Element, label: str) -> Optional[str]:
 
 
 def assert_link_hash(
-    context: Context,
-    doc: _Element,
-    label: str,
-    expected: str,
-    xpath: Optional[str] = None,
+    context: Context, url: str, expected: str, xpath: Optional[str] = None
 ) -> str:
-    url = get_link_by_label(doc, label)
     if xpath:
-        success = h.assert_html_url_hash(context, url, expected, path=xpath)
+        h.assert_html_url_hash(context, url, expected, path=xpath)
     else:
-        success = h.assert_url_hash(context, url, expected)
-
-    return url if success else None
+        h.assert_url_hash(context, url, expected)
 
 
 def crawl(context: Context) -> None:
@@ -49,32 +42,40 @@ def crawl(context: Context) -> None:
     doc.make_links_absolute(context.dataset.url)
     linked_sources: Set[str] = set()
 
-    linked_sources.add(
-        assert_link_hash(
-            context,
-            doc,
-            "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "f73acb3d478213b00fd2b207a89f333ce7e36717",
-            xpath='.//div[@id="block-mhanew-content"]//table',
-        )
+    url = get_link_by_label(
+        doc,
+        "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
     )
-    linked_sources.add(
-        assert_link_hash(
-            context,
-            doc,
-            "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "66cc60e0bb6937ec88c620eadc3ec213a1ede29c",
-            xpath='.//div[@id="block-mhanew-content"]//table',
-        )
+    linked_sources.add(url)
+    assert_link_hash(
+        context,
+        url,
+        "50cbbee5d7777188e5fd8d2e5b74ddcc6b537716",
+        xpath='.//div[@id="block-mhanew-content"]//table',
     )
-    linked_sources.add(
-        assert_link_hash(
-            context,
-            doc,
-            "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "682cd08caa7f9eb111f075b1086874f0a6f01565",
-            xpath='.//div[@id="block-mhanew-content"]',
-        )
+
+    url = get_link_by_label(
+        doc,
+        "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
+    )
+    linked_sources.add(url)
+    assert_link_hash(
+        context,
+        url,
+        "66cc60e0bb6937ec88c620eadc3ec213a1ede29c",
+        xpath='.//div[@id="block-mhanew-content"]//table',
+    )
+
+    url = get_link_by_label(
+        doc,
+        "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
+    )
+    linked_sources.add(url)
+    assert_link_hash(
+        context,
+        url,
+        "682cd08caa7f9eb111f075b1086874f0a6f01565",
+        xpath='.//div[@id="block-mhanew-content"]',
     )
 
     path = context.fetch_resource("source.csv", context.data_url)
