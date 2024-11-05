@@ -16,7 +16,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     if name.startswith("Effective February"):
         return
 
-    npi = row.pop("sanctioned_exclude_d_npi")
+    npi = row.pop("sanctioned_excluded_npi")
     entity.id = context.make_id(name, npi)
     entity.add("name", h.multi_split(name, [" aka ", " dba ", " DBA "]))
     entity.add("npiCode", npi)
