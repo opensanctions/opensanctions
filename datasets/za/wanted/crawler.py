@@ -10,7 +10,7 @@ REGEX_PATTERN = re.compile(r"(.+)\((.+)\)(.+)")
 
 def parse_detail_page(context: Context, source_url: str) -> Dict[str, str]:
     """Fetch and parse detailed information from a person's detail page."""
-    doc = context.fetch_html(source_url)
+    doc = context.fetch_html(source_url, cache_days=1)
     # Extract details using XPath based on the provided HTML structure
     details = {
         # "crime": "//td[b[contains(text(), 'Crime:')]]/following-sibling::td/text()",
