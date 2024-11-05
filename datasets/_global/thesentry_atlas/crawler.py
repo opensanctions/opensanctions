@@ -143,7 +143,7 @@ def crawl_edge(context: Context, edge_type: str, rows: CSVIter) -> None:
         percentage = row.pop("r.percentage", None)
         if entity.schema.properties.get("percentage") and percentage != "null":
             entity.add("percentage", percentage)
-        type_ = row.pop("type(r)").capitalize()
+        type_ = row.pop("type(r)").replace("_", " ").capitalize()
         title = row.pop("r.title", None)
         if title is not None and title != "null":
             type_ = title
