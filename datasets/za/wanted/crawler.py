@@ -88,5 +88,4 @@ def crawl(context):
     doc.make_links_absolute(context.dataset.data.url)
     cells = doc.xpath("//td[.//a[contains(@href, 'detail.php')]]")
     for cell in cells:
-        print(cell.text_content())
         crawl_person(context, cell)
