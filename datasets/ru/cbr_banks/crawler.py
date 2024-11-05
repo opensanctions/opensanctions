@@ -30,9 +30,9 @@ def crawl(context: Context):
     for record in records:
         du_date = record.get("DU")
         reg_date = record.find("RegNum").get("date")
-        bic = record.find("Bic").text
-        name = record.find("ShortName").text
-        reg_num = record.find("RegNum").text
+        bic = record.findtext("Bic")
+        name = record.findtext("ShortName")
+        reg_num = record.findtext("RegNum")
         entity = context.make("Company")
         entity.id = context.make_slug(bic)
         entity.add("name", name)
