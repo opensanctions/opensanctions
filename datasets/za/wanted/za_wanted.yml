@@ -55,4 +55,5 @@ lookups:
       - match: 
           - "0"
           - Unknown
+          - "n/a"
         value: null
