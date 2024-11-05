@@ -87,24 +87,34 @@ def expert_query(
 def get_original_celex(context: Context, url: str) -> Optional[str]:
     """
     Gets the CELEX number of the original act, when given what could be a URL
-    to a consolidated version of the act.
+    to a consolidated version of the act, an amendment, or the original.
     """
+    url = url.replace("/TXT/", "/ALL/")
     doc = context.fetch_html(url, cache_days=90)
+
+    # Consolidated versions
     for link in doc.findall('.//div[@class="consLegLinks"]//a'):
-        if "legal act" in link.text:
+        if "initial legal act" in link.text:
             celex = link.get("data-celex")
             if celex:
                 return celex
 
-    page_title = doc.find('.//div[@class="PageTitle"]')
-    if page_title is not None:
-        title = page_title.xpath("string()").strip()
-        if title.startswith("Document"):
-            number = title.split(" ")[-1]
-            number = title.split("\xa0")[-1]
-            number = number.split("-", 1)[0]
-            return number
-    context.log.error(f"Could not extract CELEX number from URL: {url}")
+    # Amendments
+    tables = doc.xpath(".//table[@id='relatedDocsTbMS']")
+    if tables:
+        assert len(tables) == 1, (len(tables), url)
+        rows = [h.cells_to_str(row) for row in h.parse_html_table(tables[0])]
+        for row in rows:
+            if row["relation"] in {"Extended validity", "Modifies"}:
+                return row["act"]
+
+    # Originals
+    local_ids = doc.xpath(".//meta[@property='eli:id_local']/@content")
+    if local_ids:
+        assert len(local_ids) == 1, (local_ids, url)
+        return local_ids[0]
+
+    context.log.error(f"Could not extract CELEX number from {url}", rows=rows)
     return None
 
 
@@ -197,6 +207,7 @@ def crawl_updates(context: Context, cache_days: Optional[int] = None):
         settings=Settings(raw_response=True),
     )
     regimes = context.fetch_json(REGIME_URL)
+    seen_this_run = set()
     for regime in regimes["data"]:
         regime_url = f"{REGIME_URL}/{regime['id']}"
         context.log.info(
@@ -209,7 +220,13 @@ def crawl_updates(context: Context, cache_days: Optional[int] = None):
             url: str = act.pop("url")
             if "eur-lex.europa.eu" not in url:
                 continue
+
             celex = get_original_celex(context, url)
+            if celex in seen_this_run:
+                context.log.info(f"Skipping {celex} as already seen in this run.")
+                continue
+            seen_this_run.add(celex)
+
             for item in query_celex(
                 context, client, celex, page_num=1, cache_days=cache_days
             ):
