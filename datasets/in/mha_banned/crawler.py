@@ -54,7 +54,7 @@ def crawl(context: Context) -> None:
             context,
             doc,
             "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "50cbbee5d7777188e5fd8d2e5b74ddcc6b537716",
+            "f73acb3d478213b00fd2b207a89f333ce7e36717",
             xpath='.//div[@id="block-mhanew-content"]//table',
         )
     )
@@ -72,7 +72,8 @@ def crawl(context: Context) -> None:
             context,
             doc,
             "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "310081dd2bd196140f76705d10447ea2dcf924e5",
+            "682cd08caa7f9eb111f075b1086874f0a6f01565",
+            xpath='.//div[@id="block-mhanew-content"]',
         )
     )
 
