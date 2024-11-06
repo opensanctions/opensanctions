@@ -3,7 +3,7 @@ import requests
 
 from zavod import Context, helpers as h
 
-HEADERS_MAIN = {
+HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Encoding": "gzip, deflate, br",
     "Accept-Language": "en-US,en;q=0.9",
@@ -19,7 +19,7 @@ HEADERS_MAIN = {
 }
 
 SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
-HEADERS = {"Content-Type": "text/xml; charset=utf-8"}
+SOAP_HEADERS = {"Content-Type": "text/xml; charset=utf-8"}
 NAMESPACE = {
     "soap": "http://schemas.xmlsoap.org/soap/envelope/",
     "ns": "http://web.cbr.ru/",
@@ -28,7 +28,7 @@ NAMESPACE = {
 
 def send_soap_request(action, body):
     """Sends a SOAP request and returns the parsed XML response."""
-    headers = HEADERS.copy()
+    headers = SOAP_HEADERS.copy()
     headers["SOAPAction"] = f"http://web.cbr.ru/{action}"
 
     response = requests.post(SOAP_URL, data=body, headers=headers)
@@ -129,7 +129,7 @@ def details_by_int_code(internal_code):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.xml", context.data_url, headers=HEADERS_MAIN)
+    path = context.fetch_resource("source.xml", context.data_url, headers=HEADERS)
     with open(path, encoding="windows-1251") as file:
         xml_content = file.read()
     doc = etree.fromstring(xml_content.encode("windows-1251"))
