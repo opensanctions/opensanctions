@@ -1,0 +1,51 @@
+title: U.S. Office of Personnel Management (OPM) Plum Book
+entry_point: crawler.py
+prefix: plum
+coverage:
+  frequency: daily
+  start: 2024-11-06"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  The Plum Book data provides details on political appointees, Schedule C 
+  employees, and other federal positions by department, title, and agency.
+description: |
+  The U.S. Office of Personnel Management (OPM) publishes the Plum Book, 
+  listing positions within the federal government filled by presidential 
+  appointment, as well as other executive roles. The data is collected 
+  and verified by the OPM in coordination with the White House Office of 
+  Presidential Personnel. It includes details on job titles, incumbents, 
+  department, position status, type of appointment, and pay plans. Updated 
+  biannually, this resource supports transparency on political and leadership 
+  appointments in federal agencies and departments.
+publisher:
+  name: U.S. Office of Personnel Management
+  acronym: OPM
+  description: >
+    The Office of Personnel Management (OPM) oversees the federal workforce, 
+    including personnel policies, employee benefits, recruitment, and retention 
+    strategies across federal agencies. It also manages the Plum Book, a 
+    biannual report on political appointees and senior government positions.
+  country: us
+  url: https://www.opm.gov/
+  official: true
+url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
+data:
+  url: https://escs.opm.gov/escs-net/api/pbpub/download-data
+  format: CSV
+  lang: eng
+
+dates: 
+  formats: ["%m/%d/%Y 00:00:00"]
+assertions:
+  min:
+    schema_entities:
+      Person: 7700
+  max:
+    schema_entities:
+      Person: 9000
+
+lookups:
+  type.date:
+    options:
+      - match: 0001-01-01
+        value: null
