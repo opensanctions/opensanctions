@@ -4593,3 +4593,7 @@ lookups:
           jurisdiction: ir
           legalForm: entité publique
           address: "Téhéran, Iran"
+      - match: "Lieu d’enregistrement: Myanmar/Birmanie - Principal établissement: Shwe Kokko, canton de Myawaddy, district de Myawaddy, État de Kayin, Myanmar/Birmanie: /"
+        props:
+          jurisdiction: mm
+          address: "Shwe Kokko, canton de Myawaddy, district de Myawaddy, État de Kayin, Myanmar/Birmanie"
