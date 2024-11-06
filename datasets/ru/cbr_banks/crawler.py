@@ -63,7 +63,7 @@ def bic_to_int_code(bic):
         return None
 
 
-def credit_info_by_int_code(internal_code):
+def details_by_int_code(internal_code):
     """Gets detailed credit information for an internal code."""
     # Create the SOAP request body
     body = f"""<?xml version="1.0" encoding="utf-8"?>
@@ -95,38 +95,30 @@ def credit_info_by_int_code(internal_code):
                         "OrgName": co_data.findtext("OrgName"),
                         "OrgFullName": co_data.findtext("OrgFullName"),
                         "phones": co_data.findtext("phones"),
-                        "DateKGRRegistration": co_data.findtext("DateKGRRegistration"),
-                        "MainRegNumber": co_data.findtext("MainRegNumber"),
-                        "MainDateReg": co_data.findtext("MainDateReg"),
+                        "DateKGRRegistration": co_data.findtext(
+                            "DateKGRRegistration"
+                        ),  # Дата внесения в КГР
+                        "MainRegNumber": co_data.findtext("MainRegNumber"),  # OGRN
+                        "MainDateReg": co_data.findtext(
+                            "MainDateReg"
+                        ),  # Дата присвоения государственного регистрационного номера
                         "UstavAdr": co_data.findtext("UstavAdr"),
                         "FactAdr": co_data.findtext("FactAdr"),
                         "Director": co_data.findtext("Director"),
-                        "UstMoney": co_data.findtext("UstMoney"),
+                        "UstMoney": co_data.findtext(
+                            "UstMoney"
+                        ),  # Уставный капитал, руб.
                         "OrgStatus": co_data.findtext("OrgStatus"),
-                        "cistate": co_data.findtext("cistate"),
-                        "RegCode": co_data.findtext("RegCode"),
-                        "SSV_Date": co_data.findtext("SSV_Date"),
+                        "SSV_Date": co_data.findtext(
+                            "SSV_Date"
+                        ),  # Дата вынесения заключения (признак внесения КО в Систему страхования вкладов)
                         "cregnr": co_data.findtext("cregnr"),
                         "encname": co_data.findtext("encname"),
                         "ruleactual": co_data.findtext("ruleactual"),
                         "cregorg": co_data.findtext("cregorg"),
                         "cdmoney": co_data.findtext("cdmoney"),
-                        "qoffices": co_data.findtext("qoffices"),
-                        "qofficesfor": co_data.findtext("qofficesfor"),
-                        "qdopo": co_data.findtext("qdopo"),
-                        "qopc": co_data.findtext("qopc"),
-                        "qreprrus": co_data.findtext("qreprrus"),
-                        "qreprfor": co_data.findtext("qreprfor"),
-                        "qreprcis": co_data.findtext("qreprcis"),
                         "cregnum15": co_data.findtext("cregnum15"),
-                        "USS": co_data.findtext("USS"),
-                        "ckko": co_data.findtext("ckko"),
-                        "copo": co_data.findtext("copo"),
-                        "cppko": co_data.findtext("cppko"),
-                        "cobmp": co_data.findtext("cobmp"),
                         "csname": co_data.findtext("csname"),
-                        "IsLicensesFileExist": co_data.findtext("IsLicensesFileExist"),
-                        "IsRBFileExist": co_data.findtext("IsRBFileExist"),
                     }
                 )
 
@@ -135,7 +127,6 @@ def credit_info_by_int_code(internal_code):
             if lic_data is not None:
                 details.update(
                     {
-                        "LCode": lic_data.findtext("LCode"),
                         "LT": lic_data.findtext("LT"),
                         "LDate": lic_data.findtext("LDate"),
                     }
@@ -161,37 +152,29 @@ def crawl(context: Context):
         bic = record.findtext("Bic")
         entity = context.make("Company")
         entity.id = context.make_slug(bic)
-        entity.add("name", record.findtext("ShortName"))
-        entity.add("ogrnCode", record.findtext("RegNum"))
-        entity.add("bikCode", bic)
+        # entity.add("name", record.findtext("ShortName"))
+        # entity.add("ogrnCode", record.findtext("RegNum"))
+        # entity.add("bikCode", bic)
         h.apply_date(entity, "incorporationDate", record.find("RegNum").get("date"))
         h.apply_date(entity, "modifiedAt", record.get("DU"))
 
         # context.emit(entity)
 
-        code = bic_to_int_code(bic)
-        details = credit_info_by_int_code(code)
+        int_code = bic_to_int_code(bic)
+        details = details_by_int_code(int_code)
         if details:
-            # entity.add("fullName", details.get("OrgFullName"))
-            entity.add("registrationNumber", details.get("MainRegNumber"))
+            en_names = details.get("encname")
+            entity.add("name", details.get("OrgName"))
+            entity.add("name", details.get("OrgFullName"))
+            entity.add("name", details.get("csname"))
+            for name in en_names.split(","):
+                entity.add("name", name, lang="eng")
+            entity.add("ogrnCode", details.get("MainRegNumber"))
             entity.add("address", details.get("UstavAdr"))
             entity.add("address", details.get("FactAdr"))
-            # entity.add("director", details.get("Director"))
-            # entity.add("status", details.get("OrgStatus"))
-            # entity.add("ustMoney", details.get("UstMoney"))
-            h.apply_date(
-                entity, "incorporationDate", details.get("DateKGRRegistration")
-            )
-            h.apply_date(entity, "modifiedAt", details.get("ruleactual"))
+            entity.add("phone", details.get("phones"))
+            entity.add("amount", details.get("UstMoney"))
+            h.apply_date(entity, "incorporationDate", details.get("MainDateReg"))
+            h.apply_date(entity, "modifiedAt", details.get("SSV_Date"))
 
-            # Add any other relevant fields as needed
-            # Example of handling nested fields or conditional fields
-            # if details.get("IsLicensesFileExist") == "1":
-            #     entity.add("hasLicenseFile", True)
-            # if details.get("IsRBFileExist") == "1":
-            #     entity.add("hasRBFile", True)
-
-        # Emit the entity with all basic and enriched data
         context.emit(entity)
-
-        # print(data)

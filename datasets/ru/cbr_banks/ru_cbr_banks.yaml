@@ -28,7 +28,7 @@ data:
   lang: rus
 
 dates: 
-  formats: ["%d.%m.%Y"]
+  formats: ["%d.%m.%Y", "%Y-%m-%dT00:00:00+03:00", "%Y-%m-%dT00:00:00+04:00"]
 assertions:
   min:
     schema_entities:
