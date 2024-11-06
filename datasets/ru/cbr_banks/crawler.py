@@ -26,21 +26,22 @@ NAMESPACE = {
 }
 
 
-def send_soap_request(action, body):
+def send_soap_request(context: Context, action, body):
     """Sends a SOAP request and returns the parsed XML response."""
     headers = SOAP_HEADERS.copy()
     headers["SOAPAction"] = f"http://web.cbr.ru/{action}"
 
-    response = requests.post(SOAP_URL, data=body, headers=headers)
-    if response.status_code != 200:
-        raise Exception(
-            f"Request failed with status {response.status_code}: {response.text}"
-        )
+    response = context.fetch_text(SOAP_URL, method="POST", headers=headers, data=body)
+    # response = requests.post(SOAP_URL, data=body, headers=headers)
 
-    return etree.fromstring(response.content)
+    # if response.status_code != 200:
+    #     raise Exception(
+    #         f"Request failed with status {response.status_code}: {response.text}"
+    #     )
+    return etree.fromstring(response.encode("utf-8"))
 
 
-def bic_to_int_code(bic):
+def bic_to_int_code(context: Context, bic):
     """Gets the internal code for a BIC."""
     # Formulate the SOAP request body
     body = f"""<?xml version="1.0" encoding="utf-8"?>
@@ -52,7 +53,7 @@ def bic_to_int_code(bic):
         </soap:Body>
     </soap:Envelope>"""
 
-    tree = send_soap_request("BicToIntCode", body)
+    tree = send_soap_request(context, "BicToIntCode", body)
 
     # Extract the result
     result = tree.find(".//ns:BicToIntCodeResult", namespaces=NAMESPACE)
