@@ -6,7 +6,6 @@ from zavod.logic.pep import categorise
 IGNORE = [
     "OrganizationName",
     "PositionStatus",
-    "AppointmentTypeDescription",
     "PaymentPlanDescription",
     "LevelGradePay",
     "Tenure",
@@ -21,7 +20,7 @@ def crawl(context: Context):
             agency_name = row.pop("\ufeffAgencyName")
             # org_name = row.pop("OrganizationName")
             position_title = row.pop("PositionTitle", None)
-            # appointment_type = row.pop("AppointmentTypeDescription")
+            appointment_type = row.pop("AppointmentTypeDescription")
             expiration_date = row.pop("ExpirationDate")
             location = row.pop("Location")
             incumbent_first_name = row.pop("IncumbentFirstName")
@@ -39,8 +38,11 @@ def crawl(context: Context):
             position = h.make_position(
                 context,
                 name=f"{position_title}, {agency_name}",
+                description=appointment_type,
                 subnational_area=location,
+                country="us",
             )
+
             categorisation = categorise(context, position, is_pep=True)
             if categorisation.is_pep:
                 occupancy = h.make_occupancy(
