@@ -3,7 +3,7 @@ import requests
 
 from zavod import Context, helpers as h
 
-HEADERS = {
+HEADERS_MAIN = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Encoding": "gzip, deflate, br",
     "Accept-Language": "en-US,en;q=0.9",
@@ -18,10 +18,30 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15",
 }
 
+SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
+HEADERS = {"Content-Type": "text/xml; charset=utf-8"}
+NAMESPACE = {
+    "soap": "http://schemas.xmlsoap.org/soap/envelope/",
+    "ns": "http://web.cbr.ru/",
+}
+
+
+def send_soap_request(action, body):
+    """Sends a SOAP request and returns the parsed XML response."""
+    headers = HEADERS.copy()
+    headers["SOAPAction"] = f"http://web.cbr.ru/{action}"
+
+    response = requests.post(SOAP_URL, data=body, headers=headers)
+    if response.status_code != 200:
+        raise Exception(
+            f"Request failed with status {response.status_code}: {response.text}"
+        )
+
+    return etree.fromstring(response.content)
+
 
 def bic_to_int_code(bic):
-    url = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
-
+    """Gets the internal code for a BIC."""
     # Formulate the SOAP request body
     body = f"""<?xml version="1.0" encoding="utf-8"?>
     <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -32,39 +52,19 @@ def bic_to_int_code(bic):
         </soap:Body>
     </soap:Envelope>"""
 
-    headers = {
-        "Content-Type": "text/xml; charset=utf-8",
-        "SOAPAction": "http://web.cbr.ru/BicToIntCode",
-    }
+    tree = send_soap_request("BicToIntCode", body)
 
-    # Send the request
-    response = requests.post(url, data=body, headers=headers)
-
-    # Check if the request was successful
-    if response.status_code != 200:
-        print(f"Request failed with status {response.status_code}")
-        return None
-
-    # Parse the XML response
-    tree = etree.fromstring(response.content)
-    namespace = {
-        "soap": "http://schemas.xmlsoap.org/soap/envelope/",
-        "ns": "http://web.cbr.ru/",
-    }
-
-    # Assume the result is in the BicToIntCodeResult tag
-    result = tree.find(".//ns:BicToIntCodeResult", namespaces=namespace)
+    # Extract the result
+    result = tree.find(".//ns:BicToIntCodeResult", namespaces=NAMESPACE)
     if result is not None:
-        code = result.text
-        return code
+        return result.text
     else:
         print("Result not found in the response")
         return None
 
 
 def credit_info_by_int_code(internal_code):
-    url = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
-
+    """Gets detailed credit information for an internal code."""
     # Create the SOAP request body
     body = f"""<?xml version="1.0" encoding="utf-8"?>
     <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -75,26 +75,12 @@ def credit_info_by_int_code(internal_code):
         </soap:Body>
     </soap:Envelope>"""
 
-    headers = {
-        "Content-Type": "text/xml; charset=utf-8",
-        "SOAPAction": "http://web.cbr.ru/CreditInfoByIntCodeXML",
-    }
-
-    response = requests.post(url, data=body, headers=headers)
-    if response.status_code != 200:
-        raise Exception(
-            f"Request failed with status {response.status_code}: {response.text}"
-        )
-    # Parse the XML response
-    tree = etree.fromstring(response.content)
-    namespace = {"ns": "http://web.cbr.ru/"}
+    tree = send_soap_request("CreditInfoByIntCodeXML", body)
 
     # Locate the main result element
-    result = tree.find(".//ns:CreditInfoByIntCodeXMLResult", namespaces=namespace)
+    result = tree.find(".//ns:CreditInfoByIntCodeXMLResult", namespaces=NAMESPACE)
     if result is not None:
-        # Locate CreditOrgInfo within the result
         credit_org_info = result.find("CreditOrgInfo")
-
         if credit_org_info is not None:
             # Extract elements within CO and LIC
             co_data = credit_org_info.find("CO")
@@ -103,7 +89,6 @@ def credit_info_by_int_code(internal_code):
             if co_data is not None:
                 for element in co_data:
                     print(f"{element.tag}: {element.text}")
-
             if lic_data is not None:
                 for element in lic_data:
                     print(f"{element.tag}: {element.text}")
@@ -114,7 +99,7 @@ def credit_info_by_int_code(internal_code):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.xml", context.data_url, headers=HEADERS)
+    path = context.fetch_resource("source.xml", context.data_url, headers=HEADERS_MAIN)
     with open(path, encoding="windows-1251") as file:
         xml_content = file.read()
     doc = etree.fromstring(xml_content.encode("windows-1251"))
