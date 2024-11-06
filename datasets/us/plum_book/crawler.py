@@ -18,7 +18,6 @@ def crawl(context: Context):
         reader = csv.DictReader(fh)
         for row in reader:
             agency_name = row.pop("\ufeffAgencyName")
-            # org_name = row.pop("OrganizationName")
             position_title = row.pop("PositionTitle", None)
             appointment_type = row.pop("AppointmentTypeDescription")
             expiration_date = row.pop("ExpirationDate")
