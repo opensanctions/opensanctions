@@ -9,12 +9,28 @@ summary: >
   The Plum Book lists federal positions filled by political appointees, Schedule C 
   employees, and other executives.
 description: |
-  The Plum Book provides a comprehensive listing of federal positions appointed by the 
-  President, including Schedule C and other key roles within the executive branch. 
-  The data covers job titles, agency affiliations, appointment types, and other relevant 
-  information about these roles. Verified by OPM in coordination with the White House Office 
-  of Presidential Personnel, the Plum Book is updated biennially to support transparency on 
-  political appointments across federal agencies and departments.
+  The Plum Book is a listing of over 8,000 civil service leadership and support positions 
+  (filled and vacant) in the Legislative and Executive branches of the Federal Government 
+  that may be subject to noncompetitive appointments. These positions include agency heads 
+  and their immediate subordinates, policy executives and advisors, and aides who report to 
+  these officials. Many positions have duties which support Administration policies and programs.
+
+  The people holding these positions usually have a close and confidential relationship with 
+  the agency head or other key officials.
+
+  Positions in the Plum Book include the following: 
+
+  * **Executive Schedule (EX)** and salary-equivalent positions paid at the rates established 
+    for Levels I through V of the Executive Schedule.
+  * **Senior Executive Service (SES)** "General" positions (i.e., those positions which may be 
+    filled by a career, noncareer, or limited appointment).
+  * **Senior Foreign Service (SFS)** positions.
+  * **Schedule C (SC)** positions excepted from the competitive service by the President, or by the 
+    Director, Office of Personnel Management, because of the confidential or policy-determining 
+    nature of the position duties.
+  * **Other** confidential or policy-determining positions.
+
+  [Source: Office of Human Resources Management](https://www.commerce.gov/hr/practitioners/ses-policies/plum-book#:~:text=What%20is%20the%20Plum%20Book,between%20the%20House%20and%20Senate.)
 publisher:
   name: U.S. Office of Personnel Management
   acronym: OPM
