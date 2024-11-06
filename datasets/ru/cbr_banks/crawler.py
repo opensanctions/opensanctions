@@ -77,9 +77,7 @@ def details_by_int_code(internal_code):
 
     tree = send_soap_request("CreditInfoByIntCodeXML", body)
 
-    # Define a dictionary to store extracted details
     details = {}
-
     # Locate the main result element
     result = tree.find(".//ns:CreditInfoByIntCodeXMLResult", namespaces=NAMESPACE)
     if result is not None:
@@ -90,35 +88,26 @@ def details_by_int_code(internal_code):
             if co_data is not None:
                 details.update(
                     {
-                        "RegNumber": co_data.findtext("RegNumber"),
-                        "BIC": co_data.findtext("BIC"),
-                        "OrgName": co_data.findtext("OrgName"),
-                        "OrgFullName": co_data.findtext("OrgFullName"),
+                        "reg_number": co_data.findtext("RegNumber"),
+                        "reg_code": co_data.findtext("RegCode"),  # not used
+                        "bic": co_data.findtext("BIC"),
+                        "org_name": co_data.findtext("OrgName"),
+                        "full_name": co_data.findtext("OrgFullName"),
+                        "legal_name": co_data.findtext("csname"),
+                        "en_name": co_data.findtext("encname"),
                         "phones": co_data.findtext("phones"),
-                        "DateKGRRegistration": co_data.findtext(
-                            "DateKGRRegistration"
-                        ),  # Дата внесения в КГР
-                        "MainRegNumber": co_data.findtext("MainRegNumber"),  # OGRN
-                        "MainDateReg": co_data.findtext(
-                            "MainDateReg"
-                        ),  # Дата присвоения государственного регистрационного номера
-                        "UstavAdr": co_data.findtext("UstavAdr"),
-                        "FactAdr": co_data.findtext("FactAdr"),
-                        "Director": co_data.findtext("Director"),
-                        "UstMoney": co_data.findtext(
-                            "UstMoney"
-                        ),  # Уставный капитал, руб.
-                        "OrgStatus": co_data.findtext("OrgStatus"),
-                        "SSV_Date": co_data.findtext(
-                            "SSV_Date"
-                        ),  # Дата вынесения заключения (признак внесения КО в Систему страхования вкладов)
-                        "cregnr": co_data.findtext("cregnr"),
-                        "encname": co_data.findtext("encname"),
-                        "ruleactual": co_data.findtext("ruleactual"),
-                        "cregorg": co_data.findtext("cregorg"),
-                        "cdmoney": co_data.findtext("cdmoney"),
-                        "cregnum15": co_data.findtext("cregnum15"),
-                        "csname": co_data.findtext("csname"),
+                        "inc_date": co_data.findtext("DateKGRRegistration"),
+                        "ogrn": co_data.findtext("MainRegNumber"),
+                        "main_reg": co_data.findtext("MainDateReg"),
+                        "address1": co_data.findtext("UstavAdr"),
+                        "address2": co_data.findtext("FactAdr"),
+                        "capital": co_data.findtext("UstMoney"),
+                        "status": co_data.findtext("OrgStatus"),
+                        "ssv_date": co_data.findtext("SSV_Date"),
+                        "lic_withd_num": co_data.findtext("licwithdnum"),
+                        "lic_withd_date": co_data.findtext("licwithddate"),
+                        # "ruleactual": co_data.findtext("ruleactual"),
+                        # "cdmoney": co_data.findtext("cdmoney"),
                     }
                 )
 
@@ -152,29 +141,49 @@ def crawl(context: Context):
         bic = record.findtext("Bic")
         entity = context.make("Company")
         entity.id = context.make_slug(bic)
-        # entity.add("name", record.findtext("ShortName"))
-        # entity.add("ogrnCode", record.findtext("RegNum"))
-        # entity.add("bikCode", bic)
-        h.apply_date(entity, "incorporationDate", record.find("RegNum").get("date"))
-        h.apply_date(entity, "modifiedAt", record.get("DU"))
-
-        # context.emit(entity)
-
         int_code = bic_to_int_code(bic)
         details = details_by_int_code(int_code)
         if details:
-            en_names = details.get("encname")
-            entity.add("name", details.get("OrgName"))
-            entity.add("name", details.get("OrgFullName"))
-            entity.add("name", details.get("csname"))
-            for name in en_names.split(","):
-                entity.add("name", name, lang="eng")
-            entity.add("ogrnCode", details.get("MainRegNumber"))
-            entity.add("address", details.get("UstavAdr"))
-            entity.add("address", details.get("FactAdr"))
-            entity.add("phone", details.get("phones"))
-            entity.add("amount", details.get("UstMoney"))
-            h.apply_date(entity, "incorporationDate", details.get("MainDateReg"))
-            h.apply_date(entity, "modifiedAt", details.get("SSV_Date"))
-
-        context.emit(entity)
+            ssv_date = details.pop("ssv_date")
+            reg_date = details.pop("main_reg")
+            en_names = details.pop("en_name")
+            phones = details.pop("phones")
+            lic_withd_num = details.pop("lic_withd_num")
+            lic_withd_date = details.pop("lic_withd_date")
+            entity.add("name", details.pop("org_name"))
+            entity.add("name", details.pop("full_name"))
+            entity.add("name", details.pop("legal_name"))
+            entity.add("ogrnCode", details.pop("ogrn"))
+            entity.add("bikCode", details.pop("bic"))
+            entity.add("registrationNumber", details.pop("reg_number"))
+            entity.add("address", details.pop("address1"))
+            entity.add("address", details.pop("address2"))
+            entity.add("amount", details.pop("capital"))
+            entity.add("status", details.pop("status"))
+            if en_names is not None:
+                for name in en_names.split(","):
+                    entity.add("name", name, lang="eng")
+            if phones is not None:
+                for phone in phones.split(","):
+                    entity.add("phone", phone)
+            if ssv_date is not None:
+                entity.add(
+                    "notes",
+                    f"Дата вынесения заключения (признак внесения КО в Систему страхования вкладов): {ssv_date[:10]}",
+                )
+            if reg_date is not None:
+                entity.add(
+                    "notes",
+                    f"Дата присвоения государственного регистрационного номера: {reg_date[:10]}",
+                )
+            if lic_withd_num is not None and lic_withd_date is not None:
+                entity.add(
+                    "status",
+                    f"Лицензия аннулирована: {lic_withd_num} от {lic_withd_date[:10]}",
+                )
+            h.apply_date(
+                entity, "incorporationDate", details.get("DateKGRRegistration")
+            )
+            context.emit(entity)
+        else:
+            context.log.warning(f"No details found for BIC {bic}")
