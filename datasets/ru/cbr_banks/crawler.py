@@ -77,25 +77,75 @@ def credit_info_by_int_code(internal_code):
 
     tree = send_soap_request("CreditInfoByIntCodeXML", body)
 
+    # Define a dictionary to store extracted details
+    details = {}
+
     # Locate the main result element
     result = tree.find(".//ns:CreditInfoByIntCodeXMLResult", namespaces=NAMESPACE)
     if result is not None:
         credit_org_info = result.find("CreditOrgInfo")
         if credit_org_info is not None:
-            # Extract elements within CO and LIC
+            # Extract elements within CO
             co_data = credit_org_info.find("CO")
-            lic_data = credit_org_info.find("LIC")
-
             if co_data is not None:
-                for element in co_data:
-                    print(f"{element.tag}: {element.text}")
+                details.update(
+                    {
+                        "RegNumber": co_data.findtext("RegNumber"),
+                        "BIC": co_data.findtext("BIC"),
+                        "OrgName": co_data.findtext("OrgName"),
+                        "OrgFullName": co_data.findtext("OrgFullName"),
+                        "phones": co_data.findtext("phones"),
+                        "DateKGRRegistration": co_data.findtext("DateKGRRegistration"),
+                        "MainRegNumber": co_data.findtext("MainRegNumber"),
+                        "MainDateReg": co_data.findtext("MainDateReg"),
+                        "UstavAdr": co_data.findtext("UstavAdr"),
+                        "FactAdr": co_data.findtext("FactAdr"),
+                        "Director": co_data.findtext("Director"),
+                        "UstMoney": co_data.findtext("UstMoney"),
+                        "OrgStatus": co_data.findtext("OrgStatus"),
+                        "cistate": co_data.findtext("cistate"),
+                        "RegCode": co_data.findtext("RegCode"),
+                        "SSV_Date": co_data.findtext("SSV_Date"),
+                        "cregnr": co_data.findtext("cregnr"),
+                        "encname": co_data.findtext("encname"),
+                        "ruleactual": co_data.findtext("ruleactual"),
+                        "cregorg": co_data.findtext("cregorg"),
+                        "cdmoney": co_data.findtext("cdmoney"),
+                        "qoffices": co_data.findtext("qoffices"),
+                        "qofficesfor": co_data.findtext("qofficesfor"),
+                        "qdopo": co_data.findtext("qdopo"),
+                        "qopc": co_data.findtext("qopc"),
+                        "qreprrus": co_data.findtext("qreprrus"),
+                        "qreprfor": co_data.findtext("qreprfor"),
+                        "qreprcis": co_data.findtext("qreprcis"),
+                        "cregnum15": co_data.findtext("cregnum15"),
+                        "USS": co_data.findtext("USS"),
+                        "ckko": co_data.findtext("ckko"),
+                        "copo": co_data.findtext("copo"),
+                        "cppko": co_data.findtext("cppko"),
+                        "cobmp": co_data.findtext("cobmp"),
+                        "csname": co_data.findtext("csname"),
+                        "IsLicensesFileExist": co_data.findtext("IsLicensesFileExist"),
+                        "IsRBFileExist": co_data.findtext("IsRBFileExist"),
+                    }
+                )
+
+            # Extract elements within LIC
+            lic_data = credit_org_info.find("LIC")
             if lic_data is not None:
-                for element in lic_data:
-                    print(f"{element.tag}: {element.text}")
+                details.update(
+                    {
+                        "LCode": lic_data.findtext("LCode"),
+                        "LT": lic_data.findtext("LT"),
+                        "LDate": lic_data.findtext("LDate"),
+                    }
+                )
         else:
             print("CreditOrgInfo not found in the response")
     else:
         print("CreditInfoByIntCodeXMLResult not found in the response")
+
+    return details
 
 
 def crawl(context: Context):
@@ -108,20 +158,40 @@ def crawl(context: Context):
         context.log.warning("No <Record> elements found in the XML.")
         return
     for record in records:
-        du_date = record.get("DU")
-        reg_date = record.find("RegNum").get("date")
         bic = record.findtext("Bic")
-        name = record.findtext("ShortName")
-        reg_num = record.findtext("RegNum")
         entity = context.make("Company")
         entity.id = context.make_slug(bic)
-        entity.add("name", name)
-        entity.add("ogrnCode", reg_num)
+        entity.add("name", record.findtext("ShortName"))
+        entity.add("ogrnCode", record.findtext("RegNum"))
         entity.add("bikCode", bic)
-        h.apply_date(entity, "incorporationDate", reg_date)
-        h.apply_date(entity, "modifiedAt", du_date)
-        context.emit(entity)
+        h.apply_date(entity, "incorporationDate", record.find("RegNum").get("date"))
+        h.apply_date(entity, "modifiedAt", record.get("DU"))
+
+        # context.emit(entity)
+
         code = bic_to_int_code(bic)
-        print(code)
-        data = credit_info_by_int_code(code)
-        print(data)
+        details = credit_info_by_int_code(code)
+        if details:
+            # entity.add("fullName", details.get("OrgFullName"))
+            entity.add("registrationNumber", details.get("MainRegNumber"))
+            entity.add("address", details.get("UstavAdr"))
+            entity.add("address", details.get("FactAdr"))
+            # entity.add("director", details.get("Director"))
+            # entity.add("status", details.get("OrgStatus"))
+            # entity.add("ustMoney", details.get("UstMoney"))
+            h.apply_date(
+                entity, "incorporationDate", details.get("DateKGRRegistration")
+            )
+            h.apply_date(entity, "modifiedAt", details.get("ruleactual"))
+
+            # Add any other relevant fields as needed
+            # Example of handling nested fields or conditional fields
+            # if details.get("IsLicensesFileExist") == "1":
+            #     entity.add("hasLicenseFile", True)
+            # if details.get("IsRBFileExist") == "1":
+            #     entity.add("hasRBFile", True)
+
+        # Emit the entity with all basic and enriched data
+        context.emit(entity)
+
+        # print(data)
