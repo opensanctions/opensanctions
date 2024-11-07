@@ -50,7 +50,7 @@ def crawl(context: Context) -> None:
     assert_link_hash(
         context,
         url,
-        "50cbbee5d7777188e5fd8d2e5b74ddcc6b537716",
+        "f73acb3d478213b00fd2b207a89f333ce7e36717",
         xpath='.//div[@id="block-mhanew-content"]//table',
     )
 
@@ -62,7 +62,7 @@ def crawl(context: Context) -> None:
     assert_link_hash(
         context,
         url,
-        "66cc60e0bb6937ec88c620eadc3ec213a1ede29c",
+        "9e4746482586cd61b9855058fa2b926f943c7d9d",
         xpath='.//div[@id="block-mhanew-content"]//table',
     )
 
