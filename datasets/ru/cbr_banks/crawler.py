@@ -1,5 +1,4 @@
 from lxml import etree
-import requests
 
 from zavod import Context, helpers as h
 
@@ -20,25 +19,18 @@ HEADERS = {
 
 SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
 SOAP_HEADERS = {"Content-Type": "text/xml; charset=utf-8"}
-NAMESPACE = {
-    "soap": "http://schemas.xmlsoap.org/soap/envelope/",
-    "ns": "http://web.cbr.ru/",
-}
 
 
-def send_soap_request(context: Context, action, body):
+def send_soap_request(context: Context, action, body, cache_days):
     """Sends a SOAP request and returns the parsed XML response."""
     headers = SOAP_HEADERS.copy()
     headers["SOAPAction"] = f"http://web.cbr.ru/{action}"
 
-    response = context.fetch_text(SOAP_URL, method="POST", headers=headers, data=body)
-    # response = requests.post(SOAP_URL, data=body, headers=headers)
-
-    # if response.status_code != 200:
-    #     raise Exception(
-    #         f"Request failed with status {response.status_code}: {response.text}"
-    #     )
-    return etree.fromstring(response.encode("utf-8"))
+    response = context.fetch_text(
+        SOAP_URL, method="POST", headers=headers, data=body, cache_days=cache_days
+    )
+    root = etree.fromstring(response.encode("utf-8"))
+    return h.remove_namespace(root)
 
 
 def bic_to_int_code(context: Context, bic):
@@ -53,10 +45,10 @@ def bic_to_int_code(context: Context, bic):
         </soap:Body>
     </soap:Envelope>"""
 
-    tree = send_soap_request(context, "BicToIntCode", body)
+    tree = send_soap_request(context, "BicToIntCode", body, cache_days=30)
 
     # Extract the result
-    result = tree.find(".//ns:BicToIntCodeResult", namespaces=NAMESPACE)
+    result = tree.find(".//BicToIntCodeResult")
     if result is not None:
         return result.text
     else:
@@ -64,7 +56,7 @@ def bic_to_int_code(context: Context, bic):
         return None
 
 
-def details_by_int_code(internal_code):
+def crawl_details(context: Context, internal_code, entity):
     """Gets detailed credit information for an internal code."""
     # Create the SOAP request body
     body = f"""<?xml version="1.0" encoding="utf-8"?>
@@ -76,57 +68,66 @@ def details_by_int_code(internal_code):
         </soap:Body>
     </soap:Envelope>"""
 
-    tree = send_soap_request("CreditInfoByIntCodeXML", body)
+    result = send_soap_request(context, "CreditInfoByIntCodeXML", body, cache_days=0)
 
-    details = {}
-    # Locate the main result element
-    result = tree.find(".//ns:CreditInfoByIntCodeXMLResult", namespaces=NAMESPACE)
-    if result is not None:
-        credit_org_info = result.find("CreditOrgInfo")
-        if credit_org_info is not None:
-            # Extract elements within CO
-            co_data = credit_org_info.find("CO")
-            if co_data is not None:
-                details.update(
-                    {
-                        "reg_number": co_data.findtext("RegNumber"),
-                        "reg_code": co_data.findtext("RegCode"),  # not used
-                        "bic": co_data.findtext("BIC"),
-                        "org_name": co_data.findtext("OrgName"),
-                        "full_name": co_data.findtext("OrgFullName"),
-                        "legal_name": co_data.findtext("csname"),
-                        "en_name": co_data.findtext("encname"),
-                        "phones": co_data.findtext("phones"),
-                        "inc_date": co_data.findtext("DateKGRRegistration"),
-                        "ogrn": co_data.findtext("MainRegNumber"),
-                        "main_reg": co_data.findtext("MainDateReg"),
-                        "address1": co_data.findtext("UstavAdr"),
-                        "address2": co_data.findtext("FactAdr"),
-                        "capital": co_data.findtext("UstMoney"),
-                        "status": co_data.findtext("OrgStatus"),
-                        "ssv_date": co_data.findtext("SSV_Date"),
-                        "lic_withd_num": co_data.findtext("licwithdnum"),
-                        "lic_withd_date": co_data.findtext("licwithddate"),
-                        # "ruleactual": co_data.findtext("ruleactual"),
-                        # "cdmoney": co_data.findtext("cdmoney"),
-                    }
-                )
-
-            # Extract elements within LIC
-            lic_data = credit_org_info.find("LIC")
-            if lic_data is not None:
-                details.update(
-                    {
-                        "LT": lic_data.findtext("LT"),
-                        "LDate": lic_data.findtext("LDate"),
-                    }
-                )
-        else:
-            print("CreditOrgInfo not found in the response")
+    # Locate co_data and lic_data
+    co_data = result.find(".//CreditOrgInfo/CO")
+    if co_data is not None:
+        ssv_date = co_data.findtext("SSV_Date")
+        reg_date = co_data.findtext("MainDateReg")
+        en_names = co_data.findtext("encname")
+        phones = co_data.findtext("phones")
+        lic_withd_num = co_data.findtext("licwithdnum")
+        lic_withd_date = co_data.findtext("licwithddate")
+        entity.add("name", co_data.findtext("OrgName"))
+        entity.add("name", co_data.findtext("OrgFullName"))
+        entity.add("name", co_data.findtext("csname"))
+        entity.add("ogrnCode", co_data.findtext("MainRegNumber"))
+        entity.add("bikCode", co_data.findtext("BIC"))
+        entity.add("registrationNumber", co_data.findtext("RegNumber"))
+        entity.add("address", co_data.findtext("UstavAdr"))
+        entity.add("address", co_data.findtext("FactAdr"))
+        entity.add("amount", co_data.findtext("UstMoney"))
+        entity.add("status", co_data.findtext("OrgStatus"))
+        if en_names is not None:
+            for name in en_names.split(","):
+                entity.add("name", name, lang="eng")
+        if phones is not None:
+            for phone in phones.split(","):
+                entity.add("phone", phone)
+        if ssv_date is not None:
+            entity.add(
+                "notes",
+                f"Дата вынесения заключения (признак внесения КО в Систему страхования вкладов): {ssv_date[:10]}",
+            )
+        if reg_date is not None:
+            entity.add(
+                "notes",
+                f"Дата присвоения государственного регистрационного номера: {reg_date[:10]}",
+            )
+        if lic_withd_num is not None and lic_withd_date is not None:
+            entity.add(
+                "status",
+                f"Лицензия аннулирована: {lic_withd_num} от {lic_withd_date[:10]}",
+            )
+        h.apply_date(
+            entity, "incorporationDate", co_data.findtext("DateKGRRegistration")
+        )
     else:
-        print("CreditInfoByIntCodeXMLResult not found in the response")
+        context.log.warning(f"No details found for BIC {internal_code}")
 
-    return details
+    lic_data = result.find(".//CreditOrgInfo/LIC")
+    if lic_data is not None:
+        license_date = lic_data.findtext("LDate")
+        license_code = lic_data.findtext("LCode")
+        entity.add("classification", lic_data.findtext("LT"))
+        if license_date is not None and license_code is not None:
+            entity.add(
+                "status",
+                f"Код лицензии: {license_code}, дата выдачи: {license_date[:10]}",
+            )
+
+    context.emit(entity)
 
 
 def crawl(context: Context):
@@ -142,49 +143,5 @@ def crawl(context: Context):
         bic = record.findtext("Bic")
         entity = context.make("Company")
         entity.id = context.make_slug(bic)
-        int_code = bic_to_int_code(bic)
-        details = details_by_int_code(int_code)
-        if details:
-            ssv_date = details.pop("ssv_date")
-            reg_date = details.pop("main_reg")
-            en_names = details.pop("en_name")
-            phones = details.pop("phones")
-            lic_withd_num = details.pop("lic_withd_num")
-            lic_withd_date = details.pop("lic_withd_date")
-            entity.add("name", details.pop("org_name"))
-            entity.add("name", details.pop("full_name"))
-            entity.add("name", details.pop("legal_name"))
-            entity.add("ogrnCode", details.pop("ogrn"))
-            entity.add("bikCode", details.pop("bic"))
-            entity.add("registrationNumber", details.pop("reg_number"))
-            entity.add("address", details.pop("address1"))
-            entity.add("address", details.pop("address2"))
-            entity.add("amount", details.pop("capital"))
-            entity.add("status", details.pop("status"))
-            if en_names is not None:
-                for name in en_names.split(","):
-                    entity.add("name", name, lang="eng")
-            if phones is not None:
-                for phone in phones.split(","):
-                    entity.add("phone", phone)
-            if ssv_date is not None:
-                entity.add(
-                    "notes",
-                    f"Дата вынесения заключения (признак внесения КО в Систему страхования вкладов): {ssv_date[:10]}",
-                )
-            if reg_date is not None:
-                entity.add(
-                    "notes",
-                    f"Дата присвоения государственного регистрационного номера: {reg_date[:10]}",
-                )
-            if lic_withd_num is not None and lic_withd_date is not None:
-                entity.add(
-                    "status",
-                    f"Лицензия аннулирована: {lic_withd_num} от {lic_withd_date[:10]}",
-                )
-            h.apply_date(
-                entity, "incorporationDate", details.get("DateKGRRegistration")
-            )
-            context.emit(entity)
-        else:
-            context.log.warning(f"No details found for BIC {bic}")
+        int_code = bic_to_int_code(context, bic)
+        crawl_details(context, int_code, entity)
