@@ -18,19 +18,23 @@ description: |
   The people holding these positions usually have a close and confidential relationship with 
   the agency head or other key officials.
 
-  Positions in the Plum Book include the following: 
+  Positions in the Plum Book include the following:
+    
+    - **Schedule C (SC)** positions are excepted from the competitive service because of their 
+      confidential or policy-determining character. The decision concerning whether to place a 
+      position in Schedule C is made by the Director, U.S. Office of Personnel Management, upon 
+      agency request.
 
-  * **Executive Schedule (EX)** and salary-equivalent positions paid at the rates established 
-    for Levels I through V of the Executive Schedule.
-  * **Senior Executive Service (SES)** "General" positions (i.e., those positions which may be 
-    filled by a career, noncareer, or limited appointment).
-  * **Senior Foreign Service (SFS)** positions.
-  * **Schedule C (SC)** positions excepted from the competitive service by the President, or by the 
-    Director, Office of Personnel Management, because of the confidential or policy-determining 
-    nature of the position duties.
-  * **Other** confidential or policy-determining positions.
-
-  [Source: Office of Human Resources Management](https://www.commerce.gov/hr/practitioners/ses-policies/plum-book#:~:text=What%20is%20the%20Plum%20Book,between%20the%20House%20and%20Senate.)
+    - **Senior Executive Service (SES)** is a personnel system covering top level policy, supervisory, 
+      and managerial positions in most Federal agencies. The SES includes most Civil Service positions 
+      above grade 15 of the General Schedule. 
+      There are two types of SES positions:
+      - **Career Reserved**
+      - **General**
+  
+  **Sources:**
+  - [Office of Human Resources Management](https://www.commerce.gov/hr/practitioners/ses-policies/plum-book#:~:text=What%20is%20the%20Plum%20Book,between%20the%20House%20and%20Senate)  
+  - [U.S. Office of Personnel Management - Plum Book Reporting](https://www.opm.gov/about-us/open-government/plum-reporting/position-descriptions/)
 publisher:
   name: U.S. Office of Personnel Management
   acronym: OPM
