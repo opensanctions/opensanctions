@@ -14,41 +14,46 @@ IGNORE = [
 
 def crawl(context: Context):
     path = context.fetch_resource("source.csv", context.data_url)
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, "r", encoding="utf-8-sig") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
-            agency_name = row.pop("\ufeffAgencyName")
-            position_title = row.pop("PositionTitle", None)
+            agency_name = row.pop("AgencyName")
+            position_title = row.pop("PositionTitle")
             appointment_type = row.pop("AppointmentTypeDescription")
             expiration_date = row.pop("ExpirationDate")
             location = row.pop("Location")
             incumbent_first_name = row.pop("IncumbentFirstName")
             incumbent_last_name = row.pop("IncumbentLastName")
+            position_name = f"{position_title}, {agency_name}"
 
             if not incumbent_first_name or not incumbent_last_name:
                 continue
             person = context.make("Person")
-            person.id = context.make_slug(incumbent_first_name, incumbent_last_name)
+            person.id = context.make_id(
+                incumbent_first_name, incumbent_last_name, position_name
+            )
             h.apply_name(
                 person, first_name=incumbent_first_name, last_name=incumbent_last_name
             )
-            person.add("position", f"{position_title}, {agency_name}")  # for dedupe
+            person.add("position", position_name)  # for dedupe
 
             position = h.make_position(
                 context,
-                name=f"{position_title}, {agency_name}",
+                name=position_name,
                 description=appointment_type,
                 subnational_area=location,
                 country="us",
             )
 
             categorisation = categorise(context, position, is_pep=True)
-            if categorisation.is_pep:
-                occupancy = h.make_occupancy(
-                    context, person, position, end_date=expiration_date
-                )
-                if occupancy:
-                    context.emit(person, target=True)
-                    context.emit(position)
-                    context.emit(occupancy)
+            if not categorisation.is_pep:
+                continue
+            occupancy = h.make_occupancy(
+                context, person, position, end_date=expiration_date
+            )
+            if not occupancy:
+                continue
+            context.emit(person, target=True)
+            context.emit(position)
+            context.emit(occupancy)
             context.audit_data(row, ignore=IGNORE)
