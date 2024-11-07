@@ -207,6 +207,7 @@ def parse_identity(context: Context, entity: Entity, node: Element, places):
 
 def parse_entry(context: Context, target: Element, programs, places):
     entity = context.make("LegalEntity")
+    entity_ssid = target.get("ssid")
     node = target.find("./entity")
     if node is None:
         node = target.find("./individual")
@@ -223,7 +224,6 @@ def parse_entry(context: Context, target: Element, programs, places):
             )
         entity = context.make("Vessel")
 
-    entity_ssid = target.get("ssid")
     entity.id = context.make_slug(entity_ssid)
     entity.add("gender", node.get("sex"), quiet=True)
     for other in node.findall("./other-information"):
