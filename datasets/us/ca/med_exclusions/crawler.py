@@ -1,91 +1,76 @@
 from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
-from datetime import datetime
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 
 def crawl_item(row: Dict[str, str], context: Context):
+    addresses = row.pop("address_es")
+    first_name = row.pop("first_name")
+    middle_name = row.pop("middle_name")
+    last_name = row.pop("last_name")
+    aliases = row.pop("a_k_a_also_known_asd_b_a_doing_business_as")
 
-    if row.get("first_name") != "N/A":
+    if first_name != "N/A":
         entity = context.make("Person")
-        entity.id = context.make_id(
-            row.get("first_name"), row.get("middle_name"), row.get("last_name")
-        )
-        
+        entity.id = context.make_id(first_name, middle_name, last_name, addresses)
+
         h.apply_name(
             entity,
-            first_name=row.pop("first_name"),
-            last_name=row.pop("last_name"),
+            first_name=first_name,
+            middle_name=middle_name if middle_name != "N/A" else None,
+            last_name=last_name,
         )
-
-        if row.get("middle_name") != "N/A":
-            h.apply_name(entity, middle_name=row.pop("middle_name"))
-        else:
-            row.pop("middle_name")
+        if aliases != "N/A":
+            entity.add("alias", [a.strip() for a in aliases.split(";")])
 
     else:
-        row.pop("first_name")
-        row.pop("middle_name")
         entity = context.make("Company")
-        entity.id = context.make_id(row.get("last_name"))
-        entity.add("name", row.pop("last_name"))
+        entity.id = context.make_id(last_name, addresses)
+        entity.add("name", last_name)
+
+        if aliases != "N/A":
+            for alias in aliases.split(";"):
+                related_entity = context.make("LegalEntity")
+                related_entity.id = context.make_id(alias, entity.id)
+                related_entity.add("name", alias.strip())
+                rel = context.make("UnknownLink")
+                rel.id = context.make_id(entity.id, related_entity.id)
+                rel.add("subject", entity)
+                rel.add("object", related_entity)
+                context.emit(related_entity)
+                context.emit(rel)
 
     entity.add("country", "us")
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("provider_type"))
-    addresses = [
-        h.make_address(context, full=add_text)
-        for add_text in row.pop("address_es").split(";")
-        # there are some cases where when we split it returns an empty string
-        if add_text
-    ]
-    for address in addresses:
-        entity.add("address", address)
-        h.apply_address(context, entity, address)
-        context.emit(address)
+    entity.add("address", h.multi_split(addresses, [", &", ";"]))
 
-    if row.get("a_k_a_also_known_asd_b_a_doing_business_as") != "N/A":
-        entity.add(
-            "alias", row.pop("a_k_a_also_known_asd_b_a_doing_business_as").split(";")
-        )
-    else:
-        row.pop("a_k_a_also_known_asd_b_a_doing_business_as")
+    license_number = row.pop("license_number")
+    if license_number and license_number != "N/A":
+        entity.add("description", "License number(s): " + license_number)
 
-    if row.get("license_number") and row.get("license_number") != "N/A":
-        entity.add("description", "License number(s): " + row.pop("license_number"))
-    else:
-        row.pop("license_number")
-
-    if row.get("provider_number") and row.get("provider_number") != "N/A":
-        entity.add("description", "Provider number(s): " + row.pop("provider_number"))
-    else:
-        row.pop("provider_number")
+    provider_number = row.pop("provider_number")
+    if provider_number and provider_number != "N/A":
+        entity.add("description", "Provider number(s): " + provider_number)
 
     sanction = h.make_sanction(context, entity)
-    if row.get("date_of_suspension") != "N/A":
-        h.apply_date(sanction, "startDate", row.pop("date_of_suspension"))
-    else:
-        row.pop("date_of_suspension")
+    start_date = row.pop("date_of_suspension")
+    if start_date != "N/A":
+        h.apply_date(sanction, "startDate", start_date)
+    sanction.add("duration", row.pop("active_period"))
 
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    # active_period is either Indefinetly or Deceased
-    context.audit_data(row, ignore=["active_period"])
+    context.audit_data(row)
 
 
 def unblock_validator(doc) -> bool:
-    return (
-        len(
-            doc.xpath(
-                ".//a[contains(text(), 'Medi-Cal Suspended and Ineligible Provider List')]"
-            )
-        )
-        > 0
-    )
+    xpath = ".//a[contains(text(), 'Medi-Cal Suspended and Ineligible Provider List')]"
+    return len(doc.xpath(xpath)) > 0
 
 
 def crawl_excel_url(context: Context):
@@ -101,11 +86,9 @@ def crawl_excel_url(context: Context):
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
-    cached, path, mediatype, _charset = fetch_resource(
-        context, "source.xlsx", excel_url, geolocation="US"
+    _, _, _, path = fetch_resource(
+        context, "source.xlsx", excel_url, expected_media_type=XLSX, geolocation="US"
     )
-    if not cached:
-        assert mediatype == XLSX
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
