@@ -33,6 +33,7 @@ url: "https://medicaid.ohio.gov/wps/portal/gov/medicaid/resources-for-providers/
 data:
   url: https://medicaid.ohio.gov/wps/portal/gov/medicaid/resources-for-providers/enrollment-and-support/provider-enrollment/provider-exclusion-and-suspension-list
   format: XLSX
+ci_test: false
 
 dates:
   formats: ["%m/%d/%Y"]
