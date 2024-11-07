@@ -9,32 +9,30 @@ summary: >
   The Plum Book lists federal positions filled by political appointees, Schedule C 
   employees, and other executives.
 description: |
-  The Plum Book is a listing of over 8,000 civil service leadership and support positions 
-  (filled and vacant) in the Legislative and Executive branches of the Federal Government 
-  that may be subject to noncompetitive appointments. These positions include agency heads 
-  and their immediate subordinates, policy executives and advisors, and aides who report to 
-  these officials. Many positions have duties which support Administration policies and programs.
-# yet to be double-checked
-  The people holding these positions usually have a close and confidential relationship with 
-  the agency head or other key officials.
-
-  Positions in the Plum Book include the following:
-    
-    - **Schedule C (SC)** positions are excepted from the competitive service because of their 
-      confidential or policy-determining character. The decision concerning whether to place a 
-      position in Schedule C is made by the Director, U.S. Office of Personnel Management, upon 
-      agency request.
-
-    - **Senior Executive Service (SES)** is a personnel system covering top level policy, supervisory, 
-      and managerial positions in most Federal agencies. The SES includes most Civil Service positions 
-      above grade 15 of the General Schedule. 
-      There are two types of SES positions:
-      - **Career Reserved**
-      - **General**
+  Published by the Senate Committee on Homeland Security and Governmental Affairs and 
+  House Committee on Government Reform alternately after each Presidential election, 
+  the Plum Book lists over 7,000 Federal civil service leadership and support positions 
+  in the legislative and executive branches of the Federal Government that may be subject 
+  to noncompetitive appointment, nationwide. 
   
-  **Sources:**
-  - [Office of Human Resources Management](https://www.commerce.gov/hr/practitioners/ses-policies/plum-book#:~:text=What%20is%20the%20Plum%20Book,between%20the%20House%20and%20Senate)  
-  - [U.S. Office of Personnel Management - Plum Book Reporting](https://www.opm.gov/about-us/open-government/plum-reporting/position-descriptions/)
+  Data covers positions such as agency heads and their immediate subordinates, policy 
+  executives and advisors, and aides who report to these officials. The duties of many 
+  such positions may involve advocacy of Administration policies and programs and the 
+  incumbents usually have a close and confidential working relationship with the agency 
+  or other key officials.
+
+  The major categories of positions listed in United States Government Policy and Supporting 
+  Positions include:
+
+  * **Executive Schedule** and salary-equivalent positions paid at the rates established for 
+  levels I through V of the Executive Schedule;
+  * **Senior Executive Service** "General" positions and **Senior Foreign Service** positions;
+  * **Schedule C** positions excepted from the competitive service by the President, or by the 
+  Director, Office of Personnel Management, and other positions at the GS-14 and above level 
+  excepted from the competitive civil service by law, because of the confidential or 
+  policy-determining nature of the position duties.
+
+  [Source: GovInfo](https://www.govinfo.gov/collection/plum-book?path=/GPO/United%20States%20Government%20Policy%20and%20Supporting%20Positions%20%2528Plum%20Book%2529)
 publisher:
   name: U.S. Office of Personnel Management
   acronym: OPM
