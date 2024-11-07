@@ -33,7 +33,12 @@ def crawl_item(member_url: str, context: Context):
         entity.add("phone", phone_number)
     except IndexError:
         # Only log a warning if the name is not "Hele Everaus" or "Kaja Kallas"
-        if name not in ["Hele Everaus", "Kaja Kallas", "Mart Võrklaev"]:
+        if name not in [
+            "Hele Everaus",
+            "Kaja Kallas",
+            "Mart Võrklaev",
+            "Toomas Kivimägi",
+        ]:
             context.log.warning("Couldn't find phone number for", name=name)
 
     try:
