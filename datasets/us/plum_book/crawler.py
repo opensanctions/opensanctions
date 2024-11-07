@@ -40,7 +40,6 @@ def crawl(context: Context):
             position = h.make_position(
                 context,
                 name=position_name,
-                description=appointment_type,
                 subnational_area=location,
                 country="us",
             )
@@ -51,6 +50,8 @@ def crawl(context: Context):
             occupancy = h.make_occupancy(
                 context, person, position, end_date=expiration_date
             )
+            if occupancy is not None:
+                occupancy.add("description", appointment_type)
             if not occupancy:
                 continue
             context.emit(person, target=True)
