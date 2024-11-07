@@ -969,3 +969,22 @@ lookups:
         entities:
           - Financière Henry IV
           - Nouvelle
+      - match: 'La société Smart Treso Conseil<br /> La société Entrepreneur Invest<br /> La société Eurotitrisation<br /> La société Caceis Bank venant aux droits de Caceis Investor Services Bank France (anciennement RBC Investor Services Bank France)<br /> Mme Edith Lusson<br /> M. Jean-Yves Bajon<br /> . Romain Bertrand<br /> M. Frédéric Zablocki<br /> M. Julien Leleu'
+        entities:
+          - Smart Treso Conseil
+          - Entrepreneur Invest
+          - Eurotitrisation
+          - Caceis Bank
+          - ['Caceis Investor Services Bank France', 'RBC Investor Services Bank France']
+          - Edith Lusson
+          - Jean-Yves Bajon
+          - Romain Bertrand
+          - Frédéric Zablocki
+          - Julien Leleu
+        relationships:
+         - schema: Succession
+            from_prop: predecessor
+            from: Caceis Investor Services Bank France
+            to_prop: successor
+            to: Caceis Bank
+            role: venant aux droits
