@@ -36,6 +36,8 @@ def crawl_item(row: Dict[str, str], context: Context):
                 related_entity = context.make("LegalEntity")
                 related_entity.id = context.make_id(alias, entity.id)
                 related_entity.add("name", alias.strip())
+                related_entity.add("country", "us")
+                related_entity.add("topics", "debarment")
                 rel = context.make("UnknownLink")
                 rel.id = context.make_id(entity.id, related_entity.id)
                 rel.add("subject", entity)
