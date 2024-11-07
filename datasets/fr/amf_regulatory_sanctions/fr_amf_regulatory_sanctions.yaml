@@ -982,7 +982,7 @@ lookups:
           - Frédéric Zablocki
           - Julien Leleu
         relationships:
-         - schema: Succession
+          - schema: Succession
             from_prop: predecessor
             from: Caceis Investor Services Bank France
             to_prop: successor
