@@ -109,6 +109,7 @@ def crawl_item(input_dict: dict, context: Context):
             "column_18",
             "column_9",
             "column_8",
+            "column_8_url",
         ],
     )
 
