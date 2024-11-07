@@ -1,12 +1,12 @@
-title: US California Medicaid Suspended and ineligible list
+title: US California Medicaid Suspended and ineligible providers
 entry_point: crawler.py
 prefix: us-medca
 coverage:
   frequency: daily
-  start: "2024-10-29"
+  start: "2024-11-07"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Medical providers suspended or ineligible to participate in California's Medicaid program.
+  Medical providers suspended from or otherwise deemed ineligible to participate in California's Medicaid program.
 description: |
   This dataset contains information about individuals and entities suspended from 
   the California State Medicaid Program. The following text extracted from their website
@@ -34,7 +34,7 @@ description: |
   > reimbursed for services rendered. Providers suspended as a result of a Medicare action must
   > appeal through the Medicare office before applying for re-enrollment with Medi-Cal.
 
-  > In accordance with W&amp;I Code, section 14043.61, subdivision (a), a provider of health care
+  > In accordance with W&I Code, section 14043.61, subdivision (a), a provider of health care
   > services shall be subject to suspension if claims for payment are submitted under any provider
   > number used by the provider to obtain reimbursement from the Medi-Cal program for the services,
   > goods, supplies or merchandise provided, directly or indirectly to a Medi-Cal beneficiary, by

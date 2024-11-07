@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-medla
 coverage:
   frequency: daily
-  start: "2024-10-28"
+  start: "2024-11-07"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Medical providers excluded from Louisiana's Medicaid program.
@@ -20,7 +20,7 @@ description: |
   > neither automatic nor a right. Applications for reinstatement will be reviewed by the
   > state and given fair and impartial consideration. La.-R.S. 46:437.13 (C) (2008).
 
-  Entities from this list due to the OIG LEIE are not re-listed in this dataset.
+  Entities on this list due to the OIG LEIE are not re-listed in this dataset.
 publisher:
   name: Louisiana Department of Health
   description: |
