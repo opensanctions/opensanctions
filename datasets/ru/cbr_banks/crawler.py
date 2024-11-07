@@ -93,7 +93,10 @@ def crawl_details(context: Context, internal_code, entity):
             for name in en_names.split(","):
                 entity.add("name", name, lang="eng")
         if phones is not None:
-            for phone in phones.split(","):
+            phones = h.multi_split(phones, ",")
+            for phone in phones:
+                if phone.startswith("("):
+                    phone = "+7" + phone
                 entity.add("phone", phone)
         if ssv_date is not None:
             entity.add(
