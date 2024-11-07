@@ -3,12 +3,12 @@ entry_point: crawler.py
 prefix: us-mednj
 coverage:
   frequency: daily
-  start: "2024-10-03"
+  start: "2024-11-07"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Medical providers disqualified from participating in New Jersey State's Medicaid program.
 description: |
-  > [The New Jersey Medicaid Fraud Division] audits and investigates health care
+  > The New Jersey Medicaid Fraud Division audits and investigates health care
   > providers, recipients, and managed care organizations (MCOs) that coordinate
   > the provision of an individual's health care needs. MFD evaluates the care
   > provided to Medicaid recipients and works to detect fraud, waste, and abuse
