@@ -52,9 +52,9 @@ lookups:
       - match: Russia INN - 2130080071
         prop: innCode
         value: 2130080071
-      - match: Russia KPP - 213001001
-        prop: kppCode
-        value: 213001001
+      # - match: Russia KPP - 213001001
+      #   prop: kppCode
+      #   value: 213001001
       - match: Russia OGRN - 1102130012379
         prop: ogrnCode
         value: 1102130012379
