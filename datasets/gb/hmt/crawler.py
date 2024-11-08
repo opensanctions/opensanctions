@@ -83,7 +83,10 @@ def split_reg_no(text: str):
         "Business Identification Number", "; Business Identification Number"
     )
     text = text.replace("Tax Identification Number", "; Tax Identification Number")
-    return [s.strip() for s in h.multi_split(text, [";", "(1)", "(2)", "(3)"])]
+    return [
+        s.strip()
+        for s in h.multi_split(text, [";", "(1)", "(2)", "(3)", "(4)", "(5)", " / "])
+    ]
 
 
 def parse_row(context: Context, row: Dict[str, Any]):

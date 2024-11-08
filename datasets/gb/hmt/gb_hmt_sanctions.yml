@@ -123,6 +123,13 @@ lookups:
           - Sudan Master Technology
           - Ministerstvo Promyshlennosti I Torgovli Rossiiskoi Federatsiikii
           - PJSC Novatek
+          - STANEX GROUP LIMITED LIABILITY PARTNERSHIP
+          - PJSC Zenit Bank
+          - STANEX GROUP LLP
+          - Ningbo Haitian Precision Machinery Co. Ltd
+          - AUTEL INTELLIGENT TECHNOLOGY
+          - MR TAIQIONG CHEN
+          - HK Kongsing Co., Limited
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -460,6 +467,25 @@ lookups:
         values:
           - Novin Energy
           - TAMAS
+      - match: Lobaye Invest SARLU, owned by M-Finans
+        values:
+          - Lobaye Invest SARLU
+          - M-Finans
+      - match: (1) TSENTR MOLODEZHNOGO INNOVATSIONNOGO TVORCHESTVA (2) IST Ltd TRADE DEVELOPMENT (3) UNIMATIK-MSK (4) LLC UNIMATICENVERSION (5) HUSTLE SHIFT LLC (6) EMKO-RUS (7) ALTEGRITY LLC (8) AVTONOMNAYA NEKOMMERCHESKAYA (9) ORGANIZATSIYA DOPOLNITELNOGO (10) OBRAZOVANIYA UCHEBNYI TSENTR UNIMATIK
+        values: 
+          - TSENTR MOLODEZHNOGO INNOVATSIONNOGO TVORCHESTVA
+          - IST Ltd TRADE DEVELOPMENT
+          - UNIMATIK-MSK
+          - LLC UNIMATICENVERSION
+          - HUSTLE SHIFT LLC
+          - EMKO-RUS
+          - ALTEGRITY LLC
+          - AVTONOMNAYA NEKOMMERCHESKAYA ORGANIZATSIYA DOPOLNITELNOGO OBRAZOVANIYA UCHEBNYI TSENTR UNIMATIK
+      - match: (1) KAZSTANEX LLP (2) ROSTANEX (3) UZSTANEX LLC
+        values:
+          - KAZSTANEX LLP
+          - ROSTANEX
+          - UZSTANEX LLC
   type.address:
     lowercase: true
     options:
@@ -494,6 +520,7 @@ lookups:
       - match:
           - "-"
           - 111141
+          - 115088
         value: null
       - match:
           - former USSR, now Azerbaijan
@@ -690,6 +717,14 @@ lookups:
           - natupikin@mail.ru
           - kurnikoff@yandex.ru
           - nikolay.tupikin@gmail.com
+      - match: (1) e3000@mail.ru (2) mrodionov659@gmail.com
+        values:
+          - e3000@mail.ru
+          - mrodionov659@gmail.com
+      - match: (1) accountant@virmavia.com (2) natalia.khirevich@gmail.com
+        values:
+          - accountant@virmavia.com
+          - natalia.khirevich@gmail.com
   type.gender:
     lowercase: true
     normalize: true
