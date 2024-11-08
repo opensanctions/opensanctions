@@ -1,14 +1,15 @@
 from lxml.etree import _Element
-from typing import List, Dict, Set, Optional
+from typing import List, Optional
 from rigour.mime.types import HTML
 import re
+from lxml import html
 
 from zavod import Context
 from zavod import helpers as h
 
 
 ASSOCIATIONS_LABEL = "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
-ORGANIZATIONS_LABEL = "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
+ORGANISATIONS_LABEL = "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 INDIVIDUALS_LABEL = "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 
 REGEX_ACRONYM_PARENS = re.compile(r"^(?P<name>.+?)(?P<acronym>\s+\([A-Z-]+\))?$")
@@ -25,7 +26,7 @@ COMPLEX_TERMS = {
     "/",
     "manifestation",
     "formations",
-    "front organizations",
+    "front organisations",
     "security council",
     " un ",
 }
@@ -129,8 +130,13 @@ def crawl_common(
         )
 
 
-def crawl_organizations(context: Context, url: str, program: str) -> None:
-    doc = context.fetch_html(url, cache_days=1)
+def crawl_organisations(
+    context: Context, url: str, filename: str, program: str
+) -> None:
+    path = context.fetch_resource(filename, url)
+    context.export_resource(path, HTML, filename)
+    with open(path, "rb") as fh:
+        doc = html.fromstring(fh.read())
     doc.make_links_absolute(url)
 
     table = doc.xpath(".//table")[0]
@@ -143,8 +149,11 @@ def crawl_organizations(context: Context, url: str, program: str) -> None:
         )
 
 
-def crawl_individuals(context: Context, url: str, program: str) -> None:
-    doc = context.fetch_html(url, cache_days=1)
+def crawl_individuals(context: Context, url: str, filename: str, program: str) -> None:
+    path = context.fetch_resource(filename, url)
+    context.export_resource(path, HTML, filename)
+    with open(path, "rb") as fh:
+        doc = html.fromstring(fh.read())
     doc.make_links_absolute(url)
 
     for item in doc.xpath(".//div[contains(@class, 'views-field-body')]/div/p"):
@@ -173,10 +182,12 @@ def crawl(context: Context) -> None:
     doc.make_links_absolute(context.dataset.url)
 
     associations_url = get_link_by_label(doc, ASSOCIATIONS_LABEL)
-    crawl_organizations(context, associations_url, ASSOCIATIONS_LABEL)
+    crawl_organisations(
+        context, associations_url, "associations.html", ASSOCIATIONS_LABEL
+    )
 
-    url = get_link_by_label(doc, ORGANIZATIONS_LABEL)
-    crawl_organizations(context, url, ORGANIZATIONS_LABEL)
+    url = get_link_by_label(doc, ORGANISATIONS_LABEL)
+    crawl_organisations(context, url, "organisations.html", ORGANISATIONS_LABEL)
 
     url = get_link_by_label(doc, INDIVIDUALS_LABEL)
-    crawl_individuals(context, url, INDIVIDUALS_LABEL)
+    crawl_individuals(context, url, "individuals.html", INDIVIDUALS_LABEL)
