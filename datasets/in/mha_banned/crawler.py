@@ -1,19 +1,151 @@
-import csv
 from lxml.etree import _Element
 from typing import List, Dict, Set, Optional
-from rigour.mime.types import CSV
+from rigour.mime.types import HTML
+import re
 
 from zavod import Context
 from zavod import helpers as h
 
 
-def parse_names(field: str) -> List[str]:
-    names: List[str] = []
-    for value in field.split(";"):
-        value = value.strip()
-        if len(value):
-            names.append(value)
-    return names
+ASSOCIATIONS_LABEL = "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
+ORGANIZATIONS_LABEL = "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
+INDIVIDUALS_LABEL = "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
+
+REGEX_NAME = re.compile(r"^(?P<name>.+?)(?P<acronym>\(\s+[A-Z-]+)?$")
+REGEX_WEAK_ALIAS = re.compile(r"^\s*\(?([A-Z-]+)\)?$")
+
+COMPLEX_TERMS = {
+    "wing",
+    "associate",
+    "affiliate",
+    "namely",
+    "factions",
+    "/",
+    "manifestation",
+    "formations",
+    "front organizations",
+    "security council",
+    " un ",
+}
+
+
+def crawl_entity(
+    context: Context,
+    schema: str,
+    name: str,
+    aliases_string: str | None,
+    program: str,
+    authority_id: str,
+    source_url: str,
+    detail_url: str | None,
+) -> None:
+    entity = context.make(schema)
+    entity.id = context.make_id(name, aliases_string)
+    entity.add("name", name)
+
+    aliases = h.multi_split(aliases_string, ";")
+    weak_alias_matches = [REGEX_WEAK_ALIAS.match(a) for a in aliases]
+    print(weak_alias_matches)
+    weak_aliases = [m.group(1) for m in weak_alias_matches if m]
+    aliases = [a for a in aliases if not REGEX_WEAK_ALIAS.match(a)]
+    entity.add("alias", aliases)
+    entity.add("weakAlias", weak_aliases)
+
+    entity.add("sourceUrl", source_url)
+    entity.add("sourceUrl", detail_url)
+
+    sanction = h.make_sanction(context, entity, key=program)
+    sanction.add("program", program)
+    sanction.add("authorityId", authority_id)
+
+    context.emit(entity, target=True)
+    context.emit(sanction)
+
+    return entity
+
+
+def crawl_common(
+    context: Context,
+    schema: str,
+    names: str,
+    program: str,
+    authority_id: str,
+    source_url: str,
+    detail_url: List[str],
+) -> None:
+    names_match = REGEX_NAME.match(names)
+    name = names_match.group("name").strip()
+    assert name
+    acronym = names_match.group("acronym")
+    if any(term in name.lower() for term in COMPLEX_TERMS):
+        res = context.lookup("names", name)
+        if res is None:
+            context.log.warn("Complex name needs cleaning", url=source_url, name=name)
+            crawl_entity(
+                context,
+                schema,
+                name,
+                acronym,
+                program,
+                authority_id,
+                source_url,
+                detail_url,
+            )
+        else:
+            for group in res.entities:
+                entity = crawl_entity(
+                    context,
+                    schema,
+                    group["main_name"],
+                    group.get("main_aliases", None),
+                    program,
+                    authority_id,
+                    source_url,
+                    detail_url,
+                )
+                if group.get("rel_name", None):
+                    related = crawl_entity(
+                        context,
+                        schema,
+                        group["rel_name"],
+                        group.get("rel_aliases", None),
+                        program,
+                        authority_id,
+                        source_url,
+                        detail_url,
+                    )
+
+                    rel = context.make("UnknownLink")
+                    rel.id = context.make_id(entity.id, related.id)
+                    rel.add("subject", entity.id)
+                    rel.add("object", related.id)
+                    rel.add("role", group["relationship"])
+                    context.emit(rel)
+    else:
+        crawl_entity(
+            context,
+            schema,
+            name,
+            acronym,
+            program,
+            authority_id,
+            source_url,
+            detail_url,
+        )
+
+
+def crawl_organizations(context: Context, url: str, program: str) -> None:
+    doc = context.fetch_html(url, cache_days=1)
+    doc.make_links_absolute(url)
+
+    table = doc.xpath(".//table")[0]
+    for row in h.parse_html_table(table):
+        authority_id = row.pop("sr_no").text_content()
+        names = row.pop("title").text_content()
+        detail_url = row.pop("download_link").xpath(".//a/@href")
+        crawl_common(
+            context, "Organization", names, program, authority_id, url, detail_url
+        )
 
 
 def get_link_by_label(doc: _Element, label: str) -> Optional[str]:
@@ -28,96 +160,14 @@ def get_link_by_label(doc: _Element, label: str) -> Optional[str]:
     return link.get("href")
 
 
-def assert_link_hash(
-    context: Context, url: str, expected: str, xpath: Optional[str] = None
-) -> str:
-    if xpath:
-        h.assert_html_url_hash(context, url, expected, path=xpath)
-    else:
-        h.assert_url_hash(context, url, expected)
-
-
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.dataset.url)
+    doc = context.fetch_html(context.dataset.url, cache_days=1)
     doc.make_links_absolute(context.dataset.url)
-    linked_sources: Set[str] = set()
 
-    url = get_link_by_label(
-        doc,
-        "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-    )
-    linked_sources.add(url)
-    assert_link_hash(
-        context,
-        url,
-        "f73acb3d478213b00fd2b207a89f333ce7e36717",
-        xpath='.//div[@id="block-mhanew-content"]//table',
-    )
+    associations_url = get_link_by_label(doc, ASSOCIATIONS_LABEL)
+    crawl_organizations(context, associations_url, ASSOCIATIONS_LABEL)
 
-    url = get_link_by_label(
-        doc,
-        "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-    )
-    linked_sources.add(url)
-    assert_link_hash(
-        context,
-        url,
-        "9e4746482586cd61b9855058fa2b926f943c7d9d",
-        xpath='.//div[@id="block-mhanew-content"]//table',
-    )
+    url = get_link_by_label(doc, ORGANIZATIONS_LABEL)
+    crawl_organizations(context, url, ORGANIZATIONS_LABEL)
 
-    url = get_link_by_label(
-        doc,
-        "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-    )
-    linked_sources.add(url)
-    assert_link_hash(
-        context,
-        url,
-        "682cd08caa7f9eb111f075b1086874f0a6f01565",
-        xpath='.//div[@id="block-mhanew-content"]',
-    )
-
-    path = context.fetch_resource("source.csv", context.data_url)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    named_ids: Dict[str, str] = {}
-    with open(path, "r") as fh:
-        for row in csv.DictReader(fh):
-            entity = context.make(row.pop("Type", "LegalEntity"))
-            name = row.pop("Name")
-            aliases = row.pop("Aliases")
-            weak_aliases = row.pop("Weak")
-            source_url = row.pop("SourceURL")
-            if source_url not in linked_sources:
-                context.log.warn(
-                    "Source URL not in overview page. Perhaps it's out of date?",
-                    url=source_url,
-                )
-            if name is None:
-                context.log.warn("No name", row=row)
-                continue
-            entity.id = context.make_id(name, aliases, weak_aliases)
-            assert entity.id is not None, row
-            named_ids[name] = entity.id
-            entity.add("name", name)
-            entity.add("notes", row.pop("Notes"))
-            entity.add("topics", "sanction")
-            entity.add("sourceUrl", source_url)
-            entity.add("alias", parse_names(aliases))
-            entity.add("weakAlias", parse_names(weak_aliases))
-
-            id_ = row.pop("ID")
-            sanction = h.make_sanction(context, entity, id_)
-            sanction.add("program", row.pop("Designation"))
-            sanction.add("authorityId", id_)
-
-            linked = row.pop("Linked", "").strip()
-            if len(linked) and linked in named_ids:
-                rel = context.make("UnknownLink")
-                rel.id = context.make_id(linked, "linked", entity.id)
-                rel.add("subject", named_ids[linked])
-                rel.add("object", entity.id)
-                context.emit(rel)
-
-            context.emit(entity, target=True)
-            context.emit(sanction)
+    url = get_link_by_label(doc, INDIVIDUALS_LABEL)
