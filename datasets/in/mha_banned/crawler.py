@@ -195,7 +195,10 @@ def crawl(context: Context) -> None:
     crawl_individuals(context, url, "individuals.html", INDIVIDUALS_LABEL)
 
     # Temporarily also emit the manually-curated CSV
-    path = context.fetch_resource("source.csv", context.data_url)
+    path = context.fetch_resource(
+        "source.csv",
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vTc-EkLWZgLKDPVvcrCoKLp17EEo535uP1EMcLKFl_b6T3z6Tq99BrI3R9GhxKirgRoozND1xQ48O4-/pub?output=csv",
+    )
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     named_ids: Dict[str, str] = {}
     with open(path, "r") as fh:
