@@ -1,9 +1,8 @@
 from lxml.etree import _Element
-from typing import Dict, List, Optional
-from rigour.mime.types import HTML, CSV
+from typing import List, Optional
+from rigour.mime.types import HTML
 import re
 from lxml import html
-import csv
 
 from zavod import Context
 from zavod import helpers as h
@@ -193,46 +192,3 @@ def crawl(context: Context) -> None:
 
     url = get_link_by_label(doc, INDIVIDUALS_LABEL)
     crawl_individuals(context, url, "individuals.html", INDIVIDUALS_LABEL)
-
-    # Temporarily also emit the manually-curated CSV
-    path = context.fetch_resource(
-        "source.csv",
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vTc-EkLWZgLKDPVvcrCoKLp17EEo535uP1EMcLKFl_b6T3z6Tq99BrI3R9GhxKirgRoozND1xQ48O4-/pub?output=csv",
-    )
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    named_ids: Dict[str, str] = {}
-    with open(path, "r") as fh:
-        for row in csv.DictReader(fh):
-            entity = context.make(row.pop("Type", "LegalEntity"))
-            name = row.pop("Name")
-            aliases = row.pop("Aliases")
-            weak_aliases = row.pop("Weak")
-            source_url = row.pop("SourceURL")
-            if name is None:
-                context.log.warn("No name", row=row)
-                continue
-            entity.id = context.make_id(name, aliases, weak_aliases)
-            assert entity.id is not None, row
-            named_ids[name] = entity.id
-            entity.add("name", name)
-            entity.add("notes", row.pop("Notes"))
-            entity.add("topics", "sanction")
-            entity.add("sourceUrl", source_url)
-            entity.add("alias", parse_names(aliases))
-            entity.add("alias", parse_names(weak_aliases))
-
-            id_ = row.pop("ID")
-            sanction = h.make_sanction(context, entity, id_)
-            sanction.add("program", row.pop("Designation"))
-            sanction.add("authorityId", id_)
-
-            linked = row.pop("Linked", "").strip()
-            if len(linked) and linked in named_ids:
-                rel = context.make("UnknownLink")
-                rel.id = context.make_id(linked, "linked", entity.id)
-                rel.add("subject", named_ids[linked])
-                rel.add("object", entity.id)
-                context.emit(rel)
-
-            context.emit(entity, target=True)
-            context.emit(sanction)
