@@ -1,19 +1,169 @@
-import csv
 from lxml.etree import _Element
-from typing import List, Dict, Set, Optional
-from rigour.mime.types import CSV
+from typing import Dict, List, Optional
+from rigour.mime.types import HTML, CSV
+import re
+from lxml import html
+import csv
 
 from zavod import Context
 from zavod import helpers as h
 
 
-def parse_names(field: str) -> List[str]:
-    names: List[str] = []
-    for value in field.split(";"):
-        value = value.strip()
-        if len(value):
-            names.append(value)
-    return names
+ASSOCIATIONS_LABEL = "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
+ORGANISATIONS_LABEL = "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
+INDIVIDUALS_LABEL = "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
+
+REGEX_ACRONYM_PARENS = re.compile(r"^(?P<name>.+?)(?P<acronym>\s+\([A-Z-]+\))?$")
+# Treat a single word without spaces as a weak alias
+REGEX_WEAK_ALIAS = re.compile(r"^\s*\(?([A-Za-z-]+)\)?$")
+REGEX_NUM_NAME = re.compile(r"(\d+)\.\s*")
+
+COMPLEX_TERMS = {
+    "wing",
+    "associate",
+    "affiliate",
+    "namely",
+    "factions",
+    "/",
+    "manifestation",
+    "formations",
+    "front organisations",
+    "security council",
+    " un ",
+}
+
+
+def crawl_entity(
+    context: Context,
+    schema: str,
+    names_string: str,
+    program: str,
+    authority_id: str,
+    source_url: str,
+    detail_url: str | None,
+) -> None:
+    entity = context.make(schema)
+    # Include aliases in ID because there are different individuals whose alias
+    # is all that distinguishes them.
+    entity.id = context.make_id(names_string)
+
+    # Split a primary name from all names
+    names = h.multi_split(names_string, ";@")
+    name = names[0]
+    aliases = names[1:]
+
+    # Split out acronym in parens from name
+    names_match = REGEX_ACRONYM_PARENS.match(name)
+    name = names_match.group("name").strip()
+    assert name
+    if names_match.group("acronym"):
+        aliases.append(names_match.group("acronym"))
+
+    # Treat acronyms and single words as weak aliases
+    weak_alias_matches = [REGEX_WEAK_ALIAS.match(a) for a in aliases]
+    weak_aliases = [m.group(1) for m in weak_alias_matches if m]
+    aliases = [a for a in aliases if not REGEX_WEAK_ALIAS.match(a)]
+
+    entity.add("name", name)
+    entity.add("alias", aliases)
+    entity.add("weakAlias", weak_aliases)
+    entity.add("sourceUrl", source_url)
+    entity.add("sourceUrl", detail_url)
+    entity.add("topics", "sanction")
+
+    sanction = h.make_sanction(context, entity, key=program)
+    sanction.add("program", program)
+    sanction.add("authorityId", authority_id)
+
+    context.emit(entity, target=True)
+    context.emit(sanction)
+
+    return entity
+
+
+def crawl_common(
+    context: Context,
+    schema: str,
+    names: str,
+    program: str,
+    authority_id: str,
+    source_url: str,
+    detail_url: List[str],
+) -> None:
+    if any(term in names.lower() for term in COMPLEX_TERMS):
+        res = context.lookup("names", names)
+        if res is None:
+            context.log.warn("Complex name needs cleaning", url=source_url, name=names)
+            crawl_entity(
+                context, schema, names, program, authority_id, source_url, detail_url
+            )
+        else:
+            for group in res.entities:
+                entity = crawl_entity(
+                    context,
+                    schema,
+                    group["main_name"],
+                    program,
+                    authority_id,
+                    source_url,
+                    detail_url,
+                )
+                if group.get("related_name", None):
+                    related = crawl_entity(
+                        context,
+                        schema,
+                        group["related_name"],
+                        program,
+                        authority_id,
+                        source_url,
+                        detail_url,
+                    )
+
+                    rel = context.make("UnknownLink")
+                    rel.id = context.make_id(entity.id, related.id)
+                    rel.add("subject", entity.id)
+                    rel.add("object", related.id)
+                    rel.add("role", group["relationship"])
+                    context.emit(rel)
+    else:
+        crawl_entity(
+            context, schema, names, program, authority_id, source_url, detail_url
+        )
+
+
+def crawl_organisations(
+    context: Context, url: str, filename: str, program: str
+) -> None:
+    path = context.fetch_resource(filename, url)
+    context.export_resource(path, HTML, filename)
+    with open(path, "rb") as fh:
+        doc = html.fromstring(fh.read())
+    doc.make_links_absolute(url)
+
+    table = doc.xpath(".//table")[0]
+    for row in h.parse_html_table(table):
+        authority_id = row.pop("sr_no").text_content()
+        names = row.pop("title").text_content()
+        detail_url = row.pop("download_link").xpath(".//a/@href")
+        crawl_common(
+            context, "Organization", names, program, authority_id, url, detail_url
+        )
+
+
+def crawl_individuals(context: Context, url: str, filename: str, program: str) -> None:
+    path = context.fetch_resource(filename, url)
+    context.export_resource(path, HTML, filename)
+    with open(path, "rb") as fh:
+        doc = html.fromstring(fh.read())
+    doc.make_links_absolute(url)
+
+    for item in doc.xpath(".//div[contains(@class, 'views-field-body')]/div/p"):
+        names = item.text_content()
+        detail_url = item.xpath(".//a/@href")
+        parts = REGEX_NUM_NAME.split(names, 1)
+        authority_id = parts[1].strip()
+        names = parts[2].rstrip(".")
+        crawl_common(context, "Person", names, program, authority_id, url, detail_url)
 
 
 def get_link_by_label(doc: _Element, label: str) -> Optional[str]:
@@ -28,56 +178,31 @@ def get_link_by_label(doc: _Element, label: str) -> Optional[str]:
     return link.get("href")
 
 
-def assert_link_hash(
-    context: Context, url: str, expected: str, xpath: Optional[str] = None
-) -> str:
-    if xpath:
-        h.assert_html_url_hash(context, url, expected, path=xpath)
-    else:
-        h.assert_url_hash(context, url, expected)
+def parse_names(field: str) -> List[str]:
+    names: List[str] = []
+    for value in field.split(";"):
+        value = value.strip()
+        if len(value):
+            names.append(value)
+    return names
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.dataset.url)
+    doc = context.fetch_html(context.dataset.url, cache_days=1)
     doc.make_links_absolute(context.dataset.url)
-    linked_sources: Set[str] = set()
 
-    url = get_link_by_label(
-        doc,
-        "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-    )
-    linked_sources.add(url)
-    assert_link_hash(
-        context,
-        url,
-        "f73acb3d478213b00fd2b207a89f333ce7e36717",
-        xpath='.//div[@id="block-mhanew-content"]//table',
+    associations_url = get_link_by_label(doc, ASSOCIATIONS_LABEL)
+    crawl_organisations(
+        context, associations_url, "associations.html", ASSOCIATIONS_LABEL
     )
 
-    url = get_link_by_label(
-        doc,
-        "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-    )
-    linked_sources.add(url)
-    assert_link_hash(
-        context,
-        url,
-        "9e4746482586cd61b9855058fa2b926f943c7d9d",
-        xpath='.//div[@id="block-mhanew-content"]//table',
-    )
+    url = get_link_by_label(doc, ORGANISATIONS_LABEL)
+    crawl_organisations(context, url, "organisations.html", ORGANISATIONS_LABEL)
 
-    url = get_link_by_label(
-        doc,
-        "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-    )
-    linked_sources.add(url)
-    assert_link_hash(
-        context,
-        url,
-        "682cd08caa7f9eb111f075b1086874f0a6f01565",
-        xpath='.//div[@id="block-mhanew-content"]',
-    )
+    url = get_link_by_label(doc, INDIVIDUALS_LABEL)
+    crawl_individuals(context, url, "individuals.html", INDIVIDUALS_LABEL)
 
+    # Temporarily also emit the manually-curated CSV
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     named_ids: Dict[str, str] = {}
@@ -88,11 +213,6 @@ def crawl(context: Context) -> None:
             aliases = row.pop("Aliases")
             weak_aliases = row.pop("Weak")
             source_url = row.pop("SourceURL")
-            if source_url not in linked_sources:
-                context.log.warn(
-                    "Source URL not in overview page. Perhaps it's out of date?",
-                    url=source_url,
-                )
             if name is None:
                 context.log.warn("No name", row=row)
                 continue
