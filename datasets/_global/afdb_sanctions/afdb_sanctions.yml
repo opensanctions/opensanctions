@@ -39,7 +39,7 @@ data:
   format: HTML
 
 dates:
-  formats: ["%d-%b-%Y", "%d-%m-%Y"]
+  formats: ["%d-%b-%Y", "%d-%m-%Y", "%d-%b-%y"]
   months:
     "Sep": "Sept"
 assertions:
