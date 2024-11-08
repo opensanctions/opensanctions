@@ -1,6 +1,6 @@
 from typing import Optional, Dict, Any, List
 from banal import first
-from normality import stringify, collapse_spaces, slugify
+from normality import stringify, collapse_spaces
 from rigour.mime.types import XML
 from followthemoney.util import join_text
 import re
