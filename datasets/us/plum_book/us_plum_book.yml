@@ -1,6 +1,6 @@
 title: United States Government Policy and Supporting Positions (Plum Book)
 entry_point: crawler.py
-prefix: plum
+prefix: usplum
 coverage:
   frequency: daily
   start: 2024-11-06
@@ -14,7 +14,7 @@ description: |
   the Plum Book lists over 7,000 Federal civil service leadership and support positions 
   in the legislative and executive branches of the Federal Government that may be subject 
   to noncompetitive appointment, nationwide. 
-  
+
   Data covers positions such as agency heads and their immediate subordinates, policy 
   executives and advisors, and aides who report to these officials. The duties of many 
   such positions may involve advocacy of Administration policies and programs and the 
@@ -49,7 +49,7 @@ data:
   format: CSV
   lang: eng
 
-dates: 
+dates:
   formats: ["%m/%d/%Y 00:00:00"]
 assertions:
   min:
