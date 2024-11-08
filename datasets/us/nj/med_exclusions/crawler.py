@@ -5,6 +5,15 @@ from zavod import Context, helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
+    zip_code = row.pop("zip")
+    npi = row.pop("npi_number")
+
+    entity = context.make("LegalEntity")
+    entity.id = context.make_id(npi, row.get("provider_name"), zip_code)
+    entity.add("name", row.pop("provider_name"))
+    entity.add("sector", row.pop("title"))
+    entity.add("npiCode", h.multi_split(npi.replace("\n", ""), ";/"))
+    entity.add("country", "us")
 
     address = h.make_address(
         context,
@@ -12,22 +21,8 @@ def crawl_item(row: Dict[str, str], context: Context):
         city=row.pop("city"),
         state=row.pop("sta_te"),
         country_code="US",
-        postal_code=row.pop("zip"),
+        postal_code=zip_code,
     )
-
-    if not row.get("title"):
-        entity = context.make("Company")
-        entity.id = context.make_id(row.get("npi_number"), row.get("provider_name"))
-        entity.add("name", row.pop("provider_name"))
-    else:
-        entity = context.make("Person")
-        entity.id = context.make_id(row.get("npi_number"), row.get("provider_name"))
-        h.apply_name(entity, full=row.pop("provider_name"))
-        entity.add("title", row.pop("title"))
-
-    for npi in row.pop("npi_number").split("/"):
-        entity.add("npiCode", npi)
-    entity.add("country", "us")
     h.apply_address(context, entity, address)
     h.copy_address(entity, address)
 
