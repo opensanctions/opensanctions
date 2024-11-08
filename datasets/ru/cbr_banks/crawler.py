@@ -16,6 +16,17 @@ HEADERS = {
     "Sec-Fetch-Site": "same-origin",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15",
 }
+HEADERS_INITIAL = {
+    "Accept": "*/*",
+    "Connection": "keep-alive",
+    "Host": "mc.yandex.com",
+    "Origin": "https://www.cbr.ru",
+    "Referer": "https://www.cbr.ru/",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "cross-site",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15",
+}
 
 SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
 SOAP_HEADERS = {"Content-Type": "text/xml; charset=utf-8"}
@@ -134,7 +145,12 @@ def crawl_details(context: Context, internal_code, entity):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.xml", context.data_url, headers=HEADERS)
+    doc = context.fetch_html(
+        "https://www.cbr.ru/development/WSCO/", headers=HEADERS_INITIAL
+    )
+    link = doc.xpath('//p[contains(text(), "Расширенный перечень BIC KO:")]/a/@href')[0]
+    path = context.fetch_resource(link, context.data_url, headers=HEADERS)
+    # path = context.fetch_resource("source.xml", context.data_url, headers=HEADERS)
     with open(path, encoding="windows-1251") as file:
         xml_content = file.read()
     doc = etree.fromstring(xml_content.encode("windows-1251"))
