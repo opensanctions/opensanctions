@@ -2,10 +2,8 @@ title: Indian Ministry of Home Affairs Banned Organizations
 entry_point: crawler.py
 prefix: in-mha
 coverage:
-  frequency: never
+  frequency: daily
   start: 2023-02-16
-deploy:
-  schedule: "@daily"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   List of banned organizations under the Unlawful Activities (Prevention) Act
@@ -24,7 +22,7 @@ publisher:
   official: true
 url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division
 data:
-  url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTc-EkLWZgLKDPVvcrCoKLp17EEo535uP1EMcLKFl_b6T3z6Tq99BrI3R9GhxKirgRoozND1xQ48O4-/pub?output=csv"
+  url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division
   format: HTML
 
 assertions:
