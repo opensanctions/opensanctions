@@ -1,8 +1,9 @@
 from lxml.etree import _Element
-from typing import List, Optional
-from rigour.mime.types import HTML
+from typing import Dict, List, Optional
+from rigour.mime.types import HTML, CSV
 import re
 from lxml import html
+import csv
 
 from zavod import Context
 from zavod import helpers as h
@@ -177,6 +178,15 @@ def get_link_by_label(doc: _Element, label: str) -> Optional[str]:
     return link.get("href")
 
 
+def parse_names(field: str) -> List[str]:
+    names: List[str] = []
+    for value in field.split(";"):
+        value = value.strip()
+        if len(value):
+            names.append(value)
+    return names
+
+
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.dataset.url, cache_days=1)
     doc.make_links_absolute(context.dataset.url)
@@ -191,3 +201,43 @@ def crawl(context: Context) -> None:
 
     url = get_link_by_label(doc, INDIVIDUALS_LABEL)
     crawl_individuals(context, url, "individuals.html", INDIVIDUALS_LABEL)
+
+    # Temporarily also emit the manually-curated CSV
+    path = context.fetch_resource("source.csv", context.data_url)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    named_ids: Dict[str, str] = {}
+    with open(path, "r") as fh:
+        for row in csv.DictReader(fh):
+            entity = context.make(row.pop("Type", "LegalEntity"))
+            name = row.pop("Name")
+            aliases = row.pop("Aliases")
+            weak_aliases = row.pop("Weak")
+            source_url = row.pop("SourceURL")
+            if name is None:
+                context.log.warn("No name", row=row)
+                continue
+            entity.id = context.make_id(name, aliases, weak_aliases)
+            assert entity.id is not None, row
+            named_ids[name] = entity.id
+            entity.add("name", name)
+            entity.add("notes", row.pop("Notes"))
+            entity.add("topics", "sanction")
+            entity.add("sourceUrl", source_url)
+            entity.add("alias", parse_names(aliases))
+            entity.add("weakAlias", parse_names(weak_aliases))
+
+            id_ = row.pop("ID")
+            sanction = h.make_sanction(context, entity, id_)
+            sanction.add("program", row.pop("Designation"))
+            sanction.add("authorityId", id_)
+
+            linked = row.pop("Linked", "").strip()
+            if len(linked) and linked in named_ids:
+                rel = context.make("UnknownLink")
+                rel.id = context.make_id(linked, "linked", entity.id)
+                rel.add("subject", named_ids[linked])
+                rel.add("object", entity.id)
+                context.emit(rel)
+
+            context.emit(entity, target=True)
+            context.emit(sanction)
