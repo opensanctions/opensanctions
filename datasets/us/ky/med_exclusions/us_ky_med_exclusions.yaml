@@ -42,10 +42,10 @@ description: |
 publisher:
   name: Kentucky Department of Medicaid Services
   description: >
-   > Kentucky Medicaid is a state and federal program authorized by Title XIX
-   > of the Social Security Act to provide health care for eligible, low-income
-   > populations. These populations include children, low-income families, pregnant
-   > women, the aged and the disabled.
+    > Kentucky Medicaid is a state and federal program authorized by Title XIX
+    > of the Social Security Act to provide health care for eligible, low-income
+    > populations. These populations include children, low-income families, pregnant
+    > women, the aged and the disabled.
   acronym: DMS
   url: https://www.chfs.ky.gov/agencies/dms/Pages/default.aspx
   official: true
@@ -54,7 +54,7 @@ url: https://www.chfs.ky.gov/agencies/dms/dpi/pe/Pages/terminated.aspx
 data:
   url: https://www.chfs.ky.gov/agencies/dms/dpi/pe/Documents/KYMedicaidTerminationList.xlsx
   format: XLSX
-
+ci_test: false
 
 dates:
   formats: ["%m/%d/%Y"]
