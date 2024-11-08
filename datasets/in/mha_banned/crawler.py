@@ -14,8 +14,6 @@ ORGANISATIONS_LABEL = "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF T
 INDIVIDUALS_LABEL = "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 
 REGEX_ACRONYM_PARENS = re.compile(r"^(?P<name>.+?)(?P<acronym>\s+\([A-Z-]+\))?$")
-# Treat a single word without spaces as a weak alias
-REGEX_WEAK_ALIAS = re.compile(r"^\s*\(?([A-Za-z-]+)\)?$")
 REGEX_NUM_NAME = re.compile(r"(\d+)\.\s*")
 
 COMPLEX_TERMS = {
@@ -59,14 +57,8 @@ def crawl_entity(
     if names_match.group("acronym"):
         aliases.append(names_match.group("acronym"))
 
-    # Treat acronyms and single words as weak aliases
-    weak_alias_matches = [REGEX_WEAK_ALIAS.match(a) for a in aliases]
-    weak_aliases = [m.group(1) for m in weak_alias_matches if m]
-    aliases = [a for a in aliases if not REGEX_WEAK_ALIAS.match(a)]
-
     entity.add("name", name)
     entity.add("alias", aliases)
-    entity.add("weakAlias", weak_aliases)
     entity.add("sourceUrl", source_url)
     entity.add("sourceUrl", detail_url)
     entity.add("topics", "sanction")
@@ -203,7 +195,10 @@ def crawl(context: Context) -> None:
     crawl_individuals(context, url, "individuals.html", INDIVIDUALS_LABEL)
 
     # Temporarily also emit the manually-curated CSV
-    path = context.fetch_resource("source.csv", context.data_url)
+    path = context.fetch_resource(
+        "source.csv",
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vTc-EkLWZgLKDPVvcrCoKLp17EEo535uP1EMcLKFl_b6T3z6Tq99BrI3R9GhxKirgRoozND1xQ48O4-/pub?output=csv",
+    )
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     named_ids: Dict[str, str] = {}
     with open(path, "r") as fh:
@@ -224,7 +219,7 @@ def crawl(context: Context) -> None:
             entity.add("topics", "sanction")
             entity.add("sourceUrl", source_url)
             entity.add("alias", parse_names(aliases))
-            entity.add("weakAlias", parse_names(weak_aliases))
+            entity.add("alias", parse_names(weak_aliases))
 
             id_ = row.pop("ID")
             sanction = h.make_sanction(context, entity, id_)
