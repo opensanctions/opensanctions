@@ -11,6 +11,7 @@ from zavod import helpers as h
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", ". "]
 REGEX_POSTCODE = re.compile(r"\d+")
 
+
 TYPES = {
     "Individual": "Person",
     "Entity": "LegalEntity",
@@ -83,7 +84,10 @@ def split_reg_no(text: str):
         "Business Identification Number", "; Business Identification Number"
     )
     text = text.replace("Tax Identification Number", "; Tax Identification Number")
-    return [s.strip() for s in h.multi_split(text, [";", "(1)", "(2)", "(3)"])]
+    return [
+        s.strip()
+        for s in h.multi_split(text, [";", "(1)", "(2)", "(3)", "(4)", "(5)", " / "])
+    ]
 
 
 def parse_row(context: Context, row: Dict[str, Any]):
@@ -124,7 +128,6 @@ def parse_row(context: Context, row: Dict[str, Any]):
 
     reg_number = row.pop("Entity_BusinessRegNumber", "")
     entity.add_cast("LegalEntity", "registrationNumber", split_reg_no(reg_number))
-
     row.pop("Ship_Length", None)
     entity.add_cast("Vessel", "flag", row.pop("Ship_Flag", None))
     flags = split_new(row.pop("Ship_PreviousFlags", None))

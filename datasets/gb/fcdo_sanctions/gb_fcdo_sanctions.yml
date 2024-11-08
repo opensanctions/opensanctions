@@ -68,6 +68,8 @@ lookups:
         value: tur
       - match: Burmese
         value: mya
+      - match: Kazakh
+        value: kaz
   name_type:
     lowercase: true
     normalize: true

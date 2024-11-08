@@ -49,6 +49,189 @@ lookups:
         values:
           - QDi.042
           - SOi.002
+      - match: Russia INN - 2130080071
+        prop: innCode
+        value: 2130080071
+      # - match: Russia KPP - 213001001
+      #   prop: kppCode
+      #   value: 213001001
+      - match: Russia OGRN - 1102130012379
+        prop: ogrnCode
+        value: 1102130012379
+      - match: Russia OKPO - 65665578
+        prop: okpoCode
+        value: 65665578
+      - match: 'Russian TIN: 7718763393'
+        prop: taxNumber
+        value: 
+      - match: TIN - 7703104630
+        prop: taxNumber
+        value: 7703104630
+      - match: 1137711000074 (Russia)
+        prop: ogrnCode
+        value: 1137711000074
+      - match: 1117746568829 (Russia).
+        prop: ogrnCode
+        value: 
+      - match: Tax ID No. 7735579027 (Russia)
+        prop: taxNumber
+        value: 7735579027
+      - match: 1024701759565
+        prop: ogrnCode
+        value: 1024701759565
+      - match: 1167700052618 (Russia).
+        prop: ogrnCode
+        value: 1167700052618
+      - match: Tax ID No. 7743141413 (Russia)
+        prop: taxNumber
+        value: 7743141413
+      - match: 1167746154432 (Russia).
+        prop: ogrnCode
+        value: 1167746154432
+      - match: Tax ID No. 9710007769 (Russia)
+        prop: taxNumber
+        value: 9710007769
+      - match: 9709056472 - Russia INN
+        prop: innCode
+        value: 9709056472
+      - match: 'OGRN: 1027700456024'
+        prop: ogrnCode
+        value: 1027700456024
+      - match: 'INN: 7725075060'
+        prop: innCode
+        value: 7725075060
+      - match: 'TIN: 2539028264'
+        prop: taxNumber
+        value: 2539028264
+      - match: 'OGRN: 1027739090708'
+        prop: ogrnCode
+        value: 1027739090708
+      - match: 'INN: 7731018133'
+        prop: innCode
+        value: 7731018133
+      - match: Tax ID No. 7813491943 (Russia)
+        prop: taxNumber
+        value: 7813491943
+      - match: Taxpayer Identification Number – 5008011331
+        prop: taxNumber
+        value: 5008011331
+      - match: 1127747296918
+        prop: ogrnCode
+        value: 1127747296918
+      - match: Tax ID No. 7736588433 (Russia)
+        prop: taxNumber
+        value: 7736588433
+      - match: 'Tax Identification Number: INN 2536210349'
+        prop: innCode
+        value: 2536210349
+      - match: 'Tax Identification Number: 1657032272'
+        prop: taxNumber
+        value: 1657032272
+      - match: 9709056472 - Russia INN
+        prop: innCode
+        value: 9709056472
+      - match: 'Tax Identification Number: INN: 7804001110'
+        prop: innCode
+        value: 7804001110
+      - match: 11132540008732
+        prop: ogrnCode
+        value: 11132540008732
+      - match: 'TIN: 1800970008'
+        prop: taxNumber
+        value: 1800970008
+      - match: 'OGRN: 1031624002937'
+        prop: ogrnCode
+        value: 1031624002937
+      - match: 'TIN: 1656025681'
+        prop: taxNumber
+        value: 1656025681
+      - match: 'TIN: 7750004023'
+        prop: taxNumber
+        value: 7750004023
+      - match: 'OGRN: 1027739143717'
+        prop: ogrnCode
+        value: 1027739143717
+      - match: 'INN: 7723022111'  
+        prop: innCode
+        value: 7723022111
+      - match: 'OGRN: 1077757840522'
+        prop: ogrnCode
+        value: 1077757840522
+      - match: 'TIN: 7729579004'
+        prop: taxNumber
+        value: 7729579004
+      - match: 'OGRN: 1027700456024'
+        prop: ogrnCode
+        value: 1027700456024
+      - match: 'INN: 7725075060'
+        prop: innCode
+        value: 7725075060
+      - match: 'Tax Identification Number: INN 2536210349'
+        prop: innCode
+        value: 2536210349
+      - match: 'OGRN: 1122901001475'
+        prop: ogrnCode
+        value: 1122901001475
+      - match: 'OGRN: 1207800103301'
+        prop: ogrnCode
+        value: 1207800103301
+      - match: 'TIN: 7806575286'
+        prop: taxNumber
+        value: 7806575286
+      - match: 'TIN: 6147025090'
+        prop: taxNumber
+        value: 6147025090
+      - match: 'OGRN: 1066147003658'
+        prop: ogrnCode
+        value: 1066147003658
+      - match: 'TIN: 1656025681'
+        prop: taxNumber
+        value: 1656025681
+      - match: 'OGRN: 1026801010994'
+        prop: ogrnCode
+        value: 1026801010994
+      - match: 'TIN: 7706191991'
+        prop: taxNumber
+        value: 7706191991 
+      - match: '1027739339715 (Russia)'
+        prop: ogrnCode
+        value: 1027739339715 
+      - match: 'Taxpayer ID: 7727214569'
+        prop: taxNumber
+        value: 7727214569
+      - match: 'OGRN 1037739468084'
+        prop: ogrnCode
+        value: 1037739468084
+      - match: 'TIN: 9724042820'
+        prop: taxNumber
+        value: 9724042820
+      - match: 'Tax Identification Number: INN 7801047839'
+        prop: innCode
+        value: 7801047839
+      - match: TIN - 5408106299
+        prop: taxNumber
+        value: 5408106299
+      - match: TIN - 5263000105
+        prop: taxNumber
+        value: 5263000105
+      - match: TIN - 5506218498
+        prop: taxNumber
+        value: 5506218498
+      - match: TIN - 770426257
+        prop: taxNumber
+        value: 770426257
+      - match: 'OGRN: 1112130013270'
+        prop: ogrnCode
+        value: 1112130013270
+      - match: 'TIN: 2130094170'
+        prop: taxNumber
+        value: 2130094170
+      - match: 'Russia INN - 7706196340'
+        prop: innCode
+        value: 7706196340
+      - match: 'OGRN: 1027802490540'
+        prop: ogrnCode
+        value: 1027802490540
   companies:
     normalize: true
     options:
@@ -123,6 +306,13 @@ lookups:
           - Sudan Master Technology
           - Ministerstvo Promyshlennosti I Torgovli Rossiiskoi Federatsiikii
           - PJSC Novatek
+          - STANEX GROUP LIMITED LIABILITY PARTNERSHIP
+          - PJSC Zenit Bank
+          - STANEX GROUP LLP
+          - Ningbo Haitian Precision Machinery Co. Ltd
+          - AUTEL INTELLIGENT TECHNOLOGY
+          - MR TAIQIONG CHEN
+          - HK Kongsing Co., Limited
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -460,6 +650,25 @@ lookups:
         values:
           - Novin Energy
           - TAMAS
+      - match: Lobaye Invest SARLU, owned by M-Finans
+        values:
+          - Lobaye Invest SARLU
+          - M-Finans
+      - match: (1) TSENTR MOLODEZHNOGO INNOVATSIONNOGO TVORCHESTVA (2) IST Ltd TRADE DEVELOPMENT (3) UNIMATIK-MSK (4) LLC UNIMATICENVERSION (5) HUSTLE SHIFT LLC (6) EMKO-RUS (7) ALTEGRITY LLC (8) AVTONOMNAYA NEKOMMERCHESKAYA (9) ORGANIZATSIYA DOPOLNITELNOGO (10) OBRAZOVANIYA UCHEBNYI TSENTR UNIMATIK
+        values: 
+          - TSENTR MOLODEZHNOGO INNOVATSIONNOGO TVORCHESTVA
+          - IST Ltd TRADE DEVELOPMENT
+          - UNIMATIK-MSK
+          - LLC UNIMATICENVERSION
+          - HUSTLE SHIFT LLC
+          - EMKO-RUS
+          - ALTEGRITY LLC
+          - AVTONOMNAYA NEKOMMERCHESKAYA ORGANIZATSIYA DOPOLNITELNOGO OBRAZOVANIYA UCHEBNYI TSENTR UNIMATIK
+      - match: (1) KAZSTANEX LLP (2) ROSTANEX (3) UZSTANEX LLC
+        values:
+          - KAZSTANEX LLP
+          - ROSTANEX
+          - UZSTANEX LLC
   type.address:
     lowercase: true
     options:
@@ -494,6 +703,7 @@ lookups:
       - match:
           - "-"
           - 111141
+          - 115088
         value: null
       - match:
           - former USSR, now Azerbaijan
@@ -690,6 +900,14 @@ lookups:
           - natupikin@mail.ru
           - kurnikoff@yandex.ru
           - nikolay.tupikin@gmail.com
+      - match: (1) e3000@mail.ru (2) mrodionov659@gmail.com
+        values:
+          - e3000@mail.ru
+          - mrodionov659@gmail.com
+      - match: (1) accountant@virmavia.com (2) natalia.khirevich@gmail.com
+        values:
+          - accountant@virmavia.com
+          - natalia.khirevich@gmail.com
   type.gender:
     lowercase: true
     normalize: true

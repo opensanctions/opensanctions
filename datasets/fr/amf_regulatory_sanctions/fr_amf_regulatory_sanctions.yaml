@@ -97,6 +97,7 @@ lookups:
           - Ecureuil Gestion
       - match: 'venant aux droits de la société Néville Gestion'
         entities:
+          - Néville Gestion
       - match: 'CAISSE NATIONALE DES CAISSES D’EPARGNE ET DE PREVOYANCE, CAISSES D’EPARGNE DE PROVENCE ALPES CORSE, BOURGOGNE FRANCHE-COMTE, ILE DE FRANCE (venant aux droits des CAISSES D’EPARGNE D’ILE DE FRANCE PARIS ’ILE DE FRANCE NORD), AQUITAINE POITOU-CHARENTES (venant aux droits des CAISSES D’EPARGNE D’AQUITAINE NORD et de POITOU-CHARENTES), NORMANDIE (venant aux droits de la CAISSE D’EPARGNE DE BASSE NORMANDIE), COTE D’AZUR, ET RHONE-ALPES (venant aux droits des CAISSES D’EPARGNE DE RHONE-ALPES LYON et DES ALPES)'
         entities:
           - la Caisse Nationale des Caisses d'Epargne et de Prévoyance
@@ -984,7 +985,7 @@ lookups:
         relationships:
           - schema: Succession
             from_prop: predecessor
-            from: Caceis Investor Services Bank France
+            from: ['Caceis Investor Services Bank France', 'RBC Investor Services Bank France']
             to_prop: successor
             to: Caceis Bank
             role: venant aux droits
