@@ -127,8 +127,7 @@ def parse_row(context: Context, row: Dict[str, Any]):
     entity.add_cast("LegalEntity", "legalForm", entity_type)
 
     reg_number = row.pop("Entity_BusinessRegNumber", "")
-    if reg_number is not None:
-        entity.add_cast("LegalEntity", "registrationNumber", split_reg_no(reg_number))
+    entity.add_cast("LegalEntity", "registrationNumber", split_reg_no(reg_number))
     row.pop("Ship_Length", None)
     entity.add_cast("Vessel", "flag", row.pop("Ship_Flag", None))
     flags = split_new(row.pop("Ship_PreviousFlags", None))
