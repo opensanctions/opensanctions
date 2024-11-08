@@ -5,7 +5,7 @@ coverage:
   schedule: "0 */2 * * *"
   frequency: daily
   start: 2018-04-11
-deploy:  
+deploy:
   memory: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
@@ -37,6 +37,16 @@ data:
 
 dates:
   formats: ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%d %b %Y", "%b, %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 700
+      LegalEntity: 500
+  max:
+    schema_entities:
+      Person: 10000
+      LegalEntity: 5000
 
 lookups:
   relations:

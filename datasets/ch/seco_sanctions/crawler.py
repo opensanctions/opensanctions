@@ -327,7 +327,8 @@ def parse_entry(context: Context, target: Element, programs, places):
         parse_identity(context, entity, identity, places)
 
     if sanctioned:
-        entity.add("topics", "sanction")
+        # entity.add("topics", "sanction")
+        return
     context.emit(entity, target=sanctioned)
     context.emit(sanction)
 
