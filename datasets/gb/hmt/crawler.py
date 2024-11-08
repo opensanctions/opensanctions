@@ -11,18 +11,6 @@ from zavod import helpers as h
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", ". "]
 REGEX_POSTCODE = re.compile(r"\d+")
 
-PATTERNS_IDENTIFIERS = [
-    r"(?P<key>Russia KPP -)\s+(?P<value>\d{9})",
-    r"(?P<key>Russia OGRN -)\s+(?P<value>\d{13,15})",
-    r"(?P<key>Russia OKPO -)\s+(?P<value>\d{8})",
-    r"(?P<key>Russia INN -)\s+(?P<value>\d{10})",
-    r"\((?P<value>\d{13})\)\s+\((?P<key>Russia)\)",
-    r"(?P<key>Tax ID No\.)\s+(?P<value>\d{10})\s+\(Russia\)",
-    r"(?P<key>TIN \(Taxpayer Identification Number\))\s+(?P<value>\d{10})",
-    r"(?P<key>OGRN:)\s+(?P<value>\d{13,15})",
-]
-
-REGEX_IDENTIFIERS = [re.compile(pattern) for pattern in PATTERNS_IDENTIFIERS]
 
 TYPES = {
     "Individual": "Person",
@@ -42,19 +30,6 @@ NAME_TYPES = {
     "AKA": "alias",
     "FKA": "previousName",
 }
-
-
-def process_entry(value, regex_patterns):
-    for regex in regex_patterns:
-        match = regex.match(value)
-        if match:
-            return {
-                "regex": regex.pattern,
-                "whole": match.group(0),
-                "key": match.group("key"),
-                "value": match.group("value"),
-            }
-    return None
 
 
 def parse_countries(text: Any) -> List[str]:
@@ -152,23 +127,8 @@ def parse_row(context: Context, row: Dict[str, Any]):
     entity.add_cast("LegalEntity", "legalForm", entity_type)
 
     reg_number = row.pop("Entity_BusinessRegNumber", "")
-    reg_numbers = split_reg_no(reg_number)
-    if reg_numbers:
-        for reg_no in reg_numbers:
-            result = process_entry(reg_no, REGEX_IDENTIFIERS)
-            if result:
-                prop = context.lookup_value("properties", slugify(result["key"]))
-                if prop is not None:
-                    if prop == "kppCode":
-                        entity.add_cast("Company", prop, result["value"])
-                    else:
-                        entity.add_cast("LegalEntity", prop, result["value"])
-                else:
-                    context.log.warning(
-                        "Unknown property", value=slugify(result["key"])
-                    )
-            else:
-                entity.add_cast("LegalEntity", "registrationNumber", reg_no)
+    if reg_number is not None:
+        entity.add_cast("LegalEntity", "registrationNumber", split_reg_no(reg_number))
     row.pop("Ship_Length", None)
     entity.add_cast("Vessel", "flag", row.pop("Ship_Flag", None))
     flags = split_new(row.pop("Ship_PreviousFlags", None))
