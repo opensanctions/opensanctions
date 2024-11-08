@@ -11,7 +11,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(npi, row.get("provider_name"), zip_code)
     entity.add("name", row.pop("provider_name"))
-    entity.add_cast("Person", "sector", row.pop("title"))
+    entity.add("sector", row.pop("title"))
     entity.add("npiCode", h.multi_split(npi.replace("\n", ""), ";/"))
     entity.add("country", "us")
 

@@ -54,9 +54,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Company: 800
-      Person: 2500
+      LegalEntity: 3300
   max:
     schema_entities:
-      Company: 950
-      Person: 3000
+      LegalEntity: 4000
