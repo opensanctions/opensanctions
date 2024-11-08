@@ -10,6 +10,17 @@ from zavod import helpers as h
 
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", ". "]
 REGEX_POSTCODE = re.compile(r"\d+")
+REGEX_IDENTIFIERS = [
+    # re.compile(r"^(Russia INN -)\s+(\d+)$"),
+    re.compile(r"(Russia KPP -)\s+(\d+)"),
+    re.compile(r"(Russia OGRN -)\s+(\d+)"),
+    re.compile(r"(Russia OKPO -)\s+(\d+)"),
+    re.compile(r"(Russia INN -)\s+(\d+)"),
+    re.compile(r"\(\d{13}\)\s+\(Russia\)"),
+    re.compile(r"Tax ID No\.\s+(\d+)\s+\(Russia\)"),
+    re.compile(r"TIN \(Taxpayer Identification Number\)\s+(\d{10})"),
+    re.compile(r"OGRN:\s+(\d{13})"),
+]
 
 TYPES = {
     "Individual": "Person",
@@ -126,7 +137,16 @@ def parse_row(context: Context, row: Dict[str, Any]):
     entity.add_cast("LegalEntity", "legalForm", entity_type)
 
     reg_number = row.pop("Entity_BusinessRegNumber", "")
-    entity.add_cast("LegalEntity", "registrationNumber", split_reg_no(reg_number))
+    reg_numbers = split_reg_no(reg_number)
+    if reg_numbers:
+        for reg_no in reg_numbers:
+            for pattern in REGEX_IDENTIFIERS:
+                match = pattern.search(reg_no)
+                if match:
+                    context.log.info("Reg number parsed", reg_no=reg_no)
+    # context.log.warning("Reg number not parsed", reg_numbers=reg_numbers)
+    # for reg_no in reg_numbers:
+    #     context.log.warning("Reg number not parsed", reg_no=reg_no)
 
     row.pop("Ship_Length", None)
     entity.add_cast("Vessel", "flag", row.pop("Ship_Flag", None))
