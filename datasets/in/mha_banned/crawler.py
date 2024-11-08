@@ -107,11 +107,11 @@ def crawl_common(
                     source_url,
                     detail_url,
                 )
-                if group.get("rel_name", None):
+                if group.get("related_name", None):
                     related = crawl_entity(
                         context,
                         schema,
-                        group["rel_name"],
+                        group["related_name"],
                         program,
                         authority_id,
                         source_url,
