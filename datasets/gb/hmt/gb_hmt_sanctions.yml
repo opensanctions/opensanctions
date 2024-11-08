@@ -39,6 +39,23 @@ data:
 dates: 
   formats: ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 lookups:
+  properties:
+    lowercase: true
+    options:
+      - match: russia-inn
+        value: innCode
+      - match: 
+          - russia-ogrn
+          - ogrn
+        value: ogrnCode
+      - match: russia-kpp
+        value: kppCode
+      - match: russia-okpo
+        value: okpoCode
+      - match: 
+          - tax-id-no
+          - tin-taxpayer-identification-number
+        value: taxNumber
   type.identifier:
     options:
       - match: Legal Entity Number 2534006SJ05GGKETEY75 (Russia)  Registration Number 1027739179160 (Russia)
