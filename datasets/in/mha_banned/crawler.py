@@ -11,8 +11,10 @@ ASSOCIATIONS_LABEL = "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITI
 ORGANIZATIONS_LABEL = "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 INDIVIDUALS_LABEL = "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 
-REGEX_NAME = re.compile(r"^(?P<name>.+?)(?P<acronym>\(\s+[A-Z-]+)?$")
-REGEX_WEAK_ALIAS = re.compile(r"^\s*\(?([A-Z-]+)\)?$")
+REGEX_ACRONYM_PARENS = re.compile(r"^(?P<name>.+?)(?P<acronym>\s+\([A-Z-]+\))?$")
+# Treat a single word without spaces as a weak alias
+REGEX_WEAK_ALIAS = re.compile(r"^\s*\(?([A-Za-z-]+)\)?$")
+REGEX_NUM_NAME = re.compile(r"(\d+)\.\s*")
 
 COMPLEX_TERMS = {
     "wing",
@@ -32,27 +34,40 @@ COMPLEX_TERMS = {
 def crawl_entity(
     context: Context,
     schema: str,
-    name: str,
-    aliases_string: str | None,
+    names_string: str,
     program: str,
     authority_id: str,
     source_url: str,
     detail_url: str | None,
 ) -> None:
     entity = context.make(schema)
-    entity.id = context.make_id(name, aliases_string)
-    entity.add("name", name)
+    # Include aliases in ID because there are different individuals whose alias
+    # is all that distinguishes them.
+    entity.id = context.make_id(names_string)
 
-    aliases = h.multi_split(aliases_string, ";")
+    # Split a primary name from all names
+    names = h.multi_split(names_string, ";@")
+    name = names[0]
+    aliases = names[1:]
+
+    # Split out acronym in parens from name
+    names_match = REGEX_ACRONYM_PARENS.match(name)
+    name = names_match.group("name").strip()
+    assert name
+    if names_match.group("acronym"):
+        aliases.append(names_match.group("acronym"))
+
+    # Treat acronyms and single words as weak aliases
     weak_alias_matches = [REGEX_WEAK_ALIAS.match(a) for a in aliases]
-    print(weak_alias_matches)
     weak_aliases = [m.group(1) for m in weak_alias_matches if m]
     aliases = [a for a in aliases if not REGEX_WEAK_ALIAS.match(a)]
+
+    entity.add("name", name)
     entity.add("alias", aliases)
     entity.add("weakAlias", weak_aliases)
-
     entity.add("sourceUrl", source_url)
     entity.add("sourceUrl", detail_url)
+    entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity, key=program)
     sanction.add("program", program)
@@ -73,23 +88,12 @@ def crawl_common(
     source_url: str,
     detail_url: List[str],
 ) -> None:
-    names_match = REGEX_NAME.match(names)
-    name = names_match.group("name").strip()
-    assert name
-    acronym = names_match.group("acronym")
-    if any(term in name.lower() for term in COMPLEX_TERMS):
-        res = context.lookup("names", name)
+    if any(term in names.lower() for term in COMPLEX_TERMS):
+        res = context.lookup("names", names)
         if res is None:
-            context.log.warn("Complex name needs cleaning", url=source_url, name=name)
+            context.log.warn("Complex name needs cleaning", url=source_url, name=names)
             crawl_entity(
-                context,
-                schema,
-                name,
-                acronym,
-                program,
-                authority_id,
-                source_url,
-                detail_url,
+                context, schema, names, program, authority_id, source_url, detail_url
             )
         else:
             for group in res.entities:
@@ -97,7 +101,6 @@ def crawl_common(
                     context,
                     schema,
                     group["main_name"],
-                    group.get("main_aliases", None),
                     program,
                     authority_id,
                     source_url,
@@ -108,7 +111,6 @@ def crawl_common(
                         context,
                         schema,
                         group["rel_name"],
-                        group.get("rel_aliases", None),
                         program,
                         authority_id,
                         source_url,
@@ -123,14 +125,7 @@ def crawl_common(
                     context.emit(rel)
     else:
         crawl_entity(
-            context,
-            schema,
-            name,
-            acronym,
-            program,
-            authority_id,
-            source_url,
-            detail_url,
+            context, schema, names, program, authority_id, source_url, detail_url
         )
 
 
@@ -146,6 +141,19 @@ def crawl_organizations(context: Context, url: str, program: str) -> None:
         crawl_common(
             context, "Organization", names, program, authority_id, url, detail_url
         )
+
+
+def crawl_individuals(context: Context, url: str, program: str) -> None:
+    doc = context.fetch_html(url, cache_days=1)
+    doc.make_links_absolute(url)
+
+    for item in doc.xpath(".//div[contains(@class, 'views-field-body')]/div/p"):
+        names = item.text_content()
+        detail_url = item.xpath(".//a/@href")
+        parts = REGEX_NUM_NAME.split(names, 1)
+        authority_id = parts[1].strip()
+        names = parts[2].rstrip(".")
+        crawl_common(context, "Person", names, program, authority_id, url, detail_url)
 
 
 def get_link_by_label(doc: _Element, label: str) -> Optional[str]:
@@ -171,3 +179,4 @@ def crawl(context: Context) -> None:
     crawl_organizations(context, url, ORGANIZATIONS_LABEL)
 
     url = get_link_by_label(doc, INDIVIDUALS_LABEL)
+    crawl_individuals(context, url, INDIVIDUALS_LABEL)
