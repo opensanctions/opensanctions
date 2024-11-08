@@ -12,14 +12,14 @@ COUNTRY_SPLIT = ["(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", ". "]
 REGEX_POSTCODE = re.compile(r"\d+")
 
 PATTERNS_IDENTIFIERS = [
-    r"(?P<key>Russia KPP -)\s+(?P<value>\d+)",
-    r"(?P<key>Russia OGRN -)\s+(?P<value>\d+)",
-    r"(?P<key>Russia OKPO -)\s+(?P<value>\d+)",
-    r"(?P<key>Russia INN -)\s+(?P<value>\d+)",
+    r"(?P<key>Russia KPP -)\s+(?P<value>\d{9})",
+    r"(?P<key>Russia OGRN -)\s+(?P<value>\d{13,15})",
+    r"(?P<key>Russia OKPO -)\s+(?P<value>\d{8})",
+    r"(?P<key>Russia INN -)\s+(?P<value>\d{10})",
     r"\((?P<value>\d{13})\)\s+\((?P<key>Russia)\)",
-    r"(?P<key>Tax ID No\.)\s+(?P<value>\d+)\s+\(Russia\)",
+    r"(?P<key>Tax ID No\.)\s+(?P<value>\d{10})\s+\(Russia\)",
     r"(?P<key>TIN \(Taxpayer Identification Number\))\s+(?P<value>\d{10})",
-    r"(?P<key>OGRN:)\s+(?P<value>\d{13})",
+    r"(?P<key>OGRN:)\s+(?P<value>\d{13,15})",
 ]
 
 REGEX_IDENTIFIERS = [re.compile(pattern) for pattern in PATTERNS_IDENTIFIERS]
