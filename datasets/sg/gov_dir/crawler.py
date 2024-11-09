@@ -22,10 +22,9 @@ POSITION_REPLACEMENTS = [
         (r"Senior Management & Their Personal Assistants,", ""),
         (r"Political Appointees & Their Personal Assistants,", ""),
         (r"Political Appointees and Their Personal Assistants,", ""),
-        (r"Member, Board Members,", "Member of the board of the"),
-        (r"Board Member of the board of the", "Member of the board of the"),
+        (r"Member, Board Members,", "Member of the board,"),
+        (r"Board Member of the board,", "Member of the board,"),
         (r"Member, Council Members", "Member of the Council"),
-        (r"Board Member of the board of the", "Member of the board of the"),
         (r"Chairman, Board Members", "Chairman of the Board"),
         (r"Vice President, Board Members", "Vice President of the Board"),
         (r"President, Board Members", "President of the Board"),
@@ -43,7 +42,7 @@ def make_position_name(rank, public_body, agency, section_name):
 
     for regex, replacement in POSITION_REPLACEMENTS:
         position = regex.sub(replacement, position)
-    return position
+    return collapse_spaces(position)
 
 
 def is_pep(rank: str) -> bool | None:
@@ -114,7 +113,7 @@ def crawl_person(context: Context, official, link, public_body, agency, section_
     person.id = context.make_id(full_name, rank, agency, public_body)
     person.add("name", full_name)
     person.add("sourceUrl", link)
-    person.add("topics", "role.pep")
+    person.add("position", rank)
     if title is not None:
         person.add("title", title)
     if email is not None:

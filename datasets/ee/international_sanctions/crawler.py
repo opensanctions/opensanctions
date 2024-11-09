@@ -18,18 +18,18 @@ def crawl_item_belarus(raw_name: str, context: Context):
     match = re.search(r"([^\(\n]+)\s*(?:\((.+)\))?", raw_name)
     if match:
         name = match.group(1)
-        aliases = h.multi_split(match.group(2), [";", ","])
+        or_names = h.multi_split(match.group(2), [";", ","])
     else:
         context.log.warning(f"Could not parse name: {raw_name}")
         return
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
-    entity.add("name", name)
+    entity.add("name", name, lang="eng")
     entity.add("topics", "sanction")
 
-    for alias in aliases:
-        entity.add("alias", alias)
+    for name in or_names:
+        entity.add("name", name)
 
     sanction = h.make_sanction(context, entity)
     sanction.add("sourceUrl", BELARUS_URL)
@@ -49,7 +49,7 @@ def crawl_item_human_rights(raw_name: str, context: Context):
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
-    h.apply_name(entity, first_name=first_name, last_name=last_name)
+    h.apply_name(entity, first_name=first_name, last_name=last_name, lang="eng")
     entity.add("topics", "sanction")
 
     for alias in aliases:

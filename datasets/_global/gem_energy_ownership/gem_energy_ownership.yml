@@ -54,3 +54,9 @@ lookups:
     options:
       - match: nan,nan
         value: null
+  type.identifier:
+    options:
+      - match: U45100TG2012PTC084829
+        prop: registrationNumber
+      - match: L40100GJ1996PLC030533
+        prop: registrationNumber

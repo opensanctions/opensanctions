@@ -637,6 +637,11 @@ lookups:
           - Odoyevsky principality
           - Later Zhou dynasty
           - Khorasan
+          - Shirvan Khanate
+          - Adal Sultanate
+          - Johor Sultanate
+          - Duchy of Saxony
+          - Kingdom of Mewar
         value: null
       - match:
           - Cherokee Nation
@@ -656,6 +661,7 @@ lookups:
           - Lac Courte Oreilles
           - Hopi
           - Ancient Hawaii
+          - Oglala Sioux Tribe
         value: US
       - match:
           - Democratic Republic of Sudan
@@ -666,7 +672,12 @@ lookups:
         value: CY
       - match: Socialist Republic of Romania
         value: RO
-      - match: People's Socialist Republic of Albania
+      - match: 
+          - People's Socialist Republic of Albania
+          - Independent Albania
+          - Principality of Albania
+          - Albanian Republic
+          - Albanian Kingdom
         value: AL
       - match: Italian Libya
         value: LY
@@ -970,6 +981,7 @@ lookups:
           - trans woman
           - intersex woman
           - cisgender woman
+          - transfeminine
         value: female
       - match:
           - genderfluid

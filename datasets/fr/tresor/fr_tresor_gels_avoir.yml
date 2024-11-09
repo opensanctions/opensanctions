@@ -33,6 +33,12 @@ data:
   lang: fra
 
 lookups:
+  schema_override:
+    options:
+      - match:
+          - fr-ga-5143
+          - fr-ga-5142
+        value: Vessel
   type.address:
     lowercase: true
     options:
@@ -64,10 +70,13 @@ lookups:
         props:
           registrationNumber: 600390798
           incorporationDate: 1996-01-04
-      - match: "OMI: 8514306"
+      - match: "OMI: 8514306"  # Unica
         props:
-          # imoNumber: 8514306
-          registrationNumber: 8514306
+          imoNumber: 8514306
+          #registrationNumber: 8514306
+      - match: "OMI: 9036387"  # New Konk
+        props: 
+          imoNumber: 9036387
       - match:
           "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
           (IRGC)  - Lieu d’enregistrement: Kermanshah, Iran  - Principal lieu d’activité:
@@ -4584,3 +4593,7 @@ lookups:
           jurisdiction: ir
           legalForm: entité publique
           address: "Téhéran, Iran"
+      - match: "Lieu d’enregistrement: Myanmar/Birmanie - Principal établissement: Shwe Kokko, canton de Myawaddy, district de Myawaddy, État de Kayin, Myanmar/Birmanie: /"
+        props:
+          jurisdiction: mm
+          address: "Shwe Kokko, canton de Myawaddy, district de Myawaddy, État de Kayin, Myanmar/Birmanie"

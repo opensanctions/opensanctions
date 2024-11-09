@@ -401,6 +401,28 @@ lookups:
       - match: Issuer Name
         prop: name
 
+  type.identifier:
+    options:
+      # Re-map invalid LEIs to generic regNr:
+      - match:
+          - "07552116"
+          - 07541863
+          - 07607833
+          - "07617157"
+          - 07942932
+          - 07609623
+          - 07553590
+          - 851683897
+          - 856458879
+          - 852499097
+          - 852496369
+          - 852496527
+          - 852777978
+        prop: registrationNumber
+      - match: 2180068XRFK54K3Z159
+        value: 21380068XRFK54K3Z159
+      - match: 253400VTMXV2UE7XNN67
+        value: 253400VTMVX2UE7XNN67
   type.address:
     lowercase: true
     options:
@@ -441,10 +463,10 @@ lookups:
         value: female
       - match: MALE
         value: male
-  type.string: 
+  type.string:
     lowercase: true
     normalize: true
-    options: 
+    options:
       - match: Codigo Postal 80000
         value: 80000
       - match: Codigo Postal 21297

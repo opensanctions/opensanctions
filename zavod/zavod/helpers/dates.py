@@ -131,7 +131,7 @@ def apply_date(entity: Entity, prop: str, text: DateValue) -> None:
     """
     prop_ = entity.schema.get(prop)
     if prop_ is None or prop_.type != registry.date:
-        log.warning("Property is not a date: %s" % prop)
+        log.warning("Property is not a date: %s" % prop, text=text)
         return
 
     if text is None:

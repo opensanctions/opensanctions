@@ -21,6 +21,7 @@ def crawl(context: Context) -> None:
             entity.add("alias", row.pop("Chinese name"), lang="zho")
             entity.add("country", row.pop("Country", None))
             entity.add("notes", row.pop("Summary", None), lang="eng")
+            entity.add("notes", row.pop("Chinese summary", None), lang="zho")
             entity.add("topics", "sanction.counter")
             sanction = h.make_sanction(context, entity)
             sanction.set("authority", row.pop("Body", None))

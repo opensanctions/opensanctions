@@ -1,6 +1,6 @@
 import csv
 from lxml.etree import _Element
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Optional
 from rigour.mime.types import CSV
 
 from zavod import Context
@@ -16,46 +16,66 @@ def parse_names(field: str) -> List[str]:
     return names
 
 
-def assert_link_hash(context: Context, doc: _Element, label: str, expected: str) -> str:
+def get_link_by_label(doc: _Element, label: str) -> Optional[str]:
     label_xpath = f".//td[contains(text(), '{label}')]"
     label_cells = doc.xpath(label_xpath)
     assert len(label_cells) == 1
+
     anchors = label_cells[0].xpath("./following-sibling::td//a")
     assert len(anchors) == 1
+
     link = anchors[0]
-    url = link.get("href")
-    h.assert_url_hash(context, url, expected)
-    return url
+    return link.get("href")
+
+
+def assert_link_hash(
+    context: Context, url: str, expected: str, xpath: Optional[str] = None
+) -> str:
+    if xpath:
+        h.assert_html_url_hash(context, url, expected, path=xpath)
+    else:
+        h.assert_url_hash(context, url, expected)
 
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.dataset.url)
     doc.make_links_absolute(context.dataset.url)
-    expected_sources: Set[str] = set()
+    linked_sources: Set[str] = set()
 
-    expected_sources.add(
-        assert_link_hash(
-            context,
-            doc,
-            "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "aeb4c0e7cff5acd1e5c34f1e3d07cfdbde56471a",
-        )
+    url = get_link_by_label(
+        doc,
+        "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
     )
-    expected_sources.add(
-        assert_link_hash(
-            context,
-            doc,
-            "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "46e270bfefd3174adcb0e8c80c8e952bca5a772f",
-        )
+    linked_sources.add(url)
+    assert_link_hash(
+        context,
+        url,
+        "f73acb3d478213b00fd2b207a89f333ce7e36717",
+        xpath='.//div[@id="block-mhanew-content"]//table',
     )
-    expected_sources.add(
-        assert_link_hash(
-            context,
-            doc,
-            "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
-            "310081dd2bd196140f76705d10447ea2dcf924e5",
-        )
+
+    url = get_link_by_label(
+        doc,
+        "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
+    )
+    linked_sources.add(url)
+    assert_link_hash(
+        context,
+        url,
+        "9e4746482586cd61b9855058fa2b926f943c7d9d",
+        xpath='.//div[@id="block-mhanew-content"]//table',
+    )
+
+    url = get_link_by_label(
+        doc,
+        "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967",
+    )
+    linked_sources.add(url)
+    assert_link_hash(
+        context,
+        url,
+        "682cd08caa7f9eb111f075b1086874f0a6f01565",
+        xpath='.//div[@id="block-mhanew-content"]',
     )
 
     path = context.fetch_resource("source.csv", context.data_url)
@@ -64,27 +84,29 @@ def crawl(context: Context) -> None:
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
             entity = context.make(row.pop("Type", "LegalEntity"))
+            name = row.pop("Name")
+            aliases = row.pop("Aliases")
+            weak_aliases = row.pop("Weak")
             source_url = row.pop("SourceURL")
-            if source_url not in expected_sources:
+            if source_url not in linked_sources:
                 context.log.warn(
                     "Source URL not in overview page. Perhaps it's out of date?",
                     url=source_url,
                 )
-            id_ = row.pop("ID")
-            name = row.pop("Name")
             if name is None:
                 context.log.warn("No name", row=row)
                 continue
-            entity.id = context.make_id(id_, name, source_url)
+            entity.id = context.make_id(name, aliases, weak_aliases)
             assert entity.id is not None, row
             named_ids[name] = entity.id
             entity.add("name", name)
             entity.add("notes", row.pop("Notes"))
             entity.add("topics", "sanction")
             entity.add("sourceUrl", source_url)
-            entity.add("alias", parse_names(row.pop("Aliases")))
-            entity.add("weakAlias", parse_names(row.pop("Weak")))
+            entity.add("alias", parse_names(aliases))
+            entity.add("weakAlias", parse_names(weak_aliases))
 
+            id_ = row.pop("ID")
             sanction = h.make_sanction(context, entity, id_)
             sanction.add("program", row.pop("Designation"))
             sanction.add("authorityId", id_)

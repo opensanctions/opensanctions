@@ -7,6 +7,7 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.helpers.xml import ElementOrTree
+from zavod.shed.zyte_api import fetch_resource
 
 REGEX_ID_NUMBER = re.compile(r"\w?[\d-]*\d{6,}[\d-]*")
 SPLITS = [";", "i)", "ii)", "iii)", "iv)", "v)", "vi)", "vii)", "viii)", "ix)", "x)"]
@@ -105,7 +106,13 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.xml", context.data_url)
+    _, _, _, path = fetch_resource(
+        context,
+        "source.xml",
+        context.data_url,
+        expected_media_type="text/xml",
+        geolocation="pl",
+    )
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     for entry in doc.findall(".//acount-list"):

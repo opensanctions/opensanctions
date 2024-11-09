@@ -28,3 +28,6 @@ data:
   url: https://www.police.govt.nz/advice/personal-community/counterterrorism/designated-entities/lists-associated-with-resolution-1373
   format: HTML
   lang: eng
+
+dates: 
+  formats: ["%d %B %Y"]

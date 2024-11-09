@@ -29,8 +29,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
 
     sanction = h.make_sanction(context, entity)
     sanction_date = collapse_spaces(row.pop("sanction-date"))
-    sanction_dates = h.parse_date(sanction_date, formats=["%B %d %Y"])
-    sanction.add("date", sanction_dates)
+    h.apply_date(sanction, "date", sanction_date)
     sanction.add("description", row.pop("sanction-title"))
 
     context.emit(entity, target=True)

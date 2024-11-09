@@ -36,6 +36,28 @@ def note_long_identifier(entity: Entity, value: str) -> None:
         entity.add("notes", value, lang="ukr")
 
 
+def check_sanctioned(
+    context: Context, entity: Entity, subject_id: int, item: Dict[str, Any]
+) -> bool | None:
+    status = item.pop("status")
+    if status is None:
+        context.log.warn(
+            "Missing status", subject_id=subject_id, entity_name=entity.get("name")
+        )
+        return None
+    res = context.lookup("sanctioned_status", status)
+    if res is None:
+        context.log.warn(
+            "Unknown status",
+            status=status,
+            subject_id=subject_id,
+            entity_name=entity.get("name"),
+        )
+        return True
+    else:
+        return res.value.lower() == "true"
+
+
 def crawl_common(
     context: Context, subject_id: str, entity: Entity, item: Dict[str, Any]
 ) -> None:
@@ -138,6 +160,12 @@ def crawl_common(
                 context.log.info("Unknown attribute", key=key, value=value)
                 entity.add("notes", f"{key}: {value}", lang="ukr")
 
+    is_sanctioned = check_sanctioned(context, entity, subject_id, item)
+    if is_sanctioned is None:
+        return
+    if is_sanctioned:
+        entity.add("topics", "sanction")
+
     for action in fetch_data(
         context, f"/subjects/{subject_id}/actions", cache_days=CACHE_LONG
     ):
@@ -159,9 +187,8 @@ def crawl_common(
         sanction.add("authority", action.pop("issuers", None), lang="ukr")
         context.emit(sanction)
 
-    entity.add("topics", "sanction")
-    context.audit_data(item, ignore=["status"])
-    context.emit(entity, target=True)
+    context.audit_data(item)
+    context.emit(entity, target=is_sanctioned)
 
 
 def crawl_indiviudal(context: Context, item: Dict[str, Any]) -> None:

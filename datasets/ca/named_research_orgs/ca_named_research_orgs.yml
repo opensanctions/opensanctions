@@ -30,3 +30,11 @@ publisher:
 data:
   url: "https://science.gc.ca/site/science/en/safeguarding-your-research/guidelines-and-tools-implement-research-security/named-research-organizations"
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 220
+  max:
+    schema_entities:
+      Organization: 320

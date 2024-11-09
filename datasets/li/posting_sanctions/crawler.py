@@ -1,7 +1,6 @@
 import re
-import pdfplumber
-from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional, Tuple
+from pdfplumber.page import Page
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -17,6 +16,11 @@ COUNTRY_CODES = {
     "I": "it",  # Italy
     "CH": "ch",  # Switzerland
     "SL": "si",  # Slovenia
+}
+TITLE_GENDER = {
+    "Frau": "female",
+    "Herr": "male",
+    "Herrn": "male",
 }
 
 
@@ -41,9 +45,19 @@ def parse_address(context: Context, addr: str) -> Optional[Entity]:
     )
 
 
-def parse_target(
-    context: Context, name: str, address: Optional[Entity], date: str
+def crawl_named(
+    context: Context,
+    name: str,
+    address: Optional[Entity],
+    date: str,
+    url: str,
+    type: str,
 ) -> Optional[Entity]:
+    """
+    Parses the subjects named in the list. If a company name is split from a
+    persons, we emit the person and their relationship, and return the company.
+    Otherwise the person is returned.
+    """
     name = " ".join(name.replace("\u00a0", " ").split())
     m = re.search(r"^(.+), (Frau|Herr[n]?) (.+)$", name)
 
@@ -55,7 +69,7 @@ def parse_target(
     if m is None:
         return company
 
-    gender = {"Frau": "female", "Herr": "male", "Herrn": "male"}[m.group(2)]
+    gender = TITLE_GENDER[m.group(2)]
     w = m.group(3).split()
     if len(w) >= 3 and " ".join(w[-2:] + w[:-2]) in name:
         # "Silva Segovac Daniel, Herr Daniel Silva Segovac"
@@ -72,94 +86,94 @@ def parse_target(
     company_name = company_name.removeprefix(",").strip()
     if not company_name:
         h.apply_address(context, person, address)
-        context.emit(person, target=True)
         return person
 
     emp = context.make("Employment")
-    emp.id = context.make_id("Employment", person.id, company.id)
+    emp.id = context.make_id("Employment", person.id, company.id, date, type)
     emp.add("employee", person)
     emp.add("employer", company)
     h.apply_date(emp, "date", date)
     emp.add("role", "Manager found responsible for breaking the law")
+    emp.add("sourceUrl", url)
     context.emit(person, target=False)
     context.emit(emp, target=False)
     return company
 
 
-def extract_rows(path: Path) -> List[Dict[str, str]]:
-    pdf = pdfplumber.open(path.as_posix())
+def page_settings(page: Page) -> Tuple[Page, Dict]:
+    cropped = page.crop((0, 50, page.width, page.height - 10))
     settings = {
         "vertical_strategy": "lines",
         "horizontal_strategy": "lines",
         "text_tolerance": 1,
     }
-    headers: Optional[List[str]] = None
-    rows: List[Dict[str, str]] = []
-    for page in pdf.pages:
-        cropped = page.crop((0, 50, page.width, page.height - 10))
-        for row in cropped.extract_table(settings):
-            if headers is None:
-                headers = row
-                continue
-            rows.append({k: v for k, v in zip(headers, row)})
-    return rows
+    return cropped, settings
 
 
 def crawl_debarments(context: Context) -> None:
     path = context.fetch_resource("sperren.pdf", DEBARMENT_URL)
-    for row in extract_rows(path):
+    for row in h.parse_pdf_table(context, path, page_settings=page_settings):
         if len(row) != 5:
             continue
-        address = parse_address(context, row.pop("Adresse"))
-        name = row.pop("Betrieb")
-        effective = row.pop("In Rechtskraft")
-        end = row.pop("Ende der Sperre")
-        company = parse_target(context, name, address, effective)
-        if company is None:
+        address = parse_address(context, row.pop("adresse"))
+        name = row.pop("betrieb")
+        effective = row.pop("in_rechtskraft")
+        end = row.pop("ende_der_sperre")
+        entity = crawl_named(
+            context, name, address, effective, DEBARMENT_URL, "Debarment"
+        )
+        if entity is None:
             continue
-        violation = row.pop("Verstoss")
-        sanction = h.make_sanction(context, company)
+        violation = row.pop("verstoss")
+        sanction = h.make_sanction(context, entity)
         sanction.id = context.make_id(
-            "Sanction", "Debarment", company.id, violation, effective, end
+            "Sanction", "Debarment", entity.id, violation, effective, end
         )
         h.apply_date(sanction, "startDate", effective)
         h.apply_date(sanction, "endDate", end)
         sanction.add("description", "Debarment")
         sanction.add("program", "EntsG Sanctions")
         sanction.add("reason", violation)
+        sanction.add("sourceUrl", DEBARMENT_URL)
 
         end_date = max(sanction.get("endDate"), default=None)
         if end_date is None or end_date > context.data_time_iso:
-            company.add("topics", "debarment")
+            entity.add("topics", "debarment")
+            ended = False
+        else:
+            ended = True
 
         context.emit(sanction)
-        context.emit(company, target=True)
+        context.emit(entity, target=not ended)
 
 
 def crawl_infractions(context: Context) -> None:
     path = context.fetch_resource("uebertretungen.pdf", INFRACTION_URL)
-    for row in extract_rows(path):
+    for row in h.parse_pdf_table(context, path, page_settings=page_settings):
         if len(row) != 4:
             context.log.warn(f"Cannot split row: {row}")
             continue
-        address = parse_address(context, row.pop("Adresse"))
-        effective = row.pop("In Rechtskraft")
-        name = row.pop("Betrieb/ verantwortliche natürliche Person")
-        company = parse_target(context, name, address, effective)
-        if company is None:
+        address = parse_address(context, row.pop("adresse"))
+        effective = row.pop("in_rechtskraft")
+        name = row.pop("betrieb_verantwortliche_naturliche_person")
+        entity = crawl_named(
+            context, name, address, effective, INFRACTION_URL, "Infraction"
+        )
+        if entity is None:
             continue
-        company.add("topics", "reg.warn")
-        violation = row.pop("Verstoss")
-        sanction = h.make_sanction(context, company)
+        entity.add("topics", "reg.warn")
+        violation = row.pop("verstoss")
+        sanction = h.make_sanction(context, entity)
         sanction.id = context.make_id(
-            "Sanction", "Penalty", company.id, violation, effective
+            "Sanction", "Penalty", entity.id, violation, effective
         )
         h.apply_date(sanction, "date", effective)
         sanction.add("description", "Administrative Penalty")
         sanction.add("program", "EntsG Sanctions")
         sanction.add("reason", violation)
+        sanction.add("sourceUrl", INFRACTION_URL)
         context.emit(sanction)
-        context.emit(company, target=True)
+        context.emit(entity, target=True)
 
 
 def crawl(context: Context) -> None:

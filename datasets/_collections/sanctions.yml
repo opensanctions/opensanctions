@@ -71,6 +71,7 @@ children:
   - id_dttot
   - il_mod_terrorists
   - il_mod_crypto
+  - il_wmd_sanctions
   - in_mha_banned
   - ir_sanctions
   - ie_unlawful_organizations

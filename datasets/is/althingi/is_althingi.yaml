@@ -25,6 +25,7 @@ url: "https://www.althingi.is/altext/cv/en/"
 data:
   url: https://www.althingi.is/altext/cv/en/
   format: HTML
+ci_test: false
 
 assertions:
   min:

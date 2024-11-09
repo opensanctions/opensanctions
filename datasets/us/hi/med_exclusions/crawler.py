@@ -1,0 +1,84 @@
+import re
+from typing import Dict
+from rigour.mime.types import PDF
+
+from zavod import Context, helpers as h
+from normality import collapse_spaces
+
+AKA_SPLIT = r"\baka\b|\ba\.k\.a\b|\bAKA\b|\bor\b"
+
+
+def crawl_item(row: Dict[str, str], context: Context):
+
+    if raw_first_name := row.pop("first_name"):
+        entity = context.make("Person")
+
+        raw_last_name = row.pop("last_name_or_business_name")
+        raw_middle_initial = row.pop("middle_initial")
+
+        entity.id = context.make_id(
+            raw_last_name, raw_middle_initial, raw_first_name, row.get("exclusion_date")
+        )
+
+        # There is some cases where there is a business name with "DBA"
+        if " DBA " in raw_last_name:
+            raw_last_name, business_name = raw_last_name.split(" DBA ")
+            company = context.make("Company")
+            company.id = context.make_id(business_name)
+            company.add("name", business_name)
+            link = context.make("UnknownLink")
+            link.id = context.make_id(entity.id, company.id)
+            link.add("object", entity)
+            link.add("subject", company)
+            link.add("role", "d/b/a")
+            context.emit(company)
+            context.emit(link)
+
+        for first_name in re.split(AKA_SPLIT, raw_first_name):
+            for last_name in re.split(AKA_SPLIT, raw_last_name):
+                for middle_initial in re.split(AKA_SPLIT, raw_middle_initial):
+                    h.apply_name(
+                        entity,
+                        first_name=first_name,
+                        last_name=last_name,
+                        middle_name=middle_initial,
+                    )
+    else:
+        entity = context.make("Company")
+        entity.id = context.make_id(row.get("last_name_or_business_name"))
+        entity.add("name", row.pop("last_name_or_business_name"))
+
+    entity.add("sector", row.pop("last_known_program_or_provider_type"))
+    if row.get("medicaid_provider_id") != "NONE":
+        entity.add("description", "Provider ID: " + row.pop("medicaid_provider_id"))
+    else:
+        row.pop("medicaid_provider_id")
+    entity.add("country", "us")
+
+    sanction = h.make_sanction(context, entity)
+    h.apply_date(sanction, "startDate", row.pop("exclusion_date"))
+    h.apply_date(sanction, "endDate", row.pop("reinstatement_date"))
+    end_date = sanction.get("endDate")
+    ended = end_date != [] and end_date[0] < context.data_time_iso
+    if not ended:
+        entity.add("topics", "debarment")
+
+    context.emit(entity, target=not ended)
+    context.emit(sanction)
+
+    context.audit_data(row)
+
+
+def crawl_pdf_url(context: Context):
+    doc = context.fetch_html(context.data_url)
+    doc.make_links_absolute(context.data_url)
+    return doc.xpath(".//a[contains(text(), 'Med Prov Excl-Rein List')]")[0].get("href")
+
+
+def crawl(context: Context) -> None:
+    path = context.fetch_resource("source.pdf", crawl_pdf_url(context))
+    context.export_resource(path, PDF, title=context.SOURCE_TITLE)
+    for item in h.parse_pdf_table(context, path, headers_per_page=True):
+        for key, value in item.items():
+            item[key] = collapse_spaces(value)
+        crawl_item(item, context)

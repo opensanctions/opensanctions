@@ -32,6 +32,9 @@ data:
   url: https://www.gov.uk/government/publications/the-uk-sanctions-list
   format: HTML
 
+dates: 
+  formats: ["%d/%m/%Y", "dd/mm/%Y", "dd/%m/%Y"]
+
 lookups:
   languages:
     options:
@@ -63,6 +66,8 @@ lookups:
         value: srp
       - match: Turkish
         value: tur
+      - match: Burmese
+        value: mya
   name_type:
     lowercase: true
     normalize: true
@@ -93,3 +98,7 @@ lookups:
           - Unknown
           - www.mtsbank.ru
         value: null
+  type.date:
+    options:
+      match: 00/00/1975
+      value: 1975
