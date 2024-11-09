@@ -1,35 +1,11 @@
-from pathlib import Path
 from typing import Dict
+import ast
+import json
 from rigour.mime.types import PDF
 
-import pdfplumber
-from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_resource
-
-
-def parse_pdf_table(
-    context: Context, path: Path, save_debug_images=False, headers=None
-):
-    pdf = pdfplumber.open(path.as_posix())
-    settings = {}
-    for page_num, page in enumerate(pdf.pages, 1):
-        # Find the bottom of the bottom-most rectangle on the page
-        bottom = max(page.height - rect["y0"] for rect in page.rects)
-        settings["explicit_horizontal_lines"] = [bottom]
-        if save_debug_images:
-            im = page.to_image()
-            im.draw_hline(bottom, stroke=(0, 0, 255), stroke_width=1)
-            im.draw_rects(page.find_table(settings).cells)
-            im.save(f"page-{page_num}.png")
-        assert bottom < (page.height - 5), (bottom, page.height)
-
-        for row in page.extract_table(settings)[1:]:
-            if headers is None:
-                headers = [slugify(collapse_spaces(cell), sep="_") for cell in row]
-                continue
-            assert len(headers) == len(row), (headers, row)
-            yield dict(zip(headers, row))
+from normality import slugify, stringify
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -58,45 +34,47 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl(context: Context) -> None:
-    cached, path, media_type, charset = fetch_resource(
-        context, "source.pdf", context.data_url, geolocation="us"
+
+    _, _, _, path = fetch_resource(
+        context,
+        "source.pdf",
+        context.data_url,
+        expected_media_type=PDF,
+        geolocation="us",
     )
-    if not cached:
-        assert media_type == PDF, media_type
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-    previous_item = None
-    for item in parse_pdf_table(context, path):
 
-        # There are some cases where the name is same but they have multiple NPIs
-        if not item.get("name_provider"):
-            for key in item.keys():
-                if not item.get(key):
-                    item[key] = previous_item[key]
+    items = list(h.parse_pdf_table(context, path, skiprows=1))
+    manual_extraction = [False for _ in items]
 
-        previous_item = item.copy()
+    for i, item in enumerate(items):
 
-        # If there are multiple providers in the same dictionary we are going to split into two
         if (
-            item.get("name_provider")
-            and len(item.get("name_provider").split("\n")) > 1
-            and len(item.get("action_type_suspend_terminate").split("\n")) > 1
+            (not item.get("name_provider"))
+            or (len(item.get("name_provider").split("\n")) > 1)
+            or (len(item.get("action_type_suspend_terminate").split("\n")) > 1)
         ):
-            item1, item2 = {}, {}
 
-            for key, value in item.items():
-                parts = value.split("\n")
-                # There are some cases there is multiple values and others
-                # where the providers share the same value
-                if len(parts) == 2:
-                    item1[key] = parts[0].strip()
-                    item2[key] = parts[1].strip()
-                elif len(parts) == 1:
-                    item1[key] = parts[0].strip()
-                    item2[key] = parts[0].strip()
-                else:
-                    context.log.warning("Unable to parse: ", item)
+            manual_extraction[i] = True
+            if i != 0:
+                manual_extraction[i - 1] = True
 
-            crawl_item(item1, context)
-            crawl_item(item2, context)
-        else:
+    for i, item in enumerate(items):
+        if not manual_extraction[i]:
             crawl_item(item, context)
+        else:
+            if i != 0:
+                joined_string = slugify(stringify(items[i - 1 : i + 1]))
+            else:
+                joined_string = slugify(stringify(items[i : i + 1]))
+
+            corrected_items = context.lookup_value("manual_extraction", joined_string)
+
+            if not corrected_items:
+                context.log.warning("Unable to parse: " + joined_string)
+                continue
+
+            corrected_items = ast.literal_eval(corrected_items)
+
+            for corrected_item in corrected_items:
+                crawl_item(corrected_item, context)
