@@ -7,30 +7,26 @@ from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 
 def crawl_item(row: Dict[str, str], context: Context):
+    is_company = "practice_name" in row
 
     address = h.make_address(
         context,
         city=row.pop("city"),
-        # In one file it is called and in the other one they use st
-        state=row.pop("state", row.pop("st", None)),
-        postal_code=row.pop("zip_code", row.pop("zip", None)),
+        state=row.pop("state"),
+        postal_code=row.pop("zip_code"),
         country_code="US",
         street=row.pop("address_line1"),
         street2=row.pop("address_line2"),
     )
-    practice_name = row.pop("practice_name", None)
-    if "practice_name" in row:
+
+    if is_company:
         entity = context.make("Company")
         entity.id = context.make_id(
             row.get("sortname"), row.get("provider_type_description")
         )
-        entity.add("name", practice_name)
+        entity.add("name", row.pop("practice_name"))
     else:
         entity = context.make("Person")
-        # first_name = row.pop("first_name")
-        # last_name = row.pop("last_name")
-        # middle_name = row.pop("middle_name")
-        # print(first_name, last_name, middle_name)
         entity.id = context.make_id(
             row.get("first_name"), row.get("middle_name"), row.get("last_name")
         )
@@ -47,6 +43,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     start_date = row.pop("effective_date_of_exclusion")
     sanction = h.make_sanction(context, entity, key=start_date)
+    sanction.add("authority", row.pop("exclusion_status"))
     h.apply_date(sanction, "startDate", start_date)
 
     context.emit(entity, target=True)
@@ -96,5 +93,4 @@ def crawl(context: Context) -> None:
         wb = load_workbook(file_path, read_only=True)
 
         for item in h.parse_xlsx_sheet(context, wb.active):
-            print(item)
             crawl_item(item, context)
