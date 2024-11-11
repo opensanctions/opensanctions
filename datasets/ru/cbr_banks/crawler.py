@@ -97,20 +97,36 @@ def crawl_details(context: Context, internal_code: str | None, entity):
                 if phone.startswith("("):
                     phone = "+7" + phone
                 entity.add("phone", phone)
+        # source for specifications below: https://www.cbr.ru/Content/Document/File/92046/CreditInfoByIntCodeEx.xsd
         if ssv_date is not None:
             entity.add(
                 "notes",
                 f"Дата вынесения заключения (признак внесения КО в Систему страхования вкладов): {ssv_date[:10]}",
+            )
+            entity.add(
+                "notes",
+                f"Date of the conclusion (sign of inclusion of the FI in the Deposit Insurance System): {ssv_date[:10]}",
+                lang="eng",
             )
         if reg_date is not None:
             entity.add(
                 "notes",
                 f"Дата присвоения государственного регистрационного номера: {reg_date[:10]}",
             )
+            entity.add(
+                "notes",
+                f"Date of assignment of state registration number: {reg_date[:10]}",
+                lang="eng",
+            )
         if lic_withd_num is not None and lic_withd_date is not None:
             entity.add(
                 "status",
                 f"Лицензия аннулирована: {lic_withd_num} от {lic_withd_date[:10]}",
+            )
+            entity.add(
+                "status",
+                f"License revoked: {lic_withd_num} from {lic_withd_date[:10]}",
+                lang="eng",
             )
         h.apply_date(
             entity, "incorporationDate", co_data.findtext("DateKGRRegistration")
@@ -125,7 +141,12 @@ def crawl_details(context: Context, internal_code: str | None, entity):
         if license_date is not None and license_code is not None:
             entity.add(
                 "status",
-                f"Код лицензии: {license_code}, дата выдачи: {license_date[:10]}",
+                f"Код лицензии: {license_code}, дата: {license_date[:10]}",
+            )
+            entity.add(
+                "status",
+                f"License code: {license_code}, date: {license_date[:10]}",
+                lang="eng",
             )
 
     context.emit(entity)
