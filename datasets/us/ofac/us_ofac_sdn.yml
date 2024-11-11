@@ -309,8 +309,10 @@ lookups:
         prop: incorporationDate
       - match:
           - "Nationality Country"
-          - "Citizenship Country"
         prop: nationality
+      - match: 
+          - "Citizenship Country"
+        prop: citizenship
       - match:
           - Registration Country
           - "Nationality of Registration"
