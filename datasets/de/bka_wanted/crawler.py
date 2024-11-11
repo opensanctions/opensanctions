@@ -84,7 +84,7 @@ def crawl_person(context: Context, url: str):
     for pob in get_element_text(doc, info_xpath("Geburtsort")):
         person.add("birthPlace", pob)
 
-    person.add("nationality", get_element_text(doc, info_xpath("Staatsangehörigkeit")))
+    person.add("citizenship", get_element_text(doc, info_xpath("Staatsangehörigkeit")))
     person.add("gender", get_element_text(doc, info_xpath("Geschlecht")))
 
     for offense_time in get_element_text(doc, info_xpath("Zeit")):
