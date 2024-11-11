@@ -72,7 +72,7 @@ def crawl_person(context: Context, url: str) -> None:
         if "Nationality" in key:
             person.add("nationality", value)
         elif "Citizenship" in key:
-            person.add("nationality", value.split(","))
+            person.add("citizenship", value.split(","))
         elif "Place of Birth" in key:
             person.add("birthPlace", value)
         elif "Occupation" in key:
