@@ -45,14 +45,14 @@ def crawl(context: Context):
         if gender:
             person.add("gender", gender)
 
-        # If nationalities exist, add them
-        nationalities = entry.get("pilietybes", [])
-        for nationality in nationalities:
+        # If citizenships exist, add them
+        citizenships = entry.get("pilietybes", [])
+        for citizenship in citizenships:
             code = (
-                nationality.get("valstybe", {}).get("pilietybeClaEntry", {}).get("key")
+                citizenship.get("valstybe", {}).get("pilietybeClaEntry", {}).get("key")
             )
             if code:
-                person.add("nationality", code, lang="lit")
+                person.add("citizenship", code, lang="lit")
 
         # Create a Sanction entity
         sanction = h.make_sanction(context, person)
