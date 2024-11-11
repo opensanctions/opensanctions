@@ -99,7 +99,7 @@ class SenzingExporter(Exporter):
         map(entity, "incorporationDate", record, "DATES", "REGISTRATION_DATE")
         map(entity, "birthPlace", record, "ADDRESSES", "PLACE_OF_BIRTH")
         map(entity, "nationality", record, "COUNTRIES", "NATIONALITY")
-        map(entity, "country", record, "COUNTRIES", "CITIZENSHIP")
+        map(entity, "citizenship", record, "COUNTRIES", "CITIZENSHIP")
         map(entity, "jurisdiction", record, "COUNTRIES", "REGISTRATION_COUNTRY")
         map(entity, "website", record, "CONTACTS", "WEBSITE_ADDRESS")
         map(entity, "email", record, "CONTACTS", "EMAIL_ADDRESS")
