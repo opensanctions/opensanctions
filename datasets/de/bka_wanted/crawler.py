@@ -79,7 +79,7 @@ def crawl_person(context: Context, url: str):
             person.add(prop, alias)
 
     for dob in get_element_text(doc, info_xpath("Geburtsdatum")):
-        person.add("birthDate", h.parse_date(dob, ["%d.%m.%Y"]))
+        h.apply_date(person, "birthDate", dob)
 
     for pob in get_element_text(doc, info_xpath("Geburtsort")):
         person.add("birthPlace", pob)
