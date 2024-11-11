@@ -8,7 +8,7 @@ SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
 SOAP_HEADERS = {"Content-Type": "text/xml; charset=utf-8"}
 
 
-def send_soap_request(context: Context, action, body, cache_days):
+def send_soap_request(context: Context, action, body, cache_days=None):
     """Sends a SOAP request and returns the parsed XML response."""
     headers = SOAP_HEADERS.copy()
     headers["SOAPAction"] = f"http://web.cbr.ru/{action}"
@@ -16,8 +16,25 @@ def send_soap_request(context: Context, action, body, cache_days):
     response = context.fetch_text(
         SOAP_URL, method="POST", headers=headers, data=body, cache_days=cache_days
     )
+    # Make sure we encode as the xml says it is.
+    assert "utf-8" in response.split("\n", 1)[0]
     root = etree.fromstring(response.encode("utf-8"))
     return h.remove_namespace(root)
+
+
+def get_org_info(context: Context, internal_code: str):
+    # Create the SOAP request body
+    body = f"""<?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                    xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+        <soap:Body>
+            <CreditInfoByIntCodeXML xmlns="http://web.cbr.ru/">
+                <InternalCode>{internal_code}</InternalCode>
+            </CreditInfoByIntCodeXML>
+        </soap:Body>
+    </soap:Envelope>"""
+    return send_soap_request(context, "CreditInfoByIntCodeXML", body)
 
 
 def bic_to_int_code(context: Context, bic):
@@ -39,26 +56,20 @@ def bic_to_int_code(context: Context, bic):
     if result is not None:
         return result.text
     else:
-        print("Result not found in the response")
+        context.log.info("No internal code found for BIC", bic=bic)
         return None
 
 
-def crawl_details(context: Context, internal_code, entity):
+def crawl_details(context: Context, internal_code: str | None, entity):
     """Gets detailed credit information for an internal code."""
-    # Create the SOAP request body
-    body = f"""<?xml version="1.0" encoding="utf-8"?>
-    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-        <soap:Body>
-            <CreditInfoByIntCodeXML xmlns="http://web.cbr.ru/">
-                <InternalCode>{internal_code}</InternalCode>
-            </CreditInfoByIntCodeXML>
-        </soap:Body>
-    </soap:Envelope>"""
+    if internal_code is None:
+        co_data = None
+        lic_data = None
+    else:
+        result = get_org_info(context, internal_code)
+        co_data = result.find(".//CreditOrgInfo/CO")
+        lic_data = result.find(".//CreditOrgInfo/LIC")
 
-    result = send_soap_request(context, "CreditInfoByIntCodeXML", body, cache_days=0)
-
-    # Locate co_data and lic_data
-    co_data = result.find(".//CreditOrgInfo/CO")
     if co_data is not None:
         ssv_date = co_data.findtext("SSV_Date")
         reg_date = co_data.findtext("MainDateReg")
@@ -76,6 +87,7 @@ def crawl_details(context: Context, internal_code, entity):
         entity.add("address", co_data.findtext("FactAdr"))
         entity.add("amount", co_data.findtext("UstMoney"))
         entity.add("status", co_data.findtext("OrgStatus"))
+        entity.add("topics", "fin.bank")
         if en_names is not None:
             for name in en_names.split(","):
                 entity.add("name", name, lang="eng")
@@ -106,7 +118,6 @@ def crawl_details(context: Context, internal_code, entity):
     else:
         context.log.warning(f"No details found for BIC {internal_code}")
 
-    lic_data = result.find(".//CreditOrgInfo/LIC")
     if lic_data is not None:
         license_date = lic_data.findtext("LDate")
         license_code = lic_data.findtext("LCode")
@@ -127,15 +138,12 @@ def crawl(context: Context):
         "source.xml",
         context.data_url,
         expected_media_type=XML,
-        expected_charset="windows-1251",
     )
-    with open(path, encoding="windows-1251") as file:
-        xml_content = file.read()
-    doc = etree.fromstring(xml_content.encode("windows-1251"))
+    with open(path, "rb") as file:
+        doc = etree.fromstring(file.read())
     records = doc.findall(".//Record")
     if not records:
-        context.log.warning("No <Record> elements found in the XML.")
-        return
+        raise ValueError("No <Record> elements found in the XML.")
     for record in records:
         bic = record.findtext("Bic")
         entity = context.make("Company")
