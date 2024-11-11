@@ -64,6 +64,10 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.emit(entity, target=True)
     context.emit(sanction)
 
+    if (row.get("timeframe_of_term_exclusion")
+         and (row.get("timeframe_of_term_exclusion", "") not in ["N/A", "NA"] and (not row.get("timeframe_of_term_exclusion", "").startswith("Entity: N/A")))):
+        context.log.warning(f"Data found in column Timeframe of Term/Exclusion: {row.get('timeframe_of_term_exclusion')}")
+
     context.audit_data(row, ignore=["timeframe_of_term_exclusion"])
 
 
@@ -79,11 +83,10 @@ def crawl(context: Context) -> None:
 
     for item in h.parse_xlsx_sheet(context, wb.active):
         crawl_item(item, context)
-    
+
     sheet_names.remove(wb.active.title)
 
     for sheet_name in sheet_names:
         sheet = wb[sheet_name]
-        if not (sheet.max_row == 1 and sheet.max_column == 1 and not sheet['A1'].value):
+        if not (sheet.max_row == 1 and sheet.max_column == 1 and not sheet["A1"].value):
             context.log.warning(f"Sheet {sheet_name} is not empty")
-
