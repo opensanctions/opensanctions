@@ -21,12 +21,18 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     if is_company:
         entity = context.make("Company")
-        entity.id = context.make_id(row.get("provider_type_description"))
+        entity.id = context.make_id(
+            row.get("practice_name"),
+            row.get("zip_code"),
+        )
         entity.add("name", row.pop("practice_name"))
     else:
         entity = context.make("Person")
         entity.id = context.make_id(
-            row.get("first_name"), row.get("middle_name"), row.get("last_name")
+            row.get("first_name"),
+            row.get("middle_name"),
+            row.get("last_name"),
+            row.get("zip_code"),
         )
         h.apply_name(
             entity,
