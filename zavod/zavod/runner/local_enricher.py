@@ -7,11 +7,12 @@ from nomenklatura import CompositeEntity
 from nomenklatura.entity import CE
 from nomenklatura.dataset import DS
 from nomenklatura.cache import Cache
-from nomenklatura.enrich.common import Enricher, EnricherConfig
+from nomenklatura.enrich.common import BulkEnricher, EnricherConfig
 from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura.index.duckdb_index import DuckDBIndex
 from nomenklatura.matching import get_algorithm, LogicV1
 from nomenklatura.resolver.linker import Linker
+from nomenklatura.resolver import Identifier
 
 from zavod.entity import Entity
 from zavod.archive import dataset_state_path
@@ -22,7 +23,7 @@ from zavod.store import get_store
 log = logging.getLogger(__name__)
 
 
-class LocalEnricher(Enricher[DS]):
+class LocalEnricher(BulkEnricher[DS]):
     """
     Uses a local index to look up entities in a given dataset.
 
@@ -87,12 +88,17 @@ class LocalEnricher(Enricher[DS]):
         if type(entity) is class_:
             return entity
         return class_.from_statements(self.dataset, entity.statements)
-
-    def match(self, entity: CE) -> Generator[CE, None, None]:
+    
+    def load(self, entity: CE) -> None:
         store_type_entity = self.entity_from_statements(
             self._view.store.entity_class, entity
         )
+        self._index.add_matching_subject(entity)
+    
+    def candidates(self) -> Generator[Tuple[Identifier, List[Tuple[Identifier, float]]], None, None]:
+        yield from self._index.matches()
 
+    def match_candidates(self, entity: CE, candidates: List[Tuple[Identifier, float]]) -> Generator[CE, None, None]:
         # Make sure an entity with the same ID is yielded. E.g. a QID or ID scheme
         # intentionally consistent between datasets.
         if entity.id is not None:
@@ -104,7 +110,7 @@ class LocalEnricher(Enricher[DS]):
         last_rounded_score = None
         bin = 0
 
-        for match_id, index_score in self._index.match(store_type_entity):
+        for match_id, index_score in candidates:
             rounded_score = round(Decimal(index_score), 0)
             if rounded_score != last_rounded_score:
                 bin += 1
@@ -129,6 +135,9 @@ class LocalEnricher(Enricher[DS]):
         scores.sort(key=lambda s: s[0], reverse=True)
         for algo_score, proxy in scores[: self._limit]:
             yield proxy
+    
+    def match(self, entity: CE) -> Generator[CE, None, None]:
+        raise NotImplementedError()
 
     def _traverse_nested(
         self, entity: CE, path: List[str] = []

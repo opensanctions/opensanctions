@@ -1,7 +1,7 @@
 from followthemoney.helpers import check_person_cutoff
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
-from nomenklatura.enrich import Enricher, EnrichmentException, make_enricher
+from nomenklatura.enrich import Enricher, BulkEnricher, EnrichmentException, make_enricher
 
 from zavod.meta import Dataset, get_multi_dataset
 from zavod.entity import Entity
@@ -53,17 +53,31 @@ def enrich(context: Context) -> None:
         raise RuntimeError("Cannot load enricher: %r" % config)
     threshold = float(context.dataset.config.get("threshold", 0.7))
     try:
-        for entity_idx, entity in enumerate(view.entities()):
-            if entity_idx > 0 and entity_idx % 1000 == 0:
-                context.cache.flush()
-            if entity_idx > 0 and entity_idx % 10000 == 0:
-                context.log.info("Enriched %s entities..." % entity_idx)
-            context.log.debug("Enrich query: %r" % entity)
-            try:
-                for match in enricher.match_wrapped(entity):
-                    save_match(context, resolver, enricher, entity, match, threshold)
-            except EnrichmentException as exc:
-                context.log.error("Enrichment error %r: %s" % (entity, str(exc)))
+        if isinstance(enricher, BulkEnricher):
+            for entity_idx, entity in enumerate(view.entities()):
+                enricher.load_wrapped(entity)
+
+            for entity_id, candidate_set in enricher.candidates():
+                entity = view.get_entity(entity_id.id)
+                try:
+                    for match in enricher.match_candidates(entity, candidate_set):
+                        save_match(context, resolver, enricher, entity, match, threshold)
+                except EnrichmentException as exc:
+                    context.log.error("Enrichment error %r: %s" % (entity, str(exc)))
+        else:
+            for entity_idx, entity in enumerate(view.entities()):
+                if entity_idx > 0 and entity_idx % 1000 == 0:
+                    context.cache.flush()
+                if entity_idx > 0 and entity_idx % 10000 == 0:
+                    context.log.info("Enriched %s entities..." % entity_idx)
+                context.log.debug("Enrich query: %r" % entity)
+                try:
+                    for match in enricher.match_wrapped(entity):
+                        save_match(context, resolver, enricher, entity, match, threshold)
+                except EnrichmentException as exc:
+                    context.log.error("Enrichment error %r: %s" % (entity, str(exc)))
+
+            
         resolver.save()
         context.log.info("Enrichment process complete.")
     finally:
