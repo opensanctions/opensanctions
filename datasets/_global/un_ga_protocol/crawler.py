@@ -62,8 +62,6 @@ def crawl(context: Context):
                 country=country,
                 topics=["gov.national"],
             )
-            # dates = h.parse_date(holder.get("date_of_appointment"), ["%d-%b-%y"])
-            # date = dates[0] if dates else None
             occupancy = h.make_occupancy(
                 context, entity, position, start_date=holder.get("date_of_appointment")
             )
