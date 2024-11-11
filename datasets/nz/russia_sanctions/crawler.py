@@ -103,9 +103,9 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
         h.apply_date(entity, "birthDate", dob)
     else:
         entity.add("incorporationDate", dob)
-    entity.add("nationality", data.pop("Citizenship"), quiet=True)
-    entity.add("nationality", data.pop("Citizenship 2"), quiet=True)
-    entity.add("nationality", data.pop("Citizenship 3"), quiet=True)
+    entity.add("citizenship", data.pop("Citizenship"), quiet=True)
+    entity.add("citizenship", data.pop("Citizenship 2"), quiet=True)
+    entity.add("citizenship", data.pop("Citizenship 3"), quiet=True)
     entity.add("birthPlace", data.pop("Place of Birth"), quiet=True)
     entity.add("passportNumber", data.pop("Passport Number"), quiet=True)
 
