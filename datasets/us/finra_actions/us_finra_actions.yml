@@ -596,3 +596,6 @@ lookups:
       - match: "fbr capital markets and co."
         names:
           - FBR Capital Markets and Co.
+      - match: "smith, brown & groover inc."
+        names:
+          - Smith, Brown & Groover Inc.
