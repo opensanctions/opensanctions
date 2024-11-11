@@ -31,6 +31,8 @@ data:
   url: https://www.un.org/dgacm/en/content/protocol/hshgnfa
   format: PDF
 
+dates: 
+  formats: ["%d-%b-%y"]
 lookups:
   names:
     options:
