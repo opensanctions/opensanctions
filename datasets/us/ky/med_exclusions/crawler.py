@@ -75,5 +75,15 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
+    sheet_names = wb.sheetnames
+
     for item in h.parse_xlsx_sheet(context, wb.active):
         crawl_item(item, context)
+    
+    sheet_names.remove(wb.active.title)
+
+    for sheet_name in sheet_names:
+        sheet = wb[sheet_name]
+        if not (sheet.max_row == 1 and sheet.max_column == 1 and not sheet['A1'].value):
+            context.log.warning(f"Sheet {sheet_name} is not empty")
+
