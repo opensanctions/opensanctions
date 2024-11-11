@@ -1,32 +1,8 @@
 from lxml import etree
+from rigour.mime.types import XML
 
 from zavod import Context, helpers as h
-
-HEADERS = {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Cache-Control": "max-age=0",
-    "Connection": "keep-alive",
-    "Cookie": "__ddg2_=oODOe2gVFAHstFSz; __ddg5_=5VLoRhvMkPVMHI4H; __ddgid_=F69Zw7VH7FdLn3xt; __ddgmark_=C04rsUQPh6Z7r9Xw; _ym_d=1730798853; _ym_isad=2; _ym_uid=1730798853821838136; __ddg1_=FwX17Njle4Mnl9WOR8V5",
-    "Host": "cbr.ru",
-    "Referer": "https://cbr.ru/scripts/XML_bic2.asp",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "same-origin",
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15",
-}
-HEADERS_INITIAL = {
-    "Accept": "*/*",
-    "Connection": "keep-alive",
-    "Host": "mc.yandex.com",
-    "Origin": "https://www.cbr.ru",
-    "Referer": "https://www.cbr.ru/",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "cross-site",
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15",
-}
+from zavod.shed.zyte_api import fetch_resource
 
 SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
 SOAP_HEADERS = {"Content-Type": "text/xml; charset=utf-8"}
@@ -145,12 +121,14 @@ def crawl_details(context: Context, internal_code, entity):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(
-        "https://www.cbr.ru/development/WSCO/", headers=HEADERS_INITIAL
+    # protected by ddos-guard
+    _, _, _, path = fetch_resource(
+        context,
+        "source.xml",
+        context.data_url,
+        expected_media_type=XML,
+        expected_charset="windows-1251",
     )
-    link = doc.xpath('//p[contains(text(), "Расширенный перечень BIC KO:")]/a/@href')[0]
-    path = context.fetch_resource(link, context.data_url, headers=HEADERS)
-    # path = context.fetch_resource("source.xml", context.data_url, headers=HEADERS)
     with open(path, encoding="windows-1251") as file:
         xml_content = file.read()
     doc = etree.fromstring(xml_content.encode("windows-1251"))
