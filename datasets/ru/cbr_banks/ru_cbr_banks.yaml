@@ -1,4 +1,4 @@
-title: Russian Banking Registry
+title: Russia Banking Registry
 entry_point: crawler.py
 prefix: ru-bic
 coverage:
