@@ -8,20 +8,25 @@ deploy:
   schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  All foreign financial institutions and branches with approved FATCA registration at the 
-  time the list is compiled
+  All foreign financial institutions and branches with approved FATCA registration.
 description: |
-  A monthly published list of financial institutions registered, accepted, and issued a Global
-  Intermediary Identification Number (GIIN) in accordance with FATCA regulations.
-  [Source](https://www.irs.gov/businesses/corporations/fatca-foreign-financial-institution-list-search-and-download-tool)
+  The FFI list is issued by the IRS and includes all financial institutions, branches, direct 
+  reporting non-financial foreign entities, sponsored entities, and sponsored subsidiary branches 
+  that have submitted a registration and have been assigned a Global Intermediary Identification 
+  Number (GIIN) at the time the list was compiled. 
+  
+  On the first day of each month, a complete new list is published for all entities that have an 
+  assigned and approved GIIN as of a specified cut-off date.
+  [Source](https://www.irs.gov/businesses/corporations/irs-ffi-list-faqs)
 publisher:
   name: Internal Revenue Service
   acronym: IRS
   description: |
-    The IRS mission is to provide America's taxpayers top quality service by helping them 
-    understand and meet their tax responsibilities and to enforce the law with integrity 
-    and fairness to all. 
-    [Source: Official Website](https://www.irs.gov/about-irs)
+    The IRS is a bureau of the Department of the Treasury. In the United States, the Congress passes 
+    tax laws and requires taxpayers to comply. The taxpayer’s role is to understand and meet his or 
+    her tax obligations. The IRS role is to help the large majority of compliant taxpayers with the 
+    tax law, while ensuring that the minority who are unwilling to comply pay their fair share.
+    [Source: Official Website](https://www.irs.gov/about-irs/the-agency-its-mission-and-statutory-authority)
   country: us
   url: https://www.irs.gov
   official: true
