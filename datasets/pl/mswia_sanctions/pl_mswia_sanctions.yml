@@ -115,7 +115,7 @@ lookups:
       - match: "w Wilnie (Litwa) obywatel rosyjski nr"
         props:
           birthPlace: Vilnius
-          nationality: RU
+          citizenship: RU
       - match: Plac Dąbrowskiego 1, 00-057 Warszawa,
         props:
           address: Plac Dąbrowskiego 1, 00-057 Warszawa
@@ -125,7 +125,7 @@ lookups:
           registrationNumber: 147421934
       - match: "obywatel Mołdawii i Izraela"
         props:
-          nationality: ["MD", "IL"]
+          citizenship: ["MD", "IL"]
       - match: "adres: Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan, nr identyfikacyjny BIN: 220540011771"
         props:
           address: "Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan"
