@@ -1,4 +1,4 @@
-title: United States Government Policy and Supporting Positions (Plum Book)
+title: United States Periodically Listing Updates to Management (PLUM) Reporting
 entry_point: crawler.py
 prefix: usplum
 coverage:
@@ -6,16 +6,18 @@ coverage:
   start: 2024-11-11
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  The Plum Book lists federal positions filled by political appointees, Schedule C
+  The PLUM Reporting lists federal positions filled by political appointees, Schedule C
   employees, and other executives.
 description: |
-  > Published by the Senate Committee on Homeland Security and Governmental Affairs and
-  > House Committee on Government Reform alternately after each Presidential election,
-  > the Plum Book lists over 7,000 Federal civil service leadership and support positions
-  > in the legislative and executive branches of the Federal Government that may be subject
-  > to noncompetitive appointment, nationwide.
-  >
-  > Data covers positions such as agency heads and their immediate subordinates, policy
+  This dataset lists the incumbents in the Periodically Listing Updates to Management (PLUM)
+  Reporting data by the U.S. Office of Personnel Management (OPM).
+
+  This covers positions submitted to the Plum Book published by the Senate Committee on
+  Homeland Security and Governmental Affairs and House Committee on Government Reform
+  alternately after each Presidential election, but is updated more frequently with
+  current incumbents.
+
+  > [The Plum Book] covers positions such as agency heads and their immediate subordinates, policy
   > executives and advisors, and aides who report to these officials. The duties of many
   > such positions may involve advocacy of Administration policies and programs and the
   > incumbents usually have a close and confidential working relationship with the agency
