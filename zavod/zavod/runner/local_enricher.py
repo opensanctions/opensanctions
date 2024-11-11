@@ -9,7 +9,7 @@ from nomenklatura.dataset import DS
 from nomenklatura.cache import Cache
 from nomenklatura.enrich.common import Enricher, EnricherConfig
 from nomenklatura.enrich.common import EnrichmentException
-from nomenklatura.index.tantivy_index import TantivyIndex
+from nomenklatura.index.duckdb_index import DuckDBIndex
 from nomenklatura.matching import get_algorithm, LogicV1
 from nomenklatura.resolver.linker import Linker
 
@@ -68,8 +68,8 @@ class LocalEnricher(Enricher[DS]):
         target_store = get_store(target_dataset, target_linker)
         target_store.sync()
         self._view = target_store.view(target_dataset)
-        index_path = dataset_state_path(dataset.name) / "tantivy-enrich-index"
-        self._index = TantivyIndex(
+        index_path = dataset_state_path(dataset.name) / "duckdb-enrich-index"
+        self._index = DuckDBIndex(
             self._view, index_path, config.get("index_options", {})
         )
         self._index.build()
