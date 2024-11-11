@@ -1,4 +1,4 @@
-title: US Kentucky State Medicaid Terminations
+title: US Kentucky Terminated and Excluded Providers
 entry_point: crawler.py
 prefix: us-medky
 coverage:
@@ -6,10 +6,10 @@ coverage:
   start: "2024-11-08"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Medical providers terminated from Kentucky State's Medicaid program.
+  Medical providers terminated or excluded from Kentucky State's Medicaid program.
 description: |
   This dataset contains individuals and entites that have been terminated
-  from Kentucky's Medicaid Program. The following text explains the 
+  from Kentucky's Medicaid Program. The following text from their website explains the 
   conditions and implications of such terminations or exclusions,
   including the restrictions on reimbursement, re-enrollment criteria,
   and responsibilities for Medicaid providers in screening employees and
@@ -18,7 +18,9 @@ description: |
    > An individual or entity terminated or excluded from participating in
    > the Kentucky Medicaid program will not be reimbursed for services
    > provided in any capacity or in any category under the Kentucky Medicaid
-   > program. The termination or exclusion remains in effect until the
+   > program. 
+   >
+   > The termination or exclusion remains in effect until the
    > provider is removed from this list. Where applicable and when determined,
    > an end date is provided. It is the provider's responsibility to notify
    > Kentucky Medicaid if the circumstances change which led to the termination
@@ -40,8 +42,8 @@ description: |
    >reimbursement for providing Kentucky Medicaid services in any capacity,
    > even if they are not on the Kentucky Medicaid list.
 publisher:
-  name: Kentucky Department of Medicaid Services
-  description: >
+  name: Kentucky Department for Medicaid Services
+  description: |
     > Kentucky Medicaid is a state and federal program authorized by Title XIX
     > of the Social Security Act to provide health care for eligible, low-income
     > populations. These populations include children, low-income families, pregnant
