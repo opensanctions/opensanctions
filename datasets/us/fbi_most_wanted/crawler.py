@@ -8,10 +8,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
-FORMATS = (
-    "%B %d, %Y",
-    "%d/%m/%Y",
-)
 FBI_URL = "https://www.fbi.gov/wanted/%s/@@castle.cms.querylisting/%s?page=%s"
 IGNORE_FIELDS = (
     "Age",
@@ -96,7 +92,7 @@ def crawl_person(context: Context, url: str) -> None:
             for date in dates:
                 date = date.replace("(True)", "").strip()
                 if len(date) > 1:
-                    person.add("birthDate", h.parse_date(date, FORMATS))
+                    h.apply_date(person, "birthDate", date)
         elif key in IGNORE_FIELDS:
             note = "%s: %s" % (key, value)
             person.add("notes", note)

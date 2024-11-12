@@ -37,6 +37,8 @@ data:
   format: HTML
   lang: eng
 
+dates: 
+  formats: ["%B %d, %Y", "%d/%m/%Y"]
 lookups:
   type.country:
     lowercase: true
