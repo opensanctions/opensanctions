@@ -107,7 +107,6 @@ def crawl_acteur(context, data: Dict[str, Any]):
     dob = birth.pop("dateNais")
     if is_not_nil(dob):
         h.apply_date(person, "birthDate", dob)
-        # person.set("birthDate", h.parse_date(dob, ["%Y-%m-%d"]))
     city = birth.pop("villeNais")
     if is_not_nil(city):
         person.set("birthPlace", city)
@@ -119,7 +118,6 @@ def crawl_acteur(context, data: Dict[str, Any]):
     dod = ec.pop("dateDeces")
     if is_not_nil(dod):
         h.apply_date(person, "deathDate", dod)
-        # person.set("deathDate", h.parse_date(dod, ["%Y-%m-%d"]))
     context.audit_data(ec)
 
     # We'll include this URL in the data as it's quite useful
