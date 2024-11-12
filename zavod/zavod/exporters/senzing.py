@@ -98,6 +98,7 @@ class SenzingExporter(Exporter):
         map(entity, "deathDate", record, "DATES", "DATE_OF_DEATH")
         map(entity, "incorporationDate", record, "DATES", "REGISTRATION_DATE")
         map(entity, "birthPlace", record, "ADDRESSES", "PLACE_OF_BIRTH")
+        map(entity, "country", record, "COUNTRIES", "NATIONALITY")
         map(entity, "nationality", record, "COUNTRIES", "NATIONALITY")
         map(entity, "citizenship", record, "COUNTRIES", "CITIZENSHIP")
         map(entity, "jurisdiction", record, "COUNTRIES", "REGISTRATION_COUNTRY")
