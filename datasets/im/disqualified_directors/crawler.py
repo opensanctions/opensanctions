@@ -56,7 +56,7 @@ def crawl_item(item: Dict[str, str], context: Context):
 
     name = item.pop("Name")
     if item["Date of Birth"] != "Not known":
-        birth_date = h.parse_date(item.pop("Date of Birth"), formats=["%d %B %Y"])
+        birth_date = item.pop("Date of Birth")
     else:
         birth_date = None
         item.pop("Date of Birth")
@@ -75,12 +75,14 @@ def crawl_item(item: Dict[str, str], context: Context):
 
     if "Dates of Disqualification" in item:
         start_date, end_date = parse_period(item.pop("Dates of Disqualification"))
-        sanction.add(
-            "startDate", h.parse_date(start_date, formats=["%d %B %Y", "%d %b %Y"])
-        )
-        sanction.add(
-            "endDate", h.parse_date(end_date, formats=["%d %B %Y", "%d %b %Y"])
-        )
+        h.apply_date(sanction, "startDate", start_date)
+        # sanction.add(
+        #     "startDate", h.parse_date(start_date, formats=["%d %B %Y", "%d %b %Y"])
+        # )
+        h.apply_date(sanction, "endDate", end_date)
+        # sanction.add(
+        #     "endDate", h.parse_date(end_date, formats=["%d %B %Y", "%d %b %Y"])
+        # )
 
     if "Notes (if any)" in item:
         sanction.add("summary", item.pop("Notes (if any)"))
