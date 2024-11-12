@@ -252,6 +252,31 @@ config:
         topics:
           - gov.executive
 
+    # Turkey
+    - category: Lists_of_political_office-holders_in_Turkey
+      topic: role.pep
+      country: tr
+    - category: Political_office-holders_in_Turkey
+      topic: role.pep
+      country: tr
+    - category: Government_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: 21st-century_Turkish_politicians
+      country: tr
+    - category: Members_of_the_28th_Parliament_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Members_of_the_27th_Parliament_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Members_of_the_67th_government_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Members_of_the_66th_government_of_Turkey
+      topic: role.pep
+      country: tr
+
     # NK
     - category: Leaders_of_the_Workers'_Party_of_Korea_and_its_predecessors
       topic: role.pep
