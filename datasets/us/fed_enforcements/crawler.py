@@ -223,7 +223,7 @@ def crawl_item(input_dict: dict, context: Context):
             entity.add("topics", "fin.bank")
 
         sanction = h.make_sanction(context, entity, key=[effective_date])
-        sanction.add("startDate", h.parse_date(effective_date, formats=["%Y-%m-%d"]))
+        h.apply_date(sanction, "startDate", effective_date)
         sanction.add("provisions", provisions)
         sanction.add("description", sanction_description)
 
@@ -234,10 +234,7 @@ def crawl_item(input_dict: dict, context: Context):
             # if the termination date, is in the future, we assume the entity is still in the crime.fin topic
             if termination_date > datetime.today().strftime("%Y-%m-%d"):
                 entity.add("topics", "crime.fin")
-
-            sanction.add(
-                "endDate", h.parse_date(termination_date, formats=["%Y-%m-%d"])
-            )
+            h.apply_date(sanction, "endDate", termination_date)
             is_target = False
         # if it doesn't have a termination date, we assume the entity is still in the crime.fin topic
         else:

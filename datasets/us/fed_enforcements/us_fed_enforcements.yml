@@ -33,7 +33,10 @@ url: "https://www.federalreserve.gov/supervisionreg/enforcement-actions-about.ht
 data:
   url: https://www.federalreserve.gov/supervisionreg/files/enforcementactions.csv
   format: CSV
+  lang: eng
 
+dates: 
+  formats: ["%Y-%m-%d"]
 lookups:
   type.country:
     options:
