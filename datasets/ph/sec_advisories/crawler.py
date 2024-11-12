@@ -39,7 +39,7 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
         description = cast("str", res.description) or long_name
 
     source_url = li_link.get("href")
-    date = li_tag.findtext(".//*[@class='myDate']")
+    date = li_tag.findtext(".//*[@class='myDate']").strip()
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(source_url)
