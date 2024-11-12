@@ -53,7 +53,7 @@ def crawl_item(input_dict: dict, context: Context):
     case_summary = input_dict.pop("case-summary")[0].strip()
     case_id, source_url = input_dict.pop("case-id")
     date = input_dict.pop("action-date-sort-ascending")[0].strip()
-    formatted_date = h.parse_date(date, formats=["%m/%d/%Y"])[0]
+    # formatted_date = h.parse_date(date, formats=["%m/%d/%Y"])[0
 
     for name in names:
         entity = context.make(schema)
@@ -64,7 +64,7 @@ def crawl_item(input_dict: dict, context: Context):
         context.emit(entity, target=True)
 
         sanction = h.make_sanction(context, entity, key=case_id)
-        description = f"{formatted_date}: {case_summary}"
+        description = f"{date}: {case_summary}"
         sanction.add("description", description)
         sanction.add("authorityId", case_id.strip())
         sanction.add("sourceUrl", source_url)
