@@ -1,6 +1,4 @@
 from typing import Dict
-import ast
-import json
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
@@ -68,13 +66,13 @@ def crawl(context: Context) -> None:
             else:
                 joined_string = slugify(stringify(items[i : i + 1]))
 
-            corrected_items = context.lookup_value("manual_extraction", joined_string)
+            res = context.lookup("manual_extraction", joined_string)
 
-            if not corrected_items:
+            if not res:
                 context.log.warning("Unable to parse: " + joined_string)
                 continue
 
-            corrected_items = ast.literal_eval(corrected_items)
+            corrected_items = res.rows
 
             for corrected_item in corrected_items:
                 crawl_item(corrected_item, context)
