@@ -8,9 +8,9 @@ from typing import Dict, Iterable
 import zavod.helpers as h
 from zavod import Context
 
-DATE_FORMATS = [
-    "%Y-%m-%d",
-]
+# DATE_FORMATS = [
+#     "%Y-%m-%d",
+# ]
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -22,7 +22,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     activities = row.pop("Sub-paragraph of listed activity (2020 report)").strip()
     country = row.pop("State concerned").strip()
     section = row.pop("Section").strip()
-    date = h.parse_date(row.pop("Date"), DATE_FORMATS)
+    date = row.pop("Date")
     # FIXME: maybe that trailing space will go away?
     if "Source URL" in row:
         source_url = row.pop("Source URL").strip()
@@ -44,7 +44,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.add("previousName", prev_name)
     entity.add("program", section)
     entity.add("notes", f"Listed activities: {activities}")
-    entity.add("notes", f"Date of last update: {date[0]}")
+    entity.add("notes", f"Date of last update: {date}")
     entity.add("topics", "debarment")
     if notes:
         entity.add("notes", notes)
