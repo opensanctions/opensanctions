@@ -8,7 +8,7 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Medical providers terminated or excluded from Kentucky State's Medicaid program.
 description: |
-  This dataset contains individuals and entites that have been terminated
+  This dataset contains individuals and companies that have been terminated
   from Kentucky's Medicaid Program. The following text from their website explains the 
   conditions and implications of such terminations or exclusions,
   including the restrictions on reimbursement, re-enrollment criteria,
@@ -26,20 +26,24 @@ description: |
    > Kentucky Medicaid if the circumstances change which led to the termination
    > and/or exclusion. A provider terminated by the Department for Medicaid
    > Services who meets the requirements of 907 KAR 1:671 and 907 KAR 1:672
-   > may apply for re-enrollment in the Kentucky Medicaid program. Any provider
+   > may apply for re-enrollment in the Kentucky Medicaid program.
+   >
+   > Any provider
    > participating or applying to participate in the Kentucky Medicaid program
    > must search the list of excluded individuals and entities and the System
-   > for Award Management​ on a monthly basis to determine if any existing
+   > for Award Management on a monthly basis to determine if any existing
    > employee or contractor has been terminated or excluded from participation
    > in the Kentucky Medicaid program or has been nationally excluded from
    > Medicare or Medicaid. Also, any provider participating or applying to
    > participate in the Kentucky Medicaid program must search all lists prior
    > to hiring staff to ensure that any potential employee or contractor has
    > not been terminated and/or excluded from participating in the Medicare
-   > or Medicaid program. Please note that the Kentucky Medicaid Program only
+   > or Medicaid program.
+   >
+   > Please note that the Kentucky Medicaid Program only
    > lists providers terminated or excluded from the Kentucky Medicaid program.
    > HHS/OIG-excluded individuals and entities are not allowed to receive
-   >reimbursement for providing Kentucky Medicaid services in any capacity,
+   > reimbursement for providing Kentucky Medicaid services in any capacity,
    > even if they are not on the Kentucky Medicaid list.
 publisher:
   name: Kentucky Department for Medicaid Services
@@ -57,9 +61,9 @@ data:
   url: https://www.chfs.ky.gov/agencies/dms/dpi/pe/Documents/KYMedicaidTerminationList.xlsx
   format: XLSX
 ci_test: false
-
 dates:
   formats: ["%m/%d/%Y"]
+
 assertions:
   min:
     schema_entities:
@@ -69,3 +73,12 @@ assertions:
     schema_entities:
       Person: 300
       Company: 150
+
+lookups:
+  period:
+    options:
+      - match:
+        - N/A
+        - NA
+        - "Entity: N/A      Owners: 20 years"
+        - null
