@@ -64,9 +64,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    if (row.get("timeframe_of_term_exclusion")
-         and (row.get("timeframe_of_term_exclusion", "") not in ["N/A", "NA"] and (not row.get("timeframe_of_term_exclusion", "").startswith("Entity: N/A")))):
-        context.log.warning(f"Data found in column Timeframe of Term/Exclusion: {row.get('timeframe_of_term_exclusion')}")
+    if row.get("timeframe_of_term_exclusion") and (
+        row.get("timeframe_of_term_exclusion", "") not in ["N/A", "NA"]
+        and (not row.get("timeframe_of_term_exclusion", "").startswith("Entity: N/A"))
+    ):
+        context.log.warning(
+            f"Data found in column Timeframe of Term/Exclusion: {row.get('timeframe_of_term_exclusion')}"
+        )
 
     context.audit_data(row, ignore=["timeframe_of_term_exclusion"])
 
