@@ -5,6 +5,7 @@ from pprint import pprint
 import re
 from urllib.parse import urlparse
 from normality import collapse_spaces
+from requests import HTTPError
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import OccupancyStatus, categorise
@@ -150,7 +151,14 @@ def crawl_title(context, url, person, el):
 
 
 def crawl_item(url_info_page: str, context: Context):
-    info_page = context.fetch_html(url_info_page, cache_days=1)
+    try:
+        info_page = context.fetch_html(url_info_page, cache_days=1)
+    except HTTPError as e:
+        if e.response.status_code == 503 and context.lookup(
+            "expected_503", url_info_page
+        ):
+            return
+        raise
     info_page.make_links_absolute(url_info_page)
 
     first_name = info_page.findtext(".//span[@itemprop='http://schema.org/givenName']")

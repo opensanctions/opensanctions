@@ -31,7 +31,6 @@ url: "https://www.meineabgeordneten.at/Abgeordnete"
 data:
   url: https://www.meineabgeordneten.at/Abgeordnete?partei=
   format: HTML
-
 dates:
   formats: ["%d. %m %Y", "%d.%m.%Y", "%m/%Y"]
   months:
@@ -47,6 +46,9 @@ dates:
     "10": Oktober
     "11": November
     "12": Dezember
+http:
+  retry_statuses: [413, 429]
+
 assertions:
   min:
     schema_entities:
@@ -71,7 +73,9 @@ lookups:
     options: 
       - match: "?"
         value: null 
-
+  expected_503:
+    options:
+      - match: https://www.meineabgeordneten.at/Abgeordnete/michael.koschat
   position:
     options:
       - match: Mitglied des Bundesrates, ÖVPEingetreten für das am 31.5.2010 ausgeschiedene Mitglied des Bundesrates Dr. Georg Spiegelfeld-Schneeburg.
