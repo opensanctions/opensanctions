@@ -18,10 +18,10 @@ description: |
 publisher:
   name: Missouri Medicaid Audit & Compliance
   description: >
-   > MMAC is responsible for administering and managing Medicaid (Title XIX) audit and compliance
-   > initiatives and managing and administering provider enrollment contracts under the Medicaid
-   > program. MMAC is charged with detecting, investigating and preventing fraud, waste and abuse
-   > of the Medicaid Title XIX, CHIP Title XXI, and waiver programs.
+    > MMAC is responsible for administering and managing Medicaid (Title XIX) audit and compliance
+    > initiatives and managing and administering provider enrollment contracts under the Medicaid
+    > program. MMAC is charged with detecting, investigating and preventing fraud, waste and abuse
+    > of the Medicaid Title XIX, CHIP Title XXI, and waiver programs.
   acronym: MMAC
   url: https://mmac.mo.gov
   official: true
@@ -30,7 +30,7 @@ url: "https://mmac.mo.gov/providers/provider-sanctions/"
 data:
   url: https://mmac.mo.gov/providers/provider-sanctions/
   format: XLSX
-
+ci_test: false
 
 dates:
   formats: ["%m/%d/%Y"]

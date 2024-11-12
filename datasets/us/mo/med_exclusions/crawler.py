@@ -1,9 +1,7 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
-from datetime import datetime
 
-from zavod import Context, helpers as h
+from zavod import Context
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 
@@ -33,4 +31,4 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
+    # wb = load_workbook(path, read_only=True)
