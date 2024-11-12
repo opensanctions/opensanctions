@@ -27,8 +27,7 @@ def parse_comment(context: Context, text: str) -> List[str]:
     m = ADDITION_RE.search(text)
     if m is None:
         return []
-    return h.extract_date(context.dataset, m.group(2))
-    # return h.parse_date(m.group(2), DATE_FORMATS)
+    return [m.group(2)]
 
 
 def crawl_group(context: Context, text: str, change_stack: List[str]):
@@ -87,7 +86,7 @@ def crawl_group(context: Context, text: str, change_stack: List[str]):
             h.apply_name(entity, alias, alias=True)
     sanction = h.make_sanction(context, entity)
     if add_date:
-        sanction.add("startDate", add_date)
+        h.apply_date(sanction, "startDate", add_date[0])
     # For some reason make_sanction uses the top-level URL and
     # publisher.name, which are not exactly accurate.
     sanction.set("authority", "UK Home Secretary")
