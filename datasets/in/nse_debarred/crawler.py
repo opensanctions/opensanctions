@@ -79,7 +79,7 @@ def crawl_item(input_dict: dict, context: Context):
         entity.add("registrationNumber", din_cin.split(" "))
 
     nse_circular_no = input_dict.pop("nse_circular_no")
-    order_date = h.parse_date(input_dict.pop("order_date"), formats=["%Y-%m-%d"])
+    order_date = input_dict.pop("order_date")
     order_particulars = input_dict.pop("order_particulars")
     urls = [
         input_dict.pop("source_url"),
@@ -91,7 +91,7 @@ def crawl_item(input_dict: dict, context: Context):
 
     for debarred in debarreds:
         sanction = h.make_sanction(context, debarred, key=nse_circular_no)
-        sanction.add("date", order_date)
+        h.apply_date(sanction, "date", order_date)
         sanction.add("description", "Order Particulars: " + order_particulars)
         sanction.add("duration", period)
         sanction.add("sourceUrl", urls)
