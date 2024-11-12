@@ -642,6 +642,8 @@ lookups:
           - Johor Sultanate
           - Duchy of Saxony
           - Kingdom of Mewar
+          - Khalji dynasty
+          - Chaldea
         value: null
       - match:
           - Cherokee Nation
@@ -945,6 +947,10 @@ lookups:
           - South African Republic
           - Ciskei
         value: ZA
+      - match: Republic of China (1912–1949)
+        values: 
+          - TW
+          - CN
   type.date:
     options:
       - match:
