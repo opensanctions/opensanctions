@@ -47,7 +47,7 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
     entity.add("topics", "reg.warn")
     entity.add("notes", description)
     entity.add("sourceUrl", source_url)
-    entity.add("createdAt", h.parse_date(date, formats=["%d %M %Y"]))
+    h.apply_date(entity, "createdAt", date)
     context.emit(entity, target=True)
 
 

@@ -37,6 +37,8 @@ assertions:
     schema_entities:
       LegalEntity: 1000
 
+dates: 
+  formats: ["%d %M %Y"]
 lookups:
   names:
     lowercase: true
