@@ -78,7 +78,7 @@ lookups:
   period:
     options:
       - match:
-        - N/A
-        - NA
-        - "Entity: N/A      Owners: 20 years"
-        - null
+          - N/A
+          - NA
+          - "Entity: N/A      Owners: 20 years"
+          - null
