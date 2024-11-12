@@ -36,6 +36,8 @@ data:
   format: HTML
 ci_test: false
 
+dates: 
+  formats: ["%Y年%m月"]
 lookups:
   type.gender:
     options:

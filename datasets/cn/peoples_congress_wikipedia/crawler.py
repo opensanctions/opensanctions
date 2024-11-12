@@ -48,7 +48,7 @@ def crawl_item(
     apply_translit_full_name(context, entity, "chi", name, TRANSLIT_OUTPUT)
     entity.add("gender", gender)
     entity.add("ethnicity", ethnicity, lang="chi")
-    entity.add("birthDate", h.parse_date(birth_date, formats=["%Y年%m月"]))
+    h.apply_date(entity, "birthDate", birth_date)
     party = clean_text(input_dict.pop("party").text_content())
     entity.add("political", party, lang="chi")
 
