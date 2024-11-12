@@ -70,7 +70,6 @@ def crawl_excel_urls(context: Context):
         context.data_url,
         geolocation="US",
         unblock_validator=unblock_validator,
-        cache_days=2,
     )
     return doc.xpath(".//span[text()='MHCP Excluded Group Providers']/..")[0].get(
         "href"
