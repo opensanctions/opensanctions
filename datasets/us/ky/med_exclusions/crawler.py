@@ -10,6 +10,9 @@ REGEX_DBA = re.compile(r"\bdba\b", re.IGNORECASE)
 
 
 def crawl_item(row: Dict[str, str], context: Context):
+    period = row.pop("timeframe_of_term_exclusion")
+    if not context.lookup("period", period):
+        context.log.warning("Unexpected exclusion period", period=period, row=row)
 
     if first_name := row.pop("first_name"):
         entity = context.make("Person")
@@ -64,11 +67,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    if (row.get("timeframe_of_term_exclusion")
-         and (row.get("timeframe_of_term_exclusion", "") not in ["N/A", "NA"] and (not row.get("timeframe_of_term_exclusion", "").startswith("Entity: N/A")))):
-        context.log.warning(f"Data found in column Timeframe of Term/Exclusion: {row.get('timeframe_of_term_exclusion')}")
-
-    context.audit_data(row, ignore=["timeframe_of_term_exclusion"])
+    context.audit_data(row)
 
 
 def crawl(context: Context) -> None:
