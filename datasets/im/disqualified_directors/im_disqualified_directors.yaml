@@ -34,6 +34,8 @@ data:
   url: https://www.iomfsa.im/enforcement/disqualified-directors/
   format: HTML
 
+dates: 
+  formats: ["%d %B %Y", "%d %b %Y"]
 assertions:
   min:
     schema_entities:
