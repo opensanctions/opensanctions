@@ -2,6 +2,11 @@ from typing import Dict, Tuple
 
 from zavod import Context, helpers as h
 
+LINKS = [
+    "https://www.iomfsa.im/enforcement/disqualified-directors/",
+    "https://www.iomfsa.im/enforcement/disqualified-directors/#1",
+]
+
 
 def extract_data(ele):
     data_dict = {}
@@ -38,23 +43,17 @@ def parse_period(period: str) -> Tuple[str, str]:
 def crawl_item(item: Dict[str, str], context: Context):
 
     name = item.pop("Name")
-    if item["Date of Birth"] != "Not known":
-        birth_date = item.pop("Date of Birth")
-    else:
-        birth_date = None
-        item.pop("Date of Birth")
-    if item["Address (at date of disqualification)"] != "Not known":
-        address = item.pop("Address (at date of disqualification)")
-    else:
-        address = None
-        item.pop("Address (at date of disqualification)")
+    birth_date = item.pop("Date of Birth")
+    address = item.pop("Address (at date of disqualification)")
+
     person = context.make("Person")
     person.id = context.make_id(name, birth_date)
     person.add("name", name)
-    person.add("address", address)
-    h.apply_date(person, "birthDate", birth_date)
     person.add("topics", "corp.disqual")
     person.add("country", "im")
+    if address != "Not known":
+        person.add("address", address)
+    h.apply_date(person, "birthDate", birth_date)
 
     sanction = h.make_sanction(context, person)
     sanction.add("duration", item.pop("Period of Disqualification"))
