@@ -1,7 +1,6 @@
 from urllib.parse import urljoin
 
 from zavod import Context
-from zavod import helpers as h
 
 FIELDS = {
     "Sex": "gender",
@@ -16,10 +15,6 @@ FIELDS = {
     "Identifiers": "appearance",
     "State of case": "notes",
 }
-
-
-def parse_date(text):
-    return h.parse_date(text, ["%b %d, %Y", "%B %d, %Y"])
 
 
 def crawl(context: Context):
