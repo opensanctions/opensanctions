@@ -2,11 +2,6 @@ from typing import Dict, Tuple
 
 from zavod import Context, helpers as h
 
-LINKS = [
-    "https://www.iomfsa.im/enforcement/disqualified-directors/",
-    "https://www.iomfsa.im/enforcement/disqualified-directors/#1",
-]
-
 
 def extract_data(ele):
     data_dict = {}
