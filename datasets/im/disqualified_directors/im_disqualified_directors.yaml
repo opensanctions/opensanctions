@@ -33,6 +33,7 @@ url: "https://www.iomfsa.im/enforcement/disqualified-directors/"
 data:
   url: https://www.iomfsa.im/enforcement/disqualified-directors/
   format: HTML
+  lang: eng
 
 dates: 
   formats: ["%d %B %Y", "%d %b %Y"]
