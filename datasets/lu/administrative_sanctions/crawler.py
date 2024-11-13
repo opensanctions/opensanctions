@@ -4,20 +4,6 @@ import re
 from zavod import Context
 from zavod import helpers as h
 
-FRENCH_TO_ENGLISH_MONTHS = {
-    "janvier": "january",
-    "février": "february",
-    "mars": "march",
-    "avril": "april",
-    "mai": "may",
-    "juin": "june",
-    "juillet": "july",
-    "août": "august",
-    "septembre": "september",
-    "octobre": "october",
-    "novembre": "november",
-    "décembre": "december",
-}
 
 SUBTITLE_PATTERN = re.compile(
     r"""
@@ -40,20 +26,11 @@ SUBTITLE_PATTERN = re.compile(
 )
 
 
-def parse_date(date: str) -> str:
-    for french_month in FRENCH_TO_ENGLISH_MONTHS:
-        date = date.replace(french_month, FRENCH_TO_ENGLISH_MONTHS[french_month])
-
-    # Replacing 1er with 1
-    date = date.replace("1er", "1")
-    return h.parse_date(date, ["%d %B %Y"])
-
-
 def crawl_item(card, context: Context):
     # The title is in the format "Sanction administrative du XX XXXX 20XX"
     title = card.find(".//*[@class='library-element__title']")
     detail_url = title.find(".//a").get("href")
-    date = " ".join(title.text_content().strip().split(" ")[-3:])
+    date = " ".join(title.text_content().strip().split(" ")[-3:]).replace("1er", "1")
     subtitle_el = card.find(".//*[@class='library-element__subtitle']")
     subtitle = subtitle_el.text_content().strip()
     stripped_subtitle = SUBTITLE_PATTERN.sub("", subtitle, count=1)
@@ -95,7 +72,7 @@ def crawl_item(card, context: Context):
         entity.add("sourceUrl", subtitle_link.get("href"))
 
     sanction = h.make_sanction(context, entity, title.text_content().strip())
-    sanction.add("date", parse_date(date))
+    h.apply_date(sanction, "date", date)
 
     sanction.add("sourceUrl", detail_url)
     for a in card.xpath(".//a[contains(@class, 'pdf')]"):
