@@ -1,7 +1,7 @@
 import os
 import re
 import requests
-from typing import Any, Dict
+from typing import Dict
 from normality import slugify
 from datetime import timedelta
 from base64 import b64encode
