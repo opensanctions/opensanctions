@@ -230,9 +230,6 @@ config:
     - category: 21st-century_Russian_politicians
       topic: role.pep
       country: ru
-    - category: Political_office-holders_in_Kazakhstan
-      topic: role.pep
-      country: kz
 
     # Myanmar
     - category: Individuals_related_to_Myanmar_sanctions
@@ -807,10 +804,29 @@ config:
     # Subregion: Central Asia 
 
     # country: Uzbekistan
+    - category: Political_office-holders_in_Uzbekistan
+      topic: role.pep
+      country: uz
+
     # country: Kazakhstan
+    - category: Political_office-holders_in_Kazakhstan
+      topic: role.pep
+      country: kz
+    
     # country: Tajikistan
+    - category: Political_office-holders_in_Tajikistan
+      topic: role.pep
+      country: tj
+    
     # country: Turkmenistan
+    - category: Political_office-holders_in_Turkmenistan
+      topic: role.pep
+      country: tm
+
     # country: Kyrgyzstan
+    - category: Political_office-holders_in_Kyrgyzstan
+      topic: role.pep
+      country: kg
 
 
     ############################################################################
