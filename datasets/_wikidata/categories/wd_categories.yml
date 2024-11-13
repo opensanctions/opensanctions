@@ -906,6 +906,49 @@ config:
       topic: role.pep
       country: bn
 
+    # Subregion: Southern Asia
+
+    # country: India
+    # already covered
+
+    # country: Pakistan
+    - category: Political_office-holders_in_Pakistan
+      topic: role.pep
+      country: pk
+
+    # country: Bangladesh
+    - category: Political_office-holders_in_Bangladesh
+      topic: role.pep
+      country: bd
+    
+    # country: Iran
+    - category: Political_office-holders_in_Iran
+      topic: role.pep
+      country: ir
+    
+    # country: Afghanistan
+    - category: Political_office-holders_in_Afghanistan
+      topic: role.pep
+      country: af
+    
+    # country: Nepal
+    # already covered
+
+    # country: Sri Lanka
+    - category: Political_office-holders_in_Sri_Lanka
+      topic: role.pep
+      country: lk
+    
+    # country: Bhutan
+    - category: Political_office-holders_in_Bhutan
+      topic: role.pep
+      country: bt
+
+    # country: Maldives
+    - category: Political_office-holders_in_the_Maldives
+      topic: role.pep
+      country: mv
+
     ############################################################################
     # Russia deep dive based on Russian Wikipedia
     # "Федеральный уровень"  # Federal level
