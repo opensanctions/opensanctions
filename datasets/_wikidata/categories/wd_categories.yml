@@ -803,6 +803,17 @@ config:
       topic: role.pep
 
     ############################################################################
+    # Asia regional coverage 
+    # Subregion: Central Asia 
+
+    # country: Uzbekistan
+    # country: Kazakhstan
+    # country: Tajikistan
+    # country: Turkmenistan
+    # country: Kyrgyzstan
+
+
+    ############################################################################
     # Russia deep dive based on Russian Wikipedia
     # "Федеральный уровень"  # Federal level
     # "Исполнительная власть"  # Executive power
