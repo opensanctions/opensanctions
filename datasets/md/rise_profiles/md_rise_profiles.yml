@@ -28,7 +28,10 @@ url: "https://profiles.rise.md/index.php"
 data:
   url: "https://profiles.rise.md/index.php"
   format: HTML
+  lang: ron
 
+dates: 
+  formats: ["%d.%m.%Y"]
 lookups:
   entity_type:
     normalize: true
