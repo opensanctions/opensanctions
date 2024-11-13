@@ -50,10 +50,6 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction = h.make_sanction(
         context, entity, key=slugify(sanction_type, effective_date)
     )
-    # sanction.add(
-    #     "startDate",
-    #     h.parse_date(effective_date, formats=["%Y-%m-%d", "%m/%d/%Y"]),
-    # )
     h.apply_date(sanction, "startDate", effective_date)
     sanction.add("reason", row.pop("authority"))
     sanction.add("description", sanction_type)
@@ -67,13 +63,6 @@ def crawl_item(row: Dict[str, str], context: Context):
             datetime.strptime(row.get("sanction_end_date"), "%Y-%m-%d")
             >= datetime.today()
         )
-
-        # sanction.add(
-        #     "endDate",
-        #     h.parse_date(
-        #         row.pop("sanction_end_date"), formats=["%Y-%m-%d", "%m/%d/%Y"]
-        #     ),
-        # )
         h.apply_date(sanction, "endDate", row.pop("sanction_end_date"))
 
     else:
