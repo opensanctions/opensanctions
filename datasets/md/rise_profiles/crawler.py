@@ -82,10 +82,9 @@ def make_person(
 
     person.add("sourceUrl", url)
     person.add("name", name)
-    person.add("position", position, lang="ron")
-    # person.add("birthDate", birth_date)
+    person.add("position", position)
     h.apply_date(person, "birthDate", birth_date)
-    person.add("birthPlace", attributes.pop("locul-nasterii", None), lang="ron")
+    person.add("birthPlace", attributes.pop("locul-nasterii", None))
     person.add("citizenship", attributes.pop("cetatenie", "").split(","))
 
     if attributes:
@@ -108,7 +107,6 @@ def make_company(context: Context, url: str, name: str, attributes: dict):
     company.add("registrationNumber", regno)
     company.add("sourceUrl", url)
     company.add("mainCountry", attributes.pop("tara", "").split(",")[0])
-    # company.add("incorporationDate", founded)
     h.apply_date(company, "incorporationDate", founded)
 
     if attributes:
@@ -134,7 +132,6 @@ def make_legal_entity(context: Context, url: str, name: str, attributes: dict):
         founded = attributes.pop("data-fondarii")
         identification.append(founded)
         h.apply_date(entity, "incorporationDate", founded)
-        # entity.add("incorporationDate", founded)
 
     entity.add("mainCountry", attributes.pop("tara", "").split(",")[0])
 
@@ -151,22 +148,6 @@ def make_legal_entity(context: Context, url: str, name: str, attributes: dict):
     if "data-nasterii" in attributes:
         entity.add_schema("Person")
         h.apply_date(entity, "birthDate", attributes.pop("data-nasterii"))
-    if "locul-nasterii" in attributes:
-        entity.add_cast("Person", "birthPlace", attributes.pop("locul-nasterii"))
-    if "cetatenie" in attributes:
-        entity.add_cast("Person", "citizenship", attributes.pop("cetatenie"))
-    if "administrator" in attributes:
-        director = context.make("Person")
-        dir_name = attributes.pop("administrator")
-        director.id = context.make_id(dir_name)
-        director.add("name", dir_name)
-        context.emit(director)
-
-        directorship = context.make("Directorship")
-        directorship.id = context.make_id(director.id, entity.id)
-        directorship.add("director", director)
-        directorship.add("organization", entity)
-        context.emit(directorship)
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
     return entity
@@ -195,7 +176,7 @@ def make_relation(context, source, description, dest_name, dest_url):
     relation.id = context.make_id(dest.id, "related to", source.id)
     relation.add(source_key, source.id)
     relation.add(dest_key, dest.id)
-    relation.add(description_key, description, lang="ron")
+    relation.add(description_key, description)
     context.emit(relation)
 
 
