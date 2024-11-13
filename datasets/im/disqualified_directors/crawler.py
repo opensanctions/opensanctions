@@ -42,7 +42,7 @@ def crawl_item(item: Dict[str, str], context: Context):
     address = item.pop("Address (at date of disqualification)")
 
     person = context.make("Person")
-    person.id = context.make_id(name, birth_date)
+    person.id = context.make_id(name, birth_date, address)
     person.add("name", name)
     person.add("topics", "corp.disqual")
     person.add("country", "im")
