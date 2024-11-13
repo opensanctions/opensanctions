@@ -4,7 +4,7 @@ proscribed terrorist groups and organizations.
 """
 
 import re
-from typing import List
+from typing import List, Optional
 
 from zavod import Context
 from zavod import helpers as h
@@ -19,15 +19,15 @@ ALIAS_RE = re.compile(r"\s+\(([^)]+)\)")
 JUNK = " ,.;\t\r\n"
 
 
-def parse_comment(context: Context, text: str) -> List[str]:
+def parse_comment(context: Context, text: str) -> Optional[str | None]:
     """
     Parse stack of  commentary from the act looking for the most
     recent date when groups were added.
     """
     m = ADDITION_RE.search(text)
     if m is None:
-        return []
-    return [m.group(2)]
+        return None
+    return m.group(2)
 
 
 def crawl_group(context: Context, text: str, change_stack: List[str]):
@@ -37,7 +37,7 @@ def crawl_group(context: Context, text: str, change_stack: List[str]):
     text = text.strip(JUNK)
     if not text:
         return
-    add_date = []
+    add_date = None
     for item in change_stack:
         add_date = parse_comment(context, item)
         if add_date:
@@ -86,7 +86,7 @@ def crawl_group(context: Context, text: str, change_stack: List[str]):
             h.apply_name(entity, alias, alias=True)
     sanction = h.make_sanction(context, entity)
     if add_date:
-        h.apply_date(sanction, "startDate", add_date[0])
+        h.apply_date(sanction, "startDate", add_date)
     # For some reason make_sanction uses the top-level URL and
     # publisher.name, which are not exactly accurate.
     sanction.set("authority", "UK Home Secretary")
