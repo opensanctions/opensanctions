@@ -15,8 +15,8 @@ IGNORE = [
 ]
 
 
-def parse_date(date):
-    return h.parse_date(date, ["%m/%d/%Y"])
+# def parse_date(date):
+#     return h.parse_date(date, ["%m/%d/%Y"])
 
 
 def crawl(context: Context):
@@ -71,7 +71,7 @@ def crawl(context: Context):
         sanction = h.make_sanction(
             context, entity, key=(docket_number, sorted(doc_numbers))
         )
-        sanction.add("startDate", parse_date(record.pop("StartDate")))
+        h.apply_date(sanction, "startDate", record.pop("StartDate"))
         # sanction.add("endDate", record.pop("TerminationDate", None))
         sanction.add("program", record.pop("EnforcementTypeDescription", None))
         sanction.add("authorityId", docket_number)
