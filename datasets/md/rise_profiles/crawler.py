@@ -89,7 +89,7 @@ def make_person(
     person.add("position", position, lang="ron")
     person.add("birthDate", birth_date)
     person.add("birthPlace", attributes.pop("locul-nasterii", None), lang="ron")
-    person.add("nationality", attributes.pop("cetatenie", "").split(","))
+    person.add("citizenship", attributes.pop("cetatenie", "").split(","))
 
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
