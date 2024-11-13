@@ -851,6 +851,61 @@ config:
       topic: role.pep
       country: mn
 
+    # Subregion: South-Eastern Asia
+
+    # country: Indonesia
+    - category: Political_office-holders_in_Indonesia
+      topic: role.pep
+      country: id
+
+    # country: Philippines
+    - category: Political_office-holders_in_the_Philippines
+      topic: role.pep
+      country: ph
+
+    # country: Vietnam
+    - category: Political_office-holders_in_Vietnam
+      topic: role.pep
+      country: vn
+    
+    # country: Thailand
+    - category: Political_office-holders_in_Thailand
+      topic: role.pep
+      country: th
+
+    # country: Myanmar
+    # already covered
+
+    # country: Malaysia
+    - category: Political_office-holders_in_Malaysia
+      topic: role.pep
+      country: my
+    
+    # country: Cambodia
+    - category: Political_office-holders_in_Cambodia
+      topic: role.pep
+      country: kh
+    
+    # country: Laos
+    - category: Political_office-holders_in_Laos
+      topic: role.pep
+      country: la
+    
+    # country: Singapore
+    - category: Political_office-holders_in_Singapore
+      topic: role.pep
+      country: sg
+    
+    # country: Timor-Leste
+    - category: Political_office-holders_in_East_Timor
+      topic: role.pep
+      country: tl
+    
+    # country: Brunei
+    - category: Political_office-holders_in_Brunei
+      topic: role.pep
+      country: bn
+
     ############################################################################
     # Russia deep dive based on Russian Wikipedia
     # "Федеральный уровень"  # Federal level
