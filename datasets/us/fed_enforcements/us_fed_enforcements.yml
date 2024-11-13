@@ -35,8 +35,6 @@ data:
   format: CSV
   lang: eng
 
-dates: 
-  formats: ["%Y-%m-%d"]
 lookups:
   type.country:
     options:
