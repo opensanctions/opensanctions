@@ -29,7 +29,7 @@ data:
   lang: eng
 
 dates: 
-  formats: ["%Y-%m-%d", "%B %d, %Y"]
+  formats: ["%B %d, %Y"]
 assertions:
   min:
     schema_entities:
