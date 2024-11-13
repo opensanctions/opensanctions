@@ -15,10 +15,6 @@ IGNORE = [
 ]
 
 
-# def parse_date(date):
-#     return h.parse_date(date, ["%m/%d/%Y"])
-
-
 def crawl(context: Context):
     path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
