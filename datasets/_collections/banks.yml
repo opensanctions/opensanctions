@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
 deploy:
   memory: "1500Mi"
+ci_test: false
 summary: >
   Reference data on banks and financial services companies
 description: |
