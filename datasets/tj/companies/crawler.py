@@ -210,16 +210,11 @@ def crawl_page(
         values = [cell.text.strip() for cell in cells]
         item = dict(zip(headers, values))
 
-        item["date_of_reg"] = h.parse_date(
-            item["date_of_reg"],
-            ["%d.%m.%Y"],
-        )[0]
-
         entity = context.make(entity_type)
         entity.id = context.make_id(f"TJ{entity_type}", item["ein"], item["inn"])
         entity.add("name", item["name"], lang="tgk")
-        entity.add("incorporationDate", item["date_of_reg"])
-        entity.add("status", item["status"], lang="rus")
+        h.apply_date(entity, "incorporationDate", item["date_of_reg"])
+        entity.add("status", item["status"])
         entity.add("country", "tj")
 
         # https://andoz.tj/docs/postanovleniya-pravitelstvo/Resolution__№323_ru.pdf
