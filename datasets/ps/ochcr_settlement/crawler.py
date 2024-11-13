@@ -8,6 +8,7 @@ from typing import Dict, Iterable
 import zavod.helpers as h
 from zavod import Context
 
+
 def crawl_row(context: Context, row: Dict[str, str]):
     """Process one row of the CSV data"""
     row_id = row.pop("ID").strip(" \t.")
