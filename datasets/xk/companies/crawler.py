@@ -74,20 +74,6 @@ def norm_capital(context: Context, string: str) -> Dict[str, str]:
     return capital
 
 
-def parse_date(text: str) -> Any:
-    """
-    Parse a date from a string.
-    """
-    return h.parse_date(
-        text,
-        [
-            # 4/29/2014 12:00:00 AM
-            "%m/%d/%Y %I:%M:%S %p",
-            "%m/%d/%Y %H:%M:%S",
-        ],
-    )
-
-
 def roughly_valid_regno(regno: str) -> bool:
     return bool(REGEX_ROUGHLY_VALID_REGNO.match(regno))
 
@@ -171,12 +157,10 @@ def fetch_company(context: Context, company_id: int) -> int:
             entity.add("status", status_sqi, lang="sqi")
 
         if company.get("DataRegjistrimit"):
-            entity.add("incorporationDate", parse_date(company.pop("DataRegjistrimit")))
+            h.apply_date(entity, "incorporationDate", company.pop("DataRegjistrimit"))
 
         if company.get("DataShuarjesBiznesit"):
-            entity.add(
-                "dissolutionDate", parse_date(company.pop("DataShuarjesBiznesit"))
-            )
+            h.apply_date(entity, "dissolutionDate", company.pop("DataShuarjesBiznesit"))
 
         if company.get("Kapitali"):
             capital = norm_capital(context, company.pop("Kapitali"))

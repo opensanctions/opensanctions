@@ -33,12 +33,15 @@ publisher:
 data:
   url: https://arbk.rks-gov.net/TableSearch
   format: JSON
+  lang: eng
 ci_test: false
 http:
   total_retries: 5
   backoff_factor: 3
   retry_statuses: [503, 429, 403]
 
+dates: 
+  formats: ["%m/%d/%Y %I:%M:%S %p", "%m/%d/%Y %H:%M:%S"]
 lookups:
   company_type:
     map:
