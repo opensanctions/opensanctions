@@ -828,6 +828,28 @@ config:
       topic: role.pep
       country: kg
 
+    # Subregion: Eastern Asia
+
+    # country: China
+    # already covered
+
+    # country: Japan
+    - category: Political_office-holders_in_Japan
+      topic: role.pep
+      country: jp
+    
+    # country: South Korea
+    - category: Political_office-holders_in_South_Korea
+      topic: role.pep
+      country: kr
+
+    # country: North Korea
+    # already covered
+
+    # country: Mongolia
+    - category: Political_office-holders_in_Mongolia
+      topic: role.pep
+      country: mn
 
     ############################################################################
     # Russia deep dive based on Russian Wikipedia
