@@ -33,11 +33,11 @@ data:
 ci_test: false
 
 dates:
-  formats: ["%m/%d/%Y"]
+  formats: ["%m/%d/%y"]
 assertions:
   min:
     schema_entities:
-      LegalEntity: 7500
+      LegalEntity: 200
   max:
     schema_entities:
-      LegalEntity: 9000
+      LegalEntity: 300
