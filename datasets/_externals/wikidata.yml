@@ -645,6 +645,16 @@ lookups:
           - Khalji dynasty
           - Chaldea
           - Republic of China (1912–1949)
+          - Zhao
+          - Ancient Thessaly
+          - Paeonia
+          - Catalan Countries
+          - Hispanic Monarchy
+          - Habsburg Spain
+          - Transleithania
+          - Archduchy of Austria
+          - Cape Colony
+          - Electorate of Mainz
         value: null
       - match:
           - Cherokee Nation
@@ -675,7 +685,7 @@ lookups:
         value: CY
       - match: Socialist Republic of Romania
         value: RO
-      - match: 
+      - match:
           - People's Socialist Republic of Albania
           - Independent Albania
           - Principality of Albania
@@ -711,7 +721,9 @@ lookups:
           - Dutch Republic
           - Northern Netherlands
         value: NL
-      - match: Kingdom of Ireland
+      - match:
+          - Kingdom of Ireland
+          - Lordship of Ireland
         value: IE
       - match: Colony of New Zealand
         value: NZ
@@ -957,6 +969,8 @@ lookups:
         value: null
       - match: "1949-02-29"
         value: 1949-02
+      - match: "1821-02-29"
+        value: 1821-02
       - match: "1930-02-30"
         value: 1930-02
       - match: "1935-06-31"
