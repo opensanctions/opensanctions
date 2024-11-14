@@ -50,7 +50,7 @@ def crawl_item(item, context: Context):
     ruling_information = item.pop("Court information")
 
     entity = context.make("Company")
-    entity.id = context.make_slug(domain)
+    entity.id = context.make_id(name)
 
     names = []
     #                               They differ. Really.
