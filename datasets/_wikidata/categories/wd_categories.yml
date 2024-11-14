@@ -230,9 +230,6 @@ config:
     - category: 21st-century_Russian_politicians
       topic: role.pep
       country: ru
-    - category: Political_office-holders_in_Kazakhstan
-      topic: role.pep
-      country: kz
 
     # Myanmar
     - category: Individuals_related_to_Myanmar_sanctions
@@ -801,6 +798,156 @@ config:
     - category: Political_office-holders_in_the_Faroe_Islands
       country: fo
       topic: role.pep
+
+    ############################################################################
+    # Asia regional coverage 
+    # Subregion: Central Asia 
+
+    # country: Uzbekistan
+    - category: Political_office-holders_in_Uzbekistan
+      topic: role.pep
+      country: uz
+
+    # country: Kazakhstan
+    - category: Political_office-holders_in_Kazakhstan
+      topic: role.pep
+      country: kz
+    
+    # country: Tajikistan
+    - category: Political_office-holders_in_Tajikistan
+      topic: role.pep
+      country: tj
+    
+    # country: Turkmenistan
+    - category: Political_office-holders_in_Turkmenistan
+      topic: role.pep
+      country: tm
+
+    # country: Kyrgyzstan
+    - category: Political_office-holders_in_Kyrgyzstan
+      topic: role.pep
+      country: kg
+
+    # Subregion: Eastern Asia
+
+    # country: China
+    # already covered
+
+    # country: Japan
+    - category: Political_office-holders_in_Japan
+      topic: role.pep
+      country: jp
+    
+    # country: South Korea
+    - category: Political_office-holders_in_South_Korea
+      topic: role.pep
+      country: kr
+
+    # country: North Korea
+    # already covered
+
+    # country: Mongolia
+    - category: Political_office-holders_in_Mongolia
+      topic: role.pep
+      country: mn
+
+    # Subregion: South-Eastern Asia
+
+    # country: Indonesia
+    - category: Political_office-holders_in_Indonesia
+      topic: role.pep
+      country: id
+
+    # country: Philippines
+    - category: Political_office-holders_in_the_Philippines
+      topic: role.pep
+      country: ph
+
+    # country: Vietnam
+    - category: Political_office-holders_in_Vietnam
+      topic: role.pep
+      country: vn
+    
+    # country: Thailand
+    - category: Political_office-holders_in_Thailand
+      topic: role.pep
+      country: th
+
+    # country: Myanmar
+    # already covered
+
+    # country: Malaysia
+    - category: Political_office-holders_in_Malaysia
+      topic: role.pep
+      country: my
+    
+    # country: Cambodia
+    - category: Political_office-holders_in_Cambodia
+      topic: role.pep
+      country: kh
+    
+    # country: Laos
+    - category: Political_office-holders_in_Laos
+      topic: role.pep
+      country: la
+    
+    # country: Singapore
+    - category: Political_office-holders_in_Singapore
+      topic: role.pep
+      country: sg
+    
+    # country: Timor-Leste
+    - category: Political_office-holders_in_East_Timor
+      topic: role.pep
+      country: tl
+    
+    # country: Brunei
+    - category: Political_office-holders_in_Brunei
+      topic: role.pep
+      country: bn
+
+    # Subregion: Southern Asia
+
+    # country: India
+    # already covered
+
+    # country: Pakistan
+    - category: Political_office-holders_in_Pakistan
+      topic: role.pep
+      country: pk
+
+    # country: Bangladesh
+    - category: Political_office-holders_in_Bangladesh
+      topic: role.pep
+      country: bd
+    
+    # country: Iran
+    - category: Political_office-holders_in_Iran
+      topic: role.pep
+      country: ir
+    
+    # country: Afghanistan
+    - category: Political_office-holders_in_Afghanistan
+      topic: role.pep
+      country: af
+    
+    # country: Nepal
+    # already covered
+
+    # country: Sri Lanka
+    - category: Political_office-holders_in_Sri_Lanka
+      topic: role.pep
+      country: lk
+    
+    # country: Bhutan
+    - category: Political_office-holders_in_Bhutan
+      topic: role.pep
+      country: bt
+
+    # country: Maldives
+    - category: Political_office-holders_in_the_Maldives
+      topic: role.pep
+      country: mv
 
     ############################################################################
     # Russia deep dive based on Russian Wikipedia
