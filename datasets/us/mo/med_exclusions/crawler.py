@@ -20,20 +20,21 @@ def crawl_item(row: Dict[str, str], context: Context):
         row.pop("npi")
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("prov_type_specialty"))
-    if row.get("license") != "N/A":
-        entity.add("idNumber", row.pop("license"))
+    if row.get("license") and row.get("license") != "N/A":
+        entity.add("description", "License number: " + row.pop("license"))
     else:
         row.pop("license")
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("term_date"))
+    h.apply_date(sanction, "date", row.pop("letter_date"))
     sanction.add("reason", row.pop("termination_reason"))
 
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    context.audit_data(row, ignore=["letter_date"])
+    context.audit_data(row)
 
 
 def unblock_validator(doc) -> bool:
