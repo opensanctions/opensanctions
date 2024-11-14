@@ -212,9 +212,19 @@ def crawl(context: Context):
         wb = load_workbook(path, read_only=True)
 
         # Crawl old PEP list
-        for item in parse_old_pep(wb["Tidligere PEP'ere"]):
+        old_sheet = (
+            "Tidligere PEP'ere"
+            if "Tidligere PEP'ere" in wb.sheetnames
+            else "Tidligere PEP'er"
+        )
+        for item in parse_old_pep(wb[old_sheet]):
             crawl_old_pep_item(context, country, lang, item)
 
+        new_sheet = (
+            "Nuværende PEP'ere"
+            if "Nuværende PEP'ere" in wb.sheetnames
+            else "Nuværende PEP'er"
+        )
         # Crawl current PEP list
-        for item in parse_current_pep(wb["Nuværende PEP'ere"], context):
+        for item in parse_current_pep(wb[new_sheet], context):
             crawl_current_pep_item(context, country, lang, item)
