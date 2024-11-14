@@ -166,7 +166,9 @@ def crawl(context: Context):
             # get raw ref
             raw_ref = row.get("reference")
             if raw_ref is None:
-                context.log.warning("No reference", row=row)
+                row_values = set(row.values())
+                if row_values != {None}:
+                    context.log.warning("No reference", row=row)
                 continue
             raw_ref = str(raw_ref)
             # get clean ref

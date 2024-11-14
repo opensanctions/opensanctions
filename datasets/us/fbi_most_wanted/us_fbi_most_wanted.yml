@@ -37,7 +37,7 @@ data:
   format: HTML
   lang: eng
 
-dates: 
+dates:
   formats: ["%B %d, %Y", "%d/%m/%Y"]
 lookups:
   type.country:
@@ -74,5 +74,18 @@ lookups:
     lowercase: true
     options:
       - match:
+          - Circa 1973 - 1980
           - unknown
         value: null
+      - match: Approximately 1965
+        value: 1965
+      - match: Approximately 1960
+        value: 1960
+      - match: Approximately 1970 to 1971
+        values:
+          - 1970
+          - 1971
+      - match: October 1, 2002 (true)
+        value: 2002-10-01
+      - match: August 1, 1996 (fictitious)
+        value: 1996-08-01
