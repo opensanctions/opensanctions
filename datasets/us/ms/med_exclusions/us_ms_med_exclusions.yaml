@@ -34,7 +34,10 @@ url: "https://medicaid.ms.gov/providers/provider-terminations/"
 data:
   url: https://medicaid.ms.gov/providers/provider-terminations/
   format: HTML
+  lang: eng
 
+dates: 
+  formats: ["%m.%d.%y", "%B %d, %Y", "%B %d,%Y", "%m/%d/%Y"]
 assertions:
   min:
     schema_entities:
