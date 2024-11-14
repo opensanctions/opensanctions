@@ -57,7 +57,7 @@ def crawl_item(row: Dict[str, str], context: Context):
             if len(names) != 1:
                 context.log.warning("More names than expected", raw_facility_name)
 
-        company = context.make("LegalEntity")
+        company = context.make("LegalEntity")  # Sometimes the person's name.
         company.id = context.make_id(facility_name, zip_code)
         company.add("name", facility_name)
         company.add("country", "us")
