@@ -28,6 +28,7 @@ url: "https://www.sec.gov.ph/investors-education-and-information/advisories/#gsc
 data:
   url: https://www.sec.gov.ph/investors-education-and-information/advisories/#gsc.tab=0
   format: HTML
+  lang: eng
 
 assertions:
   min:
@@ -37,6 +38,8 @@ assertions:
     schema_entities:
       LegalEntity: 1000
 
+dates:
+  formats: ["%d %B %Y"]
 lookups:
   names:
     lowercase: true
