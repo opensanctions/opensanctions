@@ -1031,6 +1031,22 @@ config:
     # country: Cyprus
     # already covered
 
+    # other territories
+    # Taiwan
+    - category: Political_office-holders_in_Taiwan
+      topic: role.pep
+      country: tw
+
+    # Hong Kong
+    - category: Political_office-holders_in_Hong_Kong
+      topic: role.pep
+      country: hk
+    
+    # Macau
+    - category: Political_office-holders_in_Macau
+      topic: role.pep
+      country: mo
+
     ############################################################################
     # Russia deep dive based on Russian Wikipedia
     # "Федеральный уровень"  # Federal level
