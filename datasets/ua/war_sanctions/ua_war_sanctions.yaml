@@ -1,0 +1,39 @@
+title: War and Sanctions
+entry_point: crawler.py
+prefix: ua-war-sanctions
+coverage:
+  frequency: daily
+  start: 2024-11-15
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Sponsors and accomplices of Russian armed aggression against Ukraine.
+description: |
+  The War and Sanctions website provides detailed information on ongoing sanctions targeting 
+  Russia and its allies, alongside profiles of individuals and entities that actively support 
+  the war against Ukraine but remain unsanctioned by Western nations. The dataset is 
+  categorized into the following sections:
+
+  **Child Kidnappers**: Individuals and entities involved in the deportation of Ukrainian 
+  children.
+
+  **Champions of Terror**: Athletes whom Russia uses to propagate its agenda.
+  
+  **Marine and Aircraft Assets**: Airports, ports, and vessels involved in the transportation 
+  of weapons, stolen Ukrainian goods, and sanctions circumvention efforts.
+
+publisher:
+  name: Defence Intelligence of Ukraine
+  acronym: DIU
+  description: >
+    The Defence Intelligence of Ukraine is the main intelligence agency of the 
+    Ministry of Defence of Ukraine. It protects the national interests of Ukraine, 
+    counter the threats to national security, and provides intelligence support to
+    the country's leadership and the Armed Forces of Ukraine. 
+    [Source: Official Website](https://gur.gov.ua/en/content/directions.html)
+  url: https://gur.gov.ua/en.html
+  country: ua
+  official: true
+url: https://war-sanctions.gur.gov.ua/en
+data:
+  url: https://war-sanctions.gur.gov.ua/en/kidnappers/persons
+  format: HTML
