@@ -1,10 +1,49 @@
-from zavod import Context
+from zavod import Context, helpers as h
 
 
 # LINKS = [
 #     f"https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",  # CHILD KIDNAPPERS Persons
 #     f"https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12s",  # CHILD KIDNAPPERS Legal Entities
 # ]
+
+
+def crawl_item(context: Context, data, link):
+    names = data.pop("Name")
+    positions = data.pop("Position", None)
+
+    person = context.make("Person")
+    person.id = context.make_id(names, positions)
+    for name in h.multi_split(names, [" | "]):
+        person.add("name", name)
+    person.add("citizenship", data.pop("Citizenship", None))
+    person.add("taxNumber", data.pop("Tax Number", None))
+    person.add("sourceUrl", data.pop("Links", None).split(" | "))
+    dob_pob = data.pop("Date and place of birth", None)
+    if dob_pob:
+        dp_parts = dob_pob.split(" | ")
+        # If we get more than one part, unpack it into dob and pob
+        if len(dp_parts) == 2:
+            dob, pob = dp_parts
+            h.apply_date(person, "birthDate", dob)
+            person.add("birthPlace", pob)
+        elif len(dp_parts) == 1:
+            # If there’s only one part, we assume it's just the dob
+            dob = dp_parts[0]
+            h.apply_date(person, "birthDate", dob)
+    if positions:
+        pos_parts = positions.split(" / ")
+        for position in pos_parts:
+            person.add("position", position)
+    person.add("topics", "sanction")
+    person.add("topics", "crime.war")
+
+    sanction = h.make_sanction(context, person)
+    sanction.add("reason", data.pop("Reasons", None))
+    sanction.add("sourceUrl", link)
+
+    context.emit(person, target=True)
+    context.emit(sanction)
+    context.audit_data(data)
 
 
 def crawl(context: Context):
@@ -34,13 +73,22 @@ def crawl(context: Context):
                         value_elem = row.find(
                             ".//div[@class='col-12 col-md-8 col-lg-10']"
                         )
-
+                        if value_elem is None:
+                            value_elem = row.find(
+                                ".//div[@class='js_visibility_target col-12 col-md-8 col-lg-10']"
+                            )
                         if label_elem is not None and value_elem is not None:
                             label = label_elem.text_content().strip().replace("\n", " ")
                             value = value_elem.text_content().strip().replace("\n", " ")
-                            # Handle line breaks (`<br>`) in the value
-                            value = " | ".join(value_elem.itertext()).strip()
-                            data[label] = value
+                            value = " ".join(value.split())
+                            value = " | ".join(
+                                [
+                                    text.strip()
+                                    for text in value_elem.itertext()
+                                    if text.strip()
+                                ]
+                            ).strip()
 
-                            # Output or process the extracted data
+                            data[label] = value
                     print(f"Extracted Data for {href}:\n{data}\n")
+                    crawl_item(context, data, link)

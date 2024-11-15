@@ -37,3 +37,12 @@ url: https://war-sanctions.gur.gov.ua/en
 data:
   url: https://war-sanctions.gur.gov.ua/en/kidnappers/persons
   format: HTML
+
+dates: 
+  formats: ["%d.%m.%Y"]
+
+lookups: 
+  type.date: 
+    options: 
+      - match: 07.04.
+        value: null
