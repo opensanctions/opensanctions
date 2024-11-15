@@ -53,28 +53,24 @@ http:
     - POST
 
 inputs:
-  # Warning: cannot include wd_peps here otherwise it gets too recursive
   - sanctions
   - peps
-  - eu_meps
   - kp_rusi_reports
   - wd_peps
   - wd_oligarchs
   - wd_curated
   - wd_categories
   - wanted
-  # - ru_rupep
   - ru_navalny35
   - ru_myrotvorets_wagner
   - ru_billionaires_2021
   - ru_acf_bribetakers
   - sy_obsalytics_opensyr
+  - thesentry_atlas
   - md_rise_profiles
-  - eu_cor_members
-  - everypolitician
-  - us_cia_world_leaders
-  - us_cia_world_factbook
-  - us_congress
+  - us_fbi_most_wanted
+  - us_klepto_hr_visa
+  - us_plum_book
 
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
