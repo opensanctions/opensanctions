@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-medar
 coverage:
   frequency: daily
-  start: "2024-11-09"
+  start: "2024-11-15"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   This dataset contains a list of providers who have been excluded from Arkansas's Medicaid program.
@@ -25,9 +25,6 @@ description: |
   > services to any clients. Medical providers are liable for all fees paid to them by Arkansas
   > Medicaid for services rendered by excluded individuals and are subject to audits and recoupment
   > of any Medicaid funds paid for services.
-  >
-  > Medical providers are responsible for checking this list as well as the federal list (located
-  > [here](https://exclusions.oig.hhs.gov/)) upon hiring and periodically thereafter.
 publisher:
   name: Arkansas Department of Human Services
   description: |

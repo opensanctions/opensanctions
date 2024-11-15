@@ -83,9 +83,11 @@ def crawl_organization(row: Dict[str, str], context: Context):
         state=row.pop("state"),
         city=row.pop("city"),
         postal_code=row.pop("zip_code"),
+        country_code="us",
     )
 
     h.apply_address(context, entity, address)
+    h.copy_address(entity, address)
 
     if row.get("npi"):
         npis = h.multi_split(row.pop("npi"), ["N/A", "n/a", "/", "\n", " "])
