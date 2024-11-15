@@ -949,6 +949,88 @@ config:
       topic: role.pep
       country: mv
 
+    # Subregion: Western Asia
+
+    # country: Turkey
+    # already covered
+
+    # country: Iraq
+    - category: Political_office-holders_in_Iraq
+      topic: role.pep
+      country: iq
+
+    # country: Yemen
+    - category: Political_office-holders_in_Yemen
+      topic: role.pep
+      country: ye
+    
+    # country: Saudi Arabia
+    - category: Political_office-holders_in_Saudi_Arabia
+      topic: role.pep
+      country: sa
+    
+    # country: Syria
+    - category: Political_office-holders_in_Syria
+      topic: role.pep
+      country: sy
+
+    # country: Jordan
+    - category: Political_office-holders_in_Jordan
+      topic: role.pep
+      country: jo
+    
+    # country: United Arab Emirates
+    # already covered
+
+    # country: Azerbaijan
+    # already covered
+
+    # country: Israel
+    - category: Political_office-holders_in_Israel
+      topic: role.pep
+      country: il
+    
+    # country: Lebanon
+    - category: Political_office-holders_in_Lebanon
+      topic: role.pep
+      country: lb
+    
+    # country: State of Palestine
+    - category: Political_office-holders_in_the_State_of_Palestine
+      topic: role.pep
+      country: ps
+    
+    # country: Oman
+    - category: Political_office-holders_in_Oman
+      topic: role.pep
+      country: om
+      
+    # country: Kuwait
+    - category: Political_office-holders_in_Kuwait
+      topic: role.pep
+      country: kw
+
+    # country: Georgia
+    - category: Political_office-holders_in_Georgia_(country)
+      topic: role.pep
+      country: ge
+    
+    # country: Qatar
+    - category: Political_office-holders_in_Qatar
+      topic: role.pep
+      country: qa
+    
+    # country: Armenia
+    - category: Political_office-holders_in_Armenia
+      topic: role.pep
+      country: am
+    
+    # country: Bahrain
+    # already covered
+    
+    # country: Cyprus
+    # already covered
+
     ############################################################################
     # Russia deep dive based on Russian Wikipedia
     # "Федеральный уровень"  # Federal level
