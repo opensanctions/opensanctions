@@ -1,9 +1,15 @@
 from zavod import Context, helpers as h
 
 
-# LINKS = [
-#     f"https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",  # CHILD KIDNAPPERS Persons
-#     f"https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12s",  # CHILD KIDNAPPERS Legal Entities
+# LINKS_PERSONS = [
+#     # child kidnappers
+#     f"https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
+#     # russian athletes
+#     f"https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
+# ]
+
+# LINKS_COMPANIES = [
+#     f"https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12s",  # child kidnappers
 # ]
 
 
@@ -46,49 +52,99 @@ def crawl_item(context: Context, data, link):
     context.audit_data(data)
 
 
-def crawl(context: Context):
-    index_page = context.fetch_html(context.data_url, cache_days=3)
+def crawl(context):
+    # Define the base URLs for both child kidnappers and Russian athletes
+    LINKS_PERSONS = [
+        # child kidnappers
+        "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
+        # russian athletes
+        "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
+    ]
 
-    main_grid = index_page.find('.//div[@id="main-grid"]')
-    if main_grid is not None:
-        for a in main_grid.findall(".//a"):
-            href = [a.get("href")]
-            for link in href:
-                if link.startswith("https:"):
-                    detail_page = context.fetch_html(link, cache_days=3)
+    for base_url in LINKS_PERSONS:
+        page = 1
+        unique_links = set()
 
-                    details_container = detail_page.find(
-                        ".//div[@id='js_visibility'][@class='col-12 col-lg-9']"
-                    )
-                    if details_container is None:
-                        context.log.warning(
-                            f"Could not find details container on {link}"
-                        )
-                        continue
-                    data = {}
-                    for row in details_container.findall(".//div[@class='row']"):
-                        label_elem = row.find(
-                            ".//div[@class='col-12 col-md-4 col-lg-2 yellow']"
-                        )
-                        value_elem = row.find(
-                            ".//div[@class='col-12 col-md-8 col-lg-10']"
-                        )
-                        if value_elem is None:
-                            value_elem = row.find(
-                                ".//div[@class='js_visibility_target col-12 col-md-8 col-lg-10']"
+        while True:
+            # Build the URL for the current page
+            url = base_url.format(page=page)
+            print(f"Fetching {url}...")
+
+            # Fetch the HTML content for the current page
+            index_page = context.fetch_html(url, cache_days=3)
+            unique_links.add(url)
+
+            # Attempt to extract "pagination" element
+            pagination = index_page.find(".//ul[@class='pagination']")
+            if pagination is None:
+                context.log.warning("Could not find pagination element")
+                break
+
+            # Find the "next" link (if it exists)
+            next_page_elem = pagination.find(".//li[@class='next']/a")
+            if next_page_elem is None:
+                print("No next page found, exiting the loop.")
+                break  # Exit loop if no next page is found
+
+            # Get the URL for the next page
+            next_page_url = next_page_elem.get("href")
+            if next_page_url in unique_links:
+                print("Next page has been processed already, exiting the loop.")
+                break  # Exit loop if the next page is already processed
+
+            # Proceed to the next page
+            page += 1
+
+        for index_page in unique_links:
+            main_grid = index_page.find('.//div[@id="main-grid"]')
+            if main_grid is not None:
+                for a in main_grid.findall(".//a"):
+                    href = [a.get("href")]
+                    for link in href:
+                        if link.startswith("https:"):
+                            detail_page = context.fetch_html(link, cache_days=3)
+
+                            details_container = detail_page.find(
+                                ".//div[@id='js_visibility'][@class='col-12 col-lg-9']"
                             )
-                        if label_elem is not None and value_elem is not None:
-                            label = label_elem.text_content().strip().replace("\n", " ")
-                            value = value_elem.text_content().strip().replace("\n", " ")
-                            value = " ".join(value.split())
-                            value = " | ".join(
-                                [
-                                    text.strip()
-                                    for text in value_elem.itertext()
-                                    if text.strip()
-                                ]
-                            ).strip()
+                            if details_container is None:
+                                context.log.warning(
+                                    f"Could not find details container on {link}"
+                                )
+                                continue
+                            data = {}
+                            for row in details_container.findall(
+                                ".//div[@class='row']"
+                            ):
+                                label_elem = row.find(
+                                    ".//div[@class='col-12 col-md-4 col-lg-2 yellow']"
+                                )
+                                value_elem = row.find(
+                                    ".//div[@class='col-12 col-md-8 col-lg-10']"
+                                )
+                                if value_elem is None:
+                                    value_elem = row.find(
+                                        ".//div[@class='js_visibility_target col-12 col-md-8 col-lg-10']"
+                                    )
+                                if label_elem is not None and value_elem is not None:
+                                    label = (
+                                        label_elem.text_content()
+                                        .strip()
+                                        .replace("\n", " ")
+                                    )
+                                    value = (
+                                        value_elem.text_content()
+                                        .strip()
+                                        .replace("\n", " ")
+                                    )
+                                    value = " ".join(value.split())
+                                    value = " | ".join(
+                                        [
+                                            text.strip()
+                                            for text in value_elem.itertext()
+                                            if text.strip()
+                                        ]
+                                    ).strip()
 
-                            data[label] = value
-                    print(f"Extracted Data for {href}:\n{data}\n")
-                    crawl_item(context, data, link)
+                                    data[label] = value
+                            crawl_item(context, data, link)

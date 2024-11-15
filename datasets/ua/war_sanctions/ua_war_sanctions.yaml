@@ -46,3 +46,9 @@ lookups:
     options: 
       - match: 07.04.
         value: null
+  type.country: 
+    options: 
+      - match: Ukraine, russian federation
+        values: 
+          - Ukraine
+          - Russian Federation
