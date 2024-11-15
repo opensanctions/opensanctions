@@ -3,10 +3,10 @@ entry_point: crawler.py
 prefix: us-medky
 coverage:
   frequency: daily
-  start: "2024-11-08"
+  start: "2024-11-15"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Medical providers terminated or excluded from Kentucky State's Medicaid program.
+  Medical providers terminated or excluded from Kentucky's Medicaid program.
 description: |
   This dataset contains individuals and companies that have been terminated
   from Kentucky's Medicaid Program. The following text from their website explains the 

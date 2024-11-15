@@ -3,12 +3,12 @@ entry_point: crawler.py
 prefix: us-medaz
 coverage:
   frequency: daily
-  start: "2024-10-17"
+  start: "2024-11-15"
 load_db_uri: $OPENSANCTIONS_DATABASE_URI
 summary: >
-  Medical providers suspended from Arizona State's Medicaid program.
+  Medical providers suspended from Arizona's Medicaid program.
 description: |
-  The Arizona Health Care Cost Containment System mantains a list of medical providers that have been
+  The Arizona Health Care Cost Containment System maintains a list of medical providers that have been
   suspended from the state's Medicaid program. According to their publication:
 
   > AHCCCS terminates providers from the Medicaid program in accordance with A.R.S. § 36-2930.05 and the terms of

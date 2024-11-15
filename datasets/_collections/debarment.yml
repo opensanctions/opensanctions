@@ -25,6 +25,8 @@ children:
   - ps_ohchr_settlement
   - si_conflicts
   - us_ak_med_exclusions
+  - us_az_med_exclusions
+  - us_ar_med_exclusions
   - us_ca_med_exclusions
   - us_co_med_exclusions
   - us_ddtc_debarred
@@ -36,11 +38,13 @@ children:
   - us_ia_med_exclusions
   - us_in_med_exclusions
   - us_ks_med_exclusions
+  - us_ky_med_exclusions
   - us_la_med_exclusions
   - us_ma_med_exclusions
   - us_md_med_exclusions
   - us_mi_med_exclusions
   - us_mn_med_exclusions
+  - us_mo_med_exclusions
   - us_ms_med_exclusions
   - us_mt_med_exclusions
   - us_nc_med_exclusions
@@ -49,6 +53,7 @@ children:
   - us_nj_med_exclusions
   - us_nv_med_exclusions
   - us_ny_med_exclusions
+  - us_oh_med_exclusions
   - us_or_med_exclusions
   - us_pa_med_exclusions
   - us_sam_exclusions

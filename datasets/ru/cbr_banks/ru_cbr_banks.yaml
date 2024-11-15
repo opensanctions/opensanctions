@@ -7,8 +7,8 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
-  Banks registered in Russia, including their unique identifiers (BIK, OGRN) 
-  addresses and other details.
+  Banks registered in Russia, including their unique identifiers (BIK, OGRN),
+  addresses, and other details.
 description: |
   This dataset provides an overview of Russian banks, including key identifiers such as 
   Bank Identifier Codes (BIK), Primary State Registration Numbers (OGRN), and other relevant 
