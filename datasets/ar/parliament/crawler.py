@@ -83,4 +83,4 @@ def crawl(context: Context):
         context.emit(person, target=True)
         context.emit(position)
         context.emit(occupancy)
-    context.audit_data(str_row, ignore=["mandato"])
+        context.audit_data(str_row, ignore=["mandato"])
