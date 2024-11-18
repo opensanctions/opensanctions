@@ -1,16 +1,21 @@
 from zavod import Context, helpers as h
 
 
-# LINKS_PERSONS = [
-#     # child kidnappers
-#     f"https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
-#     # russian athletes
-#     f"https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
-# ]
-
 # LINKS_COMPANIES = [
 #     f"https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12s",  # child kidnappers
 # ]
+
+
+LINKS_PERSONS = [
+    {  # child kidnappers
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
+        "max_pages": 26,
+    },
+    {  # russian athletes
+        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
+        "max_pages": 9,
+    },
+]
 
 
 def crawl_index_page(context: Context, index_page):
@@ -103,17 +108,6 @@ def crawl_item(context: Context, data, link):
 
 
 def crawl(context):
-    # Define the base URLs for both child kidnappers and Russian athletes
-    LINKS_PERSONS = [
-        {
-            "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
-            "max_pages": 26,
-        },
-        {
-            "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
-            "max_pages": 9,
-        },
-    ]
     for link_info in LINKS_PERSONS:
         base_url = link_info["url"]
         max_pages = link_info["max_pages"]

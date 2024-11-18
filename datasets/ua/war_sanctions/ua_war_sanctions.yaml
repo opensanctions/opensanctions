@@ -42,8 +42,16 @@ dates:
   formats: ["%d.%m.%Y", "%d.%m. %Y"]
 
 lookups: 
-  type.date: 
-    options: 
+  type.date:
+    options:
+      - match: 23.06.1974 /23.06.1973
+        values: 
+          - 1974-06-23
+          - 1973-06-23
+      - match: 21.08.1959 - 08.01.2024
+        values: 
+          - 1959-08-21
+          - 2024-01-08
       - match: 07.04.
         value: null
   type.country: 
