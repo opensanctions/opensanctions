@@ -17,6 +17,8 @@ from zavod.runtime.http_ import request_hash
 
 ZYTE_API_URL = "https://api.zyte.com/v1/extract"
 
+UnblockValidator = Callable[[etree._Element], bool]
+
 
 class UnblockFailedException(RuntimeError):
     def __init__(self, url: str):
@@ -236,7 +238,7 @@ def fetch_json(
 def fetch_html(
     context: Context,
     url: str,
-    unblock_validator: Callable[[etree._Element], bool],
+    unblock_validator: UnblockValidator,
     actions: list[Dict[str, Any]] = [],
     html_source: str = "browserHtml",
     javascript: Optional[bool] = None,

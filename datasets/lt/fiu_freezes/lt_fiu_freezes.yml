@@ -24,7 +24,7 @@ publisher:
   official: true
 url: https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/
 data:
-  url: https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/sankcionuotu-asmenu-sarasas/
+  url: https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/
   format: html
 ci_test: false
 
