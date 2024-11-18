@@ -70,6 +70,10 @@ def crawl_item(context: Context, data, link):
     person.add("citizenship", data.pop("Citizenship", None))
     person.add("taxNumber", data.pop("Tax Number", None))
     person.add("sourceUrl", data.pop("Links").split(" | "))
+    archive_links = data.pop("Archive links", None)
+    if archive_links is not None:
+        for archive_link in archive_links.split(" | "):
+            person.add("sourceUrl", archive_link)
     dob_pob = data.pop("Date and place of birth", None)
     if dob_pob:
         dp_parts = dob_pob.split(" | ")

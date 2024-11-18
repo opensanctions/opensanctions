@@ -39,7 +39,7 @@ data:
   format: HTML
 
 dates: 
-  formats: ["%d.%m.%Y"]
+  formats: ["%d.%m.%Y", "%d.%m. %Y"]
 
 lookups: 
   type.date: 
@@ -51,4 +51,12 @@ lookups:
       - match: Ukraine, russian federation
         values: 
           - Ukraine
-          - Russian Federation
+          - Russia
+      - match: Cyprus, russian federation
+        values: 
+          - Cyprus
+          - Russia
+      - match: Israel, russian federation
+        values:
+          - Israel
+          - Russia
