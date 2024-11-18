@@ -26,6 +26,7 @@ publisher:
 data:
   url: https://www.policia.es/_es/colabora_masbuscados.php#
   format: html
+  lang: spa
 ci_test: false
 
 assertions:
