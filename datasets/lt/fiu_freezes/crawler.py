@@ -75,7 +75,7 @@ def crawl_page(
             context.emit(rel)
 
         context.audit_data(data)
-        return doc
+    return doc
 
 
 def crawl(context: Context):
