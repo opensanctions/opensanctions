@@ -1,17 +1,34 @@
 from typing import List, Optional
 from normality import slugify
+from hashlib import sha1
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
+POTENTIAL_PAGE = (
+    # JT-STR-1373 sanctions list (currently empty)
+    "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/JT-STR-1373-sarasas/"
+)
+
+
+# def unblock_validator_1373(el) -> bool:
+#     return (
+#         "Fizinių ar juridinių asmenų, grupių ir organizacijų įtrauktų"
+#         in el.text_content()
+#     )
+
 
 def unblock_validator(el) -> bool:
-    return "Fizinio ar juridinio asmens, kurio turtas įšaldytas" in el.text_content()
+    return (
+        "Fizinio ar juridinio asmens, kurio turtas įšaldytas"
+        or "Fizinių ar juridinių asmenų, grupių ir organizacijų įtrauktų"
+        in el.text_content()
+    )
 
 
-def crawl(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator)
+def crawl_page(context: Context, link: str):
+    doc = fetch_html(context, link, unblock_validator, cache_days=3)
     for p in doc.xpath(".//p"):
         p.tail = p.tail + "\n" if p.tail else "\n"
     table = doc.find('.//div[@class="content-block"]//table')
@@ -63,3 +80,11 @@ def crawl(context: Context):
             context.emit(rel)
 
         context.audit_data(data)
+
+
+def crawl(context: Context):
+    crawl_page(context, context.data_url)
+
+    potential_page = POTENTIAL_PAGE
+    h.assert_url_hash(context, potential_page, "")
+    # crawl_page(context, potential_page)
