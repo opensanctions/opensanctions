@@ -56,7 +56,7 @@ def crawl_index_page(context: Context, index_page):
                             ).strip()
 
                             data[label] = value
-                            crawl_item(context, data, link)
+                    crawl_item(context, data, link)
 
 
 def crawl_item(context: Context, data, link):
@@ -69,7 +69,7 @@ def crawl_item(context: Context, data, link):
         person.add("name", name)
     person.add("citizenship", data.pop("Citizenship", None))
     person.add("taxNumber", data.pop("Tax Number", None))
-    person.add("sourceUrl", data.pop("Links", None).split(" | "))
+    person.add("sourceUrl", data.pop("Links").split(" | "))
     dob_pob = data.pop("Date and place of birth", None)
     if dob_pob:
         dp_parts = dob_pob.split(" | ")
@@ -102,34 +102,10 @@ def crawl(context):
     # Define the base URLs for both child kidnappers and Russian athletes
     LINKS_PERSONS = [
         # child kidnappers
-        "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
+        "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={1:26}&per-page=12",
         # russian athletes
         #     "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
     ]
-
-    for base_url in LINKS_PERSONS:
-        page = 1
-        unique_links = set()
-
-        while True:
-            # Build the URL for the current page
-            url = base_url.format(page=page)
-            index_page = context.fetch_html(url, cache_days=3)
-            unique_links.add(url)
-
-            # Attempt to extract "pagination" element
-            pagination = index_page.find(".//ul[@class='pagination']")
-            next_page_elem = pagination.find(".//li[@class='next']/a")
-
-            # Get the URL for the next page
-            next_page_url = next_page_elem.get("href")
-            if next_page_url in unique_links:
-                print("Next page has been processed already, exiting the loop.")
-                break  # Exit loop if the next page is already processed
-
-            # Proceed to the next page
-            page += 1
-
-            for index_page in unique_links:
-                print(f"Processing {index_page}...")
-                crawl_index_page(context, index_page)
+    for index_page in LINKS_PERSONS:
+        print(f"Processing {index_page}...")
+        crawl_index_page(context, index_page)
