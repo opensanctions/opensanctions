@@ -2,20 +2,25 @@ from zavod import Context, helpers as h
 
 
 LINKS = [
-    {  # child kidnappers
-        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
-        "max_pages": 26,
-        "type": "person",
-    },
-    {  # child kidnappers
-        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12",
-        "max_pages": 14,
-        "type": "company",
-    },
-    {  # russian athletes
-        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
-        "max_pages": 9,
-        "type": "person",
+    # {  # child kidnappers
+    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
+    #     "max_pages": 26,
+    #     "type": "person",
+    # },
+    # {  # child kidnappers
+    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12",
+    #     "max_pages": 14,
+    #     "type": "company",
+    # },
+    # {  # russian athletes
+    #     "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
+    #     "max_pages": 9,
+    #     "type": "person",
+    # },
+    {  # ships
+        "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
+        "max_pages": 2,
+        "type": "vessel",
     },
 ]
 
@@ -29,59 +34,72 @@ def crawl_index_page(context: Context, index_page, data_type):
             for link in href:
                 if link.startswith("https:"):
                     detail_page = context.fetch_html(link, cache_days=3)
-                    if data_type == "person":
+                    # if data_type == "person":
+                    #     details_container = detail_page.find(
+                    #         ".//div[@id='js_visibility'][@class='col-12 col-lg-9']"
+                    #     )
+                    #     crawl_person(context, details_container, link)
+                    # elif data_type == "company":
+                    #     details_container = detail_page.find(
+                    #         ".//div[@class='col-12 col-lg-9']"
+                    #     )
+                    #     crawl_company(context, details_container, link)
+                    if data_type == "vessel":
                         details_container = detail_page.find(
-                            ".//div[@id='js_visibility'][@class='col-12 col-lg-9']"
+                            ".//div[@class='col-12 col-xl-4']"
                         )
-                        crawl_person(context, details_container, link)
-                    if data_type == "company":
-                        details_container = detail_page.find(
-                            ".//div[@class='col-12 col-lg-9']"
-                        )
-                        crawl_company(context, details_container, link)
+                        crawl_vessel(context, details_container, link)
 
 
-def crawl_company(context: Context, details_container, link):
+def crawl_vessel(context: Context, details_container, link):
     data = {}
-    for row in details_container.findall(".//div[@class='row']"):
-        label_elem = row.find(".//div[@class='col-12 col-sm-4 yellow']")
-        value_elem = row.find(".//div[@class='col-12 col-sm-8']")
+    rows = details_container.findall(".//div[@class='row js_visibility mb-4']")
+    print(rows)
+    # for row in rows:
+    #     print("Name: %r" % row)
+    #     label_elem = row.find(".//div[@class='col-12 col-lg-6 text-lg-right']")
+    #     print(label_elem)
 
-        if label_elem is not None and value_elem is not None:
-            label = label_elem.text_content().strip().replace("\n", " ")
-            value = value_elem.text_content().strip().replace("\n", " ")
-            value = " ".join(value.split())
-            value = " | ".join(
-                [text.strip() for text in value_elem.itertext() if text.strip()]
-            ).strip()
-            data[label] = value
+    #     print(row.text_content())
+    #     label_elem = row.find(".//div[@class='col-12 col-lg-6 text-lg-right']")
+    #     value_elem = row.find(".//div[@class='js_visibility_target']")
+    #     if value_elem is None:
+    #         value_elem = row.find(".//span[@class='js_visibility_target']")
 
-    name = data.pop("Name")
-    name_abbr = data.pop("Abbreviated name of the legal entity", None)
-    reg_num = data.pop("Registration number")
+    #     if label_elem is not None and value_elem is not None:
+    #         label = label_elem.text_content().strip().replace("\n", " ")
+    #         value = value_elem.text_content().strip().replace("\n", " ")
+    #         value = " ".join(value.split())
+    #         value = " | ".join(
+    #             [text.strip() for text in value_elem.itertext() if text.strip()]
+    #         ).strip()
+    #         data[label] = value
+    # print(data)
 
-    company = context.make("Company")
-    company.id = context.make_id(name, name_abbr, reg_num)
-    company.add("name", name)
-    company.add("name", name_abbr)
-    company.add("registrationNumber", reg_num)
-    company.add("address", data.pop("Address"))
-    company.add("country", data.pop("Country"))
-    company.add("taxNumber", data.pop("Tax Number"))
-    company.add("sourceUrl", data.pop("Links").split(" | "))
-    archive_links = data.pop("Archive links", None)
-    if archive_links is not None:
-        for archive_link in archive_links.split(" | "):
-            company.add("sourceUrl", archive_link)
 
-    company.add("topics", "sanction")
-    sanction = h.make_sanction(context, company)
-    sanction.add("reason", data.pop("Reasons"))
-    sanction.add("sourceUrl", link)
+# name = data.pop("Name")
+# reg_num = data.pop("Registration number")
 
-    context.emit(company, target=True)
-    context.emit(sanction)
-    context.audit_data(data)
+# vessel = context.make("Vessel")
+# vessel.id = context.make_id(name, reg_num)
+# vessel.add("name", name)
+# vessel.add("registrationNumber", reg_num)
+# vessel.add("flag", data.pop("Flag"))
+# vessel.add("owner", data.pop("Owner"))
+# vessel.add("sourceUrl", data.pop("Links").split(" | "))
+# archive_links = data.pop("Archive links", None)
+# if archive_links is not None:
+#     for archive_link in archive_links.split(" | "):
+#         vessel.add("sourceUrl", archive_link)
+
+# vessel.add("topics", "sanction")
+# sanction = h.make_sanction(context, vessel)
+# sanction.add("reason", data.pop("Reasons"))
+# sanction.add("sourceUrl", link)
+
+# context.emit(vessel, target=True)
+# context.emit(sanction)
+# context.audit_data(data)
 
 
 def crawl_person(context: Context, details_container, link):
@@ -139,6 +157,49 @@ def crawl_person(context: Context, details_container, link):
     sanction.add("sourceUrl", link)
 
     context.emit(person, target=True)
+    context.emit(sanction)
+    context.audit_data(data)
+
+
+def crawl_company(context: Context, details_container, link):
+    data = {}
+    for row in details_container.findall(".//div[@class='row']"):
+        label_elem = row.find(".//div[@class='col-12 col-sm-4 yellow']")
+        value_elem = row.find(".//div[@class='col-12 col-sm-8']")
+
+        if label_elem is not None and value_elem is not None:
+            label = label_elem.text_content().strip().replace("\n", " ")
+            value = value_elem.text_content().strip().replace("\n", " ")
+            value = " ".join(value.split())
+            value = " | ".join(
+                [text.strip() for text in value_elem.itertext() if text.strip()]
+            ).strip()
+            data[label] = value
+
+    name = data.pop("Name")
+    name_abbr = data.pop("Abbreviated name of the legal entity", None)
+    reg_num = data.pop("Registration number")
+
+    company = context.make("Company")
+    company.id = context.make_id(name, name_abbr, reg_num)
+    company.add("name", name)
+    company.add("name", name_abbr)
+    company.add("registrationNumber", reg_num)
+    company.add("address", data.pop("Address"))
+    company.add("country", data.pop("Country"))
+    company.add("taxNumber", data.pop("Tax Number"))
+    company.add("sourceUrl", data.pop("Links").split(" | "))
+    archive_links = data.pop("Archive links", None)
+    if archive_links is not None:
+        for archive_link in archive_links.split(" | "):
+            company.add("sourceUrl", archive_link)
+
+    company.add("topics", "sanction")
+    sanction = h.make_sanction(context, company)
+    sanction.add("reason", data.pop("Reasons"))
+    sanction.add("sourceUrl", link)
+
+    context.emit(company, target=True)
     context.emit(sanction)
     context.audit_data(data)
 
