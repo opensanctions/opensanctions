@@ -259,6 +259,9 @@ config:
     - category: Government_of_Turkey
       topic: role.pep
       country: tr
+      negcats: |
+        Turkish_criminals
+        Naturalized_citizens_of_Turkey
     - category: 21st-century_Turkish_politicians
       country: tr
     - category: Members_of_the_28th_Parliament_of_Turkey
