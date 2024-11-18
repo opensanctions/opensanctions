@@ -1,4 +1,4 @@
-from typing import BinaryIO, Optional
+from typing import Optional, TextIO
 from normality.encoding import DEFAULT_ENCODING
 from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import PackStatementWriter
@@ -14,7 +14,7 @@ class DatasetSink(object):
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
         self.path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
-        self.fh: Optional[BinaryIO] = None
+        self.fh: Optional[TextIO] = None
         self.writer: Optional[PackStatementWriter] = None
 
     def emit(self, stmt: Statement) -> None:
