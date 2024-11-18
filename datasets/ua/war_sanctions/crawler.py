@@ -19,7 +19,7 @@ LINKS = [
     # },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
-        "max_pages": 2,
+        "max_pages": 20,
         "type": "vessel",
     },
 ]
@@ -46,7 +46,7 @@ def crawl_index_page(context: Context, index_page, data_type):
                     #     crawl_company(context, details_container, link)
                     if data_type == "vessel":
                         details_container = detail_page.find(
-                            ".//div[@class='col-12 col-xl-4']"
+                            ".//div[@id='js_visibility']"
                         )
                         # print(details_container.text_content())
                         crawl_vessel(context, details_container, link)
@@ -54,60 +54,69 @@ def crawl_index_page(context: Context, index_page, data_type):
 
 def crawl_vessel(context: Context, details_container, link):
     data = {}
-    # rows = details_container.xpath(
-    #     ".//div[contains(@class, 'row')][contains@class, 'js_visibility'][contains@class, 'mb-4']"
-    # )
     rows = details_container.xpath(
         ".//div[contains(@class,'tools-spec')]/div[contains(@class, 'row')]"
     )
-    print(rows)
     for row in rows:
-        print(row.text_content())
-    # for row in rows:
-    #     print("Name: %r" % row)
-    #     label_elem = row.find(".//div[@class='col-12 col-lg-6 text-lg-right']")
-    #     print(label_elem)
+        label_elem = row.find(".//div[@class='col-12 col-lg-6 text-lg-right']")
+        value_elem = row.find(".//div[@class='js_visibility_target']")
+        if value_elem is None:
+            value_elem = row.find(".//span[@class='js_visibility_target']")
 
-    #     print(row.text_content())
-    #     label_elem = row.find(".//div[@class='col-12 col-lg-6 text-lg-right']")
-    #     value_elem = row.find(".//div[@class='js_visibility_target']")
-    #     if value_elem is None:
-    #         value_elem = row.find(".//span[@class='js_visibility_target']")
+        if label_elem is not None and value_elem is not None:
+            label = label_elem.text_content().strip().replace("\n", " ")
+            value = value_elem.text_content().strip().replace("\n", " ")
+            value = " ".join(value.split())
+            value = " | ".join(
+                [text.strip() for text in value_elem.itertext() if text.strip()]
+            ).strip()
+            data[label] = value
 
-    #     if label_elem is not None and value_elem is not None:
-    #         label = label_elem.text_content().strip().replace("\n", " ")
-    #         value = value_elem.text_content().strip().replace("\n", " ")
-    #         value = " ".join(value.split())
-    #         value = " | ".join(
-    #             [text.strip() for text in value_elem.itertext() if text.strip()]
-    #         ).strip()
-    #         data[label] = value
-    # print(data)
+    rows2 = details_container.xpath(
+        ".//div[contains(@class, 'tools-frame')]/div[contains(@class, 'mb-3')]"
+    )
+    # for row in rows2:
+    # print(row.text_content())
 
+    rows3 = details_container.xpath(
+        ".//div[contains(@class, 'tools-frame')]//a[contains(@class, 'd-block long-text yellow mb-3')]"
+    )
+    # for row in rows3:
+    # print(row.text_content())
 
-# name = data.pop("Name")
-# reg_num = data.pop("Registration number")
+    name = data.pop("Vessel name (international according to IMO)")
+    type = data.pop("Vessel Type")
+    imo_num = data.pop("IMO")
+    description = data.pop("Category")
 
-# vessel = context.make("Vessel")
-# vessel.id = context.make_id(name, reg_num)
-# vessel.add("name", name)
-# vessel.add("registrationNumber", reg_num)
-# vessel.add("flag", data.pop("Flag"))
-# vessel.add("owner", data.pop("Owner"))
-# vessel.add("sourceUrl", data.pop("Links").split(" | "))
-# archive_links = data.pop("Archive links", None)
-# if archive_links is not None:
-#     for archive_link in archive_links.split(" | "):
-#         vessel.add("sourceUrl", archive_link)
+    vessel = context.make("Vessel")
+    vessel.id = context.make_id(name, imo_num)
+    vessel.add("name", name)
+    vessel.add("imoNumber", imo_num)
+    vessel.add("type", type)
+    vessel.add("description", description)
+    vessel.add("callSign", data.pop("Call sign"))
+    vessel.add("flag", data.pop("Flag (Current)"))
+    vessel.add("mmsi", data.pop("MMSI"))
+    vessel.add("topics", "sanction")
 
-# vessel.add("topics", "sanction")
-# sanction = h.make_sanction(context, vessel)
-# sanction.add("reason", data.pop("Reasons"))
-# sanction.add("sourceUrl", link)
+    sanction = h.make_sanction(context, vessel)
+    sanction.add("country", data.pop("Sanctions", None))
+    sanction.add("sourceUrl", link)
 
-# context.emit(vessel, target=True)
-# context.emit(sanction)
-# context.audit_data(data)
+    # linked_entity_name = data.pop(
+    #     "The person in connection with whom sanctions have been applied", None
+    # )
+    # if linked_entity_name is not None:
+    #     linked_entity = context.make("LegalEntity")
+    #     linked_entity.id = context.make_id(linked_entity_name)
+    #     linked_entity.add("name", linked_entity_name)
+    #     linked_entity.add("topics", "sanction.linked")
+    #     context.emit(linked_entity, target=True)
+
+    context.emit(vessel, target=True)
+    context.emit(sanction)
+    context.audit_data(data)
 
 
 def crawl_person(context: Context, details_container, link):
