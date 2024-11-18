@@ -19,7 +19,7 @@ LINKS = [
     # },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
-        "max_pages": 20,
+        "max_pages": 40,
         "type": "vessel",
     },
 ]
