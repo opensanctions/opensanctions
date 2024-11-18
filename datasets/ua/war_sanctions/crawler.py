@@ -101,11 +101,20 @@ def crawl_item(context: Context, data, link):
 def crawl(context):
     # Define the base URLs for both child kidnappers and Russian athletes
     LINKS_PERSONS = [
-        # child kidnappers
-        "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={1:26}&per-page=12",
-        # russian athletes
-        #     "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
+        {
+            "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
+            "max_pages": 26,
+        },
+        {
+            "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
+            "max_pages": 9,
+        },
     ]
-    for index_page in LINKS_PERSONS:
-        print(f"Processing {index_page}...")
-        crawl_index_page(context, index_page)
+    for link_info in LINKS_PERSONS:
+        base_url = link_info["url"]
+        max_pages = link_info["max_pages"]
+
+        for page in range(1, max_pages + 1):
+            index_page = base_url.format(page=page)
+            print(f"Fetching {index_page}...")
+            crawl_index_page(context, index_page)
