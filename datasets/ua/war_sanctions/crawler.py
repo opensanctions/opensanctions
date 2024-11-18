@@ -104,18 +104,18 @@ def crawl_vessel(context: Context, details_container, link):
     sanction.add("country", data.pop("Sanctions", None))
     sanction.add("sourceUrl", link)
 
-    # linked_entity_name = data.pop(
-    #     "The person in connection with whom sanctions have been applied", None
-    # )
-    # if linked_entity_name is not None:
-    #     linked_entity = context.make("LegalEntity")
-    #     linked_entity.id = context.make_id(linked_entity_name)
-    #     linked_entity.add("name", linked_entity_name)
-    #     linked_entity.add("topics", "sanction.linked")
-    #     context.emit(linked_entity, target=True)
-
     context.emit(vessel, target=True)
     context.emit(sanction)
+
+    linked_entity_name = data.pop(
+        "The person in connection with whom sanctions have been applied"
+    )
+    if linked_entity_name != "":
+        linked_entity = context.make("LegalEntity")
+        linked_entity.id = context.make_id(linked_entity_name)
+        linked_entity.add("name", linked_entity_name)
+        linked_entity.add("topics", "sanction.linked")
+        context.emit(linked_entity, target=True)
     context.audit_data(data)
 
 
