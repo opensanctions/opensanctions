@@ -13,6 +13,7 @@ from zavod import helpers as h
 # TODO: sanctions-program full parse
 MayStr = Optional[str]
 
+SKIP_OLD = {"41406"}
 NAME_QUALITY_WEAK: Dict[MayStr, bool] = {"good": False, "low": True}
 NAME_TYPE: Dict[MayStr, str] = {
     "primary-name": "name",
@@ -208,6 +209,9 @@ def parse_identity(context: Context, entity: Entity, node: Element, places):
 def parse_entry(context: Context, target: Element, programs, places):
     entity = context.make("LegalEntity")
     entity_ssid = target.get("ssid")
+    if entity_ssid in SKIP_OLD:
+        context.log.info("Skipping old entry", ssid=entity_ssid)
+        return
     node = target.find("./entity")
     if node is None:
         node = target.find("./individual")
