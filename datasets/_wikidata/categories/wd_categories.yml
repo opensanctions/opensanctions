@@ -57,6 +57,8 @@ lookups:
         value: iq-kr
       - match: Republic of Mahabad
         value: ir
+      - match: Basque Country
+        value: es
       - match:
           - Persian Empire
           - Medo-persia
