@@ -54,9 +54,11 @@ def enrich(context: Context) -> None:
     threshold = float(context.dataset.config.get("threshold", 0.7))
     try:
         if isinstance(enricher, BulkEnricher):
+            context.log.info("Loading entities for matching...")
             for entity_idx, entity in enumerate(view.entities()):
                 enricher.load_wrapped(entity)
 
+            context.log.info("Matching candidates...")
             for entity_id, candidate_set in enricher.candidates():
                 entity = view.get_entity(entity_id.id)
                 try:

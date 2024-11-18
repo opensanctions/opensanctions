@@ -54,6 +54,8 @@ config:
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1
+  index_options:
+    memory_budget: 2000
   topics:
     - role.pep
     - role.rca
