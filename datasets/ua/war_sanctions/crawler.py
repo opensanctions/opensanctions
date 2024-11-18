@@ -48,13 +48,21 @@ def crawl_index_page(context: Context, index_page, data_type):
                         details_container = detail_page.find(
                             ".//div[@class='col-12 col-xl-4']"
                         )
+                        # print(details_container.text_content())
                         crawl_vessel(context, details_container, link)
 
 
 def crawl_vessel(context: Context, details_container, link):
     data = {}
-    rows = details_container.findall(".//div[@class='row js_visibility mb-4']")
+    # rows = details_container.xpath(
+    #     ".//div[contains(@class, 'row')][contains@class, 'js_visibility'][contains@class, 'mb-4']"
+    # )
+    rows = details_container.xpath(
+        ".//div[contains(@class,'tools-spec')]/div[contains(@class, 'row')]"
+    )
     print(rows)
+    for row in rows:
+        print(row.text_content())
     # for row in rows:
     #     print("Name: %r" % row)
     #     label_elem = row.find(".//div[@class='col-12 col-lg-6 text-lg-right']")
@@ -105,7 +113,9 @@ def crawl_vessel(context: Context, details_container, link):
 def crawl_person(context: Context, details_container, link):
     data = {}
     for row in details_container.findall(".//div[@class='row']"):
-        label_elem = row.find(".//div[@class='col-12 col-md-4 col-lg-2 yellow']")
+        label_elem = row.find(
+            ".//div[@class='col-12 col-md-4 col-lg-2 yellow']"
+        )  # get children and assert one with yellow and 1 without (2 in total)
         value_elem = row.find(".//div[@class='col-12 col-md-8 col-lg-10']")
         if value_elem is None:
             value_elem = row.find(
