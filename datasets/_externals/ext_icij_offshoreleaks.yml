@@ -90,3 +90,12 @@ config:
     - LegalEntity
     - Person
   cache_days: 90
+
+lookups:
+  type.address:
+    options:
+      - match: "Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS, 52/F., Cheung Kong Center 2 Queen's Road Central Hong Kong, Deutsche Bank AG, Hong Kong Floor 52, Cheung Kong Center 2 Queen's Road Central, Hong Kong Attn.: Ms. Annie Ng"
+        values:
+          - Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS
+          - 52/F., Cheung Kong Center 2 Queen's Road Central Hong Kong
+          - "Attn.: Ms. Annie Ng, Deutsche Bank AG, Hong Kong Floor 52, Cheung Kong Center 2 Queen's Road Central, Hong Kong"

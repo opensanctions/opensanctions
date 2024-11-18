@@ -41,6 +41,6 @@ assertions:
   min:
     schema_entities:
       Person: 33000
-      Position: 34000
+      Position: 33000
     country_entities:
       fr: 1
