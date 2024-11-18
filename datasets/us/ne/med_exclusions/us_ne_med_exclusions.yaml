@@ -42,7 +42,9 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 7500
+      Person: 900
+      Company: 80
   max:
     schema_entities:
-      LegalEntity: 9000
+      Person: 1200
+      Company: 120
