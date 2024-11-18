@@ -1010,6 +1010,7 @@ lookups:
           - intersex
           - eunuch
           - muxe
+          - bigender
         value: other
       - match:
           - transgender
