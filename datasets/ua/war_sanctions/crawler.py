@@ -19,7 +19,7 @@ LINKS = [
     # },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
-        "max_pages": 2,
+        "max_pages": 40,
         "type": "vessel",
     },
 ]
@@ -110,7 +110,7 @@ def crawl_vessel(context: Context, details_container, link):
                     [text.strip() for text in value_elem.itertext() if text.strip()]
                 ).strip()
                 data[label] = value
-            print(data)
+            # print(data)
 
     web_resources = []
     web_links = details_container.xpath(
@@ -118,7 +118,6 @@ def crawl_vessel(context: Context, details_container, link):
     )
     for raw_link in web_links:
         link_href = raw_link.get("href", "").strip()
-        print(link_href)
         web_resources.append(link_href)
     data["Web resources"] = web_resources
 
@@ -128,7 +127,13 @@ def crawl_vessel(context: Context, details_container, link):
     description = data.pop("Category")
     ais_shutdown = data.pop("Cases of AIS shutdown")
     ru_ports = data.pop("Calling at russian ports")
-    ports = data.pop("Visited ports")
+    ports = data.pop("Visited ports", None)
+    com_manager = data.pop("Commercial ship manager (IMO / Country / Date)")
+    safety_manager = data.pop(
+        "Ship Safety Management Manager (IMO / Country / Date)", None
+    )
+    build_country = data.pop("Builder (country)")
+    flags_former = data.pop("Flags (former)")
 
     vessel = context.make("Vessel")
     vessel.id = context.make_id(name, imo_num)
@@ -140,12 +145,24 @@ def crawl_vessel(context: Context, details_container, link):
     vessel.add("description", f"Cases of AIS shutdown: {ais_shutdown}")
     vessel.add("description", f"Calling at russian ports: {ru_ports}")
     vessel.add("description", f"Visited ports: {ports}")
+    vessel.add("description", f"Builder (country): {build_country}")
+    vessel.add("description", f"Flags (former): {flags_former}")
     vessel.add("callSign", data.pop("Call sign"))
     vessel.add("flag", data.pop("Flag (Current)"))
     vessel.add("mmsi", data.pop("MMSI"))
-    vessel.add("topics", "sanction")
+    vessel.add("buildDate", data.pop("Build year"))
     for web_resource in data.pop("Web resources"):
         vessel.add("sourceUrl", web_resource)
+    for name in h.multi_split(data.pop("Former ship names"), [" / "]):
+        vessel.add("previousName", name)
+    vessel.add(
+        "description", f"Commercial ship manager (IMO / Country / Date): {com_manager}"
+    )
+    vessel.add(
+        "description",
+        f"Ship Safety Management Manager (IMO / Country / Date): {safety_manager}",
+    )
+    vessel.add("topics", "sanction")
 
     sanction = h.make_sanction(context, vessel)
     sanction.add("country", data.pop("Sanctions", None))
@@ -176,13 +193,13 @@ def crawl_vessel(context: Context, details_container, link):
             owner.add("topics", "sanction.linked")
             context.emit(owner, target=True)
 
-        ownership = context.make("Ownership")
-        ownership.id = context.make_id(vessel.id, owner.id)
-        ownership.add("asset", vessel.id)
-        ownership.add("owner", owner.id)
-        ownership.add("ownershipType", "Owner")
+            ownership = context.make("Ownership")
+            ownership.id = context.make_id(vessel.id, owner.id)
+            ownership.add("asset", vessel.id)
+            ownership.add("owner", owner.id)
+            ownership.add("ownershipType", "Owner")
 
-        context.emit(ownership)
+            context.emit(ownership)
 
     context.audit_data(data)
 
