@@ -44,7 +44,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Company: 200
+      Company: 160
   max:
     schema_entities:
-      Company: 300
+      Company: 250
