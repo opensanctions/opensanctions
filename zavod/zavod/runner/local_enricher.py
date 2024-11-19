@@ -7,7 +7,7 @@ from nomenklatura import CompositeEntity
 from nomenklatura.entity import CE
 from nomenklatura.dataset import DS
 from nomenklatura.cache import Cache
-from nomenklatura.enrich.common import BulkEnricher, EnricherConfig
+from nomenklatura.enrich.common import BulkEnricher, EnricherConfig, MatchCandidates
 from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura.index.duckdb_index import DuckDBIndex
 from nomenklatura.matching import get_algorithm, LogicV1
@@ -95,10 +95,10 @@ class LocalEnricher(BulkEnricher[DS]):
         )
         self._index.add_matching_subject(entity)
     
-    def candidates(self) -> Generator[Tuple[Identifier, List[Tuple[Identifier, float]]], None, None]:
+    def candidates(self) -> Generator[Tuple[Identifier, MatchCandidates], None, None]:
         yield from self._index.matches()
 
-    def match_candidates(self, entity: CE, candidates: List[Tuple[Identifier, float]]) -> Generator[CE, None, None]:
+    def match_candidates(self, entity: CE, candidates: MatchCandidates) -> Generator[CE, None, None]:
         # Make sure an entity with the same ID is yielded. E.g. a QID or ID scheme
         # intentionally consistent between datasets.
         if entity.id is not None:
@@ -135,9 +135,6 @@ class LocalEnricher(BulkEnricher[DS]):
         scores.sort(key=lambda s: s[0], reverse=True)
         for algo_score, proxy in scores[: self._limit]:
             yield proxy
-    
-    def match(self, entity: CE) -> Generator[CE, None, None]:
-        raise NotImplementedError()
 
     def _traverse_nested(
         self, entity: CE, path: List[str] = []
