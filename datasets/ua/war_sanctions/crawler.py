@@ -93,6 +93,25 @@ def crawl_vessel(context: Context, details_container, link):
                 # Store in the dictionary
                 data[label] = value
 
+    additional_info = details_container.xpath(
+        ".//div[contains(@class, 'tools-frame')]//div[@class='mb-3' or contains(@class, 'js_visibility')]"
+    )
+    for row in additional_info:
+        divs = row.findall("div")
+
+        if len(divs) == 2:
+            label_elem, value_elem = divs
+
+            if "yellow" in value_elem.get("class", ""):
+                label = label_elem.text_content().strip().replace("\n", " ").strip()
+                value = value_elem.text_content().strip().replace("\n", " ").strip()
+                value = " ".join(value.split())
+                value = " | ".join(
+                    [text.strip() for text in value_elem.itertext() if text.strip()]
+                ).strip()
+                data[label] = value
+            print(data)
+
     web_resources = []
     web_links = details_container.xpath(
         ".//div[contains(@class, 'tools-frame')]//a[contains(@class, 'd-block long-text yellow mb-3')]"
@@ -144,6 +163,27 @@ def crawl_vessel(context: Context, details_container, link):
         linked_entity.add("name", linked_entity_name)
         linked_entity.add("topics", "sanction.linked")
         context.emit(linked_entity, target=True)
+
+    owner_info = data.pop("Shipowner (IMO / Country / Date)")
+    if owner_info != "":
+        owner_parts = owner_info.split(" / ")
+        if len(owner_parts) == 3:
+            owner_name, owner_country, owner_date = owner_parts
+            owner = context.make("LegalEntity")
+            owner.id = context.make_id(owner_name, owner_country)
+            owner.add("name", owner_name)
+            owner.add("country", owner_country)
+            owner.add("topics", "sanction.linked")
+            context.emit(owner, target=True)
+
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(vessel.id, owner.id)
+        ownership.add("asset", vessel.id)
+        ownership.add("owner", owner.id)
+        ownership.add("ownershipType", "Owner")
+
+        context.emit(ownership)
+
     context.audit_data(data)
 
 
