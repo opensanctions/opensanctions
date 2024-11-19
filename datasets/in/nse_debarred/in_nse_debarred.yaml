@@ -26,7 +26,10 @@ url: "https://www.nseindia.com/regulations/member-sebi-debarred-entities"
 data:
   url: https://www.nseindia.com/regulations/member-sebi-debarred-entities
   format: HTML
+  lang: eng
 
+dates: 
+  formats: ["%B %d, %Y"]
 assertions:
   min:
     schema_entities:

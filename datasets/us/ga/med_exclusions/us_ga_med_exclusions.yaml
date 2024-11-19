@@ -25,7 +25,10 @@ url: "https://dch.georgia.gov/office-inspector-general/georgia-oig-exclusions-li
 data:
   url: https://dch.georgia.gov/office-inspector-general/georgia-oig-exclusions-list
   format: HTML
+  lang: eng
 
+dates: 
+  formats: ["%Y%m%d"]
 assertions:
   min:
     schema_entities:

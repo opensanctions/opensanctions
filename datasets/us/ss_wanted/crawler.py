@@ -95,7 +95,7 @@ def crawl_person(context: Context, url: str):
     person.add("topics", "wanted")
     person.add("sourceUrl", url)
     person.add("alias", alias.split(","))
-    person.add("birthDate", h.parse_date(date_of_birth, ["%b %d, %Y", "%B %d, %Y"]))
+    h.apply_date(person, "birthDate", date_of_birth)
     person.add("summary", case_summary)
     person.add("notes", f"Relevant links: {', '.join(links)}")
     person.add("nationality", nationality)

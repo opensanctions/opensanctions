@@ -24,7 +24,10 @@ publisher:
 data:
   url: "https://www.politie.nl/en/wanted-and-missing/most-wanted"
   format: HTML
+  lang: eng
 
+dates: 
+  formats: ["%d-%m-%Y"]
 lookups:
   type.gender:
     lowercase: true

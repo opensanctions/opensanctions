@@ -16,7 +16,7 @@ DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
 def parse_date(date: Optional[str]):
     if date in ("", "Indefinite", None):
         return None
-    return h.parse_date(date, ["%Y-%m-%d", "%m/%d/%Y"])
+    return date
 
 
 def read_rows(zip_path: Path) -> Generator[Dict[str, Any], None, None]:
@@ -98,7 +98,7 @@ def crawl(context: Context) -> None:
         schemata[entity.id] = entity.schema.name
 
         creation_date = parse_date(row.pop("Creation_Date", None))
-        entity.add("createdAt", creation_date)
+        h.apply_date(entity, "createdAt", creation_date)
         if agency == "TREAS-OFAC":
             entity.add("topics", "sanction")
         else:
@@ -169,9 +169,9 @@ def crawl(context: Context) -> None:
         sanction.add("authorityId", sam_number)
         sanction.add("program", row.pop("Exclusion Program"))
         sanction.add("provisions", row.pop("Exclusion Type"))
-        sanction.add("listingDate", creation_date)
-        sanction.add("startDate", parse_date(row.pop("Active Date")))
-        sanction.add("endDate", parse_date(row.pop("Termination Date")))
+        h.apply_date(sanction, "listingDate", creation_date)
+        h.apply_date(sanction, "startDate", parse_date(row.pop("Active Date")))
+        h.apply_date(sanction, "endDate", parse_date(row.pop("Termination Date")))
         sanction.add("summary", row.pop("Additional Comments", None))
 
         context.audit_data(

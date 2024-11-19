@@ -52,14 +52,9 @@ def parse_link_element(
 
     # Extract names from the card element inside the container
     card = link_element.xpath(".//div[contains(@class, 'card-body')]")[0]
-    first_name_element = card.xpath(
-        ".//h5[@class='card-title text-center']/div[1]/text()"
-    )
-    last_name_element = card.xpath(
-        ".//h5[@class='card-title text-center']/div[2]/text()"
-    )
-    first_name = first_name_element[0].strip()
-    last_name = last_name_element[0].strip()
+    name_elements = card.xpath(".//h5[@class='card-title text-center']/text()")
+    cleaned_names = [name.strip() for name in name_elements]
+    first_name, last_name = cleaned_names
 
     # Adjusted XPath to ignore multiple spaces in the class attribute
     description_element = card.xpath(".//p[contains(@class, 'text-center')]/text()")

@@ -105,7 +105,7 @@ def crawl_person(context: Context, url: str, accomplice: bool = False):
     if date_of_birth:
         h.apply_date(person, "birthDate", date_of_birth)
     person.add("birthPlace", place_of_birth)
-    person.add("nationality", citizenships)
+    person.add("citizenship", citizenships)
     person.add("notes", [reason_on_list, possible_violation])
     person.add("summary", "Probable Accomplice" if accomplice else "Probable Organizer")
     person.add("position", position_name)

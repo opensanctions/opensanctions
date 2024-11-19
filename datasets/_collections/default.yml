@@ -58,6 +58,8 @@ children:
   - ru_myrotvorets_wagner
   - ru_navalny35
   - ru_nsd_isin
+  - ru_cbr_banks
+  - thesentry_atlas
   - securities
   - sy_obsalytics_opensyr
   - wd_categories

@@ -114,7 +114,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
     if entity.schema.is_a("Person"):
         entity.add("position", result.pop("title", None))
         entity.add("nationality", result.pop("nationalities", None))
-        entity.add("nationality", result.pop("citizenships", None))
+        entity.add("citizenship", result.pop("citizenships", None))
         for dob in ensure_list(result.pop("dates_of_birth", "")):
             dob = h.multi_split(dob, ["circa ", " to "])
             for date in dob:

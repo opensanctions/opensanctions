@@ -196,7 +196,7 @@ def crawl_indiviudal(context: Context, item: Dict[str, Any]) -> None:
     entity = context.make("Person")
     entity.id = context.make_slug(subject_id, item.get("name"))
     entity.add("alias", item.pop("aliases"))
-    entity.add("nationality", item.pop("citizenships"))
+    entity.add("citizenship", item.pop("citizenships"))
     entity.add("birthDate", item.pop("bd"))
     entity.add("deathDate", item.pop("dd"))
     crawl_common(context, subject_id, entity, item)
