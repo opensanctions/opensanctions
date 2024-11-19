@@ -19,7 +19,7 @@ LINKS = [
     # },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
-        "max_pages": 40,
+        "max_pages": 2,
         "type": "vessel",
     },
 ]
@@ -75,8 +75,25 @@ def crawl_vessel(context: Context, details_container, link):
     rows2 = details_container.xpath(
         ".//div[contains(@class, 'tools-frame')]/div[contains(@class, 'mb-3')]"
     )
-    # for row in rows2:
-    # print(row.text_content())
+    for row in rows2:
+        divs = row.findall("div")
+
+        if len(divs) == 2:  # Ensure there are exactly two divs in a row
+            label_elem, value_elem = divs
+
+            if "yellow" in value_elem.get("class", ""):
+                # Clean and extract text
+                label = label_elem.text_content().strip().replace("\n", " ").strip()
+                value = value_elem.text_content().strip().replace("\n", " ").strip()
+                value = " ".join(value.split())
+                value = " | ".join(
+                    [text.strip() for text in value_elem.itertext() if text.strip()]
+                ).strip()
+
+                # Store in the dictionary
+                data[label] = value
+
+        print(data)
 
     rows3 = details_container.xpath(
         ".//div[contains(@class, 'tools-frame')]//a[contains(@class, 'd-block long-text yellow mb-3')]"
@@ -88,6 +105,9 @@ def crawl_vessel(context: Context, details_container, link):
     type = data.pop("Vessel Type")
     imo_num = data.pop("IMO")
     description = data.pop("Category")
+    ais_shutdown = data.pop("Cases of AIS shutdown")
+    ru_ports = data.pop("Calling at russian ports")
+    ports = data.pop("Visited ports")
 
     vessel = context.make("Vessel")
     vessel.id = context.make_id(name, imo_num)
@@ -95,6 +115,10 @@ def crawl_vessel(context: Context, details_container, link):
     vessel.add("imoNumber", imo_num)
     vessel.add("type", type)
     vessel.add("description", description)
+    vessel.add("description", data.pop("Vessel information"))
+    vessel.add("description", f"Cases of AIS shutdown: {ais_shutdown}")
+    vessel.add("description", f"Calling at russian ports: {ru_ports}")
+    vessel.add("description", f"Visited ports: {ports}")
     vessel.add("callSign", data.pop("Call sign"))
     vessel.add("flag", data.pop("Flag (Current)"))
     vessel.add("mmsi", data.pop("MMSI"))
