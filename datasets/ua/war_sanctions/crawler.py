@@ -124,14 +124,6 @@ def crawl_vessel(context: Context, details_container, link):
     type = data.pop("Vessel Type")
     imo_num = data.pop("IMO")
     description = data.pop("Category")
-    ais_shutdown = data.pop("Cases of AIS shutdown")
-    ru_ports = data.pop("Calling at russian ports")
-    ports = data.pop("Visited ports", None)
-    # com_manager = data.pop("Commercial ship manager (IMO / Country / Date)")
-    # safety_manager = data.pop(
-    #     "Ship Safety Management Manager (IMO / Country / Date)", None
-    # )
-    build_country = data.pop("Builder (country)")
     flags_former = data.pop("Flags (former)")
 
     vessel = context.make("Vessel")
@@ -141,11 +133,6 @@ def crawl_vessel(context: Context, details_container, link):
     vessel.add("type", type)
     vessel.add("description", description)
     vessel.add("description", data.pop("Vessel information"))
-    vessel.add("description", f"Cases of AIS shutdown: {ais_shutdown}")
-    vessel.add("description", f"Calling at russian ports: {ru_ports}")
-    vessel.add("description", f"Visited ports: {ports}")
-    vessel.add("description", f"Builder (country): {build_country}")
-    vessel.add("description", f"Flags (former): {flags_former}")
     vessel.add("callSign", data.pop("Call sign"))
     vessel.add("flag", data.pop("Flag (Current)"))
     vessel.add("mmsi", data.pop("MMSI"))
@@ -154,13 +141,8 @@ def crawl_vessel(context: Context, details_container, link):
         vessel.add("sourceUrl", web_resource)
     for name in h.multi_split(data.pop("Former ship names"), [" / "]):
         vessel.add("previousName", name)
-    # vessel.add(
-    #     "description", f"Commercial ship manager (IMO / Country / Date): {com_manager}"
-    # )
-    # vessel.add(
-    #     "description",
-    #     f"Ship Safety Management Manager (IMO / Country / Date): {safety_manager}",
-    # )
+    for flag in h.multi_split(flags_former, [" / "]):
+        vessel.add("pastFlags", flag)
     vessel.add("topics", "sanction")
 
     sanction = h.make_sanction(context, vessel)
@@ -244,7 +226,15 @@ def crawl_vessel(context: Context, details_container, link):
 
             context.emit(ownership)
 
-    context.audit_data(data)
+    context.audit_data(
+        data,
+        ignore=[
+            "Cases of AIS shutdown",
+            "Calling at russian ports",
+            "Visited ports",
+            "Builder (country)",
+        ],
+    )
 
 
 def crawl_person(context: Context, details_container, link):
