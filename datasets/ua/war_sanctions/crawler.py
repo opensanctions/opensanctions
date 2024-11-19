@@ -12,16 +12,16 @@ LINKS = [
     #     "max_pages": 14,
     #     "type": "company",
     # },
-    {  # russian athletes
-        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
-        "max_pages": 9,
-        "type": "person",
-    },
-    # {  # ships
-    #     "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
-    #     "max_pages": 40,
-    #     "type": "vessel",
+    # {  # russian athletes
+    #     "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
+    #     "max_pages": 9,
+    #     "type": "person",
     # },
+    {  # ships
+        "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
+        "max_pages": 3,
+        "type": "vessel",
+    },
 ]
 
 
@@ -127,10 +127,10 @@ def crawl_vessel(context: Context, details_container, link):
     ais_shutdown = data.pop("Cases of AIS shutdown")
     ru_ports = data.pop("Calling at russian ports")
     ports = data.pop("Visited ports", None)
-    com_manager = data.pop("Commercial ship manager (IMO / Country / Date)")
-    safety_manager = data.pop(
-        "Ship Safety Management Manager (IMO / Country / Date)", None
-    )
+    # com_manager = data.pop("Commercial ship manager (IMO / Country / Date)")
+    # safety_manager = data.pop(
+    #     "Ship Safety Management Manager (IMO / Country / Date)", None
+    # )
     build_country = data.pop("Builder (country)")
     flags_former = data.pop("Flags (former)")
 
@@ -154,13 +154,13 @@ def crawl_vessel(context: Context, details_container, link):
         vessel.add("sourceUrl", web_resource)
     for name in h.multi_split(data.pop("Former ship names"), [" / "]):
         vessel.add("previousName", name)
-    vessel.add(
-        "description", f"Commercial ship manager (IMO / Country / Date): {com_manager}"
-    )
-    vessel.add(
-        "description",
-        f"Ship Safety Management Manager (IMO / Country / Date): {safety_manager}",
-    )
+    # vessel.add(
+    #     "description", f"Commercial ship manager (IMO / Country / Date): {com_manager}"
+    # )
+    # vessel.add(
+    #     "description",
+    #     f"Ship Safety Management Manager (IMO / Country / Date): {safety_manager}",
+    # )
     vessel.add("topics", "sanction")
 
     sanction = h.make_sanction(context, vessel)
@@ -179,6 +179,30 @@ def crawl_vessel(context: Context, details_container, link):
         linked_entity.add("name", linked_entity_name)
         linked_entity.add("topics", "sanction.linked")
         context.emit(linked_entity, target=True)
+
+    com_manager = data.pop("Commercial ship manager (IMO / Country / Date)")
+    if com_manager != "":
+        com_manager_parts = com_manager.split(" / ")
+        if len(com_manager_parts) == 3:
+            com_name, com_country, com_date = com_manager_parts
+            com_manager = context.make("LegalEntity")
+            com_manager.id = context.make_id(com_name, com_country)
+            com_manager.add("name", com_name)
+            com_manager.add("country", com_country)
+            com_manager.add("topics", "sanction.linked")
+            context.emit(com_manager, target=True)
+
+            representation = context.make("Representation")
+            representation.id = context.make_id(vessel.id, com_manager.id)
+            representation.add("client", vessel.id)
+            representation.add("agent", com_manager.id)
+            representation.add("role", "Commercial ship manager")
+
+            context.emit(representation)
+
+    # safety_manager = data.pop(
+    #     "Ship Safety Management Manager (IMO / Country / Date)", None
+    # )
 
     owner_info = data.pop("Shipowner (IMO / Country / Date)")
     if owner_info != "":
@@ -328,8 +352,8 @@ def crawl(context):
 
         visited_pages = 0
         max_pages = link_info["max_pages"]
-
-        while current_url and visited_pages < max_pages * 3:  # Emergency exit check
+        # ADJUST MAX PAGES TO 1 FOR TESTING
+        while current_url and visited_pages < max_pages * 1:  # Emergency exit check
             # Fetch the page using context
             doc = context.fetch_html(current_url)
             if doc is None:
