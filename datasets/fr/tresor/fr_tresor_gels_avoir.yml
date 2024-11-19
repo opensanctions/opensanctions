@@ -4602,13 +4602,16 @@ lookups:
           sector: "compagnie maritime"
       - match: "Numéro d’enregistrement: OMI: 5122966"
         props:
-          imoNumber: 5122966
+          # imoNumber: 5122966
+          registrationNumber: 5122966
       - match: "Lieu d’enregistrement: Iran: /"
         props:
           jurisdiction: ir
       - match: "Numéro d’enregistrement: OMI: 6189893"
         props:
-          imoNumber: 6189893
+          # imoNumber: 6189893
+          registrationNumber: 6189893
       - match: "Numéro d’enregistrement: OMI: 6016988"
         props:
-          imoNumber: 6016988
+          # imoNumber: 6016988
+          registrationNumber: 6016988
