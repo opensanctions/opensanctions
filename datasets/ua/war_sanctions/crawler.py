@@ -12,16 +12,16 @@ LINKS = [
     #     "max_pages": 14,
     #     "type": "company",
     # },
-    # {  # russian athletes
-    #     "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
-    #     "max_pages": 9,
-    #     "type": "person",
-    # },
-    {  # ships
-        "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
-        "max_pages": 40,
-        "type": "vessel",
+    {  # russian athletes
+        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
+        "max_pages": 9,
+        "type": "person",
     },
+    # {  # ships
+    #     "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
+    #     "max_pages": 40,
+    #     "type": "vessel",
+    # },
 ]
 
 
@@ -34,21 +34,20 @@ def crawl_index_page(context: Context, index_page, data_type):
             for link in href:
                 if link.startswith("https:"):
                     detail_page = context.fetch_html(link, cache_days=3)
-                    # if data_type == "person":
-                    #     details_container = detail_page.find(
-                    #         ".//div[@id='js_visibility'][@class='col-12 col-lg-9']"
-                    #     )
-                    #     crawl_person(context, details_container, link)
-                    # elif data_type == "company":
-                    #     details_container = detail_page.find(
-                    #         ".//div[@class='col-12 col-lg-9']"
-                    #     )
-                    #     crawl_company(context, details_container, link)
+                    if data_type == "person":
+                        details_container = detail_page.find(
+                            ".//div[@id='js_visibility'][@class='col-12 col-lg-9']"
+                        )
+                        crawl_person(context, details_container, link)
+                    elif data_type == "company":
+                        details_container = detail_page.find(
+                            ".//div[@class='col-12 col-lg-9']"
+                        )
+                        crawl_company(context, details_container, link)
                     if data_type == "vessel":
                         details_container = detail_page.find(
                             ".//div[@id='js_visibility']"
                         )
-                        # print(details_container.text_content())
                         crawl_vessel(context, details_container, link)
 
 
@@ -308,12 +307,46 @@ def crawl_company(context: Context, details_container, link):
     context.audit_data(data)
 
 
+def extract_next_page_url(doc, base_url, next_xpath):
+    doc.make_links_absolute(base_url)
+    # next page <a> element extraction using XPath
+    next_link_element = doc.xpath(next_xpath)
+
+    if next_link_element:
+        next_link = next_link_element[0]
+        return next_link.get("href")
+
+    return None
+
+
 def crawl(context):
     for link_info in LINKS:
         base_url = link_info["url"]
-        max_pages = link_info["max_pages"]
         data_type = link_info["type"]
 
-        for page in range(1, max_pages + 1):
-            index_page = base_url.format(page=page)
-            crawl_index_page(context, index_page, data_type)
+        current_url = base_url.format(page=1)
+
+        visited_pages = 0
+        max_pages = link_info["max_pages"]
+
+        while current_url and visited_pages < max_pages * 3:  # Emergency exit check
+            # Fetch the page using context
+            doc = context.fetch_html(current_url)
+            if doc is None:
+                print(f"Failed to fetch {current_url}")
+                break
+            context.log.info(f"Processing {current_url}")
+            crawl_index_page(context, current_url, data_type)
+
+            # Define the XPath to find the next page link
+            # Ensure `<a>` elements are selected
+            next_xpath = "//ul[@class='pagination']//li[@class='next']/a"
+
+            # Get the next page URL, if exists
+            next_url = extract_next_page_url(doc, base_url, next_xpath)
+
+            if next_url:
+                current_url = next_url
+                visited_pages += 1
+            else:
+                break
