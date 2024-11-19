@@ -72,10 +72,10 @@ def crawl_vessel(context: Context, details_container, link):
             ).strip()
             data[label] = value
 
-    rows2 = details_container.xpath(
+    justification = details_container.xpath(
         ".//div[contains(@class, 'tools-frame')]/div[contains(@class, 'mb-3')]"
     )
-    for row in rows2:
+    for row in justification:
         divs = row.findall("div")
 
         if len(divs) == 2:  # Ensure there are exactly two divs in a row
@@ -93,13 +93,15 @@ def crawl_vessel(context: Context, details_container, link):
                 # Store in the dictionary
                 data[label] = value
 
-        print(data)
-
-    rows3 = details_container.xpath(
+    web_resources = []
+    web_links = details_container.xpath(
         ".//div[contains(@class, 'tools-frame')]//a[contains(@class, 'd-block long-text yellow mb-3')]"
     )
-    # for row in rows3:
-    # print(row.text_content())
+    for raw_link in web_links:
+        link_href = raw_link.get("href", "").strip()
+        print(link_href)
+        web_resources.append(link_href)
+    data["Web resources"] = web_resources
 
     name = data.pop("Vessel name (international according to IMO)")
     type = data.pop("Vessel Type")
@@ -123,6 +125,8 @@ def crawl_vessel(context: Context, details_container, link):
     vessel.add("flag", data.pop("Flag (Current)"))
     vessel.add("mmsi", data.pop("MMSI"))
     vessel.add("topics", "sanction")
+    for web_resource in data.pop("Web resources"):
+        vessel.add("sourceUrl", web_resource)
 
     sanction = h.make_sanction(context, vessel)
     sanction.add("country", data.pop("Sanctions", None))
