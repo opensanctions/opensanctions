@@ -179,7 +179,7 @@ def crawl_vessel(context: Context, details_container, link):
         linked_entity.add("name", linked_entity_name)
         linked_entity.add("topics", "sanction.linked")
         context.emit(linked_entity, target=True)
-
+    # separate the imo number from name
     com_manager = data.pop("Commercial ship manager (IMO / Country / Date)")
     if com_manager != "":
         com_manager_parts = com_manager.split(" / ")
@@ -192,17 +192,37 @@ def crawl_vessel(context: Context, details_container, link):
             com_manager.add("topics", "sanction.linked")
             context.emit(com_manager, target=True)
 
-            representation = context.make("Representation")
-            representation.id = context.make_id(vessel.id, com_manager.id)
-            representation.add("client", vessel.id)
-            representation.add("agent", com_manager.id)
-            representation.add("role", "Commercial ship manager")
+            com_rep = context.make("Representation")
+            com_rep.id = context.make_id(vessel.id, com_manager.id)
+            com_rep.add("client", vessel.id)
+            com_rep.add("agent", com_manager.id)
+            com_rep.add("role", "Commercial ship manager")
+            h.apply_date(com_rep, "startDate", com_date)
 
-            context.emit(representation)
+            context.emit(com_rep)
+    # separate the imo number from name
+    safety_manager = data.pop(
+        "Ship Safety Management Manager (IMO / Country / Date)", None
+    )
+    if safety_manager is not None:
+        safety_manager_parts = safety_manager.split(" / ")
+        if len(safety_manager_parts) == 3:
+            safety_name, safety_country, safety_date = safety_manager_parts
+            safety_manager = context.make("LegalEntity")
+            safety_manager.id = context.make_id(safety_name, safety_country)
+            safety_manager.add("name", safety_name)
+            safety_manager.add("country", safety_country)
+            safety_manager.add("topics", "sanction.linked")
+            context.emit(safety_manager, target=True)
 
-    # safety_manager = data.pop(
-    #     "Ship Safety Management Manager (IMO / Country / Date)", None
-    # )
+            safety_rep = context.make("Representation")
+            safety_rep.id = context.make_id(vessel.id, safety_manager.id)
+            safety_rep.add("client", vessel.id)
+            safety_rep.add("agent", safety_manager.id)
+            safety_rep.add("role", "Ship Safety Management Manager")
+            h.apply_date(safety_rep, "startDate", safety_date)
+
+            context.emit(safety_rep)
 
     owner_info = data.pop("Shipowner (IMO / Country / Date)")
     if owner_info != "":
