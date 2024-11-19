@@ -4,6 +4,10 @@ from lxml.etree import _Element
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_html
+
+
+LIST_XPATH = ".//*[@class='accordion-content']/ul/li"
 
 
 def crawl_item(li_tag: _Element, context: Context) -> None:
@@ -51,7 +55,11 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
     context.emit(entity, target=True)
 
 
+def unblock_validator(doc) -> bool:
+    return len(doc.findall(LIST_XPATH)) > 0
+
+
 def crawl(context: Context):
-    response = context.fetch_html(context.data_url)
-    for item in response.findall(".//*[@class='accordion-content']/ul/li"):
+    doc = fetch_html(context, context.data_url, unblock_validator)
+    for item in doc.findall(LIST_XPATH):
         crawl_item(item, context)
