@@ -42,6 +42,56 @@ dates:
   formats: ["%d.%m.%Y", "%d.%m. %Y", "%d.%m.%Y)", "%m.%Y)"]
 
 lookups: 
+  overrides: 
+    options: 
+      - match: Tightship Shipping Management (OPC) Pvt Ltd (6344264
+        items: 
+          - prop: name
+            value: Tightship Shipping Management (OPC) Pvt Ltd
+          - prop: registrationCode
+            value: 6344264
+      - match: Volga-Don Shipping JSC (current company Azovo/Don Shipping JSC) (0555709
+        items: 
+          - prop: name
+            value: [Volga-Don Shipping JSC, Azovo/Don Shipping JSC]
+          - prop: registrationCode
+            value: 0555709
+      - match: Ocean Speedstar Solutions (OPC) Pvt Ltd (6508844
+        items: 
+          - prop: name
+            value: Ocean Speedstar Solutions (OPC) Pvt Ltd
+          - prop: registrationCode
+            value: 6508844
+      - match: Elza Shipping SA с/о Tightship Shipping Management (OPC) Pvt Ltd (6243757
+        items: 
+          - prop: name
+            value: [Elza Shipping SA, Tightship Shipping Management (OPC) Pvt Ltd]
+          - prop: registrationCode
+            value: 6243757
+      - match: Zara Shipholding Co c/o Ocean Speedstar Solutions (OPC) Pvt Ltd (6485466
+        items: 
+          - prop: name
+            value: [Zara Shipholding Co, Ocean Speedstar Solutions (OPC) Pvt Ltd]
+          - prop: registrationCode
+            value: 6485466
+      - match: Lule One Services Inc п/о Ocean Speedstar Solutions (OPC) Pvt Ltd (6495401
+        items: 
+          - prop: name
+            value: [Lule One Services Inc, Ocean Speedstar Solutions (OPC) Pvt Ltd]
+          - prop: registrationCode
+            value: 
+      - match: Lathyrus Shipping Co c/o Ocean Speedstar Solutions (OPC) Pvt Ltd (6496885
+        items: 
+          - prop: name
+            value: [Lathyrus Shipping Co, Ocean Speedstar Solutions (OPC) Pvt Ltd]
+          - prop: registrationCode
+            value: 6496885
+      - match: Volgo-Don 219 Shipping LTD c/o Volga-Don Shipping JSC (current company Azovo/Don Shipping JSC) (5353052
+        items: 
+          - prop: name
+            value: [Volgo-Don 219 Shipping LTD, Volga-Don Shipping JSC, Azovo/Don Shipping JSC]
+          - prop: registrationCode
+            value: 5353052
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
@@ -52,7 +102,9 @@ lookups:
         values: 
           - 1959-08-21
           - 2024-01-08
-      - match: 07.04.
+      - match: 
+          - 07.04.
+          - 09.05.20234)
         value: null
   type.country: 
     options: 

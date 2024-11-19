@@ -19,10 +19,29 @@ LINKS = [
     # },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
-        "max_pages": 3,
+        "max_pages": 40,
         "type": "vessel",
     },
 ]
+
+
+def lookup_override(context, key, lookup_type):
+    override_res = context.lookup("overrides", key)
+    if not override_res:
+        context.log.warning(f"No override found for {key}")
+        return {}
+
+    extracted = {}
+    for override in override_res.items:
+        if override["prop"] == "name":
+            extracted["name"] = override["value"]
+        elif override["prop"] == "registrationCode":
+            extracted["registrationCode"] = override["value"]
+
+    if not extracted:
+        context.log.warning(f"No matching properties found in overrides for {key}")
+
+    return extracted
 
 
 def crawl_index_page(context: Context, index_page, data_type):
@@ -163,8 +182,14 @@ def crawl_vessel(context: Context, details_container, link):
         com_manager_parts = com_manager.split(" / ")
         if len(com_manager_parts) == 3:
             com_name_imo, com_country, com_date = com_manager_parts
+            if len(com_name_imo.split(" (")) == 2:
+                com_name, com_imo = com_name_imo.split(" (")
+            else:
+                overrides = lookup_override(context, com_name_imo, "com_manager")
+                com_name = overrides.get("name")
+                com_imo = overrides.get("registrationCode")
+
             com_manager = context.make("LegalEntity")
-            com_name, com_imo = h.multi_split(com_name_imo, [" ("])
             com_manager.id = context.make_id(com_name, com_country)
             com_manager.add("name", com_name)
             com_manager.add("registrationNumber", com_imo)
@@ -188,7 +213,13 @@ def crawl_vessel(context: Context, details_container, link):
         safety_manager_parts = safety_manager.split(" / ")
         if len(safety_manager_parts) == 3:
             safety_name_imo, safety_country, safety_date = safety_manager_parts
-            safety_name, safety_imo = h.multi_split(safety_name_imo, [" ("])
+            if len(safety_name_imo.split(" (")) == 2:
+                safety_name, safety_imo = safety_name_imo.split(" (")
+            else:
+                overrides = lookup_override(context, safety_name_imo, "com_manager")
+                safety_name = overrides.get("name")
+                safety_imo = overrides.get("registrationCode")
+
             safety_manager = context.make("LegalEntity")
             safety_manager.id = context.make_id(safety_name, safety_country)
             safety_manager.add("name", safety_name)
@@ -210,11 +241,19 @@ def crawl_vessel(context: Context, details_container, link):
     if owner_info != "":
         owner_parts = owner_info.split(" / ")
         if len(owner_parts) == 3:
-            owner_name, owner_country, owner_date = owner_parts
+            owner_name_imo, owner_country, owner_date = owner_parts
+            if len(owner_name_imo.split(" (")) == 2:
+                owner_name, owner_imo = owner_name_imo.split(" (")
+            else:
+                overrides = lookup_override(context, owner_name_imo, "com_manager")
+                owner_name = overrides.get("name")
+                owner_imo = overrides.get("registrationCode")
+
             owner = context.make("LegalEntity")
             owner.id = context.make_id(owner_name, owner_country)
             owner.add("name", owner_name)
             owner.add("country", owner_country)
+            owner.add("registrationNumber", owner_imo)
             owner.add("topics", "sanction.linked")
             context.emit(owner, target=True)
 
@@ -363,8 +402,7 @@ def crawl(context):
 
         visited_pages = 0
         max_pages = link_info["max_pages"]
-        # ADJUST MAX PAGES TO 1 FOR TESTING
-        while current_url and visited_pages < max_pages * 1:  # Emergency exit check
+        while current_url and visited_pages < max_pages * 4:  # Emergency exit check
             # Fetch the page using context
             doc = context.fetch_html(current_url)
             if doc is None:
