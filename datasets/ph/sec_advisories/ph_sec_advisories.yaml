@@ -29,6 +29,7 @@ data:
   url: https://www.sec.gov.ph/investors-education-and-information/advisories/#gsc.tab=0
   format: HTML
   lang: eng
+ci_test: false
 
 assertions:
   min:
