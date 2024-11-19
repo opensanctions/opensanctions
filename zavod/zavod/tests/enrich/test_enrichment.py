@@ -1,6 +1,6 @@
 from typing import Generator
 from normality import slugify
-from nomenklatura.enrich import Enricher
+from nomenklatura.enrich import ItemEnricher
 from nomenklatura.judgement import Judgement
 from nomenklatura.entity import CE
 
@@ -10,7 +10,7 @@ from zavod.dedupe import get_resolver
 from zavod.archive import iter_dataset_statements
 
 
-class StubEnricher(Enricher):
+class StubEnricher(ItemEnricher):
     __test__ = False
 
     def match(self, entity: CE) -> Generator[CE, None, None]:

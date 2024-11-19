@@ -7,6 +7,7 @@ from zavod import settings
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.meta import Dataset
+from zavod.runner.local_enricher import LocalEnricher
 
 PATH = "zavod.runner.local_enricher:LocalEnricher"
 DATASET_DATA = {
@@ -22,9 +23,7 @@ UMBRELLA_CORP = {
 JON_DOVER = {
     "schema": "Person",
     "id": "abc-jona-dova",  # Initially different from dataset
-    "properties": {
-        "name": ["Jonathan Dover"]  # Different from dataset
-    },
+    "properties": {"name": ["Jonathan Dover"]},  # Different from dataset
 }
 AAA_USD_ISK = {
     "schema": "Security",
@@ -50,10 +49,13 @@ def test_enrich(vcontext: Context):
     """We match and expand an entity with a similar name"""
     crawl_dataset(vcontext.dataset)
     enricher = load_enricher(vcontext, DATASET_DATA, "testdataset1")
+    assert isinstance(enricher, LocalEnricher)
     entity = CompositeEntity.from_data(vcontext.dataset, UMBRELLA_CORP)
 
     # Match
-    results = list(enricher.match(entity))
+    enricher.load(entity)
+    candidates = {id_.id: cands for id_, cands in enricher.candidates()}
+    results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 1, results
     assert str(results[0].id) == "osv-umbrella-corp", results[0]
 
@@ -77,14 +79,17 @@ def test_enrich_id_match(vcontext: Context):
     crawl_dataset(vcontext.dataset)
     enricher = load_enricher(vcontext, DATASET_DATA, "testdataset1")
     entity = CompositeEntity.from_data(vcontext.dataset, JON_DOVER)
+    enricher.load(entity)
+    candidates = {id_.id: cands for id_, cands in enricher.candidates()}
 
     # Not a match with a different ID
     assert entity.id != "osv-john-doe"
-    assert len(list(enricher.match(entity))) == 0
+    assert not candidates, candidates
+    assert len(list(enricher.match_candidates(entity, []))) == 0
 
     # But when the id matches, it's a match
     entity.id = "osv-john-doe"
-    results = list(enricher.match(entity))
+    results = list(enricher.match_candidates(entity, []))
     assert len(results) == 1, results
     assert str(results[0].id) == entity.id, results[0]
 
@@ -96,9 +101,11 @@ def test_expand_securities(vcontext: Context, testdataset_securities: Dataset):
     crawl_dataset(testdataset_securities)
     enricher = load_enricher(vcontext, DATASET_DATA, "testdataset_securities")
     entity = CompositeEntity.from_data(vcontext.dataset, AAA_USD_ISK)
+    enricher.load(entity)
+    candidates = {id_.id: cands for id_, cands in enricher.candidates()}
 
     # Match
-    results = list(enricher.match(entity))
+    results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 2, results  # USD EUR is also a match
     assert str(results[0].id) == "osv-isin-a", results[0]
 
@@ -119,9 +126,11 @@ def test_expand_issuers(vcontext: Context, testdataset_securities: Dataset):
     crawl_dataset(testdataset_securities)
     enricher = load_enricher(vcontext, DATASET_DATA, "testdataset_securities")
     entity = CompositeEntity.from_data(vcontext.dataset, AAA_BANK)
+    enricher.load(entity)
+    candidates = {id_.id: cands for id_, cands in enricher.candidates()}
 
     # Match
-    results = list(enricher.match(entity))
+    results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 1, results
     assert str(results[0].id) == "osv-lei-a", results[0]
 
@@ -146,7 +155,9 @@ def test_cutoff(vcontext: Context):
     dataset_data["config"]["cutoff"] = 0.99
     enricher = load_enricher(vcontext, dataset_data, "testdataset1")
     entity = CompositeEntity.from_data(vcontext.dataset, UMBRELLA_CORP)
-    results = list(enricher.match(entity))
+    enricher.load(entity)
+    candidates = {id_.id: cands for id_, cands in enricher.candidates()}
+    results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 0, results
 
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
@@ -159,7 +170,9 @@ def test_limit(vcontext: Context):
     dataset_data["config"]["limit"] = 0
     enricher = load_enricher(vcontext, dataset_data, "testdataset1")
     entity = CompositeEntity.from_data(vcontext.dataset, UMBRELLA_CORP)
-    results = list(enricher.match(entity))
+    enricher.load(entity)
+    candidates = {id_.id: cands for id_, cands in enricher.candidates()}
+    results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 0, results
 
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)

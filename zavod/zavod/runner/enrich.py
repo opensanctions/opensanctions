@@ -75,8 +75,8 @@ def enrich(context: Context) -> None:
 def enrich_itemwise(
     context: Context,
     resolver: Resolver[Entity],
-    enricher: BulkEnricher[Dataset],
-    view: View[Dataset, Entity],
+    enricher: ItemEnricher[Dataset],
+    view: View,
     threshold: float,
 ) -> None:
     for entity_idx, entity in enumerate(view.entities()):
@@ -96,7 +96,7 @@ def enrich_bulk(
     context: Context,
     resolver: Resolver[Entity],
     enricher: BulkEnricher[Dataset],
-    view: View[Dataset, Entity],
+    view: View,
     threshold: float,
 ) -> None:
     context.log.info("Loading entities for matching...")
@@ -112,9 +112,14 @@ def enrich_bulk(
             context.cache.flush()
         if entity_idx > 0 and entity_idx % 10000 == 0:
             context.log.info("Enriched %s entities..." % entity_idx)
-        entity = view.get_entity(entity_id.id)
+        subject_entity = view.get_entity(entity_id.id)
+        if subject_entity is None:
+            context.log.error("Missing entity: %r" % entity_id)
+            continue
         try:
-            for match in enricher.match_candidates(entity, candidate_set):
-                save_match(context, resolver, enricher, entity, match, threshold)
+            for match in enricher.match_candidates(subject_entity, candidate_set):
+                save_match(
+                    context, resolver, enricher, subject_entity, match, threshold
+                )
         except EnrichmentException as exc:
-            context.log.error("Enrichment error %r: %s" % (entity, str(exc)))
+            context.log.error("Enrichment error %r: %s" % (subject_entity, str(exc)))

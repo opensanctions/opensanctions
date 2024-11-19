@@ -88,17 +88,19 @@ class LocalEnricher(BulkEnricher[DS]):
         if type(entity) is class_:
             return entity
         return class_.from_statements(self.dataset, entity.statements)
-    
+
     def load(self, entity: CE) -> None:
         store_type_entity = self.entity_from_statements(
             self._view.store.entity_class, entity
         )
-        self._index.add_matching_subject(entity)
-    
+        self._index.add_matching_subject(store_type_entity)
+
     def candidates(self) -> Generator[Tuple[Identifier, MatchCandidates], None, None]:
         yield from self._index.matches()
 
-    def match_candidates(self, entity: CE, candidates: MatchCandidates) -> Generator[CE, None, None]:
+    def match_candidates(
+        self, entity: CE, candidates: MatchCandidates
+    ) -> Generator[CE, None, None]:
         # Make sure an entity with the same ID is yielded. E.g. a QID or ID scheme
         # intentionally consistent between datasets.
         if entity.id is not None:
