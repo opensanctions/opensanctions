@@ -81,15 +81,12 @@ def crawl_vessel(context: Context, details_container, link):
             label_elem, value_elem = divs
 
             if "yellow" in value_elem.get("class", ""):
-                # Clean and extract text
                 label = label_elem.text_content().strip().replace("\n", " ").strip()
                 value = value_elem.text_content().strip().replace("\n", " ").strip()
                 value = " ".join(value.split())
                 value = " | ".join(
                     [text.strip() for text in value_elem.itertext() if text.strip()]
                 ).strip()
-
-                # Store in the dictionary
                 data[label] = value
 
     additional_info = details_container.xpath(
@@ -109,7 +106,6 @@ def crawl_vessel(context: Context, details_container, link):
                     [text.strip() for text in value_elem.itertext() if text.strip()]
                 ).strip()
                 data[label] = value
-            # print(data)
 
     web_resources = []
     web_links = details_container.xpath(
@@ -161,15 +157,17 @@ def crawl_vessel(context: Context, details_container, link):
         linked_entity.add("name", linked_entity_name)
         linked_entity.add("topics", "sanction.linked")
         context.emit(linked_entity, target=True)
-    # separate the imo number from name
+
     com_manager = data.pop("Commercial ship manager (IMO / Country / Date)")
     if com_manager != "":
         com_manager_parts = com_manager.split(" / ")
         if len(com_manager_parts) == 3:
-            com_name, com_country, com_date = com_manager_parts
+            com_name_imo, com_country, com_date = com_manager_parts
             com_manager = context.make("LegalEntity")
+            com_name, com_imo = h.multi_split(com_name_imo, [" ("])
             com_manager.id = context.make_id(com_name, com_country)
             com_manager.add("name", com_name)
+            com_manager.add("registrationNumber", com_imo)
             com_manager.add("country", com_country)
             com_manager.add("topics", "sanction.linked")
             context.emit(com_manager, target=True)
@@ -182,17 +180,19 @@ def crawl_vessel(context: Context, details_container, link):
             h.apply_date(com_rep, "startDate", com_date)
 
             context.emit(com_rep)
-    # separate the imo number from name
+
     safety_manager = data.pop(
         "Ship Safety Management Manager (IMO / Country / Date)", None
     )
     if safety_manager is not None:
         safety_manager_parts = safety_manager.split(" / ")
         if len(safety_manager_parts) == 3:
-            safety_name, safety_country, safety_date = safety_manager_parts
+            safety_name_imo, safety_country, safety_date = safety_manager_parts
+            safety_name, safety_imo = h.multi_split(safety_name_imo, [" ("])
             safety_manager = context.make("LegalEntity")
             safety_manager.id = context.make_id(safety_name, safety_country)
             safety_manager.add("name", safety_name)
+            safety_manager.add("registrationNumber", safety_imo)
             safety_manager.add("country", safety_country)
             safety_manager.add("topics", "sanction.linked")
             context.emit(safety_manager, target=True)
@@ -223,6 +223,7 @@ def crawl_vessel(context: Context, details_container, link):
             ownership.add("asset", vessel.id)
             ownership.add("owner", owner.id)
             ownership.add("ownershipType", "Owner")
+            h.apply_date(ownership, "startDate", owner_date)
 
             context.emit(ownership)
 
