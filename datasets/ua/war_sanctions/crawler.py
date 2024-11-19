@@ -2,21 +2,21 @@ from zavod import Context, helpers as h
 
 
 LINKS = [
-    # {  # child kidnappers
-    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
-    #     "max_pages": 26,
-    #     "type": "person",
-    # },
-    # {  # child kidnappers
-    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12",
-    #     "max_pages": 14,
-    #     "type": "company",
-    # },
-    # {  # russian athletes
-    #     "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
-    #     "max_pages": 9,
-    #     "type": "person",
-    # },
+    {  # child kidnappers
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
+        "max_pages": 26,
+        "type": "person",
+    },
+    {  # child kidnappers
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12",
+        "max_pages": 14,
+        "type": "company",
+    },
+    {  # russian athletes
+        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
+        "max_pages": 9,
+        "type": "person",
+    },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
         "max_pages": 40,
@@ -403,7 +403,6 @@ def crawl(context):
         visited_pages = 0
         max_pages = link_info["max_pages"]
         while current_url and visited_pages < max_pages * 4:  # Emergency exit check
-            # Fetch the page using context
             doc = context.fetch_html(current_url)
             if doc is None:
                 print(f"Failed to fetch {current_url}")
