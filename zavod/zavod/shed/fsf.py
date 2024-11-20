@@ -132,6 +132,10 @@ def parse_entry(context: Context, entry: Element) -> None:
             quiet=True,
             lang=lang,
         )
+        if schema == "Organization":
+            function = name.get("function")
+            if function:
+                print(function)
         entity.add("title", name.get("title"), quiet=True, lang=lang)
         entity.add("position", name.get("function"), quiet=True, lang=lang)
         entity.add("gender", name.get("gender"), quiet=True, lang=lang)

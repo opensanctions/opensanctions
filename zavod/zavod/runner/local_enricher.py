@@ -1,29 +1,32 @@
 from decimal import Decimal
 import logging
-from typing import Generator, List, Tuple, Type
+from typing import Generator, List, Tuple
 from followthemoney.types import registry
+from followthemoney.helpers import check_person_cutoff
 
-from nomenklatura import CompositeEntity
-from nomenklatura.entity import CE
+from nomenklatura.enrich.common import EnricherConfig
+from nomenklatura.enrich.common import EnrichmentException
+from nomenklatura.enrich.common import BaseEnricher
+from nomenklatura.matching import get_algorithm, LogicV1
+from nomenklatura.resolver import Identifier
+from nomenklatura.judgement import Judgement
+from nomenklatura.resolver import Resolver
 from nomenklatura.dataset import DS
 from nomenklatura.cache import Cache
-from nomenklatura.enrich.common import BulkEnricher, EnricherConfig, MatchCandidates
-from nomenklatura.enrich.common import EnrichmentException
-from nomenklatura.index.duckdb_index import DuckDBIndex
-from nomenklatura.matching import get_algorithm, LogicV1
-from nomenklatura.resolver.linker import Linker
-from nomenklatura.resolver import Identifier
 
-from zavod.entity import Entity
 from zavod.archive import dataset_state_path
-from zavod.meta import get_catalog
+from zavod.context import Context
+from zavod.dedupe import get_dataset_linker, get_resolver
+from zavod.entity import Entity
+from zavod.meta import Dataset, get_multi_dataset, get_catalog
 from zavod.store import get_store
+from zavod.shed.duckdb import DuckDBIndex, MatchCandidates
 
 
 log = logging.getLogger(__name__)
 
 
-class LocalEnricher(BulkEnricher[DS]):
+class LocalEnricher(BaseEnricher[DS]):
     """
     Uses a local index to look up entities in a given dataset.
 
@@ -60,55 +63,44 @@ class LocalEnricher(BulkEnricher[DS]):
 
     def __init__(self, dataset: DS, cache: Cache, config: EnricherConfig):
         super().__init__(dataset, cache, config)
-        target_dataset_name = config.pop("dataset")
+        target_dataset_name = config["dataset"]
         target_dataset = get_catalog().require(target_dataset_name)
-        # target_linker = get_dataset_linker(target_dataset)
-        # TODO: Workaround until company register datasets have resolve key archived.
-        # Should be latest 2024-07-20
-        target_linker = Linker[Entity]({})
+        target_linker = get_dataset_linker(target_dataset)
         target_store = get_store(target_dataset, target_linker)
         target_store.sync()
-        self._view = target_store.view(target_dataset)
+        self.target_view = target_store.view(target_dataset)
         index_path = dataset_state_path(dataset.name) / "duckdb-enrich-index"
         self._index = DuckDBIndex(
-            self._view, index_path, config.get("index_options", {})
+            self.target_view, index_path, config.get("index_options", {})
         )
         self._index.build()
 
-        algo_name = config.pop("algorithm", LogicV1.NAME)
+        algo_name = config.get("algorithm", LogicV1.NAME)
         _algorithm = get_algorithm(algo_name)
         if _algorithm is None:
-            raise EnrichmentException(f"Unknown algorithm: {algo_name}")
+            raise Exception(f"Unknown algorithm: {algo_name}")
         self._algorithm = _algorithm
-        self._cutoff = float(config.pop("cutoff", 0.5))
-        self._limit = int(config.pop("limit", 5))
-        self._max_bin = int(config.pop("max_bin", 10))
+        self._cutoff = float(config.get("cutoff", 0.5))
+        self._limit = int(config.get("limit", 5))
+        self._max_bin = int(config.get("max_bin", 10))
 
-    def entity_from_statements(self, class_: Type[CE], entity: CompositeEntity) -> CE:
-        if type(entity) is class_:
-            return entity
-        return class_.from_statements(self.dataset, entity.statements)
-
-    def load(self, entity: CE) -> None:
-        store_type_entity = self.entity_from_statements(
-            self._view.store.entity_class, entity
-        )
-        self._index.add_matching_subject(store_type_entity)
+    def load(self, entity: Entity) -> None:
+        self._index.add_matching_subject(entity)
 
     def candidates(self) -> Generator[Tuple[Identifier, MatchCandidates], None, None]:
         yield from self._index.matches()
 
     def match_candidates(
-        self, entity: CE, candidates: MatchCandidates
-    ) -> Generator[CE, None, None]:
+        self, entity: Entity, candidates: MatchCandidates
+    ) -> Generator[Entity, None, None]:
         # Make sure an entity with the same ID is yielded. E.g. a QID or ID scheme
         # intentionally consistent between datasets.
         if entity.id is not None:
-            same_id_match = self._view.get_entity(entity.id)
+            same_id_match = self.target_view.get_entity(entity.id)
             if same_id_match is not None:
-                yield self.entity_from_statements(type(entity), same_id_match)
+                yield same_id_match
 
-        scores: List[Tuple[float, CE]] = []
+        scores: List[Tuple[float, Entity]] = []
         last_rounded_score = None
         bin = 0
 
@@ -120,7 +112,7 @@ class LocalEnricher(BulkEnricher[DS]):
             if bin >= self._max_bin:
                 break
 
-            match = self._view.get_entity(match_id.id)
+            match = self.target_view.get_entity(match_id.id)
             if match is None:
                 continue
 
@@ -139,8 +131,8 @@ class LocalEnricher(BulkEnricher[DS]):
             yield proxy
 
     def _traverse_nested(
-        self, entity: CE, path: List[str] = []
-    ) -> Generator[CE, None, None]:
+        self, entity: Entity, path: List[str] = []
+    ) -> Generator[Entity, None, None]:
         """Expand starting from a match, recursing to related non-edge entities"""
         if entity.id is None:
             return
@@ -155,16 +147,81 @@ class LocalEnricher(BulkEnricher[DS]):
         next_path = list(path)
         next_path.append(entity.id)
         store_type_entity = self.entity_from_statements(
-            self._view.store.entity_class, entity
+            self.target_view.store.entity_class, entity
         )
-        for prop, adjacent in self._view.get_adjacent(store_type_entity):
+        for prop, adjacent in self.target_view.get_adjacent(store_type_entity):
             if prop.type != registry.entity:
                 continue
             if adjacent.id in path:
                 continue
 
-            proxy = self.entity_from_statements(type(entity), adjacent)
-            yield from self._traverse_nested(proxy, next_path)
+            related = self.entity_from_statements(type(entity), adjacent)
+            yield from self._traverse_nested(related, next_path)
 
-    def expand(self, entity: CE, match: CE) -> Generator[CE, None, None]:
+    def expand(self, match: Entity) -> Generator[Entity, None, None]:
         yield from self._traverse_nested(match)
+
+
+def save_match(
+    context: Context,
+    resolver: Resolver[Entity],
+    enricher: LocalEnricher,
+    entity: Entity,
+    match: Entity,
+) -> None:
+    if match.id is None or entity.id is None:
+        return None
+    if not entity.schema.can_match(match.schema):
+        return None
+    judgement = resolver.get_judgement(match.id, entity.id)
+
+    if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
+        context.emit(match, external=True)
+
+    # Store previously confirmed matches to the database and make
+    # them visible:
+    if judgement == Judgement.POSITIVE:
+        context.log.info("Enrich [%s]: %r" % (entity, match))
+        for adjacent in enricher.expand_wrapped(entity, match):
+            if check_person_cutoff(adjacent):
+                continue
+            # self.log.info("Added", entity=adjacent)
+            context.emit(adjacent)
+
+
+def enrich(context: Context) -> None:
+    resolver = get_resolver()
+    scope = get_multi_dataset(context.dataset.inputs)
+    context.log.info(
+        "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
+    )
+    store = get_store(scope, resolver)
+    store.sync()
+    subject_view = store.view(scope)
+    config = dict(context.dataset.config)
+    enricher = LocalEnricher(context.dataset, context.cache, config)
+    threshold = float(context.dataset.config.get("threshold", 0.7))
+
+    context.log.info("Loading entities for matching...")
+    for entity in subject_view.entities():
+        enricher.load(entity)
+
+    context.log.info("Matching candidates...")
+    for entity_idx, (entity_id, candidate_set) in enumerate(enricher.candidates()):
+        if entity_idx > 0 and entity_idx % 1000 == 0:
+            context.cache.flush()
+        if entity_idx > 0 and entity_idx % 10000 == 0:
+            context.log.info("Enriched %s entities..." % entity_idx)
+        subject_entity = subject_view.get_entity(entity_id.id)
+        if subject_entity is None:
+            context.log.error("Missing entity: %r" % entity_id)
+            continue
+        try:
+            for match in enricher.match_candidates(subject_entity, candidate_set):
+                save_match(
+                    context, resolver, enricher, subject_entity, match, threshold
+                )
+        except EnrichmentException as exc:
+            context.log.error("Enrichment error %r: %s" % (subject_entity, str(exc)))
+    resolver.save()
+    context.log.info("Enrichment process complete.")

@@ -4,16 +4,18 @@ from nomenklatura.entity import CompositeEntity
 import shutil
 
 from zavod import settings
+from zavod.archive import iter_dataset_statements
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.meta import Dataset
 from zavod.runner.local_enricher import LocalEnricher
 
-PATH = "zavod.runner.local_enricher:LocalEnricher"
 DATASET_DATA = {
     "name": "some_registry",
     "title": "Some Company Registry",
     "config": {"cutoff": 0.5},
+    "entry_point": "zavod.runner.local_enricher:enrich",
+    "inputs": ["enrichment_subject"],
 }
 UMBRELLA_CORP = {
     "schema": "LegalEntity",
@@ -40,27 +42,28 @@ AAA_BANK = {
 def load_enricher(context: Context, dataset_data, target_dataset: str):
     dataset_data_copy = deepcopy(dataset_data)
     dataset_data_copy["config"]["dataset"] = target_dataset
-    dataset_data_copy["config"]["type"] = PATH
     dataset = Dataset.make(dataset_data_copy)
-    return make_enricher(dataset, context.cache, dataset.config)
+    return dataset, LocalEnricher(dataset, context.cache, dataset.config)
 
 
-def test_enrich(vcontext: Context):
+def test_enrich(testdataset1: Dataset, enrichment_subject: Dataset):
     """We match and expand an entity with a similar name"""
-    crawl_dataset(vcontext.dataset)
-    enricher = load_enricher(vcontext, DATASET_DATA, "testdataset1")
-    assert isinstance(enricher, LocalEnricher)
-    entity = CompositeEntity.from_data(vcontext.dataset, UMBRELLA_CORP)
 
-    # Match
-    enricher.load(entity)
-    candidates = {id_.id: cands for id_, cands in enricher.candidates()}
-    results = list(enricher.match_candidates(entity, candidates[entity.id]))
-    assert len(results) == 1, results
-    assert str(results[0].id) == "osv-umbrella-corp", results[0]
+    # Make a little subject dataset
+    entity = CompositeEntity.from_data(enrichment_subject, UMBRELLA_CORP)
+    subject_context = Context(enrichment_subject)
+    subject_context.emit(entity)
+    subject_context.close()
 
-    # Expand
-    internals = list(enricher.expand(entity, results[0]))
+    # Treat testdataset1 as the target dataset
+    crawl_dataset(testdataset1)
+    
+    # Enrich the subject against the target
+    enrich_context = Context(enricher_ds)
+    enricher_ds, enricher = load_enricher(enrich_context, DATASET_DATA, testdataset1.name)
+
+    stats = crawl_dataset(enricher_ds)
+    internals = list(iter_dataset_statements(enricher_ds, external=False))
     assert len(internals) == 3, internals
 
     assert internals[0].schema.name == "Company"

@@ -1,6 +1,6 @@
 type: external
 title: Ukraine Consolidated State Registry
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: ua_edr
 disabled: false
 hidden: false
@@ -74,13 +74,11 @@ inputs:
   - sanctions
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
   limit: 100
   max_bin: 14
   index_options:
     max_candidates: 200
-    memory_budget: 2000
-  api: https://api.graph.opensanctions.org/
+    memory_budget: 3000
   dataset: ua_edr
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
@@ -101,4 +99,3 @@ config:
     - Organization
     # - LegalEntity
     # - Person
-  cache_days: 90
