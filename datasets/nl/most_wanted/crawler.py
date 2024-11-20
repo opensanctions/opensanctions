@@ -10,6 +10,7 @@ base_url = "https://www.politie.nl/"
 FIELDS = {
     "name": "name",
     "alias": "alias",
+    "nicknames": "alias",
     "gender": "gender",
     "sex": "gender",
     "nationality": "nationality",
@@ -32,6 +33,7 @@ FIELDS = {
     "haircolor": "hairColor",
     "case": None,
     "police_region": None,
+    "speaks": None,
 }
 
 
