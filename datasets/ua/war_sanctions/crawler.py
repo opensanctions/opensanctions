@@ -46,6 +46,18 @@ def lookup_override(context, key, lookup_type):
     return extracted
 
 
+def extract_label_value_pair(label_elem, value_elem, data):
+    label = label_elem.text_content().strip().replace("\n", " ")
+    value = value_elem.text_content().strip().replace("\n", " ")
+    value = " ".join(value.split())
+    value = " | ".join(
+        [text.strip() for text in value_elem.itertext() if text.strip()]
+    ).strip()
+    data[label] = value
+
+    return data
+
+
 def crawl_index_page(context: Context, index_page, data_type):
     index_page = context.fetch_html(index_page, cache_days=3)
     main_grid = index_page.find('.//div[@id="main-grid"]')
@@ -73,7 +85,7 @@ def crawl_index_page(context: Context, index_page, data_type):
 
 
 def crawl_vessel(context: Context, details_container, link):
-    data = {}
+    data: dict[str, str] = {}
     rows = details_container.xpath(
         ".//div[contains(@class,'tools-spec')]/div[contains(@class, 'row')]"
     )
@@ -84,13 +96,7 @@ def crawl_vessel(context: Context, details_container, link):
             value_elem = row.find(".//span[@class='js_visibility_target']")
 
         if label_elem is not None and value_elem is not None:
-            label = label_elem.text_content().strip().replace("\n", " ")
-            value = value_elem.text_content().strip().replace("\n", " ")
-            value = " ".join(value.split())
-            value = " | ".join(
-                [text.strip() for text in value_elem.itertext() if text.strip()]
-            ).strip()
-            data[label] = value
+            data = extract_label_value_pair(label_elem, value_elem, data=data)
 
     justification = details_container.xpath(
         ".//div[contains(@class, 'tools-frame')]/div[contains(@class, 'mb-3')]"
@@ -102,13 +108,7 @@ def crawl_vessel(context: Context, details_container, link):
             label_elem, value_elem = divs
 
             if "yellow" in value_elem.get("class", ""):
-                label = label_elem.text_content().strip().replace("\n", " ").strip()
-                value = value_elem.text_content().strip().replace("\n", " ").strip()
-                value = " ".join(value.split())
-                value = " | ".join(
-                    [text.strip() for text in value_elem.itertext() if text.strip()]
-                ).strip()
-                data[label] = value
+                data = extract_label_value_pair(label_elem, value_elem, data=data)
 
     additional_info = details_container.xpath(
         ".//div[contains(@class, 'tools-frame')]//div[@class='mb-3' or contains(@class, 'js_visibility')]"
@@ -120,13 +120,7 @@ def crawl_vessel(context: Context, details_container, link):
             label_elem, value_elem = divs
 
             if "yellow" in value_elem.get("class", ""):
-                label = label_elem.text_content().strip().replace("\n", " ").strip()
-                value = value_elem.text_content().strip().replace("\n", " ").strip()
-                value = " ".join(value.split())
-                value = " | ".join(
-                    [text.strip() for text in value_elem.itertext() if text.strip()]
-                ).strip()
-                data[label] = value
+                data = extract_label_value_pair(label_elem, value_elem, data=data)
 
     web_resources = []
     web_links = details_container.xpath(
@@ -291,13 +285,8 @@ def crawl_person(context: Context, details_container, link):
                 ".//div[@class='js_visibility_target col-12 col-md-8 col-lg-10']"
             )
         if label_elem is not None and value_elem is not None:
-            label = label_elem.text_content().strip().replace("\n", " ")
-            value = value_elem.text_content().strip().replace("\n", " ")
-            value = " ".join(value.split())
-            value = " | ".join(
-                [text.strip() for text in value_elem.itertext() if text.strip()]
-            ).strip()
-            data[label] = value
+            data = extract_label_value_pair(label_elem, value_elem, data=data)
+
     names = data.pop("Name")
     positions = data.pop("Position", None)
 
@@ -347,13 +336,7 @@ def crawl_company(context: Context, details_container, link):
         value_elem = row.find(".//div[@class='col-12 col-sm-8']")
 
         if label_elem is not None and value_elem is not None:
-            label = label_elem.text_content().strip().replace("\n", " ")
-            value = value_elem.text_content().strip().replace("\n", " ")
-            value = " ".join(value.split())
-            value = " | ".join(
-                [text.strip() for text in value_elem.itertext() if text.strip()]
-            ).strip()
-            data[label] = value
+            data = extract_label_value_pair(label_elem, value_elem, data=data)
 
     name = data.pop("Name")
     name_abbr = data.pop("Abbreviated name of the legal entity", None)
