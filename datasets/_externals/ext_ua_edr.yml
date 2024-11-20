@@ -13,8 +13,8 @@ exports:
   - statistics.json
 deploy:
   schedule: "@monthly"
-  memory: "1000Mi"
-  memory_limit: "3000Mi"
+  memory: "4000Mi"
+  memory_limit: "4000Mi"
   disk_limit: 50Gi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
@@ -79,7 +79,7 @@ config:
   max_bin: 14
   index_options:
     max_candidates: 200
-    memory_budget: 50
+    memory_budget: 2000
   api: https://api.graph.opensanctions.org/
   dataset: ua_edr
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
