@@ -2,21 +2,21 @@ from zavod import Context, helpers as h
 
 
 LINKS = [
-    # {  # child kidnappers
-    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
-    #     "max_pages": 26,
-    #     "type": "person",
-    # },
-    # {  # child kidnappers
-    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12",
-    #     "max_pages": 14,
-    #     "type": "company",
-    # },
-    # {  # russian athletes
-    #     "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
-    #     "max_pages": 9,
-    #     "type": "person",
-    # },
+    {  # child kidnappers
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
+        "max_pages": 26,
+        "type": "person",
+    },
+    {  # child kidnappers
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12",
+        "max_pages": 14,
+        "type": "company",
+    },
+    {  # russian athletes
+        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
+        "max_pages": 9,
+        "type": "person",
+    },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
         "max_pages": 4,
@@ -262,7 +262,7 @@ def crawl_vessel(context: Context, details_container, link):
 
 
 def crawl_person(context: Context, details_container, link):
-    data = {}
+    data: dict[str, str] = {}
     for row in details_container.findall(".//div[@class='row']"):
         label_elem = row.find(
             ".//div[@class='col-12 col-md-4 col-lg-2 yellow']"
@@ -356,7 +356,7 @@ def crawl_company(context: Context, details_container, link):
 
 def extract_next_page_url(doc, base_url, next_xpath):
     doc.make_links_absolute(base_url)
-    # next page <a> element extraction using XPath
+    # next page <a> element extraction using xpath
     next_link_element = doc.xpath(next_xpath)
 
     if next_link_element:
@@ -375,7 +375,7 @@ def crawl(context):
 
         visited_pages = 0
         max_pages = link_info["max_pages"]
-        while current_url and visited_pages < max_pages * 1:  # Emergency exit check
+        while current_url and visited_pages < max_pages * 1:  # emergency exit check
             doc = context.fetch_html(current_url)
             if doc is None:
                 print(f"Failed to fetch {current_url}")
@@ -383,11 +383,10 @@ def crawl(context):
             context.log.info(f"Processing {current_url}")
             crawl_index_page(context, current_url, data_type)
 
-            # Define the XPath to find the next page link
-            # Ensure `<a>` elements are selected
+            # xpath to find the next page link
             next_xpath = "//ul[@class='pagination']//li[@class='next']/a"
 
-            # Get the next page URL, if exists
+            # get the next page URL, if exists
             next_url = extract_next_page_url(doc, base_url, next_xpath)
 
             if next_url:
