@@ -2,24 +2,24 @@ from zavod import Context, helpers as h
 
 
 LINKS = [
-    {  # child kidnappers
-        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
-        "max_pages": 26,
-        "type": "person",
-    },
-    {  # child kidnappers
-        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12",
-        "max_pages": 14,
-        "type": "company",
-    },
-    {  # russian athletes
-        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
-        "max_pages": 9,
-        "type": "person",
-    },
+    # {  # child kidnappers
+    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
+    #     "max_pages": 26,
+    #     "type": "person",
+    # },
+    # {  # child kidnappers
+    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12",
+    #     "max_pages": 14,
+    #     "type": "company",
+    # },
+    # {  # russian athletes
+    #     "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
+    #     "max_pages": 9,
+    #     "type": "person",
+    # },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
-        "max_pages": 40,
+        "max_pages": 4,
         "type": "vessel",
     },
 ]
@@ -90,13 +90,12 @@ def crawl_vessel(context: Context, details_container, link):
         ".//div[contains(@class,'tools-spec')]/div[contains(@class, 'row')]"
     )
     for row in rows:
-        label_elem = row.find(".//div[@class='col-12 col-lg-6 text-lg-right']")
-        value_elem = row.find(".//div[@class='js_visibility_target']")
-        if value_elem is None:
-            value_elem = row.find(".//span[@class='js_visibility_target']")
+        divs = row.findall("div")
+        if len(divs) == 2:  # Ensure there are exactly two divs in a row
+            label_elem, value_elem = divs
 
-        if label_elem is not None and value_elem is not None:
-            data = extract_label_value_pair(label_elem, value_elem, data=data)
+        if "yellow" in value_elem.get("class", ""):
+            data = extract_label_value_pair(label_elem, value_elem, data)
 
     justification = details_container.xpath(
         ".//div[contains(@class, 'tools-frame')]/div[contains(@class, 'mb-3')]"
@@ -124,7 +123,7 @@ def crawl_vessel(context: Context, details_container, link):
 
     web_resources = []
     web_links = details_container.xpath(
-        ".//div[contains(@class, 'tools-frame')]//a[contains(@class, 'd-block long-text yellow mb-3')]"
+        ".//div[contains(@class, 'tools-frame')]//a[contains(@class, 'long-text yellow')]"
     )
     for raw_link in web_links:
         link_href = raw_link.get("href", "").strip()
@@ -387,7 +386,7 @@ def crawl(context):
 
         visited_pages = 0
         max_pages = link_info["max_pages"]
-        while current_url and visited_pages < max_pages * 4:  # Emergency exit check
+        while current_url and visited_pages < max_pages * 1:  # Emergency exit check
             doc = context.fetch_html(current_url)
             if doc is None:
                 print(f"Failed to fetch {current_url}")
