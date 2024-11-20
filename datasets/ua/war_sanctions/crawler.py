@@ -86,40 +86,29 @@ def crawl_index_page(context: Context, index_page, data_type):
 
 def crawl_vessel(context: Context, details_container, link):
     data: dict[str, str] = {}
-    rows = details_container.xpath(
-        ".//div[contains(@class,'tools-spec')]/div[contains(@class, 'row')]"
-    )
-    for row in rows:
-        divs = row.findall("div")
-        if len(divs) == 2:  # Ensure there are exactly two divs in a row
-            label_elem, value_elem = divs
 
-        if "yellow" in value_elem.get("class", ""):
-            data = extract_label_value_pair(label_elem, value_elem, data)
-
-    justification = details_container.xpath(
-        ".//div[contains(@class, 'tools-frame')]/div[contains(@class, 'mb-3')]"
-    )
-    for row in justification:
-        divs = row.findall("div")
-
-        if len(divs) == 2:  # Ensure there are exactly two divs in a row
-            label_elem, value_elem = divs
-
-            if "yellow" in value_elem.get("class", ""):
-                data = extract_label_value_pair(label_elem, value_elem, data=data)
-
-    additional_info = details_container.xpath(
-        ".//div[contains(@class, 'tools-frame')]//div[@class='mb-3' or contains(@class, 'js_visibility')]"
-    )
-    for row in additional_info:
-        divs = row.findall("div")
-
-        if len(divs) == 2:
-            label_elem, value_elem = divs
-
-            if "yellow" in value_elem.get("class", ""):
-                data = extract_label_value_pair(label_elem, value_elem, data=data)
+    xpath_definitions = [
+        (
+            "main_info_rows",
+            ".//div[contains(@class,'tools-spec')]/div[contains(@class, 'row')]",
+        ),
+        (
+            "justification_rows",
+            ".//div[contains(@class, 'tools-frame')]/div[contains(@class, 'mb-3')]",
+        ),
+        (
+            "additional_info_rows",
+            ".//div[contains(@class, 'tools-frame')]//div[@class='mb-3' or contains(@class, 'js_visibility')]",
+        ),
+    ]
+    for name, xpath_expr in xpath_definitions:
+        rows = details_container.xpath(xpath_expr)
+        for row in rows:
+            divs = row.findall("div")
+            if len(divs) == 2:
+                label_elem, value_elem = divs
+                if "yellow" in value_elem.get("class"):
+                    data = extract_label_value_pair(label_elem, value_elem, data)
 
     web_resources = []
     web_links = details_container.xpath(
