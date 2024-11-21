@@ -31,7 +31,7 @@ from zavod.runtime.versions import make_version
 from zavod.runtime.http_ import fetch_file, make_session, request_hash
 from zavod.runtime.http_ import _Auth, _Headers, _Body
 from zavod.logs import get_logger
-from zavod.util import join_slug
+from zavod.util import join_slug, prefixed_hash_id
 
 
 class Context:
@@ -454,7 +454,8 @@ class Context:
         hashed = make_entity_id(*parts, key_prefix=hash_prefix)
         if hashed is None:
             return None
-        return self.make_slug(hashed, prefix=prefix, strict=True)
+        prefix = self.dataset.prefix if prefix is None else prefix
+        return prefixed_hash_id(prefix, hashed)
 
     def lookup_value(
         self, lookup: str, value: Optional[str], default: Optional[str] = None
