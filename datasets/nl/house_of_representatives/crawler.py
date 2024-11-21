@@ -1,15 +1,31 @@
 from zavod import Context
+from urllib.parse import urljoin
 from lxml.etree import _Element
 from lxml.html import document_fromstring
+import re
 
 
 def crawl_person(context: Context, element: _Element):
     anchor = element.find(".//a")
-    person = context.make("Person")
-    person.id = context.make_id(anchor.get("href"))
+    source_url = urljoin(context.data_url, anchor.get("href"))
 
-    person.add("name", anchor.text)
+    person = context.make("Person")
+    person.id = context.make_id(source_url)
+
     person.add("topics", "role.pep")
+    person.add("sourceUrl", source_url)
+
+    doc = context.fetch_html(source_url)
+    section = doc.find('.//main[@class="o-main"]/article/section[2]')
+
+    person.add("name", section.findtext(".//h1"))
+
+    match = re.search(
+        "is geboren in (.+) op (.+) en woont in", section.findtext(".//p")
+    )
+    person.add("birthPlace", match.group(1))
+    # TODO - Normalize, this is a dutch written out date
+    person.add("birthDate", match.group(2))
 
     context.emit(person, target=True)
 
