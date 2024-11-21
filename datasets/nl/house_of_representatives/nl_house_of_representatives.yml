@@ -1,0 +1,27 @@
+title: "Netherlands House of Representatives"
+entry_point: crawler.py
+prefix: nl-hor
+coverage:
+  frequency: monthly
+  start: 2023-01-24
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >-
+  Members of the Dutch house of representatives, one of the 2 chambers of
+  parliament.
+description: |
+  From the dutch police page [politie](https://www.politie.nl/en/wanted-and-missing/most-wanted):
+
+  > The most wanted persons are suspected of serious crimes and are ranked high on the
+  > police's hit list.
+url: https://www.tweedekamer.nl/kamerleden_en_commissies/alle_kamerleden
+publisher:
+  name: Tweede Kamer der Staten-Generaal
+  description: |
+    The list is published by the Dutch House of Representatives
+  country: nl
+  url: https://www.tweedekamer.nl/
+  official: true
+data:
+  url: https://www.tweedekamer.nl/kamerleden_en_commissies/alle_kamerleden
+  format: HTML
+  lang: nl
