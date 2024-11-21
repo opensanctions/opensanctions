@@ -6,18 +6,18 @@ LINKS = [
     #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
     #     "type": "person",
     # },
-    {  # child kidnappers
-        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
-        "type": "company",
-    },
+    # {  # child kidnappers
+    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
+    #     "type": "company",
+    # },
     # {  # russian athletes
     #     "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
     #     "type": "person",
     # },
-    # {  # ships
-    #     "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
-    #     "type": "vessel",
-    # },
+    {  # ships
+        "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
+        "type": "vessel",
+    },
 ]
 
 # TODO: fix strings that were merged on | but were not supposed to be
@@ -119,7 +119,7 @@ def crawl_vessel(context: Context, details_container, link):
     name = data.pop("Vessel name (international according to IMO)")
     type = data.pop("Vessel Type")
     imo_num = data.pop("IMO")
-    description = data.pop("Category")
+    categories = data.pop("Category")
     flags_former = data.pop("Flags (former)")
 
     vessel = context.make("Vessel")
@@ -127,17 +127,23 @@ def crawl_vessel(context: Context, details_container, link):
     vessel.add("name", name)
     vessel.add("imoNumber", imo_num)
     vessel.add("type", type)
-    vessel.add("description", description)
-    vessel.add("description", data.pop("Vessel information"))
+    vessel.add("description", data.pop("Vessel information").replace(" | ", " "))
     vessel.add("callSign", data.pop("Call sign"))
     vessel.add("flag", data.pop("Flag (Current)"))
     vessel.add("mmsi", data.pop("MMSI"))
     vessel.add("buildDate", data.pop("Build year"))
+    for category in categories.split(" | "):
+        vessel.add("keywords", category)
     for web_resource in data.pop("Web resources"):
         vessel.add("sourceUrl", web_resource)
     for name in h.multi_split(data.pop("Former ship names"), [" / "]):
         vessel.add("previousName", name)
-    for flag in h.multi_split(flags_former, [" / "]):
+    for flag in h.multi_split(
+        flags_former,
+        [
+            " / |",
+        ],
+    ):
         vessel.add("pastFlags", flag)
     vessel.add("topics", "poi")
 
