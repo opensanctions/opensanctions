@@ -20,7 +20,7 @@ LINKS = [
     },
 ]
 
-# TODO: fix strings that were merged on | but were not supposed to be
+# TODO: c/o and uknowns
 
 
 def lookup_override(context, key, lookup_type):
@@ -138,12 +138,7 @@ def crawl_vessel(context: Context, details_container, link):
         vessel.add("sourceUrl", web_resource)
     for name in h.multi_split(data.pop("Former ship names"), [" / "]):
         vessel.add("previousName", name)
-    for flag in h.multi_split(
-        flags_former,
-        [
-            " / |",
-        ],
-    ):
+    for flag in flags_former.split(" / |"):
         vessel.add("pastFlags", flag)
     vessel.add("topics", "poi")
 
@@ -160,7 +155,8 @@ def crawl_vessel(context: Context, details_container, link):
     if linked_entity_name != "":
         linked_entity = context.make("LegalEntity")
         linked_entity.id = context.make_id(linked_entity_name)
-        linked_entity.add("name", linked_entity_name)
+        for name in h.multi_split(linked_entity_name, [" | "]):
+            linked_entity.add("name", name)
         linked_entity.add("topics", "poi")
         context.emit(linked_entity, target=True)
 
@@ -366,7 +362,7 @@ def extract_next_page_url(doc, base_url, next_xpath):
     return None
 
 
-def crawl(context):
+def crawl(context: Context):
     main_page = context.fetch_html(context.data_url, cache_days=3)
     node = main_page.find(
         ".//section[@class='sections d-flex flex-wrap align-items-stretch justify-content-center mb-5 pl-5 pr-5 medium']"
@@ -381,7 +377,7 @@ def crawl(context):
         while current_url and visited_pages < 4:  # emergency exit check
             doc = context.fetch_html(current_url)
             if doc is None:
-                print(f"Failed to fetch {current_url}")
+                context.log.warn(f"Failed to fetch {current_url}")
                 break
             context.log.info(f"Processing {current_url}")
             crawl_index_page(context, current_url, data_type)
