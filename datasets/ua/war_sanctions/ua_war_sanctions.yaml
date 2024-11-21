@@ -110,6 +110,30 @@ lookups:
             value: [Volgo-Don 219 Shipping LTD, Volga-Don Shipping JSC, Azovo/Don Shipping JSC]
           - prop: registrationCode
             value: 5353052
+      - match: HCC Shipmanagement Inc. c/o Adel Ship Management SRL (6333534
+        items: 
+          - prop: name
+            value: [HCC Shipmanagement Inc., Adel Ship Management SRL]
+          - prop: registrationCode
+            value: 6333534
+      - match: Vadimovich SD c/o Arapax LLC (5997971
+        items: 
+          - prop: name
+            value: [Vadimovich SD, Arapax LLC]
+          - prop: registrationCode
+            value: 5997971
+      - match: Zelitiko Shipping Co Ltd c/o Gas Carriers SCF MGMT FZCO (5809375
+        items: 
+          - prop: name
+            value: [Zelitiko Shipping Co Ltd, Gas Carriers SCF MGMT FZCO]
+          - prop: registrationCode
+            value: 5809375
+      - match: Enson Shipping Inc c/o Matias Ship Management LLC-FZ (0056718
+        items: 
+          - prop: name
+            value: [Enson Shipping Inc, Matias Ship Management LLC-FZ]
+          - prop: registrationCode
+            value: 0056718
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973

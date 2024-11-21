@@ -165,7 +165,9 @@ def crawl_vessel(context: Context, details_container, link):
         com_manager_parts = com_manager.split(" / ")
         if len(com_manager_parts) == 3:
             com_name_imo, com_country, com_date = com_manager_parts
-            if len(com_name_imo.split(" (")) == 2:
+            # we do not expect to actually split on 'c/o' in any of this cases
+            # it's there only to trigger lookup_override
+            if len(h.multi_split(com_name_imo, [" (", "c/o"])) == 2:
                 com_name, com_imo = com_name_imo.split(" (")
             else:
                 overrides = lookup_override(context, com_name_imo, "com_manager")
@@ -198,7 +200,7 @@ def crawl_vessel(context: Context, details_container, link):
         safety_manager_parts = safety_manager.split(" / ")
         if len(safety_manager_parts) == 3:
             safety_name_imo, safety_country, safety_date = safety_manager_parts
-            if len(safety_name_imo.split(" (")) == 2:
+            if len(h.multi_split(safety_name_imo, [" (", "c/o"])) == 2:
                 safety_name, safety_imo = safety_name_imo.split(" (")
             else:
                 overrides = lookup_override(context, safety_name_imo, "com_manager")
@@ -229,7 +231,7 @@ def crawl_vessel(context: Context, details_container, link):
         owner_parts = owner_info.split(" / ")
         if len(owner_parts) == 3:
             owner_name_imo, owner_country, owner_date = owner_parts
-            if len(owner_name_imo.split(" (")) == 2:
+            if len(h.multi_split(owner_name_imo, [" (", "c/o"])) == 2:
                 owner_name, owner_imo = owner_name_imo.split(" (")
             else:
                 overrides = lookup_override(context, owner_name_imo, "com_manager")
