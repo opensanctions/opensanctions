@@ -59,16 +59,14 @@ def crawl_index_page(context: Context, index_page, data_type):
     index_page = context.fetch_html(index_page, cache_days=3)
     main_grid = index_page.find('.//div[@id="main-grid"]')
     if main_grid is not None:
-        for a in main_grid.findall(".//a"):
-            href = [a.get("href")]
-            for link in href:
-                if link.startswith("https:"):
-                    if data_type == "person":
-                        crawl_person(context, link)
-                    elif data_type == "company":
-                        crawl_company(context, link)
-                    if data_type == "vessel":
-                        crawl_vessel(context, link)
+        for link in main_grid.xpath(".//a/@href"):
+            if link.startswith("https:"):
+                if data_type == "person":
+                    crawl_person(context, link)
+                elif data_type == "company":
+                    crawl_company(context, link)
+                if data_type == "vessel":
+                    crawl_vessel(context, link)
 
 
 def crawl_vessel(context: Context, link):
