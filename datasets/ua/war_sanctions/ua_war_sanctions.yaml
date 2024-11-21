@@ -35,12 +35,30 @@ publisher:
   official: true
 url: https://war-sanctions.gur.gov.ua/en
 data:
-  url: https://war-sanctions.gur.gov.ua/en/kidnappers/persons
+  url: https://war-sanctions.gur.gov.ua/en
   format: HTML
 
 dates: 
   formats: ["%d.%m.%Y", "%d.%m. %Y", "%d.%m.%Y)", "%m.%Y)"]
 
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 500
+      Person: 400
+      Vessel: 430
+      Company: 150
+    country_entities:
+      ru: 790
+      ua: 170
+      ae: 80
+    countries: 15
+  max:
+    schema_entities:
+      LegalEntity: 730
+      Person: 630
+      Vessel: 670
+      Company: 300
 lookups: 
   overrides: 
     options: 

@@ -3,23 +3,19 @@ from zavod import Context, helpers as h
 
 LINKS = [
     {  # child kidnappers
-        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page={page}&per-page=12",
-        "max_pages": 26,
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
         "type": "person",
     },
     {  # child kidnappers
-        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page={page}&per-page=12",
-        "max_pages": 14,
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
         "type": "company",
     },
     {  # russian athletes
-        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page={page}&per-page=12",
-        "max_pages": 9,
+        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
         "type": "person",
     },
     {  # ships
-        "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page={page}&per-page=12",
-        "max_pages": 4,
+        "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
         "type": "vessel",
     },
 ]
@@ -182,7 +178,9 @@ def crawl_vessel(context: Context, details_container, link):
             context.emit(com_manager, target=True)
 
             com_rep = context.make("Representation")
-            com_rep.id = context.make_id(vessel.id, com_manager.id)
+            com_rep.id = context.make_id(
+                vessel.id, "commercially managed by", com_manager.id
+            )
             com_rep.add("client", vessel.id)
             com_rep.add("agent", com_manager.id)
             com_rep.add("role", "Commercial ship manager")
@@ -213,7 +211,9 @@ def crawl_vessel(context: Context, details_container, link):
             context.emit(safety_manager, target=True)
 
             safety_rep = context.make("Representation")
-            safety_rep.id = context.make_id(vessel.id, safety_manager.id)
+            safety_rep.id = context.make_id(
+                vessel.id, "safety managed by", safety_manager.id
+            )
             safety_rep.add("client", vessel.id)
             safety_rep.add("agent", safety_manager.id)
             safety_rep.add("role", "Ship Safety Management Manager")
@@ -242,7 +242,7 @@ def crawl_vessel(context: Context, details_container, link):
             context.emit(owner, target=True)
 
             ownership = context.make("Ownership")
-            ownership.id = context.make_id(vessel.id, owner.id)
+            ownership.id = context.make_id(vessel.id, "owned by", owner.id)
             ownership.add("asset", vessel.id)
             ownership.add("owner", owner.id)
             ownership.add("ownershipType", "Owner")
@@ -367,15 +367,18 @@ def extract_next_page_url(doc, base_url, next_xpath):
 
 
 def crawl(context):
+    main_page = context.fetch_html(context.data_url, cache_days=3)
+    node = main_page.find(
+        ".//section[@class='sections d-flex flex-wrap align-items-stretch justify-content-center mb-5 pl-5 pr-5 medium']"
+    )
+    h.assert_dom_hash(node, "dbb9a924d940b3a69a132a102e04dcf0f9fbfc5e")
+
     for link_info in LINKS:
         base_url = link_info["url"]
         data_type = link_info["type"]
-
-        current_url = base_url.format(page=1)
-
+        current_url = base_url
         visited_pages = 0
-        max_pages = link_info["max_pages"]
-        while current_url and visited_pages < max_pages * 1:  # emergency exit check
+        while current_url and visited_pages < 100:  # emergency exit check
             doc = context.fetch_html(current_url)
             if doc is None:
                 print(f"Failed to fetch {current_url}")
@@ -394,3 +397,7 @@ def crawl(context):
                 visited_pages += 1
             else:
                 break
+        if visited_pages >= 100:
+            raise Exception(
+                "Emergency limit of 100 visited pages reached. Potential logical inconsistency detected."
+            )
