@@ -1,7 +1,11 @@
 from copy import deepcopy
+from typing import Iterable, List
+import shutil
+
 from nomenklatura.enrich import make_enricher
 from nomenklatura.entity import CompositeEntity
-import shutil
+from nomenklatura.statement import Statement
+from nomenklatura.judgement import Judgement
 
 from zavod import settings
 from zavod.archive import iter_dataset_statements
@@ -9,10 +13,12 @@ from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.meta import Dataset
 from zavod.runner.local_enricher import LocalEnricher
+from zavod.dedupe import get_resolver
+from zavod.store import get_store
 
 DATASET_DATA = {
-    "name": "some_registry",
-    "title": "Some Company Registry",
+    "name": "test_enricher",
+    "title": "An enrichment dataset",
     "config": {"cutoff": 0.5},
     "entry_point": "zavod.runner.local_enricher:enrich",
     "inputs": ["enrichment_subject"],
@@ -39,11 +45,23 @@ AAA_BANK = {
 }
 
 
-def load_enricher(context: Context, dataset_data, target_dataset: str):
+def make_enricher_dataset(dataset_data, target_dataset):
     dataset_data_copy = deepcopy(dataset_data)
     dataset_data_copy["config"]["dataset"] = target_dataset
-    dataset = Dataset.make(dataset_data_copy)
+    return Dataset.make(dataset_data_copy)
+
+
+def load_enricher(context: Context, dataset_data, target_dataset: str):
+    dataset = make_enricher_dataset(dataset_data, target_dataset)
     return dataset, LocalEnricher(dataset, context.cache, dataset.config)
+
+
+def get_statements(dataset: Dataset, prop: str, external: bool) -> List[Statement]:
+    return [
+        s
+        for s in iter_dataset_statements(dataset, external=external)
+        if s.prop == prop and s.external == external
+    ]
 
 
 def test_enrich(testdataset1: Dataset, enrichment_subject: Dataset):
@@ -57,22 +75,36 @@ def test_enrich(testdataset1: Dataset, enrichment_subject: Dataset):
 
     # Treat testdataset1 as the target dataset
     crawl_dataset(testdataset1)
-    
+
     # Enrich the subject against the target
-    enrich_context = Context(enricher_ds)
-    enricher_ds, enricher = load_enricher(enrich_context, DATASET_DATA, testdataset1.name)
-
+    resolver = get_resolver()
+    assert len(resolver.edges) == 0
+    enricher_ds = make_enricher_dataset(DATASET_DATA, testdataset1.name)
     stats = crawl_dataset(enricher_ds)
-    internals = list(iter_dataset_statements(enricher_ds, external=False))
-    assert len(internals) == 3, internals
 
-    assert internals[0].schema.name == "Company"
-    assert internals[0].id == "osv-umbrella-corp"
-    assert internals[1].schema.name == "Ownership"
-    assert internals[1].get("owner") == ["osv-oswell-spencer"]
-    assert internals[1].get("asset") == ["osv-umbrella-corp"]
-    assert internals[2].schema.name == "Person"
-    assert internals[2].id == "osv-oswell-spencer"
+    internals = get_statements(enricher_ds, "id", False)
+    assert len(internals) == 0, internals
+    externals = get_statements(enricher_ds, "id", True)
+    assert len(externals) == 1, externals
+
+    # Judge a match
+    canon_id = resolver.decide("osv-umbrella-corp", "xxx", Judgement.POSITIVE)
+
+    # Enrich again, now with internals
+    crawl_dataset(enricher_ds)
+    internals = get_statements(enricher_ds, "id", False)
+    assert len(internals) == 3, internals
+    externals = get_statements(enricher_ds, "id", True)
+    assert len(externals) == 0, externals
+
+    enrichment_store = get_store(enricher_ds, resolver)
+    enrichment_store.sync()
+    enrichment_view = enrichment_store.view(enricher_ds)
+    match = enrichment_view.get_entity(canon_id)
+    assert match.schema.name == "Company"
+    _, ownership = list(enrichment_view.get_inverted(canon_id))[0]
+    owner = enrichment_view.get_entity(ownership.get("owner")[0])
+    assert owner.id == "osv-oswell-spencer"
 
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 

@@ -66,9 +66,9 @@ class LocalEnricher(BaseEnricher[DS]):
         target_dataset_name = config["dataset"]
         target_dataset = get_catalog().require(target_dataset_name)
         target_linker = get_dataset_linker(target_dataset)
-        target_store = get_store(target_dataset, target_linker)
-        target_store.sync()
-        self.target_view = target_store.view(target_dataset)
+        self.target_store = get_store(target_dataset, target_linker)
+        self.target_store.sync()
+        self.target_view = self.target_store.view(target_dataset)
         index_path = dataset_state_path(dataset.name) / "duckdb-enrich-index"
         self._index = DuckDBIndex(
             self.target_view, index_path, config.get("index_options", {})
@@ -83,9 +83,17 @@ class LocalEnricher(BaseEnricher[DS]):
         self._cutoff = float(config.get("cutoff", 0.5))
         self._limit = int(config.get("limit", 5))
         self._max_bin = int(config.get("max_bin", 10))
+    
+    def close(self) -> None:
+        self.target_store.close()
 
     def load(self, entity: Entity) -> None:
         self._index.add_matching_subject(entity)
+
+    def load_wrapped(self, entity: Entity) -> None:
+        if not self._filter_entity(entity):
+            return
+        self.load(entity)
 
     def candidates(self) -> Generator[Tuple[Identifier, MatchCandidates], None, None]:
         yield from self._index.matches()
@@ -123,8 +131,7 @@ class LocalEnricher(BaseEnricher[DS]):
             if result.score < self._cutoff:
                 continue
 
-            proxy = self.entity_from_statements(type(entity), match)
-            scores.append((result.score, proxy))
+            scores.append((result.score, match))
 
         scores.sort(key=lambda s: s[0], reverse=True)
         for algo_score, proxy in scores[: self._limit]:
@@ -146,20 +153,21 @@ class LocalEnricher(BaseEnricher[DS]):
 
         next_path = list(path)
         next_path.append(entity.id)
-        store_type_entity = self.entity_from_statements(
-            self.target_view.store.entity_class, entity
-        )
-        for prop, adjacent in self.target_view.get_adjacent(store_type_entity):
+        for prop, adjacent in self.target_view.get_adjacent(entity):
             if prop.type != registry.entity:
                 continue
             if adjacent.id in path:
                 continue
 
-            related = self.entity_from_statements(type(entity), adjacent)
-            yield from self._traverse_nested(related, next_path)
+            yield from self._traverse_nested(adjacent, next_path)
 
     def expand(self, match: Entity) -> Generator[Entity, None, None]:
         yield from self._traverse_nested(match)
+
+    def expand_wrapped(self, entity: Entity, match: Entity) -> Generator[Entity, None, None]:
+        if not self._filter_entity(entity):
+            return
+        yield from self.expand(match)
 
 
 def save_match(
@@ -191,37 +199,39 @@ def save_match(
 
 def enrich(context: Context) -> None:
     resolver = get_resolver()
-    scope = get_multi_dataset(context.dataset.inputs)
-    context.log.info(
-        "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
-    )
-    store = get_store(scope, resolver)
-    store.sync()
-    subject_view = store.view(scope)
-    config = dict(context.dataset.config)
-    enricher = LocalEnricher(context.dataset, context.cache, config)
-    threshold = float(context.dataset.config.get("threshold", 0.7))
+    try:
+        scope = get_multi_dataset(context.dataset.inputs)
+        context.log.info(
+            "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
+        )
+        subject_store = get_store(scope, resolver)
+        subject_store.sync()
+        subject_view = subject_store.view(scope)
+        config = dict(context.dataset.config)
+        enricher = LocalEnricher(context.dataset, context.cache, config)
+        threshold = float(context.dataset.config.get("threshold", 0.7))
 
-    context.log.info("Loading entities for matching...")
-    for entity in subject_view.entities():
-        enricher.load(entity)
+        context.log.info("Loading entities for matching...")
+        for entity in subject_view.entities():
+            enricher.load_wrapped(entity)
 
-    context.log.info("Matching candidates...")
-    for entity_idx, (entity_id, candidate_set) in enumerate(enricher.candidates()):
-        if entity_idx > 0 and entity_idx % 1000 == 0:
-            context.cache.flush()
-        if entity_idx > 0 and entity_idx % 10000 == 0:
-            context.log.info("Enriched %s entities..." % entity_idx)
-        subject_entity = subject_view.get_entity(entity_id.id)
-        if subject_entity is None:
-            context.log.error("Missing entity: %r" % entity_id)
-            continue
-        try:
-            for match in enricher.match_candidates(subject_entity, candidate_set):
-                save_match(
-                    context, resolver, enricher, subject_entity, match, threshold
-                )
-        except EnrichmentException as exc:
-            context.log.error("Enrichment error %r: %s" % (subject_entity, str(exc)))
-    resolver.save()
-    context.log.info("Enrichment process complete.")
+        context.log.info("Matching candidates...")
+        for entity_idx, (entity_id, candidate_set) in enumerate(enricher.candidates()):
+            if entity_idx > 0 and entity_idx % 1000 == 0:
+                context.cache.flush()
+            if entity_idx > 0 and entity_idx % 10000 == 0:
+                context.log.info("Enriched %s entities..." % entity_idx)
+            subject_entity = subject_view.get_entity(entity_id.id)
+            if subject_entity is None:
+                context.log.error("Missing entity: %r" % entity_id)
+                continue
+            try:
+                for match in enricher.match_candidates(subject_entity, candidate_set):
+                    save_match(context, resolver, enricher, subject_entity, match)
+            except EnrichmentException as exc:
+                context.log.error("Enrichment error %r: %s" % (subject_entity, str(exc)))
+        resolver.save()
+        context.log.info("Enrichment process complete.")
+    finally:
+        enricher.close()
+        subject_store.close()
