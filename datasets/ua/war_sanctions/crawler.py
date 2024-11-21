@@ -360,12 +360,9 @@ def crawl(context: Context):
 
             # get the next page URL, if exists
             next_url = extract_next_page_url(doc, base_url, next_xpath)
+            current_url = next_url
+            visited_pages += 1
 
-            if next_url:
-                current_url = next_url
-                visited_pages += 1
-            else:
-                break
         if visited_pages >= 100:
             raise Exception(
                 "Emergency limit of 100 visited pages reached. Potential logical inconsistency detected."
