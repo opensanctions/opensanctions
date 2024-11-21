@@ -6,18 +6,18 @@ LINKS = [
         "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
         "type": "person",
     },
-    {  # child kidnappers
-        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
-        "type": "company",
-    },
+    # {  # child kidnappers
+    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
+    #     "type": "company",
+    # },
     {  # russian athletes
         "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
         "type": "person",
     },
-    {  # ships
-        "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
-        "type": "vessel",
-    },
+    # {  # ships
+    #     "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
+    #     "type": "vessel",
+    # },
 ]
 
 # TODO: fix strings that were merged on | but were not supposed to be
@@ -264,16 +264,11 @@ def crawl_vessel(context: Context, details_container, link):
 def crawl_person(context: Context, details_container, link):
     data: dict[str, str] = {}
     for row in details_container.findall(".//div[@class='row']"):
-        label_elem = row.find(
-            ".//div[@class='col-12 col-md-4 col-lg-2 yellow']"
-        )  # get children and assert one with yellow and 1 without (2 in total)
-        value_elem = row.find(".//div[@class='col-12 col-md-8 col-lg-10']")
-        if value_elem is None:
-            value_elem = row.find(
-                ".//div[@class='js_visibility_target col-12 col-md-8 col-lg-10']"
-            )
-        if label_elem is not None and value_elem is not None:
-            data = extract_label_value_pair(label_elem, value_elem, data=data)
+        divs = row.findall("div")
+        if len(divs) == 2:
+            label_elem, value_elem = divs
+            if "yellow" in label_elem.get("class"):
+                data = extract_label_value_pair(label_elem, value_elem, data)
 
     names = data.pop("Name")
     positions = data.pop("Position", None)
