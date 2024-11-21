@@ -316,10 +316,9 @@ def crawl_company(context: Context, link):
     context.audit_data(data)
 
 
-def extract_next_page_url(doc, base_url, next_xpath):
+def extract_next_page_url(doc):
     # next page <a> element extraction using xpath
-    next_link_element = doc.xpath(next_xpath)
-
+    next_link_element = doc.xpath("//ul[@class='pagination']//li[@class='next']/a")
     if next_link_element:
         next_link = next_link_element[0]
         return next_link.get("href")
@@ -339,7 +338,7 @@ def crawl(context: Context):
         data_type = link_info["type"]
         current_url = base_url
         visited_pages = 0
-        while current_url and visited_pages < 100:  # emergency exit check
+        while current_url:
             doc = context.fetch_html(current_url)
             doc.make_links_absolute(base_url)
             if doc is None:
@@ -348,11 +347,8 @@ def crawl(context: Context):
             context.log.info(f"Processing {current_url}")
             crawl_index_page(context, current_url, data_type)
 
-            # xpath to find the next page link
-            next_xpath = "//ul[@class='pagination']//li[@class='next']/a"
-
             # get the next page URL, if exists
-            next_url = extract_next_page_url(doc, base_url, next_xpath)
+            next_url = extract_next_page_url(doc)
             current_url = next_url
             visited_pages += 1
 
