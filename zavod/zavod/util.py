@@ -37,9 +37,9 @@ def join_slug(
 
 def prefixed_hash_id(prefix: str, hash: str) -> str:
     """Make a hash-based ID with a prefix."""
-    prefix = slugify_prefix(prefix)
-    assert prefix is not None, "Invalid prefix"
-    return f"{prefix}-{hash}"[:ENTITY_ID_LEN]
+    slug_prefix = slugify_prefix(prefix)
+    assert slug_prefix is not None, "Invalid prefix"
+    return f"{slug_prefix}-{hash}"[:ENTITY_ID_LEN]
 
 
 def json_default(obj: Any) -> Any:
