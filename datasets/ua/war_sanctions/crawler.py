@@ -63,25 +63,17 @@ def crawl_index_page(context: Context, index_page, data_type):
             href = [a.get("href")]
             for link in href:
                 if link.startswith("https:"):
-                    detail_page = context.fetch_html(link, cache_days=3)
                     if data_type == "person":
-                        details_container = detail_page.find(
-                            ".//div[@id='js_visibility'][@class='col-12 col-lg-9']"
-                        )
-                        crawl_person(context, details_container, link)
+                        crawl_person(context, link)
                     elif data_type == "company":
-                        details_container = detail_page.find(
-                            ".//div[@class='col-12 col-lg-9']"
-                        )
-                        crawl_company(context, details_container, link)
+                        crawl_company(context, link)
                     if data_type == "vessel":
-                        details_container = detail_page.find(
-                            ".//div[@id='js_visibility']"
-                        )
-                        crawl_vessel(context, details_container, link)
+                        crawl_vessel(context, link)
 
 
-def crawl_vessel(context: Context, details_container, link):
+def crawl_vessel(context: Context, link):
+    detail_page = context.fetch_html(link, cache_days=3)
+    details_container = detail_page.find(".//div[@id='js_visibility']")
     data: dict[str, str] = {}
 
     xpath_definitions = [
@@ -237,7 +229,11 @@ def crawl_ship_relation(context, vessel, data, data_key, rel_role, rel_schema):
             context.emit(relation)
 
 
-def crawl_person(context: Context, details_container, link):
+def crawl_person(context: Context, link):
+    detail_page = context.fetch_html(link, cache_days=3)
+    details_container = detail_page.find(
+        ".//div[@id='js_visibility'][@class='col-12 col-lg-9']"
+    )
     data: dict[str, str] = {}
     for row in details_container.findall(".//div[@class='row']"):
         divs = row.findall("div")
@@ -286,7 +282,9 @@ def crawl_person(context: Context, details_container, link):
     context.audit_data(data)
 
 
-def crawl_company(context: Context, details_container, link):
+def crawl_company(context: Context, link):
+    detail_page = context.fetch_html(link, cache_days=3)
+    details_container = detail_page.find(".//div[@class='col-12 col-lg-9']")
     data = {}
     for row in details_container.findall(".//div[@class='row']"):
         divs = row.findall("div")
