@@ -1,15 +1,15 @@
-from functools import cache
-from lxml import etree
-from typing import Optional, Union, IO, Any, Dict
-from normality import slugify
+import re
 import orjson
 import logging
-import re
+from lxml import etree
+from functools import cache
+from typing import Optional, Union, IO, Any, Dict
+from normality import slugify
+from followthemoney.util import ENTITY_ID_LEN
 
 log = logging.getLogger(__name__)
 ElementOrTree = Union[etree._Element, etree._ElementTree]
 ID_SEP = "-"
-MAX_ID_LENGTH = 200
 
 
 @cache
@@ -32,14 +32,14 @@ def join_slug(
     prefix = slugify_prefix(prefix)
     if prefix is not None:
         texts = [prefix, *texts]
-    return ID_SEP.join(texts)[:MAX_ID_LENGTH].strip(ID_SEP)
+    return ID_SEP.join(texts)[:ENTITY_ID_LEN].strip(ID_SEP)
 
 
 def prefixed_hash_id(prefix: str, hash: str) -> str:
     """Make a hash-based ID with a prefix."""
     prefix = slugify_prefix(prefix)
     assert prefix is not None, "Invalid prefix"
-    return f"{prefix}-{hash}"[:MAX_ID_LENGTH]
+    return f"{prefix}-{hash}"[:ENTITY_ID_LEN]
 
 
 def json_default(obj: Any) -> Any:
