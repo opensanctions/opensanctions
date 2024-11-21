@@ -138,7 +138,7 @@ def crawl_vessel(context: Context, details_container, link):
         vessel.add("previousName", name)
     for flag in h.multi_split(flags_former, [" / "]):
         vessel.add("pastFlags", flag)
-    vessel.add("topics", "sanction")
+    vessel.add("topics", "poi")
 
     sanction = h.make_sanction(context, vessel)
     sanction.add("country", data.pop("Sanctions", None))
@@ -154,7 +154,7 @@ def crawl_vessel(context: Context, details_container, link):
         linked_entity = context.make("LegalEntity")
         linked_entity.id = context.make_id(linked_entity_name)
         linked_entity.add("name", linked_entity_name)
-        linked_entity.add("topics", "sanction.linked")
+        linked_entity.add("topics", "poi")
         context.emit(linked_entity, target=True)
 
     com_manager = data.pop("Commercial ship manager (IMO / Country / Date)")
@@ -174,7 +174,7 @@ def crawl_vessel(context: Context, details_container, link):
             com_manager.add("name", com_name)
             com_manager.add("registrationNumber", com_imo)
             com_manager.add("country", com_country)
-            com_manager.add("topics", "sanction.linked")
+            com_manager.add("topics", "poi")
             context.emit(com_manager, target=True)
 
             com_rep = context.make("Representation")
@@ -207,7 +207,7 @@ def crawl_vessel(context: Context, details_container, link):
             safety_manager.add("name", safety_name)
             safety_manager.add("registrationNumber", safety_imo)
             safety_manager.add("country", safety_country)
-            safety_manager.add("topics", "sanction.linked")
+            safety_manager.add("topics", "poi")
             context.emit(safety_manager, target=True)
 
             safety_rep = context.make("Representation")
@@ -238,7 +238,7 @@ def crawl_vessel(context: Context, details_container, link):
             owner.add("name", owner_name)
             owner.add("country", owner_country)
             owner.add("registrationNumber", owner_imo)
-            owner.add("topics", "sanction.linked")
+            owner.add("topics", "poi")
             context.emit(owner, target=True)
 
             ownership = context.make("Ownership")
@@ -305,8 +305,7 @@ def crawl_person(context: Context, details_container, link):
         pos_parts = positions.split(" / ")
         for position in pos_parts:
             person.add("position", position)
-    person.add("topics", "sanction")
-    person.add("topics", "crime.war")
+    person.add("topics", "poi")
 
     sanction = h.make_sanction(context, person)
     sanction.add("reason", data.pop("Reasons"))
@@ -344,7 +343,7 @@ def crawl_company(context: Context, details_container, link):
         for archive_link in archive_links.split(" | "):
             company.add("sourceUrl", archive_link)
 
-    company.add("topics", "sanction")
+    company.add("topics", "poi")
     sanction = h.make_sanction(context, company)
     sanction.add("reason", data.pop("Reasons"))
     sanction.add("sourceUrl", link)
