@@ -190,43 +190,40 @@ def crawl_vessel(context: Context, link):
 def crawl_ship_relation(context, vessel, data, data_key, rel_role, rel_schema):
     # Extract the relation information from data using the specified key
     relation_info = data.pop(data_key, None)
-    if relation_info:
-        # Split the relation info into expected parts
-        relation_parts = relation_info.split(" / ")
-        if len(relation_parts) == 3:
-            entity_name_imo, entity_country, entity_date = relation_parts
-            if len(h.multi_split(entity_name_imo, [" (", "c/o"])) == 2:
-                entity_name, entity_imo = entity_name_imo.split(" (")
-            else:
-                overrides = lookup_override(context, entity_name_imo)
-                entity_name = overrides.get("name")
-                entity_imo = overrides.get("registrationCode")
+    if relation_info is None:
+        return
+    # Split the relation info into expected parts
+    relation_parts = relation_info.split(" / ")
+    if len(relation_parts) == 3:
+        entity_name_imo, entity_country, entity_date = relation_parts
+        if len(h.multi_split(entity_name_imo, [" (", "c/o"])) != 2:
+            overrides = lookup_override(context, entity_name_imo)
+            entity_name = overrides.get("name")
+            entity_imo = overrides.get("registrationCode")
+        else:
+            entity_name, entity_imo = entity_name_imo.split(" (")
 
-            # Create and emit the Legal Entity
-            entity = context.make("LegalEntity")
-            entity.id = context.make_id(entity_name, entity_country)
-            entity.add("name", entity_name)
-            entity.add("registrationNumber", entity_imo)
-            entity.add("country", entity_country)
-            entity.add("topics", "poi")
-            context.emit(entity, target=True)
+        # Create and emit the Legal Entity
+        entity = context.make("LegalEntity")
+        entity.id = context.make_id(entity_name, entity_country)
+        entity.add("name", entity_name)
+        entity.add("registrationNumber", entity_imo)
+        entity.add("country", entity_country)
+        entity.add("topics", "poi")
+        context.emit(entity, target=True)
 
-            # Create the relation representation
-            relation = context.make(rel_schema)
-            relation.id = context.make_id(vessel.id, f"{rel_role} by", entity.id)
-            # Set the appropriate field based on the role
-            relation.add(
-                "client" if rel_schema == "Representation" else "asset", vessel.id
-            )
-            relation.add(
-                "agent" if rel_schema == "Representation" else "owner", entity.id
-            )
-            relation.add(
-                "role" if rel_schema == "Representation" else "ownershipType", rel_role
-            )
+        # Create the relation representation
+        relation = context.make(rel_schema)
+        relation.id = context.make_id(vessel.id, f"{rel_role} by", entity.id)
+        # Set the appropriate field based on the role
+        relation.add("client" if rel_schema == "Representation" else "asset", vessel.id)
+        relation.add("agent" if rel_schema == "Representation" else "owner", entity.id)
+        relation.add(
+            "role" if rel_schema == "Representation" else "ownershipType", rel_role
+        )
 
-            h.apply_date(relation, "startDate", entity_date)
-            context.emit(relation)
+        h.apply_date(relation, "startDate", entity_date)
+        context.emit(relation)
 
 
 def crawl_person(context: Context, link):
