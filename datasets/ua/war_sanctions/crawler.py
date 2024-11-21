@@ -46,6 +46,7 @@ def extract_label_value_pair(label_elem, value_elem, data):
     label = label_elem.text_content().strip().replace("\n", " ")
     value = value_elem.text_content().strip().replace("\n", " ")
     value = " ".join(value.split())
+    # we use it for splitting some strings at a later stage
     value = " | ".join(
         [text.strip() for text in value_elem.itertext() if text.strip()]
     ).strip()
@@ -297,13 +298,12 @@ def crawl_person(context: Context, details_container, link):
             dob = dp_parts[0]
             h.apply_date(person, "birthDate", dob)
     if positions:
-        pos_parts = positions.split(" / ")
-        for position in pos_parts:
-            person.add("position", position)
+        for pos_parts in h.multi_split(positions, [" | ", " / "]):
+            person.add("position", pos_parts)
     person.add("topics", "poi")
 
     sanction = h.make_sanction(context, person)
-    sanction.add("reason", data.pop("Reasons"))
+    sanction.add("reason", data.pop("Reasons").replace(" | ", " "))
     sanction.add("sourceUrl", link)
 
     context.emit(person, target=True)
@@ -372,7 +372,7 @@ def crawl(context):
         data_type = link_info["type"]
         current_url = base_url
         visited_pages = 0
-        while current_url and visited_pages < 100:  # emergency exit check
+        while current_url and visited_pages < 4:  # emergency exit check
             doc = context.fetch_html(current_url)
             if doc is None:
                 print(f"Failed to fetch {current_url}")
@@ -391,7 +391,7 @@ def crawl(context):
                 visited_pages += 1
             else:
                 break
-        if visited_pages >= 100:
+        if visited_pages >= 5:
             raise Exception(
                 "Emergency limit of 100 visited pages reached. Potential logical inconsistency detected."
             )
