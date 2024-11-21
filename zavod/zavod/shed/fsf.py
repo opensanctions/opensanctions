@@ -133,7 +133,10 @@ def parse_entry(context: Context, entry: Element) -> None:
             lang=lang,
         )
         entity.add("title", name.get("title"), quiet=True, lang=lang)
-        entity.add("position", name.get("function"), quiet=True, lang=lang)
+        if entity.schema.is_a("Person"):
+            entity.add("position", name.get("function"), lang=lang)
+        else:
+            entity.add("notes", name.get("function"), lang=lang)
         entity.add("gender", name.get("gender"), quiet=True, lang=lang)
 
     for node in entry.findall("./identification"):
