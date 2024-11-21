@@ -322,7 +322,6 @@ def crawl_company(context: Context, link):
 
 
 def extract_next_page_url(doc, base_url, next_xpath):
-    doc.make_links_absolute(base_url)
     # next page <a> element extraction using xpath
     next_link_element = doc.xpath(next_xpath)
 
@@ -347,6 +346,7 @@ def crawl(context: Context):
         visited_pages = 0
         while current_url and visited_pages < 100:  # emergency exit check
             doc = context.fetch_html(current_url)
+            doc.make_links_absolute(base_url)
             if doc is None:
                 context.log.warn(f"Failed to fetch {current_url}")
                 break
