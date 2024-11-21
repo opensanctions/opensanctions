@@ -2,28 +2,28 @@ from zavod import Context, helpers as h
 
 
 LINKS = [
-    {  # child kidnappers
-        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
-        "type": "person",
-    },
-    {  # child kidnappers
-        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
-        "type": "company",
-    },
-    {  # russian athletes
-        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
-        "type": "person",
-    },
+    # {  # child kidnappers
+    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
+    #     "type": "person",
+    # },
+    # {  # child kidnappers
+    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
+    #     "type": "company",
+    # },
+    # {  # russian athletes
+    #     "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
+    #     "type": "person",
+    # },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
         "type": "vessel",
     },
 ]
 
-# TODO: c/o and uknowns
+# TODO: c/o and uknowns, Невідомо, 'Unknown (22.03.2024), Ship Safety Management Manager (IMO / Country / Date)': 'Unknown (08.02.2023)
 
 
-def lookup_override(context, key, lookup_type):
+def lookup_override(context, key):
     override_res = context.lookup("overrides", key)
     if not override_res:
         context.log.warning(f"No override found for {key}")
@@ -160,101 +160,30 @@ def crawl_vessel(context: Context, details_container, link):
         linked_entity.add("topics", "poi")
         context.emit(linked_entity, target=True)
 
-    com_manager = data.pop("Commercial ship manager (IMO / Country / Date)")
-    if com_manager != "":
-        com_manager_parts = com_manager.split(" / ")
-        if len(com_manager_parts) == 3:
-            com_name_imo, com_country, com_date = com_manager_parts
-            # we do not expect to actually split on 'c/o' in any of this cases
-            # it's there only to trigger lookup_override
-            if len(h.multi_split(com_name_imo, [" (", "c/o"])) == 2:
-                com_name, com_imo = com_name_imo.split(" (")
-            else:
-                overrides = lookup_override(context, com_name_imo, "com_manager")
-                com_name = overrides.get("name")
-                com_imo = overrides.get("registrationCode")
-
-            com_manager = context.make("LegalEntity")
-            com_manager.id = context.make_id(com_name, com_country)
-            com_manager.add("name", com_name)
-            com_manager.add("registrationNumber", com_imo)
-            com_manager.add("country", com_country)
-            com_manager.add("topics", "poi")
-            context.emit(com_manager, target=True)
-
-            com_rep = context.make("Representation")
-            com_rep.id = context.make_id(
-                vessel.id, "commercially managed by", com_manager.id
-            )
-            com_rep.add("client", vessel.id)
-            com_rep.add("agent", com_manager.id)
-            com_rep.add("role", "Commercial ship manager")
-            h.apply_date(com_rep, "startDate", com_date)
-
-            context.emit(com_rep)
-
-    safety_manager = data.pop(
-        "Ship Safety Management Manager (IMO / Country / Date)", None
+    crawl_ship_relation(
+        context,
+        vessel,
+        data,
+        "Commercial ship manager (IMO / Country / Date)",
+        "Commercial ship manager",
+        "Representation",
     )
-    if safety_manager is not None:
-        safety_manager_parts = safety_manager.split(" / ")
-        if len(safety_manager_parts) == 3:
-            safety_name_imo, safety_country, safety_date = safety_manager_parts
-            if len(h.multi_split(safety_name_imo, [" (", "c/o"])) == 2:
-                safety_name, safety_imo = safety_name_imo.split(" (")
-            else:
-                overrides = lookup_override(context, safety_name_imo, "com_manager")
-                safety_name = overrides.get("name")
-                safety_imo = overrides.get("registrationCode")
-
-            safety_manager = context.make("LegalEntity")
-            safety_manager.id = context.make_id(safety_name, safety_country)
-            safety_manager.add("name", safety_name)
-            safety_manager.add("registrationNumber", safety_imo)
-            safety_manager.add("country", safety_country)
-            safety_manager.add("topics", "poi")
-            context.emit(safety_manager, target=True)
-
-            safety_rep = context.make("Representation")
-            safety_rep.id = context.make_id(
-                vessel.id, "safety managed by", safety_manager.id
-            )
-            safety_rep.add("client", vessel.id)
-            safety_rep.add("agent", safety_manager.id)
-            safety_rep.add("role", "Ship Safety Management Manager")
-            h.apply_date(safety_rep, "startDate", safety_date)
-
-            context.emit(safety_rep)
-
-    owner_info = data.pop("Shipowner (IMO / Country / Date)")
-    if owner_info != "":
-        owner_parts = owner_info.split(" / ")
-        if len(owner_parts) == 3:
-            owner_name_imo, owner_country, owner_date = owner_parts
-            if len(h.multi_split(owner_name_imo, [" (", "c/o"])) == 2:
-                owner_name, owner_imo = owner_name_imo.split(" (")
-            else:
-                overrides = lookup_override(context, owner_name_imo, "com_manager")
-                owner_name = overrides.get("name")
-                owner_imo = overrides.get("registrationCode")
-
-            owner = context.make("LegalEntity")
-            owner.id = context.make_id(owner_name, owner_country)
-            owner.add("name", owner_name)
-            owner.add("country", owner_country)
-            owner.add("registrationNumber", owner_imo)
-            owner.add("topics", "poi")
-            context.emit(owner, target=True)
-
-            ownership = context.make("Ownership")
-            ownership.id = context.make_id(vessel.id, "owned by", owner.id)
-            ownership.add("asset", vessel.id)
-            ownership.add("owner", owner.id)
-            ownership.add("ownershipType", "Owner")
-            h.apply_date(ownership, "startDate", owner_date)
-
-            context.emit(ownership)
-
+    crawl_ship_relation(
+        context,
+        vessel,
+        data,
+        "Ship Safety Management Manager (IMO / Country / Date)",
+        "Ship Safety Management Manager",
+        "Representation",
+    )
+    crawl_ship_relation(
+        context,
+        vessel,
+        data,
+        "Shipowner (IMO / Country / Date)",
+        "Shipowner",
+        "Ownership",
+    )
     context.audit_data(
         data,
         ignore=[
@@ -264,6 +193,48 @@ def crawl_vessel(context: Context, details_container, link):
             "Builder (country)",
         ],
     )
+
+
+def crawl_ship_relation(context, vessel, data, data_key, rel_role, rel_schema):
+    # Extract the relation information from data using the specified key
+    relation_info = data.pop(data_key, None)
+    if relation_info:
+        # Split the relation info into expected parts
+        relation_parts = relation_info.split(" / ")
+        if len(relation_parts) == 3:
+            entity_name_imo, entity_country, entity_date = relation_parts
+            if len(h.multi_split(entity_name_imo, [" (", "c/o"])) == 2:
+                entity_name, entity_imo = entity_name_imo.split(" (")
+            else:
+                overrides = lookup_override(context, entity_name_imo)
+                entity_name = overrides.get("name")
+                entity_imo = overrides.get("registrationCode")
+
+            # Create and emit the Legal Entity
+            entity = context.make("LegalEntity")
+            entity.id = context.make_id(entity_name, entity_country)
+            entity.add("name", entity_name)
+            entity.add("registrationNumber", entity_imo)
+            entity.add("country", entity_country)
+            entity.add("topics", "poi")
+            context.emit(entity, target=True)
+
+            # Create the relation representation
+            relation = context.make(rel_schema)
+            relation.id = context.make_id(vessel.id, f"{rel_role} by", entity.id)
+            # Set the appropriate field based on the role
+            relation.add(
+                "client" if rel_schema == "Representation" else "asset", vessel.id
+            )
+            relation.add(
+                "agent" if rel_schema == "Representation" else "owner", entity.id
+            )
+            relation.add(
+                "role" if rel_schema == "Representation" else "ownershipType", rel_role
+            )
+
+            h.apply_date(relation, "startDate", entity_date)
+            context.emit(relation)
 
 
 def crawl_person(context: Context, details_container, link):

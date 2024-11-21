@@ -308,6 +308,36 @@ lookups:
             value: [Boribo Shipping Corp, Stream Ship Management FZCO]
           - prop: registrationCode
             value: 0012462
+      - match: HS Hai II LTD c/o Maritas Fleet PVT LTD (6342719
+        items: 
+          - prop: name
+            value: [HS Hai II LTD, Maritas Fleet PVT LTD]
+          - prop: registrationCode
+            value: 6342719
+      - match: Leasing Company GPB LLC /current name Leasing Company LLC/ c/o Eco Shiping LLC (6129498
+        items: 
+          - prop: name
+            value: [Leasing Company GPB LLC, Leasing Company LLC, Eco Shiping LLC]
+          - prop: registrationCode
+            value: 6129498
+      - match: Pelagia Shipping LTD /current name Delta Shipping LLC/ c/o Eco Shiping LLC (5863958
+        items: 
+          - prop: name
+            value: [Pelagia Shipping LTD, Delta Shipping LLC, Eco Shiping LLC]
+          - prop: registrationCode
+            value: 5863958
+      - match: Tansley Trading LTD c/o Ocean Dreams Yachting Services (5839873
+        items: 
+          - prop: name
+            value: [Tansley Trading LTD, Ocean Dreams Yachting Services]
+          - prop: registrationCode
+            value: 5839873
+      - match: Almano Holding Ltd c/o Watermark Yacht Management (5730583
+        items: 
+          - prop: name
+            value: [Almano Holding Ltd, Watermark Yacht Management]
+          - prop: registrationCode
+            value: 5730583
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
