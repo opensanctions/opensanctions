@@ -133,7 +133,181 @@ lookups:
           - prop: name
             value: [Enson Shipping Inc, Matias Ship Management LLC-FZ]
           - prop: registrationCode
-            value: 0056718
+            value: 
+      - match: Chamber Marine SA c/o Stream Ship Management FZCO (5463464
+        items: 
+          - prop: name
+            value: [Chamber Marine SA, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 5463464
+      - match: Camber Shipping Inc c/o Stream Ship Management FZCO (5463447
+        items: 
+          - prop: name
+            value: [Camber Shipping Inc, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 5463447
+      - match: Sumerton Shipholding Inc c/o Stream Ship Management FZCO (5469861
+        items: 
+          - prop: name
+            value: [Sumerton Shipholding Inc, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 5469861
+      - match: Chernikov Y c/o Red Shipping LLC (6306591
+        items: 
+          - prop: name
+            value: [Chernikov Y, Red Shipping LLC]
+          - prop: registrationCode
+            value: 6306591
+      - match: Anhona Navigation SA c/o Harry Victor Ship Management & Operation LLC (6082772
+        items: 
+          - prop: name
+            value: [Anhona Navigation SA, Harry Victor Ship Management & Operation LLC]
+          - prop: registrationCode
+            value: 6082772
+      - match: Iquitos LTD c/o Harry Victor Ship Management & Operation LLC (6488704
+        items: 
+          - prop: name
+            value: [Iquitos LTD, Harry Victor Ship Management & Operation LLC]
+          - prop: registrationCode
+            value: 6488704
+      - match: Lindor Vella Co Ltd c/o Derecttor Co Ltd (6382864
+        items: 
+          - prop: name
+            value: [Lindor Vella Co Ltd, Derecttor Co Ltd]
+          - prop: registrationCode
+            value: 6382864
+      - match: Koster LLC c/o Kuban Marine Company LLC (6124214
+        items: 
+          - prop: name
+            value: [Koster LLC, Kuban Marine Company LLC]
+          - prop: registrationCode
+            value: 6124214
+      - match: Astra LLC c/o Eneya LLC (6314941
+        items: 
+          - prop: name
+            value: [Astra LLC, Eneya LLC]
+          - prop: registrationCode
+            value: 6314941
+      - match: Silvero Shipping LTD c/o Baltic Freight Group Ltd (5957503
+        items: 
+          - prop: name
+            value: [Silvero Shipping LTD, Baltic Freight Group Ltd]
+          - prop: registrationCode
+            value: 5957503
+      - match: Kalsoy Shipping Ltd c/o Stream Ship Management FZCO (5657822
+        items: 
+          - prop: name
+            value: [Kalsoy Shipping Ltd, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 5657822
+      - match: Waterside Carriers Inc c/o Stream Ship Management FZCO (4108908
+        items: 
+          - prop: name
+            value: [Waterside Carriers Inc, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 4108908
+      - match: Kandita Shipping Hk Ltd c/o Stream Ship Management FZCO (6361850
+        items: 
+          - prop: name
+            value: [Kandita Shipping Hk Ltd, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 6361850
+      - match: Erdington Navigation Corp c/o Stream Ship Management FZCO (5469826
+        items: 
+          - prop: name
+            value: [Erdington Navigation Corp, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 5469826
+      - match: Ns Breeze Shipping Inc c/o Stream Ship Management FZCO (5512132
+        items: 
+          - prop: name
+            value: [Ns Breeze Shipping Inc, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 5512132
+      - match: Ns Asia Shipping Inc c/o Stream Ship Management FZCO (5465885
+        items: 
+          - prop: name
+            value: [Ns Asia Shipping Inc, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 
+      - match: Bassett Oceanway Ltd c/o Stream Ship Management FZCO (4092481
+        items: 
+          - prop: name
+            value: [Bassett Oceanway Ltd, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 4092481
+      - match: Waterways Tankers Inc c/o Stream Ship Management FZCO (4109234
+        items: 
+          - prop: name
+            value: [Waterways Tankers Inc, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 4109234
+      - match: Brimwell Inter LTD c/o River Sea Management Co Ltd (5706831
+        items: 
+          - prop: name
+            value: [Brimwell Inter LTD, River Sea Management Co Ltd]
+          - prop: registrationCode
+            value: 5706831
+      - match: Alvion Maritime Ltd c/o Tower Shipping Co SA (6351779
+        items: 
+          - prop: name
+            value: [Alvion Maritime Ltd, Tower Shipping Co SA]
+          - prop: registrationCode
+            value: 6351779
+      - match: Rostrum Hedonist LTD c/o H Vogemann Reederei Services GmbH & Co KG (6451464
+        items: 
+          - prop: name
+            value: [Rostrum Hedonist LTD, H Vogemann Reederei Services GmbH & Co KG]
+          - prop: registrationCode
+            value: 6451464
+      - match: Loire Shipping Inc c/o Oceanlink Maritime DMCC (6137379
+        items: 
+          - prop: name
+            value: [Loire Shipping Inc, Oceanlink Maritime DMCC]
+          - prop: registrationCode
+            value: 6137379
+      - match: Lng Alpha Shipping PTE LTD c/o White Fox Ship Management FZCO (4300402
+        items: 
+          - prop: name
+            value: [Lng Alpha Shipping PTE LTD, White Fox Ship Management FZCO]
+          - prop: registrationCode
+            value: 4300402
+      - match: Astrea Shipping LTD c/o Stream Ship Management FZCO (5248199
+        items: 
+          - prop: name
+            value: [Astrea Shipping LTD, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 5248199
+      - match: Buxus Seaway LTD c/o Stream Ship Management FZCO (5934727
+        items: 
+          - prop: name
+            value: [Buxus Seaway LTD, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 5934727
+      - match: Duport Marine Services Inc c/o Fornax Ship Management FZCO (5346621
+        items: 
+          - prop: name
+            value: [Duport Marine Services Inc, Fornax Ship Management FZCO]
+          - prop: registrationCode
+            value: 5346621
+      - match: Zorona Shipping LTD c/o Almuhit Alhadi Marine Services LLC (6425057
+        items: 
+          - prop: name
+            value: [Zorona Shipping LTD, Almuhit Alhadi Marine Services LLC]
+          - prop: registrationCode
+            value: 6425057
+      - match: One Alrabiya Shipping Ltd c/o Atos Remote Solutions (0031643
+        items: 
+          - prop: name
+            value: [One Alrabiya Shipping Ltd, Atos Remote Solutions]
+          - prop: registrationCode
+            value: 0031643
+      - match: Boribo Shipping Corp c/o Stream Ship Management FZCO (0012462
+        items: 
+          - prop: name
+            value: [Boribo Shipping Corp, Stream Ship Management FZCO]
+          - prop: registrationCode
+            value: 0012462
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
