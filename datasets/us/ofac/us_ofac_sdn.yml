@@ -150,7 +150,6 @@ lookups:
           - Military Registration Number
           - C.I.N.
           - Registration Certificate Number (Dubai)
-          - Global Intermediary Identification Number
         prop: registrationNumber
       - match:
           - Russian State Individual Business Registration Number Pattern (OGRNIP)
@@ -159,6 +158,9 @@ lookups:
           - Legal Entity Number
           - LE Number
         prop: leiCode
+      - match:
+          - Global Intermediary Identification Number
+        prop: giiNumber
       - match:
           - Travel Document Number
           - Stateless Person ID Card
