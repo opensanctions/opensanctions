@@ -1,10 +1,10 @@
 import re
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 from typing import Dict, Optional, Set, IO, List, Any, Tuple
 from collections import defaultdict
 from zipfile import ZipFile
 
-from lxml import etree
+from lxml import etree, html
 from lxml.etree import _Element as Element, tostring
 
 from addressformatting import AddressFormatter
@@ -689,7 +689,7 @@ def parse_examples(context: Context):
             parse_xml(context, fh)
 
 
-def crawl_index(context: Context, url: str) -> Set[str]:
+def crawl_index_internal(context: Context, url: str) -> Set[str]:
     """
     Crawl an index page with ZIP archives and return the URLs.
     Args:
@@ -698,17 +698,17 @@ def crawl_index(context: Context, url: str) -> Set[str]:
     Returns:
         A set of ZIP archive URLs.
     """
-    archives: Set[str] = set()
-    doc = context.fetch_html(url)
-    for a in doc.findall(".//a"):
-        link_url = urljoin(url, a.get("href"))
-        if not link_url.startswith(url):
-            continue
-        if link_url.endswith(".zip"):
-            archives.add(link_url)
-            continue
-        archives.update(crawl_index(context, link_url))
-    return archives
+    with open(url, "r", encoding="utf-8") as f:
+        doc = html.fromstring(f.read())
+        doc.make_links_absolute(context.data_url)
+        archives: Set[str] = set()
+        for a in doc.findall(".//a"):
+            link_url = a.get("href")
+            if link_url.endswith(".zip"):
+                archives.add(link_url)
+            #     continue
+            # archives.update(crawl_index_internal(context, link_url))
+        return archives
 
 
 def crawl_archive(context: Context, url: str) -> None:
@@ -741,16 +741,10 @@ def crawl(context: Context) -> None:
     global abbreviations
     abbreviations = compile_abbreviations(context)
     # parse_examples(context)
-    data_path = context.get_resource_path("EGRUL_FULL_2022-01-01_1.zip")
+    local_index_path = context.get_resource_path("index.html")
     fetch_internal_data(
-        "ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/EGRUL_FULL_2022-01-01_1.zip",
-        data_path,
+        "ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/index.html",
+        local_index_path,
     )
-    with ZipFile(data_path) as zipfh:
-        for name in zipfh.namelist():
-            if not name.lower().endswith(".xml"):
-                continue
-            with zipfh.open(name, "r") as fh:
-                parse_xml(context, fh)
-    # for archive_url in sorted(crawl_index(context, context.data_url)):
-    #     crawl_archive(context, archive_url)
+    for archive_url in sorted(crawl_index_internal(context, local_index_path)):
+        crawl_archive(context, archive_url)
