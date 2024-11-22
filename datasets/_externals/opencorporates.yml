@@ -148,6 +148,8 @@ lookups:
         value: SI
       - match: Antilles néerlandaises
         value: NL
+      - match: IRAN, RÉPUBLIQUE ISLAMIQUE D'
+        value: IR
 
   type.name:
     options:

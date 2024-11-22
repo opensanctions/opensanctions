@@ -35,3 +35,9 @@ lookups:
     options:
       - match: MALE
         value: male
+  type.country: 
+    options: 
+      - match: Spanish / Moroccan
+        values: 
+          - Spain
+          - Morocco

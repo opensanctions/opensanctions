@@ -989,3 +989,9 @@ lookups:
             to_prop: successor
             to: Caceis Bank
             role: venant aux droits
+      - match: 'Sociétés Novaxia Investissement, Novaxia Développement, Novaxia Gestion, Novaxia' 
+        entities:
+          - Novaxia Investissement
+          - Novaxia Développement
+          - Novaxia Gestion
+          - Novaxia
