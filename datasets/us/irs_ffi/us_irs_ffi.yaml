@@ -39,10 +39,10 @@ data:
 assertions:
   min:
     schema_entities:
-      Organization: 470000
+      Company: 470000
   max:
     schema_entities:
-      Organization: 500000
+      Company: 500000
 lookups:
   type.country:
     options:
