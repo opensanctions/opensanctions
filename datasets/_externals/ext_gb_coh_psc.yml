@@ -1,6 +1,6 @@
 type: external
 title: UK Companies House People with Significant Control
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: gb_coh_psc
 disabled: false
 hidden: false
@@ -11,7 +11,7 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "6000Mi"
+  memory: "4000Mi"
   memory_limit: "6000Mi"
   disk: "20Gi"
   disk_limit: 50Gi
@@ -60,7 +60,6 @@ inputs:
   - sanctions
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
   limit: 100
   max_bin: 14
   index_options:

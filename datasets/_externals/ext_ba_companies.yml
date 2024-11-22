@@ -1,6 +1,6 @@
 type: external
 title: Bosnia and Herzegovina Registers of businesses
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: ba_companies
 disabled: false
 hidden: false
@@ -70,13 +70,9 @@ inputs:
   - debarment
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
   dataset: ba_companies
-  limit: 100
-  max_bin: 14
   index_options:
-    max_candidates: 200
-    memory_budget: 50
+    memory_budget: 1000
   strip_namespace: true
   threshold: 0.5
   algorithm: regression-v1
