@@ -53,7 +53,7 @@ def make_enricher_dataset(dataset_data, target_dataset):
 
 def load_enricher(context: Context, dataset_data, target_dataset: str):
     dataset = make_enricher_dataset(dataset_data, target_dataset)
-    return dataset, LocalEnricher(dataset, context.cache, dataset.config)
+    return LocalEnricher(dataset, context.cache, dataset.config)
 
 
 def get_statements(dataset: Dataset, prop: str, external: bool) -> List[Statement]:
@@ -64,7 +64,7 @@ def get_statements(dataset: Dataset, prop: str, external: bool) -> List[Statemen
     ]
 
 
-def test_enrich(testdataset1: Dataset, enrichment_subject: Dataset):
+def test_enrich_process(testdataset1: Dataset, enrichment_subject: Dataset):
     """We match and expand an entity with a similar name"""
 
     # Make a little subject dataset
@@ -87,7 +87,7 @@ def test_enrich(testdataset1: Dataset, enrichment_subject: Dataset):
     externals = get_statements(enricher_ds, "id", True)
     assert len(externals) == 1, externals
 
-    # Judge a match
+    # Judge a match candidate
     canon_id = resolver.decide("osv-umbrella-corp", "xxx", Judgement.POSITIVE)
 
     # Enrich again, now with internals
@@ -134,7 +134,7 @@ def test_enrich_id_match(vcontext: Context):
 def test_expand_securities(vcontext: Context, testdataset_securities: Dataset):
     """test that we don't expand to sibling securities via the issuer"""
     crawl_dataset(testdataset_securities)
-    enricher = load_enricher(vcontext, DATASET_DATA, "testdataset_securities")
+    enricher = load_enricher(vcontext, DATASET_DATA, testdataset_securities.name)
     entity = CompositeEntity.from_data(vcontext.dataset, AAA_USD_ISK)
     enricher.load(entity)
     candidates = {id_.id: cands for id_, cands in enricher.candidates()}
@@ -145,7 +145,7 @@ def test_expand_securities(vcontext: Context, testdataset_securities: Dataset):
     assert str(results[0].id) == "osv-isin-a", results[0]
 
     # Expand
-    internals = list(enricher.expand(entity, results[0]))
+    internals = list(enricher.expand(results[0]))
     assert len(internals) == 2, internals
 
     assert internals[0].schema.name == "Security"
@@ -170,7 +170,7 @@ def test_expand_issuers(vcontext: Context, testdataset_securities: Dataset):
     assert str(results[0].id) == "osv-lei-a", results[0]
 
     # Expand
-    internals = list(enricher.expand(entity, results[0]))
+    internals = list(enricher.expand(results[0]))
     assert len(internals) == 3, internals
 
     assert internals[0].schema.name == "Organization"

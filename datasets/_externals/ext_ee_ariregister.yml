@@ -1,6 +1,6 @@
 type: external
 title: Estonia e-Business Register (E-äriregister)
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: ee_ariregister
 prefix: ee
 disabled: false
@@ -49,7 +49,6 @@ inputs:
   - sanctions
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
   dataset: ee_ariregister
   strip_namespace: true
   threshold: 0.7

@@ -53,7 +53,7 @@ def blocking_xref(
     focus_dataset: Optional[str] = None,
     schema_range: Optional[str] = None,
     conflicting_match_threshold: Optional[float] = None,
-    index: str = TantivyIndex.name,
+    index: str = "nomenklatura.index.duckdb_index.DuckDBIndex",
 ) -> None:
     """This runs the deduplication process, which compares all entities in the given
     dataset against each other, and stores the highest-scoring candidates for human
@@ -84,7 +84,7 @@ def blocking_xref(
         algorithm=algorithm_type,
         user=AUTO_USER,
         conflicting_match_threshold=conflicting_match_threshold,
-        index_type=index,
+        index_path=index,
     )
     resolver.save()
 

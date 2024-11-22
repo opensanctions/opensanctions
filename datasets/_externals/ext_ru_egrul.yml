@@ -1,6 +1,6 @@
 type: external
 title: Russian Unified State Register of Legal Entities (as at Jan 1, 2022)
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: ru_egrul
 disabled: false
 hidden: false
@@ -70,7 +70,6 @@ inputs:
   - sanctions
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
   limit: 100
   max_bin: 14
   index_options:

@@ -20,7 +20,7 @@ from zavod.dedupe import get_dataset_linker, get_resolver
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
 from zavod.store import get_store
-from zavod.shed.duckdb import DuckDBIndex, MatchCandidates
+from nomenklatura.index.duckdb_index import DuckDBIndex, BlockingMatches
 
 
 log = logging.getLogger(__name__)
@@ -95,11 +95,11 @@ class LocalEnricher(BaseEnricher[DS]):
             return
         self.load(entity)
 
-    def candidates(self) -> Generator[Tuple[Identifier, MatchCandidates], None, None]:
+    def candidates(self) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
         yield from self._index.matches()
 
     def match_candidates(
-        self, entity: Entity, candidates: MatchCandidates
+        self, entity: Entity, candidates: BlockingMatches
     ) -> Generator[Entity, None, None]:
         # Make sure an entity with the same ID is yielded. E.g. a QID or ID scheme
         # intentionally consistent between datasets.
@@ -173,7 +173,7 @@ class LocalEnricher(BaseEnricher[DS]):
 def save_match(
     context: Context,
     resolver: Resolver[Entity],
-    enricher: LocalEnricher,
+    enricher: LocalEnricher[Dataset],
     entity: Entity,
     match: Entity,
 ) -> None:
