@@ -368,32 +368,10 @@ lookups:
           - Russia
       - match: TOT Ukraine
         value: Ukraine
-      - match: UK | , | USA
-        values: 
-          - United Kingdom
-          - United States
-      - match: Switzerland | , | EU | , | USA
-        values: 
-          - Switzerland
-          - European Union
-          - United States
-      - match: Switzerland | , | EU
-        values: 
-          - Switzerland
-          - European Union
-      - match: Switzerland | , | UK | , | EU
-        values: 
-          - Switzerland
-          - United Kingdom
-          - European Union
-      - match: Switzerland | , | UK | , | EU | , | USA
-        values: 
-          - Switzerland
-          - United Kingdom
-          - European Union
-          - United States
       - match: Comoro Islands
         value: Comoros
+      - match: ','
+        value: null
   type.name: 
     options: 
       - match: 'AUTONOMOUS NON-PROFIT ORGANIZATION OF ADDITIONAL PROFESSIONAL EDUCATION "MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'

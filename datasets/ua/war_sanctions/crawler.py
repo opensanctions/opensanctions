@@ -2,22 +2,22 @@ from zavod import Context, helpers as h
 
 
 LINKS = [
-    {  # child kidnappers
-        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
-        "type": "person",
-    },
+    # {  # child kidnappers
+    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
+    #     "type": "person",
+    # },
     # {  # child kidnappers
     #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
     #     "type": "company",
     # },
-    {  # russian athletes
-        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
-        "type": "person",
-    },
-    # {  # ships
-    #     "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
-    #     "type": "vessel",
+    # {  # russian athletes
+    #     "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
+    #     "type": "person",
     # },
+    {  # ships
+        "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
+        "type": "vessel",
+    },
 ]
 
 # TODO: c/o and uknowns, Невідомо, 'Unknown (22.03.2024), Ship Safety Management Manager (IMO / Country / Date)': 'Unknown (08.02.2023)
@@ -50,13 +50,6 @@ def extract_label_value_pair(label_elem, value_elem, data):
     if len(value) == 1:
         value = value[0]
     data[label] = value
-    # value = value_elem.text_content().strip().replace("\n", " ")
-    # value = " ".join(value.split())
-    # # we use it for splitting some strings at a later stage
-    # value = " | ".join(
-    #     [text.strip() for text in value_elem.itertext() if text.strip()]
-    # ).strip()
-    # data[label] = value
     return label, value
 
 
@@ -116,26 +109,23 @@ def crawl_vessel(context: Context, link):
     name = data.pop("Vessel name (international according to IMO)")
     type = data.pop("Vessel Type")
     imo_num = data.pop("IMO")
-    categories = data.pop("Category")
-    flags_former = data.pop("Flags (former)")
 
     vessel = context.make("Vessel")
     vessel.id = context.make_id(name, imo_num)
     vessel.add("name", name)
     vessel.add("imoNumber", imo_num)
     vessel.add("type", type)
-    vessel.add("description", data.pop("Vessel information").replace(" | ", " "))
+    vessel.add("description", " ".join(data.pop("Vessel information")))
     vessel.add("callSign", data.pop("Call sign"))
     vessel.add("flag", data.pop("Flag (Current)"))
     vessel.add("mmsi", data.pop("MMSI"))
     vessel.add("buildDate", data.pop("Build year"))
     vessel.add("sourceUrl", web_resources)
-    for category in categories.split(" | "):
-        vessel.add("keywords", category)
-    for name in h.multi_split(data.pop("Former ship names"), [" / "]):
-        vessel.add("previousName", name)
-    for flag in flags_former.split(" / |"):
-        vessel.add("pastFlags", flag)
+    vessel.add("keywords", data.pop("Category"))
+    for pr_name in h.multi_split(data.pop("Former ship names"), [" / "]):
+        vessel.add("previousName", pr_name)
+    for past_flag in h.multi_split(data.pop("Flags (former)"), [" /"]):
+        vessel.add("pastFlags", past_flag)
     vessel.add("topics", "poi")
 
     sanction = h.make_sanction(context, vessel)
@@ -270,7 +260,7 @@ def crawl_person(context: Context, link):
     person.add("topics", "poi")
 
     sanction = h.make_sanction(context, person)
-    sanction.add("reason", data.pop("Reasons"))
+    sanction.add("reason", " ".join(data.pop("Reasons")))
     sanction.add("sourceUrl", link)
 
     context.emit(person, target=True)
@@ -301,15 +291,14 @@ def crawl_company(context: Context, link):
     company.add("address", data.pop("Address"))
     company.add("country", data.pop("Country"))
     company.add("taxNumber", data.pop("Tax Number"))
-    company.add("sourceUrl", data.pop("Links").split(" | "))
+    company.add("sourceUrl", data.pop("Links"))
     archive_links = data.pop("Archive links", None)
     if archive_links is not None:
-        for archive_link in archive_links.split(" | "):
-            company.add("sourceUrl", archive_link)
+        company.add("sourceUrl", archive_links)
 
     company.add("topics", "poi")
     sanction = h.make_sanction(context, company)
-    sanction.add("reason", data.pop("Reasons").replace(" | ", " "))
+    sanction.add("reason", " ".join(data.pop("Reasons")))
     sanction.add("sourceUrl", link)
 
     context.emit(company, target=True)
