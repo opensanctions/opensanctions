@@ -150,6 +150,7 @@ lookups:
           - Military Registration Number
           - C.I.N.
           - Registration Certificate Number (Dubai)
+          - Global Intermediary Identification Number
         prop: registrationNumber
       - match:
           - Russian State Individual Business Registration Number Pattern (OGRNIP)
@@ -425,6 +426,12 @@ lookups:
         value: 21380068XRFK54K3Z159
       - match: 253400VTMXV2UE7XNN67
         value: 253400VTMVX2UE7XNN67
+      - match: 25300F1C0J3H75V5935
+        value: 253400F1C0J3H75V5935
+      - match: 253400MZGXN18GHCN57
+        value: 253400MZGXVN18GHCN57
+      - match: 25400B8Y0FNJP628S19
+        value: 253400B8Y0FNJP628S19
   type.address:
     lowercase: true
     options:
