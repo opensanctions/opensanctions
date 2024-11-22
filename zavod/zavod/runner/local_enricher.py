@@ -20,7 +20,7 @@ from zavod.dedupe import get_dataset_linker, get_resolver
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
 from zavod.store import get_store
-from nomenklatura.index.duckdb_index import DuckDBIndex, BlockingMatches
+from zavod.shed.duckdb_index import DuckDBIndex, BlockingMatches
 
 
 log = logging.getLogger(__name__)

@@ -18,7 +18,7 @@ DATASET_DATA = {
     "title": "An enrichment dataset",
     "config": {"cutoff": 0.5},
     "entry_point": "zavod.runner.local_enricher:enrich",
-    "inputs": ["enrichment_subject"],
+    "inputs": ["testdataset_enrich_subject"],
 }
 UMBRELLA_CORP = {
     "schema": "LegalEntity",
@@ -53,11 +53,11 @@ def load_enricher(context: Context, dataset_data, target_dataset: str):
     return LocalEnricher(dataset, context.cache, dataset.config)
 
 
-def test_enrich_process(testdataset1: Dataset, enrichment_subject: Dataset):
+def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Dataset):
     """We match and expand an entity with a similar name"""
 
     # Make a little subject dataset
-    crawl_dataset(enrichment_subject)
+    crawl_dataset(testdataset_enrich_subject)
 
     # Treat testdataset1 as the target dataset
     crawl_dataset(testdataset1)

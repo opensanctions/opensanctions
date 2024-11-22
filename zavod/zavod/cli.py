@@ -237,16 +237,12 @@ def dump_file(
     default=None,
     help="Threshold for conflicting match reporting",
 )
-@click.option(
-    "-i", "--index", type=str, default="nomenklatura.index.duckdb_index.DuckDBIndex"
-)
 def xref(
     dataset_paths: List[Path],
     clear: bool,
     limit: int,
     threshold: Optional[float],
     algorithm: str,
-    index: str,
     focus_dataset: Optional[str] = None,
     schema: Optional[str] = None,
     conflicting_match_threshold: Optional[float] = None,
@@ -264,7 +260,6 @@ def xref(
         focus_dataset=focus_dataset,
         schema_range=schema,
         conflicting_match_threshold=conflicting_match_threshold,
-        index=index,
     )
 
 

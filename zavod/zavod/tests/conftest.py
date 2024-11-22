@@ -79,9 +79,18 @@ def testdataset_securities() -> Dataset:
 
 
 @pytest.fixture(scope="function")
-def enrichment_subject() -> Dataset:
+def testdataset_enrich_subject() -> Dataset:
     dataset = load_dataset_from_path(
-        FIXTURES_PATH / "testdataset_enrich_subject" / "enrichment_subject.yml"
+        FIXTURES_PATH / "testdataset_enrich_subject" / "testdataset_enrich_subject.yml"
+    )
+    assert dataset is not None
+    return dataset
+
+
+@pytest.fixture(scope="function")
+def testdataset_dedupe() -> Dataset:
+    dataset = load_dataset_from_path(
+        FIXTURES_PATH / "testdataset_dedupe" / "testdataset_dedupe.yml"
     )
     assert dataset is not None
     return dataset
