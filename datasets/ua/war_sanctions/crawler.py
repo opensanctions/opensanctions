@@ -2,18 +2,18 @@ from zavod import Context, helpers as h
 
 
 LINKS = [
-    # {  # child kidnappers
-    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
-    #     "type": "person",
-    # },
-    # {  # child kidnappers
-    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
-    #     "type": "company",
-    # },
-    # {  # russian athletes
-    #     "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
-    #     "type": "person",
-    # },
+    {  # child kidnappers
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
+        "type": "person",
+    },
+    {  # child kidnappers
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
+        "type": "company",
+    },
+    {  # russian athletes
+        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
+        "type": "person",
+    },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
         "type": "vessel",
@@ -256,7 +256,8 @@ def crawl_person(context: Context, link):
             dob = dob_pob[0]
             h.apply_date(person, "birthDate", dob)
     if positions:
-        person.add("position", positions)
+        for position in h.multi_split(positions, [" / "]):
+            person.add("position", position)
     person.add("topics", "poi")
 
     sanction = h.make_sanction(context, person)
@@ -328,8 +329,8 @@ def crawl(context: Context):
         data_type = link_info["type"]
         current_url = base_url
         visited_pages = 0
-        while current_url and visited_pages < 3:  # remove later
-            doc = context.fetch_html(current_url)
+        while current_url:
+            doc = context.fetch_html(current_url, cache_days=3)
             doc.make_links_absolute(base_url)
             if doc is None:
                 context.log.warn(f"Failed to fetch {current_url}")
