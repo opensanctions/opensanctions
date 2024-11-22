@@ -1,11 +1,10 @@
 from pathlib import Path
 from typing import Generator
-from google.cloud.storage import Client  # type: ignore
+from google.cloud.storage import Client, Bucket  # type: ignore
 
 
-def _get_internal_bucket():
-    client = Client()
-    return client.get_bucket("internal-data.opensanctions.org")
+def _get_internal_bucket() -> Bucket:
+    return Client().get_bucket("internal-data.opensanctions.org")
 
 
 def fetch_internal_data(key: str, path: Path) -> None:
