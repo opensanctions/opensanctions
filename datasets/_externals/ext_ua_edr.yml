@@ -13,8 +13,8 @@ exports:
   - statistics.json
 deploy:
   schedule: "@monthly"
-  memory: "4000Mi"
-  memory_limit: "4000Mi"
+  memory: "3000Mi"
+  memory_limit: "5000Mi"
   disk_limit: 50Gi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
@@ -80,7 +80,6 @@ config:
     max_candidates: 200
     memory_budget: 3000
   dataset: ua_edr
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
   fuzzy: false
   threshold: 0.7

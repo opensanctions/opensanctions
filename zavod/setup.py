@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.7.*",
-        "nomenklatura[leveldb,tantivy,duckdb] @ git+https://github.com/opensanctions/nomenklatura.git@duckdb-2",
+        "nomenklatura[leveldb,duckdb] @ git+https://github.com/opensanctions/nomenklatura.git@just-index",
         "plyvel == 1.5.1",
         "rigour == 0.7.0",
         "datapatch >= 1.1,< 1.3",
