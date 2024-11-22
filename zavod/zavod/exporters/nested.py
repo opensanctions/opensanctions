@@ -1,3 +1,4 @@
+from zavod import settings
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
 from zavod.entity import Entity
@@ -35,25 +36,6 @@ class NestedTopicsJSONExporter(NestedJSONExporter):
     FILE_NAME = "topics.nested.json"
     MIME_TYPE = "application/json"
 
-    _TOPICS = set(
-        [
-            "role.pep",
-            "role.rca",
-            "sanction",
-            "sanction.linked",
-            "debarment",
-            "poi",
-            "crime",
-            "crime.theft",
-            "crime.war",
-            "crime.fin",
-            "crime.traffick",
-            "corp.disqual",
-            "export.control",
-            "role.oligarch",
-        ]
-    )
-
     def is_root(self, entity: Entity) -> bool:
         topics = entity.get("topics", quiet=True)
-        return len(self._TOPICS.intersection(topics)) > 0
+        return len(settings.TARGET_TOPICS.intersection(topics)) > 0
