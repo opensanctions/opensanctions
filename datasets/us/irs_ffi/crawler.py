@@ -12,7 +12,7 @@ def crawl(context: Context):
             giin = row.pop("GIIN")
             name = row.pop("FINm")
             country = row.pop("CountryNm")
-            entity = context.make("Company")
+            entity = context.make("Organization")
             entity.id = context.make_id(giin, name, country)
             entity.add("name", name)
             entity.add("country", country)
