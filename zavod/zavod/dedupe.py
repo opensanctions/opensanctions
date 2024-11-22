@@ -1,7 +1,6 @@
 from typing import List, Optional, TYPE_CHECKING
 from pathlib import Path
 from functools import cache
-from nomenklatura.index.tantivy_index import TantivyIndex
 from zavod.entity import Entity
 from followthemoney import model
 from nomenklatura.xref import xref
@@ -53,7 +52,7 @@ def blocking_xref(
     focus_dataset: Optional[str] = None,
     schema_range: Optional[str] = None,
     conflicting_match_threshold: Optional[float] = None,
-    index: str = "nomenklatura.index.duckdb_index.DuckDBIndex",
+    index: Optional[str] = None,
 ) -> None:
     """This runs the deduplication process, which compares all entities in the given
     dataset against each other, and stores the highest-scoring candidates for human

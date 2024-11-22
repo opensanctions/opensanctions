@@ -7,3 +7,4 @@ publisher:
   url: https://www.opensanctions.org
   official: false
 url: https://github.com/opensanctions/opensanctions
+entry_point: crawler.py

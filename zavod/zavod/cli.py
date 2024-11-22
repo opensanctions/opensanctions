@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 from typing import Optional, List
 from followthemoney.cli.util import InPath, OutPath
-from nomenklatura.index.tantivy_index import TantivyIndex
 from nomenklatura.tui import dedupe_ui
 from nomenklatura.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
@@ -238,7 +237,9 @@ def dump_file(
     default=None,
     help="Threshold for conflicting match reporting",
 )
-@click.option("-i", "--index", type=str, default=TantivyIndex.name)
+@click.option(
+    "-i", "--index", type=str, default="nomenklatura.index.duckdb_index.DuckDBIndex"
+)
 def xref(
     dataset_paths: List[Path],
     clear: bool,

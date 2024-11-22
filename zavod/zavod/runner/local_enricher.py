@@ -209,7 +209,6 @@ def enrich(context: Context) -> None:
         subject_view = subject_store.view(scope)
         config = dict(context.dataset.config)
         enricher = LocalEnricher(context.dataset, context.cache, config)
-        threshold = float(context.dataset.config.get("threshold", 0.7))
 
         context.log.info("Loading entities for matching...")
         for entity in subject_view.entities():

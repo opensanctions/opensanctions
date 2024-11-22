@@ -1,8 +1,7 @@
 from copy import deepcopy
-from typing import Iterable, List
+from typing import List
 import shutil
 
-from nomenklatura.enrich import make_enricher
 from nomenklatura.entity import CompositeEntity
 from nomenklatura.statement import Statement
 from nomenklatura.judgement import Judgement
@@ -68,10 +67,7 @@ def test_enrich_process(testdataset1: Dataset, enrichment_subject: Dataset):
     """We match and expand an entity with a similar name"""
 
     # Make a little subject dataset
-    entity = CompositeEntity.from_data(enrichment_subject, UMBRELLA_CORP)
-    subject_context = Context(enrichment_subject)
-    subject_context.emit(entity)
-    subject_context.close()
+    crawl_dataset(enrichment_subject)
 
     # Treat testdataset1 as the target dataset
     crawl_dataset(testdataset1)
@@ -80,7 +76,7 @@ def test_enrich_process(testdataset1: Dataset, enrichment_subject: Dataset):
     resolver = get_resolver()
     assert len(resolver.edges) == 0
     enricher_ds = make_enricher_dataset(DATASET_DATA, testdataset1.name)
-    stats = crawl_dataset(enricher_ds)
+    crawl_dataset(enricher_ds)
 
     internals = get_statements(enricher_ds, "id", False)
     assert len(internals) == 0, internals
