@@ -6,18 +6,18 @@ LINKS = [
         "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
         "type": "person",
     },
-    {  # child kidnappers
-        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
-        "type": "company",
-    },
+    # {  # child kidnappers
+    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
+    #     "type": "company",
+    # },
     {  # russian athletes
         "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
         "type": "person",
     },
-    {  # ships
-        "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
-        "type": "vessel",
-    },
+    # {  # ships
+    #     "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
+    #     "type": "vessel",
+    # },
 ]
 
 # TODO: c/o and uknowns, Невідомо, 'Unknown (22.03.2024), Ship Safety Management Manager (IMO / Country / Date)': 'Unknown (08.02.2023)
@@ -45,15 +45,19 @@ def lookup_override(context, key):
 
 def extract_label_value_pair(label_elem, value_elem, data):
     label = label_elem.text_content().strip().replace("\n", " ")
-    value = value_elem.text_content().strip().replace("\n", " ")
-    value = " ".join(value.split())
-    # we use it for splitting some strings at a later stage
-    value = " | ".join(
-        [text.strip() for text in value_elem.itertext() if text.strip()]
-    ).strip()
+    value = [text.strip() for text in value_elem.itertext() if text.strip()]
+    # print(value)
+    if len(value) == 1:
+        value = value[0]
     data[label] = value
-
-    return data
+    # value = value_elem.text_content().strip().replace("\n", " ")
+    # value = " ".join(value.split())
+    # # we use it for splitting some strings at a later stage
+    # value = " | ".join(
+    #     [text.strip() for text in value_elem.itertext() if text.strip()]
+    # ).strip()
+    # data[label] = value
+    return label, value
 
 
 def crawl_index_page(context: Context, index_page, data_type):
@@ -96,7 +100,10 @@ def crawl_vessel(context: Context, link):
             if len(divs) == 2:
                 label_elem, value_elem = divs
                 if "yellow" in value_elem.get("class"):
-                    data = extract_label_value_pair(label_elem, value_elem, data)
+                    label, value = extract_label_value_pair(
+                        label_elem, value_elem, data
+                    )
+                    data[label] = value
 
     web_resources = []
     web_links = details_container.xpath(
@@ -232,8 +239,8 @@ def crawl_person(context: Context, link):
         if len(divs) == 2:
             label_elem, value_elem = divs
             if "yellow" in label_elem.get("class"):
-                data = extract_label_value_pair(label_elem, value_elem, data)
-
+                label, value = extract_label_value_pair(label_elem, value_elem, data)
+                data[label] = value
     names = data.pop("Name")
     positions = data.pop("Position", None)
 
@@ -243,30 +250,27 @@ def crawl_person(context: Context, link):
         person.add("name", name)
     person.add("citizenship", data.pop("Citizenship", None))
     person.add("taxNumber", data.pop("Tax Number", None))
-    person.add("sourceUrl", data.pop("Links").split(" | "))
+    person.add("sourceUrl", data.pop("Links"))
     archive_links = data.pop("Archive links", None)
     if archive_links is not None:
-        for archive_link in archive_links.split(" | "):
-            person.add("sourceUrl", archive_link)
+        person.add("sourceUrl", archive_links)
     dob_pob = data.pop("Date and place of birth", None)
     if dob_pob:
-        dp_parts = dob_pob.split(" | ")
         # If we get more than one part, unpack it into dob and pob
-        if len(dp_parts) == 2:
-            dob, pob = dp_parts
+        if len(dob_pob) == 2:
+            dob, pob = dob_pob
             h.apply_date(person, "birthDate", dob)
             person.add("birthPlace", pob)
-        elif len(dp_parts) == 1:
+        elif len(dob_pob) == 1:
             # If there’s only one part, we assume it's just the dob
-            dob = dp_parts[0]
+            dob = dob_pob[0]
             h.apply_date(person, "birthDate", dob)
     if positions:
-        for pos_parts in h.multi_split(positions, [" | ", " / "]):
-            person.add("position", pos_parts)
+        person.add("position", positions)
     person.add("topics", "poi")
 
     sanction = h.make_sanction(context, person)
-    sanction.add("reason", data.pop("Reasons").replace(" | ", " "))
+    sanction.add("reason", data.pop("Reasons"))
     sanction.add("sourceUrl", link)
 
     context.emit(person, target=True)
@@ -283,8 +287,8 @@ def crawl_company(context: Context, link):
         if len(divs) == 2:
             label_elem, value_elem = divs
             if "yellow" in label_elem.get("class"):
-                data = extract_label_value_pair(label_elem, value_elem, data)
-
+                label, value = extract_label_value_pair(label_elem, value_elem, data)
+                data[label] = value
     name = data.pop("Name")
     name_abbr = data.pop("Abbreviated name of the legal entity", None)
     reg_num = data.pop("Registration number")
@@ -335,7 +339,7 @@ def crawl(context: Context):
         data_type = link_info["type"]
         current_url = base_url
         visited_pages = 0
-        while current_url and visited_pages < 100:  # remove later
+        while current_url and visited_pages < 3:  # remove later
             doc = context.fetch_html(current_url)
             doc.make_links_absolute(base_url)
             if doc is None:
