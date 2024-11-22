@@ -49,7 +49,6 @@ setup(
         "structlog",
         "xlrd == 2.0.1",
         "cryptography",
-        "duckdb < 2.0.0",
     ],
     tests_require=[],
     entry_points={

@@ -193,7 +193,6 @@ def save_match(
         for adjacent in enricher.expand_wrapped(entity, match):
             if check_person_cutoff(adjacent):
                 continue
-            # self.log.info("Added", entity=adjacent)
             context.emit(adjacent)
 
 

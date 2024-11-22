@@ -1,13 +1,11 @@
 from copy import deepcopy
-from typing import List
 import shutil
 
 from nomenklatura.entity import CompositeEntity
-from nomenklatura.statement import Statement
 from nomenklatura.judgement import Judgement
 
 from zavod import settings
-from zavod.archive import iter_dataset_statements
+from zavod.archive import clear_data_path
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.meta import Dataset
@@ -55,14 +53,6 @@ def load_enricher(context: Context, dataset_data, target_dataset: str):
     return LocalEnricher(dataset, context.cache, dataset.config)
 
 
-def get_statements(dataset: Dataset, prop: str, external: bool) -> List[Statement]:
-    return [
-        s
-        for s in iter_dataset_statements(dataset, external=external)
-        if s.prop == prop and s.external == external
-    ]
-
-
 def test_enrich_process(testdataset1: Dataset, enrichment_subject: Dataset):
     """We match and expand an entity with a similar name"""
 
@@ -78,30 +68,40 @@ def test_enrich_process(testdataset1: Dataset, enrichment_subject: Dataset):
     enricher_ds = make_enricher_dataset(DATASET_DATA, testdataset1.name)
     crawl_dataset(enricher_ds)
 
-    internals = get_statements(enricher_ds, "id", False)
+    store = get_store(enricher_ds, resolver)
+    store.sync(clear=True)
+    internals = list(store.view(enricher_ds, external=False).entities())
     assert len(internals) == 0, internals
-    externals = get_statements(enricher_ds, "id", True)
+    externals = list(store.view(enricher_ds, external=True).entities())
     assert len(externals) == 1, externals
+    store.close()
 
     # Judge a match candidate
     canon_id = resolver.decide("osv-umbrella-corp", "xxx", Judgement.POSITIVE)
 
     # Enrich again, now with internals
+    clear_data_path(enricher_ds.name)
     crawl_dataset(enricher_ds)
-    internals = get_statements(enricher_ds, "id", False)
-    assert len(internals) == 3, internals
-    externals = get_statements(enricher_ds, "id", True)
-    assert len(externals) == 0, externals
 
-    enrichment_store = get_store(enricher_ds, resolver)
-    enrichment_store.sync()
-    enrichment_view = enrichment_store.view(enricher_ds)
-    match = enrichment_view.get_entity(canon_id)
+    store = get_store(enricher_ds, resolver)
+    store.sync(clear=True)
+    internals = list(store.view(enricher_ds, external=False).entities())
+    assert len(internals) == 3, internals
+    externals = list(store.view(enricher_ds, external=True).entities())
+    for external in externals:
+        for statement in external.statements:
+            assert not statement.external, statement
+
+    view = store.view(enricher_ds)
+    match = view.get_entity(canon_id)
+    "Umbrella Corp." in match.get("name")
+    "Umbrella Corporation" not in match.get("name")
     assert match.schema.name == "Company"
-    _, ownership = list(enrichment_view.get_inverted(canon_id))[0]
-    owner = enrichment_view.get_entity(ownership.get("owner")[0])
+    _, ownership = list(view.get_inverted(canon_id))[0]
+    owner = view.get_entity(ownership.get("owner")[0])
     assert owner.id == "osv-oswell-spencer"
 
+    store.close()
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
