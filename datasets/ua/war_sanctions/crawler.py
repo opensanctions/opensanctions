@@ -20,7 +20,7 @@ LINKS = [
     },
 ]
 
-# TODO: c/o and uknowns, Невідомо, 'Unknown (22.03.2024), Ship Safety Management Manager (IMO / Country / Date)': 'Unknown (08.02.2023)
+# TODO: c/o and 'Unknown (22.03.2024), Ship Safety Management Manager (IMO / Country / Date)': 'Unknown (08.02.2023)
 # TODO: Sanction Jurisdictions
 
 
@@ -46,7 +46,6 @@ def lookup_override(context, key):
 def extract_label_value_pair(label_elem, value_elem, data):
     label = label_elem.text_content().strip().replace("\n", " ")
     value = [text.strip() for text in value_elem.itertext() if text.strip()]
-    # print(value)
     if len(value) == 1:
         value = value[0]
     data[label] = value
