@@ -11,6 +11,7 @@ from addressformatting import AddressFormatter
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.shed.internal_data import fetch_internal_data
 
 INN_URL = "https://egrul.itsoft.ru/%s.xml"
 # original source: "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
@@ -740,5 +741,16 @@ def crawl(context: Context) -> None:
     global abbreviations
     abbreviations = compile_abbreviations(context)
     # parse_examples(context)
-    for archive_url in sorted(crawl_index(context, context.data_url)):
-        crawl_archive(context, archive_url)
+    data_path = context.get_resource_path("EGRUL_FULL_2022-01-01_1.zip")
+    fetch_internal_data(
+        "ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/EGRUL_FULL_2022-01-01_1.zip",
+        data_path,
+    )
+    with ZipFile(data_path) as zipfh:
+        for name in zipfh.namelist():
+            if not name.lower().endswith(".xml"):
+                continue
+            with zipfh.open(name, "r") as fh:
+                parse_xml(context, fh)
+    # for archive_url in sorted(crawl_index(context, context.data_url)):
+    #     crawl_archive(context, archive_url)
