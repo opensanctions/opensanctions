@@ -63,7 +63,7 @@ def test_nested_topics(testdataset1: Dataset):
         datetime.strptime(entity["last_change"], TIME_SECONDS_FMT)
         assert entity["datasets"] == ["testdataset1"]
         topics = entity["properties"]["topics"]
-        assert len(NestedTopicsJSONExporter._TOPICS.intersection(topics)) > 0
+        assert len(settings.TARGET_TOPICS.intersection(topics)) > 0
 
     john = [e for e in entities if e["id"] == "osv-mierscheid"][0]
     assert john["properties"]["name"] == ["Jakob Maria Mierscheid"]
