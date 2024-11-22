@@ -50,8 +50,8 @@ class TopiclessTargetValidator(BaseValidator):
     """Warns if a target entity has no topics."""
 
     def feed(self, entity: Entity) -> None:
-        topics = entity.get("topics")
         if entity.target:
+            topics = entity.get("topics", quiet=True)
             if not len(topics):
                 self.context.log.warning(
                     f"{entity.id} is a target but has no topics", entity=entity
