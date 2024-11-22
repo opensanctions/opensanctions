@@ -2,18 +2,18 @@ from zavod import Context, helpers as h
 
 
 LINKS = [
-    # {  # child kidnappers
-    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
-    #     "type": "person",
-    # },
-    # {  # child kidnappers
-    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
-    #     "type": "company",
-    # },
-    # {  # russian athletes
-    #     "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
-    #     "type": "person",
-    # },
+    {  # child kidnappers
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
+        "type": "person",
+    },
+    {  # child kidnappers
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
+        "type": "company",
+    },
+    {  # russian athletes
+        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
+        "type": "person",
+    },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
         "type": "vessel",
@@ -21,6 +21,7 @@ LINKS = [
 ]
 
 # TODO: c/o and uknowns, Невідомо, 'Unknown (22.03.2024), Ship Safety Management Manager (IMO / Country / Date)': 'Unknown (08.02.2023)
+# TODO: Sanction Jurisdictions
 
 
 def lookup_override(context, key):
@@ -71,7 +72,7 @@ def crawl_index_page(context: Context, index_page, data_type):
 
 def crawl_vessel(context: Context, link):
     detail_page = context.fetch_html(link, cache_days=3)
-    details_container = detail_page.find(".//div[@id='js_visibility']")
+    details_container = detail_page.find(".//main")
     data: dict[str, str] = {}
 
     xpath_definitions = [
@@ -104,7 +105,6 @@ def crawl_vessel(context: Context, link):
     for raw_link in web_links:
         link_href = raw_link.get("href", "").strip()
         web_resources.append(link_href)
-    data["Web resources"] = web_resources
 
     name = data.pop("Vessel name (international according to IMO)")
     type = data.pop("Vessel Type")
@@ -122,10 +122,9 @@ def crawl_vessel(context: Context, link):
     vessel.add("flag", data.pop("Flag (Current)"))
     vessel.add("mmsi", data.pop("MMSI"))
     vessel.add("buildDate", data.pop("Build year"))
+    vessel.add("sourceUrl", web_resources)
     for category in categories.split(" | "):
         vessel.add("keywords", category)
-    for web_resource in data.pop("Web resources"):
-        vessel.add("sourceUrl", web_resource)
     for name in h.multi_split(data.pop("Former ship names"), [" / "]):
         vessel.add("previousName", name)
     for flag in flags_former.split(" / |"):
@@ -226,9 +225,7 @@ def crawl_ship_relation(context, vessel, data, data_key, rel_role, rel_schema):
 
 def crawl_person(context: Context, link):
     detail_page = context.fetch_html(link, cache_days=3)
-    details_container = detail_page.find(
-        ".//div[@id='js_visibility'][@class='col-12 col-lg-9']"
-    )
+    details_container = detail_page.find(".//main")
     data: dict[str, str] = {}
     for row in details_container.findall(".//div[@class='row']"):
         divs = row.findall("div")
@@ -274,12 +271,12 @@ def crawl_person(context: Context, link):
 
     context.emit(person, target=True)
     context.emit(sanction)
-    context.audit_data(data)
+    context.audit_data(data, ignore=["Sanction Jurisdictions"])
 
 
 def crawl_company(context: Context, link):
     detail_page = context.fetch_html(link, cache_days=3)
-    details_container = detail_page.find(".//div[@class='col-12 col-lg-9']")
+    details_container = detail_page.find(".//main")
     data = {}
     for row in details_container.findall(".//div[@class='row']"):
         divs = row.findall("div")
@@ -313,7 +310,7 @@ def crawl_company(context: Context, link):
 
     context.emit(company, target=True)
     context.emit(sanction)
-    context.audit_data(data)
+    context.audit_data(data, ignore=["Sanction Jurisdictions"])
 
 
 def extract_next_page_url(doc):
@@ -338,7 +335,7 @@ def crawl(context: Context):
         data_type = link_info["type"]
         current_url = base_url
         visited_pages = 0
-        while current_url:
+        while current_url and visited_pages < 100:  # remove later
             doc = context.fetch_html(current_url)
             doc.make_links_absolute(base_url)
             if doc is None:
