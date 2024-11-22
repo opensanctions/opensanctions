@@ -29,6 +29,27 @@ RUN_TIME = RUN_VERSION.dt
 RUN_TIME_ISO = RUN_VERSION.dt.isoformat(sep="T", timespec="seconds")
 RUN_DATE = RUN_VERSION.dt.date().isoformat()
 
+# Risk categories
+TARGET_TOPICS = {
+    "role.pep",
+    "role.rca",
+    "sanction",
+    "sanction.linked",
+    "sanction.counter",
+    "debarment",
+    "poi",
+    "crime",
+    "crime.theft",
+    "crime.war",
+    "crime.fin",
+    "crime.traffick",
+    "corp.disqual",
+    "export.control",
+    "role.oligarch",
+    "export.risk",
+}
+
+
 # Store configuration
 STORE_RETAIN_DAYS = int(env_str("ZAVOD_STORE_RETAIN_DAYS", "3"))
 
