@@ -27,7 +27,6 @@ setup(
         "rigour == 0.7.0",
         "datapatch >= 1.1,< 1.3",
         "fingerprints == 1.2.*",
-        "addressformatting == 1.3.*",
         "certifi",
         "colorama",
         "google-cloud-storage",
