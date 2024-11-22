@@ -56,7 +56,7 @@ class TopiclessTargetValidator(BaseValidator):
                 self.context.log.warning(
                     f"{entity.id} is a target but has no topics", entity=entity
                 )
-            elif settings.TARGET_TOPICS.intersection(topics):
+            elif len(settings.TARGET_TOPICS.intersection(topics)) == 0:
                 self.context.log.warning(
                     f"{entity.id} is a target but has non-target topics",
                     entity=entity,
