@@ -38,15 +38,19 @@ TARGET_TOPICS = {
     "sanction.counter",
     "debarment",
     "poi",
+    "wanted",
     "crime",
     "crime.theft",
     "crime.war",
     "crime.fin",
+    "crime.terror",
     "crime.traffick",
     "corp.disqual",
     "export.control",
     "role.oligarch",
     "export.risk",
+    "reg.warn",
+    "reg.action",
 }
 
 
