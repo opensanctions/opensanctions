@@ -5,23 +5,28 @@ LINKS = [
     {  # child kidnappers
         "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
         "type": "person",
+        "program": "Persons involved in the deportation of Ukrainian children",
     },
     {  # child kidnappers
         "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
         "type": "company",
+        "program": "Companies involved in the deportation of Ukrainian children",
     },
     {  # russian athletes
         "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
         "type": "person",
+        "program": "Athletes and officials participating in Russian influence operations abroad",
     },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
         "type": "vessel",
+        "program": "Marine and Aircraft Vessels, Airports and Ports involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
 ]
 
 # TODO: c/o and 'Unknown (22.03.2024), Ship Safety Management Manager (IMO / Country / Date)': 'Unknown (08.02.2023)
 # TODO: Sanction Jurisdictions
+# TODO: remove cache_days
 
 
 def lookup_override(context, key):
@@ -49,20 +54,20 @@ def extract_label_value_pair(label_elem, value_elem, data):
     return label, value
 
 
-def crawl_index_page(context: Context, index_page, data_type):
+def crawl_index_page(context: Context, index_page, data_type, program):
     index_page = context.fetch_html(index_page, cache_days=3)
     main_grid = index_page.find('.//div[@id="main-grid"]')
     for link in main_grid.xpath(".//a/@href"):
         if link.startswith("https:"):
             if data_type == "person":
-                crawl_person(context, link)
+                crawl_person(context, link, program)
             elif data_type == "company":
-                crawl_company(context, link)
+                crawl_company(context, link, program)
             if data_type == "vessel":
-                crawl_vessel(context, link)
+                crawl_vessel(context, link, program)
 
 
-def crawl_vessel(context: Context, link):
+def crawl_vessel(context: Context, link, program):
     detail_page = context.fetch_html(link, cache_days=3)
     details_container = detail_page.find(".//main")
     data: dict[str, str] = {}
@@ -122,7 +127,7 @@ def crawl_vessel(context: Context, link):
     vessel.add("topics", "poi")
 
     sanction = h.make_sanction(context, vessel)
-    sanction.add("country", data.pop("Sanctions", None))
+    sanction.add("program", program)
     sanction.add("sourceUrl", link)
 
     context.emit(vessel, target=True)
@@ -166,6 +171,7 @@ def crawl_vessel(context: Context, link):
     context.audit_data(
         data,
         ignore=[
+            "Sanctions",
             "Cases of AIS shutdown",
             "Calling at russian ports",
             "Visited ports",
@@ -217,7 +223,7 @@ def crawl_ship_relation(context, vessel, data, data_key, rel_role, rel_schema):
         context.emit(relation)
 
 
-def crawl_person(context: Context, link):
+def crawl_person(context: Context, link, program):
     detail_page = context.fetch_html(link, cache_days=3)
     details_container = detail_page.find(".//main")
     data: dict[str, str] = {}
@@ -260,13 +266,14 @@ def crawl_person(context: Context, link):
     sanction = h.make_sanction(context, person)
     sanction.add("reason", " ".join(data.pop("Reasons")))
     sanction.add("sourceUrl", link)
+    sanction.add("program", program)
 
     context.emit(person, target=True)
     context.emit(sanction)
     context.audit_data(data, ignore=["Sanction Jurisdictions"])
 
 
-def crawl_company(context: Context, link):
+def crawl_company(context: Context, link, program):
     detail_page = context.fetch_html(link, cache_days=3)
     details_container = detail_page.find(".//main")
     data = {}
@@ -298,6 +305,7 @@ def crawl_company(context: Context, link):
     sanction = h.make_sanction(context, company)
     sanction.add("reason", " ".join(data.pop("Reasons")))
     sanction.add("sourceUrl", link)
+    sanction.add("program", program)
 
     context.emit(company, target=True)
     context.emit(sanction)
@@ -324,6 +332,7 @@ def crawl(context: Context):
     for link_info in LINKS:
         base_url = link_info["url"]
         data_type = link_info["type"]
+        program = link_info["program"]
         current_url = base_url
         visited_pages = 0
         while current_url:
@@ -333,14 +342,14 @@ def crawl(context: Context):
                 context.log.warn(f"Failed to fetch {current_url}")
                 break
             context.log.info(f"Processing {current_url}")
-            crawl_index_page(context, current_url, data_type)
+            crawl_index_page(context, current_url, data_type, program)
 
             # get the next page URL, if exists
             next_url = extract_next_page_url(doc)
             current_url = next_url
             visited_pages += 1
 
-            if visited_pages >= 100:
+            if visited_pages >= 3:
                 raise Exception(
                     "Emergency limit of 100 visited pages reached. Potential logical inconsistency detected."
                 )
