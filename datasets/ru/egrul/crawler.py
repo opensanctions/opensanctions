@@ -395,40 +395,40 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
         return
 
     # Still a mess, but at least I gave it some love and order
-    dput(data, "postcode", el.get("Индекс"))  # Zip code
-    dput(
-        data, "city", el.findtext("./НаимРегион")
-    )  # Наименование субъекта Российской Федерации, (either a region or big city
-    # such as Moscow or St. Petersburg), see https://выставить-счет.рф/classifier/regions/
 
+    # zip code
+    dput(data, "postcode", el.get("Индекс"))
+
+    # Наименование субъекта Российской Федерации
+    # name of the subject of the Russian Federation
+    # either a region or big city such as Moscow or St. Petersburg
+    # see https://выставить-счет.рф/classifier/regions/
+    dput(data, "state", el.findtext("./НаимРегион"))
+    dput(data, "state", elattr(el.find("./Регион"), "НаимРегион"))
+
+    # City or town
     dput(data, "city", elattr(el.find("./Город"), "ТипГород"))
     dput(data, "city", elattr(el.find("./Город"), "НаимГород"))
-    dput(data, "state", elattr(el.find("./Регион"), "НаимРегион"))
-    dput(data, "state", elattr(el.find("./Район"), "НаимРайон"))
 
-    dput(
-        data, "city", elattr(el.find("./НаселПункт"), "НаимНаселПункт")
-    )  # Сведения об адресообразующем элементе населенный пункт
-    dput(
-        data, "city", elattr(el.find("./НаселенПункт"), "Наим")
-    )  # Населенный пункт (город, деревня, село и прочее)
+    # Наименование населенного пункта (name of the settlement)
+    dput(data, "city", elattr(el.find("./НаселПункт"), "НаимНаселПункт"))
+    # Населенный пункт (город, деревня, село и прочее) (Settlement (city, town, village, etc.))
+    dput(data, "city", elattr(el.find("./НаселенПункт"), "Наим"))
+    # Городское / сельское поселение (Urban / rural settlement)
+    dput(data, "city", elattr(el.find("./ГородСелПоселен"), "Наим"))
 
-    dput(
-        data, "city", elattr(el.find("./ГородСелПоселен"), "Наим")
-    )  # Городское поселение / сельское поселение / межселенная территория в
-    # составе муниципального района / внутригородской район городского округа
+    # Муниципальный район (municipal district within a region)
+    dput(data, "municipality", elattr(el.find("./МуниципРайон"), "Наим"))
 
-    dput(
-        data, "municipality", elattr(el.find("./МуниципРайон"), "Наим")
-    )  # Municipality
-
-    dput(
-        data, "road", elattr(el.find("./ЭлУлДорСети"), "Тип")
-    )  # Элемент улично-дорожной сети (street, road, etc.)
+    # Элемент улично-дорожной сети (street, road, etc.)
+    dput(data, "road", elattr(el.find("./ЭлУлДорСети"), "Тип"))
     dput(data, "road", elattr(el.find("./ЭлУлДорСети"), "Наим"))
-
-    dput(data, "road", elattr(el.find("./Улица"), "ТипУлица"))  # Street
+    # Street
+    dput(data, "road", elattr(el.find("./Улица"), "ТипУлица"))
     dput(data, "road", elattr(el.find("./Улица"), "НаимУлица"))
+
+    # # Район (District or area within a city)
+    # dput(data, "road", elattr(el.find("./Район"), "НаимРайон"))
 
     # To be honest I don't understand the difference between these house and house_number fields
     dput(data, "house_number", el.get("Дом"))
@@ -444,11 +444,12 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     # dput(data, "house", elattr(el.find("./ПомещЗдания"), "Номер"))
     # dput(data, "neighbourhood", el.get("Кварт")) this is actually a flat number or office number
 
+    print(data["city"])
     address = h.format_address(
         street=" ".join(data.get("road", "")),
         house_number=" ".join(data.get("house_number", "")),
         postal_code=" ".join(data.get("postcode", "")),
-        city=" ".join(data.get("city", "")),
+        city=", ".join(data.get("city", "")),
         state=" ".join(data.get("state", "")),
         state_district=" ".join(data.get("municipality", "")),
         country="РФ",  # Russia
