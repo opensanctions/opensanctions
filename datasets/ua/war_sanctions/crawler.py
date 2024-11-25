@@ -93,13 +93,9 @@ def crawl_vessel(context: Context, link):
                     )
                     data[label] = value
 
-    web_resources = []
     web_links = details_container.xpath(
         ".//div[contains(@class, 'tools-frame')]//a[contains(@class, 'long-text yellow')]"
     )
-    for raw_link in web_links:
-        link_href = raw_link.get("href", "").strip()
-        web_resources.append(link_href)
 
     name = data.pop("Vessel name (international according to IMO)")
     type = data.pop("Vessel Type")
@@ -115,7 +111,9 @@ def crawl_vessel(context: Context, link):
     vessel.add("flag", data.pop("Flag (Current)"))
     vessel.add("mmsi", data.pop("MMSI"))
     vessel.add("buildDate", data.pop("Build year"))
-    vessel.add("sourceUrl", web_resources)
+    for raw_link in web_links:
+        link_href = raw_link.get("href", "").strip()
+        vessel.add("sourceUrl", link_href)
     vessel.add("keywords", data.pop("Category"))
     for pr_name in h.multi_split(data.pop("Former ship names"), [" / "]):
         vessel.add("previousName", pr_name)
