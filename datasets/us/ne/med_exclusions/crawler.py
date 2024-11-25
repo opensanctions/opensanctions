@@ -13,6 +13,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity = context.make("Company")
         entity.id = context.make_id(organization_name, row.get("npi"))
         entity.add("name", organization_name)
+        assert row.get("provider_last_name") == "", row
     else:
         entity = context.make("Person")
         entity.id = context.make_id(
@@ -27,6 +28,7 @@ def crawl_item(row: Dict[str, str], context: Context):
             last_name=row.pop("provider_last_name"),
             middle_name=row.pop("provider_middle_initial"),
         )
+        assert organization_name == "", row
 
     if row.get("npi"):
         entity.add("npiCode", row.pop("npi"))
@@ -44,7 +46,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     # Currently, all sanctions are permanent. If the sanction type isn't permanent we emit a warning
     if not row.get("sanction_type_code").startswith("Permanent"):
-        context.log.warning("Sanction is not permanent")
+        context.log.warning("Sanction is not permanent", entity=entity)
 
     context.audit_data(
         row,
