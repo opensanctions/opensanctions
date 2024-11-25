@@ -689,7 +689,7 @@ def parse_examples(context: Context):
             parse_xml(context, fh)
 
 
-def crawl_index_internal(context: Context, url: str) -> Set[str]:
+def crawl_index_internal(context: Context, local_index_path: str) -> Set[str]:
     """
     Crawl an index page with ZIP archives and return the URLs.
     Args:
@@ -698,17 +698,17 @@ def crawl_index_internal(context: Context, url: str) -> Set[str]:
     Returns:
         A set of ZIP archive URLs.
     """
-    with open(url, "r", encoding="utf-8") as f:
+    with open(local_index_path, "r", encoding="utf-8") as f:
         doc = html.fromstring(f.read())
-        doc.make_links_absolute(context.data_url)
-        archives: Set[str] = set()
-        for a in doc.findall(".//a"):
-            link_url = a.get("href")
-            if link_url.endswith(".zip"):
-                archives.add(link_url)
-            #     continue
-            # archives.update(crawl_index_internal(context, link_url))
-        return archives
+
+    archives: Set[str] = set()
+    for a in doc.findall(".//a"):
+        link_url = a.get("href")
+        if link_url and link_url.endswith(".zip"):
+            # directly add the relative path to the set
+            archives.add(link_url)
+
+    return archives
 
 
 def crawl_archive(context: Context, url: str) -> None:
@@ -746,5 +746,15 @@ def crawl(context: Context) -> None:
         "ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/index.html",
         local_index_path,
     )
-    for archive_url in sorted(crawl_index_internal(context, local_index_path)):
-        crawl_archive(context, archive_url)
+
+    # Crawl for ZIP archives
+    for relative_archive_path in sorted(
+        crawl_index_internal(context, local_index_path)
+    ):
+        # Fetch each archive using the relative path extracted
+        fetch_internal_data(
+            f"ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/{relative_archive_path}",
+            context.get_resource_path(relative_archive_path),
+        )
+        # Process each archive
+        crawl_archive(context, relative_archive_path)
