@@ -1,0 +1,41 @@
+title: "Netherlands House of Representatives"
+entry_point: crawler.py
+prefix: nl-hor
+coverage:
+  frequency: monthly
+  start: 2023-01-24
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >-
+  Members of the Dutch house of representatives, one of the 2 chambers of
+  parliament.
+description: >-
+  Members of the Dutch house of representatives, one of the 2 chambers of
+  parliament.
+url: https://www.tweedekamer.nl/kamerleden_en_commissies/alle_kamerleden
+publisher:
+  name: Tweede Kamer der Staten-Generaal
+  description: |
+    The list is published by the Dutch House of Representatives
+  country: nl
+  url: https://www.tweedekamer.nl/
+  official: true
+data:
+  url: https://www.tweedekamer.nl/kamerleden_en_commissies/alle_kamerleden
+  format: HTML
+  lang: nl
+
+dates:
+  formats: ["%d %m %Y"]
+  months:
+    1: januari
+    2: februari
+    3: maart
+    4: april
+    5: mei
+    6: juni
+    7: juli
+    8: augustus
+    9: september
+    10: oktober
+    11: november
+    12: december
