@@ -32,10 +32,7 @@ def lookup_override(context, key):
 
     extracted = {}
     for override in override_res.items:
-        if override["prop"] == "name":
-            extracted["name"] = override["value"]
-        elif override["prop"] == "registrationCode":
-            extracted["registrationCode"] = override["value"]
+        extracted[override["prop"]] = override["value"]
 
     if not extracted:
         context.log.warning(f"No matching properties found in overrides for {key}")
@@ -345,7 +342,7 @@ def crawl(context: Context):
             current_url = next_url
             visited_pages += 1
 
-        if visited_pages >= 100:
-            raise Exception(
-                "Emergency limit of 100 visited pages reached. Potential logical inconsistency detected."
-            )
+            if visited_pages >= 100:
+                raise Exception(
+                    "Emergency limit of 100 visited pages reached. Potential logical inconsistency detected."
+                )

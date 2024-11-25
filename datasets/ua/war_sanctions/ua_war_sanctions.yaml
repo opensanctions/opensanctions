@@ -338,6 +338,12 @@ lookups:
             value: [Almano Holding Ltd, Watermark Yacht Management]
           - prop: registrationCode
             value: 5730583
+      - match: Mazona Offshore LTD c/o One Moon Marine Services LLC (6424650
+        items: 
+          - prop: name
+            value: [Mazona Offshore LTD, One Moon Marine Services LLC]
+          - prop: registrationCode
+            value: 6424650
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
