@@ -55,15 +55,14 @@ def extract_label_value_pair(label_elem, value_elem, data):
 def crawl_index_page(context: Context, index_page, data_type):
     index_page = context.fetch_html(index_page, cache_days=3)
     main_grid = index_page.find('.//div[@id="main-grid"]')
-    if main_grid is not None:
-        for link in main_grid.xpath(".//a/@href"):
-            if link.startswith("https:"):
-                if data_type == "person":
-                    crawl_person(context, link)
-                elif data_type == "company":
-                    crawl_company(context, link)
-                if data_type == "vessel":
-                    crawl_vessel(context, link)
+    for link in main_grid.xpath(".//a/@href"):
+        if link.startswith("https:"):
+            if data_type == "person":
+                crawl_person(context, link)
+            elif data_type == "company":
+                crawl_company(context, link)
+            if data_type == "vessel":
+                crawl_vessel(context, link)
 
 
 def crawl_vessel(context: Context, link):
@@ -89,13 +88,11 @@ def crawl_vessel(context: Context, link):
         rows = details_container.xpath(xpath_expr)
         for row in rows:
             divs = row.findall("div")
-            if len(divs) == 2:
-                label_elem, value_elem = divs
-                if "yellow" in value_elem.get("class"):
-                    label, value = extract_label_value_pair(
-                        label_elem, value_elem, data
-                    )
-                    data[label] = value
+            assert len(divs) == 2
+            label_elem, value_elem = divs
+            if "yellow" in value_elem.get("class"):
+                label, value = extract_label_value_pair(label_elem, value_elem, data)
+                data[label] = value
 
     web_resources = []
     web_links = details_container.xpath(
@@ -229,11 +226,11 @@ def crawl_person(context: Context, link):
     data: dict[str, str] = {}
     for row in details_container.findall(".//div[@class='row']"):
         divs = row.findall("div")
-        if len(divs) == 2:
-            label_elem, value_elem = divs
-            if "yellow" in label_elem.get("class"):
-                label, value = extract_label_value_pair(label_elem, value_elem, data)
-                data[label] = value
+        assert len(divs) == 2
+        label_elem, value_elem = divs
+        if "yellow" in label_elem.get("class"):
+            label, value = extract_label_value_pair(label_elem, value_elem, data)
+            data[label] = value
     names = data.pop("Name")
     positions = data.pop("Position", None)
 
@@ -278,11 +275,11 @@ def crawl_company(context: Context, link):
     data = {}
     for row in details_container.findall(".//div[@class='row']"):
         divs = row.findall("div")
-        if len(divs) == 2:
-            label_elem, value_elem = divs
-            if "yellow" in label_elem.get("class"):
-                label, value = extract_label_value_pair(label_elem, value_elem, data)
-                data[label] = value
+        assert len(divs) == 2
+        label_elem, value_elem = divs
+        if "yellow" in label_elem.get("class"):
+            label, value = extract_label_value_pair(label_elem, value_elem, data)
+            data[label] = value
     name = data.pop("Name")
     name_abbr = data.pop("Abbreviated name of the legal entity", None)
     reg_num = data.pop("Registration number")
