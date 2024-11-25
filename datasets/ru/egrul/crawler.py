@@ -7,7 +7,6 @@ from zipfile import ZipFile
 from lxml import etree, html
 from lxml.etree import _Element as Element, tostring
 
-from addressformatting import AddressFormatter
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -15,7 +14,6 @@ from zavod.shed.internal_data import fetch_internal_data
 
 INN_URL = "https://egrul.itsoft.ru/%s.xml"
 # original source: "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
-aformatter = AddressFormatter()
 
 AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
 # global variable to store the compiled abbreviations
@@ -405,18 +403,18 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
 
     dput(data, "city", elattr(el.find("./Город"), "ТипГород"))
     dput(data, "city", elattr(el.find("./Город"), "НаимГород"))
-    dput(data, "city", elattr(el.find("./Регион"), "НаимРегион"))
+    dput(data, "state", elattr(el.find("./Регион"), "НаимРегион"))
     dput(data, "state", elattr(el.find("./Район"), "НаимРайон"))
 
     dput(
-        data, "town", elattr(el.find("./НаселПункт"), "НаимНаселПункт")
+        data, "city", elattr(el.find("./НаселПункт"), "НаимНаселПункт")
     )  # Сведения об адресообразующем элементе населенный пункт
     dput(
-        data, "town", elattr(el.find("./НаселенПункт"), "Наим")
+        data, "city", elattr(el.find("./НаселенПункт"), "Наим")
     )  # Населенный пункт (город, деревня, село и прочее)
 
     dput(
-        data, "suburb", elattr(el.find("./ГородСелПоселен"), "Наим")
+        data, "city", elattr(el.find("./ГородСелПоселен"), "Наим")
     )  # Городское поселение / сельское поселение / межселенная территория в
     # составе муниципального района / внутригородской район городского округа
 
@@ -446,8 +444,15 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     # dput(data, "house", elattr(el.find("./ПомещЗдания"), "Номер"))
     # dput(data, "neighbourhood", el.get("Кварт")) this is actually a flat number or office number
 
-    address = aformatter.one_line(
-        {k: " ".join(v) for k, v in data.items()}, country=country
+    address = h.format_address(
+        street=" ".join(data.get("road", "")),
+        house_number=" ".join(data.get("house_number", "")),
+        postal_code=" ".join(data.get("postcode", "")),
+        city=" ".join(data.get("city", "")),
+        state=" ".join(data.get("state", "")),
+        state_district=" ".join(data.get("municipality", "")),
+        country="РФ",  # Russia
+        country_code=country,
     )
     entity.add("address", address)
 
