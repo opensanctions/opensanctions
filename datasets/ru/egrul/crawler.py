@@ -689,15 +689,18 @@ def parse_examples(context: Context):
             parse_xml(context, fh)
 
 
-def crawl_index_internal(context: Context, local_index_path: str) -> Set[str]:
+def crawl_index_internal(context: Context, url: str) -> Set[str]:
     """
-    Crawl an index page with ZIP archives and return the URLs.
+    Crawl an index page with ZIP archives, fetch them, and return the local paths.
     Args:
         context: The processing context.
-        url: The URL to crawl.
+        url: The base URL for constructing relative URLs.
     Returns:
-        A set of ZIP archive URLs.
+        A set of local paths to the fetched ZIP archives.
     """
+    local_index_path = context.get_resource_path("index.html")
+    fetch_internal_data(url, local_index_path)
+
     with open(local_index_path, "r", encoding="utf-8") as f:
         doc = html.fromstring(f.read())
 
@@ -705,9 +708,14 @@ def crawl_index_internal(context: Context, local_index_path: str) -> Set[str]:
     for a in doc.findall(".//a"):
         link_url = a.get("href")
         if link_url and link_url.endswith(".zip"):
-            # directly add the relative path to the set
-            archives.add(link_url)
-
+            # fetch each archive using the relative path
+            local_archive_path = context.get_resource_path(link_url)
+            fetch_internal_data(
+                f"ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/{link_url}",
+                local_archive_path,
+            )
+            # add the local path of the fetched archive to the set
+            archives.add(local_archive_path)
     return archives
 
 
@@ -740,21 +748,13 @@ def crawl(context: Context) -> None:
     # Load abbreviations once using the context
     global abbreviations
     abbreviations = compile_abbreviations(context)
-    # parse_examples(context)
-    local_index_path = context.get_resource_path("index.html")
-    fetch_internal_data(
+
+    # fetch ZIP archives and get local paths
+    archive_paths = crawl_index_internal(
+        context,
         "ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/index.html",
-        local_index_path,
     )
 
-    # Crawl for ZIP archives
-    for relative_archive_path in sorted(
-        crawl_index_internal(context, local_index_path)
-    ):
-        # Fetch each archive using the relative path extracted
-        fetch_internal_data(
-            f"ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/{relative_archive_path}",
-            context.get_resource_path(relative_archive_path),
-        )
-        # Process each archive
-        crawl_archive(context, relative_archive_path)
+    for local_archive_path in sorted(archive_paths):
+        context.log.info("Crawling archive: %s" % local_archive_path)
+        crawl_archive(context, local_archive_path)
