@@ -32,6 +32,7 @@ RUN_DATE = RUN_VERSION.dt.date().isoformat()
 # Risk categories
 TARGET_TOPICS = {
     "corp.disqual",
+    "crime.boss",
     "crime.fin",
     "crime.fraud",
     "crime.terror",
