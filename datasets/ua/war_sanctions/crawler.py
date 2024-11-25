@@ -208,12 +208,16 @@ def crawl_ship_relation(context, vessel, data, data_key, rel_role, rel_schema):
         # Create the relation representation
         relation = context.make(rel_schema)
         relation.id = context.make_id(vessel.id, f"{rel_role} by", entity.id)
+
+        # Define properties based on schema
+        from_prop = "client" if rel_schema == "Representation" else "asset"
+        to_prop = "agent" if rel_schema == "Representation" else "owner"
+        description_prop = "role" if rel_schema == "Representation" else "ownershipType"
+
         # Set the appropriate field based on the role
-        relation.add("client" if rel_schema == "Representation" else "asset", vessel.id)
-        relation.add("agent" if rel_schema == "Representation" else "owner", entity.id)
-        relation.add(
-            "role" if rel_schema == "Representation" else "ownershipType", rel_role
-        )
+        relation.add(from_prop, vessel.id)
+        relation.add(to_prop, entity.id)
+        relation.add(description_prop, rel_role)
 
         h.apply_date(relation, "startDate", entity_date)
         context.emit(relation)
