@@ -451,7 +451,6 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
         city=" ".join(data.get("city", "")),
         state=" ".join(data.get("state", "")),
         state_district=" ".join(data.get("municipality", "")),
-        country="РФ",  # Russia
         country_code=country,
     )
     entity.add("address", address)
