@@ -444,12 +444,11 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     # dput(data, "house", elattr(el.find("./ПомещЗдания"), "Номер"))
     # dput(data, "neighbourhood", el.get("Кварт")) this is actually a flat number or office number
 
-    print(data["city"])
     address = h.format_address(
         street=" ".join(data.get("road", "")),
         house_number=" ".join(data.get("house_number", "")),
         postal_code=" ".join(data.get("postcode", "")),
-        city=", ".join(data.get("city", "")),
+        city=" ".join(data.get("city", "")),
         state=" ".join(data.get("state", "")),
         state_district=" ".join(data.get("municipality", "")),
         country="РФ",  # Russia
