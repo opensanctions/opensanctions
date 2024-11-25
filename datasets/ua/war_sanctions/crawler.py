@@ -151,7 +151,7 @@ def crawl_vessel(context: Context, link):
         data,
         "Commercial ship manager (IMO / Country / Date)",
         "Commercial ship manager",
-        "Representation",
+        "UnknownLink",
     )
     crawl_ship_relation(
         context,
@@ -159,7 +159,7 @@ def crawl_vessel(context: Context, link):
         data,
         "Ship Safety Management Manager (IMO / Country / Date)",
         "Ship Safety Management Manager",
-        "Representation",
+        "UnknownLink",
     )
     crawl_ship_relation(
         context,
@@ -210,9 +210,9 @@ def crawl_ship_relation(context, vessel, data, data_key, rel_role, rel_schema):
         relation.id = context.make_id(vessel.id, f"{rel_role} by", entity.id)
 
         # Define properties based on schema
-        from_prop = "client" if rel_schema == "Representation" else "asset"
-        to_prop = "agent" if rel_schema == "Representation" else "owner"
-        description_prop = "role" if rel_schema == "Representation" else "ownershipType"
+        from_prop = "asset" if rel_schema == "Ownership" else "object"
+        to_prop = "owner" if rel_schema == "Ownership" else "subject"
+        description_prop = "ownershipType" if rel_schema == "Ownership" else "role"
 
         # Set the appropriate field based on the role
         relation.add(from_prop, vessel.id)
