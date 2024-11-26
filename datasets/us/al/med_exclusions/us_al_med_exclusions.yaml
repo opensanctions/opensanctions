@@ -33,8 +33,8 @@ description: |
 publisher:
   name: Alabama Medicaid
   description: |
-   Alabama Medicaid is a state program that provides medical and health-related
-   services to eligible low-income individuals and families in Alabama.
+    Alabama Medicaid is a state program that provides medical and health-related
+    services to eligible low-income individuals and families in Alabama.
   url: https://medicaid.alabama.gov
   official: true
   country: "us"
@@ -43,9 +43,9 @@ data:
   url: https://medicaid.alabama.gov/content/8.0_Fraud/8.7_Suspended_Providers.aspx
   format: XLSX
 
-
 dates:
-  formats: ["%m/%d/%Y"]
+  formats: ["%m/%d/%y", "%m/%d/%Y"]
+
 assertions:
   min:
     schema_entities:
@@ -53,3 +53,39 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 9000
+
+lookups:
+  categories:
+    options:
+      match:
+        - PHYSICIANS
+        - PHYSICIAN ASSISTANTS
+        - DENTISTS/DENTAL PROVIDERS
+        - PHARMACISTS/PHARMACIES/PHARMACY PROVIDERS
+        - HOSPITALS
+        - TRANSPORTATION PROVIDERS
+        - DURABLE MEDICAL EQUIPMENT PROVIDERS
+        - NURSES
+        - NURSES AIDES/ORDERLIES
+        - MEDICAL CLINIC PROVIDERS
+        - PSYCHOLOGY PROVIDERS
+        - MENTAL HEALTH WORKERS/SOCIAL WORKERS
+        - CHIROPRACTORS
+        - PODIATRISTS
+        - RESPIRATORY/PULMONARY CARE PROVIDERS
+        - PHYSICAL THERAPY PROVIDERS
+        - OCCUPATIONAL THERAPY PROVIDERS
+        - AUDIOLOGY PROVIDERS
+        - OPTICAL CARE PROVIDERS
+        - LABORATORY PROVIDERS
+        - OTHER
+
+  override:
+    options: []
+      # - match: Covenant Rehabilitation (Christopher Wash, Owner)
+      #   name: Covenant Rehabilitation
+      #   related_entities:
+      #     - schema: Ownership
+      #       name: Christopher Wash
+      #       from_prop: asset
+      #       to_prop: owner
