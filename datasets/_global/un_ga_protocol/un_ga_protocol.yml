@@ -48,7 +48,6 @@ lookups:
           - Feb-17
           - 09-Sep-2207
           - 09-Sep-2201
-          - 09-Sep-2228
         value: null
       - match: 09-Sep-2227-May-21
         values:
