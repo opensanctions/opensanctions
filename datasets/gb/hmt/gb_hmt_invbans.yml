@@ -32,3 +32,4 @@ url: https://www.gov.uk/government/publications/financial-sanctions-consolidated
 data:
   url: https://ofsistorage.blob.core.windows.net/publishlive/2022format/InvBan.xml
   format: XML
+  lang: eng
