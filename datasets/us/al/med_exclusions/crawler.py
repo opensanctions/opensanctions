@@ -10,7 +10,7 @@ def unblock_validator(doc) -> bool:
     return len(doc.xpath("//li[a[contains(., 'Excel Version')]]")) > 0
 
 
-def crawl_excel_url(context: Context):
+def crawl_data_url(context: Context):
     doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
     doc.make_links_absolute(context.data_url)
     return doc.xpath("//a[contains(., 'PDF Version')]")[0].get("href")
@@ -28,6 +28,7 @@ def page_settings(page: Page) -> Dict:
 
 
 def crawl_row(context, name, category, start_date):
+    full_name = None
     alias = None
     if "(aka" in name:
         full_name, alias = name.split("(aka")
@@ -36,23 +37,24 @@ def crawl_row(context, name, category, start_date):
         full_name, alias = name.split("(dba")
         alias = alias.replace(")", "")
 
-    sector = None
-    name_parts = h.multi_split(name, [","])
-    if len(name_parts) > 2:
-        full_name = ", ".join(name_parts[:2])
-        sector = name_parts[2:]
-    else:
-        full_name = name
-
     owners = []
     if "Owner)" in name and len(name.split(" (")) == 2:
         full_name, owner_names = name.split(" (")
         owner_names = owner_names.replace("Owner)", "")
-        owners = h.multi_split(owner_names, ["&", ";"])
+        owners = h.multi_split(owner_names, ["Owner &", "&", "Owner ;", ";"])
+
+    sector = None
+    name_parts = h.multi_split(name, [","])
+    if full_name is None and len(name_parts) > 2:
+        full_name = ", ".join(name_parts[:2])
+        sector = name_parts[2:]
+
+    if full_name is None:
+        full_name = name
 
     # If it's still not clean
     related_entities = []
-    if "(" in full_name:
+    if context.lookup("unclean_names", full_name) is not None:
         res = context.lookup("override", name)
         if res:
             full_name = res.name
@@ -60,8 +62,10 @@ def crawl_row(context, name, category, start_date):
             alias = res.alias
             related_entities = res.related_entities
         else:
-            context.log.warning(f"Probably not a clean name", name=full_name, full_string=name)
-    
+            context.log.warning(
+                "Probably not a clean name", name=full_name, full_string=name
+            )
+
     entity = context.make("LegalEntity")
     entity.id = context.make_id(full_name, sector)
     entity.add("name", full_name)
@@ -115,7 +119,7 @@ def crawl_row(context, name, category, start_date):
 
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
-    excel_url = crawl_excel_url(context)
+    excel_url = crawl_data_url(context)
     _, _, _, path = fetch_resource(
         context, "source.pdf", excel_url, expected_media_type=PDF
     )
@@ -124,7 +128,7 @@ def crawl(context: Context) -> None:
     try:
         category = None
         for row in h.parse_pdf_table(context, path, page_settings=page_settings):
-            name = row.pop("name_of_provider")
+            name = row.pop("name_of_provider").replace("\n", " ")
             if name == "":
                 continue
             start_date = row.pop("suspension_effective_date")
@@ -134,7 +138,7 @@ def crawl(context: Context) -> None:
                 else:
                     category = None
                     context.log.warning(
-                        f"Unexpected category. Confirm we're parsing the PDF correctly.",
+                        "Unexpected category. Confirm we're parsing the PDF correctly.",
                         category=name,
                     )
                 continue
@@ -146,7 +150,7 @@ def crawl(context: Context) -> None:
         else:
             if "No table found on page" in str(e):
                 raise RuntimeError(
-                    f"PDF pages changed. See if they've upgraded to xlsx or update max page."
+                    "PDF pages changed. See if they've upgraded to xlsx or update max page."
                 )
             else:
                 raise
