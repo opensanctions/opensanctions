@@ -207,7 +207,7 @@ def crawl_ship_relation(context, vessel, data, data_key, rel_role, rel_schema):
 
         # Create the relation representation
         relation = context.make(rel_schema)
-        relation.id = context.make_id(vessel.id, f"{rel_role} by", entity.id)
+        relation.id = context.make_id(vessel.id, rel_role, entity.id)
 
         # Define properties based on schema
         from_prop = "asset" if rel_schema == "Ownership" else "object"
@@ -327,7 +327,17 @@ def crawl(context: Context):
     node = main_page.find(
         ".//section[@class='sections d-flex flex-wrap align-items-stretch justify-content-center mb-5 pl-5 pr-5 medium']"
     )
+    api_section = main_page.find(
+        ".//div[@class='d-flex flex-column flex-sm-row menu-alt']"
+    )
     h.assert_dom_hash(node, "dbb9a924d940b3a69a132a102e04dcf0f9fbfc5e")
+    h.assert_dom_hash(api_section, "78bcb227e62e598db7e53e56db0d25ac70051817")
+    h.assert_html_url_hash(
+        context,
+        "https://war-sanctions.gur.gov.ua/en/transport/ships",
+        "040d13069019b10c8a7613ed3fc0c71ca5255e66",
+        path=".//div[@class='tab wide active yellow d-flex justify-content-center gap30']",
+    )
 
     for link_info in LINKS:
         base_url = link_info["url"]
