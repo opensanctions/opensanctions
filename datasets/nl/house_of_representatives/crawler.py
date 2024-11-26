@@ -12,7 +12,7 @@ from zavod import helpers as h
 
 
 REGEX_BIRTH_PLACE_AND_DATE = re.compile(
-    "is geboren in (?P<birthplace>.+) op (?P<birthdate>.+\d{4})(\.| en woont in) .+ is in totaal (?P<days>.+) dagen actief in de Tweede Kamer"
+    "is geboren in (?P<birthplace>.+) op (?P<birthdate>.+\d{4})(\.| en woont in)"
 )
 
 
