@@ -81,7 +81,6 @@ def crawl(context: Context):
         index_validator,
         actions=UNBLOCK_ACTIONS,
         javascript=True,
-        cache_days=1,
     )
     doc.make_links_absolute(context.data_url)
 

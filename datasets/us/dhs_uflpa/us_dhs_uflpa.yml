@@ -37,9 +37,17 @@ data:
   url: "https://www.dhs.gov/uflpa-entity-list"
   format: HTML
 
-dates: 
+dates:
   formats: ["%B %d, %Y"]
 lookups:
+  names:
+    normalize: true
+    lowercase: true
+    options:
+      - match: Sichuan Yuan’an Pharmaceutical Co. Ltd. (also known as Sichuan Yuanan Pharmaceutical Co. Ltd.)
+        value: Sichuan Yuan’an Pharmaceutical Co., Ltd.
+        aliases:
+          - Sichuan Yuanan Pharmaceutical Co., Ltd.
   type:
     options:
       - contains:

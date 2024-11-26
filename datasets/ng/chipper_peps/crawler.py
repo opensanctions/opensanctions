@@ -99,7 +99,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         return
 
     if not has_length(first_name, 2):
-        context.log.warning(
+        context.log.info(
             "Very short first name",
             first_name=first_name,
             identifier=identifier,

@@ -159,6 +159,9 @@ lookups:
           - LE Number
         prop: leiCode
       - match:
+          - Global Intermediary Identification Number
+        prop: giiNumber
+      - match:
           - Travel Document Number
           - Stateless Person ID Card
           - Seafarer's Identification Document
@@ -425,6 +428,12 @@ lookups:
         value: 21380068XRFK54K3Z159
       - match: 253400VTMXV2UE7XNN67
         value: 253400VTMVX2UE7XNN67
+      - match: 25300F1C0J3H75V5935
+        value: 253400F1C0J3H75V5935
+      - match: 253400MZGXN18GHCN57
+        value: 253400MZGXVN18GHCN57
+      - match: 25400B8Y0FNJP628S19
+        value: 253400B8Y0FNJP628S19
   type.address:
     lowercase: true
     options:
