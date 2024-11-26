@@ -135,3 +135,5 @@ def crawl(context: Context):
         context, wb["الشخصيات الاعتبارية"], skiprows=1, header_lookup="columns"
     ):
         crawl_legal_persons(item, context)
+
+    assert len(wb.sheetnames) == 3, wb.sheetnames
