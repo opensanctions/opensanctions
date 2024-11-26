@@ -1198,7 +1198,6 @@ config:
         name: Member of the Board of Directors of Gazprom
         country: ru
         topics:
-          - gov.soe
           - gov.national
     # "Законодательная власть"  # Legislative power
     # "Депутаты Государственной Думы"  # Deputies of the State Duma

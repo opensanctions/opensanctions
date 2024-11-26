@@ -1,5 +1,4 @@
 import re
-from urllib.parse import urljoin, urlparse
 from typing import Dict, Optional, Set, IO, List, Any, Tuple
 from collections import defaultdict
 from zipfile import ZipFile
@@ -7,14 +6,13 @@ from zipfile import ZipFile
 from lxml import etree
 from lxml.etree import _Element as Element, tostring
 
-from addressformatting import AddressFormatter
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.shed.internal_data import fetch_internal_data, list_internal_data
 
 INN_URL = "https://egrul.itsoft.ru/%s.xml"
 # original source: "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
-aformatter = AddressFormatter()
 
 AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
 # global variable to store the compiled abbreviations
@@ -396,40 +394,40 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
         return
 
     # Still a mess, but at least I gave it some love and order
-    dput(data, "postcode", el.get("Индекс"))  # Zip code
-    dput(
-        data, "city", el.findtext("./НаимРегион")
-    )  # Наименование субъекта Российской Федерации, (either a region or big city
-    # such as Moscow or St. Petersburg), see https://выставить-счет.рф/classifier/regions/
 
+    # zip code
+    dput(data, "postcode", el.get("Индекс"))
+
+    # Наименование субъекта Российской Федерации
+    # name of the subject of the Russian Federation
+    # either a region or big city such as Moscow or St. Petersburg
+    # see https://выставить-счет.рф/classifier/regions/
+    dput(data, "state", el.findtext("./НаимРегион"))
+    dput(data, "state", elattr(el.find("./Регион"), "НаимРегион"))
+
+    # City or town
     dput(data, "city", elattr(el.find("./Город"), "ТипГород"))
     dput(data, "city", elattr(el.find("./Город"), "НаимГород"))
-    dput(data, "city", elattr(el.find("./Регион"), "НаимРегион"))
-    dput(data, "state", elattr(el.find("./Район"), "НаимРайон"))
 
-    dput(
-        data, "town", elattr(el.find("./НаселПункт"), "НаимНаселПункт")
-    )  # Сведения об адресообразующем элементе населенный пункт
-    dput(
-        data, "town", elattr(el.find("./НаселенПункт"), "Наим")
-    )  # Населенный пункт (город, деревня, село и прочее)
+    # Наименование населенного пункта (name of the settlement)
+    dput(data, "city", elattr(el.find("./НаселПункт"), "НаимНаселПункт"))
+    # Населенный пункт (город, деревня, село и прочее) (Settlement (city, town, village, etc.))
+    dput(data, "city", elattr(el.find("./НаселенПункт"), "Наим"))
+    # Городское / сельское поселение (Urban / rural settlement)
+    dput(data, "city", elattr(el.find("./ГородСелПоселен"), "Наим"))
 
-    dput(
-        data, "suburb", elattr(el.find("./ГородСелПоселен"), "Наим")
-    )  # Городское поселение / сельское поселение / межселенная территория в
-    # составе муниципального района / внутригородской район городского округа
+    # Муниципальный район (municipal district within a region)
+    dput(data, "municipality", elattr(el.find("./МуниципРайон"), "Наим"))
 
-    dput(
-        data, "municipality", elattr(el.find("./МуниципРайон"), "Наим")
-    )  # Municipality
-
-    dput(
-        data, "road", elattr(el.find("./ЭлУлДорСети"), "Тип")
-    )  # Элемент улично-дорожной сети (street, road, etc.)
+    # Элемент улично-дорожной сети (street, road, etc.)
+    dput(data, "road", elattr(el.find("./ЭлУлДорСети"), "Тип"))
     dput(data, "road", elattr(el.find("./ЭлУлДорСети"), "Наим"))
-
-    dput(data, "road", elattr(el.find("./Улица"), "ТипУлица"))  # Street
+    # Street
+    dput(data, "road", elattr(el.find("./Улица"), "ТипУлица"))
     dput(data, "road", elattr(el.find("./Улица"), "НаимУлица"))
+
+    # # Район (District or area within a city)
+    # dput(data, "road", elattr(el.find("./Район"), "НаимРайон"))
 
     # To be honest I don't understand the difference between these house and house_number fields
     dput(data, "house_number", el.get("Дом"))
@@ -445,8 +443,14 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     # dput(data, "house", elattr(el.find("./ПомещЗдания"), "Номер"))
     # dput(data, "neighbourhood", el.get("Кварт")) this is actually a flat number or office number
 
-    address = aformatter.one_line(
-        {k: " ".join(v) for k, v in data.items()}, country=country
+    address = h.format_address(
+        street=" ".join(data.get("road", "")),
+        house_number=" ".join(data.get("house_number", "")),
+        postal_code=" ".join(data.get("postcode", "")),
+        city=" ".join(data.get("city", "")),
+        state=" ".join(data.get("state", "")),
+        state_district=" ".join(data.get("municipality", "")),
+        country_code=country,
     )
     entity.add("address", address)
 
@@ -688,42 +692,41 @@ def parse_examples(context: Context):
             parse_xml(context, fh)
 
 
-def crawl_index(context: Context, url: str) -> Set[str]:
+def list_prefix_internal(context) -> Set[str]:
     """
-    Crawl an index page with ZIP archives and return the URLs.
+    List ZIP archives in a specific folder of the internal bucket and return their paths.
+
     Args:
         context: The processing context.
-        url: The URL to crawl.
+
     Returns:
-        A set of ZIP archive URLs.
+        A set of relative paths (blob names) to the ZIP archives in the specified folder.
     """
+    # Define the prefix for the directory in the bucket
+    prefix = "ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
     archives: Set[str] = set()
-    doc = context.fetch_html(url)
-    for a in doc.findall(".//a"):
-        link_url = urljoin(url, a.get("href"))
-        if not link_url.startswith(url):
-            continue
-        if link_url.endswith(".zip"):
-            archives.add(link_url)
-            continue
-        archives.update(crawl_index(context, link_url))
+
+    for blob_name in list_internal_data(prefix):
+        if blob_name.endswith(".zip"):
+            archives.add(blob_name)
+
     return archives
 
 
-def crawl_archive(context: Context, url: str) -> None:
+def crawl_archive(context: Context, blob_name: str) -> None:
     """
-    Crawl an archive and parse the XML files inside.
+    Fetch and process a ZIP archive, extracting and parsing XML files inside.
     Args:
         context: The processing context.
-        url: The URL to crawl.
+        blob_name: The name of the ZIP file in the internal bucket.
     Returns:
         None
     """
-    url_path = urlparse(url).path.lstrip("/")
-    path = context.fetch_resource(url_path, url)
+    local_path = context.get_resource_path(blob_name)
+    fetch_internal_data(blob_name, local_path)
     try:
-        context.log.info("Parsing: %s" % url_path)
-        with ZipFile(path, "r") as zip:
+        context.log.info("Parsing: %s" % blob_name)
+        with ZipFile(local_path, "r") as zip:
             for name in zip.namelist():
                 if not name.lower().endswith(".xml"):
                     continue
@@ -731,7 +734,7 @@ def crawl_archive(context: Context, url: str) -> None:
                     parse_xml(context, fh)
 
     finally:
-        path.unlink(missing_ok=True)
+        local_path.unlink(missing_ok=True)
 
 
 def crawl(context: Context) -> None:
@@ -739,6 +742,5 @@ def crawl(context: Context) -> None:
     # Load abbreviations once using the context
     global abbreviations
     abbreviations = compile_abbreviations(context)
-    # parse_examples(context)
-    for archive_url in sorted(crawl_index(context, context.data_url)):
-        crawl_archive(context, archive_url)
+    for blob_name in sorted(list_prefix_internal(context)):
+        crawl_archive(context, blob_name)
