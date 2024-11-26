@@ -55,7 +55,7 @@ def extract_label_value_pair(label_elem, value_elem, data):
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
-    index_page = context.fetch_html(index_page, cache_days=3)
+    index_page = context.fetch_html(index_page, cache_days=1)
     main_grid = index_page.find('.//div[@id="main-grid"]')
     for link in main_grid.xpath(".//a/@href"):
         if link.startswith("https:"):
@@ -68,7 +68,7 @@ def crawl_index_page(context: Context, index_page, data_type, program):
 
 
 def crawl_vessel(context: Context, link, program):
-    detail_page = context.fetch_html(link, cache_days=3)
+    detail_page = context.fetch_html(link, cache_days=1)
     details_container = detail_page.find(".//main")
     data: dict[str, str] = {}
 
@@ -224,7 +224,7 @@ def crawl_ship_relation(context, vessel, data, data_key, rel_role, rel_schema):
 
 
 def crawl_person(context: Context, link, program):
-    detail_page = context.fetch_html(link, cache_days=3)
+    detail_page = context.fetch_html(link, cache_days=1)
     details_container = detail_page.find(".//main")
     data: dict[str, str] = {}
     for row in details_container.findall(".//div[@class='row']"):
@@ -274,7 +274,7 @@ def crawl_person(context: Context, link, program):
 
 
 def crawl_company(context: Context, link, program):
-    detail_page = context.fetch_html(link, cache_days=3)
+    detail_page = context.fetch_html(link, cache_days=1)
     details_container = detail_page.find(".//main")
     data = {}
     for row in details_container.findall(".//div[@class='row']"):
@@ -323,7 +323,7 @@ def extract_next_page_url(doc):
 
 
 def crawl(context: Context):
-    main_page = context.fetch_html(context.data_url, cache_days=3)
+    main_page = context.fetch_html(context.data_url, cache_days=1)
     node = main_page.find(
         ".//section[@class='sections d-flex flex-wrap align-items-stretch justify-content-center mb-5 pl-5 pr-5 medium']"
     )
@@ -346,7 +346,7 @@ def crawl(context: Context):
         current_url = base_url
         visited_pages = 0
         while current_url:
-            doc = context.fetch_html(current_url, cache_days=3)
+            doc = context.fetch_html(current_url, cache_days=1)
             doc.make_links_absolute(base_url)
             if doc is None:
                 context.log.warn(f"Failed to fetch {current_url}")
@@ -359,7 +359,7 @@ def crawl(context: Context):
             current_url = next_url
             visited_pages += 1
 
-            if visited_pages >= 3:
+            if visited_pages >= 100:
                 raise Exception(
                     "Emergency limit of 100 visited pages reached. Potential logical inconsistency detected."
                 )
