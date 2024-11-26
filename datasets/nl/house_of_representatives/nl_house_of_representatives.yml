@@ -2,20 +2,22 @@ title: "Netherlands House of Representatives"
 entry_point: crawler.py
 prefix: nl-hor
 coverage:
-  frequency: monthly
-  start: 2023-01-24
+  frequency: weekly
+  start: 2024-11-24
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
-  Members of the Dutch house of representatives, one of the 2 chambers of
-  parliament.
-description: >-
-  Members of the Dutch house of representatives, one of the 2 chambers of
-  parliament.
+  Members of the Dutch house of representatives, the lower house of the parliament
+  of the Netherlands.
+description: |
+  This dataset lists current members of the Dutch House of Representatives,
+  along with their date and place of birth.
 url: https://www.tweedekamer.nl/kamerleden_en_commissies/alle_kamerleden
 publisher:
   name: Tweede Kamer der Staten-Generaal
-  description: |
-    The list is published by the Dutch House of Representatives
+  name_en: House of Representatives of The Netherlands
+  description: >-
+    The House of Representatives is the lower house of the bicameral parliament
+    of the Netherlands, the States General, the other one being the Senate.
   country: nl
   url: https://www.tweedekamer.nl/
   official: true
@@ -23,6 +25,7 @@ data:
   url: https://www.tweedekamer.nl/kamerleden_en_commissies/alle_kamerleden
   format: HTML
   lang: nl
+ci_test: false
 
 dates:
   formats: ["%d %m %Y"]
@@ -39,3 +42,12 @@ dates:
     10: oktober
     11: november
     12: december
+
+# 150 seats
+assertions:
+  min:
+    schema_entities:
+      Person: 130
+  max:
+    schema_entities:
+      Person: 170
