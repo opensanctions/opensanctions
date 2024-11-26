@@ -1,10 +1,9 @@
 import re
-from urllib.parse import urlparse
 from typing import Dict, Optional, Set, IO, List, Any, Tuple
 from collections import defaultdict
 from zipfile import ZipFile
 
-from lxml import etree, html
+from lxml import etree
 from lxml.etree import _Element as Element, tostring
 
 
