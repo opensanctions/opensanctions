@@ -82,3 +82,9 @@ lookups:
           - NA
           - "Entity: N/A      Owners: 20 years"
           - null
+  type.identifier: 
+    options:
+      - match: "1104213446\n1174644850"
+        values: 
+          - 1104213446
+          - 1174644850
