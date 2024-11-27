@@ -96,6 +96,8 @@ lookups:
         value: 2004-04
       - match: "1999-06-31"
         value: 1999-06
+      - match: "1999-02-31"
+        value: 1999-02
 
 config:
   seeds:
