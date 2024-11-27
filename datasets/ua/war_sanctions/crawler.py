@@ -343,20 +343,31 @@ def extract_next_page_url(doc):
 
 
 def crawl(context: Context):
-    main_page = context.fetch_html(context.data_url)
-    node = main_page.find(
-        ".//section[@class='sections d-flex flex-wrap align-items-stretch justify-content-center mb-5 pl-5 pr-5 medium']"
+    main_page = context.fetch_html(context.data_url, cache_days=1)
+    # Have any new sections been added?
+    section_links_section = main_page.xpath(
+        ".//section[contains(@class, 'sections')][contains(@class, 'justify-content-center')]"
     )
-    api_section = main_page.find(
-        ".//div[@class='d-flex flex-column flex-sm-row menu-alt']"
+    assert len(section_links_section) == 1, section_links_section
+    h.assert_dom_hash(
+        section_links_section[0], "dbb9a924d940b3a69a132a102e04dcf0f9fbfc5e"
     )
-    h.assert_dom_hash(node, "dbb9a924d940b3a69a132a102e04dcf0f9fbfc5e")
-    h.assert_dom_hash(api_section, "78bcb227e62e598db7e53e56db0d25ac70051817")
-    h.assert_html_url_hash(
-        context,
-        "https://war-sanctions.gur.gov.ua/en/transport/ships",
-        "040d13069019b10c8a7613ed3fc0c71ca5255e66",
-        path=".//div[@class='tab wide active yellow d-flex justify-content-center gap30']",
+
+    # Has the API link been updated to point to the previously-nonexistent API page?
+    api_link = main_page.xpath(".//a//span[contains(text(), 'API')]/ancestor::a")
+    assert len(api_link) == 1, api_link
+    h.assert_dom_hash(api_link[0], "26de80467eb7b4a93c0ad5c5c5b8cd75b07a38e0")
+
+    # Has anything been added to the transport tabs?
+    transport_page = context.fetch_html(
+        "https://war-sanctions.gur.gov.ua/en/transport/ships", cache_days=1
+    )
+    transport_tabs_container = transport_page.xpath(
+        ".//div[contains(@class, 'tab')][contains(@class, 'justify-content-center')]"
+    )
+    assert len(transport_tabs_container) == 1, transport_tabs_container
+    h.assert_dom_hash(
+        transport_tabs_container[0], "040d13069019b10c8a7613ed3fc0c71ca5255e66"
     )
 
     for link_info in LINKS:
