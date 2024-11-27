@@ -8,7 +8,7 @@ from nomenklatura.db import get_engine
 from zavod import settings
 from zavod.context import Context
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 
 nk_settings.TESTING = True
 settings.DATA_PATH = Path(mkdtemp()).resolve()

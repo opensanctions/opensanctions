@@ -10,7 +10,7 @@ from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.meta import Dataset
 from zavod.runner.local_enricher import LocalEnricher
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.store import get_store
 
 DATASET_DATA = {

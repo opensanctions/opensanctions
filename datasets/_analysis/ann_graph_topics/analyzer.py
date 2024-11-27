@@ -3,7 +3,7 @@ from followthemoney.types import registry
 from zavod import Context
 from zavod.meta import get_multi_dataset
 from zavod.store import get_store
-from zavod.dedupe import get_dataset_linker
+from zavod.integration import get_dataset_linker
 
 
 def crawl(context: Context) -> None:

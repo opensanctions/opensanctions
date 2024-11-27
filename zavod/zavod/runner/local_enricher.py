@@ -16,11 +16,11 @@ from nomenklatura.cache import Cache
 
 from zavod.archive import dataset_state_path
 from zavod.context import Context
-from zavod.dedupe import get_dataset_linker, get_resolver
+from zavod.integration.dedupe import get_dataset_linker, get_resolver
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
 from zavod.store import get_store
-from zavod.shed.duckdb_index import DuckDBIndex, BlockingMatches
+from zavod.integration.duckdb_index import DuckDBIndex, BlockingMatches
 
 
 log = logging.getLogger(__name__)
@@ -83,7 +83,7 @@ class LocalEnricher(BaseEnricher[DS]):
         self._cutoff = float(config.get("cutoff", 0.5))
         self._limit = int(config.get("limit", 5))
         self._max_bin = int(config.get("max_bin", 10))
-    
+
     def close(self) -> None:
         self.target_store.close()
 
@@ -164,7 +164,9 @@ class LocalEnricher(BaseEnricher[DS]):
     def expand(self, match: Entity) -> Generator[Entity, None, None]:
         yield from self._traverse_nested(match)
 
-    def expand_wrapped(self, entity: Entity, match: Entity) -> Generator[Entity, None, None]:
+    def expand_wrapped(
+        self, entity: Entity, match: Entity
+    ) -> Generator[Entity, None, None]:
         if not self._filter_entity(entity):
             return
         yield from self.expand(match)
@@ -227,7 +229,9 @@ def enrich(context: Context) -> None:
                 for match in enricher.match_candidates(subject_entity, candidate_set):
                     save_match(context, resolver, enricher, subject_entity, match)
             except EnrichmentException as exc:
-                context.log.error("Enrichment error %r: %s" % (subject_entity, str(exc)))
+                context.log.error(
+                    "Enrichment error %r: %s" % (subject_entity, str(exc))
+                )
         resolver.save()
         context.log.info("Enrichment process complete.")
     finally:

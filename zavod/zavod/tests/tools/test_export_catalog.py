@@ -6,7 +6,7 @@ from zavod import settings
 from zavod.tests.conftest import COLLECTION_YML
 from zavod.crawl import crawl_dataset
 from zavod.store import get_store
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.exporters import export_dataset
 
 

@@ -2,9 +2,9 @@ from pathlib import Path
 from tempfile import mkdtemp
 from nomenklatura import CompositeEntity
 
-from zavod.shed.duckdb_index import DuckDBIndex
+from zavod.integration.duckdb_index import DuckDBIndex
 from zavod.crawl import crawl_dataset
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.meta.dataset import Dataset
 from zavod.store import get_store
 

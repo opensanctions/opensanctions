@@ -6,7 +6,7 @@ from nomenklatura.entity import CE
 
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.archive import iter_dataset_statements
 
 

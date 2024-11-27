@@ -5,7 +5,7 @@ from zavod import Context, Entity
 from zavod import settings
 from zavod.meta import get_multi_dataset
 from zavod.store import get_store
-from zavod.dedupe import get_dataset_linker
+from zavod.integration import get_dataset_linker
 
 
 @cache

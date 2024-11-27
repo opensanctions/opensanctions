@@ -11,7 +11,7 @@ from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.shed.duckdb_index import DuckDBIndex
+from zavod.integration.duckdb_index import DuckDBIndex
 
 if TYPE_CHECKING:
     from zavod.store import Store
