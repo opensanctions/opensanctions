@@ -90,7 +90,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     last_name = row.pop("Last Name")
 
     if not has_length(last_name, 2):
-        context.log.warning(
+        context.log.info(
             "Invalid last name",
             last_name=last_name,
             identifier=identifier,
@@ -99,7 +99,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         return
 
     if not has_length(first_name, 2):
-        context.log.warning(
+        context.log.info(
             "Very short first name",
             first_name=first_name,
             identifier=identifier,

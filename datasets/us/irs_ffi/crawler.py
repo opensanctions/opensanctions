@@ -16,6 +16,6 @@ def crawl(context: Context):
             entity.id = context.make_id(giin, name, country)
             entity.add("name", name)
             entity.add("country", country)
-            entity.add("registrationNumber", giin)
+            entity.add("giiNumber", giin)
             entity.add("topics", "fin")
             context.emit(entity)

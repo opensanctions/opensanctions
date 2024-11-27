@@ -64,6 +64,7 @@ lookups:
           - Medo-persia
           - British overseas territories
           - East Turkistan Government in Exile
+          - State of Judaea
         value: null
   type.date:
     options:
@@ -1197,7 +1198,6 @@ config:
         name: Member of the Board of Directors of Gazprom
         country: ru
         topics:
-          - gov.soe
           - gov.national
     # "Законодательная власть"  # Legislative power
     # "Депутаты Государственной Думы"  # Deputies of the State Duma

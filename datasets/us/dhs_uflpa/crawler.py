@@ -20,18 +20,18 @@ import re
 
 REGEX_NAME_STRUCTURE = re.compile(
     (
-        "^"
-        "(?P<main>[\w.,/&\(\) -]+?) ?"
-        "(\(((and|including) [a-z]+ alias(es)? ?:|(formerly|also) known as) (?P<alias_list>.+)\))? ?"
-        "(?P<subordinate_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
-        "(and its ([a-z]+ [a-zA-Z]+-based subsidiaries, which include|subsidiary) (?P<subsidiary_list>.+))?"
-        "$"
+        r"^"
+        r"(?P<main>[\w.,/&\(\) -]+?) ?"
+        r"(\(((and|including) [a-z]+ alias(es)? ?:|(formerly|also) known as) (?P<alias_list>.+)\))? ?"
+        r"(?P<subordinate_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
+        r"(and its ([a-z]+ [a-zA-Z]+-based subsidiaries, which include|subsidiary) (?P<subsidiary_list>.+))?"
+        r"$"
     )
 )
 SPLITTERS = [" and formerly known as ", ", and ", "; and ", ", ", "; "]
 
 
-def parse_names(name_field: str):
+def parse_names(context: Context, name_field: str):
     name_field = name_field.replace(", Ltd.", " Ltd.")
     structure_match = REGEX_NAME_STRUCTURE.match(name_field)
     if structure_match:
@@ -45,6 +45,21 @@ def parse_names(name_field: str):
             "subordinates_note": structure["subordinate_note"],
         }
         return names
+    result = context.lookup("names", name_field)
+    if result is None:
+        context.log.warning("Couldn't find or match name", name=name_field)
+        return {
+            "main": name_field,
+            "aliases": [],
+            "subsidiaries": [],
+            "subordinates_note": None,
+        }
+    return {
+        "main": result.value,
+        "aliases": result.aliases or [],
+        "subsidiaries": result.subsidiaries or [],
+        "subordinates_note": result.subordinate_note,
+    }
 
 
 def crawl_program(
@@ -64,7 +79,7 @@ def crawl_program(
             context.log.warning("Couldn't get entity name", data)
             continue
 
-        names = parse_names(name_field)
+        names = parse_names(context, name_field)
         if names is None:
             context.log.warning("Couldn't parse name field", name_field)
             continue

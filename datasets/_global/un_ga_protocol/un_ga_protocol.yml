@@ -31,7 +31,7 @@ data:
   url: https://www.un.org/dgacm/en/content/protocol/hshgnfa
   format: PDF
 
-dates: 
+dates:
   formats: ["%d-%b-%y"]
 lookups:
   names:
@@ -45,29 +45,34 @@ lookups:
       - match:
           - Jul-21
           - Jul-19
+          - Feb-17
           - 09-Sep-2207
           - 09-Sep-2201
         value: null
       - match: 09-Sep-2227-May-21
-        values: 
+        values:
           - 09-Sep-22
           - 27-May-21
       - match: 09-Sep-2207-May-13
-        values: 
+        values:
           - 09-Sep-22
           - 07-May-13
       - match: 09-Sep-22 28-Feb-17
-        values: 
+        values:
           - 09-Sep-22
           - 28-Feb-17
       - match: 09-Sep-22 / 01-Jul-19
-        values: 
+        values:
           - 09-Sep-22
           - 01-Jul-19
-  normalize_name: 
+      - match: 09-Sep-2228
+        value: 2024-09-09
+      - match: Feb-17
+        value: 2024-02-17
+  normalize_name:
     lowercase: true
     normalize: true
-    options: 
-      - match: 
+    options:
+      - match:
           - none
         value: null

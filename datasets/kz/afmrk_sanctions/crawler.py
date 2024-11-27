@@ -30,7 +30,7 @@ def make_entity(context: Context, el, schema, entity_id, topics, program):
     entity.add("topics", topics)
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("summary", el.findtext("./correction"))
+    sanction.add("summary", el.findtext("./correction"), lang="rus")
     sanction.add("program", program)
     listingDate = cast(str | None, el.findtext("./added_to_list"))
     note_date = added_date_from_note(el.findtext("./correction"))

@@ -28,6 +28,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         if version.strip():
             h.apply_name(entity, version.strip(), alias=True)
     entity.add("sourceUrl", row.pop("Source URL").strip())
+    entity.add("notes", row.pop("Notes").strip())
     context.audit_data(row)
     sanction = h.make_sanction(context, entity)
     context.emit(entity, target=True)

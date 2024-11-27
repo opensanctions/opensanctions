@@ -51,6 +51,8 @@ ci_test: false
 inputs:
   - ann_graph_topics
   - debarment
+  - eu_esma_sanctions
+  - eu_esma_saris
   - ext_cy_companies
   - ext_cz_business_register
   - ext_ee_ariregister
@@ -62,9 +64,9 @@ inputs:
   - ext_ru_egrul
   - ext_ua_edr
   - ir_uani_business_registry
-  - eu_esma_sanctions
-  - eu_esma_saris
   - opencorporates
+  - permid
+  - ru_cbr_banks
   - sanctions
 
 config:

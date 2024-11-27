@@ -1,8 +1,10 @@
-from zavod import Context, helpers as h
 from normality import slugify
 from typing import Dict, Generator, Any
 from lxml.html import HtmlElement
 import re
+
+from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 REGEX_VESSEL = re.compile(r"\bFishing\s+Vessels\b")
 
@@ -145,8 +147,12 @@ def parse_table(
         yield row_data
 
 
+def unblock_validator(doc) -> bool:
+    return len(doc.xpath("//div[contains(@class, 'usa-section-accordion')]")) > 0
+
+
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)
+    doc = fetch_html(context, context.data_url, unblock_validator)
     doc.make_links_absolute(context.data_url)
 
     for accordion in doc.xpath("//div[contains(@class, 'usa-section-accordion')]"):
