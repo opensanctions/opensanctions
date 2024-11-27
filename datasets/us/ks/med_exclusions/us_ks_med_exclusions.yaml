@@ -34,7 +34,7 @@ assertions:
       LegalEntity: 200 
 
 lookups:
-  type.name:
+  type.identifier:
     options:
       - match: 1760461909 (Nashville)
         value: 1760461909
