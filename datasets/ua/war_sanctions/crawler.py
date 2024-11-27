@@ -72,15 +72,20 @@ def crawl_vessel(context: Context, link, program):
     details_container = detail_page.find(".//main")
     data: dict[str, str] = {}
 
+    # pop() without defaults below imply validity of the very generic selectors,
+    # and audit() validates the exclusion of irrelevant data.
     xpath_definitions = [
+        # e.g. Vessel name, IMO, Call sign
         (
             "main_info_rows",
             ".//div[contains(@class,'tools-spec')]/div[contains(@class, 'row')]",
         ),
+        # e.g. `Vessel information`
         (
             "justification_rows",
             ".//div[contains(@class, 'tools-frame')]/div[contains(@class, 'mb-3')]",
         ),
+        # e.g. Shipowner, Ship Safety Management Manager, Former ship names...
         (
             "additional_info_rows",
             ".//div[contains(@class, 'tools-frame')]//div[@class='mb-3' or contains(@class, 'js_visibility')]",
@@ -111,6 +116,9 @@ def crawl_vessel(context: Context, link, program):
     vessel.add("name", name)
     vessel.add("imoNumber", imo_num)
     vessel.add("type", type)
+
+    # pop() without defaults here imply validity of the very generic selectors
+    # for these attributes.
     vessel.add("description", " ".join(data.pop("Vessel information")))
     vessel.add("callSign", data.pop("Call sign"))
     vessel.add("flag", data.pop("Flag (Current)"))
@@ -225,9 +233,11 @@ def crawl_ship_relation(context, vessel, data, data_key, rel_role, rel_schema):
 
 def crawl_person(context: Context, link, program):
     detail_page = context.fetch_html(link, cache_days=1)
-    details_container = detail_page.find(".//main")
+
+    # Having at least some pop()s without defaults and audit()-ing the rest
+    # implies the very generic selectors.
     data: dict[str, str] = {}
-    for row in details_container.findall(".//div[@class='row']"):
+    for row in detail_page.findall(".//main//div[@class='row']"):
         divs = row.findall("div")
         if len(divs) == 2:
             label_elem, value_elem = divs
@@ -275,9 +285,11 @@ def crawl_person(context: Context, link, program):
 
 def crawl_company(context: Context, link, program):
     detail_page = context.fetch_html(link, cache_days=1)
-    details_container = detail_page.find(".//main")
+
+    # Having at least some pop()s without defaults and audit()-ing the rest
+    # implies the very generic selectors.
     data = {}
-    for row in details_container.findall(".//div[@class='row']"):
+    for row in detail_page.findall(".//main//div[@class='row']"):
         divs = row.findall("div")
         if len(divs) == 2:
             label_elem, value_elem = divs
