@@ -10,12 +10,12 @@ LINKS = [
     {  # child kidnappers
         "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
         "type": "legal_entity",
-        "program": "Companies involved in the deportation of Ukrainian children",
+        "program": "Legal entities involved in the deportation of Ukrainian children",
     },
     {  # russian athletes
         "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
         "type": "person",
-        "program": "Athletes and officials participating in Russian influence operations abroad",
+        "program": "Athletes and sports officials participating in Russian influence operations abroad",
     },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
@@ -155,26 +155,29 @@ def crawl_vessel(context: Context, link, program):
     crawl_ship_relation(
         context,
         vessel,
-        data,
-        "Commercial ship manager (IMO / Country / Date)",
+        data.pop("Commercial ship manager (IMO / Country / Date)"),
         "Commercial ship manager",
         "UnknownLink",
+        "subject",
+        "object",
     )
     crawl_ship_relation(
         context,
         vessel,
-        data,
-        "Ship Safety Management Manager (IMO / Country / Date)",
+        data.pop("Ship Safety Management Manager (IMO / Country / Date)", None),
         "Ship Safety Management Manager",
         "UnknownLink",
+        "subject",
+        "object",
     )
     crawl_ship_relation(
         context,
         vessel,
-        data,
-        "Shipowner (IMO / Country / Date)",
+        data.pop("Shipowner (IMO / Country / Date)"),
         "Shipowner",
         "Ownership",
+        "asset",
+        "owner",
     )
     context.audit_data(
         data,
@@ -188,9 +191,15 @@ def crawl_vessel(context: Context, link, program):
     )
 
 
-def crawl_ship_relation(context, vessel, data, data_key, rel_role, rel_schema):
-    # Extract the relation information from data using the specified key
-    relation_info = data.pop(data_key, None)
+def crawl_ship_relation(
+    context,
+    vessel,
+    relation_info,
+    rel_role,
+    rel_schema,
+    from_prop,
+    to_prop,
+):
     if relation_info is None:
         return
     # Split the relation info into expected parts
@@ -217,15 +226,10 @@ def crawl_ship_relation(context, vessel, data, data_key, rel_role, rel_schema):
         relation = context.make(rel_schema)
         relation.id = context.make_id(vessel.id, rel_role, entity.id)
 
-        # Define properties based on schema
-        from_prop = "asset" if rel_schema == "Ownership" else "object"
-        to_prop = "owner" if rel_schema == "Ownership" else "subject"
-        description_prop = "ownershipType" if rel_schema == "Ownership" else "role"
-
         # Set the appropriate field based on the role
         relation.add(from_prop, vessel.id)
         relation.add(to_prop, entity.id)
-        relation.add(description_prop, rel_role)
+        relation.add("role", rel_role)
 
         h.apply_date(relation, "startDate", entity_date)
         context.emit(relation)
