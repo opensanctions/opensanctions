@@ -50,6 +50,23 @@ def extract_label_value_pair(label_elem, value_elem, data):
     return label, value
 
 
+def emit_unknown_link(context, entity, unknown_link_name):
+    # create an unknown link entity fo c/o cases in names
+    unknown_link_entity = context.make("LegalEntity")
+    unknown_link_entity.id = context.make_id(unknown_link_name)
+    unknown_link_entity.add("name", unknown_link_name)
+    unknown_link_entity.add("topics", "poi")
+    context.emit(unknown_link_entity, target=True)
+
+    # create and emit the UnknownLink
+    unknown_link = context.make("UnknownLink")
+    unknown_link.id = context.make_id(entity.id, "unknown_link", unknown_link_entity.id)
+    unknown_link.add("object", entity.id)
+    unknown_link.add("subject", unknown_link_entity.id)
+    unknown_link.add("role", "Unknown")
+    context.emit(unknown_link)
+
+
 def crawl_index_page(context: Context, index_page, data_type, program):
     index_page = context.fetch_html(index_page)
     main_grid = index_page.find('.//div[@id="main-grid"]')
@@ -214,8 +231,10 @@ def crawl_ship_relation(
             overrides = lookup_override(context, entity_name_imo)
             entity_name = overrides.get("name")
             entity_imo = overrides.get("registrationCode")
+            unknown_link = overrides.get("unknownLink")
         else:
             entity_name, entity_imo = entity_name_imo.split(" (")
+            unknown_link = None
 
         # Create and emit the Legal Entity
         entity = context.make("LegalEntity")
@@ -237,6 +256,9 @@ def crawl_ship_relation(
 
         h.apply_date(relation, "startDate", entity_date)
         context.emit(relation)
+
+        if unknown_link is not None:
+            emit_unknown_link(context, entity, unknown_link)
 
 
 def crawl_person(context: Context, link, program):
