@@ -1,7 +1,10 @@
 from pathlib import Path
 from tempfile import mkdtemp
+
+from normality import slugify
 from nomenklatura import CompositeEntity
 
+from zavod.entity import Entity
 from zavod.integration.duckdb_index import DuckDBIndex
 from zavod.crawl import crawl_dataset
 from zavod.integration import get_resolver
@@ -85,3 +88,64 @@ def test_match(testdataset1: Dataset, testdataset_dedupe: Dataset):
     assert john_matches[0] == ("matching-john-smith-us", 23.0), john_matches[0]
     # Unboosted differing token scores slightly lower
     assert john_matches[1] == ("matching-john-smith-uk", 22.0), john_matches[0]
+
+
+def test_stopwords(testdataset1: Dataset):
+    def e(name: str) -> Entity:
+        data = {
+            "schema": "Person",
+            "id": f"id-{slugify(name)}",
+            "properties": {"name": [name]},
+        }
+        return resolver.apply(Entity.from_data(testdataset1, data))
+
+    resolver = get_resolver()
+    store = get_store(testdataset1, resolver)
+    writer = store.writer()
+    # 1 first name 5 times
+    # 5 last names once each
+    # 5 distinct full names
+    # 11 tokens
+    writer.add_entity(e("FirstA LastA"))
+    writer.add_entity(e("FirstA LastB"))
+    writer.add_entity(e("FirstA LastC"))
+    writer.add_entity(e("FirstB LastD"))
+    writer.add_entity(e("First LastE"))
+
+    writer.flush()
+    view = store.view(testdataset1)
+
+    too_common_first_name = e("FirstA LastF")
+    matching_last_name = e("FirstD LastA")
+
+    # 15% most common tokens as stopwords -> ignore FirstA
+
+    data_dir = Path(mkdtemp()).resolve()
+    index = DuckDBIndex(view, data_dir, {"stopwords_pct": 15})
+    index.build()
+
+    index.add_matching_subject(too_common_first_name)
+    index.add_matching_subject(matching_last_name)
+    entity_matches = {}
+    for entity_id, matches in index.matches():
+        entity_matches[entity_id] = [(match.id, score) for match, score in matches]
+
+    assert too_common_first_name.id not in entity_matches
+    assert len(entity_matches[matching_last_name.id]) == 1
+    assert entity_matches[matching_last_name.id][0][0] == "id-firsta-lasta"
+
+    # 5% most common tokens as stopwords -> ignore nothing
+
+    data_dir = Path(mkdtemp()).resolve()
+    index = DuckDBIndex(view, data_dir, {"stopwords_pct": 5})
+    index.build()
+
+    index.add_matching_subject(too_common_first_name)
+    index.add_matching_subject(matching_last_name)
+
+    entity_matches = {}
+    for entity_id, matches in index.matches():
+        entity_matches[entity_id] = [(match.id, score) for match, score in matches]
+
+    assert len(entity_matches[too_common_first_name.id]) == 3
+    assert len(entity_matches[matching_last_name.id]) == 1

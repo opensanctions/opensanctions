@@ -58,6 +58,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         )
         """Memory budget in megabytes"""
         self.max_candidates = int(options.get("max_candidates", 50))
+        self.stopwords_pct = options.get("stopwords_pct", 1)
         self.tokenizer = Tokenizer[DS, CE]()
         self.data_dir = data_dir
         if self.data_dir.exists():
@@ -113,7 +114,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         log.info("Index built.")
 
     def _build_field_len(self) -> None:
-        self._build_stopwords()
         log.info("Calculating field lengths...")
         field_len_query = """
             CREATE TABLE IF NOT EXISTS field_len as
@@ -126,7 +126,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.con.execute(field_len_query)
 
     def _build_mentions(self) -> None:
-        self._build_stopwords()
         log.info("Calculating mention counts...")
         mentions_query = """
             CREATE TABLE IF NOT EXISTS mentions as
@@ -144,16 +143,39 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             SELECT field, token, count(*) as token_freq
             FROM entries
             GROUP BY field, token
+            ORDER BY token_freq DESC
         """
         token_freq = self.con.sql(token_freq_query)  # noqa
+        num_tokens_results = self.con.execute("SELECT count(*) FROM token_freq").fetchone()
+        assert num_tokens_results is not None
+        num_tokens = num_tokens_results[0]
+        limit = int((num_tokens / 100) * self.stopwords_pct)
+        log.info(
+            "Treating %d (%s%%) most common tokens as stopwords...",
+            limit,
+            self.stopwords_pct,
+        )
         self.con.execute(
             """
             CREATE TABLE IF NOT EXISTS stopwords as
-            SELECT * FROM token_freq where token_freq > 100
-            """
+            SELECT * FROM token_freq LIMIT ?
+            """,
+            [limit],
         )
+        least_common_query = """
+            SELECT field, token, token_freq
+            FROM stopwords
+            ORDER BY token_freq ASC
+            LIMIT 5;
+        """
+        least_common = "\n".join(
+            f"{freq} {field}:{token}"
+            for field, token, freq in self.con.sql(least_common_query).fetchall()
+        )
+        log.info("5 Least common stopwords:\n%s\n", least_common)
 
     def _build_frequencies(self) -> None:
+        self._build_stopwords()
         self._build_field_len()
         self._build_mentions()
         log.info("Calculating term frequencies...")
