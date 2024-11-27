@@ -1,6 +1,6 @@
-title: War and Sanctions
+title: Ukraine War and Sanctions
 entry_point: crawler.py
-prefix: ua-war-sanctions
+prefix: ua-ws
 coverage:
   frequency: daily
   start: 2024-11-15
@@ -21,9 +21,14 @@ description: |
   **Marine and Aircraft Assets**: Airports, ports, and vessels involved in the transportation 
   of weapons, stolen Ukrainian goods, and sanctions circumvention efforts.
 
+  The objective of the War and Sanctions website is to raise awareness of their conduct,
+  and advocate for sanctions against these entities to hold perpetrators accountable and
+  deter further actions of this kind.
+
 publisher:
-  name: Defence Intelligence of Ukraine
-  acronym: DIU
+  name: ГУР МО України
+  name_en: Defence Intelligence of Ukraine
+  acronym: GUR
   description: >
     The Defence Intelligence of Ukraine is the main intelligence agency of the 
     Ministry of Defence of Ukraine. It protects the national interests of Ukraine, 
