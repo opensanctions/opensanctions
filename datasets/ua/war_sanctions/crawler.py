@@ -33,7 +33,7 @@ def lookup_override(context, key):
 
     extracted = {}
     for override in override_res.items:
-        extracted[override["prop"]] = override["value"]
+        extracted[override["key"]] = override["value"]
 
     if not extracted:
         context.log.warning(f"No matching properties found in overrides for {key}")
@@ -50,20 +50,19 @@ def extract_label_value_pair(label_elem, value_elem, data):
     return label, value
 
 
-def emit_unknown_link(context, entity, unknown_link_name):
+def emit_care_of(context, entity, unknown_link_name):
     # create an unknown link entity fo c/o cases in names
-    unknown_link_entity = context.make("LegalEntity")
-    unknown_link_entity.id = context.make_id(unknown_link_name)
-    unknown_link_entity.add("name", unknown_link_name)
-    unknown_link_entity.add("topics", "poi")
-    context.emit(unknown_link_entity, target=True)
+    care_of_entity = context.make("LegalEntity")
+    care_of_entity.id = context.make_id(unknown_link_name)
+    care_of_entity.add("name", unknown_link_name)
+    context.emit(care_of_entity)
 
     # create and emit the UnknownLink
     unknown_link = context.make("UnknownLink")
-    unknown_link.id = context.make_id(entity.id, "unknown_link", unknown_link_entity.id)
+    unknown_link.id = context.make_id(entity.id, "unknown_link", care_of_entity.id)
     unknown_link.add("object", entity.id)
-    unknown_link.add("subject", unknown_link_entity.id)
-    unknown_link.add("role", "Unknown")
+    unknown_link.add("subject", care_of_entity.id)
+    unknown_link.add("role", "c/o")
     context.emit(unknown_link)
 
 
@@ -132,7 +131,7 @@ def crawl_vessel(context: Context, link, program):
 
     # pop() without defaults here imply validity of the very generic selectors
     # for these attributes.
-    vessel.add("description", " ".join(data.pop("Vessel information")))
+    vessel.add("description", data.pop("Vessel information"))
     vessel.add("callSign", data.pop("Call sign"))
     vessel.add("flag", data.pop("Flag (Current)"))
     vessel.add("mmsi", data.pop("MMSI"))
@@ -140,12 +139,13 @@ def crawl_vessel(context: Context, link, program):
     for raw_link in web_links:
         link_href = raw_link.get("href", "").strip()
         vessel.add("sourceUrl", link_href)
-    vessel.add("keywords", data.pop("Category"))
+    vessel.add("notes", data.pop("Category"))
     for pr_name in h.multi_split(data.pop("Former ship names"), [" / "]):
         vessel.add("previousName", pr_name)
     for past_flag in h.multi_split(data.pop("Flags (former)"), [" /"]):
         vessel.add("pastFlags", past_flag)
     vessel.add("topics", "poi")
+    vessel.add("sourceUrl", link)
 
     sanction = h.make_sanction(context, vessel)
     sanction.add("program", program)
@@ -153,25 +153,6 @@ def crawl_vessel(context: Context, link, program):
 
     context.emit(vessel, target=True)
     context.emit(sanction)
-
-    linked_entity_name = data.pop(
-        "The person in connection with whom sanctions have been applied"
-    )
-    if linked_entity_name != "":
-        linked_entity = context.make("LegalEntity")
-        linked_entity.id = context.make_id(linked_entity_name, "uknown_link")
-        linked_entity.add("name", linked_entity_name)
-        linked_entity.add("topics", "poi")
-        context.emit(linked_entity, target=True)
-
-        unknown_link = context.make("UnknownLink")
-        unknown_link.id = context.make_id(vessel.id, "uknown_link", linked_entity.id)
-        unknown_link.add("object", vessel.id)
-        unknown_link.add("subject", linked_entity.id)
-        unknown_link.add(
-            "role", "The entity in connection with which sanctions have been applied"
-        )
-        context.emit(unknown_link)
 
     crawl_ship_relation(
         context,
@@ -208,6 +189,9 @@ def crawl_vessel(context: Context, link, program):
             "Calling at russian ports",
             "Visited ports",
             "Builder (country)",
+            # These always seem to be one of the owner or management companies
+            # already included from that section.
+            "The person in connection with whom sanctions have been applied",
         ],
     )
 
@@ -226,39 +210,33 @@ def crawl_ship_relation(
     # Split the relation info into expected parts
     relation_parts = relation_info.split(" / ")
     if len(relation_parts) == 3:
-        entity_name_imo, entity_country, entity_date = relation_parts
-        if len(h.multi_split(entity_name_imo, [" (", "c/o"])) != 2:
-            overrides = lookup_override(context, entity_name_imo)
+        entity_name_number, entity_country, entity_date = relation_parts
+        if len(h.multi_split(entity_name_number, [" (", "c/o"])) != 2:
+            overrides = lookup_override(context, entity_name_number)
             entity_name = overrides.get("name")
-            entity_imo = overrides.get("registrationCode")
-            unknown_link = overrides.get("unknownLink")
+            registration_number = overrides.get("registration_number")
+            care_of = overrides.get("care_of")
         else:
-            entity_name, entity_imo = entity_name_imo.split(" (")
-            unknown_link = None
+            entity_name, registration_number = entity_name_number.split(" (")
+            care_of = None
 
-        # Create and emit the Legal Entity
         entity = context.make("LegalEntity")
         entity.id = context.make_id(entity_name, entity_country)
         entity.add("name", entity_name)
-        entity.add("registrationNumber", entity_imo)
+        entity.add("registrationNumber", registration_number)
         entity.add("country", entity_country)
-        entity.add("topics", "poi")
-        context.emit(entity, target=True)
+        context.emit(entity)
 
-        # Create the relation representation
         relation = context.make(rel_schema)
         relation.id = context.make_id(vessel.id, rel_role, entity.id)
-
-        # Set the appropriate field based on the role
         relation.add(from_prop, vessel.id)
         relation.add(to_prop, entity.id)
         relation.add("role", rel_role)
-
         h.apply_date(relation, "startDate", entity_date)
         context.emit(relation)
 
-        if unknown_link is not None:
-            emit_unknown_link(context, entity, unknown_link)
+        if care_of is not None:
+            emit_care_of(context, entity, care_of)
 
 
 def crawl_person(context: Context, link, program):
