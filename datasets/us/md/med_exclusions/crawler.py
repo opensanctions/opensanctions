@@ -21,8 +21,8 @@ def crawl_item(row: Dict[str, str], context: Context):
             first_name=row.pop("first_name"),
             last_name=row.pop("last_name_organization"),
         )
-    for npi in h.multi_split(row.pop("npi"), ","):
-        entity.add("npiCode", npi.strip())
+
+    entity.add("npiCode", h.multi_split(row.pop("npi"), ","))
     entity.add("sector", row.pop("type_of_entity_profession"))
     entity.add("topics", "debarment")
     entity.add("country", "us")
