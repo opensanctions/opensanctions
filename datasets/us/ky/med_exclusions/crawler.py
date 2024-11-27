@@ -51,7 +51,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.add("alias", names[1:])
 
     if row.get("npi") and row.get("npi") != "N/A":
-        entity.add("npiCode", row.pop("npi"))
+        entity.add("npiCode", h.multi_split(row.pop("npi"), "; "))
     else:
         row.pop("npi")
 
