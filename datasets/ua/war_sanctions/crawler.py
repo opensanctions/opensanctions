@@ -24,8 +24,6 @@ LINKS = [
     },
 ]
 
-# TODO: remove cache_days
-
 
 def lookup_override(context, key):
     override_res = context.lookup("overrides", key)
@@ -53,7 +51,7 @@ def extract_label_value_pair(label_elem, value_elem, data):
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
-    index_page = context.fetch_html(index_page, cache_days=1)
+    index_page = context.fetch_html(index_page)
     main_grid = index_page.find('.//div[@id="main-grid"]')
     for link in main_grid.xpath(".//a/@href"):
         if link.startswith("https:"):
@@ -144,11 +142,19 @@ def crawl_vessel(context: Context, link, program):
     )
     if linked_entity_name != "":
         linked_entity = context.make("LegalEntity")
-        linked_entity.id = context.make_id(linked_entity_name)
-        for name in h.multi_split(linked_entity_name, [" | "]):
-            linked_entity.add("name", name)
+        linked_entity.id = context.make_id(linked_entity_name, "uknown_link")
+        linked_entity.add("name", linked_entity_name)
         linked_entity.add("topics", "poi")
         context.emit(linked_entity, target=True)
+
+        unknown_link = context.make("UnknownLink")
+        unknown_link.id = context.make_id(vessel.id, "uknown_link", linked_entity.id)
+        unknown_link.add("object", vessel.id)
+        unknown_link.add("subject", linked_entity.id)
+        unknown_link.add(
+            "role", "The entity in connection with which sanctions have been applied"
+        )
+        context.emit(unknown_link)
 
     crawl_ship_relation(
         context,
@@ -337,7 +343,7 @@ def extract_next_page_url(doc):
 
 
 def crawl(context: Context):
-    main_page = context.fetch_html(context.data_url, cache_days=1)
+    main_page = context.fetch_html(context.data_url)
     node = main_page.find(
         ".//section[@class='sections d-flex flex-wrap align-items-stretch justify-content-center mb-5 pl-5 pr-5 medium']"
     )
@@ -360,7 +366,7 @@ def crawl(context: Context):
         current_url = base_url
         visited_pages = 0
         while current_url:
-            doc = context.fetch_html(current_url, cache_days=1)
+            doc = context.fetch_html(current_url)
             doc.make_links_absolute(base_url)
             if doc is None:
                 context.log.warn(f"Failed to fetch {current_url}")
