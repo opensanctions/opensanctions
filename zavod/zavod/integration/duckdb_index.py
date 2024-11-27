@@ -100,7 +100,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                     return
                 for field, token in self.tokenizer.entity(entity):
                     writer.writerow([entity.id, field, token])
-                    writer.writerow(["id", "field", "token"])
 
             for idx, entity in enumerate(self.view.entities()):
                 dump_entity(entity)

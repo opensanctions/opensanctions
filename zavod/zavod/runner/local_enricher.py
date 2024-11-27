@@ -217,8 +217,6 @@ def enrich(context: Context) -> None:
 
         context.log.info("Matching candidates...")
         for entity_idx, (entity_id, candidate_set) in enumerate(enricher.candidates()):
-            if entity_idx > 0 and entity_idx % 1000 == 0:
-                context.cache.flush()
             if entity_idx > 0 and entity_idx % 10000 == 0:
                 context.log.info("Enriched %s entities..." % entity_idx)
             subject_entity = subject_view.get_entity(entity_id.id)
