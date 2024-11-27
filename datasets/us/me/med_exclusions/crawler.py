@@ -2,7 +2,6 @@ from typing import Dict
 import json
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
-from datetime import datetime
 
 from zavod import Context, helpers as h
 
