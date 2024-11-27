@@ -42,3 +42,8 @@ assertions:
     schema_entities:
       Person: 60 
       Company: 50
+lookups: 
+  type.identifier: 
+    options: 
+      - match: 26-3554962 (FEIN)
+        value: 26-3554962
