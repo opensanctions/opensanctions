@@ -9,7 +9,7 @@ LINKS = [
     },
     {  # child kidnappers
         "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
-        "type": "company",
+        "type": "legal_entity",
         "program": "Companies involved in the deportation of Ukrainian children",
     },
     {  # russian athletes
@@ -61,8 +61,8 @@ def crawl_index_page(context: Context, index_page, data_type, program):
         if link.startswith("https:"):
             if data_type == "person":
                 crawl_person(context, link, program)
-            elif data_type == "company":
-                crawl_company(context, link, program)
+            elif data_type == "legal_entity":
+                crawl_legal_entity(context, link, program)
             if data_type == "vessel":
                 crawl_vessel(context, link, program)
 
@@ -283,7 +283,7 @@ def crawl_person(context: Context, link, program):
     context.audit_data(data, ignore=["Sanction Jurisdictions"])
 
 
-def crawl_company(context: Context, link, program):
+def crawl_legal_entity(context: Context, link, program):
     detail_page = context.fetch_html(link, cache_days=1)
 
     # Having at least some pop()s without defaults and audit()-ing the rest
@@ -300,26 +300,26 @@ def crawl_company(context: Context, link, program):
     name_abbr = data.pop("Abbreviated name of the legal entity", None)
     reg_num = data.pop("Registration number")
 
-    company = context.make("Company")
-    company.id = context.make_id(name, name_abbr, reg_num)
-    company.add("name", name)
-    company.add("name", name_abbr)
-    company.add("registrationNumber", reg_num)
-    company.add("address", data.pop("Address"))
-    company.add("country", data.pop("Country"))
-    company.add("taxNumber", data.pop("Tax Number"))
-    company.add("sourceUrl", data.pop("Links"))
+    legal_entity = context.make("LegalEntity")
+    legal_entity.id = context.make_id(name, name_abbr, reg_num)
+    legal_entity.add("name", name)
+    legal_entity.add("name", name_abbr)
+    legal_entity.add("registrationNumber", reg_num)
+    legal_entity.add("address", data.pop("Address"))
+    legal_entity.add("country", data.pop("Country"))
+    legal_entity.add("taxNumber", data.pop("Tax Number"))
+    legal_entity.add("sourceUrl", data.pop("Links"))
     archive_links = data.pop("Archive links", None)
     if archive_links is not None:
-        company.add("sourceUrl", archive_links)
+        legal_entity.add("sourceUrl", archive_links)
 
-    company.add("topics", "poi")
-    sanction = h.make_sanction(context, company)
+    legal_entity.add("topics", "poi")
+    sanction = h.make_sanction(context, legal_entity)
     sanction.add("reason", " ".join(data.pop("Reasons")))
     sanction.add("sourceUrl", link)
     sanction.add("program", program)
 
-    context.emit(company, target=True)
+    context.emit(legal_entity, target=True)
     context.emit(sanction)
     context.audit_data(data, ignore=["Sanction Jurisdictions"])
 
