@@ -24,8 +24,6 @@ LINKS = [
     },
 ]
 
-# TODO: c/o and 'Unknown (22.03.2024), Ship Safety Management Manager (IMO / Country / Date)': 'Unknown (08.02.2023)
-# TODO: Sanction Jurisdictions
 # TODO: remove cache_days
 
 
