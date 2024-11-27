@@ -6,27 +6,6 @@ from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 
-def unblock_validator(doc) -> bool:
-    return len(doc.xpath("//li[a[contains(., 'Excel Version')]]")) > 0
-
-
-def crawl_data_url(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
-    doc.make_links_absolute(context.data_url)
-    return doc.xpath("//a[contains(., 'PDF Version')]")[0].get("href")
-
-
-def page_settings(page: Page) -> Dict:
-    settings = {"join_y_tolerance": 15}
-    if page.page_number == 1:
-        table_start = 500
-        # im = page.to_image()
-        # im.draw_hline(table_start)
-        # im.save("page.png")
-        page = page.crop((0, table_start, page.width - 15, page.height - 15))
-    return page, settings
-
-
 def crawl_row(context, name, category, start_date):
     full_name = None
     alias = None
@@ -108,7 +87,7 @@ def crawl_row(context, name, category, start_date):
         relation = context.make(item["schema"])
         relation.id = context.make_id(entity.id, related.id)
         relation.add(item["from_prop"], entity)
-        relation.add(item["to_prop"], entity)
+        relation.add(item["to_prop"], related)
 
         sanction = h.make_sanction(context, entity)
         h.apply_date(sanction, "startDate", start_date)
@@ -117,12 +96,37 @@ def crawl_row(context, name, category, start_date):
         context.emit(sanction)
 
 
+def unblock_validator(doc) -> bool:
+    return len(doc.xpath("//li[a[contains(., 'PDF Version')]]")) > 0
+
+
+def crawl_data_url(context: Context):
+    doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
+    doc.make_links_absolute(context.data_url)
+    return doc.xpath("//a[contains(., 'PDF Version')]")[0].get("href")
+
+
+def page_settings(page: Page) -> Dict:
+    settings = {"join_y_tolerance": 15}
+    if page.page_number == 1:
+        table_start = 500
+        # im = page.to_image()
+        # im.draw_hline(table_start)
+        # im.save("page.png")
+        page = page.crop((0, table_start, page.width - 15, page.height - 15))
+    return page, settings
+
+
 def crawl(context: Context) -> None:
-    # First we find the link to the excel file
-    excel_url = crawl_data_url(context)
-    _, _, _, path = fetch_resource(
-        context, "source.pdf", excel_url, expected_media_type=PDF
-    )
+    # The .xls file first seemed to work, then a newer file couldn't be parsed
+    # as a valid Compond Document file.
+    # xlrd gave "xlrd.compdoc.CompDocError: MSAT extension: accessing sector ..."
+    # https://stackoverflow.com/questions/74262026/reading-the-excel-file-from-python-pandas-given-msat-extension-error
+    # didn't work.
+
+    # First we find the link to the PDF file
+    url = crawl_data_url(context)
+    _, _, _, path = fetch_resource(context, "source.pdf", url, expected_media_type=PDF)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
     try:

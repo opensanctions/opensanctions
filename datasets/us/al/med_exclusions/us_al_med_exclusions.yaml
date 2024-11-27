@@ -1,4 +1,4 @@
-title: US Alabama State Medicaid Exclusions
+title: US Alabama Medicaid Suspended Providers
 entry_point: crawler.py
 prefix: us-medal
 coverage:
@@ -6,30 +6,31 @@ coverage:
   start: "2024-10-30"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Medical providers excluded from Alabama State's Medicaid program.
+  Medical providers excluded from Alabama's Medicaid program.
 description: |
   This dataset contains information about individuals and entities that
-  have been excluded from Alabama State's Medicaid Program. According to
+  have been excluded from Alabama's Medicaid Program. According to
   their website:
-    > Excluded Individuals and Entities are not allowed to receive
-    > reimbursement for providing Medicare and Medicaid services in any
-    > capacity, even if they are not on this listing by the Alabama Medicaid Agency.
 
-    > Excluded individuals and entities are listed according to the type
-    > of provider they were at the time of exclusion; however, they are
-    > excluded from participating in providing services in the Medicaid
-    > program in all categories of service and in any capacity. The exclusion
-    > remains in effect until they are removed from this list.
-
-    > Any provider participating or applying to participate in the Medicaid
-    > program must search Medicaid's Exclusion List, the List of Excluded
-    > Individuals and Entities (LEIE), and the System for Award Management
-    > (SAM) website on a monthly basis to determine if any existing employee
-    > or contractor has been excluded from participation in the Medicaid program.
-    > Also, any provider participating or applying to participate in the Medicaid
-    > program must search all three lists prior to hiring staff to ensure that
-    > any potential employees or contractors have not been excluded from participating
-    > in the Medicaid program.
+  > Excluded Individuals and Entities are not allowed to receive
+  > reimbursement for providing Medicare and Medicaid services in any
+  > capacity, even if they are not on this listing by the Alabama Medicaid Agency.
+  >
+  > Excluded individuals and entities are listed according to the type
+  > of provider they were at the time of exclusion; however, they are
+  > excluded from participating in providing services in the Medicaid
+  > program in all categories of service and in any capacity. The exclusion
+  > remains in effect until they are removed from this list.
+  >
+  > Any provider participating or applying to participate in the Medicaid
+  > program must search Medicaid's Exclusion List, the List of Excluded
+  > Individuals and Entities (LEIE), and the System for Award Management
+  > (SAM) website on a monthly basis to determine if any existing employee
+  > or contractor has been excluded from participation in the Medicaid program.
+  > Also, any provider participating or applying to participate in the Medicaid
+  > program must search all three lists prior to hiring staff to ensure that
+  > any potential employees or contractors have not been excluded from participating
+  > in the Medicaid program.
 publisher:
   name: Alabama Medicaid
   description: |
@@ -50,12 +51,20 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 7500
+      LegalEntity: 2000
   max:
     schema_entities:
-      LegalEntity: 9000
+      LegalEntity: 2400
 
 lookups:
+  unclean_names:
+    options:
+      - contains:
+          - "("
+          - ";"
+      - regex:
+          - " and "
+          - " dba "
   categories:
     options:
       match:
@@ -80,14 +89,6 @@ lookups:
         - OPTICAL CARE PROVIDERS
         - LABORATORY PROVIDERS
         - OTHER
-  unclean_names:
-    options:
-      - contains:
-          - "("
-          - ";"
-      - regex:
-          - " and "
-          - " dba "
   override:
     options:
       - match: "Moise, Jean Getcher (aka Jairden Getcher Moise), Pharmacy Technician"
