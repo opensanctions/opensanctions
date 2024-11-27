@@ -37,3 +37,15 @@ assertions:
     schema_entities:
       Company: 15
       Person: 200
+lookups: 
+  type.identifier: 
+    options: 
+      - match: 1710010889 - CMS Deactivated NPI
+        value: 1710010889
+      - match: 1386736031Deactivated NPI
+        value: 1386736031
+      - match: 1356682272 1093735938 1942783626
+        values: 
+          - 1356682272
+          - 1093735938
+          - 1942783626
