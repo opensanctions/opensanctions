@@ -6,7 +6,7 @@ prefix: ru
 deploy:
   schedule: "@monthly"
   premium: true
-  memory: 6Gi
+  memory: 5Gi
   disk: 250Gi
 exports:
   - statistics.json
