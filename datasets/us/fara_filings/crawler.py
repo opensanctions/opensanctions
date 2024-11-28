@@ -48,7 +48,7 @@ def crawl_registrant(context: Context, item: Dict[str, Any]) -> None:
     entity.id = registrant_id(context, registration_number)
     entity.add("name", item.pop("Name").strip() or None)
     entity.add("topics", "role.lobby")
-    h.copy_address(entity, address)
+    h.apply_address(context, entity, address)
     entity.add("registrationNumber", registration_number)
     h.apply_date(entity, "createdAt", item.pop("Registration_Date"))
     entity.add("country", "us")
@@ -96,7 +96,7 @@ def crawl_principal(context: Context, item: Dict[str, Any]) -> None:
     principal.id = context.make_id("principal", p_name, full_address)
     principal.add("name", p_name)
     principal.add("country", item.pop("Country_location_represented"))
-    h.copy_address(principal, address)
+    h.apply_address(context, principal, address)
 
     # Emit the new agency client entity
     context.emit(principal)

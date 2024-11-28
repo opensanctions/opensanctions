@@ -51,13 +51,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.emit(succ)
         context.emit(succ_entity)
 
-    address = h.make_address(
+    address = h.format_address(
         context,
         city=row.pop("City"),
         state=row.pop("State"),
         country_code="us",
     )
-    h.copy_address(entity, address)
+    entity.add("address", address)
 
     context.emit(entity, target=True)
     context.log.info(f"Emitted entity for bank: {bank_name}")

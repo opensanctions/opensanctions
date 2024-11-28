@@ -12,18 +12,13 @@ REGEX_DBA = re.compile(r"\bd\s*/\s*b\s*/\s*a\b", re.IGNORECASE)
 
 def crawl_item(row: Dict[str, str], context: Context):
     zip_code = row.pop("Zip")
-    city = row.pop("City")
-    if city or zip_code:
-        address = h.make_address(
-            context,
-            city=city,
-            state=row.pop("State"),
-            postal_code=zip_code,
-            country_code="us",
-        )
-    else:
-        address = None
-        row.pop("State")
+    address = h.format_address(
+        context,
+        city=row.pop("City"),
+        state=row.pop("State"),
+        postal_code=zip_code,
+        country_code="us",
+    )
 
     division = row.pop("Division")
 
@@ -37,8 +32,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         h.apply_name(person, last_name=names[0], alias=names[1:], first_name=first_name)
         person.add("country", "us")
         person.add("topics", "debarment")
-        h.apply_address(context, person, address)
-        h.copy_address(person, address)
+        person.add("address", address)
         sanction = h.make_sanction(context, person)
         sanction.add("authority", division)
 
@@ -62,9 +56,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         company.add("name", facility_name)
         company.add("country", "us")
         company.add("topics", "debarment")
-
-        h.apply_address(context, company, address)
-        h.copy_address(company, address)
+        company.add("address", address)
 
         if dba_person_name:
             dba_person = context.make("Person")
