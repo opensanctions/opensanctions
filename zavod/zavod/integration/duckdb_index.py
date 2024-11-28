@@ -2,7 +2,7 @@ from io import TextIOWrapper
 from followthemoney.types import registry
 from pathlib import Path
 from shutil import rmtree
-from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Generator, Iterable, List, Optional, Set, Tuple
 import csv
 import duckdb
 import logging
@@ -94,17 +94,16 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         log.info("Dumping entity tokens to CSV for bulk load into the database...")
         with open(csv_path, "w") as fh:
             writer = csv.writer(fh)
-
-            # csv.writer type gymnastics
-            def dump_entity(entity: CE) -> None:
+            for idx, entity in enumerate(self.view.entities()):
                 if not entity.schema.matchable or entity.id is None:
-                    return
+                    continue
+                mentions: Set[Tuple[str, str]] = set()
                 for field, token in self.tokenizer.entity(entity):
+                    mentions.add((field, token))
+                for field, token in mentions:
                     writer.writerow([entity.id, field, token])
 
-            for idx, entity in enumerate(self.view.entities()):
-                dump_entity(entity)
-                if idx % 50000 == 0:
+                if idx % 50000 == 0 and idx > 0:
                     log.info("Dumped %s entities" % idx)
         log.info("Loading data...")
         self.con.execute(f"COPY entries from '{csv_path}'")
@@ -146,7 +145,9 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             ORDER BY token_freq DESC
         """
         token_freq = self.con.sql(token_freq_query)  # noqa
-        num_tokens_results = self.con.execute("SELECT count(*) FROM token_freq").fetchone()
+        num_tokens_results = self.con.execute(
+            "SELECT count(*) FROM token_freq"
+        ).fetchone()
         assert num_tokens_results is not None
         num_tokens = num_tokens_results[0]
         limit = int((num_tokens / 100) * self.stopwords_pct)
