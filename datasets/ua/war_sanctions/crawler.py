@@ -282,7 +282,7 @@ def crawl_person(context: Context, link, program):
     person.add("topics", "poi")
 
     sanction = h.make_sanction(context, person)
-    sanction.add("reason", " ".join(data.pop("Reasons")))
+    sanction.add("reason", data.pop("Reasons"))
     sanction.add("sourceUrl", link)
     sanction.add("program", program)
 
@@ -323,7 +323,7 @@ def crawl_legal_entity(context: Context, link, program):
 
     legal_entity.add("topics", "poi")
     sanction = h.make_sanction(context, legal_entity)
-    sanction.add("reason", " ".join(data.pop("Reasons")))
+    sanction.add("reason", data.pop("Reasons"))
     sanction.add("sourceUrl", link)
     sanction.add("program", program)
 

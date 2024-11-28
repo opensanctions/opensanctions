@@ -44,9 +44,13 @@ children:
   - wanted
   - enrichers
 
+  # banks
+  - iso9362_bic
+  - ru_cbr_banks
+  - us_irs_ffi
+
   # misc
   - ann_graph_topics
-  - iso9362_bic
   - ir_uani_business_registry
   - kp_rusi_reports
   - md_rise_profiles
@@ -58,7 +62,6 @@ children:
   - ru_myrotvorets_wagner
   - ru_navalny35
   - ru_nsd_isin
-  - ru_cbr_banks
   - thesentry_atlas
   - securities
   - sy_obsalytics_opensyr
@@ -67,5 +70,6 @@ children:
   - wd_oligarchs
   - eiti_soe
   - gem_energy_ownership
+  - ua_war_sanctions
   # - us_fara_filings
 ci_test: false
