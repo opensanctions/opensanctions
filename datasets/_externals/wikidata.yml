@@ -1012,10 +1012,6 @@ lookups:
           - bigender
         value: other
       - match:
-          - transgender
-          - agender
-        value: null
-      - match:
           - MALE
           - trans man
           - cisgender male
@@ -1024,5 +1020,8 @@ lookups:
           - intersex man
         value: male
       - match:
+          - transgender
+          - agender
+          - Curis
           - undisclosed gender
         value: null

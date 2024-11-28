@@ -1948,3 +1948,11 @@ lookups:
         code: ""
         label: "Pays Catalan"
         decision: "ignore"
+      - match: Q370862
+        code: ""
+        label: "Arab Maghreb Union"
+        decision: "ignore"
+      - match: "Q131300036"
+        code: ""
+        label: "Maghreb Economic Area"
+        decision: "ignore"

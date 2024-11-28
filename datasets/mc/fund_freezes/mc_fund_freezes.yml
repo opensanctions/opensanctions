@@ -141,12 +141,14 @@ lookups:
         value: 1964-04
       - match:
           - Entre le 01/01/1961 et le 31/12/1963,
-          - Entre le 01/01/1961 et le 31/12/1963
+          - Entre le 01/01/1961 et le 31/12/1963datasets/mc/fund_freezes/mc_fund_freezes.yml
+          
           - au milieu des années 1940 1940,
           - entre 1975 et 1979
           - Entre 1965 et 1969
           - Entre 1960 et 1975
           - Années 1960-1970 (âgé d'environ 50 ans)
+          - avant 1964
         value: null
   type.country:
     lowercase: true
