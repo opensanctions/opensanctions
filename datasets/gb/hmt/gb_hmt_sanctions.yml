@@ -32,6 +32,7 @@ url: https://www.gov.uk/government/publications/financial-sanctions-consolidated
 data:
   url: https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml
   format: XML
+  lang: eng
 
 # TODO: do we need a separate crawler for the UK Sanctions List?
 # https://www.gov.uk/government/publications/the-uk-sanctions-list

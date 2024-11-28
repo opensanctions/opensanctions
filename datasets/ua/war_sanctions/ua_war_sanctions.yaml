@@ -1,0 +1,477 @@
+title: Ukraine War and Sanctions
+entry_point: crawler.py
+prefix: ua-ws
+coverage:
+  frequency: daily
+  start: 2024-11-15
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Sponsors and accomplices of Russian armed aggression against Ukraine.
+description: |
+  The War and Sanctions website provides detailed information on ongoing sanctions targeting 
+  Russia and its allies, alongside profiles of individuals and entities that actively support 
+  the war against Ukraine but remain unsanctioned by Western nations. The dataset is 
+  categorized into the following sections:
+
+  **Child Kidnappers**: Individuals and entities involved in the deportation of Ukrainian 
+  children.
+
+  **Champions of Terror**: Athletes whom Russia uses to propagate its agenda.
+  
+  **Marine and Aircraft Assets**: Airports, ports, and vessels involved in the transportation 
+  of weapons, stolen Ukrainian goods, and sanctions circumvention efforts.
+
+  The objective of the War and Sanctions website is to raise awareness of their conduct,
+  and advocate for sanctions against these entities to hold perpetrators accountable and
+  deter further actions of this kind.
+
+publisher:
+  name: ГУР МО України
+  name_en: Defence Intelligence of Ukraine
+  acronym: GUR
+  description: >
+    The Defence Intelligence of Ukraine is the main intelligence agency of the 
+    Ministry of Defence of Ukraine. It protects the national interests of Ukraine, 
+    counter the threats to national security, and provides intelligence support to
+    the country's leadership and the Armed Forces of Ukraine. 
+    [Source: Official Website](https://gur.gov.ua/en/content/directions.html)
+  url: https://gur.gov.ua/en.html
+  country: ua
+  official: true
+url: https://war-sanctions.gur.gov.ua/en
+data:
+  url: https://war-sanctions.gur.gov.ua/en
+  format: HTML
+
+dates: 
+  formats: ["%d.%m.%Y", "%d.%m. %Y", "%d.%m.%Y)", "%m.%Y)"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 550
+      Person: 400
+      Vessel: 430
+    country_entities:
+      ru: 790
+      ua: 170
+      ae: 80
+    countries: 15
+  max:
+    schema_entities:
+      LegalEntity: 1000
+      Person: 630
+      Vessel: 670
+lookups: 
+  overrides: 
+    options: 
+      - match: Tightship Shipping Management (OPC) Pvt Ltd (6344264
+        items: 
+          - key: name
+            value: Tightship Shipping Management (OPC) Pvt Ltd
+          - key: registration_code
+            value: 6344264
+      - match: Volga-Don Shipping JSC (current company Azovo/Don Shipping JSC) (0555709
+        items: 
+          - key: name
+            value: [Volga-Don Shipping JSC, Azovo/Don Shipping JSC]
+          - key: registration_code
+            value: 0555709
+      - match: Ocean Speedstar Solutions (OPC) Pvt Ltd (6508844
+        items: 
+          - key: name
+            value: Ocean Speedstar Solutions (OPC) Pvt Ltd
+          - key: registration_code
+            value: 6508844
+      - match: Elza Shipping SA с/о Tightship Shipping Management (OPC) Pvt Ltd (6243757
+        items: 
+          - key: name
+            value: Elza Shipping SA
+          - key: care_of
+            value: Tightship Shipping Management (OPC) Pvt Ltd
+          - key: registration_code
+            value: 6243757
+      - match: Zara Shipholding Co c/o Ocean Speedstar Solutions (OPC) Pvt Ltd (6485466
+        items: 
+          - key: name
+            value: Zara Shipholding Co
+          - key: care_of
+            value: Ocean Speedstar Solutions (OPC) Pvt Ltd
+          - key: registration_code
+            value: 6485466
+      - match: Lule One Services Inc п/о Ocean Speedstar Solutions (OPC) Pvt Ltd (6495401
+        items: 
+          - key: name
+            value: Lule One Services Inc
+          - key: care_of
+            value: Ocean Speedstar Solutions (OPC) Pvt Ltd 
+          - key: registration_code
+            value: 
+      - match: Lathyrus Shipping Co c/o Ocean Speedstar Solutions (OPC) Pvt Ltd (6496885
+        items: 
+          - key: name
+            value: Lathyrus Shipping Co
+          - key: care_of
+            value: Ocean Speedstar Solutions (OPC) Pvt Ltd
+          - key: registration_code
+            value: 6496885
+      - match: Volgo-Don 219 Shipping LTD c/o Volga-Don Shipping JSC (current company Azovo/Don Shipping JSC) (5353052
+        items: 
+          - key: name
+            value: Volgo-Don 219 Shipping LTD
+          - key: care_of
+            value: [Volga-Don Shipping JSC, Azovo/Don Shipping JSC]
+          - key: registration_code
+            value: 5353052
+      - match: HCC Shipmanagement Inc. c/o Adel Ship Management SRL (6333534
+        items: 
+          - key: name
+            value: HCC Shipmanagement Inc.
+          - key: care_of
+            value: Adel Ship Management SRL
+          - key: registration_code
+            value: 6333534
+      - match: Vadimovich SD c/o Arapax LLC (5997971
+        items: 
+          - key: name
+            value: Vadimovich SD
+          - key: care_of
+            value: Arapax LLC
+          - key: registration_code
+            value: 5997971
+      - match: Zelitiko Shipping Co Ltd c/o Gas Carriers SCF MGMT FZCO (5809375
+        items: 
+          - key: name
+            value: Zelitiko Shipping Co Ltd
+          - key: care_of
+            value: Gas Carriers SCF MGMT FZCO
+          - key: registration_code
+            value: 5809375
+      - match: Enson Shipping Inc c/o Matias Ship Management LLC-FZ (0056718
+        items: 
+          - key: name
+            value: Enson Shipping Inc
+          - key: care_of
+            value: Matias Ship Management LLC-FZ
+          - key: registration_code
+            value: 
+      - match: Chamber Marine SA c/o Stream Ship Management FZCO (5463464
+        items: 
+          - key: name
+            value: Chamber Marine SA
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 5463464
+      - match: Camber Shipping Inc c/o Stream Ship Management FZCO (5463447
+        items: 
+          - key: name
+            value: Camber Shipping Inc
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 5463447
+      - match: Sumerton Shipholding Inc c/o Stream Ship Management FZCO (5469861
+        items: 
+          - key: name
+            value: Sumerton Shipholding Inc
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 5469861
+      - match: Chernikov Y c/o Red Shipping LLC (6306591
+        items: 
+          - key: name
+            value: Chernikov Y
+          - key: care_of
+            value: Red Shipping LLC
+          - key: registration_code
+            value: 6306591
+      - match: Anhona Navigation SA c/o Harry Victor Ship Management & Operation LLC (6082772
+        items: 
+          - key: name
+            value: Anhona Navigation SA
+          - key: care_of
+            value: Harry Victor Ship Management & Operation LLC
+          - key: registration_code
+            value: 6082772
+      - match: Iquitos LTD c/o Harry Victor Ship Management & Operation LLC (6488704
+        items: 
+          - key: name
+            value: Iquitos LTD
+          - key: care_of
+            value: Harry Victor Ship Management & Operation LLC
+          - key: registration_code
+            value: 6488704
+      - match: Lindor Vella Co Ltd c/o Derecttor Co Ltd (6382864
+        items: 
+          - key: name
+            value: Lindor Vella Co Ltd
+          - key: care_of
+            value: Derecttor Co Ltd
+          - key: registration_code
+            value: 6382864
+      - match: Koster LLC c/o Kuban Marine Company LLC (6124214
+        items: 
+          - key: name
+            value: Koster LLC
+          - key: care_of
+            value: Kuban Marine Company LLC
+          - key: registration_code
+            value: 6124214
+      - match: Astra LLC c/o Eneya LLC (6314941
+        items: 
+          - key: name
+            value: Astra LLC
+          - key: care_of
+            value: Eneya LLC
+          - key: registration_code
+            value: 6314941
+      - match: Silvero Shipping LTD c/o Baltic Freight Group Ltd (5957503
+        items: 
+          - key: name
+            value: Silvero Shipping LTD
+          - key: care_of
+            value: Baltic Freight Group Ltd
+          - key: registration_code
+            value: 5957503
+      - match: Kalsoy Shipping Ltd c/o Stream Ship Management FZCO (5657822
+        items: 
+          - key: name
+            value: Kalsoy Shipping Ltd
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 5657822
+      - match: Waterside Carriers Inc c/o Stream Ship Management FZCO (4108908
+        items: 
+          - key: name
+            value: Waterside Carriers Inc
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 4108908
+      - match: Kandita Shipping Hk Ltd c/o Stream Ship Management FZCO (6361850
+        items: 
+          - key: name
+            value: Kandita Shipping Hk Ltd
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 6361850
+      - match: Erdington Navigation Corp c/o Stream Ship Management FZCO (5469826
+        items: 
+          - key: name
+            value: Erdington Navigation Corp
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 5469826
+      - match: Ns Breeze Shipping Inc c/o Stream Ship Management FZCO (5512132
+        items: 
+          - key: name
+            value: Ns Breeze Shipping Inc
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 5512132
+      - match: Ns Asia Shipping Inc c/o Stream Ship Management FZCO (5465885
+        items: 
+          - key: name
+            value: Ns Asia Shipping Inc
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 
+      - match: Bassett Oceanway Ltd c/o Stream Ship Management FZCO (4092481
+        items: 
+          - key: name
+            value: Bassett Oceanway Ltd
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 4092481
+      - match: Waterways Tankers Inc c/o Stream Ship Management FZCO (4109234
+        items: 
+          - key: name
+            value: Waterways Tankers Inc
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 4109234
+      - match: Brimwell Inter LTD c/o River Sea Management Co Ltd (5706831
+        items: 
+          - key: name
+            value: Brimwell Inter LTD
+          - key: care_of
+            value: River Sea Management Co Ltd
+          - key: registration_code
+            value: 5706831
+      - match: Alvion Maritime Ltd c/o Tower Shipping Co SA (6351779
+        items: 
+          - key: name
+            value: Alvion Maritime Ltd
+          - key: care_of
+            value: Tower Shipping Co SA
+          - key: registration_code
+            value: 6351779
+      - match: Rostrum Hedonist LTD c/o H Vogemann Reederei Services GmbH & Co KG (6451464
+        items: 
+          - key: name
+            value: Rostrum Hedonist LTD
+          - key: care_of
+            value: H Vogemann Reederei Services GmbH & Co KG
+          - key: registration_code
+            value: 6451464
+      - match: Loire Shipping Inc c/o Oceanlink Maritime DMCC (6137379
+        items: 
+          - key: name
+            value: Loire Shipping Inc
+          - key: care_of
+            value: Oceanlink Maritime DMCC
+          - key: registration_code
+            value: 6137379
+      - match: Lng Alpha Shipping PTE LTD c/o White Fox Ship Management FZCO (4300402
+        items: 
+          - key: name
+            value: Lng Alpha Shipping PTE LTD
+          - key: care_of
+            value: White Fox Ship Management FZCO
+          - key: registration_code
+            value: 4300402
+      - match: Astrea Shipping LTD c/o Stream Ship Management FZCO (5248199
+        items: 
+          - key: name
+            value: Astrea Shipping LTD
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 5248199
+      - match: Buxus Seaway LTD c/o Stream Ship Management FZCO (5934727
+        items: 
+          - key: name
+            value: Buxus Seaway LTD
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 5934727
+      - match: Duport Marine Services Inc c/o Fornax Ship Management FZCO (5346621
+        items: 
+          - key: name
+            value: Duport Marine Services Inc
+          - key: care_of
+            value: Fornax Ship Management FZCO
+          - key: registration_code
+            value: 5346621
+      - match: Zorona Shipping LTD c/o Almuhit Alhadi Marine Services LLC (6425057
+        items: 
+          - key: name
+            value: Zorona Shipping LTD
+          - key: care_of
+            value: Almuhit Alhadi Marine Services LLC
+          - key: registration_code
+            value: 6425057
+      - match: One Alrabiya Shipping Ltd c/o Atos Remote Solutions (0031643
+        items: 
+          - key: name
+            value: One Alrabiya Shipping Ltd
+          - key: care_of
+            value: Atos Remote Solutions
+          - key: registration_code
+            value: 0031643
+      - match: Boribo Shipping Corp c/o Stream Ship Management FZCO (0012462
+        items: 
+          - key: name
+            value: Boribo Shipping Corp
+          - key: care_of
+            value: Stream Ship Management FZCO
+          - key: registration_code
+            value: 0012462
+      - match: HS Hai II LTD c/o Maritas Fleet PVT LTD (6342719
+        items: 
+          - key: name
+            value: HS Hai II LTD
+          - key: care_of
+            value: Maritas Fleet PVT LTD
+          - key: registration_code
+            value: 6342719
+      - match: Leasing Company GPB LLC /current name Leasing Company LLC/ c/o Eco Shiping LLC (6129498
+        items: 
+          - key: name
+            value: [Leasing Company GPB LLC, Leasing Company LLC]
+          - key: care_of
+            value: Eco Shiping LLC
+          - key: registration_code
+            value: 6129498
+      - match: Pelagia Shipping LTD /current name Delta Shipping LLC/ c/o Eco Shiping LLC (5863958
+        items: 
+          - key: name
+            value: [Pelagia Shipping LTD, Delta Shipping LLC]
+          - key: care_of
+            value: Eco Shiping LLC
+          - key: registration_code
+            value: 5863958
+      - match: Tansley Trading LTD c/o Ocean Dreams Yachting Services (5839873
+        items: 
+          - key: name
+            value: Tansley Trading LTD
+          - key: care_of
+            value: Ocean Dreams Yachting Services
+          - key: registration_code
+            value: 5839873
+      - match: Almano Holding Ltd c/o Watermark Yacht Management (5730583
+        items: 
+          - key: name
+            value: Almano Holding Ltd
+          - key: care_of
+            value: Watermark Yacht Management
+          - key: registration_code
+            value: 5730583
+      - match: Mazona Offshore LTD c/o One Moon Marine Services LLC (6424650
+        items: 
+          - key: name
+            value: Mazona Offshore LTD
+          - key: care_of
+            value: One Moon Marine Services LLC
+          - key: registration_code
+            value: 6424650
+  type.date:
+    options:
+      - match: 23.06.1974 /23.06.1973
+        values: 
+          - 1974-06-23
+          - 1973-06-23
+      - match: 21.08.1959 - 08.01.2024
+        values: 
+          - 1959-08-21
+          - 2024-01-08
+      - match: 
+          - 07.04.
+          - 09.05.20234)
+        value: null
+  type.country: 
+    options: 
+      - match: Ukraine, russian federation
+        values: 
+          - Ukraine
+          - Russia
+      - match: Cyprus, russian federation
+        values: 
+          - Cyprus
+          - Russia
+      - match: Israel, russian federation
+        values:
+          - Israel
+          - Russia
+      - match: TOT Ukraine
+        value: Ukraine
+      - match: Comoro Islands
+        value: Comoros
+      - match: ','
+        value: null
+  type.name: 
+    options: 
+      - match: 'AUTONOMOUS NON-PROFIT ORGANIZATION OF ADDITIONAL PROFESSIONAL EDUCATION "MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
+        value: '"MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
+      - match: '-'
+        value: null
