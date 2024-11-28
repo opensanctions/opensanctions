@@ -35,7 +35,8 @@ XML_DOC = FIXTURES_PATH / "doc.xml"
 def wrap_test():
     _, path = mkstemp(suffix=".ijson")
     shutil.rmtree(settings.ARCHIVE_PATH, ignore_errors=True)
-    shutil.rmtree(settings.DATA_PATH / "datasets", ignore_errors=True)
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+    settings.DATA_PATH = Path(mkdtemp()).resolve()
     settings.RESOLVER_PATH = path
     get_resolver.cache_clear()
     yield

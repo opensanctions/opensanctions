@@ -1,6 +1,6 @@
 type: external
 title: US FATCA Foreign Financial Institution (FFI) List
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: ua_edr
 disabled: false
 hidden: false
@@ -8,6 +8,9 @@ prefix: fatca
 coverage:
   frequency: weekly
   start: "2024-11-11"
+deploy:
+  memory: "3000Mi"
+  memory_limit: "4000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
@@ -52,13 +55,9 @@ inputs:
   - sanctions
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
-  limit: 100
-  max_bin: 14
-  index_options:
-    max_candidates: 200
-    memory_budget: 50
   dataset: us_irs_ffi
+  index_options:
+    memory_budget: 2000
   strip_namespace: true
   fuzzy: false
   threshold: 0.7

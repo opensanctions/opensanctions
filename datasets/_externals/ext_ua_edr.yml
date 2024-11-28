@@ -72,11 +72,9 @@ inputs:
   - sanctions
 
 config:
-  limit: 100
-  max_bin: 14
-  index_options:
-    memory_budget: 3000
   dataset: ua_edr
+  index_options:
+    memory_budget: 2000
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
