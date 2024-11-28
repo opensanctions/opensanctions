@@ -1,0 +1,71 @@
+title: US Delaware Medicaid Sanctioned Provider Listing
+entry_point: crawler.py
+prefix: us-medde
+coverage:
+  frequency: daily
+  start: "2024-11-27"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been sanctioned from Delaware's Medicaid program.
+description: |
+  The Division of Medicaid and Medical Assistance Program Integrity Unit has the authority to impose
+  sanctions on providers found to have engaged in fraud or abuse. As stated on their website:
+
+  > Fraud is defined by the Code of Federal Regulations(42 CFR 455.2) as:
+  > - An intentional deception or misrepresentation made by a person with the knowledge that the
+  > deception could result in some unauthorized benefit to himself or some other persons. It
+  > includes any act that constitutes fraud under applicable Federal or State law.
+
+  > Abuse is defined by the Code of Federal Regulations(42 CFR 455.2) as:
+  > - Provider practices that are inconsistent with sound fiscal, business, or medical, and result
+  > in an unnecessary cost to the Medicaid program, or in reimbursement for services that are not
+  > medically necessary or that fail to meet professionally recognized standards for health care.
+  > - It also includes recipient practices that result in unnecessary cost to the Medicaid program.
+
+  [Program Integrity page](https://medicaid.dhss.delaware.gov/provider/Home/ProgramIntegrityLanding/tabid/2102/Default.aspx)
+publisher:
+  name: Delaware Health and Social Services
+  description: |
+    The Delaware Health and Social Services is a state agency dedicated to providing a wide range
+    of essential programs and services for the residents of Delaware. Its responsibilities include
+    managing Social Support initiatives, delivering comprehensive Health Care Services, and
+    addressing Substance Abuse and Mental Health needs.
+  acronym: DHSS
+  url: https://dhss.delaware.gov/dhss/index.html
+  official: true
+  country: "us"
+url: ""
+data:
+  url: https://medicaidpublications.dhss.delaware.gov/docs/Search?Command=Core_Download&EntryId=1671
+  format: PDF
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%Y", "%m/%d/%y"]
+
+lookups:
+  type.date:
+    options:
+      - match: 7/20/014
+        value: 2014-07-20
+      - match: 5/12012
+        value: 2012-12-05
+      - match: "Rescind Letter for\n02/03/2020 sanction"
+        value: 2020-03-02
+      - match:
+          - 13/31/16
+          - 3032-10-28
+        value: null
+      - match: "MCO-Terminated-\n01/24/2014\nDMAP Except PTC\nVFC-Terminated-\n01/01/2013"
+        value: 2013-01-01
+      - match: 07/12/023
+        value: 2023-07-12
+      - match: 2/6/224
+        value: 2024-06-02
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 900
+  max:
+    schema_entities:
+      LegalEntity: 1100
