@@ -152,7 +152,6 @@ def crawl(context: Context):
         context.data_url,
         unblock_validator=unblock_validator,
         html_source="httpResponseBody",
-        geolocaion="us",
         cache_days=1,
     )
     doc.make_links_absolute(context.data_url)
