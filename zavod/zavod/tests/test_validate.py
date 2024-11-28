@@ -4,7 +4,7 @@ from structlog.testing import capture_logs
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
 from zavod.store import get_store
-from zavod.dedupe import get_dataset_linker
+from zavod.integration import get_dataset_linker
 from zavod.validators import (
     DanglingReferencesValidator,
     SelfReferenceValidator,

@@ -1,7 +1,7 @@
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.store import get_store
 
 

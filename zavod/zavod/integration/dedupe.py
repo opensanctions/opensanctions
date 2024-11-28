@@ -1,7 +1,6 @@
 from typing import List, Optional, TYPE_CHECKING
 from pathlib import Path
 from functools import cache
-from nomenklatura.index.tantivy_index import TantivyIndex
 from zavod.entity import Entity
 from followthemoney import model
 from nomenklatura.xref import xref
@@ -12,6 +11,7 @@ from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
+from zavod.integration.duckdb_index import DuckDBIndex
 
 if TYPE_CHECKING:
     from zavod.store import Store
@@ -53,7 +53,6 @@ def blocking_xref(
     focus_dataset: Optional[str] = None,
     schema_range: Optional[str] = None,
     conflicting_match_threshold: Optional[float] = None,
-    index: str = TantivyIndex.name,
 ) -> None:
     """This runs the deduplication process, which compares all entities in the given
     dataset against each other, and stores the highest-scoring candidates for human
@@ -63,19 +62,19 @@ def blocking_xref(
     resolver.prune()
     log.info(
         "Xref running, algorithm: %r" % algorithm,
-        index=index,
         auto_threshold=auto_threshold,
     )
     algorithm_type = get_algorithm(algorithm)
     if algorithm_type is None:
         raise ValueError("Invalid algorithm: %s" % algorithm)
     range = model.get(schema_range) if schema_range is not None else None
-    index_dir = state_path / f"dedupe-index-{index}"
+    index_dir = state_path / "dedupe-index"
 
     xref(
         resolver,
         store,
         index_dir=index_dir,
+        index_type=DuckDBIndex,
         limit=limit,
         range=range,
         scored=True,
@@ -84,7 +83,6 @@ def blocking_xref(
         algorithm=algorithm_type,
         user=AUTO_USER,
         conflicting_match_threshold=conflicting_match_threshold,
-        index_type=index,
     )
     resolver.save()
 

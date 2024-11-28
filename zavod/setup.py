@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.7.*",
-        "nomenklatura[leveldb,tantivy] == 3.13.2",
+        "nomenklatura[leveldb] == 3.14.0",
         "plyvel == 1.5.1",
         "rigour == 0.7.1",
         "datapatch >= 1.1,< 1.3",
@@ -49,6 +49,7 @@ setup(
         "structlog",
         "xlrd == 2.0.1",
         "cryptography",
+        "duckdb < 2.0.0",
     ],
     tests_require=[],
     entry_points={

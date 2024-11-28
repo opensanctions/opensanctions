@@ -1,6 +1,6 @@
 type: external
 title: Czech Republic Business Register
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: cz_business_register
 disabled: false
 hidden: false
@@ -12,8 +12,8 @@ exports:
   - entities.delta.json
 deploy:
   # schedule: "1 4 * * *"
-  memory: "1000Mi"
-  memory_limit: "2000Mi"
+  memory: "3000Mi"
+  memory_limit: "4000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Czech business register with company metadata and directorships as obtained
@@ -51,8 +51,9 @@ inputs:
   - sanctions
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
   dataset: cz_business_register
+  index_options:
+    memory_budget: 2000
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1

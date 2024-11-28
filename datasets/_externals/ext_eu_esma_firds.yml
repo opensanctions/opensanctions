@@ -1,6 +1,6 @@
 type: external
 title: "EU Financial Instruments Reference Data System (FIRDS)"
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 prefix: eu-firds
 full_dataset: eu_esma_firds
 coverage:
@@ -11,8 +11,8 @@ exports:
   - entities.delta.json
 deploy:
   schedule: "1 10 * * *"
-  memory: 2500Mi
-  memory_limit: 3000Mi
+  memory: 3500Mi
+  memory_limit: 4500Mi
   disk: 100Gi
   disk_limit: 300Gi
 summary: >
@@ -37,8 +37,6 @@ data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doRelativeSearch
   format: JSON
 ci_test: false
-http:
-  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics
@@ -59,9 +57,9 @@ inputs:
   - securities
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
-  api: https://api.graph.opensanctions.org/
   dataset: eu_esma_firds
+  index_options:
+    memory_budget: 2500
   strip_namespace: true
   fuzzy: false
   threshold: 0.6

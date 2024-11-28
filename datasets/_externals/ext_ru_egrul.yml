@@ -1,6 +1,6 @@
 type: external
 title: Russian Unified State Register of Legal Entities (as at Jan 1, 2022)
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: ru_egrul
 disabled: false
 hidden: false
@@ -14,8 +14,8 @@ exports:
   - entities.delta.json
 deploy:
   disk: "50Gi"
-  memory: "1500Mi"
-  memory_limit: "2000Mi"
+  memory: "6000Mi"
+  memory_limit: "6000Mi"
   premium: true
 # load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
@@ -71,10 +71,12 @@ inputs:
   - sanctions
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
-  api: https://api.graph.opensanctions.org/
+  limit: 100
+  max_bin: 14
+  index_options:
+    max_candidates: 200
+    memory_budget: 3000
   dataset: ru_egrul
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
@@ -93,7 +95,6 @@ config:
     - Organization
     - LegalEntity
     - Person
-  cache_days: 90
 
 lookups:
   type.address:

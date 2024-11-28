@@ -1,0 +1,10 @@
+title: Some entities to enrich
+prefix: enrich
+publisher:
+  name: OpenSanctions
+  description: |
+    Manually created by the project team.
+  url: https://www.opensanctions.org
+  official: false
+url: https://github.com/opensanctions/opensanctions
+entry_point: crawler.py

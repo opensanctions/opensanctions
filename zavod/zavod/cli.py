@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 from typing import Optional, List
 from followthemoney.cli.util import InPath, OutPath
-from nomenklatura.index.tantivy_index import TantivyIndex
 from nomenklatura.tui import dedupe_ui
 from nomenklatura.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
@@ -16,9 +15,9 @@ from zavod.crawl import crawl_dataset
 from zavod.store import get_store
 from zavod.archive import clear_data_path, dataset_state_path
 from zavod.exporters import export_dataset
-from zavod.dedupe import get_resolver, get_dataset_linker
-from zavod.dedupe import blocking_xref, merge_entities
-from zavod.dedupe import explode_cluster
+from zavod.integration import get_resolver, get_dataset_linker
+from zavod.integration.dedupe import blocking_xref, merge_entities
+from zavod.integration.dedupe import explode_cluster
 from zavod.runtime.versions import make_version
 from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
@@ -238,14 +237,12 @@ def dump_file(
     default=None,
     help="Threshold for conflicting match reporting",
 )
-@click.option("-i", "--index", type=str, default=TantivyIndex.name)
 def xref(
     dataset_paths: List[Path],
     clear: bool,
     limit: int,
     threshold: Optional[float],
     algorithm: str,
-    index: str,
     focus_dataset: Optional[str] = None,
     schema: Optional[str] = None,
     conflicting_match_threshold: Optional[float] = None,
@@ -263,7 +260,6 @@ def xref(
         focus_dataset=focus_dataset,
         schema_range=schema,
         conflicting_match_threshold=conflicting_match_threshold,
-        index=index,
     )
 
 
