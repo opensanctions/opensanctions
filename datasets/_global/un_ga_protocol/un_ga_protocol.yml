@@ -48,6 +48,7 @@ lookups:
           - Feb-17
           - 09-Sep-2207
           - 09-Sep-2201
+          - 09-Sep-2228
         value: null
       - match: 09-Sep-2227-May-21
         values:
@@ -65,10 +66,6 @@ lookups:
         values:
           - 09-Sep-22
           - 01-Jul-19
-      - match: 09-Sep-2228
-        value: 2024-09-09
-      - match: Feb-17
-        value: 2024-02-17
   normalize_name:
     lowercase: true
     normalize: true
