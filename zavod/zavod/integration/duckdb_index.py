@@ -2,7 +2,7 @@ from io import TextIOWrapper
 from followthemoney.types import registry
 from pathlib import Path
 from shutil import rmtree
-from typing import Any, Dict, Generator, Iterable, List, Optional, Set, Tuple
+from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
 import csv
 import duckdb
 import logging
@@ -10,9 +10,11 @@ import logging
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.index.common import BaseIndex
-from nomenklatura.index.tokenizer import NAME_PART_FIELD, WORD_FIELD, Tokenizer
 from nomenklatura.resolver import Pair, Identifier
 from nomenklatura.store import View
+
+from zavod.integration.tokenizer import tokenize_entity
+from zavod.integration.tokenizer import NAME_PART_FIELD, WORD_FIELD, PHONETIC_FIELD
 
 BlockingMatches = List[Tuple[Identifier, float]]
 
@@ -33,15 +35,10 @@ class DuckDBIndex(BaseIndex[DS, CE]):
     BOOSTS = {
         NAME_PART_FIELD: 2.0,
         WORD_FIELD: 0.5,
+        PHONETIC_FIELD: 2.0,
         registry.name.name: 10.0,
-        # registry.country.name: 1.5,
-        # registry.date.name: 1.5,
-        # registry.language: 0.7,
-        # registry.iban.name: 3.0,
         registry.phone.name: 3.0,
         registry.email.name: 3.0,
-        # registry.entity: 0.0,
-        # registry.topic: 2.1,
         registry.address.name: 2.5,
         registry.identifier.name: 3.0,
     }
@@ -59,7 +56,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         """Memory budget in megabytes"""
         self.max_candidates = int(options.get("max_candidates", 50))
         self.stopwords_pct = options.get("stopwords_pct", 1)
-        self.tokenizer = Tokenizer[DS, CE]()
         self.data_dir = data_dir
         if self.data_dir.exists():
             rmtree(self.data_dir)
@@ -97,10 +93,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             for idx, entity in enumerate(self.view.entities()):
                 if not entity.schema.matchable or entity.id is None:
                     continue
-                mentions: Set[Tuple[str, str]] = set()
-                for field, token in self.tokenizer.entity(entity):
-                    mentions.add((field, token))
-                for field, token in mentions:
+                for field, token in tokenize_entity(entity):
                     writer.writerow([entity.id, field, token])
 
                 if idx % 50000 == 0 and idx > 0:
@@ -213,7 +206,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         if self.matching_dump is None:
             raise Exception("Cannot add matching subject after getting candidates.")
         writer = csv.writer(self.matching_dump)
-        for field, token in self.tokenizer.entity(entity):
+        for field, token in tokenize_entity(entity):
             writer.writerow([entity.id, field, token])
 
     def matches(
