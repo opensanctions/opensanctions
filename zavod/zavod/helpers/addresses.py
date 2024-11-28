@@ -212,6 +212,7 @@ def apply_address(context: Context, entity: Entity, address: Optional[Entity]) -
     if address.has("full"):
         entity.add("addressEntity", address)
         context.emit(address)
+        entity.add("address", address.get("full"))
 
 
 def copy_address(entity: Entity, address: Optional[Entity]) -> None:
