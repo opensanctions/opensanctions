@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-medne
 coverage:
   frequency: daily
-  start: "2024-11-07"
+  start: "2024-11-28"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Medical providers sanctioned by Nebraska State's Medicaid program.

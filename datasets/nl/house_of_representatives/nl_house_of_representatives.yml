@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: nl-hor
 coverage:
   frequency: weekly
-  start: 2024-11-24
+  start: 2024-11-28
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Members of the Dutch house of representatives, the lower house of the parliament
@@ -17,7 +17,7 @@ publisher:
   name_en: House of Representatives of The Netherlands
   description: >-
     The House of Representatives is the lower house of the bicameral parliament
-    of the Netherlands, the States General, the other one being the Senate.
+    of the Netherlands, the States General - the other house of parliament being the Senate.
   country: nl
   url: https://www.tweedekamer.nl/
   official: true
