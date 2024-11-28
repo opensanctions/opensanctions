@@ -530,15 +530,13 @@ def parse_company(context: Context, el: Element) -> None:
     name = name_full or name_short_shortened
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
-    entity.add("name", name_full_short)
-    entity.add("name", name_short_shortened)
+    entity.add("name", name_full_short, original_value=original_name)
+    entity.add("name", name_short_shortened, original_value=name_short_original)
     entity.add("ogrnCode", ogrn)
     entity.add("innCode", inn)
     entity.add("kppCode", el.get("КПП"))
     entity.add("legalForm", el.get("ПолнНаимОПФ"))
     entity.add("incorporationDate", el.get("ДатаОГРН"))
-    entity.add("description", original_name)
-    entity.add("description", name_short_original)
 
     for term_el in el.findall("./СвПрекрЮЛ"):
         entity.add("dissolutionDate", term_el.get("ДатаПрекрЮЛ"))
@@ -581,10 +579,9 @@ def parse_company(context: Context, el: Element) -> None:
             succ.add("predecessor", entity.id)
             succ_entity = context.make("Company")
             succ_entity.id = successor_id
-            succ_entity.add("name", succ_name_short)
+            succ_entity.add("name", succ_name_short, original_value=succ_original_name)
             succ_entity.add("innCode", succ_inn)
             succ_entity.add("ogrnCode", succ_ogrn)
-            succ_entity.add("description", succ_original_name)
             # To @pudo: not sure if I got your idea right
             succ_entity.add("innCode", inn)
             succ_entity.add("ogrnCode", ogrn)
@@ -613,10 +610,9 @@ def parse_company(context: Context, el: Element) -> None:
             pred.add("successor", entity.id)
             pred_entity = context.make("Company")
             pred_entity.id = predecessor_id
-            pred_entity.add("name", pred_name_short)
+            pred_entity.add("name", pred_name_short, original_value=pred_original_name)
             pred_entity.add("innCode", pred_inn)
             pred_entity.add("ogrnCode", pred_ogrn)
-            pred_entity.add("description", pred_original_name)
 
             # To @pudo: not sure if I got your idea right
             pred_entity.add("innCode", inn)
