@@ -3,6 +3,24 @@ from xml.etree import ElementTree
 from normality import collapse_spaces
 
 
+HEADERS = {
+    # "Accept": "*/*",
+    # "Accept-Encoding": "gzip, deflate, br",
+    # "Accept-Language": "en-US,en;q=0.9",
+    # "Cache-Control": "no-cache",
+    # "Connection": "keep-alive",
+    # "Content-Length": "0",
+    # "Host": "region1.google-analytics.com",
+    # "Origin": "https://www.ice.gov",
+    # "Pragma": "no-cache",
+    # "Referer": "https://www.ice.gov/",
+    # "Sec-Fetch-Dest": "empty",
+    # "Sec-Fetch-Mode": "no-cors",
+    # "Sec-Fetch-Site": "cross-site",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15",
+}
+
+
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
     """Extract text from each child nodes of an xpath and joins them together
 
@@ -26,7 +44,7 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
 
 
 def crawl_person(context: Context, url: str, wanted_for: str):
-    doc = context.fetch_html(url, cache_days=1)
+    doc = context.fetch_html(url, cache_days=1, headers=HEADERS)
 
     name = get_element_text(
         doc,
@@ -141,7 +159,7 @@ def crawl_person(context: Context, url: str, wanted_for: str):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc = context.fetch_html(context.data_url, cache_days=1, headers=HEADERS)
     doc.make_links_absolute(context.data_url)
 
     for person_node in doc.xpath('.//li[@class="grid"]//a'):
