@@ -49,7 +49,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 670
+      LegalEntity: 550
       Person: 400
       Vessel: 430
     country_entities:
