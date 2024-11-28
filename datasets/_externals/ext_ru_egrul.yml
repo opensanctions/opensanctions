@@ -16,7 +16,7 @@ deploy:
   disk: "50Gi"
   memory: "6000Mi"
   memory_limit: "6000Mi"
-  premium: true
+  premium: false
 # load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Companies database of the Russian Federation as maintained and published by
