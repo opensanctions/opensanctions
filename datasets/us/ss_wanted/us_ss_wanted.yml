@@ -14,6 +14,7 @@ description: |
   summary of the criminal case, and relevant links to them.
 url: https://www.secretservice.gov/investigations/mostwanted
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 coverage:
   frequency: daily
   start: "2024-06-17"

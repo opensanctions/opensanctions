@@ -1,9 +1,10 @@
+import re
 from normality import collapse_spaces, slugify
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.helpers.xml import ElementOrTree
-
-import re
+from zavod.shed.zyte_api import fetch_html
 
 
 # NAME (and one alias: NAME)
@@ -137,8 +138,17 @@ def crawl_program(
         context.audit_data(data)
 
 
+def unblock_validator(doc) -> bool:
+    return doc.find(".//table[@class='usa-table']") is not None
+
+
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)
+    doc = fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=unblock_validator,
+        html_source="httpResponseBody",
+    )
     tables = doc.findall('.//table[@class="usa-table"]')
     for table in tables:
         program_container = table.getprevious()

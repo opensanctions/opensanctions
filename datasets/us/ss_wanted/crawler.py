@@ -1,7 +1,8 @@
-from zavod import Context
-from zavod import helpers as h
 from xml.etree import ElementTree
 from normality import collapse_spaces
+
+from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
@@ -28,8 +29,18 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
     return collapse_spaces(element_text.strip())
 
 
+def unblock_validator(doc) -> bool:
+    return doc.find(".//div[@class='page-wrap']") is not None
+
+
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc = fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=unblock_validator,
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
     doc.make_links_absolute(context.data_url)
 
     for person_node in doc.xpath(

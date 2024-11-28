@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: 2023-10-11
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >-
   The US DHS publishes this list of entities wholly or in part using forced labour
   in the People's Republic of China, especially from the Xinjiang Uyghur Autonomous

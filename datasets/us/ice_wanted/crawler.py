@@ -1,6 +1,12 @@
-from zavod import Context
 from xml.etree import ElementTree
 from normality import collapse_spaces
+
+from zavod import Context
+from zavod.shed.zyte_api import fetch_html
+
+
+def unblock_validator(doc) -> bool:
+    return doc.find(".//div[@class='grid-container']") is not None
 
 
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
@@ -141,7 +147,13 @@ def crawl_person(context: Context, url: str, wanted_for: str):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc = fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=unblock_validator,
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
     doc.make_links_absolute(context.data_url)
 
     for person_node in doc.xpath('.//li[@class="grid"]//a'):
