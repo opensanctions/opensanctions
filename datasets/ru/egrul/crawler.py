@@ -487,20 +487,19 @@ def substitute_abbreviations(
     :param name: The input name where abbreviations should be substituted.
     :param abbreviations: A list of tuples with canonical abbreviations, regex patterns,
                           and original phrases.
-    :return: Tuple with the modified text with substitutions applied,
-        and the original if shortened, otherwise None.
+    :return: The name shorted if possible, otherwise the original
     """
     if abbreviations is None:
         raise ValueError("Abbreviations not compiled")
     if name is None:
-        return None, None
+        return None
     # Iterate over all abbreviation groups
     for canonical, regex, phrases in abbreviations:
         modified_name = regex.sub(canonical, name)
         if modified_name != name:
-            return modified_name, name
-    # If no match, return the original name and None as description
-    return name, None
+            return modified_name
+    # If no match, return the original name
+    return name
 
 
 def parse_company(context: Context, el: Element) -> None:
@@ -521,17 +520,13 @@ def parse_company(context: Context, el: Element) -> None:
     for name_el in el.findall("./СвНаимЮЛ"):
         name_full = name_el.get("НаимЮЛПолн")
         name_short = name_el.get("НаимЮЛСокр")
-        name_full_short, original_name = substitute_abbreviations(
-            name_full, abbreviations
-        )
-        name_short_shortened, name_short_original = substitute_abbreviations(
-            name_short, abbreviations
-        )
+        name_full_short = substitute_abbreviations(name_full, abbreviations)
+        name_short_shortened = substitute_abbreviations(name_short, abbreviations)
     name = name_full or name_short_shortened
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
-    entity.add("name", name_full_short, original_value=original_name)
-    entity.add("name", name_short_shortened, original_value=name_short_original)
+    entity.add("name", name_full_short, original_value=name_full)
+    entity.add("name", name_short_shortened, original_value=name_short)
     entity.add("ogrnCode", ogrn)
     entity.add("innCode", inn)
     entity.add("kppCode", el.get("КПП"))
@@ -561,9 +556,7 @@ def parse_company(context: Context, el: Element) -> None:
 
     for successor in el.findall("./СвПреем"):
         succ_name = successor.get("НаимЮЛПолн")
-        succ_name_short, succ_original_name = substitute_abbreviations(
-            succ_name, abbreviations
-        )
+        succ_name_short = substitute_abbreviations(succ_name, abbreviations)
         succ_inn = successor.get("ИНН")
         succ_ogrn = successor.get("ОГРН")
         successor_id = entity_id(
@@ -579,7 +572,7 @@ def parse_company(context: Context, el: Element) -> None:
             succ.add("predecessor", entity.id)
             succ_entity = context.make("Company")
             succ_entity.id = successor_id
-            succ_entity.add("name", succ_name_short, original_value=succ_original_name)
+            succ_entity.add("name", succ_name_short, original_value=succ_name)
             succ_entity.add("innCode", succ_inn)
             succ_entity.add("ogrnCode", succ_ogrn)
             # To @pudo: not sure if I got your idea right
@@ -592,9 +585,7 @@ def parse_company(context: Context, el: Element) -> None:
     # To @pudo: Also adding this for the predecessor
     for predecessor in el.findall("./СвПредш"):
         pred_name = predecessor.get("НаимЮЛПолн")
-        pred_name_short, pred_original_name = substitute_abbreviations(
-            pred_name, abbreviations
-        )
+        pred_name_short = substitute_abbreviations(pred_name, abbreviations)
         pred_inn = predecessor.get("ИНН")
         pred_ogrn = predecessor.get("ОГРН")
         predecessor_id = entity_id(
@@ -610,7 +601,7 @@ def parse_company(context: Context, el: Element) -> None:
             pred.add("successor", entity.id)
             pred_entity = context.make("Company")
             pred_entity.id = predecessor_id
-            pred_entity.add("name", pred_name_short, original_value=pred_original_name)
+            pred_entity.add("name", pred_name_short, original_value=pred_name)
             pred_entity.add("innCode", pred_inn)
             pred_entity.add("ogrnCode", pred_ogrn)
 
