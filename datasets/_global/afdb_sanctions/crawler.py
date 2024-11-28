@@ -1,5 +1,4 @@
 from lxml import etree
-from normality import slugify, collapse_spaces
 
 from zavod import Context
 from zavod import helpers as h
@@ -16,13 +15,8 @@ def crawl(context: Context):
     )
 
     table = doc.find('.//table[@id="datatable-1"]')
-    headers = None
-    for row in table.findall(".//tr"):
-        if headers is None:
-            headers = [slugify(c.text, "_") for c in row.findall("./th")]
-            continue
-        cells = [collapse_spaces(c.text) for c in row.findall("./td")]
-        cells = dict(zip(headers, cells))
+    for row in h.parse_html_table(table):
+        cells = h.cells_to_str(row)
 
         # AfDB lists several individuals as firms in places where the IADB
         # shows them to be people (and they have normal personal names)
@@ -32,7 +26,10 @@ def crawl(context: Context):
         # if schema is None:
         #     context.log.error("Unknown entity type", type=type_)
         #     continue
-        name = cells.pop("name")
+
+        name = cells.pop("name").strip()
+        if all(v == "" for v in cells.values()):
+            continue
         country = cells.pop("nationality")
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name, country)
