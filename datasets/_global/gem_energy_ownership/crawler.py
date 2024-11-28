@@ -104,13 +104,13 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         entity.add("permId", row.pop("refinitiv_permid"))
         if schema != "PublicBody":
             entity.add("cikCode", row.pop("sec_central_index_key"))
-    address = h.make_address(
+    address = h.format_address(
         context,
         country=reg_country,
         state=row.pop("registration_subdivision"),
         city=row.pop("headquarters_subdivision"),
     )
-    h.copy_address(entity, address)
+    entity.add("address", address)
 
     context.emit(entity)
     context.audit_data(

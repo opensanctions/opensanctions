@@ -24,7 +24,6 @@ def crawl_item(row: Dict[str, str], context: Context):
         postal_code=zip_code,
     )
     h.apply_address(context, entity, address)
-    h.copy_address(entity, address)
 
     sanction_key = f"{row.get('effective_date')}-{row.get('action')}"
     sanction = h.make_sanction(context, entity, key=sanction_key)

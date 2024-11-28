@@ -27,15 +27,14 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("sector", row.pop("last_known_profession_provider_type"))
     entity.add("country", "us")
 
-    address = h.make_address(
+    address = h.format_address(
         context,
         city=row.pop("city"),
         state=row.pop("state"),
         postal_code=row.pop("zip"),
         country_code="US",
     )
-    h.apply_address(context, entity, address)
-    h.copy_address(entity, address)
+    entity.add("address", address)
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("date_excluded"))

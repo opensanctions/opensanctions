@@ -63,7 +63,7 @@ def crawl_row(context: Context, row: Dict[str, List[str]]):
         postal_code=zip_code,
         country=country,
     )
-    h.copy_address(entity, address)
+    h.apply_address(entity, address)
     context.emit(entity)
     context.audit_data(row, IGNORE_COLUMNS)
 

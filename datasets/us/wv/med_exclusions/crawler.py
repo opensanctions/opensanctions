@@ -44,7 +44,6 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("topics", "debarment")
     entity.add("country", "us")
     h.apply_address(context, entity, address)
-    h.copy_address(entity, address)
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("action_date"))

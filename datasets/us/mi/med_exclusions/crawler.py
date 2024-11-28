@@ -17,7 +17,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     provider_category = row.pop("provider_category")
     source = row.pop("sanction_source")
     city = row.pop("city")
-    address = h.make_address(context, city=city, state="MI", country_code="US")
+    address = h.format_address(city=city, state="MI", country_code="US")
 
     entity = None
     person = None
@@ -28,8 +28,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.add("npiCode", npi)
         entity.add("topics", "debarment")
         entity.add("sector", provider_category)
-        h.copy_address(entity, address)
-        h.apply_address(context, entity, address)
+        entity.add("address", address)
         entity.add("country", "US")
         if license:
             entity.add("description", "License number: " + license)
@@ -63,8 +62,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         person.add("topics", "debarment")
         person.add("npiCode", npi)
         person.add("sector", provider_category)
-        h.copy_address(person, address)
-        h.apply_address(context, person, address)
+        person.add("address", address)
         person.add("country", "US")
 
         person_sanction = h.make_sanction(context, person)
