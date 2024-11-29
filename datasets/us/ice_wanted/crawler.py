@@ -32,7 +32,13 @@ def crawl_person(context: Context, url: str, wanted_for: str):
         xpath = '//div[contains(@class, "field--name-field-most-wanted-name")]'
         return len(doc.xpath(xpath)) > 0
 
-    doc = fetch_html(context, url, unblock_validator, cache_days=1)
+    doc = fetch_html(
+        context,
+        url,
+        unblock_validator,
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
 
     name = get_element_text(
         doc,
