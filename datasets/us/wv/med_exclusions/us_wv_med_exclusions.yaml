@@ -23,7 +23,7 @@ publisher:
 ci_test: false
 url: "https://www.wvmmis.com/WV%20Medicaid%20Provider%20SanctionedExclusion/Forms/AllItems.aspx"
 data:
-  url: https://www.wvmmis.com/WV%20Medicaid%20Provider%20SanctionedExclusion/Forms/AllItems.aspx
+  url: https://www.wvmmis.com/WV%2datasets/us/wv/med_exclusions/us_wv_med_exclusions.yaml0Medicaid%20Provider%20SanctionedExclusion/Forms/AllItems.aspx
   format: PDF
 dates:
   formats: ["%m/%d/%Y"]
@@ -37,15 +37,3 @@ assertions:
     schema_entities:
       Company: 15
       Person: 200
-lookups: 
-  type.identifier: 
-    options: 
-      - match: 1710010889 - CMS Deactivated NPI
-        value: 1710010889
-      - match: 1386736031Deactivated NPI
-        value: 1386736031
-      - match: 1356682272 1093735938 1942783626
-        values: 
-          - 1356682272
-          - 1093735938
-          - 1942783626
