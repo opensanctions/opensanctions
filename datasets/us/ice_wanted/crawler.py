@@ -5,10 +5,6 @@ from zavod import Context
 from zavod.shed.zyte_api import fetch_html
 
 
-def unblock_validator(doc) -> bool:
-    return doc.find(".//div[@class='grid-container']") is not None
-
-
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
     """Extract text from each child nodes of an xpath and joins them together
 
@@ -32,7 +28,11 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
 
 
 def crawl_person(context: Context, url: str, wanted_for: str):
-    doc = context.fetch_html(url, cache_days=1)
+    def unblock_validator(doc) -> bool:
+        xpath = '//div[contains(@class, "field--name-field-most-wanted-name")]'
+        return len(doc.xpath(xpath)) > 0
+
+    doc = fetch_html(context, url, unblock_validator, cache_days=1)
 
     name = get_element_text(
         doc,
@@ -147,6 +147,9 @@ def crawl_person(context: Context, url: str, wanted_for: str):
 
 
 def crawl(context: Context):
+    def unblock_validator(doc) -> bool:
+        return doc.find('.//div[@class="mw-wantfor"]') is not None
+
     doc = fetch_html(
         context,
         context.data_url,
