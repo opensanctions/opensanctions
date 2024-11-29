@@ -52,7 +52,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.emit(succ_entity)
 
     address = h.format_address(
-        context,
         city=row.pop("City"),
         state=row.pop("State"),
         country_code="us",

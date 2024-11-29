@@ -13,7 +13,6 @@ REGEX_DBA = re.compile(r"\bd\s*/\s*b\s*/\s*a\b", re.IGNORECASE)
 def crawl_item(row: Dict[str, str], context: Context):
     zip_code = row.pop("Zip")
     address = h.format_address(
-        context,
         city=row.pop("City"),
         state=row.pop("State"),
         postal_code=zip_code,
@@ -40,7 +39,6 @@ def crawl_item(row: Dict[str, str], context: Context):
         context.emit(sanction)
 
     if raw_facility_name := row.pop("Facility Name"):
-
         # The d/b/a is a person's name and then the company name
         names = REGEX_DBA.split(raw_facility_name)
         if len(names) == 2:
