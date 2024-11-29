@@ -159,3 +159,7 @@ lookups:
       - match: urodzonej 6 lipca 1972 r.
         props:
           birthDate: 1972-07-06
+      - match: 'adres: ul. Pobedy 38A, Koptevka, Republika Białorusi (nazwa rosyjskojęzyczna: yл. Поведы, дом 38A, aг. Коптевка, Беларусь) numer rejestrowy: 591534088'
+        props:
+          address: "ul. Pobedy 38A, Koptevka, Republika Białorusi"
+          registrationNumber: "591534088"
