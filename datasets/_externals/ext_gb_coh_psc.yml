@@ -11,10 +11,10 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "4000Mi"
+  memory: "3000Mi"
   memory_limit: "6000Mi"
   disk: "20Gi"
-  disk_limit: 50Gi
+  disk_limit: 100Gi
   premium: false
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
