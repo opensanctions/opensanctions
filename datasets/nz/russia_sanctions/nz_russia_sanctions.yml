@@ -47,3 +47,5 @@ lookups:
         value: 2023-03-02
       - match: 45429
         value: 2024-05-19
+      - match: 45625
+        value: 2024-11-29

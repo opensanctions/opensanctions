@@ -8,6 +8,11 @@ from rigour.mime.types import JSON
 from zavod import Context, Entity
 from zavod import helpers as h
 
+HEADERS = {
+    "Accept": "application/json",
+    "User-Agent": "custom-agent",
+}
+
 SCHEMATA = {
     "Personne physique": "Person",
     "Personne morale": "Organization",
@@ -173,7 +178,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.json", context.data_url)
+    path = context.fetch_resource("source.json", context.data_url, headers=HEADERS)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         data = json.load(fh)
