@@ -24,7 +24,7 @@ def crawl_entity(context: Context, item: Dict[str, Any]) -> None:
         entity.add("notes", fin_statement)
     entity.add("topics", "gov.soe")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl(context: Context):
