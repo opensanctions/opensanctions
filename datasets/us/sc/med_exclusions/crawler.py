@@ -11,17 +11,15 @@ REGEX_ALIAS = re.compile(r"\ba\.k\.a\.?|\baka\b|\bf/k/a\b|\bdba\b", re.IGNORECAS
 
 def crawl_item(row: Dict[str, str], context: Context):
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(row.get("individual_entity"), row.get("npi"))
+    npi = row.pop("npi")
+    entity.id = context.make_id(row.get("individual_entity"), npi)
     parts = REGEX_ALIAS.split(row.pop("individual_entity").strip())
 
     entity.add("name", parts[0])
     entity.add("alias", parts[1:])
 
-    if row.get("npi") != "Not Found":
-        for npi in row.pop("npi").split(","):
-            entity.add("npiCode", npi)
-    else:
-        row.pop("npi")
+    if npi != "Not Found":
+        entity.add("npiCode", h.multi_split(npi, [" ", ",", "/"]))
 
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("last_known_profession_provider_type"))
