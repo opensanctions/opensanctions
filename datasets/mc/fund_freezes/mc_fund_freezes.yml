@@ -141,7 +141,7 @@ lookups:
         value: 1964-04
       - match:
           - Entre le 01/01/1961 et le 31/12/1963,
-          - Entre le 01/01/1961 et le 31/12/1963datasets/mc/fund_freezes/mc_fund_freezes.yml
+          - Entre le 01/01/1961 et le 31/12/1963
           
           - au milieu des années 1940 1940,
           - entre 1975 et 1979
