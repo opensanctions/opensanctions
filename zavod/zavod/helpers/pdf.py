@@ -46,7 +46,6 @@ def parse_pdf_table(
     end_page: Optional[int] = None,
     skiprows: int = 0,
     page_settings: Optional[Callable[[Page], Tuple[Page, Dict[str, Any]]]] = None,
-    save_debug_images: bool = False,
 ) -> Generator[Dict[str, str], None, None]:
     """
     Parse the largest table on each page of a PDF file and yield their rows as dictionaries.

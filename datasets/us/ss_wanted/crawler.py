@@ -29,11 +29,10 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
     return collapse_spaces(element_text.strip())
 
 
-def unblock_validator(doc) -> bool:
-    return doc.find(".//div[@class='page-wrap']") is not None
-
-
 def crawl(context: Context):
+    def unblock_validator(doc) -> bool:
+        return doc.find('.//div[@id="block-af1-content"]') is not None
+
     doc = fetch_html(
         context,
         context.data_url,
@@ -51,7 +50,16 @@ def crawl(context: Context):
 
 
 def crawl_person(context: Context, url: str):
-    doc = context.fetch_html(url, cache_days=1)
+    def unblock_validator(doc) -> bool:
+        return len(doc.xpath('.//h1[contains(@class, "page-title")]')) > 0
+
+    doc = fetch_html(
+        context,
+        url,
+        unblock_validator,
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
 
     name = get_element_text(doc, '//h1[contains(@class, "page-title")]')
 
