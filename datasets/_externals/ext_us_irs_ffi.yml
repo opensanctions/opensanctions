@@ -51,6 +51,7 @@ inputs:
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
+  - ext_eu_esma_firds
   - opencorporates
   - sanctions
 

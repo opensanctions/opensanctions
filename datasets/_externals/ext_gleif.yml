@@ -70,10 +70,10 @@ inputs:
   - sanctions
 
 config:
-  index_options:
-    max_candidates: 1
-    memory_budget: 3000
   dataset: gleif
+  index_options:
+    max_candidates: 5
+    memory_budget: 2000
   strip_namespace: true
   fuzzy: false
   threshold: 0.5

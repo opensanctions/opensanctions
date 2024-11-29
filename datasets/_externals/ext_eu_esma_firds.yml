@@ -46,6 +46,7 @@ inputs:
   # - ext_ee_ariregister
   # - ext_gb_coh_psc
   - ext_gleif
+  - ext_us_irs_ffi
   # - ext_icij_offshoreleaks
   # - ext_lv_business_register
   # - ext_md_companies

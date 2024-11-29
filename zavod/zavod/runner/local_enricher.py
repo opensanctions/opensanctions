@@ -200,17 +200,16 @@ def save_match(
 
 def enrich(context: Context) -> None:
     resolver = get_resolver()
+    scope = get_multi_dataset(context.dataset.inputs)
+    context.log.info(
+        "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
+    )
+    subject_store = get_store(scope, resolver)
+    subject_store.sync()
+    subject_view = subject_store.view(scope)
+    config = dict(context.dataset.config)
+    enricher = LocalEnricher(context.dataset, context.cache, config)
     try:
-        scope = get_multi_dataset(context.dataset.inputs)
-        context.log.info(
-            "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
-        )
-        subject_store = get_store(scope, resolver)
-        subject_store.sync()
-        subject_view = subject_store.view(scope)
-        config = dict(context.dataset.config)
-        enricher = LocalEnricher(context.dataset, context.cache, config)
-
         context.log.info("Loading entities for matching...")
         for entity in subject_view.entities():
             enricher.load_wrapped(entity)

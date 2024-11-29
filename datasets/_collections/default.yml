@@ -47,7 +47,6 @@ children:
   # banks
   - iso9362_bic
   - ru_cbr_banks
-  - us_irs_ffi
 
   # misc
   - ann_graph_topics

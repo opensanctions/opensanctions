@@ -13,7 +13,7 @@ exports:
   - statistics.json
 deploy:
   schedule: "@monthly"
-  memory: "3000Mi"
+  memory: "3500Mi"
   memory_limit: "5000Mi"
   disk_limit: 50Gi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
