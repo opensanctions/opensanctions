@@ -42,9 +42,10 @@ lookups:
       - match:
           - unknown
           - 08/15/1977
-          - 45625
         value: null
       - match: 45352
         value: 2023-03-02
       - match: 45429
         value: 2024-05-19
+      - match: 45625
+        value: 2024-11-29
