@@ -5,6 +5,8 @@ coverage:
   frequency: weekly
   start: "2024-11-11"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+resolve: false
+ci_test: false
 summary: >
   All foreign financial institutions and branches with approved FATCA registration.
 description: |

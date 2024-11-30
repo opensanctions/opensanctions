@@ -26,7 +26,6 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("country", "us")
 
     address = h.format_address(
-        context,
         city=row.pop("city"),
         state=row.pop("state"),
         postal_code=row.pop("zip"),
@@ -58,7 +57,6 @@ def crawl_excel_url(context: Context):
 
 
 def crawl(context: Context) -> None:
-
     excel_url = crawl_excel_url(context)
 
     _, _, _, path = fetch_resource(
