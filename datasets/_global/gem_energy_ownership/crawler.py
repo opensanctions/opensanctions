@@ -141,7 +141,7 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     ownership.add("owner", context.make_slug(interested_party_id))
     percentage = row.pop("share_of_ownership")
     ownership.add("percentage", "%.2f" % float(percentage) if percentage else None)
-    ownership.add("sourceUrl", row.pop("data_source_url"))
+    ownership.add("sourceUrl", row.pop("data_source_url").split(","))
 
     context.audit_data(
         row, ignore=["subject_entity_name", "interested_party_name", "index"]
