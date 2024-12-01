@@ -11,7 +11,7 @@ exports:
   - entities.delta.json
 deploy:
   schedule: "1 10 * * *"
-  memory: 3500Mi
+  memory: 4000Mi
   memory_limit: 4500Mi
   disk: 100Gi
   disk_limit: 300Gi

@@ -1,17 +1,17 @@
+import json
+import click
+import networkx as nx
+from pathlib import Path
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver, Linker, Edge
 from nomenklatura.resolver.identifier import Identifier
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Generator
-import click
-import json
-import networkx as nx
-from pprint import pprint
+from typing import Dict, Optional, Tuple, Generator
 
 from zavod.entity import Entity
 from zavod.logs import get_logger, configure_logging
 from zavod.meta import load_dataset_from_path
 from zavod.meta.dataset import Dataset
+from zavod.integration.dedupe import _get_resolver_path
 from zavod.store import View, get_store
 
 log = get_logger(__name__)
@@ -51,7 +51,7 @@ def lazy_resolve(view: View, resolver: Resolver, id: Identifier) -> Optional[Ent
 
     for ident in resolver.connected(id):
         entity = view.get_entity(ident.id)
-        if entity is None:
+        if entity is None or entity.schema.is_a("Address"):
             continue
         if cluster is None:
             cluster = entity
@@ -155,13 +155,13 @@ def generate_groups(
 
 
 @click.command()
-@click.argument("resolver_path", type=InFile)
 @click.argument("dataset_path", type=InFile)
 @click.argument("outfile", type=OutFile)
 @click.option("--log-level", default="INFO")
-def main(resolver_path: Path, dataset_path: Path, outfile: Path, log_level: str):
+def main(dataset_path: Path, outfile: Path, log_level: str):
     configure_logging(level=log_level)
     dataset = load_dataset_from_path(dataset_path)
+    resolver_path = _get_resolver_path()
 
     with open(outfile, "w") as out_fh:
         for pair in generate_groups(resolver_path, dataset):
