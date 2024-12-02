@@ -205,7 +205,7 @@ def crawl_ship_relation(
                 registration_number = override_res.registration_number
                 care_of = override_res.care_of
             else:
-                context.log.warning(f"No override found.", key=entity_name_number)
+                context.log.warning("No override found.", key=entity_name_number)
                 return
 
         entity = context.make("LegalEntity")
