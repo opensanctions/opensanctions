@@ -97,7 +97,10 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
     sanction.add("reason", row.pop("organization", ""))
     sanction.add("program", program)  # depends on the xlsx file
     sanction.add("sourceUrl", url)
-    h.apply_date(sanction, "listingDate", row.pop("listing_date", None))
+    listing_dates = row.pop("listing_date", "").replace("\n", " ").split(" (", 1)
+    h.apply_date(sanction, "listingDate", listing_dates[0])
+    # Reviewed, revised
+    h.apply_dates(sanction, "date", listing_dates[1:])
     h.apply_date(sanction, "listingDate", gazette_date)
 
     context.emit(entity, target=True)

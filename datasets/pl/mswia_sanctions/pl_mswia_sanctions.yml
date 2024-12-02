@@ -163,3 +163,6 @@ lookups:
         props:
           address: "ul. Pobedy 38A, Koptevka, Republika Białorusi"
           registrationNumber: "591534088"
+      - match: 'adres: ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa '
+        props:
+          address: "ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa"

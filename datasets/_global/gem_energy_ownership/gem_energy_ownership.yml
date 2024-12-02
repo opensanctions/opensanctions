@@ -54,6 +54,8 @@ lookups:
     options:
       - match: nan,nan
         value: null
+      - match: nan
+        value: null
   type.identifier:
     options:
       - match: U45100TG2012PTC084829

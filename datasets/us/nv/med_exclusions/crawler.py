@@ -19,7 +19,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     npi = row.pop("sanctioned_excluded_npi")
     entity.id = context.make_id(name, npi)
     entity.add("name", h.multi_split(name, [" aka ", " dba ", " DBA "]))
-    entity.add("npiCode", npi)
+    entity.add("npiCode", npi.split("\n"))
     entity.add("country", "us")
 
     if associated_entity_name := row.pop("associated_legal_entity"):
