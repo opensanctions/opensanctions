@@ -122,11 +122,16 @@ def crawl(context: Context) -> None:
             entity.add("alias", aliases, lang="eng")
         else:
             entity.add("notes", cross_ref, lang="eng")
+        uei = row.pop("Unique Entity ID", None)
+        entity.add("uniqueEntityId", uei)
+
+        # FIXME: remove this in feb/mar 2025:
         entity.add_cast(
             "Organization",
             "registrationNumber",
-            row.pop("Unique Entity ID", None),
+            uei,
         )
+
         entity.add("cageCode", row.pop("CAGE", None), quiet=True)
         # The NPI (National Provider Identifier) is a unique identification number
         # for covered health care providers. It is an optional field for exclusion
