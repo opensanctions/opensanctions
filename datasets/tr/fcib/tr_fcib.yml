@@ -1,5 +1,6 @@
 title: "Türkiye Asset Freezing Sanctions List (MASAK)"
-url: https://en.hmb.gov.tr/fcib-tf-current-list
+entry_point: crawler.py
+prefix: tr-fcib
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 coverage:
@@ -11,31 +12,30 @@ summary: >
   countries, domestic decisions, and efforts to counter the financing of proliferation
   of weapons of mass destruction.
 description: |
-    The asset freezing decisions published by the Republic of Türkiye include comprehensive 
-    lists of individuals, entities, and organizations subject to financial sanctions. These 
-    sanctions are implemented under the following categories:
-    sanctions are implemented under the following categories:
+  The asset freezing decisions published by the Republic of Türkiye include comprehensive 
+  lists of individuals, entities, and organizations subject to financial sanctions. These 
+  sanctions are implemented under the following categories:
+  sanctions are implemented under the following categories:
 
-    - United Nations Security Council Resolutions: Asset freezes pursuant to Article 5 of
-      Law No. 6415, targeting individuals and entities designated under UNSC resolutions.
-    - Requests from Foreign Countries: Asset freezes pursuant to Article 6 of Law No. 6415,
-      targeting individuals and entities based on requests made by foreign governments.
-    - Domestic Freezing Decisions: Asset freezes pursuant to Article 7 of Law No. 6415,
-      targeting individuals and entities through domestic legal actions and decisions.
-    - Countering Financing of Proliferation of Mass-Destruction Weapons: Asset freezes within
-      the scope of Articles 3.A and 3.B of Law No. 7262, aimed at preventing the financing of
-      proliferation of weapons of mass destruction
-entry_point: crawler.py
-prefix: tr-fcib
+  - United Nations Security Council Resolutions: Asset freezes pursuant to Article 5 of
+    Law No. 6415, targeting individuals and entities designated under UNSC resolutions.
+  - Requests from Foreign Countries: Asset freezes pursuant to Article 6 of Law No. 6415,
+    targeting individuals and entities based on requests made by foreign governments.
+  - Domestic Freezing Decisions: Asset freezes pursuant to Article 7 of Law No. 6415,
+    targeting individuals and entities through domestic legal actions and decisions.
+  - Countering Financing of Proliferation of Mass-Destruction Weapons: Asset freezes within
+    the scope of Articles 3.A and 3.B of Law No. 7262, aimed at preventing the financing of
+    proliferation of weapons of mass destruction
+url: https://en.hmb.gov.tr/fcib-tf-current-list
 publisher:
   name: Republic of Türkiye Ministry of Treasury and Finance - Financial Crimes Investigation Board
   acronym: MASAK
   official: true
   description: |
-     The Turkish Financial Crimes Investigation Board (MASAK), a part of the Ministry of 
-     Treasury and Finance, is responsible for preventing and combating financial crimes, 
-     including money laundering and financing of terrorism. It implements measures to freeze 
-     assets of designated individuals, entities, and organizations.
+    The Turkish Financial Crimes Investigation Board (MASAK), a part of the Ministry of 
+    Treasury and Finance, is responsible for preventing and combating financial crimes, 
+    including money laundering and financing of terrorism. It implements measures to freeze 
+    assets of designated individuals, entities, and organizations.
   country: tr
   url: https://en.hmb.gov.tr
 data:
@@ -98,7 +98,7 @@ lookups:
       - match: Almanya
         value: Germany
       - match: "IRAK SURİYE"
-        values: 
+        values:
           - Iraq
           - Syria
       - match: USSR, AZERBAIDJAN REPUBLIC
@@ -116,6 +116,10 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      - match:
+          - 645120196
+          - Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
+        value: null
       - match: 10.08..1948
         value: 1948-08-10
       - match: 1967-1969
@@ -162,7 +166,7 @@ lookups:
         value: 1979-08-01
       - match: 6 Mayısl969
         value: 1969-05-06
-      - match: 02.2021-11.05.2017  # 9.02.2021-11.05.2017 splitter victim
+      - match: 02.2021-11.05.2017 # 9.02.2021-11.05.2017 splitter victim
         values:
           - 2021-02-09
           - 2017-11-05
@@ -182,15 +186,13 @@ lookups:
           - 1970-01-01
           - 1970-09-01
           - 1970-12-01
-      - match: 
-          - 645120196
-          - Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
-        value: null
       - match: 24.03.2007 (17 Aralık 2014 de gözden geçirilmiştir.)
         values:
           - 2007-03-24
           - 2014-12-17
-  type.identifier: 
+      - match: 17 Aralık 2014 de gözden geçirilmiştir.)
+        value: 2014-12-17
+  type.identifier:
     lowercase: true
     options:
       - match: 290320764 (Kore Demokratik Halk Cumhuriyeti tarafından verilmiştir.)
@@ -209,7 +211,7 @@ lookups:
         value: 472310168
       - match: 563110024 (Kore Demokratik Halk Cumhuriyeti tarafından verilmiştir.)
         value: 563110024
-      - match: 
+      - match:
           - "Telephone: +850-2-181118208. Fax: +850-2-381-4432. Email: daesong@star-co.net.kp"
           - "Telephone: +850-2-181118208. Fax: +850-2-381-4432. Email: daesong@star-co.net.kp"
           - "Telephone: +850-218111-8550 Fax: +850-2-381-4410/4416 Email: mhs-ip@star-co.net.kp."
@@ -218,7 +220,7 @@ lookups:
   type.string:
     lowercase: true
     normalize: true
-    options: 
+    options:
       - match: "-"
         value: null
   columns:
@@ -241,13 +243,13 @@ lookups:
         value: listing_date
       - match: Diğer Bilgiler
         value: other_information
-      - match: Tüzel Kuruluş/Organizasyon Ünvanı 
+      - match: Tüzel Kuruluş/Organizasyon Ünvanı
         value: legal_entity_name
       - match:
           - ADI SOYADI-ÜNVANI
           - GERÇEK/TÜZEL KİŞİ/KURULUŞ/ORGANİZASYON ADI SOYADI ÜNVANI
-          - Gerçek Kişi Soyadı Ünvanı   # Real Person Surname Title 
-         # - Tüzel Kuruluş/Organizasyon Ünvanı # Legal Entity/Organisation Title 
+          - Gerçek Kişi Soyadı Ünvanı # Real Person Surname Title
+          # - Tüzel Kuruluş/Organizasyon Ünvanı # Legal Entity/Organisation Title
         value: name
       - match: Eski Adı
         value: previous_name
@@ -255,9 +257,9 @@ lookups:
           - TCKN-VKN-PASAPORT NO
           - TCKN/ VKN/GKN PASAPORT NO
         value: passport_number
-      - match: Pasaport No/ Diğer Muhtelif  Bilgiler   # Passport No/ Other Miscellaneous Information
+      - match: Pasaport No/ Diğer Muhtelif  Bilgiler # Passport No/ Other Miscellaneous Information
         value: passport_number_other_info
-      - match: 
+      - match:
           - UYRUĞU
           - Uyruğu
         value: nationality
@@ -273,12 +275,12 @@ lookups:
           - DOĞUM TARİHİ
           - Doğum Tarihi
         value: birth_date
-      - match: 
+      - match:
           - RESMİ GAZETE TARİH-SAYISI
           - RESMİ GAZETE TARİH SAYISI
           - R.Gazete Tarih Sayı
         value: gazette_date
-      - match: 
+      - match:
           - KULLANDIĞI BİLİNEN DİĞER İSİMLERİ
           - Kullandığı Bilinen Diğer İsmler
         value: alias
@@ -286,11 +288,11 @@ lookups:
           - TABİ OLDUĞU DİĞER UYRUKLAR
           - TABİ OLDUĞU DİĞER UYRUK
         value: other_nationality
-      - match: 
+      - match:
           - ÖRGÜTÜ
           - Örgütü
         value: organization
-      - match: 
-          - KARAR TARİH-SAYISI   # DATE-NUMBER OF DECISION
-          - BKK-CBK Karar Tarih ve Sayısı   #  Date and Number of Decision
+      - match:
+          - KARAR TARİH-SAYISI # DATE-NUMBER OF DECISION
+          - BKK-CBK Karar Tarih ve Sayısı #  Date and Number of Decision
         value: decision_date

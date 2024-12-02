@@ -80,7 +80,17 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name, birth_place, nationality, passport_other)
         entity.add("name", row.pop("legal_entity_name", ""))
-        entity.add("idNumber", collapse_spaces(passport_other))
+        id_number = collapse_spaces(passport_other)
+        if id_number is not None and len(id_number) > 0:
+            if id_number.startswith("IMO number:"):
+                id_number = id_number.replace("IMO number:", "").strip()
+                entity.add_schema("Organization")
+                entity.add("imoNumber", id_number)
+            if id_number.startswith("IMO number:"):
+                id_number = id_number.replace("SWIFT/BIC:", "").strip()
+                entity.add("swiftBic", id_number)
+            else:
+                entity.add("idNumber", id_number)
         h.apply_dates(entity, "incorporationDate", birth_establishment_date)
         entity.add("description", row.pop("position", ""))
         entity.add("country", nationality)
@@ -97,10 +107,12 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
     sanction.add("reason", row.pop("organization", ""))
     sanction.add("program", program)  # depends on the xlsx file
     sanction.add("sourceUrl", url)
-    listing_dates = row.pop("listing_date", "").replace("\n", " ").split(" (", 1)
-    h.apply_date(sanction, "listingDate", listing_dates[0])
-    # Reviewed, revised
-    h.apply_dates(sanction, "date", listing_dates[1:])
+    listing_date = row.pop("listing_date", "")
+    if listing_date is not None:
+        listing_dates = listing_date.replace("\n", " ").split(" (", 1)
+        h.apply_date(sanction, "listingDate", listing_dates[0])
+        # Reviewed, revised
+        h.apply_dates(sanction, "date", listing_dates[1:])
     h.apply_date(sanction, "listingDate", gazette_date)
 
     context.emit(entity, target=True)
