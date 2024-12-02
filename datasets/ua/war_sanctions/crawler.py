@@ -25,22 +25,6 @@ LINKS = [
 ]
 
 
-def lookup_override(context, key):
-    override_res = context.lookup("overrides", key)
-    if not override_res:
-        context.log.warning(f"No override found for {key}")
-        return {}
-
-    extracted = {}
-    for override in override_res.items:
-        extracted[override["key"]] = override["value"]
-
-    if not extracted:
-        context.log.warning(f"No matching properties found in overrides for {key}")
-
-    return extracted
-
-
 def extract_label_value_pair(label_elem, value_elem, data):
     label = label_elem.text_content().strip().replace("\n", " ")
     value = [text.strip() for text in value_elem.itertext() if text.strip()]
@@ -211,14 +195,18 @@ def crawl_ship_relation(
     relation_parts = relation_info.split(" / ")
     if len(relation_parts) == 3:
         entity_name_number, entity_country, entity_date = relation_parts
-        if len(h.multi_split(entity_name_number, [" (", "c/o"])) != 2:
-            overrides = lookup_override(context, entity_name_number)
-            entity_name = overrides.get("name")
-            registration_number = overrides.get("registration_number")
-            care_of = overrides.get("care_of")
-        else:
+        if len(h.multi_split(entity_name_number, [" (", "c/o"])) == 2:
             entity_name, registration_number = entity_name_number.split(" (")
             care_of = None
+        else:
+            override_res = context.lookup("overrides", entity_name_number)
+            if override_res:
+                entity_name = override_res.name
+                registration_number = override_res.registration_number
+                care_of = override_res.care_of
+            else:
+                context.log.warning("No override found.", key=entity_name_number)
+                return
 
         entity = context.make("LegalEntity")
         entity.id = context.make_id(entity_name, entity_country)
