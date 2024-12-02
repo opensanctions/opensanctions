@@ -128,7 +128,6 @@ lookups:
           - Company Number
           - "Business Registration Document #"
           - Matricula Mercantil No
-          - Vessel Registration Identification
           - Dubai Chamber of Commerce Membership No.
           - Business Registration Number
           - UK Company Number
@@ -180,7 +179,6 @@ lookups:
           - SRE Permit No
           - SRE Permit No.
           - Immigration No.
-          - SSN
           - VisaNumberID
           - Refugee ID Card
           - File Number
@@ -221,6 +219,12 @@ lookups:
           - Romanian C.R.
         identification: true
         prop: idNumber
+      - match:
+          - SSN
+        prop: socialSecurityNumber
+      - match:
+          - Vessel Registration Identification
+        prop: imoNumber
       - # taxNumber only, no adjacent object
         match:
           - Tax ID No.
@@ -313,7 +317,7 @@ lookups:
       - match:
           - "Nationality Country"
         prop: nationality
-      - match: 
+      - match:
           - "Citizenship Country"
         prop: citizenship
       - match:
