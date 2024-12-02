@@ -69,7 +69,6 @@ inputs:
 config:
   dataset: icij_offshoreleaks
   index_options:
-    max_candidates: 5
     memory_budget: 3500
   strip_namespace: true
   threshold: 0.7
