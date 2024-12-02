@@ -80,7 +80,17 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name, birth_place, nationality, passport_other)
         entity.add("name", row.pop("legal_entity_name", ""))
-        entity.add("idNumber", collapse_spaces(passport_other))
+        id_number = collapse_spaces(passport_other)
+        if id_number is not None and len(id_number) > 0:
+            if id_number.startswith("IMO number:"):
+                id_number = id_number.replace("IMO number:", "").strip()
+                entity.add_schema("Organization")
+                entity.add("imoNumber", id_number)
+            if id_number.startswith("IMO number:"):
+                id_number = id_number.replace("SWIFT/BIC:", "").strip()
+                entity.add("swiftBic", id_number)
+            else:
+                entity.add("idNumber", id_number)
         h.apply_dates(entity, "incorporationDate", birth_establishment_date)
         entity.add("description", row.pop("position", ""))
         entity.add("country", nationality)
