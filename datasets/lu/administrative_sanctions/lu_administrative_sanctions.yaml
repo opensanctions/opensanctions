@@ -104,6 +104,9 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/mesure-administrative-du-1er-octobre-2024/
         names:
           - Alvotech
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-15-octobre-2024/
+        names:
+          - Aviva Investors Luxembourg S.A.
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
