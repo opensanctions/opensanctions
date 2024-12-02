@@ -123,82 +123,37 @@ lookups:
           - 1967
           - 1968
           - 1969
-      - match: 30 Mart 2018 (değişiklik 26 Temmuz 2022)
+      - match: değişiklik 26 Temmuz 2022)
         values:
-          - 2018-03-30
           - 2022-07-26
-      - match: 30 Mart 2018 (değişiklik 23 Mayıs 2018, 14 Eylül 2022)
+      - match: değişiklik 23 Mayıs 2018, 14 Eylül 2022)
         values:
-          - 2018-03-30
           - 2018-05-23
           - 2022-09-14
-      - match: 16 Temmuz 2009 (değişiklik 26 Temmuz 2022)
+      - match: 9 Temmuz 2018 ve 26 Temmuz 2022 tarihlerinde gözden geçirilmiştir.)
         values:
-          - 2009-07-16
-          - 2022-07-26
-      - match: 16 Temmuz 2009 (9 Temmuz 2018 ve 26 Temmuz 2022 tarihlerinde gözden geçirilmiştir.)
-        values:
-          - 2009-07-16
           - 2018-07-09
           - 2022-07-26
-      - match: 16 Temmuz 2009 (değişiklik 2 Mart 2016, 5 Haziran 2017, 26 Temmuz 2022)
+      - match: değişiklik 2 Mart 2016, 5 Haziran 2017, 26 Temmuz 2022)
         values:
-          - 2009-07-16
           - 2016-03-02
           - 2017-06-05
           - 2022-07-26
-      - match: 2 Haziran 2017 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
+      - match: 26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
         values:
-          - 2017-06-02
           - 2022-07-26
-      - match: 2 Haziran 2017 (değişiklik 26 Temmuz 2022)
+      - match: değişiklik 30 Haziran 2022)
         values:
-          - 2017-06-02
-          - 2022-07-26
-      - match: 30 Kasım 2016 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
-        values:
-          - 2016-11-30
-          - 2022-07-26
-      - match: 30 Kasım 2016 (değişiklik 26 Temmuz 2022)
-        values:
-          - 2016-11-30
-          - 2022-07-26
-      - match: 30 Kasım 2016 (değişiklik 30 Haziran 2022)
-        values:
-          - 2016-11-30
           - 2022-06-30
-      - match: 7 Mart 2013 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
-        value: 2013-03-07
-      - match: 2 Mart 2016 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
+      - match:
+          - 1 Haziran 2017 ve 26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
+          - 1 Haziran 2017 ve 26 Temmuz 2022 tarihlerinde gözden geçirilmiştir.)
         values:
-          - 2013-03-02
-          - 2022-07-26
-      - match: 2 Mart 2016 (1 Haziran 2017 ve 26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
-        values:
-          - 2016-03-02
           - 2017-06-01
           - 2022-07-26
-      - match: 2 Mart 2016 (değişiklik 26 Temmuz 2022)
+      - match: "Güncelleme: 15 Nisan 2024)"
         values:
-          - 2016-03-02
-          - 2022-07-26
-      - match: "2 Mart 2016 (Güncelleme: 15 Nisan 2024)"
-        values:
-          - 2016-03-02
           - 2024-04-15
-      - match: 2 Mart 2016 (1 Haziran 2017 ve 26 Temmuz 2022 tarihlerinde gözden geçirilmiştir.)
-        values:
-          - 2016-03-02
-          - 2017-06-01
-          - 2022-07-26
-      - match: 11 Eylül 2017 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
-        value: 2017-09-11
-      - match: 22 Aralık 2017 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
-        value: 2017-12-22
-      - match: 5 Ağustos 2017 (değişiklik 26 Temmuz 2022)
-        value: 2017-08-05
-      - match: 28 Temmuz 2014 (değişiklik 26 Temmuz 2022)
-        value: 2014-07-28
       - match: "1 934"
         value: 1934
       - match: 25.01.l925
@@ -228,8 +183,13 @@ lookups:
           - 1970-09-01
           - 1970-12-01
       - match: 
-          - 645120196 (Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
+          - 645120196
+          - Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
         value: null
+      - match: 24.03.2007 (17 Aralık 2014 de gözden geçirilmiştir.)
+        values:
+          - 2007-03-24
+          - 2014-12-17
   type.identifier: 
     lowercase: true
     options:
