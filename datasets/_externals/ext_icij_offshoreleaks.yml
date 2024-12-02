@@ -1,6 +1,6 @@
 type: external
 title: ICIJ Offshore Leaks Database
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: icij_offshoreleaks
 disabled: false
 hidden: false
@@ -9,8 +9,9 @@ exports:
   - entities.delta.json
 deploy:
   schedule: "1 12 * * *"
-  memory: "1000Mi"
-  memory_limit: "1500Mi"
+  memory: "3000Mi"
+  memory_limit: "4000Mi"
+  disk: "20Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   start: 2022-05-23
@@ -47,8 +48,6 @@ publisher:
   url: https://www.icij.org/about/
   official: false
 ci_test: false
-http:
-  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics
@@ -68,12 +67,10 @@ inputs:
   - sanctions
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
-  api: https://api.graph.opensanctions.org/
   dataset: icij_offshoreleaks
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  index_options:
+    memory_budget: 3500
   strip_namespace: true
-  fuzzy: false
   threshold: 0.7
   algorithm: regression-v1
   topics:
@@ -90,7 +87,6 @@ config:
     - Organization
     - LegalEntity
     - Person
-  cache_days: 90
 
 lookups:
   type.address:
