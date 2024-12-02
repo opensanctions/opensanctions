@@ -1,4 +1,5 @@
 import openpyxl
+import re
 from typing import Dict, Set
 
 from zavod import Context
@@ -61,6 +62,11 @@ SKIP_IDS = {
 }
 SELF_OWNED = {"E100000002239"}
 STATIC_URL = "https://data.opensanctions.org/contrib/globalenergy/Global_Energy_Ownership_Tracker_June_2024.xlsx"
+REGEX_URL_SPLIT = re.compile(r",\s*http")
+
+
+def split_urls(value: str):
+    return REGEX_URL_SPLIT.sub("\nhttp", value).split("\n")
 
 
 def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
@@ -97,9 +103,8 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         entity.add("description", entity_type)
     entity.add("country", reg_country)
     homepage = row.pop("home_page")
-    if homepage and ",http" in homepage:
-        homepage = homepage.split(",")
-    entity.add("website", homepage)
+    if homepage:
+        entity.add("website", split_urls(homepage))
     if schema != "Person":
         entity.add("permId", row.pop("refinitiv_permid"))
         if schema != "PublicBody":
@@ -143,7 +148,7 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     ownership.add("percentage", "%.2f" % float(percentage) if percentage else None)
     source_urls = row.pop("data_source_url")
     if source_urls is not None:
-        ownership.add("sourceUrl", source_urls.split(","))
+        ownership.add("sourceUrl", split_urls(source_urls))
 
     context.audit_data(
         row, ignore=["subject_entity_name", "interested_party_name", "index"]
