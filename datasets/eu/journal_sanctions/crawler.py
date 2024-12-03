@@ -17,22 +17,36 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
     entity.add("topics", "sanction")
-    if row.get("DOB"):
-        h.apply_dates(entity, "birthDate", row.pop("DOB").split(";"))
-    entity.add("country", country)
-    for version in name.split(";"):
-        if version.strip():
-            h.apply_name(entity, version.strip())
-    alias = row.pop("Alias")
-    for version in alias.split(";"):
-        if version.strip():
-            h.apply_name(entity, version.strip(), alias=True)
-    entity.add("sourceUrl", row.pop("Source URL").strip())
+    h.apply_dates(entity, "birthDate", h.multi_split(row.pop("DOB"), ";"))
+    entity.add("country", h.multi_split(country, ";"))
+    entity.add("name", h.multi_split(name, ";"))
+    entity.add("alias", h.multi_split(row.pop("Alias"), ";"))
+    entity.add_cast("Person", "passportNumber", h.multi_split(row.pop("passport"), ";"))
+    entity.add("taxNumber", h.multi_split(row.pop("taxNumber"), ";"))
+    entity.add("registrationNumber", h.multi_split(row.pop("registrationNumber"), ";"))
+    entity.add("idNumber", h.multi_split(row.pop("idNumber"), ";"))
     entity.add("notes", row.pop("Notes").strip())
-    context.audit_data(row)
+    entity.add("sourceUrl", h.multi_split(row.pop("Source URL"), ";"))
+
+    for related_name in h.multi_split(row.pop("related"), ";"):
+        related = context.make("LegalEntity")
+        related.id = context.make_id(related_name, entity.id)
+        related.add("name", related_name)
+
+        rel = context.make("UnknownLink")
+        rel.id = context.make_id(related.id, entity.id)
+        rel.add("subject", related)
+        rel.add("object", entity)
+
+        context.emit(related)
+        context.emit(rel)
+
     sanction = h.make_sanction(context, entity)
+
     context.emit(entity, target=True)
     context.emit(sanction)
+
+    context.audit_data(row)
 
 
 def crawl_csv(context: Context, reader: Iterable[Dict[str, str]]):
