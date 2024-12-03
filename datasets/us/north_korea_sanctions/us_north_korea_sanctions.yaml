@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-nksan
 coverage:
   frequency: daily
-  start: "2024-12-0"
+  start: "2024-12-03"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   This dataset contains a list of companies who are sanctioned due to their links with North Korea.
