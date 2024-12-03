@@ -123,14 +123,13 @@ def crawl(context: Context) -> None:
         else:
             entity.add("notes", cross_ref, lang="eng")
         uei = row.pop("Unique Entity ID", None)
-        entity.add("uniqueEntityId", uei)
+        if entity.schema.is_a("LegalEntity"):
+            entity.add("uniqueEntityId", uei)
 
-        # FIXME: remove this in feb/mar 2025:
-        entity.add_cast(
-            "Organization",
-            "registrationNumber",
-            uei,
-        )
+            # FIXME: remove 2025-02-01 according to https://www.opensanctions.org/changelog/15/
+            entity.add("registrationNumber", uei)
+        else:
+            entity.add("registrationNumber", uei, quiet=True)
 
         entity.add("cageCode", row.pop("CAGE", None), quiet=True)
         # The NPI (National Provider Identifier) is a unique identification number
