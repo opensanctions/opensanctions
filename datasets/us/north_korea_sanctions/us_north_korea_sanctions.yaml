@@ -14,7 +14,7 @@ description: |
   > Chain Links to North Korea on July 23, 2018. The advisory informs the trade
   > of North Korea's evasion tactics, compliance risks and requirements, as well
   > as due diligence best practices.
-  
+
   [Source PDF](https://www.cbp.gov/sites/default/files/assets/documents/2018-Aug/North%20Korea%20Sanctions%20_%20Enforcement%20Actions%20Advisory.pdf)
 publisher:
   name: U.S. Customs and Border Protection
@@ -33,7 +33,7 @@ data:
 assertions:
   min:
     schema_entities:
-      Company: 200 
+      Company: 200
   max:
     schema_entities:
       Company: 300

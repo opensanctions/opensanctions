@@ -1,7 +1,6 @@
 from typing import Dict
 from rigour.mime.types import CSV
 import csv
-from datetime import datetime
 
 from zavod import Context, helpers as h
 
