@@ -13,10 +13,10 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  disk: "50Gi"
-  memory: "4500Mi"
-  memory_limit: "5000Mi"
-  premium: false
+  disk: "100Gi"
+  disk_limit: 100Gi
+  memory: "6000Mi"
+  memory_limit: "6000Mi"
 # load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Companies database of the Russian Federation as maintained and published by

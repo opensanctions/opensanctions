@@ -11,11 +11,10 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "3000Mi"
+  memory: "6000Mi"
   memory_limit: "6000Mi"
-  disk: "20Gi"
+  disk: "100Gi"
   disk_limit: 100Gi
-  premium: false
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   The database of beneficial owners of companies incorporated in England, Wales,
