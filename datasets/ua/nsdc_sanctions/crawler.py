@@ -99,6 +99,7 @@ def crawl_common(
             "reg:ch",
             "reg:nin",
             "reg:cn",
+            "reg:chiop",  # https://en.wikipedia.org/wiki/SNILS_(Russia)
             None,
         ):
             entity.add("registrationNumber", ident_value)
