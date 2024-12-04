@@ -1,7 +1,8 @@
 import os
-from urllib.parse import urljoin
-from typing import Dict, Any, List, Optional
 import re
+from typing import Any, Dict, List, Optional
+from urllib.parse import urljoin
+
 from followthemoney.types import registry
 
 from zavod import Context, Entity
@@ -9,7 +10,6 @@ from zavod import helpers as h
 
 PASSWORD = os.environ.get("OPENSANCTIONS_NSDC_PASSWORD")
 API_KEY = os.environ.get("OPENSANCTIONS_NSDC_API_KEY")
-CODES = {"DN": "UA-DPR", "LN": "UA-LPR"}
 CACHE_LONG = 7
 # They seem to mix up ukr, ukr, rus and ukr, rus, ukr so not assuming
 REGEX_NAME_3_PARTS = re.compile(r"^([^\(]+)\(([^,]+),([^,]+)\)$")
