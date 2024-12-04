@@ -36,6 +36,46 @@ lookups:
         value: false
       - match: excluded
         value: false
+  identifier_type:
+    options:
+      - match: "tax:inn"
+        prop: innCode
+      - match:
+          - "reg:odrn"
+          - "reg:odrnip"
+        prop: ogrnCode
+      - match: "reg:okpo"
+        prop: okpoCode
+      - match:
+          - "reg:person_ro"
+          - "reg:person_il"
+          - "reg:chiop"  # https://en.wikipedia.org/wiki/SNILS_(Russia)
+        prop: idNumber
+      - match:
+          - null
+          - "reg:edrpou"
+          - "reg:r_n"
+          - "reg:regon"
+          - "reg:unzr"
+          - "reg:nl"
+          - "reg:cy"
+          - "reg:sy"
+          - "reg:cz_person"
+          - "reg:ch"
+          - "reg:nin"
+          - "reg:cn"
+          - reg:kz
+        prop: registrationNumber
+      - match:
+          - "doc:passport"
+          - "doc:d_passport"
+          - "doc:f_passport"
+          - "doc:s_passport"
+        identification:
+          is_passport: true
+      - match: "doc:residence"
+        identification:
+          is_passport: false
   type.country:
     normalize: true
     options:
