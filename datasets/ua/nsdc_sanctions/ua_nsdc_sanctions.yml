@@ -49,6 +49,7 @@ lookups:
       - match:
           - "reg:person_ro"
           - "reg:person_il"
+          - "reg:cz_person"
           - "reg:chiop"  # https://en.wikipedia.org/wiki/SNILS_(Russia)
         prop: idNumber
       - match:
@@ -60,11 +61,10 @@ lookups:
           - "reg:nl"
           - "reg:cy"
           - "reg:sy"
-          - "reg:cz_person"
           - "reg:ch"
           - "reg:nin"
           - "reg:cn"
-          - reg:kz
+          - "reg:kz"
         prop: registrationNumber
       - match:
           - "doc:passport"
