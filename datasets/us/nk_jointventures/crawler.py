@@ -2,7 +2,7 @@ from typing import Dict
 from rigour.mime.types import CSV
 import csv
 
-from zavod import Context, helpers as h
+from zavod import Context
 
 
 def crawl_item(context: Context, row: Dict[str, str]):
