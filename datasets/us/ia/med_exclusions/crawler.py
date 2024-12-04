@@ -56,11 +56,14 @@ def crawl_item(row: Dict[str, str], context: Context):
         "Indefinite",
         "Federal Authority",
     ]:
+        if sanction_end_date == "2 Years":
+            sanction_end_date = context.lookup_value(
+                "sanction_end_date", sanction_end_date
+            )
         is_debarred = (
             datetime.strptime(sanction_end_date, "%Y-%m-%d") >= datetime.today()
         )
         h.apply_date(sanction, "endDate", sanction_end_date)
-
     else:
         is_debarred = True
 
