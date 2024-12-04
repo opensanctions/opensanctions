@@ -31,9 +31,10 @@ def clean_address(value: str) -> List[str]:
     return value
 
 
-def note_long_identifier(entity: Entity, value: str) -> None:
-    if len(value) > registry.identifier.max_length:
-        entity.add("notes", value, lang="ukr")
+def note_long_identifier(entity: Entity, values: List[str]) -> None:
+    for value in values:
+        if len(value) > registry.identifier.max_length:
+            entity.add("notes", value, lang="ukr")
 
 
 def check_sanctioned(
@@ -76,25 +77,26 @@ def crawl_common(
     identifiers = item.pop("identifiers") or []
     for ident in identifiers:
         ident_id = ident.pop("id")
-        ident_value = h.multi_split(ident.pop("code"), ";")
+        ident_values = h.multi_split(ident.pop("code"), ";")
         res = context.lookup("identifier_type", ident_id)
         if res is None:
-            context.log.warn("Unknown identifier type", id=ident_id, value=ident_value)
+            context.log.warn("Unknown identifier type", id=ident_id, values=ident_values)
         elif res.prop:
-            note_long_identifier(entity, ident_value)
-            entity.add(res.prop, ident_value)
+            note_long_identifier(entity, ident_values)
+            entity.add(res.prop, ident_values)
         elif res.identification:
-            doc = h.make_identification(
-                context,
-                entity,
-                doc_type=ident_id,
-                number=ident_value,
-                country=ident.get("iso2"),
-                summary=ident.get("note"),
-                passport=res.identification["is_passport"],
-            )
-            if doc is not None:
-                context.emit(doc)
+            for value in ident_values:
+                doc = h.make_identification(
+                    context,
+                    entity,
+                    doc_type=ident_id,
+                    number=value,
+                    country=ident.get("iso2"),
+                    summary=ident.get("note"),
+                    passport=res.identification["is_passport"],
+                )
+                if doc is not None:
+                    context.emit(doc)
         else:
             context.log.warn("Invalid identifier lookup", id=ident_id, res=res)
 
