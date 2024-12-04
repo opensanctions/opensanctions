@@ -60,6 +60,7 @@ setup(
     extras_require={
         "dev": [
             "black==24.10.0",
+            "isort==5.11.5",
             "wheel>=0.29.0",
             "twine",
             "mypy",
