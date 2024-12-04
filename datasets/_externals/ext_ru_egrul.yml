@@ -15,8 +15,8 @@ exports:
 deploy:
   disk: "100Gi"
   disk_limit: 100Gi
-  memory: "5800Mi"
-  memory_limit: "5800Mi"
+  memory: "5100Mi"
+  memory_limit: "6000Mi"
 # load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Companies database of the Russian Federation as maintained and published by
