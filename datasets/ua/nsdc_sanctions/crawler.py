@@ -80,7 +80,9 @@ def crawl_common(
         ident_values = h.multi_split(ident.pop("code"), ";")
         res = context.lookup("identifier_type", ident_id)
         if res is None:
-            context.log.warn("Unknown identifier type", id=ident_id, values=ident_values)
+            context.log.warn(
+                "Unknown identifier type", id=ident_id, values=ident_values
+            )
         elif res.prop:
             note_long_identifier(entity, ident_values)
             entity.add(res.prop, ident_values)
