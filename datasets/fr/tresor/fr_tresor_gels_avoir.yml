@@ -4615,3 +4615,47 @@ lookups:
         props:
           # imoNumber: 6016988
           registrationNumber: 6016988
+      - match: "Lieu d'enregistrement: Bangui, République centrafricaine - Date d'enregistrement: Novembre 2018 - Principal établissement: Galabadja Bangui, Commune de Bangui - Galabadja, 8e Arr. - [GPS]-> 4.4070, 18.5465: /"
+        props:
+          jurisdiction: Central African Republic
+          address: "Galabadja Bangui, Commune de Bangui - Galabadja, 8e Arr."
+          incorporationDate: 2018-11
+      - match: "NIF, numéro d'identification fiscale - Lieu d'enregistrement: Bangui (République centrafricaine) - Date d'enregistrement: 24.10.2017 - Principal établissement: République centrafricaine: M 354838 D 0001"
+        props:
+          jurisdiction: Central African Republic
+          address: "Bangui"
+          incorporationDate: 2017-10-24
+          registrationNumber: M 354838 D 0001
+      - match: "Lieu d'enregistrement: Bangui (République centrafricaine) : /"
+        props:
+          jurisdiction: Central African Republic
+          address: "Bangui"
+      - match: "Principal établissement: République centrafricaine: /"
+        props:
+          jurisdiction: Central African Republic
+      - match: "Numéro d’enregistrement: CA/BG2019B519"
+        props:
+          registrationNumber: CA/BG2019B519
+      - match: "Date d’enregistrement: 28.3.2019 - Principal établissement: République centrafricaine: /"
+        props:
+          incorporationDate: 2019-03-28
+          jurisdiction: Central African Republic
+      - match: "Numéro d’enregistrement: 1197700003137"
+        props:
+          registrationNumber: 1197700003137
+      - match: "Numéro fiscal individuel: 7709448606"
+        props:
+          taxNumber: 7709448606
+      - match: "Lieu d'enregistrement: d. 76 korp. 4 litera A ofis N620, prospekt Obukhovskoi Oborony Saint-Pétersbourg, Fédération de Russie : /"
+        props:
+          jurisdiction: ru
+          address: "d. 76 korp. 4 litera A ofis N620, prospekt Obukhovskoi Oborony Saint-Pétersbourg"
+      - match: "Numéro d'enregistrement: 1177847044066"
+        props:
+          registrationNumber: 1177847044066
+      - match: "No d'identification fiscale: 7811636632"
+        props:
+          taxNumber: 7811636632
+      - match: "Principal établissement: Khartoum, Soudan: /"
+        props:
+          address: "Khartoum, Soudan"
