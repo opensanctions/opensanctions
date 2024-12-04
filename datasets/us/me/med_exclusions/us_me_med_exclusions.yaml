@@ -30,6 +30,12 @@ data:
   url: https://mainecare.maine.gov/PrvExclRpt/Forms/AllItems.aspx
   format: XLSX
 
+lookups: 
+  type.string: 
+    options:
+       - match: N/A
+         value: null
+
 assertions:
   min:
     schema_entities:
