@@ -75,26 +75,22 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
     names = name.split("(")
     if entity.schema.name == "Person":
         for name in names:
+            # Remove any trailing ')' for clean parsing
+            name = name.replace(")", "").strip()
             name_parts = name.split(" ")
-            if len(name_parts) == 3:
-                # IVANOV Ivan Ivanovich
-                first_name = name_parts[1].replace(")", "")
+
+            if len(name_parts) >= 2:
+                # IVANOV Ivan
+                first_name = name_parts[1]
                 last_name = name_parts[0]
-                patronymic = name_parts[2].replace(")", "")
+                # IVANOV Ivan Ivanovich
+                patronymic = name_parts[2] if len(name_parts) == 3 else None
+
                 h.apply_name(
                     entity,
                     first_name=first_name,
                     last_name=last_name,
                     patronymic=patronymic,
-                )
-            elif len(name_parts) == 2:
-                # IVANOV Ivan
-                first_name = name_parts[1]
-                last_name = name_parts[0]
-                h.apply_name(
-                    entity,
-                    first_name=first_name,
-                    last_name=last_name,
                 )
     else:
         entity.add("name", names[0])
