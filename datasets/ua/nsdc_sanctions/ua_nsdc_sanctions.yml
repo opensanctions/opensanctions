@@ -254,10 +254,7 @@ lookups:
           - IMO
           - МФО
         prop: registrationNumber
-      - match:
-          # Reregistration
-          - Перереєстрація
-        contains:
+      - contains:
           - Перереєстрація
           - перереєстроване відповідно до
         prop: notes
