@@ -92,6 +92,10 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
                     last_name=last_name,
                     patronymic=patronymic,
                 )
+                if last_name != "Sechin":
+                    assert (
+                        last_name.isupper()
+                    ), f"Expected last name '{last_name}' to be fully capitalized"
     else:
         entity.add("name", names[0])
     for alias in names[1:]:
