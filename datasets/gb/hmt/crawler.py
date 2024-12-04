@@ -95,6 +95,7 @@ def parse_row(context: Context, row: Dict[str, Any]):
     listing_date = row.pop("DateListed")
     designated_date = row.pop("DateDesignated", None)
     last_updated = row.pop("LastUpdated")
+    regime_name = row.pop("RegimeName")
 
     schema = TYPES.get(group_type)
     if schema is None:
@@ -103,7 +104,10 @@ def parse_row(context: Context, row: Dict[str, Any]):
     entity = context.make(schema)
     entity.id = context.make_slug(row.pop("GroupID"))
     sanction = h.make_sanction(context, entity)
-    sanction.add("program", row.pop("RegimeName"))
+    sanction.add("program", regime_name)
+    sanction.add(
+        "programCode", context.lookup_value("program", regime_name, regime_name)
+    )
     sanction.add("authority", row.pop("ListingType", None))
     h.apply_date(sanction, "listingDate", listing_date)
     h.apply_date(sanction, "startDate", designated_date)
@@ -328,6 +332,5 @@ def crawl(context: Context):
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     el = h.remove_namespace(doc)
-
     for row_el in el.findall(".//FinancialSanctionsTarget"):
         parse_row(context, make_row(row_el))
