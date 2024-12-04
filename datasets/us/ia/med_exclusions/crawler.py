@@ -10,6 +10,9 @@ from zavod import Context, helpers as h
 def crawl_item(row: Dict[str, str], context: Context):
 
     enrollment_type = row.pop("enrollment_type")
+    npi = row.pop("npi")
+    license_type = row.pop("state_license_type")
+    license_number = row.pop("state_license_number")
 
     if enrollment_type is None:
         return
@@ -18,35 +21,30 @@ def crawl_item(row: Dict[str, str], context: Context):
         first_name = row.pop("first_name")
         last_name = row.pop("last_name")
         entity = context.make("Person")
-        entity.id = context.make_id(first_name, last_name, row.get("npi"))
+        entity.id = context.make_id(first_name, last_name, npi)
         h.apply_name(entity, first_name=first_name, last_name=last_name)
     elif enrollment_type == "Organization":
         business_name = row.pop("legal_business_name")
         entity = context.make("Organization")
-        entity.id = context.make_id(business_name, row.get("npi"))
+        entity.id = context.make_id(business_name, npi)
         entity.add("name", business_name)
     else:
         context.log.warning("Enrollment type not recognized: " + enrollment_type)
         return
 
-    entity.add("npiCode", row.pop("npi"))
+    entity.add("npiCode", npi)
     entity.add("country", "us")
+    entity.add("sector", row.pop("specialty"))
 
-    if row.get("state_license_number") != "N/A":
+    if license_number is not None and license_number != "N/A":
         entity.add(
             "description",
-            "State license type / number: {} / {}".format(
-                row.pop("state_license_type"), row.pop("state_license_number")
-            ),
+            f"State license type / number: {license_type} / {license_number}",
         )
-    else:
-        row.pop("state_license_type")
-        row.pop("state_license_number")
-
-    entity.add("sector", row.pop("specialty"))
 
     sanction_type = row.pop("type_of_sanction")
     effective_date = row.pop("effective_date")
+    sanction_end_date = row.pop("sanction_end_date")
     sanction = h.make_sanction(
         context, entity, key=slugify(sanction_type, effective_date)
     )
@@ -54,19 +52,16 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction.add("reason", row.pop("authority"))
     sanction.add("description", sanction_type)
 
-    if row.get("sanction_end_date") and row.get("sanction_end_date") not in [
+    if sanction_end_date and sanction_end_date not in [
         "Indefinite",
         "Federal Authority",
     ]:
-
         is_debarred = (
-            datetime.strptime(row.get("sanction_end_date"), "%Y-%m-%d")
-            >= datetime.today()
+            datetime.strptime(sanction_end_date, "%Y-%m-%d") >= datetime.today()
         )
-        h.apply_date(sanction, "endDate", row.pop("sanction_end_date"))
+        h.apply_date(sanction, "endDate", sanction_end_date)
 
     else:
-        row.pop("sanction_end_date")
         is_debarred = True
 
     if is_debarred:
