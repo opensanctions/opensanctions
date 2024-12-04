@@ -66,6 +66,7 @@ lookups:
           - Stillingsbetegnelse
           - roh
           - Stilling
+          - Sonne-Schmidt
         value: job_title
       - match: Fødselsdato
         value: birth_date
