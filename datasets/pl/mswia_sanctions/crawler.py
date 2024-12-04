@@ -73,9 +73,34 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
 
     entity.id = context.make_slug(table_title, name)
     names = name.split("(")
-    entity.add("name", names[0])
+    if entity.schema.name == "Person":
+        for name in names:
+            # Remove any trailing ')' for clean parsing
+            name = name.replace(")", "").strip()
+            name_parts = name.split(" ")
+
+            if len(name_parts) >= 2:
+                # IVANOV Ivan
+                first_name = name_parts[1]
+                last_name = name_parts[0]
+                # IVANOV Ivan Ivanovich
+                patronymic = name_parts[2] if len(name_parts) == 3 else None
+
+                h.apply_name(
+                    entity,
+                    first_name=first_name,
+                    last_name=last_name,
+                    patronymic=patronymic,
+                )
+                if last_name != "Sechin":
+                    assert (
+                        last_name.isupper()
+                    ), f"Expected last name '{last_name}' to be fully capitalized"
+    else:
+        entity.add("name", names[0])
     for alias in names[1:]:
-        entity.add("alias", alias.split(")")[0])
+        for alias in h.multi_split(alias, ["obecnie: ", "inaczej:"]):
+            entity.add("alias", alias.split(")")[0])
     notes = row.pop("uzasadnienie_wpisu_na_liste")
     entity.add("notes", notes)
 
