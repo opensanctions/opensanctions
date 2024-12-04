@@ -2,7 +2,7 @@ from typing import Dict
 from normality import slugify
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from zavod import Context, helpers as h
 
@@ -43,12 +43,12 @@ def crawl_item(row: Dict[str, str], context: Context):
         )
 
     sanction_type = row.pop("type_of_sanction")
-    effective_date = row.pop("effective_date")
+    sanction_start_date = row.pop("effective_date")
     sanction_end_date = row.pop("sanction_end_date")
     sanction = h.make_sanction(
-        context, entity, key=slugify(sanction_type, effective_date)
+        context, entity, key=slugify(sanction_type, sanction_start_date)
     )
-    h.apply_date(sanction, "startDate", effective_date)
+    h.apply_date(sanction, "startDate", sanction_start_date)
     sanction.add("reason", row.pop("authority"))
     sanction.add("description", sanction_type)
 
@@ -57,9 +57,10 @@ def crawl_item(row: Dict[str, str], context: Context):
         "Federal Authority",
     ]:
         if sanction_end_date == "2 Years":
-            sanction_end_date = context.lookup_value(
-                "sanction_end_date", sanction_end_date
-            )
+            sanction_end_date = str(
+                datetime.strptime(sanction_start_date, "%Y-%m-%d")
+                + timedelta(days=2 * 365)
+            )[:10]
         is_debarred = (
             datetime.strptime(sanction_end_date, "%Y-%m-%d") >= datetime.today()
         )

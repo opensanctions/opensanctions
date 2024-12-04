@@ -37,9 +37,3 @@ assertions:
     schema_entities:
       Organization: 400
       Person: 1000
-
-lookups:
-  sanction_end_date:  
-    options:  
-      - match: "2 Years"
-        value: 2026-08-06
