@@ -1,12 +1,12 @@
-title: North Korea Sanctions and Enforcement Actions
+title: US North Korea Advisory Joint Ventures Annex
 entry_point: crawler.py
-prefix: us-nksan
+prefix: us-nkjv
 coverage:
   frequency: daily
   start: "2024-12-03"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  This dataset contains a list of companies who are sanctioned due to their links with North Korea.
+  This dataset contains a list of joint ventures related to North Korea.
 description: |
   > CBP and ICE, with the U.S. Department of State, and the U.S. Department of the
   > Treasury's Office of Foreign Assets Control (OFAC), issued the North Korea
@@ -14,6 +14,18 @@ description: |
   > Chain Links to North Korea on July 23, 2018. The advisory informs the trade
   > of North Korea's evasion tactics, compliance risks and requirements, as well
   > as due diligence best practices.
+
+  Note that this is not a sanctions list as stated in the source PDF:
+
+  > NOTE: This annex lists joint ventures that have operated or are currently operating in
+  > North Korea established prior to 2016 and is not a comprehensive list of North Korean
+  > joint ventures that exist at this time. This annex is not a “sanctions list.” While some
+  > entities on this list may be entities whose property and interests in property are
+  > blocked, the inclusion of these entities in this advisory does not constitute as a
+  > determination by OFAC that any of these entities meet the designation criteria under any
+  > sanctions program. Persons subject to sanctions can be found on OFAC's List of Specially
+  > Designated Nationals and Blocked Person and other sanctions lists, which can be searched
+  > here.
 
   [Source PDF](https://www.cbp.gov/sites/default/files/assets/documents/2018-Aug/North%20Korea%20Sanctions%20_%20Enforcement%20Actions%20Advisory.pdf)
 publisher:

@@ -14,12 +14,10 @@ def crawl_item(context: Context, row: Dict[str, str]):
     company.id = context.make_id(name, sector)
     company.add("name", name)
     company.add("sector", sector)
-    company.add("topics", "debarment")
-
-    sanction = h.make_sanction(context, company)
+    company.add("topics", "export.risk")
+    company.add("country", "North Korea")
 
     context.emit(company, target=True)
-    context.emit(sanction)
 
     context.audit_data(row)
 
