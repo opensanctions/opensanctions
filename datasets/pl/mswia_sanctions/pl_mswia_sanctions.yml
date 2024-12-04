@@ -74,12 +74,10 @@ lookups:
           - 523931831
       - match: 79090613232)
         value: 79090613232
-  type.country:
+  type.name: 
     options:
-      match: Mołdawii i Izraela
-      values:
-        - MD
-        - IL
+      - match: "GO SPORT POLSKA Sp. z o.o. w upadłości"
+        value: GO SPORT POLSKA Sp. z o.o.
   details:
     normalize: true
     lowercase: true
@@ -103,9 +101,6 @@ lookups:
       - match: we Lwowie
         props:
           birthPlace: Lviv
-      - match: 13.05.2022 r.
-        props:
-          modifiedAt: 2022-05-13
       - match: w Moskwie
         props:
           birthPlace: Moscow
@@ -131,9 +126,6 @@ lookups:
           address: "Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan"
           idNumber: "220540011771"
           registrationNumber: "220540011771"
-      - match: '(PESEL: 79090613232)'
-        props:
-          idNumber: "79090613232"
       - match: 'adres: Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan (w języku rosyjskim: проезд Ярослава Гашека, 1 Петропавловск, Казахстан) nr identyfikacyjny BIN: 191040021834'
         props:
           address: "Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan"
