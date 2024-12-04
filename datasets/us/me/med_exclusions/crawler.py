@@ -73,10 +73,14 @@ def crawl_item(row: Dict[str, str], context: Context):
 def crawl_excel_url(context: Context):
     response = context.fetch_response(context.data_url)
     txt = response.text
-    month = json.loads(
+    # Parse out the table data JSON embedded in the HTML
+    table_data = json.loads(
         txt[txt.find("WPQ2ListData") + 15 : txt.find("WPQ2SchemaData") - 5]
-    )["Row"][0]["FileLeafRef"]
-    return f"https://mainecare.maine.gov/PrvExclRpt/{month}/PI0008-PM%20Monthly%20Exclusion%20Report.xlsx"
+    )
+    # Pick the first item, assuming the table is sorted in descending date order
+    month_year_directory = table_data["Row"][0]["FileLeafRef"]
+    # Construct URL - the filename seems to be the same each month
+    return f"https://mainecare.maine.gov/PrvExclRpt/{month_year_directory}/PI0008-PM%20Monthly%20Exclusion%20Report.xlsx"
 
 
 def crawl(context: Context) -> None:
