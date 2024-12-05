@@ -5,6 +5,9 @@ coverage:
   schedule: "0 */2 * * *"
   frequency: daily
   start: 2021-01-24
+deploy:
+  memory: "1000Mi"
+  memory_limit: "1500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   As part of the Common Foreign Security Policy the European Union publishes
@@ -72,10 +75,10 @@ lookups:
       - match: enterprise
         value: Organization
   schema_override:
-    options: 
-      - match: 
-          - eu-fsf-eu-9442-82  # Unica
-          - eu-fsf-eu-9443-81  # New Konk
+    options:
+      - match:
+          - eu-fsf-eu-9442-82 # Unica
+          - eu-fsf-eu-9443-81 # New Konk
         value: Vessel
   contact_info:
     options:
@@ -172,7 +175,7 @@ lookups:
         value: male
       - match: F
         value: female
-  type.string: 
+  type.string:
     lowercase: true
     normalize: true
     options:

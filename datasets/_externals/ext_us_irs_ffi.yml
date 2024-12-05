@@ -54,6 +54,7 @@ inputs:
   - ext_eu_esma_firds
   - opencorporates
   - sanctions
+  - iso9362_bic
 
 config:
   dataset: us_irs_ffi

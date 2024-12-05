@@ -7,8 +7,9 @@ coverage:
   schedule: "@monthly"
   start: 2022-05-23
   end: 2023-07-26
-deploy:  
-  memory: 2000Mi
+deploy:
+  cpu: "1000m"
+  memory: 1500Mi
   disk: 30Gi
 exports:
   - statistics.json
@@ -32,8 +33,17 @@ data:
   url: https://offshoreleaks-data.icij.org/offshoreleaks/csv/full-oldb.LATEST.zip
   format: CSV
 
-dates: 
-  formats: ["%d-%b-%Y", "%b %d, %Y", "%Y-%m-%d", "%Y", "%d/%m/%Y", "%d.%m.%Y", "%d/%m/%y"]
+dates:
+  formats:
+    [
+      "%d-%b-%Y",
+      "%b %d, %Y",
+      "%Y-%m-%d",
+      "%Y",
+      "%d/%m/%Y",
+      "%d.%m.%Y",
+      "%d/%m/%y",
+    ]
 assertions:
   min:
     schema_entities:

@@ -7,7 +7,7 @@ coverage:
   start: 2022-12-27
 deploy:
   # schedule: "0 */6 * * *"
-  memory: "2Gi"
+  memory: "1Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - entities.ftm.json
