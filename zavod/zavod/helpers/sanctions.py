@@ -4,6 +4,7 @@ from datetime import datetime
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod import helpers as h
+from zavod import settings
 
 ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 
@@ -53,9 +54,9 @@ def make_sanction(
         h.apply_date(sanction, "startDate", start_date)
     if end_date is not None:
         h.apply_date(sanction, "endDate", end_date)
-        iso_end_date = h.extract_date(context.dataset, end_date)[0]
-        end_date_obj = datetime.strptime(iso_end_date[:10], "%Y-%m-%d")
-        is_active = end_date_obj >= datetime.today()
+        iso_end_date = max(sanction.get("endDate"))
+        end_date_obj = datetime.strptime(iso_end_date, "%Y-%m-%d")
+        is_active = end_date_obj >= settings.RUN_TIME
         sanction.add("status", "active" if is_active else "inactive")
 
     return sanction
