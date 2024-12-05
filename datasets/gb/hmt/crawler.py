@@ -103,11 +103,8 @@ def parse_row(context: Context, row: Dict[str, Any]):
         return
     entity = context.make(schema)
     entity.id = context.make_slug(row.pop("GroupID"))
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity, program=regime_name)
     sanction.add("program", regime_name)
-    sanction.add(
-        "programCode", context.lookup_value("program", regime_name, regime_name)
-    )
     sanction.add("authority", row.pop("ListingType", None))
     h.apply_date(sanction, "listingDate", listing_date)
     h.apply_date(sanction, "startDate", designated_date)
