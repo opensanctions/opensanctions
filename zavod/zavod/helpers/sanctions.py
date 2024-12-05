@@ -1,6 +1,11 @@
 from typing import Optional
+from datetime import datetime
+
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod import helpers as h
+
+ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 
 
 def make_sanction(
@@ -8,6 +13,8 @@ def make_sanction(
     entity: Entity,
     key: Optional[str] = None,
     program: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
 ) -> Entity:
     """Create and return a sanctions object derived from the dataset metadata.
 
@@ -19,6 +26,8 @@ def make_sanction(
         entity: The entity to which the sanctions object will be linked.
         key: An optional key to be included in the ID of the sanction.
         program: An optional key for looking up the program ID in the YAML configuration.
+        start_date: An optional start date for the sanction.
+        end_date: An optional end date for the sanction.
 
     Returns:
         A new entity of type Sanction.
@@ -40,4 +49,13 @@ def make_sanction(
         program_id = context.lookup_value("sanction", program)
         if program_id is None:
             context.log.warn(f"Program key '{program}' not found.")
+    if start_date is not None:
+        h.apply_date(sanction, "startDate", start_date)
+    if end_date is not None:
+        h.apply_date(sanction, "endDate", end_date)
+        iso_end_date = h.extract_date(context.dataset, end_date)[0]
+        end_date_obj = datetime.strptime(iso_end_date[:10], "%Y-%m-%d")
+        is_active = end_date_obj >= datetime.today()
+        sanction.add("status", "active" if is_active else "inactive")
+
     return sanction
