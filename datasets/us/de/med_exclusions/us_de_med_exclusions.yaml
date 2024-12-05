@@ -1,4 +1,4 @@
-title: US Delaware Medicaid Sanctioned Provider Listing
+title: US Delaware Medicaid Sanctioned Providers
 entry_point: crawler.py
 prefix: us-medde
 coverage:
@@ -6,23 +6,12 @@ coverage:
   start: "2024-11-27"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  This dataset contains a list of providers who have been sanctioned from Delaware's Medicaid program.
+List of providers excluded from participating in the Delaware Medicaid program.
 description: |
-  The Division of Medicaid and Medical Assistance Program Integrity Unit has the authority to impose
-  sanctions on providers found to have engaged in fraud or abuse. As stated on their website:
+This dataset provides details on health care providers who have been sanctioned by Medicaid or or the Office of Inspector General (OIG). It includes records of both individual providers and entities, outlining their sanctions, descriptions of violations, and associated regulatory actions. 
 
-  > Fraud is defined by the Code of Federal Regulations(42 CFR 455.2) as:
-  > - An intentional deception or misrepresentation made by a person with the knowledge that the
-  > deception could result in some unauthorized benefit to himself or some other persons. It
-  > includes any act that constitutes fraud under applicable Federal or State law.
+These sanctions result from findings of fraud, abuse, or violations of Medicaid policies. The dataset covers a range of sanctions, from temporary suspensions to permanent terminations, and includes details on providers’ reinstatement statuses when applicable.
 
-  > Abuse is defined by the Code of Federal Regulations(42 CFR 455.2) as:
-  > - Provider practices that are inconsistent with sound fiscal, business, or medical, and result
-  > in an unnecessary cost to the Medicaid program, or in reimbursement for services that are not
-  > medically necessary or that fail to meet professionally recognized standards for health care.
-  > - It also includes recipient practices that result in unnecessary cost to the Medicaid program.
-
-  [Program Integrity page](https://medicaid.dhss.delaware.gov/provider/Home/ProgramIntegrityLanding/tabid/2102/Default.aspx)
 publisher:
   name: Delaware Health and Social Services
   description: |
@@ -34,7 +23,7 @@ publisher:
   url: https://dhss.delaware.gov/dhss/index.html
   official: true
   country: "us"
-url: ""
+url: "https://medicaid.dhss.delaware.gov/provider/Home/ProgramIntegrityLanding/tabid/2102/Default.aspx"
 data:
   url: https://medicaidpublications.dhss.delaware.gov/docs/Search?Command=Core_Download&EntryId=1671
   format: PDF
