@@ -45,6 +45,8 @@ lookups:
         value: zz
       - match: Pakistan Occupied Kashmir
         value: pk
+      - match: Azad Kashmir
+        value: pk-km
       - match:
           - Galicia
           - Ceuta
