@@ -40,7 +40,7 @@ data:
 dates: 
   formats: ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 lookups:
-  sanction:
+  sanction.program:
     options:
       - match: Democratic Republic of the Congo
         value: UK-DRC
