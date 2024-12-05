@@ -11,7 +11,17 @@ from zavod.runtime.lookups import prop_lookup
 if TYPE_CHECKING:
     from zavod.entity import Entity
 
-VALIDATE_FORMATS = ("bic", "isin", "lei", "imo", "iban")
+VALIDATE_FORMATS = (
+    "bic",
+    "isin",
+    "lei",
+    "imo",
+    "iban",
+    "inn",
+    "ogrn",
+    "npi",
+    "qid",
+)
 log = get_logger(__name__)
 
 
