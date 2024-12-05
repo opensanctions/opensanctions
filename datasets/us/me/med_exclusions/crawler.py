@@ -40,6 +40,8 @@ def crawl_item(row: Dict[str, str], context: Context):
             person = context.make("Person")
             person.id = context.make_id(alias_first_name, alias_last_name)
             h.apply_name(person, first_name=alias_first_name, last_name=alias_last_name)
+            person.add("country", "us")
+
             link = context.make("UnknownLink")
             link.id = context.make_id(person.id, entity.id)
             link.add("object", entity)
