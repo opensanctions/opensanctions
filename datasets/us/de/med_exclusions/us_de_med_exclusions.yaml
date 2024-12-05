@@ -6,11 +6,17 @@ coverage:
   start: "2024-11-27"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-List of providers excluded from participating in the Delaware Medicaid program.
+  List of providers excluded from participating in the Delaware Medicaid program.
 description: |
-This dataset provides details on health care providers who have been sanctioned by Medicaid or or the Office of Inspector General (OIG). It includes records of both individual providers and entities, outlining their sanctions, descriptions of violations, and associated regulatory actions. 
+  This dataset provides details on health care providers who have been sanctioned
+  by Medicaid or the Office of Inspector General (OIG). It includes records of
+  both individual providers and entities, outlining their sanctions, descriptions
+  of violations, and associated regulatory actions. 
 
-These sanctions result from findings of fraud, abuse, or violations of Medicaid policies. The dataset covers a range of sanctions, from temporary suspensions to permanent terminations, and includes details on providers’ reinstatement statuses when applicable.
+  These sanctions result from findings of fraud, abuse, or violations of Medicaid
+  policies. The dataset covers a range of sanctions, from temporary suspensions
+  to permanent terminations, and includes details on providers' reinstatement
+  statuses when applicable.
 
 publisher:
   name: Delaware Health and Social Services
