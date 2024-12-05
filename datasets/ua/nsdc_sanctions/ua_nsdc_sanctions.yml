@@ -5,6 +5,9 @@ coverage:
   schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-11-17
+deploy:
+  memory: "1000Mi"
+  memory_limit: "1500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
@@ -50,7 +53,7 @@ lookups:
           - "reg:person_ro"
           - "reg:person_il"
           - "reg:cz_person"
-          - "reg:chiop"  # https://en.wikipedia.org/wiki/SNILS_(Russia)
+          - "reg:chiop" # https://en.wikipedia.org/wiki/SNILS_(Russia)
         prop: idNumber
       - match:
           - null
@@ -330,7 +333,7 @@ lookups:
       - contains:
           - Сайт так званого
         prop: website
-        weight: 2  # To fix the issue when same entity contains website and notes
+        weight: 2 # To fix the issue when same entity contains website and notes
       - contains:
           - Громадянство
         prop: citizenship

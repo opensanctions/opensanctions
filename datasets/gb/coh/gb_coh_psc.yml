@@ -7,11 +7,12 @@ coverage:
   frequency: weekly
   start: 2023-07-28
 deploy:
-  disk: 200Gi
-  cpu: 400m
+  premium: true
+  cpu: "1000m"
+  cpu_limit: "2000m"
   memory: 2500Mi
   memory_limit: "3000Mi"
-  premium: true
+  disk: 200Gi
 exports:
   - statistics.json
   - entities.ftm.json

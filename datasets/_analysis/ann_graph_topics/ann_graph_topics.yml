@@ -10,6 +10,8 @@ coverage:
 exports:
   - statistics.json
 deploy:
+  cpu: "1000m"
+  cpu_limit: "1500m"
   memory: "1000Mi"
   memory_limit: "1500Mi"
   schedule: "0 */6 * * *"

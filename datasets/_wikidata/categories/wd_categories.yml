@@ -6,6 +6,7 @@ coverage:
   start: 2024-09-10
   schedule: "0 22 * * *"
 deploy:
+  cpu: "800m"
   memory: "2Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
@@ -832,8 +833,8 @@ config:
       topic: role.pep
 
     ############################################################################
-    # Asia regional coverage 
-    # Subregion: Central Asia 
+    # Asia regional coverage
+    # Subregion: Central Asia
 
     # country: Uzbekistan
     - category: Political_office-holders_in_Uzbekistan
@@ -844,12 +845,12 @@ config:
     - category: Political_office-holders_in_Kazakhstan
       topic: role.pep
       country: kz
-    
+
     # country: Tajikistan
     - category: Political_office-holders_in_Tajikistan
       topic: role.pep
       country: tj
-    
+
     # country: Turkmenistan
     - category: Political_office-holders_in_Turkmenistan
       topic: role.pep
@@ -869,7 +870,7 @@ config:
     - category: Political_office-holders_in_Japan
       topic: role.pep
       country: jp
-    
+
     # country: South Korea
     - category: Political_office-holders_in_South_Korea
       topic: role.pep
@@ -899,7 +900,7 @@ config:
     - category: Political_office-holders_in_Vietnam
       topic: role.pep
       country: vn
-    
+
     # country: Thailand
     - category: Political_office-holders_in_Thailand
       topic: role.pep
@@ -912,27 +913,27 @@ config:
     - category: Political_office-holders_in_Malaysia
       topic: role.pep
       country: my
-    
+
     # country: Cambodia
     - category: Political_office-holders_in_Cambodia
       topic: role.pep
       country: kh
-    
+
     # country: Laos
     - category: Political_office-holders_in_Laos
       topic: role.pep
       country: la
-    
+
     # country: Singapore
     - category: Political_office-holders_in_Singapore
       topic: role.pep
       country: sg
-    
+
     # country: Timor-Leste
     - category: Political_office-holders_in_East_Timor
       topic: role.pep
       country: tl
-    
+
     # country: Brunei
     - category: Political_office-holders_in_Brunei
       topic: role.pep
@@ -952,17 +953,17 @@ config:
     - category: Political_office-holders_in_Bangladesh
       topic: role.pep
       country: bd
-    
+
     # country: Iran
     - category: Political_office-holders_in_Iran
       topic: role.pep
       country: ir
-    
+
     # country: Afghanistan
     - category: Political_office-holders_in_Afghanistan
       topic: role.pep
       country: af
-    
+
     # country: Nepal
     # already covered
 
@@ -970,7 +971,7 @@ config:
     - category: Political_office-holders_in_Sri_Lanka
       topic: role.pep
       country: lk
-    
+
     # country: Bhutan
     - category: Political_office-holders_in_Bhutan
       topic: role.pep
@@ -995,12 +996,12 @@ config:
     - category: Political_office-holders_in_Yemen
       topic: role.pep
       country: ye
-    
+
     # country: Saudi Arabia
     - category: Political_office-holders_in_Saudi_Arabia
       topic: role.pep
       country: sa
-    
+
     # country: Syria
     - category: Political_office-holders_in_Syria
       topic: role.pep
@@ -1010,7 +1011,7 @@ config:
     - category: Political_office-holders_in_Jordan
       topic: role.pep
       country: jo
-    
+
     # country: United Arab Emirates
     # already covered
 
@@ -1021,22 +1022,22 @@ config:
     - category: Political_office-holders_in_Israel
       topic: role.pep
       country: il
-    
+
     # country: Lebanon
     - category: Political_office-holders_in_Lebanon
       topic: role.pep
       country: lb
-    
+
     # country: State of Palestine
     - category: Political_office-holders_in_the_State_of_Palestine
       topic: role.pep
       country: ps
-    
+
     # country: Oman
     - category: Political_office-holders_in_Oman
       topic: role.pep
       country: om
-      
+
     # country: Kuwait
     - category: Political_office-holders_in_Kuwait
       topic: role.pep
@@ -1046,20 +1047,20 @@ config:
     - category: Political_office-holders_in_Georgia_(country)
       topic: role.pep
       country: ge
-    
+
     # country: Qatar
     - category: Political_office-holders_in_Qatar
       topic: role.pep
       country: qa
-    
+
     # country: Armenia
     - category: Political_office-holders_in_Armenia
       topic: role.pep
       country: am
-    
+
     # country: Bahrain
     # already covered
-    
+
     # country: Cyprus
     # already covered
 
@@ -1073,7 +1074,7 @@ config:
     - category: Political_office-holders_in_Hong_Kong
       topic: role.pep
       country: hk
-    
+
     # Macau
     - category: Political_office-holders_in_Macau
       topic: role.pep
