@@ -4,7 +4,7 @@ coverage:
   schedule: "0 */4 * * *"
   frequency: daily
 deploy:
-  memory: "1500Mi"
+  memory: "1000Mi"
 summary: >
   Entities banned from participating in procurment tenders in
   a particular jurisdiction, or vis a vis a certain organisation.

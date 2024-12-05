@@ -11,7 +11,7 @@ exports:
   - entities.ftm.json
 deploy:
   schedule: "1 0 * * *"
-  memory: "3000Mi"
+  memory: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Wikidata is the structured data project of the Wikipedia community,

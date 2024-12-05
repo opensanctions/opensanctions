@@ -7,7 +7,7 @@ coverage:
   schedule: "0 22 * * *"
 deploy:
   cpu: "800m"
-  memory: "2Gi"
+  memory: "1Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 exports:
