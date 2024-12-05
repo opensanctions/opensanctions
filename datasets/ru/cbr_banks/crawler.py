@@ -148,6 +148,7 @@ def crawl_details(context: Context, internal_code: str | None, entity):
                 f"License code: {license_code}, date: {license_date[:10]}",
                 lang="eng",
             )
+    entity.add("jurisdiction", "ru")
 
     context.emit(entity)
 
