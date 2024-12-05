@@ -34,9 +34,9 @@ def make_sanction(
         sanction.add("country", dataset.publisher.country)
     sanction.add("authority", dataset.publisher.name)
     sanction.add("sourceUrl", dataset.url)
-    sanction.add("program", program)
 
     if program is not None:
+        sanction.set("program", program)
         program_id = context.lookup_value("sanction", program)
         if program_id is None:
             context.log.warn(f"Program key '{program}' not found.")
