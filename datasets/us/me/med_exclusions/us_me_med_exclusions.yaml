@@ -15,11 +15,11 @@ description: |
 publisher:
   name: Maine Department of Health and Human Services
   description: |
-    The Maine Department of Health and Human Services (DHHS) is dedicated to promoting health,
-    safety, resilience, and opportunity for Maine people. The Department provides health and
-    social services to approximately a third of the State's population, including children,
-    families, older Mainers, and individuals with disabilities, mental illness, and substance
-    use disorders.
+    > The Maine Department of Health and Human Services (DHHS) is dedicated to promoting health,
+    > safety, resilience, and opportunity for Maine people. The Department provides health and
+    > social services to approximately a third of the State's population, including children,
+    > families, older Mainers, and individuals with disabilities, mental illness, and substance
+    > use disorders.
     [Source: Official Website](https://www.maine.gov/dhhs/about-us)
   acronym: DHHS
   url: https://www.maine.gov/dhhs/
@@ -33,8 +33,8 @@ data:
 lookups: 
   type.string: 
     options:
-       - match: N/A
-         value: null
+      - match: N/A
+        value: null
 
 assertions:
   min:

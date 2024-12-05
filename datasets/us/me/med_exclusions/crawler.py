@@ -77,6 +77,11 @@ def crawl_excel_url(context: Context):
     table_data = json.loads(
         txt[txt.find("WPQ2ListData") + 15 : txt.find("WPQ2SchemaData") - 5]
     )
+    # Assert that the table is in descending date order (using ID as proxy for date)
+    last_id = None
+    for row in table_data["Row"]:
+        assert last_id is None or last_id > row["ID"], last_id
+        last_id = row["ID"]
     # Pick the first item, assuming the table is sorted in descending date order
     month_year_directory = table_data["Row"][0]["FileLeafRef"]
     # Construct URL - the filename seems to be the same each month
