@@ -103,12 +103,11 @@ def parse_row(context: Context, row: Dict[str, Any]):
         return
     entity = context.make(schema)
     entity.id = context.make_slug(row.pop("GroupID"))
-    sanction = h.make_sanction(context, entity, program=regime_name)
-    sanction.add("program", regime_name)
+    sanction = h.make_sanction(
+        context, entity, program=regime_name, start_date=designated_date
+    )
     sanction.add("authority", row.pop("ListingType", None))
     h.apply_date(sanction, "listingDate", listing_date)
-    h.apply_date(sanction, "startDate", designated_date)
-
     h.apply_date(entity, "createdAt", listing_date)
     if not entity.has("createdAt"):
         h.apply_date(entity, "createdAt", designated_date)
@@ -324,10 +323,30 @@ def make_row(el):
     return row
 
 
+# def crawl(context: Context):
+#     path = context.fetch_resource("source.xml", context.data_url)
+#     context.export_resource(path, XML, title=context.SOURCE_TITLE)
+#     doc = context.parse_resource_xml(path)
+#     el = h.remove_namespace(doc)
+#     for row_el in el.findall(".//FinancialSanctionsTarget"):
+#         parse_row(context, make_row(row_el))
+
+
 def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     el = h.remove_namespace(doc)
+
+    # Initialize a counter
+    row_count = 0
+    max_rows = 100  # Limit to 100 rows
+
     for row_el in el.findall(".//FinancialSanctionsTarget"):
         parse_row(context, make_row(row_el))
+
+        # Increment the counter and check if the limit is reached
+        row_count += 1
+        if row_count >= max_rows:
+            context.log.info(f"Processed {max_rows} rows. Stopping.")
+            break
