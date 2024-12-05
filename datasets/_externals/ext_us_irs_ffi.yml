@@ -52,6 +52,7 @@ inputs:
   - ext_ru_egrul
   - ext_ua_edr
   - ext_eu_esma_firds
+  - ru_cbr_banks
   - opencorporates
   - sanctions
   - iso9362_bic

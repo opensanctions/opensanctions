@@ -64,6 +64,8 @@ inputs:
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
+  - ext_us_irs_ffi
+  - iso9362_bic
   - ir_uani_business_registry
   - opencorporates
   - permid
