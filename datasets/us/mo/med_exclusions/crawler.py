@@ -6,7 +6,9 @@ from zavod import Context
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 from zavod import helpers as h
 
-EXCEL_XPATH = "//a[starts-with(@href, 'https://mmac.mo.gov/')][contains(@href, 'Sanction')][contains(@href, 'xlsx')]"
+EXCEL_XPATH = (
+    "//a[starts-with(@href, 'https://mmac.mo.gov/')][contains(@href, 'sanction-list')]"
+)
 
 
 def crawl_item(row: Dict[str, str], context: Context):
