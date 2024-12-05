@@ -40,71 +40,71 @@ data:
 dates: 
   formats: ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 lookups:
-  program: 
+  sanction: 
     options: 
-      - match: Democratic Republic of the Congo
+      - program: Democratic Republic of the Congo
         value: UK-DRC
-      - match: Afganistan
+      - program: Afganistan
         value: UK-AFG
-      - match: Iraq
+      - program: Iraq
         value: UK-IRQ
-      - match: Nicaragua
+      - program: Nicaragua
         value: UK-NIC
-      - match: Bosnia and Herzegovina
+      - program: Bosnia and Herzegovina
         value: UK-BH
-      - match: Chemical Weapons
+      - program: Chemical Weapons
         value: UK-CW
-      - match: Belarus
+      - program: Belarus
         value: UK-BLR
-      - match: Haiti
+      - program: Haiti
         value: UK-HT
-      - match: Myanmar
+      - program: Myanmar
         value: UK-MMR
-      - match: Mali
+      - program: Mali
         value: UK-MLI
-      - match: Guinea
+      - program: Guinea
         value: UK-GU
-      - match: Sudan
+      - program: Sudan
         value: UK-SDN
-      - match: Global Human Rights
+      - program: Global Human Rights
         value: UK-HR
-      - match: Somalia
+      - program: Somalia
         value: UK-SOM
-      - match: Counter-Terrorism (International)
+      - program: Counter-Terrorism (International)
         value: UK-ICT
-      - match: South Sudan
+      - program: South Sudan
         value: UK-SSD
-      - match: Iran (Nuclear)
+      - program: Iran (Nuclear)
         value: UK-IRAN-NW
-      - match: ISIL (Da'esh) and Al-Qaida
+      - program: ISIL (Da'esh) and Al-Qaida
         value: UK-ISIL
-      - match: Counter-Terrorism (Domestic)
+      - program: Counter-Terrorism (Domestic)
         value: UK-CT
-      - match: Global Anti-Corruption
+      - program: Global Anti-Corruption
         value: UK-AC
-      - match: Central African Republic
+      - program: Central African Republic
         value: UK-CAR
-      - match: Syria
+      - program: Syria
         value: UK-SYR
-      - match: Yemen
+      - program: Yemen
         value: UK-YEM
-      - match: Zimbabwe
+      - program: Zimbabwe
         value: UK-ZIM
-      - match: Iran
+      - program: Iran
         value: UK-IRAN
-      - match: Guinea-Bissau
+      - program: Guinea-Bissau
         value: UK-GNB
-      - match: Afghanistan
+      - program: Afghanistan
         value: UK-AFG
-      - match: Libya
+      - program: Libya
         value: UK-LBY
-      - match: Russia
+      - program: Russia
         value: UK-RUS
-      - match: Cyber
+      - program: Cyber
         value: UK-CYB
-      - match: Venezuela
+      - program: Venezuela
         value: UK-VEN
-      - match: Democratic People's Republic of Korea
+      - program: Democratic People's Republic of Korea
         value: UK-DPRK
   type.identifier:
     options:
