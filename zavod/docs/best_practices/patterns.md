@@ -19,7 +19,10 @@ Our typical crawler structure consists of
 We have a number of helpers to turn common formats into an iterable of dicts:
 
 - [`h.parse_html_table()`][zavod.helpers.parse_html_table]
+- [`h.parse_pdf_table()`][zavod.helpers.parse_pdf_table]
 - [`h.parse_xlsx_sheet()`][zavod.helpers.parse_xlsx_sheet]
+- [`h.parse_xls_sheet()`][zavod.helpers.parse_xls_sheet]
+- [`csv.DictReader`](https://docs.python.org/3/library/csv.html#csv.DictReader)
 
 We typically `from zavod import helpers as h`.
 
