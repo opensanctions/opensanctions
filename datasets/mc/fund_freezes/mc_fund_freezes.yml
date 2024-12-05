@@ -41,6 +41,9 @@ dates:
     - "entre %Y,"
     - "et %Y"
     - "approximativement %Y"
+    - "%b %Y"
+  months:
+    "Oct": "octobre"
 assertions:
   min:
     schema_entities:
