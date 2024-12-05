@@ -1028,3 +1028,7 @@ lookups:
       - match: moravec, matthew
         names:
           - Matthew Moravec
+      - match: summit planning group inc and richard urciuoli
+        names:
+          - Summit Planning Group Inc
+          - Richard Urciuoli
