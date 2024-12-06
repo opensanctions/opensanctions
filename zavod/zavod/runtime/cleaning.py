@@ -20,6 +20,7 @@ VALIDATE_FORMATS = (
     "inn",
     "ogrn",
     "npi",
+    "uei",
     "qid",
 )
 log = get_logger(__name__)
