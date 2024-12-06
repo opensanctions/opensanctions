@@ -46,3 +46,13 @@ assertions:
     schema_entities:
       Person: 1800
       Company: 300
+lookups: 
+  type.identifier:
+    options:
+      - match: 
+          - 1144453199
+          - "IP:"
+          - 1679857925
+          - 141705081
+          - 1750400000
+        value: null
