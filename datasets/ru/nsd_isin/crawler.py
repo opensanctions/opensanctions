@@ -67,7 +67,8 @@ def crawl_item(context: Context, url: str):
 
     issuer = context.make("LegalEntity")
     inn_code = first(values["issuer"].get("innCode", []))
-    if inn_code is not None:
+    # if len(inn_code) < 10: it's a TIN, not an INN
+    if inn_code is not None and len(inn_code) < 10:
         issuer.id = f"ru-inn-{inn_code}"
     else:
         issuer_name = first(values["issuer"].get("name", []))
@@ -76,7 +77,10 @@ def crawl_item(context: Context, url: str):
         issuer.id = context.make_id(isin_code, issuer_name)
     issuer.add("country", "ru")
     for prop, prop_val in values["issuer"].items():
-        issuer.add(prop, prop_val)
+        if prop == "innCode" and len(prop_val) < 10:
+            issuer.add("taxNumber", prop_val)
+        else:
+            issuer.add(prop, prop_val)
     context.emit(issuer)
 
 
