@@ -95,7 +95,6 @@ lookups:
           - 1997-12-01
           - 1999-11-03
           - 2012-01-01
-
   type.gender:
     lowercase: true
     normalize: true
@@ -104,3 +103,7 @@ lookups:
         value: male
       - match: Female
         value: female
+  type.identifier: 
+    options: 
+      - match: 3232824038
+        value: null
