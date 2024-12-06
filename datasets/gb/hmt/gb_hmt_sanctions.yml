@@ -136,7 +136,7 @@ lookups:
         value: 7804001110
       - match: 11132540008732
         prop: ogrnCode
-        value: 11132540008732
+        value: 1132540008732
       - match: 'TIN: 1800970008'
         prop: taxNumber
         value: 1800970008

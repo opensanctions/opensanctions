@@ -38,3 +38,8 @@ assertions:
     schema_entities:
       Person: 1200 
       Company: 300 
+lookups: 
+  type.identifier: 
+    options:
+      - match: "01/**/1964"
+        value: null

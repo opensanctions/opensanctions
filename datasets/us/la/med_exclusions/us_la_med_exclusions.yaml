@@ -54,3 +54,7 @@ lookups:
     options:
       match: 9199-09-01T00:00:00
       value: 1999-09-01
+  type.identifier: 
+    options:
+      - match: 1992888493
+        value: null
