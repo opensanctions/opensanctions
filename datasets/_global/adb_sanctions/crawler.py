@@ -16,7 +16,10 @@ NAME_SPLITS = [
     "(AKA",
 ]
 # MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
-REGEX_ALIAS_REGNO = re.compile(r"(?P<name>.{5,30})[;,] (Registration no.|ID:) (?P<regno>.{5,20})", re.IGNORECASE)
+REGEX_ALIAS_REGNO = re.compile(
+    r"(?P<name>.{5,30})[;,] (Registration no.|ID:) (?P<regno>.{5,20})", re.IGNORECASE
+)
+
 
 def crawl_row(context: Context, row: Dict[str, str | None]):
     full_name = row.pop("name") or ""
@@ -54,7 +57,7 @@ def crawl_row(context: Context, row: Dict[str, str | None]):
                 for item in res.items:
                     entity.add(item["prop"], item["value"])
             else:
-                context.log.warning(f"Unhandled other_names", value=other_names)
+                context.log.warning("Unhandled other_names", value=other_names)
         else:
             entity.add("alias", other_names)
 
