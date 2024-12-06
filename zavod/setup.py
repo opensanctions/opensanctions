@@ -24,7 +24,7 @@ setup(
         "followthemoney == 3.7.*",
         "nomenklatura[leveldb] == 3.14.0",
         "plyvel == 1.5.1",
-        "rigour == 0.7.3",
+        "rigour == 0.7.4",
         "datapatch >= 1.1,< 1.3",
         "fingerprints == 1.2.*",
         "certifi",
@@ -60,7 +60,7 @@ setup(
     extras_require={
         "dev": [
             "black==24.10.0",
-            "isort==5.11.5",
+            "isort==5.13.2",
             "wheel>=0.29.0",
             "twine",
             "mypy",
