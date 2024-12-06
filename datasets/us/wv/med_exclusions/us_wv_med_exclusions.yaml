@@ -37,3 +37,15 @@ assertions:
     schema_entities:
       Company: 15
       Person: 200
+lookups: 
+  type.identifier:
+    options:
+      - match:
+          - N/A
+          - NPI
+          - eactivated
+          - Deactivated
+          - CMS
+        value: null
+      - match: 1386736031D
+        value: 1386736031
