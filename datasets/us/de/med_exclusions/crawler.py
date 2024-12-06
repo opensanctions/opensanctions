@@ -1,6 +1,5 @@
 from typing import Dict
 from rigour.mime.types import PDF
-from datetime import datetime
 import re
 
 from zavod import Context, helpers as h, settings
