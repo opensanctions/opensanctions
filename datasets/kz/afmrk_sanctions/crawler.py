@@ -64,7 +64,7 @@ def crawl_financiers(context: Context):
             context, el, "Person", entity_id, "sanction", CATEGORY1_PROGRAM
         )
         h.apply_name(entity, given_name=fname, middle_name=mname, last_name=lname)
-        entity.add("innCode", iin)
+        entity.add("idNumber", iin)
         h.apply_date(entity, "birthDate", bdate)
         context.emit(entity, target=True)
 
@@ -108,5 +108,5 @@ def crawl_terrorists(context: Context):
             CATEGORY2_PROGRAM,
         )
         entity.add("name", name)
-        entity.add("innCode", iin)
+        entity.add("idNumber", iin)
         context.emit(entity)
