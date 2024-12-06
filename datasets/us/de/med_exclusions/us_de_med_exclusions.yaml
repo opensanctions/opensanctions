@@ -57,24 +57,18 @@ lookups:
         value: 2023-07-12
       - match: 2/6/224
         value: 2024-06-02
-      - match: "Indefinite"
+      - match: 
+        - Indefinite
+        - Active
+        - Probation
+        - Revoked
+        - Annulled
+        - Suspended
+        - Rescinded
+        - Preclusion
         value: null
       - match: "Reinstated 5/11/2020"
         value: 2020-05-11
-      - match: "Active"
-        value: null
-      - match: "Probation"
-        value: null
-      - match: Revoked
-        value: null
-      - match: Annulled
-        value: null
-      - match: Suspended
-        value: null
-      - match: Rescinded
-        value: null
-      - match: Preclusion
-        value: null
       - match: "Order lifting Suspension\n9/2/2020"
         value: 2020-09-02
 assertions:

@@ -3,7 +3,7 @@ from rigour.mime.types import PDF
 from datetime import datetime
 import re
 
-from zavod import Context, helpers as h
+from zavod import Context, helpers as h, settings
 from zavod.shed.zyte_api import fetch_resource
 
 DATE_PATTERN = r"\b\d{1,2}/\d{1,2}/\d{4}\b"
@@ -68,16 +68,17 @@ def crawl_item(row: Dict[str, str], context: Context):
     h.apply_date(sanction, "endDate", reinstated_date)
 
     end_date = sanction.get("endDate")
-    if end_date and reinstated_date not in [
-        "Revoked",
-        "Annulled",
-        "Suspended",
-        "Rescinded",
-        "Preclusion",
-    ]:
-        target = datetime.strptime(end_date[0], "%Y-%m-%d") >= datetime.today()
+    if end_date:
+        target = end_date[0] >= settings.RUN_TIME_ISO
     else:
-        target = True
+        # It's not a target if the sanction was suspended
+        target = reinstated_date not in [
+            "Revoked",
+            "Annulled",
+            "Suspended",
+            "Rescinded",
+            "Preclusion",
+        ]
 
     if target:
         entity.add("topics", "debarment")
