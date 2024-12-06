@@ -41,3 +41,8 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 300
+lookups:
+  type.identifier: 
+    options:
+      - match: 1922096211
+        value: 1922096221
