@@ -1,4 +1,5 @@
 from typing import Dict
+import re
 
 from zavod import Context
 from zavod import helpers as h
@@ -15,7 +16,7 @@ NAME_SPLITS = [
     "(AKA",
 ]
 # MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
-
+REGEX_ALIAS_REGNO = re.compile(r"(?P<name>.{5,30})[;,] (Registration no.|ID:) (?P<regno>.{5,20})", re.IGNORECASE)
 
 def crawl_row(context: Context, row: Dict[str, str | None]):
     full_name = row.pop("name") or ""
@@ -43,7 +44,20 @@ def crawl_row(context: Context, row: Dict[str, str | None]):
         entity.add("name", part)
 
         # Handle missing 'othername_logo' key gracefully
-        entity.add("alias", row.get("othername_logo"))
+        other_names = row.get("othername_logo").replace("\\", "")
+        if match := REGEX_ALIAS_REGNO.match(other_names):
+            entity.add("alias", match.group("name"))
+            entity.add("registrationNumber", match.group("regno"))
+        elif ":" in other_names or "no." in other_names.lower():
+            res = context.lookup("other_names", other_names)
+            if res:
+                for item in res.items:
+                    entity.add(item["prop"], item["value"])
+            else:
+                context.log.warning(f"Unhandled other_names", value=other_names)
+        else:
+            entity.add("alias", other_names)
+
         entity.add("topics", "debarment")
         entity.add("country", country)
         entity.add("registrationNumber", registration_number)
