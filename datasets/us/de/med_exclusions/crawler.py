@@ -49,7 +49,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         row.pop("npi")
 
     if row.get("license") != "N/A":
-        entity.add("description", "License Number: " + row.pop("license"))
+        entity.add("idNumber", row.pop("license").split(","))
     else:
         row.pop("license")
 
