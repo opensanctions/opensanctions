@@ -60,23 +60,14 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
     sanction.add("description", row.pop("comments"))
-    sanction.add("authority", row.pop("oig_medicaid_sanction"))
+    sanction.set("authority", row.pop("oig_medicaid_sanction"))
 
-    match = re.search(DATE_PATTERN, row.pop("reinstated_date"))
-    if match:
-        reinstatement_date = match.group()
-    else:
-        reinstatement_date = None
-
-    if reinstatement_date and reinstatement_date not in ["Indefinite", "Active"]:
-        target = datetime.strptime(reinstatement_date, "%m/%d/%Y") >= datetime.today()
-        h.apply_date(sanction, "endDate", reinstatement_date)
-    else:
-        target = True
-
-    if target:
-        entity.add("topics", "debarment")
-
+h.apply_date(sanction, "endDate", row.pop("reinstated_date"))
+end_date = max(sanction.get('endDate'), None)
+if end_date is not None: 
+      target = datetime.strptime(reinstatement_date, "%Y-%m-%d") >= settings.RUN_TIME_ISO
+else:
+         target = True
     context.emit(entity, target=target)
     context.emit(sanction)
 
