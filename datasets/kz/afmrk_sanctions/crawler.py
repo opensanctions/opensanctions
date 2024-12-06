@@ -68,6 +68,16 @@ def crawl_financiers(context: Context):
         h.apply_date(entity, "birthDate", bdate)
         context.emit(entity, target=True)
 
+        if iin:
+            ident = h.make_identification(
+                context,
+                entity,
+                number=iin,
+                doc_type="IIN",
+                country="kz",
+            )
+            context.emit(ident)
+
     for el in doc.findall(".//org"):
         name = el.findtext(".//org_name")
         entity_id = context.make_id(el.findtext("./note"), name)
