@@ -41,10 +41,12 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("name", name)
     entity.add("alias", alias)
     entity.add("country", "us")
+    entity.add("sector", row.pop("taxonomy"))
+    entity.add("idNumber", row.pop("dea"))
 
     npi = row.pop("npi")
-        if npi != "N/A":
-            entity.add(
+    if npi != "N/A":
+        entity.add(
             "npiCode",
             h.multi_split(
                 npi,
@@ -52,26 +54,38 @@ def crawl_item(row: Dict[str, str], context: Context):
             ),
         )
 
-    if row.get("license") != "N/A":
-        entity.add("idNumber", row.pop("license").split(","))
-    else:
-        row.pop("license")
+    license_number = row.pop("license")
+
+    if license_number != "N/A":
+        entity.add("idNumber", license_number.split(","))
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
     sanction.add("description", row.pop("comments"))
     sanction.set("authority", row.pop("oig_medicaid_sanction"))
 
-h.apply_date(sanction, "endDate", row.pop("reinstated_date"))
-end_date = max(sanction.get('endDate'), None)
-if end_date is not None: 
-      target = datetime.strptime(reinstatement_date, "%Y-%m-%d") >= settings.RUN_TIME_ISO
-else:
-         target = True
+    reinstated_date = row.pop("reinstated_date")
+    h.apply_date(sanction, "endDate", reinstated_date)
+
+    end_date = sanction.get("endDate")
+    if end_date and reinstated_date not in [
+        "Revoked",
+        "Annulled",
+        "Suspended",
+        "Rescinded",
+        "Preclusion",
+    ]:
+        target = datetime.strptime(end_date[0], "%Y-%m-%d") >= datetime.today()
+    else:
+        target = True
+
+    if target:
+        entity.add("topics", "debarment")
+
     context.emit(entity, target=target)
     context.emit(sanction)
 
-    context.audit_data(row, ignore=["year", "taxonomy", "dea"])
+    context.audit_data(row, ignore=["year"])
 
 
 def crawl(context: Context) -> None:
