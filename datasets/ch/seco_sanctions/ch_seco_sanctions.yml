@@ -106,4 +106,5 @@ lookups:
   type.identifier: 
     options: 
       - match: 3232824038
-        value: null
+        prop: taxNumber
+        value: 3232824038
