@@ -4659,3 +4659,12 @@ lookups:
       - match: "Principal établissement: Khartoum, Soudan: /"
         props:
           address: "Khartoum, Soudan"
+      - match:
+          - 1022620011296
+          - 7704734000
+        prop: registrationNumber
+      - match: 
+          - 770801001
+          - 774301001
+          - 190950894
+        prop: taxNumber
