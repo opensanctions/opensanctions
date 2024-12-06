@@ -42,11 +42,15 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("alias", alias)
     entity.add("country", "us")
 
-    if row.get("npi") != "N/A":
-        npis = h.multi_split(row.pop("npi"), [";", "&", " and ", ","])
-        entity.add("npiCode", npis)
-    else:
-        row.pop("npi")
+    npi = row.pop("npi")
+        if npi != "N/A":
+            entity.add(
+            "npiCode",
+            h.multi_split(
+                npi,
+                [";", ",", "&"],
+            ),
+        )
 
     if row.get("license") != "N/A":
         entity.add("idNumber", row.pop("license").split(","))
