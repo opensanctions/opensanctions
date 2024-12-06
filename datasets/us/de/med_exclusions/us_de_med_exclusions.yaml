@@ -57,15 +57,15 @@ lookups:
         value: 2023-07-12
       - match: 2/6/224
         value: 2024-06-02
-      - match: 
-        - Indefinite
-        - Active
-        - Probation
-        - Revoked
-        - Annulled
-        - Suspended
-        - Rescinded
-        - Preclusion
+      - match:
+          - Indefinite
+          - Active
+          - Probation
+          - Revoked
+          - Annulled
+          - Suspended
+          - Rescinded
+          - Preclusion
         value: null
       - match: "Reinstated 5/11/2020"
         value: 2020-05-11
