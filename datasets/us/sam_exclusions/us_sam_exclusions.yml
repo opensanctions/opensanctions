@@ -37,7 +37,7 @@ data:
   format: CSV
   lang: eng
 
-dates: 
+dates:
   formats: ["%m/%d/%Y"]
 assertions:
   min:
@@ -128,6 +128,11 @@ lookups:
           - XX
           - XX, XX, USA
           - XX, USA
+        value: null
+  type.identifier:
+    lowercase: true
+    options:
+      - match: "0000000000"
         value: null
   type.string:
     options:
