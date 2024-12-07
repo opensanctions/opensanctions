@@ -163,12 +163,9 @@ def crawl(context: Context):
             withdrawn_elem = row.pop("withdrawn")
             is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
             if is_withdrawn is True:
-                target = False
-            else:
-                entity.add("topics", "export.risk")
-                target = True
-
-            context.emit(entity, target=target)
+                continue
+            entity.add("topics", "export.risk")
+            context.emit(entity, target=True)
             context.audit_data(str_row)
 
         pages_processed += 1
