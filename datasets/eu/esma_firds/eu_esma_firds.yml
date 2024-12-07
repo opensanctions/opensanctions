@@ -5,9 +5,10 @@ coverage:
   frequency: monthly
   start: 2024-03-02
 deploy:
-  memory: 2000Mi
-  memory_limit: 3000Mi
-  disk: 100Gi
+  cpu: 1000m
+  memory: 3500Mi
+  memory_limit: 4000Mi
+  disk: 150Gi
 resolve: false
 ci_test: false
 exports:
