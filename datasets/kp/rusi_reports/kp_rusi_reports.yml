@@ -169,6 +169,8 @@ lookups:
         value: idNumber
   type.identifier:
     options:
+      - match: "9900327377"
+        prop: taxNumber
       - match: "Mega International Commercial Bank account number: 00023753002088"
         value: "00023753002088"
       - match: "NINEA (National Number of Identification for Enterprises and Association) : 004358455 2R7"
