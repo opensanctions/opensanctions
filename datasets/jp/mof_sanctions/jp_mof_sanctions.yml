@@ -439,6 +439,8 @@ lookups:
         values:
           - 927234267
           - 108120258
+      - match: イラク番号 A6489694、2013年9月2日発行（2021年8月31日失効；氏名のアラビア語表記：سالم مصطفى محمد ال منصور）
+        value: A6489694
   type.name: 
     lowercase: true
     normalize: true
