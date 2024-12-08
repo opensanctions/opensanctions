@@ -38,15 +38,13 @@ URI_WITH_CREDENTIALS = r"(\w+)://[^:]+:[^@]+@"
 REGEX_URI_WITH_CREDENTIALS = re.compile(URI_WITH_CREDENTIALS)
 
 
-class RedactingProcessor():
+class RedactingProcessor:
     """A structlog processor that redact sensitive information from log messages."""
 
     def __init__(self, repl_pattrns: Dict[str, str | Callable[[str], str]]) -> None:
         self.repl_regexes = {re.compile(p): r for p, r in repl_pattrns.items()}
 
-    def __call__(
-        self, logger: Any, method_name: str, event_dict: Event
-    ) -> Event:
+    def __call__(self, logger: Any, method_name: str, event_dict: Event) -> Event:
         return self.redact_dict(event_dict)
 
     def redact_dict(self, dict_: Event) -> Event:
@@ -96,7 +94,7 @@ def configure_redactor() -> Callable[[Any, str, Event], Event]:
             continue
         if len(value) < REDACT_MIN_LENGTH:
             continue
-        pattern_map[re.escape(value)] = f"### Redacted env var {key} ###"
+        pattern_map[re.escape(value)] = f"${{{key}}}"
     pattern_map[URI_WITH_CREDENTIALS] = redact_uri_credentials
     return RedactingProcessor(pattern_map)
 
