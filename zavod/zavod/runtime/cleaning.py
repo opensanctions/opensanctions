@@ -53,17 +53,18 @@ def value_clean(
     for prop_, item in prop_lookup(entity, prop, value):
         clean: Optional[str] = item
         if not cleaned:
-            clean = prop_.type.clean_text(
-                item,
-                proxy=entity,
-                fuzzy=fuzzy,
-                format=format,
-            )
-            if prop_.type == registry.identifier and clean is not None:
-                clean = clean_identifier(prop_, clean)
-            if prop_.type == registry.date and clean is not None:
-                # none of the information in OpenSanctions is time-critical
-                clean = clean[: Precision.DAY.value]
+            if prop_.type == registry.identifier:
+                clean = clean_identifier(prop_, item)
+            else:
+                clean = prop_.type.clean_text(
+                    item,
+                    proxy=entity,
+                    fuzzy=fuzzy,
+                    format=format,
+                )
+        if prop_.type == registry.date and clean is not None:
+            # none of the information in OpenSanctions is time-critical
+            clean = clean[: Precision.DAY.value]
         if clean is not None:
             if len(clean) > prop_.max_length:
                 log.warning(
