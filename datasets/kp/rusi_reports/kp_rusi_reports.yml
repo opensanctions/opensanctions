@@ -194,4 +194,4 @@ lookups:
           - 8674268
           - 9664149
           - 123456789
-        prop: null
+        prop: registrationNumber

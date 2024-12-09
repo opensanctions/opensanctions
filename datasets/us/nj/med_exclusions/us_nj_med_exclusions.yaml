@@ -58,10 +58,7 @@ lookups:
         value: null
   type.idenifier:
     options:
-      - match: 
-          - 1
-          - 1104949149
-          - 260849555
+      - match: 1
         value: null
       - match: 143737727
         value: 1437373727
@@ -69,3 +66,7 @@ lookups:
         value: 1457883928
       - match: 159889479
         value: 1598889479
+      - match:
+          - 1104949149
+          - 260849555
+        prop: idNumber

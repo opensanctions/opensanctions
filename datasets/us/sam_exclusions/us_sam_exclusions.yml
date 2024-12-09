@@ -134,14 +134,9 @@ lookups:
     options:
       - match: 
           - "0000000000"
-          - 0447984000
-          - 1596857207
-          - 1991191597
           - N0TAPPLICABL
           - 00000
           - N/A
-          - 9090004080
-          - 1212034582
         value: null
       - match: 1009398416
         value: 1003938416
@@ -176,6 +171,11 @@ lookups:
       - match: 
           - 079426694
           - 095470566
+          - 0447984000
+          - 1596857207
+          - 1991191597
+          - 9090004080
+          - 1212034582
         prop: registrationNumber
   type.string:
     options:

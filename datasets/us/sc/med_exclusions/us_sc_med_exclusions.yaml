@@ -63,6 +63,8 @@ lookups:
       - match: 
           - NP3981
           - 1362345588
+        prop: idNumber
+      - match:
           - "No"
           - Found
           - Not
