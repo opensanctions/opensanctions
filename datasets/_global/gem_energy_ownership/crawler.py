@@ -110,7 +110,6 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         if schema != "PublicBody":
             entity.add("cikCode", row.pop("sec_central_index_key"))
     address = h.format_address(
-        context,
         country=reg_country,
         state=row.pop("registration_subdivision"),
         city=row.pop("headquarters_subdivision"),
