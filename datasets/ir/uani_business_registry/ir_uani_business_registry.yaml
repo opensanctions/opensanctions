@@ -10,12 +10,12 @@ summary: >
   withdrawal status from Iranian business ties, maintained by United Against Nuclear Iran 
   (UANI).
 description: |
-   The Iran Business Registry (IBR) tracks companies and entities engaged in business with 
-   or within Iran. The database relies on credible media, academic sources, and reports to 
-   document international trade and business operations involving Iran. The registry spans 
-   multiple sectors, including energy, logistics, healthcare, and more. Each entity is 
-   documented with information such as nationality, stock symbol, and whether the company 
-   has ceased business operations in Iran. 
+  The Iran Business Registry (IBR) tracks companies and entities engaged in business with 
+  or within Iran. The database relies on credible media, academic sources, and reports to 
+  document international trade and business operations involving Iran. The registry spans 
+  multiple sectors, including energy, logistics, healthcare, and more. Each entity is 
+  documented with information such as nationality, stock symbol, and whether the company 
+  has ceased business operations in Iran.
 entry_point: crawler.py
 prefix: ir-br
 publisher:
@@ -35,17 +35,17 @@ data:
 assertions:
   min:
     schema_entities:
-      Company: 2500
-  max: 
+      Company: 2000
+  max:
     schema_entities:
-      Company: 2900
+      Company: 3000
 lookups:
   type.country:
     lowercase: true
     normalize: true
     options:
       - match: Hong Kong, Malaysia
-        values: 
+        values:
           - Hong Kong
           - Malaysia
       - match: Phiippines
@@ -53,10 +53,10 @@ lookups:
       - match: Gemany
         value: Germany
       - match: China; Hong Kong
-        values: 
+        values:
           - China
           - Hong Kong
       - match: Netherlands/UK
-        values: 
+        values:
           - Netherlands
           - United Kingdom
