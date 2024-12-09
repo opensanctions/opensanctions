@@ -202,10 +202,11 @@ lookups:
         value: 1750870101
       - match: 1720441783
         value: 1720441983
+      - match: 163975085
+        prop: registrationNumber
       - match:
           - +
           - Home Help
-          - 163975085
         value: null
 
 assertions:

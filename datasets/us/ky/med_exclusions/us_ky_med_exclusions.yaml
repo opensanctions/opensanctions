@@ -95,4 +95,4 @@ lookups:
       - match: 114891820
         value: 1194891820
       - match: 7100353240
-        value: null
+        prop: registrationNumber
