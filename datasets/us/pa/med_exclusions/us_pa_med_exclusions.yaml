@@ -38,3 +38,11 @@ assertions:
     schema_entities:
       Company: 400
       Person: 6000
+
+lookups:
+  type.identifier:
+    options:
+      - match:
+          - None
+          - N/A
+        value: null
