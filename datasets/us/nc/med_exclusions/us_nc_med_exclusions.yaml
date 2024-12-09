@@ -35,3 +35,14 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 300
+lookups: 
+  type.identifier:
+    options:
+      - match:  # NPI/ATYPICAL ID in the source
+          - 50345490
+          - 40401363
+        prop: idNumber 
+      - match: 1265032319
+        value: 1265032320
+      - match: N/A
+        value: null
