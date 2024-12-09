@@ -34,7 +34,7 @@ data:
   format: JSON
   lang: eng
 
-dates: 
+dates:
   formats: ["%d %B %Y", "%B %Y", "%d %b %Y"]
 lookups:
   unparsed_holders:
@@ -540,6 +540,17 @@ lookups:
               - SONEXAY Siphandon
               - SONXAI Siphandon
             start_date: 30 December 2022
+      # Bosnia
+      - match: Chairperson of the Presidency Zeljka CVIJANOVIC (chairperson since 16 November 2024
+        holders:
+          - role: Chairperson of the Presidency
+            name: Zeljka CVIJANOVIC
+            start_date: 16 November 2024
+      - match: Denis BECIROVIC (presidency member since 16 November 2022 - Bosniak seat)
+        holders:
+          - role: Presidency member
+            name: Denis BECIROVIC
+            start_date: 16 November 2022
       # Congo, Democratic republic of the
       - match: Deputy Prime Ministers Christophe LUTUNDULA (since 12 April 2021),Vital KAMERHE (since 23 March 2023), Peter KAZADI (23 March 2023), Jean-Pierre BEMBA (since 23 March 2023), Jean-Pierre LIHAU (since 12 April 2021)
         holders:
@@ -709,7 +720,17 @@ lookups:
             name:
               - WACHIRALONGKON
               - Vajiralongkorn
-                
+      # Libya
+      - match: President, Presidential Council, Mohammed al-MANFI (since 5 February 2021)
+        holders:
+          - role: President, Presidential Council
+            name: Mohammed al-MANFI
+            start_date: 5 February 2021
+      - match: GNU Interim Prime Minister Abd-al-Hamid DUBAYBAH (since 5 February 2021)
+        holders:
+          - role: Interim Prime Minister
+            name: Abd-al-Hamid DUBAYBAH
+            start_date: 5 February 2021
 
       # Not additional heads, just notes
       - regex:
