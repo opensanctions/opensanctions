@@ -1,4 +1,4 @@
-title: US North Korea Advisory Joint Ventures Annex
+title: US Advisory on North Korean Joint Ventures
 entry_point: crawler.py
 prefix: us-nkjv
 coverage:
@@ -6,7 +6,7 @@ coverage:
   start: "2024-12-03"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  This dataset contains a list of joint ventures related to North Korea.
+  Joint ventures between entities in North Korea and other countries to be considered trade risk.
 description: |
   > CBP and ICE, with the U.S. Department of State, and the U.S. Department of the
   > Treasury's Office of Foreign Assets Control (OFAC), issued the North Korea
@@ -15,7 +15,14 @@ description: |
   > of North Korea's evasion tactics, compliance risks and requirements, as well
   > as due diligence best practices.
 
-  Note that this is not a sanctions list as stated in the source PDF:
+  This advisory includes a list of joint ventures with partners from China and other countries.
+  We make this list of joint ventures available as a dataset of entities with noteworthy trade risk.
+  
+  The UN Security Council resolution 2375 requires Member States to prohibit all joint
+  ventures with North Korean entities and individuals, whether new or already existing, 
+  subject to very narrow exceptions.
+  
+  According to the advisory:
 
   > NOTE: This annex lists joint ventures that have operated or are currently operating in
   > North Korea established prior to 2016 and is not a comprehensive list of North Korean
@@ -25,7 +32,7 @@ description: |
   > determination by OFAC that any of these entities meet the designation criteria under any
   > sanctions program. Persons subject to sanctions can be found on OFAC's List of Specially
   > Designated Nationals and Blocked Person and other sanctions lists, which can be searched
-  > here.
+  > [here](http://sanctionssearch.ofac.treas.gov/).
 
   [Source PDF](https://www.cbp.gov/sites/default/files/assets/documents/2018-Aug/North%20Korea%20Sanctions%20_%20Enforcement%20Actions%20Advisory.pdf)
 publisher:
