@@ -11,14 +11,15 @@ REGEX_DBA = re.compile(r"d.b.a.", re.IGNORECASE)
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     raw_name = row.pop("sanctioned_provider_name")
+    names = REGEX_AKA.split(raw_name)
+    name, alias = names[0], names[1:]
+    npi = row.pop("npi")
+    license_number = row.pop("license")
+    reinstated_date = row.pop("reinstated_date")
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(raw_name, row.get("npi"))
-
-    names = REGEX_AKA.split(raw_name)
-    name, alias = names[0], names[1:]
 
     if "d.b.a." in name:
         names = REGEX_DBA.split(name)
@@ -42,8 +43,6 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("country", "us")
     entity.add("sector", row.pop("taxonomy"))
     entity.add("idNumber", row.pop("dea"))
-
-    npi = row.pop("npi")
     if npi != "N/A":
         entity.add(
             "npiCode",
@@ -52,18 +51,13 @@ def crawl_item(row: Dict[str, str], context: Context):
                 [";", ",", "&"],
             ),
         )
-
-    license_number = row.pop("license")
-
     if license_number != "N/A":
         entity.add("idNumber", license_number.split(","))
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("effective_date"))
     sanction.add("description", row.pop("comments"))
     sanction.set("authority", row.pop("oig_medicaid_sanction"))
-
-    reinstated_date = row.pop("reinstated_date")
+    h.apply_date(sanction, "startDate", row.pop("effective_date"))
     h.apply_date(sanction, "endDate", reinstated_date)
 
     end_date = sanction.get("endDate")
@@ -72,13 +66,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     else:
         # It's not a target if the sanction was suspended
         target = reinstated_date not in [
-            "Revoked",
-            "Annulled",
+            # "Revoked", usually meaning that the license was revoked
+            # "Annulled", usually meaning that the license was annulled
             "Suspended",
             "Rescinded",
             "Preclusion",
+            "Probation",
         ]
-
     if target:
         entity.add("topics", "debarment")
 
@@ -93,6 +87,5 @@ def crawl(context: Context) -> None:
         context, "source.pdf", context.data_url, expected_media_type=PDF
     )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-
     for item in h.parse_pdf_table(context, path, headers_per_page=True):
         crawl_item(item, context)
