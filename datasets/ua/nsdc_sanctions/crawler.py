@@ -2,7 +2,7 @@ import os
 import re
 from typing import Any, Dict, List, Optional
 from urllib.parse import urljoin
-
+from rigour.ids import INN
 from followthemoney.types import registry
 
 from zavod import Context, Entity
@@ -85,7 +85,13 @@ def crawl_common(
             )
         elif res.prop:
             note_long_identifier(entity, ident_values)
-            entity.add(res.prop, ident_values)
+            if res.prop == "innCode":
+                if INN.is_valid(ident_values):
+                    entity.add(res.prop, ident_values)
+                else:
+                    entity.add("taxNumber", ident_values)
+            else:
+                entity.add(res.prop, ident_values)
         elif res.identification:
             for value in ident_values:
                 doc = h.make_identification(
