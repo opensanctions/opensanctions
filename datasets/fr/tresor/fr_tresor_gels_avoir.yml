@@ -220,7 +220,7 @@ lookups:
           swiftBic: ILSIKPPY
       - match: "(IOM): 59058C"
         props:
-          # imoNumber: 59058C
+          imoNumber: 59058C
           registrationNumber: 59058C
       - match:
           "Numéro d'enregistrement  - lieu d'enregistrement : Fédération de Russie  -
@@ -233,7 +233,7 @@ lookups:
           swiftBic: AGRULYLT
       - match: "Numéro OMI: 5905801"
         props:
-          # imoNumber: 5905801
+          imoNumber: 5905801
           registrationNumber: 5905801
       - match:
           "Type d’entité: société par actions. Lieu d’enregistrement: Région de Bryansk,
@@ -491,7 +491,7 @@ lookups:
           jurisdiction: ru
       - match: "OMI: 9036387"
         props:
-          # imoNumber: 9036387
+          imoNumber: 9036387
           registrationNumber: 9036387
       - match:
           "numéro d'enregistrement - société anonyme enregistrée à Yangon, Myanmar/
@@ -534,7 +534,7 @@ lookups:
           incorporationDate: 1994-02-01
       - match: "n° OMI de la société: 5434358"
         props:
-          # imoNumber: 9036387
+          imoNumber: 9036387
           registrationNumber: 9036387
       - match: "Numéro d'enregistrement: 193402282"
         props:
@@ -743,7 +743,7 @@ lookups:
           registrationNumber: 02142819
       - match: "n° OMI: 5342883"
         props:
-          # imoNumber: 5342883
+          imoNumber: 5342883
           registrationNumber: 5342883
       - match: "Numéro d'enregistrement - Biélorussie: 190950894"
         props:
@@ -810,33 +810,33 @@ lookups:
           legalForm: Société par actions ouverte
       - match: "OMI : 5145892"
         props:
-          # imoNumber: 5145892
+          imoNumber: 5145892
           registrationNumber: 5145892
       - match: "Numéro OMI : 5676084"
         props:
-          # imoNumber: 5676084
+          imoNumber: 5676084
           registrationNumber: 5676084
       - match: "SWIFT/BIC: FTBDKPPY."
         props:
           swiftBic: FTBDKPPY
       - match: "OMI : 5954061"
         props:
-          # imoNumber: 5954061
+          imoNumber: 5954061
           registrationNumber: 5954061
       - match: "Numéro OMI : 5787684"
         props:
-          # imoNumber: 5787684
+          imoNumber: 5787684
           registrationNumber: 5787684
       - match: Société par actions ouverte
         props:
           legalForm: Société par actions ouverte
       - match: "Numéro OMI :  5963351"
         props:
-          # imoNumber: 5963351
+          imoNumber: 5963351
           registrationNumber: 5963351
       - match: "Numéro OMI : 5987860"
         props:
-          # imoNumber: 5987860
+          imoNumber: 5987860
           registrationNumber: 5987860
       - match: 01794877 (UK)
         props:
@@ -844,11 +844,11 @@ lookups:
           jurisdiction: GB
       - match: "OMI : 5982254"
         props:
-          # imoNumber: 5982254
+          imoNumber: 5982254
           registrationNumber: 5982254
       - match: "Numéro OMI : 5878561"
         props:
-          # imoNumber: 5878561
+          imoNumber: 5878561
           registrationNumber: 5878561
       - match: Filiale de Cham Holding - Sehanya Daraa Highway, P.O. Box 9525
         note: true
@@ -856,7 +856,7 @@ lookups:
           address: Sehanya Daraa Highway, P.O. Box 9525
       - match: "Numéro OMI : 5988369"
         props:
-          # imoNumber: 5988369
+          imoNumber: 5988369
           registrationNumber: 5988369
       - match:
           "Bénéficiaire effectif ultime: Hussam al-Qatirji, directeur général (désigné
@@ -870,7 +870,7 @@ lookups:
           registrationNumber: 14005160213
       - match: "Numéro OMI : 5571322"
         props:
-          # imoNumber: 5571322
+          imoNumber: 5571322
           registrationNumber: 5571322
       - match:
           "Nom du directeur/direction: Adel Anwar al-Olabi, président du conseil d'administration
@@ -882,11 +882,11 @@ lookups:
         note: true
       - match: "Numéro OMI : 5936312"
         props:
-          # imoNumber: 5936312
+          imoNumber: 5936312
           registrationNumber: 5936312
       - match: "Numéro OMI : 5985863"
         props:
-          # imoNumber: 5985863
+          imoNumber: 5985863
           registrationNumber: 5985863
       - match: "Numéro de journal officiel: 06513574"
         props:
@@ -4602,18 +4602,18 @@ lookups:
           sector: "compagnie maritime"
       - match: "Numéro d’enregistrement: OMI: 5122966"
         props:
-          # imoNumber: 5122966
+          imoNumber: 5122966
           registrationNumber: 5122966
       - match: "Lieu d’enregistrement: Iran: /"
         props:
           jurisdiction: ir
       - match: "Numéro d’enregistrement: OMI: 6189893"
         props:
-          # imoNumber: 6189893
+          imoNumber: 6189893
           registrationNumber: 6189893
       - match: "Numéro d’enregistrement: OMI: 6016988"
         props:
-          # imoNumber: 6016988
+          imoNumber: 6016988
           registrationNumber: 6016988
       - match: "Lieu d'enregistrement: Bangui, République centrafricaine - Date d'enregistrement: Novembre 2018 - Principal établissement: Galabadja  Bangui, Commune de Bangui - Galabadja, 8e Arr. - [GPS]-> 4.4070, 18.5465: /"
         props:
