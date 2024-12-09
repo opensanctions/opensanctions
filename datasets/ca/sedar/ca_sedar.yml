@@ -1,0 +1,41 @@
+title: "Canadian SEDAR+ Disciplined List"
+entry_point: crawler.py
+prefix: ca-sedar
+coverage:
+  frequency: daily
+  start: 2024-12-09
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  People and companies under disciplinary action.
+description: |
+  The Disciplined List contains the names of individuals and organizations disciplined 
+  by certain ruling bodies (see “Ruling bodies” picklist for the complete list). Orders 
+  may have effect in a jurisdiction that did not issue the order if a jurisdiction has 
+  implemented a statutory reciprocal order provision.
+# to be updated
+url: https://www.sedarplus.ca/landingpage/
+publisher:
+  name: SEDAR+
+  description: |
+    The CSA is modernizing the electronic filing and data access systems that underpin 
+    Canadian securities regulation. SEDAR+ is the new, secure web-based system used by 
+    all market participants to file, disclose and search for information in Canada’s 
+    capital markets.
+
+    On July 25, 2023, SEDAR+ consolidated and replaced 
+    - **SEDAR** (System for Electronic Document Analysis and Retrieval)
+    - The national **Cease Trade Order (CTO)** database, 
+    - The **Disciplined List (DL)** database and certain filings currently made 
+       in paper or in the British Columbia Securities Commission’s eServices system
+    - The **Ontario Securities Commission’s** electronic filing portal.
+  
+    SEDAR+ also includes a consolidated reporting issuers list from all provincial and 
+    territorial regulators.    
+    [Source: Official Website](https://www.sedarplus.ca/onlinehelp/general-help/about-sedar-plus/)
+  country: ca
+  url: https://www.sedarplus.ca/landingpage/
+  official: true
+data:
+  url: https://www.sedarplus.ca/csa-order/viewInstance/update.html?id=5b948c1fc5c6f8409956bb2b99284b4b787010f70ab3e291
+  format: html
+  lang: eng
