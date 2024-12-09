@@ -747,23 +747,23 @@ lookups:
           registrationNumber: 5342883
       - match: "Numéro d'enregistrement - Biélorussie: 190950894"
         props:
-          innCode: 190950894
+          registrationNumber: 190950894
           jurisdiction: by
       - match: "Numéro d'enregistrement - Russie: 7704734000"
         props:
-          innCode: 7704734000
+          registrationNumber: 7704734000
           jurisdiction: ru
       - match: "Numéro d'enregistrement- Russie: 770301001"
         props:
-          innCode: 7704734000
+          registrationNumber: 770301001
           jurisdiction: ru
       - match: "Immatriculation (numéro OGRN): 1121402000213"
         props:
-          ogrnCode: 7704734000
+          ogrnCode: 1121402000213
           jurisdiction: ru
       - match: "Numéro d'identification fiscale (INN): 1402015986"
         props:
-          innCode: 7704734000
+          taxNumber: 1402015986
           jurisdiction: ru
       - match:
           "Type d’entité: société par actions. Lieu d’enregistrement: Fédération de
@@ -3021,7 +3021,7 @@ lookups:
           incorporationDate: 1997
       - match: "Numéro d'immatriculation: 1022620011296"
         props:
-          ogrnCode: 1022620011296
+          registrationNumber: 1022620011296
       - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 14.12.2010: /"
         props:
           legalForm: société par actions
@@ -3063,7 +3063,7 @@ lookups:
           innCode: 7704095273
       - match: "OGRN: 770801001"
         props:
-          innCode: 770801001
+          registrationNumber: 770801001
       - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 3.12.2002: /"
         props:
           legalForm: société par actions
@@ -3989,7 +3989,7 @@ lookups:
           legalForm: société à responsabilité limitée
       - match: "Numéro d'identification fiscale: 774301001"
         props:
-          innCode: 774301001
+          taxNumber: 774301001
       - match: "KPP: 7704223366"
         schema: Company
         props:
@@ -4615,7 +4615,7 @@ lookups:
         props:
           # imoNumber: 6016988
           registrationNumber: 6016988
-      - match: "Lieu d'enregistrement: Bangui, République centrafricaine - Date d'enregistrement: Novembre 2018 - Principal établissement: Galabadja Bangui, Commune de Bangui - Galabadja, 8e Arr. - [GPS]-> 4.4070, 18.5465: /"
+      - match: "Lieu d'enregistrement: Bangui, République centrafricaine - Date d'enregistrement: Novembre 2018 - Principal établissement: Galabadja  Bangui, Commune de Bangui - Galabadja, 8e Arr. - [GPS]-> 4.4070, 18.5465: /"
         props:
           jurisdiction: Central African Republic
           address: "Galabadja Bangui, Commune de Bangui - Galabadja, 8e Arr."
@@ -4626,7 +4626,7 @@ lookups:
           address: "Bangui"
           incorporationDate: 2017-10-24
           registrationNumber: M 354838 D 0001
-      - match: "Lieu d'enregistrement: Bangui (République centrafricaine) : /"
+      - match: "Lieu d'enregistrement: Bangui (République centrafricaine)  : /"
         props:
           jurisdiction: Central African Republic
           address: "Bangui"
@@ -4659,12 +4659,3 @@ lookups:
       - match: "Principal établissement: Khartoum, Soudan: /"
         props:
           address: "Khartoum, Soudan"
-      - match:
-          - 1022620011296
-          - 7704734000
-        prop: registrationNumber
-      - match: 
-          - 770801001
-          - 774301001
-          - 190950894
-        prop: taxNumber
