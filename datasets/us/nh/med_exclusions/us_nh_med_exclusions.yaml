@@ -46,4 +46,4 @@ lookups:
   type.identifier: 
     options: 
       - match: 26-3554962 (FEIN)
-        value: null
+        prop: registrationNumber

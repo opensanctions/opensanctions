@@ -54,4 +54,4 @@ lookups:
           - 9000223939
           - 9000219396
           - 9000220773
-        value: null
+        prop: registrationNumber

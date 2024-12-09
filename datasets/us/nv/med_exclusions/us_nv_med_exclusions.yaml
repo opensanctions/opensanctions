@@ -54,7 +54,10 @@ lookups:
           - 1679546139
           - 1285777946
       - match: "9005050057 9005056781"
-        value: null
+        prop: registrationNumber
+        values:
+          - 9005050057
+          - 9005056781
       - match: 103340014
         value: 1033400114
       - match: 14071459988
@@ -84,4 +87,4 @@ lookups:
           - 1841792790
           - 9005050057
           - 9005056781
-        value: null
+        prop: registrationNumber

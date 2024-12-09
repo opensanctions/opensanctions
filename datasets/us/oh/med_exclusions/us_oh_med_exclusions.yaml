@@ -51,8 +51,9 @@ lookups:
     options:
       - match: 
           - 1144453199
-          - "IP:"
           - 1679857925
           - 141705081
           - 1750400000
+        prop: registrationNumber
+      - match: "IP:"
         value: null

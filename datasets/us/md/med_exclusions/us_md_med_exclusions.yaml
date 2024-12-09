@@ -45,4 +45,4 @@ lookups:
   type.identifier: 
     options:
       - match: 5059016900
-        value: null
+        prop: registrationNumber

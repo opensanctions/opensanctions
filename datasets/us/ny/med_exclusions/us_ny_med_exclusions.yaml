@@ -43,5 +43,6 @@ lookups:
           - NA
           - none
           - None
-          - 1790886636
         value: null
+      - match: 1790886636
+        prop: registrationNumber
