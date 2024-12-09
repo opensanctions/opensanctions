@@ -3,6 +3,7 @@ from banal import first
 from typing import Dict, List
 from urllib.parse import urljoin
 from requests.exceptions import RequestException
+from rigour.ids import INN
 
 from zavod import Context
 from zavod import helpers as h
@@ -67,7 +68,8 @@ def crawl_item(context: Context, url: str):
 
     issuer = context.make("LegalEntity")
     inn_code = first(values["issuer"].get("innCode", []))
-    if inn_code is not None:
+    is_inn_code = INN.is_valid(inn_code)
+    if inn_code is not None and is_inn_code:
         issuer.id = f"ru-inn-{inn_code}"
     else:
         issuer_name = first(values["issuer"].get("name", []))
@@ -76,7 +78,10 @@ def crawl_item(context: Context, url: str):
         issuer.id = context.make_id(isin_code, issuer_name)
     issuer.add("country", "ru")
     for prop, prop_val in values["issuer"].items():
-        issuer.add(prop, prop_val)
+        if prop == "innCode" and not is_inn_code:
+            issuer.add("taxNumber", prop_val)
+        else:
+            issuer.add(prop, prop_val)
     context.emit(issuer)
 
 
