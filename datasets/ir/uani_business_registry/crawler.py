@@ -146,6 +146,11 @@ def crawl(context: Context):
         for row in h.parse_html_table(table, skiprows=1):
             str_row = h.cells_to_str(row)
 
+            withdrawn_elem = row.pop("withdrawn")
+            is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
+            if is_withdrawn is True:
+                continue
+
             company_elem = row.pop("company_sort_descending")
             company_link = company_elem.find(".//a").get("href", "").strip()
             company_name = str_row.pop("company_sort_descending")
@@ -159,11 +164,6 @@ def crawl(context: Context):
             entity.add("country", str_row.pop("nationality"))
             entity.add("sourceUrl", company_link)
             entity.add("ticker", str_row.pop("stock_symbol"))
-
-            withdrawn_elem = row.pop("withdrawn")
-            is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
-            if is_withdrawn is True:
-                continue
             entity.add("topics", "export.risk")
             context.emit(entity, target=True)
             context.audit_data(str_row)
