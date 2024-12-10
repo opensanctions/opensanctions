@@ -5,21 +5,28 @@ import re
 from zavod import Context, helpers as h, settings
 from zavod.shed.zyte_api import fetch_resource
 
-DATE_PATTERN = r"\b\d{1,2}/\d{1,2}/\d{4}\b"
-REGEX_AKA = re.compile(r"\(?a\.?k\.?a\b\.?|\)", re.IGNORECASE)
-REGEX_DBA = re.compile(r"d.b.a.", re.IGNORECASE)
+REGEX_AKA = re.compile(r"\baka\b|a\.k\.a\.?", re.IGNORECASE)
+REGEX_DBA = re.compile(r"d\.b\.a.|\bdba\b", re.IGNORECASE)
+# Ruth Diane Jones, DO
+# Tamika Brewer-Adams (PCA)
+# Charles Michael Napoli (Pharma Tech)
+REGEX_JOB_ROLE = re.compile(r"^(?P<name>.+)[,\s]+(?P<role>([A-Z\.,/-]+|\([^\)]+\)))$")
 
 
 def crawl_item(row: Dict[str, str], context: Context):
     raw_name = row.pop("sanctioned_provider_name")
     names = REGEX_AKA.split(raw_name)
     name, alias = names[0], names[1:]
+    position = None
+    if match := REGEX_JOB_ROLE.match(name):
+        if match.group("role").lower() not in {"llc", "inc", "corp", "pc"}:
+            position = match.group("role")
+            name = match.group("name").rstrip(",")
+
     npi = row.pop("npi")
-    license_number = row.pop("license")
-    reinstated_date = row.pop("reinstated_date")
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(raw_name, row.get("npi"))
+    entity.id = context.make_id(raw_name, npi)
 
     if "d.b.a." in name:
         names = REGEX_DBA.split(name)
@@ -39,11 +46,13 @@ def crawl_item(row: Dict[str, str], context: Context):
         context.emit(link)
 
     entity.add("name", name)
+    entity.add_cast("Person", "position", position)
     entity.add("alias", alias)
     entity.add("country", "us")
     entity.add("sector", row.pop("taxonomy"))
     entity.add("idNumber", row.pop("dea"))
     entity.add("npiCode", h.multi_split(npi, [";", ",", "&"]))
+    license_number = row.pop("license")
     if license_number != "N/A":
         entity.add("idNumber", license_number.split(","))
 
@@ -51,6 +60,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction.add("description", row.pop("comments"))
     sanction.set("authority", row.pop("oig_medicaid_sanction"))
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
+    reinstated_date = row.pop("reinstated_date")
     h.apply_date(sanction, "endDate", reinstated_date)
 
     end_date = sanction.get("endDate")
