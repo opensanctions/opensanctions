@@ -102,12 +102,12 @@ lookups:
       #   value: 
       - match: SDNZ  # implementing Regulation (EU) 2023/2147 concerning restrictive measures in view of activities undermining the stability and political transition of Sudan
         value: EU-SUDAN-REST
-      - match: COD
+      - match: COD  # implementing Article 9(5) of Regulation (EC) No 1183/2005 imposing certain specific restrictive measures directed against persons acting in violation of the arms embargo with regard to the Democratic Republic of the Congo
         value: EU-DRC
       - match: SSD  #  Article 20(3) of Regulation (EU) 2015/735 concerning restrictive measures in respect of the situation in South Sudan
         value: EU-SOUTH-SUDAN
-      - match: GNB
-        value: EU-GUINEA
+      - match: GNB  # mplementing Article 11(1) of Regulation (EU) No 377/2012 concerning restrictive measures directed against certain persons, entities and bodies threatening the peace, security or stability of the Republic of Guinea-Bissau
+        value: 
       - match: TUR  # implementing Regulation (EU) 2019/1890 concerning restrictive measures in view of Turkey’s unauthorised drilling activities in the Eastern Mediterranean
         value: EU-TURKEY-MED
       # - match: HR
@@ -146,7 +146,7 @@ lookups:
       - match: GIN  # implementing Regulation (EU) No 1284/2009 imposing certain specific restrictive measures in respect of the Republic of Guinea
         value: EU-GUINEA
       - match: RUS  # implementing Regulation (EU) 2024/1485 concerning restrictive measures in view of the situation in Russia
-        value: EEU-RUSSIA-REST
+        value: EU-RUSSIA-REST
       - match: TUN  # implementing Regulation (EU) No 101/2011 concerning restrictive measures directed against certain persons, entities and bodies in view of the situation in Tunisia
         value: EU-TUNISIA
       # - match: CAF  # implementing Article 17(3) of Regulation (EU) No 224/2014 concerning restrictive measures in view of the situation in the Central African Republic
@@ -159,6 +159,11 @@ lookups:
 # - EU-PMR
 # - EU-SRB-UN757
 # - EU-CRNA-UN757
+# - EU-US-LEG
+# - EU-RIGHTS
+# - EU-LEBANON
+# - EU-NIGER
+# - EU-TIANANMEN
 # ...
 
   subject_type:
