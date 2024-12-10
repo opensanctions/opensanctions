@@ -303,3 +303,9 @@ lookups:
         value: '"MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
       - match: '-'
         value: null
+  type.identifier: 
+    options: 
+      - match: 
+          - RS 150443
+          - RS 130280
+        prop: registrationNumber

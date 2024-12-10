@@ -38,7 +38,13 @@ data:
 
 dates:
   formats: ["%m/%d/%Y"]
-
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 3300
+  max:
+    schema_entities:
+      LegalEntity: 4000
 lookups:
   type.date:
     lowercase: true
@@ -50,11 +56,17 @@ lookups:
           - DECEASED
           - N/A
         value: null
-
-assertions:
-  min:
-    schema_entities:
-      LegalEntity: 3300
-  max:
-    schema_entities:
-      LegalEntity: 4000
+  type.idenifier:
+    options:
+      - match: 1
+        value: null
+      - match: 143737727
+        value: 1437373727
+      - match: 145788392
+        value: 1457883928
+      - match: 159889479
+        value: 1598889479
+      - match:
+          - 1104949149
+          - 260849555
+        prop: idNumber

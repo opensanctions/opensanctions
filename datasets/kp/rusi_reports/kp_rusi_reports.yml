@@ -181,3 +181,17 @@ lookups:
         value: IMO6246853
       - match: 6183435 [RUSSIAEO14024]
         value: IMO6183435
+      - match: 
+          - 667003626
+          - 445604000
+        prop: mmsi
+      - match: 
+          - 8705578
+          - 8660313000
+          - 9313186
+          - 10053276
+          - 866031300
+          - 8674268
+          - 9664149
+          - 123456789
+        prop: registrationNumber

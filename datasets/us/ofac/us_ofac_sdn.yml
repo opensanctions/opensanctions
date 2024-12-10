@@ -427,6 +427,9 @@ lookups:
           - 852496369
           - 852496527
           - 852777978
+          - 15411
+          - RS 130280
+          - RS 150443
         prop: registrationNumber
       - match: 2180068XRFK54K3Z159
         value: 21380068XRFK54K3Z159
@@ -438,6 +441,12 @@ lookups:
         value: 253400MZGXVN18GHCN57
       - match: 25400B8Y0FNJP628S19
         value: 253400B8Y0FNJP628S19
+      - match: IMO 543400
+        value: 543400
+      - match: IMO 9207391
+        value: 9207391
+      - match: IMO 642068
+        value: 642068
   type.address:
     lowercase: true
     options:

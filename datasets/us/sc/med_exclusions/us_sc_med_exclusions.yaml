@@ -53,3 +53,20 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 1100
+lookups: 
+  type.identifier: 
+    options: 
+      - match: 1437418566
+        value: 1467418566
+      - match: 181989221
+        value: 1811989221
+      - match: 
+          - NP3981
+          - 1362345588
+        prop: idNumber
+      - match:
+          - "No"
+          - Found
+          - Not
+          - found
+        value: null
