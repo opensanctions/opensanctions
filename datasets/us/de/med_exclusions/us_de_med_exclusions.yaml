@@ -1,0 +1,123 @@
+title: US Delaware Medicaid Sanctioned Providers
+entry_point: crawler.py
+prefix: us-medde
+coverage:
+  frequency: daily
+  start: "2024-11-27"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+summary: >
+  List of providers excluded from participating in the Delaware Medicaid program.
+description: |
+  This dataset provides details on health care providers who have been excluded from
+  participation in the Delaware Medicaid program. It lists provider names, identifiers
+  such as NPI and License numbers, as well as the authority, duration, and nature of
+  the sanction.
+
+  These sanctions result from findings of fraud, abuse, or violations of Medicaid
+  policies. The dataset covers a range of sanctions, from temporary suspensions
+  to permanent terminations, and includes details on providers' reinstatement
+  statuses when applicable.
+
+publisher:
+  name: Delaware Health and Social Services
+  description: |
+    The Delaware Health and Social Services is a state agency dedicated to providing a wide range
+    of essential programs and services for the residents of Delaware. Its responsibilities include
+    managing Social Support initiatives, delivering comprehensive Health Care Services, and
+    addressing Substance Abuse and Mental Health needs.
+  acronym: DHSS
+  url: https://dhss.delaware.gov/dhss/index.html
+  official: true
+  country: "us"
+url: "https://medicaid.dhss.delaware.gov/provider/Home/ProgramIntegrityLanding/tabid/2102/Default.aspx"
+data:
+  url: https://medicaidpublications.dhss.delaware.gov/docs/Search?Command=Core_Download&EntryId=1671
+  format: PDF
+
+dates:
+  formats: ["%m/%d/%Y", "%m/%d/%y", "Reinstated effective %m/%d/%Y"]
+
+lookups:
+  type.date:
+    options:
+      # is_debarred for Reinstated Date mapped to null.
+      # Based on how they use these terms in the comments since no definition was found.
+      - match:
+          - ""
+          - "N/A"
+          - Active
+          - Annulled
+          - Indefinite
+          - Preclusion
+          - Probation
+          - Revoked
+          - Suspended
+        value: null
+        is_debarred: true
+      - match:
+          - Rescinded
+        value: null
+        is_debarred: false
+      - match:
+          - 13/31/16
+          - 3032-10-28
+          - 10/28/3032
+        value: null
+        is_debarred: true
+
+      - match: 7/20/014
+        value: 2014-07-20
+      - match: 5/12012
+        value: 2012-12-05
+      - match: "Rescind Letter for\n02/03/2020 sanction"
+        value: 2020-03-02
+      - match: "MCO-Terminated-\n01/24/2014\nDMAP Except PTC\nVFC-Terminated-\n01/01/2013"
+        value: 2013-01-01
+      - match: 07/12/023
+        value: 2023-07-12
+      - match: 2/6/224
+        value: 2024-06-02
+      - match: "Reinstated 5/11/2020"
+        value: 2020-05-11
+      - match: "Order lifting Suspension\n9/2/2020"
+        value: 2020-09-02
+  type.identifier:
+    lowercase: true
+    options:
+      - match:
+          - N/A
+          - A000000123
+        value: null
+      - match:
+          - D000045167
+          - 1750563260
+          - 1839329840
+          - 00G514380
+        prop: registrationNumber
+      - match: 12354634983
+        value: 1235464983
+      - match: 1822182726
+        value: 1821182726
+      - match: 1447285484
+        value: 1447285481
+      - match: 1629005043
+        value: 1629005046
+      - match: 13026572821
+        value: 1306572821
+      - match: 1740633596
+        value: 1740636596
+      - match: 1477640168
+        value: 1477649168
+      - match: 13260159
+        value: 1326260159
+      - match: 3336C0003X
+        prop: sector
+        
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 900
+  max:
+    schema_entities:
+      LegalEntity: 1100
