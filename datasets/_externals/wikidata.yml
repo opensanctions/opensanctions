@@ -999,6 +999,7 @@ lookups:
           - intersex woman
           - cisgender woman
           - transfeminine
+          - non-binary woman
         value: female
       - match:
           - genderfluid
