@@ -111,10 +111,10 @@ children:
   - us_dhs_uflpa
   - us_fincen_special_measures
   - us_klepto_hr_visa
-  # - us_nteea_sec_353
   - us_ofac_cons
   - us_ofac_sdn
   - us_state_terrorist_exclusion
   - us_trade_csl
+  - us_sanctions
   - za_fic_sanctions
 ci_test: false
