@@ -43,14 +43,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("country", "us")
     entity.add("sector", row.pop("taxonomy"))
     entity.add("idNumber", row.pop("dea"))
-    if npi != "N/A":
-        entity.add(
-            "npiCode",
-            h.multi_split(
-                npi,
-                [";", ",", "&"],
-            ),
-        )
+    entity.add("npiCode", h.multi_split(npi, [";", ",", "&"]))
     if license_number != "N/A":
         entity.add("idNumber", license_number.split(","))
 
@@ -62,21 +55,21 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     end_date = sanction.get("endDate")
     if end_date:
-        target = end_date[0] >= settings.RUN_TIME_ISO
+        is_debarred = max(end_date) >= settings.RUN_TIME_ISO
     else:
-        # It's not a target if the sanction was suspended
-        target = reinstated_date not in [
-            # "Revoked", usually meaning that the license was revoked
-            # "Annulled", usually meaning that the license was annulled
-            "Suspended",
-            "Rescinded",
-            "Preclusion",
-            "Probation",
-        ]
-    if target:
+        res = context.lookup("type.date", reinstated_date)
+        if res and res.is_debarred is not None:
+            is_debarred = res.is_debarred
+        else:
+            is_debarred = True
+            context.log.warn(
+                "No `is_debarred` for end date mapping", reinstated=reinstated_date
+            )
+
+    if is_debarred:
         entity.add("topics", "debarment")
 
-    context.emit(entity, target=target)
+    context.emit(entity, target=is_debarred)
     context.emit(sanction)
 
     context.audit_data(row, ignore=["year"])
