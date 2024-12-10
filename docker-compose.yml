@@ -7,5 +7,6 @@ services:
     volumes:
       - "./data:/opensanctions/data"
       - "./opensanctions:/opensanctions/opensanctions"
+      - "./datasets:/opensanctions/datasets"
     tmpfs:
       - "/tmp"
