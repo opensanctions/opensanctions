@@ -63,8 +63,104 @@ url: https://www.eeas.europa.eu/eeas/european-union-sanctions_en#10710
 data:
   url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw
   format: XML
+# 'LBY', 'HAM', 'YEM', 'SYR', 'BDI', 'ZWE', 'EUAQ', 'NIC', 'UNLI', 'SDNZ', 
+# 'COD', 'SSD', 'GNB', 'TUR', 'HR', 'TERR', 'SDN', 'VEN', 'MDA', 'BLR', 'TAQA', 
+# 'UKR', 'MMR', 'MLI', 'GTM', 'PRK', 'AFG', 'IRN', 'CYB', 'SOM', 'IRQ', 'HTI', 'GIN', 
+# 'RUS', 'TUN', 'CAF', 'CHEM'
 
 lookups:
+  sanction.program:
+    options:
+      - match: UKR  # implementing Regulation (EU) No 208/2014 concerning restrictive measures directed against certain persons, entities and bodies in view of the situation in Ukraine
+                    # implementing Regulation (EU) No 269/2014 concerning restrictive measures in respect of actions undermining or threatening the territorial integrity, sovereignty and independence of Ukraine
+        values: 
+          - EU-UKRAINE-INTEG
+          - EU-CRIMEA
+          - EU-UKRAINE-OCC
+          - EU-UKRAINE-MSF
+      - match: TAQA  # Council Regulation (EC) No 881/2002 imposing certain specific restrictive measures directed against certain persons and entities associated with the Al Qaida network
+        value: EU-ISIS
+      - match: TERR  # implementing Article 2(3) of Regulation (EC) No 2580/2001 on specific restrictive measures directed against certain persons and entities with a view to combating terrorism
+        value: EU-TERROR
+      - match: LBY  # implementing Article 21(5) of Regulation (EU) 2016/44 concerning restrictive measures in view of the situation in Libya
+        value: EU-LIBYA
+      - match: HAM  # COUNCIL REGULATION (EU) 2024/386 of 19 January 2024 establishing restrictive measures against those who support, facilitate or enable violent actions by Hamas and the Palestinian Islamic Jihad
+        value: EU-HAMAS
+      # - match: YEM
+      #   value: EU-YEMEN
+      - match: SYR  # implementing Regulation (EU) No 36/2012 concerning restrictive measures in view of the situation in Syria
+        value: EU-SYRIA
+      - match: BDI  # implementing Regulation (EU) 2015/1755 concerning restrictive measures in view of the situation in Burundi
+        value: EU-BURUNDI
+      # - match: ZWE
+      #   value: EU-ZIMBABWE
+      # - match: EUAQ
+      #   value: EU-EUROPEAN-ACT
+      - match: NIC  # implementing Regulation (EU) 2019/1716 concerning restrictive measures in view of the situation in Nicaragua
+        value: EU-NICARAGUA
+      # - match: UNLI
+      #   value: 
+      - match: SDNZ  # implementing Regulation (EU) 2023/2147 concerning restrictive measures in view of activities undermining the stability and political transition of Sudan
+        value: EU-SUDAN-REST
+      - match: COD
+        value: EU-DRC
+      - match: SSD  #  Article 20(3) of Regulation (EU) 2015/735 concerning restrictive measures in respect of the situation in South Sudan
+        value: EU-SOUTH-SUDAN
+      - match: GNB
+        value: EU-GUINEA
+      - match: TUR  # implementing Regulation (EU) 2019/1890 concerning restrictive measures in view of Turkey’s unauthorised drilling activities in the Eastern Mediterranean
+        value: EU-TURKEY-MED
+      # - match: HR
+      #   value: EU-HR
+      - match: SDN  # implementing Article 15(3) of Regulation (EU) No 747/2014 concerning restrictive measures in view of the situation in Sudan
+        value: EU-SUDAN
+      - match: VEN  # implementing Regulation (EU) 2017/2063 concerning restrictive measures in view of the situation in Venezuela
+        value: EU-VEN-REST
+      - match: MDA  # implementing Regulation (EU) 2023/888 concerning restrictive measures in view of actions destabilising the Republic of Moldova
+        value: EU-MOLDOVA
+      - match: BLR  # implementing Article 8a of Regulation (EC) No 765/2006 concerning restrictive measures in view of the situation in Belarus
+        value: EU-BRUS
+      - match: MMR  # implementing Regulation (EU) No 401/2013 concerning restrictive measures in respect of Myanmar/Burma
+        value: EU-MYANMAR
+      - match: MLI  # implementing Article 12(2) of Regulation (EU) 2017/1770 concerning restrictive measures in view of the situation in Mali
+        value: EU-MALI
+      - match: GTM  # implementing Regulation (EU) 2024/287 concerning restrictive measures in view of the situation in Guatemala
+        value: EU-GUATEMALA
+      # - match: PRK  # implementing Regulation (EU) 2017/1509 concerning restrictive measures against the Democratic People's Republic of Korea
+      #   value: 
+      # - match: AFG
+      #   value: 
+      - match: IRN  # implementing Regulation (EU) No 267/2012 concerning restrictive measures against Iran
+                    # implementing Regulation (EU) 2023/1529 concerning restrictive measures in view of Iran’s military support to Russia’s war of aggression against Ukraine and to armed groups and entities in the Middle East and the Red Sea region
+        value: 
+          - EU-IRAN-HR
+          - EU-IRAN-RUSSIA
+      - match: CYB
+        value: EU-CYB
+      # - match: SOM
+      #   value: 
+      # - match: IRQ
+      #   value: 
+      - match: HTI  # implementing Regulation (EU) 2022/2309 concerning restrictive measures in view of the situation in Haiti
+        value: EU-HAITI  
+      - match: GIN  # implementing Regulation (EU) No 1284/2009 imposing certain specific restrictive measures in respect of the Republic of Guinea
+        value: EU-GUINEA
+      - match: RUS  # implementing Regulation (EU) 2024/1485 concerning restrictive measures in view of the situation in Russia
+        value: EEU-RUSSIA-REST
+      - match: TUN  # implementing Regulation (EU) No 101/2011 concerning restrictive measures directed against certain persons, entities and bodies in view of the situation in Tunisia
+        value: EU-TUNISIA
+      # - match: CAF  # implementing Article 17(3) of Regulation (EU) No 224/2014 concerning restrictive measures in view of the situation in the Central African Republic
+      #   value: EU-CENTRAL-AFRICA
+      - match: CHEM  # implementing Regulation (EU) 2018/1542 concerning restrictive measures against the proliferation and use of chemical weapons
+        value: EU-CHEM
+# unused: 
+# - EU-BOSNIA
+# - EU-WMD
+# - EU-PMR
+# - EU-SRB-UN757
+# - EU-CRNA-UN757
+# ...
+
   subject_type:
     options:
       - match: person
