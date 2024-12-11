@@ -69,6 +69,8 @@ lookups:
         value: Guinea
       - match: Khazakstan
         value: Kazakhstan
+      - match: Uzbekistan, Rep. of
+        value: Uzbekistan
   type.date:
     options:
       - match: 10/31/23
