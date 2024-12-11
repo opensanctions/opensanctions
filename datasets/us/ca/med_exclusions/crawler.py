@@ -2,6 +2,7 @@ import csv
 from typing import Dict
 from normality import slugify
 from rigour.mime.types import CSV
+from rigour.ids.npi import NPI
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
@@ -50,14 +51,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("provider_type"))
     entity.add("address", h.multi_split(addresses, [", &", ";"]))
+    entity.add("registrationNumber", row.pop("license_number").split(", "))
 
-    license_number = row.pop("license_number")
-    if license_number and license_number != "N/A":
-        entity.add("description", "License number(s): " + license_number)
-
-    provider_number = row.pop("provider_number")
-    if provider_number and provider_number != "N/A":
-        entity.add("description", "Provider number(s): " + provider_number)
+    for num in h.multi_split(row.pop("provider_number"), [","]):
+        if NPI.is_valid(num):
+            entity.add("npiCode", num)
+        else:
+            entity.add("registrationNumber", num)
 
     sanction = h.make_sanction(context, entity)
     start_date = row.pop("date_of_suspension")

@@ -62,9 +62,9 @@ data:
   format: XLSX
 ci_test: false
 
-
 dates:
   formats: ["%m/%d/%Y"]
+
 assertions:
   min:
     schema_entities:
@@ -74,3 +74,9 @@ assertions:
     schema_entities:
       Company: 950
       Person: 23000
+
+lookups:
+  type.identifier:
+    options:
+      match: N/A
+      value: null
