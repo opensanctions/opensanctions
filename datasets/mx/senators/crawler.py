@@ -5,10 +5,6 @@ from zavod.logic.pep import categorise
 from zavod.shed.zyte_api import fetch_html, fetch_json
 
 
-def unblock_validator(doc):
-    return doc.find(".//meta[@http-equiv='Refresh']") is not None
-
-
 def get_json_url(context: Context) -> str:
     """
     Fetches the JSON URL from the main page.
@@ -20,15 +16,16 @@ def get_json_url(context: Context) -> str:
 
     :return: The URL for the JSON file.
     """
+    redirect_xpath = ".//meta[@http-equiv='Refresh']"
     doc = fetch_html(
         context,
         context.data_url,
-        unblock_validator,
+        redirect_xpath,
         html_source="httpResponseBody",
         geolocation="MX",
         cache_days=1,
     )
-    main_website = doc.find(".//meta[@http-equiv='Refresh']").get("content")
+    main_website = doc.find(redirect_xpath).get("content")
     url_pattern = r"url=\b(\d{2})/"
     match = re.search(url_pattern, main_website)
 

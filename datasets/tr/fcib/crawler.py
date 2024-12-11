@@ -1,4 +1,3 @@
-from lxml import etree
 from normality import collapse_spaces
 from openpyxl import load_workbook
 from typing import Dict, List, Optional
@@ -134,15 +133,12 @@ def crawl_xlsx(context: Context, url: str, program: str, short_name: str):
             crawl_row(context, row, program, url)
 
 
-def unblock_validator(doc: etree._Element) -> bool:
-    return doc.find('.//table[@class="table table-bordered"]') is not None
-
-
 def crawl(context: Context):
     # Use browser to render javascript-based frontend
-    doc = fetch_html(context, context.data_url, unblock_validator, cache_days=3)
+    table_xpath = './/table[@class="table table-bordered"]'
+    doc = fetch_html(context, context.data_url, table_xpath, cache_days=3)
     doc.make_links_absolute(context.data_url)
-    table = doc.find('.//table[@class="table table-bordered"]')
+    table = doc.find(table_xpath)
     category_urls = [link.get("href") for link in table.findall(".//a")]
 
     # Ensure exactly 4 links are found
@@ -161,7 +157,7 @@ def crawl(context: Context):
             continue
 
         # Fetch the content of the section
-        section_doc = fetch_html(context, url, unblock_validator, cache_days=3)
+        section_doc = fetch_html(context, url, table_xpath, cache_days=3)
         doc_links = section_doc.xpath('//a[contains(@href, ".xlsx")]')
 
         # Expect exactly one .xlsx link in each section

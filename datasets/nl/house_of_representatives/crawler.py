@@ -23,9 +23,9 @@ def unblock_validator(doc):
 def crawl_person(context: Context, element: _Element, position: Entity):
     anchor = element.find(".//a")
     source_url = urljoin(context.data_url, anchor.get("href"))
-
-    doc = fetch_html(context, source_url, unblock_validator, cache_days=1)
-    section = doc.find('.//main[@class="o-main"]/article/section[2]')
+    section_xpath = './/main[@class="o-main"]/article/section[2]'
+    doc = fetch_html(context, source_url, section_xpath, cache_days=1)
+    section = doc.find(section_xpath)
 
     # Not a lot of semantic selection information in the HTML so the correctness of
     # the selectors depends very much on hard requirements on this matching.

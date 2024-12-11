@@ -75,14 +75,11 @@ def crawl_data_url(context: Context):
     # Landing page
     xpath = ".//a[contains(text(), 'Suspended')][contains(text(), 'Ineligible')][contains(text(), 'List')]"
 
-    def unblock_validator(doc) -> bool:
-        return len(doc.xpath(xpath)) > 0
-
     landing_doc = fetch_html(
         context,
         context.data_url,
+        xpath,
         geolocation="US",
-        unblock_validator=unblock_validator,
         cache_days=1,
     )
     landing_doc.make_links_absolute(context.data_url)

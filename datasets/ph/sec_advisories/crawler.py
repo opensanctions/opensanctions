@@ -7,9 +7,6 @@ from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 
-LIST_XPATH = ".//*[@class='accordion-content']/ul/li"
-
-
 def crawl_item(li_tag: _Element, context: Context) -> None:
     name = li_tag.findtext(".//a/b")
     names = [] if name is None else [name]
@@ -55,11 +52,8 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
     context.emit(entity, target=True)
 
 
-def unblock_validator(doc) -> bool:
-    return len(doc.findall(LIST_XPATH)) > 0
-
-
 def crawl(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator)
-    for item in doc.findall(LIST_XPATH):
+    list_xpath = ".//*[@class='accordion-content']/ul/li"
+    doc = fetch_html(context, context.data_url, list_xpath)
+    for item in doc.findall(list_xpath):
         crawl_item(item, context)

@@ -96,14 +96,11 @@ def crawl_row(context, name, category, start_date):
         context.emit(sanction)
 
 
-def unblock_validator(doc) -> bool:
-    return len(doc.xpath("//li[a[contains(., 'PDF Version')]]")) > 0
-
-
 def crawl_data_url(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
+    file_xpath = "//a[contains(., 'PDF Version')]"
+    doc = fetch_html(context, context.data_url, file_xpath)
     doc.make_links_absolute(context.data_url)
-    return doc.xpath("//a[contains(., 'PDF Version')]")[0].get("href")
+    return doc.xpath(file_xpath)[0].get("href")
 
 
 def page_settings(page: Page) -> Dict:
