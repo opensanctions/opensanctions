@@ -73,13 +73,10 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def unblock_validator(doc) -> bool:
-    return bool(doc.find(".//*[@about='/provider-termination']"))
-
-
 def crawl_excel_url(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
-    return doc.find(".//*[@about='/provider-termination']").find(".//a").get("href")
+    file_xpath = ".//*[@about='/provider-termination']"
+    doc = fetch_html(context, context.data_url, file_xpath)
+    return doc.find(file_xpath).find(".//a").get("href")
 
 
 def crawl(context: Context) -> None:

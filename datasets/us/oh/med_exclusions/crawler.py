@@ -9,7 +9,6 @@ from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 REGEX_DBA = re.compile(r"\bdba\b", re.IGNORECASE)
 REGEX_AKA = re.compile(r"\(?a\.?k\.?a\b\.?|\)", re.IGNORECASE)
-LIST_DOWNLOAD_XPATH = "//a[contains(text(), 'Medicaid') and contains(text(), 'Exclusion') and contains(text(), 'Suspension') and contains(@href, 'xlsx')]"
 
 
 def crawl_individual(row: Dict[str, str], context: Context):
@@ -105,15 +104,10 @@ def crawl_organization(row: Dict[str, str], context: Context):
     context.audit_data(row, ignore=["date_added"])
 
 
-def unblock_validator(doc) -> bool:
-    return len(doc.xpath(LIST_DOWNLOAD_XPATH)) > 0
-
-
 def crawl_excel_url(context: Context):
-    doc = fetch_html(
-        context, context.data_url, unblock_validator=unblock_validator, geolocation="US"
-    )
-    return doc.xpath(LIST_DOWNLOAD_XPATH)[0].get("href")
+    file_xpath = ".//a[contains(text(), 'Medicaid') and contains(text(), 'Exclusion') and contains(text(), 'Suspension') and contains(@href, 'xlsx')]"
+    doc = fetch_html(context, context.data_url, file_xpath, geolocation="US")
+    return doc.xpath(file_xpath)[0].get("href")
 
 
 def crawl(context: Context) -> None:

@@ -28,22 +28,16 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
 
 
 def crawl_person(context: Context, url: str, wanted_for: str):
-    def unblock_validator(doc) -> bool:
-        xpath = '//div[contains(@class, "field--name-field-most-wanted-name")]'
-        return len(doc.xpath(xpath)) > 0
-
+    name_xpath = '//div[contains(@class, "field--name-field-most-wanted-name")]//div[contains(@class, "field__item")]'
     doc = fetch_html(
         context,
         url,
-        unblock_validator,
+        name_xpath,
         html_source="httpResponseBody",
         cache_days=1,
     )
 
-    name = get_element_text(
-        doc,
-        '//div[contains(@class, "field--name-field-most-wanted-name")]//div[contains(@class, "field__item")]',
-    )
+    name = get_element_text(doc, name_xpath)
     alias = get_element_text(
         doc,
         '//div[contains(@class, "field--name-field-most-wanted-alias")]//div[contains(@class, "field__item")]',
@@ -153,13 +147,11 @@ def crawl_person(context: Context, url: str, wanted_for: str):
 
 
 def crawl(context: Context):
-    def unblock_validator(doc) -> bool:
-        return doc.find('.//div[@class="mw-wantfor"]') is not None
-
+    wanted_xpath = './/div[@class="mw-wantfor"]'
     doc = fetch_html(
         context,
         context.data_url,
-        unblock_validator=unblock_validator,
+        wanted_xpath,
         html_source="httpResponseBody",
         cache_days=1,
     )
@@ -167,5 +159,5 @@ def crawl(context: Context):
 
     for person_node in doc.xpath('.//li[@class="grid"]//a'):
         url = person_node.get("href")
-        wanted_for = person_node.xpath('.//div[@class="mw-wantfor"]')[0].text_content()
+        wanted_for = person_node.xpath(wanted_xpath)[0].text_content()
         crawl_person(context, url, wanted_for)

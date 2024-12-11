@@ -36,3 +36,13 @@ data:
 
 dates: 
   formats: ["%B %d, %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 280
+      Position: 100
+  max:
+    schema_entities:
+      Person: 400
+      Position: 400

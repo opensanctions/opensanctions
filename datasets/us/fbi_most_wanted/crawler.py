@@ -2,7 +2,6 @@ import re
 import math
 from itertools import count
 from typing import Optional
-from lxml import etree
 
 from zavod import Context
 from zavod import helpers as h
@@ -24,17 +23,10 @@ IGNORE_FIELDS = (
 SPLIT_DATES = re.compile(r"([^,]+,[^,]+)")
 
 
-def index_validator(doc: etree._Element) -> bool:
-    return doc.find('.//div[@class="row top-total"]//p') is not None
-
-
-def detail_Validator(doc: etree._Element) -> bool:
-    return doc.find('.//h1[@class="documentFirstHeading"]') is not None
-
-
 def crawl_person(context: Context, url: str) -> None:
-    doc = fetch_html(context, url, detail_Validator, cache_days=7)
-    name = doc.findtext('.//h1[@class="documentFirstHeading"]')
+    name_xpath = './/h1[@class="documentFirstHeading"]'
+    doc = fetch_html(context, url, name_xpath, cache_days=7)
+    name = doc.findtext(name_xpath)
     if name is None:
         context.log.error("Cannot find name table", url=url)
         return
@@ -118,17 +110,18 @@ def crawl_person(context: Context, url: str) -> None:
 
 def crawl_type(context: Context, type: str, query_id: str):
     total_pages: Optional[int] = None
+    total_xpath = './/div[@class="row top-total"]//p'
     for page in count(1):
         if total_pages is not None and page > total_pages:
             break
         url = FBI_URL % (type, query_id, page)
         # print(url)
         context.log.info("Fetching %s" % url)
-        doc = fetch_html(context, url, index_validator)
+        doc = fetch_html(context, url, total_xpath)
 
         if total_pages is None:
             # Get total results count
-            total_text = doc.findtext('.//div[@class="row top-total"]//p')
+            total_text = doc.findtext(total_xpath)
             if total_text is None:
                 context.log.error("Could not find result count", url=url)
                 continue

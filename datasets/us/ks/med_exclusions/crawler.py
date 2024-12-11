@@ -69,14 +69,11 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def unblock_validator(doc) -> bool:
-    return bool(doc.xpath("//*[text()='Termination List (XLSX)']"))
-
-
 def crawl_excel_url(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
+    file_xpath = "//*[text()='Termination List (XLSX)']"
+    doc = fetch_html(context, context.data_url, file_xpath)
     doc.make_links_absolute(context.data_url)
-    return doc.xpath("//*[text()='Termination List (XLSX)']")[0].get("href")
+    return doc.xpath(file_xpath)[0].get("href")
 
 
 def crawl(context: Context) -> None:

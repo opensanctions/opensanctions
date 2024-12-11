@@ -65,16 +65,12 @@ def unblock_validator(doc) -> bool:
 
 
 def crawl_excel_urls(context: Context):
-    doc = fetch_html(
-        context,
-        context.data_url,
-        geolocation="US",
-        unblock_validator=unblock_validator,
-    )
-    return doc.xpath(".//span[text()='MHCP Excluded Group Providers']/..")[0].get(
-        "href"
-    ), doc.xpath(".//span[text()='MHCP Excluded Individual Providers']/..")[0].get(
-        "href"
+    groups_xpath = ".//span[text()='MHCP Excluded Group Providers']/.."
+    individuals_xpath = ".//span[text()='MHCP Excluded Individual Providers']/.."
+    doc = fetch_html(context, context.data_url, groups_xpath, geolocation="US")
+    return (
+        doc.xpath(groups_xpath)[0].get("href"),
+        doc.xpath(individuals_xpath)[0].get("href"),
     )
 
 

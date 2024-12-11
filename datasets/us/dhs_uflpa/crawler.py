@@ -138,18 +138,15 @@ def crawl_program(
         context.audit_data(data)
 
 
-def unblock_validator(doc) -> bool:
-    return doc.find(".//table[@class='usa-table']") is not None
-
-
 def crawl(context: Context):
+    table_xpath = './/table[@class="usa-table"]'
     doc = fetch_html(
         context,
         context.data_url,
-        unblock_validator=unblock_validator,
+        table_xpath,
         html_source="httpResponseBody",
     )
-    tables = doc.findall('.//table[@class="usa-table"]')
+    tables = doc.findall(table_xpath)
     for table in tables:
         program_container = table.getprevious()
         assert program_container is not None

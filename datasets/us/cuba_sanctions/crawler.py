@@ -22,13 +22,9 @@ ACTIONS = [
 ]
 
 
-def unblock_validator(doc):
-    return doc.find(CONTENT_XPATH) is not None
-
-
 def crawl_accommodations(context: Context):
     doc = fetch_html(
-        context, ORIGINAL_ACCOMMODATIONS_URL, unblock_validator, actions=ACTIONS
+        context, ORIGINAL_ACCOMMODATIONS_URL, CONTENT_XPATH, actions=ACTIONS
     )
     node = doc.find(CONTENT_XPATH)
     h.assert_dom_hash(node, "7a2be818841181e19a1988c4d86789087d245c31")
@@ -50,7 +46,7 @@ def crawl_accommodations(context: Context):
 
 
 def crawl_restricted_entities(context: Context):
-    doc = fetch_html(context, ORIGINAL_ENTITIES_URL, unblock_validator, actions=ACTIONS)
+    doc = fetch_html(context, ORIGINAL_ENTITIES_URL, CONTENT_XPATH, actions=ACTIONS)
     node = doc.find(CONTENT_XPATH)
     h.assert_dom_hash(node, "d51568c7e6acb7da68cbf6c2a54987ea6fd5ff53")
 
