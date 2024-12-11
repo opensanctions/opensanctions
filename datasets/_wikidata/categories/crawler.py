@@ -23,6 +23,8 @@ QUERY = {
     "search_max_results": 1000,
     "sortorder": "ascending",
 }
+# TEMP: We're starting to include municipal PEPs for specific countries
+MUNI_COUNTRIES = {"us", "fr", "gb"}
 
 
 class CrawlState(object):
@@ -238,7 +240,8 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
         return persons
 
     # TEMP: skip municipal governments
-    if "gov.muni" in position.get("topics"):
+    topics = position.get("topics")
+    if "gov.muni" in topics and MUNI_COUNTRIES.isdisjoint(position.countries):
         return persons
 
     label = item_label(item)
