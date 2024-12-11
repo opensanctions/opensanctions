@@ -36,22 +36,22 @@ def crawl(context: Context):
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
             int_id = row.pop("#")
-            name = row.pop("vessel name")
-            imo = row.pop("IMO number")
+            name = row.pop("vessel_name")
+            imo = row.pop("imo_number")
             designated_owner = row.pop("designated_owner")
             # Create the vessel
             vessel = context.make("Vessel")
             vessel.id = context.make_id(name, imo, int_id)
             vessel.add("name", h.multi_split(name, SPLITS))
             vessel.add("imoNumber", imo)
-            vessel.add("mmsi", h.multi_split(row.pop("MMSI"), SPLITS))
+            vessel.add("mmsi", h.multi_split(row.pop("mmsi"), SPLITS))
             vessel.add("flag", h.multi_split(row.pop("flag"), SPLITS))
-            vessel.add("callSign", h.multi_split(row.pop("call sign"), SPLITS))
-            vessel.add("description", row.pop("other information"))
+            vessel.add("callSign", h.multi_split(row.pop("call_sign"), SPLITS))
+            vessel.add("description", row.pop("other_information"))
             vessel.add("type", row.pop("type"))
             # Create the sanction
             sanction = h.make_sanction(context, vessel)
-            h.apply_date(sanction, "startDate", row.pop("date of designation"))
+            h.apply_date(sanction, "startDate", row.pop("date_of_designation"))
             for program in PROGRAMS:
                 value = row.pop(program).strip()
                 if value and value.lower() != "na":
@@ -64,7 +64,9 @@ def crawl(context: Context):
                 context.emit(linked_entity)
 
                 link = context.make("UnknownLink")
-                link.id = context.make_id(vessel.id, linked_entity.id)
+                link.id = context.make_id(
+                    linked_entity.id, "designated As Economic Resources Of", vessel.id
+                )
                 link.add("object", vessel.id)
                 link.add("subject", linked_entity.id)
                 link.add("role", "designated As Economic Resources Of")
