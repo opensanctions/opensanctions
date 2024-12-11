@@ -4,9 +4,6 @@ from rigour.mime.types import CSV
 from zavod import Context, helpers as h
 
 SPLITS = [
-    "1. ",
-    "2. ",
-    "3. ",
     "1: ",
     "2: ",
     "3: ",
