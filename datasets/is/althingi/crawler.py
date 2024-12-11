@@ -8,19 +8,16 @@ EMAIL_PATTERN = r"tpostur\('([^']+)'"
 SUFFIX_PATTERN = r"(?<=\d)(st|nd|rd|th)"
 
 
-def detail_unblock_validator(doc):
-    return len(doc.xpath(".//*[text()='Date of Birth:']")) > 0
-
-
 def crawl_item(member_url: str, name: str, context: Context):
+    birth_date_xpath = ".//*[text()='Date of Birth:']/.."
     response = fetch_html(
         context,
         member_url,
-        detail_unblock_validator,
+        birth_date_xpath,
         html_source="httpResponseBody",
         cache_days=1,
     )
-    birth_date = response.xpath(".//*[text()='Date of Birth:']/..")[0].text_content()
+    birth_date = response.xpath(birth_date_xpath)[0].text_content()
     party = response.xpath(".//*[text()='Party:']/..")[0].text_content()
     telephone = response.find(".//*[@class='tel']").text_content()
 
@@ -65,21 +62,18 @@ def crawl_item(member_url: str, name: str, context: Context):
         context.emit(occupancy)
 
 
-def index_unblock_validator(doc):
-    return len(doc.xpath("//*[@id='members']")) > 0
-
-
 def crawl(context: Context):
+    members_xpath = ".//*[@id='members']/tbody/tr/td/b/a"
     response = fetch_html(
         context,
         context.data_url,
-        index_unblock_validator,
+        members_xpath,
         html_source="httpResponseBody",
         cache_days=1,
     )
     response.make_links_absolute(context.data_url)
 
-    for a_tag in response.findall(".//*[@id='members']/tbody/tr/td/b/a"):
+    for a_tag in response.findall(members_xpath):
         # For some reason the name is not always present on the member page
         # E.g. https://www.althingi.is/altext/cv/en/?nfaerslunr=247
         crawl_item(a_tag.get("href"), a_tag.text_content(), context)

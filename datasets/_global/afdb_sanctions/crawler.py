@@ -1,20 +1,15 @@
-from lxml import etree
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 
-def unblock_validator(doc: etree._Element) -> bool:
-    return doc.find(".//table[@id='datatable-1']") is not None
-
-
 def crawl(context: Context):
+    table_xpath = ".//table[@id='datatable-1']"
     doc = fetch_html(
-        context, context.data_url, unblock_validator, html_source="httpResponseBody"
+        context, context.data_url, table_xpath, html_source="httpResponseBody"
     )
 
-    table = doc.find('.//table[@id="datatable-1"]')
+    table = doc.find(table_xpath)
     for row in h.parse_html_table(table):
         cells = h.cells_to_str(row)
 

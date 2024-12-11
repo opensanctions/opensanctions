@@ -68,14 +68,11 @@ def parse_link_element(
     }
 
 
-def unblock_validator(doc: html.HtmlElement) -> bool:
-    return len(doc.xpath(".//div[contains(@class, 'card-body')]")) > 0
-
-
 def crawl(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator, cache_days=3)
+    link_xpath = ".//a[starts-with(@href, 'colabora_masbucados_detalle')]"
+    doc = fetch_html(context, context.data_url, link_xpath, cache_days=1)
     # Find all <a> elements with the specified pattern
-    link_elements = doc.xpath(".//a[starts-with(@href, 'colabora_masbucados_detalle')]")
+    link_elements = doc.xpath(link_xpath)
     if not link_elements:
         context.log.warn("No link elements found in the document.")
         return
