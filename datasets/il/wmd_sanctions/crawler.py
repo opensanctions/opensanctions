@@ -143,17 +143,12 @@ def crawl_row(context: Context, row: Dict):
     context.audit_data(row, ignore=["declaration_date", "originally_declared_by"])
 
 
-def unblock_validator(doc):
-    return len(doc.xpath("//article")) > 0
-
-
 def crawl_excel_url(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator, cache_days=1)
+    file_xpath = '//a[contains(@id,"filesToDownload_item")][contains(@href, "xlsx")]'
+    doc = fetch_html(context, context.data_url, file_xpath, cache_days=1)
     doc.make_links_absolute(context.data_url)
 
-    return doc.xpath(
-        '//a[contains(@id,"filesToDownload_item")][contains(@href, "xlsx")]'
-    )[0].get("href")
+    return doc.xpath(file_xpath)[0].get("href")
 
 
 def crawl(context: Context):

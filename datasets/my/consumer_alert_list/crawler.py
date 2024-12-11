@@ -67,10 +67,6 @@ def crawl_item(input_dict: dict, context: Context):
     context.audit_data(input_dict)
 
 
-def unblock_validator(doc: html.HtmlElement) -> bool:
-    return doc.find(".//script[@id='dataContainer']") is not None
-
-
 def crawl(context: Context):
     actions = [
         # Wait for jQuery DataTable to instantiate
@@ -95,15 +91,16 @@ def crawl(context: Context):
             """,
         },
     ]
+    data_xpath = ".//script[@id='dataContainer']"
     doc = fetch_html(
         context,
         context.data_url,
-        unblock_validator,
+        data_xpath,
         actions=actions,
         cache_days=1,
     )
 
-    table_data = json.loads(doc.find(".//script[@id='dataContainer']").text)
+    table_data = json.loads(doc.find(data_xpath).text)
 
     for item in parse_table(table_data):
         crawl_item(item, context)

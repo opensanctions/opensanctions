@@ -79,13 +79,10 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def unblock_validator(doc):
-    return len(doc.xpath(".//a[text()='Wyoming Provider Exclusion List ']")) > 0
-
-
 def crawl_excel_url(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator, geolocation="us")
-    return doc.xpath(".//a[text()='Wyoming Provider Exclusion List ']")[0].get("href")
+    file_xpath = ".//a[text()='Wyoming Provider Exclusion List ']"
+    doc = fetch_html(context, context.data_url, file_xpath, geolocation="us")
+    return doc.xpath(file_xpath)[0].get("href")
 
 
 def crawl(context: Context) -> None:

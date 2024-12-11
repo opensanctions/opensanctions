@@ -41,13 +41,13 @@ def is_500_page(doc: etree._Element) -> bool:
     )
 
 
-def detail_unblock_validator(doc: etree._Element) -> bool:
-    return bool(doc.xpath('.//div[@class="c-full-node__info"]')) or is_500_page(doc)
-
-
 def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
     context.log.debug(f"Starting to crawl company page: {url}")
-    doc = fetch_html(context, url, detail_unblock_validator, cache_days=3)
+    validator_xpath = (
+        './/div[@class="c-full-node__info"] | '
+        './/*[contains(text(), "The website encountered an unexpected error.")]'
+    )
+    doc = fetch_html(context, url, validator_xpath, cache_days=3)
     if is_500_page(doc):
         context.log.info(f"Broken link detected: {url}")
         return
@@ -122,10 +122,6 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
     )
 
 
-def index_unblock_validator(doc: etree._Element) -> bool:
-    return doc.find(".//div[@class='o-grid']") is not None
-
-
 def crawl(context: Context):
     pages_processed = 0
 
@@ -135,9 +131,10 @@ def crawl(context: Context):
         context.log.info(f"Fetching URL: {url}")
 
         # Fetch the HTML and get the table
-        doc = fetch_html(context, url, index_unblock_validator, cache_days=3)
+        table_xpath = ".//div[@class='view-content']//table"
+        doc = fetch_html(context, url, table_xpath, cache_days=3)
         doc.make_links_absolute(url)
-        table = doc.find(".//div[@class='view-content']//table")
+        table = doc.find(table_xpath)
         if table is None:
             context.log.info("No more tables found.")
             break

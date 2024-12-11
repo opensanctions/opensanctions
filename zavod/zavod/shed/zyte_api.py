@@ -2,7 +2,7 @@ from pathlib import Path
 from lxml import html, etree
 from time import sleep
 from base64 import b64decode
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
@@ -17,12 +17,12 @@ from zavod.runtime.http_ import request_hash
 
 ZYTE_API_URL = "https://api.zyte.com/v1/extract"
 
-UnblockValidator = Callable[[etree._Element], bool]
-
 
 class UnblockFailedException(RuntimeError):
-    def __init__(self, url: str):
-        super().__init__(f"Unblocking failed for URL: {url}")
+    def __init__(self, url: str, validator: str):
+        super().__init__(
+            f"Unblocking failed for URL: '{url}' with validator: '{validator}'"
+        )
 
 
 def get_content_type(headers: List[Dict[str, str]]) -> Tuple[str, str | None]:
@@ -238,7 +238,7 @@ def fetch_json(
 def fetch_html(
     context: Context,
     url: str,
-    unblock_validator: UnblockValidator,
+    unblock_validator: str,
     actions: list[Dict[str, Any]] = [],
     html_source: str = "browserHtml",
     javascript: Optional[bool] = None,
@@ -255,9 +255,9 @@ def fetch_html(
     Args:
         context: The context object.
         url: The URL of the web page.
-        unblock_validator: A function that checks if the page is unblocked
-            successfully. This is important to ensure we don't cache pages
-            that weren't actually unblocked successfully.
+        unblock_validator: XPath matching at least one element if and only if
+            unblocking was successful. This is important to ensure we don't cache
+            pages that weren't actually unblocked successfully.
         actions: A list of dicts of actions to attempt on a rendered page.
         html_source: browserHtml | httpResponseBody
         javascript: Whether to execute JavaScript on the page.
@@ -320,7 +320,8 @@ def fetch_html(
         text = b64decode(text).decode(charset)
     doc = html.fromstring(text)
 
-    if not unblock_validator(doc):
+    matches = doc.xpath(unblock_validator)
+    if not isinstance(matches, list) or not len(matches) > 0:
         if previous_retries < retries:
             pause = backoff_factor * (2 ** (previous_retries + 1))
             context.log.debug(
@@ -343,7 +344,7 @@ def fetch_html(
                 previous_retries=previous_retries + 1,
             )
         context.log.debug("Unblocking failed", url=url, html=text)
-        raise UnblockFailedException(url)
+        raise UnblockFailedException(url, unblock_validator)
 
     if cache_days is not None:
         context.cache.set(fingerprint, text)

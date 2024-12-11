@@ -3,20 +3,13 @@ from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html, UnblockValidator
-
-
-def make_unblock_validator(expected_text: str) -> UnblockValidator:
-    def unblock_validator(el) -> bool:
-        return expected_text in el.text_content()
-
-    return unblock_validator
+from zavod.shed.zyte_api import fetch_html
 
 
 def crawl_page(
     context: Context,
     link: str,
-    unblock_validator: UnblockValidator,
+    unblock_validator: str,
     required: bool = True,
 ):
     doc = fetch_html(context, link, unblock_validator, cache_days=3)
@@ -83,7 +76,7 @@ def crawl(context: Context):
     index_doc = fetch_html(
         context,
         context.dataset.url,
-        make_unblock_validator("Tarptautinės finansinės sankcijos. Įgyvendinimas"),
+        ".//*[contains(text(), 'Tarptautinės finansinės sankcijos. Įgyvendinimas')]",
         cache_days=1,
     )
     index_main = index_doc.xpath(".//main")
@@ -93,12 +86,12 @@ def crawl(context: Context):
     crawl_page(
         context,
         "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/sankcionuotu-asmenu-sarasas/",
-        make_unblock_validator("Fizinio ar juridinio asmens, kurio turtas įšaldytas"),
+        ".//*[contains(text(), 'Fizinio ar juridinio asmens, kurio turtas įšaldytas')]",
     )
     unsc_1373_doc = crawl_page(
         context,
         "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/JT-STR-1373-sarasas/",
-        make_unblock_validator("JT ST rezoliucijoje 1373 (2001)"),
+        ".//*[contains(text(), 'JT ST rezoliucijoje 1373 (2001)')]",
         required=False,
     )
     unsc_1373_main = unsc_1373_doc.xpath(".//main")

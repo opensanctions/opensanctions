@@ -98,14 +98,11 @@ def crawl_item(row: Dict[str, str], context: Context):
     )
 
 
-def unblock_validator(doc) -> bool:
-    return len(doc.xpath(".//a[contains(text(), 'Download CSV')]")) > 0
-
-
 def crawl_csv_url(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
+    file_xpath = ".//a[contains(text(), 'Download CSV')]"
+    doc = fetch_html(context, context.data_url, file_xpath)
     doc.make_links_absolute(context.data_url)
-    return doc.xpath(".//a[contains(text(), 'Download CSV')]")[0].get("href")
+    return doc.xpath(file_xpath)[0].get("href")
 
 
 def crawl(context: Context) -> None:

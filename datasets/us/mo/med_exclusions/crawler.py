@@ -6,10 +6,6 @@ from zavod import Context
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 from zavod import helpers as h
 
-EXCEL_XPATH = (
-    "//a[starts-with(@href, 'https://mmac.mo.gov/')][contains(@href, 'sanction-list')]"
-)
-
 
 def crawl_item(row: Dict[str, str], context: Context):
 
@@ -39,13 +35,10 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def unblock_validator(doc) -> bool:
-    return len(doc.xpath(EXCEL_XPATH)) > 0
-
-
 def crawl_excel_url(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
-    links = doc.xpath(EXCEL_XPATH)
+    file_xpath = "//a[starts-with(@href, 'https://mmac.mo.gov/')][contains(@href, 'sanction-list')]"
+    doc = fetch_html(context, context.data_url, file_xpath)
+    links = doc.xpath(file_xpath)
     assert len(links) == 1, links
     return links[0].get("href")
 

@@ -21,10 +21,6 @@ def cell_values(el: _Element) -> List[str]:
     return [text]
 
 
-def unblock_validator(el) -> bool:
-    return "SANCTION LIST MADE BY THE MINISTRY OF HOME AFFAIRS" in el.text_content()
-
-
 def crawl_table(context: Context, table: _Element) -> None:
     headers: Optional[List[str]] = None
     for row in table.findall(".//tr"):
@@ -71,7 +67,10 @@ def crawl_table(context: Context, table: _Element) -> None:
 
 
 def crawl_html_url(context: Context) -> str:
-    html = fetch_html(context, context.data_url, unblock_validator, cache_days=5)
+    validator = (
+        ".//*[contains(text(), 'SANCTION LIST MADE BY THE MINISTRY OF HOME AFFAIRS')]"
+    )
+    html = fetch_html(context, context.data_url, validator, cache_days=5)
     for a in html.findall('.//div[@class="uk-container"]//a'):
         if "senarai sekatan" not in a.text_content().lower():
             continue

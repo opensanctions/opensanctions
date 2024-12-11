@@ -1,9 +1,11 @@
+import csv
 from typing import Dict
-from rigour.mime.types import XLSX
-from openpyxl import load_workbook
+from normality import slugify
+from rigour.mime.types import CSV
+from rigour.ids.npi import NPI
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.shed.zyte_api import fetch_html
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -49,14 +51,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("provider_type"))
     entity.add("address", h.multi_split(addresses, [", &", ";"]))
+    entity.add("registrationNumber", row.pop("license_number").split(", "))
 
-    license_number = row.pop("license_number")
-    if license_number and license_number != "N/A":
-        entity.add("description", "License number(s): " + license_number)
-
-    provider_number = row.pop("provider_number")
-    if provider_number and provider_number != "N/A":
-        entity.add("description", "Provider number(s): " + provider_number)
+    for num in h.multi_split(row.pop("provider_number"), [","]):
+        if NPI.is_valid(num):
+            entity.add("npiCode", num)
+        else:
+            entity.add("registrationNumber", num)
 
     sanction = h.make_sanction(context, entity)
     start_date = row.pop("date_of_suspension")
@@ -70,30 +71,39 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def unblock_validator(doc) -> bool:
-    xpath = ".//a[contains(text(), 'Medi-Cal Suspended and Ineligible Provider List')]"
-    return len(doc.xpath(xpath)) > 0
+def crawl_data_url(context: Context):
+    # Landing page
+    xpath = ".//a[contains(text(), 'Suspended')][contains(text(), 'Ineligible')][contains(text(), 'List')]"
 
-
-def crawl_excel_url(context: Context):
-    doc = fetch_html(
-        context, context.data_url, geolocation="US", unblock_validator=unblock_validator
+    landing_doc = fetch_html(
+        context,
+        context.data_url,
+        xpath,
+        geolocation="US",
+        cache_days=1,
     )
-    doc.make_links_absolute(context.data_url)
-    return doc.xpath(
-        ".//a[contains(text(), 'Medi-Cal Suspended and Ineligible Provider List')]"
-    )[0].get("href")
+    landing_doc.make_links_absolute(context.data_url)
+    dataset_url = landing_doc.xpath(xpath)[0].get("href")
+
+    dataset_doc = context.fetch_html(dataset_url, cache_days=1)
+    dataset_doc.make_links_absolute(dataset_url)
+    resource_url = dataset_doc.xpath(xpath)[0].get("href")
+
+    resource_doc = context.fetch_html(resource_url, cache_days=1)
+    resource_doc.make_links_absolute(resource_url)
+    file_xpath = ".//a[contains(@href, '.csv')]"
+    file_url = resource_doc.xpath(file_xpath)[0].get("href")
+    return file_url
 
 
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
-    excel_url = crawl_excel_url(context)
-    _, _, _, path = fetch_resource(
-        context, "source.xlsx", excel_url, expected_media_type=XLSX, geolocation="US"
-    )
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+    excel_url = crawl_data_url(context)
+    path = context.fetch_resource("source.csv", excel_url)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
-
-    for item in h.parse_xlsx_sheet(context, wb.active):
-        crawl_item(item, context)
+    with open(path, "r") as f:
+        reader = csv.DictReader(f)
+        reader.fieldnames = [slugify(key, sep="_") for key in reader.fieldnames]
+        for row in reader:
+            crawl_item(row, context)

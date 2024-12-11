@@ -19,16 +19,13 @@ NAME_REPLACEMENTS = [
 ]
 
 
-def unblock_validator(el) -> bool:
-    return "End User List" in el.text_content()
-
-
 def crawl_pdf_url(context: Context) -> str:
-    html = fetch_html(context, context.data_url, unblock_validator)
+    validator = ".//a[contains(text(), 'End User List')]"
+    html = fetch_html(context, context.data_url, validator)
     for a in html.findall(".//a"):
         if a.text is not None and "Review of the End User List" in a.text:
             review_url = urljoin(context.data_url, a.get("href"))
-            html = fetch_html(context, review_url, unblock_validator)
+            html = fetch_html(context, review_url, validator)
             for a in html.findall(".//a"):
                 if a.text is None or "End User List" not in a.text:
                     continue

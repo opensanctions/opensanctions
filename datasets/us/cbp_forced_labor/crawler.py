@@ -152,10 +152,11 @@ def unblock_validator(doc) -> bool:
 
 
 def crawl(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator)
+    accordion_xpath = "//div[contains(@class, 'usa-section-accordion')]"
+    doc = fetch_html(context, context.data_url, accordion_xpath)
     doc.make_links_absolute(context.data_url)
 
-    for accordion in doc.xpath("//div[contains(@class, 'usa-section-accordion')]"):
+    for accordion in doc.xpath(accordion_xpath):
         heading_el = accordion.find(".//h2")
         heading_text = heading_el.text_content()
         table = accordion.find(".//table")

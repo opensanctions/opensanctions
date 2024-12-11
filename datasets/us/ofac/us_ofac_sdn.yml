@@ -441,12 +441,12 @@ lookups:
         value: 253400MZGXVN18GHCN57
       - match: 25400B8Y0FNJP628S19
         value: 253400B8Y0FNJP628S19
-      - match: IMO 543400
-        value: 543400
-      - match: IMO 9207391
-        value: 9207391
-      - match: IMO 642068
-        value: 642068
+      - match: IMO 543400  # Hwasong typo
+        value: 5434300
+      - match: IMO 9207391  # Derecttor typo
+        value: 6207391
+      - match: IMO 642068  # Celia Armas typo
+        value: 6420688
   type.address:
     lowercase: true
     options:

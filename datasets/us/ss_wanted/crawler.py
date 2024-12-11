@@ -30,38 +30,28 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
 
 
 def crawl(context: Context):
-    def unblock_validator(doc) -> bool:
-        return doc.find('.//div[@id="block-af1-content"]') is not None
-
+    person_xpath = './/div[@id="block-af1-content"]//div[contains(@class, "grid-col")][contains(@class, "margin")]//a'
     doc = fetch_html(
         context,
         context.data_url,
-        unblock_validator=unblock_validator,
+        person_xpath,
         html_source="httpResponseBody",
         cache_days=1,
     )
     doc.make_links_absolute(context.data_url)
 
-    for person_node in doc.xpath(
-        './/div[@id="block-af1-content"]//div[contains(@class, "grid-col")][contains(@class, "margin")]//a'
-    ):
+    for person_node in doc.xpath(person_xpath):
         url = person_node.get("href")
         crawl_person(context, url)
 
 
 def crawl_person(context: Context, url: str):
-    def unblock_validator(doc) -> bool:
-        return len(doc.xpath('.//h1[contains(@class, "page-title")]')) > 0
-
+    name_xpath = '//h1[contains(@class, "page-title")]'
     doc = fetch_html(
-        context,
-        url,
-        unblock_validator,
-        html_source="httpResponseBody",
-        cache_days=1,
+        context, url, name_xpath, html_source="httpResponseBody", cache_days=1
     )
 
-    name = get_element_text(doc, '//h1[contains(@class, "page-title")]')
+    name = get_element_text(doc, name_xpath)
 
     alias = get_element_text(
         doc,
