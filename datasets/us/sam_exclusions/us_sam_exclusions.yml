@@ -135,7 +135,7 @@ lookups:
       - match: 
           - "0000000000"
           - N0TAPPLICABL
-          - 00000
+          - "00000"
           - N/A
         value: null
       - match: 1009398416
