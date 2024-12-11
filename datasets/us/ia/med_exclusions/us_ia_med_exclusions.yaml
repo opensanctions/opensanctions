@@ -45,4 +45,4 @@ lookups:
       - regex: X000\d{6}
         prop: idNumber
       - match: 40980
-        value: idNumber
+        prop: idNumber
