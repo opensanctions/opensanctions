@@ -132,10 +132,10 @@ lookups:
   type.identifier:
     lowercase: true
     options:
-      - match: 
+      - match:
           - "0000000000"
           - N0TAPPLICABL
-          - 00000
+          - "00000"
           - N/A
         value: null
       - match: 1009398416
@@ -168,7 +168,7 @@ lookups:
         value: 1679679096
       - match: 1568700039
         value: 1568700391
-      - match: 
+      - match:
           - 079426694
           - 095470566
           - 0447984000

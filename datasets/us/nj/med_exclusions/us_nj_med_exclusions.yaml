@@ -58,7 +58,7 @@ lookups:
         value: null
   type.idenifier:
     options:
-      - match: 1
+      - match: "1"
         value: null
       - match: 143737727
         value: 1437373727
