@@ -1,0 +1,64 @@
+title: UNSC 1718 Designated Vessels List
+entry_point: crawler.py
+prefix: un-1718
+coverage:
+  frequency: daily
+  start: "2024-12-11"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+   Vessels designated under UN Security Council resolutions for sanctions measures, 
+   including asset freezes, port entry bans, and other restrictions.
+description: |
+  The 1718 designated vessels list provides information on vessels subject to 
+  the following measures obligated under the relevant resolutions:
+
+  - Paragraph 8 (d) of resolution 1718 (2006) and paragraph 12 of resolution 2270 (2016)
+  - Paragraph 12 (a) and (d) of resolution 2321 (2016)
+  - Paragraph 6 of resolution 2371 (2017) and paragraph 6 of resolution 2375 (2017)
+  - Economic resources controlled or operated by Ocean Maritime Management (KPe.020)
+
+  - Freezing funds, financial assets, and economic resources related to 
+    designated vessels as mandated by resolution 1718 (2006) and clarified
+    in resolution 2270 (2016), which explicitly includes maritime vessels.
+
+  - Actions outlined in resolution 2321 (2016), such as de-flagging vessels,
+    prohibiting port entry, and asset freezes, where vessels are linked to
+    nuclear or ballistic missile-related activities.
+
+  - Port entry bans under resolutions 2371 (2017) and 2375 (2017) for vessels
+    involved in prohibited activities unless in cases of emergency, return 
+    to origin, or for humanitarian reasons approved by the Committee.
+
+  - Measures on vessels controlled or operated by Ocean Maritime Management 
+    (KPe.020) as per resolution 2270 (2016), recognizing them as economic 
+    resources subject to sanctions.
+publisher:
+  name: United Nations Security Council
+  acronym: UNSC
+  description: |
+    The Security Council has primary responsibility for the maintenance of international 
+    peace and security. Under the Charter of the United Nations, all Member States are 
+    obligated to comply with Council decisions.
+ 
+    The Security Council takes the lead in determining the existence of a threat to the 
+    peace or act of aggression. It calls upon the parties to a dispute to settle it by 
+    peaceful means and recommends methods of adjustment or terms of settlement. In some 
+    cases, the Security Council can resort to imposing sanctions or even authorize the 
+    use of force to maintain or restore international peace and security.
+    [Source: Official Website](https://main.un.org/securitycouncil/en)
+  url: https://main.un.org/securitycouncil/en
+  official: true
+url: https://main.un.org/securitycouncil/en/sanctions/1718/materials/1718-Designated-Vessels-List
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTRPL95PD7IXkZZ0XOiwlPvTawFD6k-LAHCmOYLdkqYn01QBsBan8QlDhF56gKKAiMicg7RPZnRe2Xb/pub?output=csv
+  format: CSV
+
+dates:
+  formats: ["%d-%b-%y"]
+lookups:
+  type.date:
+    options:
+      - match: "1: 03-Oct-17 2: 30-Mar-18"
+        values:
+          - 2017-10-03
+          - 2018-03-30
