@@ -1958,5 +1958,5 @@ lookups:
         decision: "ignore"
       - match: "Q782"
         code: "US"
-        label: "United States of America"
-        decision: "national"
+        label: "Hawaii"
+        decision: "subnational"
