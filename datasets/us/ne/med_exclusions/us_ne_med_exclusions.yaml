@@ -47,3 +47,8 @@ assertions:
     schema_entities:
       Person: 1200
       Company: 120
+lookups:
+  type.identifier:
+    options:
+      - match: 15788Chore58
+        value: 1578806584

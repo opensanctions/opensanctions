@@ -351,11 +351,11 @@ def crawl(context: Context):
         "https://war-sanctions.gur.gov.ua/en/transport/ships", cache_days=1
     )
     transport_tabs_container = transport_page.xpath(
-        ".//div[contains(@class, 'tab')][contains(@class, 'justify-content-center')]"
+        ".//div[contains(@class, 'tab')]/div[contains(@class, 'justify-content-center')]"
     )
     assert len(transport_tabs_container) == 1, transport_tabs_container
     h.assert_dom_hash(
-        transport_tabs_container[0], "040d13069019b10c8a7613ed3fc0c71ca5255e66"
+        transport_tabs_container[0], "0558cd6cac449be9dcacd832807af7c12abe098c"
     )
 
     for link_info in LINKS:
