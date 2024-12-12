@@ -1957,6 +1957,6 @@ lookups:
         label: "Maghreb Economic Area"
         decision: "ignore"
       - match: "Q782"
-        code: ""
+        code: "US"
         label: "Hawaii"
-        decision: "ignore"
+        decision: "subnational"
