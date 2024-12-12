@@ -56,7 +56,7 @@ lookups:
           - DECEASED
           - N/A
         value: null
-  type.idenifier:
+  type.identifier:
     options:
       - match: "1"
         value: null
