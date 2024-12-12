@@ -1,0 +1,81 @@
+title: Helena Kennedy Centre Companies Operating in the Uyghur Region
+entry_point: crawler.py
+prefix: hkc-uyghur
+coverage:
+  frequency: daily
+  start: 2024-12-12
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+summary: >-
+  Over 50,000 companies operating across various sectors in the Uyghur Region.  
+description: |
+  This dataset highlights the corporate landscape of the Uyghur Region, including 
+  companies involved in manufacturing, export, professional services, construction, 
+  telecommunications, and retail. It provides names, addresses, and sectors in both 
+  Chinese and English.
+
+  Its purpose is to provide a better understanding of the economic landscape in the 
+  Uyghur Region amid ongoing human rights concerns. This list represents publicly 
+  available information and is not an original research product of the authors or 
+  of Sheffield Hallam University.
+
+  **Note:** The list is drawn from a human resources website, accessed via the internet in 
+  December 2021. This list is not exhaustive, nor does it provide data on companies that were 
+  registered, de-registered, or otherwise changed status after that time.
+  English translation is machine-generated and may not be accurate.
+  [Source: Helena Kennedy Centre for International Justice](https://www.shu.ac.uk/helena-kennedy-centre-international-justice/research-and-projects/all-projects/useful-resources)
+url: https://www.shu.ac.uk/helena-kennedy-centre-international-justice/research-and-projects/all-projects/useful-resources
+publisher:
+  name: Helena Kennedy Centre for International Justice at Sheffield Hallam University
+  acronym: HKC
+  description: |
+    The Helena Kennedy Centre for International Justice is a leading centre for social 
+    justice and human rights. Its expertise spans human rights, criminology, law, policing, 
+    and probation. The centre leads high-profile projects addressing critical issues such 
+    as modern day slavery, gender-based violence, and hate crimes.
+  url: https://www.shu.ac.uk/helena-kennedy-centre-international-justice
+  official: false
+data:
+  url: https://www.shu.ac.uk/helena-kennedy-centre-international-justice/research-and-projects/all-projects/useful-resources
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Company: 50000
+lookups: 
+  type.address: 
+    options: 
+      - match: Hejing County, Bayingoleng Mongol Autonomous Prefecture, Xinjiang 279 On the south side of the county road and on the north side of Gonghala Village Xinjiang Hongteng Agriculture and Animal Husbandry Ecological Technology Development Co., Ltd. 1 Number
+        values: 
+          - Hejing County, Bayingoleng Mongol Autonomous Prefecture, Xinjiang 279
+          - On the south side of the county road and on the north side of Gonghala Village Xinjiang Hongteng Agriculture and Animal Husbandry Ecological Technology Development Co., Ltd. 1 Number
+      - match: South of Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Kazakh Autonomous Prefecture, Xinjiang 2-2 Building (Xinrun Warehousing and Logistics Park 2 building 2 layer 44-E room number)
+        values: 
+          - South of Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Kazakh Autonomous Prefecture, Xinjiang 2-2 Building
+          - Xinrun Warehousing and Logistics Park 2 building 2 layer 44-E room number
+      - match: Shenka Science and Technology Innovation Service Center, Kashi Special Zone, on the east side of Chuangye 7th Road, on the south side of Chuangye 2nd Road, in the west area of Shenzhen Industrial Park, Kashgar Economic Development Zone, Kashgar, Xinjiang
+        values: 
+          - Shenka Science and Technology Innovation Service Center, Kashi Special Zone, on the east side of Chuangye 7th Road
+          - on the south side of Chuangye 2nd Road, in the west area of Shenzhen Industrial Park, Kashgar Economic Development Zone, Kashgar, Xinjiang
+      - match: South of Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Prefecture, Xinjiang 2-2 Building (Xinrun Warehousing and Logistics Park 2 building 2 layer 25 room number)
+        values: 
+          - South of Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Prefecture, Xinjiang 2-2 Building
+          - Xinrun Warehousing and Logistics Park 2 building 2 layer 25 room number
+      - match: To the west of Beijing Road, to the east of Shanghai Road, to the east of Shanghai Road, to the south of Shandong Road, to the north of Hebei Road, Yining Economic Cooperation Zone, Yili Prefecture, Xinjiang 46 Building a Holiday Landscape 2 building 3 unit 4 layer 402 room
+        values: 
+          - To the west of Beijing Road, to the east of Shanghai Road, to the east of Shanghai Road, to the south of Shandong Road, to the north of Hebei Road, Yining Economic Cooperation Zone, Yili Prefecture, Xinjiang 46 Building
+          - a Holiday Landscape 2 building 3 unit 4 layer 402 room
+      - match: South Attachment to Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Prefecture, Xinjiang 2 No. (Luxiang Logistics Park Office Building 1 second floor 217 Number)
+        values: 
+          - South Attachment to Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Prefecture, Xinjiang 2 No.
+          - Luxiang Logistics Park Office Building 1 second floor 217 Number
+      - match: Montenegro, Toksun County, Turpan City, Xinjiang 103 East side of Provincial Highway , North of Sinopec Gas Station 1.4Kilometers away (Tokexun Yinhe Energy Investment and Construction Co., Ltd. Heishan Warehousing and Logistics Base E. seat 107 room )
+        values: 
+          - Montenegro, Toksun County, Turpan City, Xinjiang 103 East side of Provincial Highway
+          - North of Sinopec Gas Station 1.4Kilometers away
+          - Tokexun Yinhe Energy Investment and Construction Co., Ltd. Heishan Warehousing and Logistics Base E. seat 107 room
+      - match: South Attachment to Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Kazakh Autonomous Prefecture, Xinjiang 2 No. (Luxiang Logistics Park Office Building 2 layer 207 Number)
+        values: 
+          - South Attachment to Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Kazakh Autonomous Prefecture, Xinjiang 2 No.
+          - Luxiang Logistics Park Office Building 2 layer 207 Number
