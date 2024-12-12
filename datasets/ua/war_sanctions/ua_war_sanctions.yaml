@@ -261,6 +261,34 @@ lookups:
         name: Danika Robert LTD
         registration_number: 6371374
         care_of: Shanghai Legendary Ship Management Co LTD
+      - match: Black Pearl Marine LTD c/o Adel Ship Management SRL (6416500
+        name: Black Pearl Marine LTD
+        registration_number: 6416500
+        care_of: Adel Ship Management SRL
+      - match: "East Victory LTD c/o: Prominent Shipmanagement LTD (6346190"
+        name: East Victory LTD
+        registration_number: 6346190
+        care_of: Prominent Shipmanagement LTD
+      - match: "East Diamond Hong Kong LTD c/o: Prominent Shipmanagement LTD (6350753"
+        name: East Diamond Hong Kong LTD
+        registration_number: 6350753
+        care_of: Prominent Shipmanagement LTD
+      - match: "Star Maritime & Trading Inc c/o: Tokyo Gemi Isletmeciligi AS (6319147"
+        name: Star Maritime & Trading Inc
+        registration_number: 6319147
+        care_of: Tokyo Gemi Isletmeciligi AS
+      - match: Ocean Thunder Shipping Corp c/o Onn Denizcilik ve Danismanlik LTD (6475491
+        name: Ocean Thunder Shipping Corp
+        registration_number: 6475491
+        care_of: Onn Denizcilik ve Danismanlik LTD
+      - match: Trident Infinity LTD c/o Vigor Marine Services LLP (6443583
+        name: Trident Infinity LTD
+        registration_number: 6443583
+        care_of: Vigor Marine Services LLP
+      - match: Selena Lively LTD c/o Munne Co LTD (6358878
+        name: Selena Lively LTD
+        registration_number: 6358878
+        care_of: Munne Co LTD
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
