@@ -23,6 +23,7 @@ setup(
     install_requires=[
         "followthemoney == 3.7.*",
         "nomenklatura[leveldb] == 3.14.0",
+        "countrynames >= 1.16.5, < 2.0",
         "plyvel == 1.5.1",
         "rigour == 0.8.2",
         "datapatch >= 1.1,< 1.3",

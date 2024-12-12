@@ -44,5 +44,5 @@ lookups:
     options:
       - regex: X000\d{6}
         prop: idNumber
-      - match: 40980
+      - match: "40980"
         prop: idNumber
