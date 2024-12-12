@@ -1,16 +1,19 @@
-title: "Azerbaijan Laundromat"
+title: "Azerbaijani Laundromat"
 entry_point: crawler.py
 prefix: az-danske
 coverage:
   frequency: never
-  start: 2022-07-12
+  start: 2024-12-12
 deploy:
   schedule: "@monthly"
 summary: >
-  Transactional data from Danske Bank regarding Azerbaijani influence in Europe
+  Transactional data from Danske Bank regarding Azerbaijani money laundering and 
+  influence in European politics
 description: |
-  This dataset is included for demo and testing purposes. Do not include in
-  collections.
+  This dataset is published on the OCCRP website as part of the Azerbaijani Laundromat
+  investigation. It contains a list of transactions from Danske Bank, which were used
+  to launder money from Azerbaijan and influence European politics. The data was
+  obtained by OCCRP and its partners in 2017 and 2018.
 url: https://www.occrp.org/en/project/the-azerbaijani-laundromat
 publisher:
   name: "Organized Crime and Corruption Reporting Project"
