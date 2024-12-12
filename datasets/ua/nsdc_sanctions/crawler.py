@@ -38,14 +38,8 @@ def note_long_identifier(entity: Entity, values: List[str]) -> None:
 
 
 def check_sanctioned(
-    context: Context, entity: Entity, subject_id: int, item: Dict[str, Any]
+    context: Context, entity: Entity, subject_id: int, item: Dict[str, Any], status: str
 ) -> bool | None:
-    status = item.pop("status")
-    if status is None:
-        context.log.warn(
-            "Missing status", subject_id=subject_id, entity_name=entity.get("name")
-        )
-        return None
     res = context.lookup("sanctioned_status", status)
     if res is None:
         context.log.warn(
@@ -62,6 +56,9 @@ def check_sanctioned(
 def crawl_common(
     context: Context, subject_id: str, entity: Entity, item: Dict[str, Any]
 ) -> None:
+    status = item.pop("status")
+    if status is None:
+        return
     name = item.pop("name")
     if match := REGEX_NAME_3_PARTS.match(name):
         entity.add("name", match.groups())
@@ -134,7 +131,7 @@ def crawl_common(
                 context.log.info("Unknown attribute", key=key, value=value)
                 entity.add("notes", f"{key}: {value}", lang="ukr")
 
-    is_sanctioned = check_sanctioned(context, entity, subject_id, item)
+    is_sanctioned = check_sanctioned(context, entity, subject_id, item, status)
     if is_sanctioned is None:
         return
     if is_sanctioned:
@@ -143,7 +140,8 @@ def crawl_common(
     for action in fetch_data(
         context, f"/subjects/{subject_id}/actions", cache_days=CACHE_LONG
     ):
-        sanction = h.make_sanction(context, entity, key=action.pop("aid"))
+        action_id = action.pop("aid")
+        sanction = h.make_sanction(context, entity, key=action_id)
         sanction.add("status", action.pop("status"))
         decree = action.pop("decree", None) or {}
         sanction.add("sourceUrl", decree.pop("link", None))
@@ -151,6 +149,7 @@ def crawl_common(
         sanction.add("program", decree.pop("number", None))
         sanction.add("endDate", action.pop("endDate", None))
         sanction.add("duration", action.pop("term", None), lang="ukr")
+        sanction.add("authorityID", action_id)
         restrictions = action.pop("restrictions", None) or []
         for restr in restrictions:
             sanction.add("provisions", restr["restriction"])
