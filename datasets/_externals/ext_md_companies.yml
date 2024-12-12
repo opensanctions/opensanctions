@@ -11,8 +11,8 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "3000Mi"
-  memory_limit: "3500Mi"
+  memory: "3500Mi"
+  memory_limit: "4000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Companies in Moldova, with information on their founders, beneficial
