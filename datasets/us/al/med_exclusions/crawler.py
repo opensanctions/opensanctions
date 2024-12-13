@@ -106,7 +106,7 @@ def crawl_data_url(context: Context):
 def page_settings(page: Page) -> Dict:
     settings = {"join_y_tolerance": 15}
     if page.page_number == 1:
-        table_start = 500
+        table_start = 510
         # im = page.to_image()
         # im.draw_hline(table_start)
         # im.save("page.png")
