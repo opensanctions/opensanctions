@@ -220,15 +220,11 @@ lookups:
       - match: ZWE
         value: EU-ZWE
 
+# - match: EUAQ
+#   value: EU-EUROPEAN-ACT
+# - match: UNLI
+#   value: 
 
-      # - match: EUAQ
-      #   value: EU-EUROPEAN-ACT
-      # - match: UNLI
-      #   value: 
-
-# unused: 
-# - EU-PMR
-# ...
 
   subject_type:
     options:
