@@ -1,7 +1,6 @@
 title: "US Money Services Business Registrant List"
 entry_point: crawler.py
 url: https://www.fincen.gov/msb-state-selector
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 resolve: false
 ci_test: false
 coverage:
