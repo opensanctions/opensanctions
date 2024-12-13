@@ -29,7 +29,7 @@ def crawl_row(context: Context, declaration_id: int):
     )
     declarant = declaration.pop("Datos_del_Declarante", None)
     if declarant is None:
-        context.log.info(f"Declarant data not available", declaration_id=declaration_id)
+        context.log.info("Declarant data not available", declaration_id=declaration_id)
         return
     person = context.make("Person")
 
