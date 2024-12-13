@@ -142,6 +142,32 @@ lookups:
         value: 1961-07
       - match: 04/1964,
         value: 1964-04
+      - match: Environ 1972
+        value: 1972
+      - match: Entre 1981 et 1983
+        values:
+          - 1981
+          - 1983
+      - match: Entre 1975 et 1979
+        values:
+          - 1975
+          - 1979
+      - match: Entre 1969 et 1971
+        values:
+          - 1969
+          - 1971
+      - match: Entre 1958, et 1963
+        values:
+          - 1958
+          - 1963
+      - match: Entre 1940 et 1941
+        values:
+          - 1940
+          - 1941
+      - match: Entre 1977 et 1982.
+        values:
+          - 1977
+          - 1982
       - match:
           - Entre le 01/01/1961 et le 31/12/1963,
           - Entre le 01/01/1961 et le 31/12/1963

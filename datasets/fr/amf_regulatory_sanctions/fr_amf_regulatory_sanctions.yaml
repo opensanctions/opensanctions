@@ -995,3 +995,12 @@ lookups:
           - Novaxia Développement
           - Novaxia Gestion
           - Novaxia
+      - match: 'La société European High Growth Opportunities Manco SA<br /> La société Alpha Blue Ocean Inc<br /> La société Auplata Mining Group AMG<br /> La société RSM Paris SAS <br /> M. Stéphane Marie<br /> M. Didier Tamagno<br /> M. Pierre Vannineuse<br />'
+        entities:
+          - European High Growth Opportunities Manco SA
+          - Alpha Blue Ocean Inc
+          - Auplata Mining Group AMG
+          - RSM Paris SAS
+          - Stéphane Marie
+          - Didier Tamagno
+          - Pierre Vannineuse

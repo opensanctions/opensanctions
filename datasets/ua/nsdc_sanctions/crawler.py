@@ -149,7 +149,7 @@ def crawl_common(
         sanction.add("program", decree.pop("number", None))
         sanction.add("endDate", action.pop("endDate", None))
         sanction.add("duration", action.pop("term", None), lang="ukr")
-        sanction.add("authorityID", action_id)
+        sanction.add("authorityId", action_id)
         restrictions = action.pop("restrictions", None) or []
         for restr in restrictions:
             sanction.add("provisions", restr["restriction"])

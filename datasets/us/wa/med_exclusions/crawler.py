@@ -6,12 +6,11 @@ from zavod import Context, helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
-    if len(row.get("name").split("\n")) == 1:
-        name = row.pop("name")
+    name = row.pop("name")
+    if len(name.split("\n")) == 1:
         aliases = []
     else:
-        name_parts = row.pop("name").split("\n")
+        name_parts = name.split("\n")
         name = name_parts[0]
         aliases = name_parts[1:]
 
@@ -53,5 +52,6 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
+    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=3):
+        print(item)
         crawl_item(item, context)
