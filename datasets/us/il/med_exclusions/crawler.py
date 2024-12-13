@@ -4,43 +4,14 @@ from openpyxl import load_workbook
 from normality import slugify, stringify
 from datetime import datetime
 import openpyxl
+from playwright.sync_api import sync_playwright
+import os
 
 from zavod import Context, helpers as h
+from zavod.archive import dataset_data_path
 
-
-def parse_sheet(
-    context: Context,
-    sheet: openpyxl.worksheet.worksheet.Worksheet,
-    skiprows: int = 0,
-) -> Generator[dict, None, None]:
-    headers = None
-
-    row_counter = 0
-
-    for row in sheet.iter_rows():
-        # Increment row counter
-        row_counter += 1
-
-        # Skip the desired number of rows
-        if row_counter <= skiprows:
-            continue
-        cells = [c.value for c in row]
-        if headers is None:
-            headers = []
-            for idx, cell in enumerate(cells):
-                if cell is None:
-                    cell = f"column_{idx}"
-                headers.append(slugify(cell))
-            continue
-
-        record = {}
-        for header, value in zip(headers, cells):
-            if isinstance(value, datetime):
-                value = value.date()
-            record[header] = stringify(value)
-        if len(record) == 0:
-            continue
-        yield record
+AUTH = os.environ.get("BRIGHTDATA_BROWSER_CREDENTIALS")
+SBR_WS_CDP = f'https://{AUTH}@brd.superproxy.io:9222'
 
 
 def crawl_item(row: Dict[str, str], context: Context, is_excluded: bool):
@@ -80,17 +51,33 @@ def crawl_excel_url(context: Context):
 
 
 def crawl(context: Context) -> None:
-    # First we find the link to the excel file
-    excel_url = crawl_excel_url(context)
-    path = context.fetch_resource("list.xlsx", excel_url)
+    path = dataset_data_path(context.dataset.name) / "source.xlsx"
+
+    with sync_playwright() as pw:
+        print('Connecting to Scraping Browser...')
+        browser = pw.chromium.launch() #.connect_over_cdp(SBR_WS_CDP)
+        page = browser.new_page()
+        print('Connected! Navigating to webpage')
+        page.goto(context.data_url)
+
+        with page.expect_download() as download_info:
+            # Perform the action that initiates download
+            page.click(".entitylist-download.btn")
+        download = download_info.value
+
+        # Wait for the download process to complete and save the downloaded file somewhere
+        download.save_as(path)
+
+
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
-
-    # Currently terminated providers
-    for item in parse_sheet(context, wb["Termination List"]):
-        crawl_item(item, context, True)
-
-    # Providers that where terminated but are now reinstated
-    for item in parse_sheet(context, wb["Reinstated Providers"]):
-        crawl_item(item, context, False)
+    workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
+    for row in h.parse_xlsx_sheet(context, sheet=workbook["Active Sanctions"]):
+        print(row)
+    ## Currently terminated providers
+    #for item in parse_sheet(context, wb["Termination List"]):
+    #    crawl_item(item, context, True)
+#
+    ## Providers that where terminated but are now reinstated
+    #for item in parse_sheet(context, wb["Reinstated Providers"]):
+    #    crawl_item(item, context, False)
