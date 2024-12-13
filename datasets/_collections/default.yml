@@ -70,5 +70,6 @@ children:
   - eiti_soe
   - gem_energy_ownership
   - ua_war_sanctions
+  - us_nk_jointventures
   # - us_fara_filings
 ci_test: false

@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-medde
 coverage:
   frequency: daily
-  start: "2024-11-27"
+  start: "2024-12-13"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
@@ -37,6 +37,16 @@ data:
 
 dates:
   formats: ["%m/%d/%Y", "%m/%d/%y", "Reinstated effective %m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 450
+      Person: 400
+  max:
+    schema_entities:
+      LegalEntity: 650
+      Person: 650
 
 lookups:
   type.date:
@@ -113,11 +123,3 @@ lookups:
         value: 1326260159
       - match: 3336C0003X
         prop: sector
-        
-assertions:
-  min:
-    schema_entities:
-      LegalEntity: 900
-  max:
-    schema_entities:
-      LegalEntity: 1100

@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-medme
 coverage:
   frequency: daily
-  start: "2024-11-27"
+  start: "2024-12-13"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of providers excluded from Maine's Medicaid program.
