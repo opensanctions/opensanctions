@@ -27,7 +27,10 @@ def crawl_row(context: Context, declaration_id: int):
     declaration = context.fetch_json(
         DECLARATION_URL, method="POST", data={"ID": declaration_id}, cache_days=30
     )
-    declarant = declaration.pop("Datos_del_Declarante")
+    declarant = declaration.pop("Datos_del_Declarante", None)
+    if declarant is None:
+        context.log.info("Declarant data not available", declaration_id=declaration_id)
+        return
     person = context.make("Person")
 
     person.id = context.make_slug(declaration.pop("hashCodeDeclarante"))
