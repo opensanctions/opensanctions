@@ -355,7 +355,7 @@ def crawl(context: Context):
     )
     assert len(transport_tabs_container) == 1, transport_tabs_container
     h.assert_dom_hash(
-        transport_tabs_container[0], "0558cd6cac449be9dcacd832807af7c12abe098c"
+        transport_tabs_container[0], "762db41c65d4889b90631e3ded6870e339262620"
     )
 
     for link_info in LINKS:
