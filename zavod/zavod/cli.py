@@ -230,7 +230,7 @@ def dump_file(
 @click.option("-s", "--schema", type=str, default=None)
 @click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
 @click.option("-t", "--threshold", type=float, default=None)
-@click.option("-d", "--dis-int", type=float, default=1.0)
+@click.option("-d", "--discount-internal", "discount_internal", type=float, default=1.0)
 @click.option(
     "-m",
     "--conflicting-match-threshold",
