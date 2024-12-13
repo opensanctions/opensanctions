@@ -38,6 +38,69 @@ def parse_html_table(
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
+def parse_html_table_links(
+    table: HtmlElement,
+    header_tag: str = "th",
+    skiprows: int = 0,
+    base_url: str = "",
+    link_columns: list[str] = [],
+) -> Generator[Dict[str, str | Dict[str, str]], None, None]:
+    """
+    Parse an HTML table into a generator yielding a dict for each row.
+
+    Args:
+        table: The HTML table element to parse.
+        header_tag: The tag used for table headers (default: "th").
+        skiprows: The number of initial rows to skip (default: 0).
+        base_url: The base URL to resolve relative links (default: "").
+        link_columns: List of column names where both text and links should be extracted (default: None).
+
+    Returns:
+        Generator of dict per row, where:
+            - For columns in `link_columns`, values are dictionaries containing 'text' and 'link' keys.
+            - For other columns, values are plain text.
+    """
+    headers = None
+
+    for rownum, row in enumerate(table.findall(".//tr")):
+        if rownum < skiprows:
+            continue
+
+        if headers is None:
+            headers = []
+            for el in row.findall(f"./{header_tag}"):
+                eltree = cast(HtmlElement, el)
+                headers.append(slugify(eltree.text_content(), sep="_"))
+            continue
+
+        cells = row.findall("./td")
+        assert len(headers) == len(cells), (headers, cells)
+
+        row_data = {}
+        for hdr, cell in zip(headers, cells):
+            # Extract text content
+            cell_text = cell.text_content().strip()
+
+            # Extract link if the column is specified in link_columns
+            if hdr in link_columns:
+                link_element = cell.find(".//a[@href]")
+                cell_link = None
+                if link_element is not None:
+                    link_element.make_links_absolute(base_url)
+                    cell_link = link_element.get("href")
+
+                # Store both text and link in a dictionary
+                row_data[hdr] = {
+                    "text": cell_text,
+                    "link": cell_link,
+                }
+            else:
+                # For columns without links, store only the text
+                row_data[hdr] = cell_text
+
+        yield row_data
+
+
 def cells_to_str(row: Dict[str, HtmlElement]) -> Dict[str, str | None]:
     """
     Return the string value of each HtmlElement value in the passed dictionary
