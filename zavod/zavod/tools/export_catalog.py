@@ -27,6 +27,8 @@ def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
         "run_time": settings.RUN_TIME_ISO,
         "statements_url": make_published_url("default", "statements.csv"),
         "model": model.to_dict(),
+        "target_topics": settings.TARGET_TOPICS,
+        "enrich_topics": settings.ENRICH_TOPICS,
         "schemata": sorted(schemata),
         "app": "opensanctions",
     }

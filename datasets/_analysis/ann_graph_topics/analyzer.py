@@ -69,7 +69,15 @@ def crawl(context: Context) -> None:
             if "sanction" in topics:
                 if entity.schema.is_a("Security"):
                     continue
-                if adjacent.schema.is_a("Occupancy"):
+                if adjacent.schema.name not in (
+                    "Ownership",
+                    "Directorship",
+                    "Membership",
+                    "Employment",
+                    "Associate",
+                    "Family",
+                    "Succession",
+                ):
                     continue
                 for other_id in adjacent.get(other_prop):
                     other = view.get_entity(other_id)

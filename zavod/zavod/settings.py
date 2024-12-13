@@ -54,6 +54,16 @@ TARGET_TOPICS = {
     "sanction",
     "wanted",
 }
+ENRICH_TOPICS = {
+    "role.pep",
+    "role.rca",
+    "sanction",
+    "sanction.linked",
+    "debarment",
+    "asset.frozen",
+    "poi",
+    "gov.soe",
+}
 
 
 # Store configuration
