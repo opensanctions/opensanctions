@@ -131,10 +131,9 @@ def crawl(context: Context):
         context.log.info(f"Fetching URL: {url}")
 
         # Fetch the HTML and get the table
-        table_xpath = ".//div[@class='view-content']//table"
-        doc = fetch_html(context, url, table_xpath, cache_days=3)
+        doc = fetch_html(context, url, ".//div[@class='o-grid']", cache_days=3)
         doc.make_links_absolute(url)
-        table = doc.find(table_xpath)
+        table = doc.find(".//div[@class='view-content']//table")
         if table is None:
             context.log.info("No more tables found.")
             break
