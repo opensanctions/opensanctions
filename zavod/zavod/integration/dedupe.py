@@ -1,3 +1,4 @@
+from dis import disco
 from typing import List, Optional, TYPE_CHECKING
 from pathlib import Path
 from functools import cache
@@ -52,6 +53,7 @@ def blocking_xref(
     algorithm: str = DefaultAlgorithm.NAME,
     focus_dataset: Optional[str] = None,
     schema_range: Optional[str] = None,
+    discount_internal: float = 1.0,
     conflicting_match_threshold: Optional[float] = None,
 ) -> None:
     """This runs the deduplication process, which compares all entities in the given
@@ -81,6 +83,7 @@ def blocking_xref(
         auto_threshold=auto_threshold,
         focus_dataset=focus_dataset,
         algorithm=algorithm_type,
+        discount_internal=discount_internal,
         user=AUTO_USER,
         conflicting_match_threshold=conflicting_match_threshold,
     )
