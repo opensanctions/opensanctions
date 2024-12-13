@@ -20,11 +20,13 @@ def crawl_item(row: Dict[str, str], context: Context):
             last_name=last_name,
             middle_name=middle_initial,
         )
+        entity.add("position", row.pop("provider_type"))
     else:
         last_name = row.pop("provider_last_name")
         entity = context.make("Company")
         entity.id = context.make_id(last_name)
         entity.add("name", last_name)
+        entity.add("sector", row.pop("provider_type"))
 
     # Number of alias
     for i in [1, 2, 3, 4]:
@@ -60,7 +62,6 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     entity.add("country", "us")
     entity.add("topics", "debarment")
-    entity.add("sector", row.pop("provider_type"))
 
     sanction = h.make_sanction(context, entity)
 

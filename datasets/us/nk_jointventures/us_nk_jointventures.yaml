@@ -2,8 +2,10 @@ title: US Advisory on North Korean Joint Ventures
 entry_point: crawler.py
 prefix: us-nkjv
 coverage:
-  frequency: daily
-  start: "2024-12-03"
+  frequency: never
+  schedule: "@monthly"
+  start: "2024-12-13"
+  end: "2018-03-08"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Joint ventures between entities in North Korea and other countries to be considered trade risk.

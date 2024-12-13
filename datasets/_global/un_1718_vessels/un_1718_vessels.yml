@@ -2,8 +2,10 @@ title: UNSC 1718 Designated Vessels List
 entry_point: crawler.py
 prefix: un-1718
 coverage:
-  frequency: daily
-  start: "2024-12-11"
+  frequency: never
+  schedule: "@monthly"
+  start: "2024-12-13"
+  end: "2020-06-04"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
    Vessels designated under UN Security Council sanctions, including asset freezes, 

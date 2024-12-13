@@ -40,6 +40,7 @@ def crawl(context: Context):
             vessel = context.make("Vessel")
             vessel.id = context.make_id(name, imo, int_id)
             vessel.add("name", h.multi_split(name, SPLITS))
+            vessel.add("topics", "sanction")
             vessel.add("imoNumber", imo)
             vessel.add("mmsi", h.multi_split(row.pop("mmsi"), SPLITS))
             vessel.add("flag", h.multi_split(row.pop("flag"), SPLITS))

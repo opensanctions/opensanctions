@@ -105,6 +105,7 @@ children:
   - ua_nsdc_sanctions
   - ua_sfms_blacklist
   - un_sc_sanctions
+  - un_1718_vessels
   - us_cbp_forced_labor
   - us_bis_denied
   - us_cuba_sanctions
