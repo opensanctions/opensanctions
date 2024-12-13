@@ -147,7 +147,7 @@ lookups:
       - match: MDA  # implementing Regulation (EU) 2023/888 concerning restrictive measures in view of actions destabilising the Republic of Moldova
         value: 
           - EU-MDA
-          -
+          - EU-PMR
     # Montenegro
       - match: 
         value: EU-CRNA-UN757
@@ -184,20 +184,21 @@ lookups:
     # Syria
       - match: SYR  # implementing Regulation (EU) No 36/2012 concerning restrictive measures in view of the situation in Syria
         values: 
-          - EU-SYRIA
+          - EU-SYR
           - 
     # Terrorism
       - match: TERR
-        value: 
-          - EU-TERROR  # implementing Article 2(3) of Regulation (EC) No 2580/2001 on specific restrictive measures directed against certain persons and entities with a view to combating terrorism
-          - EU-ISIS  # Council Regulation (EC) No 881/2002 imposing certain specific restrictive measures directed against certain persons and entities associated with the Al Qaida network
-          - EU-HAMAS # COUNCIL REGULATION (EU) 2024/386 of 19 January 2024 establishing restrictive measures against those who support, facilitate or enable violent actions by Hamas and the Palestinian Islamic Jihad
+        value: EU-TERR  # implementing Article 2(3) of Regulation (EC) No 2580/2001 on specific restrictive measures directed against certain persons and entities with a view to combating terrorism
+      - match: TAQA
+        value: EU-TAQA  # Council Regulation (EC) No 881/2002 imposing certain specific restrictive measures directed against certain persons and entities associated with the Al Qaida network
+      - match: HAM  
+        value: EU-HAM # COUNCIL REGULATION (EU) 2024/386 of 19 January 2024 establishing restrictive measures against those who support, facilitate or enable violent actions by Hamas and the Palestinian Islamic Jihad
     # Tunisia
       - match: TUN  # implementing Regulation (EU) No 101/2011 concerning restrictive measures directed against certain persons, entities and bodies in view of the situation in Tunisia
-        value: EU-TUNISIA
+        value: EU-TUN
     # Türkiye
       - match: TUR  # implementing Regulation (EU) 2019/1890 concerning restrictive measures in view of Turkey’s unauthorised drilling activities in the Eastern Mediterranean
-        value: EU-TURKEY-MED
+        value: EU-TUR
     # Ukraine
       - match: UKR  # implementing Regulation (EU) No 208/2014 concerning restrictive measures directed against certain persons, entities and bodies in view of the situation in Ukraine
                     # implementing Regulation (EU) No 269/2014 concerning restrictive measures in respect of actions undermining or threatening the territorial integrity, sovereignty and independence of Ukraine
@@ -211,13 +212,13 @@ lookups:
         value: EU-US-LEG
     # Venezuela
       - match: VEN  # implementing Regulation (EU) 2017/2063 concerning restrictive measures in view of the situation in Venezuela
-        value: EU-VEN-REST
+        value: EU-VEN
     # Yemen
       - match: YEM
-        value: EU-YEMEN
+        value: EU-YEM
     # Zimbabwe
       - match: ZWE
-        value: EU-ZIMBABWE
+        value: EU-ZWE
 
 
       # - match: EUAQ
@@ -227,7 +228,6 @@ lookups:
 
 # unused: 
 # - EU-PMR
-# - EU-NIGER
 # ...
 
   subject_type:
