@@ -32,7 +32,9 @@ dates:
   formats:
     - "%B %d, %Y"
     - "%d-%b-%Y"
+    - "revoked as %d.%m.%Y"
     - "REVOKED %d%m%Y"
+    - "REVOKED IN %d.%m.%Y"
     - "REVOKED ON %d.%m.%Y"
     - "REVOKED ON %d.%m.%y"
     - "REVOKED ON %d-%m-%y"
@@ -41,6 +43,7 @@ dates:
     - "REVOKED ON %d-%m-%Y"
     - "REVOKED ON %d %B %Y"
     - "REVOKED ON %B %d, %Y"
+    - "REVOKED ON %B %b %Y"
     - "REVOKED ON %d-%b-%y" 
     - "REVOKED ON %d-%m-%Y"
     - "REVOKED ON %B %d,%Y"
@@ -48,9 +51,22 @@ dates:
     - "REVOKED ON %d-%B-%Y"
     - "REVOKED ON %d%m%Y"
     - "REVOKED ON %d/%m/%Y"
+    - "REVOKED ON %d/%m/%y"
+    - "REVOKED ON %d.%m.%y"
     - "REVOKED ON %b %d,%Y"
     - "REVOKED ON %d %B%Y"
+    - "REVOKED ON %dTH %B %Y"
+    - "REVOKED ON %dTH %b %Y"
+    - "REVOKED ON %dTH %B, %Y"
+    - "REVOKED ON %dND %B %Y"
+    - "REVOKED ON %b %d, %Y"
+    - "REVOKED ON %b %d,  %Y"
+    - "REVOKED ON %b %d %Y"
+    - "REVOKED ON %d%B, %Y"
+    - "REVOKED ON %d-%B-%y"
     - "REVOKED AS %d-%B-%Y"
+    - "REVOKED AS %B %d %Y"
+    - "REVOKED AS ON %B %d ,%Y"
     - "REVOKED AS ON %B %d, %Y"
     - "REVOKED AS ON %d-%b-%Y"
     - "REVOKED AS ON %d-%m-%Y"
@@ -61,7 +77,26 @@ dates:
     - "REVOKED AS ON %d/%m/%Y"
     - "REVOKED AS ON %b %d, %Y"
     - "REVOKED AS ON %d/%m/%Y"
- 
+    - "REVOKED AS ON %d-%B %Y"
+    - "REVOKED AS ON %d %B %Y"
+    - "REVOKED AS ON %d.%m.%Y."
+    - "REVOKED AS ON %dTH %b %Y"
+    - "REVOKED AS ON %d/%b/%Y"
+    - "REVOKED AS ON %d-%m-%y"
+    - "REVOKED AS ON - %d-%m-%Y"
+    - "REVOKED AS ON %d-%b-%y"
+    - "REVOKED AS ON %m-%Y"
+    - "DEBARMENT REVOKED AS ON %d.%m.%Y"
+    - "DEBARMENT REVOKED AS ON %d-%b-%y"
+    - "REVOKED VIDE SEBI ORDER DATED %d-%b-%y"
+    - "REVOKED AS PER BSE EMAIL DATED %d.%B.%Y"
+    - "REVOKED IN DIVISLAB ON %d/%m/%Y"
+    - "REVOKED ON %d.%b.%Y IN CASE OF HIND AGRO OILS LTD"
+    - "REVOKED AS PER BSE EMAIL DATED %d.%m.%Y"
+    - "REVOKED ON %d.%m.%Y (AS INFORMED BY SEBI VIDE EMAIL)"
+    - "REVOKED ON %d.%m.%Y  (AS INFORMED BY SEBI VIDE EMAIL)"
+    - "DEBARMENT REVOKED VIDE SEBI ORDER DATED %d-%b-%y"
+    - "REVOKED ON %d.%m.%Y IN CASE OF HIND AGRO OILS LTD"
 
 assertions:
   min:
@@ -130,4 +165,7 @@ lookups:
           - PAN REVOKED
           - DEBARREMENT REVOKED
           - revoked
+          - DEBARRMNET REVOKED
+          - REVOKED AS PER NSE CIRCULAR NO. NSE/INVG/21772
+          - REVOKED AS PER NSE CIRCULAR NSE/INVG/20504
         value: null
