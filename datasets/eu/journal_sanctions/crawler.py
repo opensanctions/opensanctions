@@ -1,4 +1,5 @@
 import csv
+import quopri
 from typing import Dict, Iterable
 
 import zavod.helpers as h
@@ -17,15 +18,24 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
     entity.add("topics", "sanction")
-    h.apply_dates(entity, "birthDate", h.multi_split(row.pop("DOB"), ";"))
+    dob = row.pop("DOB")
+    if entity.schema.is_a("Organization"):
+        h.apply_dates(entity, "incorporationDate", h.multi_split(dob, ";"))
+    elif entity.schema.is_a("Person"):
+        h.apply_dates(entity, "birthDate", h.multi_split(dob, ";"))
+    entity.add("birthPlace", row.pop("POB"), quiet=True)
     entity.add("country", h.multi_split(country, ";"))
     entity.add("name", h.multi_split(name, ";"))
     entity.add("alias", h.multi_split(row.pop("Alias"), ";"))
     entity.add_cast("Person", "passportNumber", h.multi_split(row.pop("passport"), ";"))
-    entity.add("taxNumber", h.multi_split(row.pop("taxNumber"), ";"))
+    entity.add("taxNumber", h.multi_split(row.pop("taxNumber"), ";"), quiet=True)
     entity.add("registrationNumber", h.multi_split(row.pop("registrationNumber"), ";"))
-    entity.add("idNumber", h.multi_split(row.pop("idNumber"), ";"))
+    entity.add("idNumber", h.multi_split(row.pop("idNumber"), ";"), quiet=True)
+    entity.add("imoNumber", row.pop("imoNumber"), quiet=True)
     entity.add("notes", row.pop("Notes").strip())
+    entity.add("position", row.pop("Position", None), quiet=True)
+    entity.add("address", h.multi_split(row.pop("Address", None), ";"), quiet=True)
+    entity.add("gender", row.pop("Gender", None), quiet=True)
     entity.add("sourceUrl", h.multi_split(row.pop("Source URL"), ";"))
 
     for related_name in h.multi_split(row.pop("related"), ";"):
@@ -42,6 +52,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.emit(rel)
 
     sanction = h.make_sanction(context, entity)
+    h.apply_date(sanction, "startDate", row.pop("startDate"))
 
     context.emit(entity, target=True)
     context.emit(sanction)
