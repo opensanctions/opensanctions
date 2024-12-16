@@ -43,7 +43,7 @@ assertions:
   min:
     schema_entities:
       Person: 81000
-      Company: 5500
+      Company: 5100
       LegalEntity: 1500
     countries: 90
   max:

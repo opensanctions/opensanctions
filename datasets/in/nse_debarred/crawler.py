@@ -68,23 +68,17 @@ def crawl_item(input_dict: dict, context: Context):
     if pan and "not provided" not in pan.lower():
         entity.add("taxNumber", pan)
     entity.add("topics", topics)
-    din_cin: str = input_dict.pop("din_cin_of_entities_debarred", "")
-    if (
-        din_cin
-        and "not available" not in din_cin.lower()
-        and "not provided" not in din_cin.lower()
-    ):
+    din_cin: str = input_dict.pop("din_cin", "")
+    if din_cin and "-" not in din_cin:
         entity.add("description", din_cin)
-        din_cin = din_cin.replace("DIN ", "").replace("CIN ", "")
         entity.add("registrationNumber", din_cin.split(" "))
 
-    nse_circular_no = input_dict.pop("nse_circular_no")
+    nse_circular_no = input_dict.pop("nse_circular_no_for_debarment")
     order_date = input_dict.pop("order_date")
     order_particulars = input_dict.pop("order_particulars")
     urls = [
         input_dict.pop("source_url"),
-        input_dict.pop("nse_circular_no_url", None),
-        input_dict.pop("order_particulars_url", None),
+        input_dict.pop("nse_circular_no_for_debarment_url", None),
     ]
 
     debarreds.append(entity)
@@ -95,6 +89,8 @@ def crawl_item(input_dict: dict, context: Context):
         sanction.add("description", "Order Particulars: " + order_particulars)
         sanction.add("duration", period)
         sanction.add("sourceUrl", urls)
+        if is_revoked:
+            h.apply_date(sanction, "endDate", period)
 
         context.emit(entity, target=not is_revoked)
         context.emit(sanction)
@@ -104,12 +100,10 @@ def crawl_item(input_dict: dict, context: Context):
         input_dict,
         ignore=[
             "date_of_nse_circular",
-            "column_17",
-            "column_17_url",
-            "column_18",
-            "column_9",
-            "column_8",
-            "column_8_url",
+            "symbol",
+            "date_of_nse_circular_for_revocation",
+            "nse_circular_no_for_revocation_url",
+            "nse_circular_no_for_revocation",
         ],
     )
 
@@ -119,14 +113,14 @@ def crawl(context: Context):
     path_sebi = context.fetch_resource("sebi.xls", SEBI_DEBARRMENT_URL)
     context.export_resource(path_sebi, XLS, title=context.SOURCE_TITLE)
     wb_sebi = xlrd.open_workbook(path_sebi)
-    for item in h.parse_xls_sheet(context, wb_sebi["Sheet 1"]):
+    for item in h.parse_xls_sheet(context, wb_sebi["Working"]):
         item["source_url"] = SEBI_DEBARRMENT_URL
         items.append(item)
 
     path_other = context.fetch_resource("other.xls", OTHER_DEBARRMENT_URL)
     context.export_resource(path_other, XLS, title=context.SOURCE_TITLE)
     wb_other = xlrd.open_workbook(path_other)
-    for item in h.parse_xls_sheet(context, wb_other["Sheet1"]):
+    for item in h.parse_xls_sheet(context, wb_other["Working"]):
         item["source_url"] = OTHER_DEBARRMENT_URL
         items.append(item)
 
@@ -139,9 +133,9 @@ def crawl(context: Context):
 
         if item.get("order_particulars"):
             particulars = item.get("order_particulars")
-            nse_circular_num = item.get("nse_circular_no")
+            nse_circular_num = item.get("nse_circular_no_for_debarment")
         else:
             item["order_particulars"] = particulars
-            item["nse_circular_no"] = nse_circular_num
+            item["nse_circular_no_for_debarment"] = nse_circular_num
 
         crawl_item(item, context)

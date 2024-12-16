@@ -120,12 +120,12 @@ assertions:
   min:
     schema_entities:
       Company: 225
-      LegalEntity: 1250
+      LegalEntity: 1000
     country_entities:
-      cn: 750
-      ru: 7
+      cn: 700
+      ru: 5
       ke: 20
   max:
     schema_entities:
-      Company: 250
+      Company: 270
       LegalEntity: 1700

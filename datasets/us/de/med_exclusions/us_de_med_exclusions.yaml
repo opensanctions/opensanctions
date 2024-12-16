@@ -121,5 +121,9 @@ lookups:
         value: 1477649168
       - match: 13260159
         value: 1326260159
+      - match: 1518500028
+        value: 1518150028
+      - match: 10003876202
+        value: 1003876202
       - match: 3336C0003X
         prop: sector
