@@ -72,6 +72,12 @@ lookups:
           - role: Deputy Prime Minister
             name: MAKTUM bin Muhammad bin Rashid Al-Maktum
             start_date: 25 September 2021
+      # France
+      - match: "Michel BARNIER is the caretaker Prime Minister after resigning following a no-confidence vote on 4 December 2024 (since 5 September 2024)"
+        holders:
+          - role: Caretaker Prime Minister
+            name: Michel BARNIER
+            start_date: 5 September 2024
       # Poland
       - match: "Deputy Prime Ministers Wladyslaw KOSINIAK-KAMYSZ, Krzysztof GAWKOWSKI (both since 11 December 2023)"
         holders:
@@ -259,6 +265,16 @@ lookups:
           - role: deputy prime minister
             name: Upendra YADAV
             start_date: 10 March 2024
+      # Niue
+      - match: "Prime Minister Dalton TAGELAGI"
+        holders:
+          - role: Prime Minister
+            name: Dalton TAGELAGI
+      - match: "also referred to as premier (since 10 June 2020)"
+        holders:
+          - role: Premier
+            name: Dalton TAGELAGI
+            start_date: 10 June 2020
       # Mali
       - match: "Transition Prime Minister Choguel MAIGA (appointed by Transition President Assimi GOITA on 7 June 2021)"
         holders:
@@ -396,6 +412,11 @@ lookups:
         holders:
           - role: Acting Prime Minister
             name: Ivica DACIC
+      # Syria
+      - match: "former President Bashar al-ASAD was overthrown by Islamist rebels on 8 December 2024"
+        holders:
+          - role: Former President
+            name: Bashar al-ASAD
       # Belgium
       - match: "Deputy Prime Ministers Paul Van TIGCHELT (since 22 October 2023), Vincent VAN PETEGHEM, Frank VANDENBROUCKE, Pierre-Yves DERMAGNE, Petra DE SUTTER, Georges GILKINET (all since 1 October 2020), David CLARINVAL (since 15 July 2022)"
         holders:
@@ -720,6 +741,12 @@ lookups:
             name:
               - WACHIRALONGKON
               - Vajiralongkorn
+      # Tonga
+      - match: "Acting Prime Minister Samiu VAIPULU (since 9 December 2024"
+        holders:
+          - role: Acting Prime Minister
+            name: Samiu VAIPULU
+            start_date: 9 December 2024
       # Libya
       - match: President, Presidential Council, Mohammed al-MANFI (since 5 February 2021)
         holders:
@@ -827,6 +854,8 @@ lookups:
           - President Kais SAIED dismissed Prime Minister Ahmed HACHANI the same day he appointed Kamel MADDOURI
           # Thailand
           - also spelled Vajiralongkorn (since 1 December 2016)
+          # Syria
+          - ASAD and his family flew to Moscow where they were granted political asylum
         holders: []
 
   type.country:
