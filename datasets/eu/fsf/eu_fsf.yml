@@ -115,7 +115,6 @@ lookups:
       - match: HTI  # implementing Regulation (EU) 2022/2309 concerning restrictive measures in view of the situation in Haiti
         values: 
           - EU-HTI
-          - 
     # Human rights
       - match: HR
         value: EU-HR
@@ -133,13 +132,10 @@ lookups:
       - match: 
         values: 
           - EU-LEBANON
-          - 
-          - 
     # Libya
       - match: LBY  # implementing Article 21(5) of Regulation (EU) 2016/44 concerning restrictive measures in view of the situation in Libya
         value: 
           - EU-LBY
-          - 
     # Mali
       - match: MLI  # implementing Article 12(2) of Regulation (EU) 2017/1770 concerning restrictive measures in view of the situation in Mali
         value: EU-MLI
@@ -185,7 +181,6 @@ lookups:
       - match: SYR  # implementing Regulation (EU) No 36/2012 concerning restrictive measures in view of the situation in Syria
         values: 
           - EU-SYR
-          - 
     # Terrorism
       - match: TERR
         value: EU-TERR  # implementing Article 2(3) of Regulation (EC) No 2580/2001 on specific restrictive measures directed against certain persons and entities with a view to combating terrorism
