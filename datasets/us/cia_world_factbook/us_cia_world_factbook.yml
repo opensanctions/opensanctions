@@ -412,11 +412,6 @@ lookups:
         holders:
           - role: Acting Prime Minister
             name: Ivica DACIC
-      # Syria
-      - match: "former President Bashar al-ASAD was overthrown by Islamist rebels on 8 December 2024"
-        holders:
-          - role: Former President
-            name: Bashar al-ASAD
       # Belgium
       - match: "Deputy Prime Ministers Paul Van TIGCHELT (since 22 October 2023), Vincent VAN PETEGHEM, Frank VANDENBROUCKE, Pierre-Yves DERMAGNE, Petra DE SUTTER, Georges GILKINET (all since 1 October 2020), David CLARINVAL (since 15 July 2022)"
         holders:
@@ -855,6 +850,7 @@ lookups:
           # Thailand
           - also spelled Vajiralongkorn (since 1 December 2016)
           # Syria
+          - former President Bashar al-ASAD was overthrown by Islamist rebels on 8 December 2024
           - ASAD and his family flew to Moscow where they were granted political asylum
         holders: []
 
