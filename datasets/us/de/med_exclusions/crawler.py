@@ -15,6 +15,10 @@ REGEX_JOB_ROLE = re.compile(r"^(?P<name>.+)[,\s]+(?P<role>([A-Z\.,/-]+|\([^\)]+\
 
 def crawl_item(row: Dict[str, str], context: Context):
     raw_name = row.pop("sanctioned_provider_name")
+    npi = row.pop("npi")
+    # Skip empty rows
+    if raw_name == "" and npi == "":
+        return
     names = REGEX_AKA.split(raw_name)
     name, alias = names[0], names[1:]
     position = None
@@ -22,8 +26,6 @@ def crawl_item(row: Dict[str, str], context: Context):
         if match.group("role").lower() not in {"llc", "inc", "corp", "pc"}:
             position = match.group("role")
             name = match.group("name").rstrip(",")
-
-    npi = row.pop("npi")
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(raw_name, npi)

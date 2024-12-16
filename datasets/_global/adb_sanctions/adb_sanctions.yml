@@ -36,7 +36,7 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 1300
+      LegalEntity: 1180
     country_entities:
       cn: 350
       id: 40

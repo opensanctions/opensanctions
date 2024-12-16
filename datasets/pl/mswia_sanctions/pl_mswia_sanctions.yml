@@ -158,3 +158,6 @@ lookups:
       - match: 'adres: ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa '
         props:
           address: "ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa"
+      - match: 'adres: Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa'
+        props:
+          address: "Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa"
