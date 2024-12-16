@@ -1,5 +1,4 @@
 import csv
-import quopri
 from typing import Dict, Iterable
 
 import zavod.helpers as h
