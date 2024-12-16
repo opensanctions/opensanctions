@@ -44,7 +44,7 @@ data:
   format: HTML
   lang: rus
 
-dates: 
+dates:
   formats: ["%d.%m.%Y"]
 lookups:
   headers:
@@ -54,8 +54,8 @@ lookups:
       Полное название: name
       Дата ре-гистрации: date_of_reg
       Статус: status
-  type.date: 
-    options: 
+  type.date:
+    options:
       - match:
           - "5200-03-16"
           - "5200-02-27"
