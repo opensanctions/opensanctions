@@ -29,7 +29,40 @@ data:
   lang: eng
 
 dates: 
-  formats: ["%B %d, %Y"]
+  formats:
+    - "%B %d, %Y"
+    - "%d-%b-%Y"
+    - "REVOKED %d%m%Y"
+    - "REVOKED ON %d.%m.%Y"
+    - "REVOKED ON %d.%m.%y"
+    - "REVOKED ON %d-%m-%y"
+    - "REVOKED ON %d-%m-%y"
+    - "REVOKED ON %d-%b-%Y"
+    - "REVOKED ON %d-%m-%Y"
+    - "REVOKED ON %d %B %Y"
+    - "REVOKED ON %B %d, %Y"
+    - "REVOKED ON %d-%b-%y" 
+    - "REVOKED ON %d-%m-%Y"
+    - "REVOKED ON %B %d,%Y"
+    - "REVOKED ON %d %b %Y"
+    - "REVOKED ON %d-%B-%Y"
+    - "REVOKED ON %d%m%Y"
+    - "REVOKED ON %d/%m/%Y"
+    - "REVOKED ON %b %d,%Y"
+    - "REVOKED ON %d %B%Y"
+    - "REVOKED AS %d-%B-%Y"
+    - "REVOKED AS ON %B %d, %Y"
+    - "REVOKED AS ON %d-%b-%Y"
+    - "REVOKED AS ON %d-%m-%Y"
+    - "REVOKED AS ON %d.%m.%Y"
+    - "REVOKED AS ON %d-%m-%y"
+    - "REVOKED AS ON  %d.%m.%y"
+    - "REVOKED AS ON %d %b %Y"
+    - "REVOKED AS ON %d/%m/%Y"
+    - "REVOKED AS ON %b %d, %Y"
+    - "REVOKED AS ON %d/%m/%Y"
+ 
+
 assertions:
   min:
     schema_entities:
@@ -77,3 +110,24 @@ lookups:
         value: https://archives.nseindia.com/content/circulars/INVG47751.zip
       - match: hhttps://archives.nseindia.com/content/circulars/INVG47784.zip
         value: https://archives.nseindia.com/content/circulars/INVG47784.zip
+  type.identifier: 
+    options: 
+      - match: NA
+        value: null
+  type.text: 
+    options: 
+      - match: "NA"
+        value: null
+  type.date: 
+    options: 
+      - match: 
+          - REVOKED
+          - DEBARMENT REVOKED
+          - DEBARRMENT REVOKED
+          - Debarment Revoked
+          - Debarrment Revoked
+          - Revoked
+          - PAN REVOKED
+          - DEBARREMENT REVOKED
+          - revoked
+        value: null
