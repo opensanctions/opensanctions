@@ -48,20 +48,20 @@ def make_sanction(
     sanction.add("sourceUrl", dataset.url)
     if program is not None:
         sanction.set("program", program)
-    program_id = context.lookup_value("sanction.program", program_key)
-    if program_id is not None:
-        program_url = f"https://www.opensanctions.org/programs/{program_id}"
-        sanction.add("programUrl", program_url)
-        sanction.add("programId", program_id)
-    else:
-        context.log.warn(f"Program key '{program_key}' not found.", program=program)
+    if program_key is not None:
+        program_id = context.lookup_value("sanction.program", program_key)
+        if program_id is not None:
+            program_url = f"https://www.opensanctions.org/programs/{program_id}"
+            sanction.add("programUrl", program_url)
+            sanction.add("programId", program_id)
+        else:
+            context.log.warn(f"Program key {program_key!r} not found.", program=program)
     if start_date is not None:
         h.apply_date(sanction, "startDate", start_date)
     if end_date is not None:
         h.apply_date(sanction, "endDate", end_date)
         iso_end_date = max(sanction.get("endDate"))
-        end_date_obj = datetime.strptime(iso_end_date, "%Y-%m-%d")
-        is_active = end_date_obj >= settings.RUN_TIME
+        is_active = iso_end_date >= settings.RUN_TIME_ISO
         sanction.add("status", "active" if is_active else "inactive")
 
     return sanction
