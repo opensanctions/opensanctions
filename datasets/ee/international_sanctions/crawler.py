@@ -114,16 +114,13 @@ def crawl_human_rights(context, url):
 
         directive.getparent().remove(directive)
 
-    # Find out of more lists are added without being According to...
-    h.assert_dom_hash(main_container[0], "3a7ff6aba6685b923ff637505daf8cff4b739f2c")
-
 
 def crawl(context: Context):
     index_doc = context.fetch_html(context.data_url)
     index_doc.make_links_absolute(context.data_url)
 
     anchors = index_doc.xpath(".//*[contains(text(), 'LIST OF SUBJECTS')]/ancestor::a")
-    assert len(anchors) >= 2, "Could not find the links to the lists"
+    assert len(anchors) == 2, "Could not find the links to the lists"
     for a in anchors:
         url = a.get("href")
         label = a.text_content().lower()

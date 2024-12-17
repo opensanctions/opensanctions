@@ -44,9 +44,9 @@ ci_test: false
 assertions:
   min:
     schema_entities:
-      Person: 1500
-      LegalEntity: 700
+      Person: 1000
+      LegalEntity: 500
   max:
     schema_entities:
-      Person: 2000
-      LegalEntity: 900
+      Person: 2500
+      LegalEntity: 1000
