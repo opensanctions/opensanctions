@@ -1960,3 +1960,7 @@ lookups:
         code: "US"
         label: "Hawaii"
         decision: "subnational"
+      - match: "Q6744020"
+        code: ""
+        label: "Mallabhum"
+        decision: "ignore"
