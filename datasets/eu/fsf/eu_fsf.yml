@@ -113,37 +113,29 @@ lookups:
         value: EU-GNB
     # Haiti
       - match: HTI  # implementing Regulation (EU) 2022/2309 concerning restrictive measures in view of the situation in Haiti
-        values: 
-          - EU-HTI
+        value: EU-HTI
     # Human rights
       - match: HR
         value: EU-HR
     # Iran
       - match: IRN  # implementing Regulation (EU) No 267/2012 concerning restrictive measures against Iran
                     # implementing Regulation (EU) 2023/1529 concerning restrictive measures in view of Iran’s military support to Russia’s war of aggression against Ukraine and to armed groups and entities in the Middle East and the Red Sea region
-        value:
-          - EU-IRAN-HR
-          - EU-IRAN-RUSSIA
-          - 
+        value: EU-IRN
     # Iraq
       - match: IRQ
         value: EU-IRQ
     # Lebanon
       - match: 
-        values: 
-          - EU-LEBANON
+        value: EU-LEBANON
     # Libya
       - match: LBY  # implementing Article 21(5) of Regulation (EU) 2016/44 concerning restrictive measures in view of the situation in Libya
-        value: 
-          - EU-LBY
+        value: EU-LBY
     # Mali
       - match: MLI  # implementing Article 12(2) of Regulation (EU) 2017/1770 concerning restrictive measures in view of the situation in Mali
         value: EU-MLI
     # Moldova
       - match: MDA  # implementing Regulation (EU) 2023/888 concerning restrictive measures in view of actions destabilising the Republic of Moldova
-        value: 
-          - EU-MDA
-          - EU-PMR
+        value: EU-MDA     
     # Montenegro
       - match: 
         value: EU-CRNA-UN757
@@ -158,11 +150,7 @@ lookups:
         value: EU-NIGER
     # Russia
       - match: RUS  # implementing Regulation (EU) 2024/1485 concerning restrictive measures in view of the situation in Russia
-        values:
-          - EU-RUSSIA-REST
-          - 
-      - match: RUS
-        value: EU-RUS
+        values: EU-RUS
     # Serbia
       - match: 
         value: EU-SRB-UN757
@@ -178,9 +166,8 @@ lookups:
       - match: SDNZ  # implementing Regulation (EU) 2023/2147 concerning restrictive measures in view of activities undermining the stability and political transition of Sudan
         value: EU-SDNZ
     # Syria
-      - match: SYR  # implementing Regulation (EU) No 36/2012 concerning restrictive measures in view of the situation in Syria
-        values: 
-          - EU-SYR
+      - match: SYR  # Council Regulation concerning restrictive measures in view of the situation in Syria and repealing Regulation (EU) No 442/2011
+        values: EU-SYR
     # Terrorism
       - match: TERR
         value: EU-TERR  # implementing Article 2(3) of Regulation (EC) No 2580/2001 on specific restrictive measures directed against certain persons and entities with a view to combating terrorism
@@ -195,13 +182,8 @@ lookups:
       - match: TUR  # implementing Regulation (EU) 2019/1890 concerning restrictive measures in view of Turkey’s unauthorised drilling activities in the Eastern Mediterranean
         value: EU-TUR
     # Ukraine
-      - match: UKR  # implementing Regulation (EU) No 208/2014 concerning restrictive measures directed against certain persons, entities and bodies in view of the situation in Ukraine
-                    # implementing Regulation (EU) No 269/2014 concerning restrictive measures in respect of actions undermining or threatening the territorial integrity, sovereignty and independence of Ukraine
-        values: 
-          - EU-UKRAINE-INTEG
-          - EU-CRIMEA
-          - EU-UKRAINE-OCC
-          - EU-UKRAINE-MSF
+      - match: UKR
+        values: EU-UKR
     # United States
       - match: 
         value: EU-US-LEG
@@ -214,12 +196,6 @@ lookups:
     # Zimbabwe
       - match: ZWE
         value: EU-ZWE
-
-# - match: EUAQ
-#   value: EU-EUROPEAN-ACT
-# - match: UNLI
-#   value: 
-
 
   subject_type:
     options:
