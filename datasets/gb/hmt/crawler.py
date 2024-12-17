@@ -327,31 +327,10 @@ def make_row(el):
     return row
 
 
-# def crawl(context: Context):
-#     path = context.fetch_resource("source.xml", context.data_url)
-#     context.export_resource(path, XML, title=context.SOURCE_TITLE)
-#     doc = context.parse_resource_xml(path)
-#     el = h.remove_namespace(doc)
-#     for row_el in el.findall(".//FinancialSanctionsTarget"):
-#         parse_row(context, make_row(row_el))
-
-
-# testing with a limit
 def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     el = h.remove_namespace(doc)
-
-    # Initialize a counter
-    row_count = 0
-    max_rows = 100  # Limit to 100 rows
-
     for row_el in el.findall(".//FinancialSanctionsTarget"):
         parse_row(context, make_row(row_el))
-
-        # Increment the counter and check if the limit is reached
-        row_count += 1
-        if row_count >= max_rows:
-            context.log.info(f"Processed {max_rows} rows. Stopping.")
-            break
