@@ -63,10 +63,6 @@ url: https://www.eeas.europa.eu/eeas/european-union-sanctions_en#10710
 data:
   url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw
   format: XML
-# 'LBY', 'HAM', 'YEM', 'SYR', 'BDI', 'ZWE', 'EUAQ', 'NIC', 'UNLI', 'SDNZ', 
-# 'COD', 'SSD', 'GNB', 'TUR', 'HR', 'TERR', 'SDN', 'VEN', 'MDA', 'BLR', 'TAQA', 
-# 'UKR', 'MMR', 'MLI', 'GTM', 'PRK', 'AFG', 'IRN', 'CYB', 'SOM', 'IRQ', 'HTI', 'GIN', 
-# 'RUS', 'TUN', 'CAF', 'CHEM'
 
 lookups:
   sanction.program:
