@@ -930,8 +930,17 @@ config:
       topic: role.pep
       country: sg
     - category: Singaporean_military_leaders
-      topic: mil
+      topic: role.pep
       country: sg
+    - category: List_of_serving_general_and_flag_officers_of_the_Singapore_Armed_Forces
+      topic: role.pep
+      country: sg
+      position:
+        name: Senior Military Leadership
+        country: sg
+        topics:
+          - mil
+          - gov.national
 
     # country: Timor-Leste
     - category: Political_office-holders_in_East_Timor
