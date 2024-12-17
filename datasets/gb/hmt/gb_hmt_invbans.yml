@@ -33,3 +33,9 @@ data:
   url: https://ofsistorage.blob.core.windows.net/publishlive/2022format/InvBan.xml
   format: XML
   lang: eng
+
+lookups:
+  sanction.program:
+    options:
+      - match: Russia
+        value: UK-RUS
