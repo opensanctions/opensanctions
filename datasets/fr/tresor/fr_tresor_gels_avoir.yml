@@ -4660,3 +4660,31 @@ lookups:
       - match: "Principal établissement: Khartoum, Soudan: /"
         props:
           address: "Khartoum, Soudan"
+      - match: "Date d’enregistrement: 6.1.2016 Numéro d’enregistrement: 690664113"
+        props:
+          incorporationDate: 2016-01-06
+          registrationNumber: 690664113
+      - match: 'Lieu d’enregistrement: Lomé, Togo - Date d’enregistrement: janvier 2022: /'
+        props:
+          jurisdiction: tg
+          address: "Lomé, Togo"
+          incorporationDate: 2022-01
+      - match: 'Lieu d’enregistrement: 105077, Moscou 11th Parkovaya Street, 38A: /'
+        props:
+          jurisdiction: ru
+          address: "105077, Moscou 11th Parkovaya Street, 38A"
+      - match: 'No d’enregistrement: 7719737879'
+        props:
+          registrationNumber: 7719737879
+      - match: 'Numéro OGRN: 1097746770395'
+        props:
+          ogrnCode: 1097746770395
+      - match: 'Lieu d’enregistrement: Moscou, Russie - Date d’enregistrement: Septembre 2023: /'
+        props:
+          jurisdiction: ru
+          address: "Moscou, Russie"
+          incorporationDate: 2023-09
+      - match: 'Date d’enregistrement: 16.4.2013 Numéro d’enregistrement: 192003422'
+        props:
+          incorporationDate: 2013-04-16
+          registrationNumber: 192003422
