@@ -1,5 +1,4 @@
 from typing import Optional
-from datetime import datetime
 
 from zavod.context import Context
 from zavod.entity import Entity
