@@ -150,7 +150,7 @@ lookups:
         value: EU-NIGER
     # Russia
       - match: RUS  # implementing Regulation (EU) 2024/1485 concerning restrictive measures in view of the situation in Russia
-        values: EU-RUS
+        value: EU-RUS
     # Serbia
       - match: 
         value: EU-SRB-UN757
@@ -167,7 +167,7 @@ lookups:
         value: EU-SDNZ
     # Syria
       - match: SYR  # Council Regulation concerning restrictive measures in view of the situation in Syria and repealing Regulation (EU) No 442/2011
-        values: EU-SYR
+        value: EU-SYR
     # Terrorism
       - match: TERR
         value: EU-TERR  # implementing Article 2(3) of Regulation (EC) No 2580/2001 on specific restrictive measures directed against certain persons and entities with a view to combating terrorism
@@ -183,7 +183,7 @@ lookups:
         value: EU-TUR
     # Ukraine
       - match: UKR
-        values: EU-UKR
+        value: EU-UKR
     # United States
       - match: 
         value: EU-US-LEG
