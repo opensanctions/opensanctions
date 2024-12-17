@@ -929,6 +929,9 @@ config:
     - category: Political_office-holders_in_Singapore
       topic: role.pep
       country: sg
+    - category: Singaporean_military_leaders
+      topic: mil
+      country: sg
 
     # country: Timor-Leste
     - category: Political_office-holders_in_East_Timor
