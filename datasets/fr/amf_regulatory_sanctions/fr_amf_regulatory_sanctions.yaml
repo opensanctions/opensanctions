@@ -1004,3 +1004,7 @@ lookups:
           - Stéphane Marie
           - Didier Tamagno
           - Pierre Vannineuse
+      - match: 'La société ECOR1 CAPITAL<br /> M. Oleg Nodelman'
+        entities:
+          - ECOR1 CAPITAL
+          - Oleg Nodelman
