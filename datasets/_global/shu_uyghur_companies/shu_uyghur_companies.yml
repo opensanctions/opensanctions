@@ -7,7 +7,7 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >-
-  Over 50,000 companies operating across various sectors in the Uyghur Region.  
+  Companies operating in the Uyghur Region including some identified as engaging in labour transfer or other XUAR Government Programs.
 description: |
   This dataset highlights the corporate landscape of the Uyghur Region, including 
   companies involved in manufacturing, export, professional services, construction, 
