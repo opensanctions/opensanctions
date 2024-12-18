@@ -47,7 +47,7 @@ def crawl(context: Context):
         if len(company) == 2:
             name, url = company
         else:
-            context.log.warn("No link found for company", company=company)
+            context.log.info("No link found for company", company=company)
             name, url = company, None
         entity.id = context.make_slug(name)
         entity.add("name", name)
