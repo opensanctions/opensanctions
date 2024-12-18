@@ -13,17 +13,18 @@ description: |
   This dataset highlights the corporate landscape of the Uyghur Region, including 
   companies involved in manufacturing, export, professional services, construction, 
   telecommunications, and retail. It provides names, addresses, and sectors in both 
-  Chinese and English.
+  Chinese and English. The dataset also includes companies related to UFLPA priority 
+  sectors such as apparel, tomato, and polysilicon.
 
   Its purpose is to provide a better understanding of the economic landscape in the 
   Uyghur Region amid ongoing human rights concerns. This list represents publicly 
   available information and is not an original research product of the authors or 
   of Sheffield Hallam University.
 
-  Those without "topics" are operating in the Uyghur Region, while those marked with 
-  "export.control" are identified in media or academic reports as engaging in labor 
-  transfers or other XUAR Government programs. The dataset also includes companies 
-  related to UFLPA priority sectors such as apparel, tomato, and polysilicon.
+  The companies listed under *"Companies Operating in the Uyghur Region"* are based there, 
+  while those under *"Companies Named in Media and Academic Reports as Engaging in Labour 
+  Transfers or Other XUAR Government Programs"* are identified in reports for their involvement 
+  in labor transfers or other government programs in the region.
 
   **Note:** This data is static and will be updated when new files become available.
   This list is not exhaustive, nor does it provide data on companies that were 

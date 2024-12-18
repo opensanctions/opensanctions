@@ -68,6 +68,10 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
             entity.add("notes", row.pop("notes"))
             entity.add("classification", sheet)
             entity.add("topics", "export.control")
+            entity.add(
+                "program",
+                "Companies Named in Media and Academic Reports as engaging in Labour Transfers or other XUAR Government Programs",
+            )
             # entity.add("topics", "export.risk") # not sure if this is needed
 
             if parent is not None:
@@ -122,6 +126,7 @@ def crawl_operating(context: Context, companies_url):
         entity.add("name", name_en, lang="eng")
         entity.add("sector", sector, lang="zhu")
         entity.add("sector", row.pop("sector_english"), lang="eng")
+        entity.add("program", "Companies operating in the Uyghur region")
 
         apply_addresses(
             context,
