@@ -89,9 +89,6 @@ lookups:
     # Chemical weapons
       - match: CHEM  # implementing Regulation (EU) 2018/1542 concerning restrictive measures against the proliferation and use of chemical weapons
         value: EU-CHEM
-    # China
-      - match: 
-        value: EU-TIANANMEN
     # Cyber-attacks
       - match: CYB
         value: EU-CYB
@@ -135,9 +132,6 @@ lookups:
     # Moldova
       - match: MDA  # implementing Regulation (EU) 2023/888 concerning restrictive measures in view of actions destabilising the Republic of Moldova
         value: EU-MDA     
-    # Montenegro
-      - match: 
-        value: EU-CRNA-UN757
     # Myanmar (Burma)
       - match: MMR  # implementing Regulation (EU) No 401/2013 concerning restrictive measures in respect of Myanmar/Burma
         value: EU-MMR
@@ -152,9 +146,6 @@ lookups:
         value: EU-RUS
       - match: RUSDA
         value: EU-RUSDA
-    # Serbia
-      - match: 
-        value: EU-SRB-UN757
     # Somalia
       - match: SOM
         value: EU-SOM
