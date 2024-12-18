@@ -7,7 +7,8 @@ from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_resource
 
 REGEX_AKA = re.compile(r"\baka\b", re.IGNORECASE)
-REGEX_DBA = re.compile(r"\bd\s*/\s*b\s*/\s*a\b", re.IGNORECASE)
+# Handling  ' d/b/aMontessori Day'
+REGEX_DBA = re.compile(r"\bd\s*/\s*b\s*/\s*a(?=\w)", re.IGNORECASE)
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -42,7 +43,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         # The d/b/a is a person's name and then the company name
         names = REGEX_DBA.split(raw_facility_name)
         if len(names) == 2:
-            dba_person_name, facility_name = raw_facility_name[0], raw_facility_name[1]
+            dba_person_name, facility_name = names[0], names[1]
         else:
             facility_name = raw_facility_name
             dba_person_name = None
@@ -52,23 +53,11 @@ def crawl_item(row: Dict[str, str], context: Context):
         company = context.make("LegalEntity")  # Sometimes the person's name.
         company.id = context.make_id(facility_name, zip_code)
         company.add("name", facility_name)
+        if dba_person_name is not None:
+            company.add("alias", dba_person_name)
         company.add("country", "us")
         company.add("topics", "debarment")
         company.add("address", address)
-
-        if dba_person_name:
-            dba_person = context.make("Person")
-            dba_person.id = context.make_id(dba_person_name, zip_code)
-            dba_person.add("name", dba_person_name)
-            dba_person.add("country", "us")
-            dba_person.add("topics", "debarment")
-            link = context.make("UnknownLink")
-            link.id = context.make_id(company.id, dba_person.id)
-            link.add("object", company)
-            link.add("subject", dba_person)
-            link.add("role", "d/b/a")
-            context.emit(dba_person)
-            context.emit(link)
 
         sanction = h.make_sanction(context, company)
         sanction.add("authority", division)
