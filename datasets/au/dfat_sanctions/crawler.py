@@ -192,7 +192,7 @@ def crawl(context: Context):
 
             # Add suffix so that this block is treated as distinct block from
             # earlier iterations of this reference
-            if iteration > 1:
+            if iteration > 1 and raw_ref != "2940j":
                 context.log.warning(
                     "Already seen reference. Adding iteration suffix.",
                     ref=reference,
