@@ -68,13 +68,12 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
             entity.add("notes", row.pop("notes"))
             entity.add("classification", sheet)
             entity.add("topics", "export.control")
-            # entity.add("topics", "export.risk")
+            # entity.add("topics", "export.risk") # not sure if this is needed
 
             if parent is not None:
                 parent_ent = context.make("Company")
                 parent_ent.id = context.make_id(parent, parent_en)
                 parent_ent.add("name", parent, lang="zhu")
-                print(parent_en)
                 parent_ent.add("name", parent_en, lang="eng")
                 parent_ent.add("topics", "export.control")
                 context.emit(parent_ent)
@@ -123,7 +122,6 @@ def crawl_operating(context: Context, companies_url):
         entity.add("name", name_en, lang="eng")
         entity.add("sector", sector, lang="zhu")
         entity.add("sector", row.pop("sector_english"), lang="eng")
-        # entity.add("topics", "export.control")
 
         apply_addresses(
             context,
@@ -141,12 +139,18 @@ def crawl_operating(context: Context, companies_url):
 
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
-    # companies_url = doc.xpath(
-    #     './/a[contains(text(), "Companies Operating in the Uyghur Region")]/@href'
-    # )
-    # crawl_operating(context, companies_url)
+    companies_url = doc.xpath(
+        './/a[contains(text(), "Companies Operating in the Uyghur Region")]/@href'
+    )
+    h.assert_url_hash(
+        context, companies_url[0], "e71aab15641be03abeb8b6fce1564aad8714a124"
+    )
+    crawl_operating(context, companies_url)
 
     labour_transfers_url = doc.xpath(
         './/a[contains(text(), "Companies Named in Media and Academic Reports as engaging in Labour Transfers or other XUAR Government Programs")]/@href'
+    )
+    h.assert_url_hash(
+        context, labour_transfers_url[0], "8b2b90e50cede22c17689052f6c6674be60aa38f"
     )
     crawl_labour_transfers(context, labour_transfers_url)
