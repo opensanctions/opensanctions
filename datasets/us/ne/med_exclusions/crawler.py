@@ -8,30 +8,33 @@ PAGE_SETTINGS = {"join_y_tolerance": 2}
 
 
 def crawl_item(row: Dict[str, str], context: Context):
+    first_name = row.pop("provider_first_nam")
+    middle_name = row.pop("provider_middle_initial")
     last_name = row.pop("provider_last_name")
+    npi = row.pop("npi")
     if organization_name := row.pop("organization_name"):
         entity = context.make("Company")
-        entity.id = context.make_id(organization_name, row.get("npi"))
+        entity.id = context.make_id(organization_name, npi)
         entity.add("name", organization_name)
         # Either empty or a copy
         assert last_name in organization_name, row
     else:
         entity = context.make("Person")
         entity.id = context.make_id(
-            row.get("provider_first_name"),
-            row.get("provider_middle_initial"),
+            first_name,
+            middle_name,
             last_name,
-            row.get("npi"),
+            npi,
         )
         h.apply_name(
             entity,
-            first_name=row.pop("provider_first_name"),
+            first_name=first_name,
+            middle_name=middle_name,
             last_name=last_name,
-            middle_name=row.pop("provider_middle_initial"),
         )
         assert organization_name == "", row
 
-    entity.add("npiCode", row.pop("npi"))
+    entity.add("npiCode", npi)
     entity.add("sector", row.pop("provider_type_code"))
     entity.add("topics", "debarment")
     entity.add("country", "us")
