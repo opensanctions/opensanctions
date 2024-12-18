@@ -3,11 +3,12 @@ entry_point: crawler.py
 prefix: shu-xj
 coverage:
   frequency: daily
-  start: 2024-12-12
+  start: 2024-12-18
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >-
-  Companies operating in the Uyghur Region including some identified as engaging in labour transfer or other XUAR Government Programs.
+  Companies operating in the Uyghur Region including some identified as engaging in labour 
+  transfer or other XUAR Government Programs.
 description: |
   This dataset highlights the corporate landscape of the Uyghur Region, including 
   companies involved in manufacturing, export, professional services, construction, 
@@ -19,8 +20,13 @@ description: |
   available information and is not an original research product of the authors or 
   of Sheffield Hallam University.
 
-  **Note:** The list is drawn from a human resources website, accessed via the internet in 
-  December 2021. This list is not exhaustive, nor does it provide data on companies that were 
+  Those without "topics" are operating in the Uyghur Region, while those marked with 
+  "export.control" are identified in media or academic reports as engaging in labor 
+  transfers or other XUAR Government programs. The dataset also includes companies 
+  related to UFLPA priority sectors such as apparel, tomato, and polysilicon.
+
+  **Note:** This data is static and will be updated when new files become available.
+  This list is not exhaustive, nor does it provide data on companies that were 
   registered, de-registered, or otherwise changed status after that time.
   English translation is machine-generated and may not be accurate.
   [Source: Helena Kennedy Centre for International Justice](https://www.shu.ac.uk/helena-kennedy-centre-international-justice/research-and-projects/all-projects/useful-resources)
