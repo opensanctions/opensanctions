@@ -150,6 +150,8 @@ lookups:
     # Russia
       - match: RUS  # implementing Regulation (EU) 2024/1485 concerning restrictive measures in view of the situation in Russia
         value: EU-RUS
+      - match: RUSDA
+        value: EU-RUSDA
     # Serbia
       - match: 
         value: EU-SRB-UN757
@@ -170,9 +172,11 @@ lookups:
     # Terrorism
       - match: TERR
         value: EU-TERR  # implementing Article 2(3) of Regulation (EC) No 2580/2001 on specific restrictive measures directed against certain persons and entities with a view to combating terrorism
-      - match: TAQA
-        value: EU-TAQA  # Council Regulation (EC) No 881/2002 imposing certain specific restrictive measures directed against certain persons and entities associated with the Al Qaida network
-      - match: HAM  
+      - match: 
+          - TAQA
+          - EUAQ
+        value: EU-TAQA-EUAQ  # Council Regulation (EC) No 881/2002 imposing certain specific restrictive measures directed against certain persons and entities associated with the Al Qaida network
+      - match: HAM
         value: EU-HAM # COUNCIL REGULATION (EU) 2024/386 of 19 January 2024 establishing restrictive measures against those who support, facilitate or enable violent actions by Hamas and the Palestinian Islamic Jihad
     # Tunisia
       - match: TUN  # implementing Regulation (EU) No 101/2011 concerning restrictive measures directed against certain persons, entities and bodies in view of the situation in Tunisia
