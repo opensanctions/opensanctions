@@ -11,6 +11,13 @@ LABOUR_SHEETS = [
     "5. Priority Sector Tomato",
     "6. Priority Sector Polysilicon",
 ]
+APP_LABOUR_SHEETS = LABOUR_SHEETS + ["Information"]
+
+OPERATING_SHEETS = {
+    "Info ",
+    "1. Companies Operating in XUAR",
+    "2. Export Relevant Categories",
+}
 
 
 def apply_addresses(context, entity, addr, addr_en, city, city_en):
@@ -26,15 +33,7 @@ def apply_addresses(context, entity, addr, addr_en, city, city_en):
 def crawl_labour_transfers(context: Context, labour_transfers_url):
     path = context.fetch_resource("labour_transfers.xlsx", labour_transfers_url[0])
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    assert set(workbook.sheetnames) == {
-        "Information",
-        "1. Labor Transfers in XUAR",
-        "2. Labor Transfers Out of XUAR",
-        "3. XPCC",
-        "4. Priority Sector Apparel",
-        "5. Priority Sector Tomato",
-        "6. Priority Sector Polysilicon",
-    }
+    assert set(workbook.sheetnames) == set(APP_LABOUR_SHEETS)
     for sheet in LABOUR_SHEETS:
         for row in h.parse_xlsx_sheet(
             context,
@@ -108,11 +107,7 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
 def crawl_operating(context: Context, companies_url):
     path = context.fetch_resource("companies_registry.xlsx", companies_url[0])
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    assert set(workbook.sheetnames) == {
-        "Info ",
-        "1. Companies Operating in XUAR",
-        "2. Export Relevant Categories",
-    }
+    assert set(workbook.sheetnames) == OPERATING_SHEETS
     for row in h.parse_xlsx_sheet(
         context, sheet=workbook["1. Companies Operating in XUAR"], skiprows=1
     ):
