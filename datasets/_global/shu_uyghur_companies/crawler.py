@@ -91,7 +91,7 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
                 city_en=None,
             )
 
-            context.emit(entity)
+            context.emit(entity, target=True)
 
         context.audit_data(
             row,

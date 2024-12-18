@@ -49,7 +49,8 @@ data:
 assertions:
   min:
     schema_entities:
-      Company: 50000
+      Company: 52000
+      Address: 90000
 lookups:
   parent_company:
     options: 
