@@ -24,10 +24,10 @@ def apply_addresses(context, entity, addr, addr_en, city, city_en):
     """Create and apply addresses to an entity."""
     if addr:
         address_ent = h.make_address(context, full=addr, city=city, lang="zhu")
-        h.copy_address(context, entity, address_ent)
+        h.copy_address(entity, address_ent)
     if addr_en:
         address_en_ent = h.make_address(context, full=addr_en, city=city_en, lang="eng")
-        h.copy_address(context, entity, address_en_ent)
+        h.copy_address(entity, address_en_ent)
 
 
 def crawl_labour_transfers(context: Context, labour_transfers_url):
@@ -48,13 +48,6 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
             addr_xuar_en = row.pop("address_in_xuar_machine_translated_english", None)
             addr = row.pop("address", None)
             addr_en = row.pop("address_machine_translated_english", None)
-            parent = row.pop("parent_company")
-            parent_en = row.pop("parent_company_english")
-            if parent_en is not None and "parent company" in parent_en.lower():
-                parent_en_looked_up = context.lookup_value("parent_company", parent_en)
-                if not parent_en_looked_up:
-                    context.log.warning("No parent company lookup", parent_en=parent_en)
-                parent_en = parent_en_looked_up
             sector = row.pop("industry")
 
             entity = context.make("Company")
@@ -66,20 +59,39 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
             entity.add("keywords", row.pop("allegation", None))
             entity.add("notes", row.pop("notes"))
             entity.add("classification", sheet)
-            entity.add("topics", "trade.risk")
+            entity.add("topics", "export.risk")
             entity.add(
                 "program",
                 "Companies Named in Media and Academic Reports as engaging in Labour Transfers or other XUAR Government Programs",
             )
 
-            if parent is not None:
-                parent_ent = context.make("Company")
-                parent_ent.id = context.make_id(parent, parent_en)
-                parent_ent.add("name", parent, lang="zhu")
-                parent_ent.add("name", parent_en, lang="eng")
-                parent_ent.add("topics", "trade.risk")
-                context.emit(parent_ent)
-                entity.add("parent", parent_ent)
+            parent_name = row.pop("parent_company")
+            parent_en = row.pop("parent_company_english")
+            if parent_name is not None:
+                parent = context.make("Company")
+                parent.id = context.make_id(parent_name, parent_en)
+                parent.add("name", parent_name, lang="zhu")
+                if parent_en is not None and "parent company" in parent_en.lower():
+                    parent_en_res = context.lookup("parent_company", parent_en)
+                    if parent_en_res:
+                        parent.add("name", parent_en_res.values, lang="eng")
+                    else:
+                        context.log.warning(
+                            "No parent company lookup",
+                            name_en=name_en,
+                            parent_en=parent_en,
+                        )
+                else:
+                    parent.add("name", parent_en, lang="eng")
+
+                parent.add("topics", "export.risk")
+                context.emit(parent)
+
+                own = context.make("Ownership")
+                own.id = context.make_id("ownership", entity.id, parent.id)
+                own.add("owner", parent)
+                own.add("asset", entity)
+                context.emit(own)
 
             apply_addresses(
                 context,
@@ -130,7 +142,6 @@ def crawl_operating(context: Context, companies_url):
             city=row.pop("city"),
             city_en=row.pop("city_english"),
         )
-
         context.emit(entity)
 
     context.audit_data(row)
@@ -141,15 +152,15 @@ def crawl(context: Context):
     companies_url = doc.xpath(
         './/a[contains(text(), "Companies Operating in the Uyghur Region")]/@href'
     )
-    h.assert_url_hash(
-        context, companies_url[0], "e71aab15641be03abeb8b6fce1564aad8714a124"
-    )
-    crawl_operating(context, companies_url)
+    if not companies_url:
+        context.log.error("No operating companies URL found!", index=context.data_url)
+    else:
+        crawl_operating(context, companies_url)
 
     labour_transfers_url = doc.xpath(
         './/a[contains(text(), "Companies Named in Media and Academic Reports as engaging in Labour Transfers or other XUAR Government Programs")]/@href'
     )
-    h.assert_url_hash(
-        context, labour_transfers_url[0], "8b2b90e50cede22c17689052f6c6674be60aa38f"
-    )
-    crawl_labour_transfers(context, labour_transfers_url)
+    if not labour_transfers_url:
+        context.log.error("No labour transfers URL found!", index=context.data_url)
+    else:
+        crawl_labour_transfers(context, labour_transfers_url)
