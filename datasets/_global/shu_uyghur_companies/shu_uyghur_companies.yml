@@ -1,4 +1,4 @@
-title: Helena Kennedy Centre Companies Operating in the Uyghur Region
+title: Companies Operating in the Uyghur Region
 entry_point: crawler.py
 prefix: shu-xj
 coverage:
@@ -34,7 +34,7 @@ description: |
 url: https://www.shu.ac.uk/helena-kennedy-centre-international-justice/research-and-projects/all-projects/useful-resources
 publisher:
   name: Helena Kennedy Centre for International Justice at Sheffield Hallam University
-  acronym: HKC
+  acronym: SHU
   description: |
     The Helena Kennedy Centre for International Justice is a leading centre for social 
     justice and human rights. Its expertise spans human rights, criminology, law, policing, 
@@ -50,7 +50,6 @@ assertions:
   min:
     schema_entities:
       Company: 52000
-      Address: 90000
 lookups:
   parent_company:
     normalize: true

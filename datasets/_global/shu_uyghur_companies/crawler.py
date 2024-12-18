@@ -24,10 +24,10 @@ def apply_addresses(context, entity, addr, addr_en, city, city_en):
     """Create and apply addresses to an entity."""
     if addr:
         address_ent = h.make_address(context, full=addr, city=city, lang="zhu")
-        h.apply_address(context, entity, address_ent)
+        h.copy_address(context, entity, address_ent)
     if addr_en:
         address_en_ent = h.make_address(context, full=addr_en, city=city_en, lang="eng")
-        h.apply_address(context, entity, address_en_ent)
+        h.copy_address(context, entity, address_en_ent)
 
 
 def crawl_labour_transfers(context: Context, labour_transfers_url):
@@ -66,19 +66,18 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
             entity.add("keywords", row.pop("allegation", None))
             entity.add("notes", row.pop("notes"))
             entity.add("classification", sheet)
-            entity.add("topics", "export.control")
+            entity.add("topics", "trade.risk")
             entity.add(
                 "program",
                 "Companies Named in Media and Academic Reports as engaging in Labour Transfers or other XUAR Government Programs",
             )
-            # entity.add("topics", "export.risk") # not sure if this is needed
 
             if parent is not None:
                 parent_ent = context.make("Company")
                 parent_ent.id = context.make_id(parent, parent_en)
                 parent_ent.add("name", parent, lang="zhu")
                 parent_ent.add("name", parent_en, lang="eng")
-                parent_ent.add("topics", "export.control")
+                parent_ent.add("topics", "trade.risk")
                 context.emit(parent_ent)
                 entity.add("parent", parent_ent)
 
