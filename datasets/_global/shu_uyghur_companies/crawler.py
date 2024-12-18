@@ -50,7 +50,7 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
             addr_en = row.pop("address_machine_translated_english", None)
             sector = row.pop("industry")
 
-            entity = context.make("Company")
+            entity = context.make("Organization")
             # Setting the ID based on the translated name to avoid blanks
             entity.id = context.make_id(name_en, addr, sector)
             entity.add("name", row.pop("supplier"), lang="zhu")
@@ -72,7 +72,7 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
                 parent_res = context.lookup("parent_company", parent_en)
                 if parent_res is not None:
                     for parent_name in parent_res.values:
-                        parent = context.make("Company")
+                        parent = context.make("Organization")
                         parent.id = context.make_id(parent_name, parent_en)
                         parent.add(
                             "name", parent_name, lang="eng", original_value=parent_en
@@ -88,7 +88,7 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
                         context.emit(own)
 
                         if parent_res.ultimate:
-                            ultimate = context.make("Company")
+                            ultimate = context.make("Organization")
                             ultimate.id = context.make_id(parent_res.ultimate)
                             ultimate.add("name", parent_res.ultimate, lang="eng")
                             ultimate.add("topics", "export.risk")
@@ -142,7 +142,7 @@ def crawl_operating(context: Context, companies_url):
         addr = row.pop("address")
         sector = row.pop("sector")
 
-        entity = context.make("Company")
+        entity = context.make("Organization")
         entity.id = context.make_id(name_en, addr, sector)
         entity.add("name", row.pop("company"), lang="zhu")
         entity.add("name", name_en, lang="eng")
