@@ -59,39 +59,55 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
             entity.add("keywords", row.pop("allegation", None))
             entity.add("notes", row.pop("notes"))
             entity.add("classification", sheet)
+            entity.add("country", "cn")
             entity.add("topics", "export.risk")
             entity.add(
                 "program",
                 "Companies Named in Media and Academic Reports as engaging in Labour Transfers or other XUAR Government Programs",
             )
 
-            parent_name = row.pop("parent_company")
+            row.pop("parent_company")
             parent_en = row.pop("parent_company_english")
-            if parent_name is not None:
-                parent = context.make("Company")
-                parent.id = context.make_id(parent_name, parent_en)
-                parent.add("name", parent_name, lang="zhu")
-                if parent_en is not None and "parent company" in parent_en.lower():
-                    parent_en_res = context.lookup("parent_company", parent_en)
-                    if parent_en_res:
-                        parent.add("name", parent_en_res.values, lang="eng")
-                    else:
-                        context.log.warning(
-                            "No parent company lookup",
-                            name_en=name_en,
-                            parent_en=parent_en,
+            if parent_en is not None:
+                parent_res = context.lookup("parent_company", parent_en)
+                if parent_res is not None:
+                    for parent_name in parent_res.values:
+                        parent = context.make("Company")
+                        parent.id = context.make_id(parent_name, parent_en)
+                        parent.add(
+                            "name", parent_name, lang="eng", original_value=parent_en
                         )
+                        parent.add("topics", "export.risk")
+                        parent.add("country", parent_res.country or "cn")
+                        context.emit(parent)
+
+                        own = context.make("Ownership")
+                        own.id = context.make_id("ownership", entity.id, parent.id)
+                        own.add("owner", parent)
+                        own.add("asset", entity)
+                        context.emit(own)
+
+                        if parent_res.ultimate:
+                            ultimate = context.make("Company")
+                            ultimate.id = context.make_id(parent_res.ultimate)
+                            ultimate.add("name", parent_res.ultimate, lang="eng")
+                            ultimate.add("topics", "export.risk")
+                            # ultimate.add("country", "cn")
+                            context.emit(ultimate)
+
+                            own = context.make("Ownership")
+                            own.id = context.make_id(
+                                "ownership", parent.id, ultimate.id
+                            )
+                            own.add("owner", ultimate)
+                            own.add("asset", parent)
+                            context.emit(own)
                 else:
-                    parent.add("name", parent_en, lang="eng")
-
-                parent.add("topics", "export.risk")
-                context.emit(parent)
-
-                own = context.make("Ownership")
-                own.id = context.make_id("ownership", entity.id, parent.id)
-                own.add("owner", parent)
-                own.add("asset", entity)
-                context.emit(own)
+                    context.log.warning(
+                        "No parent company lookup",
+                        name_en=name_en,
+                        parent_en=parent_en,
+                    )
 
             apply_addresses(
                 context,
@@ -133,6 +149,7 @@ def crawl_operating(context: Context, companies_url):
         entity.add("sector", sector, lang="zhu")
         entity.add("sector", row.pop("sector_english"), lang="eng")
         entity.add("program", "Companies operating in the Uyghur region")
+        entity.add("country", "cn")
 
         apply_addresses(
             context,
