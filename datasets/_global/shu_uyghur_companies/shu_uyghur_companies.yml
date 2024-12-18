@@ -43,39 +43,54 @@ assertions:
   min:
     schema_entities:
       Company: 50000
-lookups: 
+lookups:
+  parent_company:
+    options: 
+      - match: 'parent company：The Fourth Prison of Xinjiang Uygur Autonomous Region (Shareholding ratio 100%)； subsidiary：1）Urumqi Wenguang Cement Factory Labor Service Company 2）Urumqi Yintong Mining Development Co., Ltd.'
+        values:
+          - The Fourth Prison of Xinjiang Uygur Autonomous Region
+          - Urumqi Wenguang Cement Factory Labor Service Company
+          - Urumqi Yintong Mining Development Co., Ltd.
+      - match: 'Parent company: 1) Xinjiang Production and Construction Corps Cotton and Linen Co., Ltd. (70.51%); 2) Aksu Kanglong Cotton Machine Service Co., Ltd. (29.48%)'
+        values:
+          - Xinjiang Production and Construction Corps Cotton and Linen Co., Ltd.
+          - Aksu Kanglong Cotton Machine Service Co., Ltd.
+      - match: parent company：Xinjiang Ruyi Textile and Garment Co. Ltd.
+        value: Xinjiang Ruyi Textile and Garment Co. Ltd.
+      - match: parent company： Anhui Haoyuanpeng Costume Co. Ltd. China and Overseas； subsidiary：
+        value: Anhui Haoyuanpeng Costume Co. Ltd. China and Overseas
   type.address: 
     options: 
       - match: Hejing County, Bayingoleng Mongol Autonomous Prefecture, Xinjiang 279 On the south side of the county road and on the north side of Gonghala Village Xinjiang Hongteng Agriculture and Animal Husbandry Ecological Technology Development Co., Ltd. 1 Number
-        values: 
+        values:
           - Hejing County, Bayingoleng Mongol Autonomous Prefecture, Xinjiang 279
           - On the south side of the county road and on the north side of Gonghala Village Xinjiang Hongteng Agriculture and Animal Husbandry Ecological Technology Development Co., Ltd. 1 Number
       - match: South of Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Kazakh Autonomous Prefecture, Xinjiang 2-2 Building (Xinrun Warehousing and Logistics Park 2 building 2 layer 44-E room number)
-        values: 
+        values:
           - South of Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Kazakh Autonomous Prefecture, Xinjiang 2-2 Building
           - Xinrun Warehousing and Logistics Park 2 building 2 layer 44-E room number
       - match: Shenka Science and Technology Innovation Service Center, Kashi Special Zone, on the east side of Chuangye 7th Road, on the south side of Chuangye 2nd Road, in the west area of Shenzhen Industrial Park, Kashgar Economic Development Zone, Kashgar, Xinjiang
-        values: 
+        values:
           - Shenka Science and Technology Innovation Service Center, Kashi Special Zone, on the east side of Chuangye 7th Road
           - on the south side of Chuangye 2nd Road, in the west area of Shenzhen Industrial Park, Kashgar Economic Development Zone, Kashgar, Xinjiang
       - match: South of Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Prefecture, Xinjiang 2-2 Building (Xinrun Warehousing and Logistics Park 2 building 2 layer 25 room number)
-        values: 
+        values:
           - South of Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Prefecture, Xinjiang 2-2 Building
           - Xinrun Warehousing and Logistics Park 2 building 2 layer 25 room number
       - match: To the west of Beijing Road, to the east of Shanghai Road, to the east of Shanghai Road, to the south of Shandong Road, to the north of Hebei Road, Yining Economic Cooperation Zone, Yili Prefecture, Xinjiang 46 Building a Holiday Landscape 2 building 3 unit 4 layer 402 room
-        values: 
+        values:
           - To the west of Beijing Road, to the east of Shanghai Road, to the east of Shanghai Road, to the south of Shandong Road, to the north of Hebei Road, Yining Economic Cooperation Zone, Yili Prefecture, Xinjiang 46 Building
           - a Holiday Landscape 2 building 3 unit 4 layer 402 room
       - match: South Attachment to Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Prefecture, Xinjiang 2 No. (Luxiang Logistics Park Office Building 1 second floor 217 Number)
-        values: 
+        values:
           - South Attachment to Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Prefecture, Xinjiang 2 No.
           - Luxiang Logistics Park Office Building 1 second floor 217 Number
       - match: Montenegro, Toksun County, Turpan City, Xinjiang 103 East side of Provincial Highway , North of Sinopec Gas Station 1.4Kilometers away (Tokexun Yinhe Energy Investment and Construction Co., Ltd. Heishan Warehousing and Logistics Base E. seat 107 room )
-        values: 
+        values:
           - Montenegro, Toksun County, Turpan City, Xinjiang 103 East side of Provincial Highway
           - North of Sinopec Gas Station 1.4Kilometers away
           - Tokexun Yinhe Energy Investment and Construction Co., Ltd. Heishan Warehousing and Logistics Base E. seat 107 room
       - match: South Attachment to Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Kazakh Autonomous Prefecture, Xinjiang 2 No. (Luxiang Logistics Park Office Building 2 layer 207 Number)
-        values: 
+        values:
           - South Attachment to Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Kazakh Autonomous Prefecture, Xinjiang 2 No.
           - Luxiang Logistics Park Office Building 2 layer 207 Number
