@@ -53,12 +53,12 @@ assertions:
       Address: 90000
 lookups:
   parent_company:
+    normalize: true
     options: 
       - match: 'parent company：The Fourth Prison of Xinjiang Uygur Autonomous Region (Shareholding ratio 100%)； subsidiary：1）Urumqi Wenguang Cement Factory Labor Service Company 2）Urumqi Yintong Mining Development Co., Ltd.'
-        values:
-          - The Fourth Prison of Xinjiang Uygur Autonomous Region
-          - Urumqi Wenguang Cement Factory Labor Service Company
-          - Urumqi Yintong Mining Development Co., Ltd.
+        value: The Fourth Prison of Xinjiang Uygur Autonomous Region
+          # - Urumqi Wenguang Cement Factory Labor Service Company
+          # - Urumqi Yintong Mining Development Co., Ltd.
       - match: 'Parent company: 1) Xinjiang Production and Construction Corps Cotton and Linen Co., Ltd. (70.51%); 2) Aksu Kanglong Cotton Machine Service Co., Ltd. (29.48%)'
         values:
           - Xinjiang Production and Construction Corps Cotton and Linen Co., Ltd.
