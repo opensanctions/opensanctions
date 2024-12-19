@@ -50,3 +50,16 @@ assertions:
     schema_entities:
       Person: 2500
       LegalEntity: 1000
+
+lookups:
+  names: 
+    normalize: true
+    options:
+      - match: Annie Ray d/b/a CareALot Day Care and Preschool
+        values: 
+          - Annie Ray
+          - CareALot Day Care and Preschool
+      - match: Carolyn Meadowa d/b/aMontessori Day Care Centerand Preschool
+        values: 
+          - Carolyn Meadowa
+          - Montessori Day Care Center and Preschool
