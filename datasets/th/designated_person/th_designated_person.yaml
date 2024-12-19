@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: 2024-04-15
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   Designation of persons suspected to be connected with terrorism or terrorism financing
 description: |
