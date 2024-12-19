@@ -45,11 +45,13 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.add("address", address)
         # The d/b/a is a person's name and then the company name
         if "d/b/a" in facility_name:
-            dba = context.lookup_value("names", facility_name)
-            dba_person_name, facility_name = dba[0], dba[1]
-            entity.add("alias", dba_person_name)
-            if not dba:
-                context.log.warning("No names found for", facility_name)
+            result = context.lookup("names", facility_name)
+            if result is not None:
+                print(result.values)
+                dba_person_name, facility_name = result.values[0], result.values[1]
+                entity.add("alias", dba_person_name)
+            else:
+                context.log.warning("No lookups found for", facility_name)
 
         sanction = h.make_sanction(context, entity)
         sanction.add("authority", division)
