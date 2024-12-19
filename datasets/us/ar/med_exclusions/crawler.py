@@ -36,22 +36,24 @@ def crawl_item(row: Dict[str, str], context: Context):
         context.emit(person, target=True)
         context.emit(sanction)
 
-    if facility_name := row.pop("Facility Name"):
+    if entity_name := row.pop("Facility Name"):
+        # The d/b/a is a person's name and then the company name
+        dba_name = None
+        if "d/b/a" in entity_name:
+            result = context.lookup("names", entity_name)
+            if result is not None:
+                # It's a person's name and then the company name
+                entity_name, dba_name = result.values[0], result.values[1]
+            else:
+                context.log.warning("No lookups found for", entity_name)
         entity = context.make("LegalEntity")  # Sometimes the person's name.
-        entity.id = context.make_id(facility_name, zip_code)
-        entity.add("name", facility_name)
+        entity.id = context.make_id(entity_name, zip_code)
+        entity.add("name", entity_name)
         entity.add("country", "us")
         entity.add("topics", "debarment")
         entity.add("address", address)
-        # The d/b/a is a person's name and then the company name
-        if "d/b/a" in facility_name:
-            result = context.lookup("names", facility_name)
-            if result is not None:
-                print(result.values)
-                dba_person_name, facility_name = result.values[0], result.values[1]
-                entity.add("alias", dba_person_name)
-            else:
-                context.log.warning("No lookups found for", facility_name)
+        if dba_name is not None:
+            entity.add("alias", dba_name)
 
         sanction = h.make_sanction(context, entity)
         sanction.add("authority", division)
@@ -59,7 +61,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         context.emit(entity, target=True)
         context.emit(sanction)
 
-    if provider_name and facility_name:
+    if provider_name and entity_name:
         link = context.make("UnknownLink")
         link.id = context.make_id(person.id, entity.id)
         link.add("object", entity.id)
