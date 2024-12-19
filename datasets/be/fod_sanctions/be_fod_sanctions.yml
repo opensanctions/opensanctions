@@ -63,6 +63,9 @@ lookups:
     # Belarus
       - match: BLR  # implementing Article 8a of Regulation (EC) No 765/2006 concerning restrictive measures in view of the situation in Belarus
         value: EU-BLR
+    # Belgium
+      - match: BE  # https://finance.belgium.be/en/about_fps/structure_and_services/general_administrations/treasury/financial-sanctions/national
+        value: BE-FOD-NAT 
     # Burundi
       - match: BDI  # implementing Regulation (EU) 2015/1755 concerning restrictive measures in view of the situation in Burundi
         value: EU-BDI
