@@ -49,6 +49,12 @@ assertions:
       Person: 650
 
 lookups:
+  names: 
+    options: 
+      - match: Devos, LTD d.b.a. Guaranteed Returns
+        values: 
+          - Devos, LTD
+          - Guaranteed Returns
   type.date:
     options:
       # is_debarred for Reinstated Date mapped to null.

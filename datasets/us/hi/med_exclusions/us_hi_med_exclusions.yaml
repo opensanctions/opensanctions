@@ -60,6 +60,12 @@ assertions:
       Company: 20
 
 lookups:
+  names: 
+    options: 
+      - match: MALABED, JR. DBA GGM HANDI TRANSIT
+        values: 
+          - MALABED, JR
+          - GGM HANDI TRANSIT
   type.date:
     options:
       match:
