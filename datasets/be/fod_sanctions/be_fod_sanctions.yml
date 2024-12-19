@@ -40,6 +40,20 @@ data:
   format: ZIP/XML
 
 lookups:
+  subject_type:
+    options:
+      - match: person
+        value: Person
+      - match: enterprise
+        value: Organization
+  schema_override:
+    options:
+      - match: eu-fsf-eu-11935-5
+        value: Organization
+      - match:
+          - eu-fsf-eu-9442-82 # Unica
+          - eu-fsf-eu-9443-81 # New Konk
+        value: Vessel
   sanction.program:
     # in accordance with https://sanctionsmap.eu/#/main?search=%7B%22value%22:%22%22,%22searchType%22:%7B%7D%7D
     options:
@@ -150,22 +164,6 @@ lookups:
     # Zimbabwe
       - match: ZWE
         value: EU-ZWE
-  subject_type:
-    options:
-      - match: person
-        value: Person
-      - match: enterprise
-        value: Organization
-  schema_override:
-    options:
-      - match: eu-fsf-eu-11935-5
-        value: Organization
-      - match:
-          - eu-fsf-eu-9442-82 # Unica
-          - eu-fsf-eu-9443-81 # New Konk
-        value: Vessel
-  sanction.program:
-    options: []
   contact_info:
     options:
       - match: PHONE
