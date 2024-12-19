@@ -6,7 +6,6 @@ from zavod import Context, helpers as h, settings
 from zavod.shed.zyte_api import fetch_resource
 
 REGEX_AKA = re.compile(r"\baka\b|a\.k\.a\.?", re.IGNORECASE)
-REGEX_DBA = re.compile(r"d\.b\.a.|\bdba\b", re.IGNORECASE)
 # Ruth Diane Jones, DO
 # Tamika Brewer-Adams (PCA)
 # Charles Michael Napoli (Pharma Tech)
@@ -26,28 +25,18 @@ def crawl_item(row: Dict[str, str], context: Context):
         if match.group("role").lower() not in {"llc", "inc", "corp", "pc"}:
             position = match.group("role")
             name = match.group("name").rstrip(",")
+    dba = None
+    if "d.b.a." in name:
+        result = context.lookup("names", name)
+        if result is not None:
+            name, dba = result.values[0], result.values[1]
+        else:
+            context.log.warning("No lookups found for", name)
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(raw_name, npi)
-
-    if "d.b.a." in name:
-        names = REGEX_DBA.split(name)
-        name, dba = names[0], names[1]
-
-        dba_company = context.make("Company")
-        dba_company.id = context.make_id(dba)
-        dba_company.add("name", dba)
-        dba_company.add("country", "us")
-        dba_company.add("topics", "debarment")
-        link = context.make("UnknownLink")
-        link.id = context.make_id(entity.id, dba_company.id)
-        link.add("object", dba_company)
-        link.add("subject", entity)
-        link.add("role", "d/b/a")
-        context.emit(dba_company)
-        context.emit(link)
-
     entity.add("name", name)
+    entity.add("alias", dba)
     entity.add_cast("Person", "position", position)
     entity.add("alias", alias)
     entity.add("country", "us")
