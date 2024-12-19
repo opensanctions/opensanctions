@@ -167,6 +167,9 @@ lookups:
     # Zimbabwe
       - match: ZWE
         value: EU-ZWE
+    # UN
+      - match: UNLI  # https://www.un.org/press/en/2019/sc13806.doc.htm
+        value: UN-SCISIL
   contact_info:
     options:
       - match: PHONE
