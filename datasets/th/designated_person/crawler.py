@@ -30,7 +30,6 @@ def crawl_item(url: str, context: Context):
     )
 
     info_dict = parse_table(response.find(".//table"))
-    print(info_dict)
     en_name = info_dict.pop("Individual/Entity Name (English)", "").strip()
     th_name = info_dict.pop("Individual/Entity Name (Thailand)").strip()
     birth_date = info_dict.pop("Date of Birth")
