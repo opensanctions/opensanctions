@@ -2,7 +2,7 @@ title: Companies Operating in the Uyghur Region
 entry_point: crawler.py
 prefix: shu-xj
 coverage:
-  frequency: daily
+  frequency: monthly
   start: 2024-12-18
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
@@ -48,7 +48,7 @@ data:
 assertions:
   min:
     schema_entities:
-      Company: 52000
+      Organization: 52000
 lookups:
   parent_company:
     normalize: true
