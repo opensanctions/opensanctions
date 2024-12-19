@@ -23,10 +23,7 @@ def clean_name(name: str) -> str:
 
 def crawl_item(url: str, context: Context):
     response = context.fetch_html(url)
-    print(response)
-
     info_dict = parse_table(response.find(".//table"))
-    print(info_dict)
 
     en_name = info_dict.pop("Individual/Entity Name (English)", "").strip()
     th_name = info_dict.pop("Individual/Entity Name (Thailand)").strip()
@@ -39,32 +36,23 @@ def crawl_item(url: str, context: Context):
     entity.add("name", en_name, lang="en")
     entity.add("name", clean_name(th_name), lang="th")
     entity.add("topics", "sanction")
-
+    entity.add("nationality", info_dict.pop("Nationality", None) or None)
+    entity.add("phone", info_dict.pop("Phone Number", None) or None)
+    entity.add("address", info_dict.pop("Address No.1", None) or None, lang="th")
+    entity.add("address", info_dict.pop("Address No.2", None) or None, lang="th")
+    entity.add("email", info_dict.pop("E-mail", None) or None)
+    entity.add("sourceUrl", url)
     if birth_date_parsed:
         entity.add("birthDate", birth_date_parsed)
-
-    entity.add("nationality", info_dict.pop("Nationality", None) or None)
-
-    entity.add("phone", info_dict.pop("Phone Number", None) or None)
-
-    entity.add("email", info_dict.pop("E-mail", None) or None)
-
     entity.add(
         "idNumber", info_dict.pop("National Identification Number", None) or None
     )
-
-    entity.add("address", info_dict.pop("Address No.1", None) or None, lang="th")
-
-    entity.add("address", info_dict.pop("Address No.2", None) or None, lang="th")
-
     entity.add(
         "program",
         "Thailand Counter-Terrorism and Proliferation Financing Act B.E. 2559 section 7, Notificaton Number: {}".format(
             info_dict.pop("Notification Number")
         ),
     )
-
-    entity.add("sourceUrl", url)
 
     context.emit(entity, target=True)
 
@@ -88,9 +76,7 @@ def crawl(context: Context):
         context,
         context.data_url,
         unblock_validator=".//table[@id='datatable']",
-        cache_days=2,
-        retries=3,
-        backoff_factor=0.5,
+        cache_days=1,
     )
     response.make_links_absolute(context.data_url)
 
