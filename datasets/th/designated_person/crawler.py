@@ -22,9 +22,15 @@ def clean_name(name: str) -> str:
 
 
 def crawl_item(url: str, context: Context):
-    response = context.fetch_html(url)
-    info_dict = parse_table(response.find(".//table"))
+    response = fetch_html(
+        context,
+        url,
+        unblock_validator=".//table",
+        html_source="httpResponseBody",
+    )
 
+    info_dict = parse_table(response.find(".//table"))
+    print(info_dict)
     en_name = info_dict.pop("Individual/Entity Name (English)", "").strip()
     th_name = info_dict.pop("Individual/Entity Name (Thailand)").strip()
     birth_date = info_dict.pop("Date of Birth")
@@ -72,12 +78,7 @@ def crawl_item(url: str, context: Context):
 
 
 def crawl(context: Context):
-    response = fetch_html(
-        context,
-        context.data_url,
-        unblock_validator=".//table[@id='datatable']",
-        cache_days=1,
-    )
+    response = context.fetch_html(context.data_url)
     response.make_links_absolute(context.data_url)
 
     # We are going to iterate over all url of the designated persons
