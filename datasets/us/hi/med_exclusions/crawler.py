@@ -15,25 +15,17 @@ def crawl_item(row: Dict[str, str], context: Context):
 
         raw_last_name = row.pop("last_name_or_business_name")
         raw_middle_initial = row.pop("middle_initial")
+        dba = None
+        if " DBA " in raw_last_name:
+            result = context.lookup("names", raw_last_name)
+            if result is not None:
+                raw_last_name, dba = result.values[0], result.values[1]
+            else:
+                context.log.warning("No lookups found for", raw_last_name)
 
         entity.id = context.make_id(
             raw_last_name, raw_middle_initial, raw_first_name, row.get("exclusion_date")
         )
-
-        # There is some cases where there is a business name with "DBA"
-        if " DBA " in raw_last_name:
-            raw_last_name, business_name = raw_last_name.split(" DBA ")
-            company = context.make("Company")
-            company.id = context.make_id(business_name)
-            company.add("name", business_name)
-            link = context.make("UnknownLink")
-            link.id = context.make_id(entity.id, company.id)
-            link.add("object", entity)
-            link.add("subject", company)
-            link.add("role", "d/b/a")
-            context.emit(company)
-            context.emit(link)
-
         for first_name in re.split(AKA_SPLIT, raw_first_name):
             for last_name in re.split(AKA_SPLIT, raw_last_name):
                 for middle_initial in re.split(AKA_SPLIT, raw_middle_initial):
@@ -43,6 +35,7 @@ def crawl_item(row: Dict[str, str], context: Context):
                         last_name=last_name,
                         middle_name=middle_initial,
                     )
+                    entity.add("alias", dba)
     else:
         entity = context.make("Company")
         entity.id = context.make_id(row.get("last_name_or_business_name"))
