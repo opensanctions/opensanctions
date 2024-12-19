@@ -282,6 +282,8 @@ lookups:
           - shaamco@mail.sy
       - match: and millim@ silibank.com
         value: millim@silibank.com
+      - match: sophia@guang xing.com
+        value: sophia@guangxing.com
       - contains: hotelminsk@udp.gov.by
         values:
           - hotelminsk@udp.gov.by

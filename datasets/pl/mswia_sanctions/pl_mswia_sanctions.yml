@@ -161,3 +161,15 @@ lookups:
       - match: 'adres: Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa'
         props:
           address: "Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa"
+      - match: 'adres: Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie (nazwa arabska: مكتب 02 ملك عابر خلفان محمد خلفان الهاملىالثنية االولى) numer rejestrowy: 2823197'
+        props:
+          address: "Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie"
+          registrationNumber: "2823197"
+      - match: 'adres: Mińsk, 220137, ul. Naklonnaya 28, Republika Białorusi (nazwa rosyjskojęzyczna: Минск, 220137, ул. Наклонная 28) numer rejestrowy: 193256472'
+        props:
+          address: "Mińsk, 220137, ul. Naklonnaya 28, Republika Białorusi"
+          registrationNumber: "193256472"
+      - match: 'adres: Republika Białorusi, 220137, Mińsk, ul. Naklonnaya 28 (nazwa rosyjskojęzyczna: Республика Беларусь, 220137, г Минск, ул. Наклонная, д 28) numer rejestrowy: 193648909'
+        props:
+          address: "Republika Białorusi, 220137, Mińsk, ul. Naklonnaya 28"
+          registrationNumber: "193648909"

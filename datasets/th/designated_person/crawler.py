@@ -3,6 +3,7 @@ from lxml.etree import _Element
 import re
 
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 
 REGEX_CLEAN_NAME = re.compile(r"^\d\. ")
@@ -22,10 +23,12 @@ def clean_name(name: str) -> str:
 
 def crawl_item(url: str, context: Context):
     response = context.fetch_html(url)
+    print(response)
 
     info_dict = parse_table(response.find(".//table"))
+    print(info_dict)
 
-    en_name = info_dict.pop("Individual/Entity Name (English)").strip()
+    en_name = info_dict.pop("Individual/Entity Name (English)", "").strip()
     th_name = info_dict.pop("Individual/Entity Name (Thailand)").strip()
     birth_date = info_dict.pop("Date of Birth")
     birth_date_parsed = (h.extract_date(context.dataset, birth_date))[0]
@@ -81,8 +84,14 @@ def crawl_item(url: str, context: Context):
 
 
 def crawl(context: Context):
-    response = context.fetch_html(context.data_url)
-
+    response = fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=".//table[@id='datatable']",
+        cache_days=2,
+        retries=3,
+        backoff_factor=0.5,
+    )
     response.make_links_absolute(context.data_url)
 
     # We are going to iterate over all url of the designated persons
