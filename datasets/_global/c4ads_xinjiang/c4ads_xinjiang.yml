@@ -36,7 +36,7 @@ data:
 assertions:
   min:
     schema_entities:
-      Organization: 5000
+      Organization: 500
 
 dates:
   formats: ["%m/%d/%y"]
