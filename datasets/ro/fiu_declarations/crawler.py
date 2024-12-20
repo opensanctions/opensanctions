@@ -1,4 +1,4 @@
-from zavod import Context
+from zavod import Context, helpers as h
 
 
 def crawl(context: Context):
@@ -15,4 +15,5 @@ def crawl(context: Context):
             pep.id = context.make_id(name)
             pep.add("name", name)
             pep.add("country", "ro")
+            pep.add("topics", "role.pep")
             context.emit(pep)
