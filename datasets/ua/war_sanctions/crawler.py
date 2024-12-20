@@ -39,6 +39,19 @@ def extract_label_value_pair(label_elem, value_elem, data):
     return label, value
 
 
+def apply_dob_pob(entity, dob_pob):
+    if dob_pob:
+        # If we get more than one part, unpack it into dob and pob
+        if len(dob_pob) == 2:
+            dob, pob = dob_pob
+            h.apply_date(entity, "birthDate", dob)
+            entity.add("birthPlace", pob)
+        # If there’s only one part, we assume it's just the dob
+        elif len(dob_pob) == 1:
+            dob = dob_pob[0]
+            h.apply_date(entity, "birthDate", dob)
+
+
 def emit_care_of(context, entity, unknown_link_name):
     # create an unknown link entity fo c/o cases in names
     care_of_entity = context.make("LegalEntity")
@@ -56,7 +69,7 @@ def emit_care_of(context, entity, unknown_link_name):
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
-    index_page = context.fetch_html(index_page, cache_days=1)
+    index_page = context.fetch_html(index_page)
     main_grid = index_page.find('.//div[@id="main-grid"]')
     if data_type == "captain":
         crawl_captain(context, main_grid, program)
@@ -85,11 +98,11 @@ def crawl_captain(context: Context, main_grid, program):
                         label_elem, value_elem, data
                     )
                     data[label] = value
-        print(data)
+
         name = data.pop("Name")
         dob_pob = data.pop("Date and place of birth")
         tax_number = data.pop("Tax Number")
-        vessel = data.pop("Captain of the vessel")
+        vessel_name = data.pop("Captain of the vessel")
         vessel_category = data.pop("Category of the vessel")
 
         captain = context.make("Person")
@@ -98,21 +111,27 @@ def crawl_captain(context: Context, main_grid, program):
         captain.add("taxNumber", tax_number)
         captain.add("topics", "poi")
         if dob_pob:
-            # If we get more than one part, unpack it into dob and pob
-            if len(dob_pob) == 2:
-                dob, pob = dob_pob
-                h.apply_date(captain, "birthDate", dob)
-                captain.add("birthPlace", pob)
-            elif len(dob_pob) == 1:
-                # If there’s only one part, we assume it's just the dob
-                dob = dob_pob[0]
-                h.apply_date(captain, "birthDate", dob)
+            apply_dob_pob(captain, dob_pob)
 
         sanction = h.make_sanction(context, captain)
         sanction.add("program", program)
 
         context.emit(captain, target=True)
         context.emit(sanction)
+
+        vessel = context.make("Vessel")
+        vessel.id = context.make_id(vessel_name, vessel_category)
+        vessel.add("name", vessel_name)
+        vessel.add("notes", vessel_category)
+
+        link = context.make("UnknownLink")
+        link.id = context.make_id(captain.id, "captain", vessel.id)
+        link.add("subject", captain.id)
+        link.add("object", vessel.id)
+        link.add("role", "captain")
+
+        context.emit(vessel)
+        context.emit(link)
 
 
 def crawl_vessel(context: Context, link, program):
@@ -294,6 +313,8 @@ def crawl_person(context: Context, link, program):
                 data[label] = value
     names = data.pop("Name")
     positions = data.pop("Position", None)
+    dob_pob = data.pop("Date and place of birth", None)
+    archive_links = data.pop("Archive links", None)
 
     person = context.make("Person")
     person.id = context.make_id(names, positions)
@@ -302,24 +323,14 @@ def crawl_person(context: Context, link, program):
     person.add("citizenship", data.pop("Citizenship", None))
     person.add("taxNumber", data.pop("Tax Number", None))
     person.add("sourceUrl", data.pop("Links"))
-    archive_links = data.pop("Archive links", None)
+    person.add("topics", "poi")
     if archive_links is not None:
         person.add("sourceUrl", archive_links)
-    dob_pob = data.pop("Date and place of birth", None)
     if dob_pob:
-        # If we get more than one part, unpack it into dob and pob
-        if len(dob_pob) == 2:
-            dob, pob = dob_pob
-            h.apply_date(person, "birthDate", dob)
-            person.add("birthPlace", pob)
-        elif len(dob_pob) == 1:
-            # If there’s only one part, we assume it's just the dob
-            dob = dob_pob[0]
-            h.apply_date(person, "birthDate", dob)
+        apply_dob_pob(person, dob_pob)
     if positions:
         for position in h.multi_split(positions, [" / "]):
             person.add("position", position)
-    person.add("topics", "poi")
 
     sanction = h.make_sanction(context, person)
     sanction.add("reason", data.pop("Reasons"))
@@ -417,7 +428,7 @@ def crawl(context: Context):
         current_url = base_url
         visited_pages = 0
         while current_url:
-            doc = context.fetch_html(current_url, cache_days=1)
+            doc = context.fetch_html(current_url)
             doc.make_links_absolute(base_url)
             if doc is None:
                 context.log.warn(f"Failed to fetch {current_url}")
