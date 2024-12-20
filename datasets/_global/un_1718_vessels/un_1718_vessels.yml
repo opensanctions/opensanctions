@@ -1,15 +1,16 @@
-title: UNSC 1718 Designated Vessels List
+title: UN Security Council 1718 Designated Vessels List
 entry_point: crawler.py
 prefix: un-1718
 coverage:
   frequency: never
-  schedule: "@monthly"
   start: "2024-12-13"
   end: "2020-06-04"
+deploy:
+  schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-   Vessels designated under UN Security Council sanctions, including asset freezes, 
-   port entry bans, and other restrictions.
+  Vessels designated under UN Security Council sanctions, including asset freezes, 
+  port entry bans, and other restrictions.
 description: |
   The 1718 Designated Vessels List details vessels subject to sanctions under various 
   UN Security Council resolutions. These measures include:
@@ -30,7 +31,7 @@ publisher:
     The Security Council has primary responsibility for the maintenance of international 
     peace and security. Under the Charter of the United Nations, all Member States are 
     obligated to comply with Council decisions.
- 
+
     The Security Council takes the lead in determining the existence of a threat to the 
     peace or act of aggression. It calls upon the parties to a dispute to settle it by 
     peaceful means and recommends methods of adjustment or terms of settlement. In some 

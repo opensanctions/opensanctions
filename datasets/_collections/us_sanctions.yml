@@ -24,3 +24,4 @@ children:
   - us_ofac_cons
   - us_state_terrorist_exclusion
   - us_trade_csl
+  - us_nk_jointventures
