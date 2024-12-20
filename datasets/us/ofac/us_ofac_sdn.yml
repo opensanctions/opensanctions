@@ -430,6 +430,7 @@ lookups:
           - 15411
           - RS 130280
           - RS 150443
+          - IMO 26348960
         prop: registrationNumber
       - match: 2180068XRFK54K3Z159
         value: 21380068XRFK54K3Z159

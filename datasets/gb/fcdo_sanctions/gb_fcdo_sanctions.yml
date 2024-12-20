@@ -71,6 +71,8 @@ lookups:
         value: mya
       - match: Kazakh
         value: kaz
+      - match: Georgian
+        value: kat
   name_type:
     lowercase: true
     normalize: true

@@ -55,7 +55,9 @@ lookups:
         value: es
       - match: Romanov Empire
         value: ru
-      - match: Ambazonia
+      - match: 
+          - Ambazonia
+          - traditional chiefdom in Cameroon
         value: cm
       - match: Kurdistan
         value: iq-kr

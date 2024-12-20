@@ -8996,3 +8996,8 @@ lookups:
           - name: National Bank of Greece, S.A.
             locality: Athens, Greece
             country: GR
+      - match: Lineage Financial Network, Franklin, Tennessee
+        entities:
+          - name: Lineage Financial Network
+            locality: Franklin, Tennessee, USA
+            country: US
