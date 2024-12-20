@@ -211,7 +211,7 @@ def crawl_ship_relation(
         entity = context.make("LegalEntity")
         entity.id = context.make_id(entity_name, entity_country)
         entity.add("name", entity_name)
-        entity.add("registrationNumber", registration_number)
+        entity.add_cast("Organization", "imoNumber", registration_number)
         entity.add("country", entity_country)
         context.emit(entity)
 
@@ -300,10 +300,10 @@ def crawl_legal_entity(context: Context, link, program):
     legal_entity.id = context.make_id(name, name_abbr, reg_num)
     legal_entity.add("name", name)
     legal_entity.add("name", name_abbr)
-    legal_entity.add("registrationNumber", reg_num)
+    legal_entity.add("ogrnCode", reg_num)
     legal_entity.add("address", data.pop("Address"))
     legal_entity.add("country", data.pop("Country"))
-    legal_entity.add("taxNumber", data.pop("Tax Number"))
+    legal_entity.add("innCode", data.pop("Tax Number"))
     legal_entity.add("sourceUrl", data.pop("Links"))
     archive_links = data.pop("Archive links", None)
     if archive_links is not None:

@@ -336,4 +336,13 @@ lookups:
       - match: 
           - RS 150443
           - RS 130280
+          - 194905962
+        prop: registrationNumber
+      - match: 10477970849
+        value: 1047797084940
+        prop: registrationNumber
+      - regex: 
+          - ^122940\d{7}$
+          - ^122930\d{7}$
+          - ^1239\d{9}$
         prop: registrationNumber
