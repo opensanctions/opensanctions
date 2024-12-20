@@ -14,7 +14,8 @@ description: |
 url: https://www.tweedekamer.nl/kamerleden_en_commissies/alle_kamerleden
 publisher:
   name: Tweede Kamer der Staten-Generaal
-  name_en: House of Representatives of The Netherlands
+  name_en: House of Representatives
+  acronym: Tweede Kamer
   description: >-
     The House of Representatives is the lower house of the bicameral parliament
     of the Netherlands, the States General - the other house of parliament being the Senate.
