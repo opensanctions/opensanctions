@@ -71,6 +71,7 @@ inputs:
   - permid
   - ru_cbr_banks
   - sanctions
+  - regulatory
 
 config:
   dataset: gleif
