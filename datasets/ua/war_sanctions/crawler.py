@@ -22,6 +22,11 @@ LINKS = [
         "type": "vessel",
         "program": "Marine and Aircraft Vessels, Airports and Ports involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
+    {  # captains
+        "url": "https://war-sanctions.gur.gov.ua/en/transport/captains",
+        "type": "captain",
+        "program": "Captains of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+    },
 ]
 
 
@@ -51,8 +56,10 @@ def emit_care_of(context, entity, unknown_link_name):
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
-    index_page = context.fetch_html(index_page)
+    index_page = context.fetch_html(index_page, cache_days=1)
     main_grid = index_page.find('.//div[@id="main-grid"]')
+    if data_type == "captain":
+        crawl_captain(context, main_grid, program)
     for link in main_grid.xpath(".//a/@href"):
         if link.startswith("https:"):
             if data_type == "person":
@@ -61,6 +68,51 @@ def crawl_index_page(context: Context, index_page, data_type, program):
                 crawl_legal_entity(context, link, program)
             if data_type == "vessel":
                 crawl_vessel(context, link, program)
+
+
+def crawl_captain(context: Context, main_grid, program):
+    captain_container = main_grid.xpath(
+        ".//div[contains(@class, 'component-link item-cell')]"
+    )
+    data: dict[str, str] = {}
+    for captain in captain_container:
+        for row in captain.xpath(".//div[@class='row']"):
+            divs = row.findall("div")
+            if len(divs) == 2:
+                label_elem, value_elem = divs
+                if "yellow" in value_elem.get("class"):
+                    label, value = extract_label_value_pair(
+                        label_elem, value_elem, data
+                    )
+                    data[label] = value
+        print(data)
+        name = data.pop("Name")
+        dob_pob = data.pop("Date and place of birth")
+        tax_number = data.pop("Tax Number")
+        vessel = data.pop("Captain of the vessel")
+        vessel_category = data.pop("Category of the vessel")
+
+        captain = context.make("Person")
+        captain.id = context.make_id(name, dob_pob, tax_number)
+        captain.add("name", name)
+        captain.add("taxNumber", tax_number)
+        captain.add("topics", "poi")
+        if dob_pob:
+            # If we get more than one part, unpack it into dob and pob
+            if len(dob_pob) == 2:
+                dob, pob = dob_pob
+                h.apply_date(captain, "birthDate", dob)
+                captain.add("birthPlace", pob)
+            elif len(dob_pob) == 1:
+                # If there’s only one part, we assume it's just the dob
+                dob = dob_pob[0]
+                h.apply_date(captain, "birthDate", dob)
+
+        sanction = h.make_sanction(context, captain)
+        sanction.add("program", program)
+
+        context.emit(captain, target=True)
+        context.emit(sanction)
 
 
 def crawl_vessel(context: Context, link, program):
@@ -365,7 +417,7 @@ def crawl(context: Context):
         current_url = base_url
         visited_pages = 0
         while current_url:
-            doc = context.fetch_html(current_url)
+            doc = context.fetch_html(current_url, cache_days=1)
             doc.make_links_absolute(base_url)
             if doc is None:
                 context.log.warn(f"Failed to fetch {current_url}")
