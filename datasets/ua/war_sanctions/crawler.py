@@ -2,31 +2,31 @@ from zavod import Context, helpers as h
 
 
 LINKS = [
-    # {  # child kidnappers
-    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
-    #     "type": "person",
-    #     "program": "Persons involved in the deportation of Ukrainian children",
-    # },
-    # {  # child kidnappers
-    #     "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
-    #     "type": "legal_entity",
-    #     "program": "Legal entities involved in the deportation of Ukrainian children",
-    # },
-    # {  # russian athletes
-    #     "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
-    #     "type": "person",
-    #     "program": "Athletes and sports officials participating in Russian influence operations abroad",
-    # },
+    {  # child kidnappers
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/persons?page=1&per-page=12",
+        "type": "person",
+        "program": "Persons involved in the deportation of Ukrainian children",
+    },
+    {  # child kidnappers
+        "url": "https://war-sanctions.gur.gov.ua/en/kidnappers/companies?page=1&per-page=12",
+        "type": "legal_entity",
+        "program": "Legal entities involved in the deportation of Ukrainian children",
+    },
+    {  # russian athletes
+        "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
+        "type": "person",
+        "program": "Athletes and sports officials participating in Russian influence operations abroad",
+    },
     {  # ships
         "url": "https://war-sanctions.gur.gov.ua/en/transport/ships?page=1&per-page=12",
         "type": "vessel",
         "program": "Marine and Aircraft Vessels, Airports and Ports involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
-    # {  # captains
-    #     "url": "https://war-sanctions.gur.gov.ua/en/transport/captains",
-    #     "type": "captain",
-    #     "program": "Captains of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
-    # },
+    {  # captains
+        "url": "https://war-sanctions.gur.gov.ua/en/transport/captains",
+        "type": "captain",
+        "program": "Captains of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+    },
 ]
 
 
