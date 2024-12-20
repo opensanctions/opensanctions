@@ -1,4 +1,4 @@
-from zavod import Context, helpers as h
+from zavod import Context
 
 
 def crawl(context: Context):
