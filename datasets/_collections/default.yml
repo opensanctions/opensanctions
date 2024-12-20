@@ -43,6 +43,7 @@ children:
   - regulatory
   - wanted
   - enrichers
+  - special_interest
 
   # banks
   - iso9362_bic
