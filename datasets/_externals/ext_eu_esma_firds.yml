@@ -58,6 +58,7 @@ inputs:
   # - ru_rupep
   - sanctions
   - securities
+  - regulatory
 
 config:
   dataset: eu_esma_firds
