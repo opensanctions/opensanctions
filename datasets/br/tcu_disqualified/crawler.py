@@ -61,15 +61,6 @@ def crawl_item(input_dict: dict, context: Context):
 
 
 def crawl(context: Context):
-    """
-    Entrypoint to the crawler.
-
-    The crawler works by fetching the data from the URL as a JSON.
-    The data is already in the format of a list of dicts, so we just need to create the entities.
-
-    :param context: The context object.
-    """
-
     url = context.data_url
     while True:
         response = context.fetch_json(url)
@@ -86,4 +77,8 @@ def crawl(context: Context):
             break
 
         links = response.get("links", [])
-        url = next((link.get("href") for link in links if link.get("rel") == "next"), "")
+        link = [li.get("href") for li in links if li.get("rel") == "next"]
+        if not len(link):
+            break
+        url = link[0]
+        context.log.info(f"Fetching next page: {url}")
