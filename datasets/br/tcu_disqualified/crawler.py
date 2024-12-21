@@ -69,10 +69,21 @@ def crawl(context: Context):
 
     :param context: The context object.
     """
-    response = context.fetch_json(context.data_url)
-    if "items" not in response:
-        context.log.error("Items not found in JSON")
-        return
 
-    for item in response["items"]:
-        crawl_item(item, context)
+    url = context.data_url
+    while True:
+        response = context.fetch_json(url)
+        if "items" not in response:
+            context.log.error("Items not found in JSON")
+            return
+
+        for item in response["items"]:
+            crawl_item(item, context)
+
+        # if hasMore = true -> there is a link for next
+        has_more = response.get("hasMore", False)
+        if not has_more:
+            break
+
+        links = response.get("links", [])
+        url = next((link.get("href") for link in links if link.get("rel") == "next"), "")
