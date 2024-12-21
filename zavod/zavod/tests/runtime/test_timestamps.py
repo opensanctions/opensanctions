@@ -22,10 +22,14 @@ def test_timestamps(testdataset1: Dataset):
 
     index = TimeStampIndex(dataset=testdataset1)
     index.index(stmts)
-    assert index.get("test", default) == default
+    stamps = index.get("osv-john-doe")
+    assert len(stamps), stamps
+    assert stamps.get("test", default) == default
     for stmt in stmts:
-        assert index.get(stmt.id, default) != ""
-        assert index.get(stmt.id, default) == prev_time
+        if stmt.entity_id != "osv-john-doe":
+            continue
+        assert stamps.get(stmt.id, default) != ""
+        assert stamps.get(stmt.id, default) == prev_time
 
     assert "TimeStampIndex" in repr(index), repr(index)
 
@@ -49,6 +53,10 @@ def test_backfill(testdataset1: Dataset):
 
     stmts = list(iter_dataset_statements(testdataset1))
     index = TimeStampIndex.build(dataset=testdataset1)
+    stamps = index.get("osv-john-doe")
+    assert len(stamps), stamps
     for stmt in stmts:
-        assert index.get(stmt.id, second_time) != ""
-        assert index.get(stmt.id, second_time) == prev_time
+        if stmt.entity_id != "osv-john-doe":
+            continue
+        assert stamps.get(stmt.id, second_time) != ""
+        assert stamps.get(stmt.id, second_time) == prev_time
