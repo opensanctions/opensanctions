@@ -1,5 +1,5 @@
 import plyvel  # type: ignore
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable
 from nomenklatura.statement import Statement
 from rigour.env import ENCODING as E
 
@@ -30,7 +30,7 @@ class TimeStampIndex(object):
                 batch.write()
                 batch = self.db.write_batch()
         batch.write()
-        self.db.compact_range()
+        # self.db.compact_range()
         log.info("Index ready.", count=idx)
 
     @classmethod
