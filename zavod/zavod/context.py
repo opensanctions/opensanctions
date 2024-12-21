@@ -547,6 +547,7 @@ class Context:
                 targets=self.stats.targets,
                 statements=self.stats.statements,
             )
+        stamps = {} if self.dry_run else self.timestamps.get(entity.id)
         for stmt in entity.statements:
             if stmt.lang is None:
                 stmt.lang = self.lang
@@ -555,12 +556,11 @@ class Context:
             stmt.external = external
             stmt.target = target
             stmt.schema = entity.schema.name
-            stmt.first_seen = self.data_time_iso
+            stmt.first_seen = stamps.get(stmt.id, self.data_time_iso)
+            if stmt.first_seen != self.data_time_iso:
+                self.stats.changed += 1
             stmt.last_seen = self.data_time_iso
             if not self.dry_run:
-                stmt.first_seen = self.timestamps.get(stmt.id, self.data_time_iso)
-                if stmt.first_seen != self.data_time_iso:
-                    self.stats.changed += 1
                 self.sink.emit(stmt)
             self.stats.statements += 1
 
