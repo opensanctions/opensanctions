@@ -39,7 +39,7 @@ class TimeStampIndex(object):
         index.index(iter_previous_statements(dataset, external=False))
         return index
 
-    def get(self, entity_id: Optional[str]) -> Dict[str, str]:
+    def get(self, entity_id: str) -> Dict[str, str]:
         timestamps: Dict[str, str] = {}
         prefix = entity_id.encode(E)
         with self.db.iterator(prefix=prefix) as it:

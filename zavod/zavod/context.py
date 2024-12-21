@@ -549,6 +549,9 @@ class Context:
             )
         stamps = {} if self.dry_run else self.timestamps.get(entity.id)
         for stmt in entity.statements:
+            if stmt.id is None:
+                self.log.warn("Statement has no ID", stmt=stmt.to_dict())
+                continue
             if stmt.lang is None:
                 stmt.lang = self.lang
             stmt.dataset = self.dataset.name
