@@ -1,6 +1,5 @@
-from zavod import Context
-
-# from zavod.logic.pep import categorise
+from zavod import Context, helpers as h
+from zavod.logic.pep import categorise
 
 
 def crawl(context: Context):
@@ -8,15 +7,29 @@ def crawl(context: Context):
     table = doc.find(".//table[@class='table table-bordered declarations']")
     rows = table.xpath("./tr")
     for row in rows:
-        first_td = row.xpath("./td[1]")  # Get the first <td> under the current <tr>
+        first_td = row.xpath("./td[1]")
         if first_td:
-            # Extract and clean the text content
             name = first_td[0].text_content().strip()
-            # categorisation = categorise(context, position, True)
 
             pep = context.make("Person")
             pep.id = context.make_id(name)
             pep.add("name", name)
             pep.add("country", "ro")
             pep.add("topics", "role.pep")
+            position = h.make_position(
+                context,
+                name="Public official",
+                country="ro",
+            )
+            categorisation = categorise(context, position, True)
+            if categorisation:
+                occupancy = h.make_occupancy(
+                    context,
+                    pep,
+                    position,
+                    categorisation=categorisation,
+                )
+
+            context.emit(position)
+            context.emit(occupancy)
             context.emit(pep)
