@@ -4794,9 +4794,9 @@ lookups:
       - match: 'Principal établissement: Fédération de Russie - Personne associée: Tkachuk Vladimir Ilyich (directeur général): Type d’entité: société à responsabilité limitée'
         props:
           address: "Fédération de Russie"
-          associates:
-            - Tkachuk Vladimir Ilyich
           legalForm: société à responsabilité limitée
+        associates:
+          - Tkachuk Vladimir Ilyich
       - match: 'Type d’entité: entreprise d’État fédérale - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 23.3.2006: Numéro d’enregistrement: 1066147003658'
         props:
           jurisdiction: ru
@@ -4815,18 +4815,18 @@ lookups:
           jurisdiction: hk
           legalForm: Société à responsabilité limitée (Limited Company)
           address: "République populaire de Chine/Hong Kong"
-          associates:
-            - Li Xiaocui (“Sofya Li”, “Sophia Li”)
-            - Shijiazhuang Hanqiang Technology Co. Ltd
-            - Hebei Suofu Trading Co.
+        associates:
+          - Li Xiaocui (“Sofya Li”, “Sophia Li”)
+          - Shijiazhuang Hanqiang Technology Co. Ltd
+          - Hebei Suofu Trading Co.
         registrationNumber: 71901140
       - match: 'Type d’entité: Société à responsabilité limitée (Limited Company) - Personne associée: Li Xiaocui (“Sofya Li”, “Sophia Li”) - Entités associées: — Shijiazhuang Hanqiang Technology Co. Ltd — Hebei Suofu Trading Co: Numéro d’enregistrement: 791130105MA7C26X08R'
         props:
           legalForm: Société à responsabilité limitée (Limited Company)
-          associates:
-            - Li Xiaocui (“Sofya Li”, “Sophia Li”)
-            - Shijiazhuang Hanqiang Technology Co. Ltd
-            - Hebei Suofu Trading Co
+        associates:
+          - Li Xiaocui (“Sofya Li”, “Sophia Li”)
+          - Shijiazhuang Hanqiang Technology Co. Ltd
+          - Hebei Suofu Trading Co
         registrationNumber: 791130105MA7C26X08R
       - match: 'Type d’entité: société publique par actions - Principal établissement: Fédération de Russie'
         props:
@@ -4851,9 +4851,9 @@ lookups:
           jurisdiction: ru
           legalForm: société à responsabilité limitée
           address: "Moscou, Fédération de Russie"
-          associates:
-            - Alexander Valerievich Gavrilov
-            - Limited Liability Company Gumich RTK (filiale)
+        associates:
+          - Alexander Valerievich Gavrilov
+          - Limited Liability Company Gumich RTK (filiale)
         registrationNumber: 1187746509081
       - match: 'Numéro d’identification fiscale: 9709032552'
         props:
@@ -4863,8 +4863,8 @@ lookups:
           jurisdiction: ru
           legalForm: société à responsabilité limitée
           address: "Moscou, Fédération de Russie"
-          associates:
-            - Pavel Vladimirovich Babin
+        associates:
+          - Pavel Vladimirovich Babin
         registrationNumber: 5157746030976
       - match: 'Numéro d’identification fiscale: 7729481489'
         props:
@@ -4872,10 +4872,10 @@ lookups:
       - match: 'Type d’entité: société à responsabilité limitée - Personne associée: Alexandr Pavlovich Lavrik - Entités associées: — JSC “Alabuga” Special Economic Zone of Industrial and Production Type — LLC Alabuga Development: Numéro d’identification fiscale: 1646047020'
         props:
           legalForm: société à responsabilité limitée
-          associates:
-            - Alexandr Pavlovich Lavrik
-            - JSC “Alabuga” Special Economic Zone of Industrial and Production Type
-            - LLC Alabuga Development
+        associates:
+          - Alexandr Pavlovich Lavrik
+          - JSC “Alabuga” Special Economic Zone of Industrial and Production Type
+          - LLC Alabuga Development
         innCode: 1646047020
       - match: 'Type d’entité: société par actions - Lieu d’enregistrement: 428903, Fédération de Russie, République de Tchouvachie, Cheboksary, p. I.Yakovleva, 4 - Date d’enregistrement: 14.10.2011 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1112130013270'
         props:
@@ -4892,8 +4892,8 @@ lookups:
           jurisdiction: ru
           legalForm: société à responsabilité limitée
           address: "Samara, Fédération de Russie"
-          associates:
-            - Igor Alexandrovich Ganin
+        associates:
+          - Igor Alexandrovich Ganin
         registrationNumber: 1056317028350
       - match: 'Numéro d’identification fiscale: 6317060306'
         props:
@@ -4917,9 +4917,9 @@ lookups:
           jurisdiction: ru
           legalForm: société à responsabilité limitée
           address: "Moscou, Fédération de Russie"
-          associates:
-            - Fedor Fedorovich Potekhin
-            - Limited Liability Company Gumich
+        associates:
+          - Fedor Fedorovich Potekhin
+          - Limited Liability Company Gumich
         registrationNumber: 1227700009349
       - match: 'Numéro d’identification fiscale: 9726005407'
         schema: Company
@@ -4930,8 +4930,8 @@ lookups:
           jurisdiction: ru
           legalForm: société à responsabilité limitée
           incorporationDate: 2006-10-25
-          associates:
-            - JSC Kalashnikov Concern
+        associates:
+          - JSC Kalashnikov Concern
         registrationNumber: 1061831040688
       - match: 'Numéro d’identification fiscale: 1831117433'
         props:
@@ -4945,8 +4945,8 @@ lookups:
           jurisdiction: ru
           legalForm: société par actions
           address: "Fédération de Russie"
-          associates:
-            - Alexander Alekseevich Balashov
+        associates:
+          - Alexander Alekseevich Balashov
         registrationNumber: 11177411001388
       - match: 'Numéro d’identification fiscale: 7411009901'
         props:
@@ -4956,8 +4956,8 @@ lookups:
           jurisdiction: ru
           legalForm: société anonyme par actions
           incorporationDate: 1990-09-21
-          associates:
-            - Andrey Viktorovich Kocherga
+        associates:
+          - Andrey Viktorovich Kocherga
         registrationNumber: 1022601930537
       - match: 'Numéro d’identification fiscale: 2635000092'
         props:
@@ -4972,8 +4972,8 @@ lookups:
           legalForm: société par actions
           incorporationDate: 2012-06-28
           address: "Fédération de Russie"
-          associates:
-            - JSC “KRET”
+        associates:
+          - JSC “KRET”
         registrationNumber: 1124011001058
       - match: 'Numéro d’identification fiscale: 4007017378'
         props:
@@ -4987,8 +4987,8 @@ lookups:
           jurisdiction: ua
           legalForm: société d’État
           address: "Donetsk, Ukraine"
-          associates:
-            - Andrey Yurievich Kalyuzhny
+        associates:
+          - Andrey Yurievich Kalyuzhny
         registrationNumber: 1229300132104
       - match: 'Numéro d’identification fiscale: 9303024230'
         props:
