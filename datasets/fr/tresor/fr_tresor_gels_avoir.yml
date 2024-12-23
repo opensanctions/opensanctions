@@ -4712,6 +4712,7 @@ lookups:
         props:
           innCode: 5045002261
       - match: 'KPP: 504501001'
+        schema: Company
         props:
           kppCode: 504501001
       - match: 'Numéro d’enregistrement: 1028600508991'
@@ -4768,6 +4769,7 @@ lookups:
         props:
           innCode: 5904100329
       - match: 'KPP: 590401001'
+        schema: Company
         props:
           kppCode: 590401001
       - match: 'Type d’entité: société à responsabilité limité - Principal établissement: Fédération de Russie - Personne associée: Alexey Veniaminovich Semenov - Entités associées: — JSC “Alabuga” Special Economic Zone of Industrial and Production Type — LLC Alabuga Machinery — LLC Drake: Numéro d’identification fiscale: 1646043699'
@@ -4805,6 +4807,7 @@ lookups:
         props:
           innCode: 6147025090
       - match: 'KPP: 614701001'
+        schema: Company
         props:
           kppCode: 614701001
       - match: 'Type d’entité: Société à responsabilité limitée (Limited Company) - Principal établissement: République populaire de Chine/Hong Kong Personne associée: Li Xiaocui (“Sofya Li”, “Sophia Li”) - Entités associées: — Shijiazhuang Hanqiang Technology Co. Ltd— Hebei Suofu Trading Co.: Numéro d’enregistrement: 71901140'
@@ -4840,6 +4843,7 @@ lookups:
         props:
           innCode: 7713011336
       - match: 'KPP: 770301001'
+        schema: Company
         props:
           kppCode: 770301001
       - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Alexander Valerievich Gavrilov (directeur général) - Autres informations d’identification: Limited Liability Company Gumich RTK (filiale): Numéro d’enregistrement: 1187746509081'
@@ -4905,6 +4909,7 @@ lookups:
         props:
           innCode: 7722698108
       - match: 'KPP: 772201001'
+        schema: Company
         props:
           kppCode: 772201001
       - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Fedor Fedorovich Potekhin (directeur général) - Autres informations d’identification: Limited Liability Company Gumich (société mère): Numéro d’enregistrement: 1227700009349'
@@ -4917,6 +4922,7 @@ lookups:
             - Limited Liability Company Gumich
         registrationNumber: 1227700009349
       - match: 'Numéro d’identification fiscale: 9726005407'
+        schema: Company
         props:
           innCode: 9726005407
       - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 25.10.2006 - Entité associée: JSC Kalashnikov Concern (société holding) (numéro d’enregistrement: 1111832003018): Numéro d’enregistrement: 1061831040688'
@@ -4931,6 +4937,7 @@ lookups:
         props:
           innCode: 1831117433
       - match: 'KPP: 772501001'
+        schema: Company
         props:
           kppCode: 772501001
       - match: 'Type d’entité: société par actions - Principal établissement: Fédération de Russie - Personnes associées: Alexander Alekseevich Balashov (directeur général): Numéro d’enregistrement: 11177411001388'
@@ -4956,6 +4963,7 @@ lookups:
         props:
           innCode: 2635000092
       - match: 'KPP: 263501001'
+        schema: Company
         props:
           kppCode: 263501001
       - match: 'Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 28.6.2012 - Principal établissement: Fédération de Russie - Autres informations: JSC “KRET” (société associée): Numéro d’enregistrement: 1124011001058'
@@ -4971,6 +4979,7 @@ lookups:
         props:
           innCode: 4007017378
       - match: 'KPP: 400701001'
+        schema: Company
         props:
           kppCode: 400701001
       - match: 'Type d’entité: société d’État - Lieu d’enregistrement: Donetsk, Ukraine - Personne associée: Andrey Yurievich Kalyuzhny (président faisant fonction du conseil d’administration): Numéro d’enregistrement: 1229300132104'
