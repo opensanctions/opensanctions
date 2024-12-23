@@ -4738,259 +4738,259 @@ lookups:
           - Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd
           - Xiamen Limbach Aviation Engine Co., Ltd
         registrationNumber: 1153850042246
-    - match: 'Numéro d’identification fiscale: 3849055365'
-      props:
-        innCode: 3849055365
-    - match: 'Date d’enregistrement: 18.3.2021 - Entités associées: — OOO TKS Vektor, autrement connue sous le nom de LLC TSK Vektor— Xiamen Limbach Aviation Engine Co., Ltd: Numéro d’identification fiscale: 91440300MA5GN73B4F'
-      props:
-        incorporationDate: 2021-03-18
-      associates:
-        - OOO TKS Vektor
-        - Xiamen Limbach Aviation Engine Co., Ltd
-      innCode: 91440300MA5GN73B4F
-    - match: 'Date d’enregistrement: 20.11.2012 - Entités associées: — OOO TSK Vektor, ou LLC TSK Vektor — Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd — Juhang Aviation Technology Shenzhen Co.: Numéro d’identification fiscale: 91350200051193084R'
-      props:
-        incorporationDate: 2012-11-20
-      associates:
-        - OOO TSK Vektor
-        - Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd
-        - Juhang Aviation Technology Shenzhen Co.
-      innCode: 91350200051193084R
-    - match: 'Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 5.9.1994 - Entité associée: gérée par la United Aircraft Corporation (numéro d’enregistrement: 1067759884598): Numéro d’enregistrement: 1025900895712'
-      props:
-        jurisdiction: ru
-        legalForm: société par actions
-        incorporationDate: 1994-09-05
-      associates:
-        - United Aircraft Corporation
-      registrationNumber: 1025900895712
-    - match: 'NIF: 5904100329'
-      props:
-        innCode: 5904100329
-    - match: 'KPP: 590401001'
-      props:
-        kppCode: 590401001
-    - match: 'Type d’entité: société à responsabilité limité - Principal établissement: Fédération de Russie - Personne associée: Alexey Veniaminovich Semenov - Entités associées: — JSC “Alabuga” Special Economic Zone of Industrial and Production Type — LLC Alabuga Machinery — LLC Drake: Numéro d’identification fiscale: 1646043699'
-      props:
-        jurisdiction: ru
-        legalForm: société à responsabilité limité
-        address: "Fédération de Russie"
-      associates:
-        - Alexey Veniaminovich Semenov
-        - JSC “Alabuga” Special Economic Zone of Industrial and Production Type
-        - LLC Alabuga Machinery
-        - LLC Drake
-      innCode: 1646043699
-    - match: 'Type d’entité: société à responsabilité limitée - Principal établissement: République populaire de Chine/Hong Kong - Personne associée: Anton Sergeyevich Trofimov (directeur): Numéros d’enregistrement: 2182045 64199990-000 CR No. 2182045'
-      props:
-        jurisdiction: hk
-        legalForm: société à responsabilité limitée
-        address: "République populaire de Chine/Hong Kong"
-      associates:
-        - Anton Sergeyevich Trofimov
-      registrationNumber: 2182045 64199990-000 CR No. 2182045
-    - match: 'Principal établissement: Fédération de Russie - Personne associée: Tkachuk Vladimir Ilyich (directeur général): Type d’entité: société à responsabilité limitée'
-      props:
-        address: "Fédération de Russie"
+      - match: 'Numéro d’identification fiscale: 3849055365'
+        props:
+          innCode: 3849055365
+      - match: 'Date d’enregistrement: 18.3.2021 - Entités associées: — OOO TKS Vektor, autrement connue sous le nom de LLC TSK Vektor— Xiamen Limbach Aviation Engine Co., Ltd: Numéro d’identification fiscale: 91440300MA5GN73B4F'
+        props:
+          incorporationDate: 2021-03-18
         associates:
-          - Tkachuk Vladimir Ilyich
-        legalForm: société à responsabilité limitée
-    - match: 'Type d’entité: entreprise d’État fédérale - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 23.3.2006: Numéro d’enregistrement: 1066147003658'
-      props:
-        jurisdiction: ru
-        legalForm: entreprise d’État fédérale
-        incorporationDate: 2006-03-23
-      registrationNumber: 1066147003658
-    - match: 'Numéro d’identification fiscale: 6147025090'
-      props:
-        innCode: 6147025090
-    - match: 'KPP: 614701001'
-      props:
-        kppCode: 614701001
-    - match: 'Type d’entité: Société à responsabilité limitée (Limited Company) - Principal établissement: République populaire de Chine/Hong Kong Personne associée: Li Xiaocui (“Sofya Li”, “Sophia Li”) - Entités associées: — Shijiazhuang Hanqiang Technology Co. Ltd— Hebei Suofu Trading Co.: Numéro d’enregistrement: 71901140'
-      props:
-        jurisdiction: hk
-        legalForm: Société à responsabilité limitée (Limited Company)
-        address: "République populaire de Chine/Hong Kong"
+          - OOO TKS Vektor
+          - Xiamen Limbach Aviation Engine Co., Ltd
+        innCode: 91440300MA5GN73B4F
+      - match: 'Date d’enregistrement: 20.11.2012 - Entités associées: — OOO TSK Vektor, ou LLC TSK Vektor — Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd — Juhang Aviation Technology Shenzhen Co.: Numéro d’identification fiscale: 91350200051193084R'
+        props:
+          incorporationDate: 2012-11-20
         associates:
-          - Li Xiaocui (“Sofya Li”, “Sophia Li”)
-          - Shijiazhuang Hanqiang Technology Co. Ltd
-          - Hebei Suofu Trading Co.
-      registrationNumber: 71901140
-    - match: 'Type d’entité: Société à responsabilité limitée (Limited Company) - Personne associée: Li Xiaocui (“Sofya Li”, “Sophia Li”) - Entités associées: — Shijiazhuang Hanqiang Technology Co. Ltd — Hebei Suofu Trading Co: Numéro d’enregistrement: 791130105MA7C26X08R'
-      props:
-        legalForm: Société à responsabilité limitée (Limited Company)
+          - OOO TSK Vektor
+          - Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd
+          - Juhang Aviation Technology Shenzhen Co.
+        innCode: 91350200051193084R
+      - match: 'Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 5.9.1994 - Entité associée: gérée par la United Aircraft Corporation (numéro d’enregistrement: 1067759884598): Numéro d’enregistrement: 1025900895712'
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 1994-09-05
         associates:
-          - Li Xiaocui (“Sofya Li”, “Sophia Li”)
-          - Shijiazhuang Hanqiang Technology Co. Ltd
-          - Hebei Suofu Trading Co
-      registrationNumber: 791130105MA7C26X08R
-    - match: 'Type d’entité: société publique par actions - Principal établissement: Fédération de Russie'
-      props:
-        jurisdiction: ru
-        legalForm: société publique par actions
-        address: "Fédération de Russie"
-    - match: 'Type d’entité: société par actions - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1027739137084'
-      props:
-        jurisdiction: ru
-        legalForm: société par actions
-        address: "Fédération de Russie"
-      registrationNumber: 1027739137084
-    - match: 'Numéro d’identification fiscale: 7713011336'
-      props:
-        innCode: 7713011336
-    - match: 'KPP: 770301001'
-      props:
-        kppCode: 770301001
-    - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Alexander Valerievich Gavrilov (directeur général) - Autres informations d’identification: Limited Liability Company Gumich RTK (filiale): Numéro d’enregistrement: 1187746509081'
-      props:
-        jurisdiction: ru
-        legalForm: société à responsabilité limitée
-        address: "Moscou, Fédération de Russie"
+          - United Aircraft Corporation
+        registrationNumber: 1025900895712
+      - match: 'NIF: 5904100329'
+        props:
+          innCode: 5904100329
+      - match: 'KPP: 590401001'
+        props:
+          kppCode: 590401001
+      - match: 'Type d’entité: société à responsabilité limité - Principal établissement: Fédération de Russie - Personne associée: Alexey Veniaminovich Semenov - Entités associées: — JSC “Alabuga” Special Economic Zone of Industrial and Production Type — LLC Alabuga Machinery — LLC Drake: Numéro d’identification fiscale: 1646043699'
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limité
+          address: "Fédération de Russie"
         associates:
-          - Alexander Valerievich Gavrilov
-          - Limited Liability Company Gumich RTK (filiale)
-      registrationNumber: 1187746509081
-    - match: 'Numéro d’identification fiscale: 9709032552'
-      props:
-        innCode: 9709032552
-    - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Pavel Vladimirovich Babin (directeur général): Numéro d’enregistrement: 5157746030976'
-      props:
-        jurisdiction: ru
-        legalForm: société à responsabilité limitée
-        address: "Moscou, Fédération de Russie"
-        associates:
-          - Pavel Vladimirovich Babin
-      registrationNumber: 5157746030976
-    - match: 'Numéro d’identification fiscale: 7729481489'
-      props:
-        innCode: 7729481489
-    - match: 'Type d’entité: société à responsabilité limitée - Personne associée: Alexandr Pavlovich Lavrik - Entités associées: — JSC “Alabuga” Special Economic Zone of Industrial and Production Type — LLC Alabuga Development: Numéro d’identification fiscale: 1646047020'
-      props:
-        legalForm: société à responsabilité limitée
-        associates:
-          - Alexandr Pavlovich Lavrik
+          - Alexey Veniaminovich Semenov
           - JSC “Alabuga” Special Economic Zone of Industrial and Production Type
-          - LLC Alabuga Development
-      innCode: 1646047020
-    - match: 'Type d’entité: société par actions - Lieu d’enregistrement: 428903, Fédération de Russie, République de Tchouvachie, Cheboksary, p. I.Yakovleva, 4 - Date d’enregistrement: 14.10.2011 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1112130013270'
-      props:
-        jurisdiction: ru
-        legalForm: société par actions
-        address: "428903, Fédération de Russie, République de Tchouvachie, Cheboksary, p. I.Yakovleva, 4"
-        incorporationDate: 2011-10-14
-      registrationNumber: 1112130013270
-    - match: 'Numéro d’identification fiscale: 2130094170'
-      props:
-        innCode: 2130094170
-    - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Samara, Fédération de Russie - Personne associée: Igor Alexandrovich Ganin (directeur général): Numéro d’enregistrement: 1056317028350'
-      props:
-        jurisdiction: ru
-        legalForm: société à responsabilité limitée
-        address: "Samara, Fédération de Russie"
+          - LLC Alabuga Machinery
+          - LLC Drake
+        innCode: 1646043699
+      - match: 'Type d’entité: société à responsabilité limitée - Principal établissement: République populaire de Chine/Hong Kong - Personne associée: Anton Sergeyevich Trofimov (directeur): Numéros d’enregistrement: 2182045 64199990-000 CR No. 2182045'
+        props:
+          jurisdiction: hk
+          legalForm: société à responsabilité limitée
+          address: "République populaire de Chine/Hong Kong"
         associates:
-          - Igor Alexandrovich Ganin
-      registrationNumber: 1056317028350
-    - match: 'Numéro d’identification fiscale: 6317060306'
-      props:
-        innCode: 6317060306
-    - match: 'Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 16.10.200 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1097746629639'
-      props:
-        jurisdiction: ru
-        legalForm: société par actions
-        address: "Fédération de Russie"
-        incorporationDate: 2000-10-16
-      registrationNumber: 1097746629639
-    - match: 'Numéro d’identification fiscale: 7722698108'
-      props:
-        innCode: 7722698108
-    - match: 'KPP: 772201001'
-      props:
-        kppCode: 772201001
-    - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Fedor Fedorovich Potekhin (directeur général) - Autres informations d’identification: Limited Liability Company Gumich (société mère): Numéro d’enregistrement: 1227700009349'
-      props:
-        jurisdiction: ru
-        legalForm: société à responsabilité limitée
-        address: "Moscou, Fédération de Russie"
-        associates:
-          - Fedor Fedorovich Potekhin
-          - Limited Liability Company Gumich
-      registrationNumber: 1227700009349
-    - match: 'Numéro d’identification fiscale: 9726005407'
-      props:
-        innCode: 9726005407
-    - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 25.10.2006 - Entité associée: JSC Kalashnikov Concern (société holding) (numéro d’enregistrement: 1111832003018): Numéro d’enregistrement: 1061831040688'
-      props:
-        jurisdiction: ru
-        legalForm: société à responsabilité limitée
-        incorporationDate: 2006-10-25
-        associates:
-          - JSC Kalashnikov Concern
-      registrationNumber: 1061831040688
-    - match: 'Numéro d’identification fiscale: 1831117433'
-      props:
-        innCode: 1831117433
-    - match: 'KPP: 772501001'
-      props:
-        kppCode: 772501001
-    - match: 'Type d’entité: société par actions - Principal établissement: Fédération de Russie - Personnes associées: Alexander Alekseevich Balashov (directeur général): Numéro d’enregistrement: 11177411001388'
-      props:
-        jurisdiction: ru
-        legalForm: société par actions
-        address: "Fédération de Russie"
-        associates:
-          - Alexander Alekseevich Balashov
-      registrationNumber: 11177411001388
-    - match: 'Numéro d’identification fiscale: 7411009901'
-      props:
-        innCode: 7411009901
-    - match: 'Type d’entité: société anonyme par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 21.9.199 - Personne associée: Andrey Viktorovich Kocherga (directeur général) (TIN: 772740415741): Numéro d’enregistrement: 1022601930537'
-      props:
-        jurisdiction: ru
-        legalForm: société anonyme par actions
-        incorporationDate: 1990-09-21
-        associates:
-          - Andrey Viktorovich Kocherga
-      registrationNumber: 1022601930537
-    - match: 'Numéro d’identification fiscale: 2635000092'
-      props:
-        innCode: 2635000092
-    - match: 'KPP: 263501001'
-      props:
-        kppCode: 263501001
-    - match: 'Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 28.6.2012 - Principal établissement: Fédération de Russie - Autres informations: JSC “KRET” (société associée): Numéro d’enregistrement: 1124011001058'
-      props:
-        jurisdiction: ru
-        legalForm: société par actions
-        incorporationDate: 2012-06-28
-        address: "Fédération de Russie"
-        associates:
-          - JSC “KRET”
-      registrationNumber: 1124011001058
-    - match: 'Numéro d’identification fiscale: 4007017378'
-      props:
-        innCode: 4007017378
-    - match: 'KPP: 400701001'
-      props:
-        kppCode: 400701001
-    - match: 'Type d’entité: société d’État - Lieu d’enregistrement: Donetsk, Ukraine - Personne associée: Andrey Yurievich Kalyuzhny (président faisant fonction du conseil d’administration): Numéro d’enregistrement: 1229300132104'
-      props:
-        jurisdiction: ua
-        legalForm: société d’État
-        address: "Donetsk, Ukraine"
-        associates:
-          - Andrey Yurievich Kalyuzhny
-      registrationNumber: 1229300132104
-    - match: 'Numéro d’identification fiscale: 9303024230'
-      props:
-        innCode: 9303024230
-    - match: 'Type d’entité: société par actions - Lieu d’enregistrement: 300002, Fédération de Russie, Tula, Mosina str., 2 - Date d’enregistrement: 29.8.2002 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1027100507114'
-      props:
-        jurisdiction: ru
-        legalForm: société par actions
-        address: "300002, Fédération de Russie, Tula, Mosina str., 2"
-        incorporationDate: 2002-08-29
-      registrationNumber: 1027100507114
-    - match: 'Numéro d’identification fiscale: 7106002836'
-      props:
-        innCode: 7106002836
+          - Anton Sergeyevich Trofimov
+        registrationNumber: 2182045 64199990-000 CR No. 2182045
+      - match: 'Principal établissement: Fédération de Russie - Personne associée: Tkachuk Vladimir Ilyich (directeur général): Type d’entité: société à responsabilité limitée'
+        props:
+          address: "Fédération de Russie"
+          associates:
+            - Tkachuk Vladimir Ilyich
+          legalForm: société à responsabilité limitée
+      - match: 'Type d’entité: entreprise d’État fédérale - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 23.3.2006: Numéro d’enregistrement: 1066147003658'
+        props:
+          jurisdiction: ru
+          legalForm: entreprise d’État fédérale
+          incorporationDate: 2006-03-23
+        registrationNumber: 1066147003658
+      - match: 'Numéro d’identification fiscale: 6147025090'
+        props:
+          innCode: 6147025090
+      - match: 'KPP: 614701001'
+        props:
+          kppCode: 614701001
+      - match: 'Type d’entité: Société à responsabilité limitée (Limited Company) - Principal établissement: République populaire de Chine/Hong Kong Personne associée: Li Xiaocui (“Sofya Li”, “Sophia Li”) - Entités associées: — Shijiazhuang Hanqiang Technology Co. Ltd— Hebei Suofu Trading Co.: Numéro d’enregistrement: 71901140'
+        props:
+          jurisdiction: hk
+          legalForm: Société à responsabilité limitée (Limited Company)
+          address: "République populaire de Chine/Hong Kong"
+          associates:
+            - Li Xiaocui (“Sofya Li”, “Sophia Li”)
+            - Shijiazhuang Hanqiang Technology Co. Ltd
+            - Hebei Suofu Trading Co.
+        registrationNumber: 71901140
+      - match: 'Type d’entité: Société à responsabilité limitée (Limited Company) - Personne associée: Li Xiaocui (“Sofya Li”, “Sophia Li”) - Entités associées: — Shijiazhuang Hanqiang Technology Co. Ltd — Hebei Suofu Trading Co: Numéro d’enregistrement: 791130105MA7C26X08R'
+        props:
+          legalForm: Société à responsabilité limitée (Limited Company)
+          associates:
+            - Li Xiaocui (“Sofya Li”, “Sophia Li”)
+            - Shijiazhuang Hanqiang Technology Co. Ltd
+            - Hebei Suofu Trading Co
+        registrationNumber: 791130105MA7C26X08R
+      - match: 'Type d’entité: société publique par actions - Principal établissement: Fédération de Russie'
+        props:
+          jurisdiction: ru
+          legalForm: société publique par actions
+          address: "Fédération de Russie"
+      - match: 'Type d’entité: société par actions - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1027739137084'
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "Fédération de Russie"
+        registrationNumber: 1027739137084
+      - match: 'Numéro d’identification fiscale: 7713011336'
+        props:
+          innCode: 7713011336
+      - match: 'KPP: 770301001'
+        props:
+          kppCode: 770301001
+      - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Alexander Valerievich Gavrilov (directeur général) - Autres informations d’identification: Limited Liability Company Gumich RTK (filiale): Numéro d’enregistrement: 1187746509081'
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "Moscou, Fédération de Russie"
+          associates:
+            - Alexander Valerievich Gavrilov
+            - Limited Liability Company Gumich RTK (filiale)
+        registrationNumber: 1187746509081
+      - match: 'Numéro d’identification fiscale: 9709032552'
+        props:
+          innCode: 9709032552
+      - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Pavel Vladimirovich Babin (directeur général): Numéro d’enregistrement: 5157746030976'
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "Moscou, Fédération de Russie"
+          associates:
+            - Pavel Vladimirovich Babin
+        registrationNumber: 5157746030976
+      - match: 'Numéro d’identification fiscale: 7729481489'
+        props:
+          innCode: 7729481489
+      - match: 'Type d’entité: société à responsabilité limitée - Personne associée: Alexandr Pavlovich Lavrik - Entités associées: — JSC “Alabuga” Special Economic Zone of Industrial and Production Type — LLC Alabuga Development: Numéro d’identification fiscale: 1646047020'
+        props:
+          legalForm: société à responsabilité limitée
+          associates:
+            - Alexandr Pavlovich Lavrik
+            - JSC “Alabuga” Special Economic Zone of Industrial and Production Type
+            - LLC Alabuga Development
+        innCode: 1646047020
+      - match: 'Type d’entité: société par actions - Lieu d’enregistrement: 428903, Fédération de Russie, République de Tchouvachie, Cheboksary, p. I.Yakovleva, 4 - Date d’enregistrement: 14.10.2011 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1112130013270'
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "428903, Fédération de Russie, République de Tchouvachie, Cheboksary, p. I.Yakovleva, 4"
+          incorporationDate: 2011-10-14
+        registrationNumber: 1112130013270
+      - match: 'Numéro d’identification fiscale: 2130094170'
+        props:
+          innCode: 2130094170
+      - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Samara, Fédération de Russie - Personne associée: Igor Alexandrovich Ganin (directeur général): Numéro d’enregistrement: 1056317028350'
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "Samara, Fédération de Russie"
+          associates:
+            - Igor Alexandrovich Ganin
+        registrationNumber: 1056317028350
+      - match: 'Numéro d’identification fiscale: 6317060306'
+        props:
+          innCode: 6317060306
+      - match: 'Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 16.10.200 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1097746629639'
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "Fédération de Russie"
+          incorporationDate: 2000-10-16
+        registrationNumber: 1097746629639
+      - match: 'Numéro d’identification fiscale: 7722698108'
+        props:
+          innCode: 7722698108
+      - match: 'KPP: 772201001'
+        props:
+          kppCode: 772201001
+      - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Fedor Fedorovich Potekhin (directeur général) - Autres informations d’identification: Limited Liability Company Gumich (société mère): Numéro d’enregistrement: 1227700009349'
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "Moscou, Fédération de Russie"
+          associates:
+            - Fedor Fedorovich Potekhin
+            - Limited Liability Company Gumich
+        registrationNumber: 1227700009349
+      - match: 'Numéro d’identification fiscale: 9726005407'
+        props:
+          innCode: 9726005407
+      - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 25.10.2006 - Entité associée: JSC Kalashnikov Concern (société holding) (numéro d’enregistrement: 1111832003018): Numéro d’enregistrement: 1061831040688'
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2006-10-25
+          associates:
+            - JSC Kalashnikov Concern
+        registrationNumber: 1061831040688
+      - match: 'Numéro d’identification fiscale: 1831117433'
+        props:
+          innCode: 1831117433
+      - match: 'KPP: 772501001'
+        props:
+          kppCode: 772501001
+      - match: 'Type d’entité: société par actions - Principal établissement: Fédération de Russie - Personnes associées: Alexander Alekseevich Balashov (directeur général): Numéro d’enregistrement: 11177411001388'
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "Fédération de Russie"
+          associates:
+            - Alexander Alekseevich Balashov
+        registrationNumber: 11177411001388
+      - match: 'Numéro d’identification fiscale: 7411009901'
+        props:
+          innCode: 7411009901
+      - match: 'Type d’entité: société anonyme par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 21.9.199 - Personne associée: Andrey Viktorovich Kocherga (directeur général) (TIN: 772740415741): Numéro d’enregistrement: 1022601930537'
+        props:
+          jurisdiction: ru
+          legalForm: société anonyme par actions
+          incorporationDate: 1990-09-21
+          associates:
+            - Andrey Viktorovich Kocherga
+        registrationNumber: 1022601930537
+      - match: 'Numéro d’identification fiscale: 2635000092'
+        props:
+          innCode: 2635000092
+      - match: 'KPP: 263501001'
+        props:
+          kppCode: 263501001
+      - match: 'Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 28.6.2012 - Principal établissement: Fédération de Russie - Autres informations: JSC “KRET” (société associée): Numéro d’enregistrement: 1124011001058'
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2012-06-28
+          address: "Fédération de Russie"
+          associates:
+            - JSC “KRET”
+        registrationNumber: 1124011001058
+      - match: 'Numéro d’identification fiscale: 4007017378'
+        props:
+          innCode: 4007017378
+      - match: 'KPP: 400701001'
+        props:
+          kppCode: 400701001
+      - match: 'Type d’entité: société d’État - Lieu d’enregistrement: Donetsk, Ukraine - Personne associée: Andrey Yurievich Kalyuzhny (président faisant fonction du conseil d’administration): Numéro d’enregistrement: 1229300132104'
+        props:
+          jurisdiction: ua
+          legalForm: société d’État
+          address: "Donetsk, Ukraine"
+          associates:
+            - Andrey Yurievich Kalyuzhny
+        registrationNumber: 1229300132104
+      - match: 'Numéro d’identification fiscale: 9303024230'
+        props:
+          innCode: 9303024230
+      - match: 'Type d’entité: société par actions - Lieu d’enregistrement: 300002, Fédération de Russie, Tula, Mosina str., 2 - Date d’enregistrement: 29.8.2002 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1027100507114'
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "300002, Fédération de Russie, Tula, Mosina str., 2"
+          incorporationDate: 2002-08-29
+        registrationNumber: 1027100507114
+      - match: 'Numéro d’identification fiscale: 7106002836'
+        props:
+          innCode: 7106002836
