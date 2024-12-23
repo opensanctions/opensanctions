@@ -40,16 +40,17 @@ def extract_label_value_pair(label_elem, value_elem, data):
 
 
 def apply_dob_pob(entity, dob_pob):
-    if dob_pob:
-        # If we get more than one part, unpack it into dob and pob
-        if len(dob_pob) == 2:
-            dob, pob = dob_pob
-            h.apply_date(entity, "birthDate", dob)
-            entity.add("birthPlace", pob)
-        # If there’s only one part, we assume it's just the dob
-        elif len(dob_pob) == 1:
-            dob = dob_pob[0]
-            h.apply_date(entity, "birthDate", dob)
+    if not dob_pob:
+        return
+    # If we get more than one part, unpack it into dob and pob
+    if len(dob_pob) == 2:
+        dob, pob = dob_pob
+        h.apply_date(entity, "birthDate", dob)
+        entity.add("birthPlace", pob)
+    # If there’s only one part, we assume it's just the dob
+    elif len(dob_pob) == 1:
+        dob = dob_pob[0]
+        h.apply_date(entity, "birthDate", dob)
 
 
 def emit_care_of(context, entity, unknown_link_name):
@@ -97,6 +98,9 @@ def crawl_captain(context: Context, main_grid, program):
                     label, value = extract_label_value_pair(
                         label_elem, value_elem, data
                     )
+                    link_elem = value_elem.find(".//a[@href]")
+                    if link_elem is not None:
+                        vessel_url = link_elem.get("href")
                     data[label] = value
 
         name = data.pop("Name")
@@ -120,8 +124,9 @@ def crawl_captain(context: Context, main_grid, program):
         context.emit(sanction)
 
         vessel = context.make("Vessel")
-        vessel.id = context.make_id(vessel_name, vessel_category)
+        vessel.id = context.make_id(vessel_name, vessel_category, vessel_url)
         vessel.add("name", vessel_name)
+        vessel.add("sourceUrl", vessel_url)
         vessel.add("notes", vessel_category)
 
         link = context.make("UnknownLink")
