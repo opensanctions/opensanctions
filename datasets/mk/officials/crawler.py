@@ -90,7 +90,6 @@ def crawl(context: Context):
             break
 
         for row in data.get("content"):
-            print(row)
             crawl_row(context, row)
 
         page += 1
