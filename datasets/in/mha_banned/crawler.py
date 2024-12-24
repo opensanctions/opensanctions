@@ -148,12 +148,11 @@ def crawl_individuals(context: Context, url: str, filename: str, program: str) -
         doc = html.fromstring(fh.read())
     doc.make_links_absolute(url)
 
-    for item in doc.xpath(".//div[contains(@class, 'views-field-body')]/div/p"):
-        names = item.text_content()
-        detail_url = item.xpath(".//a/@href")
-        parts = REGEX_NUM_NAME.split(names, 1)
-        authority_id = parts[1].strip()
-        names = parts[2].rstrip(".")
+    table = doc.xpath(".//table")[0]
+    for row in h.parse_html_table(table):
+        authority_id = row.pop("sr_no").text_content()
+        names = row.pop("title").text_content()
+        detail_url = row.pop("download_link").xpath(".//a/@href")
         crawl_common(context, "Person", names, program, authority_id, url, detail_url)
 
 
@@ -182,13 +181,14 @@ def crawl(context: Context) -> None:
     doc = context.fetch_html(context.dataset.url, cache_days=1)
     doc.make_links_absolute(context.dataset.url)
 
-    associations_url = get_link_by_label(doc, ASSOCIATIONS_LABEL)
-    crawl_organisations(
-        context, associations_url, "associations.html", ASSOCIATIONS_LABEL
-    )
+    # associations_url = get_link_by_label(doc, ASSOCIATIONS_LABEL)
+    # crawl_organisations(
+    #     context, associations_url, "associations.html", ASSOCIATIONS_LABEL
+    # )
 
-    url = get_link_by_label(doc, ORGANISATIONS_LABEL)
-    crawl_organisations(context, url, "organisations.html", ORGANISATIONS_LABEL)
+    # url = get_link_by_label(doc, ORGANISATIONS_LABEL)
+    # crawl_organisations(context, url, "organisations.html", ORGANISATIONS_LABEL)
 
     url = get_link_by_label(doc, INDIVIDUALS_LABEL)
+    print(url)
     crawl_individuals(context, url, "individuals.html", INDIVIDUALS_LABEL)
