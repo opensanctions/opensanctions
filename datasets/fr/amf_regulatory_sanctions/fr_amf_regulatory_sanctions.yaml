@@ -1008,3 +1008,6 @@ lookups:
         entities:
           - ECOR1 CAPITAL
           - Oleg Nodelman
+      - match: GSD Gestion
+        entities:
+          - GSD Gestion
