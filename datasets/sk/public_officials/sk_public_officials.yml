@@ -1,0 +1,52 @@
+title: Slovakia Public Officials
+prefix: sk-po
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: 2024-12-23
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of public officials in Slovakia, including their names, positions,
+  and other relevant information.
+description: |
+  The dataset contains information about public officials in Slovakia, including
+  their names, positions, and other relevant information. The data is collected
+  from the official website of the National Council of the Slovak Republic.
+publisher:
+  name: National Council of the Slovak Republic
+  acronym: NR SR
+  description: |
+    National Council of the Slovak Republic is the sole constitutional and legislative body 
+    of the Slovak Republic. It is the body of state authority and the status of other state 
+    bodies in Slovakia is derived from its primary status. As an elected body it represents 
+    the sovereignty of the state and of the citizens. It has an important role in the formation 
+    of the Slovak Republic as a modern and democratic state, as well as in the implementation of 
+    social and ecologically oriented market economy.
+    [Source: Official website](https://www.nrsr.sk/web/?sid=nrsr/poslanie)
+  url: https://www.nrsr.sk/web/
+  official: true
+  country: sk
+url: https://www.nrsr.sk/web/Default.aspx?sid=vnf%2fzoznam&ViewType=2
+data:
+  url: https://www.nrsr.sk/web/Default.aspx?sid=vnf%2fzoznam&ViewType=2
+  format: HTML
+  lang: slk
+
+assertions: 
+  min: 
+    schema_entities: 
+      Person: 2000
+  max: 
+    schema_entities: 
+      Person: 3000
+lookups: 
+  type.name: 
+    options: 
+      - match: "člen kontrolného orgánu alebo dozorného orgánu právnickej osoby (MH MANAŽMENT, A.S.)člen kontrolného orgánu alebo dozorného orgánu právnickej osoby (MH INVEST, S.R.O.)člen kontrolného orgánu alebo dozorného orgánu právnickej osoby (MH INVEST II, S.R.O.)člen kontrolného orgánu alebo dozorného orgánu právnickej osoby (VALALIKY INDUSTRIAL PARK, S.R.O.)štatutárny orgán alebo člen štatutárneho orgánu a člen riadiaceho orgánu právnickej osoby (SPP INFRASTRUCTURE, A.S.)člen dozornej rady štátneho podniku, ktorého do funkcie ustanovuje štát (RUDNÉ BANE, Š.P.)"
+        values: 
+          - "Member of the supervisory board or supervisory board of a legal entity (MH MANAGEMENT, A.S.)"
+          - "Member of the supervisory board or supervisory board of a legal entity (MH INVEST, S.R.O.)"
+          - "Member of the supervisory board or supervisory board of a legal entity (MH INVEST II, S.R.O.)"
+          - "Member of the supervisory board or supervisory board of a legal entity (VALALIKY INDUSTRIAL PARK, S.R.O.)"
+          - "Statutory body or member of the statutory body and member of the management body of a legal entity (SPP INFRASTRUCTURE, A.S.)"
+          - "Member of the supervisory board of a state enterprise, whose appointment is made by the state (RUDNÉ BANE, Š.P.)"
