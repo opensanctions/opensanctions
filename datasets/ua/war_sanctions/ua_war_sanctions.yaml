@@ -49,9 +49,10 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 550
+      Organization: 550
       Person: 400
       Vessel: 430
+      LegalEntity: 150
     country_entities:
       ru: 790
       ua: 170
@@ -59,9 +60,10 @@ assertions:
     countries: 15
   max:
     schema_entities:
-      LegalEntity: 1000
+      Organization: 1000
       Person: 630
-      Vessel: 670
+      Vessel: 700
+      LegalEntity: 270
 lookups: 
   overrides: 
     options: 
@@ -336,4 +338,13 @@ lookups:
       - match: 
           - RS 150443
           - RS 130280
+          - 194905962
+        prop: registrationNumber
+      - match: 10477970849
+        value: 1047797084940
+        prop: registrationNumber
+      - regex:  # failed validation for entities registered in so called "people's republics"
+          - ^122940\d{7}$
+          - ^122930\d{7}$
+          - ^1239\d{9}$
         prop: registrationNumber
