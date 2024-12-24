@@ -22,6 +22,11 @@ LINKS = [
         "type": "vessel",
         "program": "Marine and Aircraft Vessels, Airports and Ports involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
+    {  # captains
+        "url": "https://war-sanctions.gur.gov.ua/en/transport/captains",
+        "type": "captain",
+        "program": "Captains of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+    },
 ]
 
 
@@ -32,6 +37,20 @@ def extract_label_value_pair(label_elem, value_elem, data):
         value = value[0]
     data[label] = value
     return label, value
+
+
+def apply_dob_pob(entity, dob_pob):
+    if not dob_pob:
+        return
+    # If we get more than one part, unpack it into dob and pob
+    if len(dob_pob) == 2:
+        dob, pob = dob_pob
+        h.apply_date(entity, "birthDate", dob)
+        entity.add("birthPlace", pob)
+    # If there’s only one part, we assume it's just the dob
+    elif len(dob_pob) == 1:
+        dob = dob_pob[0]
+        h.apply_date(entity, "birthDate", dob)
 
 
 def emit_care_of(context, entity, unknown_link_name):
@@ -53,6 +72,8 @@ def emit_care_of(context, entity, unknown_link_name):
 def crawl_index_page(context: Context, index_page, data_type, program):
     index_page = context.fetch_html(index_page)
     main_grid = index_page.find('.//div[@id="main-grid"]')
+    if data_type == "captain":
+        crawl_captain(context, main_grid, program)
     for link in main_grid.xpath(".//a/@href"):
         if link.startswith("https:"):
             if data_type == "person":
@@ -61,6 +82,61 @@ def crawl_index_page(context: Context, index_page, data_type, program):
                 crawl_legal_entity(context, link, program)
             if data_type == "vessel":
                 crawl_vessel(context, link, program)
+
+
+def crawl_captain(context: Context, main_grid, program):
+    captain_container = main_grid.xpath(
+        ".//div[contains(@class, 'component-link item-cell')]"
+    )
+    data: dict[str, str] = {}
+    for captain in captain_container:
+        for row in captain.xpath(".//div[@class='row']"):
+            divs = row.findall("div")
+            if len(divs) == 2:
+                label_elem, value_elem = divs
+                if "yellow" in value_elem.get("class"):
+                    label, value = extract_label_value_pair(
+                        label_elem, value_elem, data
+                    )
+                    link_elem = value_elem.find(".//a[@href]")
+                    if link_elem is not None:
+                        vessel_url = link_elem.get("href")
+                    data[label] = value
+
+        name = data.pop("Name")
+        dob_pob = data.pop("Date and place of birth")
+        tax_number = data.pop("Tax Number")
+        vessel_name = data.pop("Captain of the vessel")
+        vessel_category = data.pop("Category of the vessel")
+
+        captain = context.make("Person")
+        captain.id = context.make_id(name, dob_pob, tax_number)
+        captain.add("name", name)
+        captain.add("taxNumber", tax_number)
+        captain.add("topics", "poi")
+        if dob_pob:
+            apply_dob_pob(captain, dob_pob)
+
+        sanction = h.make_sanction(context, captain)
+        sanction.add("program", program)
+
+        context.emit(captain, target=True)
+        context.emit(sanction)
+
+        vessel = context.make("Vessel")
+        vessel.id = context.make_id(vessel_name, vessel_category, vessel_url)
+        vessel.add("name", vessel_name)
+        vessel.add("sourceUrl", vessel_url)
+        vessel.add("notes", vessel_category)
+
+        link = context.make("UnknownLink")
+        link.id = context.make_id(captain.id, "captain", vessel.id)
+        link.add("subject", captain.id)
+        link.add("object", vessel.id)
+        link.add("role", "captain")
+
+        context.emit(vessel)
+        context.emit(link)
 
 
 def crawl_vessel(context: Context, link, program):
@@ -208,10 +284,10 @@ def crawl_ship_relation(
                 context.log.warning("No override found.", key=entity_name_number)
                 return
 
-        entity = context.make("LegalEntity")
+        entity = context.make("Organization")
         entity.id = context.make_id(entity_name, entity_country)
         entity.add("name", entity_name)
-        entity.add("registrationNumber", registration_number)
+        entity.add("imoNumber", registration_number)
         entity.add("country", entity_country)
         context.emit(entity)
 
@@ -242,6 +318,8 @@ def crawl_person(context: Context, link, program):
                 data[label] = value
     names = data.pop("Name")
     positions = data.pop("Position", None)
+    dob_pob = data.pop("Date and place of birth", None)
+    archive_links = data.pop("Archive links", None)
 
     person = context.make("Person")
     person.id = context.make_id(names, positions)
@@ -250,24 +328,14 @@ def crawl_person(context: Context, link, program):
     person.add("citizenship", data.pop("Citizenship", None))
     person.add("taxNumber", data.pop("Tax Number", None))
     person.add("sourceUrl", data.pop("Links"))
-    archive_links = data.pop("Archive links", None)
+    person.add("topics", "poi")
     if archive_links is not None:
         person.add("sourceUrl", archive_links)
-    dob_pob = data.pop("Date and place of birth", None)
     if dob_pob:
-        # If we get more than one part, unpack it into dob and pob
-        if len(dob_pob) == 2:
-            dob, pob = dob_pob
-            h.apply_date(person, "birthDate", dob)
-            person.add("birthPlace", pob)
-        elif len(dob_pob) == 1:
-            # If there’s only one part, we assume it's just the dob
-            dob = dob_pob[0]
-            h.apply_date(person, "birthDate", dob)
+        apply_dob_pob(person, dob_pob)
     if positions:
         for position in h.multi_split(positions, [" / "]):
             person.add("position", position)
-    person.add("topics", "poi")
 
     sanction = h.make_sanction(context, person)
     sanction.add("reason", data.pop("Reasons"))
@@ -300,10 +368,10 @@ def crawl_legal_entity(context: Context, link, program):
     legal_entity.id = context.make_id(name, name_abbr, reg_num)
     legal_entity.add("name", name)
     legal_entity.add("name", name_abbr)
-    legal_entity.add("registrationNumber", reg_num)
+    legal_entity.add("ogrnCode", reg_num)
     legal_entity.add("address", data.pop("Address"))
     legal_entity.add("country", data.pop("Country"))
-    legal_entity.add("taxNumber", data.pop("Tax Number"))
+    legal_entity.add("innCode", data.pop("Tax Number"))
     legal_entity.add("sourceUrl", data.pop("Links"))
     archive_links = data.pop("Archive links", None)
     if archive_links is not None:
