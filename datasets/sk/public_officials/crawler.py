@@ -26,15 +26,20 @@ def crawl(context: Context):
     link_elements = results_doc.xpath(
         '//div[@id="_sectionLayoutContainer__panelContent"]//a[@href]'
     )
-    for link in link_elements[:50]:
+    for link in link_elements:
         results_doc.make_links_absolute(context.data_url)
         href = link.get("href")
         name_raw = link.text_content().strip()
-        # Check if the URL ends with #section_[A-Z]
-        if re.search(r"#section_[A-Za-z]+$", href):
+        # Filter out non-personal links
+        if re.search(r"#section_[A-Za-z]+$", href) or href.endswith("ViewType=2#top"):
+            # We could also split positions on https://www.nrsr.sk/web/Default.aspx?sid=vnf%2fzoznam&ViewType=2#top
             continue
         doc = context.fetch_html(href, cache_days=2)
         table = doc.find(".//table[@class='oznamenie_table']")
+        if table is None:
+            # Some pages are in development
+            context.log.warning(f"Table not found for {name_raw}")
+            continue
 
         data = {}
 
