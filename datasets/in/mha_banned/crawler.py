@@ -190,5 +190,4 @@ def crawl(context: Context) -> None:
     crawl_organisations(context, url, "organisations.html", ORGANISATIONS_LABEL)
 
     url = get_link_by_label(doc, INDIVIDUALS_LABEL)
-    print(url)
     crawl_individuals(context, url, "individuals.html", INDIVIDUALS_LABEL)
