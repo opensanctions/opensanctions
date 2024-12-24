@@ -31,31 +31,31 @@ def crawl(context: Context):
 
         context.log.info(f"Querying for option: {label} (value={value})")
 
-        form_data = {
-            "MIME Type": "application/x-www-form-urlencoded",
-            "__VIEWSTATEGENERATOR": "DB1B4C9A",
-            "_sectionLayoutContainer$ctl01$FunkcieList3x": f"{value}",  # Set the dropdown value
-            "_sectionLayoutContainer$ctl01$ShowSelectedView": "Zobraziť",
-            "_sectionLayoutContainer$ctl00$_calendarYear": "2024",
-            "_sectionLayoutContainer$ctl00$_calendarMonth": "12",
-            "_sectionLayoutContainer$ctl00$_calendarApp": "nrdvp",
-            "_sectionLayoutContainer$ctl00$_monthSelector": "12",
-            "_sectionLayoutContainer$ctl00$_yearSelector": "2024",
-        }
+    form_data = {
+        "MIME Type": "application/x-www-form-urlencoded",
+        "__VIEWSTATEGENERATOR": "DB1B4C9A",
+        "_sectionLayoutContainer$ctl01$FunkcieList3x": "44",  # Set the dropdown value
+        "_sectionLayoutContainer$ctl01$ShowSelectedView": "Zobraziť",
+        "_sectionLayoutContainer$ctl00$_calendarYear": "2024",
+        "_sectionLayoutContainer$ctl00$_calendarMonth": "12",
+        "_sectionLayoutContainer$ctl00$_calendarApp": "nrdvp",
+        "_sectionLayoutContainer$ctl00$_monthSelector": "12",
+        "_sectionLayoutContainer$ctl00$_yearSelector": "2024",
+    }
 
-        # Fetch the results page for the current dropdown value
-        results_doc = context.fetch_html(
-            context.data_url,
-            headers=HEADERS,
-            method="POST",
-            data=form_data,
-            cache_days=2,
-        )
-        links = results_doc.xpath(
-            '//div[@id="_sectionLayoutContainer__panelContent"]//a[@href]'
-        )
-        for link in links:
-            results_doc.make_links_absolute(context.data_url)  # Make the link absolute
-            href = link.get("href")  # Get the href value
-            link_text = link.text_content().strip()  # Get the link text
-            context.log.info(f"Found link: {link_text} (href={href})")
+    # Fetch the results page for the current dropdown value
+    results_doc = context.fetch_html(
+        context.data_url,
+        headers=HEADERS,
+        method="POST",
+        data=form_data,
+        cache_days=2,
+    )
+    links = results_doc.xpath(
+        '//div[@id="_sectionLayoutContainer__panelContent"]//a[@href]'
+    )
+    for link in links:
+        results_doc.make_links_absolute(context.data_url)  # Make the link absolute
+        href = link.get("href")  # Get the href value
+        link_text = link.text_content().strip()  # Get the link text
+        context.log.info(f"Found link: {link_text} (href={href})")
