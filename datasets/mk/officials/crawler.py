@@ -8,6 +8,7 @@ IGNORE_COLUMNS = [
     "id",
     "formType",
     "subInstitution",
+    "otherInstitution",
 ]
 
 

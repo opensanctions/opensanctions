@@ -78,6 +78,11 @@ lookups:
           - role: Caretaker Prime Minister
             name: Michel BARNIER
             start_date: 5 September 2024
+      - match: 'François BAYROU (since 13 December 2024)'
+        holders:
+          - role: Head of government
+            name: François BAYROU
+            start_date: 13 December 2024
       # Poland
       - match: "Deputy Prime Ministers Wladyslaw KOSINIAK-KAMYSZ, Krzysztof GAWKOWSKI (both since 11 December 2023)"
         holders:
@@ -826,6 +831,8 @@ lookups:
           # South Africa
           - Deputy President David MABUZA resigned 1 March 2023
           - "Prime Minister \\(in transition\\)"
+          # South Korea
+          - "South Korea's Constitutional Court has 180 days to rule on YOON's removal"
           # Chad
           - the transition was extended for 24 months and the TMC was dissolved in October 2022, postponing elections until 31 October 2024
           # Hungary
