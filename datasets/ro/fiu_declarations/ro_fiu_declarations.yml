@@ -1,4 +1,4 @@
-title: Romania FIU Declarations of Assets and Interests
+title: Romania FIU Public Officials
 url: https://www.onpcsb.ro/en/a/101/declarations-of-assets-and-interests
 entry_point: crawler.py
 prefix: ro-fiu
@@ -7,13 +7,11 @@ coverage:
   frequency: weekly
   start: 2024-12-20
 summary: >
-  List of public officials in Romania who are obligated to declare their assets as 
-  part of the country's financial transparency and anti-corruption efforts.
+  List of the public officials in the Financial Intelligence Unit of Romania (FIU).
 description: |
-  The dataset includes details of public officials in Romania required to file asset 
-  declarations with the Financial Intelligence Unit (FIU) of Romania. These declarations 
-  are part of measures aimed at ensuring transparency and preventing illicit financial 
-  activities.
+  The dataset includes details of public officials in the Financial Intelligence Unit 
+  of Romania required to file asset declarations. These declarations are part of measures 
+  aimed at ensuring transparency and preventing illicit financial activities.
 publisher:
   name: Financial Intelligence Unit of Romania
   acronym: FIU

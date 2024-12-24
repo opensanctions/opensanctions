@@ -18,7 +18,7 @@ def crawl(context: Context):
             pep.add("topics", "role.pep")
             position = h.make_position(
                 context,
-                name="Public official",
+                name="FIU Public Official",
                 country="ro",
             )
             categorisation = categorise(context, position, True)
