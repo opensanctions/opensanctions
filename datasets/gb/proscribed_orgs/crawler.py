@@ -19,7 +19,7 @@ ALIAS_RE = re.compile(r"\s+\(([^)]+)\)")
 JUNK = " ,.;\t\r\n"
 
 
-def parse_comment(context: Context, text: str) -> Optional[str | None]:
+def parse_comment(text: str) -> Optional[str | None]:
     """
     Parse stack of  commentary from the act looking for the most
     recent date when groups were added.
@@ -39,7 +39,7 @@ def crawl_group(context: Context, text: str, change_stack: List[str]):
         return
     add_date = None
     for item in change_stack:
-        add_date = parse_comment(context, item)
+        add_date = parse_comment(item)
         if add_date:
             break
     context.log.info(f"Adding group: {text} (starting {add_date})")
@@ -95,6 +95,39 @@ def crawl_group(context: Context, text: str, change_stack: List[str]):
     context.emit(sanction)
 
 
+def extract_leg_list_text_standard_info(context: Context,
+                                        page: HtmlElement,
+                                        entry: HtmlElement,
+                                        text: List[str],
+                                        change_stack: List[str]):
+    for el in entry:
+        classnames = el.get("class").split()
+        if "LegChangeDelimiter" in classnames:
+            bracket = el.text.strip()
+            if bracket == "[":
+                link = el.getnext()
+                comment_id = link.get("href")[1:]
+                commentary = page.find(f".//div[@id='{comment_id}']")
+                comment_text = commentary.text_content()
+                context.log.debug(f"Start subgroup: {comment_text}")
+                change_stack.append(comment_text)
+            elif bracket == "]":
+                crawl_group(context, "".join(text), change_stack)
+                context.log.debug("End subgroup")
+                change_stack.pop()
+                text.clear()
+        elif "LegAddition" in classnames:
+            context.log.debug(f"Addition: {el.text}")
+            if el.text is not None:
+                text.append(el.text)
+            elif len(el):
+                extract_leg_list_text_standard_info(context, page, el, text, change_stack)
+        elif "LegSubstitution" in classnames:
+            context.log.debug(f"Substitution: {el.text}")
+            if el.text is not None:
+                text.append(el.text)
+
+
 def crawl(context: Context):
     """
     Process Schedule 2 of the Terrorism Act 2000.
@@ -114,29 +147,6 @@ def crawl(context: Context):
             crawl_group(context, entry.text.strip(), change_stack)
             continue
         text = []
-        for el in entry:
-            classnames = el.get("class").split()
-            if "LegChangeDelimiter" in classnames:
-                bracket = el.text.strip()
-                if bracket == "[":
-                    link = el.getnext()
-                    comment_id = link.get("href")[1:]
-                    commentary = page.find(f".//div[@id='{comment_id}']")
-                    comment_text = commentary.text_content()
-                    context.log.debug(f"Start subgroup: {comment_text}")
-                    change_stack.append(comment_text)
-                elif bracket == "]":
-                    crawl_group(context, "".join(text), change_stack)
-                    context.log.debug("End subgroup")
-                    change_stack.pop()
-                    text = []
-            elif "LegAddition" in classnames:
-                context.log.debug(f"Addition: {el.text}")
-                if el.text is not None:
-                    text.append(el.text)
-            elif "LegSubstitution" in classnames:
-                context.log.debug(f"Substitution: {el.text}")
-                if el.text is not None:
-                    text.append(el.text)
+        extract_leg_list_text_standard_info(context, page, entry, text, change_stack)
         if text:
             crawl_group(context, "".join(text), change_stack)
