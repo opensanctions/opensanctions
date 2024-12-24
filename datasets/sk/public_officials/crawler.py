@@ -1,4 +1,7 @@
+import re
+
 from zavod import Context, helpers as h
+from zavod.logic.pep import categorise
 
 
 def crawl(context: Context):
@@ -20,11 +23,65 @@ def crawl(context: Context):
         data=form_data,
         cache_days=2,
     )
-    links = results_doc.xpath(
+    link_elements = results_doc.xpath(
         '//div[@id="_sectionLayoutContainer__panelContent"]//a[@href]'
     )
-    for link in links:
-        results_doc.make_links_absolute(context.data_url)  # Make the link absolute
-        href = link.get("href")  # Get the href value
-        link_text = link.text_content().strip()  # Get the link text
-        context.log.info(f"Found link: {link_text} (href={href})")
+    for link in link_elements[:50]:
+        results_doc.make_links_absolute(context.data_url)
+        href = link.get("href")
+        name_raw = link.text_content().strip()
+        # Check if the URL ends with #section_[A-Z]
+        if re.search(r"#section_[A-Za-z]+$", href):
+            continue
+        doc = context.fetch_html(href, cache_days=2)
+        table = doc.find(".//table[@class='oznamenie_table']")
+
+        data = {}
+
+        # Iterate over the rows in the table
+        for row in table.findall(".//tr"):
+            # Check for label
+            label_cell = row.find(".//td[@class='label']")
+            if label_cell is not None:
+                # Extract and clean the label text
+                label = label_cell.text_content().strip().strip(":")
+                continue  # Move to the next row for the corresponding value
+
+            # Check for value
+            value_cell = row.find(".//td[@class='value']")
+            if value_cell is not None and label:
+                # Extract and clean the value text
+                value = value_cell.text_content().strip()
+                data[label] = value
+                label = None  # Reset the label for the next row
+
+        # name = data.pop("titul, meno, priezvisko") # name with title
+        # year = data.pop("oznámenie za rok")
+        position = data.pop("vykonávaná verejná funkcia")
+        person = context.make("Person")
+        person.id = context.make_id(name_raw)
+        person.add("name", name_raw)
+        person.add("position", position)
+        person.add("topics", "role.pep")
+        person.add("sourceUrl", href)
+
+        position = h.make_position(
+            context,
+            position,
+            lang="slk",
+            country="SK",
+        )
+        categorisation = categorise(context, position, is_pep=True)
+        if not categorisation.is_pep:
+            continue
+
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            categorisation=categorisation,
+        )
+
+        context.emit(person)
+        context.emit(position)
+        context.emit(occupancy)
