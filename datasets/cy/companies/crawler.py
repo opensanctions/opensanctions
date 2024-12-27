@@ -43,7 +43,7 @@ def parse_organisations(
         if entity.id is None:
             context.log.error("Could not make ID", org_type=org_type, reg_nr=reg_nr)
             continue
-        entity.add("name", row.pop("ORGANISATION_NAME"))
+        entity.add("name", row.pop("ORGANISATION_NAME"), lang="mul")
         entity.add("status", row.pop("ORGANISATION_STATUS"))
         if org_type == "O":
             entity.add("country", "cy")
@@ -129,6 +129,7 @@ def crawl(context: Context) -> None:
     for name, path in files.items():
         if name.startswith("registered_office_"):
             addresses = load_addresses(iter_rows(path))
+        context.log.info("Loaded %d addresses", len(addresses))
 
     for name, path in files.items():
         if name.startswith("organisations_"):
