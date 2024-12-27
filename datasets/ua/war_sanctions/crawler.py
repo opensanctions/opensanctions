@@ -27,6 +27,11 @@ LINKS = [
         "type": "captain",
         "program": "Captains of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
+    {  # propagandists
+        "url": "https://war-sanctions.gur.gov.ua/en/propaganda/persons?page=1&per-page=12",
+        "type": "person",
+        "program": "Persons involved in the dissemination of propaganda",
+    },
 ]
 
 
@@ -406,7 +411,7 @@ def crawl(context: Context):
     )
     assert len(section_links_section) == 1, section_links_section
     h.assert_dom_hash(
-        section_links_section[0], "dbb9a924d940b3a69a132a102e04dcf0f9fbfc5e"
+        section_links_section[0], "7b453a15943260a79ed541abea1885fb0ad84fa6"
     )
 
     # Has the API link been updated to point to the previously-nonexistent API page?
