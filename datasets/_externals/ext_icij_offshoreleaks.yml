@@ -52,6 +52,7 @@ ci_test: false
 inputs:
   - ann_graph_topics
   - debarment
+  - special_interest
   - ext_cy_companies
   - ext_cz_business_register
   - ext_ee_ariregister

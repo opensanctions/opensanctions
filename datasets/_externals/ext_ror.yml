@@ -32,15 +32,16 @@ publisher:
 url: "https://ror.org/registry/"
 
 inputs:
-  - us_sanctions
-  - eu_sanctions
   - ca_named_research_orgs
+  - eu_sanctions
   - no_nbim_exclusions
+  - special_interest
   - us_bis_oac
   - us_ddtc_debarred
   - us_ddtc_enforcements
   - us_fcc_covered_list
   - us_sam_exclusions
+  - us_sanctions
   - us_sec_harmed_investors
   - us_sec_pause
   - us_special_leg
