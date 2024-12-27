@@ -858,6 +858,8 @@ lookups:
           - First Syrian Republic
           - State of Syria
         value: Syria
+      - match: Ba'athist Syria
+        value: SY
       - match: Gagauzia
         value: MD
       - match:
@@ -945,6 +947,7 @@ lookups:
       - match:
           - Basque Country
           - Catalana
+          - Basque people
         value: ES
       - match: Muscat and Oman
         value: OM
