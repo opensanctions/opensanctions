@@ -43,6 +43,7 @@ inputs:
   - ext_ua_edr
   - opencorporates
   - sanctions
+  - special_interest
 
 config:
   dataset: md_companies
