@@ -1964,3 +1964,7 @@ lookups:
         code: ""
         label: "Mallabhum"
         decision: "ignore"
+      - match: "Q28406119"
+        code: ""
+        label: "Free Republic of the Congo"
+        decision: "ignore"
