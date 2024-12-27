@@ -327,6 +327,14 @@ lookups:
         value: null
       - match: Bermuda Islands
         value: bm
+      - match: Armenia, russian federation
+        values:
+          - Armenia
+          - Russia
+      - match: Netherlands, russian federation
+        values:
+          - Netherlands
+          - Russia
   type.name: 
     options: 
       - match: 'AUTONOMOUS NON-PROFIT ORGANIZATION OF ADDITIONAL PROFESSIONAL EDUCATION "MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
