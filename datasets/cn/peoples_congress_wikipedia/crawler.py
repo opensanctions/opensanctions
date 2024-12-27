@@ -9,7 +9,15 @@ from zavod.logic.pep import OccupancyStatus, categorise
 from zavod.shed.trans import apply_translit_full_name
 
 
-REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")
+REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")  #
+# CHANGES_IN_REPRESENTATION = re.compile(r"（\d+名）$")  # 补选, 调动, 辞职, 罢免, 去世
+CHANGES_IN_REPRESENTATION = [
+    "补选",  # by-election
+    "调动",  # reassignment
+    "辞职",  # resignation
+    "罢免",  # dismissal
+    "去世",  # death
+]
 REGEX_STRIP_NOTE = re.compile(r"\[註 \d+\]")
 SKIP_SUBHEADERS = {
     "中央提名",
@@ -123,19 +131,30 @@ def crawl(context: Context):
     doc = context.fetch_html(context.data_url)
     ids = defaultdict(int)
 
+    # for h3 in doc.findall(".//h3"):
+    #     delegation_match = REGEX_DELEGATION_HEADING.match(h3.text_content())
+    #     if not delegation_match:
+    #         continue
+    #     delegation_name = delegation_match.group(1)
+    #     table = h3.getparent().getnext().getnext()
+    #     if table.tag != "table":
+    #         table = table.getnext()
+    #     assert table.tag == "table"
+    #     for row in parse_table(context, table):
+    #         id = crawl_item(context, row, delegation_name)
+    #         ids[id] += 1
+    # context.log.info(f"{len(ids)} unique IDs")
+    # for id, count in ids.items():
+    #     if count > 1 and id not in IGNORE_DUPES:
+    #         context.log.info(f"ID {id} emitted {count} times")
     for h3 in doc.findall(".//h3"):
-        delegation_match = REGEX_DELEGATION_HEADING.match(h3.text_content())
-        if not delegation_match:
-            continue
-        delegation_name = delegation_match.group(1)
-        table = h3.getparent().getnext().getnext()
-        if table.tag != "table":
-            table = table.getnext()
-        assert table.tag == "table"
-        for row in parse_table(context, table):
-            id = crawl_item(context, row, delegation_name)
-            ids[id] += 1
-    context.log.info(f"{len(ids)} unique IDs")
-    for id, count in ids.items():
-        if count > 1 and id not in IGNORE_DUPES:
-            context.log.info(f"ID {id} emitted {count} times")
+        delegation_name = None
+        h3_text = h3.text_content().strip()
+        if any(heading in h3_text for heading in CHANGES_IN_REPRESENTATION):
+            print(f"Match found: {h3_text}")
+            table = h3.getparent().getnext()
+            if table.tag != "table":
+                table = table.getnext()
+            assert table.tag == "table"
+            for row in parse_table(context, table):
+                id = crawl_item(context, row, delegation_name)
