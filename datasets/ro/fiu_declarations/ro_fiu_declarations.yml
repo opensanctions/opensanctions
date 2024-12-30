@@ -13,14 +13,14 @@ description: |
   of Romania required to file asset declarations. These declarations are part of measures 
   aimed at ensuring transparency and preventing illicit financial activities.
 publisher:
-  name: Financial Intelligence Unit of Romania
+  name: OFICIUL NAȚIONAL DE PREVENIRE ȘI COMBATERE A SPĂLĂRII BANILOR
+  name_en: The National Office for Preventing and Combating Money Laundering
   acronym: FIU
   official: true
   description: |
-    The National Office for Preventing and Combating Money Laundering is the Financial 
-    Intelligence Unit of Romania (FIU) of administrative type, with a leading role in 
-    the development, coordination and implementation of the system for combating money 
-    laundering and terrorist financing.
+    The National Office for Preventing and Combating Money Laundering is Romania's Financial 
+    Intelligence Unit (FIU), an administrative entity responsible for leading, coordinating, 
+    and implementing the country's system to combat money laundering and terrorist financing.
     [Source: Official Website](https://www.onpcsb.ro/en/a/115/general-framework)
   country: ro
   url: https://www.onpcsb.ro/en/a/115/general-framework
