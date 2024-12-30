@@ -152,10 +152,17 @@ def parse_xlsx_sheet(
             continue
 
         record = {}
-        for header, value in zip(headers, cells):
+        for header, cell in enumerate(zip(headers, row)):
+            value = cell.value
             if isinstance(value, datetime):
                 value = value.date()
             record[header] = stringify(value)
+
+            # Check if the cell has a hyperlink
+            if cell.hyperlink:
+                key = f"{header}_url"
+                record[key] = str(cell.hyperlink.target)
+
         if len(record) == 0:
             continue
         if all(v is None for v in record.values()):
