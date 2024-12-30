@@ -37,7 +37,7 @@ data:
 ci_test: false
 
 dates: 
-  formats: ["%Y年%m月"]
+  formats: ["%Y年%m月", "%Y年%m月%d日"]
 lookups:
   type.gender:
     options:
@@ -58,12 +58,14 @@ lookups:
       出生日期: date_of_birth
       职务: position
       备注: remarks
+      代表团: delegation
       补选日期: date_of_by_election  
       辞职日期: date_of_resignation
       辞职前职务: position_before_resignation
       去世日期: date_of_death
       生前职务: position_before_death
-      代表团: delegation
+      罢免日期: date_of_dismissal
+      罢免前职务: position_before_dismissal
 
 assertions:
   min:
