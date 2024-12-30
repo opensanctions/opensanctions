@@ -10,7 +10,7 @@ from zavod.helpers.excel import (
 from zavod.tests.conftest import FIXTURES_PATH
 
 XLS_BOOK = FIXTURES_PATH / "book.xls"
-XLSX_BOOK = FIXTURES_PATH / "book.xlsx"
+XLSX_BOOK = FIXTURES_PATH / "book_links.xlsx"
 
 
 def test_excel_cell():
@@ -73,6 +73,6 @@ def test_parse_xlsx_sheet(vcontext: Context):
         "numeric": "1",
         "text": "Hello, World!",
         "date": "2023-07-26",
-        "column_3": None,
-        "column_4": None,
+        "numeric_url": "http://example.com/1",
+        "text_url": "http://example.com/hello",
     }
