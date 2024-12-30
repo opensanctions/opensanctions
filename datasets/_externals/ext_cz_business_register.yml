@@ -49,6 +49,7 @@ inputs:
   - ext_ua_edr
   - opencorporates
   - sanctions
+  - special_interest
 
 config:
   dataset: cz_business_register

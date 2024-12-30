@@ -71,6 +71,7 @@ inputs:
   - permid
   - ru_cbr_banks
   - sanctions
+  - special_interest
 
 config:
   limit: 100

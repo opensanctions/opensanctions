@@ -66,12 +66,12 @@ inputs:
   - ext_ua_edr
   - ext_us_irs_ffi
   - iso9362_bic
-  - ir_uani_business_registry
   - opencorporates
   - permid
+  - regulatory
   - ru_cbr_banks
   - sanctions
-  - regulatory
+  - special_interest
 
 config:
   dataset: gleif

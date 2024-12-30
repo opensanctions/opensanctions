@@ -84,6 +84,10 @@ lookups:
         values:
           - 2002-07-30
           - 1990-07-02
+      - match: 22.1.1993 (state registration date 16.6.2002)
+        values:
+          - 2002-06-16
+          - 1993-01-22
       - match: 20.5.2019 (registered as a small and medium sized enterprise); 10.7.2023 (registered as a small sized enterprise)
         values:
           - 2019-05-20

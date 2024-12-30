@@ -54,24 +54,17 @@ http:
     - POST
 
 inputs:
-  - sanctions
+  - interpol_red_notices
   - peps
-  - kp_rusi_reports
-  - wd_peps
-  - wd_oligarchs
-  - wd_curated
-  - wd_categories
-  - wanted
-  - ru_navalny35
-  - ru_myrotvorets_wagner
-  - ru_billionaires_2021
-  - ru_acf_bribetakers
-  - sy_obsalytics_opensyr
-  - thesentry_atlas
-  - md_rise_profiles
+  - sanctions
+  - special_interest
   - us_fbi_most_wanted
   - us_klepto_hr_visa
-  - us_plum_book
+  - wanted
+  - wd_categories
+  - wd_curated
+  - wd_oligarchs
+  - wd_peps
 
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
@@ -865,6 +858,8 @@ lookups:
           - First Syrian Republic
           - State of Syria
         value: Syria
+      - match: Ba'athist Syria
+        value: SY
       - match: Gagauzia
         value: MD
       - match:
@@ -952,6 +947,7 @@ lookups:
       - match:
           - Basque Country
           - Catalana
+          - Basque people
         value: ES
       - match: Muscat and Oman
         value: OM

@@ -59,6 +59,7 @@ inputs:
   - sanctions
   - securities
   - regulatory
+  - special_interest
 
 config:
   dataset: eu_esma_firds
