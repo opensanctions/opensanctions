@@ -13,7 +13,7 @@ REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")  #
 # CHANGES_IN_REPRESENTATION = re.compile(r"（\d+名）$")  # 补选, 调动, 辞职, 罢免, 去世
 CHANGES_IN_REPRESENTATION = [
     "补选",  # by-election
-    "调动",  # reassignment
+    # "调动",  # reassignment
     "辞职",  # resignation
     "罢免",  # dismissal
     "去世",  # death
@@ -35,6 +35,14 @@ def clean_text(text: str) -> str:
     return collapse_spaces(strip_note(text))
 
 
+def get_cleaned_field(input_dict, field_name):
+    """Extracts and cleans the field value from the input dictionary."""
+    field = input_dict.pop(field_name, None)
+    if field is not None:
+        return clean_text(field.text_content())
+    return None
+
+
 def crawl_item(
     context: Context,
     input_dict: dict,
@@ -43,6 +51,16 @@ def crawl_item(
     name = clean_text(input_dict.pop("name").text_content())
     ethnicity = clean_text(input_dict.pop("ethnicity").text_content())
     gender = clean_text(input_dict.pop("gender").text_content())
+    delegation = clean_text(input_dict.pop("delegation").text_content())
+
+    date_of_death = get_cleaned_field(input_dict, "date_of_death")
+    date_of_by_election = get_cleaned_field(input_dict, "date_of_by_election")
+    date_of_resignation = get_cleaned_field(input_dict, "date_of_resignation")
+    position_before_death = get_cleaned_field(input_dict, "position_before_death")
+    position_before_resignation = get_cleaned_field(
+        input_dict, "position_before_resignation"
+    )
+
     birth_date_el = input_dict.pop("date_of_birth", None)
     if birth_date_el is not None:
         birth_date = birth_date_el.text_content()
@@ -157,4 +175,4 @@ def crawl(context: Context):
                 table = table.getnext()
             assert table.tag == "table"
             for row in parse_table(context, table):
-                id = crawl_item(context, row, delegation_name)
+                crawl_item(context, row, delegation_name)
