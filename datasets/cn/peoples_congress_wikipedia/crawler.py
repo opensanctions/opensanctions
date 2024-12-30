@@ -10,14 +10,14 @@ from zavod.shed.trans import apply_translit_full_name
 
 
 REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")  #
-# CHANGES_IN_REPRESENTATION = re.compile(r"（\d+名）$")  # 补选, 调动, 辞职, 罢免, 去世
+REGEX_BRACKETS = re.compile(r"\[.*?\]")
 CHANGES_IN_REPRESENTATION = [
     "补选",  # by-election
-    # Not supporting this for now because of the data structure
+    # # Not supporting this for now because of the data structure
     # "调动",  # reassignment
     "辞职",  # resignation
-    # Not supporting this for now because of the merged cells
-    # "罢免",  # dismissal
+    # Testing parse_table_with_rowspan
+    "罢免",  # dismissal
     "去世",  # death
 ]
 REGEX_STRIP_NOTE = re.compile(r"\[註 \d+\]")
@@ -41,7 +41,11 @@ def get_cleaned_field(input_dict, field_name):
     """Extracts and cleans the field value from the input dictionary."""
     field = input_dict.pop(field_name, None)
     if field is not None:
-        return clean_text(field.text_content())
+        text_content = field.text_content()
+        # Remove any text in brackets using regex
+        cleaned_text = re.sub(REGEX_BRACKETS, "", text_content)
+        return clean_text(cleaned_text)
+
     return None
 
 
@@ -61,6 +65,7 @@ def crawl_item(
     date_of_by_election = get_cleaned_field(input_dict, "date_of_by_election")
     date_of_death = get_cleaned_field(input_dict, "date_of_death")
     date_of_resignation = get_cleaned_field(input_dict, "date_of_resignation")
+    date_of_dismissal = get_cleaned_field(input_dict, "date_of_dismissal")
 
     birth_date_el = input_dict.pop("date_of_birth", None)
     if birth_date_el is not None:
@@ -100,7 +105,7 @@ def crawl_item(
         position,
         False,
         start_date=date_of_by_election or "2023",
-        end_date=date_of_resignation or date_of_death,
+        end_date=date_of_resignation or date_of_dismissal or date_of_death,
         categorisation=categorisation,
         status=OccupancyStatus.UNKNOWN,
     )
@@ -120,6 +125,7 @@ def crawl_item(
         ignore=[
             "position_before_death",
             "position_before_resignation",
+            "position_before_dismissal",
         ],
     )
     return entity.id
@@ -155,26 +161,80 @@ def parse_table(
         yield row
 
 
+def parse_table_with_rowspan(
+    context: Context,
+    table: HtmlElement,
+) -> Generator[Dict[str, HtmlElement], None, None]:
+    headers = None
+    rowspan_cells = {}  # Dictionary to keep track of cells with rowspan
+
+    for row_index, row in enumerate(table.findall(".//tr")):
+        if headers is None:
+            headers = []
+            for el in row.findall("./th"):
+                # Workaround because lxml-stubs doesn't yet support HtmlElement
+                eltree = el  # If necessary, you can use cast(HtmlElement, el)
+                label = strip_note(eltree.text_content())
+                headers.append(context.lookup_value("headers", label))
+            continue
+
+        cells = row.findall("./td")
+        row_data = {}
+
+        cell_index = 0  # To track which header corresponds to which cell
+        for idx, cell in enumerate(cells):
+            while cell_index in rowspan_cells and rowspan_cells[cell_index][1] > 0:
+                # If we have data from a rowspan to apply, take it
+                row_data[headers[cell_index]] = rowspan_cells[cell_index][0]
+                rowspan_cells[cell_index] = (
+                    rowspan_cells[cell_index][0],
+                    rowspan_cells[cell_index][1] - 1,
+                )
+                cell_index += 1  # Move to next cell header
+
+            # If current cell has a rowspan
+            rowspan_value = cell.get("rowspan")
+            if rowspan_value:
+                rowspan_length = int(rowspan_value) - 1  # Exclude the current row
+                rowspan_cells[cell_index] = (cell, rowspan_length)
+
+            # Store current row's cell element (not text content)
+            row_data[headers[cell_index]] = cell
+            cell_index += 1  # Move to the next header for each processed cell
+
+        # Apply any remaining rowspan data
+        while cell_index < len(headers):
+            if cell_index in rowspan_cells and rowspan_cells[cell_index][1] > 0:
+                row_data[headers[cell_index]] = rowspan_cells[cell_index][0]
+                rowspan_cells[cell_index] = (
+                    rowspan_cells[cell_index][0],
+                    rowspan_cells[cell_index][1] - 1,
+                )
+            cell_index += 1
+
+        yield row_data
+
+
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url)
     ids = defaultdict(int)
 
-    # for h3 in doc.findall(".//h3"):
-    #     delegation_match = REGEX_DELEGATION_HEADING.match(h3.text_content())
-    #     if not delegation_match:
-    #         continue
-    #     delegation_name = delegation_match.group(1)
-    #     table = h3.getparent().getnext().getnext()
-    #     if table.tag != "table":
-    #         table = table.getnext()
-    #     assert table.tag == "table"
-    #     for row in parse_table(context, table):
-    #         id = crawl_item(context, row, delegation_name)
-    #         ids[id] += 1
-    # context.log.info(f"{len(ids)} unique IDs")
-    # for id, count in ids.items():
-    #     if count > 1 and id not in IGNORE_DUPES:
-    #         context.log.info(f"ID {id} emitted {count} times")
+    for h3 in doc.findall(".//h3"):
+        delegation_match = REGEX_DELEGATION_HEADING.match(h3.text_content())
+        if not delegation_match:
+            continue
+        delegation_name = delegation_match.group(1)
+        table = h3.getparent().getnext().getnext()
+        if table.tag != "table":
+            table = table.getnext()
+        assert table.tag == "table"
+        for row in parse_table(context, table):
+            id = crawl_item(context, row, delegation_name)
+            ids[id] += 1
+    context.log.info(f"{len(ids)} unique IDs")
+    for id, count in ids.items():
+        if count > 1 and id not in IGNORE_DUPES:
+            context.log.info(f"ID {id} emitted {count} times")
     for h3 in doc.findall(".//h3"):
         delegation_name = None
         h3_text = h3.text_content().strip()
@@ -184,5 +244,10 @@ def crawl(context: Context):
             if table.tag != "table":
                 table = table.getnext()
             assert table.tag == "table"
-            for row in parse_table(context, table):
-                crawl_item(context, row, delegation_name)
+            # Separate handling for "罢免" (dismissed) because of rowspan
+            if "罢免" in h3_text:
+                for row in parse_table_with_rowspan(context, table):
+                    crawl_item(context, row, delegation_name)
+            else:
+                for row in parse_table(context, table):
+                    crawl_item(context, row, delegation_name)
