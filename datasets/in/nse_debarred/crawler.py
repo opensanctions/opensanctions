@@ -111,9 +111,9 @@ def crawl_item(input_dict: dict, context: Context):
 
 def crawl(context: Context):
     items = []
+    # It's an xls file originally but it's actual format is xlsx
     path_sebi = context.fetch_resource("sebi.xlsx", SEBI_DEBARRMENT_URL)
     context.export_resource(path_sebi, XLSX, title=context.SOURCE_TITLE)
-    # wb_sebi = xlrd.open_workbook(path_sebi)
     wb_sebi = openpyxl.load_workbook(path_sebi)
     for item in h.parse_xlsx_sheet(context, wb_sebi["Working"]):
         item["source_url"] = SEBI_DEBARRMENT_URL
