@@ -27,8 +27,12 @@ def parse_details(context: Context, link_el):
 
         value_cell = row.find(".//td[@class='value']")
         if value_cell is not None and label:
-            value = value_cell.text_content().strip()
-            data[label] = value
+            # Extract each div's text inside value_cell
+            values = []
+            for div in value_cell.findall(".//div"):
+                text = div.text_content().strip()
+                values.append(text)
+            data[label] = values
             label = None  # Reset the label for the next row
 
     crawl_person(context, data, href, name_raw)
