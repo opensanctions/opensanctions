@@ -15,13 +15,12 @@ description: |
 publisher:
   name: OFICIUL NAȚIONAL DE PREVENIRE ȘI COMBATERE A SPĂLĂRII BANILOR
   name_en: The National Office for Preventing and Combating Money Laundering
-  acronym: FIU
+  acronym: ONPCSB
   official: true
   description: |
     The National Office for Preventing and Combating Money Laundering is Romania's Financial 
     Intelligence Unit (FIU), an administrative entity responsible for leading, coordinating, 
     and implementing the country's system to combat money laundering and terrorist financing.
-    [Source: Official Website](https://www.onpcsb.ro/en/a/115/general-framework)
   country: ro
   url: https://www.onpcsb.ro/en/a/115/general-framework
 data:
