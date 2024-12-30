@@ -13,9 +13,11 @@ REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")  #
 # CHANGES_IN_REPRESENTATION = re.compile(r"（\d+名）$")  # 补选, 调动, 辞职, 罢免, 去世
 CHANGES_IN_REPRESENTATION = [
     "补选",  # by-election
+    # Not supporting this for now because of the data structure
     # "调动",  # reassignment
     "辞职",  # resignation
-    "罢免",  # dismissal
+    # Not supporting this for now because of the merged cells
+    # "罢免",  # dismissal
     "去世",  # death
 ]
 REGEX_STRIP_NOTE = re.compile(r"\[註 \d+\]")
@@ -49,17 +51,16 @@ def crawl_item(
     delegation: str,
 ):
     name = clean_text(input_dict.pop("name").text_content())
+    if "[" in name:
+        name = name.split("[", 1)[0]
     ethnicity = clean_text(input_dict.pop("ethnicity").text_content())
     gender = clean_text(input_dict.pop("gender").text_content())
-    delegation = clean_text(input_dict.pop("delegation").text_content())
-
-    date_of_death = get_cleaned_field(input_dict, "date_of_death")
+    # Keep the original delegation for the current members, pop it for the rest
+    if delegation is None:
+        delegation = clean_text(input_dict.pop("delegation").text_content())
     date_of_by_election = get_cleaned_field(input_dict, "date_of_by_election")
+    date_of_death = get_cleaned_field(input_dict, "date_of_death")
     date_of_resignation = get_cleaned_field(input_dict, "date_of_resignation")
-    position_before_death = get_cleaned_field(input_dict, "position_before_death")
-    position_before_resignation = get_cleaned_field(
-        input_dict, "position_before_resignation"
-    )
 
     birth_date_el = input_dict.pop("date_of_birth", None)
     if birth_date_el is not None:
@@ -75,6 +76,7 @@ def crawl_item(
     entity.add("gender", gender)
     entity.add("ethnicity", ethnicity, lang="chi")
     h.apply_date(entity, "birthDate", birth_date)
+    h.apply_date(entity, "deathDate", date_of_death)
     party = clean_text(input_dict.pop("party").text_content())
     entity.add("political", party, lang="chi")
 
@@ -97,7 +99,8 @@ def crawl_item(
         entity,
         position,
         False,
-        start_date="2023",
+        start_date=date_of_by_election or "2023",
+        end_date=date_of_resignation or date_of_death,
         categorisation=categorisation,
         status=OccupancyStatus.UNKNOWN,
     )
@@ -111,7 +114,14 @@ def crawl_item(
         context.emit(entity, target=True)
         context.emit(occupancy)
 
-    context.audit_data(input_dict)
+    context.audit_data(
+        input_dict,
+        # Since we're adding same position for all, we don't need these fields
+        ignore=[
+            "position_before_death",
+            "position_before_resignation",
+        ],
+    )
     return entity.id
 
 
