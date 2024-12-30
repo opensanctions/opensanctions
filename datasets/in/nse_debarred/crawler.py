@@ -1,5 +1,6 @@
-from rigour.mime.types import XLS
+from rigour.mime.types import XLS, XLSX
 import xlrd
+import openpyxl
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -110,10 +111,11 @@ def crawl_item(input_dict: dict, context: Context):
 
 def crawl(context: Context):
     items = []
-    path_sebi = context.fetch_resource("sebi.xls", SEBI_DEBARRMENT_URL)
-    context.export_resource(path_sebi, XLS, title=context.SOURCE_TITLE)
-    wb_sebi = xlrd.open_workbook(path_sebi)
-    for item in h.parse_xls_sheet(context, wb_sebi["Working"]):
+    path_sebi = context.fetch_resource("sebi.xlsx", SEBI_DEBARRMENT_URL)
+    context.export_resource(path_sebi, XLSX, title=context.SOURCE_TITLE)
+    # wb_sebi = xlrd.open_workbook(path_sebi)
+    wb_sebi = openpyxl.load_workbook(path_sebi)
+    for item in h.parse_xlsx_sheet(context, wb_sebi["Working"]):
         item["source_url"] = SEBI_DEBARRMENT_URL
         items.append(item)
 
