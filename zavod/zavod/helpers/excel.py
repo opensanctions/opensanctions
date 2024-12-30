@@ -152,7 +152,7 @@ def parse_xlsx_sheet(
             continue
 
         record = {}
-        for header, cell in enumerate(zip(headers, row)):
+        for cell_ix, (header, cell) in enumerate(zip(headers, row)):
             value = cell.value
             if isinstance(value, datetime):
                 value = value.date()
