@@ -64,6 +64,13 @@ def parse_xls_sheet(
     skiprows: int = 0,
     join_header_rows: int = 0,
 ) -> Generator[Dict[str, str | None], None, None]:
+    """
+    Parse an Excel sheet into a sequence of dictionaries.
+
+    Keys are the column headings slugified with _ as separator.
+
+    Cells with links are included as keys with with _url appended to the original key.
+    """
     headers: List[str] | None = None
     for row_ix, row in enumerate(sheet):
         if row_ix < skiprows:
