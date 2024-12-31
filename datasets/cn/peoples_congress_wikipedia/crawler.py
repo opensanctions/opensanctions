@@ -5,7 +5,7 @@ from lxml.html import HtmlElement
 import re
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import OccupancyStatus, categorise
+from zavod.logic.pep import categorise
 from zavod.shed.trans import apply_translit_full_name
 
 
@@ -13,11 +13,9 @@ REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")  #
 REGEX_BRACKETS = re.compile(r"\[.*?\]")
 CHANGES_IN_REPRESENTATION = [
     "补选",  # by-election
-    # # Not supporting this for now because of the data structure
-    # "调动",  # reassignment
     "辞职",  # resignation
-    # Testing parse_table_with_rowspan
-    "罢免",  # dismissal
+    # Not supporting this for now because of we don't yet support HTML rowspan
+    # "罢免",  # dismissal
     "去世",  # death
 ]
 REGEX_STRIP_NOTE = re.compile(r"\[註 \d+\]")
@@ -107,7 +105,6 @@ def crawl_item(
         start_date=date_of_by_election or "2023",
         end_date=date_of_resignation or date_of_dismissal or date_of_death,
         categorisation=categorisation,
-        status=OccupancyStatus.UNKNOWN,
     )
     remarks_el = input_dict.pop("remarks", None)
     if remarks_el is not None:
@@ -125,7 +122,7 @@ def crawl_item(
         ignore=[
             "position_before_death",
             "position_before_resignation",
-            "position_before_dismissal",
+            # "position_before_dismissal",
         ],
     )
     return entity.id
@@ -161,58 +158,58 @@ def parse_table(
         yield row
 
 
-def parse_table_with_rowspan(
-    context: Context,
-    table: HtmlElement,
-) -> Generator[Dict[str, HtmlElement], None, None]:
-    headers = None
-    rowspan_cells = {}  # Dictionary to keep track of cells with rowspan
+# def parse_table_with_rowspan(
+#     context: Context,
+#     table: HtmlElement,
+# ) -> Generator[Dict[str, HtmlElement], None, None]:
+#     headers = None
+#     rowspan_cells = {}  # Dictionary to keep track of cells with rowspan
 
-    for row_index, row in enumerate(table.findall(".//tr")):
-        if headers is None:
-            headers = []
-            for el in row.findall("./th"):
-                # Workaround because lxml-stubs doesn't yet support HtmlElement
-                eltree = el  # If necessary, you can use cast(HtmlElement, el)
-                label = strip_note(eltree.text_content())
-                headers.append(context.lookup_value("headers", label))
-            continue
+#     for row_index, row in enumerate(table.findall(".//tr")):
+#         if headers is None:
+#             headers = []
+#             for el in row.findall("./th"):
+#                 # Workaround because lxml-stubs doesn't yet support HtmlElement
+#                 eltree = el  # If necessary, you can use cast(HtmlElement, el)
+#                 label = strip_note(eltree.text_content())
+#                 headers.append(context.lookup_value("headers", label))
+#             continue
 
-        cells = row.findall("./td")
-        row_data = {}
+#         cells = row.findall("./td")
+#         row_data = {}
 
-        cell_index = 0  # To track which header corresponds to which cell
-        for idx, cell in enumerate(cells):
-            while cell_index in rowspan_cells and rowspan_cells[cell_index][1] > 0:
-                # If we have data from a rowspan to apply, take it
-                row_data[headers[cell_index]] = rowspan_cells[cell_index][0]
-                rowspan_cells[cell_index] = (
-                    rowspan_cells[cell_index][0],
-                    rowspan_cells[cell_index][1] - 1,
-                )
-                cell_index += 1  # Move to next cell header
+#         cell_index = 0  # To track which header corresponds to which cell
+#         for idx, cell in enumerate(cells):
+#             while cell_index in rowspan_cells and rowspan_cells[cell_index][1] > 0:
+#                 # If we have data from a rowspan to apply, take it
+#                 row_data[headers[cell_index]] = rowspan_cells[cell_index][0]
+#                 rowspan_cells[cell_index] = (
+#                     rowspan_cells[cell_index][0],
+#                     rowspan_cells[cell_index][1] - 1,
+#                 )
+#                 cell_index += 1  # Move to next cell header
 
-            # If current cell has a rowspan
-            rowspan_value = cell.get("rowspan")
-            if rowspan_value:
-                rowspan_length = int(rowspan_value) - 1  # Exclude the current row
-                rowspan_cells[cell_index] = (cell, rowspan_length)
+#             # If current cell has a rowspan
+#             rowspan_value = cell.get("rowspan")
+#             if rowspan_value:
+#                 rowspan_length = int(rowspan_value) - 1  # Exclude the current row
+#                 rowspan_cells[cell_index] = (cell, rowspan_length)
 
-            # Store current row's cell element (not text content)
-            row_data[headers[cell_index]] = cell
-            cell_index += 1  # Move to the next header for each processed cell
+#             # Store current row's cell element (not text content)
+#             row_data[headers[cell_index]] = cell
+#             cell_index += 1  # Move to the next header for each processed cell
 
-        # Apply any remaining rowspan data
-        while cell_index < len(headers):
-            if cell_index in rowspan_cells and rowspan_cells[cell_index][1] > 0:
-                row_data[headers[cell_index]] = rowspan_cells[cell_index][0]
-                rowspan_cells[cell_index] = (
-                    rowspan_cells[cell_index][0],
-                    rowspan_cells[cell_index][1] - 1,
-                )
-            cell_index += 1
+#         # Apply any remaining rowspan data
+#         while cell_index < len(headers):
+#             if cell_index in rowspan_cells and rowspan_cells[cell_index][1] > 0:
+#                 row_data[headers[cell_index]] = rowspan_cells[cell_index][0]
+#                 rowspan_cells[cell_index] = (
+#                     rowspan_cells[cell_index][0],
+#                     rowspan_cells[cell_index][1] - 1,
+#                 )
+#             cell_index += 1
 
-        yield row_data
+#         yield row_data
 
 
 def crawl(context: Context):
@@ -239,15 +236,9 @@ def crawl(context: Context):
         delegation_name = None
         h3_text = h3.text_content().strip()
         if any(heading in h3_text for heading in CHANGES_IN_REPRESENTATION):
-            print(f"Match found: {h3_text}")
             table = h3.getparent().getnext()
             if table.tag != "table":
                 table = table.getnext()
             assert table.tag == "table"
-            # Separate handling for "罢免" (dismissed) because of rowspan
-            if "罢免" in h3_text:
-                for row in parse_table_with_rowspan(context, table):
-                    crawl_item(context, row, delegation_name)
-            else:
-                for row in parse_table(context, table):
-                    crawl_item(context, row, delegation_name)
+            for row in parse_table(context, table):
+                crawl_item(context, row, delegation_name)
