@@ -10,7 +10,9 @@ from zavod.helpers.excel import (
 from zavod.tests.conftest import FIXTURES_PATH
 
 XLS_BOOK = FIXTURES_PATH / "book.xls"
-XLSX_BOOK = FIXTURES_PATH / "book_links.xlsx"
+# Fields with blank-fallback headings created in Google Sheets by havinga a value
+# in right-most most column (with blank header).
+XLSX_BOOK = FIXTURES_PATH / "book.xlsx"
 
 
 def test_excel_cell():
