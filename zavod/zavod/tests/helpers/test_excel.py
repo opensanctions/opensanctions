@@ -69,7 +69,7 @@ def test_parse_xls_sheet_split_header(vcontext: Context):
 def test_parse_xlsx_sheet(vcontext: Context):
     book = load_workbook(XLSX_BOOK.as_posix())
     sheet = book.active
-    rows = list(parse_xlsx_sheet(vcontext, sheet))
+    rows = list(parse_xlsx_sheet(vcontext, sheet, extract_links=True))
     assert len(rows) == 1
     assert rows[0] == {
         "column_0": None,

@@ -115,7 +115,7 @@ def crawl(context: Context):
     path_sebi = context.fetch_resource("sebi.xlsx", SEBI_DEBARRMENT_URL)
     context.export_resource(path_sebi, XLSX, title=context.SOURCE_TITLE)
     wb_sebi = openpyxl.load_workbook(path_sebi)
-    for item in h.parse_xlsx_sheet(context, wb_sebi["Working"]):
+    for item in h.parse_xlsx_sheet(context, wb_sebi["Working"], extract_links=True):
         item["source_url"] = SEBI_DEBARRMENT_URL
         items.append(item)
 
