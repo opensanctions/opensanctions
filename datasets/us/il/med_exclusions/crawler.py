@@ -59,18 +59,6 @@ async def download_file(path, page_url: str):
         )
 
 
-# {'provider_name': 'ZARLENGO PHILIP C',
-#  'license': None,
-#  'npi': None,
-#  'provider_type': None,
-#  'affiliation': 'AUGUSTINE MEDICAL INC',
-#  'action_date': '2007-11-02',
-#  'action_type': 'Barred',
-#  'address': None,
-#  'address_2': None,
-#  'city': None,
-#  'state': None,
-#  'zip_code': None}
 def crawl_item(context: Context, row: Dict[str, str]) -> None:
 
     name = row.pop("provider_name")

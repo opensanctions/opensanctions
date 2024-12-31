@@ -9,7 +9,12 @@ logger = logging.getLogger(__name__)
 
 
 async def click_and_download(
-    page: Page, client: CDPSession, selector: str, url_pattern: str, path: Path
+    page: Page,
+    client: CDPSession,
+    selector: str,
+    url_pattern: str,
+    path: Path,
+    timeout: int = 30,
 ) -> None:
     """
     Click an element to initiate a download, then download the matching file
@@ -68,9 +73,9 @@ async def click_and_download(
 
     asyncio.ensure_future(page.click(selector)).add_done_callback(on_done)
 
-    # Don't wait indefinitely for the request ID
+    # wait for the request id, but not indefinitely
     try:
-        async with asyncio.timeout(5):
+        async with asyncio.timeout(timeout):
             request_id = await request_id_future
     except asyncio.TimeoutError:
         raise Exception(

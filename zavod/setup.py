@@ -38,6 +38,7 @@ setup(
         "orjson == 3.10.13",
         "ijson > 3.2, < 4.0",
         "pantomime == 0.6.1",
+        "playwright == 1.49.1",
         "pdfplumber == 0.11.4",
         "prefixdate",
         "psycopg2-binary",
