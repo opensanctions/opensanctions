@@ -31,6 +31,7 @@ async def click_and_download(
 
     See also:
         https://chromedevtools.github.io/devtools-protocol/tot/Fetch/
+        https://github.com/luminati-io/sbr-examples/blob/main/python/playwright-async-file-download/scrape.py
     """
 
     if path.exists():

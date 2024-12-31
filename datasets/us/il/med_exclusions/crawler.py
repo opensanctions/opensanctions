@@ -15,8 +15,9 @@ from zavod.shed.playwright import click_and_download
 from zavod import Context, helpers as h
 from zavod.archive import dataset_data_path
 
-AUTH = os.environ.get("BRIGHTDATA_BROWSER_CREDENTIALS")
-SBR_WS_CDP = f"https://{AUTH}@brd.superproxy.io:9222"
+BRIGHT_USERNAME = os.environ.get("BRIGHTDATA_BROWSER_USERNAME")
+BRIGHT_PASSWORD = os.environ.get("BRIGHTDATA_BROWSER_PASSWORD")
+SBR_WS_CDP = f"https://{BRIGHT_USERNAME}:{BRIGHT_PASSWORD}@brd.superproxy.io:9222"
 
 
 def fix_xlsx_empty_styles(path):
@@ -24,6 +25,7 @@ def fix_xlsx_empty_styles(path):
     Deal with invalid empty Fill
 
     The error looks like this:
+
     ```
     TypeError: Fill() takes no arguments
     ... stack trace ...

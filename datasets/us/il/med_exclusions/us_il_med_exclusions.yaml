@@ -1,25 +1,43 @@
-title: Illinois Terminated Provider List
+title: US Illinois Medical Services Provider Sanctions
 entry_point: crawler.py
 prefix: us-medil
 coverage:
   frequency: daily
-  start: "2024-08-15"
+  start: "2024-12-31"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  This dataset contains a list of providers who have been terminated for cause from Illinois's Medicaid program.
+  Providers who have been terminated for cause from Illinois's Medicaid program.
 description: |
-  State law grants the Illinois Department of Healthcare and Family Services the authority to
-  impose sanctions on entities and individuals, as set forth in 305 Ill. Comp. Stat. 5/12-4.25
-  and Title 89 of the Illinois Administrative Code. Services rendered or ordered by sanctioned
-  providers are not eligible for Medicaid reimbursement. In addition, services provided by
-  entities owned or managed by sanctioned providers are not eligible for Medicaid reimbursement.
+  This dataset lists entities sanctioned by Illinois Healthcare and Family Services (HFS)
+  Office of the Inspector General (OIG).
+
+  > State law grants the Illinois Department of Healthcare and Family Services the
+  > authority to impose sanctions on entities and individuals, as set forth in 305
+  > Ill. Comp. Stat. 5/12-4.25 and Title 89 of the Illinois Administrative Code.
+  > Services rendered or ordered by sanctioned providers are not eligible for Medicaid
+  > reimbursement. In addition, services provided by entities owned or managed by
+  > sanctioned providers are not eligible for Medicaid reimbursement.
 publisher:
   name: Illinois Department of Healthcare and Family Services
+  description: |
+    > The Illinois Department of Healthcare and Family Services (HFS) is responsible
+    > for providing healthcare coverage for adults and children who qualify for
+    > Medicaid, and for providing Child Support Services to help ensure that Illinois
+    > children receive financial support from both parents.
   acronym: HFS
   url: https://hfs.illinois.gov
   official: true
   country: "us"
-url: "https://ilhfspartner3.dynamics365portals.us/sanctions/"
+url: https://hfs.illinois.gov/oig/sanctionslist.html
 data:
   url: https://ilhfspartner3.dynamics365portals.us/sanctions/
   format: HTML
+ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 3000
+  max:
+    schema_entities:
+      LegalEntity: 4000
