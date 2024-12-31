@@ -123,6 +123,7 @@ def parse_xlsx_sheet(
     sheet: Worksheet,
     skiprows: int = 0,
     header_lookup: Optional[str] = None,
+    extract_links: bool = False,
 ) -> Generator[Dict[str, str | None], None, None]:
     """
     Parse an Excel sheet into a sequence of dictionaries.
@@ -132,6 +133,7 @@ def parse_xlsx_sheet(
         sheet: The Excel sheet.
         skiprows: The number of rows to skip.
         header_lookup: The lookup key for translating headers.
+        extract_links: Whether to extract hyperlinks. Only works when read_only=False
     """
     headers = None
     row_counter = 0
@@ -165,10 +167,11 @@ def parse_xlsx_sheet(
                 value = value.date()
             record[header] = stringify(value)
 
-            # Check if the cell has a hyperlink
-            if cell.hyperlink:
-                key = f"{header}_url"
-                record[key] = str(cell.hyperlink.target)
+            if extract_links:
+                # Check if the cell has a hyperlink
+                if cell.hyperlink:
+                    key = f"{header}_url"
+                    record[key] = str(cell.hyperlink.target)
 
         if len(record) == 0:
             continue
