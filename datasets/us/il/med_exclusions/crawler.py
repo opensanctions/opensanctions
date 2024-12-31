@@ -1,17 +1,14 @@
-import shutil
-from tempfile import NamedTemporaryFile, TemporaryFile, mkstemp
-from typing import Dict, Generator
-import zipfile
-from rigour.mime.types import XLSX
-from openpyxl import load_workbook
-from normality import slugify, stringify
-from datetime import datetime
-import openpyxl
 from playwright.async_api import async_playwright
-import os
+from tempfile import NamedTemporaryFile
+from typing import Dict
 import asyncio
-from zavod.shed.playwright import click_and_download
+import openpyxl
+import os
+import zipfile
 
+from rigour.mime.types import XLSX
+
+from zavod.shed.playwright import click_and_download
 from zavod import Context, helpers as h
 from zavod.archive import dataset_data_path
 
