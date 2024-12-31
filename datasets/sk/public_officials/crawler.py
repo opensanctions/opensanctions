@@ -2,6 +2,15 @@ import re
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
+from zavod.shed.trans import (
+    apply_translit_full_name,
+    make_position_translation_prompt,
+)
+
+TRANSLIT_OUTPUT = {
+    "eng": ("Latin", "English"),
+}
+POSITION_PROMPT = prompt = make_position_translation_prompt("slk")
 
 
 def parse_details(context: Context, link_el):
@@ -14,7 +23,7 @@ def parse_details(context: Context, link_el):
     table = doc.find(".//table[@class='oznamenie_table']")
     if table is None:
         # Some pages are in development
-        context.log.warning(f"Table not found for {name_raw}")
+        context.log.info(f"Table not found for {name_raw}")
         return
 
     data = {}
@@ -25,37 +34,49 @@ def parse_details(context: Context, link_el):
             label = label_cell.text_content().strip().strip(":")
             continue  # Move to the next row for the corresponding value
 
+        assert label is not None
         value_cell = row.find(".//td[@class='value']")
-        if value_cell is not None and label:
-            # Extract each div's text inside value_cell
-            values = []
-            for div in value_cell.findall(".//div"):
-                text = div.text_content().strip()
-                values.append(text)
+        if value_cell is not None:
+            # Check if the cell contains <div> elements for positions with multiple values
+            divs = value_cell.findall(".//div")
+            if divs:
+                # Extract position from each <div>
+                values = []
+                for div in divs:
+                    text = div.text_content().strip()
+                    values.append(text)
+            else:
+                # Extract text directly from the cell for single values
+                values = value_cell.text_content().strip()
             data[label] = values
-            label = None  # Reset the label for the next row
-
+        label = None  # Reset the label for the next row
     crawl_person(context, data, href, name_raw)
 
 
 def crawl_person(context: Context, data, href, name_raw):
     # name = data.pop("titul, meno, priezvisko") # name with title
     # year = data.pop("oznámenie za rok")
-    position = data.pop("vykonávaná verejná funkcia")
+    position_slk = data.pop("vykonávaná verejná funkcia")
+    int_id = data.pop("Interné číslo")
+    print(int_id)
     person = context.make("Person")
-    person.id = context.make_id(name_raw)
+    person.id = context.make_id(name_raw, int_id)
     last_name, name = name_raw.split(",", 1)
     h.apply_name(person, first_name=name.strip(), last_name=last_name.strip())
-    person.add("position", position)
+    person.add("position", position_slk)
     person.add("topics", "role.pep")
     person.add("sourceUrl", href)
+    for pos in position_slk:
+        position = h.make_position(
+            context,
+            pos,
+            lang="slk",
+            country="SK",
+        )
+        apply_translit_full_name(
+            context, position, "slk", pos, TRANSLIT_OUTPUT, POSITION_PROMPT
+        )
 
-    position = h.make_position(
-        context,
-        position,
-        lang="slk",
-        country="SK",
-    )
     categorisation = categorise(context, position, is_pep=True)
     if not categorisation.is_pep:
         return

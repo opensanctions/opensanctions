@@ -39,3 +39,12 @@ assertions:
   max: 
     schema_entities: 
       Person: 3000
+lookups:
+  type.name:
+    options:
+      - contains: "verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo)"
+        value: null
+  type.string: 
+    options: 
+      - contains: "verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo)"
+        value: null
