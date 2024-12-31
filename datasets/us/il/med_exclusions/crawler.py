@@ -4,8 +4,10 @@ from openpyxl import load_workbook
 from normality import slugify, stringify
 from datetime import datetime
 import openpyxl
-from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 import os
+import asyncio
+from zavod.shed.playwright import click_and_download
 
 from zavod import Context, helpers as h
 from zavod.archive import dataset_data_path
@@ -45,30 +47,20 @@ def crawl_item(row: Dict[str, str], context: Context, is_excluded: bool):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
-    doc = context.fetch_html(context.data_url)
-    return doc.find(".//*[@about='/provider-termination']").find(".//a").get("href")
+async def download_file(path, page_url: str):
+    async with async_playwright() as pw:
+        print('Connecting to Scraping Browser...')
+        browser = await pw.chromium.connect_over_cdp(SBR_WS_CDP)
+        page = await browser.new_page()
+        client = await page.context.new_cdp_session(page)
+        print('Connected! Navigating to webpage')
+        await page.goto(page_url)
+        await click_and_download(page, client, ".entitylist-download.btn", "https://ilhfspartner3.dynamics365portals.us/_services/download-as-excel/*", path)
 
 
 def crawl(context: Context) -> None:
     path = dataset_data_path(context.dataset.name) / "source.xlsx"
-
-    with sync_playwright() as pw:
-        print('Connecting to Scraping Browser...')
-        browser = pw.chromium.launch() #.connect_over_cdp(SBR_WS_CDP)
-        page = browser.new_page()
-        print('Connected! Navigating to webpage')
-        page.goto(context.data_url)
-
-        with page.expect_download() as download_info:
-            # Perform the action that initiates download
-            page.click(".entitylist-download.btn")
-        download = download_info.value
-
-        # Wait for the download process to complete and save the downloaded file somewhere
-        download.save_as(path)
-
-
+    asyncio.run(download_file(path, context.data_url))
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
