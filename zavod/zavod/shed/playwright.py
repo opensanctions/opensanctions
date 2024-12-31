@@ -1,8 +1,9 @@
-import logging
+from base64 import standard_b64decode
 from pathlib import Path
 from playwright.async_api import Page, CDPSession
+from typing import Any, Dict
 import asyncio
-from base64 import standard_b64decode
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -33,15 +34,7 @@ async def click_and_download(
         logger.info(f"File already exists: {path}")
         return
 
-    future = asyncio.get_running_loop().create_future()
-
-    def on_request_paused(event):
-        if not future.done():
-            future.set_result(event["requestId"])
-
-    def on_done(click: asyncio.Future):
-        if not future.done() and click.exception():
-            future.set_exception(click.exception())
+    request_id_future = asyncio.get_running_loop().create_future()
 
     # Pause matching requests until we handle them
     await client.send(
@@ -57,11 +50,29 @@ async def click_and_download(
         },
     )
 
-    # Add handler for paused requests and completion
-    client.on("Fetch.requestPaused", on_request_paused)
-    asyncio.ensure_future(page.click(selector)).add_done_callback(on_done)
-    request_id = await future
+    # Add handler to extract the request ID from the paused request
+    def on_request_paused(event: Dict[str, Any]):
+        request_id_future.set_result(event["requestId"])
 
+    client.on("Fetch.requestPaused", on_request_paused)
+
+    # Click the element and carry any exception to the request future
+    def on_done(click: asyncio.Future):
+        if click.exception():
+            request_id_future.set_exception(click.exception())
+
+    asyncio.ensure_future(page.click(selector)).add_done_callback(on_done)
+
+    # Don't wait indefinitely for the request ID
+    try:
+        async with asyncio.timeout(5):
+            request_id = await request_id_future
+    except asyncio.TimeoutError:
+        raise Exception(
+            f"Timed out waiting for request ID. Check the URL pattern '{url_pattern}'"
+        )
+
+    # Continue the request and download the response body
     stream = await client.send(
         "Fetch.takeResponseBodyAsStream",
         {"requestId": request_id},
