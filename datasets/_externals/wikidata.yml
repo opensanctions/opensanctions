@@ -650,6 +650,7 @@ lookups:
           - State of Judaea
           - Ligurian Republic
           - Genoese Republic
+          - Yemeni Zaidi State
         value: null
       - match:
           - Cherokee Nation
@@ -778,6 +779,8 @@ lookups:
         values:
           - GE
           - SU
+      - match: Second Hellenic Republic
+        value: GR
       - match:
           - Ukrainian People's Republic
           - Ukrainian Soviet Socialist Republic
