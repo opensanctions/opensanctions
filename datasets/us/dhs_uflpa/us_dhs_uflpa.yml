@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: 2023-10-11
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >-
   The US DHS publishes this list of entities wholly or in part using forced labour
   in the People's Republic of China, especially from the Xinjiang Uyghur Autonomous
@@ -37,9 +38,17 @@ data:
   url: "https://www.dhs.gov/uflpa-entity-list"
   format: HTML
 
-dates: 
+dates:
   formats: ["%B %d, %Y"]
 lookups:
+  names:
+    normalize: true
+    lowercase: true
+    options:
+      - match: Sichuan Yuan’an Pharmaceutical Co. Ltd. (also known as Sichuan Yuanan Pharmaceutical Co. Ltd.)
+        value: Sichuan Yuan’an Pharmaceutical Co., Ltd.
+        aliases:
+          - Sichuan Yuanan Pharmaceutical Co., Ltd.
   type:
     options:
       - contains:

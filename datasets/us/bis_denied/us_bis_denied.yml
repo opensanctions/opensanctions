@@ -33,6 +33,8 @@ data:
   format: TSV
   lang: eng
 
+dates: 
+  formats: ["%m/%d/%Y"]
 lookups:
   type.country:
     lowercase: true

@@ -14,21 +14,17 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("name", row.pop("excluded_entity"))
     entity.add("npiCode", row.pop("npi_atypical_id_excluded"))
     entity.add("topics", "debarment")
-    address = h.make_address(
-        context,
+    address = h.format_address(
         state=row.pop("state"),
         city=row.pop("city"),
         postal_code=row.pop("zip_code"),
-        country="United States of America",
+        country_code="US",
     )
-    h.copy_address(entity, address)
+    entity.add("address", address)
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
-    sanction.add(
-        "startDate",
-        h.parse_date(row.pop("effective_date"), formats=["%m/%d/%Y"]),
-    )
+    h.apply_date(sanction, "startDate", row.pop("effective_date"))
     sanction.add("reason", row.pop("reason_for_exclusion"))
 
     owner = context.make("Person")

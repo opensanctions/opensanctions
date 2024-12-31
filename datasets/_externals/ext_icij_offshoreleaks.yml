@@ -1,6 +1,6 @@
 type: external
 title: ICIJ Offshore Leaks Database
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: icij_offshoreleaks
 disabled: false
 hidden: false
@@ -8,14 +8,15 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  schedule: "1 12 * * *"
-  memory: "1000Mi"
-  memory_limit: "1500Mi"
+  cpu: "1000m"
+  memory: "3000Mi"
+  memory_limit: "4000Mi"
+  disk: "20Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   start: 2022-05-23
   end: 2023-07-26
-  frequency: weekly
+  schedule: "1 12 * * *"
 summary: >-
   Combined data from the Panama Papers, Paradise Papers, Pandora Papers
   and other cross-border investigations conducted by ICIJ and its partners
@@ -47,12 +48,11 @@ publisher:
   url: https://www.icij.org/about/
   official: false
 ci_test: false
-http:
-  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics
   - debarment
+  - special_interest
   - ext_cy_companies
   - ext_cz_business_register
   - ext_ee_ariregister
@@ -64,15 +64,14 @@ inputs:
   - ext_ru_egrul
   - ext_ua_edr
   - opencorporates
+  - ru_cbr_banks
   - sanctions
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
-  api: https://api.graph.opensanctions.org/
   dataset: icij_offshoreleaks
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  index_options:
+    memory_budget: 3500
   strip_namespace: true
-  fuzzy: false
   threshold: 0.7
   algorithm: regression-v1
   topics:
@@ -89,4 +88,12 @@ config:
     - Organization
     - LegalEntity
     - Person
-  cache_days: 90
+
+lookups:
+  type.address:
+    options:
+      - match: "Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS, 52/F., Cheung Kong Center 2 Queen's Road Central Hong Kong, Deutsche Bank AG, Hong Kong Floor 52, Cheung Kong Center 2 Queen's Road Central, Hong Kong Attn.: Ms. Annie Ng"
+        values:
+          - Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS
+          - 52/F., Cheung Kong Center 2 Queen's Road Central Hong Kong
+          - "Attn.: Ms. Annie Ng, Deutsche Bank AG, Hong Kong Floor 52, Cheung Kong Center 2 Queen's Road Central, Hong Kong"

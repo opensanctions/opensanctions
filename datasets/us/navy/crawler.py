@@ -108,12 +108,9 @@ def unblock_validator(doc: html.HtmlElement) -> bool:
 
 
 def parse_html(context):
-    doc = fetch_html(
-        context, context.data_url, unblock_validator=unblock_validator, cache_days=3
-    )
-    for div in doc.xpath(
-        './/div[contains(@class, "DNNModuleContent") and contains(@class, "ModPhotoDashboardC")]'
-    ):
+    section_xpath = './/div[contains(@class, "DNNModuleContent") and contains(@class, "ModPhotoDashboardC")]'
+    doc = fetch_html(context, context.data_url, section_xpath, cache_days=3)
+    for div in doc.xpath(section_xpath):
         leader_divs = div.xpath('.//div[contains(@class, "leader-title")]/a')
         for leader_div in leader_divs:
             leader_url = urljoin(BASE_URL, leader_div.get("href"))

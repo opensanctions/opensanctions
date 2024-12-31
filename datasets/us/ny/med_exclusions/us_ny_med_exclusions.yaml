@@ -36,3 +36,15 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 9000
+lookups:
+  type.identifier:
+    options:
+      - match: 
+          - NA
+          - none
+          - None
+        value: null
+      - match: 1790886636
+        prop: registrationNumber
+      - match: 127586337
+        value: 1275863375

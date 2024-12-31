@@ -43,10 +43,14 @@ children:
   - regulatory
   - wanted
   - enrichers
+  - special_interest
+
+  # banks
+  - iso9362_bic
+  - ru_cbr_banks
 
   # misc
   - ann_graph_topics
-  - iso9362_bic
   - ir_uani_business_registry
   - kp_rusi_reports
   - md_rise_profiles
@@ -58,11 +62,15 @@ children:
   - ru_myrotvorets_wagner
   - ru_navalny35
   - ru_nsd_isin
+  - thesentry_atlas
   - securities
   - sy_obsalytics_opensyr
   - wd_categories
   - wd_curated
   - wd_oligarchs
   - eiti_soe
+  - gem_energy_ownership
+  - ua_war_sanctions
+  - us_nk_jointventures
   # - us_fara_filings
 ci_test: false

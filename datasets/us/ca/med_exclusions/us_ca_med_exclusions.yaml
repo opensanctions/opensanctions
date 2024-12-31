@@ -1,0 +1,82 @@
+title: US California Medicaid Suspended and ineligible providers
+entry_point: crawler.py
+prefix: us-medca
+coverage:
+  frequency: daily
+  start: "2024-11-07"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers suspended from or otherwise deemed ineligible to participate in California's Medicaid program.
+description: |
+  This dataset contains information about individuals and entities suspended from 
+  the California State Medicaid Program. The following text extracted from their website
+  explains the reasons a provider might be suspended and the provisions taken:
+
+  > Medi-Cal law, Welfare and Institutions Code (W&I Code), sections 14043.6 and 14123,
+  > mandate that the Department of Health Care Services (DHCS) suspend a Medi-Cal provider
+  > of health care services (provider) from participation in the Medi-Cal program when the
+  > individual or entity has:
+  > - Been convicted of a felony;
+  > - Been convicted of a misdemeanor involving fraud, abuse of the Medi-Cal program or any
+  > patient, or otherwise substantially related to the qualifications, functions, or duties
+  > of a provider of service;
+  > - Been suspended from the federal Medicare or Medicaid programs for any reason;
+  > - Lost or surrendered a license, certificate, or approval to provide health care; or
+  > - Breached a contractual agreement with the Department that explicitly specifies inclusion
+  > on this list as a consequence of the breach.
+
+  > Services rendered, prescribed or ordered by a suspended Medi-Cal provider shall not be
+  > covered by the Medi-Cal program while the suspension is in effect. California Code
+  > of Regulations, title 22, section 51303, subdivision (k), provides that at least fifteen (15)
+  > days written notice be given to all affected providers. This list constitutes such written
+  > notice. Although the period of suspension may have expired, reinstatement rights are not
+  > automatic. The provider must petition for reinstatement and re-enroll with DHCS before being
+  > reimbursed for services rendered. Providers suspended as a result of a Medicare action must
+  > appeal through the Medicare office before applying for re-enrollment with Medi-Cal.
+
+  > In accordance with W&I Code, section 14043.61, subdivision (a), a provider of health care
+  > services shall be subject to suspension if claims for payment are submitted under any provider
+  > number used by the provider to obtain reimbursement from the Medi-Cal program for the services,
+  > goods, supplies or merchandise provided, directly or indirectly to a Medi-Cal beneficiary, by
+  > an individual or entity that is suspended, excluded or otherwise ineligible because of a sanction
+  > to receive, directly or indirectly, reimbursement from the Medi-Cal program and the individual
+  > or entity is listed on either the Medi-Cal Suspended and Ineligible Provider List (S&I List)
+  > published by DHCS to identify suspended and otherwise ineligible providers, or any list published
+  > by the federal Office of Inspector General regarding the suspension or exclusion of individuals
+  > or entities from the federal Medicare and Medicaid programs, to identify suspended, excluded
+  > or otherwise ineligible providers.
+
+publisher:
+  name: Department of Health Care Services
+  description: >
+   The Department of Health Care Services (DHCS) is a department within the California Health and
+   Human Services Agency that finances and administers a number of individual health care service
+   delivery programs, including Medi-Cal, which provides health care services to low-income people.
+  acronym: DHCS
+  url: https://www.dhcs.ca.gov
+  official: true
+  country: "us"
+url: "https://mcweb.apps.prd.cammis.medi-cal.ca.gov/references/sandi"
+data:
+  url: https://mcweb.apps.prd.cammis.medi-cal.ca.gov/references/sandi
+  format: XLSX
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 750
+      Person: 20000
+  max:
+    schema_entities:
+      Company: 950
+      Person: 23000
+
+lookups:
+  type.identifier:
+    options:
+      match: N/A
+      value: null

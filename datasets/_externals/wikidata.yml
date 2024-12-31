@@ -12,6 +12,7 @@ exports:
 deploy:
   schedule: "1 0 * * *"
   memory: "3000Mi"
+  memory_limit: "3500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Wikidata is the structured data project of the Wikipedia community,
@@ -53,28 +54,17 @@ http:
     - POST
 
 inputs:
-  # Warning: cannot include wd_peps here otherwise it gets too recursive
-  - sanctions
+  - interpol_red_notices
   - peps
-  - eu_meps
-  - kp_rusi_reports
-  - wd_peps
-  - wd_oligarchs
-  - wd_curated
-  - wd_categories
+  - sanctions
+  - special_interest
+  - us_fbi_most_wanted
+  - us_klepto_hr_visa
   - wanted
-  # - ru_rupep
-  - ru_navalny35
-  - ru_myrotvorets_wagner
-  - ru_billionaires_2021
-  - ru_acf_bribetakers
-  - sy_obsalytics_opensyr
-  - md_rise_profiles
-  - eu_cor_members
-  - everypolitician
-  - us_cia_world_leaders
-  - us_cia_world_factbook
-  - us_congress
+  - wd_categories
+  - wd_curated
+  - wd_oligarchs
+  - wd_peps
 
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
@@ -637,6 +627,30 @@ lookups:
           - Odoyevsky principality
           - Later Zhou dynasty
           - Khorasan
+          - Shirvan Khanate
+          - Adal Sultanate
+          - Johor Sultanate
+          - Duchy of Saxony
+          - Kingdom of Mewar
+          - Khalji dynasty
+          - Chaldea
+          - Republic of China (1912–1949)
+          - Zhao
+          - Ancient Thessaly
+          - Paeonia
+          - Catalan Countries
+          - Hispanic Monarchy
+          - Habsburg Spain
+          - Transleithania
+          - Archduchy of Austria
+          - Cape Colony
+          - Electorate of Mainz
+          - Kingdom of Numidia
+          - Spanish protectorate in Morocco
+          - State of Judaea
+          - Ligurian Republic
+          - Genoese Republic
+          - Yemeni Zaidi State
         value: null
       - match:
           - Cherokee Nation
@@ -656,6 +670,7 @@ lookups:
           - Lac Courte Oreilles
           - Hopi
           - Ancient Hawaii
+          - Oglala Sioux Tribe
         value: US
       - match:
           - Democratic Republic of Sudan
@@ -666,7 +681,12 @@ lookups:
         value: CY
       - match: Socialist Republic of Romania
         value: RO
-      - match: People's Socialist Republic of Albania
+      - match:
+          - People's Socialist Republic of Albania
+          - Independent Albania
+          - Principality of Albania
+          - Albanian Republic
+          - Albanian Kingdom
         value: AL
       - match: Italian Libya
         value: LY
@@ -697,7 +717,9 @@ lookups:
           - Dutch Republic
           - Northern Netherlands
         value: NL
-      - match: Kingdom of Ireland
+      - match:
+          - Kingdom of Ireland
+          - Lordship of Ireland
         value: IE
       - match: Colony of New Zealand
         value: NZ
@@ -757,6 +779,8 @@ lookups:
         values:
           - GE
           - SU
+      - match: Second Hellenic Republic
+        value: GR
       - match:
           - Ukrainian People's Republic
           - Ukrainian Soviet Socialist Republic
@@ -837,6 +861,8 @@ lookups:
           - First Syrian Republic
           - State of Syria
         value: Syria
+      - match: Ba'athist Syria
+        value: SY
       - match: Gagauzia
         value: MD
       - match:
@@ -897,6 +923,7 @@ lookups:
           - Vijayanagara Empire
           - Kingdom of Travancore
           - Tripura
+          - Mallabhum
         value: India
       - match:
           - Kingdom of Nejd and Hejaz
@@ -923,6 +950,7 @@ lookups:
       - match:
           - Basque Country
           - Catalana
+          - Basque people
         value: ES
       - match: Muscat and Oman
         value: OM
@@ -943,6 +971,8 @@ lookups:
         value: null
       - match: "1949-02-29"
         value: 1949-02
+      - match: "1821-02-29"
+        value: 1821-02
       - match: "1930-02-30"
         value: 1930-02
       - match: "1935-06-31"
@@ -970,6 +1000,9 @@ lookups:
           - trans woman
           - intersex woman
           - cisgender woman
+          - transfeminine
+          - non-binary woman
+          - female organism
         value: female
       - match:
           - genderfluid
@@ -981,11 +1014,8 @@ lookups:
           - intersex
           - eunuch
           - muxe
+          - bigender
         value: other
-      - match:
-          - transgender
-          - agender
-        value: null
       - match:
           - MALE
           - trans man
@@ -995,5 +1025,8 @@ lookups:
           - intersex man
         value: male
       - match:
+          - transgender
+          - agender
+          - Curis
           - undisclosed gender
         value: null

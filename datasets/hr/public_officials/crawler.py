@@ -70,8 +70,8 @@ def make_affiliation_entities(
         no_end_implies_current=True,
         categorisation=categorisation,
         propagate_country=True,
-        start_date=h.extract_date(context.dataset, start_date).pop(),
-        end_date=h.extract_date(context.dataset, end_date).pop(),
+        start_date=start_date,
+        end_date=end_date,
     )
     entities = []
     if occupancy:

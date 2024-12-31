@@ -7,11 +7,10 @@ from zavod import helpers as h
 
 base_url = "https://www.politie.nl/"
 
-FORMATS = ("%d-%m-%Y",)
-
 FIELDS = {
     "name": "name",
     "alias": "alias",
+    "nicknames": "alias",
     "gender": "gender",
     "sex": "gender",
     "nationality": "nationality",
@@ -34,6 +33,7 @@ FIELDS = {
     "haircolor": "hairColor",
     "case": None,
     "police_region": None,
+    "speaks": None,
 }
 
 
@@ -63,8 +63,7 @@ def crawl_person(context: Context, list_item: _Element):
 
     for field, value in facts.items():
         if field == "date_of_birth":
-            date = h.parse_date(value.replace(" ", ""), FORMATS)
-            person.add("birthDate", date)
+            h.apply_date(person, "birthDate", value.replace(" ", ""))
             continue
 
         if field not in FIELDS:

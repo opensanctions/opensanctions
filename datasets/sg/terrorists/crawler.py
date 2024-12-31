@@ -45,12 +45,12 @@ def crawl(context: Context):
                         entity.add(prop, value)
                     continue
                 if match.endswith("citizen"):
-                    nat = match.replace("citizen", "")
-                    entity.add("nationality", nat)
+                    cit = match.replace("citizen", "")
+                    entity.add("citizenship", cit)
                     continue
                 if match.startswith(DOB):
                     dob = match.replace(DOB, "").strip()
-                    entity.add("birthDate", h.parse_date(dob, ["%d %B %Y"]))
+                    h.apply_date(entity, "birthDate", dob)
                     continue
                 if match.startswith(PASSPORT):
                     passport = match.replace(PASSPORT, "").strip()

@@ -4,9 +4,6 @@ from zavod import Context, helpers as h
 from rigour.mime.types import PDF
 
 
-from zavod.shed.gpt import run_image_prompt
-
-
 prompt = """
  Extract structured data from the following page of a PDF document. Return 
   a JSON list (`providers`) in which each object represents an medical provider.
@@ -17,14 +14,18 @@ prompt = """
 """
 
 
+def flat(multiline):
+    return multiline.replace("\n", " ")
+
+
 def crawl_item(row: Dict[str, str], context: Context):
     address = h.make_address(
         context,
-        street=row.pop("address_1"),
-        street2=row.pop("address_2"),
-        postal_code=row.pop("zip"),
-        city=row.pop("city"),
-        state=row.pop("state"),
+        street=flat(row.pop("address_1")),
+        street2=flat(row.pop("address_2")),
+        postal_code=row.pop("zip").replace("\n", ""),
+        city=flat(row.pop("city")),
+        state=flat(row.pop("state")),
         country_code="us",
     )
     npi = row.pop("npi")
@@ -34,22 +35,21 @@ def crawl_item(row: Dict[str, str], context: Context):
     if first_name:
         entity = context.make("Person")
         entity.id = context.make_id(first_name, first_name, npi)
-        h.apply_name(entity, first_name=first_name, last_name=last_name)
+        h.apply_name(entity, first_name=flat(first_name), last_name=flat(last_name))
     else:
         entity = context.make("Company")
         entity.id = context.make_id(last_name, npi)
-        entity.add("name", last_name)
+        entity.add("name", flat(last_name))
 
-    entity.add("npiCode", h.multi_split(npi, ","))
+    entity.add("npiCode", h.multi_split(npi, [",", "\n"]))
     entity.add("topics", "debarment")
     entity.add("country", "us")
     h.apply_address(context, entity, address)
-    h.copy_address(entity, address)
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("action_date"))
-    sanction.add("reason", row.pop("reason"))
-    sanction.add("provisions", row.pop("excluded_terminated"))
+    h.apply_date(sanction, "startDate", row.pop("action_date").replace("\n", ""))
+    sanction.add("reason", flat(row.pop("reason_for_exclusion_termination")))
+    sanction.add("provisions", flat(row.pop("excluded_terminated")))
 
     context.emit(entity, target=True)
     context.emit(sanction)
@@ -67,12 +67,18 @@ def crawl_pdf_url(context: Context):
     )
 
 
+def page_settings(page):
+    return page, {"text_x_tolerance": 1}
+
+
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", crawl_pdf_url(context))
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
-    for page_path in h.make_pdf_page_images(path):
-        data = run_image_prompt(context, prompt, page_path)
-        assert "providers" in data, data
-        for item in data.get("providers"):
-            crawl_item(item, context)
+    for item in h.parse_pdf_table(
+        context,
+        path,
+        headers_per_page=True,
+        page_settings=page_settings,
+    ):
+        crawl_item(item, context)

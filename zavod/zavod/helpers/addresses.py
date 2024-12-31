@@ -1,10 +1,10 @@
-from functools import cache, lru_cache
+import re
+from normality import slugify
+from functools import lru_cache
 from typing import Optional, Tuple
-from addressformatting import AddressFormatter
 from followthemoney.types import registry
 from followthemoney.util import join_text, make_entity_id
-from normality import slugify
-import re
+from rigour.addresses import format_address_line
 
 from zavod.entity import Entity
 from zavod.context import Context
@@ -14,12 +14,7 @@ from zavod.runtime.lookups import type_lookup
 REGEX_POBOX = re.compile(r"^p\.?o\.? ?box [\d-]+$", re.IGNORECASE)
 
 
-@cache
-def _get_formatter() -> AddressFormatter:
-    return AddressFormatter()
-
-
-@lru_cache(maxsize=5000)
+@lru_cache(maxsize=10000)
 def format_address(
     summary: Optional[str] = None,
     po_box: Optional[str] = None,
@@ -70,7 +65,7 @@ def format_address(
         "state_code": state_code,
         "country": country,
     }
-    return _get_formatter().one_line(data, country=country_code)
+    return format_address_line(data, country=country_code)
 
 
 def _make_id(
@@ -217,6 +212,7 @@ def apply_address(context: Context, entity: Entity, address: Optional[Entity]) -
     if address.has("full"):
         entity.add("addressEntity", address)
         context.emit(address)
+        entity.add("address", address.get("full"))
 
 
 def copy_address(entity: Entity, address: Optional[Entity]) -> None:

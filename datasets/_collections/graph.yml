@@ -2,7 +2,9 @@ type: collection
 title: OpenSanctions Full Graph
 hidden: true
 deploy:
+  cpu: "1000m"
   memory: "3000Mi"
+  memory_limit: "4000Mi"
   disk: "300Gi"
   premium: true
 coverage:

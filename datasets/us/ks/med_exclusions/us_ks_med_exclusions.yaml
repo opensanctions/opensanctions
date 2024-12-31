@@ -34,7 +34,7 @@ assertions:
       LegalEntity: 200 
 
 lookups:
-  type.name:
+  type.identifier:
     options:
       - match: 1760461909 (Nashville)
         value: 1760461909
@@ -48,3 +48,9 @@ lookups:
         value: null
       - match: 1386873693 (Mitten)
         value: 1386873693
+      - match: "N/A"
+        value: null
+  type.string: 
+    options: 
+      - match: "N/A"
+        value: null

@@ -20,7 +20,12 @@ def crawl(context: Context) -> None:
                 parent.id = context.make_id(parent_name)
                 parent.add("name", parent_name)
                 context.emit(parent)
-                entity.add("parent", parent)
+
+                own = context.make("Ownership")
+                own.id = context.make_id("ownership", name, parent_name)
+                own.add("owner", parent)
+                own.add("asset", entity)
+                context.emit(own)
             entity.add("topics", "debarment")
             sanction = helpers.make_sanction(context, entity)
             sanction.add(

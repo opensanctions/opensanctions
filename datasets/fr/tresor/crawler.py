@@ -8,6 +8,11 @@ from rigour.mime.types import JSON
 from zavod import Context, Entity
 from zavod import helpers as h
 
+HEADERS = {
+    "Accept": "application/json",
+    "User-Agent": "custom-agent",
+}
+
 SCHEMATA = {
     "Personne physique": "Person",
     "Personne morale": "Organization",
@@ -140,13 +145,16 @@ def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, v
 def crawl_entity(context: Context, data: Dict[str, Any]):
     # context.inspect(data)
     nature = data.pop("Nature")
+    reg_id = data.pop("IdRegistre")
+
+    entity_id = context.make_slug(reg_id)
     schema = SCHEMATA.get(nature)
+    schema = context.lookup_value("schema_override", entity_id, schema)
     if schema is None:
         context.log.error("Unknown entity type", nature=nature)
         return
     entity = context.make(schema)
-    reg_id = data.pop("IdRegistre")
-    entity.id = context.make_slug(reg_id)
+    entity.id = entity_id
     url = (
         f"https://gels-avoirs.dgtresor.gouv.fr/Gels/RegistreDetail?idRegistre={reg_id}"
     )
@@ -170,7 +178,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.json", context.data_url)
+    path = context.fetch_resource("source.json", context.data_url, headers=HEADERS)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         data = json.load(fh)

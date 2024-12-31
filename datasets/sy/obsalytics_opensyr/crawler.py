@@ -27,7 +27,7 @@ TYPES = {
     # TODO: command-control relationship
 }
 
-IGNORE = ["opensyr-node-1357"]
+IGNORE = ["opensyr-node-1357", "opensyr-node-74"]
 
 directorship_titles = [
     "عضو مجلس إدارة",
@@ -63,7 +63,7 @@ def parse_date(date: Optional[str]) -> Optional[str]:
     date = str(date)
     if date == "10000000":
         return None
-    return str(h.parse_formats(date, ["%Y%m%d", "%Y0000", "%Y"]))
+    return date
 
 
 def apply(
@@ -81,6 +81,8 @@ def apply(
         value: Any = props.pop(field, None)
         if date:
             value = parse_date(value)
+            if value is not None and splits is not None:
+                h.apply_date(entity, prop, value)
         if value is not None and splits is not None:
             splitted = h.multi_split(value, splits)
             value = [x.strip() for x in splitted if x]
@@ -244,7 +246,6 @@ def extract_relation(
     type_: str,
     props: Dict[str, str],
 ) -> None:
-
     if type_ in ["له_منصب"]:
         position_type = props.get("041_نوع_المنصب", None)
         position_title = props.get("042_اسم_المنصب", None)

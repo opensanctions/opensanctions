@@ -25,7 +25,10 @@ country: us
 data:
   url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
   format: html
+ci_test: false
 
+dates: 
+  formats: ["%m/%d/%Y"]
 assertions:
   min:
     schema_entities:
@@ -248,19 +251,19 @@ lookups:
           - name: Marange Diamond Fields
       - match: 'Fishing Vessel: Hangton No. 112'
         entities: 
-          - name: 'Fishing Vessel: Hangton No. 112'
+          - name: 'Hangton No. 112'
       - match: 'Fishing Vessels owned by Dalian Ocean Fishing Co. Ltd.'
         entities: 
           - name: Fishing Vessels owned by Dalian Ocean Fishing Co. Ltd.
       - match: 'Fishing Vessel: Lien Yi Hsing No. 12'
         entities: 
-          - name: 'Fishing Vessel: Lien Yi Hsing No. 12'
+          - name: 'Lien Yi Hsing No. 12'
       - match: 'Fishing Vessel: Da Wang'
         entities: 
-          - name: 'Fishing Vessel: Da Wang'
+          - name: 'Da Wang'
       - match: 'Fishing Vessel: Yu Long No. 2'
         entities: 
-          - name: 'Fishing Vessel: Yu Long No. 2'
+          - name: 'Yu Long No. 2'
       - match: 'Inner Mongolia Hengzheng Group Baoanzhao Agriculture, Industry, and Trade Co., Ltd.'
         entities: 
           - name: Inner Mongolia Hengzheng Group Baoanzhao Agriculture, Industry, and Trade Co., Ltd.
@@ -284,6 +287,9 @@ lookups:
         entities: 
           - name: State Penitentiary
             address: Ciudad Victoria, Tamaulipas, Mexico
-      - match: 'Fishing Vessel: Da Wang'
+      - match: 'Asli Maydi'
         entities: 
-          - name: 'Fishing Vessel: Da Wang'
+          - name: Asli Maydi
+      - match: Kingtom Aluminio S.R.L.
+        entities: 
+          - name: Kingtom Aluminio S.R.L.

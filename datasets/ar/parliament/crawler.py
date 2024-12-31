@@ -39,7 +39,7 @@ def crawl(context: Context):
         link = name_el.xpath(".//a/@href")
 
         name = str_row.pop("diputado")
-        if "diputado pendiente de incorporación" in name.lower():
+        if "pendiente de incorporación" in name.lower():
             continue
 
         # Create and emit the person entity
@@ -83,4 +83,4 @@ def crawl(context: Context):
         context.emit(person, target=True)
         context.emit(position)
         context.emit(occupancy)
-    context.audit_data(str_row, ignore=["mandato"])
+        context.audit_data(str_row, ignore=["mandato"])

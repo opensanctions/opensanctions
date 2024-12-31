@@ -39,3 +39,14 @@ lookups:
     options:
       - match: Termnation 9/19/2024
         value: 2024-09-19
+  type.identifier:
+    options:
+      - match: R38304 and L9540
+        prop: registrationNumber
+        values:
+          - R38304
+          - L9540
+      - match: L3826
+        prop: registrationNumber
+      - match: 164924109
+        value: 1649524109

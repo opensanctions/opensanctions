@@ -11,6 +11,7 @@ from zavod import helpers as h
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", ". "]
 REGEX_POSTCODE = re.compile(r"\d+")
 
+
 TYPES = {
     "Individual": "Person",
     "Entity": "LegalEntity",
@@ -83,7 +84,10 @@ def split_reg_no(text: str):
         "Business Identification Number", "; Business Identification Number"
     )
     text = text.replace("Tax Identification Number", "; Tax Identification Number")
-    return [s.strip() for s in h.multi_split(text, [";", "(1)", "(2)", "(3)"])]
+    return [
+        s.strip()
+        for s in h.multi_split(text, [";", "(1)", "(2)", "(3)", "(4)", "(5)", " / "])
+    ]
 
 
 def parse_row(context: Context, row: Dict[str, Any]):
@@ -91,6 +95,7 @@ def parse_row(context: Context, row: Dict[str, Any]):
     listing_date = row.pop("DateListed")
     designated_date = row.pop("DateDesignated", None)
     last_updated = row.pop("LastUpdated")
+    regime_name = row.pop("RegimeName")
 
     schema = TYPES.get(group_type)
     if schema is None:
@@ -98,12 +103,15 @@ def parse_row(context: Context, row: Dict[str, Any]):
         return
     entity = context.make(schema)
     entity.id = context.make_slug(row.pop("GroupID"))
-    sanction = h.make_sanction(context, entity)
-    sanction.add("program", row.pop("RegimeName"))
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program=regime_name,
+        program_key=regime_name,
+        start_date=designated_date,
+    )
     sanction.add("authority", row.pop("ListingType", None))
     h.apply_date(sanction, "listingDate", listing_date)
-    h.apply_date(sanction, "startDate", designated_date)
-
     h.apply_date(entity, "createdAt", listing_date)
     if not entity.has("createdAt"):
         h.apply_date(entity, "createdAt", designated_date)
@@ -124,7 +132,6 @@ def parse_row(context: Context, row: Dict[str, Any]):
 
     reg_number = row.pop("Entity_BusinessRegNumber", "")
     entity.add_cast("LegalEntity", "registrationNumber", split_reg_no(reg_number))
-
     row.pop("Ship_Length", None)
     entity.add_cast("Vessel", "flag", row.pop("Ship_Flag", None))
     flags = split_new(row.pop("Ship_PreviousFlags", None))
@@ -325,6 +332,5 @@ def crawl(context: Context):
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     el = h.remove_namespace(doc)
-
     for row_el in el.findall(".//FinancialSanctionsTarget"):
         parse_row(context, make_row(row_el))

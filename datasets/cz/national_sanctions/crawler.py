@@ -2,7 +2,6 @@ import csv
 import io
 import re
 from typing import Dict, Optional
-from urllib.parse import urljoin
 from rigour.mime.types import CSV
 from normality import slugify
 from rigour.names import pick_name
@@ -28,7 +27,16 @@ def crawl_item(row: Dict[str, str], context: Context):
         idx = name.index("Zápis byl zrušen")
         name = name[:idx].strip()
         cancel_text = name[idx:].strip()
-    names = name.split("/")
+
+    if re.search(r"\d/\d", name):
+        res = context.lookup("names_override", name)
+        if res is None:
+            context.log.warning(f"Name override not found for {name}")
+            names = [name]
+        else:
+            names = res.names
+    else:
+        names = name.split("/")
 
     # Datum narození fyzické osoby
     # -> Date of birth of the natural person
@@ -92,11 +100,12 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 def crawl_csv_url(context: Context):
     doc = context.fetch_html(context.data_url)
-    for a in doc.findall(".//div[@id='content']//a"):
-        href = a.get("href")
-        if href is not None and href.endswith(".csv"):
-            return urljoin(context.data_url, href)
-    raise ValueError("No XLSX file found")
+    # (etree.tostring(doc))
+    doc.make_links_absolute(context.data_url)
+    anchor = doc.xpath('//a[@title="Vnitrostátní sankční seznam"]')
+    if len(anchor) == 0:
+        raise Exception("No sanctions file link found")
+    return anchor[0].get("href")
 
 
 def crawl(context: Context) -> None:

@@ -25,6 +25,7 @@ url: https://fiu.gov.kg/sked/9
 data:
   url: https://fiu.gov.kg/sked/9?language=ru
   format: xml
+  lang: rus
 
 dates:  
   formats: ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]

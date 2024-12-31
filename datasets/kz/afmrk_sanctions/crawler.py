@@ -30,7 +30,7 @@ def make_entity(context: Context, el, schema, entity_id, topics, program):
     entity.add("topics", topics)
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("summary", el.findtext("./correction"))
+    sanction.add("summary", el.findtext("./correction"), lang="rus")
     sanction.add("program", program)
     listingDate = cast(str | None, el.findtext("./added_to_list"))
     note_date = added_date_from_note(el.findtext("./correction"))
@@ -64,9 +64,19 @@ def crawl_financiers(context: Context):
             context, el, "Person", entity_id, "sanction", CATEGORY1_PROGRAM
         )
         h.apply_name(entity, given_name=fname, middle_name=mname, last_name=lname)
-        entity.add("innCode", iin)
+        entity.add("idNumber", iin)
         h.apply_date(entity, "birthDate", bdate)
         context.emit(entity, target=True)
+
+        if iin:
+            ident = h.make_identification(
+                context,
+                entity,
+                number=iin,
+                doc_type="IIN",
+                country="kz",
+            )
+            context.emit(ident)
 
     for el in doc.findall(".//org"):
         name = el.findtext(".//org_name")
@@ -108,5 +118,5 @@ def crawl_terrorists(context: Context):
             CATEGORY2_PROGRAM,
         )
         entity.add("name", name)
-        entity.add("innCode", iin)
+        entity.add("idNumber", iin)
         context.emit(entity)

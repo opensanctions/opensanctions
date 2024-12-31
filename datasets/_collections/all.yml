@@ -4,9 +4,10 @@ hidden: true
 coverage:
   frequency: daily
 deploy:
+  cpu: "1000m"
+  cpu_limit: "1500m"
   memory: "1500Mi"
   memory_limit: "2500Mi"
-  cpu: "500m"
   disk: "20Gi"
   # premium: true
 summary: >

@@ -1,6 +1,6 @@
 from zavod.context import Context
 from zavod.store import get_store
-from zavod.dedupe import get_dataset_linker
+from zavod.integration import get_dataset_linker
 
 
 def harnessed_export(exporter_class, dataset, linker=None) -> None:

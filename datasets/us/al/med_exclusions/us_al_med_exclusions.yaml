@@ -1,0 +1,309 @@
+title: US Alabama Medicaid Suspended Providers
+entry_point: crawler.py
+prefix: us-medal
+coverage:
+  frequency: daily
+  start: "2024-11-28"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers excluded from Alabama's Medicaid program.
+description: |
+  This dataset contains information about individuals and entities that
+  have been excluded from Alabama's Medicaid Program. According to
+  their website:
+
+  > Excluded Individuals and Entities are not allowed to receive
+  > reimbursement for providing Medicare and Medicaid services in any
+  > capacity, even if they are not on this listing by the Alabama Medicaid Agency.
+  >
+  > Excluded individuals and entities are listed according to the type
+  > of provider they were at the time of exclusion; however, they are
+  > excluded from participating in providing services in the Medicaid
+  > program in all categories of service and in any capacity. The exclusion
+  > remains in effect until they are removed from this list.
+  >
+  > Any provider participating or applying to participate in the Medicaid
+  > program must search Medicaid's Exclusion List, the List of Excluded
+  > Individuals and Entities (LEIE), and the System for Award Management
+  > (SAM) website on a monthly basis to determine if any existing employee
+  > or contractor has been excluded from participation in the Medicaid program.
+  > Also, any provider participating or applying to participate in the Medicaid
+  > program must search all three lists prior to hiring staff to ensure that
+  > any potential employees or contractors have not been excluded from participating
+  > in the Medicaid program.
+publisher:
+  name: Alabama Medicaid
+  description: |
+    Alabama Medicaid is a state program that provides medical and health-related
+    services to eligible low-income individuals and families in Alabama.
+  url: https://medicaid.alabama.gov
+  official: true
+  country: "us"
+url: "https://medicaid.alabama.gov/content/8.0_Fraud/8.7_Suspended_Providers.aspx"
+data:
+  url: https://medicaid.alabama.gov/content/8.0_Fraud/8.7_Suspended_Providers.aspx
+  format: PDF
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%y", "%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 2000
+  max:
+    schema_entities:
+      LegalEntity: 2400
+
+lookups:
+  unclean_names:
+    options:
+      - contains:
+          - "("
+          - ";"
+      - regex:
+          - " and "
+          - " dba "
+  categories:
+    options:
+      match:
+        - PHYSICIANS
+        - PHYSICIAN ASSISTANTS
+        - DENTISTS/DENTAL PROVIDERS
+        - PHARMACISTS/PHARMACIES/PHARMACY PROVIDERS
+        - HOSPITALS
+        - TRANSPORTATION PROVIDERS
+        - DURABLE MEDICAL EQUIPMENT PROVIDERS
+        - NURSES
+        - NURSES AIDES/ORDERLIES
+        - MEDICAL CLINIC PROVIDERS
+        - PSYCHOLOGY PROVIDERS
+        - MENTAL HEALTH WORKERS/SOCIAL WORKERS
+        - CHIROPRACTORS
+        - PODIATRISTS
+        - RESPIRATORY/PULMONARY CARE PROVIDERS
+        - PHYSICAL THERAPY PROVIDERS
+        - OCCUPATIONAL THERAPY PROVIDERS
+        - AUDIOLOGY PROVIDERS
+        - OPTICAL CARE PROVIDERS
+        - LABORATORY PROVIDERS
+        - OTHER
+  override:
+    options:
+      - match: "Moise, Jean Getcher (aka Jairden Getcher Moise), Pharmacy Technician"
+        name: "Moise, Jean Getcher"
+        alias: "Jairden Getcher Moise"
+        sector: "Pharmacy Technician"
+      - match: "Northside Pharmacy dba Global Compounding Pharmacy (John Jeremy Adams, Owner & CEO)"
+        name: "Northside Pharmacy"
+        alias: "Global Compounding Pharmacy"
+        related_entities:
+          - schema: Ownership
+            name: John Jeremy Adams
+            from_prop: asset
+            to_prop: owner
+      - match: "R & O, Inc. dba F & F Drugs (Stanley F. Reeves, Owner & Pharmacist)"
+        name: "R & O, Inc."
+        alias: "F & F Drugs"
+        related_entities:
+          - schema: Ownership
+            name: Stanley F. Reeves
+            from_prop: asset
+            to_prop: owner
+            description: Owner & Pharmacist
+      - match: "Acord, Price Darrell (Owner, City Ambulance of Alabama)"
+        name: "Acord, Price Darrell"
+        related_entities:
+          - schema: Ownership
+            name: "City Ambulance of Alabama"
+            from_prop: owner
+            to_prop: asset
+      - match: "Acord, Ricky (Vice President, City Ambulance of Alabama"
+        name: "Acord, Ricky"
+        related_entities:
+          - schema: UnknownLink
+            name: "City Ambulance of Alabama"
+            from_prop: subject
+            to_prop: object
+            description: "Vice President"
+      - match: "Acord, Virginia G. (Owner, City Ambulance of Alabama)"
+        name: "Acord, Virginia G."
+        related_entities:
+          - schema: Ownership
+            name: "City Ambulance of Alabama"
+            from_prop: owner
+            to_prop: asset
+      - match: "Gabani, Yasir A. (Owner, G & A Transportation Services)"
+        name: "Gabani, Yasir A."
+        related_entities:
+          - schema: Ownership
+            name: "G & A Transportation Services"
+            from_prop: owner
+            to_prop: asset
+      - match: "Gieger, Jeffery W. (Owner/Operator, Gieger Transfer Services, Inc.)"
+        name: "Gieger, Jeffery W."
+        related_entities:
+          - schema: Ownership
+            name: "Gieger Transfer Services, Inc."
+            from_prop: owner
+            to_prop: asset
+            description: "Owner/Operator"
+      - match: "Gieger Transfer Services, Inc. dba Gieger Ambulance Service (Ambulance Company)"
+        name: "Gieger Transfer Services, Inc."
+        alias: "Gieger Ambulance Service"
+        sector: "Ambulance Company"
+      - match: "Advantage Medical Supply (John Michael Johnson, Joan Johnson, & Marcus Johnson, Owners)"
+        name: "Advantage Medical Supply"
+        related_entities:
+          - schema: Ownership
+            name: John Michael Johnson
+            from_prop: asset
+            to_prop: owner
+          - schema: Ownership
+            name: Joan Johnson
+            from_prop: asset
+            to_prop: owner
+          - schema: Ownership
+            name: Marcus Johnson
+            from_prop: asset
+            to_prop: owner
+      - match: "Home Medical Mart, Inc. (Craig & Terri Jackson, Owners)"
+        name: "Home Medical Mart, Inc."
+        related_entities:
+          - schema: Ownership
+            name: Craig Jackson
+            from_prop: asset
+            to_prop: owner
+          - schema: Ownership
+            name: Terri Jackson
+            from_prop: asset
+            to_prop: owner
+      - match: "Johnson, Joan (Officer Manager/Owner, Advantage Medical Supply)"
+        name: "Johnson, Joan"
+        related_entities:
+          - schema: Ownership
+            name: "Advantage Medical Supply"
+            from_prop: owner
+            to_prop: asset
+            description: "Officer Manager/Owner"
+      - match: "Johnson, John Michael (Owner, Advantage Medical Supply)"
+        name: "Johnson, John Michael"
+        related_entities:
+          - schema: Ownership
+            name: "Advantage Medical Supply"
+            from_prop: owner
+            to_prop: asset
+      - match: "Johnson, Marcus (Owner, Advantage Medical Supply)"
+        name: "Johnson, Marcus"
+        related_entities:
+          - schema: Ownership
+            name: "Advantage Medical Supply"
+            from_prop: owner
+            to_prop: asset
+      - match: "Med Care Rental of Alabama, Inc. (aka Home Durable Medical Equipment Medical Mart, Inc.) (Craig & Terri Jackson, Owners)"
+        name: "Med Care Rental of Alabama, Inc."
+        alias: "Home Durable Medical Equipment Medical Mart, Inc."
+        related_entities:
+          - schema: Ownership
+            name: Craig Jackson
+            from_prop: asset
+            to_prop: owner
+          - schema: Ownership
+            name: Terri Jackson
+            from_prop: asset
+            to_prop: owner
+      - match: "Med Care Rental of West Alabama, Inc. (Craig & Terri Jackson, Owners)"
+        name: "Med Care Rental of West Alabama, Inc."
+        related_entities:
+          - schema: Ownership
+            name: Craig Jackson
+            from_prop: asset
+            to_prop: owner
+          - schema: Ownership
+            name: Terri Jackson
+            from_prop: asset
+            to_prop: owner
+      - match: "Rutoskey, John Mitchell (DME Supplier)"
+        name: "Rutoskey, John Mitchell"
+        sector: "DME Supplier"
+      - match: "Care Complete Medical Clinic (CCMC), LLC (Patrick E. Ifediba, MD, Owner)"
+        name: "Care Complete Medical Clinic (CCMC), LLC"
+        related_entities:
+          - schema: Ownership
+            name: Patrick E. Ifediba
+            from_prop: asset
+            to_prop: owner
+      - match: "Christopher Gay Medical Services (Christopher Parker Gay, DO, owner)"
+        name: "Christopher Gay Medical Services"
+        related_entities:
+          - schema: Ownership
+            name: Christopher Parker Gay
+            from_prop: asset
+            to_prop: owner
+      - match: "Bradford-Porterfield, Yvonne (aka Ruby Carol Yvonne Bradford), Owner of Counseling Services/Counselor"
+        name: "Bradford-Porterfield, Yvonne"
+        alias: "Ruby Carol Yvonne Bradford"
+        related_entities:
+          - schema: Ownership
+            name: "Counseling Services"
+            from_prop: owner
+            to_prop: asset
+            description: "Owner/Counselor"
+      - match: "Lab Solutions, LLC (owner Minal Patel)"
+        name: "Lab Solutions, LLC"
+        related_entities:
+          - schema: Ownership
+            name: Minal Patel
+            from_prop: asset
+            to_prop: owner
+      - match: "Margulis Enterprises, Inc. dba Covenant Medical Supplies, Opelika, Alabama"
+        name: "Margulis Enterprises, Inc."
+        related_entities:
+          - schema: Ownership
+            name: "Covenant Medical Supplies"
+            from_prop: owner
+            to_prop: asset
+            description: "Opelika, Alabama"
+      - match: "Rymar Supply, Inc. dba Nations Diabetic Services"
+        name: "Rymar Supply, Inc."
+        alias: "Nations Diabetic Services"
+      - match: "Alt MD, PC dba Hoover Alt, MD (Owners Elizabeth Korcz, MD and Matthew Korcz, Office Manager)"
+        name: "Alt MD, PC"
+        alias: "Hoover Alt, MD"
+        related_entities:
+          - schema: Ownership
+            name: Elizabeth Korcz
+            from_prop: asset
+            to_prop: owner
+          - schema: Ownership
+            name: Matthew Korcz
+            from_prop: asset
+            to_prop: owner
+            description: "Office Manager"
+      - match: "Shoals Infectious Disease Consultants, LLC dba St. Vincent Infectious Disease and Internal Medicine Center (Jean Hilaire Vincent, MD, Owner)"
+        name: "Shoals Infectious Disease Consultants, LLC"
+        alias: "St. Vincent Infectious Disease and Internal Medicine Center"
+        related_entities:
+          - schema: Ownership
+            name: Jean Hilaire Vincent
+            from_prop: asset
+            to_prop: owner
+      - match: "Wash, Christopher C. dba Covenant Rehabilitation"
+        name: "Wash, Christopher C."
+        related_entities:
+          - schema: Ownership
+            name: "Covenant Rehabilitation"
+            from_prop: owner
+            to_prop: asset
+      - match: "Gervais, Isabell Kesari, Medical Doctor Imposter; Nurse Imposter; Doctor of Holistic Medicine Imposter; Doctor of Oriental Medicine Imposter; and Doctor of Naturopathic Medicine Imposter (aka Deborah Lynne Goodman, Debra Lynn Goodman, Debrah Lynne Smith, Debra Lynn Smith, Rose Marie Starr, Debrah Goodman-Starr, Debra Lynn Holland, and Isabell Kesari Scott"
+        name: "Gervais, Isabell Kesari"
+        alias:
+          - Deborah Lynne Goodman
+          - Debra Lynn Goodman
+          - Debrah Lynne Smith
+          - Debra Lynn Smith
+          - Rose Marie Starr
+          - Debrah Goodman-Starr
+          - Debra Lynn Holland
+          - Isabell Kesari Scott

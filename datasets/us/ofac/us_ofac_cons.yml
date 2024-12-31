@@ -62,3 +62,11 @@ lookups:
     options:
       - match: MALE
         value: male
+  type.identifier:
+    options:
+      # Re-map invalid ISINs to generic regNr:
+      - match:
+          - BRC1EODR004  # CNOOC LIMITED
+          - CND10002K094  # CHINA COMMUNICATIONS CONSTRUCTION COMPANY LIMITED
+          - CND10002G601  # CHINA COMMUNICATIONS CONSTRUCTION COMPANY LIMITED
+        prop: registrationNumber

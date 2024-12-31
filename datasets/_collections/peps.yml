@@ -63,6 +63,8 @@ children:
   - mx_senators
   - ng_chipper_peps
   - ng_join_dots
+  - nl_house_of_representatives
+  - sg_gov_dir
   - si_zvezoskop
   - th_cabinet
   - tr_parliament
@@ -70,6 +72,7 @@ children:
   - us_cia_world_leaders
   - us_congress
   - us_navy
+  - us_plum_book
   - us_plural_legislators
   - us_state_dept
   - un_ga_protocol

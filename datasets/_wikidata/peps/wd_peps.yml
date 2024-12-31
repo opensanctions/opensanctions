@@ -6,8 +6,8 @@ coverage:
   frequency: daily
   start: 2022-12-27
 deploy:
-  # schedule: "0 */6 * * *"
-  memory: "2Gi"
+  memory: "1500Mi"
+  memory_limit: "2500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - entities.ftm.json
@@ -65,9 +65,9 @@ assertions:
       Person: 170000
       Position: 10000
     country_entities:
-      us: 20000
-      cn: 8000
-      bn: 20
+      us: 18000
+      cn: 7000
+      bn: 10
     countries: 19
   max:
     schema_entities:
@@ -1947,4 +1947,24 @@ lookups:
       - match: "Q19716180"
         code: ""
         label: "Pays Catalan"
+        decision: "ignore"
+      - match: Q370862
+        code: ""
+        label: "Arab Maghreb Union"
+        decision: "ignore"
+      - match: "Q131300036"
+        code: ""
+        label: "Maghreb Economic Area"
+        decision: "ignore"
+      - match: "Q782"
+        code: "US"
+        label: "Hawaii"
+        decision: "subnational"
+      - match: "Q6744020"
+        code: ""
+        label: "Mallabhum"
+        decision: "ignore"
+      - match: "Q28406119"
+        code: ""
+        label: "Free Republic of the Congo"
         decision: "ignore"

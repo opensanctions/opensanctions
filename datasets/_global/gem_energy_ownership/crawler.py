@@ -1,4 +1,5 @@
 import openpyxl
+import re
 from typing import Dict, Set
 
 from zavod import Context
@@ -51,16 +52,28 @@ IGNORE = [
     "gspt_cancelled_ttpa",
     "total",
 ]
-SMALL_SHAREHOLDERS = "E100001015587"
-UNKNOWN = "E100000132388"
+SKIP_IDS = {
+    "E100001015587",  # Small shareholders
+    "E100000132388",  # Unknown
+    "E100000001753",  # Other
+    "E100000126067",  # Non-promoter shareholders
+    "E100000125842",  # Co-investment by natural persons
+    "E100000123261",  # natural persons
+}
 SELF_OWNED = {"E100000002239"}
+STATIC_URL = "https://data.opensanctions.org/contrib/globalenergy/Global_Energy_Ownership_Tracker_June_2024.xlsx"
+REGEX_URL_SPLIT = re.compile(r",\s*http")
+
+
+def split_urls(value: str):
+    return REGEX_URL_SPLIT.sub("\nhttp", value).split("\n")
 
 
 def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     id = row.pop("entity_id")
     name = row.pop("entity_name")
     # Skip entities
-    if name is None or id == SMALL_SHAREHOLDERS or id == UNKNOWN:
+    if name is None or id in SKIP_IDS:
         skipped.add(id)
         return
     original_name = row.pop("name_local")
@@ -90,20 +103,18 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         entity.add("description", entity_type)
     entity.add("country", reg_country)
     homepage = row.pop("home_page")
-    if homepage and ",http" in homepage:
-        homepage = homepage.split(",")
-    entity.add("website", homepage)
+    if homepage:
+        entity.add("website", split_urls(homepage))
     if schema != "Person":
         entity.add("permId", row.pop("refinitiv_permid"))
         if schema != "PublicBody":
             entity.add("cikCode", row.pop("sec_central_index_key"))
-    address = h.make_address(
-        context,
+    address = h.format_address(
         country=reg_country,
         state=row.pop("registration_subdivision"),
         city=row.pop("headquarters_subdivision"),
     )
-    h.copy_address(entity, address)
+    entity.add("address", address)
 
     context.emit(entity)
     context.audit_data(
@@ -134,7 +145,9 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     ownership.add("owner", context.make_slug(interested_party_id))
     percentage = row.pop("share_of_ownership")
     ownership.add("percentage", "%.2f" % float(percentage) if percentage else None)
-    ownership.add("sourceUrl", row.pop("data_source_url"))
+    source_urls = row.pop("data_source_url")
+    if source_urls is not None:
+        ownership.add("sourceUrl", split_urls(source_urls))
 
     context.audit_data(
         row, ignore=["subject_entity_name", "interested_party_name", "index"]
@@ -143,7 +156,7 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.xlsx", context.data_url)
+    path = context.fetch_resource("source.xlsx", STATIC_URL)
     # context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)

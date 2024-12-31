@@ -22,7 +22,7 @@ def parse_html(doc: ElementOrTree):
             continue
         country_str = country_match.group(1).strip()
 
-        aliases_el = nro_element.find(".//ul")
+        aliases_el = nro_element.find(".//p")
         if aliases_el is None:
             aliases_str = ""
         else:

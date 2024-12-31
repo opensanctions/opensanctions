@@ -1,0 +1,68 @@
+title: United States Periodically Listing Updates to Management (PLUM) Reporting
+entry_point: crawler.py
+prefix: usplum
+coverage:
+  frequency: daily
+  start: 2024-11-11
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  The PLUM Reporting lists federal positions filled by political appointees, Schedule C
+  employees, and other executives.
+description: |
+  This dataset lists the incumbents in the Periodically Listing Updates to Management (PLUM)
+  Reporting data by the U.S. Office of Personnel Management (OPM).
+
+  This covers positions submitted to the Plum Book published by the Senate Committee on
+  Homeland Security and Governmental Affairs and House Committee on Government Reform
+  alternately after each Presidential election, but is updated more frequently with
+  current incumbents.
+
+  > [The Plum Book] covers positions such as agency heads and their immediate subordinates, policy
+  > executives and advisors, and aides who report to these officials. The duties of many
+  > such positions may involve advocacy of Administration policies and programs and the
+  > incumbents usually have a close and confidential working relationship with the agency
+  > or other key officials.
+  >
+  > The major categories of positions listed in United States Government Policy and Supporting
+  > Positions include:
+  >
+  > * **Executive Schedule** and salary-equivalent positions paid at the rates established for
+  > levels I through V of the Executive Schedule;
+  > * **Senior Executive Service** "General" positions and **Senior Foreign Service** positions;
+  > * **Schedule C** positions excepted from the competitive service by the President, or by the
+  > Director, Office of Personnel Management, and other positions at the GS-14 and above level
+  > excepted from the competitive civil service by law, because of the confidential or
+  > policy-determining nature of the position duties.
+
+  [Source: GovInfo](https://www.govinfo.gov/collection/plum-book?path=/GPO/United%20States%20Government%20Policy%20and%20Supporting%20Positions%20%2528Plum%20Book%2529)
+publisher:
+  name: U.S. Office of Personnel Management
+  acronym: OPM
+  description: >
+    The U.S. Office of Personnel Management (OPM) serves as the chief human resources agency
+    and personnel policy manager for the Federal Government.
+    [Source: Official Website](https://www.opm.gov/about-us/)
+  country: us
+  url: https://www.opm.gov/
+  official: true
+url: https://www.opm.gov/about-us/open-government/plum-reporting/plum-data/
+data:
+  url: https://escs.opm.gov/escs-net/api/pbpub/download-data
+  format: CSV
+  lang: eng
+
+dates:
+  formats: ["%m/%d/%Y 00:00:00"]
+assertions:
+  min:
+    schema_entities:
+      Person: 6700
+  max:
+    schema_entities:
+      Person: 9000
+
+lookups:
+  type.date:
+    options:
+      - match: 0001-01-01
+        value: null

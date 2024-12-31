@@ -1,6 +1,6 @@
 type: external
 title: State Register of legal entities in the Republic of Moldova
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: md_companies
 disabled: false
 hidden: false
@@ -11,8 +11,8 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "800Mi"
-  memory_limit: "1500Mi"
+  memory: "3500Mi"
+  memory_limit: "4000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Companies in Moldova, with information on their founders, beneficial
@@ -43,10 +43,12 @@ inputs:
   - ext_ua_edr
   - opencorporates
   - sanctions
+  - special_interest
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
   dataset: md_companies
+  index_options:
+    memory_budget: 2000
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1
@@ -62,5 +64,5 @@ config:
   schemata:
     - Company
     - Organization
-    # - LegalEntity
-    # - Person
+    - LegalEntity
+    - Person

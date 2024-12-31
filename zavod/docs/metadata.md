@@ -4,6 +4,8 @@ Excellent dataset metadata is a relatively low-effort way to demonstrate the tra
 
 Remember to give the context that people from different countries need to make sense of systems they are not entirely familiar with. Share what you learned when figuring out what a source dataset represents.
 
+Use the `.yml` extension.
+
 ## Properties:
 
 ### Basics

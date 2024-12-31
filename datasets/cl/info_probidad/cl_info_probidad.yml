@@ -40,10 +40,22 @@ publisher:
   country: "cl"
 url: https://www.infoprobidad.cl/DatosAbiertos/Catalogos
 data:
-  url: https://datos.cplt.cl/catalogos/infoprobidad/csvdeclaraciones
-  format: csv
-
+  url: https://www.infoprobidad.cl/Home/Listado
+  format: JSON
 ci_test: false
+
+dates:
+  formats: ["%Y/%m/%d"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 5800
+      Position: 600
+  max:
+    schema_entities:
+      Person: 7000
+      Position: 1100
 
 lookups:
   positions:
@@ -134,7 +146,7 @@ lookups:
         match:
           - JEFE RELACIONES PUBLICAS
 
-      - is_pep: null # haven't looked closely yet
+      - is_pep: null  # haven't looked closely yet
         match:
           - "ABOGADA"
           - "ABOGADO"
@@ -356,10 +368,12 @@ lookups:
           - "JEFA DE GABINETE DEL MINISTRO DE RELACIONES EXTERIORES"
           - "JEFATURA"
           - "JEFATURA DE DEPARTAMENTO"
+          - "JEFATURA DIVISIÓN DE ADMINISTRACIÓN Y SECRETARÍA GENERAL"
           - "JEFATURA DE PROYECTOS"
           - "JEFATURA DE UNIDAD"
           - "JEFATURA SEGUNDO NIVEL JERÁRQUICO"
           - "JEFE"
+          - "JEFE CENTRO DE COMPUTACION"
           - "JEFE  DE SECTOR"
           - "JEFE DE AREA"
           - "JEFE DE BODEGA"
@@ -572,4 +586,4 @@ lookups:
           - "TECNOLOGO MEDICO "
           - "TENIENTE CORONEL"
           - "TERCER NIVEL JERARQUICO"
-          - "NINGUNO" # None
+          - "NINGUNO"  # None

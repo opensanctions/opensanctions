@@ -1,0 +1,72 @@
+title: US South Carolina Excluded Providers
+entry_point: crawler.py
+prefix: us-medsc
+coverage:
+  frequency: daily
+  start: "2024-11-07"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers excluded from South Carolina's Medicaid program.
+description: |
+  According to their [website](https://www.scdhhs.gov/fraud):
+
+  > The Bureau of Internal Audit and Program Integrity compiles a list of 
+  > individuals and entities that have been excluded by the federal government
+  > and/or the State of South Carolina. Anyone appearing on the following lists 
+  > should not submit claims for Medicaid reimbursement and should not be affiliated
+  > with any organization or facility that participates in the Medicaid program.
+  > In addition, providers cannot bill for any medicines, medical supplies or
+  > medical equipment that is prescribed or authorized by an excluded provider 
+  > on behalf of a Medicaid beneficiary.
+
+  This dataset specifically only includes providers excluded by the State of South Carolina.
+publisher:
+  name: South Carolina Department of Health and Human Services
+  description: |
+    > The Department of Health and Human Services is the administrator of Healthy Connections,
+    > South Carolina's Medicaid Program. Medicaid provides health coverage for eligible
+    > residents of South Carolina, including:
+    > - Children
+    > - Parent and Caretaker Relatives
+    > - Pregnant Women
+    > - People Over the Age of 65
+    > - People with Disabilities
+    > - Children with Developmental Delays
+    > - Breast and Cervical Cancer Patients
+  acronym: SCDHHS
+  url: https://www.scdhhs.gov
+  official: true
+  country: "us"
+url: https://www.scdhhs.gov/fraud
+data:
+  url: https://www.scdhhs.gov/fraud
+  format: XLSX
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%y"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 900
+  max:
+    schema_entities:
+      LegalEntity: 1100
+lookups: 
+  type.identifier: 
+    options: 
+      - match: 1437418566
+        value: 1467418566
+      - match: 181989221
+        value: 1811989221
+      - match: 
+          - NP3981
+          - 1362345588
+        prop: idNumber
+      - match:
+          - "No"
+          - Found
+          - Not
+          - found
+        value: null

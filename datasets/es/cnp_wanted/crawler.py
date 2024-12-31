@@ -52,14 +52,9 @@ def parse_link_element(
 
     # Extract names from the card element inside the container
     card = link_element.xpath(".//div[contains(@class, 'card-body')]")[0]
-    first_name_element = card.xpath(
-        ".//h5[@class='card-title text-center']/div[1]/text()"
-    )
-    last_name_element = card.xpath(
-        ".//h5[@class='card-title text-center']/div[2]/text()"
-    )
-    first_name = first_name_element[0].strip()
-    last_name = last_name_element[0].strip()
+    name_elements = card.xpath(".//h5[@class='card-title text-center']/text()")
+    cleaned_names = [name.strip() for name in name_elements]
+    first_name, last_name = cleaned_names
 
     # Adjusted XPath to ignore multiple spaces in the class attribute
     description_element = card.xpath(".//p[contains(@class, 'text-center')]/text()")
@@ -73,14 +68,11 @@ def parse_link_element(
     }
 
 
-def unblock_validator(doc: html.HtmlElement) -> bool:
-    return len(doc.xpath(".//div[contains(@class, 'card-body')]")) > 0
-
-
 def crawl(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator, cache_days=3)
+    link_xpath = ".//a[starts-with(@href, 'colabora_masbucados_detalle')]"
+    doc = fetch_html(context, context.data_url, link_xpath, cache_days=1)
     # Find all <a> elements with the specified pattern
-    link_elements = doc.xpath(".//a[starts-with(@href, 'colabora_masbucados_detalle')]")
+    link_elements = doc.xpath(link_xpath)
     if not link_elements:
         context.log.warn("No link elements found in the document.")
         return

@@ -31,7 +31,7 @@ from zavod.runtime.versions import make_version
 from zavod.runtime.http_ import fetch_file, make_session, request_hash
 from zavod.runtime.http_ import _Auth, _Headers, _Body
 from zavod.logs import get_logger
-from zavod.util import join_slug
+from zavod.util import join_slug, prefixed_hash_id
 
 
 class Context:
@@ -454,7 +454,8 @@ class Context:
         hashed = make_entity_id(*parts, key_prefix=hash_prefix)
         if hashed is None:
             return None
-        return self.make_slug(hashed, prefix=prefix, strict=True)
+        prefix = self.dataset.prefix if prefix is None else prefix
+        return prefixed_hash_id(prefix, hashed)
 
     def lookup_value(
         self, lookup: str, value: Optional[str], default: Optional[str] = None
@@ -546,7 +547,11 @@ class Context:
                 targets=self.stats.targets,
                 statements=self.stats.statements,
             )
+        stamps = {} if self.dry_run else self.timestamps.get(entity.id)
         for stmt in entity.statements:
+            if stmt.id is None:
+                self.log.warn("Statement has no ID", stmt=stmt.to_dict())
+                continue
             if stmt.lang is None:
                 stmt.lang = self.lang
             stmt.dataset = self.dataset.name
@@ -554,12 +559,11 @@ class Context:
             stmt.external = external
             stmt.target = target
             stmt.schema = entity.schema.name
-            stmt.first_seen = self.data_time_iso
+            stmt.first_seen = stamps.get(stmt.id, self.data_time_iso)
+            if stmt.first_seen != self.data_time_iso:
+                self.stats.changed += 1
             stmt.last_seen = self.data_time_iso
             if not self.dry_run:
-                stmt.first_seen = self.timestamps.get(stmt.id, self.data_time_iso)
-                if stmt.first_seen != self.data_time_iso:
-                    self.stats.changed += 1
                 self.sink.emit(stmt)
             self.stats.statements += 1
 

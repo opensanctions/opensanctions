@@ -3,7 +3,7 @@ from click.testing import CliRunner
 
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.cli import cli
 from zavod.archive import dataset_state_path
 from zavod.tests.conftest import DATASET_1_YML, DATASET_3_YML

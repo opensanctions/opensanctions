@@ -41,13 +41,13 @@ def is_500_page(doc: etree._Element) -> bool:
     )
 
 
-def detail_unblock_validator(doc: etree._Element) -> bool:
-    return bool(doc.xpath('.//div[@class="c-full-node__info"]')) or is_500_page(doc)
-
-
 def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
     context.log.debug(f"Starting to crawl company page: {url}")
-    doc = fetch_html(context, url, detail_unblock_validator, cache_days=3)
+    validator_xpath = (
+        './/div[@class="c-full-node__info"] | '
+        './/*[contains(text(), "The website encountered an unexpected error.")]'
+    )
+    doc = fetch_html(context, url, validator_xpath, cache_days=3)
     if is_500_page(doc):
         context.log.info(f"Broken link detected: {url}")
         return
@@ -122,10 +122,6 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
     )
 
 
-def index_unblock_validator(doc: etree._Element) -> bool:
-    return doc.find(".//div[@class='o-grid']") is not None
-
-
 def crawl(context: Context):
     pages_processed = 0
 
@@ -135,7 +131,7 @@ def crawl(context: Context):
         context.log.info(f"Fetching URL: {url}")
 
         # Fetch the HTML and get the table
-        doc = fetch_html(context, url, index_unblock_validator, cache_days=3)
+        doc = fetch_html(context, url, ".//div[@class='o-grid']", cache_days=3)
         doc.make_links_absolute(url)
         table = doc.find(".//div[@class='view-content']//table")
         if table is None:
@@ -145,6 +141,11 @@ def crawl(context: Context):
         # Iterate through the parsed table
         for row in h.parse_html_table(table, skiprows=1):
             str_row = h.cells_to_str(row)
+
+            withdrawn_elem = row.pop("withdrawn")
+            is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
+            if is_withdrawn is True:
+                continue
 
             company_elem = row.pop("company_sort_descending")
             company_link = company_elem.find(".//a").get("href", "").strip()
@@ -159,16 +160,8 @@ def crawl(context: Context):
             entity.add("country", str_row.pop("nationality"))
             entity.add("sourceUrl", company_link)
             entity.add("ticker", str_row.pop("stock_symbol"))
-
-            withdrawn_elem = row.pop("withdrawn")
-            is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
-            if is_withdrawn is True:
-                target = False
-            else:
-                entity.add("topics", "export.risk")
-                target = True
-
-            context.emit(entity, target=target)
+            entity.add("topics", "export.risk")
+            context.emit(entity, target=True)
             context.audit_data(str_row)
 
         pages_processed += 1

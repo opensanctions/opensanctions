@@ -1,0 +1,98 @@
+title: US Kentucky Terminated and Excluded Providers
+entry_point: crawler.py
+prefix: us-medky
+coverage:
+  frequency: daily
+  start: "2024-11-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers terminated or excluded from Kentucky's Medicaid program.
+description: |
+  This dataset contains individuals and companies that have been terminated
+  from Kentucky's Medicaid Program. The following text from their website explains the 
+  conditions and implications of such terminations or exclusions,
+  including the restrictions on reimbursement, re-enrollment criteria,
+  and responsibilities for Medicaid providers in screening employees and
+  contractors:
+
+   > An individual or entity terminated or excluded from participating in
+   > the Kentucky Medicaid program will not be reimbursed for services
+   > provided in any capacity or in any category under the Kentucky Medicaid
+   > program. 
+   >
+   > The termination or exclusion remains in effect until the
+   > provider is removed from this list. Where applicable and when determined,
+   > an end date is provided. It is the provider's responsibility to notify
+   > Kentucky Medicaid if the circumstances change which led to the termination
+   > and/or exclusion. A provider terminated by the Department for Medicaid
+   > Services who meets the requirements of 907 KAR 1:671 and 907 KAR 1:672
+   > may apply for re-enrollment in the Kentucky Medicaid program.
+   >
+   > Any provider
+   > participating or applying to participate in the Kentucky Medicaid program
+   > must search the list of excluded individuals and entities and the System
+   > for Award Management on a monthly basis to determine if any existing
+   > employee or contractor has been terminated or excluded from participation
+   > in the Kentucky Medicaid program or has been nationally excluded from
+   > Medicare or Medicaid. Also, any provider participating or applying to
+   > participate in the Kentucky Medicaid program must search all lists prior
+   > to hiring staff to ensure that any potential employee or contractor has
+   > not been terminated and/or excluded from participating in the Medicare
+   > or Medicaid program.
+   >
+   > Please note that the Kentucky Medicaid Program only
+   > lists providers terminated or excluded from the Kentucky Medicaid program.
+   > HHS/OIG-excluded individuals and entities are not allowed to receive
+   > reimbursement for providing Kentucky Medicaid services in any capacity,
+   > even if they are not on the Kentucky Medicaid list.
+publisher:
+  name: Kentucky Department for Medicaid Services
+  description: |
+    > Kentucky Medicaid is a state and federal program authorized by Title XIX
+    > of the Social Security Act to provide health care for eligible, low-income
+    > populations. These populations include children, low-income families, pregnant
+    > women, the aged and the disabled.
+  acronym: DMS
+  url: https://www.chfs.ky.gov/agencies/dms/Pages/default.aspx
+  official: true
+  country: "us"
+url: https://www.chfs.ky.gov/agencies/dms/dpi/pe/Pages/terminated.aspx
+data:
+  url: https://www.chfs.ky.gov/agencies/dms/dpi/pe/Documents/KYMedicaidTerminationList.xlsx
+  format: XLSX
+ci_test: false
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 200
+      Company: 80
+  max:
+    schema_entities:
+      Person: 300
+      Company: 150
+
+lookups:
+  period:
+    options:
+      - match:
+          - N/A
+          - NA
+          - "Entity: N/A      Owners: 20 years"
+          - null
+  type.identifier: 
+    options:
+      - match: "1104213446\n1174644850"
+        values: 
+          - 1104213446
+          - 1174644850
+      - match: 129733376
+        value: 1295733376
+      - match: 15689024277
+        value: 1568902427
+      - match: 114891820
+        value: 1194891820
+      - match: 7100353240
+        prop: registrationNumber

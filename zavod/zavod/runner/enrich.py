@@ -6,7 +6,7 @@ from nomenklatura.enrich import Enricher, EnrichmentException, make_enricher
 from zavod.meta import Dataset, get_multi_dataset
 from zavod.entity import Entity
 from zavod.context import Context
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.store import get_store
 
 

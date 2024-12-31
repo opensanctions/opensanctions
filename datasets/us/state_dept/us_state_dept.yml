@@ -22,6 +22,7 @@ description: |
 url: https://www.state.gov/biographies-list/
 publisher:
   name: US State Department
+  acronym: State
   description: |
     The U.S. State Department's stated mission is to protect and promote U.S. 
     security, prosperity, and democratic values and shape an international
@@ -34,5 +35,15 @@ data:
   format: HTML
   lang: eng
 
-dates: 
+dates:
   formats: ["%B %d, %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 280
+      Position: 100
+  max:
+    schema_entities:
+      Person: 400
+      Position: 400

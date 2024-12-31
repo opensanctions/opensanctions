@@ -46,6 +46,11 @@ lookups:
           - Sterling Watters Group LP
           - Sterling Watters Capital Advisors LLC
           - Sterling Watters Capital Management Inc
+      - match: sterling watters group lp; sterling watters capital advisors llc; and sterling watters capital management inc.
+        names:
+          - Sterling Watters Group LP
+          - Sterling Watters Capital Advisors LLC
+          - Sterling Watters Capital Management Inc
       - match: haligiannis, angelo
         names:
           - Angelo Haligiannis
@@ -1023,3 +1028,7 @@ lookups:
       - match: moravec, matthew
         names:
           - Matthew Moravec
+      - match: summit planning group inc and richard urciuoli
+        names:
+          - Summit Planning Group Inc
+          - Richard Urciuoli

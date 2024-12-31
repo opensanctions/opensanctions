@@ -34,8 +34,8 @@ data:
   format: JSON
   lang: eng
 
-dates: 
-  formats: ["%d %B %Y", "%B %Y"]
+dates:
+  formats: ["%d %B %Y", "%B %Y", "%d %b %Y"]
 lookups:
   unparsed_holders:
     options:
@@ -72,6 +72,17 @@ lookups:
           - role: Deputy Prime Minister
             name: MAKTUM bin Muhammad bin Rashid Al-Maktum
             start_date: 25 September 2021
+      # France
+      - match: "Michel BARNIER is the caretaker Prime Minister after resigning following a no-confidence vote on 4 December 2024 (since 5 September 2024)"
+        holders:
+          - role: Caretaker Prime Minister
+            name: Michel BARNIER
+            start_date: 5 September 2024
+      - match: 'François BAYROU (since 13 December 2024)'
+        holders:
+          - role: Head of government
+            name: François BAYROU
+            start_date: 13 December 2024
       # Poland
       - match: "Deputy Prime Ministers Wladyslaw KOSINIAK-KAMYSZ, Krzysztof GAWKOWSKI (both since 11 December 2023)"
         holders:
@@ -259,6 +270,16 @@ lookups:
           - role: deputy prime minister
             name: Upendra YADAV
             start_date: 10 March 2024
+      # Niue
+      - match: "Prime Minister Dalton TAGELAGI"
+        holders:
+          - role: Prime Minister
+            name: Dalton TAGELAGI
+      - match: "also referred to as premier (since 10 June 2020)"
+        holders:
+          - role: Premier
+            name: Dalton TAGELAGI
+            start_date: 10 June 2020
       # Mali
       - match: "Transition Prime Minister Choguel MAIGA (appointed by Transition President Assimi GOITA on 7 June 2021)"
         holders:
@@ -540,6 +561,17 @@ lookups:
               - SONEXAY Siphandon
               - SONXAI Siphandon
             start_date: 30 December 2022
+      # Bosnia
+      - match: Chairperson of the Presidency Zeljka CVIJANOVIC (chairperson since 16 November 2024
+        holders:
+          - role: Chairperson of the Presidency
+            name: Zeljka CVIJANOVIC
+            start_date: 16 November 2024
+      - match: Denis BECIROVIC (presidency member since 16 November 2022 - Bosniak seat)
+        holders:
+          - role: Presidency member
+            name: Denis BECIROVIC
+            start_date: 16 November 2022
       # Congo, Democratic republic of the
       - match: Deputy Prime Ministers Christophe LUTUNDULA (since 12 April 2021),Vital KAMERHE (since 23 March 2023), Peter KAZADI (23 March 2023), Jean-Pierre BEMBA (since 23 March 2023), Jean-Pierre LIHAU (since 12 April 2021)
         holders:
@@ -709,7 +741,23 @@ lookups:
             name:
               - WACHIRALONGKON
               - Vajiralongkorn
-                
+      # Tonga
+      - match: "Acting Prime Minister Samiu VAIPULU (since 9 December 2024"
+        holders:
+          - role: Acting Prime Minister
+            name: Samiu VAIPULU
+            start_date: 9 December 2024
+      # Libya
+      - match: President, Presidential Council, Mohammed al-MANFI (since 5 February 2021)
+        holders:
+          - role: President, Presidential Council
+            name: Mohammed al-MANFI
+            start_date: 5 February 2021
+      - match: GNU Interim Prime Minister Abd-al-Hamid DUBAYBAH (since 5 February 2021)
+        holders:
+          - role: Interim Prime Minister
+            name: Abd-al-Hamid DUBAYBAH
+            start_date: 5 February 2021
 
       # Not additional heads, just notes
       - regex:
@@ -783,6 +831,8 @@ lookups:
           # South Africa
           - Deputy President David MABUZA resigned 1 March 2023
           - "Prime Minister \\(in transition\\)"
+          # South Korea
+          - "South Korea's Constitutional Court has 180 days to rule on YOON's removal"
           # Chad
           - the transition was extended for 24 months and the TMC was dissolved in October 2022, postponing elections until 31 October 2024
           # Hungary
@@ -806,6 +856,9 @@ lookups:
           - President Kais SAIED dismissed Prime Minister Ahmed HACHANI the same day he appointed Kamel MADDOURI
           # Thailand
           - also spelled Vajiralongkorn (since 1 December 2016)
+          # Syria
+          - former President Bashar al-ASAD was overthrown by Islamist rebels on 8 December 2024
+          - ASAD and his family flew to Moscow where they were granted political asylum
         holders: []
 
   type.country:

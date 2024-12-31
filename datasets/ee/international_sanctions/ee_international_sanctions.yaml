@@ -33,4 +33,10 @@ assertions:
       Person: 300
   max:
     schema_entities:
-      Person: 350
+      Person: 400
+
+lookups:
+  type.name:
+    options:
+      - match: ka ШАБУНЯ Виктория Валерьевна
+        value: ШАБУНЯ Виктория Валерьевна

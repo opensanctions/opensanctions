@@ -1,0 +1,49 @@
+title: "Azerbaijani Laundromat"
+entry_point: crawler.py
+prefix: az-danske
+coverage:
+  frequency: never
+  start: 2024-12-12
+deploy:
+  schedule: "@monthly"
+summary: >
+  Transactional data from Danske Bank regarding Azerbaijani money laundering and 
+  influence in European politics
+description: |
+  This dataset is published on the OCCRP website as part of the Azerbaijani Laundromat
+  investigation. It contains a list of transactions from Danske Bank, which were used
+  to launder money from Azerbaijan and influence European politics. The data was
+  obtained by OCCRP and its partners in 2017 and 2018.
+url: https://www.occrp.org/en/project/the-azerbaijani-laundromat
+publisher:
+  name: "Organized Crime and Corruption Reporting Project"
+  acronym: OCCRP
+  description: |
+    OCCRP is one of the largest investigative journalism organizations in the world,
+    headquartered in Amsterdam and with staff across six continents.
+  country: us
+  url: http://www.occrp.org/
+  official: false
+data:
+  url: "https://cdn.occrp.org/projects/azerbaijanilaundromat/interactive/dkdata.json"
+  format: JSON
+  lang: eng
+
+lookups:
+  type.country:
+    options:
+      - regex: \d\d
+        match:
+          - UNKNOWN
+          - OS
+          - G8
+          - /M
+          - TX
+          - .D
+          - .R
+          - .K
+          - .A
+          - T1
+          - JH
+          - R0
+        value: null

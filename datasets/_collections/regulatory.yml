@@ -39,7 +39,6 @@ children:
   - us_fcc_covered_list
   - us_fed_enforcements
   - us_finra_actions
-  - us_hhs_exclusions
   - us_occ_enfact
   - us_sam_exclusions
   - us_sec_harmed_investors

@@ -22,7 +22,7 @@ def crawl_item(row: Dict[str, str], context: Context):
             last_name=row.pop("last_name_organization"),
         )
 
-    entity.add("npiCode", row.pop("npi"))
+    entity.add("npiCode", h.multi_split(row.pop("npi"), ","))
     entity.add("sector", row.pop("type_of_entity_profession"))
     entity.add("topics", "debarment")
     entity.add("country", "us")

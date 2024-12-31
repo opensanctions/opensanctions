@@ -74,12 +74,10 @@ lookups:
           - 523931831
       - match: 79090613232)
         value: 79090613232
-  type.country:
+  type.name: 
     options:
-      match: Mołdawii i Izraela
-      values:
-        - MD
-        - IL
+      - match: "GO SPORT POLSKA Sp. z o.o. w upadłości"
+        value: GO SPORT POLSKA Sp. z o.o.
   details:
     normalize: true
     lowercase: true
@@ -103,9 +101,6 @@ lookups:
       - match: we Lwowie
         props:
           birthPlace: Lviv
-      - match: 13.05.2022 r.
-        props:
-          modifiedAt: 2022-05-13
       - match: w Moskwie
         props:
           birthPlace: Moscow
@@ -115,7 +110,7 @@ lookups:
       - match: "w Wilnie (Litwa) obywatel rosyjski nr"
         props:
           birthPlace: Vilnius
-          nationality: RU
+          citizenship: RU
       - match: Plac Dąbrowskiego 1, 00-057 Warszawa,
         props:
           address: Plac Dąbrowskiego 1, 00-057 Warszawa
@@ -125,15 +120,12 @@ lookups:
           registrationNumber: 147421934
       - match: "obywatel Mołdawii i Izraela"
         props:
-          nationality: ["MD", "IL"]
+          citizenship: ["MD", "IL"]
       - match: "adres: Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan, nr identyfikacyjny BIN: 220540011771"
         props:
           address: "Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan"
           idNumber: "220540011771"
           registrationNumber: "220540011771"
-      - match: '(PESEL: 79090613232)'
-        props:
-          idNumber: "79090613232"
       - match: 'adres: Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan (w języku rosyjskim: проезд Ярослава Гашека, 1 Петропавловск, Казахстан) nr identyfikacyjny BIN: 191040021834'
         props:
           address: "Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan"
@@ -159,3 +151,25 @@ lookups:
       - match: urodzonej 6 lipca 1972 r.
         props:
           birthDate: 1972-07-06
+      - match: 'adres: ul. Pobedy 38A, Koptevka, Republika Białorusi (nazwa rosyjskojęzyczna: yл. Поведы, дом 38A, aг. Коптевка, Беларусь) numer rejestrowy: 591534088'
+        props:
+          address: "ul. Pobedy 38A, Koptevka, Republika Białorusi"
+          registrationNumber: "591534088"
+      - match: 'adres: ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa '
+        props:
+          address: "ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa"
+      - match: 'adres: Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa'
+        props:
+          address: "Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa"
+      - match: 'adres: Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie (nazwa arabska: مكتب 02 ملك عابر خلفان محمد خلفان الهاملىالثنية االولى) numer rejestrowy: 2823197'
+        props:
+          address: "Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie"
+          registrationNumber: "2823197"
+      - match: 'adres: Mińsk, 220137, ul. Naklonnaya 28, Republika Białorusi (nazwa rosyjskojęzyczna: Минск, 220137, ул. Наклонная 28) numer rejestrowy: 193256472'
+        props:
+          address: "Mińsk, 220137, ul. Naklonnaya 28, Republika Białorusi"
+          registrationNumber: "193256472"
+      - match: 'adres: Republika Białorusi, 220137, Mińsk, ul. Naklonnaya 28 (nazwa rosyjskojęzyczna: Республика Беларусь, 220137, г Минск, ул. Наклонная, д 28) numer rejestrowy: 193648909'
+        props:
+          address: "Republika Białorusi, 220137, Mińsk, ul. Naklonnaya 28"
+          registrationNumber: "193648909"

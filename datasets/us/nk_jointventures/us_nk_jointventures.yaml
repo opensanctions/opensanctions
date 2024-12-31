@@ -1,0 +1,60 @@
+title: US Advisory on North Korean Joint Ventures
+entry_point: crawler.py
+prefix: us-nkjv
+coverage:
+  frequency: never
+  schedule: "@monthly"
+  start: "2024-12-13"
+  end: "2018-03-08"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Joint ventures between entities in North Korea and other countries to be considered trade risk.
+description: |
+  > CBP and ICE, with the U.S. Department of State, and the U.S. Department of the
+  > Treasury's Office of Foreign Assets Control (OFAC), issued the North Korea
+  > Sanctions and Enforcement Actions Advisory: Risks for Businesses with Supply
+  > Chain Links to North Korea on July 23, 2018. The advisory informs the trade
+  > of North Korea's evasion tactics, compliance risks and requirements, as well
+  > as due diligence best practices.
+
+  This advisory includes a list of joint ventures with partners from China and other countries.
+  We make this list of joint ventures available as a dataset of entities with noteworthy trade risk.
+  
+  The UN Security Council resolution 2375 requires Member States to prohibit all joint
+  ventures with North Korean entities and individuals, whether new or already existing, 
+  subject to very narrow exceptions.
+  
+  According to the advisory:
+
+  > NOTE: This annex lists joint ventures that have operated or are currently operating in
+  > North Korea established prior to 2016 and is not a comprehensive list of North Korean
+  > joint ventures that exist at this time. This annex is not a “sanctions list.” While some
+  > entities on this list may be entities whose property and interests in property are
+  > blocked, the inclusion of these entities in this advisory does not constitute as a
+  > determination by OFAC that any of these entities meet the designation criteria under any
+  > sanctions program. Persons subject to sanctions can be found on OFAC's List of Specially
+  > Designated Nationals and Blocked Person and other sanctions lists, which can be searched
+  > [here](http://sanctionssearch.ofac.treas.gov/).
+
+  [Source PDF](https://www.cbp.gov/sites/default/files/assets/documents/2018-Aug/North%20Korea%20Sanctions%20_%20Enforcement%20Actions%20Advisory.pdf)
+publisher:
+  name: U.S. Customs and Border Protection
+  acronym: CBP
+  official: true
+  url: https://www.cbp.gov/
+  description: |
+    The CBP is a unified border agency within the Department of Homeland Security (DHS) 
+    charged with the regulation and facilitation of international trade, collection of 
+    import duties, and enforcement of U.S. trade laws.
+url: "https://www.cbp.gov/document/report/north-korea-sanctions-and-enforcement-actions-advisory"
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRfovKtSGNW3_tS80_-Aa25g3utwny-8Oyoi0CAy9kGke4mbIVVFel9Xgy28NlFFwutRroiVW605NXo/pub?gid=0&single=true&output=csv
+  format: CSV
+
+assertions:
+  min:
+    schema_entities:
+      Company: 200
+  max:
+    schema_entities:
+      Company: 300

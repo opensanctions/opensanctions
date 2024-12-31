@@ -31,6 +31,8 @@ data:
   url: https://www.un.org/dgacm/en/content/protocol/hshgnfa
   format: PDF
 
+dates:
+  formats: ["%d-%b-%y"]
 lookups:
   names:
     options:
@@ -43,15 +45,39 @@ lookups:
       - match:
           - Jul-21
           - Jul-19
-          - 09-Sep-2227-May-21  # none of these are on chatGPT
-          - 09-Sep-2207-May-13
-          - 09-Sep-22 28-Feb-17
+          - Feb-17
           - 09-Sep-2207
+          - 09-Sep-2201
+          - 09-Sep-2228
         value: null
-  normalize_name: 
+      - match: 09-Sep-2227-May-21
+        value:
+          - 2022-09-09
+          - 2021-05-27
+      - match: 09-Sep-2207-May-13
+        values:
+          - 2022-09-09
+          - 2013-05-13
+      - match: 09-Sep-22 28-Feb-17
+        values:
+          - 2022-09-09
+          - 2017-02-28
+      - match: 09-Sep-22 / 01-Jul-19
+        values:
+          - 2022-09-09
+          - 2019-07-01
+      - match: 09-Sep-22 to 01-Aug-19
+        values:
+          - 2022-09-09
+          - 2019-08-01
+      - match: 09-Sep-22, 28-Feb-17
+        values:
+          - 2022-09-09
+          - 2017-02-28
+  normalize_name:
     lowercase: true
     normalize: true
-    options: 
-      - match: 
+    options:
+      - match:
           - none
         value: null

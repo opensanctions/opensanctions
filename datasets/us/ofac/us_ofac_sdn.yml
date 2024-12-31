@@ -6,9 +6,9 @@ coverage:
   start: "2015-12-05"
   schedule: "0 */2 * * *"
 deploy:
-  memory: 1300Mi
-  memory_limit: "2Gi"
-  cpu: "200m"
+  memory: 2000Mi
+  memory_limit: "2500Mi"
+  cpu: "800m"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The primary United States' sanctions list, specially designated nationals (SDN) part.
@@ -128,7 +128,6 @@ lookups:
           - Company Number
           - "Business Registration Document #"
           - Matricula Mercantil No
-          - Vessel Registration Identification
           - Dubai Chamber of Commerce Membership No.
           - Business Registration Number
           - UK Company Number
@@ -159,6 +158,9 @@ lookups:
           - LE Number
         prop: leiCode
       - match:
+          - Global Intermediary Identification Number
+        prop: giiNumber
+      - match:
           - Travel Document Number
           - Stateless Person ID Card
           - Seafarer's Identification Document
@@ -177,7 +179,6 @@ lookups:
           - SRE Permit No
           - SRE Permit No.
           - Immigration No.
-          - SSN
           - VisaNumberID
           - Refugee ID Card
           - File Number
@@ -218,6 +219,12 @@ lookups:
           - Romanian C.R.
         identification: true
         prop: idNumber
+      - match:
+          - SSN
+        prop: socialSecurityNumber
+      - match:
+          - Vessel Registration Identification
+        prop: imoNumber
       - # taxNumber only, no adjacent object
         match:
           - Tax ID No.
@@ -309,8 +316,10 @@ lookups:
         prop: incorporationDate
       - match:
           - "Nationality Country"
-          - "Citizenship Country"
         prop: nationality
+      - match:
+          - "Citizenship Country"
+        prop: citizenship
       - match:
           - Registration Country
           - "Nationality of Registration"
@@ -401,6 +410,44 @@ lookups:
       - match: Issuer Name
         prop: name
 
+  type.identifier:
+    options:
+      # Re-map invalid LEIs to generic regNr:
+      - match:
+          - "07552116"
+          - 07541863
+          - 07607833
+          - "07617157"
+          - 07942932
+          - 07609623
+          - 07553590
+          - 851683897
+          - 856458879
+          - 852499097
+          - 852496369
+          - 852496527
+          - 852777978
+          - 15411
+          - RS 130280
+          - RS 150443
+          - IMO 26348960
+        prop: registrationNumber
+      - match: 2180068XRFK54K3Z159
+        value: 21380068XRFK54K3Z159
+      - match: 253400VTMXV2UE7XNN67
+        value: 253400VTMVX2UE7XNN67
+      - match: 25300F1C0J3H75V5935
+        value: 253400F1C0J3H75V5935
+      - match: 253400MZGXN18GHCN57
+        value: 253400MZGXVN18GHCN57
+      - match: 25400B8Y0FNJP628S19
+        value: 253400B8Y0FNJP628S19
+      - match: IMO 543400  # Hwasong typo
+        value: 5434300
+      - match: IMO 9207391  # Derecttor typo
+        value: 6207391
+      - match: IMO 642068  # Celia Armas typo
+        value: 6420688
   type.address:
     lowercase: true
     options:
@@ -441,10 +488,10 @@ lookups:
         value: female
       - match: MALE
         value: male
-  type.string: 
+  type.string:
     lowercase: true
     normalize: true
-    options: 
+    options:
       - match: Codigo Postal 80000
         value: 80000
       - match: Codigo Postal 21297

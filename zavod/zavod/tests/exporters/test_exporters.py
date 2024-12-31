@@ -10,7 +10,7 @@ from datetime import datetime
 
 from zavod import settings
 from zavod.store import get_store
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.exporters import export_dataset
 from zavod.archive import clear_data_path, DATASETS
 from zavod.exporters.ftm import FtMExporter

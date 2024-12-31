@@ -6,7 +6,6 @@ import csv
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     start_date = row.pop("BeginDate")
     end_date = row.pop("EndDate")
     status = row.pop("Status")

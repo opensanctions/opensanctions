@@ -1,4 +1,3 @@
-from lxml import etree
 from normality import collapse_spaces
 from openpyxl import load_workbook
 from typing import Dict, List, Optional
@@ -80,7 +79,17 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name, birth_place, nationality, passport_other)
         entity.add("name", row.pop("legal_entity_name", ""))
-        entity.add("idNumber", collapse_spaces(passport_other))
+        id_number = collapse_spaces(passport_other)
+        if id_number is not None and len(id_number) > 0:
+            if id_number.startswith("IMO number:"):
+                id_number = id_number.replace("IMO number:", "").strip()
+                entity.add_schema("Organization")
+                entity.add("imoNumber", id_number)
+            if id_number.startswith("IMO number:"):
+                id_number = id_number.replace("SWIFT/BIC:", "").strip()
+                entity.add("swiftBic", id_number)
+            else:
+                entity.add("idNumber", id_number)
         h.apply_dates(entity, "incorporationDate", birth_establishment_date)
         entity.add("description", row.pop("position", ""))
         entity.add("country", nationality)
@@ -97,7 +106,12 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
     sanction.add("reason", row.pop("organization", ""))
     sanction.add("program", program)  # depends on the xlsx file
     sanction.add("sourceUrl", url)
-    h.apply_date(sanction, "listingDate", row.pop("listing_date", None))
+    listing_date = row.pop("listing_date", "")
+    if listing_date is not None:
+        listing_dates = listing_date.replace("\n", " ").split(" (", 1)
+        h.apply_date(sanction, "listingDate", listing_dates[0])
+        # Reviewed, revised
+        h.apply_dates(sanction, "date", listing_dates[1:])
     h.apply_date(sanction, "listingDate", gazette_date)
 
     context.emit(entity, target=True)
@@ -119,15 +133,12 @@ def crawl_xlsx(context: Context, url: str, program: str, short_name: str):
             crawl_row(context, row, program, url)
 
 
-def unblock_validator(doc: etree._Element) -> bool:
-    return doc.find('.//table[@class="table table-bordered"]') is not None
-
-
 def crawl(context: Context):
     # Use browser to render javascript-based frontend
-    doc = fetch_html(context, context.data_url, unblock_validator, cache_days=3)
+    table_xpath = './/table[@class="table table-bordered"]'
+    doc = fetch_html(context, context.data_url, table_xpath, cache_days=3)
     doc.make_links_absolute(context.data_url)
-    table = doc.find('.//table[@class="table table-bordered"]')
+    table = doc.find(table_xpath)
     category_urls = [link.get("href") for link in table.findall(".//a")]
 
     # Ensure exactly 4 links are found
@@ -146,7 +157,7 @@ def crawl(context: Context):
             continue
 
         # Fetch the content of the section
-        section_doc = fetch_html(context, url, unblock_validator, cache_days=3)
+        section_doc = fetch_html(context, url, table_xpath, cache_days=3)
         doc_links = section_doc.xpath('//a[contains(@href, ".xlsx")]')
 
         # Expect exactly one .xlsx link in each section

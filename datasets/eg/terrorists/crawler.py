@@ -13,7 +13,6 @@ def arabic_to_latin(arabic_date):
 
 
 def parse_date(date_str: str) -> datetime:
-
     if not date_str:
         return None
 
@@ -31,7 +30,6 @@ def parse_date(date_str: str) -> datetime:
 
 
 def crawl_terrorist(input_dict: dict, context: Context):
-
     name = input_dict.pop("name")
     case_number = input_dict.pop("case_number")
 
@@ -60,7 +58,6 @@ def crawl_terrorist(input_dict: dict, context: Context):
 
 
 def crawl_terrorist_entities(input_dict: dict, context: Context):
-
     name = input_dict.pop("name")
     case_number = input_dict.pop("case_number")
 
@@ -85,7 +82,6 @@ def crawl_terrorist_entities(input_dict: dict, context: Context):
 
 
 def crawl_legal_persons(input_dict: dict, context: Context):
-
     name = input_dict.pop("name")
     case_number = input_dict.pop("case_number")
 
@@ -135,3 +131,5 @@ def crawl(context: Context):
         context, wb["الشخصيات الاعتبارية"], skiprows=1, header_lookup="columns"
     ):
         crawl_legal_persons(item, context)
+
+    assert len(wb.sheetnames) == 3, wb.sheetnames

@@ -17,21 +17,46 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
     entity.add("topics", "sanction")
-    if row.get("DOB"):
-        h.apply_dates(entity, "birthDate", row.pop("DOB").split(";"))
-    entity.add("country", country)
-    for version in name.split(";"):
-        if version.strip():
-            h.apply_name(entity, version.strip())
-    alias = row.pop("Alias")
-    for version in alias.split(";"):
-        if version.strip():
-            h.apply_name(entity, version.strip(), alias=True)
-    entity.add("sourceUrl", row.pop("Source URL").strip())
-    context.audit_data(row)
+    dob = row.pop("DOB")
+    if entity.schema.is_a("Organization"):
+        h.apply_dates(entity, "incorporationDate", h.multi_split(dob, ";"))
+    elif entity.schema.is_a("Person"):
+        h.apply_dates(entity, "birthDate", h.multi_split(dob, ";"))
+    entity.add("birthPlace", row.pop("POB"), quiet=True)
+    entity.add("country", h.multi_split(country, ";"))
+    entity.add("name", h.multi_split(name, ";"))
+    entity.add("alias", h.multi_split(row.pop("Alias"), ";"))
+    entity.add_cast("Person", "passportNumber", h.multi_split(row.pop("passport"), ";"))
+    entity.add("taxNumber", h.multi_split(row.pop("taxNumber"), ";"), quiet=True)
+    entity.add("registrationNumber", h.multi_split(row.pop("registrationNumber"), ";"))
+    entity.add("idNumber", h.multi_split(row.pop("idNumber"), ";"), quiet=True)
+    entity.add("imoNumber", row.pop("imoNumber"), quiet=True)
+    entity.add("notes", row.pop("Notes").strip())
+    entity.add("position", row.pop("Position", None), quiet=True)
+    entity.add("address", h.multi_split(row.pop("Address", None), ";"), quiet=True)
+    entity.add("gender", row.pop("Gender", None), quiet=True)
+    entity.add("sourceUrl", h.multi_split(row.pop("Source URL"), ";"))
+
+    for related_name in h.multi_split(row.pop("related"), ";"):
+        related = context.make("LegalEntity")
+        related.id = context.make_id(related_name, entity.id)
+        related.add("name", related_name)
+
+        rel = context.make("UnknownLink")
+        rel.id = context.make_id(related.id, entity.id)
+        rel.add("subject", related)
+        rel.add("object", entity)
+
+        context.emit(related)
+        context.emit(rel)
+
     sanction = h.make_sanction(context, entity)
+    h.apply_date(sanction, "startDate", row.pop("startDate"))
+
     context.emit(entity, target=True)
     context.emit(sanction)
+
+    context.audit_data(row)
 
 
 def crawl_csv(context: Context, reader: Iterable[Dict[str, str]]):

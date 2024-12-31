@@ -71,6 +71,7 @@ children:
   - id_dttot
   - il_mod_terrorists
   - il_mod_crypto
+  - il_wmd_sanctions
   - in_mha_banned
   - ir_sanctions
   - ie_unlawful_organizations
@@ -104,16 +105,17 @@ children:
   - ua_nsdc_sanctions
   - ua_sfms_blacklist
   - un_sc_sanctions
+  - un_1718_vessels
   - us_cbp_forced_labor
   - us_bis_denied
   - us_cuba_sanctions
   - us_dhs_uflpa
   - us_fincen_special_measures
   - us_klepto_hr_visa
-  - us_nteea_sec_353
   - us_ofac_cons
   - us_ofac_sdn
   - us_state_terrorist_exclusion
   - us_trade_csl
+  - us_sanctions
   - za_fic_sanctions
 ci_test: false

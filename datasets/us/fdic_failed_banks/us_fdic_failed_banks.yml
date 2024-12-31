@@ -19,11 +19,13 @@ publisher:
     The FDIC is an independent agency of the United States government that protects the funds depositors place in banks and savings associations.
   country: us
   url: https://www.fdic.gov/
-
 data:
   url: https://www.fdic.gov/resources/resolutions/bank-failures/failed-bank-list/banklist.csv
   format: csv
+  lang: eng
 
+dates: 
+  formats: ["%B %d, %Y", "%d-%b-%y"]
 assertions:
   min:
     schema_entities:

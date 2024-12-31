@@ -1,8 +1,10 @@
-from zavod import Context, helpers as h
 from normality import slugify
 from typing import Dict, Generator, Any
 from lxml.html import HtmlElement
 import re
+
+from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 REGEX_VESSEL = re.compile(r"\bFishing\s+Vessels\b")
 
@@ -26,7 +28,7 @@ def crawl_vessel(context: Context, row: Dict[str, Any]):
     internal_id = row.pop("id")
     name = row.pop("entities")
     name_result = context.lookup("name", name)
-    listing_date = h.parse_date(row.pop("date"), formats=["%m/%d/%Y"])
+    listing_date = row.pop("date")
     status = row.pop("status")
     status_notes = row.pop("status-notes")
     status_notes_link = row.pop("status_notes_link", None)
@@ -48,7 +50,7 @@ def crawl_vessel(context: Context, row: Dict[str, Any]):
             is_active = True
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
-            sanction.add("listingDate", listing_date)
+            h.apply_date(sanction, "listingDate", listing_date)
             context.emit(sanction)
         else:
             is_active = False
@@ -59,7 +61,7 @@ def crawl_company(context: Context, row: Dict[str, Any], country: str):
     internal_id = row.pop("id")
     name = row.pop("entities")
     name_result = context.lookup("name", name)
-    listing_date = h.parse_date(row.pop("date"), formats=["%m/%d/%Y"])
+    listing_date = row.pop("date")
     merchandise = row.pop("merchandise")
     status = row.pop("status")
     status_notes = row.pop("status-notes")
@@ -86,7 +88,7 @@ def crawl_company(context: Context, row: Dict[str, Any], country: str):
             is_active = True
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
-            sanction.add("listingDate", listing_date)
+            h.apply_date(sanction, "listingDate", listing_date)
             context.emit(sanction)
         else:
             is_active = False
@@ -145,11 +147,16 @@ def parse_table(
         yield row_data
 
 
+def unblock_validator(doc) -> bool:
+    return len(doc.xpath("//div[contains(@class, 'usa-section-accordion')]")) > 0
+
+
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)
+    accordion_xpath = "//div[contains(@class, 'usa-section-accordion')]"
+    doc = fetch_html(context, context.data_url, accordion_xpath)
     doc.make_links_absolute(context.data_url)
 
-    for accordion in doc.xpath("//div[contains(@class, 'usa-section-accordion')]"):
+    for accordion in doc.xpath(accordion_xpath):
         heading_el = accordion.find(".//h2")
         heading_text = heading_el.text_content()
         table = accordion.find(".//table")

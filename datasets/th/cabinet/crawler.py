@@ -1,5 +1,4 @@
 import re
-from lxml import html
 from normality import collapse_spaces
 
 from zavod import Context, helpers as h
@@ -17,19 +16,13 @@ POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
 TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 
 
-def unblock_validator(doc: html.HtmlElement) -> bool:
-    xpath = ".//div[contains(@style, 'min-height: 480; max-height: 600')]"
-    return len(doc.xpath(xpath)) > 0
-
-
 def crawl(context: Context):
-    doc = fetch_html(context, context.data_url, unblock_validator=unblock_validator)
+    prime_min_xpath = ".//div[contains(@style, 'min-height: 480; max-height: 600')]"
+    doc = fetch_html(context, context.data_url, prime_min_xpath)
     main_container = doc.find(".//div[@class='wonderplugintabs-panel-inner']")
 
     # For lack of anything more semantic, we select persons based on sizing of their containers
-    prime_minister_containers = main_container.xpath(
-        ".//div[contains(@style, 'min-height: 480; max-height: 600')]"
-    )
+    prime_minister_containers = main_container.xpath(prime_min_xpath)
     assert len(prime_minister_containers) == 1, prime_minister_containers
     prime_minister = prime_minister_containers[0]
     persons = main_container.findall(

@@ -26,12 +26,13 @@ UNBLOCK_ACTIONS = [
         "waitUntil": "networkidle0",
         "timeout": 31,
         "onError": "return",
-    }
+    },
+    {
+        "action": "waitForTimeout",
+        "timeout": 15,
+        "onError": "return",
+    },
 ]
-
-
-def index_validator(doc):
-    return len(doc.xpath('//ul[contains(@class, "tbmm-list-ul")]')) > 0
 
 
 def crawl_item(context: Context, item: etree):
@@ -70,15 +71,15 @@ def crawl_item(context: Context, item: etree):
 
 
 def crawl(context: Context):
+    items_xpath = '//li[contains(@class, "tbmm-list-item")]'
     doc = fetch_html(
         context,
         context.data_url,
-        index_validator,
+        items_xpath,
         actions=UNBLOCK_ACTIONS,
         javascript=True,
-        cache_days=1,
     )
     doc.make_links_absolute(context.data_url)
 
-    for item in doc.xpath('//li[contains(@class, "tbmm-list-item")]'):
+    for item in doc.xpath(items_xpath):
         crawl_item(context, item)

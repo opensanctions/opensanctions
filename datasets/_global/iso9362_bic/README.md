@@ -2,14 +2,6 @@
 Source: https://www.iso9362.org/isobic/overview.html 
 PDF: https://www.iso9362.org/bicservice/public/v1/bicdata/_pdf 
 
-
-
 ```
-java -jar tabula-1.0.5-jar-with-dependencies.jar ~/Data/isobic/ISOBIC.pdf -o iso.csv --pages all
-```
-
-
-Refine:
-```
-value.replace("\n", " ").replace("  ", " ").replace("  ", " ")
+gsutil cp ISOBIC.pdf "gs://data.opensanctions.org/contrib/iso9362_bic/20241021/ISOBIC.pdf"
 ```

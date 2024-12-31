@@ -12,6 +12,9 @@ def crawl_item(row: Dict[str, str], context: Context):
     if not name:
         return
 
+    if "for purposes of" in name.lower():
+        return
+
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name, row.get("national_provider_identification_npi"))
     entity.add("name", name)

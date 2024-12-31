@@ -20,8 +20,8 @@ children:
   - us_special_leg
   - us_dod_chinese_milcorps
   - us_klepto_hr_visa
-  - us_nteea_sec_353
   - us_ofac_sdn
   - us_ofac_cons
   - us_state_terrorist_exclusion
   - us_trade_csl
+  - us_nk_jointventures
