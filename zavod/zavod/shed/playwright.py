@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 async def click_and_download(
     page: Page, client: CDPSession, selector: str, url_pattern: str, path: Path
-):
+) -> None:
     """
     Click an element to initiate a download, then download the matching file
     to the given path.
@@ -28,6 +28,9 @@ async def click_and_download(
         selector: The CSS selector of the element to click to trigger download
         url_pattern: https://chromedevtools.github.io/devtools-protocol/tot/Fetch/#type-RequestPattern
         path: The path to save the downloaded file to
+
+    See also:
+        https://chromedevtools.github.io/devtools-protocol/tot/Fetch/
     """
 
     if path.exists():
@@ -51,15 +54,16 @@ async def click_and_download(
     )
 
     # Add handler to extract the request ID from the paused request
-    def on_request_paused(event: Dict[str, Any]):
+    def on_request_paused(event: Dict[str, Any]) -> None:
         request_id_future.set_result(event["requestId"])
 
     client.on("Fetch.requestPaused", on_request_paused)
 
     # Click the element and carry any exception to the request future
-    def on_done(click: asyncio.Future):
-        if click.exception():
-            request_id_future.set_exception(click.exception())
+    def on_done(click: asyncio.Future[Any]) -> None:
+        exception = click.exception()
+        if exception is not None:
+            request_id_future.set_exception(exception)
 
     asyncio.ensure_future(page.click(selector)).add_done_callback(on_done)
 
