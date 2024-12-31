@@ -81,7 +81,11 @@ def crawl_item(context: Context, row: Dict[str, str]) -> None:
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name, npi, license, city)
+    parts = name.split(" DBA ")
+    name = parts[0]
+    alias = parts[1:]
     entity.add("name", name)
+    entity.add("alias", alias)
     entity.add("topics", "debarment")
     entity.add("country", "US")
     entity.add("sector", row.pop("provider_type"))
@@ -114,6 +118,7 @@ def crawl_item(context: Context, row: Dict[str, str]) -> None:
         rel.add("role", "affiliate")
 
         context.emit(affiliate_entity)
+        context.emit(rel)
 
     context.emit(entity, target=True)
     context.emit(sanction)

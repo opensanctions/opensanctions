@@ -57,7 +57,7 @@ async def click_and_download(
         },
     )
 
-    # Add handler for paused requests
+    # Add handler for paused requests and completion
     client.on("Fetch.requestPaused", on_request_paused)
     asyncio.ensure_future(page.click(selector)).add_done_callback(on_done)
     request_id = await future
