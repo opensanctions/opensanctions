@@ -77,20 +77,20 @@ def crawl_person(context: Context, data, href, name_raw):
             context, position, "slk", pos, TRANSLIT_OUTPUT, POSITION_PROMPT
         )
 
-    categorisation = categorise(context, position, is_pep=True)
-    if not categorisation.is_pep:
-        return
+        categorisation = categorise(context, position, is_pep=True)
+        if not categorisation.is_pep:
+            return
 
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        categorisation=categorisation,
-    )
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            categorisation=categorisation,
+        )
 
+        context.emit(position)
+        context.emit(occupancy)
     context.emit(person, target=True)
-    context.emit(position)
-    context.emit(occupancy)
 
 
 def crawl(context: Context):
