@@ -43,11 +43,11 @@ lookups:
   position:
     normalize: true
     options: 
-    - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PODPREDSEDA PROTIMONOPOLNÝ ÚRAD SLOVENSKEJ REPUBLIKY )
-      value: PODPREDSEDA PROTIMONOPOLNÝ ÚRAD SLOVENSKEJ REPUBLIKY
-    - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (KUNSTHALLE BRATISLAVA)
-      value: KUNSTHALLE BRATISLAVA
-    - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY)
-      value: PREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY
-    - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PODPREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY )
-      value: PODPREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY
+      - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PODPREDSEDA PROTIMONOPOLNÝ ÚRAD SLOVENSKEJ REPUBLIKY )
+        value: PODPREDSEDA PROTIMONOPOLNÝ ÚRAD SLOVENSKEJ REPUBLIKY
+      - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (KUNSTHALLE BRATISLAVA)
+        value: KUNSTHALLE BRATISLAVA
+      - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY)
+        value: PREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY
+      - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PODPREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY )
+        value: PODPREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY
