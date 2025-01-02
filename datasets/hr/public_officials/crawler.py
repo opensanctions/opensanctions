@@ -7,7 +7,9 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
-DEDUPED_COLUMN_NAMES = [
+
+CIVIL_SERVANTS_URL = "https://www.sukobinteresa.hr/export/registar_rukovodecih_drzavnih_sluzbenika_koje_imenuje_vlada_republike_hrvatske.csv"
+DEDUPED_COLUMN_NAMES_PUB = [
     "Ime",
     "Prezime",
     "Primarna dužnost",  # first affiliation
@@ -18,6 +20,15 @@ DEDUPED_COLUMN_NAMES = [
     "Sekundarna Pravna osoba u kojoj obnaša dužnost",
     "Sekundarna Datum početka obnašanja dužnosti",
     "Sekundarna Datum kraja obnašanja dužnosti",
+]
+
+DEDUPED_COLUMN_NAMES_CIV = [
+    "Ime",
+    "Prezime",
+    "Dužnost",
+    "Pravna osoba u kojoj obnaša dužnost",
+    "Datum početka obnašanja dužnosti",
+    "Datum kraja obnašanja dužnosti",
 ]
 
 EXPECTED_COLUMNS = [
@@ -35,7 +46,9 @@ EXPECTED_COLUMNS = [
 
 
 def make_position_name(data: dict) -> Optional[str]:
-    title = data.pop("dužnost")
+    title = data.pop("dužnost", None)
+    if title is None:
+        title = data.pop("Dužnost")
     legal_entity_name = data.pop("Pravna osoba u kojoj obnaša dužnost")
     if not any([title, legal_entity_name]):
         return None
@@ -119,11 +132,36 @@ def extract_dict_keys_by_prefix(
 
 
 def crawl(context: Context):
+    file_path = context.fetch_resource("source.csv", CIVIL_SERVANTS_URL)
+    context.export_resource(file_path, CSV, title=context.SOURCE_TITLE)
+    with open(file_path, encoding="utf-8") as fh:
+        reader = csv.DictReader(fh, fieldnames=DEDUPED_COLUMN_NAMES_CIV, delimiter=";")
+        for row in reader:
+            position_entities = []
+            position_name = make_position_name(row)
+
+            person = make_person(
+                context,
+                row.pop("Ime"),
+                row.pop("Prezime"),
+                position_name,
+                secondary=None,
+            )
+            position_entities.extend(
+                make_affiliation_entities(context, person, position_name, row)
+            )
+            context.audit_data(row, ignore={"None"})
+
+            if position_entities:
+                for entity in position_entities:
+                    context.emit(entity)
+                context.emit(person, target=True)
+
     """Fetches the current CSV file and crawls each row, making persons, occupancies and positions"""
     file_path = context.fetch_resource("daily_csv_release", context.data_url)
     context.export_resource(file_path, CSV, title=context.SOURCE_TITLE)
     with open(file_path, encoding="utf-8-sig") as fh:
-        reader = csv.DictReader(fh, fieldnames=DEDUPED_COLUMN_NAMES, delimiter=";")
+        reader = csv.DictReader(fh, fieldnames=DEDUPED_COLUMN_NAMES_PUB, delimiter=";")
         column_names = list(next(reader).values())
         validate_column_names(context, column_names)
         for row in reader:
