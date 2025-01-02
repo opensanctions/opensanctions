@@ -35,10 +35,10 @@ data:
 assertions: 
   min: 
     schema_entities: 
-      Person: 2000
+      Person: 1500
   max: 
     schema_entities: 
-      Person: 3000
+      Person: 2500
 lookups:
   position:
     normalize: true
