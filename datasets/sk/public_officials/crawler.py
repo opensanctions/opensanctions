@@ -1,7 +1,7 @@
 import re
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.logic.pep import categorise, OccupancyStatus
 from zavod.shed.trans import (
     apply_translit_full_name,
     make_position_translation_prompt,
@@ -54,8 +54,7 @@ def parse_details(context: Context, link_el):
 
 
 def crawl_person(context: Context, data, href, name_raw):
-    # name = data.pop("titul, meno, priezvisko") # name with title
-    # year = data.pop("oznámenie za rok")
+    year = data.pop("oznámenie za rok")
     position_slk = data.pop("vykonávaná verejná funkcia")
     int_id = data.pop("Interné číslo")
 
@@ -85,8 +84,11 @@ def crawl_person(context: Context, data, href, name_raw):
             context,
             person,
             position,
+            no_end_implies_current=False,
             categorisation=categorisation,
+            status=OccupancyStatus.UNKNOWN,
         )
+        occupancy.add("date", year)
 
         context.emit(position)
         context.emit(occupancy)
