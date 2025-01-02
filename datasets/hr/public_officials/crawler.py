@@ -132,32 +132,39 @@ def extract_dict_keys_by_prefix(
 
 
 def crawl(context: Context):
+    """Fetches the current CSV file and crawls each row, making persons, occupancies and positions"""
+    # Register of appointed civil servants
     file_path = context.fetch_resource("source.csv", CIVIL_SERVANTS_URL)
     context.export_resource(file_path, CSV, title=context.SOURCE_TITLE)
     with open(file_path, encoding="utf-8") as fh:
         reader = csv.DictReader(fh, fieldnames=DEDUPED_COLUMN_NAMES_CIV, delimiter=";")
+        # Skip the first row
+        next(reader, None)
         for row in reader:
+            # Filter out fields where the key is None
+            filtered_row = {k: v for k, v in row.items() if k is not None}
             position_entities = []
-            position_name = make_position_name(row)
+            position_name = make_position_name(filtered_row)
 
             person = make_person(
                 context,
-                row.pop("Ime"),
-                row.pop("Prezime"),
+                filtered_row.pop("Ime"),
+                filtered_row.pop("Prezime"),
                 position_name,
                 secondary=None,
             )
+            person.add("topics", "gov.admin")
             position_entities.extend(
-                make_affiliation_entities(context, person, position_name, row)
+                make_affiliation_entities(context, person, position_name, filtered_row)
             )
-            context.audit_data(row, ignore={"None"})
+            context.audit_data(filtered_row)
 
             if position_entities:
                 for entity in position_entities:
                     context.emit(entity)
                 context.emit(person, target=True)
 
-    """Fetches the current CSV file and crawls each row, making persons, occupancies and positions"""
+    # Register of obligors
     file_path = context.fetch_resource("daily_csv_release", context.data_url)
     context.export_resource(file_path, CSV, title=context.SOURCE_TITLE)
     with open(file_path, encoding="utf-8-sig") as fh:
