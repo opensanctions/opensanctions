@@ -8,7 +8,12 @@ from zavod import helpers as h
 from zavod.logic.pep import categorise
 
 
-CIVIL_SERVANTS_URL = "https://www.sukobinteresa.hr/export/registar_rukovodecih_drzavnih_sluzbenika_koje_imenuje_vlada_republike_hrvatske.csv"
+SOURCE_URLS = [
+    # Register of appointed civil servants
+    "https://www.sukobinteresa.hr/export/registar_rukovodecih_drzavnih_sluzbenika_koje_imenuje_vlada_republike_hrvatske.csv",
+    # Register of obligors
+    "https://www.sukobinteresa.hr/export/registar_duznosnika.csv",
+]
 DEDUPED_COLUMN_NAMES_PUB = [
     "Ime",
     "Prezime",
@@ -134,7 +139,7 @@ def extract_dict_keys_by_prefix(
 def crawl(context: Context):
     """Fetches the current CSV file and crawls each row, making persons, occupancies and positions"""
     # Register of appointed civil servants
-    file_path = context.fetch_resource("source.csv", CIVIL_SERVANTS_URL)
+    file_path = context.fetch_resource("appointed.csv", SOURCE_URLS[0])
     context.export_resource(file_path, CSV, title=context.SOURCE_TITLE)
     with open(file_path, encoding="utf-8") as fh:
         reader = csv.DictReader(fh, fieldnames=DEDUPED_COLUMN_NAMES_CIV, delimiter=";")
@@ -165,7 +170,7 @@ def crawl(context: Context):
                 context.emit(person, target=True)
 
     # Register of obligors
-    file_path = context.fetch_resource("daily_csv_release", context.data_url)
+    file_path = context.fetch_resource("obligors.csv", SOURCE_URLS[1])
     context.export_resource(file_path, CSV, title=context.SOURCE_TITLE)
     with open(file_path, encoding="utf-8-sig") as fh:
         reader = csv.DictReader(fh, fieldnames=DEDUPED_COLUMN_NAMES_PUB, delimiter=";")
