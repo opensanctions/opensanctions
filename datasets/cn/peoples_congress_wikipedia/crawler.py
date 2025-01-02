@@ -27,7 +27,14 @@ SKIP_SUBHEADERS = {
     "中央提名",
     "陕西省提名",
 }
-IGNORE_DUPES = {"cn-npc-22933e40a3e1f8cb38f88643263186428150bf6d"}
+IGNORE_DUPES = {
+    "cn-npc-22933e40a3e1f8cb38f88643263186428150bf6d",
+    # Wang Yonghong is a disambiguation page but both entries on the congress
+    # page link to this, and there's no additional information on the congress
+    # page to disambiguate by.
+    # https://zh.wikipedia.org/wiki/%E7%8E%8B%E6%B0%B8%E7%BA%A2
+    "cn-npc-wik-86fc6c8c076a7e4ed86efaec46620d13ea327908",
+}
 TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 
 
