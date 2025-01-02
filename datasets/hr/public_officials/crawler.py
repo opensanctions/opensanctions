@@ -175,11 +175,11 @@ def crawl(context: Context):
             position_entities = []
 
             primary_data = extract_dict_keys_by_prefix(
-                row, DEDUPED_COLUMN_NAMES, "Primarna "
+                row, DEDUPED_COLUMN_NAMES_PUB, "Primarna "
             )
             primary_position_name = make_position_name(primary_data)
             secondary_data = extract_dict_keys_by_prefix(
-                row, DEDUPED_COLUMN_NAMES, "Sekundarna "
+                row, DEDUPED_COLUMN_NAMES_PUB, "Sekundarna "
             )
             secondary_position_name = make_position_name(secondary_data)
             person = make_person(
