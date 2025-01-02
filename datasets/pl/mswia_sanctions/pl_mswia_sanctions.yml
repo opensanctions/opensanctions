@@ -173,3 +173,7 @@ lookups:
         props:
           address: "Republika Białorusi, 220137, Mińsk, ul. Naklonnaya 28"
           registrationNumber: "193648909"
+      - match: 'adres: Pantelis Katelaris, 16, Diagoras Building, Floor 3, Flat 303, 1097 Nicosia, Cyprus, numer rejestrowy: C392309'
+        props:
+          address: "Pantelis Katelaris, 16, Diagoras Building, Floor 3, Flat 303, 1097 Nicosia, Cyprus"
+          registrationNumber: "C392309"
