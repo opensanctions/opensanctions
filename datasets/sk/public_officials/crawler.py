@@ -58,7 +58,7 @@ def crawl_person(context: Context, data, href, name_raw):
     # year = data.pop("oznámenie za rok")
     position_slk = data.pop("vykonávaná verejná funkcia")
     int_id = data.pop("Interné číslo")
-    print(int_id)
+
     person = context.make("Person")
     person.id = context.make_id(name_raw, int_id)
     last_name, name = name_raw.split(",", 1)
