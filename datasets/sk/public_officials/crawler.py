@@ -62,16 +62,22 @@ def crawl_person(context: Context, data, href, name_raw):
     person.id = context.make_id(name_raw, int_id)
     last_name, name = name_raw.split(",", 1)
     h.apply_name(person, first_name=name.strip(), last_name=last_name.strip())
-    person.add("position", position_slk)
     person.add("topics", "role.pep")
     person.add("sourceUrl", href)
     for pos in position_slk:
+        if "verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo)" in pos:
+            pos_looked_up = context.lookup_value("position", pos)
+            if pos_looked_up is None:
+                context.log.warning(f"Position match not found for {pos}")
+            pos = pos_looked_up
         position = h.make_position(
             context,
             pos,
             lang="slk",
             country="SK",
         )
+        person.add("position", pos)
+
         apply_translit_full_name(
             context, position, "slk", pos, TRANSLIT_OUTPUT, POSITION_PROMPT
         )

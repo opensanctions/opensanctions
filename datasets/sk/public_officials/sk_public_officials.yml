@@ -40,11 +40,14 @@ assertions:
     schema_entities: 
       Person: 3000
 lookups:
-  type.name:
-    options:
-      - contains: "verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo)"
-        value: null
-  type.string: 
+  position:
+    normalize: true
     options: 
-      - contains: "verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo)"
-        value: null
+    - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PODPREDSEDA PROTIMONOPOLNÝ ÚRAD SLOVENSKEJ REPUBLIKY )
+      value: PODPREDSEDA PROTIMONOPOLNÝ ÚRAD SLOVENSKEJ REPUBLIKY
+    - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (KUNSTHALLE BRATISLAVA)
+      value: KUNSTHALLE BRATISLAVA
+    - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY)
+      value: PREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY
+    - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PODPREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY )
+      value: PODPREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY
