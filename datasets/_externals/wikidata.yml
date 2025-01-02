@@ -650,6 +650,7 @@ lookups:
           - State of Judaea
           - Ligurian Republic
           - Genoese Republic
+          - Yemeni Zaidi State
         value: null
       - match:
           - Cherokee Nation
@@ -778,6 +779,8 @@ lookups:
         values:
           - GE
           - SU
+      - match: Second Hellenic Republic
+        value: GR
       - match:
           - Ukrainian People's Republic
           - Ukrainian Soviet Socialist Republic
@@ -858,6 +861,8 @@ lookups:
           - First Syrian Republic
           - State of Syria
         value: Syria
+      - match: Ba'athist Syria
+        value: SY
       - match: Gagauzia
         value: MD
       - match:
@@ -945,6 +950,7 @@ lookups:
       - match:
           - Basque Country
           - Catalana
+          - Basque people
         value: ES
       - match: Muscat and Oman
         value: OM

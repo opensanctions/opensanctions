@@ -10,6 +10,8 @@ from zavod.helpers.excel import (
 from zavod.tests.conftest import FIXTURES_PATH
 
 XLS_BOOK = FIXTURES_PATH / "book.xls"
+# Fields with blank-fallback headings created in Google Sheets by havinga a value
+# in right-most most column (with blank header).
 XLSX_BOOK = FIXTURES_PATH / "book.xlsx"
 
 
@@ -67,12 +69,14 @@ def test_parse_xls_sheet_split_header(vcontext: Context):
 def test_parse_xlsx_sheet(vcontext: Context):
     book = load_workbook(XLSX_BOOK.as_posix())
     sheet = book.active
-    rows = list(parse_xlsx_sheet(vcontext, sheet))
+    rows = list(parse_xlsx_sheet(vcontext, sheet, extract_links=True))
     assert len(rows) == 1
     assert rows[0] == {
+        "column_0": None,
         "numeric": "1",
         "text": "Hello, World!",
         "date": "2023-07-26",
-        "column_3": None,
-        "column_4": None,
+        "numeric_url": "http://example.com/1",
+        "text_url": "http://example.com/hello",
+        "column_4": "blank_header_value",
     }
