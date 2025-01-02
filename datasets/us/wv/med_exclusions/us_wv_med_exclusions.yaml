@@ -46,6 +46,7 @@ lookups:
           - eactivated
           - Deactivated
           - CMS
+          - eactivated NPI
         value: null
       - match: 1386736031D
         value: 1386736031
