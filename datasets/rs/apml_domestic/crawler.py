@@ -14,13 +14,20 @@ def crawl(context: Context):
     url: Optional[str] = None
     for link in doc.findall(".//div[@class='text-editor']//a"):
         url = urljoin(context.data_url, link.get("href"))
+        url = url.replace("http://", "https://")
         if url and url.endswith(".pdf"):
             context.log.info(f"Found PDF: {url}")
-            h.assert_html_url_hash(
+            # There was a PDF; we've let them know it's gone.
+            # The error says ERROR 404 but status is 200..
+            content = context.fetch_text(url)
+            if "Error 404" in content:
+                # We'll just skip it since we know it's still a PDF link
+                # but it's broken, i.e. no updates
+                continue
+            h.assert_url_hash(
                 context,
                 url,
                 "75f76b1634bb3cfaffea8231c50cacab46371aff",
-                raise_exc=True,
             )
     assert url, "No PDF found"
 

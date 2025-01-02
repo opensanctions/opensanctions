@@ -21,6 +21,10 @@ description: |
   **Marine and Aircraft Assets**: Airports, ports, and vessels involved in the transportation 
   of weapons, stolen Ukrainian goods, and sanctions circumvention efforts.
 
+  **Vessel captains**: Captains of vessels involved in sanctions circumvention efforts.
+
+  **Propagandists**: Individuals involved in the dissemination of Russian propaganda.
+
   The objective of the War and Sanctions website is to raise awareness of their conduct,
   and advocate for sanctions against these entities to hold perpetrators accountable and
   deter further actions of this kind.
@@ -49,9 +53,10 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 550
+      Organization: 550
       Person: 400
       Vessel: 430
+      LegalEntity: 150
     country_entities:
       ru: 790
       ua: 170
@@ -59,9 +64,10 @@ assertions:
     countries: 15
   max:
     schema_entities:
-      LegalEntity: 1000
+      Organization: 1000
       Person: 630
-      Vessel: 670
+      Vessel: 700
+      LegalEntity: 270
 lookups: 
   overrides: 
     options: 
@@ -289,6 +295,14 @@ lookups:
         name: Selena Lively LTD
         registration_number: 6358878
         care_of: Munne Co LTD
+      - match: Elitoli Trading Co LTD с/о Tightship Shipping Management (OPC) Pvt Ltd (6139901
+        name: Elitoli Trading Co LTD
+        registration_number: 6139901
+        care_of: Tightship Shipping Management (OPC) Pvt Ltd
+      - match: Altima Inc c/o Eastern Euro Ship Management (6451981
+        name: Altima Inc
+        registration_number: 6451981
+        care_of: Eastern Euro Ship Management
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
@@ -325,6 +339,14 @@ lookups:
         value: null
       - match: Bermuda Islands
         value: bm
+      - match: Armenia, russian federation
+        values:
+          - Armenia
+          - Russia
+      - match: Netherlands, russian federation
+        values:
+          - Netherlands
+          - Russia
   type.name: 
     options: 
       - match: 'AUTONOMOUS NON-PROFIT ORGANIZATION OF ADDITIONAL PROFESSIONAL EDUCATION "MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
@@ -336,4 +358,19 @@ lookups:
       - match: 
           - RS 150443
           - RS 130280
+          - 194905962
+          - 555624
+          - 28953
+          - 13219
+          - 555669
         prop: registrationNumber
+      - match: 10477970849
+        value: 1047797084940
+        prop: registrationNumber
+      - regex:  # failed validation for entities registered in so called "people's republics"
+          - ^122940\d{7}$
+          - ^122930\d{7}$
+          - ^1239\d{9}$
+        prop: registrationNumber
+      - match: Невідомо
+        value: null

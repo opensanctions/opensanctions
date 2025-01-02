@@ -64,6 +64,13 @@ def parse_xls_sheet(
     skiprows: int = 0,
     join_header_rows: int = 0,
 ) -> Generator[Dict[str, str | None], None, None]:
+    """
+    Parse an Excel sheet into a sequence of dictionaries.
+
+    Keys are the column headings slugified with _ as separator.
+
+    Cells with links are included as keys with with _url appended to the original key.
+    """
     headers: List[str] | None = None
     for row_ix, row in enumerate(sheet):
         if row_ix < skiprows:
@@ -116,6 +123,7 @@ def parse_xlsx_sheet(
     sheet: Worksheet,
     skiprows: int = 0,
     header_lookup: Optional[str] = None,
+    extract_links: bool = False,
 ) -> Generator[Dict[str, str | None], None, None]:
     """
     Parse an Excel sheet into a sequence of dictionaries.
@@ -125,6 +133,7 @@ def parse_xlsx_sheet(
         sheet: The Excel sheet.
         skiprows: The number of rows to skip.
         header_lookup: The lookup key for translating headers.
+        extract_links: Whether to extract hyperlinks. Only works when read_only=False
     """
     headers = None
     row_counter = 0
@@ -152,10 +161,18 @@ def parse_xlsx_sheet(
             continue
 
         record = {}
-        for header, value in zip(headers, cells):
+        for cell_ix, (header, cell) in enumerate(zip(headers, row)):
+            value = cell.value
             if isinstance(value, datetime):
                 value = value.date()
             record[header] = stringify(value)
+
+            if extract_links:
+                # Check if the cell has a hyperlink
+                if cell.hyperlink:
+                    key = f"{header}_url"
+                    record[key] = str(cell.hyperlink.target)
+
         if len(record) == 0:
             continue
         if all(v is None for v in record.values()):

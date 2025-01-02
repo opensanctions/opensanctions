@@ -44,6 +44,7 @@ inputs:
   - ext_cy_companies
   - ext_cz_business_register
   - ext_ee_ariregister
+  - ext_eu_esma_firds
   - ext_gb_coh_psc
   - ext_gleif
   - ext_icij_offshoreleaks
@@ -51,12 +52,12 @@ inputs:
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
-  - ext_eu_esma_firds
-  - ru_cbr_banks
-  - regulatory
-  - opencorporates
-  - sanctions
   - iso9362_bic
+  - opencorporates
+  - regulatory
+  - ru_cbr_banks
+  - sanctions
+  - special_interest
 
 config:
   dataset: us_irs_ffi
