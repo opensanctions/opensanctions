@@ -49,6 +49,16 @@ lookups:
     options:
       - match: 鹤壁市豫剧团团长
         value: null
+  type.name: 
+    options: 
+      - match: 李兴魁3[52]
+        value: 李兴魁
+  type.text: 
+    options: 
+      - match: 大陆的台湾三代，外婆是嘉义人，1978年随四川省籍丈夫赴川定居[54]
+        value: 大陆的台湾三代，外婆是嘉义人，1978年随四川省籍丈夫赴川定居
+      - match: 大陆的台湾三代，祖父是澎湖的台湾本省人，20世纪30年代前往厦门定居[53]
+        value: 大陆的台湾三代，祖父是澎湖的台湾本省人，20世纪30年代前往厦门定居
   headers:
     map:
       姓名: name

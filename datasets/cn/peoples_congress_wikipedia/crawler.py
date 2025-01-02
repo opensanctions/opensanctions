@@ -59,9 +59,11 @@ def crawl_item(
     input_dict: dict,
     delegation: str,
 ):
-    name = clean_text(input_dict.pop("name").text_content())
-    if "[" in name:
-        name = name.split("[", 1)[0]
+    name_el = input_dict.pop("name")
+    reference = name_el.find(".//sup")
+    if reference:
+        reference.getparent().remove(reference)
+    name = name_el.text_content()
     ethnicity = clean_text(input_dict.pop("ethnicity").text_content())
     gender = clean_text(input_dict.pop("gender").text_content())
     # Keep the original delegation for the current members, pop it for the rest
@@ -170,28 +172,26 @@ def crawl(context: Context):
     ids = defaultdict(int)
 
     for h3 in doc.findall(".//h3"):
-        delegation_match = REGEX_DELEGATION_HEADING.match(h3.text_content())
-        if not delegation_match:
+        h3_text = h3.text_content().strip()
+        delegation_match = REGEX_DELEGATION_HEADING.match(h3_text)
+        # Determine whether to process the <h3> based on delegation match or specific headings
+        if delegation_match:
+            delegation_name = delegation_match.group(1)
+            table = h3.getparent().getnext().getnext()
+        elif any(heading in h3_text for heading in CHANGES_IN_REPRESENTATION):
+            delegation_name = None
+            table = h3.getparent().getnext()
+        else:
             continue
-        delegation_name = delegation_match.group(1)
-        table = h3.getparent().getnext().getnext()
+
         if table.tag != "table":
             table = table.getnext()
         assert table.tag == "table"
         for row in parse_table(context, table):
             id = crawl_item(context, row, delegation_name)
-            ids[id] += 1
+            ids[id] = ids.get(id, 0) + 1
+
     context.log.info(f"{len(ids)} unique IDs")
     for id, count in ids.items():
         if count > 1 and id not in IGNORE_DUPES:
             context.log.info(f"ID {id} emitted {count} times")
-    for h3 in doc.findall(".//h3"):
-        delegation_name = None
-        h3_text = h3.text_content().strip()
-        if any(heading in h3_text for heading in CHANGES_IN_REPRESENTATION):
-            table = h3.getparent().getnext()
-            if table.tag != "table":
-                table = table.getnext()
-            assert table.tag == "table"
-            for row in parse_table(context, table):
-                crawl_item(context, row, delegation_name)
