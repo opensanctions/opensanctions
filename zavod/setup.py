@@ -38,7 +38,7 @@ setup(
         "orjson == 3.10.13",
         "ijson > 3.2, < 4.0",
         "pantomime == 0.6.1",
-        "pdfplumber == 0.11.4",
+        "pdfplumber == 0.11.5",
         "prefixdate",
         "psycopg2-binary",
         "pyicu == 2.14",
