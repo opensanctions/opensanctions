@@ -29,7 +29,7 @@ publisher:
   url: https://www.sukobinteresa.hr/
   official: true
 data:
-  url: https://www.sukobinteresa.hr/export/registar_duznosnika.csv
+  url: https://www.sukobinteresa.hr/hr/dostupnost-informacija
   format: CSV
 
 dates: 
