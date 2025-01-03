@@ -1011,3 +1011,7 @@ lookups:
       - match: GSD Gestion
         entities:
           - GSD Gestion
+      - match: 'Sociétés Prologue et Le Quotidien de Paris Editions'
+        entities:
+          - Prologue
+          - Le Quotidien de Paris Editions
