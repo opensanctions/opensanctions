@@ -13,7 +13,8 @@ description: |
   their names, positions, and other relevant information. The data is collected
   from the official website of the National Council of the Slovak Republic.
 publisher:
-  name: National Council of the Slovak Republic
+  name: Národná rada Slovenskej republiky
+  name_en: National Council of the Slovak Republic
   acronym: NR SR
   description: |
     National Council of the Slovak Republic is the sole constitutional and legislative body 
