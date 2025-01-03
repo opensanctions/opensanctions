@@ -1,4 +1,5 @@
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 
 LINKS = [
@@ -404,7 +405,13 @@ def extract_next_page_url(doc):
 
 
 def crawl(context: Context):
-    main_page = context.fetch_html(context.data_url, cache_days=1)
+    main_page = fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=".//section[contains(@class, 'sections')][contains(@class, 'justify-content-center')]",
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
     # Have any new sections been added?
     section_links_section = main_page.xpath(
         ".//section[contains(@class, 'sections')][contains(@class, 'justify-content-center')]"
