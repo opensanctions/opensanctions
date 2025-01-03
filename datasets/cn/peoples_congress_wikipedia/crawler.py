@@ -189,7 +189,7 @@ def crawl(context: Context):
         assert table.tag == "table"
         for row in parse_table(context, table):
             id = crawl_item(context, row, delegation_name)
-            ids[id] = ids.get(id, 0) + 1
+            ids[id] += 1
 
     context.log.info(f"{len(ids)} unique IDs")
     for id, count in ids.items():
