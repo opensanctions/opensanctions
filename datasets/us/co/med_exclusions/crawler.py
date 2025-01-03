@@ -21,8 +21,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("alias", row.pop("doing_business_as_name"))
 
     sanction = h.make_sanction(context, entity)
-    termination_effective_date = row.pop("termination_effective_date")
-    sanction.add("startDate", termination_effective_date)
+    h.apply_date(sanction, "startDate", row.pop("termination_effective_date"))
     sanction.add("reason", row.pop("termination_authority"))
     reinstatement_date = row.pop("reinstatement_effective_date", None)
     if reinstatement_date:
