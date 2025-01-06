@@ -19,7 +19,16 @@ def parse_header(header: str) -> str:
 
 def crawl_row(context: Context, row: Dict[str, str]):
     requester = row.pop("REQUESTER").strip()
+    # Skip the footer
+    if (
+        "This list is provided to assist U.S. persons to fulfill the reporting requirements"
+        in requester
+    ):
+        return
     requesting_country = row.pop("REQUESTING COUNTRY").strip()
+    date_listed = row.pop("DATE LISTED").strip()
+    if not requester and not requesting_country and not date_listed:
+        return
     if not requester or not requesting_country:
         context.log.warning("Missing requester, requesting country", row=row)
         return
@@ -30,7 +39,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("country", requesting_country)
     entity.add("topics", "export.risk")
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "listingDate", row.pop("DATE LISTED", ""))
+    h.apply_date(sanction, "listingDate", date_listed)
 
     context.emit(entity, target=True)
     context.emit(sanction)
@@ -38,6 +47,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 def crawl_csv(context: Context, path: str):
     with open(path, encoding="utf-8-sig") as fh:
+        # Skip the first three lines
+        for _ in range(3):
+            next(fh)
         for row in DictReader(fh):
             crawl_row(context, row)
 
