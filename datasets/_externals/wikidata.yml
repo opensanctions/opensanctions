@@ -908,7 +908,11 @@ lookups:
           - Azad Kashmir
           - پاڪستاني
         value: PK
-      - match: Kwara State
+      - match: 
+          - Kwara State
+          - Kogi State
+          - Jos Plateau
+          - Funtua
         value: NG
       - match: Kazakh Soviet Socialist Republic
         values:
@@ -954,8 +958,6 @@ lookups:
         value: ES
       - match: Muscat and Oman
         value: OM
-      - match: Funtua
-        value: NG
       - match: Puntland
         value: SO
       - match:
