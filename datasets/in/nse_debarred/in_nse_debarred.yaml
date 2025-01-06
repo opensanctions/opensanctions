@@ -130,7 +130,7 @@ lookups:
       - match: AACFR2090K
         value: Sanvan Software Ltd
       - match: AAACH4113J
-        values: SYP Agro Foods Ltd
+        value: SYP Agro Foods Ltd
   type.url:
     options:
       - match: hhttps://archives.nseindia.com/content/circulars/INVG47850.zip

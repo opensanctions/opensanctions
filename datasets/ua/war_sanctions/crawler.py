@@ -1,4 +1,5 @@
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 
 LINKS = [
@@ -75,7 +76,12 @@ def emit_care_of(context, entity, unknown_link_name):
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
-    index_page = context.fetch_html(index_page)
+    index_page = fetch_html(
+        context,
+        index_page,
+        unblock_validator=".//div[@id='main-grid']",
+        html_source="httpResponseBody",
+    )
     main_grid = index_page.find('.//div[@id="main-grid"]')
     if data_type == "captain":
         crawl_captain(context, main_grid, program)
@@ -145,7 +151,13 @@ def crawl_captain(context: Context, main_grid, program):
 
 
 def crawl_vessel(context: Context, link, program):
-    detail_page = context.fetch_html(link, cache_days=1)
+    detail_page = fetch_html(
+        context,
+        link,
+        unblock_validator=".//div[contains(@class,'tools-spec')]/div[contains(@class, 'row')]",
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
     details_container = detail_page.find(".//main")
     data: dict[str, str] = {}
 
@@ -309,7 +321,13 @@ def crawl_ship_relation(
 
 
 def crawl_person(context: Context, link, program):
-    detail_page = context.fetch_html(link, cache_days=1)
+    detail_page = fetch_html(
+        context,
+        link,
+        unblock_validator=".//main//div[@class='row']",
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
 
     # Having at least some pop()s without defaults and audit()-ing the rest
     # implies the very generic selectors.
@@ -353,7 +371,13 @@ def crawl_person(context: Context, link, program):
 
 
 def crawl_legal_entity(context: Context, link, program):
-    detail_page = context.fetch_html(link, cache_days=1)
+    detail_page = fetch_html(
+        context,
+        link,
+        unblock_validator=".//main//div[@class='row']",
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
 
     # Having at least some pop()s without defaults and audit()-ing the rest
     # implies the very generic selectors.
@@ -404,7 +428,13 @@ def extract_next_page_url(doc):
 
 
 def crawl(context: Context):
-    main_page = context.fetch_html(context.data_url, cache_days=1)
+    main_page = fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=".//section[contains(@class, 'sections')][contains(@class, 'justify-content-center')]",
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
     # Have any new sections been added?
     section_links_section = main_page.xpath(
         ".//section[contains(@class, 'sections')][contains(@class, 'justify-content-center')]"
@@ -420,8 +450,12 @@ def crawl(context: Context):
     h.assert_dom_hash(api_link[0], "26de80467eb7b4a93c0ad5c5c5b8cd75b07a38e0")
 
     # Has anything been added to the transport tabs?
-    transport_page = context.fetch_html(
-        "https://war-sanctions.gur.gov.ua/en/transport/ships", cache_days=1
+    transport_page = fetch_html(
+        context,
+        "https://war-sanctions.gur.gov.ua/en/transport/ships",
+        unblock_validator=".//div[@id='main-grid']",
+        html_source="httpResponseBody",
+        cache_days=1,
     )
     transport_tabs_container = transport_page.xpath(
         ".//div[contains(@class, 'tab')]/div[contains(@class, 'justify-content-center')]"
@@ -438,7 +472,12 @@ def crawl(context: Context):
         current_url = base_url
         visited_pages = 0
         while current_url:
-            doc = context.fetch_html(current_url)
+            doc = fetch_html(
+                context,
+                current_url,
+                unblock_validator=".//div[@id='main-grid']",
+                html_source="httpResponseBody",
+            )
             doc.make_links_absolute(base_url)
             if doc is None:
                 context.log.warn(f"Failed to fetch {current_url}")
