@@ -26,6 +26,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
     ):
         return
     requesting_country = row.pop("REQUESTING COUNTRY").strip()
+    date_listed = row.pop("DATE LISTED").strip()
+    if not requester and not requesting_country and not date_listed:
+        return
     if not requester or not requesting_country:
         context.log.warning("Missing requester, requesting country", row=row)
         return
@@ -36,7 +39,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("country", requesting_country)
     entity.add("topics", "export.risk")
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "listingDate", row.pop("DATE LISTED", "").strip())
+    h.apply_date(sanction, "listingDate", date_listed)
 
     context.emit(entity, target=True)
     context.emit(sanction)
