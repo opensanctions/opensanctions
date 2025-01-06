@@ -14,11 +14,12 @@ POSITION_PROMPT = prompt = make_position_translation_prompt("cnr")
 
 
 def get_latest_date(dates):
-    # Convert string dates to datetime objects
-    dates = [datetime.strptime(item["datum"], "%Y-%m-%d") for item in dates]
-    latest_date = max(dates)
-
-    return latest_date.strftime("%Y-%m-%d")
+    if dates:
+        # Convert string dates to datetime objects
+        dates = [datetime.strptime(item["datum"], "%Y-%m-%d") for item in dates]
+        latest_date = max(dates)
+        return latest_date.strftime("%Y-%m-%d")
+    return None
 
 
 def crawl_person(context: Context, person):
@@ -65,8 +66,15 @@ def crawl_person(context: Context, person):
 
 
 def crawl(context: Context):
-    for page in range(0, 1):
+    page = 0
+    while True:
         data_url = f"https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni?page={page}&size=20"
         doc = context.fetch_json(data_url.format(page=page), cache_days=1)
+
+        if not doc:  # Stop if an empty list is returned
+            context.log.info(f"Stopped at page {page}")
+            break
+
         for person in doc:
             crawl_person(context, person)
+        page += 1
