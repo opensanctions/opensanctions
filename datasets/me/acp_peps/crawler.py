@@ -67,6 +67,7 @@ def crawl_person(context: Context, person):
 
 def crawl(context: Context):
     page = 0
+    max_pages = 1200
     while True:
         data_url = f"https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni?page={page}&size=20"
         doc = context.fetch_json(data_url.format(page=page), cache_days=1)
@@ -78,3 +79,9 @@ def crawl(context: Context):
         for person in doc:
             crawl_person(context, person)
         page += 1
+
+        if page >= max_pages:
+            context.log.error(
+                f"Emergency exit: Reached the maximum page limit of {max_pages}."
+            )
+            break
