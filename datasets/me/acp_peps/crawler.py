@@ -71,7 +71,7 @@ def crawl(context: Context):
         data_url = f"https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni?page={page}&size=20"
         doc = context.fetch_json(data_url.format(page=page), cache_days=1)
 
-        if not doc:  # Stop if an empty list is returned
+        if not doc:  # Break if an empty list is returned
             context.log.info(f"Stopped at page {page}")
             break
 
