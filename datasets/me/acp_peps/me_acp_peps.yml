@@ -6,7 +6,7 @@ coverage:
   start: "2024-01-06"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Montenegrin Public Officials Subject to Declaration by the Agency for the Prevention of Corruption.
+  Montenegrin Public Officials Subject to Declaration by the Agency for Prevention of Corruption.
 description: |
   This dataset focuses on politically exposed persons (PEPs) in Montenegro, providing 
   data on current and former public officials who are subject to income and asset 
