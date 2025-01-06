@@ -8,7 +8,7 @@ from zavod import helpers as h
 from zavod.logic.pep import categorise
 
 
-EXPECTED_COLUMNS = [
+EXPECTED_COLUMNS_OBLIGATED = [
     "Ime",
     "Prezime",
     "Primarna dužnost",
@@ -21,19 +21,21 @@ EXPECTED_COLUMNS = [
     "Datum kraja obnašanja dužnosti",
 ]
 
-
-# Define readable column names for appointed civil servants
-CIVIL_SERVANTS_ENGLISH_COLUMN_NAMES = [
-    "First Name",
-    "Last Name",
-    "Position",
-    "Legal Entity",
-    "Position Start Date",
-    "Position End Date",
+EXPECTED_COLUMNS_CIVIL_SERVANTS = [
+    "Ime",
+    "Prezime",
+    "Dužnost",
+    "Pravna osoba u kojoj obnaša dužnost",
+    "Datum početka obnašanja dužnosti",
+    "Datum kraja obnašanja dužnosti",
+    "Dužnost",
+    "Pravna osoba u kojoj obnaša dužnost",
+    "Datum početka obnašanja dužnosti",
+    "Datum kraja obnašanja dužnosti",
 ]
 
-# Define readable column names for obligors
-OBLIGORS_ENGLISH_COLUMN_NAMES = [
+# Define readable column names for appointed civil servants
+FIELDS_CIVIL_SERVANTS = [
     "First Name",
     "Last Name",
     "Primary Position",
@@ -46,22 +48,18 @@ OBLIGORS_ENGLISH_COLUMN_NAMES = [
     "Secondary Position End Date",
 ]
 
-SOURCES = [
-    {  # Register of appointed civil servants
-        "url": "https://www.sukobinteresa.hr/export/registar_rukovodecih_drzavnih_sluzbenika_koje_imenuje_vlada_republike_hrvatske.csv",
-        "file_name": "appointed.csv",
-        "columns": CIVIL_SERVANTS_ENGLISH_COLUMN_NAMES,
-        "header_encoding": "utf-8",
-        "secondary_position": False,
-    },
-    {  # Register of obligors
-        "url": "https://www.sukobinteresa.hr/export/registar_duznosnika.csv",
-        "file_name": "obligors.csv",
-        "columns": OBLIGORS_ENGLISH_COLUMN_NAMES,
-        "header_encoding": "utf-8-sig",
-        "expected_columns": EXPECTED_COLUMNS,
-        "secondary_position": True,
-    },
+# Define readable column names for obligors
+FIELDS_OBLIGATED_PERSONS = [
+    "First Name",
+    "Last Name",
+    "Primary Position",
+    "Primary Legal Entity",
+    "Primary Position Start Date",
+    "Primary Position End Date",
+    "Secondary Position",
+    "Secondary Legal Entity",
+    "Secondary Position Start Date",
+    "Secondary Position End Date",
 ]
 
 
@@ -78,7 +76,11 @@ def make_position_name(data: dict) -> Optional[str]:
 
 
 def make_affiliation_entities(
-    context: Context, person: Entity, position_name: str, data: dict
+    context: Context,
+    person: Entity,
+    position_name: str,
+    data: dict,
+    position_topics: List[str],
 ) -> List[Entity]:
     """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
     * A position's name include the title and optionally the name of the legal entity
@@ -86,12 +88,16 @@ def make_affiliation_entities(
     * All positions (and Occupancies, Persons) are assumed to be Croatian
     * Positions with start and/or end date but no position name or legal entity name are discarded
     """
+    if position_name is None or position_name.strip() == "":
+        return []
 
     start_date = data.pop("Position Start Date")
     end_date = data.pop("Position End Date")
     context.audit_data(data)
 
-    position = h.make_position(context, position_name, topics=None, country="HR")
+    position = h.make_position(
+        context, position_name, topics=position_topics, country="HR"
+    )
 
     categorisation = categorise(context, position, is_pep=True)
     occupancy = h.make_occupancy(
@@ -125,95 +131,91 @@ def make_person(
     return person
 
 
-def extract_dict_keys_by_prefix(
-    data: dict, key_names: list[str], prefix: str
-) -> dict[str:Any]:
-    """Pops dict keys in `key_names` if the key starts with `prefix`.
-    Returns a new dict and removes keys from old dict"""
+def dict_keys_by_prefix(data: dict, prefix: str) -> dict[str:Any]:
+    """
+    Returns a new dict with keys and values from the original matching the prefix.
+    The prefix is removed from the keys in the new dict.
+    """
     return {
-        k.removeprefix(prefix): data.pop(k) for k in key_names if k.startswith(prefix)
+        k.removeprefix(prefix): data.pop(k)
+        for k in list(data.keys())
+        if k.startswith(prefix)
     }
 
 
-def assert_column_names(file_path, expected_columns, encoding):
-    with open(file_path, encoding=encoding) as fh:
-        reader = csv.reader(fh, delimiter=";")
-        actual_columns = next(reader)
-        assert (
-            actual_columns == expected_columns
-        ), f"Actual columns: {actual_columns}\nExpected columns: {expected_columns}"
-
-
-def process_row(context, row, columns, secondary_position):
-    filtered_row = {k: v for k, v in row.items() if k is not None}
+def crawl_row(context, row, position_topics):
     position_entities = []
 
-    if secondary_position:
-        primary_data = extract_dict_keys_by_prefix(filtered_row, columns, "Primary ")
-        primary_position_name = make_position_name(primary_data)
+    primary_position_data = dict_keys_by_prefix(row, "Primary ")
+    primary_position_name = make_position_name(primary_position_data)
+    secondary_data = dict_keys_by_prefix(row, "Secondary ")
+    secondary_position_name = make_position_name(secondary_data)
 
-        secondary_data = extract_dict_keys_by_prefix(
-            filtered_row, columns, "Secondary "
-        )
-        secondary_position_name = make_position_name(secondary_data)
+    person = make_person(
+        context,
+        row.pop("First Name"),
+        row.pop("Last Name"),
+        primary_position_name,
+        secondary_position_name,
+    )
 
-        person = make_person(
+    position_entities.extend(
+        make_affiliation_entities(
             context,
-            filtered_row.pop("First Name"),
-            filtered_row.pop("Last Name"),
+            person,
             primary_position_name,
-            secondary_position_name,
+            primary_position_data,
+            position_topics,
         )
-
-        position_entities.extend(
-            make_affiliation_entities(
-                context, person, primary_position_name, primary_data
-            )
+    )
+    position_entities.extend(
+        make_affiliation_entities(
+            context, person, secondary_position_name, secondary_data, position_topics
         )
-        position_entities.extend(
-            make_affiliation_entities(
-                context, person, secondary_position_name, secondary_data
-            )
-        )
+    )
 
-    else:  # No secondary position
-        primary_position_name = make_position_name(filtered_row)
-
-        person = make_person(
-            context,
-            filtered_row.pop("First Name"),
-            filtered_row.pop("Last Name"),
-            primary_position_name,
-            None,
-        )
-
-        person.add("topics", "gov.admin")
-        position_entities.extend(
-            make_affiliation_entities(
-                context, person, primary_position_name, filtered_row
-            )
-        )
-
-    context.audit_data(filtered_row)
+    context.audit_data(row)
     if position_entities:
         for entity in position_entities:
             context.emit(entity)
         context.emit(person, target=True)
 
 
-def crawl(context):
-    for dataset in SOURCES:
-        file_path = context.fetch_resource(dataset["file_name"], dataset["url"])
-        context.export_resource(file_path, CSV, title=context.SOURCE_TITLE)
+def crawl_file(
+    context: Context,
+    url,
+    filename,
+    fields,
+    expected_headings,
+    position_topics,
+):
+    path = context.fetch_resource(filename, url)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-        with open(file_path, encoding=dataset["header_encoding"]) as fh:
-            reader = csv.DictReader(fh, fieldnames=dataset["columns"], delimiter=";")
-            next(reader, None)  # Skip the first row since it's a header
-            for row in reader:
-                if dataset["secondary_position"]:
-                    assert_column_names(
-                        file_path, EXPECTED_COLUMNS, dataset["header_encoding"]
-                    )
-                process_row(
-                    context, row, dataset["columns"], dataset["secondary_position"]
-                )
+    with open(path, encoding="utf-8-sig") as fh:
+        headings = next(csv.reader(fh, delimiter=";"))
+        assert headings == expected_headings, (url, headings)
+        reader = csv.DictReader(fh, fieldnames=fields, delimiter=";")
+        for row in reader:
+            crawl_row(context, row, position_topics)
+
+
+def crawl(context: Context):
+    # Register of appointed civil servants
+    crawl_file(
+        context,
+        url="https://www.sukobinteresa.hr/export/registar_rukovodecih_drzavnih_sluzbenika_koje_imenuje_vlada_republike_hrvatske.csv",
+        filename="appointed.csv",
+        fields=FIELDS_CIVIL_SERVANTS,
+        expected_headings=EXPECTED_COLUMNS_CIVIL_SERVANTS,
+        position_topics=["gov.admin"],
+    )
+    # Register of obligors
+    crawl_file(
+        context,
+        url="https://www.sukobinteresa.hr/export/registar_duznosnika.csv",
+        filename="obligated.csv",
+        fields=FIELDS_OBLIGATED_PERSONS,
+        expected_headings=EXPECTED_COLUMNS_OBLIGATED,
+        position_topics=[],
+    )
