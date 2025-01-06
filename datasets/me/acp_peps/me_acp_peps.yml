@@ -1,0 +1,33 @@
+title: Montenegro Public Officials’ Income and Asset Declarations
+entry_point: crawler.py
+prefix: mx-gov
+coverage:
+  frequency: weekly
+  start: "2024-01-06"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Income and asset declarations of Montenegro’s public officials by the 
+  Agency for Prevention of Corruption.
+description: |
+  The dataset focuses on politically exposed persons (PEPs) in Montenegro, derived 
+  from publicly available data provided by the Agency for Prevention of Corruption. 
+  This includes income and asset declarations for both current and former public 
+  officials.
+
+  The dataset serves as a resource for transparency and anti-corruption efforts, 
+  ensuring public accountability for individuals in significant roles.
+publisher:
+  name: Agencija za sprečavanje korupcije
+  name_en: Agency for Prevention of Corruption
+  acronym: ASK
+  description: |
+    Montenegro's Agency for Prevention of Corruption, tasked with preventing conflicts of interest, 
+    monitoring integrity, and ensuring transparency in governance.
+  url: https://www.antikorupcija.me/en/
+  country: "me"
+  official: true
+url: https://obsidian.antikorupcija.me/registri/pretraga-izvjestaja-o-prihodima-i-imovini
+data:
+  url: https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni
+  format: JSON
+  # lang: cnr  # Montenegrin (ISO 639-2)
