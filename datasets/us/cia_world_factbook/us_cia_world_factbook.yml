@@ -180,6 +180,12 @@ lookups:
           - role: Deputy Prime Minister
             name: Richard SULIK
             start_date: 21 March 2020
+      # South Korea
+      - match: 'Deputy Prime Minister CHOI Sang-mok became Acting President on 27 December 2024 after the National Assembly impeached and suspended HAN from office'
+        holders:
+          - role: Acting President
+            name: CHOI Sang-mok
+            start_date: 27 December 2024
       # San Marino
       - match: "co-chiefs of state Captains Regent Alessandro ROSSI and Milena GASPERONI (for the period 1 April 2024 - 30 September 2024)"
         holders:
