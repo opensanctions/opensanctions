@@ -33,7 +33,7 @@ data:
   format: html
 
 dates:
-  formats: ["%y-%b"]
+  formats: ["%y-%b", "%B %Y"]
 
 lookups:
   type.country:
