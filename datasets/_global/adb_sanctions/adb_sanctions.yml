@@ -103,11 +103,12 @@ lookups:
           - 中国广西壮族自治区贵港市平南县平南街道(原附城村大将三队)永发新村三街85号505室
 
       - match: "Canada office: #27 King’s College Circle, Toronto, Ontario M5S1A1, CANADA Cambodia office: 31BT, Phum Sansam Kosal 1, Boeng Tumpun, Mean Chey, Phnom Penh, 12351, CAMBODIA Lao PDR Office: #17 Khounboulom Boad, Chanthaboury, Vientiane Capital, LAO PDR Vietnam office: 5th Floor Sentinal Place Building, 41B Ly Thai To St., Hanoi, VIETNAM Myanmar office: #12 (0), Phi Thu Lane, 7 Mile, Mayangone, Ownship, Yangon, MYANMAR"
-        values: 27 King’s College Circle, Toronto, Ontario M5S1A1, CANADA
-          31BT, Phum Sansam Kosal 1, Boeng Tumpun, Mean Chey, Phnom Penh, 12351, CAMBODIA
-          17 Khounboulom Boad, Chanthaboury, Vientiane Capital, LAO PDR
-          5th Floor Sentinal Place Building, 41B Ly Thai To St., Hanoi, VIETNAM
-          12 (0), Phi Thu Lane, 7 Mile, Mayangone, Ownship, Yangon, MYANMAR
+        values:
+          - 27 King’s College Circle, Toronto, Ontario M5S1A1, CANADA
+          - 31BT, Phum Sansam Kosal 1, Boeng Tumpun, Mean Chey, Phnom Penh, 12351, CAMBODIA
+          - 17 Khounboulom Boad, Chanthaboury, Vientiane Capital, LAO PDR
+          - 5th Floor Sentinal Place Building, 41B Ly Thai To St., Hanoi, VIETNAM
+          - 12 (0), Phi Thu Lane, 7 Mile, Mayangone, Ownship, Yangon, MYANMAR
 
       - match: c/o Ingenieros Consultores y Asesores Técnicos Sociedad de Responsabilidad Limitada de Capital Variable (INCAT S. de R.L. de C.V.) Colonia Hato de Enmedio, Sector 8, Bloque 108, Casa 3902, Calle Principal, in front of Hospital San Jorge, same place as Hotel La Estancia, Tegucigalpa, HONDURAS
         value: c/o Ingenieros Consultores y Asesores Técnicos Sociedad de Responsabilidad Limitada de Capital Variable (INCAT S. de R.L. de C.V.) Colonia Hato de Enmedio, Sector 8, Bloque 108, Casa 3902, Calle Principal
