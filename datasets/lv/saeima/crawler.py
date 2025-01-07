@@ -51,7 +51,7 @@ def crawl_item(unid: str, context: Context):
 
 def crawl(context: Context):
     # check if it's time for the end of the term
-    if datetime.now().isoformat() > "2025":
+    if datetime.now().isoformat() > "2025-12-31T23:59:59":
         context.log.warning(
             "The 14th Saeima term is nearly over. These occupants will soon not be current."
         )
