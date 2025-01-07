@@ -78,7 +78,7 @@ def make_affiliation_entities(
     * Positions with start and/or end date but no position name or legal entity name are discarded
     """
     if position_name is None or position_name.strip() == "":
-       return []
+        return []
 
     start_date = data.pop("position_start_date")
     end_date = data.pop("position_end_date")
