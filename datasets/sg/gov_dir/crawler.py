@@ -138,10 +138,8 @@ def crawl_person(context: Context, official, link, public_body, agency, section_
             context.emit(person, target=True)
             context.emit(position)
             context.emit(occupancy)
-    elif:
-        context.log.warning(
-            "Uncategorised position", position=position_name, url=link
-        )
+    elif categorisation.is_pep is None:
+        context.log.warning("Uncategorised position", position=position_name, url=link)
 
 
 def crawl_body(context: Context, org_name, link):
