@@ -9,7 +9,7 @@ PAGE_SETTINGS = {"join_y_tolerance": 2}
 
 def crawl_item(row: Dict[str, str], context: Context):
     first_name = row.pop("provider_first_nam")
-    middle_name = row.pop("provider_middle_initial")
+    middle_name = row.pop("provider_middle_initia")
     last_name = row.pop("provider_last_name")
     npi = row.pop("npi")
     if organization_name := row.pop("organization_name"):
@@ -35,13 +35,13 @@ def crawl_item(row: Dict[str, str], context: Context):
         assert organization_name == "", row
 
     entity.add("npiCode", npi)
-    entity.add("sector", row.pop("provider_type_code"))
+    entity.add("sector", row.pop("eprovider_type_code"))
     entity.add("topics", "debarment")
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", row.pop("reason_for_action_code"))
-    h.apply_date(sanction, "startDate", row.pop("effective_date"))
+    h.apply_date(sanction, "startDate", row.pop("effective_dat"))
     sanction.add("provisions", row.pop("sanction_code"))
     sanction.add("duration", row.pop("sanction_type_code"))
 
