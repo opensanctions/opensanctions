@@ -7,6 +7,10 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
+# We predefine expected column headings because the source data repeats
+# the column headings for the tenure details. We use predefined distinct field
+# names for extraction, but verify that the columns match what we assume
+# them to be when reading the CSV.
 
 EXPECTED_COLUMNS_OBLIGATED = [
     "Ime",
@@ -34,38 +38,24 @@ EXPECTED_COLUMNS_CIVIL_SERVANTS = [
     "Datum kraja obnašanja dužnosti",
 ]
 
-# Define readable column names for appointed civil servants
-FIELDS_CIVIL_SERVANTS = [
-    "First Name",
-    "Last Name",
-    "Primary Position",
-    "Primary Legal Entity",
-    "Primary Position Start Date",
-    "Primary Position End Date",
-    "Secondary Position",
-    "Secondary Legal Entity",
-    "Secondary Position Start Date",
-    "Secondary Position End Date",
-]
-
-# Define readable column names for obligors
-FIELDS_OBLIGATED_PERSONS = [
-    "First Name",
-    "Last Name",
-    "Primary Position",
-    "Primary Legal Entity",
-    "Primary Position Start Date",
-    "Primary Position End Date",
-    "Secondary Position",
-    "Secondary Legal Entity",
-    "Secondary Position Start Date",
-    "Secondary Position End Date",
+# Define readable column names
+FIELDS = [
+    "first_name",
+    "last_name",
+    "primary_position",
+    "primary_legal_entity",
+    "primary_position_start_date",
+    "primary_position_end_date",
+    "secondary_position",
+    "secondary_legal_entity",
+    "secondary_position_start_date",
+    "secondary_position_end_date",
 ]
 
 
 def make_position_name(data: dict) -> Optional[str]:
-    title = data.pop("Position")
-    legal_entity_name = data.pop("Legal Entity")
+    title = data.pop("position")
+    legal_entity_name = data.pop("legal_entity")
     if not any([title, legal_entity_name]):
         return None
 
@@ -80,7 +70,6 @@ def make_affiliation_entities(
     person: Entity,
     position_name: str,
     data: dict,
-    position_topics: List[str],
 ) -> List[Entity]:
     """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
     * A position's name include the title and optionally the name of the legal entity
@@ -89,15 +78,13 @@ def make_affiliation_entities(
     * Positions with start and/or end date but no position name or legal entity name are discarded
     """
     if position_name is None or position_name.strip() == "":
-        return []
+       return []
 
-    start_date = data.pop("Position Start Date")
-    end_date = data.pop("Position End Date")
+    start_date = data.pop("position_start_date")
+    end_date = data.pop("position_end_date")
     context.audit_data(data)
 
-    position = h.make_position(
-        context, position_name, topics=position_topics, country="HR"
-    )
+    position = h.make_position(context, position_name, country="HR")
 
     categorisation = categorise(context, position, is_pep=True)
     occupancy = h.make_occupancy(
@@ -143,18 +130,18 @@ def dict_keys_by_prefix(data: dict, prefix: str) -> dict[str:Any]:
     }
 
 
-def crawl_row(context, row, position_topics):
+def crawl_row(context, row):
     position_entities = []
 
-    primary_position_data = dict_keys_by_prefix(row, "Primary ")
+    primary_position_data = dict_keys_by_prefix(row, "primary_")
     primary_position_name = make_position_name(primary_position_data)
-    secondary_data = dict_keys_by_prefix(row, "Secondary ")
+    secondary_data = dict_keys_by_prefix(row, "secondary_")
     secondary_position_name = make_position_name(secondary_data)
 
     person = make_person(
         context,
-        row.pop("First Name"),
-        row.pop("Last Name"),
+        row.pop("first_name"),
+        row.pop("last_name"),
         primary_position_name,
         secondary_position_name,
     )
@@ -165,12 +152,11 @@ def crawl_row(context, row, position_topics):
             person,
             primary_position_name,
             primary_position_data,
-            position_topics,
         )
     )
     position_entities.extend(
         make_affiliation_entities(
-            context, person, secondary_position_name, secondary_data, position_topics
+            context, person, secondary_position_name, secondary_data
         )
     )
 
@@ -181,14 +167,7 @@ def crawl_row(context, row, position_topics):
         context.emit(person, target=True)
 
 
-def crawl_file(
-    context: Context,
-    url,
-    filename,
-    fields,
-    expected_headings,
-    position_topics,
-):
+def crawl_file(context: Context, url, filename, fields, expected_headings):
     path = context.fetch_resource(filename, url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
@@ -197,25 +176,27 @@ def crawl_file(
         assert headings == expected_headings, (url, headings)
         reader = csv.DictReader(fh, fieldnames=fields, delimiter=";")
         for row in reader:
-            crawl_row(context, row, position_topics)
+            crawl_row(context, row)
 
 
 def crawl(context: Context):
     # Register of appointed civil servants
+    #
+    # It'd be nice to pass position topics like gov.admin here, but
+    # the secondary positions or positions with entity but no role label
+    # might get mis-tagged.
     crawl_file(
         context,
         url="https://www.sukobinteresa.hr/export/registar_rukovodecih_drzavnih_sluzbenika_koje_imenuje_vlada_republike_hrvatske.csv",
         filename="appointed.csv",
-        fields=FIELDS_CIVIL_SERVANTS,
+        fields=FIELDS,
         expected_headings=EXPECTED_COLUMNS_CIVIL_SERVANTS,
-        position_topics=["gov.admin"],
     )
     # Register of obligors
     crawl_file(
         context,
         url="https://www.sukobinteresa.hr/export/registar_duznosnika.csv",
         filename="obligated.csv",
-        fields=FIELDS_OBLIGATED_PERSONS,
+        fields=FIELDS,
         expected_headings=EXPECTED_COLUMNS_OBLIGATED,
-        position_topics=[],
     )
