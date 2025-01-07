@@ -62,7 +62,8 @@ def crawl_member(context: Context, bioguide_id: str):
 
     person = context.make("Person")
     person.id = context.make_id(bioguide_id)
-    person.add("birthDate", member.pop("birthYear", None))
+    h.apply_date(person, "birthDate", member.pop("birthYear", None))
+    h.apply_date(person, "deathDate", member.pop("deathYear", None))
     person.add("name", member.pop("directOrderName"))
     person.add("firstName", member.pop("firstName"))
     person.add("lastName", member.pop("lastName"))
