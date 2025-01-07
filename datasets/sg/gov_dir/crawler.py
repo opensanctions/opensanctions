@@ -53,6 +53,7 @@ def is_pep(rank: str) -> bool | None:
         keyword in rank_lower
         for keyword in [
             "minister",
+            "permanent secretary",
             "president",
             "member",
             "executive officer",
