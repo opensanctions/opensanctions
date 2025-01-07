@@ -33,7 +33,7 @@ data:
   format: html
 
 dates:
-  formats: ["%y-%b"]
+  formats: ["%y-%b", "%B %Y"]
 
 lookups:
   type.country:
@@ -46,7 +46,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Company: 125
+      Company: 130
   max: 
     schema_entities:
-      Company: 150
+      Company: 190

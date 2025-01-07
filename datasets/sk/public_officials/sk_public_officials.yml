@@ -1,0 +1,54 @@
+title: Slovakia Public Officials
+prefix: sk-po
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: 2025-01-03
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of public officials in Slovakia, including their names, positions,
+  and other relevant information.
+description: |
+  The dataset contains information about public officials in Slovakia, including
+  their names, positions, and other relevant information. The data is collected
+  from the official website of the National Council of the Slovak Republic.
+publisher:
+  name: Národná rada Slovenskej republiky
+  name_en: National Council of the Slovak Republic
+  acronym: NR SR
+  description: |
+    National Council of the Slovak Republic is the sole constitutional and legislative body 
+    of the Slovak Republic. It is the body of state authority and the status of other state 
+    bodies in Slovakia is derived from its primary status. As an elected body it represents 
+    the sovereignty of the state and of the citizens. It has an important role in the formation 
+    of the Slovak Republic as a modern and democratic state, as well as in the implementation of 
+    social and ecologically oriented market economy.
+    [Source: Official website](https://www.nrsr.sk/web/?sid=nrsr/poslanie)
+  url: https://www.nrsr.sk/web/
+  official: true
+  country: sk
+url: https://www.nrsr.sk/web/Default.aspx?sid=vnf%2fzoznam&ViewType=2
+data:
+  url: https://www.nrsr.sk/web/Default.aspx?sid=vnf%2fzoznam&ViewType=2
+  format: HTML
+  lang: slk
+
+assertions: 
+  min: 
+    schema_entities: 
+      Person: 1500
+  max: 
+    schema_entities: 
+      Person: 2500
+lookups:
+  position:
+    normalize: true
+    options: 
+      - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PODPREDSEDA PROTIMONOPOLNÝ ÚRAD SLOVENSKEJ REPUBLIKY )
+        value: PODPREDSEDA PROTIMONOPOLNÝ ÚRAD SLOVENSKEJ REPUBLIKY
+      - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (KUNSTHALLE BRATISLAVA)
+        value: KUNSTHALLE BRATISLAVA
+      - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY)
+        value: PREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY
+      - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PODPREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY )
+        value: PODPREDSEDA NAJVYŠŠIEHO SPRÁVNEHO SÚDU SLOVENSKEJ REPUBLIKY
