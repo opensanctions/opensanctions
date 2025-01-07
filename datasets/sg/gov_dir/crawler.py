@@ -64,6 +64,11 @@ def is_pep(rank: str) -> bool | None:
             "auditor-general",
             "justice",
             "judge",
+            "deputy chief",
+            "deputy secretary",
+            "senior parliamentary secretary",
+            "chief prosecutor",
+            "head of secretariat",
         ]
     ):
         return True
@@ -74,6 +79,7 @@ def is_pep(rank: str) -> bool | None:
             "assistant",
             "secretary to",
             "please contact",
+            "quality service manager",
         ]
     ):
         return False
