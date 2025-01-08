@@ -53,6 +53,7 @@ def is_pep(rank: str) -> bool | None:
         keyword in rank_lower
         for keyword in [
             "minister",
+            "permanent secretary",
             "president",
             "member",
             "executive officer",
@@ -63,25 +64,22 @@ def is_pep(rank: str) -> bool | None:
             "auditor-general",
             "justice",
             "judge",
+            "deputy chief",
+            "deputy secretary",
+            "senior parliamentary secretary",
+            "chief prosecutor",
+            "head of secretariat",
+            "senior adviser",
         ]
     ):
         return True
-    elif any(
-        keyword in rank_lower
-        for keyword in [
-            "pa to",
-            "assistant",
-            "secretary to",
-            "please contact",
-        ]
-    ):
-        return False
     else:
         return None
 
 
 def crawl_person(context: Context, official, link, public_body, agency, section_name):
     rank = official.find(".//div[@class='rank']").text_content().strip()
+    # Skip all non-PEP positions
     if any(
         keyword in rank.lower()
         for keyword in [
@@ -89,6 +87,8 @@ def crawl_person(context: Context, official, link, public_body, agency, section_
             "assistant",
             "secretary to",
             "please contact",
+            "quality service manager",
+            "administrative professional",
         ]
     ):
         return
@@ -131,6 +131,8 @@ def crawl_person(context: Context, official, link, public_body, agency, section_
             context.emit(person, target=True)
             context.emit(position)
             context.emit(occupancy)
+    elif categorisation.is_pep is None:
+        context.log.warning("Uncategorised position", position=position_name, url=link)
 
 
 def crawl_body(context: Context, org_name, link):
