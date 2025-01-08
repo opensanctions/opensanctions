@@ -32,6 +32,9 @@ def crawl_item(url: str, context: Context):
     info_dict = parse_table(response.find(".//table"))
     en_name = info_dict.pop("Individual/Entity Name (English)", "").strip()
     th_name = info_dict.pop("Individual/Entity Name (Thailand)").strip()
+    # Falsy entry at the very end of the list
+    if th_name == "1." and en_name is None:
+        return
     birth_date = info_dict.pop("Date of Birth")
     birth_date_parsed = (h.extract_date(context.dataset, birth_date))[0]
 
@@ -77,7 +80,7 @@ def crawl_item(url: str, context: Context):
 
 
 def crawl(context: Context):
-    response = context.fetch_html(context.data_url)
+    response = context.fetch_html(context.data_url, cache_days=2)
     response.make_links_absolute(context.data_url)
 
     # We are going to iterate over all url of the designated persons
