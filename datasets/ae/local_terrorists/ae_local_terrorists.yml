@@ -162,3 +162,7 @@ lookups:
           - Kuweit
       - match: مصر - مسجون
         value: Egypt
+      - match: 'الحالية: السويد السابقة: ليبيريا'
+        values:
+          - Sweden
+          - Liberia

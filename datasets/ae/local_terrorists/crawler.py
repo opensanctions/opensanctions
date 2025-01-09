@@ -4,7 +4,6 @@ import re
 from typing import List, Optional
 from pathlib import Path
 from normality import collapse_spaces
-from urllib.parse import urljoin
 from rigour.mime.types import XLS
 
 from zavod import Context
