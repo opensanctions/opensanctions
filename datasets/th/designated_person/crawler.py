@@ -6,7 +6,7 @@ from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 
-REGEX_CLEAN_NAME = re.compile(r"^\d\. ")
+REGEX_CLEAN_NAME = re.compile(r"^\d\. ?")
 
 
 def parse_table(
@@ -27,6 +27,7 @@ def crawl_item(url: str, context: Context):
         url,
         unblock_validator=".//table",
         html_source="httpResponseBody",
+        cache_days=1,
     )
 
     info_dict = parse_table(response.find(".//table"))
@@ -34,9 +35,10 @@ def crawl_item(url: str, context: Context):
     th_name = info_dict.pop("Individual/Entity Name (Thailand)").strip()
     birth_date = info_dict.pop("Date of Birth")
     birth_date_parsed = (h.extract_date(context.dataset, birth_date))[0]
-
     entity = context.make("Person")
-    entity.id = context.make_slug(en_name, birth_date_parsed)
+    if not (en_name or clean_name(th_name)):
+        return
+    entity.id = context.make_slug(en_name or th_name, birth_date_parsed)
 
     entity.add("name", en_name, lang="en")
     entity.add("name", clean_name(th_name), lang="th")
@@ -77,7 +79,7 @@ def crawl_item(url: str, context: Context):
 
 
 def crawl(context: Context):
-    response = context.fetch_html(context.data_url)
+    response = context.fetch_html(context.data_url, cache_days=1)
     response.make_links_absolute(context.data_url)
 
     # We are going to iterate over all url of the designated persons
