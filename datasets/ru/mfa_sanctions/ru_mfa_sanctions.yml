@@ -1,4 +1,4 @@
-title: Russian Personal Sanctions Targeting US Citizens
+title: Russia Personal Sanctions Targeting US Citizens
 entry_point: crawler.py
 prefix: ru-mfa
 coverage:
@@ -40,3 +40,8 @@ assertions:
   max:
     schema_entities:
       Person: 3000
+lookups: 
+  sanction.program:
+    options:
+      - match: RU-MFA
+        value: RU-MFA
