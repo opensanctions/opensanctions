@@ -1,3 +1,4 @@
+import re
 from typing import Dict, Generator, List, Optional
 from lxml.html import HtmlElement
 
@@ -21,7 +22,6 @@ def parse_html_table(
         if any(cell.get("colspan") == "4" for cell in cells):
             continue
 
-        assert len(headers) == len(cells), (headers, cells)
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
@@ -30,21 +30,22 @@ def crawl(context: Context):
     table = doc.xpath(".//table")
     assert len(table) == 1
     table = table[0]
+
     for row in parse_html_table(table, headers=["index", "name", "-", "position"]):
         row = h.cells_to_str(row)
-        name_raw = row.pop("name")
+        name_raw = row.pop("name").rstrip("–").rstrip(",").strip()
+        assert re.match(r"^[\S\s]+\s\(.+\)$", name_raw), name_raw
         position = row.pop("position")
+
         person = context.make("Person")
         person.id = context.make_id(name_raw, position)
-        name, name_en = h.multi_split(
-            name_raw,
-            [" ("],
-        )
+        name, name_en = h.multi_split(name_raw, [" ("])
         person.add("name", name, lang="rus")
         person.add("name", name_en.rstrip(")"), lang="eng")
-        person.add("position", position, lang="rus")
+        person.add("position", position.split(", "), lang="rus")
         person.add("citizenship", "us")
         person.add("topics", "sanction.counter")
+
         sanction = h.make_sanction(context, person, program_key="RU-MFA")
         sanction.add("program", PROGRAM, lang="rus")
 
