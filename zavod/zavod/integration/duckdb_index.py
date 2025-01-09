@@ -1,12 +1,11 @@
-from io import TextIOWrapper
-from followthemoney.types import registry
-from pathlib import Path
-from shutil import rmtree
-from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
 import csv
 import duckdb
 import logging
-
+from io import TextIOWrapper
+from pathlib import Path
+from shutil import rmtree
+from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
+from followthemoney.types import registry
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.index.common import BaseIndex
@@ -55,7 +54,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         )
         """Memory budget in megabytes"""
         self.max_candidates = int(options.get("max_candidates", 50))
-        self.stopwords_pct = options.get("stopwords_pct", 1)
+        self.stopwords_pct: float = float(options.get("stopwords_pct", 0.02))
         self.data_dir = data_dir
         if self.data_dir.exists():
             rmtree(self.data_dir)
