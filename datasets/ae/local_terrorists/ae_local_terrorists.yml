@@ -42,7 +42,7 @@ publisher:
   url: https://www.uaeiec.gov.ae/en-us/
   official: true
 data:
-  url: "https://www.uaeiec.gov.ae/en-us/un-page?p=1#"
+  url: "https://www.uaeiec.gov.ae/en-us/un-page?p=2#"
   format: HTML
 
 dates: 

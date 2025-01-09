@@ -91,14 +91,14 @@ def parse_excel(context: Context, path: Path):
 
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url)
-    found_file = False
-    for a in doc.findall(".//a"):
-        a_url = urljoin(context.data_url, a.get("href"))
-        if "Local Terrorist List" in a.text_content() and "API/Upload" in a_url:
-            found_file = True
-            path = context.fetch_resource("source.xls", a_url)
+    doc.make_links_absolute(context.data_url)
+    for file_div in doc.findall(".//div[@class='download-file']"):
+        # Check the 'file-details' section for the correct file description
+        file_details = file_div.find(".//div[@class='file-details']/p")
+        if file_details is not None and file_details.text == "Download Excel File":
+            href_value = file_div.find(".//a[@href]").get("href")
+            if href_value is None:
+                context.log.error("Could not download Local Terror excel file!")
+            path = context.fetch_resource("source.xls", href_value)
             context.export_resource(path, XLS, title=context.SOURCE_TITLE)
             parse_excel(context, path)
-
-    if not found_file:
-        context.log.error("Could not download Local Terror excel file!")
