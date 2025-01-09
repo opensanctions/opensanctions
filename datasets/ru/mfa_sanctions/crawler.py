@@ -40,6 +40,7 @@ def crawl(context: Context):
         person.add("name", name, lang="rus")
         person.add("name", name_en.rstrip(")"), lang="eng")
         person.add("position", position, lang="rus")
+        person.add("citizenship", "us")
         person.add("topics", "sanction.counter")
         sanction = h.make_sanction(context, person)
         sanction.add(

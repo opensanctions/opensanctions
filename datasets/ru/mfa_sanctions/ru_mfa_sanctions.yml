@@ -32,3 +32,11 @@ url: https://mid.ru/ru/maps/us/1814243/
 data:
   url: https://mid.ru/ru/maps/us/1814243/
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 2000
+  max:
+    schema_entities:
+      Person: 3000
