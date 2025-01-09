@@ -54,7 +54,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         )
         """Memory budget in megabytes"""
         self.max_candidates = int(options.get("max_candidates", 50))
-        self.stopwords_pct: float = float(options.get("stopwords_pct", 0.02))
+        self.stopwords_pct: float = float(options.get("stopwords_pct", 0.2))
         self.data_dir = data_dir
         if self.data_dir.exists():
             rmtree(self.data_dir)
