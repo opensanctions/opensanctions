@@ -142,7 +142,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         ).fetchone()
         assert num_tokens_results is not None
         num_tokens = num_tokens_results[0]
-        limit = max(1, int((num_tokens / 100) * self.stopwords_pct))
+        limit = int((num_tokens / 100) * self.stopwords_pct)
         log.info(
             "Treating %d (%s%%) most common tokens as stopwords...",
             limit,
