@@ -51,6 +51,8 @@ lookups:
     options:
       - match: fraudAlias
         value: alias
+      - match: description
+        value: notes
       - match: nkproUrl
         value: sourceUrl
       - match: fraudFlag
@@ -181,11 +183,11 @@ lookups:
         value: IMO6246853
       - match: 6183435 [RUSSIAEO14024]
         value: IMO6183435
-      - match: 
+      - match:
           - 667003626
           - 445604000
         prop: mmsi
-      - match: 
+      - match:
           - 8705578
           - 8660313000
           - 9313186
