@@ -1,0 +1,47 @@
+title: Russia Personal Sanctions Targeting US Citizens
+entry_point: crawler.py
+prefix: ru-mfa
+coverage:
+  frequency: daily
+  start: 2025-01-09
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  A list of US citizens under personal sanctions by the Russian Federation.
+description: |
+  This dataset lists US citizens targeted by the Russian Federation with personal sanctions, 
+  including their names and positions. These measures, such as travel bans, are part of 
+  Russia's broader strategy to counter opposition to its geopolitical actions and policies. 
+  The list includes academics, political leaders, and other individuals who have stood in 
+  support of democratic values, accountability, and human rights. By naming these individuals, 
+  the Russian government aims to silence dissent and deter criticism of its actions on the 
+  global stage.
+
+  This dataset serves as a record of such actions and supports international efforts to monitor 
+  and respond to authoritarian counter-measures against advocates of democracy and rule of law.
+publisher:
+  name: Министерство иностранных дел Российской Федерации
+  name_en: Ministry of Foreign Affairs of the Russian Federation
+  acronym: MFA
+  description: |
+    The Ministry of Foreign Affairs of the Russian Federation is responsible for 
+    implementing foreign policy and maintaining international relations.
+  url: https://mid.ru/
+  official: true
+  country: ru
+url: https://mid.ru/ru/maps/us/1814243/
+data:
+  url: https://mid.ru/ru/maps/us/1814243/
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 2000
+  max:
+    schema_entities:
+      Person: 3000
+lookups: 
+  sanction.program:
+    options:
+      - match: RU-MFA
+        value: RU-MFA
