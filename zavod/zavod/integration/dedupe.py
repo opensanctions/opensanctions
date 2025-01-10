@@ -27,11 +27,11 @@ def _get_resolver_path() -> Path:
     return Path(settings.RESOLVER_PATH)
 
 
-@cache
 def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
     path = _get_resolver_path()
     log.info("Loading resolver from: %s" % path.as_posix())
+    # TODO maybe some env-var way to select between db and file
     return Resolver.load(path)
 
 
@@ -45,6 +45,7 @@ def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
 
 
 def blocking_xref(
+    resolver: Resolver[Entity],
     store: "Store",
     state_path: Path,
     limit: int = 5000,
@@ -59,7 +60,6 @@ def blocking_xref(
     dataset against each other, and stores the highest-scoring candidates for human
     review. Candidates above the given threshold score will be merged automatically.
     """
-    resolver = get_resolver()
     resolver.prune()
     log.info(
         "Xref running, algorithm: %r" % algorithm,
@@ -86,25 +86,21 @@ def blocking_xref(
         user=AUTO_USER,
         conflicting_match_threshold=conflicting_match_threshold,
     )
-    resolver.save()
 
 
-def explode_cluster(entity_id: str) -> None:
+def explode_cluster(resolver: Resolver[Entity], entity_id: str) -> None:
     """Destroy a cluster of deduplication matches."""
-    resolver = get_resolver()
     canonical_id = resolver.get_canonical(entity_id)
     for part_id in resolver.explode(canonical_id):
         log.info("Restore separate entity", entity=part_id)
-    resolver.save()
 
 
-def merge_entities(entity_ids: List[str], force: bool = False) -> str:
+def merge_entities(resolver: Resolver[Entity], entity_ids: List[str], force: bool = False) -> str:
     """Merge multiple entities into a canonical identity. This should be really easy
     but there are cases where a negative (or "unsure") judgement has been made, and
     needs to be overridden. This is activated via the `force` flag."""
     if len(entity_ids) < 2:
         raise ValueError("Need multiple IDs to merge!")
-    resolver = get_resolver()
     canonical_id = resolver.get_canonical(entity_ids[0])
     for other_id_ in entity_ids[1:]:
         other_id = Identifier.get(other_id_)
@@ -126,6 +122,5 @@ def merge_entities(entity_ids: List[str], force: bool = False) -> str:
         log.info("Merge: %s -> %s" % (other_id, canonical_id))
         canonical_id_ = resolver.decide(canonical_id, other_id, Judgement.POSITIVE)
         canonical_id = str(canonical_id_)
-    resolver.save()
     log.info("Canonical: %s" % canonical_id)
     return str(canonical_id)

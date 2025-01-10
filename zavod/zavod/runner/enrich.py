@@ -1,28 +1,27 @@
 from followthemoney.helpers import check_person_cutoff
 from nomenklatura.judgement import Judgement
-from nomenklatura.resolver import Resolver
+from nomenklatura.resolver import Linker
 from nomenklatura.enrich import Enricher, EnrichmentException, make_enricher
 
+from zavod.integration.dedupe import get_dataset_linker
 from zavod.meta import Dataset, get_multi_dataset
 from zavod.entity import Entity
 from zavod.context import Context
-from zavod.integration import get_resolver
 from zavod.store import get_store
 
 
 def save_match(
     context: Context,
-    resolver: Resolver[Entity],
+    linker: Linker[Entity],
     enricher: Enricher[Dataset],
     entity: Entity,
     match: Entity,
-    threshold: float,
 ) -> None:
     if match.id is None or entity.id is None:
         return None
     if not entity.schema.can_match(match.schema):
         return None
-    judgement = resolver.get_judgement(match.id, entity.id)
+    judgement = linker.get_judgement(match.id, entity.id)
 
     if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
         context.emit(match, external=True)
@@ -39,19 +38,18 @@ def save_match(
 
 
 def enrich(context: Context) -> None:
-    resolver = get_resolver()
     scope = get_multi_dataset(context.dataset.inputs)
+    linker = get_dataset_linker(scope)
     context.log.info(
         "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
     )
-    store = get_store(scope, resolver)
+    store = get_store(scope, linker)
     store.sync()
     view = store.view(scope)
     config = dict(context.dataset.config)
     enricher = make_enricher(context.dataset, context.cache, config)
     if enricher is None:
         raise RuntimeError("Cannot load enricher: %r" % config)
-    threshold = float(context.dataset.config.get("threshold", 0.7))
     try:
         for entity_idx, entity in enumerate(view.entities()):
             if entity_idx > 0 and entity_idx % 1000 == 0:
@@ -61,10 +59,9 @@ def enrich(context: Context) -> None:
             context.log.debug("Enrich query: %r" % entity)
             try:
                 for match in enricher.match_wrapped(entity):
-                    save_match(context, resolver, enricher, entity, match, threshold)
+                    save_match(context, linker, enricher, entity, match)
             except EnrichmentException as exc:
                 context.log.error("Enrichment error %r: %s" % (entity, str(exc)))
-        resolver.save()
         context.log.info("Enrichment process complete.")
     finally:
         enricher.close()
