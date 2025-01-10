@@ -112,10 +112,13 @@ lookups:
     normalize: true
     lowercase: true
     options: 
-      - match: Mr. Farkhad Akhmedzhanovich Amraev and any entity controlled directly or indirectly by Mr. Farkhad Akhmedzhanovich Amraev, which was established (i.e. in existence) on or before 31 December 2019
+      - match:
+          - "Mr. Farkhad Akhmedzhanovich Amraev and any entity controlled directly or indirectly by Mr. Farkhad Akhmedzhanovich Amraev, which was established (i.e. in existence) on or before 31 December 2019"
+          - "Mr. Farkhad Akhmedzhanovich Amraev and any entity controlled directly"
+          - "indirectly by Mr. Farkhad Akhmedzhanovich Amraev, which was established (i.e. in existence) on"
         value: Farkhad Akhmedzhanovich Amraev
-      - match: Mr. Rabin Akhmedzhanovich Amraev and any entity controlled directly or indirectly by Mr. Rabin Akhmedzhanovich Amraev, which was established (i.e. in existence) on or before 31 December 2019
-        value: Rabin Akhmedzhanovich Amraev
+      - match: before 31 December 2019
+        value: null
 assertions:
   min:
     schema_entities:

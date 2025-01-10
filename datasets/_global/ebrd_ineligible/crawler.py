@@ -1,11 +1,18 @@
 import csv
 from lxml import html
 from normality import slugify, collapse_spaces
+import re
 from rigour.mime.types import CSV
 from rigour.mime.types import HTML
 
 from zavod import Context
 from zavod import helpers as h
+
+
+RE_SPLIT = re.compile(
+    r"may also be doing business as|also doing business as|doing business as|also doing business under| or ",
+    re.IGNORECASE,
+)
 
 
 def crawl_mutual_enforcement(context: Context):
@@ -33,12 +40,12 @@ def crawl_mutual_enforcement(context: Context):
 
         collected_rows = list(dict_reader)
         for row in collected_rows:
-            name = row.pop("Firm Name")
+            name_raw = row.pop("Firm Name")
             address = row.pop("Address")
             country = collapse_spaces(row.pop("Nationality"))
             entity = context.make("LegalEntity")
-            entity.id = context.make_id(name, address, country)
-            entity.add("name", name)
+            entity.id = context.make_id(name_raw, address, country)
+            entity.add("name", RE_SPLIT.split(name_raw))
             entity.add("address", address)
             entity.add("country", country)
 
