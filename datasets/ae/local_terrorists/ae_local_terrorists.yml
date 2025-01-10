@@ -47,6 +47,21 @@ data:
 
 dates: 
   formats: ["%d/%m/%Y", "%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 130
+      Organization: 110
+    country_entities:
+      #eg: 15
+      ye: 6
+    countries: 6
+  max:
+    schema_entities:
+      Person: 200
+      Organization: 200
+
 lookups:
   categories:
     options:
