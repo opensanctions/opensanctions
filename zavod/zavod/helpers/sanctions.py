@@ -64,3 +64,14 @@ def make_sanction(
         sanction.add("status", "active" if is_active else "inactive")
 
     return sanction
+
+
+def has_ended(sanction: Entity) -> bool:
+    """Check if a sanction is currently active
+
+    Args:
+        sanction: The sanction entity to check.
+    """
+    iso_end_date = max(sanction.get("endDate"), default=None)
+    is_active = iso_end_date is None or iso_end_date >= settings.RUN_TIME_ISO
+    return not is_active
