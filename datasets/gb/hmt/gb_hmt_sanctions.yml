@@ -975,6 +975,10 @@ lookups:
         values:
           - accountant@virmavia.com
           - natalia.khirevich@gmail.com
+      - match: (1) contact@bloodandhonourworldwide.co.uk (2) general@bloodandhonourworldwide.co.uk
+        values:
+          - contact@bloodandhonourworldwide.co.uk
+          - general@bloodandhonourworldwide.co.uk
   type.gender:
     lowercase: true
     normalize: true

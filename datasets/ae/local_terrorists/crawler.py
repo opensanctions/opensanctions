@@ -4,7 +4,6 @@ import re
 from typing import List, Optional
 from pathlib import Path
 from normality import collapse_spaces
-from urllib.parse import urljoin
 from rigour.mime.types import XLS
 
 from zavod import Context
@@ -91,14 +90,12 @@ def parse_excel(context: Context, path: Path):
 
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url)
-    found_file = False
-    for a in doc.findall(".//a"):
-        a_url = urljoin(context.data_url, a.get("href"))
-        if "Local Terrorist List" in a.text_content() and "API/Upload" in a_url:
-            found_file = True
-            path = context.fetch_resource("source.xls", a_url)
-            context.export_resource(path, XLS, title=context.SOURCE_TITLE)
-            parse_excel(context, path)
-
-    if not found_file:
-        context.log.error("Could not download Local Terror excel file!")
+    doc.make_links_absolute(context.data_url)
+    section = doc.xpath(".//h5[text()='Local Terrorist List']")[0].getparent()
+    link = section.xpath(
+        ".//p[text()='Download Excel File']/ancestor::*[contains(@class,'download-file')]//a"
+    )[0]
+    url = link.get("href")
+    path = context.fetch_resource("source.xls", url)
+    context.export_resource(path, XLS, title=context.SOURCE_TITLE)
+    parse_excel(context, path)
