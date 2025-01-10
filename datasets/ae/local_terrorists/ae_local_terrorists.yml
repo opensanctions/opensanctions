@@ -54,7 +54,7 @@ assertions:
       Person: 130
       Organization: 110
     country_entities:
-      #eg: 15
+      eg: 15
       ye: 6
     countries: 6
   max:
@@ -171,6 +171,10 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      # work around current countrynames limitation
+      # https://github.com/opensanctions/countrynames/blob/main/countrynames/data.yaml#L7435
+      - match: مصر
+        value: Egypt
       - match: السعودية / الكويت
         values:
           - Saudi Arabia
