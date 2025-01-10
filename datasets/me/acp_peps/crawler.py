@@ -2,10 +2,10 @@ import io
 from csv import DictReader
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple
+from zipfile import ZipFile, BadZipFile
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise, OccupancyStatus
-from zipfile import ZipFile, BadZipFile
+from zavod.logic.pep import categorise
 from zavod.shed.trans import (
     apply_translit_full_name,
     make_position_translation_prompt,
@@ -113,8 +113,7 @@ def crawl_person(context: Context, person):
             start_date=start_date if start_date else None,
             end_date=end_date if end_date else None,
             # no_end_implies_current=False,
-            # categorisation=categorisation,
-            status=OccupancyStatus.UNKNOWN,
+            categorisation=categorisation,
         )
         occupancy.add("date", latest_date)
 
