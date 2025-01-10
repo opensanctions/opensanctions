@@ -77,6 +77,10 @@ lookups:
         value: null
       - contains: EL LIBANO
         value: Lebanon
+      - match: 
+          - Libanesa
+          - Repùblica Libanesa
+        value: Lebanon
       - match: BRASILEÑA
         value: Brazil
       - match: Paraguay / Brasil
