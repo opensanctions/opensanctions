@@ -345,7 +345,7 @@ lookups:
         name:
           - CRYPTO EXPERT, INC.
           - CRYPTOEXPERT TRADING
-          - CRYPTOEXPERT: MUTUAL FUNDS AND TRADING EXPERT
+          - "CRYPTOEXPERT: MUTUAL FUNDS AND TRADING EXPERT"
           - CRYPTOEXPERT
       - match: "YEHEEY ITRAFFIC SYSTEM INC. (\u201cYEHEEY\u201d)"
         name:
