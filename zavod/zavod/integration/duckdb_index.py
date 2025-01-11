@@ -59,7 +59,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         if self.data_dir.exists():
             rmtree(self.data_dir)
         self.data_dir.mkdir(parents=True)
-        self.con = duckdb.connect((self.data_dir / "duckdb_index.db").as_posix())
+        self.con = duckdb.connect((self.data_dir / "index.duckdb").as_posix())
         self.matching_path = self.data_dir / "matching.csv"
         self.matching_path.unlink(missing_ok=True)
         self.matching_dump: TextIOWrapper | None = open(self.matching_path, "w")
