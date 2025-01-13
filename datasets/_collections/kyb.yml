@@ -5,7 +5,8 @@ deploy:
   cpu: "1000m"
   memory: "3000Mi"
   memory_limit: "4000Mi"
-  disk: "300Gi"
+  disk: "100Gi"
+  disk_limit: "280Gi"
   premium: true
 coverage:
   frequency: monthly
@@ -31,11 +32,13 @@ datasets:
   - kz_companies
   - lv_business_register
   - md_companies
-  # - tj_companies
+  - tj_companies
   # - xk_companies
   # - ba_companies
   - ru_egrul
   - sk_rpvs
   - ua_edr
   - us_corpwatch
+  - us_irs_ffi
+  - us_fincen_msb
   - ror
