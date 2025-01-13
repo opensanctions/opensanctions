@@ -63,13 +63,13 @@ def fetch_and_process_csv(context: Context, latest_report_id: int):
                 reader = DictReader(fh, delimiter=",", quotechar='"')
                 return list(reader)
     except BadZipFile:
-        context.log.error(f"Failed to open {zip_path} as a ZIP file. Skipping.")
+        context.log.warning(f"Failed to open {zip_path} as a ZIP file. Skipping.")
         return []
 
 
 def crawl_person(context: Context, person):
     name = person.pop("imeIPrezime")
-    position = person.pop("nazivFunkcije")
+    # position = person.pop("nazivFunkcije")
     dates = person.pop("izvjestajImovine")
     latest_date, report_date = extract_latest_filing(dates)
     report_details = fetch_and_process_csv(context, report_date)
@@ -78,47 +78,53 @@ def crawl_person(context: Context, person):
 
     for row in report_details:
         # Extract details from the CSV row
-        # person_name = row.pop("FUNKCIONER_IME")
-        # person_surname = row.pop("FUNKCIONER_PREZIME")
-        # function = row.pop("FUNKCIJA")
+        person_name = row.pop("FUNKCIONER_IME")
+        person_surname = row.pop("FUNKCIONER_PREZIME")
+        function = row.pop("FUNKCIJA")
         # organization = row.pop("ORGANIZACIJA")
         start_date = row.pop("DATUM_POCETKA_OBAVLJANJA", None)
         end_date = row.pop("DATUM_PRESTANKA_OBAVLJNJA")
 
     entity = context.make("Person")
-    entity.id = context.make_id(name, position)
-    entity.add("name", name)
+    entity.id = context.make_id(name, function)
+    h.apply_name(
+        entity,
+        full=name,
+        first_name=person_name,
+        last_name=person_surname,
+    )
     entity.add("topics", "role.pep")
-    for pos in position:
-        position = h.make_position(
-            context,
-            name=pos,
-            country="ME",
-            # lang="cnr",
-        )
-        entity.add("position", pos)
+    entity.add("position", function)
 
-        apply_translit_full_name(
-            context, position, "slk", pos, TRANSLIT_OUTPUT, POSITION_PROMPT
-        )
+    position = h.make_position(
+        context,
+        name=function,
+        country="ME",
+        # lang="cnr",
+    )
 
-        categorisation = categorise(context, position, is_pep=True)
-        if not categorisation.is_pep:
-            return
+    apply_translit_full_name(
+        context, position, "slk", function, TRANSLIT_OUTPUT, POSITION_PROMPT
+    )
 
-        occupancy = h.make_occupancy(
-            context,
-            entity,
-            position,
-            start_date=start_date if start_date else None,
-            end_date=end_date if end_date else None,
-            # no_end_implies_current=False,
-            categorisation=categorisation,
-        )
+    categorisation = categorise(context, position, is_pep=True)
+    if not categorisation.is_pep:
+        return
+
+    occupancy = h.make_occupancy(
+        context,
+        entity,
+        position,
+        start_date=start_date if start_date else None,
+        end_date=end_date if end_date else None,
+        no_end_implies_current=True,
+        categorisation=categorisation,
+    )
+    # Emit only for the recent position-holders
+    if occupancy:
         occupancy.add("date", latest_date)
-
-        context.emit(position)
         context.emit(occupancy)
+        context.emit(position)
         context.emit(entity, target=True)
 
 
@@ -138,7 +144,7 @@ def crawl(context: Context):
         page += 1
 
         if page >= max_pages:
-            context.log.error(
+            context.log.warning(
                 f"Emergency exit: Reached the maximum page limit of {max_pages}."
             )
             break
