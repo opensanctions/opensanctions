@@ -40,7 +40,7 @@ def crawl_row(context: Context, row: Dict[str, str | None]):
 
         country = row.get("nationality") or ""
         country = country.replace("Non ADB Member Country", "")
-        country = country.replace("Rep. of", "").strip()
+        country = country.replace("Rep. of", "​").strip()
 
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name_optional_regno, country)
