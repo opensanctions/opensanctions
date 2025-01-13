@@ -1,19 +1,24 @@
-import re
-from typing import Optional
+from typing import List
 
+from normality import collapse_spaces
 from openpyxl import load_workbook
 from pantomime.types import XLSX
-from datetime import datetime
 
 from zavod import Context, helpers as h
 
 
-DATES_RE = [
-    re.compile(r"(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})"),  # yyyy/MM/dd
-    re.compile(r"(?P<day>\d{1,2})/(?P<month>\d{1,2})/(?P<year>\d{4})"),  # dd/MM/yyyy \n arab \n dd/MM/yyyy
-    re.compile(r"(?P<year>\d{4})-(?P<month>\d{1,2})-(?P<day>\d{1,2})"),  # yyyy-MM-dd
-    re.compile(r"(?P<day>\d{1,2})-(?P<month>\d{1,2})-(?P<year>\d{4})"),  # dd-MM-yyyy
+DATE_SPLITS = [
+    " arab ",
+    " مد القرار",  # Decision extended
+    " إعادة النشر في",  # Republished in
+    "المد في ",  # extended in
+    "إعادة المد في",  # re-extend in
+    "إعادة",  # re-
+    "إعادة إدراج في",  # re-insert in
+    "نشر",  # publish
+    "إدراج في",  # insert
 ]
+
 
 def arabic_to_latin(arabic_date):
     arabic_numerals = "٠١٢٣٤٥٦٧٨٩"
@@ -22,21 +27,11 @@ def arabic_to_latin(arabic_date):
     return arabic_date.translate(transtable)
 
 
-def parse_date(date_str: str) -> Optional[datetime]:
+def clean_date(date_str: str) -> List[str]:
     if not date_str:
-        return None
-
+        return []
     latin_date = arabic_to_latin(date_str)
-
-    for date_re in DATES_RE:
-        m = date_re.match(latin_date)
-        if m:
-            year = m.group("year")
-            month = m.group("month")
-            day = m.group("day")
-            return datetime.strptime(f"{year}-{month}-{day}", "%Y-%m-%d")
-
-    return None
+    return h.multi_split(collapse_spaces(latin_date), DATE_SPLITS)
 
 
 def crawl_terrorist(input_dict: dict, context: Context):
@@ -54,7 +49,9 @@ def crawl_terrorist(input_dict: dict, context: Context):
     person.add("topics", "sanction.counter")
 
     sanction = h.make_sanction(context, person, case_number)
-    sanction.add("listingDate", parse_date(input_dict.pop("date_of_publication")))
+    h.apply_dates(
+        sanction, "listingDate", clean_date(input_dict.pop("date_of_publication"))
+    )
     sanction.add("description", f"Case number: {case_number}")
     sanction.add("authorityId", input_dict.pop("terrorist_designation_decision_number"))
     sanction.add(
