@@ -33,6 +33,15 @@ entity.add("name", row.pop("full_name"))
 entity.add("birthPlace", row.pop("place_of_birth"))
 ```
 
+The method `entity.add` works seamlessly with both a single string and a list of strings. This means that you don’t have to loop through a list to add multiple items individually. Instead, you can simply add the entire list at once.
+  ```python
+  value = "alias"
+  entity.add("alias", value)  # Handles both str and List[str]
+
+  values = ["alias_1", "alias_2"]
+  entity.add("alias", values)
+  ```
+
 ## Detect unhandled data
 
 If a variable number of fields can extracted automatically (e.g. from a list or table):
