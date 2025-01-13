@@ -69,9 +69,10 @@ def crawl(context: Context):
         )
         h.apply_date(sanction, "startDate", record.pop("StartDate"))
         # sanction.add("endDate", record.pop("TerminationDate", None))
-        sanction.add("program", record.pop("EnforcementTypeDescription", None))
+        sanction.add("program", record.pop("TypeDescription"))
         sanction.add("authorityId", docket_number)
-        sanction.add("provisions", record.pop("EnforcementTypeCode", None))
+        sanction.add("provisions", record.pop("TypeCode"))
+        sanction.add("reason", record.pop("SubjectMatters"))
 
         context.audit_data(record, ignore=IGNORE)
         context.emit(entity, target=True)
