@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: "2024-01-06"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   Montenegrin Public Officials Subject to Declaration by the Agency for Prevention of Corruption.
 description: |

@@ -23,17 +23,30 @@ def extract_latest_filing(
     if not dates:
         return None, None
 
-    latest_entry = max(
-        dates, key=lambda item: datetime.strptime(item["datum"], "%Y-%m-%d")
+    # Sort the dates in descending order
+    dates_sorted = sorted(
+        dates,
+        key=lambda item: datetime.strptime(item["datum"], "%Y-%m-%d"),
+        reverse=True,
     )
+
+    # Assume the first entry is the latest
+    latest_entry = dates_sorted[0]
     latest_date: Optional[str] = latest_entry.get("datum")
-    latest_report: Optional[int] = latest_entry.get("stariIzvjestaj")
+    latest_report_id: Optional[int] = latest_entry.get("stariIzvjestaj")
 
-    # Handle special case where `stariIzvjestaj` is `-1`
-    if latest_report == -1:
-        latest_report = None
+    # Check if the latest report is -1, move to the next valid entry
+    if latest_report_id == -1:
+        for entry in dates_sorted[1:]:
+            if entry.get("stariIzvjestaj") != -1:
+                latest_date = entry.get("datum")
+                latest_report_id = entry.get("stariIzvjestaj")
+                break
+        else:
+            # If all entries have -1, set the value to None
+            latest_report_id = None
 
-    return latest_date, latest_report
+    return latest_date, latest_report_id
 
 
 def fetch_and_process_csv(context: Context, latest_report_id: int):
@@ -71,13 +84,12 @@ def crawl_person(context: Context, person):
     name = person.pop("imeIPrezime")
     # position = person.pop("nazivFunkcije")
     dates = person.pop("izvjestajImovine")
-    latest_date, report_date = extract_latest_filing(dates)
-    report_details = fetch_and_process_csv(context, report_date)
+    latest_date, latest_report_id = extract_latest_filing(dates)
+    report_details = fetch_and_process_csv(context, latest_report_id)
     if not report_details:
         return
 
     for row in report_details:
-        # Extract details from the CSV row
         person_name = row.pop("FUNKCIONER_IME")
         person_surname = row.pop("FUNKCIONER_PREZIME")
         function = row.pop("FUNKCIJA")
@@ -104,7 +116,7 @@ def crawl_person(context: Context, person):
     )
 
     apply_translit_full_name(
-        context, position, "slk", function, TRANSLIT_OUTPUT, POSITION_PROMPT
+        context, position, "cnr", function, TRANSLIT_OUTPUT, POSITION_PROMPT
     )
 
     categorisation = categorise(context, position, is_pep=True)
