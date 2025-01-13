@@ -32,7 +32,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
     h.apply_date(sanction, "endDate", row.pop("expiration_date"))
 
-    is_debarred = not h.has_ended(sanction)
+    is_debarred = h.is_active(sanction)
     if is_debarred:
         entity.add("topics", "debarment")
 

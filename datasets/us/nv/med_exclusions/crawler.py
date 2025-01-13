@@ -61,7 +61,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         sanction, "endDate", row.pop("nevada_medicaid_sanction_period_end_date")
     )
 
-    is_debarred = not h.has_ended(sanction)
+    is_debarred = h.is_active(sanction)
     if is_debarred:
         entity.add("topics", "debarment")
 

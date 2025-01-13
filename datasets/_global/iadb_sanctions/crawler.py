@@ -82,7 +82,7 @@ def crawl(context: Context):
         # Sometimes row.to is "Ongoing", which will be datapatched to null end_date
         h.apply_date(sanction, "endDate", row.pop("to", None))
 
-        is_debarred = not h.has_ended(sanction)
+        is_debarred = h.is_active(sanction)
         if is_debarred:
             entity.add("topics", "debarment")
 

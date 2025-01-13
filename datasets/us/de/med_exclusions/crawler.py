@@ -55,7 +55,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     h.apply_date(sanction, "endDate", reinstated_date)
 
     if sanction.get("endDate"):
-        is_debarred = not h.has_ended(sanction)
+        is_debarred = h.is_active(sanction)
     else:
         res = context.lookup("type.date", reinstated_date)
         if res and res.is_debarred is not None:

@@ -136,7 +136,7 @@ def crawl_debarments(context: Context) -> None:
         sanction.add("reason", violation)
         sanction.add("sourceUrl", DEBARMENT_URL)
 
-        is_debarred = not h.has_ended(sanction)
+        is_debarred = h.is_active(sanction)
         if is_debarred:
             entity.add("topics", "debarment")
 

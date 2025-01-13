@@ -66,7 +66,7 @@ def crawl_item(row: Dict[str, str], context: Context):
             sanction_end_date = sanction_end_datetime.date().isoformat()
         h.apply_date(sanction, "endDate", sanction_end_date)
 
-    is_debarred = h.has_ended(sanction)
+    is_debarred = h.is_active(sanction)
     if is_debarred:
         entity.add("topics", "debarment")
 

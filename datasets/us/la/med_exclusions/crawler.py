@@ -83,8 +83,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     if (reinstate := row.pop(" Reinstate")) and ("9999" not in reinstate):
         h.apply_date(sanction, "endDate", reinstate)
 
-    is_debarred = not h.has_ended(sanction)
-
+    is_debarred = h.is_active(sanction)
     if is_debarred:
         entity.add("topics", "debarment")
 

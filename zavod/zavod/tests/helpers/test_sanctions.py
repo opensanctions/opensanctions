@@ -4,7 +4,7 @@ import pytest
 
 from zavod import Entity, settings
 from zavod.context import Context
-from zavod.helpers.sanctions import make_sanction, has_ended
+from zavod.helpers.sanctions import make_sanction, is_active
 
 
 def test_sanctions_helper(vcontext: Context):
@@ -36,25 +36,33 @@ def sanction(vcontext: Context, person: Entity):
     return make_sanction(vcontext, person)
 
 
-def test_sanctions_has_ended_no_end_date(sanction: Entity):
+def test_sanctions_is_active_no_end_date(sanction: Entity):
     sanction.set("endDate", None)
-    assert not has_ended(sanction)
+    assert is_active(sanction)
 
 
-def test_sanctions_has_ended_with_end_date_tomorrow(sanction: Entity):
+def test_sanctions_is_active_with_end_date_tomorrow(sanction: Entity):
     tomorrow = (settings.RUN_TIME + timedelta(days=1)).date().isoformat()
     sanction.set("endDate", tomorrow)
-    assert not has_ended(sanction)
+    assert is_active(sanction)
 
 
-def test_sanctions_has_ended_with_end_date_yesterday(sanction: Entity):
+def test_sanctions_is_active_with_end_date_yesterday(sanction: Entity):
     yesterday = (settings.RUN_TIME - timedelta(days=1)).date().isoformat()
     sanction.set("endDate", yesterday)
-    assert has_ended(sanction)
+    assert not is_active(sanction)
 
 
-def test_sanctions_has_ended_with_multiple_end_dates(sanction: Entity):
+def test_sanctions_is_active_with_multiple_end_dates(sanction: Entity):
     past_date = (settings.RUN_TIME - timedelta(days=20)).date().isoformat()
     future_date = (settings.RUN_TIME + timedelta(days=20)).date().isoformat()
     sanction.set("endDate", [past_date, future_date])
-    assert not has_ended(sanction)
+    assert is_active(sanction)
+
+
+def test_sanctions_is_active_with_future_start_date(sanction: Entity):
+    future_date = (settings.RUN_TIME + timedelta(days=20)).date().isoformat()
+    far_future_date = (settings.RUN_TIME + timedelta(days=30)).date().isoformat()
+    sanction.set("startDate", future_date)
+    sanction.set("endDate", far_future_date)
+    assert not is_active(sanction)

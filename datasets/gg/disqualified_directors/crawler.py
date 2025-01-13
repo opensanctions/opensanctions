@@ -104,7 +104,7 @@ def crawl_item(item: Dict[str, str | None], context: Context):
     h.apply_date(sanction, "startDate", item.pop("date_of_disqualification"))
     h.apply_date(sanction, "endDate", item.pop("end_of_disqualification_period"))
 
-    is_disqualified = not h.has_ended(sanction)
+    is_disqualified = h.is_active(sanction)
     if is_disqualified:
         person.add("topics", "corp.disqual")
 
