@@ -12,7 +12,7 @@ summary: >
   company director in the United Kingdom following a court decision.
 description: |
   **NOTE:** This crawler retrieves incomplete data because of the way the source
-  web site returns results. While a work-around is available, it involves signing 
+  web site returns results. While a work-around is available, it involves signing
   an agreement that further limits how data can be retained and processed on our
   end. [Issue discussion](https://github.com/opensanctions/opensanctions/issues/123).
 
@@ -31,7 +31,7 @@ description: |
 
   > Apart from The Insolvency Service, other bodies can apply to have you
   > disqualified under certain circumstances, eg:
-  > 
+  >
   > * Companies House
   > * the Competition and Markets Authority (CMA)
   > * the courts
@@ -66,7 +66,7 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: 
+      - match:
           - Other
           - Not Known
           - Unknown
@@ -80,7 +80,9 @@ lookups:
         value: Great Britain
       - match: South Sudanese
         value: South Sudan
-      
+      - match: Hong Konger
+        value: Hong Kong
+
   type.date:
     options:
       - match: "3018-12-12"

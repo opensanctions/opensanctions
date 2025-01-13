@@ -139,7 +139,7 @@ def crawl_program(
 
 
 def crawl(context: Context):
-    table_xpath = './/table[@class="usa-table"]'
+    table_xpath = './/div[@id="block-mainpagecontent"]//table'
     doc = fetch_html(
         context,
         context.data_url,
