@@ -41,6 +41,43 @@ If a variable number of fields can extracted automatically (e.g. from a list or 
 * `dict_obj.pop()` individual fields when adding them to entities.
 * Log warnings if there are unhandled fields remaining in the `dict` so that we notice and improve the crawler. The context method [`context.audit_data()`][zavod.context.Context.audit_data] can be used to warn about extra fields in a `dict`. It takes the `ignore` argument to explicitly list fields that are unused.
 
+## Logs that matter
+
+Logs are essential for monitoring progress and debugging, but they are not always reliable for detecting omissions in large datasets. Use them to track the crawler’s status and provide alerts for issues that don’t stop the process.
+
+* Debug Logs: Enable verbose output for detailed tracking during development. Use `zavod --debug` to activate debug logs.
+
+    ```python
+    context.log.debug(f"Unique ID {person.id}")
+    ```
+
+* Info Logs: Monitor the crawler’s progress, especially on large sites.
+
+    ```python
+    context.log.info(f"Processed {page_number} pages")
+    ```
+
+* Warning Logs: Indicate potential issues that don't stop the crawl but may require attention.
+
+    ```python
+    context.log.warning("Unhandled entity type", type=entity_type)
+    ```
+
+## Data assertions
+
+Build crawlers with robust assertions to catch missing data during runtime. Instead of manually inspecting logs, implement checks to ensure that expected data is present or that invalid data doesn't slip through:
+
+```python
+# Ensure a valid date of birth (dob)
+assert dob is None, (dob, entity_name)
+
+# Validate Position Name
+assert position_name != "Socialdemokratiet"
+
+# Check for Non-None Position Name
+assert position_name is not None, entity.id
+```
+
 ## Generating consistent unique identifiers
 
 Make sure entity IDs are unique within the source. Avoid using only the name of the entity because there might eventually be two persons or two companies with the same name. [It is preferable](https://www.opensanctions.org/docs/identifiers) to have to deduplicate two Follow the Money entities for the same real world entity, rather than accidentally merge two entities. 
