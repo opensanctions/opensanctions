@@ -77,7 +77,7 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
         sanction.add("provisions", provisions)
         sanction.add("description", sanction_description)
 
-        if url != "DNE":
+        if not url.endswith("DNE"):
             sanction.add("sourceUrl", url)
 
         if termination_date != "":

@@ -1,9 +1,19 @@
+import re
+from typing import Optional
+
 from openpyxl import load_workbook
 from pantomime.types import XLSX
 from datetime import datetime
 
 from zavod import Context, helpers as h
 
+
+DATES_RE = [
+    re.compile(r"(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})"),  # yyyy/MM/dd
+    re.compile(r"(?P<day>\d{1,2})/(?P<month>\d{1,2})/(?P<year>\d{4})"),  # dd/MM/yyyy \n arab \n dd/MM/yyyy
+    re.compile(r"(?P<year>\d{4})-(?P<month>\d{1,2})-(?P<day>\d{1,2})"),  # yyyy-MM-dd
+    re.compile(r"(?P<day>\d{1,2})-(?P<month>\d{1,2})-(?P<year>\d{4})"),  # dd-MM-yyyy
+]
 
 def arabic_to_latin(arabic_date):
     arabic_numerals = "٠١٢٣٤٥٦٧٨٩"
@@ -12,21 +22,21 @@ def arabic_to_latin(arabic_date):
     return arabic_date.translate(transtable)
 
 
-def parse_date(date_str: str) -> datetime:
+def parse_date(date_str: str) -> Optional[datetime]:
     if not date_str:
         return None
 
     latin_date = arabic_to_latin(date_str)
 
-    # We first check if it's just one date
-    try:
-        return datetime.strptime(latin_date, "%Y/%m/%d")
-    except ValueError:
-        # Otherwise we check if the first line is a date
-        try:
-            return datetime.strptime(latin_date.split("\n")[0], "%d/%m/%Y")
-        except ValueError:
-            return None
+    for date_re in DATES_RE:
+        m = date_re.match(latin_date)
+        if m:
+            year = m.group("year")
+            month = m.group("month")
+            day = m.group("day")
+            return datetime.strptime(f"{year}-{month}-{day}", "%Y-%m-%d")
+
+    return None
 
 
 def crawl_terrorist(input_dict: dict, context: Context):
