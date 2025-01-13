@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 
 from rigour.mime.types import CSV
 
-from zavod import Context, settings
+from zavod import Context
 from zavod import helpers as h
 from zavod.shed.gpt import run_text_prompt
 
