@@ -93,14 +93,30 @@ def parse_result(context: Context, result: Dict[str, Any]):
         is_ofac = True
 
     name = result.pop("name", None)
-    if name is not None:
-        name = name.replace("and any successor, sub-unit, or subsidiary thereof", "")
-        if "bis.doc.gov" in result.get("source_list_url", ""):
-            name = name.replace("?s ", "'s ")
-            name = name.replace("?", " ")
+    if name is None:
+        # When name is None, the rest of the row is also empty, ensure that
+        assert entity_number is None and type_ is None
+        return
+
+    name = name.replace("and any successor, sub-unit, or subsidiary thereof", "")
+
+    # Handle messed-up unicode in BIS names
+    if "bis.doc.gov" in result.get("source_list_url", ""):
+        name = name.replace("?s ", "'s ")
+        name = name.replace("?", " ")
+
+    name_with_information_res = context.lookup("name_with_information", name)
+    if name_with_information_res is not None:
+        entity.add("name", name_with_information_res.properties["name"])
+        entity.add("notes", name_with_information_res.properties["notes"])
+    else:
+        # If it's a really long name, it's likely a name with extra info
+        if len(name) > registry.name.max_length:
+            context.log.warning(
+                "Name long is very long, maybe it contains extra information?",
+                name=name,
+            )
         entity.add("name", name)
-    if len(name) > registry.name.max_length:
-        entity.add("notes", name)
 
     if is_ofac:
         context.emit(entity, target=True)
