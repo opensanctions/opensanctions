@@ -1,8 +1,23 @@
+from typing import List
+
+from normality import collapse_spaces
 from openpyxl import load_workbook
 from pantomime.types import XLSX
-from datetime import datetime
 
 from zavod import Context, helpers as h
+
+
+DATE_SPLITS = [
+    " arab ",
+    " مد القرار",  # Decision extended
+    " إعادة النشر في",  # Republished in
+    "المد في ",  # extended in
+    "إعادة المد في",  # re-extend in
+    "إعادة",  # re-
+    "إعادة إدراج في",  # re-insert in
+    "نشر",  # publish
+    "إدراج في",  # insert
+]
 
 
 def arabic_to_latin(arabic_date):
@@ -12,21 +27,11 @@ def arabic_to_latin(arabic_date):
     return arabic_date.translate(transtable)
 
 
-def parse_date(date_str: str) -> datetime:
+def clean_date(date_str: str) -> List[str]:
     if not date_str:
-        return None
-
+        return []
     latin_date = arabic_to_latin(date_str)
-
-    # We first check if it's just one date
-    try:
-        return datetime.strptime(latin_date, "%Y/%m/%d")
-    except ValueError:
-        # Otherwise we check if the first line is a date
-        try:
-            return datetime.strptime(latin_date.split("\n")[0], "%d/%m/%Y")
-        except ValueError:
-            return None
+    return h.multi_split(collapse_spaces(latin_date), DATE_SPLITS)
 
 
 def crawl_terrorist(input_dict: dict, context: Context):
@@ -44,7 +49,9 @@ def crawl_terrorist(input_dict: dict, context: Context):
     person.add("topics", "sanction.counter")
 
     sanction = h.make_sanction(context, person, case_number)
-    sanction.add("listingDate", parse_date(input_dict.pop("date_of_publication")))
+    h.apply_dates(
+        sanction, "listingDate", clean_date(input_dict.pop("date_of_publication"))
+    )
     sanction.add("description", f"Case number: {case_number}")
     sanction.add("authorityId", input_dict.pop("terrorist_designation_decision_number"))
     sanction.add(
