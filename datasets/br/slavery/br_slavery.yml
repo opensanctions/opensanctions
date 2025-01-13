@@ -28,7 +28,9 @@ publisher:
   name: Ministério do Trabalho e Emprego
   name_en: Ministry of Labour and Employment of Brazil
   acronym: MTE
-  description: The federal Ministry of Labour and Employment of Brazil
+  description: >
+    The Ministry of Labour and Employment of Brazil oversees matters relating to
+    worker rights, safety, pay, and work permits 
   url: https://www.gov.br/trabalho-e-emprego
   official: true
 url: https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/combate-ao-trabalho-escravo-e-analogo-ao-de-escravo
