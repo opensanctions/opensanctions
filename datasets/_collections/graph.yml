@@ -7,7 +7,7 @@ deploy:
   memory_limit: "4000Mi"
   disk: "200Gi"
   disk_limit: "280Gi"
-  premium: true
+  # premium: true
 coverage:
   frequency: monthly
 exports:

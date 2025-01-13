@@ -3,11 +3,10 @@ title: Know-Your-Business (KYB) Datasets
 hidden: true
 deploy:
   cpu: "1000m"
-  memory: "3000Mi"
+  memory: "2000Mi"
   memory_limit: "4000Mi"
   disk: "100Gi"
-  disk_limit: "280Gi"
-  premium: true
+  disk_limit: "200Gi"
 coverage:
   frequency: monthly
 ci_test: false
