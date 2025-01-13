@@ -101,6 +101,8 @@ def crawl_item(item: Dict[str, str | None], context: Context):
     )
 
     sanction = h.make_sanction(context, person)
+    sanction.add("authority", item.pop("applicant_for_disqualification"))
+    sanction.add("duration", item.pop("period_of_disqualification"))
     h.apply_date(sanction, "startDate", item.pop("date_of_disqualification"))
     h.apply_date(sanction, "endDate", item.pop("end_of_disqualification_period"))
 
