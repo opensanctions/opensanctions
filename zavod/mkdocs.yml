@@ -52,6 +52,7 @@ nav:
   - helpers.md
   - Best practices:
       - best_practices/patterns.md
+      - best_practices/caching.md
       - best_practices/datapatch_lookups.md
       - best_practices/dates_meta.md
       - best_practices/priorities.md
