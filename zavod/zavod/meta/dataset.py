@@ -144,15 +144,15 @@ class Dataset(NKDataset):
         # data.pop("children", None)
         # data.pop("datasets", None)
         data["type"] = self._type
-        if self.is_collection:
-            # data["scopes"] = [s.name for s in self.leaves]
-            data["sources"] = [s.name for s in self.leaves if s._type == "source"]
-            data["externals"] = [s.name for s in self.leaves if s._type == "external"]
-        else:
-            collections = [
-                p.name for p in catalog.datasets if self in p.datasets and p != self
-            ]
-            data["collections"] = collections
+        # if self.is_collection:
+        #     # data["scopes"] = [s.name for s in self.leaves]
+        #     data["sources"] = [s.name for s in self.leaves if s._type == "source"]
+        #     data["externals"] = [s.name for s in self.leaves if s._type == "external"]
+        # else:
+        #     collections = [
+        #         p.name for p in catalog.datasets if self in p.datasets and p != self
+        #     ]
+        #     data["collections"] = collections
         if self.entry_point is not None:
             data["entry_point"] = self.entry_point
         return data

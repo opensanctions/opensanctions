@@ -39,7 +39,14 @@ def get_base_dataset_metadata(
     if statistics_path.is_file():
         with open(statistics_path, "r") as fh:
             stats: Dict[str, Any] = json.load(fh)
-            meta.update(stats)
+            meta["entity_count"] = stats.get("entity_count", 0)
+            targets = stats.get("targets", {})
+            meta["target_count"] = targets.get("total", 0)
+            things = stats.get("things", {})
+            meta["thing_count"] = things.get("total", 0)
+            last_change = stats.get("last_change")
+            if last_change is not None:
+                meta["last_change"] = last_change
 
     resources = DatasetResources(dataset)
     res_datas: List[Dict[str, Any]] = []
@@ -73,6 +80,13 @@ def write_dataset_index(dataset: Dataset) -> None:
     )
     meta = get_base_dataset_metadata(dataset, version=version)
     meta.update(dataset.to_opensanctions_dict(catalog))
+
+    # Remove redundant dataset hierarchy metadata
+    # (see https://www.opensanctions.org/changelog/2/):
+    meta.pop("externals", None)
+    meta.pop("sources", None)
+    meta.pop("collections", None)
+
     if not dataset.is_collection:
         issues = DatasetIssues(dataset)
         meta["issue_levels"] = issues.by_level()
