@@ -1,7 +1,6 @@
 from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
-from datetime import datetime
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html, fetch_resource
@@ -23,16 +22,12 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("termination_effective_date"))
     sanction.add("reason", row.pop("termination_authority"))
-    reinstatement_date = row.pop("reinstatement_effective_date", None)
-    if reinstatement_date:
-        target = datetime.strptime(reinstatement_date, "%Y-%m-%d") >= datetime.today()
-        sanction.add("endDate", reinstatement_date)
-    else:
-        target = True
-    if target:
+    h.apply_date(sanction, "endDate", row.pop("reinstatement_effective_date", None))
+    is_active = h.is_active(sanction)
+    if is_active:
         entity.add("topics", "debarment")
 
-    context.emit(entity, target=target)
+    context.emit(entity, target=is_active)
     context.emit(sanction)
 
     context.audit_data(row)
