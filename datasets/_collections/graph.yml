@@ -5,13 +5,15 @@ deploy:
   cpu: "1000m"
   memory: "3000Mi"
   memory_limit: "4000Mi"
-  disk: "300Gi"
-  premium: true
+  disk: "200Gi"
+  disk_limit: "280Gi"
+  # premium: true
 coverage:
   frequency: monthly
 exports:
   - statistics.json
   - entities.ftm.json
+  - senzing.json
 summary: >
   The full graph of company registries, sanctions, and other data sources published by
   OpenSanctions.
@@ -25,25 +27,6 @@ description: |
 
   This data is the source for [OpenScreening](https://resources.linkurious.com/openscreening).
 datasets:
-  - sanctions
-  - crime
-  - peps
-  - debarment
-  - wanted
+  - default
   - kyb
-
-  # misc
-  - wikidata
-  - opencorporates
-  - wd_oligarchs
-  - wd_curated
-  - ru_navalny35
-  - ru_billionaires_2021
-  - ru_acf_bribetakers
-  - ru_nsd_isin
-  - sy_obsalytics_opensyr
-  - md_rise_profiles
-  - ru_myrotvorets_wagner
-  - ransomwhere
-  - kp_rusi_reports
 ci_test: false

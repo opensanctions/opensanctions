@@ -3,10 +3,10 @@ title: Know-Your-Business (KYB) Datasets
 hidden: true
 deploy:
   cpu: "1000m"
-  memory: "3000Mi"
+  memory: "2000Mi"
   memory_limit: "4000Mi"
-  disk: "300Gi"
-  premium: true
+  disk: "100Gi"
+  disk_limit: "200Gi"
 coverage:
   frequency: monthly
 ci_test: false
@@ -31,11 +31,13 @@ datasets:
   - kz_companies
   - lv_business_register
   - md_companies
-  # - tj_companies
+  - tj_companies
   # - xk_companies
   # - ba_companies
   - ru_egrul
   - sk_rpvs
   - ua_edr
   - us_corpwatch
+  - us_irs_ffi
+  - us_fincen_msb
   - ror
