@@ -55,9 +55,9 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
 
     effective_date = input_dict.pop("Effective Date")
     termination_date = input_dict.pop("Termination Date")
-    url = input_dict.pop("URL")
     provisions = input_dict.pop("Action")
     sanction_description = input_dict.pop("Note")
+    url = input_dict.pop("URL", None)
     for ent in entities:
         entity = context.make(schema)
         name = ent.get("name")
@@ -76,9 +76,7 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
         h.apply_date(sanction, "startDate", effective_date)
         sanction.add("provisions", provisions)
         sanction.add("description", sanction_description)
-
-        if not url.endswith("DNE"):
-            sanction.add("sourceUrl", url)
+        sanction.add("sourceUrl", url)
 
         if termination_date != "":
             # if the termination date, is in the future, we assume the entity is still in the crime.fin topic
@@ -104,7 +102,9 @@ def crawl(context: Context):
 
     with open(path, "r", encoding="utf-8-sig") as fh:
         for item in csv.DictReader(fh):
-            item["URL"] = urljoin(context.data_url, item["URL"])
+            url = item.pop("URL")
+            if url != "DNE":
+                item["URL"] = urljoin(context.data_url, url)
             crawl_item(item, context)
 
     # sections = [{"match": k, "entities": v} for k, v in NEW_BANK_ORGS.items()]
