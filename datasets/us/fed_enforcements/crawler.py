@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 
 from rigour.mime.types import CSV
 
-from zavod import Context, settings
+from zavod import Context
 from zavod import helpers as h
 from zavod.shed.gpt import run_text_prompt
 
@@ -78,18 +78,12 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
         sanction.add("description", sanction_description)
         sanction.add("sourceUrl", url)
 
-        if termination_date != "":
-            # if the termination date, is in the future, we assume the entity is still in the crime.fin topic
-            if termination_date > settings.RUN_TIME_ISO:
-                entity.add("topics", "reg.action")
-            h.apply_date(sanction, "endDate", termination_date)
-            is_target = False
-        # if it doesn't have a termination date, we assume the entity is still in the crime.fin topic
-        else:
+        h.apply_date(sanction, "endDate", termination_date)
+        is_active = h.is_active(sanction)
+        if is_active:
             entity.add("topics", "reg.action")
-            is_target = True
 
-        context.emit(entity, target=is_target)
+        context.emit(entity, target=is_active)
         context.emit(sanction)
 
     # Name = the string that appears in the url column

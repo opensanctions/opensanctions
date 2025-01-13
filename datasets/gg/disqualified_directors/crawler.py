@@ -1,6 +1,5 @@
 from typing import Dict
 from normality import collapse_spaces
-from datetime import datetime
 from lxml import etree
 import re
 from zavod import Context, helpers as h
@@ -101,23 +100,17 @@ def crawl_item(item: Dict[str, str | None], context: Context):
         "Disqualified Directors by the Guernsey Financial Services Commission",
     )
 
-    end_date = h.extract_date(
-        context.dataset, item.pop("end_of_disqualification_period")
-    )
-
-    if end_date and end_date[0] < datetime.now().isoformat():
-        ended = True
-    else:
-        ended = False
-        person.add("topics", "corp.disqual")
-
     sanction = h.make_sanction(context, person)
-    h.apply_date(sanction, "startDate", item.pop("date_of_disqualification"))
     sanction.add("authority", item.pop("applicant_for_disqualification"))
     sanction.add("duration", item.pop("period_of_disqualification"))
-    sanction.add("endDate", end_date)
+    h.apply_date(sanction, "startDate", item.pop("date_of_disqualification"))
+    h.apply_date(sanction, "endDate", item.pop("end_of_disqualification_period"))
 
-    context.emit(person, target=not ended)
+    is_disqualified = h.is_active(sanction)
+    if is_disqualified:
+        person.add("topics", "corp.disqual")
+
+    context.emit(person, target=is_disqualified)
     context.emit(sanction)
 
     context.audit_data(item)

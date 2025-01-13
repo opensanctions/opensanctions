@@ -5,6 +5,7 @@ from normality import slugify
 from rigour.mime.types import CSV
 import csv
 
+
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 
@@ -81,12 +82,8 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     if (reinstate := row.pop(" Reinstate")) and ("9999" not in reinstate):
         h.apply_date(sanction, "endDate", reinstate)
-    end_date = max(sanction.get("endDate"), default=None)
-    if end_date is None or end_date > context.data_time_iso:
-        is_debarred = True
-    else:
-        is_debarred = False
 
+    is_debarred = h.is_active(sanction)
     if is_debarred:
         entity.add("topics", "debarment")
 

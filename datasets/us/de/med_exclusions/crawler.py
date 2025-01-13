@@ -2,7 +2,7 @@ from typing import Dict
 from rigour.mime.types import PDF
 import re
 
-from zavod import Context, helpers as h, settings
+from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_resource
 
 REGEX_AKA = re.compile(r"\baka\b|a\.k\.a\.?", re.IGNORECASE)
@@ -54,9 +54,8 @@ def crawl_item(row: Dict[str, str], context: Context):
     reinstated_date = row.pop("reinstated_date")
     h.apply_date(sanction, "endDate", reinstated_date)
 
-    end_date = sanction.get("endDate")
-    if end_date:
-        is_debarred = max(end_date) >= settings.RUN_TIME_ISO
+    if sanction.get("endDate"):
+        is_debarred = h.is_active(sanction)
     else:
         res = context.lookup("type.date", reinstated_date)
         if res and res.is_debarred is not None:

@@ -1,8 +1,9 @@
-from typing import Dict
-from normality import slugify
-from rigour.mime.types import XLSX
-from openpyxl import load_workbook
 from datetime import datetime, timedelta
+from typing import Dict
+
+from normality import slugify
+from openpyxl import load_workbook
+from rigour.mime.types import XLSX
 
 from zavod import Context, helpers as h
 
@@ -57,17 +58,15 @@ def crawl_item(row: Dict[str, str], context: Context):
         "Federal Authority",
     ]:
         if sanction_end_date == "2 Years":
-            sanction_end_date = str(
-                datetime.strptime(sanction_start_date, "%Y-%m-%d")
-                + timedelta(days=2 * 365)
-            )[:10]
-        is_debarred = (
-            datetime.strptime(sanction_end_date, "%Y-%m-%d") >= datetime.today()
-        )
+            # TODO(Leon Handreke): Maybe use date.replace(year=start_date.year + 2)
+            # to more accurately represent the semantics intended by the publisher?
+            sanction_end_datetime = datetime.strptime(
+                sanction_start_date, "%Y-%m-%d"
+            ) + timedelta(days=2 * 365)
+            sanction_end_date = sanction_end_datetime.date().isoformat()
         h.apply_date(sanction, "endDate", sanction_end_date)
-    else:
-        is_debarred = True
 
+    is_debarred = h.is_active(sanction)
     if is_debarred:
         entity.add("topics", "debarment")
 
