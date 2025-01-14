@@ -42,6 +42,102 @@ The method `entity.add` works seamlessly with both a single string and a list of
   entity.add("alias", values)
   ```
 
+## Code structuring nitpicks
+
+- `Ruff` can help with sorting imports in ascending order, ensuring consistency across your codebase. The convention is to group standard library imports first, followed by third-party imports, and then project-specific imports.
+
+    Each group should be separated by a blank line for clarity. For example:
+
+    ```python
+    # Standard library imports
+    import os
+    import sys
+
+    # Third-party imports
+    from normality import collapse_spaces, stringify
+
+    # Local application imports
+    from zavod import helpers as h
+    ```
+
+    The project-specific imports (like `from zavod import helpers as h`) should appear under all other imports and be separated by a blank line for clarity.
+
+    To enforce this convention, run the following `Ruff` command:
+
+    ```bash
+    ruff check --fix --select I /path/to/crawler.py
+    ```
+
+- Define and precompile regular expressions as constants at the top of the module.
+
+    ```python
+    REGEX_DETAILS = re.compile(r"your_regex_pattern_here")
+    ```
+
+- When naming functions for data extraction or processing tasks, it's important to be specific and clear. For example, use `crawl_entity()` instead of a generic name like `process_data()`.
+
+    ```python
+    def crawl_entity():  # Better than process_data()
+        pass
+    ```
+
+    !!! note
+        We typically use the `crawl_thing` convention (e.g., `crawl_person`, `crawl_row`, `crawl_index`) to indicate that the function directly handles a specific task.
+
+- To improve readability and maintainability, break down deeply nested logic into smaller, focused functions.
+  
+    ```python
+    for link in main_grid.xpath(".//a/@href"):
+        # Break down the handling of different data types into separate functions
+        if data_type == "vessel":
+            # A separate function to handle vessel data processing
+            crawl_vessel(context, link, program)
+        elif data_type == "legal_entity":
+            # A separate function to handle legal entity data processing
+            crawl_legal_entity(context, link, program)
+    ```
+
+    You can also invert the condition and return early when the check fails. This pattern minimizes the need for additional indentation.
+    ```python
+    # Extract required fields from the row
+    name = row.pop("name")
+    listing_date = row.pop("listing_date")
+
+    # Proceed only if both 'name' and 'listing_date' are available
+    if not (name and listing_date):
+        return
+
+    # Create the entity
+    entity = context.make("LegalEntity")
+    entity.id = context.make_id(name, listing_date)
+    ```
+
+- Instead of using `urljoin` from `urllib.parse`, leverage `.make_links_absolute()` for cleaner URL resolution. This ensures all relative URLs are converted to absolute URLs within the crawler.
+
+    ```python
+    # Make all relative links in the document absolute using the data_url as the base
+    doc = context.fetch_html(context.data_url)
+    doc.make_links_absolute(context.data_url)
+    ```
+
+- Utilize `h.copy_address()` to manage address processing.
+
+    ```python
+    # Create an address entity using the helper function
+    address_ent = h.make_address(context, full=addr, city=city, lang="zhu")
+    # Copy address details to the entity
+    h.copy_address(entity, address_ent)
+    ```
+
+- Use `settings.RUN_TIME` to ensure consistent datetime comparisons.
+
+    ```python
+    # Determine if the end date is active by comparing with the configured runtime
+    is_active = end_date_obj >= settings.RUN_TIME
+    # Instead of:
+    # is_active = end_date_obj >= datetime.today()
+    ```
+
 ## Detect unhandled data
 
 If a variable number of fields can extracted automatically (e.g. from a list or table):
