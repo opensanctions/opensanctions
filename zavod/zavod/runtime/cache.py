@@ -27,7 +27,7 @@ def get_metadata(uri: str) -> MetaData:
 @cache
 def get_cache(dataset: Dataset) -> Cache:
     """Get a cache object for the given dataset."""
-    database_uri = settings.CACHE_DATABASE_URI
+    database_uri = settings.DATABASE_URI
     if database_uri is None:
         cache_path = dataset_state_path(dataset.name) / "cache.sqlite3"
         database_uri = f"sqlite:///{cache_path.as_posix()}"

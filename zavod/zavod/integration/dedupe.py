@@ -1,13 +1,15 @@
 from typing import List, Optional, TYPE_CHECKING
 from pathlib import Path
 from functools import cache
-from zavod.entity import Entity
+from sqlalchemy import MetaData, create_engine
+
 from followthemoney import model
 from nomenklatura.xref import xref
 from nomenklatura.resolver import Resolver, Identifier, Linker
 from nomenklatura.judgement import Judgement
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
+from zavod.entity import Entity
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
@@ -20,28 +22,29 @@ log = get_logger(__name__)
 AUTO_USER = "zavod/xref"
 
 
-def _get_resolver_path() -> Path:
-    """Get the path to the deduplication resolver."""
-    if settings.RESOLVER_PATH is None:
-        raise RuntimeError("Please set $ZAVOD_RESOLVER_PATH.")
-    return Path(settings.RESOLVER_PATH)
-
-
 def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
-    path = _get_resolver_path()
-    log.info("Loading resolver from: %s" % path.as_posix())
-    # TODO maybe some env-var way to select between db and file
-    return Resolver.load(path)
+    database_uri = settings.DATABASE_URI
+    if database_uri is None:
+        cache_path = settings.DATA_PATH / "resolver.sqlite3"
+        database_uri = f"sqlite:///{cache_path.as_posix()}"
+    engine = create_engine(database_uri)
+    metadata = MetaData()
+    resolver = Resolver(engine, metadata, create=True)
+    log.info("Using resolver: %r" % resolver)
+    return resolver
 
 
 def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
     """Get a resolver linker for the given dataset."""
     if not dataset.resolve:
         return Linker[Entity]({})
-    path = _get_resolver_path()
-    log.info("Loading linker from: %s" % path.as_posix())
-    return Resolver.load_linker(path)
+    resolver = get_resolver()
+    log.info("Loading linker from: %r" % resolver)
+    resolver.begin()
+    linker = resolver.get_linker()
+    resolver.commit()
+    return linker
 
 
 def blocking_xref(
