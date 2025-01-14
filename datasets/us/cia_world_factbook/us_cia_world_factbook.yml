@@ -764,6 +764,30 @@ lookups:
           - role: Interim Prime Minister
             name: Abd-al-Hamid DUBAYBAH
             start_date: 5 February 2021
+      # Tunisia
+      - match: President Kais SAIED dismissed Prime Minister Ahmed HACHANI on 7 August 2024 and appointed Kamel MADDOURI as prime minister
+        holders:
+          - role: Prime Minister
+            name: Ahmed HACHANI
+            end_date: 7 August 2024
+          - role: Prime Minister
+            name: Kamel MADDOURI
+            start_date: 7 August 2024
+      # Tajikistan
+      - match: President Emomali RAHMON (since 16 November 1994
+        holders:
+          - role: President
+            name: Emomali RAHMON
+            start_date: 16 November 1994
+      # This is also Emomali RAHMON, split from the previous statement because there is a semicolon in the text
+      - match: head of state and Supreme Assembly Chairman since 20 November 1992)
+        holders:
+          - role: Head of State
+            name: Emomali RAHMON
+            start_date: 20 November 1992
+          - role: Supreme Assembly Chairman
+            name: Emomali RAHMON
+            start_date: 20 November 1992
 
       # Not additional heads, just notes
       - regex:
@@ -858,8 +882,6 @@ lookups:
           # Bangladesh
           - vacant
           - on 5 August 2024, Prime Minister Sheikh HASINA Wazed resigned, and the army announced it is in talks to form a new government
-          # Tunisia
-          - President Kais SAIED dismissed Prime Minister Ahmed HACHANI the same day he appointed Kamel MADDOURI
           # Thailand
           - also spelled Vajiralongkorn (since 1 December 2016)
           # Syria
