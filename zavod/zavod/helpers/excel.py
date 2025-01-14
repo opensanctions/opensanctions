@@ -69,7 +69,7 @@ def parse_xls_sheet(
 
     Keys are the column headings slugified with _ as separator.
 
-    Cells with links are included as keys with with _url appended to the original key.
+    Cells with links are included as keys with _url appended to the original key.
     """
     headers: List[str] | None = None
     for row_ix, row in enumerate(sheet):

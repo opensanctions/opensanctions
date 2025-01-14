@@ -16,16 +16,16 @@
 # Justification for entry on the list
 # Date of listing
 
-from normality import collapse_spaces
-from rigour.mime.types import CSV
 from typing import Dict
-import csv
 
+from normality import collapse_spaces
+from openpyxl import load_workbook
+
+from rigour.mime.types import XLSX
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.un_sc import get_legal_entities, get_persons, Regime, load_un_sc
 
-PDF_URL = "https://www.gov.pl/attachment/2fc03b3b-a5f6-4d08-80d1-728cdb71d2d6"
 POLAND_PROGRAM = "art. 118 ustawy z dnia 1 marca 2018 r. o przeciwdziałaniu praniu pieniędzy i finansowaniu terroryzmu"
 UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
 
@@ -37,32 +37,36 @@ KNOWN_HASHES = {
 
 def crawl_row(context: Context, row: Dict[str, str]):
     entity = context.make("Person")
-    name = row.pop("Imiona i nazwisk")
-    birthplace = row.pop("Miejsce urodzenia")
+    name = row.pop("imiona_i_nazwiska")
+    birthplace = row.pop("miejsce_urodzenia")
     entity.id = context.make_id(birthplace, name)
     entity.add("name", name)
-    entity.add("alias", row.pop("Pseudonim").split("\n"))
+    entity.add("alias", row.pop("pseudonim").split("\n"))
     birth_country = birthplace.split(",")[-1]
     entity.add("birthPlace", birthplace, lang="pol")
     entity.add("birthCountry", birth_country, lang="pol")
-    h.apply_date(entity, "birthDate", row.pop("Data urodzenia"))
-    entity.add("address", row.pop("location full") or None)
-    entity.add("country", row.pop("location country") or None)
+    h.apply_date(entity, "birthDate", row.pop("data_urodzenia"))
 
-    entity.add("nationality", row.pop("narodowość"))
+    res = context.lookup("extra_information", row.pop("inne_informacje"))
+    if not res:
+        context.log.warning("No extra information lookup found", row=row)
+    else:
+        entity.add("nationality", res.properties.get("nationality"), lang="pol")
+        entity.add("country", res.properties.get("country"), lang="pol")
+        entity.add("address", res.properties.get("address"), lang="pol")
+
     entity.add("topics", "sanction")
-
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "listingDate", row.pop("Data umieszczenia na liście"))
+    h.apply_date(sanction, "listingDate", row.pop("data_umieszczenia_na_liscie"))
     sanction.add(
-        "reason", collapse_spaces(row.pop("Uzasadnienie wpisu na listę")), lang="pol"
+        "reason", collapse_spaces(row.pop("uzasadnienie_wpisu_na_liste")), lang="pol"
     )
     sanction.add("program", POLAND_PROGRAM, "pol")
 
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    context.audit_data(row)
+    context.audit_data(row, ignore=["lp"])  # ID, we don't trust this to be stable
 
 
 def check_updates(context: Context):
@@ -93,11 +97,12 @@ def check_updates(context: Context):
 def crawl(context: Context):
     check_updates(context)
 
-    path = context.fetch_resource("source.csv", context.data_url)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
-        for row in csv.DictReader(fh):
-            crawl_row(context, row)
+    path = context.fetch_resource("source.xlsx", context.data_url)
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+
+    wb = load_workbook(path, read_only=True)
+    for row in h.parse_xlsx_sheet(context, sheet=wb.worksheets[0]):
+        crawl_row(context, row)
 
     # UN Security Council stubs
     un_sc, doc = load_un_sc(context)
