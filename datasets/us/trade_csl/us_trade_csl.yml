@@ -17,14 +17,14 @@ description: |
   * [Denied Persons List](/datasets/us_bis_denied/) -
     Individuals and entities that have been denied export privileges. Any
     dealings with a party on this list that would violate the terms
-    of its denial order are prohibited. 
+    of its denial order are prohibited.
   * Unverified List - End-users who BIS has been unable to verify in prior
     transactions. The presence of a party on this list in a transaction is a
-    “Red Flag” that should be resolved before proceeding with the transaction. 
+    “Red Flag” that should be resolved before proceeding with the transaction.
   * Entity List - Parties whose presence in a transaction can trigger a license
     requirement supplemental to those elsewhere in the Export Administration
     Regulations (EAR). The list specifies the license requirements and policies
-    that apply to each listed party. 
+    that apply to each listed party.
   * Military End User (MEU) List - Parties whose presence in a transaction as a
     party to the transaction triggers a license requirement for any item subject
     to the EAR listed in supplement no. 2 to part 744. No license exceptions are
@@ -63,6 +63,21 @@ lookups:
         value: Vessel
       - match: Aircraft
         value: Airplane
+
+  name_with_information:
+    options:
+      - match: The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located.  This includes the national armed services (army and air force), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Republic of Belarus.  All addresses located in Belarus.
+        properties:
+          name: Ministry of Defence of the Republic of Belarus
+          notes: Includes the Armed Forces of Belarus and all operating units wherever located.  This includes the national armed services (army and air force), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Republic of Belarus.  All addresses located in Belarus.
+      - match: Pakistan Atomic Energy Commission (PAEC), and subordinate entity Nuclear reactors (including power plants), fuel reprocessing and enrichment facilities, all uranium processing, conversion and enrichment facilities, heavy water production facilities and any collocated ammonia plants.
+        properties:
+          name: Pakistan Atomic Energy Commission (PAEC)
+          notes: Includes subordinate entity Nuclear reactors (including power plants), fuel reprocessing and enrichment facilities, all uranium processing, conversion and enrichment facilities, heavy water production facilities and any collocated ammonia plants.
+      - match: Ministry of Defence of the Russian Federation, including the Armed Forces of Russia and all operating units wherever located.  This includes the national armed services (army, navy, marine, air force, or coast guard), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Russian Federation.  All address located in Russia.
+        properties:
+          name: Ministry of Defence of the Russian Federation
+          notes: Includes the Armed Forces of Russia and all operating units wherever located.  This includes the national armed services (army, navy, marine, air force, or coast guard), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Russian Federation.  All address located in Russia.
   type.date:
     options:
       - match: "3033-01-17"
@@ -98,13 +113,6 @@ lookups:
         value: Turkey
   type.name:
     normalize: true
-    options:
-      - match: The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located.  This includes the national armed services (army and air force), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Republic of Belarus.  All addresses located in Belarus.
-        value: Ministry of Defence of the Republic of Belarus
-      - match: Pakistan Atomic Energy Commission (PAEC), and subordinate entity Nuclear reactors (including power plants), fuel reprocessing and enrichment facilities, all uranium processing, conversion and enrichment facilities, heavy water production facilities and any collocated ammonia plants.
-        value: Pakistan Atomic Energy Commission (PAEC)
-      - match: Ministry of Defence of the Russian Federation, including the Armed Forces of Russia and all operating units wherever located.  This includes the national armed services (army, navy, marine, air force, or coast guard), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Russian Federation.  All address located in Russia.
-        value: Ministry of Defence of the Russian Federation
   type.string:
     options:
       - match: British Virgin Islands
