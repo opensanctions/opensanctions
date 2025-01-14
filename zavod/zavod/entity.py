@@ -130,7 +130,7 @@ class Entity(CompositeEntity):
             raise InvalidData(f"{self.id}: {exc}") from exc
 
     @property
-    def target(self):
+    def target(self) -> bool:
         topics = self.get("topics", quiet=True)
         return len(settings.TARGET_TOPICS.intersection(topics)) > 0
 
