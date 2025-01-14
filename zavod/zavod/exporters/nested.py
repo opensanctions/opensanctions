@@ -1,4 +1,3 @@
-from zavod import settings
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
 from zavod.entity import Entity
@@ -9,11 +8,8 @@ class NestedJSONExporter(Exporter):
         super().setup()
         self.fh = open(self.path, "wb")
 
-    def is_root(self, entity: Entity) -> bool:
-        return False
-
     def feed(self, entity: Entity) -> None:
-        if self.is_root(entity):
+        if entity.target:
             data = entity.to_nested_dict(self.view)
             write_json(data, self.fh)
 
@@ -27,15 +23,8 @@ class NestedTargetsJSONExporter(NestedJSONExporter):
     FILE_NAME = "targets.nested.json"
     MIME_TYPE = "application/json"
 
-    def is_root(self, entity: Entity) -> bool:
-        return entity.target or False
-
 
 class NestedTopicsJSONExporter(NestedJSONExporter):
     TITLE = "Relevant topic tagged entities as nested JSON"
     FILE_NAME = "topics.nested.json"
     MIME_TYPE = "application/json"
-
-    def is_root(self, entity: Entity) -> bool:
-        topics = entity.get("topics", quiet=True)
-        return len(settings.TARGET_TOPICS.intersection(topics)) > 0

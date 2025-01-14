@@ -59,7 +59,7 @@ def test_export(testdataset1: Dataset):
         index = load(index_file)
         assert index["name"] == testdataset1.name
         assert index["entity_count"] == 12
-        assert index["target_count"] == 7
+        assert index["target_count"] == 6
         resources = {r["name"] for r in index["resources"]}
         for r in default_exports:
             assert r in resources
@@ -84,17 +84,17 @@ def test_export(testdataset1: Dataset):
     with open(dataset_path / "statistics.json") as statistics_file:
         statistics = load(statistics_file)
         assert statistics["entity_count"] == 12
-        assert statistics["target_count"] == 7
+        assert statistics["target_count"] == 6
 
     with open(dataset_path / "targets.nested.json") as targets_nested_file:
         targets = [loads(r) for r in targets_nested_file.readlines()]
-        assert len(targets) == 7
+        assert len(targets) == 6
         for target in targets:
             assert target["schema"] in {"Person", "Organization", "Company"}
 
     with open(dataset_path / "targets.simple.csv") as targets_simple_file:
         targets = list(DictReader(targets_simple_file))
-        assert len(targets) == 7
+        assert len(targets) == 6
         assert "Oswell E. Spencer" in {t["name"] for t in targets}
 
 

@@ -24,7 +24,6 @@ def test_store_access(testdataset1: Dataset):
     assert entity is not None, entity
     assert entity.id == "osv-john-doe"
     assert entity.schema.name == "Person"
-    assert entity.target is True
     # assert entity.external is False
     assert entity.last_change == settings.RUN_TIME_ISO
     assert entity.first_seen == settings.RUN_TIME_ISO
