@@ -211,6 +211,32 @@ reason = data.pop("expunerea-a-temeiului-de-includere-in-lista-a-operatorului-ec
 sanction.add("reason", reason, lang="rom")
 ```
 
+## Handling special space characters in strings
+
+Be aware of different types of space characters and how they affect text comparison. For example, a non-breaking space (`\xa0`) or zero-width space do not match a normal space character and can affect string comparison or processing. 
+
+An editor like VS Code highlights characters like this by default, and a hex editor is an effective way to see more precisely which values are present in strings that are surprising you. Remember that a hex editor is looking at the data encoded e.g. to `utf-8` while Python strings are `unicode` code points.
+
+To handle these cases, you can use string cleaning methods such as:
+
+- `normality.collapse_spaces`
+- `normality.remove_unsafe_chars`
+- `.replace`
+
+```python
+import normality
+
+# Replace non-breaking space with regular space
+text = text.replace("\xa0", " ")
+
+# When the source data contains messy or excessively repeated whitespace,
+# e.g., collapsing whitespace from text extracted from HTML
+cleaned_text = normality.collapse_spaces(text)
+
+# Remove unsafe characters if needed
+cleaned_text_safe = normality.remove_unsafe_chars(text)
+```
+
 ## Use datapatch lookups to clean or map values from external forms to OpenSanctions
 
 See [Datapatches](datapatch_lookups.md)
