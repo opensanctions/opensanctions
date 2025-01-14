@@ -33,7 +33,7 @@ def crawl_position(
     )
     if not occupancy:
         return
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(occupancy)
     PEPS.add(person.id)
 
@@ -68,7 +68,7 @@ def crawl_position_no_tenure(
     ]
     occupancy.id = context.make_id(*parts)
     occupancy.add("description", f"Knesset {knesset['KnessetNumber']}")
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(occupancy)
     PEPS.add(person.id)
 
@@ -144,7 +144,7 @@ def crawl_item(
         crawl_positions(context, person, member_id, is_current)
     if lang_iso_639_1 == "he":
         if person.id in PEPS:
-            context.emit(person, target=True)
+            context.emit(person)
 
 
 def crawl(context: Context):

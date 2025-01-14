@@ -86,5 +86,5 @@ def crawl(context: Context):
                 sanction.set("authorityId", aso_id)
                 start_date = row.get("Publication date", "")
                 h.apply_date(sanction, "startDate", start_date)
-                context.emit(wallet, target=True)
+                context.emit(wallet)
                 context.emit(sanction)

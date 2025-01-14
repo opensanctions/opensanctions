@@ -141,7 +141,7 @@ def parse_reference(
         context.audit_data(row, ignore=["reference"])
 
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

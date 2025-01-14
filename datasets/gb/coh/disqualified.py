@@ -133,7 +133,7 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
             directorship.add("organization", company)
             context.emit(directorship)
 
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context: Context) -> None:

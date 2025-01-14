@@ -170,7 +170,7 @@ def crawl_infractions(context: Context) -> None:
         sanction.add("reason", violation)
         sanction.add("sourceUrl", INFRACTION_URL)
         context.emit(sanction)
-        context.emit(entity, target=True)
+        context.emit(entity)
 
 
 def crawl(context: Context) -> None:

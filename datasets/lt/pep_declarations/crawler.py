@@ -228,7 +228,7 @@ def crawl(context: Context) -> None:
             context.emit(spouse)
             context.emit(marriage)
 
-        context.emit(declarant, target=True)
+        context.emit(declarant)
         context.audit_data(
             record,
             ignore=[

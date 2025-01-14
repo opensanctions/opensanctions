@@ -115,7 +115,7 @@ def crawl(context: Context):
                 categorisation=categorisation,
             )
             if occupancy:
-                context.emit(person, target=True)
+                context.emit(person)
                 context.emit(position)
                 context.emit(occupancy)
 

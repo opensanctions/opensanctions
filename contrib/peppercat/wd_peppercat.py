@@ -24,4 +24,4 @@ def crawl(context: Context):
             entity.add("name", row.get("person"))
             entity.add("topics", "role.pep")
             entity.add("country", country)
-            context.emit(entity, target=True)
+            context.emit(entity)

@@ -62,7 +62,7 @@ def crawl(context: Context) -> None:
                 context.emit(issuer)
                 entity.add("issuer", issuer)
 
-            context.emit(entity, target=is_target)
+            context.emit(entity)
             context.audit_data(
                 row,
                 ignore=[

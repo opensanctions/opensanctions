@@ -26,7 +26,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.add("notes", msg, lang="eng")
         entity.add("sourceUrl", CAATSA_URL)
     # context.inspect(entity)
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl(context: Context):

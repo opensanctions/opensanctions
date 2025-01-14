@@ -201,7 +201,7 @@ def crawl(context: Context):
             for info in designation.iterfind(".//UKStatementofReasons"):
                 sanction.add("reason", info.text)
             entity.add("topics", "sanction")
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(sanction)
         except ValueError as e:
             context.log.error(f"Failed to parse designation with id {unique_id}: {e}")

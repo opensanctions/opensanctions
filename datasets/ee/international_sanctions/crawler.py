@@ -30,7 +30,7 @@ def crawl_item_belarus(context: Context, source_url, raw_name: str):
     sanction.add("sourceUrl", source_url)
     sanction.add("description", BELARUS_DESC)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 
@@ -57,7 +57,7 @@ def crawl_item_human_rights(context: Context, source_url, raw_name: str):
     sanction.add("sourceUrl", source_url)
     sanction.add("description", HUMAN_RIGHTS_DESC)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

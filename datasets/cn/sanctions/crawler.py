@@ -30,5 +30,5 @@ def crawl(context: Context) -> None:
             h.apply_date(sanction, "endDate", row.pop("End date", None))
             sanction.add("sourceUrl", row.pop("Source URL", None))
             context.emit(sanction)
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.audit_data(row)

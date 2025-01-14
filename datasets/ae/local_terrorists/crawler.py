@@ -62,7 +62,7 @@ def parse_row(
         h.copy_address(entity, addr)
 
     context.emit(sanction)
-    context.emit(entity, target=sanctioned)
+    context.emit(entity)
 
 
 def parse_excel(context: Context, path: Path):

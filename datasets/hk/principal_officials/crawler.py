@@ -59,7 +59,7 @@ def crawl_members(context: Context, section: str, elem: ElementTree):
         no_end_implies_current=True,
     )
 
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(position)
     context.emit(occupancy)
 

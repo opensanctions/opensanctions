@@ -92,7 +92,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction.add("program", provision, lang="ces")
     sanction.add("status", cancel_text, lang="ces")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row)

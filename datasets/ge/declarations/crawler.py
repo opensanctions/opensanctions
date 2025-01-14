@@ -290,7 +290,7 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     occupancy.add("description", occupancy_description, lang="kat")
     context.emit(position)
     context.emit(occupancy)
-    context.emit(person, target=True)
+    context.emit(person)
 
     minor_family = set()
     for rel in item.pop("FamilyMembers"):

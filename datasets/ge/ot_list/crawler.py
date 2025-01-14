@@ -55,7 +55,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     sanction = h.make_sanction(context, person)
     sanction.set("authority", "Georgian Ministry of Justice")
     sanction.add("sourceUrl", context.data_url)
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(sanction)
 
 

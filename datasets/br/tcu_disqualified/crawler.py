@@ -56,7 +56,7 @@ def crawl_item(input_dict: dict, context: Context):
                                and sensitive positions in the public sector""",
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

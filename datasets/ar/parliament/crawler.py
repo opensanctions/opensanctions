@@ -80,7 +80,7 @@ def crawl(context: Context):
             occupancy.add("description", str_row.pop("distrito"))
 
         # Emit the entities
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
         context.audit_data(str_row, ignore=["mandato"])

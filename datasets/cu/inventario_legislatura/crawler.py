@@ -79,4 +79,4 @@ def crawl(context: Context):
         context.emit(occupancy)
 
         context.audit_data(data, ignore=IGNORE_COLUMNS)
-        context.emit(entity, target=True)
+        context.emit(entity)

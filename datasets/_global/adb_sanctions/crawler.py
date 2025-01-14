@@ -78,7 +78,7 @@ def crawl_row(context: Context, row: Dict[str, str | None]):
         address = h.make_address(context, full=row.get("address"), country=country)
 
         h.apply_address(context, entity, address)
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
 
 

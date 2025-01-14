@@ -62,5 +62,5 @@ def crawl(context: Context):
         h.apply_date(sanction, "endDate", entry.get("uzdraustaIki"))
 
         # Emit entities
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(sanction)

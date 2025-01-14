@@ -50,7 +50,7 @@ def crawl_person(context: Context, item: _Element, url: str) -> None:
             elif label_text == "hair-colour":
                 person.add("hairColor", value.text.strip())
 
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context: Context):

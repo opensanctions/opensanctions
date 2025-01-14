@@ -71,7 +71,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
             "Decisão administrativa de procedência",  # Date of decision for inclusion in this list
         ],
     )
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl(context: Context):

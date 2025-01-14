@@ -73,7 +73,7 @@ def crawl_item(input_dict: dict, context: Context):
         ),
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

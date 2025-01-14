@@ -116,7 +116,7 @@ def crawl_entity(
         url_link = item["link"].get("url")
         entity.add("sourceUrl", url_link)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl(context: Context) -> None:

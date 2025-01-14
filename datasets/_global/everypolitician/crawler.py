@@ -151,7 +151,7 @@ def parse_person(context: Context, data, country, lastmod) -> None:
     # data.pop("images", None)
     # if len(data):
     #     pprint(data)
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def parse_membership(
@@ -215,5 +215,5 @@ def parse_membership(
             if occupancy:
                 context.emit(position)
                 context.emit(occupancy)
-                context.emit(person, target=True)
+                context.emit(person)
                 return person_id

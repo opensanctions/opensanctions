@@ -164,7 +164,7 @@ def crawl_row(context, row):
     if position_entities:
         for entity in position_entities:
             context.emit(entity)
-        context.emit(person, target=True)
+        context.emit(person)
 
 
 def crawl_file(context: Context, url, filename, fields, expected_headings):

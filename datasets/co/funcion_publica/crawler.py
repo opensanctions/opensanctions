@@ -105,7 +105,7 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
         end_date=row.pop("FECHA_DESVINCULACION"),
         categorisation=categorisation,
     )
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(position)
     context.emit(occupancy)
     context.audit_data(row, ["ENLACE_CONSULTA_DECLARACIONES_PEP"])
@@ -190,7 +190,7 @@ def crawl_table_row(
         status=OccupancyStatus.UNKNOWN,
         categorisation=categorisation,
     )
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(position)
     context.emit(occupancy)
     context.audit_data(str_row, ["descargar", "enlaces_externos"])

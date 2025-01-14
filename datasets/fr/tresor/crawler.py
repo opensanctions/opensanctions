@@ -173,7 +173,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
         quiet=True,
     )
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

@@ -57,7 +57,7 @@ def crawl_mutual_enforcement(context: Context):
             h.apply_date(sanction, "date", row.pop("Notice Effective At EBRD"))
 
             entity.add("topics", "debarment")
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(sanction)
             context.audit_data(row)
 
@@ -109,7 +109,7 @@ def crawl_ebrd_initiated(context: Context):
         address = h.make_address(context, full=full, country=nationality)
         h.apply_address(context, entity, address)
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
 
 
@@ -170,7 +170,7 @@ def crawl_third_party(context: Context):
         h.apply_date(sanction, "endDate", ineligible_to)
         h.apply_date(sanction, "listingDate", enforcement_decision)
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
 
 

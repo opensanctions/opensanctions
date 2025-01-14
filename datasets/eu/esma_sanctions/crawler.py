@@ -70,5 +70,5 @@ def crawl(context: Context) -> None:
         sanction.add("provisions", row.pop("sn_natureFullName", None))
         sanction.set("authority", row.pop("sn_ncaCodeFullName", None))
         sanction.set("country", row.pop("sn_countryName", None))
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)

@@ -27,4 +27,4 @@ def crawl(context: Context):
         entity.add("modifiedAt", node.findtext("./updated"))
         entity.add("topics", "crime.terror")
 
-        context.emit(entity, target=True)
+        context.emit(entity)

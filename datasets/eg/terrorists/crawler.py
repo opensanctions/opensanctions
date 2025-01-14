@@ -59,7 +59,7 @@ def crawl_terrorist(input_dict: dict, context: Context):
         f"Publication Page: {input_dict.pop('number_of_publication')}",
     )
 
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(sanction)
     context.audit_data(input_dict)
 
@@ -83,7 +83,7 @@ def crawl_terrorist_entities(input_dict: dict, context: Context):
     sanction.add("description", f"Issue in official gazette: {gazette_issue}")
     sanction.add("summary", input_dict.pop("updates"), lang="ara")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(input_dict, ignore=["series"])
 
@@ -110,7 +110,7 @@ def crawl_legal_persons(input_dict: dict, context: Context):
     sanction.add("description", f"Issue in official gazette: {gazette_issue}")
     sanction.add("summary", input_dict.pop("updates"), lang="ara")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(input_dict, ignore=["series"])
 
