@@ -33,14 +33,14 @@ publisher:
   official: true
 url: https://www.gov.pl/web/finanse/lista-osob-i-podmiotow-wobec-ktorych-stosuje-sie-szczegolne-srodki-ograniczajace-na-podstawie-art-118-ustawy-z-dnia-1-marca-2018-r-o-przeciwdzialaniu-praniu-pieniedzy-i-finansowaniu-terroryzmu
 data:
-  url: https://www.gov.pl/attachment/56238b34-8a26-4431-a05a-e1d039f0defa
+  url: https://www.gov.pl/web/finanse/lista-osob-i-podmiotow-wobec-ktorych-stosuje-sie-szczegolne-srodki-ograniczajace-na-podstawie-art-118-ustawy-z-dnia-1-marca-2018-r-o-przeciwdzialaniu-praniu-pieniedzy-i-finansowaniu-terroryzmu
   format: XLSX
   lang: pol
 
 dates:
   formats: ["%d.%m.%Y r."]
 lookups:
-  extra_information:
+  other_information:
     options:
       - match: "a) narodowość: iracka\nb) lokalizacja: Anbar Province, Republika Iraku"
         properties:
