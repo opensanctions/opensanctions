@@ -304,6 +304,10 @@ lookups:
         name: Altima Inc
         registration_number: 6451981
         care_of: Eastern Euro Ship Management
+      - match: "Lalique Co LTD c/o: Qingdao Huitong Shipping Co LTD (6471802"
+        name: Lalique Co LTD
+        registration_number: 6471802
+        care_of: Qingdao Huitong Shipping Co LTD
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
