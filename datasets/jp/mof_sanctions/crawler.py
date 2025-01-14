@@ -200,7 +200,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     # if len(row):
     #     context.inspect(row)
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

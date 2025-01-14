@@ -60,12 +60,12 @@ def crawl_item(row: Dict[str, str], context: Context):
             company_sanction = h.make_sanction(context, company)
             h.apply_date(company_sanction, "startDate", exclusion_date)
 
-            context.emit(company, target=True)
+            context.emit(company)
             context.emit(company_sanction)
 
     # we have to emit the person latter because of the possibility of alias
     if last_name:
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(sanction)
 
     if last_name and is_business:

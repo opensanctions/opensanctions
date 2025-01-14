@@ -131,7 +131,7 @@ def crawl_captain(context: Context, main_grid, program):
         sanction = h.make_sanction(context, captain)
         sanction.add("program", program)
 
-        context.emit(captain, target=True)
+        context.emit(captain)
         context.emit(sanction)
 
         vessel = context.make("Vessel")
@@ -228,7 +228,7 @@ def crawl_vessel(context: Context, link, program):
     sanction.add("program", program)
     sanction.add("sourceUrl", link)
 
-    context.emit(vessel, target=True)
+    context.emit(vessel)
     context.emit(sanction)
 
     crawl_ship_relation(
@@ -365,7 +365,7 @@ def crawl_person(context: Context, link, program):
     sanction.add("sourceUrl", link)
     sanction.add("program", program)
 
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(sanction)
     context.audit_data(data, ignore=["Sanction Jurisdictions"])
 
@@ -412,7 +412,7 @@ def crawl_legal_entity(context: Context, link, program):
     sanction.add("sourceUrl", link)
     sanction.add("program", program)
 
-    context.emit(legal_entity, target=True)
+    context.emit(legal_entity)
     context.emit(sanction)
     context.audit_data(data, ignore=["Sanction Jurisdictions"])
 

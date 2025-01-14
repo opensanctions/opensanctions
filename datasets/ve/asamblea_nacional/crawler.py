@@ -136,7 +136,7 @@ def crawl_member(context: Context, member_link=ElementOrTree):
         context, person, position, True, categorisation=categorisation
     )
     if occupancy is not None:
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 

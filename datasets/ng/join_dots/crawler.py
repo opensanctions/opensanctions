@@ -122,7 +122,7 @@ def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
             )
 
             if occupancy:
-                context.emit(entity, target=True)
+                context.emit(entity)
                 context.emit(occupancy)
                 context.emit(position)
 

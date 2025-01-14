@@ -174,7 +174,7 @@ for role in person_data.pop("roles"):
 
 if pep_entities:
     person.add("topics", "role.pep")
-    context.emit(person, target=True)
+    context.emit(person)
 for entity in pep_entities:
     context.emit(entity)
 ```

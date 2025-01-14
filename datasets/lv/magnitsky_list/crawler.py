@@ -28,7 +28,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         sanction.add("sourceUrl", source_url.strip())
 
     # Emit entities
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

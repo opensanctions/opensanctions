@@ -114,5 +114,5 @@ def crawl(context: Context):
                 parse_foreign_persons(context, entity, text)
 
             if entity.has("name"):
-                context.emit(entity, target=True)
+                context.emit(entity)
                 context.emit(sanction)

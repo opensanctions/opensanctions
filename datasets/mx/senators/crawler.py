@@ -77,7 +77,7 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
         categorisation=categorisation,
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(occupancy)
     context.audit_data(
         input_dict,

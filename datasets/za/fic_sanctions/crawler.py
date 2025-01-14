@@ -117,7 +117,7 @@ def crawl_row(context: Context, data: Dict[str, str]):
     sanction.add("unscId", data.pop("ReferenceNumber", None))
 
     context.audit_data(data, ignore=["ApplicationStatus"])
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

@@ -75,5 +75,5 @@ def crawl(context: Context):
         sanction.add("reason", record.pop("SubjectMatters"))
 
         context.audit_data(record, ignore=IGNORE)
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)

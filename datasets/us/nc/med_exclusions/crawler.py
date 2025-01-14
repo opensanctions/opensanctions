@@ -37,7 +37,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     ownership.add("asset", entity)
     ownership.add("owner", owner)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.emit(owner)
     context.emit(ownership)

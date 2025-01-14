@@ -57,7 +57,7 @@ def crawl_item(member_url: str, name: str, context: Context):
     )
 
     if occupancy:
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 

@@ -166,7 +166,7 @@ def crawl_membership(
     if not occupancy:
         return
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(position)
     context.emit(occupancy)
 

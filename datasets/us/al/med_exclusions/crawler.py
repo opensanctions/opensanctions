@@ -57,7 +57,7 @@ def crawl_row(context, name, category, start_date):
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", start_date)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     for owner in owners:
@@ -74,7 +74,7 @@ def crawl_row(context, name, category, start_date):
 
         sanction = h.make_sanction(context, entity)
         h.apply_date(sanction, "startDate", start_date)
-        context.emit(owner_entity, target=True)
+        context.emit(owner_entity)
         context.emit(relation)
 
     for item in related_entities if related_entities else []:
@@ -91,7 +91,7 @@ def crawl_row(context, name, category, start_date):
 
         sanction = h.make_sanction(context, entity)
         h.apply_date(sanction, "startDate", start_date)
-        context.emit(related, target=True)
+        context.emit(related)
         context.emit(relation)
         context.emit(sanction)
 

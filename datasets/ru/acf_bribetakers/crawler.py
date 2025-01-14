@@ -61,7 +61,7 @@ def parse_result(context: Context, row: Dict[str, Any]):
     entity.add("gender", row.pop("gender"))
     entity.add("createdAt", published_at)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.audit_data(row, ignore=IGNORE_COLUMNS)
 
 

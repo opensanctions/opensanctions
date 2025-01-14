@@ -74,7 +74,7 @@ def crawl_person(context: Context, list_item: _Element):
         if prop is not None:
             person.add(prop, value)
 
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context: Context):

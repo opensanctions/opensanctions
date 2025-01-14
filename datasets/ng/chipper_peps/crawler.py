@@ -131,7 +131,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.add("topics", "role.pep")
         entity.add("country", "ng")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl(context: Context):

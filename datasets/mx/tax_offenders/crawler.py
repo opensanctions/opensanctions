@@ -71,7 +71,7 @@ def crawl_item(input_dict: dict, context: Context):
     if input_dict.get("value"):
         sanction.add("description", "Value: " + input_dict.pop("value"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(input_dict)

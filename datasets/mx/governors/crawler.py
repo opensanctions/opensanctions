@@ -96,7 +96,7 @@ def crawl_item(input_html, context: Context):
 
     # If occupancy is None, then it is not a PEP
     if occupancy is not None:
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 

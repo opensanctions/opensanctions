@@ -119,7 +119,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
         entity.add("name", name)
 
     if is_ofac:
-        context.emit(entity, target=True)
+        context.emit(entity)
         # Don't double-import OFAC entities
         return
 
@@ -186,7 +186,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
     result.pop("source_list_url")
 
     context.emit(sanction)
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.audit_data(result, ignore=["standard_order"])
 
 

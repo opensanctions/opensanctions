@@ -93,4 +93,4 @@ def crawl(context: Context):
             entity.add("notes", row.pop("Place of Birth")[1].replace("n/a: ", ""))
 
         context.emit(sanction)
-        context.emit(entity, target=True)
+        context.emit(entity)

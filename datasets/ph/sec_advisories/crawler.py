@@ -49,7 +49,7 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
     entity.add("notes", description)
     entity.add("sourceUrl", source_url)
     h.apply_date(entity, "createdAt", date)
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl(context: Context):

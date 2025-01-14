@@ -105,7 +105,7 @@ def crawl_item(context: Context, input_dict: dict):
     )
     h.apply_date(sanction, "startDate", input_dict.pop("date"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(input_dict, ignore=["No.", "No"])

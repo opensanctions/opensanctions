@@ -190,7 +190,7 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
 
         context.emit(position)
         context.emit(occupancy)
-        context.emit(person, target=True)
+        context.emit(person)
         context.audit_data(
             row,
             [

@@ -49,5 +49,5 @@ def crawl(context: Context):
         sanction = h.make_sanction(context, person, program_key="RU-MFA")
         sanction.add("program", PROGRAM, lang="rus")
 
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(sanction)

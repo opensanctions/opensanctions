@@ -32,4 +32,4 @@ def crawl(context: Context):
 
             context.emit(position)
             context.emit(occupancy)
-            context.emit(pep, target=True)
+            context.emit(pep)

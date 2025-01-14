@@ -130,7 +130,7 @@ def crawl_program(
             sanctions.append(sanction)
 
         for entity in companies:
-            context.emit(entity, target=True)
+            context.emit(entity)
 
         for entity in ownerships + sanctions:
             context.emit(entity)

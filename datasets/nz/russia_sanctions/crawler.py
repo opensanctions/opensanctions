@@ -124,7 +124,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
         if as_bool(data.pop(scope)):
             sanction.add("provisions", scope)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(data)
 

@@ -40,7 +40,7 @@ def crawl_individual(row: Dict[str, str], context: Context):
     h.apply_date(sanction, "startDate", row.pop("action_date"))
     sanction.add("status", row.pop("status"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row, ignore=["date_added"])
@@ -97,7 +97,7 @@ def crawl_organization(row: Dict[str, str], context: Context):
     h.apply_date(sanction, "startDate", row.pop("action_date"))
     sanction.add("status", row.pop("status"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.emit(address)
 

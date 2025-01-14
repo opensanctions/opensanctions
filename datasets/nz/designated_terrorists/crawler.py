@@ -83,7 +83,7 @@ def crawl_item(input_dict: dict, context: Context):
     for renew_statement_url in renew_statement_urls:
         sanction.add("sourceUrl", renew_statement_url)
 
-    context.emit(organization, target=True)
+    context.emit(organization)
     context.emit(sanction)
     context.audit_data(input_dict)
 

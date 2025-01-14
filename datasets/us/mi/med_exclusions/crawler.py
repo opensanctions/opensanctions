@@ -41,7 +41,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         sanction.add("publisher", source)
         sanction.add("reason", reason)
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
 
     if last_name := row.pop("last_name"):
@@ -73,7 +73,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         person_sanction.add("publisher", source)
         person_sanction.add("reason", reason)
 
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(person_sanction)
 
     if last_name and entity_name:

@@ -25,7 +25,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction.add("provisions", row.pop("action_type_suspend_terminate"))
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row)

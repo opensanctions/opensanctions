@@ -47,7 +47,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     person.add("topics", "sanction.counter")
     # person.add("topics", "wanted")
     person.add("country", "tr")
-    context.emit(person, target=True)
+    context.emit(person)
 
     organization = context.make("Organization")
     organization_name = row.pop("TOrgutAdi")

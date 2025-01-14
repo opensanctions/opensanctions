@@ -110,7 +110,7 @@ def crawl_person(context: Context, url: str, accomplice: bool = False):
     person.add("summary", "Probable Accomplice" if accomplice else "Probable Organizer")
     person.add("position", position_name)
 
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context: Context):

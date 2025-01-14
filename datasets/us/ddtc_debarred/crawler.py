@@ -75,7 +75,7 @@ def crawl_debarment(
             "Corrected federal register notice: " + corrected_notice_number,
         )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row, ["charging-letter", "debarment-order"])

@@ -67,7 +67,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     )
 
     if occupancy:
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 

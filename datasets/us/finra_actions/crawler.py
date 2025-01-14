@@ -60,7 +60,7 @@ def crawl_item(input_dict: dict, context: Context):
         entity.add("name", name)
         entity.add("topics", "reg.action")
         entity.add("country", "us")
-        context.emit(entity, target=True)
+        context.emit(entity)
 
         sanction = h.make_sanction(context, entity, key=case_id)
         description = f"{date}: {case_summary}"

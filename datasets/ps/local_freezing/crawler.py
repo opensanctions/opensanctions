@@ -68,7 +68,7 @@ def crawl_item(input_dict: dict, context: Context):
         "Decree No. (14) of 2015 Concerning the Enforcement of Security Council Resolutions",
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(input_dict)
 

@@ -59,7 +59,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     )
     sanction.add("program", POLAND_PROGRAM, "pol")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row)
@@ -103,7 +103,7 @@ def crawl(context: Context):
     un_sc, doc = load_un_sc(context)
 
     for _node, entity in get_persons(context, un_sc.prefix, doc, UN_SC_PREFIXES):
-        context.emit(entity, target=True)
+        context.emit(entity)
 
     for _node, entity in get_legal_entities(context, un_sc.prefix, doc, UN_SC_PREFIXES):
-        context.emit(entity, target=True)
+        context.emit(entity)

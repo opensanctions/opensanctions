@@ -65,7 +65,7 @@ def crawl_item(context: Context, item: etree):
     )
 
     if occupancy:
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(position)
         context.emit(occupancy)
 

@@ -61,7 +61,7 @@ def crawl_item(url: str, context: Context):
         ),
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
 
     if "Passport Number" in info_dict and info_dict["Passport Number"] != "":
         passport = h.make_identification(

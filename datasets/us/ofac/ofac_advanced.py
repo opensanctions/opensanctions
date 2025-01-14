@@ -309,7 +309,7 @@ def parse_distinct_party(
         for feat_value in values:
             apply_feature(context, proxy, feat_label, feat_value)
 
-    context.emit(proxy, target=True)
+    context.emit(proxy)
     return proxy
 
 

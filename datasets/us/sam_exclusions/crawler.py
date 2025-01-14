@@ -183,5 +183,5 @@ def crawl(context: Context) -> None:
             ignore=["CT Code", "Open Data Flag"],
         )
         context.emit(sanction)
-        context.emit(entity, target=True)
+        context.emit(entity)
     # print(data_url)

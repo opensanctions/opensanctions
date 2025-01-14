@@ -41,7 +41,7 @@ def create_entities(context: Context, record: Dict[str, Any]):
         f"{organization_name} is restricted from procurement from {subject_name} from {start_date} until {end_date} due to ownership or management role of a public official in {organization_name} or their family member. This is a preventative restriction by Komisija za preprečevanje korupcije and implies no wrongdoing.",
     )
 
-    context.emit(legal_entity, target=True)
+    context.emit(legal_entity)
     context.audit_data(record, ignore=["omejitev_do", "st_transakcij"])
 
 

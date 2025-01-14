@@ -98,7 +98,7 @@ def crawl_person(context: Context, data, href, name_raw):
 
         context.emit(position)
         context.emit(occupancy)
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context: Context):

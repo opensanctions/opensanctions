@@ -61,7 +61,7 @@ def crawl_table(context: Context, table: _Element) -> None:
         sanction.add("authorityId", reference)
         sanction.add("program", row.pop("designation", None))
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
         context.audit_data(row, ignore=["no"])
 

@@ -145,7 +145,7 @@ def emit_person(
             categorisation=categorisation,
         )
 
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 
