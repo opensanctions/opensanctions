@@ -58,5 +58,6 @@ nav:
       - best_practices/http_operations.md
       - best_practices/priorities.md
       - best_practices/merge_checklist.md
+      - best_practices/xpath_and_html.md
   - PEPs: peps.md
   - Wikidata: wikidata.md
