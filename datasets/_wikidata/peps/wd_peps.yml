@@ -1968,3 +1968,8 @@ lookups:
         code: ""
         label: "Free Republic of the Congo"
         decision: "ignore"
+      - match: "Q97704156"
+        code: "HT"
+        label: "Republic of Haiti"
+        # This is a historic 19th century entity
+        decision: "ignore"
