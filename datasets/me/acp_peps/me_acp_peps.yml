@@ -28,3 +28,9 @@ data:
   url: https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni
   format: JSON
   # lang: cnr  # Montenegrin (ISO 639-2)
+
+lookups:
+  type.country: 
+    options: 
+      - match: Crnogorsko
+        country: me

@@ -32,25 +32,21 @@ def extract_latest_filing(
     return None, None
 
 
-def fetch_csv_rows(context: Context, latest_report_id: int):
-    # URL for fetching the CSV
-    url = f"https://portal.antikorupcija.me:9343/acamPublic/izvestajDetailsCSV.json?izvestajId={latest_report_id}"
+def fetch_csv(context: Context, report_id: int, file_pattern: str) -> List[Dict]:
+    """Generic CSV fetcher to retrieve CSV rows based on the file pattern."""
+    url = f"https://portal.antikorupcija.me:9343/acamPublic/izvestajDetailsCSV.json?izvestajId={report_id}"
+    zip_path = context.fetch_resource(f"{report_id}.zip", url)
 
-    # Fetch the ZIP file containing the CSV
-    zip_path = context.fetch_resource(f"{latest_report_id}.zip", url)
     try:
         with ZipFile(zip_path, "r") as zip:
-            # Find the file name that matches the pattern
             filtered_names = [
-                name
-                for name in zip.namelist()
-                if name.startswith("csv_funkcije_funkcionera_")
+                name for name in zip.namelist() if name.startswith(file_pattern)
             ]
-            # Get the first matching name or None
             file_name = next((name for name in filtered_names), None)
-            # Check if the file was found
             if not file_name:
-                context.log.warning("No matching file found in the ZIP archive.")
+                context.log.warning(
+                    "No matching file found in the ZIP archive.", file_pattern
+                )
                 return []
 
             with zip.open(file_name) as zfh:
@@ -62,8 +58,44 @@ def fetch_csv_rows(context: Context, latest_report_id: int):
         return []
 
 
+def crawl_relative(context, person_entity, relatives):
+    # Skipping the first row as it contains the PEP details
+    for row in relatives[1:]:
+        # name = row.pop("FUNKCIONER_IME")
+        # surname = row.pop("FUNKCIONER_PREZIME")
+        relative_name = row.pop("IME_CLANA_PORODICE")
+        relative_surname = row.pop("PREZIME_CLANA_PORODICE")
+        maiden_name = row.pop("RODJENO_PREZIME_CLANA_PORODICE")
+        relationship = row.pop("SRODSTVO")
+        nationality = row.pop("DRZAVLJANSTVO")
+        # residence = row.pop("MESTO")
+        address = row.pop("BORAVISTE")
+
+        # Create a relative
+        relative = context.make("Person")
+        relative.id = context.make_id(relative_name, relative_surname, maiden_name)
+        h.apply_name(
+            relative,
+            first_name=relative_name,
+            last_name=relative_surname,
+            maiden_name=maiden_name,
+        )
+        relative.add("nationality", nationality)
+        relative.add("address", address)
+        context.emit(relative)
+
+        # Create a relationship
+        rel = context.make("Family")
+        rel.id = context.make_id(person_entity.id, relationship, relative.id)
+        rel.add("relationship", relationship)
+        rel.add("person", person_entity.id)
+        rel.add("relative", relative.id)
+
+        context.emit(rel)
+
+
 def make_affiliation_entities(
-    context: Context, entity: Entity, function, row: dict, filing_date
+    context: Context, entity: Entity, function, row: dict, filing_date, report_id
 ) -> List[Entity]:
     """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
     * A position's name include the title and the name of the legal entity
@@ -80,12 +112,22 @@ def make_affiliation_entities(
     position_name = f"{function}, {organization}"
     entity.add("position", position_name)
 
-    position = h.make_position(context, position_name, country="ME")
+    position = h.make_position(
+        context,
+        position_name,
+        # topics=["gov.national"], # for testing
+        country="ME",
+    )
     apply_translit_full_name(
         context, position, "cnr", position_name, TRANSLIT_OUTPUT, POSITION_PROMPT
     )
 
     categorisation = categorise(context, position, is_pep=True)
+    # Check categorisation topics match and fetch relatives
+    if "gov.national" in categorisation.topics:
+        relatives = fetch_csv(context, report_id, "csv_clanovi_porodice_")
+        crawl_relative(context, entity, relatives)
+
     occupancy = h.make_occupancy(
         context,
         entity,
@@ -108,7 +150,7 @@ def crawl_person(context: Context, person):
     # position = person.pop("nazivFunkcije")
     dates = person.pop("izvjestajImovine")
     filing_date, report_id = extract_latest_filing(dates)
-    report_details = fetch_csv_rows(context, report_id)
+    report_details = fetch_csv(context, report_id, "csv_funkcije_funkcionera_")
     if not report_details:
         return
 
@@ -127,7 +169,9 @@ def crawl_person(context: Context, person):
         )
         entity.add("topics", "role.pep")
         position_entities.extend(
-            make_affiliation_entities(context, entity, function, row, filing_date)
+            make_affiliation_entities(
+                context, entity, function, row, filing_date, report_id
+            )
         )
         if position_entities:
             for position in position_entities:
