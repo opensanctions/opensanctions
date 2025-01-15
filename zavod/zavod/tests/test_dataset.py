@@ -54,8 +54,7 @@ def test_basic():
     assert url.endswith(f"{test_ds.name}/foo.json"), url
     os_data = test_ds.to_opensanctions_dict(catalog)
     assert os_data["name"] == "test", os_data
-    # assert os_data["collections"] == ["collection"], os_data
-    assert "collections" not in os_data, os_data
+    assert os_data["collections"] == ["collection"], os_data
     assert test_ds.resolve is False
     assert os_data["resolve"] is False, os_data
     # Explicit True is also read correctly
