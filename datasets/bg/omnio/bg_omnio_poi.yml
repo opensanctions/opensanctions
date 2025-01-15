@@ -11,14 +11,14 @@ summary: >
   A list of persons and companies sanctioned for involvement with terrorism financing
   released by the government in Bulgaria.
 description: |
-  This dataset contains the Bulgarian sanctions list as [published here](https://www.dans.bg/images/stories/FID/Reshenie_265_MS_23042003_Spisyk_ZMFT.pdf):
+  This dataset contains the Bulgarian sanctions list as [published here](https://www.dans.bg/upload/298/RESHENIE_265_na_MS_ot_23042003_g_za_priemane_Spisyk_na_fiziceskite_lica_uridiceskite_lica_grupite_i_.pdf):
 
   > Pursuant to Art. 105, para. 1 and Art. 114 of the Constitution of the Republic
   > of Bulgaria and Art. 5, para. 1 of the Law on Measures Against the Financing of
   > Terrorism.
 
   This list has been manually extracted from the government PDF by OMNIO staff. It is
-  therefore manually updated, last confirmed 10. September 2022.
+  therefore manually updated, last confirmed January 16, 2022.
 publisher:
   name: OMNIO Compliance
   description: |
