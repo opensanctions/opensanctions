@@ -2,7 +2,7 @@ import re
 from functools import lru_cache
 from prefixdate import parse_formats
 from datetime import datetime, date, timezone
-from typing import Union, Iterable, Set, Optional, List
+from typing import Tuple, Union, Iterable, Set, Optional, List
 from followthemoney.types import registry
 
 from zavod.logs import get_logger
@@ -92,7 +92,9 @@ def replace_months(dataset: Dataset, text: str) -> str:
 
 
 @lru_cache(maxsize=5000)
-def extract_date(dataset: Dataset, text: DateValue) -> List[str]:
+def extract_date(
+    dataset: Dataset, text: DateValue, formats: Optional[Tuple[str]] = None
+) -> List[str]:
     """
     Extract a date from the provided text using predefined `formats` in the metadata.
     If the text doesn't match any format, returns the original text.
@@ -108,7 +110,8 @@ def extract_date(dataset: Dataset, text: DateValue) -> List[str]:
         return [iso]
 
     replaced_text = replace_months(dataset, text)
-    formats = dataset.dates.formats + ALWAYS_FORMATS
+    if formats is None:
+        formats = dataset.dates.formats + ALWAYS_FORMATS
     parsed = parse_formats(replaced_text, formats)
     if parsed.text is not None:
         return [parsed.text]
@@ -119,7 +122,9 @@ def extract_date(dataset: Dataset, text: DateValue) -> List[str]:
     return [text]
 
 
-def apply_date(entity: Entity, prop: str, text: DateValue) -> None:
+def apply_date(
+    entity: Entity, prop: str, text: DateValue, formats: Optional[Tuple[str]] = None
+) -> None:
     """Apply a date value to an entity, parsing it if necessary and cleaning it up.
 
     Uses the `dates` configuration of the dataset to parse the date.
@@ -128,6 +133,7 @@ def apply_date(entity: Entity, prop: str, text: DateValue) -> None:
         entity: The entity to which the date will be applied.
         prop: The property to which the date will be applied.
         text: The date value to be applied.
+        formats: A list of date formats to use for parsing, overriding dataset defaults.
     """
     prop_ = entity.schema.get(prop)
     if prop_ is None or prop_.type != registry.date:
@@ -141,7 +147,7 @@ def apply_date(entity: Entity, prop: str, text: DateValue) -> None:
     else:
         original = text
 
-    dates = extract_date(entity.dataset, text)
+    dates = extract_date(entity.dataset, text, formats=formats)
     return entity.add(prop_, dates, original_value=original)
 
 
