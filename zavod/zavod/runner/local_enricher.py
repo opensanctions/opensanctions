@@ -10,13 +10,13 @@ from nomenklatura.enrich.common import BaseEnricher
 from nomenklatura.matching import get_algorithm, LogicV1
 from nomenklatura.resolver import Identifier
 from nomenklatura.judgement import Judgement
-from nomenklatura.resolver import Linker
+from nomenklatura.resolver import Resolver
 from nomenklatura.dataset import DS
 from nomenklatura.cache import Cache
 
 from zavod.archive import dataset_state_path
 from zavod.context import Context
-from zavod.integration.dedupe import get_dataset_linker
+from zavod.integration.dedupe import get_dataset_linker, get_resolver
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
 from zavod.store import get_store
@@ -174,7 +174,7 @@ class LocalEnricher(BaseEnricher[DS]):
 
 def save_match(
     context: Context,
-    linker: Linker[Entity],
+    resolver: Resolver[Entity],
     enricher: LocalEnricher[Dataset],
     entity: Entity,
     match: Entity,
@@ -183,7 +183,7 @@ def save_match(
         return None
     if not entity.schema.can_match(match.schema):
         return None
-    judgement = linker.get_judgement(match.id, entity.id)
+    judgement = resolver.get_judgement(match.id, entity.id)
 
     if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
         context.emit(match, external=True)
@@ -200,11 +200,12 @@ def save_match(
 
 def enrich(context: Context) -> None:
     scope = get_multi_dataset(context.dataset.inputs)
-    linker = get_dataset_linker(scope)
+    resolver = get_resolver()
+    resolver.begin()
     context.log.info(
         "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
     )
-    subject_store = get_store(scope, linker)
+    subject_store = get_store(scope, resolver)
     subject_store.sync()
     subject_view = subject_store.view(scope)
     config = dict(context.dataset.config)
@@ -224,12 +225,13 @@ def enrich(context: Context) -> None:
                 continue
             try:
                 for match in enricher.match_candidates(subject_entity, candidate_set):
-                    save_match(context, linker, enricher, subject_entity, match)
+                    save_match(context, resolver, enricher, subject_entity, match)
             except EnrichmentException as exc:
                 context.log.error(
                     "Enrichment error %r: %s" % (subject_entity, str(exc))
                 )
         context.log.info("Enrichment process complete.")
     finally:
+        resolver.rollback()
         enricher.close()
         subject_store.close()
