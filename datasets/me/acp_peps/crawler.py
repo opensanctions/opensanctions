@@ -23,33 +23,17 @@ def extract_latest_filing(
     if not dates:
         return None, None
 
-    # Sort the dates in descending order
-    dates_sorted = sorted(
-        dates,
-        key=lambda item: datetime.strptime(item["datum"], "%Y-%m-%d"),
-        reverse=True,
-    )
+    # Iterate over all entries in reverse order
+    for entry in reversed(dates):
+        report_id = entry.get("stariIzvjestaj")
+        if report_id != -1:  # Check for the first valid report
+            return entry.get("datum"), report_id
 
-    # Assume the first entry is the latest
-    latest_entry = dates_sorted[0]
-    latest_date: Optional[str] = latest_entry.get("datum")
-    latest_report_id: Optional[int] = latest_entry.get("stariIzvjestaj")
-
-    # Check if the latest report is -1, move to the next valid entry
-    if latest_report_id == -1:
-        for entry in dates_sorted[1:]:
-            if entry.get("stariIzvjestaj") != -1:
-                latest_date = entry.get("datum")
-                latest_report_id = entry.get("stariIzvjestaj")
-                break
-        else:
-            # If all entries have -1, set the value to None
-            latest_report_id = None
-
-    return latest_date, latest_report_id
+    # If no valid entry is found
+    return None, None
 
 
-def fetch_and_process_csv(context: Context, latest_report_id: int):
+def fetch_csv_rows(context: Context, latest_report_id: int):
     # URL for fetching the CSV
     url = f"https://portal.antikorupcija.me:9343/acamPublic/izvestajDetailsCSV.json?izvestajId={latest_report_id}"
 
@@ -58,14 +42,13 @@ def fetch_and_process_csv(context: Context, latest_report_id: int):
     try:
         with ZipFile(zip_path, "r") as zip:
             # Find the file name that matches the pattern
-            file_name = next(
-                (
-                    name
-                    for name in zip.namelist()
-                    if name.startswith("csv_funkcije_funkcionera_")
-                ),
-                None,
-            )
+            filtered_names = [
+                name
+                for name in zip.namelist()
+                if name.startswith("csv_funkcije_funkcionera_")
+            ]
+            # Get the first matching name or None
+            file_name = next((name for name in filtered_names), None)
             # Check if the file was found
             if not file_name:
                 context.log.warning("No matching file found in the ZIP archive.")
@@ -85,7 +68,7 @@ def crawl_person(context: Context, person):
     # position = person.pop("nazivFunkcije")
     dates = person.pop("izvjestajImovine")
     latest_date, latest_report_id = extract_latest_filing(dates)
-    report_details = fetch_and_process_csv(context, latest_report_id)
+    report_details = fetch_csv_rows(context, latest_report_id)
     if not report_details:
         return
 
