@@ -1,6 +1,6 @@
 from typing import Optional, Dict, Any, List
 from banal import first
-from normality import stringify, collapse_spaces
+
 from rigour.mime.types import XML
 from followthemoney.util import join_text
 import re
@@ -8,7 +8,8 @@ import re
 from zavod import Context
 from zavod import helpers as h
 
-COUNTRY_SPLIT = ["(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", ". "]
+NUMBER_SPLITS = [f"({x})" for x in range(1, 50)]
+PUNCTUATION_SPLITS = [". ", ", "]
 REGEX_POSTCODE = re.compile(r"\d+")
 
 
@@ -34,7 +35,7 @@ NAME_TYPES = {
 
 def parse_countries(text: Any) -> List[str]:
     countries: List[str] = []
-    for country in h.multi_split(text, COUNTRY_SPLIT):
+    for country in h.multi_split(text, NUMBER_SPLITS + [". "]):
         country_ = h.remove_bracketed(country)
         if country_ is not None:
             countries.append(country)
@@ -53,29 +54,6 @@ def parse_companies(context: Context, value: Optional[str]):
     return result.values
 
 
-def split_items(text, comma=False):
-    text = stringify(text)
-    if text is None:
-        return []
-    items = []
-    rest = str(text)
-    for num in range(50):
-        parts = rest.split(f"({num})")
-        if len(parts) > 1:
-            match = collapse_spaces(parts[0])
-            if match is not None and len(match):
-                items.append(match)
-            rest = parts[1]
-    if comma and text == rest:
-        items = text.split(",")
-    return items
-
-
-def split_new(text):
-    # It's 2022 and they can't multi-value a thing...
-    return h.multi_split(text, [". ", ", "])
-
-
 def split_reg_no(text: str):
     text = text.replace("Tax ID No", "; Tax ID No")
     text = text.replace("Government Gazette Number", "; Government Gazette Number")
@@ -84,10 +62,7 @@ def split_reg_no(text: str):
         "Business Identification Number", "; Business Identification Number"
     )
     text = text.replace("Tax Identification Number", "; Tax Identification Number")
-    return [
-        s.strip()
-        for s in h.multi_split(text, [";", "(1)", "(2)", "(3)", "(4)", "(5)", " / "])
-    ]
+    return h.multi_split(text, NUMBER_SPLITS + [";", " / "])
 
 
 def parse_row(context: Context, row: Dict[str, Any]):
@@ -134,7 +109,7 @@ def parse_row(context: Context, row: Dict[str, Any]):
     entity.add_cast("LegalEntity", "registrationNumber", split_reg_no(reg_number))
     row.pop("Ship_Length", None)
     entity.add_cast("Vessel", "flag", row.pop("Ship_Flag", None))
-    flags = split_new(row.pop("Ship_PreviousFlags", None))
+    flags = h.multi_split(row.pop("Ship_PreviousFlags", None), PUNCTUATION_SPLITS)
     entity.add_cast("Vessel", "pastFlags", flags)
     entity.add_cast("Vessel", "type", row.pop("Ship_Type", None))
     entity.add_cast("Vessel", "tonnage", row.pop("Ship_Tonnage", None))
@@ -157,10 +132,11 @@ def parse_row(context: Context, row: Dict[str, Any]):
     countries = parse_countries(row.pop("Country", None))
     entity.add("country", countries)
 
-    title = split_items(row.pop("Title", None))
+    text = row.pop("Title", None)
+    title = h.multi_split(text, NUMBER_SPLITS)
     entity.add("title", title, quiet=True)
 
-    pobs = split_items(row.pop("Individual_TownOfBirth", None))
+    pobs = h.multi_split(row.pop("Individual_TownOfBirth", None), NUMBER_SPLITS)
     entity.add_cast("Person", "birthPlace", pobs)
 
     dob = row.pop("Individual_DateOfBirth", None)
@@ -174,7 +150,7 @@ def parse_row(context: Context, row: Dict[str, Any]):
     nationalities = parse_countries(row.pop("Individual_Nationality", None))
     entity.add_cast("Person", "nationality", nationalities)
 
-    positions = split_items(row.pop("Individual_Position", None))
+    positions = h.multi_split(row.pop("Individual_Position", None), NUMBER_SPLITS)
     entity.add_cast("Person", "position", positions)
 
     entity.add_cast("Person", "gender", row.pop("Individual_Gender", None))
@@ -238,26 +214,26 @@ def parse_row(context: Context, row: Dict[str, Any]):
     h.apply_address(context, entity, address)
 
     passport_number = row.pop("Individual_PassportNumber", None)
-    passport_numbers = split_items(passport_number)
+    passport_numbers = h.multi_split(passport_number, NUMBER_SPLITS)
     entity.add_cast("Person", "passportNumber", passport_numbers)
     row.pop("Individual_PassportDetails", None)
     # passport_details = split_items(passport_detail)
     # TODO: where do I stuff this?
 
     ni_number = row.pop("Individual_NINumber", None)
-    ni_numbers = split_items(ni_number)
+    ni_numbers = h.multi_split(ni_number, NUMBER_SPLITS)
     entity.add_cast("Person", "idNumber", ni_numbers)
     row.pop("Individual_NIDetails", None)
     # ni_details = split_items(ni_detail)
     # TODO: where do I stuff this?
 
-    for phone in split_new(row.pop("PhoneNumber", None)):
+    for phone in h.multi_split(row.pop("PhoneNumber", None), PUNCTUATION_SPLITS):
         entity.add_cast("LegalEntity", "phone", phone)
 
-    for email in split_new(row.pop("EmailAddress", None)):
+    for email in h.multi_split(row.pop("EmailAddress", None), PUNCTUATION_SPLITS):
         entity.add_cast("LegalEntity", "email", email)
 
-    for website in split_new(row.pop("Website", None)):
+    for website in h.multi_split(row.pop("Website", None), PUNCTUATION_SPLITS):
         entity.add_cast("LegalEntity", "website", website)
 
     parent_names = row.pop("Entity_ParentCompany", None)
