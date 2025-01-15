@@ -30,7 +30,7 @@ def get_resolver() -> Resolver[Entity]:
         database_uri = f"sqlite:///{cache_path.as_posix()}"
     engine = create_engine(database_uri)
     metadata = MetaData()
-    resolver = Resolver(engine, metadata, create=True)
+    resolver = Resolver[Entity](engine, metadata, create=True)
     log.info("Using resolver: %r" % resolver)
     return resolver
 
