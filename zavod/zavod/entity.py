@@ -9,6 +9,7 @@ from nomenklatura.entity import CompositeEntity
 from nomenklatura.statement import Statement
 from nomenklatura.util import string_list
 
+from zavod import settings
 from zavod.meta import Dataset
 from zavod.logs import get_logger
 from zavod.runtime.cleaning import value_clean
@@ -127,6 +128,11 @@ class Entity(CompositeEntity):
             self.schema = model.common_schema(self.schema, schema)
         except InvalidData as exc:
             raise InvalidData(f"{self.id}: {exc}") from exc
+
+    @property
+    def target(self) -> bool:
+        topics = self.get("topics", quiet=True)
+        return len(settings.TARGET_TOPICS.intersection(topics)) > 0
 
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()
