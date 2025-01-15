@@ -36,7 +36,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    file_xpath = "//a[starts-with(@href, 'https://mmac.mo.gov/')][contains(@href, 'sanction-list')]"
+    file_xpath = "//a[starts-with(@href, 'https://mmac.mo.gov/')][contains(@href, 'sanction-list') or contains(@href, 'Sanction-List')]"
     doc = fetch_html(context, context.data_url, file_xpath)
     links = doc.xpath(file_xpath)
     assert len(links) == 1, links
