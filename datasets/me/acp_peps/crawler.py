@@ -104,7 +104,7 @@ def make_affiliation_entities(
 
 
 def crawl_person(context: Context, person):
-    name = person.pop("imeIPrezime")
+    full_name = person.pop("imeIPrezime")
     # position = person.pop("nazivFunkcije")
     dates = person.pop("izvjestajImovine")
     filing_date, report_id = extract_latest_filing(dates)
@@ -114,16 +114,16 @@ def crawl_person(context: Context, person):
 
     position_entities = []
     for row in report_details:
-        person_name = row.pop("FUNKCIONER_IME")
-        person_surname = row.pop("FUNKCIONER_PREZIME")
+        first_name = row.pop("FUNKCIONER_IME")
+        last_name = row.pop("FUNKCIONER_PREZIME")
         function = row.pop("FUNKCIJA")
         entity = context.make("Person")
-        entity.id = context.make_id(name, function)
+        entity.id = context.make_id(full_name, function)
         h.apply_name(
             entity,
-            full=name,
-            first_name=person_name,
-            last_name=person_surname,
+            full_name,
+            first_name,
+            last_name,
         )
         entity.add("topics", "role.pep")
         position_entities.extend(
@@ -137,7 +137,7 @@ def crawl_person(context: Context, person):
 
 def crawl(context: Context):
     page = 0
-    max_pages = 1
+    max_pages = 1200
     while True:
         data_url = f"https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni?page={page}&size=20"
         doc = context.fetch_json(data_url.format(page=page), cache_days=1)
