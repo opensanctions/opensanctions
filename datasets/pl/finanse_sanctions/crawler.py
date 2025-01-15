@@ -73,7 +73,12 @@ def crawl_row(context: Context, row: Dict[str, str]):
     h.apply_date(sanction, "listingDate", row.pop("data_umieszczenia_na_liscie"))
     sanction.add(
         "reason",
-        collapse_spaces(row.pop("uzasadnienie_wpisu_na_liste_url")),
+        collapse_spaces(row.pop("uzasadnienie_wpisu_na_liste")),
+        lang="pol",
+    )
+    sanction.add(
+        "sourceUrl",
+        row.pop("uzasadnienie_wpisu_na_liste_url"),
         lang="pol",
     )
     sanction.add("program", POLAND_PROGRAM, "pol")
@@ -85,7 +90,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
         row,
         ignore=[
             "lp",  # ID, we don't trust this to be stable
-            "uzasadnienie_wpisu_na_liste",  # Reason link text, we only care about the url
         ],
     )
 
@@ -95,11 +99,11 @@ def crawl(context: Context):
     doc.make_links_absolute(context.dataset.url)
 
     xlsx_link_element = doc.xpath(
-        ".//a[@class='file-download' and contains(text(), 'Lista osób i podmiotów, wobec których stosuje się szczególne środki ograniczające na podstawie art. 118 ust. 1 pkt 2 (wersja xlsx)')]"
+        ".//a[@class='file-download' and contains(text(), 'art. 118 ust. 1 pkt 2 (wersja xlsx)')]"
     )
     if len(xlsx_link_element) != 1:
-        context.log.error("Could not find XLSX link element")
-        return
+        raise RuntimeError("Could not find XLSX link element")
+
     xlsx_url = xlsx_link_element[0].get("href")
 
     # Assert the hash of the page content for <article class="article-area__article ">
