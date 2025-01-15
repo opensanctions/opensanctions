@@ -70,18 +70,19 @@ def make_affiliation_entities(
     * All positions (and Occupancies, Persons) are assumed to be Montenegrin
     """
 
-    # organization = row.pop("ORGANIZACIJA")
-    organization = row.pop("ORGANIZACIJA_IMENOVANJA")
+    organization = row.pop("ORGANIZACIJA")
     start_date = row.pop("DATUM_POCETKA_OBAVLJANJA", None)
     end_date = row.pop("DATUM_PRESTANKA_OBAVLJNJA")
-    context.audit_data(row, ignore=["ORGANIZACIJA", "ORGANIZACIJA_SAGLASNOSTI"])
+    context.audit_data(
+        row, ignore=["ORGANIZACIJA_IMENOVANJA", "ORGANIZACIJA_SAGLASNOSTI"]
+    )
 
     position_name = f"{function}, {organization}"
     entity.add("position", position_name)
 
-    position = h.make_position(context, position_name, topics=None, country="ME")
+    position = h.make_position(context, position_name, country="ME")
     apply_translit_full_name(
-        context, position, "cnr", function, TRANSLIT_OUTPUT, POSITION_PROMPT
+        context, position, "cnr", position_name, TRANSLIT_OUTPUT, POSITION_PROMPT
     )
 
     categorisation = categorise(context, position, is_pep=True)
@@ -136,7 +137,7 @@ def crawl_person(context: Context, person):
 
 def crawl(context: Context):
     page = 0
-    max_pages = 1200
+    max_pages = 1
     while True:
         data_url = f"https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni?page={page}&size=20"
         doc = context.fetch_json(data_url.format(page=page), cache_days=1)
