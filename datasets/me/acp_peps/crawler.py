@@ -1,10 +1,9 @@
 import io
 from csv import DictReader
-from datetime import datetime
 from typing import List, Dict, Optional, Tuple
 from zipfile import ZipFile, BadZipFile
 
-from zavod import Context, helpers as h
+from zavod import Context, Entity, helpers as h
 from zavod.logic.pep import categorise
 from zavod.shed.trans import (
     apply_translit_full_name,
@@ -63,64 +62,76 @@ def fetch_csv_rows(context: Context, latest_report_id: int):
         return []
 
 
-def crawl_person(context: Context, person):
-    name = person.pop("imeIPrezime")
-    # position = person.pop("nazivFunkcije")
-    dates = person.pop("izvjestajImovine")
-    latest_date, latest_report_id = extract_latest_filing(dates)
-    report_details = fetch_csv_rows(context, latest_report_id)
-    if not report_details:
-        return
+def make_affiliation_entities(
+    context: Context, entity: Entity, function, row: dict, filing_date
+) -> List[Entity]:
+    """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
+    * A position's name include the title and the name of the legal entity
+    * All positions (and Occupancies, Persons) are assumed to be Montenegrin
+    """
 
-    for row in report_details:
-        person_name = row.pop("FUNKCIONER_IME")
-        person_surname = row.pop("FUNKCIONER_PREZIME")
-        function = row.pop("FUNKCIJA")
-        # organization = row.pop("ORGANIZACIJA")
-        start_date = row.pop("DATUM_POCETKA_OBAVLJANJA", None)
-        end_date = row.pop("DATUM_PRESTANKA_OBAVLJNJA")
+    # organization = row.pop("ORGANIZACIJA")
+    organization = row.pop("ORGANIZACIJA_IMENOVANJA")
+    start_date = row.pop("DATUM_POCETKA_OBAVLJANJA", None)
+    end_date = row.pop("DATUM_PRESTANKA_OBAVLJNJA")
+    context.audit_data(row, ignore=["ORGANIZACIJA", "ORGANIZACIJA_SAGLASNOSTI"])
 
-    entity = context.make("Person")
-    entity.id = context.make_id(name, function)
-    h.apply_name(
-        entity,
-        full=name,
-        first_name=person_name,
-        last_name=person_surname,
-    )
-    entity.add("topics", "role.pep")
-    entity.add("position", function)
+    position_name = f"{function}, {organization}"
+    entity.add("position", position_name)
 
-    position = h.make_position(
-        context,
-        name=function,
-        country="ME",
-        # lang="cnr",
-    )
-
+    position = h.make_position(context, position_name, topics=None, country="ME")
     apply_translit_full_name(
         context, position, "cnr", function, TRANSLIT_OUTPUT, POSITION_PROMPT
     )
 
     categorisation = categorise(context, position, is_pep=True)
-    if not categorisation.is_pep:
-        return
-
     occupancy = h.make_occupancy(
         context,
         entity,
         position,
-        start_date=start_date if start_date else None,
-        end_date=end_date if end_date else None,
         no_end_implies_current=True,
         categorisation=categorisation,
+        propagate_country=True,
+        start_date=start_date,
+        end_date=end_date,
     )
-    # Emit only for the recent position-holders
+    entities = []
     if occupancy:
-        occupancy.add("date", latest_date)
-        context.emit(occupancy)
-        context.emit(position)
-        context.emit(entity, target=True)
+        occupancy.add("date", filing_date)
+        entities.extend([position, occupancy])
+    return entities
+
+
+def crawl_person(context: Context, person):
+    name = person.pop("imeIPrezime")
+    # position = person.pop("nazivFunkcije")
+    dates = person.pop("izvjestajImovine")
+    filing_date, report_id = extract_latest_filing(dates)
+    report_details = fetch_csv_rows(context, report_id)
+    if not report_details:
+        return
+
+    position_entities = []
+    for row in report_details:
+        person_name = row.pop("FUNKCIONER_IME")
+        person_surname = row.pop("FUNKCIONER_PREZIME")
+        function = row.pop("FUNKCIJA")
+        entity = context.make("Person")
+        entity.id = context.make_id(name, function)
+        h.apply_name(
+            entity,
+            full=name,
+            first_name=person_name,
+            last_name=person_surname,
+        )
+        entity.add("topics", "role.pep")
+        position_entities.extend(
+            make_affiliation_entities(context, entity, function, row, filing_date)
+        )
+        if position_entities:
+            for position in position_entities:
+                context.emit(position)
+            context.emit(entity)
 
 
 def crawl(context: Context):
