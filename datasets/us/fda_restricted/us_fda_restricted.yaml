@@ -35,6 +35,7 @@ url: https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investi
 data:
   url: https://www.accessdata.fda.gov/scripts/SDA/sdExportData.cfm?sd=clinicalinvestigatorsdisqualificationproceedings&exportType=msexcel
   format: HTML
+ci_test: false
 
 dates:
   formats: ["%m/%d/%Y"]
