@@ -3,6 +3,7 @@ from typing import Dict
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 REGEX_TITLE = re.compile("(?:, (MD|PhD|DO|DVM))")
 REGEX_SUFFIX = re.compile(r",? (Jr|Sr|II|III|IV).?,")
@@ -94,8 +95,9 @@ def crawl_item(context: Context, row: Dict[str, str], row_elements):
 
 
 def crawl(context: Context) -> None:
-
-    response = context.fetch_html(context.data_url)
+    response = fetch_html(
+        context, context.data_url, ".//tr", html_source="httpResponseBody"
+    )
 
     for row_elements in h.parse_html_table(response):
         row = h.cells_to_str(row_elements)
