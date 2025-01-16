@@ -33,13 +33,11 @@ entity.add("name", row.pop("full_name"))
 entity.add("birthPlace", row.pop("place_of_birth"))
 ```
 
-The method `entity.add` works seamlessly with both a single string and a list of strings. This means that you don’t have to loop through a list to add multiple items individually. Instead, you can simply add the entire list at once.
-  ```python
-  value = "alias"
-  entity.add("alias", value)  # Handles both str and List[str]
+The method `entity.add` works seamlessly with both a single string and a list of strings. In the long run, however, we want to make the typing of `entity.add` more strict to accept only one argument at a time. With this in mind, it's generally better to add values individually if they are already in that form, rather than forcing them into a list unnecessarily.
 
-  values = ["alias_1", "alias_2"]
-  entity.add("alias", values)
+  ```python
+for name in h.multi_split(names, SPLITS):  
+    entity.add(name)  
   ```
 
 ## Code structuring nitpicks
@@ -127,15 +125,6 @@ The method `entity.add` works seamlessly with both a single string and a list of
     address_ent = h.make_address(context, full=addr, city=city, lang="zhu")
     # Copy address details to the entity
     h.copy_address(entity, address_ent)
-    ```
-
-- Use `settings.RUN_TIME` to ensure consistent datetime comparisons.
-
-    ```python
-    # Determine if the end date is active by comparing with the configured runtime
-    is_active = end_date_obj >= settings.RUN_TIME
-    # Instead of:
-    # is_active = end_date_obj >= datetime.today()
     ```
 
 ## Detect unhandled data

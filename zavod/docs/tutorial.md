@@ -19,37 +19,6 @@ companies into a database.
 4. Create a [Python script](#developing-a-crawler-script) to fetch and process the data.
 5. Address any data normalisation issues the framework might report.
 
-## Initial setup
-
-A well-organized repository makes it easier to navigate and manage files.
-For example:
-```
-projects/
-├── opensanctions/       # Main repository for active development
-├── opensanctions2/      # Secondary clone for experimental work
-├── nomenklatura/
-├── fingerprints/
-├── stdnum/
-└── … 
-```
-
-### Issue Documentation
-Record important decisions and reasoning in GitHub issues, such as explaining why a crawler skips an interesting section of the site.
-
-### Linking Pull Requests to Issues
-Always link your pull request to the relevant GitHub issue for better traceability. Use the syntax in the PR description to automatically close the issue when merged.
-
-```plaintext
-fixes opensanctions/crawler-planning#194
-```
-
-### Branch Naming Conventions
-Follow a consistent branch naming strategy to avoid issues with special characters in shell environments. Use **slug-like** names that are descriptive, hyphen-separated, and free of special characters such as `#`, `(`, or `)`:
-
-```bash
-git checkout planning-206-office-of-antiboycott-compliance
-```
-
 ## Data source metadata
 
 Before programming a crawler script, you need to create a YAML file with some basic metadata to describe the new dataset. That information includes the dataset name (which is normally derived from the YAML file name), information about the source publisher and the source data URL.
