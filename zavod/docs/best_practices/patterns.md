@@ -46,7 +46,7 @@ The method `entity.add` works seamlessly with both a single string and a list of
 
 - `Ruff` can help with sorting imports in ascending order, ensuring consistency across your codebase. The convention is to group standard library imports first, followed by third-party imports, and then project-specific imports.
 
-    Each group should be separated by a blank line for clarity. For example:
+    Each group should be separated by a blank line for clarity. For example (don't include the comments):
 
     ```python
     # Standard library imports
@@ -82,7 +82,7 @@ The method `entity.add` works seamlessly with both a single string and a list of
     ```
 
     !!! note
-        We typically use the `crawl_thing` convention (e.g., `crawl_person`, `crawl_row`, `crawl_index`) to indicate that the function directly handles a specific task.
+        We typically use the `crawl_thing` convention (e.g., `crawl_person`, `crawl_row`, `crawl_index`) for functions that lead to entities being emitted (directly or via a nested `crawl_` function call). 
 
 - To improve readability and maintainability, break down deeply nested logic into smaller, focused functions.
   
@@ -146,9 +146,11 @@ If a variable number of fields can extracted automatically (e.g. from a list or 
 * `dict_obj.pop()` individual fields when adding them to entities.
 * Log warnings if there are unhandled fields remaining in the `dict` so that we notice and improve the crawler. The context method [`context.audit_data()`][zavod.context.Context.audit_data] can be used to warn about extra fields in a `dict`. It takes the `ignore` argument to explicitly list fields that are unused.
 
-## Logs that matter
+## Logging and crawler feedback
 
-Logs are essential for monitoring progress and debugging, but they are not always reliable for detecting omissions in large datasets. Use them to track the crawler’s status and provide alerts for issues that don’t stop the process.
+It is good design to be told about issues, instead of having to go look to discover them.
+
+Logs are essential for monitoring progress and debugging, but info-level logs don't help us notice if something is missing because we only see them when we choose to go and look at a crawler's logs. Use the appropriate log level for the purpose for cases that don’t stop the process.
 
 * Debug Logs: Enable verbose output for detailed tracking during development. Use `zavod --debug` to activate debug logs.
 
@@ -162,8 +164,7 @@ Logs are essential for monitoring progress and debugging, but they are not alway
     context.log.info(f"Processed {page_number} pages")
     ```
 
-* Warning Logs: Indicate potential issues that don't stop the crawl but may require attention.
-
+* Warning Logs: Indicate potential issues that don't stop the crawl but may require attention. These are surfaced to the dev team on the [Issues](https://www.opensanctions.org/issues/) page and checked daily.
     ```python
     context.log.warning("Unhandled entity type", type=entity_type)
     ```
