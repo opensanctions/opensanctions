@@ -1,0 +1,22 @@
+title: Bulgarian Judicial Declarations
+entry_point: crawler.py
+prefix: jud-declarations
+coverage:
+  frequency: weekly
+  start: 2025-01-16
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  A list of judges and prosecturos in Bulgaria, that are subjects to asset declarations.
+description: |
+  Published declarations under Art. 175a, para. 1 of the JSA by judges, prosecutors and investigators.
+publisher:
+  name: Inspectorate to the Higher Court
+  description: |
+    The Inspectorate to the Higher Court is an independent body that oversees the work of the judiciary in Bulgaria.
+  url: https://www.inspectoratvss.bg/en
+  country: bg
+  official: true
+url: https://www.dans.bg/bg/28
+data:
+  url: http://62.176.124.194/
+  format: HTML
