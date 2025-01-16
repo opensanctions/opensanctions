@@ -108,7 +108,7 @@ def crawl(context: Context):
 
     # Assert the hash of the page content for <article class="article-area__article ">
     article = doc.find(".//article[@class='article-area__article ']")
-    expected_page_hash = "ad7c8f0eecb445b4f99ef2f5e3fdc8a911660ff6"
+    expected_page_hash = "30aca6ba4b245649db4bee16e0798d661080bd9a"
     if not h.assert_dom_hash(article, expected_page_hash, text_only=True):
         context.log.warning(
             "Page hash has changed. Verify that the lists referenced on the page are the 118 ust. 1 pkt 2, the UNSC Taliban list (resolution 1988 (2011)), and UNSC Al Qaida list (resolution 2253 (2015)). If any lists have been added or removed, update the crawler, otherwise just update the hash"
