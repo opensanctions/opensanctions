@@ -49,13 +49,13 @@ def crawl_item(context: Context, row: Dict[str, str], row_elements):
     h.copy_address(entity, address)
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("date_of_status"))
     # NIDPOE = Notice of Initiation of Disqualification Proceedings and Opportunity to Explain
     # NOOH = Notice of Opportunity for Hearing
     h.apply_date(sanction, "date", row.pop("date_nidpoe_issued"))
     h.apply_date(sanction, "date", row.pop("date_nooh_issued"))
     h.apply_date(sanction, "date", row.pop("date_of_presiding_officer_report"))
-    h.apply_date(sanction, "date", row.pop("date_of_commissioner_s_decision"))
+    h.apply_date(sanction, "startDate", row.pop("date_of_commissioner_s_decision"))
+    h.apply_date(sanction, "modifiedAt", row.pop("date_of_status"))
     sanction.add("authority", row.pop("center"))
     for link_key in [
         "link_to_nidpoe_letter",
