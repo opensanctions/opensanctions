@@ -6,7 +6,6 @@ disabled: false
 hidden: false
 coverage:
   frequency: never
-  schedule: "1 20 * * *"
   start: 2022-02-23
   end: 2022-02-23
 exports:
