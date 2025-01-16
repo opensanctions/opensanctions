@@ -72,15 +72,6 @@ def crawl(context: Context):
             prop = "nationality" if schema == "Person" else "jurisdiction"
             entity.add(prop, country)
 
-        end_dates = h.extract_date(context.dataset, row.pop("to", None))
-        is_active = False
-        if end_dates:
-            end_date = end_dates[0]
-            today = datetime.now().isoformat()[:10]
-            is_active = today < end_date or end_date == "Ongoing"
-        if is_active:
-            entity.add("topics", "debarment")
-
         sanction = h.make_sanction(context, entity)
         # sanction.add("status", row.pop("statusName"))
         sanction.add("reason", row.pop("grounds", None))
@@ -88,8 +79,13 @@ def crawl(context: Context):
         sanction.add("authority", row.pop("idb_sanction_source", None))
         sanction.add("program", row.pop("idb_sanction_type", None))
         h.apply_date(sanction, "startDate", row.pop("from", None))
-        h.apply_date(sanction, "endDate", end_dates[0])
+        # Sometimes row.to is "Ongoing", which will be datapatched to null end_date
+        h.apply_date(sanction, "endDate", row.pop("to", None))
+
+        is_debarred = h.is_active(sanction)
+        if is_debarred:
+            entity.add("topics", "debarment")
 
         context.emit(sanction)
-        context.emit(entity, target=is_active)
+        context.emit(entity, target=is_debarred)
         context.audit_data(row)

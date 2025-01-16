@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: br-slv
 coverage:
   frequency: weekly
-  start: 2025-01-08
+  start: 2025-01-13
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of employers who have submitted workers to conditions analogous to slavery.
@@ -22,7 +22,7 @@ description: |
 
   > One of the objectives of the Ministry of Labor and Social Security is to eradicate slave and degrading labor,
   > through tax actions coordinated by the Labor Inspection Secretariat, in previously mapped out hotspots. The Labor
-  > Inspectorate aims to regularize the employment relationships of the workers found and other consecurities and free
+  > Inspectorate aims to regularize the employment relationships of the workers found and other consequences and free
   > them from the condition of slavery.
 publisher:
   name: Ministério do Trabalho e Emprego

@@ -31,13 +31,12 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
     h.apply_date(sanction, "endDate", row.pop("expiration_date"))
-    end_date = sanction.get("endDate")
-    ended = end_date != [] and end_date[0] < context.data_time_iso
 
-    if not ended:
+    is_debarred = h.is_active(sanction)
+    if is_debarred:
         entity.add("topics", "debarment")
 
-    context.emit(entity, target=not ended)
+    context.emit(entity, target=is_debarred)
     context.emit(sanction)
     context.emit(address)
 

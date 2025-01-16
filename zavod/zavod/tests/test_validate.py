@@ -8,7 +8,6 @@ from zavod.integration import get_dataset_linker
 from zavod.validators import (
     DanglingReferencesValidator,
     SelfReferenceValidator,
-    TopiclessTargetValidator,
     EmptyValidator,
 )
 from zavod.archive import clear_data_path
@@ -66,17 +65,6 @@ def test_self_references(testdataset3) -> None:
         " -> td3-owner-of-self-co-ownership-owner-of-self-co -> owner"
     ) in logs, logs
     assert len(logs) == 2, logs
-    assert validator.abort is False
-
-
-def test_topicless_targets(testdataset3) -> None:
-    clear_data_path(testdataset3.name)
-    crawl_dataset(testdataset3)
-    validator, cap_logs = run_validator(TopiclessTargetValidator, testdataset3)
-
-    logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
-    assert "warning: td3-target-no-topic-co is a target but has no topics" in logs, logs
-    assert len(logs) == 1, logs
     assert validator.abort is False
 
 

@@ -33,13 +33,26 @@ publisher:
   official: true
 url: https://www.gov.pl/web/finanse/lista-osob-i-podmiotow-wobec-ktorych-stosuje-sie-szczegolne-srodki-ograniczajace-na-podstawie-art-118-ustawy-z-dnia-1-marca-2018-r-o-przeciwdzialaniu-praniu-pieniedzy-i-finansowaniu-terroryzmu
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vR1QhgLSbLVzombbJu20IB1eJ-ORMazTPj7TCTHDJ-y_bo4dEoISAZgE3DL9c7wszmXEfY13L6P78GR/pub?gid=0&single=true&output=csv
-  format: CSV
+  url: https://www.gov.pl/web/finanse/lista-osob-i-podmiotow-wobec-ktorych-stosuje-sie-szczegolne-srodki-ograniczajace-na-podstawie-art-118-ustawy-z-dnia-1-marca-2018-r-o-przeciwdzialaniu-praniu-pieniedzy-i-finansowaniu-terroryzmu
+  format: XLSX
   lang: pol
 
-dates: 
+dates:
   formats: ["%d.%m.%Y r."]
 lookups:
+  other_information:
+    options:
+      - match: "a) narodowość: iracka\nb) lokalizacja: Anbar Province, Republika Iraku"
+        properties:
+          nationality: iracka
+          address: Anbar Province, Republika Iraku
+          country: Republika Iraku
+      - match: "a) narodowość: nigeryjska\nb) lokalizacja: Federalna Republika Nigerii"
+        properties:
+          nationality: nigeryjska
+          address: Federalna Republika Nigerii
+          country: Federalna Republika Nigerii
+
   type.country:
     normalize: true
     lowercase: true

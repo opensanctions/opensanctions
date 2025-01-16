@@ -51,12 +51,12 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("exclusion_date"))
     h.apply_date(sanction, "endDate", row.pop("reinstatement_date"))
-    end_date = sanction.get("endDate")
-    ended = end_date != [] and end_date[0] < context.data_time_iso
-    if not ended:
+
+    is_debarred = h.is_active(sanction)
+    if is_debarred:
         entity.add("topics", "debarment")
 
-    context.emit(entity, target=not ended)
+    context.emit(entity, target=is_debarred)
     context.emit(sanction)
 
     context.audit_data(row)

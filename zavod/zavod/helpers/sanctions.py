@@ -64,3 +64,19 @@ def make_sanction(
         sanction.add("status", "active" if is_active else "inactive")
 
     return sanction
+
+
+def is_active(sanction: Entity) -> bool:
+    """Check if a sanction is currently active.
+
+    A sanction is active if the current time is between its earliest start date and latest end date.
+
+    Args:
+        sanction: The sanction entity to check.
+    """
+    iso_start_date = min(sanction.get("startDate"), default=None)
+    iso_end_date = max(sanction.get("endDate"), default=None)
+    is_active = (
+        iso_start_date is None or iso_start_date <= settings.RUN_TIME_ISO
+    ) and (iso_end_date is None or iso_end_date >= settings.RUN_TIME_ISO)
+    return is_active
