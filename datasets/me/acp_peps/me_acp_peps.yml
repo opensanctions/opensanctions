@@ -12,7 +12,8 @@ description: |
   This dataset focuses on politically exposed persons (PEPs) in Montenegro, providing 
   data on current and former public officials who are subject to income and asset 
   declarations. It includes information such as the official's name, position, and the 
-  year of their most recent declaration filing.
+  year of their most recent declaration filing. If an individual served at the national 
+  level, it also includes the official's relatives and close associates.
 publisher:
   name: Agencija za sprečavanje korupcije
   name_en: Agency for Prevention of Corruption
