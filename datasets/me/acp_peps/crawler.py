@@ -59,32 +59,41 @@ def fetch_csv(context: Context, report_id: int, file_pattern: str) -> List[Dict]
 
 
 def crawl_relative(context, person_entity, relatives):
-    # Skipping the first row as it contains the PEP details
-    for row in relatives[1:]:
-        # name = row.pop("FUNKCIONER_IME")
-        # surname = row.pop("FUNKCIONER_PREZIME")
+    for row in relatives:
+        name = row.pop("FUNKCIONER_IME")
+        surname = row.pop("FUNKCIONER_PREZIME")
         relative_name = row.pop("IME_CLANA_PORODICE")
         relative_surname = row.pop("PREZIME_CLANA_PORODICE")
+        # Skip if it's a self-reference
+        if name == relative_name and surname == relative_surname:
+            continue
         maiden_name = row.pop("RODJENO_PREZIME_CLANA_PORODICE")
         relationship = row.pop("SRODSTVO")
         nationality = row.pop("DRZAVLJANSTVO")
-        # residence = row.pop("MESTO")
+        city = row.pop("MESTO")
         address = row.pop("BORAVISTE")
 
-        # Create a relative
+        # Emit a relative
         relative = context.make("Person")
         relative.id = context.make_id(relative_name, relative_surname, maiden_name)
+        relative.add("address", address)
+        relative.add("nationality", nationality)
         h.apply_name(
             relative,
             first_name=relative_name,
             last_name=relative_surname,
             maiden_name=maiden_name,
         )
-        relative.add("nationality", nationality)
-        relative.add("address", address)
+        address_ent = h.make_address(
+            context,
+            full=address,
+            city=city,
+            lang="cnr",
+        )
+        h.copy_address(relative, address_ent)
         context.emit(relative)
 
-        # Create a relationship
+        # Emit a relationship
         rel = context.make("Family")
         rel.id = context.make_id(person_entity.id, relationship, relative.id)
         rel.add("relationship", relationship)
@@ -92,6 +101,7 @@ def crawl_relative(context, person_entity, relatives):
         rel.add("relative", relative.id)
 
         context.emit(rel)
+        context.audit_data(row)
 
 
 def make_affiliation_entities(
@@ -115,7 +125,7 @@ def make_affiliation_entities(
     position = h.make_position(
         context,
         position_name,
-        # topics=["gov.national"], # for testing
+        # topics=["gov.national"],  # for testing
         country="ME",
     )
     apply_translit_full_name(
@@ -140,6 +150,7 @@ def make_affiliation_entities(
     )
     entities = []
     if occupancy:
+        # Switch to declarationDate, once it's introduced in FtM
         occupancy.add("date", filing_date)
         entities.extend([position, occupancy])
     return entities
