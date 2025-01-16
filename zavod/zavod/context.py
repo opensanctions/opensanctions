@@ -544,7 +544,6 @@ class Context:
         if self.stats.entities % 10000 == 0:
             self.log.info(
                 "Emitted %s entities" % self.stats.entities,
-                targets=self.stats.targets,
                 statements=self.stats.statements,
             )
         stamps = {} if self.dry_run else self.timestamps.get(entity.id)
