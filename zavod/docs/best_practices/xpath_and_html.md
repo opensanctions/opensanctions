@@ -1,7 +1,7 @@
 # XPath and HTML
 
 ## Selector Design
-Use semantic selectors that are resilient to HTML changes:
+Try to make the selectors specific enough to reliably select the correct content (to avoid e.g. the wrong thing being stuffed in a person's `name` property) while making them as semantic, concise, and general as possible to be maintainable and resillient against irrelevant changes in the HTML.
 
 ```python
 # Good: 
@@ -10,16 +10,30 @@ table = doc.xpath('.//div[@id="block-content"]//table')
 # Avoid:
 table = doc.xpath('.//div[@id="block-content"]//div[3]//table')
 ```
+Prefer `div[contains(@class, 'abc')] over `div[@class='abc'] because classes can contain multiple values, but beware of conflicting class names like `abc-footer`.
 
-## Assert the XPath Result
-Ensure that the XPath query returns exactly one element, especially when selecting from multiple possible matches (e.g., tables on a page). If more than one element is selected and we access `selection[0]`, we’re assuming the first one in the DOM order is the one we want, which may not be reliable with vague selectors. Always assert the correct number of elements to avoid errors.
+## Fail loudly if the selection is different from what was expected
+
+Beware of selections being different from what you intend. Common issues are:
+
+* missing a bunch of entities because we're looping over a selection which turned out to be empty;
+* emitting garbage because content was added to the page which matched unintentionally;
+* cryptic errors because the wrong table is selected.
+
+It's ideal for an error to occur as close as possible to the offending code.
+One way to guard against these issues is assertions on the number of matches:
+
+```python
+items = doc.xpath(".//h2[@text()='The Section']/following-sibling::ul/li)
+assert len(items) > 0, items
+```
 
 ```python
 table = doc.xpath(".//table")
 assert len(table) == 1, table
 ```
 
-## Assert DOM Hash
+## Get notified of changes to content  
 Use `h.assert_dom_hash` to ensure the integrity of a specific DOM element (e.g., a table). This is helpful when you need to track significant changes without being alerted for every minor update. It notifies you of structural changes or new sections.
 
 ```python
