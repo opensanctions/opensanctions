@@ -1,7 +1,8 @@
+import re
 from typing import Dict
 
-from zavod import Context, helpers as h
-import re
+from zavod import Context
+from zavod import helpers as h
 
 REGEX_TITLE = re.compile("(?:, (MD|PhD|DO|DVM))")
 REGEX_SUFFIX = re.compile(r",? (Jr|Sr|II|III|IV).?,")
@@ -10,9 +11,10 @@ REGEX_SUFFIX = re.compile(r",? (Jr|Sr|II|III|IV).?,")
 def crawl_item(context: Context, row: Dict[str, str], row_elements):
 
     raw_name = row.pop("name")
+    state = row.pop("state")
 
     entity = context.make("Person")
-    entity.id = context.make_id(raw_name)
+    entity.id = context.make_id(raw_name, state)
 
     namestr = raw_name
     title = None
@@ -42,7 +44,7 @@ def crawl_item(context: Context, row: Dict[str, str], row_elements):
 
     entity.add("country", "us")
     address = h.make_address(
-        context, city=row.pop("city"), state=row.pop("state"), country_code="us"
+        context, city=row.pop("city"), state=state, country_code="us"
     )
     h.copy_address(entity, address)
 
@@ -61,6 +63,7 @@ def crawl_item(context: Context, row: Dict[str, str], row_elements):
         "link_to_presiding_officer_report",
         "link_to_commissioner_s_decision",
     ]:
+        # The PDF links all seem broken
         urls = row_elements.pop(link_key).xpath(".//a[text()='Text']/@href")
         sanction.add("sourceUrl", urls)
 

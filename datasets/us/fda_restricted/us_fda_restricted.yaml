@@ -1,9 +1,9 @@
 title: US FDA Clinical Investigator Disqualification Proceedings
 entry_point: crawler.py
-prefix: us-fdares
+prefix: us-fdadq
 coverage:
   frequency: daily
-  start: "2024-12-10"
+  start: "2024-01-16"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Clinical investigators who have been subject to disqualification proceedings
