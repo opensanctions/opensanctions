@@ -1,7 +1,7 @@
 type: collection
 title: OpenSanctions Default
 coverage:
-  start: 2021-09-01
+  start: "2021-09-01"
   schedule: "0 */6 * * *"
 deploy:
   memory: "2000Mi"
