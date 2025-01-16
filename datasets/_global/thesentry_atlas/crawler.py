@@ -78,7 +78,7 @@ def iter_zf_csv(zf: zipfile.ZipFile, name: str) -> CSVIter:
             yield row
 
 
-def crawl_assets(context: Context, file_name: str, rows: CSVIter) -> None:
+def crawl_assets(context: Context, rows: CSVIter) -> None:
     for row in rows:
         entity = context.make("Asset")
         entity.id = context.make_slug(row.pop("uuid"))
@@ -90,7 +90,7 @@ def crawl_assets(context: Context, file_name: str, rows: CSVIter) -> None:
         context.audit_data(row)
 
 
-def crawl_individuals(context: Context, file_name: str, rows: CSVIter) -> None:
+def crawl_individuals(context: Context, rows: CSVIter) -> None:
     for row in rows:
         entity = context.make("Person")
         entity.id = context.make_slug(row.pop("uuid"))
@@ -107,7 +107,7 @@ def crawl_individuals(context: Context, file_name: str, rows: CSVIter) -> None:
         context.audit_data(row)
 
 
-def crawl_entities(context: Context, file_name: str, rows: CSVIter) -> None:
+def crawl_entities(context: Context, rows: CSVIter) -> None:
     for row in rows:
         entity = context.make("Organization")
         entity.id = context.make_slug(row.pop("uuid"))
@@ -128,7 +128,7 @@ def crawl_entities(context: Context, file_name: str, rows: CSVIter) -> None:
         context.audit_data(row)
 
 
-def crawl_edge(context: Context, file_name: str, edge_type: str, rows: CSVIter) -> None:
+def crawl_edge(context: Context, edge_type: str, rows: CSVIter) -> None:
     if edge_type == "ADDRESS":
         # FIXME: this will break if an address is linked to an asset
         for row in rows:
@@ -179,11 +179,11 @@ def crawl(context: Context) -> None:
                     node_type = suffix.split(".")[0]
                     rows = iter_zf_csv(zf, name)
                     if node_type == "ASSETS":
-                        crawl_assets(context, file_name, rows)
+                        crawl_assets(context, rows)
                     elif node_type in ("INDIVIDUALS", "PERSON"):
-                        crawl_individuals(context, file_name, rows)
+                        crawl_individuals(context, rows)
                     elif node_type in ("ENTITIES", "ENTITY"):
-                        crawl_entities(context, file_name, rows)
+                        crawl_entities(context, rows)
                     else:
                         context.log.warning(f"Unknown node type: {node_type}")
 
@@ -192,4 +192,4 @@ def crawl(context: Context) -> None:
                     rows = iter_zf_csv(zf, name)
                     _, suffix = name.rsplit("_EDGE_", 1)
                     edge_type = suffix.split(".")[0]
-                    crawl_edge(context, file_name, edge_type, rows)
+                    crawl_edge(context, edge_type, rows)
