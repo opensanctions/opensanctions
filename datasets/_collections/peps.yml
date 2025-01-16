@@ -64,8 +64,10 @@ children:
   - ng_chipper_peps
   - ng_join_dots
   - nl_house_of_representatives
+  - ro_fiu_declarations
   - sg_gov_dir
   - si_zvezoskop
+  - sk_public_officials
   - th_cabinet
   - tr_parliament
   - us_cia_world_factbook

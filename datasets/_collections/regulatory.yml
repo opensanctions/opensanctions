@@ -16,6 +16,7 @@ description: |
   These watchlists are maintained by government agencies, international
   organizations, or other regulatory bodies.
 children:
+  - br_slavery
   - br_tcu_disqualified
   - ch_finma_rulings
   - ch_finma_warnings
