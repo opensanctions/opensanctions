@@ -96,6 +96,7 @@ children:
   - ps_local_freezing
   - ro_onpcsb_sanctions
   - rs_apml_domestic
+  - ru_mfa_sanctions
   - qa_nctc_sanctions
   - sg_terrorists
   - th_designated_person
