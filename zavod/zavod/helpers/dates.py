@@ -110,9 +110,9 @@ def extract_date(
         return [iso]
 
     replaced_text = replace_months(dataset, text)
-    if formats is None:
-        formats = dataset.dates.formats + ALWAYS_FORMATS
-    parsed = parse_formats(replaced_text, formats)
+    dataset_formats_ = dataset.dates.formats + ALWAYS_FORMATS
+    formats_ = dataset_formats_ if formats is None else list(formats)
+    parsed = parse_formats(replaced_text, formats_)
     if parsed.text is not None:
         return [parsed.text]
     if dataset.dates.year_only:
