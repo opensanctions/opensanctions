@@ -1,5 +1,11 @@
 import shutil
 from click.testing import CliRunner
+from tempfile import NamedTemporaryFile
+
+from sqlalchemy import create_engine
+
+from nomenklatura import Resolver
+from nomenklatura.db import get_engine, get_metadata
 
 from zavod import settings
 from zavod.meta import Dataset
@@ -117,24 +123,32 @@ def test_run_validation_failed(testdataset3: Dataset):
     shutil.rmtree(settings.DATA_PATH)
 
 
-def test_xref_dataset(testdataset1: Dataset):
+def test_xref_dataset(testdataset1: Dataset, disk_db_uri: str):
     runner = CliRunner()
-    result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()])
+    env = {"ZAVOD_DATABASE_URI": disk_db_uri}
+    engine = create_engine(disk_db_uri)
+    metadata = get_metadata()
+
+    result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()], env=env)
     assert result.exit_code == 0, result.output
 
-    resolver = get_resolver()
-    assert len(resolver.edges) == 0
+    resolver = Resolver(engine, metadata, True)
+    resolver.begin()
+    assert len(resolver.get_edges()) == 0
+    resolver.rollback()
 
-    result = runner.invoke(cli, ["xref", "--clear", DATASET_1_YML.as_posix()])
+    result = runner.invoke(cli, ["xref", "--clear", DATASET_1_YML.as_posix()], env=env)
     assert result.exit_code == 0, result.output
 
-    get_resolver.cache_clear()
-    resolver = get_resolver()
-    assert len(resolver.edges) > 1
+    resolver = Resolver(engine, metadata, True)
+    resolver.begin()
+    assert len(resolver.get_edges()) > 1
+    resolver.rollback()
 
-    result = runner.invoke(cli, ["resolver-prune"])
+    result = runner.invoke(cli, ["resolver-prune"], env=env)
     assert result.exit_code == 0, result.output
 
-    get_resolver.cache_clear()
-    resolver = get_resolver()
-    assert len(resolver.edges) == 0
+    resolver = Resolver(engine, metadata, True)
+    resolver.begin()
+    assert len(resolver.get_edges()) == 0
+    resolver.rollback()

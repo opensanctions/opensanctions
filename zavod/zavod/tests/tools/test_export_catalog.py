@@ -1,18 +1,18 @@
 from json import load
 
+from zavod.integration.dedupe import get_dataset_linker
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.tools.export_catalog import export_index
 from zavod import settings
 from zavod.tests.conftest import COLLECTION_YML
 from zavod.crawl import crawl_dataset
 from zavod.store import get_store
-from zavod.integration import get_resolver
 from zavod.exporters import export_dataset
 
 
 def export(dataset: Dataset) -> None:
-    resolver = get_resolver()
-    store = get_store(dataset, resolver)
+    linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
     store.sync()
     view = store.view(dataset)
     export_dataset(dataset, view)

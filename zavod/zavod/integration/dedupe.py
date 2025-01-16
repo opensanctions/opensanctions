@@ -20,14 +20,21 @@ if TYPE_CHECKING:
 
 log = get_logger(__name__)
 AUTO_USER = "zavod/xref"
-
+WARNED_EPHEMERAL = False
+EPHEMERAL_WARNING = (
+    "No database URI configured."
+    " If you want deduplication to be persistent, set DATABASE_URI."
+)
 
 def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
     database_uri = settings.DATABASE_URI
     if database_uri is None:
-        cache_path = settings.DATA_PATH / "resolver.sqlite3"
-        database_uri = f"sqlite:///{cache_path.as_posix()}"
+        database_uri = f"sqlite:///:memory:"
+        global WARNED_EPHEMERAL
+        if not WARNED_EPHEMERAL:
+            log.warn(EPHEMERAL_WARNING)
+            WARNED_EPHEMERAL = True
     engine = create_engine(database_uri)
     metadata = MetaData()
     resolver = Resolver[Entity](engine, metadata, create=True)
