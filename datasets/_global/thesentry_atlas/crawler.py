@@ -9,9 +9,11 @@ from zavod import helpers as h
 
 CSVIter = Generator[Dict[str, str], None, None]
 
-# Notes for Sentry:
-# * typo: reciever -> receiver
-# * deep URLs possible?
+SOURCES = {
+    "aliyev-empire.zip": "https://atlas.thesentry.org/wp-content/uploads/2024/10/Aliyev-Empire-Data.zip",
+    "kiirdom.zip": "https://atlas.thesentry.org/wp-content/uploads/2024/11/Kiirdom-Data.zip",
+}
+FORMATS = ("%m/%d/%Y",)
 
 EDGES = {
     "SPOUSE": ("Family", "person", "relative"),
@@ -94,7 +96,8 @@ def crawl_individuals(context: Context, rows: CSVIter) -> None:
         entity.id = context.make_slug(row.pop("uuid"))
         entity.add("name", row.pop("name"))
         entity.add("alias", row.pop("alias").split(";"))
-        entity.add("birthDate", row.pop("date of birth"))
+        dob = row.pop("date of birth")
+        h.apply_date(entity, "birthDate", dob, formats=FORMATS)
         entity.add("nationality", row.pop("nationality").split(";"))
         entity.add("notes", row.pop("info"))
         entity.add("summary", row.pop("citation"))
@@ -110,8 +113,10 @@ def crawl_entities(context: Context, rows: CSVIter) -> None:
         entity.id = context.make_slug(row.pop("uuid"))
         entity.add("name", row.pop("name"))
         entity.add("alias", row.pop("alias").split(";"))
-        entity.add("incorporationDate", row.pop("dateOfIncorporation"))
-        entity.add("dissolutionDate", row.pop("dateOfDissolution"))
+        date_of_inc = row.pop("dateOfIncorporation")
+        h.apply_date(entity, "incorporationDate", date_of_inc, formats=FORMATS)
+        date_of_dis = row.pop("dateOfDissolution")
+        h.apply_date(entity, "dissolutionDate", date_of_dis, formats=FORMATS)
         entity.add("jurisdiction", row.pop("jurisdiction").split(";"))
         entity.add("sector", row.pop("industry"))
         entity.add("status", row.pop("status"))
@@ -136,6 +141,7 @@ def crawl_edge(context: Context, edge_type: str, rows: CSVIter) -> None:
         return
     (schema, a_prop, b_prop) = EDGES[edge_type]
     for row in rows:
+        # print(row)
         entity = context.make(schema)
         entity.id = context.make_slug(row.pop("r.uuid"))
         entity.add(a_prop, context.make_slug(row.pop("a.uuid")))
@@ -151,37 +157,39 @@ def crawl_edge(context: Context, edge_type: str, rows: CSVIter) -> None:
             entity.add("role", type_)
         elif entity.schema.properties.get("relationship"):
             entity.add("relationship", type_)
-        h.apply_date(entity, "startDate", row.pop("r.startDate"))
-        h.apply_date(entity, "endDate", row.pop("r.endDate"))
-        h.apply_date(entity, "date", row.pop("r.asOf"))
-        entity.add("summary", row.pop("r.citation"))
+        h.apply_date(entity, "startDate", row.pop("r.startDate", None), formats=FORMATS)
+        h.apply_date(entity, "endDate", row.pop("r.endDate", None), formats=FORMATS)
+        h.apply_date(entity, "date", row.pop("r.asOf", None), formats=FORMATS)
+        entity.add("summary", row.pop("r.citation", None))
         context.emit(entity)
         context.audit_data(row, ignore=EDGE_IGNORE)
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.zip", context.data_url)
-    context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
-    # entity_schema: Dict[str, str] = {}
+    for file_name, data_url in SOURCES.items():
+        path = context.fetch_resource(file_name, data_url)
+        context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
+        # entity_schema: Dict[str, str] = {}
+        context.log.info("Crawling: %r" % path)
 
-    with zipfile.ZipFile(path, "r") as zf:
-        for name in zf.namelist():
-            if "_NODE_" in name:
-                _, suffix = name.rsplit("_NODE_", 1)
-                node_type = suffix.split(".")[0]
-                rows = iter_zf_csv(zf, name)
-                if node_type == "ASSETS":
-                    crawl_assets(context, rows)
-                elif node_type == "INDIVIDUALS":
-                    crawl_individuals(context, rows)
-                elif node_type == "ENTITIES":
-                    crawl_entities(context, rows)
-                else:
-                    context.log.warning(f"Unknown node type: {node_type}")
+        with zipfile.ZipFile(path, "r") as zf:
+            for name in zf.namelist():
+                if "_NODE_" in name:
+                    _, suffix = name.rsplit("_NODE_", 1)
+                    node_type = suffix.split(".")[0]
+                    rows = iter_zf_csv(zf, name)
+                    if node_type == "ASSETS":
+                        crawl_assets(context, rows)
+                    elif node_type in ("INDIVIDUALS", "PERSON"):
+                        crawl_individuals(context, rows)
+                    elif node_type in ("ENTITIES", "ENTITY"):
+                        crawl_entities(context, rows)
+                    else:
+                        context.log.warning(f"Unknown node type: {node_type}")
 
-            # for name in zf.namelist():
-            if "_EDGE_" in name:
-                rows = iter_zf_csv(zf, name)
-                _, suffix = name.rsplit("_EDGE_", 1)
-                edge_type = suffix.split(".")[0]
-                crawl_edge(context, edge_type, rows)
+                # for name in zf.namelist():
+                if "_EDGE_" in name:
+                    rows = iter_zf_csv(zf, name)
+                    _, suffix = name.rsplit("_EDGE_", 1)
+                    edge_type = suffix.split(".")[0]
+                    crawl_edge(context, edge_type, rows)
