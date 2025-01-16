@@ -1,12 +1,11 @@
-from io import TextIOWrapper
-from followthemoney.types import registry
-from pathlib import Path
-from shutil import rmtree
-from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
 import csv
 import duckdb
 import logging
-
+from io import TextIOWrapper
+from pathlib import Path
+from shutil import rmtree
+from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
+from followthemoney.types import registry
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.index.common import BaseIndex
@@ -50,32 +49,37 @@ class DuckDBIndex(BaseIndex[DS, CE]):
     ):
         self.view = view
         memory_budget = options.get("memory_budget", None)
-        self.memory_budget: Optional[int] = (
-            int(memory_budget) if memory_budget else None
-        )
-        """Memory budget in megabytes"""
-        self.max_candidates = int(options.get("max_candidates", 50))
-        self.stopwords_pct = options.get("stopwords_pct", 1)
-        self.data_dir = data_dir
-        if self.data_dir.exists():
-            rmtree(self.data_dir)
-        self.data_dir.mkdir(parents=True)
-        self.con = duckdb.connect((self.data_dir / "duckdb_index.db").as_posix())
-        self.matching_path = self.data_dir / "matching.csv"
-        self.matching_path.unlink(missing_ok=True)
-        self.matching_dump: TextIOWrapper | None = open(self.matching_path, "w")
-        writer = csv.writer(self.matching_dump)
-        writer.writerow(["id", "field", "token"])
-
         # https://duckdb.org/docs/guides/performance/environment
         # > For ideal performance,
         # > aggregation-heavy workloads require approx. 5 GB memory per thread and
         # > join-heavy workloads require approximately 10 GB memory per thread.
         # > Aim for 5-10 GB memory per thread.
+        self.memory_budget: Optional[int] = (
+            int(memory_budget) if memory_budget else None
+        )
+        """Memory budget in megabytes"""
+        self.max_candidates = int(options.get("max_candidates", 50))
+        self.stopwords_pct: float = float(options.get("stopwords_pct", 0.8))
+        self.data_dir = data_dir.resolve()
+        if self.data_dir.exists():
+            rmtree(self.data_dir)
+        self.data_dir.mkdir(parents=True)
+        data_file = self.data_dir / "index.duckdb"
+        tmp_dir = self.data_dir / "index.duckdb.tmp"
+        config = {
+            "preserve_insertion_order": False,
+            # > If you have a limited amount of memory, try to limit the number of threads
+            "threads": 1,
+            "temp_directory": tmp_dir.as_posix(),
+        }
         if self.memory_budget is not None:
-            self.con.execute("SET memory_limit = ?;", [f"{self.memory_budget}MB"])
-        # > If you have a limited amount of memory, try to limit the number of threads
-        self.con.execute("SET threads = 1;")
+            config["max_memory"] = f"{self.memory_budget}MB"
+        self.con = duckdb.connect(data_file.as_posix(), config=config)
+        self.matching_path = self.data_dir / "matching.csv"
+        self.matching_path.unlink(missing_ok=True)
+        self.matching_dump: TextIOWrapper | None = open(self.matching_path, "w")
+        writer = csv.writer(self.matching_dump)
+        writer.writerow(["id", "field", "token"])
 
     def build(self) -> None:
         """Index all entities in the dataset."""

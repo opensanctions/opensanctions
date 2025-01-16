@@ -448,6 +448,8 @@ lookups:
         value: 6207391
       - match: IMO 642068  # Celia Armas typo
         value: 6420688
+      - match: IMO 6498685  # Lathyrus Shipping typo
+        value: 6496885
   type.address:
     lowercase: true
     options:

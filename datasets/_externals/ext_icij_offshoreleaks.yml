@@ -9,8 +9,8 @@ exports:
   - entities.delta.json
 deploy:
   cpu: "1000m"
-  memory: "3000Mi"
-  memory_limit: "4000Mi"
+  memory: "3500Mi"
+  memory_limit: "4500Mi"
   disk: "20Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:

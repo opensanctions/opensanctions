@@ -70,12 +70,16 @@ lookups:
       - contains: Syrian Arab Republic
         value: Syria
       - match:
-          - LIBANÉS
           - Libyan Arab Jamahiriya
         value: Libya
       - match: Kuwaiti citizenship withdrawn in 2002
         value: null
       - contains: EL LIBANO
+        value: Lebanon
+      - match:
+          - LIBANÉS
+          - Libanesa
+          - Repùblica Libanesa
         value: Lebanon
       - match: BRASILEÑA
         value: Brazil

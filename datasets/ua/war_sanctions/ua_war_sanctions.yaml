@@ -26,6 +26,10 @@ description: |
 
   **Propagandists**: Individuals involved in the dissemination of Russian propaganda.
 
+  **UAVs manufacturers**: Companies involved in the production of unmanned aerial vehicles, 
+  which are systematically used to target Ukraine's civilian population, alongside their 
+  military applications.
+
   The objective of the War and Sanctions website is to raise awareness of their conduct,
   and advocate for sanctions against these entities to hold perpetrators accountable and
   deter further actions of this kind.
@@ -57,7 +61,7 @@ assertions:
       Organization: 550
       Person: 400
       Vessel: 430
-      LegalEntity: 150
+      LegalEntity: 210
     country_entities:
       ru: 790
       ua: 170
@@ -304,6 +308,10 @@ lookups:
         name: Altima Inc
         registration_number: 6451981
         care_of: Eastern Euro Ship Management
+      - match: "Lalique Co LTD c/o: Qingdao Huitong Shipping Co LTD (6471802"
+        name: Lalique Co LTD
+        registration_number: 6471802
+        care_of: Qingdao Huitong Shipping Co LTD
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973

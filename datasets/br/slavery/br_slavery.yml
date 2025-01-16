@@ -1,0 +1,53 @@
+title: Brazil Ministry of Labour and Employment slavery prevention list
+entry_point: crawler.py
+prefix: br-slv
+coverage:
+  frequency: weekly
+  start: 2025-01-13
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  A list of employers who have submitted workers to conditions analogous to slavery.
+description: |
+  This dataset contains a list of employers deemed by Ministry of Labour and Employment of Brazil to have subjected
+  workers to working conditions analogous to slavery. The ministry itself describes the list as follows (translated):
+
+  > Work carried out in conditions analogous to slavery is considered to be that which results from the following
+  > situations, either as a whole or in isolation: the subjection of a worker to forced labor; the subjection of a
+  > worker to exhausting working hours; the subjection of a worker to degrading working conditions; the restriction of
+  > the worker's locomotion, whether due to a debt contracted, or by restricting the worker's use of any means of
+  > transport, or by any other means with the aim of retaining them at the workplace; ostentatious surveillance at the
+  > workplace by the employer or his agent, with the aim of detaining the worker at the workplace; possession of the
+  > worker's personal documents or objects by the employer or his agent, with the aim of detaining the worker at the
+  > workplace.
+
+  > One of the objectives of the Ministry of Labor and Social Security is to eradicate slave and degrading labor,
+  > through tax actions coordinated by the Labor Inspection Secretariat, in previously mapped out hotspots. The Labor
+  > Inspectorate aims to regularize the employment relationships of the workers found and other consequences and free
+  > them from the condition of slavery.
+publisher:
+  name: Ministério do Trabalho e Emprego
+  name_en: Ministry of Labour and Employment of Brazil
+  acronym: MTE
+  description: >
+    The Ministry of Labour and Employment of Brazil oversees matters relating to
+    worker rights, safety, pay, and work permits 
+  url: https://www.gov.br/trabalho-e-emprego
+  official: true
+url: https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/combate-ao-trabalho-escravo-e-analogo-ao-de-escravo
+data:
+  url: https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/cadastro_de_empregadores.csv
+  format: CSV
+  lang: por
+
+dates:
+  formats: ["%d/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 480
+      Company: 180
+  max:
+    schema_entities:
+      Person: 550
+      Company: 230

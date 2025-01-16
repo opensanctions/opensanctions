@@ -86,7 +86,7 @@ def test_run_dataset(testdataset1: Dataset):
     assert latest_path.joinpath("entities.ftm.json").exists()
     # Validation issues in a published run are published
     with open(artifacts_path / "issues.json", "r") as f:
-        assert "is a target but has no topics" in f.read()
+        assert "This is a test warning" in f.read()
     shutil.rmtree(latest_path)
 
     result = runner.invoke(cli, ["publish", "/dev/null"])

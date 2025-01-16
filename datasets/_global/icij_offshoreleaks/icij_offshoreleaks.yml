@@ -9,8 +9,8 @@ coverage:
   end: 2023-07-26
 deploy:
   cpu: "1000m"
-  memory: 2000Mi
-  memory_limit: 3000Mi
+  memory: 3000Mi
+  memory_limit: 3500Mi
   disk: 30Gi
 exports:
   - statistics.json

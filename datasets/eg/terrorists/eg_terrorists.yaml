@@ -34,6 +34,13 @@ data:
   url: https://mlcu.org.eg/ar/3125/قوائم-ادراج-الكيانات-الارهابية-والارهابيين-المحلية-عملا-بقرار-مجلس-الامن-1373
   format: HTML
 
+dates:
+  formats:
+    - "%Y/%m/%d"
+    - "%Y-%m-%d"
+    - "%d/%m/%Y"
+    - "%d-%m-%Y"
+
 lookups:
   columns:
     options:

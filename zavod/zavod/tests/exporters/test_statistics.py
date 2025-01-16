@@ -19,7 +19,7 @@ def test_statistics(testdataset1: Dataset):
         statistics = load(statistics_file)
 
     assert statistics["entity_count"] == 12
-    assert statistics["target_count"] == 7
+    assert statistics["target_count"] == 6
     assert "Organization" in statistics["schemata"]
     assert "Person" in statistics["schemata"]
     assert len(statistics["schemata"]) == 6
@@ -39,7 +39,7 @@ def test_statistics(testdataset1: Dataset):
     assert len(thing_schemata) == 3
 
     target_countries = statistics["targets"]["countries"]
-    assert {"code": "de", "count": 2, "label": "Germany"} in target_countries
+    assert {"code": "dd", "count": 1, "label": "East Germany"} in target_countries
     assert "ca" not in {f["code"] for f in target_countries}
     assert len(target_countries) == 5
 
@@ -50,4 +50,4 @@ def test_statistics(testdataset1: Dataset):
         "label": "Person",
         "plural": "People",
     } in target_schemata
-    assert len(target_schemata) == 3
+    assert len(target_schemata) == 2

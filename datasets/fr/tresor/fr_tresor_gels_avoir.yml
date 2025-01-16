@@ -5003,3 +5003,27 @@ lookups:
       - match: 'Numéro d’identification fiscale: 7106002836'
         props:
           innCode: 7106002836
+      - match: "Numéro d'identification fiscale: 2635000092"
+        props:
+          innCode: 2635000092
+      - match: "Type d'entité: société anonyme par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 21.9.1993: /"
+        props:
+          jurisdiction: ru
+          legalForm: société anonyme par actions
+          address: "Fédération de Russie"
+          incorporationDate: 1993-09-21
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 16.10.2009 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "Fédération de Russie"
+          incorporationDate: 2009-10-16
+      - match: "Numéro d'identification fiscale: 7722698108"
+        props:
+          innCode: 7722698108
+      - match: "Numéro d'enregistrement: 1097746629639"
+        props:
+          registrationNumber: 1097746629639
+      - match: "Numéro d'enregistrement : 1022601930537"
+        props:
+          registrationNumber: 1022601930537

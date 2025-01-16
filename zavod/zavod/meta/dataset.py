@@ -144,11 +144,7 @@ class Dataset(NKDataset):
         # data.pop("children", None)
         # data.pop("datasets", None)
         data["type"] = self._type
-        if self.is_collection:
-            # data["scopes"] = [s.name for s in self.leaves]
-            data["sources"] = [s.name for s in self.leaves if s._type == "source"]
-            data["externals"] = [s.name for s in self.leaves if s._type == "external"]
-        else:
+        if not self.is_collection:
             collections = [
                 p.name for p in catalog.datasets if self in p.datasets and p != self
             ]

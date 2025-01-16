@@ -136,15 +136,12 @@ def crawl_debarments(context: Context) -> None:
         sanction.add("reason", violation)
         sanction.add("sourceUrl", DEBARMENT_URL)
 
-        end_date = max(sanction.get("endDate"), default=None)
-        if end_date is None or end_date > context.data_time_iso:
+        is_debarred = h.is_active(sanction)
+        if is_debarred:
             entity.add("topics", "debarment")
-            ended = False
-        else:
-            ended = True
 
         context.emit(sanction)
-        context.emit(entity, target=not ended)
+        context.emit(entity, target=is_debarred)
 
 
 def crawl_infractions(context: Context) -> None:

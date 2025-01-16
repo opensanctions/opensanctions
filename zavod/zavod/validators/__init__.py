@@ -1,7 +1,6 @@
 from typing import List, Type
 from followthemoney.types import registry
 
-from zavod import settings
 from zavod.archive import dataset_data_path
 from zavod.context import Context
 from zavod.exc import RunFailedException
@@ -46,24 +45,6 @@ class SelfReferenceValidator(BaseValidator):
                     )
 
 
-class TopiclessTargetValidator(BaseValidator):
-    """Warns if a target entity has no topics."""
-
-    def feed(self, entity: Entity) -> None:
-        if entity.target:
-            topics = entity.get("topics", quiet=True)
-            if not len(topics):
-                self.context.log.warning(
-                    f"{entity.id} is a target but has no topics", entity=entity
-                )
-            elif len(settings.TARGET_TOPICS.intersection(topics)) == 0:
-                self.context.log.warning(
-                    f"{entity.id} is a target but has non-target topics",
-                    entity=entity,
-                    topics=topics,
-                )
-
-
 class EmptyValidator(BaseValidator):
     """Warn if no entities are validated."""
 
@@ -82,7 +63,6 @@ class EmptyValidator(BaseValidator):
 VALIDATORS: List[Type[BaseValidator]] = [
     DanglingReferencesValidator,
     SelfReferenceValidator,
-    TopiclessTargetValidator,
     AssertionsValidator,
     EmptyValidator,
 ]

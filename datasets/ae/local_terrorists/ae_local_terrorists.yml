@@ -42,11 +42,26 @@ publisher:
   url: https://www.uaeiec.gov.ae/en-us/
   official: true
 data:
-  url: "https://www.uaeiec.gov.ae/en-us/un-page?p=1#"
+  url: "https://www.uaeiec.gov.ae/en-us/un-page?p=2#"
   format: HTML
 
 dates: 
   formats: ["%d/%m/%Y", "%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 130
+      Organization: 110
+    country_entities:
+      eg: 15
+      ye: 6
+    countries: 6
+  max:
+    schema_entities:
+      Person: 200
+      Organization: 200
+
 lookups:
   categories:
     options:
@@ -156,9 +171,17 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      # work around current countrynames limitation
+      # https://github.com/opensanctions/countrynames/blob/main/countrynames/data.yaml#L7435
+      - match: مصر
+        value: Egypt
       - match: السعودية / الكويت
         values:
           - Saudi Arabia
           - Kuweit
       - match: مصر - مسجون
         value: Egypt
+      - match: 'الحالية: السويد السابقة: ليبيريا'
+        values:
+          - Sweden
+          - Liberia

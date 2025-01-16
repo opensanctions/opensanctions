@@ -913,6 +913,10 @@ lookups:
           - Kogi State
           - Jos Plateau
           - Funtua
+          - Abia State
+          - Bauchi State
+          - Edo State
+          - Kano State
         value: NG
       - match: Kazakh Soviet Socialist Republic
         values:

@@ -39,7 +39,7 @@ from zavod.helpers.names import make_name, apply_name, split_comma_names
 from zavod.helpers.positions import make_position, make_occupancy
 from zavod.helpers.text import clean_note, is_empty, remove_bracketed
 from zavod.helpers.text import multi_split
-from zavod.helpers.sanctions import make_sanction
+from zavod.helpers.sanctions import make_sanction, is_active
 from zavod.helpers.addresses import make_address, format_address
 from zavod.helpers.addresses import copy_address, apply_address, postcode_pobox
 from zavod.helpers.dates import extract_years, parse_date, check_no_year
@@ -65,6 +65,7 @@ __all__ = [
     "copy_address",
     "postcode_pobox",
     "make_sanction",
+    "is_active",
     "make_identification",
     "extract_years",
     "parse_date",

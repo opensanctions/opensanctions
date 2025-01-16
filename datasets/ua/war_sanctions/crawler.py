@@ -13,6 +13,11 @@ LINKS = [
         "type": "legal_entity",
         "program": "Legal entities involved in the deportation of Ukrainian children",
     },
+    {  # uav manufacturers
+        "url": "https://war-sanctions.gur.gov.ua/en/uav/companies",
+        "type": "legal_entity",
+        "program": "Legal entities involved in the production of UAVs",
+    },
     {  # russian athletes
         "url": "https://war-sanctions.gur.gov.ua/en/sport/persons?page=1&per-page=12",
         "type": "person",
@@ -389,7 +394,9 @@ def crawl_legal_entity(context: Context, link, program):
             if "yellow" in label_elem.get("class"):
                 label, value = extract_label_value_pair(label_elem, value_elem, data)
                 data[label] = value
-    name = data.pop("Name")
+    name = data.pop("Name", None)
+    if name is None:
+        name = data.pop("Full name of legal entity")
     name_abbr = data.pop("Abbreviated name of the legal entity", None)
     reg_num = data.pop("Registration number")
 
@@ -401,20 +408,20 @@ def crawl_legal_entity(context: Context, link, program):
     legal_entity.add("address", data.pop("Address"))
     legal_entity.add("country", data.pop("Country"))
     legal_entity.add("innCode", data.pop("Tax Number"))
-    legal_entity.add("sourceUrl", data.pop("Links"))
+    legal_entity.add("sourceUrl", data.pop("Links", None))
     archive_links = data.pop("Archive links", None)
     if archive_links is not None:
         legal_entity.add("sourceUrl", archive_links)
 
     legal_entity.add("topics", "poi")
     sanction = h.make_sanction(context, legal_entity)
-    sanction.add("reason", data.pop("Reasons"))
+    sanction.add("reason", data.pop("Reasons", None))
     sanction.add("sourceUrl", link)
     sanction.add("program", program)
 
     context.emit(legal_entity, target=True)
     context.emit(sanction)
-    context.audit_data(data, ignore=["Sanction Jurisdictions"])
+    context.audit_data(data, ignore=["Sanction Jurisdictions", "Products"])
 
 
 def extract_next_page_url(doc):
@@ -441,7 +448,7 @@ def crawl(context: Context):
     )
     assert len(section_links_section) == 1, section_links_section
     h.assert_dom_hash(
-        section_links_section[0], "7b453a15943260a79ed541abea1885fb0ad84fa6"
+        section_links_section[0], "4d5f0556d30ae7a7b361de314d9606ff8cfbf674"
     )
 
     # Has the API link been updated to point to the previously-nonexistent API page?

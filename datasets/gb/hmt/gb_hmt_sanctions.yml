@@ -37,7 +37,7 @@ data:
 # TODO: do we need a separate crawler for the UK Sanctions List?
 # https://www.gov.uk/government/publications/the-uk-sanctions-list
 
-dates: 
+dates:
   formats: ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 lookups:
   sanction.program:
@@ -130,7 +130,7 @@ lookups:
         value: 65665578
       - match: 'Russian TIN: 7718763393'
         prop: taxNumber
-        value: 
+        value:
       - match: TIN - 7703104630
         prop: taxNumber
         value: 7703104630
@@ -139,7 +139,7 @@ lookups:
         value: 1137711000074
       - match: 1117746568829 (Russia).
         prop: ogrnCode
-        value: 
+        value:
       - match: Tax ID No. 7735579027 (Russia)
         prop: taxNumber
         value: 7735579027
@@ -218,7 +218,7 @@ lookups:
       - match: 'OGRN: 1027739143717'
         prop: ogrnCode
         value: 1027739143717
-      - match: 'INN: 7723022111'  
+      - match: 'INN: 7723022111'
         prop: innCode
         value: 7723022111
       - match: 'OGRN: 1077757840522'
@@ -259,10 +259,10 @@ lookups:
         value: 1026801010994
       - match: 'TIN: 7706191991'
         prop: taxNumber
-        value: 7706191991 
+        value: 7706191991
       - match: '1027739339715 (Russia)'
         prop: ogrnCode
-        value: 1027739339715 
+        value: 1027739339715
       - match: 'Taxpayer ID: 7727214569'
         prop: taxNumber
         value: 7727214569
@@ -722,7 +722,7 @@ lookups:
           - Lobaye Invest SARLU
           - M-Finans
       - match: (1) TSENTR MOLODEZHNOGO INNOVATSIONNOGO TVORCHESTVA (2) IST Ltd TRADE DEVELOPMENT (3) UNIMATIK-MSK (4) LLC UNIMATICENVERSION (5) HUSTLE SHIFT LLC (6) EMKO-RUS (7) ALTEGRITY LLC (8) AVTONOMNAYA NEKOMMERCHESKAYA (9) ORGANIZATSIYA DOPOLNITELNOGO (10) OBRAZOVANIYA UCHEBNYI TSENTR UNIMATIK
-        values: 
+        values:
           - TSENTR MOLODEZHNOGO INNOVATSIONNOGO TVORCHESTVA
           - IST Ltd TRADE DEVELOPMENT
           - UNIMATIK-MSK
@@ -975,6 +975,17 @@ lookups:
         values:
           - accountant@virmavia.com
           - natalia.khirevich@gmail.com
+      - match: (1) contact@bloodandhonourworldwide.co.uk (2) general@bloodandhonourworldwide.co.uk
+        values:
+          - contact@bloodandhonourworldwide.co.uk
+          - general@bloodandhonourworldwide.co.uk
+      - match: (1) lr-ext@surgutneftegas.ru (2) office@surgutneftegas.ru (3) 411555@surgutneftegas.ru (4) press.ext@surgutneftegas.ru
+        values:
+          - lr-ext@surgutneftegas.ru
+          - office@surgutneftegas.ru
+          - 411555@surgutneftegas.ru
+          - press.ext@surgutneftegas.ru
+
   type.gender:
     lowercase: true
     normalize: true
