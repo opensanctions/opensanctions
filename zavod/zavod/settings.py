@@ -83,10 +83,6 @@ ARCHIVE_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", ARCHIVE_BUCKET)
 ARCHIVE_PATH = Path(env.get("ZAVOD_ARCHIVE_PATH", DATA_PATH.joinpath("archive")))
 BACKFILL_RELEASE = env_str("ZAVOD_BACKFILL_RELEASE", "latest")
 
-# File path for the resolver path used for entity deduplication
-RESOLVER_PATH = env.get("ZAVOD_RESOLVER_PATH")
-RESOLVER_PATH = env.get("OPENSANCTIONS_RESOLVER_PATH", RESOLVER_PATH)
-
 # HTTP settings
 HTTP_TIMEOUT = 1200
 HTTP_USER_AGENT = "Mozilla/5.0 (zavod)"

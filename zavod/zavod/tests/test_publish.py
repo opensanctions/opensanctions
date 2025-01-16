@@ -10,7 +10,7 @@ from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE
 from zavod.crawl import crawl_dataset
 from zavod.store import get_store
 from zavod.exporters import export_dataset
-from zavod.integration import get_resolver
+from zavod.integration import get_dataset_linker
 from zavod.publish import publish_dataset, publish_failure
 from zavod.exc import RunFailedException
 
@@ -24,7 +24,7 @@ def _read_history(dataset_name: str) -> Optional[VersionHistory]:
 
 
 def test_publish_dataset(testdataset1: Dataset):
-    resolver = get_resolver()
+    linker = get_dataset_linker(testdataset1)
     art_path = settings.ARCHIVE_PATH / ARTIFACTS
     arch_path = settings.ARCHIVE_PATH / DATASETS
     release_path = arch_path / settings.RELEASE / testdataset1.name
@@ -34,7 +34,7 @@ def test_publish_dataset(testdataset1: Dataset):
     history = _read_history(testdataset1.name)
     assert history is None
     crawl_dataset(testdataset1)
-    store = get_store(testdataset1, resolver)
+    store = get_store(testdataset1, linker)
     store.sync()
     view = store.view(testdataset1)
     export_dataset(testdataset1, view)
