@@ -8,6 +8,7 @@ deploy:
   disk: "100Gi"
   disk_limit: "200Gi"
 coverage:
+  start: "2023-09-18"
   frequency: monthly
 ci_test: false
 exports:

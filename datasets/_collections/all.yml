@@ -2,7 +2,8 @@ type: collection
 title: All entities in OpenSanctions
 hidden: true
 coverage:
-  frequency: daily
+  start: "2021-09-01"
+  frequency: monthly
 deploy:
   cpu: "1000m"
   cpu_limit: "1500m"

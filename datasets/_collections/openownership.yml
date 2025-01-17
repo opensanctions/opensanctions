@@ -5,6 +5,7 @@ deploy:
   memory: "2000Mi"
   disk: "100Gi"
 coverage:
+  start: "2023-08-23"
   frequency: weekly
 exports:
   - statistics.json

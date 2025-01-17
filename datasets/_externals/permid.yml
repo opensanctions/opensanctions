@@ -4,12 +4,11 @@ entry_point: zavod.runner.enrich:enrich
 disabled: false
 hidden: false
 coverage:
-  frequency: weekly
+  frequency: daily
   start: 2023-11-15
 exports:
   - statistics.json
 deploy:
-  schedule: "@daily"
   memory: "1000Mi"
   memory_limit: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

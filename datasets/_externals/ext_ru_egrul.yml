@@ -6,7 +6,6 @@ disabled: false
 hidden: false
 coverage:
   frequency: weekly
-  schedule: "@weekly"
   start: 2022-01-01
   end: 2022-01-01
 exports:

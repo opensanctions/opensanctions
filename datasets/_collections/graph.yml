@@ -7,8 +7,9 @@ deploy:
   memory_limit: "4000Mi"
   disk: "200Gi"
   disk_limit: "280Gi"
-  # premium: true
+  premium: true
 coverage:
+  start: "2023-08-23"
   frequency: monthly
 exports:
   - statistics.json

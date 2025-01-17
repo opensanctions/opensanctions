@@ -3,7 +3,7 @@ title: Special Interest Watchlists
 hidden: true
 coverage:
   start: "2024-12-20"
-  frequency: daily
+  frequency: weekly
 deploy:
   memory: "1500Mi"
 summary: >
