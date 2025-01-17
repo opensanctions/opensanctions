@@ -1,4 +1,4 @@
-# Usage patterns
+# Common Patterns
 
 The following are some patterns that have proved useful:
 
@@ -95,7 +95,8 @@ for name in h.multi_split(names, SPLITS):
             crawl_legal_entity(context, link, program)
     ```
 
-    You can also invert the condition and return early when the check fails. This pattern minimizes the need for additional indentation.
+    It's nice to handle cases where we can return early first, often by inverting an `if A else return None ` with `if not A return None; B`. This pattern also reduces indentation for the `B` clause.
+
     ```python
     # Extract required fields from the row
     name = row.pop("name")
@@ -118,12 +119,14 @@ for name in h.multi_split(names, SPLITS):
     doc.make_links_absolute(context.data_url)
     ```
 
-- Utilize `h.copy_address()` to manage address processing.
+## Addresses
+
+When distinct address fields are available, use `h.make_address` to compose it, adding a country code if possible.
+
+Then use `h.copy_address` to add the full address to the entity's `address` property.
 
     ```python
-    # Create an address entity using the helper function
     address_ent = h.make_address(context, full=addr, city=city, lang="zhu")
-    # Copy address details to the entity
     h.copy_address(entity, address_ent)
     ```
 
@@ -139,7 +142,7 @@ If a variable number of fields can extracted automatically (e.g. from a list or 
 
 It is good design to be told about issues, instead of having to go look to discover them.
 
-Logs are essential for monitoring progress and debugging, but info-level logs don't help us notice if something is missing because we only see them when we choose to go and look at a crawler's logs. Use the appropriate log level for the purpose for cases that don’t stop the process.
+Logs are essential for monitoring progress and debugging, but info-level and lower is only seen when we choose to go and look at a crawler's logs, so we might not notice from them if something is wrong except during debugging/development. Use the appropriate log level for the purpose.
 
 * Debug Logs: Enable verbose output for detailed tracking during development. Use `zavod --debug` to activate debug logs.
 
@@ -153,7 +156,10 @@ Logs are essential for monitoring progress and debugging, but info-level logs do
     context.log.info(f"Processed {page_number} pages")
     ```
 
-* Warning Logs: Indicate potential issues that don't stop the crawl but may require attention. These are surfaced to the dev team on the [Issues](https://www.opensanctions.org/issues/) page and checked daily.
+* Warning Logs: Indicate potential issues that don't stop the crawl but may require attention. These are surfaced to the dev team on the [Issues](https://www.opensanctions.org/issues/) page and checked daily. 
+
+    Don't use warnings for things we know we won't fix, e.g. a permanent 404 that we can't do anything about. Do use warnings for things we should take action on, e.g. to notice a new entity type which we haven't mapped to a Schema yet.
+
     ```python
     context.log.warning("Unhandled entity type", type=entity_type)
     ```
@@ -222,9 +228,6 @@ text = text.replace("\xa0", " ")
 # When the source data contains messy or excessively repeated whitespace,
 # e.g., collapsing whitespace from text extracted from HTML
 cleaned_text = normality.collapse_spaces(text)
-
-# Remove unsafe characters if needed
-cleaned_text_safe = normality.remove_unsafe_chars(text)
 ```
 
 ## Use datapatch lookups to clean or map values from external forms to OpenSanctions

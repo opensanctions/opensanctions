@@ -32,6 +32,19 @@ LABEL_MAPPING = {
 # Exclude newlines to avoid splitting addresses unless they're numbered
 REGEX_SPLIT = re.compile(r",?\s*\b\w[\.\)]")
 REGEX_GAZZETE_DATE = re.compile(r"(\d{2}\.\d{2}\.\d{4})")
+
+# https://masak.hmb.gov.tr/law-no-6415-on-the-prevention-of-the-financing-of-terrorism/#:~:text=(5)%20If%20natural%20and%20legal,following%20the%20date%20of%20request.
+# ARTICLE 5- (1) Decisions on freezing of assets under the possession of persons,
+# institutions and organisations designated through the United Nations Security
+# Council Resolutions 1267(1999), 1988 (2011), 1989 (2011) and 2253 (2015) and
+# decisions on the repeal of assets freezing for those who are de-listed shall
+# be executed without delay through the decision of the President published in
+# the Official Gazette.
+#
+# 1267 (1999) Taliban, Al-Qaida
+# 1988 (2011) Taliban
+# 1989 (2011) Al-Qaida
+# 2253 (2015) ISIL (Daesh)
 UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
 
 
