@@ -1,6 +1,5 @@
 from typing import List, Optional, TYPE_CHECKING
 from pathlib import Path
-from functools import cache
 from sqlalchemy import MetaData, create_engine
 
 from followthemoney import model
@@ -30,7 +29,7 @@ def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
     database_uri = settings.DATABASE_URI
     if database_uri is None:
-        database_uri = f"sqlite:///:memory:"
+        database_uri = "sqlite:///:memory:"
         global WARNED_EPHEMERAL
         if not WARNED_EPHEMERAL:
             log.warn(EPHEMERAL_WARNING)

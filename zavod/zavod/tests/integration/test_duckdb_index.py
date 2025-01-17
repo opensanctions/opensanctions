@@ -7,7 +7,6 @@ from nomenklatura import CompositeEntity, Resolver
 from zavod.entity import Entity
 from zavod.integration.duckdb_index import DuckDBIndex
 from zavod.crawl import crawl_dataset
-from zavod.integration import get_resolver
 from zavod.meta.dataset import Dataset
 from zavod.store import get_store
 

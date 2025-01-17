@@ -1,11 +1,8 @@
 import shutil
 from copy import deepcopy
 
-from nomenklatura import Resolver
-from nomenklatura.db import get_metadata
 from nomenklatura.entity import CompositeEntity
 from nomenklatura.judgement import Judgement
-from sqlalchemy import MetaData, create_engine
 
 from zavod import settings
 from zavod.archive import clear_data_path

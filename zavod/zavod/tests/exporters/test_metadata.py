@@ -6,7 +6,6 @@ from zavod import settings
 from zavod.crawl import crawl_dataset
 from zavod.entity import Entity
 from zavod.exporters import export_dataset
-from zavod.integration import get_resolver
 from zavod.meta import Dataset
 from zavod.store import get_store
 
