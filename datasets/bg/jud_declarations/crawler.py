@@ -82,7 +82,7 @@ def crawl(context: Context):
         doc = context.fetch_html(link, cache_days=1)
         table = doc.xpath(".//table")
         if len(table) == 0:
-            context.log.warning("No tables found")
+            context.log.info("No tables found")
             continue
         assert len(table) == 1
         table = table[0]

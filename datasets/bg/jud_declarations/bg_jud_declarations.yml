@@ -45,18 +45,25 @@ lookups:
   type.date:
     options:
       - match: 15.50.2024
-        value: 15.05.2024
+        value: 2024-05-15
       - match: 25.03.32024
-        value: 25.03.2024
-      - match: 21.102024
-        value: 21.10.2024
-      - match: 0802.2024
-        value: 08.02.2024
+        value: 2024-03-25
+      - match: "21.102024"
+        value: 2024-10-21
+      - match: "0802.2024"
+        value: 2024-02-08
       - match: 15..05.2023
-        value: 15.05.2023
-      - match: 0310.2023
-        value: 03.10.2023
+        value: 2023-05-15
+      - match: "0310.2023"
+        value: 2023-10-03
       - match: 27.10.20.23
-        value: 27.10.2023
+        value: 2023-10-27
+      # weird ones: 
+      - match: 07.04.2023
+        value: 2023-04-07
+      - match: 08.12.2023
+        value: 2023-12-08
+      - match: 12.06.2023
+        value: 2023-06-12
       - match: 30.02.2024
         value: null
