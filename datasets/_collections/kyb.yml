@@ -5,7 +5,7 @@ deploy:
   cpu: "1000m"
   memory: "2000Mi"
   memory_limit: "4000Mi"
-  disk: "100Gi"
+  disk: "150Gi"
   disk_limit: "200Gi"
 coverage:
   start: "2023-09-18"
