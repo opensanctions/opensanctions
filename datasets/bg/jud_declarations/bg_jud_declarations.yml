@@ -20,3 +20,6 @@ url: https://www.dans.bg/bg/28
 data:
   url: http://62.176.124.194/
   format: HTML
+
+dates: 
+  formats: ["%d.%m.%Y"]
