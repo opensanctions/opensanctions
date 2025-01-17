@@ -53,7 +53,9 @@ def test_pairs(testdataset_dedupe: Dataset, resolver: Resolver[Entity]):
     assert bond == 2.0, bond
 
 
-def test_match(testdataset1: Dataset, testdataset_dedupe: Dataset, resolver: Resolver[Entity]):
+def test_match(
+    testdataset1: Dataset, testdataset_dedupe: Dataset, resolver: Resolver[Entity]
+):
     crawl_dataset(testdataset_dedupe)
     data_dir = Path(mkdtemp()).resolve()
     store = get_store(testdataset_dedupe, resolver)

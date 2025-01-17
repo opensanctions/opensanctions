@@ -25,6 +25,7 @@ EPHEMERAL_WARNING = (
     " If you want deduplication to be persistent, set DATABASE_URI."
 )
 
+
 def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
     database_uri = settings.DATABASE_URI
@@ -104,7 +105,9 @@ def explode_cluster(resolver: Resolver[Entity], entity_id: str) -> None:
         log.info("Restore separate entity", entity=part_id)
 
 
-def merge_entities(resolver: Resolver[Entity], entity_ids: List[str], force: bool = False) -> str:
+def merge_entities(
+    resolver: Resolver[Entity], entity_ids: List[str], force: bool = False
+) -> str:
     """Merge multiple entities into a canonical identity. This should be really easy
     but there are cases where a negative (or "unsure") judgement has been made, and
     needs to be overridden. This is activated via the `force` flag."""
