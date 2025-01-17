@@ -21,7 +21,7 @@ def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
     alphabet_links = doc.xpath(".//div[@itemprop='articleBody']/p//a[@href]")
     # Bulgarian alphabet has 30 letters, but the name can start only with 29 of them
-    # We want to cover the latest 2 years at any time
+    # We want to cover the last 2 years at any time
     for a in alphabet_links[:58]:
         doc.make_links_absolute(context.data_url)
         link = a.get("href")
