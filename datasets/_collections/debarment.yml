@@ -33,6 +33,7 @@ children:
   - us_ddtc_debarred
   - us_de_med_exclusions
   - us_dod_chinese_milcorps
+  - us_fda_restricted
   - us_fcc_covered_list
   - us_ga_med_exclusions
   - us_hhs_exclusions
