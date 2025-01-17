@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.7.*",
-        "nomenklatura[leveldb] == 3.14.0",
+        "nomenklatura[leveldb] @ git+https://github.com/opensanctions/nomenklatura.git@jdb/db-resolver",
         "countrynames >= 1.16.5, < 2.0",
         "plyvel == 1.5.1",
         "rigour == 0.8.2",
