@@ -17,6 +17,60 @@ def parse_html_table(
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
+def crawl_row(context: Context, row: Dict[str, HtmlElement], doc: HtmlElement):
+    doc.make_links_absolute(context.data_url)
+    str_row = h.cells_to_str(row)
+    name = str_row.pop("name")
+    doc_id_date = str_row.pop("doc_id_date")
+    # Skip the header row
+    if name == "Име" and doc_id_date == "Входящ номер":
+        return
+    if len(doc_id_date.split("/")) == 2:
+        _, date = doc_id_date.split("/")
+    else:
+        date = context.lookup_value("doc_id_date", doc_id_date)
+        if date is None:
+            context.log.warning(f"Invalid doc_id_date: {doc_id_date}")
+        return
+    # Link is in the same cell as the name
+    name_link_elem = HtmlElement(row["name"]).find(".//a")
+    declaration_url = name_link_elem.get("href")
+
+    person = context.make("Person")
+    # We want the same person for 2 different years to have the same ID
+    person.id = context.make_id(name)
+    person.add("name", name, lang="bul")
+    person.add("topics", "role.pep")
+    person.add("sourceUrl", declaration_url)
+
+    position = h.make_position(
+        context,
+        name="Judiciary Official",
+        lang="bul",
+        country="BG",
+    )
+
+    categorisation = categorise(context, position, is_pep=True)
+    if not categorisation.is_pep:
+        return
+
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        no_end_implies_current=False,
+        categorisation=categorisation,
+        status=OccupancyStatus.UNKNOWN,
+    )
+    # Switch to the declarationDate once it's introduced
+    h.apply_date(occupancy, "date", date)
+
+    if occupancy is not None:
+        context.emit(position)
+        context.emit(occupancy)
+        context.emit(person)
+
+
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
     alphabet_links = doc.xpath(".//div[@itemprop='articleBody']/p//a[@href]")
@@ -33,54 +87,4 @@ def crawl(context: Context):
         assert len(table) == 1
         table = table[0]
         for row in parse_html_table(table, headers=["name", "doc_id_date"]):
-            doc.make_links_absolute(context.data_url)
-            str_row = h.cells_to_str(row)
-            name = str_row.pop("name")
-            doc_id_date = str_row.pop("doc_id_date")
-            # Skip the header row
-            if name == "Име" and doc_id_date == "Входящ номер":
-                continue
-            if len(doc_id_date.split("/")) == 2:
-                _, date = doc_id_date.split("/")
-            else:
-                date = context.lookup_value("doc_id_date", doc_id_date)
-                if date is None:
-                    context.log.warning(f"Invalid doc_id_date: {doc_id_date}")
-                continue
-            # Link is in the same cell as the name
-            name_link_elem = HtmlElement(row["name"]).find(".//a")
-            declaration_url = name_link_elem.get("href")
-
-            person = context.make("Person")
-            # We want the same person for 2 different years to have the same ID
-            person.id = context.make_id(name)
-            person.add("name", name, lang="bul")
-            person.add("topics", "role.pep")
-            person.add("sourceUrl", declaration_url)
-
-            position = h.make_position(
-                context,
-                name="Judiciary Official",
-                lang="bul",
-                country="BG",
-            )
-
-            categorisation = categorise(context, position, is_pep=True)
-            if not categorisation.is_pep:
-                return
-
-            occupancy = h.make_occupancy(
-                context,
-                person,
-                position,
-                no_end_implies_current=False,
-                categorisation=categorisation,
-                status=OccupancyStatus.UNKNOWN,
-            )
-            # Switch to the declarationDate once it's introduced
-            h.apply_date(occupancy, "date", date)
-
-            if occupancy is not None:
-                context.emit(position)
-                context.emit(occupancy)
-                context.emit(person)
+            crawl_row(context, row, doc)

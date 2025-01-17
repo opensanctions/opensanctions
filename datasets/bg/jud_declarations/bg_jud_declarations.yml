@@ -42,3 +42,21 @@ lookups:
         value: 17.05.2023
       - match: 7005.11.05.2023
         value: 11.05.2023
+  type.date:
+    options:
+      - match: 15.50.2024
+        value: 15.05.2024
+      - match: 25.03.32024
+        value: 25.03.2024
+      - match: 21.102024
+        value: 21.10.2024
+      - match: 0802.2024
+        value: 08.02.2024
+      - match: 15..05.2023
+        value: 15.05.2023
+      - match: 0310.2023
+        value: 03.10.2023
+      - match: 27.10.20.23
+        value: 27.10.2023
+      - match: 30.02.2024
+        value: null
