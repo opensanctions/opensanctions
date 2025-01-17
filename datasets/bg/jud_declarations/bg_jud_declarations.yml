@@ -1,4 +1,4 @@
-title: Bulgarian Judicial Declarations
+title: Bulgaria Judicial Declarations
 entry_point: crawler.py
 prefix: jud-declarations
 coverage:
