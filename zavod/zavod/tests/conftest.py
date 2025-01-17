@@ -135,6 +135,7 @@ def resolver() -> Generator[Resolver[Entity], None, None]:
 
 @pytest.fixture(scope="function")
 def disk_db_uri(monkeypatch) -> Generator[str, None, None]:
+    """Modifies settings.DATABASE_URI to a temporary file for the duration of the test"""
     db_file = NamedTemporaryFile(delete=False)
     db_uri = f"sqlite:///{db_file.name}"
     monkeypatch.setattr(settings, "DATABASE_URI", db_uri)

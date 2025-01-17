@@ -1,16 +1,19 @@
-from copy import deepcopy
 import shutil
+from copy import deepcopy
 
+from nomenklatura import Resolver
+from nomenklatura.db import get_metadata
 from nomenklatura.entity import CompositeEntity
 from nomenklatura.judgement import Judgement
+from sqlalchemy import MetaData, create_engine
 
 from zavod import settings
 from zavod.archive import clear_data_path
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
+from zavod.integration.dedupe import get_resolver
 from zavod.meta import Dataset
 from zavod.runner.local_enricher import LocalEnricher
-from zavod.integration import get_resolver
 from zavod.store import get_store
 
 DATASET_DATA = {
@@ -53,8 +56,12 @@ def load_enricher(context: Context, dataset_data, target_dataset: str):
     return LocalEnricher(dataset, context.cache, dataset.config)
 
 
-def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Dataset):
+def test_enrich_process(
+    testdataset1: Dataset, testdataset_enrich_subject: Dataset, disk_db_uri: str
+):
     """We match and expand an entity with a similar name"""
+    
+    resolver = get_resolver()
 
     # Make a little subject dataset
     crawl_dataset(testdataset_enrich_subject)
@@ -63,11 +70,13 @@ def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Datas
     crawl_dataset(testdataset1)
 
     # Enrich the subject against the target
-    resolver = get_resolver()
-    assert len(resolver.edges) == 0
+    resolver.begin()
+    assert len(resolver.get_edges()) == 0
+    resolver.rollback()
     enricher_ds = make_enricher_dataset(DATASET_DATA, testdataset1.name)
     crawl_dataset(enricher_ds)
 
+    resolver.begin()
     store = get_store(enricher_ds, resolver)
     store.sync(clear=True)
     internals = list(store.view(enricher_ds, external=False).entities())
@@ -78,11 +87,13 @@ def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Datas
 
     # Judge a match candidate
     canon_id = resolver.decide("osv-umbrella-corp", "xxx", Judgement.POSITIVE)
+    resolver.commit()
 
     # Enrich again, now with internals
     clear_data_path(enricher_ds.name)
     crawl_dataset(enricher_ds)
 
+    resolver.begin()
     store = get_store(enricher_ds, resolver)
     store.sync(clear=True)
     internals = list(store.view(enricher_ds, external=False).entities())
@@ -101,6 +112,7 @@ def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Datas
     owner = view.get_entity(ownership.get("owner")[0])
     assert owner.id == "osv-oswell-spencer"
 
+    resolver.rollback()
     store.close()
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 

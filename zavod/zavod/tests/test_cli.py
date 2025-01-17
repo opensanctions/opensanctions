@@ -1,17 +1,16 @@
 import shutil
-from click.testing import CliRunner
 from tempfile import NamedTemporaryFile
 
-from sqlalchemy import create_engine
-
+from click.testing import CliRunner
 from nomenklatura import Resolver
 from nomenklatura.db import get_engine, get_metadata
+from sqlalchemy import MetaData, create_engine
 
 from zavod import settings
-from zavod.meta import Dataset
-from zavod.integration import get_resolver
-from zavod.cli import cli
 from zavod.archive import dataset_state_path
+from zavod.cli import cli
+from zavod.integration import get_resolver
+from zavod.meta import Dataset
 from zavod.tests.conftest import DATASET_1_YML, DATASET_3_YML
 
 
@@ -126,13 +125,11 @@ def test_run_validation_failed(testdataset3: Dataset):
 def test_xref_dataset(testdataset1: Dataset, disk_db_uri: str):
     runner = CliRunner()
     env = {"ZAVOD_DATABASE_URI": disk_db_uri}
-    engine = create_engine(disk_db_uri)
-    metadata = get_metadata()
 
     result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()], env=env)
     assert result.exit_code == 0, result.output
 
-    resolver = Resolver(engine, metadata, True)
+    resolver = get_resolver()
     resolver.begin()
     assert len(resolver.get_edges()) == 0
     resolver.rollback()
@@ -140,7 +137,7 @@ def test_xref_dataset(testdataset1: Dataset, disk_db_uri: str):
     result = runner.invoke(cli, ["xref", "--clear", DATASET_1_YML.as_posix()], env=env)
     assert result.exit_code == 0, result.output
 
-    resolver = Resolver(engine, metadata, True)
+    resolver = get_resolver()
     resolver.begin()
     assert len(resolver.get_edges()) > 1
     resolver.rollback()
@@ -148,7 +145,7 @@ def test_xref_dataset(testdataset1: Dataset, disk_db_uri: str):
     result = runner.invoke(cli, ["resolver-prune"], env=env)
     assert result.exit_code == 0, result.output
 
-    resolver = Resolver(engine, metadata, True)
+    resolver = get_resolver()
     resolver.begin()
     assert len(resolver.get_edges()) == 0
     resolver.rollback()
