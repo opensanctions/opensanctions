@@ -3,17 +3,22 @@ entry_point: crawler.py
 prefix: jud-declarations
 coverage:
   frequency: weekly
-  start: 2025-01-16
+  start: 2025-01-17
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  A list of judges and prosecturos in Bulgaria, that are subjects to asset declarations.
+  List of judges, prosecutors, and investigators in Bulgaria who are required to submit asset 
+  declarations.
 description: |
-  Published declarations under Art. 175a, para. 1 of the JSA by judges, prosecutors and investigators.
-  The declarations are publiched by year and linked ot the person through the sourceUrl property.
+  This dataset provides a list of judges, prosecutors, and investigators in Bulgaria. Published 
+  asset declarations under Article 175a, are linked to each individual's profile.
 publisher:
-  name: Inspectorate to the Higher Court
+  name: Инспекторат към Висшия съдебен съвет
+  name_en: Inspectorate to the Supreme Judicial Council
+  acronym: ИВСС
   description: |
-    The Inspectorate to the Higher Court is an independent body that oversees the work of the judiciary in Bulgaria.
+    The Inspectorate to the Supreme Judicial Council is an independent body within Bulgaria's 
+    judiciary. Its primary function is to oversee the administrative activities of courts, 
+    prosecutors, and investigative bodies without compromising their independence.
   url: https://www.inspectoratvss.bg/en
   country: bg
   official: true
@@ -24,7 +29,6 @@ data:
 
 dates: 
   formats: ["%d.%m.%Y"]
-
 lookups: 
   doc_id_date: 
     options: 
