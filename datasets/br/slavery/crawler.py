@@ -41,7 +41,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     # Sometimes the listing date looks like this "05/10/2022 a 13/01/2023, 11/11/2024", indicating that the
     # company was removed and re-added to the list.
-    for listing_interval in row.pop("Inclusão no Cadastro de Empregadores").split(","):
+    for listing_interval in row.pop("Inclusão no Cadastro de Empregadores").split(", "):
         sanction = h.make_sanction(context, entity)
 
         listing_interval_match = LISTING_INTERVAL_RE.match(listing_interval)
