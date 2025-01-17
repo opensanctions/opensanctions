@@ -57,7 +57,7 @@ def test_enrich_process(
     testdataset1: Dataset, testdataset_enrich_subject: Dataset, disk_db_uri: str
 ):
     """We match and expand an entity with a similar name"""
-    
+
     resolver = get_resolver()
 
     # Make a little subject dataset

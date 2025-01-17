@@ -108,5 +108,5 @@ def test_delta_exporter(testdataset1: Dataset):
                 assert data["op"] == "DEL"
             if data["entity"]["id"] == "ECX":
                 assert data["op"] == "DEL"
-    
+
     resolver.commit()
