@@ -1,14 +1,19 @@
 import json
+
+from nomenklatura import Resolver
+
 from zavod import settings
+from zavod.crawl import crawl_dataset
+from zavod.entity import Entity
+from zavod.exporters import export_dataset
+from zavod.integration import get_resolver
 from zavod.meta import Dataset
 from zavod.store import get_store
-from zavod.integration import get_resolver
-from zavod.crawl import crawl_dataset
-from zavod.exporters import export_dataset
 
 
-def test_metadata_collection_export(testdataset1: Dataset, collection: Dataset) -> None:
-    resolver = get_resolver()
+def test_metadata_collection_export(
+    testdataset1: Dataset, collection: Dataset, resolver: Resolver[Entity]
+) -> None:
     ds_path = settings.DATA_PATH / "datasets" / testdataset1.name
     crawl_dataset(testdataset1)
     store = get_store(testdataset1, resolver)
