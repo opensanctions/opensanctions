@@ -1,21 +1,23 @@
+from typing import Generator
 import pytest
 import shutil
 from pathlib import Path
-from tempfile import mkdtemp, mkstemp
-from nomenklatura import settings as nk_settings
+from tempfile import NamedTemporaryFile, mkdtemp
+import os
+from nomenklatura import Resolver, settings as nk_settings
 from nomenklatura.db import get_engine
 
 from zavod import settings
 from zavod.context import Context
+from zavod.entity import Entity
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.integration import get_resolver
 
 nk_settings.TESTING = True
 settings.DATA_PATH = Path(mkdtemp()).resolve()
-settings.RESOLVER_PATH = settings.DATA_PATH.joinpath("resolver.ijson").as_posix()
 settings.ARCHIVE_BACKEND = "FileSystemBackend"
 settings.ARCHIVE_PATH = settings.DATA_PATH / "test_archive"
-settings.CACHE_DATABASE_URI = "sqlite:///:memory:"
+settings.DATABASE_URI = "sqlite:///:memory:"
 settings.OPENSANCTIONS_API_KEY = "testkey"
 settings.SYNC_POSITIONS = True
 settings.ZYTE_API_KEY = "zyte-test-key"
@@ -33,12 +35,9 @@ XML_DOC = FIXTURES_PATH / "doc.xml"
 
 @pytest.fixture(autouse=True)
 def wrap_test():
-    _, path = mkstemp(suffix=".ijson")
     shutil.rmtree(settings.ARCHIVE_PATH, ignore_errors=True)
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
     settings.DATA_PATH = Path(mkdtemp()).resolve()
-    settings.RESOLVER_PATH = path
-    get_resolver.cache_clear()
     yield
     get_catalog.cache_clear()
     get_engine.cache_clear()
@@ -124,3 +123,21 @@ def collection(testdataset1) -> Dataset:
     ds = load_dataset_from_path(COLLECTION_YML)
     assert ds is not None, "Failed to load collection dataset"
     return ds
+
+
+@pytest.fixture(scope="function")
+def resolver() -> Generator[Resolver[Entity], None, None]:
+    resolver = get_resolver()
+    resolver.begin()
+    yield resolver
+    resolver.rollback()
+
+
+@pytest.fixture(scope="function")
+def disk_db_uri(monkeypatch) -> Generator[str, None, None]:
+    """Modifies settings.DATABASE_URI to a temporary file for the duration of the test"""
+    db_file = NamedTemporaryFile(delete=False)
+    db_uri = f"sqlite:///{db_file.name}"
+    monkeypatch.setattr(settings, "DATABASE_URI", db_uri)
+    yield db_uri
+    os.unlink(db_file.name)

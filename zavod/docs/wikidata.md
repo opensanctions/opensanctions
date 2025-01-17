@@ -33,6 +33,9 @@ with possible actions is loaded.
 
 ### Running zavod `wd-up`
 
+!!! info ""
+    Pronounced "wud up!"
+
 In addition to basic zavod setup, the following environment variables:
 
 

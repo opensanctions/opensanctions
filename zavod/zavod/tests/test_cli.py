@@ -1,11 +1,12 @@
 import shutil
+
 from click.testing import CliRunner
 
 from zavod import settings
-from zavod.meta import Dataset
-from zavod.integration import get_resolver
-from zavod.cli import cli
 from zavod.archive import dataset_state_path
+from zavod.cli import cli
+from zavod.integration import get_resolver
+from zavod.meta import Dataset
 from zavod.tests.conftest import DATASET_1_YML, DATASET_3_YML
 
 
@@ -117,24 +118,30 @@ def test_run_validation_failed(testdataset3: Dataset):
     shutil.rmtree(settings.DATA_PATH)
 
 
-def test_xref_dataset(testdataset1: Dataset):
+def test_xref_dataset(testdataset1: Dataset, disk_db_uri: str):
     runner = CliRunner()
-    result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()])
+    env = {"ZAVOD_DATABASE_URI": disk_db_uri}
+
+    result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()], env=env)
     assert result.exit_code == 0, result.output
 
     resolver = get_resolver()
-    assert len(resolver.edges) == 0
+    resolver.begin()
+    assert len(resolver.get_edges()) == 0
+    resolver.rollback()
 
-    result = runner.invoke(cli, ["xref", "--clear", DATASET_1_YML.as_posix()])
+    result = runner.invoke(cli, ["xref", "--clear", DATASET_1_YML.as_posix()], env=env)
     assert result.exit_code == 0, result.output
 
-    get_resolver.cache_clear()
     resolver = get_resolver()
-    assert len(resolver.edges) > 1
+    resolver.begin()
+    assert len(resolver.get_edges()) > 1
+    resolver.rollback()
 
-    result = runner.invoke(cli, ["resolver-prune"])
+    result = runner.invoke(cli, ["resolver-prune"], env=env)
     assert result.exit_code == 0, result.output
 
-    get_resolver.cache_clear()
     resolver = get_resolver()
-    assert len(resolver.edges) == 0
+    resolver.begin()
+    assert len(resolver.get_edges()) == 0
+    resolver.rollback()
