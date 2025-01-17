@@ -1,11 +1,9 @@
 from typing import Generator
 
-from nomenklatura import Resolver
 from nomenklatura.enrich import Enricher
 from nomenklatura.entity import CE
 from nomenklatura.judgement import Judgement
 from normality import slugify
-from sqlalchemy import MetaData, create_engine
 
 from zavod.archive import iter_dataset_statements
 from zavod.crawl import crawl_dataset

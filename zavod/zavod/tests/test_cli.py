@@ -1,10 +1,6 @@
 import shutil
-from tempfile import NamedTemporaryFile
 
 from click.testing import CliRunner
-from nomenklatura import Resolver
-from nomenklatura.db import get_engine, get_metadata
-from sqlalchemy import MetaData, create_engine
 
 from zavod import settings
 from zavod.archive import dataset_state_path
