@@ -9,6 +9,7 @@ summary: >
   A list of judges and prosecturos in Bulgaria, that are subjects to asset declarations.
 description: |
   Published declarations under Art. 175a, para. 1 of the JSA by judges, prosecutors and investigators.
+  The declarations are publiched by year and linked ot the person through the sourceUrl property.
 publisher:
   name: Inspectorate to the Higher Court
   description: |
@@ -23,3 +24,17 @@ data:
 
 dates: 
   formats: ["%d.%m.%Y"]
+
+lookups: 
+  doc_id_date: 
+    options: 
+      - match: 2340//15.03.2024
+        value: 15.03.2024
+      - match: 6978//10.05.2024
+        value: 10.05.2024
+      - match: 21767/24/07.2023
+        value: 24.07.2023
+      - match:  9616.17.05.2023
+        value: 17.05.2023
+      - match: 7005.11.05.2023
+        value: 11.05.2023
