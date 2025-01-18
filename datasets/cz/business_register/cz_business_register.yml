@@ -7,7 +7,8 @@ coverage:
   frequency: weekly
   start: 2023-03-21
 deploy:
-  disk: 30Gi
+  disk: 100Gi
+  disk_limit: 200Gi
   premium: true
   memory: 4Gi
 exports:
