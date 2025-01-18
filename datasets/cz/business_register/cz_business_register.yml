@@ -9,8 +9,8 @@ coverage:
 deploy:
   disk: 100Gi
   disk_limit: 200Gi
-  premium: true
   memory: 4Gi
+  # premium: true
 exports:
   - statistics.json
   - entities.ftm.json
