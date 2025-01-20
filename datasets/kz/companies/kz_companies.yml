@@ -10,7 +10,7 @@ exports:
   - statistics.json
   - entities.ftm.json
 deploy:
-  premium: true
+  # premium: true
   memory: 2500Mi
 resolve: false
 ci_test: false
