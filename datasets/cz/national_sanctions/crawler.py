@@ -1,7 +1,7 @@
 import csv
 import io
 import re
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from rigour.mime.types import CSV
 from normality import slugify
 from rigour.names import pick_name
@@ -9,11 +9,21 @@ from rigour.names import pick_name
 from zavod import Context, helpers as h
 
 
+# The entire string is mostly question marks, with perhaps a space or hyphen in there.
+REGEX_ENCODING_MISHAP = re.compile(r"^[\? -]+$")
+
+
+def clean_names(names: List[str]) -> List[str]:
+    return [name for name in names if not REGEX_ENCODING_MISHAP.match(name)]
+
+
 def crawl_item(row: Dict[str, str], context: Context):
     # Jméno fyzické osoby
     # -> First name of the natural person
     first_field = row.pop("jmeno_fyzicke_osoby", "").strip('"').strip()
-    first_names = first_field.split("/")
+    # Cleaning here rather than via type.string lookup because we assemble full
+    # names from these.
+    first_names = clean_names(first_field.split("/"))
 
     # Příjmení fyzické osoby / Název právnické osoby / Označení nebo název entity
     # -> Last name of the natural person / Name of the legal entity / Designation or name of the entity
@@ -36,7 +46,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         else:
             names = res.names
     else:
-        names = name.split("/")
+        names = clean_names(name.split("/"))
 
     # Datum narození fyzické osoby
     # -> Date of birth of the natural person
