@@ -651,9 +651,6 @@ lookups:
           - Ligurian Republic
           - Genoese Republic
           - Yemeni Zaidi State
-          - Saxe-Weimar-Eisenach
-          - Grand Duchy of Hesse
-          - Kurdistan Region
         value: null
       - match:
           - Cherokee Nation
@@ -806,6 +803,8 @@ lookups:
           - Kingdom of Bavaria
           - Kingdom of Württemberg
           - Electorate of Saxony
+          - Saxe-Weimar-Eisenach
+          - Grand Duchy of Hesse
         value: DE
       - match: British Honduras
         value: BZ
@@ -893,6 +892,7 @@ lookups:
         value: HR
       - contains:
           - Ba'athist Iraq
+          - Kurdistan Region
         value: Iraq
       - match:
           - First Republic of Armenia
