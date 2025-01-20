@@ -448,7 +448,7 @@ def crawl(context: Context):
     )
     assert len(section_links_section) == 1, section_links_section
     h.assert_dom_hash(
-        section_links_section[0], "4d5f0556d30ae7a7b361de314d9606ff8cfbf674"
+        section_links_section[0], "d000a7c82a3d79c9b245298cd02d0139a0e06610"
     )
 
     # Has the API link been updated to point to the previously-nonexistent API page?
