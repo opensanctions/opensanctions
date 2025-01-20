@@ -50,7 +50,7 @@ def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
     log.info("Loading linker from: %r" % resolver)
     resolver.begin()
     linker = resolver.get_linker()
-    resolver.commit()
+    resolver.rollback()
     return linker
 
 
