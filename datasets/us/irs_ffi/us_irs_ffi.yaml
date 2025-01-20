@@ -2,7 +2,7 @@ title: US FATCA Foreign Financial Institution (FFI) List
 entry_point: crawler.py
 prefix: fatca
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: "2024-11-11"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 resolve: false
