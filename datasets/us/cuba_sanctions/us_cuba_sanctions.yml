@@ -9,13 +9,20 @@ deploy:
   schedule: "0 6 * * 1"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Several lists of Cuban companies and hotels that are blocked by the US State 
+  Several lists of Cuban hotels that are blocked by the US State 
   Department separately from the sanctions lists maintained by the Treasury.
 description: |
-  This includes:
+  This dataset includes the **Cuba Prohibited Accommodations List**, which identifies Cuban 
+  hotels blocked by the US State Department.  
 
   * [Cuba Prohibited Accommodations List](https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list/cuba-prohibited-accommodations-list-initial-publication/)
-  * [List of Restricted Entities and Subentities Associated With Cuba](https://www.state.gov/cuba-restricted-list/list-of-restricted-entities-and-subentities-associated-with-cuba-effective-january-8-2021/)
+
+  Previously, it also included the **List of Restricted Entities and Subentities Associated With Cuba** 
+  ("Cuba Restricted List"). However, on January 14, 2025, the President directed the rescission of 
+  this list, developed under Section 3(a)(i) of **National Security Presidential Memorandum 5 (NSPM-5)**. 
+  The Secretary of State rescinded the list on **January 16, 2025**.  
+  [Rescission of the List of Restricted Entities and Subentities Associated With Cuba](https://www.federalregister.gov/public-inspection/2025-01556/rescission-of-the-list-of-restricted-entities-and-subentities-associated-with-cuba).
+
 publisher:
   name: US State Department
   acronym: State
