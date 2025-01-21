@@ -39,4 +39,5 @@ lookups:
           - UTPĮ 133 str. 4 d.,
           - UTPĮ 133 str. 5 d. nustatytas uždraudimo atvykti pagrindas  # Grounds for refusal of entry laid down in Article 133(5) of the UTPA
           - užsienietis gali kelti grėsmę valstybės saugumui  # the foreigner may pose a threat to national security
+          - Kitos  # Other
         value: null

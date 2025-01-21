@@ -808,7 +808,9 @@ lookups:
         value: DE
       - match: British Honduras
         value: BZ
-      - match: Provisional People's Committee for North Korea
+      - match: 
+          - Provisional People's Committee for North Korea
+          - People's Committee of North Korea
         value: North Korea
       - match:
           - Kingdom of Egypt
