@@ -24,7 +24,9 @@ def crawl_row(context: Context, row: list) -> None:
     entity.add("address", row.pop("address"))
     entity.add("status", row.pop("status"))
     if email != "NULL":
-        entity.add("email", email)
+        for email in h.multi_split(email, [";", ","]):
+            email = email.replace(" ", "").strip()
+            entity.add("email", email)
     context.emit(entity)
 
     if director != "NULL":
@@ -137,5 +139,5 @@ def crawl(context: Context) -> None:
             dict_reader = csv.DictReader(fh, fieldnames=header_mapping, delimiter=";")
             for index, row in enumerate(dict_reader):
                 crawl_row(context, row)
-                if index >= 1000:
+                if index >= 100000:
                     break
