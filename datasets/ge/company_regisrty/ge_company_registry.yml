@@ -1,0 +1,28 @@
+
+title: Georgian Company Registry
+entry_point: crawler.py
+prefix: ge-company-registry
+coverage:
+  frequency: weekly
+  start: 2024-01-20
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >-
+  List of companies registered in Georgia
+description: |
+  The Georgian Company Registry is a list of companies registered in
+  Georgia.
+url: 
+data:
+  url: https://enreg.reestri.gov.ge/main.php?m=new_index
+  format: HTML
+  lang: kat
+publisher:
+  name: TI Georgia
+  country: ge
+  url: https://transparency.ge/en
+  description: |
+    Transparency International Georgia (TI Georgia) is a non-governmental
+    organization that works to reduce corruption and promote transparency,
+    accountability, and integrity in Georgia.  It is a member of the global
+    Transparency International movement.
+  official: false
