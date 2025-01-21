@@ -1,4 +1,3 @@
-
 title: Georgian Company Registry
 entry_point: crawler.py
 prefix: ge-company-registry
