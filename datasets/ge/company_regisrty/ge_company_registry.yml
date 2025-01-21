@@ -77,3 +77,37 @@ lookups:
       - match:
           - 16. პარტნიორის კომპანიასთან კავშირის საწყისი თარიღი
         value: partner_start_date
+  type.country: 
+    options: 
+      - match: 
+          - რუსეთისფედერაცია
+          - რუსეთის ფედერაცია
+        value: RU
+      - match: ჩეხეთისრესპუბლიკა
+        value: CZ
+      - match: აშშ
+        value: US
+      # - match: 
+      #     - ირანი (ისლამური რესპუბლიკა)
+      #     - ირანი (ისლამურირესპუბლიკა)
+      #     - ირანი(ისლამური რესპუბლიკა)
+        # value: IR
+      - contains: ირანი
+        value: IR
+      - match: კოტდივუარი
+        value: CI
+      - match: 
+          - კორეის რესპუბლიკა
+        value: KR
+      - match: სენტკიტსი და ნევისი
+        value: KN
+      - match: საუდის არაბეთის სამეფო
+        value: SA
+      - match: სამხრეთ აფრიკა
+        value: ZA
+      - contains: სირიის
+        value: SY
+      - match: არაბთა გაერთიანებული საემიროები
+        value: AE
+      - match: შრილანკა
+        value: LK
