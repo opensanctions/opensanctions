@@ -103,7 +103,9 @@ lookups:
         value: KN
       - match: საუდის არაბეთის სამეფო
         value: SA
-      - match: სამხრეთ აფრიკა
+      - match: 
+        - სამხრეთ აფრიკა
+        - სამხრეთაფრიკა
         value: ZA
       - contains: სირიის
         value: SY
@@ -111,3 +113,5 @@ lookups:
         value: AE
       - match: შრილანკა
         value: LK
+      - match: ვირჯინიის კუნძულები (ბრიტ )
+        value: VG
