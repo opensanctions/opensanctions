@@ -123,7 +123,6 @@ def categorise(
     return categorisation
 
 
-@cache
 def backdate(date: datetime, days: int) -> str:
     """Return a partial ISO8601 date string backdated by the number of days provided"""
     dt = date - timedelta(days=days)
