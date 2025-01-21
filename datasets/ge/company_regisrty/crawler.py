@@ -3,14 +3,24 @@ from normality.cleaning import collapse_spaces
 
 from zavod import Context, helpers as h
 from zavod.shed.internal_data import fetch_internal_data, list_internal_data
+from followthemoney.types import registry
+
+LEGAL_FORMS = {
+    "ეზღუდული პასუხისმგებლობის საზოგადოება",
+    "კოოპერატივი",
+    "უცხოური არასამეწარმეო იურიდიული პირის ფილიალი",
+    "უცხოური საწარმოს ფილიალი",
+    "სააქციო საზოგადოება",
+    "საჯარო სამართლის იურიდიული პირი",
+    "სოლიდარული პასუხისმგებლობის საზოგადოება",
+    "კომანდიტური საზოგადოება",
+}
 
 
 def crawl_row(context: Context, row: list) -> None:
     id = row.pop("id")
     name = row.pop("name")
     legal_form = row.pop("legal_form")
-    if legal_form != "შეზღუდული პასუხისმგებლობის საზოგადოება":
-        context.log.warning("Unknown company type", legal_form=legal_form)
     reg_date = row.pop("registration_date")
     email = row.pop("email")
     director = row.pop("director")
@@ -23,10 +33,12 @@ def crawl_row(context: Context, row: list) -> None:
     entity.add("incorporationDate", reg_date)
     entity.add("address", row.pop("address"))
     entity.add("status", row.pop("status"))
-    if email != "NULL":
-        for email in h.multi_split(email, [";", ","]):
-            email = email.replace(" ", "").strip()
-            entity.add("email", email)
+    email_clean = registry.email.clean(email)
+    if email_clean is not None:
+        if email != "NULL":
+            for email in h.multi_split(email, [";", ","]):
+                email = email.replace(" ", "").strip()
+                entity.add("email", email)
     context.emit(entity)
 
     if director != "NULL":
@@ -139,5 +151,5 @@ def crawl(context: Context) -> None:
             dict_reader = csv.DictReader(fh, fieldnames=header_mapping, delimiter=";")
             for index, row in enumerate(dict_reader):
                 crawl_row(context, row)
-                if index >= 100000:
-                    break
+                # if index >= 100000:
+                #     break
