@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional, List
 from datetime import datetime, timedelta
-from functools import cache, lru_cache
+from functools import lru_cache
 
 from zavod.context import Context
 from zavod import settings
