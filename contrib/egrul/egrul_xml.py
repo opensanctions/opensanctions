@@ -1,0 +1,528 @@
+import functools
+import re
+from datetime import date
+from typing import Optional, List, Dict, IO, Tuple
+
+from lxml import etree
+from lxml.etree import _Element as Element
+
+from address import parse_address
+from zavod import Context
+from zavod import helpers as h
+
+AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
+
+
+def parse_name(name: Optional[str]) -> List[str]:
+    """
+    A simple rule-based parser for names, which can contain aliases in parentheses.
+    Args:
+        name: The name to parse.
+    Returns:
+        A list of names.
+    """
+    if name is None:
+        return []
+    names: List[str] = []
+    if name.endswith(")"):
+        parts = name.rsplit("(", 1)
+        if len(parts) == 2:
+            name = parts[0].strip()
+            alias = parts[1].strip(")").strip()
+            names.append(alias)
+    names.append(name)
+    return names
+
+
+@functools.cache
+def get_abbreviations(context) -> AbbreviationList:
+    """
+    Load abbreviations and compile regex patterns from the YAML config.
+    Returns:
+    AbbreviationList: A list of tuples containing canonical abbreviations
+    and their compiled regex patterns for substitution.
+    """
+    types = context.dataset.config.get("organizational_types")
+    abbreviations = []
+    for canonical, phrases in types.items():
+        # we want to match the whole word and allow for ["] or ['] at the beginning
+        for phrase in phrases:
+            phrase_pattern = rf"^[ \"']?{re.escape(phrase)}"
+
+            compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
+            # Append the canonical form, compiled regex pattern, and phrase to the list
+            abbreviations.append((canonical, compiled_pattern, phrase))
+    # Reverse-sort by length so that the most specific phrase would match first.
+    abbreviations.sort(key=lambda x: len(x[2]), reverse=True)
+    return abbreviations
+
+
+def substitute_abbreviations(
+    context: Context, name: Optional[str]) -> Optional[str]:
+    """
+    Substitute organisation type in the name with its abbreviation
+    using the compiled regex patterns.
+
+    :param name: The input name where abbreviations should be substituted.
+    :return: The name shorted if possible, otherwise the original
+    """
+    if name is None:
+        return None
+    # Iterate over all abbreviation groups
+    for canonical, regex, phrases in get_abbreviations(context):
+        modified_name = regex.sub(canonical, name)
+        if modified_name != name:
+            return modified_name
+    # If no match, return the original name
+    return name
+
+
+def entity_id(
+    context: Context,
+    name: Optional[str] = None,
+    inn: Optional[str] = None,
+    ogrn: Optional[str] = None,
+    local_id: Optional[str] = None,
+) -> Optional[str]:
+    """
+    Generate an entity ID from the given parameters.
+    The priorities are: INN, OGRN, local_id/name.
+
+    Args:
+        context: The processing context.
+        name: The name of the entity.
+        inn: The INN of the entity.
+        ogrn: The OGRN of the entity.
+        local_id: A local ID for the entity.
+    Returns:
+        The entity ID or None.
+    """
+    if inn is not None:
+        return context.make_slug("inn", inn)
+    if ogrn is not None:
+        return context.make_slug("ogrn", ogrn)
+    if name is not None:
+        return context.make_id(local_id, name)
+    return None
+
+
+def make_person(
+    context: Context, el: Element, local_id: Optional[str]
+) -> Optional[Dict[str, str]]:
+    """
+    Parse a person from the XML element.
+    Args:
+        context: The processing context.
+        el: The XML element.
+        local_id: A local ID for the entity.
+    Returns:
+        A dictionary representing the person entity or None.
+    """
+
+    name_el = el.find(".//СвФЛ")
+    if name_el is None:
+        return None
+    last_name = name_el.get("Фамилия")
+    first_name = name_el.get("Имя")
+    patronymic = name_el.get("Отчество")
+    inn_code = name_el.get("ИННФЛ")
+
+    countries = []
+    country = el.find("./СвГраждФЛ")
+    if country is not None:
+        if country.get("КодГражд") == "1":
+            countries.append("ru")
+        # TODO: Is the else here true?
+        else:
+            countries.append(country.get("НаимСтран"))
+
+    name = h.make_name(
+        first_name=first_name, patronymic=patronymic, last_name=last_name
+    )
+    return {
+        "id": entity_id(context, name, inn_code, local_id=local_id),
+        "schema": "Person",
+        "seen_date": context.data_time.date(),
+        "name": name,
+        "first_name": first_name,
+        "last_name": last_name,
+        "father_name": patronymic,
+        "inn_code": inn_code,
+        "countries": countries
+    }
+
+def make_org(context: Context, el: Element, local_id: Optional[str]) -> Optional[Dict[str, str]]:
+    """
+    Parse an organization from the XML element.
+    Args:
+        context: The processing context.
+        el: The XML element.
+        local_id: A local ID for the entity.
+    Returns:
+        A dictionary representing the organization entity or None.
+    """
+    org = {
+        "seen_date": context.data_time.date(),
+        "schema": "Organization",
+    }
+
+    name_el = el.find("./НаимИННЮЛ")
+    if name_el is not None:
+        name = name_el.get("НаимЮЛПолн")
+        inn = name_el.get("ИНН")
+        ogrn = name_el.get("ОГРН")
+        org["id"] = entity_id(context, name, inn, ogrn, local_id)
+        org["name"] = parse_name(name)
+        org["inn_code"] = inn
+        org["ogrn_code"] = ogrn
+
+    name_latin_el = el.find("./СвНаимЮЛПолнИн")
+    if name_latin_el is not None:
+        name_latin = name_latin_el.get("НаимПолн")
+        org["id"] = entity_id(context, name=name_latin, local_id=local_id)
+        org["name_latin"] = name_latin
+
+    foreign_reg_el = el.find("./СвРегИн")
+    if foreign_reg_el is not None:
+        org["jurisdiction"] = foreign_reg_el.get("На��мСтран")
+        org["registration_number"] = foreign_reg_el.get("РегНомер")
+        org["publisher"] = foreign_reg_el.get("НаимРегОрг")
+        org["addresses"] = [foreign_reg_el.get("АдрСтр")]
+
+    return org
+
+
+def make_owner(context: Context, company: dict, el: Element) -> Optional[dict]:
+    meta = el.find("./ГРНДатаПерв")
+    owner = None
+    owner_union = {
+        "person": None,
+        "legal_entity": None,
+    }
+
+    local_id = company["id"]
+    if meta is not None:
+        local_id = meta.get("ГРН") or local_id
+    link_summary: Optional[str] = None
+    link_date: Optional[str] = None
+    link_record_id: Optional[str] = None
+
+    if el.tag == "УчрФЛ":  # Individual founder
+        owner = make_person(context, el, local_id)
+        owner_union["person"] = owner
+    elif el.tag == "УчрЮЛИн":  # Foreign company
+        owner = make_org(context, el, local_id)
+        owner_union["legal_entity"] = owner
+    elif el.tag == "УчрЮЛРос":  # Russian legal entity
+        owner = make_org(context, el, local_id)
+        owner_union["legal_entity"] = owner
+    elif el.tag == "УчрПИФ":  # Mutual investment fund
+        # TODO: nested ownership structure, make Security
+        # owner = context.make("Security")
+        # FIXME: Security cannot own.
+        fund_name_el = el.find("./СвНаимПИФ")
+        if fund_name_el is not None:
+            # owner.add("name", fund_name_el.get("НаимПИФ"))
+            link_summary = fund_name_el.get("НаимПИФ")
+
+        manager_el = el.find("./СвУпрКомпПИФ/УпрКомпПиф")
+        if manager_el is not None:
+            name = manager_el.get("НаимЮЛПолн")
+            inn = manager_el.get("ИНН")
+            ogrn = manager_el.get("ОГРН")
+            owner = {
+                "seen_date": context.data_time.date(),
+                "schema": "LegalEntity",
+            }
+            owner_union["legal_entity"] = owner
+            owner["id"] = entity_id(context, name, inn, ogrn, local_id)
+            owner["name"] = parse_name(name)
+            owner["inn_code"] = inn
+            owner["ogrn_code"] = ogrn
+    elif el.tag == "УчрРФСубМО":  # Russian public body
+        pb_name_el = el.find("./ВидНаимУчр")
+        if pb_name_el is not None:
+            # Name of the owning authority
+            pb_name = pb_name_el.get("НаимМО")
+            pb_code = pb_name_el.get("КодУчрРФСубМО")
+            pb_region = pb_name_el.get("НаимРегион")
+            if pb_code == "1":
+                pb_region = "Российская Федерация"
+
+            owner = {
+                "seen_date": context.data_time.date(),
+                "schema": "PublicBody",
+            }
+            owner_union["legal_entity"] = owner
+
+            if pb_name is not None:
+                owner["id"] = entity_id(context, name=pb_name, local_id=local_id)
+                owner["name"] = pb_name
+            else:
+                # to @pudo: I'm using local_id==state here to glue together the regions
+                # let me know if you want me to switch it to local_id
+                owner["id"] = entity_id(context, name=pb_region, local_id="state")
+                owner["name"] = pb_region
+
+        # managing body:
+        pb_el = el.find("./СвОргОсущПр")
+        if pb_el is not None:
+            owner = make_org(context, pb_el, local_id)
+            owner_union["legal_entity"] = owner
+    elif el.tag == "УчрДогИнвТов":  # investment partnership agreement.
+        # FIXME: should the partnership be its own entity?
+        terms_el = el.find("./ИнПрДогИнвТов")
+        if terms_el is not None:
+            link_summary = terms_el.get("НаимДог")
+            link_record_id = terms_el.get("НомерДог")
+            link_date = terms_el.get("Дата")
+
+        # managing vehicle
+        manager_el = el.find("./СвУпТовЮЛ")
+        if manager_el is not None:
+            name = manager_el.get("НаимЮЛПолн")
+            inn = manager_el.get("ИНН")
+            ogrn = manager_el.get("ОГРН")
+            owner = {
+                "seen_date": context.data_time.date(),
+                "schema": "LegalEntity",
+            }
+            owner_union["legal_entity"] = owner
+            owner["id"] = entity_id(context, name, inn, ogrn, local_id)
+            owner["name"] = parse_name(name)
+            owner["inn_code"] = inn
+            owner["ogrn_code"] = ogrn
+    elif el.tag == "УчрРФСубМО":
+        # Skip municipal ownership
+        return None
+    else:
+        context.log.warn("Unknown owner type", tag=el.tag)
+        return None
+
+    if owner is None or owner.get("id") is None:
+        context.log.warning(
+            "No ID for ownership of company %s, skipping Ownership" % company["id"], el=el, owner=owner
+        )
+        return None
+
+    ownership = {
+        "seen_date": context.data_time.date(),
+        "date": date.fromisoformat(str(link_date)) if link_date else None,
+        "record_id": link_record_id,
+        "summary_1": link_summary
+    }
+
+    if company.get("dissolution_date"):
+        ownership["end_date"] = company["dissolution_date"]
+
+    meta = el.find("./ГРНДатаПерв")
+    if meta is not None:
+        start_date = meta.get("ДатаЗаписи")
+        ownership["start_date"] = date.fromisoformat(start_date) if start_date else None
+
+    ownership["role"] = el.tag
+    ownership["owner"] = owner_union
+    ownership["asset_id"] = company["id"]
+
+    share_el = el.find("./ДоляУстКап")
+    if share_el is not None:
+        ownership["shares_count"] = share_el.get("НоминСтоим")
+        percent_el = share_el.find("./РазмерДоли/Процент")
+        if percent_el is not None:
+            ownership["percentage"] = percent_el.text
+
+    # NOTE(Leon Handreke): Here we re-key (vs. the old crawler) to detect changes in ownership structure
+    # The previous key did not contain shares_count and role
+    ownership["id"] = context.make_id(company["id"], owner["id"], ownership.get("shares_count"), ownership["role"])
+
+    reliable_el = el.find("./СвНедДанУчр")
+    if reliable_el is not None:
+        ownership["summary_2"] = reliable_el.get("ТекстНедДанУчр")
+
+    return ownership
+
+
+def make_directorship(context: Context, company: dict, el: Element) -> Optional[Dict[str, str]]:
+    """
+    Parse a directorship from the XML element.
+    Args:
+        context: The processing context.
+        company: The company entity.
+        el: The XML element.
+    Returns:
+        A dictionary representing the directorship entity or None.
+    """
+    director = make_person(context, el, company["id"])
+    if director is None:
+        context.log.warn("Directorship has no person", company=company["id"])
+        return None
+
+    role = el.find("./СвДолжн")
+    if role is None:
+        context.log.warn("Directorship has no role", tag=el)
+        return None
+
+    directorship = {
+        "id": context.make_id(company["id"], director["id"], role.get("ВидДолжн")),
+        "seen_date": context.data_time.date(),
+        "role": role.get("НаимДолжн"),
+        "summary": role.get("НаимВидДолжн"),
+        "director": director,
+        "organization_id": company["id"],
+    }
+    start_date_el = role.find("./ГРНДатаПерв")
+    if start_date_el is not None:
+        directorship["start_date"] = date.fromisoformat(start_date_el.find("./ГРНДатаПерв").get("ДатаЗаписи"))
+
+    return directorship
+
+def build_successor_predecessor(
+    context: Context, other_entity: dict, el: Element
+) -> Optional[dict]:
+    name = el.get("НаимЮЛПолн")
+    name_short = substitute_abbreviations(context, name)
+    inn = el.get("ИНН")
+    ogrn = el.get("ОГРН")
+    successor_id = entity_id(
+        context,
+        name=name,
+        inn=inn,
+        ogrn=ogrn,
+    )
+    if successor_id is not None:
+        entity = {
+            "schema": "Company",
+            "seen_date": context.data_time.date(),
+            "id": successor_id, "name": name_short, "inn_code": inn, "ogrn_code": ogrn,
+        }
+
+        if not entity["ogrn_code"]:
+            entity["ogrn_code"] = other_entity.get("ogrn_code")
+        if not entity["inn_code"]:
+            entity["inn_code"] = other_entity.get("inn_code")
+        return entity
+
+def parse_company(context: Context, el: Element) -> dict:
+    company = {
+        "schema": "Company",
+        "seen_date": context.data_time.date()
+    }
+    inn = el.get("ИНН")
+    ogrn = el.get("ОГРН")
+    name_full: Optional[str] = None
+    name_short: Optional[str] = None
+
+    for name_el in el.findall("./СвНаимЮЛ"):
+        name_full = name_el.get("НаимЮЛПолн")
+        name_short = name_el.get("НаимЮЛСокр")
+        name_full_short = substitute_abbreviations(context, name_full)
+        name_short_shortened = substitute_abbreviations(context, name_short)
+
+    name = name_full or name_short_shortened
+    company["id"] = entity_id(context, name=name, inn=inn, ogrn=ogrn)
+    company["jurisdiction"] = "ru"
+    company["name_full"] = name_full_short
+    company["name_short"] = name_short_shortened
+    company["ogrn_code"] = ogrn
+    company["inn_code"] = inn
+    company["kpp_code"] = el.get("КПП")
+    company["legal_form"] = el.get("ПолнНаимОПФ")
+    incorporation_date = el.get("ДатаОГРН")
+    company["incorporation_date"] = date.fromisoformat(incorporation_date) if incorporation_date else None
+
+    for term_el in el.findall("./СвПрекрЮЛ"):
+        dissolution_date = term_el.get("ДатаПрекрЮЛ")
+        company["dissolution_date"] = date.fromisoformat(dissolution_date) if dissolution_date else None
+
+    email_el = el.find("./СвАдрЭлПочты")
+    if email_el is not None:
+        company["email"] = email_el.get("E-mail")
+
+    citizen_el = el.find("./СвГражд")
+    if citizen_el is not None:
+        company["country"] = citizen_el.get("НаимСтран")
+
+    for addr_el in el.findall("./СвАдресЮЛ/*"):
+        if "addresses" not in company:
+            company["addresses"] = []
+        addr = parse_address(context, addr_el)
+        if addr is not None:
+            company["addresses"].append(addr)
+
+    directorships = []
+    # prokura or directors etc.
+    for director in el.findall("./СведДолжнФЛ"):
+        directorship = make_directorship(context, company, director)
+        if directorship:
+            directorships.append(directorship)
+
+    ownerships = []
+    for founder in el.findall("./СвУчредит/*"):
+        ownership_result = make_owner(context, company, founder)
+        if ownership_result:
+            ownerships.append(ownership_result)
+
+    successions = []
+    for successor_el in el.findall("./СвПреем"):
+        succ_entity = build_successor_predecessor(context, company, successor_el)
+        if succ_entity is not None:
+            succ = {
+                "id": context.make_id(company["id"], "successor", succ_entity["id"]),
+                "seen_date": context.data_time.date(),
+                "successor": succ_entity,
+                "predecessor_id": company["id"],
+                "successor_id": succ_entity["id"],
+            }
+            successions.append(succ)
+
+    for predecessor_el in el.findall("./СвПредш"):
+        pred_entity = build_successor_predecessor(context, company, predecessor_el)
+        if pred_entity is not None:
+            pred = {
+                "id": context.make_id(company["id"], "predecessor", pred_entity["id"]),
+                "seen_date": context.data_time.date(),
+                "predecessor": pred_entity,
+                "predecessor_id": pred_entity["id"],
+                "successor_id": company["id"],
+            }
+            successions.append(pred)
+
+    return {
+        "id": company["id"],
+        "legal_entity": company,
+        "directorships": directorships,
+        "ownerships": ownerships,
+        "successions": successions,
+    }
+
+
+def parse_sole_trader(context: Context, el: Element) -> Optional[dict]:
+    inn = el.get("ИННФЛ")
+    ogrn = el.get("ОГРНИП")
+    t = {
+        "schema": "LegalEntity",
+        "id": entity_id(context, inn=inn, ogrn=ogrn),
+        "seen_date": context.data_time.date(),
+        "country": "ru",
+        "ogrn_code": ogrn,
+        "inn_code": inn,
+        "legal_form": el.get("НаимВидИП"),
+    }
+    if t["id"] is None:
+        context.log.warn("No ID for sole trader")
+        return None
+    return {
+        "id": t["id"],
+        "legal_entity": t
+    }
+
+def parse_xml(context: Context, handle: IO[bytes]):
+    doc = etree.parse(handle)
+    for el in doc.findall(".//СвЮЛ"):
+        res = parse_company(context, el)
+        if res is not None:
+            yield res
+    for el in doc.findall(".//СвИП"):
+        res = parse_sole_trader(context, el)
+        if res is not None:
+            yield res

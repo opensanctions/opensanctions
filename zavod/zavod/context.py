@@ -125,7 +125,8 @@ class Context:
     def data_time(self, value: datetime) -> None:
         """Modify the data time."""
         self._data_time = value
-        del self.data_time_iso
+        if hasattr(self, "data_time_iso"):
+            del self.data_time_iso
 
     @cached_property
     def data_time_iso(self) -> str:
