@@ -26,3 +26,55 @@ publisher:
     accountability, and integrity in Georgia.  It is a member of the global
     Transparency International movement.
   official: false
+
+lookups:
+  columns:
+    options:
+      - match:
+          - 1. საიდენტიფიკაციო ნომერი
+        value: id
+      - match:
+          - 2. დასახელება
+        value: name
+      - match: 
+          - 3. სამართლებრივი ფორმა
+        value: legal_form
+      - match:
+          - 4. რეგისტრაციის თარიღი
+        value: registration_date
+      - match:
+          - 5. მისამართი
+        value: address
+      - match:
+          - 6. ელ-ფოსტა
+        value: email
+      - match:
+          - 7. სტატუსი
+        value: status
+      - match:
+          - 8. ხელმძღვანელი
+        value: director
+      - match:
+          - 9. დირექტორის პ/ნ
+        value: director_id
+      - match:
+          - 10. დირექტორის მოქალაქეობა
+        value: director_citizenship
+      - match:
+          - 11. დირექტორის კომპანიასთან კავშირის საწყისი თარიღი
+        value: director_start_date
+      - match:
+          - 12. პარტნიორი
+        value: partner
+      - match:
+          - 13. პარტნიორის წილი
+        value: partner_share
+      - match:
+          - 14. პარტნიორის პ/ნ
+        value: partner_id
+      - match:
+          - 15. პარტნიორის მოქალაქეობა
+        value: partner_citizenship
+      - match:
+          - 16. პარტნიორის კომპანიასთან კავშირის საწყისი თარიღი
+        value: partner_start_date
