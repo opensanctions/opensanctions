@@ -119,7 +119,8 @@ def emit_rel(
     person.id = context.make_id(name, person_id)
     person.add("name", name)
     if person_citizenship != "NULL":
-        person.add("citizenship", person_citizenship)
+        for citizenship in h.multi_split(person_citizenship, [","]):
+            person.add("citizenship", citizenship)
     context.emit(person)
 
     relationship = context.make(type_label)
