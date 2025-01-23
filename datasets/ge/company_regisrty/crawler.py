@@ -1,19 +1,26 @@
 import csv
 from normality.cleaning import collapse_spaces
+from followthemoney.types import registry
 
 from zavod import Context, helpers as h
 from zavod.shed.internal_data import fetch_internal_data, list_internal_data
-from followthemoney.types import registry
 
+# ORGS: Cooperative, Foreign Non-Commercial Legal Entity Branch, Public Legal Entity
 LEGAL_FORMS = {
-    "ეზღუდული პასუხისმგებლობის საზოგადოება",
-    "კოოპერატივი",
-    "უცხოური არასამეწარმეო იურიდიული პირის ფილიალი",
-    "უცხოური საწარმოს ფილიალი",
-    "სააქციო საზოგადოება",
-    "საჯარო სამართლის იურიდიული პირი",
-    "სოლიდარული პასუხისმგებლობის საზოგადოება",
-    "კომანდიტური საზოგადოება",
+    "ეზღუდული პასუხისმგებლობის საზოგადოება",  # Limited Liability Company
+    "კოოპერატივი",  # Cooperative
+    "უცხოური არასამეწარმეო იურიდიული პირის ფილიალი",  # Foreign Non-Commercial Legal Entity Branch
+    "უცხოური საწარმოს ფილიალი",  # Foreign Commercial Entity Branch
+    "სააქციო საზოგადოება",  # Joint Stock Company
+    "საჯარო სამართლის იურიდიული პირი",  # Public Legal Entity
+    "სოლიდარული პასუხისმგებლობის საზოგადოება",  # Solidarity Limited Liability Company
+    "კომანდიტური საზოგადოება",  # Limited Partnership
+    "შეზღუდული პასუხისმგებლობის საზოგადოება",  # General Partnership
+}
+ORGS = {
+    "კოოპერატივი",  # Cooperative
+    "უცხოური არასამეწარმეო იურიდიული პირის ფილიალი",  # Foreign Non-Commercial Legal Entity Branch
+    "საჯარო სამართლის იურიდიული პირი",  # Public Legal Entity
 }
 
 
@@ -26,19 +33,27 @@ def crawl_row(context: Context, row: list) -> None:
     director = row.pop("director")
     partner = row.pop("partner")
 
-    entity = context.make("Company")
+    if legal_form not in LEGAL_FORMS:
+        context.log.warning(f"Unknown legal form: {legal_form}")
+        return
+
+    if any(org in legal_form for org in ORGS):
+        legal_form = "Organization"
+    else:
+        legal_form = "Company"
+
+    entity = context.make(legal_form)
     entity.id = context.make_id(id, name, reg_date)
     entity.add("name", name)
     entity.add("classification", legal_form)
     entity.add("incorporationDate", reg_date)
     entity.add("address", row.pop("address"))
     entity.add("status", row.pop("status"))
-    email_clean = registry.email.clean(email)
-    if email_clean is not None:
-        if email != "NULL":
-            for email in h.multi_split(email, [";", ","]):
-                email = email.replace(" ", "").strip()
-                entity.add("email", email)
+    emails = email.replace(" ", "").strip()
+    for email in h.multi_split(emails, [";", ","]):
+        email_clean = registry.email.clean(email)
+        if email_clean is not None:
+            entity.add("email", email)
     context.emit(entity)
 
     if director != "NULL":
