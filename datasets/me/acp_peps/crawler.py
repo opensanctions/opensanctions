@@ -1,6 +1,6 @@
 import io
 from csv import DictReader
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Set
 from zipfile import ZipFile, BadZipFile
 
 from zavod import Context, Entity, helpers as h
@@ -106,7 +106,7 @@ def crawl_relative(context, person_entity, relatives):
 
 def make_affiliation_entities(
     context: Context, entity: Entity, function, row: dict, filing_date, report_id
-) -> List[Entity]:
+) -> Tuple[List[Entity], Set[str]]:  # List[Entity]:
     """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
     * A position's name include the title and the name of the legal entity
     * All positions (and Occupancies, Persons) are assumed to be Montenegrin
@@ -125,7 +125,7 @@ def make_affiliation_entities(
     position = h.make_position(
         context,
         position_name,
-        # topics=["gov.national"],  # for testing
+        topics=["gov.national"],  # for testing
         country="ME",
     )
     apply_translit_full_name(
@@ -133,10 +133,7 @@ def make_affiliation_entities(
     )
 
     categorisation = categorise(context, position, is_pep=True)
-    # Check categorisation topics match and fetch relatives
-    if "gov.national" in categorisation.topics:
-        relatives = fetch_csv(context, report_id, "csv_clanovi_porodice_")
-        crawl_relative(context, entity, relatives)
+    categorisation_topics = set(categorisation.topics)
 
     occupancy = h.make_occupancy(
         context,
@@ -153,11 +150,12 @@ def make_affiliation_entities(
         # Switch to declarationDate, once it's introduced in FtM
         occupancy.add("date", filing_date)
         entities.extend([position, occupancy])
-    return entities
+    return entities, categorisation_topics
 
 
 def crawl_person(context: Context, person):
     full_name = person.pop("imeIPrezime")
+    # Use this as a fallback if there aren't downloadable declarations
     # position = person.pop("nazivFunkcije")
     dates = person.pop("izvjestajImovine")
     filing_date, report_id = extract_latest_filing(dates)
@@ -179,11 +177,16 @@ def crawl_person(context: Context, person):
             last_name,
         )
         entity.add("topics", "role.pep")
-        position_entities.extend(
-            make_affiliation_entities(
-                context, entity, function, row, filing_date, report_id
-            )
+        entities, categorisation_topics = make_affiliation_entities(
+            context, entity, function, row, filing_date, report_id
         )
+        position_entities.extend(entities)
+
+        # Decide on crawling relatives based on categorisation topics
+        if "gov.national" in categorisation_topics and entities:
+            relatives = fetch_csv(context, report_id, "csv_clanovi_porodice_")
+            crawl_relative(context, entity, relatives)
+
         if position_entities:
             for position in position_entities:
                 context.emit(position)
@@ -195,7 +198,7 @@ def crawl(context: Context):
     max_pages = 1200
     while True:
         data_url = f"https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni?page={page}&size=20"
-        doc = context.fetch_json(data_url.format(page=page), cache_days=1)
+        doc = context.fetch_json(data_url.format(page=page))
 
         if not doc:  # Break if an empty list is returned
             context.log.info(f"Stopped at page {page}")

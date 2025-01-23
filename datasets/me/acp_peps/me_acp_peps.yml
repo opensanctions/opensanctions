@@ -1,6 +1,6 @@
 title: Declarable Montenegrin Public Officials
 entry_point: crawler.py
-prefix: mx-gov
+prefix: me-gov
 coverage:
   frequency: weekly
   start: "2024-01-06"
@@ -28,7 +28,7 @@ url: https://obsidian.antikorupcija.me/registri/pretraga-izvjestaja-o-prihodima-
 data:
   url: https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni
   format: JSON
-  # lang: cnr  # Montenegrin (ISO 639-2)
+  lang: cnr  # Montenegrin (ISO 639-2)
 
 lookups:
   type.country: 
