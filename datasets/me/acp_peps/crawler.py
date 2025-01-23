@@ -125,7 +125,7 @@ def make_affiliation_entities(
     position = h.make_position(
         context,
         position_name,
-        topics=["gov.national"],  # for testing
+        # topics=["gov.national"],  # for testing
         country="ME",
     )
     apply_translit_full_name(
