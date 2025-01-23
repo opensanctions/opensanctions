@@ -3,14 +3,15 @@ entry_point: crawler.py
 prefix: ge-company-registry
 coverage:
   frequency: weekly
-  start: 2024-01-20
+  start: 2025-01-20
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   List of companies registered in Georgia
 description: |
   The Georgian Company Registry is a list of companies registered in
-  Georgia.
-url: 
+  Georgia. The dataset includes information about the company's name,
+  registration date, address, legal form, director, and partners.
+url: https://enreg.reestri.gov.ge/main.php?m=new_index
 data:
   url: https://enreg.reestri.gov.ge/main.php?m=new_index
   format: HTML
