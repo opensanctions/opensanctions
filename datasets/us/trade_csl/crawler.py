@@ -76,6 +76,9 @@ def parse_result(context: Context, result: Dict[str, Any]):
     if schema is None:
         context.log.error("Unknown result type", type=type_)
         return
+    name = result.pop("name", None)
+    if name.startswith("Address 0"):
+        schema = "Address"
 
     entity = context.make(schema)
     entity.id = context.make_slug(result.pop("id"))
@@ -92,7 +95,6 @@ def parse_result(context: Context, result: Dict[str, Any]):
         entity.id = context.make_slug(entity_number, prefix="ofac")
         is_ofac = True
 
-    name = result.pop("name", None)
     if name is None:
         # When name is None, the rest of the row is also empty, ensure that
         assert entity_number is None and type_ is None
