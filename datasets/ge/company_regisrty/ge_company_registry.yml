@@ -88,8 +88,8 @@ lookups:
         value: RU
       - match: ჩეხეთისრესპუბლიკა
         value: CZ
-      - match: აშშ
-        value: US
+      - match: აშშ # United States
+        value: US 
       # - match: 
       #     - ირანი (ისლამური რესპუბლიკა)
       #     - ირანი (ისლამურირესპუბლიკა)
@@ -118,3 +118,201 @@ lookups:
         value: LK
       - match: ვირჯინიის კუნძულები (ბრიტ )
         value: VG
+      - match: აშშ # United States
+        value: United States
+      - match: რუსეთი # Russia
+        value: Russia
+      - match: დიდი ბრიტანეთი # United Kingdom
+        value: United Kingdom
+      - match: საფრანგეთი # France
+        value: France
+      - match: გერმანია # Germany
+        value: Germany
+      - match: ესპანეთი # Spain
+        value: Spain
+      - match: იაპონია # Japan
+        value: Japan
+      - match: იტალია # Italy
+        value: Italy
+      - match: ჩინეთი # China
+        value: China
+      - match: ბრაზილია # Brazil
+        value: Brazil
+      - match: კანადა # Canada
+        value: Canada
+      - match: ავსტრალია # Australia
+        value: Australia
+      - match: ინდოეთი # India
+        value: India
+      - match: მექსიკა # Mexico
+        value: Mexico
+      - match: შვეიცარია # Switzerland
+        value: Switzerland
+      - match: შვედეთი # Sweden
+        value: Sweden
+      - match: ნორვეგია # Norway
+        value: Norway
+      - match: ფინეთი # Finland
+        value: Finland
+      - match: პოლონეთი # Poland
+        value: Poland
+      - match: თურქეთი # Turkey
+        value: Turkey
+      - match: დანია # Denmark
+        value: Denmark
+      - match: ირლანდია # Ireland
+        value: Ireland
+      - match: ავსტრია # Austria
+        value: Austria
+      - match: ბელგია # Belgium
+        value: Belgium
+      - match: ჰოლანდია # Netherlands
+        value: Netherlands
+      - match: ჩეხეთი # Czech Republic
+        value: Czech Republic
+      - match: პორტუგალია # Portugal
+        value: Portugal
+      - match: საბერძნეთი # Greece
+        value: Greece
+      - match: უნგრეთი # Hungary
+        value: Hungary
+      - match: ეგვიპტე # Egypt
+        value: Egypt
+      - match: ისრაელი # Israel
+        value: Israel
+      - match: საუდის არაბეთი # Saudi Arabia
+        value: Saudi Arabia
+      - match: კორეის რესპუბლიკა # South Korea
+        value: South Korea
+      # - match: სამხრეთ აფრიკა # South Africa
+      #   value: South Africa
+      - match: არგენტინა # Argentina
+        value: Argentina
+      - match: ახალი ზელანდია # New Zealand
+        value: New Zealand
+      - match: უკრაინა # Ukraine
+        value: Ukraine
+      # - match: ირანი # Iran
+      #   value: Iran
+      - match: ინდონეზია # Indonesia
+        value: Indonesia
+      - match: კენია # Kenya
+        value: Kenya
+      - match: მოლდოვა # Moldova
+        value: Moldova
+      - match: სომხეთი # Armenia
+        value: Armenia
+      - match: აზერბაიჯანი # Azerbaijan
+        value: Azerbaijan
+      - match: ლიტვა # Lithuania
+        value: Lithuania
+      - match: ბელარუსი # Belarus
+        value: Belarus
+      - match: სლოვაკეთი # Slovakia
+        value: Slovakia
+      - match: რუმინეთი # Romania
+        value: Romania
+      - match: ბულგარეთი # Bulgaria
+        value: Bulgaria
+      - match: ნიდერლანდები # Netherlands
+        value: Netherlands
+      - match: ხორვატია # Croatia
+        value: Croatia
+      - match: ესტონეთი # Estonia
+        value: Estonia
+      - match: ლატვია # Latvia
+        value: Latvia
+      - match: ბოსნია და ჰერცეგოვინა # Bosnia and Herzegovina
+        value: Bosnia and Herzegovina
+      - match: მაკედონია # North Macedonia
+        value: North Macedonia
+      - match: სერბეთი # Serbia
+        value: Serbia
+      - match: სლოვენია # Slovenia
+        value: Slovenia
+      - match: ალბანეთი # Albania
+        value: Albania
+      - match: მონტენეგრო # Montenegro
+        value: Montenegro
+      - match: მალტა # Malta
+        value: Malta
+      - match: ყაზახეთი # Kazakhstan
+        value: Kazakhstan
+      - match: ყირგიზეთი # Kyrgyzstan
+        value: Kyrgyzstan
+      - match: უზბეკეთი # Uzbekistan
+        value: Uzbekistan
+      - match: ტაჯიკეთი # Tajikistan
+        value: Tajikistan
+      - match: ინდონეზია # Indonesia
+        value: Indonesia
+      - match: ფილიპინები # Philippines
+        value: Philippines
+      - match: მალაიზია # Malaysia
+        value: Malaysia
+      - match: სინგაპური # Singapore
+        value: Singapore
+      - match: ტაილანდი # Thailand
+        value: Thailand
+      - match: ვიეტნამი # Vietnam
+        value: Vietnam
+      - match: ავღანეთი # Afghanistan
+        value: Afghanistan
+      - match: პაკისტანი # Pakistan
+        value: Pakistan
+      - match: სირია # Syria
+        value: Syria
+      - match: ერაყი # Iraq
+        value: Iraq
+      - match: თურქმენეთი # Turkmenistan
+        value: Turkmenistan
+      - match: ეგვიპტე # Egypt
+        value: Egypt
+      - match: ტუნისი # Tunisia
+        value: Tunisia
+      - match: ლიბია # Libya
+        value: Libya
+      - match: მაროკო # Morocco
+        value: Morocco
+      - match: ალჟირი # Algeria
+        value: Algeria
+      - match: ნიგერი # Niger
+        value: Niger
+      - match: კოტდივუარი # Ivory Coast
+        value: Ivory Coast
+      - match: კენია # Kenya
+        value: Kenya
+      - match: გაბონი # Gabon
+        value: Gabon
+      - match: ნიგერია # Nigeria
+        value: Nigeria
+      - match: ზიმბაბვე # Zimbabwe
+        value: Zimbabwe
+      # - match: სამხრეთ აფრიკა # South Africa
+      #   value: South Africa
+      - match: სუდანი # Sudan
+        value: Sudan
+      - match: სენეგალი # Senegal
+        value: Senegal
+      - match: სიერალეონე # Sierra Leone
+        value: Sierra Leone
+      - match: სომალი # Somalia
+        value: Somalia
+      - match: უგანდა # Uganda
+        value: Uganda
+      - match: ტანზანია # Tanzania
+        value: Tanzania
+      - match: ეთიოპია # Ethiopia
+        value: Ethiopia
+      - match: იემენი # Yemen
+        value: Yemen
+      - match: ბანგლადეში # Bangladesh
+        value: Bangladesh
+      - match: ინდოეთი # India
+        value: India
+      - match: ყაზახეთი # Kazakhstan
+        value: Kazakhstan
+      - match: მალავი # Malawi
+        value: Malawi
+      - match: მადაგასკარი # Madagascar
+        value: Madagascar
