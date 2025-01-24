@@ -77,7 +77,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
         context.log.error("Unknown result type", type=type_)
         return
     name = result.pop("name", None)
-    if name.startswith("Address 0"):
+    if name and re.match(r"^Address \d+", name):
         schema = "Address"
 
     entity = context.make(schema)
