@@ -304,6 +304,6 @@ def test_statements(testdataset1: Dataset):
     harnessed_export(StatementsCSVExporter, testdataset1)
 
     path = dataset_path / "statements.csv"
-    statements = list(read_path_statements(path, CSV, Statement))
+    statements = list(read_path_statements(path, CSV))
     entities = [s.canonical_id for s in statements if s.prop == Statement.BASE]
     assert len(entities) == 12
