@@ -24,6 +24,7 @@ from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.summarize import summarize as _summarize
 from zavod.exc import RunFailedException
+from zavod.reset import reset_caches
 from zavod.tools.wikidata import run_app
 from zavod.validators import validate_dataset
 
@@ -146,6 +147,7 @@ def run(
     else:
         make_version(dataset, settings.RUN_VERSION, overwrite=True)
 
+    reset_caches()
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
     # Validate
@@ -162,6 +164,7 @@ def run(
     # Export and Publish
     try:
         export_dataset(dataset, view)
+        reset_caches()
         publish_dataset(dataset, latest=latest)
 
         if not dataset.is_collection and dataset.load_db_uri is not None:

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional, List
 from datetime import datetime, timedelta
-from functools import cache, lru_cache
+from functools import lru_cache
 
 from zavod.context import Context
 from zavod import settings
@@ -123,7 +123,6 @@ def categorise(
     return categorisation
 
 
-@cache
 def backdate(date: datetime, days: int) -> str:
     """Return a partial ISO8601 date string backdated by the number of days provided"""
     dt = date - timedelta(days=days)
