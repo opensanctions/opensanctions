@@ -202,7 +202,7 @@ class EditSession(Generic[DS, CE]):
                 return
 
             self._reset_entity()
-            if not entity.schema.name == "Person" or not entity.target:
+            if not entity.schema.name == "Person":
                 continue
             if self._focus_dataset and self._focus_dataset not in entity.datasets:
                 continue
