@@ -22,7 +22,6 @@ def crawl_item(row: Dict[str, str], context: Context):
     if mkkNo := row.pop("mkkSicilNo"):
         entity.add("registrationNumber", mkkNo)
 
-
     # Create sanction
     sanction = h.make_sanction(context, entity)
     sanction.add("authorityId", row.pop("kurulKararNo"))
