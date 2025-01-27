@@ -32,6 +32,8 @@ LABEL_MAPPING = {
 # Exclude newlines to avoid splitting addresses unless they're numbered
 REGEX_SPLIT = re.compile(r",?\s*\b\w[\.\)]")
 REGEX_GAZZETE_DATE = re.compile(r"(\d{2}\.\d{2}\.\d{4})")
+# split only with value ##-## or ##/##
+REGEX_SPLITTABLE_PASSPORT = re.compile(r"(^\d{5,}[-]\d{5,}$)|(^\d{5,}/\d{5,}(/\d{5,})?$)")
 
 # https://masak.hmb.gov.tr/law-no-6415-on-the-prevention-of-the-financing-of-terrorism/#:~:text=(5)%20If%20natural%20and%20legal,following%20the%20date%20of%20request.
 # ARTICLE 5- (1) Decisions on freezing of assets under the possession of persons,
@@ -57,10 +59,7 @@ def split(text: Optional[str]) -> List[str]:
 def parse_passport_numbers(pass_no: Optional[str]) -> List[str]:
     if pass_no is None:
         return []
-    # split only with value ##-## or ##/##
-    multi_pass_no_reg = re.compile(r"(^\d+[-]\d+$)|(^\d+/\d+(/\d+)?$)")
-    match = multi_pass_no_reg.match(pass_no)
-    if match:
+    if REGEX_SPLITTABLE_PASSPORT.match(pass_no):
         return h.multi_split(pass_no, ["-", "/"])
     else:
         return [pass_no]
