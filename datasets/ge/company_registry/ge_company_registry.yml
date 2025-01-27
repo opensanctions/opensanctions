@@ -143,6 +143,11 @@ lookups:
         value: ZA
       - contains: 
           - სირიის  # Syria
+          - "სირია",  # Syria
+          - "სირიის არაბთა რესპუბლიკა",  # Syrian Arab Republic
+          - "სირიის არაბთა",  # Syrian Arab
+          - "სირიის არაბთარესპუბლიკა",  # Syrian Arab Republic
+          - "სირიისარაბთა რესპუბლიკა",  # Syrian Arab Republic
         value: SY
       - match: 
           - "სიერა-ლეონე"  # Sierra Leone
@@ -174,8 +179,362 @@ lookups:
           - "ა შ შ"
           - "აშშ"
         value: United States
-      # - match: რუსეთი # Russia
-      #   value: Russia
+      - match: 
+          - რუსეთი # Russia
+          - "რუსეთი",  # Russia
+          - "რუსეთის ფედერაცია"  # Russia
+          - "რუსეთის"  # Russia's
+          - "რუსეთისფედერაცია"  # Russia
+        value: Russia
+      - match: 
+          - "(საქართველო)" # (Georgia)
+        value: Georgia
+      - match: 
+          - "ავსტრალია"  # Australia
+        value: Australia
+      - match: 
+          - "ავღანეთი",  # Afghanistan
+        value: Afghanistan
+      - match:
+          - "ავსტრია",  # Austria
+        value: Austria
+      - match:
+          - "აზარბადეგან",  # Azerbaijan
+          - "აზერბაიჯანი",  # Azerbaijan
+        value: Azerbaijan
+      - match:
+          - "ალბანეთი",  # Albania
+        value: Albania
+          - "ალჟირი",  # Algeria
+      - match: 
+          - "ამერიკის სამოა",  # America's Samoa
+        value: America's Samoa
+      - match:
+          - "ანგილია",  # Anguilla
+        value: Anguilla
+          - "ანგოლა",  # Angola
+      - match:
+          - "ანტიგუა და ბარბუდა",  # Antigua and Barbuda
+        value: Antigua and Barbuda
+      - match:
+          - "არგენტინა",  # Argentina
+        value: Argentina
+      - match:
+          - "არუბა",  # Aruba
+        value: Aruba
+      - match:
+          - "აფხაზეთი",  # Abkhazia
+        value: Abkhazia
+      - match:
+          - "ახალი ზელანდია",  # New Zealand
+        value: New Zealand
+      - match:
+          - "ბანგლადეში",  # Bangladesh
+        value: Bangladesh
+      - match:
+          - "ბაჰამის კუნძულები",  # Bahamas
+        value: Bahamas
+      - match:
+          - "ბაჰრეინი მანამა",  # Bahrain Manama
+          - "ბაჰრეინი",  # Bahrain
+        value: Bahrain
+      - match:
+          - "ბელარუსი",  # Belarus
+          - "ბელორუსია"
+        value: Belarus
+      - match:
+          - "ბელგია",  # Belgium
+        value: Belgium
+      - match:
+          - "ბელიზი",  # Belize
+        value: Belize
+      - match:
+          - "ბენინი",  # Benin
+        value: Benin
+      - match:
+          - "ბოსტვანა",  # Botswana
+        value: Botswana
+      - match:
+          - "ბრაზილია",  # Brazil
+        value: Brazil
+      - match:
+          - "ბულგარეთი",  # Bulgaria
+        value: Bulgaria
+      - match:
+          - "ბურკინა ფასო",  # Burkina Faso
+        value: Burkina Faso
+      - match:
+          - "ბურუნდი",  # Burundi
+        value: Burundi
+          - "გაბონი",  # Gabon
+      - match:
+          - "გამბია",  # Gambia
+        value: Gambia
+      - match:
+          - "განა",  # Ghana
+        value: Ghana
+      - match:
+          - "გერმანია",  # Germany
+        value: Germany
+      - match:
+          - "გვინეა-ბისაუ",  # Gvineau-Bisau
+        value: Gvineau-Bisau
+      - match:
+          - "გვინეა",  # Guinea
+        value: Guinea
+      - match:
+          - "გიბრალტარი",  # Gibraltar
+        value: Gibraltar
+      - match:
+          - "გრენადა",  # Grenada
+        value: Grenada
+      - match:
+          - "დანია",  # Denmark
+        value: Denmark
+      - match:
+          - "დელავერის შტატი",  # Delaware State
+        value: Delaware State
+      - match:
+          - "გაერთიანებული სამეფო",  # United Kingdom
+          - "დიდი ბრიტანეთი (GBR)",  # Great Britain (GBR)
+          - "დიდი ბრიტანეთი",  # Great Britain
+          - "დიდი ბრიტანეთის და ჩრდილოეთ ირლანდიის გაერთიანებული სამეფო",  # United Kingdom
+          - "დიდი ბრიტანეთისა და ჩრდილოეთ ირლანდიის გაერთიანებული სამეფო",  # United Kingdom
+          - "დიდი ბრიტანეთისა და ჩრდილოეთ ირლანდიის გაერთიანებული",  # United Kingdom
+          - "დიდი ბრიტანეთისა და ჩრდილოეთ ირლანდიის",  # United Kingdom of Great Britain and Northern Ireland
+          - "დიდი ბრიტანეთისა და ჩრდილოეთ",  # United Kingdom of Great Britain and Northern
+          - "დიდი ბრიტანეთისა და",  # Great Britain and
+          - "დიდი ბრიტანეთისადა ჩრდილოეთ ირლანდიის გაერთიანებული სამეფო",  # United Kingdom
+          - "დიდი ბრიტანეთისადა ჩრდილოეთ ირლანდიის გაერთიანებულისამეფო",  # United Kingdom
+          - "დიდი ბრიტანეთისადა ჩრდილოეთ ირლანდიისგაერთიანებული სამეფო",  # United Kingdom
+          - "დიდიბრიტანეთი",  # Great Britain
+          - "დიდიბრიტანეთისა და ჩრდილოეთ ირლანდიისგაერთიანებული სამეფო",  # United Kingdom of Great Britain and Northern Ireland
+          - "დიდიბრიტანეთისა და ჩრდილოეთირლანდიის გაერთიანებულისამეფო",  # United Kingdom of Great Britain and Northern Ireland
+        value: United Kingdom
+      - match:
+          - "დომინიკა",  # Dominica
+          - "დომინიკელთა რესპუბლიკა",  # Dominican Republic
+        value: Dominican Republic
+      - match:
+          - "ეგვიპტე გენერალური მენეჯერი",  # Egypt General Manager
+          - "ეგვიპტე ექსპორტი და ინპორტის მენეჯერი",  # Egypt Export and Import Manager
+          - "ეგვიპტე",  # Egypt
+        value: Egypt
+      - match:
+          - "ეთიოპია",  # Ethiopia
+        value: Ethiopia
+      - match:
+          - "ეკვადორი",  # Ecuador
+        value: Ecuador
+      - match:
+          - "ერაყი",  # Iraq
+        value: Iraq
+      - match:
+          - "ერიტრეა",  # Eritrea
+        value: Eritrea
+      - match:
+          - "ესპანეთი",  # Spain
+        value: Spain
+      - match:
+          - "ესტონეთი",  # Estonia
+        value: Estonia
+      - match:
+          - "ვანუატუ",  # Vanuatu
+        value: Vanuatu
+      - match:
+          - "ვენესუელა",  # Venezuela
+        value: Venezuela
+      - match:
+          - "ვიეტნამი",  # Vietnam
+        value: Vietnam
+      - match:
+          - "ვირჯინიის",  # Virginia
+        value: Virginia
+      - match:
+          - "ზამბია",  # Zambia
+        value: Zambia
+      - match:
+          - "ზიმბაბვე",  # Zimbabwe
+        value: Zimbabwe
+      - match:
+          - "თურქეთი ()",  # Turkey
+          - "თურქეთი",  # Turkey
+        value: Turkey
+      - match:
+          - "თურქმენეთი",  # Turkmenistan
+        value: Turkmenistan
+      - match:
+          - "იაპონია",  # Japan
+        value: Japan
+      - match:
+          - "იემენი",  # Yemen
+        value: Yemen
+      - match:
+          - "ინდოეთი",  # India
+        value: India
+      - match:
+          - "ინდონეზია",  # Indonesia
+        value: Indonesia
+      - match:
+          - "იორდანია",  # Jordan
+        value: Jordan
+      - match:
+          - "ირლანდია",  # Ireland
+        value: Ireland
+      - match:
+          - "ისლანდია",  # Iceland
+        value: Iceland
+      - match:
+          - "ისრაელი ()",  # Israel
+          - "ისრაელი",  # Israel
+          - "ისრაელისაქართველო",  # Israel, Georgia
+        values: 
+          - Israel
+          - Georgia
+      - match:
+          - "იტალია",  # Italy
+        value: Italy
+      - match:
+          - "კაიმანის კუნძულები",  # Cayman Islands
+        value: Cayman Islands
+      - match:
+          - "კამბოჯა",  # Cambodia
+        value: Cambodia
+      - match:
+          - "კამერუნი",  # Cameroon
+        value: Cameroon
+          - "კანადა",  # Canada
+          - "კატარი",  # Qatar
+          - "კენია",  # Kenya
+          - "კვიპროსი",  # Cyprus
+          - "კოლუმბია",  # Colombia
+          - "კომორის კუნძულები",  # Comoros
+          - "კოსოვო",  # Kosovo
+          - "კოსტა-რიკა",  # Costa Rica
+          - "კოსტარიკა",  # Costa Rica
+          - "კოტდივუარი",  # Cotdivuari
+          - "კუბა",  # Cuba
+          - "კურასაო",  # Curacao
+          - "ლაიპციგი",  # Liechtenstein
+          - "ლაოსი",  # Laos
+          - "ლატვია",  # Latvia
+          - "ლიბანი",  # Lebanon
+          - "ლიბერია",  # Liberia
+          - "ლიბია",  # Libya
+          - "ლიბიის არაბთა ჯამაჰირია",  # Libya's Arab Jamahiriya
+          - "ლიეტუვა (ლიტვა)",  # Lithuania
+          - "ლიეტუვა",  # Liechtenstein
+          - "ლისამოლი",  # Lesotho
+          - "ლიტვა",  # Lithuania
+          - "ლუქსემბურგი",  # Luxembourg
+          - "ლუქსემბურგის დიდი საჰერცოგო",  # Grand Duchy of Luxembourg
+          - "მაკედონია",  # Macedonia
+          - "მალავი",  # Malawi
+          - "მალაიზია",  # Malaysia
+          - "მალი",  # Mali
+          - "მალტა",  # Malta
+          - "მარიამ ესმაილზადეჰ",  # Mariam Esmailzadeh
+          - "მაროკო",  # Morocco
+          - "მარშალის კუნძულები",  # Marshall Islands
+          - "მარშალისკუნძულები",  # Marshall Islands
+          - "მესართ ოთახი H",  # Mesart House H
+          - "მექსიკა",  # Mexico
+          - "მიანმარი",  # Myanmar
+          - "მილანი",  # Milan
+          - "მოზამბიკი",  # Mozambique
+          - "მოლდოვა",  # Moldova
+          - "მონაკო",  # Monaco
+          - "მონტენეგრო",  # Montenegro
+          - "მონღოლეთი",  # Mongolia
+          - "ნეპალი",  # Nepal
+          - "ნიგერი",  # Niger
+          - "ნიგერია",  # Nigeria
+          - "ნიდერლანდები",  # Netherlands
+          - "ნორვეგია",  # Norway
+          - "ომანი",  # Oman
+          - "პაკისტანი",  # Pakistan
+          - "პალაუ",  # Palau
+          - "პალესტინა",  # Palestine
+          - "პანამა",  # Panama
+          - "პარაგვაი",  # Paraguay
+          - "პერუ",  # Peru
+          - "პოლონეთი",  # Poland
+          - "პორტუგალია",  # Portugal
+          - "ჟენევა პალასი",  # Geneva Palace
+          - "რეიმონ",  # Raymond
+          - "რუმინეთი",  # Romania
+          - "რუსეთის ფედერაცია ფინანსურ საკითხებში",  # Russia Federation Financial Issues
+          - "საბერძნეთი",  # Greece
+          - "სალვადორი",  # Salvador
+          - "სამოა",  # Samoa
+          - "სან-მარინო",  # San Marino
+          - "სანაი",  # Senai
+          - "სანმარინო",  # San Marino
+          - "საფეიქროწარმოება",
+          - "საფრანგეთი",  # France
+          - "საქართველო",  # Georgia
+          - "სეიშელის კუნძულები",  # Seychelles
+          - "სეიშელისკუნძულები",  # Seychelles
+          - "სენეგალი",  # Senegal
+          - "სენტ-ვინსენტი და გრენადინები",  # Saint Vincent and the Grenadines
+          - "სერბეთი",  # Serbia
+          - "სინგაპური",  # Singapore
+          - "სინტ ტაუნისლაან",
+          - "სლოვაკეთი",  # Slovakia
+          - "სლოვენია",  # Slovenia
+          - "სომალი",  # Somalia
+          - "სომხეთი",  # Somalia
+          - "სუდანი",  # Sudan
+          - "ტაილანდი",  # Thailand
+          - "ტანზანიის გაერთიანებული რესპუბ",  # United Republic of Tanzania
+          - "ტაჯიკეთი",  # Tajikistan
+          - "ტოგო",  # Togo
+          - "ტრინიდადი და ტობაგო",  # Trinidad and Tobago
+          - "ტრინიტი ჰაუსი",  # Trinidad House
+          - "ტუნისი",  # Tunisia
+          - "უგანდა",  # Uganda
+          - "უზბეკეთი",  # Uzbekistan
+          - "უკრაინა ()",  # Ukraine
+          - "უკრაინა",  # Ukraine
+          - "უნგრეთი",  # Hungary
+          - "ურუგვაი",  # Uruguay
+          - "ფილიპინები",  # Philippines
+          - "ფინეთი",  # Finland
+          - "ფიჯი",  # Fiji
+          - "ფრანსის დრეიკის გზატ",  # France's Dreiki Road
+          - "ქუვეითი",  # Kuwait
+          - "ღოლამრეზა შიროუჟან",
+          - "ყაზახეთი",  # Kazakhstan
+          - "ყატარი",  # Qatar
+          - "ყირგიზეთი",  # Kyrgyzstan
+          - "შვედეთი",  # Sweden
+          - "შვეიცარია ()",  # Switzerland
+          - "შვეიცარია",  # Switzerland
+          - "ჩადი",  # Chad
+          - "ჩილე",  # Chile
+          - "ჩინეთი",  # China
+          - "ცილიანგ",
+          - "ხორვატია",  # Croatia
+          - "ჯერსი",  # Jersey
+          - "ჰანთინგთონშტეინშ",  # Huntingtons
+          - "ჰოლანდია",  # Holland
+          - "ჰოლსველ როუდ ლონდონი",  # Holsvel Road London
+          - "ჰონდურასი",  # Honduras
+          - "ჰონკონგი",  # Hong Kong
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       - match: 
         - "კრიტიკული"  # Critical
         - "ღოლამრეზა შიროუჟან"
@@ -603,11 +962,7 @@ lookups:
     "ჟენევა პალასი",  # Geneva Palace
     "რეიმონ",  # Raymond
     "რუმინეთი",  # Romania
-    "რუსეთი",  # Russia
     "რუსეთის ფედერაცია ფინანსურ საკითხებში",  # Russia Federation Financial Issues
-    "რუსეთის ფედერაცია",  # Russia
-    "რუსეთის",  # Russia's
-    "რუსეთისფედერაცია",  # Russia
     "საბერძნეთი",  # Greece
     "სალვადორი",  # Salvador
     "სამოა",  # Samoa
@@ -624,11 +979,6 @@ lookups:
     "სერბეთი",  # Serbia
     "სინგაპური",  # Singapore
     "სინტ ტაუნისლაან",
-    "სირია",  # Syria
-    "სირიის არაბთა რესპუბლიკა",  # Syrian Arab Republic
-    "სირიის არაბთა",  # Syrian Arab
-    "სირიის არაბთარესპუბლიკა",  # Syrian Arab Republic
-    "სირიისარაბთა რესპუბლიკა",  # Syrian Arab Republic
     "სლოვაკეთი",  # Slovakia
     "სლოვენია",  # Slovenia
     "სომალი",  # Somalia
