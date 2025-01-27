@@ -33,26 +33,7 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 200
+      Person: 80 
   max:
     schema_entities:
-      LegalEntity: 400
-lookups:
-  type.identifier:
-    options:
-      - match:
-          - 9000219512
-          - 9000219424
-          - 9000219515
-          - 9000219340
-          - 9000173464
-          - 9000216023
-          - 9000216193
-          - 9000220777
-          - 9000216237
-          - 9000223939
-          - 9000219396
-          - 9000220773
-        prop: registrationNumber
-      - match: "N/A"
-        value: null
+      Person: 100
