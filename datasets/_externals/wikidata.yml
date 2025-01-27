@@ -83,6 +83,8 @@ lookups:
           - Afsharid Empire
           - Al Ain
           - Ancient Rome
+          - State of Aleppo
+          - French Mandate for Syria and the Lebanon
           - Arab Kingdom of Syria
           - Assyrian Empire
           - Austria-Hungary
@@ -651,6 +653,7 @@ lookups:
           - Ligurian Republic
           - Genoese Republic
           - Yemeni Zaidi State
+          - Q1879239
         value: null
       - match:
           - Cherokee Nation

@@ -56,11 +56,6 @@ lookups:
             name: Dalibor RICCARDI
             start_date: 1 October 2024
             end_date: 30 March 2025
-      - match: "chief of state: TUIMALEALI'IFANO Va’aletoa Sualauvi II (since 21 July 2017)"
-        holders:
-          - role: chief of state
-            name: TUIMALEALI'IFANO Va’aletoa Sualauvi II
-            start_date: 21 July 2017
       - match: "Deputy Prime Ministers SAIF bin Zayid Al Nuhayyan, MANSUR bin Zayid Al Nuhayyan (both since 11 May 2009) and MAKTUM bin Muhammad bin Rashid Al Maktum (since 25 September 2021)"
         holders:
           - role: Deputy Prime Minister
@@ -92,21 +87,6 @@ lookups:
           - role: Deputy Prime Minister
             name: Krzysztof GAWKOWSKI
             start_date: 11 December 2023
-      # Slovakia
-      - match: "Deputy Prime Ministers Robert KALINAK, Denisa SAKOVA, Tomas TARABA, and Peter KMEC (all since 25 October 2023)"
-        holders:
-          - role: Deputy Prime Minister
-            name: Robert KALINAK
-            start_date: 25 October 2023
-          - role: Deputy Prime Minister
-            name: Denisa SAKOVA
-            start_date: 25 October 2023
-          - role: Deputy Prime Minister
-            name: Tomas TARABA
-            start_date: 25 October 2023
-          - role: Deputy Prime Minister
-            name: Peter KMEC
-            start_date: 25 October 2023
       - match: "Deputy Prime Ministers Sainbuyen AMARSAIKHAN (since 8 September 2022) and Chimed KHURELBAATAR (since 5 January 2023)"
         holders:
           - role: Deputy Prime Minister
@@ -331,12 +311,6 @@ lookups:
           - role: Vice Presidents
             name: Renato FLORENTINO
             start_date: 27 January 2022
-      # Equatorial Guinea
-      - match: "President OBIANG Nguema Mbasogo (since 3 August 1979 when he seized power in a military coup)"
-        holders:
-          - role: President
-            name: Teodoro OBIANG Nguema Mbasogo
-            start_date: 3 August 1979
       - match: "Deputy Prime Ministers Ramiro VALDES Menendez, Ines Maria CHAPMAN Waugh, Jorge Luis TAPIA Fonseca, Alejandro GIL Fernandez, Ricardo CABRISAS Ruiz (since 21 December 2019), and Jorge Luis PERDOMO DI-LELLA (since 20 April 2021)"
         holders:
           - role: Deputy Prime Minister
@@ -502,17 +476,6 @@ lookups:
             name: HAYBATULLAH Akhundzada
           - role: Amir-ul Momineen
             name: HAYBATULLAH Akhundzada
-      - match: 'as of November 2021, the group had announced three "acting deputy prime ministers” - Abdul Ghani BERADER, Abdul Salam HANAFI, and Abdul KABIR'
-        holders:
-          - role: Acting Prime Minister
-            name: Abdul Ghani BERADER
-            start_date: November 2021
-          - role: Acting Prime Minister
-            name: Abdul Salam HANAFI
-            start_date: November 2021
-          - role: Acting Prime Minister
-            name: Abdul KABIR
-            start_date: November 2021
       - match: "Prime Minister Cleopas DLAMINI (since since 19 July 2021)"
         holders:
           - role: Prime Minister
@@ -661,7 +624,7 @@ lookups:
           - role: Prime Minister
             name: Ahmad Awad Bin MUBAREK
             start_date: 5 February 2024
-      - match: "Chairperson, Presidential Leadership Council Rashad Muhammad al-ALIMI, Dr. (since 19 April 2022)"
+      - match: "Chairperson, Presidential Leadership Council Rashad Muhammad al-ALIMI (since 19 April 2022)"
         holders:
           - role: Chairperson, Presidential Leadership Council
             name: Rashad Muhammad al-ALIMI
@@ -788,6 +751,22 @@ lookups:
           - role: Supreme Assembly Chairman
             name: Emomali RAHMON
             start_date: 20 November 1992
+      # Austria
+      - match: Alexander SCHALLENBERG (since 10 January 2025) serving as interim Chancellor following the 4 January 2025 resignation of Karl NEHAMMER
+        holders:
+          - role: Chancellor
+            name: Alexander Schallenberg
+            start_date: 2025-01-10
+          - role: Cancellor
+            name: Karl Nehammer
+            end_date: 2025-01-04
+      # Monaco
+      - match: Acting Minister of State Isabelle BERRO-AMADEI (since 10 January 2025)
+        holders:
+          - role: Minister of State
+            name: Isabelle Berro-Amedei
+            start_date: 2025-01-10
+
 
       # Not additional heads, just notes
       - regex:
@@ -798,23 +777,18 @@ lookups:
           - 'overall Taliban Leader HAYBATULLAH Akhundzada is the \[so-called\] Amir-ul Momineen of the Taliban and is seen by them as a head of government'
           - "^the president is both chief of state and head of government"
           - "^note [-–] "
-          - "^Heir Apparent"
           - "^chief of state since 28 August 2014"
           - "^council members rotate the 1-year term"
           - "^HAMDOUK served as prime minister"
           - "^he was later freed and reinstated"
-          - "^on 25 October 2021, al-BURHAN dissolved"
           - "^TABAN served as first vice"
           - "^the Sovereign Council currently consists of "
           - "no vice president position"
           - "first vice president \\(vacant"
-          - "second vice president \\(vacant"
           - "^caretaker cabinet \\(since 17 August 2023"
           - "^Chris HIPKINS elected unanimously"
           - "^he is serving as prime minister"
           - "^following 7 November 2019 parliamentary elections"
-          - "^acting presidents served from March 2018"
-          - "^on 6 June 2022, GOITA's"
           - "^NDAW resigned"
           - "Vice President GOITA seized"
           - "GOITA served as vice president"
@@ -827,7 +801,6 @@ lookups:
           - "functions as the commander-in-chief and chief executive"
           - "North Korea revised its constitution in 2019"
           - "chief of state is used to engage with non-communist countries such as the US"
-          - "the monarchy is hereditary"
           - "the Jamaican Government, in May 2023"
           - "the prime minister's official title is"
           - "vice presidents \\(vacant"
@@ -838,7 +811,6 @@ lookups:
           - "the 5 members all have equal"
           - "the Policy and Resources Committee"
           - "the chief officer, an appointed civilian, is responsible"
-          - "following his death"
           - "Prime Minister HUN MANET succeeded"
           - "the position had been vacant"
           - "^presidency member since"
@@ -861,17 +833,12 @@ lookups:
           # South Africa
           - Deputy President David MABUZA resigned 1 March 2023
           - "Prime Minister \\(in transition\\)"
-          # South Korea
-          - "South Korea's Constitutional Court has 180 days to rule on YOON's removal"
           # Chad
           - the transition was extended for 24 months and the TMC was dissolved in October 2022, postponing elections until 31 October 2024
           # Hungary
           - "\\(vacant\\)"
           - a replacement will be chosen in March 2024
-          # Guinea
-          - "on 19 February 2024 Guinea's military leaders dissolved the government of Prime Minister Bernard GOUMOU"
           # Bulgaria
-          - "Vacant \\(since 6 March 2024\\)"
           - "chief of state: president \\(vacant\\)"
           # Haiti
           - a nine-member Presidential Transitional Council, equipped with presidential powers, was sworn in on 25 April 2024 and will remain in place until 7 February 2026
@@ -902,7 +869,5 @@ lookups:
       - match: Falkland Islands (Islas Malvinas)
         value: fk
       - match:
-          - Dhekelia
-          - Akrotiri
           - Akrotiri and Dhekelia
         value: gb
