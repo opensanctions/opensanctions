@@ -54,6 +54,18 @@ def split(text: Optional[str]) -> List[str]:
     return [s.strip() for s in REGEX_SPLIT.split(text)]
 
 
+def parse_passport_numbers(pass_no: Optional[str]) -> List[str]:
+    if pass_no is None:
+        return []
+    # split only with value ##-## or ##/##
+    multi_pass_no_reg = re.compile(r"(^\d+[-]\d+$)|(^\d+/\d+(/\d+)?$)")
+    match = multi_pass_no_reg.match(pass_no)
+    if match:
+        return h.multi_split(pass_no, ["-", "/"])
+    else:
+        return [pass_no]
+
+
 def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
     name = row.pop("name")
     if not name:
@@ -83,8 +95,8 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
         entity.add("birthPlace", birth_place)
         h.apply_dates(entity, "birthDate", birth_dates)
         h.apply_dates(entity, "birthDate", birth_establishment_date)
-        entity.add("passportNumber", collapse_spaces(passport_other))
-        entity.add("passportNumber", collapse_spaces(pass_no))
+        entity.add("passportNumber", parse_passport_numbers(collapse_spaces(passport_other)))
+        entity.add("passportNumber", parse_passport_numbers(collapse_spaces(pass_no)))
         entity.add("position", row.pop("position", ""))
         entity.add("motherName", mother_name)
         entity.add("fatherName", father_name)
@@ -98,7 +110,7 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
                 id_number = id_number.replace("IMO number:", "").strip()
                 entity.add_schema("Organization")
                 entity.add("imoNumber", id_number)
-            if id_number.startswith("IMO number:"):
+            elif id_number.startswith("SWIFT/BIC:"):
                 id_number = id_number.replace("SWIFT/BIC:", "").strip()
                 entity.add("swiftBic", id_number)
             else:

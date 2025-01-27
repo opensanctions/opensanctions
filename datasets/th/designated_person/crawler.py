@@ -4,6 +4,7 @@ import re
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
+from normality import collapse_spaces
 
 
 REGEX_CLEAN_NAME = re.compile(r"^\d\. ?")
@@ -63,17 +64,18 @@ def crawl_item(url: str, context: Context):
 
     context.emit(entity, target=True)
 
-    if "Passport Number" in info_dict and info_dict["Passport Number"] != "":
-        passport = h.make_identification(
-            context,
-            entity,
-            info_dict.pop("Passport Number"),
-            doc_type="passport",
-            country="th",
-            passport=True,
-        )
-
-        context.emit(passport)
+    passport_numbers = collapse_spaces(info_dict.pop("Passport Number", None))
+    if passport_numbers:
+        for passport_number in passport_numbers.split(","):
+            passport = h.make_identification(
+                context,
+                entity,
+                passport_number.strip(),
+                doc_type="passport",
+                country="th",
+                passport=True,
+            )
+            context.emit(passport)
 
     context.audit_data(info_dict, ignore=["Status"])
 
