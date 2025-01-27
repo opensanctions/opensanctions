@@ -389,3 +389,267 @@ lookups:
         - "ნაუოზის",  # Nauozis
         - "მურათ იღით ჩალიქ",  # Murat Igit Chalik
     value: null
+
+
+    "ღოლამრეზა შიროუჟან",
+    "კორეისრესპუბლიკა",  # Korea
+    "ლუქსემბურგი",  # Luxembourg
+    "არაბთა გაერთიანებული საემიროები",  # United Arab Emirates
+    "ცილიანგ",
+    "ბოსტვანა",  # Botswana
+    "რუსეთისფედერაცია",  # Russia
+    "საუდის არაბეთი",  # Saudi Arabia
+    "ჰონკონგი",  # Hong Kong
+    "ლისამოლი",  # Lesotho
+    "სლოვაკეთი",  # Slovakia
+    "ეგვიპტე ექსპორტი და ინპორტის მენეჯერი",  # Egypt Export and Import Manager
+    "დიდი ბრიტანეთისა და ჩრდილოეთ ირლანდიის გაერთიანებული",  # United Kingdom
+    "საქართველო",  # Georgia
+    "ჰანთინგთონშტეინშ",  # Huntingtons
+    "მესართ ოთახი H",  # Mesart House H
+    "დიდი ბრიტანეთისა და ჩრდილოეთ ირლანდიის გაერთიანებული სამეფო",  # United Kingdom
+    "არუბა",  # Aruba
+    "პორტუგალია",  # Portugal
+    "სალვადორი",  # Salvador
+    "კატარი",  # Qatar
+    "ფინეთი",  # Finland
+    "დიდი ბრიტანეთის და ჩრდილოეთ ირლანდიის გაერთიანებული სამეფო",  # United Kingdom
+    "სლოვენია",  # Slovenia
+    "ლიეტუვა (ლიტვა)",  # Lithuania
+    "სინტ ტაუნისლაან",
+    "ეგვიპტე გენერალური მენეჯერი",  # Egypt General Manager
+    "გრენადა",  # Grenada
+    "ქუვეითი",  # Kuwait
+    "სუდანი",  # Sudan
+    "დიდი ბრიტანეთისადა ჩრდილოეთ ირლანდიის გაერთიანებულისამეფო",  # United Kingdom
+    "სიერალეონე",  # Sierra Leone
+    "ომანი",  # Oman
+    "მაროკო",  # Morocco
+    "იტალია",  # Italy
+    "დიდიბრიტანეთი",  # Great Britain
+    "მონტენეგრო",  # Montenegro
+    "პალესტინა",  # Palestine
+    "დიდი ბრიტანეთისადა ჩრდილოეთ ირლანდიის გაერთიანებული სამეფო",  # United Kingdom
+    "სიერა-ლეონე",  # Sierra Leone
+    "ირანი(ისლამური რესპუბლიკა)",  # Iran (Islamic Republic of)
+    "ახალი ზელანდია",  # New Zealand
+    "ბელორუსია",  # Belarus
+    "კოლუმბია",  # Colombia
+    "დიდი ბრიტანეთისადა ჩრდილოეთ ირლანდიისგაერთიანებული სამეფო",  # United Kingdom
+    "რუსეთის ფედერაცია",  # Russia
+    "ბელარუსი",  # Belarus
+    "პერუ",  # Peru
+    "სან-მარინო",  # San Marino
+    "ურუგვაი",  # Uruguay
+    "ა შ შ  (USA)",  # USA
+    "რეიმონ",  # Raymond
+    "ავსტრალია",  # Australia
+    "კვიპროსი",  # Cyprus
+    "ჟენევა პალასი",  # Geneva Palace
+    "ისრაელი",  # Israel
+    "ტანზანიის გაერთიანებული რესპუბ",  # United Republic of Tanzania
+    "კუბა",  # Cuba
+    "ჩეხეთის რესპუბლიკა",  # Czech Republic
+    "ინდოეთი",  # India
+    "აზერბაიჯანი",  # Azerbaijan
+    "იაპონია",  # Japan
+    "ჯერსი",  # Jersey
+    "ნიდერლანდები",  # Netherlands
+    "მონღოლეთი",  # Mongolia
+    "ანგოლა",  # Angola
+    "შვედეთი",  # Sweden
+    "სამოა",  # Samoa
+    "ჰონდურასი",  # Honduras
+    "კორეის სახალხოდემოკრატიული რე",  # Democratic People's Republic of Korea
+    "მექსიკა",  # Mexico
+    "ა შ შ",  # USA
+    "ეკვადორი",  # Ecuador
+    "ბრაზილია",  # Brazil
+    "პანამა",  # Panama
+    "უკრაინა",  # Ukraine
+    "ნიგერია",  # Nigeria
+    "არაბთაგაერთიანებული საამიროებ",  # United Arab Emirates
+    "სანაი",  # Senai
+    "ტრინიდადი და ტობაგო",  # Trinidad and Tobago
+    "ყატარი",  # Qatar
+    'ქართული შაქარი"',  # Georgian Shakari
+    "დომინიკა",  # Dominica
+    "ინდონეზია",  # Indonesia
+    "ანტიგუა და ბარბუდა",  # Antigua and Barbuda
+    "საფეიქროწარმოება",
+    "Saint George''",
+    "ბაჰამის კუნძულები",  # Bahamas
+    "ალჟირი",  # Algeria
+    "ირანი",  # Iran
+    "ალბანეთი",  # Albania
+    "სანმარინო",  # San Marino
+    "ლაოსი",  # Laos
+    "სერბეთი",  # Serbia
+    "კამბოჯა",  # Cambodia
+    "რუსეთის ფედერაცია ფინანსურ საკითხებში",  # Russia Federation Financial Issues
+    "ავღანეთი",  # Afghanistan
+    "სენეგალი",  # Senegal
+    "მარშალისკუნძულები",  # Marshall Islands
+    "ავსტრია",  # Austria
+    "შვეიცარია",  # Switzerland
+    "პაკისტანი",  # Pakistan
+    "უნგრეთი",  # Hungary
+    "შრი-ლანკა",  # Sri Lanka
+    "კომორის კუნძულები",  # Comoros
+    "ფიჯი",  # Fiji
+    "ტუნისი",  # Tunisia
+    "ლაიპციგი",  # Liechtenstein
+    "დიდი ბრიტანეთი",  # Great Britain
+    "მოზამბიკი",  # Mozambique
+    "სამხ აფრიკის რესპუბლიკა",  # Republic of South Africa
+    "მალაიზია",  # Malaysia
+    "ბულგარეთი",  # Bulgaria
+    "სეიშელისკუნძულები",  # Seychelles
+    "დიდი ბრიტანეთისა და",  # Great Britain and
+    "ყაზახეთი",  # Kazakhstan
+    "ტაილანდი",  # Thailand
+    "ვენესუელა",  # Venezuela
+    "კოსტა-რიკა",  # Costa Rica
+    "მაკედონია",  # Macedonia
+    "მიანმარი",  # Myanmar
+    "ფილიპინები",  # Philippines
+    "სომხეთი",  # Somalia
+    "კოსტარიკა",  # Costa Rica
+    "მალავი",  # Malawi
+    "ანგილია",  # Anguilla
+    "ირანი (ისლამური რესპუბლიკა)",  # Iran (Islamic Republic of)
+    "ნორვეგია",  # Norway
+    "ტოგო",  # Togo
+    "ისლანდია",  # Iceland
+    "მონაკო",  # Monaco
+    "გვინეა",  # Guinea
+    "ჩადი",  # Chad
+    "მალი",  # Mali
+    "სამხრეთ აფრიკა",  # South Africa
+    "ერიტრეა",  # Eritrea
+    "სირიის არაბთარესპუბლიკა",  # Syrian Arab Republic
+    "იემენი",  # Yemen
+    "ლიბერია",  # Liberia
+    "ნეპალი",  # Nepal
+    "სეინტ კიტს და ნევისი",  # Saint Kitts and Nevis
+    "პოლონეთი",  # Poland
+    "ყირგიზეთი",  # Kyrgyzstan
+    "ლიტვა",  # Lithuania
+    "საუდის არაბეთის სამეფო",  # Saudi Arabia
+    "დელავერის შტატი",  # Delaware State
+    "განა",  # Gana
+    "ვირჯინიისკუნძულები (ბრიტ )",  # Virgin Islands (Brit)
+    "საუდისარაბეთის სამეფო",  # Saudi Arabia
+    "გამბია",  # Gambia
+    "ირლანდია",  # Ireland
+    "დიდი ბრიტანეთი (GBR)",  # Great Britain (GBR)
+    "უზბეკეთი",  # Uzbekistan
+    "არაბთა გაერთიანებული საამიროებ",  # United Arab Emirates
+    "კენია",  # Kenya
+    "არაბთა გაერთიანებულისაემიროები",  # United Arab Emirates
+    'ახალი სტილი"',  # New Style
+    "აზარ მაჰმუდიალენჯარყი",  # Azar Mahmudialenjari
+    "მოლდოვა",  # Moldova
+    "ვირჯინიის",  # Virginia
+    "შვეიცარია ()",  # Switzerland
+    "ლატვია",  # Latvia
+    "სირია",  # Syria
+    "ბაჰრეინი",  # Bahrain
+    "ლიბანი",  # Lebanon
+    "ბურუნდი",  # Burundi
+    "ტაჯიკეთი",  # Tajikistan
+    "თურქმენეთი",  # Turkmenistan
+    "გაბონი",  # Gabon
+    "მარიამ ესმაილზადეჰ",  # Mariam Esmailzadeh
+    "ირანი (ისლამური",  # Iran (Islamic
+    "მარშალის კუნძულები",  # Marshall Islands
+    "კოტდივუარი",  # Cotdivuari
+    "ერაყი",  # Iraq
+    "ტრინიტი ჰაუსი",  # Trinidad House
+    "პარაგვაი",  # Paraguay
+    "ბანგლადეში",  # Bangladesh
+    "სეიშელის კუნძულები",  # Seychelles
+    "არგენტინა",  # Argentina
+    "იორდანია",  # Jordan
+    "სენტკიტსი დანევისი",  # Saint Kitts and Nevis
+    "ჩილე",  # Chile
+    "რუსეთი",  # Russia
+    "კაიმანის კუნძულები",  # Cayman Islands
+    "სირიისარაბთა რესპუბლიკა",  # Syrian Arab Republic
+    "სამხრეთაფრიკა",  # South Africa
+    "სინგაპური",  # Singapore
+    "გაერთიანებული სამეფო",  # United Kingdom
+    "არაბთაგაერთიანებული საემიროები",  # United Arab Emirates
+    "ლუქსემბურგის დიდი საჰერცოგო",  # Grand Duchy of Luxembourg
+    "კორეის სახალხო დემოკრატიული რესპუბლიკა",  # Democratic People's Republic of Korea
+    "დიდიბრიტანეთისა და ჩრდილოეთ ირლანდიისგაერთიანებული სამეფო",  # United Kingdom of Great Britain and Northern Ireland
+    "კამერუნი",  # Cameroon
+    "ზამბია",  # Zambia
+    "გიბრალტარი",  # Gibraltar
+    "ჩეხეთისრესპუბლიკა",  # Czech Republic
+    "თურქეთი ()",  # Turkey
+    "ირანი (ისლამურირესპუბლიკა)",  # Iran (Islamic Republic)
+    "ესტონეთი",  # Estonia
+    "ისრაელისაქართველო",  # Israel, Georgia
+    "სირიის არაბთა",  # Syrian Arab
+    'სუხიშვილის უნივერსიტეტი" (ყოფილიშ პ ს',  # Sukhishvili University (Kopilish P S
+    "აშშ",  # USA
+    "ბელიზი",  # Belize
+    "კურასაო",  # Curacao
+    "ბაჰრეინი მანამა",  # Bahrain Manama
+    "ბელგია",  # Belgium
+    "აფხაზეთი",  # Abkhazia
+    "ისრაელი ()",  # Israel
+    "ეთიოპია",  # Ethiopia
+    "მალტა",  # Malta
+    "კორეის სახალხო დემოკრატიული რე",  # Democratic People's Republic
+    "ბურკინა ფასო",  # Burkina Faso
+    "ლიეტუვა",  # Liechtenstein
+    "ესპანეთი",  # Spain
+    "ფრანსის დრეიკის გზატ",  # France's Dreiki Road
+    "ჰოლანდია",  # Holland
+    'ვიქტორია"',  # Victoria
+    "სენტ-ვინსენტი და გრენადინები",  # Saint Vincent and the Grenadines
+    "სენტკიტსი და ნევისი",  # Saint Kitts and Nevis
+    "გერმანია",  # Germany
+    "ლიბიის არაბთა ჯამაჰირია",  # Libya's Arab Jamahiriya
+    "დიდიბრიტანეთისა და ჩრდილოეთირლანდიის გაერთიანებულისამეფო",  # United Kingdom of Great Britain and Northern Ireland
+    "ეგვიპტე",  # Egypt
+    "საბერძნეთი",  # Greece
+    "საფრანგეთი",  # France
+    "ვიეტნამი",  # Vietnam
+    "თურქეთი",  # Turkey
+    "ჩეხეთი",  # Czech
+    "დიდი ბრიტანეთისა და ჩრდილოეთ ირლანდიის",  # United Kingdom of Great Britain and Northern Ireland
+    "მილანი",  # Milan
+    "ბენინი",  # Benin
+    "აზარბადეგან",  # Azerbaijan
+    "უგანდა",  # Uganda
+    "ვირჯინიის კუნძულები(ბრიტ )",  # Virgin Islands (Brit)
+    "არაბთა",  # Arab
+    "კანადა",  # Canada
+    "გვინეა-ბისაუ",  # Gvineau-Bisau
+    "ზიმბაბვე",  # Zimbabwe
+    "სირიის არაბთა რესპუბლიკა",  # Syrian Arab Republic
+    "ვირჯინიის კუნძულები (ბრიტ.)",  # Virgin Islands (Brit.)
+    "სომალი",  # Somalia
+    "(საქართველო)",  # (Georgia)
+    "რუსეთის",  # Russia's
+    "დანია",  # Denmark
+    "შრილანკა",  # Sri Lanka
+    "ჰოლსველ როუდ ლონდონი",  # Holsvel Road London
+    "ლიბია",  # Libya
+    "ამერიკის სამოა",  # America's Samoa
+    "ვანუატუ",  # Vanuatu
+    "უკრაინა ()",  # Ukraine
+    "პალაუ",  # Palau
+    "სენტ-კიტსი და ნევისი",  # Saint Kitts and Nevis
+    "ნიგერი",  # Niger
+    "დიდი ბრიტანეთისა და ჩრდილოეთ",  # United Kingdom of Great Britain and Northern
+    "დომინიკელთა რესპუბლიკა",  # Dominican Republic
+    "ვირჯინიის კუნძულები (ბრიტ )",  # Virgin Islands (Brit)
+    "რუმინეთი",  # Romania
+    "ხორვატია",  # Croatia
+    "კოსოვო",  # Kosovo
+    "ჩინეთი",  # China
+    "კორეის რესპუბლიკა",  # Republic of Korea
