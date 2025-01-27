@@ -33,7 +33,9 @@ LABEL_MAPPING = {
 REGEX_SPLIT = re.compile(r",?\s*\b\w[\.\)]")
 REGEX_GAZZETE_DATE = re.compile(r"(\d{2}\.\d{2}\.\d{4})")
 # split only with value ##-## or ##/##
-REGEX_SPLITTABLE_PASSPORT = re.compile(r"(^\d{5,}[-]\d{5,}$)|(^\d{5,}/\d{5,}(/\d{5,})?$)")
+REGEX_SPLITTABLE_PASSPORT = re.compile(
+    r"(^\d{5,}[-]\d{5,}$)|(^\d{5,}/\d{5,}(/\d{5,})?$)"
+)
 
 # https://masak.hmb.gov.tr/law-no-6415-on-the-prevention-of-the-financing-of-terrorism/#:~:text=(5)%20If%20natural%20and%20legal,following%20the%20date%20of%20request.
 # ARTICLE 5- (1) Decisions on freezing of assets under the possession of persons,
@@ -94,7 +96,9 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
         entity.add("birthPlace", birth_place)
         h.apply_dates(entity, "birthDate", birth_dates)
         h.apply_dates(entity, "birthDate", birth_establishment_date)
-        entity.add("passportNumber", parse_passport_numbers(collapse_spaces(passport_other)))
+        entity.add(
+            "passportNumber", parse_passport_numbers(collapse_spaces(passport_other))
+        )
         entity.add("passportNumber", parse_passport_numbers(collapse_spaces(pass_no)))
         entity.add("position", row.pop("position", ""))
         entity.add("motherName", mother_name)
