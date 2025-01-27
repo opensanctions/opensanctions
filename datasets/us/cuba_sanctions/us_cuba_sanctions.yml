@@ -16,13 +16,9 @@ description: |
   hotels blocked by the US State Department.  
 
   * [Cuba Prohibited Accommodations List](https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list/cuba-prohibited-accommodations-list-initial-publication/)
-
-  Previously, it also included the **List of Restricted Entities and Subentities Associated With Cuba** 
-  ("Cuba Restricted List"). However, on January 14, 2025, the President directed the rescission of 
-  this list, developed under Section 3(a)(i) of **National Security Presidential Memorandum 5 (NSPM-5)**. 
-  The Secretary of State rescinded the list on **January 16, 2025**.  
-  [Rescission of the List of Restricted Entities and Subentities Associated With Cuba](https://www.federalregister.gov/public-inspection/2025-01556/rescission-of-the-list-of-restricted-entities-and-subentities-associated-with-cuba).
-
+  * [List of Restricted Entities and Subentities Associated With Cuba](https://2021-2025.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list)
+    * On January 14, 2025, [the President directed the rescission of this list](https://bidenwhitehouse.archives.gov/briefing-room/presidential-actions/2025/01/14/memorandum-on-the-revocation-of-national-security-presidential-memorandum-5/).
+    * On January 20, 2025, [the incoming President revoked the rescission of this list](https://www.whitehouse.gov/presidential-actions/2025/01/initial-rescissions-of-harmful-executive-orders-and-actions/)
 publisher:
   name: US State Department
   acronym: State
@@ -37,7 +33,7 @@ publisher:
   official: true
 url: https://www.state.gov/cuba-sanctions/
 data:
-  url: https://docs.google.com/spreadsheets/d/1kkl5JhsE-w3m8veU4DrkwTOGMmkAniMc0GsyJFJMFck/edit#gid=1890354374https://www.bis.doc.gov/dpl/dpl.txt
+  url: https://docs.google.com/spreadsheets/d/1kkl5JhsE-w3m8veU4DrkwTOGMmkAniMc0GsyJFJMFck/edit#gid=1890354374
   format: CSV
   lang: eng
 ci_test: false
