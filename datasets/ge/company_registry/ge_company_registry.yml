@@ -403,53 +403,133 @@ lookups:
       - match:
           - "კამერუნი",  # Cameroon
         value: Cameroon
+      - match:
           - "კანადა",  # Canada
+        value: Canada
+      - match:
           - "კატარი",  # Qatar
+        value: Qatar
+      - match:
           - "კენია",  # Kenya
+        value: Kenya
+      - match:
           - "კვიპროსი",  # Cyprus
+        value: Cyprus
+      - match:
           - "კოლუმბია",  # Colombia
+        value: Colombia
+      - match:
           - "კომორის კუნძულები",  # Comoros
+        value: Comoros
+      - match:
           - "კოსოვო",  # Kosovo
+        value: Kosovo
+      - match:
           - "კოსტა-რიკა",  # Costa Rica
           - "კოსტარიკა",  # Costa Rica
+        value: Costa Rica
+      - match:
           - "კოტდივუარი",  # Cotdivuari
+        value: Cotdivuari
+      - match:
           - "კუბა",  # Cuba
+        value: Cuba
+      - match:
           - "კურასაო",  # Curacao
+        value: Curacao
+      - match:
           - "ლაიპციგი",  # Liechtenstein
+        value: Liechtenstein
+      - match:
           - "ლაოსი",  # Laos
+        value: Laos
+      - match:
           - "ლატვია",  # Latvia
+        value: Latvia
+      - match:
           - "ლიბანი",  # Lebanon
+        value: Lebanon
+      - match:
           - "ლიბერია",  # Liberia
+        value: Liberia
+      - match:
           - "ლიბია",  # Libya
           - "ლიბიის არაბთა ჯამაჰირია",  # Libya's Arab Jamahiriya
+        value: Libya
+      - match:
           - "ლიეტუვა (ლიტვა)",  # Lithuania
+        value: Lithuania
+      - match:
           - "ლიეტუვა",  # Liechtenstein
+        value: Liechtenstein
+      - match:
           - "ლისამოლი",  # Lesotho
+        value: Lesotho
+      - match:
           - "ლიტვა",  # Lithuania
+        value: Lithuania
+      - match:
           - "ლუქსემბურგი",  # Luxembourg
           - "ლუქსემბურგის დიდი საჰერცოგო",  # Grand Duchy of Luxembourg
+        value: Luxembourg
+      - match:
           - "მაკედონია",  # Macedonia
+        value: Macedonia
+      - match:
           - "მალავი",  # Malawi
+        value: Malawi
+      - match:
           - "მალაიზია",  # Malaysia
+        value: Malaysia
+      - match:
           - "მალი",  # Mali
+        value: Mali
+      - match:
           - "მალტა",  # Malta
-          - "მარიამ ესმაილზადეჰ",  # Mariam Esmailzadeh
+        value: Malta
+      - match:
           - "მაროკო",  # Morocco
+        value: Morocco
+      - match:
           - "მარშალის კუნძულები",  # Marshall Islands
           - "მარშალისკუნძულები",  # Marshall Islands
-          - "მესართ ოთახი H",  # Mesart House H
+        value: Marshall Islands
+      - match:
           - "მექსიკა",  # Mexico
+        value: Mexico
+      - match:
           - "მიანმარი",  # Myanmar
+        value: Myanmar
+      - match:
           - "მილანი",  # Milan
+        value: Italy
+      - match:
           - "მოზამბიკი",  # Mozambique
+        value: Mozambique
+      - match:
           - "მოლდოვა",  # Moldova
+        value: Moldova
+      - match:
           - "მონაკო",  # Monaco
+        value: Monaco
+      - match:
           - "მონტენეგრო",  # Montenegro
+        value: Montenegro
+      - match:
           - "მონღოლეთი",  # Mongolia
+        value: Mongolia
+      - match:
           - "ნეპალი",  # Nepal
+        value: Nepal
+      - match:
           - "ნიგერი",  # Niger
+        value: Niger
+      - match:
           - "ნიგერია",  # Nigeria
+        value: Nigeria
+      - match:
           - "ნიდერლანდები",  # Netherlands
+        value: Netherlands
           - "ნორვეგია",  # Norway
           - "ომანი",  # Oman
           - "პაკისტანი",  # Pakistan
