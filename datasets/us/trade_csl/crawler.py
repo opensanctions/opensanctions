@@ -165,10 +165,10 @@ def parse_result(context: Context, result: Dict[str, Any]):
 
     for obj in parse_addresses(context, result.pop("addresses", [])):
         # h.apply_address(context, entity, obj)
-        if not entity.schema.is_a("Address"):
-            h.copy_address(entity, obj)
-        else:
+        if entity.schema.is_a("Address"):
             entity.add("full", obj.get("full"))
+        else:
+            h.copy_address(entity, obj)
 
     for ident in result.pop("ids", []):
         context.log.warning("Unknown ID type", id=ident)
