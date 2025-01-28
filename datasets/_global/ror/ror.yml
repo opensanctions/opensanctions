@@ -4,6 +4,8 @@ prefix: ror
 coverage:
   frequency: monthly
   start: "2024-10-14"
+deploy:
+  memory: 1000Mi
 ci_test: false
 summary: >
   Identifiers for research organizations, maintained by the Research Organization Registry.

@@ -3,7 +3,6 @@ title: Wanted lists
 hidden: true
 coverage:
   start: "2021-09-01"
-  schedule: "0 */4 * * *"
   frequency: daily
 deploy:
   memory: "1500Mi"

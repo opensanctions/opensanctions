@@ -5,9 +5,10 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
-ORIGINAL_ACCOMMODATIONS_URL = "https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list/cuba-prohibited-accommodations-list-initial-publication/"
+ORIGINAL_ACCOMMODATIONS_URL = (
+    "https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list/"
+)
 ACCOMMODATIONS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=1890354374&single=true&output=csv"
-ORIGINAL_ENTITIES_URL = "https://www.state.gov/cuba-restricted-list/list-of-restricted-entities-and-subentities-associated-with-cuba-effective-january-8-2021/"
 ENTITIES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=0&single=true&output=csv"
 CONTENT_XPATH = ".//div[@class='entry-content']"
 ACTIONS = [
@@ -27,7 +28,8 @@ def crawl_accommodations(context: Context):
         context, ORIGINAL_ACCOMMODATIONS_URL, CONTENT_XPATH, actions=ACTIONS
     )
     node = doc.find(CONTENT_XPATH)
-    h.assert_dom_hash(node, "7a2be818841181e19a1988c4d86789087d245c31")
+    if not h.assert_dom_hash(node, "6248f2c61ec846f6ba89d70b8ef02d6bb32a405a"):
+        context.log.warning("Accommodations page changed. Check for data updates.")
 
     path = context.fetch_resource("accommodations.csv", ACCOMMODATIONS_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
@@ -46,9 +48,17 @@ def crawl_accommodations(context: Context):
 
 
 def crawl_restricted_entities(context: Context):
-    doc = fetch_html(context, ORIGINAL_ENTITIES_URL, CONTENT_XPATH, actions=ACTIONS)
+    landing_doc = fetch_html(
+        context, context.dataset.url, CONTENT_XPATH, actions=ACTIONS, cache_days=1
+    )
+    restricted_list_url = landing_doc.xpath(".//a[text()='Cuba Restricted List']/@href")
+    assert len(restricted_list_url) == 1, restricted_list_url
+    doc = fetch_html(context, restricted_list_url[0], CONTENT_XPATH, actions=ACTIONS)
     node = doc.find(CONTENT_XPATH)
-    h.assert_dom_hash(node, "d51568c7e6acb7da68cbf6c2a54987ea6fd5ff53")
+    if not h.assert_dom_hash(node, "52894f39893ab2432b411441f3bc21c27c3bea7d"):
+        context.log.warning(
+            "Restricted List url destination content changed. Check for data updates"
+        )
 
     path = context.fetch_resource("restricted_entities.csv", ENTITIES_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
@@ -82,5 +92,11 @@ def crawl_restricted_entities(context: Context):
 
 
 def crawl(context: Context):
+    doc = fetch_html(
+        context, context.dataset.url, CONTENT_XPATH, actions=ACTIONS, cache_days=1
+    )
+    node = doc.find(CONTENT_XPATH)
+    if not h.assert_dom_hash(node, "68b8e034bd290f5d384ab74bebf24f60b43db282"):
+        context.log.warning("Landing page changed. Check for added/removed lists.")
     crawl_accommodations(context)
     crawl_restricted_entities(context)

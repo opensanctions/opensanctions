@@ -1,8 +1,10 @@
 type: collection
 title: "Non-deduplicated sanctioned entities"
 hidden: true
+coverage:
+  start: "2023-12-04"
+  frequency: monthly
 deploy:
-  schedule: "@weekly"
   memory: "1500Mi"
 exports:
   - statistics.json

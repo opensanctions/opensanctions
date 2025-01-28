@@ -5,7 +5,8 @@ deploy:
   memory: "2000Mi"
   disk: "100Gi"
 coverage:
-  frequency: weekly
+  frequency: monthly
+  start: "2023-08-23"
 exports:
   - statistics.json
   - entities.ftm.json

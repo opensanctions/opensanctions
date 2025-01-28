@@ -1,18 +1,17 @@
 import io
 from pathlib import Path
-from typing import Dict, Generator
+from typing import Dict, Generator, List
 from csv import DictReader
 from zipfile import ZipFile
 from normality import stringify
-from zavod.logs import get_logger
 from followthemoney import model
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
-log = get_logger("offshoreleaks")
-
 SCHEMATA: Dict[str, str] = {}
+ADDRESSES_FULL: Dict[str, List[str]] = {}
+ADDRESSES_COUNTRIES: Dict[str, List[str]] = {}
 NODE_URL = "https://offshoreleaks.icij.org/nodes/%s"
 
 
@@ -47,8 +46,8 @@ def read_rows(
             reader = DictReader(fh, delimiter=",", quotechar='"')
             for idx, row in enumerate(reader):
                 yield {k: stringify(v) for (k, v) in row.items()}
-                if idx > 0 and idx % 10000 == 0:
-                    context.log.info("Read %d rows..." % idx, file_name=file_name)
+                # if idx > 0 and idx % 10000 == 0:
+                #     context.log.info("Read %d rows..." % idx, file_name=file_name)
 
 
 def make_row_entity(context: Context, row: Dict[str, str], schema):
@@ -88,8 +87,6 @@ def make_row_entity(context: Context, row: Dict[str, str], schema):
     proxy.add("notes", row.pop("note", None))
 
     row.pop("jurisdiction", None)
-    # countries = parse_countries()
-    # proxy.add("jurisdiction", countries)
     countries = parse_countries(row.pop("jurisdiction_description", None))
     proxy.add("jurisdiction", countries)
     proxy.add("address", row.pop("address", None))
@@ -110,40 +107,59 @@ def make_row_entity(context: Context, row: Dict[str, str], schema):
 
 def make_row_address(context: Context, row: Dict[str, str]):
     node_id = row.pop("node_id", None)
-    proxy = context.make("Address")
-    proxy.id = context.make_slug(node_id)
-    proxy.add("full", row.pop("address", None))
+    ADDRESSES_COUNTRIES[node_id] = parse_countries(row.pop("countries"))
+    ADDRESSES_FULL[node_id] = [row.pop("address", None), row.pop("name", None)]
+    # proxy = context.make("Address")
+    # proxy.id = context.make_slug(node_id)
+    # proxy.add(
+    #     "full",
+    # )
 
-    name = row.pop("name", None)
-    proxy.add("full", name)
-    # if name is not None:
-    #     log.info("Name [%s] => [%s]", proxy.first("full"), name)
+    # name = row.pop("name", None)
+    # proxy.add("full", name)
+    # # if name is not None:
+    # #     log.info("Name [%s] => [%s]", proxy.first("full"), name)
 
-    row.pop("country_codes", None)
-    countries = parse_countries(row.pop("countries"))
-    proxy.add("country", countries)
-    proxy.add("summary", row.pop("valid_until", None))
-    proxy.add("remarks", row.pop("note", None))
-    proxy.add("publisher", row.pop("sourceID", None))
+    # row.pop("country_codes", None)
+    # countries = parse_countries(row.pop("countries"))
+    # proxy.add("country", countries)
+    # proxy.add("summary", row.pop("valid_until", None))
+    # proxy.add("remarks", row.pop("note", None))
+    # proxy.add("publisher", row.pop("sourceID", None))
 
-    context.audit_data(row)
-    emit_entity(context, proxy)
+    context.audit_data(row, ignore=["sourceID", "note", "valid_until", "country_codes"])
+    # emit_entity(context, proxy)
 
 
 LINK_SEEN = set()
 
 
 def make_row_relationship(context: Context, row: Dict[str, str]):
-    # print(row)
-    # return
     _type = row.pop("rel_type")
     _start = row.pop("node_id_start")
     _end = row.pop("node_id_end")
+    if _start in ADDRESSES_FULL:
+        if _type not in ("same_as", "same_address_as"):
+            context.log.warn(
+                "Start is addr",
+                type=_type,
+                start=_start,
+                end=_end,
+                is_end_addr=_end in ADDRESSES_FULL,
+            )
+        return
+
     start = context.make_slug(_start)
     assert start is not None, _start
     start_schema = SCHEMATA.get(start)
     start_ent = context.make(start_schema)
     start_ent.id = start
+
+    if _end in ADDRESSES_FULL:
+        start_ent.add("address", ADDRESSES_FULL[_end])
+        start_ent.add("country", ADDRESSES_COUNTRIES[_end])
+        return
+
     end = context.make_slug(_end)
     assert end is not None, _end
     end_schema = SCHEMATA.get(end)
@@ -167,23 +183,27 @@ def make_row_relationship(context: Context, row: Dict[str, str]):
             LINK_SEEN.add(link)
         return
 
-    if start_ent.schema.name == "Address":
+    if res.skip is True:
         return
 
-    if end_ent.schema.name == "Address" and start_ent.schema.is_a("Thing"):
-        start_ent.add("address", end_ent.get("full"))
-        start_ent.add("country", end_ent.get("country"))
-        return
+    # if start_ent.schema.name == "Address":
+    #     context.log.info("Start is addr", link=link, end=end_ent)
+    #     return
 
-    if res.address:
-        context.log.warn(
-            "Address is not an address",
-            start=start_ent,
-            end=end_ent,
-            link=link,
-            type=_type,
-        )
-        return
+    # if end_ent.schema.name == "Address" and start_ent.schema.is_a("Thing"):
+    #     start_ent.add("address", end_ent.get("full"))
+    #     start_ent.add("country", end_ent.get("country"))
+    #     return
+
+    # if res.address:
+    #     context.log.warn(
+    #         "Address is not an address",
+    #         start=start_ent,
+    #         end=end_ent,
+    #         link=link,
+    #         type=_type,
+    #     )
+    #     return
 
     if end_ent is not None and end_ent.schema.name == "Address":
         context.log.warn("End is addr", link=link, end=end_ent)
@@ -212,6 +232,16 @@ def make_row_relationship(context: Context, row: Dict[str, str]):
         end_ent.add("sourceUrl", NODE_URL % _end)
         emit_entity(context, end_ent)
 
+    # row = {k: v for k, v in row.items() if v is not None}
+    # if len(row):
+    #     context.log.warning(
+    #         "Unused data: %r" % row,
+    #         link=link,
+    #         type=_type,
+    #         start=_start,
+    #         end=_end,
+    #         res=res.schema,
+    #     )
     context.audit_data(row)
 
 
