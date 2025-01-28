@@ -46,7 +46,8 @@ def crawl_row(context: Context, row: list) -> None:
     entity.id = context.make_id(id, name, reg_date)
     entity.add("name", name)
     entity.add("classification", legal_form)
-    entity.add("incorporationDate", reg_date)
+    if reg_date != "NULL":
+        h.apply_date(entity, "incorporationDate", reg_date)
     for add in h.multi_split(row.pop("address"), ["; ", " / "]):
         entity.add("address", add)
     entity.add("status", row.pop("status"))
