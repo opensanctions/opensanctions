@@ -16,6 +16,15 @@ def crawl_bio_page(context: Context, url: str):
         geolocation="US",
         cache_days=30,
     )
+    if doc.xpath(".//body[contains(@class, 'error404')]"):
+        if context.lookup("expected_404", url):
+            return
+        else:
+            context.log.warning(
+                "Unexpected 404. Perhaps the expected_404 list needs to be updated.",
+                url=url,
+            )
+
     name = collapse_spaces(doc.xpath(name_xpath)[0].text_content())
     title = None
     if name.startswith("Ambassador "):
@@ -94,7 +103,7 @@ def get_next_link(doc) -> Optional[str]:
 
 def crawl_index_page(context: Context, url: str):
     bios_xpath = ".//a[contains(@class, 'biography-collection__link')]"
-    context.log.info(f"Crawling index page {url}")
+    context.log.info("Crawling index page", url=url)
     doc = fetch_html(
         context,
         url,
@@ -102,6 +111,7 @@ def crawl_index_page(context: Context, url: str):
         geolocation="US",
     )
     for anchor in doc.xpath(bios_xpath):
+        context.log.info("Crawling bio page", url=anchor.get("href"))
         crawl_bio_page(context, anchor.get("href"))
     return get_next_link(doc)
 
