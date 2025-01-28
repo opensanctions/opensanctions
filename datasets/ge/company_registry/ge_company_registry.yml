@@ -7,11 +7,12 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >-
-  List of companies registered in Georgia extracted from the Georgian Company Registry.
+  List of companies registered in Georgia, sourced from the official Georgian Company Registry.
 description: |
-  The Georgian Company Registry is a list of companies registered in
-  Georgia. The dataset includes information about the company's name,
-  registration date, address, legal form, director, and partners.
+  This dataset contains detailed information about companies registered in Georgia. It includes 
+  the company name, registration date, legal address, legal form, director, and partner details.
+
+  **Note:** It is a snapshot of the official Georgian Company Registry.
 url: https://enreg.reestri.gov.ge/main.php?m=new_index
 data:
   url: https://enreg.reestri.gov.ge/main.php?m=new_index
