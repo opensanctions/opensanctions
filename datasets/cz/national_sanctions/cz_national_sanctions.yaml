@@ -51,6 +51,22 @@ assertions:
       Person: 10
       LegalEntity: 5
 lookups:
+  end_date:
+    options:
+      - match: OBNOSOV/???????/OBNOSOV - Zápis byl zrušen ke dni 18. prosince 2023 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2023/2871.
+        value: 2023-12-18
+      - match: MEDVEDČUK/MEDVEDCHUK/????????? - Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
+        value: 2024-05-27
+      - match: MARCHEVSKYI/ MARCHEVSKIJ/ MARČEVSKIJ/ ?????????? - Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
+        value: 2024-05-27
+  summary:
+    options:
+      - match: OBNOSOV/???????/OBNOSOV - Zápis byl zrušen ke dni 18. prosince 2023 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2023/2871.
+        value: Zápis byl zrušen ke dni 18. prosince 2023 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2023/2871.
+      - match: MEDVEDČUK/MEDVEDCHUK/????????? - Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
+        value: Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
+      - match: MARCHEVSKYI/ MARCHEVSKIJ/ MARČEVSKIJ/ ?????????? - Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
+        value: Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
   type.country:
     lowercase: true
     normalize: true
