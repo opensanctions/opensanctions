@@ -6,7 +6,7 @@ coverage:
   start: 2025-01-20
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
-  List of companies registered in Georgia
+  List of companies registered in Georgia extracted from the Georgian Company Registry.
 description: |
   The Georgian Company Registry is a list of companies registered in
   Georgia. The dataset includes information about the company's name,
@@ -78,6 +78,7 @@ lookups:
       - match:
           - 16. პარტნიორის კომპანიასთან კავშირის საწყისი თარიღი
         value: partner_start_date
+
   type.address: 
     options:
       - match: 'საქართველო, თბილისი, ძველი თბილისის რაიონი, თავისუფლების მოედანი, N7 საქართველოს სამომხმარებლო კოოპერატივების ცენტრალური კავშირი - ცეკავშირი - წარმოადგენს საქართველოს სამომხმარებლო კოოპერაციის ეროვნული ალიანსი ცეკავშირის (რეგ. №4/9-1 29.12.1997წ) სამართალმემკვიდრეს.'

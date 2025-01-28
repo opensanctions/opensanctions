@@ -5,7 +5,6 @@ from followthemoney.types import registry
 from zavod import Context, helpers as h
 from zavod.shed.internal_data import fetch_internal_data, list_internal_data
 
-# ORGS: Cooperative, Foreign Non-Commercial Legal Entity Branch, Public Legal Entity
 LEGAL_FORMS = {
     "ეზღუდული პასუხისმგებლობის საზოგადოება",  # Limited Liability Company
     "კოოპერატივი",  # Cooperative
@@ -169,5 +168,5 @@ def crawl(context: Context) -> None:
             dict_reader = csv.DictReader(fh, fieldnames=header_mapping, delimiter=";")
             for index, row in enumerate(dict_reader):
                 crawl_row(context, row)
-                # if index >= 100000:
+                # if index >= 100:
                 #     break
