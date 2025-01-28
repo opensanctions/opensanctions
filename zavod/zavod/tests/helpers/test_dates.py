@@ -3,7 +3,7 @@ from structlog.testing import capture_logs
 
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
-from zavod.helpers.dates import check_no_year, extract_years, extract_date
+from zavod.helpers.dates import extract_years, extract_date
 from zavod.helpers.dates import replace_months, apply_date, apply_dates
 
 FORMATS = ["%b %Y", "%d.%m.%Y", "%Y-%m"]
@@ -18,14 +18,6 @@ def test_extract_years():
     assert len(extract_years("2023")) == 1
     assert len(extract_years("circa 2023")) == 1
     assert len(extract_years("between 1980 and 1982")) == 2
-
-
-def test_check_no_year():
-    assert check_no_year(None) is True
-    assert check_no_year("foo") is True
-    assert check_no_year("25.2.") is True
-    assert check_no_year("25.") is True
-    assert check_no_year("with 2011") is False
 
 
 def test_extract_date(testdataset1: Dataset):
