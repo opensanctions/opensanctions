@@ -42,7 +42,7 @@ from zavod.helpers.text import multi_split
 from zavod.helpers.sanctions import make_sanction, is_active
 from zavod.helpers.addresses import make_address, format_address
 from zavod.helpers.addresses import copy_address, apply_address, postcode_pobox
-from zavod.helpers.dates import extract_years, parse_date, check_no_year
+from zavod.helpers.dates import extract_years, check_no_year
 from zavod.helpers.dates import parse_formats, apply_date, apply_dates, extract_date
 from zavod.helpers.dates import replace_months
 from zavod.helpers.identification import make_identification
@@ -68,7 +68,6 @@ __all__ = [
     "is_active",
     "make_identification",
     "extract_years",
-    "parse_date",
     "parse_formats",
     "parse_xls_sheet",
     "parse_xlsx_sheet",
