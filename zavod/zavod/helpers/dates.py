@@ -17,7 +17,6 @@ ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 DateValue = Union[str, date, datetime, None]
 
 __all__ = [
-    "parse_date",
     "extract_date",
     "check_no_year",
     "parse_formats",
@@ -57,24 +56,6 @@ def check_no_year(text: Optional[str]) -> bool:
     if text is None:
         return True
     return len(extract_years(text)) == 0
-
-
-def parse_date(
-    text: Optional[str], formats: Iterable[str], default: Optional[str] = None
-) -> List[str]:
-    """Parse a date two ways: first, try and apply a set of structured formats and
-    return a partial date if any of them parse correctly. Otherwise, apply
-    `extract_years` on the remaining string."""
-    warnings.warn("Use h.apply_date instead", DeprecationWarning)
-    if text is None:
-        return [default] if default is not None else []
-    parsed = parse_formats(text, formats)
-    if parsed.text is not None:
-        return [parsed.text]
-    years = extract_years(text)
-    if len(years):
-        return years
-    return [default or text]
 
 
 def replace_months(dataset: Dataset, text: str) -> str:
