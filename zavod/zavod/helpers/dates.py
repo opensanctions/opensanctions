@@ -1,5 +1,4 @@
 import re
-import warnings
 from functools import lru_cache
 from prefixdate import parse_formats
 from datetime import datetime, date, timezone
@@ -18,7 +17,6 @@ DateValue = Union[str, date, datetime, None]
 
 __all__ = [
     "extract_date",
-    "check_no_year",
     "parse_formats",
     "extract_years",
     "apply_date",
@@ -48,14 +46,6 @@ def extract_years(text: str) -> List[str]:
             continue
         years.add(year)
     return list(years)
-
-
-def check_no_year(text: Optional[str]) -> bool:
-    """Check for a few formats in which dates are given as day/month, with no year
-    specified."""
-    if text is None:
-        return True
-    return len(extract_years(text)) == 0
 
 
 def replace_months(dataset: Dataset, text: str) -> str:

@@ -56,6 +56,13 @@ data:
   url: "https://rupep.org/en/faq/"
   format: JSON
 
+
+dates:
+  formats: ["%d-%b-%Y", "%d-%m-%Y", "%d-%b-%y"]
+  formats: ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
+  months:
+    "Sep": "Sept"
+
 lookups:
   person_country_links:
     normalize: true

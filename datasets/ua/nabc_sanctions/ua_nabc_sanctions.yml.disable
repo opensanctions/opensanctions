@@ -44,6 +44,9 @@ data:
   url: https://sanctions.nazk.gov.ua/api/
   format: JSON
 
+dates:
+  formats: ["%d.%m.%Y", "dd.%m.%Y"]
+
 lookups:
   relations:
     options:
