@@ -1,6 +1,9 @@
 import re
 import ijson
 from typing import Any, Dict, Optional, List, Tuple, Set
+
+import prefixdate
+
 from followthemoney import model
 from followthemoney.types import registry
 from normality import collapse_spaces
@@ -98,13 +101,15 @@ def split_names(names):
     return h.multi_split(names, ["\n", ", "])
 
 
-def parse_date(date):
+def parse_date(date) -> Optional[str]:
     if date is None or len(date.strip()) == 0:
         return None
     if h.check_no_year(date):
         return None
     date = date.replace("Sept.", "Sep.")
-    return h.parse_date(date, FORMATS)
+    parsed = prefixdate.parse_formats(date, FORMATS)
+    if parsed.text is not None:
+        return parsed.text
 
 
 def crawl_person_person_relation(

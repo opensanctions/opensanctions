@@ -1,4 +1,5 @@
 import re
+import warnings
 from functools import lru_cache
 from prefixdate import parse_formats
 from datetime import datetime, date, timezone
@@ -64,6 +65,7 @@ def parse_date(
     """Parse a date two ways: first, try and apply a set of structured formats and
     return a partial date if any of them parse correctly. Otherwise, apply
     `extract_years` on the remaining string."""
+    warnings.warn("Use h.apply_date instead", DeprecationWarning)
     if text is None:
         return [default] if default is not None else []
     parsed = parse_formats(text, formats)
