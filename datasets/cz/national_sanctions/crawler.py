@@ -32,8 +32,16 @@ def crawl_item(row: Dict[str, str], context: Context):
     )
     name = str(name_field)
 
+    end_date: Optional[str] = None
+    summary: Optional[str] = None
     cancel_text: Optional[str] = None
     if "Zápis byl zrušen" in name:
+        end_date = context.lookup_value("end_date", name)
+        if end_date is None:
+            context.log.warning(f"End date not found for {name}")
+        summary = context.lookup_value("summary", name)
+        if summary is None:
+            context.log.warning(f"Summary not found for {name}")
         idx = name.index("Zápis byl zrušen")
         name = name[:idx].strip()
         cancel_text = name[idx:].strip()
@@ -83,6 +91,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("topics", "sanction")
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("datum_zapisu"))
+    h.apply_date(sanction, "endDate", end_date)
 
     # Popis postižitelného jednání -> Description of punishable conduct
     sanction.add("reason", row.pop("popis_postizitelneho_jednani"), lang="ces")
@@ -99,10 +108,11 @@ def crawl_item(row: Dict[str, str], context: Context):
     provision = row.pop(
         "ustanoveni_predpisu_evropske_unie_jehoz_skutkovou_podstatu_subjekt_jednanim_naplnil"
     )
+    sanction.add("summary", summary, lang="ces")
     sanction.add("program", provision, lang="ces")
     sanction.add("status", cancel_text, lang="ces")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row)
