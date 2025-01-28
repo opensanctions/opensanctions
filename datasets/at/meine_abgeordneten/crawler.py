@@ -158,7 +158,9 @@ def crawl_item(url_info_page: str, context: Context):
             "expected_503", url_info_page
         ):
             return
-        raise
+        raise Exception(
+            f"HTTP 503 error on {url_info_page}. Consider updating expected_503 list."
+        ) from e
     info_page.make_links_absolute(url_info_page)
 
     first_name = info_page.findtext(".//span[@itemprop='http://schema.org/givenName']")

@@ -1977,3 +1977,7 @@ lookups:
         code: "GR"
         label: "Greece"
         decision: "national"
+      - match: "Q131839713"
+        code: null
+        label: Kingdom of Patones
+        decision: ignore
