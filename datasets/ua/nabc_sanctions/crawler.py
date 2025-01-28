@@ -1,4 +1,5 @@
 import json
+
 from banal import ensure_list
 from typing import Any, Dict, List, Generator
 
@@ -57,13 +58,9 @@ def clean_row(row: Dict[str, Any]) -> Dict[str, Any]:
     return data
 
 
-def parse_date(date):
-    if date is not None:
-        date = date.replace(" ", "")
-    dates = set()
-    for part in h.multi_split(date, [",", "\n", ";"]):
-        dates.update(h.parse_date(part, ["%d.%m.%Y", "dd.%m.%Y"]))
-    return dates
+def split_dates(date):
+    date = date.replace(" ", "") if date else ""
+    return h.multi_split(date, [",", "\n", ";"])
 
 
 def url_split(urls):
@@ -226,8 +223,8 @@ def crawl_person(context: Context) -> None:
             entity.add("name", row.pop("name_en", None), lang="eng")
             entity.add("name", row.pop("name_ru", None), lang="rus")
             entity.add("name", row.pop("name_uk", None), lang="ukr")
-            entity.add("birthDate", parse_date(row.pop("date_bd", None)))
-            entity.add("deathDate", parse_date(row.pop("date_dead", None)))
+            h.apply_dates(entity, "birthDate", split_dates(row.pop("date_bd", None)))
+            h.apply_dates(entity, "deathDate", split_dates(row.pop("date_dead", None)))
             url = f"https://sanctions.nazk.gov.ua/sanction-person/{person_id}/"
             entity.add("sourceUrl", url)
             if row.get("city_bd_en") != "N/A":
