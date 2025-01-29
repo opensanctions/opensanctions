@@ -155,42 +155,55 @@ def make_affiliation_entities(
 
 def crawl_person(context: Context, person):
     full_name = person.pop("imeIPrezime")
-    # Use this as a fallback if there aren't downloadable declarations
-    # position = person.pop("nazivFunkcije")
     dates = person.pop("izvjestajImovine")
     filing_date, report_id = extract_latest_filing(dates)
-    report_details = fetch_csv(context, report_id, "csv_funkcije_funkcionera_")
-    if not report_details:
-        return
 
-    position_entities = []
-    for row in report_details:
-        first_name = row.pop("FUNKCIONER_IME")
-        last_name = row.pop("FUNKCIONER_PREZIME")
-        function = row.pop("FUNKCIJA")
+    relatives_csv = fetch_csv(context, report_id, "csv_clanovi_porodice_")
+    pep = [row for row in relatives_csv if row.get("SRODSTVO") == "Funkcioner"]
+    relatives = [row for row in relatives_csv if row.get("SRODSTVO") != "Funkcioner"]
+
+    if pep:
+        official = pep[0]
+        first_name = official.pop("FUNKCIONER_IME")
+        last_name = official.pop("FUNKCIONER_PREZIME")
+        city = official.pop("MESTO")
         entity = context.make("Person")
-        entity.id = context.make_id(full_name, function)
-        h.apply_name(
-            entity,
-            full_name,
-            first_name,
-            last_name,
-        )
-        entity.add("topics", "role.pep")
-        entities, categorisation_topics = make_affiliation_entities(
-            context, entity, function, row, filing_date, report_id
-        )
-        position_entities.extend(entities)
+        entity.id = context.make_id(first_name, city)
+        h.apply_name(entity, first_name=first_name, last_name=last_name)
+    else:
+        function_label = person.pop("nazivFunkcije")
+        entity = context.make("Person")
+        entity.id = context.make_id(full_name, function_label)
+        h.apply_name(entity, full_name)
 
-        # Decide on crawling relatives based on categorisation topics
-        if "gov.national" in categorisation_topics and entities:
-            relatives = fetch_csv(context, report_id, "csv_clanovi_porodice_")
-            crawl_relative(context, entity, relatives)
+    entity.add("topics", "role.pep")
 
-        if position_entities:
-            for position in position_entities:
-                context.emit(position)
-            context.emit(entity)
+    report_details = fetch_csv(context, report_id, "csv_funkcije_funkcionera_")
+    position_entities = []
+    categorisation_topics = set()
+
+    if report_details:
+        for row in report_details:
+            function = row.pop("FUNKCIJA")
+            entities, topics = make_affiliation_entities(
+                context, entity, function, row, filing_date, report_id
+            )
+            position_entities.extend(entities)
+            categorisation_topics.update(topics)
+    else:
+        function_label = person.pop("nazivFunkcije")
+        position = h.make_position(context, function_label, country="ME")
+        categorisation = categorise(context, position, is_pep=True)
+        categorisation_topics.update(categorisation.topics)
+        position_entities.append(position)
+
+    if "gov.national" in categorisation_topics:
+        crawl_relative(context, entity, relatives)
+
+    if position_entities:
+        for position in position_entities:
+            context.emit(position)
+        context.emit(entity)
 
 
 def crawl(context: Context):
@@ -206,8 +219,8 @@ def crawl(context: Context):
 
         for person in doc:
             crawl_person(context, person)
-        page += 1
 
+        page += 1
         if page >= max_pages:
             context.log.warning(
                 f"Emergency exit: Reached the maximum page limit of {max_pages}."
