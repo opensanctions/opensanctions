@@ -57,7 +57,7 @@ Issues = "https://github.com/opensanctions/opensanctions/issues"
 
 [project.optional-dependencies]
 dev = [
-    "black==24.10.0",
+    "black==25.1.0",
     "isort==5.13.2",
     "wheel>=0.29.0",
     "twine",
