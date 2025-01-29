@@ -1,5 +1,4 @@
-from rigour.mime.types import XLS, XLSX
-import xlrd
+from rigour.mime.types import XLSX
 import openpyxl
 
 from zavod import Context, helpers as h
