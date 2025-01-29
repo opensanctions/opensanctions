@@ -119,10 +119,10 @@ def crawl(context: Context):
         item["source_url"] = SEBI_DEBARRMENT_URL
         items.append(item)
 
-    path_other = context.fetch_resource("other.xls", OTHER_DEBARRMENT_URL)
-    context.export_resource(path_other, XLS, title=context.SOURCE_TITLE)
-    wb_other = xlrd.open_workbook(path_other)
-    for item in h.parse_xls_sheet(context, wb_other["Working"]):
+    path_other = context.fetch_resource("other.xlsx", OTHER_DEBARRMENT_URL)
+    context.export_resource(path_other, XLSX, title=context.SOURCE_TITLE)
+    wb_other = openpyxl.load_workbook(path_other)
+    for item in h.parse_xlsx_sheet(context, wb_other["Working"], extract_links=True):
         item["source_url"] = OTHER_DEBARRMENT_URL
         items.append(item)
 
