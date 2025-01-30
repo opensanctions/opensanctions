@@ -258,6 +258,7 @@ lookups:
           - "აშშ"
           - ამერიკის სამოა # America's Samoa
           - "დელავერის შტატი" # Delaware State
+          - "ვირჯინიის" # Virginia
         value: United States
       - match: 
           - რუსეთისფედერაცია
@@ -272,6 +273,7 @@ lookups:
         value: Russia
       - match: 
           - "(საქართველო)" # (Georgia)
+          - "საქართველო" # Georgia
         value: Georgia
       - match: 
           - "ავსტრალია"  # Australia
@@ -283,9 +285,11 @@ lookups:
           - "ავსტრია" # Austria
         value: Austria
       - match:
-          - "აზარბადეგან" # Azerbaijan
           - "აზერბაიჯანი" # Azerbaijan
         value: Azerbaijan
+      - match: 
+          - სომხეთი # Armenia
+        value: Armenia
       - match:
           - ალბანეთი # Albania
         value: Albania
@@ -359,6 +363,7 @@ lookups:
         value: Ghana
       - match:
           - "გერმანია" # Germany
+          - "ლაიპციგი" # Leipzig
         value: Germany
       - match:
           - "გვინეა-ბისაუ" # Guinea-Bissau
@@ -430,9 +435,6 @@ lookups:
           - "ვიეტნამი" # Vietnam
         value: Vietnam
       - match:
-          - "ვირჯინიის" # Virginia
-        value: Virginia
-      - match:
           - "ზამბია" # Zambia
         value: Zambia
       - match:
@@ -469,6 +471,7 @@ lookups:
       - match:
           - "ისრაელი ()" # Israel
           - "ისრაელი" # Israel
+        value: Israel
           - "ისრაელისაქართველო" # IsraelGeorgia
         values: 
           - Israel
@@ -520,9 +523,6 @@ lookups:
           - "კურასაო" # Curacao
         value: Curacao
       - match:
-          - "ლაიპციგი" # Liechtenstein
-        value: Liechtenstein
-      - match:
           - "ლაოსი" # Laos
         value: Laos
       - match:
@@ -540,13 +540,8 @@ lookups:
         value: Libya
       - match:
           - "ლიეტუვა (ლიტვა)" # Lithuania
+          - "ლიეტუვა"
         value: Lithuania
-      - match:
-          - "ლიეტუვა" # Liechtenstein
-        value: Liechtenstein
-      - match:
-          - "ლისამოლი" # Lesotho
-        value: Lesotho
       - match:
           - "ლიტვა" # Lithuania
         value: Lithuania
@@ -662,9 +657,6 @@ lookups:
           - "საფრანგეთი" # France
         value: France
       - match:
-          - "საქართველო" # Georgia
-        value: Georgia
-      - match:
           - "სეიშელის კუნძულები" # Seychelles
           - "სეიშელისკუნძულები" # Seychelles
         value: Seychelles
@@ -688,7 +680,6 @@ lookups:
         value: Slovenia
       - match:
           - "სომალი" # Somalia
-          - "სომხეთი" # Somalia
         value: Somalia
       - match:
           - "სუდანი" # Sudan
@@ -872,6 +863,8 @@ lookups:
           - 'მესხეთავტოგზა"' # Meskhetogza
           - "ატოლი" # Atoli
           - "V სართ" # V III
+          - აზარბადეგან
+          - ლისამოლი
           - "დრეიკის პალატა" # Drake Palace
           - "ეივაზ მინასაზოვი" # Eivaz Minasazovi
           - "მოჰამმად მორთაზავი" # Mohamed Mortazavi
