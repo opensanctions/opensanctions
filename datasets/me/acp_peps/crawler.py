@@ -17,7 +17,7 @@ POSITION_PROMPT = prompt = make_position_translation_prompt("cnr")
 
 
 def extract_latest_filing(
-    dates: List[Dict[str, object]]
+    dates: List[Dict[str, object]],
 ) -> Tuple[Optional[str], Optional[int]]:
     if not dates:
         return None, None
