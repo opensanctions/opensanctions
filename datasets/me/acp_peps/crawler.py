@@ -60,23 +60,18 @@ def fetch_csv(context: Context, report_id: int, file_pattern: str) -> List[Dict]
 
 def crawl_relative(context, person_entity, relatives):
     for row in relatives:
-        name = row.pop("FUNKCIONER_IME")
-        surname = row.pop("FUNKCIONER_PREZIME")
         relative_name = row.pop("IME_CLANA_PORODICE")
         relative_surname = row.pop("PREZIME_CLANA_PORODICE")
-        # Skip if it's a self-reference
-        if name == relative_name and surname == relative_surname:
-            continue
         maiden_name = row.pop("RODJENO_PREZIME_CLANA_PORODICE")
         relationship = row.pop("SRODSTVO")
         nationality = row.pop("DRZAVLJANSTVO")
         city = row.pop("MESTO")
-        address = row.pop("BORAVISTE")
+        residence = row.pop("BORAVISTE")
 
         # Emit a relative
         relative = context.make("Person")
         relative.id = context.make_id(relative_name, relative_surname, maiden_name)
-        relative.add("address", address)
+        relative.add("address", residence)
         relative.add("nationality", nationality)
         h.apply_name(
             relative,
@@ -86,8 +81,8 @@ def crawl_relative(context, person_entity, relatives):
         )
         address_ent = h.make_address(
             context,
-            full=address,
             city=city,
+            place=residence,
             lang="cnr",
         )
         h.copy_address(relative, address_ent)
@@ -101,7 +96,7 @@ def crawl_relative(context, person_entity, relatives):
         rel.add("relative", relative.id)
 
         context.emit(rel)
-        context.audit_data(row)
+        context.audit_data(row, ignore=["FUNKCIONER_IME", "FUNKCIONER_PREZIME"])
 
 
 def make_affiliation_entities(
@@ -116,7 +111,13 @@ def make_affiliation_entities(
     start_date = row.pop("DATUM_POCETKA_OBAVLJANJA", None)
     end_date = row.pop("DATUM_PRESTANKA_OBAVLJNJA")
     context.audit_data(
-        row, ignore=["ORGANIZACIJA_IMENOVANJA", "ORGANIZACIJA_SAGLASNOSTI"]
+        row,
+        ignore=[
+            "ORGANIZACIJA_IMENOVANJA",
+            "ORGANIZACIJA_SAGLASNOSTI",
+            "FUNKCIONER_IME",
+            "FUNKCIONER_PREZIME",
+        ],
     )
 
     position_name = f"{function}, {organization}"
@@ -167,9 +168,13 @@ def crawl_person(context: Context, person):
         first_name = official.pop("FUNKCIONER_IME")
         last_name = official.pop("FUNKCIONER_PREZIME")
         city = official.pop("MESTO")
+        residence = official.pop("BORAVISTE")
+        citizenship = official.pop("DRZAVLJANSTVO")
         entity = context.make("Person")
         entity.id = context.make_id(first_name, city)
+        entity.add("citizenship", citizenship)
         h.apply_name(entity, first_name=first_name, last_name=last_name)
+        h.make_address(context, city=city, place=residence, lang="cnr")
     else:
         function_label = person.pop("nazivFunkcije")
         entity = context.make("Person")
