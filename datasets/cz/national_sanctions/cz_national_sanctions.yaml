@@ -69,9 +69,34 @@ lookups:
         value: Israel
       - match: "Česká republika"
         value: Czech Republic
-  names_override:
-    lowercase: true
-    normalize: true
+  name_notes:
     options:
-      - match: "Voice of Europe s.r.o. V souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon) byl zápis pozměněn ke dni 27. května 2024 a ke dni 26. června 2024, vzhledem k zařazení subjektu na sankční seznamy Evropské unie rozhodnutím Rady (SZBP) 2024/1508 a rozhodnutím Rady (SZBP) 2024/1770."
+      - match: OBNOSOV/???????/OBNOSOV - Zápis byl zrušen ke dni 18. prosince 2023 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2023/2871.
+        names: ["OBNOSOV"]
+        sanction_props:
+          endDate: "2023-12-18"
+          status: zrušen
+          summary: Zápis byl zrušen ke dni 18. prosince 2023 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2023/2871.
+      - match: MEDVEDČUK/MEDVEDCHUK/????????? - Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
+        names: ["MEDVEDČUK", "MEDVEDCHUK"]
+        sanction_props:
+          endDate: "2024-05-27"
+          status: zrušen
+          summary: Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
+      - match: MARCHEVSKYI/ MARCHEVSKIJ/ MARČEVSKIJ/ ?????????? - Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
+        names: ["MARCHEVSKYI", "MARCHEVSKIJ", "MARČEVSKIJ"]
+        sanction_props:
+          endDate: "2024-05-27"
+          status: zrušen
+          summary: Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
+      - match: "Federální státní unitární podnik „Podnik pro správu majetku v zahraničí“ Kanceláře prezidenta Ruské federace (Goszagransobstvennost)"
+        names: ["Federální státní unitární podnik „Podnik pro správu majetku v zahraničí“ Kanceláře prezidenta Ruské federace (Goszagransobstvennost)"]
+        sanction_props: {}
+      - match: "Voice of Europe s.r.o. V souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon) byl zápis pozměněn ke dni 27. května 2024 a ke dni 26. června 2024, vzhledem k zařazení subjektu na sankční seznamy Evropské unie rozhodnutím Rady (SZBP) 2024/1508 a rozhodnutím Rady  (SZBP) 2024/1770."
         names: ["Voice of Europe s.r.o."]
+        sanction_props:
+          date:
+            - "2024-05-27"
+            - "2024-06-26"
+          status: pozměněn
+          summary: V souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon) byl zápis pozměněn ke dni 27. května 2024 a ke dni 26. června 2024, vzhledem k zařazení subjektu na sankční seznamy Evropské unie rozhodnutím Rady (SZBP) 2024/1508 a rozhodnutím Rady  (SZBP) 2024/1770."
