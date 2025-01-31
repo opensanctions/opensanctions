@@ -2,7 +2,6 @@ import io
 from csv import DictReader
 from typing import List, Dict, Optional, Tuple, Set
 from zipfile import ZipFile, BadZipFile
-
 from zavod import Context, Entity, helpers as h
 from zavod.logic.pep import categorise
 from zavod.shed.trans import (
@@ -53,39 +52,36 @@ def fetch_csv(context: Context, report_id: int, file_pattern: str) -> List[Dict]
                 fh = io.TextIOWrapper(zfh, encoding="utf-8-sig")
                 reader = DictReader(fh, delimiter=",", quotechar='"')
                 return list(reader)
-    except BadZipFile:
-        context.log.warning(f"Failed to open {zip_path} as a ZIP file. Skipping.")
+    except BadZipFile as e:
+        context.log.info(
+            "Failed to open ZIP file. Skipping", path=zip_path, exception_str=str(e)
+        )
         return []
+
+
+def family_row_entity(context: Context, row) -> Entity:
+    first_name = row.pop("IME_CLANA_PORODICE")
+    last_name = row.pop("PREZIME_CLANA_PORODICE")
+    maiden_name = row.pop("RODJENO_PREZIME_CLANA_PORODICE")
+    city = row.pop("MESTO")
+    entity = context.make("Person")
+    entity.id = context.make_id(first_name, last_name, city)
+    entity.add("citizenship", row.pop("DRZAVLJANSTVO"))
+    h.apply_name(
+        entity, first_name=first_name, last_name=last_name, maiden_name=maiden_name
+    )
+    address = h.make_address(context, city=city, place=row.pop("BORAVISTE"), lang="cnr")
+    h.copy_address(entity, address)
+    context.audit_data(row, ignore=["FUNKCIONER_IME", "FUNKCIONER_PREZIME"])
+    return entity
 
 
 def crawl_relative(context, person_entity, relatives):
     for row in relatives:
-        relative_name = row.pop("IME_CLANA_PORODICE")
-        relative_surname = row.pop("PREZIME_CLANA_PORODICE")
-        maiden_name = row.pop("RODJENO_PREZIME_CLANA_PORODICE")
         relationship = row.pop("SRODSTVO")
-        nationality = row.pop("DRZAVLJANSTVO")
-        city = row.pop("MESTO")
-        residence = row.pop("BORAVISTE")
-
-        # Emit a relative
-        relative = context.make("Person")
-        relative.id = context.make_id(relative_name, relative_surname, maiden_name)
-        relative.add("address", residence)
-        relative.add("nationality", nationality)
-        h.apply_name(
-            relative,
-            first_name=relative_name,
-            last_name=relative_surname,
-            maiden_name=maiden_name,
-        )
-        address_ent = h.make_address(
-            context,
-            city=city,
-            place=residence,
-            lang="cnr",
-        )
-        h.copy_address(relative, address_ent)
+        relative = family_row_entity(context, row)
+        if len(relative.caption) < 4:
+            return
         context.emit(relative)
 
         # Emit a relationship
@@ -96,7 +92,6 @@ def crawl_relative(context, person_entity, relatives):
         rel.add("relative", relative.id)
 
         context.emit(rel)
-        context.audit_data(row, ignore=["FUNKCIONER_IME", "FUNKCIONER_PREZIME"])
 
 
 def make_affiliation_entities(
@@ -154,41 +149,41 @@ def make_affiliation_entities(
     return entities, categorisation_topics
 
 
+# Verified Jan 2025 that when SRODSTVO == Funkcioner,
+# FUNKCIONER_IME roughly equals IME_CLANA_PORODICE (first name)
+# and FUNKCIONER_PREZIME roughly equals PREZIME_CLANA_PORODICE (last name)
+def split_family(rows) -> Tuple[List[Dict[str, str]], Optional[Dict[str, str]]]:
+    officials = [row for row in rows if row.get("SRODSTVO") == "Funkcioner"]
+    relatives = [row for row in rows if row.get("SRODSTVO") != "Funkcioner"]
+    assert len(officials) <= 1, "Multiple PEPs found in the relatives CSV."
+    return relatives, officials[0] if officials else None
+
+
 def crawl_person(context: Context, person):
     full_name = person.pop("imeIPrezime")
     dates = person.pop("izvjestajImovine")
+    function_label = person.pop("nazivFunkcije")
     filing_date, report_id = extract_latest_filing(dates)
-
-    relatives_csv = fetch_csv(context, report_id, "csv_clanovi_porodice_")
-    pep = [row for row in relatives_csv if row.get("SRODSTVO") == "Funkcioner"]
-    relatives = [row for row in relatives_csv if row.get("SRODSTVO") != "Funkcioner"]
-
-    if pep:
-        official = pep[0]
-        first_name = official.pop("FUNKCIONER_IME")
-        last_name = official.pop("FUNKCIONER_PREZIME")
-        city = official.pop("MESTO")
-        residence = official.pop("BORAVISTE")
-        citizenship = official.pop("DRZAVLJANSTVO")
-        entity = context.make("Person")
-        entity.id = context.make_id(first_name, city)
-        entity.add("citizenship", citizenship)
-        h.apply_name(entity, first_name=first_name, last_name=last_name)
-        h.make_address(context, city=city, place=residence, lang="cnr")
+    if report_id:
+        relatives_rows = fetch_csv(context, report_id, "csv_clanovi_porodice_")
+        function_rows = fetch_csv(context, report_id, "csv_funkcije_funkcionera_")
     else:
-        function_label = person.pop("nazivFunkcije")
+        relatives_rows = []
+        function_rows = []
+    relatives_rows, official = split_family(relatives_rows)
+
+    if official:
+        official.pop("SRODSTVO")
+        entity = family_row_entity(context, official)
+    else:
         entity = context.make("Person")
         entity.id = context.make_id(full_name, function_label)
         h.apply_name(entity, full_name)
 
-    entity.add("topics", "role.pep")
-
-    report_details = fetch_csv(context, report_id, "csv_funkcije_funkcionera_")
-    position_entities = []
     categorisation_topics = set()
-
-    if report_details:
-        for row in report_details:
+    position_entities = []
+    if function_rows:
+        for row in function_rows:
             function = row.pop("FUNKCIJA")
             entities, topics = make_affiliation_entities(
                 context, entity, function, row, filing_date, report_id
@@ -196,22 +191,25 @@ def crawl_person(context: Context, person):
             position_entities.extend(entities)
             categorisation_topics.update(topics)
     else:
-        function_label = person.pop("nazivFunkcije")
         position = h.make_position(context, function_label, country="ME")
         categorisation = categorise(context, position, is_pep=True)
         categorisation_topics.update(categorisation.topics)
         position_entities.append(position)
 
     if "gov.national" in categorisation_topics:
-        crawl_relative(context, entity, relatives)
+        crawl_relative(context, entity, relatives_rows)
 
     if position_entities:
         for position in position_entities:
             context.emit(position)
         context.emit(entity)
 
+    # True if we got some valid rows from the Zip file
+    return relatives_rows or function_rows
+
 
 def crawl(context: Context):
+    valid_zips = 0
     page = 0
     max_pages = 1200
     while True:
@@ -223,7 +221,8 @@ def crawl(context: Context):
             break
 
         for person in doc:
-            crawl_person(context, person)
+            if crawl_person(context, person):
+                valid_zips += 1
 
         page += 1
         if page >= max_pages:
@@ -231,3 +230,6 @@ def crawl(context: Context):
                 f"Emergency exit: Reached the maximum page limit of {max_pages}."
             )
             break
+
+        if not valid_zips:
+            context.log.warning("No valid ZIP files found.")

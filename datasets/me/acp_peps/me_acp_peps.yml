@@ -1,4 +1,4 @@
-title: Declarable Montenegrin Public Officials
+title: Montenegro declarations of interests by public officials
 entry_point: crawler.py
 prefix: me-gov
 coverage:
@@ -9,15 +9,16 @@ ci_test: false
 summary: >
   Montenegrin Public Officials Subject to Declaration by the Agency for Prevention of Corruption.
 description: |
-  This dataset focuses on politically exposed persons (PEPs) in Montenegro, providing 
-  data on current and former public officials who are subject to income and asset 
-  declarations. It includes information such as the official's name, position, and the 
-  year of their most recent declaration filing. If an individual served at the national 
-  level, it also includes the official's relatives and close associates.
+  This dataset lists Montenegrin PEPs based on declarations of assets, income
+  and public functions by current and former public officials required to make these
+  declarations. The data is based on their most recent declaration.
+  
+  It includes information such as the official's name and positions. If an individual
+  served at the national level, it also includes any reported relatives.
 publisher:
   name: Agencija za sprečavanje korupcije
   name_en: Agency for Prevention of Corruption
-  acronym: ASK
+  acronym: ACK
   description: |
     Montenegro's Agency for Prevention of Corruption, tasked with preventing conflicts 
     of interest, monitoring integrity, and ensuring transparency in governance.
@@ -31,7 +32,12 @@ data:
   lang: cnr  # Montenegrin (ISO 639-2)
 
 lookups:
-  type.country: 
+  type.country:
+    lowercase: true
     options: 
       - match: Crnogorsko
         country: me
+      - match:
+          - SRPSKO
+          - Srbijansko
+        country: rs
