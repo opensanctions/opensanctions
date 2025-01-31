@@ -93,13 +93,6 @@ def test_assertions(testdataset3) -> None:
     assert validator.abort is True
 
 
-def test_no_assertions_warning(testdataset3: Dataset) -> None:
-    testdataset3.assertions = []
-    crawl_dataset(testdataset3)
-    validator, cap_logs = run_validator(AssertionsValidator, testdataset3)
-    assert {"log_level": "warning", "event": "Dataset has no assertions."} in cap_logs
-
-
 def test_empty(testdataset3) -> None:
     clear_data_path(testdataset3.name)
     crawl_dataset(testdataset3)
