@@ -1,0 +1,43 @@
+title: Montenegro declarations of interests by public officials
+entry_point: crawler.py
+prefix: me-gov
+coverage:
+  frequency: weekly
+  start: "2024-01-06"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+summary: >
+  Montenegrin Public Officials Subject to Declaration by the Agency for Prevention of Corruption.
+description: |
+  This dataset lists Montenegrin PEPs based on declarations of assets, income
+  and public functions by current and former public officials required to make these
+  declarations. The data is based on their most recent declaration.
+  
+  It includes information such as the official's name and positions. If an individual
+  served at the national level, it also includes any reported relatives.
+publisher:
+  name: Agencija za sprečavanje korupcije
+  name_en: Agency for Prevention of Corruption
+  acronym: ACK
+  description: |
+    Montenegro's Agency for Prevention of Corruption, tasked with preventing conflicts 
+    of interest, monitoring integrity, and ensuring transparency in governance.
+  url: https://www.antikorupcija.me/en/
+  country: "me"
+  official: true
+url: https://obsidian.antikorupcija.me/registri/pretraga-izvjestaja-o-prihodima-i-imovini
+data:
+  url: https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni
+  format: JSON
+  lang: cnr  # Montenegrin (ISO 639-2)
+
+lookups:
+  type.country:
+    lowercase: true
+    options: 
+      - match: Crnogorsko
+        country: me
+      - match:
+          - SRPSKO
+          - Srbijansko
+        country: rs
