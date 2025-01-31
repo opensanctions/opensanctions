@@ -96,3 +96,6 @@ universal = true
 
 [tool.coverage.run]
 branch = true
+
+[tool.hatch.metadata]
+allow-direct-references = true
