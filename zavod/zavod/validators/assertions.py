@@ -68,9 +68,6 @@ class AssertionsValidator(BaseValidator):
         self.stats.observe(entity)
 
     def finish(self) -> None:
-        if len(self.context.dataset.assertions) == 0:
-            self.context.log.warn("Dataset has no assertions.")
-
         for assertion in self.context.dataset.assertions:
             if not check_assertion(self.context, self.stats.as_dict(), assertion):
                 self.abort = True
