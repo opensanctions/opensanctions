@@ -66,6 +66,7 @@ def crawl(context: Context) -> None:
         manual_strings.append(slugify(stringify(items[0])))
 
     # concatenate contiguous manual-extraction rows
+    rows.append(items[0])
     for i, item in enumerate(items[1:], 1):
         if manual_extraction[i]:
             string = slugify(stringify(item))

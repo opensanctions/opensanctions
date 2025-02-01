@@ -13,7 +13,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         return
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(name, row.get("npi"))
+    entity.id = context.make_id(name, npi)
     entity.add("name", name)
     entity.add("country", "us")
     entity.add("npiCode", h.multi_split(npi, ["; ", "&", " and "]))
