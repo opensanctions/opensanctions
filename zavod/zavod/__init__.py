@@ -15,3 +15,4 @@ __all__ = [
 
 logging.getLogger("prefixdate").setLevel(logging.ERROR)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.ERROR)
+logging.getLogger("pdfminer").setLevel(logging.WARNING)
