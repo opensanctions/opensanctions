@@ -46,6 +46,9 @@ def crawl_item(row: Dict[str, str], context: Context):
     # id = internal id
     # kurulKararTarihiStr = decision date as string (we already have decision date)
     # davaBilgisi = not used because it's always "Yok" (No)
+
+    if row.get("davaBilgisi") and row.get("davaBilgisi") != "Yok":
+        context.log.warning("Dava bilgisi var: %s", row)
     context.audit_data(row, ignore=["id", "kurulKararTarihiStr", "davaBilgisi"])
 
 
