@@ -57,3 +57,7 @@ lookups:
         prop: registrationNumber
       - match: "IP:"
         value: null
+  type.date:
+    options:
+      - match: "11/202/2024"
+        value: 2024
