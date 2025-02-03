@@ -84,7 +84,6 @@ def test_simplecsv_02(testdataset1: Dataset):
 
     with open(dataset_path / "targets.simple-02.csv") as nested_file:
         lines = nested_file.read().split("\n")
-    print(lines)
     assert len(lines) == 3
     assert lines[2] == ""  # empty line at the
     # All fields are always quoted
@@ -92,7 +91,6 @@ def test_simplecsv_02(testdataset1: Dataset):
     vlad_line = lines[1]
     vlad_fields = vlad_line.split('","')
     vlad = dict(zip(headings, vlad_fields))
-    print(vlad)
     # ID is hashed to 32-digit wide string of digits
     # We haven't stripped quotes from first and last field ends
     assert vlad['"id'] == '"00911055549423107825995924846505'
@@ -101,3 +99,4 @@ def test_simplecsv_02(testdataset1: Dataset):
     # Newlines are replaced with spaces
     # CSV writer double quotes field containing delimiter
     assert vlad["addresses"] == '""1 the street, City, Country""'
+    assert vlad["topics"] == "sanction"

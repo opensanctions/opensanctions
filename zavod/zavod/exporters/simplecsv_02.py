@@ -53,6 +53,25 @@ class SimpleCSV_02Exporter(SimpleCSVExporter):
     FILE_NAME = "targets.simple-02.csv"
     MIME_TYPE = "text/csv"
 
+    HEADERS = [
+        "id",
+        "schema",
+        "name",
+        "aliases",
+        "birth_date",
+        "countries",
+        "addresses",
+        "identifiers",
+        "topics",
+        "sanction",
+        "phones",
+        "emails",
+        "dataset",
+        "first_seen",
+        "last_seen",
+        "last_change",
+    ]
+
     def setup(self) -> None:
         super().setup()
         self.fh = open(self.path, "w")
@@ -77,6 +96,9 @@ class SimpleCSV_02Exporter(SimpleCSVExporter):
             if adjacent.schema.is_a("Sanction"):
                 sanctions.add(self.sanction_text(adjacent))
 
+            if adjacent.schema.is_a("Address"):
+                addresses.add(adjacent.caption)
+
             if adjacent.schema.is_a("Identification"):
                 identifiers.update(adjacent.get("number"))
                 countries.update(adjacent.get("country"))
@@ -94,6 +116,7 @@ class SimpleCSV_02Exporter(SimpleCSVExporter):
             clean_value(self.concat_values(countries)),
             clean_value(self.concat_values(addresses)),
             clean_value(self.concat_values(identifiers)),
+            clean_value(self.concat_values(entity.get("topics"))),
             clean_value(self.concat_values(sanctions)),
             clean_value(self.concat_values(entity.get_type_values(registry.phone))),
             clean_value(self.concat_values(entity.get_type_values(registry.email))),
@@ -102,5 +125,4 @@ class SimpleCSV_02Exporter(SimpleCSVExporter):
             entity.last_seen,
             entity.last_change,
         ]
-        print(row)
         self.writer.writerow(row)
