@@ -11,6 +11,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         return
 
     # Clean the name by removing numbers in parentheses
+    # The number means the number of cases against the person
     name = re.sub(r"\s*\(\d+\)\s*$", "", name)
 
     entity = context.make("Person")
@@ -18,9 +19,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("name", name)
     entity.add("country", "tr")
 
-    # Add MKK registration number if available
-    if mkkNo := row.pop("mkkSicilNo"):
-        entity.add("registrationNumber", mkkNo)
+    entity.add("registrationNumber", row.pop("mkkSicilNo"))
 
     # Create sanction
     sanction = h.make_sanction(context, entity)
@@ -37,15 +36,16 @@ def crawl_item(row: Dict[str, str], context: Context):
     if decision_date := row.pop("kurulKararTarihi"):
         h.apply_date(sanction, "startDate", decision_date)
 
-    # Add the reason/explanation
-    if explanation := row.pop("aciklama"):
-        sanction.add("reason", explanation)
+    sanction.add("reason", row.pop("aciklama"))
 
-    entity.add("topics", "sanction")
+    entity.add("topics", "reg.action")
 
     context.emit(entity, target=True)
     context.emit(sanction)
 
+    # id = internal id
+    # kurulKararTarihiStr = decision date as string (we already have decision date)
+    # davaBilgisi = not used because it's always "Yok" (No)
     context.audit_data(row, ignore=["id", "kurulKararTarihiStr", "davaBilgisi"])
 
 
