@@ -34,7 +34,9 @@ def extract_latest_filing(
 def fetch_csv(context: Context, report_id: int, file_pattern: str) -> List[Dict]:
     """Generic CSV fetcher to retrieve CSV rows based on the file pattern."""
     url = f"https://portal.antikorupcija.me:9343/acamPublic/izvestajDetailsCSV.json?izvestajId={report_id}"
-    zip_path = context.fetch_resource(f"{report_id}.zip", url)
+    # Ensure ID is an int and not a path traversal attack
+    filename = f"{int(report_id)}.zip"
+    zip_path = context.fetch_resource(filename, url)
 
     try:
         with ZipFile(zip_path, "r") as zip:
