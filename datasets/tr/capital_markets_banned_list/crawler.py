@@ -30,7 +30,9 @@ def crawl_item(row: Dict[str, str], context: Context):
     stock_code = row.pop("payKodu")
     stock_name = row.pop("pay")
     if stock_code and stock_name:
-        sanction.add("description", f"Due to activity relating to {stock_code} ({stock_name})")
+        sanction.add(
+            "description", f"Due to activity relating to {stock_code} ({stock_name})"
+        )
 
     # Add decision details
     if decision_date := row.pop("kurulKararTarihi"):

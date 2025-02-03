@@ -1,6 +1,6 @@
 title: Türkiye Capital Markets Board Banned List
 entry_point: crawler.py
-prefix: tr-capba
+prefix: tr-cmb
 coverage:
   frequency: daily
   start: "2025-01-27"
