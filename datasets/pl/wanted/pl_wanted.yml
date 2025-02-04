@@ -1,0 +1,76 @@
+name: pl_wanted
+title: "Poland Wanted Persons"
+entry_point: crawler.py
+prefix: pl-wanted
+coverage:
+  frequency: daily
+  start: 2025-02-04
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Wanted and suspect persons list of the Police of Poland
+description: |
+  Dataset with name, crime and status (suspect or wanted) published
+  by the Police of Poland.
+
+  Additional characteristic features of the wanted individuals are available at the source URL.
+
+publisher:
+  name: Policja
+  name_en: Police of Poland
+  description: |
+    Policja is the Polish national civilian police force. It is a primary law enforcement agency in the country,
+    tasked with providing public safety and order, investigating and preventing crime.
+  country: pl
+  official: true
+  url: https://www.policja.pl
+
+data:
+  url: https://poszukiwani.policja.gov.pl/pos/form/5,Poszukiwani.html
+  format: HTML
+  lang: pol
+
+dates:
+  formats: ["%Y-%m-%d"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 40000
+  max:
+    schema_entities:
+      Person: 60000
+
+lookups:
+  type.gender:
+    options:
+      - match: mężczyzna
+        value: male
+      - match: kobieta
+        value: female
+  type.country:
+    options:
+      - match:
+          - NIEUSTALONE  # unknown
+          - BEZPAŃSTWOWIEC  # stateless
+        value: null
+      - match: "JUGOSŁAWIA (SERBIA I CZARNOGÓRA)"  # TODO: What the hell should we map this to?
+        value: yucs
+      - match: "JUGOSŁAWIA"  # TODO: What the hell should we map this to?
+        value: yucs
+      - match: "NIEMCY JUGOSŁAWIA (SERBIA I CZARNOGÓRA)"  # TODO: What the hell should we map this to?
+        values:
+          - de
+          - yucs
+      - match: "DEMOKRATYCZNA REPUBLIKA KONGA (ZAIR) POLSKA KONGO"
+        values:
+          - pl
+          - cd
+      # TODO: Move the below to opensanctions/countrynames
+      - match: KOSOWO
+        value: xk
+      - match: PALESTYNA
+        value: ps
+      - match: WYBRZEŻE KOŚCI SŁONIOWEJ
+        value: ci
+      - match: KOREAŃSKA REPUBLIKA LUDOWO-DEMOKRATYCZNA
+        value: kp
