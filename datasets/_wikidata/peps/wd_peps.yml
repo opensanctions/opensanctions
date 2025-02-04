@@ -122,6 +122,7 @@ lookups:
           - "Q1251441" # leader
           - "Q1276214" # European Union Special Representative
           - "Q1326365" # -elect
+          - "Q131981747" # -elect
           - "Q1414672" # legislative seat
           - "Q1472275" # figurehead
           - "Q1500391" # chief of municipal
