@@ -1,9 +1,10 @@
 import io
 from csv import DictReader
+from pathlib import Path
 from typing import List, Dict, Optional, Tuple, Set
 from zipfile import ZipFile, BadZipFile
 from zavod import Context, Entity, helpers as h
-from zavod.logic.pep import categorise
+from zavod.logic.pep import OccupancyStatus, categorise
 from zavod.shed.trans import (
     apply_translit_full_name,
     make_position_translation_prompt,
@@ -15,9 +16,10 @@ TRANSLIT_OUTPUT = {
 POSITION_PROMPT = prompt = make_position_translation_prompt("cnr")
 
 
-def extract_latest_filing(
+def fetch_latest_filing(
+    context: Context,
     dates: List[Dict[str, object]],
-) -> Tuple[Optional[str], Optional[int]]:
+) -> Tuple[Optional[str], Optional[Path]]:
     if not dates:
         return None, None
 
@@ -25,40 +27,42 @@ def extract_latest_filing(
     for entry in reversed(dates):
         report_id = entry.get("stariIzvjestaj")
         if report_id != -1:  # Check for the first valid report
-            return entry.get("datum"), report_id
+            url = f"https://portal.antikorupcija.me:9343/acamPublic/izvestajDetailsCSV.json?izvestajId={report_id}"
+            # Ensure ID is an int and not a path traversal attack
+            filename = f"{int(report_id)}.zip"
+            zip_path = context.fetch_resource(filename, url)
+            try:
+                with ZipFile(zip_path, "r"):
+                    return entry.get("datum"), zip_path
+            except BadZipFile as e:
+                context.log.info(
+                    "Failed to open ZIP file. Skipping",
+                    path=zip_path,
+                    exception_str=str(e),
+                )
 
     # If no valid entry is found
     return None, None
 
 
-def fetch_csv(context: Context, report_id: int, file_pattern: str) -> List[Dict]:
+def read_csv_rows(context: Context, zip_path: Path, file_pattern: str) -> List[Dict]:
     """Generic CSV fetcher to retrieve CSV rows based on the file pattern."""
-    url = f"https://portal.antikorupcija.me:9343/acamPublic/izvestajDetailsCSV.json?izvestajId={report_id}"
-    # Ensure ID is an int and not a path traversal attack
-    filename = f"{int(report_id)}.zip"
-    zip_path = context.fetch_resource(filename, url)
 
-    try:
-        with ZipFile(zip_path, "r") as zip:
-            filtered_names = [
-                name for name in zip.namelist() if name.startswith(file_pattern)
-            ]
-            file_name = next((name for name in filtered_names), None)
-            if not file_name:
-                context.log.warning(
-                    "No matching file found in the ZIP archive.", file_pattern
-                )
-                return []
+    with ZipFile(zip_path, "r") as zip:
+        filtered_names = [
+            name for name in zip.namelist() if name.startswith(file_pattern)
+        ]
+        file_name = next((name for name in filtered_names), None)
+        if not file_name:
+            context.log.warning(
+                "No matching file found in the ZIP archive.", file_pattern
+            )
+            return []
 
-            with zip.open(file_name) as zfh:
-                fh = io.TextIOWrapper(zfh, encoding="utf-8-sig")
-                reader = DictReader(fh, delimiter=",", quotechar='"')
-                return list(reader)
-    except BadZipFile as e:
-        context.log.info(
-            "Failed to open ZIP file. Skipping", path=zip_path, exception_str=str(e)
-        )
-        return []
+        with zip.open(file_name) as zfh:
+            fh = io.TextIOWrapper(zfh, encoding="utf-8-sig")
+            reader = DictReader(fh, delimiter=",", quotechar='"')
+            return list(reader)
 
 
 def family_row_entity(context: Context, row) -> Entity:
@@ -68,7 +72,7 @@ def family_row_entity(context: Context, row) -> Entity:
     city = row.pop("MESTO")
     entity = context.make("Person")
     entity.id = context.make_id(first_name, last_name, city)
-    entity.add("citizenship", row.pop("DRZAVLJANSTVO"))
+    entity.add("citizenship", row.pop("DRZAVLJANSTVO").split(","))
     h.apply_name(
         entity, first_name=first_name, last_name=last_name, maiden_name=maiden_name
     )
@@ -97,7 +101,7 @@ def crawl_relative(context, person_entity, relatives):
 
 
 def make_affiliation_entities(
-    context: Context, entity: Entity, function, row: dict, filing_date, report_id
+    context: Context, entity: Entity, function, row: dict, filing_date
 ) -> Tuple[List[Entity], Set[str]]:  # List[Entity]:
     """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
     * A position's name include the title and the name of the legal entity
@@ -123,7 +127,6 @@ def make_affiliation_entities(
     position = h.make_position(
         context,
         position_name,
-        # topics=["gov.national"],  # for testing
         country="ME",
     )
     apply_translit_full_name(
@@ -139,7 +142,6 @@ def make_affiliation_entities(
         position,
         no_end_implies_current=True,
         categorisation=categorisation,
-        propagate_country=True,
         start_date=start_date,
         end_date=end_date,
     )
@@ -157,18 +159,18 @@ def make_affiliation_entities(
 def split_family(rows) -> Tuple[List[Dict[str, str]], Optional[Dict[str, str]]]:
     officials = [row for row in rows if row.get("SRODSTVO") == "Funkcioner"]
     relatives = [row for row in rows if row.get("SRODSTVO") != "Funkcioner"]
-    assert len(officials) <= 1, "Multiple PEPs found in the relatives CSV."
+    assert len(officials) <= 1, "Multiple 'Funcioner' found in the relatives CSV."
     return relatives, officials[0] if officials else None
 
 
 def crawl_person(context: Context, person):
     full_name = person.pop("imeIPrezime")
     dates = person.pop("izvjestajImovine")
-    function_label = person.pop("nazivFunkcije")
-    filing_date, report_id = extract_latest_filing(dates)
-    if report_id:
-        relatives_rows = fetch_csv(context, report_id, "csv_clanovi_porodice_")
-        function_rows = fetch_csv(context, report_id, "csv_funkcije_funkcionera_")
+    function_labels = person.pop("nazivFunkcije")
+    filing_date, zip_path = fetch_latest_filing(context, dates)
+    if zip_path:
+        relatives_rows = read_csv_rows(context, zip_path, "csv_clanovi_porodice_")
+        function_rows = read_csv_rows(context, zip_path, "csv_funkcije_funkcionera_")
     else:
         relatives_rows = []
         function_rows = []
@@ -179,7 +181,7 @@ def crawl_person(context: Context, person):
         entity = family_row_entity(context, official)
     else:
         entity = context.make("Person")
-        entity.id = context.make_id(full_name, function_label)
+        entity.id = context.make_id(full_name, sorted(function_labels))
         h.apply_name(entity, full_name)
 
     categorisation_topics = set()
@@ -188,15 +190,24 @@ def crawl_person(context: Context, person):
         for row in function_rows:
             function = row.pop("FUNKCIJA")
             entities, topics = make_affiliation_entities(
-                context, entity, function, row, filing_date, report_id
+                context, entity, function, row, filing_date
             )
             position_entities.extend(entities)
             categorisation_topics.update(topics)
     else:
-        position = h.make_position(context, function_label, country="ME")
-        categorisation = categorise(context, position, is_pep=True)
-        categorisation_topics.update(categorisation.topics)
-        position_entities.append(position)
+        for label in function_labels:
+            position = h.make_position(context, label, country="ME")
+            categorisation = categorise(context, position, is_pep=True)
+            occupancy = h.make_occupancy(
+                context,
+                entity,
+                position,
+                no_end_implies_current=False,
+                categorisation=categorisation,
+                status=OccupancyStatus.UNKNOWN,
+            )
+            position_entities.extend([position, occupancy])
+            categorisation_topics.update(categorisation.topics)
 
     if "gov.national" in categorisation_topics:
         crawl_relative(context, entity, relatives_rows)
@@ -215,7 +226,8 @@ def crawl(context: Context):
     page = 0
     max_pages = 1200
     while True:
-        data_url = f"https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni?page={page}&size=20"
+        context.log.info("Crawling index page", page=page)
+        data_url = f"{context.data_url}?page={page}&size=20"
         doc = context.fetch_json(data_url.format(page=page))
 
         if not doc:  # Break if an empty list is returned
