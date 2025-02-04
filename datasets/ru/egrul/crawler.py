@@ -1,12 +1,17 @@
 import re
-from typing import Dict, Optional, Set, IO, List, Any, Tuple
+import shutil
 from collections import defaultdict
+from datetime import date, datetime, timedelta
+from pathlib import Path
+from typing import Dict, Optional, IO, List, Any, Tuple, Iterable
 from zipfile import ZipFile
 
+import orjson
+import plyvel
 from lxml import etree
 from lxml.etree import _Element as Element, tostring
 
-
+from followthemoney import model
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.shed.internal_data import fetch_internal_data, list_internal_data
@@ -17,6 +22,14 @@ INN_URL = "https://egrul.itsoft.ru/%s.xml"
 AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
 # global variable to store the compiled abbreviations
 abbreviations: Optional[AbbreviationList] = None
+
+INTERNAL_DATA_ARCHIVE_PREFIX = "ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
+INTERNAL_DATA_CACHE_PREFIX = "ru_egrul/cache/"
+
+LOCAL_BUCKET_PATH_FOR_DEBUG = "/home/leon/internal-data/"
+
+# TODO(Leon Handreke): This is really awful, figure out a better way to pass Context to another process!
+DATASET_PATH = Path("datasets/ru/egrul/ru_egrul.yml")
 
 
 def tag_text(el: Element) -> str:
@@ -190,15 +203,15 @@ def make_org(context: Context, el: Element, local_id: Optional[str]) -> Entity:
     return entity
 
 
-def parse_founder(context: Context, company: Entity, el: Element) -> None:
+def make_owner(context: Context, company: Entity, el: Element) -> List[Entity]:
     """
-    Parse a founder from the XML element and emit entity.
+    Parse a founder from the XML element.
     Args:
         context: The processing context.
         company: The company entity.
         el: The XML element.
     Returns:
-        None
+        A list of entities containing the owner and the Ownership relation.
     """
     meta = el.find("./ГРНДатаПерв")
     owner = context.make("LegalEntity")
@@ -281,16 +294,16 @@ def parse_founder(context: Context, company: Entity, el: Element) -> None:
             owner.add("ogrnCode", ogrn)
     elif el.tag == "УчрРФСубМО":
         # Skip municipal ownership
-        return
+        return []
     else:
         context.log.warn("Unknown owner type", tag=el.tag)
-        return
+        return []
 
     if owner.id is None:
         context.log.warning(
             "No ID for owner: %s" % company.id, el=tag_text(el), owner=owner.to_dict()
         )
-        return
+        return []
     ownership = context.make("Ownership")
     ownership.id = context.make_id(company.id, owner.id)
     ownership.add("summary", link_summary)
@@ -317,32 +330,29 @@ def parse_founder(context: Context, company: Entity, el: Element) -> None:
     if reliable_el is not None:
         ownership.add("summary", reliable_el.get("ТекстНедДанУчр"))
 
-    context.emit(owner)
-    context.emit(ownership)
+    return [owner, ownership]
 
 
-def parse_directorship(context: Context, company: Entity, el: Element) -> None:
+def make_directorship(context: Context, company: Entity, el: Element) -> List[Entity]:
     """
-    Parse a directorship from the XML element and emit entity.
+    Parse a directorship from the XML element.
     Args:
         context: The processing context.
         company: The company entity.
         el: The XML element.
     Returns:
-        None
+        A list of Entity objects, containing the director and the Directorship relation.
     """
     # TODO: can we use the ГРН as a fallback ID?
     director = make_person(context, el, company.id)
     if director is None:
         # context.log.warn("Directorship has no person", company=company.id)
-        return
-
-    context.emit(director)
+        return []
 
     role = el.find("./СвДолжн")
     if role is None:
         context.log.warn("Directorship has no role", tag=tag_text(el))
-        return
+        return []
 
     directorship = context.make("Directorship")
     directorship.id = context.make_id(company.id, director.id, role.get("ВидДолжн"))
@@ -356,7 +366,7 @@ def parse_directorship(context: Context, company: Entity, el: Element) -> None:
         directorship.add("startDate", date.get("ДатаЗаписи"))
 
     directorship.add("endDate", company.get("dissolutionDate"))
-    context.emit(directorship)
+    return [director, directorship]
 
 
 def parse_address(context: Context, entity: Entity, el: Element) -> None:
@@ -502,16 +512,16 @@ def substitute_abbreviations(
     return name
 
 
-def parse_company(context: Context, el: Element) -> None:
+def make_company(context: Context, el: Element) -> List[Entity]:
     """
-    Parse a company from the XML element and emit entities.
+    Parse a company from the XML element.
     Args:
         context: The processing context.
         el: The XML element.
     Returns:
-        None
+        A list of Entities containing the company, its Directorships, Ownership and Successions
     """
-    entity = context.make("Company")
+    company = context.make("Company")
     inn = el.get("ИНН")
     ogrn = el.get("ОГРН")
     name_full: Optional[str] = None
@@ -523,37 +533,40 @@ def parse_company(context: Context, el: Element) -> None:
         name_full_short = substitute_abbreviations(name_full, abbreviations)
         name_short_shortened = substitute_abbreviations(name_short, abbreviations)
     name = name_full or name_short_shortened
-    entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
-    entity.add("jurisdiction", "ru")
-    entity.add("name", name_full_short, original_value=name_full)
-    entity.add("name", name_short_shortened, original_value=name_short)
-    entity.add("ogrnCode", ogrn)
-    entity.add("innCode", inn)
-    entity.add("kppCode", el.get("КПП"))
-    entity.add("legalForm", el.get("ПолнНаимОПФ"))
-    entity.add("incorporationDate", el.get("ДатаОГРН"))
+    company.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
+    company.add("jurisdiction", "ru")
+    company.add("name", name_full_short, original_value=name_full)
+    company.add("name", name_short_shortened, original_value=name_short)
+    company.add("ogrnCode", ogrn)
+    company.add("innCode", inn)
+    company.add("kppCode", el.get("КПП"))
+    company.add("legalForm", el.get("ПолнНаимОПФ"))
+    company.add("incorporationDate", el.get("ДатаОГРН"))
 
     for term_el in el.findall("./СвПрекрЮЛ"):
-        entity.add("dissolutionDate", term_el.get("ДатаПрекрЮЛ"))
+        company.add("dissolutionDate", term_el.get("ДатаПрекрЮЛ"))
 
     email_el = el.find("./СвАдрЭлПочты")
     if email_el is not None:
-        entity.add("email", email_el.get("E-mail"))
+        company.add("email", email_el.get("E-mail"))
 
     citizen_el = el.find("./СвГражд")
     if citizen_el is not None:
-        entity.add("country", citizen_el.get("НаимСтран"))
+        company.add("country", citizen_el.get("НаимСтран"))
 
     for addr_el in el.findall("./СвАдресЮЛ/*"):
-        parse_address(context, entity, addr_el)
+        parse_address(context, company, addr_el)
 
+    directorships = []
     # prokura or directors etc.
     for director in el.findall("./СведДолжнФЛ"):
-        parse_directorship(context, entity, director)
+        directorships.extend(make_directorship(context, company, director))
 
+    ownerships = []
     for founder in el.findall("./СвУчредит/*"):
-        parse_founder(context, entity, founder)
+        ownerships.extend(make_owner(context, company, founder))
 
+    successions = []
     for successor in el.findall("./СвПреем"):
         succ_name = successor.get("НаимЮЛПолн")
         succ_name_short = substitute_abbreviations(succ_name, abbreviations)
@@ -567,9 +580,9 @@ def parse_company(context: Context, el: Element) -> None:
         )
         if successor_id is not None:
             succ = context.make("Succession")
-            succ.id = context.make_id(entity.id, "successor", successor_id)
+            succ.id = context.make_id(company.id, "successor", successor_id)
             succ.add("successor", successor_id)
-            succ.add("predecessor", entity.id)
+            succ.add("predecessor", company.id)
             succ_entity = context.make("Company")
             succ_entity.id = successor_id
             succ_entity.add("name", succ_name_short, original_value=succ_name)
@@ -579,8 +592,7 @@ def parse_company(context: Context, el: Element) -> None:
             succ_entity.add("innCode", inn)
             succ_entity.add("ogrnCode", ogrn)
 
-            context.emit(succ_entity)
-            context.emit(succ)
+            successions.extend([succ_entity, succ])
 
     # To @pudo: Also adding this for the predecessor
     for predecessor in el.findall("./СвПредш"):
@@ -596,9 +608,9 @@ def parse_company(context: Context, el: Element) -> None:
         )
         if predecessor_id is not None:
             pred = context.make("Succession")
-            pred.id = context.make_id(entity.id, "predecessor", predecessor_id)
+            pred.id = context.make_id(company.id, "predecessor", predecessor_id)
             pred.add("predecessor", predecessor_id)
-            pred.add("successor", entity.id)
+            pred.add("successor", company.id)
             pred_entity = context.make("Company")
             pred_entity.id = predecessor_id
             pred_entity.add("name", pred_name_short, original_value=pred_name)
@@ -609,20 +621,22 @@ def parse_company(context: Context, el: Element) -> None:
             pred_entity.add("innCode", inn)
             pred_entity.add("ogrnCode", ogrn)
 
-            context.emit(pred_entity)
-            context.emit(pred)
+            successions.extend([pred_entity, pred])
 
-    context.emit(entity)
+    # It's important that the company is first here, since later code depends on that. Sure, it would be nicer to
+    # make a custom data structure here that contains a Company & its associated Entities, but alas, this is more
+    # pragmatic for now.
+    return [company] + directorships + ownerships + successions
 
 
-def parse_sole_trader(context: Context, el: Element) -> None:
+def parse_sole_trader(context: Context, el: Element) -> List[Entity]:
     """
-    Parse a sole trader from the XML element and emit entities.
+    Parse a sole trader from the XML element.
     Args:
         context: The processing context.
         el: The XML element.
     Returns:
-        None
+        A list containing the entity (or empty).
     """
     inn = el.get("ИННФЛ")
     ogrn = el.get("ОГРНИП")
@@ -630,17 +644,21 @@ def parse_sole_trader(context: Context, el: Element) -> None:
     entity.id = entity_id(context, inn=inn, ogrn=ogrn)
     if entity.id is None:
         context.log.warn("No ID for sole trader")
-        return
+        return None
     entity.add("country", "ru")
     entity.add("ogrnCode", ogrn)
     entity.add("innCode", inn)
     entity.add("legalForm", el.get("НаимВидИП"))
-    context.emit(entity)
+    return [entity]
 
 
-def parse_xml(context: Context, handle: IO[bytes]) -> None:
+def parse_xml(context: Context, handle: IO[bytes]) -> List[Entity]:
     """
-    Parse an XML file and emit entities from СвЮЛ/СвИп elements found
+    Parse an XML file and emit entities from СвЮЛ/СвИп elements found to a result queue.
+
+    For every company, a list of Entity.as_dict() objects will be published to the result queue, with the
+    Company/LegalEntity being first in the list.
+
     Args:
         context: The processing context.
         handle: The XML file handle.
@@ -648,10 +666,12 @@ def parse_xml(context: Context, handle: IO[bytes]) -> None:
         None
     """
     doc = etree.parse(handle)
+    res = []
     for el in doc.findall(".//СвЮЛ"):
-        parse_company(context, el)
+        res.append(make_company(context, el))
     for el in doc.findall(".//СвИП"):
-        parse_sole_trader(context, el)
+        res.append(parse_sole_trader(context, el))
+    return res
 
 
 def parse_examples(context: Context):
@@ -679,55 +699,287 @@ def parse_examples(context: Context):
             parse_xml(context, fh)
 
 
-def list_prefix_internal(context) -> Set[str]:
+def crawl_local_archive(context: Context, zip_path: str) -> List[List[Entity]]:
     """
-    List ZIP archives in a specific folder of the internal bucket and return their paths.
-
+    Parse the XML files inside a zip archive.
     Args:
         context: The processing context.
-
-    Returns:
-        A set of relative paths (blob names) to the ZIP archives in the specified folder.
-    """
-    # Define the prefix for the directory in the bucket
-    prefix = "ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
-    archives: Set[str] = set()
-
-    for blob_name in list_internal_data(prefix):
-        if blob_name.endswith(".zip"):
-            archives.add(blob_name)
-
-    return archives
-
-
-def crawl_archive(context: Context, blob_name: str) -> None:
-    """
-    Fetch and process a ZIP archive, extracting and parsing XML files inside.
-    Args:
-        context: The processing context.
-        blob_name: The name of the ZIP file in the internal bucket.
+        zip_path: The path to the zip file.
+        result_queue: The result queue.
     Returns:
         None
     """
+    res = []
+    # context.log.info("Opening archive: %s" % zip_path)
+    with ZipFile(zip_path, "r") as zip:
+        for name in zip.namelist():
+            if not name.lower().endswith(".xml"):
+                continue
+            with zip.open(name, "r") as fh:
+                # context.log.info(f"Parsing {name} from {zip_path}")
+                res.extend(parse_xml(context, fh))
+    return res
+
+
+def crawl_remote_archive(context: Context, blob_name: str) -> List[List[Entity]]:
     local_path = context.get_resource_path(blob_name)
     fetch_internal_data(blob_name, local_path)
     try:
-        context.log.info("Parsing: %s" % blob_name)
-        with ZipFile(local_path, "r") as zip:
-            for name in zip.namelist():
-                if not name.lower().endswith(".xml"):
-                    continue
-                with zip.open(name, "r") as fh:
-                    parse_xml(context, fh)
-
+        return crawl_local_archive(context, str(local_path))
     finally:
         local_path.unlink(missing_ok=True)
 
 
+def dicts_to_entities(context: Context, entity_dicts: Iterable[dict]) -> List[Entity]:
+    # TODO(Leon Handreke): This is a bit hacky, we have to hand Entity objects across process boundaries,
+    # is there a better way maybe?
+    return [
+        Entity.from_dict(model, d, cleaned=True, default_dataset=context.dataset)
+        for d in entity_dicts
+    ]
+
+
+def entities_to_dicts(entities: Iterable[Entity]) -> List[dict]:
+    # TODO(Leon Handreke): This is a bit hacky, we have to hand Entity objects across process boundaries,
+    # is there a better way maybe?
+    return [e.to_dict() for e in entities]
+
+
+def day_before(iso_date: str) -> str:
+    return (date.fromisoformat(iso_date) - timedelta(days=1)).isoformat()
+
+
+def add_expired_entities_from_previous(
+    context: Context,
+    new_company_entities: List[Entity],
+    old_company_entities: List[Entity],
+) -> List[Entity]:
+    """Enriches a company and related entities (Ownership, Directorship) with information from a previous version.
+
+    Parameters:
+        new_company_entities: List[Entity]
+            A list of new entities, with the Company/LegalEntity being first.
+        old_company_entities: List[Entity]
+            A list of old entities, with the Company/LegalEntity being first.
+
+    Returns:
+        List[Entity]: The new list of entities, including the expired Directorship and Ownership entities. The
+        Company/LegalEntity is the first element.
+    """
+    expired_entities = []
+
+    new_company = new_company_entities[0]
+    old_company = old_company_entities[0]
+    for prop in ["name", "address", "ogrnCode"]:
+        if old_company.get(prop) != new_company.get(prop):
+            new_company.add(prop, old_company.get(prop))
+
+    for prop in ["ogrnCode", "kppCode", "innCode"]:
+        if old_company.get(prop) != new_company.get(prop):
+            pass
+
+    if old_company.to_dict() != new_company.to_dict():
+        # TODO(Leon Handreke): Where is the __eq__? Does this actually work? Does it detect changed addresses?
+        pass
+        # print("DIFF")
+        # print(old_company.to_dict())
+        # print(new_company.to_dict())
+        # print("------------------------------")
+
+    # import pdb; pdb.set_trace()
+    old_directorships = set(
+        [e for e in old_company_entities if e.schema.name == "Directorship"]
+    )
+    new_directorships = set(
+        [e for e in new_company_entities if e.schema.name == "Directorship"]
+    )
+
+    # Directorship __eq__ compares on entity.id, which is a tuple of (company, director, role)
+    ended_directorships = old_directorships.difference(new_directorships)
+    for ended_directorship in ended_directorships:
+        new_directorships_same_role = [
+            x
+            for x in new_directorships
+            if x.get("role") == ended_directorship.get("role")
+        ]
+        new_directorship_same_role = (
+            new_directorships_same_role[0] if new_directorships_same_role else None
+        )
+        # Set end_date for ended directorship, using the transition date of the new role if available
+        if new_directorship_same_role and new_directorship_same_role.get("startDate"):
+            ended_directorship.set(
+                "endDate", day_before(new_directorship_same_role.get("startDate")[0])
+            )
+
+        # If there is no new Directorship with the same role or it doesn't have a start date, use context.data_time
+        # as the transition date.
+        if not ended_directorship.get("endDate"):
+            ended_directorship.set(
+                "endDate", day_before(context.data_time.date().isoformat())
+            )
+    expired_entities.extend(ended_directorships)
+
+    old_ownerships = set(
+        [e for e in old_company_entities if e.schema.name == "Ownership"]
+    )
+    new_ownerships = set(
+        [e for e in new_company_entities if e.schema.name == "Ownership"]
+    )
+    # TODO(Leon Handreke): Ownership.__eq__ compares on entity.id, which does not contain the percentage of ownership.
+    # The right thing to do here would be to include that so we can properly model increases in shares, but this would
+    # mean we'd have to rekey all existing Ownerships - do we want that?
+    ended_ownerships = old_ownerships.difference(new_ownerships)
+    for ended_ownership in ended_ownerships:
+        # Sometimes, the old ownership will already have an end date. For some reason, companies get de-dissoluted
+        # in the database, and in this case the old ownership still carries the old dissolution date.
+        # TODO(Leon Handreke): Handle this differently? Use data_date now that the dissultion date is no longer in
+        # the database?
+        if not ended_ownership.get("endDate"):
+            # We don't have any information on where the shares came from, so use the data date
+            ended_ownership.set(
+                "endDate", day_before(context.data_time.date().isoformat())
+            )
+    expired_entities.extend(ended_ownerships)
+
+    # Return the new state of the entity, plus the expired Ownership and Directorship entities
+    return new_company_entities + expired_entities
+
+
+def aggregate_archives_by_date(
+    archive_paths: Iterable[Path],
+) -> Dict[date, Iterable[Path]]:
+    archives_by_date = defaultdict(set)
+    for archive_path in archive_paths:
+        dirname = archive_path.parts[-2]  # [..., "dirname", "archive.zip"]
+        dirname = dirname.rstrip("_FULL")
+        archive_date = datetime.strptime(dirname, "%d.%m.%Y").date()
+        archives_by_date[archive_date].add(archive_path)
+    return archives_by_date
+
+
+def get_entity_cache_db_path(cache_date: date) -> Path:
+    if LOCAL_BUCKET_PATH_FOR_DEBUG:
+        cache_path = Path(LOCAL_BUCKET_PATH_FOR_DEBUG).joinpath(
+            INTERNAL_DATA_CACHE_PREFIX
+        )
+        cache_path.mkdir(parents=True, exist_ok=True)
+        dbname = cache_date.isoformat() + ".leveldb"
+        return cache_path.joinpath(dbname)
+    # TODO(Leon Handreke): Implement keeping these in Cloud Storage, have a local copy here
+    raise NotImplementedError
+
+
+def crawl_archives_for_date(
+    context: Context,
+    archive_date: date,
+    archives: Iterable[Any],
+    previous_cache_db_path: Optional[Path],
+) -> Path:
+    """
+    Crawl the archives for a date, using a previous cache DB as a base.
+
+    Args:
+        context: The context
+        archive_date: The date of the archives.
+        archives: The iterable of archives.
+        previous_cache_db_path: A list to the previous cache DB that will be used as a base for the new one.
+
+    Returns:
+        The path of the new cache DB.
+
+    """
+    context.data_time = archive_date
+    context.log.info(
+        "Processing %d archives for %s" % (len(archives), archive_date.isoformat())
+    )
+    cache_db_path = get_entity_cache_db_path(archive_date)
+    if cache_db_path.exists():
+        # We've already computed that day from a previous run
+        # TODO(Leon Handreke): Implement this backed by internal-data Cloud Storage
+        return cache_db_path
+
+    # For the first item, we don't have a previous DB to roll over yet
+    if previous_cache_db_path is not None:
+        shutil.copytree(previous_cache_db_path, cache_db_path)
+    # Write to a tempfile first so that if we crash halfway through, it won't think we've cached that date already
+    unfinished_cache_db_path = cache_db_path.with_suffix(".unfinished")
+    shutil.rmtree(unfinished_cache_db_path, ignore_errors=True)
+    cache_db = plyvel.DB(str(unfinished_cache_db_path), create_if_missing=True)
+
+    n = 0
+    for archive in sorted(archives):
+        if LOCAL_BUCKET_PATH_FOR_DEBUG:
+            res = crawl_local_archive(context, str(archive))
+        else:
+            res = crawl_remote_archive(context, str(archive))
+
+        with cache_db.write_batch() as wb:
+            for new_entities in res:
+                # The first element in the list is always the Company/LegalEntity entity
+                company_key = bytes(new_entities[0].id, "utf-8")
+                # Get the existing company record from the db, if it exists, patch it with the new data.
+                previous_value = cache_db.get(company_key)
+
+                if previous_value:
+                    previous_entities = dicts_to_entities(
+                        context, orjson.loads(previous_value)
+                    )
+                    new_entities = add_expired_entities_from_previous(
+                        context, new_entities, previous_entities
+                    )
+
+                wb.put((company_key, orjson.dumps(entities_to_dicts(new_entities))))
+
+                n += 1
+                if n % 10000 == 0 and n != 0:
+                    context.log.info(
+                        "Processed %d companies for date %s"
+                        % (n, archive_date.isoformat())
+                    )
+
+    cache_db.close()
+    unfinished_cache_db_path.rename(cache_db_path)
+
+    return cache_db_path
+
+
 def crawl(context: Context) -> None:
-    # TODO: thread pool execution
     # Load abbreviations once using the context
     global abbreviations
     abbreviations = compile_abbreviations(context)
-    for blob_name in sorted(list_prefix_internal(context)):
-        crawl_archive(context, blob_name)
+
+    # Left in there for debugging, if you have a local instance of the data
+    if LOCAL_BUCKET_PATH_FOR_DEBUG:
+        archives = [
+            name
+            for name in Path(LOCAL_BUCKET_PATH_FOR_DEBUG)
+            .joinpath(INTERNAL_DATA_ARCHIVE_PREFIX)
+            .glob("*.zip")
+        ]
+    else:
+        archives = [
+            name
+            for name in list_internal_data(INTERNAL_DATA_ARCHIVE_PREFIX)
+            if name.endswith(".zip")
+        ]
+
+    archives_by_date = sorted(aggregate_archives_by_date(archives).items())
+
+    previous_cache_db_path = None
+    # Go through list of (date, [archives]) tuples that are sorted by date
+    # For each of the dates, we apply the data in the archives for that day to the cache database
+    # After we've rolled the database forward to the latest archive, we emit the entities
+    for archive_date, archives in archives_by_date:
+        previous_cache_db_path = crawl_archives_for_date(
+            context, archive_date, archives, previous_cache_db_path
+        )
+
+    last_date = archives_by_date[-1][0]
+    last_cache_db = plyvel.DB(
+        str(get_entity_cache_db_path(last_date)), create_if_missing=False
+    )
+    # We've rolled the cache database forward to the latest available archive, emit the entities
+    for company_key, value in last_cache_db:
+        entities = dicts_to_entities(context, orjson.loads(value))
+        for e in entities:
+            context.emit(e)
