@@ -23,7 +23,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     person = None
     if entity_name := row.pop("entity_name"):
         entity = context.make("Company")
-        entity.id = context.make_id(entity_name, row.get("npi"))
+        entity.id = context.make_id(entity_name, npi)
         entity.add("name", entity_name)
         entity.add("npiCode", npi)
         entity.add("topics", "debarment")

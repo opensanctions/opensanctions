@@ -8,6 +8,8 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.helpers.xml import ElementOrTree
 from zavod.shed.zyte_api import fetch_resource
+from normality import collapse_spaces
+
 
 REGEX_ID_NUMBER = re.compile(r"\w?[\d-]*\d{6,}[\d-]*")
 SPLITS = [";", "i)", "ii)", "iii)", "iv)", "v)", "vi)", "vii)", "viii)", "ix)", "x)"]
@@ -30,7 +32,7 @@ def clean_id(entity: Entity, text: Optional[str]) -> Generator[str, None, None]:
     for substring in text.split(";"):
         if len(substring) > IdentifierType.max_length:
             entity.add("notes", substring)
-            yield from REGEX_ID_NUMBER.findall(substring)
+        yield from REGEX_ID_NUMBER.findall(substring)
 
 
 def parse_entry(context: Context, entry: ElementOrTree) -> None:
@@ -86,7 +88,8 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
         entity.add("address", h.multi_split(node.findtext("./address"), SPLITS))
 
     for pob in entry.findall("./place-of-birth-list"):
-        entity.add_cast("Person", "birthPlace", pob.text)
+        for p in h.multi_split(pob.text, ";"):
+            entity.add_cast("Person", "birthPlace", collapse_spaces(p))
 
     for dob in entry.findall("./date-of-birth-list"):
         if dob.text is not None:

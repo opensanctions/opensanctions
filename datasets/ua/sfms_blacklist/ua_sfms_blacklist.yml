@@ -80,6 +80,18 @@ lookups:
         value: Ethiopia
       - match: former Soviet Union
         value: SUHH
+      - match: United Kingdom of Great Britain and Northern Irela
+        value: GB
+      - match: Baghdad, Iraq
+        value: IQ
+      - match: Sanaa, Yemen
+        value: YE
+      - match: South Sudan number
+        value: SS
+      - match: Alexandria, Egypt
+        value: EG
+      - match: "682"
+        value: SA
   type.date:
     options:
       - match: 11 November 1960, 11 November 1967, 11 November 1969, 1 January 1969

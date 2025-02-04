@@ -4,6 +4,7 @@ from zavod import Context, helpers as h
 from normality import slugify
 from typing import Dict, Generator, cast
 from typing import List
+from normality import collapse_spaces
 
 
 REGEX_DATE = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
@@ -25,8 +26,8 @@ def crawl_item(context: Context, row: Dict[str, str]):
     entity.id = context.make_id(name)
     entity.add("name", name)
     # Adjust the topic based on the presence of "final rule"
-    final_rule = row.get("final_rule", "").strip().lower()
-    rescinded_date = row.get("rescinded").text_content()
+    final_rule = collapse_spaces(row.get("final-rule", "").text_content().strip().lower())
+    rescinded_date = collapse_spaces(row.get("rescinded").text_content())
     if (
         final_rule
         and final_rule != "---"

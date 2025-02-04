@@ -23,7 +23,7 @@ def create_entities(context: Context, record: Dict[str, Any]):
     organization_name = record.pop("org_naziv")
     organization_number = record.pop("org_sifrapu")
 
-    if registration_number:
+    if registration_number and organization_number:
         legal_entity.add(
             "sourceUrl",
             f"https://erar.si/transakcija/placnik/{organization_number}/prejemnik/{registration_number}",
