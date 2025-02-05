@@ -66,13 +66,15 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 def crawl_pdf_url(context: Context):
     download_xpath = ".//a[contains(text(), 'Med Prov Excl-Rein List')]"
-    doc = fetch_html(context, context.data_url, download_xpath)
+    doc = fetch_html(context, context.data_url, download_xpath, geolocation="us")
     doc.make_links_absolute(context.data_url)
     return doc.xpath(download_xpath)[0].get("href")
 
 
 def crawl(context: Context) -> None:
-    _, _, _, path = fetch_resource(context, "source.pdf", crawl_pdf_url(context), PDF)
+    _, _, _, path = fetch_resource(
+        context, "source.pdf", crawl_pdf_url(context), PDF, geolocation="us"
+    )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for item in h.parse_pdf_table(context, path, headers_per_page=True):
         for key, value in item.items():

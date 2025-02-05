@@ -54,5 +54,7 @@ def crawl(context: Context) -> None:
         crawl_item(item, context)
 
     # Providers that where terminated but are now reinstated
-    for item in h.parse_xlsx_sheet(context, wb["Reinstated Providers"]):
-        crawl_item(item, context)
+    if "Reinstated Providers" in wb.sheetnames:
+        for item in h.parse_xlsx_sheet(context, wb["Reinstated Providers"]):
+            crawl_item(item, context)
+    assert len(set(wb.sheetnames) - {"Termination List", "Reinstated Providers"}) == 0
