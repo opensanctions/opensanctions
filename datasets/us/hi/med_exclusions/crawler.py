@@ -5,6 +5,8 @@ from rigour.mime.types import PDF
 from zavod import Context, helpers as h
 from normality import collapse_spaces
 
+from zavod.shed.zyte_api import fetch_html, fetch_resource
+
 AKA_SPLIT = r"\baka\b|\ba\.k\.a\b|\bAKA\b|\bor\b"
 
 
@@ -63,13 +65,16 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_pdf_url(context: Context):
-    doc = context.fetch_html(context.data_url)
+    download_xpath = ".//a[contains(text(), 'Med Prov Excl-Rein List')]"
+    doc = fetch_html(context, context.data_url, download_xpath, geolocation="us")
     doc.make_links_absolute(context.data_url)
-    return doc.xpath(".//a[contains(text(), 'Med Prov Excl-Rein List')]")[0].get("href")
+    return doc.xpath(download_xpath)[0].get("href")
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.pdf", crawl_pdf_url(context))
+    _, _, _, path = fetch_resource(
+        context, "source.pdf", crawl_pdf_url(context), PDF, geolocation="us"
+    )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for item in h.parse_pdf_table(context, path, headers_per_page=True):
         for key, value in item.items():
