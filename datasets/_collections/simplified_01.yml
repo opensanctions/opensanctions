@@ -1,0 +1,30 @@
+type: collection
+title: "Simplified format for a specific project (NOT FOR GENERAL CONSUMPTION)"
+hidden: true
+coverage:
+  start: "2025-02-03"
+  frequency: daily
+deploy:
+  memory: "1500Mi"
+exports:
+  - targets.simple-02.csv
+resolve: true
+summary: >
+  A restricted set of data sources published in simplied format.
+description: |
+  **NOTE: THIS COLLECTION CAN CHANGE OR BE REMOVED AT ANY TIME WITHOUT WARNING OTHER THAN TO PROJECT PARTNERS.**
+
+children:
+  # Sanctions
+  - eu_fsf
+  - eu_journal_sanctions
+  - eu_sanctions_map
+  - eu_travel_bans
+  - us_ofac_cons
+  - us_ofac_sdn
+  - un_sc_sanctions
+  # Wanted
+  - eu_europol_wanted
+  - interpol_red_notices
+
+ci_test: false
