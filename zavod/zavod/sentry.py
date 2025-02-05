@@ -36,6 +36,9 @@ from sentry_sdk.integrations.logging import _IGNORED_LOGGERS
 from sentry_sdk.utils import capture_internal_exceptions, event_from_exception
 from structlog.types import EventDict, ExcInfo, WrappedLogger
 
+# See https://docs.sentry.io/concepts/data-management/event-grouping/fingerprint-rules/
+SENTRY_FINGERPRINT_VARIABLE_MESSAGE = "{{ message }}"
+
 
 def _figure_out_exc_info(v: Any) -> ExcInfo:
     """
@@ -63,7 +66,7 @@ class SentryProcessor:
         level: int = logging.INFO,
         event_level: int = logging.WARNING,
         active: bool = True,
-        as_context: bool = True,
+        event_dict_as_extra: bool = True,
         ignore_breadcrumb_data: Iterable[str] = (
             "level",
             "logger",
@@ -71,6 +74,7 @@ class SentryProcessor:
             "timestamp",
         ),
         tag_keys: list[str] | str | None = None,
+        fingerprint: Iterable[str] | None = None,
         ignore_loggers: Iterable[str] | None = None,
         verbose: bool = False,
         scope: Scope | None = None,
@@ -81,13 +85,15 @@ class SentryProcessor:
         :param event_level: Events of this or higher levels will be reported to Sentry
             as events. Default is :obj:`logging.WARNING`.
         :param active: A flag to make this processor enabled/disabled.
-        :param as_context: Send `event_dict` as extra info to Sentry.
+        :param event_dict_as_extra: Send `event_dict` as extra info to Sentry.
             Default is :obj:`True`.
         :param ignore_breadcrumb_data: A list of data keys that will be excluded from
             breadcrumb data. Defaults to keys which are already sent separately.
         :param tag_keys: A list of keys. If any if these keys appear in `event_dict`,
             the key and its corresponding value in `event_dict` will be used as Sentry
             event tags. use `"__all__"` to report all key/value pairs of event as tags.
+        :param fingerprint: A custom fingerprint for the recorded events, see
+            https://docs.sentry.io/concepts/data-management/event-grouping/fingerprint-rules/.
         :param ignore_loggers: A list of logger names to ignore any events from.
         :param verbose: Report the action taken by the logger in the `event_dict`.
             Default is :obj:`False`.
@@ -100,9 +106,10 @@ class SentryProcessor:
         self.verbose = verbose
 
         self._scope = scope
-        self._as_context = as_context
+        self._event_dict_as_extra = event_dict_as_extra
         self._original_event_dict: dict = {}
         self.ignore_breadcrumb_data = ignore_breadcrumb_data
+        self._fingerprint = fingerprint
 
         self._ignored_loggers: set[str] = set()
         if ignore_loggers is not None:
@@ -155,11 +162,19 @@ class SentryProcessor:
 
         event["message"] = event_dict.get("event")
         event["level"] = event_dict.get("level")
+        event["fingerprint"] = self._fingerprint
         if "logger" in event_dict:
             event["logger"] = event_dict["logger"]
 
-        if self._as_context:
-            event["contexts"] = {"structlog": self._original_event_dict.copy()}
+        if self._event_dict_as_extra:
+            print(event_dict)
+            # Only add the keys we're not already reporting in other fields to extra data
+            event["extra"] = {
+                k: v
+                for k, v in event_dict.items()
+                if k not in ["event", "level", "logger"]
+            }
+
         if self.tag_keys == "__all__":
             event["tags"] = self._original_event_dict.copy()
         if isinstance(self.tag_keys, list):
