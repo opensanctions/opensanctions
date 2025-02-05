@@ -121,7 +121,7 @@ def crawl(context: Context):
     container = doc.xpath(content_xpath)[0]
     # curl https://nbctf.mod.gov.il/en/Minister%20Sanctions/PropertyPerceptions/Pages/Blockchain1.aspx > data/datasets/il_mod_crypto/source.csv
     # git diff data/datasets/il_mod_crypto/source.csv
-    h.assert_dom_hash(container, "12c63958083b9513a6e5da03fad7c221703c6083")
+    h.assert_dom_hash(container, "16ce66165c103b455618524a87adf47b37d4d331")
 
     # We don't support rowspan at the time of writing.
     #
