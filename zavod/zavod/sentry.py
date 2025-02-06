@@ -26,6 +26,8 @@
 from __future__ import annotations
 
 import logging
+import typing
+
 import sys
 from fnmatch import fnmatch
 from typing import Any, Optional
@@ -33,6 +35,7 @@ from collections.abc import MutableMapping, Iterable
 
 from sentry_sdk import Scope, get_isolation_scope
 from sentry_sdk.integrations.logging import _IGNORED_LOGGERS
+from sentry_sdk.types import Event
 from sentry_sdk.utils import capture_internal_exceptions, event_from_exception
 from structlog.types import EventDict, ExcInfo, WrappedLogger
 
@@ -40,19 +43,19 @@ from structlog.types import EventDict, ExcInfo, WrappedLogger
 SENTRY_FINGERPRINT_VARIABLE_MESSAGE = "{{ message }}"
 
 
-def _figure_out_exc_info(v: Any) -> ExcInfo:
+def _figure_out_exc_info(v: Any) -> ExcInfo | tuple[None, None, None]:
     """
     Depending on the Python version will try to do the smartest thing possible
     to transform *v* into an ``exc_info`` tuple.
     """
     if isinstance(v, BaseException):
-        return (v.__class__, v, v.__traceback__)
+        return v.__class__, v, v.__traceback__
     elif isinstance(v, tuple):
-        return v  # type: ignore
+        return v
     elif v:
-        return sys.exc_info()  # type: ignore
+        return sys.exc_info()
 
-    return v
+    return v  # type: ignore
 
 
 class SentryProcessor:
@@ -74,7 +77,7 @@ class SentryProcessor:
             "timestamp",
         ),
         tag_keys: list[str] | str | None = None,
-        fingerprint: Iterable[str] | None = None,
+        fingerprint: list[str] | None = None,
         ignore_loggers: Iterable[str] | None = None,
         verbose: bool = False,
         scope: Scope | None = None,
@@ -107,7 +110,7 @@ class SentryProcessor:
 
         self._scope = scope
         self._event_dict_as_extra = event_dict_as_extra
-        self._original_event_dict: dict = {}
+        self._original_event_dict: dict[str, Any] = {}
         self.ignore_breadcrumb_data = ignore_breadcrumb_data
         self._fingerprint = fingerprint
 
@@ -142,7 +145,9 @@ class SentryProcessor:
     def _get_scope(self) -> Scope:
         return self._scope or get_isolation_scope()
 
-    def _get_event_and_hint(self, event_dict: EventDict) -> tuple[dict, dict]:
+    def _get_event_and_hint(
+        self, event_dict: EventDict
+    ) -> tuple[Event, dict[str, Any]]:
         """Create a sentry event and hint from structlog `event_dict` and sys.exc_info.
 
         :param event_dict: structlog event_dict
@@ -160,9 +165,10 @@ class SentryProcessor:
         else:
             event, hint = {}, {}
 
-        event["message"] = event_dict.get("event")
-        event["level"] = event_dict.get("level")
-        event["fingerprint"] = self._fingerprint
+        event["message"] = str(event_dict.get("event"))
+        event["level"] = event_dict.get("level")  # type: ignore
+        if self._fingerprint is not None:
+            event["fingerprint"] = self._fingerprint
         if "logger" in event_dict:
             event["logger"] = event_dict["logger"]
 
@@ -184,13 +190,15 @@ class SentryProcessor:
 
         return event, hint
 
-    def _get_breadcrumb_and_hint(self, event_dict: EventDict) -> tuple[dict, dict]:
+    def _get_breadcrumb_and_hint(
+        self, event_dict: EventDict
+    ) -> tuple[dict[str, str], dict[str, Any]]:
         data = {
             k: v for k, v in event_dict.items() if k not in self.ignore_breadcrumb_data
         }
         event = {
             "type": "log",
-            "level": event_dict.get("level"),  # type: ignore
+            "level": event_dict.get("level"),
             "category": event_dict.get("logger"),
             "message": event_dict["event"],
             "timestamp": event_dict.get("timestamp"),
@@ -203,7 +211,7 @@ class SentryProcessor:
         logger_name = self._get_logger_name(logger=logger, event_dict=event_dict)
         if logger_name:
             for ignored_logger in _IGNORED_LOGGERS | self._ignored_loggers:
-                if fnmatch(logger_name, ignored_logger):  # type: ignore
+                if fnmatch(logger_name, ignored_logger):
                     if self.verbose:
                         event_dict["sentry"] = "ignored"
                     return False
@@ -228,7 +236,7 @@ class SentryProcessor:
         """Get numeric value for the log level name given."""
         try:
             # Try to get one of predefined log levels
-            return getattr(logging, level_name)
+            return typing.cast(int, getattr(logging, level_name))
         except AttributeError as e:
             # May be it is a custom log level?
             level = logging.getLevelName(level_name)
