@@ -14,7 +14,7 @@ class Metric(Enum):
     COUNTRY_COUNT = "country_count"
     """Number of distinct countries occurring in the dataset."""
     PROPERTY_VALUES_COUNT = "property_values_count"
-    """Number of property values matching the filter in the dataset."""
+    """Number of entities with property values matching the filter in the dataset."""
 
 
 class Comparison(Enum):
