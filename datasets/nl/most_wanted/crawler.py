@@ -38,32 +38,40 @@ FIELDS = {
 
 
 def crawl_person(context: Context, source_url: str) -> None:
-    person = context.make("Person")
-    person.id = context.make_id(source_url)
-    person.add("topics", "crime")
-    person.add("topics", "wanted")
-    person.add("sourceUrl", source_url)
-
     doc = context.fetch_html(source_url)
-    person.add("name", doc.findtext(".//h1[@test-id='title']"))
-
-    intro_desc = doc.xpath("//p[contains(@class, 'p-intro')]/text()")
-    other_descs = doc.xpath("//div[@test-id='html']/p/text()")
-
-    descs = h.clean_note(intro_desc + other_descs)
-    person.add("notes", "\n".join(descs))
 
     facts = {}
     for fact_text in doc.xpath("//ul[@test-id='dossier-report-list']/li/text()"):
         if ": " not in fact_text:
             context.log.warn(
-                f'Unparseable fact text "{fact_text}" for {person.id}',
+                f'Unparseable fact text "{fact_text}"',
                 source_url=source_url,
             )
             continue
         key_text, value_text = fact_text.split(": ", 1)
         facts_key = slugify(key_text, sep="_")
         facts[facts_key] = value_text
+
+    person = context.make("Person")
+    name = doc.findtext(".//h1[@test-id='title']")
+
+    person.id = context.make_slug(
+        name,
+        facts.get("place_of_birth", None),
+        # Place of birth can be None, and that's fine
+        strict=False,
+    )
+    person.add("topics", "crime")
+    person.add("topics", "wanted")
+    person.add("sourceUrl", source_url)
+
+    person.add("name", name)
+
+    intro_desc = doc.xpath("//p[contains(@class, 'p-intro')]/text()")
+    other_descs = doc.xpath("//div[@test-id='html']/p/text()")
+
+    descs = h.clean_note(intro_desc + other_descs)
+    person.add("notes", "\n".join(descs))
 
     for field, value in facts.items():
         if field == "date_of_birth":
@@ -78,7 +86,7 @@ def crawl_person(context: Context, source_url: str) -> None:
         if prop is not None:
             person.add(prop, value)
 
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context: Context) -> None:
@@ -93,6 +101,6 @@ def crawl(context: Context) -> None:
                 crawl_person(context, detail_url)
 
         next_button = doc.find(".//button[@id='pagination-next-button']")
-        assert next_button, "Next page button not found in page"
+        assert next_button is not None, "Next page button not found in page"
         if "disabled" in next_button.attrib:
             break
