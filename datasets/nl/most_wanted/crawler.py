@@ -1,11 +1,11 @@
-from urllib.parse import urljoin
-from lxml.etree import _Element
+import itertools
+
 from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
 
-base_url = "https://www.politie.nl/"
+FUGITIVES_URL_PREFIX = "https://www.politie.nl/en/wanted/fugitives"
 
 FIELDS = {
     "name": "name",
@@ -37,8 +37,7 @@ FIELDS = {
 }
 
 
-def crawl_person(context: Context, list_item: _Element):
-    source_url = urljoin(context.data_url, list_item.get("href"))
+def crawl_person(context: Context, source_url: str) -> None:
     person = context.make("Person")
     person.id = context.make_id(source_url)
     person.add("topics", "crime")
@@ -46,20 +45,25 @@ def crawl_person(context: Context, list_item: _Element):
     person.add("sourceUrl", source_url)
 
     doc = context.fetch_html(source_url)
-    person.add("name", doc.findtext(".//h1"))
+    person.add("name", doc.findtext(".//h1[@test-id='title']"))
 
-    description = doc.find('.//section[@aria-labelledby="omschrijving-title"]')
-    descs = h.clean_note([p.text for p in description.findall("./p")])
+    intro_desc = doc.xpath("//p[contains(@class, 'p-intro')]/text()")
+    other_descs = doc.xpath("//div[@test-id='html']/p/text()")
+
+    descs = h.clean_note(intro_desc + other_descs)
     person.add("notes", "\n".join(descs))
+
     facts = {}
-    for facts_el in doc.findall('.//dl[@id="gegevens-title-dl"]'):
-        facts_key = None
-        for el in facts_el.getchildren():
-            if el.tag == "dt":
-                facts_key = slugify(el.text, sep="_")
-            if el.tag == "dd" and facts_key is not None:
-                facts[facts_key] = el.text
-                facts_key = None
+    for fact_text in doc.xpath("//ul[@test-id='dossier-report-list']/li/text()"):
+        if ": " not in fact_text:
+            context.log.warn(
+                f'Unparseable fact text "{fact_text}" for {person.id}',
+                source_url=source_url,
+            )
+            continue
+        key_text, value_text = fact_text.split(": ", 1)
+        facts_key = slugify(key_text, sep="_")
+        facts[facts_key] = value_text
 
     for field, value in facts.items():
         if field == "date_of_birth":
@@ -77,14 +81,18 @@ def crawl_person(context: Context, list_item: _Element):
     context.emit(person, target=True)
 
 
-def crawl(context: Context):
-    page = 1
-    while True:
-        doc = context.fetch_html(context.data_url, params={"page": page})
-        for item in doc.findall('.//section//a[@class="imagelistlink"]'):
-            crawl_person(context, item)
+def crawl(context: Context) -> None:
+    for page in itertools.count(start=1):
+        doc = context.fetch_html(context.data_url, params={"page": page}, cache_days=1)
+        doc.make_links_absolute(context.data_url)
+        for detail_url in doc.xpath(
+            "//a[contains(@class, 'wantedmissing-link')]/@href"
+        ):
+            # The website also contains some other search notices that we don't care about
+            if detail_url.startswith(FUGITIVES_URL_PREFIX):
+                crawl_person(context, detail_url)
 
-        if doc.find('.//a[@rel="next"]') is None:
+        next_button = doc.find(".//button[@id='pagination-next-button']")
+        assert next_button, "Next page button not found in page"
+        if "disabled" in next_button.attrib:
             break
-        page += 1
-    # crawl_pages(context, 1, False, "")
