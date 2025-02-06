@@ -12,7 +12,7 @@ def test_dataset_sink(testdataset1: Dataset):
     entity = context.make("Person")
     entity.id = "foo"
     entity.add("name", "Foo")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.sink.close()
     assert context.sink.path.is_file()
     with open(context.sink.path, "rb") as fh:

@@ -17,7 +17,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if issuer := row.pop("issuer"):
         entity.add("issuer", issuer)
 
-    context.emit(entity, target=row.pop("is_target"))
+    context.emit(entity)
     context.audit_data(row)
 
 
