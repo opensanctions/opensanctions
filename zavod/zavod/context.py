@@ -539,8 +539,6 @@ class Context:
             self.log.error("Entity has no properties", entity=entity)
             return
         self.stats.entities += 1
-        if target:
-            self.stats.targets += 1
         if self.stats.entities % 10000 == 0:
             self.log.info(
                 "Emitted %s entities" % self.stats.entities,
