@@ -1,4 +1,5 @@
 import re
+
 import ijson
 from typing import Any, Dict, Optional, List, Tuple, Set
 
@@ -104,7 +105,6 @@ def crawl_person_person_relation(
     if other_rupep_id not in published_people:
         context.log.debug("Skipping unpublished person", id=other_rupep_id)
         return
-    other_pep = rel_data.pop("is_pep", False)
     other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
     other_id = person_id(context, other_rupep_id, other_wdid)
     other = context.make("Person")
@@ -114,6 +114,9 @@ def crawl_person_person_relation(
     other.add("name", rel_data.pop("person_en", None), lang="eng")
     other.add("name", rel_data.pop("person_ru", None), lang="rus")
     other.add("wikidataId", other_wdid)
+
+    other_pep = rel_data.pop("is_pep", False)
+    other.add("topics", "pep" if other_pep else "poi")
 
     rel_type = rel_data.pop("relationship_type_en", None)
     rel_type_ru = rel_data.pop("relationship_type_ru", None)
@@ -148,7 +151,7 @@ def crawl_person_person_relation(
     h.apply_date(rel, "endDate", rel_data.pop("date_finished"))
 
     context.audit_data(rel_data)
-    context.emit(other, target=other_pep)
+    context.emit(other)
     context.emit(rel)
 
 
@@ -449,13 +452,13 @@ def crawl_person(
         context.log.warn("Unknown type of official", type=person_type)
     if res.value:
         entity.add("topics", res.value, original_value=person_type)
-    elif not we_pep:
-        entity.add("topics", "poi")
+    else:
+        entity.add("topics", "pep" if we_pep else "poi")
     entity.add("status", person_type)
 
     data.pop("declarations", None)
     # h.audit_data(data)
-    context.emit(entity, target=we_pep)
+    context.emit(entity)
 
 
 def get_company_country(
