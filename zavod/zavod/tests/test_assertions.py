@@ -6,6 +6,7 @@ from zavod.meta.assertion import parse_assertions, Comparison, Metric
 CONFIG = {
     "min": {
         "schema_entities": {"Person": 1},
+        "property_values": {"Person": {"name": 1}},
     },
     "max": {"countries": 1},
 }
@@ -18,7 +19,13 @@ def test_parse_assertions():
     assert entity_count.filter_attribute == "schema"
     assert entity_count.comparison == Comparison.GTE
 
-    country_count = assertions[1]
+    property_values_count = assertions[1]
+    assert property_values_count.metric == Metric.PROPERTY_VALUES_COUNT
+    assert property_values_count.filter_attribute == "property_values"
+    assert property_values_count.filter_value == ("Person", "name")
+    assert property_values_count.comparison == Comparison.GTE
+
+    country_count = assertions[2]
     assert country_count.metric == Metric.COUNTRY_COUNT
     assert country_count.filter_attribute is None
     assert country_count.comparison == Comparison.LTE
@@ -40,5 +47,17 @@ def test_parse_assertions():
 
     config = deepcopy(CONFIG)
     config["whatever"] = config.pop("min")
+    with pytest.raises(ValueError):
+        list(parse_assertions(config))
+
+
+def test_parse_property_values_count_unknown_property_name_or_schema():
+    config = deepcopy(CONFIG)
+
+    config["min"]["property_values"] = {"Person": {"bogusProperty": 1}}
+    with pytest.raises(ValueError):
+        list(parse_assertions(config))
+
+    config["min"]["property_values"] = {"bogusSchema": {"name": 1}}
     with pytest.raises(ValueError):
         list(parse_assertions(config))

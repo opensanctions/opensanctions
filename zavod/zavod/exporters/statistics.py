@@ -1,10 +1,10 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from typing import Dict, List, Any, Optional, Set
+
 from followthemoney import model
 from followthemoney.types import registry
-
-from zavod.entity import Entity
 from zavod.archive import STATISTICS_FILE
+from zavod.entity import Entity
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
 
@@ -37,6 +37,23 @@ def get_country_facets(countries: Dict[str, int]) -> List[Any]:
     return facets
 
 
+# We don't use followthemoney.Property because we want to track manifestations of property values on specific
+# schemas, even though the property might be defined somewhere higher in the type hierarchy.
+SchemaProperty = namedtuple("SchemaProperty", ["schema", "property"])
+
+
+def get_property_values_facets(properties: Dict[SchemaProperty, int]) -> List[Any]:
+    facets: List[Any] = []
+    for prop, count in sorted(properties.items()):
+        facet = {
+            "schema": prop.schema,
+            "property": prop.property,
+            "count": count,
+        }
+        facets.append(facet)
+    return facets
+
+
 class Statistics(object):
     def __init__(self) -> None:
         self.entity_count = 0
@@ -47,6 +64,7 @@ class Statistics(object):
         self.thing_count = 0
         self.thing_countries: Dict[str, int] = defaultdict(int)
         self.thing_schemata: Dict[str, int] = defaultdict(int)
+        self.property_values_count: Dict[SchemaProperty, int] = defaultdict(int)
 
         self.target_count = 0
         self.target_countries: Dict[str, int] = defaultdict(int)
@@ -57,6 +75,12 @@ class Statistics(object):
         self.schemata.add(entity.schema.name)
         for prop in entity.iterprops():
             self.qnames.add(prop.qname)
+        for prop_name, values in entity.properties.items():
+            # We add 1 instead of len(values) here because we want to count the number of entities that have this
+            # value set, not the number of values.
+            self.property_values_count[
+                SchemaProperty(entity.schema.name, prop_name)
+            ] += 1
 
         if entity.schema.is_a("Thing"):
             self.thing_count += 1
@@ -92,6 +116,9 @@ class Statistics(object):
                 "total": self.thing_count,
                 "countries": get_country_facets(self.thing_countries),
                 "schemata": get_schema_facets(self.thing_schemata),
+                "property_values": get_property_values_facets(
+                    self.property_values_count
+                ),
             },
         }
 

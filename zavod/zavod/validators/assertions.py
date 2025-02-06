@@ -1,11 +1,11 @@
 from typing import Dict, Any, Optional, cast
-from zavod.context import Context
 
+from zavod.context import Context
 from zavod.entity import Entity
-from zavod.meta.assertion import Assertion, Comparison, Metric
 from zavod.exporters.statistics import Statistics
-from zavod.validators.common import BaseValidator
+from zavod.meta.assertion import Assertion, Comparison, Metric
 from zavod.store import View
+from zavod.validators.common import BaseValidator
 
 
 def compare_threshold(value: int, comparison: Comparison, threshold: int) -> bool:
@@ -36,8 +36,22 @@ def get_value(stats: Dict[str, Any], assertion: Assertion) -> Optional[int]:
             if len(items) != 1:
                 return None
             return cast(int, items[0]["count"])
+
+        case Metric.PROPERTY_VALUES_COUNT:
+            items = stats["things"]["property_values"]
+            items = [
+                i
+                for i in items
+                # Filter value is a (schema_name, prop_name) tuple
+                if assertion.filter_value
+                and i["schema"] == assertion.filter_value[0]
+                and i["property"] == assertion.filter_value[1]
+            ]
+            return cast(int, items[0]["count"]) if len(items) == 1 else None
+
         case Metric.COUNTRY_COUNT:
             return len(stats["things"]["countries"])
+
         case _:
             raise ValueError(f"Unknown metric: {assertion.metric}")
 
