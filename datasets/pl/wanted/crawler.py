@@ -1,49 +1,5 @@
-import re
-from typing import List
-
-
 from zavod import Context
 from zavod import helpers as h
-
-NULL_CITIZENSHIPS = ["NIEUSTALONE", "BEZPAŃSTWOWIEC"]
-CITIZENSHIPS_WITH_SPACES = [
-    "WIELKA BRYTANIA",
-    "SRI LANKA",
-    "ARABIA SAUDYJSKA",
-    "NOWA ZELANDIA",
-    "BOŚNIA I HERCEGOWINA",
-    "ZJEDNOCZONE EMIRATY ARABSKIE",
-    "KOREAŃSKA REPUBLIKA LUDOWO-DEMOKRATYCZNA",
-    "WYBRZEŻE KOŚCI SŁONIOWEJ",
-    "DEMOKRATYCZNA REPUBLIKA KONGA",
-    "SIERRA LEONE",
-    "KOREA POŁUDNIOWA",
-]
-
-
-def clean_and_split_citizenship(citizenship: str) -> str | List[str]:
-    """
-    Try to split the space-delimited citizenship field in various creative ways
-
-    Args:
-        citizenship: The string content of the citizenship field
-
-    Returns:
-        A string or a list of string containing the cleaned citizenship(s).
-
-    """
-    res = []
-    # Sometimes, we have another spelling of the country in brackets, like "USA (STANY ZJEDNOCZONE AMERYKI)"
-    cleaned_citizenship = re.sub(r" \(.+\)", "", citizenship)
-    # Split citizenships with spaces out before naively splitting on space
-    for c in CITIZENSHIPS_WITH_SPACES:
-        if c in cleaned_citizenship:
-            cleaned_citizenship = cleaned_citizenship.replace(c, "")
-            res.append(c)
-
-    res += cleaned_citizenship.split(" ")
-
-    return res
 
 
 def crawl_person(context: Context, url: str):
@@ -94,10 +50,15 @@ def crawl_person(context: Context, url: str):
     person.add("eyeColor", info.pop("eye_color", None))
 
     citizenship = info.pop("citizenship", None)
-    cleaned_citizenships = (
-        clean_and_split_citizenship(citizenship) if citizenship else None
+    citizenship_original_value = citizenship
+    if citizenship and "POLSKA" in citizenship:
+        person.add("citizenship", "pl", original_value=citizenship_original_value)
+        citizenship = citizenship.replace("POLSKA", "").strip()
+    person.add(
+        "citizenship",
+        h.multi_split(citizenship, ["(", ")"]),
+        original_value=citizenship_original_value,
     )
-    person.add("citizenship", cleaned_citizenships, original_value=citizenship)
 
     crimes = doc.xpath(
         "//p[contains(text(), 'Podstawy poszukiwań:')]/following-sibling::ul//a/text()"
