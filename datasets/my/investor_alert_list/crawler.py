@@ -26,7 +26,7 @@ def crawl_item(input_dict: dict, context: Context):
     for website in input_dict.pop("website").split(" | "):
         entity.add("website", website)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
 
     # group is just the alphabetical order of the name
     context.audit_data(input_dict, ignore=["group", "date"])

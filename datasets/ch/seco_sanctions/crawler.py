@@ -332,7 +332,7 @@ def parse_entry(context: Context, target: Element, programs, places):
 
     if sanctioned:
         entity.add("topics", "sanction")
-    context.emit(entity, target=sanctioned)
+    context.emit(entity)
     context.emit(sanction)
 
 

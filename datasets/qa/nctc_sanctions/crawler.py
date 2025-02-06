@@ -70,7 +70,7 @@ def crawl(context: Context):
         item.pop("designationDTO", {})
         # h.audit_data(designation_dto)
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.audit_data(
             item,
             ignore=[

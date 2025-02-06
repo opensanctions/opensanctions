@@ -33,7 +33,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         sanction = h.make_sanction(context, person)
         sanction.add("authority", division)
 
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(sanction)
 
     if entity_name := row.pop("Facility Name"):
@@ -58,7 +58,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         sanction = h.make_sanction(context, entity)
         sanction.add("authority", division)
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
 
     if provider_name and entity_name:

@@ -106,7 +106,7 @@ def crawl_row(
             entities.append(occupancy)
     if entities:
         context.log.debug(f"Emitting PEP entities for {senid}")
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         for entity in entities:
             context.emit(entity)

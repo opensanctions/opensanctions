@@ -16,7 +16,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("notes", offense)
     entity.add("notes", case_number)
     # Emit the entities
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl(context: Context):

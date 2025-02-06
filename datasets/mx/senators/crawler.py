@@ -59,7 +59,9 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
     gender = (
         "male"
         if input_dict["Sexo"] == "Hombre"
-        else "female" if input_dict["Sexo"] == "Mujer" else "other"
+        else "female"
+        if input_dict["Sexo"] == "Mujer"
+        else "other"
     )
     input_dict.pop("Sexo")
     entity.add("gender", gender)
@@ -77,7 +79,7 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
         categorisation=categorisation,
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(occupancy)
     context.audit_data(
         input_dict,

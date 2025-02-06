@@ -19,7 +19,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("alias", brand_name if not company_name else None)
     entity.add("topics", "crime.fin")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.audit_data(row)
 
 

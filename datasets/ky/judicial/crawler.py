@@ -67,7 +67,7 @@ def crawl_judges(context: Context, url, default_position, min, max):
         )
         if not occupancy:
             continue
-        context.emit(person_proxy, target=True)
+        context.emit(person_proxy)
         context.emit(position)
         context.emit(occupancy)
 

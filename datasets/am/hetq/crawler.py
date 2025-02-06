@@ -156,7 +156,7 @@ def crawl_person(
                 context.emit(position)
     # Emit all the persons anyway
     person.add("topics", "poi")
-    context.emit(person, target=is_target)
+    context.emit(person)
     return person
 
 

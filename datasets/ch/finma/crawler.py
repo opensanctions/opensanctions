@@ -49,7 +49,7 @@ def crawl(context: Context, data: Dict[str, Any]):
             else:
                 context.log.warn("Unknown header: %s" % header, value=value, url=url)
 
-        context.emit(entity, target=True)
+        context.emit(entity)
 
 
 def crawl_warnings(context: Context):

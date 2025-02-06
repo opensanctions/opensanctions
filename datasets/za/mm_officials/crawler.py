@@ -130,6 +130,6 @@ def crawl(context: Context):
         )
 
         if occupancy:
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(position)
             context.emit(occupancy)

@@ -280,12 +280,12 @@ def parse_row(context: Context, row: Dict[str, Any]):
             wallet.add("publicKey", key)
             wallet.add("topics", "sanction")
             wallet.add("holder", entity.id)
-            context.emit(wallet, target=True)
+            context.emit(wallet)
 
     context.audit_data(row, ignore=["NonLatinScriptLanguage", "NonLatinScriptType"])
 
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

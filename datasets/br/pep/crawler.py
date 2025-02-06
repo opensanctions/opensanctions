@@ -71,7 +71,7 @@ def create_entity(raw_entity: Dict[str, Any], context: Context) -> None:
     )
 
     if occupancy is not None:
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 

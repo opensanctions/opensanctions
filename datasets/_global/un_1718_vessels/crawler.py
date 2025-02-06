@@ -70,7 +70,7 @@ def crawl(context: Context):
                 link.add("role", "designated As Economic Resources Of")
                 context.emit(link)
 
-            context.emit(vessel, target=True)
+            context.emit(vessel)
             context.emit(sanction)
 
             context.audit_data(row, ignore=["image_url"])

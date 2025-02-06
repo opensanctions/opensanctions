@@ -28,4 +28,4 @@ def crawl(context: Context):
         wallet.add("amountUsd", format_number(entry.pop("balanceUSD")))
         wallet.add("currency", entry.pop("blockchain"))
         context.audit_data(entry, ignore=["transactions"])
-        context.emit(wallet, target=True)
+        context.emit(wallet)

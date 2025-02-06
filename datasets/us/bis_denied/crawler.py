@@ -24,7 +24,7 @@ def parse_row(context: Context, row):
         country_code=country_code,
     )
     h.copy_address(entity, address)
-    context.emit(entity, target=True)
+    context.emit(entity)
 
     citation = row.get("FR_Citation")
     sanction = h.make_sanction(context, entity, key=citation)

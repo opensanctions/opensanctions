@@ -14,7 +14,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("alias", row.pop("alias"))
     entity.add("birthDate", row.pop("dob"))
     entity.add("nationality", row.pop("nationality"))
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.audit_data(row)
 
 

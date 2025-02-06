@@ -239,7 +239,7 @@ def crawl_person(context: Context) -> None:
             row.pop("photo_name", None)
 
             crawl_common(context, entity, row, sanction_status)
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.audit_data(row)
             CRAWLED_PERSONS.add(int(person_id))
 
@@ -266,7 +266,7 @@ def crawl_company(context: Context) -> None:
             entity.add_cast("Company", "ogrnCode", row.pop("ogrn", None))
 
             crawl_common(context, entity, row, sanction_status)
-            context.emit(entity, target=True)
+            context.emit(entity)
             row.pop("logo_en", None)
             ignores = [
                 "my_status",

@@ -40,7 +40,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
             if field == "informacion":
                 entity.add("notes", value, lang="spa")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.audit_data(row)
 
 

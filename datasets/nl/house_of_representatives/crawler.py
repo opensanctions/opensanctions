@@ -51,7 +51,7 @@ def crawl_person(context: Context, element: _Element, position: Entity):
     )
 
     context.emit(occupancy)
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context: Context):

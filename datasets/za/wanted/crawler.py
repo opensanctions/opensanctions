@@ -87,7 +87,7 @@ def crawl_person(context: Context, cell: html.HtmlElement):
         person.add("hairColor", additional_info.get("hair_color"))
         person.add("height", additional_info.get("height"))
         person.add("weight", additional_info.get("weight"))
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context):

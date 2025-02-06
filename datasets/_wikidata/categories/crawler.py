@@ -26,6 +26,8 @@ QUERY = {
 # TEMP: We're starting to include municipal PEPs for specific countries
 MUNI_COUNTRIES = {"us", "fr", "gb"}
 
+PROBLEMATIC = ["Q121998", "Q2101758", "Q2855502", "Q294414", "Q48352"]
+
 
 class CrawlState(object):
     def __init__(self, context: Context):
@@ -190,6 +192,10 @@ def crawl_category(state: CrawlState, category: Dict[str, Any]) -> None:
         person_qid = row["Wikidata"]
         if person_qid is None:
             continue
+        if person_qid in PROBLEMATIC:
+            import bpdb
+
+            bpdb.set_trace()
         state.persons.add(person_qid)
 
         # if person_qid == "Q118477652":
@@ -214,6 +220,10 @@ def crawl_category(state: CrawlState, category: Dict[str, Any]) -> None:
         if person_qid not in state.person_positions:
             state.person_positions[person_qid] = set()
         if position is not None:
+            if position.id in PROBLEMATIC:
+                import bpdb
+
+                bpdb.set_trace()
             state.person_positions[person_qid].add(position)
         if row.get("title") is not None:
             state.person_title[person_qid] = row.get("title")
@@ -245,6 +255,8 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
         return persons
 
     label = item_label(item)
+    # position held (P39) by
+    # instance of (P31) human (Q5)
     query = f"""
     SELECT ?person WHERE {{
         ?person wdt:P39 wd:{position_qid} .
@@ -263,6 +275,12 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
                 persons.add(claim.qid)
 
     state.log.info("Found %d holders of %s [%s]" % (len(persons), label, position_qid))
+    for p in persons:
+        if p in PROBLEMATIC:
+            import bpdb
+
+            bpdb.set_trace()
+
     return persons
 
 

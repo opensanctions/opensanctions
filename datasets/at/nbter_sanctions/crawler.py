@@ -50,12 +50,12 @@ def crawl_row(context: Context, row: Dict[str, str]):
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
             sanction.add("reason", reason, lang="deu")
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(sanction)
         elif topics is None:
-            context.emit(entity, target=False)
+            context.emit(entity)
         else:
-            context.emit(entity, target=False)
+            context.emit(entity)
 
 
 def crawl(context: Context):

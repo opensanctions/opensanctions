@@ -58,7 +58,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
             "Romania Government Decision No. 1.272/2005: List of Suspected Terrorists",
         )
         # Emit the entity
-        context.emit(entity, target=True)
+        context.emit(entity)
     elif entity_type == "Organization":
         entity = context.make("Organization")
         entity.id = context.make_id(full_name, po_box, address_1)
@@ -72,7 +72,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
             "Romania Government Decision No. 1.272/2005: List of Suspected Terrorists",
         )
         # Emit the entity
-        context.emit(entity, target=True)
+        context.emit(entity)
     else:
         context.log.warning("Unhandled entity type", type=entity_type)
 

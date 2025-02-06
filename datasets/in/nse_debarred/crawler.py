@@ -23,7 +23,7 @@ def crawl_ownership(
     ownership.add("owner", owner)
     ownership.add("asset", asset)
     context.emit(ownership)
-    context.emit(asset, target=is_debarred)
+    context.emit(asset)
     return asset
 
 
@@ -92,7 +92,7 @@ def crawl_item(input_dict: dict, context: Context):
         if is_revoked:
             h.apply_date(sanction, "endDate", period)
 
-        context.emit(entity, target=not is_revoked)
+        context.emit(entity)
         context.emit(sanction)
 
     # There is some random data in the 17 and 18 columns

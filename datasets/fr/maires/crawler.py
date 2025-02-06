@@ -67,7 +67,7 @@ def crawl_row(
     )
     if occupancy is not None:
         context.log.debug(f"Emitting PEP entities for {given_name} {family_name}")
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
     context.audit_data(row, UNUSED_FIELDS)

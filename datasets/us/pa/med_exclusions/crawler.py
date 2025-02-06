@@ -57,7 +57,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         if row.get("ListDate"):
             h.apply_date(sanction, "listingDate", listing_date)
 
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(sanction)
 
     if business_name := row.pop("NAM_BUSNS_MP"):
@@ -87,7 +87,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         if row.get("ListDate"):
             h.apply_date(company_sanction, "listingDate", listing_date)
 
-        context.emit(company, target=True)
+        context.emit(company)
         context.emit(company_sanction)
 
     if last_name and business_name:

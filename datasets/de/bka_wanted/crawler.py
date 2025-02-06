@@ -94,4 +94,4 @@ def crawl_person(context: Context, url: str):
     for place in get_element_text(doc, place_xpath):
         person.add("notes", f"Tatort: {place}")
 
-    context.emit(person, target=True)
+    context.emit(person)

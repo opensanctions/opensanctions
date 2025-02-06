@@ -64,7 +64,7 @@ def crawl_item(context: Context, url: str):
             h.apply_dates(security, prop, parsed)
         else:
             security.add(prop, prop_val)
-    context.emit(security, target=True)
+    context.emit(security)
 
     issuer = context.make("LegalEntity")
     inn_code = first(values["issuer"].get("innCode", []))

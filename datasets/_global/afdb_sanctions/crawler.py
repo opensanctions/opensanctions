@@ -37,5 +37,5 @@ def crawl(context: Context):
         h.apply_date(sanction, "startDate", cells.pop("from"))
         h.apply_date(sanction, "endDate", cells.pop("to"))
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)

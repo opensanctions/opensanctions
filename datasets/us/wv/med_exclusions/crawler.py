@@ -51,7 +51,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction.add("reason", flat(row.pop("reason_for_exclusion_termination")))
     sanction.add("provisions", flat(row.pop("excluded_terminated")))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row)

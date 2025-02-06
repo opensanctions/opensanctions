@@ -59,10 +59,10 @@ def crawl(context: Context) -> None:
             # Move on to the next entity
             if entity:
                 entity.add("name", current_alias)
-                context.emit(entity, target=True)
+                context.emit(entity)
                 context.emit(sanction)
             current_alias = []
             entity, sanction = crawl_item(item, context)
     # Emit the last entity
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
