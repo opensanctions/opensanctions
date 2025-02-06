@@ -29,9 +29,6 @@ data:
   format: HTML
   lang: pol
 
-dates:
-  formats: ["%Y-%m-%d"]
-
 assertions:
   min:
     schema_entities:
@@ -53,24 +50,5 @@ lookups:
           - NIEUSTALONE  # unknown
           - BEZPAŃSTWOWIEC  # stateless
         value: null
-      - match: "JUGOSŁAWIA (SERBIA I CZARNOGÓRA)"  # TODO: What the hell should we map this to?
-        value: yucs
-      - match: "JUGOSŁAWIA"  # TODO: What the hell should we map this to?
-        value: yucs
-      - match: "NIEMCY JUGOSŁAWIA (SERBIA I CZARNOGÓRA)"  # TODO: What the hell should we map this to?
-        values:
-          - de
-          - yucs
-      - match: "DEMOKRATYCZNA REPUBLIKA KONGA (ZAIR) POLSKA KONGO"
-        values:
-          - pl
-          - cd
-      # TODO: Move the below to opensanctions/countrynames
-      - match: KOSOWO
-        value: xk
-      - match: PALESTYNA
-        value: ps
-      - match: WYBRZEŻE KOŚCI SŁONIOWEJ
-        value: ci
-      - match: KOREAŃSKA REPUBLIKA LUDOWO-DEMOKRATYCZNA
-        value: kp
+      - match: "RPA"  # REPUBLIKA POŁUDNIOWEJ AFRYKI
+        value: za
