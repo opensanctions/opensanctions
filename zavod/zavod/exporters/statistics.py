@@ -76,9 +76,11 @@ class Statistics(object):
         for prop in entity.iterprops():
             self.qnames.add(prop.qname)
         for prop_name, values in entity.properties.items():
+            # We add 1 instead of len(values) here because we want to count the number of entities that have this
+            # value set, not the number of values.
             self.property_values_count[
                 SchemaProperty(entity.schema.name, prop_name)
-            ] += len(values)
+            ] += 1
 
         if entity.schema.is_a("Thing"):
             self.thing_count += 1
