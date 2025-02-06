@@ -48,9 +48,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         rel.add(rel.schema.target_prop, other_id)
         context.emit(rel)
 
-    is_target = row.pop("target") == "true"
-
-    context.emit(entity, target=is_target)
+    context.emit(entity)
     context.audit_data(row)
 
 
