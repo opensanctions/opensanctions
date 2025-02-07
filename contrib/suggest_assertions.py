@@ -32,7 +32,7 @@ def extract_schemata(dataset_name: str):
 def main():
     dataset_name = sys.argv[1] if len(sys.argv) == 2 else None
     if not dataset_name:
-        raise SystemExit("Usage: python zavod/zavod/tools/assert.py <dataset_name>")
+        raise SystemExit("Usage: python contrib/suggest_assertions.py <dataset_name>")
 
     assertions = extract_schemata(dataset_name)
 
