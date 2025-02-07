@@ -44,7 +44,7 @@ def extract_schemata(dataset_name: str):
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python script.py <dataset_name>")
+        print("Usage: python python zavod/zavod/tools/assert.py <dataset_name>")
         sys.exit(1)
 
     dataset_name = sys.argv[1]
