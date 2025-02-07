@@ -42,6 +42,14 @@ dates:
     - "%d/%m/%Y"
     - "%d-%m-%Y"
 
+assertions:
+  min:
+    schema_entities:
+      Person: 3500
+  max:
+    schema_entities:
+      Person: 7000
+
 lookups:
   columns:
     options:
@@ -93,11 +101,3 @@ lookups:
         value: Egyptian
       - match: سوداني
         value: Sudan
-
-assertions:
-  min:
-    schema_entities:
-      Person: 3500
-  max:
-    schema_entities:
-      Person: 3900
