@@ -39,6 +39,17 @@ data:
   url: "https://financien.belgium.be/sites/default/files/thesaurie/Consolidated%20list.zip"
   format: ZIP/XML
 
+assertions:
+  min:
+    schema_entities:
+      Person: 3500
+      Organization: 950
+      Vessel: 1
+  max:
+    schema_entities:
+      Person: 8300
+      Organization: 2234
+      Vessel: 4
 lookups:
   subject_type:
     options:

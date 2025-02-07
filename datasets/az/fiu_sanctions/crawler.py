@@ -54,4 +54,4 @@ def crawl(context: Context):
 
         sanction = h.make_sanction(context, entity)
         context.emit(sanction)
-        context.emit(entity, target=True)
+        context.emit(entity)

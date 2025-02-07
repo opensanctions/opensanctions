@@ -22,3 +22,11 @@ url: "https://contas.tcu.gov.br/ords/f?p=704144:2:113816859035213::NO:2::"
 data:
   url: https://contas.tcu.gov.br/ords/condenacao/consulta/inidoneos
   format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Company: 107
+  max:
+    schema_entities:
+      Company: 254
