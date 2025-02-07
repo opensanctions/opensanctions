@@ -1,33 +1,43 @@
 from zavod import Context
 from zavod import helpers as h
 
+# Extract details using XPath based on the provided HTML structure
+# required, key, xpath
+ATTRIBUTES = [
+    (True, "birth_date", "//p[contains(text(), 'Data urodzenia:')]/strong/text()"),
+    (True, "full_name", "//div[@class='head']/h2/text()"),
+    (True, "gender", "//p[contains(text(), 'Płeć:')]/strong/text()"),
+    (False, "middle_name", "//p[contains(text(), 'Drugie imię:')]/strong/text()"),
+    (False, "alias", "//p[contains(text(), 'Pseudonim:')]/strong/text()"),
+    (False, "birth_place", "//p[contains(text(), 'Miejsce urodzenia:')]/strong/text()"),
+    (False, "citizenship", "//p[contains(text(), 'Obywatelstwo:')]/strong/text()"),
+    (False, "eye_color", "//p[contains(text(), 'Kolor oczu:')]/strong/text()"),
+    (False, "father_name", "//p[contains(text(), 'Imię ojca:')]/strong/text()"),
+    (False, "height", "//p[contains(text(), 'Wzrost:')]/strong/text()"),
+    (
+        False,
+        "mother_maiden_name",
+        "//p[contains(text(), 'Nazwisko panieńskie matki:')]/strong/text()",
+    ),
+    (False, "mother_name", "//p[contains(text(), 'Imię matki:')]/strong/text()"),
+    (False, "hair_color", "//li[contains(text(), 'WŁOSY:')]/text()"),
+]
+
 
 def crawl_person(context: Context, url: str):
-    context.log.debug(f"Crawling person page {url}")
-
     doc = context.fetch_html(url, cache_days=7)
-    # Extract details using XPath based on the provided HTML structure
-    details = {
-        "full_name": "//div[@class='head']/h2/text()",
-        "middle_name": "//p[contains(text(), 'Data urodzenia:')]/strong/text()",
-        "father_name": "//p[contains(text(), 'Imię ojca:')]/strong/text()",
-        "mother_name": "//p[contains(text(), 'Imię matki:')]/strong/text()",
-        "mother_maiden_name": "//p[contains(text(), 'Nazwisko panieńskie matki:')]/strong/text()",
-        "gender": "//p[contains(text(), 'Płeć:')]/strong/text()",
-        "birth_place": "//p[contains(text(), 'Miejsce urodzenia:')]/strong/text()",
-        "birth_date": "//p[contains(text(), 'Data urodzenia:')]/strong/text()",
-        "alias": "//p[contains(text(), 'Pseudonim:')]/strong/text()",
-        "citizenship": "//p[contains(text(), 'Obywatelstwo:')]/strong/text()",
-        "height": "//p[contains(text(), 'Wzrost:')]/strong/text()",
-        "eye_color": "//p[contains(text(), 'Kolor oczu:')]/strong/text()",
-    }
+
     info = dict()
-    for key, xpath in details.items():
-        q = doc.xpath(xpath)
-        if q:
-            text = q[0].strip()
-            if text != "-":
-                info[key] = text
+    for required, key, xpath in ATTRIBUTES:
+        matches = doc.xpath(xpath)
+        text = ""
+        if required or matches:
+            assert len(matches) == 1, (key, url, matches)
+            text = matches[0].strip()
+        text = "" if text == "-" else text
+        if required:
+            assert text, (key, url)
+        info[key] = text
 
     person = context.make("Person")
     person.id = context.make_id(info.get("full_name"), info.get("birth_date"))
@@ -37,17 +47,18 @@ def crawl_person(context: Context, url: str):
     person.add("country", "pl")
 
     h.apply_name(
-        person, full=info.pop("full_name"), middle_name=info.pop("middle_name", None)
+        person, full=info.pop("full_name"), middle_name=info.pop("middle_name")
     )
-    h.apply_date(person, "birthDate", info.pop("birth_date", None))
+    h.apply_date(person, "birthDate", info.pop("birth_date"))
     person.add("birthPlace", info.pop("birth_place", None))
-    person.add("gender", info.pop("gender", None))
+    person.add("gender", info.pop("gender"))
     person.add("alias", info.pop("alias", None))
     person.add("fatherName", info.pop("father_name", None))
     person.add("motherName", info.pop("mother_name", None))
     person.add("motherName", info.pop("mother_maiden_name", None))
     person.add("height", info.pop("height", None))
     person.add("eyeColor", info.pop("eye_color", None))
+    person.add("hairColor", info.pop("hair_color", "").replace("WŁOSY:", ""))
 
     citizenship = info.pop("citizenship", None)
     citizenship_original_value = citizenship
