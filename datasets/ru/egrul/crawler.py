@@ -502,6 +502,32 @@ def substitute_abbreviations(
     return name
 
 
+def build_successor_predecessor(
+    context: Context, other_entity: Entity, el: Element
+) -> Optional[Entity]:
+    name = el.get("НаимЮЛПолн")
+    name_short = substitute_abbreviations(name, abbreviations)
+    inn = el.get("ИНН")
+    ogrn = el.get("ОГРН")
+    successor_id = entity_id(
+        context,
+        name=name,
+        inn=inn,
+        ogrn=ogrn,
+    )
+    if successor_id is not None:
+        entity = context.make("Company")
+        entity.id = successor_id
+        entity.add("name", name_short, original_value=name)
+        entity.add("innCode", inn)
+        entity.add("ogrnCode", ogrn)
+
+        entity.add("ogrnCode", other_entity.get("ogrnCode"))
+        entity.add("innCode", other_entity.get("innCode"))
+
+        return entity
+
+
 def parse_company(context: Context, el: Element) -> None:
     """
     Parse a company from the XML element and emit entities.
@@ -554,60 +580,24 @@ def parse_company(context: Context, el: Element) -> None:
     for founder in el.findall("./СвУчредит/*"):
         parse_founder(context, entity, founder)
 
-    for successor in el.findall("./СвПреем"):
-        succ_name = successor.get("НаимЮЛПолн")
-        succ_name_short = substitute_abbreviations(succ_name, abbreviations)
-        succ_inn = successor.get("ИНН")
-        succ_ogrn = successor.get("ОГРН")
-        successor_id = entity_id(
-            context,
-            name=succ_name,
-            inn=succ_inn,
-            ogrn=succ_ogrn,
-        )
-        if successor_id is not None:
+    for successor_el in el.findall("./СвПреем"):
+        succ_entity = build_successor_predecessor(context, entity, successor_el)
+        if succ_entity is not None:
             succ = context.make("Succession")
-            succ.id = context.make_id(entity.id, "successor", successor_id)
-            succ.add("successor", successor_id)
+            succ.id = context.make_id(entity.id, "successor", succ_entity.id)
+            succ.add("successor", succ_entity.id)
             succ.add("predecessor", entity.id)
-            succ_entity = context.make("Company")
-            succ_entity.id = successor_id
-            succ_entity.add("name", succ_name_short, original_value=succ_name)
-            succ_entity.add("innCode", succ_inn)
-            succ_entity.add("ogrnCode", succ_ogrn)
-            # To @pudo: not sure if I got your idea right
-            succ_entity.add("innCode", inn)
-            succ_entity.add("ogrnCode", ogrn)
 
             context.emit(succ_entity)
             context.emit(succ)
 
-    # To @pudo: Also adding this for the predecessor
-    for predecessor in el.findall("./СвПредш"):
-        pred_name = predecessor.get("НаимЮЛПолн")
-        pred_name_short = substitute_abbreviations(pred_name, abbreviations)
-        pred_inn = predecessor.get("ИНН")
-        pred_ogrn = predecessor.get("ОГРН")
-        predecessor_id = entity_id(
-            context,
-            name=pred_name,
-            inn=pred_inn,
-            ogrn=pred_ogrn,
-        )
-        if predecessor_id is not None:
+    for predecessor_el in el.findall("./СвПредш"):
+        pred_entity = build_successor_predecessor(context, entity, predecessor_el)
+        if pred_entity is not None:
             pred = context.make("Succession")
-            pred.id = context.make_id(entity.id, "predecessor", predecessor_id)
-            pred.add("predecessor", predecessor_id)
+            pred.id = context.make_id(entity.id, "predecessor", pred_entity.id)
+            pred.add("predecessor", pred_entity.id)
             pred.add("successor", entity.id)
-            pred_entity = context.make("Company")
-            pred_entity.id = predecessor_id
-            pred_entity.add("name", pred_name_short, original_value=pred_name)
-            pred_entity.add("innCode", pred_inn)
-            pred_entity.add("ogrnCode", pred_ogrn)
-
-            # To @pudo: not sure if I got your idea right
-            pred_entity.add("innCode", inn)
-            pred_entity.add("ogrnCode", ogrn)
 
             context.emit(pred_entity)
             context.emit(pred)
