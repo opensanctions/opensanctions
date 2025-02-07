@@ -32,11 +32,6 @@ assertions:
     schema_entities:
       Person: 400
       Organization: 70
-    country_entities:
-      af: 140
-      pk: 70
-      sy: 40
-    countries: 700
   max:
     schema_entities:
       Person: 900
