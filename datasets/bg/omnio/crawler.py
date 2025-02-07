@@ -79,7 +79,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("address", row.pop("Addresses").split("; "))
     entity.add("address", row.pop("Addresses_BG").split("; "), lang="bul")
     # context.inspect(row)
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.audit_data(
         row,
         ignore=[

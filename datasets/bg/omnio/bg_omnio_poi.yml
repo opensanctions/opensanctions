@@ -32,6 +32,16 @@ data:
 dates:
   formats:
     - "%d.%m.%Y"
+  
+assertions:
+  min:
+    schema_entities:
+      Person: 350
+      Organization: 140
+  max:
+    schema_entities:
+      Person: 840
+      Organization: 330 
 
 lookups:
   type.country:

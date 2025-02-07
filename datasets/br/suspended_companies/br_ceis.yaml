@@ -30,3 +30,15 @@ url: https://portaldatransparencia.gov.br/download-de-dados/ceis
 data:
   url: https://portaldatransparencia.gov.br/download-de-dados/ceis
   format: csv
+
+assertions:
+  min:
+    schema_entities:
+      Company: 6600
+      Person: 5730
+      LegalEntity: 6
+  max:
+    schema_entities:
+      Company: 15700
+      Person: 13500
+      LegalEntity: 16
