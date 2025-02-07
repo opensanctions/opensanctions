@@ -83,7 +83,7 @@ Data assertions are useful to communicate our expectations about what's in a dat
 
 We usually use the minima to set a baseline for what should be in the dataset, and one or more simpler maxima to just identify when the dataset has grown beyond the validity of our earlier baseline, or if something's gone horribly wrong and emitted way more than expected.
 
-It's a good idea to add assertions at the start of writing a crawler, and then see whether those expectations are met when the crawler is complete. A good rule of thumb for datasets that change over time is minima 10% below the expected number to allow normal variation, unless there's a known hard minimum, and a maximum around 20% above the expectation to leave room to grow, if the number is expected to fluctuate.
+It's a good idea to add assertions at the start of writing a crawler, and then see whether those expectations are met when the crawler is complete. A good rule of thumb for datasets that change over time is minima 10% below the expected number to allow normal variation, unless there's a known hard minimum, and a maximum around twice the expected number of entities to leave room to grow.
 
 - `assertions`
   - `min` and `max` can each have the following children
@@ -116,6 +116,6 @@ assertions:
     countries: 6
   max:
     schema_entities:
-      Person: 200
-      Position: 40
+      Person: 400
+      Position: 80
 ```
