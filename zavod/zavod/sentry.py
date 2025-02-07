@@ -169,11 +169,12 @@ class SentryProcessor:
         event["level"] = event_dict.get("level")  # type: ignore
         if self._fingerprint is not None:
             event["fingerprint"] = self._fingerprint
-        if "logger" in event_dict:
-            event["logger"] = event_dict["logger"]
+        # We push the dataset into the logger field because that shows up in the issues overview list
+        # and there doesn't seem to be a good way to change that.
+        if "dataset" in event_dict:
+            event["logger"] = event_dict["dataset"]
 
         if self._event_dict_as_extra:
-            print(event_dict)
             # Only add the keys we're not already reporting in other fields to extra data
             event["extra"] = {
                 k: v
@@ -187,6 +188,9 @@ class SentryProcessor:
             event["tags"] = {
                 key: event_dict[key] for key in self.tag_keys if key in event_dict
             }
+        # Because we push the dataset into the Event.logger field (see above), we push the logger field into the tags.
+        if "logger" in event_dict:
+            event["tags"]["python_logger"] = event_dict["logger"]
 
         return event, hint
 
