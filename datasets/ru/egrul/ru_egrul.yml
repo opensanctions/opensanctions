@@ -243,6 +243,18 @@ lookups:
         value: TN
       - match: Финляндская Республика
         value: FI
+      - match: Абхазия
+        value: GE-AB
+      - match: Кокосовые (Килинг) Острова
+        value: CC
+      - match: Папский Престол (Государство-Город Ватикан)
+        value: VA
+      - match: Фарерские Острова
+        value: FO
+      - match: Центрально-Африканская Республика
+        value: CF
+      - match: Южная Осетия
+        value: X-SO
 
 config:
   organizational_types:
