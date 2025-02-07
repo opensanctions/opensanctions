@@ -42,9 +42,6 @@ def crawl_row(context: Context, declaration_id: int):
     position_name = entity.pop("Cargo_Funcion").pop("nombre")
 
     if declarant_hash is None:
-        # Let's get a sense for how often this happens and how many declarations
-        # it affects.
-        context.log.warning("Missing declarant hash", declaration=declaration)
         person.id = context.make_id(first_name, patronymic, matronymic, position_name)
     else:
         person.id = context.make_slug(declarant_hash)
@@ -147,7 +144,7 @@ def crawl(context: Context):
     json = REGEX_JSON.search(html).group(1)
     with open(json_path, "w") as fh:
         fh.write(json)
-    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+    context.export_resource(json_path, JSON, title=context.SOURCE_TITLE)
 
     declarations = orjson.loads(json)
     for declaration in declarations:
