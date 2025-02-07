@@ -3,6 +3,7 @@ from typing import Dict, Optional, Set, IO, List, Any, Tuple
 from collections import defaultdict
 from zipfile import ZipFile
 
+from followthemoney.types import registry
 from lxml import etree
 from lxml.etree import _Element as Element, tostring
 
@@ -173,7 +174,9 @@ def make_org(context: Context, el: Element, local_id: Optional[str]) -> Entity:
         entity.id = entity_id(context, name, inn, ogrn, local_id)
         entity.add("name", parse_name(name))
         entity.add("innCode", inn)
-        entity.add("ogrnCode", ogrn)
+        # We're not interested in the warnings from entity.add, so we avoid them
+        if registry.identifier.clean(ogrn, format="ogrn"):
+            entity.add("ogrnCode", ogrn)
 
     name_latin_el = el.find("./СвНаимЮЛПолнИн")
     if name_latin_el is not None:
@@ -186,7 +189,10 @@ def make_org(context: Context, el: Element, local_id: Optional[str]) -> Entity:
         entity.add("jurisdiction", foreign_reg_el.get("НаимСтран"))
         entity.add("registrationNumber", foreign_reg_el.get("РегНомер"))
         entity.add("publisher", foreign_reg_el.get("НаимРегОрг"))
-        entity.add("address", foreign_reg_el.get("АдрСтр"))
+        address = foreign_reg_el.get("АдрСтр")
+        # We're not interested in the warnings from entity.add, so we avoid them:
+        if registry.address.clean(address) is not None:
+            entity.add("address", address)
     return entity
 
 
@@ -234,7 +240,9 @@ def parse_founder(context: Context, company: Entity, el: Element) -> None:
             owner.id = entity_id(context, name, inn, ogrn, local_id)
             owner.add("name", parse_name(name))
             owner.add("innCode", inn)
-            owner.add("ogrnCode", ogrn)
+            # We're not interested in the warnings from entity.add, so we avoid them
+            if registry.identifier.clean(ogrn, format="ogrn"):
+                owner.add("ogrnCode", ogrn)
     elif el.tag == "УчрРФСубМО":  # Russian public body
         pb_name_el = el.find("./ВидНаимУчр")
         if pb_name_el is not None:
@@ -278,7 +286,9 @@ def parse_founder(context: Context, company: Entity, el: Element) -> None:
             owner.id = entity_id(context, name, inn, ogrn, local_id)
             owner.add("name", parse_name(name))
             owner.add("innCode", inn)
-            owner.add("ogrnCode", ogrn)
+            # We're not interested in the warnings from entity.add, so we avoid them
+            if registry.identifier.clean(ogrn, format="ogrn"):
+                owner.add("ogrnCode", ogrn)
     elif el.tag == "УчрРФСубМО":
         # Skip municipal ownership
         return
@@ -519,8 +529,12 @@ def build_successor_predecessor(
         entity = context.make("Company")
         entity.id = successor_id
         entity.add("name", name_short, original_value=name)
-        entity.add("innCode", inn)
-        entity.add("ogrnCode", ogrn)
+        # We're not interested in the warnings from entity.add, so we avoid them
+        if registry.identifier.clean(inn, format="inn"):
+            entity.add("innCode", inn)
+        # We're not interested in the warnings from entity.add, so we avoid them
+        if registry.identifier.clean(ogrn, format="ogrn"):
+            entity.add("ogrnCode", ogrn)
 
         entity.add("ogrnCode", other_entity.get("ogrnCode"))
         entity.add("innCode", other_entity.get("innCode"))
@@ -553,7 +567,9 @@ def parse_company(context: Context, el: Element) -> None:
     entity.add("jurisdiction", "ru")
     entity.add("name", name_full_short, original_value=name_full)
     entity.add("name", name_short_shortened, original_value=name_short)
-    entity.add("ogrnCode", ogrn)
+    # We're not interested in the warnings from entity.add, so we avoid them
+    if registry.identifier.clean(ogrn, format="ogrn"):
+        entity.add("ogrnCode", ogrn)
     entity.add("innCode", inn)
     entity.add("kppCode", el.get("КПП"))
     entity.add("legalForm", el.get("ПолнНаимОПФ"))
@@ -622,7 +638,9 @@ def parse_sole_trader(context: Context, el: Element) -> None:
         context.log.warn("No ID for sole trader")
         return
     entity.add("country", "ru")
-    entity.add("ogrnCode", ogrn)
+    # We're not interested in the warnings from entity.add, so we avoid them
+    if registry.identifier.clean(ogrn, format="ogrn"):
+        entity.add("ogrnCode", ogrn)
     entity.add("innCode", inn)
     entity.add("legalForm", el.get("НаимВидИП"))
     context.emit(entity)
