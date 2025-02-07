@@ -49,7 +49,7 @@ from zavod.helpers.identification import make_identification
 from zavod.helpers.securities import make_security
 from zavod.helpers.excel import convert_excel_cell, convert_excel_date, parse_xls_sheet
 from zavod.helpers.excel import parse_xlsx_sheet
-from zavod.helpers.html import parse_html_table, cells_to_str, links_to_dict
+from zavod.helpers.html import parse_html_table, cells_to_str, links_to_dict, xpath
 from zavod.helpers.crypto import extract_cryptos
 from zavod.helpers.change import assert_dom_hash, assert_url_hash, assert_html_url_hash
 from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
@@ -86,6 +86,7 @@ __all__ = [
     "parse_html_table",
     "cells_to_str",
     "links_to_dict",
+    "xpath",
     "extract_cryptos",
     "assert_dom_hash",
     "assert_url_hash",

@@ -1,4 +1,4 @@
-from typing import Dict, Generator, Optional, cast
+from typing import Dict, Generator, List, Optional, cast
 from normality import slugify, collapse_spaces
 from lxml.html import HtmlElement
 
@@ -57,3 +57,30 @@ def links_to_dict(el: HtmlElement) -> Dict[str | None, str | None]:
     return {
         slugify(a.text_content(), sep="_"): a.get("href") for a in el.findall(".//a")
     }
+
+
+def xpath(
+    doc: HtmlElement,
+    path: str,
+    exactly: Optional[int] = None,
+    at_least: Optional[int] = None,
+) -> List[HtmlElement] | HtmlElement | str | None:
+    """
+    Return the list of result of an XPath query on the passed HtmlElement,
+    or the first result if exactly=1.
+
+    Asserts that the number of results is as expected.
+    """
+    if exactly is None and at_least is None:
+        raise ValueError("Must specify 'exactly' or 'at_least'")
+
+    results = doc.xpath(path)
+
+    if exactly is not None:
+        assert len(results) == exactly, (path, len(results))
+    if at_least is not None:
+        assert len(results) >= at_least, (path, len(results))
+
+    if exactly == 1:
+        return results[0]
+    return results
