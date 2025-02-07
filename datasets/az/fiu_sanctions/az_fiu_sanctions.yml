@@ -29,3 +29,11 @@ data:
   url: "http://hms.gov.az/az/siyahi"
   format: XML
   lang: aze
+
+assertions:
+  min:
+    schema_entities:
+      Person: 29
+  max:
+    schema_entities:
+      Person: 70
