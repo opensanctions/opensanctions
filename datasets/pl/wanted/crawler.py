@@ -7,7 +7,7 @@ ATTRIBUTES = [
     (True, "birth_date", "//p[contains(text(), 'Data urodzenia:')]/strong/text()"),
     (True, "full_name", "//div[@class='head']/h2/text()"),
     (True, "gender", "//p[contains(text(), 'Płeć:')]/strong/text()"),
-    (True, "middle_name", "//p[contains(text(), 'Data urodzenia:')]/strong/text()"),
+    (False, "middle_name", "//p[contains(text(), 'Drugie imię:')]/strong/text()"),
     (False, "alias", "//p[contains(text(), 'Pseudonim:')]/strong/text()"),
     (False, "birth_place", "//p[contains(text(), 'Miejsce urodzenia:')]/strong/text()"),
     (False, "citizenship", "//p[contains(text(), 'Obywatelstwo:')]/strong/text()"),
