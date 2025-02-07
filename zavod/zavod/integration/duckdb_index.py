@@ -93,7 +93,12 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         csv_path = self.data_dir / "mentions.csv"
         log.info("Dumping entity tokens to CSV for bulk load into the database...")
         with open(csv_path, "w") as fh:
-            writer = csv.writer(fh)
+            writer = csv.writer(
+                fh,
+                dialect=csv.unix_dialect,
+                escapechar="\\",
+                doublequote=False,
+            )
             for idx, entity in enumerate(self.view.entities()):
                 if not entity.schema.matchable or entity.id is None:
                     continue
@@ -103,7 +108,9 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                 if idx % 50000 == 0 and idx > 0:
                     log.info("Dumped %s entities" % idx)
         log.info("Loading data...")
-        self.con.execute(f"COPY entries from '{csv_path}'")
+        self.con.execute(
+            f"COPY entries FROM '{csv_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
+        )
         log.info("Done.")
 
         self._build_frequencies()
