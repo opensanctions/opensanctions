@@ -46,7 +46,9 @@ lookups:
         country: gb
       - match: Tursko
         country: tr
-      - match: američko
+      - match: 
+          - američko
+          - Americko
         country: us
       - match: Makedonsko
         country: mk
