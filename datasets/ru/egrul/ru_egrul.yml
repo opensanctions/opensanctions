@@ -255,7 +255,76 @@ lookups:
         value: CF
       - match: Южная Осетия
         value: X-SO
-
+      - match: Гвинейская Республика
+        value: GN  # Guinea
+      - match: Государство Катар
+        value: QA  # Qatar
+      - match: Государство Кувейт
+        value: KW  # Kuwait
+      - match: Йеменская Республика
+        value: YE  # Yemen
+      - match: Княжество Монако
+        value: MC  # Monaco
+      - match: Королевство Марокко
+        value: MA  # Morocco
+      - match: Королевство Саудовская Аравия
+        value: SA  # Saudi Arabia
+      - match: Королевство Таиланд
+        value: TH  # Thailand
+      - match: Объединенная Республика Танзания
+        value: TZ  # Tanzania
+      - match: Оккупированная Палестинская территория
+        value: PS  # Occupied Palestinian Territory
+      - match: Португальская Республика
+        value: PT  # Portugal
+      - match: Республика Албания
+        value: AL  # Albania
+      - match: Республика Ангола
+        value: AO  # Angola
+      - match: Республика Бенин
+        value: BJ  # Benin
+      - match: Республика Ботсвана
+        value: BW  # Botswana
+      - match: Республика Вануату
+        value: VU  # Vanuatu
+      - match: Республика Гана
+        value: GH  # Ghana
+      - match: Республика Гватемала
+        value: GT  # Guatemala
+      - match: Республика Гвинея-Бисау
+        value: GW  # Guinea-Bissau
+      - match: Республика Гондурас
+        value: HN  # Honduras
+      - match: Республика Замбия
+        value: ZM  # Zambia
+      - match: Республика Зимбабве
+        value: ZW  # Zimbabwe
+      - match: Республика Индонезия
+        value: ID  # Indonesia
+      - match: Республика Исландия
+        value: IS  # Iceland
+      - match: Республика Либерия
+        value: LR  # Liberia
+      - match: Республика Никарагуа
+        value: NI  # Nicaragua
+      - match: Республика Сенегал
+        value: SN  # Senegal
+      - match: Республика Сингапур
+        value: SG  # Singapore
+      - match: Республика Сьерра-Леоне
+        value: SL  # Sierra Leone
+      - match: Содружество Доминики
+        value: DM  # Dominica
+      - match: Султанат Оман
+        value: OM  # Oman
+      - match: Федеративная Демократическая Республика Эфиопия
+        value: ET  # Ethiopia
+      - match: Федеративная Республика Бразилия
+        value: BR  # Brazil
+      - match: Эландские острова
+        value: AX  # Åland Islands
+      - match: Южно-Африканская Республика
+        value: ZA  # South Africa
 config:
   organizational_types:
     ОТДЕЛ ГПС:
