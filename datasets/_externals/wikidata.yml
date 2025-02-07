@@ -979,8 +979,6 @@ lookups:
           - South African Republic
           - Ciskei
         value: ZA
-      - match: Villavicencio
-        value: Colombia
   type.date:
     options:
       - match:
