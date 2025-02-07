@@ -22,6 +22,15 @@ log = logging.getLogger(__name__)
 BATCH_SIZE = 1000
 
 
+def csv_writer(fh: TextIOWrapper) -> Any:  # Any because csv writer types seem to be special
+    return csv.writer(
+        fh,
+        dialect=csv.unix_dialect,
+        escapechar="\\",
+        doublequote=False,
+    )
+
+
 class DuckDBIndex(BaseIndex[DS, CE]):
     """
     An index using DuckDB for token matching and scoring, keeping data in memory
@@ -78,7 +87,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.matching_path = self.data_dir / "matching.csv"
         self.matching_path.unlink(missing_ok=True)
         self.matching_dump: TextIOWrapper | None = open(self.matching_path, "w")
-        writer = csv.writer(self.matching_dump)
+        writer = csv_writer(self.matching_dump)
         writer.writerow(["id", "field", "token"])
 
     def build(self) -> None:
@@ -93,12 +102,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         csv_path = self.data_dir / "mentions.csv"
         log.info("Dumping entity tokens to CSV for bulk load into the database...")
         with open(csv_path, "w") as fh:
-            writer = csv.writer(
-                fh,
-                dialect=csv.unix_dialect,
-                escapechar="\\",
-                doublequote=False,
-            )
+            writer = csv_writer(fh)
             for idx, entity in enumerate(self.view.entities()):
                 if not entity.schema.matchable or entity.id is None:
                     continue
@@ -216,7 +220,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
     def add_matching_subject(self, entity: CE) -> None:
         if self.matching_dump is None:
             raise Exception("Cannot add matching subject after getting candidates.")
-        writer = csv.writer(self.matching_dump)
+        writer = csv_writer(self.matching_dump)
         for field, token in tokenize_entity(entity):
             writer.writerow([entity.id, field, token])
 
