@@ -119,9 +119,19 @@ def crawl(context: Context):
     content_xpath = ".//main"
     doc = fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
     container = doc.xpath(content_xpath)[0]
-    # curl https://nbctf.mod.gov.il/en/Minister%20Sanctions/PropertyPerceptions/Pages/Blockchain1.aspx > data/datasets/il_mod_crypto/source.csv
-    # git diff data/datasets/il_mod_crypto/source.csv
-    h.assert_dom_hash(container, "16ce66165c103b455618524a87adf47b37d4d331")
+
+    # The key things to check are
+    # - the table of releases - are there any new ones?
+    # - The table of persons/wallets - does it look like anything's been added there?
+    #   Top of bottom?
+    #
+    # Save As https://nbctf.mod.gov.il/en/Minister%20Sanctions/PropertyPerceptions/Pages/Blockchain1.aspx
+    # as 'Web Page, HTML only' in chrome to datasets/il/mod_crypto/source.html
+    # We use chrome because curl sometimes gets a bot blocking response.
+    #
+    # Then git diff datasets/il/mod_crypto/source.html
+    # and see if there's anything in the content that's changed.
+    h.assert_dom_hash(container, "85dbad2db4e3cde8cc16e405274eeecb6178404f")
 
     # We don't support rowspan at the time of writing.
     #
