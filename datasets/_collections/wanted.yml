@@ -19,6 +19,7 @@ children:
   - nl_most_wanted
   - ph_most_wanted
   - pk_proscribed_persons
+  - pl_wanted
   - tr_wanted
   - us_dea_fugitives
   - us_fbi_most_wanted

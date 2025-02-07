@@ -5,7 +5,7 @@ entry_point: crawler.py
 prefix: pl-wanted
 coverage:
   frequency: daily
-  start: 2025-02-04
+  start: 2025-02-06
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Wanted and suspect persons list of the Police of Poland
@@ -63,6 +63,8 @@ lookups:
         value: ZA
       - match: CEJLON
         value: LK
+      - match: ZAIR
+        value: CD
       - match: ALBANIA MACEDONIA
         values: [AL, MK]
       - match: ARMENIA ROSJA
