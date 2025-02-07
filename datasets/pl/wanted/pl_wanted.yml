@@ -51,14 +51,6 @@ lookups:
         value:
       - match: BEZPAŃSTWOWIEC ESTONIA
         value: EE
-      - match: SERBIA I CZARNOGÓRA
-        value: CSXX
-      - match: KIRGIZJA
-        value: KG
-      - match: STANY ZJEDNOCZONE AMERYKI
-        value: US
-      - match: RODEZJA
-        value: ZW
       - match: RPA  # REPUBLIKA POŁUDNIOWEJ AFRYKI
         value: ZA
       - match: CEJLON
