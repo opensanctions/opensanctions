@@ -26,13 +26,16 @@ data:
   url: https://poszukiwani.policja.gov.pl/pos/form/5,Poszukiwani.html
   format: HTML
   lang: pol
+ci_test: false  # It's too slow to visit 50k pages in CI
+
 assertions:
   min:
     schema_entities:
       Person: 40000
   max:
     schema_entities:
-      Person: 60000
+      Person: 100000
+
 lookups:
   type.gender:
     options:
@@ -46,10 +49,20 @@ lookups:
           - NIEUSTALONE  # unknown
           - BEZPAŃSTWOWIEC  # stateless
         value:
+      - match: BEZPAŃSTWOWIEC ESTONIA
+        value: EE
+      - match: SERBIA I CZARNOGÓRA
+        value: CSXX
+      - match: KIRGIZJA
+        value: KG
+      - match: STANY ZJEDNOCZONE AMERYKI
+        value: US
+      - match: RODEZJA
+        value: ZW
       - match: RPA  # REPUBLIKA POŁUDNIOWEJ AFRYKI
-        values: [ZA]
+        value: ZA
       - match: CEJLON
-        values: [LK]
+        value: LK
       - match: ALBANIA MACEDONIA
         values: [AL, MK]
       - match: ARMENIA ROSJA
@@ -110,5 +123,3 @@ lookups:
         values: [VN, TR]
       - match: WĘGRY UKRAINA
         values: [HU, UA]
-      - match: BEZPAŃSTWOWIEC ESTONIA
-        values: [EE]

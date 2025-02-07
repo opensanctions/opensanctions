@@ -30,7 +30,7 @@ def crawl_person(context: Context, url: str):
                 info[key] = text
 
     person = context.make("Person")
-    person.id = context.make_slug(info.get("full_name"), info.get("birth_date"))
+    person.id = context.make_id(info.get("full_name"), info.get("birth_date"))
     person.add("sourceUrl", url)
     person.add("topics", "crime")
     person.add("topics", "wanted")
@@ -65,7 +65,8 @@ def crawl_person(context: Context, url: str):
     )
     if not crimes:
         context.log.warn("No crimes found for person", entity_id=person.id, url=url)
-    person.add("notes", crimes)
+    for crime in crimes:
+        person.add("notes", f"Wanted for: {crime}")
 
     context.audit_data(info)
 
@@ -74,7 +75,7 @@ def crawl_person(context: Context, url: str):
 
 def crawl_index(context, url) -> str | None:
     context.log.info(f"Crawling index page {url}")
-    doc = context.fetch_html(url, cache_days=1)
+    doc = context.fetch_html(url)
     # makes it easier to extract dedicated details page
     doc.make_links_absolute(context.dataset.data.url)
     cells = doc.xpath("//li[.//a[contains(@href, '/pos/form/r')]]/a/@href")
