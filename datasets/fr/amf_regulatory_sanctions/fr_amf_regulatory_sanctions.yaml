@@ -1020,3 +1020,8 @@ lookups:
           - Pharnext
           - Daniel Cohen
           - David Horn Solomon
+      - match: 'Madame Adriana Marglewska<br /> Monsieur Frédéric Marty<br /> Monsieur Olivier Blin'
+        entities:
+          - Adriana Marglewska
+          - Frédéric Marty
+          - Olivier Blin

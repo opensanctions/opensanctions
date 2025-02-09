@@ -18,6 +18,7 @@ DATE_SPLITS = [
     "إعادة إدراج في",  # re-insert in
     "نشر",  # publish
     "إدراج في",  # insert
+    "الإدراج",  # inclusion
 ]
 
 

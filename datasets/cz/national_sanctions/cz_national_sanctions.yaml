@@ -48,7 +48,7 @@ assertions:
       LegalEntity: 2
   max:
     schema_entities:
-      Person: 10
+      Person: 20
       LegalEntity: 5
 lookups:
   type.country:
@@ -71,19 +71,19 @@ lookups:
         value: Czech Republic
   name_notes:
     options:
-      - match: OBNOSOV/???????/OBNOSOV - Zápis byl zrušen ke dni 18. prosince 2023 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2023/2871.
+      - match: OBNOSOV/ОБНОСОВ/OBNOSOV Zápis byl zrušen ke dni 18. prosince 2023 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2023/2871.
         names: ["OBNOSOV"]
         sanction_props:
           endDate: "2023-12-18"
           status: zrušen
           summary: Zápis byl zrušen ke dni 18. prosince 2023 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2023/2871.
-      - match: MEDVEDČUK/MEDVEDCHUK/????????? - Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
+      - match: MEDVEDČUK/MEDVEDCHUK/МЕДВЕДЧУК Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
         names: ["MEDVEDČUK", "MEDVEDCHUK"]
         sanction_props:
           endDate: "2024-05-27"
           status: zrušen
           summary: Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
-      - match: MARCHEVSKYI/ MARCHEVSKIJ/ MARČEVSKIJ/ ?????????? - Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
+      - match: MARCHEVSKYI/MARCHEVSKIJ/MARČEVSKIJ/МАРЧЕВСКИЙ Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.
         names: ["MARCHEVSKYI", "MARCHEVSKIJ", "MARČEVSKIJ"]
         sanction_props:
           endDate: "2024-05-27"

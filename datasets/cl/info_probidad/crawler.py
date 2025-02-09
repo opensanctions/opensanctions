@@ -10,9 +10,10 @@ related to how their data grows, and who knows whether someone takes action or i
 just fixes itself. Give it a few days.
 """
 
-from rigour.mime.types import JSON
 import re
+
 import orjson
+from rigour.mime.types import JSON
 
 from zavod import Context
 from zavod import helpers as h
@@ -33,21 +34,28 @@ def crawl_row(context: Context, declaration_id: int):
         return
     person = context.make("Person")
 
-    person.id = context.make_slug(declaration.pop("hashCodeDeclarante"))
+    declarant_hash = declaration.pop("hashCodeDeclarante", None)
+    first_name = declarant.pop("nombre")
+    patronymic = declarant.pop("Apellido_Paterno", None)
+    matronymic = declarant.pop("Apellido_Materno", None)
+    entity = declaration.pop("Datos_Entidad_Por_La_Que_Declara")
+    position_name = entity.pop("Cargo_Funcion").pop("nombre")
+
+    if declarant_hash is None:
+        person.id = context.make_id(first_name, patronymic, matronymic, position_name)
+    else:
+        person.id = context.make_slug(declarant_hash)
 
     h.apply_name(
         person,
-        first_name=declarant.pop("nombre"),
-        patronymic=declarant.pop("Apellido_Paterno", None),
-        matronymic=declarant.pop("Apellido_Materno", None),
+        first_name=first_name,
+        patronymic=patronymic,
+        matronymic=matronymic,
     )
     declaration_url = (
         f"https://www.infoprobidad.cl/Declaracion/Declaracion?ID={declaration_id}"
     )
     person.add("sourceUrl", declaration_url)
-    entity = declaration.pop("Datos_Entidad_Por_La_Que_Declara")
-    function = entity.pop("Cargo_Funcion")
-    position_name = function.pop("nombre")
     service_entity = entity.pop("Servicio_Entidad")
     position_institution = service_entity.pop("nombre")
     position = h.make_position(
@@ -136,7 +144,7 @@ def crawl(context: Context):
     json = REGEX_JSON.search(html).group(1)
     with open(json_path, "w") as fh:
         fh.write(json)
-    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+    context.export_resource(json_path, JSON, title=context.SOURCE_TITLE)
 
     declarations = orjson.loads(json)
     for declaration in declarations:

@@ -38,6 +38,17 @@ data:
   url: "https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xlsx"
   # url: "https://data.opensanctions.org/datasets/20231015/au_dfat_sanctions/source.xlsx"
   format: XLSX
+
+assertions:
+  min:
+    schema_entities:
+      Person: 2000
+      LegalEntity: 700
+  max:
+    schema_entities:
+      Person: 4000
+      LegalEntity: 1500
+
 dates:
   formats:
     - "%Y-%m-%d"
