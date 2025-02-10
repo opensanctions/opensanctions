@@ -135,3 +135,12 @@ lookups:
         value: 1073778361
       - match: 3336C0003X
         prop: sector
+      - match: "LG0000537 L1-0036672 AN-0007759"
+        values:
+          - LG0000537
+          - L1-0036672
+          - AN-0007759
+      - match: "LG-0000732 L1-0036411"
+        values:
+          - LG-0000732
+          - L1-0036411

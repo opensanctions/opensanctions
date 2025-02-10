@@ -80,8 +80,8 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
             wallet.id = context.make_id(wallet_id)
             wallet.set("publicKey", wallet_id)
             wallets.append(wallet)
-            if wallet in d:
-                wallet.set("currency", d[wallet])
+            if wallet_id in d:
+                wallet.set("currency", d[wallet_id])
 
     # Create a sanction for each Crypto account
     aso_id = row.pop("Administrative Seizure Order")
