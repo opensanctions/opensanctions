@@ -124,13 +124,18 @@ def is_country(enricher: Wikidata, qid: str) -> bool:
         return False
     if is_historical_country(enricher, qid):
         return False
-    types = item_types(enricher, qid)
+
+    item = enricher.fetch_item(qid)
+    if item is None:
+        return False
+    # We only want countries, not concepts (which would carry a P279 "subclass of" )
+    instance_of_types = {claim.qid for claim in item.claims if claim.property == "P31"}
 
     deny = {
         "Q12885585",  # Native American tribe
         "Q1145276",  # fictional country
     }
-    if len(types.intersection(deny)) > 0:
+    if len(instance_of_types.intersection(deny)) > 0:
         return False
 
     allow = (
@@ -144,7 +149,7 @@ def is_country(enricher: Wikidata, qid: str) -> bool:
         "Q46395",  # British Overseas Territory
         "Q783733",  # Unincorporated US territory
     )
-    if len(types.intersection(allow)) > 0:
+    if len(instance_of_types.intersection(allow)) > 0:
         return True
     return False
 
