@@ -42,7 +42,7 @@ DATE_SPLITS = SPLITS + [
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
 
 
-def keep_long_ids(entity, identifiers):
+def note_long_ids(entity, identifiers: List[str]):
     for identifier in identifiers:
         if len(identifier) > IdentifierType.max_length:
             entity.add("notes", identifier)
@@ -160,15 +160,15 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
             h.apply_dates(entity, "birthDate", birth_date)
     entity.add_cast("Person", "birthPlace", row.pop("birth_place", []))
 
-    keep_long_ids(entity, passport_number)
+    note_long_ids(entity, passport_number)
     entity.add_cast(
         "Person",
         "passportNumber",
         h.multi_split(passport_number, SPLITS),
     )
-    keep_long_ids(entity, id_number)
+    note_long_ids(entity, id_number)
     entity.add("idNumber", h.multi_split(id_number, SPLITS))
-    keep_long_ids(entity, identification_number)
+    note_long_ids(entity, identification_number)
     entity.add(
         "idNumber",
         h.multi_split(identification_number, SPLITS),
