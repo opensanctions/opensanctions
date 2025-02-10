@@ -46,6 +46,20 @@ data:
   url: https://dprk-reports.org/assets/export.zip
   format: ZIP+FTM
 
+assertions:
+  min:
+    schema_entities:
+      Person: 1800
+      Company: 2000
+      Vessel: 500
+      Organization: 300
+  max:
+    schema_entities:
+      Person: 4000
+      Company: 5000
+      Vessel: 1400
+      Organization: 800
+
 lookups:
   props:
     options:
