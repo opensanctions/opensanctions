@@ -90,7 +90,7 @@ lookups:
         value: SS
       - match: Alexandria, Egypt
         value: EG
-      - match: "682"
+      - match: "682"  # ISO 3166-1 numeric code for Saudi Arabia
         value: SA
   type.date:
     options:
