@@ -37,6 +37,16 @@ dates:
     "October": "Oktober"
     "December": "Desember"
 
+assertions:
+  min:
+    schema_entities:
+      Person: 355
+      Organization: 100
+  max:
+    schema_entities:
+      Person: 835
+      Organization: 235
+
 lookups:
   type:
     options:

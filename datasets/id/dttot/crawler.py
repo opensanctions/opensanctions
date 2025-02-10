@@ -119,5 +119,5 @@ def crawl(context: Context):
                 apply_date(entity, "birthDate", dob_raw)
         sanction = h.make_sanction(context, entity)
         sanction.add("authorityId", item_id)
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
