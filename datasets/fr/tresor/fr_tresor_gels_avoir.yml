@@ -32,6 +32,22 @@ data:
   format: JSON
   lang: fra
 
+assertions:
+  min:
+    schema_entities:
+      Person: 3430
+      Organization: 950
+      LegalEntity: 50
+      Vessel: 35
+      Company: 25
+  max:
+    schema_entities:
+      Person: 8070
+      Organization: 2240
+      LegalEntity: 120
+      Vessel: 80
+      Company: 60
+
 lookups:
   schema_override:
     options:
