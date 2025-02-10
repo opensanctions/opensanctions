@@ -12,8 +12,8 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "1200Mi"
-  memory_limit: "1500Mi"
+  memory: "1500Mi"
+  memory_limit: "2000Mi"
 ci_test: false
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >

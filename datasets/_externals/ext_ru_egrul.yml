@@ -16,8 +16,8 @@ deploy:
   cpu_limit: "2000m"
   disk: "150Gi"
   disk_limit: 150Gi
-  memory: "6000Mi"
-  memory_limit: "6500Mi"
+  memory: "6500Mi"
+  memory_limit: "7000Mi"
 # load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Companies database of the Russian Federation as maintained and published by
