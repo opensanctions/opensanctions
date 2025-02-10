@@ -3,22 +3,30 @@ import yaml
 import requests
 
 
-def fetch_json(url):
+def fetch_json(url: str):
     response = requests.get(url)
-    response.raise_for_status()  # Raise an exception for HTTP errors
+    response.raise_for_status()
     return response.json()
 
 
 def extract_schemata(dataset_name: str):
-
-    # Fetch the statistics JSON
-    url = (
-        f"https://data.opensanctions.org/datasets/latest/{dataset_name}/statistics.json"
+    # Base URL for retrieving the dataset information
+    index_url = (
+        f"https://data.opensanctions.org/datasets/latest/{dataset_name}/index.json"
     )
-    data = fetch_json(url)
+    index_json = fetch_json(index_url)
+
+    # Extract the statistics URL
+    statistics_url = index_json.get("statistics_url")
+    if not statistics_url:
+        raise ValueError("Statistics URL not found in the dataset index.")
+
+    # Fetch statistics JSON from the provided URL
+    data = fetch_json(statistics_url)
+
     # Extract schema entity counts
     schema_entities = {
-        schema["name"]: schema["count"] for schema in data["targets"]["schemata"]
+        schema["name"]: schema["count"] for schema in data["things"]["schemata"]
     }
     # Compute min (85%) and max (200%) thresholds
     min_values = {name: int(count * 0.85) for name, count in schema_entities.items()}
@@ -38,7 +46,6 @@ def main():
         raise SystemExit("Usage: python contrib/suggest_assertions.py <dataset_name>")
     assertions = extract_schemata(dataset_name)
     # Output YAML assertions
-
     print(yaml.dump(assertions, default_flow_style=False, sort_keys=False))
 
 
