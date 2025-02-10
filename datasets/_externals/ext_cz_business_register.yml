@@ -14,6 +14,8 @@ deploy:
   # schedule: "1 4 * * *"
   memory: "3000Mi"
   memory_limit: "4000Mi"
+  disk: "30Gi"
+  disk_limit: 30Gi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Czech business register with company metadata and directorships as obtained
