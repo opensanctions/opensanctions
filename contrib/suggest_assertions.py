@@ -14,7 +14,7 @@ def extract_schemata(dataset_name: str):
 
     # Extract schema entity counts
     schema_entities = {
-        schema["name"]: schema["count"] for schema in data["targets"]["schemata"]
+        schema["name"]: schema["count"] for schema in data["things"]["schemata"]
     }
 
     # Compute min (85%) and max (200%) thresholds
