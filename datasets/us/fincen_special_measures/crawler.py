@@ -26,7 +26,9 @@ def crawl_item(context: Context, row: Dict[str, str]):
     entity.id = context.make_id(name)
     entity.add("name", name)
     # Adjust the topic based on the presence of "final rule"
-    final_rule = collapse_spaces(row.get("final-rule", "").text_content().strip().lower())
+    final_rule = collapse_spaces(
+        row.get("final-rule", "").text_content().strip().lower()
+    )
     rescinded_date = collapse_spaces(row.get("rescinded").text_content())
     if (
         final_rule
