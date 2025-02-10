@@ -79,3 +79,5 @@ lookups:
           - "31801"
           - "31948"
         value: null
+      - match: born in the early 1970s
+        values: [1970, 1971, 1972, 1973, 1974]
