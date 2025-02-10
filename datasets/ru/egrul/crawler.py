@@ -580,7 +580,9 @@ def parse_company(context: Context, el: Element) -> None:
 
     email_el = el.find("./СвАдрЭлПочты")
     if email_el is not None:
-        entity.add("email", email_el.get("E-mail"))
+        email = email_el.get("E-mail")
+        if registry.email.clean(email) is not None:
+            entity.add("email", email)
 
     citizen_el = el.find("./СвГражд")
     if citizen_el is not None:
