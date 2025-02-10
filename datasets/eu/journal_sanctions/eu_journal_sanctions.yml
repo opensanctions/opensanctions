@@ -42,15 +42,15 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 565
-      Person: 205
-      Organization: 80
-      Vessel: 70
-      LegalEntity: 110
+      Company: 530
+      Person: 200
+      LegalEntity: 90
+      Organization: 70
+      Vessel: 65
   max:
     schema_entities:
-      Company: 1335
+      Company: 1300
       Person: 480
-      Organization: 185
+      LegalEntity: 210
+      Organization: 170
       Vessel: 160
-      LegalEntity: 260
