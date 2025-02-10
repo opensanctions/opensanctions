@@ -38,6 +38,14 @@ data:
   url: https://petscan.wmcloud.org/
   format: CSV
 
+assertions:
+  min:
+    country_entities:
+      ir: 1000
+      il: 800
+      sa: 500
+      eg: 500
+      iq: 500
 lookups:
   type.country:
     options:
