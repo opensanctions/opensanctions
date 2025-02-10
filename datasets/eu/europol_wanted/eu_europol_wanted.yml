@@ -29,6 +29,14 @@ data:
   url: https://eumostwanted.eu/
   format: HTML
 
+assertions:
+  min:
+    schema_entities:
+      Person: 40
+  max:
+    schema_entities:
+      Person: 95
+
 lookups:
   type.country:
     lowercase: true
