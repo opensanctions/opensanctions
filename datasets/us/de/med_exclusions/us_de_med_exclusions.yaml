@@ -144,3 +144,142 @@ lookups:
         values:
           - LG-0000732
           - L1-0036411
+  license_numbers:
+    options:
+      - match: "C2-\n0023834"
+        values: ["C2-0023834"]
+      - match: "C2-\n0009261"
+        values: ["C2-0009261"]
+      - match: "C1-0008124\nMD5243"
+        values:
+          - C1-0008124
+          - MD5243
+      - match: "LG0000537 L1-\n0036672 AN-\n0007759"
+        values:
+          - LG0000537
+          - L1-0036672
+          - AN-0007759
+      - match: "C1-0003896\nMD2182"
+        values:
+          - C1-0003896
+          - MD2182
+      - match: "LG-0000732 L1-\n0036411"
+        values:
+          - LG-0000732
+          - L1-0036411
+      - match: "SP013433(PA )\nRN538139(PA)\n538142(NY)"
+        values:
+          - SP013433
+          - RN538139
+          - RN538142
+      - match: "2006204640\nA300000834"
+        values:
+          - 2006204640
+          - A300000834
+      - match: "PROMISe#10301996\n7"
+        values: ["PROMISe#103019967"]
+      - match: "CSR No. DR-\n0008693"
+        values: ["CSR No. DR-0008693"]
+      - match: "PROMISe#10238919\n5"
+        values: ["PROMISe#102389195"]
+      - match: "PROMIS#001400491\nMA049957"
+        values:
+          - PROMIS#001400491
+          - MA049957
+      - match: "Lic# 060954-\nSurrendered"
+        values: ["Lic# 060954-Surrendered"]
+      - match: "CSR-\n#PO-0007542"
+        values: ["CSR-#PO-0007542"]
+      - match: "DE Lic# C1-\n0008919Lic# 060954-\nSurrendered"
+        values:
+          - DE Lic# C1-0008919
+          - Lic# 060954-Surrendered
+      - match: "LE-\n0000166"
+        values: ["LE-0000166"]
+      - match: "Lic#\n21693"
+        values: ["Lic#21693"]
+      - match: "LE-\n0000163"
+        values: ["LE-0000163"]
+      - match: "PROMIS#\n001237131 Lic#\nOS006737L"
+        values:
+          - PROMIS# 001237131
+          - Lic# OS006737L
+      - match: "PROMISe #:\n102890890"
+        values: ["PROMISe #: 102890890"]
+      - match: "PROMISe #:\n001479203"
+        values: ["PROMISe #: 001479203"]
+      - match: "PROMISe #:\n102943161"
+        values: ["PROMISe #: 102943161"]
+      - match: "License No. Ll-\n0028082"
+        values: ["License No. Ll-0028082"]
+      - match: "PROMISe #:\n001578490"
+        values: ["PROMISe #: 001578490"]
+      - match: "Promisse#\n103022078"
+        values: ["Promise#103022078"]
+      - match: "PROMISe# 103581399:\n001609326"
+        values:
+          - PROMISe# 103581399
+          - 001609326
+      - match: "RPOMISe#:\n000554205"
+        values: ["RPOMISe#: 000554205"]
+      - match: "C2-\n0007020"
+        values: ["C2-0007020"]
+      - match: "0101-\n259300"
+        values: ["0101-259300"]
+      - match: "PROMISe# 001651787:\nMD061558L"
+        values:
+          - PROMISe# 001651787
+          - MD061558L
+      - match: "0101\n243103(VA)"
+        values: ["0101-243103"]
+      - match: "L8-\n0010389"
+        values: ["L8-0010389"]
+      - match: "7649\n07(NY)"
+        values: ["7649-07"]
+      - match: "1003052\n0(PA)"
+        values: ["10030520"]
+      - match: "PN\n288655 (PA)"
+        values: ["PN288655"]
+      - match: "DR-\n0011976"
+        values: ["DR-0011976"]
+      - match: "PN5246084 (FL)\n9920556 (PA)"
+        values:
+          - PN5246084
+          - 9920556
+      - match: "25MB0418\n4600(NJ)"
+        values: ["25MB04184600"]
+      - match: "OKO00000\n3(PA)"
+        values: ["OKO000003"]
+      - match: "RN2879\n412(FL)"
+        values: ["RN2879412"]
+      - match: "44294(HI)R1\n49156(MD)"
+        values:
+          - 44294
+          - R149156
+      - match: "140646(N\nC)"
+        values: ["140646NC"]
+      - match: "R006\n5074(OK)"
+        values: ["R0065074"]
+      - match: "RN348987\nL(PA)"
+        values: ["RN348987L"]
+      - match: "0001158032(V\nA)"
+        values: ["0001158032VA"]
+      - match: "Lp-\n0010371"
+        values: ["Lp-0010371"]
+      - match: "D0085021 (MD)\n35.141180 (OH)\nMD457463 (PA)"
+        values:
+          - D0085021
+          - "35.141180"
+          - MD457463
+      - match: "5901001665 (MI)\n25MD00227000 (NJ)\nSC003735R (PA)"
+        values:
+          - 5901001665
+          - 25MD00227000
+          - SC003735R
+      - match: "RN9580326 (FL)\nRN277251L (PA)\n36107 (WV)"
+        values:
+          - RN9580326
+          - RN277251L
+          - 36107
+      - match: "LG-\n0000520"
+        values: ["LG-0000520"]
