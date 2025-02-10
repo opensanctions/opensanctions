@@ -16,7 +16,7 @@ def salvage_entity(context: Context, entry):
     entity.add("notes", details)
     entity.add("topics", "sanction")
     parse_sanctions(context, entity, entry)
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl(context: Context):
