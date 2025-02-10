@@ -49,6 +49,17 @@ url: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omM
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT0BEUqT1iKb-QP0LA52qSwq3KLiJpEzNO9MiSLvJCoJXOLxkSr5rYtEXzTw0IgJ0pfpF_qiwueHyOQ/pub?gid=1070466538&single=true&output=csv
   format: CSV
-
 dates:
   formats: ["%d.%m.%y", "%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 90
+      Company: 45
+      Organization: 20
+  max:
+    schema_entities:
+      Person: 220
+      Company: 100
+      Organization: 45
