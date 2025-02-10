@@ -29,3 +29,13 @@ publisher:
 data:
   url: https://www.gov.hk/en/about/govdirectory/po/index.htm
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Position: 22
+      Person: 22
+  max:
+    schema_entities:
+      Position: 52
+      Person: 52
