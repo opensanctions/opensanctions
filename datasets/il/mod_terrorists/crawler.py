@@ -111,7 +111,7 @@ def crawl_individuals(context: Context):
         for field in ("date_of_designation_in_israel",):
             parse_interval(sanction, record.pop(field, None))
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
         context.audit_data(record)
 
@@ -215,7 +215,7 @@ def crawl_organizations(context: Context):
             else:
                 context.log.warning("Unhandled key_operatives", value=operatives)
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
         context.audit_data(record)
 
