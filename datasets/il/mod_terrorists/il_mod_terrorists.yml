@@ -36,12 +36,25 @@ url: https://nbctf.mod.gov.il/en/Minister%20Sanctions/Designation/Pages/download
 data:
   url: https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx
   format: XLSX
-
 dates: 
   formats: ["%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d", "%d %m %Y", "%m %Y", "%d %b. %Y"]
   months: 
     "03": מרס
     "05": "May"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 375
+      Organization: 345
+      LegalEntity: 60
+      Address: 20
+  max:
+    schema_entities:
+      Person: 885
+      Organization: 800
+      LegalEntity: 140
+      Address: 55
 
 lookups:
   type.string:
