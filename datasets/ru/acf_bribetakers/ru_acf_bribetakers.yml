@@ -36,9 +36,16 @@ url: https://acf.international/bribetakers-list
 data:
   url: https://sanctions.acf.international/api/villains/
   format: JSON
-
 dates:
   formats: ["%d.%m.%Y", "%d-%m-%Y", "%Y-%m-%d"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 6850
+  max:
+    schema_entities:
+      Person: 16000
 
 lookups:
   censored:
