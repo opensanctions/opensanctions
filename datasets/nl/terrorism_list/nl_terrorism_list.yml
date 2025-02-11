@@ -32,6 +32,16 @@ data:
   url: https://www.government.nl/binaries/government/documenten/reports/2016/01/15/national-terrorism-list/eng-terrorismelijst.ods
   format: ODS
 
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      LegalEntity: 2
+  max:
+    schema_entities:
+      Person: 240
+      LegalEntity: 20
+
 lookups:
   type.date:
     options:
