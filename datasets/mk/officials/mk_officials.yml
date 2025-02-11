@@ -18,7 +18,6 @@ description: |
   The obligated personnel are required to submit asset declarations to designated offices
   upon taking and leaving office and whenever a change in assets occurs that exceeds
   twenty average salaries.
-
 publisher:
   name: State Commission for Prevention of Corruption
   acronym: SCPC
@@ -29,10 +28,19 @@ publisher:
   country: mk
   official: true
   url: https://dksk.mk/
-
 data:
   url: https://registar.dksk.mk/rest/institution-submission-form/paged
   format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Person: 7300
+      Position: 1730
+  max:
+    schema_entities:
+      Person: 17200
+      Position: 4070
 
 lookups:
   type.name:
