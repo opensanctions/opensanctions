@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import Dict, Optional, Set, IO, List, Any, Tuple
 from collections import defaultdict
@@ -6,7 +7,7 @@ from zipfile import ZipFile
 from lxml import etree
 from lxml.etree import _Element as Element, tostring
 
-
+import zavod.logs
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.shed.internal_data import fetch_internal_data, list_internal_data
@@ -287,7 +288,7 @@ def parse_founder(context: Context, company: Entity, el: Element) -> None:
         return
 
     if owner.id is None:
-        context.log.warning(
+        context.log.info(
             "No ID for owner: %s" % company.id, el=tag_text(el), owner=owner.to_dict()
         )
         return
@@ -715,6 +716,9 @@ def crawl_archive(context: Context, blob_name: str) -> None:
 
 
 def crawl(context: Context) -> None:
+    # Shut up warnings being logged, we only care about them once they get pulled
+    # into our default dataset by ext_ru_egrul
+    zavod.logs.get_logger("zavod.runtime.cleaning").setLevel(logging.ERROR)
     # TODO: thread pool execution
     # Load abbreviations once using the context
     global abbreviations
