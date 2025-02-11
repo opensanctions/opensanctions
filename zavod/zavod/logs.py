@@ -138,10 +138,10 @@ def configure_logging(level: int = logging.DEBUG) -> None:
             event_dict_as_extra=True,
             # Attach the dataset name as a tag in Sentry
             tag_keys=["dataset"],
-            # Disable the default grouping magic, we only want to group by message. Otherwise, log messages along the
-            # lines of "Problem with entity <id>" might be grouped by the internal magic, even though they are actually
-            # separate data issues.
-            fingerprint=[SENTRY_FINGERPRINT_VARIABLE_MESSAGE],
+            # Disable the default grouping magic, we only want to group by message and dataset. Otherwise, log messages
+            # along the lines of "Problem with entity <id>" might be grouped by the internal magic, even though they are
+            # actually separate data issues.
+            fingerprint=[SENTRY_FINGERPRINT_VARIABLE_MESSAGE, "{{ tag.dataset }}"],
         )
         processors.append(sentry_processor)
 
