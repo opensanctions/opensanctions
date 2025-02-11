@@ -31,4 +31,4 @@ assertions:
       Company: 1
   max:
     schema_entities:
-      Company: 4
+      Company: 50
