@@ -46,7 +46,6 @@ def crawl_row(context: Context, row: list) -> None:
             "director_id",
             "director_citizenship",
             "director_start_date",
-            "director",
         )
         context.audit_data(
             row,
@@ -67,7 +66,6 @@ def crawl_row(context: Context, row: list) -> None:
             "partner_id",
             "partner_citizenship",
             "partner_start_date",
-            "owner",
         )
         context.audit_data(
             row,
@@ -81,14 +79,13 @@ def crawl_row(context: Context, row: list) -> None:
 
 def emit_rel(
     context: Context,
-    type_label: str,
+    schema_name: str,
     row: list,
     name: str,
     entity,
     id_key: str,
     citizenship_key: str,
     start_date_key: str,
-    relationship_type: str,
 ):
     """Generalized function to process a director or partner."""
     person_id = row.pop(id_key)
@@ -103,16 +100,16 @@ def emit_rel(
             person.add("citizenship", citizenship)
     context.emit(person)
 
-    relationship = context.make(type_label)
-    relationship.id = context.make_id(person.id, relationship_type, entity.id)
+    relationship = context.make(schema_name)
+    relationship.id = context.make_id(person.id, schema_name, entity.id)
     if person_start_date != "NULL":
         h.apply_date(relationship, "startDate", person_start_date)
-    relationship.add(relationship_type, person)
+    relationship.add("director" if schema_name == "Directorship" else "owner", person)
     relationship.add(
-        "organization" if relationship_type == "director" else "asset", entity
+        "organization" if schema_name == "Directorship" else "asset", entity
     )
 
-    if relationship_type == "owner":
+    if schema_name == "Ownership":
         relationship.add("percentage", row.pop("partner_share"))
 
     context.emit(relationship)
@@ -136,8 +133,12 @@ def crawl(context: Context) -> None:
                 context.lookup_value("columns", collapse_spaces(cell))
                 for cell in original_headers
             ]
-            if len(header_mapping) != len(original_headers):
-                context.log.warning("Mismatch between headers and row length.")
+            if any(header is None for header in header_mapping):
+                context.log.warning(
+                    "Some headers could not be translated.",
+                    original_headers=original_headers,
+                    header_maping=header_mapping,
+                )
                 return
             # Reset file pointer and skip original header
             fh.seek(0)
