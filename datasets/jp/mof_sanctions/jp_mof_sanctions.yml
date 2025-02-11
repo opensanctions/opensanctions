@@ -48,9 +48,25 @@ data:
   url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/list.html
   format: XLSX
   lang: jpn
-
 dates: 
   formats: ["%Y年%m月%d日", "%Y年%m月%d", "%Y年%m月", "%Y.%m.%d", "おおよそ%Y年", "、%Y年%m月%d", ":%Y年%m月%d", ",%Y年%m月%d"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1570
+      Address: 870
+      LegalEntity: 520
+      Organization: 130
+      CryptoWallet: 30
+  max:
+    schema_entities:
+      Person: 3700
+      Address: 2040
+      LegalEntity: 1200
+      Organization: 300
+      CryptoWallet: 80
+
 lookups:
   schema:
     options:
