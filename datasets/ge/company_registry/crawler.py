@@ -13,7 +13,14 @@ def crawl_row(context: Context, row: list) -> None:
     reg_date = row.pop("registration_date")
     email = row.pop("email")
     director = row.pop("director")
+    director_id = row.pop("director_id")
+    director_citizenship = row.pop("director_citizenship")
+    director_start_date = row.pop("director_start_date")
     partner = row.pop("partner")
+    partner_id = row.pop("partner_id")
+    partner_citizenship = row.pop("partner_citizenship")
+    partner_start_date = row.pop("partner_start_date")
+    partner_share = row.pop("partner_share")
 
     schema = context.lookup("schema", legal_form)
     if schema is None:
@@ -36,44 +43,29 @@ def crawl_row(context: Context, row: list) -> None:
             entity.add("email", email)
     context.emit(entity)
 
-    if director != "NULL":
+    if director:
         emit_rel(
             context,
             "Directorship",
             row,
             director,
             entity,
-            "director_id",
-            "director_citizenship",
-            "director_start_date",
+            director_id,
+            director_citizenship,
+            director_start_date,
+            partner_share,
         )
-        context.audit_data(
-            row,
-            ignore=[
-                "partner_id",
-                "partner_citizenship",
-                "partner_start_date",
-                "partner_share",
-            ],
-        )
-    if partner != "NULL":
+    if partner:
         emit_rel(
             context,
             "Ownership",
             row,
             partner,
             entity,
-            "partner_id",
-            "partner_citizenship",
-            "partner_start_date",
-        )
-        context.audit_data(
-            row,
-            ignore=[
-                "director_id",
-                "director_citizenship",
-                "director_start_date",
-            ],
+            partner_id,
+            partner_citizenship,
+            partner_start_date,
+            partner_share,
         )
 
 
@@ -83,36 +75,36 @@ def emit_rel(
     row: list,
     name: str,
     entity,
-    id_key: str,
-    citizenship_key: str,
-    start_date_key: str,
+    id: str,
+    citizenship: str,
+    start_date: str,
+    partner_share: str,
 ):
     """Generalized function to process a director or partner."""
-    person_id = row.pop(id_key)
-    person_citizenship = row.pop(citizenship_key)
-    person_start_date = row.pop(start_date_key)
-
+    if name == "NULL":
+        return None
     person = context.make("Person")
-    person.id = context.make_id(name, person_id)
+    person.id = context.make_id(name, id)
     person.add("name", name)
-    if person_citizenship != "NULL":
-        for citizenship in h.multi_split(person_citizenship, [","]):
+    if citizenship != "NULL":
+        for citizenship in h.multi_split(citizenship, [","]):
             person.add("citizenship", citizenship)
     context.emit(person)
 
     relationship = context.make(schema_name)
     relationship.id = context.make_id(person.id, schema_name, entity.id)
-    if person_start_date != "NULL":
-        h.apply_date(relationship, "startDate", person_start_date)
+    if start_date != "NULL":
+        h.apply_date(relationship, "startDate", start_date)
     relationship.add("director" if schema_name == "Directorship" else "owner", person)
     relationship.add(
         "organization" if schema_name == "Directorship" else "asset", entity
     )
 
-    if schema_name == "Ownership":
-        relationship.add("percentage", row.pop("partner_share"))
+    if schema_name == "Ownership" and partner_share != "NULL":
+        relationship.add("percentage", partner_share)
 
     context.emit(relationship)
+    context.audit_data(row)
 
 
 def crawl(context: Context) -> None:
