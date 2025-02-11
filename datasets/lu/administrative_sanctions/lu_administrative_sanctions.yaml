@@ -33,7 +33,6 @@ data:
   url: https://www.cssf.lu/fr/publications-donnees/page/1/?content_type=1387%2C623%2C625
   format: HTML
   lang: fra
-
 dates: 
   formats: ["%d %B %Y"]
   months:
@@ -49,6 +48,15 @@ dates:
     "october": "octobre"
     "november": "novembre"
     "december": "décembre"
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 115
+  max:
+    schema_entities:
+      LegalEntity: 280
+
 lookups:
   type.date:
     options:
