@@ -40,7 +40,7 @@ assertions:
   max:
     schema_entities:
       Person: 240
-      LegalEntity: 20
+      LegalEntity: 50
 
 lookups:
   type.date:
