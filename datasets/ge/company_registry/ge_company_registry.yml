@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: 2025-01-20
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >-
   List of companies registered in Georgia, sourced from the official Georgian Company Registry.
 description: |
