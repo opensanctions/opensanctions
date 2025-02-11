@@ -10,12 +10,8 @@ ORIGINAL_ACCOMMODATIONS_URL = (
     "https://www.state.gov/cuba-prohibited-accommodations-list-initial-publication/"
 )
 ACCOMMODATIONS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=1890354374&single=true&output=csv"
-# The Restricted Entities list is currently nowhere to be found, the last known public snapshot is at
-# https://web.archive.org/web/20241209000143/https://www.state.gov/cuba-restricted-list/list-of-restricted-entities-and-subentities-associated-with-cuba-effective-january-8-2021/
-# The resurrection of the list and addition of one entity were announced on 2025-01-31, see
-# https://www.state.gov/restoring-a-tough-u-s-cuba-policy/. Our copy of the data, including the added entity, are
-# available at our copy at ENTITIES_URL
-ENTITIES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=0&single=true&output=csv"
+ORIGINAL_RESTRICTED_ENTITIES_URL = "https://www.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list"
+RESTRICTED_ENTITIES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=0&single=true&output=csv"
 CONTENT_XPATH = ".//div[@class='entry-content']"
 ACTIONS = [
     {
@@ -54,22 +50,14 @@ def crawl_accommodations(context: Context):
 
 
 def crawl_restricted_entities(context: Context):
-    landing_doc = fetch_html(
-        context, context.dataset.url, CONTENT_XPATH, actions=ACTIONS
+    doc = fetch_html(
+        context, ORIGINAL_RESTRICTED_ENTITIES_URL, CONTENT_XPATH, actions=ACTIONS
     )
-    # The restricted list URL page currently points to an interim page that refers to ORIGINAL_ACCOMMODATIONS_URL.
-    # So the page doesn't really contain that list. We just want to alert when it changes
-    restricted_list_url = landing_doc.xpath(".//a[text()='Cuba Restricted List']/@href")
-    assert len(restricted_list_url) == 1, restricted_list_url
-    content_xpath = ".//div[@id='content']"
-    doc = fetch_html(context, restricted_list_url[0], content_xpath)
-    node = doc.find(content_xpath)
-    if not h.assert_dom_hash(node, "16aa93879cb1e04548ab319c749f9da1fa528a49"):
-        context.log.warning(
-            "Restricted List url destination content changed. Check for data updates"
-        )
+    node = doc.find(CONTENT_XPATH)
+    if not h.assert_dom_hash(node, "1568aa7fc68d86fd44c808e6def0df9a4627903b"):
+        context.log.warning("Restricted List content changed. Check for data updates")
 
-    path = context.fetch_resource("restricted_entities.csv", ENTITIES_URL)
+    path = context.fetch_resource("restricted_entities.csv", RESTRICTED_ENTITIES_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):

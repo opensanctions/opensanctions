@@ -766,6 +766,11 @@ lookups:
           - role: Minister of State
             name: Isabelle Berro-Amedei
             start_date: 2025-01-10
+      # British Indian Ocean Territory
+      - match: Administrator Bob FAIRWEATHER
+        holders:
+          - role: Administrator
+            name: Bob FAIRWEATHER
 
 
       # Not additional heads, just notes
