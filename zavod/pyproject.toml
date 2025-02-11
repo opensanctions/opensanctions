@@ -19,10 +19,10 @@ classifiers = [
 requires-python = ">= 3.11"
 dependencies = [
     "followthemoney == 3.8.*",
-    "nomenklatura[leveldb] == 3.14.0",
-    "countrynames >= 1.16.5, < 2.0",
+    "nomenklatura[leveldb] == 3.15.2",
+    "countrynames >= 1.16.8, < 2.0",
     "plyvel == 1.5.1",
-    "rigour == 0.8.2",
+    "rigour == 0.8.4",
     "datapatch >= 1.1,< 1.3",
     "fingerprints == 1.2.*",
     "certifi",
@@ -30,7 +30,7 @@ dependencies = [
     "google-cloud-storage",
     "jinja2",
     "types-jinja2",
-    "lxml == 5.3.0",
+    "lxml == 5.3.1",
     "openpyxl == 3.1.5",
     "orjson == 3.10.15",
     "ijson > 3.2, < 4.0",
@@ -39,7 +39,7 @@ dependencies = [
     "prefixdate",
     "psycopg2-binary",
     "pyicu == 2.14",
-    "pywikibot==9.6.1",
+    "pywikibot==9.6.2",
     "openai >= 1.33.0, < 2.0.0",
     "requests[security]",
     "requests_oauthlib",
@@ -57,7 +57,7 @@ Issues = "https://github.com/opensanctions/opensanctions/issues"
 
 [project.optional-dependencies]
 dev = [
-    "black==24.10.0",
+    "black==25.1.0",
     "isort==5.13.2",
     "wheel>=0.29.0",
     "twine",

@@ -100,7 +100,7 @@ def crawl_node(context: Context, peps: Dict[str, Entity], node: Dict[str, str]):
                     )
                     context.emit(occupancy)
                     context.emit(position)
-                    context.emit(entity, target=True)
+                    context.emit(entity)
         else:
             context.log.info("PEP not found", name=name)
 

@@ -217,4 +217,4 @@ def parse_entry(context: Context, entry: Element) -> None:
         entity.add("nationality", parse_country(node), quiet=True)
 
     # context.inspect(entry)
-    context.emit(entity, target=True)
+    context.emit(entity)

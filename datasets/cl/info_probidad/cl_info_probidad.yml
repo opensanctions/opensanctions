@@ -54,8 +54,8 @@ assertions:
       Position: 600
   max:
     schema_entities:
-      Person: 7000
-      Position: 1100
+      Person: 14000
+      Position: 2000
 
 lookups:
   positions:
@@ -274,6 +274,7 @@ lookups:
           - "DIRECTOR NACIONAL (S)"
           - "DIRECTOR PARQUE METROPOLITANO"
           - "DIRECTOR REGIONAL"
+          - "DIRECTOR REGIONAL (S)"
           - "DIRECTOR REGIONAL CENTRO EXPORTADOR DE ARICA Y PARINACOTA"
           - "DIRECTOR REGIONAL CENTRO EXPORTADOR DE LOS RIOS"
           - "DIRECTOR REGIONAL CENTRO EXPORTADOR DE VALPARAISO"
@@ -584,6 +585,7 @@ lookups:
           - "TECNICO A HONORARIOS"
           - "TECNICO INFORMATICA"
           - "TECNICO PARAMEDICO"
+          - "TECNICO SOCIAL"
           - "TECNOLOGO MEDICO "
           - "TENIENTE CORONEL"
           - "TERCER NIVEL JERARQUICO"

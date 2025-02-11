@@ -87,7 +87,7 @@ def create_entities(data: List[dict], context: Context) -> None:
         sanction = h.make_sanction(context, entity)
         sanction.add("program", "Brazil disreputed and sanctioned companies")
         sanction.add("reason", raw_entity["FUNDAMENTAÇÃO LEGAL"], lang="por")
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
 
 

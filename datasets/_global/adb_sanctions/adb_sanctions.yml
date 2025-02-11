@@ -15,6 +15,12 @@ description: |
   also those cross-debarred by ADB from other Multilateral Development Banks (MDBs).
   These entities are not eligible to participate in ADB-financed, -administered, or
   -supported activities for violating the specified Anticorruption Policy.
+
+  This dataset is limited to the *Publicly Disclosed Debarment or Suspension Register*.
+
+  The *Complete ADB Debarment and Suspension Register* is only available to entities
+  who qualify, which includes international financial institutions, bilateral agencies,
+  and Developing Member Country government officials.
 publisher:
   name: "Asian Development Bank"
   acronym: ADB
@@ -28,9 +34,9 @@ publisher:
   country: zz
   url: https://adb.org/
   official: true
-url: https://lnadbg4.adb.org/oga0009p.nsf/sancALL1P?OpenView&count=999
+url: https://www.adb.org/who-we-are/integrity/sanctions
 data:
-  url: https://lnadbg4.adb.org/oga0009p.nsf/sancALL1P?OpenView&count=999
+  url: https://apim.adb.org/sanctions/lists/v1/published-list
   format: HTML
 
 assertions:
@@ -52,6 +58,7 @@ dates:
 lookups:
   type.address:
     lowercase: true
+    normalize: true
     options:
       - match:
           - "-"
@@ -59,14 +66,17 @@ lookups:
           - Peru
           - n/a
         value: null
-
-      - match: c/o Rana International Builders (M/s Rana International Builders) a.k.a. Rana Builders PVT. LTD., 55 West Panthopath Lake Circus Kalabagan, Sheltech Tower 7th Floor, E-Flat, Dhaka , BANGLADESH; 60 Shekh Rasal Square, BANGLADESH; 55 West Panthapath (Lake Circus Kalabagan), Sheltech Tower, 7th Floor, Dhaka 1205, BANGLADESH 52, Dhaka Housing, Shamoli, Dhaka, BANGLADESH
+      - match: "HEAD OFFICE , ADDRESS #1: , 10TH STREET , MAIN ROAD OF , WAZIR AKBAR , KHAN, NEXT TO , THE CHILDREN , HOSPITAL, KABUL , Afghanistan, , HEAD OFFICE , ADDRESS #2: , HOUSE #485, 15TH STREET, MAIN ROAD OF , WAZIR AKBAR , KHAN, BACK , SIDE OF FINEST , STORE, KABUL , Afghanistan"
         values:
-          - Rana International Builders (M/s Rana International Builders) a.k.a. Rana Builders PVT. LTD., 55 West Panthopath Lake Circus Kalabagan, Sheltech Tower 7th Floor, E-Flat, Dhaka, BANGLADESH
-          - 60 Shekh Rasal Square, BANGLADESH
-          - 55 West Panthapath (Lake Circus Kalabagan), Sheltech Tower, 7th Floor, Dhaka 1205, BANGLADESH
-          - 52, Dhaka Housing, Shamoli, Dhaka, BANGLADESH
-
+          - 10th Street, Main Road of Wazir Akbar Khan, Next to the Children Hospital, Kabul, Afghanistan
+          - "House #485, 15th Street, Main Road of Wazir Akbar Khan, Back Side of Finest Store, Kabul, Afghanistan"
+      - match: "7A SHIROKAYA , STREET, 392000, TAMBOV, RUSSIAN FEDERATION, , 1 KRASNOARMEISKAY, A SQUARE, 392023, TAMBOV, 7A SHIROKAYA , STREET, 390218, TAMBOV, 9/7 KRASNOZNAMENNAY, A STREET, 620012, YEKATERINBURG, 9/7 KRASNOZNAMENNAY, A STREET, 620012, YEKATERINBURG"
+        values:
+          - 7A Shirokaya Street, 392000, Tambov, Russian Federation
+          - 1 Krasnoarmeiskay A Square, 392023, Tambov, Russian Federation
+          - 7A Shirokaya Street, 390218, Tambov, Russian Federation
+          - 9/7 Krasnoznamennaya Street, 620012, Yekaterinburg, Russian Federation
+     
       - match: c/o Hoang Mai Construction Import and Export Joint Stock Company Xom Bo, Commune Thanh Liet, District Thanh Tri, Hanoi VIET NAM Room 3016, Building B, Vinaconex Building Nguyen Xien (Phòng 3016 Tòa B Vinaconex 2 Nguyễn Xiển) Dai Kim Ward, Hoang Mai District (Phýờng Ðại Kim, Quận Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 14, TT6B Urban West Nam Linh Dam, Hoang Mai (Số 14, TT6B Khu ðô thị Tây Nam Linh Ðàm, Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 2/20, Lane 255, Hope Street (Số 2/20, Ngõ 255, Phố Vọng) Dong Tam Ward, Hai Ba Trung District, Hanoi (Phýờng Ðồng Tâm, Quận Hai Bà Trýng, Hà Nội) VIET NAM
         values:
           - c/o Hoang Mai Construction Import and Export Joint Stock Company, Xom Bo, Commune Thanh Liet, District Thanh Tri, Hanoi, VIET NAM
@@ -113,27 +123,11 @@ lookups:
       - match: c/o Ingenieros Consultores y Asesores Técnicos Sociedad de Responsabilidad Limitada de Capital Variable (INCAT S. de R.L. de C.V.) Colonia Hato de Enmedio, Sector 8, Bloque 108, Casa 3902, Calle Principal, in front of Hospital San Jorge, same place as Hotel La Estancia, Tegucigalpa, HONDURAS
         value: c/o Ingenieros Consultores y Asesores Técnicos Sociedad de Responsabilidad Limitada de Capital Variable (INCAT S. de R.L. de C.V.) Colonia Hato de Enmedio, Sector 8, Bloque 108, Casa 3902, Calle Principal
 
-      - match: "No.21, Jiangsu East Road, Caomiaoiaozi Town, Weihai Lingang Economic and Technologica Development Zone, Shandong Province 山东省威海临港经济技术开发区草庙子镇江苏东路21号 (previous address: No.271-1 Eastern Kaiyuan Road, Lingang Economic and Technological Development Zone, Weihai, Shandong Province山东省威海临港经济技术开发区开元东路271-1号)"
-        values:
-          - No.21, Jiangsu East Road, Caomiaoiaozi Town, Weihai Lingang Economic and Technologica Development Zone, Shandong Province
-          - No.271-1 Eastern Kaiyuan Road, Lingang Economic and Technological Development Zone, Weihai, Shandong Province
-          - 山东省威海临港经济技术开发区草庙子镇江苏东路21号
-          - 山东省威海临港经济技术开发区开元东路271-1号
-
       - match: 15TH FLOOR, TAIHONG YANGGUANG BUILDING, INTERSECTION OF ZHONGZHOU AVENUE AND XINYUAN ROAD, ZHENGZHOU, HENAN PROVINCE, 450002 People's Republic of China 5TH FLOOR, JINZHU BUILDING, NORTH OF THE NEW BRIDGE, HUANGCHUAN, HENAN PROVINCE, 465150 People's Republic of China
         values:
           - 15th Floor, Taihong Yangguang Building, Intersection of Zhongzhou Avenue and Xinyuan Road, Zhengzhou, Henan Province, 450002 People's Republic of China
           - 5th Floor, Jinzhu Building, North of the New Bridge, Huangchuan, Henan Province, 465150 People's Republic of China
 
-  type.name:
-    options:
-      - match: PT. Putera Pandawa Asli (since 3 December 2018) formerly named PT. PPA Consultants (17 April 2007 to 2 December 2018). PT. Puspeng Agribisnis Consultants (29 January 2002 to 16 April 2007). PT. Puspeng Agribisnis or Pusat Pengembangan Agribisnis (17 May 1982 to 28 January 2002).
-        values:
-          - PT. Putera Pandawa Asli
-          - PT. PPA Consultants
-          - PT. Puspeng Agribisnis Consultants
-          - PT. Puspeng Agribisnis
-          - Pusat Pengembangan Agribisnis
   type.country:
     lowercase: true
     normalize: true
@@ -142,7 +136,9 @@ lookups:
         value: Equatorial Guinea
       - match: Guinaea-
         value: Guinea
-      - match: Unknown
+      - match:
+          - Unknown
+          - "*2"
         value: null
   type.date:
     lowercase: true
@@ -153,6 +149,18 @@ lookups:
         value: null
   other_names:
     options:
+      - match: "河北建设集团股份有限公司承德双滦混凝土分公司, Registration  No. 130803300006325"
+        items:
+          - prop: alias
+            value: 河北建设集团股份有限公司承德双滦混凝土分公司
+          - prop: registrationNumber
+            value: 130803300006325
+      - match: "陕西和瑞科技发 展有限公司;\xa0Business registration no. 610102100035303"
+        items:
+          - prop: alias
+            value: 陕西和瑞科技发 展有限公司
+          - prop: registrationNumber
+            value: 610102100035303
       - match: "Date of Diyarbakir Commerce and Industry Chamber Registration: 20 February 2015; Central Registration Number: 0007063163500012"
         items:
           - prop: incorporationDate

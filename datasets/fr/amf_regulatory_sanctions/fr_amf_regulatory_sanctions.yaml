@@ -1015,3 +1015,13 @@ lookups:
         entities:
           - Prologue
           - Le Quotidien de Paris Editions
+      - match: 'La société Pharnext<br /> M. Daniel Cohen<br /> M. David Horn Solomon'
+        entities:
+          - Pharnext
+          - Daniel Cohen
+          - David Horn Solomon
+      - match: 'Madame Adriana Marglewska<br /> Monsieur Frédéric Marty<br /> Monsieur Olivier Blin'
+        entities:
+          - Adriana Marglewska
+          - Frédéric Marty
+          - Olivier Blin

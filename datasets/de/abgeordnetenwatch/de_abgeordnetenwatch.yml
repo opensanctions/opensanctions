@@ -31,3 +31,13 @@ data:
   format: JSON
   lang: deu
 ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      Person: 2125
+      Position: 15
+  max:
+    schema_entities:
+      Person: 5000
+      Position: 30

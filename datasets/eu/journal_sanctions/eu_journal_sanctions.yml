@@ -36,6 +36,21 @@ description: |
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vQZckYoLdt6O3awOs8piaaWCtFlaKtCNpBWcb36bqakVid31-a-JqmHBri0vch2ggB9R-7yq3jiCarN/pub?gid=0&single=true&output=csv
   format: CSV
-
 dates:
   formats: ["%d.%m.%Y", "%d %B %Y", "%Y-%m"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 530
+      Person: 200
+      LegalEntity: 90
+      Organization: 70
+      Vessel: 65
+  max:
+    schema_entities:
+      Company: 1300
+      Person: 480
+      LegalEntity: 210
+      Organization: 170
+      Vessel: 160

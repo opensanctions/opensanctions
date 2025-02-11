@@ -55,9 +55,19 @@ url: https://www.iadb.org/en/transparency/sanctioned-firms-and-individuals
 data:
   url: https://www.iadb.org/en/who-we-are/transparency/sanctions-system/sanctioned-firms-and-individuals
   format: XLSX
-
 dates: 
   formats: ["%m/%d/%Y %H:00:00 AM", "%b %d, %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 515
+      Person: 210
+  max:
+    schema_entities:
+      Company: 1200
+      Person: 500
+
 lookups:
   types:
     map:

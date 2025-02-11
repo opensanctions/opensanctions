@@ -26,3 +26,11 @@ url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_regis
 data:
   url: https://registers.esma.europa.eu/solr/esma_registers_sanctions/select
   format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Company: 555
+  max:
+    schema_entities:
+      Company: 1300

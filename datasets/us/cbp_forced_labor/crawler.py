@@ -10,9 +10,6 @@ REGEX_VESSEL = re.compile(r"\bFishing\s+Vessels\b")
 
 
 def crawl_item(context: Context, row: Dict[str, Any]):
-    # Map the special case headers to expected names
-    if "#" in row:
-        row["id"] = row.pop("#")
     # Extract required keys and handle them
     country = row.pop("main_header")
     if REGEX_VESSEL.search(country, re.IGNORECASE):
@@ -23,11 +20,8 @@ def crawl_item(context: Context, row: Dict[str, Any]):
 
 def crawl_vessel(context: Context, row: Dict[str, Any]):
     # if REGEX_VESSEL.search(country, re.IGNORECASE):
-    if "#" in row:
-        row["id"] = row.pop("#")
     internal_id = row.pop("id")
     name = row.pop("entities")
-    name_result = context.lookup("name", name)
     listing_date = row.pop("date")
     status = row.pop("status")
     status_notes = row.pop("status-notes")
@@ -60,7 +54,6 @@ def crawl_vessel(context: Context, row: Dict[str, Any]):
 def crawl_company(context: Context, row: Dict[str, Any], country: str):
     internal_id = row.pop("id")
     name = row.pop("entities")
-    name_result = context.lookup("name", name)
     listing_date = row.pop("date")
     merchandise = row.pop("merchandise")
     status = row.pop("status")
@@ -136,14 +129,14 @@ def parse_table(
 
         # Look for link near status-notes
         for cell in cells:
-            link = cell.find(".//a")
-            if link is not None:
-                link_url = link.get("href")
+            links = cell.findall(".//a")
+            if links:
+                link_urls = [link.get("href") for link in links]
                 if (
                     "status-notes" in row_data
                     and cell.text_content().strip() == row_data["status-notes"]
                 ):
-                    row_data["status_notes_link"] = link_url
+                    row_data["status_notes_link"] = link_urls
         yield row_data
 
 

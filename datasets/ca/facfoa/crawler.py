@@ -33,5 +33,5 @@ def crawl(context: Context):
 
             proxy.add("topics", "sanction")
             context.emit(sanction)
-            context.emit(proxy, target=True)
+            context.emit(proxy)
             context.audit_data(row)

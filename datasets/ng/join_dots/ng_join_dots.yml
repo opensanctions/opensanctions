@@ -38,6 +38,16 @@ data:
   url: https://peps.directoriolegislativo.org/
   format: XLSX
 
+assertions:
+  min:
+    schema_entities:
+      Person: 3130
+      Position: 600
+  max:
+    schema_entities:
+      Person: 7370
+      Position: 1420
+
 lookups:
   type.gender:
     options:

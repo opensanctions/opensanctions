@@ -5,6 +5,7 @@ from openpyxl import load_workbook
 from pantomime.types import XLSX
 
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 
 DATE_SPLITS = [
@@ -17,6 +18,7 @@ DATE_SPLITS = [
     "إعادة إدراج في",  # re-insert in
     "نشر",  # publish
     "إدراج في",  # insert
+    "الإدراج",  # inclusion
 ]
 
 
@@ -116,12 +118,19 @@ def crawl_legal_persons(input_dict: dict, context: Context):
 
 
 def crawl(context: Context):
-    response = context.fetch_html(context.data_url)
+    response = fetch_html(
+        context,
+        context.data_url,
+        ".//*[@class='LinkStyle AutoDownload']",
+        geolocation="eg",
+    )
     response.make_links_absolute(context.data_url)
 
     excel_link = response.find(".//*[@class='LinkStyle AutoDownload']").get("href")
 
-    path = context.fetch_resource("list.xlsx", excel_link)
+    _, _, _, path = fetch_resource(
+        context, "list.xlsx", excel_link, XLSX, geolocation="eg"
+    )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)

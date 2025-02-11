@@ -46,3 +46,11 @@ lookups:
         prop: idNumber
       - match: "40980"
         prop: idNumber
+      - match: N/A
+        value: null
+  type.date:
+    options:
+      - match: 104/2024
+        value: 2024-10-04
+      - match: 10/252024
+        value: 2024-10-25

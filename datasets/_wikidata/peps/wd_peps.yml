@@ -122,6 +122,7 @@ lookups:
           - "Q1251441" # leader
           - "Q1276214" # European Union Special Representative
           - "Q1326365" # -elect
+          - "Q131981747" # -elect
           - "Q1414672" # legislative seat
           - "Q1472275" # figurehead
           - "Q1500391" # chief of municipal
@@ -1973,3 +1974,11 @@ lookups:
         label: "Republic of Haiti"
         # This is a historic 19th century entity
         decision: "ignore"
+      - match: "Q56692361"  # greek state 
+        code: "GR"
+        label: "Greece"
+        decision: "national"
+      - match: "Q131839713"
+        code: null
+        label: Kingdom of Patones
+        decision: ignore

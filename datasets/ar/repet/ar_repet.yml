@@ -27,6 +27,16 @@ data:
   url: https://repet.jus.gob.ar/
   format: JSON
 
+assertions:
+  min:
+    schema_entities:
+      Person: 400
+      Organization: 70
+  max:
+    schema_entities:
+      Person: 900
+      Organization: 200
+
 dates: 
   formats: ["%d/%m/%Y"]
 lookups:

@@ -60,6 +60,14 @@ data:
   url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vScJoESeSlsPlFcHSqIQMO9kK6JRV7ahVNc_WdiLuCV-CzBZh-tZU00_-MgXekD6t7vSNjjDZBI9eNI/pub?gid=0&single=true&output=csv"
   format: CSV
 
+assertions:
+  min:
+    schema_entities:
+      Position: 1185
+  max:
+    schema_entities:
+      Position: 2780
+
 lookups:
   type.country:
     options:

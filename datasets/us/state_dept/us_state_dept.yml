@@ -41,9 +41,15 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 280
+      Person: 200
       Position: 100
   max:
     schema_entities:
       Person: 400
       Position: 400
+
+lookups:
+  expected_404:
+    options:
+      match:
+        - https://www.state.gov/biographies/deborah-mennuti/

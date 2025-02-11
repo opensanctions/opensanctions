@@ -1,4 +1,4 @@
-from typing import Dict, Generator, cast
+from typing import Dict, Generator, Optional, cast
 from normality import slugify, collapse_spaces
 from lxml.html import HtmlElement
 
@@ -7,7 +7,7 @@ def parse_html_table(
     table: HtmlElement,
     header_tag: str = "th",
     skiprows: int = 0,
-) -> Generator[Dict[str, HtmlElement], None, None]:
+) -> Generator[Dict[Optional[str], HtmlElement], None, None]:
     """
     Parse an HTML table into a generator yielding a dict for each row.
 

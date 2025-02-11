@@ -9001,3 +9001,11 @@ lookups:
           - name: Lineage Financial Network
             locality: Franklin, Tennessee, USA
             country: US
+      - match: Wells Fargo & Company, San Francisco, California and Wells Fargo Financial, Inc., Des Moines, Iowa
+        entities:
+          - name: Wells Fargo & Company
+            locality: San Francisco, California
+            country: US
+          - name: Wells Fargo Financial, Inc.
+            locality: Des Moines, Iowa
+            country: US
