@@ -150,5 +150,5 @@ def crawl(context: Context):
         sanction.add("program", node.findtext(".//Program"))
         sanction.add("reason", node.findtext(".//Remark"))
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
