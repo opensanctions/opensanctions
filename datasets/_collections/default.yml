@@ -7,7 +7,7 @@ deploy:
   memory: "2000Mi"
   memory_limit: "2500Mi"
   cpu: "800m"
-  disk: "25Gi"
+  disk: "50Gi"
   command: /etl/scripts/export-default.sh
   premium: true
 exports:
