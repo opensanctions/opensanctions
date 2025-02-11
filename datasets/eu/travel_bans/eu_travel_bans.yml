@@ -53,7 +53,7 @@ assertions:
     schema_entities:
       Person: 7640
       Address: 690
-      LegalEntity: 20
+      LegalEntity: 50
 
 lookups:
   subject_type:
