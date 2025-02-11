@@ -30,6 +30,21 @@ publisher:
   official: false
 
 lookups:
+  schema:  
+    options:
+      - match:  
+          - "ეზღუდული პასუხისმგებლობის საზოგადოება"  # Limited Liability Company
+          - "უცხოური საწარმოს ფილიალი"  # Foreign Commercial Entity Branch
+          - "სააქციო საზოგადოება"  # Joint Stock Company
+          - "სოლიდარული პასუხისმგებლობის საზოგადოება"  # Solidarity Limited Liability Company
+          - "კომანდიტური საზოგადოება"  # Limited Partnership
+          - "შეზღუდული პასუხისმგებლობის საზოგადოება"  # General Partnership
+        schema: Company
+      - match:
+          - "კოოპერატივი"  # Cooperative
+          - "უცხოური არასამეწარმეო იურიდიული პირის ფილიალი"  # Foreign Non-Commercial Legal Entity Branch
+          - "საჯარო სამართლის იურიდიული პირი"  # Public Legal Entity
+        schema: Organization 
   columns:
     options:
       - match:
