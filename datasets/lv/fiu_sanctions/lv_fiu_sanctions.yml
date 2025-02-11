@@ -44,6 +44,6 @@ assertions:
       Organization: 1
   max:
     schema_entities:
-      Person: 15
-      Address: 15
-      Organization: 15
+      Person: 50
+      Address: 50
+      Organization: 50
