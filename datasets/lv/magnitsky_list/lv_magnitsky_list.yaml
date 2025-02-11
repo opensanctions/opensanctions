@@ -28,6 +28,14 @@ data:
   file_name: source.csv
   format: csv
 
+assertions:
+  min:
+    schema_entities:
+      Person: 40
+  max:
+    schema_entities:
+      Person: 80
+
 lookups:
   type.country:
     lowercase: true
