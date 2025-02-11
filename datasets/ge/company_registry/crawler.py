@@ -140,9 +140,6 @@ def crawl(context: Context) -> None:
                     header_maping=header_mapping,
                 )
                 return
-            # Reset file pointer and skip original header
-            fh.seek(0)
-            next(fh)
 
             # Use DictReader with mapped headers
             dict_reader = csv.DictReader(fh, fieldnames=header_mapping, delimiter=";")

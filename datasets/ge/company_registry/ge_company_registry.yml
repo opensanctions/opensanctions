@@ -487,8 +487,9 @@ lookups:
           - "ისრაელი ()" # Israel
           - "ისრაელი" # Israel
         value: Israel
+      - match:
           - "ისრაელისაქართველო" # IsraelGeorgia
-        values: 
+        values:
           - Israel
           - Georgia
       - match:
