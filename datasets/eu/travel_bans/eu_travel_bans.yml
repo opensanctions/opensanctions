@@ -46,12 +46,14 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 3280
-      LegalEntity: 10
+      Person: 3250
+      Address: 290
+      LegalEntity: 7
   max:
     schema_entities:
-      Person: 7725
-      LegalEntity: 25
+      Person: 7640
+      Address: 690
+      LegalEntity: 20
 
 lookups:
   subject_type:
