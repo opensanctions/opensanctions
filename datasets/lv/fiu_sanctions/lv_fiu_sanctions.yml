@@ -35,3 +35,15 @@ publisher:
 data:
   url: https://sankcijas.fid.gov.lv/files/LV_national_v2.xml
   format: XML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1
+      Address: 1
+      Organization: 1
+  max:
+    schema_entities:
+      Person: 15
+      Address: 15
+      Organization: 15
