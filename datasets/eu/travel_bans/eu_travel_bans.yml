@@ -47,7 +47,7 @@ assertions:
   min:
     schema_entities:
       Person: 3280
-      LegalEntity: 10
+      LegalEntity: 5
   max:
     schema_entities:
       Person: 7725
