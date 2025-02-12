@@ -1,14 +1,17 @@
-import pdfplumber
 import re
+import pdfplumber
 from lxml.html import HtmlElement
 from rigour.mime.types import PDF
 from normality import slugify
 from typing import Dict, Generator, List, Optional
 
-# from itertools import islice
-
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise, OccupancyStatus
+from zavod.shed.trans import apply_translit_full_name, make_position_translation_prompt
+
+
+TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
+POSITION_PROMPT = prompt = make_position_translation_prompt("bul")
 
 
 def extract_judicial_declaration(context, url, doc_id_date) -> Dict[str, Optional[str]]:
@@ -121,6 +124,9 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
         name=position_name,
         lang="bul",
         country="BG",
+    )
+    apply_translit_full_name(
+        context, position, "bul", position_name, TRANSLIT_OUTPUT, POSITION_PROMPT
     )
 
     categorisation = categorise(context, position, is_pep=True)
