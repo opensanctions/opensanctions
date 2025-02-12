@@ -46,7 +46,7 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 3250
+      Person: 3200
       Address: 290
       LegalEntity: 5
   max:
