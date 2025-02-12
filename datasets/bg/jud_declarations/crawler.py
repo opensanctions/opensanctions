@@ -1,4 +1,5 @@
-from typing import Dict, Generator, List, Optional
+import re
+from typing import Dict, Generator, List
 from lxml.html import HtmlElement
 
 from zavod import Context, helpers as h
@@ -8,8 +9,15 @@ from zavod.logic.pep import categorise, OccupancyStatus
 def parse_html_table(
     table: HtmlElement,
     skiprows: int = 0,
-    headers: Optional[List[str]] = None,
+    headers: List[str] = [],
 ) -> Generator[Dict[str, HtmlElement], None, None]:
+
+    first_row = table.find(".//tr[1]")
+    actual_headers = [td.text_content().strip() for td in first_row.findall("./td")]
+    assert len(actual_headers) == len(
+        headers
+    ), f"Header length mismatch: {actual_headers}"
+
     for rownum, row in enumerate(table.findall(".//tr")):
         if rownum < skiprows:
             continue
@@ -17,14 +25,16 @@ def parse_html_table(
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def crawl_row(context: Context, row: Dict[str, HtmlElement], doc: HtmlElement):
-    doc.make_links_absolute(context.data_url)
+def crawl_row(context: Context, row: Dict[str, HtmlElement]):
     str_row = h.cells_to_str(row)
     name = str_row.pop("name")
     doc_id_date = str_row.pop("doc_id_date")
     # Skip the header row
     if name == "Име" and doc_id_date == "Входящ номер":
         return
+    assert re.match(r"^[\u0400-\u04FF]", name), f"Invalid name format: {name}"
+    assert re.match(r"^\d", doc_id_date), f"Invalid doc_id_date format: {doc_id_date}"
+
     if len(doc_id_date.split("/")) == 2:
         _, date = doc_id_date.split("/")
     else:
@@ -74,6 +84,7 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], doc: HtmlElement):
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
     alphabet_links = doc.xpath(".//div[@itemprop='articleBody']/p//a[@href]")
+    assert len(alphabet_links) >= 58, "Expected at least 58 links in `alphabet_links`."
     # Bulgarian alphabet has 30 letters, but the name can start only with 29 of them
     # We want to cover the last 2 years at any time
     for a in alphabet_links[:58]:
@@ -87,4 +98,5 @@ def crawl(context: Context):
         assert len(table) == 1
         table = table[0]
         for row in parse_html_table(table, headers=["name", "doc_id_date"]):
-            crawl_row(context, row, doc)
+            doc.make_links_absolute(context.data_url)
+            crawl_row(context, row)
