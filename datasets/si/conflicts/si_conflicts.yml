@@ -38,3 +38,11 @@ data:
   url: https://erar.si/api/omejitve/
   format: JSON
 ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 4990
+  max:
+    schema_entities:
+      LegalEntity: 11750
