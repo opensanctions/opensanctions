@@ -18,21 +18,25 @@ def extract_judicial_declaration(context, url, doc_id_date) -> Dict[str, Optiona
     context.export_resource(pdf_path, PDF)
 
     extracted_data = {}
-    with pdfplumber.open(pdf_path) as pdf:
-        first_page = pdf.pages[0]
-        full_text = first_page.extract_text() or ""
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            first_page = pdf.pages[0]
+            full_text = first_page.extract_text() or ""
 
-        # Regex patterns for extracting relevant fields
-        patterns = {
-            # Capture up until a newline or end of text
-            "name": r"Име:\s*([А-Яа-яЁё\s-]+)(?=\n|$)",
-            "role": r"Длъжност:\s*([А-Яа-яЁё\s-]+)(?=\n|$)",
-            "organization": r"Орган на съдебната власт:\s*([А-Яа-яЁё\s,.-]+)(?=\n|$)",
-        }
+            # Regex patterns for extracting relevant fields
+            patterns = {
+                # Capture up until a newline or end of text
+                "name": r"Име:\s*([А-Яа-яЁё\s-]+)(?=\n|$)",
+                "role": r"Длъжност:\s*([А-Яа-яЁё\s-]+)(?=\n|$)",
+                "organization": r"Орган на съдебната власт:\s*([А-Яа-яЁё\s,.-]+)(?=\n|$)",
+            }
 
-        for key, pattern in patterns.items():
-            match = re.search(pattern, full_text)
-            extracted_data[key] = match.group(1).strip() if match else None
+            for key, pattern in patterns.items():
+                match = re.search(pattern, full_text)
+                extracted_data[key] = match.group(1).strip() if match else None
+    except Exception as e:
+        context.log.warning(f"Skipping {pdf_path} due to error: {e}")
+        return {}
 
     context.log.info(f"Extracted Data: {extracted_data}")
     return extracted_data
@@ -82,11 +86,19 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
         declaration_url,
         doc_id_date,
     )
+    if not extracted_data:
+        return
     name_dec = extracted_data.pop("name")
     if slugify(name, sep="-") != slugify(name_dec, sep="-"):
         context.log.warning(f"Name mismatch: {name} (HTML) != {name_dec} (PDF)")
     role = extracted_data.pop("role")
     organization = extracted_data.pop("organization")
+    if organization is None:
+        context.log.warning(
+            f"Missing organization for {name}", declaration_url=declaration_url
+        )
+        return
+    # Common pattern: "organization - city"
     parts = organization.split(" - ")
     if len(parts) == 2:
         organization = parts[0].strip()
