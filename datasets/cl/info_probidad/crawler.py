@@ -96,6 +96,7 @@ def crawl_row(context: Context, declaration_id: int):
             "Id_Rectificacion",  # rectification id
             "hashCodeDeclaracion",
             "Fecha_de_la_Declaracion",  # declaration date
+            "Periodo",  # Period that this declaration applies to (unsure)
             "Tipo_Declaracion",  # declaration type
             "Ciudad",  # city
             "Region",  # region
