@@ -2,6 +2,7 @@ import pdfplumber
 import re
 from lxml.html import HtmlElement
 from rigour.mime.types import PDF
+from normality import slugify
 from typing import Dict, Generator, List, Optional
 
 # from itertools import islice
@@ -81,20 +82,31 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
         declaration_url,
         doc_id_date,
     )
-    name = extracted_data.pop("name")
+    name_dec = extracted_data.pop("name")
+    if slugify(name, sep="-") != slugify(name_dec, sep="-"):
+        context.log.warning(f"Name mismatch: {name} (HTML) != {name_dec} (PDF)")
     role = extracted_data.pop("role")
     organization = extracted_data.pop("organization")
+    parts = organization.split(" - ")
+    if len(parts) == 2:
+        organization = parts[0].strip()
+        city = parts[1].strip()
+    else:
+        organization = organization
+        city = None
 
+    position_name = f"{role}, {organization}"
     person = context.make("Person")
     # We want the same person for 2 different years to have the same ID
-    person.id = context.make_id(name, role)
+    person.id = context.make_id(name, role, city)
     person.add("name", name, lang="bul")
     person.add("topics", "role.pep")
     person.add("sourceUrl", declaration_url)
+    person.add("position", position_name, lang="bul")
 
     position = h.make_position(
         context,
-        name=f"{role}, {organization}",
+        name=position_name,
         lang="bul",
         country="BG",
     )
