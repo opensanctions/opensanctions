@@ -62,7 +62,7 @@ def crawl_item(url: str, context: Context):
         ),
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
 
     passport_numbers = collapse_spaces(info_dict.pop("Passport Number", None))
     if passport_numbers:

@@ -32,6 +32,13 @@ url: "https://amlo.go.th/index.php/en/high-risk-countries-designated-list/2016-0
 data:
   url: https://aps.amlo.go.th/aps/public/thailandlist/search?un_name=&un_registration_number=&passport_no=&un_id=
   format: HTML
-
 dates: 
   formats: ["%d-%m-%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 270
+  max:
+    schema_entities:
+      Person: 630
