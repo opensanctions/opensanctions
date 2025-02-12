@@ -104,7 +104,7 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
             entity.add("nationality", country_, quiet=True)
 
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 
