@@ -144,3 +144,18 @@ lookups:
           - 別名
         value: alias
 ```
+
+## Regex mappings: 
+If you're working with date formats or specific patterns, using a lookup like this allows you to map certain patterns to a value, such as `null` for when no further processing is needed.
+
+```yaml
+# Date pattern (in Chinese month-day format):
+- regex: "\\d{1,2}月\\d{1,2}"
+  value: null  # Dropping this value because it doesn't contain a year
+
+# Identifying specific titles or roles in Spanish:
+- regex: "^senador"
+  name: member of the Senado
+```
+
+It simplifies handling cases where you don't need to perform further actions on the match, especially for non-standard date formats or irrelevant entries.

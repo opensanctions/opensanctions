@@ -25,3 +25,11 @@ publisher:
 data:
   url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDp-SsjvnupFtsQXsBsUddV-lz20mmIzcJ0UzJYZLphXGc0Pnt9htPkWO3ZxGmDdNqUeheYfArQr0G/pub?gid=0&single=true&output=csv"
   format: CSV
+
+assertions:
+  min:
+    schema_entities:
+      Person: 6
+  max:
+    schema_entities:
+      Person: 16

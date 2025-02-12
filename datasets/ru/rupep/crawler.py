@@ -1,6 +1,7 @@
 import re
 import ijson
 from typing import Any, Dict, Optional, List, Tuple, Set
+
 from followthemoney import model
 from followthemoney.types import registry
 from normality import collapse_spaces
@@ -14,9 +15,7 @@ from zavod.logic.pep import categorise
 from zavod.runtime.lookups import type_lookup
 from zavod.shed.internal_data import fetch_internal_data
 
-
 # PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
-FORMATS = ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
 SPLIT_ROLES = [
     "deputy",
     "deputy head",
@@ -98,15 +97,6 @@ def split_names(names):
     return h.multi_split(names, ["\n", ", "])
 
 
-def parse_date(date):
-    if date is None or len(date.strip()) == 0:
-        return None
-    if h.check_no_year(date):
-        return None
-    date = date.replace("Sept.", "Sep.")
-    return h.parse_date(date, FORMATS)
-
-
 def crawl_person_person_relation(
     context: Context, published_people: Set[int], entity: Entity, rel_data: dict
 ):
@@ -153,9 +143,9 @@ def crawl_person_person_relation(
     rel.add(res.from_prop, entity.id)
     rel.add(res.to_prop, other.id)
     rel.add(res.desc_prop, rel_type)
-    rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
-    rel.add("startDate", parse_date(rel_data.pop("date_established")))
-    rel.add("endDate", parse_date(rel_data.pop("date_finished")))
+    h.apply_date(rel, "modifiedAt", rel_data.pop("date_confirmed"))
+    h.apply_date(rel, "startDate", rel_data.pop("date_established"))
+    h.apply_date(rel, "endDate", rel_data.pop("date_finished"))
 
     context.audit_data(rel_data)
     context.emit(other, target=other_pep)
@@ -194,9 +184,9 @@ def crawl_company_person_relation(
     rel.add(res.from_prop, entity_company_id)
     rel.add(res.to_prop, person.id)
     rel.add(res.desc_prop, rel_type)
-    rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
-    rel.add("startDate", parse_date(rel_data.pop("date_established")))
-    rel.add("endDate", parse_date(rel_data.pop("date_finished")))
+    h.apply_date(rel, "modifiedAt", rel_data.pop("date_confirmed"))
+    h.apply_date(rel, "startDate", rel_data.pop("date_established"))
+    h.apply_date(rel, "endDate", rel_data.pop("date_finished"))
     context.audit_data(
         rel_data,
         ignore=[
@@ -333,8 +323,8 @@ def crawl_person(
     entity.add("alias", data.pop("also_known_as_en", None), lang="eng")
     entity.add("alias", data.pop("also_known_as_ru", None), lang="rus")
     entity.add("alias", split_names(data.pop("names", [])))
-    entity.add("birthDate", parse_date(data.pop("date_of_birth", None)))
-    entity.add("deathDate", parse_date(data.pop("termination_date_human", None)))
+    h.apply_date(entity, "birthDate", data.pop("date_of_birth"))
+    h.apply_date(entity, "deathDate", data.pop("termination_date_human"))
     entity.add("birthPlace", data.pop("city_of_birth_ru", None), lang="rus")
     entity.add("birthPlace", data.pop("city_of_birth_en", None), lang="eng")
     entity.add("innCode", data.pop("inn", None))
@@ -416,8 +406,8 @@ def crawl_person(
             )
             continue
 
-        start_date = parse_date(rel_data.get("date_established", None))
-        end_date = parse_date(rel_data.get("date_finished", None))
+        start_date = rel_data.get("date_established", None)
+        end_date = rel_data.get("date_finished", None)
 
         extra = None
         # If the role starts with any of the common PEPish first role parts,
@@ -523,8 +513,8 @@ def crawl_company(
     entity.add("alias", data.pop("also_known_as", None))
     entity.add("alias", data.pop("short_name_en", None), lang="eng")
     entity.add("alias", data.pop("short_name_ru", None), lang="rus")
-    entity.add("incorporationDate", parse_date(data.pop("founded", None)))
-    entity.add("dissolutionDate", parse_date(data.pop("closed", None)))
+    h.apply_date(entity, "incorporationDate", data.pop("founded"))
+    h.apply_date(entity, "dissolutionDate", data.pop("closed"))
     entity.add("status", data.pop("status_en", data.pop("status_ru", None)))
     entity.add("status", data.pop("status", None))
     entity.add_cast("Company", "ogrnCode", data.pop("ogrn_code", None))
@@ -586,9 +576,9 @@ def crawl_company(
         rel.add(res.from_prop, entity.id)
         rel.add(res.to_prop, other_id)
         rel.add(res.desc_prop, rel_type)
-        rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
-        rel.add("startDate", parse_date(rel_data.pop("date_established")))
-        rel.add("endDate", parse_date(rel_data.pop("date_finished")))
+        h.apply_date(rel, "modifiedAt", rel_data.pop("date_confirmed"))
+        h.apply_date(rel, "startDate", rel_data.pop("date_established"))
+        h.apply_date(rel, "endDate", rel_data.pop("date_finished"))
         context.emit(rel)
         context.audit_data(
             rel_data,

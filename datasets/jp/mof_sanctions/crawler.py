@@ -14,7 +14,7 @@ from followthemoney.types.identifier import IdentifierType
 from zavod import Context, Entity
 from zavod import helpers as h
 
-BRACKETED = re.compile(r"(\([^\(\)]*\)|\[[^\[\]]*\])")
+BRACKETED = re.compile(r"([(（][^\(\)]*[)）]|\[[^\[\]]*\])")
 
 SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
 SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
@@ -42,9 +42,10 @@ DATE_SPLITS = SPLITS + [
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
 
 
-def keep_long_ids(entity, identifier):
-    if len(identifier) > IdentifierType.max_length:
-        entity.add("notes", identifier)
+def note_long_ids(entity, identifiers: List[str]):
+    for identifier in identifiers:
+        if len(identifier) > IdentifierType.max_length:
+            entity.add("notes", identifier)
 
 
 def str_cell(cell: Cell) -> Optional[str]:
@@ -79,15 +80,22 @@ def parse_names(names: List[str]) -> List[str]:
         # (a.k.a.:
         # Full width colon. Yes really.
         name = re.sub(r"[(（]a\.k\.a\.?[:：]? ?", "", name)
-        name = name.replace("(original script:", "")
-        name = name.replace("(previously listed as", "")
+        name = re.sub(r"[（(]original script[:：]\s*(.*?)[）)]", r"\1", name)
+        name = re.sub(r"[（(]f.k.a.:\s*(.*?)[）)]", r"\1", name)
+        # in Excel, it has this value as (previously listed as), (Previously listed as some name)
+        name = name.replace("(previously listed as)", "")
         name = name.replace("(formerly listed as", "")
         name = name.replace("a.k.a., the following three aliases:", "")
         # name = name.replace(")", "")
+        if name.count("(") == 0 and name.endswith(")"):
+            name = name.rstrip(")")
+        # e.g: Al Qaïda au Maghreb islamique (AQMI))
+        name = name.replace("))", ")")
+        name = name.strip(" 、")
         cleaned.append(name)
         no_brackets = BRACKETED.sub(" ", name).strip()
         if no_brackets != name and len(no_brackets):
-            cleaned.append(name)
+            cleaned.append(no_brackets)
     return cleaned
 
 
@@ -152,15 +160,15 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
             h.apply_dates(entity, "birthDate", birth_date)
     entity.add_cast("Person", "birthPlace", row.pop("birth_place", []))
 
-    keep_long_ids(entity, passport_number)
+    note_long_ids(entity, passport_number)
     entity.add_cast(
         "Person",
         "passportNumber",
         h.multi_split(passport_number, SPLITS),
     )
-    keep_long_ids(entity, id_number)
+    note_long_ids(entity, id_number)
     entity.add("idNumber", h.multi_split(id_number, SPLITS))
-    keep_long_ids(entity, identification_number)
+    note_long_ids(entity, identification_number)
     entity.add(
         "idNumber",
         h.multi_split(identification_number, SPLITS),
@@ -200,7 +208,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     # if len(row):
     #     context.inspect(row)
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

@@ -75,7 +75,7 @@ lookups:
         value: null 
   expected_503:
     options:
-      - match: https://www.meineabgeordneten.at/Abgeordnete/michael.koschat
+      - match: https://www.meineabgeordneten.at/Abgeordnete/manuela.lobnik
   position:
     options:
       - match: Mitglied des Bundesrates, ÖVPEingetreten für das am 31.5.2010 ausgeschiedene Mitglied des Bundesrates Dr. Georg Spiegelfeld-Schneeburg.

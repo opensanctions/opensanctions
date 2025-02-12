@@ -124,7 +124,7 @@ def parse_xlsx_sheet(
     skiprows: int = 0,
     header_lookup: Optional[str] = None,
     extract_links: bool = False,
-) -> Generator[Dict[str, str | None], None, None]:
+) -> Generator[Dict[str | None, str | None], None, None]:
     """
     Parse an Excel sheet into a sequence of dictionaries.
 

@@ -5,8 +5,12 @@ from zavod import Context
 from zavod import helpers as h
 
 REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
+ENTITY_SPLITS = [
+    ";",
+    "affiliates",
+]
 NAME_SPLITS = [
-    "; ",
+    "Previously known as",
     "also known as",
     "also doing business as",
     "formerly operating as",
@@ -19,35 +23,46 @@ NAME_SPLITS = [
 REGEX_ALIAS_REGNO = re.compile(
     r"(?P<name>.{5,30})[;,] (Registration no.|ID:) (?P<regno>.{5,20})", re.IGNORECASE
 )
+REGEX_INTERNAL_URL = re.compile(
+    r"http://([\w-]+\.)+azurecontainerapps.io:80/api/published-list"
+)
 
 
 def crawl_row(context: Context, row: Dict[str, str | None]):
     full_name = row.pop("name") or ""
 
     # Split the full name using NAME_SPLITS first
-    name_parts = h.multi_split(full_name, NAME_SPLITS)
+    entities = h.multi_split(full_name, ENTITY_SPLITS)
+    other_names = row.pop("otherName").replace("\\", "")
+    country = row.pop("nationality") or ""
+    country = country.replace("Non ADB Member Country", "")
+    country = country.replace("Rep. of", "").strip()
+    country = country.replace("*2", "").strip()
 
-    for part in name_parts:
-        name_optional_regno = part
+    grounds = row.pop("grounds")
+    sanction_type = row.pop("sanctionType")
+    addresses = row.pop("address").split(";")
+    start_date = row.pop("effectiveDateOfSanction")
+    end_date = row.pop("lapseDateOfSanction")
+    modified_at = row.pop("changesMadeOn")
+
+    for entity_names_str in entities:
+        name_optional_regno = entity_names_str
         registration_number = None
 
         # Further split each part using REG_NRS
         for splitter in REG_NRS:
-            if splitter in part:
-                part, registration_number = part.split(splitter, 1)
+            if splitter in entity_names_str:
+                entity_names_str, registration_number = entity_names_str.split(
+                    splitter, 1
+                )
                 registration_number = registration_number.replace(")", "").strip()
                 break
 
-        country = row.get("nationality") or ""
-        country = country.replace("Non ADB Member Country", "")
-        country = country.replace("Rep. of", "").strip()
-
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name_optional_regno, country)
-        entity.add("name", part)
+        entity.add("name", h.multi_split(entity_names_str, NAME_SPLITS))
 
-        # Handle missing 'othername_logo' key gracefully
-        other_names = row.get("othername_logo").replace("\\", "")
         if match := REGEX_ALIAS_REGNO.match(other_names):
             entity.add("alias", match.group("name"))
             entity.add("registrationNumber", match.group("regno"))
@@ -61,44 +76,38 @@ def crawl_row(context: Context, row: Dict[str, str | None]):
         else:
             entity.add("alias", other_names)
 
-        entity.add("topics", "debarment")
         entity.add("country", country)
         entity.add("registrationNumber", registration_number)
+        entity.add("address", addresses)
 
         sanction = h.make_sanction(context, entity)
-        sanction.add("reason", row.get("grounds"))
-        sanction.add("program", row.get("sanction_type"))
+        sanction.add("reason", grounds)
+        sanction.add("status", sanction_type)
+        h.apply_date(sanction, "startDate", start_date)
+        h.apply_date(sanction, "endDate", end_date)
+        h.apply_date(sanction, "modifiedAt", modified_at)
 
-        date_range = row.get("effect_date_lapse_date", "") or ""
-        if "|" in date_range:
-            start_date, end_date = date_range.split("|")
-            h.apply_date(sanction, "startDate", start_date.strip())
-            h.apply_date(sanction, "endDate", end_date.strip())
+        if h.is_active(sanction):
+            entity.add("topics", "debarment")
 
-        address = h.make_address(context, full=row.get("address"), country=country)
-
-        h.apply_address(context, entity, address)
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
+
+        context.audit_data(row)
 
 
 def crawl(context: Context):
-    url = None
-    next_url = context.data_url
-    next_xpath = ".//a//*[text() = 'Next Page »»']/parent::*/parent::a"
+    next_url = context.data_url + "?sortField=Name&isAscending=true"
     pages = 0
-    while url != next_url:
-        url = next_url
-        doc = context.fetch_html(url)
-        doc.make_links_absolute(url)
-        next_url = doc.xpath(next_xpath)[0].get("href")
+    while next_url:
+        response = context.fetch_json(next_url)
 
-        print(next_url)
+        next_url = response["links"]["next"]
+        if next_url is not None:
+            next_url = REGEX_INTERNAL_URL.sub(context.data_url, next_url)
 
-        table = doc.find(".//div[@id='viewcontainer']/table")
-
-        for row in h.parse_html_table(table):
-            crawl_row(context, h.cells_to_str(row))
+        for item in response["data"]:
+            crawl_row(context, item["attributes"])
 
         pages += 1
-        assert pages <= 10, "More pages than expected."
+        assert pages <= 500, "More pages than expected."

@@ -43,6 +43,18 @@ data:
   url: https://www.sanctionsmap.eu/api/v1/data?
   format: JSON
 
+assertions:
+  min:
+    schema_entities:
+      Person: 3200
+      Address: 290
+      LegalEntity: 5
+  max:
+    schema_entities:
+      Person: 7640
+      Address: 690
+      LegalEntity: 50
+
 lookups:
   subject_type:
     options:

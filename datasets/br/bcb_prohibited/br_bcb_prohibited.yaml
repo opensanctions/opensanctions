@@ -24,3 +24,11 @@ url: https://dadosabertos.bcb.gov.br/dataset/processo-administrativo-sancionador
 data:
   url: https://olinda.bcb.gov.br/olinda/servico/Gepad_QuadrosGeraisInternet/versao/v1/odata/QuadroGeralProibidos
   format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Company: 1
+  max:
+    schema_entities:
+      Company: 50

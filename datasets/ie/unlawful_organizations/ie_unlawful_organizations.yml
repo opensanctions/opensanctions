@@ -32,3 +32,11 @@ publisher:
 data:
   url: https://www.irishstatutebook.ie/eli/ResultsTitle.html?q=Unlawful+Organisation
   format: html
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 1
+  max:
+    schema_entities:
+      Organization: 4

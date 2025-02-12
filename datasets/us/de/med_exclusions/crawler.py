@@ -4,6 +4,7 @@ import re
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_resource
+from normality import collapse_spaces
 
 REGEX_AKA = re.compile(r"\baka\b|a\.k\.a\.?", re.IGNORECASE)
 # Ruth Diane Jones, DO
@@ -13,7 +14,7 @@ REGEX_JOB_ROLE = re.compile(r"^(?P<name>.+)[,\s]+(?P<role>([A-Z\.,/-]+|\([^\)]+\
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-    raw_name = row.pop("sanctioned_provider_name")
+    raw_name = collapse_spaces(row.pop("sanctioned_provider_name"))
     npi = row.pop("npi")
     # Skip empty rows
     if raw_name == "" and npi == "":
@@ -41,15 +42,35 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("alias", alias)
     entity.add("country", "us")
     entity.add("sector", row.pop("taxonomy"))
-    entity.add("idNumber", row.pop("dea"))
+    dea = row.pop("dea")
+    if dea != "-":
+        entity.add("idNumber", dea)
     entity.add("npiCode", h.multi_split(npi, [";", ",", "&"]))
-    license_number = row.pop("license")
-    if license_number != "N/A":
-        entity.add("idNumber", license_number.split(","))
+
+    # Deal with sometimes intentional line breaks, and sometimes unwanted wrapping:
+    license_numbers = row.pop("license")
+    license_numbers = re.sub(
+        r"PROMISe", ";PROMISe", license_numbers, flags=re.IGNORECASE
+    )
+    license_numbers = re.sub(
+        r"PROMISe#?:?\n#?", "PROMISe# ", license_numbers, flags=re.IGNORECASE
+    )
+    for license_num in h.multi_split(license_numbers, [",", ";"]):
+        if "\n" in license_num:
+            res = context.lookup("license_numbers", license_num)
+            if res:
+                assert res.values, res
+                entity.add("idNumber", res.values, original_value=license_num)
+            else:
+                context.log.warning(
+                    "Unhandled license number", license_number=license_num
+                )
+        else:
+            entity.add("idNumber", collapse_spaces(license_num))
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("description", row.pop("comments"))
-    sanction.set("authority", row.pop("oig_medicaid_sanction"))
+    sanction.add("description", collapse_spaces(row.pop("comments")))
+    sanction.set("authority", collapse_spaces(row.pop("oig_medicaid_sanction")))
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
     reinstated_date = row.pop("reinstated_date")
     h.apply_date(sanction, "endDate", reinstated_date)

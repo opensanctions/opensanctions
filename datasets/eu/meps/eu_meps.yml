@@ -27,3 +27,15 @@ url: http://www.europarl.europa.eu/meps/
 data:
   url: http://www.europarl.europa.eu/meps/en/full-list/xml
   format: XML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 610
+      Organization: 180
+      Position: 1
+  max:
+    schema_entities:
+      Person: 1440
+      Organization: 425
+      Position: 2

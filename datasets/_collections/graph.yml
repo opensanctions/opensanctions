@@ -5,15 +5,15 @@ deploy:
   cpu: "1000m"
   memory: "3000Mi"
   memory_limit: "4000Mi"
-  disk: "200Gi"
-  disk_limit: "280Gi"
-  # premium: true
+  disk: "250Gi"
+  disk_limit: "290Gi"
+  premium: true
 coverage:
+  start: "2023-08-23"
   frequency: monthly
 exports:
   - statistics.json
   - entities.ftm.json
-  - senzing.json
 summary: >
   The full graph of company registries, sanctions, and other data sources published by
   OpenSanctions.

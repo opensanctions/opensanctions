@@ -68,17 +68,16 @@ def crawl_item(input_dict: dict, context: Context):
     sanction.add(
         "program",
         (
-            "TCU Debarred entities based on Article 46 of Law 8.443/92 that"
+            "TCU Debarred entities based on Article 46 of Law 8.443/92 that "
             "restricts entities from participating in public biddings"
         ),
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 
 def crawl(context: Context):
-    response = context.fetch_json(context.data_url)
     url = context.data_url
     while True:
         response = context.fetch_json(url)

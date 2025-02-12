@@ -37,9 +37,18 @@ publisher:
 data:
   url: "https://www.international.gc.ca/world-monde/assets/office_docs/international_relations-relations_internationales/sanctions/sema-lmes.xml"
   format: XML
-
 dates:
   formats: ["%Y", "%d-%m-%Y", "%b-%y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 2760
+      LegalEntity: 1050
+  max:
+    schema_entities:
+      Person: 6500
+      LegalEntity: 2480
 
 lookups:
   type.country:
@@ -70,3 +79,5 @@ lookups:
           - "31801"
           - "31948"
         value: null
+      - match: born in the early 1970s
+        values: [1970, 1971, 1972, 1973, 1974]

@@ -78,7 +78,7 @@ def crawl_item(card, context: Context):
     for a in card.xpath(".//a[contains(@class, 'pdf')]"):
         sanction.add("sourceUrl", a.get("href"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

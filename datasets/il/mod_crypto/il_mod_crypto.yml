@@ -34,6 +34,16 @@ url: https://nbctf.mod.gov.il/en/Minister%20Sanctions/PropertyPerceptions/Pages/
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRWfPqec5nU9pMkUpcDVdO3a9S5AfPtJzeHkOZ1NEWvp03uk-f8zWy46O0D3pzbeV67Ega1t6DwQ8xd/pub?gid=414584047&single=true&output=csv
   format: CSV
-
+ci_test: false  # No Zyte key in CI
 dates: 
-  formats: ["%m/%d/%Y"]
+  formats: ["%d/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 120
+      CryptoWallet: 400
+  max:
+    schema_entities:
+      Person: 300
+      CryptoWallet: 900

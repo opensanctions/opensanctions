@@ -211,6 +211,139 @@ lookups:
         value: 472310168
       - match: 563110024 (Kore Demokratik Halk Cumhuriyeti tarafından verilmiştir.)
         value: 563110024
+      - match: 645120196 (Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
+        value: 645120196
+      - match: PS 472330208 (Expires 4 Temmuz 2017)
+        value: PS472330208
+      - match: 563120630 (20 Mart 2018’e kadar geçerli)
+        value: 563120630
+      - match: PO381230469 (6 Nisan 2016'ya kadar geçerli)
+        value: PO381230469
+      - match: 108210124 (04.06.2023’e kadar geçerli)
+        value: 108210124
+      - match: 654320502 (16 Eylül 2019 tarihinde geçerliliği sonlanıyor)
+        value: 654320502
+      - match: 654234735 (Demokratik Halk Cumhuriyeti tarafından verilmiştir.)
+        value: 654234735
+      - match: Lübnan pasaport numarası RL-2244333 -61 Niha El-Mehfara
+        value: RL-2244333
+      - match: PAS. NO 4738382
+        value: 4738382
+      - match: "Pasaport no: 750812604"
+        value: 750812604
+      - match: "Yabancı Ülke VKN: 32084989741"
+        value: 32084989741
+      - match: "Yabancı Ülke VKN: 32062675148"
+        value: 32062675148
+      - match: CT 2606145
+        value: CT2606145
+      - match: 400778686 ve A7903910
+        values:
+          - 400778686
+          - A7903910
+      - match: "TCKN: 13269139206 VKN:2940550693"
+        values:
+          - 13269139206
+          - 2940550693
+      - match: "TCKN:50755897264 VKN: 4641915128"
+        values:
+          - 50755897264
+          - 4641915128
+      - match: "TCKN:59497601696 VKN:7411610299"
+        values:
+          - 59497601696
+          - 7411610299
+      - match: "YKN:996376557350 VKN:5240949089"
+        values:
+          - 996376557350
+          - 5240949089
+      - match: "43942946562/ 1500546342"
+        values:
+          - 43942946562
+          - 1500546342
+      - match: "43951946270/ 1500300753"
+        values:
+          - 43951946270
+          - 1500300753
+      - match: "99182343852-VKN: 0680925635"
+        values:
+          - 99182343852
+          - "0680925635"
+      - match: "99175525036-VKN: 0021425288"
+        values:
+          - 99175525036
+          - "0021425288"
+      - match: "99549418728-VKN: 3302379186"
+        values:
+          - 99549418728
+          - 3302379186
+      - match: "99503251330-VKN: 3310916520"
+        values:
+          - 99503251330
+          - 3310916520
+      - match: "99931505708-VKN: 5890476039"
+        values:
+          - 99931505708
+          - 5890476039
+      - match: "99518536118-VKN: 0010991454"
+        values:
+          - 99518536118
+          - "0010991454"
+      - match: "59443589894-VKN: 4540590406"
+        values:
+          - 59443589894
+          - 4540590406
+      - match: "A12471645 (99665448944-VKN: 5480585535)"
+        values:
+          - A12471645
+          - 99665448944
+          - 5480585535
+      - match: "99685965872-VKN: 5270500406"
+        values:
+          - 99685965872
+          - 5270500406
+      - match: "99107836698-VKN: 7351158316"
+        values:
+          - 99107836698
+          - 7351158316
+      - match: "99896571824-VKN: 0011639658"
+        values:
+          - 99896571824
+          - "0011639658"
+      - match: "58231640694-99262833990-VKN: 4550783028-3311006160"
+        values:
+          - 58231640694
+          - 99262833990
+          - 4550783028
+          - 3311006160
+      - match: "99575333712-VKN: 3310567721"
+        values:
+          - 99575333712
+          - 3310567721
+      - match: "18368160700-"
+        value: 18368160700
+      - match: "A1659348-25142129-22536936-30760317-22645789"
+        values:
+          - A1659348
+          - 25142129
+          - 22536936
+          - 30760317
+          - 22645789
+      - match: "61081545392-1650607579-99890456820"
+        values:
+          - 61081545392
+          - 1650607579
+          - 99890456820
+      - match: "99633116424-7390507842-7390897787"
+        values:
+          - 99633116424
+          - 7390507842
+          - 7390897787
+      - match: "199421147-381110042-563210184"
+        values:
+          - 199421147
+          - 381110042
+          - 563210184
       - match:
           - "Telephone: +850-2-181118208. Fax: +850-2-381-4432. Email: daesong@star-co.net.kp"
           - "Telephone: +850-2-181118208. Fax: +850-2-381-4432. Email: daesong@star-co.net.kp"

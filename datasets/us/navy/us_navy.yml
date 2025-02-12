@@ -31,7 +31,7 @@ data:
   url: https://www.navy.mil/Leadership/
   format: html
 
-  assertions:
+assertions:
   min:
     schema_entities:
       Person: 290

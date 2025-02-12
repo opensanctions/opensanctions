@@ -83,6 +83,8 @@ lookups:
           - Afsharid Empire
           - Al Ain
           - Ancient Rome
+          - State of Aleppo
+          - French Mandate for Syria and the Lebanon
           - Arab Kingdom of Syria
           - Assyrian Empire
           - Austria-Hungary
@@ -651,6 +653,15 @@ lookups:
           - Ligurian Republic
           - Genoese Republic
           - Yemeni Zaidi State
+          - Q1879239
+          - Khamag Mongol
+          - Jalayirid Sultanate
+          - Zachlumia
+          - Revival Lê dynasty
+          - Annam
+          - Nguyen dynasty
+          - Đại Nam
+          - Kingdom of Dumnonia
         value: null
       - match:
           - Cherokee Nation
@@ -803,10 +814,14 @@ lookups:
           - Kingdom of Bavaria
           - Kingdom of Württemberg
           - Electorate of Saxony
+          - Saxe-Weimar-Eisenach
+          - Grand Duchy of Hesse
         value: DE
       - match: British Honduras
         value: BZ
-      - match: Provisional People's Committee for North Korea
+      - match: 
+          - Provisional People's Committee for North Korea
+          - People's Committee of North Korea
         value: North Korea
       - match:
           - Kingdom of Egypt
@@ -890,6 +905,7 @@ lookups:
         value: HR
       - contains:
           - Ba'athist Iraq
+          - Kurdistan Region
         value: Iraq
       - match:
           - First Republic of Armenia

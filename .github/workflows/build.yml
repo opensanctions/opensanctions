@@ -36,9 +36,8 @@ jobs:
       - name: Install zavod dependencies
         working-directory: zavod
         run: |
-          pip install setuptools wheel
+          python -m pip install --upgrade pip wheel pyicu
           pip install --no-cache-dir -q -e ".[dev]"
-          pip freeze
       - name: Check zavod type annotations (strict)
         working-directory: zavod
         run: |
@@ -54,7 +53,7 @@ jobs:
       - name: Build a zavod distribution
         working-directory: zavod
         run: |
-          python setup.py sdist bdist_wheel
+          python3 -m build --wheel
       - name: Get any modified dataset files
         id: changed-files
         uses: tj-actions/changed-files@v45

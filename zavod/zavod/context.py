@@ -544,7 +544,6 @@ class Context:
         if self.stats.entities % 10000 == 0:
             self.log.info(
                 "Emitted %s entities" % self.stats.entities,
-                targets=self.stats.targets,
                 statements=self.stats.statements,
             )
         stamps = {} if self.dry_run else self.timestamps.get(entity.id)
@@ -557,7 +556,6 @@ class Context:
             stmt.dataset = self.dataset.name
             stmt.entity_id = entity.id
             stmt.external = external
-            stmt.target = target
             stmt.schema = entity.schema.name
             stmt.first_seen = stamps.get(stmt.id, self.data_time_iso)
             if stmt.first_seen != self.data_time_iso:

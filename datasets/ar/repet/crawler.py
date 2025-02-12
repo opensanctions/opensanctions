@@ -167,7 +167,7 @@ def crawl_persons(context: Context):
             parse_alias(context, entity, alias)
 
         context.audit_data(data, ["VERSIONNUM"])
-        context.emit(entity, target=True)
+        context.emit(entity)
 
 
 def crawl_entities(context: Context):
@@ -190,7 +190,7 @@ def crawl_entities(context: Context):
             parse_alias(context, entity, alias)
 
         context.audit_data(data, ["VERSIONNUM"])
-        context.emit(entity, target=True)
+        context.emit(entity)
 
 
 def crawl(context: Context):

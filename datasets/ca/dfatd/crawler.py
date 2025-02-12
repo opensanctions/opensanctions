@@ -59,5 +59,5 @@ def parse_entry(context: Context, node: _Element):
             trim_name = collapse_spaces(name)
             entity.add("alias", trim_name or None)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)

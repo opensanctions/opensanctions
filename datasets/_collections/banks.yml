@@ -2,7 +2,7 @@ type: collection
 title: Financial Services Entities
 coverage:
   start: "2024-11-13"
-  frequency: weekly
+  frequency: monthly
 deploy:
   memory: "1500Mi"
 ci_test: false

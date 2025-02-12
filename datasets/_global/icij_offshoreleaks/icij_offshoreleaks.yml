@@ -4,9 +4,8 @@ prefix: icijol
 # disabled: true
 entry_point: crawler.py
 coverage:
-  schedule: "@monthly"
+  frequency: "monthly"
   start: 2022-05-23
-  end: 2023-07-26
 deploy:
   cpu: "1000m"
   memory: 3000Mi
@@ -48,12 +47,9 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 1300
-      Company: 2900
-  max:
-    schema_entities:
-      LegalEntity: 3200
-      Company: 25000
+      LegalEntity: 500000
+      Company: 500000
+
 lookups:
   relationships:
     lowercase: true
@@ -512,6 +508,7 @@ lookups:
           - null
         contains:
           - same name as
+        skip: true
 
   type.date:
     options:
@@ -577,6 +574,8 @@ lookups:
         value: "2005-11-02"
       - match: 5015-08-28
         value: "2015-08-28"
+      - match: 3012-03-30
+        value: "2012-03-30"
 
   type.country:
     options:
@@ -616,3 +615,48 @@ lookups:
       - match:
           - Labuan
         value: Malaysia
+
+  type.address:
+    options:
+      - match: "Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS;52/F., Cheung Kong Center 2 Queen's Road Central Hong Kong;Deutsche Bank AG, Hong Kong Floor 52, Cheung Kong Center 2 Queen's Road Central, Hong Kong Attn.: Ms. Annie Ng"
+        values:
+          - Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS
+          - 52/F., Cheung Kong Center 2 Queen's Road Central Hong Kong
+          - Deutsche Bank AG, Hong Kong Floor 52, Cheung Kong Center 2 Queen's Road Central, Hong Kong
+      - match: No. 9 Ardmore Park Unit 0302 Singapore 259955;Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS;Suite2302-03, 23/F Great Eagle Centre 23Harbour Road HONG KONG;TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS
+        values:
+          - No. 9 Ardmore Park Unit 0302 Singapore 259955
+          - Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS
+          - Suite 2302-03, 23/F Great Eagle Centre 23 Harbour Road HONG KONG
+          - TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS
+      - match: David Chong & Co. (Hong Kong Office) Office B1, 7/F. Loyong Court 212-220 Lockhart Road Wanchai Hong Kong;21/F., Edinburgh Tower The Landmark 15 Queen's Road, Central Hong Kong;Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola British Virgin Islands
+        values:
+          - David Chong & Co. (Hong Kong Office) Office B1, 7/F. Loyong Court 212-220 Lockhart Road Wanchai Hong Kong
+          - 21/F., Edinburgh Tower The Landmark 15 Queen's Road, Central Hong Kong
+          - Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola British Virgin Islands
+      - match: David Chong & Co. (Hong Kong Office) Office B1, 7/F. Loyong Court 212-220 Lockhart Road Wanchai Hong Kong;5F, No. 600, Min-Shuei Road., JHONGSHAN DISTRICT TAIPEI CITY 104 Taiwan, ROC;Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS
+        values:
+          - David Chong & Co. (Hong Kong Office) Office B1, 7/F. Loyong Court 212-220 Lockhart Road Wanchai Hong Kong
+          - 5F, No. 600, Min-Shuei Road., JHONGSHAN DISTRICT TAIPEI CITY 104 Taiwan, ROC
+          - Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS
+      - match: David Chong & Co. (Hong Kong Office) Suite 23-02A, Great Eagle Centre 23 rd Floor Harbour Road Wanchai Hong Kong;Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS;5F., No. 123, Sec. 2, Nanjing E. Rd., Taipei City 104 Taiwan, R.O.C.
+        values:
+          - David Chong & Co. (Hong Kong Office) Suite 23-02A, Great Eagle Centre 23 rd Floor Harbour Road Wanchai Hong Kong
+          - Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS
+          - 5F., No. 123, Sec. 2, Nanjing E. Rd., Taipei City 104 Taiwan, R.O.C.
+      - contains: Zeltritu Street 18-20, Marupe
+        values:
+          - Zeltritu Street 18-20, Marupe
+      - match: c/o  Suite C-1807, Harbourfront Horizon All-Suite Hotel, 8 Hung Luen Road, Hunghom Bay, Kowloon, Hong Kong.;Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS;Suite 2302-06, 23/F Great Eagle Centre, 23 Harbour Road, Wanchai, HONG KONG
+        values:
+          - c/o  Suite C-1807, Harbourfront Horizon All-Suite Hotel, 8 Hung Luen Road, Hunghom Bay, Kowloon, Hong Kong.
+          - Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS
+          - Suite 2302-06, 23/F Great Eagle Centre, 23 Harbour Road, Wanchai, HONG KONG
+      - match: "c/o Deutsche Bank AG Singapore Branch, 8 Shenton Way, #47-01 Temasek Tower, Singapore 068811;c/o Deutsche Bank AG Singapore Branch 8 Shenton Way, #47-01, Temasek Tower Singapore 068811;Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS"
+        values:
+          - "c/o Deutsche Bank AG Singapore Branch, 8 Shenton Way, #47-01 Temasek Tower, Singapore 068811"
+          - Portcullis TrustNet Chambers P.O. Box 3444 Road Town, Tortola BRITISH VIRGIN ISLANDS
+      - contains: "Arias; Fabrega & Fabrega Trust Co. BVI Limited;"
+        values:
+          - "Arias; Fabrega & Fabrega Trust Co. BVI Limited; Wickhams Cay; Road Town; Tortola; British Virgin Islands"
+          - "Arias; Fabrega & Fabrega Trust Co. BVI Limited; Level 1; Palm Grove House; Wickham's Cay 1; Road Town; Tortola; British Virgin Islands"
