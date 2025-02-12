@@ -68,6 +68,8 @@ lookups:
       - match:
           - türkisch
         value: tr
+      - match: libanesisch
+        value: lb
 assertions:
   min:
     schema_entities:
