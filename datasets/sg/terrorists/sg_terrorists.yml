@@ -28,9 +28,17 @@ url: https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-
 data:
   url: https://sso.agc.gov.sg/Act/TSFA2002?ProvIds=Sc1-#Sc1-
   format: HTML
-
 dates: 
   formats: ["%d %B %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 25
+  max:
+    schema_entities:
+      Person: 60
+
 lookups:
   props:
     normalize: true
