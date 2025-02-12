@@ -34,9 +34,21 @@ url: https://www.opensyr.com/
 data:
   url: https://data.opensanctions.org/contrib/opensyr/opensyr-20230201.json
   format: FTM
-
 dates: 
   formats: ["%Y%m%d", "%Y0000", "%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 400
+      Organization: 280
+      Company: 225
+  max:
+    schema_entities:
+      Person: 960
+      Organization: 670
+      Company: 530
+
 lookups:
   type.gender:
     lowercase: true
