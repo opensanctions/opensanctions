@@ -56,6 +56,16 @@ data:
 http:
   retry_statuses: [503, 429, 403, 504]
 
+assertions:
+  min:
+    schema_entities:
+      Person: 5690
+      Company: 5540
+  max:
+    schema_entities:
+      Person: 13390
+      Company: 13030
+
 lookups:
   type.address:
     lowercase: true
