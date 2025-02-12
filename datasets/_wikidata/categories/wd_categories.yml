@@ -73,12 +73,15 @@ lookups:
         value: ir
       - match: Basque Country
         value: es
+      - match: Tatarstan
+        value: ru
       - match:
           - Persian Empire
           - Medo-persia
           - British overseas territories
           - East Turkistan Government in Exile
           - State of Judaea
+          - Qing dynasty
         value: null
   type.date:
     options:
