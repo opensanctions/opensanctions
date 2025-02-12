@@ -62,7 +62,7 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
             sanction.add("sourceUrl", url)
             sanction.add("listingDate", year)
 
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(sanction)
         else:
             context.log.warning("Cannot parse item", item=item_text)
