@@ -1,4 +1,9 @@
-from rigour.mime.types import XLSX
+import shutil
+import zipfile
+
+import xlrd
+
+from rigour.mime.types import XLSX, XLS
 import openpyxl
 
 from zavod import Context, helpers as h
@@ -108,20 +113,40 @@ def crawl_item(input_dict: dict, context: Context):
     )
 
 
+def parse_xls_or_xlsx_sheet_from_url(context: Context, url: str, filename: str):
+    filepath_tmp = context.fetch_resource(f"{filename}.temp", url)
+    # XLSX is a zipfile internally, sniff for that to detect mimetype
+    if zipfile.is_zipfile(filepath_tmp):
+        filepath = shutil.move(
+            filepath_tmp, context.get_resource_path(f"{filename}.xlsx")
+        )
+        mimetype = XLSX
+        items = h.parse_xlsx_sheet(
+            context, openpyxl.load_workbook(filepath)["Working"], extract_links=True
+        )
+    else:
+        filepath = shutil.move(
+            filepath_tmp, context.get_resource_path(f"{filename}.xls")
+        )
+        mimetype = XLS
+        items = h.parse_xls_sheet(context, xlrd.open_workbook(filepath)["Working"])
+
+    context.export_resource(filepath, mimetype, title=context.SOURCE_TITLE)
+    return items
+
+
 def crawl(context: Context):
     items = []
-    # It's an xls file originally but it's actual format is xlsx
-    path_sebi = context.fetch_resource("sebi.xlsx", SEBI_DEBARRMENT_URL)
-    context.export_resource(path_sebi, XLSX, title=context.SOURCE_TITLE)
-    wb_sebi = openpyxl.load_workbook(path_sebi)
-    for item in h.parse_xlsx_sheet(context, wb_sebi["Working"], extract_links=True):
+
+    for item in parse_xls_or_xlsx_sheet_from_url(
+        context, SEBI_DEBARRMENT_URL, filename="sebi"
+    ):
         item["source_url"] = SEBI_DEBARRMENT_URL
         items.append(item)
 
-    path_other = context.fetch_resource("other.xlsx", OTHER_DEBARRMENT_URL)
-    context.export_resource(path_other, XLSX, title=context.SOURCE_TITLE)
-    wb_other = openpyxl.load_workbook(path_other)
-    for item in h.parse_xlsx_sheet(context, wb_other["Working"], extract_links=True):
+    for item in parse_xls_or_xlsx_sheet_from_url(
+        context, OTHER_DEBARRMENT_URL, filename="other"
+    ):
         item["source_url"] = OTHER_DEBARRMENT_URL
         items.append(item)
 
