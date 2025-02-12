@@ -37,3 +37,11 @@ publisher:
 data:
   url: https://nfs.punjab.gov.pk/Home/GetJosn?filter=
   format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Person: 2280
+  max:
+    schema_entities:
+      Person: 5360

@@ -34,7 +34,7 @@ def crawl_person(context: Context, row: dict):
     sanction = h.make_sanction(context, entity)
     sanction.add("program", "4th Schedule under the Anti Terrorism Act, 1997")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row)
