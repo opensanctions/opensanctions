@@ -199,8 +199,10 @@ def save_match(
 
 
 def enrich(context: Context) -> None:
-    resolver = get_resolver()
     scope = get_multi_dataset(context.dataset.inputs)
+    resolver = get_resolver()
+    resolver.begin()
+    resolver.warm_linker()
     context.log.info(
         "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
     )
@@ -229,8 +231,8 @@ def enrich(context: Context) -> None:
                 context.log.error(
                     "Enrichment error %r: %s" % (subject_entity, str(exc))
                 )
-        resolver.save()
         context.log.info("Enrichment process complete.")
     finally:
+        resolver.rollback()
         enricher.close()
         subject_store.close()

@@ -19,7 +19,7 @@ classifiers = [
 requires-python = ">= 3.11"
 dependencies = [
     "followthemoney == 3.8.*",
-    "nomenklatura[leveldb] == 3.15.2",
+    "nomenklatura[leveldb] @ git+https://github.com/opensanctions/nomenklatura.git@jdb/db-resolver",
     "countrynames >= 1.16.8, < 2.0",
     "plyvel == 1.5.1",
     "rigour == 0.8.4",
@@ -95,3 +95,6 @@ universal = true
 
 [tool.coverage.run]
 branch = true
+
+[tool.hatch.metadata]
+allow-direct-references = true
