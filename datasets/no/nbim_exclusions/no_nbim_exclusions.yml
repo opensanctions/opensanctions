@@ -42,9 +42,17 @@ publisher:
 data:
   url: https://www.nbim.no/en/responsible-investment/ethical-exclusions/exclusion-of-companies/
   format: HTML
-
 dates: 
   formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 160
+  max:
+    schema_entities:
+      Company: 380
+
 lookups:
   decision_topic:
     options:

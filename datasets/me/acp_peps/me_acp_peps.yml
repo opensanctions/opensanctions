@@ -31,6 +31,16 @@ data:
   format: JSON
   lang: cnr  # Montenegrin (ISO 639-2)
 
+assertions:
+  min:
+    schema_entities:
+      Person: 9370
+      Position: 3400
+  max:
+    schema_entities:
+      Person: 22000
+      Position: 8080
+
 lookups:
   type.country:
     lowercase: true

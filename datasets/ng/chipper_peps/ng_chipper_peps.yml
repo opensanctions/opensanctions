@@ -29,9 +29,19 @@ url: https://chippercash.com/
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vS-0_pci6BoFHpxfPXbDeMD53jvti_TmovR406JK-Z-9lYPCqbUmTk6vZC0hTSRFxHYGTzJJyFRDCxz/pub?output=csv
   format: CSV
-
 dates: 
   formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 21700
+      Position: 12980
+  max:
+    schema_entities:
+      Person: 51070
+      Position: 30550
+
 lookups:
   type.gender:
     options:

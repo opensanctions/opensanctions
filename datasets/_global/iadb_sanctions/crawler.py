@@ -87,5 +87,5 @@ def crawl(context: Context):
             entity.add("topics", "debarment")
 
         context.emit(sanction)
-        context.emit(entity, target=is_debarred)
+        context.emit(entity)
         context.audit_data(row)

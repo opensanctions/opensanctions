@@ -26,6 +26,14 @@ data:
   format: HTML
   lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      Person: 15
+  max:
+    schema_entities:
+      Person: 40
+
 dates: 
   formats: ["%d-%m-%Y"]
 lookups:

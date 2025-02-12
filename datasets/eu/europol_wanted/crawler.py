@@ -64,4 +64,4 @@ def crawl_person(context: Context, person_id: str, url: str):
         # context.inspect(field)
 
     # print(person.to_dict())
-    context.emit(person, target=True)
+    context.emit(person)

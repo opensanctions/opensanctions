@@ -25,3 +25,11 @@ url: "https://contas.tcu.gov.br/ords/f?p=1660:1:::NO:1::"
 data:
   url: https://contas.tcu.gov.br/ords/condenacao/consulta/inabilitados
   format: JSON
+
+  assertions:
+  min:
+    schema_entities:
+      Person: 470
+  max:
+    schema_entities:
+      Person: 1070

@@ -65,7 +65,7 @@ def crawl(context: Context):
         sanction.add("reason", data.pop("criterion"))
         h.apply_date(sanction, "listingDate", data.pop("publishing-date"))
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
 
         context.audit_data(data)
