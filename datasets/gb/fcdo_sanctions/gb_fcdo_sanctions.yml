@@ -32,9 +32,20 @@ data:
   url: https://www.gov.uk/government/publications/the-uk-sanctions-list
   format: HTML
   lang: eng
-
 dates: 
   formats: ["%d/%m/%Y", "dd/mm/%Y", "dd/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 3060
+      Organization: 890
+      Vessel: 125
+  max:
+    schema_entities:
+      Person: 7200
+      Organization: 2090
+      Vessel: 290
 
 lookups:
   languages:
