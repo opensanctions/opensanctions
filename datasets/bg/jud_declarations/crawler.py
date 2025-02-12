@@ -1,9 +1,40 @@
+import pdfplumber
 import re
-from typing import Dict, Generator, List
 from lxml.html import HtmlElement
+from rigour.mime.types import PDF
+from typing import Dict, Generator, List, Optional
+
+# from itertools import islice
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise, OccupancyStatus
+
+
+def extract_judicial_declaration(context, url, doc_id_date) -> Dict[str, Optional[str]]:
+    """Extract name, role, and organization from the first page of a judicial declaration PDF."""
+
+    pdf_path = context.fetch_resource(f"{doc_id_date}.pdf", url)
+    context.export_resource(pdf_path, PDF)
+
+    extracted_data = {}
+    with pdfplumber.open(pdf_path) as pdf:
+        first_page = pdf.pages[0]
+        full_text = first_page.extract_text() or ""
+
+        # Regex patterns for extracting relevant fields
+        patterns = {
+            # Capture up until a newline or end of text
+            "name": r"Име:\s*([А-Яа-яЁё\s-]+)(?=\n|$)",
+            "role": r"Длъжност:\s*([А-Яа-яЁё\s-]+)(?=\n|$)",
+            "organization": r"Орган на съдебната власт:\s*([А-Яа-яЁё\s,.-]+)(?=\n|$)",
+        }
+
+        for key, pattern in patterns.items():
+            match = re.search(pattern, full_text)
+            extracted_data[key] = match.group(1).strip() if match else None
+
+    context.log.info(f"Extracted Data: {extracted_data}")
+    return extracted_data
 
 
 def parse_html_table(
@@ -45,17 +76,25 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
     # Link is in the same cell as the name
     name_link_elem = HtmlElement(row["name"]).find(".//a")
     declaration_url = name_link_elem.get("href")
+    extracted_data = extract_judicial_declaration(
+        context,
+        declaration_url,
+        doc_id_date,
+    )
+    name = extracted_data.pop("name")
+    role = extracted_data.pop("role")
+    organization = extracted_data.pop("organization")
 
     person = context.make("Person")
     # We want the same person for 2 different years to have the same ID
-    person.id = context.make_id(name)
+    person.id = context.make_id(name, role)
     person.add("name", name, lang="bul")
     person.add("topics", "role.pep")
     person.add("sourceUrl", declaration_url)
 
     position = h.make_position(
         context,
-        name="Judiciary Official",
+        name=f"{role}, {organization}",
         lang="bul",
         country="BG",
     )
