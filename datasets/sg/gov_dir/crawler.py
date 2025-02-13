@@ -9,19 +9,24 @@ from zavod.logic.pep import categorise
 
 
 TITLE_REGEX = re.compile(
-    r"^(Mr|MR|Ms|Miss|Mrs|Prof|Dr|Professor Sir|Professor|Er. Dr.|Er.|Ar.|Dr.|A/Prof|Clinical A/Prof|Adj A/Prof|Assoc Prof \(Ms\)|Er. Prof.| Er Prof|Justice)\.? (?P<name>.+)$"
+    r"^(Mr|MR|Ms|Miss|Mrs|Prof|Dr|Professor Sir|Professor|Er. Dr.|Er.|Ar.|Dr.|A/Prof|Clinical A/Prof|Adj A/Prof|Assoc Prof \(Ms\)|Er. Prof.| Er Prof|Justice|Venerable|Bishop)\.? (?P<name>.+)$"
 )
 DATA_URLS = [
     "https://www.sgdi.gov.sg/statutory-boards",
     "https://www.sgdi.gov.sg/ministries",
     "https://www.sgdi.gov.sg/organs-of-state",
 ]
-# A sample of pages with an expected minimum number of (officials, PEPs)
-# There are pages with no officials, so we can't assert that every page has some.
+# A bit of a crawler-specific attempt at capturing expectations for specific pages
+# because I'm not convinced the markup is going to be consistent across the site.
+# There's already two ways of listing people - one under collapsible sections (section-toggle)
+# and another one (section-info).
+# Some pages have no officials listed and don't even link to sub-sections - they're just empty.
+# So we can't require either of those across the board.
 PAGE_EXPECTATIONS = {
+    # A full deep hierarchy
     "https://www.sgdi.gov.sg/ministries/mse/statutory-boards/nea/departments/sppg/departments/otd": {
-        "officials": 10,
-        "peps": 10,
+        "officials": 1,
+        "peps": 1,
     },
     "https://www.sgdi.gov.sg/ministries/mse/statutory-boards/nea/departments/sppg": {
         "officials": 1,
@@ -35,7 +40,18 @@ PAGE_EXPECTATIONS = {
         "officials": 20,
         "peps": 6,
     },
-    "https://www.DEADBEEF.gov.sg/ministries/mse/statutory-boards/nea/departments/sppg/departments/otd": {
+    # Specific committee members a customer's been flagged for missing
+    "https://www.sgdi.gov.sg/ministries/mha/committees/pcrh": {
+        "officials": 10,
+        "peps": 10,
+    },
+    # A section-info example
+    "https://www.sgdi.gov.sg/ministries/mccy/committees/nic": {
+        "officials": 10,
+        "peps": 10,
+    },
+    # A section-toggle example
+    "https://www.sgdi.gov.sg/ministries/mccy": {
         "officials": 10,
         "peps": 10,
     },
@@ -72,41 +88,11 @@ def make_position_name(rank, public_body, agency, section_name, hierarchy):
     return collapse_spaces(position)
 
 
-def is_pep(rank: str) -> bool | None:
-    rank_lower = rank.lower()
-
-    # Check for PEP indicators
-    if any(
-        keyword in rank_lower
-        for keyword in [
-            "minister",
-            "permanent secretary",
-            "president",
-            "member",
-            "executive officer",
-            "director",
-            "chairman",
-            "ceo",
-            "mayor",
-            "auditor-general",
-            "justice",
-            "judge",
-            "deputy chief",
-            "deputy secretary",
-            "senior parliamentary secretary",
-            "chief prosecutor",
-            "head of secretariat",
-            "senior adviser",
-            "senior executive",
-            "senior auditor",
-            "ambassador",
-            "chief executive",
-            "chief financial officer",
-        ]
-    ):
-        return True
-    else:
-        return None
+def is_pep(context: Context, rank: str) -> bool | None:
+    res = context.lookup("rank_default_pep_status", rank)
+    if res:
+        return res.is_pep
+    return None
 
 
 def make_hierarchy(breadcrumbs: HtmlElement) -> Optional[str]:
@@ -123,7 +109,6 @@ def make_hierarchy(breadcrumbs: HtmlElement) -> Optional[str]:
     assert hierarchy[1] in {
         "Ministries",
         "Organs of State",
-        "Directory of Government Spokespersons",
     }, hierarchy[1]
     hierarchy.pop(0)  # Home
     hierarchy.pop(0)  # Ministries etc
@@ -134,32 +119,43 @@ def make_hierarchy(breadcrumbs: HtmlElement) -> Optional[str]:
     return None
 
 
+def check_expectations(context: Context, link, official_count, pep_count, expectations):
+    if expectations:
+        if official_count < expectations["officials"]:
+            context.log.warning(
+                "Insufficient officials",
+                expected=expectations["officials"],
+                actual=official_count,
+                url=link,
+            )
+        if pep_count < expectations["peps"]:
+            context.log.warning(
+                "Insufficient PEPs",
+                expected=expectations["peps"],
+                actual=pep_count,
+                url=link,
+            )
+
+
 def crawl_person(
-    context: Context, official, link, public_body, agency, section_name, hierarchy
-):
+    context: Context,
+    official: HtmlElement,
+    link: str,
+    public_body,
+    agency,
+    section_name,
+    hierarchy: Optional[str],
+) -> bool:
+    """Returns true if the crawled person is a PEP based on the provided position info"""
+
     rank = official.find(".//div[@class='rank']").text_content().strip()
-    # Skip all non-PEP positions
-    if any(
-        keyword in rank.lower()
-        for keyword in [
-            "pa to",
-            "assistant",
-            "secretary to",
-            "please contact",
-            "quality service manager",
-            "administrative professional",
-        ]
-    ):
-        return
     full_name = official.find(".//div[@class='name']").text_content().strip()
     email = official.find(".//div[@class='email info-contact']").text_content().strip()
-    # phone numbers are also available
 
-    pep_status = is_pep(rank)  # checking before formatting the position name
+    pep_status = is_pep(context, rank)
     position_name = make_position_name(
         rank, public_body, agency, section_name, hierarchy
     )
-
     # Override status and position name for MPs
     if collapse_spaces(section_name.lower()) == "members of parliament":
         pep_status = True
@@ -192,8 +188,10 @@ def crawl_person(
             context.emit(person, target=True)
             context.emit(position)
             context.emit(occupancy)
+            return True
     elif categorisation.is_pep is None:
         context.log.warning("Uncategorised position", position=position_name, url=link)
+    return False
 
 
 def crawl_body(context: Context, link) -> Generator[str, None, None]:
@@ -209,17 +207,14 @@ def crawl_body(context: Context, link) -> Generator[str, None, None]:
             br.tail = "\n"
         else:
             br.tail = "\n" + br.tail
-    # Get the text content and split it by newline
     org_name = org_name_elem.text_content()
     org_parts = org_name.split("\n")
     public_body = org_parts[0].strip() if len(org_parts) > 0 else ""
     agency = org_parts[1].strip() if len(org_parts) > 1 else ""
-
     hierarchy = make_hierarchy(board_doc.find(".//span[@class='breadcrumbs']"))
 
+    # Officials in headed sections
     sections = board_doc.xpath(".//div[contains(@class, 'section-toggle')]")
-
-    # Iterate through sections and their officials
     for section in sections:
         headers = section.xpath(".//*[contains(@class, 'section-header')]")
         assert len(headers) == 1, etree.tostring(headers)
@@ -238,7 +233,7 @@ def crawl_body(context: Context, link) -> Generator[str, None, None]:
             )
             if is_pep:
                 pep_count += 1
-
+    # Officials in section-info
     section_info = board_doc.findall(".//div[@class='section-info']")
     for section in section_info:
         for official in section.findall(".//li[@id]"):
@@ -249,22 +244,7 @@ def crawl_body(context: Context, link) -> Generator[str, None, None]:
             if is_pep:
                 pep_count += 1
 
-    if expectations:
-        if official_count < expectations["officials"]:
-            context.log.warning(
-                "Insufficient officials",
-                expected=expectations["officials"],
-                actual=official_count,
-                url=link,
-            )
-        if pep_count < expectations["peps"]:
-            context.log.warning(
-                "Insufficient PEPs",
-                expected=expectations["peps"],
-                actual=pep_count,
-                url=link,
-            )
-
+    check_expectations(context, link, official_count, pep_count, expectations)
     yield link
     subdivision_links = board_doc.xpath(".//div[contains(@class, 'tab-content')]//a")
     for subdivision_link in subdivision_links:
@@ -272,7 +252,13 @@ def crawl_body(context: Context, link) -> Generator[str, None, None]:
 
 
 def crawl(context: Context):
+    assert is_pep(context, "Director of this")
+    assert is_pep(context, "Deputy director")
+    assert is_pep(context, "DEADBEEF") is None
+    assert not is_pep(context, "PA to jimbo")
+
     crawled = set()
+
     for url in DATA_URLS:
         data_url = url
         doc = context.fetch_html(data_url, cache_days=1)

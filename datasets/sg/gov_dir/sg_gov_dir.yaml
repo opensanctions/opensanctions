@@ -11,7 +11,7 @@ summary: >
 description: |
   This dataset lists senior officials of ministries, statutory boards and agencies, and
   other public bodies, such as judicial and financial oversight institutions.
-  
+
   Their names and roles within their respective institutions are included along with source
   URLs for additional context where available.
 publisher:
@@ -37,11 +37,12 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 1300
+      Person: 11000
   max:
     schema_entities:
-      Person: 1600
-lookups: 
+      Person: 24000
+
+lookups:
   type.email:
     lowercase: true
     normalize: true
@@ -58,3 +59,48 @@ lookups:
           - desmond_choo@ntuc.org.sg
       - match: Ng_huck_hui@hq.a-star. edu.sg
         value: Ng_huck_hui@hq.a-star.edu.sg
+
+  # Determine a default assumed PEP status based just on "rank", e.g. "Deputy Director"
+  # used for new positions. This can be overridden in the position categorisation database.
+  rank_default_pep_status:
+    lowercase: true
+    normalize: true
+    options:
+      - is_pep: false
+        weight: 1000
+        contains:
+          - "quality service manager"
+        regex:
+          - "^pa to"
+          - "^personal assistant"
+          - "^secretary to"
+          - "^please contact"
+          - "^administrative professional"
+      - is_pep: true
+        wight: 10
+        contains:
+          - "minister"
+          - "permanent secretary"
+          - "president"
+          - "member"
+          - "executive officer"
+          - "director"
+          - "chairman"
+          - "ceo"
+          - "mayor"
+          - "auditor-general"
+          - "justice"
+          - "judge"
+          - "deputy chief"
+          - "deputy secretary"
+          - "senior parliamentary secretary"
+          - "chief prosecutor"
+          - "head of secretariat"
+          - "senior adviser"
+          - "senior executive"
+          - "senior auditor"
+          - "ambassador"
+          - "chief executive"
+        regex:
+          - "chief .+ officer"
+          - "^executive manager"
