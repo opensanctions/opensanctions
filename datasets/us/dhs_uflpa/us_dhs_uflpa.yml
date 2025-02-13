@@ -37,9 +37,19 @@ publisher:
 data:
   url: "https://www.dhs.gov/uflpa-entity-list"
   format: HTML
-
 dates:
   formats: ["%B %d, %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 120
+      Organization: 5
+  max:
+    schema_entities:
+      Company: 280
+      Organization: 50
+
 lookups:
   names:
     normalize: true
