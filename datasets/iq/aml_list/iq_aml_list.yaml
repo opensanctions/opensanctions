@@ -1,0 +1,35 @@
+title: Iraq Local Blocking Lists
+entry_point: crawler.py
+prefix: iq-aml
+coverage:
+  frequency: daily
+  start: 2025-02-13
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Designation of persons suspected to be connected with money laundering or terrorism financing.
+description: |
+  This dataset comprises information about designated persons and entities published by 
+  Anti-Money Laundering and Terrorist Financing Office.
+# to be reviewed
+publisher:
+  name: Republic of Iraq Anti-Money Laundering and Countering Financing of Terrorism Office
+  description: >
+    The Office of Combating Money Laundering and Terrorist Financing, established within the 
+    Central Bank of Iraq, operates with full independence to address financial crimes. Its 
+    mission involves the collection, analysis, and dissemination of information related to 
+    suspected money laundering and terrorism financing activities.
+  url: https://aml.iq/?lang=en
+  official: true
+  country: iq
+url: https://aml.iq/?page_id=2171
+data:
+  url: https://aml.iq/?page_id=2171
+  format: HTML
+
+# assertions:
+#   min:
+#     schema_entities:
+#       Person: 270
+#   max:
+#     schema_entities:
+#       Person: 630
