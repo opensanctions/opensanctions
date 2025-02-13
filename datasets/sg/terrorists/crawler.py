@@ -58,5 +58,5 @@ def crawl(context: Context):
                     continue
                 context.log.warn("Unparsed bracket term", term=match)
 
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(sanction)
