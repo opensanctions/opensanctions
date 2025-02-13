@@ -106,11 +106,13 @@ def crawl_data_url(context: Context):
 def page_settings(page: Page) -> Dict:
     settings = {"join_y_tolerance": 15}
     if page.page_number == 1:
-        table_start = 510
+        # The table header is a little box above the main table, so it gets detected as a separate table.
+        tables = page.find_tables()
+        table_start_y = tables[0].bbox[1]
         # im = page.to_image()
         # im.draw_hline(table_start)
         # im.save("page.png")
-        page = page.crop((0, table_start, page.width - 15, page.height - 15))
+        page = page.crop((0, table_start_y, page.width - 15, page.height - 15))
     return page, settings
 
 
