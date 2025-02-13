@@ -184,6 +184,8 @@ lookups:
         value: 2023-01-15
       - match: 12/21/16
         value: 2016-12-21
+      - match: 02/06/20025
+        value: 2025-02-06
   type.identifier: 
     options:
       - match: 136776577
