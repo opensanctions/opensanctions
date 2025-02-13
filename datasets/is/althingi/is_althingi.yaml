@@ -36,4 +36,4 @@ assertions:
       Person: 35
   max:
     schema_entities:
-      Person: 60
+      Person: 70
