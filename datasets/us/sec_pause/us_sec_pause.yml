@@ -43,6 +43,16 @@ data:
   lang: eng
 ci_test: false
 
+assertions:
+  min:
+    schema_entities:
+      Company: 1190
+      LegalEntity: 200
+  max:
+    schema_entities:
+      Company: 2780
+      LegalEntity: 480
+
 lookups:
   schema:
     options:
@@ -54,7 +64,6 @@ lookups:
         schema: LegalEntity
       - match: ""
         schema: LegalEntity
-
   contacts:
     options:
       - match:
@@ -68,7 +77,6 @@ lookups:
           - "(The former website http://scc-gov.org/ is no longer accessible. However, the current website is accessible.)"
           - "22 West 19th Street, Suite 701 New York, NY 10011 Phone: 1-718-289-3163 Fax: none www.williamburkeventures.com"
         prio: notes
-
   type.email:
     options:
       - match:
