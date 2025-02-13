@@ -105,7 +105,7 @@ def crawl_person(context: Context, url: str) -> None:
             person.add(prop, alias)
 
     # context.inspect(person)
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl_type(context: Context, type: str, query_id: str):

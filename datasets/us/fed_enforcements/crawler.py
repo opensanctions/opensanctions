@@ -83,7 +83,7 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
         if is_active:
             entity.add("topics", "reg.action")
 
-        context.emit(entity, target=is_active)
+        context.emit(entity)
         context.emit(sanction)
 
     # Name = the string that appears in the url column

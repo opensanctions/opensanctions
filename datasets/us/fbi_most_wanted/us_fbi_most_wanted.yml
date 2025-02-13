@@ -36,9 +36,17 @@ data:
   url: "https://www.fbi.gov/wanted/fugitives/@@castle.cms.querylisting/f7f80a1681ac41a08266bd0920c9d9d8?page=1"
   format: HTML
   lang: eng
-
 dates:
   formats: ["%B %d, %Y", "%d/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 385
+  max:
+    schema_entities:
+      Person: 900
+
 lookups:
   type.country:
     lowercase: true
