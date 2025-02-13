@@ -67,6 +67,20 @@ data:
   url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw
   format: XML
 
+assertions:
+  min:
+    schema_entities:
+      Person: 3400
+      Address: 1250
+      Organization: 970
+      Vessel: 1
+  max:
+    schema_entities:
+      Person: 8000
+      Address: 2900
+      Organization: 2300
+      Vessel: 50
+
 lookups:
   sanction.program:
     # in accordance with https://sanctionsmap.eu/#/main?search=%7B%22value%22:%22%22,%22searchType%22:%7B%7D%7D

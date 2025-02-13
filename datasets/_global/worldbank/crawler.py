@@ -62,5 +62,5 @@ def crawl(context: Context):
         sanction.add("program", data.get("DEBAR_REASON"))
         h.apply_date(sanction, "startDate", data.get("DEBAR_FROM_DATE"))
         h.apply_date(sanction, "endDate", data.get("DEBAR_TO_DATE"))
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
