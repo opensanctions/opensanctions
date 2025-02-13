@@ -36,9 +36,19 @@ data:
   url: https://www.gov.pl/web/finanse/lista-osob-i-podmiotow-wobec-ktorych-stosuje-sie-szczegolne-srodki-ograniczajace-na-podstawie-art-118-ustawy-z-dnia-1-marca-2018-r-o-przeciwdzialaniu-praniu-pieniedzy-i-finansowaniu-terroryzmu
   format: XLSX
   lang: pol
-
 dates:
   formats: ["%d.%m.%Y r."]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 330
+      LegalEntity: 80
+  max:
+    schema_entities:
+      Person: 790
+      LegalEntity: 190
+
 lookups:
   other_information:
     options:
@@ -52,7 +62,6 @@ lookups:
           nationality: nigeryjska
           address: Federalna Republika Nigerii
           country: Federalna Republika Nigerii
-
   type.country:
     normalize: true
     lowercase: true
