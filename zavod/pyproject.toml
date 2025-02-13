@@ -48,6 +48,7 @@ dependencies = [
     "xlrd == 2.0.1",
     "cryptography",
     "duckdb < 2.0.0",
+    "sentry-sdk >= 2.20.0, <3.0.0",
 ]
 
 [project.urls]

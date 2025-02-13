@@ -1,20 +1,22 @@
-import sys
 import logging
-import structlog
 import os
 import re
 from pathlib import Path
 from typing import Callable, Optional
+from typing import Dict, List, Any, MutableMapping
+
+import structlog
+import sys
 from lxml.etree import _Element, tostring
 from lxml.html import HtmlElement
-from followthemoney.schema import Schema
-
-from typing import Dict, List, Any, MutableMapping
-from structlog.stdlib import get_logger as get_raw_logger
 from structlog.contextvars import merge_contextvars
+from structlog.stdlib import get_logger as get_raw_logger
 from structlog.types import Processor
 
+import sentry_sdk
+from followthemoney.schema import Schema
 from zavod import settings
+from zavod.sentry import SentryProcessor, SENTRY_FINGERPRINT_VARIABLE_MESSAGE
 
 Event = MutableMapping[str, str]
 
@@ -99,8 +101,27 @@ def configure_redactor() -> Callable[[Any, str, Event], Event]:
     return RedactingProcessor(pattern_map)
 
 
+def configure_sentry_integration() -> None:
+    if settings.ENABLE_SENTRY:
+        if not settings.SENTRY_DSN:
+            raise RuntimeError("Sentry integration is enabled, but not DSN set.")
+        if not settings.SENTRY_ENVIRONMENT:
+            raise RuntimeError("Sentry integration is enabled, but no environment set.")
+
+        sentry_sdk.init(
+            dsn=settings.SENTRY_DSN,
+            environment=settings.SENTRY_ENVIRONMENT,
+            auto_enabling_integrations=False,
+            disabled_integrations=[
+                # We disable the default logging integration because we have our custom structlog Processor
+                sentry_sdk.integrations.logging.LoggingIntegration  # type: ignore
+            ],
+        )
+
+
 def configure_logging(level: int = logging.DEBUG) -> None:
     """Configure log levels and structured logging."""
+
     processors: List[Processor] = [
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
@@ -111,6 +132,18 @@ def configure_logging(level: int = logging.DEBUG) -> None:
         structlog.processors.UnicodeDecoder(),
         log_issue,
     ]
+    if settings.ENABLE_SENTRY:
+        sentry_processor = SentryProcessor(
+            event_level=logging.WARNING,
+            event_dict_as_extra=True,
+            # Attach the dataset name as a tag in Sentry
+            tag_keys=["dataset"],
+            # Disable the default grouping magic, we only want to group by message and dataset. Otherwise, log messages
+            # along the lines of "Problem with entity <id>" might be grouped by the internal magic, even though they are
+            # actually separate data issues.
+            fingerprint=[SENTRY_FINGERPRINT_VARIABLE_MESSAGE, "{{ tag.dataset }}"],
+        )
+        processors.append(sentry_processor)
 
     # Note: Redaction is only happening on string values, so make sure production
     # environments format logs as strings before the redaction processor.
