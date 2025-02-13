@@ -71,7 +71,7 @@ def crawl_item(fugitive_url: str, context: Context):
     for key, val in info_dict.items():
         entity.add("notes", f"{key}: {val}")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     # context.audit_data(info_dict)
 
 

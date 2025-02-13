@@ -43,8 +43,17 @@ publisher:
 data:
   url: "https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_kb_article_page&sys_id=c22d1833dbb8d300d0a370131f9619f0"
   format: XLSX
-
 dates: 
   formats: ["%B %Y", "%B, %Y", "%B,, %Y"]
   months: 
     "February": "Febuary"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 380
+      LegalEntity: 260
+  max:
+    schema_entities:
+      Person: 890
+      LegalEntity: 610
