@@ -1032,3 +1032,6 @@ lookups:
         names:
           - Summit Planning Group Inc
           - Richard Urciuoli
+      - match: becton, dickinson, and company
+        names:
+          - Becton, Dickinson and Company  # This is a full company name, see Q813780
