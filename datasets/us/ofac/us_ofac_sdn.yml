@@ -39,6 +39,30 @@ data:
   format: XML
   lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      Address: 13720
+      Organization: 7330
+      Person: 6245
+      Vessel: 995
+      CryptoWallet: 570
+      Airplane: 320
+      Company: 20
+      Security: 5
+      LegalEntity: 3
+  max:
+    schema_entities:
+      Address: 32280
+      Organization: 17245
+      Person: 14690
+      Vessel: 2345
+      CryptoWallet: 1340
+      Airplane: 750
+      Company: 50
+      Security: 50
+      LegalEntity: 50
+
 lookups:
   relations:
     options:
