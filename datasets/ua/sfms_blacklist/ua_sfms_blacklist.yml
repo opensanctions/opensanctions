@@ -37,9 +37,19 @@ data:
   url: https://fiu.gov.ua/assets/userfiles/Terror/BlackListFull.xml
   format: XML
 ci_test: false
-
 dates: 
   formats: ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y", "%d %b. %Y", "%d %b.%Y", "%d.%m.%Y", "%b. %Y", "c. %Y", "%B %d, %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 580
+      LegalEntity: 160
+  max:
+    schema_entities:
+      Person: 1350
+      LegalEntity: 380
+
 lookups:
   type.address:
     lowercase: true
