@@ -35,5 +35,5 @@ def crawl(context: Context) -> None:
             sanction.add("startDate", row.pop("Start date", None))
             sanction.add("endDate", row.pop("End date", None))
             context.emit(sanction)
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.audit_data(row)
