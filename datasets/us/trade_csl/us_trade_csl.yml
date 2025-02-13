@@ -46,9 +46,27 @@ url: https://www.trade.gov/consolidated-screening-list
 data:
   url: https://api.trade.gov/static/consolidated_screening_list/consolidated.json
   format: JSON
-
 dates:
   formats: ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 7590
+      Person: 6310
+      LegalEntity: 3355
+      Vessel: 995
+      Airplane: 320
+      Address: 15
+  max:
+    schema_entities:
+      Organization: 17850
+      Person: 14850
+      LegalEntity: 7900
+      Vessel: 2350
+      Airplane: 750
+      Address: 35
+
 lookups:
   type:
     options:
@@ -63,7 +81,6 @@ lookups:
         value: Vessel
       - match: Aircraft
         value: Airplane
-
   name_with_information:
     options:
       - match: The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located.  This includes the national armed services (army and air force), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Republic of Belarus.  All addresses located in Belarus.

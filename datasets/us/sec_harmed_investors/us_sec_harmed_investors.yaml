@@ -27,6 +27,15 @@ url: https://www.sec.gov/enforce/information-for-harmed-investors
 data:
   url: https://www.sec.gov/enforce/information-for-harmed-investors
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 670
+  max:
+    schema_entities:
+      LegalEntity: 1570
+
 lookups:
   comma_names:
     lowercase: true
