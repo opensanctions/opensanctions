@@ -51,5 +51,5 @@ def crawl(context: Context):
 
             sanction = h.make_sanction(context, entity)
             sanction.add("sourceUrl", url)
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(sanction)

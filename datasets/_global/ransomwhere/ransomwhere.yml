@@ -24,3 +24,11 @@ url: https://ransomwhe.re/#browse
 data:
   url: https://api.ransomwhe.re/export
   format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      CryptoWallet: 9500
+  max:
+    schema_entities:
+      CryptoWallet: 22370

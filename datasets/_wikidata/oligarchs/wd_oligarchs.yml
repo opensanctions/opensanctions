@@ -36,3 +36,11 @@ url: https://docs.google.com/spreadsheets/d/1oLw_WYZAb1557RMhyT9UsYj7186kjxA0X8z
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRNCeAOt-y1n9JLPOq41q29tnRBTP1vpc6gxwM_DyWwWCdz09s15VtMA9QebBrwoxjUdUZYMR6Y2WJ0/pub?gid=856092907&single=true&output=csv
   format: CSV
+
+assertions:
+  min:
+    schema_entities:
+      Person: 140
+  max:
+    schema_entities:
+      Person: 330

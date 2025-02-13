@@ -40,9 +40,17 @@ data:
   format: HTML
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
-
 dates: 
   formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 90
+  max:
+    schema_entities:
+      Person: 200
+
 lookups:
   type.country:
     options:
