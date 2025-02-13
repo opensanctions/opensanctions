@@ -47,6 +47,9 @@ assertions:
     schema_entities:
       Person: 480
       Company: 180
+    property_values:
+      Sanction:
+        endDate: 3
   max:
     schema_entities:
       Person: 700

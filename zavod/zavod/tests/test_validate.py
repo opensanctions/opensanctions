@@ -1,17 +1,18 @@
 from typing import Type
+
 from structlog.testing import capture_logs
 
+from zavod.archive import clear_data_path
 from zavod.context import Context
+from zavod.crawl import crawl_dataset
+from zavod.integration import get_dataset_linker
 from zavod.meta.dataset import Dataset
 from zavod.store import get_store
-from zavod.integration import get_dataset_linker
 from zavod.validators import (
     DanglingReferencesValidator,
     SelfReferenceValidator,
     EmptyValidator,
 )
-from zavod.archive import clear_data_path
-from zavod.crawl import crawl_dataset
 from zavod.validators.assertions import AssertionsValidator
 from zavod.validators.common import BaseValidator
 
@@ -88,6 +89,10 @@ def test_assertions(testdataset3) -> None:
     ) in logs, logs
     assert (
         "warning: Assertion failed for value 6: <Assertion country_count gte 7>" in logs
+    ), logs
+    assert (
+        "warning: Assertion failed for value 7: <Assertion property_values_count gte 11 filter: property_values=('Company', 'name')>"
+        in logs
     ), logs
     assert "error: One or more assertions failed." in logs, logs
     assert validator.abort is True
