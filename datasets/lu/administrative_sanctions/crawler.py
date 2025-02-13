@@ -7,7 +7,7 @@ from zavod import helpers as h
 
 SUBTITLE_PATTERN = re.compile(
     r"""
-^(Sanctions?|amende)\s(administratives?)\s
+^(Sanctions?|Décisions?|amende)\s(administratives?)\s
 ((prononcées?\s)?à\sl’encontre\sd[eu]|imposée\sà)\s
 (
     gestionnaire\sde\sfonds\sd’investissement\salternatifs?|
@@ -54,10 +54,11 @@ def crawl_item(card, context: Context):
                 names = cast("List[str]", url_to_name_res.names)
             else:
                 context.log.warning(
-                    "Can't find the name of the company",
-                    text=title.find(".//a").get("href"),
+                    "Can't find the name of the company in subtitle, skipping",
+                    subtitle=subtitle,
+                    url=title.find(".//a").get("href"),
                 )
-                names = [subtitle]
+                return
 
     # If the subtitle doesn't contain any names
     if not names:
