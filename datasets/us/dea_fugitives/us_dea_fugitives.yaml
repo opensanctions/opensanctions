@@ -32,6 +32,14 @@ data:
   format: HTML
 ci_test: false
 
+assertions:
+  min:
+    schema_entities:
+      Person: 520
+  max:
+    schema_entities:
+      Person: 1200
+
 lookups:
   type.gender:
     options:
