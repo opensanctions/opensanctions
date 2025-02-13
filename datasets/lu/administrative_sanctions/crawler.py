@@ -7,7 +7,7 @@ from zavod import helpers as h
 
 SUBTITLE_PATTERN = re.compile(
     r"""
-^(Sanctions?|amende)\s(administratives?)\s
+^(Sanctions?|Décisions?|amende)\s(administratives?)\s
 ((prononcées?\s)?à\sl’encontre\sd[eu]|imposée\sà)\s
 (
     gestionnaire\sde\sfonds\sd’investissement\salternatifs?|
