@@ -3,7 +3,7 @@ from normality.cleaning import collapse_spaces
 from followthemoney.types import registry
 
 from zavod import Context, helpers as h
-from zavod.shed.internal_data import fetch_internal_data, list_internal_data
+from zavod.shed.internal_data import fetch_internal_data
 
 
 def crawl_row(context: Context, row: list) -> None:
@@ -30,7 +30,7 @@ def crawl_row(context: Context, row: list) -> None:
     entity = context.make(schema.schema)
     entity.id = context.make_id(id, name, reg_date)
     entity.add("name", name)
-    entity.add("classification", legal_form)
+    entity.add("legalForm", legal_form)
     if reg_date != "NULL":
         h.apply_date(entity, "incorporationDate", reg_date)
     for add in h.multi_split(row.pop("address"), ["; ", " / "]):
@@ -109,33 +109,29 @@ def emit_rel(
 
 def crawl(context: Context) -> None:
     local_path = context.get_resource_path("companyinfo_v3.csv")
-    for blob in list_internal_data("ge_ti_companies/"):
-        if not blob.endswith(".csv"):
-            continue
+    fetch_internal_data("ge_ti_companies/companyinfo_v3.csv", local_path)
+    with open(local_path, "r", encoding="utf-8") as fh:
+        reader = csv.reader(fh, delimiter=";")
+        original_headers = next(reader)
 
-        fetch_internal_data(blob, local_path)
-        context.log.info("Parsing: %s" % blob)
+        # Translate headers to English
+        header_mapping = [
+            context.lookup_value("columns", collapse_spaces(cell))
+            for cell in original_headers
+        ]
+        if any(header is None for header in header_mapping):
+            context.log.warning(
+                "Some headers could not be translated.",
+                original_headers=original_headers,
+                header_maping=header_mapping,
+            )
+            return
 
-        with open(local_path, "r", encoding="utf-8") as fh:
-            reader = csv.reader(fh, delimiter=";")
-            original_headers = next(reader)
-
-            # Translate headers to English
-            header_mapping = [
-                context.lookup_value("columns", collapse_spaces(cell))
-                for cell in original_headers
-            ]
-            if any(header is None for header in header_mapping):
-                context.log.warning(
-                    "Some headers could not be translated.",
-                    original_headers=original_headers,
-                    header_maping=header_mapping,
-                )
-                return
-
-            # Use DictReader with mapped headers
-            dict_reader = csv.DictReader(fh, fieldnames=header_mapping, delimiter=";")
-            for index, row in enumerate(dict_reader):
-                crawl_row(context, row)
-                # if index >= 100:
-                #     break
+        # Use DictReader with mapped headers
+        dict_reader = csv.DictReader(fh, fieldnames=header_mapping, delimiter=";")
+        for index, row in enumerate(dict_reader):
+            if index > 0 and index % 10000 == 0:
+                context.log.info("Processed rows", rows=index)
+            crawl_row(context, row)
+            # if index >= 100:
+            #     break
