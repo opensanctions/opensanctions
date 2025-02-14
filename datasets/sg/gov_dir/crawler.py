@@ -252,10 +252,12 @@ def crawl_body(context: Context, link) -> Generator[str, None, None]:
 
 
 def crawl(context: Context):
-    assert is_pep(context, "Director of this")
-    assert is_pep(context, "Deputy director")
+    assert is_pep(context, "Director of this") is True
+    assert is_pep(context, "Deputy director") is True
     assert is_pep(context, "DEADBEEF") is None
-    assert not is_pep(context, "PA to jimbo")
+    assert is_pep(context, "Special Manager") is None
+    assert is_pep(context, "Manager of x") is False
+    assert is_pep(context, "PA to jimbo") is False
 
     crawled = set()
 

@@ -69,38 +69,61 @@ lookups:
       - is_pep: false
         weight: 1000
         contains:
-          - "quality service manager"
+          - quality service manager
+          - teacher
+          - lecturer
+          - educator
+          - consultant
+          - partner
+          - scientist
+          - engineer
+          - counsellor
+          - analyst
+          - guidance officer
+          - welfare officer
+          - statistician
         regex:
           - "^pa to"
           - "^personal assistant"
           - "^secretary to"
           - "^please contact"
           - "^administrative professional"
+          - "^manager"
+
       - is_pep: true
         wight: 10
         contains:
-          - "minister"
-          - "permanent secretary"
-          - "president"
-          - "member"
-          - "executive officer"
-          - "director"
-          - "chairman"
-          - "ceo"
-          - "mayor"
-          - "auditor-general"
-          - "justice"
-          - "judge"
-          - "deputy chief"
-          - "deputy secretary"
-          - "senior parliamentary secretary"
-          - "chief prosecutor"
-          - "head of secretariat"
-          - "senior adviser"
-          - "senior executive"
-          - "senior auditor"
-          - "ambassador"
-          - "chief executive"
+          - minister
+          - permanent secretary
+          - president
+          - member
+          - executive officer
+          - executive manager
+          - executive engineer
+          - lead executive
+          - director
+          - chairman
+          - ceo
+          - mayor
+          - auditor-general
+          - audit manager
+          - justice
+          - judge
+          - deputy chief
+          - deputy secretary
+          - senior parliamentary secretary
+          - chief prosecutor
+          - head of secretariat
+          - senior adviser
+          - senior executive
+          - senior auditor
+          - senior head
+          - senior finance manager
+          - ambassador
+          - chief executive
+          - dean
+          - commander
+
         regex:
           - "chief .+ officer"
           - "^executive manager"
