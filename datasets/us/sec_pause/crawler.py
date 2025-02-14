@@ -107,7 +107,7 @@ def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
         if address:
             entity.add("address", ", ".join(address))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 
