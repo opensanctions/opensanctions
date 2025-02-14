@@ -53,3 +53,11 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRlrR4f46lTXiAuIijw-0XcW1IXSlWv-duNEc8ha23SpRjGrP_RqJUjnAFv07VDvih025FS0gTdQZbh/pub?gid=0&single=true&output=csv
   format: CSV
   lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      Company: 120
+  max:
+    schema_entities:
+      Company: 280
