@@ -4,6 +4,7 @@ from rigour.mime.types import XLSX
 
 from zavod import Context, helpers as h
 
+SOURCE_URLS = ["https://aml.iq/?page_id=2169", "https://aml.iq/?page_id=2171"]
 PERSON_LISTS = [
     "2017",
     "2018",
@@ -15,6 +16,8 @@ PERSON_LISTS = [
     "2024",
     "2025",
 ]
+INT_LISTS = ["كيانات", "افراد"]
+IGNORE = ["الافراد", "القوائم المحلية "]
 YEAR_PATTERN = re.compile(r"\b(" + "|".join(PERSON_LISTS) + r")\b")
 COMPANY_NAME_REASON = r"\s*للتوسط ببيع وشراء العملات الاجنبية$"
 
@@ -45,10 +48,11 @@ def crawl_row(row: dict, context: Context):
         context.emit(entity)
         sanction = h.make_sanction(context, entity)
     else:
-        name = row.pop("asm_alshkhs")  # اسم الشخص
+        name = row.pop("asm_alshkhs", row.pop("asma_alashkhas", None))  # اسم الشخص
         person = context.make("Person")
         person.id = context.make_id(id, name)
         person.add("topics", "debarment")
+        person.add("nationality", row.pop("aljnsyt", None), lang="ara")  # الجنسية
         h.apply_date(person, "birthDate", row.pop("altwld"))  # التولد
         h.apply_name(
             person,
@@ -68,18 +72,37 @@ def crawl_row(row: dict, context: Context):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url, cache_days=1)
-    url = doc.xpath('//article[@id="post-2171"]//a/@href')
-    assert len(url) == 1, url
-    url = url[0]
-    assert url.endswith(".xlsx"), url
-    assert "القوائم-المحلية" in url, url  # Local lists
+    for url in SOURCE_URLS:
+        doc = context.fetch_html(url, cache_days=1)
+        # International list
+        if "page_id=2169" in url:
+            url = doc.xpath('//article[@id="post-2169"]//a/@href')
+            assert len(url) == 1, url
+            url = url[0]
+            assert url.endswith(".xlsx"), url
+            assert "القائمة-الدولية" in url, url
+            path = context.fetch_resource("international.xlsx", url)
+            context.export_resource(path, XLSX, title="international")
 
-    path = context.fetch_resource("source.xlsx", url)
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+            wb = load_workbook(path, read_only=True)
+            print(wb.sheetnames)
+            for sheet in INT_LISTS:
+                for row in h.parse_xlsx_sheet(context, wb[sheet], skiprows=3):
+                    crawl_row(row, context)
+        # Local lists
+        elif "page_id=2171" in url:
+            url = doc.xpath('//article[@id="post-2171"]//a/@href')
+            assert len(url) == 1, url
+            url = url[0]
+            assert url.endswith(".xlsx"), url
+            assert "القوائم-المحلية" in url, url  # Local lists
 
-    wb = load_workbook(path, read_only=True)
-    # Person lists and entity list
-    for year in PERSON_LISTS + ["الكيانات"]:  # Entities
-        for row in h.parse_xlsx_sheet(context, wb[year], skiprows=3):
-            crawl_row(row, context)
+            path = context.fetch_resource("local.xlsx", url)
+            context.export_resource(path, XLSX, title="local")
+
+            wb = load_workbook(path, read_only=True)
+            # Person lists and entity list
+            for year in PERSON_LISTS + ["الكيانات"]:  # Entities
+                for row in h.parse_xlsx_sheet(context, wb[year], skiprows=3):
+                    crawl_row(row, context)
+            assert set(wb.sheetnames) == set(PERSON_LISTS + ["الكيانات"] + IGNORE)

@@ -26,6 +26,8 @@ url: https://aml.iq/?page_id=2171
 data:
   url: https://aml.iq/?page_id=2171
   format: HTML
+dates: 
+  formats: ["%d-%m-%Y"]
 
 assertions:
   min:
