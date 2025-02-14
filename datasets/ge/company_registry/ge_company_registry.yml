@@ -7,7 +7,6 @@ coverage:
   end: 2024-08-13
 deploy:
   schedule: "@monthly"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >-
   List of companies registered in Georgia, sourced from the official Georgian Company Registry.
