@@ -6,11 +6,12 @@ coverage:
   start: 2025-02-13
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Designation of persons suspected to be connected with money laundering or terrorism financing.
+  Individuals and entities suspected of involvement in money laundering or terrorist 
+  financing activities.
 description: |
-  This dataset comprises information about designated persons and entities published by 
-  Anti-Money Laundering and Terrorist Financing Office.
-# to be reviewed
+  This dataset comprises information about individuals and entities designated by the 
+  Anti-Money Laundering and Terrorist Financing Office. It includes the names of companies 
+  and individuals, listing dates, and reasons for inclusion when available.
 publisher:
   name: Republic of Iraq Anti-Money Laundering and Countering Financing of Terrorism Office
   description: >
