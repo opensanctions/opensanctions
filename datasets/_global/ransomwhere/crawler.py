@@ -3,8 +3,6 @@ from rigour.mime.types import JSON
 
 from zavod import Context
 
-# from zavod import helpers as h
-
 
 def format_number(value):
     if value is not None:
@@ -28,4 +26,4 @@ def crawl(context: Context):
         wallet.add("amountUsd", format_number(entry.pop("balanceUSD")))
         wallet.add("currency", entry.pop("blockchain"))
         context.audit_data(entry, ignore=["transactions"])
-        context.emit(wallet, target=True)
+        context.emit(wallet)
