@@ -1025,3 +1025,20 @@ lookups:
           - Adriana Marglewska
           - Frédéric Marty
           - Olivier Blin
+      - match: 'La société Skylar France . Cédric Chaboud'
+        entities:
+          - Skylar France
+          - Cédric Chaboud
+      - match: 'La société DIGNE CONSEILS & GESTION . Patrice DIGNE'
+        entities:
+          - DIGNE CONSEILS & GESTION
+          - Patrice DIGNE
+      - match: "La Société de gestion des fonds d'investissement de Bretagne . Florent de Kersauson"
+        entities:
+          - Société de gestion des fonds d'investissement de Bretagne
+          - Florent de Kersauson
+      - match: 'La société Efigest Conseil<br /> M. Jean-Noël Vignon<br /> M. Sylvain Bruley'
+        entities:
+          - Efigest Conseil
+          - Jean-Noël Vignon
+          - Sylvain Bruley

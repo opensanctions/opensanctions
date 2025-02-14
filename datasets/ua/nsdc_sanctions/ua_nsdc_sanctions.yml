@@ -74,6 +74,7 @@ lookups:
           - "doc:d_passport"
           - "doc:f_passport"
           - "doc:s_passport"
+          - "doc:in_passport"
         identification:
           is_passport: true
       - match: "doc:residence"
