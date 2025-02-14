@@ -26,10 +26,20 @@ data:
   url: https://aml.iq/?page_id=2171
   format: HTML
 
-# assertions:
-#   min:
-#     schema_entities:
-#       Person: 270
-#   max:
-#     schema_entities:
-#       Person: 630
+assertions:
+  min:
+    schema_entities:
+      Person: 5000
+      LegalEntity: 25
+  max:
+    schema_entities:
+      Person: 10000
+      LegalEntity: 40
+
+lookups: 
+  type.date: 
+    options: 
+      - match:
+          - 'لا يوجد'
+          - /
+        value: null
