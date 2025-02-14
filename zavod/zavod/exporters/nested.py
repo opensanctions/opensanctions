@@ -3,7 +3,11 @@ from zavod.util import write_json
 from zavod.entity import Entity
 
 
-class NestedJSONExporter(Exporter):
+class NestedTargetsJSONExporter(Exporter):
+    TITLE = "Targets as nested JSON"
+    FILE_NAME = "targets.nested.json"
+    MIME_TYPE = "application/json"
+
     def setup(self) -> None:
         super().setup()
         self.fh = open(self.path, "wb")
@@ -16,15 +20,3 @@ class NestedJSONExporter(Exporter):
     def finish(self) -> None:
         self.fh.close()
         super().finish()
-
-
-class NestedTargetsJSONExporter(NestedJSONExporter):
-    TITLE = "Targets as nested JSON"
-    FILE_NAME = "targets.nested.json"
-    MIME_TYPE = "application/json"
-
-
-class NestedTopicsJSONExporter(NestedJSONExporter):
-    TITLE = "Relevant topic tagged entities as nested JSON"
-    FILE_NAME = "topics.nested.json"
-    MIME_TYPE = "application/json"
