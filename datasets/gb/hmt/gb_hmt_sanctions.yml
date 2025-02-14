@@ -853,138 +853,21 @@ lookups:
     options:
       - match: "Email: scot50@scn-net.org"
         value: scot50@scn-net.org
-      - match: (1) mobilisation@novorossia.co (2) novoross24@mail.ru (3) voenkom.dnr@mail.ru
-        values:
-          - mobilisation@novorossia.co
-          - novoross24@mail.ru
-          - voenkom.dnr@mail.ru
-      - match: (1) press@zalivkerch.com (2) sess@zalivkerch.com (3) uzis@zalivkerch.com
-        values:
-          - press@zalivkerch.com
-          - sess@zalivkerch.com
-          - uzis@zalivkerch.com
       - match:
           - www.140zavod.by
           - www.surena gc.com
         value: null
-      - match: (1) dalzavod@dcss.ru (2) ok@csdalzavod.ru
-        values:
-          - dalzavod@dcss.ru
-          - ok@csdalzavod.ru
-      - match: (1) dashtabadi@partosanat.com (2) Info@partosanat.com
-        values:
-          - dashtabadi@partosanat.com
-          - Info@partosanat.com
       - match:
-          (1) magnolia.byx@yandex.ua (2) sicomplit@i.ua (3) t_c82@inbox.ru (4)
-          zakupkj@chbrr.crimea.com
-        values:
-          - magnolia.byx@yandex.ua
-          - sicomplit@i.ua
-          - t_c82@inbox.ru
-          - zakupkj@chbrr.crimea.com
-      - match: (1) info@scf-group.ru (2) pr@scf-group.ru (3) ir@scf-group.ru
-        values:
-          - info@scf-group.ru
-          - pr@scf-group.ru
-          - ir@scf-group.ru
-      - match: (1) bk@smpbank.ru (2) Money@smpbank.ru (3) smpbank@smpbank.ru
-        values:
-          - bk@smpbank.ru
-          - Money@smpbank.ru
-          - smpbank@smpbank.ru
-      - match:
-          "(1) www.farhang gostar.net/gtb (2) www.gtbir.com (3) www.taghtiran.ir
-          (Email address): (1) gtb@farhanggostar.net (2) hnourib@yahoo.com (3) office@taghtiran.ir
-          (4) taghtiran@gtbir.com"
-        values:
-          - gtb@farhanggostar.net
-          - hnourib@yahoo.com
-          - office@taghtiran.ir
-          - taghtiran@gtbir.com
-      - match:
-          (1) H.S@nvco.com (2) H.Sharifi@nvco.com (3) info@nvco.com (4) Marketing@nvco.com
-          (5) Mostafavi@nvco.com
-        values:
-          - H.S@nvco.com
-          - H.Sharifi@nvco.com
-          - info@nvco.com
-          - Marketing@nvco.com
-          - Mostafavi@nvco.com
-      - match: (1) spccom1@scs-net.org (2) spccom2@scs-net.org
-        values:
-          - spccom2@scs‐net.org
-          - spccom1@scsnet.org
-      - match: (1) ermakova@intds.ru (2) lantsova@intgs.ru
-        values:
-          - ermakova@intds.ru
-          - lantsova@intgs.ru
-      - match: request@mehr fci.ir
-        value: request@mehr-fci.ir
-      - match: (1) info@radioautomatic.ru (2) sale@radioautomatic.ru
-        values:
-          - info@radioautomatic.ru
-          - sale@radioautomatic.ru
-      - match:
-          (1) info@stepfasteners.com (2) miladjafari@ekolay.net (3) purchase@stepfasteners.com
-          (4) sales@stepfasteners.com
-        values:
-          - info@stepfasteners.com
-          - miladjafari@ekolay.net
-          - purchase@stepfasteners.com
-          - sales@stepfasteners.com
-      - match: (1) mohammadreza.alizadeh@schillernovin.ir (2) schniller@dpimail.net
-        values:
-          - mohammadreza.alizadeh@schillernovin.ir
-          - schniller@dpimail.net
+          - www.farhang gostar.net/gtb
+          - www.gtbir.com
+          - "www.taghtiran.ir (Email address):"
+        value: null
       - match: and millim@silibank.com
         value: millim@silibank.com
-      - match: (1) info@zala.aero (2) 20shrhrabota@gmail.com
-        values:
-          - info@zala.aero
-          - 20shrhrabota@gmail.com
       - match: info@etemad mobin.com
         value: info@etemad-mobin.com
-      - match: (1) Info@sasta.ru (2) sastalogist@yandex.ru
-        values:
-          - Info@sasta.ru
-          - sastalogist@yandex.ru
-      - match: (1) Info@bpk-spb.ru (2) service@bpk.spb.ru
-        values:
-          - Info@bpk-spb.ru
-          - service@bpk.spb.ru
-      - match: (1) azia@aziaship.com (2) business@aziaship.com
-        values:
-          - azia@aziaship.com
-          - business@aziaship.com
-      - match: (1) perla0606@mail.ru (2) dvp32@sev.gov.ru (3) andrewperla@gmail.com
-        values:
-          - perla0606@mail.ru
-          - dvp32@sev.gov.ru
-          - andrewperla@gmail.com
-      - match: (1) natupikin@mail.ru (2) kurnikoff@yandex.ru (3) nikolay.tupikin@gmail.com
-        values:
-          - natupikin@mail.ru
-          - kurnikoff@yandex.ru
-          - nikolay.tupikin@gmail.com
-      - match: (1) e3000@mail.ru (2) mrodionov659@gmail.com
-        values:
-          - e3000@mail.ru
-          - mrodionov659@gmail.com
-      - match: (1) accountant@virmavia.com (2) natalia.khirevich@gmail.com
-        values:
-          - accountant@virmavia.com
-          - natalia.khirevich@gmail.com
-      - match: (1) contact@bloodandhonourworldwide.co.uk (2) general@bloodandhonourworldwide.co.uk
-        values:
-          - contact@bloodandhonourworldwide.co.uk
-          - general@bloodandhonourworldwide.co.uk
-      - match: (1) lr-ext@surgutneftegas.ru (2) office@surgutneftegas.ru (3) 411555@surgutneftegas.ru (4) press.ext@surgutneftegas.ru
-        values:
-          - lr-ext@surgutneftegas.ru
-          - office@surgutneftegas.ru
-          - 411555@surgutneftegas.ru
-          - press.ext@surgutneftegas.ru
+      - match: request@mehr fci.ir
+        value: request@mehr-fci.ir
 
   type.gender:
     lowercase: true
