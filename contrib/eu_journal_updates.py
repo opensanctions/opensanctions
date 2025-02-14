@@ -1,23 +1,24 @@
 import logging
-from pathlib import Path
-import sys
-from typing import Optional
 import os
+import re
+import sys
+from pathlib import Path
+from typing import Optional
 from urllib.parse import urlencode
+
 import click
 import requests
-from zeep import Client
-from zeep.wsse.username import UsernameToken
-from zeep.settings import Settings
+from banal import hash_data
 from lxml import etree
 from lxml.etree import _Element
-from banal import hash_data
+from zeep import Client
+from zeep.settings import Settings
+from zeep.wsse.username import UsernameToken
 
-from zavod import Context
 import zavod.helpers as h
+from zavod import Context
 from zavod.logs import configure_logging
 from zavod.meta import load_dataset_from_path
-
 
 DATASET_PATH = Path("datasets/eu/journal_sanctions/eu_journal_sanctions.yml")
 REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
@@ -32,12 +33,13 @@ SEEN_PATH = Path(os.environ["EU_JOURNAL_SEEN_PATH"])
 # This selects the channel and includes a secret authorising sending messages.
 SLACK_WEBHOOK_URL = os.environ["SLACK_WEBHOOK_URL"]
 
-
 SLACK_ESCAPES = [
     ("&", "&amp;"),
     ("<", "&lt;"),
     (">", "&gt;"),
 ]
+
+REGEX_CORRIG = re.compile(r"R\(\d+\)$")
 
 
 def slack_escape(string):
@@ -58,6 +60,11 @@ def expert_query(
     page_num: int,
     cache_days: Optional[int] = None,
 ) -> _Element:
+    """ "
+    Equivalent to Expert Search on the eur-lex website.
+
+    https://eur-lex.europa.eu/expert-search-form.html
+    """
     args = [query, page_num, PAGE_SIZE, "en"]
     # Our search language is English. That means we don't get titles for most
     # documents that don't have an English version. I have seen german
@@ -114,7 +121,7 @@ def get_original_celex(context: Context, url: str) -> Optional[str]:
         assert len(local_ids) == 1, (local_ids, url)
         return local_ids[0]
 
-    context.log.error(f"Could not extract CELEX number from {url}", rows=rows)
+    context.log.error(f"Could not extract CELEX number from {url}")
     return None
 
 
@@ -125,6 +132,8 @@ def query_celex(
     page_num=1,
     cache_days: Optional[int] = None,
 ):
+    # Expert query gives 500s when querying corrigendum CELEXes.
+    celex = REGEX_CORRIG.sub("", celex)
     query = f"MS={celex} OR EA={celex} OR LB={celex} ORDER BY XC DESC"
     context.log.info(f"Querying CELEX {celex}", page=page_num, query=query)
     try:
@@ -132,7 +141,7 @@ def query_celex(
             context, client, query, page_num=page_num, cache_days=cache_days
         )
     except requests.exceptions.HTTPError as e:
-        context.log.error(f"Error querying EUR-Lex", error=e, response=e.response.text)
+        context.log.error("Error querying EUR-Lex", error=e, response=e.response.text)
         return
     total_hits = int(soap_response.find(".//totalhits").text)
     num_hits = int(soap_response.find(".//numhits").text)
@@ -252,7 +261,7 @@ def send_message(context, message):
 @click.option("--debug", is_flag=True, default=False)
 @click.option("--slack", is_flag=True, default=False)
 @click.option("--update-seen", is_flag=True, default=False)
-@click.option("--cache_days", type=int, default=None)
+@click.option("--cache-days", type=int, default=None)
 def main(
     debug=False, slack=False, update_seen=False, cache_days: Optional[int] = None
 ) -> None:
@@ -275,6 +284,7 @@ def main(
     context.log.info(f"Found {len(new)} new items.")
 
     # Prepare the messages in advance to reduce the chance of partial failure
+    # and subsequent duplicate messages.
     messages = [item_message(i) for i in new.values()]
 
     # Announce the new files
@@ -293,7 +303,7 @@ def main(
         with open(SEEN_PATH.as_posix(), "a") as fh:
             for celex in new.keys():
                 fh.write(celex + "\n")
-        context.log.info(f"Updated seen file with new items.")
+        context.log.info("Updated seen file with new items.")
 
     # If there were sending errors, log them and exit nonzero to alert us.
     if errors:
