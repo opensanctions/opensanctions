@@ -36,6 +36,16 @@ data:
   format: CSV
   lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      Company: 1400
+      Person: 990
+  max:
+    schema_entities:
+      Company: 3300
+      Person: 2330
+
 lookups:
   type.country:
     options:

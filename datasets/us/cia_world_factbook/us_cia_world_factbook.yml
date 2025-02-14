@@ -33,9 +33,19 @@ data:
   url: "https://www.cia.gov/the-world-factbook/page-data/countries/page-data.json"
   format: JSON
   lang: eng
-
 dates:
   formats: ["%d %B %Y", "%B %Y", "%d %b %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Position: 390
+      Person: 360
+  max:
+    schema_entities:
+      Position: 925
+      Person: 850
+
 lookups:
   unparsed_holders:
     options:

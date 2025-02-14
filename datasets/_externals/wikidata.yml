@@ -73,6 +73,14 @@ config:
   schemata:
     - Person
 
+assertions:
+  min:
+    schema_entities:
+      Person: 330000
+  max:
+    schema_entities:
+      Person: 775000
+
 lookups:
   type.country:
     lowercase: true

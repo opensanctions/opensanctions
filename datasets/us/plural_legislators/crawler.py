@@ -131,7 +131,7 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
     )
 
     if pep_entities:
-        context.emit(person, target=True)
+        context.emit(person)
     for entity in pep_entities:
         context.emit(entity)
 

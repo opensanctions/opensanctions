@@ -23,7 +23,7 @@ def crawl_item(item: _Element, context: Context):
 
         sanction.add("sourceUrl", source_url)
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
 
 

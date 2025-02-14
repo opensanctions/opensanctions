@@ -1982,3 +1982,7 @@ lookups:
         code: null
         label: Kingdom of Patones
         decision: ignore
+      - match: Q43287
+        code: null
+        label: German Empire
+        decision: ignore  # historic
