@@ -129,9 +129,9 @@ def crawl(context: Context):
     # as 'Web Page, HTML only' in chrome to datasets/il/mod_crypto/source.html
     # We use chrome because curl sometimes gets a bot blocking response.
     #
-    # Then git diff datasets/il/mod_crypto/source.html
+    # Then git diff --word-diff=color datasets/il/mod_crypto/source.html
     # and see if there's anything in the content that's changed.
-    h.assert_dom_hash(container, "85dbad2db4e3cde8cc16e405274eeecb6178404f")
+    h.assert_dom_hash(container, "4232572bec290de579d19318c00e02c8e77cce38")
 
     # We don't support rowspan at the time of writing.
     #
