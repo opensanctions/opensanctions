@@ -1,7 +1,9 @@
+import logging
 import tarfile
 from normality import slugify
 from typing import Optional, IO
 
+import zavod.logs
 from followthemoney.util import make_entity_id
 from lxml import etree
 from zavod import Context, Entity
@@ -100,6 +102,9 @@ def parse_xml(context: Context, reader: IO[bytes], file_name: str):
 
 
 def crawl(context: Context):
+    # This crawler emits too many non-actionable warnings, so disable reporting to Sentry for now
+    # TODO(Leon Handreke): Clean this up https://github.com/opensanctions/opensanctions/issues/1908
+    zavod.logs.set_sentry_event_level(logging.ERROR)
     data_path = context.fetch_resource("data.tar.gz", context.data_url)
     idx = 0
     with tarfile.open(data_path, "r:gz") as f:

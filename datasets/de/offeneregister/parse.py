@@ -1,8 +1,11 @@
+import logging
 import re
 import bz2
 import orjson
 from functools import lru_cache
 from typing import Any, Optional
+
+import zavod.logs
 from followthemoney.util import join_text, make_entity_id
 
 from zavod import Context, Entity
@@ -174,6 +177,9 @@ def parse_record(context: Context, record: dict[str, Any]):
 
 
 def crawl(context: Context):
+    # This crawler emits too many non-actionable warnings, so disable reporting to Sentry for now
+    # TODO(Leon Handreke): Clean this up https://github.com/opensanctions/opensanctions/issues/1908
+    zavod.logs.set_sentry_event_level(logging.ERROR)
     data_fp = context.fetch_resource("de_companies_ocdata.jsonl.bz2", context.data_url)
     with bz2.open(data_fp) as f:
         idx = 0
