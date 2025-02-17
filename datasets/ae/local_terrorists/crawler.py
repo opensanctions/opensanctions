@@ -68,7 +68,12 @@ def parse_row(
 def parse_excel(context: Context, path: Path):
     xls = xlrd.open_workbook(path)
     for sheet in xls.sheets():
-        sanctioned = "رفع الإدراج" not in sheet.name
+        res = context.lookup("sanction_is_active", sheet.name)
+        if res is None:
+            context.log.warning("Unknown sheet", sheet=sheet.name)
+            is_active = True
+        else:
+            is_active = res.is_active
         headers: Optional[List[str]] = None
         for r in range(1, sheet.nrows):
             row = [h.convert_excel_cell(xls, c) for c in sheet.row(r)]
@@ -85,7 +90,7 @@ def parse_excel(context: Context, path: Path):
                 continue
             if headers is None:
                 continue
-            parse_row(context, headers, row, sanctioned)
+            parse_row(context, headers, row, is_active)
 
 
 def crawl(context: Context):
