@@ -31,6 +31,15 @@ publisher:
 data:
   url: https://www.sukobinteresa.hr/hr/dostupnost-informacija
   format: CSV
-
 dates: 
   formats: ["%d/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 2400
+      Position: 1900
+  max:
+    schema_entities:
+      Person: 5590
+      Position: 4500
