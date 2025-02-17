@@ -254,9 +254,12 @@ def xref(
 ) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
+    resolver.begin()
+    resolver.warm_linker()
     store = get_store(dataset, resolver)
     store.sync(clear=clear)
     blocking_xref(
+        resolver,
         store,
         dataset_state_path(dataset.name),
         limit=limit,
@@ -267,14 +270,16 @@ def xref(
         conflicting_match_threshold=conflicting_match_threshold,
         discount_internal=discount_internal,
     )
+    resolver.commit()
 
 
 @cli.command("resolver-prune", help="Remove dedupe candidates from resolver file")
 def xref_prune() -> None:
     try:
         resolver = get_resolver()
+        resolver.begin()
         resolver.prune()
-        resolver.save()
+        resolver.commit()
     except Exception:
         log.exception("Failed to prune resolver file")
         sys.exit(1)
@@ -286,15 +291,21 @@ def xref_prune() -> None:
 def dedupe(dataset_paths: List[Path], clear: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
+    resolver.begin()
+    resolver.warm_linker()
     store = get_store(dataset, resolver)
     store.sync(clear=clear)
+    resolver.commit()
     dedupe_ui(resolver, store, url_base="https://opensanctions.org/entities/%s/")
 
 
 @cli.command("explode-cluster", help="Destroy a cluster of deduplication matches")
 @click.argument("canonical_id", type=str)
 def explode(canonical_id: str) -> None:
-    explode_cluster(canonical_id)
+    resolver = get_resolver()
+    resolver.begin()
+    explode_cluster(resolver, canonical_id)
+    resolver.commit()
 
 
 @cli.command("merge-cluster", help="Merge multiple entities as duplicates")
@@ -302,7 +313,10 @@ def explode(canonical_id: str) -> None:
 @click.option("-f", "--force", is_flag=True, default=False)
 def merge(entity_ids: List[str], force: bool = False) -> None:
     try:
-        merge_entities(entity_ids, force=force)
+        resolver = get_resolver()
+        resolver.begin()
+        merge_entities(resolver, entity_ids, force=force)
+        resolver.commit()
     except ValueError as ve:
         log.error("Cannot merge: %s" % ve)
         sys.exit(1)
@@ -377,8 +391,8 @@ def summarize(
     """
     try:
         dataset = _load_dataset(dataset_path)
-        resolver = get_resolver()
-        store = get_store(dataset, resolver)
+        linker = get_dataset_linker(dataset)
+        store = get_store(dataset, linker)
         store.sync(clear=clear)
         view = store.view(dataset, external=False)
         _summarize(view, schema, from_prop, link_props, to_prop, to_props)
@@ -414,6 +428,8 @@ def wd_up(
     """
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
+    resolver.begin()
+    resolver.warm_linker()
     store = get_store(dataset, resolver)
     store.sync(clear=clear)
     run_app(
@@ -423,6 +439,7 @@ def wd_up(
         country_adjective=country_adjective,
         focus_dataset=focus_dataset,
     )
+    resolver.commit()
 
 
 if __name__ == "__main__":

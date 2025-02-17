@@ -1,13 +1,14 @@
 from typing import List, Optional, TYPE_CHECKING
 from pathlib import Path
-from functools import cache
-from zavod.entity import Entity
+from sqlalchemy import MetaData, create_engine
+
 from followthemoney import model
 from nomenklatura.xref import xref
 from nomenklatura.resolver import Resolver, Identifier, Linker
 from nomenklatura.judgement import Judgement
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
+from zavod.entity import Entity
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
@@ -18,33 +19,43 @@ if TYPE_CHECKING:
 
 log = get_logger(__name__)
 AUTO_USER = "zavod/xref"
+WARNED_EPHEMERAL = False
+EPHEMERAL_WARNING = (
+    "No database URI configured."
+    " If you want deduplication to be persistent, set DATABASE_URI."
+)
 
 
-def _get_resolver_path() -> Path:
-    """Get the path to the deduplication resolver."""
-    if settings.RESOLVER_PATH is None:
-        raise RuntimeError("Please set $ZAVOD_RESOLVER_PATH.")
-    return Path(settings.RESOLVER_PATH)
-
-
-@cache
 def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
-    path = _get_resolver_path()
-    log.info("Loading resolver from: %s" % path.as_posix())
-    return Resolver.load(path)
+    database_uri = settings.DATABASE_URI
+    if database_uri is None:
+        database_uri = "sqlite:///:memory:"
+        global WARNED_EPHEMERAL
+        if not WARNED_EPHEMERAL:
+            log.warn(EPHEMERAL_WARNING)
+            WARNED_EPHEMERAL = True
+    engine = create_engine(database_uri)
+    metadata = MetaData()
+    resolver = Resolver[Entity](engine, metadata, create=True)
+    log.info("Using resolver: %r" % resolver)
+    return resolver
 
 
 def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
     """Get a resolver linker for the given dataset."""
     if not dataset.resolve:
         return Linker[Entity]({})
-    path = _get_resolver_path()
-    log.info("Loading linker from: %s" % path.as_posix())
-    return Resolver.load_linker(path)
+    resolver = get_resolver()
+    log.info("Loading linker from: %r" % resolver)
+    resolver.begin()
+    linker = resolver.get_linker()
+    resolver.rollback()
+    return linker
 
 
 def blocking_xref(
+    resolver: Resolver[Entity],
     store: "Store",
     state_path: Path,
     limit: int = 5000,
@@ -59,7 +70,6 @@ def blocking_xref(
     dataset against each other, and stores the highest-scoring candidates for human
     review. Candidates above the given threshold score will be merged automatically.
     """
-    resolver = get_resolver()
     resolver.prune()
     log.info(
         "Xref running, algorithm: %r" % algorithm,
@@ -86,25 +96,23 @@ def blocking_xref(
         user=AUTO_USER,
         conflicting_match_threshold=conflicting_match_threshold,
     )
-    resolver.save()
 
 
-def explode_cluster(entity_id: str) -> None:
+def explode_cluster(resolver: Resolver[Entity], entity_id: str) -> None:
     """Destroy a cluster of deduplication matches."""
-    resolver = get_resolver()
     canonical_id = resolver.get_canonical(entity_id)
     for part_id in resolver.explode(canonical_id):
         log.info("Restore separate entity", entity=part_id)
-    resolver.save()
 
 
-def merge_entities(entity_ids: List[str], force: bool = False) -> str:
+def merge_entities(
+    resolver: Resolver[Entity], entity_ids: List[str], force: bool = False
+) -> str:
     """Merge multiple entities into a canonical identity. This should be really easy
     but there are cases where a negative (or "unsure") judgement has been made, and
     needs to be overridden. This is activated via the `force` flag."""
     if len(entity_ids) < 2:
         raise ValueError("Need multiple IDs to merge!")
-    resolver = get_resolver()
     canonical_id = resolver.get_canonical(entity_ids[0])
     for other_id_ in entity_ids[1:]:
         other_id = Identifier.get(other_id_)
@@ -126,6 +134,5 @@ def merge_entities(entity_ids: List[str], force: bool = False) -> str:
         log.info("Merge: %s -> %s" % (other_id, canonical_id))
         canonical_id_ = resolver.decide(canonical_id, other_id, Judgement.POSITIVE)
         canonical_id = str(canonical_id_)
-    resolver.save()
     log.info("Canonical: %s" % canonical_id)
     return str(canonical_id)
