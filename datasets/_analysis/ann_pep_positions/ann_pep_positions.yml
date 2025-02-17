@@ -40,3 +40,11 @@ inputs:
   - sy_obsalytics_opensyr
   - md_rise_profiles
   - kp_rusi_reports
+
+assertions:
+  min:
+    schema_entities:
+      Position: 87000
+  max:
+    schema_entities:
+      Position: 204000
