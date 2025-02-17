@@ -95,3 +95,15 @@ config:
     - Company
     - Organization
     # - LegalEntity
+
+assertions:
+  min:
+    schema_entities:
+      Security: 184000
+      Organization: 2000
+      Company: 250
+  max:
+    schema_entities:
+      Security: 433000
+      Organization: 4700
+      Company: 700
