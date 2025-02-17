@@ -12,7 +12,8 @@ description: |
   This dataset comprises information about individuals and entities designated by the 
   Anti-Money Laundering and Terrorist Financing Office. It covers both international and 
   local lists, featuring names of companies and individuals, listing dates, and reasons for
-  inclusion when available. 
+  inclusion when available. In most cases, the committee exercises its authority to freeze 
+  the movable and immovable funds and economic resources of the listed entities.
 publisher:
   name: Republic of Iraq Anti-Money Laundering and Countering Financing of Terrorism Office
   description: >
