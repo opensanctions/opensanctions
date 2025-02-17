@@ -84,3 +84,13 @@ config:
     - Company
     - Organization
     # - LegalEntity
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 650
+      Company: 320
+  max:
+    schema_entities:
+      LegalEntity: 1540
+      Company: 770
