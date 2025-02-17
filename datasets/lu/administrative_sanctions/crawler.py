@@ -54,10 +54,11 @@ def crawl_item(card, context: Context):
                 names = cast("List[str]", url_to_name_res.names)
             else:
                 context.log.warning(
-                    "Can't find the name of the company",
-                    text=title.find(".//a").get("href"),
+                    "Can't find the name of the company in subtitle, skipping",
+                    subtitle=subtitle,
+                    url=title.find(".//a").get("href"),
                 )
-                names = [subtitle]
+                return
 
     # If the subtitle doesn't contain any names
     if not names:
