@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import Dict, Optional, Set, IO, List, Any, Tuple
 from collections import defaultdict
@@ -6,7 +7,7 @@ from zipfile import ZipFile
 from lxml import etree
 from lxml.etree import _Element as Element, tostring
 
-
+import zavod.logs
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.shed.internal_data import fetch_internal_data, list_internal_data
@@ -725,6 +726,9 @@ def crawl_archive(context: Context, blob_name: str) -> None:
 
 
 def crawl(context: Context) -> None:
+    # This crawler emits too many non-actionable warnings, so disable reporting to Sentry for now
+    # TODO(Leon Handreke): Clean this up https://github.com/opensanctions/opensanctions/issues/1908
+    zavod.logs.set_sentry_event_level(logging.ERROR)
     # TODO: thread pool execution
     # Load abbreviations once using the context
     global abbreviations
