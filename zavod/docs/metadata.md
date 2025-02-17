@@ -86,6 +86,8 @@ We usually use the minima to set a baseline for what should be in the dataset, a
 It's a good idea to add assertions at the start of writing a crawler, and then see whether those expectations are met when the crawler is complete. A good rule of thumb for datasets that change over time is minima 10% below the expected number to allow normal variation, unless there's a known hard minimum, and a maximum around twice the expected number of entities to leave room to grow.
 
 - `assertions`
+  - `min` violations abort the crawler run.
+  - `max` violations only result in a Warning.
   - `min` and `max` can each have the following children
     - `schema_entities` asserts on the number of entities of a given schema
     - `country_entities` asserts on the number of entities associated with a country in any of its properties. All properties with type `country` are considered (among them the usual suspects such as `country`, `jurisdiction` and `citizenship`). Countries are given as ISO 3166-1 Alpha-2 country codes.
