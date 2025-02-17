@@ -59,9 +59,9 @@ assertions:
       Vessel: 2345
       CryptoWallet: 1340
       Airplane: 750
-      Company: 50
-      Security: 50
-      LegalEntity: 50
+      Company: 100
+      Security: 100
+      LegalEntity: 100
 
 lookups:
   relations:
