@@ -164,7 +164,7 @@ def crawl_common(
     context.emit(entity, target=is_sanctioned)
 
 
-def crawl_indiviudal(context: Context, item: Dict[str, Any]) -> None:
+def crawl_individual(context: Context, item: Dict[str, Any]) -> None:
     subject_id = item.pop("sid")
     entity = context.make("Person")
     entity.id = context.make_slug(subject_id, item.get("name"))
@@ -188,6 +188,6 @@ def crawl_legal(context: Context, item: Dict[str, Any]) -> None:
 
 def crawl(context: Context) -> None:
     for item in fetch_data(context, "/v2/subjects?subjectType=individual"):
-        crawl_indiviudal(context, item)
+        crawl_individual(context, item)
     for item in fetch_data(context, "/v2/subjects?subjectType=legal"):
         crawl_legal(context, item)

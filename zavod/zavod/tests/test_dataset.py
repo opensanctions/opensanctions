@@ -92,7 +92,7 @@ def test_validation(testdataset1: Dataset, testdataset3: Dataset):
     assert len(testdataset1.datasets) == 1
     assert len(testdataset1.inputs) == 0
     assert len(testdataset1.assertions) == 0
-    assert len(testdataset3.assertions) == 4
+    assert len(testdataset3.assertions) == 5
     assert isinstance(testdataset3.assertions[0], Assertion)
 
 

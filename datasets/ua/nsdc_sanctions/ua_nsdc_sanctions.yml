@@ -74,6 +74,7 @@ lookups:
           - "doc:d_passport"
           - "doc:f_passport"
           - "doc:s_passport"
+          - "doc:in_passport"
         identification:
           is_passport: true
       - match: "doc:residence"
@@ -240,6 +241,8 @@ lookups:
         value: 2771303400 [UA]
       - match: 1149102085714 [RU] росія (ООО «Ювас-транс»)
         value: 1149102085714 [RU]
+      - match: 'СН №471462 виданий 18.04.1997 Печерським РУ ГУ МВС України в м.Києві'
+        value: СН 471462
       - match: 
           - HE327605
           - 200710130N
@@ -270,17 +273,6 @@ lookups:
         value: 1086145000193
       - match: 10277001322195
         value: 1027700132195
-
-  type.number:
-    options:
-      - match: СН №471462 виданий 18.04.1997 Печерським РУ ГУ МВС України в м.Києві
-        value: 471462
-  type.passportNumber:
-    options:
-      - # If we get a lot more of these, add a custom lookup to avoid duplication in type.number and type.passportNumber
-      - match: СН №471462 виданий 18.04.1997 Печерським РУ ГУ МВС України в м.Києві
-        value: 471462
-
   attributes:
     options:
       - match:

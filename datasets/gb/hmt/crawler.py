@@ -227,14 +227,15 @@ def parse_row(context: Context, row: Dict[str, Any]):
     # ni_details = split_items(ni_detail)
     # TODO: where do I stuff this?
 
-    for phone in h.multi_split(row.pop("PhoneNumber", None), PUNCTUATION_SPLITS):
-        entity.add_cast("LegalEntity", "phone", phone)
-
-    for email in h.multi_split(row.pop("EmailAddress", None), PUNCTUATION_SPLITS):
-        entity.add_cast("LegalEntity", "email", email)
-
-    for website in h.multi_split(row.pop("Website", None), PUNCTUATION_SPLITS):
-        entity.add_cast("LegalEntity", "website", website)
+    phones = row.pop("PhoneNumber", None)
+    for phone in h.multi_split(phones, PUNCTUATION_SPLITS):
+        entity.add_cast("LegalEntity", "phone", phone, original_value=phones)
+    emails = row.pop("EmailAddress", None)
+    for email in h.multi_split(emails, PUNCTUATION_SPLITS + NUMBER_SPLITS):
+        entity.add_cast("LegalEntity", "email", email, original_value=emails)
+    websites = row.pop("Website", None)
+    for website in h.multi_split(websites, PUNCTUATION_SPLITS):
+        entity.add_cast("LegalEntity", "website", website, original_value=websites)
 
     parent_names = row.pop("Entity_ParentCompany", None)
     for name in parse_companies(context, parent_names):

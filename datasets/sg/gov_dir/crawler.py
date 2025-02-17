@@ -1,5 +1,5 @@
 import re
-from typing import Generator, Optional
+from typing import Optional
 from lxml import etree
 from lxml.html import HtmlElement
 from normality import collapse_spaces
@@ -76,6 +76,13 @@ POSITION_REPLACEMENTS = [
 ]
 
 
+class CrawlState(object):
+    """Track what's seen and categorised to help validate the crawl"""
+
+    seen_urls = set()
+    uncategorised = set()
+
+
 def make_position_name(rank, public_body, agency, section_name, hierarchy):
     if agency:
         position = f"{rank}, {section_name}, {agency}"
@@ -139,6 +146,7 @@ def check_expectations(context: Context, link, official_count, pep_count, expect
 
 def crawl_person(
     context: Context,
+    state: CrawlState,
     official: HtmlElement,
     link: str,
     public_body,
@@ -190,12 +198,16 @@ def crawl_person(
             context.emit(occupancy)
             return True
     elif categorisation.is_pep is None:
-        context.log.warning("Uncategorised position", position=position_name, url=link)
+        context.log.info("Uncategorised position", position=position_name, url=link)
+        state.uncategorised.add(position_name)
     return False
 
 
-def crawl_body(context: Context, link) -> Generator[str, None, None]:
-    """Crawl a government body page and yield own and sub-page URLs"""
+def crawl_body(context: Context, state: CrawlState, link) -> None:
+    """Crawl a government body page"""
+    if link in state.seen_urls:
+        return
+    state.seen_urls.add(link)
     expectations = PAGE_EXPECTATIONS.get(link, None)
     official_count = 0
     pep_count = 0
@@ -229,7 +241,14 @@ def crawl_body(context: Context, link) -> Generator[str, None, None]:
         for official in officials:
             official_count += 1
             is_pep = crawl_person(
-                context, official, link, public_body, agency, section_name, hierarchy
+                context,
+                state,
+                official,
+                link,
+                public_body,
+                agency,
+                section_name,
+                hierarchy,
             )
             if is_pep:
                 pep_count += 1
@@ -239,16 +258,15 @@ def crawl_body(context: Context, link) -> Generator[str, None, None]:
         for official in section.findall(".//li[@id]"):
             official_count += 1
             is_pep = crawl_person(
-                context, official, link, public_body, agency, "", hierarchy
+                context, state, official, link, public_body, agency, "", hierarchy
             )
             if is_pep:
                 pep_count += 1
 
     check_expectations(context, link, official_count, pep_count, expectations)
-    yield link
     subdivision_links = board_doc.xpath(".//div[contains(@class, 'tab-content')]//a")
     for subdivision_link in subdivision_links:
-        yield from crawl_body(context, subdivision_link.get("href"))
+        crawl_body(context, state, subdivision_link.get("href"))
 
 
 def crawl(context: Context):
@@ -259,8 +277,7 @@ def crawl(context: Context):
     assert is_pep(context, "Manager of x") is False
     assert is_pep(context, "PA to jimbo") is False
 
-    crawled = set()
-
+    state = CrawlState()
     for url in DATA_URLS:
         data_url = url
         doc = context.fetch_html(data_url, cache_days=1)
@@ -276,8 +293,13 @@ def crawl(context: Context):
             if org_name == "":
                 context.log.warning("No org name found", link=link)
                 continue
-            crawled.update(crawl_body(context, link))
+            crawl_body(context, state, link)
     expected = set(PAGE_EXPECTATIONS.keys())
-    missing = expected - crawled
+    missing = expected - state.seen_urls
     if missing:
         context.log.warning("Expected URLs not crawled", missing=missing)
+    if state.uncategorised:
+        context.log.warning(
+            "There are uncategorised positions for this crawler.",
+            count=len(state.uncategorised),
+        )
