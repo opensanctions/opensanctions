@@ -89,6 +89,16 @@ config:
     - LegalEntity
     - Person
 
+assertions:
+  min:
+    schema_entities:
+      Company: 4200
+      LegalEntity: 2500
+  max:
+    schema_entities:
+      Company: 9900
+      LegalEntity: 5800
+
 lookups:
   type.address:
     options:

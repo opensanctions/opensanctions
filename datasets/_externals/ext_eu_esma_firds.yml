@@ -81,3 +81,13 @@ config:
     - Company
     - Organization
     - Security
+
+assertions:
+  min:
+    schema_entities:
+      Security: 150500
+      Organization: 100
+  max:
+    schema_entities:
+      Security: 355000
+      Organization: 250

@@ -40,6 +40,16 @@ data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doExportSarisCsv?core=esma_registers_saris_new
   format: CSV
 
+assertions:
+  min:
+    schema_entities:
+      Security: 2000
+      LegalEntity: 1700
+  max:
+    schema_entities:
+      Security: 4800
+      LegalEntity: 3900
+
 lookups:
   reason_topic:
     options:
