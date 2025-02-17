@@ -52,3 +52,11 @@ config:
   type: nomenklatura.enrich.permid:PermIDEnricher
   api_token: ${PERMID_API_TOKEN}
   cache_days: 30
+
+assertions:
+  min:
+    schema_entities:
+      Company: 2800
+  max:
+    schema_entities:
+      Company: 6700

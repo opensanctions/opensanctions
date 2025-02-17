@@ -27,6 +27,8 @@ class Assertion(object):
 
     filter_attribute: Optional[str]
     filter_value: Optional[Any]
+    abort: bool
+    """Whether this assertion should cause validation to fail. If False, it merely warns."""
 
     def __init__(
         self,
@@ -41,6 +43,8 @@ class Assertion(object):
         self.threshold = threshold
         self.filter_attribute = filter_attribute
         self.filter_value = filter_value
+        # Only abort for at-least-n assertions, warn for at-most-n
+        self.abort = comparison == Comparison.GTE
 
     def __repr__(self) -> str:
         string = (

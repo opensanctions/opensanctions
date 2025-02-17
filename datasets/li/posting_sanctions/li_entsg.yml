@@ -34,6 +34,39 @@ data:
   url: https://www.llv.li/serviceportal2/amtsstellen/amt-fuer-volkswirtschaft/wirtschaft/entsendegesetz/uebertretungen.pdf
   format: PDF
   lang: deu
+dates:
+  formats:
+    - "%d.%m.%Y"
+    - "%d %b %Y"
+    - "%d %B %Y"
+    - "%d. %m %Y"
+  months:
+    "01":
+      - "Januar"
+      - "Jänner"
+    "02": "Februar"
+    "03": "März"
+    "04": "April"
+    "05": "Mai"
+    "06": "Juni"
+    "07": "Juli"
+    "08": "August"
+    "09": "September"
+    "10": "Oktober"
+    "11": "November"
+    "12": "Dezember"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 200
+      Company: 180
+      Address: 15
+  max:
+    schema_entities:
+      Person: 470
+      Company: 430
+      Address: 40
 
 lookups:
   classifications:
@@ -58,24 +91,3 @@ lookups:
         value: Tiefenackerstrasse 59, CH-9450 Altstätten
       - match: Langenhagstrasse 31, CH 9424 Rheineck
         value: Langenhagstrasse 31, CH-9424 Rheineck
-dates:
-  formats:
-    - "%d.%m.%Y"
-    - "%d %b %Y"
-    - "%d %B %Y"
-    - "%d. %m %Y"
-  months:
-    "01":
-      - "Januar"
-      - "Jänner"
-    "02": "Februar"
-    "03": "März"
-    "04": "April"
-    "05": "Mai"
-    "06": "Juni"
-    "07": "Juli"
-    "08": "August"
-    "09": "September"
-    "10": "Oktober"
-    "11": "November"
-    "12": "Dezember"

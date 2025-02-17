@@ -32,6 +32,14 @@ data:
   format: PDF
   lang: jpn
 
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 630
+  max:
+    schema_entities:
+      LegalEntity: 1500
+
 lookups:
   type.country:
     options:

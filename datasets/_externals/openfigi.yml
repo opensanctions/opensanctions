@@ -49,3 +49,11 @@ config:
   schemata:
     - Security
   cache_days: 90
+
+assertions:
+  min:
+    schema_entities:
+      Security: 35500
+  max:
+    schema_entities:
+      Security: 83500

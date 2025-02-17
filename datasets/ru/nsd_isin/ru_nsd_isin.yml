@@ -33,7 +33,6 @@ data:
   url: https://www.isin.ru/ru/ru_isin/news_c/
   format: HTML
   lang: rus
-
 dates:
   formats: ["%d %b %Y"]
   months:
@@ -49,6 +48,17 @@ dates:
     May: "мая"
     Feb: "февраля"
     Jan: "января"
+
+assertions:
+  min:
+    schema_entities:
+      Security: 15300
+      LegalEntity: 5300
+  max:
+    schema_entities:
+      Security: 36100
+      LegalEntity: 12500
+
 lookups:
   type.name:
     normalize: true
