@@ -57,7 +57,7 @@ def crawl_person(context: Context, cell: html.HtmlElement):
     name, crime, status = map(str.strip, match.groups())
 
     # only emit a person if the name is not unknown
-    unknown_spellings = ["Unknown", "Uknown", "unknown"]
+    unknown_spellings = ["Unknown", "Uknown", "unknown", "UNKNOWN"]
     if sum(name.count(x) for x in unknown_spellings) >= 1:
         return
 
@@ -87,7 +87,7 @@ def crawl_person(context: Context, cell: html.HtmlElement):
         person.add("hairColor", additional_info.get("hair_color"))
         person.add("height", additional_info.get("height"))
         person.add("weight", additional_info.get("weight"))
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context):

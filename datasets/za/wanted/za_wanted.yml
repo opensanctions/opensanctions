@@ -21,10 +21,17 @@ publisher:
   country: za
   official: true
   url: https://www.saps.gov.za/
-
 data:
   url: https://www.saps.gov.za/crimestop/wanted/list.php
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 400
+  max:
+    schema_entities:
+      Person: 920
 
 lookups: 
   type.number:
