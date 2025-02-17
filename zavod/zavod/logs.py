@@ -39,6 +39,11 @@ REDACT_MIN_LENGTH = 5
 URI_WITH_CREDENTIALS = r"(\w+)://[^:]+:[^@]+@"
 REGEX_URI_WITH_CREDENTIALS = re.compile(URI_WITH_CREDENTIALS)
 
+# Module level so we can modify the level later
+# After we've managed to regain control of whether we want to log warnings in Entity.add, we can probably
+# clean this up. See https://github.com/opensanctions/opensanctions/issues/1896
+_sentry_processor: Optional[SentryProcessor] = None
+
 
 class RedactingProcessor:
     """A structlog processor that redact sensitive information from log messages."""
@@ -119,6 +124,12 @@ def configure_sentry_integration() -> None:
         )
 
 
+def set_sentry_event_level(level: int) -> None:
+    """Set the level above which events are sent to Sentry."""
+    if _sentry_processor is not None:
+        _sentry_processor.event_level = level
+
+
 def configure_logging(level: int = logging.DEBUG) -> None:
     """Configure log levels and structured logging."""
 
@@ -133,7 +144,8 @@ def configure_logging(level: int = logging.DEBUG) -> None:
         log_issue,
     ]
     if settings.ENABLE_SENTRY:
-        sentry_processor = SentryProcessor(
+        global _sentry_processor
+        _sentry_processor = SentryProcessor(
             event_level=logging.WARNING,
             event_dict_as_extra=True,
             # Attach the dataset name as a tag in Sentry
@@ -143,7 +155,7 @@ def configure_logging(level: int = logging.DEBUG) -> None:
             # actually separate data issues.
             fingerprint=[SENTRY_FINGERPRINT_VARIABLE_MESSAGE, "{{ tag.dataset }}"],
         )
-        processors.append(sentry_processor)
+        processors.append(_sentry_processor)
 
     # Note: Redaction is only happening on string values, so make sure production
     # environments format logs as strings before the redaction processor.
