@@ -1,4 +1,4 @@
-title: Iraq Local Blocking Lists
+title: Iraq AML Blocking Lists
 entry_point: crawler.py
 prefix: iq-aml
 coverage:
@@ -7,11 +7,12 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Individuals and entities suspected of involvement in money laundering or terrorist 
-  financing activities.
+  financing activities, sourced from both international and local lists.
 description: |
   This dataset comprises information about individuals and entities designated by the 
-  Anti-Money Laundering and Terrorist Financing Office. It includes the names of companies 
-  and individuals, listing dates, and reasons for inclusion when available.
+  Anti-Money Laundering and Terrorist Financing Office. It covers both international and 
+  local lists, featuring names of companies and individuals, listing dates, and reasons for
+  inclusion when available. 
 publisher:
   name: Republic of Iraq Anti-Money Laundering and Countering Financing of Terrorism Office
   description: >
@@ -22,9 +23,9 @@ publisher:
   url: https://aml.iq/?lang=en
   official: true
   country: iq
-url: https://aml.iq/?page_id=2171
+url: https://aml.iq
 data:
-  url: https://aml.iq/?page_id=2171
+  url: https://aml.iq
   format: HTML
 dates: 
   formats: ["%d-%m-%Y"]
@@ -32,12 +33,12 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 5000
-      LegalEntity: 25
+      Person: 5200
+      LegalEntity: 35
   max:
     schema_entities:
       Person: 10000
-      LegalEntity: 40
+      LegalEntity: 80
 
 lookups: 
   type.date: 
