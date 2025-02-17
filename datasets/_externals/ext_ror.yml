@@ -71,3 +71,11 @@ config:
     - Organization
     - LegalEntity
     # - Person
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 210
+  max:
+    schema_entities:
+      Organization: 500
