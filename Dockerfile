@@ -2,7 +2,7 @@ FROM ubuntu:24.04 AS build
 
 ARG BUILD_DATE=static
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \
     && apt-get -qq -y install --no-install-recommends \
@@ -22,14 +22,15 @@ COPY zavod /opensanctions/zavod
 RUN pip install --no-cache-dir -e /opensanctions/zavod
 WORKDIR /opensanctions
 
+# ----------------------------------------------------------------------------------------
 FROM ubuntu:24.04 AS runtime
 
-LABEL org.opencontainers.image.title "OpenSanctions ETL"
-LABEL org.opencontainers.image.licenses MIT
-LABEL org.opencontainers.image.source https://github.com/opensanctions/opensanctions
+LABEL org.opencontainers.image.title="OpenSanctions ETL"
+LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.source=https://github.com/opensanctions/opensanctions
 ARG BUILD_DATE=static
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \
     && apt-get -qq -y install --no-install-recommends \
