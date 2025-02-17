@@ -33,6 +33,14 @@ data:
 dates:
   formats: ['%d.%m.%Y']
 
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 25
+  max:
+    schema_entities:
+      LegalEntity: 100
+
 lookups:
   type.url:
     options:

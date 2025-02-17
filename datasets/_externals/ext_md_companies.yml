@@ -66,3 +66,13 @@ config:
     - Organization
     - LegalEntity
     - Person
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 40
+      Company: 25
+  max:
+    schema_entities:
+      LegalEntity: 100
+      Company: 100
