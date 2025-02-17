@@ -74,7 +74,7 @@ def crawl_member(context: Context, bioguide_id: str):
 
     context.audit_data(member, ignore=IGNORE)
     if entities:
-        context.emit(person, target=True)
+        context.emit(person)
         for entity in entities:
             context.emit(entity)
 

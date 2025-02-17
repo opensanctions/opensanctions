@@ -40,6 +40,17 @@ publisher:
     government. Among other resources, The Library of Congress publishes
     [congress.gov](https://www.congress.gov/) and the beta [Congress.gov
     Application Programming Interface (API)](https://api.congress.gov/).
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1070
+      Position: 1
+  max:
+    schema_entities:
+      Person: 2500
+      Position: 4
+
 lookups:
   position:
     normalize: true

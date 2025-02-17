@@ -42,6 +42,22 @@ data:
   format: XML
   lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      Address: 440
+      Organization: 300
+      Security: 200
+      Person: 70
+      Company: 4
+  max:
+    schema_entities:
+      Address: 1030
+      Organization: 720
+      Security: 460
+      Person: 160
+      Company: 50
+
 lookups:
   type.address:
     lowercase: true
