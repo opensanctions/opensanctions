@@ -95,8 +95,8 @@ def crawl_named(
     h.apply_date(emp, "date", date)
     emp.add("role", "Manager found responsible for breaking the law")
     emp.add("sourceUrl", url)
-    context.emit(person, target=False)
-    context.emit(emp, target=False)
+    context.emit(person)
+    context.emit(emp)
     return company
 
 
@@ -141,7 +141,7 @@ def crawl_debarments(context: Context) -> None:
             entity.add("topics", "debarment")
 
         context.emit(sanction)
-        context.emit(entity, target=is_debarred)
+        context.emit(entity)
 
 
 def crawl_infractions(context: Context) -> None:
@@ -170,7 +170,7 @@ def crawl_infractions(context: Context) -> None:
         sanction.add("reason", violation)
         sanction.add("sourceUrl", INFRACTION_URL)
         context.emit(sanction)
-        context.emit(entity, target=True)
+        context.emit(entity)
 
 
 def crawl(context: Context) -> None:
