@@ -92,7 +92,7 @@ def crawl(context: Context):
 
         sanction = h.make_sanction(context, entity)
         sanction.add("reason", h.multi_split(holder.pop("type_of_wmd"), ",、\n"))
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
 
         context.audit_data(holder)
