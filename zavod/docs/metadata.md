@@ -87,35 +87,28 @@ It's a good idea to add assertions at the start of writing a crawler, and then s
 
 - `assertions`
   - `min` and `max` can each have the following children
-    - `schema_entities` - its children are Thing descendants with their value being an integer indicating the minimum or maximum number of entities of that schema
-    - `country_entities` - its children are ISO 3166-1 Alpha-2 country codes, with their value being an integer indicating the min or max entities with that country
-    - `countries` - its value is an integer indicating the min or max number of countries expected to come up in the dataset
+    - `schema_entities` asserts on the number of entities of a given schema
+    - `country_entities` asserts on the number of entities associated with a country in any of its properties. All properties with type `country` are considered (among them the usual suspects such as `country`, `jurisdiction` and `citizenship`). Countries are given as ISO 3166-1 Alpha-2 country codes.
+    - `countries` asserts on number of countries expected to come up in the dataset
+    - `entities_with_prop` asserts on the number of entities of a given schema that have a property set.
 
-
-e.g. the following means
-
-- at least 160 Persons
-- at least 30 Positions
-- at least 40 entities for the US
-- at least 30 entities for China
-- at least one entity for Brunei
-- at least 6 countries
-- at most 200 Persons
-- at most 40 Positions
 
 ```yaml
 assertions:
   min:
     schema_entities:
-      Person: 160
-      Position: 30
+      Person: 160  # at least 160 Person entities 
+      Position: 30  # at least 30 Position entities
     country_entities:
-      us: 40
-      cn: 30
-      bn: 1
-    countries: 6
+      us: 40  # at least 40 entities for the US
+      cn: 30  # at least 30 entities for China
+      bn: 1  # at least one entity for Brunei
+    countries: 6  # at least 6 countries come up
+    entities_with_prop:
+      Company:
+        taxNumber: 10  # at least 10 Companies have a tax number set
   max:
     schema_entities:
-      Person: 400
-      Position: 80
+      Person: 400  # at most 400 Person entities
+      Position: 80  # at most 80 Position entities
 ```
