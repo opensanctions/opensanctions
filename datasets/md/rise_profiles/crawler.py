@@ -196,7 +196,7 @@ def crawl(context: Context):
             entity = crawl_entity(context, link.get("href"))
             if entity:
                 entity.add("topics", "poi")
-                context.emit(entity, target=True)
+                context.emit(entity)
 
         query["br"] = query["br"] + len(profiles)
 
