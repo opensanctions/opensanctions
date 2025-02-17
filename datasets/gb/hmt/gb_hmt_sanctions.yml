@@ -33,12 +33,32 @@ data:
   url: https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml
   format: XML
   lang: eng
+dates:
+  formats: ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 
 # TODO: do we need a separate crawler for the UK Sanctions List?
 # https://www.gov.uk/government/publications/the-uk-sanctions-list
 
-dates:
-  formats: ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
+assertions:
+  min:
+    schema_entities:
+      Person: 3100
+      Address: 1300
+      LegalEntity: 790
+      Company: 190
+      Organization: 70
+      CryptoWallet: 15
+      Vessel: 10
+  max:
+    schema_entities:
+      Person: 7200
+      Address: 3000
+      LegalEntity: 1900
+      Company: 500
+      Organization: 150
+      CryptoWallet: 100
+      Vessel: 100
+
 lookups:
   sanction.program:
     options:
