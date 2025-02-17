@@ -80,3 +80,13 @@ config:
     - Company
     - Organization
     # - LegalEntity
+
+assertions:
+  min:
+    schema_entities:
+      Person: 5
+      Company: 5
+  max:
+    schema_entities:
+      Person: 50
+      Company: 50
