@@ -37,8 +37,8 @@ def get_value(stats: Dict[str, Any], assertion: Assertion) -> Optional[int]:
                 return None
             return cast(int, items[0]["count"])
 
-        case Metric.PROPERTY_VALUES_COUNT:
-            items = stats["things"]["property_values"]
+        case Metric.ENTITIES_WITH_PROP_COUNT:
+            items = stats["things"]["entities_with_prop"]
             items = [
                 i
                 for i in items
