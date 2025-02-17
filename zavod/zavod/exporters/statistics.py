@@ -42,7 +42,7 @@ def get_country_facets(countries: Dict[str, int]) -> List[Any]:
 SchemaProperty = namedtuple("SchemaProperty", ["schema", "property"])
 
 
-def get_property_values_facets(properties: Dict[SchemaProperty, int]) -> List[Any]:
+def get_entities_with_prop_facets(properties: Dict[SchemaProperty, int]) -> List[Any]:
     facets: List[Any] = []
     for prop, count in sorted(properties.items()):
         facet = {
@@ -64,7 +64,7 @@ class Statistics(object):
         self.thing_count = 0
         self.thing_countries: Dict[str, int] = defaultdict(int)
         self.thing_schemata: Dict[str, int] = defaultdict(int)
-        self.property_values_count: Dict[SchemaProperty, int] = defaultdict(int)
+        self.entities_with_prop_count: Dict[SchemaProperty, int] = defaultdict(int)
 
         self.target_count = 0
         self.target_countries: Dict[str, int] = defaultdict(int)
@@ -78,7 +78,7 @@ class Statistics(object):
         for prop_name, values in entity.properties.items():
             # We add 1 instead of len(values) here because we want to count the number of entities that have this
             # value set, not the number of values.
-            self.property_values_count[
+            self.entities_with_prop_count[
                 SchemaProperty(entity.schema.name, prop_name)
             ] += 1
 
@@ -116,8 +116,8 @@ class Statistics(object):
                 "total": self.thing_count,
                 "countries": get_country_facets(self.thing_countries),
                 "schemata": get_schema_facets(self.thing_schemata),
-                "property_values": get_property_values_facets(
-                    self.property_values_count
+                "entities_with_prop": get_entities_with_prop_facets(
+                    self.entities_with_prop_count
                 ),
             },
         }

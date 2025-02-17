@@ -13,7 +13,7 @@ class Metric(Enum):
     """Number of entities matching the filter in the dataset."""
     COUNTRY_COUNT = "country_count"
     """Number of distinct countries occurring in the dataset."""
-    PROPERTY_VALUES_COUNT = "property_values_count"
+    ENTITIES_WITH_PROP_COUNT = "entities_with_prop_count"
     """Number of entities with property values matching the filter in the dataset."""
 
 
@@ -76,24 +76,24 @@ def parse_metrics(
                 yield from parse_filters(
                     Metric.ENTITY_COUNT, comparison, "country", value
                 )
-            case "property_values" if isinstance(value, dict) and value != {}:
+            case "entities_with_prop" if isinstance(value, dict) and value != {}:
                 for schema_name, props in value.items():
                     for prop_name, threshold_value in props.items():
                         schema = model.get(schema_name)
                         if schema is None:
                             raise ValueError(
-                                f"Property value count assertion on unknown schema: {schema_name}:{prop_name}"
+                                f"Entities with prop assertion on unknown schema: {schema_name}:{prop_name}"
                             )
                         prop = schema.get(prop_name)
                         if prop is None:
                             raise ValueError(
-                                f"Property value count assertion on unknown property: {schema_name}:{prop_name}"
+                                f"Entities with prop assertion on unknown property: {schema_name}:{prop_name}"
                             )
                         yield Assertion(
-                            Metric.PROPERTY_VALUES_COUNT,
+                            Metric.ENTITIES_WITH_PROP_COUNT,
                             comparison,
                             threshold_value,
-                            "property_values",
+                            "entities_with_prop",
                             # We don't just put a Property.qname in the shape of "Schema:name" here because we want to
                             # assert not on qnames, which are the canonical name of a property (e.g. Thing.country), but
                             # on property values in entities of a specific type, like Company.country.

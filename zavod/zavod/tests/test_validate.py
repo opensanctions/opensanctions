@@ -91,7 +91,7 @@ def test_assertions(testdataset3) -> None:
         "warning: Assertion failed for value 6: <Assertion country_count gte 7>" in logs
     ), logs
     assert (
-        "warning: Assertion failed for value 7: <Assertion property_values_count gte 11 filter: property_values=('Company', 'name')>"
+        "warning: Assertion failed for value 7: <Assertion entities_with_prop_count gte 11 filter: entities_with_prop=('Company', 'name')>"
         in logs
     ), logs
     assert "error: One or more assertions failed." in logs, logs
