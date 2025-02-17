@@ -41,6 +41,7 @@ class Assertion(object):
         self.threshold = threshold
         self.filter_attribute = filter_attribute
         self.filter_value = filter_value
+        self.abort = comparison == Comparison.GTE
 
     def __repr__(self) -> str:
         string = (
