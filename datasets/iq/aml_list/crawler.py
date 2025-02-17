@@ -1,11 +1,13 @@
 import re
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
+from typing import Optional
 
 from zavod import Context, helpers as h
 
 SOURCE_URLS = ["https://aml.iq/?page_id=2169", "https://aml.iq/?page_id=2171"]
-PERSON_LISTS = [
+
+LOC_PERSON_LISTS = [
     "2017",
     "2018",
     "2019",
@@ -16,10 +18,36 @@ PERSON_LISTS = [
     "2024",
     "2025",
 ]
+LOC_ENT_LIST = ["الكيانات"]
+LOC_IGNORE_LIST = ["الافراد", "القوائم المحلية "]
 INT_LISTS = ["كيانات", "افراد"]
-IGNORE = ["الافراد", "القوائم المحلية "]
-YEAR_PATTERN = re.compile(r"\b(" + "|".join(PERSON_LISTS) + r")\b")
-COMPANY_NAME_REASON = r"\s*للتوسط ببيع وشراء العملات الاجنبية$"
+
+YEAR_PATTERN = re.compile(r"\b(" + "|".join(LOC_PERSON_LISTS) + r")\b")
+ENTITY_NAME_REASON = re.compile(r"\s*للتوسط ببيع وشراء العملات الاجنبية$")
+
+
+def clean_entity_name(entity_name: str) -> Optional[str]:
+    if entity_name:
+        match = ENTITY_NAME_REASON.search(entity_name)
+        if match:
+            return ENTITY_NAME_REASON.sub("", entity_name).strip()
+    return entity_name
+
+
+def extract_reason(entity_name: str) -> Optional[str]:
+    """Extracts the reason for listing from the entity name."""
+    if entity_name is None:
+        return None
+    match = ENTITY_NAME_REASON.search(entity_name)
+    return match.group().strip() if match else None
+
+
+def extract_listing_date(decision_number: str) -> Optional[str]:
+    """Extracts the listing year from the decision number."""
+    if decision_number is None:
+        return None
+    match = YEAR_PATTERN.search(decision_number)
+    return match.group(0) if match else None
 
 
 def crawl_row(row: dict, context: Context):
@@ -27,18 +55,9 @@ def crawl_row(row: dict, context: Context):
     id = row.pop("t")  # ت
     decision_number = row.pop("rqm_alqrar")  # رقم القرار
 
-    reason = None
-    if entity_name is not None:
-        # Check if the entity name contains the reason
-        match = re.search(COMPANY_NAME_REASON, entity_name)
-        if match:
-            # Extract the reason and strip it from the entity name
-            reason = match.group().strip()
-            entity_name = re.sub(COMPANY_NAME_REASON, "", entity_name).strip()
-    listing_date = None
-    if decision_number is not None:
-        match = YEAR_PATTERN.search(decision_number)
-        listing_date = match.group(1) if match else None
+    reason = extract_reason(entity_name)
+    entity_name = clean_entity_name(entity_name)
+    listing_date = extract_listing_date(decision_number)
 
     if entity_name:
         entity = context.make("LegalEntity")
@@ -85,10 +104,10 @@ def crawl(context: Context):
             context.export_resource(path, XLSX, title="international")
 
             wb = load_workbook(path, read_only=True)
-            print(wb.sheetnames)
             for sheet in INT_LISTS:
                 for row in h.parse_xlsx_sheet(context, wb[sheet], skiprows=3):
                     crawl_row(row, context)
+            assert set(wb.sheetnames) == set(INT_LISTS)
         # Local lists
         elif "page_id=2171" in url:
             url = doc.xpath('//article[@id="post-2171"]//a/@href')
@@ -102,7 +121,9 @@ def crawl(context: Context):
 
             wb = load_workbook(path, read_only=True)
             # Person lists and entity list
-            for year in PERSON_LISTS + ["الكيانات"]:  # Entities
-                for row in h.parse_xlsx_sheet(context, wb[year], skiprows=3):
+            for sheet in LOC_PERSON_LISTS + LOC_ENT_LIST:  # Entities
+                for row in h.parse_xlsx_sheet(context, wb[sheet], skiprows=3):
                     crawl_row(row, context)
-            assert set(wb.sheetnames) == set(PERSON_LISTS + ["الكيانات"] + IGNORE)
+            assert set(wb.sheetnames) == set(
+                LOC_PERSON_LISTS + LOC_ENT_LIST + LOC_IGNORE_LIST
+            )
