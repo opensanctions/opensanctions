@@ -87,7 +87,7 @@ class AssertionsValidator(BaseValidator):
 
         for assertion in self.context.dataset.assertions:
             if not check_assertion(self.context, self.stats.as_dict(), assertion):
-                self.abort = True
+                self.abort = self.abort or assertion.abort
 
         if self.abort:
             self.context.log.error("One or more assertions failed.")
