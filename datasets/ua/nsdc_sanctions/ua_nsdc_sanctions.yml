@@ -30,6 +30,18 @@ data:
   url: https://api-drs.nsdc.gov.ua/
   format: JSON
 
+assertions:
+  min:
+    schema_entities:
+      Person: 9100
+      Organization: 6200
+      Company: 140
+  max:
+    schema_entities:
+      Person: 21400
+      Organization: 14500
+      Company: 330
+
 lookups:
   sanctioned_status:
     options:
