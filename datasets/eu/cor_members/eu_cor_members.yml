@@ -30,3 +30,13 @@ url: https://cor.europa.eu/en
 data:
   url: https://memberspage.cor.europa.eu/api/members
   format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Person: 530
+      Position: 1
+  max:
+    schema_entities:
+      Person: 1200
+      Position: 4
