@@ -33,7 +33,7 @@ def clean_identifier(prop: Property, value: str) -> Optional[str]:
         normalized = format_.normalize(value)
     if normalized is None:
         log.warning(
-            "Failed to validate identifier",
+            f"Failed to validate {prop.format} identifier: {value}",
             format=prop.format,
             prop=prop.name,
             value=value,
@@ -68,7 +68,7 @@ def value_clean(
         if clean is not None:
             if len(clean) > prop_.max_length:
                 log.warning(
-                    "Property value exceeds type length",
+                    f"Property value for {prop_.name} exceeds type length: {value}",
                     entity_id=entity.id,
                     prop=prop_.name,
                     value=value,
@@ -83,7 +83,7 @@ def value_clean(
             yield prop_, item
             continue
         log.warning(
-            "Rejected property value",
+            f"Rejected property value [{prop_.name}]: {value}",
             entity_id=entity.id,
             prop=prop_.name,
             value=value,
