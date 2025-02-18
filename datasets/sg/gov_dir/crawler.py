@@ -3,6 +3,7 @@ from typing import Optional
 from lxml import etree
 from lxml.html import HtmlElement
 from normality import collapse_spaces
+from followthemoney.types import registry
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
@@ -186,7 +187,12 @@ def crawl_person(
             person.add("website", email)
         else:
             for email in email.split("; "):
-                person.add("email", email)
+                email = email.replace(" ", "").strip()
+                # Silence warnings about broken emails, there are too many
+                # TODO: Clean this up, see https://github.com/opensanctions/opensanctions/issues/1896
+                email_clean = registry.email.clean(email)
+                if email_clean is not None:
+                    person.add("email", email)
 
     position = h.make_position(context, name=position_name, country="sg")
     categorisation = categorise(context, position, is_pep=pep_status)

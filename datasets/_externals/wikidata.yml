@@ -670,6 +670,9 @@ lookups:
           - Nguyen dynasty
           - Đại Nam
           - Kingdom of Dumnonia
+          - Duchy of Aquitaine
+          - Principality of Moldavia
+          - Duchy of Milan
         value: null
       - match:
           - Cherokee Nation
@@ -824,6 +827,7 @@ lookups:
           - Electorate of Saxony
           - Saxe-Weimar-Eisenach
           - Grand Duchy of Hesse
+          - Territory of the Saar basin
         value: DE
       - match: British Honduras
         value: BZ

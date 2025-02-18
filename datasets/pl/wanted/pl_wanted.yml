@@ -117,3 +117,7 @@ lookups:
         values: [VN, TR]
       - match: WĘGRY UKRAINA
         values: [HU, UA]
+      - match: IRLANDIA BIAŁORUŚ
+        values: [IE, BY]
+      - match: SYJAM
+        value: TH
