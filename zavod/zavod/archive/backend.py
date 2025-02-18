@@ -1,9 +1,10 @@
+import gzip
 import shutil
 import warnings
 from pathlib import Path
 from functools import cache
 from typing import cast, Dict, Optional, Type, TextIO
-from google.cloud.storage import Client, Blob  # type: ignore
+from google.cloud.storage import Client, Blob, fileio  # type: ignore
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -99,7 +100,14 @@ class GoogleCloudObject(ArchiveObject):
         if ttl is not None:
             self._blob.cache_control = f"public, max-age={ttl}"
         log.info(f"Uploading blob: {source.name}", blob_name=self.name, max_age=ttl)
-        self._blob.upload_from_filename(source, content_type=mime_type)
+        if settings.GOOGLE_CLOUD_ARCHIVE_BACKEND_GZIP_UPLOAD:
+            self._blob.content_encoding = "gzip"
+            self._blob.content_type = mime_type
+            with fileio.BlobWriter(self._blob) as blob_writer:
+                with gzip.GzipFile(fileobj=blob_writer, mode="wb") as gzip_blob_writer:
+                    gzip_blob_writer.write(source.read_bytes())
+        else:
+            self._blob.upload_from_filename(source, content_type=mime_type)
 
     def republish(self, source: str) -> None:
         source_blob = self.backend.bucket.get_blob(source)
