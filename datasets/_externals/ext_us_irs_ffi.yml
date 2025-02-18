@@ -85,3 +85,11 @@ config:
     # - LegalEntity
     # - Person
   cache_days: 90
+
+assertions:
+  min:
+    schema_entities:
+      Company: 1240
+  max:
+    schema_entities:
+      Company: 2900

@@ -34,6 +34,16 @@ data:
   format: XML
   lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 10
+      Address: 1
+  max:
+    schema_entities:
+      LegalEntity: 50
+      Address: 10
+
 lookups:
   sanction.program:
     options:
