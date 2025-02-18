@@ -1,0 +1,90 @@
+type: external
+title: Georgian Company Registry
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: ge_company_registry
+disabled: false
+hidden: false
+coverage:
+  frequency: never
+  start: 2024-08-13
+  end: 2024-08-13
+exports:
+  - statistics.json
+  - entities.delta.json
+deploy:
+  schedule: "@monthly"
+  memory: "3000Mi"
+  memory_limit: "4000Mi"
+  disk: "30Gi"
+  disk_limit: 30Gi
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+summary: >-
+  List of companies registered in Georgia, sourced from the official Georgian Company Registry.
+description: |
+  This dataset contains detailed information about companies registered in Georgia. It includes 
+  the company name, registration date, legal address, legal form, director, and partner details.
+
+  **Note:** It is a snapshot of the official Georgian Company Registry.
+url: https://enreg.reestri.gov.ge/main.php?m=new_index
+data:
+  url: https://enreg.reestri.gov.ge/main.php?m=new_index
+  format: HTML
+  lang: kat
+publisher:
+  name: Transparency International Georgia
+  acronym: TI Georgia
+  country: ge
+  url: https://transparency.ge/en
+  description: |
+    Transparency International Georgia (TI Georgia) is a non-governmental
+    organization that works to reduce corruption and promote transparency,
+    accountability, and integrity in Georgia.  It is a member of the global
+    Transparency International movement.
+  official: false
+
+inputs:
+  - ann_graph_topics
+  - debarment
+  - ext_cy_companies
+  - ext_cz_business_register
+  - ext_ge_company_registry
+  - ext_ee_ariregister
+  - ext_gb_coh_psc
+  - ext_gleif
+  - ext_icij_offshoreleaks
+  - ext_lv_business_register
+  - ext_md_companies
+  - ext_ru_egrul
+  - ext_ua_edr
+  - opencorporates
+  - sanctions
+  - special_interest
+
+config:
+  dataset: ge_company_registry
+  index_options:
+    memory_budget: 2000
+  strip_namespace: true
+  threshold: 0.7
+  algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - debarment
+    - asset.frozen
+    - poi
+    - gov.soe
+  schemata:
+    - Company
+    - Organization
+    - LegalEntity
+    - Person
+
+assertions:
+  min:
+    schema_entities:
+      Person: 0
+      Company: 0
