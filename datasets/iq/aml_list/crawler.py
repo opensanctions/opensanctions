@@ -90,40 +90,46 @@ def crawl_row(row: dict, context: Context):
     context.audit_data(row)
 
 
+def process_xlsx(
+    context,
+    url: str,
+    filename: str,
+    expected_sheets: list,
+    title: str,
+    ignore_sheets: list = [],
+):
+    doc = context.fetch_html(url, cache_days=1)
+    link = doc.xpath(f'//article[@id="post-{url.split("=")[-1]}"]//a/@href')
+
+    assert len(link) == 1, link
+    file_url = link[0]
+    assert file_url.endswith(".xlsx"), file_url
+    assert title in file_url, file_url
+
+    path = context.fetch_resource(filename, file_url)
+    context.export_resource(path, XLSX)
+
+    wb = load_workbook(path, read_only=True)
+    for sheet in expected_sheets:
+        for row in h.parse_xlsx_sheet(context, wb[sheet], skiprows=3):
+            crawl_row(row, context)
+
+    assert set(wb.sheetnames) == set(expected_sheets + ignore_sheets)
+
+
 def crawl(context: Context):
-    for url in SOURCE_URLS:
-        doc = context.fetch_html(url, cache_days=1)
-        # International list
-        if "page_id=2169" in url:
-            url = doc.xpath('//article[@id="post-2169"]//a/@href')
-            assert len(url) == 1, url
-            url = url[0]
-            assert url.endswith(".xlsx"), url
-            assert "القائمة-الدولية" in url, url
-            path = context.fetch_resource("international.xlsx", url)
-            context.export_resource(path, XLSX, title="international")
-
-            wb = load_workbook(path, read_only=True)
-            for sheet in INT_LISTS:
-                for row in h.parse_xlsx_sheet(context, wb[sheet], skiprows=3):
-                    crawl_row(row, context)
-            assert set(wb.sheetnames) == set(INT_LISTS)
-        # Local lists
-        elif "page_id=2171" in url:
-            url = doc.xpath('//article[@id="post-2171"]//a/@href')
-            assert len(url) == 1, url
-            url = url[0]
-            assert url.endswith(".xlsx"), url
-            assert "القوائم-المحلية" in url, url  # Local lists
-
-            path = context.fetch_resource("local.xlsx", url)
-            context.export_resource(path, XLSX, title="local")
-
-            wb = load_workbook(path, read_only=True)
-            # Person lists and entity list
-            for sheet in LOC_PERSON_LISTS + LOC_ENT_LIST:  # Entities
-                for row in h.parse_xlsx_sheet(context, wb[sheet], skiprows=3):
-                    crawl_row(row, context)
-            assert set(wb.sheetnames) == set(
-                LOC_PERSON_LISTS + LOC_ENT_LIST + LOC_IGNORE_LIST
-            )
+    process_xlsx(
+        context,
+        SOURCE_URLS[0],
+        "international.xlsx",
+        INT_LISTS,
+        "القائمة-الدولية",  # International list
+    )
+    process_xlsx(
+        context,
+        SOURCE_URLS[1],
+        "local.xlsx",
+        LOC_PERSON_LISTS + LOC_ENT_LIST,
+        "القوائم-المحلية",  # Local lists
+        LOC_IGNORE_LIST,
+    )
