@@ -47,6 +47,7 @@ SCHEME_PROPS = {
     "OpenOwnership Register": "sourceUrl",
     "OpenCorporates": "opencorporatesUrl",
     "Global Legal Entity Identifier Index": "leiCode",
+    "Global Legal Entity Identifier Index (2)": "leiCode",
     "Companies House": "registrationNumber",
 }
 
