@@ -847,8 +847,6 @@ lookups:
         value: Cuba
       - match: Colonial Brazil
         value: Brazil
-      - match: Villavicencio
-        value: CO
       - match: Latvian Soviet Socialist Republic
         values:
           - SUHH
