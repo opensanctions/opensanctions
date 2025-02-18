@@ -161,7 +161,7 @@ def crawl_common(
         context.emit(sanction)
 
     context.audit_data(item)
-    context.emit(entity, target=is_sanctioned)
+    context.emit(entity)
 
 
 def crawl_individual(context: Context, item: Dict[str, Any]) -> None:

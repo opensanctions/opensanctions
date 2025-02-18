@@ -39,6 +39,18 @@ data:
   url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
   format: XML
 
+assertions:
+  min:
+    schema_entities:
+      Person: 580
+      Address: 300
+      LegalEntity: 170
+  max:
+    schema_entities:
+      Person: 1370
+      Address: 720
+      LegalEntity: 380
+
 lookups:
   document_type:
     normalize: true
