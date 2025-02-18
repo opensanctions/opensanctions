@@ -448,13 +448,13 @@ def crawl(context: Context):
     )
     assert len(section_links_section) == 1, section_links_section
     h.assert_dom_hash(
-        section_links_section[0], "d000a7c82a3d79c9b245298cd02d0139a0e06610"
+        section_links_section[0], "b66069bcdb6a9a977a668210ddaddb398998f1b8"
     )
 
     # Has the API link been updated to point to the previously-nonexistent API page?
-    api_link = main_page.xpath(".//a//span[contains(text(), 'API')]/ancestor::a")
+    api_link = main_page.xpath(".//div//span[contains(text(), 'API')]/ancestor::div[1]")
     assert len(api_link) == 1, api_link
-    h.assert_dom_hash(api_link[0], "26de80467eb7b4a93c0ad5c5c5b8cd75b07a38e0")
+    h.assert_dom_hash(api_link[0], "a11857d8bb4774630bc85a4b8f2563df141c8cc1")
 
     # Has anything been added to the transport tabs?
     transport_page = fetch_html(
