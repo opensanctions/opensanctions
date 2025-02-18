@@ -152,17 +152,17 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
 
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
+    doc.make_links_absolute(context.data_url)
     alphabet_links = doc.xpath(".//div[@itemprop='articleBody']/p//a[@href]")
     assert len(alphabet_links) >= 58, "Expected at least 58 links in `alphabet_links`."
     # Bulgarian alphabet has 30 letters, but the name can start only with 29 of them
     # We want to cover the last 2 years at any time
     for a in alphabet_links[:58]:
-        doc.make_links_absolute(context.data_url)
         link = a.get("href")
         doc = context.fetch_html(link, cache_days=1)
         table = doc.xpath(".//table")
         if len(table) == 0:
-            context.log.info("No tables found")
+            context.log.info("No tables found", url=link)
             continue
         assert len(table) == 1
         table = table[0]
