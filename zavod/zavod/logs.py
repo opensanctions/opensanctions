@@ -121,6 +121,7 @@ def configure_sentry_integration() -> None:
                 # We disable the default logging integration because we have our custom structlog Processor
                 sentry_sdk.integrations.logging.LoggingIntegration  # type: ignore
             ],
+            attach_stacktrace=True,
         )
 
 
