@@ -42,18 +42,6 @@ assertions:
       LegalEntity: 80
 
 lookups:
-  columns:
-    options:
-      - match:
-          - asm_alshkhs
-          - asma_alashkhas
-        value: name
-      - match: aljnsyt
-        value: nationality
-      - match: altwld
-        value: birthDate
-      - match: asm_alam
-        value: matronymic
   type.date: 
     options: 
       - match:
