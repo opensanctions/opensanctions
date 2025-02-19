@@ -257,7 +257,7 @@ def crawl_vessel(context: Context, link, program):
     crawl_ship_relation(
         context,
         vessel,
-        data.pop("Shipowner (IMO / Country / Date)"),
+        data.pop("Ship Owner (IMO / Country / Date)"),
         "Shipowner",
         "Ownership",
         "asset",
