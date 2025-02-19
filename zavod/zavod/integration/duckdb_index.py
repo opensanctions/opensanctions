@@ -117,6 +117,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
                 if idx % 50000 == 0 and idx > 0:
                     log.info("Dumped %s entities" % idx)
+
         log.info("Loading data...")
         self.con.execute(
             f"COPY entries FROM '{csv_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
@@ -133,7 +134,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             SELECT entries.field, entries.id, count(*) as field_len FROM entries
             LEFT OUTER JOIN stopwords
             ON stopwords.field = entries.field AND stopwords.token = entries.token
-            WHERE token_freq is NULL
+            WHERE stopwords.freq is NULL
             GROUP BY entries.field, entries.id
         """
         self.con.execute(field_len_query)
@@ -146,22 +147,20 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             FROM entries
             LEFT OUTER JOIN stopwords
             ON stopwords.field = entries.field AND stopwords.token = entries.token
-            WHERE token_freq is NULL
+            WHERE stopwords.freq is NULL
             GROUP BY entries.field, entries.id, entries.token
         """
         self.con.execute(mentions_query)
 
     def _build_stopwords(self) -> None:
         token_freq_query = """
-            SELECT field, token, count(*) as token_freq
+        CREATE TABLE IF NOT EXISTS tokens AS
+            SELECT field, token, count(*) as freq
             FROM entries
             GROUP BY field, token
-            ORDER BY token_freq DESC
         """
-        token_freq = self.con.sql(token_freq_query)  # noqa
-        num_tokens_results = self.con.execute(
-            "SELECT count(*) FROM token_freq"
-        ).fetchone()
+        self.con.execute(token_freq_query)
+        num_tokens_results = self.con.execute("SELECT count(*) FROM tokens").fetchone()
         assert num_tokens_results is not None
         num_tokens = num_tokens_results[0]
         limit = int((num_tokens / 100) * self.stopwords_pct)
@@ -173,14 +172,14 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.con.execute(
             """
             CREATE TABLE IF NOT EXISTS stopwords as
-            SELECT * FROM token_freq LIMIT ?
+            SELECT * FROM tokens ORDER BY freq DESC LIMIT ?;
             """,
             [limit],
         )
         least_common_query = """
-            SELECT field, token, token_freq
+            SELECT field, token, freq
             FROM stopwords
-            ORDER BY token_freq ASC
+            ORDER BY freq ASC
             LIMIT 5;
         """
         least_common = "\n".join(
@@ -204,6 +203,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             ON field_len.field = boo.field
         """
         self.con.execute(term_frequencies_query)
+        self.con.execute("CHECKPOINT")
 
     def pairs(
         self, max_pairs: int = BaseIndex.MAX_PAIRS
@@ -243,7 +243,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         match_query = """
             SELECT matching.id, matches.id, sum(matches.tf) as score
             FROM term_frequencies as matches
-            JOIN matching
+            INNER JOIN matching
             ON matches.field = matching.field AND matches.token = matching.token
             GROUP BY matches.id, matching.id
             ORDER BY matching.id, score DESC
