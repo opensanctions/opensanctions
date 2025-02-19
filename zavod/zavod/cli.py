@@ -1,9 +1,9 @@
+import structlog
 import sys
 import click
 import logging
 from pathlib import Path
 from typing import Optional, List
-
 
 from followthemoney.cli.util import InPath, OutPath
 from nomenklatura.tui import dedupe_ui
@@ -39,6 +39,7 @@ def _load_dataset(path: Path) -> Dataset:
     dataset = load_dataset_from_path(path)
     if dataset is None:
         raise click.BadParameter("Invalid dataset path: %s" % path)
+    structlog.contextvars.bind_contextvars(dataset=dataset.name)
     return dataset
 
 
