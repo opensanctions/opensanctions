@@ -46,11 +46,11 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         NAME_PART_FIELD: 2.0,
         WORD_FIELD: 0.5,
         PHONETIC_FIELD: 2.0,
-        registry.name.name: 10.0,
+        registry.name.name: 5.0,
         registry.phone.name: 3.0,
         registry.email.name: 3.0,
         registry.address.name: 2.5,
-        registry.identifier.name: 3.0,
+        registry.identifier.name: 5.0,
     }
 
     __slots__ = "view", "fields", "tokenizer", "entities"
@@ -85,6 +85,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         }
         if self.memory_budget is not None:
             config["max_memory"] = f"{self.memory_budget}MB"
+            config["memory_limit"] = f"{self.memory_budget}MB"
         self.con = duckdb.connect(data_file.as_posix(), config=config)
         self.matching_path = self.data_dir / "matching.csv"
         self.matching_path.unlink(missing_ok=True)
@@ -240,13 +241,17 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             self.con.execute(f"COPY matching FROM '{self.matching_path}'")
             log.info("Finished loading matching subjects.")
 
-        match_query = """
-            SELECT matching.id, matches.id, sum(matches.tf) as score
+        match_table_query = """
+        CREATE TABLE IF NOT EXISTS agg_matches AS
+            SELECT matching.id AS matching_id, matches.id AS matches_id, sum(matches.tf) as score
             FROM term_frequencies as matches
             INNER JOIN matching
             ON matches.field = matching.field AND matches.token = matching.token
-            GROUP BY matches.id, matching.id
-            ORDER BY matching.id, score DESC
+            GROUP BY matches.id, matching.id;
+        """
+        self.con.execute(match_table_query)
+        match_query = """
+        SELECT * FROM agg_matches ORDER BY matching_id, score DESC;
         """
         results = self.con.execute(match_query)
         previous_id = None
