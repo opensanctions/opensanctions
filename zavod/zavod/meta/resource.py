@@ -35,8 +35,6 @@ class DataResource(NKDataResource):
                     break
                 size += len(chunk)
                 digest.update(chunk)
-        if size == 0:
-            raise ValueError("Resource is empty: %s" % name)
         checksum = digest.hexdigest()
         data = {
             "name": name,

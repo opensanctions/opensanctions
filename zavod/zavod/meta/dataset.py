@@ -1,20 +1,21 @@
 import os
-from banal import ensure_list, ensure_dict, as_bool
-from typing import TYPE_CHECKING, Dict, Any, Optional, List, Set
-from normality import slugify
-from pathlib import Path
 from functools import cached_property
-from datapatch import get_lookups, Lookup
-from nomenklatura.dataset import Dataset as NKDataset
-from nomenklatura.dataset import DataCoverage
-from nomenklatura.util import datetime_iso
+from pathlib import Path
+from typing import TYPE_CHECKING, Dict, Any, Optional, List, Set
 
+from banal import ensure_list, ensure_dict, as_bool
+from datapatch import get_lookups, Lookup
+from normality import slugify
+
+from nomenklatura.dataset import DataCoverage
+from nomenklatura.dataset import Dataset as NKDataset
+from nomenklatura.util import datetime_iso
 from zavod import settings
 from zavod.logs import get_logger
-from zavod.meta.assertion import Assertion, parse_assertions
-from zavod.meta.http import HTTP
+from zavod.meta.assertion import Assertion, parse_assertions, Comparison, Metric
 from zavod.meta.data import Data
 from zavod.meta.dates import DatesSpec
+from zavod.meta.http import HTTP
 
 if TYPE_CHECKING:
     from zavod.meta.catalog import ArchiveBackedCatalog
@@ -100,6 +101,11 @@ class Dataset(NKDataset):
               Person: 180000
         ```
         """
+
+        self.assertions.append(
+            # At least one entity in dataset
+            Assertion(Metric.ENTITY_COUNT, Comparison.GTE, 1, None, None)
+        )
 
         self.ci_test: bool = as_bool(data.get("ci_test", True))
         """Whether this dataset should be automatically run in CI environments."""

@@ -116,3 +116,12 @@ def test_no_crawl_is_empty(testdataset3) -> None:
     validator, logs = run_validator(EmptyValidator, testdataset3)
     assert ("warning", "No entities validated.") in logs
     assert validator.abort is False
+
+
+def test_default_assertion_not_empty(testdataset2):
+    validator, logs = run_validator(AssertionsValidator, testdataset2)
+    assert (
+        "warning",
+        "Assertion failed for value 0: <Assertion entity_count gte 1>",
+    ) in logs
+    assert validator.abort is True

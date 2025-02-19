@@ -1,19 +1,18 @@
 import json
 from copy import deepcopy
 from typing import Any, Dict
-from nomenklatura.versions import Version
+
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
-
+from nomenklatura.versions import Version
 from zavod import settings
-from zavod.meta import Dataset
-from zavod.entity import Entity
-from zavod.runtime.versions import make_version
 from zavod.archive import DELTA_EXPORT_FILE, DATASETS
-from zavod.store import get_store
+from zavod.entity import Entity
 from zavod.exporters import export_dataset
+from zavod.meta import Dataset
 from zavod.publish import _publish_artifacts
-
+from zavod.runtime.versions import make_version
+from zavod.store import get_store
 
 ENTITY_A = {"id": "EA", "schema": "Person", "properties": {"name": ["Alice"]}}
 ENTITY_B = {"id": "EB", "schema": "Person", "properties": {"name": ["Bob"]}}

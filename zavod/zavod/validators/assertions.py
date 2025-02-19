@@ -28,6 +28,9 @@ def get_value(stats: Dict[str, Any], assertion: Assertion) -> Optional[int]:
                 case "country":
                     items = stats["things"]["countries"]
                     filter_key = "code"
+                case None:
+                    assert assertion.filter_value is None
+                    return cast(int, stats["things"]["total"])
                 case _:
                     raise ValueError(
                         f"Unknown filter attribute: {assertion.filter_attribute}"
