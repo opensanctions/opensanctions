@@ -74,9 +74,9 @@ config:
 assertions:
   min:
     schema_entities:
-      Person: 5
-      LegalEntity: 3
-      Company: 1
+      Person: 15
+      LegalEntity: 5
+      Company: 5
     country_entities:
       ee: 5
       ua: 1
