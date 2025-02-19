@@ -64,11 +64,12 @@ def check_assertion(
 ) -> bool:
     """Returns true if the assertion is valid, false otherwise."""
     value = get_value(stats, assertion)
+    log_fn = context.log.error if assertion.abort else context.log.warning
     if value is None:
-        context.log.warning(f"Value not found for assertion {assertion}")
+        log_fn(f"Value not found for assertion {assertion}")
         return False
     if not compare_threshold(value, assertion.comparison, assertion.threshold):
-        context.log.warning(f"Assertion failed for value {value}: {assertion}")
+        log_fn(f"Assertion failed for value {value}: {assertion}")
         return False
     return True
 
@@ -91,6 +92,3 @@ class AssertionsValidator(BaseValidator):
         for assertion in self.context.dataset.assertions:
             if not check_assertion(self.context, self.stats.as_dict(), assertion):
                 self.abort = self.abort or assertion.abort
-
-        if self.abort:
-            self.context.log.error("One or more assertions failed.")
