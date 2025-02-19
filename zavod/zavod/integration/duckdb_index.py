@@ -22,7 +22,9 @@ log = logging.getLogger(__name__)
 BATCH_SIZE = 1000
 
 
-def csv_writer(fh: TextIOWrapper) -> Any:  # Any because csv writer types seem to be special
+def csv_writer(
+    fh: TextIOWrapper,
+) -> Any:  # Any because csv writer types seem to be special
     return csv.writer(
         fh,
         dialect=csv.unix_dialect,
@@ -44,11 +46,11 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         NAME_PART_FIELD: 2.0,
         WORD_FIELD: 0.5,
         PHONETIC_FIELD: 2.0,
-        registry.name.name: 10.0,
+        registry.name.name: 5.0,
         registry.phone.name: 3.0,
         registry.email.name: 3.0,
         registry.address.name: 2.5,
-        registry.identifier.name: 3.0,
+        registry.identifier.name: 5.0,
     }
 
     __slots__ = "view", "fields", "tokenizer", "entities"
@@ -83,6 +85,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         }
         if self.memory_budget is not None:
             config["max_memory"] = f"{self.memory_budget}MB"
+            config["memory_limit"] = f"{self.memory_budget}MB"
         self.con = duckdb.connect(data_file.as_posix(), config=config)
         self.matching_path = self.data_dir / "matching.csv"
         self.matching_path.unlink(missing_ok=True)
@@ -96,6 +99,10 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.con.execute("CREATE TABLE boosts (field TEXT, boost FLOAT)")
         for field, boost in self.BOOSTS.items():
             self.con.execute("INSERT INTO boosts VALUES (?, ?)", [field, boost])
+        for type in registry.types:
+            if type.name in self.BOOSTS:
+                continue
+            self.con.execute("INSERT INTO boosts VALUES (?, ?)", [type.name, 1.0])
 
         self.con.execute("CREATE TABLE matching (id TEXT, field TEXT, token TEXT)")
         self.con.execute("CREATE TABLE entries (id TEXT, field TEXT, token TEXT)")
@@ -111,6 +118,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
                 if idx % 50000 == 0 and idx > 0:
                     log.info("Dumped %s entities" % idx)
+
         log.info("Loading data...")
         self.con.execute(
             f"COPY entries FROM '{csv_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
@@ -124,10 +132,10 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         log.info("Calculating field lengths...")
         field_len_query = """
             CREATE TABLE IF NOT EXISTS field_len as
-            SELECT entries.field, entries.id, count(*) as field_len from entries
+            SELECT entries.field, entries.id, count(*) as field_len FROM entries
             LEFT OUTER JOIN stopwords
             ON stopwords.field = entries.field AND stopwords.token = entries.token
-            WHERE token_freq is NULL
+            WHERE stopwords.freq is NULL
             GROUP BY entries.field, entries.id
         """
         self.con.execute(field_len_query)
@@ -136,26 +144,24 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         log.info("Calculating mention counts...")
         mentions_query = """
             CREATE TABLE IF NOT EXISTS mentions as
-            SELECT entries.field, entries.id, entries.token, count(*) as mentions
+            SELECT entries.field, entries.id, entries.token, count(*) AS mentions
             FROM entries
             LEFT OUTER JOIN stopwords
             ON stopwords.field = entries.field AND stopwords.token = entries.token
-            WHERE token_freq is NULL
+            WHERE stopwords.freq is NULL
             GROUP BY entries.field, entries.id, entries.token
         """
         self.con.execute(mentions_query)
 
     def _build_stopwords(self) -> None:
         token_freq_query = """
-            SELECT field, token, count(*) as token_freq
+        CREATE TABLE IF NOT EXISTS tokens AS
+            SELECT field, token, count(*) as freq
             FROM entries
             GROUP BY field, token
-            ORDER BY token_freq DESC
         """
-        token_freq = self.con.sql(token_freq_query)  # noqa
-        num_tokens_results = self.con.execute(
-            "SELECT count(*) FROM token_freq"
-        ).fetchone()
+        self.con.execute(token_freq_query)
+        num_tokens_results = self.con.execute("SELECT count(*) FROM tokens").fetchone()
         assert num_tokens_results is not None
         num_tokens = num_tokens_results[0]
         limit = int((num_tokens / 100) * self.stopwords_pct)
@@ -167,14 +173,14 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.con.execute(
             """
             CREATE TABLE IF NOT EXISTS stopwords as
-            SELECT * FROM token_freq LIMIT ?
+            SELECT * FROM tokens ORDER BY freq DESC LIMIT ?;
             """,
             [limit],
         )
         least_common_query = """
-            SELECT field, token, token_freq
+            SELECT field, token, freq
             FROM stopwords
-            ORDER BY token_freq ASC
+            ORDER BY freq ASC
             LIMIT 5;
         """
         least_common = "\n".join(
@@ -190,23 +196,24 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         log.info("Calculating term frequencies...")
         term_frequencies_query = """
             CREATE TABLE IF NOT EXISTS term_frequencies as
-            SELECT mentions.field, mentions.token, mentions.id, mentions/field_len as tf
+            SELECT mentions.field, mentions.token, mentions.id, (mentions/field_len) * ifnull(boo.boost, 1) as tf
             FROM field_len
             JOIN mentions
             ON field_len.field = mentions.field AND field_len.id = mentions.id
+            LEFT OUTER JOIN boosts boo
+            ON field_len.field = boo.field
         """
         self.con.execute(term_frequencies_query)
+        self.con.execute("CHECKPOINT")
 
     def pairs(
         self, max_pairs: int = BaseIndex.MAX_PAIRS
     ) -> Iterable[Tuple[Pair, float]]:
         pairs_query = """
-            SELECT "left".id, "right".id, sum(("left".tf + "right".tf) * ifnull(boost, 1)) as score
+            SELECT "left".id, "right".id, sum(("left".tf + "right".tf)) as score
             FROM term_frequencies as "left"
             JOIN term_frequencies as "right"
             ON "left".field = "right".field AND "left".token = "right".token
-            LEFT OUTER JOIN boosts
-            ON "left".field = boosts.field
             WHERE "left".id > "right".id
             GROUP BY "left".id, "right".id
             ORDER BY score DESC
@@ -231,18 +238,20 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             self.matching_dump.close()
             self.matching_dump = None
             log.info("Loading matching subjects...")
-            self.con.execute(f"COPY matching from '{self.matching_path}'")
+            self.con.execute(f"COPY matching FROM '{self.matching_path}'")
             log.info("Finished loading matching subjects.")
 
-        match_query = """
-            SELECT matching.id, matches.id, sum(matches.tf * ifnull(boost, 1)) as score
+        match_table_query = """
+        CREATE TABLE IF NOT EXISTS agg_matches AS
+            SELECT matching.id AS matching_id, matches.id AS matches_id, sum(matches.tf) as score
             FROM term_frequencies as matches
-            JOIN matching
+            INNER JOIN matching
             ON matches.field = matching.field AND matches.token = matching.token
-            LEFT OUTER JOIN boosts
-            ON matches.field = boosts.field
-            GROUP BY matches.id, matching.id
-            ORDER BY matching.id, score DESC
+            GROUP BY matches.id, matching.id;
+        """
+        self.con.execute(match_table_query)
+        match_query = """
+        SELECT * FROM agg_matches ORDER BY matching_id, score DESC;
         """
         results = self.con.execute(match_query)
         previous_id = None
@@ -262,6 +271,11 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         # Last pair or subject and candidates
         if matches and previous_id is not None:
             yield Identifier.get(previous_id), matches[: self.max_candidates]
+
+    def close(self) -> None:
+        self.con.close()
+        if self.matching_dump is not None:
+            self.matching_dump.close()
 
     def __repr__(self) -> str:
         return "<DuckDBIndex(%r, %r)>" % (

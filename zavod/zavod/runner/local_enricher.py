@@ -20,6 +20,7 @@ from zavod.integration.dedupe import get_dataset_linker, get_resolver
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
 from zavod.store import get_store
+from zavod.reset import reset_caches
 from zavod.integration.duckdb_index import DuckDBIndex, BlockingMatches
 
 
@@ -69,7 +70,7 @@ class LocalEnricher(BaseEnricher[DS]):
         self.target_store = get_store(target_dataset, target_linker)
         self.target_store.sync()
         self.target_view = self.target_store.view(target_dataset)
-        index_path = dataset_state_path(dataset.name) / "duckdb-enrich-index"
+        index_path = dataset_state_path(target_dataset_name) / "enrich-index"
         self._index = DuckDBIndex(
             self.target_view, index_path, config.get("index_options", {})
         )
@@ -86,6 +87,7 @@ class LocalEnricher(BaseEnricher[DS]):
 
     def close(self) -> None:
         self.target_store.close()
+        self._index.close()
 
     def load(self, entity: Entity) -> None:
         self._index.add_matching_subject(entity)
@@ -213,6 +215,8 @@ def enrich(context: Context) -> None:
         context.log.info("Loading entities for matching...")
         for entity in subject_view.entities():
             enricher.load_wrapped(entity)
+
+        reset_caches()
 
         context.log.info("Matching candidates...")
         for entity_idx, (entity_id, candidate_set) in enumerate(enricher.candidates()):
