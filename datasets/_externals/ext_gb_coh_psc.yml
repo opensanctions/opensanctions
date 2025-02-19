@@ -96,4 +96,4 @@ assertions:
     schema_entities:
       Company: 870
       Person: 370
-      Organization: 25
+      Organization: 100
