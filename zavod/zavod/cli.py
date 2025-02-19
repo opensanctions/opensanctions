@@ -39,6 +39,12 @@ def _load_dataset(path: Path) -> Dataset:
     dataset = load_dataset_from_path(path)
     if dataset is None:
         raise click.BadParameter("Invalid dataset path: %s" % path)
+
+    # Context.finish will clean contextvars, but we want subsequent log messages
+    # from exception handlers to have the dataset context.
+    global log
+    log = log.bind(dataset=dataset.name)
+
     return dataset
 
 
