@@ -66,7 +66,9 @@ def parse_identification(
     # parse_split(context, entity, full)
     result = context.lookup("identification", full)
     if result is None:
-        context.log.warning("Unknown identification type", identification=full)
+        context.log.warning(
+            f'Unknown identification type "{full}"', identification=full
+        )
         return
     if result.schema is not None:
         entity.add_schema(result.schema)
@@ -139,7 +141,9 @@ def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, v
         sanction.add("reason", motifs, lang="fra")
         entity.add("notes", motifs, lang="fra")
     else:
-        context.log.warning("Unknown field", field=field, value=value)
+        context.log.warning(
+            f"Unknown field [{field}]: {value}", field=field, value=value
+        )
 
 
 def crawl_entity(context: Context, data: Dict[str, Any]):
@@ -151,7 +155,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     schema = SCHEMATA.get(nature)
     schema = context.lookup_value("schema_override", entity_id, schema)
     if schema is None:
-        context.log.error("Unknown entity type", nature=nature)
+        context.log.error(f"Unknown entity type: {nature}", nature=nature)
         return
     entity = context.make(schema)
     entity.id = entity_id
