@@ -74,7 +74,7 @@ def test_assertions(testdataset3) -> None:
     crawl_dataset(testdataset3)
     validator, logs = run_validator(AssertionsValidator, testdataset3)
     assert (
-        "warning",
+        "error",
         "Assertion failed for value 2: <Assertion entity_count gte 3 filter: country=de>",
     ) in logs
     assert (
@@ -82,18 +82,17 @@ def test_assertions(testdataset3) -> None:
         "Assertion failed for value 2: <Assertion entity_count lte 1 filter: country=de>",
     ) in logs
     assert (
-        "warning",
+        "error",
         "Assertion failed for value 7: <Assertion entity_count gte 10 filter: schema=Company>",
     ) in logs
     assert (
-        "warning",
+        "error",
         "Assertion failed for value 6: <Assertion country_count gte 7>",
     ) in logs
     assert (
-        "warning",
+        "error",
         "Assertion failed for value 7: <Assertion entities_with_prop_count gte 11 filter: entities_with_prop=('Company', 'name')>",
     ) in logs
-    assert ("error", "One or more assertions failed.") in logs
     assert validator.abort is True
 
 
@@ -121,7 +120,7 @@ def test_no_crawl_is_empty(testdataset3) -> None:
 def test_default_assertion_not_empty(testdataset2):
     validator, logs = run_validator(AssertionsValidator, testdataset2)
     assert (
-        "warning",
+        "error",
         "Assertion failed for value 0: <Assertion entity_count gte 1>",
     ) in logs
     assert validator.abort is True
