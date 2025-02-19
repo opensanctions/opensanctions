@@ -86,6 +86,7 @@ class LocalEnricher(BaseEnricher[DS]):
 
     def close(self) -> None:
         self.target_store.close()
+        self._index.close()
 
     def load(self, entity: Entity) -> None:
         self._index.add_matching_subject(entity)

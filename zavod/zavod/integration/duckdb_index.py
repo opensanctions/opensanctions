@@ -22,7 +22,9 @@ log = logging.getLogger(__name__)
 BATCH_SIZE = 1000
 
 
-def csv_writer(fh: TextIOWrapper) -> Any:  # Any because csv writer types seem to be special
+def csv_writer(
+    fh: TextIOWrapper,
+) -> Any:  # Any because csv writer types seem to be special
     return csv.writer(
         fh,
         dialect=csv.unix_dialect,
@@ -96,6 +98,10 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.con.execute("CREATE TABLE boosts (field TEXT, boost FLOAT)")
         for field, boost in self.BOOSTS.items():
             self.con.execute("INSERT INTO boosts VALUES (?, ?)", [field, boost])
+        for type in registry.types:
+            if type.name in self.BOOSTS:
+                continue
+            self.con.execute("INSERT INTO boosts VALUES (?, ?)", [type.name, 1.0])
 
         self.con.execute("CREATE TABLE matching (id TEXT, field TEXT, token TEXT)")
         self.con.execute("CREATE TABLE entries (id TEXT, field TEXT, token TEXT)")
@@ -124,7 +130,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         log.info("Calculating field lengths...")
         field_len_query = """
             CREATE TABLE IF NOT EXISTS field_len as
-            SELECT entries.field, entries.id, count(*) as field_len from entries
+            SELECT entries.field, entries.id, count(*) as field_len FROM entries
             LEFT OUTER JOIN stopwords
             ON stopwords.field = entries.field AND stopwords.token = entries.token
             WHERE token_freq is NULL
@@ -136,7 +142,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         log.info("Calculating mention counts...")
         mentions_query = """
             CREATE TABLE IF NOT EXISTS mentions as
-            SELECT entries.field, entries.id, entries.token, count(*) as mentions
+            SELECT entries.field, entries.id, entries.token, count(*) AS mentions
             FROM entries
             LEFT OUTER JOIN stopwords
             ON stopwords.field = entries.field AND stopwords.token = entries.token
@@ -190,10 +196,12 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         log.info("Calculating term frequencies...")
         term_frequencies_query = """
             CREATE TABLE IF NOT EXISTS term_frequencies as
-            SELECT mentions.field, mentions.token, mentions.id, mentions/field_len as tf
+            SELECT mentions.field, mentions.token, mentions.id, (mentions/field_len) * ifnull(boo.boost, 1) as tf
             FROM field_len
             JOIN mentions
             ON field_len.field = mentions.field AND field_len.id = mentions.id
+            LEFT OUTER JOIN boosts boo
+            ON field_len.field = boo.field
         """
         self.con.execute(term_frequencies_query)
 
@@ -201,12 +209,10 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self, max_pairs: int = BaseIndex.MAX_PAIRS
     ) -> Iterable[Tuple[Pair, float]]:
         pairs_query = """
-            SELECT "left".id, "right".id, sum(("left".tf + "right".tf) * ifnull(boost, 1)) as score
+            SELECT "left".id, "right".id, sum(("left".tf + "right".tf)) as score
             FROM term_frequencies as "left"
             JOIN term_frequencies as "right"
             ON "left".field = "right".field AND "left".token = "right".token
-            LEFT OUTER JOIN boosts
-            ON "left".field = boosts.field
             WHERE "left".id > "right".id
             GROUP BY "left".id, "right".id
             ORDER BY score DESC
@@ -231,16 +237,14 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             self.matching_dump.close()
             self.matching_dump = None
             log.info("Loading matching subjects...")
-            self.con.execute(f"COPY matching from '{self.matching_path}'")
+            self.con.execute(f"COPY matching FROM '{self.matching_path}'")
             log.info("Finished loading matching subjects.")
 
         match_query = """
-            SELECT matching.id, matches.id, sum(matches.tf * ifnull(boost, 1)) as score
+            SELECT matching.id, matches.id, sum(matches.tf) as score
             FROM term_frequencies as matches
             JOIN matching
             ON matches.field = matching.field AND matches.token = matching.token
-            LEFT OUTER JOIN boosts
-            ON matches.field = boosts.field
             GROUP BY matches.id, matching.id
             ORDER BY matching.id, score DESC
         """
@@ -262,6 +266,11 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         # Last pair or subject and candidates
         if matches and previous_id is not None:
             yield Identifier.get(previous_id), matches[: self.max_candidates]
+
+    def close(self) -> None:
+        self.con.close()
+        if self.matching_dump is not None:
+            self.matching_dump.close()
 
     def __repr__(self) -> str:
         return "<DuckDBIndex(%r, %r)>" % (
