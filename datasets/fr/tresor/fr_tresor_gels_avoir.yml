@@ -37,7 +37,7 @@ assertions:
     schema_entities:
       Person: 3430
       Organization: 950
-      LegalEntity: 50
+      LegalEntity: 40
       Vessel: 35
       Company: 25
   max:
@@ -5043,3 +5043,52 @@ lookups:
       - match: "Numéro d'enregistrement : 1022601930537"
         props:
           registrationNumber: 1022601930537
+      - match: "Type d’entité: société par actions - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "Fédération de Russie"
+      - match: "Numéro d’enregistrement: 1023202741781"
+        props:
+          ogrnCode: 1023202741781
+      - match: "Type d’entité: société à responsabilité limitée - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "Fédération de Russie"
+      - match: "Numéro d’identification fiscale: 1646043699"
+        props:
+          innCode: 1646043699
+      - match: "Type d’entité: société à responsabilité limitée - Principal établissement: République populaire de Chine/Hong Kong: /"
+        props:
+          jurisdiction: hk
+          legalForm: société à responsabilité limitée
+          address: "République populaire de Chine/Hong Kong"
+      - match: "Numéros d’enregistrement: 2182045 64199990-000 CR No. 2182045"
+        props:
+          registrationNumber: 2182045 64199990-000 CR No. 2182045
+      - match: "Type d'entité: société à responsabilité limitée - Principal établissement: Fédération de Russie : /"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "Fédération de Russie"
+      - match: "Numéro d’enregistrement: 71901140"
+        props:
+          registrationNumber: 71901140
+      - match: "Type d’entité: société à responsabilité limitée (Limited Company) - Principal établissement: République populaire de Chine/Hong Kong: /"
+        props:
+          jurisdiction: hk
+          legalForm: société à responsabilité limitée (Limited Company)
+          address: "République populaire de Chine/Hong Kong"
+      - match: "Numéro d’enregistrement: 791130105MA7C26X08R"
+        props:
+          registrationNumber: 791130105MA7C26X08R
+      - match: "Type d’entité: société à responsabilité limitée (Limited Company): /"
+        props:
+          legalForm: société à responsabilité limitée (Limited Company)
+      - match: "Numéro d’identification fiscale: 1646047020"
+        props:
+          innCode: 1646047020
+      - match: "Type d’entité: société à responsabilité limitée: /"
+        props:
+          legalForm: société à responsabilité limitée
