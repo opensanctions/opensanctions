@@ -39,8 +39,8 @@ def test_validate_dataset():
     result = runner.invoke(cli, ["validate", "/dev/null"])
     assert result.exit_code != 0, result.output
     result = runner.invoke(cli, ["validate", DATASET_1_YML.as_posix()])
-    assert result.exit_code == 0, result.output
-    assert "No entities validated" in result.output, result.output
+    assert result.exit_code != 0
+    assert "Validation caused abort" in result.output
     shutil.rmtree(settings.DATA_PATH)
 
 
