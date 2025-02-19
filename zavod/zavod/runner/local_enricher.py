@@ -69,7 +69,7 @@ class LocalEnricher(BaseEnricher[DS]):
         self.target_store = get_store(target_dataset, target_linker)
         self.target_store.sync()
         self.target_view = self.target_store.view(target_dataset)
-        index_path = dataset_state_path(dataset.name) / "duckdb-enrich-index"
+        index_path = dataset_state_path(target_dataset_name) / "enrich-index"
         self._index = DuckDBIndex(
             self.target_view, index_path, config.get("index_options", {})
         )
