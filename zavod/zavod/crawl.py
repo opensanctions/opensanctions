@@ -33,11 +33,6 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
         )
         entry_point = load_entry_point(dataset)
         entry_point(context)
-        if context.stats.entities == 0:
-            context.log.error(
-                "Runner did not emit entities",
-                statements=context.stats.statements,
-            )
         context.log.info(
             "Run completed",
             entities=context.stats.entities,
