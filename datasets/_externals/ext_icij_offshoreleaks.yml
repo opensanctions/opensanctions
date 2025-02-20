@@ -10,7 +10,7 @@ exports:
 deploy:
   cpu: "1000m"
   memory: "3500Mi"
-  memory_limit: "4500Mi"
+  memory_limit: "5000Mi"
   disk: "20Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
@@ -71,7 +71,7 @@ inputs:
 config:
   dataset: icij_offshoreleaks
   index_options:
-    memory_budget: 3500
+    memory_budget: 2500
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1
