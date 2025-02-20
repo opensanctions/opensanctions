@@ -21,11 +21,9 @@ ENTITY_CX = {"id": "ECX", "schema": "Person", "properties": {"name": ["Carl Saga
 ENTITY_D = {"id": "ED", "schema": "Person", "properties": {"name": ["Dory"]}}
 
 
-def test_delta_exporter(testdataset1: Dataset):
+def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
     testdataset1.exports = {DELTA_EXPORT_FILE}
     dataset_path = settings.DATA_PATH / DATASETS / testdataset1.name
-    resolver = Resolver[Entity].make_default()
-    resolver.begin()
     store = get_store(testdataset1, resolver)
 
     def e(data: Dict[str, Any]) -> Entity:
@@ -107,5 +105,3 @@ def test_delta_exporter(testdataset1: Dataset):
                 assert data["op"] == "DEL"
             if data["entity"]["id"] == "ECX":
                 assert data["op"] == "DEL"
-
-    resolver.commit()

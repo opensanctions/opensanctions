@@ -130,7 +130,7 @@ def resolver() -> Generator[Resolver[Entity], None, None]:
     resolver = get_resolver()
     resolver.begin()
     yield resolver
-    resolver.rollback()
+    resolver.rollback(force=True)
 
 
 @pytest.fixture(scope="function")
