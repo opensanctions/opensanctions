@@ -6,22 +6,9 @@ from typing import Optional
 from zavod import Context, helpers as h
 
 
-LOC_PERSON_LISTS = [
-    "2017",
-    "2018",
-    "2019",
-    "2020",
-    "2021",
-    "2022",
-    "2023",
-    "2024",
-    "2025",
-]
-LOC_ENT_LIST = ["الكيانات"]  # Entities
 LOC_IGNORE_LIST = ["الافراد", "القوائم المحلية "]  # Individuals, Local lists
-INT_LISTS = ["كيانات", "افراد"]  # Entities, Individuals
 
-YEAR_PATTERN = re.compile(r"\b(" + "|".join(LOC_PERSON_LISTS) + r")\b")
+YEAR_PATTERN = re.compile(r"\b\d{4}\b")
 ENTITY_NAME_REASON = re.compile(
     r"\s*للتوسط ببيع وشراء العملات الاجنبية$"
 )  # To mediate in the sale and purchase of foreign currencies
@@ -63,7 +50,8 @@ def crawl_row(row: dict, context: Context):
     if entity_name:
         entity = context.make("LegalEntity")
         entity.id = context.make_id(id, entity_name, decision_number)
-        entity.add("topics", "debarment")
+        entity.add("topics", "sanction")
+        entity.add("topics", "asset.frozen")
         entity.add("name", entity_name, lang="ara")
         context.emit(entity)
         sanction = h.make_sanction(context, entity)
@@ -95,7 +83,6 @@ def process_xlsx(
     context,
     url: str,
     filename: str,
-    expected_sheets: list,
     title: str,
     ignore_sheets: list = [],
 ):
@@ -111,13 +98,17 @@ def process_xlsx(
     context.export_resource(path, XLSX)
 
     wb = load_workbook(path, read_only=True)
-    for sheet in expected_sheets:
+    processed_sheets = set()
+    for sheet in wb.sheetnames:
+        if sheet in ignore_sheets:
+            continue
         for row in h.parse_xlsx_sheet(
             context, wb[sheet], skiprows=3, header_lookup="columns"
         ):
             crawl_row(row, context)
+            processed_sheets.add(sheet)
 
-    assert set(wb.sheetnames) == set(expected_sheets + ignore_sheets)
+    assert set(wb.sheetnames) == processed_sheets | set(ignore_sheets)
 
 
 def crawl(context: Context):
@@ -125,14 +116,12 @@ def crawl(context: Context):
         context,
         "https://aml.iq/?page_id=2169",
         "international.xlsx",
-        INT_LISTS,
         "القائمة-الدولية",  # International list
     )
     process_xlsx(
         context,
         "https://aml.iq/?page_id=2171",
         "local.xlsx",
-        LOC_PERSON_LISTS + LOC_ENT_LIST,
         "القوائم-المحلية",  # Local lists
         LOC_IGNORE_LIST,
     )
