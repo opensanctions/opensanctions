@@ -110,7 +110,7 @@ def crawl_item(item: Dict[str, str | None], context: Context):
     if is_disqualified:
         person.add("topics", "corp.disqual")
 
-    context.emit(person, target=is_disqualified)
+    context.emit(person)
     context.emit(sanction)
 
     context.audit_data(item)
