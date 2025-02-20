@@ -312,6 +312,22 @@ lookups:
         name: Lalique Co LTD
         registration_number: 6471802
         care_of: Qingdao Huitong Shipping Co LTD
+      - match: "SCF Novy Port LLC c/o SCF TM LTD (5933511"
+        name: SCF Novy Port LLC
+        registration_number: 5933511
+        care_of: SCF TM LTD
+      - match: "Trio LTD c/o Galileos Marine Services LLC (6461868"
+        name: Trio LTD
+        registration_number: 6461868
+        care_of: Galileos Marine Services LLC
+      - match: "Lorama Shipping Co LTD с/о SCF Management Services (Cyprus) Ltd (4105921"
+        name: Lorama Shipping Co LTD
+        registration_number: 4105921
+        care_of: SCF Management Services (Cyprus) Ltd
+      - match: "Loukio Shipping Co LTD с/о  SCF Management Services (Cyprus) Ltd (4105917"
+        name: Loukio Shipping Co LTD
+        registration_number: 4105917
+        care_of: SCF Management Services (Cyprus) Ltd
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973

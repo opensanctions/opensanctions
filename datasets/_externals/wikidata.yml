@@ -987,6 +987,7 @@ lookups:
           - Basque Country
           - Catalana
           - Basque people
+          - Spaniards
         value: ES
       - match: Muscat and Oman
         value: OM
