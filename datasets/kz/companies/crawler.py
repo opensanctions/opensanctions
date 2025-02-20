@@ -79,7 +79,7 @@ def crawl_page(context: Context, page_number: int) -> int:
                 entity.add(v, item.get(k), lang=lang)
 
         entity.add("country", "kz")
-        context.emit(entity, target=True)
+        context.emit(entity)
 
         if item.get("director"):
             director = context.make("Person")

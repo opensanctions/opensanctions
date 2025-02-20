@@ -58,7 +58,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     )
     entity.add("address", address)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.log.info(f"Emitted entity for bank: {bank_name}")
 
 

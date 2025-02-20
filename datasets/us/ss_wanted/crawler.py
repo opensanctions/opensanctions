@@ -114,4 +114,4 @@ def crawl_person(context: Context, url: str):
     person.add("hairColor", hair)
     person.add("eyeColor", eyes)
 
-    context.emit(person, target=True)
+    context.emit(person)

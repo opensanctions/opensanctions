@@ -44,7 +44,7 @@ def crawl_item(unid: str, context: Context):
     if occupancy is None:
         return
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(position)
     context.emit(occupancy)
 

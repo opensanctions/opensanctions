@@ -123,7 +123,7 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
     if not end_date:
         entity.add("topics", "sanction")
     context.audit_data(row)
-    context.emit(entity, target=not end_date)
+    context.emit(entity)
     context.emit(sanction)
 
 

@@ -143,7 +143,7 @@ def crawl_person(context: Context, url: str, wanted_for: str):
         ],
     )
 
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context: Context):

@@ -138,7 +138,7 @@ def crawl_row(context: Context, row: Dict):
     )
     h.apply_dates(sanction, "startDate", clean_date(row.pop("isreal_adoption_date")))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(row, ignore=["declaration_date", "originally_declared_by"])
 

@@ -79,7 +79,7 @@ def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
             end_date="2025",
             categorisation=categorisation,
         )
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(position)
         context.emit(occupancy)
         return entity
@@ -109,7 +109,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
             end_date=row.pop("End date", None),
             categorisation=categorisation,
         )
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(position)
         context.emit(occupancy)
 

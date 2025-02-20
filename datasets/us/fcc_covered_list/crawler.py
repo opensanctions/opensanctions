@@ -36,7 +36,7 @@ def crawl_item(input_dict: dict, context: Context):
             input_dict.get("Date of Inclusion on Covered List"),
         )
 
-        context.emit(subsidiary, target=True)
+        context.emit(subsidiary)
         context.emit(ownership)
         context.emit(subsidiary_sanction)
 
@@ -48,7 +48,7 @@ def crawl_item(input_dict: dict, context: Context):
         sanction, "startDate", input_dict.pop("Date of Inclusion on Covered List")
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(input_dict)

@@ -74,7 +74,7 @@ def crawl_member_bio(context: Context, url: str):
         categorisation=categorisation,
     )
 
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(position)
     context.emit(occupancy)
 

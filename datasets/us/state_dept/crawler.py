@@ -90,7 +90,7 @@ def crawl_bio_page(context: Context, url: str):
         end_date=end_date,
         categorisation=categorisation,
     )
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(position)
     context.emit(occupancy)
 

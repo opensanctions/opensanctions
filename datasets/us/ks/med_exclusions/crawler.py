@@ -39,7 +39,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction.add("startDate", termination_date)
     sanction.add("summary", comments)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row)

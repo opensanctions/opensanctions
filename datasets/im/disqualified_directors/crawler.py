@@ -68,7 +68,7 @@ def crawl_item(item: Dict[str, str], context: Context):
             "reason", item.pop("Particulars of Disqualification Order or Undertaking")
         )
 
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(sanction)
 
     context.audit_data(

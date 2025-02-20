@@ -129,7 +129,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
         context.emit(sanction)
 
     context.audit_data(notice, ignore=IGNORE_FIELDS)
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl_query(context: Context, query: Dict[str, Any]) -> int:

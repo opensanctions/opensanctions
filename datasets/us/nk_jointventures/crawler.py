@@ -17,7 +17,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
     company.add("topics", "export.risk")
     company.add("country", "North Korea")
 
-    context.emit(company, target=True)
+    context.emit(company)
 
     context.audit_data(row)
 

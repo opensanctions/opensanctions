@@ -65,7 +65,7 @@ def crawl(context: Context):
             "program", str_row.pop("sanctiuni_de_proliferare") or None, lang="mol"
         )
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
 
         context.audit_data(str_row)

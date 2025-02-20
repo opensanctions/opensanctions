@@ -66,7 +66,7 @@ def crawl_entity(
     sanction.add("program", program)
     sanction.add("authorityId", authority_id)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     return entity

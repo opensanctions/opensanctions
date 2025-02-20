@@ -66,7 +66,7 @@ def crawl_financiers(context: Context):
         h.apply_name(entity, given_name=fname, middle_name=mname, last_name=lname)
         entity.add("idNumber", iin)
         h.apply_date(entity, "birthDate", bdate)
-        context.emit(entity, target=True)
+        context.emit(entity)
 
         if iin:
             ident = h.make_identification(
@@ -89,7 +89,7 @@ def crawl_financiers(context: Context):
             if names is None:
                 continue
             entity.add("name", names.split("; "))
-        context.emit(entity, target=True)
+        context.emit(entity)
 
 
 def crawl_terrorists(context: Context):

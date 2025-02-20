@@ -83,7 +83,7 @@ def crawl_leader(
             context, person, position, categorisation=categorisation
         )
 
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 
