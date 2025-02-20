@@ -42,9 +42,31 @@ assertions:
       LegalEntity: 80
 
 lookups:
-  type.date: 
+  columns:
+    options:
+      - match:  ت
+        value: id
+      - match:
+          - اسم الشخص
+          - اسماء الاشخاص
+        value: person_name
+      - match: التولد
+        value: dob
+      - match: اسم الام
+        value: matronymic
+      - match: رقم القرار
+        value: decision_no
+      - match: اسم الكيان
+        value: entity_name
+      - match: الجنسية
+        value: nationality
+  type.date:
     options: 
       - match:
-          - 'لا يوجد'
+          - 'لا يوجد'  # nothing
           - /
+        value: null
+  type.string:
+    options:
+      - match: /
         value: null

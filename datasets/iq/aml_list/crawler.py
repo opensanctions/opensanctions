@@ -5,7 +5,6 @@ from typing import Optional
 
 from zavod import Context, helpers as h
 
-SOURCE_URLS = ["https://aml.iq/?page_id=2169", "https://aml.iq/?page_id=2171"]
 
 LOC_PERSON_LISTS = [
     "2017",
@@ -18,12 +17,14 @@ LOC_PERSON_LISTS = [
     "2024",
     "2025",
 ]
-LOC_ENT_LIST = ["الكيانات"]
-LOC_IGNORE_LIST = ["الافراد", "القوائم المحلية "]
-INT_LISTS = ["كيانات", "افراد"]
+LOC_ENT_LIST = ["الكيانات"]  # Entities
+LOC_IGNORE_LIST = ["الافراد", "القوائم المحلية "]  # Individuals, Local lists
+INT_LISTS = ["كيانات", "افراد"]  # Entities, Individuals
 
 YEAR_PATTERN = re.compile(r"\b(" + "|".join(LOC_PERSON_LISTS) + r")\b")
-ENTITY_NAME_REASON = re.compile(r"\s*للتوسط ببيع وشراء العملات الاجنبية$")
+ENTITY_NAME_REASON = re.compile(
+    r"\s*للتوسط ببيع وشراء العملات الاجنبية$"
+)  # To mediate in the sale and purchase of foreign currencies
 
 
 def clean_entity_name(entity_name: str) -> Optional[str]:
@@ -51,9 +52,9 @@ def extract_listing_date(decision_number: str) -> Optional[str]:
 
 
 def crawl_row(row: dict, context: Context):
-    entity_name = row.pop("asm_alkyan", None)  # اسم الكيان
-    id = row.pop("t")  # ت
-    decision_number = row.pop("rqm_alqrar")  # رقم القرار
+    entity_name = row.pop("entity_name", None)
+    id = row.pop("id")
+    decision_number = row.pop("decision_no")
 
     reason = extract_reason(entity_name)
     entity_name = clean_entity_name(entity_name)
@@ -67,16 +68,16 @@ def crawl_row(row: dict, context: Context):
         context.emit(entity)
         sanction = h.make_sanction(context, entity)
     else:
-        name = row.pop("asm_alshkhs", row.pop("asma_alashkhas", None))  # اسم الشخص
+        name = row.pop("name", row.pop("person_name"))
         person = context.make("Person")
         person.id = context.make_id(id, name)
         person.add("topics", "debarment")
-        person.add("nationality", row.pop("aljnsyt", None), lang="ara")  # الجنسية
-        h.apply_date(person, "birthDate", row.pop("altwld"))  # التولد
+        person.add("nationality", row.pop("nationality", None), lang="ara")
+        h.apply_date(person, "birthDate", row.pop("dob"))
         h.apply_name(
             person,
             full=name,
-            matronymic=row.pop("asm_alam"),  # اسم الام
+            matronymic=row.pop("matronymic"),
             lang="ara",
         )
         context.emit(person)
@@ -111,7 +112,9 @@ def process_xlsx(
 
     wb = load_workbook(path, read_only=True)
     for sheet in expected_sheets:
-        for row in h.parse_xlsx_sheet(context, wb[sheet], skiprows=3):
+        for row in h.parse_xlsx_sheet(
+            context, wb[sheet], skiprows=3, header_lookup="columns"
+        ):
             crawl_row(row, context)
 
     assert set(wb.sheetnames) == set(expected_sheets + ignore_sheets)
@@ -120,14 +123,14 @@ def process_xlsx(
 def crawl(context: Context):
     process_xlsx(
         context,
-        SOURCE_URLS[0],
+        "https://aml.iq/?page_id=2169",
         "international.xlsx",
         INT_LISTS,
         "القائمة-الدولية",  # International list
     )
     process_xlsx(
         context,
-        SOURCE_URLS[1],
+        "https://aml.iq/?page_id=2171",
         "local.xlsx",
         LOC_PERSON_LISTS + LOC_ENT_LIST,
         "القوائم-المحلية",  # Local lists
