@@ -89,7 +89,7 @@ def crawl(context: Context):
         owners_and_admins = row.pop("date_privind_administratotul_si_fondatorii")
         crawl_control(context, entity, decision_date, owners_and_admins)
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
 
 

@@ -208,8 +208,8 @@ def crawl(context: Context) -> None:
             context, declarant, declarant_affiliations
         )
         for position, occupancy in declarant_offices:
-            context.emit(position, target=False)
-            context.emit(occupancy, target=False)
+            context.emit(position)
+            context.emit(occupancy)
         if not declarant_offices:
             context.log.debug(
                 f"deklaracija {deklaracija_id} has no relevant occupancies."
@@ -228,7 +228,7 @@ def crawl(context: Context) -> None:
             context.emit(spouse)
             context.emit(marriage)
 
-        context.emit(declarant, target=True)
+        context.emit(declarant)
         context.audit_data(
             record,
             ignore=[

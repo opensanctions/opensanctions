@@ -89,7 +89,7 @@ def crawl_holder(
 
     context.emit(position)
     context.emit(occupancy)
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def query_position_holders(
@@ -323,4 +323,4 @@ def crawl(context: Context):
     entity.add("name", "Mark Lipparelli")
     entity.add("topics", "role.pep")
     entity.add("country", "us")
-    context.emit(entity, target=True)
+    context.emit(entity)

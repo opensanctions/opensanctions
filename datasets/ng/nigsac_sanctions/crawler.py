@@ -46,7 +46,7 @@ def crawl_common(context: Context, url: str, entity: Entity, sanction: Entity, d
     h.apply_date(sanction, "listingDate", data.pop("record-date"))
     sanction.add("description", data.pop("press-release"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(data)
 

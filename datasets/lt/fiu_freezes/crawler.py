@@ -46,7 +46,7 @@ def crawl_page(
         company.add("name", company_name)
         company.add("registrationNumber", reg_nr)
         company.add("topics", "sanction")
-        context.emit(company, target=True)
+        context.emit(company)
 
         sanction = h.make_sanction(context, company)
         sanction.add("provisions", measures)

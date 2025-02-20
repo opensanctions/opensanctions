@@ -128,5 +128,5 @@ def crawl(context: Context):
         if entity.schema.name == "Thing":
             entity.schema = model.get("LegalEntity")
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)

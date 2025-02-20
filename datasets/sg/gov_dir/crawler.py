@@ -199,7 +199,7 @@ def crawl_person(
     if categorisation.is_pep:
         occupancy = h.make_occupancy(context, person, position)
         if occupancy:
-            context.emit(person, target=True)
+            context.emit(person)
             context.emit(position)
             context.emit(occupancy)
             return True

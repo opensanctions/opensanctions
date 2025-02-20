@@ -99,7 +99,7 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         if h.is_active(sanction):
             wallet.add("topics", "crime.terror")
         sanction.add("sourceUrl", source_url)
-        context.emit(wallet, target=True)
+        context.emit(wallet)
         context.emit(sanction)
 
     context.audit_data(

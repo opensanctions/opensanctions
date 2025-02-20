@@ -61,11 +61,11 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.emit(sanction)
         if sanction_status == "ACTIVE":
             entity.add("topics", "sanction")
-            context.emit(entity, target=True)
+            context.emit(entity)
         else:
             if not sanction_status == "REMOVED":
                 context.log.warning("Unexpected sanction status", entity=entity.id)
-            context.emit(entity, target=False)
+            context.emit(entity)
 
     elif entity_type == "GROUP":
         entity = context.make("Organization")
@@ -82,7 +82,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.emit(sanction)
         if sanction_status == "ACTIVE":
             entity.add("topics", "sanction")
-            context.emit(entity, target=True)
+            context.emit(entity)
         else:
             if not sanction_status == "REMOVED":
                 context.log.warning(
@@ -90,7 +90,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
                     value=sanction_status,
                     entity=entity.id,
                 )
-            context.emit(entity, target=False)
+            context.emit(entity)
     else:
         context.log.warning("Unhandled entity type", type=entity_type)
 

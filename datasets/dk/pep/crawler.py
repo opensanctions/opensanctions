@@ -56,7 +56,7 @@ def crawl_current_pep_item(context: Context, country: str, lang: str, input_dict
     )
 
     if occupancy:
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(position)
         context.emit(occupancy)
 
@@ -87,7 +87,7 @@ def crawl_old_pep_item(context: Context, country: str, lang: str, input_dict: di
     )
 
     if occupation:
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(position)
         context.emit(occupation)
 

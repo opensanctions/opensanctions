@@ -142,7 +142,7 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
         h.apply_dates(sanction, "date", listing_dates[1:])
     h.apply_date(sanction, "listingDate", gazette_date)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(row, ignore=["sequence_no", "decision_date"])
 
@@ -229,6 +229,6 @@ def crawl(context: Context):
     # UN Security Council stubs
     un_sc, doc = load_un_sc(context)
     for _node, entity in get_persons(context, un_sc.prefix, doc, UN_SC_PREFIXES):
-        context.emit(entity, target=True)
+        context.emit(entity)
     for _node, entity in get_legal_entities(context, un_sc.prefix, doc, UN_SC_PREFIXES):
-        context.emit(entity, target=True)
+        context.emit(entity)

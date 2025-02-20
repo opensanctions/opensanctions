@@ -54,7 +54,7 @@ def crawl(context: Context):
                 occupancy.add("description", appointment_type)
             if not occupancy:
                 continue
-            context.emit(person, target=True)
+            context.emit(person)
             context.emit(position)
             context.emit(occupancy)
             context.audit_data(row, ignore=IGNORE)

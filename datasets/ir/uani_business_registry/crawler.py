@@ -161,7 +161,7 @@ def crawl(context: Context):
             entity.add("sourceUrl", company_link)
             entity.add("ticker", str_row.pop("stock_symbol"))
             entity.add("topics", "export.risk")
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.audit_data(str_row)
 
         pages_processed += 1

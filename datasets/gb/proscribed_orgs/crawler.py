@@ -80,7 +80,7 @@ def crawl_group(context: Context, text: str):
     sanction = h.make_sanction(context, entity)
     sanction.set("authority", "UK Home Secretary")
     sanction.add("sourceUrl", context.data_url)
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

@@ -78,7 +78,7 @@ def crawl_item(item, context: Context):
         lang="lit",
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl(context: Context):

@@ -40,7 +40,7 @@ def parse_common(context: Context, node: Element, entity: Entity):
     h.apply_date(sanction, "listingDate", node.findtext("./DateInclusion"))
     h.apply_date(entity, "createdAt", node.findtext("./DateInclusion"))
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

@@ -51,7 +51,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction.add("provisions", row.pop("sanction_code"))
     sanction.add("duration", row.pop("sanction_type_code"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row)

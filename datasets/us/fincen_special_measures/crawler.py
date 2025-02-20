@@ -64,9 +64,9 @@ def crawl_item(context: Context, row: Dict[str, str]):
     if rescinded_date != "---" and rescinded_date != "":
         for date in convert_date(rescinded_date):
             h.apply_date(sanction, "endDate", date)
-        context.emit(entity, target=True)
+        context.emit(entity)
     else:
-        context.emit(entity, target=False)
+        context.emit(entity)
 
     # Emit the sanction
     context.emit(sanction)
