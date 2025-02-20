@@ -275,6 +275,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             FROM processed_chunks;
         """
         self.con.execute(match_table_query)
+        log.info("Finished match generation, now returning scored pairs...")
         match_query = """
         SELECT * FROM agg_matches ORDER BY matching_id, score DESC;
         """
