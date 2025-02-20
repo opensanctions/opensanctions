@@ -12,7 +12,6 @@ from zavod import helpers as h
 SCHEMATA: Dict[str, str] = {}
 ADDRESSES_FULL: Dict[str, List[str]] = {}
 ADDRESSES_COUNTRIES: Dict[str, List[str]] = {}
-NODE_URL = "https://offshoreleaks.icij.org/nodes/%s"
 
 
 def parse_countries(text):
@@ -68,7 +67,6 @@ def make_row_entity(context: Context, row: Dict[str, str], schema):
         proxy.add("previousName", original_name)
 
     proxy.add("icijId", node_id)
-    proxy.add("sourceUrl", NODE_URL % node_id)
     proxy.add("legalForm", row.pop("company_type", None))
     proxy.add("legalForm", row.pop("type", None))
     h.apply_date(proxy, "incorporationDate", row.pop("incorporation_date", None))
@@ -85,6 +83,7 @@ def make_row_entity(context: Context, row: Dict[str, str], schema):
     proxy.add("publisher", row.pop("sourceID", None))
     proxy.add("notes", row.pop("valid_until", None))
     proxy.add("notes", row.pop("note", None))
+    proxy.add("sourceUrl", f"https://offshoreleaks.icij.org/nodes/{node_id}")
 
     row.pop("jurisdiction", None)
     countries = parse_countries(row.pop("jurisdiction_description", None))
@@ -224,12 +223,12 @@ def make_row_relationship(context: Context, row: Dict[str, str]):
         # this turns legalentity into organization in some cases
         start_ent = context.make(rel.schema.get(res.start).range)
         start_ent.id = start
-        start_ent.add("sourceUrl", NODE_URL % _start)
+        start_ent.add("sourceUrl", f"https://offshoreleaks.icij.org/nodes/{_start}")
         emit_entity(context, start_ent)
 
         end_ent = context.make(rel.schema.get(res.end).range)
         end_ent.id = end
-        end_ent.add("sourceUrl", NODE_URL % _end)
+        end_ent.add("sourceUrl", f"https://offshoreleaks.icij.org/nodes/{_end}")
         emit_entity(context, end_ent)
 
     # row = {k: v for k, v in row.items() if v is not None}

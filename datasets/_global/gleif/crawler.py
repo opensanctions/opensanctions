@@ -192,6 +192,7 @@ def parse_lei_file(context: Context, fh: BinaryIO) -> None:
         proxy.add_cast("Company", "swiftBic", bics.get(lei))
         proxy.add("leiCode", lei, quiet=True)
         proxy.add_cast("Company", "opencorporatesUrl", ocurls.get(lei))
+        # proxy.add("sourceUrl", f"https://search.gleif.org/#/record/{lei}")
 
         for isin in isins.get(lei, []):
             proxy.add_schema("Company")
