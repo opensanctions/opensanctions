@@ -49,7 +49,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     if is_debarred:
         entity.add("topics", "debarment")
 
-    context.emit(entity, target=is_debarred)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row, ignore=["sanction_type", "column_0"])
