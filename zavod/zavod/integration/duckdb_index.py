@@ -72,6 +72,8 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         """Memory budget in megabytes"""
         self.max_candidates = int(options.get("max_candidates", 75))
         self.stopwords_pct: float = float(options.get("stopwords_pct", 0.8))
+        self.max_stopwords: int = int(options.get("max_stopwords", 100_000))
+        self.match_batch: int = int(options.get("match_batch", 1_000))
         self.data_dir = data_dir.resolve()
         # if self.data_dir.exists():
         #     rmtree(self.data_dir)
@@ -170,7 +172,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         assert num_tokens_results is not None
         num_tokens = num_tokens_results[0]
         limit = int((num_tokens / 100) * self.stopwords_pct)
-        limit = min(limit, 20000)
+        limit = min(limit, self.max_stopwords)
         log.info(
             "Treating %d (%s%%) most common tokens as stopwords...",
             limit,
@@ -250,7 +252,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
         res = self.con.execute("SELECT COUNT(DISTINCT id) FROM matching").fetchone()
         num_matching = res[0] if res is not None else 0
-        chunks = max(1, num_matching // 1000)
+        chunks = max(1, num_matching // self.match_batch)
 
         chunk_table_query = """
         CREATE OR REPLACE TABLE matching_chunks AS
