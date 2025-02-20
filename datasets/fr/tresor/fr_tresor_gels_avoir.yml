@@ -81,6 +81,7 @@ lookups:
         value: IQ
   identification:
     lowercase: true
+    normalize: true
     options:
       - match: "Numéro d'enregistrement - Date d'enregistrement : 04/01/1996: 600390798"
         props:
@@ -482,10 +483,6 @@ lookups:
         props:
           registrationNumber: 192721937
           incorporationDate: 2016-10-18
-      - match: "(BVI): 1534407"
-        props:
-          registrationNumber: 1534407
-          jurisdiction: BVI
       - match: "Numéro d'enregistrement: 691598938"
         props:
           registrationNumber: 691598938
@@ -495,16 +492,6 @@ lookups:
       - match: "SWIFT/BIC: CMSYSYDA"
         props:
           swiftBic: CMSYSYDA
-      - match:
-          "Type d'entité: société à responsabilité limitée. Lieu d'enregistrement:
-          passage piéton, propriété 3. bâtiment 2, 125373, Moscou, Fédération de Russie.
-          Date d'enregistrement: 10.12.2021; Numéro d'enregistrement: 1217700605209: 1217700605209"
-        props:
-          incorporationDate: 2021-12-10
-          ogrnCode: 1217700605209
-          legalForm: société à responsabilité limitée
-          address: passage piéton, propriété 3. bâtiment 2, 125373, Moscou, Fédération de Russie
-          jurisdiction: ru
       - match: "OMI: 9036387"
         props:
           imoNumber: 9036387
@@ -908,16 +895,6 @@ lookups:
       - match: "Numéro de journal officiel: 06513574"
         props:
           # registrationNumber: 06513574
-      - match: "No d’identification fiscale: 7811636632"
-        props:
-          taxNumber: 7811636632
-      - match: "Numéro d’enregistrement - Lieu d’enregistrement: d. 76 korp. 4 litera A ofis N620, prospekt Obukhovskoi Oborony Saint-Pétersbourg, Fédération de Russie - Principal établissement: Khartoum, Soudan: 1177847044066"
-        props:
-          address: d. 76 korp. 4 litera A ofis N620, prospekt Obukhovskoi Oborony Saint-Pétersbourg, Fédération de Russie
-          jurisdiction:
-            - RU
-            - Sudan
-          ogrnCode: 1177847044066
       - match: "Lieu d’enregistrement: Moscou (64 Zemlyanoy Val, bâtiment 2, bureau 201, Moscou, Fédération de Russie): /"
         props:
           address: "64 Zemlyanoy Val, bâtiment 2, bureau 201, Moscou, Fédération de Russie"
@@ -952,19 +929,10 @@ lookups:
           jurisdiction: Central African Republic
           incorporationDate: 2018-11
           address: Galabadja  Bangui, Commune de Bangui - Galabadja, 8e Arr. - [GPS]-> 4.4070, 18.5465
-      - match: "NIF, numéro d’identification fiscale - Lieu d’enregistrement: Bangui (République centrafricaine) - Date d’enregistrement: 24.10.2017: M 354838 D 0001"
-        props:
-          jurisdiction: Central African Republic
-          incorporationDate: 2017-10-24
-          registrationNumber: M 354838 D 0001
       - match: "Lieu d’enregistrement: Téhéran, Iran - Type d’entité: institut associé aux forces de l’ordre de la République islamique d’Iran: /"
         props:
           jurisdiction: Iran
           legalForm: institut associé aux forces de l’ordre de la République islamique d’Iran
-      - match: "Date d’enregistrement: 28.3.2019: CA/BG2019B519"
-        props:
-          incorporationDate: 2019-03-28
-          registrationNumber: CA/BG2019B519
       - match: "Lieu d’enregistrement: Bangui (République centrafricaine)  - Principal établissement: République centrafricaine: /"
         props:
           jurisdiction: Central African Republic
@@ -993,13 +961,6 @@ lookups:
           jurisdiction: Russia
           incorporationDate: 2012-06-21
           innCode: 7717727466
-      - match: "Type d’entité: société par actions. Lieu d’enregistrement: 127287, st. Khutorskaya 2nd, 38A, Moscou, Fédération de Russie. Date d’enregistrement: 28.11.2002. Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1027739642281"
-        props:
-          legalForm: société par actions
-          address: 127287, st. Khutorskaya 2nd, 38A, Moscou, Fédération de Russie
-          jurisdiction: Russia
-          incorporationDate: 2002-11-28
-          ogrnCode: 1027739642281
       - match: "Type d’entité: société publique par actions. Lieu d’enregistrement: 107078, Moscou, Masha Poryvaeva str., 34, Fédération de Russie. Date d’enregistrement: 2.3.1993. Principal établissement: Fédération de Russie: Numéro d’enregistrement: OGRN: 1027739460737"
         props:
           legalForm: société publique par actions
@@ -1439,10 +1400,6 @@ lookups:
           jurisdiction: ir
           incorporationDate: 1989
           notes: fondation
-      - match: "déclarée à la sous-préfecture de Sarcelles le 9 juillet 2004 sous le numéro W952006863"
-        props:
-          registrationNumber: W952006863
-          incorporationDate: 2004-07-09
       - match:
           "Type d’entité: Filiale de l’entreprise unitaire de l’État fédéral - Lieu
           d’enregistrement: Fédération de Russie - Date d’enregistrement: 15.11.2002 - Principal
@@ -1536,20 +1493,6 @@ lookups:
           legalForm: société anonyme publique
           incorporationDate: 1996-07-25
           ogrnCode: 1025901509798
-      - match:
-          "Date d'enregistrement: 27.12.2022 - Type d'entité: société par actions
-          - Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie - Principal
-          établissement: Russie - Personnes associées: Yevgeniy Viktorovich Prigozhin  -
-          Entités associées: Wagner Group: Numéro d'enregistrement: 1227800167242"
-        associates:
-          - Yevgeniy Viktorovich Prigozhin
-          - Wagner Group
-        props:
-          jurisdiction: ru
-          legalForm: société par actions
-          incorporationDate: 2022-12-27
-          address: Saint-Pétersbourg, Fédération de Russie
-          ogrnCode: 1227800167242
       - match:
           "Lieu d’enregistrement: Saint-Pétersbourg, Fédération de Russie - Date d’enregistrement:
           3.7.2013: INN 7802830545 BIN 1137847251740 PPC 780101001 OKPO 27492853"
@@ -1742,15 +1685,6 @@ lookups:
           address: "105318, Moscou, ul. Ibragimova, 31"
           incorporationDate: 2010-06-03
           innCode: 7719751930
-      - match:
-          "Lieu d’enregistrement: Fédération de Russie (27521, Moscou, ul. Oktiabrskaia,
-          72.) - Date d’enregistrement: 29.5.2020 - Principal établissement: Fédération
-          de Russie: 9715384055 (numéro d’identification fiscale)"
-        props:
-          jurisdiction: ru
-          address: "27521, Moscou, ul. Oktiabrskaia, 72."
-          incorporationDate: 2020-05-29
-          innCode: 9715384055
       - match: "Date d’enregistrement: 1947 - Principal établissement: Russie"
         props:
           incorporationDate: 1947
@@ -1827,24 +1761,12 @@ lookups:
           legalForm: Organe de presse
           incorporationDate: 2003-06-02
           innCode: 7727214569
-      - match: "NIF - Type d’entité: Organisation autonome à but non lucratif  - Lieu d’enregistrement: Russie - Date d’enregistrement: 2019  - Principal lieu d’activité: Russie: 9709056472"
-        props:
-          jurisdiction: ru
-          legalForm: Organisation autonome à but non lucratif
-          incorporationDate: 2019
-          innCode: 9709056472
       - match: "NIF - Type d’entité: “Conseils en matière d’activités commerciales et de gestion”  - Lieu d’enregistrement: Moscou -Date d’enregistrement: 3.11.2005  - Principal lieu d’activité: Moscou: 7727536630"
         props:
           jurisdiction: ru
           legalForm: “Conseils en matière d’activités commerciales et de gestion”
           incorporationDate: 2005-11-03
           innCode: 7727536630
-      - match: "NIF - Type d'entité: Organisation autonome à but non lucratif - Lieu d'enregistrement: Russie - Date d'enregistrement: 2019 - Principal lieu d'activité: Russie: 7703438908"
-        props:
-          jurisdiction: ru
-          legalForm: Organisation autonome à but non lucratif
-          incorporationDate: 2019
-          innCode: 7703438908
       - match: "Type d’entité: prison - Lieu d’enregistrement: Karaj, province d’Alborz, Iran: /"
         props:
           jurisdiction: ir
@@ -1954,13 +1876,6 @@ lookups:
           address: "Pokhodnyy Proyezd 3- 2, 125373, Moscou, Russie"
           incorporationDate: 2002-10-14
           registrationNumber: 1027700310076
-      - match: "Type d'entité: société par actions Date d'enregistrement: 1.2.2008. Numéro d'enregistrement: 1087746152207. Numéro d'identification fiscale: 7704676655: Numéro d'enregistrement: 1087746152207"
-        props:
-          jurisdiction: ru
-          legalForm: société par actions
-          incorporationDate: 2008-02-01
-          registrationNumber: 1087746152207
-          innCode: 7704676655
       - match: "Type d'entité: organe de presse  - Lieu d'enregistrement: Iran - Date d'enregistrement: 30 juin 2012: /"
         props:
           jurisdiction: ir
@@ -2066,31 +1981,6 @@ lookups:
         props:
           jurisdiction: sy
       - match:
-          "ministère de la défense et de la logistique des forces armées (MODAFL);
-          ELI: http://data.europa.eu/eli/reg_impl/2023/2196/oj 31/44 Nom Informations d’identification
-          Motifs Date d’inscriptionOrganisation des industries de la défense (DIO); Organisation
-          des industries aérospatiales (AIO); Iran Electronics Industries (IEI); P.B. Sadr;
-          Zhejiang Qingji Ind. Co., Ltd en Chine; Lingoe Process Engineering Limited (Lingoe)
-          à Hong Kong; Blue Calm Marine Services Company (Blue Calm) en Iran;: Entités associées"
-        associates:
-          - MODAFL
-          - Organisation des industries de la défense (DIO)
-          - Organisation des industries aérospatiales (AIO)
-          - Iran Electronics Industries (IEI)
-          - P.B. Sadr
-          - Zhejiang Qingji Ind. Co., Ltd en Chine
-          - Lingoe Process Engineering Limited (Lingoe) à Hong Kong
-          - Blue Calm Marine Services Company (Blue Calm) en Iran
-      - match: "Personne associée: Li Fang Wei alias Karl Lee"
-        associates:
-          - Li Fang Wei
-          - Karl Lee
-      - match:
-          "Personnes associées: Mehrdada Akhlaghi Ketabachi [directeur de Shahid Baheri
-          Industrial Group (SBIG)]"
-        associates:
-          - Mehrdada Akhlaghi Ketabachi
-      - match:
           "Lieu d’enregistrement: Iran - Personnes associées: Morteza Rezaie; Ali Akbar
           Ahmadian; Mohammad Reza Zahedi; Morteza Safari; Mohammad Bagher Zolghadr - Entités
           associées: Corps des gardiens de la révolution islamique (IRGC); force aérospatiale
@@ -2136,11 +2026,6 @@ lookups:
         associates:
           - Corps des gardiens de la révolution islamique (IRGC)
           - Khatam al-Anbiya Construction Headquarters (KAA)
-      - match:
-          "Entités associées: entité placée sous le contrôle de l’Organisation des
-          industries aérospatiales (AIO)"
-        associates:
-          - Organisation des industries aérospatiales (AIO)
       - match: "Lieu d’enregistrement: Téhéran: /"
         props:
           jurisdiction: ir
@@ -2220,18 +2105,6 @@ lookups:
         props:
           jurisdiction: ir
           incorporationDate: 1997
-      - match:
-          "Date d’enregistrement: 1989 et 1990 - Personnes associées: Abdollah Abdullahi
-          (directeur général et administrateur); M. Surah Kia Pasha (directeur général)
-          - Entités associées: Corps des gardiens de la révolution islamique (IRGC); Khatam
-          al-Anbiya Construction Headquarters (KAA: Lieu d’enregistrement: Iran"
-        associates:
-          - Abdollah Abdullahi
-          - M. Surah Kia Pasha
-          - Corps des gardiens de la révolution islamique (IRGC)
-          - Khatam al-Anbiya Construction Headquarters (KAA)
-        props:
-          jurisdiction: ir
       - match:
           "Type d'entité: société par actions cotée. Lieu d'enregistrement: Fédération
           de Russie. Date d'enregistrement: 1992. Numéro d'enregistrement: 1027739555282.
@@ -2372,17 +2245,6 @@ lookups:
           address: "Téhéran, Iran"
           notes: filiale de l’Organisation des industries de la défense (DIO) de l’Iran, qui est elle-même une filiale du ministère de la défense et de la logistique des forces armées (MODAFL)
       - match:
-          "Lieu d’enregistrement: Téhéran - No d’enregistrement: 176855 - Code économique:
-          411139673763 - Date d’enregistrement: 1987 et 2001 - Personnes associées: Reza
-          Sadougi, PDG: Numéro d’identification national 10102191894"
-        props:
-          jurisdiction: ir
-          registrationNumber: 176855
-          taxNumber: 411139673763
-          incorporationDate: 1987
-        associates:
-          - Reza Sadougi
-      - match:
           "Lieu d’enregistrement: Téhéran, Iran - Date d’enregistrement: 3.3.2008 -
           Établissement principal: Iran: /"
         props:
@@ -2392,15 +2254,6 @@ lookups:
       - match: "Lieu d'enregistrement: Myanmar/Birmanie: /"
         props:
           jurisdiction: mm
-      - match: "Type d'entité: Filiale de l'entreprise unitaire de l'État fédéral - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 15.11.2002 - Principal établissement: Fédération de Russie: Numéro d'enregistrement: 1027739552642"
-        props:
-          jurisdiction: ru
-          legalForm: Filiale de l'entreprise unitaire de l'État fédéral
-          incorporationDate: 2002-11-15
-          registrationNumber: 1027739552642
-      - match: 'Entités associées: Ancienne société mère: entreprise unitaire de l''État fédéral "Scientific and Production Center of Automation and Instrumentation named after academician N.A. Pilyugin" (JSC "NPCAP": Autres informations: TIN 7728171283'
-        associates:
-          - Scientific and Production Center of Automation and Instrumentation named after academician N.A. Pilyugin
       - match: "Lieu d'enregistrement: Iran - Établissement principal: Iran: /"
         props:
           jurisdiction: ir
@@ -2414,10 +2267,6 @@ lookups:
             - 2001
         associates:
           - Reza Sadougi
-      - match: "Association déclarée le 5 janvier 2012 à la préfecture du Gard: W302009276"
-        props:
-          registrationNumber: W302009276
-          incorporationDate: 2012-01-05
       - match: "Déclarée le 22 septembre 2016 à la préfecture du Gard: W302013417,"
         props:
           registrationNumber: W302013417
@@ -2456,15 +2305,6 @@ lookups:
           address: "Téhéran, Iran"
           incorporationDate: 2013
           legalForm: société à responsabilité limitée
-      - match: "Hadi Zahourian (directeur général); Mohammad Shabab Khanian (directeur général adjoint); Ehsan Rahat Varnosfadrani (scientifique en chef et ancien directeur général): Personnes associées"
-        associates:
-          - Hadi Zahourian
-          - Mohammad Shabab Khanian
-          - Ehsan Rahat Varnosfadrani
-      - match: "Date d’enregistrement: 2014 - Principal établissement: Iran: Lieu d’enregistrement: Iran"
-        props:
-          jurisdiction: ir
-          incorporationDate: 2014
       - match: "Lieu d'enregistrement: Moscou (64 Zemlyanoy Val, bâtiment 2, bureau 201, Moscou, Fédération de Russie): /"
         props:
           jurisdiction: ru
@@ -2554,7 +2394,9 @@ lookups:
           incorporationDate: 2017
           registrationNumber: 534295
           legalForm: société à responsabilité limitée
-      - match: "Numéro d'enregistrement - Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 14.10.2002: 1027301482603"
+      - match:
+          - "Numéro d'enregistrement - Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 14.10.2002: 1027301482603"
+          - "Numéro d'enregistrement - Type d'entité: société par actions  - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 14.10.2002: 1027301482603"
         props:
           jurisdiction: ru
           legalForm: société par actions
@@ -2653,13 +2495,6 @@ lookups:
           legalForm: société par actions
           registrationNumber: 1117154036911
           incorporationDate: 2011-12-30
-      - contains: "15.6.2006: 1065471010340"
-        props:
-          jurisdiction: ru
-          legalForm: entreprise fédérale d’État
-          registrationNumber: 1065471010340
-          incorporationDate: 2006-06-15
-          address: "Kuibyshev, région de Novosibirsk, Fédération de Russie"
       - match: "Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 7.11.2005 - Principal établissement: Fédération de Russie: Numéro d’identification fiscale: 7743575354"
         props:
           jurisdiction: ru
@@ -2691,12 +2526,6 @@ lookups:
       - match: "OGRN: 1025001627859"
         props:
           ogrnCode: 1025001627859
-      - match: "Numéro d’enregistrement - Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 17.1.2003: 1035001851125"
-        props:
-          jurisdiction: ru
-          legalForm: société par actions
-          registrationNumber: 1035001851125
-          incorporationDate: 2003-01-17
       - match: "INN: 5008011331"
         props:
           innCode: 5008011331
@@ -2866,10 +2695,6 @@ lookups:
           jurisdiction: ru
           address: "Alabuga, Fédération de Russie"
           legalForm: société à responsabilité limitée
-      - match: "Date d'enregistrement: 2014 - Principal établissement: Iran: Lieu d'enregistrement: Iran"
-        props:
-          jurisdiction: ir
-          incorporationDate: 2014
       - match: "Principal établissement: Fédération de Russie: Type d'entité: organisation à but non lucratif"
         props:
           jurisdiction: ru
@@ -2952,19 +2777,6 @@ lookups:
           legalForm: société par actions
           registrationNumber: 1096659005200
           incorporationDate: 2009-05-15
-      - match: "Numéro d'enregistrement - Type d'entité: entreprise fédérale d'État - Lieu d'enregistrement: Kuibyshev, région de Novosibirsk, Fédération de Russie - Date d'enregistrement: 15.6.2006: 1065471010340"
-        props:
-          jurisdiction: ru
-          legalForm: entreprise fédérale d'État
-          registrationNumber: 1065471010340
-          incorporationDate: 2006-06-15
-      - contains:
-          - "14.10.2002: 1027301482603"
-        props:
-          jurisdiction: ru
-          legalForm: société par actions
-          registrationNumber: 1027301482603
-          incorporationDate: 2002-10-14
       - match: "Personne associée: Pavel Alekseevich Marinychev (PDG)"
         associates:
           - Pavel Alekseevich Marinychev
@@ -2976,7 +2788,9 @@ lookups:
       - match: "Date d’enregistrement: 17/07/2002"
         props:
           incorporationDate: 2002-07-17
-      - match: "Type d’entité: société publique par actions"
+      - match:
+          - "Type d’entité: société publique par actions"
+          - "Type d’entité: société publique par actions: /"
         props:
           legalForm: société publique par actions
       - match: "NIF: 1433000147"
@@ -2985,11 +2799,6 @@ lookups:
       - match: "OGRN: 1021400967092"
         props:
           ogrnCode: 1021400967092
-      - match: "Créée le 27 juillet 2018 et déclarée le 1er août 2018 à la préfecture des Hauts-de-Seine (92): W9220127754"
-        props:
-          jurisdiction: fr
-          registrationNumber: W9220127754
-          incorporationDate: 2018-07-27
       - match: "Type d'entité: entreprise contrôlée par l'État: /"
         props:
           legalForm: entreprise contrôlée par l'État
@@ -3162,7 +2971,6 @@ lookups:
           innCode: 0268005588
       - match:
           - "Type d’entité: société par actions: /"
-          - "Type d’entité: société publique par actions: /"
         props:
           legalForm: société par actions
       - match: "Type d’entité: société par actions - Date d’enregistrement: 30.11.1992: /"
@@ -3202,10 +3010,6 @@ lookups:
           address: "606083, région de Nizhny Novgorod, district de Volodarsky, Mulino"
           incorporationDate: 2009-12-14
           innCode: 3666162144
-      - match: "Personnes associées: Pavel Prigozhin; Mikhaïl Vatanin"
-        associates:
-          - Pavel Prigozhin
-          - Mikhaïl Vatanin
       - match: "Fédération de Russie (125183, Moscou, Bolshaya Akademicheskaya st., 73 k. 3, premises. 5n) - Date d'enregistrement: 29.5.2020 - Principal établissement: Fédération de Russie: 9715384055 (numéro d'identification fiscale)"
         props:
           jurisdiction: ru
@@ -3929,12 +3733,6 @@ lookups:
       - match: "Type d'entité: société par action"
         props:
           legalForm: société par action
-      - match: "Lieu d'enregistrement: 67811 Amurskaya oblast, Belogorskiy Rayon, Vozhaevka, Fédération de Russie - Date d'enregistrement: 25.5.2009- Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 2811005250"
-        props:
-          jurisdiction: ru
-          address: "67811 Amurskaya oblast, Belogorskiy Rayon, Vozhaevka"
-          incorporationDate: 2009-05-25
-          innCode: 2811005250
       - match: "Type d'entité: société par actions cotée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 10.11.1993 (date de constitution: 12.9.2002) - Principal établissement: Fédération de Russie - Numéro d'identification fiscale: 7449006184: 1027402696023"
         props:
           jurisdiction: ru
@@ -4203,10 +4001,6 @@ lookups:
       - match: "Numéro d’enregistrement: 498744"
         props:
           registrationNumber: 498744
-      - match: "Lieu d'enregistrement: Iran - Date d'enregistrement: 2014 - Principal établissement: Iran: /"
-        props:
-          jurisdiction: ir
-          incorporationDate: 2014
       - match: "Type d’entité: gang haïtien opérant principalement dans les départements de l’Artibonite et du Nord-Ouest: /"
         props:
           description: gang haïtien
@@ -4632,11 +4426,6 @@ lookups:
         props:
           imoNumber: 6016988
           # registrationNumber: 6016988
-      - match: "Lieu d'enregistrement: Bangui, République centrafricaine - Date d'enregistrement: Novembre 2018 - Principal établissement: Galabadja  Bangui, Commune de Bangui - Galabadja, 8e Arr. - [GPS]-> 4.4070, 18.5465: /"
-        props:
-          jurisdiction: Central African Republic
-          address: "Galabadja Bangui, Commune de Bangui - Galabadja, 8e Arr."
-          incorporationDate: 2018-11
       - match: "NIF, numéro d'identification fiscale - Lieu d'enregistrement: Bangui (République centrafricaine) - Date d'enregistrement: 24.10.2017 - Principal établissement: République centrafricaine: M 354838 D 0001"
         props:
           jurisdiction: Central African Republic
@@ -4704,15 +4493,6 @@ lookups:
         props:
           incorporationDate: 2013-04-16
           registrationNumber: 192003422
-      - match: 'Type d’entité: société par actions - Principal établissement: Fédération de Russie - Personne associée: Oleg Nikolaevich Lantsev - Entité associée: JSC Reestr: Numéro d’enregistrement: 1023202741781'
-        props:
-          jurisdiction: ru
-          legalForm: société par actions
-          address: "Fédération de Russie"
-          registrationNumber: 1023202741781
-        associates:
-          - Oleg Nikolaevich Lantsev
-          - JSC Reestr
       - match: 'Numéro d’identification fiscale: 3234043140'
         props:
           innCode: 3234043140
@@ -4788,25 +4568,6 @@ lookups:
         schema: Company
         props:
           kppCode: 590401001
-      - match: 'Type d’entité: société à responsabilité limité - Principal établissement: Fédération de Russie - Personne associée: Alexey Veniaminovich Semenov - Entités associées: — JSC “Alabuga” Special Economic Zone of Industrial and Production Type — LLC Alabuga Machinery — LLC Drake: Numéro d’identification fiscale: 1646043699'
-        props:
-          jurisdiction: ru
-          legalForm: société à responsabilité limité
-          address: "Fédération de Russie"
-          innCode: 1646043699
-        associates:
-          - Alexey Veniaminovich Semenov
-          - JSC “Alabuga” Special Economic Zone of Industrial and Production Type
-          - LLC Alabuga Machinery
-          - LLC Drake
-      - match: 'Type d’entité: société à responsabilité limitée - Principal établissement: République populaire de Chine/Hong Kong - Personne associée: Anton Sergeyevich Trofimov (directeur): Numéros d’enregistrement: 2182045  64199990-000 CR No. 2182045'
-        props:
-          jurisdiction: hk
-          legalForm: société à responsabilité limitée
-          address: "République populaire de Chine/Hong Kong"
-          registrationNumber: 2182045 64199990-000 CR No. 2182045
-        associates:
-          - Anton Sergeyevich Trofimov
       - match: 'Principal établissement: Fédération de Russie - Personne associée: Tkachuk Vladimir Ilyich (directeur général): Type d’entité: société à responsabilité limitée'
         props:
           address: "Fédération de Russie"
@@ -4826,24 +4587,6 @@ lookups:
         schema: Company
         props:
           kppCode: 614701001
-      - match: 'Type d’entité: Société à responsabilité limitée (Limited Company) - Principal établissement: République populaire de Chine/Hong Kong Personne associée: Li Xiaocui (“Sofya Li”, “Sophia Li”) - Entités associées: — Shijiazhuang Hanqiang Technology Co. Ltd— Hebei Suofu Trading Co.: Numéro d’enregistrement: 71901140'
-        props:
-          jurisdiction: hk
-          legalForm: Société à responsabilité limitée (Limited Company)
-          address: "République populaire de Chine/Hong Kong"
-          registrationNumber: 71901140
-        associates:
-          - Li Xiaocui (“Sofya Li”, “Sophia Li”)
-          - Shijiazhuang Hanqiang Technology Co. Ltd
-          - Hebei Suofu Trading Co.
-      - match: 'Type d’entité: Société à responsabilité limitée (Limited Company) - Personne associée: Li Xiaocui (“Sofya Li”, “Sophia Li”) - Entités associées: — Shijiazhuang Hanqiang Technology Co. Ltd — Hebei Suofu Trading Co: Numéro d’enregistrement:  791130105MA7C26X08R'
-        props:
-          legalForm: Société à responsabilité limitée (Limited Company)
-          registrationNumber: 791130105MA7C26X08R
-        associates:
-          - Li Xiaocui (“Sofya Li”, “Sophia Li”)
-          - Shijiazhuang Hanqiang Technology Co. Ltd
-          - Hebei Suofu Trading Co
       - match: 'Type d’entité: société publique par actions - Principal établissement: Fédération de Russie'
         props:
           jurisdiction: ru
@@ -4885,14 +4628,6 @@ lookups:
       - match: 'Numéro d’identification fiscale: 7729481489'
         props:
           innCode: 7729481489
-      - match: 'Type d’entité: société à responsabilité limitée - Personne associée: Alexandr Pavlovich Lavrik - Entités associées: — JSC “Alabuga” Special Economic Zone of Industrial and Production Type — LLC Alabuga Development: Numéro d’identification fiscale: 1646047020'
-        props:
-          legalForm: société à responsabilité limitée
-          innCode: 1646047020
-        associates:
-          - Alexandr Pavlovich Lavrik
-          - JSC “Alabuga” Special Economic Zone of Industrial and Production Type
-          - LLC Alabuga Development
       - match: 'Type d’entité: société par actions - Lieu d’enregistrement: 428903, Fédération de Russie, République de Tchouvachie, Cheboksary, p. I.Yakovleva, 4 - Date d’enregistrement: 14.10.2011 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1112130013270'
         props:
           jurisdiction: ru
@@ -4914,13 +4649,6 @@ lookups:
       - match: 'Numéro d’identification fiscale: 6317060306'
         props:
           innCode: 6317060306
-      - match: 'Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 16.10.200 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1097746629639'
-        props:
-          jurisdiction: ru
-          legalForm: société par actions
-          address: "Fédération de Russie"
-          incorporationDate: 2000-10-16
-          registrationNumber: 1097746629639
       - match: 'Numéro d’identification fiscale: 7722698108'
         props:
           innCode: 7722698108
@@ -4967,14 +4695,6 @@ lookups:
       - match: 'Numéro d’identification fiscale: 7411009901'
         props:
           innCode: 7411009901
-      - match: 'Type d’entité: société anonyme par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 21.9.199 - Personne associée: Andrey Viktorovich Kocherga (directeur général) (TIN: 772740415741): Numéro d’enregistrement: 1022601930537'
-        props:
-          jurisdiction: ru
-          legalForm: société anonyme par actions
-          incorporationDate: 1990-09-21
-          registrationNumber: 1022601930537
-        associates:
-          - Andrey Viktorovich Kocherga
       - match: 'Numéro d’identification fiscale: 2635000092'
         props:
           innCode: 2635000092
@@ -5043,7 +4763,9 @@ lookups:
       - match: "Numéro d'enregistrement : 1022601930537"
         props:
           registrationNumber: 1022601930537
-      - match: "Type d’entité: société par actions - Principal établissement: Fédération de Russie: /"
+      - match:
+          - "Type d’entité: société par actions - Principal établissement: Fédération de Russie: /"
+          - "Type d’entité: société par actions  - Principal établissement: Fédération de Russie: /"
         props:
           jurisdiction: ru
           legalForm: société par actions
@@ -5051,7 +4773,10 @@ lookups:
       - match: "Numéro d’enregistrement: 1023202741781"
         props:
           ogrnCode: 1023202741781
-      - match: "Type d’entité: société à responsabilité limitée - Principal établissement: Fédération de Russie: /"
+      - match:
+          - "Type d’entité: société à responsabilité limitée - Principal établissement: Fédération de Russie: /"
+          - "Type d'entité: société à responsabilité limitée - Principal établissement: Fédération de Russie : /"
+          - "Type d’entité: société à responsabilité limitée  - Principal établissement: Fédération de Russie: /"
         props:
           jurisdiction: ru
           legalForm: société à responsabilité limitée
@@ -5066,12 +4791,9 @@ lookups:
           address: "République populaire de Chine/Hong Kong"
       - match: "Numéros d’enregistrement: 2182045 64199990-000 CR No. 2182045"
         props:
-          registrationNumber: 2182045 64199990-000 CR No. 2182045
-      - match: "Type d'entité: société à responsabilité limitée - Principal établissement: Fédération de Russie : /"
-        props:
-          jurisdiction: ru
-          legalForm: société à responsabilité limitée
-          address: "Fédération de Russie"
+          registrationNumber:
+            - 2182045
+            - 64199990-000
       - match: "Numéro d’enregistrement: 71901140"
         props:
           registrationNumber: 71901140
@@ -5092,3 +4814,7 @@ lookups:
       - match: "Type d’entité: société à responsabilité limitée: /"
         props:
           legalForm: société à responsabilité limitée
+      - match: "Lieu d'enregistrement: Iran - Date d'enregistrement: 2014 - Principal établissement: Iran: /"
+        props:
+          jurisdiction: ir
+          incorporationDate: 2014
