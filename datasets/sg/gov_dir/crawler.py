@@ -159,7 +159,14 @@ def crawl_person(
 
     rank = official.find(".//div[@class='rank']").text_content().strip()
     full_name = official.find(".//div[@class='name']").text_content().strip()
-    email = official.find(".//div[@class='email info-contact']").text_content().strip()
+    email_elem = official.find(".//div[@class='email info-contact']")
+    if email_elem is not None:
+        email = email_elem.text_content().strip()
+    else:
+        # For spokepersons, the email is in a different format
+        email = official.xpath(
+            ".//div[@class='name']//span[@class='fas fa-envelope']/following-sibling::text()"
+        )[0]
 
     pep_status = is_pep(context, rank)
     position_name = make_position_name(
@@ -275,7 +282,47 @@ def crawl_body(context: Context, state: CrawlState, link) -> None:
         crawl_body(context, state, subdivision_link.get("href"))
 
 
+def crawl_spokesperson_page(
+    context: Context, state: CrawlState, link: str, public_body
+):
+    """Crawls a spokesperson page to extract spokesperson details and visit subdivision links."""
+    if link in state.seen_urls:
+        return
+    state.seen_urls.add(link)
+    page_doc = context.fetch_html(link, cache_days=1)
+    spokespersons = page_doc.xpath("//div[@class='section-info']//li")
+    for person in spokespersons:
+        crawl_person(context, state, person, link, public_body, "", "", None)
+    subdivision_links = page_doc.xpath(
+        ".//div[@class='tab-content']//ul[@class='section-listing']//li//a"
+    )
+    for sub_link_elem in subdivision_links:
+        sub_link = sub_link_elem.get("href")
+        if sub_link:
+            # Recursively crawl the linked page
+            context.log.info(f"Crawling spokesperson link: {sub_link}")
+            crawl_spokesperson_page(context, state, sub_link, public_body)
+
+
+def crawl_spokespersons(context: Context):
+    """Crawl the root page to find all spokesperson links and process them."""
+    url = "https://www.sgdi.gov.sg/spokespersons"  # Base URL for spokesperson pages
+    main_doc = context.fetch_html(url, cache_days=1)
+    spokesperson_list_items = main_doc.xpath(".//ul[@class='contact-list']//li")
+
+    state = CrawlState()
+    for list_item in spokesperson_list_items:
+        # Extract the public body from the text within an <a> element
+        a_elem = list_item.find(".//a")
+        link_url = a_elem.get("href")
+        public_body = a_elem.text_content().strip()
+        crawl_spokesperson_page(context, state, link_url, public_body)
+
+
 def crawl(context: Context):
+    # Enable crawling for spokespersons pages
+    crawl_spokespersons(context)
+
     assert is_pep(context, "Director of this") is True
     assert is_pep(context, "Deputy director") is True
     assert is_pep(context, "DEADBEEF") is None
