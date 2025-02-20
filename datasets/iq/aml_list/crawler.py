@@ -5,7 +5,7 @@ from typing import Optional
 
 from zavod import Context, helpers as h
 
-
+# These sheets do not contain actual data but serve as reference sheets
 LOC_IGNORE_LIST = ["الافراد", "القوائم المحلية "]  # Individuals, Local lists
 
 YEAR_PATTERN = re.compile(r"\b\d{4}\b")
