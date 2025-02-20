@@ -46,11 +46,11 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         NAME_PART_FIELD: 2.0,
         WORD_FIELD: 0.5,
         PHONETIC_FIELD: 2.0,
-        registry.name.name: 5.0,
+        registry.name.name: 10.0,
         registry.phone.name: 3.0,
         registry.email.name: 3.0,
         registry.address.name: 2.5,
-        registry.identifier.name: 5.0,
+        registry.identifier.name: 6.0,
     }
 
     __slots__ = "view", "fields", "tokenizer", "entities"
@@ -59,7 +59,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self, view: View[DS, CE], data_dir: Path, options: Dict[str, Any] = {}
     ):
         self.view = view
-        memory_budget = options.get("memory_budget", None)
+        memory_budget = options.get("memory_budget", "4000")
         # https://duckdb.org/docs/guides/performance/environment
         # > For ideal performance,
         # > aggregation-heavy workloads require approx. 5 GB memory per thread and
@@ -84,8 +84,8 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             "temp_directory": tmp_dir.as_posix(),
         }
         if self.memory_budget is not None:
-            config["max_memory"] = f"{self.memory_budget}MB"
             config["memory_limit"] = f"{self.memory_budget}MB"
+            config["max_memory"] = f"{self.memory_budget}MB"
         self.con = duckdb.connect(data_file.as_posix(), config=config)
         self.matching_path = self.data_dir / "matching.csv"
         self.matching_path.unlink(missing_ok=True)
@@ -127,6 +127,13 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
         self._build_frequencies()
         log.info("Index built.")
+
+    def _clear(self) -> None:
+        self.con.execute("SET memory_limit ='100MB'")
+        self.con.execute("SET max_memory ='100MB'")
+        self.con.execute("CHECKPOINT")
+        self.con.execute(f"SET memory_limit ='{self.memory_budget}MB'")
+        self.con.execute(f"SET max_memory ='{self.memory_budget}MB'")
 
     def _build_field_len(self) -> None:
         log.info("Calculating field lengths...")
@@ -191,8 +198,11 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
     def _build_frequencies(self) -> None:
         self._build_stopwords()
+        self._clear()
         self._build_field_len()
+        self._clear()
         self._build_mentions()
+        self._clear()
         log.info("Calculating term frequencies...")
         term_frequencies_query = """
             CREATE TABLE IF NOT EXISTS term_frequencies as
@@ -204,7 +214,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             ON field_len.field = boo.field
         """
         self.con.execute(term_frequencies_query)
-        self.con.execute("CHECKPOINT")
+        self._clear()
 
     def pairs(
         self, max_pairs: int = BaseIndex.MAX_PAIRS
@@ -241,6 +251,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             self.con.execute(f"COPY matching FROM '{self.matching_path}'")
             log.info("Finished loading matching subjects.")
 
+        self._clear()
         match_table_query = """
         CREATE TABLE IF NOT EXISTS agg_matches AS
             SELECT matching.id AS matching_id, matches.id AS matches_id, sum(matches.tf) as score
