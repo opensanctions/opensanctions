@@ -44,7 +44,7 @@ assertions:
 lookups:
   columns:
     options:
-      - match:  ت
+      - match: ت
         value: id
       - match:
           - اسم الشخص
