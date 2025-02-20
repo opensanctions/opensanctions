@@ -19,7 +19,7 @@ BlockingMatches = List[Tuple[Identifier, float]]
 
 log = logging.getLogger(__name__)
 
-BATCH_SIZE = 1000
+BATCH_SIZE = 10000
 
 
 def csv_writer(
@@ -59,7 +59,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self, view: View[DS, CE], data_dir: Path, options: Dict[str, Any] = {}
     ):
         self.view = view
-        memory_budget = options.get("memory_budget", "4000")
+        memory_budget = options.get("memory_budget")
         # https://duckdb.org/docs/guides/performance/environment
         # > For ideal performance,
         # > aggregation-heavy workloads require approx. 5 GB memory per thread and
@@ -69,7 +69,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             int(memory_budget) if memory_budget else None
         )
         """Memory budget in megabytes"""
-        self.max_candidates = int(options.get("max_candidates", 50))
+        self.max_candidates = int(options.get("max_candidates", 75))
         self.stopwords_pct: float = float(options.get("stopwords_pct", 0.8))
         self.data_dir = data_dir.resolve()
         if self.data_dir.exists():
@@ -96,7 +96,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
     def build(self) -> None:
         """Index all entities in the dataset."""
         log.info("Building index from: %r...", self.view)
-        self.con.execute("CREATE TABLE boosts (field TEXT, boost FLOAT)")
+        self.con.execute("CREATE OR REPLACE TABLE boosts (field TEXT, boost FLOAT)")
         for field, boost in self.BOOSTS.items():
             self.con.execute("INSERT INTO boosts VALUES (?, ?)", [field, boost])
         for type in registry.types:
@@ -104,8 +104,12 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                 continue
             self.con.execute("INSERT INTO boosts VALUES (?, ?)", [type.name, 1.0])
 
-        self.con.execute("CREATE TABLE matching (id TEXT, field TEXT, token TEXT)")
-        self.con.execute("CREATE TABLE entries (id TEXT, field TEXT, token TEXT)")
+        self.con.execute(
+            "CREATE OR REPLACE TABLE matching (id TEXT, field TEXT, token TEXT)"
+        )
+        self.con.execute(
+            "CREATE OR REPLACE TABLE entries (id TEXT, field TEXT, token TEXT)"
+        )
         csv_path = self.data_dir / "mentions.csv"
         log.info("Dumping entity tokens to CSV for bulk load into the database...")
         with open(csv_path, "w") as fh:
@@ -128,17 +132,10 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self._build_frequencies()
         log.info("Index built.")
 
-    def _clear(self) -> None:
-        self.con.execute("SET memory_limit ='100MB'")
-        self.con.execute("SET max_memory ='100MB'")
-        self.con.execute("CHECKPOINT")
-        self.con.execute(f"SET memory_limit ='{self.memory_budget}MB'")
-        self.con.execute(f"SET max_memory ='{self.memory_budget}MB'")
-
     def _build_field_len(self) -> None:
         log.info("Calculating field lengths...")
         field_len_query = """
-            CREATE TABLE IF NOT EXISTS field_len as
+        CREATE OR REPLACE TABLE field_len as
             SELECT entries.field, entries.id, count(*) as field_len FROM entries
             LEFT OUTER JOIN stopwords
             ON stopwords.field = entries.field AND stopwords.token = entries.token
@@ -150,7 +147,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
     def _build_mentions(self) -> None:
         log.info("Calculating mention counts...")
         mentions_query = """
-            CREATE TABLE IF NOT EXISTS mentions as
+        CREATE OR REPLACE TABLE mentions as
             SELECT entries.field, entries.id, entries.token, count(*) AS mentions
             FROM entries
             LEFT OUTER JOIN stopwords
@@ -162,7 +159,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
     def _build_stopwords(self) -> None:
         token_freq_query = """
-        CREATE TABLE IF NOT EXISTS tokens AS
+        CREATE OR REPLACE TABLE tokens AS
             SELECT field, token, count(*) as freq
             FROM entries
             GROUP BY field, token
@@ -179,7 +176,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         )
         self.con.execute(
             """
-            CREATE TABLE IF NOT EXISTS stopwords as
+            CREATE OR REPLACE TABLE stopwords as
             SELECT * FROM tokens ORDER BY freq DESC LIMIT ?;
             """,
             [limit],
@@ -198,14 +195,11 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
     def _build_frequencies(self) -> None:
         self._build_stopwords()
-        self._clear()
         self._build_field_len()
-        self._clear()
         self._build_mentions()
-        self._clear()
         log.info("Calculating term frequencies...")
         term_frequencies_query = """
-            CREATE TABLE IF NOT EXISTS term_frequencies as
+            CREATE OR REPLACE TABLE term_frequencies AS
             SELECT mentions.field, mentions.token, mentions.id, (mentions/field_len) * ifnull(boo.boost, 1) as tf
             FROM field_len
             JOIN mentions
@@ -214,7 +208,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             ON field_len.field = boo.field
         """
         self.con.execute(term_frequencies_query)
-        self._clear()
 
     def pairs(
         self, max_pairs: int = BaseIndex.MAX_PAIRS
@@ -248,17 +241,38 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             self.matching_dump.close()
             self.matching_dump = None
             log.info("Loading matching subjects...")
-            self.con.execute(f"COPY matching FROM '{self.matching_path}'")
+            self.con.execute(
+                f"COPY matching FROM '{self.matching_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
+            )
             log.info("Finished loading matching subjects.")
 
-        self._clear()
+        self.con.execute("CHECKPOINT")
+        self.con.execute("ANALYZE matching")
+
         match_table_query = """
-        CREATE TABLE IF NOT EXISTS agg_matches AS
-            SELECT matching.id AS matching_id, matches.id AS matches_id, sum(matches.tf) as score
-            FROM term_frequencies as matches
-            INNER JOIN matching
-            ON matches.field = matching.field AND matches.token = matching.token
-            GROUP BY matches.id, matching.id;
+        CREATE OR REPLACE TABLE agg_matches AS
+            -- Create chunks in the matching table using window functions
+            WITH chunked_matching AS (
+                SELECT id as matching_id,
+                    field,
+                    token,
+                    ntile(100) OVER (ORDER BY field, token) as chunk_id
+                FROM matching
+            ),
+            -- Process each chunk separately
+            processed_chunks AS (
+                SELECT m.matching_id AS matching_id,
+                    tf.id AS matches_id,
+                    sum(tf.tf) as score
+                FROM chunked_matching m
+                JOIN term_frequencies tf 
+                    ON m.field = tf.field 
+                    AND m.token = tf.token
+                GROUP BY matching_id, matches_id
+            )
+            -- Insert results into our temporary table
+            SELECT matching_id, matches_id, score
+            FROM processed_chunks;
         """
         self.con.execute(match_table_query)
         match_query = """
@@ -278,7 +292,8 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                         yield Identifier.get(previous_id), matches
                     matches = []
                     previous_id = matching_id
-                matches.append((Identifier.get(match_id), score))
+                if len(matches) <= self.max_candidates:
+                    matches.append((Identifier.get(match_id), score))
         # Last pair or subject and candidates
         if matches and previous_id is not None:
             yield Identifier.get(previous_id), matches[: self.max_candidates]
