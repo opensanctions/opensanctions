@@ -1,0 +1,39 @@
+title: "Common High Priority List"
+url: https://trade-integrity.org
+entry_point: crawler.py
+prefix: chpl
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2024-07-25
+summary: >
+  This dataset tracks military, dual-use, and industrial shipments to Russia since its 2022 invasion of Ukraine, 
+  helping monitor and prevent the diversion of these high-risk goods to its military-industrial sector.
+description: |
+  The dataset contains detailed information on the shipment of military, dual-use, and industrial goods to Russia following its full-scale invasion 
+  of Ukraine in 2022. It includes the total number of shipments and their value, highlighting patterns in the trade of high-risk items according to 
+  the Common High Priority List (CHPL). This data is essential for monitoring and preventing the diversion of these goods to Russia’s military-industrial 
+  sector and supporting ethical trade practices and compliance with international regulations.
+publisher:
+  name: Trade Integrity Project
+  acronym: TIP
+  official: true
+  description: |
+    The Trade Integrity Project (TIP) is committed to promoting transparency and accountability in global trade. By utilizing public and whistleblower data, 
+    TIP reveals ways in which CHPL continue to reach Russia, providing crucial insights to help companies screen their clients and prevent their goods from being
+    diverted to the Russian military-industrial complex.
+    [Source: Official Website](https://trade-integrity.org)
+  country: _global
+  url: https://trade-integrity.org
+
+data:
+  url: https://trade-integrity.org/api/v1/search/?q=$&limit=10&page=1
+  format: json
+
+assertions:
+  min:
+    schema_entities:
+      Company: 5100
+  max:
+    schema_entities:
+      Company: 5200
