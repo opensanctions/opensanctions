@@ -3,7 +3,8 @@ import duckdb
 import logging
 from io import TextIOWrapper
 from pathlib import Path
-from shutil import rmtree
+
+# from shutil import rmtree
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
 from followthemoney.types import registry
 from nomenklatura.dataset import DS
@@ -72,9 +73,9 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.max_candidates = int(options.get("max_candidates", 75))
         self.stopwords_pct: float = float(options.get("stopwords_pct", 0.8))
         self.data_dir = data_dir.resolve()
-        if self.data_dir.exists():
-            rmtree(self.data_dir)
-        self.data_dir.mkdir(parents=True)
+        # if self.data_dir.exists():
+        #     rmtree(self.data_dir)
+        self.data_dir.mkdir(parents=True, exist_ok=True)
         data_file = self.data_dir / "index.duckdb"
         tmp_dir = self.data_dir / "index.duckdb.tmp"
         config = {
@@ -169,6 +170,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         assert num_tokens_results is not None
         num_tokens = num_tokens_results[0]
         limit = int((num_tokens / 100) * self.stopwords_pct)
+        limit = min(limit, 20000)
         log.info(
             "Treating %d (%s%%) most common tokens as stopwords...",
             limit,
@@ -246,58 +248,49 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             )
             log.info("Finished loading matching subjects.")
 
-        self.con.execute("CHECKPOINT")
-        self.con.execute("ANALYZE matching")
+        res = self.con.execute("SELECT COUNT(DISTINCT id) FROM matching").fetchone()
+        num_matching = res[0] if res is not None else 0
+        chunks = max(1, num_matching // 1000)
 
-        match_table_query = """
-        CREATE OR REPLACE TABLE agg_matches AS
-            -- Create chunks in the matching table using window functions
-            WITH chunked_matching AS (
-                SELECT id as matching_id,
-                    field,
-                    token,
-                    ntile(100) OVER (ORDER BY field, token) as chunk_id
-                FROM matching
-            ),
-            -- Process each chunk separately
-            processed_chunks AS (
-                SELECT m.matching_id AS matching_id,
-                    tf.id AS matches_id,
-                    sum(tf.tf) as score
-                FROM chunked_matching m
-                JOIN term_frequencies tf 
-                    ON m.field = tf.field 
-                    AND m.token = tf.token
-                GROUP BY matching_id, matches_id
-            )
-            -- Insert results into our temporary table
-            SELECT matching_id, matches_id, score
-            FROM processed_chunks;
+        chunk_table_query = """
+        CREATE OR REPLACE TABLE matching_chunks AS
+            WITH ids AS (SELECT DISTINCT id FROM matching)
+            SELECT id, ntile(?) OVER (ORDER BY id) as chunk FROM ids
         """
-        self.con.execute(match_table_query)
-        log.info("Finished match generation, now returning scored pairs...")
-        match_query = """
-        SELECT * FROM agg_matches ORDER BY matching_id, score DESC;
-        """
-        results = self.con.execute(match_query)
-        previous_id = None
-        matches: BlockingMatches = []
-        while batch := results.fetchmany(BATCH_SIZE):
-            for matching_id, match_id, score in batch:
-                # first row
-                if previous_id is None:
-                    previous_id = matching_id
-                # Next pair of subject and candidates
-                if matching_id != previous_id:
-                    if matches:
-                        yield Identifier.get(previous_id), matches
-                    matches = []
-                    previous_id = matching_id
-                if len(matches) <= self.max_candidates:
+        self.con.execute(chunk_table_query, [chunks])
+
+        log.info("Matching %d entities in %d chunks...", num_matching, chunks)
+        for chunk in range(1, chunks + 1):
+            chunk_query = """
+            SELECT m.id AS matching_id, tf.id AS matches_id, SUM(tf.tf) AS score
+                FROM matching_chunks c
+                JOIN matching m ON c.id = m.id
+                JOIN term_frequencies tf
+                ON m.field = tf.field AND m.token = tf.token
+                WHERE c.chunk = ?
+                GROUP BY m.id, tf.id
+                ORDER BY m.id, score DESC
+            """
+            results = self.con.execute(chunk_query, [chunk])
+            previous_id = None
+            matches: BlockingMatches = []
+            while batch := results.fetchmany(BATCH_SIZE):
+                for matching_id, match_id, score in batch:
+                    # first row
+                    if previous_id is None:
+                        previous_id = matching_id
+                    # Next pair of subject and candidates
+                    if matching_id != previous_id:
+                        if matches:
+                            yield Identifier.get(previous_id), matches
+                        matches = []
+                        previous_id = matching_id
+                    # if len(matches) <= self.max_candidates:
                     matches.append((Identifier.get(match_id), score))
-        # Last pair or subject and candidates
-        if matches and previous_id is not None:
-            yield Identifier.get(previous_id), matches[: self.max_candidates]
+            # Last pair or subject and candidates
+            if matches and previous_id is not None:
+                # yield Identifier.get(previous_id), matches[: self.max_candidates]
+                yield Identifier.get(previous_id), matches
 
     def close(self) -> None:
         self.con.close()

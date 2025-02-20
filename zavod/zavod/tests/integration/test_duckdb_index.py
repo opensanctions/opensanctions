@@ -147,5 +147,5 @@ def test_stopwords(testdataset1: Dataset):
     for entity_id, matches in index.matches():
         entity_matches[entity_id] = [(match.id, score) for match, score in matches]
 
-    assert len(entity_matches[too_common_first_name.id]) == 3
+    assert len(entity_matches[too_common_first_name.id]) == 4
     assert len(entity_matches[matching_last_name.id]) == 1
