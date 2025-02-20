@@ -248,8 +248,8 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             )
             log.info("Finished loading matching subjects.")
 
-        res = self.con.execute("SELECT COUNT(DISTINCT id) FROM matching")
-        num_matching = res.fetchone()[0]
+        res = self.con.execute("SELECT COUNT(DISTINCT id) FROM matching").fetchone()
+        num_matching = res[0] if res is not None else 0
         chunks = max(1, num_matching // 1000)
 
         chunk_table_query = """
