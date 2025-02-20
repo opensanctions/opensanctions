@@ -94,8 +94,10 @@ def crawl(context: Context) -> None:
         doc = context.fetch_html(context.data_url, params={"page": page}, cache_days=1)
         doc.make_links_absolute(context.data_url)
         for detail_url in doc.xpath(
-            "//a[contains(@class, 'wantedmissing-link')]/@href"
+            "//a[contains(@test-id, 'wantedmissing-link')]/@href"
         ):
+            if not detail_url:
+                context.log.warning("Missing detail URL")
             # The website also contains some other search notices that we don't care about
             if detail_url.startswith(FUGITIVES_URL_PREFIX):
                 crawl_person(context, detail_url)
