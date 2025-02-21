@@ -1,13 +1,14 @@
 from typing import Generator
-from normality import slugify
-from nomenklatura.enrich import Enricher
-from nomenklatura.judgement import Judgement
-from nomenklatura.entity import CE
 
-from zavod.meta import Dataset
-from zavod.crawl import crawl_dataset
-from zavod.integration import get_resolver
+from nomenklatura.enrich import Enricher
+from nomenklatura.entity import CE
+from nomenklatura.judgement import Judgement
+from normality import slugify
+
 from zavod.archive import iter_dataset_statements
+from zavod.crawl import crawl_dataset
+from zavod.integration.dedupe import get_resolver
+from zavod.meta import Dataset
 
 
 class StubEnricher(Enricher):
@@ -28,12 +29,19 @@ class StubEnricher(Enricher):
         yield match
 
 
-def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
+def test_enrich_process(testdataset1: Dataset, enricher: Dataset, disk_db_uri: str):
     resolver = get_resolver()
-    assert len(resolver.edges) == 0
+
+    resolver.begin()
+    edges = set(resolver.get_edges())
+    assert len(edges) == 0, edges
+    resolver.rollback()
     crawl_dataset(testdataset1)
 
-    assert len(resolver.edges) == 0, resolver.edges
+    resolver.begin()
+    edges = set(resolver.get_edges())
+    assert len(edges) == 0, edges
+    resolver.rollback()
     stats = crawl_dataset(enricher)
     assert stats.entities > 0, stats.entities
     internals = list(iter_dataset_statements(enricher, external=False))
@@ -42,6 +50,7 @@ def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
     assert len(externals) > 5, externals
 
     # Now merge one of the enriched entities with an interal one:
+    resolver.begin()
     canon_id = resolver.decide(
         "osv-john-doe",
         "enrich-john-doe",
@@ -49,7 +58,7 @@ def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
     )
     assert canon_id.id.startswith("NK-")
     assert len(resolver.connected(canon_id)) == 3
+    resolver.commit()
     stats = crawl_dataset(enricher)
     internals = list(iter_dataset_statements(enricher, external=False))
     assert len(internals) > 2, internals
-    get_resolver.cache_clear()

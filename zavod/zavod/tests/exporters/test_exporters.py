@@ -2,6 +2,7 @@ from csv import DictReader
 from followthemoney.cli.util import path_entities
 from followthemoney.proxy import EntityProxy
 from json import load, loads
+from nomenklatura import Resolver
 from nomenklatura.judgement import Judgement
 from nomenklatura.stream import StreamEntity
 from nomenklatura.statement import Statement, CSV
@@ -9,8 +10,9 @@ from nomenklatura.statement.serialize import read_path_statements
 from datetime import datetime
 
 from zavod import settings
+from zavod.entity import Entity
+from zavod.integration.dedupe import get_dataset_linker
 from zavod.store import get_store
-from zavod.integration import get_resolver
 from zavod.exporters import export_dataset
 from zavod.archive import clear_data_path, DATASETS
 from zavod.exporters.ftm import FtMExporter
@@ -36,8 +38,8 @@ default_exports = {
 
 
 def export(dataset: Dataset) -> None:
-    resolver = get_resolver()
-    store = get_store(dataset, resolver)
+    linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
     store.sync(clear=True)
     view = store.view(dataset)
     export_dataset(dataset, view)
@@ -174,11 +176,10 @@ def test_ftm(testdataset1: Dataset):
     assert fam.schema.name == "Family"
 
 
-def test_ftm_referents(testdataset1: Dataset):
+def test_ftm_referents(testdataset1: Dataset, resolver: Resolver[Entity]):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     clear_data_path(testdataset1.name)
 
-    resolver = get_resolver()
     identifier = resolver.decide(
         "osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test"
     )
