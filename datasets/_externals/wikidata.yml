@@ -946,6 +946,8 @@ lookups:
           - Edo State
           - Kano State
         value: NG
+      - match: Chadians
+        value: TD
       - match: Kazakh Soviet Socialist Republic
         values:
           - SUHH
