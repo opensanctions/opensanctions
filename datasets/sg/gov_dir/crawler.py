@@ -285,7 +285,7 @@ def crawl_body(context: Context, state: CrawlState, link) -> None:
 
 def crawl_spokespersons(context: Context, state: CrawlState):
     """Crawl the root page to find all spokesperson links and process them."""
-    main_doc = context.fetch_html(SPOKEPERSONS_URL)
+    main_doc = context.fetch_html(SPOKEPERSONS_URL, cache_days=1)
 
     for list_item in main_doc.xpath(".//ul[@class='contact-list']//a"):
         # Extract the public body from the text within an <a> element
@@ -301,7 +301,8 @@ def crawl_subpage(
     if link in state.seen_urls:
         return
     state.seen_urls.add(link)
-    subpage_doc = context.fetch_html(link, cache_days=1)
+    subpage_doc = context.fetch_html(link)
+    # Main subpage
     for person in subpage_doc.xpath("//div[@class='section-info']//li"):
         crawl_person(context, state, person, link, public_body, agency, "", None)
     # Subsections
