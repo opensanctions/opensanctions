@@ -291,7 +291,7 @@ def crawl(context: Context):
 
         country_res = context.lookup("country_decisions", country["qid"])
         if country_res is None:
-            context.log.warning("Country without decision", country=country)
+            context.log.warning(f"Country without decision: {country}", country=country)
             continue
         if country_res.decision != DECISION_NATIONAL:
             continue

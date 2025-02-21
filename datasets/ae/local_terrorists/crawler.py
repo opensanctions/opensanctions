@@ -36,7 +36,7 @@ def parse_row(
         if header == "category":
             schema = context.lookup_value("categories", value)
             if schema is None:
-                context.log.error("Unknown category", category=value)
+                context.log.error(f'Unknown category "{value}"', category=value)
             elif not entity.schema.is_a("Vessel"):
                 entity.add_schema(schema)
             continue

@@ -55,7 +55,7 @@ def crawl(context: Context):
         decision = data.pop("decision")
         topic = context.lookup_value("decision_topic", decision)
         if topic is None:
-            context.log.warning("Unexpected decision", decision=decision)
+            context.log.warning(f'Unexpected decision "{decision}"', decision=decision)
         entity.add("topics", topic)
 
         sanction = h.make_sanction(context, entity)

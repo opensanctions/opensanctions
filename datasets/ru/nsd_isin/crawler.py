@@ -40,7 +40,9 @@ def crawl_item(context: Context, url: str):
         key, value = [c.strip() for c in cells]
         result = context.lookup("fields", key)
         if result is None:
-            context.log.warning("Unexplained field", url=url, key=key, value=value)
+            context.log.warning(
+                f'Unexplained field "{key}"', url=url, key=key, value=value
+            )
             continue
 
         if result.prop is None:
