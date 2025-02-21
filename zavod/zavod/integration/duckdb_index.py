@@ -78,23 +78,27 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         # if self.data_dir.exists():
         #     rmtree(self.data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
-        data_file = self.data_dir / "index.duckdb"
-        tmp_dir = self.data_dir / "index.duckdb.tmp"
-        config = {
+        self.duckdb_config = {
             "preserve_insertion_order": False,
             # > If you have a limited amount of memory, try to limit the number of threads
             "threads": 1,
-            "temp_directory": tmp_dir.as_posix(),
+            "temp_directory": (self.data_dir / "index.duckdb.tmp").as_posix(),
         }
         if self.memory_budget is not None:
-            config["memory_limit"] = f"{self.memory_budget}MB"
-            config["max_memory"] = f"{self.memory_budget}MB"
-        self.con = duckdb.connect(data_file.as_posix(), config=config)
+            self.duckdb_config["memory_limit"] = f"{self.memory_budget}MB"
+            self.duckdb_config["max_memory"] = f"{self.memory_budget}MB"
+        self.duckdb_path = (self.data_dir / "index.duckdb").as_posix()
+        self.con = duckdb.connect(self.duckdb_path, config=self.duckdb_config)
         self.matching_path = self.data_dir / "matching.csv"
         self.matching_path.unlink(missing_ok=True)
         self.matching_dump: TextIOWrapper | None = open(self.matching_path, "w")
         writer = csv_writer(self.matching_dump)
         writer.writerow(["id", "field", "token"])
+
+    def _clear(self) -> None:
+        self.con.execute("CHECKPOINT")
+        self.con.close()
+        self.con = duckdb.connect(self.duckdb_path, config=self.duckdb_config)
 
     def build(self) -> None:
         """Index all entities in the dataset."""
@@ -241,6 +245,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
     def matches(
         self,
     ) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
+        self._clear()
         if self.matching_dump is not None:
             self.matching_dump.close()
             self.matching_dump = None
@@ -260,6 +265,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             SELECT id, ntile(?) OVER (ORDER BY id) as chunk FROM ids
         """
         self.con.execute(chunk_table_query, [chunks])
+        self._clear()
 
         log.info("Matching %d entities in %d chunks...", num_matching, chunks)
         for chunk in range(1, chunks + 1):
@@ -287,12 +293,13 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                             yield Identifier.get(previous_id), matches
                         matches = []
                         previous_id = matching_id
-                    # if len(matches) <= self.max_candidates:
-                    matches.append((Identifier.get(match_id), score))
+                    if len(matches) <= self.max_candidates:
+                        matches.append((Identifier.get(match_id), score))
             # Last pair or subject and candidates
             if matches and previous_id is not None:
-                # yield Identifier.get(previous_id), matches[: self.max_candidates]
-                yield Identifier.get(previous_id), matches
+                yield Identifier.get(previous_id), matches[: self.max_candidates]
+                # yield Identifier.get(previous_id), matches
+            self._clear()
 
     def close(self) -> None:
         self.con.close()
