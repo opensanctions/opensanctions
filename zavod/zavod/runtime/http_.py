@@ -31,6 +31,7 @@ def make_session(http_conf: HTTP) -> Session:
     retries = Retry(
         total=http_conf.total_retries,
         backoff_factor=http_conf.backoff_factor,
+        backoff_max=http_conf.backoff_max,
         status_forcelist=http_conf.retry_statuses,
         allowed_methods=http_conf.retry_methods,
     )
