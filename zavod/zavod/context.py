@@ -1,8 +1,11 @@
+import contextvars
+
 import orjson
 from pathlib import Path
 from datetime import datetime
 from functools import cached_property
-from typing import Any, Optional, Union, Dict, List
+from typing import Any, Optional, Union, Dict, List, Mapping
+
 from requests import Response
 from prefixdate import DatePrefix
 from lxml import html, etree
@@ -13,7 +16,7 @@ from nomenklatura.versions import Version
 from nomenklatura.cache import Cache
 from nomenklatura.util import PathLike
 from rigour.urls import build_url, ParamsType
-from structlog.contextvars import clear_contextvars, bind_contextvars
+from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
 from zavod.audit import inspect
@@ -56,6 +59,9 @@ class Context:
         self.http = make_session(dataset.http)
         self._cache: Optional[Cache] = None
         self._timestamps: Optional[TimeStampIndex] = None
+        self._structlog_contextvars_tokens: Optional[
+            Mapping[str, contextvars.Token[Any]]
+        ] = None
 
         self._data_time: datetime = settings.RUN_TIME
         # If the dataset has a fixed end time which is in the past,
@@ -125,7 +131,7 @@ class Context:
         Args:
             clear: Remove the existing resources and issues from the dataset.
         """
-        bind_contextvars(
+        self._structlog_contextvars_tokens = bind_contextvars(
             dataset=self.dataset.name,
             context=self,
         )
@@ -143,7 +149,7 @@ class Context:
         if self._timestamps is not None:
             self._timestamps.close()
         self.sink.close()
-        clear_contextvars()
+        reset_contextvars(**(self._structlog_contextvars_tokens or {}))
         self.issues.close()
         if not self.dry_run:
             self.issues.export()
