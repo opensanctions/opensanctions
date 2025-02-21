@@ -125,6 +125,12 @@ def configure_sentry_integration() -> None:
         )
 
 
+def set_sentry_dataset_name(dataset_name: str) -> None:
+    structlog.contextvars.bind_contextvars(dataset=dataset_name)
+    # A Transaction in Sentry parlance is the "current task being executed"
+    sentry_sdk.get_current_scope().set_transaction_name(dataset_name)
+
+
 def set_sentry_event_level(level: int) -> None:
     """Set the level above which events are sent to Sentry."""
     if _sentry_processor is not None:
