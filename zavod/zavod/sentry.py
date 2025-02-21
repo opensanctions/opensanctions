@@ -40,7 +40,9 @@ from sentry_sdk.utils import capture_internal_exceptions, event_from_exception
 from structlog.types import EventDict, ExcInfo, WrappedLogger
 
 # See https://docs.sentry.io/concepts/data-management/event-grouping/fingerprint-rules/
-SENTRY_FINGERPRINT_VARIABLE_MESSAGE = "{{ message }}"
+FINGERPRINT_DEFAULT_MAGIC = "{{ default }}"
+FINGERPRINT_MESSAGE = "{{ message }}"
+FINGERPRINT_DATASET = "{{ tag.dataset }}"
 
 
 def _figure_out_exc_info(v: Any) -> ExcInfo | tuple[None, None, None]:
@@ -171,7 +173,10 @@ class SentryProcessor:
         if "dataset" in event_dict:
             event["message"] = f"[{event_dict['dataset']}] {event['message']}"
         event["level"] = event_dict.get("level")  # type: ignore
-        if self._fingerprint is not None:
+
+        if "sentry_fingerprint" in event_dict:
+            event["fingerprint"] = event_dict["sentry_fingerprint"]
+        elif self._fingerprint is not None:
             event["fingerprint"] = self._fingerprint
 
         if self._event_dict_as_extra:

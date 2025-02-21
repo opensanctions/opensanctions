@@ -16,7 +16,7 @@ from structlog.types import Processor
 import sentry_sdk
 from followthemoney.schema import Schema
 from zavod import settings
-from zavod.sentry import SentryProcessor, SENTRY_FINGERPRINT_VARIABLE_MESSAGE
+from zavod.sentry import SentryProcessor, FINGERPRINT_MESSAGE, FINGERPRINT_DATASET
 
 Event = MutableMapping[str, str]
 
@@ -154,7 +154,7 @@ def configure_logging(level: int = logging.DEBUG) -> None:
             # Disable the default grouping magic, we only want to group by message and dataset. Otherwise, log messages
             # along the lines of "Problem with entity <id>" might be grouped by the internal magic, even though they are
             # actually separate data issues.
-            fingerprint=[SENTRY_FINGERPRINT_VARIABLE_MESSAGE, "{{ tag.dataset }}"],
+            fingerprint=[FINGERPRINT_MESSAGE, FINGERPRINT_DATASET],
         )
         processors.append(_sentry_processor)
 
