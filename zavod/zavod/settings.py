@@ -1,15 +1,9 @@
 from os import environ as env
+
 from pathlib import Path
 from banal import as_bool
-from normality import stringify
-
+from rigour.env import env_str, env_int
 from nomenklatura.versions import Version
-
-
-def env_str(name: str, default: str) -> str:
-    """Ensure the env returns a string even on Windows (#100)."""
-    value = stringify(env.get(name))
-    return default if value is None else value
 
 
 # Logging configuration
@@ -91,6 +85,7 @@ HTTP_USER_AGENT = env_str("ZAVOD_HTTP_USER_AGENT", HTTP_USER_AGENT)
 # Database-backed cache settings
 DATABASE_URI = env.get("ZAVOD_DATABASE_URI")
 DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
+DB_STMT_TIMEOUT = env_int("ZAVOD_DB_STMT_TIMEOUT", 10000)
 
 # Load DB batch size
 DB_BATCH_SIZE = int(env_str("ZAVOD_DB_BATCH_SIZE", "1000"))

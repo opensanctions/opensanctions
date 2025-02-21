@@ -127,7 +127,7 @@ def test_xref_dataset(testdataset1: Dataset, disk_db_uri: str):
 
     resolver = get_resolver()
     resolver.begin()
-    assert len(resolver.get_edges()) == 0
+    assert len(set(resolver.get_edges())) == 0
     resolver.rollback()
 
     result = runner.invoke(cli, ["xref", "--clear", DATASET_1_YML.as_posix()], env=env)
@@ -135,7 +135,7 @@ def test_xref_dataset(testdataset1: Dataset, disk_db_uri: str):
 
     resolver = get_resolver()
     resolver.begin()
-    assert len(resolver.get_edges()) > 1
+    assert len(set(resolver.get_edges())) > 1
     resolver.rollback()
 
     result = runner.invoke(cli, ["resolver-prune"], env=env)
@@ -143,5 +143,5 @@ def test_xref_dataset(testdataset1: Dataset, disk_db_uri: str):
 
     resolver = get_resolver()
     resolver.begin()
-    assert len(resolver.get_edges()) == 0
+    assert len(set(resolver.get_edges())) == 0
     resolver.rollback()

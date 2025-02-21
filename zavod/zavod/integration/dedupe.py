@@ -1,7 +1,7 @@
 from typing import List, Optional, TYPE_CHECKING
+
 from pathlib import Path
 from sqlalchemy import MetaData, create_engine
-
 from followthemoney import model
 from nomenklatura.xref import xref
 from nomenklatura.resolver import Resolver, Identifier, Linker
@@ -35,7 +35,12 @@ def get_resolver() -> Resolver[Entity]:
         if not WARNED_EPHEMERAL:
             log.warn(EPHEMERAL_WARNING)
             WARNED_EPHEMERAL = True
-    engine = create_engine(database_uri)
+
+    connect_args = {}
+    if database_uri.startswith("postgres"):
+        connect_args["options"] = f"-c statement_timeout={settings.DB_STMT_TIMEOUT}"
+
+    engine = create_engine(database_uri, connect_args=connect_args)
     metadata = MetaData()
     resolver = Resolver[Entity](engine, metadata, create=True)
     log.info("Using resolver: %r" % resolver)
