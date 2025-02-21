@@ -520,7 +520,10 @@ class Context:
                 continue
             cleaned[key] = value
         if len(cleaned):
-            self.log.warn("Unexpected data found", data=cleaned)
+            unexpected_keys = list(cleaned.keys())
+            self.log.warn(
+                f"Unexpected data found in fields: {unexpected_keys}", data=cleaned
+            )
 
     def emit(
         self, entity: Entity, target: bool = False, external: bool = False
