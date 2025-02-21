@@ -283,7 +283,7 @@ def crawl_body(context: Context, state: CrawlState, link) -> None:
 
 
 def crawl_spokesperson_page(
-    context: Context, state: CrawlState, link: str, public_body
+    context: Context, state: CrawlState, link: str, public_body, agency=None
 ):
     """Crawls a spokesperson page to extract spokesperson details and visit subdivision links."""
     if link in state.seen_urls:
@@ -292,25 +292,24 @@ def crawl_spokesperson_page(
     page_doc = context.fetch_html(link, cache_days=1)
     spokespersons = page_doc.xpath("//div[@class='section-info']//li")
     for person in spokespersons:
-        crawl_person(context, state, person, link, public_body, "", "", None)
+        crawl_person(context, state, person, link, public_body, agency, "", None)
     subdivision_links = page_doc.xpath(
         ".//div[@class='tab-content']//ul[@class='section-listing']//li//a"
     )
     for sub_link_elem in subdivision_links:
         sub_link = sub_link_elem.get("href")
+        agency = sub_link_elem.text_content().strip()
         if sub_link:
             # Recursively crawl the linked page
-            context.log.info(f"Crawling spokesperson link: {sub_link}")
-            crawl_spokesperson_page(context, state, sub_link, public_body)
+            crawl_spokesperson_page(context, state, sub_link, public_body, agency)
 
 
-def crawl_spokespersons(context: Context):
+def crawl_spokespersons(context: Context, state: CrawlState):
     """Crawl the root page to find all spokesperson links and process them."""
     url = "https://www.sgdi.gov.sg/spokespersons"  # Base URL for spokesperson pages
     main_doc = context.fetch_html(url, cache_days=1)
     spokesperson_list_items = main_doc.xpath(".//ul[@class='contact-list']//li")
 
-    state = CrawlState()
     for list_item in spokesperson_list_items:
         # Extract the public body from the text within an <a> element
         a_elem = list_item.find(".//a")
@@ -320,9 +319,6 @@ def crawl_spokespersons(context: Context):
 
 
 def crawl(context: Context):
-    # Enable crawling for spokespersons pages
-    crawl_spokespersons(context)
-
     assert is_pep(context, "Director of this") is True
     assert is_pep(context, "Deputy director") is True
     assert is_pep(context, "DEADBEEF") is None
@@ -347,6 +343,8 @@ def crawl(context: Context):
                 context.log.warning("No org name found", link=link)
                 continue
             crawl_body(context, state, link)
+    # Crawl spokespersons pages
+    crawl_spokespersons(context, state)
     expected = set(PAGE_EXPECTATIONS.keys())
     missing = expected - state.seen_urls
     if missing:
