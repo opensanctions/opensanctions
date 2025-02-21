@@ -1,7 +1,7 @@
 from requests.exceptions import RequestException
 from datapatch import LookupException
 
-from zavod import settings
+from zavod import settings, sentry
 from zavod.meta import Dataset
 from zavod.context import Context
 from zavod.exc import RunFailedException
@@ -56,9 +56,21 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
                 url=url,
                 response_code=rexc.response.status_code,
                 response_text=rexc.response.text,
+                # rexc logs the memory address of the object, so use default magic to enable grouping
+                sentry_fingerprint=[
+                    sentry.FINGERPRINT_DEFAULT_MAGIC,
+                    sentry.FINGERPRINT_DATASET,
+                ],
             )
         else:
-            context.log.error(str(rexc), url=url)
+            context.log.error(
+                str(rexc),
+                url=url,
+                sentry_fingerprint=[
+                    sentry.FINGERPRINT_DEFAULT_MAGIC,
+                    sentry.FINGERPRINT_DATASET,
+                ],
+            )
         raise RunFailedException() from rexc
     except Exception as exc:
         context.log.exception("Runner failed: %s" % str(exc))
