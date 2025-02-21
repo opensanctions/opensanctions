@@ -328,6 +328,13 @@ lookups:
         name: Loukio Shipping Co LTD
         registration_number: 4105917
         care_of: SCF Management Services (Cyprus) Ltd
+      - match: Godavari Ship Management (OPC) Pvt Ltd (0012900
+        name: Godavari Ship Management (OPC) Pvt Ltd
+        registration_number: 0012900
+      - match: Yuguan Maritime Inc с/о Godavari Ship Management (OPC) Pvt Ltd (0126554
+        name: Yuguan Maritime Inc
+        registration_number: 0126554
+        care_of: Godavari Ship Management (OPC) Pvt Ltd
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
@@ -340,6 +347,8 @@ lookups:
           - 2024-01-08
       - match: 08.011.2024)
         value: 2024-01-08
+      - match: 07/03/2023)
+        value: 2023-03-07
       - match: 
           - 07.04.
           - 09.05.20234)
