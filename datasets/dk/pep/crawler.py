@@ -99,7 +99,10 @@ def crawl(context: Context):
     doc.make_links_absolute(context.data_url)
 
     for country, lang, name, file_pattern in RESOURCES:
-        links = doc.xpath(f'//a[contains(@href, "{file_pattern}")]')
+        # links = doc.xpath(f'//a[contains(@href, "{file_pattern}")]')
+        links = doc.xpath(
+            f'//h2[strong[contains(text(), "PEP-liste ")]]/following-sibling::p/a[contains(@href, "{file_pattern}")]'
+        )
         assert len(links) == 1, (file_pattern, links)
         path = context.fetch_resource(name, links[0].get("href"))
         context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
