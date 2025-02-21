@@ -99,7 +99,6 @@ def crawl(context: Context):
     doc.make_links_absolute(context.data_url)
 
     for country, lang, name, file_pattern in RESOURCES:
-        # links = doc.xpath(f'//a[contains(@href, "{file_pattern}")]')
         links = doc.xpath(
             f'//h2[strong[contains(text(), "PEP-liste ")]]/following-sibling::*//a[contains(@href, "{file_pattern}")]'
         )
