@@ -66,7 +66,7 @@ def tokenize_entity(entity: CE) -> Generator[Tuple[str, str], None, None]:
                 for token in norm.split(WS):
                     if len(token) > 2 and len(token) < 30:
                         unique.add((NAME_PART_FIELD, token))
-                        yield WORD_FIELD, token
+                        # yield WORD_FIELD, token
                     if alpha and len(token) > 4:
                         phoneme = metaphone(token)
                         if len(phoneme) > 3:
