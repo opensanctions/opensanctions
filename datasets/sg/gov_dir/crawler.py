@@ -17,6 +17,7 @@ DATA_URLS = [
     "https://www.sgdi.gov.sg/ministries",
     "https://www.sgdi.gov.sg/organs-of-state",
 ]
+SPOKEPERSONS_URL = "https://www.sgdi.gov.sg/spokespersons"
 # A bit of a crawler-specific attempt at capturing expectations for specific pages
 # because I'm not convinced the markup is going to be consistent across the site.
 # There's already two ways of listing people - one under collapsible sections (section-toggle)
@@ -282,40 +283,35 @@ def crawl_body(context: Context, state: CrawlState, link) -> None:
         crawl_body(context, state, subdivision_link.get("href"))
 
 
-def crawl_spokesperson_page(
+def crawl_spokespersons(context: Context, state: CrawlState):
+    """Crawl the root page to find all spokesperson links and process them."""
+    main_doc = context.fetch_html(SPOKEPERSONS_URL)
+
+    for list_item in main_doc.xpath(".//ul[@class='contact-list']//a"):
+        # Extract the public body from the text within an <a> element
+        link_url = list_item.get("href")
+        public_body = list_item.text_content().strip()
+        crawl_subpage(context, state, link_url, public_body)
+
+
+def crawl_subpage(
     context: Context, state: CrawlState, link: str, public_body, agency=None
 ):
     """Crawls a spokesperson page to extract spokesperson details and visit subdivision links."""
     if link in state.seen_urls:
         return
     state.seen_urls.add(link)
-    page_doc = context.fetch_html(link, cache_days=1)
-    spokespersons = page_doc.xpath("//div[@class='section-info']//li")
-    for person in spokespersons:
+    subpage_doc = context.fetch_html(link, cache_days=1)
+    for person in subpage_doc.xpath("//div[@class='section-info']//li"):
         crawl_person(context, state, person, link, public_body, agency, "", None)
-    subdivision_links = page_doc.xpath(
-        ".//div[@class='tab-content']//ul[@class='section-listing']//li//a"
-    )
-    for sub_link_elem in subdivision_links:
-        sub_link = sub_link_elem.get("href")
-        agency = sub_link_elem.text_content().strip()
+    # Subsections
+    for subsection_el in subpage_doc.xpath(
+        ".//div[@class='tab-content']//ul[@class='section-listing']//a"
+    ):
+        sub_link = subsection_el.get("href")
+        agency = subsection_el.text_content().strip()
         if sub_link:
-            # Recursively crawl the linked page
-            crawl_spokesperson_page(context, state, sub_link, public_body, agency)
-
-
-def crawl_spokespersons(context: Context, state: CrawlState):
-    """Crawl the root page to find all spokesperson links and process them."""
-    url = "https://www.sgdi.gov.sg/spokespersons"  # Base URL for spokesperson pages
-    main_doc = context.fetch_html(url, cache_days=1)
-    spokesperson_list_items = main_doc.xpath(".//ul[@class='contact-list']//li")
-
-    for list_item in spokesperson_list_items:
-        # Extract the public body from the text within an <a> element
-        a_elem = list_item.find(".//a")
-        link_url = a_elem.get("href")
-        public_body = a_elem.text_content().strip()
-        crawl_spokesperson_page(context, state, link_url, public_body)
+            crawl_subpage(context, state, sub_link, public_body, agency)
 
 
 def crawl(context: Context):
