@@ -72,7 +72,9 @@ def crawl_row(context: Context, row: Dict[str, str | None]):
                 for item in res.items:
                     entity.add(item["prop"], item["value"])
             else:
-                context.log.warning("Unhandled other_names", value=other_names)
+                context.log.warning(
+                    f'Unhandled other_names "{other_names}"', value=other_names
+                )
         else:
             entity.add("alias", other_names)
 
