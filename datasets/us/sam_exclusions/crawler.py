@@ -125,9 +125,6 @@ def crawl(context: Context) -> None:
         uei = row.pop("Unique Entity ID", None)
         if entity.schema.is_a("LegalEntity"):
             entity.add("uniqueEntityId", uei)
-
-            # FIXME: remove 2025-02-01 according to https://www.opensanctions.org/changelog/15/
-            entity.add("registrationNumber", uei)
         else:
             entity.add("registrationNumber", uei, quiet=True)
 
