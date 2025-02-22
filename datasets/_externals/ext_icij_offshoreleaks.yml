@@ -9,9 +9,9 @@ exports:
   - entities.delta.json
 deploy:
   cpu: "1000m"
-  memory: "3500Mi"
-  memory_limit: "5000Mi"
-  disk: "20Gi"
+  memory: "4000Mi"
+  memory_limit: "6000Mi"
+  disk: "30Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   start: 2022-05-23
@@ -72,6 +72,7 @@ config:
   dataset: icij_offshoreleaks
   index_options:
     memory_budget: 2500
+    match_batch: 300
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1

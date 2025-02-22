@@ -63,7 +63,7 @@ lookups:
         value: es
       - match: Romanov Empire
         value: ru
-      - match: 
+      - match:
           - Ambazonia
           - traditional chiefdom in Cameroon
         value: cm
@@ -707,6 +707,20 @@ config:
     - category: Political_office-holders_in_the_United_States
       topic: role.pep
     - category: United_States_government_officials
+      topic: role.pep
+    - category: Second_Trump_administration_personnel
+      topic: role.pep
+    - category: Biden_administration_personnel
+      topic: role.pep
+    - category: First_Trump_administration_personnel
+      topic: role.pep
+    - category: Senior_advisors_to_the_president_of_the_United_States
+      topic: role.pep
+    - category: Executive_Office_of_the_President_of_the_United_States
+      topic: role.pep
+    - category: Department_of_Government_Efficiency_people
+      topic: role.pep
+    - category: Members_of_the_Cabinet_of_the_United_States
       topic: role.pep
 
     # Europe

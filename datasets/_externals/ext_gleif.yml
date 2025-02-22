@@ -13,9 +13,9 @@ exports:
   - entities.delta.json
 deploy:
   cpu: "1000m"
-  memory: "5000Mi"
-  memory_limit: "5500Mi"
-  disk: "20Gi"
+  memory: "4000Mi"
+  memory_limit: "6000Mi"
+  disk: "30Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   A concatenated data file of all entities which have been issued Legal
@@ -76,9 +76,9 @@ inputs:
 config:
   dataset: gleif
   index_options:
-    max_candidates: 5
-    memory_budget: 3500
-    match_batch: 500
+    max_candidates: 25
+    memory_budget: 2500
+    match_batch: 300
   strip_namespace: true
   fuzzy: false
   threshold: 0.5
