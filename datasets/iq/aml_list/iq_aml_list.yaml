@@ -30,6 +30,8 @@ url: https://aml.iq
 data:
   url: https://aml.iq
   format: HTML
+ci_test: false # No zyte key in CI
+
 dates: 
   formats: ["%d-%m-%Y"]
 
