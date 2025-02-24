@@ -57,6 +57,7 @@ inputs:
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
+  - ge_declarations
   - opencorporates
   - sanctions
   - special_interest
