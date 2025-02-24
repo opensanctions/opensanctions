@@ -88,7 +88,7 @@ def crawl_row(context: Context, declaration_id: int):
 
     if occupancy:
         occupancy.add("sourceUrl", declaration_url)
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 
