@@ -8,6 +8,9 @@ coverage:
   start: 2023-11-15
 exports:
   - statistics.json
+  - entities.ftm.json
+  - statements.csv
+  - targets.simple.csv
 deploy:
   memory: "1000Mi"
   memory_limit: "2000Mi"
