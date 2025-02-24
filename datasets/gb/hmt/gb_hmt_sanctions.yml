@@ -9,7 +9,7 @@ deploy:
   memory: "2Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  The United Kingom's consolidated international sanctions list.
+  The United Kingdom's consolidated international sanctions list.
 description: |
   The Office of Financial Sanctions Implementation (OFSI) publishes a list of all
   those subject to financial sanctions imposed by the UK which it keeps updated.
@@ -790,7 +790,32 @@ lookups:
         values:
           - Suzhou Neway Machine Tool Design and Research Institute Co., Ltd.
           - Neway Cnc (USA), Inc.
-      
+      - match: "(1) BIC: 136001 (2) TIN: 02012201010017 (3) OKPO: 27231453 (4) SWIFT: RINBKG22"
+        values:
+          - "BIC: 136001"
+          - "TIN: 02012201010017"
+          - "OKPO: 27231453"
+          - "SWIFT: RINBKG22"
+      - match: 'SUZHOU SHUNYI INVESTMENT CO., LTD'
+        value: SUZHOU SHUNYI INVESTMENT CO., LTD
+      - match: '(1) 苏州百胜动力科技有限公司 – SUZHOU YUM POWER TECHNOLOGY CO., LTD. (2)  苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD.'
+        values:
+          - 苏州百胜动力科技有限公司 - SUZHOU YUM POWER TECHNOLOGY CO., LTD
+          - 苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD
+  type.name:
+    options:
+      - match: "BIC: 136001"
+        prop: bikCode
+        value: 136001
+      - match: "TIN: 02012201010017"
+        prop: taxNumber
+        value: "02012201010017"
+      - match: "OKPO: 27231453"
+        prop: okpoCode
+        value: 27231453
+      - match: "SWIFT: RINBKG22"
+        prop: swiftBic
+        value: RINBKG22
   type.address:
     lowercase: true
     options:
@@ -942,3 +967,9 @@ lookups:
     options:
       - match: 00/00/0
         value: null
+  type.string:
+    options:
+      - match: "(1) 603950 (2) 603107"
+        values:
+          - 603950
+          - 603107
