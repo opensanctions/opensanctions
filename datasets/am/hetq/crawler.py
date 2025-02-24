@@ -304,7 +304,7 @@ def crawl_lists(context: Context, zipfh: ZipFile):
     # Now that we have the persons we can grab some personal data and
     # create Persons
     for person_id, data in persons.items():
-        person = crawl_person(context, zipfh, person_id, data, is_target=True)
+        person = crawl_person(context, zipfh, person_id, data)
         if person is not None:
             persons[person_id]["entity"] = person
     # And create relations between entities
