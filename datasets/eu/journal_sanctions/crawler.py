@@ -51,7 +51,21 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.emit(rel)
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("startDate"))
+    start_date = row.pop("startDate")
+    h.apply_date(sanction, "startDate", start_date)
+
+    for public_key in h.multi_split(row.pop("crypto wallet"), [";"]):
+        wallet = context.make("CryptoWallet")
+        wallet.id = context.make_id(public_key)
+        wallet.add("publicKey", public_key)
+        wallet.add("holder", entity)
+        wallet.add("topics", "sanction")
+
+        wallet_sanction = h.make_sanction(context, wallet)
+        h.apply_date(wallet_sanction, "startDate", start_date)
+
+        context.emit(wallet)
+        context.emit(wallet_sanction)
 
     context.emit(entity)
     context.emit(sanction)
