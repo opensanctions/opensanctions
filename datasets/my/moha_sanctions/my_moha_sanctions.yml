@@ -80,6 +80,8 @@ lookups:
         value: nationality
       - match: date_0f_listed
         value: date_of_listed
+      - match: other_names
+        value: other_name
   type.country:
     options:
       - match:
