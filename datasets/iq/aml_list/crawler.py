@@ -4,26 +4,26 @@ from rigour.mime.types import XLSX
 from typing import Optional
 
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 # These sheets do not contain actual data but serve as reference sheets
-LOC_IGNORE_LIST = ["الافراد", "القوائم المحلية "]  # Individuals, Local lists
+LOC_IGNORE_LIST = [
+    "الافراد",  # Individuals
+    "القوائم المحلية ",  # Local lists
+]
 
 YEAR_PATTERN = re.compile(r"\b\d{4}\b")
-ENTITY_NAME_REASON = re.compile(
-    r"\s*للتوسط ببيع وشراء العملات الاجنبية$"
-)  # To mediate in the sale and purchase of foreign currencies
+# To mediate in the sale and purchase of foreign currencies
+ENTITY_NAME_REASON = re.compile(r"\s*للتوسط ببيع وشراء العملات الاجنبية$")
 
 
 def clean_entity_name(entity_name: str) -> Optional[str]:
-    if entity_name:
-        match = ENTITY_NAME_REASON.search(entity_name)
-        if match:
-            return ENTITY_NAME_REASON.sub("", entity_name).strip()
-    return entity_name
+    if entity_name is None:
+        return None
+    return ENTITY_NAME_REASON.sub("", entity_name).strip()
 
 
-def extract_reason(entity_name: str) -> Optional[str]:
-    """Extracts the reason for listing from the entity name."""
+def extract_sector(entity_name: str) -> Optional[str]:
     if entity_name is None:
         return None
     match = ENTITY_NAME_REASON.search(entity_name)
@@ -39,44 +39,40 @@ def extract_listing_date(decision_number: str) -> Optional[str]:
 
 
 def crawl_row(row: dict, context: Context):
-    entity_name = row.pop("entity_name", None)
-    id = row.pop("id")
+    raw_entity_name = row.pop("entity_name", None)
     decision_number = row.pop("decision_no")
-
-    reason = extract_reason(entity_name)
-    entity_name = clean_entity_name(entity_name)
+    entity_name = clean_entity_name(raw_entity_name)
     listing_date = extract_listing_date(decision_number)
 
     if entity_name:
         entity = context.make("LegalEntity")
-        entity.id = context.make_id(id, entity_name, decision_number)
-        entity.add("topics", "sanction")
-        entity.add("topics", "asset.frozen")
+        entity.id = context.make_id(entity_name, decision_number)
         entity.add("name", entity_name, lang="ara")
-        context.emit(entity)
-        sanction = h.make_sanction(context, entity)
+        entity.add("sector", extract_sector(raw_entity_name), lang="ara")
     else:
         name = row.pop("name", row.pop("person_name"))
-        person = context.make("Person")
-        person.id = context.make_id(id, name)
-        person.add("topics", "debarment")
-        person.add("nationality", row.pop("nationality", None), lang="ara")
-        h.apply_date(person, "birthDate", row.pop("dob"))
+        birth_date = row.pop("dob")
+        entity = context.make("Person")
+        entity.id = context.make_id(name, birth_date)
+        entity.add("nationality", row.pop("nationality", None), lang="ara")
+        h.apply_date(entity, "birthDate", birth_date)
         h.apply_name(
-            person,
+            entity,
             full=name,
             matronymic=row.pop("matronymic"),
             lang="ara",
         )
-        context.emit(person)
-        sanction = h.make_sanction(context, person)
 
+    entity.add("topics", "sanction")
+
+    sanction = h.make_sanction(context, entity)
     sanction.add("recordId", decision_number)
-    sanction.add("reason", reason, lang="ara")
     h.apply_date(sanction, "listingDate", listing_date)
+
+    context.emit(entity)
     context.emit(sanction)
 
-    context.audit_data(row)
+    context.audit_data(row, ["id"])
 
 
 def process_xlsx(
@@ -86,15 +82,18 @@ def process_xlsx(
     title: str,
     ignore_sheets: list = [],
 ):
-    doc = context.fetch_html(url, cache_days=1)
-    link = doc.xpath(f'//article[@id="post-{url.split("=")[-1]}"]//a/@href')
+    excel_link_xpath = (
+        '//article[contains(@id, "post-")]//a[contains(@href, "xlsx")]/@href'
+    )
+    doc = fetch_html(context, url, excel_link_xpath, cache_days=1, geolocation="IQ")
+    link = doc.xpath(excel_link_xpath)
 
     assert len(link) == 1, link
     file_url = link[0]
     assert file_url.endswith(".xlsx"), file_url
     assert title in file_url, file_url
 
-    path = context.fetch_resource(filename, file_url)
+    _, _, _, path = fetch_resource(context, filename, file_url, XLSX, geolocation="IQ")
     context.export_resource(path, XLSX)
 
     wb = load_workbook(path, read_only=True)
