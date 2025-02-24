@@ -543,14 +543,11 @@ class Context:
                 f"Unexpected data found in fields: {unexpected_keys}", data=cleaned
             )
 
-    def emit(
-        self, entity: Entity, target: bool = False, external: bool = False
-    ) -> None:
+    def emit(self, entity: Entity, external: bool = False) -> None:
         """Send an entity from the crawling/runner process to be stored.
 
         Args:
             entity: The entity to be stored.
-            target: Whether the entity is a target of the dataset.
             external: Whether the entity is an enrichment candidate or already
                 part of the dataset.
         """
