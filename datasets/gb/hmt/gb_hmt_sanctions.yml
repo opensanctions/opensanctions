@@ -756,6 +756,41 @@ lookups:
           - KAZSTANEX LLP
           - ROSTANEX
           - UZSTANEX LLC
+      - match: Joint-Stock Company “Russian Electronics” Ruselectronics
+        values:
+          - Joint-Stock Company “Russian Electronics”
+          - Ruselectronics
+      - match: AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-27; ZAKRYTOE AKTSIONERNOE OBSHCHESTVO GOSTINICHNYI KOMPLEKS KRONA
+        values:
+          - AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-27
+          - ZAKRYTOE AKTSIONERNOE OBSHCHESTVO GOSTINICHNYI KOMPLEKS KRONA
+      - match: P & P HOLDING GMBH
+        value: P & P Holding GmbH
+      - match: (1) EKC AG USA Corporation (2) EKC AG Turkey Madencilik Anonim Sirketi
+        values:
+          - EKC AG USA Corporation
+          - EKC AG Turkey Madencilik Anonim Sirketi
+      - match: Ministry of Science and Higher Education of the Russian Federation
+        value: Ministry of Science and Higher Education of the Russian Federation
+      - match: CLOSED JOINT-STOCK COMPANY SCIENTIFIC AND PRODUCTION LASER-TECHNOLOGICAL CENTER; ASSOCIATION FOR PROMOTING IMPROVEMENT OF HOUSING CONDITIONS OF EMPLOYEES OF THE ORGANIZATION OF THE NOVOSIBIRSK SCIENTIFIC CENTER "AKADEMZHILSTROY-1";
+        values:
+          - CLOSED JOINT-STOCK COMPANY SCIENTIFIC AND PRODUCTION LASER-TECHNOLOGICAL CENTER
+          - ASSOCIATION FOR PROMOTING IMPROVEMENT OF HOUSING CONDITIONS OF EMPLOYEES OF THE ORGANIZATION OF THE NOVOSIBIRSK SCIENTIFIC CENTER "AKADEMZHILSTROY-1"
+      - match: (1) Federal Agency FOR State Property Management (2) Rostec
+        values:
+          - Federal Agency FOR State Property Management
+          - Rostec
+      - match: NEKOMMERCHESKAYA ORGANIZATSIYA SOYUZ ROSSIISKIKH ORUZHEINIKOV IMENI M.T. KALASHNIKOVA
+        value: NEKOMMERCHESKAYA ORGANIZATSIYA SOYUZ ROSSIISKIKH ORUZHEINIKOV IMENI M.T. KALASHNIKOVA
+      - match: Vorkutaugol JSC
+        value: Vorkutaugol JSC
+      - match: AVILON KHOLDINGRUS
+        value: AVILON KHOLDINGRUS
+      - match: (1) Suzhou Neway Machine Tool Design and Research Institute Co., Ltd. (2) Neway Cnc (USA), Inc.
+        values:
+          - Suzhou Neway Machine Tool Design and Research Institute Co., Ltd.
+          - Neway Cnc (USA), Inc.
+      
   type.address:
     lowercase: true
     options:
@@ -888,6 +923,8 @@ lookups:
         value: info@etemad-mobin.com
       - match: request@mehr fci.ir
         value: request@mehr-fci.ir
+      - match: indoc@SIBANTHRACITE GROUP.ru
+        value: indoc@SIBANTHRACITEGROUP.ru
 
   type.gender:
     lowercase: true
