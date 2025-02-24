@@ -68,8 +68,8 @@ def parse_associates(context: Context, target: Entity, value: str) -> None:
 
 def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     unique_id = data.pop("Unique Identifier")
-    entity_type = data.pop("Type").strip()
-    if entity_type in ("Asset", "Total"):
+    entity_type = data.pop("Type")
+    if entity_type in ("Asset", "Total") or entity_type is None:
         # Assets are not granular enough to be worth importing
         return None
     if entity_type not in TYPES:
