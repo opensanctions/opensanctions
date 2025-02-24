@@ -1,4 +1,4 @@
-title: Iraq AML Blocking Lists
+title: Iraq Terrorist Fund Freezing Lists
 entry_point: crawler.py
 prefix: iq-aml
 coverage:
@@ -11,9 +11,11 @@ summary: >
 description: |
   This dataset comprises information about individuals and entities designated by the 
   Anti-Money Laundering and Terrorist Financing Office. It covers both international and 
-  local lists, featuring names of companies and individuals, listing dates, and reasons for
-  inclusion when available. In most cases, the committee exercises its authority to freeze 
-  the movable and immovable funds and economic resources of the listed entities.
+  local lists, featuring names of companies and individuals, and listing dates.
+
+  The entities required to act upon the listing of individuals or entities, and the
+  scope of those actions, are listed in the
+  [Terrorist Funds Freezing Committee System No. (6) of 2023 order](https://aml.iq/?page_id=2160)
 publisher:
   name: Republic of Iraq Anti-Money Laundering and Countering Financing of Terrorism Office
   description: >
