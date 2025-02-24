@@ -11,6 +11,10 @@ from zavod import helpers as h
 NUMBER_SPLITS = [f"({x})" for x in range(1, 50)]
 PUNCTUATION_SPLITS = [". ", ", "]
 REGEX_POSTCODE = re.compile(r"\d+")
+# Intentionally single digit except zero to try and reduce false positives
+# that might occur in phone numbers, e.g. +44(0)82123456
+# or based on real example "(Fax): +375 (17) 123-45-67  (Tel): +375 (17) 234-56-78"
+REGEX_PHONE_SPLIT = re.compile(r"\([1-9]\) |\. |, ")
 
 
 TYPES = {
@@ -63,6 +67,15 @@ def split_reg_no(text: str):
     )
     text = text.replace("Tax Identification Number", "; Tax Identification Number")
     return h.multi_split(text, NUMBER_SPLITS + [";", " / "])
+
+
+def split_phone(text: str):
+    # Splits on (1) ... (2) ... if there's more than one index to avoid splitting
+    # when it's just an optional part of the number in parens.
+    values = REGEX_PHONE_SPLIT.split(text)
+    if len(values) > 2:
+        return values
+    return [text]
 
 
 def parse_row(context: Context, row: Dict[str, Any]):
@@ -227,8 +240,8 @@ def parse_row(context: Context, row: Dict[str, Any]):
     # ni_details = split_items(ni_detail)
     # TODO: where do I stuff this?
 
-    phones = row.pop("PhoneNumber", None)
-    for phone in h.multi_split(phones, PUNCTUATION_SPLITS):
+    phones = row.pop("PhoneNumber", "")
+    for phone in REGEX_PHONE_SPLIT.split(phones):
         entity.add_cast("LegalEntity", "phone", phone, original_value=phones)
     emails = row.pop("EmailAddress", None)
     for email in h.multi_split(emails, PUNCTUATION_SPLITS + NUMBER_SPLITS):
