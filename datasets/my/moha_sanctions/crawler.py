@@ -10,6 +10,8 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
+ID_SPLITS = ["(a) ", "(b) ", "(c) ", "(d) ", "(e) ", "(f) "]
+
 
 def cell_values(el: _Element) -> List[str]:
     items = [i.text_content().strip() for i in el.findall(".//li")]
@@ -53,8 +55,9 @@ def crawl_table(context: Context, table: _Element) -> None:
             h.apply_dates(entity, "birthDate", row.pop("date_of_birth", None))
             entity.add("birthPlace", row.pop("place_of_birth", None))
             entity.add("nationality", row.pop("nationality", None))
-            entity.add("idNumber", row.pop("id_number", None))
             entity.add("passportNumber", row.pop("passport_number", None))
+            for id in h.multi_split(row.pop("id_number", None), ID_SPLITS):
+                entity.add("idNumber", id)
 
         sanction = h.make_sanction(context, entity)
         h.apply_dates(sanction, "listingDate", row.pop("date_of_listed"))

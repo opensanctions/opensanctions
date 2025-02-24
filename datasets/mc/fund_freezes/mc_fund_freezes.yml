@@ -178,6 +178,7 @@ lookups:
           - Entre 1960 et 1975
           - Années 1960-1970 (âgé d'environ 50 ans)
           - avant 1964
+          - 1980-1990
         value: null
   type.country:
     lowercase: true
