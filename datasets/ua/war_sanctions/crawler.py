@@ -38,6 +38,11 @@ LINKS = [
         "type": "person",
         "program": "Persons involved in the dissemination of propaganda",
     },
+    {  # executives of war
+        "url": "https://war-sanctions.gur.gov.ua/en/executives",
+        "type": "person",
+        "program": "Officials and entities controlling Russia’s military-industrial policy, defense orders, and wartime economy",
+    },
 ]
 
 
@@ -358,7 +363,15 @@ def crawl_person(context: Context, link, program):
         person.add("name", name)
     person.add("citizenship", data.pop("Citizenship", None))
     person.add("taxNumber", data.pop("Tax Number", None))
-    person.add("sourceUrl", data.pop("Links"))
+    person.add("sourceUrl", data.pop("Links", None))
+    person.add("position", data.pop("Other positions", None))
+    h.apply_date(person, "birthDate", data.pop("Date of birth", None))
+    person.add(
+        "position",
+        data.pop(
+            "Positions or membership in the governance bodies of the russian MIC", None
+        ),
+    )
     person.add("topics", "poi")
     if archive_links is not None:
         person.add("sourceUrl", archive_links)
@@ -369,7 +382,7 @@ def crawl_person(context: Context, link, program):
             person.add("position", position)
 
     sanction = h.make_sanction(context, person)
-    sanction.add("reason", data.pop("Reasons"))
+    sanction.add("reason", data.pop("Reasons", None))
     sanction.add("sourceUrl", link)
     sanction.add("program", program)
 
@@ -472,7 +485,7 @@ def crawl(context: Context):
     )
     assert len(transport_tabs_container) == 1, transport_tabs_container
     h.assert_dom_hash(
-        transport_tabs_container[0], "762db41c65d4889b90631e3ded6870e339262620"
+        transport_tabs_container[0], "30a19544db4cf42e1c8678f243974e9d12dfa6aa"
     )
 
     for link_info in LINKS:
