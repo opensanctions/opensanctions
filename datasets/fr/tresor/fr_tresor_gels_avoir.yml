@@ -4829,6 +4829,7 @@ lookups:
           jurisdiction: ru
           address: "Fédération de Russie"
       - match: "Numéro d'identification fiscale: 1650153253; KPP: 165001001"
+        schema: Company
         props:
           innCode: 1650153253
           kppCode: 165001001
@@ -4842,6 +4843,7 @@ lookups:
         props:
           innCode: 7841443821
       - match: "Date d'enregistrement: 3.1.2003 (fondé en 1918) Numéro d'enregistrement: 1037804006998 Numéro d'identification fiscale: 7802072267 KPP: 780201001"
+        schema: Company
         props:
           incorporationDate: 2003-01-03
           registrationNumber: 1037804006998
@@ -4854,6 +4856,7 @@ lookups:
         props:
           innCode: 5024101198
       - match: "Type d'entité: société par actions non publique Numéro d'enregistrement: 1026103161930 INN: 6163013800 KPP: 616301001"
+        schema: Company
         props:
           legalForm: société par actions non publique
           registrationNumber: 1026103161930
@@ -4961,6 +4964,7 @@ lookups:
           registrationNumber: 1027804850369
           innCode: 7810221748
       - match: "Numéro d'enregistrement: 1105249001120 Numéro d'identification fiscale: 5214010100 KPP: 521401001 Entités associées: JSC Technodinamika"
+        schema: Company
         props:
           registrationNumber: 1105249001120
           innCode: 5214010100
@@ -4977,6 +4981,7 @@ lookups:
           incorporationDate: 2023-04-04
           registrationNumber: 1234000002521
       - match: "Numéro d'identification fiscale: 4000000400; KPP: 400001001"
+        schema: Company
         props:
           innCode: 4000000400
           kppCode: 400001001
@@ -5000,6 +5005,7 @@ lookups:
           incorporationDate: 2011-09-27
           registrationNumber: 1116317006299
       - match: "Numéro d'identification fiscale russe: 6317088527 ; KPP: 631701001"
+        schema: Company
         props:
           innCode: 6317088527
           kppCode: 631701001
@@ -5028,10 +5034,12 @@ lookups:
           incorporationDate: 2003-06-02
           registrationNumber: 1034316578680
       - match: "Numéro d'identification fiscale: 4345029946; KPP: 434501001"
+        schema: Company
         props:
           innCode: 4345029946
           kppCode: 434501001
       - match: "Numéro d'enregistrement: 1037700016991 Date d'enregistrement: 13.1.2003 Numéro d'identification fiscale: 7728135260 KPP: 772801001"
+        schema: Company
         props:
           registrationNumber: 1037700016991
           incorporationDate: 2003-01-13
@@ -5067,6 +5075,7 @@ lookups:
         associates:
           - le soi-disant gouvernement de la soi-disant République populaire de Donetsk
       - match: "Numéro d'enregistrement: 1237800084235 NIF: 7802942873 KPP: 780201001"
+        schema: Company
         props:
           registrationNumber: 1237800084235
           innCode: 7802942873
