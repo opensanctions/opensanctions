@@ -5060,7 +5060,7 @@ lookups:
       - match: "Numéro d'enregistrement: 1229300115637"
         props:
           registrationNumber: 1229300115637
-      - match: "Principal établissement: zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant "République populaire de Donetsk" et "Répub"
+      - match: "Principal établissement: zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant \"République populaire de Donetsk\" et \"Répub\""
         props:
           address: "zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant République populaire de Donetsk et Répub"
       - match: "Entités associées: le soi-disant \"gouvernement\" de la soi-disant \"République populaire de Donetsk\""
