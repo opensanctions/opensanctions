@@ -5007,10 +5007,9 @@ lookups:
         props:
           registrationNumber: 1027807989879
           innCode: 7816043890
-      - match: 'Autres entités associées: mouvement panrusse social d'État à destination des enfants et des jeunes "Le mouvement des premiers"'
-        props:
-          associates:
-            - mouvement panrusse social d'État à destination des enfants et des jeunes "Le mouvement des premiers"
+      - match: "Autres entités associées: mouvement panrusse social d'État à destination des enfants et des jeunes "Le mouvement des premiers""
+        associates:
+          - mouvement panrusse social d'État à destination des enfants et des jeunes "Le mouvement des premiers"
       - match: "Type d'entité: société à responsabilité limitée; Lieu d'enregistrement: Turquie; Numéro d'identification fiscale: 3361229712"
         props:
           jurisdiction: tr
@@ -5065,9 +5064,8 @@ lookups:
         props:
           address: "zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant République populaire de Donetsk et Répub"
       - match: "Entités associées: le soi-disant "gouvernement" de la soi-disant "République populaire de Donetsk""
-        props:
-          associates:
-            - le soi-disant gouvernement de la soi-disant République populaire de Donetsk
+        associates:
+          - le soi-disant gouvernement de la soi-disant République populaire de Donetsk
       - match: "Numéro d'enregistrement: 1237800084235 NIF: 7802942873 KPP: 780201001"
         props:
           registrationNumber: 1237800084235
