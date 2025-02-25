@@ -283,3 +283,7 @@ lookups:
           - 36107
       - match: "LG-\n0000520"
         values: ["LG-0000520"]
+      - match: 28R103788700 (NJ) RP450314 (PA)
+        values:
+          - 28R103788700
+          - RP450314
