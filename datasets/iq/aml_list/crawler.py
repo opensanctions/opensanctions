@@ -13,6 +13,10 @@ LOC_IGNORE_LIST = [
 ]
 NAME_SPLITS = [
     "المكنى",  # Nickname
+    # It looks like what's in parentheses is always a nickname, sometimes with,
+    # sometimes without "المكنى" (nicknamed)
+    "(",
+    ")",
 ]
 
 YEAR_PATTERN = re.compile(r"\b\d{4}\b")
