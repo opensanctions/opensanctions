@@ -17,6 +17,7 @@ children:
   - ext_ee_ariregister
   - ext_eu_esma_firds
   - ext_gb_coh_psc
+  - ext_ge_company_registry
   - ext_gleif
   - ext_ror
   - ext_icij_offshoreleaks
