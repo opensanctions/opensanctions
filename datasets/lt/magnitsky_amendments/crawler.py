@@ -14,9 +14,9 @@ def map_gender(gender_code):
 # Error handling function
 def check_data_limits(data):
     num_found = data.get("numFound")
-    if num_found > 400:
+    if num_found > 500:
         raise ValueError(
-            f"Error: numFound ({num_found}) is greater than the pre-set limit of 400."
+            f"Error: numFound ({num_found}) is greater than the pre-set limit of 500."
         )
 
 

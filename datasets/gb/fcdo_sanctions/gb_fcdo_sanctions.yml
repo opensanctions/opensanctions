@@ -84,6 +84,8 @@ lookups:
         value: kaz
       - match: Georgian
         value: kat
+      - match: Thai
+        value: tha
   name_type:
     lowercase: true
     normalize: true
@@ -113,6 +115,8 @@ lookups:
           - gc.com
           - Unknown
           - www.mtsbank.ru
+          - indoc@SIBANTHRACITE
+          - GROUP.ru
         value: null
       - match: www.bloodandhonour.co.uk
         prop: website

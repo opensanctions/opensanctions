@@ -4818,3 +4818,265 @@ lookups:
         props:
           jurisdiction: ir
           incorporationDate: 2014
+      - match: "Lieu d'enregistrement: République du Tatarstan, Fédération de Russie Date d'enregistrement: 12.2.2007 Numéro d'enregistrement: 1071650002874"
+        props:
+          jurisdiction: ru
+          address: "République du Tatarstan"
+          incorporationDate: 2007-02-12
+          registrationNumber: 1071650002874
+      - match: "Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie"
+      - match: "Numéro d'identification fiscale: 1650153253; KPP: 165001001"
+        schema: Company
+        props:
+          innCode: 1650153253
+          kppCode: 165001001
+      - match: "Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie Date d'enregistrement: 25.4.2011 Numéro d'enregistrement: 1117847157086"
+        props:
+          jurisdiction: ru
+          address: "Saint-Pétersbourg"
+          incorporationDate: 2011-04-25
+          registrationNumber: 1117847157086
+      - match: "Numéro d'identification fiscale: 7841443821"
+        props:
+          innCode: 7841443821
+      - match: "Date d'enregistrement: 3.1.2003 (fondé en 1918) Numéro d'enregistrement: 1037804006998 Numéro d'identification fiscale: 7802072267 KPP: 780201001"
+        schema: Company
+        props:
+          incorporationDate: 2003-01-03
+          registrationNumber: 1037804006998
+          innCode: 7802072267
+          kppCode: 780201001
+      - match: "Numéro d'enregistrement: 1085024625510"
+        props:
+          registrationNumber: 1085024625510
+      - match: "Numéro d'identification fiscale: 5024101198"
+        props:
+          innCode: 5024101198
+      - match: "Type d'entité: société par actions non publique Numéro d'enregistrement: 1026103161930 INN: 6163013800 KPP: 616301001"
+        schema: Company
+        props:
+          legalForm: société par actions non publique
+          registrationNumber: 1026103161930
+          innCode: 6163013800
+          kppCode: 616301001
+      - match: "Lieu d'enregistrement: Minsk, Biélorussie Date d'enregistrement: 1.8.2013 Numéro d'enregistrement: 100386629"
+        props:
+          jurisdiction: by
+          address: "Minsk"
+          incorporationDate: 2013-08-01
+          registrationNumber: 100386629
+      - match: "Principal établissement: Biélorussie"
+        props:
+          jurisdiction: by
+      - match: "Numéro d'identification fiscale: 9703137862"
+        props:
+          innCode: 9703137862
+      - match: "Lieu d'enregistrement: Brodnikov pereulok 7, Moscou, Fédération de Russie Date d'enregistrement: 9.3.2023 Numéro d'enregistrement: 1237700185645"
+        props:
+          jurisdiction: ru
+          address: "Brodnikov pereulok 7, Moscou"
+          incorporationDate: 2023-03-09
+          registrationNumber: 1237700185645
+      - match: "Date d'enregistrement: 27.12.2012 Numéro d'enregistrement: 1127747292738 Numéro d'identification fiscale: 772077038"
+        props:
+          incorporationDate: 2012-12-27
+          registrationNumber: 1127747292738
+          innCode: 772077038
+      - match: "Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie; Date d'enregistrement: 15.12.2023; Numéro d'enregistrement: 1237800143569"
+        props:
+          jurisdiction: ru
+          address: "Saint-Pétersbourg"
+          incorporationDate: 2023-12-15
+          registrationNumber: 1237800143569
+      - match: "Numéro d'identification fiscale: 7805812079"
+        props:
+          innCode: 7805812079
+      - match: "Date d'enregistrement: 19.7.1993 Numéro d'enregistrement: 1037800001304 Numéro d'identification fiscale: 7801016421 OKPO: 07614320"
+        props:
+          incorporationDate: 1993-07-19
+          registrationNumber: 1037800001304
+          innCode: 7801016421
+          okpoCode: 07614320
+      - match: "Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie Date d'enregistrement: 29.9.2022 Numéro d'enregistrement: 1227800127840"
+        props:
+          jurisdiction: ru
+          address: "Saint-Pétersbourg"
+          incorporationDate: 2022-09-29
+          registrationNumber: 1227800127840
+      - match: "Numéro d'identification fiscale: 7840102191"
+        props:
+          innCode: 7840102191
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie Date d'enregistrement: 12.2.2015 Numéro d'enregistrement: 1157746097629"
+        props:
+          jurisdiction: ru
+          address: "Moscou"
+          incorporationDate: 2015-02-12
+          registrationNumber: 1157746097629
+      - match: "Numéro d'identification fiscale: 7735140825"
+        props:
+          innCode: 7735140825
+      - match: "Numéro d'enregistrement: 1027804858146 Principal établissement: Fédération de Russie Numéro d'identification fiscale: 7810240719"
+        props:
+          registrationNumber: 1027804858146
+          address: "Fédération de Russie"
+          innCode: 7810240719
+      - match: "Lieu d'enregistrement: d'abord l'Ukraine, puis, après l'annexion illégale de la Crimée, la Fédération de Russie"
+        props:
+          jurisdiction: ua-cri
+          address: "Ukraine"
+      - match: "Date d'enregistrement: 22.7.1992 (Ukraine), 13.8.2014 (Fédération de Russie) Numéro d'enregistrement: 1149102030186"
+        props:
+          incorporationDate: ["1992-07-22", "2014-08-13"]
+          registrationNumber: 1149102030186
+      - match: "INN: 9102019769; OKPO: 00204814"
+        props:
+          innCode: 9102019769
+          okpoCode: 00204814
+      - match: "Principal établissement: Fédération de Russie et Crimée"
+        props:
+          address: "Fédération de Russie et Crimée"
+      - match: "Numéro d'identification fiscale: 1674003000"
+        props:
+          innCode: 1674003000
+      - match: "Date d'enregistrement: 22.7.2010 Numéro d'enregistrement: 1107746582052"
+        props:
+          incorporationDate: 2010-07-22
+          registrationNumber: 1107746582052
+      - match: "Numéro d'identification fiscale: 7735570680"
+        props:
+          innCode: 7735570680
+      - match: "Numéro d'enregistrement: 110108010146888 Code de crédit social unifié: 91110108661572276L"
+        props:
+          registrationNumber: 110108010146888
+          idNumber: 91110108661572276L
+      - match: "Date d'enregistrement: 4.2.2003 Numéro d'enregistrement: 1037700128828"
+        props:
+          incorporationDate: 2003-02-04
+          registrationNumber: 1037700128828
+      - match: "Numéro d'identification fiscale: 7728032882"
+        props:
+          innCode: 7728032882
+      - match: "Numéro d'enregistrement: 1027804850369 Numéro d'identification fiscale: 7810221748"
+        props:
+          registrationNumber: 1027804850369
+          innCode: 7810221748
+      - match: "Numéro d'enregistrement: 1105249001120 Numéro d'identification fiscale: 5214010100 KPP: 521401001 Entités associées: JSC Technodinamika"
+        schema: Company
+        props:
+          registrationNumber: 1105249001120
+          innCode: 5214010100
+          kppCode: 521401001
+        associates:
+          - JSC Technodinamika
+      - match: "Type d'entité: Fondation caritative privée"
+        props:
+          legalForm: Fondation caritative privée
+      - match: "Lieu d'enregistrement: Fédération de Russie; Date d'enregistrement: 4.4.2023; Numéro d'enregistrement: 1234000002521"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie"
+          incorporationDate: 2023-04-04
+          registrationNumber: 1234000002521
+      - match: "Numéro d'identification fiscale: 4000000400; KPP: 400001001"
+        schema: Company
+        props:
+          innCode: 4000000400
+          kppCode: 400001001
+      - match: "Date d'enregistrement: 6.11.1992 Numéro d'enregistrement: 1027739610018"
+        props:
+          incorporationDate: 1992-11-06
+          registrationNumber: 1027739610018
+      - match: "Numéro d'identification fiscale: 7729050901"
+        props:
+          innCode: 7729050901
+      - match: "Date d'enregistrement: 2.4.2015 Numéro d'enregistrement: 1159102083238 Numéro d'identification fiscale: 9104005842 Principal établissement: Crimée"
+        props:
+          incorporationDate: 2015-04-02
+          registrationNumber: 1159102083238
+          innCode: 9104005842
+          address: "Crimée"
+      - match: "Lieu d'enregistrement: Fédération de Russie Date d'enregistrement: 27.9.2011 Numéro d'enregistrement: 1116317006299"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie"
+          incorporationDate: 2011-09-27
+          registrationNumber: 1116317006299
+      - match: "Numéro d'identification fiscale russe: 6317088527 ; KPP: 631701001"
+        schema: Company
+        props:
+          innCode: 6317088527
+          kppCode: 631701001
+      - match: "Numéro d'enregistrement: 1027807989879 INN: 7816043890"
+        props:
+          registrationNumber: 1027807989879
+          innCode: 7816043890
+      - match: "Autres entités associées: mouvement panrusse social d'État à destination des enfants et des jeunes \"Le mouvement des premiers\""
+        associates:
+          - mouvement panrusse social d'État à destination des enfants et des jeunes "Le mouvement des premiers"
+      - match: "Type d'entité: société à responsabilité limitée; Lieu d'enregistrement: Turquie; Numéro d'identification fiscale: 3361229712"
+        props:
+          jurisdiction: tr
+          legalForm: société à responsabilité limitée
+          innCode: 3361229712
+      - match: "Date d'enregistrement: 18.8.2023, précédemment enregistrée sous le nom de southfront.org depuis 30.4.2015"
+        props:
+          incorporationDate: ["2023-08-18", "2015-04-30"]
+      - match: "Type d'entité: société par actions non publique"
+        props:
+          legalForm: société par actions non publique
+      - match: "Lieu d'enregistrement: Kirov, Fédération de Russie; Date d'enregistrement: 2.6.2003 ; Numéro d'enregistrement: 1034316578680"
+        props:
+          jurisdiction: ru
+          address: "Kirov"
+          incorporationDate: 2003-06-02
+          registrationNumber: 1034316578680
+      - match: "Numéro d'identification fiscale: 4345029946; KPP: 434501001"
+        schema: Company
+        props:
+          innCode: 4345029946
+          kppCode: 434501001
+      - match: "Numéro d'enregistrement: 1037700016991 Date d'enregistrement: 13.1.2003 Numéro d'identification fiscale: 7728135260 KPP: 772801001"
+        schema: Company
+        props:
+          registrationNumber: 1037700016991
+          incorporationDate: 2003-01-13
+          innCode: 7728135260
+          kppCode: 772801001
+      - match: "Date d'enregistrement: 31.1.2023 Numéro d'enregistrement: 1235000011058"
+        props:
+          incorporationDate: 2023-01-31
+          registrationNumber: 1235000011058
+      - match: "INN: 5005073080 OKPO: 80688660"
+        props:
+          innCode: 5005073080
+          okpoCode: 80688660
+      - match: "Type d'entité: entreprise unitaire d'État"
+        props:
+          legalForm: entreprise unitaire d'État
+      - match: "Lieu d'enregistrement: Komsomolsky Pr. 22, ville de Donetsk, district de Donetsk, soi-disant \"République populaire de Donetsk\""
+        props:
+          address: "Komsomolsky Pr. 22, ville de Donetsk, district de Donetsk, soi-disant République populaire de Donetsk"
+      - match: "Date du premier enregistrement: 28.2.2017"
+        props:
+          incorporationDate: 2017-02-28
+      - match: "Date d'enregistrement dans la Fédération de Russie (à la suite des référendums illégaux tenus dans les territoires occupés de l'Ukraine): 30.11.2022"
+        props:
+          incorporationDate: 2022-11-30
+      - match: "Numéro d'enregistrement: 1229300115637"
+        props:
+          registrationNumber: 1229300115637
+      - match: "Principal établissement: zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant \"République populaire de Donetsk\" et \"Répub\""
+        props:
+          address: "zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant République populaire de Donetsk et Répub"
+      - match: "Entités associées: le soi-disant \"gouvernement\" de la soi-disant \"République populaire de Donetsk\""
+        associates:
+          - le soi-disant gouvernement de la soi-disant République populaire de Donetsk
+      - match: "Numéro d'enregistrement: 1237800084235 NIF: 7802942873 KPP: 780201001"
+        schema: Company
+        props:
+          registrationNumber: 1237800084235
+          innCode: 7802942873
+          kppCode: 780201001

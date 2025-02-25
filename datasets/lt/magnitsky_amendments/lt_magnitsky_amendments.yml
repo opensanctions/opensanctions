@@ -26,17 +26,17 @@ publisher:
   country: lt
   official: true
 data:
-  url: https://www.migracija.lt/external/nam/search?pageNo=0&pageSize=400&language=lt
+  url: https://www.migracija.lt/external/nam/search?pageNo=0&pageSize=500&language=lt
   file_name: source.json
   format: JSON
 
 assertions:
   min:
     schema_entities:
-      Person: 290
+      Person: 330
   max:
     schema_entities:
-      Person: 700
+      Person: 800
 
 lookups: 
   type.date:
