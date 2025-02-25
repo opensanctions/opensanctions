@@ -52,7 +52,9 @@ lookups:
         value: la
       - match: "Indonesia Indonesia"
         value: id
-      - match: 
+      - match: USA United States of America
+        value: us
+      - match:
           - "China China"
           - Peoples Republic of China
         value: cn
