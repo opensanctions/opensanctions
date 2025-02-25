@@ -355,6 +355,7 @@ def crawl_person(context: Context, link, program):
     names = data.pop("Name")
     positions = data.pop("Position", None)
     dob_pob = data.pop("Date and place of birth", None)
+    dob = data.pop("Date of birth", None)
     archive_links = data.pop("Archive links", None)
 
     person = context.make("Person")
@@ -365,7 +366,8 @@ def crawl_person(context: Context, link, program):
     person.add("taxNumber", data.pop("Tax Number", None))
     person.add("sourceUrl", data.pop("Links", None))
     person.add("position", data.pop("Other positions", None))
-    h.apply_date(person, "birthDate", data.pop("Date of birth", None))
+    if dob:
+        h.apply_date(person, "birthDate", dob)
     person.add(
         "position",
         data.pop(
