@@ -89,6 +89,17 @@ def parse_identification(
             link.add("subject", entity)
             link.add("object", other)
             context.emit(link)
+    if result.wallets:
+        for wallet_data in result.wallets:
+            currency = wallet_data.get("currency")
+            publicKey = wallet_data.get("publicKey")
+            if currency and publicKey:
+                wallet = context.make("CryptoWallet")
+                wallet.id = context.make_slug("wallet", currency, publicKey)
+                wallet.add("currency", currency)
+                wallet.add("publicKey", publicKey)
+                wallet.add("holder", entity.id)
+                context.emit(wallet)
 
 
 def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, value):
