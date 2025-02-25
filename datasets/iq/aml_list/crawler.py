@@ -11,6 +11,9 @@ LOC_IGNORE_LIST = [
     "الافراد",  # Individuals
     "القوائم المحلية ",  # Local lists
 ]
+NAME_SPLITS = [
+    "المكنى",  # Nickname
+]
 
 YEAR_PATTERN = re.compile(r"\b\d{4}\b")
 # To mediate in the sale and purchase of foreign currencies
@@ -50,10 +53,13 @@ def crawl_row(row: dict, context: Context):
         entity.add("name", entity_name, lang="ara")
         entity.add("sector", extract_sector(raw_entity_name), lang="ara")
     else:
-        name = row.pop("name", row.pop("person_name"))
+        raw_person_name = row.pop("name", row.pop("person_name"))
+        parts = h.multi_split(raw_person_name, NAME_SPLITS)
+        name = parts[0]
+        aliases = parts[1:]
         birth_date = row.pop("dob")
         entity = context.make("Person")
-        entity.id = context.make_id(name, birth_date)
+        entity.id = context.make_id(raw_person_name, birth_date)
         entity.add("nationality", row.pop("nationality", None), lang="ara")
         h.apply_date(entity, "birthDate", birth_date)
         h.apply_name(
@@ -62,6 +68,7 @@ def crawl_row(row: dict, context: Context):
             matronymic=row.pop("matronymic"),
             lang="ara",
         )
+        entity.add("alias", aliases, lang="ara")
 
     entity.add("topics", "sanction")
 
