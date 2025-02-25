@@ -42,7 +42,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     entity.add("topics", "reg.action")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     # id = internal id
