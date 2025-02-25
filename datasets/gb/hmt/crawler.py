@@ -46,7 +46,6 @@ REG_NO_TYPES = {
     "Russia TIN": ("LegalEntity", "taxNumber"),
     "TIN": ("LegalEntity", "taxNumber"),
     "Tax ID No.": ("LegalEntity", "taxNumber"),
-    "Tax Identification Number: INN": ("LegalEntity", "innCode"),
     "UK Company no.": ("LegalEntity", "registrationNumber"),
 }
 REG_NO_TYPES_PATTERN = "|".join(re.escape(k) for k in REG_NO_TYPES.keys())
@@ -77,6 +76,7 @@ def parse_companies(context: Context, value: Optional[str]):
 
 
 def split_reg_no(text: str):
+    text = text.replace("Tax Identification Number: INN", "; INN")
     text = text.replace("INN:", "; INN:")
     text = text.replace("TIN:", "; TIN:")
     text = text.replace("OGRN:", "; OGRN:")
