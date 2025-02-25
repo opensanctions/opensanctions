@@ -5,7 +5,6 @@ from zavod import Context, helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     name = row.pop("unvan")
     if not name:
         return
@@ -13,13 +12,18 @@ def crawl_item(row: Dict[str, str], context: Context):
     # Clean the name by removing numbers in parentheses
     # The number means the number of cases against the person
     name = re.sub(r"\s*\(\d+\)\s*$", "", name)
+    # MKK Registration Number - not clear whether this applies to the person or
+    # the security.
+    # MKK (https://www.mkk.com.tr/en/) is the central registry and securities
+    # depository of Türkiye who is responsible for the central custody and
+    # dematerialization* of capital market instruments
+    mkk_number = row.pop("mkkSicilNo")
 
     entity = context.make("Person")
-    entity.id = context.make_id(row.pop("kisiId"))
+    entity.id = context.make_id(name, mkk_number)
     entity.add("name", name)
     entity.add("country", "tr")
-
-    entity.add("registrationNumber", row.pop("mkkSicilNo"))
+    entity.add("topics", "reg.action")
 
     # Create sanction
     sanction = h.make_sanction(context, entity)
@@ -40,17 +44,20 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     sanction.add("reason", row.pop("aciklama"))
 
-    entity.add("topics", "reg.action")
-
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    # id = internal id
-    # kurulKararTarihiStr (decision date) as string (we already have decision date)
-    # davaBilgisi (Case Information) not used because it's always "Yok" (No) or "Var" (Yes)
     if row.get("davaBilgisi") and row.get("davaBilgisi") not in ["Yok", "Var"]:
-        context.log.warning("Dava bilgisi var: %s", row)
-    context.audit_data(row, ignore=["id", "kurulKararTarihiStr", "davaBilgisi"])
+        context.log.warning("Dava bilgisi var: %s" % row)
+    context.audit_data(
+        row,
+        ignore=[
+            "id",
+            "kisiId",  # seems to change daily.
+            "kurulKararTarihiStr",  # (decision date) as string (we already have decision date)
+            "davaBilgisi",  # (Case Information) not used because it's always "Yok" (No) or "Var" (Yes)
+        ],
+    )
 
 
 def crawl(context: Context) -> None:
