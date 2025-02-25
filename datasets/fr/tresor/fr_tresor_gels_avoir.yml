@@ -5007,7 +5007,7 @@ lookups:
         props:
           registrationNumber: 1027807989879
           innCode: 7816043890
-      - match: 'Autres entités associées: mouvement panrusse social d'État à destination des enfants et des jeunes "Le mouvement des premiers"'
+      - match: "Autres entités associées: mouvement panrusse social d'État à destination des enfants et des jeunes "Le mouvement des premiers""
         associates:
           - Le mouvement des premiers
       - match: "Type d'entité: société à responsabilité limitée; Lieu d'enregistrement: Turquie; Numéro d'identification fiscale: 3361229712"
