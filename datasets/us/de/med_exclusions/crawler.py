@@ -48,7 +48,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("npiCode", h.multi_split(npi, [";", ",", "&"]))
 
     # Deal with sometimes intentional line breaks, and sometimes unwanted wrapping:
-    license_numbers = row.pop("license")
+    license_numbers = row.pop("license", row.pop("license_rn707737_pa", None))
     license_numbers = re.sub(
         r"PROMISe", ";PROMISe", license_numbers, flags=re.IGNORECASE
     )
