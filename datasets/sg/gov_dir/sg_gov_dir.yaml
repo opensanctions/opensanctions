@@ -82,6 +82,8 @@ lookups:
           - guidance officer
           - welfare officer
           - statistician
+          - feedback
+          - hotline
         regex:
           - "^pa to"
           - "^personal assistant"
