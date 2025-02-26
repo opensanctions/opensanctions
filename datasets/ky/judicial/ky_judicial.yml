@@ -30,7 +30,7 @@ publisher:
   country: ky
   url: https://www.judicial.ky/judicial-administration/contacts
 data:
-  url: "https://judicial.ky/who-we-are/judicial-officers/"
+  url: https://judicial.ky/chief-justice/
   format: HTML
 
 assertions:
