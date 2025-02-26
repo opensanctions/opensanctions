@@ -13,10 +13,8 @@ def map_gender(gender_code):
 
 def crawl_page(context: Context, entry):
     person = context.make("Person")
-    # Create an ID from the person's first name, last name, and date of birth
-    person_id = context.make_id(
-        entry.get("vardas"), entry.get("pavarde"), entry.get("gimimoData")
-    )
+    # ID based on the person's first and last name
+    person_id = context.make_id(entry.get("vardas"), entry.get("pavarde"))
     person.id = person_id
     person.add("name", f"{entry.get('vardas')} {entry.get('pavarde')}", lang="lit")
     h.apply_date(person, "birthDate", entry.get("gimimoData"))
