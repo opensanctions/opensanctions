@@ -80,6 +80,7 @@ def apply_translit_full_name(
     name: str,
     output: Dict[str, Tuple[str, str]] = {"eng": ("Latin", "English")},
     prompt: Optional[str] = None,
+    alias: bool = False,
 ) -> None:
     """
     Apply transliterated name to an entity.
@@ -96,6 +97,6 @@ def apply_translit_full_name(
             prompt = make_name_translit_prompt(input_code, output)
         response = run_text_prompt(context, prompt, name)
         for lang in response.keys():
-            h.apply_name(entity, full=response[lang], lang=lang)
+            h.apply_name(entity, full=response[lang], lang=lang, alias=alias)
     except ConfigurationException as ce:
         context.log.error("Transliteration failed: %s" % ce.message)
