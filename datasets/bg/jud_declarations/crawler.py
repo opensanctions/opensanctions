@@ -47,19 +47,15 @@ def extract_judicial_declaration(context, url, doc_id_date) -> Dict[str, Optiona
 
 def parse_html_table(
     table: HtmlElement,
-    skiprows: int = 0,
     headers: List[str] = [],
 ) -> Generator[Dict[str, HtmlElement], None, None]:
 
     first_row = table.find(".//tr[1]")
-    actual_headers = [td.text_content().strip() for td in first_row.findall("./td")]
-    assert len(actual_headers) == len(
-        headers
-    ), f"Header length mismatch: {actual_headers}"
+    assert len(headers) == len(
+        first_row.findall("./td")
+    ), f"Header length mismatch {len(headers)} != {len(first_row.findall('./td'))}"
 
     for rownum, row in enumerate(table.findall(".//tr")):
-        if rownum < skiprows:
-            continue
         cells = row.findall("./td")
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
@@ -71,6 +67,7 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
     # Skip the header row
     if name == "Име" and doc_id_date == "Входящ номер":
         return
+    # Important assertions to be sure that the table structure is as expected
     assert re.match(r"^[\u0400-\u04FF]", name), f"Invalid name format: {name}"
     assert re.match(r"^\d", doc_id_date), f"Invalid doc_id_date format: {doc_id_date}"
 
