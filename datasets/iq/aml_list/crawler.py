@@ -1,10 +1,14 @@
 import re
+from normality import latinize_text
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 from typing import Optional
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.shed.trans import (
+    apply_translit_full_name,
+)
 
 # These sheets do not contain actual data but serve as reference sheets
 LOC_IGNORE_LIST = [
@@ -22,6 +26,8 @@ NAME_SPLITS = [
 YEAR_PATTERN = re.compile(r"\b\d{4}\b")
 # To mediate in the sale and purchase of foreign currencies
 ENTITY_NAME_REASON = re.compile(r"\s*للتوسط ببيع وشراء العملات الاجنبية$")
+
+TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 
 
 def clean_entity_name(entity_name: str) -> Optional[str]:
@@ -56,6 +62,11 @@ def crawl_row(row: dict, context: Context):
         entity.id = context.make_id(entity_name, decision_number)
         entity.add("name", entity_name, lang="ara")
         entity.add("sector", extract_sector(raw_entity_name), lang="ara")
+        if entity_name != latinize_text(entity_name):
+            print(entity_name)
+            apply_translit_full_name(
+                context, entity, "ara", entity_name, TRANSLIT_OUTPUT
+            )
     else:
         raw_person_name = row.pop("name", row.pop("person_name"))
         parts = h.multi_split(raw_person_name, NAME_SPLITS)
@@ -73,6 +84,13 @@ def crawl_row(row: dict, context: Context):
             lang="ara",
         )
         entity.add("alias", aliases, lang="ara")
+        if name != latinize_text(name):
+            apply_translit_full_name(context, entity, "ara", name, TRANSLIT_OUTPUT)
+        for alias in aliases:
+            if alias != latinize_text(alias):
+                apply_translit_full_name(
+                    context, entity, "ara", alias, TRANSLIT_OUTPUT, alias=True
+                )
 
     entity.add("topics", "sanction")
 

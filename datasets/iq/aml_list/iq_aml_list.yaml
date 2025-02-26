@@ -16,6 +16,8 @@ description: |
   The entities required to act upon the listing of individuals or entities, and the
   scope of those actions, are listed in the
   [Terrorist Funds Freezing Committee System No. (6) of 2023 order](https://aml.iq/?page_id=2160)
+
+  **Note:** This crawler uses an LLM-based approach to transliterate entity names.
 publisher:
   name: Republic of Iraq Anti-Money Laundering and Countering Financing of Terrorism Office
   description: >
@@ -30,7 +32,7 @@ url: https://aml.iq
 data:
   url: https://aml.iq
   format: HTML
-ci_test: false # No zyte key in CI
+ci_test: false  # No zyte key in CI
 
 dates: 
   formats: ["%d-%m-%Y"]
