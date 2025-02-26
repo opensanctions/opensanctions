@@ -4884,7 +4884,7 @@ lookups:
         props:
           incorporationDate: 2012-12-27
           registrationNumber: 1127747292738
-          innCode: 772077038
+          taxNumber: 772077038
       - match: "Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie; Date d'enregistrement: 15.12.2023; Numéro d'enregistrement: 1237800143569"
         props:
           jurisdiction: ru
@@ -5020,7 +5020,7 @@ lookups:
         props:
           jurisdiction: tr
           legalForm: société à responsabilité limitée
-          innCode: 3361229712
+          taxNumber: 3361229712
       - match: "Date d'enregistrement: 18.8.2023, précédemment enregistrée sous le nom de southfront.org depuis 30.4.2015"
         props:
           incorporationDate: ["2023-08-18", "2015-04-30"]
@@ -5080,3 +5080,21 @@ lookups:
           registrationNumber: 1237800084235
           innCode: 7802942873
           kppCode: 780201001
+      - match: "ETH: 0x002471b8A185f9980708d0eAEC5B289714F56f8d"
+        wallets:
+          - currency: ETH
+            publicKey: 0x002471b8A185f9980708d0eAEC5B289714F56f8d
+      - match: "BTC: bc1qwtz3zv95x2flu4w26kgfepf529z50r2sqc5zml bc1qwxqxd25yk2dtw2ml04vxj9atq3huv4rdytf6vt 3My1ffQr5qQzmq4aBFgRqwRYqfB5zPAt8t"
+        wallets:
+          - currency: BTC
+            publicKey: bc1qwtz3zv95x2flu4w26kgfepf529z50r2sqc5zml
+          - currency: BTC
+            publicKey: bc1qwxqxd25yk2dtw2ml04vxj9atq3huv4rdytf6vt
+          - currency: BTC
+            publicKey: 3My1ffQr5qQzmq4aBFgRqwRYqfB5zPAt8t
+      - match: "BSC: 0x3051Ca7cB7f6C599fA2f27385AD75010cf0f2bbF TRX: TA1hsikRfsgGiW9nEBpT4tEXEySTNYLr2d"
+        wallets:
+          - currency: BSC
+            publicKey: 0x3051Ca7cB7f6C599fA2f27385AD75010cf0f2bbF
+          - currency: TRX
+            publicKey: TA1hsikRfsgGiW9nEBpT4tEXEySTNYLr2d

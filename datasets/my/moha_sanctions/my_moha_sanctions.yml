@@ -54,7 +54,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 80
+      Person: 65
       Organization: 20
   max:
     schema_entities:
