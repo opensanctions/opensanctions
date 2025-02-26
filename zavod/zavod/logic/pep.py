@@ -3,6 +3,9 @@ from typing import Optional, List
 from datetime import datetime, timedelta
 from functools import lru_cache
 
+import orjson
+
+from zavod.archive.backend import get_archive_backend
 from zavod.context import Context
 from zavod import settings
 from zavod.entity import Entity
@@ -37,62 +40,86 @@ class PositionCategorisation(object):
         self.is_pep = is_pep
 
 
-def get_categorisation(
-    context: Context, entity_id: str | None
-) -> Optional[PositionCategorisation]:
-    if entity_id is None:
-        raise ValueError("entity_id is required")
-    url = f"{settings.OPENSANCTIONS_API_URL}/positions/{entity_id}"
-    res = context.http.get(url)
-    if res.status_code == 200:
-        data = res.json()
-        return PositionCategorisation(
-            topics=data.get("topics", []),
-            is_pep=data.get("is_pep"),
-        )
-    elif res.status_code == 404:
-        return None
-    else:
-        res.raise_for_status()
-        return None
+class CatLibrary(object):
+    def __init__(self):
+        self.categorisations = dict()
 
-
-@lru_cache(maxsize=5000)
-def categorise(
-    context: Context,
-    position: Entity,
-    is_pep: Optional[bool] = True,
-) -> PositionCategorisation:
-    """Checks whether this is a PEP position and for any topics needed to make
-    PEP duration decisions.
-
-    If the position is not in the database yet, it is added.
-
-    Only emit positions where is_pep is true, even if the crawler sets is_pep
-    to true, in case is_pep has been changed to false in the database.
-
-    Args:
-      context:
-      position: The position to be categorised
-      is_pep: Initial value for is_pep in the database if it gets added.
-    """
-    categorisation = get_categorisation(context, position.id)
-
-    if categorisation is None:
-        global NOTIFIED_SYNC_POSITIONS
-        if not settings.SYNC_POSITIONS:
-            if not NOTIFIED_SYNC_POSITIONS:
-                context.log.info(
-                    "Syncing positions is disabled - falling back to categorisation provided by crawler, if any."
-                )
-                NOTIFIED_SYNC_POSITIONS = True
-            return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
-
-        if not settings.OPENSANCTIONS_API_KEY:
-            context.log.error(
-                "Setting OPENSANCTIONS_API_KEY is required when ZAVOD_SYNC_POSITIONS is true."
+    @staticmethod
+    def load(context: Context) -> "CatLibrary":
+        library = CatLibrary()
+        archive = get_archive_backend()
+        context.log.info("Loading categorisations from archive")
+        while string := archive.get_object("pep-categorisations.ijson").open().readline():
+            print(string)
+            data = orjson.loads(string)
+            categorisation = PositionCategorisation(
+                topics=data["topics"],
+                is_pep=data["is_pep"],
             )
+            library.categorisations[data["entity_id"]] = categorisation
+            if len(library.categorisations) % 1000 == 0:
+                context.log.info("Loaded %s categorisations", len(library.categorisations))
+        context.log.info("Loaded %s categorisations", len(library.categorisations))
+        return library
+    
+    def get_categorisation(self, entity_id: str) -> Optional[PositionCategorisation]:
+        return self.categorisations.get(entity_id, None)
 
+    @lru_cache(maxsize=5000)
+    def categorise(
+        self,
+        context: Context,
+        position: Entity,
+        is_pep: Optional[bool] = True,
+    ) -> PositionCategorisation:
+        """Checks whether this is a PEP position and for any topics needed to make
+        PEP duration decisions.
+
+        If the position is not in the database yet, it is added.
+
+        Only emit positions where is_pep is true, even if the crawler sets is_pep
+        to true, in case is_pep has been changed to false in the database.
+
+        Args:
+          context:
+          position: The position to be categorised
+          is_pep: Initial value for is_pep in the database if it gets added.
+        """
+        categorisation = self.categorisations.get(position.id, None)
+
+        if categorisation is None:
+            global NOTIFIED_SYNC_POSITIONS
+            if not settings.SYNC_POSITIONS:
+                if not NOTIFIED_SYNC_POSITIONS:
+                    context.log.info(
+                        "Syncing positions is disabled - falling back to categorisation provided by crawler, if any."
+                    )
+                    NOTIFIED_SYNC_POSITIONS = True
+                return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
+
+            if not settings.OPENSANCTIONS_API_KEY:
+                context.log.error(
+                    "Setting OPENSANCTIONS_API_KEY is required when ZAVOD_SYNC_POSITIONS is true."
+                )
+
+            categorisation = self.add_position(context, position, is_pep)
+            self.categorisations[position.id] = categorisation
+
+        if categorisation.is_pep is None:
+            context.log.debug(
+                (
+                    f'Position {position.get("country")} {position.get("name")}'
+                    " not yet categorised as PEP or not."
+                )
+            )
+        return categorisation
+    
+    def add_position(
+        self,
+        context: Context,
+        position: Entity,
+        is_pep: Optional[bool] = True,
+    ) -> PositionCategorisation:
         context.log.info("Adding position not yet in database", entity_id=position.id)
         url = f"{settings.OPENSANCTIONS_API_URL}/positions/"
         headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
@@ -107,20 +134,10 @@ def categorise(
         res = context.http.post(url, headers=headers, json=body)
         res.raise_for_status()
         data = res.json()
-        categorisation = PositionCategorisation(
+        return PositionCategorisation(
             topics=data.get("topics", []),
             is_pep=data.get("is_pep"),
         )
-
-    if categorisation.is_pep is None:
-        context.log.debug(
-            (
-                f'Position {position.get("country")} {position.get("name")}'
-                " not yet categorised as PEP or not."
-            )
-        )
-
-    return categorisation
 
 
 def backdate(date: datetime, days: int) -> str:

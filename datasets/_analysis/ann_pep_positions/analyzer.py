@@ -3,40 +3,32 @@ from typing import Any, Dict, Optional
 
 from zavod import Context, Entity
 from zavod import settings
+from zavod.logic.pep import CatLibrary
 from zavod.meta import get_multi_dataset
 from zavod.store import get_store
 from zavod.integration import get_dataset_linker
 
 
-@cache
-def get_position(context: Context, entity_id: str) -> Optional[Dict[str, Any]]:
-    url = f"{settings.OPENSANCTIONS_API_URL}/positions/{entity_id}"
-    headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
-    res = context.http.get(url, headers=headers)
-    if res.status_code == 404:
-        return None
-    res.raise_for_status()
-    return res.json()
 
-
-def analyze_position(context: Context, entity: Entity) -> None:
+def analyze_position(context: Context, cat_lib: CatLibrary, entity: Entity) -> None:
     entity_ids = entity.referents
     if entity.id is not None:
         entity_ids.add(entity.id)
     if not entity_ids:
         return
     for entity_id in entity_ids:
-        data = get_position(context, entity_id)
-        if data is None:
+        categorisation = cat_lib.get_categorisation(context, entity_id)
+        if categorisation is None:
             continue
         proxy = context.make("Position")
         proxy.id = entity_id
-        proxy.add("topics", data["topics"])
+        proxy.add("topics", categorisation.topics)
         if proxy.get("topics"):
             context.emit(proxy)
 
 
 def crawl(context: Context) -> None:
+    cat_lib = CatLibrary.load(context)
     scope = get_multi_dataset(context.dataset.inputs)
     linker = get_dataset_linker(scope)
     store = get_store(scope, linker)
@@ -50,7 +42,7 @@ def crawl(context: Context) -> None:
             context.cache.flush()
 
         if entity.schema.is_a("Position"):
-            analyze_position(context, entity)
+            analyze_position(context, cat_lib, entity)
             position_count += 1
             if position_count % 1000 == 0:
                 context.log.info("Analyzed %s positions" % position_count)
