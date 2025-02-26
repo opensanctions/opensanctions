@@ -132,6 +132,9 @@ def crawl_row(context: Context, declaration_id: int):
             "Otras_Fuentes",  # other sources
             "Fuente_Conflicto",  # conflict source
             "Patrimonio_Tutela_Curatela",  # guardianship heritage
+            "subnumeral",
+            "Deposito_Plazo_Adicional",  # additional term deposit
+            "Ahorro_Previsional_Voluntario_Adicional",  # additional voluntary pension savings
         ],
     )
 
