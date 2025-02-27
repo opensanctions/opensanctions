@@ -42,3 +42,10 @@ assertions:
   max:
     schema_entities:
       Person: 24
+
+lookups: 
+  overrides:
+    options:
+      - match: The Chief Justice of the Cayman Islands, The Hon. Justice Margaret Ramsay-Hale
+        name: Margaret Ramsay-Hale
+        position: Chief Justice
