@@ -61,3 +61,14 @@ def test_extra_functions():
         entity.add_cast("Banana", "peel", "Acme Inc")
 
     assert entity.to_dict()["properties"]["birthDate"][0] == "1988"
+
+
+def test_target_logic():
+    catalog = get_catalog()
+    test_ds = catalog.make_dataset(TEST_DATASET)
+    entity = Entity(test_ds, {"schema": "LegalEntity"})
+    entity.id = "test_entity"
+    assert not entity.target, entity.to_dict()
+
+    entity.add("topics", "sanction")
+    assert entity.target, entity.to_dict()

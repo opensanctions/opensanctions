@@ -4,6 +4,7 @@ from zavod import Context, helpers as h
 from normality import slugify
 from typing import Dict, Generator, cast
 from typing import List
+from normality import collapse_spaces
 
 
 REGEX_DATE = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
@@ -12,11 +13,7 @@ REGEX_DATE = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
 def convert_date(date_str: str) -> List[str]:
     """Convert various date formats to 'YYYY-MM-DD'."""
     dates = REGEX_DATE.findall(date_str)
-    parsed = []
-    formats = ["%m/%d/%Y"]  # 'MM/DD/YYYY' format
-    for str in dates:
-        parsed.extend(h.parse_date(str, formats))
-    return parsed
+    return dates
 
 
 def crawl_item(context: Context, row: Dict[str, str]):
@@ -29,8 +26,10 @@ def crawl_item(context: Context, row: Dict[str, str]):
     entity.id = context.make_id(name)
     entity.add("name", name)
     # Adjust the topic based on the presence of "final rule"
-    final_rule = row.get("final_rule", "").strip().lower()
-    rescinded_date = row.get("rescinded").text_content()
+    final_rule = collapse_spaces(
+        row.get("final-rule", "").text_content().strip().lower()
+    )
+    rescinded_date = collapse_spaces(row.get("rescinded").text_content())
     if (
         final_rule
         and final_rule != "---"
@@ -53,19 +52,21 @@ def crawl_item(context: Context, row: Dict[str, str]):
     finding_date = row.get("finding").text_content()
     nprm_date = row.get("notice-of-proposed-rulemaking").text_content()
     listing_date = finding_date if finding_date else nprm_date
-    listing_date = convert_date(listing_date)
-    sanction.add("listingDate", listing_date)
+    for date in convert_date(listing_date):
+        h.apply_date(sanction, "listingDate", date)
 
     final_rule_date = row.get("final-rule").text_content()
     if final_rule_date != "---":
-        sanction.add("startDate", convert_date(final_rule_date))
+        for date in convert_date(final_rule_date):
+            h.apply_date(sanction, "startDate", date)
 
     # rescinded_date = row.get("rescinded").text_content()
     if rescinded_date != "---" and rescinded_date != "":
-        sanction.add("endDate", convert_date(rescinded_date))
-        context.emit(entity, target=True)
+        for date in convert_date(rescinded_date):
+            h.apply_date(sanction, "endDate", date)
+        context.emit(entity)
     else:
-        context.emit(entity, target=False)
+        context.emit(entity)
 
     # Emit the sanction
     context.emit(sanction)

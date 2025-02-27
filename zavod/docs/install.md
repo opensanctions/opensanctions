@@ -71,5 +71,7 @@ For development you may also want to install `yamllint` - we use that to check f
 * `ZAVOD_RESOLVER_PATH` must be set to the path to a [nomenklatura](https://github.com/opensanctions/nomenklatura)
   resolver JSON lines file. It can be an empty file. e.g. `data/resolver.ijson`
 * `ZAVOD_SYNC_POSITIONS` (default `True`) - When true, attempts to sync PEP positions with our positions database, requiring `ZAVOD_OPENSANCTIONS_API_KEY` to be set with a valid key. Usually best set to `False` in development.
-* `ZAVOD_ARCHIVE_BACKEND` default `FileSystemBackend` which is usually good for crawler development. Can be `GoogleCloudBackend` which allows backfilling from the data lake, e.g. so that an exporter for a collection can backfill data it wants to load into its store from other crawlers.
+* `ZAVOD_ARCHIVE_BACKEND` default `FileSystemBackend`.
+    - `AnonymousGoogleCloudBackend` is nice for crawler development - it allows backfilling from the OpenSanctions data lake which is handy for delta comparisons to previous production runs. Requires `ZAVOD_ARCHIVE_BUCKET` to be set.
+    - `GoogleCloudBackend` additionally allows publishing to the data lake. gcloud environment credentials are required. 
 * `ZAVOD_ARCHIVE_BUCKET` - e.g. `data.opensanctions.org`

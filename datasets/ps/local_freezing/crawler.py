@@ -3,8 +3,6 @@ from typing import Generator, Dict
 from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
 
-FORMATS = ["%d/%m/%Y"]
-
 
 def parse_table(table) -> Generator[Dict[str, str], None, None]:
     """
@@ -64,13 +62,13 @@ def crawl_item(input_dict: dict, context: Context):
         entity.add("alias", aliases)
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("startDate", h.parse_date(input_dict.pop("date-of-freezing"), FORMATS))
+    h.apply_date(sanction, "startDate", input_dict.pop("date-of-freezing"))
     sanction.add(
         "program",
         "Decree No. (14) of 2015 Concerning the Enforcement of Security Council Resolutions",
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(input_dict)
 

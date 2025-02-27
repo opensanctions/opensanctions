@@ -1,5 +1,8 @@
-FROM ubuntu:24.04 as build
-ENV DEBIAN_FRONTEND noninteractive
+FROM ubuntu:24.04 AS build
+
+ARG BUILD_DATE=static
+
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \
     && apt-get -qq -y install --no-install-recommends \
@@ -12,20 +15,22 @@ RUN apt-get -qq -y update \
 
 RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
-RUN pip3 install --no-cache-dir -U pip six setuptools wheel
-RUN pip3 install --no-cache-dir -U "pyicu==2.13.1"
+RUN pip3 install --no-cache-dir -U pip
+RUN pip3 install --no-cache-dir -U "pyicu==2.14"
 
 COPY zavod /opensanctions/zavod
 RUN pip install --no-cache-dir -e /opensanctions/zavod
 WORKDIR /opensanctions
 
-FROM ubuntu:24.04 as runtime
+# ----------------------------------------------------------------------------------------
+FROM ubuntu:24.04 AS runtime
 
-LABEL org.opencontainers.image.title "OpenSanctions ETL"
-LABEL org.opencontainers.image.licenses MIT
-LABEL org.opencontainers.image.source https://github.com/opensanctions/opensanctions
+LABEL org.opencontainers.image.title="OpenSanctions ETL"
+LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.source=https://github.com/opensanctions/opensanctions
+ARG BUILD_DATE=static
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \
     && apt-get -qq -y install --no-install-recommends \

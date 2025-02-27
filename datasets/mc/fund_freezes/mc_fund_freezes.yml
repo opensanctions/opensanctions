@@ -29,7 +29,157 @@ url: https://geldefonds.gouv.mc/
 data:
   url: https://geldefonds.gouv.mc/directdownload/sanctions.json
   format: JSON
+  lang: fra
+dates:
+  formats:
+    - "%d/%m/%Y"
+    - "%d/%m/%Y,"
+    - "vers %Y"
+    - "vers %Y,"
+    - "(Vers) %Y"
+    - "entre %Y"
+    - "entre %Y,"
+    - "et %Y"
+    - "approximativement %Y"
+    - "%b %Y"
+  months:
+    "Oct": "octobre"
+assertions:
+  min:
+    schema_entities:
+      Person: 3000
+      Organization: 1000
+  max:
+    schema_entities:
+      Person: 5000
+      Organization: 1400
 lookups:
+  schemata:
+    options:
+      - match: Personne physique
+        value: Person
+      - match: Personne morale
+        value: Organization
+      - match: Navire
+        value: Vessel
+  type.date:
+    options:
+      - match: 24/06/1402 (calendrier hégirien)
+        value: 1982-06-24
+      - match: (Gamel Mohamed) 25/05/1966,
+        value: 1966-05-25
+      - match: "08/1961,"
+        value: 1961-08
+      - match: Entre août et septembre 1977,
+        value: 1977
+      - match: au milieu des années 1940, probablement 1947 1947
+        value: 1947
+      - match: Othman Ahmed Othman Al Omairah 1973
+        value: 1973
+      - match: Peut-être 21/04/1964
+        value: "1964-04-21"
+      - match: calendrier hégirien iranien 1340,
+        value: 1961
+      - match: calendrier grégorien 1961
+        value: 1961
+      - match: calendrier hégirien iranien 1343,
+        value: 1965
+      - match: calendrier grégorien 1965
+        value: 1965
+      - match: "Date de naissance possible: 27/12/1977"
+        value: 1977-12-27
+      - match: (Abid Hammadou) 12/12/1965
+        value: 1965-12-12
+      - match: vers le 03/04/1973
+        value: 1973-04-03
+      - match: (Abd el Wanis Abd Gawwad Abd el Latif Bahaa) 09/05/1986
+        value: 1986-05-09
+      - match: 01/10/1983 15/03/1983 01/01/1980
+        value: 1983
+      - match: Entre 1957 et 1962 1962
+        value: 1962
+      - match: mars/avril 1965
+        value: 1965
+      - match: "Janvier 1958"
+        value: 1958-01
+      - match: 09/06/1981 ou 1982
+        value: 1982
+      - match: Peut-être 23/07/1981
+        value: 1981-07-23
+      - match: Décembre 1948
+        value: 1948-12
+      - match: Janvier 1964
+        value: 1964-01
+      - match: août 1961
+        value: 1961-08
+      - match: (Environ) 1952
+        value: 1952
+      - match: Août 1975
+        value: 1975-08
+      - match: 04/1964
+        value: 1964-04
+      - match: mars 1978
+        value: 1978-03
+      - match: Entre 1973 et 1974
+        values:
+          - 1973
+          - 1974
+      - match: Mars 1965 ou 1966
+        values:
+          - 1965-03
+          - 1966-03
+      - match: Mars 1968/1969
+        values:
+          - 1968-03
+          - 1969-03
+      - match: (Vers) 1958,
+        value: 1958
+      - match: Environ 1979
+        value: 1979
+      - match: Mai 1963
+        value: 1963-05
+      - match: 07/1961,
+        value: 1961-07
+      - match: 04/1964,
+        value: 1964-04
+      - match: Environ 1972
+        value: 1972
+      - match: Entre 1981 et 1983
+        values:
+          - 1981
+          - 1983
+      - match: Entre 1975 et 1979
+        values:
+          - 1975
+          - 1979
+      - match: Entre 1969 et 1971
+        values:
+          - 1969
+          - 1971
+      - match: Entre 1958, et 1963
+        values:
+          - 1958
+          - 1963
+      - match: Entre 1940 et 1941
+        values:
+          - 1940
+          - 1941
+      - match: Entre 1977 et 1982.
+        values:
+          - 1977
+          - 1982
+      - match:
+          - Entre le 01/01/1961 et le 31/12/1963,
+          - Entre le 01/01/1961 et le 31/12/1963
+          
+          - au milieu des années 1940 1940,
+          - entre 1975 et 1979
+          - Entre 1965 et 1969
+          - Entre 1960 et 1975
+          - Années 1960-1970 (âgé d'environ 50 ans)
+          - avant 1964
+          - 1980-1990
+        value: null
   type.country:
     lowercase: true
     normalize: true
@@ -79,12 +229,3 @@ lookups:
       - match:
           - UKRAINE et
         value: ua
-assertions:
-  min:
-    schema_entities:
-      Person: 3500
-      Organization: 1000
-  max:
-    schema_entities:
-      Person: 4200
-      Organization: 1400

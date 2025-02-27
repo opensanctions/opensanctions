@@ -4,7 +4,7 @@ from datetime import datetime
 
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod import settings
+from zavod import settings, helpers as h
 from zavod.logic.pep import occupancy_status, OccupancyStatus, PositionCategorisation
 
 
@@ -130,6 +130,32 @@ def make_occupancy(
         end_date: Set if the date the person left the position is known.
         status: Overrides determining PEP occupancy status
     """
+    assert person.schema.is_a("Person")
+    assert position.schema.is_a("Position")
+
+    occupancy = context.make("Occupancy")
+    # Include started and ended strings so that two occupancies, one missing start
+    # and and one missing end, don't get normalisted to the same ID
+    parts = [
+        person.id,
+        position.id,
+        "started",
+        start_date or "unknown",
+        "ended",
+        end_date or "unknown",
+    ]
+    occupancy.id = context.make_id(*parts)
+    occupancy.add("holder", person)
+    occupancy.add("post", position)
+
+    h.apply_date(occupancy, "startDate", start_date)
+    h.apply_date(occupancy, "endDate", end_date)
+
+    if birth_date not in person.get("birthDate"):
+        h.apply_date(person, "birthDate", birth_date)
+    if death_date not in person.get("deathDate"):
+        h.apply_date(person, "deathDate", death_date)
+
     if categorisation is not None:
         assert categorisation.is_pep, person
 
@@ -140,31 +166,15 @@ def make_occupancy(
             position,
             no_end_implies_current,
             current_time,
-            start_date,
-            end_date,
-            birth_date,
-            death_date,
+            max(occupancy.get("startDate"), default=None),
+            max(occupancy.get("endDate"), default=None),
+            max(person.get("birthDate"), default=None),
+            max(person.get("deathDate"), default=None),
             categorisation,
         )
     if status is None:
         return None
 
-    occupancy = context.make("Occupancy")
-    # Include started and ended strings so that two occupancies, one missing start
-    # and and one missing end, don't get normalisted to the same ID
-    parts = [
-        person.id,
-        position.id,
-        "started",
-        start_date,
-        "ended",
-        end_date,
-    ]
-    occupancy.id = context.make_id(*parts)
-    occupancy.add("holder", person)
-    occupancy.add("post", position)
-    occupancy.add("startDate", start_date)
-    occupancy.add("endDate", end_date)
     occupancy.add("status", status.value)
 
     person.add("topics", "role.pep")

@@ -1,6 +1,6 @@
 type: external
 title: Kazakhstan State Register of legal entities
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: kz_companies
 disabled: false
 hidden: false
@@ -11,8 +11,8 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "1000Mi"
-  memory_limit: "2000Mi"
+  memory: "3000Mi"
+  memory_limit: "4000Mi"
   disk: 30Gi
   disk_limit: 100Gi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -33,6 +33,7 @@ description: |
 url: https://data.egov.kz/datasets/view?index=gbd_ul
 publisher:
   name: Ministry of Justice of the Republic of Kazakhstan
+  acronym: MoJ
   description: |
     The Ministry provides legal support for the activities of the state, supports
     the rule of law in the work of state bodies, organizations, officials and citizens,
@@ -59,8 +60,9 @@ inputs:
   - debarment
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
   dataset: kz_companies
+  index_options:
+    memory_budget: 2000
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
@@ -78,3 +80,13 @@ config:
     - Company
     - Organization
     # - LegalEntity
+
+assertions:
+  min:
+    schema_entities:
+      Person: 5
+      Company: 5
+  max:
+    schema_entities:
+      Person: 50
+      Company: 50

@@ -4,6 +4,11 @@ prefix: wd
 coverage:
   frequency: daily
   start: 2024-09-10
+  schedule: "0 22 * * *"
+deploy:
+  cpu: "800m"
+  memory: "1500Mi"
+  memory_limit: "2500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 exports:
@@ -33,23 +38,132 @@ data:
   url: https://petscan.wmcloud.org/
   format: CSV
 
+assertions:
+  min:
+    country_entities:
+      ir: 1000
+      il: 800
+      sa: 500
+      eg: 500
+      iq: 500
+lookups:
+  type.country:
+    options:
+      - match:
+          - member states of the United Nations
+          - member of the United Nations Security Council
+        value: zz
+      - match: Pakistan Occupied Kashmir
+        value: pk
+      - match: Azad Kashmir
+        value: pk-km
+      - match:
+          - Galicia
+          - Ceuta
+        value: es
+      - match: Romanov Empire
+        value: ru
+      - match:
+          - Ambazonia
+          - traditional chiefdom in Cameroon
+        value: cm
+      - match: Kurdistan
+        value: iq-kr
+      - match: Republic of Mahabad
+        value: ir
+      - match: Basque Country
+        value: es
+      - match: Tatarstan
+        value: ru
+      - match:
+          - Persian Empire
+          - Medo-persia
+          - British overseas territories
+          - East Turkistan Government in Exile
+          - State of Judaea
+          - Qing dynasty
+        value: null
+  type.date:
+    options:
+      - match: "1935-06-31"
+        value: 1935-06
+      - match: "1935-06-31"
+        value: 1935-06
+      - match: "2019-11-31"
+        value: 2019-11
+      - match: "2012-02-30"
+        value: 2012-02
+      - match: "2020-04-31"
+        value: 2020-04
+      - match: "1973-09-31"
+        value: 1973-09
+      - match: "2023-02-31"
+        value: 2023-02
+      - match: "1949-02-29"
+        value: 1949-02
+      - match: "2021-06-31"
+        value: 2021-06
+      - match: "2018-02-29"
+        value: 2018-02
+      - match: "2011-02-31"
+        value: 2011-02
+      - match: "1991-02-29"
+        value: 1991-02
+      - match: "2004-04-31"
+        value: 2004-04
+      - match: "1999-06-31"
+        value: 1999-06
+      - match: "1999-02-31"
+        value: 1999-02
+
 config:
+  seeds:
+    - "Q109862464" # lord mayor
+    - "Q2285706" # head of government
+    - "Q48352" # head of state
+    - "Q183318" # dictator
+    - "Q7645115" # supreme leader
+    - "Q3099723" # minister-president
+    - "Q4175034" # legislator
+    - "Q486839" # member of parliament
+    - "Q83307" # minister
+    - "Q7330070" # foreign minister
+    - "Q14212" # prime minister
+    - "Q15966511" # deputy minister
+    - "Q26204040" # deputy minister
+    - "Q46403368" # deputy at the national level
+    - "Q132050" # governor
+    - "Q20086425" # shadow minister
+    - "Q108290289" # senior government officials
+    - "Q6635529" # provincial leader of the People's Republic of China
+    - "Q117826617" # supreme court judge
+    - "Q55736868" # national sup court judge
+    - "Q1501926" # attorney general
+    - "Q3368517" # public prosecutor general
+    - "Q109607046" # deputy public prosecutor general
+    - "Q107363151" # central bank governor
+    - "Q1553195" # party leader
+    - "Q2746259" # party chair
+    - "Q836971" # party secretary
+    - "Q29645880" # ambassador of a country
+    - "Q29645886" # ambassador to a country
+    - "Q707492" # military chief of staff
+    - "Q105434600" # high civil servant
+    - "Q17279032" # elective office
+    # skip:
+    # - "Q30185" # mayor
   categories:
     # Mega collections:
     - category: Political_office-holders_in_Asia
-      topic: role.pep
       depth: 8
     - category: Political_office-holders_in_Oceania
-      topic: role.pep
       depth: 8
     - category: Political_office-holders_in_North_America
-      topic: role.pep
       depth: 8
     # - category: Political_office-holders_in_Europe
     #   topic: role.pep
     #   depth: 8
     - category: Political_office-holders_in_South_America
-      topic: role.pep
 
     # Middle east:
     - category: Political_office-holders_in_the_United_Arab_Emirates
@@ -60,7 +174,7 @@ config:
       country: ae
     - category: Political_office-holders_in_Qatar
       depth: 7
-      topics: role.pep
+      topic: role.pep
       country: qa
     - category: House_of_Thani
       topic: role.pep
@@ -125,7 +239,7 @@ config:
     - category: Syrian_individuals_subject_to_U.S._Department_of_the_Treasury_sanctions
     - category: Syrian_individuals_subject_to_United_Kingdom_sanctions
     - category: Individuals_sanctioned_by_the_United_States_Department_of_State
-    
+
     # Russia
     - category: United_Russia_politicians
       topic: role.pep
@@ -138,9 +252,6 @@ config:
     - category: 21st-century_Russian_politicians
       topic: role.pep
       country: ru
-    - category: Political_office-holders_in_Kazakhstan
-      topic: role.pep
-      country: kz
 
     # Myanmar
     - category: Individuals_related_to_Myanmar_sanctions
@@ -157,6 +268,58 @@ config:
       position:
         name: Member of the State Administration Council
         country: mm
+        topics:
+          - gov.executive
+
+    # Turkey
+    - category: Lists_of_political_office-holders_in_Turkey
+      topic: role.pep
+      country: tr
+    - category: Political_office-holders_in_Turkey
+      topic: role.pep
+      country: tr
+    - category: 21st-century_Turkish_politicians
+      country: tr
+    - category: Members_of_the_28th_Parliament_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Members_of_the_27th_Parliament_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Members_of_the_67th_government_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Members_of_the_66th_government_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Cabinets_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Constituent_Assembly_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Grand_National_Assembly_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Heads_of_government_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Heads_of_state_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Turkish_judges
+      topic: role.pep
+      country: tr
+    - category: Military_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Government_ministers_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Government_ministries_of_Turkey
+      topic: role.pep
+      country: tr
+    - category: Presidents_of_Turkey
 
     # NK
     - category: Leaders_of_the_Workers'_Party_of_Korea_and_its_predecessors
@@ -171,6 +334,8 @@ config:
       position:
         name: Member of the Supreme People's Assembly
         country: kp
+        topics:
+          - gov.legislative
     - category: Political_office-holders_in_North_Korea
       topic: role.pep
       country: kp
@@ -182,8 +347,8 @@ config:
     - category: Political_office-holders_in_Azerbaijan
       topic: role.pep
       country: az
-    
-    # India 
+
+    # India
     - category: Political_office-holders_in_India
       topic: role.pep
       country: in
@@ -193,8 +358,8 @@ config:
     - category: Indian_government_officials
       topic: role.pep
       country: in
-    
-    # Nepal 
+
+    # Nepal
     - category: Government_ministers_of_Nepal
       topic: role.pep
       country: np
@@ -224,7 +389,7 @@ config:
       topic: role.pep
       depth: 8
 
-    # Basics & essentials   
+    # Basics & essentials
     - category: Sanctioned_people
     - category: Specially_Designated_Nationals_and_Blocked_Persons_List
     - category: Heads_of_government_in_Europe
@@ -241,8 +406,8 @@ config:
       topic: poi
     - category: Chief_justices_by_country
       topics:
-        - role.pep
         - role.judge
+        - role.pep
     - category: Central_bankers
       topic: role.pep
     - category: Lists_of_military_chiefs_of_staff
@@ -251,7 +416,7 @@ config:
         - role.pep
     - category: Lists_of_admirals
       topic: mil
-    
+
     # Heads of international organisations
     - category: Executive_Directors_of_the_World_Food_Programme
       topic: role.pep
@@ -309,6 +474,7 @@ config:
         country: zz
         topics:
           - role.judge
+          - gov.igo
     - category: International_Criminal_Court_prosecutors
       topic: role.pep
       position:
@@ -344,7 +510,7 @@ config:
       topic: role.pep
       position:
         name: Director-General of the World Health Organization
-        country: zz
+        country: un
         topics:
           - gov.igo
     - category: Secretaries_general_of_OPEC
@@ -385,7 +551,6 @@ config:
       topic: role.pep
       position:
         name: Registrar of the International Criminal Court
-        country: zz
         topics:
           - gov.igo
     - category: Secretaries_general_of_the_Arab_League
@@ -420,13 +585,15 @@ config:
       topic: role.pep
     - category: United_Nations_High_Commissioner_for_Refugees_officials
       topic: role.pep
+      country: un
     - category: United_Nations_Development_Programme_officials
       topic: role.pep
+      country: un
     - category: Presidents_of_the_United_Nations_General_Assembly
       topic: role.pep
       position:
         name: President of the United Nations General Assembly
-        country: zz
+        country: un
         topics:
           - gov.igo
     - category: United_Nations_High_Commissioner_for_Human_Rights_officials
@@ -460,7 +627,7 @@ config:
       country: cn
     - category: General_secretaries_and_Chairmen_of_the_Chinese_Communist_Party
       topic: role.pep
-      country: cn 
+      country: cn
     - category: Governors_of_Zhejiang
       topic: role.pep
       country: cn
@@ -482,7 +649,7 @@ config:
     - category: Lists_of_Chinese_province_governors
       topic: role.pep
       country: cn
-      
+
     # United States
     - category: People_associated_with_Russian_interference_in_the_2016_United_States_elections
       topic: poi
@@ -495,10 +662,20 @@ config:
     - category: Current_justices_of_the_Supreme_Court_of_the_United_States
       topic: role.pep
       country: us
+      position:
+        name: Justice of the Supreme Court of the United States
+        country: us
+        topics:
+          - role.judge
     - category: Presidents_of_the_United_States
       depth: 0
       topic: role.pep
       country: us
+      position:
+        name: President of the United States
+        country: us
+        topics:
+          - gov.head
     - category: Chief_justices_of_the_United_States
       topic: role.pep
       country: us
@@ -521,6 +698,7 @@ config:
         country: us
         topics:
           - role.lawyer
+          - gov.executive
     - category: Lists_of_mayors_of_places_in_the_United_States
       topic: role.pep
     - category: Lists_of_political_office-holders_in_the_United_States
@@ -529,6 +707,20 @@ config:
     - category: Political_office-holders_in_the_United_States
       topic: role.pep
     - category: United_States_government_officials
+      topic: role.pep
+    - category: Second_Trump_administration_personnel
+      topic: role.pep
+    - category: Biden_administration_personnel
+      topic: role.pep
+    - category: First_Trump_administration_personnel
+      topic: role.pep
+    - category: Senior_advisors_to_the_president_of_the_United_States
+      topic: role.pep
+    - category: Executive_Office_of_the_President_of_the_United_States
+      topic: role.pep
+    - category: Department_of_Government_Efficiency_people
+      topic: role.pep
+    - category: Members_of_the_Cabinet_of_the_United_States
       topic: role.pep
 
     # Europe
@@ -598,7 +790,6 @@ config:
     - category: Political_office-holders_in_Iceland
       country: is
       topic: role.pep
-
     - category: Political_office-holders_in_the_Czech_Republic
       country: cz
       topic: role.pep
@@ -668,3 +859,1982 @@ config:
     - category: Political_office-holders_in_the_Faroe_Islands
       country: fo
       topic: role.pep
+
+    ############################################################################
+    # Asia regional coverage
+    # Subregion: Central Asia
+
+    # country: Uzbekistan
+    - category: Political_office-holders_in_Uzbekistan
+      topic: role.pep
+      country: uz
+
+    # country: Kazakhstan
+    - category: Political_office-holders_in_Kazakhstan
+      topic: role.pep
+      country: kz
+
+    # country: Tajikistan
+    - category: Political_office-holders_in_Tajikistan
+      topic: role.pep
+      country: tj
+
+    # country: Turkmenistan
+    - category: Political_office-holders_in_Turkmenistan
+      topic: role.pep
+      country: tm
+
+    # country: Kyrgyzstan
+    - category: Political_office-holders_in_Kyrgyzstan
+      topic: role.pep
+      country: kg
+
+    # Subregion: Eastern Asia
+
+    # country: China
+    # already covered
+
+    # country: Japan
+    - category: Political_office-holders_in_Japan
+      topic: role.pep
+      country: jp
+
+    # country: South Korea
+    - category: Political_office-holders_in_South_Korea
+      topic: role.pep
+      country: kr
+
+    # country: North Korea
+    # already covered
+
+    # country: Mongolia
+    - category: Political_office-holders_in_Mongolia
+      topic: role.pep
+      country: mn
+
+    # Subregion: South-Eastern Asia
+
+    # country: Indonesia
+    - category: Political_office-holders_in_Indonesia
+      topic: role.pep
+      country: id
+
+    # country: Philippines
+    - category: Political_office-holders_in_the_Philippines
+      topic: role.pep
+      country: ph
+
+    # country: Vietnam
+    - category: Political_office-holders_in_Vietnam
+      topic: role.pep
+      country: vn
+
+    # country: Thailand
+    - category: Political_office-holders_in_Thailand
+      topic: role.pep
+      country: th
+
+    # country: Myanmar
+    # already covered
+
+    # country: Malaysia
+    - category: Political_office-holders_in_Malaysia
+      topic: role.pep
+      country: my
+
+    # country: Cambodia
+    - category: Political_office-holders_in_Cambodia
+      topic: role.pep
+      country: kh
+
+    # country: Laos
+    - category: Political_office-holders_in_Laos
+      topic: role.pep
+      country: la
+
+    # country: Singapore
+    - category: Political_office-holders_in_Singapore
+      topic: role.pep
+      country: sg
+    - category: Singaporean_military_leaders
+      topic: role.pep
+      country: sg
+    - category: List_of_serving_general_and_flag_officers_of_the_Singapore_Armed_Forces
+      topic: role.pep
+      country: sg
+      position:
+        name: Senior Military Leadership
+        country: sg
+        topics:
+          - mil
+          - gov.national
+
+    # country: Timor-Leste
+    - category: Political_office-holders_in_East_Timor
+      topic: role.pep
+      country: tl
+
+    # country: Brunei
+    - category: Political_office-holders_in_Brunei
+      topic: role.pep
+      country: bn
+
+    # Subregion: Southern Asia
+
+    # country: India
+    # already covered
+
+    # country: Pakistan
+    - category: Political_office-holders_in_Pakistan
+      topic: role.pep
+      country: pk
+
+    # country: Bangladesh
+    - category: Political_office-holders_in_Bangladesh
+      topic: role.pep
+      country: bd
+
+    # country: Iran
+    - category: Political_office-holders_in_Iran
+      topic: role.pep
+      country: ir
+
+    # country: Afghanistan
+    - category: Political_office-holders_in_Afghanistan
+      topic: role.pep
+      country: af
+
+    # country: Nepal
+    # already covered
+
+    # country: Sri Lanka
+    - category: Political_office-holders_in_Sri_Lanka
+      topic: role.pep
+      country: lk
+
+    # country: Bhutan
+    - category: Political_office-holders_in_Bhutan
+      topic: role.pep
+      country: bt
+
+    # country: Maldives
+    - category: Political_office-holders_in_the_Maldives
+      topic: role.pep
+      country: mv
+
+    # Subregion: Western Asia
+
+    # country: Turkey
+    # already covered
+
+    # country: Iraq
+    - category: Political_office-holders_in_Iraq
+      topic: role.pep
+      country: iq
+
+    # country: Yemen
+    - category: Political_office-holders_in_Yemen
+      topic: role.pep
+      country: ye
+
+    # country: Saudi Arabia
+    - category: Political_office-holders_in_Saudi_Arabia
+      topic: role.pep
+      country: sa
+
+    # country: Syria
+    - category: Political_office-holders_in_Syria
+      topic: role.pep
+      country: sy
+
+    # country: Jordan
+    - category: Political_office-holders_in_Jordan
+      topic: role.pep
+      country: jo
+
+    # country: United Arab Emirates
+    # already covered
+
+    # country: Azerbaijan
+    # already covered
+
+    # country: Israel
+    - category: Political_office-holders_in_Israel
+      topic: role.pep
+      country: il
+
+    # country: Lebanon
+    - category: Political_office-holders_in_Lebanon
+      topic: role.pep
+      country: lb
+
+    # country: State of Palestine
+    - category: Political_office-holders_in_the_State_of_Palestine
+      topic: role.pep
+      country: ps
+
+    # country: Oman
+    - category: Political_office-holders_in_Oman
+      topic: role.pep
+      country: om
+
+    # country: Kuwait
+    - category: Political_office-holders_in_Kuwait
+      topic: role.pep
+      country: kw
+
+    # country: Georgia
+    - category: Political_office-holders_in_Georgia_(country)
+      topic: role.pep
+      country: ge
+
+    # country: Qatar
+    - category: Political_office-holders_in_Qatar
+      topic: role.pep
+      country: qa
+
+    # country: Armenia
+    - category: Political_office-holders_in_Armenia
+      topic: role.pep
+      country: am
+
+    # country: Bahrain
+    # already covered
+
+    # country: Cyprus
+    # already covered
+
+    # other territories
+    # Taiwan
+    - category: Political_office-holders_in_Taiwan
+      topic: role.pep
+      country: tw
+
+    # Hong Kong
+    - category: Political_office-holders_in_Hong_Kong
+      topic: role.pep
+      country: hk
+
+    # Macau
+    - category: Political_office-holders_in_Macau
+      topic: role.pep
+      country: mo
+
+    ############################################################################
+    # Russia deep dive based on Russian Wikipedia
+    # "Федеральный уровень"  # Federal level
+    # "Исполнительная власть"  # Executive power
+    - category: Кандидаты в президенты России (2008) # Candidates for the President of Russia (2008)
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Кандидаты в президенты России (2012) # Candidates for the President of Russia (2012)
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Кандидаты в президенты России (2018) # Candidates for the President of Russia (2018)
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Кандидаты в президенты России (2024) # Candidates for the President of Russia (2024)
+      topic: role.pep
+      country: ru
+      language: ru
+    - category: Руководители Администрации президента России # Heads of the Administration of the President of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Head of the Administration of the President of Russia
+        country: ru
+        topics:
+          - gov.executive
+          - gov.national
+
+    # "Премьер-министр и министры"  # Prime Minister and Ministers
+    - category: Председатели Правительства РФ # Prime Ministers of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Prime Minister of the Russian Federation
+        country: ru
+        topics:
+          - gov.head
+          - gov.executive
+          - gov.national
+    - category: Первые заместители председателя Правительства Российской Федерации # First Deputy Prime Ministers of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: First Deputy Prime Minister of the Russian Federation
+        country: ru
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Заместители председателя Правительства Российской Федерации # Deputy Prime Ministers of the Russian Federation
+      language: ru
+      topic: role.pep
+      country: ru
+      position:
+        name: Deputy Prime Minister of the Russian Federation
+        country: ru
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Руководители Аппарата Правительства Российской Федерации # Heads of the Apparatus of the Government of the Russian Federation
+      language: ru
+      topic: role.pep
+      country: ru
+      position:
+        name: Head of the Apparatus of the Government of the Russian Federation
+        country: ru
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Министры Российской Федерации # Ministers of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Minister of the Russian Federation
+        country: ru
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Первое правительство Медведева # First Medvedev Government
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Minister of the Russian Federation
+        country: ru
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Второе правительство Медведева # Second Medvedev Government
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Minister of the Russian Federation
+        country: ru
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Правительство Зубкова # Zubkov Government
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Minister of the Russian Federation
+        country: ru
+        topics:
+          - gov.executive
+          - gov.national
+
+    # "Руководители федеральных агентств и государственных корпораций"  # Heads of federal agencies and state corporations
+    - category: Члены совета директоров «Газпрома» # Members of the Board of Directors of Gazprom
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Member of the Board of Directors of Gazprom
+        country: ru
+        topics:
+          - gov.national
+    # "Законодательная власть"  # Legislative power
+    # "Депутаты Государственной Думы"  # Deputies of the State Duma
+    - category: Депутаты Государственной думы Российской Федерации от одномандатных округов # Deputies of the State Duma of the Russian Federation from single-mandate districts
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Duma of the Russian Federation
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Депутаты Государственной думы Российской Федерации VII созыва # Deputies of the State Duma of the Russian Federation VII convocation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Duma of the Russian Federation
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Депутаты Государственной думы Российской Федерации VIII созыва # Deputies of the State Duma of the Russian Federation VIII convocation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Duma of the Russian Federation
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Председатели комитетов Государственной думы Российской Федерации # Chairmen of the committees of the State Duma of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Chairman of the Committee of the State Duma of the Russian Federation
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.national
+
+    # "Члены Совета Федерации"  # Members of the Federation Council
+    - category: Депутаты Совета Федерации России (1993—1995) # Deputies of the Federation Council of Russia (1993-1995)
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Federation Council of Russia
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Члены Совета Федерации России (1996—2000) # Members of the Federation Council of Russia (1996-2000)
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Member of the Federation Council of Russia
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Члены Совета Федерации России (с 2000) #  Members of the Federation Council of Russia (since 2000)
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Member of the Federation Council of Russia
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Председатели Совета Федерации России # Chairmen of the Federation Council of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Chairman of the Federation Council of Russia
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Заместители председателя Совета Федерации России # Deputy Chairmen of the Federation Council of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy Chairman of the Federation Council of Russia
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Члены Совета Федерации России от Волгоградской области # Members of the Federation Council of Russia from Volgograd Oblast
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Member of the Federation Council
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Члены Совета Федерации России от Камчатского края # Members of the Federation Council of Russia from Kamchatka Krai
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Member of the Federation Council
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Члены Совета Федерации России от Республики Крым # Members of the Federation Council of Russia from the Republic of Crimea
+      topic: role.pep
+      language: ru
+      position:
+        name: Member of the Federation Council
+        country: ua-cri
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Члены Совета Федерации России от Приморского края # Members of the Federation Council of Russia from Primorsky Krai
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Member of the Federation Council
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Члены Совета Федерации России от Рязанской области # Members of the Federation Council of Russia from Ryazan Oblast
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Member of the Federation Council
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Члены Совета Федерации России от Хабаровского края # Members of the Federation Council of Russia from Khabarovsk Krai
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Member of the Federation Council
+        topics:
+          - gov.legislative
+          - gov.national
+
+    # "Судебная власть"  # Judiciary
+    # "Судьи Конституционного Суда"  # Judges of the Constitutional Court
+    - category: Судьи Конституционного суда Российской Федерации # Judges of the Constitutional Court of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Judge of the Constitutional Court of the Russian Federation
+        country: ru
+        topics:
+          - gov.judicial
+          - gov.national
+
+    # "Судьи Верховного Суда"  # Judges of the Supreme Court
+    - category: Председатели Верховного суда Российской Федерации # Chairmen of the Supreme Court of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Chairman of the Supreme Court of the Russian Federation
+        country: ru
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: Судьи Верховного суда Российской Федерации # Judges of the Supreme Court of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Judge of the Supreme Court of the Russian Federation
+        country: ru
+        topics:
+          - gov.judicial
+          - gov.national
+
+          # "Судьи Высшего Арбитражного Суда"  # Judges of the Higher Arbitration Court of the Russian Federation
+    - category: Судьи Высшего арбитражного суда Российской Федерации # Judges of the Higher Arbitration Court of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Judge of the Higher Arbitration Court of the Russian Federation
+        country: ru
+        topics:
+          - gov.judicial
+          - gov.national
+
+          # "Судьи Военного суда"  # Judges of the Military Court
+
+      # Другие  # Other
+    - category: Члены Совета безопасности России # Members of the Security Council of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Member of the Security Council of Russia
+        country: ru
+        topics:
+          - gov.national
+          - gov.security
+    - category: Действительные государственные советники Российской Федерации 1-го класса # 1st class Active State Councillor of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: 1st class Active State Councillor of the Russian Federation
+        country: ru
+        topics:
+          - gov.national
+          - gov.executive
+    - category: Государственные_деятели_Российской_Федерации # Statesmen of the Russian Federation
+      country: ru
+      language: ru
+
+    # "Региональный уровень"  # Regional level
+    # "Главы регионов"  # Heads of regions
+    - category: Действующие главы регионов России # Acting heads of regions of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Governor of a Russian Region
+        country: ru
+        topics:
+          - gov.head
+          - gov.state
+
+      # "Региональные законодатели"  # Regional legislators
+    - category: Депутаты Государственного совета Крыма # Deputies of the State Council of Crimea
+      topic: role.pep
+      language: ru
+      country: ua-cri
+      position:
+        name: Deputy of the State Council of Crimea
+        country: ua-cri
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Севастополя # Deputies of the Legislative Assembly of Sevastopol
+      topic: role.pep
+      language: ru
+      country: ua-cri
+      position:
+        name: Deputy of the Legislative Assembly of Sevastopol
+        country: ua-cri
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Главы парламентов субъектов Российской Федерации # Heads of Parliaments of the Subjects of the Russian Federation
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Глава парламента субъекта Российской Федерации
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Государственного совета Адыгеи # Deputies of the State Council of Adygea
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Council of the Republic of Adygea
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Государственного собрания Республики Алтай # Deputies of the State Assembly of the Altai Republic
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Assembly of the Altai Republic
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Алтайского краевого законодательного собрания # Deputies of the Altai Krai Legislative Assembly
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Altai Krai Legislative Assembly
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Амурской области # Deputies of the Legislative Assembly of the Amur Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of the Amur Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Архангельского областного собрания депутатов # Deputies of the Arkhangelsk Regional Assembly of Deputies
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Arkhangelsk Region Assembly of Deputies
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Думы Астраханской области # Deputies of the Astrakhan Region Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Duma of Astrakhan Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Государственного собрания Башкортостана # Deputies of the State Assembly of Bashkortostan
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Assembly of the Republic of Bashkortostan
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Белгородской областной Думы # Deputies of the Belgorod Oblast Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Belgorod Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Брянской областной Думы # Deputies of the Bryansk Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Bryansk Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Народного Хурала Республики Бурятии # Deputies of the People's Hural of the Republic of Buryatia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the People's Hural of the Republic of Buryatia
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Владимирской области # Deputies of the Legislative Assembly of the Vladimir Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Vladimir Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Волгоградской областной Думы # Deputies of the Volgograd Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Volgograd Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Вологодской области # Deputies of the Legislative Assembly of the Vologda Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Vologda Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Воронежской областной думы # Deputies of the Voronezh Oblast Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Voronezh Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Народного собрания Дагестана # Deputies of the People's Assembly of Dagestan
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the People's Assembly of the Republic of Dagestan
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Еврейской автономной области # Deputies of the Legislative Assembly of the Jewish Autonomous Oblast
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of the Jewish Autonomous Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного Собрания Забайкальского края # Deputies of the Legislative Assembly of the Trans-Baikal Territory
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of the Trans-Baikal Territory
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Ивановской областной Думы # Deputies of the Ivanovo Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Ivanovo Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Народного собрания Ингушетии # Deputies of the People's Assembly of the Republic of Ingushetia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the People's Assembly of the Republic of Ingushetia
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Иркутской области # Deputies of the Legislative Assembly of the Irkutsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of the Irkutsk Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Парламента Кабардино-Балкарии # Deputies of the Parliament of Kabardino-Balkaria
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Parliament of Kabardino-Balkarian Republic
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Калининградской областной думы # Deputies of the Kaliningrad Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Kaliningrad Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Народного Хурала (Парламента) Республики Калмыкия # Deputies of the People's Hural (Parliament) of the Republic of Kalmykia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the People's Hural of the Republic of Kalmykia
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Калужской области # Deputies of the Legislative Assembly of the Kaluga Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Kaluga Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Камчатского края # Deputies of the Legislative Assembly of the Kamchatka Territory
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Kamchatka Krai
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Народного Собрания (Парламента) Карачаево-Черкесии # Deputies of the National Assembly (Parliament) of Karachay-Cherkessia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the  People's Assembly of the Karachay-Cherkess Republic
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Республики Карелия # Deputies of the Legislative Assembly of the Republic of Karelia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of the Republic of Karelia
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Совета народных депутатов Кемеровской области # Deputies of the Council of People's Deputies of the Kemerovo Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Kemerovo Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Кировской области # Deputies of the Legislative Assembly of the Kirov Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Kirov Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Государственного Совета Республики Коми # Deputies of the State Council of the Komi Republic
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Council of the Komi Republic
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Думы Корякского автономного округа # Deputies of the Duma of the Koryak Autonomous Okrug
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Duma of the Koryak Autonomous Okrug
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Костромской областной Думы # Deputies of the Kostroma Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Kostroma Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Краснодарского края # Deputies of the Legislative Assembly of the Krasnodar Territory
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Krasnodar Krai
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Красноярского края # Deputies of the Legislative Assembly of the Krasnoyarsk Territory
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Krasnoyarsk Krai
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Курганской областной Думы # Deputies of the Kurgan Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Kurgan Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Курской областной думы # Deputies of the Kursk Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Kursk Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Ленинградской области # Deputies of the Legislative Assembly of the Leningrad Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Leningrad Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Липецкого областного Совета депутатов # Deputies of the Lipetsk Regional Council of Deputies
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Lipetsk Oblast Council of Deputies
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Магаданской областной думы # Deputies of the Magadan Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Magadan Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Государственного собрания Республики Марий Эл # Deputies of the State Assembly of the Mari El Republic
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Assembly of the Mari El Republic
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Государственного Собрания Республики Мордовия # Deputies of the State Assembly of the Republic of Mordovia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Assembly of the Republic of Mordovia
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Московской городской думы # Deputies of the Moscow City Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Moscow City Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.muni
+    - category: Депутаты Московской областной думы # Deputies of the Moscow Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Moscow Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Мурманской областной Думы # Deputies of the Murmansk Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Murmansk Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Собрания депутатов Ненецкого автономного округа # Deputies of the Assembly of Deputies of the Nenets Autonomous Okrug
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Assembly of Deputies of the Nenets Autonomous Okrug
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Нижегородской области # Deputies of the Legislative Assembly of the Nizhny Novgorod Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Nizhny Novgorod Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Новгородской областной думы # Deputies of the Novgorod Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Novgorod Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Новосибирской области # Deputies of the Legislative Assembly of the Novosibirsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Novosibirsk Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Омской области # Deputies of the Legislative Assembly of the Omsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Omsk Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Оренбургской области # Deputies of the Legislative Assembly of the Orenburg Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Orenburg Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Орловского областного Совета народных депутатов # Deputies of the Oryol Regional Council of People's Deputies
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Oryol Oblast Council of People's Deputies
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Пензенской области # Deputies of the Legislative Assembly of the Penza Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Penza Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Пермского края # Deputies of the Legislative Assembly of the Perm Territory
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Perm Krai
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Приморского края # Deputies of the Legislative Assembly of the Primorsky Territory
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Primorsky Krai
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Псковского областного Собрания депутатов # Deputies of the Pskov Regional Assembly of Deputies
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Pskov Oblast Assembly of Deputies
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Ростовской области # Deputies of the Legislative Assembly of the Rostov Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Rostov Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Рязанской областной Думы # Deputies of the Ryazan Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Ryazan Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Самарской Губернской думы # Deputies of the Samara Provincial Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Samara Regional Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Санкт-Петербурга # Deputies of the Legislative Assembly of St. Petersburg
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of St. Petersburg
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.muni
+    - category: Депутаты Саратовской областной думы # Deputies of the Saratov Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Saratov Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Сахалинской областной думы # Deputies of the Sakhalin Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Sakhalin Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Свердловской области # Deputies of the Legislative Assembly of the Sverdlovsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Sverdlovsk Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Свердловской областной думы # Deputies of the Sverdlovsk Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Sverdlovsk Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Парламента Республики Северная Осетия — Алания # Deputies of the Parliament of the Republic of North Ossetia — Alania
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Parliament of the Republic of North Ossetia — Alania
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Смоленской областной думы # Deputies of the Smolensk Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Smolensk Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Думы Ставропольского края # Deputies of the Duma of the Stavropol Territory
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Duma of Stavropol Krai
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Тамбовской областной думы # Deputies of the Tambov Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Tambov Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Государственного Совета Республики Татарстан # Deputies of the State Council of the Republic of Tatarstan
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Council of the Republic of Tatarstan
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Тверской области # Deputies of the Legislative Assembly of the Tver Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Tver Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательной думы Томской области # Deputies of the Legislative Duma of the Tomsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Duma of Tomsk Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Тульской областной думы # Deputies of the Tula Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Tula Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Верховного хурала (парламента) Республики Тыва # Deputies of the Supreme Hural (parliament) of the Republic of Tuva
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Great Khural of the Tuva Republic
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Тюменской областной Думы # Deputies of the Tyumen Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Tyumen Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Государственного Совета Удмуртской Республики # Deputies of the State
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Council of the Udmurt Republic
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Ульяновской области # Deputies of the Legislative Assembly of the Ulyanovsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Ulyanovsk Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательной думы Хабаровского края # Deputies of the Legislative Duma of the Khabarovsk Territory
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Duma of Khabarovsk Krai
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Верховного Совета Республики Хакасия # Deputies of the Supreme Council of the Republic of Khakassia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Supreme Council of the Republic of Khakassia
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Думы Ханты-Мансийского автономного округа — Югры # Deputies of the Duma of the Khanty-Mansi Autonomous Okrug — Yugra
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Duma of Khanty-Mansi Autonomous Okrug — Yugra
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Челябинской области # Deputies of the Legislative Assembly of the Chelyabinsk Region
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of Chelyabinsk Oblast
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Парламента Чеченской Республики # Deputies of the Parliament of the Chechen Republic
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Parliament of the Chechen Republic
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Государственного Совета Чувашской Республики # Deputies of the State Council of the Chuvash Republic
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Council of the Chuvash Republic
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Думы Чукотского автономного округа # Deputies of the Duma of the Chukotka Autonomous Okrug
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Duma of the Chukotka Autonomous Okrug
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания (Суглана) Эвенкийского автономного округа # Deputies of the Legislative Assembly (Suglan) of the Evenki Autonomous Okrug
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly (Suglan) of Evenk Autonomous Okrug
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Государственного Собрания (Ил Тумэн) Республики Саха (Якутия) # Deputies of the State Assembly (Il Tumen) of the Republic of Sakha (Yakutia)
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the State Assembly (Il Tumen) of the Republic of Sakha (Yakutia)
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Законодательного собрания Ямало-Ненецкого автономного округа # Deputies of the Legislative Assembly of the Yamalo-Nenets Autonomous Okrug
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Legislative Assembly of the Yamalo-Nenets Autonomous Okrug
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: Депутаты Ярославской областной думы # Deputies of the Yaroslavl Regional Duma
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Deputy of the Yaroslavl Oblast Duma
+        country: ru
+        topics:
+          - gov.legislative
+          - gov.state
+
+      # "Мэры крупных городов"  # Mayors of major cities
+    - category: Мэры Москвы # Mayors of Moscow
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Mayor of Moscow
+        country: ru
+        topics:
+          - gov.head
+          - gov.muni
+
+    # "Местное самоуправление"  # Local self-government
+    # "Главы муниципалитетов и местных советов"  # Heads of municipalities and local councils
+    - category: Главы муниципальных образований # Heads of municipal entities
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Head of a municipality
+        country: ru
+        topics:
+          - gov.head
+          - gov.muni
+
+    - category: Главы районов России # Heads of districts of Russia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Head of a district
+        country: ru
+        topics:
+          - gov.head
+          - gov.muni
+    # - category: Главы сельских поселений России  # Heads of rural settlements of Russia
+    #   topic: role.pep
+    #   country: ru
+    #   position:
+    #     name: Head of a rural settlement
+    #     country: ru
+    #     topics:
+    #       - gov.head
+    #       - gov.muni
+
+    # "Государственные компании и крупные институты"  # State-owned companies and major institutions
+    # "Генеральные директора и члены правления государственных компаний"  # CEOs and board members of state-owned companies
+
+    # "Ректоры и директора государственных университетов и исследовательских институтов"  # Rectors and directors of state universities and research institutes
+
+    # "Руководители служб безопасности (ФСБ, ГРУ и др.)"  # Heads of security services (FSB, GRU, etc.)
+    # - category: Сотрудники ГРУ # GRU employees
+    #   language: ru
+    #   position:
+    #     name: Employee of the GRU
+    #     country: ru
+    #     topics:
+    #       - gov.security
+    #       - gov.national
+    - category: Сотрудники Службы внешней разведки России # Employees of the Foreign Intelligence Service of Russia
+      country: ru
+      language: ru
+      position:
+        name: Employee of the Foreign Intelligence Service of Russia
+        country: ru
+        topics:
+          - gov.security
+          - gov.national
+    # - category: Сотрудники ФСБ  # Employees of the FSB
+    #   topic: gov.security
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Employee of the FSB
+    #     topics:
+    #       - gov.security
+    #       - gov.national
+    # - category: Сотрудники Федеральной службы охраны  # Employees of the Federal Guard Service of the Russian Federation
+    #   topic: gov.security
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Employee of the Federal Guard Service
+    #     topics:
+    #       - gov.security
+    #       - gov.national
+    # "Политические партии"  # Political parties
+    # "Лидеры партий"  # Party leaders
+    - category: Руководители политических партий России # Leaders of political parties in Russia
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Leader of a political party
+        country: ru
+        topics:
+          - pol.party
+
+      # "Партийные чиновники"  # Party officials
+    - category: Члены «Единой России» # Members of "United Russia"
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Member of United Russia
+        country: ru
+        topics:
+          - pol.party
+    - category: Члены ЛДПР # Members of the LDPR
+      topic: role.pep
+      country: ru
+      language: ru
+      position:
+        name: Member of the LDPR
+        country: ru
+        topics:
+          - pol.party
+
+    # 32k members - need to filter for modern
+    # - category: Члены КПСС # Members of the CPSU
+    #   topic: role.pep
+    #   language: ru
+    #   position:
+    #     name: Member of the CPSU
+    #     country: ru
+    #     topics:
+    #       - pol.party
+
+    # - category: Кандидаты в президенты России по партиям  # Candidates for the President of Russia by Parties
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Candidate for President of Russia
+    #     topics:
+    #       - pol.party
+    # - category: Члены Аграрной партии России  # Members of the Agrarian Party of Russia
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Agrarian Party of Russia
+    #     topics:
+    #       - pol.party
+    # - category: Члены партии «Альянс зелёных и социал-демократов»  # Members of the Alliance of Greens and Social Democrats
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Alliance of Greens and Social Democrats
+    #     topics:
+    #       - pol.party
+    # - category: Члены Партии возрождения России  # Members of the Party for the Revival of Russia
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Party of Russia's Rebirth
+    #     topics:
+    #       - pol.party
+    # - category: Члены «Гражданской платформы» (Россия)  # Members of the Civil Platform (Russia)
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Civic Platform (Russia)
+    #     topics:
+    #       - pol.party
+    # - category: Члены «Гражданской силы»  # Members of the Civilian Power
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Civilian Power
+    #     topics:
+    #       - pol.party
+    # - category: Члены Демократической партии России  # Members of the Democratic Party of Russia
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Democratic Party of Russia
+    #     topics:
+    #       - pol.party
+    # - category: Члены Демократического союза  # Members of the Democratic Union
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Democratic Union
+    #     topics:
+    #       - pol.party
+    # - category: Члены партии «Зелёные»  # Members of the Green Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Russian Ecological Party "The Greens"
+    #     topics:
+    #       - pol.party
+    # - category: Члены партии «Коммунисты России»  # Members of the Communists of Russia Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Communists of Russia
+    # - category: Члены Конфедерации анархо-синдикалистов  # Members of the Confederation of Anarcho-Syndicalists
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the  Confederation of Anarcho-Syndicalists (KAS)
+    #     topics:
+    #       - pol.party
+    # - category: Члены КПРФ  # Members of the Communist Party of the Russian Federation
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Communist Party of the Russian Federation
+    #     topics:
+    #       - pol.party
+    # - category: Члены «Левого фронта»  # Members of the Left Front
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Left Front
+    #     topics:
+    #       - pol.party
+    # - category: Члены НБП  # Members of the National Bolshevik Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the National Bolshevik Party
+    #     topics:
+    #       - pol.party
+    # - category: Члены партии «Наш дом — Россия»  # Members of the Our Home — Russia Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of Our Home — Russia (NDR)
+    #     topics:
+    #       - pol.party
+    # - category: Члены партии Новые люди  # Members of the New People Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the New People Party
+    #     topics:
+    #       - pol.party
+    # - category: Члены Народной партии Российской Федерации  # Members of the People's Party of the Russian Federation
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the People's Party of the Russian Federation
+    #     topics:
+    #       - pol.party
+    # - category: Члены ОВР  # Members of the OVR
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Fatherland – All Russia (FAR)
+    #     topics:
+    #       - pol.party
+    # - category: Члены Объединённой коммунистической партии  # Members of the United Communist Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: TMember of the United Communist Party (UCP)
+    #     topics:
+    #       - pol.party
+    # - category: Члены ПАРНАС  # Members of the PARNAS Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the People's Freedom Party (PARNAS)
+    #     topics:
+    #       - pol.party
+    # - category: Члены Партии дела  # Members of the  Party of Business
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the  Party of Business
+    #     topics:
+    #       - pol.party
+    # - category: Члены партии «Патриоты России»  # Members of the Patriots of Russia Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Patriots of Russia
+    #     topics:
+    #       - pol.party
+    # - category: Члены Партии пенсионеров  # Members of the Pensioners' Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Russian Party of Pensioners
+    #     topics:
+    #       - pol.party
+    # - category: Члены пиратской партии России  # Members of the Pirate Party of Russia
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Pirate Party of Russia
+    #     topics:
+    #       - pol.party
+    # - category: Члены «Правого дела»  # Members of the Right Cause
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of  All-Russian Political Party “Right Cause”
+    #     topics:
+    #       - pol.party
+    # - category: Члены РКРП-КПСС  # Members of the RKRP-CPSU
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Russian Communist Workers Party - CPSU
+    # - category: Члены партии «Родина» (Россия)  # Members of the Rodina Party (Russia)
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Rodina Party
+    #     topics:
+    #       - pol.party
+    # - category: Члены Российской объединенной промышленной партии  # Members of the United Industrial Party of Russia
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Russian United Industrial Party (ROPP)
+    #     topics:
+    #       - pol.party
+    # - category: Члены Российской партии жизни  # Members of the Russian Party of Life
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Russian Party of Life
+    #     topics:
+    #       - pol.party
+    # - category: Члены Российского общенародного союза  # Members of the Russian Popular Union
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Russian All-People's Union
+    #     topics:
+    #       - pol.party
+    # - category: Члены партии «Россия будущего»  # Members of the Party of Future Russia
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Russia of the Future
+    #     topics:
+    #       - pol.party
+    # - category: Члены «Партии Роста»  # Members of the Growth Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Party of Growth
+    #     topics:
+    #       - pol.party
+    # - category: Члены СДПР  # Members of the SDP of Russia
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Social Democratic Party of Russia
+    #     topics:
+    #       - pol.party
+    # - category: Члены СЛОН  # Members of the UPES Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Union of People for Education and Science
+    #     topics:
+    #       - pol.party
+    # - category: Члены Социалистической партии России  # Members of the Socialist Party of Russia
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Russian Socialist Party (RSP)
+    #     topics:
+    #       - pol.party
+    # - category: Члены «Союза коммунистов»  # Members of the Union of Communists
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the «Union of Communists»
+    # - category: Члены «Справедливой России»  # Members of Fair Russia
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of A Just Russia — For Truth
+    #     topics:
+    #       - pol.party
+    # - category: Члены СПС  # Members of the SPS
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Union of Right Forces (URF)
+    #     topics:
+    #       - pol.party
+    # - category: Члены Трудовой России  # Members of Labor Russia
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of Labor Russia (KTR)
+    #     topics:
+    #       - pol.party
+    # - category: Члены партии «Демократический выбор России»  # Members of the Democratic Choice of Russia Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Democratic Choice of Russia
+    #     topics:
+    #       - pol.party
+    # - category: Члены партии «Единство»  # Members of the Unity Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of Inter-Regional Movement "Unity"
+    #     topics:
+    #       - pol.party
+    # - category: Члены партии «Свободная Россия»  # Members of the Free Russia Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of Free Russia Party (FRP)
+    #     topics:
+    #       - pol.party
+    # - category: Члены партии «Яблоко»  # Members of the Yabloko Party
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Yabloko Party
+    #     topics:
+    #       - pol.party

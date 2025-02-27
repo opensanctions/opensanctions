@@ -8,6 +8,23 @@ from zavod import Context
 from zavod.logic.pep import categorise
 
 API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_API_KEY")
+IGNORE = [
+    "addressInformation",
+    "cosponsoredLegislation",
+    "depiction",
+    "district",
+    "invertedOrderName",
+    "officialWebsiteUrl",
+    "partyHistory",
+    "sponsoredLegislation",
+    "state",
+    "updateDate",
+    "bioguideId",
+    "currentMember",
+    "suffixName",
+    "leadership",
+    "nickName",
+]
 
 
 def crawl_positions(context: Context, member, entity):
@@ -45,7 +62,8 @@ def crawl_member(context: Context, bioguide_id: str):
 
     person = context.make("Person")
     person.id = context.make_id(bioguide_id)
-    person.add("birthDate", member.pop("birthYear"))
+    h.apply_date(person, "birthDate", member.pop("birthYear", None))
+    h.apply_date(person, "deathDate", member.pop("deathYear", None))
     person.add("name", member.pop("directOrderName"))
     person.add("firstName", member.pop("firstName"))
     person.add("lastName", member.pop("lastName"))
@@ -53,8 +71,10 @@ def crawl_member(context: Context, bioguide_id: str):
     person.add("title", member.pop("honorificName", None))
 
     entities = crawl_positions(context, member, person)
+
+    context.audit_data(member, ignore=IGNORE)
     if entities:
-        context.emit(person, target=True)
+        context.emit(person)
         for entity in entities:
             context.emit(entity)
 

@@ -33,3 +33,14 @@ url: https://websfm.kz/terrorism
 data:
   url: https://api.websfm.kz/v1/sanctions/sanction-terrorist-old/
   format: xml
+dates: 
+  formats: ["%d.%m.%Y"]
+assertions:
+  min:
+    schema_entities:
+      Person: 2350
+      Organization: 60
+  max:
+    schema_entities:
+      Person: 3000
+      Organization: 120

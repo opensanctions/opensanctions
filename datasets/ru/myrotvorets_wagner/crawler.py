@@ -48,4 +48,4 @@ def crawl(context: Context) -> None:
         entity.add("birthDate", data.get("date_of_birth"))
         entity.add("sourceUrl", source_url)
         entity.add("topics", "crime.war")
-        context.emit(entity, target=True)
+        context.emit(entity)

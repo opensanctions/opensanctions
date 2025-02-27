@@ -7,14 +7,16 @@ coverage:
   frequency: weekly
   start: 2023-07-28
 deploy:
-  disk: 200Gi
-  cpu: 400m
+  premium: true
+  cpu: "1000m"
+  cpu_limit: "2000m"
   memory: 2500Mi
   memory_limit: "3000Mi"
-  premium: true
+  disk: 200Gi
 exports:
   - statistics.json
   - entities.ftm.json
+  - entities.delta.json
   - senzing.json
 resolve: false
 ci_test: false
@@ -33,6 +35,10 @@ publisher:
 data:
   url: "http://download.companieshouse.gov.uk/en_pscdata.html"
   format: JSON
+  lang: eng
+
+dates:
+  formats: ["%d/%m/%Y"]
 
 lookups:
   type.country:
@@ -42,21 +48,57 @@ lookups:
           - Companies House
           - England & Wales Companies Register
           - Compaines House
+          - Company Director
           - CHANNEL ISLANDS
           - VIRGIN ISLANDS
           - VIRGIN IS-US
           - NETHERLANDS ANTILLES
           - SOUTH-WEST AFRICA
-        contains:
-          - Register Of Companies
-        value: null
-      - match:
-          - Hong Konger
-        value: hk
-      - match:
+          - Stateless
+          - Not Specified/Other
           - Other
           - N/A
           - None
+          - Non-Resident
+          - African
+          - Director
+          - British Overseas Territory
+          - Other Country
+        contains:
+          - Register Of Companies
+          - Not Specified
+          - Unknown
+        value: null
+        weight: 1000
+      - contains:
+          - "Germany"
+          - Bavaria
+        match:
+          - Baden-Wuerttenberg
+        value: de
+        weight: 111
+      - match:
+          - Hong Konger
+        value: hk
+      - match: Macanese
+        value: mo
+      - match:
+          - Congolese (Drc)
+          - Congolese (Congo)
+        value: cd
+      - match:
+          - Citizen Of Bosnia And Herzegovina
+        value: ba
+      - match: Vincentian
+        value: vc
+      - match: Citizen Of Seychelles
+        value: sc
+      - match: Citizen Of The Dominican Republic
+        value: do
+      - match: Citizen Of Antigua And Barbuda
+        value: ag
+      - match: Kittitian
+        value: kn
       - match:
           - ROI
           - IRISH REP
@@ -73,3 +115,202 @@ lookups:
         value: ye
       - match: Cymraes
         value: gb-wls
+      - contains: Scotland
+        value: gb-sct
+        weight: 550
+      - match:
+          - Us Dual
+          - De, Usa
+          - Georgia, United States
+          - Georgia, USA
+          - Usa (Other)
+        contains:
+          - United States Of America
+          - Delaware
+          - California
+          - Pennsylvania
+          - American
+          - New York
+          - Missouri
+          - Tennessee
+          - Minnesota
+          - U.S.A.
+          - Washington
+          - Florida
+          - Texas
+          - Wyoming
+          - Ohio
+          - Nevada
+          - Oregon
+          - Illinois
+          - Arizona
+          - Colorado
+          - Michigan
+          # - Georgia
+          - North Carolina
+          - Virginia
+          - Massachusetts
+          - New Jersey
+          - Indiana
+          - Maryland
+          - Wisconsin
+          - Connecticut
+          - South Carolina
+          - Kentucky
+          - Louisiana
+          - Alabama
+          - Iowa
+          - Kansas
+          - Oklahoma
+          - Utah
+          - Arkansas
+          - Mississippi
+          - Nebraska
+          - New Mexico
+          - Idaho
+          - Maine
+          - West Virginia
+          - New Hampshire
+          - Hawaii
+          - Montana
+          - Rhode Island
+          - Vermont
+          - Alaska
+          - North Dakota
+          - South Dakota
+          # - Delaware
+        value: us
+        weight: 50
+      - contains:
+          - Ireland
+          - Irish
+        value: ie
+        weight: 20
+      - contains:
+          - France
+          - French
+        value: fr
+        weight: 90
+      - contains: Switzerland
+        value: ch
+        weight: 500
+      - contains:
+          - Canada
+          - British Columbia
+        value: ca
+        weight: 120
+      - contains: Luxmebourg
+        value: lu
+      - contains: Jersey
+        value: je
+        weight: 300
+      - contains: Vanuatu
+        value: vu
+        weight: 91
+      - contains: Bulgaria
+        value: bg
+        weight: 92
+      - contains: Thailand
+        value: th
+        weight: 93
+      - contains: Cyprus
+        value: cy
+        weight: 94
+      - contains: "Malta"
+        value: mt
+        weight: 95
+      - contains: "Gibraltar"
+        value: gi
+        weight: 96
+      - contains: Belize
+        value: bz
+        weight: 81
+      - contains: "Israel"
+        value: il
+        weight: 97
+      - contains: "Singapore"
+        value: sg
+        weight: 98
+      - contains: "Australia"
+        value: au
+        weight: 99
+      - contains: "Austria"
+        value: at
+        weight: 107
+      - contains: "New Zealand"
+        value: nz
+        weight: 103
+      - contains: "Spain"
+        value: es
+        weight: 104
+      - contains: "Italy"
+        value: it
+        weight: 105
+      - contains: "India"
+        value: in
+        weight: 10
+      - contains: Czech
+        value: cz
+        weight: 31
+      - contains: Guernsey
+        value: gg
+        weight: 299
+      - match:
+          - Registered In England And Wales
+          - At The Registrar Of Companies, England
+          - Engand
+          - Engalnd And Wales
+          - Uk (England And Wales)
+          - United Kingdom (England & Wales)
+          - England, Uk
+          - Englad
+          - Gb-Eng
+          - E&W
+        contains:
+          - United Kingdom
+          - United Kingdon
+          - Great Britian
+          - Great Britain
+          - England
+          - Wales
+          - Cornish
+          - Northern Ireland
+          - Yorkshire
+        value: gb
+        weight: 21
+      - contains:
+          - United Ararb Emirates
+          - United Arab Emirates
+          - U.A.E
+        value: ae
+        weight: 152
+      - contains:
+          - Liechtenstein
+        value: li
+      - contains:
+          - "Turkey"
+          - Turkish
+        value: tr
+        weight: 230
+      - contains:
+          - "Netherland"
+          - Amsterdam
+        value: nl
+        weight: 110
+      - contains:
+          - Bermuda
+          - Bermudi
+        value: bm
+      - contains:
+          - Russian Federation
+        value: ru
+        weight: 100
+      - contains:
+          - British
+          - Britian
+          - London
+          - Enlgand
+        match:
+          - Englan
+        value: gb
+        weight: -1

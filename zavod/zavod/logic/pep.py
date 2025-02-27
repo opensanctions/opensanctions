@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional, List
 from datetime import datetime, timedelta
-from functools import cache
+from functools import lru_cache
 
 from zavod.context import Context
 from zavod import settings
@@ -12,6 +12,7 @@ NOTIFIED_SYNC_POSITIONS = False
 YEAR = 365  # days
 DEFAULT_AFTER_OFFICE = 5 * YEAR
 EXTENDED_AFTER_OFFICE = 20 * YEAR
+NO_EXPIRATION = 50 * YEAR
 AFTER_DEATH = 5 * YEAR
 MAX_AGE = 110 * YEAR
 MAX_OFFICE = 40 * YEAR
@@ -23,11 +24,13 @@ class OccupancyStatus(Enum):
     UNKNOWN = "unknown"
 
 
-class PositionCategorisation:
+class PositionCategorisation(object):
     is_pep: Optional[bool]
     """Whether the position denotes a politically exposed person or not"""
     topics: List[str]
-    """The [role and scope](https://www.opensanctions.org/docs/topics/#politically-exposed-persons) of the position, as a list of topics"""
+    """The topics linked to the position, as a list"""
+
+    __slots__ = ["topics", "is_pep"]
 
     def __init__(self, topics: List[str], is_pep: Optional[bool]):
         self.topics = topics
@@ -54,7 +57,7 @@ def get_categorisation(
         return None
 
 
-@cache
+@lru_cache(maxsize=5000)
 def categorise(
     context: Context,
     position: Entity,
@@ -120,7 +123,6 @@ def categorise(
     return categorisation
 
 
-@cache
 def backdate(date: datetime, days: int) -> str:
     """Return a partial ISO8601 date string backdated by the number of days provided"""
     dt = date - timedelta(days=days)
@@ -129,8 +131,10 @@ def backdate(date: datetime, days: int) -> str:
 
 def get_after_office(topics: List[str]) -> int:
     if "gov.national" in topics:
+        if "gov.head" in topics:
+            return NO_EXPIRATION
         return EXTENDED_AFTER_OFFICE
-    if "gov.igo" in topics:
+    if "gov.igo" in topics or "role.diplo" in topics:
         return EXTENDED_AFTER_OFFICE
     return DEFAULT_AFTER_OFFICE
 
@@ -147,8 +151,9 @@ def occupancy_status(
     death_date: Optional[str] = None,
     categorisation: Optional[PositionCategorisation] = None,
 ) -> Optional[OccupancyStatus]:
+    current_iso = current_time.isoformat()
     if death_date is not None and death_date < backdate(current_time, AFTER_DEATH):
-        # If they did longer ago than AFTER_DEATH threshold, don't consider a PEP.
+        # If they died longer ago than AFTER_DEATH threshold, don't consider a PEP.
         return None
 
     if birth_date is not None and birth_date < backdate(current_time, MAX_AGE):
@@ -166,10 +171,10 @@ def occupancy_status(
         topics = position.get("topics")
     else:
         topics = categorisation.topics
+    after_office = get_after_office(topics)
 
     if end_date:
-        if end_date < current_time.isoformat():  # end_date is in the past
-            after_office = get_after_office(topics)
+        if end_date < current_iso:  # end_date is in the past
             if end_date < backdate(current_time, after_office):
                 # end_date is beyond after-office threshold
                 return None
@@ -179,7 +184,7 @@ def occupancy_status(
         elif (
             context.dataset.coverage
             and context.dataset.coverage.end
-            and context.dataset.coverage.end < current_time.isoformat()
+            and context.dataset.coverage.end < current_iso
         ):  # end_date is in the future and dataset is beyond its coverage.
             # Don't trust future end dates beyond the known coverage date of the dataset
             context.log.warning(
@@ -194,6 +199,14 @@ def occupancy_status(
             return OccupancyStatus.CURRENT
 
     else:  # No end date
+        dis_date = max(position.get("dissolutionDate"), default=None)
+        # dissolution date is in the past:
+        if dis_date is not None and dis_date < current_iso:
+            if dis_date > backdate(current_time, after_office):
+                return OccupancyStatus.ENDED
+            else:
+                return None
+
         if start_date is not None and start_date < backdate(current_time, MAX_OFFICE):
             # start_date is older than MAX_OFFICE threshold for assuming they're still
             # a PEP

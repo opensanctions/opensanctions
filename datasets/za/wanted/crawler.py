@@ -1,16 +1,24 @@
-from zavod import Context
-from lxml import html
-from urllib.parse import urlparse, parse_qs
 import re
 from typing import Dict
+from urllib.parse import parse_qs, urlparse
+
+from lxml import html
+from requests.exceptions import HTTPError
+
+from zavod import Context
 from zavod import helpers as h
 
-REGEX_PATTERN = re.compile(r"(.+)\((.+)\)(.+)")
+REGEX_NAME_REASON_STATUS = re.compile(r"(.+)\((.+)\)(.+)")
 
 
-def parse_detail_page(context: Context, source_url: str) -> Dict[str, str]:
+def parse_detail_page(context: Context, source_url: str) -> Dict[str, str] | None:
     """Fetch and parse detailed information from a person's detail page."""
-    doc = context.fetch_html(source_url)
+    try:
+        doc = context.fetch_html(source_url, cache_days=1)
+    except HTTPError as e:
+        context.log.error("HTTP error getting details", url=source_url, error=str(e))
+        return None
+
     # Extract details using XPath based on the provided HTML structure
     details = {
         # "crime": "//td[b[contains(text(), 'Crime:')]]/following-sibling::td/text()",
@@ -40,7 +48,7 @@ def parse_detail_page(context: Context, source_url: str) -> Dict[str, str]:
 
 def crawl_person(context: Context, cell: html.HtmlElement):
     source_url = cell.xpath(".//a/@href")[0]
-    match = REGEX_PATTERN.match(cell.text_content())
+    match = REGEX_NAME_REASON_STATUS.match(cell.text_content())
 
     if not match:
         context.log.warning("Regex did not match data for person %s" % source_url)
@@ -48,9 +56,9 @@ def crawl_person(context: Context, cell: html.HtmlElement):
 
     name, crime, status = map(str.strip, match.groups())
 
-    # either first or last name is considered a bare minimum to emit a person entity
-    unknown_spellings = ["Unknown", "Uknown"]
-    if sum(name.count(x) for x in unknown_spellings) >= 2:
+    # only emit a person if the name is not unknown
+    unknown_spellings = ["Unknown", "Uknown", "unknown", "UNKNOWN"]
+    if sum(name.count(x) for x in unknown_spellings) >= 1:
         return
 
     person = context.make("Person")
@@ -73,13 +81,13 @@ def crawl_person(context: Context, cell: html.HtmlElement):
     if additional_info:
         if additional_info.get("aliases"):
             person.add("alias", additional_info["aliases"].split("; "))
-    person.add("notes", additional_info.get("crime_circumstances"))
-    person.add("gender", additional_info.get("gender"))
-    person.add("eyeColor", additional_info.get("eye_color"))
-    person.add("hairColor", additional_info.get("hair_color"))
-    person.add("height", additional_info.get("height"))
-    person.add("weight", additional_info.get("weight"))
-    context.emit(person, target=True)
+        person.add("notes", additional_info.get("crime_circumstances"))
+        person.add("gender", additional_info.get("gender"))
+        person.add("eyeColor", additional_info.get("eye_color"))
+        person.add("hairColor", additional_info.get("hair_color"))
+        person.add("height", additional_info.get("height"))
+        person.add("weight", additional_info.get("weight"))
+    context.emit(person)
 
 
 def crawl(context):

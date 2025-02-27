@@ -1,8 +1,11 @@
+import contextvars
+
 import orjson
 from pathlib import Path
 from datetime import datetime
 from functools import cached_property
-from typing import Any, Optional, Union, Dict, List
+from typing import Any, Optional, Union, Dict, List, Mapping
+
 from requests import Response
 from prefixdate import DatePrefix
 from lxml import html, etree
@@ -13,7 +16,7 @@ from nomenklatura.versions import Version
 from nomenklatura.cache import Cache
 from nomenklatura.util import PathLike
 from rigour.urls import build_url, ParamsType
-from structlog.contextvars import clear_contextvars, bind_contextvars
+from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
 from zavod.audit import inspect
@@ -31,7 +34,7 @@ from zavod.runtime.versions import make_version
 from zavod.runtime.http_ import fetch_file, make_session, request_hash
 from zavod.runtime.http_ import _Auth, _Headers, _Body
 from zavod.logs import get_logger
-from zavod.util import join_slug
+from zavod.util import join_slug, prefixed_hash_id
 
 
 class Context:
@@ -56,6 +59,9 @@ class Context:
         self.http = make_session(dataset.http)
         self._cache: Optional[Cache] = None
         self._timestamps: Optional[TimeStampIndex] = None
+        self._structlog_contextvars_tokens: Optional[
+            Mapping[str, contextvars.Token[Any]]
+        ] = None
 
         self._data_time: datetime = settings.RUN_TIME
         # If the dataset has a fixed end time which is in the past,
@@ -125,7 +131,7 @@ class Context:
         Args:
             clear: Remove the existing resources and issues from the dataset.
         """
-        bind_contextvars(
+        self._structlog_contextvars_tokens = bind_contextvars(
             dataset=self.dataset.name,
             context=self,
         )
@@ -143,7 +149,7 @@ class Context:
         if self._timestamps is not None:
             self._timestamps.close()
         self.sink.close()
-        clear_contextvars()
+        reset_contextvars(**(self._structlog_contextvars_tokens or {}))
         self.issues.close()
         if not self.dry_run:
             self.issues.export()
@@ -184,6 +190,8 @@ class Context:
         url: str,
         auth: Optional[Any] = None,
         headers: Optional[Any] = None,
+        method: str = "GET",
+        data: _Body = None,
     ) -> Path:
         """Fetch a URL into a file located in the current run folder,
         if it does not exist."""
@@ -194,6 +202,8 @@ class Context:
             data_path=dataset_data_path(self.dataset.name),
             auth=auth,
             headers=headers,
+            method=method,
+            data=data,
         )
 
     def fetch_response(
@@ -450,7 +460,8 @@ class Context:
         hashed = make_entity_id(*parts, key_prefix=hash_prefix)
         if hashed is None:
             return None
-        return self.make_slug(hashed, prefix=prefix, strict=True)
+        prefix = self.dataset.prefix if prefix is None else prefix
+        return prefixed_hash_id(prefix, hashed)
 
     def lookup_value(
         self, lookup: str, value: Optional[str], default: Optional[str] = None
@@ -515,7 +526,10 @@ class Context:
                 continue
             cleaned[key] = value
         if len(cleaned):
-            self.log.warn("Unexpected data found", data=cleaned)
+            unexpected_keys = list(cleaned.keys())
+            self.log.warn(
+                f"Unexpected data found in fields: {unexpected_keys}", data=cleaned
+            )
 
     def emit(
         self, entity: Entity, target: bool = False, external: bool = False
@@ -534,28 +548,27 @@ class Context:
             self.log.error("Entity has no properties", entity=entity)
             return
         self.stats.entities += 1
-        if target:
-            self.stats.targets += 1
         if self.stats.entities % 10000 == 0:
             self.log.info(
                 "Emitted %s entities" % self.stats.entities,
-                targets=self.stats.targets,
                 statements=self.stats.statements,
             )
+        stamps = {} if self.dry_run else self.timestamps.get(entity.id)
         for stmt in entity.statements:
+            if stmt.id is None:
+                self.log.warn("Statement has no ID", stmt=stmt.to_dict())
+                continue
             if stmt.lang is None:
                 stmt.lang = self.lang
             stmt.dataset = self.dataset.name
             stmt.entity_id = entity.id
             stmt.external = external
-            stmt.target = target
             stmt.schema = entity.schema.name
-            stmt.first_seen = self.data_time_iso
+            stmt.first_seen = stamps.get(stmt.id, self.data_time_iso)
+            if stmt.first_seen != self.data_time_iso:
+                self.stats.changed += 1
             stmt.last_seen = self.data_time_iso
             if not self.dry_run:
-                stmt.first_seen = self.timestamps.get(stmt.id, self.data_time_iso)
-                if stmt.first_seen != self.data_time_iso:
-                    self.stats.changed += 1
                 self.sink.emit(stmt)
             self.stats.statements += 1
 

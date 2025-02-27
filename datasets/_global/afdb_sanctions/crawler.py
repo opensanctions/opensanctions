@@ -1,38 +1,17 @@
-from lxml import etree
-from normality import slugify, collapse_spaces
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 
-FORMATS = ["%d-%b-%Y"]
-
-
-def parse_date(text):
-    if text is None:
-        return None
-    text = text.replace("Sept", "Sep")
-    return h.parse_date(text, FORMATS)
-
-
-def unblock_validator(doc: etree._Element) -> bool:
-    return doc.find(".//table[@id='datatable-1']") is not None
-
-
 def crawl(context: Context):
+    table_xpath = ".//table[@id='datatable-1']"
     doc = fetch_html(
-        context, context.data_url, unblock_validator, html_source="httpResponseBody"
+        context, context.data_url, table_xpath, html_source="httpResponseBody"
     )
 
-    table = doc.find('.//table[@id="datatable-1"]')
-    headers = None
-    for row in table.findall(".//tr"):
-        if headers is None:
-            headers = [slugify(c.text, "_") for c in row.findall("./th")]
-            continue
-        cells = [collapse_spaces(c.text) for c in row.findall("./td")]
-        cells = dict(zip(headers, cells))
+    table = doc.find(table_xpath)
+    for row in h.parse_html_table(table):
+        cells = h.cells_to_str(row)
 
         # AfDB lists several individuals as firms in places where the IADB
         # shows them to be people (and they have normal personal names)
@@ -42,7 +21,10 @@ def crawl(context: Context):
         # if schema is None:
         #     context.log.error("Unknown entity type", type=type_)
         #     continue
-        name = cells.pop("name")
+
+        name = cells.pop("name").strip()
+        if all(v == "" for v in cells.values()):
+            continue
         country = cells.pop("nationality")
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name, country)
@@ -52,8 +34,8 @@ def crawl(context: Context):
 
         sanction = h.make_sanction(context, entity)
         sanction.add("reason", cells.pop("basis"))
-        sanction.add("startDate", parse_date(cells.pop("from")))
-        sanction.add("endDate", parse_date(cells.pop("to")))
+        h.apply_date(sanction, "startDate", cells.pop("from"))
+        h.apply_date(sanction, "endDate", cells.pop("to"))
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)

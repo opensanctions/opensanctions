@@ -1,8 +1,8 @@
 from nomenklatura.judgement import Judgement
-from nomenklatura.statement import Statement, CSV, read_path_statements
+from nomenklatura.statement import CSV, read_path_statements
 
 from zavod.meta import Dataset
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.crawl import crawl_dataset
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.archive import iter_dataset_statements, dataset_state_path
@@ -29,7 +29,7 @@ def test_dump_file(testdataset1: Dataset):
     assert out_path.exists()
     assert out_path.stat().st_size > 0
 
-    file_stmts = list(read_path_statements(out_path, CSV, Statement))
+    file_stmts = list(read_path_statements(out_path, CSV))
     assert len(file_stmts) == len(stmts)
     canon_ids = [stmt.canonical_id for stmt in file_stmts]
     assert canonical.id in canon_ids

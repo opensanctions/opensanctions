@@ -1,7 +1,7 @@
 import os
 import re
 import requests
-from typing import Any, Dict
+from typing import Dict
 from normality import slugify
 from datetime import timedelta
 from base64 import b64encode
@@ -72,20 +72,6 @@ def norm_capital(context: Context, string: str) -> Dict[str, str]:
     except Exception as exc:
         context.log.warning(f"[Unable to parse capital: {exc}]")
     return capital
-
-
-def parse_date(text: str) -> Any:
-    """
-    Parse a date from a string.
-    """
-    return h.parse_date(
-        text,
-        [
-            # 4/29/2014 12:00:00 AM
-            "%m/%d/%Y %I:%M:%S %p",
-            "%m/%d/%Y %H:%M:%S",
-        ],
-    )
 
 
 def roughly_valid_regno(regno: str) -> bool:
@@ -171,12 +157,10 @@ def fetch_company(context: Context, company_id: int) -> int:
             entity.add("status", status_sqi, lang="sqi")
 
         if company.get("DataRegjistrimit"):
-            entity.add("incorporationDate", parse_date(company.pop("DataRegjistrimit")))
+            h.apply_date(entity, "incorporationDate", company.pop("DataRegjistrimit"))
 
         if company.get("DataShuarjesBiznesit"):
-            entity.add(
-                "dissolutionDate", parse_date(company.pop("DataShuarjesBiznesit"))
-            )
+            h.apply_date(entity, "dissolutionDate", company.pop("DataShuarjesBiznesit"))
 
         if company.get("Kapitali"):
             capital = norm_capital(context, company.pop("Kapitali"))
@@ -256,7 +240,7 @@ def fetch_company(context: Context, company_id: int) -> int:
                 "NumriPunetoreve",
             ],
         )
-        context.emit(entity, target=True)
+        context.emit(entity)
         return True
 
     except requests.exceptions.HTTPError as exc:

@@ -51,12 +51,13 @@ def parse_entry(context: Context, node: _Element):
     sanction.add("program", program)
     sanction.add("reason", schedule)
     sanction.add("authorityId", node.findtext("./Item"))
+    h.apply_date(sanction, "listingDate", node.findtext("./DateOfListing"))
 
-    names = node.findtext("./Aliases")
+    names = collapse_spaces(node.findtext("./Aliases"))
     if names is not None:
         for name in h.multi_split(names, ALIAS_SPLITS):
             trim_name = collapse_spaces(name)
             entity.add("alias", trim_name or None)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)

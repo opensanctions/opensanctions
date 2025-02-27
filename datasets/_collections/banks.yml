@@ -1,0 +1,17 @@
+type: collection
+title: Financial Services Entities
+coverage:
+  start: "2024-11-13"
+  frequency: monthly
+deploy:
+  memory: "1500Mi"
+ci_test: false
+summary: >
+  Reference data on banks and financial services companies
+description: |
+  This is for internal use, please do not depend on it.
+children:
+  - iso9362_bic
+  - us_irs_ffi
+  - us_fincen_msb
+  - ru_cbr_banks

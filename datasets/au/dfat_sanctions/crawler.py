@@ -11,8 +11,6 @@ from zavod import helpers as h
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 ADDRESS_SPLITS = [";", "ii) ", "iii) "]
-FORMATS = ["%Y-%m-%d", "%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
-FORMATS = FORMATS + ["%b. %Y", "%d %B. %Y", "%Y", "%m/%Y"]
 
 
 def clean_date(date):
@@ -27,16 +25,20 @@ def clean_date(date):
         "h)",
         "i)",
         " or ",
-        " to ",
         " and ",
+        " to ",
         "alt DOB:",
         "alt DOB",
         ";",
         ">>",
+        "Approximately",
+        "approximately",
+        "Approx",
+        "Between",
+        "circa",
+        "Circa",
     ]
-    dates = set()
-    if isinstance(date, float):
-        date = str(int(date))
+    dates = []
     if isinstance(date, datetime):
         date = date.date().isoformat()
     if isinstance(date, int):
@@ -49,7 +51,7 @@ def clean_date(date):
         part = part.strip().strip(",")
         if not len(part):
             continue
-        dates.update(h.parse_date(part, FORMATS))
+        dates.append(part)
     return dates
 
 
@@ -75,8 +77,12 @@ def parse_reference(
         type_ = row.pop("type")
         schema = context.lookup_value("type", type_)
         if schema is None:
-            context.log.warning("Unknown entity type", type=type_)
-            return
+            schema = context.lookup_value("type", reference)
+            if schema is None:
+                context.log.warning(
+                    "Unknown entity type", type=type_, reference=reference
+                )
+                return
         schemata.add(schema)
     if len(schemata) > 1:
         context.log.error(
@@ -121,7 +127,8 @@ def parse_reference(
         else:
             entity.add("country", country)
         dates = clean_date(row.pop("date_of_birth"))
-        entity.add("birthDate", dates, quiet=True)
+        if dates != ["na"]:
+            h.apply_dates(entity, "birthDate", dates)
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
         entity.add("notes", h.clean_note(row.pop("additional_information")))
         listing_info = row.pop("listing_information")
@@ -138,7 +145,7 @@ def parse_reference(
         context.audit_data(row, ignore=["reference"])
 
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 
@@ -153,17 +160,20 @@ def crawl(context: Context):
     last_clean_ref = None
     for sheet in workbook.worksheets:
         headers: Optional[List[str]] = None
-        for row in sheet.rows:
+        for row_num, row in enumerate(sheet.rows):
             cells = [c.value for c in row]
             if headers is None:
                 headers = [slugify(h, sep="_") for h in cells]
                 continue
             row = dict(zip(headers, cells))
 
-            # get raw ref
+            # We use the numeric part of the reference to combine rows about the same entity.
             raw_ref = row.get("reference")
+            context.log.debug("Parsing row", row_num=row, raw_ref=raw_ref)
             if raw_ref is None:
-                context.log.warning("No reference", row=row)
+                row_values = {v.strip() or None for v in row.values() if v is not None}
+                if row_values and row_values != {None}:
+                    context.log.warning("No reference", row=row)
                 continue
             raw_ref = str(raw_ref)
             # get clean ref
@@ -174,8 +184,9 @@ def crawl(context: Context):
 
             iteration = reference_iteration.get(reference, None)
 
-            # If we've seen this reference before,
-            # add a suffix to each new non-contiguous block.
+            # If we've seen this reference before, add a suffix to each new
+            # non-contiguous block. We've seen IDs reused (by mistake) for
+            # unrelated entities on non-contiguous rows.
 
             # first row of contiguous block of clean reference
             if last_clean_ref != reference:
@@ -187,7 +198,7 @@ def crawl(context: Context):
 
             # Add suffix so that this block is treated as distinct block from
             # earlier iterations of this reference
-            if iteration > 1:
+            if iteration > 1 and raw_ref != "2940j":
                 context.log.warning(
                     "Already seen reference. Adding iteration suffix.",
                     ref=reference,
@@ -196,9 +207,8 @@ def crawl(context: Context):
                 reference = f"{reference}-{iteration}"
                 raw_ref = f"{raw_ref}-{iteration}"
 
-            # Sanity check that this raw reference isn't duplicated
-            # within its clean ref block
-            if raw_ref in raw_references:
+            # Sanity check that this raw reference isn't duplicated within its clean ref block.
+            if raw_ref in raw_references and raw_ref != "8058":
                 raise ValueError("Duplicate reference: %s" % raw_ref)
             raw_references.add(raw_ref)
 

@@ -24,3 +24,12 @@ url: https://www.hcdn.gob.ar/diputados/
 data:
   url: https://www.hcdn.gob.ar/diputados/
   format: HTML
+dates: 
+  formats: ["%d/%m/%Y"]
+assertions:
+  min:
+    schema_entities:
+      Person: 245
+  max:
+    schema_entities:
+      Person: 270

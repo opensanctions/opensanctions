@@ -1,6 +1,6 @@
 type: external
 title: Register of Enterprises of the Republic of Latvia (Uzņēmumu reģistrs)
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: lv_business_register
 disabled: false
 coverage:
@@ -10,9 +10,8 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  # schedule: "1 14 * * *"
-  memory: "1000Mi"
-  memory_limit: "2000Mi"
+  memory: "3000Mi"
+  memory_limit: "4000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Directors, shareholders and beneficial owners
@@ -49,8 +48,9 @@ inputs:
   - sanctions
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
   dataset: lv_business_register
+  index_options:
+    memory_budget: 2000
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1
@@ -66,5 +66,17 @@ config:
   schemata:
     - Company
     - Organization
-    # - LegalEntity
-    # - Person
+    - LegalEntity
+    - Person
+
+assertions:
+  min:
+    schema_entities:
+      Person: 70
+      Company: 50
+      LegalEntity: 10
+  max:
+    schema_entities:
+      Person: 150
+      Company: 120
+      LegalEntity: 100

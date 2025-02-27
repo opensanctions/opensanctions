@@ -1,6 +1,7 @@
 type: collection
 title: Consolidated Sanctions
 coverage:
+  start: "2021-09-01"
   schedule: "0 1,7,13,19 * * *"
 deploy:
   memory: "1500Mi"
@@ -70,8 +71,10 @@ children:
   - id_dttot
   - il_mod_terrorists
   - il_mod_crypto
+  - il_wmd_sanctions
   - in_mha_banned
   - ir_sanctions
+  - iq_aml_list
   - ie_unlawful_organizations
   - jp_mof_sanctions
   - jp_meti_eul
@@ -94,6 +97,7 @@ children:
   - ps_local_freezing
   - ro_onpcsb_sanctions
   - rs_apml_domestic
+  - ru_mfa_sanctions
   - qa_nctc_sanctions
   - sg_terrorists
   - th_designated_person
@@ -103,16 +107,17 @@ children:
   - ua_nsdc_sanctions
   - ua_sfms_blacklist
   - un_sc_sanctions
+  - un_1718_vessels
   - us_cbp_forced_labor
   - us_bis_denied
   - us_cuba_sanctions
   - us_dhs_uflpa
   - us_fincen_special_measures
   - us_klepto_hr_visa
-  - us_nteea_sec_353
   - us_ofac_cons
   - us_ofac_sdn
   - us_state_terrorist_exclusion
   - us_trade_csl
+  - us_sanctions
   - za_fic_sanctions
 ci_test: false

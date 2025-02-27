@@ -45,16 +45,6 @@ class SelfReferenceValidator(BaseValidator):
                     )
 
 
-class TopiclessTargetValidator(BaseValidator):
-    """Warns if a target entity has no topics."""
-
-    def feed(self, entity: Entity) -> None:
-        if entity.target and not entity.get("topics"):
-            self.context.log.warning(
-                f"{entity.id} is a target but has no topics", entity=entity
-            )
-
-
 class EmptyValidator(BaseValidator):
     """Warn if no entities are validated."""
 
@@ -73,7 +63,6 @@ class EmptyValidator(BaseValidator):
 VALIDATORS: List[Type[BaseValidator]] = [
     DanglingReferencesValidator,
     SelfReferenceValidator,
-    TopiclessTargetValidator,
     AssertionsValidator,
     EmptyValidator,
 ]

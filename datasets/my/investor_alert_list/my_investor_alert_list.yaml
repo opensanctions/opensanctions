@@ -34,10 +34,10 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 1350
+      LegalEntity: 1400
   max:
     schema_entities:
-      LegalEntity: 1500
+      LegalEntity: 1700
 
 lookups:
   type.url:

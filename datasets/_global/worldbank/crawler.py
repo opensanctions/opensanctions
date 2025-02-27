@@ -5,8 +5,6 @@ from zavod import helpers as h
 
 SPLITS = r"(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)"  # noqa
 
-FORMATS = ("%d-%b-%Y",)
-
 
 def clean_name(text):
     text = text.replace("M/S", "MS")
@@ -62,7 +60,7 @@ def crawl(context: Context):
 
         sanction = h.make_sanction(context, entity)
         sanction.add("program", data.get("DEBAR_REASON"))
-        sanction.add("startDate", h.parse_date(data.get("DEBAR_FROM_DATE"), FORMATS))
-        sanction.add("endDate", h.parse_date(data.get("DEBAR_TO_DATE"), FORMATS))
-        context.emit(entity, target=True)
+        h.apply_date(sanction, "startDate", data.get("DEBAR_FROM_DATE"))
+        h.apply_date(sanction, "endDate", data.get("DEBAR_TO_DATE"))
+        context.emit(entity)
         context.emit(sanction)

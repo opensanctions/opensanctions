@@ -14,7 +14,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     name = row.pop("name")
     person.id = context.make_slug(name)
     person.add("name", name)
-    context.emit(person, target=True)
+    context.emit(person)
 
     position = h.make_position(
         context, name=row.pop("position"), country=row.pop("country").split(",")

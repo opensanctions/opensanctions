@@ -68,7 +68,7 @@ def crawl_item(input_dict: dict, context: Context):
     initial_sanction_date = re.findall(DATE_PATTERN, raw_initial_sanction_date)[0]
 
     # There is only one date in this case
-    sanction.add("startDate", h.parse_date(initial_sanction_date, formats=["%d %B %Y"]))
+    h.apply_date(sanction, "startDate", initial_sanction_date)
     sanction.add("sourceUrl", initial_statement_url)
 
     raw_renew_sanction_dates, renew_statement_urls = input_dict.pop(
@@ -78,12 +78,12 @@ def crawl_item(input_dict: dict, context: Context):
     renew_sanction_dates = re.findall(DATE_PATTERN, raw_renew_sanction_dates)
 
     for renew_sanction_date in renew_sanction_dates:
-        sanction.add("date", h.parse_date(renew_sanction_date, formats=["%d %B %Y"]))
+        h.apply_date(sanction, "date", renew_sanction_date)
 
     for renew_statement_url in renew_statement_urls:
         sanction.add("sourceUrl", renew_statement_url)
 
-    context.emit(organization, target=True)
+    context.emit(organization)
     context.emit(sanction)
     context.audit_data(input_dict)
 

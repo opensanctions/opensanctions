@@ -12,6 +12,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+  - entities.delta.json
   - senzing.json
 resolve: false
 ci_test: false

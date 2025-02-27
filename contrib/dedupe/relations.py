@@ -9,7 +9,7 @@ from followthemoney.property import Property
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.entity import Entity
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.store import get_view, clear_store
 from zavod.cli import _load_datasets
 

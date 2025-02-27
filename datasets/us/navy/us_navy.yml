@@ -1,0 +1,40 @@
+title: "US Navy Leadership"
+url: https://www.navy.mil/Leadership/
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+coverage:
+  frequency: daily
+  start: 2024-09-13
+summary: >
+  Current leaders of the United States Navy, including biographies and organizational roles 
+  within the Navy's command structure.
+description: |
+  The US Navy leadership includes detailed profiles of senior leaders such as the Secretary 
+  of the Navy, the Chief of Naval Operations, and other key figures. These profiles feature 
+  name, rank, and, where applicable, the full biography can be accessed via source links.
+entry_point: crawler.py
+prefix: us-navy
+publisher:
+  name: United States Navy
+  acronym: Navy
+  official: true
+  description: |
+    The United States Navy is a branch of the United States Armed Forces responsible for 
+    conducting naval operations and ensuring maritime security and superiority. The Navy 
+    is structured into operational and administrative commands. The operational command 
+    includes fleets and task forces that manage naval operations globally, while the 
+    administrative command encompasses various shore facilities and support units that 
+    ensure readiness and logistics.
+  country: us
+  url: https://www.navy.mil
+data:
+  url: https://www.navy.mil/Leadership/
+  format: html
+
+assertions:
+  min:
+    schema_entities:
+      Person: 290
+  max:
+    schema_entities:
+      Person: 320

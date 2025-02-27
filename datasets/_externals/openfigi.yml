@@ -8,8 +8,10 @@ coverage:
   start: 2023-11-14
 exports:
   - statistics.json
+  - entities.ftm.json
+  - statements.csv
+  - targets.simple.csv
 deploy:
-  schedule: "@daily"
   memory: 1000Mi
   memory_limit: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -49,4 +51,12 @@ config:
   api_key: ${OPENFIGI_API_KEY}
   schemata:
     - Security
-  cache_days: 60
+  cache_days: 90
+
+assertions:
+  min:
+    schema_entities:
+      Security: 35500
+  max:
+    schema_entities:
+      Security: 83500

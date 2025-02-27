@@ -1,0 +1,45 @@
+title: US Minnesota Health Care Programs Excluded Providers
+entry_point: crawler.py
+prefix: us-medmn
+coverage:
+  frequency: daily
+  start: "2024-11-07"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers suspended or terminated from Minnesota Health Care Programs.
+description: |
+  > The Minnesota Health Care Programs maintains and publishes lists of all
+  > individual or group providers suspended or terminated from receiving
+  > payment from Medicaid funds who MHCP has excluded. These lists are in
+  > addition to the federal exclusions list. Anyone who is on the list is
+  > excluded from employment with an entity to provide services to members
+  > for whom you will submit claims to MHCP for reimbursement to. MHCP will
+  > deny claims for services or items rendered, ordered, referred or
+  > prescribed by excluded providers.
+publisher:
+  name: Minnesota Health Care Programs
+  description: >
+    > Minnesota Health Care Programs (MHCP) provide health care coverage to eligible
+    > families with children, adults, people with disabilities and seniors.
+  acronym: MHCP
+  url: https://mn.gov/dhs/partners-and-providers/program-overviews/mhcp/
+  official: true
+  country: "us"
+url: "http://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=DHS-295094"
+data:
+  url: http://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=DHS-295094
+  format: XLSX
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 900
+      Company: 250
+  max:
+    schema_entities:
+      Person: 1300
+      Company: 350

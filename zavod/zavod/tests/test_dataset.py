@@ -69,7 +69,7 @@ def test_basic():
     assert coll_ds.data is None
     os_data = coll_ds.to_opensanctions_dict(catalog)
     assert "collections" not in os_data, os_data
-    assert os_data["sources"] == ["test"], os_data
+    assert os_data["datasets"] == ["test"], os_data
     # When resolve isn't set in the metadata, it defaults to True.
     assert "resolve" not in TEST_COLLECTION
     assert coll_ds.resolve is True
@@ -91,8 +91,8 @@ def test_validation(testdataset1: Dataset, testdataset3: Dataset):
     assert len(testdataset1.children) == 0
     assert len(testdataset1.datasets) == 1
     assert len(testdataset1.inputs) == 0
-    assert len(testdataset1.assertions) == 0
-    assert len(testdataset3.assertions) == 4
+    assert len(testdataset1.assertions) == 1
+    assert len(testdataset3.assertions) == 6
     assert isinstance(testdataset3.assertions[0], Assertion)
 
 
@@ -116,8 +116,9 @@ def test_validation_os_dict(testdataset1: Dataset, collection: Dataset):
     assert osac["type"] == "collection"
     assert len(osac["datasets"]) == 1, osac["datasets"]
     assert len(osac["children"]) == 2, osac["children"]
-    assert len(osac["sources"]) == 1
-    assert len(osac["externals"]) == 0
+    assert "sources" not in osac
+    # assert len(osac["sources"]) == 1
+    # assert len(osac["externals"]) == 0
     assert "entry_point" not in osac
 
 

@@ -27,7 +27,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if entity.schema.is_a("Person"):
         entity.add("nationality", row.pop("country"))
         entity.add("idNumber", row.pop("id_number"))
-        entity.add("birthDate", row.pop("dob"))
+        h.apply_date(entity, "birthDate", row.pop("dob"))
     else:
         entity.add("jurisdiction", row.pop("country"))
         entity.add("registrationNumber", row.pop("id_number"))
@@ -39,13 +39,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
         other_id = context.make_slug(row.pop("rel_other"))
         rel.id = context.make_id("rel", entity.id, other_id)
         rel.add("summary", row.pop("rel_summary"))
-        rel.add("startDate", row.pop("rel_start"))
-        rel.add("endDate", row.pop("rel_end"))
+        h.apply_date(rel, "startDate", row.pop("rel_start"))
+        h.apply_date(rel, "endDate", row.pop("rel_end"))
         rel.add(rel.schema.source_prop, entity.id)
         rel.add(rel.schema.target_prop, other_id)
         context.emit(rel)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.audit_data(row)
 
 

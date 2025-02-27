@@ -1,0 +1,50 @@
+title: US FATCA Foreign Financial Institution (FFI) List
+entry_point: crawler.py
+prefix: fatca
+coverage:
+  frequency: monthly
+  start: "2024-11-11"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+resolve: false
+ci_test: false
+summary: >
+  All foreign financial institutions and branches with approved FATCA registration.
+description: |
+  The FFI list is issued by the IRS and includes all financial institutions, branches, direct 
+  reporting non-financial foreign entities, sponsored entities, and sponsored subsidiary branches 
+  that have submitted a registration and have been assigned a Global Intermediary Identification 
+  Number (GIIN) at the time the list was compiled. 
+
+  On the first day of each month, a complete new list is published for all entities that have an 
+  assigned and approved GIIN as of a specified cut-off date.
+  [Source](https://www.irs.gov/businesses/corporations/irs-ffi-list-faqs)
+publisher:
+  name: Internal Revenue Service
+  acronym: IRS
+  description: |
+    The IRS is a bureau of the Department of the Treasury. In the United States, the Congress passes 
+    tax laws and requires taxpayers to comply. The taxpayer’s role is to understand and meet his or 
+    her tax obligations. The IRS role is to help the large majority of compliant taxpayers with the 
+    tax law, while ensuring that the minority who are unwilling to comply pay their fair share.
+    [Source: Official Website](https://www.irs.gov/about-irs/the-agency-its-mission-and-statutory-authority)
+  country: us
+  url: https://www.irs.gov
+  official: true
+url: https://www.irs.gov/businesses/corporations/fatca-foreign-financial-institution-list-search-and-download-tool
+data:
+  url: https://apps.irs.gov/app/fatcaFfiList/data/FFIListFull.csv
+  file_name: source.csv
+  format: csv
+
+assertions:
+  min:
+    schema_entities:
+      Company: 470000
+  max:
+    schema_entities:
+      Company: 500000
+lookups:
+  type.country:
+    options:
+      - match: OTHER
+        value: null

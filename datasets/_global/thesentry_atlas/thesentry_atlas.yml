@@ -1,0 +1,50 @@
+title: The Sentry Atlas
+entry_point: crawler.py
+prefix: sentry
+coverage:
+  frequency: monthly
+  start: "2024-11-06"
+ci_test: false
+summary: >
+  Networks of people, companies and assets linked to violent conflict, repression, and kleptocracy.
+description: |
+  Atlas is a data project created by The Sentry. It maps, visualizes, and analyzes
+  networks that benefit from violent conflict, repression, and kleptocracy, highlighting
+  key insights into how these networks operate. Atlas aims to put the relevant data in
+  the hands of journalists, policy makers, financial institutions and other private sector
+  actors, and the public so that those responsible for large-scale violence and grand
+  corruption can face real consequences.
+
+  Atlas projects maintain the same rigorous methodological approach and high evidentiary
+  standards that are required of all Sentry products. Each project includes a list of
+  citations and an explanation of the methodology used.
+
+  This dataset currently includes the following projects:
+  - [The Aliyev Empire](https://atlas.thesentry.org/azerbaijan-aliyev-empire/)
+publisher:
+  name: The Sentry
+  acronym: Sentry
+  description: |
+    The Sentry is an investigative and policy organization that seeks to disable multinational
+    predatory networks that benefit from violent conflict, repression, and kleptocracy.
+  url: "https://thesentry.org/"
+  official: false
+url: "https://atlas.thesentry.org/"
+data:
+  url: https://atlas.thesentry.org/wp-content/uploads/2024/10/Aliyev-Empire-Data.zip
+  format: ZIP
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+lookups:
+  type.date:
+    options:
+      - match: "null"
+        value: null
+  type.country:
+    options:
+      - match: "Comoro Islands"
+        value: "Comoros"
+      - match: "null"
+        value: null

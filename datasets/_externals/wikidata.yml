@@ -12,7 +12,7 @@ exports:
 deploy:
   schedule: "1 0 * * *"
   memory: "3000Mi"
-  premium: true
+  memory_limit: "3500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Wikidata is the structured data project of the Wikipedia community,
@@ -54,28 +54,17 @@ http:
     - POST
 
 inputs:
-  # Warning: cannot include wd_peps here otherwise it gets too recursive
-  - sanctions
+  - interpol_red_notices
   - peps
-  - eu_meps
-  - kp_rusi_reports
-  - wd_peps
-  - wd_oligarchs
-  - wd_curated
-  - wd_categories
+  - sanctions
+  - special_interest
+  - us_fbi_most_wanted
+  - us_klepto_hr_visa
   - wanted
-  # - ru_rupep
-  - ru_navalny35
-  - ru_myrotvorets_wagner
-  - ru_billionaires_2021
-  - ru_acf_bribetakers
-  - sy_obsalytics_opensyr
-  - md_rise_profiles
-  - eu_cor_members
-  - everypolitician
-  - us_cia_world_leaders
-  - us_cia_world_factbook
-  - us_congress
+  - wd_categories
+  - wd_curated
+  - wd_oligarchs
+  - wd_peps
 
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
@@ -83,6 +72,14 @@ config:
   cache_days: 14
   schemata:
     - Person
+
+assertions:
+  min:
+    schema_entities:
+      Person: 330000
+  max:
+    schema_entities:
+      Person: 775000
 
 lookups:
   type.country:
@@ -94,6 +91,8 @@ lookups:
           - Afsharid Empire
           - Al Ain
           - Ancient Rome
+          - State of Aleppo
+          - French Mandate for Syria and the Lebanon
           - Arab Kingdom of Syria
           - Assyrian Empire
           - Austria-Hungary
@@ -272,6 +271,7 @@ lookups:
           - Xiongnu
           - Yuan dynasty
           - Zand dynasty
+          - Zengid dynasty
           - Ziyarid dynasty
           - al-Andalus
           - emirate of Córdoba
@@ -341,7 +341,6 @@ lookups:
           - Kaduna State
           - Pahang
           - Hirshabelle
-          - Kurdistan
           - Ifriqiya
           - Regency of Algiers
           - Sultanate of Darfur
@@ -433,6 +432,247 @@ lookups:
           - Free City of Kraków
           - Emirate of Bahrain (1783–1971)
           - Khwarazmian Empire
+          - Nanda Empire
+          - Maurya empire
+          - Magadha
+          - Gupta Empire
+          - Avanti
+          - Hindu
+          - Achaemenid Empire
+          - The Bad River Band of Lake Superior Chippewa
+          - Western Zhou
+          - Zhou dynasty
+          - Sultanate of Kano
+          - Ethiopian National Defense Force
+          - Tigray Defense Forces
+          - Tigray People's Liberation Front
+          - Türgesh
+          - Kununokuni
+          - Gojoseon
+          - Umayyad dynasty
+          - Champanagara
+          - Rawadid dynasty
+          - Southern Xiongnu
+          - Karakalpakstan
+          - Xia dynasty
+          - Chaldaeans
+          - Classical Athens
+          - Macedonian Empire
+          - Kush
+          - Kingdom of Aksum
+          - Beylik of Germiyan
+          - Panduranga (Champa)
+          - Champa
+          - Mataram Kingdom
+          - Sheba
+          - Anuradhapura Kingdom
+          - Chola dynasty
+          - Pandya Kingdom
+          - Kingdom of Armenia
+          - Persian Empire
+          - Yan
+          - Teng
+          - Captaincy General of the Philippines
+          - Dambadeniya
+          - Sultanate of Hobyo
+          - Bavand dynasty
+          - Kingdom of Israel
+          - Western Turkic Khaganate
+          - Ahom Kingdom
+          - Aceh Sultanate
+          - Tooro Kingdom
+          - Nabataean kingdom
+          - British Military Administration
+          - Yamhad
+          - Sultanate of Sulu
+          - Kingdom of Phnum
+          - Kingdom of Chenla
+          - Gutian people
+          - Serbian Despotate
+          - Vandal Kingdom
+          - Tulunid emirate
+          - Majeerteen Sultanate
+          - Caucasian Albania
+          - Ayyubid dynasty
+          - Hoysala Empire
+          - Maya people
+          - Empire of Nicaea
+          - Second Bulgarian Empire
+          - Despotate of Epirus
+          - Lampsacus
+          - Tarascan State
+          - Sayyid dynasty
+          - Sumer
+          - Siraces
+          - Scythie
+          - Kayanian dynasty
+          - Kingdom of Iberia
+          - Republic of Genoa
+          - Later Yan
+          - Former Yan
+          - Indo-Parthian Kingdom
+          - Indo-Scythians
+          - Liao dynasty
+          - Wakoku
+          - Ethiopian Empire
+          - Khmer Empire
+          - Seleucid Empire
+          - Hasmonean Kingdom
+          - Gorkha Kingdom
+          - Numidia Kingdom
+          - Cayor
+          - Kingdom of Abkhazia
+          - Akkadian Empire
+          - Kizzuwatna
+          - Malacca sultanate
+          - Saud
+          - Kosala
+          - Akkad
+          - Twenty-fifth Dynasty of Egypt
+          - Limyra
+          - Persis
+          - Nubian Kingdom
+          - Madurai Nayak Kingdom
+          - Urartu
+          - Lagash
+          - Sunda Kingdom
+          - Golden Horde
+          - Rurik's state
+          - Shirvan
+          - Yarkent Khanate
+          - Empire of Trebizond
+          - Ifat Sultanate
+          - Kilwa Sultanate
+          - Sikh Empire
+          - Mongol Empire
+          - Qara Khitai
+          - Langkasuka
+          - Geumgwan Gaya
+          - Silla
+          - Scythia Minor
+          - Aztec Triple Alliance
+          - Aztec Empire
+          - Bessarabia
+          - Gujarat Sultanate
+          - Culhuacán (altepetl)
+          - Aztec
+          - Ancient Corinth
+          - Grand Principality of Finland
+          - Haripuñjaya
+          - Maya civilization
+          - Erivan Khanate
+          - Bukharan People's Soviet Republic
+          - Lâm Ấp
+          - Edom
+          - Grand Duchy of Avram
+          - Baekje
+          - Moldavian Democratic Republic
+          - Characene
+          - Elam
+          - Qin
+          - Goguryeo
+          - Kingdom of Cappadocia
+          - Kingdom of Pontus
+          - Dambadeniya
+          - Ptolemaic Kingdom
+          - Pagan Kingdom
+          - Durrani Empire
+          - Ghassanids
+          - Licchavi
+          - Saka
+          - Cimmerians
+          - Kingdom of Mrauk U
+          - Later Lê dynasty
+          - Caucasian Albania
+          - Chu
+          - Kano
+          - Uruk
+          - Mitanni
+          - Southern Song dynasty
+          - Later Jin dynasty
+          - Southern Han
+          - Former Shu
+          - Ancient China
+          - Western Liang
+          - Qi
+          - Chinese Empire
+          - Southern Han
+          - Batavian Republic
+          - Sultanate of Banjar
+          - First Saudi Statelega
+          - Q6740477
+          - Hoan Vuong
+          - مسح
+          - guava
+          - Jodhpur State
+          - National University of Colombia
+          - Citizen Potawatomi Nation
+          - Kingdom of Thiruvithamkoor
+          - Lanna
+          - list of monarchs of Goryeo
+          - Wei
+          - Kingdom of Manipur
+          - Buyeo
+          - Emirate of Nekor
+          - 唐虞
+          - Xin dynasty
+          - Principality of Montenegro
+          - Afsharid Iran
+          - Alawite State
+          - Kasranids
+          - Seljuk dynasty
+          - Frankfurt
+          - Electoral Palatinate
+          - English people
+          - Libu
+          - Later Zhao
+          - Republic of Florence
+          - County palatine of Cephalonia and Zakynthos
+          - Second French Empire
+          - Arabs
+          - Sultanate of Harar
+          - Novgorod Republic
+          - Cimmeria
+          - Rattanakosin Kingdom
+          - Odoyevsky principality
+          - Later Zhou dynasty
+          - Khorasan
+          - Shirvan Khanate
+          - Adal Sultanate
+          - Johor Sultanate
+          - Duchy of Saxony
+          - Kingdom of Mewar
+          - Khalji dynasty
+          - Chaldea
+          - Republic of China (1912–1949)
+          - Zhao
+          - Ancient Thessaly
+          - Paeonia
+          - Catalan Countries
+          - Hispanic Monarchy
+          - Habsburg Spain
+          - Transleithania
+          - Archduchy of Austria
+          - Cape Colony
+          - Electorate of Mainz
+          - Kingdom of Numidia
+          - Spanish protectorate in Morocco
+          - State of Judaea
+          - Ligurian Republic
+          - Genoese Republic
+          - Yemeni Zaidi State
+          - Q1879239
+          - Khamag Mongol
+          - Jalayirid Sultanate
+          - Zachlumia
+          - Revival Lê dynasty
+          - Annam
+          - Nguyen dynasty
+          - Đại Nam
+          - Kingdom of Dumnonia
+          - Duchy of Aquitaine
+          - Principality of Moldavia
+          - Duchy of Milan
         value: null
       - match:
           - Cherokee Nation
@@ -441,9 +681,18 @@ lookups:
           - Ho-Chunk Nation of Wisconsin
           - Navajo Nation
           - Northern Cheyenne Indian Reservation
+          - Echota Cherokee Tribe of Alabama
           - Sisseton Wahpeton Oyate
           - Confederate States
           - Muscogee (Creek) Nation
+          - Prairie Band Potawatomi Nation
+          - White Earth Nation
+          - Kingdom of Hawaiʻi
+          - Comanche
+          - Lac Courte Oreilles
+          - Hopi
+          - Ancient Hawaii
+          - Oglala Sioux Tribe
         value: US
       - match:
           - Democratic Republic of Sudan
@@ -454,14 +703,45 @@ lookups:
         value: CY
       - match: Socialist Republic of Romania
         value: RO
-      - match: Congress Poland
+      - match:
+          - People's Socialist Republic of Albania
+          - Independent Albania
+          - Principality of Albania
+          - Albanian Republic
+          - Albanian Kingdom
+        value: AL
+      - match: Italian Libya
+        value: LY
+      - match: British Solomon Islands
+        value: SB
+      - match: French Guinea
+        value: GN
+      - match:
+          - Republic of Dahomey
+          - People's Republic of Benin
+        value: BJ
+      - match: Commonwealth of the Philippines
+        value: PH
+      - match: Dominion of Ceylon
+        value: LK
+      - match: Pate Island
+        value: KE
+      - match: República de Venezuela
+        value: VE
+      - match: Tajik Soviet Socialist Republic
+        value: TJ
+      - match:
+          - Congress Poland
+          - Duchy of Warsaw
         value: PL
       - match:
           - United Kingdom of the Netherlands
           - Dutch Republic
           - Northern Netherlands
         value: NL
-      - match: Kingdom of Ireland
+      - match:
+          - Kingdom of Ireland
+          - Lordship of Ireland
         value: IE
       - match: Colony of New Zealand
         value: NZ
@@ -521,6 +801,8 @@ lookups:
         values:
           - GE
           - SU
+      - match: Second Hellenic Republic
+        value: GR
       - match:
           - Ukrainian People's Republic
           - Ukrainian Soviet Socialist Republic
@@ -543,14 +825,23 @@ lookups:
           - Kingdom of Bavaria
           - Kingdom of Württemberg
           - Electorate of Saxony
+          - Saxe-Weimar-Eisenach
+          - Grand Duchy of Hesse
+          - Territory of the Saar basin
         value: DE
       - match: British Honduras
         value: BZ
-      - match: Provisional People's Committee for North Korea
+      - match: 
+          - Provisional People's Committee for North Korea
+          - People's Committee of North Korea
         value: North Korea
       - match:
           - Kingdom of Egypt
           - Republic of Egypt
+          - حوش عيسى (كفر الشيخ)
+          - Ancient Egypt
+          - Old Kingdom of Egypt
+          - Middle Kingdom of Egypt
         value: Egypt
       - match: Captaincy General of Cuba
         value: Cuba
@@ -568,6 +859,7 @@ lookups:
       - match:
           - South Yemen
           - Yemen Arab Republic
+          - Kingdom of Yemen
         value: YE
       - match:
           - Kingdom of Sicily
@@ -596,6 +888,8 @@ lookups:
           - First Syrian Republic
           - State of Syria
         value: Syria
+      - match: Ba'athist Syria
+        value: SY
       - match: Gagauzia
         value: MD
       - match:
@@ -621,15 +915,20 @@ lookups:
           - TM
       - match: Republic of Serbian Krajina
         value: HR
-      - contains: Ba'athist Iraq
+      - contains:
+          - Ba'athist Iraq
+          - Kurdistan Region
         value: Iraq
+      - match:
+          - First Republic of Armenia
+        value: AM
       - match: Armenian Soviet Socialist Republic
         values:
           - SUHH
           - AM
       - match: Kingdom of Serbia
         value: Serbia
-      - match: 
+      - match:
           - Federation of Malaya
           - Kedah Sultanate
         value: Malaysia
@@ -637,25 +936,49 @@ lookups:
           - Azad Kashmir
           - پاڪستاني
         value: PK
-      - match: Kwara State
+      - match: 
+          - Kwara State
+          - Kogi State
+          - Jos Plateau
+          - Funtua
+          - Abia State
+          - Bauchi State
+          - Edo State
+          - Kano State
         value: NG
+      - match: Chadians
+        value: TD
       - match: Kazakh Soviet Socialist Republic
         values:
           - SUHH
           - KZ
       - match: Azerbaijan Democratic Republic
         value: AZ
-      - match: Gujarat
+      - match:
+          - Gujarat
+          - Manipur
+          - Jodhpur
+          - Vijayanagara Empire
+          - Kingdom of Travancore
+          - Tripura
+          - Mallabhum
         value: India
-      - match: Kingdom of Nejd and Hejaz
+      - match:
+          - Kingdom of Nejd and Hejaz
+          - Hejaz
+          - Mecca
         value: Saudi Arabia
       - match: Estonian Soviet Socialist Republic
         values:
           - SUHH
           - EE
-      - match: Oaxaca
+      - match:
+          - Oaxaca
+          - Sandia Pueblo
         value: MX
-      - match: Aceh
+      - match:
+          - Aceh
+          - Bali Island
         value: Indonesia
       - match: French Cameroons
         value: Cameroon
@@ -665,11 +988,17 @@ lookups:
       - match:
           - Basque Country
           - Catalana
+          - Basque people
+          - Spaniards
         value: ES
       - match: Muscat and Oman
         value: OM
-      - match: Funtua
-        value: NG
+      - match: Puntland
+        value: SO
+      - match:
+          - South African Republic
+          - Ciskei
+        value: ZA
   type.date:
     options:
       - match:
@@ -679,6 +1008,8 @@ lookups:
         value: null
       - match: "1949-02-29"
         value: 1949-02
+      - match: "1821-02-29"
+        value: 1821-02
       - match: "1930-02-30"
         value: 1930-02
       - match: "1935-06-31"
@@ -687,6 +1018,16 @@ lookups:
         value: 1973-09
       - match: "1765-09-31"
         value: 1765-09
+      - match: "2018-02-29"
+        value: 2018-02
+      - match: "1999-06-31"
+        value: 1999-06
+      - match: "2004-04-31"
+        value: 2004-04
+      - match: "2011-02-31"
+        value: 2011-02
+      - match: "1991-02-29"
+        value: 1991-02
   type.gender:
     lowercase: true
     normalize: true
@@ -696,6 +1037,9 @@ lookups:
           - trans woman
           - intersex woman
           - cisgender woman
+          - transfeminine
+          - non-binary woman
+          - female organism
         value: female
       - match:
           - genderfluid
@@ -707,16 +1051,19 @@ lookups:
           - intersex
           - eunuch
           - muxe
+          - bigender
         value: other
-      - match: transgender
-        value: null
       - match:
           - MALE
           - trans man
           - cisgender male
           - cisgender man
           - transmasculine
+          - intersex man
         value: male
       - match:
+          - transgender
+          - agender
+          - Curis
           - undisclosed gender
         value: null

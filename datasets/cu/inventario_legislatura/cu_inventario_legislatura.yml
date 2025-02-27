@@ -30,3 +30,5 @@ url: https://proyectoinventario.org/x-legislatura-la-asamblea-nacional-poder-pop
 data:
   url: https://proyectoinventario.org/x-legislatura-la-asamblea-nacional-poder-popular-parlamento-cuba-2023-2028/
   format: HTML
+dates:
+  formats: ["%d/%m/%Y", "%d/%m/%y"]

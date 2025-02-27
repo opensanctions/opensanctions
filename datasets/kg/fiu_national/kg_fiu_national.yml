@@ -25,7 +25,17 @@ url: https://fiu.gov.kg/sked/9
 data:
   url: https://fiu.gov.kg/sked/9?language=ru
   format: xml
+  lang: rus
 
+dates:  
+  formats: ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]
+assertions:
+  min:
+    schema_entities:
+      Person: 1000
+  max:
+    schema_entities:
+      Person: 1400
 lookups:
   type.date:
     options:

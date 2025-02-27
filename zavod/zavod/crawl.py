@@ -33,11 +33,6 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
         )
         entry_point = load_entry_point(dataset)
         entry_point(context)
-        if context.stats.entities == 0:
-            context.log.warn(
-                "Runner did not emit entities",
-                statements=context.stats.statements,
-            )
         context.log.info(
             "Run completed",
             entities=context.stats.entities,
@@ -56,14 +51,19 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
     except RequestException as rexc:
         url = rexc.request.url if rexc.request else None
         if rexc.response is not None:
-            context.log.error(
-                str(rexc),
+            context.log.exception(
+                f"Runner failed with {type(rexc).__name__} on {url}",
+                error_str=str(rexc),
                 url=url,
                 response_code=rexc.response.status_code,
                 response_text=rexc.response.text,
             )
         else:
-            context.log.error(str(rexc), url=url)
+            context.log.exception(
+                f"Runner failed with {type(rexc).__name__}",
+                error_str=str(rexc),
+                url=url,
+            )
         raise RunFailedException() from rexc
     except Exception as exc:
         context.log.exception("Runner failed: %s" % str(exc))

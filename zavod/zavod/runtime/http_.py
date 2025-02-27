@@ -31,6 +31,7 @@ def make_session(http_conf: HTTP) -> Session:
     retries = Retry(
         total=http_conf.total_retries,
         backoff_factor=http_conf.backoff_factor,
+        backoff_max=http_conf.backoff_max,
         status_forcelist=http_conf.retry_statuses,
         allowed_methods=http_conf.retry_methods,
     )
@@ -66,6 +67,8 @@ def fetch_file(
     data_path: Path = settings.DATA_PATH,
     auth: Optional[Any] = None,
     headers: Optional[Any] = None,
+    method: str = "GET",
+    data: _Body = None,
 ) -> Path:
     """Fetch a (large) file via HTTP to the data path."""
     out_path = data_path.joinpath(name)
@@ -73,7 +76,14 @@ def fetch_file(
         return out_path
     log.info("Fetching file", url=url)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with session.get(url, auth=auth, headers=headers, stream=True) as res:
+    with session.request(
+        method=method,
+        url=url,
+        auth=auth,
+        headers=headers,
+        stream=True,
+        data=data,
+    ) as res:
         res.raise_for_status()
         with open(out_path, "wb") as fh:
             for chunk in res.iter_content(chunk_size=8192 * 10):

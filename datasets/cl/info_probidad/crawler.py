@@ -10,50 +10,54 @@ related to how their data grows, and who knows whether someone takes action or i
 just fixes itself. Give it a few days.
 """
 
-from rigour.mime.types import CSV
-from urllib.parse import urlparse
-from typing import Dict
-import os
-import csv
+import re
+
+import orjson
+from rigour.mime.types import JSON
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.archive import dataset_data_path
 from zavod.logic.pep import categorise
 
-IGNORE_COLUMNS = [
-    "UriDeclaracion",
-    "Tipo",
-    "ComunaDesempenio",
-    "Comuna",
-    "Direccion",
-    "JefeServicio",
-    "EstadoCivil",
-    "Declaracion",
-    "Grado",
-    "PaisDesempenio",
-    "Profesion",
-    "RegimenPat",
-]
+REGEX_JSON = re.compile(r"var datos =(.+?}]);")
+DECLARATION_URL = "https://www.infoprobidad.cl/Declaracion/descargarDeclaracionJSon"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, declaration_id: int):
+    declaration = context.fetch_json(
+        DECLARATION_URL, method="POST", data={"ID": declaration_id}, cache_days=30
+    )
+    declarant = declaration.pop("Datos_del_Declarante", None)
+    if declarant is None:
+        context.log.info("Declarant data not available", declaration_id=declaration_id)
+        return
     person = context.make("Person")
 
-    person_uri = row.pop("UriDeclarante")
-    id = os.path.basename(urlparse(person_uri).path)
-    person.id = context.make_slug(id)
+    declarant_hash = declaration.pop("hashCodeDeclarante", None)
+    first_name = declarant.pop("nombre")
+    patronymic = declarant.pop("Apellido_Paterno", None)
+    matronymic = declarant.pop("Apellido_Materno", None)
+    entity = declaration.pop("Datos_Entidad_Por_La_Que_Declara")
+    position_name = entity.pop("Cargo_Funcion").pop("nombre")
+
+    if declarant_hash is None:
+        person.id = context.make_id(first_name, patronymic, matronymic, position_name)
+    else:
+        person.id = context.make_slug(declarant_hash)
 
     h.apply_name(
         person,
-        first_name=row.pop("Nombre"),
-        patronymic=row.pop("ApPaterno"),
-        matronymic=row.pop("ApMaterno"),
+        first_name=first_name,
+        patronymic=patronymic,
+        matronymic=matronymic,
     )
-
-    person.add("sourceUrl", person_uri)
-
-    position_name = row.pop("Cargo")
-    position_institution = row.pop("Institucion")
+    declaration_url = (
+        f"https://www.infoprobidad.cl/Declaracion/Declaracion?ID={declaration_id}"
+    )
+    person.add("sourceUrl", declaration_url)
+    service_entity = entity.pop("Servicio_Entidad")
+    position_institution = service_entity.pop("nombre")
     position = h.make_position(
         context, f"{position_name}, {position_institution}", country="cl", lang="spa"
     )
@@ -69,7 +73,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if not categorisation.is_pep:
         return
 
-    start_date = row.pop("Asuncion")
+    start_date = entity.pop("Fecha_Asuncion_Cargo", "")[:10]
     occupancy = h.make_occupancy(
         context,
         person,
@@ -80,17 +84,72 @@ def crawl_row(context: Context, row: Dict[str, str]):
     )
 
     if occupancy:
+        occupancy.add("sourceUrl", declaration_url)
         context.emit(person, target=True)
         context.emit(position)
         context.emit(occupancy)
 
-    context.audit_data(row, IGNORE_COLUMNS)
+    context.audit_data(
+        declaration,
+        [
+            "Id_Declaracion",
+            "Id_Rectificacion",  # rectification id
+            "hashCodeDeclaracion",
+            "Fecha_de_la_Declaracion",  # declaration date
+            "Periodo",  # Period that this declaration applies to (unsure)
+            "Tipo_Declaracion",  # declaration type
+            "Ciudad",  # city
+            "Region",  # region
+            "Comuna",  # commune
+            "Pais",  # country
+            "Datos_del_Conyuge",  # spouse data
+            "Declara_Bienes_Conyuge",  # spouse assets
+            "Actividades_Profesionales_Conyuge",  # spouse professional activities
+            "Patrimonio_Conyuge",  # spouse heritage
+            "Datos_Parientes",  # relatives data
+            "Bienes_Inmuebles_Situados_En_Chile",  # real estate in chile
+            "Bienes_Inmuebles_Situados_En_Extranjero",  # real estate abroad
+            "Instrumentos_Valor_TransableChile",  # tradable instruments in chile
+            "Instrumentos_Valor_TransableExtranjero",  # tradable instruments abroad
+            "Derechos_Acciones_Chile",  # rights and shares in chile
+            "Derechos_Acciones_Extranjero",  # rights and shares abroad
+            "Derecho_Aprovechamiento_De_Aguas",  # water use rights
+            "Otros_Bienes_Muebles",  # other movable property
+            "Contratos",  # contracts
+            "Deudas_Pension_Alimentos",  # alimony debts
+            "Pasivos",  # liabilities
+            "Naves_Artefactos_Navales",  # ships and naval artifacts
+            "Aeronaves",  # aircraft
+            "Concesiones",  # concessions
+            "Otros_Bienes",  # other assets
+            "Otros_Antecedentes",  # other data
+            "Sujeto_Obligado",  # obligated subject
+            "Datos_Personas_Tutela_Curatela",  # guardianship data
+            "Vehiculos_Motorizados",  # motor vehicles
+            "Actividades_Profesionales_Ultimos_12_Meses",  # professional activities in the last 12 months
+            "Actividades_Profesionales_A_La_Fecha_Declaracion",  # professional activities at the declaration date
+            "Actividades_Profesionales_A_La_Fecha",  # professional activities at the date
+            "Otras_Fuentes",  # other sources
+            "Fuente_Conflicto",  # conflict source
+            "Patrimonio_Tutela_Curatela",  # guardianship heritage
+            "subnumeral",
+            "Deposito_Plazo_Adicional",  # additional term deposit
+            "Ahorro_Previsional_Voluntario_Adicional",  # additional voluntary pension savings
+        ],
+    )
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.csv", context.dataset.data.url)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    path = context.fetch_resource("source.html", context.dataset.data.url)
+    json_path = dataset_data_path(context.dataset.name) / "source.json"
 
     with open(path, "r") as fh:
-        for row in csv.DictReader(fh):
-            crawl_row(context, row)
+        html = fh.read()
+    json = REGEX_JSON.search(html).group(1)
+    with open(json_path, "w") as fh:
+        fh.write(json)
+    context.export_resource(json_path, JSON, title=context.SOURCE_TITLE)
+
+    declarations = orjson.loads(json)
+    for declaration in declarations:
+        crawl_row(context, declaration.pop("IdDeclaracion"))

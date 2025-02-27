@@ -19,16 +19,18 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("alias", brand_name if not company_name else None)
     entity.add("topics", "crime.fin")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.audit_data(row)
 
 
 def crawl(context: Context):
-    cached, path, type, charset = fetch_resource(
-        context, "source.csv", context.data_url
+    _, _, _, path = fetch_resource(
+        context,
+        "source.csv",
+        context.data_url,
+        expected_media_type=CSV,
+        expected_charset="utf-8",
     )
-    assert cached or type == CSV, type
-    assert cached or charset == "utf-8", charset
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh, delimiter=";"):

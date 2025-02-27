@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
+from structlog.testing import capture_logs
 
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
-from zavod.helpers.dates import parse_date, check_no_year, extract_years
+from zavod.helpers.dates import extract_years, extract_date
 from zavod.helpers.dates import replace_months, apply_date, apply_dates
 
 FORMATS = ["%b %Y", "%d.%m.%Y", "%Y-%m"]
@@ -19,24 +20,14 @@ def test_extract_years():
     assert len(extract_years("between 1980 and 1982")) == 2
 
 
-def test_check_no_year():
-    assert check_no_year(None) is True
-    assert check_no_year("foo") is True
-    assert check_no_year("25.2.") is True
-    assert check_no_year("25.") is True
-    assert check_no_year("with 2011") is False
+def test_extract_date(testdataset1: Dataset):
+    assert extract_date(testdataset1, "foo") == ["foo"]
+    assert extract_date(testdataset1, "2. mar 2023") == ["2023-03-02"]
+    assert extract_date(testdataset1, "2. März 2023") == ["2023-03-02"]
 
-
-def test_parse_date():
-    assert parse_date("foo", FORMATS) == ["foo"]
-    assert parse_date(None, FORMATS) == []
-    assert parse_date(None, FORMATS, "foo") == ["foo"]
-    assert parse_date("Sep 2023", FORMATS, "foo") == ["2023-09"]
-    assert parse_date("2023-01", FORMATS, "foo") == ["2023-01"]
-    assert parse_date("circa 2023", FORMATS, "foo") == ["2023"]
-    assert parse_date("circa then", FORMATS, "foo") == ["foo"]
-    assert parse_date("circa then", FORMATS) == ["circa then"]
-    assert parse_date("23.5.", FORMATS) == ["23.5."]
+    # Check always-accepted formats
+    assert "%Y-%m" not in testdataset1.dates.formats
+    assert extract_date(testdataset1, "2023-01") == ["2023-01"]
 
 
 def test_replace_months(testdataset1: Dataset):
@@ -47,30 +38,68 @@ def test_replace_months(testdataset1: Dataset):
 def test_apply_date(testdataset1: Dataset):
     data = {"id": "doe", "schema": "Person", "properties": {"name": ["John Doe"]}}
     person = Entity(testdataset1, data)
-    apply_date(person, "birthDate", None)
+
+    # None
+
+    with capture_logs() as cap_logs:
+        apply_date(person, "birthDate", None)
     assert not len(person.get("birthDate"))
+    assert cap_logs == [], cap_logs
 
-    apply_date(person, "birthDate", "2024-01-23")
+    # Good dates
+
+    with capture_logs() as cap_logs:
+        apply_date(person, "birthDate", "2024-01-23")
     assert "2024-01-23" in person.pop("birthDate")
-    apply_date(person, "birthDate", "14. März 2021")
+    assert cap_logs == [], cap_logs
+
+    with capture_logs() as cap_logs:
+        apply_date(person, "birthDate", "14. März 2021")
     assert "2021-03-14" in person.pop("birthDate")
+    assert cap_logs == [], cap_logs
 
-    apply_date(person, "birthDate", "banana")
-    assert "banana" not in person.pop("birthDate")
+    # banana
 
-    apply_dates(person, "birthDate", ["banana"])
+    with capture_logs() as cap_logs:
+        apply_date(person, "birthDate", "banana")
     assert "banana" not in person.pop("birthDate")
+    assert len(cap_logs) == 1, cap_logs
+    assert cap_logs[0]["prop"] == "birthDate", cap_logs
+
+    with capture_logs() as cap_logs:
+        apply_dates(person, "birthDate", ["banana"])
+    assert "banana" not in person.pop("birthDate")
+    assert len(cap_logs) == 1, cap_logs
+    assert cap_logs[0]["prop"] == "birthDate", cap_logs
+
+    # Year only
 
     testdataset1.dates.year_only = False
-    apply_dates(person, "birthDate", ["circa 2024"])
+    with capture_logs() as cap_logs:
+        apply_dates(person, "birthDate", ["ca 2024"])
     assert "2024" not in person.pop("birthDate")
+    assert len(cap_logs) == 1, cap_logs
+    assert cap_logs[0]["prop"] == "birthDate", cap_logs
 
     testdataset1.dates.year_only = True
-    apply_dates(person, "birthDate", ["circa 2024"])
+    with capture_logs() as cap_logs:
+        apply_dates(person, "birthDate", ["circa 2024"])
     assert "2024" in person.pop("birthDate")
     testdataset1.dates.year_only = False
+    assert cap_logs == [], cap_logs
+
+    # datetime
 
     now = datetime.now()
-    apply_date(person, "birthDate", now)
     bd = now.astimezone(timezone.utc).date().isoformat()
+    with capture_logs() as cap_logs:
+        apply_date(person, "birthDate", now)
     assert bd in person.pop("birthDate")
+    assert cap_logs == [], cap_logs
+
+    # date
+
+    with capture_logs() as cap_logs:
+        apply_date(person, "birthDate", now.date())
+    assert bd in person.pop("birthDate")
+    assert cap_logs == [], cap_logs

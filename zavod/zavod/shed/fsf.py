@@ -58,9 +58,15 @@ def parse_sanctions(context: Context, entity: Entity, entry: Element) -> None:
     for regulation in regulations:
         url = regulation.findtext("./publicationUrl")
         assert url is not None, etree.tostring(regulation)
-        sanction = h.make_sanction(context, entity, key=url)
+        program = regulation.get("programme")
+        sanction = h.make_sanction(
+            context,
+            entity,
+            program=program,
+            program_key=program,
+            key=url,
+        )
         sanction.set("sourceUrl", url)
-        sanction.add("program", regulation.get("programme"))
         sanction.add("reason", regulation.get("numberTitle"))
         sanction.add("startDate", regulation.get("entryIntoForceDate"))
         sanction.add("listingDate", regulation.get("publicationDate"))
@@ -71,6 +77,12 @@ def parse_sanctions(context: Context, entity: Entity, entry: Element) -> None:
 
 
 def parse_entry(context: Context, entry: Element) -> None:
+    eu_ref = entry.get("euReferenceNumber")
+    if eu_ref is not None:
+        entity_id = context.make_slug(eu_ref, prefix="eu-fsf")
+    else:
+        entity_id = context.make_slug("logical", entry.get("logicalId"))
+
     subject_type = entry.find("./subjectType")
     if subject_type is None:
         context.log.warning("Unknown subject type", entry=entry)
@@ -79,13 +91,13 @@ def parse_entry(context: Context, entry: Element) -> None:
     if schema is None:
         context.log.warning("Unknown subject type", type=subject_type)
         return
+    schema = context.lookup_value("schema_override", entity_id, schema)
+    if schema is None:
+        context.log.warning("Broken schema override", entity_id=entity_id)
+        return
 
     entity = context.make(schema)
-    eu_ref = entry.get("euReferenceNumber")
-    if eu_ref is not None:
-        entity.id = context.make_slug(eu_ref, prefix="eu-fsf")
-    else:
-        entity.id = context.make_slug("logical", entry.get("logicalId"))
+    entity.id = entity_id
     entity.add("notes", h.clean_note(entry.findtext("./remark")))
     entity.add("topics", "sanction")
     parse_sanctions(context, entity, entry)
@@ -127,7 +139,10 @@ def parse_entry(context: Context, entry: Element) -> None:
             lang=lang,
         )
         entity.add("title", name.get("title"), quiet=True, lang=lang)
-        entity.add("position", name.get("function"), quiet=True, lang=lang)
+        if entity.schema.is_a("Person"):
+            entity.add("position", name.get("function"), lang=lang)
+        else:
+            entity.add("notes", name.get("function"), lang=lang)
         entity.add("gender", name.get("gender"), quiet=True, lang=lang)
 
     for node in entry.findall("./identification"):
@@ -202,4 +217,4 @@ def parse_entry(context: Context, entry: Element) -> None:
         entity.add("nationality", parse_country(node), quiet=True)
 
     # context.inspect(entry)
-    context.emit(entity, target=True)
+    context.emit(entity)

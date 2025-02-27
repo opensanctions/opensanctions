@@ -26,7 +26,7 @@ def test_resources(testdataset1: Dataset):
     assert resource.size is not None
     assert resource.size > 0
     assert (
-        resource.checksum == "75149ef903dbb5707b9ee0cc03cbf5d03ec646a7"
+        resource.checksum == "b7ab865f0112bd9d24c19e3f1ccc8124835ed46a"
     ), resource_path
 
     resources.save(resource)

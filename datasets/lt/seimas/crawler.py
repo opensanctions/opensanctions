@@ -1,14 +1,9 @@
+from normality import collapse_spaces
+from xml.etree import ElementTree
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
-from normality import collapse_spaces
-from datetime import datetime
-from xml.etree import ElementTree
-
-
-def to_date(date_str: str) -> datetime:
-    date_format = "%d %B %Y"
-    return datetime.strptime(date_str, date_format)
 
 
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=0):
@@ -57,7 +52,7 @@ def crawl_member_bio(context: Context, url: str):
     person.add("sourceUrl", url)
 
     if date_of_birth:
-        person.add("birthDate", to_date(date_of_birth))
+        h.apply_date(person, "birthDate", date_of_birth)
     person.add("birthPlace", place_of_birth)
 
     position = h.make_position(
@@ -79,7 +74,7 @@ def crawl_member_bio(context: Context, url: str):
         categorisation=categorisation,
     )
 
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(position)
     context.emit(occupancy)
 

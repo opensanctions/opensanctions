@@ -14,7 +14,8 @@ description: |
 
   The data is sourced from the Indonesian General Election Commission open data portal.
 publisher:
-  name: Komisi Pemilihan Umum (KPU)
+  name: Komisi Pemilihan Umum
+  acronym: KPI
   official: true
   description: |
     The KPU - the General Election Commission of the Republic of Indonesia - is mandated to
@@ -26,3 +27,13 @@ data:
   # https://web.archive.org/web/20240105095157/https://opendatadev.kpu.go.id/sites/default/files/files/8a0d3612bda85495f2a849a6b8fcbf3d.xlsx
   url: https://opendatadev.kpu.go.id/sites/default/files/files/8a0d3612bda85495f2a849a6b8fcbf3d.xlsx
   format: XLSX
+
+assertions:
+  min:
+    schema_entities:
+      Person: 300
+      Position: 300
+  max:
+    schema_entities:
+      Person: 700
+      Position: 700

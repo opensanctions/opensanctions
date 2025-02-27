@@ -25,13 +25,23 @@ url: "https://dch.georgia.gov/office-inspector-general/georgia-oig-exclusions-li
 data:
   url: https://dch.georgia.gov/office-inspector-general/georgia-oig-exclusions-list
   format: HTML
+  lang: eng
 
+dates: 
+  formats: ["%Y%m%d"]
 assertions:
   min:
     schema_entities:
       Person: 1000 
-      Company: 150 
+      Company: 80
   max:
     schema_entities:
-      Person: 1200 
-      Company: 300 
+      Person: 1200
+      # They've previously put middle names and aliases in the business name field
+      # adding about 140 mistaken companies to the roughly 105 real companies.
+      Company: 200
+lookups: 
+  type.identifier: 
+    options:
+      - match: "01/**/1964"
+        value: null

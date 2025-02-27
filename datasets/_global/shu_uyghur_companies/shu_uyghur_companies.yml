@@ -1,0 +1,231 @@
+title: Companies Operating in the Uyghur Region
+entry_point: crawler.py
+prefix: shu-xj
+coverage:
+  frequency: monthly
+  start: 2024-12-18
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+summary: >-
+  Companies operating in Xinjiang; some engaged in labour transfer and other XUAR Government Programs.
+description: |
+  This dataset highlights the corporate landscape of the Uyghur Region, including 
+  companies involved in manufacturing, export, professional services, construction, 
+  telecommunications, and retail. It provides names, addresses, and sectors in both 
+  Chinese and English. The dataset also includes companies related to UFLPA priority 
+  sectors such as apparel, tomato, and polysilicon.
+
+  Its purpose is to provide a better understanding of the economic landscape in the 
+  Uyghur Region amid ongoing human rights concerns. This list represents publicly 
+  available information and is not an original research product of the authors or 
+  of Sheffield Hallam University.
+
+  The companies listed under *"Companies Operating in the Uyghur Region"* are based there, 
+  while those under *"Companies Named in Media and Academic Reports as Engaging in Labour 
+  Transfers or Other XUAR Government Programs"* are identified in reports for their involvement 
+  in labor transfers or other government programs in the region.
+
+  **Note:** This data is static and will be updated when new files become available.
+  This list is not exhaustive, nor does it provide data on companies that were 
+  registered, de-registered, or otherwise changed status after that time.
+  English translation is machine-generated and may not be accurate.
+  [Source: Helena Kennedy Centre for International Justice](https://www.shu.ac.uk/helena-kennedy-centre-international-justice/research-and-projects/all-projects/useful-resources)
+url: https://www.shu.ac.uk/helena-kennedy-centre-international-justice/research-and-projects/all-projects/useful-resources
+publisher:
+  name: Helena Kennedy Centre for International Justice at Sheffield Hallam University
+  acronym: SHU
+  description: |
+    The Helena Kennedy Centre for International Justice is a leading centre for social 
+    justice and human rights. Its expertise spans human rights, criminology, law, policing, 
+    and probation. The centre leads high-profile projects addressing critical issues such 
+    as modern day slavery, gender-based violence, and hate crimes.
+  url: https://www.shu.ac.uk/helena-kennedy-centre-international-justice
+  official: false
+data:
+  url: https://www.shu.ac.uk/helena-kennedy-centre-international-justice/research-and-projects/all-projects/useful-resources
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 52000
+lookups:
+  parent_company:
+    normalize: true
+    options:
+      - match: "parent company：The Fourth Prison of Xinjiang Uygur Autonomous Region (Shareholding ratio 100%)； subsidiary：1）Urumqi Wenguang Cement Factory Labor Service Company 2）Urumqi Yintong Mining Development Co., Ltd."
+        value: The Fourth Prison of Xinjiang Uygur Autonomous Region
+        # - Urumqi Wenguang Cement Factory Labor Service Company
+        # - Urumqi Yintong Mining Development Co., Ltd.
+      - match: "Parent company: 1) Xinjiang Production and Construction Corps Cotton and Linen Co., Ltd. (70.51%); 2) Aksu Kanglong Cotton Machine Service Co., Ltd. (29.48%)"
+        values:
+          - Xinjiang Production and Construction Corps Cotton and Linen Co., Ltd.
+          - Aksu Kanglong Cotton Machine Service Co., Ltd.
+      - match: parent company：Xinjiang Ruyi Textile and Garment Co. Ltd.
+        value: Xinjiang Ruyi Textile and Garment Co. Ltd.
+      - match: parent company： Anhui Haoyuanpeng Costume Co. Ltd. China and Overseas； subsidiary：
+        value: Anhui Haoyuanpeng Costume Co. Ltd. China and Overseas
+      - match: XPCC
+        value: Xinjiang Production and Construction Corps
+      - match: XPCC& Xinjiang Desun International Industry Co., Ltd
+        values:
+          - Xinjiang Production and Construction Corps
+          - Xinjiang Desun International Industry Co., Ltd
+      - match: (Xinjiang Production & Construction Corps Seventh Agricultural Division Supply an d Marketi)-[SHAREHOLDER_OF]->(新疆农垦现代农业有限公司)-[SHAREHOLDER_OF]->(第七师一二四团天泉润红番茄制品有限公司)
+        value: Xinjiang Production & Construction Corps Seventh Agricultural Division
+        ultimate: Xinjiang Production and Construction Corps
+      - match: Xinjiang Production and Construction Corps Eighth Division Tianshan Aluminum Co., Ltd. (aka New Territories Pump Group)
+        value: Xinjiang Production and Construction Corps Eighth Division Tianshan Aluminum Co., Ltd.
+        ultimate: Xinjiang Production and Construction Corps
+      - match: XPCC First Division
+        value: Xinjiang Production and Construction Corps First Division
+        ultimate: Xinjiang Production and Construction Corps
+      - match: XPCC 2nd Division
+        value: Xinjiang Production and Construction Corps Second Division
+        ultimate: Xinjiang Production and Construction Corps
+      - match: Anhui Huamao Textile Company Limited; Xinjiang Zhongtai Group Co; Xayar Prison/XPCC 2nd Division
+        values:
+          - Anhui Huamao Textile Company Limited
+          - Xinjiang Zhongtai Group Co
+          - Xinjiang Xayar Prison
+          - Xinjiang Production and Construction Corps Second Division
+      - match: XPCC/Xishan Prison
+        value: Xishan Prison
+        ultimate: Xinjiang Production and Construction Corps
+      - match: Xinjiang Huaxin Rui’an Group Co., Ltd / XPCC / Xijiang's Women's Prison
+        values:
+          - Xinjiang Huaxin Rui’an Group Co., Ltd
+          - Xinjiang Production and Construction Corps
+          - Xijiang Womens Prison
+      - match: Xinjiang Huaxin Rui’an Group Co., Ltd / Xinjiang Xayar Prison (Aksu)
+        values:
+          - Xinjiang Huaxin Rui’an Group Co., Ltd
+          - Xinjiang Xayar Prison
+      - match:
+          - JinkoSolar Holdings Company
+          - JinkoSolar
+        value: JinkoSolar Holding Co., Ltd.
+      - match:
+          - Huafu Fashion Co., Ltd.
+          - Huafu Fashion （30.62%）
+          - Huafu
+        value: Huafu Fashion Co., Ltd.
+      - match: VCARE IDH INTERNATIONAL LIMITED (Hong Kong)
+        value: VCARE IDH INTERNATIONAL LIMITED
+        country: Hong Kong
+      - match: Dalibu Group (Taiwan)
+        value: Dalibu Group
+        country: Taiwan
+      - match:
+          - Youngor
+          - Youngor Group Co. Ltd
+        value: Youngor Group Co. Ltd
+      - match: Daqo New Energy Corp
+        value: Daqo New Energy Corp
+      - match: Zhong Cheng Chuang Zhan Industrial Co Limited
+        value: Zhong Cheng Chuang Zhan Industrial Co Limited
+      - match: Beijing Dadi Zelin Silicon
+        value: Beijing Dadi Zelin Silicon
+      - match: Jihua Group Co. LTD
+        value: Jihua Group Co. Ltd
+      - match: Sichuan Mianyang Jingweida Technology Co. Ltd
+        value: Sichuan Mianyang Jingweida Technology Co. Ltd
+      - match: Ningbo Joyson Electronics Co)
+        value: Ningbo Joyson Electronics Co
+      - match: Sinoglass Housewares Co LTD
+        value: Sinoglass Housewares Co Ltd
+      - match: Bestway Global Holding Inc.
+        value: Bestway Global Holding Inc.
+      - match: Dongguan Yidong Electronic Co. Ltd
+        value: Dongguan Yidong Electronic Co. Ltd
+      - match: Shenzhen Desheng Asset Management Co., Ltd. (16.96%)
+        value: Shenzhen Desheng Asset Management Co., Ltd.
+      - match: Bestway Enterprise Company Limited
+        value: Bestway Enterprise Company Limited
+      - match: Fukui Precision Components (Shenzhen) Co Ltd.; Pengding Holdings (Shezhen) Co. Ltd.
+        values:
+          - Fukui Precision Components (Shenzhen) Co Ltd.
+          - Pengding Holdings (Shezhen) Co. Ltd.
+      - match: Xinjiang Liulang Intelligent Terminal Industrial Park Co. Ltd
+        value: Xinjiang Liulang Intelligent Terminal Industrial Park Co. Ltd
+      - match: Dongguan Industrial Investment Holding Group Co., Ltd.
+        value: Dongguan Industrial Investment Holding Group Co., Ltd.
+      - match: Xinxiang Bailu Chemical Fibre Group., Ctd
+        value: Xinxiang Bailu Chemical Fibre Group., Ltd
+      - match:
+          - Xinjiang Nonferrous
+          - Xinjiang Nonferrous Metals Group
+        value: Xinjiang Nonferrous Metals Group
+      - match: Zhaojin Mining Co., Ltd.
+        value: Zhaojin Mining Co., Ltd.
+      - match: Guanghui Group, Shaanxi Lechetu Automobile Accessories Co.
+        values:
+          - Guanghui Group, Shaanxi Lechetu Automobile Accessories Co.
+      - match: China National Petroleum Company
+        value: China National Petroleum Company
+      - match: Jiangsu Guotai Guosheng Co. Ltd; Jiangsu Guotai International Group
+        values:
+          - Jiangsu Guotai Guosheng Co. Ltd
+          - Jiangsu Guotai International Group
+      - match: Shougang Holdings Co.,
+        value: Shougang Holdings Co.
+      - match: Baowu Group
+        value: Baowu Group
+      - match: Henan Shenhuo Group
+        value: Henan Shenhuo Group
+      - match: Tianshan Aluminum
+        value: Tianshan Aluminum
+      - match: Shandong Ruyi Technology Group Co. Ltd,
+        value: Shandong Ruyi Technology Group Co. Ltd
+      # Ignoring a lot to avoid noise:
+      - match:
+          - XPCC supported
+          - XPCC affiliate
+          - East Hope
+          - East Hope Group
+          - Ningbo Hoshine/Hesheng
+          - ERKE
+          - Lutai
+          - Litai
+          - Luthai
+          - Lianfa
+          - GCL-Poly
+          - Double Coin
+          - Esquel
+          - TBEA
+          - Texhong (though the company may have sold this subsidiary)
+  type.address:
+    options:
+      - match: Hejing County, Bayingoleng Mongol Autonomous Prefecture, Xinjiang 279 On the south side of the county road and on the north side of Gonghala Village Xinjiang Hongteng Agriculture and Animal Husbandry Ecological Technology Development Co., Ltd. 1 Number
+        values:
+          - Hejing County, Bayingoleng Mongol Autonomous Prefecture, Xinjiang 279
+          - On the south side of the county road and on the north side of Gonghala Village Xinjiang Hongteng Agriculture and Animal Husbandry Ecological Technology Development Co., Ltd. 1 Number
+      - match: South of Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Kazakh Autonomous Prefecture, Xinjiang 2-2 Building (Xinrun Warehousing and Logistics Park 2 building 2 layer 44-E room number)
+        values:
+          - South of Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Kazakh Autonomous Prefecture, Xinjiang 2-2 Building
+          - Xinrun Warehousing and Logistics Park 2 building 2 layer 44-E room number
+      - match: Shenka Science and Technology Innovation Service Center, Kashi Special Zone, on the east side of Chuangye 7th Road, on the south side of Chuangye 2nd Road, in the west area of Shenzhen Industrial Park, Kashgar Economic Development Zone, Kashgar, Xinjiang
+        values:
+          - Shenka Science and Technology Innovation Service Center, Kashi Special Zone, on the east side of Chuangye 7th Road
+          - on the south side of Chuangye 2nd Road, in the west area of Shenzhen Industrial Park, Kashgar Economic Development Zone, Kashgar, Xinjiang
+      - match: South of Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Prefecture, Xinjiang 2-2 Building (Xinrun Warehousing and Logistics Park 2 building 2 layer 25 room number)
+        values:
+          - South of Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Prefecture, Xinjiang 2-2 Building
+          - Xinrun Warehousing and Logistics Park 2 building 2 layer 25 room number
+      - match: To the west of Beijing Road, to the east of Shanghai Road, to the east of Shanghai Road, to the south of Shandong Road, to the north of Hebei Road, Yining Economic Cooperation Zone, Yili Prefecture, Xinjiang 46 Building a Holiday Landscape 2 building 3 unit 4 layer 402 room
+        values:
+          - To the west of Beijing Road, to the east of Shanghai Road, to the east of Shanghai Road, to the south of Shandong Road, to the north of Hebei Road, Yining Economic Cooperation Zone, Yili Prefecture, Xinjiang 46 Building
+          - a Holiday Landscape 2 building 3 unit 4 layer 402 room
+      - match: South Attachment to Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Prefecture, Xinjiang 2 No. (Luxiang Logistics Park Office Building 1 second floor 217 Number)
+        values:
+          - South Attachment to Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Prefecture, Xinjiang 2 No.
+          - Luxiang Logistics Park Office Building 1 second floor 217 Number
+      - match: Montenegro, Toksun County, Turpan City, Xinjiang 103 East side of Provincial Highway , North of Sinopec Gas Station 1.4Kilometers away (Tokexun Yinhe Energy Investment and Construction Co., Ltd. Heishan Warehousing and Logistics Base E. seat 107 room )
+        values:
+          - Montenegro, Toksun County, Turpan City, Xinjiang 103 East side of Provincial Highway
+          - North of Sinopec Gas Station 1.4Kilometers away
+          - Tokexun Yinhe Energy Investment and Construction Co., Ltd. Heishan Warehousing and Logistics Base E. seat 107 room
+      - match: South Attachment to Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Kazakh Autonomous Prefecture, Xinjiang 2 No. (Luxiang Logistics Park Office Building 2 layer 207 Number)
+        values:
+          - South Attachment to Tuanjie South Street, Jinsongyuan Community, Railway Station Street, Dushanzi Economic and Technological Development Zone, Kuitun City, Yili Kazakh Autonomous Prefecture, Xinjiang 2 No.
+          - Luxiang Logistics Park Office Building 2 layer 207 Number

@@ -16,7 +16,6 @@ UNUSED_FIELDS = [
     "Code de la collectivité à statut particulier",
     "Code du département",
 ]
-DATE_FORMATS = ["%d/%m/%Y"]
 
 
 def crawl_row(
@@ -43,7 +42,7 @@ def crawl_row(
     context.log.debug(f"Unique ID {person.id}")
     h.apply_name(person, given_name=given_name, last_name=family_name, lang="fra")
     if birth_date:
-        person.add("birthDate", h.parse_date(birth_date, DATE_FORMATS))
+        h.apply_date(person, "birthDate", birth_date)
     person.add("gender", row.pop("Code sexe"))
     position = h.make_position(
         context,
@@ -63,12 +62,12 @@ def crawl_row(
         person,
         position,
         no_end_implies_current=True,
-        start_date=h.parse_date(start_date, DATE_FORMATS)[0] if start_date else None,
+        start_date=start_date,
         categorisation=categorisation,
     )
     if occupancy is not None:
         context.log.debug(f"Emitting PEP entities for {given_name} {family_name}")
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
     context.audit_data(row, UNUSED_FIELDS)

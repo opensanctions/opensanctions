@@ -32,9 +32,12 @@ url: "https://sanctionlist.mfa.ir"
 data:
   url: https://sanctionlist.mfa.ir/portal/catalogsearch/139
   format: HTML
+  lang: eng
 # requires API key
 ci_test: false
 
+dates: 
+  formats: ["%B %d %Y"]
 assertions:
   min:
     schema_entities:

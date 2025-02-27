@@ -5,7 +5,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
-FORMATS = ["%d/%m/%Y", "%d/%m/%y"]
 IGNORE_COLUMNS = [
     "edad",
     "votos_validos",
@@ -64,8 +63,7 @@ def crawl(context: Context):
         entity.add("position", data.pop("ocupacion"))
         entity.add("education", data.pop("nivel_escolar"))
         entity.add("political", data.pop("ujc_pcc"))
-        dob = h.parse_date(data.pop("fecha_de_nacimiento"), FORMATS)
-        entity.add("birthDate", dob)
+        h.apply_date(entity, "birthDate", data.pop("fecha_de_nacimiento"))
         entity.add("nationality", "cu")
         entity.add("topics", "role.pep")
 
@@ -81,4 +79,4 @@ def crawl(context: Context):
         context.emit(occupancy)
 
         context.audit_data(data, ignore=IGNORE_COLUMNS)
-        context.emit(entity, target=True)
+        context.emit(entity)

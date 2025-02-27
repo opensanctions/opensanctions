@@ -1,23 +1,7 @@
 import csv
 from typing import Dict
-import zavod.helpers as h
-from zavod import Context
 
-DATE_FORMATS = ["%d-%b-%Y", "%m/%d/%Y", "%d/%m/%Y", "%Y"]
-
-
-def parse_dates(date_str: str):
-    """Parse multiple dates from a string."""
-    dates = date_str.split(";")  # Split on ';' if there are multiple dates
-    parsed_dates = []
-    for date in dates:
-        date = date.strip()
-        parsed_date = h.parse_date(date, DATE_FORMATS)
-        if parsed_date:
-            parsed_dates.append(parsed_date)
-        else:
-            print(f"Warning: Could not parse date: {date}")
-    return parsed_dates
+from zavod import Context, helpers as h
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -26,26 +10,25 @@ def crawl_row(context: Context, row: Dict[str, str]):
     name = row.pop("name")
     # Split `alias` on `;` and trim any extra whitespace
     alias = row.pop("alias").split(";")
-    birth_dates = parse_dates(row.pop("date of birth"))
+    birth_dates = h.multi_split(row.pop("date of birth"), ";")
     birth_place = row.pop("place of birth").split(";")
     nationality = row.pop("nationality").split(";")
     pass_no = row.pop("passport no").split(";")
     national_id = row.pop("national id")
     address = row.pop("address").split(";")
-    listing_date = h.parse_date(row.pop("listed on"), DATE_FORMATS)
+    listing_date = row.pop("listed on")
     sanction_status = row.pop("sanction status")
     remarks = row.pop("remarks")
 
     entity = None
     if entity_type == "INDIVIDUALS":
         entity = context.make("Person")
-        entity.id = context.make_id(name, birth_dates, unsc_id)
+        entity.id = context.make_id(name, national_id, unsc_id)
         entity.add("name", name)
         for a in alias:  # Add aliases
             entity.add("alias", a.strip())
-        for d_list in birth_dates:
-            for d in d_list:
-                entity.add("birthDate", d)
+        for date in birth_dates:
+            h.apply_date(entity, "birthDate", date)
         for p in birth_place:
             entity.add("birthPlace", p.strip())
         for n in nationality:
@@ -73,16 +56,16 @@ def crawl_row(context: Context, row: Dict[str, str]):
             entity.add("address", address)
         entity.add("notes", remarks)
         sanction = h.make_sanction(context, entity)
-        sanction.add("listingDate", listing_date)
+        h.apply_date(sanction, "listingDate", listing_date)
         sanction.add("unscId", unsc_id)
         context.emit(sanction)
         if sanction_status == "ACTIVE":
             entity.add("topics", "sanction")
-            context.emit(entity, target=True)
+            context.emit(entity)
         else:
             if not sanction_status == "REMOVED":
                 context.log.warning("Unexpected sanction status", entity=entity.id)
-            context.emit(entity, target=False)
+            context.emit(entity)
 
     elif entity_type == "GROUP":
         entity = context.make("Organization")
@@ -94,12 +77,12 @@ def crawl_row(context: Context, row: Dict[str, str]):
         for a in address:
             entity.add("address", a.strip())
         sanction = h.make_sanction(context, entity)
-        sanction.add("listingDate", listing_date)
+        h.apply_date(sanction, "listingDate", listing_date)
         sanction.add("unscId", unsc_id)
         context.emit(sanction)
         if sanction_status == "ACTIVE":
             entity.add("topics", "sanction")
-            context.emit(entity, target=True)
+            context.emit(entity)
         else:
             if not sanction_status == "REMOVED":
                 context.log.warning(
@@ -107,7 +90,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
                     value=sanction_status,
                     entity=entity.id,
                 )
-            context.emit(entity, target=False)
+            context.emit(entity)
     else:
         context.log.warning("Unhandled entity type", type=entity_type)
 

@@ -4,6 +4,8 @@ Excellent dataset metadata is a relatively low-effort way to demonstrate the tra
 
 Remember to give the context that people from different countries need to make sense of systems they are not entirely familiar with. Share what you learned when figuring out what a source dataset represents.
 
+Use the `.yml` extension.
+
 ## Properties:
 
 ### Basics
@@ -54,6 +56,12 @@ Remember to give the context that people from different countries need to make s
     - `url`- The link to a bulk download or API base URL or endpoint - ideally something you can use within the crawler via `context.data_url` to request the data, and which ideally returns a useful response when followed by dataset users. It's not the end of the world if you make other requests to expand the data available to the crawler.
     - `format` a string defining the format of the data at that URL, e.g. `JSON`, `HTML`, `XML`. A Zip file containing thousands of YAML files might be more usefully annoted with `YAML` than `ZIP` because it conveys the structural syntax of the data.
 
+### Date formatting
+
+- `dates` - date formatting used by [helpers.apply_date and apply_dates](helpers.md#zavod.helpers.apply_date) but also accessible via the context for use in `helpers.parse_date`.
+  - `formats`: Array of date format strings for parsing dates into partial ISO dates
+  - `months`: Map where values like `März` are translated into keys like `"3"` so that it could then be parsed by a format string like `%m`
+
 ### HTTP options
 
 HTTP requests for GET requests are automatically retried for connection and HTTP errors. Some of this retry behaviour can be configured from the dataset metadata if needed.
@@ -63,7 +71,7 @@ HTTP requests for GET requests are automatically retried for connection and HTTP
     - `backoff_factor`: float, default `1`. [Scales the exponential backoff](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS:~:text=with%20None.-,backoff_factor,-(float)%20%E2%80%93).
     - `max_retries`: integer in seconds, default `3`
     - `retry_methods`: List of strings, [default](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS) `['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'TRACE']`
-    - `retry_statuses`: List of integers of HTTP error codes to retry, default `[413, 429, 503]`.
+    - `retry_statuses`: List of integers of HTTP error codes to retry, default `[413, 429, 500, 502, 503]`.
   
 ### Data assertions
 
@@ -75,39 +83,34 @@ Data assertions are useful to communicate our expectations about what's in a dat
 
 We usually use the minima to set a baseline for what should be in the dataset, and one or more simpler maxima to just identify when the dataset has grown beyond the validity of our earlier baseline, or if something's gone horribly wrong and emitted way more than expected.
 
-It's a good idea to add assertions at the start of writing a crawler, and then see whether those expectations are met when the crawler is complete. A good rule of thumb for datasets that change over time is minima 10% below the expected number to allow normal variation, unless there's a known hard minimum, and a maximum around 20% above the expectation to leave room to grow, if the number is expected to fluctuate.
+It's a good idea to add assertions at the start of writing a crawler, and then see whether those expectations are met when the crawler is complete. A good rule of thumb for datasets that change over time is minima 10% below the expected number to allow normal variation, unless there's a known hard minimum, and a maximum around twice the expected number of entities to leave room to grow.
 
 - `assertions`
+  - `min` violations abort the crawler run.
+  - `max` violations only result in a Warning.
   - `min` and `max` can each have the following children
-    - `schema_entities` - its children are Thing descendants with their value being an integer indicating the minimum or maximum number of entities of that schema
-    - `country_entities` - its children are ISO 3166-1 Alpha-2 country codes, with their value being an integer indicating the min or max entities with that country
-    - `countries` - its value is an integer indicating the min or max number of countries expected to come up in the dataset
+    - `schema_entities` asserts on the number of entities of a given schema
+    - `country_entities` asserts on the number of entities associated with a country in any of its properties. All properties with type `country` are considered (among them the usual suspects such as `country`, `jurisdiction` and `citizenship`). Countries are given as ISO 3166-1 Alpha-2 country codes.
+    - `countries` asserts on number of countries expected to come up in the dataset
+    - `entities_with_prop` asserts on the number of entities of a given schema that have a property set.
 
-
-e.g. the following means
-
-- at least 160 Persons
-- at least 30 Positions
-- at least 40 entities for the US
-- at least 30 entities for China
-- at least one entity for Brunei
-- at least 6 countries
-- at most 200 Persons
-- at most 40 Positions
 
 ```yaml
 assertions:
   min:
     schema_entities:
-      Person: 160
-      Position: 30
+      Person: 160  # at least 160 Person entities 
+      Position: 30  # at least 30 Position entities
     country_entities:
-      us: 40
-      cn: 30
-      bn: 1
-    countries: 6
+      us: 40  # at least 40 entities for the US
+      cn: 30  # at least 30 entities for China
+      bn: 1  # at least one entity for Brunei
+    countries: 6  # at least 6 countries come up
+    entities_with_prop:
+      Company:
+        taxNumber: 10  # at least 10 Companies have a tax number set
   max:
     schema_entities:
-      Person: 200
-      Position: 40
+      Person: 400  # at most 400 Person entities
+      Position: 80  # at most 80 Position entities
 ```

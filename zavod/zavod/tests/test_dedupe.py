@@ -5,8 +5,9 @@ from zavod.archive import dataset_state_path
 from zavod.meta import Dataset
 from zavod.store import get_store
 from zavod.crawl import crawl_dataset
-from zavod.dedupe import get_resolver, blocking_xref, AUTO_USER
-from zavod.dedupe import merge_entities, explode_cluster
+from zavod.integration import get_resolver
+from zavod.integration.dedupe import blocking_xref, AUTO_USER
+from zavod.integration.dedupe import merge_entities, explode_cluster
 
 
 def test_store_access(testdataset1: Dataset):

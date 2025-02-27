@@ -1,0 +1,56 @@
+title: US Kansas Medicaid Terminated Provider List
+entry_point: crawler.py
+prefix: us-medks
+coverage:
+  frequency: daily
+  start: "2024-09-13"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been terminated for cause from Kansas' Medicaid program.
+description: |
+  The Kansas Department of Health and Environment Division of Health Care Finance maintains a list of providers
+  whose Medicaid provider agreement has been terminated. Providers listed are not allowed to receive
+  reimbursement for Medicaid services in any capacity.
+publisher:
+  name: Kansas Department of Health and Environment
+  description: The Kansas Department of Health and Environment manages Medicaid, public health programs,
+   and environmental regulations in the state of Kansas.
+  acronym: KDHE
+  url: https://www.kdhe.ks.gov/159/Medicaid-Health-Care-Finance
+  official: true
+  country: "us"
+url: "https://www.kdhe.ks.gov/172/Medicaid"
+data:
+  url: https://www.kdhe.ks.gov/172/Medicaid
+  format: HTML
+ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 100 
+  max:
+    schema_entities:
+      LegalEntity: 200 
+
+lookups:
+  type.identifier:
+    options:
+      - match: 1760461909 (Nashville)
+        value: 1760461909
+      - match: 1669527370 for A location
+        value: 1669527370
+      - match: 1588845929 1619155512
+        values:
+          - 1588845929
+          - 1619155512
+      - match: n/a for B location
+        value: null
+      - match: 1386873693 (Mitten)
+        value: 1386873693
+      - match: "N/A"
+        value: null
+  type.string: 
+    options: 
+      - match: "N/A"
+        value: null

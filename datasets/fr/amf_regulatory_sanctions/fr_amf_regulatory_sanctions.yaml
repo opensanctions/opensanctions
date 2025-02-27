@@ -97,6 +97,7 @@ lookups:
           - Ecureuil Gestion
       - match: 'venant aux droits de la société Néville Gestion'
         entities:
+          - Néville Gestion
       - match: 'CAISSE NATIONALE DES CAISSES D’EPARGNE ET DE PREVOYANCE, CAISSES D’EPARGNE DE PROVENCE ALPES CORSE, BOURGOGNE FRANCHE-COMTE, ILE DE FRANCE (venant aux droits des CAISSES D’EPARGNE D’ILE DE FRANCE PARIS ’ILE DE FRANCE NORD), AQUITAINE POITOU-CHARENTES (venant aux droits des CAISSES D’EPARGNE D’AQUITAINE NORD et de POITOU-CHARENTES), NORMANDIE (venant aux droits de la CAISSE D’EPARGNE DE BASSE NORMANDIE), COTE D’AZUR, ET RHONE-ALPES (venant aux droits des CAISSES D’EPARGNE DE RHONE-ALPES LYON et DES ALPES)'
         entities:
           - la Caisse Nationale des Caisses d'Epargne et de Prévoyance
@@ -228,6 +229,9 @@ lookups:
         entities:
           - Biophytis
           - Stanislas Veillet
+      - match: Société Biophytis
+        entities:
+          - Biophytis
       - match: ', Natixis Asset Management Finance, Natixis Investment Managers International<br />'
         entities:
           - Natixis Asset Management Finance
@@ -955,3 +959,86 @@ lookups:
       - match: 'et Refco Securities SA'
         entities:
           - Refco Securities SA
+      - match: 'La société Sogenial Immobilier<br /> M. Jean-Marie Souclier'
+        entities:
+          - Sogenial Immobilier
+          - Jean-Marie Souclier
+      - match: 'Société Forest Invest'
+        entities:
+          - Forest Invest
+      - match: Société Financière Henry IV Société Nouvelle
+        entities:
+          - Financière Henry IV
+          - Nouvelle
+      - match: 'La société Smart Treso Conseil<br /> La société Entrepreneur Invest<br /> La société Eurotitrisation<br /> La société Caceis Bank venant aux droits de Caceis Investor Services Bank France (anciennement RBC Investor Services Bank France)<br /> Mme Edith Lusson<br /> M. Jean-Yves Bajon<br /> . Romain Bertrand<br /> M. Frédéric Zablocki<br /> M. Julien Leleu'
+        entities:
+          - Smart Treso Conseil
+          - Entrepreneur Invest
+          - Eurotitrisation
+          - Caceis Bank
+          - ['Caceis Investor Services Bank France', 'RBC Investor Services Bank France']
+          - Edith Lusson
+          - Jean-Yves Bajon
+          - Romain Bertrand
+          - Frédéric Zablocki
+          - Julien Leleu
+        relationships:
+          - schema: Succession
+            from_prop: predecessor
+            from: ['Caceis Investor Services Bank France', 'RBC Investor Services Bank France']
+            to_prop: successor
+            to: Caceis Bank
+            role: venant aux droits
+      - match: 'Sociétés Novaxia Investissement, Novaxia Développement, Novaxia Gestion, Novaxia' 
+        entities:
+          - Novaxia Investissement
+          - Novaxia Développement
+          - Novaxia Gestion
+          - Novaxia
+      - match: 'La société European High Growth Opportunities Manco SA<br /> La société Alpha Blue Ocean Inc<br /> La société Auplata Mining Group AMG<br /> La société RSM Paris SAS <br /> M. Stéphane Marie<br /> M. Didier Tamagno<br /> M. Pierre Vannineuse<br />'
+        entities:
+          - European High Growth Opportunities Manco SA
+          - Alpha Blue Ocean Inc
+          - Auplata Mining Group AMG
+          - RSM Paris SAS
+          - Stéphane Marie
+          - Didier Tamagno
+          - Pierre Vannineuse
+      - match: 'La société ECOR1 CAPITAL<br /> M. Oleg Nodelman'
+        entities:
+          - ECOR1 CAPITAL
+          - Oleg Nodelman
+      - match: GSD Gestion
+        entities:
+          - GSD Gestion
+      - match: 'Sociétés Prologue et Le Quotidien de Paris Editions'
+        entities:
+          - Prologue
+          - Le Quotidien de Paris Editions
+      - match: 'La société Pharnext<br /> M. Daniel Cohen<br /> M. David Horn Solomon'
+        entities:
+          - Pharnext
+          - Daniel Cohen
+          - David Horn Solomon
+      - match: 'Madame Adriana Marglewska<br /> Monsieur Frédéric Marty<br /> Monsieur Olivier Blin'
+        entities:
+          - Adriana Marglewska
+          - Frédéric Marty
+          - Olivier Blin
+      - match: 'La société Skylar France . Cédric Chaboud'
+        entities:
+          - Skylar France
+          - Cédric Chaboud
+      - match: 'La société DIGNE CONSEILS & GESTION . Patrice DIGNE'
+        entities:
+          - DIGNE CONSEILS & GESTION
+          - Patrice DIGNE
+      - match: "La Société de gestion des fonds d'investissement de Bretagne . Florent de Kersauson"
+        entities:
+          - Société de gestion des fonds d'investissement de Bretagne
+          - Florent de Kersauson
+      - match: 'La société Efigest Conseil<br /> M. Jean-Noël Vignon<br /> M. Sylvain Bruley'
+        entities:
+          - Efigest Conseil
+          - Jean-Noël Vignon
+          - Sylvain Bruley

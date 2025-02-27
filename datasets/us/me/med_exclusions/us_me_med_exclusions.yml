@@ -1,0 +1,47 @@
+title: US Maine Medicaid Excluded Providers
+entry_point: crawler.py
+prefix: us-medme
+coverage:
+  frequency: daily
+  start: "2024-12-13"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of providers excluded from Maine's Medicaid program.
+description: |
+  MaineCare Services publishes a monthly report listing providers excluded from the state Medicaid
+  program. Since the report is updated monthly, it may not include providers excluded within the
+  last 30 days. In such cases, MaineCare Services recommends conducting a name search using their
+  [portal](https://mainecare.maine.gov/mhpviewer.aspx?FID=MEEX).
+publisher:
+  name: Maine Department of Health and Human Services
+  description: |
+    > The Maine Department of Health and Human Services (DHHS) is dedicated to promoting health,
+    > safety, resilience, and opportunity for Maine people. The Department provides health and
+    > social services to approximately a third of the State's population, including children,
+    > families, older Mainers, and individuals with disabilities, mental illness, and substance
+    > use disorders.
+    [Source: Official Website](https://www.maine.gov/dhhs/about-us)
+  acronym: DHHS
+  url: https://www.maine.gov/dhhs/
+  official: true
+  country: "us"
+url: "https://mainecare.maine.gov/mhpviewer.aspx?FID=MEEX"
+data:
+  url: https://mainecare.maine.gov/PrvExclRpt/Forms/AllItems.aspx
+  format: XLSX
+
+lookups: 
+  type.string: 
+    options:
+      - match: N/A
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 900
+      Company: 5
+  max:
+    schema_entities:
+      Person: 1200
+      Company: 20

@@ -1,44 +1,11 @@
 import json
 import zipfile
-from typing import Dict, Any
+from typing import Dict, Any, List
 from followthemoney.types import registry
 from zavod import Context
-import re
-
-from zavod.entity import Entity
 
 IGNORE_SCHEMATA = ["Event", "Documentation", "Document"]
 IGNORE_PROPS = ["proof"]
-
-# Unified regex pattern to extract codes
-REGEX_CODES = {
-    "okpoCode": re.compile(
-        r"All-Russian Classifier of Enterprises and Organizations \(OKPO\): (\d+)"
-    ),
-    "ogrnCode": re.compile(r"Primary State Registration Number \(OGRN\): (\d+)"),
-    "innCode": re.compile(r"Taxpayer Identification Number \(INN\): (\d+)"),
-    "kppCode": re.compile(r"Reason for Registration Code \(KPP\): (\d+)"),
-}
-
-
-def parse_identifiers(entity: Entity, properties: Dict[str, Any]) -> None:
-    if "idNumber" in properties:
-        id_numbers = properties.get("idNumber")
-        new_id_numbers = []
-
-        for value in id_numbers:
-            for prop, regex in REGEX_CODES.items():
-                match = regex.search(value)
-                if match:
-                    if prop not in entity.schema.properties:
-                        continue
-                    value = regex.sub("", value, 1)
-                    if prop not in properties:
-                        properties[prop] = []
-                    properties[prop].append(match.group(1))
-            if value:
-                new_id_numbers.append(value)
-        properties["idNumber"] = new_id_numbers
 
 
 def parse_entity(context: Context, data: Dict[str, Any]) -> None:
@@ -48,13 +15,10 @@ def parse_entity(context: Context, data: Dict[str, Any]) -> None:
     entity = context.make(data["schema"])
     entity.id = context.make_slug(data["id"])
 
-    properties = data.get("properties", {})
-    parse_identifiers(entity, properties)
-
+    properties: Dict[str, List[str]] = data.pop("properties", {})
     for prop_name, values in properties.items():
         if prop_name in IGNORE_PROPS:
             continue
-
         prop = entity.schema.get(prop_name)
         if prop is None:
             alias_prop = context.lookup_value("props", prop_name)
@@ -63,11 +27,34 @@ def parse_entity(context: Context, data: Dict[str, Any]) -> None:
                 continue
             prop = entity.schema.get(alias_prop)
 
-        assert prop is not None
         for value in values:
+            prop_ = prop
+            original_value = value
             if prop.type == registry.entity:
                 value = context.make_slug(value)
-            entity.unsafe_add(prop, value, cleaned=True)
+            if prop.name == "idNumber":
+                if ":" not in value:
+                    context.log.warn(
+                        "Invalid idNumber value",
+                        entity=entity,
+                        value=value,
+                    )
+                else:
+                    scheme, value = value.split(":", 1)
+                    res = context.lookup_value("id_scheme", scheme)
+                    if res is None:
+                        context.log.warn(
+                            "Unknown id scheme",
+                            entity=entity,
+                            scheme=scheme,
+                            value=value,
+                        )
+                    else:
+                        if res == "kppCode":
+                            entity.add_schema("Company")
+                        prop_ = entity.schema.get(res)
+
+            entity.add(prop_, value, original_value=original_value)
 
     context.emit(entity)
 

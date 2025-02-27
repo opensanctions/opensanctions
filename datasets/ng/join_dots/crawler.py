@@ -118,12 +118,11 @@ def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
                 no_end_implies_current=False,
                 start_date=start_date,
                 end_date=end_date,
-                birth_date=birth_date,
                 categorisation=categorisation,
             )
 
             if occupancy:
-                context.emit(entity, target=True)
+                context.emit(entity)
                 context.emit(occupancy)
                 context.emit(position)
 

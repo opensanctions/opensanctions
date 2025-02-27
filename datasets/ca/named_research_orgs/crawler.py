@@ -22,7 +22,7 @@ def parse_html(doc: ElementOrTree):
             continue
         country_str = country_match.group(1).strip()
 
-        aliases_el = nro_element.find(".//ul")
+        aliases_el = nro_element.find(".//p")
         if aliases_el is None:
             aliases_str = ""
         else:
@@ -63,7 +63,7 @@ def emit_nro(context: Context, nro):
     for alias in nro.get("weak_aliases", []):
         entity.add("weakAlias", alias)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
 
     sanction = h.make_sanction(context, entity)
     sanction.add(

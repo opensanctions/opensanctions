@@ -2,7 +2,7 @@ from pathlib import Path
 from lxml import html, etree
 from time import sleep
 from base64 import b64decode
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
@@ -19,8 +19,10 @@ ZYTE_API_URL = "https://api.zyte.com/v1/extract"
 
 
 class UnblockFailedException(RuntimeError):
-    def __init__(self, url: str):
-        super().__init__(f"Unblocking failed for URL: {url}")
+    def __init__(self, url: str, validator: str):
+        super().__init__(
+            f"Unblocking failed for URL: '{url}' with validator: '{validator}'"
+        )
 
 
 def get_content_type(headers: List[Dict[str, str]]) -> Tuple[str, str | None]:
@@ -51,30 +53,40 @@ def fetch_resource(
     context: Context,
     filename: str,
     url: str,
-) -> Tuple[bool, Path, str | None, str | None]:
+    expected_media_type: Optional[str] = None,
+    expected_charset: Optional[str] = None,
+    geolocation: Optional[str] = None,
+) -> Tuple[bool, str | None, str | None, Path]:
     """
     Fetch a resource using Zyte API and save to filesystem.
 
     The content type and charset can be used to assert expected
     types (and successful unblocking by Zyte) and for appropriate
-    text decoding when the encoding can vary.
+    text decoding when the encoding can vary. Do so via the expected_
+    arguments unless more logic is required.
 
     Args:
         context: The context object.
         filename: The name to use when saving the file.
         url: The URL of the resource.
+        expected_media_type: If set, assert that the media type in the
+            response content-type header matches this value. Not enforced
+            when the file already exists locally.
+        expected_charset: If set, assert that the charset in the response
+            content-type header matches this value. Not enforced
+            when the file already exists locally.
 
     Returns:
         A tuple of:
-        - A boolean indicating whether the file was cached.
-        - The path to the saved file.
-        - The media type of the response, None if cached.
-        - The charset of the response, None if cached.
+            - A boolean indicating whether the file was cached.
+            - The path to the saved file.
+            - The media type of the response, None if cached.
+            - The charset of the response, None if cached.
     """
     data_path = dataset_data_path(context.dataset.name)
     out_path = data_path.joinpath(filename)
     if out_path.exists():
-        return True, out_path, None, None
+        return True, None, None, out_path
 
     if settings.ZYTE_API_KEY is None:
         raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
@@ -84,6 +96,8 @@ def fetch_resource(
         "httpResponseBody": True,
         "httpResponseHeaders": True,
     }
+    if geolocation is not None:
+        zyte_data["geolocation"] = geolocation
     context.log.debug(f"Zyte API request: {url}", data=zyte_data)
     zyte_data["url"] = url
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -100,7 +114,13 @@ def fetch_resource(
     with open(out_path, "wb") as fh:
         fh.write(b64decode(file_base64))
     media_type, charset = get_content_type(api_response.json()["httpResponseHeaders"])
-    return False, out_path, media_type, charset
+
+    if expected_media_type:
+        assert media_type == expected_media_type, (media_type, charset, url)
+    if expected_charset:
+        assert charset == expected_charset, (media_type, charset, url)
+
+    return False, media_type, charset, out_path
 
 
 def fetch_text(
@@ -112,6 +132,30 @@ def fetch_text(
     expected_charset: Optional[str] = None,
     geolocation: Optional[str] = None,
 ) -> Tuple[bool, str | None, str | None, str]:
+    """
+    Fetch a text document using the Zyte API.
+
+    The content type and charset can be used to assert expected
+    types (and successful unblocking by Zyte) and for appropriate
+    text decoding when the encoding can vary. Do so via the expected_
+    arguments unless more logic is required.
+
+    Args:
+        context: The context object.
+        url: The URL of the text document.
+        headers: A list of dicts of headers to send with the request.
+        expected_media_type: If set, assert that the media type in the
+            response content-type header matches this value.
+        expected_charset: If set, assert that the charset in the response
+            content-type header matches this value.
+
+    Returns:
+        A tuple of:
+            - A boolean indicating whether the text was cached.
+            - The media type of the response, None if cached.
+            - The charset of the response, None if cached.
+            - The text content.
+    """
     if settings.ZYTE_API_KEY is None:
         raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
 
@@ -151,10 +195,13 @@ def fetch_text(
     api_response.raise_for_status()
 
     media_type, charset = get_content_type(api_response.json()["httpResponseHeaders"])
-    assert charset is not None, zyte_data
     text_b64 = api_response.json()["httpResponseBody"]
     assert text_b64 is not None
-    text = b64decode(text_b64).decode(charset)
+    bytes = b64decode(text_b64)
+    if charset is None:
+        text = bytes.decode()
+    else:
+        text = bytes.decode(charset)
 
     if expected_media_type:
         assert media_type == expected_media_type, (media_type, charset, text)
@@ -191,10 +238,11 @@ def fetch_json(
 def fetch_html(
     context: Context,
     url: str,
-    unblock_validator: Callable[[etree._Element], bool],
+    unblock_validator: str,
     actions: list[Dict[str, Any]] = [],
     html_source: str = "browserHtml",
     javascript: Optional[bool] = None,
+    geolocation: Optional[str] = None,
     cache_days: Optional[int] = None,
     fingerprint: Optional[str] = None,
     retries: int = 3,
@@ -207,9 +255,9 @@ def fetch_html(
     Args:
         context: The context object.
         url: The URL of the web page.
-        unblock_validator: A function that checks if the page is unblocked
-            successfully. This is important to ensure we don't cache pages
-            that weren't actually unblocked successfully.
+        unblock_validator: XPath matching at least one element if and only if
+            unblocking was successful. This is important to ensure we don't cache
+            pages that weren't actually unblocked successfully.
         actions: A list of dicts of actions to attempt on a rendered page.
         html_source: browserHtml | httpResponseBody
         javascript: Whether to execute JavaScript on the page.
@@ -231,6 +279,8 @@ def fetch_html(
     }
     if javascript is not None:
         zyte_data["javascript"] = javascript
+    if geolocation is not None:
+        zyte_data["geolocation"] = geolocation
 
     if fingerprint is None:
         # Slight abuse of the cache key to produce keys of the usual style.
@@ -257,6 +307,9 @@ def fetch_html(
         json=zyte_data,
     )
     api_response.raise_for_status()
+    for action in api_response.json().get("actions", []):
+        context.log.info("Zyte action result", **action)
+
     text = api_response.json()[html_source]
     assert text is not None
     if html_source == "httpResponseBody":
@@ -267,7 +320,8 @@ def fetch_html(
         text = b64decode(text).decode(charset)
     doc = html.fromstring(text)
 
-    if not unblock_validator(doc):
+    matches = doc.xpath(unblock_validator)
+    if not isinstance(matches, list) or not len(matches) > 0:
         if previous_retries < retries:
             pause = backoff_factor * (2 ** (previous_retries + 1))
             context.log.debug(
@@ -290,7 +344,7 @@ def fetch_html(
                 previous_retries=previous_retries + 1,
             )
         context.log.debug("Unblocking failed", url=url, html=text)
-        raise UnblockFailedException(url)
+        raise UnblockFailedException(url, unblock_validator)
 
     if cache_days is not None:
         context.cache.set(fingerprint, text)

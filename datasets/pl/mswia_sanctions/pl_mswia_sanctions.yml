@@ -35,8 +35,34 @@ data:
   url: https://www.gov.pl/web/mswia/lista-osob-i-podmiotow-objetych-sankcjami
   format: HTML
   lang: pol
+
 dates:
-  formats: ["%d.%m.%Y"]
+  formats: ["%d %m %Y", "%d.%m.%Y", "%d %B %Y"]
+  months:
+    "01": stycznia
+    "02": lutego
+    "03": marca
+    "04": kwietnia
+    "05": maja
+    "06": czerwca
+    "07":
+      - lipca
+      - lipiec
+    "08": sierpnia
+    "09": września
+    "10": października
+    "11": listopada
+    "12": grudnia
+
+assertions:
+  min:
+    schema_entities:
+      Person: 420
+      Company: 90
+  max:
+    schema_entities:
+      Person: 450
+      Company: 110
 
 lookups:
   type.identifier:
@@ -46,10 +72,20 @@ lookups:
         values:
           - 0001008314
           - 523931831
+      - match: 79090613232)
+        value: 79090613232
+  type.name: 
+    options:
+      - match: "GO SPORT POLSKA Sp. z o.o. w upadłości"
+        value: GO SPORT POLSKA Sp. z o.o.
   details:
     normalize: true
     lowercase: true
     options:
+      - match:
+          - (
+          - ","
+        props: {}
       - match: ul. Udalcowa 2, Moskwa, Federacja Rosyjska
         props:
           address: ul. Udalcowa 2, Moskwa, Federacja Rosyjska
@@ -59,46 +95,22 @@ lookups:
       - match: 39A/2 Leningradskoje Szosse 125212 Moskwa, Rosja
         props:
           address: 39A/2 Leningradskoje Szosse 125212 Moskwa, Rosja
-      - match: urodzona 16 października 1975 r.
+      - match: w Dzierżyńsku
         props:
-          birthDate: 1975-10-16
-      - match: urodzony 2 stycznia 1968 r. w Dzierżyńsku
-        props:
-          birthDate: 1968-01-02
           birthPlace: Dzerzhinsk
-      - match: urodzony 21 kwietnia 1964 r. we Lwowie
+      - match: we Lwowie
         props:
-          birthDate: 1964-04-21
           birthPlace: Lviv
-      - match: 13.05.2022 r.
+      - match: w Moskwie
         props:
-          modifiedAt: 2022-05-13
-      - match: urodzony 8 września 1953 r. w Moskwie
-        props:
-          birthDate: 1953-09-08
           birthPlace: Moscow
-      - match: urodzony 27 sierpnia 1969 r. w Kaliningradzie (Federacja Rosyjska)
+      - match: ob. Federacji Rosyjskiej
         props:
-          birthDate: 1969-08-27
-          birthPlace: Kaliningrad
-      - match: urodzony 18 lipca 1958 r. ob. Federacji Rosyjskiej
-        props:
-          birthDate: 1958-07-18
           country: ru
-      - match: urodzony 7 września 1960 r. w Leningradzie
+      - match: "w Wilnie (Litwa) obywatel rosyjski nr"
         props:
-          birthDate: 1960-09-07
-          birthPlace: Leningrad
-      - match: urodzony 14 kwietnia 1957 r. w Drohobyczu
-        props:
-          birthDate: 1957-04-14
-          birthPlace: Drohobych
-      - match: "urodzony 15 listopada 1963 r. w Wilnie (Litwa) obywatel rosyjski nr PESEL: 63111513931"
-        props:
-          birthDate: 1963-11-15
           birthPlace: Vilnius
-          nationality: RU
-          idNumber: "63111513931"
+          citizenship: RU
       - match: Plac Dąbrowskiego 1, 00-057 Warszawa,
         props:
           address: Plac Dąbrowskiego 1, 00-057 Warszawa
@@ -108,11 +120,60 @@ lookups:
           registrationNumber: 147421934
       - match: "obywatel Mołdawii i Izraela"
         props:
-          nationality: ["MD", "IL"]
-      - match: "urodzonej 6 lipca 1972 r."
-        props:
-          birthDate: 1972-07-06
+          citizenship: ["MD", "IL"]
       - match: "adres: Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan, nr identyfikacyjny BIN: 220540011771"
         props:
           address: "Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan"
           idNumber: "220540011771"
+          registrationNumber: "220540011771"
+      - match: 'adres: Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan (w języku rosyjskim: проезд Ярослава Гашека, 1 Петропавловск, Казахстан) nr identyfikacyjny BIN: 191040021834'
+        props:
+          address: "Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan"
+          registrationNumber: "191040021834"
+      - match: 'adres: ul. Bohaterów II Armii Wojska Polskiego 12, 59-900 Zgorzelec '
+        props:
+          address: "ul. Bohaterów II Armii Wojska Polskiego 12, 59-900 Zgorzelec"
+      - match: 'adres: ul. Towarowa 28, 00-839 Warszawa '
+        props:
+          address: "ul. Towarowa 28, 00-839 Warszawa"
+      - match: w Leningradzie
+        props:
+          birthPlace: Leningrad
+      - match: w Drohobyczu
+        props:
+          birthPlace: Drohobych
+      - match: w Kaliningradzie (Federacja Rosyjska)
+        props:
+          birthPlace: Kaliningrad
+      - match: urodzonego 24 listopada 1961 r.
+        props:
+          birthDate: 1961-11-24
+      - match: urodzonej 6 lipca 1972 r.
+        props:
+          birthDate: 1972-07-06
+      - match: 'adres: ul. Pobedy 38A, Koptevka, Republika Białorusi (nazwa rosyjskojęzyczna: yл. Поведы, дом 38A, aг. Коптевка, Беларусь) numer rejestrowy: 591534088'
+        props:
+          address: "ul. Pobedy 38A, Koptevka, Republika Białorusi"
+          registrationNumber: "591534088"
+      - match: 'adres: ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa '
+        props:
+          address: "ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa"
+      - match: 'adres: Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa'
+        props:
+          address: "Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa"
+      - match: 'adres: Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie (nazwa arabska: مكتب 02 ملك عابر خلفان محمد خلفان الهاملىالثنية االولى) numer rejestrowy: 2823197'
+        props:
+          address: "Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie"
+          registrationNumber: "2823197"
+      - match: 'adres: Mińsk, 220137, ul. Naklonnaya 28, Republika Białorusi (nazwa rosyjskojęzyczna: Минск, 220137, ул. Наклонная 28) numer rejestrowy: 193256472'
+        props:
+          address: "Mińsk, 220137, ul. Naklonnaya 28, Republika Białorusi"
+          registrationNumber: "193256472"
+      - match: 'adres: Republika Białorusi, 220137, Mińsk, ul. Naklonnaya 28 (nazwa rosyjskojęzyczna: Республика Беларусь, 220137, г Минск, ул. Наклонная, д 28) numer rejestrowy: 193648909'
+        props:
+          address: "Republika Białorusi, 220137, Mińsk, ul. Naklonnaya 28"
+          registrationNumber: "193648909"
+      - match: 'adres: Pantelis Katelaris, 16, Diagoras Building, Floor 3, Flat 303, 1097 Nicosia, Cyprus, numer rejestrowy: C392309'
+        props:
+          address: "Pantelis Katelaris, 16, Diagoras Building, Floor 3, Flat 303, 1097 Nicosia, Cyprus"
+          registrationNumber: "C392309"

@@ -1,7 +1,10 @@
+import logging
 from zipfile import ZipFile
 from lxml import etree
 from typing import IO
 from lxml.etree import _Element as Element, tostring
+
+import zavod
 from followthemoney.util import make_entity_id
 
 from zavod import Context
@@ -140,6 +143,10 @@ def parse_uo(context: Context, fh: IO[bytes]):
 
 
 def crawl(context: Context):
+    # This crawler emits too many non-actionable warnings, so disable reporting to Sentry for now
+    # TODO(Leon Handreke): Clean this up https://github.com/opensanctions/opensanctions/issues/1908
+    zavod.logs.set_sentry_event_level(logging.ERROR)
+
     path = context.get_resource_path("source.zip")
     fetch_internal_data("ua_edr/23022022.zip", path)
     context.log.info("Parsing: %s" % path)

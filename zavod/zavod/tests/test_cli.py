@@ -3,7 +3,7 @@ from click.testing import CliRunner
 
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.cli import cli
 from zavod.archive import dataset_state_path
 from zavod.tests.conftest import DATASET_1_YML, DATASET_3_YML
@@ -39,8 +39,8 @@ def test_validate_dataset():
     result = runner.invoke(cli, ["validate", "/dev/null"])
     assert result.exit_code != 0, result.output
     result = runner.invoke(cli, ["validate", DATASET_1_YML.as_posix()])
-    assert result.exit_code == 0, result.output
-    assert "No entities validated" in result.output, result.output
+    assert result.exit_code != 0
+    assert "Validation caused abort" in result.output
     shutil.rmtree(settings.DATA_PATH)
 
 
@@ -86,7 +86,7 @@ def test_run_dataset(testdataset1: Dataset):
     assert latest_path.joinpath("entities.ftm.json").exists()
     # Validation issues in a published run are published
     with open(artifacts_path / "issues.json", "r") as f:
-        assert "is a target but has no topics" in f.read()
+        assert "This is a test warning" in f.read()
     shutil.rmtree(latest_path)
 
     result = runner.invoke(cli, ["publish", "/dev/null"])

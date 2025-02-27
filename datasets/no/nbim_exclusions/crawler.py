@@ -6,9 +6,6 @@ from zavod import helpers as h
 from zavod.util import ElementOrTree
 
 
-DATE_FORMATS = ["%d.%m.%Y"]
-
-
 def parse_table(table: ElementOrTree) -> List[Dict[str, Any]]:
     rows = []
     headers = None
@@ -25,14 +22,13 @@ def parse_table(table: ElementOrTree) -> List[Dict[str, Any]]:
 
         cells = []
         for el in row.findall(".//td"):
-            value = el.find(".//span[@class='nbim-responsive-table--value']")
-            link = value.find("./a") if value is not None else None
-            if link is None:
-                cells.append(
-                    collapse_spaces(value.text_content()) if value is not None else None
-                )
+            link = el.find("./a")
+            if link is not None:
+                value = collapse_spaces(link.text_content())
+                cells.append((value, link.get("href")))
             else:
-                cells.append((collapse_spaces(link.text_content()), link.get("href")))
+                value = collapse_spaces(el.xpath("string()"))
+                cells.append(value)
 
         assert len(headers) == len(cells)
         rows.append({hdr: c for hdr, c in zip(headers, cells)})
@@ -44,15 +40,22 @@ def crawl(context: Context):
     doc.make_links_absolute(context.data_url)
 
     for data in parse_table(doc.find(".//table")):
+        company = data.pop("company")
+        if company is None:
+            continue
         entity = context.make("Company")
-        name, url = data.pop("company")
+        if len(company) == 2:
+            name, url = company
+        else:
+            context.log.info("No link found for company", company=company)
+            name, url = company, None
         entity.id = context.make_slug(name)
         entity.add("name", name)
         entity.add("notes", data.pop(1) or None)
         decision = data.pop("decision")
         topic = context.lookup_value("decision_topic", decision)
         if topic is None:
-            context.log.warning("Unexpected decision", decision=decision)
+            context.log.warning(f'Unexpected decision "{decision}"', decision=decision)
         entity.add("topics", topic)
 
         sanction = h.make_sanction(context, entity)
@@ -60,11 +63,9 @@ def crawl(context: Context):
         sanction.add("sourceUrl", url)
         sanction.add("program", data.pop("category"))
         sanction.add("reason", data.pop("criterion"))
-        sanction.add(
-            "listingDate", h.parse_date(data.pop("publishing-date"), DATE_FORMATS)
-        )
+        h.apply_date(sanction, "listingDate", data.pop("publishing-date"))
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
 
         context.audit_data(data)

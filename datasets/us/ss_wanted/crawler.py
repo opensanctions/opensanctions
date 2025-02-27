@@ -1,7 +1,8 @@
-from zavod import Context
-from zavod import helpers as h
 from xml.etree import ElementTree
 from normality import collapse_spaces
+
+from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
@@ -29,20 +30,28 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    person_xpath = './/div[@id="block-af1-content"]//div[contains(@class, "grid-col")][not(contains(@class, "hidden-card"))]//a'
+    doc = fetch_html(
+        context,
+        context.data_url,
+        person_xpath,
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
     doc.make_links_absolute(context.data_url)
 
-    for person_node in doc.xpath(
-        './/div[@id="block-af1-content"]//div[contains(@class, "grid-col")][contains(@class, "margin")]//a'
-    ):
+    for person_node in doc.xpath(person_xpath):
         url = person_node.get("href")
         crawl_person(context, url)
 
 
 def crawl_person(context: Context, url: str):
-    doc = context.fetch_html(url, cache_days=1)
+    name_xpath = '//h1[contains(@class, "page-title")]'
+    doc = fetch_html(
+        context, url, name_xpath, html_source="httpResponseBody", cache_days=1
+    )
 
-    name = get_element_text(doc, '//h1[contains(@class, "page-title")]')
+    name = get_element_text(doc, name_xpath)
 
     alias = get_element_text(
         doc,
@@ -95,7 +104,7 @@ def crawl_person(context: Context, url: str):
     person.add("topics", "wanted")
     person.add("sourceUrl", url)
     person.add("alias", alias.split(","))
-    person.add("birthDate", h.parse_date(date_of_birth, ["%b %d, %Y", "%B %d, %Y"]))
+    h.apply_date(person, "birthDate", date_of_birth)
     person.add("summary", case_summary)
     person.add("notes", f"Relevant links: {', '.join(links)}")
     person.add("nationality", nationality)
@@ -105,4 +114,4 @@ def crawl_person(context: Context, url: str):
     person.add("hairColor", hair)
     person.add("eyeColor", eyes)
 
-    context.emit(person, target=True)
+    context.emit(person)

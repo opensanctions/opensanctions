@@ -1,5 +1,6 @@
 # cf.
 # https://home.treasury.gov/system/files/126/sdn_advanced_notes.pdf
+import re
 from pathlib import Path
 from functools import cache
 from banal import first, as_bool
@@ -12,11 +13,11 @@ from followthemoney import model
 from followthemoney.types import registry
 from followthemoney.schema import Schema
 from followthemoney.exc import InvalidData
-from zavod.util import ElementOrTree
 
 from zavod import Context, Entity, Dataset
 from zavod.meta import load_dataset_from_path
 from zavod import helpers as h
+from zavod.util import ElementOrTree
 
 FeatureValue = Union[str, Entity, None]
 FeatureValues = List[FeatureValue]
@@ -73,6 +74,7 @@ SANCTION_FEATURES = {
     "Listing Date (EO 14014 Directive 1):": "listingDate",
     "Listing Date (CMIC)": "listingDate",
 }
+IMO_RE = re.compile(r"IMO \d{6,9}")
 
 
 def get_relation_schema(party_schema: Schema, range: Schema) -> Schema:
@@ -307,7 +309,7 @@ def parse_distinct_party(
         for feat_value in values:
             apply_feature(context, proxy, feat_label, feat_value)
 
-    context.emit(proxy, target=True)
+    context.emit(proxy)
     return proxy
 
 
@@ -375,7 +377,7 @@ def parse_id_reg_document(
     proxy.add("country", country)
 
     if conf.prop is not None:
-        if proxy.schema.is_a("Vessel") and conf.prop == "idNumber":
+        if IMO_RE.match(number):
             proxy.add("imoNumber", number)
         else:
             proxy.add(conf.prop, number)

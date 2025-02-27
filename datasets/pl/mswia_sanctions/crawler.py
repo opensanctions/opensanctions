@@ -1,49 +1,36 @@
-from typing import Dict
 from followthemoney.types import registry
+from typing import Dict
+import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
 TYPES = {"osoby": "Person", "podmioty": "Company"}
-BDAY_FORMATS = ("%d.%m.%Y", "%d %b %Y")
-MONTHS = {
-    "stycznia": "jan",
-    "lutego": "feb",
-    "marca": "mar",
-    "kwietnia": "apr",
-    "maja": "may",
-    "czerwca": "jun",
-    "lipca": "jul",
-    "lipiec": "jul",
-    "sierpnia": "aug",
-    "września": "sep",
-    "października": "oct",
-    "listopada": "nov",
-    "grudnia": "dec",
-}
 CHOPSKA = [
     ("Nr NIP", "taxNumber"),
     ("NIP", "taxNumber"),
     ("Nr KRS", "registrationNumber"),
     ("KRS", "registrationNumber"),
+    ("(PESEL:", "idNumber"),
+    ("PESEL:", "idNumber"),
     ("siedziba:", "address"),
 ]
 
 
-def parse_date(text):
+def parse_date(text, context):
     text = text.lower().strip()
     text = text.replace("urodzona", "")
     text = text.replace("urodzonego", "")
     text = text.replace("urodzony", "")
-    text = text.rstrip(" r.")
-    text = text.rstrip(" r.,")
-    text = text.rstrip("r")
+    text = text.replace("urodzonej", "")
+    text = re.split(r" r\.| r$", text)[0]
     text = text.strip()
-    for pl, en in MONTHS.items():
-        text = text.replace(pl, en)
-    prefix = h.parse_formats(text, BDAY_FORMATS)
-    if prefix.dt:
-        return prefix.text
+    if text is None:
+        return None
+    date_info = text
+    if date_info and len(date_info) < 25:  # avoid longer strings that are not dates
+        return date_info
+    return None
 
 
 def parse_details(context: Context, entity: Entity, text: str):
@@ -51,15 +38,18 @@ def parse_details(context: Context, entity: Entity, text: str):
         parts = text.rsplit(chop, 1)
         text = parts[0]
         if len(parts) > 1:
-            entity.add(prop, parts[1])
+            entity.add(prop, parts[1].strip())
 
     if not len(text.strip()):
         return
-    bday = parse_date(text)
-    if bday:
-        entity.add("birthDate", bday)
-        return
 
+    bday = parse_date(text, context)
+    if bday:
+        h.apply_date(entity, "birthDate", bday)
+        text = re.sub(r"urodzon. \d+[. ]\w+[. ]\d+ r\.?", "", text).strip()
+
+    if text == "":
+        return
     result = context.lookup("details", text)
     if result is None:
         context.log.warning("Unhandled details", details=repr(text))
@@ -83,9 +73,34 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
 
     entity.id = context.make_slug(table_title, name)
     names = name.split("(")
-    entity.add("name", names[0])
+    if entity.schema.name == "Person":
+        for name in names:
+            # Remove any trailing ')' for clean parsing
+            name = name.replace(")", "").strip()
+            name_parts = name.split(" ")
+
+            if len(name_parts) >= 2:
+                # IVANOV Ivan
+                first_name = name_parts[1]
+                last_name = name_parts[0]
+                # IVANOV Ivan Ivanovich
+                patronymic = name_parts[2] if len(name_parts) == 3 else None
+
+                h.apply_name(
+                    entity,
+                    first_name=first_name,
+                    last_name=last_name,
+                    patronymic=patronymic,
+                )
+                if last_name != "Sechin":
+                    assert (
+                        last_name.isupper()
+                    ), f"Expected last name '{last_name}' to be fully capitalized"
+    else:
+        entity.add("name", names[0])
     for alias in names[1:]:
-        entity.add("alias", alias.split(")")[0])
+        for alias in h.multi_split(alias, ["obecnie: ", "inaczej:"]):
+            entity.add("alias", alias.split(")")[0])
     notes = row.pop("uzasadnienie_wpisu_na_liste")
     entity.add("notes", notes)
 
@@ -108,7 +123,7 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
     if not end_date:
         entity.add("topics", "sanction")
     context.audit_data(row)
-    context.emit(entity, target=not end_date)
+    context.emit(entity)
     context.emit(sanction)
 
 
@@ -117,12 +132,12 @@ def crawl(context: Context):
     doc.make_links_absolute(context.data_url)
 
     table = doc.xpath(".//h3[text() = 'Osoby']/following-sibling::div//table")[0]
-    for row in h.parse_table(table, header_tag="td"):
-        crawl_row(context, row, "osoby")
+    for row in h.parse_html_table(table, header_tag="td"):
+        crawl_row(context, h.cells_to_str(row), "osoby")
 
     # Pretty special xpath because they have some <table><tr><table> thing going on
     table = doc.xpath(
         ".//h3[text() = 'Podmioty']/following-sibling::div//table//tr//table"
     )[0]
-    for row in h.parse_table(table, header_tag="td"):
-        crawl_row(context, row, "podmioty")
+    for row in h.parse_html_table(table, header_tag="td"):
+        crawl_row(context, h.cells_to_str(row), "podmioty")

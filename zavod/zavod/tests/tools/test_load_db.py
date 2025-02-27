@@ -4,7 +4,7 @@ from sqlalchemy.pool import NullPool
 from nomenklatura.statement.db import make_statement_table
 
 from zavod.meta import Dataset
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.crawl import crawl_dataset
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.archive import iter_dataset_statements, dataset_state_path

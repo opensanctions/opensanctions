@@ -18,13 +18,6 @@ from zavod.logic.pep import categorise
 # 9: End_Date_Grace
 
 
-def parse_date(date_string):
-    try:
-        return datetime.strptime(date_string, "%d/%m/%Y").strftime("%Y-%m-%d")
-    except ValueError:
-        return None
-
-
 def get_csv_url(context: Context) -> str:
     """
     Fetches the CSV URL from the main page.
@@ -72,13 +65,13 @@ def create_entity(raw_entity: Dict[str, Any], context: Context) -> None:
         person,
         position,
         False,
-        start_date=parse_date(raw_entity["Data_Início_Exercício"]),
-        end_date=parse_date(raw_entity["Data_Fim_Exercício"]),
+        start_date=raw_entity["Data_Início_Exercício"],
+        end_date=raw_entity["Data_Fim_Exercício"],
         categorisation=categorisation,
     )
 
     if occupancy is not None:
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 

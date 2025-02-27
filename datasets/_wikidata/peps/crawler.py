@@ -9,8 +9,7 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import PositionCategorisation, categorise
-
-from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
+from zavod.shed.wikidata.query import run_query, run_raw_query, CACHE_MEDIUM
 
 DECISION_NATIONAL = "national"
 RETRIES = 5
@@ -54,18 +53,29 @@ def crawl_holder(
     if qid is None or not is_qid(qid) or qid == "Q1045488":
         return
     entity.id = qid
+    birth_date = holder.get("person_birth")
+    death_date = holder.get("person_death")
+    start_date = holder.get("start_date")
+    end_date = holder.get("end_date")
+    if any(
+        (d and (d < "1900-01-01"))
+        for d in [start_date, end_date, birth_date, death_date]
+    ):
+        # Avoid constructing a proxy which emits a warning
+        # before we discard it.
+        return
+    entity.add("birthDate", birth_date)
+    entity.add("deathDate", holder.get("person_death"))
 
     occupancy = h.make_occupancy(
         context,
         entity,
         position,
         False,
-        death_date=date_value(holder.get("person_death")),
-        birth_date=date_value(holder.get("person_birth")),
-        end_date=date_value(holder.get("end_date")),
-        start_date=date_value(holder.get("start_date")),
+        end_date=end_date,
+        start_date=start_date,
         categorisation=categorisation,
-        propagate_country=len(position.get("country")) == 1,
+        propagate_country=("role.diplo" not in categorisation.topics),
     )
     if not occupancy:
         return
@@ -79,7 +89,7 @@ def crawl_holder(
 
     context.emit(position)
     context.emit(occupancy)
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def query_position_holders(
@@ -93,7 +103,6 @@ def query_position_holders(
         try:
             response = run_query(
                 context,
-                context.data_url,
                 "holders/holders",
                 vars,
                 cache_days=CACHE_MEDIUM * i,
@@ -121,7 +130,6 @@ def query_position_holders(
             or binding.plain("bodyEnd")
             or binding.plain("bodyAbolished")
         )
-
         yield {
             "person_qid": binding.plain("person"),
             "person_label": binding.plain("personLabel"),
@@ -170,7 +178,6 @@ def query_positions(
         }
         country_response = run_query(
             context,
-            context.data_url,
             "positions/country",
             vars,
             cache_days=CACHE_MEDIUM,
@@ -184,7 +191,7 @@ def query_positions(
         "RELATION": "wdt:P31",
     }
     country_response = run_query(
-        context, context.data_url, "positions/country", vars, cache_days=CACHE_MEDIUM
+        context, "positions/country", vars, cache_days=CACHE_MEDIUM
     )
     country_results.extend(country_response.results)
 
@@ -200,7 +207,7 @@ def query_positions(
 
     # b) Positions held by politicans from that country
     politician_response = run_query(
-        context, context.data_url, "positions/politician", vars, cache_days=CACHE_MEDIUM
+        context, "positions/politician", vars, cache_days=CACHE_MEDIUM
     )
     for bind in politician_response.results:
         country_res = pick_country(
@@ -226,9 +233,17 @@ def query_positions(
 
 
 def query_countries(context: Context):
-    response = run_query(
-        context, context.data_url, "countries/all", cache_days=CACHE_MEDIUM
-    )
+    query = """
+    SELECT ?country ?countryLabel ?countryDescription WHERE {
+        VALUES ?type { wd:Q15634554 wd:Q1335818 wd:Q3624078 wd:Q6256 }
+        ?country wdt:P31 ?type .
+        MINUS {
+        ?country wdt:P31 wd:Q1145276 .
+        }
+    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+    }
+    """
+    response = run_raw_query(context, query, cache_days=CACHE_MEDIUM)
     for binding in response.results:
         qid = binding.plain("country")
         if not is_qid(qid):
@@ -245,9 +260,7 @@ def query_countries(context: Context):
 
 
 def query_position_classes(context: Context):
-    response = run_query(
-        context, context.data_url, "positions/subclasses", cache_days=CACHE_MEDIUM
-    )
+    response = run_query(context, "positions/subclasses", cache_days=CACHE_MEDIUM)
     classes = []
     for binding in response.results:
         qid = binding.plain("class")
@@ -278,7 +291,7 @@ def crawl(context: Context):
 
         country_res = context.lookup("country_decisions", country["qid"])
         if country_res is None:
-            context.log.warning("Country without decision", country=country)
+            context.log.warning(f"Country without decision: {country}", country=country)
             continue
         if country_res.decision != DECISION_NATIONAL:
             continue
@@ -310,4 +323,4 @@ def crawl(context: Context):
     entity.add("name", "Mark Lipparelli")
     entity.add("topics", "role.pep")
     entity.add("country", "us")
-    context.emit(entity, target=True)
+    context.emit(entity)

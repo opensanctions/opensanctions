@@ -1,0 +1,49 @@
+title: C4ADS Long Shadows (Xinjiang)
+entry_point: crawler.py
+prefix: c4-xj
+coverage:
+  frequency: monthly
+  start: 2024-12-19
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+summary: >-
+  Companies linked to the Xinjiang Production and Construction Corps (XPCC)
+description: |
+  > Companies perpetrating forced labor and human rights abuses in the Xinjiang Uyghur
+  > Autonomous Region (Xinjiang) are enmeshed in global trade and finance despite severe
+  > multilateral sanctions designed to cut them off from international markets. This is
+  > a result of their integration with the corporate, trade, and financial landscape
+  > within Xinjiang, China, and the greater region. This report uses the Xinjiang
+  > Production and Construction Corps (XPCC)—a regional governing body with a vast
+  > commercial network—as a test case to better understand how perpetrators of human
+  > rights abuse in Xinjiang retain access to international markets. Analysis of publicly
+  > available information reveals that sanctions and international outrage have been
+  > insufficient in preventing the XPCC from accessing global markets, allowing it
+  > to continue profiting from forced labor and other forms of oppression.
+url: https://c4ads.org/reports/long-shadows/
+publisher:
+  name: Center for Advanced Defense Studies
+  acronym: C4ADS
+  description: |
+    C4ADS is a nonprofit organization dedicated to providing data-driven analysis and
+    evidence-based reporting on global conflict and transnational security issues.
+  url: https://c4ads.org/
+  official: false
+data:
+  url: https://d3gnblvlnseq6o.cloudfront.net/
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 500
+
+dates:
+  formats: ["%m/%d/%y"]
+
+lookups:
+  type.name:
+    options:
+      - match:
+          - "-"
+        value: null

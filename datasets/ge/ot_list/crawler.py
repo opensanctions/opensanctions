@@ -5,10 +5,11 @@ the individuals on the Otkhozoria–Tatunashvili List.
 
 import re
 from typing import Dict
+from lxml.html import HtmlElement
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from lxml.html import HtmlElement
+from zavod.shed.trans import apply_translit_full_name
 
 TARGET = "ბრალდებული/ მსჯავრდებული"
 DEMOGRAPHICS = "დემოგრაფიული მონაცემები"
@@ -20,8 +21,8 @@ UNUSED_FIELDS = [
     "მოკლე ფაბულა",
     "შენიშვნა",
 ]
-DATE_FORMATS = ["%d.%m.%Y", "%Y"]
 PATROYNMIC = re.compile(r"\b(\S+)\s+ძე\s+")
+TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 
 
 def extract_name(context: Context, person: Entity, name: str):
@@ -32,7 +33,8 @@ def extract_name(context: Context, person: Entity, name: str):
         patronym = m.group(1)
         name = name[: m.start()] + name[m.end() :]
         context.log.debug(f"Patroynmic: {m.group(1)}")
-    h.apply_name(person, full=name, patronymic=patronym, lang="geo")
+    h.apply_name(person, full=name, patronymic=patronym, lang="kat")
+    apply_translit_full_name(context, person, "kat", name, TRANSLIT_OUTPUT)
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -45,7 +47,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     person.id = context.make_id(row.pop("index"), name, status)
     context.log.debug(f"Unique ID {person.id}")
     if birth_date != UNKNOWN:
-        person.add("birthDate", h.parse_date(birth_date, DATE_FORMATS))
+        h.apply_date(person, "birthDate", birth_date)
     person.add("topics", "sanction")
     person.add("country", "ge")
     extract_name(context, person, name)
@@ -53,7 +55,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     sanction = h.make_sanction(context, person)
     sanction.set("authority", "Georgian Ministry of Justice")
     sanction.add("sourceUrl", context.data_url)
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(sanction)
 
 

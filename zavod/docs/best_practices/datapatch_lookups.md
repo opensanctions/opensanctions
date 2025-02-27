@@ -121,3 +121,41 @@ between two entities assumed to be created earlier - `entity`, and `other_entity
     It's usually a good idea to structure the code so that you warn if an unmatched
     value is encountered, instead of silently ignoring values and possibly excluding
     valid data from the dataset.
+
+
+## Translate headers using datapatch lookups
+
+e.g.
+
+```yaml
+lookups:
+  columns:
+    options:
+      - match:
+          - 日 本 語 表 記
+        value: name_japanese
+      - match: 英 語 表 記
+        value: name_english
+      - match:
+          - 別 名
+          - 別 称 ・ 別 名
+          - 別称・旧称
+          - 別称
+          - 別名
+        value: alias
+```
+
+## Regex mappings: 
+If you're working with date formats or specific patterns, using a lookup like this allows you to map certain patterns to a value, such as `null` for when no further processing is needed.
+
+```yaml
+# Date pattern (in Chinese month-day format):
+- regex: "\\d{1,2}月\\d{1,2}"
+  value: null  # Dropping this value because it doesn't contain a year
+
+# Identifying specific titles or roles in Spanish:
+- regex: "^senador"
+  name: member of the Senado
+```
+
+It simplifies handling cases where you don't need to perform further actions on the match, especially for non-standard date formats or irrelevant entries.

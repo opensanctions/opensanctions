@@ -48,32 +48,41 @@ def crawl_person(
     h.apply_name(person, full=pages.en.pop("name"), lang="eng")
     h.apply_name(person, full=pages.hant.pop("name"), lang="zho")
     h.apply_name(person, full=pages.hans.pop("name"), lang="zho")
-    for email in pages.en.pop("email_address", []):
-        if email:
+    emails = pages.en.pop("email_address", [])
+    if emails:
+        for email in emails:
             context.log.debug("Email: {email}".format(email=email))
             person.add("email", email)
-    for url in pages.en.pop("homepage", []):
-        if url:
-            context.log.debug("Web: {url}".format(url=url))
-            person.add("website", url)
+    homepages = pages.en.pop("homepage", [])
+    if homepages:
+        for url in homepages:
+            if url:
+                context.log.debug("Web: {url}".format(url=url))
+                person.add("website", url)
     for phone in ("office_telephone", "mobile_phone"):
-        for number in pages.en.pop(phone, []):
-            if number:
-                context.log.debug("Phone: {number}".format(number=number))
-                person.add("phone", number)
+        phones = pages.en.pop(phone, [])
+        if phones:
+            for number in phones:
+                if number:
+                    context.log.debug("Phone: {number}".format(number=number))
+                    person.add("phone", number)
     title = pages.en.pop("title")
     if title and title != "-":
         context.log.debug("Title: {title}".format(title=title))
         person.add("title", title)
-    for qual in pages.en.pop("qualification", []):
-        if qual:
-            context.log.debug("Education: {qual}".format(qual=qual))
-            person.add("education", qual)
-    for address in pages.en.pop("office_address", []):
-        if address:
-            context.log.debug("Address: {address}".format(address=address))
-            address_entity = h.make_address(context, address)
-            h.apply_address(context, person, address_entity)
+    qualifications = pages.en.pop("qualification", [])
+    if qualifications:
+        for qual in qualifications:
+            if qual:
+                context.log.debug("Education: {qual}".format(qual=qual))
+                person.add("education", qual)
+    addresses = pages.en.pop("office_address", [])
+    if addresses:
+        for address in addresses:
+            if address:
+                context.log.debug("Address: {address}".format(address=address))
+                address_entity = h.make_address(context, address)
+                h.apply_address(context, person, address_entity)
     return person
 
 
@@ -156,7 +165,7 @@ def crawl_member(
             context, person, position, True, categorisation=categorisation
         )
         if occupancy is not None:
-            context.emit(person, target=True)
+            context.emit(person)
             context.emit(position)
             context.emit(occupancy)
 

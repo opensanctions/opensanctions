@@ -1,0 +1,33 @@
+type: collection
+title: Special Interest Watchlists
+hidden: true
+coverage:
+  start: "2024-12-20"
+  frequency: weekly
+deploy:
+  memory: "1500Mi"
+summary: >
+  Topical datasets from civil society organizations, investigative journalists,
+  and other sources that track individuals and entities of special interest.
+description: |
+  This collection contains datasets that provide contextual details and more in-depth
+  analysis of entities that are of special interest to the public.
+ci_test: false
+children:
+  - c4ads_xinjiang
+  - eiti_soe
+  - gem_energy_ownership
+  - ir_uani_business_registry
+  - kp_rusi_reports
+  - md_rise_profiles
+  - ru_acf_bribetakers
+  - ru_billionaires_2021
+  - ru_dossier_center_poi
+  - ru_myrotvorets_wagner
+  - ru_navalny35
+  - shu_uyghur_companies
+  - sy_obsalytics_opensyr
+  - thesentry_atlas
+  - ua_war_sanctions
+  - wd_curated
+  - wd_oligarchs

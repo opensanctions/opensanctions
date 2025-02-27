@@ -28,6 +28,8 @@ url: "https://www.sec.gov.ph/investors-education-and-information/advisories/#gsc
 data:
   url: https://www.sec.gov.ph/investors-education-and-information/advisories/#gsc.tab=0
   format: HTML
+  lang: eng
+ci_test: false
 
 assertions:
   min:
@@ -37,6 +39,8 @@ assertions:
     schema_entities:
       LegalEntity: 1000
 
+dates:
+  formats: ["%d %B %Y"]
 lookups:
   names:
     lowercase: true
@@ -341,7 +345,7 @@ lookups:
         name:
           - CRYPTO EXPERT, INC.
           - CRYPTOEXPERT TRADING
-          - CRYPTOEXPERT: MUTUAL FUNDS AND TRADING EXPERT
+          - "CRYPTOEXPERT: MUTUAL FUNDS AND TRADING EXPERT"
           - CRYPTOEXPERT
       - match: "YEHEEY ITRAFFIC SYSTEM INC. (\u201cYEHEEY\u201d)"
         name:

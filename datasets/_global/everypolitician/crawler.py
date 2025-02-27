@@ -151,11 +151,17 @@ def parse_person(context: Context, data, country, lastmod) -> None:
     # data.pop("images", None)
     # if len(data):
     #     pprint(data)
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def parse_membership(
-    context: Context, country, data, organizations, events, birth_dates, death_dates
+    context: Context,
+    country,
+    data,
+    organizations,
+    events,
+    birth_dates: Dict[str, str],
+    death_dates: Dict[str, str],
 ) -> Optional[str]:
     person_id = data.pop("person_id", None)
     org_name = organizations.get(data.pop("organization_id", None))
@@ -209,5 +215,5 @@ def parse_membership(
             if occupancy:
                 context.emit(position)
                 context.emit(occupancy)
-                context.emit(person, target=True)
+                context.emit(person)
                 return person_id

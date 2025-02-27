@@ -5,6 +5,9 @@ coverage:
   schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-11-17
+deploy:
+  memory: "1000Mi"
+  memory_limit: "1500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
@@ -27,7 +30,68 @@ data:
   url: https://api-drs.nsdc.gov.ua/
   format: JSON
 
+assertions:
+  min:
+    schema_entities:
+      Person: 9100
+      Organization: 6200
+      Company: 140
+  max:
+    schema_entities:
+      Person: 21400
+      Organization: 14500
+      Company: 330
+
 lookups:
+  sanctioned_status:
+    options:
+      - match: active
+        value: true
+      - match: expired
+        value: false
+      - match: excluded
+        value: false
+  identifier_type:
+    options:
+      - match: "tax:inn"
+        prop: innCode
+      - match:
+          - "reg:odrn"
+          - "reg:odrnip"
+        prop: ogrnCode
+      - match: "reg:okpo"
+        prop: okpoCode
+      - match:
+          - "reg:person_ro"
+          - "reg:person_il"
+          - "reg:cz_person"
+          - "reg:chiop" # https://en.wikipedia.org/wiki/SNILS_(Russia)
+        prop: idNumber
+      - match:
+          - null
+          - "reg:edrpou"
+          - "reg:r_n"
+          - "reg:regon"
+          - "reg:unzr"
+          - "reg:nl"
+          - "reg:cy"
+          - "reg:sy"
+          - "reg:ch"
+          - "reg:nin"
+          - "reg:cn"
+          - "reg:kz"
+        prop: registrationNumber
+      - match:
+          - "doc:passport"
+          - "doc:d_passport"
+          - "doc:f_passport"
+          - "doc:s_passport"
+          - "doc:in_passport"
+        identification:
+          is_passport: true
+      - match: "doc:residence"
+        identification:
+          is_passport: false
   type.country:
     normalize: true
     options:
@@ -130,6 +194,25 @@ lookups:
         values:
           - Україна, 295001, тимчасово окупована територія Автономної Республіки Крим, м. Сімферополь, вул. Сергєєва-Ценського, буд. 64, кв. 9
           - Украина, 295001, временно оккупированная территория Автономной Республики Крым, г. Симферополь, ул. Сергеева-Ценского, д. 64, кв. 9
+      - match: Китайська Народна Республіка, м. Шеньчжень (518116, Guangdong Province, Longgang District, Shenzhen City, No. 201, Jiaye Square, China;No. 4044 Pingshan Avenue, Pingshan Community, Pingshan Street, Pingshan District, Shenzhen, Guangdong Province, China)
+        values:
+          - Китайська Народна Республіка, м. Шеньчжень (518116, Guangdong Province, Longgang District, Shenzhen City, No. 201, Jiaye Square, China)
+          - Китайська Народна Республіка, м. Шеньчжень (No. 4044 Pingshan Avenue, Pingshan Community, Pingshan Street, Pingshan District, Shenzhen, Guangdong Province, China)
+      - match: "Російська Федерація, 121205, м. Москва, бульвар Великий (територія Інноваційного центру Сколково), буд. 42, будова 1, прим. 263 (Российская Федерация, 121205, г. Москва, бульвар Большой (территория Инновационного центра Сколково), д. 42, строение 1, пом. 263)"
+        values:
+          - Російська Федерація, 121205, м. Москва, бульвар Великий (територія Інноваційного центру Сколково), буд. 42, будова 1, прим. 263
+          - Российская Федерация, 121205, г. Москва, бульвар Большой (территория Инновационного центра Сколково), д. 42, строение 1, пом. 263
+      - match: Російська Федерація, 121205, м. Москва, бульвар Великий (територія Інноваційного центру "Сколково"), буд. 42, будова 1, пов./прим. 2/784 (Российская Федерация, 121205, г. Москва, бульвар Большой (территория Инновационного центра "Сколково"), д. 42, строение 1, эт./пом. 2/784)
+        values:
+          - prop: address
+            value: Російська Федерація, 121205, м. Москва, бульвар Великий (територія Інноваційного центру "Сколково"), буд. 42, будова 1, пов./прим. 2/784
+          - prop: address
+            value: Российская Федерация, 121205, г. Москва, бульвар Большой (территория Инновационного центра "Сколково"), д. 42, строение 1, эт./пом. 2/784
+      - match: Російська Федерація, 121205, м. Москва, муніципальний округ Можайський, бульвар Великий, територія Сколково Інноваційного Центру, буд. 42, будівля 1, поверх 3, прим. 1102 рм 11 (Российская Федерация, 121205, г. Москва, муниципальный округ Можайский, бульвар Большой, территория Сколково Инновационного Центра, д. 42, строение 1, этаж 3, помещение 1102 рм 11).
+        values:
+          - Російська Федерація, 121205, м. Москва, муніципальний округ Можайський, бульвар Великий, територія Сколково Інноваційного Центру, буд. 42, будівля 1, поверх 3, прим. 1102 рм 11
+          - Российская Федерация, 121205, г. Москва, муниципальный округ Можайский, бульвар Большой, территория Сколково Инновационного Центра, д. 42, строение 1, этаж 3, помещение 1102 рм 11
+
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»
@@ -168,6 +251,40 @@ lookups:
         value: 20432 (військовий ідентифікаційний номер Ємену)
       - match: 2771303400 [UA] Україна (відомості згідно з Державним реєстром фізичних осіб)
         value: 2771303400 [UA]
+      - match: 1149102085714 [RU] росія (ООО «Ювас-транс»)
+        value: 1149102085714 [RU]
+      - match: 'СН №471462 виданий 18.04.1997 Печерським РУ ГУ МВС України в м.Києві'
+        value: СН 471462
+      - match: 
+          - HE327605
+          - 200710130N
+          - 382787155000
+          - 378604015000
+          - 91061
+          - "0000421465"
+          - "0721631"
+          - 08878574
+        prop: registrationNumber
+      - match: 9102012001
+        prop: innCode
+      - match: 1328910
+        prop: idNumber
+      - match: 037739630697
+        value: 1037739630697
+      - match: 115774696841
+        value: 1157746969841
+      - match: 34121536602802
+        value: 304121536602802
+      - match: 10351001300394
+        value: 1035100130394
+      - match: 159102031098
+        value: 1159102031098
+      - match: 106774653683
+        value: 1067746593683
+      - match: 108614500013
+        value: 1086145000193
+      - match: 10277001322195
+        value: 1027700132195
   attributes:
     options:
       - match:
@@ -196,10 +313,7 @@ lookups:
           - IMO
           - МФО
         prop: registrationNumber
-      - match:
-          # Reregistration
-          - Перереєстрація
-        contains:
+      - contains:
           - Перереєстрація
           - перереєстроване відповідно до
         prop: notes
@@ -269,10 +383,10 @@ lookups:
       - contains:
           - Сайт так званого
         prop: website
-        weight: 2  # To fix the issue when same entity contains website and notes
+        weight: 2 # To fix the issue when same entity contains website and notes
       - contains:
           - Громадянство
-        prop: nationality
+        prop: citizenship
       - contains:
           - нагорода
           - Нагорода

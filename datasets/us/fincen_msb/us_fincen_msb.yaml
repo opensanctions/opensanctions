@@ -1,0 +1,42 @@
+title: "US Money Services Business Registrant List"
+entry_point: crawler.py
+url: https://www.fincen.gov/msb-state-selector
+resolve: false
+ci_test: false
+coverage:
+  frequency: daily
+  start: 2024-09-10
+summary: >
+  The Money Services Business (MSB) Registrant List includes individuals and entities 
+  registered as MSBs operating in the United States.
+description: |
+  The MSB Registrant List is a directory of businesses and individuals engaged in money 
+  services within the United States, as mandated by the Financial Crimes Enforcement 
+  Network (FinCEN). These services include money transmitting businesses, currency dealers 
+  or exchangers, check cashers, issuers of traveler's checks, money orders, or stored value,
+  the US Postal Service, etc.
+prefix: us-msb
+publisher:
+  name: Financial Crimes Enforcement Network
+  acronym: FinCEN
+  official: true
+  description: |
+    The Financial Crimes Enforcement Network (FinCEN) is a bureau of the U.S. Department of 
+    the Treasury that collects and analyzes information about financial transactions to
+    combat domestic and international money laundering, terrorist financing, and other
+    financial crimes.
+  country: us
+  url: https://www.fincen.gov
+data:
+  url: https://www.fincen.gov/msb-state-selector
+  format: CSV
+http:
+  retry_methods: [POST]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 29200
+  max:
+    schema_entities:
+      LegalEntity: 60000

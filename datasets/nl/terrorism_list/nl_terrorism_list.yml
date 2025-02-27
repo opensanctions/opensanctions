@@ -22,6 +22,7 @@ description: |
 url: https://www.government.nl/documents/reports/2016/01/15/national-terrorism-list
 publisher:
   name: Ministry of Foreign Affairs
+  acronym: MFA
   description: |
     The list is composed by the Ministers of Foreign Affairs, Finance and Justice.
   country: nl
@@ -30,6 +31,16 @@ publisher:
 data:
   url: https://www.government.nl/binaries/government/documenten/reports/2016/01/15/national-terrorism-list/eng-terrorismelijst.ods
   format: ODS
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      LegalEntity: 2
+  max:
+    schema_entities:
+      Person: 240
+      LegalEntity: 50
 
 lookups:
   type.date:

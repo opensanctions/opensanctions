@@ -1,9 +1,6 @@
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
 
-# Find the title of the list by the text, then find the next sibling (which is the list), then get all the list items texts
-LIST_XPATH = ".//*[contains(text(), 'Terrorist Exclusion List Designees (alphabetical listing)')]/../following-sibling::*[1]/li/text()"
-
 
 def crawl_item(raw_name: str, context: Context):
 
@@ -26,25 +23,26 @@ def crawl_item(raw_name: str, context: Context):
         "Section 411 of the USA PATRIOT ACT of 2001 (8 U.S.C. § 1182) Terrorist Exclusion List (TEL) ",
     )
 
-    context.emit(entity, target=True)
-
-
-def unblock_validator(doc):
-    return len(doc.xpath(LIST_XPATH)) > 1
+    context.emit(entity)
 
 
 def crawl(context: Context):
+
+    # Find the title of the list by the text, then find the next sibling
+    # (which is the list), then get all the list items texts
+    list_xpath = ".//*[contains(text(), 'Terrorist Exclusion List Designees (alphabetical listing)')]/following-sibling::*[1]/li/text()"
+
     actions = [
         {
             "action": "waitForSelector",
             "selector": {
                 "type": "xpath",
-                "value": LIST_XPATH,
+                "value": list_xpath,
             },
             "timeout": 15,
         },
     ]
-    doc = fetch_html(context, context.data_url, unblock_validator, actions)
+    doc = fetch_html(context, context.data_url, list_xpath, actions)
 
-    for item in doc.xpath(LIST_XPATH):
+    for item in doc.xpath(list_xpath):
         crawl_item(item, context)

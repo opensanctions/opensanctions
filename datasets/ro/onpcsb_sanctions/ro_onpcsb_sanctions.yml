@@ -38,11 +38,12 @@ publisher:
     groups.
   country: ro
   url: https://www.onpcsb.ro
-
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRFekp6FAf9e2-N1J0F29u5m__66hxDTCFHbO6ICm_gKqTXehdLRkPWK_4x3JuhPKt2eHmdYYN2qsOh/pub?gid=846601144&single=true&output=csv
   format: csv
 
+dates: 
+  formats: ["%m/%d/%Y", "%Y"]
 assertions:
   min:
     schema_entities:

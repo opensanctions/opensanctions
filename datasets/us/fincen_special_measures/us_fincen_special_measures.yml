@@ -22,12 +22,14 @@ publisher:
   description: |
     FinCEN, a bureau of the US Treasury, collects and analyzes financial transaction information to combat money laundering and 
     terrorist financing.
-
   country: us
   url: https://www.fincen.gov
 data:
   url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
   format: html
+
+dates: 
+  formats: ["%m/%d/%Y"]
 lookups:
   target_type:
     options:

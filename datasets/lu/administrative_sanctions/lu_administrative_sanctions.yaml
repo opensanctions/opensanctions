@@ -32,6 +32,30 @@ url: "https://www.cssf.lu/fr/publications-donnees/?content_type=1387%2C623%2C625
 data:
   url: https://www.cssf.lu/fr/publications-donnees/page/1/?content_type=1387%2C623%2C625
   format: HTML
+  lang: fra
+dates: 
+  formats: ["%d %B %Y"]
+  months:
+    "january": "janvier"
+    "february": "février"
+    "march": "mars"
+    "april": "avril"
+    "may": "mai"
+    "june": "juin"
+    "july": "juillet"
+    "august": "août"
+    "september": "septembre"
+    "october": "octobre"
+    "november": "novembre"
+    "december": "décembre"
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 115
+  max:
+    schema_entities:
+      LegalEntity: 280
 
 lookups:
   type.date:
@@ -79,6 +103,18 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-2-avril-2024/
         names:
           - abrdn Investments Luxembourg S.A.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-19-juillet-2024/
+        names:
+          - Dock Financial S.A.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-26-septembre-2024/
+        names:
+          - learnd SE
+      - match: https://www.cssf.lu/fr/Document/mesure-administrative-du-1er-octobre-2024/
+        names:
+          - Alvotech
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-15-octobre-2024/
+        names:
+          - Aviva Investors Luxembourg S.A.
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
@@ -125,4 +161,11 @@ lookups:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du-16-05-2019-3/
           - https://www.cssf.lu/fr/Document/sanctions-administratives-du-17-janvier-2024/
           - https://www.cssf.lu/fr/Document/sanction-administrative-du-14-mai-2024/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-22-mai-2024/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-1er-juillet-2024/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-22-juillet-2024/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-17-juillet-2024/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-23-octobre-2024/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-19-novembre-2024/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-19-novembre-2024-2/
         names: []

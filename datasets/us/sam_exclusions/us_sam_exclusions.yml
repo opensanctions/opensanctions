@@ -37,11 +37,13 @@ data:
   format: CSV
   lang: eng
 
+dates:
+  formats: ["%m/%d/%Y"]
 assertions:
   min:
     schema_entities:
       Person: 81000
-      Company: 5500
+      Company: 5100
       LegalEntity: 1500
     countries: 90
   max:
@@ -127,6 +129,58 @@ lookups:
           - XX, XX, USA
           - XX, USA
         value: null
+  type.identifier:
+    lowercase: true
+    options:
+      - match:
+          - "0000000000"
+          - N0TAPPLICABL
+          - "00000"
+          - N/A
+        value: null
+      - match: 1009398416
+        value: 1003938416
+      - match: 15888604888
+        value: 1588604888
+      - match: 1982543482
+        value: 1982643482
+      - match: 1814303310
+        value: 1841303310
+      - match: 1215943751
+        value: 1215946751
+      - match: 1346588406
+        value: 1346584067
+      - match: 1770686654
+        value: 1770686354
+      - match: 1366968434
+        value: 1396968434
+      - match: 1777059303
+        value: 1770593030
+      - match: 1730405612
+        value: 1730425612
+      - match: 1033211348
+        value: 1033213483
+      - match: 1063534185
+        value: 1063564185
+      - match: 1702080183
+        value: 1720280183
+      - match: 1679619096
+        value: 1679679096
+      - match: 1568700039
+        value: 1568700391
+      - match:
+          - 079426694
+          - 095470566
+          - 0447984000
+          - 1596857207
+          - 1991191597
+          - 9090004080
+          - 1212034582
+        prop: registrationNumber
+  type.string:
+    options:
+      - match: "P.O. Box Beirut-Hamra 113/5647"
+        value: "PO Box 113/5647"
   type.country:
     lowercase: true
     normalize: true

@@ -1,0 +1,62 @@
+title: "Iran UANI Business Registry"
+url: https://www.unitedagainstnucleariran.com/iran-business-registry
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+coverage:
+  frequency: daily
+  start: 2024-09-24
+summary: >
+  List of companies involved in international business with or in Iran, including their 
+  withdrawal status from Iranian business ties, maintained by United Against Nuclear Iran 
+  (UANI).
+description: |
+  The Iran Business Registry (IBR) tracks companies and entities engaged in business with 
+  or within Iran. The database relies on credible media, academic sources, and reports to 
+  document international trade and business operations involving Iran. The registry spans 
+  multiple sectors, including energy, logistics, healthcare, and more. Each entity is 
+  documented with information such as nationality, stock symbol, and whether the company 
+  has ceased business operations in Iran.
+entry_point: crawler.py
+prefix: ir-br
+publisher:
+  name: United Against Nuclear Iran
+  acronym: UANI
+  official: false
+  description: |
+    United Against Nuclear Iran (“UANI”) is a nonprofit and non-partisan policy organization formed 
+    to combat the threats posed by the Islamic Republic of Iran. UANI's diverse Advisory Board includes 
+    policy experts and distinguished former government officials.
+  country: us
+  url: https://www.unitedagainstnucleariran.com
+data:
+  url: https://www.unitedagainstnucleariran.com/iran-business-registry?page=0
+  format: html
+
+assertions:
+  min:
+    schema_entities:
+      Company: 2000
+  max:
+    schema_entities:
+      Company: 3000
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Hong Kong, Malaysia
+        values:
+          - Hong Kong
+          - Malaysia
+      - match: Phiippines
+        value: Philippines
+      - match: Gemany
+        value: Germany
+      - match: China; Hong Kong
+        values:
+          - China
+          - Hong Kong
+      - match: Netherlands/UK
+        values:
+          - Netherlands
+          - United Kingdom

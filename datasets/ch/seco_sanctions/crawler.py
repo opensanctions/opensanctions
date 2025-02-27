@@ -13,6 +13,7 @@ from zavod import helpers as h
 # TODO: sanctions-program full parse
 MayStr = Optional[str]
 
+SKIP_OLD = {"41406"}
 NAME_QUALITY_WEAK: Dict[MayStr, bool] = {"good": False, "low": True}
 NAME_TYPE: Dict[MayStr, str] = {
     "primary-name": "name",
@@ -45,7 +46,6 @@ REGEX_REGNUM = re.compile(
 )
 REGEX_TAX = re.compile(r"Tax [Rr]egistration [Nn]umber ?: (\d+)\.?")
 REGEX_IMO = re.compile(r"IMO [Nn]umber ?: (\d+)\.?")
-FORMATS = ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%d %b %Y", "%b, %Y"]
 
 
 def parse_address(node: Element):
@@ -208,6 +208,10 @@ def parse_identity(context: Context, entity: Entity, node: Element, places):
 
 def parse_entry(context: Context, target: Element, programs, places):
     entity = context.make("LegalEntity")
+    entity_ssid = target.get("ssid")
+    if entity_ssid in SKIP_OLD:
+        context.log.info("Skipping old entry", ssid=entity_ssid)
+        return
     node = target.find("./entity")
     if node is None:
         node = target.find("./individual")
@@ -224,7 +228,6 @@ def parse_entry(context: Context, target: Element, programs, places):
             )
         entity = context.make("Vessel")
 
-    entity_ssid = target.get("ssid")
     entity.id = context.make_slug(entity_ssid)
     entity.add("gender", node.get("sex"), quiet=True)
     for other in node.findall("./other-information"):
@@ -240,8 +243,7 @@ def parse_entry(context: Context, target: Element, programs, places):
             "Date of registration"
         ):
             _, reg_date = value.split(":", 1)
-            reg_date = reg_date.strip()
-            entity.add("incorporationDate", h.parse_date(reg_date, FORMATS))
+            h.apply_date(entity, "incorporationDate", reg_date.strip())
         elif entity.schema.is_a("LegalEntity") and value.startswith("Type of entity"):
             _, legalform = value.split(":", 1)
             entity.add("legalForm", legalform)
@@ -330,7 +332,7 @@ def parse_entry(context: Context, target: Element, programs, places):
 
     if sanctioned:
         entity.add("topics", "sanction")
-    context.emit(entity, target=sanctioned)
+    context.emit(entity)
     context.emit(sanction)
 
 

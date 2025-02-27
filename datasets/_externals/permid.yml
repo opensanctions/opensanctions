@@ -4,12 +4,14 @@ entry_point: zavod.runner.enrich:enrich
 disabled: false
 hidden: false
 coverage:
-  frequency: weekly
+  frequency: daily
   start: 2023-11-15
 exports:
   - statistics.json
+  - entities.ftm.json
+  - statements.csv
+  - targets.simple.csv
 deploy:
-  schedule: "@daily"
   memory: "1000Mi"
   memory_limit: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -53,3 +55,11 @@ config:
   type: nomenklatura.enrich.permid:PermIDEnricher
   api_token: ${PERMID_API_TOKEN}
   cache_days: 30
+
+assertions:
+  min:
+    schema_entities:
+      Company: 2800
+  max:
+    schema_entities:
+      Company: 6700

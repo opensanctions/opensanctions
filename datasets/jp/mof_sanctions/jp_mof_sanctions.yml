@@ -48,6 +48,24 @@ data:
   url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/list.html
   format: XLSX
   lang: jpn
+dates: 
+  formats: ["%Y年%m月%d日", "%Y年%m月%d", "%Y年%m月", "%Y.%m.%d", "おおよそ%Y年", "、%Y年%m月%d", ":%Y年%m月%d", ",%Y年%m月%d"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1570
+      Address: 870
+      LegalEntity: 520
+      Organization: 130
+      CryptoWallet: 30
+  max:
+    schema_entities:
+      Person: 3700
+      Address: 2040
+      LegalEntity: 1200
+      Organization: 300
+      CryptoWallet: 80
 
 lookups:
   schema:
@@ -60,6 +78,7 @@ lookups:
           - ミロシェビッチ前ユーゴスラビア大統領及び関係者
           - ハイチにおける平和等を脅かす行為等に関与した者等
           - 暴力的行為に関与するイスラエルの入植者
+          - 資産凍結等の措置の対象となるロシア連邦及びベラルーシ共和国以外の国・地域の個人
         contains:
           - （個人）
           - （Ⅰ．国際連合安全保障理事会決議第2009号主文15に従い、資産凍結の措置が緩和されて適用される個人又は団体 ）
@@ -72,6 +91,8 @@ lookups:
           - コンゴ民主共和国に対する武器禁輸措置等に違反した者等（団体とその他のグループ）
           - イラク前政権の機関、高官又はその関係者等 （Ⅲ．決議第1483号23(b）の対象となる団体）
           - 資産凍結等の措置の対象となるロシア連邦及びベラルーシ共和国以外の国の団体
+          - 資産凍結等の措置の対象となるロシア連邦及びベラルーシ共和国以外の国・地域の団体
+          - 資産凍結等の措置の対象となるロシア連邦及びベラルーシ共和国以外の国・地域の特定銀行
         contains:
           - （団体）
         value: Organization
@@ -132,8 +153,6 @@ lookups:
         value: other_information
       - match: リスト掲載日
         value: publication_date
-      - match: 指定日
-        value: designated_date
       - match:
           - 住 所
           - 住所・所在地
@@ -171,7 +190,9 @@ lookups:
           - 出生地
           - 出 生 地・出 身 地
         value: birth_place
-      - match: 国 籍
+      - match: 
+          - 国 籍
+          - 国籍
         value: citizenship
       - match: 旅 券 番 号
         # wtf? travel_voucher_number
@@ -204,7 +225,7 @@ lookups:
       - match:
           - 国連制裁委員会による指定日
           - 国連制裁員会による指定日
-        value: designated_un
+        value: designated_date_un
       - match: 決議1483上の根拠
         value: reason_res1483
       - match: 詳 細
@@ -272,6 +293,51 @@ lookups:
           - "（ヒジュラ暦）"
           - "の間"
           - "から"
+          - "10月17"
+          - "10月19"
+          - "10月3"
+          - "11月14"
+          - "11月24"
+          - "11月26"
+          - "11月29"
+          - "12月10"
+          - "12月2"
+          - "12月20"
+          - "12月21"
+          - "12月23"
+          - "12月29"
+          - "12月30"
+          - "12月31"
+          - "3月15"
+          - "3月18"
+          - "4月20"
+          - "5月1"
+          - "5月18"
+          - "5月29"
+          - "5月31"
+          - "6月2"
+          - "6月3"
+          - "7月18"
+          - "7月21"
+          - "7月23"
+          - "7月25"
+          - "7月27"
+          - "7月31"
+          - "8月13"
+          - "9月1"
+          - "9月21"
+          - "9月27"
+          - yearunknown
+          - 9月28
+          - 3月13
+          - おおむね30~35歳
+          - 7月17
+          - 3月25
+          - 6月10
+          - 、11月15
+          - 、5月1
+          - 、3月24
+          - 訂
         value: null
       - match: Born on 10 July 1942
         value: "1942-07-10"
@@ -394,6 +460,10 @@ lookups:
         values:
           - 927234267
           - 108120258
+      - match: イラク番号 A6489694、2013年9月2日発行（2021年8月31日失効；氏名のアラビア語表記：سالم مصطفى محمد ال منصور）
+        value: A6489694
+      - match: イラク国民ＩＤカード番号00813602、2011年9月18日発行（氏名のアラビア語表記：سالم مصطفى محمد ال منصور）
+        value: 00813602
   type.name: 
     lowercase: true
     normalize: true

@@ -4,8 +4,6 @@ from followthemoney.types import registry
 from zavod import Context
 from zavod import helpers as h
 
-FORMATS = ("%m/%d/%Y",)
-
 
 def parse_row(context: Context, row):
     entity = context.make("LegalEntity")
@@ -26,13 +24,13 @@ def parse_row(context: Context, row):
         country_code=country_code,
     )
     h.copy_address(entity, address)
-    context.emit(entity, target=True)
+    context.emit(entity)
 
     citation = row.get("FR_Citation")
     sanction = h.make_sanction(context, entity, key=citation)
     sanction.add("program", citation)
-    sanction.add("startDate", h.parse_date(row.get("Effective_Date"), FORMATS))
-    sanction.add("endDate", h.parse_date(row.get("Expiration_Date"), FORMATS))
+    h.apply_date(sanction, "startDate", row.get("Effective_Date"))
+    h.apply_date(sanction, "endDate", row.get("Expiration_Date"))
     # pprint(row)
     context.emit(sanction)
 

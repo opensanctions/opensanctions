@@ -31,6 +31,16 @@ url: https://www.apml.gov.rs/english/targeted-financial-sanctions
 data:
   url: https://www.apml.gov.rs/english/lists-of-designated-persons-search-engine
   format: PDF
+dates: 
+  formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 5
+  max:
+    schema_entities:
+      Person: 15
 
 lookups:
   type.country:

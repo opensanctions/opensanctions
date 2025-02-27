@@ -32,6 +32,11 @@ def crawl(context: Context):
         assert "holders" in data, data
         for holder in data.get("holders", []):
             person_name = holder.get("person_name")
+            person_name = context.lookup_value(
+                "normalize_name", person_name, person_name
+            )
+            if h.is_empty(person_name):
+                continue
             full_title = holder.get("full_title")
             country = holder.get("country")
             norm_name = context.lookup_value("names", person_name, person_name)
@@ -57,12 +62,12 @@ def crawl(context: Context):
                 country=country,
                 topics=["gov.national"],
             )
-            dates = h.parse_date(holder.get("date_of_appointment"), ["%d-%b-%y"])
-            date = dates[0] if dates else None
-            occupancy = h.make_occupancy(context, entity, position, start_date=date)
+            occupancy = h.make_occupancy(
+                context, entity, position, start_date=holder.get("date_of_appointment")
+            )
 
             # entity.add("date_of_appointment", )
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(position)
             if occupancy is not None:
                 context.emit(occupancy)

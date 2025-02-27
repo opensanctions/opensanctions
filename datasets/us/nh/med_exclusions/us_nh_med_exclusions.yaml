@@ -27,16 +27,23 @@ url: "https://www.dhhs.nh.gov/programs-services/medicaid/medicaid-provider-relat
 data:
   url: "https://www.dhhs.nh.gov/programs-services/medicaid/medicaid-provider-relations"
   format: HTML
-
 http:
   user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15"
+dates: 
+  formats: ["%Y-%m-%d", "%m/%d/%Y"]
 
 assertions:
   min:
     schema_entities:
-      Person: 30 
+      Person: 50
       Company: 10
   max:
     schema_entities:
-      Person: 60 
-      Company: 50
+      Person: 125
+      Company: 30
+
+lookups:
+  type.identifier: 
+    options: 
+      - match: 26-3554962 (FEIN)
+        prop: registrationNumber

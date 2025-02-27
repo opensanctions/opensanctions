@@ -1,0 +1,60 @@
+title: US Nebraska Medicaid Sanctioned Providers
+entry_point: crawler.py
+prefix: us-medne
+coverage:
+  frequency: daily
+  start: "2024-11-28"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers sanctioned by Nebraska State's Medicaid program.
+description: |
+  This dataset contains individuals and entities sanctioned by the Nebraska Department of
+  Health and Human Services. According to the excluded providers document:
+
+  In accordance with 471 NAC 2‐005(A)(iii) Excluded Person or Entity: No clinic, group,
+  corporation, or other association that is a provider of services shall submit claims for
+  payment to the Department for any services or supplies provided by a person within the
+  organization who has been excluded from participation in NMAP, except for services or
+  supplies provided before the termination.
+
+  If these provisions are violated by a clinic, group, corporation, or other association,
+  the Department may terminate the organization and/or any individual responsible for the
+  violation. A provider shall not submit any claims to NMAP that contain the costs of
+  services provided by excluded persons or entities.
+publisher:
+  name: Nebraska Department of Health and Human Services
+  description: |
+    The Nebraska Department of Health & Human Services is a state agency of Nebraska. The agency
+    provides health and human services for both families and regular patients.
+  acronym: DHHS
+  url: https://dhhs.ne.gov
+  official: true
+  country: "us"
+url: "https://dhhs.ne.gov/Pages/Program-Integrity-Sanctioned-Providers.aspx"
+data:
+  url: https://dhhs.ne.gov/Documents/Medicaid%20Excluded%20Providers.pdf
+  format: PDF
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%Y"]
+assertions:
+  min:
+    schema_entities:
+      Person: 900
+      Company: 80
+  max:
+    schema_entities:
+      Person: 1200
+      Company: 120
+lookups:
+  type.identifier:
+    options:
+      - match: 15788Chore58
+        value: 1578806584
+      - match: L1316370950
+        value: 1316370950
+      - match: a1558374140
+        value: 1558374140
+      - match: 179053341
+        value: 1790593341

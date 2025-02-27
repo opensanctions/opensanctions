@@ -1,11 +1,11 @@
+import re
 from normality import collapse_spaces, slugify
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.helpers.xml import ElementOrTree
+from zavod.shed.zyte_api import fetch_html
 
-import re
-
-FORMATS = ["%B %d, %Y"]
 
 # NAME (and one alias: NAME)
 # NAME (including one alias: NAME) and subsidiaries
@@ -21,18 +21,18 @@ FORMATS = ["%B %d, %Y"]
 
 REGEX_NAME_STRUCTURE = re.compile(
     (
-        "^"
-        "(?P<main>[\w.,/&\(\) -]+?) ?"
-        "(\(((and|including) [a-z]+ alias(es)? ?:|(formerly|also) known as) (?P<alias_list>.+)\))? ?"
-        "(?P<subordinate_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
-        "(and its ([a-z]+ [a-zA-Z]+-based subsidiaries, which include|subsidiary) (?P<subsidiary_list>.+))?"
-        "$"
+        r"^"
+        r"(?P<main>[\w.,/&\(\) -]+?) ?"
+        r"(\(((and|including) [a-z]+ alias(es)? ?:|(formerly|also) known as) (?P<alias_list>.+)\))? ?"
+        r"(?P<subordinate_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
+        r"(and its ([a-z]+ [a-zA-Z]+-based subsidiaries, which include|subsidiary) (?P<subsidiary_list>.+))?"
+        r"$"
     )
 )
 SPLITTERS = [" and formerly known as ", ", and ", "; and ", ", ", "; "]
 
 
-def parse_names(name_field: str):
+def parse_names(context: Context, name_field: str):
     name_field = name_field.replace(", Ltd.", " Ltd.")
     structure_match = REGEX_NAME_STRUCTURE.match(name_field)
     if structure_match:
@@ -46,6 +46,21 @@ def parse_names(name_field: str):
             "subordinates_note": structure["subordinate_note"],
         }
         return names
+    result = context.lookup("names", name_field)
+    if result is None:
+        context.log.warning("Couldn't find or match name", name=name_field)
+        return {
+            "main": name_field,
+            "aliases": [],
+            "subsidiaries": [],
+            "subordinates_note": None,
+        }
+    return {
+        "main": result.value,
+        "aliases": result.aliases or [],
+        "subsidiaries": result.subsidiaries or [],
+        "subordinates_note": result.subordinate_note,
+    }
 
 
 def crawl_program(
@@ -65,7 +80,7 @@ def crawl_program(
             context.log.warning("Couldn't get entity name", data)
             continue
 
-        names = parse_names(name_field)
+        names = parse_names(context, name_field)
         if names is None:
             context.log.warning("Couldn't parse name field", name_field)
             continue
@@ -106,17 +121,16 @@ def crawl_program(
             ownership.add(object, entity)
             ownerships.append(ownership)
 
-        effective_date = h.parse_date(data.pop("effective-date"), FORMATS)
         companies = [main_company] + subsidiaries
         sanctions = []
         for entity in companies:
             sanction = h.make_sanction(context, entity, section)
             sanction.add("program", program)
-            sanction.add("startDate", effective_date)
+            h.apply_date(sanction, "startDate", data.pop("effective-date"))
             sanctions.append(sanction)
 
         for entity in companies:
-            context.emit(entity, target=True)
+            context.emit(entity)
 
         for entity in ownerships + sanctions:
             context.emit(entity)
@@ -125,8 +139,14 @@ def crawl_program(
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)
-    tables = doc.findall('.//table[@class="usa-table"]')
+    table_xpath = './/div[@id="block-mainpagecontent"]//table'
+    doc = fetch_html(
+        context,
+        context.data_url,
+        table_xpath,
+        html_source="httpResponseBody",
+    )
+    tables = doc.findall(table_xpath)
     for table in tables:
         program_container = table.getprevious()
         assert program_container is not None

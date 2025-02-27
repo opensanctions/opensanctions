@@ -1,5 +1,5 @@
 import re
-from typing import Generator, List, Optional
+from typing import Generator, Optional
 from datetime import datetime
 from followthemoney.types.identifier import IdentifierType
 
@@ -7,20 +7,23 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.helpers.xml import ElementOrTree
+from zavod.shed.zyte_api import fetch_resource
+from normality import collapse_spaces
 
-FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
+
 REGEX_ID_NUMBER = re.compile(r"\w?[\d-]*\d{6,}[\d-]*")
 SPLITS = [";", "i)", "ii)", "iii)", "iv)", "v)", "vi)", "vii)", "viii)", "ix)", "x)"]
-
-
-def parse_date(date: Optional[str]) -> List[str]:
-    if date is None:
-        return []
-    date = date.replace(".", "")
-    if ";" in date:
-        date, _ = date.split(";", 1)
-    date = date.strip()
-    return h.parse_date(date, FORMATS)
+DATES_SPLITS = [
+    ";",
+    "Approximately",
+    "Circa",
+    "Between",
+    "circa",
+    "approximately",
+    "or ",
+    "born in ",
+    " in ",
+]
 
 
 def clean_id(entity: Entity, text: Optional[str]) -> Generator[str, None, None]:
@@ -29,7 +32,7 @@ def clean_id(entity: Entity, text: Optional[str]) -> Generator[str, None, None]:
     for substring in text.split(";"):
         if len(substring) > IdentifierType.max_length:
             entity.add("notes", substring)
-            yield from REGEX_ID_NUMBER.findall(substring)
+        yield from REGEX_ID_NUMBER.findall(substring)
 
 
 def parse_entry(context: Context, entry: ElementOrTree) -> None:
@@ -85,11 +88,15 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
         entity.add("address", h.multi_split(node.findtext("./address"), SPLITS))
 
     for pob in entry.findall("./place-of-birth-list"):
-        entity.add_cast("Person", "birthPlace", pob.text)
+        for p in h.multi_split(pob.text, ";"):
+            entity.add_cast("Person", "birthPlace", collapse_spaces(p))
 
     for dob in entry.findall("./date-of-birth-list"):
-        date = parse_date(dob.text)
-        entity.add_cast("Person", "birthDate", date)
+        if dob.text is not None:
+            entity.add_schema("Person")
+            dates = h.multi_split(dob.text, DATES_SPLITS)
+            for date in dates:
+                h.apply_date(entity, "birthDate", date)
 
     for nat in entry.findall("./nationality-list"):
         for country in h.multi_split(nat.text, [";", ","]):
@@ -97,12 +104,18 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
             entity.add("nationality", country_, quiet=True)
 
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.xml", context.data_url)
+    _, _, _, path = fetch_resource(
+        context,
+        "source.xml",
+        context.data_url,
+        expected_media_type="text/xml",
+        geolocation="pl",
+    )
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     for entry in doc.findall(".//acount-list"):

@@ -28,6 +28,21 @@ url: "https://profiles.rise.md/index.php"
 data:
   url: "https://profiles.rise.md/index.php"
   format: HTML
+  lang: ron
+dates: 
+  formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 500
+      Person: 300
+      Company: 100
+  max:
+    schema_entities:
+      LegalEntity: 1200
+      Person: 700
+      Company: 220
 
 lookups:
   entity_type:
@@ -95,6 +110,12 @@ lookups:
           - Veronica Dragalin
           - Daniel-Marius Staicu
           - Dinu Țurcanu
+          - Alexandr Stoianoglo
+          - Vasile Tarlev
+          - Tudor Ulianovschi
+          - Ion Munteanu
+          - Galina Dodon
+          - Victoria Furtună
         value: person
       - match:
           - Intertelecom

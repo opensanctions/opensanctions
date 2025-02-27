@@ -11,6 +11,8 @@ exports:
   - entities.ftm.json
 deploy:
   premium: true
+  disk: 50Gi
+  memory: 2Gi
 resolve: false
 ci_test: false
 http:
@@ -40,7 +42,10 @@ publisher:
 data:
   url: https://andoz.tj/ForTaxpayer/UnifiedStateRegister
   format: HTML
+  lang: rus
 
+dates:
+  formats: ["%d.%m.%Y"]
 lookups:
   headers:
     map:
@@ -49,3 +54,14 @@ lookups:
       Полное название: name
       Дата ре-гистрации: date_of_reg
       Статус: status
+  type.date:
+    options:
+      - match:
+          - "5200-03-16"
+          - "5200-02-27"
+          - "5009-06-05"
+          - "3200-12-31"
+          - "3128-12-12"
+          - "3009-03-03"
+          - "3007-10-01"
+        value: null

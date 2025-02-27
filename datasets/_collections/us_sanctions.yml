@@ -2,6 +2,7 @@ type: collection
 title: United States Sanctions
 hidden: true
 coverage:
+  start: "2024-07-01"
   schedule: "0 */6 * * *"
 deploy:
   memory: "1500Mi"
@@ -19,8 +20,8 @@ children:
   - us_special_leg
   - us_dod_chinese_milcorps
   - us_klepto_hr_visa
-  - us_nteea_sec_353
   - us_ofac_sdn
   - us_ofac_cons
   - us_state_terrorist_exclusion
   - us_trade_csl
+  - us_nk_jointventures

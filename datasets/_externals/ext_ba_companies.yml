@@ -1,0 +1,91 @@
+type: external
+title: Bosnia and Herzegovina Registers of businesses
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: ba_companies
+disabled: false
+hidden: false
+coverage:
+  frequency: weekly
+  start: 2024-05-24
+exports:
+  - statistics.json
+  - entities.delta.json
+deploy:
+  memory: "1000Mi"
+  memory_limit: "2000Mi"
+  disk: 30Gi
+  disk_limit: 100Gi
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Enrichment of companies and other entities found in the Registers of business
+  entities in Bosnia and Herzegovina.
+description: |
+  This dataset comprises companies and other types of entities from the
+  Register of Business Entities in the District Brčko of BiH, Register of Business
+  Entities in the Federation of BiH and the Register of Business Entities in Republika Srpska
+  matched with entities in the OpenSanctions database.
+
+  The electronic court registers contain information on all business/legal entities
+  that are required to register by the Laws on Registration of Business Entities
+  (a business company or an enterprise established for the purpose of economic activity,
+  a cooperative or a cooperative association or any other legal entity performing an
+  economic activity established in accordance with the specific laws of both entities
+  and District Brčko with the aim of generating profit); since the moment those electronic
+  registers were introduced in the registration courts.
+
+  Available information from electronic registers is for informational purposes only and
+  it cannot substitute a certified document – certificate from the register of business
+  entities from a relevant registration court – which is issued upon request of an interested
+  party as per a prescribed procedure.
+
+  Company record has an information on the founders (persons and legal entities), managers as well
+  as the information on company registration number, unique number, address and optional additional
+  address, short and long name of the company, status and the date of the latest change.
+
+url: https://bizreg.pravosudje.ba
+publisher:
+  name: Federal Ministry of Justice and Judiciary Commission of District Brcko BiH
+  country: ba
+  url: https://bizreg.pravosudje.ba
+  description: |
+    Register of Business Entities in the District Brčko of BiH, Register of Business
+    Entities in the Federation of BiH and the Register of Business Entities in Republika Srpska.
+  official: true
+ci_test: false
+
+inputs:
+  - ann_graph_topics
+  - sanctions
+  - ext_cy_companies
+  - ext_cz_business_register
+  - ext_ee_ariregister
+  - ext_gb_coh_psc
+  - ext_gleif
+  - ext_icij_offshoreleaks
+  - ext_lv_business_register
+  - ext_md_companies
+  - opencorporates
+  - ext_ru_egrul
+  - ext_ua_edr
+  - debarment
+
+config:
+  dataset: ba_companies
+  index_options:
+    memory_budget: 1000
+  strip_namespace: true
+  threshold: 0.5
+  algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - debarment
+    - asset.frozen
+    - poi
+    - gov.soe
+  schemata:
+    - Company
+    - Organization
+    # - LegalEntity

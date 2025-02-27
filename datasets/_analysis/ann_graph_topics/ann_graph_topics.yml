@@ -7,12 +7,14 @@ hidden: true
 coverage:
   frequency: daily
   start: 2023-12-21
+  schedule: "0 */6 * * *"
 exports:
   - statistics.json
 deploy:
+  cpu: "1000m"
+  cpu_limit: "1500m"
   memory: "1000Mi"
   memory_limit: "1500Mi"
-  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
@@ -36,3 +38,21 @@ inputs:
   - default
   # - sanctions
   # - ru_rupep
+
+assertions:
+  min:
+    schema_entities:
+      Company: 45800
+      Person: 12200
+      LegalEntity: 1300
+      Organization: 1200
+      Vessel: 15
+      PublicBody: 5
+  max:
+    schema_entities:
+      Company: 110000
+      Person: 30000
+      LegalEntity: 3000
+      Organization: 3000
+      Vessel: 100
+      PublicBody: 100

@@ -12,4 +12,3 @@ class ContextStats(object):
         self.statements = 0
         self.changed = 0
         self.entities = 0
-        self.targets = 0

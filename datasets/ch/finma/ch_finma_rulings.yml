@@ -30,6 +30,16 @@ url: https://www.finma.ch/en/enforcement/enforcement-tools/publication-of-final-
 data:
   url: https://www.finma.ch/en/api/search/getresult
   format: JSON
+dates:
+  formats: ['%d.%m.%Y']
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 25
+  max:
+    schema_entities:
+      LegalEntity: 100
 
 lookups:
   type.url:

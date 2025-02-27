@@ -2,7 +2,7 @@ title: Denmark, Faroe Islands and Greenland PEPs
 entry_point: crawler.py
 prefix: dk-pep
 coverage:
-  frequency: daily
+  frequency: weekly
   start: "2024-05-13"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
@@ -13,7 +13,7 @@ description: |
   The list is based on reports
   from the authorities and organisations, which, according
   to the PEP order, must report the names and birthdays of the
-  PEPs associated with them. 
+  PEPs associated with them.
 publisher:
   name: Finanstilsynet
   url: https://www.finanstilsynet.dk/
@@ -32,6 +32,8 @@ url: https://www.finanstilsynet.dk/lovgivning/pep-listen
 data:
   url: https://www.finanstilsynet.dk/lovgivning/pep-listen
   format: XLSX
+dates:
+  formats: ["%d.%m.%Y"]
 
 assertions:
   min:
@@ -46,3 +48,30 @@ assertions:
     schema_entities:
       Person: 1800
       Position: 600
+
+lookups:
+  columns:
+    options:
+      - match: column_0
+        value: category
+      - match:
+          - Navn
+          - Efternavn
+        value: last_name
+      - match:
+          - column_2
+          - Fornavn
+        value: first_name
+      - match:
+          - Stillingsbetegnelse
+          - roh
+          - Stilling
+        value: job_title
+      - match: Fødselsdato
+        value: birth_date
+      - match: Tilføjet på PEP-listen (dato)
+        value: listing_date
+      - match: Fjernet fra PEP-listen (dato)
+        value: removal_date
+      - match: Ny på PEP-listen (x)
+        value: new_on_list

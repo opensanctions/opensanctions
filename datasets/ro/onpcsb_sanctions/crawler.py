@@ -3,14 +3,11 @@ from typing import Dict
 from zavod import Context, helpers as h
 
 
-DATE_FORMATS = ["%m/%d/%Y", "%Y"]
-
-
 def crawl_row(context: Context, row: Dict[str, str]):
     full_name = row.pop("name")
     other_name = h.multi_split(row.pop("other name"), [",", ";"])
-    birth_date_1 = h.parse_date(row.pop("date of birth") or None, DATE_FORMATS)
-    birth_date_2 = h.parse_date(row.pop("date of birth 2") or None, DATE_FORMATS)
+    birth_date_1_orig = row.pop("date of birth")
+    birth_date_1 = h.extract_date(context.dataset, birth_date_1_orig or None)
     birth_place = row.pop("place of birth")
     nationality = row.pop("nationality")
     passport_number = row.pop("passport no.")
@@ -44,9 +41,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.id = context.make_id(full_name, birth_date_1, birth_place)
         entity.add("name", full_name)
         entity.add("alias", other_name)
-        entity.add("birthDate", birth_date_1)
-        if birth_date_2:
-            entity.add("birthDate", birth_date_2)
+        entity.add("birthDate", birth_date_1, original_value=birth_date_1_orig)
+        h.apply_date(entity, "birthDate", row.pop("date of birth 2", None))
         entity.add("birthPlace", birth_place)
         # Handle multiple nationalities
         entity.add("nationality", [n.strip() for n in nationality.split("/")])
@@ -62,7 +58,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
             "Romania Government Decision No. 1.272/2005: List of Suspected Terrorists",
         )
         # Emit the entity
-        context.emit(entity, target=True)
+        context.emit(entity)
     elif entity_type == "Organization":
         entity = context.make("Organization")
         entity.id = context.make_id(full_name, po_box, address_1)
@@ -76,7 +72,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
             "Romania Government Decision No. 1.272/2005: List of Suspected Terrorists",
         )
         # Emit the entity
-        context.emit(entity, target=True)
+        context.emit(entity)
     else:
         context.log.warning("Unhandled entity type", type=entity_type)
 

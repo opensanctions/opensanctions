@@ -9,7 +9,7 @@ deploy:
   memory: "2Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  The United Kingom's consolidated international sanctions list.
+  The United Kingdom's consolidated international sanctions list.
 description: |
   The Office of Financial Sanctions Implementation (OFSI) publishes a list of all
   those subject to financial sanctions imposed by the UK which it keeps updated.
@@ -32,17 +32,293 @@ url: https://www.gov.uk/government/publications/financial-sanctions-consolidated
 data:
   url: https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml
   format: XML
+  lang: eng
+dates:
+  formats: ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 
 # TODO: do we need a separate crawler for the UK Sanctions List?
 # https://www.gov.uk/government/publications/the-uk-sanctions-list
 
+assertions:
+  min:
+    schema_entities:
+      Person: 3100
+      Address: 1300
+      LegalEntity: 790
+      Company: 190
+      Organization: 70
+      CryptoWallet: 15
+      Vessel: 10
+  max:
+    schema_entities:
+      Person: 7200
+      Address: 3000
+      LegalEntity: 1900
+      Company: 500
+      Organization: 150
+      CryptoWallet: 100
+      Vessel: 100
+
 lookups:
+  sanction.program:
+    options:
+      - match: Democratic Republic of the Congo
+        value: UK-DRC
+      - match: Afganistan
+        value: UK-AFG
+      - match: Iraq
+        value: UK-IRQ
+      - match: Nicaragua
+        value: UK-NIC
+      - match: Bosnia and Herzegovina
+        value: UK-BH
+      - match: Chemical Weapons
+        value: UK-CW
+      - match: Belarus
+        value: UK-BLR
+      - match: Haiti
+        value: UK-HT
+      - match: Myanmar
+        value: UK-MMR
+      - match: Mali
+        value: UK-MLI
+      - match: Guinea
+        value: UK-GU
+      - match: Sudan
+        value: UK-SDN
+      - match: Global Human Rights
+        value: UK-HR
+      - match: Somalia
+        value: UK-SOM
+      - match: Counter-Terrorism (International)
+        value: UK-ICT
+      - match: South Sudan
+        value: UK-SSD
+      - match: Iran (Nuclear)
+        value: UK-IRAN-NW
+      - match: ISIL (Da'esh) and Al-Qaida
+        value: UK-ISIL
+      - match: Counter-Terrorism (Domestic)
+        value: UK-CT
+      - match: Global Anti-Corruption
+        value: UK-AC
+      - match: Central African Republic
+        value: UK-CAR
+      - match: Syria
+        value: UK-SYR
+      - match: Yemen
+        value: UK-YEM
+      - match: Zimbabwe
+        value: UK-ZIM
+      - match: Iran
+        value: UK-IRAN
+      - match: Guinea-Bissau
+        value: UK-GNB
+      - match: Afghanistan
+        value: UK-AFG
+      - match: Libya
+        value: UK-LBY
+      - match: Russia
+        value: UK-RUS
+      - match: Cyber
+        value: UK-CYB
+      - match: Venezuela
+        value: UK-VEN
+      - match: Democratic People's Republic of Korea
+        value: UK-DPRK
   type.identifier:
     options:
       - match: Legal Entity Number 2534006SJ05GGKETEY75 (Russia)  Registration Number 1027739179160 (Russia)
         values:
           - 2534006SJ05GGKETEY75
           - 1027739179160
+      - match: QDi.042 and SOi.002
+        values:
+          - QDi.042
+          - SOi.002
+      - match: Russia INN - 2130080071
+        prop: innCode
+        value: 2130080071
+      # - match: Russia KPP - 213001001
+      #   prop: kppCode
+      #   value: 213001001
+      - match: Russia OGRN - 1102130012379
+        prop: ogrnCode
+        value: 1102130012379
+      - match: Russia OKPO - 65665578
+        prop: okpoCode
+        value: 65665578
+      - match: 'Russian TIN: 7718763393'
+        prop: taxNumber
+        value:
+      - match: TIN - 7703104630
+        prop: taxNumber
+        value: 7703104630
+      - match: 1137711000074 (Russia)
+        prop: ogrnCode
+        value: 1137711000074
+      - match: 1117746568829 (Russia).
+        prop: ogrnCode
+        value:
+      - match: Tax ID No. 7735579027 (Russia)
+        prop: taxNumber
+        value: 7735579027
+      - match: 1024701759565
+        prop: ogrnCode
+        value: 1024701759565
+      - match: 1167700052618 (Russia).
+        prop: ogrnCode
+        value: 1167700052618
+      - match: Tax ID No. 7743141413 (Russia)
+        prop: taxNumber
+        value: 7743141413
+      - match: 1167746154432 (Russia).
+        prop: ogrnCode
+        value: 1167746154432
+      - match: Tax ID No. 9710007769 (Russia)
+        prop: taxNumber
+        value: 9710007769
+      - match: 9709056472 - Russia INN
+        prop: innCode
+        value: 9709056472
+      - match: 'OGRN: 1027700456024'
+        prop: ogrnCode
+        value: 1027700456024
+      - match: 'INN: 7725075060'
+        prop: innCode
+        value: 7725075060
+      - match: 'TIN: 2539028264'
+        prop: taxNumber
+        value: 2539028264
+      - match: 'OGRN: 1027739090708'
+        prop: ogrnCode
+        value: 1027739090708
+      - match: 'INN: 7731018133'
+        prop: innCode
+        value: 7731018133
+      - match: Tax ID No. 7813491943 (Russia)
+        prop: taxNumber
+        value: 7813491943
+      - match: Taxpayer Identification Number – 5008011331
+        prop: taxNumber
+        value: 5008011331
+      - match: 1127747296918
+        prop: ogrnCode
+        value: 1127747296918
+      - match: Tax ID No. 7736588433 (Russia)
+        prop: taxNumber
+        value: 7736588433
+      - match: 'Tax Identification Number: INN 2536210349'
+        prop: innCode
+        value: 2536210349
+      - match: 'Tax Identification Number: 1657032272'
+        prop: taxNumber
+        value: 1657032272
+      - match: 9709056472 - Russia INN
+        prop: innCode
+        value: 9709056472
+      - match: 'Tax Identification Number: INN: 7804001110'
+        prop: innCode
+        value: 7804001110
+      - match: 11132540008732
+        prop: ogrnCode
+        value: 1132540008732
+      - match: 'TIN: 1800970008'
+        prop: taxNumber
+        value: 1800970008
+      - match: 'OGRN: 1031624002937'
+        prop: ogrnCode
+        value: 1031624002937
+      - match: 'TIN: 1656025681'
+        prop: taxNumber
+        value: 1656025681
+      - match: 'TIN: 7750004023'
+        prop: taxNumber
+        value: 7750004023
+      - match: 'OGRN: 1027739143717'
+        prop: ogrnCode
+        value: 1027739143717
+      - match: 'INN: 7723022111'
+        prop: innCode
+        value: 7723022111
+      - match: 'OGRN: 1077757840522'
+        prop: ogrnCode
+        value: 1077757840522
+      - match: 'TIN: 7729579004'
+        prop: taxNumber
+        value: 7729579004
+      - match: 'OGRN: 1027700456024'
+        prop: ogrnCode
+        value: 1027700456024
+      - match: 'INN: 7725075060'
+        prop: innCode
+        value: 7725075060
+      - match: 'Tax Identification Number: INN 2536210349'
+        prop: innCode
+        value: 2536210349
+      - match: 'OGRN: 1122901001475'
+        prop: ogrnCode
+        value: 1122901001475
+      - match: 'OGRN: 1207800103301'
+        prop: ogrnCode
+        value: 1207800103301
+      - match: 'TIN: 7806575286'
+        prop: taxNumber
+        value: 7806575286
+      - match: 'TIN: 6147025090'
+        prop: taxNumber
+        value: 6147025090
+      - match: 'OGRN: 1066147003658'
+        prop: ogrnCode
+        value: 1066147003658
+      - match: 'TIN: 1656025681'
+        prop: taxNumber
+        value: 1656025681
+      - match: 'OGRN: 1026801010994'
+        prop: ogrnCode
+        value: 1026801010994
+      - match: 'TIN: 7706191991'
+        prop: taxNumber
+        value: 7706191991
+      - match: '1027739339715 (Russia)'
+        prop: ogrnCode
+        value: 1027739339715
+      - match: 'Taxpayer ID: 7727214569'
+        prop: taxNumber
+        value: 7727214569
+      - match: 'OGRN 1037739468084'
+        prop: ogrnCode
+        value: 1037739468084
+      - match: 'TIN: 9724042820'
+        prop: taxNumber
+        value: 9724042820
+      - match: 'Tax Identification Number: INN 7801047839'
+        prop: innCode
+        value: 7801047839
+      - match: TIN - 5408106299
+        prop: taxNumber
+        value: 5408106299
+      - match: TIN - 5263000105
+        prop: taxNumber
+        value: 5263000105
+      - match: TIN - 5506218498
+        prop: taxNumber
+        value: 5506218498
+      - match: TIN - 770426257
+        prop: taxNumber
+        value: 770426257
+      - match: 'OGRN: 1112130013270'
+        prop: ogrnCode
+        value: 1112130013270
+      - match: 'TIN: 2130094170'
+        prop: taxNumber
+        value: 2130094170
+      - match: 'Russia INN - 7706196340'
+        prop: innCode
+        value: 7706196340
+      - match: 'OGRN: 1027802490540'
+        prop: ogrnCode
+        value: 1027802490540
   companies:
     normalize: true
     options:
@@ -62,6 +338,7 @@ lookups:
           - General Petroleum Company (GPC)
           - Daedong Credit Bank (DCB)
           - Russian Ministry of Defence
+          - Russia Ministry of Defence
           - Tangun Trading Corporation
           - Korea Ryonbong General Corporation
           - Korea Ryongbong General Corporation
@@ -116,6 +393,13 @@ lookups:
           - Sudan Master Technology
           - Ministerstvo Promyshlennosti I Torgovli Rossiiskoi Federatsiikii
           - PJSC Novatek
+          - STANEX GROUP LIMITED LIABILITY PARTNERSHIP
+          - PJSC Zenit Bank
+          - STANEX GROUP LLP
+          - Ningbo Haitian Precision Machinery Co. Ltd
+          - AUTEL INTELLIGENT TECHNOLOGY
+          - MR TAIQIONG CHEN
+          - HK Kongsing Co., Limited
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -453,6 +737,85 @@ lookups:
         values:
           - Novin Energy
           - TAMAS
+      - match: Lobaye Invest SARLU, owned by M-Finans
+        values:
+          - Lobaye Invest SARLU
+          - M-Finans
+      - match: (1) TSENTR MOLODEZHNOGO INNOVATSIONNOGO TVORCHESTVA (2) IST Ltd TRADE DEVELOPMENT (3) UNIMATIK-MSK (4) LLC UNIMATICENVERSION (5) HUSTLE SHIFT LLC (6) EMKO-RUS (7) ALTEGRITY LLC (8) AVTONOMNAYA NEKOMMERCHESKAYA (9) ORGANIZATSIYA DOPOLNITELNOGO (10) OBRAZOVANIYA UCHEBNYI TSENTR UNIMATIK
+        values:
+          - TSENTR MOLODEZHNOGO INNOVATSIONNOGO TVORCHESTVA
+          - IST Ltd TRADE DEVELOPMENT
+          - UNIMATIK-MSK
+          - LLC UNIMATICENVERSION
+          - HUSTLE SHIFT LLC
+          - EMKO-RUS
+          - ALTEGRITY LLC
+          - AVTONOMNAYA NEKOMMERCHESKAYA ORGANIZATSIYA DOPOLNITELNOGO OBRAZOVANIYA UCHEBNYI TSENTR UNIMATIK
+      - match: (1) KAZSTANEX LLP (2) ROSTANEX (3) UZSTANEX LLC
+        values:
+          - KAZSTANEX LLP
+          - ROSTANEX
+          - UZSTANEX LLC
+      - match: Joint-Stock Company “Russian Electronics” Ruselectronics
+        values:
+          - Joint-Stock Company “Russian Electronics”
+          - Ruselectronics
+      - match: AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-27; ZAKRYTOE AKTSIONERNOE OBSHCHESTVO GOSTINICHNYI KOMPLEKS KRONA
+        values:
+          - AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-27
+          - ZAKRYTOE AKTSIONERNOE OBSHCHESTVO GOSTINICHNYI KOMPLEKS KRONA
+      - match: P & P HOLDING GMBH
+        value: P & P Holding GmbH
+      - match: (1) EKC AG USA Corporation (2) EKC AG Turkey Madencilik Anonim Sirketi
+        values:
+          - EKC AG USA Corporation
+          - EKC AG Turkey Madencilik Anonim Sirketi
+      - match: Ministry of Science and Higher Education of the Russian Federation
+        value: Ministry of Science and Higher Education of the Russian Federation
+      - match: CLOSED JOINT-STOCK COMPANY SCIENTIFIC AND PRODUCTION LASER-TECHNOLOGICAL CENTER; ASSOCIATION FOR PROMOTING IMPROVEMENT OF HOUSING CONDITIONS OF EMPLOYEES OF THE ORGANIZATION OF THE NOVOSIBIRSK SCIENTIFIC CENTER "AKADEMZHILSTROY-1";
+        values:
+          - CLOSED JOINT-STOCK COMPANY SCIENTIFIC AND PRODUCTION LASER-TECHNOLOGICAL CENTER
+          - ASSOCIATION FOR PROMOTING IMPROVEMENT OF HOUSING CONDITIONS OF EMPLOYEES OF THE ORGANIZATION OF THE NOVOSIBIRSK SCIENTIFIC CENTER "AKADEMZHILSTROY-1"
+      - match: (1) Federal Agency FOR State Property Management (2) Rostec
+        values:
+          - Federal Agency FOR State Property Management
+          - Rostec
+      - match: NEKOMMERCHESKAYA ORGANIZATSIYA SOYUZ ROSSIISKIKH ORUZHEINIKOV IMENI M.T. KALASHNIKOVA
+        value: NEKOMMERCHESKAYA ORGANIZATSIYA SOYUZ ROSSIISKIKH ORUZHEINIKOV IMENI M.T. KALASHNIKOVA
+      - match: Vorkutaugol JSC
+        value: Vorkutaugol JSC
+      - match: AVILON KHOLDINGRUS
+        value: AVILON KHOLDINGRUS
+      - match: (1) Suzhou Neway Machine Tool Design and Research Institute Co., Ltd. (2) Neway Cnc (USA), Inc.
+        values:
+          - Suzhou Neway Machine Tool Design and Research Institute Co., Ltd.
+          - Neway Cnc (USA), Inc.
+      - match: "(1) BIC: 136001 (2) TIN: 02012201010017 (3) OKPO: 27231453 (4) SWIFT: RINBKG22"
+        values:
+          - "BIC: 136001"
+          - "TIN: 02012201010017"
+          - "OKPO: 27231453"
+          - "SWIFT: RINBKG22"
+      - match: 'SUZHOU SHUNYI INVESTMENT CO., LTD'
+        value: SUZHOU SHUNYI INVESTMENT CO., LTD
+      - match: '(1) 苏州百胜动力科技有限公司 – SUZHOU YUM POWER TECHNOLOGY CO., LTD. (2)  苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD.'
+        values:
+          - 苏州百胜动力科技有限公司 - SUZHOU YUM POWER TECHNOLOGY CO., LTD
+          - 苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD
+  type.name:
+    options:
+      - match: "BIC: 136001"
+        prop: bikCode
+        value: 136001
+      - match: "TIN: 02012201010017"
+        prop: taxNumber
+        value: "02012201010017"
+      - match: "OKPO: 27231453"
+        prop: okpoCode
+        value: 27231453
+      - match: "SWIFT: RINBKG22"
+        prop: swiftBic
+        value: RINBKG22
   type.address:
     lowercase: true
     options:
@@ -487,6 +850,7 @@ lookups:
       - match:
           - "-"
           - 111141
+          - 115088
         value: null
       - match:
           - former USSR, now Azerbaijan
@@ -569,110 +933,24 @@ lookups:
     options:
       - match: "Email: scot50@scn-net.org"
         value: scot50@scn-net.org
-      - match: (1) mobilisation@novorossia.co (2) novoross24@mail.ru (3) voenkom.dnr@mail.ru
-        values:
-          - mobilisation@novorossia.co
-          - novoross24@mail.ru
-          - voenkom.dnr@mail.ru
-      - match: (1) press@zalivkerch.com (2) sess@zalivkerch.com (3) uzis@zalivkerch.com
-        values:
-          - press@zalivkerch.com
-          - sess@zalivkerch.com
-          - uzis@zalivkerch.com
       - match:
           - www.140zavod.by
           - www.surena gc.com
         value: null
-      - match: (1) dalzavod@dcss.ru (2) ok@csdalzavod.ru
-        values:
-          - dalzavod@dcss.ru
-          - ok@csdalzavod.ru
-      - match: (1) dashtabadi@partosanat.com (2) Info@partosanat.com
-        values:
-          - dashtabadi@partosanat.com
-          - Info@partosanat.com
       - match:
-          (1) magnolia.byx@yandex.ua (2) sicomplit@i.ua (3) t_c82@inbox.ru (4)
-          zakupkj@chbrr.crimea.com
-        values:
-          - magnolia.byx@yandex.ua
-          - sicomplit@i.ua
-          - t_c82@inbox.ru
-          - zakupkj@chbrr.crimea.com
-      - match: (1) info@scf-group.ru (2) pr@scf-group.ru (3) ir@scf-group.ru
-        values:
-          - info@scf-group.ru
-          - pr@scf-group.ru
-          - ir@scf-group.ru
-      - match: (1) bk@smpbank.ru (2) Money@smpbank.ru (3) smpbank@smpbank.ru
-        values:
-          - bk@smpbank.ru
-          - Money@smpbank.ru
-          - smpbank@smpbank.ru
-      - match:
-          "(1) www.farhang gostar.net/gtb (2) www.gtbir.com (3) www.taghtiran.ir
-          (Email address): (1) gtb@farhanggostar.net (2) hnourib@yahoo.com (3) office@taghtiran.ir
-          (4) taghtiran@gtbir.com"
-        values:
-          - gtb@farhanggostar.net
-          - hnourib@yahoo.com
-          - office@taghtiran.ir
-          - taghtiran@gtbir.com
-      - match:
-          (1) H.S@nvco.com (2) H.Sharifi@nvco.com (3) info@nvco.com (4) Marketing@nvco.com
-          (5) Mostafavi@nvco.com
-        values:
-          - H.S@nvco.com
-          - H.Sharifi@nvco.com
-          - info@nvco.com
-          - Marketing@nvco.com
-          - Mostafavi@nvco.com
-      - match: (1) spccom1@scs-net.org (2) spccom2@scs-net.org
-        values:
-          - spccom2@scs‐net.org
-          - spccom1@scsnet.org
-      - match: (1) ermakova@intds.ru (2) lantsova@intgs.ru
-        values:
-          - ermakova@intds.ru
-          - lantsova@intgs.ru
-      - match: request@mehr fci.ir
-        value: request@mehr-fci.ir
-      - match: (1) info@radioautomatic.ru (2) sale@radioautomatic.ru
-        values:
-          - info@radioautomatic.ru
-          - sale@radioautomatic.ru
-      - match:
-          (1) info@stepfasteners.com (2) miladjafari@ekolay.net (3) purchase@stepfasteners.com
-          (4) sales@stepfasteners.com
-        values:
-          - info@stepfasteners.com
-          - miladjafari@ekolay.net
-          - purchase@stepfasteners.com
-          - sales@stepfasteners.com
-      - match: (1) mohammadreza.alizadeh@schillernovin.ir (2) schniller@dpimail.net
-        values:
-          - mohammadreza.alizadeh@schillernovin.ir
-          - schniller@dpimail.net
+          - www.farhang gostar.net/gtb
+          - www.gtbir.com
+          - "www.taghtiran.ir (Email address):"
+        value: null
       - match: and millim@silibank.com
         value: millim@silibank.com
-      - match: (1) info@zala.aero (2) 20shrhrabota@gmail.com
-        values:
-          - info@zala.aero
-          - 20shrhrabota@gmail.com
       - match: info@etemad mobin.com
         value: info@etemad-mobin.com
-      - match: (1) Info@sasta.ru (2) sastalogist@yandex.ru
-        values:
-          - Info@sasta.ru
-          - sastalogist@yandex.ru
-      - match: (1) Info@bpk-spb.ru (2) service@bpk.spb.ru
-        values:
-          - Info@bpk-spb.ru
-          - service@bpk.spb.ru
-      - match: (1) azia@aziaship.com (2) business@aziaship.com
-        values:
-          - azia@aziaship.com
-          - business@aziaship.com
+      - match: request@mehr fci.ir
+        value: request@mehr-fci.ir
+      - match: indoc@SIBANTHRACITE GROUP.ru
+        value: indoc@SIBANTHRACITEGROUP.ru
+
   type.gender:
     lowercase: true
     normalize: true
@@ -689,3 +967,9 @@ lookups:
     options:
       - match: 00/00/0
         value: null
+  type.string:
+    options:
+      - match: "(1) 603950 (2) 603107"
+        values:
+          - 603950
+          - 603107

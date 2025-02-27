@@ -8,7 +8,7 @@ from zavod import helpers as h
 
 # Don't use the cache at all - the forms use unique session IDs each time.
 CACHE_DAYS = None
-RETRIES = 3
+RETRIES = 7
 BASE_URL = "https://registry.andoz.tj/{section}.aspx?lang=ru"
 
 
@@ -111,7 +111,7 @@ def crawl_page(
     retries: int,
 ) -> int:
     """
-    Crawls a single page of the Tadjikistan data portal and emits the data.
+    Crawls a single page of the Tajikistan data portal and emits the data.
     Args:
         context: The context object for the current dataset.
         section: section of the registry (currently there are three)
@@ -148,7 +148,13 @@ def crawl_page(
     try:
         max_page = max(map(lambda x: int(x.strip("[]")), pages))
     except Exception:
-        context.log.error("Failed to parse max page", pages=pages, payload=raw_payload)
+        context.log.error(
+            "Failed to parse max page",
+            pages=pages,
+            payload=raw_payload,
+            section=section,
+            page_number=page_number,
+        )
         # example error seen here:
         # {'error':{'message':'Истекло время ожидания (Timeout). Время ожидания
         # истекло до завершения операции или сервер не отвечает.'}
@@ -156,8 +162,9 @@ def crawl_page(
         # Timeout has expired. The timeout occurred before the operation was
         # completed or the server did not respond.
         if retries > 0:
-            context.log.info("No pagination controls, retrying.")
-            sleep(2 ** (RETRIES - retries))
+            seconds = 10 * (2 ** (RETRIES - retries))
+            context.log.info("No pagination controls, retrying.", seconds=seconds)
+            sleep(seconds)
             return crawl_page(
                 context=context,
                 section=section,
@@ -203,16 +210,11 @@ def crawl_page(
         values = [cell.text.strip() for cell in cells]
         item = dict(zip(headers, values))
 
-        item["date_of_reg"] = h.parse_date(
-            item["date_of_reg"],
-            ["%d.%m.%Y"],
-        )[0]
-
         entity = context.make(entity_type)
         entity.id = context.make_id(f"TJ{entity_type}", item["ein"], item["inn"])
         entity.add("name", item["name"], lang="tgk")
-        entity.add("incorporationDate", item["date_of_reg"])
-        entity.add("status", item["status"], lang="rus")
+        h.apply_date(entity, "incorporationDate", item["date_of_reg"])
+        entity.add("status", item["status"])
         entity.add("country", "tj")
 
         # https://andoz.tj/docs/postanovleniya-pravitelstvo/Resolution__№323_ru.pdf
@@ -222,7 +224,7 @@ def crawl_page(
         entity.add("taxNumber", item["inn"])
         entity.add("registrationNumber", item["ein"])
 
-        context.emit(entity, target=True)
+        context.emit(entity)
 
     return max_page
 

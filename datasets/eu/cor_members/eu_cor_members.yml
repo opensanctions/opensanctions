@@ -6,17 +6,23 @@ coverage:
   start: 2021-02-12
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  ​The European Committee of the Regions (CoR) represents local and regional
-  authorities across the European Union and advises on new laws that have
-  an impact on regions and cities.
+  Detailed information on members representing local and regional authorities 
+  across the European Union.
 description: >
-  ​The European Committee of the Regions (CoR) is the voice of regions and 
-  cities in the European Union (EU). It represents local and regional authorities 
-  across the European Union and advises on new laws that have an impact on regions 
-  and cities (70% of all EU legislation).
+  This dataset from the European Committee of the Regions (CoR) provides comprehensive
+  data on the members who represent local and regional authorities in the EU. It includes 
+  each member's function, status, country of representation, and the bodies they are 
+  affiliated with, such as political groups and commissions.
 publisher:
   name: European Committee of the Regions
   acronym: CoR
+  description: >
+    The CoR is a political assembly composed of 329 members and 329 alternates from 
+    all EU countries (grouped by political party and headed by the President) who have
+    been elected at local or regional level (for example as Mayors or Presidents of a 
+    region). They come to Brussels up to six times a year to debate their opinions on 
+    proposed legislation and agree on resolutions for further action by the EU.
+    [Source](https://cor.europa.eu/en/about/Pages/default.aspx)
   country: eu
   url: https://cor.europa.eu/en
   official: true
@@ -24,3 +30,13 @@ url: https://cor.europa.eu/en
 data:
   url: https://memberspage.cor.europa.eu/api/members
   format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Person: 530
+      Position: 1
+  max:
+    schema_entities:
+      Person: 1200
+      Position: 4

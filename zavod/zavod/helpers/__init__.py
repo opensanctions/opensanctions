@@ -39,19 +39,20 @@ from zavod.helpers.names import make_name, apply_name, split_comma_names
 from zavod.helpers.positions import make_position, make_occupancy
 from zavod.helpers.text import clean_note, is_empty, remove_bracketed
 from zavod.helpers.text import multi_split
-from zavod.helpers.sanctions import make_sanction
+from zavod.helpers.sanctions import make_sanction, is_active
 from zavod.helpers.addresses import make_address, format_address
-from zavod.helpers.addresses import copy_address, apply_address
-from zavod.helpers.dates import extract_years, parse_date, check_no_year
-from zavod.helpers.dates import parse_formats, apply_date, apply_dates
+from zavod.helpers.addresses import copy_address, apply_address, postcode_pobox
+from zavod.helpers.dates import extract_years
+from zavod.helpers.dates import parse_formats, apply_date, apply_dates, extract_date
 from zavod.helpers.dates import replace_months
 from zavod.helpers.identification import make_identification
 from zavod.helpers.securities import make_security
-from zavod.helpers.excel import convert_excel_cell, convert_excel_date, parse_xlsx_sheet
-from zavod.helpers.html import parse_table
+from zavod.helpers.excel import convert_excel_cell, convert_excel_date, parse_xls_sheet
+from zavod.helpers.excel import parse_xlsx_sheet
+from zavod.helpers.html import parse_html_table, cells_to_str, links_to_dict
 from zavod.helpers.crypto import extract_cryptos
 from zavod.helpers.change import assert_dom_hash, assert_url_hash, assert_html_url_hash
-from zavod.helpers.pdf import make_pdf_page_images
+from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
 
 __all__ = [
     "clean_note",
@@ -62,15 +63,17 @@ __all__ = [
     "format_address",
     "apply_address",
     "copy_address",
+    "postcode_pobox",
     "make_sanction",
+    "is_active",
     "make_identification",
     "extract_years",
-    "parse_date",
     "parse_formats",
+    "parse_xls_sheet",
     "parse_xlsx_sheet",
-    "check_no_year",
     "apply_date",
     "apply_dates",
+    "extract_date",
     "replace_months",
     "convert_excel_cell",
     "convert_excel_date",
@@ -80,11 +83,14 @@ __all__ = [
     "apply_name",
     "make_position",
     "make_occupancy",
-    "parse_table",
+    "parse_html_table",
+    "cells_to_str",
+    "links_to_dict",
     "extract_cryptos",
     "assert_dom_hash",
     "assert_url_hash",
     "assert_html_url_hash",
     "split_comma_names",
     "make_pdf_page_images",
+    "parse_pdf_table",
 ]

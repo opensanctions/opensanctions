@@ -14,8 +14,8 @@ summary: >
 description: |
   This includes:
 
-  * [Cuba Prohibited Accommodations List](https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list/cuba-prohibited-accommodations-list-initial-publication/)
-  * [List of Restricted Entities and Subentities Associated With Cuba](https://www.state.gov/cuba-restricted-list/list-of-restricted-entities-and-subentities-associated-with-cuba-effective-january-8-2021/)
+  * [Cuba Prohibited Accommodations List](https://www.state.gov/cuba-prohibited-accommodations-list-initial-publication/)
+  * [List of Restricted Entities and Subentities Associated With Cuba](https://www.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list)
 publisher:
   name: US State Department
   acronym: State
@@ -30,7 +30,15 @@ publisher:
   official: true
 url: https://www.state.gov/cuba-sanctions/
 data:
-  url: https://docs.google.com/spreadsheets/d/1kkl5JhsE-w3m8veU4DrkwTOGMmkAniMc0GsyJFJMFck/edit#gid=1890354374https://www.bis.doc.gov/dpl/dpl.txt
+  url: https://docs.google.com/spreadsheets/d/1kkl5JhsE-w3m8veU4DrkwTOGMmkAniMc0GsyJFJMFck/edit#gid=1890354374
   format: CSV
   lang: eng
 ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      Company: 480
+  max:
+    schema_entities:
+      Company: 1100

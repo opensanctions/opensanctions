@@ -15,10 +15,6 @@ description: |
   > the development of weapons of mass destruction (WMDs) and missiles, for
   > the purpose of enhancing the effectiveness of the catch-all control on
   > cargos and other loads relating to WMDs and missiles.
-
-  **Note:** This crawler uses an LLM-based approach to extract the data from
-  the PDF file. We are still working on improving the quality of that process
-  in order to ensure the highest possible accuracy.
 publisher:
   name: "Ministry of Economy, Trade and Industry"
   acronym: METI
@@ -35,6 +31,14 @@ data:
   url: https://www.meti.go.jp/english/policy/external_economy/trade_control/index.html#Endu
   format: PDF
   lang: jpn
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 630
+  max:
+    schema_entities:
+      LegalEntity: 1500
 
 lookups:
   type.country:

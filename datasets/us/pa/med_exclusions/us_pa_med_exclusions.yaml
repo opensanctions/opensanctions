@@ -1,0 +1,48 @@
+title: US Pennsylvania Medicheck list
+entry_point: crawler.py
+prefix: us-medpa
+coverage:
+  frequency: daily
+  start: "2024-10-04"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers who are precluded from participation in the Medical Assistance Program
+description: |
+  The Medicheck List dataset contains information about providers
+  who are excluded from participating in the Medical Assistance (MA) Program. Healthcare
+  providers are required by law to screen all employees, contractors, and entities against
+  this list at the time of hire or contracting and perform monthly checks thereafter.
+publisher:
+  name: Department of Human Services
+  description: >
+    The Pennsylvania Department of Human Services (DHS) is a state agency responsible for
+    providing essential services and support to individuals and families in need, including
+    healthcare, child welfare, and social assistance programs.
+  acronym: DHS
+  url: https://www.pa.gov/en/agencies/dhs.html
+  official: true
+  country: "us"
+url: https://www.pa.gov/en/agencies/dhs/report-fraud/medicheck-list.html
+data:
+  url: https://www.humanservices.state.pa.us/Medchk/MedchkSearch/Medchk?target=_blank
+  format: CSV
+dates:
+  formats: ["%m/%d/%Y %H:%M:%S"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 200
+      Person: 4500
+  max:
+    schema_entities:
+      Company: 400
+      Person: 6000
+
+lookups:
+  type.identifier:
+    options:
+      - match:
+          - None
+          - N/A
+        value: null

@@ -103,13 +103,9 @@ def crawl_item(context: Context, input_dict: dict):
     sanction.add(
         "provisions", h.multi_split(input_dict.pop("Action Taken"), PROVISIONS_SPLITS)
     )
+    h.apply_date(sanction, "startDate", input_dict.pop("date"))
 
-    sanction.add(
-        "startDate",
-        h.parse_date(input_dict.pop("date"), formats=["%d %B %Y"]),
-    )
-
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(input_dict, ignore=["No.", "No"])

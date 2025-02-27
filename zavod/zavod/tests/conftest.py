@@ -8,7 +8,7 @@ from nomenklatura.db import get_engine
 from zavod import settings
 from zavod.context import Context
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 
 nk_settings.TESTING = True
 settings.DATA_PATH = Path(mkdtemp()).resolve()
@@ -35,7 +35,8 @@ XML_DOC = FIXTURES_PATH / "doc.xml"
 def wrap_test():
     _, path = mkstemp(suffix=".ijson")
     shutil.rmtree(settings.ARCHIVE_PATH, ignore_errors=True)
-    shutil.rmtree(settings.DATA_PATH / "datasets", ignore_errors=True)
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+    settings.DATA_PATH = Path(mkdtemp()).resolve()
     settings.RESOLVER_PATH = path
     get_resolver.cache_clear()
     yield
@@ -74,6 +75,24 @@ def testdataset2_export() -> Dataset:
 @pytest.fixture(scope="function")
 def testdataset_securities() -> Dataset:
     dataset = load_dataset_from_path(DATASET_SECURITIES_YML)
+    assert dataset is not None
+    return dataset
+
+
+@pytest.fixture(scope="function")
+def testdataset_enrich_subject() -> Dataset:
+    dataset = load_dataset_from_path(
+        FIXTURES_PATH / "testdataset_enrich_subject" / "testdataset_enrich_subject.yml"
+    )
+    assert dataset is not None
+    return dataset
+
+
+@pytest.fixture(scope="function")
+def testdataset_dedupe() -> Dataset:
+    dataset = load_dataset_from_path(
+        FIXTURES_PATH / "testdataset_dedupe" / "testdataset_dedupe.yml"
+    )
     assert dataset is not None
     return dataset
 

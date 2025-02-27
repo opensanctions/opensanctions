@@ -22,9 +22,20 @@ publisher:
   url: https://www.government.nl/ministries/ministry-of-foreign-affairs
   official: true
 data:
-  url: "https://www.politie.nl/en/wanted-and-missing/most-wanted"
+  url: "https://www.politie.nl/en/wanted"
   format: HTML
+  lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      Person: 15
+  max:
+    schema_entities:
+      Person: 40
+
+dates: 
+  formats: ["%d-%m-%Y"]
 lookups:
   type.gender:
     lowercase: true
@@ -32,3 +43,9 @@ lookups:
     options:
       - match: MALE
         value: male
+  type.country: 
+    options: 
+      - match: Spanish / Moroccan
+        values: 
+          - Spain
+          - Morocco

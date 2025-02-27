@@ -45,6 +45,8 @@ data:
   url: https://nigsac.gov.ng/IndSancList
   format: HTML
 
+dates: 
+  formats: "%m/%d/%Y %H:%M:%S %p"
 assertions:
   min:
     schema_entities:
@@ -56,7 +58,6 @@ assertions:
     schema_entities:
       Person: 50
       LegalEntity: 20
-
 lookups:
   entities_as_individuals:
     options:

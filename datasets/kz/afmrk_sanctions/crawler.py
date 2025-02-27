@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import cast
 from rigour.mime.types import XML
 
 from zavod import Context
@@ -6,7 +6,7 @@ from zavod import helpers as h
 
 from urllib.parse import urljoin
 
-FORMATS = ["%d.%m.%Y"]
+
 CATEGORY1_PROGRAM = "Kazakh Terror Financing list"
 CATEGORY2_PROGRAM = "Participants in terrorist activities"
 CATEGORY1_URL = "xml_category_1/?status=acting"
@@ -15,11 +15,11 @@ CATEGORY1_EXPORT = "terrorism-financiers-source.xml"
 CATEGORY2_EXPORT = "terrorists-source.xml"
 
 
-def added_date_from_note(text: str) -> Optional[List[str]]:
+def added_date_from_note(text: str) -> str | None:
     # "Added from"
     if text and text.startswith("включен от"):
         start_date = text.replace("включен от ", "").strip()
-        return h.parse_date(start_date, FORMATS)
+        return start_date
     return None
 
 
@@ -30,11 +30,11 @@ def make_entity(context: Context, el, schema, entity_id, topics, program):
     entity.add("topics", topics)
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("summary", el.findtext("./correction"))
+    sanction.add("summary", el.findtext("./correction"), lang="rus")
     sanction.add("program", program)
-    listingDate = h.parse_date(el.findtext("./added_to_list"), FORMATS)
+    listingDate = cast(str | None, el.findtext("./added_to_list"))
     note_date = added_date_from_note(el.findtext("./correction"))
-    sanction.add("listingDate", listingDate or note_date)
+    h.apply_date(sanction, "listingDate", listingDate or note_date)
 
     context.emit(sanction)
     return entity
@@ -64,9 +64,19 @@ def crawl_financiers(context: Context):
             context, el, "Person", entity_id, "sanction", CATEGORY1_PROGRAM
         )
         h.apply_name(entity, given_name=fname, middle_name=mname, last_name=lname)
-        entity.add("innCode", iin)
-        entity.add("birthDate", h.parse_date(bdate, FORMATS, bdate))
-        context.emit(entity, target=True)
+        entity.add("idNumber", iin)
+        h.apply_date(entity, "birthDate", bdate)
+        context.emit(entity)
+
+        if iin:
+            ident = h.make_identification(
+                context,
+                entity,
+                number=iin,
+                doc_type="IIN",
+                country="kz",
+            )
+            context.emit(ident)
 
     for el in doc.findall(".//org"):
         name = el.findtext(".//org_name")
@@ -79,7 +89,7 @@ def crawl_financiers(context: Context):
             if names is None:
                 continue
             entity.add("name", names.split("; "))
-        context.emit(entity, target=True)
+        context.emit(entity)
 
 
 def crawl_terrorists(context: Context):
@@ -108,5 +118,5 @@ def crawl_terrorists(context: Context):
             CATEGORY2_PROGRAM,
         )
         entity.add("name", name)
-        entity.add("innCode", iin)
+        entity.add("idNumber", iin)
         context.emit(entity)

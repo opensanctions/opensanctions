@@ -26,6 +26,9 @@ data:
   url: https://www.bka.de/SiteGlobals/Forms/Suche/Fahndungsliste_Personenfahndung_Formular.html
   format: HTML
   lang: deu
+
+dates: 
+  formats: ["%d.%m.%Y"]
 lookups:
   type.gender:
     lowercase: true
@@ -65,6 +68,10 @@ lookups:
       - match:
           - türkisch
         value: tr
+      - match: libanesisch
+        value: lb
+      - match: griechisch
+        value: gr
 assertions:
   min:
     schema_entities:

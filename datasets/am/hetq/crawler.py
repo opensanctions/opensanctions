@@ -40,10 +40,6 @@ MONTHS = [
     "նոյեմբեր",
     "դեկտեմբեր",
 ]
-DATE_FORMATS = [
-    "%B %d %Y",
-    "%Y-%m-%d",
-]
 HY_BIRTHDATE = re.compile(
     r"ծնվել է (\d+)\s*(?:թվականին|թվականի|թ.)(?:,?\s+(\S+)\s+(\d+)\s*[–-]\s*ին)?", re.I
 )
@@ -108,8 +104,9 @@ def crawl_person(
     """Create person and position/occupancy if applicable."""
     birth_date, birth_place = get_birth_info(context, zipfh, person_id)
     name_en = data.get("name_en", "").strip()
+    name_en = context.lookup_value("normalize_name", name_en, name_en)
     name_hy = data.get("name_hy", "").strip()
-    if name_en == "" and name_hy == "":
+    if h.is_empty(name_en) and h.is_empty(name_hy):
         context.log.warning(f"Skipping person {person_id} with no name")
         return None
     person = context.make("Person")
@@ -120,7 +117,7 @@ def crawl_person(
     if name_hy:
         person.add("name", name_hy, lang="hy")
     if birth_date is not None:
-        person.add("birthDate", h.parse_date(birth_date, DATE_FORMATS))
+        h.apply_date(person, "birthDate", birth_date)
     if birth_place is not None:
         person.add("birthPlace", birth_place)
     position_name = data.get("position_en", "").strip()
@@ -159,7 +156,7 @@ def crawl_person(
                 context.emit(position)
     # Emit all the persons anyway
     person.add("topics", "poi")
-    context.emit(person, target=is_target)
+    context.emit(person)
     return person
 
 

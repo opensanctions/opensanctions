@@ -1,12 +1,14 @@
 import csv
 import json
+import logging
 from typing import Optional, Generator, Dict, Any
 from lxml import html
 from zipfile import ZipFile
-from functools import cache, lru_cache
+from functools import cache
 from io import TextIOWrapper
-from datetime import datetime
 from urllib.parse import urljoin
+
+import zavod.logs
 from nomenklatura.util import PathLike
 from followthemoney.types import registry
 from followthemoney.util import join_text
@@ -48,7 +50,7 @@ IGNORE_BASE_COLUMNS = [
 ]
 
 
-def company_id(context: Context, company_nr: str) -> str:
+def company_id(company_nr: str) -> str:
     nr = company_nr.lower()
     return f"oc-companies-gb-{nr}"
 
@@ -59,13 +61,6 @@ def parse_country(name: str, default: Optional[str] = None) -> Optional[str]:
     if code is None:
         return default
     return code
-
-
-@lru_cache(maxsize=10000)
-def parse_date(text: str) -> Optional[str]:
-    if text is None or not len(text):
-        return None
-    return datetime.strptime(text, "%d/%m/%Y").date().isoformat()
 
 
 @cache
@@ -102,14 +97,10 @@ def parse_base_data(context: Context) -> None:
     data_path = context.fetch_resource("base_data.zip", base_data_url)
 
     context.log.info("Loading: %s" % data_path)
-    for idx, row in enumerate(read_base_data_csv(data_path)):
-        if idx > 0 and idx % 10000 == 0:
-            context.log.info("Companies: %d..." % idx)
-        # if idx > 0 and idx % 1000000 == 0:
-        #     return
+    for row in read_base_data_csv(data_path):
         company_nr = row.pop("CompanyNumber")
         entity = context.make("Company")
-        entity.id = company_id(context, company_nr)
+        entity.id = company_id(company_nr)
         entity.add("name", row.pop("CompanyName"))
         entity.add("registrationNumber", company_nr)
         entity.add("status", row.pop("CompanyStatus"))
@@ -119,21 +110,25 @@ def parse_base_data(context: Context) -> None:
 
         oc_url = f"https://opencorporates.com/companies/gb/{company_nr}"
         entity.add("opencorporatesUrl", oc_url)
-        entity.add("sourceUrl", row.pop("URI"))
+        # entity.add("sourceUrl", row.pop("URI"))
+        entity.add(
+            "sourceUrl",
+            f"https://find-and-update.company-information.service.gov.uk/company/{company_nr}",
+        )
 
         for i in range(1, 5):
             sector = row.pop(f"SICCode.SicText_{i}")
             entity.add("sector", clean_sector(sector))
-        inc_date = parse_date(row.pop("IncorporationDate"))
-        entity.add("incorporationDate", inc_date)
-        dis_date = parse_date(row.pop("DissolutionDate"))
-        entity.add("dissolutionDate", dis_date)
+        inc_date = row.pop("IncorporationDate")
+        h.apply_date(entity, "incorporationDate", inc_date)
+        dis_date = row.pop("DissolutionDate")
+        h.apply_date(entity, "dissolutionDate", dis_date)
 
         for i in range(1, 11):
             row.pop(f"PreviousName_{i}.CONDATE")
             entity.add("previousName", row.pop(f"PreviousName_{i}.CompanyName"))
 
-        country_code = parse_country(row.pop("RegAddress.Country"), default="gb")
+        addr_country = row.pop("RegAddress.Country")
         street = join_text(
             row.pop("RegAddress.AddressLine1"),
             row.pop("RegAddress.AddressLine2"),
@@ -145,7 +140,7 @@ def parse_base_data(context: Context) -> None:
             postal_code=row.pop("RegAddress.PostCode"),
             county=row.pop("RegAddress.County"),
             city=row.pop("RegAddress.PostTown"),
-            country_code=country_code,
+            country=addr_country,
         )
         entity.add("address", addr_text)
         context.audit_data(row, ignore=IGNORE_BASE_COLUMNS)
@@ -204,19 +199,23 @@ def parse_psc_data(context: Context) -> None:
         psc = context.make(schema)
         psc_id_slug = psc_id.replace("_", "-").lower()
         psc.id = f"{context.dataset.prefix}-psc-{company_nr}-{psc_id_slug}"
-        psc.add("name", data.pop("name"))
         nationality = data.pop("nationality", None)
         nationalities = h.multi_split(nationality, [",", "/"])
         if psc.schema.is_a("Person"):
-            psc.add("nationality", nationalities, quiet=True)
+            psc.add("nationality", nationalities, quiet=True, fuzzy=True)
         else:
-            psc.add("jurisdiction", nationalities, quiet=True)
-        psc.add("country", data.pop("country_of_residence", None))
+            psc.add("jurisdiction", nationalities, quiet=True, fuzzy=True)
+        psc.add("country", data.pop("country_of_residence", None), fuzzy=True)
 
         names = data.pop("name_elements", {})
-        psc.add("firstName", names.pop("forename", None), quiet=True)
-        psc.add("middleName", names.pop("middle_name", None), quiet=True)
-        psc.add("lastName", names.pop("surname", None), quiet=True)
+        h.apply_name(
+            psc,
+            full=data.pop("name"),
+            first_name=names.pop("forename", None),
+            middle_name=names.pop("middle_name", None),
+            last_name=names.pop("surname", None),
+            quiet=True,
+        )
         psc.add("title", names.pop("title", None), quiet=True)
 
         dob = data.pop("date_of_birth", {})
@@ -231,6 +230,7 @@ def parse_psc_data(context: Context) -> None:
                 address.pop("address_line_1", None),
                 address.pop("address_line_2", None),
             )
+            country = address.pop("country", None)
             addr_text = h.format_address(
                 summary=address.pop("care_of", None),
                 po_box=address.pop("po_box", None),
@@ -239,7 +239,7 @@ def parse_psc_data(context: Context) -> None:
                 postal_code=address.pop("postal_code", None),
                 state=address.pop("region", None),
                 city=address.pop("locality", None),
-                country_code=parse_country(address.pop("country", None)),
+                country=country,
             )
             psc.add("address", addr_text)
             context.audit_data(address)
@@ -249,13 +249,18 @@ def parse_psc_data(context: Context) -> None:
         psc.add("registrationNumber", reg_nr, quiet=True)
         psc.add("legalForm", ident.pop("legal_form", None), quiet=True)
         psc.add("legalForm", ident.pop("legal_authority", None), quiet=True)
-        psc.add("jurisdiction", ident.pop("country_registered", None), quiet=True)
+        psc.add(
+            "jurisdiction",
+            ident.pop("country_registered", None),
+            quiet=True,
+            fuzzy=True,
+        )
         # psc.add("jurisdiction", ident.pop("place_registered", None), quiet=True)
         # if len(ident):
         #     pprint(ident)
-        asset_id = company_id(context, company_nr)
+        asset_id = company_id(company_nr)
         link = context.make("Ownership")
-        link.id = context.make_slug("stmt", company_nr, psc_id)
+        link.id = context.make_id("psc", company_nr, psc_id)
         link.add("owner", psc.id)
         link.add("recordId", psc_id)
         link.add("asset", asset_id)
@@ -267,6 +272,7 @@ def parse_psc_data(context: Context) -> None:
         asset = context.make("Company")
         asset.id = asset_id
         asset.add("registrationNumber", company_nr)
+        asset.add("jurisdiction", "gb")
 
         for nature in data.pop("natures_of_control", []):
             nature = nature.replace("-", " ").capitalize()
@@ -284,5 +290,8 @@ def parse_psc_data(context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
+    # This crawler emits too many non-actionable warnings, so disable reporting to Sentry for now
+    # TODO(Leon Handreke): Clean this up https://github.com/opensanctions/opensanctions/issues/1908
+    zavod.logs.set_sentry_event_level(logging.ERROR)
     parse_base_data(context)
     parse_psc_data(context)

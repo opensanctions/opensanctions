@@ -1,0 +1,39 @@
+title: Thailand Cabinet of Ministers
+entry_point: crawler.py
+prefix: th-min
+coverage:
+  frequency: daily
+  start: 2024-10-15
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+summary: >
+  List of the current members of the Thai Cabinet of Ministers. 
+  It includes the names and official positions of each cabinet member.
+description: |
+  This dataset comprises information about the Thai Cabinet of Ministers. It includes 
+  the names of the ministers, their respective positions, and relevant details about 
+  their roles within the government
+publisher:
+  name: สำนักเลขาธิการคณะรัฐมนตรี
+  name_en: Secretariat of the Cabinet (Thailand)
+  acronym: SOC
+  description: >
+    The Secretariat of the Cabinet of Thailand is responsible for coordinating
+    and facilitating the implementation of government policies and actions as
+    directed by the Cabinet. It acts as the main conduit for official
+    communications from the Thai government.
+  url: https://www.soc.go.th/
+  official: true
+  country: "th"
+url: https://www.soc.go.th/?page_id=182
+data:
+  url: https://www.soc.go.th/?page_id=182
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 25
+  max:
+    schema_entities:
+      Person: 40

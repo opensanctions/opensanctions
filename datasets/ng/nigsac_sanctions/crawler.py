@@ -8,9 +8,6 @@ from zavod import helpers as h
 from zavod.entity import Entity
 
 
-FORMATS = ["%m/%d/%Y %H:%M:%S %p"]
-
-
 def format_birth_place(city, country):
     if city and country:
         return f"{city}, {country}"
@@ -44,13 +41,12 @@ def crawl_common(context: Context, url: str, entity: Entity, sanction: Entity, d
     entity.add("sourceUrl", url)
     entity.add("topics", "sanction")
     entity.add("notes", data.pop("narrative-summary"))
-
-    sanction.add("startDate", h.parse_date(data.pop("sanction-date"), FORMATS))
+    h.apply_date(sanction, "startDate", data.pop("sanction-date"))
     sanction.add("reason", data.pop("reason-for-designation"))
-    sanction.add("listingDate", h.parse_date(data.pop("record-date"), FORMATS))
+    h.apply_date(sanction, "listingDate", data.pop("record-date"))
     sanction.add("description", data.pop("press-release"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(data)
 
@@ -76,7 +72,7 @@ def crawl_individual(context: Context, url: str, data: Dict[str, str]):
 
     entity = context.make("Person")
     birth_place = format_birth_place(data.pop("birth-city"), data.pop("birth-country"))
-    birth_date = h.parse_date(data.pop("date-of-birth"), FORMATS)
+    birth_date = h.extract_date(context.dataset, data.pop("date-of-birth"))
     entity.id = context.make_id(
         first_name, middle_name, last_name, birth_place, birth_date
     )
@@ -103,9 +99,7 @@ def crawl_entity(context: Context, url: str, data: Dict[str, str]):
     entity.id = context.make_id(name)
     entity.add("name", name)
     entity.add("alias", data.pop("aliases", None))
-    entity.add(
-        "incorporationDate", h.parse_date(data.pop("incorporation-date"), FORMATS)
-    )
+    h.apply_date(entity, "incorporationDate", data.pop("incorporation-date"))
     entity.add("registrationNumber", data.pop("incorporation-number"))
     entity.add("country", data.pop("country", None))
 

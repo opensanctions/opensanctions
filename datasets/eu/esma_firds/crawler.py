@@ -1,9 +1,9 @@
 import os
-from typing import IO
+from lxml import etree
 from pathlib import Path
 from zipfile import ZipFile
+from rigour.ids import ISIN
 from tempfile import TemporaryDirectory
-import xml.etree.ElementTree as ET
 
 from zavod import Context
 from zavod import helpers as h
@@ -11,13 +11,16 @@ from zavod import helpers as h
 NS = "{urn:iso:std:iso:20022:tech:xsd:auth.017.001.02}"
 
 
-def parse_element(context: Context, elem: ET.Element) -> None:
+def parse_element(context: Context, elem: etree._Element) -> None:
     attr = elem.find(f"./{NS}FinInstrmGnlAttrbts")
     if attr is None:
         return
     isin = attr.findtext(f"./{NS}Id")
     if isin is None:
         context.log.warn("No ISIN", elem=elem)
+        return
+    if not ISIN.is_valid(isin):
+        # Skip OTC derivatives and other special case securities
         return
     security = h.make_security(context, isin)
     security.add("name", attr.findtext(f"./{NS}FullNm"))
@@ -40,11 +43,12 @@ def parse_element(context: Context, elem: ET.Element) -> None:
     context.emit(security)
 
 
-def parse_xml_doc(context: Context, file: IO[bytes]) -> None:
-    for event, elem in ET.iterparse(file, events=("end",)):
-        if event == "end" and elem.tag == f"{NS}RefData":
-            parse_element(context, elem)
-            elem.clear()
+def parse_xml_doc(context: Context, path: str) -> None:
+    for _, elem in etree.iterparse(path, events=("end",), tag=f"{NS}RefData"):
+        parse_element(context, elem)
+        elem.clear()
+        while elem.getprevious() is not None:
+            del elem.getparent()[0]
 
 
 def parse_xml_file(context: Context, path: Path) -> None:
@@ -55,8 +59,7 @@ def parse_xml_file(context: Context, path: Path) -> None:
                     continue
                 tmpfile = archive.extract(name, path=tmpdir)
                 context.log.info("Reading XML file", path=tmpfile)
-                with open(tmpfile, "rb") as fh:
-                    parse_xml_doc(context, fh)
+                parse_xml_doc(context, tmpfile)
                 os.unlink(tmpfile)
 
 

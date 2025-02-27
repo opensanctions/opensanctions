@@ -1,19 +1,23 @@
-from urllib.parse import urljoin, urlparse
-from typing import Dict, Optional, Set, IO, List, Any
+import logging
+import re
+from typing import Dict, Optional, Set, IO, List, Any, Tuple
 from collections import defaultdict
 from zipfile import ZipFile
 
 from lxml import etree
 from lxml.etree import _Element as Element, tostring
 
-from addressformatting import AddressFormatter
-
+import zavod.logs
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.shed.internal_data import fetch_internal_data, list_internal_data
 
 INN_URL = "https://egrul.itsoft.ru/%s.xml"
 # original source: "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
-aformatter = AddressFormatter()
+
+AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
+# global variable to store the compiled abbreviations
+abbreviations: Optional[AbbreviationList] = None
 
 
 def tag_text(el: Element) -> str:
@@ -391,40 +395,40 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
         return
 
     # Still a mess, but at least I gave it some love and order
-    dput(data, "postcode", el.get("Индекс"))  # Zip code
-    dput(
-        data, "city", el.findtext("./НаимРегион")
-    )  # Наименование субъекта Российской Федерации, (either a region or big city
-    # such as Moscow or St. Petersburg), see https://выставить-счет.рф/classifier/regions/
 
+    # zip code
+    dput(data, "postcode", el.get("Индекс"))
+
+    # Наименование субъекта Российской Федерации
+    # name of the subject of the Russian Federation
+    # either a region or big city such as Moscow or St. Petersburg
+    # see https://выставить-счет.рф/classifier/regions/
+    dput(data, "state", el.findtext("./НаимРегион"))
+    dput(data, "state", elattr(el.find("./Регион"), "НаимРегион"))
+
+    # City or town
     dput(data, "city", elattr(el.find("./Город"), "ТипГород"))
     dput(data, "city", elattr(el.find("./Город"), "НаимГород"))
-    dput(data, "city", elattr(el.find("./Регион"), "НаимРегион"))
-    dput(data, "state", elattr(el.find("./Район"), "НаимРайон"))
 
-    dput(
-        data, "town", elattr(el.find("./НаселПункт"), "НаимНаселПункт")
-    )  # Сведения об адресообразующем элементе населенный пункт
-    dput(
-        data, "town", elattr(el.find("./НаселенПункт"), "Наим")
-    )  # Населенный пункт (город, деревня, село и прочее)
+    # Наименование населенного пункта (name of the settlement)
+    dput(data, "city", elattr(el.find("./НаселПункт"), "НаимНаселПункт"))
+    # Населенный пункт (город, деревня, село и прочее) (Settlement (city, town, village, etc.))
+    dput(data, "city", elattr(el.find("./НаселенПункт"), "Наим"))
+    # Городское / сельское поселение (Urban / rural settlement)
+    dput(data, "city", elattr(el.find("./ГородСелПоселен"), "Наим"))
 
-    dput(
-        data, "suburb", elattr(el.find("./ГородСелПоселен"), "Наим")
-    )  # Городское поселение / сельское поселение / межселенная территория в
-    # составе муниципального района / внутригородской район городского округа
+    # Муниципальный район (municipal district within a region)
+    dput(data, "municipality", elattr(el.find("./МуниципРайон"), "Наим"))
 
-    dput(
-        data, "municipality", elattr(el.find("./МуниципРайон"), "Наим")
-    )  # Municipality
-
-    dput(
-        data, "road", elattr(el.find("./ЭлУлДорСети"), "Тип")
-    )  # Элемент улично-дорожной сети (street, road, etc.)
+    # Элемент улично-дорожной сети (street, road, etc.)
+    dput(data, "road", elattr(el.find("./ЭлУлДорСети"), "Тип"))
     dput(data, "road", elattr(el.find("./ЭлУлДорСети"), "Наим"))
-
-    dput(data, "road", elattr(el.find("./Улица"), "ТипУлица"))  # Street
+    # Street
+    dput(data, "road", elattr(el.find("./Улица"), "ТипУлица"))
     dput(data, "road", elattr(el.find("./Улица"), "НаимУлица"))
+
+    # # Район (District or area within a city)
+    # dput(data, "road", elattr(el.find("./Район"), "НаимРайон"))
 
     # To be honest I don't understand the difference between these house and house_number fields
     dput(data, "house_number", el.get("Дом"))
@@ -440,10 +444,89 @@ def parse_address(context: Context, entity: Entity, el: Element) -> None:
     # dput(data, "house", elattr(el.find("./ПомещЗдания"), "Номер"))
     # dput(data, "neighbourhood", el.get("Кварт")) this is actually a flat number or office number
 
-    address = aformatter.one_line(
-        {k: " ".join(v) for k, v in data.items()}, country=country
+    address = h.format_address(
+        street=" ".join(data.get("road", "")),
+        house_number=" ".join(data.get("house_number", "")),
+        postal_code=" ".join(data.get("postcode", "")),
+        city=" ".join(data.get("city", "")),
+        state=" ".join(data.get("state", "")),
+        state_district=" ".join(data.get("municipality", "")),
+        country_code=country,
     )
     entity.add("address", address)
+
+
+def compile_abbreviations(context) -> AbbreviationList:
+    """
+    Load abbreviations and compile regex patterns from the YAML config.
+    Returns:
+    AbbreviationList: A list of tuples containing canonical abbreviations
+    and their compiled regex patterns for substitution.
+    """
+    types = context.dataset.config.get("organizational_types")
+    abbreviations = []
+    for canonical, phrases in types.items():
+        # we want to match the whole word and allow for ["] or ['] at the beginning
+        for phrase in phrases:
+            phrase_pattern = rf"^[ \"']?{re.escape(phrase)}"
+
+            compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
+            # Append the canonical form, compiled regex pattern, and phrase to the list
+            abbreviations.append((canonical, compiled_pattern, phrase))
+    # Reverse-sort by length so that the most specific phrase would match first.
+    abbreviations.sort(key=lambda x: len(x[2]), reverse=True)
+    return abbreviations
+
+
+def substitute_abbreviations(
+    name: Optional[str], abbreviations: Optional[AbbreviationList]
+) -> Tuple[Optional[str], Optional[str]]:
+    """
+    Substitute organisation type in the name with its abbreviation
+    using the compiled regex patterns.
+
+    :param name: The input name where abbreviations should be substituted.
+    :param abbreviations: A list of tuples with canonical abbreviations, regex patterns,
+                          and original phrases.
+    :return: The name shorted if possible, otherwise the original
+    """
+    if abbreviations is None:
+        raise ValueError("Abbreviations not compiled")
+    if name is None:
+        return None
+    # Iterate over all abbreviation groups
+    for canonical, regex, phrases in abbreviations:
+        modified_name = regex.sub(canonical, name)
+        if modified_name != name:
+            return modified_name
+    # If no match, return the original name
+    return name
+
+
+def build_successor_predecessor(
+    context: Context, other_entity: Entity, el: Element
+) -> Optional[Entity]:
+    name = el.get("НаимЮЛПолн")
+    name_short = substitute_abbreviations(name, abbreviations)
+    inn = el.get("ИНН")
+    ogrn = el.get("ОГРН")
+    successor_id = entity_id(
+        context,
+        name=name,
+        inn=inn,
+        ogrn=ogrn,
+    )
+    if successor_id is not None:
+        entity = context.make("Company")
+        entity.id = successor_id
+        entity.add("name", name_short, original_value=name)
+        entity.add("innCode", inn)
+        entity.add("ogrnCode", ogrn)
+
+        entity.add("ogrnCode", other_entity.get("ogrnCode"))
+        entity.add("innCode", other_entity.get("innCode"))
+
+        return entity
 
 
 def parse_company(context: Context, el: Element) -> None:
@@ -464,12 +547,13 @@ def parse_company(context: Context, el: Element) -> None:
     for name_el in el.findall("./СвНаимЮЛ"):
         name_full = name_el.get("НаимЮЛПолн")
         name_short = name_el.get("НаимЮЛСокр")
-
-    name = name_full or name_short
+        name_full_short = substitute_abbreviations(name_full, abbreviations)
+        name_short_shortened = substitute_abbreviations(name_short, abbreviations)
+    name = name_full or name_short_shortened
     entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
-    entity.add("name", name_full)
-    entity.add("name", name_short)
+    entity.add("name", name_full_short, original_value=name_full)
+    entity.add("name", name_short_shortened, original_value=name_short)
     entity.add("ogrnCode", ogrn)
     entity.add("innCode", inn)
     entity.add("kppCode", el.get("КПП"))
@@ -497,59 +581,24 @@ def parse_company(context: Context, el: Element) -> None:
     for founder in el.findall("./СвУчредит/*"):
         parse_founder(context, entity, founder)
 
-    for successor in el.findall("./СвПреем"):
-        succ_name = successor.get("НаимЮЛПолн")
-        succ_inn = successor.get("ИНН")
-        succ_ogrn = successor.get("ОГРН")
-        successor_id = entity_id(
-            context,
-            name=succ_name,
-            inn=succ_inn,
-            ogrn=succ_ogrn,
-        )
-        if successor_id is not None:
+    for successor_el in el.findall("./СвПреем"):
+        succ_entity = build_successor_predecessor(context, entity, successor_el)
+        if succ_entity is not None:
             succ = context.make("Succession")
-            succ.id = context.make_id(entity.id, "successor", successor_id)
-            succ.add("successor", successor_id)
+            succ.id = context.make_id(entity.id, "successor", succ_entity.id)
+            succ.add("successor", succ_entity.id)
             succ.add("predecessor", entity.id)
-            succ_entity = context.make("Company")
-            succ_entity.id = successor_id
-            succ_entity.add("name", succ_name)
-            succ_entity.add("innCode", succ_inn)
-            succ_entity.add("ogrnCode", succ_ogrn)
-
-            # To @pudo: not sure if I got your idea right
-            succ_entity.add("innCode", inn)
-            succ_entity.add("ogrnCode", ogrn)
 
             context.emit(succ_entity)
             context.emit(succ)
 
-    # To @pudo: Also adding this for the predecessor
-    for predecessor in el.findall("./СвПредш"):
-        pred_name = predecessor.get("НаимЮЛПолн")
-        pred_inn = predecessor.get("ИНН")
-        pred_ogrn = predecessor.get("ОГРН")
-        predecessor_id = entity_id(
-            context,
-            name=pred_name,
-            inn=pred_inn,
-            ogrn=pred_ogrn,
-        )
-        if predecessor_id is not None:
+    for predecessor_el in el.findall("./СвПредш"):
+        pred_entity = build_successor_predecessor(context, entity, predecessor_el)
+        if pred_entity is not None:
             pred = context.make("Succession")
-            pred.id = context.make_id(entity.id, "predecessor", predecessor_id)
-            pred.add("predecessor", predecessor_id)
+            pred.id = context.make_id(entity.id, "predecessor", pred_entity.id)
+            pred.add("predecessor", pred_entity.id)
             pred.add("successor", entity.id)
-            pred_entity = context.make("Company")
-            pred_entity.id = predecessor_id
-            pred_entity.add("name", pred_name)
-            pred_entity.add("innCode", pred_inn)
-            pred_entity.add("ogrnCode", pred_ogrn)
-
-            # To @pudo: not sure if I got your idea right
-            pred_entity.add("innCode", inn)
-            pred_entity.add("ogrnCode", ogrn)
 
             context.emit(pred_entity)
             context.emit(pred)
@@ -605,56 +654,57 @@ def parse_examples(context: Context):
     # This subset contains a mix of companies with different address structures
     # and an example of successor/predecessor relationship
     for inn in [
-        "7709383684",
-        "7704667322",
-        "9710075695",
-        "7813654884",
-        "1122031001454",
-        "1025002029580",
-        "1131001011283",
-        "1088601000047",
+        "7714034350",  # organizational form abbreviations testing
+        "7729348110",
+        # "7709383684",
+        # "7704667322",
+        # "9710075695",
+        # "7813654884",
+        # "1122031001454",
+        # "1025002029580",
+        # "1131001011283",
+        # "1088601000047"
     ]:
         path = context.fetch_resource("%s.xml" % inn, INN_URL % inn)
         with open(path, "rb") as fh:
             parse_xml(context, fh)
 
 
-def crawl_index(context: Context, url: str) -> Set[str]:
+def list_prefix_internal(context) -> Set[str]:
     """
-    Crawl an index page with ZIP archives and return the URLs.
+    List ZIP archives in a specific folder of the internal bucket and return their paths.
+
     Args:
         context: The processing context.
-        url: The URL to crawl.
+
     Returns:
-        A set of ZIP archive URLs.
+        A set of relative paths (blob names) to the ZIP archives in the specified folder.
     """
+    # Define the prefix for the directory in the bucket
+    prefix = "ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
     archives: Set[str] = set()
-    doc = context.fetch_html(url)
-    for a in doc.findall(".//a"):
-        link_url = urljoin(url, a.get("href"))
-        if not link_url.startswith(url):
-            continue
-        if link_url.endswith(".zip"):
-            archives.add(link_url)
-            continue
-        archives.update(crawl_index(context, link_url))
+
+    for blob_name in list_internal_data(prefix):
+        if blob_name.endswith(".zip"):
+            archives.add(blob_name)
+
     return archives
 
 
-def crawl_archive(context: Context, url: str) -> None:
+def crawl_archive(context: Context, blob_name: str) -> None:
     """
-    Crawl an archive and parse the XML files inside.
+    Fetch and process a ZIP archive, extracting and parsing XML files inside.
     Args:
         context: The processing context.
-        url: The URL to crawl.
+        blob_name: The name of the ZIP file in the internal bucket.
     Returns:
         None
     """
-    url_path = urlparse(url).path.lstrip("/")
-    path = context.fetch_resource(url_path, url)
+    local_path = context.get_resource_path(blob_name)
+    fetch_internal_data(blob_name, local_path)
     try:
-        context.log.info("Parsing: %s" % url_path)
-        with ZipFile(path, "r") as zip:
+        context.log.info("Parsing: %s" % blob_name)
+        with ZipFile(local_path, "r") as zip:
             for name in zip.namelist():
                 if not name.lower().endswith(".xml"):
                     continue
@@ -662,10 +712,16 @@ def crawl_archive(context: Context, url: str) -> None:
                     parse_xml(context, fh)
 
     finally:
-        path.unlink(missing_ok=True)
+        local_path.unlink(missing_ok=True)
 
 
 def crawl(context: Context) -> None:
+    # This crawler emits too many non-actionable warnings, so disable reporting to Sentry for now
+    # TODO(Leon Handreke): Clean this up https://github.com/opensanctions/opensanctions/issues/1908
+    zavod.logs.set_sentry_event_level(logging.ERROR)
     # TODO: thread pool execution
-    for archive_url in sorted(crawl_index(context, context.data_url)):
-        crawl_archive(context, archive_url)
+    # Load abbreviations once using the context
+    global abbreviations
+    abbreviations = compile_abbreviations(context)
+    for blob_name in sorted(list_prefix_internal(context)):
+        crawl_archive(context, blob_name)

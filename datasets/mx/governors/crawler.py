@@ -78,7 +78,7 @@ def crawl_item(input_html, context: Context):
 
     if birth_place is not None:
         person.add("birthPlace", birth_place)
-        person.add("birthDate", h.parse_date(birth_date, formats=["%d/%m/%Y"]))
+        h.apply_date(person, "birthDate", birth_date)
 
     name_of_position = "Governor of " + state.title()
     position = h.make_position(context, name_of_position, country="mx")
@@ -89,14 +89,14 @@ def crawl_item(input_html, context: Context):
         person,
         position,
         no_end_implies_current=True,
-        start_date=h.parse_date(start_date, formats=["%d/%m/%Y"])[0],
-        end_date=h.parse_date(end_date, formats=["%d/%m/%Y"])[0],
+        start_date=start_date,
+        end_date=end_date,
         categorisation=categorisation,
     )
 
     # If occupancy is None, then it is not a PEP
     if occupancy is not None:
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 

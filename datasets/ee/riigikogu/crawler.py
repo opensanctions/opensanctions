@@ -17,7 +17,7 @@ def crawl_item(member_url: str, context: Context):
     try:
         name = member_page_html.xpath('//*[@id="main"]/header/div/h1/text()')[0]
     except IndexError:
-        context.log.error("Couldn't find name", url=member_url)
+        context.log.warning("Couldn't find name. Skipping person.", url=member_url)
         return
 
     entity = context.make("Person")
@@ -33,7 +33,12 @@ def crawl_item(member_url: str, context: Context):
         entity.add("phone", phone_number)
     except IndexError:
         # Only log a warning if the name is not "Hele Everaus" or "Kaja Kallas"
-        if name not in ["Hele Everaus", "Kaja Kallas", "Mart Võrklaev"]:
+        if name not in [
+            "Hele Everaus",
+            "Kaja Kallas",
+            "Mart Võrklaev",
+            "Toomas Kivimägi",
+        ]:
             context.log.warning("Couldn't find phone number for", name=name)
 
     try:
@@ -62,7 +67,7 @@ def crawl_item(member_url: str, context: Context):
     if occupancy is None:
         return
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(position)
     context.emit(occupancy)
 

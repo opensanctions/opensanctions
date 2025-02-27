@@ -8,7 +8,7 @@ FIELD_NAMES = ("basic", "description", "additional")
 
 
 def crawl_person(context: Context, item: _Element, url: str) -> None:
-    name = item.find('.//a[@itemprop="url"]')
+    name = item.find('.//div[@class="page-header"]/h2/a')
     if name is None or name.text is None:
         context.log.error("Cannot find name row", url=url)
         return
@@ -50,7 +50,7 @@ def crawl_person(context: Context, item: _Element, url: str) -> None:
             elif label_text == "hair-colour":
                 person.add("hairColor", value.text.strip())
 
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context: Context):
@@ -58,10 +58,10 @@ def crawl(context: Context):
     doc = context.fetch_html(url)
     mw_grid = doc.find('.//div[@class="blog most-wanted-grid"]')
     if mw_grid is None:
-        context.log.debug("Cannot find fact detailed list", url=url)
+        context.log.error("Cannot find fact detailed list", url=url)
         return
 
-    items_rows = mw_grid.findall("./div")
+    items_rows = mw_grid.findall('.//div[@itemprop="blogPost"]')
     if items_rows is None:
         context.log.error("Cannot find any rows", url=url)
         return

@@ -11,14 +11,13 @@ summary: >
   A list of persons and companies sanctioned for involvement with terrorism financing
   released by the government in Bulgaria.
 description: |
-  This dataset contains the Bulgarian sanctions list as [published here](https://www.dans.bg/images/stories/FID/Reshenie_265_MS_23042003_Spisyk_ZMFT.pdf):
+  This dataset contains the Bulgarian sanctions list as [published here](https://www.dans.bg/upload/298/RESHENIE_265_na_MS_ot_23042003_g_za_priemane_Spisyk_na_fiziceskite_lica_uridiceskite_lica_grupite_i_.pdf):
 
   > Pursuant to Art. 105, para. 1 and Art. 114 of the Constitution of the Republic
   > of Bulgaria and Art. 5, para. 1 of the Law on Measures Against the Financing of
   > Terrorism.
 
-  This list has been manually extracted from the government PDF by OMNIO staff. It is
-  therefore manually updated, last confirmed 10. September 2022.
+  This list has been manually extracted from the government PDF by OMNIO staff.
 publisher:
   name: OMNIO Compliance
   description: |
@@ -26,10 +25,23 @@ publisher:
   url: https://omniocompliance.com/
   country: bg
   official: false
-url: https://docs.google.com/spreadsheets/d/1CLWK2TtmmVLhqkQFzxivwxIjBhwhYDnBYhCcAIx-WG8/edit#gid=486983029
+url: https://www.dans.bg/bg/28
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT3Cn2DtUWUbo9aBH_n60jOrlhITqgAZePRKwBCEafo_7VjPLBfBTmY3zHl4ixYT0a7RiaCu9HS3odV/pub?gid=486983029&single=true&output=csv
   format: JSON
+dates:
+  formats:
+    - "%d.%m.%Y"
+  
+assertions:
+  min:
+    schema_entities:
+      Person: 350
+      Organization: 140
+  max:
+    schema_entities:
+      Person: 840
+      Organization: 330 
 
 lookups:
   type.country:
@@ -44,10 +56,10 @@ lookups:
         value: YE
       - match: Холандия
         value: NL
-  type.name: 
-    options: 
-      - match: '"The Base", Al Qaeda, Islamic Salvation Foundation, The Group for the Preservation of the Holy Sites, The Islamic Army for the Liberation of Holy Places, The World Islamic Front for Jihad Against Jews and Crusaders, Usama Bin Laden Network, Usama Bin Laden Organization'  
-        values: 
+  type.name:
+    options:
+      - match: '"The Base", Al Qaeda, Islamic Salvation Foundation, The Group for the Preservation of the Holy Sites, The Islamic Army for the Liberation of Holy Places, The World Islamic Front for Jihad Against Jews and Crusaders, Usama Bin Laden Network, Usama Bin Laden Organization'
+        values:
           - The Base
           - Al Qaeda
           - Islamic Salvation Foundation
@@ -57,7 +69,7 @@ lookups:
           - Usama Bin Laden Network
           - Usama Bin Laden Organization
       - match: '"Дъ Бейз", Ал Каеда, Исламик Салвейшн Фаундейшн, Дъ Груп фор дъ Презервейшн ъф дъ Холи Сайтс, Ди Исламик Арми фор дъ Либерейшн ъф Холи Плейсис, Дъ Уърлд Исламик Фронт фор Джихад агейнст Джус енд Крусейдърс, Усама Бин Ладен Нетуърк, Усама Бин Ладен Органайзейшн'
-        values: 
+        values:
           - Дъ Бейз
           - Ал Каеда
           - Исламик Салвейшн Фаундейшн

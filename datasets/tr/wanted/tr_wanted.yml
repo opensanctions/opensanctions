@@ -32,7 +32,16 @@ publisher:
   country: tr
   official: true
   url: https://en.terorarananlar.pol.tr/
-
 data:
-  url: https://www.terorarananlar.pol.tr/ISAYWebPart/TArananlar/GetTerorleArananlarList
+  url: https://terorarananlar.pol.tr/ISAYWebPart/TArananlar/GetTerorleArananlarList
   format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Person: 2260
+      Organization: 15
+  max:
+    schema_entities:
+      Person: 5320
+      Organization: 40

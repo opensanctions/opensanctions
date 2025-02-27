@@ -1,7 +1,6 @@
 from urllib.parse import urlencode
 from normality import collapse_spaces, slugify
 from typing import Dict, Generator, cast
-from lxml.etree import _Element
 from lxml.html import HtmlElement
 
 from zavod import Context, helpers as h
@@ -29,11 +28,10 @@ def crawl_item(context: Context, row: Dict[str, str]):
 
     sanction = h.make_sanction(context, entity)
     sanction_date = collapse_spaces(row.pop("sanction-date"))
-    sanction_dates = h.parse_date(sanction_date, formats=["%B %d %Y"])
-    sanction.add("date", sanction_dates)
+    h.apply_date(sanction, "date", sanction_date)
     sanction.add("description", row.pop("sanction-title"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(row, ignore=[None])
 
@@ -57,10 +55,6 @@ def parse_table(
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def unblock_validator(el: _Element) -> bool:
-    return "Lookup Results" in el.text_content()
-
-
 def crawl(context: Context):
     page = 1
     max_page = None
@@ -69,11 +63,9 @@ def crawl(context: Context):
         params = {"page": page}
         qs = urlencode(params)
         url = f"{context.data_url}?{qs}"
-        doc = fetch_html(context, url, unblock_validator, cache_days=7)
-        pagenums = [
-            int(el.text_content())
-            for el in doc.xpath('//*[contains(@class, "pageinationnum")]')
-        ]
+        pagenums_xpath = '//*[contains(@class, "pageinationnum")]'
+        doc = fetch_html(context, url, pagenums_xpath, cache_days=1, retries=6)
+        pagenums = [int(el.text_content()) for el in doc.xpath(pagenums_xpath)]
         max_page = max(pagenums)
         rows = parse_table(context, doc.find(".//table"))
         if not rows:

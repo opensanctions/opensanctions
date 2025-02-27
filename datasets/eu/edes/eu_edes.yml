@@ -35,6 +35,14 @@ data:
   url: https://ec.europa.eu/edes/api/cases/paginatedList
   format: JSON
 
+assertions:
+  min:
+    schema_entities:
+      Company: 1
+  max:
+    schema_entities:
+      Company: 10
+
 lookups:
   type.date:
     options:

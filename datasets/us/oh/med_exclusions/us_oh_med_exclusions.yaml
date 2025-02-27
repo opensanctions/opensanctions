@@ -1,0 +1,63 @@
+title: US Ohio Medicaid Excluded and Suspended Providers
+entry_point: crawler.py
+prefix: us-medoh
+coverage:
+  frequency: daily
+  start: "2024-11-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers excluded or suspended from Ohio's Medicaid program.
+description: |
+  This dataset contains information about individuals and entities excluded or suspended
+  from the Ohio State Medicaid Program. The following text extracted from their website
+  explains the provisions taken:
+
+   > If an individual or company is on the list, the individual or company may not be an
+   > owner in whole or in part; officer or partner; authorized agent, associate, manager,
+   > or employee of a Medicaid provider. The individual or company is prohibited from
+   > owning, contracting for, arranging for rendering or ordering services for Medicaid
+   > recipients or receiving direct or indirect reimbursement of Medicaid funds in the
+   > form of salary, shared fees, contracts, kickbacks, or rebates from or through any
+   > participating provider or risk contractor.
+
+publisher:
+  name: Ohio Department of Medicaid
+  description: |
+    The Ohio Department of Medicaid (ODM) is the state agency that administers the delivery
+    healthcare to Ohio residents.
+  acronym: ODM
+  url: https://www.ohiomh.com/
+  official: true
+  country: "us"
+url: "https://medicaid.ohio.gov/wps/portal/gov/medicaid/resources-for-providers/enrollment-and-support/provider-enrollment/provider-exclusion-and-suspension-list"
+data:
+  url: https://medicaid.ohio.gov/wps/portal/gov/medicaid/resources-for-providers/enrollment-and-support/provider-enrollment/provider-exclusion-and-suspension-list
+  format: XLSX
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%Y"]
+assertions:
+  min:
+    schema_entities:
+      Person: 1500
+      Company: 200
+  max:
+    schema_entities:
+      Person: 1800
+      Company: 300
+lookups: 
+  type.identifier:
+    options:
+      - match: 
+          - 1144453199
+          - 1679857925
+          - 141705081
+          - 1750400000
+        prop: registrationNumber
+      - match: "IP:"
+        value: null
+  type.date:
+    options:
+      - match: "11/202/2024"
+        value: 2024

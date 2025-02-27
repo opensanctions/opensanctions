@@ -4,8 +4,6 @@ from lxml.etree import _Element as Element
 from zavod import Context, Entity
 from zavod import helpers as h
 
-FORMATS = ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]
-
 
 def parse_person(context: Context, node: Element):
     entity = context.make("Person")
@@ -22,7 +20,7 @@ def parse_person(context: Context, node: Element):
         patronymic=node.findtext("./Patronomic"),
         last_name=node.findtext("./Surname"),
     )
-    entity.add("birthDate", h.parse_date(node.findtext("./DataBirth"), FORMATS))
+    h.apply_date(entity, "birthDate", node.findtext("./DataBirth"))
     entity.add("birthPlace", node.findtext("./PlaceBirth"))
     parse_common(context, node, entity)
 
@@ -39,11 +37,10 @@ def parse_common(context: Context, node: Element, entity: Entity):
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", node.findtext("./BasicInclusion"))
     sanction.add("program", node.findtext("./CategoryPerson"))
-    inclusion_date = h.parse_date(node.findtext("./DateInclusion"), FORMATS)
-    sanction.add("listingDate", inclusion_date)
-    entity.add("createdAt", inclusion_date)
+    h.apply_date(sanction, "listingDate", node.findtext("./DateInclusion"))
+    h.apply_date(entity, "createdAt", node.findtext("./DateInclusion"))
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

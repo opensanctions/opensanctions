@@ -1,6 +1,8 @@
-from zavod import Context
 from xml.etree import ElementTree
 from normality import collapse_spaces
+
+from zavod import Context
+from zavod.shed.zyte_api import fetch_html
 
 
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
@@ -26,12 +28,16 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
 
 
 def crawl_person(context: Context, url: str, wanted_for: str):
-    doc = context.fetch_html(url, cache_days=1)
-
-    name = get_element_text(
-        doc,
-        '//div[contains(@class, "field--name-field-most-wanted-name")]//div[contains(@class, "field__item")]',
+    name_xpath = '//div[contains(@class, "field--name-field-most-wanted-name")]//div[contains(@class, "field__item")]'
+    doc = fetch_html(
+        context,
+        url,
+        name_xpath,
+        html_source="httpResponseBody",
+        cache_days=1,
     )
+
+    name = get_element_text(doc, name_xpath)
     alias = get_element_text(
         doc,
         '//div[contains(@class, "field--name-field-most-wanted-alias")]//div[contains(@class, "field__item")]',
@@ -137,14 +143,21 @@ def crawl_person(context: Context, url: str, wanted_for: str):
         ],
     )
 
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    wanted_xpath = './/div[@class="mw-wantfor"]'
+    doc = fetch_html(
+        context,
+        context.data_url,
+        wanted_xpath,
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
     doc.make_links_absolute(context.data_url)
 
     for person_node in doc.xpath('.//li[@class="grid"]//a'):
         url = person_node.get("href")
-        wanted_for = person_node.xpath('.//div[@class="mw-wantfor"]')[0].text_content()
+        wanted_for = person_node.xpath(wanted_xpath)[0].text_content()
         crawl_person(context, url, wanted_for)

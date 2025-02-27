@@ -1,13 +1,13 @@
-from datetime import datetime
 import io
-from pathlib import Path
-from zipfile import ZipFile
-from typing import Any, Dict, Generator
-from zavod import Context, helpers as h
-from pantomime.types import ZIP
+from datetime import datetime
 from lxml import etree
+from pantomime.types import ZIP
+from pathlib import Path
+from typing import Any, Dict, Generator
+from zipfile import ZipFile
 
-DATE_FORMAT = ["%m/%d/%Y"]
+from zavod import Context, helpers as h
+
 REGISTRANTS_URL = "https://efile.fara.gov/bulk/zip/FARA_All_Registrants.xml.zip"
 REGISTRANTS_NAME = "FARA_All_Registrants.xml"
 PRINCIPALS_URL = "https://efile.fara.gov/bulk/zip/FARA_All_ForeignPrincipals.xml.zip"
@@ -39,17 +39,18 @@ def crawl_registrant(context: Context, item: Dict[str, Any]) -> None:
         postal_code=item.pop("Zip", None),
         state=item.pop("State", None),
     )
-    registration_date = h.parse_date(item.pop("Registration_Date", None), DATE_FORMAT)
-    termination_date = h.parse_date(item.pop("Termination_Date", None), DATE_FORMAT)
+    termination_date = h.extract_date(
+        context.dataset, item.pop("Termination_Date", None)
+    )
     registration_number = item.pop("Registration_Number")
 
     entity = context.make("LegalEntity")
     entity.id = registrant_id(context, registration_number)
     entity.add("name", item.pop("Name").strip() or None)
     entity.add("topics", "role.lobby")
-    h.copy_address(entity, address)
+    h.apply_address(context, entity, address)
     entity.add("registrationNumber", registration_number)
-    entity.add("createdAt", registration_date)
+    h.apply_date(entity, "createdAt", item.pop("Registration_Date"))
     entity.add("country", "us")
     if termination_date:
         entity.add("description", f"Terminated registration {termination_date[0]}")
@@ -95,7 +96,7 @@ def crawl_principal(context: Context, item: Dict[str, Any]) -> None:
     principal.id = context.make_id("principal", p_name, full_address)
     principal.add("name", p_name)
     principal.add("country", item.pop("Country_location_represented"))
-    h.copy_address(principal, address)
+    h.apply_address(context, principal, address)
 
     # Emit the new agency client entity
     context.emit(principal)
@@ -105,16 +106,8 @@ def crawl_principal(context: Context, item: Dict[str, Any]) -> None:
     representation.add("agent", registrant_id(context, registration_number))
     representation.add("client", principal)
 
-    p_registration_date = h.parse_date(
-        item.pop("FP_registration_date"),
-        DATE_FORMAT,
-    )
-    p_termination_date = h.parse_date(
-        item.pop("FP_termination_date", None),
-        DATE_FORMAT,
-    )
-    representation.add("startDate", p_registration_date)
-    representation.add("endDate", p_termination_date)
+    h.apply_date(representation, "startDate", item.pop("FP_registration_date"))
+    h.apply_date(representation, "endDate", item.pop("FP_termination_date", None))
 
     context.audit_data(
         item,

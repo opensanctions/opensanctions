@@ -2,10 +2,8 @@ title: Indian Ministry of Home Affairs Banned Organizations
 entry_point: crawler.py
 prefix: in-mha
 coverage:
-  frequency: never
+  frequency: daily
   start: 2023-02-16
-deploy:
-  schedule: "@daily"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   List of banned organizations under the Unlawful Activities (Prevention) Act
@@ -24,7 +22,7 @@ publisher:
   official: true
 url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division
 data:
-  url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTc-EkLWZgLKDPVvcrCoKLp17EEo535uP1EMcLKFl_b6T3z6Tq99BrI3R9GhxKirgRoozND1xQ48O4-/pub?output=csv"
+  url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division
   format: HTML
 
 assertions:
@@ -32,3 +30,120 @@ assertions:
     schema_entities:
       Person: 57  # In the name of the doc
       Organization: 50
+
+lookups:
+  names: 
+    options:
+      - regex: "Organizations listed .+ UN .+ Security Council "
+        entities: []
+      - match: "Meitei Extremist Organization of Manipur namely: PLA and its political wing RPF, UNLF and its armed wing MPA, PREPAK and its armed wing the red army, KCP, KYKL, CorCom, ASUK"
+        entities:
+          - main_name: Peoples’ Liberation Army; PLA
+            notes: Meitei Extremist Organization of Manipur
+            related_name: Revolutionary People’s Front; RPF
+            relationship: political wing
+          - main_name: United National Liberation Front; UNLF
+            notes: Meitei Extremist Organization of Manipur
+            related_name: Manipur Peoples’ Army; MPA
+            relationship: armed wing
+          - main_name: Peoples’ Revolutionary Party of Kangleipak; PREPAK
+            notes: Meitei Extremist Organization of Manipur
+            related_name: red army
+            relationship: armed wing
+          - main_name: Kangleipak Communist Party; KCP
+            notes: Meitei Extremist Organization of Manipur
+          - main_name: Kanglei Yaol Kanba Lup; KYKL
+            notes: Meitei Extremist Organization of Manipur
+      - match: "Popular Front of India (PFI) and its associates or affiliates or fronts"
+        entities:
+          - main_name: Popular Front of India; PFI
+            notes: and its associates or affiliates or fronts
+      - match: "Muslim League Jammu Kashmir (Masarat Alam faction) / MLJK-MA"
+        entities:
+          - main_name: Muslim League Jammu Kashmir (Masarat Alam faction); MLJK-MA
+      - match: "Four factions of Jammu and Kashmir Peoples League (JKPL), namely : JKPL (Mukhtar Ahmed Waza), JKPL (Bashir Ahmad Tota), JKPL (Ghulam Mohammad Khan @Sopori)  and JKPL (Aziz Sheikh) led by Yaqoob Sheikh"
+        entities:
+          - main_name: JKPL (Mukhtar Ahmed Waza)
+            notes: faction of Jammu and Kashmir Peoples League
+          - main_name: JKPL (Bashir Ahmad Tota)
+            notes: faction of Jammu and Kashmir Peoples League
+          - main_name: JKPL (Ghulam Mohammad Khan @Sopori)
+            notes: faction of Jammu and Kashmir Peoples League
+          - main_name: JKPL (Aziz Sheikh)
+            notes:
+              - faction of Jammu and Kashmir Peoples League
+              - led by Yaqoob Sheikh
+      - match: "Lashkar-E-Taiba/Pasban-E-Ahle Hadis/The Resistance Front and all its manifestations and front organizations."
+        entities:
+          - main_name: Lashkar-E-Taiba; Pasban-E-Ahle Hadis; The Resistance Front
+            notes: and all its manifestations and front organizations
+      - match: "Jaish-E-Mohammed/Tahreik-E-Furqan/People’s Anti-Fascist-Front (PAFF) and all its manifestations and front organizations."
+        entities:
+          - main_name: Jaish-E-Mohammed; Tahreik-E-Furqan; People’s Anti-Fascist-Front; PAFF
+            notes: and all its manifestations and front organizations
+      - match: "Harkat-ul-Mujahideen/Harkat-ul-Ansar/Harkat-ul-Jehad-E-Islami or Ansar UlUmmah"
+        entities:
+          - main_name: Harkat-ul-Mujahideen; Harkat-ul-Ansar; Harkat-ul-Jehad-E-Islami; Ansar UlUmmah
+      - match: "Hizb-Ul-Mujahideen/Hizb-Ul-Mujahideen Pir Panjal Regiment"
+        entities:
+          - main_name: Hizb-Ul-Mujahideen; Hizb-Ul-Mujahideen Pir Panjal Regiment
+      - match: "Communist Party of India (Marxist-Leninist) – Peoples War, all its formations and front Organizations"
+        entities:
+          - main_name: Communist Party of India (Marxist-Leninist) - Peoples War
+            notes: all its formations and front Organizations
+      - match: "Maoist Communist Centre (MCC), all its formations and Front Organizations"
+        entities:
+          - main_name: Maoist Communist Centre; MCC
+            notes: all its formations and Front Organizations
+      - match: "Al-Qaida/ Al-Qaida in Indian Sub-Continent (AQIS) and all its manifestations."
+        entities:
+          - main_name: Al-Qaida in Indian Sub-Continent; AQIS
+            notes: and all its manifestations
+      - match: "Communist Party of India (Maoist) all its formations and front organizations."
+        entities:
+          - main_name: Communist Party of India (Maoist)
+            notes: all its formations and front organizations
+      - match: "Indian Mujahideen, all its formations and front organizations"
+        entities:
+          - main_name: Indian Mujahideen
+            notes: all its formations and front organizations
+      - match: "Garo National Liberation Army (GNLA), all its formations and front  organizations"
+        entities:
+          - main_name: Garo National Liberation Army; GNLA
+            notes: all its formations and front organizations
+      - match: "Kamatapur Liberation Organization, all its formations and front organizations"
+        entities:
+          - main_name: Kamatapur Liberation Organization
+            notes: all its formations and front organizations
+      - match: "Islamic State/Islamic State of Iraq and Levant/Islamic State of Iraq and  Syria/Daish, and all its manifestations."
+        entities:
+          - main_name: Islamic State/Islamic State of Iraq and Levant; Islamic State of Iraq and Syria; Daish
+            notes: and all its manifestations
+      - match: "National Socialist Council of Nagaland (Khaplang) (NSCN(K)), all its formations and front organizations."
+        entities:
+          - main_name: National Socialist Council of Nagaland (Khaplang); NSCN(K)
+            notes: all its formations and front organizations
+      - match: "The Khalistan Liberation Force and all its manifestations."
+        entities:
+          - main_name: Khalistan Liberation Force
+            notes: and all its manifestations
+      - match: "Tehreek-ul-Mujahideen (TuM) and all its manifestations."
+        entities:
+          - main_name: Tehreek-ul-Mujahideen; TuM
+            notes: and all its manifestations
+      - match: "Jamaat-ul-Mujahideen Bangladesh or Jamaat-ul-Mujahideen India or Jamaat ulMujahideen Hindustan and all its manifestations"
+        entities:
+          - main_name: Jamaat-ul-Mujahideen Bangladesh; Jamaat-ul-Mujahideen India; Jamaat ulMujahideen Hindustan
+            notes: and all its manifestations
+      - match: "Jammu and Kashmir Ghaznavi Force (JKGF) and all its manifestations and front  organisations."
+        entities:
+          - main_name: Jammu and Kashmir Ghaznavi Force; JKGF
+            notes: and all its manifestations and front organisations
+      - match: "Khalistan Tiger Force (KTF) and all its manifestations and front organisations."
+        entities:
+          - main_name: Khalistan Tiger Force; KTF
+            notes: and all its manifestations and front organisations
+      - match: "Hizb-Ut-Tahrir (HuT) and all its manifestations and front organisations."
+        entities:
+          - main_name: Hizb-Ut-Tahrir; HuT
+            notes: and all its manifestations and front organisations

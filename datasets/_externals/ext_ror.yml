@@ -1,0 +1,81 @@
+type: external
+title: Research Organizations Registry
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: ror
+disabled: false
+hidden: false
+prefix: ror
+coverage:
+  frequency: weekly
+  start: "2024-10-14"
+exports:
+  - statistics.json
+  - entities.delta.json
+deploy:
+  memory: "1500Mi"
+  memory_limit: "2000Mi"
+ci_test: false
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Identifiers for research organizations, maintained by the Research Organization Registry.
+description: |
+  ROR is a registry of “research organizations.” We define “research organization” as any
+  organization that conducts, produces, manages, or touches research.
+publisher:
+  name: Research Organization Registry
+  acronym: ROR
+  description: |
+    ROR is a community-led project to develop an open, sustainable, usable, and unique
+    identifier for every research organization in the world.
+  url: "https://ror.org/"
+  official: true
+url: "https://ror.org/registry/"
+
+inputs:
+  - ca_named_research_orgs
+  - eu_sanctions
+  - no_nbim_exclusions
+  - special_interest
+  - us_bis_oac
+  - us_ddtc_debarred
+  - us_ddtc_enforcements
+  - us_fcc_covered_list
+  - us_sam_exclusions
+  - us_sanctions
+  - us_sec_harmed_investors
+  - us_sec_pause
+  - us_special_leg
+
+config:
+  dataset: ror
+  index_options:
+    memory_budget: 800
+  strip_namespace: true
+  threshold: 0.7
+  algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - debarment
+    - asset.frozen
+    - export.control
+    - export.risk
+    - reg.action
+    - reg.warn
+    - poi
+    - gov.soe
+  schemata:
+    - Company
+    - Organization
+    - LegalEntity
+    # - Person
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 210
+  max:
+    schema_entities:
+      Organization: 500

@@ -38,6 +38,8 @@ assertions:
     schema_entities:
       LegalEntity: 15000
 
+dates: 
+  formats: ["%m/%d/%Y"]
 lookups:
   comma_names:
     lowercase: true
@@ -596,3 +598,6 @@ lookups:
       - match: "fbr capital markets and co."
         names:
           - FBR Capital Markets and Co.
+      - match: "smith, brown & groover inc."
+        names:
+          - Smith, Brown & Groover Inc.

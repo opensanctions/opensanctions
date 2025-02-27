@@ -28,10 +28,17 @@ publisher:
 data:
   url: "https://www.nationalcrimeagency.gov.uk/most-wanted"
   format: HTML
-
 http:
-  retry_statuses: [413, 429, 503, 403]
+  retry_statuses: [413, 429, 503, 403, 504]
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 (zavod; opensanctions.org)
+
+assertions:
+  min:
+    schema_entities:
+      Person: 16
+  max:
+    schema_entities:
+      Person: 38
 
 lookups:
   type.gender:

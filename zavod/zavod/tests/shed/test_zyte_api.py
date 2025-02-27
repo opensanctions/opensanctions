@@ -17,15 +17,12 @@ from zavod.shed.zyte_api import (
 def test_browser_html(testdataset1: Dataset):
     context = Context(testdataset1)
 
-    def validator(el):
-        return True
-
     with requests_mock.Mocker() as m:
         m.post(
             "https://api.zyte.com/v1/extract",
             json={"browserHtml": "<html><h1>Hello, World!</h1></html>"},
         )
-        doc = fetch_html(context, "https://test.com/bla", validator)
+        doc = fetch_html(context, "https://test.com/bla", ".//h1")
         el = doc.find(".//h1")
         assert el.text == "Hello, World!"
         assert m.call_count == 1
@@ -40,7 +37,7 @@ def test_browser_html(testdataset1: Dataset):
         doc = fetch_html(
             context,
             "https://test.com/bla",
-            validator,
+            ".//h1",
             actions=[action],
             javascript=True,
         )
@@ -55,9 +52,6 @@ def test_browser_html(testdataset1: Dataset):
 def test_fetch_html_http_response_body(testdataset1: Dataset):
     context = Context(testdataset1)
 
-    def validator(el):
-        return True
-
     with requests_mock.Mocker() as m:
         m.post(
             "https://api.zyte.com/v1/extract",
@@ -71,7 +65,7 @@ def test_fetch_html_http_response_body(testdataset1: Dataset):
             },
         )
         doc = fetch_html(
-            context, "https://test.com/bla", validator, html_source="httpResponseBody"
+            context, "https://test.com/bla", ".//h1", html_source="httpResponseBody"
         )
         el = doc.find(".//h1")
         assert el.text == "Hello, World!"
@@ -90,16 +84,13 @@ def test_fetch_html_http_response_body(testdataset1: Dataset):
 def test_unblock_failed(testdataset1: Dataset):
     context = Context(testdataset1)
 
-    def validator(el):
-        return False
-
     with requests_mock.Mocker() as m:
         m.post(
             "https://api.zyte.com/v1/extract",
             json={"browserHtml": "<html><h1>Enable JS</h1></html>"},
         )
         with pytest.raises(UnblockFailedException):
-            fetch_html(context, "https://test.com/bla", validator, backoff_factor=0)
+            fetch_html(context, "https://test.com/bla", ".//div", backoff_factor=0)
         assert m.call_count == 4
 
     context.close()
@@ -108,20 +99,17 @@ def test_unblock_failed(testdataset1: Dataset):
 def test_caching(testdataset1: Dataset):
     context = Context(testdataset1)
 
-    def validator(el):
-        return True
-
     with requests_mock.Mocker() as m:
         m.post(
             "https://api.zyte.com/v1/extract",
             json={"browserHtml": "<html><h1>Hello, World!</h1></html>"},
         )
-        doc = fetch_html(context, "https://test.com/bla", validator, cache_days=14)
+        doc = fetch_html(context, "https://test.com/bla", ".//h1", cache_days=14)
         el = doc.find(".//h1")
         assert el.text == "Hello, World!"
         assert m.call_count == 1
 
-        doc = fetch_html(context, "https://test.com/bla", validator, cache_days=14)
+        doc = fetch_html(context, "https://test.com/bla", ".//h1", cache_days=14)
         el = doc.find(".//h1")
         assert el.text == "Hello, World!"
         assert m.call_count == 1  # still 1 because cache hit
@@ -134,6 +122,7 @@ def test_caching(testdataset1: Dataset):
 
 def test_fetch_resource(testdataset1: Dataset):
     context = Context(testdataset1)
+    url = "https://test.com/download.csv"
 
     with requests_mock.Mocker() as m:
         m.post(
@@ -147,11 +136,9 @@ def test_fetch_resource(testdataset1: Dataset):
                 ],
             },
         )
-        cached, path, media_type, charset = fetch_resource(
-            context,
-            "source.csv",
-            "https://test.com/download.csv",
-        )
+
+        # When file is fetched, content-type header is available
+        cached, media_type, charset, path = fetch_resource(context, "source.csv", url)
         assert not cached
         assert media_type == "text/csv"
         assert charset == "latin-1"
@@ -164,11 +151,8 @@ def test_fetch_resource(testdataset1: Dataset):
         assert request_body["httpResponseHeaders"] is True, request_body
         assert request_body["url"] == "https://test.com/download.csv", request_body
 
-        cached, path, media_type, charset = fetch_resource(
-            context,
-            "source.csv",
-            "https://test.com/download.csv",
-        )
+        # File already exists, not refetched.
+        cached, media_type, charset, path = fetch_resource(context, "source.csv", url)
         assert cached
         assert media_type is None
         assert charset is None
@@ -176,6 +160,18 @@ def test_fetch_resource(testdataset1: Dataset):
             assert f.read() == "name,surname\nSally,Sue"
         assert m.call_count == 1
 
+        # It can also assert content type for you
+        with pytest.raises(AssertionError) as exc:
+            fetch_resource(
+                context, "source2.csv", url, expected_media_type="text/plain"
+            )
+        assert "text/csv" in str(exc.value), exc.value
+        with pytest.raises(AssertionError) as exc:
+            fetch_resource(context, "source3.csv", url, expected_charset="UTF-8")
+        assert "latin-1" in str(exc.value), exc.value
+        # Except when the file exists locally
+        fetch_resource(context, "source2.csv", url, expected_media_type="text/plain")
+        fetch_resource(context, "source3.csv", url, expected_charset="UTF-8")
     context.close()
 
 

@@ -1,0 +1,45 @@
+title: US Oregon State Medicaid Fraud Convictions
+entry_point: crawler.py
+prefix: us-medor
+coverage:
+  frequency: daily
+  start: "2024-09-26"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers convicted of medicaid fraud in the state of Oregon
+description: |
+  Oregon Health Authority's
+  Program Integrity Audit Unit audits Oregon
+  Medicaid Providers and contractors for compliance with state
+  and federal requirements in order to prevent fraud, waste
+  and abuse in Oregon's Medicaid Program.
+
+  This dataset contains information about entities that have
+  been convicted of state medicaid fraud.
+publisher:
+  name: Oregon Health Authority's Program Integrity Audit Unit
+  acronym: PIAU
+  description: |
+    > The Oregon Health Authority's Program Integrity Audit Unit
+    > (PIAU) supports the responsible stewardship of Medicaid
+    > funds in three ways:
+    > - Auditing Oregon Medicaid providers and contractors for
+      compliance with state and federal requirements;
+    > - Educating providers about Medicaid Program Integrity
+      requirements; and
+    > - Oversight of Oregon's Medicaid operations.
+  url: https://www.oregon.gov/oha/FOD/PIAU/Pages/Index.aspx
+  official: true
+  country: "us"
+url: "https://www.oregon.gov/oha/FOD/PIAU/Pages/Convictions.aspx"
+data:
+  url: https://www.oregon.gov/oha/FOD/PIAU/_vti_bin/Lists.asmx
+  format: XML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+  max:
+    schema_entities:
+      Person: 300

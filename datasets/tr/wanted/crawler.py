@@ -1,7 +1,6 @@
 from zavod import Context
 from zavod import helpers as h
 from typing import Dict
-import datetime
 
 IGNORE_COLUMNS = [
     "ID",
@@ -19,6 +18,7 @@ COLOURS = {
     "yeşil": "green",
     "turuncu": "orange",
     "gri": "grey",
+    "sarı": "yellow",
 }
 
 
@@ -45,9 +45,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
         f"{context.dataset.title} - {colour_en(row.pop('TKategoriAdi'))} List",
     )
     person.add("topics", "sanction.counter")
-    person.add("topics", "wanted")
+    # person.add("topics", "wanted")
     person.add("country", "tr")
-    context.emit(person, target=True)
+    context.emit(person)
 
     organization = context.make("Organization")
     organization_name = row.pop("TOrgutAdi")
@@ -65,9 +65,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context):
-    if datetime.datetime.now() > datetime.datetime(2024, 9, 15):
-        context.log.warn("Check if the SSL renegotiation strategy is still needed")
-
     headers = {
         "Content-Length": "0",
         "Content-Type": "application/json",

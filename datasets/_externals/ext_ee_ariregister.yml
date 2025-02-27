@@ -1,6 +1,6 @@
 type: external
 title: Estonia e-Business Register (E-äriregister)
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: ee_ariregister
 prefix: ee
 disabled: false
@@ -13,8 +13,8 @@ exports:
   - entities.delta.json
 deploy:
   # schedule: "1 6 * * *"
-  memory: "800Mi"
-  memory_limit: "1500Mi"
+  memory: "3000Mi"
+  memory_limit: "4000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Companies registered in Estonia, including directors and
@@ -47,13 +47,15 @@ inputs:
   - ext_ua_edr
   - opencorporates
   - sanctions
+  - special_interest
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
   dataset: ee_ariregister
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1
+  index_options:
+    memory_budget: 2000
   topics:
     - role.pep
     - role.rca
@@ -72,9 +74,9 @@ config:
 assertions:
   min:
     schema_entities:
-      Person: 5
-      LegalEntity: 3
-      Company: 1
+      Person: 15
+      LegalEntity: 5
+      Company: 5
     country_entities:
       ee: 5
       ua: 1
@@ -82,5 +84,5 @@ assertions:
     countries: 5
   max:
     schema_entities:
-      Company: 200
+      Company: 450
       Person: 100

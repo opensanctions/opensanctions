@@ -85,6 +85,11 @@ def crawl(context: Context):
             continue
 
         name = clean_name(person_data.get("contact_details.name"))
+        name = context.lookup_value("normalize_name", name, name)
+        if h.is_empty(name):
+            continue
+        if "vacant" in name.lower():
+            context.log.warning("Double-check vacant position", name=name)
 
         entity = context.make("Person")
         entity.id = context.make_id(name, municipality_code)
@@ -125,6 +130,6 @@ def crawl(context: Context):
         )
 
         if occupancy:
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(position)
             context.emit(occupancy)

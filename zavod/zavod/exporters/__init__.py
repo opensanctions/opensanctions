@@ -7,7 +7,6 @@ from zavod.meta import Dataset
 from zavod.exporters.common import Exporter
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.nested import NestedTargetsJSONExporter
-from zavod.exporters.nested import NestedTopicsJSONExporter
 from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
@@ -33,7 +32,6 @@ EXPORTERS: Dict[str, Type[Exporter]] = {
     StatisticsExporter.FILE_NAME: StatisticsExporter,
     FtMExporter.FILE_NAME: FtMExporter,
     NestedTargetsJSONExporter.FILE_NAME: NestedTargetsJSONExporter,
-    NestedTopicsJSONExporter.FILE_NAME: NestedTopicsJSONExporter,
     NamesExporter.FILE_NAME: NamesExporter,
     SimpleCSVExporter.FILE_NAME: SimpleCSVExporter,
     SenzingExporter.FILE_NAME: SenzingExporter,

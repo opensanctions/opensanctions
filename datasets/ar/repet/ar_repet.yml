@@ -27,6 +27,18 @@ data:
   url: https://repet.jus.gob.ar/
   format: JSON
 
+assertions:
+  min:
+    schema_entities:
+      Person: 400
+      Organization: 70
+  max:
+    schema_entities:
+      Person: 900
+      Organization: 200
+
+dates: 
+  formats: ["%d/%m/%Y"]
 lookups:
   doc_types:
     lowercase: true
@@ -68,12 +80,16 @@ lookups:
       - contains: Syrian Arab Republic
         value: Syria
       - match:
-          - LIBANÉS
           - Libyan Arab Jamahiriya
         value: Libya
       - match: Kuwaiti citizenship withdrawn in 2002
         value: null
       - contains: EL LIBANO
+        value: Lebanon
+      - match:
+          - LIBANÉS
+          - Libanesa
+          - Repùblica Libanesa
         value: Lebanon
       - match: BRASILEÑA
         value: Brazil
@@ -123,3 +139,18 @@ lookups:
           - Liberation of al-Sham Commission
           - Liberation of the Levant Organisation Tahrir al-Sham
           - Tahrir al-Sham Hay’at
+  type.identifier:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Unidad de Información FinancieraArE.00005
+        value: ArE.00005
+      - match: HArE.001 y HArE.002
+        values:
+          - HArE.001
+          - HArE.002
+  type.string:
+    lowercase: true
+    options:
+      - match: Chaman, Baluchistan Province
+        value: null

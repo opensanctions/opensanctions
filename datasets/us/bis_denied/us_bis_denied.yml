@@ -32,6 +32,16 @@ data:
   url: https://www.bis.doc.gov/dpl/dpl.txt
   format: TSV
   lang: eng
+dates: 
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 400
+  max:
+    schema_entities:
+      LegalEntity: 940
 
 lookups:
   type.country:

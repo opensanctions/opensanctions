@@ -30,6 +30,8 @@ http:
   retry_statuses: [503]
 ci_test: false
 
+dates: 
+  formats: ["%B %d, %Y"]
 assertions:
   min:
     schema_entities:

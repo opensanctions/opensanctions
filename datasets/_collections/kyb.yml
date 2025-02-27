@@ -2,12 +2,14 @@ type: collection
 title: Know-Your-Business (KYB) Datasets
 hidden: true
 deploy:
-  memory: "3000Mi"
-  disk: "200Gi"
   cpu: "1000m"
-  premium: true
+  memory: "2000Mi"
+  memory_limit: "4000Mi"
+  disk: "150Gi"
+  disk_limit: "200Gi"
 coverage:
   frequency: monthly
+  start: "2023-09-18"
 ci_test: false
 exports:
   - statistics.json
@@ -30,10 +32,14 @@ datasets:
   - kz_companies
   - lv_business_register
   - md_companies
-  # - tj_companies
+  - tj_companies
   # - xk_companies
   # - ba_companies
   - ru_egrul
   - sk_rpvs
   - ua_edr
   - us_corpwatch
+  - us_irs_ffi
+  - us_fincen_msb
+  - us_fara_filings
+  - ror

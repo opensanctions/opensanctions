@@ -9,28 +9,22 @@ from zavod import helpers as h
 
 ORG_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx"
 PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel%20designation%20Individuals_XL.xlsx"
-FORMATS = ["%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d"]
 NA_VALUE = re.compile(r"^[\-\/]+$")
 END_TAG = re.compile(r"בוטל ביום", re.U)
 SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n"]
+DATE_SPLITS = ["OR", ";", " - ", "a) ", "b) ", "c) "]
 
 
-def parse_date(date):
-    dates = []
-    for part in h.multi_split(date, ["OR", ";", " - "]):
-        dates.extend(h.parse_date(part, FORMATS))
-    return dates
-
-
-def parse_interval(entity, date):
+def parse_interval(sanction, date):
     if date is None:
         return
     date = date.strip()
     if "בוטל ביום" in date:
         date, _ = date.rsplit(" ", 1)
-        entity.add("endDate", parse_date(date))
+        h.apply_date(sanction, "endDate", _)
     else:
-        entity.add("startDate", parse_date(date))
+        for part in h.multi_split(date, DATE_SPLITS):
+            h.apply_date(sanction, "startDate", part)
 
 
 def lang_pick(record, field):
@@ -86,6 +80,9 @@ def crawl_individuals(context: Context):
         name_en = record.pop("name_of_individual_english", None)
         name_he = record.pop("name_of_individual_hebrew", None)
         name_ar = record.pop("name_of_individual_arabic", None)
+        name_en = name_en.replace('="---"', "") if name_en else None
+        name_he = name_he.replace('="---"', "") if name_he else None
+        name_ar = name_ar.replace('="---"', "") if name_ar else None
         entity = context.make("Person")
         entity.id = context.make_id(name_en, name_he, name_ar)
         if entity.id is None:
@@ -94,7 +91,8 @@ def crawl_individuals(context: Context):
         entity.add("name", name_he, lang="heb")
         entity.add("name", name_ar, lang="ara")
         entity.add("topics", "crime.terror")
-        entity.add("birthDate", parse_date(record.pop("d_o_b", None)))
+        for part in h.multi_split(record.pop("d_o_b", None), DATE_SPLITS):
+            h.apply_date(entity, "birthDate", part)
         entity.add("nationality", record.pop("nationality_residency", None))
         id_number = record.pop("individual_id", "")
         id_number = id_number.replace(":\n", ": ")
@@ -113,7 +111,7 @@ def crawl_individuals(context: Context):
         for field in ("date_of_designation_in_israel",):
             parse_interval(sanction, record.pop(field, None))
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
         context.audit_data(record)
 
@@ -127,6 +125,8 @@ def crawl_organizations(context: Context):
         seq_id = record.pop("internal_seq_id", None)
         name_en = record.pop("organization_name_english", None)
         name_he = record.pop("organization_name_hebrew", None)
+        name_en = name_en.replace('="---"', "") if name_en else None
+        name_he = name_he.replace('="---"', "") if name_he else None
         entity = context.make("Organization")
         entity.id = context.make_id(name_en, name_he)
         if entity.id is None:
@@ -145,8 +145,8 @@ def crawl_organizations(context: Context):
         entity.add("registrationNumber", record.pop("corporation_id", None))
         entity.add("legalForm", lang_pick(record, "corporation_type"))
         entity.add("jurisdiction", lang_pick(record, "location_of_formation"))
-        date = parse_date(record.pop("date_of_corporation", None))
-        entity.add("incorporationDate", date)
+        for part in h.multi_split(record.pop("date_of_corporation", None), DATE_SPLITS):
+            h.apply_date(entity, "incorporationDate", part)
         for field in list(record.keys()):
             if field.startswith("organization_name_"):
                 entity.add("alias", h.multi_split(record.pop(field, None), SPLITS))
@@ -176,6 +176,8 @@ def crawl_organizations(context: Context):
 
         street = lang_pick(record, "street")
         city = lang_pick(record, "city_village")
+        street = street.replace('="---"', "") if street else None
+        city = city.replace('="---"', "") if city else None
         if street or city:
             address = h.make_address(
                 context,
@@ -192,7 +194,28 @@ def crawl_organizations(context: Context):
         ):
             parse_interval(sanction, record.pop(field, None))
 
-        context.emit(entity, target=True)
+        operatives = record.pop("key_operatives", None)
+        if operatives:
+            res = context.lookup("key_operatives", operatives)
+            if res:
+                for item in res.operatives:
+                    operative = context.make(item.pop("schema", "LegalEntity"))
+                    operative.id = context.make_id(
+                        entity.id, item["name"], item.get("country", None)
+                    )
+                    for key, value in item.items():
+                        operative.add(key, value)
+                    rel = context.make("UnknownLink")
+                    rel.id = context.make_id(entity.id, operative.id)
+                    rel.add("subject", entity.id)
+                    rel.add("object", operative.id)
+                    rel.add("role", "Key operative")
+                    context.emit(operative)
+                    context.emit(rel)
+            else:
+                context.log.warning("Unhandled key_operatives", value=operatives)
+
+        context.emit(entity)
         context.emit(sanction)
         context.audit_data(record)
 

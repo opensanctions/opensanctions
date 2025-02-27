@@ -24,3 +24,13 @@ publisher:
 data:
   url: https://www.gub.uy/secretaria-nacional-lucha-contra-lavado-activos-financiamiento-terrorismo/sites/secretaria-nacional-lucha-contra-lavado-activos-financiamiento-terrorismo/files/documentos/publicaciones/Lista_PEP_V31.xlsx
   format: XLSX
+
+assertions:
+  min:
+    schema_entities:
+      Person: 5100
+      Position: 680
+  max:
+    schema_entities:
+      Person: 12000
+      Position: 1600

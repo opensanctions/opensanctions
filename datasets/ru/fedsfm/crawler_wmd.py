@@ -11,12 +11,6 @@ from zavod import helpers as h
 SPLITS = ["%s)" % c for c in string.ascii_lowercase]
 SPLITS = SPLITS + ["; ", " и "]
 
-DATE_FORMATS = ["%d %b. %Y", "%d %B %Y", "%d.%m.%Y"]
-
-
-def clean_date(text):
-    return h.parse_date(text, DATE_FORMATS)
-
 
 def letter_split(text):
     return h.multi_split(text, SPLITS)
@@ -54,7 +48,7 @@ def crawl(context: Context):
         entity.add("notes", h.clean_note(cells[5]))
 
         sanction = h.make_sanction(context, entity)
-        sanction.add("listingDate", clean_date(listing_date))
+        h.apply_date(sanction, "listingDate", listing_date)
         sanction.add("program", decision)
         sanction.add("recordId", un_id)
 
@@ -114,7 +108,8 @@ def crawl(context: Context):
         entity.add_cast("Person", "birthPlace", birth_place)
         body, birth_dates = maybe_rsplit(body, "Дата рождения:")
         for birth_date in letter_split(birth_dates):
-            entity.add_cast("Person", "birthDate", clean_date(birth_date))
+            entity.add_schema("Person")
+            h.apply_date(entity, "birthDate", birth_date)
         body, position = maybe_rsplit(body, "Должность:")
         entity.add_cast("Person", "position", position)
         body, job = maybe_rsplit(body, "Обращение:")
@@ -133,5 +128,5 @@ def crawl(context: Context):
         if entity.schema.name == "Thing":
             entity.schema = model.get("LegalEntity")
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)

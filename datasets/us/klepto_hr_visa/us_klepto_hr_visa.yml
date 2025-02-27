@@ -40,6 +40,14 @@ data:
   format: HTML
   lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      Person: 450
+  max:
+    schema_entities:
+      Person: 1050
+
 lookups:
   unparsed:
     options:

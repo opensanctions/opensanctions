@@ -6,7 +6,7 @@ coverage:
   frequency: daily
   start: 2023-10-17
 deploy:
-  memory: "2Gi"
+  memory: "1Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Separate from the main sanctions list, this list of persons names entities
@@ -32,3 +32,20 @@ url: https://www.gov.uk/government/publications/financial-sanctions-consolidated
 data:
   url: https://ofsistorage.blob.core.windows.net/publishlive/2022format/InvBan.xml
   format: XML
+  lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 10
+      Address: 1
+  max:
+    schema_entities:
+      LegalEntity: 50
+      Address: 10
+
+lookups:
+  sanction.program:
+    options:
+      - match: Russia
+        value: UK-RUS

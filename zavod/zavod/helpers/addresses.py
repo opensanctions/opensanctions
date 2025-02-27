@@ -1,21 +1,20 @@
-from functools import cache, lru_cache
-from typing import Optional
-from addressformatting import AddressFormatter
+import re
+from normality import slugify
+from functools import lru_cache
+from typing import Optional, Tuple
 from followthemoney.types import registry
 from followthemoney.util import join_text, make_entity_id
-from normality import slugify
+from rigour.addresses import format_address_line
 
 from zavod.entity import Entity
 from zavod.context import Context
 from zavod.runtime.lookups import type_lookup
 
 
-@cache
-def _get_formatter() -> AddressFormatter:
-    return AddressFormatter()
+REGEX_POBOX = re.compile(r"^p\.?o\.? ?box [\d-]+$", re.IGNORECASE)
 
 
-@lru_cache(maxsize=5000)
+@lru_cache(maxsize=10000)
 def format_address(
     summary: Optional[str] = None,
     po_box: Optional[str] = None,
@@ -66,7 +65,7 @@ def format_address(
         "state_code": state_code,
         "country": country,
     }
-    return _get_formatter().one_line(data, country=country_code)
+    return format_address_line(data, country=country_code)
 
 
 def _make_id(
@@ -213,6 +212,7 @@ def apply_address(context: Context, entity: Entity, address: Optional[Entity]) -
     if address.has("full"):
         entity.add("addressEntity", address)
         context.emit(address)
+        entity.add("address", address.get("full"))
 
 
 def copy_address(entity: Entity, address: Optional[Entity]) -> None:
@@ -230,3 +230,17 @@ def copy_address(entity: Entity, address: Optional[Entity]) -> None:
         for country in address.get("country"):
             if country not in entity.countries:
                 entity.add("country", country)
+
+
+def postcode_pobox(text: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
+    """
+    For when PO Box is stuffed into postcode, sometimes.
+
+    Returns:
+        Tuple of (postcode, po_box)
+    """
+    if text is None:
+        return None, None
+    if match := REGEX_POBOX.match(text):
+        return None, match.group(0)
+    return text, None

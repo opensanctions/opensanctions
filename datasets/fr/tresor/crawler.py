@@ -8,6 +8,11 @@ from rigour.mime.types import JSON
 from zavod import Context, Entity
 from zavod import helpers as h
 
+HEADERS = {
+    "Accept": "application/json",
+    "User-Agent": "custom-agent",
+}
+
 SCHEMATA = {
     "Personne physique": "Person",
     "Personne morale": "Organization",
@@ -61,7 +66,9 @@ def parse_identification(
     # parse_split(context, entity, full)
     result = context.lookup("identification", full)
     if result is None:
-        context.log.warning("Unknown identification type", identification=full)
+        context.log.warning(
+            f'Unknown identification type "{full}"', identification=full
+        )
         return
     if result.schema is not None:
         entity.add_schema(result.schema)
@@ -82,6 +89,17 @@ def parse_identification(
             link.add("subject", entity)
             link.add("object", other)
             context.emit(link)
+    if result.wallets:
+        for wallet_data in result.wallets:
+            currency = wallet_data.get("currency")
+            publicKey = wallet_data.get("publicKey")
+            if currency and publicKey:
+                wallet = context.make("CryptoWallet")
+                wallet.id = context.make_slug("wallet", currency, publicKey)
+                wallet.add("currency", currency)
+                wallet.add("publicKey", publicKey)
+                wallet.add("holder", entity.id)
+                context.emit(wallet)
 
 
 def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, value):
@@ -134,19 +152,24 @@ def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, v
         sanction.add("reason", motifs, lang="fra")
         entity.add("notes", motifs, lang="fra")
     else:
-        context.log.warning("Unknown field", field=field, value=value)
+        context.log.warning(
+            f"Unknown field [{field}]: {value}", field=field, value=value
+        )
 
 
 def crawl_entity(context: Context, data: Dict[str, Any]):
     # context.inspect(data)
     nature = data.pop("Nature")
+    reg_id = data.pop("IdRegistre")
+
+    entity_id = context.make_slug(reg_id)
     schema = SCHEMATA.get(nature)
+    schema = context.lookup_value("schema_override", entity_id, schema)
     if schema is None:
-        context.log.error("Unknown entity type", nature=nature)
+        context.log.error(f"Unknown entity type: {nature}", nature=nature)
         return
     entity = context.make(schema)
-    reg_id = data.pop("IdRegistre")
-    entity.id = context.make_slug(reg_id)
+    entity.id = entity_id
     url = (
         f"https://gels-avoirs.dgtresor.gouv.fr/Gels/RegistreDetail?idRegistre={reg_id}"
     )
@@ -165,12 +188,12 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
         quiet=True,
     )
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.json", context.data_url)
+    path = context.fetch_resource("source.json", context.data_url, headers=HEADERS)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         data = json.load(fh)

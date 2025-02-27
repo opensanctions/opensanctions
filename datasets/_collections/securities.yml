@@ -1,6 +1,7 @@
 type: collection
 title: Sanctioned Securities
 coverage:
+  start: "2023-12-04"
   frequency: daily
 exports:
   - statistics.json

@@ -1,0 +1,48 @@
+title: US Maryland Sanctioned Providers
+entry_point: crawler.py
+prefix: us-medmd
+coverage:
+  frequency: daily
+  start: "2024-10-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers deemed ineligible to participate in Maryland's Medicaid program.
+description: |
+  Maryland Medicaid suspends or excludes some providers from working with the Medicaid
+  program. Providers listed are not allowed to receive reimbursement for Medicaid
+  services in any capacity.
+
+  > For sanction type LB on the Sanctioned Providers list, verify the provider’s
+  > license status through the
+  > [Maryland State Board](https://health.maryland.gov/Pages/boards.ASPX).
+publisher:
+  name: Maryland Department of Health
+  description: >
+    > The Maryland Department of Health is an agency of the government of Maryland
+    responsible for public health issues.
+  acronym: MDH
+  url: https://health.maryland.gov/Pages/Home.aspx
+  official: true
+  country: "us"
+url: "https://health.maryland.gov/mmcp/provider/Pages/sanctioned_list.aspx"
+data:
+  url: https://health.maryland.gov/mmcp/provider/Pages/sanctioned_list.aspx
+  format: XLSX
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1200
+      Company: 120
+  max:
+    schema_entities:
+      Person: 1800
+      Company: 200
+lookups:
+  type.identifier: 
+    options:
+      - match: 5059016900
+        prop: registrationNumber

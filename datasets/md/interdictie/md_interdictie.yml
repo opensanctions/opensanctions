@@ -5,9 +5,21 @@ coverage:
   frequency: daily
   start: 2023-05-15
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: List of economic operators banned from participating public procurement in Moldova
+summary: >
+  List of economic operators banned from participating public procurement in Moldova.
+description: |
+  The dataset contains a comprehensive list of economic operators that are prohibited 
+  from participating in public procurement in the Republic of Moldova. It includes the 
+  names of the companies, the reasons for prohibition, and the duration of the ban.
 publisher:
   name: "Ministry of Finance of the Republic of Moldova"
+  descrition: |
+    The Public Procurement Agency operates under the Ministry of Finance of the Republic 
+    of Moldova, acting as the primary authority overseeing public procurement processes. 
+    Its core functions include the implementation and enforcement of procurement regulations, 
+    ensuring compliance among contracting authorities, and recommending legislative 
+    improvements. The agency is also responsible for maintaining the blacklist of economic 
+    operators barred from participating in public tenders due to legal violations.
   acronym: MF
   country: md
   url: https://www.mf.gov.md/
@@ -16,10 +28,32 @@ url: https://tender.gov.md/ro/lista-de-interdictie
 data:
   url: https://tender.gov.md/ro/lista-de-interdictie
   format: HTML
-
+  lang: ron
 lookups:
   type.address:
     lowercase: true
     options:
       - match: "-"
         value: null
+dates:
+  formats: ["%d %m %Y", "%d.%m.%Y", "%d/%m/%Y"]
+  months:
+    "01": Ianuarie
+    "02": Februarie
+    "03": Martie
+    "04": Aprilie
+    "05": Mai
+    "06": Iunie
+    "07": Iulie
+    "08": August
+    "09": Septembrie
+    "10": Octombrie
+    "11": Noiembrie
+    "12": Decembrie
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 25
+  max:
+    schema_entities:
+      LegalEntity: 30

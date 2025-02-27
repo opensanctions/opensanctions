@@ -34,6 +34,22 @@ url: https://www.seco.admin.ch/seco/en/home/Aussenwirtschaftspolitik_Wirtschaftl
 data:
   url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction
   format: XML
+dates:
+  formats: ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%d %b %Y", "%b, %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 3700
+      LegalEntity: 1900
+      Address: 1900
+      Vessel: 100
+  max:
+    schema_entities:
+      Person: 8500
+      LegalEntity: 4400
+      Address: 4300
+      Vessel: 250
 
 lookups:
   relations:
@@ -45,7 +61,6 @@ lookups:
         source: subject
         target: object
         text: role
-
   type.address:
     lowercase: true
     options:
@@ -73,6 +88,29 @@ lookups:
         values:
           - 2016-12-26
           - 2017-04-03
+      - match: 12.4.1993 (incorporation date 11.9.2002)
+        values:
+          - 2002-09-11
+          - 1993-04-12
+      - match: 2.7.1990 (incorporation date 30.7.2002)
+        values:
+          - 2002-07-30
+          - 1990-07-02
+      - match: 22.1.1993 (state registration date 16.6.2002)
+        values:
+          - 2002-06-16
+          - 1993-01-22
+      - match: 20.5.2019 (registered as a small and medium sized enterprise); 10.7.2023 (registered as a small sized enterprise)
+        values:
+          - 2019-05-20
+          - 2023-07-10
+      - match: 24.4.1991 as “БЕЛОРУССКИЙ МЕТАЛЛУРГИЧЕСКИЙ ЗАВОД”, 11.9.1996 as “Государственное предприятие – Белорусский металлургический завод”, 1.12.1997 as “Белорусский металлургический завод”, 3.11.1999 as “Республиканское унитарное предприятие ‘Белорусский металлургический завод’”, 1.1.2012 as “Открытое акционерное общество ‘Белорусский металлургический завод’”
+        values:
+          - 1991-04-24
+          - 1996-09-11
+          - 1997-12-01
+          - 1999-11-03
+          - 2012-01-01
   type.gender:
     lowercase: true
     normalize: true
@@ -81,3 +119,7 @@ lookups:
         value: male
       - match: Female
         value: female
+  type.identifier: 
+    options: 
+      - match: 3232824038
+        prop: taxNumber

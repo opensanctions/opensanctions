@@ -50,6 +50,7 @@ url: "https://www.sc.com.my/aob/aob-enforcement"
 data:
   url: https://www.sc.com.my/aob/aobs-sanctions
   format: HTML
+  lang: eng
 assertions:
   min:
     schema_entities:
@@ -61,6 +62,8 @@ assertions:
     schema_entities:
       LegalEntity: 100
 
+dates: 
+  formats: ["%d %B %Y"]
 lookups:
   columns:
     options:

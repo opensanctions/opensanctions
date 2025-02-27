@@ -1,0 +1,69 @@
+title: US FDA Clinical Investigator Disqualification Proceedings
+entry_point: crawler.py
+prefix: us-fdadq
+coverage:
+  frequency: daily
+  start: "2025-01-16"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Clinical investigators who have been subject to disqualification proceedings
+  regarding FDA-regulated clinical investations
+description: |
+  The FDA regulates clinical investigators who conduct studies intended to provide
+  evidence on the safety and effectiveness of investigational medical products.
+  Clinical investigators must follow applicable statutes and regulations to ensure
+  the integrity of clinical data and, for studies involving human subjects, to
+  protect their rights, safety, and welfare.
+  
+  If the FDA determines that a clinical investigator has violated these requirements
+  — such as through data falsification or non-compliance — it may initiate a
+  disqualification proceeding.
+
+  This dataset lists investigators who have been subject to an administrative clinical
+  investigator disqualification action, and indicates the current status of that action.
+publisher:
+  name: US Food and Drug Administration
+  description: |
+    The U.S. Food and Drug Administration (FDA) is a federal agency under the Department of Health and Human
+    Services. It oversees the safety and effectiveness of a wide range of products, including food, drugs,
+    vaccines, medical devices, cosmetics, and veterinary items, as well as regulating tobacco and dietary supplements.
+  acronym: FDA
+  url: https://www.fda.gov
+  official: true
+  country: "us"
+url: https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/compliance-actions-and-activities/clinical-investigators-disqualification-proceedings
+data:
+  url: https://www.accessdata.fda.gov/scripts/SDA/sdExportData.cfm?sd=clinicalinvestigatorsdisqualificationproceedings&exportType=msexcel
+  format: HTML
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 200
+  max:
+    schema_entities:
+      Person: 400
+
+lookups:
+  is_debarred_status:
+    options:
+      - match:
+          - Restrictions Removed
+          - Not Disqualified
+          - Reinstated pursuant to Agreement
+          - Not Disqualified – Adequate Assurances 1
+          - Not Disqualified – Adequate Assurances1
+          - Adequate Assurances1
+          - Restrictions Removed (reinstated by correspondence)
+          - Reinstated
+          - Reinstated – Adequate Assurances1
+        is_debarred: false
+      - match:
+          - Totally Restricted
+          - Disqualified
+          - Restricted
+        is_debarred: true

@@ -1,12 +1,13 @@
 type: collection
 title: OpenSanctions Default
 coverage:
+  start: "2021-09-01"
   schedule: "0 */6 * * *"
 deploy:
   memory: "2000Mi"
   memory_limit: "2500Mi"
   cpu: "800m"
-  disk: "25Gi"
+  disk: "50Gi"
   command: /etl/scripts/export-default.sh
   premium: true
 exports:
@@ -16,7 +17,6 @@ exports:
   - names.txt
   - senzing.json
   - targets.nested.json
-  - topics.nested.json
   - targets.simple.csv
   - statements.csv
 summary: >
@@ -42,24 +42,34 @@ children:
   - regulatory
   - wanted
   - enrichers
+  - special_interest
+
+  # banks
+  - iso9362_bic
+  - ru_cbr_banks
 
   # misc
-  - research
-  - securities
   - ann_graph_topics
-  - wd_oligarchs
-  - wd_curated
-  - wd_categories
-  - ru_navalny35
-  - ru_billionaires_2021
-  - ru_acf_bribetakers
-  - ru_nsd_isin
-  - sy_obsalytics_opensyr
+  - ir_uani_business_registry
+  - kp_rusi_reports
   - md_rise_profiles
+  - ransomwhere
+  - research
+  - ru_acf_bribetakers
+  - ru_billionaires_2021
   - ru_dossier_center_poi
   - ru_myrotvorets_wagner
-  - ransomwhere
-  - kp_rusi_reports
-  - iso9362_bic
+  - ru_navalny35
+  - ru_nsd_isin
+  - thesentry_atlas
+  - securities
+  - sy_obsalytics_opensyr
+  - wd_categories
+  - wd_curated
+  - wd_oligarchs
+  - eiti_soe
+  - gem_energy_ownership
+  - ua_war_sanctions
+  - us_nk_jointventures
   # - us_fara_filings
 ci_test: false

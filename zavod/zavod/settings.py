@@ -29,6 +29,43 @@ RUN_TIME = RUN_VERSION.dt
 RUN_TIME_ISO = RUN_VERSION.dt.isoformat(sep="T", timespec="seconds")
 RUN_DATE = RUN_VERSION.dt.date().isoformat()
 
+# Risk categories
+TARGET_TOPICS = {
+    "corp.disqual",
+    "crime.boss",
+    "crime.fin",
+    "crime.fraud",
+    "crime.terror",
+    "crime.theft",
+    "crime.traffick",
+    "crime.war",
+    "crime",
+    "debarment",
+    "export.control",
+    "export.risk",
+    "poi",
+    "reg.action",
+    "reg.warn",
+    "role.oligarch",
+    "role.pep",
+    "role.rca",
+    "sanction.counter",
+    "sanction.linked",
+    "sanction",
+    "wanted",
+}
+ENRICH_TOPICS = {
+    "role.pep",
+    "role.rca",
+    "sanction",
+    "sanction.linked",
+    "debarment",
+    "asset.frozen",
+    "poi",
+    "gov.soe",
+}
+
+
 # Store configuration
 STORE_RETAIN_DAYS = int(env_str("ZAVOD_STORE_RETAIN_DAYS", "3"))
 
@@ -54,6 +91,10 @@ RESOLVER_PATH = env.get("OPENSANCTIONS_RESOLVER_PATH", RESOLVER_PATH)
 HTTP_TIMEOUT = 1200
 HTTP_USER_AGENT = "Mozilla/5.0 (zavod)"
 HTTP_USER_AGENT = env_str("ZAVOD_HTTP_USER_AGENT", HTTP_USER_AGENT)
+HTTP_RETRY_TOTAL = int(env.get("ZAVOD_HTTP_RETRY_TOTAL", 3))
+HTTP_RETRY_BACKOFF_FACTOR = float(env.get("ZAVOD_HTTP_RETRY_BACKOFF_FACTOR", 1.0))
+# urllib.util.Retry.DEFAULT_BACKOFF_MAX is 120
+HTTP_RETRY_BACKOFF_MAX = int(env.get("ZAVOD_HTTP_RETRY_BACKOFF_MAX", 120))
 
 # Database-backed cache settings
 CACHE_DATABASE_URI = env.get("ZAVOD_DATABASE_URI")
@@ -79,3 +120,7 @@ WD_USER = env.get("ZAVOD_WD_USER")
 ZYTE_API_KEY = env.get("OPENSANCTIONS_ZYTE_API_KEY", None)
 OPENAI_API_KEY = env.get("OPENSANCTIONS_OPENAI_API_KEY", None)
 AZURE_OPENAI_ENDPOINT = env.get("OPENSANCTIONS_AZURE_OPENAI_ENDPOINT", None)
+
+ENABLE_SENTRY = as_bool(env.get("ZAVOD_ENABLE_SENTRY", False))
+SENTRY_DSN = env.get("ZAVOD_SENTRY_DSN", None)
+SENTRY_ENVIRONMENT = env.get("ZAVOD_SENTRY_ENVIRONMENT", None)

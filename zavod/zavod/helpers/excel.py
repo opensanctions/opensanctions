@@ -1,8 +1,9 @@
-from typing import Dict, Generator, Optional, Union
+from typing import Dict, Generator, List, Optional, Union
 from datetime import datetime
 from normality import slugify, stringify
+from xlrd import XL_CELL_DATE  # type: ignore
 from xlrd.book import Book  # type: ignore
-from xlrd.sheet import Cell  # type: ignore
+from xlrd.sheet import Cell, Sheet  # type: ignore
 from xlrd.xldate import xldate_as_datetime  # type: ignore
 from nomenklatura.util import datetime_iso
 from openpyxl.worksheet.worksheet import Worksheet
@@ -57,12 +58,73 @@ def convert_excel_date(value: Optional[Union[str, int, float]]) -> Optional[str]
     return datetime_iso(dt)
 
 
+def parse_xls_sheet(
+    context: Context,
+    sheet: Sheet,
+    skiprows: int = 0,
+    join_header_rows: int = 0,
+) -> Generator[Dict[str, str | None], None, None]:
+    """
+    Parse an Excel sheet into a sequence of dictionaries.
+
+    Keys are the column headings slugified with _ as separator.
+
+    Cells with links are included as keys with _url appended to the original key.
+    """
+    headers: List[str] | None = None
+    for row_ix, row in enumerate(sheet):
+        if row_ix < skiprows:
+            continue
+        cells = []
+        record: Dict[str, str | None] = {}
+        for cell_ix, cell in enumerate(row):
+            if cell.ctype == XL_CELL_DATE:
+                # Convert Excel date format to zavod date
+                date_value = xldate_as_datetime(cell.value, sheet.book.datemode)
+                cells.append(date_value.date().isoformat())
+            else:
+                cells.append(cell.value)
+
+            # Add link to key ..._url
+            if url := sheet.hyperlink_map.get((row_ix, cell_ix)):
+                assert headers is not None, ("URLs not supported in headers yet.", row)
+                key = f"{headers[cell_ix]}_url"
+                record[key] = str(url.url_or_path)
+
+        if headers is None or join_header_rows > 0:
+            if headers:
+                # Append row of split-headers to current headers
+                for col_idx, cell in enumerate(cells):
+                    if not cell:
+                        continue
+                    headers[col_idx] += f"_{slugify(cell, sep='_')}"
+                join_header_rows -= 1
+            else:
+                # Initialise first row of headers
+                headers = []
+                for idx, cell in enumerate(cells):
+                    if not cell:
+                        cell = f"column_{idx}"
+                    headers.append(slugify(cell, "_") or "")
+            continue
+
+        for header, value in zip(headers, cells):
+            record[header] = stringify(value)
+
+        if len(record) == 0:
+            continue
+        if all(v is None for v in record.values()):
+            continue
+        yield record
+
+
 def parse_xlsx_sheet(
     context: Context,
     sheet: Worksheet,
     skiprows: int = 0,
     header_lookup: Optional[str] = None,
-) -> Generator[Dict[str, str | None], None, None]:
+    extract_links: bool = False,
+) -> Generator[Dict[str | None, str | None], None, None]:
     """
     Parse an Excel sheet into a sequence of dictionaries.
 
@@ -71,6 +133,7 @@ def parse_xlsx_sheet(
         sheet: The Excel sheet.
         skiprows: The number of rows to skip.
         header_lookup: The lookup key for translating headers.
+        extract_links: Whether to extract hyperlinks. Only works when read_only=False
     """
     headers = None
     row_counter = 0
@@ -98,10 +161,18 @@ def parse_xlsx_sheet(
             continue
 
         record = {}
-        for header, value in zip(headers, cells):
+        for cell_ix, (header, cell) in enumerate(zip(headers, row)):
+            value = cell.value
             if isinstance(value, datetime):
                 value = value.date()
             record[header] = stringify(value)
+
+            if extract_links:
+                # Check if the cell has a hyperlink
+                if cell.hyperlink:
+                    key = f"{header}_url"
+                    record[key] = str(cell.hyperlink.target)
+
         if len(record) == 0:
             continue
         if all(v is None for v in record.values()):

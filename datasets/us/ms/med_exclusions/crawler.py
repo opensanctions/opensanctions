@@ -35,20 +35,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("address", row.pop("provider_address"))
 
     sanction = h.make_sanction(context, entity)
-    sanction.add(
-        "startDate",
-        h.parse_date(
-            row.pop("termination_effective_date"), formats=["%Y-%m-%d", "%m.%d.%y"]
-        ),
-    )
+    h.apply_date(sanction, "startDate", row.pop("termination_effective_date"))
     sanction.add("reason", row.pop("termination_reason"))
 
     end_date = row.pop("exclusion_period").split("-")[1].strip()
 
     if end_date not in ["Indefinite", "indefinite"]:
-        sanction.add(
-            "endDate", h.parse_date(end_date, formats=["%B %d, %Y", "%m.%d.%y"])
-        )
+        h.apply_date(sanction, "endDate", end_date)
         is_debarred = False
     else:
         is_debarred = True
@@ -56,7 +49,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     if is_debarred:
         entity.add("topics", "debarment")
 
-    context.emit(entity, target=is_debarred)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row, ignore=["sanction_type", "column_0"])

@@ -9,7 +9,7 @@ from nomenklatura.stream import StreamEntity
 from nomenklatura.util import levenshtein_similarity
 
 from zavod.meta import Dataset
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.store import get_view, clear_store
 from zavod.cli import _load_datasets
 

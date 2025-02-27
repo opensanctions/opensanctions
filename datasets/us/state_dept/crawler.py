@@ -1,5 +1,4 @@
 from typing import Optional
-from xml.etree import ElementTree
 from normality import collapse_spaces
 from zavod import Context
 from zavod import helpers as h
@@ -7,26 +6,26 @@ from zavod.logic.pep import categorise
 from zavod.shed.zyte_api import fetch_html
 
 
-DATE_FORMAT = ["%B %d, %Y"]
-
-
-def bio_unblock_validator(doc: ElementTree) -> bool:
-    return len(doc.xpath(".//h1[contains(@class, 'featured-content__headline')]")) > 0
-
-
 def crawl_bio_page(context: Context, url: str):
+    name_xpath = ".//h1[contains(@class, 'featured-content__headline')]"
     doc = fetch_html(
         context,
         url,
-        bio_unblock_validator,
+        name_xpath,
         javascript=True,
+        geolocation="US",
         cache_days=30,
     )
-    name = collapse_spaces(
-        doc.xpath(".//h1[contains(@class, 'featured-content__headline')]")[
-            0
-        ].text_content()
-    )
+    if doc.xpath(".//body[contains(@class, 'error404')]"):
+        if context.lookup("expected_404", url):
+            return
+        else:
+            context.log.warning(
+                "Unexpected 404. Perhaps the expected_404 list needs to be updated.",
+                url=url,
+            )
+
+    name = collapse_spaces(doc.xpath(name_xpath)[0].text_content())
     title = None
     if name.startswith("Ambassador "):
         title = "Ambassador"
@@ -82,8 +81,6 @@ def crawl_bio_page(context: Context, url: str):
     start_date, end_date = dates.split(" - ")
     if end_date == "Present":
         end_date = None
-    start_date = h.parse_date(start_date, DATE_FORMAT)[0]
-    end_date = h.parse_date(end_date, DATE_FORMAT)[0] if end_date else None
 
     occupancy = h.make_occupancy(
         context,
@@ -93,36 +90,33 @@ def crawl_bio_page(context: Context, url: str):
         end_date=end_date,
         categorisation=categorisation,
     )
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(position)
     context.emit(occupancy)
 
 
-def crawl_index_page(context: Context, doc: ElementTree):
-    for anchor in doc.xpath(".//a[contains(@class, 'biography-collection__link')]"):
-        crawl_bio_page(context, anchor.get("href"))
-
-
 def get_next_link(doc) -> Optional[str]:
-    """because elements are falsy?!"""
     el = doc.find(".//a[@class='next page-numbers']")
     if el is not None:
         return el.get("href")
 
 
-def index_unblock_validator(doc: ElementTree) -> bool:
-    return len(doc.xpath(".//a[contains(@class, 'biography-collection__link')]")) > 0
+def crawl_index_page(context: Context, url: str):
+    bios_xpath = ".//a[contains(@class, 'biography-collection__link')]"
+    context.log.info("Crawling index page", url=url)
+    doc = fetch_html(
+        context,
+        url,
+        bios_xpath,
+        geolocation="US",
+    )
+    for anchor in doc.xpath(bios_xpath):
+        context.log.info("Crawling bio page", url=anchor.get("href"))
+        crawl_bio_page(context, anchor.get("href"))
+    return get_next_link(doc)
 
 
 def crawl(context: Context) -> Optional[str]:
-    doc = fetch_html(
-        context,
-        context.data_url,
-        index_unblock_validator,
-        cache_days=1,
-    )
-    crawl_index_page(context, doc)
-    while next_link := get_next_link(doc):
-        context.log.info(f"Crawling index page {next_link}")
-        doc = fetch_html(context, next_link, index_unblock_validator, cache_days=1)
-        crawl_index_page(context, doc)
+    next_link = context.data_url
+    while next_link:
+        next_link = crawl_index_page(context, next_link)

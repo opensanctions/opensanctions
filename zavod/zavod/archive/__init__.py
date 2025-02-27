@@ -1,4 +1,3 @@
-import csv
 import shutil
 from pathlib import Path
 from functools import lru_cache
@@ -6,7 +5,7 @@ from typing import TYPE_CHECKING
 from typing import Optional, Generator, TextIO, Set
 from rigour.mime.types import JSON
 from nomenklatura.statement import Statement
-from nomenklatura.statement.serialize import unpack_row
+from nomenklatura.statement.serialize import read_pack_statements_decoded
 from nomenklatura.versions import Version, VersionHistory
 
 from zavod import settings
@@ -206,8 +205,7 @@ def publish_resource(
 
 
 def _read_fh_statements(fh: TextIO, external: bool) -> StatementGen:
-    for cells in csv.reader(fh):
-        stmt = unpack_row(cells, Statement)
+    for stmt in read_pack_statements_decoded(fh):
         if not external and stmt.external:
             continue
         yield stmt
@@ -223,6 +221,7 @@ def iter_local_statements(dataset: "Dataset", external: bool = True) -> Statemen
     """Create a generator that yields all statements in the given dataset."""
     assert not dataset.is_collection
     path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
+    # get_dataset_artifact(dataset.name, STATEMENTS_FILE)
     if not path.exists():
         raise FileNotFoundError(f"Statements not found: {dataset.name}")
     with open(path, "r") as fh:

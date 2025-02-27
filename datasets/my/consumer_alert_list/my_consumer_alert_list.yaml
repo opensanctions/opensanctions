@@ -37,8 +37,11 @@ url: "https://www.bnm.gov.my/financial-consumer-alert-list"
 data:
   url: https://www.bnm.gov.my/financial-consumer-alert-list
   format: HTML
+  lang: eng
 ci_test: false
 
+dates: 
+  formats: ["%Y/%m/00%d"]
 lookups:
   type.name:
     lowercase: true

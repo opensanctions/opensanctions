@@ -1,0 +1,64 @@
+title: "Global Energy Ownership Tracker"
+entry_point: crawler.py
+prefix: gem-own
+coverage:
+  frequency: never
+  start: 2024-09-23
+  end: 2024-06-30
+deploy:
+  schedule: "@monthly"
+exports:
+  - statistics.json
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Information on the chain of ownership for various energy projects. The data maps 
+  each level of the chain from the direct owner up to their highest-level ultimate parents.
+description: |
+  The Global Energy Ownership Tracker provides information on the chain of ownership for 
+  various energy projects. The data maps each level of the chain from the direct owner 
+  (as in, the lowest-level identified owner in the chain of ownership) up to their 
+  highest-level ultimate parents (e.g., corporations, investment firms, and governments). 
+
+  Ownership links are reported with the percentage of ownership, including owners that have 
+  controlling interest as well as those with minority, non-controlling interests (if over a 
+  threshold of 5% ownership).
+
+  This data is from the Global Energy Ownership Tracker by Global Energy Monitor which
+  they license under the
+  [Creative Commons CC BY 4.0 International license](https://creativecommons.org/licenses/by/4.0/).
+url: https://globalenergymonitor.org/projects/global-energy-ownership-tracker/
+publisher:
+  name: Global Energy Monitor
+  country: zz
+  acronym: GEM
+  official: false
+  description: |
+    Global Energy Monitor develops and analyzes data on energy infrastructure, resources, and uses. 
+    It provides open access to information that is essential to building a sustainable energy future.
+  url: https://globalenergymonitor.org
+data:
+  url: https://globalenergymonitor.org/projects/global-energy-ownership-tracker/download-data/
+  format: xlsx
+
+assertions:
+  min:
+    schema_entities:
+      Company: 12000
+  max:
+    schema_entities:
+      Company: 17000
+
+lookups:
+  type.url:
+    lowercase: true
+    options:
+      - match: nan,nan
+        value: null
+      - match: nan
+        value: null
+  type.identifier:
+    options:
+      - match: U45100TG2012PTC084829
+        prop: registrationNumber
+      - match: L40100GJ1996PLC030533
+        prop: registrationNumber

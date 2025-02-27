@@ -34,3 +34,13 @@ publisher:
 data:
   url: https://www.lrs.lt/sip/portal.show?p_r=35299&p_k=2
   format: HTML
+
+dates: 
+  formats: ["%d %B %Y"]
+assertions:
+  min:
+    schema_entities:
+      Person: 120
+  max:
+    schema_entities:
+      Person: 150

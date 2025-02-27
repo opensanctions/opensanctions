@@ -10,10 +10,6 @@ COUNTRY = "md"
 relationships = dict()
 
 
-def parse_date(text):
-    return h.parse_date(text, ["%d.%m.%Y"])
-
-
 def crawl_entity(context: Context, relative_url: str, follow_relations: bool = True):
     url = urljoin(context.data_url, relative_url)
     doc = context.fetch_html(url, cache_days=CACHE_DAYS)
@@ -79,17 +75,17 @@ def make_person(
 ):
     person = context.make("Person")
     identification = [COUNTRY, name]
-    birth_date = parse_date(attributes.pop("data-nasterii", None))
+    birth_date = attributes.pop("data-nasterii", None)
     if birth_date:
         identification.append(birth_date)
     person.id = context.make_id(*identification)
 
     person.add("sourceUrl", url)
     person.add("name", name)
-    person.add("position", position, lang="ron")
-    person.add("birthDate", birth_date)
-    person.add("birthPlace", attributes.pop("locul-nasterii", None), lang="ron")
-    person.add("nationality", attributes.pop("cetatenie", "").split(","))
+    person.add("position", position)
+    h.apply_date(person, "birthDate", birth_date)
+    person.add("birthPlace", attributes.pop("locul-nasterii", None))
+    person.add("citizenship", attributes.pop("cetatenie", "").split(","))
 
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
@@ -99,7 +95,7 @@ def make_person(
 def make_company(context: Context, url: str, name: str, attributes: dict):
     company = context.make("Company")
     identification = [COUNTRY, name]
-    founded = parse_date(attributes.pop("data-inregistrarii", None))
+    founded = attributes.pop("data-inregistrarii", None)
     if founded:
         identification.append(founded)
     regno = attributes.pop("numar-de-identificare", None)
@@ -111,7 +107,7 @@ def make_company(context: Context, url: str, name: str, attributes: dict):
     company.add("registrationNumber", regno)
     company.add("sourceUrl", url)
     company.add("mainCountry", attributes.pop("tara", "").split(",")[0])
-    company.add("incorporationDate", founded)
+    h.apply_date(company, "incorporationDate", founded)
 
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
@@ -133,9 +129,9 @@ def make_legal_entity(context: Context, url: str, name: str, attributes: dict):
         entity.add("topics", "pol.party")
 
     if "data-fondarii" in attributes:
-        founded = parse_date(attributes.pop("data-fondarii"))
+        founded = attributes.pop("data-fondarii")
         identification.append(founded)
-        entity.add("incorporationDate", founded)
+        h.apply_date(entity, "incorporationDate", founded)
 
     entity.add("mainCountry", attributes.pop("tara", "").split(",")[0])
 
@@ -149,6 +145,9 @@ def make_legal_entity(context: Context, url: str, name: str, attributes: dict):
         regno = attributes.pop("idno")
         identification.append(regno)
         entity.add("registrationNumber", regno)
+    if "data-nasterii" in attributes:
+        entity.add_schema("Person")
+        h.apply_date(entity, "birthDate", attributes.pop("data-nasterii"))
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
     return entity
@@ -177,7 +176,7 @@ def make_relation(context, source, description, dest_name, dest_url):
     relation.id = context.make_id(dest.id, "related to", source.id)
     relation.add(source_key, source.id)
     relation.add(dest_key, dest.id)
-    relation.add(description_key, description, lang="ron")
+    relation.add(description_key, description)
     context.emit(relation)
 
 
@@ -197,7 +196,7 @@ def crawl(context: Context):
             entity = crawl_entity(context, link.get("href"))
             if entity:
                 entity.add("topics", "poi")
-                context.emit(entity, target=True)
+                context.emit(entity)
 
         query["br"] = query["br"] + len(profiles)
 

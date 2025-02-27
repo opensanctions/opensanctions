@@ -68,28 +68,33 @@ def crawl_item(input_dict: dict, context: Context):
     sanction.add(
         "program",
         (
-            "TCU Debarred entities based on Article 46 of Law 8.443/92 that"
+            "TCU Debarred entities based on Article 46 of Law 8.443/92 that "
             "restricts entities from participating in public biddings"
         ),
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 
 def crawl(context: Context):
-    """
-    Entrypoint to the crawler.
+    url = context.data_url
+    while True:
+        response = context.fetch_json(url)
+        if "items" not in response:
+            context.log.error("Items not found in JSON")
+            return
 
-    The crawler works by fetching the data from the URL as a JSON.
-    The data is already in the format of a list of dicts, so we just need to create the entities.
+        for item in response["items"]:
+            crawl_item(item, context)
 
-    :param context: The context object.
-    """
-    response = context.fetch_json(context.data_url)
-    if "items" not in response:
-        context.log.error("Items not found in JSON")
-        return
+        has_more = response.get("hasMore", False)
+        if not has_more:
+            break
 
-    for item in response["items"]:
-        crawl_item(item, context)
+        links = response.get("links", [])
+        link = [li.get("href") for li in links if li.get("rel") == "next"]
+        if not len(link):
+            break
+        url = link[0]
+        context.log.info(f"Fetching next page: {url}")

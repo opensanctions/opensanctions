@@ -1,19 +1,22 @@
-import sys
 import logging
-import structlog
 import os
 import re
 from pathlib import Path
 from typing import Callable, Optional
-from lxml.etree import _Element, tostring
-from followthemoney.schema import Schema
-
 from typing import Dict, List, Any, MutableMapping
-from structlog.stdlib import get_logger as get_raw_logger
+
+import structlog
+import sys
+from lxml.etree import _Element, tostring
+from lxml.html import HtmlElement
 from structlog.contextvars import merge_contextvars
+from structlog.stdlib import get_logger as get_raw_logger
 from structlog.types import Processor
 
+import sentry_sdk
+from followthemoney.schema import Schema
 from zavod import settings
+from zavod.sentry import SentryProcessor, SENTRY_FINGERPRINT_VARIABLE_MESSAGE
 
 Event = MutableMapping[str, str]
 
@@ -23,8 +26,10 @@ REDACT_IGNORE_LIST = {
     "PWD",
     "VIRTUAL_ENV",
     "HOME",
+    "EU_JOURNAL_SEEN_PATH",
     "ZAVOD_DATA_PATH",
     "ZAVOD_RESOLVER_PATH",
+    "ZAVOD_SYNC_POSITIONS",
     "OPENSANCTIONS_RESOLVER_PATH",
     # The URL redaction will handle these
     "ZAVOD_DATABASE_URI",
@@ -34,16 +39,19 @@ REDACT_MIN_LENGTH = 5
 URI_WITH_CREDENTIALS = r"(\w+)://[^:]+:[^@]+@"
 REGEX_URI_WITH_CREDENTIALS = re.compile(URI_WITH_CREDENTIALS)
 
+# Module level so we can modify the level later
+# After we've managed to regain control of whether we want to log warnings in Entity.add, we can probably
+# clean this up. See https://github.com/opensanctions/opensanctions/issues/1896
+_sentry_processor: Optional[SentryProcessor] = None
 
-class RedactingProcessor():
+
+class RedactingProcessor:
     """A structlog processor that redact sensitive information from log messages."""
 
     def __init__(self, repl_pattrns: Dict[str, str | Callable[[str], str]]) -> None:
         self.repl_regexes = {re.compile(p): r for p, r in repl_pattrns.items()}
 
-    def __call__(
-        self, logger: Any, method_name: str, event_dict: Event
-    ) -> Event:
+    def __call__(self, logger: Any, method_name: str, event_dict: Event) -> Event:
         return self.redact_dict(event_dict)
 
     def redact_dict(self, dict_: Event) -> Event:
@@ -93,13 +101,45 @@ def configure_redactor() -> Callable[[Any, str, Event], Event]:
             continue
         if len(value) < REDACT_MIN_LENGTH:
             continue
-        pattern_map[re.escape(value)] = f"### Redacted env var {key} ###"
+        pattern_map[re.escape(value)] = f"${{{key}}}"
     pattern_map[URI_WITH_CREDENTIALS] = redact_uri_credentials
     return RedactingProcessor(pattern_map)
 
 
+def configure_sentry_integration() -> None:
+    if settings.ENABLE_SENTRY:
+        if not settings.SENTRY_DSN:
+            raise RuntimeError("Sentry integration is enabled, but not DSN set.")
+        if not settings.SENTRY_ENVIRONMENT:
+            raise RuntimeError("Sentry integration is enabled, but no environment set.")
+
+        sentry_sdk.init(
+            dsn=settings.SENTRY_DSN,
+            environment=settings.SENTRY_ENVIRONMENT,
+            auto_enabling_integrations=False,
+            disabled_integrations=[
+                # We disable the default logging integration because we have our custom structlog Processor
+                sentry_sdk.integrations.logging.LoggingIntegration  # type: ignore
+            ],
+            attach_stacktrace=True,
+        )
+
+
+def set_sentry_dataset_name(dataset_name: str) -> None:
+    structlog.contextvars.bind_contextvars(dataset=dataset_name)
+    # A Transaction in Sentry parlance is the "current task being executed"
+    sentry_sdk.get_current_scope().set_transaction_name(dataset_name)
+
+
+def set_sentry_event_level(level: int) -> None:
+    """Set the level above which events are sent to Sentry."""
+    if _sentry_processor is not None:
+        _sentry_processor.event_level = level
+
+
 def configure_logging(level: int = logging.DEBUG) -> None:
     """Configure log levels and structured logging."""
+
     processors: List[Processor] = [
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
@@ -110,6 +150,19 @@ def configure_logging(level: int = logging.DEBUG) -> None:
         structlog.processors.UnicodeDecoder(),
         log_issue,
     ]
+    if settings.ENABLE_SENTRY:
+        global _sentry_processor
+        _sentry_processor = SentryProcessor(
+            event_level=logging.WARNING,
+            event_dict_as_extra=True,
+            # Attach the dataset name as a tag in Sentry
+            tag_keys=["dataset"],
+            # Disable the default grouping magic, we only want to group by message and dataset. Otherwise, log messages
+            # along the lines of "Problem with entity <id>" might be grouped by the internal magic, even though they are
+            # actually separate data issues.
+            fingerprint=[SENTRY_FINGERPRINT_VARIABLE_MESSAGE, "{{ tag.dataset }}"],
+        )
+        processors.append(_sentry_processor)
 
     # Note: Redaction is only happening on string values, so make sure production
     # environments format logs as strings before the redaction processor.
@@ -166,20 +219,29 @@ def format_json(_: Any, __: str, ed: Event) -> Event:
     return ed
 
 
+def stringify(value: Any) -> Any:
+    """Stringify the types that aren't already JSON serializable."""
+
+    if isinstance(value, (_Element, HtmlElement)):
+        return tostring(value, pretty_print=False, encoding=str).strip()
+    if isinstance(value, Path):
+        try:
+            value = value.relative_to(settings.DATA_PATH)
+        except ValueError:
+            pass
+        return str(value)
+    if isinstance(value, Schema):
+        return value.name
+    if isinstance(value, list):
+        return [stringify(v) for v in value]
+    if isinstance(value, dict):
+        for key, value_ in value.items():
+            value[key] = stringify(value_)
+    return value
+
+
 def log_issue(_: Any, __: str, ed: Event) -> Event:
-    data: Dict[str, Any] = dict(ed)
-    for key, value in data.items():
-        if isinstance(value, _Element):
-            value = tostring(value, pretty_print=False, encoding=str)
-        if isinstance(value, Path):
-            try:
-                value = value.relative_to(settings.DATA_PATH)
-            except ValueError:
-                pass
-            value = str(value)
-        if isinstance(value, Schema):
-            value = value.name
-        data[key] = value
+    data: Dict[str, Any] = stringify(dict(ed))
 
     context = data.pop("context", None)
     level: Optional[str] = data.get("level")

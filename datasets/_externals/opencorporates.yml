@@ -8,7 +8,7 @@ coverage:
 exports:
   - statistics.json
 deploy:
-  memory: "2000Mi"
+  memory: "4000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   The largest open database of company data in the world, with data from over 140 registries.
@@ -35,7 +35,9 @@ publisher:
 ci_test: false
 
 inputs:
-  - sanctions
+  - ir_uani_business_registry
+  - us_sanctions
+  - eu_sanctions
   # - ext_cy_companies
   # - ext_cz_business_register
   # - ext_ee_ariregister
@@ -46,8 +48,6 @@ inputs:
   # - ext_md_companies
   # - opencorporates
   # - ext_ru_egrul
-  # - ru_rupep
-  # - ru_rupep_companies
   # - ext_ua_edr
   # - debarment
 
@@ -85,7 +85,18 @@ lookups:
         value: Panama
       - match: "PROVINCIA PANAMÁ, OBSERVACIONES EN ATENCIÓN A NOTIFICACIÓN OFICIAL NO. 201-01-0915 DGI DEL 15 DE ABRIL DE 2016 RECIBIDA DE LA DIRECCIÓN GENERAL DE INGRESOS DEL MINISTERIO DE ECONOMÍA Y FINANZAS, POR MEDIO DE LA CUAL LE INFORMA AL REGISTRO PÚBLICO DE PANAMÁ QUE SE HA ELABORADO UNA LISTA DE PERSONAS JURÍDICAS CON UNA MOROSIDAD DE DIEZ (10) AÑOS EN CONCEPTO DE TASA ÚNICA, Y QUE LA MISMA HA SIDO PUBLICADA EN GACETA OFICIAL. EN LA LISTA APARECE LA PRESENTE SOCIEDAD. POR TANTO, AL TENOR DE LO QUE ESTABLECE EL ARTÍCULO 318-A- DEL CÓDIGO FISCAL, SE PROCEDE A LA INSCRIPCIÓN PROVISIONAL DE LA PRESENTE MARGINAL DE ANOTACIÓN DE DISOLUCIÓN DE LA PERSONA JURÍDICA POR EL NO PAGO DE LA TASA ÚNICA, POR UN PERÍODO DE TRES (3) AÑOS A PARTIR DE LA FECHA DE SU INSCRIPCIÓN. ESTA INSCRIPCIÓN PROVISIONAL PRODUCE LOS EFECTOS DE UNA INSCRIPCIÓN DEFINITIVA DE DISOLUCIÓN DURANTE LOS TRES (3) AÑOS SIGUIENTES Y QUEDARÁ DE HECHO DISUELTA DEFINITIVAMENTE SI DENTRO DE ESE TÉRMINO NO SE ACREDITA EL PAGO DE LA MOROSIDAD. FUNDAMENTO DE DERECHO: ARTÍCULO 318-A- DEL CÓDIGO FISCAL, PARÁGRAFOS 4 Y 5, REFORMADO POR LA LEY 6 DE 2005 Y LEY 49 DE 2009."
         value: Panama
-
+      - match: "Stralauer Allee 4, 10245 Berlin Gegenstand: Zweck der Stiftungsgesellschaft ist die schnelle und unbürokratische Unterstützung von Mitarbeitern der CCE AG und der Coca-Cola GmbH, die sich aufgrund unverschuldeter Ereignisse in finanziellen Notsituationen befinden und die Voraussetzungen des § 53 Nr. 1 oder 2 der Abgabenordnung erfüllen"
+        value: Stralauer Allee 4, 10245 Berlin
+      - match: "Leinestraße 21, 12049 Berlin Gegenstand: Handel und Vertrieb von Bohrgeräten sowie Beratung über geologische Bohrungen und Geothermie sowie Dienstleistungen in der Bohrtechnik, insbesondere auch im Spezial-/Tiefbau Stamm- bzw. Grundkapital:25)000,00 EUR Vertretungsregelung: Ist ein Geschäftsführer bestellt, so vertritt er die Gesellschaft allein."
+        value: Leinestraße 21, 12049 Berlin
+      - match: "Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang, Dr. med. Christoph Mathey, Jolanta Pleyer, Dr. med. Astrid Spang. Praxissitz 78549 Spaichingen, Robert-Koch-Straße 31: Dr. med. Andreas Kammerzell. Praxissitz 78166 Donaueschingen, Wasserstraße 22: Dr. med. Tilman Freytag, Dr. med. Johannes Kohler. Praxissitz 88662 Überlingen, Mühlenstraße 12: Dr. med. Thomas Braus, Dr. med. Birgit Langenberger. Praxissitz 72379 Hechingen, Kirchplatz 2: Conka Tekeva-Rohrbach. Augenärzte Partnerschaftsgesellschaft"
+        values:
+          - 78532 Tuttlingen, Zeppelinstraße 21
+          - 78549 Spaichingen, Robert-Koch-Straße 31
+          - 88662 Überlingen, Mühlenstraße 12
+          - 72379 Hechingen, Kirchplatz 2
+      - match: "Platz vor dem Neuen Tor 2, 10115 Berlin Gegenstand: Erbringung persönlicher und sachlicher Leistungen im Zusammenhang mit der Durchführung von Ausbildungsprogrammen und Zertifizierungsvorbereitungen, insbesondere im Bereich der Projekt- und Programmorganisation Stamm- bzw. Grundkapital:33)400,00 EUR Vertretungsregelung: Ist ein Geschäftsführer bestellt, so vertritt er die Gesellschaft allein."
+        value: Platz vor dem Neuen Tor 2, 10115 Berlin
   type.country:
     lowercase: true
     normalize: true
@@ -99,6 +110,8 @@ lookups:
           - "#"
           - Republic Of
           - Islamic Republic Of
+          - JAP
+          - British Isles
         value: null
       - match:
           - IRLANDE, ou EIRE
@@ -111,11 +124,37 @@ lookups:
         value: GE
       - match: QUEBEC H2Y 1L6
         value: CA
-      - match: Corée du Sud ( Rép. de )
+      - match:
+          - Corée du Sud ( Rép. de )
+          - COREE (REPUBLIQUE DE)
+          - SKO
         value: South Korea
-      - match: HNK
+      - match:
+          - HNK
+          - Chine (Hong-Kong SAR)
         value: HK
-
+      - match: Koweit/Principauté de/
+        value: KW
+      - match: Pologne ( Rép. )
+        value: PL
+      - match: Scotland, Uk
+        value: GB
+      - match:
+          - Azerbaïdjan ( Rép. )
+          - Azerbaijan Republic
+        value: AZ
+      - match: Slovénie ( Rép. de )
+        value: SI
+      - match: Antilles néerlandaises
+        value: NL
+      - match: IRAN, RÉPUBLIQUE ISLAMIQUE D'
+        value: IR
+      - match: TCHEQUIE
+        value: CZ
+      - match: TAÏWAN, PROVINCE DE CHINE
+        value: TW
+      - match: FÉROÉ, ÎLES
+        value: FO
   type.name:
     options:
       - match: "CÔNG TY CỔ PHẦN SẢN XUẤT KINH DOANH TỔNG HỢP VĨNH HƯNG (DOANH NGHIỆP ĐÃ GIẢI THỂ THEO THÔNG BÁO SỐ: 27/TB-ĐKKD NGÀY 16/05/2006 CỦA PHÒNG ĐĂNG KÝ KINH DOANH - SỞ KẾ HOẠCH VÀ ĐẦU TƯ HÀ NỘI). (THÔNG BÁO ĐÓNG MÃ SỐ THUẾ, NGỪNG HOẠT ĐỘNG, THÔNG BÁO SÓ: 1051 C"
@@ -124,3 +163,22 @@ lookups:
         values:
           - DOANH NGHIỆP TƯ NHÂN SẢN XUẤT THƯƠNG MẠI DỊCH VỤ TỔNG HỢP AN KHÁNH
           - DOANH NGHIỆP TƯ NHÂN THƯƠNG MẠI AN KHÁNH
+      - match: '"BISER" DRUŠTVO SA OGRANIČENOM ODGOVORNOŠĆU BIJELO POLJE (RJ. OS. SUDA U B.P. I.BR.716/11 OD 13.09.2011.GOD. ODREĐENA ZABRANA RASPOLAGANJA, OPTEREĆENJA I OTUĐENJA UDJELOM OSNIVAČA DAMIRA MARTINOVIĆA) (UPISAN U KAZNENU EV. NA OSNOVU PRESUDE OS.SU. B.P. K.BR.44/2013 OD 28.02.2014.G.)'
+        value: '"BISER" DRUŠTVO SA OGRANIČENOM ODGOVORNOŠĆU'
+      - match: "Augen-Partner-Gruppe Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang Dr. med. Christoph Mathey Dr. med. Johanna Stuckenbrock Dr. med. Astrid Spang Praxissitz 78166 Donaueschingen, Karlstraße 38: Dr. med. Tilmann Freytag Dr. med. Johannes Kohler Praxissitz 88662 Überlingen, Johann-Kraus-Straße 9: Dr. med. Birgit Langenberger Dr. med. Andreas Kammerzell Praxissitz 72379 Hechingen, Weilheimer Straße 31: Conka Tekeva-Rohrbach Augenärzte Partnerschaftsgesellschaft"
+        value: Augen-Partner-Gruppe Standortübergreifende Berufsausübungsgemeinschaft
+      - match:
+          - "Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang, Privatdozent Dr. med. Robert Degenring, Jolanta Pleyer, Dr. med. Astrid Spang, Praxissitz 78549 Spaichingen, Robert-Koch-Straße 31: Dr. med. Andreas Kammerzell, Praxissitz 78166 Donaueschingen, Friedrichstraße 2: Dr. med. Tilman Freytag, Praxissitz 78166 Donaueschingen, Käferstraße 9: Dr. med. Gerd H. Walter, Augenärzte Partnerschaftsgesellschaft"
+          - "Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang, Dr. med. Christoph Mathey, Jolanta Pleyer, Dr. med. Astrid Spang, Praxissitz 78549 Spaichingen, Robert-Koch-Straße 31: Dr. med. Andreas Kammerzell, Praxissitz 78166 Donaueschingen, Wasserstraße 22: Dr. med. Tilman Freytag, Dr. med. Johannes Kohler Augenärzte Partnerschaftsgesellschaft"
+          - "Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang, Dr. med. Christoph Mathey, Jolanta Pleyer, Dr. med. Astrid Spang. Praxissitz 78549 Spaichingen, Robert-Koch-Straße 31: Dr. med. Andreas Kammerzell. Praxissitz 78166 Donaueschingen, Wasserstraße 22: Dr. med. Tilman Freytag, Dr. med. Johannes Kohler. Praxissitz 88662 Überlingen, Mühlenstraße 12: Dr. med. Thomas Braus, Dr. med. Birgit Langenberger. Praxissitz 72379 Hechingen, Kirchplatz 2: Dr. med. Axel Riester. Augenärzte Partnerschaftsgesellschaft"
+          - "Augen-Partner-Gruppe Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang Dr. med. Christoph Mathey Jolanta Pleyer Dr. med. Astrid Spang Praxissitz 78166 Donaueschingen, Karlstraße 38: Dr. med. Tilman Freytag Dr. med. Johannes Kohler Praxissitz 88662 Überlingen, Johann-Kraus-Straße 9: Dr. med. Birgit Langenberger Dr. med. Andreas Kammerzell Praxissitz 72379 Hechingen, Weilheimer Straße 31: Conka Tekeva-Rohrbach Praxissitz 78549 Spaichingen (Zweigpraxis), Robert-Koch-Straße 31: Dr. med. Stephan Spang Dr. med. Christoph Mathey Jolanta Pleyer Dr. med. Astrid Spang Dr. med. Tilman Freytag Dr. med. Johannes Kohler Dr. med. Birgit Langenberger Dr. med. Andreas Kammerzell Conka Tekeva-Rohrbach Augenärzte Partnerschaftsgesellschaft"
+          - "Standortübergreifende Berufsausübungsgemeinschaft Praxissitz 78532 Tuttlingen, Zeppelinstraße 21: Dr. med. Stephan Spang, Dr. med. Christoph Mathey, Jolanta Pleyer, Dr. med. Astrid Spang. Praxissitz 78549 Spaichingen, Robert-Koch-Straße 31: Dr. med. Andreas Kammerzell. Praxissitz 78166 Donaueschingen, Wasserstraße 22: Dr. med. Tilman Freytag, Dr. med. Johannes Kohler. Praxissitz 88662 Überlingen, Mühlenstraße 12: Dr. med. Thomas Braus, Dr. med. Birgit Langenberger. Praxissitz 72379 Hechingen, Kirchplatz 2: Conka Tekeva-Rohrbach. Augenärzte Partnerschaftsgesellschaft"
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Company: 750
+  max:
+    schema_entities:
+      Company: 1750

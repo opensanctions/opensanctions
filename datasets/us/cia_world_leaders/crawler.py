@@ -37,8 +37,12 @@ def crawl_leader(
 ) -> None:
     name = leader["name"]
     name = name.replace("(Acting)", "")
-    if h.is_empty(name) or name.lower() == "vacant":
+    name = collapse_spaces(name)
+    name = context.lookup_value("normalize_name", name, name)
+    if h.is_empty(name):
         return
+    if "vacant" in name.lower():
+        context.log.warning("Double-check vacant position", name=name)
     function = clean_position(leader["title"])
     gov = collapse_spaces(section)
     if gov:
@@ -79,7 +83,7 @@ def crawl_leader(
             context, person, position, categorisation=categorisation
         )
 
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 

@@ -14,6 +14,7 @@ description: |
   summary of the criminal case, and relevant links to them.
 url: https://www.secretservice.gov/investigations/mostwanted
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 coverage:
   frequency: daily
   start: "2024-06-17"
@@ -34,13 +35,10 @@ publisher:
 data:
   url: https://www.secretservice.gov/investigations/mostwanted
   format: HTML
-lookups:
-  type.date:
-    lowercase: true
-    options:
-      - match:
-          - N/A
-        value: null
+  lang: eng
+
+dates: 
+  formats: ["%b %d, %Y", "%B %d, %Y", ": %B %d, %Y"]
 assertions:
   min:
     schema_entities:
@@ -50,3 +48,10 @@ assertions:
       ua: 4
       ng: 1
     countries: 6
+lookups:
+  type.date:
+    lowercase: true
+    options:
+      - match:
+          - N/A
+        value: null

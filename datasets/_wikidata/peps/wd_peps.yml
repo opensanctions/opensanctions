@@ -6,8 +6,8 @@ coverage:
   frequency: daily
   start: 2022-12-27
 deploy:
-  # schedule: "0 */6 * * *"
-  memory: "2Gi"
+  memory: "1500Mi"
+  memory_limit: "2500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - entities.ftm.json
@@ -46,9 +46,9 @@ publisher:
     sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
   url: https://www.wikidata.org
   official: false
-url: https://www.opensanctions.org/datasets/peps
+url: https://www.opensanctions.org/pep/
 data:
-  url: https://query.wikidata.org/sparql
+  url: https://query.wikidata.org/
   format: JSON
 ci_test: false
 http:
@@ -62,18 +62,29 @@ http:
 assertions:
   min:
     schema_entities:
-      Person: 160000
+      Person: 170000
       Position: 10000
     country_entities:
-      us: 20000
-      cn: 8000
-      bn: 20
+      us: 18000
+      cn: 7000
+      bn: 10
     countries: 19
   max:
     schema_entities:
-      Person: 180000
+      Person: 200000
+
+config:
+  countries_local:
+    - us
+    - gb
 
 lookups:
+  type.country:
+    options:
+      - match:
+          - Romanov Empire
+          - British overseas territories
+        value: null
   type.date:
     options:
       - match:
@@ -111,6 +122,7 @@ lookups:
           - "Q1251441" # leader
           - "Q1276214" # European Union Special Representative
           - "Q1326365" # -elect
+          - "Q131981747" # -elect
           - "Q1414672" # legislative seat
           - "Q1472275" # figurehead
           - "Q1500391" # chief of municipal
@@ -560,6 +572,7 @@ lookups:
           - "Q108377574" # Islamic religious occupation
           - "Q21051103" # warden
           - "Q2382776" # no-show job
+          - "Q68887" # Mirwaiz
 
   country_decisions:
     options:
@@ -1335,6 +1348,10 @@ lookups:
         code: "CU"
         label: "Cuba"
         decision: "national"
+      - match: "Q14905932"
+        code: "CU"
+        label: "Republic of Cuba"
+        decision: "national"
       - match: "Q252"
         code: "ID"
         label: "Indonesia"
@@ -1916,3 +1933,56 @@ lookups:
         code: ""
         label: "First Republic of Seychelles"
         decision: "ignore"
+      - match: "Q126362486"
+        code: ""
+        label: "Kerajaan Patipi"
+        decision: "ignore"
+      - match: "Q2961631"
+        code: ""
+        label: "Chaumontois"
+        decision: "ignore"
+      - match: "Q65040683"
+        code: ""
+        label: "Jobberman"
+        decision: "ignore"
+      - match: "Q19716180"
+        code: ""
+        label: "Pays Catalan"
+        decision: "ignore"
+      - match: Q370862
+        code: ""
+        label: "Arab Maghreb Union"
+        decision: "ignore"
+      - match: "Q131300036"
+        code: ""
+        label: "Maghreb Economic Area"
+        decision: "ignore"
+      - match: "Q782"
+        code: "US"
+        label: "Hawaii"
+        decision: "subnational"
+      - match: "Q6744020"
+        code: ""
+        label: "Mallabhum"
+        decision: "ignore"
+      - match: "Q28406119"
+        code: ""
+        label: "Free Republic of the Congo"
+        decision: "ignore"
+      - match: "Q97704156"
+        code: "HT"
+        label: "Republic of Haiti"
+        # This is a historic 19th century entity
+        decision: "ignore"
+      - match: "Q56692361"  # greek state 
+        code: "GR"
+        label: "Greece"
+        decision: "national"
+      - match: "Q131839713"
+        code: null
+        label: Kingdom of Patones
+        decision: ignore
+      - match: Q43287
+        code: null
+        label: German Empire
+        decision: ignore  # historic

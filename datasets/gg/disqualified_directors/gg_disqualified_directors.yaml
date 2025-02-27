@@ -28,13 +28,15 @@ publisher:
   country: "gg"
 url: https://www.gfsc.gg/commission/enforcement
 data:
-  url: https://www.guernseyregistry.com/article/4036/Disqualified-Directors # url for the second list is accessed through the crawler.py
+  url: https://www.guernseyregistry.com/article/4036/Disqualified-Directors
   format: HTML
 
+dates: 
+  formats: ["%d.%m.%Y", "%d %B %Y", "%d/%m/%Y"]
 assertions:
   min:
     schema_entities:
       Person: 35
   max:
     schema_entities:
-      Person: 45
+      Person: 50

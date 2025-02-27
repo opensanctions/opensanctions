@@ -51,13 +51,10 @@ def parse_table(
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def detail_unblock_validator(doc: _Element) -> bool:
-    return len(doc.xpath(".//h1[contains(@class, 'page-title__heading')]")) > 0
-
-
 def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
     context.log.info("Crawling entity", url=url)
-    doc = fetch_html(context, url, detail_unblock_validator, cache_days=1)
+    validator = ".//h1[contains(@class, 'page-title__heading')]"
+    doc = fetch_html(context, url, validator, cache_days=1)
     res = context.lookup("schema", category)
     if res is None or not isinstance(res.schema, str):
         context.log.warning("No schema found for category", category=category)
@@ -110,7 +107,7 @@ def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
         if address:
             entity.add("address", ", ".join(address))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 
@@ -119,11 +116,11 @@ def index_unblock_validator(doc: _Element) -> bool:
 
 
 def crawl(context: Context) -> None:
-    sleep(SLEEP)
-    doc = fetch_html(context, context.data_url, index_unblock_validator, cache_days=1)
+    table_xpath = ".//table[contains(@class, 'usa-table')]"
+    doc = fetch_html(context, context.data_url, table_xpath, cache_days=1)
     doc.make_links_absolute(context.data_url)
 
-    table = doc.xpath(".//table[contains(@class, 'usa-table')]")[0]
+    table = doc.xpath(table_xpath)[0]
     for row in parse_table(table):
         sleep(SLEEP)
         name, url = row.pop("name")

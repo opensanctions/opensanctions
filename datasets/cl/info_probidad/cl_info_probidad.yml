@@ -40,10 +40,22 @@ publisher:
   country: "cl"
 url: https://www.infoprobidad.cl/DatosAbiertos/Catalogos
 data:
-  url: https://datos.cplt.cl/catalogos/infoprobidad/csvdeclaraciones
-  format: csv
-
+  url: https://www.infoprobidad.cl/Home/Listado
+  format: JSON
 ci_test: false
+
+dates:
+  formats: ["%Y/%m/%d"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 5800
+      Position: 600
+  max:
+    schema_entities:
+      Person: 14000
+      Position: 2000
 
 lookups:
   positions:
@@ -129,12 +141,12 @@ lookups:
           - "SEGUNDO SECRETARIO O CÓNSUL DE SEGUNDA CLASE, QUINTA CATEGORÍA EXTERIOR"
 
       - is_pep: false
+        contains: CANDIDATO
+      - is_pep: false
         match:
-          - CANDIDATO A ELECCIONES PRIMARIAS ALCALDE 2024
-          - CANDIDATO A ELECCIONES PRIMARIAS GORE 2024
           - JEFE RELACIONES PUBLICAS
 
-      - is_pep: null # haven't looked closely yet
+      - is_pep: null  # haven't looked closely yet
         match:
           - "ABOGADA"
           - "ABOGADO"
@@ -183,20 +195,6 @@ lookups:
           - "AUXILIAR"
           - "BIOQUIMICO"
           - "C1"
-          - "CANDIDATO A ALCALDE 2021"
-          - "CANDIDATO A CONCEJAL 2021"
-          - "CANDIDATO A CONSEJERO CONSTITUCIONAL 2023"
-          - "CANDIDATO A CONSEJERO CONSTITUCIONAL DE PUEBLO INDIGENA 2023"
-          - "CANDIDATO A CORE 2017"
-          - "CANDIDATO A CORE 2021"
-          - "CANDIDATO A DIPUTADO 2017"
-          - "CANDIDATO A DIPUTADO 2021"
-          - "CANDIDATO A ELECCIONES PRIMARIAS PRESIDENTE 2021"
-          - "CANDIDATO A GORE 2021"
-          - "CANDIDATO A SENADOR 2017"
-          - "CANDIDATO A SENADOR 2021"
-          - "CANDIDATO PRIMARIAS ALCALDE 2020"
-          - "CANDIDATO PRIMARIAS GORE 2020"
           - "CATEGORÍA A NIVEL 4"
           - "CHOFER"
           - "CIRUJANO DENTISTA"
@@ -210,6 +208,7 @@ lookups:
           - "CONSEJERO(A)"
           - "CONSEJERO/A"
           - "CONSEJERO/A CONSEJO DE CONCESIONES "
+          - "CONSEJEROS"
           - "CONSERVADOR"
           - "CONSERVADOR Y ARCHIVERO"
           - "CONTRALOR"
@@ -275,6 +274,7 @@ lookups:
           - "DIRECTOR NACIONAL (S)"
           - "DIRECTOR PARQUE METROPOLITANO"
           - "DIRECTOR REGIONAL"
+          - "DIRECTOR REGIONAL (S)"
           - "DIRECTOR REGIONAL CENTRO EXPORTADOR DE ARICA Y PARINACOTA"
           - "DIRECTOR REGIONAL CENTRO EXPORTADOR DE LOS RIOS"
           - "DIRECTOR REGIONAL CENTRO EXPORTADOR DE VALPARAISO"
@@ -338,6 +338,7 @@ lookups:
           - "FONOAUDIOLOGO"
           - "FUNCIÓN FISCALIZACIÓN O APOYO A FISCALIZACIÓN "
           - "GENERAL DE EJERCITO"
+          - "GENERAL DIRECTOR"
           - "GERENTE"
           - "GERENTE GENERAL"
           - "GERENTE GENERAL INTERINO"
@@ -369,10 +370,12 @@ lookups:
           - "JEFA DE GABINETE DEL MINISTRO DE RELACIONES EXTERIORES"
           - "JEFATURA"
           - "JEFATURA DE DEPARTAMENTO"
+          - "JEFATURA DIVISIÓN DE ADMINISTRACIÓN Y SECRETARÍA GENERAL"
           - "JEFATURA DE PROYECTOS"
           - "JEFATURA DE UNIDAD"
           - "JEFATURA SEGUNDO NIVEL JERÁRQUICO"
           - "JEFE"
+          - "JEFE CENTRO DE COMPUTACION"
           - "JEFE  DE SECTOR"
           - "JEFE DE AREA"
           - "JEFE DE BODEGA"
@@ -415,6 +418,7 @@ lookups:
           - "JUEZ  DE POLICIA  LOCAL"
           - "JUEZ (A) POLICÍA LOCAL"
           - "JUEZ DE POLICIA LOCAL"
+          - "JUEZ DE POLICIA LOCAL SUBROGANTE"
           - "JUEZ DE POLICÍA LOCAL"
           - "JUEZ POLICIA LOCAL"
           - "JUEZ POLICÍA LOCAL"
@@ -581,6 +585,8 @@ lookups:
           - "TECNICO A HONORARIOS"
           - "TECNICO INFORMATICA"
           - "TECNICO PARAMEDICO"
+          - "TECNICO SOCIAL"
           - "TECNOLOGO MEDICO "
           - "TENIENTE CORONEL"
           - "TERCER NIVEL JERARQUICO"
+          - "NINGUNO"  # None

@@ -12,15 +12,6 @@ def clean_row(row: Dict[str, str]) -> Dict[str, str]:
     }
 
 
-def convert_date(date_str: str) -> list[str]:
-    """Convert various date formats to 'YYYY-MM-DD'."""
-    formats = [
-        "%B %d, %Y",  # 'Month DD, YYYY' format
-        "%d-%b-%y",  # 'DD-MMM-YY' format
-    ]
-    return h.parse_date(date_str, formats, default=None)
-
-
 def crawl_row(context: Context, row: Dict[str, str]):
     row = clean_row(row)  # Clean the row before processing
 
@@ -30,7 +21,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     bank_name = row.get("Bank Name", "").strip()
     closing_date = row.get("Closing Date", "").strip()
-    closing_date_iso = convert_date(closing_date)  # Convert closing date to ISO format
 
     if not bank_name or not closing_date:
         context.log.warning("Missing bank name or closing date", row=row)
@@ -44,8 +34,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("topics", "reg.warn")
     entity.add("jurisdiction", "us")
     entity.add("notes", f"Cert: {row.get('Cert', '')}")
-    entity.add("dissolutionDate", closing_date_iso)
     entity.add("notes", f"Fund: {row.get('Fund', '')}")
+    h.apply_date(entity, "dissolutionDate", closing_date)
 
     # Check if acquiring_institution has a value
     if acquiring_institution:
@@ -61,15 +51,14 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.emit(succ)
         context.emit(succ_entity)
 
-    address = h.make_address(
-        context,
+    address = h.format_address(
         city=row.pop("City"),
         state=row.pop("State"),
         country_code="us",
     )
-    h.copy_address(entity, address)
+    entity.add("address", address)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.log.info(f"Emitted entity for bank: {bank_name}")
 
 

@@ -1,51 +1,60 @@
-import re
-from urllib.parse import urljoin
+from csv import DictReader
+from normality import collapse_spaces, stringify
+from openpyxl import load_workbook
+from rigour.mime.types import XLS, CSV
 from typing import Dict
+from urllib.parse import urljoin
+from email.message import Message
+
 from zavod import Context
 from zavod import helpers as h
-from normality import collapse_spaces, stringify
-from rigour.mime.types import XLSX
-from openpyxl import load_workbook
+from zavod.archive import dataset_data_path
 
 
-DATE_FORMAT = ["%Y-%m-%d"]  # 'YYYY-MM-DD' format
-DATE_CLEAN = re.compile(r"\d{4}-\d{2}-\d{2}")
-
-
-def extract_date(date_str: str) -> str:
-    """Extract date from a string using regex."""
-    match = re.search(DATE_CLEAN, date_str)
-    if match:
-        return match.group(0)
-    return ""
+def parse_header(header: str) -> str:
+    m = Message()
+    m["header"] = header
+    return m
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
-    requester = row.pop("REQUESTER", "").strip()
-    requesting_country = row.pop("REQUESTING COUNTRY", "").strip()
-    # Extract and parse the date part only
-    raw_date = row.pop("DATE LISTED", "").strip()
-    date_part = extract_date(raw_date)
-    date_listed = h.parse_date(date_part, DATE_FORMAT)[0]
-    if not requester or not requesting_country or not date_listed:
-        context.log.warning(
-            "Missing requester, requesting country, or date listed", row=row
-        )
+    requester = row.pop("REQUESTER").strip()
+    # Skip the footer
+    if (
+        "This list is provided to assist U.S. persons to fulfill the reporting requirements"
+        in requester
+    ):
+        return
+    requesting_country = row.pop("REQUESTING COUNTRY").strip()
+    date_listed = row.pop("DATE LISTED").strip()
+    if not requester and not requesting_country and not date_listed:
+        return
+    if not requester or not requesting_country:
+        context.log.warning("Missing requester, requesting country", row=row)
         return
 
     entity = context.make("Company")
-    entity.id = context.make_id(requester, requesting_country, date_listed)
+    entity.id = context.make_id(requester, requesting_country)
     entity.add("name", requester)
     entity.add("country", requesting_country)
     entity.add("topics", "export.risk")
     sanction = h.make_sanction(context, entity)
-    sanction.add("listingDate", date_listed)
+    h.apply_date(sanction, "listingDate", date_listed)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 
-def crawl_xlsx(context: Context, path: str):
+def crawl_csv(context: Context, path: str):
+    with open(path, encoding="utf-8-sig") as fh:
+        # Skip the first three lines
+        for _ in range(3):
+            next(fh)
+        for row in DictReader(fh):
+            crawl_row(context, row)
+
+
+def crawl_xls(context: Context, path: str):
     wb = load_workbook(path, read_only=True)
     for sheet in wb.worksheets:
         headers = [
@@ -58,21 +67,34 @@ def crawl_xlsx(context: Context, path: str):
             crawl_row(context, data)
 
 
-def fetch_excel_url(context: Context) -> str:
+def fetch_file_url(context: Context) -> str:
     params = {"_": context.data_time.date().isoformat()}
     doc = context.fetch_html(context.data_url, params=params)
-    for link in doc.findall(".//a"):
-        href = urljoin(context.data_url, link.get("href"))
-        if href.endswith(".xls") or href.endswith(".xlsx"):
-            return href
-    raise ValueError("Could not find XLS file on the website")
+    for link in doc.xpath(".//a[text() = 'Requester List (xls)']"):
+        return urljoin(context.data_url, link.get("href"))
+    raise ValueError("Could not find tabular file on the website")
 
 
 def crawl(context: Context):
     context.log.info("Fetching data from the source")
-    url = fetch_excel_url(context)
-    path = context.fetch_resource(
-        "source.xlsx", url
-    )  # Even though its initial name is source.xls, actual file is in xlsx format
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    crawl_xlsx(context, path)
+    url = fetch_file_url(context)
+    data_path = dataset_data_path(context.dataset.name)
+    data_path.mkdir(parents=True, exist_ok=True)
+    with context.http.request(method="GET", url=url, stream=True) as res:
+        res.raise_for_status()
+        mime_type = res.headers["content-type"].split(";")[0]
+        if mime_type == XLS:
+            extension = ".xls"
+        elif mime_type == CSV:
+            extension = ".csv"
+        else:
+            raise ValueError(f"Unsupported guessed file format: {mime_type}")
+        path = data_path / ("source" + extension)
+        with open(path, "wb") as fh:
+            for chunk in res.iter_content(chunk_size=8192 * 10):
+                fh.write(chunk)
+    context.export_resource(path, mime_type, title=context.SOURCE_TITLE)
+    if mime_type == XLS:
+        crawl_xls(context, path)
+    elif mime_type == CSV:
+        crawl_csv(context, path)

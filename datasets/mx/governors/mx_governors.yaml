@@ -20,6 +20,7 @@ description: |
   held a governorship are ineligible to run for or serve in the post again.
 publisher:
   name: Conferencia Nacional de Gobernadores
+  acronym: CONAGO
   description: National Governors' Conference
   url: https://www.conago.org.mx
   country: "mx"
@@ -28,3 +29,6 @@ url: "https://www.conago.org.mx/gobernadores/historicos"
 data:
   url: https://www.conago.org.mx/gobernadores/historicos
   format: HTML
+
+dates:
+  formats: ["%d/%m/%Y"]

@@ -1,0 +1,52 @@
+title: US North Dakota Medicaid Terminated Provider List
+entry_point: crawler.py
+prefix: us-mednd
+coverage:
+  frequency: daily
+  start: "2024-09-13"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been terminated for cause from North Dakota's Medicaid program.
+description: |
+  The North Dakota Health and Human Services maintains a list of providers whose Medicaid provider agreement
+  has been terminated. Providers listed are not allowed to receive reimbursement for Medicaid services
+  in any capacity.
+publisher:
+  name: North Dakota Health and Human Services
+  acronym: NDHHS
+  description:
+    North Dakota Health and Human Services is a state agency that provides essential health care,
+    social services, and public assistance programs to support the well-being of residents.
+  url: https://www.hhs.nd.gov
+  official: true
+  country: "us"
+url: "https://www.hhs.nd.gov/healthcare/medicaid/provider/compliance/fraud-and-abuse"
+data:
+  url: https://www.hhs.nd.gov/healthcare/medicaid/provider/compliance/fraud-and-abuse
+  format: HTML
+dates:
+  formats: ["%m/%d/%Y", "%m/%d/%y"]
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 100
+  max:
+    schema_entities:
+      LegalEntity: 300
+
+lookups:
+  type.date:
+    options:
+      - match: Termnation 9/19/2024
+        value: 2024-09-19
+  type.identifier:
+    options:
+      - match: R38304 and L9540
+        prop: registrationNumber
+        values:
+          - R38304
+          - L9540
+      - match: L3826
+        prop: registrationNumber
+      - match: 164924109
+        value: 1649524109

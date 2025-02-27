@@ -24,6 +24,9 @@ assertions:
     country_entities:
       de: 3
     countries: 7
+    entities_with_prop:
+      Company:
+        name: 11
   max:
     country_entities:
       de: 1

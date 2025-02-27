@@ -31,7 +31,9 @@ def parse_date(date):
         return dates
     if isinstance(date, dict):
         date = date.get("VALUE")
-    return h.parse_date(date, ["%d/%m/%Y"])
+    if date is None:
+        return []
+    return [date]
 
 
 def parse_alias(context: Context, entity: Entity, alias: Dict[str, str]):
@@ -86,11 +88,15 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     submitted_on = parse_date(data.pop("SUBMITTED_ON", None))
     listed_on = parse_date(data.pop("LISTED_ON"))
     modified_at = parse_date(data.pop("LAST_DAY_UPDATED"))
-    entity.add("createdAt", submitted_on or listed_on or modified_at)
-    entity.add("modifiedAt", modified_at)
+    h.apply_dates(entity, "createdAt", submitted_on)
+    h.apply_dates(entity, "createdAt", listed_on)
+    if modified_at != []:
+        h.apply_date(entity, "createdAt", min(modified_at))
+        h.apply_date(entity, "modifiedAt", max(modified_at))
 
-    sanction.add("listingDate", submitted_on or listed_on)
-    sanction.add("startDate", listed_on)
+    h.apply_dates(sanction, "listingDate", submitted_on)
+    h.apply_dates(sanction, "listingDate", listed_on)
+    h.apply_dates(sanction, "startDate", listed_on)
     sanction.add("program", data.pop("UN_LIST_TYPE"))
     sanction.add("program", data.pop("LIST_TYPE"))
     sanction.add("unscId", data.pop("REFERENCE_NUMBER"))
@@ -113,9 +119,9 @@ def crawl_persons(context: Context):
 
         for dob in data.pop("INDIVIDUAL_DATE_OF_BIRTH", []):
             date = parse_date(dob.pop("DATE", None))
-            entity.add("birthDate", date)
+            h.apply_dates(entity, "birthDate", date)
             date = parse_date(dob.pop("TYPE_OF_DATE", None))
-            entity.add("birthDate", date)
+            h.apply_dates(entity, "birthDate", date)
             entity.add("birthDate", dob.pop("YEAR", None))
             entity.add("birthDate", dob.pop("FROM_YEAR", None))
             entity.add("birthDate", dob.pop("TO_YEAR", None))
@@ -134,7 +140,9 @@ def crawl_persons(context: Context):
             passport.add("type", type_)
             passport.add("number", number)
             passport.add("type", doc.pop("TYPE_OF_DOCUMENT2", None))
-            passport.add("startDate", parse_date(doc.pop("DATE_OF_ISSUE", None)))
+            h.apply_dates(
+                passport, "startDate", parse_date(doc.pop("DATE_OF_ISSUE", None))
+            )
             passport.add("country", doc.pop("ISSUING_COUNTRY", None))
             passport.add("country", doc.pop("COUNTRY_OF_ISSUE", None))
             passport.add("summary", doc.pop("NOTE", None))
@@ -159,7 +167,7 @@ def crawl_persons(context: Context):
             parse_alias(context, entity, alias)
 
         context.audit_data(data, ["VERSIONNUM"])
-        context.emit(entity, target=True)
+        context.emit(entity)
 
 
 def crawl_entities(context: Context):
@@ -182,7 +190,7 @@ def crawl_entities(context: Context):
             parse_alias(context, entity, alias)
 
         context.audit_data(data, ["VERSIONNUM"])
-        context.emit(entity, target=True)
+        context.emit(entity)
 
 
 def crawl(context: Context):

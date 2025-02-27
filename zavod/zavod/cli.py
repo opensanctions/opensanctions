@@ -3,28 +3,34 @@ import click
 import logging
 from pathlib import Path
 from typing import Optional, List
+
 from followthemoney.cli.util import InPath, OutPath
-from nomenklatura.index.tantivy_index import TantivyIndex
 from nomenklatura.tui import dedupe_ui
 from nomenklatura.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
 
 from zavod import settings
-from zavod.logs import configure_logging, get_logger
+from zavod.logs import (
+    configure_logging,
+    get_logger,
+    configure_sentry_integration,
+    set_sentry_dataset_name,
+)
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
 from zavod.crawl import crawl_dataset
 from zavod.store import get_store
 from zavod.archive import clear_data_path, dataset_state_path
 from zavod.exporters import export_dataset
-from zavod.dedupe import get_resolver, get_dataset_linker
-from zavod.dedupe import blocking_xref, merge_entities
-from zavod.dedupe import explode_cluster
+from zavod.integration import get_resolver, get_dataset_linker
+from zavod.integration.dedupe import blocking_xref, merge_entities
+from zavod.integration.dedupe import explode_cluster
 from zavod.runtime.versions import make_version
 from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.summarize import summarize as _summarize
 from zavod.exc import RunFailedException
+from zavod.reset import reset_caches
 from zavod.tools.wikidata import run_app
 from zavod.validators import validate_dataset
 
@@ -37,6 +43,7 @@ def _load_dataset(path: Path) -> Dataset:
     dataset = load_dataset_from_path(path)
     if dataset is None:
         raise click.BadParameter("Invalid dataset path: %s" % path)
+    set_sentry_dataset_name(dataset.name)
     return dataset
 
 
@@ -51,6 +58,9 @@ def _load_datasets(paths: List[Path]) -> Dataset:
 @click.option("--debug", is_flag=True, default=False)
 def cli(debug: bool = False) -> None:
     settings.DEBUG = debug
+
+    configure_sentry_integration()
+
     level = logging.DEBUG if debug else logging.INFO
     configure_logging(level=level)
 
@@ -74,10 +84,13 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 @click.option("-c", "--clear", is_flag=True, default=False)
 def validate(dataset_path: Path, clear: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
+    if dataset.disabled:
+        log.info("Dataset is disabled, skipping: %s" % dataset.name)
+        sys.exit(0)
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
-    store.sync(clear=clear)
     try:
+        store.sync(clear=clear)
         validate_dataset(dataset, store.view(dataset, external=False))
     except Exception:
         log.exception("Validation failed for %r" % dataset_path)
@@ -89,10 +102,13 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
 @click.argument("dataset_path", type=InPath)
 @click.option("-c", "--clear", is_flag=True, default=False)
 def export(dataset_path: Path, clear: bool = False) -> None:
+    dataset = _load_dataset(dataset_path)
+    if dataset.disabled:
+        log.info("Dataset is disabled, skipping: %s" % dataset.name)
+        sys.exit(0)
+    linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
     try:
-        dataset = _load_dataset(dataset_path)
-        linker = get_dataset_linker(dataset)
-        store = get_store(dataset, linker)
         store.sync(clear=clear)
         export_dataset(dataset, store.view(dataset, external=False))
     except Exception:
@@ -141,6 +157,7 @@ def run(
     else:
         make_version(dataset, settings.RUN_VERSION, overwrite=True)
 
+    reset_caches()
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
     # Validate
@@ -152,11 +169,12 @@ def run(
     except Exception:
         log.exception("Validation failed for %r" % dataset.name)
         publish_failure(dataset, latest=latest)
-        view.store.close()
+        store.close()
         sys.exit(1)
     # Export and Publish
     try:
         export_dataset(dataset, view)
+        reset_caches()
         publish_dataset(dataset, latest=latest)
 
         if not dataset.is_collection and dataset.load_db_uri is not None:
@@ -225,6 +243,7 @@ def dump_file(
 @click.option("-s", "--schema", type=str, default=None)
 @click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
 @click.option("-t", "--threshold", type=float, default=None)
+@click.option("-d", "--discount-internal", "discount_internal", type=float, default=1.0)
 @click.option(
     "-m",
     "--conflicting-match-threshold",
@@ -232,17 +251,16 @@ def dump_file(
     default=None,
     help="Threshold for conflicting match reporting",
 )
-@click.option("-i", "--index", type=str, default=TantivyIndex.name)
 def xref(
     dataset_paths: List[Path],
     clear: bool,
     limit: int,
     threshold: Optional[float],
     algorithm: str,
-    index: str,
     focus_dataset: Optional[str] = None,
     schema: Optional[str] = None,
     conflicting_match_threshold: Optional[float] = None,
+    discount_internal: float = 1.0,
 ) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
@@ -257,7 +275,7 @@ def xref(
         focus_dataset=focus_dataset,
         schema_range=schema,
         conflicting_match_threshold=conflicting_match_threshold,
-        index=index,
+        discount_internal=discount_internal,
     )
 
 

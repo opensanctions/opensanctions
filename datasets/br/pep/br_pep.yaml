@@ -30,3 +30,21 @@ data:
   url: https://portaldatransparencia.gov.br/download-de-dados/pep
   format: csv
 ci_test: false
+dates:
+  formats: ["%d/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 95000
+      Position: 20700
+  max:
+    schema_entities:
+      Person: 220000
+      Position: 48700
+
+lookups:
+  type.date:
+    options:
+      - match: Não informada
+        value: null

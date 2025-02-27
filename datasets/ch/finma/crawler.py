@@ -4,8 +4,6 @@ from urllib.parse import urljoin
 from zavod import Context
 from zavod import helpers as h
 
-FORMATS = ["%d.%m.%Y"]
-
 
 def crawl(context: Context, data: Dict[str, Any]):
     res = context.http.post(context.data_url, data=data)
@@ -19,7 +17,7 @@ def crawl(context: Context, data: Dict[str, Any]):
         entity.add("topics", "crime.fin")
         entity.add("sourceUrl", url)
         # entity.add("notes", item.pop("FacetColumn"))
-        entity.add("createdAt", h.parse_date(item.pop("Date"), FORMATS))
+        h.apply_date(entity, "createdAt", item.pop("Date"))
 
         try:
             html = context.fetch_html(url, cache_days=30)
@@ -41,8 +39,7 @@ def crawl(context: Context, data: Dict[str, Any]):
             elif header in ("Address", "Domicile"):
                 entity.add("address", value)
             elif header in ("Ruling dated"):
-                date = h.parse_date(value, FORMATS)
-                entity.add("modifiedAt", date)
+                h.apply_date(entity, "modifiedAt", value)
             elif header in ("Remarks", "Details"):
                 entity.add("description", value)
             elif header == "Internet":
@@ -52,7 +49,7 @@ def crawl(context: Context, data: Dict[str, Any]):
             else:
                 context.log.warn("Unknown header: %s" % header, value=value, url=url)
 
-        context.emit(entity, target=True)
+        context.emit(entity)
 
 
 def crawl_warnings(context: Context):

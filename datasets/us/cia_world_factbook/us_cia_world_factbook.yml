@@ -30,9 +30,21 @@ publisher:
   country: us
   official: true
 data:
-  url: "https://www.cia.gov/the-world-factbook/page-data/sq/d/1627106492.json"
+  url: "https://www.cia.gov/the-world-factbook/page-data/countries/page-data.json"
   format: JSON
   lang: eng
+dates:
+  formats: ["%d %B %Y", "%B %Y", "%d %b %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Position: 390
+      Person: 360
+  max:
+    schema_entities:
+      Position: 925
+      Person: 850
 
 lookups:
   unparsed_holders:
@@ -44,21 +56,16 @@ lookups:
             name: Samantha MOSTYN
             start date: 1 July 2024
       # San-Marino
-      - match: co-chiefs of state Captains Regent Filippo TAMAGNINI and Gaetano TROINA (for the period 1 October 2023 - 1 April 2024)
+      - match: co-chiefs of state Captains Regent Francesca CIVERCHIA and Dalibor RICCARDI (for the period 1 October 2024 - 30 March 2025)
         holders:
           - role: Co-chief of state
-            name: Filippo TAMAGNINI
-            start_date: 1 October 2023
-            end_date: 1 April 2024
+            name: Francesca CIVERCHIA
+            start_date: 1 October 2024
+            end_date: 30 March 2025
           - role: Co-chief of state
-            name: Gaetano Troina
-            start_date: 1 October 2023
-            end_date: 1 April 2024
-      - match: "chief of state: TUIMALEALI'IFANO Va’aletoa Sualauvi II (since 21 July 2017)"
-        holders:
-          - role: chief of state
-            name: TUIMALEALI'IFANO Va’aletoa Sualauvi II
-            start_date: 21 July 2017
+            name: Dalibor RICCARDI
+            start_date: 1 October 2024
+            end_date: 30 March 2025
       - match: "Deputy Prime Ministers SAIF bin Zayid Al Nuhayyan, MANSUR bin Zayid Al Nuhayyan (both since 11 May 2009) and MAKTUM bin Muhammad bin Rashid Al Maktum (since 25 September 2021)"
         holders:
           - role: Deputy Prime Minister
@@ -70,6 +77,17 @@ lookups:
           - role: Deputy Prime Minister
             name: MAKTUM bin Muhammad bin Rashid Al-Maktum
             start_date: 25 September 2021
+      # France
+      - match: "Michel BARNIER is the caretaker Prime Minister after resigning following a no-confidence vote on 4 December 2024 (since 5 September 2024)"
+        holders:
+          - role: Caretaker Prime Minister
+            name: Michel BARNIER
+            start_date: 5 September 2024
+      - match: 'François BAYROU (since 13 December 2024)'
+        holders:
+          - role: Head of government
+            name: François BAYROU
+            start_date: 13 December 2024
       # Poland
       - match: "Deputy Prime Ministers Wladyslaw KOSINIAK-KAMYSZ, Krzysztof GAWKOWSKI (both since 11 December 2023)"
         holders:
@@ -79,21 +97,6 @@ lookups:
           - role: Deputy Prime Minister
             name: Krzysztof GAWKOWSKI
             start_date: 11 December 2023
-      # Slovakia
-      - match: "Deputy Prime Ministers Robert KALINAK, Denisa SAKOVA, Tomas TARABA, and Peter KMEC (all since 25 October 2023)"
-        holders:
-          - role: Deputy Prime Minister
-            name: Robert KALINAK
-            start_date: 25 October 2023
-          - role: Deputy Prime Minister
-            name: Denisa SAKOVA
-            start_date: 25 October 2023
-          - role: Deputy Prime Minister
-            name: Tomas TARABA
-            start_date: 25 October 2023
-          - role: Deputy Prime Minister
-            name: Peter KMEC
-            start_date: 25 October 2023
       - match: "Deputy Prime Ministers Sainbuyen AMARSAIKHAN (since 8 September 2022) and Chimed KHURELBAATAR (since 5 January 2023)"
         holders:
           - role: Deputy Prime Minister
@@ -167,6 +170,12 @@ lookups:
           - role: Deputy Prime Minister
             name: Richard SULIK
             start_date: 21 March 2020
+      # South Korea
+      - match: 'Deputy Prime Minister CHOI Sang-mok became Acting President on 27 December 2024 after the National Assembly impeached and suspended HAN from office'
+        holders:
+          - role: Acting President
+            name: CHOI Sang-mok
+            start_date: 27 December 2024
       # San Marino
       - match: "co-chiefs of state Captains Regent Alessandro ROSSI and Milena GASPERONI (for the period 1 April 2024 - 30 September 2024)"
         holders:
@@ -257,6 +266,16 @@ lookups:
           - role: deputy prime minister
             name: Upendra YADAV
             start_date: 10 March 2024
+      # Niue
+      - match: "Prime Minister Dalton TAGELAGI"
+        holders:
+          - role: Prime Minister
+            name: Dalton TAGELAGI
+      - match: "also referred to as premier (since 10 June 2020)"
+        holders:
+          - role: Premier
+            name: Dalton TAGELAGI
+            start_date: 10 June 2020
       # Mali
       - match: "Transition Prime Minister Choguel MAIGA (appointed by Transition President Assimi GOITA on 7 June 2021)"
         holders:
@@ -302,12 +321,6 @@ lookups:
           - role: Vice Presidents
             name: Renato FLORENTINO
             start_date: 27 January 2022
-      # Equatorial Guinea
-      - match: "President OBIANG Nguema Mbasogo (since 3 August 1979 when he seized power in a military coup)"
-        holders:
-          - role: President
-            name: Teodoro OBIANG Nguema Mbasogo
-            start_date: 3 August 1979
       - match: "Deputy Prime Ministers Ramiro VALDES Menendez, Ines Maria CHAPMAN Waugh, Jorge Luis TAPIA Fonseca, Alejandro GIL Fernandez, Ricardo CABRISAS Ruiz (since 21 December 2019), and Jorge Luis PERDOMO DI-LELLA (since 20 April 2021)"
         holders:
           - role: Deputy Prime Minister
@@ -473,17 +486,6 @@ lookups:
             name: HAYBATULLAH Akhundzada
           - role: Amir-ul Momineen
             name: HAYBATULLAH Akhundzada
-      - match: 'as of November 2021, the group had announced three "acting deputy prime ministers” - Abdul Ghani BERADER, Abdul Salam HANAFI, and Abdul KABIR'
-        holders:
-          - role: Acting Prime Minister
-            name: Abdul Ghani BERADER
-            start_date: November 2021
-          - role: Acting Prime Minister
-            name: Abdul Salam HANAFI
-            start_date: November 2021
-          - role: Acting Prime Minister
-            name: Abdul KABIR
-            start_date: November 2021
       - match: "Prime Minister Cleopas DLAMINI (since since 19 July 2021)"
         holders:
           - role: Prime Minister
@@ -531,6 +533,24 @@ lookups:
           - role: Vice President
             name: BOUNTHONG Chitmany
             start_date: 22 March 2021
+      - match: Prime Minister SONEXAY (also spelled SONXAI) Siphandon (since 30 December 2022)
+        holders:
+          - role: Prime Minister
+            name:
+              - SONEXAY Siphandon
+              - SONXAI Siphandon
+            start_date: 30 December 2022
+      # Bosnia
+      - match: Chairperson of the Presidency Zeljka CVIJANOVIC (chairperson since 16 November 2024
+        holders:
+          - role: Chairperson of the Presidency
+            name: Zeljka CVIJANOVIC
+            start_date: 16 November 2024
+      - match: Denis BECIROVIC (presidency member since 16 November 2022 - Bosniak seat)
+        holders:
+          - role: Presidency member
+            name: Denis BECIROVIC
+            start_date: 16 November 2022
       # Congo, Democratic republic of the
       - match: Deputy Prime Ministers Christophe LUTUNDULA (since 12 April 2021),Vital KAMERHE (since 23 March 2023), Peter KAZADI (23 March 2023), Jean-Pierre BEMBA (since 23 March 2023), Jean-Pierre LIHAU (since 12 April 2021)
         holders:
@@ -614,7 +634,7 @@ lookups:
           - role: Prime Minister
             name: Ahmad Awad Bin MUBAREK
             start_date: 5 February 2024
-      - match: "Chairperson, Presidential Leadership Council Rashad Muhammad al-ALIMI, Dr. (since 19 April 2022)"
+      - match: "Chairperson, Presidential Leadership Council Rashad Muhammad al-ALIMI (since 19 April 2022)"
         holders:
           - role: Chairperson, Presidential Leadership Council
             name: Rashad Muhammad al-ALIMI
@@ -683,6 +703,85 @@ lookups:
           - role: President of the Governorate of the Vatican City State
             name: Fernando VERGEZ ALZAGA
             start_date: 1 October 2021
+      # Thailand
+      - match:
+          - "Prime Minister PHAETHONGTHAN Chinnawat"
+          - also spelled PAETONGTARN Shinawatra (since 18 August 2024)
+        holders:
+          - role: Prime Minister
+            name:
+              - PHAETHONGTHAN Chinnawat
+              - PAETONGTARN Shinawatra
+      - match:
+          - King WACHIRALONGKON
+          - also spelled Vajiralongkorn (since 1 December 2016)
+        holders:
+          - role: King
+            name:
+              - WACHIRALONGKON
+              - Vajiralongkorn
+      # Tonga
+      - match: "Acting Prime Minister Samiu VAIPULU (since 9 December 2024"
+        holders:
+          - role: Acting Prime Minister
+            name: Samiu VAIPULU
+            start_date: 9 December 2024
+      # Libya
+      - match: President, Presidential Council, Mohammed al-MANFI (since 5 February 2021)
+        holders:
+          - role: President, Presidential Council
+            name: Mohammed al-MANFI
+            start_date: 5 February 2021
+      - match: GNU Interim Prime Minister Abd-al-Hamid DUBAYBAH (since 5 February 2021)
+        holders:
+          - role: Interim Prime Minister
+            name: Abd-al-Hamid DUBAYBAH
+            start_date: 5 February 2021
+      # Tunisia
+      - match: President Kais SAIED dismissed Prime Minister Ahmed HACHANI on 7 August 2024 and appointed Kamel MADDOURI as prime minister
+        holders:
+          - role: Prime Minister
+            name: Ahmed HACHANI
+            end_date: 7 August 2024
+          - role: Prime Minister
+            name: Kamel MADDOURI
+            start_date: 7 August 2024
+      # Tajikistan
+      - match: President Emomali RAHMON (since 16 November 1994
+        holders:
+          - role: President
+            name: Emomali RAHMON
+            start_date: 16 November 1994
+      # This is also Emomali RAHMON, split from the previous statement because there is a semicolon in the text
+      - match: head of state and Supreme Assembly Chairman since 20 November 1992)
+        holders:
+          - role: Head of State
+            name: Emomali RAHMON
+            start_date: 20 November 1992
+          - role: Supreme Assembly Chairman
+            name: Emomali RAHMON
+            start_date: 20 November 1992
+      # Austria
+      - match: Alexander SCHALLENBERG (since 10 January 2025) serving as interim Chancellor following the 4 January 2025 resignation of Karl NEHAMMER
+        holders:
+          - role: Chancellor
+            name: Alexander Schallenberg
+            start_date: 2025-01-10
+          - role: Cancellor
+            name: Karl Nehammer
+            end_date: 2025-01-04
+      # Monaco
+      - match: Acting Minister of State Isabelle BERRO-AMADEI (since 10 January 2025)
+        holders:
+          - role: Minister of State
+            name: Isabelle Berro-Amedei
+            start_date: 2025-01-10
+      # British Indian Ocean Territory
+      - match: Administrator Bob FAIRWEATHER
+        holders:
+          - role: Administrator
+            name: Bob FAIRWEATHER
+
 
       # Not additional heads, just notes
       - regex:
@@ -693,23 +792,18 @@ lookups:
           - 'overall Taliban Leader HAYBATULLAH Akhundzada is the \[so-called\] Amir-ul Momineen of the Taliban and is seen by them as a head of government'
           - "^the president is both chief of state and head of government"
           - "^note [-–] "
-          - "^Heir Apparent"
           - "^chief of state since 28 August 2014"
           - "^council members rotate the 1-year term"
           - "^HAMDOUK served as prime minister"
           - "^he was later freed and reinstated"
-          - "^on 25 October 2021, al-BURHAN dissolved"
           - "^TABAN served as first vice"
           - "^the Sovereign Council currently consists of "
           - "no vice president position"
           - "first vice president \\(vacant"
-          - "second vice president \\(vacant"
           - "^caretaker cabinet \\(since 17 August 2023"
           - "^Chris HIPKINS elected unanimously"
           - "^he is serving as prime minister"
           - "^following 7 November 2019 parliamentary elections"
-          - "^acting presidents served from March 2018"
-          - "^on 6 June 2022, GOITA's"
           - "^NDAW resigned"
           - "Vice President GOITA seized"
           - "GOITA served as vice president"
@@ -722,7 +816,6 @@ lookups:
           - "functions as the commander-in-chief and chief executive"
           - "North Korea revised its constitution in 2019"
           - "chief of state is used to engage with non-communist countries such as the US"
-          - "the monarchy is hereditary"
           - "the Jamaican Government, in May 2023"
           - "the prime minister's official title is"
           - "vice presidents \\(vacant"
@@ -733,7 +826,6 @@ lookups:
           - "the 5 members all have equal"
           - "the Policy and Resources Committee"
           - "the chief officer, an appointed civilian, is responsible"
-          - "following his death"
           - "Prime Minister HUN MANET succeeded"
           - "the position had been vacant"
           - "^presidency member since"
@@ -761,10 +853,7 @@ lookups:
           # Hungary
           - "\\(vacant\\)"
           - a replacement will be chosen in March 2024
-          # Guinea
-          - "on 19 February 2024 Guinea's military leaders dissolved the government of Prime Minister Bernard GOUMOU"
           # Bulgaria
-          - "Vacant \\(since 6 March 2024\\)"
           - "chief of state: president \\(vacant\\)"
           # Haiti
           - a nine-member Presidential Transitional Council, equipped with presidential powers, was sworn in on 25 April 2024 and will remain in place until 7 February 2026
@@ -775,8 +864,11 @@ lookups:
           # Bangladesh
           - vacant
           - on 5 August 2024, Prime Minister Sheikh HASINA Wazed resigned, and the army announced it is in talks to form a new government
-          # Tunisia
-          - President Kais SAIED dismissed Prime Minister Ahmed HACHANI the same day he appointed Kamel MADDOURI
+          # Thailand
+          - also spelled Vajiralongkorn (since 1 December 2016)
+          # Syria
+          - former President Bashar al-ASAD was overthrown by Islamist rebels on 8 December 2024
+          - ASAD and his family flew to Moscow where they were granted political asylum
         holders: []
 
   type.country:
@@ -792,7 +884,5 @@ lookups:
       - match: Falkland Islands (Islas Malvinas)
         value: fk
       - match:
-          - Dhekelia
-          - Akrotiri
           - Akrotiri and Dhekelia
         value: gb

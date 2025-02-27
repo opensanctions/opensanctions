@@ -1,22 +1,23 @@
 type: external
 title: Russian Unified State Register of Legal Entities (as at Jan 1, 2022)
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: ru_egrul
 disabled: false
 hidden: false
 coverage:
   frequency: weekly
-  schedule: "@weekly"
   start: 2022-01-01
   end: 2022-01-01
 exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  disk: "50Gi"
-  memory: "1500Mi"
-  memory_limit: "2000Mi"
-  premium: true
+  cpu: "1000m"
+  cpu_limit: "2000m"
+  disk: "150Gi"
+  disk_limit: 150Gi
+  memory: "6500Mi"
+  memory_limit: "7000Mi"
 # load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Companies database of the Russian Federation as maintained and published by
@@ -59,21 +60,26 @@ inputs:
   - ext_cz_business_register
   - ext_ee_ariregister
   - ext_gb_coh_psc
+  - ext_ge_company_registry
   - ext_gleif
   - ext_icij_offshoreleaks
   - ext_lv_business_register
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
-  # - ru_rupep
   - opencorporates
+  - permid
+  - ru_cbr_banks
   - sanctions
+  - special_interest
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
-  api: https://api.graph.opensanctions.org/
+  limit: 100
+  max_bin: 14
+  index_options:
+    max_candidates: 200
+    memory_budget: 3000
   dataset: ru_egrul
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
@@ -92,7 +98,6 @@ config:
     - Organization
     - LegalEntity
     - Person
-  cache_days: 90
 
 lookups:
   type.address:

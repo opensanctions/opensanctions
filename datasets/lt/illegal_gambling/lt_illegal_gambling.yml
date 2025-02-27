@@ -39,4 +39,12 @@ lookups:
   type.url:
     options:
       - match: betwinner3com
-        value: null
+        value: betwinner3.com
+
+assertions:
+  min:
+    schema_entities:
+      Company: 160
+  max:
+    schema_entities:
+      Company: 250

@@ -1,17 +1,11 @@
+import re
 from normality import collapse_spaces
 from xml.etree import ElementTree
 
-from zavod import Context
-from datetime import datetime
-import re
+from zavod import Context, helpers as h
 
 ORGANIZERS_URL = "https://peps.dossier.center/types/oligarhi/"
 ACCOMPLICES_URL = "https://peps.dossier.center/types/goschinovniki/"
-
-
-def to_date(date_str: str) -> datetime:
-    date_format = "%d.%m.%Y"
-    return datetime.strptime(date_str, date_format)
 
 
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=0):
@@ -109,17 +103,16 @@ def crawl_person(context: Context, url: str, accomplice: bool = False):
     person.add("topics", "poi")
 
     if date_of_birth:
-        person.add("birthDate", to_date(date_of_birth))
+        h.apply_date(person, "birthDate", date_of_birth)
     person.add("birthPlace", place_of_birth)
-    person.add("nationality", citizenships)
+    person.add("citizenship", citizenships)
     person.add("notes", [reason_on_list, possible_violation])
     person.add("summary", "Probable Accomplice" if accomplice else "Probable Organizer")
     person.add("position", position_name)
 
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context: Context):
-
     paginate_crawl(context, crawl_persons_list, ORGANIZERS_URL)
     paginate_crawl(context, crawl_persons_list, ACCOMPLICES_URL, accomplices=True)

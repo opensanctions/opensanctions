@@ -1,4 +1,3 @@
-name: ba_companies
 title: Bosnia and Herzegovina Registers of businesses
 prefix: ba-reg
 disabled: false
@@ -9,17 +8,11 @@ coverage:
 exports:
   - statistics.json
   - entities.ftm.json
+  - entities.delta.json
 deploy:
   premium: true
 resolve: false
 ci_test: false
-http:
-  total_retries: 5
-  backoff_factor: 3
-  retry_statuses: [503, 429, 403]
-  retry_methods: [GET, POST]
-  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36 (zavod; opensanctions.org)
-
 summary: |
   Information from the Registers of business entities in Bosnia and Herzegovina.
 description: |
@@ -35,13 +28,10 @@ description: |
   and District Brčko with the aim of generating profit); since the moment those electronic
   registers were introduced in the registration courts.
 
-  Available information from electronic registers is for informational purposes only and 
-  it cannot substitute a certified document – certificate from the register of business 
-  entities from a relevant registration court – which is issued upon request of an interested 
+  Available information from electronic registers is for informational purposes only and
+  it cannot substitute a certified document – certificate from the register of business
+  entities from a relevant registration court – which is issued upon request of an interested
   party as per a prescribed procedure.
-
-  The registry information is retrieved using the filtering on combination of the city name and 
-  the time period when changes to the company were made. One page contains upto 500 records.
 
   Company record has an information on the founders (persons and legal entities), managers as well
   as the information on company registration number, unique number, address and optional additional
@@ -59,3 +49,10 @@ publisher:
 data:
   url: https://bizreg.pravosudje.ba/pls/apex/f?p=186
   format: HTML
+  lang: bos
+http:
+  total_retries: 5
+  backoff_factor: 3
+  retry_statuses: [503, 429, 403]
+  retry_methods: [GET, POST]
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36 (zavod; opensanctions.org)

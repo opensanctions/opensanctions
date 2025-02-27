@@ -1,4 +1,4 @@
-from nomenklatura.statement import Statement, read_statements
+from nomenklatura.statement import read_statements
 from nomenklatura.statement.serialize import PACK
 
 from zavod import settings
@@ -12,11 +12,11 @@ def test_dataset_sink(testdataset1: Dataset):
     entity = context.make("Person")
     entity.id = "foo"
     entity.add("name", "Foo")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.sink.close()
     assert context.sink.path.is_file()
     with open(context.sink.path, "rb") as fh:
-        stmts = list(read_statements(fh, PACK, Statement))
+        stmts = list(read_statements(fh, PACK))
         for stmt in stmts:
             assert stmt.dataset == testdataset1.name, stmt
             assert stmt.entity_id == "foo"

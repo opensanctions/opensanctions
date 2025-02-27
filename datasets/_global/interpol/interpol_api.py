@@ -23,13 +23,12 @@ SEEN_IDS: Set[str] = set()
 COUNTRIES_URL = (
     "https://www.interpol.int/en/How-we-work/Notices/Red-Notices/View-Red-Notices"
 )
-FORMATS = ["%Y/%m/%d", "%Y/%m", "%Y"]
 GENDERS = ["M", "F", "U"]
 AGE_MIN = 20
 AGE_MAX = 90
 STATUSES = defaultdict(int)
 HEADERS = {
-    # "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    # "accept": "*/*",
     # "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
     # "cache-control": "max-age=0",
     # "priority": "u=0, i",
@@ -37,6 +36,8 @@ HEADERS = {
     # "sec-ch-ua-mobile": '?0',
     # "sec-ch-ua-platform": '"macOS"',
     # "sec-fetch-dest": "document",
+    "origin": "https://www.interpol.int",
+    "referer": "https://www.interpol.int/",
     "sec-fetch-mode": "navigate",
     "sec-fetch-site": "none",
     "sec-fetch-user": "?1",
@@ -112,7 +113,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     entity.add("eyeColor", notice.pop("eyes_colors_id", None))
 
     dob_raw = notice.pop("date_of_birth", None)
-    entity.add("birthDate", h.parse_date(dob_raw, FORMATS))
+    h.apply_date(entity, "birthDate", dob_raw)
     if "v1/red" in url:
         entity.add("topics", "crime")
         entity.add("topics", "wanted")
@@ -128,7 +129,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
         context.emit(sanction)
 
     context.audit_data(notice, ignore=IGNORE_FIELDS)
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl_query(context: Context, query: Dict[str, Any]) -> int:

@@ -1,39 +1,22 @@
 import time
 from banal import first
 from typing import Dict, List
-from datetime import datetime
 from urllib.parse import urljoin
 from requests.exceptions import RequestException
+from rigour.ids import INN
 
 from zavod import Context
 from zavod import helpers as h
 
-MONTHS = {
-    "сентября": "Sep",
-    "августа": "Aug",
-    "ноября": "Nov",
-    "октября": "Oct",
-    "июля": "Jul",
-    "марта": "Mar",
-    "апреля": "Apr",
-    "июня": "Jun",
-    "декабря": "Dec",
-    "мая": "May",
-    "февраля": "Feb",
-    "января": "Jan",
-}
 
 NO_DATES = ["Без срока погашения", "не установлена"]
 
 
 def parse_date(text: str) -> str:
-    for ru, en in MONTHS.items():
-        text = text.replace(ru, en)
     if text in NO_DATES:
         return ""
-    text = text.replace("\xa0", " ").replace("г.", "").strip()
-    dt = datetime.strptime(text, "%d %b %Y")
-    return dt.date().isoformat()
+    date_info = text.replace("\xa0", " ").replace("г.", "").strip().lower()
+    return date_info
 
 
 def crawl_item(context: Context, url: str):
@@ -57,18 +40,13 @@ def crawl_item(context: Context, url: str):
         key, value = [c.strip() for c in cells]
         result = context.lookup("fields", key)
         if result is None:
-            context.log.warning("Unexplained field", url=url, key=key, value=value)
+            context.log.warning(
+                f'Unexplained field "{key}"', url=url, key=key, value=value
+            )
             continue
 
         if result.prop is None:
             continue
-
-        if result.type == "date":
-            try:
-                value = parse_date(value)
-            except ValueError:
-                context.log.warning("Cannot parse date", key=key, value=value)
-                continue
 
         if result.prop not in values[result.entity]:
             values[result.entity][result.prop] = []
@@ -83,12 +61,17 @@ def crawl_item(context: Context, url: str):
     security.add("sourceUrl", url)
     security.add("topics", "sanction")
     for prop, prop_val in values["security"].items():
-        security.add(prop, prop_val)
-    context.emit(security, target=True)
+        if prop in ["issueDate", "maturityDate", "createdAt"]:
+            parsed = [parse_date(p) for p in prop_val]
+            h.apply_dates(security, prop, parsed)
+        else:
+            security.add(prop, prop_val)
+    context.emit(security)
 
     issuer = context.make("LegalEntity")
     inn_code = first(values["issuer"].get("innCode", []))
-    if inn_code is not None:
+    is_inn_code = INN.is_valid(inn_code)
+    if inn_code is not None and is_inn_code:
         issuer.id = f"ru-inn-{inn_code}"
     else:
         issuer_name = first(values["issuer"].get("name", []))
@@ -97,7 +80,10 @@ def crawl_item(context: Context, url: str):
         issuer.id = context.make_id(isin_code, issuer_name)
     issuer.add("country", "ru")
     for prop, prop_val in values["issuer"].items():
-        issuer.add(prop, prop_val)
+        if prop == "innCode" and not is_inn_code:
+            issuer.add("taxNumber", prop_val)
+        else:
+            issuer.add(prop, prop_val)
     context.emit(issuer)
 
 

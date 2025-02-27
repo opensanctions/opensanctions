@@ -4,7 +4,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import OccupancyStatus, categorise
 
-FORMATS = ("%d/%m/%Y",)
 
 STATUS = {
     "Active": OccupancyStatus.CURRENT,
@@ -63,7 +62,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
             person.add("position", body_name)
 
     context.audit_data(item)
-    context.emit(person, target=True)
+    context.emit(person)
 
 
 def crawl(context: Context):

@@ -1,0 +1,48 @@
+title: US Missouri Medicaid Provider Terminations
+entry_point: crawler.py
+prefix: us-medmo
+coverage:
+  frequency: daily
+  start: "2024-11-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers suspended from Missouri's Medicaid program.
+description: |
+  This datasets contains individuals and entities that have been sanctioned by Missouri
+  Medicaid Audit & Compliance. According to their website:
+
+  > In the event a provider is deemed to be in violation of a provider manual, state statute,
+  > state regulation or federal regulation, MMAC is responsible for imposing a sanction on
+  > the provider. In determining the appropriate sanction MMAC takes into account the following
+  > aggravating and/or mitigating circumstances in accordance with 13 CSR 70-3.030.
+publisher:
+  name: Missouri Medicaid Audit & Compliance
+  description: |
+    > MMAC is responsible for administering and managing Medicaid (Title XIX) audit and compliance
+    > initiatives and managing and administering provider enrollment contracts under the Medicaid
+    > program. MMAC is charged with detecting, investigating and preventing fraud, waste and abuse
+    > of the Medicaid Title XIX, CHIP Title XXI, and waiver programs.
+  acronym: MMAC
+  url: https://mmac.mo.gov
+  official: true
+  country: "us"
+url: "https://mmac.mo.gov/providers/provider-sanctions/"
+data:
+  url: https://mmac.mo.gov/providers/provider-sanctions/
+  format: XLSX
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%y"]
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 200
+  max:
+    schema_entities:
+      LegalEntity: 300
+lookups:
+  type.identifier: 
+    options:
+      - match: 1922096211
+        value: 1922096221

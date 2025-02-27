@@ -1,25 +1,45 @@
-from rigour.ids import ISIN, BIC
 from typing import TYPE_CHECKING
 from typing import Optional, Generator, Tuple
+from rigour.ids import get_identifier_format
 from prefixdate.precision import Precision
 from followthemoney.types import registry
 from followthemoney.property import Property
 
 from zavod.logs import get_logger
-from zavod.runtime.lookups import type_lookup
+from zavod.runtime.lookups import prop_lookup
 
 if TYPE_CHECKING:
     from zavod.entity import Entity
 
+VALIDATE_FORMATS = (
+    "bic",
+    "isin",
+    "lei",
+    "imo",
+    "iban",
+    "inn",
+    "ogrn",
+    "npi",
+    "uei",
+    "qid",
+)
 log = get_logger(__name__)
 
 
-def clean_identifier(prop: Property, value: str) -> Tuple[Property, str]:
-    if prop.name == "swiftBic":
-        value = BIC.normalize(value) or value
-    if prop.name in ("isin", "isinCode"):
-        value = ISIN.normalize(value) or value
-    return prop, value
+def clean_identifier(prop: Property, value: str) -> Optional[str]:
+    normalized: Optional[str] = value
+    if prop.format in VALIDATE_FORMATS:
+        format_ = get_identifier_format(prop.format)
+        normalized = format_.normalize(value)
+    if normalized is None:
+        log.warning(
+            f"Failed to validate {prop.format} identifier: {value}",
+            format=prop.format,
+            prop=prop.name,
+            value=value,
+        )
+        return value
+    return normalized
 
 
 def value_clean(
@@ -30,28 +50,27 @@ def value_clean(
     fuzzy: bool = False,
     format: Optional[str] = None,
 ) -> Generator[Tuple[Property, str], None, None]:
-    for item in type_lookup(entity.dataset, prop.type, value):
+    for prop_, item in prop_lookup(entity, prop, value):
         clean: Optional[str] = item
         if not cleaned:
-            clean = prop.type.clean_text(
-                item,
-                proxy=entity,
-                fuzzy=fuzzy,
-                format=format,
-            )
+            if prop_.type == registry.identifier:
+                clean = clean_identifier(prop_, item)
+            else:
+                clean = prop_.type.clean_text(
+                    item,
+                    proxy=entity,
+                    fuzzy=fuzzy,
+                    format=format,
+                )
+        if prop_.type == registry.date and clean is not None:
+            # none of the information in OpenSanctions is time-critical
+            clean = clean[: Precision.DAY.value]
         if clean is not None:
-            prop_ = prop
-            if prop.type == registry.identifier:
-                prop_, clean = clean_identifier(prop, clean)
-            if prop.type == registry.date:
-                # none of the information in OpenSanctions is time-critical
-                clean = clean[: Precision.DAY.value]
-
-            if len(clean) > prop.type.max_length:
+            if len(clean) > prop_.max_length:
                 log.warning(
-                    "Property value exceeds type length",
+                    f"Property value for {prop_.name} exceeds type length: {value}",
                     entity_id=entity.id,
-                    prop=prop.name,
+                    prop=prop_.name,
                     value=value,
                     clean=clean,
                 )
@@ -59,13 +78,13 @@ def value_clean(
 
             yield prop_, clean
             continue
-        if prop.type == registry.phone:
+        if prop_.type == registry.phone:
             # Do not have capacity to clean all phone numbers, allow broken ones
-            yield prop, item
+            yield prop_, item
             continue
         log.warning(
-            "Rejected property value",
+            f"Rejected property value [{prop_.name}]: {value}",
             entity_id=entity.id,
-            prop=prop.name,
+            prop=prop_.name,
             value=value,
         )

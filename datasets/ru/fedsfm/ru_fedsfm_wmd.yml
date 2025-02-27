@@ -56,3 +56,6 @@ url: https://www.fedsfm.ru/documents/omu-list
 data:
   url: https://www.fedsfm.ru/documents/omu-list
   format: HTML
+
+dates: 
+  formats: ["%d %b. %Y", "%d %B %Y", "%d.%m.%Y"]

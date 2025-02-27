@@ -25,6 +25,28 @@ publisher:
 data:
   url: https://www.ppatk.go.id/link/read/23/dttot-proliferasi-wmd.html
   format: HTML
+  lang: ind
+dates:
+  formats: ["%d %B %Y", "%d/%m/%Y", "%d/%m/%Y;", "%d %B %Y;", "00/00/%Y"]
+  months:
+    "January": "Januari"
+    "March": "Maret"
+    "June": "Juni"
+    "July": "Juli"
+    "August": "Agustus"
+    "October": "Oktober"
+    "December": "Desember"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 355
+      Organization: 100
+  max:
+    schema_entities:
+      Person: 835
+      Organization: 235
+
 lookups:
   type:
     options:
@@ -64,6 +86,7 @@ lookups:
         value: birth_place
       - match:
           - WN
+          - wn
         value: country
       - match:
           - pekerjaan
@@ -75,13 +98,16 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      - match:
+          - "N/A"
+        value: null
       - match: B-3B-19 Glenview Villa, Jalan 49 Off Jalan Kuari, Taman Pinggiran Cheras, 56000, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia (per 30 Januari 2014) 90-00-04 Flat Sri Kota, Bandar Tun Razak, 56100, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia (per 23 Apil. 2010) 96-06-06 Flat Sri Kota, Bandar Tun Razak, 56100, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia (per 6 April 2007) Suriah (sejak tahun 2014)
-        values: 
+        values:
           - B-3B-19 Glenview Villa, Jalan 49 Off Jalan Kuari, Taman Pinggiran Cheras, 56000, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia
           - 90-00-04 Flat Sri Kota, Bandar Tun Razak, 56100, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia
           - 96-06-06 Flat Sri Kota, Bandar Tun Razak, 56100, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia
           - Suriah
-      - match: 'Kantor cabang 1: Sanatan (variant Sanatin) Bazaar, Sanatan Bazaar Street, near Trench (variant Tranch) Road, Chaman, Baluchistan, Pakistan Kantor cabang 2: Quetta, Pakistan Kantor cabang 3: Lahore, Pakistan Kantor cabang 4: Peshawar, Pakistan Kantor cabang 5: Karachi, Pakistan Kantor cabang 6: Islamabad, Pakistan Kantor cabang 7: Kandahar, Afghanistan Kantor cabang 8: Herat, Afghanistan Kantor cabang 9: Helmand, Afghanistan Kantor cabang 10: Dubai, United Arab Emirat'
+      - match: "Kantor cabang 1: Sanatan (variant Sanatin) Bazaar, Sanatan Bazaar Street, near Trench (variant Tranch) Road, Chaman, Baluchistan, Pakistan Kantor cabang 2: Quetta, Pakistan Kantor cabang 3: Lahore, Pakistan Kantor cabang 4: Peshawar, Pakistan Kantor cabang 5: Karachi, Pakistan Kantor cabang 6: Islamabad, Pakistan Kantor cabang 7: Kandahar, Afghanistan Kantor cabang 8: Herat, Afghanistan Kantor cabang 9: Helmand, Afghanistan Kantor cabang 10: Dubai, United Arab Emirat"
         values:
           - Sanatan (variant Sanatin) Bazaar, Sanatan Bazaar Street, near Trench (variant Tranch) Road, Chaman, Baluchistan, Pakistan
           - Quetta, Pakistan
@@ -93,3 +119,79 @@ lookups:
           - Herat, Afghanistan
           - Helmand, Afghanistan
           - Dubai, United Arab Emirat
+  type.country:
+    normalize: true
+    lowercase: true
+    options:
+      - match:
+          - Asia Tenggara
+        value: null
+      - match:
+          - Republik Arab Suriah
+          - Republik Arab Syria
+        value: Syria
+      - match: Philippina
+        value: Philippines
+      - match: Trinidad and Tobaga;
+        value: Trinidad and Tobago
+      - match: Britania Raya
+        value: GB
+      - match:
+          - Taza, Maroko
+          - Jerman,Maroko
+        value: Morocco
+      - match: Afganistan/Pakistan
+        values:
+          - Afghanistan
+          - Pakistan
+      - match: Perancis,Tunisia
+        values:
+          - France
+          - Tunisia
+  type.date:
+    normalize: true
+    options:
+      - match: 4 Januari1973/4 November 1974/4 November 1973
+        values:
+          - 1973-01-04
+          - 1974-11-04
+          - 1973-11-04
+      - match: 5 Juni 1973/6 Juni 1973/5 Desember 1973
+        values:
+          - 1973-06-05
+          - 1973-06-06
+          - 1973-12-05
+      - match: sekira 1958
+        value: 1958
+      - match: 20/02/1973 20/02/1980
+        values:
+          - 1973-02-20
+          - 1980-02-20
+      - match: 00/00/1954-1955
+        values:
+          - 1954
+          - 1955
+      - match: 00/00/1955-1958
+        values:
+          - 1955
+          - 1958
+      - match: 00/00/1961-1962
+        values:
+          - 1961
+          - 1962
+      - match: 00/00/1970-1974
+        values:
+          - 1970
+          - 1974
+      - match: 00/00/1966-1967
+        values:
+          - 1966
+          - 1967
+      - match: 00/00/1960-1962
+        values:
+          - 1960
+          - 1962
+      - match: 00/00/1956-1957
+        values:
+          - 1956
+          - 1957

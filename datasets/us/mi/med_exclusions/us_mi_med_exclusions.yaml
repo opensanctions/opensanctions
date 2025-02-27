@@ -1,0 +1,222 @@
+title: US Michigan Medicaid Sanctioned Provider List
+entry_point: crawler.py
+prefix: us-medmi
+coverage:
+  frequency: daily
+  start: "2024-09-26"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Providers who have been terminated for cause from Michigan's Medicaid program.
+description: |
+  The Michigan Department of Health and Human Services (MDHHS) maintains a list of providers who have been
+  sanctioned from participating in the Michigan Medicaid program.
+
+  > Pursuant to Section 1128 and Section 1902(a)(39) of the Social Security Act, the Medicaid Program will not
+  > reimburse a provider for any services or items that were rendered or ordered/prescribed by a sanctioned
+  > (e.g., suspended, excluded) provider.  The effect of the provider's sanction precludes them from furnishing,
+  > ordering, or prescribing services or items to any Medicaid beneficiary. Claims for services/items
+  > rendered/ordered/prescribed by a sanctioned provider with dates of service or dispensing after the effective
+  > date of the sanction, will be rejected or disallowed if discovered during a post-payment review. Refills of
+  > prescriptions written by a sanctioned provider must not be dispensed beyond the effective date of the sanction
+  > letter. Claims for services/items rendered/ordered/prescribed by a provider for whom sanctions have been removed
+  > will be honored retroactively to the date the sanction ended.
+publisher:
+  name: Michigan Department of Health & Human Services
+  acronym: MDHHS
+  description: |
+    > The Michigan Department of Health and Human Services (MDHHS) is a principal department of state of Michigan,
+    > that provides public assistance, child and family welfare services, and oversees health policy and management.
+  url: https://www.michigan.gov/mdhhs
+  official: true
+  country: "us"
+url: "https://www.michigan.gov/mdhhs/doing-business/providers/providers/billingreimbursement/list-of-sanctioned-providers"
+data:
+  url: https://www.michigan.gov/mdhhs/doing-business/providers/providers/billingreimbursement/list-of-sanctioned-providers
+  format: HTML
+dates:
+  formats: ["%m/%d/%Y"]
+
+lookups:
+  type.date:
+    lowercase: true
+    options:
+      - match:
+          - 05817/2023
+          - 07/30/202
+        value: null
+      - match: 111/14/2022
+        value: 2022-11-14
+      - match: 0627/2023
+        value: 2023-06-27
+      - match: 09/18/223
+        value: 2023-09-18
+      - match: "03/20/25024"
+        value: 2024-03-20
+      - match: 2/14/18
+        value: 2018-02-14
+      - match: 6/14/18
+        value: 2018-06-14
+      - match: 11/13/18
+        value: 2018-11-13
+      - match: 0/12/2016
+        value: 2018-12-12
+      - match: 2/12/18
+        value: 2018-02-12
+      - match: 11/8/18
+        value: 2018-11-08
+      - match: 2/12/18
+        value: 2018-02-12
+      - match: 11/29/18
+        value: 2018-11-29
+      - match: 0219/2015
+        value: 2015-02-19
+      - match: 6/15/17
+        value: 2017-06-15
+      - match: 8/31/17
+        value: 2017-08-31
+      - match: 4/18/19
+        value: 2019-04-18
+      - match: 05/31/202304/19/2024
+        values:
+          - 2023-05-31
+          - 2024-04-19
+      - match: 
+          - MI-Licensing
+          - and
+          - Regulatory
+          - Affairs
+        value: null
+      - match: 5/21/18
+        value: 2018-05-21
+      - match: 9/20/18
+        value: 2018-09-20
+      - match: 9/28/18
+        value: 2018-09-28
+      - match: 2/4/19
+        value: 2019-02-04
+      - match: 9/30/201901/20/2020
+        values:
+          - 2019-09-30
+          - 2020-01-20
+      - match: 8/31/18
+        value: 2018-08-31
+      - match: 1/16/19
+        value: 2019-01-16
+      - match: 03/29/202307/10/2023
+        values:
+          - 2023-03-29
+          - 2023-07-10
+      - match: 4/24/18
+        value: 2018-04-24
+      - match: 12/18/20144/10/2015
+        values:
+          - 2014-12-18
+          - 2015-04-10
+      - match: MDHHS
+        value: null
+      - match: 0816/2022
+        value: 2022-08-16
+      - match: 3/22/18
+        value: 2018-03-22
+      - match: 6/8/18
+        value: 2018-06-08
+      - match: 05/06/20143/30/2015
+        value: null
+      - match: 6/20/18
+        value: 2018-06-20
+      - match: 05/06/20143/30/2015
+        values:
+          - 2014-05-06
+          - 2015-03-30
+      - match: 07/10/202311/15/2023
+        values:
+          - 2023-07-10
+          - 2023-11-15
+      - match: 06/27/20167/20/2016
+        values:
+          - 2016-06-27
+          - 2016-07-20
+      - match: 5/15/19
+        value: 2019-05-15
+      - match: 4/20/18
+        value: 2018-04-20
+      - match: 5/20/18
+        value: 2018-05-20
+      - match: 4/5/18
+        value: 2018-04-05
+      - match: 5/16/18
+        value: 2018-05-16
+      - match: 06/13/201906/13/2024
+        values:
+          - 2019-06-13
+          - 2024-06-13
+      - match: 9/29/17
+        value: 2017-09-29
+      - match: 11/13/18
+        value: 2018-11-13
+      - match: 10/11/202201/19/2023
+        values:
+          - 2022-10-11
+          - 2023-01-19
+      - match: 12/18/201811/09/2023
+        values:
+          - 2018-12-18
+          - 2023-11-09
+      - match: 8/31/18
+        value: 2018-08-31
+      - match: 04/20/202204/01/2024
+        values:
+          - 2022-04-20
+          - 2024-04-01
+      - match: 01/18/202104/20/2022
+        values:
+          - 2021-01-18
+          - 2022-04-20
+      - match: 07/10/202311/28/2023
+        values:
+          - 2023-07-10
+          - 2023-11-28
+      - match: 05/21/20134/19/2015
+        values:
+          - 2013-05-21
+          - 2015-04-19
+      - match: 02/18/20201/15/2023
+        value: 2023-01-15
+      - match: 12/21/16
+        value: 2016-12-21
+      - match: 02/06/20025
+        value: 2025-02-06
+  type.identifier: 
+    options:
+      - match: 136776577
+        value: 1366776577
+      - match: 181156923
+        value: 1891156923
+      - match: 144760240
+        value: 1447602040
+      - match: 128593728
+        value: 1285393728
+      - match: 119466192
+        value: 1194966192
+      - match: 182178860
+        value: 1821788860
+      - match: 175070101
+        value: 1750870101
+      - match: 1720441783
+        value: 1720441983
+      - match: 163975085
+        prop: registrationNumber
+      - match:
+          - +
+          - Home Help
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Company: 400
+      Person: 3000
+  max:
+    schema_entities:
+      Company: 550
+      Person: 3500

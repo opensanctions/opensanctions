@@ -32,6 +32,9 @@ data:
   url: https://www.bis.gov/OAC
   format: html
 
+dates:
+  formats: ["%y-%b", "%B %Y"]
+
 lookups:
   type.country:
     lowercase: true
@@ -43,7 +46,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Company: 125
+      Company: 130
   max: 
     schema_entities:
-      Company: 150
+      Company: 190

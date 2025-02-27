@@ -1,0 +1,56 @@
+title: UN Security Council 1718 Designated Vessels List
+entry_point: crawler.py
+prefix: un-1718
+coverage:
+  frequency: never
+  start: "2024-12-13"
+  end: "2020-06-04"
+deploy:
+  schedule: "@monthly"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Vessels designated under UN Security Council sanctions, including asset freezes, 
+  port entry bans, and other restrictions.
+description: |
+  The 1718 Designated Vessels List details vessels subject to sanctions under various 
+  UN Security Council resolutions. These measures include:
+
+  - Asset freezes, financial restrictions, and the freezing of economic resources, 
+    as specified in resolutions 1718 (2006) and 2270 (2016).
+  - De-flagging, port entry bans, and asset freezes for vessels linked to nuclear 
+    or ballistic missile activities under resolution 2321 (2016).
+  - Port entry restrictions for vessels involved in prohibited activities under 
+    resolutions 2371 (2017) and 2375 (2017), with exceptions for emergencies or approved 
+    humanitarian reasons.
+  - Sanctions on vessels controlled or operated by Ocean Maritime Management (KPe.020) 
+    under resolution 2270 (2016), recognizing them as economic resources.
+publisher:
+  name: United Nations Security Council
+  acronym: UNSC
+  description: |
+    The Security Council has primary responsibility for the maintenance of international 
+    peace and security. Under the Charter of the United Nations, all Member States are 
+    obligated to comply with Council decisions.
+
+    The Security Council takes the lead in determining the existence of a threat to the 
+    peace or act of aggression. It calls upon the parties to a dispute to settle it by 
+    peaceful means and recommends methods of adjustment or terms of settlement. In some 
+    cases, the Security Council can resort to imposing sanctions or even authorize the 
+    use of force to maintain or restore international peace and security.
+    [Source: Official Website](https://main.un.org/securitycouncil/en)
+  url: https://main.un.org/securitycouncil/en
+  official: true
+url: https://main.un.org/securitycouncil/en/sanctions/1718/materials/1718-Designated-Vessels-List
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTRPL95PD7IXkZZ0XOiwlPvTawFD6k-LAHCmOYLdkqYn01QBsBan8QlDhF56gKKAiMicg7RPZnRe2Xb/pub?output=csv
+  format: CSV
+
+dates:
+  formats: ["%d-%b-%y"]
+lookups:
+  type.date:
+    options:
+      - match: "1: 03-Oct-17 2: 30-Mar-18"
+        values:
+          - 2017-10-03
+          - 2018-03-30

@@ -40,9 +40,10 @@ publisher:
   url: https://data.assemblee-nationale.fr/
   official: true
 data:
-  url: https://data.assemblee-nationale.fr/static/openData/repository/16/amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json.zip
+  url: https://data.assemblee-nationale.fr/static/openData/repository/17/amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json.zip
   format: JSON
 ci_test: false
+
 assertions:
   min:
     schema_entities:
@@ -59,3 +60,9 @@ lookups:
         value: USA
       - match: Corée
         value: Korea
+      - match: Antilles françaises
+        value: France
+  type.url: 
+    options: 
+      - match: "/tribun/resources/html/defautDeclarationActeur.html"
+        value: Null

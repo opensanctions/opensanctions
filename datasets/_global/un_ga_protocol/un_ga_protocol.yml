@@ -2,10 +2,8 @@ title: UN Heads of State, Heads of Government and Ministers for Foreign Affairs
 entry_point: crawler.py
 prefix: unprot
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: "2024-06-10"
-deploy:
-  schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >
@@ -33,6 +31,8 @@ data:
   url: https://www.un.org/dgacm/en/content/protocol/hshgnfa
   format: PDF
 
+dates:
+  formats: ["%d-%b-%y"]
 lookups:
   names:
     options:
@@ -42,7 +42,50 @@ lookups:
         value: ""
   type.date:
     options:
-      - match: 
+      - match:
           - Jul-21
           - Jul-19
+          - Feb-17
+          - 09-Sep-2207
+          - 09-Sep-2201
+          - 09-Sep-2228
+        value: null
+      - match: 09-Sep-2227-May-21
+        value:
+          - 2022-09-09
+          - 2021-05-27
+      - match: 09-Sep-2207-May-13
+        values:
+          - 2022-09-09
+          - 2013-05-13
+      - match: 09-Sep-22 28-Feb-17
+        values:
+          - 2022-09-09
+          - 2017-02-28
+      - match: 09-Sep-22 / 01-Jul-19
+        values:
+          - 2022-09-09
+          - 2019-07-01
+      - match: 09-Sep-22 to 01-Aug-19
+        values:
+          - 2022-09-09
+          - 2019-08-01
+      - match: 09-Sep-22, 28-Feb-17
+        values:
+          - 2022-09-09
+          - 2017-02-28
+      - match: 09-Sep-22 / 27-May-21
+        values:
+          - 2022-09-09
+          - 2021-05-27
+      - match: 09-Sep-22 to 01-Nov-21
+        values:
+          - 2022-09-09
+          - 2021-11-01
+  normalize_name:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - none
         value: null

@@ -1,6 +1,6 @@
 type: external
 title: "EU Financial Instruments Reference Data System (FIRDS)"
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 prefix: eu-firds
 full_dataset: eu_esma_firds
 coverage:
@@ -11,8 +11,10 @@ exports:
   - entities.delta.json
 deploy:
   schedule: "1 10 * * *"
-  memory: 2500Mi
-  memory_limit: 3000Mi
+  cpu: "1000m"
+  cpu_limit: "2000m"
+  memory: 4000Mi
+  memory_limit: 4500Mi
   disk: 100Gi
   disk_limit: 300Gi
 summary: >
@@ -37,8 +39,6 @@ data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doRelativeSearch
   format: JSON
 ci_test: false
-http:
-  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics
@@ -48,6 +48,7 @@ inputs:
   # - ext_ee_ariregister
   # - ext_gb_coh_psc
   - ext_gleif
+  - ext_us_irs_ffi
   # - ext_icij_offshoreleaks
   # - ext_lv_business_register
   # - ext_md_companies
@@ -57,11 +58,13 @@ inputs:
   # - ru_rupep
   - sanctions
   - securities
+  - regulatory
+  - special_interest
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
-  api: https://api.graph.opensanctions.org/
   dataset: eu_esma_firds
+  index_options:
+    memory_budget: 2500
   strip_namespace: true
   fuzzy: false
   threshold: 0.6
@@ -78,3 +81,13 @@ config:
     - Company
     - Organization
     - Security
+
+assertions:
+  min:
+    schema_entities:
+      Security: 150500
+      Organization: 100
+  max:
+    schema_entities:
+      Security: 355000
+      Organization: 250

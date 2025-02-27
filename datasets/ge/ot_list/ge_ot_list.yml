@@ -20,6 +20,7 @@ url: https://matsne.gov.ge/ka/document/view/4234552?publication=0
 data:
   url: https://matsne.gov.ge/ka/document/view/4234552?publication=0
   format: HTML
+  lang: kat
 publisher:
   name: საქართველოს საკანონმდებლო მაცნე
   name_en: Legislative Gazette of Georgia
@@ -35,6 +36,8 @@ publisher:
     the Constitutional Court, local self-government acts, and public
     statements.
   official: true
+dates: 
+  formats: ["%d.%m.%Y", "%Y"]
 assertions:
   min:
     schema_entities:

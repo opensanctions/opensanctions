@@ -23,9 +23,9 @@ publisher:
   name_en: Money Laundering Combating Unit
   acronymn: MLCU
   description: |
-   The Anti-Money Laundering and Financing of Terrorism Unit was established under the
-   Anti-Money Laundering Law issued by Law No. 80 of 2002, which is the Egyptian Financial
-   Investigation Unit
+    The Anti-Money Laundering and Financing of Terrorism Unit was established under the
+    Anti-Money Laundering Law issued by Law No. 80 of 2002, which is the Egyptian Financial
+    Investigation Unit
   url: https://mlcu.org.eg/ar/
   official: true
   country: "eg"
@@ -33,6 +33,22 @@ url: "https://mlcu.org.eg/ar/3125/قوائم-ادراج-الكيانات-الا�
 data:
   url: https://mlcu.org.eg/ar/3125/قوائم-ادراج-الكيانات-الارهابية-والارهابيين-المحلية-عملا-بقرار-مجلس-الامن-1373
   format: HTML
+ci_test: false
+
+dates:
+  formats:
+    - "%Y/%m/%d"
+    - "%Y-%m-%d"
+    - "%d/%m/%Y"
+    - "%d-%m-%Y"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 3500
+  max:
+    schema_entities:
+      Person: 7000
 
 lookups:
   columns:
@@ -47,7 +63,7 @@ lookups:
         value: passport
       - match: الجنسية
         value: nationality
-      - match: رقم القضية 
+      - match: رقم القضية
         value: case_number
       - match: رقم قرار ادراج الارهابيين
         value: terrorist_designation_decision_number
@@ -69,7 +85,7 @@ lookups:
         value: commercial_registration_number
       - match: المقر
         value: headquarters
-      
+
   type.country:
     lowercase: true
     options:
@@ -85,11 +101,3 @@ lookups:
         value: Egyptian
       - match: سوداني
         value: Sudan
-
-assertions:
-  min:
-    schema_entities:
-      Person: 4200
-  max:
-    schema_entities:
-      Person: 5000

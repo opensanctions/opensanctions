@@ -71,7 +71,4 @@ def test_configure_redactor():
     )
 
     env_redacted = processor.redact_str("something something DEADBEEF something")
-    assert (
-        env_redacted
-        == "something something ### Redacted env var SENSITIVE ### something"
-    )
+    assert env_redacted == "something something ${SENSITIVE} something"

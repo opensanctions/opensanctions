@@ -4,8 +4,6 @@ from typing import Dict, Any
 from zavod import helpers as h
 from zavod import Context
 
-FORMATS = ["%Y%m%d"]
-
 
 def is_zero(value: str) -> bool:
     return all(c == "0" for c in value)
@@ -44,7 +42,7 @@ def crawl_item(context: Context, row: Dict[str, Any]):
             last_name=last_name,
             lang="eng",
         )
-        entity.add("birthDate", h.parse_date(row.pop("DOB", None), FORMATS))
+        h.apply_date(entity, "birthDate", row.pop("DOB", None))
         general_role = row.pop("GENERAL")
         specialism = row.pop("SPECIALTY")
         if specialism:
@@ -78,14 +76,14 @@ def crawl_item(context: Context, row: Dict[str, Any]):
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("startDate", h.parse_date(row.pop("EXCLDATE"), FORMATS))
+    h.apply_date(sanction, "startDate", row.pop("EXCLDATE"))
     sanction.add("reason", row.pop("EXCLTYPE"))
     sanction.add("program", "US HHS OIG List of Excluded Individuals/Entities")
     waiver_start = row.pop("WAIVERDATE")
     waiver_state = row.pop("WVRSTATE")
     if waiver_start:
         waiver_description = (
-            f"Waiver start date: {h.parse_date(waiver_start, FORMATS)[0]}"
+            f"Waiver start date: {h.extract_date(context.dataset, waiver_start)[0]}"
         )
         if waiver_state:
             waiver_description += ", "
@@ -99,7 +97,7 @@ def crawl_item(context: Context, row: Dict[str, Any]):
     reinvdate = row.pop("REINDATE")
     assert reinvdate is None, reinvdate
     context.emit(sanction)
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.audit_data(row)
 
 

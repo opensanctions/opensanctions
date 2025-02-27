@@ -103,5 +103,5 @@ def crawl(context: Context):
     for line in data:
         entity = create_entity(line, context)
         sanction = create_sanction(line, entity, context)
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)

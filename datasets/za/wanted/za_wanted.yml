@@ -14,25 +14,42 @@ description: |
 
   In the source url it's possible to see the crime circumstances
   and other additional details (such as crime date and gender).
-
+url: https://www.saps.gov.za/crimestop/wanted/list.php
 publisher:
   name: South African Police Service
   acronym: SAPS
   country: za
   official: true
   url: https://www.saps.gov.za/
-
 data:
   url: https://www.saps.gov.za/crimestop/wanted/list.php
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 400
+  max:
+    schema_entities:
+      Person: 920
 
 lookups: 
   type.number:
     lowercase: true
     options:
-      - match: "0 m"
+      - match: 
+          - "0 m"
+          - "n/a m"
+          - "Unknown m"
+          - "Unknnown m"
+          - "unknown m"
         value: null  
-      - match: "0 kg"
+      - match: 
+          - "0 kg"
+          - "n/a kg"
+          - "Unknown kg"
+          - "Unkniwn kg"
+          - "unknown kg"
         value: null 
   type.string:
     lowercase: true
@@ -42,5 +59,8 @@ lookups:
   type.name:
     lowercase: true
     options:
-      - match: "0"
+      - match: 
+          - "0"
+          - Unknown
+          - "n/a"
         value: null

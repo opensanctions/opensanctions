@@ -1,28 +1,53 @@
 from urllib.parse import urljoin
+from lxml.etree import tostring
+import re
+
+from normality import collapse_spaces
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
 
-def crawl_judges(context: Context, url, position, get_name, get_judges=None):
-    request_response = context.fetch_html(url, cache_days=30)
+REGEX_CLEAN_NAME = re.compile(
+    r"The Chief Justice|President of the Court of Appeal|Justice|Rt[\.\b]|The |Hon[\.\b]|\bLLB\b|\bBSc\b|\bLLD\b|\bCLE\b|\bKC\b|\bCBE\b|\(\w+\)|Sir|, "
+)
 
-    if get_judges is not None:
-        parsed_judges = get_judges(request_response)
-        judges = []
-        for judge in parsed_judges:
-            judge_name = get_name(judge)
-            judges += [(judge_name, position, url)]
-        return judges
+
+def get_judges(context: Context, doc):
+    tabs = doc.xpath(".//div[contains(@class, 'judicial-tabs')]//a")
+    current_tab = [t for t in tabs if t.text == "Current"][0]
+    current_pane_id = current_tab.get("data-bs-target")[1:]
+    current_pane = doc.xpath(f".//div[@id='{current_pane_id}']")[0]
+    return current_pane.xpath(".//div[contains(@class, 'col-md-6 col-lg-8')]")
+
+
+def get_name_pos(context: Context, container, default_position: str):
+    name_els = container.xpath(".//h3")
+    assert len(name_els) == 1, (name_els, tostring(container))
+    name = name_els[0].text_content()
+
+    if "chief justice" in name.lower():
+        position = "Chief Justice"
+    elif "president of the court of appeal" in name.lower():
+        position = "President of the Court of Appeal"
     else:
-        judge_name = get_name(request_response)
-        return [(judge_name, position, url)]
+        position = default_position
+
+    name = REGEX_CLEAN_NAME.sub("", name)
+    name = collapse_spaces(name)
+    return name, position
 
 
-def emit_entities(context: Context, entities_data):
-    for entity in entities_data:
-        name, position, url = entity
+def crawl_judges(context: Context, url, default_position, min, max):
+    doc = context.fetch_html(url, cache_days=30)
+    doc.make_links_absolute(url)
+
+    containers = get_judges(context, doc)
+    assert min <= len(containers) <= max, (min, len(containers), max)
+
+    for judge_container in containers:
+        name, position = get_name_pos(context, judge_container, default_position)
         person_proxy = context.make("Person")
         person_proxy.id = context.make_id(name)
         person_proxy.add("sourceUrl", url)
@@ -34,88 +59,24 @@ def emit_entities(context: Context, entities_data):
             name=position,
             country="Cayman Islands",
         )
-        categorisation = categorise(context, position)
-        if categorisation.is_pep:
-            occupancy = h.make_occupancy(
-                context, person_proxy, position, True, categorisation=categorisation
-            )
-            context.emit(person_proxy, target=True)
-            context.emit(position)
-            context.emit(occupancy)
+        categorisation = categorise(context, position, is_pep=True)
+        if not categorisation.is_pep:
+            continue
+        occupancy = h.make_occupancy(
+            context, person_proxy, position, True, categorisation=categorisation
+        )
+        if not occupancy:
+            continue
+        context.emit(person_proxy)
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def crawl(context: Context):
-    all_judges = []
+    crawl_judges(context, context.data_url, "Chief Justice", 1, 1)
 
-    # Get Chief Justice
-    chief_justice_url = urljoin(context.data_url, "chief-justice")
+    appeal_court_url = urljoin(context.data_url, "court-of-appeal")
+    crawl_judges(context, appeal_court_url, "Justice of the Court of Appeal", 3, 10)
 
-    def get_name(elm):
-        return (
-            elm.xpath('.//div[contains(@class, "fusion-flex-column-wrapper-legacy")]')[
-                2
-            ]
-            .text_content()
-            .split(",")[0]
-            .replace("Hon. ", "")
-        )
-
-    chief_justice = crawl_judges(
-        context, chief_justice_url, "Chief of Justice", get_name
-    )
-    all_judges += chief_justice
-
-    # Get President of court
-    president_court_url = urljoin(context.data_url, "president-court-of-appeal")
-
-    def get_name(elm):
-        return (
-            elm.xpath('.//h4[contains(@class, "panel-title")]')[0]
-            .text_content()
-            .split("Sir")[-1]
-            .strip()
-        )
-
-    president_court = crawl_judges(
-        context, president_court_url, "President of the Court of Appeal", get_name
-    )
-    all_judges += president_court
-
-    # Get Justices of Appeal
-    justices_of_appeal_url = urljoin(context.data_url, "judges-of-appeal")
-
-    def get_name(elm):
-        elm_text = elm.text_content()
-        if "Sir" in elm_text:
-            return elm_text.split("Sir")[-1].strip()
-        else:
-            return elm_text.split("Hon.")[-1].replace("Justice", "").strip()
-
-    def get_judges(page):
-        return page.xpath('.//div[contains(@class, "accordian")]')[0].xpath(".//h4")
-
-    justices_of_appeal = crawl_judges(
-        context, justices_of_appeal_url, "Judge of Appeal", get_name, get_judges
-    )
-    all_judges += justices_of_appeal
-
-    # Get Judges
-    def get_name(elm):
-        return (
-            elm.xpath('.//span[contains(@class, "fusion-toggle-heading")]')[0]
-            .text.replace("Hon. ", "")
-            .split(",")[0]
-            .replace(" CBE", "")
-        )
-
-    def get_judges(page):
-        return page.xpath("//div[contains(@class, 'accordian')]")[0].xpath(
-            ".//div[contains(@class, 'fusion-panel')]"
-        )
-
-    judges = crawl_judges(
-        context, context.dataset.data.url, "Judge", get_name, get_judges
-    )
-    all_judges += judges
-
-    emit_entities(context, all_judges)
+    grand_court_url = urljoin(context.data_url, "grand-court")
+    crawl_judges(context, grand_court_url, "Judge of the Grand Court", 3, 10)

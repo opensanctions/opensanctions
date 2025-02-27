@@ -1,0 +1,62 @@
+title: Research Organizations Registry
+entry_point: crawler.py
+prefix: ror
+coverage:
+  frequency: monthly
+  start: "2024-10-14"
+deploy:
+  memory: 1000Mi
+ci_test: false
+summary: >
+  Identifiers for research organizations, maintained by the Research Organization Registry.
+description: |
+  ROR is a registry of “research organizations.” We define “research organization” as any
+  organization that conducts, produces, manages, or touches research.
+publisher:
+  name: Research Organization Registry
+  acronym: ROR
+  description: |
+    ROR is a community-led project to develop an open, sustainable, usable, and unique
+    identifier for every research organization in the world.
+  url: "https://ror.org/"
+  official: true
+url: "https://ror.org/registry/"
+data:
+  url: https://doi.org/10.5281/zenodo.6347574
+  format: ZIP
+
+lookups:
+  relationship:
+    options:
+      - match: Parent
+        schema: Ownership
+        local: asset
+        remote: owner
+        description: role
+      - match: Child
+        schema: Ownership
+        local: owner
+        remote: asset
+        description: role
+      - match: Related
+        schema: UnknownLink
+        local: subject
+        remote: object
+        description: role
+      - match: Successor
+        schema: Succession
+        local: successor
+        remote: predecessor
+        description: role
+      - match: Predecessor
+        schema: Succession
+        local: predecessor
+        remote: successor
+        description: role
+  type.date:
+    options:
+      - match:
+          - 712
+          - 970
+          - 976
+        value: null

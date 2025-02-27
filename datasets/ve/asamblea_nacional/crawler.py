@@ -37,16 +37,6 @@ def extract_marked_content(infobox: HtmlElement) -> str:
     return infobox.text_content()
 
 
-DATE_FORMATS = [
-    "%d/%m/%Y",
-    "%d/%m/%y",
-    "%d-%m-%Y",
-    "%d-%m-%y",
-    "%d de %b de %Y",
-    "%d – %m – %y",
-]
-
-
 def crawl_infobox(context: Context, person: Entity, infobox: HtmlElement):
     """Do a best-effort extraction of some facts from the text of an
     infobox with a member's CV."""
@@ -56,11 +46,9 @@ def crawl_infobox(context: Context, person: Entity, infobox: HtmlElement):
         birthdate = m.group(1)
         birthdate = WS.sub(" ", birthdate)
         birthdate = birthdate.strip(" .;,")
-        context.log.debug(f"Birthdate: {birthdate}")
-        person.add(
-            "birthDate",
-            h.parse_date(birthdate, DATE_FORMATS),
-        )
+        context.log.debug(f"Birthdate: '{birthdate}'")
+        h.apply_date(person, "birthDate", birthdate)
+
     m = BIRTHPLACE.search(text)
     if m:
         birthplace = m.group(1)
@@ -148,7 +136,7 @@ def crawl_member(context: Context, member_link=ElementOrTree):
         context, person, position, True, categorisation=categorisation
     )
     if occupancy is not None:
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 

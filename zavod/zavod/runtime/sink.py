@@ -1,6 +1,7 @@
-from typing import BinaryIO, Optional
+from typing import Optional, TextIO
+from normality.encoding import DEFAULT_ENCODING
 from nomenklatura.statement import Statement
-from nomenklatura.statement.serialize import get_statement_writer, StatementWriter, PACK
+from nomenklatura.statement.serialize import PackStatementWriter
 
 
 from zavod.meta import Dataset
@@ -13,14 +14,14 @@ class DatasetSink(object):
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
         self.path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
-        self.fh: Optional[BinaryIO] = None
-        self.writer: Optional[StatementWriter] = None
+        self.fh: Optional[TextIO] = None
+        self.writer: Optional[PackStatementWriter] = None
 
     def emit(self, stmt: Statement) -> None:
         """Write a statement to the dataset output."""
         if self.fh is None or self.writer is None:
-            self.fh = open(self.path, "wb")
-            self.writer = get_statement_writer(self.fh, PACK)
+            self.fh = open(self.path, "w", encoding=DEFAULT_ENCODING)
+            self.writer = PackStatementWriter(self.fh)
         self.writer.write(stmt)
 
     def close(self) -> None:

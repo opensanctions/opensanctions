@@ -10,7 +10,7 @@ from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE
 from zavod.crawl import crawl_dataset
 from zavod.store import get_store
 from zavod.exporters import export_dataset
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.publish import publish_dataset, publish_failure
 from zavod.exc import RunFailedException
 

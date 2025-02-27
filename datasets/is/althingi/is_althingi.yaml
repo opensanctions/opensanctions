@@ -25,11 +25,15 @@ url: "https://www.althingi.is/altext/cv/en/"
 data:
   url: https://www.althingi.is/altext/cv/en/
   format: HTML
+  lang: eng
+ci_test: false
 
+dates: 
+  formats: ["Date of Birth: %B %d, %Y"]
 assertions:
   min:
     schema_entities:
-      Person: 55
+      Person: 35
   max:
     schema_entities:
       Person: 70

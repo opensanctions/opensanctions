@@ -11,8 +11,6 @@ ADMINISTRATIVE_XLSX_URL = "https://www.pmddtc.state.gov/sys_attachment.do?sys_id
 STATUTORY_PROGRAM = "Statutory debarment pursuant to §38(g)(4) of the AECA and §127.7 of the International Traffic in Arms Regulations (ITAR)"
 ADMINISTRATIVE_PROGRAM = "Administrative debarment for violations of the AECA/ITAR, as specified in 22 CFR §127.7(a)"
 
-FORMATS = ["%B, %Y", "%B %Y"]
-
 
 def sheet_to_dicts(sheet):
     headers: Optional[List[str]] = None
@@ -45,6 +43,8 @@ def crawl_debarment(
     birth_date_field=None,
 ):
     date_of_birth = row.pop(birth_date_field, None)
+    if type(date_of_birth) is str:
+        date_of_birth = date_of_birth.strip()
     if date_of_birth:
         schema = "Person"
     else:
@@ -57,7 +57,7 @@ def crawl_debarment(
     entity.add("alias", aliases)
     entity.add("country", "us")
     if schema == "Person":
-        entity.add("birthDate", h.parse_date(date_of_birth, FORMATS))
+        h.apply_date(entity, "birthDate", date_of_birth)
     entity.add("topics", "debarment")
 
     sanction = h.make_sanction(context, entity)
@@ -75,7 +75,7 @@ def crawl_debarment(
             "Corrected federal register notice: " + corrected_notice_number,
         )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row, ["charging-letter", "debarment-order"])

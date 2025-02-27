@@ -7,9 +7,9 @@ coverage:
 summary: >
   Individuals wanted by the Spanish National Police.
 description: |
-  This dataset includes detailed information on individuals currently sought by Spanish law enforcement. 
-  Each entry provides the wanted person's name, place of birth, and alleged crimes, facilitating public 
-  collaboration in their apprehension.
+  This dataset contains detailed information on persons currently wanted by Spanish law 
+  enforcement. Each entry contains the name of the wanted person, a description and a link 
+  to more detailed information, facilitating public collaboration in their apprehension.
 entry_point: crawler.py
 prefix: es-mir
 publisher:
@@ -17,20 +17,22 @@ publisher:
   acronym: CNP
   official: true
   description: |
-    The Spanish National Police is an armed institution, civil in nature, which presents a hierarchical structure
-    and has the mission of protecting the free exercise of citizens' rights and liberties, and of guaranteeing their 
-    security. Its scope of action is the whole of the national territory.
+    The Spanish National Police is an armed institution, civil in nature, which presents a 
+    hierarchical structure and has the mission of protecting the free exercise of citizens' 
+    rights and liberties, and of guaranteeing their security. Its scope of action is the 
+    whole of the national territory.
   country: es
   url: https://www.policia.es/_es/index.php
 data:
   url: https://www.policia.es/_es/colabora_masbuscados.php#
   format: html
+  lang: spa
 ci_test: false
 
 assertions:
   min:
     schema_entities:
-      Person: 1
+      Person: 6
   max: 
     schema_entities:
-      Person: 10
+      Person: 20

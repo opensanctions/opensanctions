@@ -23,25 +23,16 @@ publisher:
   url: https://www.senado.gob.mx/
   official: true
   country: "mx"
-url: "https://www.senado.gob.mx/65/datosAbiertos/senadoresDatosAb"
+url: https://micrositios.senado.gob.mx/LGLXVI/datos_abiertos/
 data:
-  url: https://micrositios.senado.gob.mx/datos_abiertos/
+  url: https://www.senado.gob.mx/
   format: JSON
+ci_test: false
 
-lookups:
-  type.address:
-    lowercase: true
-    normalize: true
-    options:
-      - match: >
-          Hemiciclo Piso 4 Oficina 22,<br> 
-          Col. Tabacalera, Alcaldía Cuauhtémoc,<br> 
-          Ciudad de México, C. P. 06030.<br> 
-          Tel.: 5345 3000 ext.: 3813,5216<br><br> 
-          Casa enlace<br> 
-          Calle 23 de agosto #209<br> 
-          Col. Jesús García, Villahermosa, Tabasco<br> 
-          Tel.: 993 365 7625
-        values: 
-          - "Hemiciclo Piso 4 Oficina 22, Col. Tabacalera, Alcaldía Cuauhtémoc, Ciudad de México, C. P. 06030."
-          - "Casa enlace Calle 23 de agosto #209 Col. Jesús García, Villahermosa, Tabasco"
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+  max:
+    schema_entities:
+      Person: 150

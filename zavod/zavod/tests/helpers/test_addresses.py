@@ -41,6 +41,7 @@ def test_make_address_helper(vcontext: Context):
     apply_address(vcontext, person, addr)
     assert person.first("addressEntity") == addr.id
     assert person.first("country") == "us"
+    assert "Main Street" in person.first("address")
 
     with pytest.raises(AssertionError):
         other = vcontext.make("Company")

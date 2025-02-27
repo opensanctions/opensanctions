@@ -10,7 +10,7 @@ exports:
   - statistics.json
   - entities.ftm.json
 deploy:
-  premium: true
+  # premium: true
   memory: 2500Mi
 resolve: false
 ci_test: false
@@ -37,6 +37,7 @@ description: |
 url: https://data.egov.kz/datasets/view?index=gbd_ul
 publisher:
   name: Ministry of Justice of the Republic of Kazakhstan
+  acronym: MoJ
   country: kz
   url: https://www.gov.kz/memleket/entities/adilet?lang=en
   description: |

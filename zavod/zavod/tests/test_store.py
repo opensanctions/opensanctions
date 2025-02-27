@@ -1,7 +1,7 @@
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.store import get_store
 
 
@@ -24,7 +24,6 @@ def test_store_access(testdataset1: Dataset):
     assert entity is not None, entity
     assert entity.id == "osv-john-doe"
     assert entity.schema.name == "Person"
-    assert entity.target is True
     # assert entity.external is False
     assert entity.last_change == settings.RUN_TIME_ISO
     assert entity.first_seen == settings.RUN_TIME_ISO

@@ -23,6 +23,7 @@ def crawl(context: Context) -> None:
     res_data = json.loads(res.text.split("\n", 1)[1])
     for row in res_data["content"]:
         name = row.pop("ecOpName")
+        comments = row.pop("comments", None)
         entity = context.make("Company")
         entity.id = context.make_id(name)
         name = name.split("*")
@@ -33,12 +34,13 @@ def crawl(context: Context) -> None:
         entity.add("topics", "debarment")
 
         sanction = h.make_sanction(context, entity)
-        sanction.add("summary", row.pop("comments").replace("<br>", "\n"))
+        if comments:
+            sanction.add("summary", comments.replace("<br>", "\n"))
         sanction.add("reason", row.pop("grounds").replace("<br>", "\n"))
         sanction.add("provisions", row.pop("typeLabel"))
         sanction.add("startDate", convert_date(row.pop("from")))
         sanction.add("endDate", convert_date(row.pop("to")))
 
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(sanction)
         # print(row)

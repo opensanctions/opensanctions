@@ -1,0 +1,39 @@
+title: US Massachusetts Suspensions and Exclusions from MassHealth
+entry_point: crawler.py
+prefix: us-medma
+coverage:
+  frequency: daily
+  start: "2024-08-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Providers who have been suspended or excluded from the MassHealth program.
+description: |
+  > The MassHealth program maintains a list of providers who have been suspended or excluded
+  > from participating in the MassHealth program. This list is updated monthly and reflects
+  > suspensions or exclusions effective on or after March 23, 2010. They are listed according to
+  > the provider type at the time of such action.
+publisher:
+  name: MassHealth
+  description: MassHealth is the combination of the Medicaid and Children's Health Insurance
+   Program in Massachusetts.
+  url: https://www.mass.gov
+  official: true
+  country: "us"
+url: "https://www.mass.gov/info-details/learn-about-suspended-or-excluded-masshealth-providers"
+data:
+  url: https://www.mass.gov/info-details/learn-about-suspended-or-excluded-masshealth-providers
+  format: HTML
+
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15"
+
+dates:
+  formats: ['%B %Y']
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 150
+  max:
+    schema_entities:
+      LegalEntity: 350

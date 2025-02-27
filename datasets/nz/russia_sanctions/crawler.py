@@ -27,14 +27,14 @@ ASSOCIATE = ("associate", "close associate")
 FAMILY = ("relative", "wife", "son", "daughter", "nephew")
 
 
-def parse_date(value: Any) -> Any:
+def clean_date(value: Any) -> Any:
     if value is None:
         return None
     if isinstance(value, datetime):
         return value.date()
     if isinstance(value, (int, time)):
         return None
-    return h.parse_date(value.strip(), ["%d/%m/%Y"])
+    return value.strip()
 
 
 def parse_associates(context: Context, target: Entity, value: str) -> None:
@@ -68,8 +68,8 @@ def parse_associates(context: Context, target: Entity, value: str) -> None:
 
 def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     unique_id = data.pop("Unique Identifier")
-    entity_type = data.pop("Type").strip()
-    if entity_type in ("Asset", "Total"):
+    entity_type = data.pop("Type")
+    if entity_type in ("Asset", "Total") or entity_type is None:
         # Assets are not granular enough to be worth importing
         return None
     if entity_type not in TYPES:
@@ -98,14 +98,14 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     if aliases is not None:
         entity.add("alias", h.multi_split(aliases, [", Oao", ";", ","]))
     entity.add("address", data.pop("Address"))
-    dob = parse_date(data.pop("DOB"))
+    dob = clean_date(data.pop("DOB"))
     if entity.schema.is_a("Person"):
-        entity.add("birthDate", dob)
+        h.apply_date(entity, "birthDate", dob)
     else:
         entity.add("incorporationDate", dob)
-    entity.add("nationality", data.pop("Citizenship"), quiet=True)
-    entity.add("nationality", data.pop("Citizenship 2"), quiet=True)
-    entity.add("nationality", data.pop("Citizenship 3"), quiet=True)
+    entity.add("citizenship", data.pop("Citizenship"), quiet=True)
+    entity.add("citizenship", data.pop("Citizenship 2"), quiet=True)
+    entity.add("citizenship", data.pop("Citizenship 3"), quiet=True)
     entity.add("birthPlace", data.pop("Place of Birth"), quiet=True)
     entity.add("passportNumber", data.pop("Passport Number"), quiet=True)
 
@@ -116,14 +116,15 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     sanction = h.make_sanction(context, entity)
     sanction.add("program", "Russia Sanctions Act 2022")
     sanction.add("startDate", data.pop("Date of Sanction"))
-    sanction.add("modifiedAt", parse_date(data.pop("Date of Additional Sanction")))
+    modified_at = clean_date(data.pop("Date of Additional Sanction"))
+    h.apply_date(sanction, "modifiedAt", modified_at)
     sanction.add("status", data.pop("Sanction Status"))
     sanction.add("reason", data.pop("General Rationale for Sanction"))
     for scope in SCOPES:
         if as_bool(data.pop(scope)):
             sanction.add("provisions", scope)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(data)
 

@@ -4,6 +4,7 @@ from lxml.etree import _Element
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 
 def crawl_item(li_tag: _Element, context: Context) -> None:
@@ -39,7 +40,7 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
         description = cast("str", res.description) or long_name
 
     source_url = li_link.get("href")
-    date = li_tag.findtext(".//*[@class='myDate']")
+    date = li_tag.findtext(".//*[@class='myDate']").strip()
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(source_url)
@@ -47,11 +48,12 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
     entity.add("topics", "reg.warn")
     entity.add("notes", description)
     entity.add("sourceUrl", source_url)
-    entity.add("createdAt", h.parse_date(date, formats=["%d %M %Y"]))
-    context.emit(entity, target=True)
+    h.apply_date(entity, "createdAt", date)
+    context.emit(entity)
 
 
 def crawl(context: Context):
-    response = context.fetch_html(context.data_url)
-    for item in response.findall(".//*[@class='accordion-content']/ul/li"):
+    list_xpath = ".//*[@class='accordion-content']/ul/li"
+    doc = fetch_html(context, context.data_url, list_xpath)
+    for item in doc.findall(list_xpath):
         crawl_item(item, context)

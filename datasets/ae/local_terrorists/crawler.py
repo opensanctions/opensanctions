@@ -1,12 +1,19 @@
 import xlrd
+import re
+
 from typing import List, Optional
 from pathlib import Path
 from normality import collapse_spaces
-from urllib.parse import urljoin
 from rigour.mime.types import XLS
 
 from zavod import Context
 from zavod import helpers as h
+
+
+DATES = [
+    re.compile(r"رفع الإدراج بموجب قرار مجلس الوزراء رقم \(\d{2}\) لسنة"),
+    re.compile(r"مدرج بموجب قرار مجلس الوزراء رقم \(\d{2}\) لسنة"),
+]
 
 
 def parse_row(
@@ -26,36 +33,47 @@ def parse_row(
             continue
         if header in ["index", "issuer"]:
             continue
-        if type_ == "date":
-            value = h.parse_date(value, ["%d/%m/%Y"])
         if header == "category":
             schema = context.lookup_value("categories", value)
             if schema is None:
-                context.log.error("Unknown category", category=value)
+                context.log.error(f'Unknown category "{value}"', category=value)
             elif not entity.schema.is_a("Vessel"):
                 entity.add_schema(schema)
             continue
-        if header in ("program", "listingDate", "endDate", "provisions"):
+        if header in ("program", "provisions"):
             sanction.add(header, value, lang=lang)
+            continue
+        if header in ("listingDate", "endDate"):
+            for pattern in DATES:
+                value = re.sub(pattern, "", value)
+            h.apply_date(sanction, header, value)
             continue
         if header in ["city", "country", "street"]:
             address[header] = value
             continue
         # print(header, value)
-        entity.add(header, value, lang=lang)
+        if header in ["birthDate"]:
+            h.apply_date(entity, header, value)
+        else:
+            entity.add(header, value, lang=lang)
 
     if len(address):
         addr = h.make_address(context, **address)
         h.copy_address(entity, addr)
 
     context.emit(sanction)
-    context.emit(entity, target=sanctioned)
+    context.emit(entity)
 
 
 def parse_excel(context: Context, path: Path):
     xls = xlrd.open_workbook(path)
     for sheet in xls.sheets():
-        sanctioned = "رفع الإدراج" not in sheet.name
+        res = context.lookup("sanction_is_active", sheet.name)
+        if res is None:
+            context.log.warning("Unknown sheet", sheet=sheet.name)
+            is_active = True
+        else:
+            is_active = res.is_active
         headers: Optional[List[str]] = None
         for r in range(1, sheet.nrows):
             row = [h.convert_excel_cell(xls, c) for c in sheet.row(r)]
@@ -72,19 +90,17 @@ def parse_excel(context: Context, path: Path):
                 continue
             if headers is None:
                 continue
-            parse_row(context, headers, row, sanctioned)
+            parse_row(context, headers, row, is_active)
 
 
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url)
-    found_file = False
-    for a in doc.findall(".//a"):
-        a_url = urljoin(context.data_url, a.get("href"))
-        if "Local Terrorist List" in a.text_content() and "API/Upload" in a_url:
-            found_file = True
-            path = context.fetch_resource("source.xls", a_url)
-            context.export_resource(path, XLS, title=context.SOURCE_TITLE)
-            parse_excel(context, path)
-
-    if not found_file:
-        context.log.error("Could not download Local Terror excel file!")
+    doc.make_links_absolute(context.data_url)
+    section = doc.xpath(".//h5[text()='Local Terrorist List']")[0].getparent()
+    link = section.xpath(
+        ".//p[text()='Download Excel File']/ancestor::*[contains(@class,'download-file')]//a"
+    )[0]
+    url = link.get("href")
+    path = context.fetch_resource("source.xls", url)
+    context.export_resource(path, XLS, title=context.SOURCE_TITLE)
+    parse_excel(context, path)

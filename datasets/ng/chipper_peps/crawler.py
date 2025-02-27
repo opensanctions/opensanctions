@@ -9,7 +9,6 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import OccupancyStatus, categorise
 
-FORMATS = ["%m/%d/%Y"]
 # Match space before comma or no space after comma
 REGEX_FIX_COMMA = re.compile(r"(\w)\s*,\s*(\w)")
 
@@ -91,7 +90,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     last_name = row.pop("Last Name")
 
     if not has_length(last_name, 2):
-        context.log.warning(
+        context.log.info(
             "Invalid last name",
             last_name=last_name,
             identifier=identifier,
@@ -100,7 +99,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         return
 
     if not has_length(first_name, 2):
-        context.log.warning(
+        context.log.info(
             "Very short first name",
             first_name=first_name,
             identifier=identifier,
@@ -116,7 +115,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     )
     entity.add("title", collapse_spaces(row.pop("Title")))
     entity.add("gender", row.pop("Gender"))
-    entity.add("birthDate", h.parse_date(row.pop("Date of Birth").strip(), FORMATS))
+    h.apply_date(entity, "birthDate", row.pop("Date of Birth").strip())
     entity.add("address", collapse_spaces(row.pop("Official Address")))
     # confirming if this assumption is ok:
     # entity.add("birthPlace", row.pop("State Of Origin"))
@@ -132,7 +131,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.add("topics", "role.pep")
         entity.add("country", "ng")
 
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl(context: Context):

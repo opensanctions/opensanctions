@@ -1,0 +1,65 @@
+title: US Arkansas Medicaid Excluded Provider List
+entry_point: crawler.py
+prefix: us-medar
+coverage:
+  frequency: daily
+  start: "2024-11-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This dataset contains a list of providers who have been excluded from Arkansas's Medicaid program.
+description: |
+  > The Arkansas Department of Human Services Excluded Provider List contains persons, providers, or
+  > facilities who are excluded from doing business with the Arkansas Department of Human Services.
+  >
+  > The Arkansas Department of Human Services maintains this Excluded Provider List to comply with
+  > federal requirements (Medicare and Medicaid Protection Act of 1987 as amended and disqualified
+  > schools, institutions and individuals under the Child Nutrition Act, 42 U.S.C. 1760(r)) and
+  > pursuant to DHS Policy 1088 Excluded Providers. This means that a person or provider can be on
+  > this DHS Excluded Provider list and yet is not an excluded Medicaid provider and is not a
+  > disqualified Child Nutrition provider. DHS Policy 1088 regarding Excluded Providers allows a
+  > person or facility to be included on the DHS Excluded Provider List for a variety of reasons
+  > outlined in the policy. One reason can be when the person or provider failed, without good cause,
+  > to perform or act in accordance with statues, rules, contracts or purchase orders.
+  >
+  > Medical providers who are excluded from Arkansas Medicaid must not order, prescribe, or provide
+  > services to any clients. Medical providers are liable for all fees paid to them by Arkansas
+  > Medicaid for services rendered by excluded individuals and are subject to audits and recoupment
+  > of any Medicaid funds paid for services.
+publisher:
+  name: Arkansas Department of Human Services
+  description: |
+    The Arkansas Department of Human Services (DHS) oversees programs across the state that provide
+    health care, public safety, and support services. DHS's work includes health services, mental
+    health programs, and specialized care for vulnerable populations in Arkansas communities.
+  acronym: DHS
+  url: https://humanservices.arkansas.gov/about-dhs/
+  official: true
+  country: "us"
+url: "https://dhs.arkansas.gov/dhs/portal/Exclusions/PublicSearch/"
+data:
+  url: https://dhs.arkansas.gov/dhs/portal/exclusions/publicsearch/Download
+  format: CSV
+ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1000
+      LegalEntity: 500
+  max:
+    schema_entities:
+      Person: 2500
+      LegalEntity: 1000
+
+lookups:
+  names: 
+    normalize: true
+    options:
+      - match: Annie Ray d/b/a CareALot Day Care and Preschool
+        values: 
+          - Annie Ray
+          - CareALot Day Care and Preschool
+      - match: Carolyn Meadowa d/b/aMontessori Day Care Centerand Preschool
+        values: 
+          - Carolyn Meadowa
+          - Montessori Day Care Center and Preschool

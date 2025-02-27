@@ -5,82 +5,58 @@ from zavod import Context, helpers as h
 
 def extract_data(ele):
     data_dict = {}
-    current_key = None
 
     # Iterate through each p element
     for p in ele:
+        text_content = p.text_content().strip()
 
-        strong_tag = p.find("strong")
+        # Split on the first colon to get the key and value
+        if ":" in text_content:
+            # Extract key and value based on the first colon
+            key, value = text_content.split(":", 1)
+            key = key.strip()
+            value = value.strip()
 
-        # If we find a strong tag, then it's a new data entry
-        if strong_tag is not None:
-            current_key = strong_tag.text_content().strip().strip(":")
-            data_dict[current_key] = (
-                p.xpath("string()").replace(strong_tag.text_content(), "").strip()
-            )
-        # Otherwise, it's just a continuation of the previous one
+            # Store key-value pair in data_dict
+            data_dict[key] = value
         else:
-            if current_key:
-                data_dict[current_key] += " " + p.text_content().strip()
+            # If no colon, assume continuation of the last added key's value
+            if data_dict:
+                last_key = list(data_dict)[-1]  # Get the most recent key
+                data_dict[last_key] += " " + text_content
+
     return data_dict
 
 
 def parse_period(period: str) -> Tuple[str, str]:
-    """Given a string in the format "From DD MMMMM YYYY to DD MMMMM YYYY"
-    returns the start and end dates.
+    period = period.replace("\xa0", " ").replace("From ", "").replace(" To ", " to ")
+    start_date_str, end_date_str = period.split(" to ", 1)
 
-    Args:
-        period (str): String to be parsed
-
-    Returns:
-        start and end dates.
-    """
-
-    period = (
-        period.replace("\xa0", " ")
-        .replace("From ", "")
-        .replace(" to ", " ")
-        .replace(" To ", " ")
-    )
-
-    start_str, end_str = period.split(" ", 3)[0:3], period.split(" ", 3)[3:6]
-
-    # Join the parts back to form date strings
-    start_date_str = " ".join(start_str)
-    end_date_str = " ".join(end_str)
-
-    return start_date_str, end_date_str
+    return start_date_str.strip(), end_date_str.strip()
 
 
 def crawl_item(item: Dict[str, str], context: Context):
 
     name = item.pop("Name")
-    if item["Date of Birth"] != "Not known":
-        birth_date = h.parse_date(item.pop("Date of Birth"), formats=["%d %B %Y"])
-    else:
-        birth_date = None
-        item.pop("Date of Birth")
+    birth_date = item.pop("Date of Birth")
     address = item.pop("Address (at date of disqualification)")
 
     person = context.make("Person")
     person.id = context.make_id(name, birth_date, address)
     person.add("name", name)
-    person.add("address", address)
-    person.add("birthDate", birth_date)
     person.add("topics", "corp.disqual")
     person.add("country", "im")
+    if address != "Not known":
+        person.add("address", address)
+    h.apply_date(person, "birthDate", birth_date)
 
     sanction = h.make_sanction(context, person)
     sanction.add("duration", item.pop("Period of Disqualification"))
 
     if "Dates of Disqualification" in item:
         start_date, end_date = parse_period(item.pop("Dates of Disqualification"))
-        sanction.add(
-            "startDate", h.parse_date(start_date, formats=["%d %B %Y", "%d %b %Y"])
-        )
-        sanction.add(
-            "endDate", h.parse_date(end_date, formats=["%d %B %Y", "%d %b %Y"])
-        )
+        h.apply_date(sanction, "startDate", start_date)
+        h.apply_date(sanction, "endDate", end_date)
 
     if "Notes (if any)" in item:
         sanction.add("summary", item.pop("Notes (if any)"))
@@ -92,7 +68,7 @@ def crawl_item(item: Dict[str, str], context: Context):
             "reason", item.pop("Particulars of Disqualification Order or Undertaking")
         )
 
-    context.emit(person, target=True)
+    context.emit(person)
     context.emit(sanction)
 
     context.audit_data(

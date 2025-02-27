@@ -1,4 +1,4 @@
-from typing import Dict, Optional, List
+from typing import Dict, List
 import re
 
 from zavod import Context
@@ -6,15 +6,40 @@ from zavod import helpers as h
 
 
 REGEX_PASSPORT = re.compile(r"^[A-Z0-9-]{6,20}$")
-
-
-def parse_date(date: Optional[str]) -> List[str]:
-    if date is None:
-        return []
-    dates = set()
-    for dp in h.multi_split(date, [", "]):
-        dates.update(h.parse_date(dp[:10], ["%d-%m-%Y", "%Y-%m-%d", "%Y-%m"]))
-    return list(dates)
+ALIAS_SPLITS = [
+    "a.k.a.,",
+    "f.k.a.,",
+    "; ",
+    "f.k.a,",
+    "f.n.a.,",
+    "Formerly known as,",
+    " Good,",
+    "Formerly Known As,",
+]
+ADDRESS_SPLITS = [
+    "Branch Office 1:",
+    "Branch Office 2:",
+    "Branch Office 3:",
+    "Branch Office 4:",
+    "Branch Office 5:",
+    "Branch Office 6:",
+    "Branch Office 7:",
+    "Branch Office 8:",
+    "Branch Office 9:",
+    "Branch Office 10:",
+    "Branch Office 11:",
+    "Branch Office 12:",
+    "Branch Office 13:",
+    "Branch Office 14:",
+    "Branch Office 15:",
+    "Branch Office 16:",
+    "v)",
+    "iv)",
+    "iii)",
+    "ii)",
+    "i)",
+    "(Formerly located at)",
+]
 
 
 def clean_passports(context: Context, text: str) -> List[str]:
@@ -42,107 +67,79 @@ def clean_passports(context: Context, text: str) -> List[str]:
 
 
 def crawl_row(context: Context, data: Dict[str, str]):
-    entity = context.make("LegalEntity")
     full_name = data.pop("FullName", None)
-    ind_id = data.pop("INDIVIDUAL_Id", data.pop("IndividualID"))
-    entity.id = context.make_slug(ind_id, full_name)
+    if full_name is not None:
+        ent_id = data.pop("IndividualID")
+        schema = "Person"
+    else:
+        full_name = data.pop("FirstName")
+        ent_id = data.pop("EntityID")
+        schema = "LegalEntity"
+    entity = context.make(schema)
+    entity.id = context.make_slug(ent_id, full_name)
     assert entity.id, data
-    entity.add("notes", h.clean_note(data.pop("COMMENTS", None)))
+    entity.add("name", full_name)
+    entity.add("topics", "sanction")
     entity.add("notes", h.clean_note(data.pop("Comments", None)))
-    entity.add("notes", h.clean_note(data.pop("NOTE", None)))
-    entity.add("notes", h.clean_note(data.pop("NOTE1", None)))
-    entity.add("notes", h.clean_note(data.pop("NOTE2", None)))
-    entity.add("notes", h.clean_note(data.pop("NOTE3", None)))
-    entity.add_cast("Person", "nationality", data.pop("NATIONALITY", None))
-    entity.add_cast("Person", "nationality", data.pop("Nationality", None))
-    entity.add_cast("Person", "title", data.pop("TITLE", None))
-    entity.add_cast("Person", "title", data.pop("Title", None))
-    entity.add_cast("Person", "position", data.pop("DESIGNATION", None))
-    entity.add_cast("Person", "position", data.pop("Designation", None))
-    entity.add_cast("Person", "birthPlace", data.pop("PLACEOFBIRTH", None))
-    entity.add_cast("Person", "birthPlace", data.pop("IndividualPlaceOfBirth", None))
-    entity.add_cast("Person", "birthPlace", data.pop("CITY_OF_BIRTH", None))
-    entity.add_cast("Person", "birthDate", data.pop("YEAR", None))
-    entity.add_cast("Person", "gender", data.pop("GENDER", None))
-    entity.add_cast("Person", "birthDate", parse_date(data.pop("DATE", None)))
-    entity.add_cast("Person", "birthDate", parse_date(data.pop("DATE_OF_BIRTH", None)))
-    dob = parse_date(data.pop("IndividualDateOfBirth", None))
-    entity.add_cast("Person", "birthDate", dob)
+    if entity.schema.is_a("Person"):
+        entity.add("address", data.pop("IndividualAddress", None))
+        entity.add("nationality", data.pop("Nationality", None))
+        entity.add("title", data.pop("Title", None))
+        entity.add("position", data.pop("Designation", None))
+        entity.add("birthPlace", data.pop("IndividualPlaceOfBirth", None))
+        dob = data.pop("IndividualDateOfBirth", None)
+        h.apply_date(entity, "birthDate", dob)
 
-    data.pop("BIRTHPLACE_x0020_CITY", None)
-    data.pop("BIRTHPLACE_x0020_STATE_PROVINCE", None)
-    entity.add("country", data.pop("BIRTHPLACE_x0020_COUNTRY", None))
-    entity.add("country", data.pop("COUNTRY_OF_BIRTH", None))
-    entity.add_cast("Person", "birthPlace", data.pop("BIRTHPLACE_x0020_NOTE", None))
+        aliases = data.pop("IndividualAlias", None)
+        for alias in h.multi_split(aliases, [", ", "Good", "Low"]):
+            entity.add("alias", alias)
+        passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
+        entity.add("passportNumber", passports)
+        entity.add("idNumber", ids)
 
-    h.apply_name(
-        entity,
-        full=full_name,
-        given_name=data.pop("FIRST_NAME", None),
-        second_name=data.pop("SECOND_NAME", None),
-        name3=data.pop("THIRD_NAME", None),
-        name4=data.pop("FOURTH_NAME", None),
-        quiet=True,
-    )
-
-    alias = data.pop("NAME_ORIGINAL_SCRIPT", None)
-    if alias is not None and "?" not in alias:
-        entity.add("alias", alias)
-    entity.add("alias", data.pop("SORT_KEY", None))
-    data.pop("IndividualAlias", None)
-
-    passports, ids = clean_passports(context, data.pop("PASSPORTS", ""))
-    entity.add_cast("Person", "passportNumber", passports)
-    entity.add_cast("Person", "idNumber", ids)
-    passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
-    entity.add_cast("Person", "passportNumber", passports)
-    entity.add_cast("Person", "idNumber", ids)
-    data.pop("DATE_OF_ISSUE", None)
-    data.pop("CITY_OF_ISSUE", None)
-    entity.add("country", data.pop("COUNTRY_OF_ISSUE", None))
-    entity.add_cast("Person", "idNumber", data.pop("IDNUMBER", None))
-
-    address = h.make_address(
-        context,
-        # remarks=data.pop("NOTE"),
-        full=data.pop("IndividualAddress", None),
-        street=data.pop("STREET", None),
-        city=data.pop("CITY", None),
-        region=data.pop("STATE_PROVINCE", None),
-        postal_code=data.pop("ZIP_CODE", None),
-        country=data.pop("COUNTRY", None),
-    )
-    h.apply_address(context, entity, address)
+    if entity.schema.is_a("LegalEntity"):
+        address = data.pop("EntityAddress", None)
+        for address in h.multi_split(address, ADDRESS_SPLITS):
+            address = address.rstrip(",")
+            entity.add("address", address)
+        aliases = data.pop("EntityAlias", None)
+        for alias in h.multi_split(aliases, ALIAS_SPLITS):
+            # if we split on a comma, we will separate ", LTD" from the name
+            alias = alias.rstrip(",")
+            if "?" in alias:
+                continue
+            entity.add("alias", alias)
+    listed_on = data.pop("ListedOn", None)
+    h.apply_date(entity, "createdAt", listed_on)
 
     sanction = h.make_sanction(context, entity)
-    inserted_at = parse_date(data.pop("DateInserted", None))
-    listed_on = data.pop("ListedON", data.pop("ListedOn", None))
-    listed_at = parse_date(listed_on)
-    entity.add("createdAt", inserted_at or listed_at)
-    sanction.add("listingDate", listed_at or inserted_at)
-    sanction.add("startDate", data.pop("FROM_YEAR", None))
-    sanction.add("endDate", data.pop("TO_YEAR", None))
-    sanction.add("program", data.pop("UN_LIST_TYPE", None))
-    sanction.add("unscId", data.pop("REFERENCE_NUMBER", None))
+    h.apply_date(sanction, "listingDate", listed_on)
     sanction.add("unscId", data.pop("ReferenceNumber", None))
-    sanction.add("authority", data.pop("SUBMITTED_BY", None))
 
-    entity.add("topics", "sanction")
-    context.audit_data(data, ignore=["VERSIONNUM", "TYPE_OF_DATE", "ApplicationStatus"])
-    context.emit(entity, target=True)
+    context.audit_data(data, ignore=["ApplicationStatus"])
+    context.emit(entity)
     context.emit(sanction)
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.xml", context.data_url)
+    path = context.fetch_resource(
+        "source.xml",
+        context.data_url,
+        method="POST",
+        data={"fileType": "xml"},
+    )
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
-
-    for row in doc.findall(".//Table"):
-        data = {}
-        for field in row.getchildren():
-            value = field.text
-            if value == "NA":
-                continue
-            data[field.tag] = value
-        crawl_row(context, data)
+    tables = [".//Table", ".//Table1"]
+    for table in tables:
+        for row in doc.findall(table):
+            data = {}
+            for field in row.getchildren():
+                value = field.text
+                if value == "NA":
+                    continue
+                data[field.tag] = value
+            crawl_row(context, data)
+    potential_table = doc.find(".//Table2")
+    if potential_table is not None:
+        context.log.warning("Table2 found in source, but not yet implemented")

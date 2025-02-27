@@ -1,0 +1,90 @@
+title: US Nevada Medicaid Sanctions
+entry_point: crawler.py
+prefix: us-mednv
+coverage:
+  frequency: daily
+  start: "2024-10-16"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers who have been excluded/sanctioned from the Nevada Medicaid Program.
+description: |
+  The Nevada Department of Health and Human services maintains a list of providers
+  whose Medicaid provider agreement has been terminated. Providers listed are not allowed to receive
+  reimbursement for Medicaid services in any capacity.
+publisher:
+  name: Nevada Department of Health and Human Services Division of Health Care Financing and Policy
+  description: |
+   > The Division of Health Care Financing and Policy (DHCFP) works in partnership with the Centers
+   > for Medicare & Medicaid Services to assist in providing quality medical care for eligible
+   > individuals and families with low incomes and limited resources. Services are provided through
+   > a combination of traditional fee-for-service provider networks and managed care.
+  acronym: DHCFP
+  url: https://dhcfp.nv.gov/About/Home/
+  official: true
+  country: "us"
+ci_test: false
+url: "https://dhcfp.nv.gov/Providers/PI/PSExclusions/"
+data:
+  url: https://dhcfp.nv.gov/Providers/PI/PSExclusions/
+  format: PDF 
+
+dates:
+  formats:
+    ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 1000
+      Person: 250
+  max:
+    schema_entities:
+      LegalEntity: 1400
+      Person: 600
+
+lookups:
+  type.date:
+    options:
+      match: "7/18/2017*"
+      value: "2017-07-18"
+  type.identifier: 
+    options:
+      - match: "1679546139 1285777946"
+        values:
+          - 1679546139
+          - 1285777946
+      - match: "9005050057 9005056781"
+        prop: registrationNumber
+        values:
+          - 9005050057
+          - 9005056781
+      - match: 103340014
+        value: 1033400114
+      - match: 14071459988
+        value: 1407145998
+      - match: 1942740383
+        value: 1942743083
+      - match: 
+          - 9005001613
+          - 9005051105
+          - 9005041064
+          - 9005055163
+          - 9005041445
+          - 9005056716
+          - 9005053150
+          - 9005042013
+          - 9005055981
+          - 9005035751
+          - 9005054471
+          - 9005041585
+          - 9005055734
+          - 9005048309
+          - 9005033871
+          - 9005058712
+          - 9005058720
+          - 9005044902
+          - 9005047566
+          - 1841792790
+          - 9005050057
+          - 9005056781
+        prop: registrationNumber

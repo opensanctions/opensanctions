@@ -38,6 +38,26 @@ url: https://www.moci.gov.qa/en/anti-money-laundering-and-terrorism-financing/le
 data:
   url: "https://portal.moi.gov.qa/wps/portal/NCTC/sanctionlist/unifiedsanctionlist/!ut/p/a1/hZDLbsIwEEW_pQtv46ljIHRnLBSnTQhUkQBvKtOGYCmJU9vQ329CQarUB7ObozO6mosl3mDZqpOulNemVfWwy_FLMiWUCErSnFMGq3CWFFmYQRyPemHbCyORzmP6BIt4UsxglRNRjJ8FAbi_db_G8kthWQKEQprPea9MRSF4CBAtJxfhv4izAH8MA_yIZVWb3fmfLWt3YVRhact9aUsbHG2PD9537gEBgs5Yr-qgMTqozCl4Vwg-OnflCBa84Aical-HimrtPIJjq_e6fPsOf0s6mIH_CMBdswG9bNaRY3efJl1kaQ!!/dl5/d5/L2dBISEvZ0FBIS9nQSEh/pw/Z7_I9242H42LOC4A0Q3BITM3M0G85/res/id=getSanctionList/c=cacheLevelPage/=/?lang=en&name=&qid=&passport=&listType="
   format: JSON
+dates:
+  formats:
+    - EXACT_X_%Y_X_X
+    - APPROXIMATELY_X_%Y_X_X
+    - APPROXIMATELY_%d/%m/%Y___
+    - EXACT_%Y-%m-%d_X_X_X
+    - EXACT_%Y___
+    - EXACT_%d/%m/%Y___
+    - EXACT_%d-%m-%Y___
+    - _%d/%m/%Y___
+
+assertions:
+  min:
+    schema_entities:
+      Person: 445
+      Organization: 155
+  max:
+    schema_entities:
+      Person: 1050
+      Organization: 370
 
 lookups:
   type.country:
@@ -52,7 +72,147 @@ lookups:
         value: Indonesia
   type.date:
     options:
-      - match: 2015-03-27-04:00
-        value: 2015-03-27T04:00
-      - match: 2015-04-07-04:00
-        value: 2015-04-07T04:00
+      - match:
+          - X
+          - _X_X_X_X
+          - EXACT_X_X_X_X
+        value: null
+      - match: BETWEEN_X_X_1965_1969
+        values:
+          - 1965
+          - 1969
+      - match: _01/01/1986__1985_1986
+        values:
+          - 1986-01-01
+          - 1986
+      - match: EXACT_1986 to 1989___
+        values:
+          - 1986
+          - 1989
+      - match: EXACT_15/7/1963;1971___
+        values:
+          - 1963-07-15
+          - 1971
+      - match: BETWEEN_X_X_1955_1958
+        values:
+          - 1955
+          - 1958
+      - match: BETWEEN_X_X_1963_1968
+        values:
+          - 1963
+          - 1968
+      - match: BETWEEN_X_X_1960_1962
+        values:
+          - 1960
+          - 1962
+      - match: BETWEEN_X_X_1958_1963
+        values:
+          - 1958
+          - 1963
+      - match: BETWEEN_X_X_1968_1973
+        values:
+          - 1968
+          - 1973
+      - match: BETWEEN_X_X_1968_1973
+        values:
+          - 1968
+          - 1973
+      - match: BETWEEN_X_X_1953_1958
+        values:
+          - 1953
+          - 1958
+      - match: BETWEEN_X_X_1966_1967
+        values:
+          - 1966
+          - 1967
+      - match: EXACT_1984 to 1986___
+        values:
+          - 1984
+          - 1986
+      - match: BETWEEN_X_X_1967_1969
+        values:
+          - 1967
+          - 1969
+      - match: EXACT_حوالي 1972 ؛ 1971 ؛ 1973___
+        values:
+          - 1972
+          - 1971
+          - 1973
+      - match: EXACT_حوالي 1967 ؛  1966 ؛  1968___
+        values:
+          - 1967
+          - 1966
+          - 1968
+      - match: EXACT_01/01/1975 ؛  01/01/1974 ؛  01/01/1976___
+        values:
+          - 1975-01-01
+          - 1974-01-01
+          - 1976-01-01
+      - match: EXACT_والي 1962 ؛  1961 ؛  1963___
+        values:
+          - 1962
+          - 1961
+          - 1963
+      - match: EXACT_حوالي 1972 ؛  1971 ؛1973___
+        values:
+          - 1972
+          - 1971
+          - 1973
+      - match: BETWEEN_X_X_1962_1963
+        values:
+          - 1962
+          - 1963
+      - match: BETWEEN_X_X_1972_1973
+        values:
+          - 1972
+          - 1973
+      - match: BETWEEN_X_X_1954_1955
+        values:
+          - 1954
+          - 1955
+      - match: BETWEEN_X_X_1956_1957
+        values:
+          - 1956
+          - 1957
+      - match: BETWEEN_X_X_1940_1941
+        values:
+          - 1940
+          - 1941
+      - match: EXACT_7/9/1975; 1982___
+        values:
+          - 1975-09-07
+          - 1982
+      - match: BETWEEN_X_X_1977_1978
+        values:
+          - 1977
+          - 1978
+      - match: BETWEEN_X_X_1970_1973
+        values:
+          - 1970
+          - 1973
+      - match: BETWEEN_X_X_1975_1976
+        values:
+          - 1975
+          - 1976
+      - match: BETWEEN_X_X_1969_1971
+        values:
+          - 1969
+          - 1971
+      - match: BETWEEN_X_X_1977_1982
+        values:
+          - 1977
+          - 1982
+      - match: BETWEEN_X_X_1976_1980
+        values:
+          - 1976
+          - 1980
+      - match: BETWEEN_X_X_1975_1979
+        values:
+          - 1975
+          - 1979
+      - match: EXACT_27-11-1952 ; 5-3-1958; 18-3-1960 ; 8-12-1958___
+        values:
+          - 1952-11-27
+          - 1958-03-05
+          - 1960-03-18
+          - 1958-12-08

@@ -1,0 +1,95 @@
+type: external
+title: US FATCA Foreign Financial Institution (FFI) List
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: ua_edr
+disabled: false
+hidden: false
+prefix: fatca
+coverage:
+  frequency: weekly
+  start: "2024-11-11"
+deploy:
+  memory: "3000Mi"
+  memory_limit: "4000Mi"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+summary: >
+  All foreign financial institutions and branches with approved FATCA registration.
+description: |
+  The FFI list is issued by the IRS and includes all financial institutions, branches, direct 
+  reporting non-financial foreign entities, sponsored entities, and sponsored subsidiary branches 
+  that have submitted a registration and have been assigned a Global Intermediary Identification 
+  Number (GIIN) at the time the list was compiled. 
+
+  On the first day of each month, a complete new list is published for all entities that have an 
+  assigned and approved GIIN as of a specified cut-off date.
+  [Source](https://www.irs.gov/businesses/corporations/irs-ffi-list-faqs)
+publisher:
+  name: Internal Revenue Service
+  acronym: IRS
+  description: |
+    The IRS is a bureau of the Department of the Treasury. In the United States, the Congress passes 
+    tax laws and requires taxpayers to comply. The taxpayer’s role is to understand and meet his or 
+    her tax obligations. The IRS role is to help the large majority of compliant taxpayers with the 
+    tax law, while ensuring that the minority who are unwilling to comply pay their fair share.
+    [Source: Official Website](https://www.irs.gov/about-irs/the-agency-its-mission-and-statutory-authority)
+  country: us
+  url: https://www.irs.gov
+  official: true
+url: https://www.irs.gov/businesses/corporations/fatca-foreign-financial-institution-list-search-and-download-tool
+
+inputs:
+  - ann_graph_topics
+  - debarment
+  - ext_cy_companies
+  - ext_cz_business_register
+  - ext_ee_ariregister
+  - ext_eu_esma_firds
+  - ext_gb_coh_psc
+  - ext_gleif
+  - ext_icij_offshoreleaks
+  - ext_lv_business_register
+  - ext_md_companies
+  - ext_ru_egrul
+  - ext_ua_edr
+  - iso9362_bic
+  - opencorporates
+  - regulatory
+  - ru_cbr_banks
+  - sanctions
+  - special_interest
+
+config:
+  dataset: us_irs_ffi
+  index_options:
+    memory_budget: 2000
+  strip_namespace: true
+  fuzzy: false
+  threshold: 0.7
+  algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - debarment
+    - asset.frozen
+    - poi
+    - fin
+    - fin.bank
+    - fin.fund
+    - gov.soe
+  schemata:
+    - Company
+    - Organization
+    # - LegalEntity
+    # - Person
+  cache_days: 90
+
+assertions:
+  min:
+    schema_entities:
+      Company: 1240
+  max:
+    schema_entities:
+      Company: 2900

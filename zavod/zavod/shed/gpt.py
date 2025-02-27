@@ -6,21 +6,22 @@ from hashlib import sha1
 from pathlib import Path
 from openai import OpenAI, AzureOpenAI
 from typing import Optional, Any
-from functools import lru_cache
+from functools import cache
 
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.context import Context
+from zavod.exc import ConfigurationException
 
 log = get_logger(__name__)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
 
-@lru_cache(maxsize=1)
+@cache
 def get_client() -> OpenAI:
     """Get the OpenAI client."""
     if settings.OPENAI_API_KEY is None:
-        raise ValueError("No $OPENSANCTIONS_OPENAI_API_KEY key provided.")
+        raise ConfigurationException("No $OPENSANCTIONS_OPENAI_API_KEY key provided.")
     if settings.AZURE_OPENAI_ENDPOINT is not None:
         return AzureOpenAI(
             api_key=settings.OPENAI_API_KEY,

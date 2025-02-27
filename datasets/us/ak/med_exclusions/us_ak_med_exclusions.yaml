@@ -1,0 +1,66 @@
+title: US Alaska Medical Assistance Excluded Provider List
+entry_point: crawler.py
+prefix: us-medak
+coverage:
+  frequency: daily
+  start: "2024-10-04"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Individuals and businesses excluded from Alaska Medical Assistance Program
+description: |
+  The Alaska Department of Health publishes a list of Medical providers
+  who have been excluded from Alaska Medical Assistance Program.
+
+  > Exclusions are the result of criminal, administrative or civil
+  > adverse actions and are publicly noticed at the time of exclusion.
+  >
+  > ### EFFECTS of EXCLUSION
+  >
+  > - No payment will be made by any federal health care program for any items
+  >   or services furnished, ordered, or prescribed by an excluded individual or entity.
+  >   Federal health care programs include Medicare, Medicaid, Denali KidCare and all other
+  >   plans and programs that are federally funded, in whole or in part. If a payment is
+  >   found to have been made for services provided by an excluded individual or entity,
+  >   the payment is considered an overpayment and is subject to recovery under
+  >   42 CFR 1001.1901(b).
+  >
+  >   This payment prohibition applies to the excluded person, anyone who employs or
+  >   contracts with the excluded person, or any hospital or other facility where the
+  >   excluded person provides services. The exclusion applies regardless of who submits
+  >   the claims.
+  > - Excluded individuals and entities are published on the Alaska Medical Assistance
+  >   Excluded Provider List. Although the provider type shown on the list is the provider
+  >   type the individual or entity was at the time of exclusion, an excluded provider is
+  >   prohibited from participating or providing services in the Medicaid program in all
+  >   categories of service. The exclusion remains in effect until the individual is removed
+  >   from this list.
+publisher:
+  name: Alaska Department of Health
+  description: |
+    The Alaska Department of Health is responsible for promoting public
+    health and well-being across the state by providing healthcare services,
+    managing public health programs, and addressing issues like disease
+    prevention, healthcare access, and emergency preparedness.
+  acronym: AK-DOH
+  url: https://health.alaska.gov/Pages/default.aspx
+  official: true
+  country: "us"
+url: https://health.alaska.gov/Commissioner/Pages/ProgramIntegrity/default.aspx
+data:
+  url: https://health.alaska.gov/Commissioner/Documents/PDF/AlaskaExcludedProviderList.pdf
+  format: PDF
+
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 15
+      Person: 230
+  max:
+    schema_entities:
+      Company: 35
+      Person: 300

@@ -32,6 +32,20 @@ data:
 ci_test: false
 http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36 (zavod; opensanctions.org)
+dates: 
+  formats: ["%d/%m/%Y", "dd/mm/%Y", "XX/XX/%Y", "XX/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1090
+      LegalEntity: 370
+      Company: 15
+  max:
+    schema_entities:
+      Person: 2570
+      LegalEntity: 870
+      Company: 70
 
 lookups:
   type.date:
@@ -39,8 +53,11 @@ lookups:
     options:
       - match:
           - unknown
+          - 08/15/1977
         value: null
       - match: 45352
         value: 2023-03-02
       - match: 45429
         value: 2024-05-19
+      - match: 45625
+        value: 2024-11-29

@@ -79,12 +79,12 @@ def crawl_person(context: Context, url: str):
             person.add(prop, alias)
 
     for dob in get_element_text(doc, info_xpath("Geburtsdatum")):
-        person.add("birthDate", h.parse_date(dob, ["%d.%m.%Y"]))
+        h.apply_date(person, "birthDate", dob)
 
     for pob in get_element_text(doc, info_xpath("Geburtsort")):
         person.add("birthPlace", pob)
 
-    person.add("nationality", get_element_text(doc, info_xpath("Staatsangehörigkeit")))
+    person.add("citizenship", get_element_text(doc, info_xpath("Staatsangehörigkeit")))
     person.add("gender", get_element_text(doc, info_xpath("Geschlecht")))
 
     for offense_time in get_element_text(doc, info_xpath("Zeit")):
@@ -94,4 +94,4 @@ def crawl_person(context: Context, url: str):
     for place in get_element_text(doc, place_xpath):
         person.add("notes", f"Tatort: {place}")
 
-    context.emit(person, target=True)
+    context.emit(person)

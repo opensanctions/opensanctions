@@ -22,7 +22,9 @@ def crawl(context: Context):
             continue
         for item in node.findall(".//tr"):
             number = item.find(".//td[@class='sProvP1No']").text_content()
-            text = item.findtext(".//td[@class='sProvP1']")
+            text = item.find(".//td[@class='sProvP1']").text_content()
+            if text.startswith("[Deleted"):
+                continue
             text = text.strip().rstrip(";").rstrip(".")
             name, _ = text.split("(", 1)
             names = h.multi_split(name, ["s/o", "@"])
@@ -43,12 +45,12 @@ def crawl(context: Context):
                         entity.add(prop, value)
                     continue
                 if match.endswith("citizen"):
-                    nat = match.replace("citizen", "")
-                    entity.add("nationality", nat)
+                    cit = match.replace("citizen", "")
+                    entity.add("citizenship", cit)
                     continue
                 if match.startswith(DOB):
                     dob = match.replace(DOB, "").strip()
-                    entity.add("birthDate", h.parse_date(dob, ["%d %B %Y"]))
+                    h.apply_date(entity, "birthDate", dob)
                     continue
                 if match.startswith(PASSPORT):
                     passport = match.replace(PASSPORT, "").strip()
@@ -56,5 +58,5 @@ def crawl(context: Context):
                     continue
                 context.log.warn("Unparsed bracket term", term=match)
 
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(sanction)

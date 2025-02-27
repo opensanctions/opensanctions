@@ -1,5 +1,6 @@
 title: "Türkiye Asset Freezing Sanctions List (MASAK)"
-url: https://en.hmb.gov.tr/fcib-tf-current-list
+entry_point: crawler.py
+prefix: tr-fcib
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 coverage:
@@ -11,38 +12,37 @@ summary: >
   countries, domestic decisions, and efforts to counter the financing of proliferation
   of weapons of mass destruction.
 description: |
-    The asset freezing decisions published by the Republic of Türkiye include comprehensive 
-    lists of individuals, entities, and organizations subject to financial sanctions. These 
-    sanctions are implemented under the following categories:
-    sanctions are implemented under the following categories:
+  The asset freezing decisions published by the Republic of Türkiye include comprehensive 
+  lists of individuals, entities, and organizations subject to financial sanctions. These 
+  sanctions are implemented under the following categories:
+  sanctions are implemented under the following categories:
 
-    - United Nations Security Council Resolutions: Asset freezes pursuant to Article 5 of
-      Law No. 6415, targeting individuals and entities designated under UNSC resolutions.
-    - Requests from Foreign Countries: Asset freezes pursuant to Article 6 of Law No. 6415,
-      targeting individuals and entities based on requests made by foreign governments.
-    - Domestic Freezing Decisions: Asset freezes pursuant to Article 7 of Law No. 6415,
-      targeting individuals and entities through domestic legal actions and decisions.
-    - Countering Financing of Proliferation of Mass-Destruction Weapons: Asset freezes within
-      the scope of Articles 3.A and 3.B of Law No. 7262, aimed at preventing the financing of
-      proliferation of weapons of mass destruction
-entry_point: crawler.py
-prefix: tr-fcib
+  - United Nations Security Council Resolutions: Asset freezes pursuant to Article 5 of
+    Law No. 6415, targeting individuals and entities designated under UNSC resolutions.
+  - Requests from Foreign Countries: Asset freezes pursuant to Article 6 of Law No. 6415,
+    targeting individuals and entities based on requests made by foreign governments.
+  - Domestic Freezing Decisions: Asset freezes pursuant to Article 7 of Law No. 6415,
+    targeting individuals and entities through domestic legal actions and decisions.
+  - Countering Financing of Proliferation of Mass-Destruction Weapons: Asset freezes within
+    the scope of Articles 3.A and 3.B of Law No. 7262, aimed at preventing the financing of
+    proliferation of weapons of mass destruction
+url: https://en.hmb.gov.tr/fcib-tf-current-list
 publisher:
   name: Republic of Türkiye Ministry of Treasury and Finance - Financial Crimes Investigation Board
   acronym: MASAK
   official: true
   description: |
-     The Turkish Financial Crimes Investigation Board (MASAK), a part of the Ministry of 
-     Treasury and Finance, is responsible for preventing and combating financial crimes, 
-     including money laundering and financing of terrorism. It implements measures to freeze 
-     assets of designated individuals, entities, and organizations.
+    The Turkish Financial Crimes Investigation Board (MASAK), a part of the Ministry of 
+    Treasury and Finance, is responsible for preventing and combating financial crimes, 
+    including money laundering and financing of terrorism. It implements measures to freeze 
+    assets of designated individuals, entities, and organizations.
   country: tr
   url: https://en.hmb.gov.tr
 data:
   url: https://en.hmb.gov.tr/fcib-tf-current-list
   format: html
 dates:
-  formats: ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%d %m %Y"]
+  formats: ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%d %m %Y"]
   months:
     1: Ocak
     2: Şubat
@@ -98,7 +98,7 @@ lookups:
       - match: Almanya
         value: Germany
       - match: "IRAK SURİYE"
-        values: 
+        values:
           - Iraq
           - Syria
       - match: USSR, AZERBAIDJAN REPUBLIC
@@ -116,6 +116,10 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      - match:
+          - 645120196
+          - Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
+        value: null
       - match: 10.08..1948
         value: 1948-08-10
       - match: 1967-1969
@@ -123,82 +127,37 @@ lookups:
           - 1967
           - 1968
           - 1969
-      - match: 30 Mart 2018 (değişiklik 26 Temmuz 2022)
+      - match: değişiklik 26 Temmuz 2022)
         values:
-          - 2018-03-30
           - 2022-07-26
-      - match: 30 Mart 2018 (değişiklik 23 Mayıs 2018, 14 Eylül 2022)
+      - match: değişiklik 23 Mayıs 2018, 14 Eylül 2022)
         values:
-          - 2018-03-30
           - 2018-05-23
           - 2022-09-14
-      - match: 16 Temmuz 2009 (değişiklik 26 Temmuz 2022)
+      - match: 9 Temmuz 2018 ve 26 Temmuz 2022 tarihlerinde gözden geçirilmiştir.)
         values:
-          - 2009-07-16
-          - 2022-07-26
-      - match: 16 Temmuz 2009 (9 Temmuz 2018 ve 26 Temmuz 2022 tarihlerinde gözden geçirilmiştir.)
-        values:
-          - 2009-07-16
           - 2018-07-09
           - 2022-07-26
-      - match: 16 Temmuz 2009 (değişiklik 2 Mart 2016, 5 Haziran 2017, 26 Temmuz 2022)
+      - match: değişiklik 2 Mart 2016, 5 Haziran 2017, 26 Temmuz 2022)
         values:
-          - 2009-07-16
           - 2016-03-02
           - 2017-06-05
           - 2022-07-26
-      - match: 2 Haziran 2017 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
+      - match: 26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
         values:
-          - 2017-06-02
           - 2022-07-26
-      - match: 2 Haziran 2017 (değişiklik 26 Temmuz 2022)
+      - match: değişiklik 30 Haziran 2022)
         values:
-          - 2017-06-02
-          - 2022-07-26
-      - match: 30 Kasım 2016 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
-        values:
-          - 2016-11-30
-          - 2022-07-26
-      - match: 30 Kasım 2016 (değişiklik 26 Temmuz 2022)
-        values:
-          - 2016-11-30
-          - 2022-07-26
-      - match: 30 Kasım 2016 (değişiklik 30 Haziran 2022)
-        values:
-          - 2016-11-30
           - 2022-06-30
-      - match: 7 Mart 2013 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
-        value: 2013-03-07
-      - match: 2 Mart 2016 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
+      - match:
+          - 1 Haziran 2017 ve 26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
+          - 1 Haziran 2017 ve 26 Temmuz 2022 tarihlerinde gözden geçirilmiştir.)
         values:
-          - 2013-03-02
-          - 2022-07-26
-      - match: 2 Mart 2016 (1 Haziran 2017 ve 26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
-        values:
-          - 2016-03-02
           - 2017-06-01
           - 2022-07-26
-      - match: 2 Mart 2016 (değişiklik 26 Temmuz 2022)
+      - match: "Güncelleme: 15 Nisan 2024)"
         values:
-          - 2016-03-02
-          - 2022-07-26
-      - match: "2 Mart 2016 (Güncelleme: 15 Nisan 2024)"
-        values:
-          - 2016-03-02
           - 2024-04-15
-      - match: 2 Mart 2016 (1 Haziran 2017 ve 26 Temmuz 2022 tarihlerinde gözden geçirilmiştir.)
-        values:
-          - 2016-03-02
-          - 2017-06-01
-          - 2022-07-26
-      - match: 11 Eylül 2017 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
-        value: 2017-09-11
-      - match: 22 Aralık 2017 (26 Temmuz 2022 tarihinde gözden geçirilmiştir.)
-        value: 2017-12-22
-      - match: 5 Ağustos 2017 (değişiklik 26 Temmuz 2022)
-        value: 2017-08-05
-      - match: 28 Temmuz 2014 (değişiklik 26 Temmuz 2022)
-        value: 2014-07-28
       - match: "1 934"
         value: 1934
       - match: 25.01.l925
@@ -207,7 +166,7 @@ lookups:
         value: 1979-08-01
       - match: 6 Mayısl969
         value: 1969-05-06
-      - match: 02.2021-11.05.2017  # 9.02.2021-11.05.2017 splitter victim
+      - match: 02.2021-11.05.2017 # 9.02.2021-11.05.2017 splitter victim
         values:
           - 2021-02-09
           - 2017-11-05
@@ -227,10 +186,13 @@ lookups:
           - 1970-01-01
           - 1970-09-01
           - 1970-12-01
-      - match: 
-          - 645120196 (Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
-        value: null
-  type.identifier: 
+      - match: 24.03.2007 (17 Aralık 2014 de gözden geçirilmiştir.)
+        values:
+          - 2007-03-24
+          - 2014-12-17
+      - match: 17 Aralık 2014 de gözden geçirilmiştir.)
+        value: 2014-12-17
+  type.identifier:
     lowercase: true
     options:
       - match: 290320764 (Kore Demokratik Halk Cumhuriyeti tarafından verilmiştir.)
@@ -249,7 +211,140 @@ lookups:
         value: 472310168
       - match: 563110024 (Kore Demokratik Halk Cumhuriyeti tarafından verilmiştir.)
         value: 563110024
-      - match: 
+      - match: 645120196 (Kore Demokratik Halk Cumhuriyeti'nde verilmiştir.)
+        value: 645120196
+      - match: PS 472330208 (Expires 4 Temmuz 2017)
+        value: PS472330208
+      - match: 563120630 (20 Mart 2018’e kadar geçerli)
+        value: 563120630
+      - match: PO381230469 (6 Nisan 2016'ya kadar geçerli)
+        value: PO381230469
+      - match: 108210124 (04.06.2023’e kadar geçerli)
+        value: 108210124
+      - match: 654320502 (16 Eylül 2019 tarihinde geçerliliği sonlanıyor)
+        value: 654320502
+      - match: 654234735 (Demokratik Halk Cumhuriyeti tarafından verilmiştir.)
+        value: 654234735
+      - match: Lübnan pasaport numarası RL-2244333 -61 Niha El-Mehfara
+        value: RL-2244333
+      - match: PAS. NO 4738382
+        value: 4738382
+      - match: "Pasaport no: 750812604"
+        value: 750812604
+      - match: "Yabancı Ülke VKN: 32084989741"
+        value: 32084989741
+      - match: "Yabancı Ülke VKN: 32062675148"
+        value: 32062675148
+      - match: CT 2606145
+        value: CT2606145
+      - match: 400778686 ve A7903910
+        values:
+          - 400778686
+          - A7903910
+      - match: "TCKN: 13269139206 VKN:2940550693"
+        values:
+          - 13269139206
+          - 2940550693
+      - match: "TCKN:50755897264 VKN: 4641915128"
+        values:
+          - 50755897264
+          - 4641915128
+      - match: "TCKN:59497601696 VKN:7411610299"
+        values:
+          - 59497601696
+          - 7411610299
+      - match: "YKN:996376557350 VKN:5240949089"
+        values:
+          - 996376557350
+          - 5240949089
+      - match: "43942946562/ 1500546342"
+        values:
+          - 43942946562
+          - 1500546342
+      - match: "43951946270/ 1500300753"
+        values:
+          - 43951946270
+          - 1500300753
+      - match: "99182343852-VKN: 0680925635"
+        values:
+          - 99182343852
+          - "0680925635"
+      - match: "99175525036-VKN: 0021425288"
+        values:
+          - 99175525036
+          - "0021425288"
+      - match: "99549418728-VKN: 3302379186"
+        values:
+          - 99549418728
+          - 3302379186
+      - match: "99503251330-VKN: 3310916520"
+        values:
+          - 99503251330
+          - 3310916520
+      - match: "99931505708-VKN: 5890476039"
+        values:
+          - 99931505708
+          - 5890476039
+      - match: "99518536118-VKN: 0010991454"
+        values:
+          - 99518536118
+          - "0010991454"
+      - match: "59443589894-VKN: 4540590406"
+        values:
+          - 59443589894
+          - 4540590406
+      - match: "A12471645 (99665448944-VKN: 5480585535)"
+        values:
+          - A12471645
+          - 99665448944
+          - 5480585535
+      - match: "99685965872-VKN: 5270500406"
+        values:
+          - 99685965872
+          - 5270500406
+      - match: "99107836698-VKN: 7351158316"
+        values:
+          - 99107836698
+          - 7351158316
+      - match: "99896571824-VKN: 0011639658"
+        values:
+          - 99896571824
+          - "0011639658"
+      - match: "58231640694-99262833990-VKN: 4550783028-3311006160"
+        values:
+          - 58231640694
+          - 99262833990
+          - 4550783028
+          - 3311006160
+      - match: "99575333712-VKN: 3310567721"
+        values:
+          - 99575333712
+          - 3310567721
+      - match: "18368160700-"
+        value: 18368160700
+      - match: "A1659348-25142129-22536936-30760317-22645789"
+        values:
+          - A1659348
+          - 25142129
+          - 22536936
+          - 30760317
+          - 22645789
+      - match: "61081545392-1650607579-99890456820"
+        values:
+          - 61081545392
+          - 1650607579
+          - 99890456820
+      - match: "99633116424-7390507842-7390897787"
+        values:
+          - 99633116424
+          - 7390507842
+          - 7390897787
+      - match: "199421147-381110042-563210184"
+        values:
+          - 199421147
+          - 381110042
+          - 563210184
+      - match:
           - "Telephone: +850-2-181118208. Fax: +850-2-381-4432. Email: daesong@star-co.net.kp"
           - "Telephone: +850-2-181118208. Fax: +850-2-381-4432. Email: daesong@star-co.net.kp"
           - "Telephone: +850-218111-8550 Fax: +850-2-381-4410/4416 Email: mhs-ip@star-co.net.kp."
@@ -258,7 +353,7 @@ lookups:
   type.string:
     lowercase: true
     normalize: true
-    options: 
+    options:
       - match: "-"
         value: null
   columns:
@@ -281,13 +376,13 @@ lookups:
         value: listing_date
       - match: Diğer Bilgiler
         value: other_information
-      - match: Tüzel Kuruluş/Organizasyon Ünvanı 
+      - match: Tüzel Kuruluş/Organizasyon Ünvanı
         value: legal_entity_name
       - match:
           - ADI SOYADI-ÜNVANI
           - GERÇEK/TÜZEL KİŞİ/KURULUŞ/ORGANİZASYON ADI SOYADI ÜNVANI
-          - Gerçek Kişi Soyadı Ünvanı   # Real Person Surname Title 
-         # - Tüzel Kuruluş/Organizasyon Ünvanı # Legal Entity/Organisation Title 
+          - Gerçek Kişi Soyadı Ünvanı # Real Person Surname Title
+          # - Tüzel Kuruluş/Organizasyon Ünvanı # Legal Entity/Organisation Title
         value: name
       - match: Eski Adı
         value: previous_name
@@ -295,9 +390,9 @@ lookups:
           - TCKN-VKN-PASAPORT NO
           - TCKN/ VKN/GKN PASAPORT NO
         value: passport_number
-      - match: Pasaport No/ Diğer Muhtelif  Bilgiler   # Passport No/ Other Miscellaneous Information
+      - match: Pasaport No/ Diğer Muhtelif  Bilgiler # Passport No/ Other Miscellaneous Information
         value: passport_number_other_info
-      - match: 
+      - match:
           - UYRUĞU
           - Uyruğu
         value: nationality
@@ -313,12 +408,12 @@ lookups:
           - DOĞUM TARİHİ
           - Doğum Tarihi
         value: birth_date
-      - match: 
+      - match:
           - RESMİ GAZETE TARİH-SAYISI
           - RESMİ GAZETE TARİH SAYISI
           - R.Gazete Tarih Sayı
         value: gazette_date
-      - match: 
+      - match:
           - KULLANDIĞI BİLİNEN DİĞER İSİMLERİ
           - Kullandığı Bilinen Diğer İsmler
         value: alias
@@ -326,11 +421,11 @@ lookups:
           - TABİ OLDUĞU DİĞER UYRUKLAR
           - TABİ OLDUĞU DİĞER UYRUK
         value: other_nationality
-      - match: 
+      - match:
           - ÖRGÜTÜ
           - Örgütü
         value: organization
-      - match: 
-          - KARAR TARİH-SAYISI   # DATE-NUMBER OF DECISION
-          - BKK-CBK Karar Tarih ve Sayısı   #  Date and Number of Decision
+      - match:
+          - KARAR TARİH-SAYISI # DATE-NUMBER OF DECISION
+          - BKK-CBK Karar Tarih ve Sayısı #  Date and Number of Decision
         value: decision_date

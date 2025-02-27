@@ -1,21 +1,20 @@
 type: external
 title: Ukraine Consolidated State Registry
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: ua_edr
 disabled: false
 hidden: false
 coverage:
   frequency: never
-  schedule: "1 20 * * *"
   start: 2022-02-23
   end: 2022-02-23
 exports:
   - statistics.json
 deploy:
-  memory: "1000Mi"
-  memory_limit: "3000Mi"
+  schedule: "@monthly"
+  memory: "4500Mi"
+  memory_limit: "5000Mi"
   disk_limit: 50Gi
-  premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
@@ -54,8 +53,6 @@ publisher:
   country: ua
   official: true
 ci_test: false
-http:
-  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics
@@ -74,15 +71,9 @@ inputs:
   - sanctions
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
-  limit: 100
-  max_bin: 14
-  index_options:
-    max_candidates: 200
-    memory_budget: 50
-  api: https://api.graph.opensanctions.org/
   dataset: ua_edr
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  index_options:
+    memory_budget: 3000
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
@@ -101,4 +92,3 @@ config:
     - Organization
     # - LegalEntity
     # - Person
-  cache_days: 90

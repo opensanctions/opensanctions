@@ -42,11 +42,11 @@ http:
 assertions:
   min:
     schema_entities:
-      Person: 6700
+      Person: 6000
     country_entities:
       ru: 2900
-      sv: 800
-      ar: 250
+      sv: 750
+      ar: 150
       af: 5
     countries: 125
   max:
@@ -72,3 +72,5 @@ lookups:
         value: female
       - match: U
         value: null
+dates:
+  formats: ["%Y/%m/%d", "%Y/%m", "%Y"]

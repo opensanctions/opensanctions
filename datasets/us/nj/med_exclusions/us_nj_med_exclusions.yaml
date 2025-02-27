@@ -1,0 +1,74 @@
+title: US New Jersey Ineligible Medicaid Providers
+entry_point: crawler.py
+prefix: us-mednj
+coverage:
+  frequency: daily
+  start: "2024-11-07"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers disqualified from participating in New Jersey State's Medicaid program.
+description: |
+  > The New Jersey Medicaid Fraud Division audits and investigates health care
+  > providers, recipients, and managed care organizations (MCOs) that coordinate
+  > the provision of an individual's health care needs. MFD evaluates the care
+  > provided to Medicaid recipients and works to detect fraud, waste, and abuse
+  > in the program. The Division pursues civil and administrative enforcement
+  > actions, and, when necessary, disqualifies providers from participating in the
+  > Medicaid program.
+
+  See also the
+  [Medicaid Fraud Control Unit](https://www.njoag.gov/about/divisions-and-offices/office-of-the-insurance-fraud-prosecutor-home/medicaid-fraud-control-unit/)
+  in the New Jersey Office of the Insurance Fraud Prosecutor, and the
+  [Medical Debarment Search](https://www.nj.gov/treasury/revenue/debarment/debarsearch-medical.shtml)
+  tool at the New Jersey Treasury.
+publisher:
+  name: New Jersey Office of the State Comptroller
+  description: >
+    The New Jersey Office of the State Comptroller works to improve efficiency,
+    transparency, and analysis to the operation of all levels of government in
+    New Jersey. It has an Audit, Investigations, Medicaid Fraud, and Procurement division.
+  acronym: OIFP
+  url: https://www.njoag.gov
+  official: true
+  country: "us"
+url: "https://www.njoag.gov/about/divisions-and-offices/office-of-the-insurance-fraud-prosecutor-home/medicaid-fraud-control-unit/"
+data:
+  url: https://www.nj.gov/comptroller/doc/nj_debarment_list.pdf
+  format: PDF
+
+dates:
+  formats: ["%m/%d/%Y"]
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 3300
+  max:
+    schema_entities:
+      LegalEntity: 4000
+lookups:
+  type.date:
+    lowercase: true
+    options:
+      - match: 5/222024
+        value: 2024-05-22
+      - match:
+          - PERMANENT
+          - DECEASED
+          - N/A
+        value: null
+  type.identifier:
+    options:
+      - match: "1"
+        value: null
+      - match: 143737727
+        value: 1437373727
+      - match: 145788392
+        value: 1457883928
+      - match: 159889479
+        value: 1598889479
+      - match:
+          - 1104949149
+          - 260849555
+        prop: idNumber
+      - match: 1174803234  # looks like it could be the same person 1174803233, but not sure
+        value: null

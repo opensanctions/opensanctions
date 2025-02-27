@@ -31,11 +31,28 @@ url: "https://www.meineabgeordneten.at/Abgeordnete"
 data:
   url: https://www.meineabgeordneten.at/Abgeordnete?partei=
   format: HTML
+dates:
+  formats: ["%d. %m %Y", "%d.%m.%Y", "%m/%Y"]
+  months:
+    "01": Januar
+    "02": Februar
+    "03": März
+    "04": April
+    "05": Mai
+    "06": Juni
+    "07": Juli
+    "08": August
+    "09": September
+    "10": Oktober
+    "11": November
+    "12": Dezember
+http:
+  retry_statuses: [413, 429]
 
 assertions:
   min:
     schema_entities:
-      Person: 810
+      Person: 800
       Position: 100
     country_entities:
       at: 900
@@ -52,7 +69,13 @@ lookups:
         # zero width space... but why? how?!
       - match: heike.grebien@​parlament.gv.at,
         value: heike.grebien@parlament.gv.at
-
+  type.date: 
+    options: 
+      - match: "?"
+        value: null 
+  expected_503:
+    options:
+      - match: https://www.meineabgeordneten.at/Abgeordnete/manuela.lobnik
   position:
     options:
       - match: Mitglied des Bundesrates, ÖVPEingetreten für das am 31.5.2010 ausgeschiedene Mitglied des Bundesrates Dr. Georg Spiegelfeld-Schneeburg.

@@ -1,4 +1,3 @@
-from lxml import etree
 from normality import collapse_spaces
 from openpyxl import load_workbook
 from typing import Dict, List, Optional
@@ -10,34 +9,46 @@ from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 from zavod.shed.un_sc import Regime, get_legal_entities, get_persons, load_un_sc
 
-DATE_FORMAT = ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S"]
-
 # original link for assertion
 DOCX_LINK = "https://ms.hmb.gov.tr/uploads/sites/2/2024/08/A-BIRLESMIS-MILLETLER-GUVENLIK-KONSEYI-KARARINA-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-5.-MADDEw.docx"
-XLSX_LINKS = [
-    (
-        "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/B-YABANCI-ULKE-TALEPLERINE-ISTINADEN-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-6.-MADDE.xlsx",
-        "Asset freezes pursuant to Article 6 of Law No. 6415, targeting individuals"
-        " and entities based on requests made by foreign governments.",
+
+# Mapping of slug to full label (program) and short label
+LABEL_MAPPING = {
+    "6MADDE_ING": (
+        "Asset freezes pursuant to Article 6 of Law No. 6415, targeting individuals and entities based on requests made by foreign governments.",
         "B - Foreign government requests",
     ),
-    (
-        "https://ms.hmb.gov.tr/uploads/sites/2/2024/09/C-IC-DONDURMA-KARARI-ILE-MALVARLIKLARI-DONDURULANLAR-6415-SAYILI-KANUN-7.-MADDE-2.xlsx",
-        "Asset freezes pursuant to Article 7 of Law No. 6415, targeting individuals"
-        " and entities through domestic legal actions and decisions.",
+    "7MADDE_ING": (
+        "Asset freezes pursuant to Article 7 of Law No. 6415, targeting individuals and entities through domestic legal actions and decisions.",
         "C - Domestic legal actions",
     ),
-    (
-        "https://ms.hmb.gov.tr/uploads/sites/2/2024/05/D-7262-SAYILI-KANUN-3.A-VE-3.B-MADDELERI.xlsx",
-        "Asset freezes within the scope of Articles 3.A and 3.B of Law No. 7262,"
-        " aimed at preventing the financing of proliferation of weapons of mass destruction.",
-        "D - Prevention of proliferation of weapons of mass destruction",
+    "3A3B": (
+        "Asset freezes within the scope of Articles 3.A and 3.B of Law No. 7262, aimed at preventing the financing of the proliferation of weapons of mass destruction.",
+        "D - Prevention of weapons of mass destruction proliferation",
     ),
-]
+}
+
 
 # Exclude newlines to avoid splitting addresses unless they're numbered
 REGEX_SPLIT = re.compile(r",?\s*\b\w[\.\)]")
 REGEX_GAZZETE_DATE = re.compile(r"(\d{2}\.\d{2}\.\d{4})")
+# split only with value ##-## or ##/##
+REGEX_SPLITTABLE_PASSPORT = re.compile(
+    r"(^\d{5,}[-]\d{5,}$)|(^\d{5,}/\d{5,}(/\d{5,})?$)"
+)
+
+# https://masak.hmb.gov.tr/law-no-6415-on-the-prevention-of-the-financing-of-terrorism/#:~:text=(5)%20If%20natural%20and%20legal,following%20the%20date%20of%20request.
+# ARTICLE 5- (1) Decisions on freezing of assets under the possession of persons,
+# institutions and organisations designated through the United Nations Security
+# Council Resolutions 1267(1999), 1988 (2011), 1989 (2011) and 2253 (2015) and
+# decisions on the repeal of assets freezing for those who are de-listed shall
+# be executed without delay through the decision of the President published in
+# the Official Gazette.
+#
+# 1267 (1999) Taliban, Al-Qaida
+# 1988 (2011) Taliban
+# 1989 (2011) Al-Qaida
+# 2253 (2015) ISIL (Daesh)
 UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
 
 
@@ -45,6 +56,15 @@ def split(text: Optional[str]) -> List[str]:
     if text is None:
         return []
     return [s.strip() for s in REGEX_SPLIT.split(text)]
+
+
+def parse_passport_numbers(pass_no: Optional[str]) -> List[str]:
+    if pass_no is None:
+        return []
+    if REGEX_SPLITTABLE_PASSPORT.match(pass_no):
+        return h.multi_split(pass_no, ["-", "/"])
+    else:
+        return [pass_no]
 
 
 def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
@@ -76,8 +96,10 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
         entity.add("birthPlace", birth_place)
         h.apply_dates(entity, "birthDate", birth_dates)
         h.apply_dates(entity, "birthDate", birth_establishment_date)
-        entity.add("passportNumber", collapse_spaces(passport_other))
-        entity.add("passportNumber", collapse_spaces(pass_no))
+        entity.add(
+            "passportNumber", parse_passport_numbers(collapse_spaces(passport_other))
+        )
+        entity.add("passportNumber", parse_passport_numbers(collapse_spaces(pass_no)))
         entity.add("position", row.pop("position", ""))
         entity.add("motherName", mother_name)
         entity.add("fatherName", father_name)
@@ -85,7 +107,17 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name, birth_place, nationality, passport_other)
         entity.add("name", row.pop("legal_entity_name", ""))
-        entity.add("idNumber", collapse_spaces(passport_other))
+        id_number = collapse_spaces(passport_other)
+        if id_number is not None and len(id_number) > 0:
+            if id_number.startswith("IMO number:"):
+                id_number = id_number.replace("IMO number:", "").strip()
+                entity.add_schema("Organization")
+                entity.add("imoNumber", id_number)
+            elif id_number.startswith("SWIFT/BIC:"):
+                id_number = id_number.replace("SWIFT/BIC:", "").strip()
+                entity.add("swiftBic", id_number)
+            else:
+                entity.add("idNumber", id_number)
         h.apply_dates(entity, "incorporationDate", birth_establishment_date)
         entity.add("description", row.pop("position", ""))
         entity.add("country", nationality)
@@ -95,17 +127,22 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
     entity.add("previousName", split(row.pop("previous_name", "")))
     entity.add("address", split(row.pop("address", "")))
     entity.add("notes", row.pop("other_information", ""))
-    entity.add("topics", "sanction")
+    entity.add("topics", "sanction.counter")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("description", row.pop("sanction_type", ""))
     sanction.add("reason", row.pop("organization", ""))
     sanction.add("program", program)  # depends on the xlsx file
     sanction.add("sourceUrl", url)
-    h.apply_date(sanction, "listingDate", row.pop("listing_date", None))
+    listing_date = row.pop("listing_date", "")
+    if listing_date is not None:
+        listing_dates = listing_date.replace("\n", " ").split(" (", 1)
+        h.apply_date(sanction, "listingDate", listing_dates[0])
+        # Reviewed, revised
+        h.apply_dates(sanction, "date", listing_dates[1:])
     h.apply_date(sanction, "listingDate", gazette_date)
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(row, ignore=["sequence_no", "decision_date"])
 
@@ -124,51 +161,74 @@ def crawl_xlsx(context: Context, url: str, program: str, short_name: str):
             crawl_row(context, row, program, url)
 
 
-def unblock_validator(doc: etree._Element) -> bool:
-    return doc.find('.//table[@class="table table-bordered"]') is not None
-
-
 def crawl(context: Context):
     # Use browser to render javascript-based frontend
-    doc = fetch_html(context, context.data_url, unblock_validator, cache_days=3)
+    table_xpath = './/table[@class="table table-bordered"]'
+    doc = fetch_html(context, context.data_url, table_xpath, cache_days=3)
     doc.make_links_absolute(context.data_url)
-    table = doc.find('.//table[@class="table table-bordered"]')
+    table = doc.find(table_xpath)
     category_urls = [link.get("href") for link in table.findall(".//a")]
 
-    found_links = set()
+    # Ensure exactly 4 links are found
+    if len(category_urls) != 4:
+        context.log.warning(
+            f"Expected to find 4 category URLs, but found {len(category_urls)}"
+        )
 
+    found_bcd_links = []
+
+    # Process each category URL
     for url in category_urls:
-        section_doc = fetch_html(context, url, unblock_validator, cache_days=3)
-
-        # Determine whether to search for .docx or .xlsx based on URL
         if "5madde_ing" in url:
-            doc_links = section_doc.xpath('//a[contains(@href, ".docx")]')
-        else:
-            doc_links = section_doc.xpath('//a[contains(@href, ".xlsx")]')
+            # Skip the "A" section (UN Security Council list)
+            context.log.info("Skipping A section (UN Security Council list)")
+            continue
 
-        for doc_link in doc_links:
-            found_links.add(doc_link.get("href"))
+        # Fetch the content of the section
+        section_doc = fetch_html(context, url, table_xpath, cache_days=3)
+        doc_links = section_doc.xpath('//a[contains(@href, ".xlsx")]')
 
-    expected_links = set([DOCX_LINK, *(link for link, _, _ in XLSX_LINKS)])
-    # Check if new links have appeared
-    new_links = found_links - expected_links
-    assert not new_links, f"Unexpected links found: {new_links}"
-    # Check if all expected links are found
-    missing_links = expected_links - found_links
-    assert not missing_links, f"Expected links not found: {missing_links}"
+        # Expect exactly one .xlsx link in each section
+        if len(doc_links) != 1:
+            context.log.warning(
+                f"Expected to find 1 .xlsx link in section {url}, but found {len(doc_links)}"
+            )
 
-    # the actual crawling part if all links are verified
-    context.log.info("Fetching data from the provided XLSX links")
-    for url, program, short in XLSX_LINKS:
-        context.log.info(f"Processing URL: {url}")
+        # Extract the link
+        doc_link = doc_links[0].get("href")
+
+        # Extract the slug (e.g., 6MADDE_ING) from the filename or URL structure
+        slug = url.split("/")[-1].upper()
+
+        # Ensure we have a mapping for the letter
+        if slug not in LABEL_MAPPING:
+            context.log.error(f"Unexpected slug found: {slug}")
+            continue
+
+        # Get the program and short label from the mapping
+        program, short_label = LABEL_MAPPING[slug]
+
+        # Log and store the found links
+        context.log.info(f"Processing {short_label} - URL: {doc_link}")
+        found_bcd_links.append((doc_link, program, short_label))
+
+    # Ensure we found exactly 3 links for B, C, and D sections
+    if len(found_bcd_links) != 3:
+        context.log.warning(
+            f"Expected to find 3 (6MADDE_ING, 7MADDE_ING, 3A3B) sections, but found {len(found_bcd_links)}"
+        )
+
+    # Process each found link
+    for url, program, short in found_bcd_links:
+        context.log.info(f"Processing URL: {url} - Program: {program}")
+        # Call the crawl_xlsx function to process the link
         crawl_xlsx(context, url, program, short)
+
     context.log.info("Finished processing the Excel files")
 
     # UN Security Council stubs
     un_sc, doc = load_un_sc(context)
-
     for _node, entity in get_persons(context, un_sc.prefix, doc, UN_SC_PREFIXES):
-        context.emit(entity, target=True)
-
+        context.emit(entity)
     for _node, entity in get_legal_entities(context, un_sc.prefix, doc, UN_SC_PREFIXES):
-        context.emit(entity, target=True)
+        context.emit(entity)

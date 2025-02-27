@@ -5,7 +5,7 @@ from followthemoney.property import Property
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset, get_catalog
-from zavod.dedupe import get_resolver
+from zavod.integration import get_resolver
 from zavod.store import get_store
 
 log = get_logger(__name__)

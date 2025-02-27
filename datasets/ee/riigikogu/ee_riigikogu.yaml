@@ -26,3 +26,11 @@ url: "https://www.riigikogu.ee/en/parliament-of-estonia/composition/members-riig
 data:
   url: https://www.riigikogu.ee/en/parliament-of-estonia/composition/members-riigikogu/
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 90
+  max:
+    schema_entities:
+      Person: 120

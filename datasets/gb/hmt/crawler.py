@@ -1,14 +1,21 @@
 from typing import Optional, Dict, Any, List
 from banal import first
-from normality import stringify, collapse_spaces
+
 from rigour.mime.types import XML
 from followthemoney.util import join_text
+import re
 
 from zavod import Context
 from zavod import helpers as h
 
-FORMATS = ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
-COUNTRY_SPLIT = ["(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", ". "]
+NUMBER_SPLITS = [f"({x})" for x in range(1, 50)]
+PUNCTUATION_SPLITS = [". ", ", "]
+REGEX_POSTCODE = re.compile(r"\d+")
+# Intentionally single digit except zero to try and reduce false positives
+# that might occur in phone numbers, e.g. +44(0)82123456
+# or based on real example "(Fax): +375 (17) 123-45-67  (Tel): +375 (17) 234-56-78"
+REGEX_PHONE_SPLIT = re.compile(r"\([1-9]\) |\. |, ")
+
 
 TYPES = {
     "Individual": "Person",
@@ -29,10 +36,27 @@ NAME_TYPES = {
     "FKA": "previousName",
 }
 
+REG_NO_TYPES = {
+    "INN": ("LegalEntity", "innCode"),
+    "KPP": ("Company", "kppCode"),
+    "OGRN": ("LegalEntity", "ogrnCode"),
+    "Russia INN": ("LegalEntity", "innCode"),
+    "Russia KPP": ("Company", "kppCode"),
+    "Russia OGRN": ("LegalEntity", "ogrnCode"),
+    "Russia TIN": ("LegalEntity", "taxNumber"),
+    "TIN": ("LegalEntity", "taxNumber"),
+    "Tax ID No.": ("LegalEntity", "taxNumber"),
+    "UK Company no.": ("LegalEntity", "registrationNumber"),
+}
+REG_NO_TYPES_PATTERN = "|".join(re.escape(k) for k in REG_NO_TYPES.keys())
+REGEX_REG_NO_TYPES = re.compile(
+    rf"^(?P<type>{REG_NO_TYPES_PATTERN})\s*[: –-]\s*(?P<value>\d+)$"
+)
+
 
 def parse_countries(text: Any) -> List[str]:
     countries: List[str] = []
-    for country in h.multi_split(text, COUNTRY_SPLIT):
+    for country in h.multi_split(text, NUMBER_SPLITS + [". "]):
         country_ = h.remove_bracketed(country)
         if country_ is not None:
             countries.append(country)
@@ -51,59 +75,66 @@ def parse_companies(context: Context, value: Optional[str]):
     return result.values
 
 
-def split_items(text, comma=False):
-    text = stringify(text)
-    if text is None:
-        return []
-    items = []
-    rest = str(text)
-    for num in range(50):
-        parts = rest.split(f"({num})")
-        if len(parts) > 1:
-            match = collapse_spaces(parts[0])
-            if match is not None and len(match):
-                items.append(match)
-            rest = parts[1]
-    if comma and text == rest:
-        items = text.split(",")
-    return items
-
-
-def split_new(text):
-    # It's 2022 and they can't multi-value a thing...
-    return h.multi_split(text, [". ", ", "])
-
-
 def split_reg_no(text: str):
+    text = text.replace("Tax Identification Number: INN", "; INN")
+    text = text.replace("INN:", "; INN:")
+    text = text.replace("TIN:", "; TIN:")
+    text = text.replace("OGRN:", "; OGRN:")
+    text = text.replace("KPP:", "; KPP:")
     text = text.replace("Tax ID No", "; Tax ID No")
+    text = text.replace("Tax ID:", "; Tax ID:")
+    text = text.replace("Tax ID", "; Tax ID")
     text = text.replace("Government Gazette Number", "; Government Gazette Number")
     text = text.replace("Legal Entity Number", "; Legal Entity Number")
     text = text.replace(
         "Business Identification Number", "; Business Identification Number"
     )
     text = text.replace("Tax Identification Number", "; Tax Identification Number")
-    return [s.strip() for s in h.multi_split(text, [";", "(1)", "(2)", "(3)"])]
+    return h.multi_split(text, NUMBER_SPLITS + [";", " / "])
+
+
+def id_reg_no(value: str):
+    match = REGEX_REG_NO_TYPES.match(value)
+    if match is None:
+        return "LegalEntity", "registrationNumber", value
+    schema, prop = REG_NO_TYPES[match.group("type")]
+    return schema, prop, match.group("value")
+
+
+def split_phone(text: str):
+    # Splits on (1) ... (2) ... if there's more than one index to avoid splitting
+    # when it's just an optional part of the number in parens.
+    values = REGEX_PHONE_SPLIT.split(text)
+    if len(values) > 2:
+        return values
+    return [text]
 
 
 def parse_row(context: Context, row: Dict[str, Any]):
     group_type = row.pop("GroupTypeDescription")
+    listing_date = row.pop("DateListed")
+    designated_date = row.pop("DateDesignated", None)
+    last_updated = row.pop("LastUpdated")
+    regime_name = row.pop("RegimeName")
+
     schema = TYPES.get(group_type)
     if schema is None:
         context.log.error("Unknown group type", group_type=group_type)
         return
     entity = context.make(schema)
     entity.id = context.make_slug(row.pop("GroupID"))
-    sanction = h.make_sanction(context, entity)
-    sanction.add("program", row.pop("RegimeName"))
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program=regime_name,
+        program_key=regime_name,
+        start_date=designated_date,
+    )
     sanction.add("authority", row.pop("ListingType", None))
-    listed_date = h.parse_date(row.pop("DateListed"), FORMATS)
-    sanction.add("listingDate", listed_date)
-    designated_date = h.parse_date(row.pop("DateDesignated", None), FORMATS)
-    sanction.add("startDate", designated_date)
-
-    entity.add("createdAt", listed_date)
+    h.apply_date(sanction, "listingDate", listing_date)
+    h.apply_date(entity, "createdAt", listing_date)
     if not entity.has("createdAt"):
-        entity.add("createdAt", designated_date)
+        h.apply_date(entity, "createdAt", designated_date)
 
     sanction.add("authorityId", row.pop("UKSanctionsListRef", None))
     sanction.add("unscId", row.pop("UNRef", None))
@@ -112,20 +143,20 @@ def parse_row(context: Context, row: Dict[str, Any]):
     sanction.add("summary", row.pop("GroupSanctions", None))
     sanction.add("modifiedAt", row.pop("DateAdditionalSanctions", None))
 
-    last_updated = h.parse_date(row.pop("LastUpdated"), FORMATS)
-    sanction.add("modifiedAt", last_updated)
-    entity.add("modifiedAt", last_updated)
+    h.apply_date(sanction, "modifiedAt", last_updated)
+    h.apply_date(entity, "modifiedAt", last_updated)
 
     # TODO: derive topics and schema from this??
     entity_type = row.pop("Entity_Type", None)
     entity.add_cast("LegalEntity", "legalForm", entity_type)
 
-    reg_number = row.pop("Entity_BusinessRegNumber", "")
-    entity.add_cast("LegalEntity", "registrationNumber", split_reg_no(reg_number))
-
+    orig_reg_number = row.pop("Entity_BusinessRegNumber", "")
+    for reg_no in split_reg_no(orig_reg_number):
+        schema, prop, value = id_reg_no(reg_no)
+        entity.add_cast(schema, prop, value, original_value=orig_reg_number)
     row.pop("Ship_Length", None)
     entity.add_cast("Vessel", "flag", row.pop("Ship_Flag", None))
-    flags = split_new(row.pop("Ship_PreviousFlags", None))
+    flags = h.multi_split(row.pop("Ship_PreviousFlags", None), PUNCTUATION_SPLITS)
     entity.add_cast("Vessel", "pastFlags", flags)
     entity.add_cast("Vessel", "type", row.pop("Ship_Type", None))
     entity.add_cast("Vessel", "tonnage", row.pop("Ship_Tonnage", None))
@@ -148,14 +179,17 @@ def parse_row(context: Context, row: Dict[str, Any]):
     countries = parse_countries(row.pop("Country", None))
     entity.add("country", countries)
 
-    title = split_items(row.pop("Title", None))
+    text = row.pop("Title", None)
+    title = h.multi_split(text, NUMBER_SPLITS)
     entity.add("title", title, quiet=True)
 
-    pobs = split_items(row.pop("Individual_TownOfBirth", None))
+    pobs = h.multi_split(row.pop("Individual_TownOfBirth", None), NUMBER_SPLITS)
     entity.add_cast("Person", "birthPlace", pobs)
 
-    dob = h.parse_date(row.pop("Individual_DateOfBirth", None), FORMATS)
-    entity.add_cast("Person", "birthDate", dob)
+    dob = row.pop("Individual_DateOfBirth", None)
+    if dob is not None:
+        entity.add_schema("Person")
+        h.apply_date(entity, "birthDate", dob)
 
     cob = parse_countries(row.pop("Individual_CountryOfBirth", None))
     entity.add_cast("Person", "birthCountry", cob)
@@ -163,7 +197,7 @@ def parse_row(context: Context, row: Dict[str, Any]):
     nationalities = parse_countries(row.pop("Individual_Nationality", None))
     entity.add_cast("Person", "nationality", nationalities)
 
-    positions = split_items(row.pop("Individual_Position", None))
+    positions = h.multi_split(row.pop("Individual_Position", None), NUMBER_SPLITS)
     entity.add_cast("Person", "position", positions)
 
     entity.add_cast("Person", "gender", row.pop("Individual_Gender", None))
@@ -193,49 +227,62 @@ def parse_row(context: Context, row: Dict[str, Any]):
     )
     entity.add("alias", row.pop("NameNonLatinScript", None))
 
+    post_code, po_box = h.postcode_pobox(row.pop("PostCode", None))
+    if post_code is not None and not REGEX_POSTCODE.search(post_code):
+        city = post_code
+        post_code = None
+    else:
+        city = None
     full_address = join_text(
+        po_box,
         row.pop("Address1", None),
+        city,
         row.pop("Address2", None),
         row.pop("Address3", None),
         row.pop("Address4", None),
         row.pop("Address5", None),
         row.pop("Address6", None),
+        post_code,
         sep=", ",
     )
 
     country_name = first(countries)
     if country_name == "UK":  # Ukraine is a whole thing, people.
         country_name = "United Kingdom"
+
     address = h.make_address(
         context,
         full=full_address,
-        postal_code=row.pop("PostCode", None),
+        postal_code=post_code,
+        po_box=po_box,
+        city=city,
         country=country_name,
     )
     h.apply_address(context, entity, address)
 
     passport_number = row.pop("Individual_PassportNumber", None)
-    passport_numbers = split_items(passport_number)
+    passport_numbers = h.multi_split(passport_number, NUMBER_SPLITS)
     entity.add_cast("Person", "passportNumber", passport_numbers)
     row.pop("Individual_PassportDetails", None)
     # passport_details = split_items(passport_detail)
     # TODO: where do I stuff this?
 
     ni_number = row.pop("Individual_NINumber", None)
-    ni_numbers = split_items(ni_number)
+    ni_numbers = h.multi_split(ni_number, NUMBER_SPLITS)
     entity.add_cast("Person", "idNumber", ni_numbers)
     row.pop("Individual_NIDetails", None)
     # ni_details = split_items(ni_detail)
     # TODO: where do I stuff this?
 
-    for phone in split_new(row.pop("PhoneNumber", None)):
-        entity.add_cast("LegalEntity", "phone", phone)
-
-    for email in split_new(row.pop("EmailAddress", None)):
-        entity.add_cast("LegalEntity", "email", email)
-
-    for website in split_new(row.pop("Website", None)):
-        entity.add_cast("LegalEntity", "website", website)
+    phones = row.pop("PhoneNumber", "")
+    for phone in REGEX_PHONE_SPLIT.split(phones):
+        entity.add_cast("LegalEntity", "phone", phone, original_value=phones)
+    emails = row.pop("EmailAddress", None)
+    for email in h.multi_split(emails, PUNCTUATION_SPLITS + NUMBER_SPLITS):
+        entity.add_cast("LegalEntity", "email", email, original_value=emails)
+    websites = row.pop("Website", None)
+    for website in h.multi_split(websites, PUNCTUATION_SPLITS):
+        entity.add_cast("LegalEntity", "website", website, original_value=websites)
 
     parent_names = row.pop("Entity_ParentCompany", None)
     for name in parse_companies(context, parent_names):
@@ -281,12 +328,12 @@ def parse_row(context: Context, row: Dict[str, Any]):
             wallet.add("publicKey", key)
             wallet.add("topics", "sanction")
             wallet.add("holder", entity.id)
-            context.emit(wallet, target=True)
+            context.emit(wallet)
 
     context.audit_data(row, ignore=["NonLatinScriptLanguage", "NonLatinScriptType"])
 
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 
@@ -309,6 +356,5 @@ def crawl(context: Context):
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     el = h.remove_namespace(doc)
-
     for row_el in el.findall(".//FinancialSanctionsTarget"):
         parse_row(context, make_row(row_el))

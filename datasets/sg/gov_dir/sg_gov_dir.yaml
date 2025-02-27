@@ -1,0 +1,131 @@
+title: Singapore Government Directory
+entry_point: crawler.py
+prefix: sg-gov
+coverage:
+  frequency: weekly
+  start: 2024-10-23
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+summary: >
+  Senior officials of ministries, statutory boards and other public bodies in Singapore.
+description: |
+  This dataset lists senior officials of ministries, statutory boards and agencies, and
+  other public bodies, such as judicial and financial oversight institutions.
+
+  Their names and roles within their respective institutions are included along with source
+  URLs for additional context where available.
+publisher:
+  name: Singapore Government Directory
+  acronym: SGD
+  description: |
+    The Singapore Government Directory is an online information service designed 
+    to enhance communication between the public and public service entities. 
+    It facilitates access to essential information about government ministries, 
+    statutory boards, and various public services.
+
+    The directory aims to provide a transparent overview of the roles and 
+    responsibilities of public officials, promoting greater engagement between the 
+    government and citizens.
+  url: https://www.sgdi.gov.sg
+  country: sg
+  official: true
+url: https://www.sgdi.gov.sg
+data:
+  url: https://www.sgdi.gov.sg/statutory-boards
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 11000
+  max:
+    schema_entities:
+      Person: 24000
+
+lookups:
+  type.email:
+    lowercase: true
+    normalize: true
+    options:
+      - match: amelia_tang@pmo@gov.sg
+        value: amelia_tang@pmo.gov.sg
+      - match: kiat_tan@nparks.gov.sg / kiat.tan@gardensbythebay.com.sg
+        values:
+          - kiat_tan@nparks.gov.sg
+          - kiat.tan@gardensbythebay.com.sg
+      - match: desmond_choo@pa.gov.sg / desmond_choo@ntuc.org.sg
+        values:
+          - desmond_choo@pa.gov.sg
+          - desmond_choo@ntuc.org.sg
+      - match: Ng_huck_hui@hq.a-star. edu.sg
+        value: Ng_huck_hui@hq.a-star.edu.sg
+
+  # Determine a default assumed PEP status based just on "rank", e.g. "Deputy Director"
+  # used for new positions. This can be overridden in the position categorisation database.
+  rank_default_pep_status:
+    lowercase: true
+    normalize: true
+    options:
+      - is_pep: false
+        weight: 1000
+        contains:
+          - quality service manager
+          - teacher
+          - lecturer
+          - educator
+          - consultant
+          - partner
+          - scientist
+          - engineer
+          - counsellor
+          - analyst
+          - guidance officer
+          - welfare officer
+          - statistician
+          - feedback
+          - hotline
+        regex:
+          - "^pa to"
+          - "^personal assistant"
+          - "^secretary to"
+          - "^please contact"
+          - "^administrative professional"
+          - "^manager"
+
+      - is_pep: true
+        wight: 10
+        contains:
+          - minister
+          - permanent secretary
+          - president
+          - member
+          - executive officer
+          - executive manager
+          - executive engineer
+          - lead executive
+          - director
+          - chairman
+          - ceo
+          - mayor
+          - auditor-general
+          - audit manager
+          - justice
+          - judge
+          - deputy chief
+          - deputy secretary
+          - senior parliamentary secretary
+          - chief prosecutor
+          - head of secretariat
+          - senior adviser
+          - senior executive
+          - senior auditor
+          - senior head
+          - senior finance manager
+          - ambassador
+          - chief executive
+          - dean
+          - commander
+
+        regex:
+          - "chief .+ officer"
+          - "^executive manager"

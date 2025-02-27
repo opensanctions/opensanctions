@@ -1,0 +1,52 @@
+title: US West Virginia Medicaid Provider Exclusions and Terminations
+entry_point: crawler.py
+prefix: us-medwv
+coverage:
+  frequency: daily
+  start: "2024-10-04"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medicaid providers sanctioned in West Virginia's Medicaid program.
+description: |
+  The West Virginia Medicaid Management Information System maintains a list of providers
+  who have been terminated or excluded from the state Medicaid program. Providers listed
+  are not allowed to receive reimbursement for Medicaid services in any capacity.
+publisher:
+  name: Medicaid Management Information System
+  description: |
+    The West Virginia Medicaid Management Information System (WVMMIS) is a computerized system that
+    processes and manages Medicaid claims and related data for the state of West Virginia.
+  acronym: MMIS
+  url: https://www.wvmmis.com/default.aspx
+  official: true
+  country: "us"
+ci_test: false
+url: "https://www.wvmmis.com/WV%20Medicaid%20Provider%20SanctionedExclusion/Forms/AllItems.aspx"
+data:
+  url: https://www.wvmmis.com/WV%20Medicaid%20Provider%20SanctionedExclusion/Forms/AllItems.aspx
+  format: PDF
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 1
+      Person: 100
+  max:
+    schema_entities:
+      Company: 15
+      Person: 200
+lookups: 
+  type.identifier:
+    options:
+      - match:
+          - N/A
+          - NPI
+          - eactivated
+          - Deactivated
+          - CMS
+          - eactivated NPI
+        value: null
+      - match: 1386736031D
+        value: 1386736031

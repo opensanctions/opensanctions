@@ -44,8 +44,44 @@ data:
   lang: msa
 http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36" (zavod; opensanctions.org)
+dates:
+  formats: ["%d %B %Y", "%d %b %Y", "%d.%m.%Y"]
+  months:
+    May: Mei
+    February: Februari
+    August: Ogos
+
+assertions:
+  min:
+    schema_entities:
+      Person: 65
+      Organization: 20
+  max:
+    schema_entities:
+      Person: 200
+      Organization: 50
 
 lookups:
+  columns:
+    options:
+      - match: design_ation
+        value: designation
+      - match:
+          - idetification_card_number
+          - idetificationcard_number
+          - identification_card_number
+        value: id_number
+      - match:
+          - date_ofbirth
+        value: date_of_birth
+      - match: referen_ce
+        value: reference
+      - match: nationalit_y
+        value: nationality
+      - match: date_0f_listed
+        value: date_of_listed
+      - match: other_names
+        value: other_name
   type.country:
     options:
       - match:
@@ -65,6 +101,9 @@ lookups:
           - Filipina (Pemastautin Tetap di Malaysi
           - Filipina (Pemaustautin Tetap di Malaysia)
           - Filipina (Pemastautin Tetap di Malaysia)
+          - Filipina (Pemasautin Tetap di Malaysia)
+          - Filipina (PemastautinTetap di Malaysia)
+          - Philippines (Permanent Resident in Malaysia)
         value: Philippines
       - match:
           - Pemastautin Tetap di Malaysia
@@ -72,7 +111,10 @@ lookups:
         value: Malaysia
   type.date:
     options:
-      - match: 20.02.1976 13.02.1975 15.02.1976 07.01.1977
+      - match:
+          - 20.02.1976 13.02.1975 15.02.1976 07.01.1977
+          - "20.02.197613.02.197515.02.197607.01.1977"
+          - "20.2.197613.2.197515.2.19767.1.1977"
         values:
           - 1976-02-20
           - 1975-02-13

@@ -29,7 +29,7 @@ def is_not_nil(value: Any) -> bool:
 
 
 def crawl_collabos(
-    context, person: Entity, uid: str, mandat: Dict[str, Any]
+    context: Context, person: Entity, uid: str, mandat: Dict[str, Any]
 ) -> Iterator[Entity]:
     """Add staff (parliamentry collaborators) as associates."""
     collabos = mandat.pop("collaborateurs")
@@ -48,7 +48,9 @@ def crawl_collabos(
         prefix = c.pop("qualite")
         first_name = c.pop("prenom")
         last_name = c.pop("nom")
-        collabo.id = context.make_slug(uid, "collabo", prefix, first_name, last_name)
+        collabo.id = context.make_slug(
+            uid, "collabo", prefix, first_name, last_name, strict=False
+        )
         h.apply_name(
             collabo,
             prefix=prefix,
@@ -59,7 +61,9 @@ def crawl_collabos(
         yield collabo
 
         link = context.make("Associate")
-        link.id = context.make_slug(uid, "associate", prefix, first_name, last_name)
+        link.id = context.make_slug(
+            uid, "associate", prefix, first_name, last_name, strict=False
+        )
         link.set("person", person)
         link.set("associate", collabo)
         link.set("relationship", "collaborateur")
@@ -102,7 +106,7 @@ def crawl_acteur(context, data: Dict[str, Any]):
     birth = ec.pop("infoNaissance")
     dob = birth.pop("dateNais")
     if is_not_nil(dob):
-        person.set("birthDate", h.parse_date(dob, ["%Y-%m-%d"]))
+        h.apply_date(person, "birthDate", dob)
     city = birth.pop("villeNais")
     if is_not_nil(city):
         person.set("birthPlace", city)
@@ -113,7 +117,7 @@ def crawl_acteur(context, data: Dict[str, Any]):
     context.audit_data(birth, ["depNais"])
     dod = ec.pop("dateDeces")
     if is_not_nil(dod):
-        person.set("deathDate", h.parse_date(dod, ["%Y-%m-%d"]))
+        h.apply_date(person, "deathDate", dod)
     context.audit_data(ec)
 
     # We'll include this URL in the data as it's quite useful
@@ -166,7 +170,7 @@ def crawl_acteur(context, data: Dict[str, Any]):
                 entities.extend(crawl_collabos(context, person, uid_text, mandat))
     if entities:
         context.log.debug(f"Emitting PEP entities for {uid_text}")
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         for entity in entities:
             context.emit(entity)

@@ -62,35 +62,24 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
             sanction.add("sourceUrl", url)
             sanction.add("listingDate", year)
 
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(sanction)
         else:
             context.log.warning("Cannot parse item", item=item_text)
 
 
-def report_unblock_validator(doc: ElementOrTree) -> bool:
-    return len(doc.xpath(".//section[@class='entry-content']")) > 0
-
-
 def crawl_report(context: Context, url: str):
     context.log.info(f"Crawling {url}")
-    doc = fetch_html(context, url, report_unblock_validator, cache_days=1)
-    for section in doc.findall(".//section[@class='entry-content']"):
+    sections_xpath = ".//section[@class='entry-content']"
+    doc = fetch_html(context, url, sections_xpath, cache_days=1)
+    for section in doc.findall(sections_xpath):
         crawl_section(context, url, section)
 
 
-def index_unblock_validator(doc: ElementOrTree) -> bool:
-    return len(doc.xpath(".//nav[@id='report-nav']")) > 0
-
-
 def crawl(context: Context) -> Optional[str]:
-    doc = fetch_html(
-        context,
-        context.data_url,
-        index_unblock_validator,
-        cache_days=1,
-    )
-    for option in doc.find(".//nav[@id='report-nav']").xpath(".//option"):
+    options_xpath = ".//nav[@id='report-nav']"
+    doc = fetch_html(context, context.data_url, options_xpath, cache_days=1)
+    for option in doc.find(options_xpath).xpath(".//option"):
         url = option.get("value")
         if url != "":
             crawl_report(context, url)

@@ -3,26 +3,19 @@ from typing import Dict
 import zavod.helpers as h
 from zavod import Context
 
-# Define constants for date parsing
-DATE_FORMATS = ["%Y-%m-%d", "%Y"]
-
 
 def crawl_row(context: Context, row: Dict[str, str]):
-    """Process one row of the CSV data"""
     original_name = row.get("Original Name")
     name_in_brackets = row.get("Name in Brackets")
-    birth_date = h.parse_date(row.get("Birth Date"), DATE_FORMATS)
     country = row.get("Country")
     source_url = row.get("Source URL")
 
     # Create a Person entity
     entity = context.make("Person")
-    entity.id = context.make_slug(original_name, birth_date)
-
-    # Add names
+    entity.id = context.make_id(original_name, name_in_brackets)
     entity.add("name", original_name, lang="lav")
     entity.add("name", name_in_brackets, lang="eng")
-    entity.add("birthDate", birth_date)
+    h.apply_date(entity, "birthDate", row.get("Birth Date"))
     entity.add("country", country, lang="eng")
     entity.add("topics", "sanction")
 
@@ -35,7 +28,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         sanction.add("sourceUrl", source_url.strip())
 
     # Emit entities
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

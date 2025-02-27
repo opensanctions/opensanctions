@@ -1,0 +1,60 @@
+title: US Louisiana Department of Health Adverse Actions List
+entry_point: crawler.py
+prefix: us-medla
+coverage:
+  frequency: daily
+  start: "2024-11-07"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers excluded from Louisiana's Medicaid program.
+description: |
+  This dataset contains individuals and entities excluded from Louisiana state medicaid program.
+  According to their website:
+
+  > Any person or entity is prohibited from participation in Medicaid if excluded, to include:
+  > employment directly or indirectly, contracting, or ownership. Doing so while excluded is
+  > violation and is considered a crime under LA R.S. 14:126.3.1 (2009). Although the stated
+  > period of time for the exclusion may have passed, this does not imply reinstatement. After
+  > the exclusion period has ended the excluded party may submit a written application for
+  > reinstatement. Resumption of participation in the Medicaid Program following exclusion is
+  > neither automatic nor a right. Applications for reinstatement will be reviewed by the
+  > state and given fair and impartial consideration. La.-R.S. 46:437.13 (C) (2008).
+
+  Entities on this list due to the OIG LEIE are not re-listed in this dataset.
+publisher:
+  name: Louisiana Department of Health
+  description: |
+    > The Louisiana Department of Health protects and promotes health and ensures access to
+    > medical, preventive and rehabilitative services for all citizens of the state of Louisiana.
+  acronym: LDH
+  url: https://ldh.la.gov
+  official: true
+  country: "us"
+url: "https://adverseactions.ldh.la.gov/SelSearch/"
+data:
+  url: https://adverseactions.ldh.la.gov/SelSearch/SelSearch/Export
+  format: CSV
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%Y %I:%M:%S %p"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 200
+      Person: 3000
+  max:
+    schema_entities:
+      Company: 350
+      Person: 3800
+
+lookups:
+  type.date:
+    options:
+      match: 9199-09-01T00:00:00
+      value: 1999-09-01
+  type.identifier: 
+    options:
+      - match: 1992888493
+        prop: registrationNumber

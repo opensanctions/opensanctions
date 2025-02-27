@@ -35,9 +35,20 @@ publisher:
   official: true
 url: "https://www.fic.gov.za/International/sanctions/SitePages/Home.aspx"
 data:
-  url: https://transfer.fic.gov.za/public/folder/XNK-dueZDUma9kOqjPWrAA/Downloads/Consolidated%20United%20Nations%20Security%20Council%20Sanctions%20List.xml
+  url: https://tfs.fic.gov.za/Pages/TFSListDownload?fileType=xml
   format: XML
 
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 175
+      Person: 650
+  max:
+    schema_entities:
+      LegalEntity: 230
+      Person: 900
+dates: 
+  formats: ["%d-%m-%Y"]
 lookups:
   type.address:
     lowercase: true
@@ -69,6 +80,66 @@ lookups:
           - Haut-Uolo Democratic Republic of the Congo
           - Mbomou Central African Republic
           - Kafia Kingi, Vakaga Central African Republic
+      - match: 30a Put Mladih Muslimana (ex Pavla Lukaca Street) 71 000 Sarajevo   Bosnia and Herzegovina, 42 Muhameda Hadzijahica Sarajevo   Bosnia and Herzegovina, 70 and 53 Strosmajerova Street Zenica   Bosnia and Herzegovina, 72 ul. Strossmajerova Zenica   Bosnia and Herzegovina, Zlatnih Ljiljana Street Zavidovici   Bosnia and Herzegovina
+        values:
+          - 30a Put Mladih Muslimana (ex Pavla Lukaca Street) 71 000 Sarajevo   Bosnia and Herzegovina
+          - 42 Muhameda Hadzijahica Sarajevo   Bosnia and Herzegovina
+          - 70 and 53 Strosmajerova Street Zenica   Bosnia and Herzegovina
+          - 72 ul. Strossmajerova Zenica   Bosnia and Herzegovina
+          - Zlatnih Ljiljana Street Zavidovici   Bosnia and Herzegovina
+      - match: 302b-40, Good Earth Court, Opposite Pia Planitarium, Block 13a, Gulshan -l Igbal, Karachi, Pakistan; Phone 4979263, 605 Landmark Plaza, 11 Chundrigar Road, Opposite Jang Building, Karachi, Pakistan; Phone 2623818-19, 617 Clifton Center, Block 5, 6th Floor, Clifton, Karachi, Pakistan; Phone 587-2545, Jamia Maajid, Sulalman Park, Melgium Pura Lahore   Pakistan, Jamia Masjid, Sulaiman Park, Begum Pura, Lahore, Pakistan; Phone 042-6812081, Kitab Ghar, Darul Ifta Wal Irshad, Nazimabad No. 4, Karachi, Pakistan, Phone 6683301; Phone 0300-8209199; Fax 6623814, Kitas Ghar, Nazimabad 4, Dahgel-Iftah Karachi   Pakistan, Office Dharbi-Munin ZR Brothers, Katcherry Road, Chowk Yadgaar, Peshawar, Pakistan, Office Dharbi-Munin, Opposite Khyber Bank, Abbottabad Road, Mansehra, Pakistan, Office Dharbi-Munin, Rm No. 3, Moti Plaza, Near Liaquat Bagh, Muree Road, Rawalpindi, Pakistan, Office Dharbi-Munin, Top Floor, Dr. Dawa Khan Dental Clinic Surgeon, Main Baxae, Mingora, Swat, Pakistan
+        values:
+          - 302b-40, Good Earth Court, Opposite Pia Planitarium, Block 13a, Gulshan -l Igbal, Karachi, Pakistan
+          - 605 Landmark Plaza, 11 Chundrigar Road, Opposite Jang Building, Karachi, Pakistan
+          - 617 Clifton Center, Block 5, 6th Floor, Clifton, Karachi, Pakistan
+          - Jamia Maajid, Sulalman Park, Melgium Pura Lahore   Pakistan
+          - Jamia Masjid, Sulaiman Park, Begum Pura, Lahore, Pakistan
+          - Kitab Ghar, Darul Ifta Wal Irshad, Nazimabad No. 4, Karachi, Pakistan
+          - Kitas Ghar, Nazimabad 4, Dahgel-Iftah Karachi   Pakistan
+          - Office Dharbi-Munin ZR Brothers, Katcherry Road, Chowk Yadgaar, Peshawar, Pakistan
+          - Office Dharbi-Munin, Opposite Khyber Bank, Abbottabad Road, Mansehra, Pakistan
+          - Office Dharbi-Munin, Rm No. 3, Moti Plaza, Near Liaquat Bagh, Muree Road, Rawalpindi, Pakistan
+          - Office Dharbi-Munin, Top Floor, Dr. Dawa Khan Dental Clinic Surgeon, Main Baxae, Mingora, Swat, Pakistan
+      - match: 9838 S. Roberts Road, Suite 1W Palos Hills Illinois  United States of America 60465, 8820 Mobile Avenue, IA Oak Lawn Illinois  United States of America 60453, Bangladesh, Gaza Strip, P.O. Box 1937 Khartoum   Sudan, P.O. Box 548 Worth Illinois  United States of America 60482, Yemen
+        values:
+          - 9838 S. Roberts Road, Suite 1W Palos Hills Illinois  United States of America 60465
+          - 8820 Mobile Avenue, IA Oak Lawn Illinois  United States of America 60453
+          - Bangladesh
+          - Gaza Strip
+          - P.O. Box 1937 Khartoum   Sudan
+          - P.O. Box 548 Worth Illinois  United States of America 60482
+          - Yemen
+      - match: c/o Reconnaissance General Bureau Headquarters, Hyongjesan-Guyok Pyongyang   Democratic Peoples Republic of Korea, Nungrado Pyongyang   Democratic Peoples Republic of Korea, Rakrang No. 1 Rakrang District Pyongyang Korea, Chilgol-1 dong, Mangyongdae District Pyongyang   Democratic Peoples Republic of Korea
+        values:
+          - c/o Reconnaissance General Bureau Headquarters, Hyongjesan-Guyok Pyongyang   Democratic Peoples Republic of Korea
+          - Nungrado Pyongyang   Democratic Peoples Republic of Korea
+          - Rakrang No. 1 Rakrang District Pyongyang Korea
+          - Chilgol-1 dong, Mangyongdae District Pyongyang   Democratic Peoples Republic of Korea
+      - match: 'Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com'
+        values: 
+          - Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
+      - match: Afghanistan/Pakistan border area previous location, Idlib, Aleppo and Khama operation zone Syrian Arab Republic, Not known Faryab Badghis and Jawzjan Provinces  Afghanistan, Not known Khan-Shaykhun  53 km south of Idlib, location as of March 2018  Syrian Arab Republic
+        values:
+          - Afghanistan/Pakistan border area previous location
+          - Idlib, Aleppo and Khama operation zone Syrian Arab Republic
+          - Not known Faryab Badghis and Jawzjan Provinces  Afghanistan
+          - Not known Khan-Shaykhun  53 km south of Idlib, 
+          - location as of March 2018  Syrian Arab Republic
+      - match: 'Basse-Kotto    Central African Republic, Bas-Uolo    Democratic Republic of the Congo, Haute-Kotto    Central African Republic, Haut-Mbomou    Central African Republic, Haut-Uolo    Democratic Republic of the Congo, Mbomou    Central African Republic, Reported address: Kafia Kingi (a territory on the border of Sudan and South Sudan whose final status has yet to be determined).    As of January 2015, 500 Lords Resistance Army elements were reportedly expelled from the Sudan., Vakaga    Central African Republic'
+        values:
+          - Basse-Kotto Central African Republic
+          - Bas-Uolo Democratic Republic of the Congo
+          - Haute-Kotto Central African Republic
+          - Haut-Mbomou Central African Republic
+          - Haut-Uolo Democratic Republic of the Congo
+          - Mbomou Central African Republic
+          - 'Reported address: Kafia Kingi (a territory on the border of Sudan and South Sudan whose final status has yet to be determined).'
+          - Vakaga Central African Republic
+      - match: Changwang Street, Pyongyang    Democratic Peoples Republic of Korea, Chung-Guyok (Central District), Sosong Street, Kyongrim-Dong, Pyongyang    Democratic Peoples Republic of Korea, Second KWP Government Building (Korean - Chongsa, Urban Town (Korean-Dong), Chung Ward, Pyongyang    Democratic Peoples Republic of Korea
+        values:
+          - Changwang Street, Pyongyang Democratic Peoples Republic of Korea
+          - Chung-Guyok (Central District), Sosong Street, Kyongrim-Dong, Pyongyang Democratic Peoples Republic of Korea
+          - Second KWP Government Building (Korean - Chongsa, Urban Town (Korean-Dong), Chung Ward, Pyongyang Democratic Peoples Republic of Korea
   type.country:
     lowercase: true
     normalize: true
@@ -97,3 +168,8 @@ lookups:
     options:
       - match: Central African Republic armed forces (FACA) Military identification number 911-10-77
         value: FACA 911-10-77
+  type.name: 
+    options: 
+      - match: 
+          - None
+        value: null

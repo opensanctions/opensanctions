@@ -1,0 +1,64 @@
+title: US Washington State Provider Termination and Exclusion List
+entry_point: crawler.py
+prefix: us-medwa
+coverage:
+  frequency: daily
+  start: "2024-10-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers terminated or excluded from Washington State's Medicaid program.
+description: |
+  This dataset includes individuals or entities whose participation in the Medicaid
+  program has been terminated for cause under the provision of WAC 182-502-0030 (HCA)
+  or 388-113-0020; 388-113-0030; 388-71-0540 (DSHS) and Medicaid providers who have
+  been excluded from participation (see 42 CFR 1001).
+publisher:
+  name: Washington State Health Care Authority
+  description: |
+    > HCA purchases and coordinates health care services including behavioral health
+    > treatment for more than 2.7 million Washington residents and provides behavioral
+    > health prevention, crisis, and recovery supports to all Washington residents.
+  acronym: HCA
+  url: https://www.hca.wa.gov/about-hca
+  official: true
+  country: "us"
+url: "https://www.hca.wa.gov/billers-providers-partners/become-apple-health-provider/provider-termination-and-exclusion-list"
+data:
+  url: https://www.hca.wa.gov/billers-providers-partners/become-apple-health-provider/provider-termination-and-exclusion-list
+  format: XLSX
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 200
+  max:
+    schema_entities:
+      LegalEntity: 300
+lookups: 
+  type.identifier:
+    options:
+      - match: None
+        value: null
+      - match:
+          - 5203772500
+          - 5203772700
+          - 1011436
+          - 5203773400
+          - 5203774100
+          - 5203774300
+          - 5203774400
+          - 5203774700
+          - 5203775000
+          - 5203774900
+          - 5203775900
+          - 5203775500
+          - 5203776600
+          - 5203776700
+          - 5203776900
+          - 5203777000
+          - 5108966100
+          - 5203777500
+          - 5203772800
+          - 5203772900
+          - 5203773900
+        prop: registrationNumber

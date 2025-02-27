@@ -1,0 +1,123 @@
+---
+name: pl_wanted
+title: Poland Wanted Persons
+entry_point: crawler.py
+prefix: pl-wanted
+coverage:
+  frequency: daily
+  start: 2025-02-06
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Wanted and suspect persons list of the Police of Poland
+description: |
+  Dataset with name, crime and status (suspect or wanted) published
+  by the Police of Poland.
+  Additional characteristic features of the wanted individuals are available at the source URL.
+publisher:
+  name: Policja
+  name_en: Police of Poland
+  description: |
+    Policja is the Polish national civilian police force. It is a primary law enforcement agency in the country,
+    tasked with providing public safety and order, investigating and preventing crime.
+  country: pl
+  official: true
+  url: https://www.policja.pl
+data:
+  url: https://poszukiwani.policja.gov.pl/pos/form/5,Poszukiwani.html
+  format: HTML
+  lang: pol
+ci_test: false  # It's too slow to visit 50k pages in CI
+
+assertions:
+  min:
+    schema_entities:
+      Person: 40000
+  max:
+    schema_entities:
+      Person: 100000
+
+lookups:
+  type.gender:
+    options:
+      - match: mężczyzna
+        value: male
+      - match: kobieta
+        value: female
+  type.country:
+    options:
+      - match:
+          - NIEUSTALONE  # unknown
+          - BEZPAŃSTWOWIEC  # stateless
+        value:
+      - match: BEZPAŃSTWOWIEC ESTONIA
+        value: EE
+      - match: RPA  # REPUBLIKA POŁUDNIOWEJ AFRYKI
+        value: ZA
+      - match: CEJLON
+        value: LK
+      - match: ZAIR
+        value: CD
+      - match: ALBANIA MACEDONIA
+        values: [AL, MK]
+      - match: ARMENIA ROSJA
+        values: [AM, RU]
+      - match: ARMENIA UKRAINA
+        values: [AM, UA]
+      - match: AUSTRIA ROSJA
+        values: [AT, RU]
+      - match: BELGIA ROSJA
+        values: [BE, RU]
+      - match: BIAŁORUŚ BEZPAŃSTWOWIEC
+        values: [BY]
+      - match: FRANCJA GRUZJA
+        values: [FR, GE]
+      - match: FRANCJA KAMERUN
+        values: [FR, CM]
+      - match: FRANCJA LIBAN
+        values: [FR, LB]
+      - match: GRUZJA ROSJA
+        values: [GE, RU]
+      - match: KAZACHSTAN NIEMCY
+        values: [KZ, DE]
+      - match: KAZACHSTAN UKRAINA
+        values: [KZ, UA]
+      - match: LITWA MOŁDAWIA
+        values: [LT, MD]
+      - match: MOŁDAWIA RUMUNIA
+        values: [MD, RO]
+      - match: NIEMCY BUŁGARIA
+        values: [DE, BG]
+      - match: NIEMCY JUGOSŁAWIA
+        values: [DE, YU]
+      - match: NIEMCY ROSJA
+        values: [DE, RU]
+      - match: NIEMCY UKRAINA
+        values: [DE, UA]
+      - match: ROSJA UKRAINA
+        values: [RU, UA]
+      - match: RUMUNIA MOŁDAWIA
+        values: [RO, MD]
+      - match: RUMUNIA UKRAINA
+        values: [RO, UA]
+      - match: UKRAINA ARMENIA
+        values: [UA, AM]
+      - match: UKRAINA GRUZJA
+        values: [UA, GE]
+      - match: UKRAINA MOŁDAWIA RUMUNIA
+        values: [UA, MD, RO]
+      - match: UKRAINA MOŁDAWIA
+        values: [UA, MD]
+      - match: UKRAINA ROSJA
+        values: [UA, RU]
+      - match: UKRAINA WIELKA BRYTANIA
+        values: [UA, GB]
+      - match: WIELKA BRYTANIA IZRAEL
+        values: [GB, IL]
+      - match: WIETNAM TURCJA
+        values: [VN, TR]
+      - match: WĘGRY UKRAINA
+        values: [HU, UA]
+      - match: IRLANDIA BIAŁORUŚ
+        values: [IE, BY]
+      - match: SYJAM
+        value: TH

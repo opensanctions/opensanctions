@@ -5,59 +5,47 @@ from zavod import Context, helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
-    npiCode = row.pop("national_provider_identifier_npi")
+    first_name = row.pop("provider_individual_first_name")
+    business_name = row.pop("business_name")
+    npi = row.pop("national_provider_identifier_npi")
     sector = row.pop("provider_individual_type")
     reason = row.pop("exclusion_sanction_reason")
     # There is one line with multiple dates, we are only going to consider the first one
-    startDate = h.parse_date(
-        row.pop("exclusion_sanction_effective_date").split(" ")[0],
-        formats=["%Y-%m-%d", "%m/%d/%Y"],
-    )
+    startDate = row.pop("exclusion_sanction_effective_date").split(" ")[0]
 
-    if first_name := row.pop("provider_individual_first_name"):
+    if first_name:
         person = context.make("Person")
-        person.id = context.make_id(first_name, npiCode)
+        person.id = context.make_id(first_name, npi)
         h.apply_name(
             person,
             first_name=first_name,
             last_name=row.pop("provider_individual_last_name"),
         )
+        person.add("alias", business_name)
         person.add("country", "us")
-        person.add("npiCode", npiCode if npiCode and npiCode.lower() != "n/a" else None)
+        person.add("npiCode", npi if npi and npi.lower() != "n/a" else None)
         person.add("sector", sector)
         person.add("topics", "debarment")
         person_sanction = h.make_sanction(context, person)
         person_sanction.add("reason", reason)
-        person_sanction.add("startDate", startDate)
+        h.apply_date(person_sanction, "startDate", startDate)
 
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(person_sanction)
-    if business_name := row.pop("business_name"):
+    if business_name and not first_name:
         company = context.make("Company")
-        company.id = context.make_id(business_name, npiCode)
+        company.id = context.make_id(business_name, npi)
         company.add("name", business_name)
         company.add("country", "us")
-        company.add(
-            "npiCode", npiCode if npiCode and npiCode.lower() != "n/a" else None
-        )
+        company.add("npiCode", npi if npi and npi.lower() != "n/a" else None)
         company.add("sector", sector)
         company.add("topics", "debarment")
         company_sanction = h.make_sanction(context, company)
         company_sanction.add("reason", reason)
-        company_sanction.add("startDate", startDate)
+        h.apply_date(company_sanction, "startDate", startDate)
 
-        context.emit(company, target=True)
+        context.emit(company)
         context.emit(company_sanction)
-
-    if first_name and business_name:
-        link = context.make("UnknownLink")
-        link.id = context.make_id(person.id, company.id)
-        link.add("object", company)
-        link.add("subject", person)
-        link.add("role", "d/b/a")
-
-        context.emit(link)
 
     context.audit_data(row)
 

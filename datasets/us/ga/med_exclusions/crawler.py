@@ -1,7 +1,8 @@
 from typing import Dict
-from rigour.mime.types import XLSX
+
 from openpyxl import load_workbook
 
+from rigour.mime.types import XLSX
 from zavod import Context, helpers as h
 
 
@@ -21,7 +22,12 @@ def crawl_item(row: Dict[str, str], context: Context):
     else:
         entity = context.make("Person")
         entity.id = context.make_id(first_name, last_name, row.get("npi"))
-        h.apply_name(entity, first_name=first_name, last_name=last_name)
+        h.apply_name(
+            entity,
+            first_name=first_name,
+            middle_name=row.pop("middle_name", None),
+            last_name=last_name,
+        )
 
     if row.get("npi"):
         entity.add("npiCode", row.pop("npi"))
@@ -31,9 +37,9 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("sector", row.pop("general"))
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("startDate", h.parse_date(row.pop("sancdate"), formats=["%Y%m%d"]))
+    h.apply_date(sanction, "startDate", row.pop("sancdate"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row, ignore=["state"])

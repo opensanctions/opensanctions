@@ -1,0 +1,63 @@
+title: US Tennessee Terminated Providers List
+entry_point: crawler.py
+prefix: us-medtn
+coverage:
+  frequency: daily
+  start: "2024-10-15"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers terminated from Tennessee's Medicaid program.
+description: |
+  The TennCare Office of Program Integrity maintains a list of providers
+  whose Medicaid provider agreement has been terminated.  According to the
+  [TennCare Policy Manual](https://www.tn.gov/content/dam/tn/tenncare/documents2/pi11-002.pdf):
+
+  > All TennCare contractors, subcontractors, and providers are required to screen
+  > their owners, employees, and subcontractors both initially and on an ongoing
+  > monthly basis, against the HHS-OIG List of Excluded Individuals/Entities (LEIE),
+  > General Services Administration (GSA) System for Award Management (SAM), and the
+  > TennCare Terminated Provider List to identify individuals and entities excluded
+  > or debarred from participating in federal health care programs. According to the
+  > terms of TennCare’s managed care contracts, MCCs are prohibited from executing
+  > provider agreements with providers who have been excluded from participation in
+  > federal health care programs pursuant to sections 1128 and 1156 of the Social
+  > Security Act. Furthermore, the MCCs’ provider agreements require that providers
+  > do not employ or contract with any individual or entity that has been excluded
+  > or debarred.
+
+publisher:
+  name: TennCare Office of Program Integrity
+  description: >
+    > The Office of Program Integrity (OPI) is responsible for the prevention,
+    detection and investigation of alleged provider fraud, waste and/or abuse.
+    OPI collaborates with the Managed Care Contractors (MCCs), law enforcement,
+    and various state and federal agencies to ensure regulatory compliance and
+    accountability and protects the financial and health care service integrity
+    of the TennCare program.
+  acronym: OPI
+  url: https://www.tn.gov/tenncare.html
+  official: true
+  country: "us"
+url: "https://www.tn.gov/tenncare/fraud-and-abuse/program-integrity.html"
+data:
+  url: https://www.tn.gov/content/dam/tn/tenncare/documents/terminatedproviderlist.pdf
+  format: PDF
+ci_test: false
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 7
+      Company: 3
+  max:
+    schema_entities:
+      Person: 20
+      Company: 20
+
+lookups:
+  type.identifier:
+    options:
+      - match: N/A
+        value: null

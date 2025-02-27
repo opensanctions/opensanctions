@@ -6,18 +6,27 @@ coverage:
   start: 2021-11-11
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
-  The EBRD published integrity sanctions. The entities and individuals listed
-  are ineligible to become a Bank Counterparty for the periods indicated
+  Entities that have been declared ineligible to become EBRD counterparties due to fraud, 
+  corruption, collusion, or other prohibited practices.
 description: |
-  The EBRD presents several separate tables of ineligble entities, including 
-  one with cross-debarred entities, those originated within EBRD, and sanctions
-  resulting from third-party finding. It's unclear if these overlap.
+  This dataset lists entities and individuals that are ineligible to participate in 
+  EBRD-financed projects. It includes detailed information such as the firm names, 
+  addresses, periods of ineligibility, and the specific prohibited practices they were 
+  involved in (e.g., fraud, corruption, collusion). The EBRD presents several separate 
+  tables of ineligble entities, including one with cross-debarred entities, those originated 
+  within EBRD, and sanctions resulting from third-party finding. It's unclear if these 
+  overlap.
 publisher:
   name: "European Bank for Reconstruction and Development"
   acronym: EBRD
   description: |
-    The European Bank for Reconstruction and Development (EBRD) was founded in 1991
-    to create a new post-Cold War era in central and eastern Europe.
+    Founded in 1991, the EBRD provides project financing mainly for private enterprises, 
+    usually together with other commercial lending partners, in countries that are committed 
+    to, and apply, democratic principles. It also works with public partners to support 
+    privatisation, restructuring and improvement of municipal services. It does this by 
+    financing investments, providing business services and getting involved in high-level 
+    policy dialogue in these countries to support private sector development.
+    [Source](https://economy-finance.ec.europa.eu/investment-support/coordination-european-financial-institutions/coordination-european-bank-reconstruction-and-development_en)
   country: zz
   url: https://ebrd.com/
   official: true
@@ -25,9 +34,103 @@ url: https://www.ebrd.com/ineligible-entities.html
 data:
   url: https://www.ebrd.com/ineligible-entities.html
   format: HTML
-
+dates:
+  formats: ["%d %b %Y", "%d-%b-%Y", "%d %B %Y", "%d/%m/%Y"]
+  months:
+    "Sep": "Sept"
+    "Jul": "July"
 lookups:
   type.country:
     options:
-      match: Republic of Türkiye
-      value: tr
+      - match: Republic of Türkiye
+        value: tr
+      - match: Kyrgz Republic
+        value: kg
+      - match: Iraq (Islamic Republic of)
+        value: iq
+      - match: Lao Peoples Democratic Republic
+        value: la
+      - match: "Indonesia Indonesia"
+        value: id
+      - match: USA United States of America
+        value: us
+      - match:
+          - "China China"
+          - Peoples Republic of China
+        value: cn
+  type.date:
+    normalize: true
+    lowercase: true 
+    options:
+      - match: 
+          - Ongoing
+          - Indefinite
+          - Permanent
+        value: null
+  type.address: 
+    options: 
+      - match: Xom Bo, Commune Thanh Liet District Thanh Tri Hanoi VIET NAM Room 3016, Building B Vinaconex Building Nguyen Xien Dai Kim Ward Hoang Mai District Hanoi 100000 VIET NAM No. 14, TT6B Urban West Nam Linh Dam Hoang Mai Hanoi 100000 VIET NAM No. 2/20, Lane 255 Hope Street Dong Tam Ward Hai Ba Trung District Hanoi VIET NAM
+        values: 
+          - Xom Bo, Commune Thanh Liet District Thanh Tri Hanoi VIET NAM
+          - Room 3016, Building B Vinaconex Building Nguyen Xien Dai Kim Ward Hoang Mai District Hanoi 100000 VIET NAM
+          - No. 14, TT6B Urban West Nam Linh Dam Hoang Mai Hanoi 100000 VIET NAM
+          - No. 2/20, Lane 255 Hope Street Dong Tam Ward Hai Ba Trung District Hanoi VIET NAM
+      - contains: "Avenida Paulista, 1499 Cjs. 1106/07/08/09 01311-928 Sao Paulo Brazil Counsel: Raquel Lamboglia Guimaraes Manesco, Ramires, Perez, Azevedo Marques Sociedade de Advogados Ed. Santa Catarina. Av. Paulista, 287 7 andar. CEP 01311-000, Sao Paulo SP Brazil"
+        values: 
+          - 'Avenida Paulista, 1499 Cjs. 1106/07/08/09 01311-928 Sao Paulo Brazil'
+          - 'Av. Paulista, 287 7 andar. CEP 01311-000, Sao Paulo SP Brazil'
+      - match: Xom Bo, Commune Thanh Liet District Thanh Tri Hanoi VIET NAM Room 3016, Building B, Vinaconex Building Nguyen Xien (Phòng 3016 Tòa B Vinaconex 2 Nguyễn Xiển) Dai Kim Ward, Hoang Mai District (Phường Đại Kim, Quận Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 14, TT6B Urban West Nam Linh Dam, Hoang Mai (Số 14, TT6B Khu đô thị Tây Nam Linh Đàm, Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 2/20, Lane 255, Hope Street (Số 2/20, Ngõ 255, Phố Vọng) Dong Tam Ward, Hai Ba Trung District, Hanoi (Phường Đồng Tâm, Quận Hai Bà Trưng, Hà Nội) VIET NAM
+        values: 
+          - Xom Bo, Commune Thanh Liet District Thanh Tri Hanoi VIET NAM
+          - Room 3016, Building B, Vinaconex Building Nguyen Xien (Phòng 3016 Tò Tòa B Vinaconex 2 Nguyễn Xiển)
+          - Dai Kim Ward, Hoang Mai District (Phường Đại Kim, Quận Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM
+          - No. 14, TT6B Urban West Nam Linh Dam, Hoang Mai (Số 14, TT6B Khu đô thị Tây Nam Linh Đàm, Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM
+          - No. 2/20, Lane 255, Hope Street (Số 2/20, Ngõ 255, Phố Vọng) Dong Tam Ward, Hai Ba Trung District, Hanoi (Phường Đồng Tâm, Quận Hai Bà Trưng, Hà Nội) VIET NAM
+      - match: 70 North Chezhan Road, Wan Xiang Xin Tian Building, Furong District, Changsha, Hunan 410007 Station Road No. 70, Wan, Xiang Xin Tian Business Mansion 5, Building No. 31, 32f, Furong District, Changsha, Hunan 23 Chengnanzhong Road, Rongan Building 5th Floor, Changsha, Hunan
+        values: 
+          - 70 North Chezhan Road, Wan Xiang Xin Tian Building, Furong District, Changsha, Hunan 410007
+          - Station Road No. 70, Wan, Xiang Xin Tian Business Mansion 5, Building No. 31, 32f, Furong District, Changsha, Hunan
+          - 23 Chengnanzhong Road, Rongan Building 5th Floor, Changsha, Hunan
+      - contains: "#27 KING’S COLLEGE CIRCLE TORONTO ONTARIO M5S1A1 CANADA 31BT, PHUM SANSAM KOSAL 1 BOENG TUMPUN MEAN CHEY PHNOM PENH 12351 CAMBODIA #17 KHOUNBOULOM BOAD CHANTHABOURY VIENTIANE CAPITAL LAO PDR 5TH FLOOR SENTINAL PLACE BUILDING 41B LY THAI TO ST. HANOI VIETNAM #12 (0), PHI THU LANE 7 MILE, MAYANGONE OWNSHIP YANGON MYANMAR"
+        values: 
+          - "27 KING’S COLLEGE CIRCLE TORONTO ONTARIO M5S1A1 CANADA"
+          - 31BT, PHUM SANSAM KOSAL 1 BOENG TUMPUN MEAN CHEY PHNOM PENH 12351 CAMBODIA
+          - '17 KHOUNBOULOM BOAD CHANTHABOURY VIENTIANE CAPITAL LAO PDR'
+          - '5TH FLOOR SENTINAL PLACE BUILDING 41B LY THAI TO ST. HANOI VIETNAM'
+          - '12 (0), PHI THU LANE 7 MILE, MAYANGONE OWNSHIP YANGON MYANMAR'
+      - match: No.21, Jiangsu East Road Caomiaoiaozi Town Weihai Lingang Economic and Technological Development Zone Shandong Province China Previous address No.271-1 Eastern Kaiyuan Road Lingang Economic and Technological Development Zone Weihai Shandong Province China
+        values: 
+          - No.21, Jiangsu East Road Caomiaoiaozi Town Weihai Lingang Economic and Technological Development Zone Shandong Province China
+          - No.271-1 Eastern Kaiyuan Road Lingang Economic and Technological Development Zone Weihai Shandong Province China
+      - match: Currently Unknown. Previously:- Flat 3, 48 Mikroraion Zhetysu-2 Street, Almaty 040512, Kazakhstan
+        value: Flat 3, 48 Mikroraion Zhetysu-2 Street, Almaty 040512, Kazakhstan
+      - match: Currently Unknown. Previously:- Flat 2, 94 Zenkova Street, Almaty 050010, Kazakhstan
+        value: Flat 2, 94 Zenkova Street, Almaty 050010, Kazakhstan
+      - match: Currently Unknown. Previously:- Office 305, No. 56A, Samal-2 District, Almaty 050051, Kazakhstan
+        value: Office 305, No. 56A, Samal-2 District, Almaty 050051, Kazakhstan
+      - match: Currently Unknown. Previously:- 4th floor, No. 56A, Samal-2 District, Almaty 050059, Kazakhstan
+        value: 4th floor, No. 56A, Samal-2 District, Almaty 050059, Kazakhstan
+  type.name: 
+    normalize: true
+    lowercase: true
+    options: 
+      - match:
+          - "Mr. Farkhad Akhmedzhanovich Amraev and any entity controlled directly or indirectly by Mr. Farkhad Akhmedzhanovich Amraev, which was established (i.e. in existence) on or before 31 December 2019"
+          - "Mr. Farkhad Akhmedzhanovich Amraev and any entity controlled directly"
+          - "indirectly by Mr. Farkhad Akhmedzhanovich Amraev, which was established (i.e. in existence) on"
+        value: Farkhad Akhmedzhanovich Amraev
+      - match: before 31 December 2019
+        value: null
+assertions:
+  min:
+    schema_entities:
+      Company: 225
+      LegalEntity: 1000
+    country_entities:
+      cn: 700
+      ru: 5
+      ke: 20
+  max:
+    schema_entities:
+      Company: 270
+      LegalEntity: 1700

@@ -41,6 +41,18 @@ data:
   url: "https://apigwext.worldbank.org/dvsvc/v1.0/json/APPLICATION/ADOBE_EXPRNCE_MGR/FIRM/SANCTIONED_FIRM"
   api_key: z9duUaFUiEUYSHs97CU38fcZO7ipOPvm
   format: JSON
+dates:
+  formats: ["%d-%b-%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 1005
+      Address: 1000
+  max:
+    schema_entities:
+      LegalEntity: 2370
+      Address: 2350
 
 lookups:
   type.address:

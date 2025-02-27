@@ -16,7 +16,7 @@ DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
 def parse_date(date: Optional[str]):
     if date in ("", "Indefinite", None):
         return None
-    return h.parse_date(date, ["%Y-%m-%d", "%m/%d/%Y"])
+    return date
 
 
 def read_rows(zip_path: Path) -> Generator[Dict[str, Any], None, None]:
@@ -98,17 +98,36 @@ def crawl(context: Context) -> None:
         schemata[entity.id] = entity.schema.name
 
         creation_date = parse_date(row.pop("Creation_Date", None))
-        entity.add("createdAt", creation_date)
+        h.apply_date(entity, "createdAt", creation_date)
         if agency == "TREAS-OFAC":
             entity.add("topics", "sanction")
         else:
             entity.add("topics", "debarment")
-        entity.add("notes", row.pop("Cross-Reference", None))
-        entity.add_cast(
-            "Organization",
-            "registrationNumber",
-            row.pop("Unique Entity ID", None),
-        )
+        cross_ref = row.pop("Cross-Reference", None)
+        if (
+            cross_ref is not None
+            and cross_ref.startswith("(also ")
+            and cross_ref.endswith(")")
+        ):
+            cross_ref = cross_ref[len("(also ") :].rstrip(")")
+            cross_ref = cross_ref.replace(", LLC", " LLC")
+            cross_ref = cross_ref.replace(", INC", " INC")
+            cross_ref = cross_ref.replace(", JR", " JR")
+            aliases = []
+            for alias in cross_ref.split(", "):
+                if len(alias) < 5 and len(aliases):
+                    aliases[-1] += ", " + alias
+                else:
+                    aliases.append(alias)
+            entity.add("alias", aliases, lang="eng")
+        else:
+            entity.add("notes", cross_ref, lang="eng")
+        uei = row.pop("Unique Entity ID", None)
+        if entity.schema.is_a("LegalEntity"):
+            entity.add("uniqueEntityId", uei)
+        else:
+            entity.add("registrationNumber", uei, quiet=True)
+
         entity.add("cageCode", row.pop("CAGE", None), quiet=True)
         # The NPI (National Provider Identifier) is a unique identification number
         # for covered health care providers. It is an optional field for exclusion
@@ -151,9 +170,9 @@ def crawl(context: Context) -> None:
         sanction.add("authorityId", sam_number)
         sanction.add("program", row.pop("Exclusion Program"))
         sanction.add("provisions", row.pop("Exclusion Type"))
-        sanction.add("listingDate", creation_date)
-        sanction.add("startDate", parse_date(row.pop("Active Date")))
-        sanction.add("endDate", parse_date(row.pop("Termination Date")))
+        h.apply_date(sanction, "listingDate", creation_date)
+        h.apply_date(sanction, "startDate", parse_date(row.pop("Active Date")))
+        h.apply_date(sanction, "endDate", parse_date(row.pop("Termination Date")))
         sanction.add("summary", row.pop("Additional Comments", None))
 
         context.audit_data(
@@ -161,5 +180,5 @@ def crawl(context: Context) -> None:
             ignore=["CT Code", "Open Data Flag"],
         )
         context.emit(sanction)
-        context.emit(entity, target=True)
+        context.emit(entity)
     # print(data_url)

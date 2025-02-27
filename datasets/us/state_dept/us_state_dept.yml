@@ -22,6 +22,7 @@ description: |
 url: https://www.state.gov/biographies-list/
 publisher:
   name: US State Department
+  acronym: State
   description: |
     The U.S. State Department's stated mission is to protect and promote U.S. 
     security, prosperity, and democratic values and shape an international
@@ -33,3 +34,22 @@ data:
   url: https://www.state.gov/biographies-list/
   format: HTML
   lang: eng
+
+dates:
+  formats: ["%B %d, %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 200
+      Position: 100
+  max:
+    schema_entities:
+      Person: 400
+      Position: 400
+
+lookups:
+  expected_404:
+    options:
+      match:
+        - https://www.state.gov/biographies/deborah-mennuti/

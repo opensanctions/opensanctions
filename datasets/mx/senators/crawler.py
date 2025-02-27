@@ -1,8 +1,8 @@
 import re
-import requests
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
+from zavod.shed.zyte_api import fetch_html, fetch_json
 
 
 def get_json_url(context: Context) -> str:
@@ -16,20 +16,24 @@ def get_json_url(context: Context) -> str:
 
     :return: The URL for the JSON file.
     """
-
-    # the ssl verification for the site is failing
-    main_website = requests.get(context.data_url, verify=False).text
-    url_pattern = (
-        r"https://www\.senado\.gob\.mx/\d+/datosAbiertos/senadoresDatosAb\.json"
+    redirect_xpath = ".//meta[@http-equiv='Refresh']"
+    doc = fetch_html(
+        context,
+        context.data_url,
+        redirect_xpath,
+        html_source="httpResponseBody",
+        geolocation="MX",
+        cache_days=1,
     )
+    main_website = doc.find(redirect_xpath).get("content")
+    url_pattern = r"url=\b(\d{2})/"
+    match = re.search(url_pattern, main_website)
 
-    matches = re.search(url_pattern, main_website)
-
-    if matches is None:
+    if match is None:
         context.log.error("Senators URL not found")
         return None
 
-    return matches.group()
+    return f"https://www.senado.gob.mx/{match.group(1)}/datosAbiertos/senadoresDatosAb.json"
 
 
 def crawl_item(input_dict: dict, position, categorisation, context: Context):
@@ -44,7 +48,7 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
 
     entity = context.make("Person")
     entity.id = context.make_id(
-        input_dict["idSenador"], input_dict["Apellidos"], input_dict["Nombre"]
+        input_dict["Estado"], input_dict["Apellidos"], input_dict["Nombre"]
     )
     h.apply_name(
         entity,
@@ -57,24 +61,12 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
         if input_dict["Sexo"] == "Hombre"
         else "female" if input_dict["Sexo"] == "Mujer" else "other"
     )
-
     input_dict.pop("Sexo")
-
     entity.add("gender", gender)
+
     entity.add("email", input_dict.pop("correo"))
     entity.add("address", input_dict.pop("direccion"))
-
-    # they can have multiple phone numbers, which will be
-    # differed by the extensions
-    # sometimes the extension is represented like "3561, 5507, 5139"
-    # and other times like "3561, 5507 y 5139"
-    # so we extract all occurrences 4 digits from the string
-    extensions = re.findall(r"\b\d{4}\b", input_dict.pop("extension"))
-    base_number = input_dict.pop("telefono").replace(" ", "")
-
-    for extension in extensions:
-        entity.add("phone", "+52" + base_number + extension)
-
+    entity.add("political", input_dict.pop("Fraccion"))
     entity.add("website", input_dict.pop("url_sitio"))
 
     occupancy = h.make_occupancy(
@@ -85,8 +77,25 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
         categorisation=categorisation,
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(occupancy)
+    context.audit_data(
+        input_dict,
+        ignore=[
+            "idSenador",
+            "Legislatura",
+            "Estado",
+            "tipoEleccion",
+            "Suplente",
+            "estadoOrigen",
+            "estatus",
+            "id",
+            "twitter",
+            "instagram",
+            "telefono",
+            "extension",
+        ],
+    )
 
 
 def crawl(context: Context):
@@ -101,15 +110,18 @@ def crawl(context: Context):
     """
     senators_url = get_json_url(context)
 
-    if senators_url is None:
-        return
-
-    response = context.fetch_json(senators_url)
+    senators = fetch_json(
+        context,
+        senators_url,
+        expected_charset=None,
+        geolocation="MX",
+        cache_days=1,
+    )
 
     # We first define the Mexico Senator Position
     position = h.make_position(context, "Member of the Senate of Mexico", country="mx")
     categorisation = categorise(context, position, is_pep=True)
     context.emit(position)
 
-    for item in response:
+    for item in senators:
         crawl_item(item, position, categorisation, context)

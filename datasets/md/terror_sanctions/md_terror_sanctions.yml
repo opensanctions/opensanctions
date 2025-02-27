@@ -52,6 +52,17 @@ url: https://antiteror.sis.md/advanced-page-type/listele-teroriste
 data:
   url: https://antiteror.sis.md/lista-terorista-xls
   format: HTML
+dates:
+  formats: ["%d.%m.%Y", "%d %b. %Y", "%b. %Y", "%b.%Y"]
+assertions:
+  min:
+    schema_entities:
+      Person: 480
+      LegalEntity: 190
+  max:
+    schema_entities:
+      Person: 600
+      LegalEntity: 300
 
 lookups:
   type.date:
@@ -59,4 +70,5 @@ lookups:
       - match:
           - "24/06/1402 (Hijri Calendar)"
           - "Intre Aug."
+          - Aug.
         value: null

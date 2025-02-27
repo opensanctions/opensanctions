@@ -23,7 +23,7 @@ def create_entities(context: Context, record: Dict[str, Any]):
     organization_name = record.pop("org_naziv")
     organization_number = record.pop("org_sifrapu")
 
-    if registration_number:
+    if registration_number and organization_number:
         legal_entity.add(
             "sourceUrl",
             f"https://erar.si/transakcija/placnik/{organization_number}/prejemnik/{registration_number}",
@@ -41,7 +41,7 @@ def create_entities(context: Context, record: Dict[str, Any]):
         f"{organization_name} is restricted from procurement from {subject_name} from {start_date} until {end_date} due to ownership or management role of a public official in {organization_name} or their family member. This is a preventative restriction by Komisija za preprečevanje korupcije and implies no wrongdoing.",
     )
 
-    context.emit(legal_entity, target=True)
+    context.emit(legal_entity)
     context.audit_data(record, ignore=["omejitev_do", "st_transakcij"])
 
 

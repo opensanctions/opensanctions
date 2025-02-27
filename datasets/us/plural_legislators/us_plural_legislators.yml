@@ -42,6 +42,16 @@ data:
   format: YAML
   lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      Person: 10450
+      Position: 160
+  max:
+    schema_entities:
+      Person: 24590
+      Position: 380
+
 lookups:
   position:
     options:
@@ -61,6 +71,7 @@ lookups:
           - "!"
           - (View Map)
           - aquintero@elmontec
+          - lori garciasander.house@coleg.gov
           - repalcos iii@capitol.hawaii.gov
           - sendela cruz@capitol.hawaii.gov
           - senrichards iii@capitol.hawaii.gov

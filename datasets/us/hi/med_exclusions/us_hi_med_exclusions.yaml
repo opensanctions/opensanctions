@@ -1,0 +1,74 @@
+title: US Hawaii Medicaid Exclusions and Reinstatements
+entry_point: crawler.py
+prefix: us-medhi
+coverage:
+  frequency: daily
+  start: "2024-10-25"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Medical providers excluded from Hawaii's Medicaid program.
+description: |
+  The State of Hawai'i Department of Human Services maintains a list of providers
+  who have been excluded from the state program.
+
+   > An excluded provider is an individual or entity that is not allowed to receive
+   > reimbursement for providing Medicare and Medicaid services in any capacity,
+   > even if they are not on this listing by the Med-QUEST Division.
+
+   > Excluded individuals and entities are listed according to the type of provider
+   > they were at the time of exclusion; however, they are excluded from
+   > participating in providing services in the Medicaid program in all categories
+   > of service and in any capacity.
+
+   > Any provider participating or applying to participate in the Medicaid program
+   > must search Hawaiʻi’s excluded provider list monthly and the List of Excluded
+   > Individuals and Entities (LEIE) on an annual basis to determine if any existing
+   > employee or contractor has been excluded from participation in the Medicaid
+   > program. In addition, any provider participating or applying to participate in
+   > the Medicaid program must search both lists prior to hiring staff to ensure
+   > that any potential employees or contractors have not been excluded from
+   > participating in the Medicaid program.
+
+publisher:
+  name: Hawai'i Department of Human Services, Med-QUEST Division
+  description: |
+    The Med-QUEST Division's stated mission is to
+
+    > empower Hawai'i’s residents to improve and sustain wellbeing by developing,
+    > promoting and administering innovative and high-quality healthcare programs with aloha
+  acronym: DHS
+  url: https://medquest.hawaii.gov/
+  official: true
+  country: "us"
+url: "https://medquest.hawaii.gov/en/plans-providers/provider-exclusion-reinstatement-list.html"
+data:
+  url: https://medquest.hawaii.gov/en/plans-providers/provider-exclusion-reinstatement-list.html
+  format: PDF
+
+ci_test: false
+
+dates:
+  formats: ["%m/%d/%Y", "%m/%d/%y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 150
+  max:
+    schema_entities:
+      Person: 300
+      Company: 20
+
+lookups:
+  names: 
+    options: 
+      - match: MALABED, JR. DBA GGM HANDI TRANSIT
+        values: 
+          - MALABED, JR
+          - GGM HANDI TRANSIT
+  type.date:
+    options:
+      match:
+        - "Indefinite"
+        - "-"
+      value: null

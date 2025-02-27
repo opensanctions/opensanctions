@@ -1,7 +1,7 @@
 type: collection
 title: Politically Exposed Persons (PEPs)
 coverage:
-  schedule: "0 */12 * * *"
+  start: "2021-12-01"
   frequency: daily
 deploy:
   memory: "1500Mi"
@@ -56,17 +56,25 @@ children:
   - lt_pep_declarations
   - lt_seimas
   - lv_saeima
+  - me_acp_peps
   - mk_officials
   - mx_deputies
   - mx_governors
   - mx_senators
   - ng_chipper_peps
   - ng_join_dots
+  - nl_house_of_representatives
+  - ro_fiu_declarations
+  - sg_gov_dir
   - si_zvezoskop
+  - sk_public_officials
+  - th_cabinet
   - tr_parliament
   - us_cia_world_factbook
   - us_cia_world_leaders
   - us_congress
+  - us_navy
+  - us_plum_book
   - us_plural_legislators
   - us_state_dept
   - un_ga_protocol

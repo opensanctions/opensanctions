@@ -36,15 +36,31 @@ url: https://acf.international/bribetakers-list
 data:
   url: https://sanctions.acf.international/api/villains/
   format: JSON
+dates:
+  formats: ["%d.%m.%Y", "%d-%m-%Y", "%Y-%m-%d"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 6850
+  max:
+    schema_entities:
+      Person: 16000
 
 lookups:
+  censored:
+    normalize: true
+    lowercase: true
+    options:
+      - match:
+          - "Usmanov Alisher Burkhanovich"
+        value: null
   descriptions:
     normalize: true
     options:
       - contains:
           - he remains involved in the system
         value: null
-
   tags:
     lowercase: true
     options:
@@ -62,6 +78,8 @@ lookups:
           - 8 сентября
           - 10 октября
         value: null
+      - match: "10.20.1976"
+        value: 1976-10-20
       - match: ".05.1959"
         value: "1959-05"
       - match: "06.09.964"
@@ -86,3 +104,5 @@ lookups:
         value: 1961-02-11
       - match: "05.25.1969"
         value: 1969-05-25
+      - match: ".12.1975"
+        value: 1975-12

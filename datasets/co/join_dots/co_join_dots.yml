@@ -43,6 +43,14 @@ data:
   url: https://peps.directoriolegislativo.org/datasets/peps.csv
   format: CSV
 
+assertions:
+  min:
+    schema_entities:
+      Person: 155
+  max:
+    schema_entities:
+      Person: 370
+
 lookups:
   position:
     options:

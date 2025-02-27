@@ -92,8 +92,13 @@ def parse_company_relations(context: Context, row: Row):
     source = make_proxy(context, row.pop("source_cw_id"), row)
     target = make_proxy(context, row.pop("target_cw_id"), row)
     if source is not None and target is not None:
-        target.add("parent", source)
-        context.emit(target)
+        own = context.make("Ownership")
+        own.id = context.make_slug("ownership", source.id, target.id)
+        own.add("owner", source)
+        own.add("asset", target)
+        context.emit(own)
+        if len(target.properties):
+            context.emit(target)
         if len(source.properties):
             context.emit(source)
 

@@ -1,6 +1,8 @@
 title: "US NTEEA Section 353 Corrupt and Undemocratic Actors Report"
 entry_point: crawler.py
 prefix: us-nteea-353
+hidden: true
+disabled: true
 coverage:
   frequency: never
   start: "2023-10-16"

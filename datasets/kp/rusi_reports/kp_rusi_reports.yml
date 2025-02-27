@@ -46,11 +46,27 @@ data:
   url: https://dprk-reports.org/assets/export.zip
   format: ZIP+FTM
 
+assertions:
+  min:
+    schema_entities:
+      Person: 1800
+      Company: 2000
+      Vessel: 500
+      Organization: 300
+  max:
+    schema_entities:
+      Person: 4000
+      Company: 5000
+      Vessel: 1400
+      Organization: 800
+
 lookups:
   props:
     options:
       - match: fraudAlias
         value: alias
+      - match: description
+        value: notes
       - match: nkproUrl
         value: sourceUrl
       - match: fraudFlag
@@ -59,11 +75,139 @@ lookups:
         value: imoNumber
       - match: fraudMmsi
         value: mmsi
-  type.identifier: 
+  id_scheme:
+    lowercase: true
     options:
+      - match: All-Russian Classifier of Enterprises and Organizations (OKPO)
+        value: okpoCode
+      - match:
+          - Primary State Registration Number (OGRN)
+          - rimary State Registration Number (OGRN)
+        value: ogrnCode
+      - match: Reason for Registration Code (KPP)
+        value: kppCode
+      - match:
+          - INN
+          - Taxpayer Identification Number (INN)
+        value: innCode
+      - match:
+          - IMO
+          - IMO number
+        value: imoNumber
+      - match:
+          - BIC
+          - SWIFT/BIC
+          - BMCE Bank SWIFT code
+          - SWIFT
+          - SWIFT/BIC (North Korea)
+          - AFRILAND FIRST BANK CD SWIFT code
+        value: swiftBic
+      - match:
+          - China Uniform Social Credit Code
+          - China Uniform Social Credit Code number
+          - Unified social credit ID
+          - Unified Social Credit Code
+          - Uniform Social Credit Code
+          - Unified Credit Number
+          - USCI
+          - ID
+          - Identification Number
+          - China ID
+          - National identification number
+          - Mega International Commercial Bank I/D number
+          - Identification Code
+        value: idNumber
+      - match:
+          - Tax ID
+          - Tax identification number
+          - Tax number
+          - Tax information number
+          - Tax Information Nr.
+        value: taxNumber
+      - match: VAT No.
+        value: vatCode
+      - match:
+          - Registration No.
+          - Company number
+          - Marshall Islands business entity number
+          - Registration number
+          - Reg. No.
+          - Company No
+          - China Registration Number
+          - CR No.
+          - Entity No.
+          - Accreditation Record Number (NZA)
+          - NZA
+          - Company ID
+          - Commercial Registry
+          - NINEA (National Number of Identification for Enterprises and Association)
+          - Enterprise no
+          - Company No.
+          - Business registry no
+          - Bus. License. Number
+          - Commercial License number
+          - Enterprise code
+          - Organization code
+          - Registration ID
+          - Corporate No.
+          - Trade registry
+          - BVI Company No.
+          - Company registration number
+          - Business Registration Document Number (Taiwan)
+          - Registration
+          - License No.
+          - Unique Entity No.
+          - DPRK Business registration certifícate
+          - Enterprise number
+          - Enterprise Nr.
+          - Registration no
+          - Registration Numbers
+          - Business registration number
+          - Hong Kong company registration number
+          - C.R. No. CH (Switzerland)
+          - Thailand Company Registration Number
+          - Reference No.
+          - License for establishment
+          - Reference No.
+          - UEN
+        value: registrationNumber
+      - # no place to put banking info
+        match:
+          - Account
+          - PIVA
+          - IBAN
+          - A/C number
+          - Banque Sahelo-Saharienne pour l'Investissement et le Commerce account
+          - Mega International Commercial Bank account number
+          - Debit account
+          - AFRI account no
+          - Ecobank account
+        value: idNumber
+  type.identifier:
+    options:
+      - match: "9900327377"
+        prop: taxNumber
       - match: "Mega International Commercial Bank account number: 00023753002088"
         value: "00023753002088"
       - match: "NINEA (National Number of Identification for Enterprises and Association) : 004358455 2R7"
         value: "004358455 2R7"
       - match: "Banque Sahelo-Saharienne pour l'Investissement et le Commerce account: SN111 01001 020028000012 37"
         value: "SN111 01001 020028000012 37"
+      - match: 6246853 [RUSSIA-EO14024]
+        value: IMO6246853
+      - match: 6183435 [RUSSIAEO14024]
+        value: IMO6183435
+      - match:
+          - 667003626
+          - 445604000
+        prop: mmsi
+      - match:
+          - 8705578
+          - 8660313000
+          - 9313186
+          - 10053276
+          - 866031300
+          - 8674268
+          - 9664149
+          - 123456789
+        prop: registrationNumber

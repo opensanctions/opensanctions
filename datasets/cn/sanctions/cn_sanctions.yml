@@ -28,6 +28,7 @@ description: |
 
   * [How China imposes sanctions](https://merics.org/en/report/how-china-imposes-sanctions) (MERICS)
   * [Rules on Counteracting Unjustified Extra-territorial Application of Foreign Legislation and Other Measures](http://english.mofcom.gov.cn/article/policyrelease/questions/202101/20210103029708.shtml)
+  * [MFA Anti-Sanctions List and Measures](https://www.mfa.gov.cn/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/)
 publisher:
   name: OpenSanctions
   description: |
@@ -48,3 +49,17 @@ url: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omM
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT0BEUqT1iKb-QP0LA52qSwq3KLiJpEzNO9MiSLvJCoJXOLxkSr5rYtEXzTw0IgJ0pfpF_qiwueHyOQ/pub?gid=1070466538&single=true&output=csv
   format: CSV
+dates:
+  formats: ["%d.%m.%y", "%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 90
+      Company: 45
+      Organization: 20
+  max:
+    schema_entities:
+      Person: 220
+      Company: 100
+      Organization: 45

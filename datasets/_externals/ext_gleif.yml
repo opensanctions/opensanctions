@@ -1,6 +1,6 @@
 type: external
 title: Legal Entity Identifier (LEI) Reference Data
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: gleif
 disabled: false
 hidden: false
@@ -12,10 +12,10 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "1500Mi"
-  memory_limit: "2500Mi"
-  disk: "20Gi"
-  # premium: true
+  cpu: "1000m"
+  memory: "4000Mi"
+  memory_limit: "6000Mi"
+  disk: "30Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   A concatenated data file of all entities which have been issued Legal
@@ -48,12 +48,12 @@ publisher:
     organization headquartered in Basel, Switzerland.
   url: https://www.gleif.org/en/about/this-is-gleif
 ci_test: false
-http:
-  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics
   - debarment
+  - eu_esma_sanctions
+  - eu_esma_saris
   - ext_cy_companies
   - ext_cz_business_register
   - ext_ee_ariregister
@@ -64,15 +64,21 @@ inputs:
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
+  - ext_us_irs_ffi
+  - iso9362_bic
   - opencorporates
+  - permid
+  - regulatory
+  - ru_cbr_banks
   - sanctions
+  - special_interest
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
-  index_options:
-    max_candidates: 1
   dataset: gleif
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  index_options:
+    max_candidates: 25
+    memory_budget: 2500
+    match_batch: 300
   strip_namespace: true
   fuzzy: false
   threshold: 0.5
@@ -90,4 +96,15 @@ config:
     - Company
     - Organization
     # - LegalEntity
-  cache_days: 15
+
+assertions:
+  min:
+    schema_entities:
+      Security: 184000
+      Organization: 2000
+      Company: 250
+  max:
+    schema_entities:
+      Security: 433000
+      Organization: 4700
+      Company: 700

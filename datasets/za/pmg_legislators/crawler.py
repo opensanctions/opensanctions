@@ -75,16 +75,13 @@ def crawl_person(context: Context, person_data: dict, organizations):
         assert person_id
         person.id = context.make_id(person_id)
 
-    birth_date = person_data.get("birth_date")
-    death_date = person_data.get("death_date")
-
     person.add("name", person_data.get("name"))
     person.add("alias", [o.get("name") for o in person_data.get("other_names", [])])
     person.add("gender", person_data.get("gender"))
     person.add("firstName", person_data.get("given_name"))
     person.add("lastName", person_data.get("family_name"))
-    person.add("birthDate", birth_date)
-    person.add("deathDate", death_date)
+    person.add("birthDate", person_data.get("birth_date"))
+    person.add("deathDate", person_data.get("death_date"))
     person.add("title", person_data.pop("honorific_prefix", None))
     person.add("wikidataId", person_qid)
 
@@ -107,23 +104,11 @@ def crawl_person(context: Context, person_data: dict, organizations):
             person.add("address", value)
 
     for membership in person_data.pop("memberships", []):
-        crawl_membership(
-            context,
-            person,
-            membership,
-            organizations,
-            birth_date,
-            death_date,
-        )
+        crawl_membership(context, person, membership, organizations)
 
 
 def crawl_membership(
-    context: Context,
-    entity: Entity,
-    membership: dict,
-    organizations: Dict[str, str],
-    birth_date: Optional[str],
-    death_date: Optional[str],
+    context: Context, entity: Entity, membership: dict, organizations: Dict[str, str]
 ) -> Optional[str]:
     org_id = membership.get("organization_id")
     org_name = organizations.get(org_id)
@@ -175,15 +160,13 @@ def crawl_membership(
         start_date=start_date,
         end_date=end_date,
         categorisation=categorisation,
-        birth_date=birth_date,
-        death_date=death_date,
         status=override_status,
     )
 
     if not occupancy:
         return
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(position)
     context.emit(occupancy)
 

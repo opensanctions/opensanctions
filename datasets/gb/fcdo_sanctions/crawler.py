@@ -42,7 +42,7 @@ def make_legal_entity(context: Context, designation: ElementOrTree, entity: Enti
             entity.add("email", email.strip())
     # Add addresses
     for address in designation.iterfind(".//Addresses//Address"):
-        # context.inspect(address)
+        postcode, pobox = h.postcode_pobox(address.findtext("./AddressPostalCode"))
         addr = h.make_address(
             context,
             street=address.findtext("./AddressLine1"),
@@ -51,7 +51,8 @@ def make_legal_entity(context: Context, designation: ElementOrTree, entity: Enti
             place=address.findtext("./AddressLine4"),
             region=address.findtext("./AddressLine5"),
             city=address.findtext("./AddressLine6"),
-            postal_code=address.findtext("./AddressPostalCode"),
+            postal_code=postcode,
+            po_box=pobox,
             country=address.findtext("./AddressCountry"),
         )
         h.copy_address(entity, addr)
@@ -61,7 +62,7 @@ def make_person(context: Context, designation: ElementOrTree, entity: Entity):
     for individual in designation.findall(".//IndividualDetails//Individual"):
         # Add the date of birth
         for dob in individual.iterfind(".//DOBs//DOB"):
-            entity.add("birthDate", h.parse_date(dob.text, formats=["%d/%m/%Y"]))
+            h.apply_date(entity, "birthDate", dob.text)
         # Add titles
         entity.add("title", individual.findtext(".//Title"))
         # Add birthplace
@@ -181,12 +182,10 @@ def crawl(context: Context):
                 sanction.add("unscId", reference.text)
             # Add the last updated date
             for date in designation.iterfind(".//LastUpdated"):
-                sanction.add(
-                    "modifiedAt", h.parse_date(date.text, formats=["%d/%m/%Y"])
-                )
+                h.apply_date(sanction, "modifiedAt", date.text)
             # Add the creation date
             for date in designation.iterfind(".//DateDesignated"):
-                sanction.add("startDate", h.parse_date(date.text, formats=["%d/%m/%Y"]))
+                h.apply_date(sanction, "startDate", date.text)
             # Get the sanctions regime and add it to the entity
             for regime in designation.iterfind(".//RegimeName"):
                 sanction.add("program", regime.text)
@@ -202,7 +201,7 @@ def crawl(context: Context):
             for info in designation.iterfind(".//UKStatementofReasons"):
                 sanction.add("reason", info.text)
             entity.add("topics", "sanction")
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(sanction)
         except ValueError as e:
             context.log.error(f"Failed to parse designation with id {unique_id}: {e}")

@@ -1,8 +1,9 @@
 type: collection
 title: Regulatory Watchlists
 coverage:
+  start: "2024-07-01"
   schedule: "0 */8 * * *"
-  frequency: daily
+  frequency: weekly
 deploy:
   memory: "1500Mi"
 summary: >
@@ -15,6 +16,7 @@ description: |
   These watchlists are maintained by government agencies, international
   organizations, or other regulatory bodies.
 children:
+  - br_slavery
   - br_tcu_disqualified
   - ch_finma_rulings
   - ch_finma_warnings
@@ -31,6 +33,7 @@ children:
   - no_nbim_exclusions
   - ph_sec_advisories
   - ps_ohchr_settlement
+  - tr_cmb_banned
   - us_bis_oac
   - us_ddtc_debarred
   - us_ddtc_enforcements
@@ -38,7 +41,6 @@ children:
   - us_fcc_covered_list
   - us_fed_enforcements
   - us_finra_actions
-  - us_hhs_exclusions
   - us_occ_enfact
   - us_sam_exclusions
   - us_sec_harmed_investors

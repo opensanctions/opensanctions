@@ -31,3 +31,13 @@ url: "https://www.pma.ps/en/Legislation//AMLCFT//LocalFreezingList"
 data:
   url: https://www.pma.ps/en/Legislation//AMLCFT//LocalFreezingList
   format: HTML
+dates: 
+  formats: ["%d/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 4
+  max:
+    schema_entities:
+      Person: 10

@@ -31,6 +31,21 @@ publisher:
 data:
   url: https://www.gov.uk/government/publications/the-uk-sanctions-list
   format: HTML
+  lang: eng
+dates: 
+  formats: ["%d/%m/%Y", "dd/mm/%Y", "dd/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 3060
+      Organization: 890
+      Vessel: 125
+  max:
+    schema_entities:
+      Person: 7200
+      Organization: 2090
+      Vessel: 290
 
 lookups:
   languages:
@@ -63,6 +78,14 @@ lookups:
         value: srp
       - match: Turkish
         value: tur
+      - match: Burmese
+        value: mya
+      - match: Kazakh
+        value: kaz
+      - match: Georgian
+        value: kat
+      - match: Thai
+        value: tha
   name_type:
     lowercase: true
     normalize: true
@@ -92,4 +115,12 @@ lookups:
           - gc.com
           - Unknown
           - www.mtsbank.ru
+          - indoc@SIBANTHRACITE
+          - GROUP.ru
         value: null
+      - match: www.bloodandhonour.co.uk
+        prop: website
+  type.date:
+    options:
+      match: 00/00/1975
+      value: 1975

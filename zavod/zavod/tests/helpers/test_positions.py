@@ -70,10 +70,10 @@ def test_make_occupancy(testdataset1: Dataset):
         no_end_implies_current=True,
         current_time=datetime(2021, 1, 3),
         start_date="2021-01-01",
-        end_date="2021-01-02",
+        end_date="2. Jan 2021",
     )
 
-    assert occupancy.id == "osv-0675000c8483d6a9163a48e4eb222fd5e4a2a886"
+    assert occupancy.id == "osv-45f94082953295c5fe58c51dfca41103375b01bf"
     assert occupancy.get("holder") == ["thabo"]
     assert occupancy.get("post") == ["osv-40a302b7f09ea065880a3c840855681b18ead5a4"]
     assert occupancy.get("startDate") == ["2021-01-01"]

@@ -1,6 +1,6 @@
 type: external
 title: UK Companies House People with Significant Control
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enricher:enrich
 full_dataset: gb_coh_psc
 disabled: false
 hidden: false
@@ -11,11 +11,12 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "800Mi"
-  memory_limit: "3000Mi"
-  disk: "20Gi"
-  disk_limit: 50Gi
-  premium: true
+  cpu: "1000m"
+  cpu_limit: "2000m"
+  memory: "5000Mi"
+  memory_limit: "6000Mi"
+  disk: "100Gi"
+  disk_limit: 100Gi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   The database of beneficial owners of companies incorporated in England, Wales,
@@ -58,14 +59,15 @@ inputs:
   - ext_ua_edr
   - opencorporates
   - sanctions
+  - special_interest
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
   limit: 100
   max_bin: 14
   index_options:
     max_candidates: 200
-    memory_budget: 50
+    memory_budget: 2000
+    match_batch: 500
   dataset: gb_coh_psc
   strip_namespace: true
   threshold: 0.5
@@ -82,5 +84,17 @@ config:
   schemata:
     - Company
     - Organization
-    # - LegalEntity
-    # - Person
+    - LegalEntity
+    - Person
+
+assertions:
+  min:
+    schema_entities:
+      Company: 370
+      Person: 150
+      Organization: 10
+  max:
+    schema_entities:
+      Company: 870
+      Person: 370
+      Organization: 100

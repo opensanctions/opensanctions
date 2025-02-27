@@ -10,10 +10,11 @@ from typing import Dict, List, Optional
 from normality import collapse_spaces, stringify
 from normality.cleaning import decompose_nfkd
 from followthemoney.types.identifier import IdentifierType
+
 from zavod import Context, Entity
 from zavod import helpers as h
 
-BRACKETED = re.compile(r"(\([^\(\)]*\)|\[[^\[\]]*\])")
+BRACKETED = re.compile(r"([(（][^\(\)]*[)）]|\[[^\[\]]*\])")
 
 SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
 SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
@@ -24,8 +25,6 @@ SPLITS = SPLITS + ["; a.k.a.", "; a.k.a ", ", a.k.a.", ", f.k.a."]
 
 ALIAS_SPLITS = SPLITS + ["; "]
 
-# DATE FORMATS
-FORMATS = ["%Y年%m月%d日", "%Y年%m月%d", "%Y年%m月", "%Y.%m.%d"]
 DATE_SPLITS = SPLITS + [
     "、",
     "；",
@@ -43,9 +42,10 @@ DATE_SPLITS = SPLITS + [
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
 
 
-def keep_long_ids(entity, identifier):
-    if len(identifier) > IdentifierType.max_length:
-        entity.add("notes", identifier)
+def note_long_ids(entity, identifiers: List[str]):
+    for identifier in identifiers:
+        if len(identifier) > IdentifierType.max_length:
+            entity.add("notes", identifier)
 
 
 def str_cell(cell: Cell) -> Optional[str]:
@@ -69,8 +69,8 @@ def parse_date(text: List[str]) -> List[str]:
         cleaned = DATE_CLEAN.sub("", date_)
         if cleaned:
             normal = decompose_nfkd(cleaned)
-            for parsed in h.parse_date(normal, FORMATS, default=date_):
-                dates.append(parsed)
+            if normal:
+                dates.append(normal)
     return dates
 
 
@@ -80,15 +80,22 @@ def parse_names(names: List[str]) -> List[str]:
         # (a.k.a.:
         # Full width colon. Yes really.
         name = re.sub(r"[(（]a\.k\.a\.?[:：]? ?", "", name)
-        name = name.replace("(original script:", "")
-        name = name.replace("(previously listed as", "")
+        name = re.sub(r"[（(]original script[:：]\s*(.*?)[）)]", r"\1", name)
+        name = re.sub(r"[（(]f.k.a.:\s*(.*?)[）)]", r"\1", name)
+        # in Excel, it has this value as (previously listed as), (Previously listed as some name)
+        name = name.replace("(previously listed as)", "")
         name = name.replace("(formerly listed as", "")
         name = name.replace("a.k.a., the following three aliases:", "")
         # name = name.replace(")", "")
+        if name.count("(") == 0 and name.endswith(")"):
+            name = name.rstrip(")")
+        # e.g: Al Qaïda au Maghreb islamique (AQMI))
+        name = name.replace("))", ")")
+        name = name.strip(" 、")
         cleaned.append(name)
         no_brackets = BRACKETED.sub(" ", name).strip()
         if no_brackets != name and len(no_brackets):
-            cleaned.append(name)
+            cleaned.append(no_brackets)
     return cleaned
 
 
@@ -147,19 +154,21 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add("previousName", parse_names(row.pop("past_alias", [])))
     entity.add("previousName", parse_names(row.pop("old_name", [])))
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
-    birth_date = parse_date(row.pop("birth_date", []))
-    entity.add_cast("Person", "birthDate", birth_date)
+    if entity.schema.is_a("Person"):
+        birth_date = parse_date(row.pop("birth_date", []))
+        if birth_date != []:
+            h.apply_dates(entity, "birthDate", birth_date)
     entity.add_cast("Person", "birthPlace", row.pop("birth_place", []))
 
-    keep_long_ids(entity, passport_number)
+    note_long_ids(entity, passport_number)
     entity.add_cast(
         "Person",
         "passportNumber",
         h.multi_split(passport_number, SPLITS),
     )
-    keep_long_ids(entity, id_number)
+    note_long_ids(entity, id_number)
     entity.add("idNumber", h.multi_split(id_number, SPLITS))
-    keep_long_ids(entity, identification_number)
+    note_long_ids(entity, identification_number)
     entity.add(
         "idNumber",
         h.multi_split(identification_number, SPLITS),
@@ -192,16 +201,14 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     sanction.add("reason", row.pop("root_nomination", None))
     sanction.add("reason", row.pop("reason_res1483", None))
     sanction.add("authorityId", row.pop("notification_number", None))
-    sanction.add("unscId", h.multi_split(row.pop("designated_un", None), DATE_SPLITS))
-
-    sanction.add("startDate", parse_date(row.pop("notification_date", [])))
-    sanction.add("startDate", parse_date(row.pop("designated_date", [])))
-    sanction.add("listingDate", parse_date(row.pop("publication_date", [])))
+    h.apply_dates(sanction, "startDate", parse_date(row.pop("designated_date_un", [])))
+    h.apply_dates(sanction, "startDate", parse_date(row.pop("notification_date", [])))
+    h.apply_dates(sanction, "listingDate", parse_date(row.pop("publication_date", [])))
 
     # if len(row):
     #     context.inspect(row)
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
 

@@ -61,3 +61,5 @@ lookups:
         value: http://goldos.co2g.de
       - match: "www.http://swiss-wealth.com"
         value: http://swiss-wealth.com
+dates:
+  formats: ["%d.%m.%Y"]

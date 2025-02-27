@@ -15,6 +15,12 @@ description: |
   also those cross-debarred by ADB from other Multilateral Development Banks (MDBs).
   These entities are not eligible to participate in ADB-financed, -administered, or
   -supported activities for violating the specified Anticorruption Policy.
+
+  This dataset is limited to the *Publicly Disclosed Debarment or Suspension Register*.
+
+  The *Complete ADB Debarment and Suspension Register* is only available to entities
+  who qualify, which includes international financial institutions, bilateral agencies,
+  and Developing Member Country government officials.
 publisher:
   name: "Asian Development Bank"
   acronym: ADB
@@ -28,15 +34,15 @@ publisher:
   country: zz
   url: https://adb.org/
   official: true
-url: https://lnadbg4.adb.org/oga0009p.nsf/sancALL1P?OpenView&count=999
+url: https://www.adb.org/who-we-are/integrity/sanctions
 data:
-  url: https://lnadbg4.adb.org/oga0009p.nsf/sancALL1P?OpenView&count=999
+  url: https://apim.adb.org/sanctions/lists/v1/published-list
   format: HTML
 
 assertions:
   min:
     schema_entities:
-      LegalEntity: 1300
+      LegalEntity: 1180
     country_entities:
       cn: 350
       id: 40
@@ -46,9 +52,13 @@ assertions:
     schema_entities:
       LegalEntity: 1800
 
+dates:
+  formats: ["%d/%b/%Y"]
+
 lookups:
   type.address:
     lowercase: true
+    normalize: true
     options:
       - match:
           - "-"
@@ -56,14 +66,17 @@ lookups:
           - Peru
           - n/a
         value: null
-
-      - match: c/o Rana International Builders (M/s Rana International Builders) a.k.a. Rana Builders PVT. LTD., 55 West Panthopath Lake Circus Kalabagan, Sheltech Tower 7th Floor, E-Flat, Dhaka , BANGLADESH; 60 Shekh Rasal Square, BANGLADESH; 55 West Panthapath (Lake Circus Kalabagan), Sheltech Tower, 7th Floor, Dhaka 1205, BANGLADESH 52, Dhaka Housing, Shamoli, Dhaka, BANGLADESH
+      - match: "HEAD OFFICE , ADDRESS #1: , 10TH STREET , MAIN ROAD OF , WAZIR AKBAR , KHAN, NEXT TO , THE CHILDREN , HOSPITAL, KABUL , Afghanistan, , HEAD OFFICE , ADDRESS #2: , HOUSE #485, 15TH STREET, MAIN ROAD OF , WAZIR AKBAR , KHAN, BACK , SIDE OF FINEST , STORE, KABUL , Afghanistan"
         values:
-          - Rana International Builders (M/s Rana International Builders) a.k.a. Rana Builders PVT. LTD., 55 West Panthopath Lake Circus Kalabagan, Sheltech Tower 7th Floor, E-Flat, Dhaka, BANGLADESH
-          - 60 Shekh Rasal Square, BANGLADESH
-          - 55 West Panthapath (Lake Circus Kalabagan), Sheltech Tower, 7th Floor, Dhaka 1205, BANGLADESH
-          - 52, Dhaka Housing, Shamoli, Dhaka, BANGLADESH
-
+          - 10th Street, Main Road of Wazir Akbar Khan, Next to the Children Hospital, Kabul, Afghanistan
+          - "House #485, 15th Street, Main Road of Wazir Akbar Khan, Back Side of Finest Store, Kabul, Afghanistan"
+      - match: "7A SHIROKAYA , STREET, 392000, TAMBOV, RUSSIAN FEDERATION, , 1 KRASNOARMEISKAY, A SQUARE, 392023, TAMBOV, 7A SHIROKAYA , STREET, 390218, TAMBOV, 9/7 KRASNOZNAMENNAY, A STREET, 620012, YEKATERINBURG, 9/7 KRASNOZNAMENNAY, A STREET, 620012, YEKATERINBURG"
+        values:
+          - 7A Shirokaya Street, 392000, Tambov, Russian Federation
+          - 1 Krasnoarmeiskay A Square, 392023, Tambov, Russian Federation
+          - 7A Shirokaya Street, 390218, Tambov, Russian Federation
+          - 9/7 Krasnoznamennaya Street, 620012, Yekaterinburg, Russian Federation
+     
       - match: c/o Hoang Mai Construction Import and Export Joint Stock Company Xom Bo, Commune Thanh Liet, District Thanh Tri, Hanoi VIET NAM Room 3016, Building B, Vinaconex Building Nguyen Xien (Phòng 3016 Tòa B Vinaconex 2 Nguyễn Xiển) Dai Kim Ward, Hoang Mai District (Phýờng Ðại Kim, Quận Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 14, TT6B Urban West Nam Linh Dam, Hoang Mai (Số 14, TT6B Khu ðô thị Tây Nam Linh Ðàm, Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 2/20, Lane 255, Hope Street (Số 2/20, Ngõ 255, Phố Vọng) Dong Tam Ward, Hai Ba Trung District, Hanoi (Phýờng Ðồng Tâm, Quận Hai Bà Trýng, Hà Nội) VIET NAM
         values:
           - c/o Hoang Mai Construction Import and Export Joint Stock Company, Xom Bo, Commune Thanh Liet, District Thanh Tri, Hanoi, VIET NAM
@@ -100,36 +113,21 @@ lookups:
           - 中国广西壮族自治区贵港市平南县平南街道(原附城村大将三队)永发新村三街85号505室
 
       - match: "Canada office: #27 King’s College Circle, Toronto, Ontario M5S1A1, CANADA Cambodia office: 31BT, Phum Sansam Kosal 1, Boeng Tumpun, Mean Chey, Phnom Penh, 12351, CAMBODIA Lao PDR Office: #17 Khounboulom Boad, Chanthaboury, Vientiane Capital, LAO PDR Vietnam office: 5th Floor Sentinal Place Building, 41B Ly Thai To St., Hanoi, VIETNAM Myanmar office: #12 (0), Phi Thu Lane, 7 Mile, Mayangone, Ownship, Yangon, MYANMAR"
-        values: 27 King’s College Circle, Toronto, Ontario M5S1A1, CANADA
-          31BT, Phum Sansam Kosal 1, Boeng Tumpun, Mean Chey, Phnom Penh, 12351, CAMBODIA
-          17 Khounboulom Boad, Chanthaboury, Vientiane Capital, LAO PDR
-          5th Floor Sentinal Place Building, 41B Ly Thai To St., Hanoi, VIETNAM
-          12 (0), Phi Thu Lane, 7 Mile, Mayangone, Ownship, Yangon, MYANMAR
+        values:
+          - 27 King’s College Circle, Toronto, Ontario M5S1A1, CANADA
+          - 31BT, Phum Sansam Kosal 1, Boeng Tumpun, Mean Chey, Phnom Penh, 12351, CAMBODIA
+          - 17 Khounboulom Boad, Chanthaboury, Vientiane Capital, LAO PDR
+          - 5th Floor Sentinal Place Building, 41B Ly Thai To St., Hanoi, VIETNAM
+          - 12 (0), Phi Thu Lane, 7 Mile, Mayangone, Ownship, Yangon, MYANMAR
 
       - match: c/o Ingenieros Consultores y Asesores Técnicos Sociedad de Responsabilidad Limitada de Capital Variable (INCAT S. de R.L. de C.V.) Colonia Hato de Enmedio, Sector 8, Bloque 108, Casa 3902, Calle Principal, in front of Hospital San Jorge, same place as Hotel La Estancia, Tegucigalpa, HONDURAS
         value: c/o Ingenieros Consultores y Asesores Técnicos Sociedad de Responsabilidad Limitada de Capital Variable (INCAT S. de R.L. de C.V.) Colonia Hato de Enmedio, Sector 8, Bloque 108, Casa 3902, Calle Principal
-
-      - match: "No.21, Jiangsu East Road, Caomiaoiaozi Town, Weihai Lingang Economic and Technologica Development Zone, Shandong Province 山东省威海临港经济技术开发区草庙子镇江苏东路21号 (previous address: No.271-1 Eastern Kaiyuan Road, Lingang Economic and Technological Development Zone, Weihai, Shandong Province山东省威海临港经济技术开发区开元东路271-1号)"
-        values:
-          - No.21, Jiangsu East Road, Caomiaoiaozi Town, Weihai Lingang Economic and Technologica Development Zone, Shandong Province
-          - No.271-1 Eastern Kaiyuan Road, Lingang Economic and Technological Development Zone, Weihai, Shandong Province
-          - 山东省威海临港经济技术开发区草庙子镇江苏东路21号
-          - 山东省威海临港经济技术开发区开元东路271-1号
 
       - match: 15TH FLOOR, TAIHONG YANGGUANG BUILDING, INTERSECTION OF ZHONGZHOU AVENUE AND XINYUAN ROAD, ZHENGZHOU, HENAN PROVINCE, 450002 People's Republic of China 5TH FLOOR, JINZHU BUILDING, NORTH OF THE NEW BRIDGE, HUANGCHUAN, HENAN PROVINCE, 465150 People's Republic of China
         values:
           - 15th Floor, Taihong Yangguang Building, Intersection of Zhongzhou Avenue and Xinyuan Road, Zhengzhou, Henan Province, 450002 People's Republic of China
           - 5th Floor, Jinzhu Building, North of the New Bridge, Huangchuan, Henan Province, 465150 People's Republic of China
 
-  type.name:
-    options:
-      - match: PT. Putera Pandawa Asli (since 3 December 2018) formerly named PT. PPA Consultants (17 April 2007 to 2 December 2018). PT. Puspeng Agribisnis Consultants (29 January 2002 to 16 April 2007). PT. Puspeng Agribisnis or Pusat Pengembangan Agribisnis (17 May 1982 to 28 January 2002).
-        values:
-          - PT. Putera Pandawa Asli
-          - PT. PPA Consultants
-          - PT. Puspeng Agribisnis Consultants
-          - PT. Puspeng Agribisnis
-          - Pusat Pengembangan Agribisnis
   type.country:
     lowercase: true
     normalize: true
@@ -138,7 +136,9 @@ lookups:
         value: Equatorial Guinea
       - match: Guinaea-
         value: Guinea
-      - match: Unknown
+      - match:
+          - Unknown
+          - "*2"
         value: null
   type.date:
     lowercase: true
@@ -147,3 +147,283 @@ lookups:
           - Until Further Notice
           - Indefinitely
         value: null
+  other_names:
+    options:
+      - match: "河北建设集团股份有限公司承德双滦混凝土分公司, Registration  No. 130803300006325"
+        items:
+          - prop: alias
+            value: 河北建设集团股份有限公司承德双滦混凝土分公司
+          - prop: registrationNumber
+            value: 130803300006325
+      - match: "陕西和瑞科技发 展有限公司;\xa0Business registration no. 610102100035303"
+        items:
+          - prop: alias
+            value: 陕西和瑞科技发 展有限公司
+          - prop: registrationNumber
+            value: 610102100035303
+      - match: "Date of Diyarbakir Commerce and Industry Chamber Registration: 20 February 2015; Central Registration Number: 0007063163500012"
+        items:
+          - prop: incorporationDate
+            value: 2015-02-20
+          - prop: registrationNumber
+            value: 0007063163500012
+      - match: "អេ ស៊ាន ថេ កនី ខល អឹ ស៊ីស្ទេ នស៍ ឯ.ក, Registration No. 00059944"
+        items:
+          - prop: alias
+            value: អេ ស៊ាន ថេ កនី ខល អឹ ស៊ីស្ទេ នស៍ ឯ.ក
+          - prop: registrationNumber
+            value: 00059944
+      - match: "TIN No. 304332224"
+        items:
+          - prop: taxNumber
+            value: 304332224
+      - match: "សាខាក្រុ មហ៊ុន កាណាដា ខនស្ត្រា ក់ សិន ខូ អបភើ រេ សិន លីមី ធី ត, Reg. No. 1130068-9"
+        items:
+          - prop: alias
+            value: សាខាក្រុ មហ៊ុន កាណាដា ខនស្ត្រា ក់ សិន ខូ អបភើ រេ សិន លីមី ធី ត
+          - prop: registrationNumber
+            value: 1130068-9
+      - match: "សាខាក្រុ មហ៊ុន រ៉ូយ៉ាល់ រ៉ូដ លីមី ធី ត, Registration No. 00056682"
+        items:
+          - prop: alias
+            value: សាខាក្រុ មហ៊ុន រ៉ូយ៉ាល់ រ៉ូដ លីមី ធី ត
+          - prop: registrationNumber
+            value: 00056682
+      - match: "Registration no. 0086276"
+        items:
+          - prop: registrationNumber
+            value: 0086276
+      - match: "TIN No. 301604464"
+        items:
+          - prop: taxNumber
+            value: 301604464
+      - match: "TIN No. 302163491"
+        items:
+          - prop: taxNumber
+            value: 302163491
+      - match: "国基建设集团有限公司, Reg. No. 911400007159997781"
+        items:
+          - prop: alias
+            value: 国基建设集团有限公司
+          - prop: registrationNumber
+            value: 911400007159997781
+      - match: "សាខាក្រុមហ៊ុន ហឺបី ខនស្ត្រាក់សិន គ្រុប ខបភើរេសិន, Registration No. 0055729"
+        items:
+          - prop: alias
+            value: សាខាក្រុមហ៊ុន ហឺបី ខនស្ត្រាក់សិន គ្រុប ខបភើរេសិន
+          - prop: registrationNumber
+            value: 0055729
+      - match: "河北建设集团股份有限公司上高分公司, Registration No.360900530002351"
+        items:
+          - prop: alias
+            value: 河北建设集团股份有限公司上高分公司
+          - prop: registrationNumber
+            value: 360900530002351
+      - match: "河北同创联泰医院管理有限公司: Registration No.131124000036380"
+        items:
+          - prop: alias
+            value: 河北同创联泰医院管理有限公司
+          - prop: registrationNumber
+            value: 131124000036380
+      - match: "河南乾坤路桥工程有限公司, Company Registration No. Company Registration No. 914107277474029059"
+        items:
+          - prop: alias
+            value: 河南乾坤路桥工程有限公司
+          - prop: registrationNumber
+            value: 914107277474029059
+      - match: "和田陆港枢纽中心管理有限公司,ID: 91653201MA793N9JXR"
+        items:
+          - prop: alias
+            value: 和田陆港枢纽中心管理有限公司
+          - prop: registrationNumber
+            value: 91653201MA793N9JXR
+      - match: "Aliases: Stephen Wasi, Steven Hoki Wasi, Stepano Hoki"
+        items:
+          - prop: alias
+            value:
+              - Stephen Wasi
+              - Steven Hoki Wasi
+              - Stepano Hoki
+      - match: "宏盛建业投资集团有限公司 also known as 宏盛建业投资集团有限公司 formerly known as 江西宏盛建业投资集团有限公司, Unified Social Credit Code: 91361122615315079"
+        items:
+          - prop: alias
+            value: 宏盛建业投资集团有限公司
+          - prop: previousName
+            value: 江西宏盛建业投资集团有限公司
+          - prop: registrationNumber
+            value: 91361122615315079
+      - match: "井陉新交建项目管理有限公司,ID: 91130121MA7HPNK01K"
+        items:
+          - prop: alias
+            value: 井陉新交建项目管理有限公司
+          - prop: registrationNumber
+            value: 91130121MA7HPNK01K
+      - match: "Registration no. 2000/007692/07"
+        items:
+          - prop: registrationNumber
+            value: 2000/007692/07
+      - match: "Lebanon Registration No. 1163"
+        items:
+          - prop: registrationNumber
+            value: 1163
+      - match: "Jordan Registration No. 1967"
+        items:
+          - prop: registrationNumber
+            value: 1967
+      - match: "Bangladesh VAT Registration No. 15141013910-150001 and Bangladesh Income Tax Identification No. 557288317255"
+        items:
+          - prop: taxNumber
+            value: 557288317255
+          - prop: taxNumber
+            value: 15141013910-150001
+      - match: "Business Identification Number: 4051021193"
+        items:
+          - prop: registrationNumber
+            value: 4051021193
+      - match: "BIN: 000928103-1101. e-TIN: 134746296325. IRC No: 260381110024519 (Valid until 30 June 2023)."
+        items:
+          - prop: registrationNumber
+            value: 000928103-1101
+          - prop: taxNumber
+            value: 134746296325
+          - prop: idNumber
+            value: 260381110024519
+      - match: "ប្រជេក ខនសាល់ អ៊ិនស្ទីធ្យូត ភីស៊ីអាយ ឯ.ក, Registration No. TIN K007-901638484"
+        items:
+          - prop: alias
+            value: ប្រជេក ខនសាល់ អ៊ិនស្ទីធ្យូត ភីស៊ីអាយ ឯ.ក
+          - prop: taxNumber
+            value: K007-901638484
+      - match: "Tax Identification No. 21.033.511.3-015.000"
+        items:
+          - prop: taxNumber
+            value: 21.033.511.3-015.000
+      - match: "Rana International Builders (M/s Rana International Builders) a.k.a. Rana Builders PVT. LTD.; Certificate of Incorporation No. C – 73162 (1204/08)"
+        items:
+          - prop: alias
+            value:
+              - Rana International Builders
+              - Rana Builders PVT. LTD.
+          - prop: registrationNumber
+            value: C – 73162 (1204/08)
+      - match: Rana Builders Private Limited (formerly M/s Rana International Builders or “RIB”); Certificate of Incorporation No. C – 73162 (1204/08)
+        items:
+          - prop: alias
+            value:
+              - Rana Builders Private Limited
+              - M/s Rana International Builders
+              - RIB
+          - prop: registrationNumber
+            value: C - 73162 (1204/08)
+      - match: "TIN No. 300898378"
+        items:
+          - prop: taxNumber
+            value: 300898378
+      - match: "Reg. No. 0205556035570"
+        items:
+          - prop: registrationNumber
+            value: 0205556035570
+      - match: "Reg. No. 0205556005875"
+        items:
+          - prop: registrationNumber
+            value: 0205556005875
+      - match: "Reg. No. 0205558001478"
+        items:
+          - prop: registrationNumber
+            value: 0205558001478
+      - match: "TIN No. 303808059"
+        items:
+          - prop: taxNumber
+            value: 303808059
+      - match: "Registration no. 7010477698"
+        items:
+          - prop: registrationNumber
+            value: 7010477698
+      - match: "陕西和瑞科技发 展有限公司; Business registration no. 610102100035303"
+        items:
+          - prop: alias
+            value: 陕西和瑞科技发 展有限公司
+          - prop: registrationNumber
+            value: 610102100035303
+      - match: "Registration no. 0087430"
+        items:
+          - prop: registrationNumber
+            value: 0087430
+      - match: "ID No. 14-0001623"
+        items:
+          - prop: idNumber
+            value: 14-0001623
+      - match: "Company registration no. 16-00009045/451 6/(F/1)"
+        items:
+          - prop: registrationNumber
+            value: 16-00009045/451 6/(F/1)
+      - match: "Registration no. 168-86-01556"
+        items:
+          - prop: registrationNumber
+            value: 168-86-01556
+      - match: "Registration no. 988400DCPX4WRVN1G369"
+        items:
+          - prop: registrationNumber
+            value: 988400DCPX4WRVN1G369
+      - match: "Registration no. 44139"
+        items:
+          - prop: registrationNumber
+            value: 44139
+      - match: "Registration no. 74529579"
+        items:
+          - prop: registrationNumber
+            value: 74529579
+      - match: "Mr. Hussain, CNIC: 13503-2238543-9"
+        items:
+          - prop: idNumber
+            value: 13503-2238543-9
+      - match: "Registration No. 3600777040"
+        items:
+          - prop: registrationNumber
+            value: 3600777040
+      - match: "Registered Address: SỐ 51, LȂ XUȂN OAI, PHUÒNG LONG TRUÒNG, QUȂN 9, HO CHI MINH CITY, VIETNAM"
+        items:
+          - prop: address
+            value: SỐ 51, LȂ XUȂN OAI, PHUÒNG LONG TRUÒNG, QUȂN 9, HO CHI MINH CITY, VIETNAM
+      - match: "Vietnames name: Công Ty TNHH Tuấn Hýng (Please click on details to view other Vietnamese name.)"
+        items:
+          - prop: name
+            value: Công Ty TNHH Tuấn Hýng
+      - match: "Vietnamese name: LÝU ÐỨC TUÂN (Please click on details to view other Vietnamese name.)"
+        items:
+          - prop: name
+            value: LÝU ÐỨC TUÂN
+      - match: "Registration no. 120653250"
+        items:
+          - prop: registrationNumber
+            value: 120653250
+      - match: "Registration no. 9429031962711"
+        items:
+          - prop: registrationNumber
+            value: 9429031962711
+      - match: "Registration no. 13-4147986"
+        items:
+          - prop: registrationNumber
+            value: 13-4147986
+      - match: "Registration no. 1998/017039/07"
+        items:
+          - prop: registrationNumber
+            value: 1998/017039/07
+      - match: "(新疆交建路友道路材料科技有限公司,ID: 91650100053184907Q"
+        items:
+          - prop: alias
+            value: 新疆交建路友道路材料科技有限公司
+      - match: "新疆北朋土木工程检测咨询有限公司,ID: 91650104766801418W"
+        items:
+          - prop: alias
+            value: 新疆北朋土木工程检测咨询有限公司
+      - match: "យឹម គឹ មឈាន, ID No. 011148692"
+        items:
+          - prop: name
+            value: យឹម គឹ មឈាន
+          - prop: idNumber
+            value: 011148692
+      - match: "TIN No. 305967596"
+        items:
+          - prop: taxNumber
+            value: 305967596

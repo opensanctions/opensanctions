@@ -57,22 +57,14 @@ def crawl_item(input_dict: dict, context: Context):
     sanction = h.make_sanction(context, entity)
 
     # The date is always in the format %Y/%m/00%d %b %Y. For example: 2022/09/0029 Sep 2022
-    sanction.add(
-        "startDate",
-        h.parse_date(
-            input_dict.pop("Date Added to Alert List").split(" ")[0],
-            formats=["%Y/%m/00%d"],
-        ),
+    h.apply_date(
+        sanction, "startDate", input_dict.pop("Date Added to Alert List").split(" ")[0]
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(input_dict)
-
-
-def unblock_validator(doc: html.HtmlElement) -> bool:
-    return doc.find(".//script[@id='dataContainer']") is not None
 
 
 def crawl(context: Context):
@@ -99,15 +91,16 @@ def crawl(context: Context):
             """,
         },
     ]
+    data_xpath = ".//script[@id='dataContainer']"
     doc = fetch_html(
         context,
         context.data_url,
-        unblock_validator,
+        data_xpath,
         actions=actions,
         cache_days=1,
     )
 
-    table_data = json.loads(doc.find(".//script[@id='dataContainer']").text)
+    table_data = json.loads(doc.find(data_xpath).text)
 
     for item in parse_table(table_data):
         crawl_item(item, context)
