@@ -32,6 +32,40 @@ def get_name_pos(container, context: Context):
     return name, position, details
 
 
+def crawl_page(context: Context, person_url):
+    doc = context.fetch_html(person_url, cache_days=1)
+    containers = doc.xpath(
+        '//div[contains(@class, "tlp-member-description-container")]'
+    )
+    for judge_container in containers:
+        name, position, details = get_name_pos(judge_container, context)
+        person_proxy = context.make("Person")
+        person_proxy.id = context.make_id(name)
+        h.apply_name(person_proxy, full=name)
+        person_proxy.add("sourceUrl", person_url)
+        person_proxy.add("notes", details)
+        person_proxy.add("topics", "role.judge")
+
+        if position is None:
+            context.log.warning(f"Position not found for {name}")
+        position = h.make_position(
+            context,
+            name=position,
+            country="Cayman Islands",
+        )
+        categorisation = categorise(context, position, is_pep=True)
+        if not categorisation.is_pep:
+            continue
+        occupancy = h.make_occupancy(
+            context, person_proxy, position, True, categorisation=categorisation
+        )
+        if not occupancy:
+            continue
+        context.emit(person_proxy)
+        context.emit(position)
+        context.emit(occupancy)
+
+
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
     profile_links = [
@@ -46,34 +80,4 @@ def crawl(context: Context):
             '//div[@class="single-team-area"]//a[@class="rt-ream-me-btn"]/@href'
         )
         for person_url in profile_links:
-            doc = context.fetch_html(person_url, cache_days=1)
-            containers = doc.xpath(
-                '//div[contains(@class, "tlp-member-description-container")]'
-            )
-            for judge_container in containers:
-                name, position, details = get_name_pos(judge_container, context)
-                person_proxy = context.make("Person")
-                person_proxy.id = context.make_id(name)
-                h.apply_name(person_proxy, full=name)
-                person_proxy.add("sourceUrl", person_url)
-                person_proxy.add("notes", details)
-                person_proxy.add("topics", "role.judge")
-
-                if position is None:
-                    context.log.warning(f"Position not found for {name}")
-                position = h.make_position(
-                    context,
-                    name=position,
-                    country="Cayman Islands",
-                )
-                categorisation = categorise(context, position, is_pep=True)
-                if not categorisation.is_pep:
-                    continue
-                occupancy = h.make_occupancy(
-                    context, person_proxy, position, True, categorisation=categorisation
-                )
-                if not occupancy:
-                    continue
-                context.emit(person_proxy)
-                context.emit(position)
-                context.emit(occupancy)
+            crawl_page(context, person_url)
