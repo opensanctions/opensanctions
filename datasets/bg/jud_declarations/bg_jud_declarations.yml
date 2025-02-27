@@ -1,0 +1,76 @@
+title: Bulgaria Judiciary Asset Declarations
+entry_point: crawler.py
+prefix: bg-jud
+coverage:
+  frequency: weekly
+  start: 2025-01-17
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of judges, prosecutors, and investigators in Bulgaria who are required to submit asset 
+  declarations.
+description: |
+  This dataset provides a list of judges, prosecutors, and investigators in Bulgaria with links
+  to their asset declarations.
+
+  Article 175 of the Judicial System Act (Закон за съдебната власт) outlines the requirements 
+  and procedures for asset and interest declarations by judges, prosecutors, and investigators 
+  in Bulgaria. These provisions require senior members of the judiciary to disclose their assets 
+  and interests annually, with mandatory updates for significant changes. This process identifies 
+  politically-exposed persons within Bulgaria's judiciary.
+  [Source: ЗАКОН ЗА СЪДЕБНАТА ВЛАСТ](https://www.justice.government.bg/home/normdoc/2135560660)
+publisher:
+  name: Инспекторат към Висшия съдебен съвет
+  name_en: Inspectorate to the Supreme Judicial Council
+  acronym: ИВСС
+  description: |
+    The Inspectorate to the Supreme Judicial Council is an independent body within Bulgaria's 
+    judiciary. Its primary function is to oversee the administrative activities of courts, 
+    prosecutors, and investigative bodies without compromising their independence.
+  url: https://www.inspectoratvss.bg/en
+  country: bg
+  official: true
+url: https://www.dans.bg/bg/28
+data:
+  url: http://62.176.124.194/
+  format: HTML
+
+dates: 
+  formats: ["%d.%m.%Y"]
+lookups: 
+  doc_id_date: 
+    options: 
+      - match: 2340//15.03.2024
+        value: 15.03.2024
+      - match: 6978//10.05.2024
+        value: 10.05.2024
+      - match: 21767/24/07.2023
+        value: 24.07.2023
+      - match: 9616.17.05.2023
+        value: 17.05.2023
+      - match: 7005.11.05.2023
+        value: 11.05.2023
+  type.date:
+    options:
+      - match: 15.50.2024
+        value: 2024-05-15
+      - match: 25.03.32024
+        value: 2024-03-25
+      - match: "21.102024"
+        value: 2024-10-21
+      - match: "0802.2024"
+        value: 2024-02-08
+      - match: 15..05.2023
+        value: 2023-05-15
+      - match: "0310.2023"
+        value: 2023-10-03
+      - match: 27.10.20.23
+        value: 2023-10-27
+      # weird ones: 
+      - match: 07.04.2023
+        value: 2023-04-07
+      - match: 08.12.2023
+        value: 2023-12-08
+      - match: 12.06.2023
+        value: 2023-06-12
+      - match: 30.02.2024
+        value: null
