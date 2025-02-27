@@ -1,5 +1,5 @@
 title: "Organizations Designated as Terrorist by Bahrain"
-url: https://en.wikipedia.org/wiki/Organizations_designated_as_terrorist_by_Bahrain
+# url: https://en.wikipedia.org/wiki/Organizations_designated_as_terrorist_by_Bahrain
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
@@ -25,12 +25,13 @@ publisher:
   country: bh
   url: https://www.mofa.gov.bh/en/home/
 data:
-  url: https://en.wikipedia.org/wiki/Organizations_designated_as_terrorist_by_Bahrain
-  format: html
-assertions:
-  min:
-    schema_entities:
-      Organization: 90
-  max: 
-    schema_entities:
-      Organization: 100
+  url: https://www.lloc.gov.bh/OG/3649.pdf
+  format: PDF
+
+# assertions:
+#   min:
+#     schema_entities:
+#       Organization: 90
+#   max: 
+#     schema_entities:
+#       Organization: 100
