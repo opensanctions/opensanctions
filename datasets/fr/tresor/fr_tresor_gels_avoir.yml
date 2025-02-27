@@ -5098,3 +5098,12 @@ lookups:
             publicKey: 0x3051Ca7cB7f6C599fA2f27385AD75010cf0f2bbF
           - currency: TRX
             publicKey: TA1hsikRfsgGiW9nEBpT4tEXEySTNYLr2d
+      - match: "Numéro d’enregistrement: 700016217"
+        props:
+          registrationNumber: 700016217
+      - match: "Date d’enregistrement: 10.1.1994: /"
+        props:
+          incorporationDate: 1994-01-10
+      - match: "Date d’enregistrement: 16.7.1944: /"
+        props:
+          incorporationDate: 1944-07-16
