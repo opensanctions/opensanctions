@@ -36,12 +36,14 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 14
+      Person: 30
+      Position: 5
     country_entities:
-      ky: 16
+      ky: 40
   max:
     schema_entities:
-      Person: 24
+      Person: 70
+      Position: 20
 
 lookups: 
   overrides:
