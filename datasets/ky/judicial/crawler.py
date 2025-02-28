@@ -22,13 +22,12 @@ def get_name_pos(container, context: Context):
     position = position_el[0].text_content().strip() if position_el else None
     details = details_el[0].text_content().strip()
 
-    if "chief justice" in name.lower():
-        override_res = context.lookup("overrides", name)
-        if override_res:
-            name = override_res.name
-            position = override_res.position
-        else:
-            context.log.warning(f'No override found for "{name}" and "{position}"')
+    override_res = context.lookup("overrides", name)
+    if override_res:
+        name = override_res.name
+        position = override_res.position
+    elif "chief justice" in name.lower() or position is None:
+        context.log.warning(f'No override found for "{name}" and "{position}"')
 
     name = collapse_spaces(REGEX_CLEAN_NAME.sub("", name))
     # Check for titles not captured by the regex
@@ -54,9 +53,7 @@ def crawl_page(context: Context, person_url):
         person_proxy.add("sourceUrl", person_url)
         person_proxy.add("notes", details)
         person_proxy.add("topics", "role.judge")
-        # Check for cases when position is in the same element as name
-        if position is None:
-            context.log.warning(f"Position not found for {name}")
+
         position = h.make_position(
             context,
             name=position,
@@ -85,8 +82,8 @@ def crawl(context: Context):
     assert len(profile_links) >= 6, profile_links
     for url in profile_links:
         doc = context.fetch_html(url, cache_days=1)
-        profile_links = doc.xpath(
+        person_urls = doc.xpath(
             '//div[@class="single-team-area"]//a[@class="rt-ream-me-btn"]/@href'
         )
-        for person_url in profile_links:
+        for person_url in person_urls:
             crawl_page(context, person_url)
