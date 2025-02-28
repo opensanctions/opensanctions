@@ -145,6 +145,7 @@ lookups:
           - LG-0000732
           - L1-0036411
   license_numbers:
+    normalize: true
     options:
       - match: "C2-\n0023834"
         values: ["C2-0023834"]
