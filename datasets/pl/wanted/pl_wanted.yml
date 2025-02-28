@@ -43,6 +43,8 @@ lookups:
         value: male
       - match: kobieta
         value: female
+      - match: nieznana
+        value: null
   type.country:
     options:
       - match:
