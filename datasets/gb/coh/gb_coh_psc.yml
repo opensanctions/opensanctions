@@ -10,9 +10,9 @@ deploy:
   premium: true
   cpu: "1000m"
   cpu_limit: "2000m"
-  memory: 2500Mi
-  memory_limit: "3000Mi"
-  disk: 200Gi
+  memory: 3000Mi
+  memory_limit: "4000Mi"
+  disk: 150Gi
 exports:
   - statistics.json
   - entities.ftm.json

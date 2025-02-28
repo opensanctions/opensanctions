@@ -67,7 +67,7 @@ config:
   index_options:
     max_candidates: 200
     memory_budget: 2000
-    match_batch: 500
+    match_batch: 300
   dataset: gb_coh_psc
   strip_namespace: true
   threshold: 0.5
