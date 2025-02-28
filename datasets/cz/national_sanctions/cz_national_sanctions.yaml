@@ -70,6 +70,7 @@ lookups:
       - match: "Česká republika"
         value: Czech Republic
   name_notes:
+    normalize: true
     options:
       - match: OBNOSOV/ОБНОСОВ/OBNOSOV Zápis byl zrušen ke dni 18. prosince 2023 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2023/2871.
         names: ["OBNOSOV", "ОБНОСОВ"]
