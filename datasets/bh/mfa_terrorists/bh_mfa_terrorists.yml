@@ -13,7 +13,7 @@ description: |
   various groups and organizations from different regions and affiliations, including humanitarian 
   organizations like Qatar Charity and media outlets like Nabaa TV.
 entry_point: crawler.py
-prefix:  bh-mfa
+prefix: bh-mfa
 publisher:
   name: Ministry of Foreign Affairs of the Kingdom of Bahrain
   acronym: mofa
@@ -35,4 +35,3 @@ data:
 #   max: 
 #     schema_entities:
 #       Organization: 100
-
