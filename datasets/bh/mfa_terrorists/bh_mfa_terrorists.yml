@@ -1,0 +1,38 @@
+title: "Bahrain National Terrorists List"
+# url: https://en.wikipedia.org/wiki/Organizations_designated_as_terrorist_by_Bahrain
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2025-02-28
+summary: >
+  Organizations currently designated as terrorist by the Kingdom of Bahrain.
+description: |
+  The government of Bahrain designates organizations as terrorist entities and maintains a 
+  public list through the Ministry of Foreign Affairs. As of March 3, 2020, this list 
+  includes 95 entities such as Hezbollah, Al-Qaeda, and Boko Haram. The list also covers 
+  various groups and organizations from different regions and affiliations, including humanitarian 
+  organizations like Qatar Charity and media outlets like Nabaa TV.
+entry_point: crawler.py
+prefix:  bh-mfa
+publisher:
+  name: Ministry of Foreign Affairs of the Kingdom of Bahrain
+  acronym: mofa
+  official: true
+  description: |
+    The Ministry of Foreign Affairs in Bahrain was established in 1971. It is responsible for
+    managing Bahrain's foreign policy and international relations, as well as protecting the 
+    interests of Bahraini citizens abroad. 
+  country: bh
+  url: https://www.mofa.gov.bh/en/home/
+data:
+  url: https://www.lloc.gov.bh/OG/3649.pdf
+  format: PDF
+
+# assertions:
+#   min:
+#     schema_entities:
+#       Organization: 90
+#   max: 
+#     schema_entities:
+#       Organization: 100
+
