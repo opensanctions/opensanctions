@@ -1,6 +1,6 @@
 type: collection
 title: United States Sanctions
-hidden: true
+hidden: false
 coverage:
   start: "2024-07-01"
   schedule: "0 */6 * * *"
@@ -12,7 +12,8 @@ summary: >
   parts of the US federal government.
 description: |
   This collection combines all designated entities from the various sanctions
-  lists issues by the US.
+  lists issues by the US. It's a convenient subset for screening purposes of
+  entities regulated under US law.
 children:
   - us_bis_denied
   - us_cuba_sanctions
@@ -23,5 +24,6 @@ children:
   - us_ofac_sdn
   - us_ofac_cons
   - us_state_terrorist_exclusion
+  - us_ddtc_debarred
   - us_trade_csl
   - us_nk_jointventures
