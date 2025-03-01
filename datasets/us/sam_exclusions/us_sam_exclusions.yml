@@ -195,3 +195,11 @@ lookups:
         value: CSXX
       - match: XWB
         value: PS
+  type.name:
+    lowercase: true
+    options:
+      - match:
+          - "LIMITED"
+          - "S.A. DE C.V."
+          - "S.A.P.I. DE C.V."
+        value: null
