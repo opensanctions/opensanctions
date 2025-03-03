@@ -26,7 +26,7 @@ data:
   url: https://www.wvmmis.com/WV%20Medicaid%20Provider%20SanctionedExclusion/Forms/AllItems.aspx
   format: PDF
 dates:
-  formats: ["%m/%d/%Y"]
+  formats: ["%m/%d/%Y", "%m/%d/%y"]
 
 assertions:
   min:
