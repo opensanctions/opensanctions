@@ -1,3 +1,5 @@
+import re
+
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
 
@@ -45,6 +47,18 @@ LINKS = [
     },
 ]
 
+# e.g. Ocean Dolphin Ship Management (6270796
+# or   Ocean Dolphin Ship Co. c/o Ocean Ship Management LLC (6270796
+REGEX_SHIP_PARTY = re.compile(
+    r"""
+    ^(?P<name>.+?)  # non-greedy to prevent matching the c/o part
+    ( [cсп]/[oо]:?\ (?P<care_of>[^\(]+)\ )?
+    \(
+    (?P<registration_number>.+)$
+    """,
+    re.VERBOSE,
+)
+
 
 def extract_label_value_pair(label_elem, value_elem, data):
     label = label_elem.text_content().strip().replace("\n", " ")
@@ -91,6 +105,7 @@ def crawl_index_page(context: Context, index_page, data_type, program):
         index_page,
         unblock_validator=".//div[@id='main-grid']",
         html_source="httpResponseBody",
+        # cache_days=1,  # only for dev
     )
     main_grid = index_page.find('.//div[@id="main-grid"]')
     if data_type == "captain":
@@ -283,6 +298,35 @@ def crawl_vessel(context: Context, link, program):
     )
 
 
+def name_looks_unclean(name):
+    return any(
+        [
+            dodgy
+            for dodgy in ["/", "current", "former", "previous", "("]
+            if dodgy in name.lower()
+        ]
+    )
+
+
+def parse_ship_party(relation_info):
+    relation_parts = relation_info.split(" / ")
+    if len(relation_parts) == 3:
+        entity_name_number, entity_country, entity_date = relation_parts
+        match = REGEX_SHIP_PARTY.match(entity_name_number)
+        if match and not name_looks_unclean(match.group("name")):
+            entity_name = match.group("name").strip()
+            registration_number = match.group("registration_number")
+            care_of = match.group("care_of")
+            return {
+                "name": entity_name,
+                "registration_number": registration_number,
+                "country": entity_country,
+                "date": entity_date,
+                "care_of": care_of,
+            }
+    return None
+
+
 def crawl_ship_relation(
     context,
     vessel,
@@ -294,43 +338,46 @@ def crawl_ship_relation(
 ):
     if relation_info is None:
         return
-    # Split the relation info into expected parts
-    relation_parts = relation_info.split(" / ")
-    if len(relation_parts) == 3:
-        entity_name_number, entity_country, entity_date = relation_parts
-        if len(h.multi_split(entity_name_number, [" (", "c/o"])) == 2:
-            entity_name, registration_number = entity_name_number.split(" (")
-            care_of = None
-        else:
-            override_res = context.lookup("overrides", entity_name_number)
-            if override_res:
-                entity_name = override_res.name
-                registration_number = override_res.registration_number
-                care_of = override_res.care_of
-            else:
-                context.log.warning(
-                    f'No override found for "{entity_name_number}".',
-                    key=entity_name_number,
-                )
+    if result := parse_ship_party(relation_info):
+        entity_name = result["name"]
+        registration_number = result["registration_number"]
+        entity_country = result["country"]
+        entity_date = result["date"]
+        care_of = result["care_of"]
+    else:
+        res = context.lookup("ship_party", relation_info)
+        if res:
+            if res.name is None:
                 return
+            entity_name = res.name
+            registration_number = res.registration_number
+            entity_country = res.country
+            entity_date = res.date
+            care_of = res.care_of
+        else:
+            context.log.warning(
+                f"Couldn't parse vessel-related party '{relation_info}'",
+                string=relation_info,
+            )
+            return
 
-        entity = context.make("Organization")
-        entity.id = context.make_id(entity_name, entity_country)
-        entity.add("name", entity_name)
-        entity.add("imoNumber", registration_number)
-        entity.add("country", entity_country)
-        context.emit(entity)
+    entity = context.make("Organization")
+    entity.id = context.make_id(entity_name, entity_country)
+    entity.add("name", entity_name)
+    entity.add("imoNumber", registration_number)
+    entity.add("country", entity_country)
+    context.emit(entity)
 
-        relation = context.make(rel_schema)
-        relation.id = context.make_id(vessel.id, rel_role, entity.id)
-        relation.add(from_prop, vessel.id)
-        relation.add(to_prop, entity.id)
-        relation.add("role", rel_role)
-        h.apply_date(relation, "startDate", entity_date)
-        context.emit(relation)
+    relation = context.make(rel_schema)
+    relation.id = context.make_id(vessel.id, rel_role, entity.id)
+    relation.add(from_prop, vessel.id)
+    relation.add(to_prop, entity.id)
+    relation.add("role", rel_role)
+    h.apply_date(relation, "startDate", entity_date)
+    context.emit(relation)
 
-        if care_of is not None:
-            emit_care_of(context, entity, care_of)
+    if care_of is not None:
+        emit_care_of(context, entity, care_of)
 
 
 def crawl_person(context: Context, link, program):
@@ -502,6 +549,7 @@ def crawl(context: Context):
                 current_url,
                 unblock_validator=".//div[@id='main-grid']",
                 html_source="httpResponseBody",
+                # cache_days=1,  # only for dev
             )
             doc.make_links_absolute(base_url)
             if doc is None:
