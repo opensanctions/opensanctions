@@ -72,7 +72,7 @@ lookups:
           - 1972-08-10
           - 1972-08-11
       - match: 1963-1964
-        values: 
+        values:
           - 1963
           - 1964
       - match:
@@ -81,3 +81,40 @@ lookups:
         value: null
       - match: born in the early 1970s
         values: [1970, 1971, 1972, 1973, 1974]
+  type.name:
+    normalize: true
+    lowercase: true
+    options:
+      - match: >
+          Беларускi народны банк) (Russian: Открытое акционерное общество "Белорусский народный банк"/ ОАО "БНБ-Банк"
+        values:
+          - Беларускi народны банк
+          - Открытое акционерное общество "Белорусский народный банк"
+          - ОАО "БНБ-Банк"
+      - match: >
+          Адкрытае акцыянернае таварыства «Парытэтбанк» (ААТ «Парытэтбанк»)
+        values:
+          - Адкрытае акцыянернае таварыства «Парытэтбанк»
+          - ААТ «Парытэтбанк»
+      - match: >
+          закрытое акционерное общество "МТБанк" (ЗАО "МТБанк")
+        values:
+          - закрытое акционерное общество "МТБанк"
+          - ЗАО "МТБанк"
+      - match: >
+          Aleh Ryhoravich MISHCHANKA, Belarusian: Алег Рыгоравiч МIШЧАНКА, Russian: Олег Григорьевич Мищенко
+        values:
+          - Aleh Ryhoravich MISHCHANKA
+          - Алег Рыгоравiч МIШЧАНКА
+          - Олег Григорьевич Мищенко
+      - match: >
+          Открытое акционерное общество "ВОЛАТАВТО"/ ОАО "ВОЛАТАВТО"
+        values:
+          - Открытое акционерное общество "ВОЛАТАВТО"
+          - ОАО "ВОЛАТАВТО"
+      - contains: MEC Steel Mills (Hmaw
+        value: MEC Steel Mills (Hmaw Bi/Pyi/Ywama)
+      - match: Pyi
+        value: null
+      - match: Ywama
+        value: null

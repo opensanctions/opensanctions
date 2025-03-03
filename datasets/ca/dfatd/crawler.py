@@ -1,3 +1,4 @@
+from typing import Dict, List
 from lxml.etree import _Element
 from normality import collapse_spaces
 from rigour.mime.types import XML
@@ -6,7 +7,36 @@ from followthemoney.types import registry
 from zavod import Context
 from zavod import helpers as h
 
-ALIAS_SPLITS = [", ", " (a.k.a.", "; a.k.a. ", "ALIAS: ", "Hebrew: ", "Arabic: "]
+NAME_SPLITS = [
+    " (a.k.a.",
+    " (also known as",
+    "/",
+]
+ALIAS_SPLITS = [
+    ", ",
+    "; ",
+    " (a.k.a.",
+    " (also known as",
+    "; a.k.a. ",
+    "ALIAS: ",
+    "Hebrew: ",
+    "Arabic: ",
+    "Belarusian:",
+    "Belarussian:",
+    "Russian:",
+    "Ukrainian:",
+]
+
+
+def split_name(context: Context, name: str) -> List[str]:
+    name = collapse_spaces(name)
+    if name is None:
+        return []
+    parts: List[str] = []
+    for part in h.multi_split(name, NAME_SPLITS):
+        part = part.rstrip(")").rstrip(";")
+        parts.append(part)
+    return parts
 
 
 def crawl(context: Context):
@@ -18,16 +48,23 @@ def crawl(context: Context):
 
 
 def parse_entry(context: Context, node: _Element):
-    entity_name = node.findtext("./Entity")
-    given_name = node.findtext("./GivenName")
-    last_name = node.findtext("./LastName")
-    dob = node.findtext("./DateOfBirth")
-    schedule = node.findtext("./Schedule")
-    if schedule == "N/A":
+    row: Dict[str, str] = {}
+    for child in node:
+        if child.text is not None:
+            row[child.tag] = child.text
+
+    entity_name = row.pop("Entity", None)
+    given_name = row.pop("GivenName", None)
+    last_name = row.pop("LastName", None)
+    dob = row.pop("DateOfBirth", None)
+    title = row.pop("Title", None)
+    imo_number = row.pop("ShipIMONumber", None)
+    schedule = row.pop("Schedule", None)
+    if schedule in ("N/A", None):
         schedule = ""
     if entity_name is None:
         entity_name = h.make_name(given_name=given_name, last_name=last_name)
-    program = node.findtext("./Country")
+    program = row.pop("Country")
     country = program
     if program is not None and "/" in program:
         country, _ = program.split("/", 1)
@@ -35,13 +72,21 @@ def parse_entry(context: Context, node: _Element):
     entity = context.make("LegalEntity")
     country_code = registry.country.clean(country)
     entity.id = context.make_id(schedule, country_code, entity_name)
-    if given_name is not None or last_name is not None or dob is not None:
+    if imo_number is not None:
+        entity = context.make("Vessel")
+        entity.id = context.make_id(schedule, country_code, entity_name, imo_number)
+        entity.add("imoNumber", imo_number)
+        entity.add("name", entity_name)
+        entity.add("type", title)
+        h.apply_date(entity, "buildDate", dob)
+    elif given_name is not None or last_name is not None or dob is not None:
         entity.add_schema("Person")
         h.apply_name(entity, first_name=given_name, last_name=last_name)
         h.apply_date(entity, "birthDate", dob)
+        entity.add("title", title)
     elif entity_name is not None:
-        entity.add("name", entity_name.split("/"))
-        # entity.add("incorporationDate", parse_date(dob))
+        entity.add("name", split_name(context, entity_name))
+        h.apply_date(entity, "incorporationDate", dob)
         assert dob is None, (dob, entity_name)
 
     entity.add("topics", "sanction")
@@ -50,14 +95,17 @@ def parse_entry(context: Context, node: _Element):
     sanction = h.make_sanction(context, entity)
     sanction.add("program", program)
     sanction.add("reason", schedule)
-    sanction.add("authorityId", node.findtext("./Item"))
-    h.apply_date(sanction, "listingDate", node.findtext("./DateOfListing"))
+    sanction.add("authorityId", row.pop("Item"))
+    h.apply_date(sanction, "listingDate", row.pop("DateOfListing"))
 
-    names = collapse_spaces(node.findtext("./Aliases"))
+    names = collapse_spaces(row.pop("Aliases", ""))
     if names is not None:
         for name in h.multi_split(names, ALIAS_SPLITS):
             trim_name = collapse_spaces(name)
-            entity.add("alias", trim_name or None)
+            # if " or " in trim_name:
+            #     print("ALIAS", trim_name)
+            entity.add("alias", trim_name)
 
+    context.audit_data(row)
     context.emit(entity)
     context.emit(sanction)
