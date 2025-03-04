@@ -64,7 +64,9 @@ def crawl_holder(
         # Avoid constructing a proxy which emits a warning
         # before we discard it.
         return
-    entity.add("birthDate", birth_date)
+    if birth_date is not None and birth_date[:10].endswith("-01-01"):
+        birth_date = birth_date[:4]
+    entity.add("birthDate", birth_date, original_value=holder.get("person_birth"))
     entity.add("deathDate", holder.get("person_death"))
 
     occupancy = h.make_occupancy(
