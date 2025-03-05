@@ -71,6 +71,12 @@ lookups:
         value: Kazakhstan
       - match: Uzbekistan, Rep. of
         value: Uzbekistan
+      - match: CESA HONDURAS
+        value: Honduras
+      - match: CESA PANAMÁ
+        value: Panama
+      - match: Agentina
+        value: Argentina
   type.date:
     options:
       - match: 10/31/23

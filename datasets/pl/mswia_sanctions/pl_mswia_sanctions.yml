@@ -177,3 +177,9 @@ lookups:
         props:
           address: "Pantelis Katelaris, 16, Diagoras Building, Floor 3, Flat 303, 1097 Nicosia, Cyprus"
           registrationNumber: "C392309"
+      - match: 'adres: Voronyansky 35, Office 8 220007 Mińsk (nazwa rosyjskojęzyczna: ул. Воронянского, 35, пом. 8, 220007, г. Минск) numer rejestrowy: BY193759703'
+        props:
+          address:
+            - "Voronyansky 35, Office 8 220007 Mińsk"
+            - "ул. Воронянского, 35, пом. 8, 220007, г. Минск"
+          registrationNumber: "BY193759703"
