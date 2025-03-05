@@ -5107,3 +5107,211 @@ lookups:
       - match: "Date d’enregistrement: 16.7.1944: /"
         props:
           incorporationDate: 1944-07-16
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie - Date d'enregistrement: 25.4.2011: /"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "Saint-Pétersbourg, Fédération de Russie"
+          incorporationDate: 2011-04-25
+      - match: "Numéro d'enregistrement: 1117847157086"
+        props:
+          registrationNumber: 1117847157086
+      - match: "Numéro d'enregistrement: 1037804006998"
+        props:
+          registrationNumber: 1037804006998
+      - match: "KPP: 7802072267"
+        schema: Company
+        props:
+          kppCode: 7802072267
+      - match: "Type d'entité: Institution fédérale financée par l'État - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 3.1.2003 (fondé en 1918): /"
+        props:
+          jurisdiction: ru
+          legalForm: Institution fédérale financée par l'État
+          incorporationDate: 2003-01-03
+      - match: "Numéro d'enregistrement: 1026103161930"
+        props:
+          registrationNumber: 1026103161930
+      - match: "INN: 6163013800"
+        props:
+          innCode: 6163013800
+      - match: "KPP: 616301001"
+        schema: Company
+        props:
+          kppCode: 616301001
+      - match: "Numéro d'enregistrement: 1237700185645"
+        props:
+          registrationNumber: 1237700185645
+      - match: "Type d'entité: organisation autonome à but non lucratif - Lieu d'enregistrement: Brodnikov pereulok 7, Moscou, Fédération de Russie - Date d'enregistrement: 9.3.2023 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: organisation autonome à but non lucratif
+          address: "Brodnikov pereulok 7, Moscou, Fédération de Russie"
+          incorporationDate: 2023-03-09
+      - match: "Numéro d'enregistrement: 1127747292738"
+        props:
+          registrationNumber: 1127747292738
+      - match: "Numéro d'identification fiscale: 7720770380"
+        props:
+          taxNumber: 7720770380
+      - match: "Lieu d'enregistrement: Trekhprudny 5, Moscou, Fédération de Russie: /"
+        props:
+          address: "Trekhprudny 5, Moscou, Fédération de Russie"
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 27.12.2012 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2012-12-27
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie - Date d'enregistrement: 15.12.2023: /"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "Saint-Pétersbourg, Fédération de Russie"
+          incorporationDate: 2023-12-15
+      - match: "Numéro d'enregistrement: 1237800143569"
+        props:
+          registrationNumber: 1237800143569
+      - match: "Numéro d'enregistrement: 1157746097629"
+        props:
+          registrationNumber: 1157746097629
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 12.2.2015: /"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: 2015-02-12
+      - match: "Numéro d'enregistrement: 1027804858146"
+        props:
+          registrationNumber: 1027804858146
+      - match: "Numéro d'identification fiscale: 7810240719"
+        props:
+          taxNumber: 7810240719
+      - match: "Type d'entité: société publique par actions - Principal établissement: Fédération de Russie - Lieu d'enregistrement: Saint-Pétersbourg: /"
+        props:
+          jurisdiction: ru
+          legalForm: société publique par actions
+      - match: "Numéro d'enregistrement: 1107746582052"
+        props:
+          registrationNumber: 1107746582052
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 22.7.2010 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2010-07-22
+      - match: "Numéro d'enregistrement: 110108010146888"
+        props:
+          registrationNumber: 110108010146888
+      - match: "Code de crédit social unifié: 91110108661572276L"
+        props:
+          idNumber: 91110108661572276L
+      - match: "Numéro d'enregistrement: 1037700128828"
+        props:
+          registrationNumber: 1037700128828
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 4.2.2003 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: 2003-02-04
+      - match: "Numéro d'enregistrement: 1027804850369"
+        props:
+          registrationNumber: 1027804850369
+      - match: "Numéro d'identification fiscale: 7810221748"
+        props:
+          taxNumber: 7810221748
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "Saint-Pétersbourg, Fédération de Russie"
+      - match: "Numéro d'enregistrement: 1105249001120"
+        props:
+          registrationNumber: 1105249001120
+      - match: "Numéro d'identification fiscale: 5214010100"
+        props:
+          taxNumber: 5214010100
+      - match: "KPP: 521401001"
+        schema: Company
+        props:
+          kppCode: 521401001
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 18.2.2010: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2010-02-18
+      - match: "Type d'entité: Fondation caritative privée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 4.4.2023: /"
+        props:
+          jurisdiction: ru
+          legalForm: Fondation caritative privée
+          incorporationDate: 2023-04-04
+      - match: "Numéro d'enregistrement: 1234000002521"
+        props:
+          registrationNumber: 1234000002521
+      - match: "Numéro d'identification fiscale: 4000000400"
+        props:
+          taxNumber: 4000000400
+      - match: "KPP: 400001001"
+        schema: Company
+        props:
+          kppCode: 400001001
+      - match: "Numéro d'enregistrement: 1027739610018"
+        props:
+          registrationNumber: 1027739610018
+      - match: "Date d'enregistrement: 6.11.1992 - Principal établissement: Fédération de Russie: /"
+        props:
+          incorporationDate: 1992-11-06
+          jurisdiction: ru
+      - match: "Numéro d'enregistrement: 1159102083238"
+        props:
+          registrationNumber: 1159102083238
+      - match: "Numéro d'identification fiscale: 9104005842"
+        props:
+          taxNumber: 9104005842
+      - match: "Type d'entité: société à responsabilité limitée - Date d'enregistrement: 2.4.2015 - Principal établissement: Crimée: /"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2015-04-02
+          address: "Crimée"
+      - match: "Numéro d'enregistrement: 1027807989879"
+        props:
+          registrationNumber: 1027807989879
+      - match: "INN: 7816043890"
+        props:
+          innCode: 7816043890
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Turquie: /"
+        props:
+          jurisdiction: tr
+          legalForm: société à responsabilité limitée
+      - match: "Numéro d'identification fiscale: 3361229712"
+        props:
+          taxNumber: 3361229712
+      - match: "Type d'entité: société par actions non publique - Lieu d'enregistrement: Kirov, Fédération de Russie - Date d'enregistrement: 2.6.2003 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions non publique
+          address: "Kirov, Fédération de Russie"
+          incorporationDate: 2003-06-02
+      - match: "Numéro d'enregistrement: 1034316578680"
+        props:
+          registrationNumber: 1034316578680
+      - match: "Numéro d'identification fiscale: 4345029946"
+        props:
+          taxNumber: 4345029946
+      - match: "KPP: 434501001"
+        schema: Company
+        props:
+          kppCode: 434501001
+      - match: "Numéro d'enregistrement: 1235000011058"
+        props:
+          registrationNumber: 1235000011058
+      - match: "INN: 5005073080"
+        props:
+          innCode: 5005073080
+      - match: "OKPO: 80688660"
+        props:
+          okpoCode: 80688660
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 31.1.2023 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2023-01-31

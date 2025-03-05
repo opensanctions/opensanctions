@@ -195,6 +195,9 @@ lookups:
           - Forever Winner International Development Ltd.
           - Guoliang Yao
           - Yan Lin
+      - match: la société Forever Winner International Development Ltd
+        entities:
+          - Forever Winner International Development Ltd
       - match: 'BRED Banque Populaire'
         entities:
           - BRED Banque Populaire
