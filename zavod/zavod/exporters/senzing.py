@@ -11,21 +11,22 @@ from pprint import pprint  # noqa
 from typing import Any, Dict
 
 from followthemoney.types import registry
+from opensearchpy import Q
 from rigour.ids.wikidata import is_qid
 
 from zavod.entity import Entity
 from zavod.exporters.common import Exporter
-from zavod.logs import get_logger
 from zavod.runtime.urls import make_entity_url
 from zavod.util import write_json
 
 ADDR_ATTRS = ["ADDR_FULL", "PLACE_OF_BIRTH"]
 STMT_PROPS_TO_MAP = {
-    "IMONUMBER": "IMO_NUMBER",
-    "MMSI": "MMSI_NUMBER",
-    "CALLSIGN": "CALL_SIGN",
-    "ISIN": "ISIN_NUMBER",
-    "NPICODE": "NPI_NUMBER",
+    "imoNumber": "IMO_NUMBER",
+    "mmsi": "MMSI_NUMBER",
+    "callSign": "CALL_SIGN",
+    "isin": "ISIN_NUMBER",
+    "isinCode": "ISIN_NUMBER",
+    "npiCode": "NPI_NUMBER",
 }
 
 
@@ -204,25 +205,18 @@ class SenzingExporter(Exporter):
         for stmt in entity.get_type_statements(registry.identifier):
             if stmt.value in seen_identifiers:
                 continue
+            seen_identifiers.add(stmt.value)
 
-            # Map to a specific attribute if the statement prop is in STMT_PROPS_TO_MAP, otherwise use OTHER_ID_NUMBER
-            if (stmt_prop_upper := stmt.prop.upper()) in STMT_PROPS_TO_MAP:
-                push(
-                    record,
-                    "IDENTIFIERS",
-                    {STMT_PROPS_TO_MAP[stmt_prop_upper]: stmt.value},
-                )
-            else:
-                push(
-                    record,
-                    "IDENTIFIERS",
-                    {"OTHER_ID_TYPE": stmt.prop, "OTHER_ID_NUMBER": stmt.value},
-                )
+            identifier = {"OTHER_ID_TYPE": stmt.prop, "OTHER_ID_NUMBER": stmt.value}
+            identifier_type = STMT_PROPS_TO_MAP.get(stmt.prop)
+            if identifier_type is not None:
+                identifier = {identifier_type: stmt.value}
+            push(record, "IDENTIFIERS", identifier)
 
         # Retrieve the OFAC ID from the OFAC URL and add to IDENTIFIERS
-        for stmt in entity.get_type_statements(registry.url):
-            if ".ofac.treas.gov/Details.aspx?id=" in stmt.value:
-                _, ofac_id = stmt.value.split("?id=")
+        for value in entity.get("sourceUrl", quiet=True):
+            if ".ofac.treas.gov/Details.aspx?id=" in value:
+                _, ofac_id = value.split("?id=")
                 if ofac_id:
                     push(record, "IDENTIFIERS", {"OFAC_ID": ofac_id})
 
