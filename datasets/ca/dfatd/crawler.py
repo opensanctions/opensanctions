@@ -53,10 +53,10 @@ def parse_entry(context: Context, node: _Element):
         if child.text is not None:
             row[child.tag] = child.text
 
-    entity_name = row.pop("Entity", None)
+    entity_name = row.pop("EntityOrShip", None)
     given_name = row.pop("GivenName", None)
     last_name = row.pop("LastName", None)
-    dob = row.pop("DateOfBirth", None)
+    dob = row.pop("DateOfBirthOrShipBuildDate", None)
     title = row.pop("Title", None)
     imo_number = row.pop("ShipIMONumber", None)
     schedule = row.pop("Schedule", None)
