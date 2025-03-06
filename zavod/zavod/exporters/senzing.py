@@ -5,7 +5,7 @@
 # As a next step, the matching results could be converted back into a
 # nomenklatura resolver file and then used to generate integrated FtM entities.
 
-import hashlib
+import re
 from itertools import product
 from pprint import pprint  # noqa
 from typing import Any, Dict
@@ -27,6 +27,7 @@ STMT_PROPS_TO_MAP = {
     "isinCode": "ISIN_NUMBER",
     "npiCode": "NPI_NUMBER",
 }
+NORM_TEXT = re.compile(r"[^\w\d]", re.U)
 
 
 def push(obj: Dict[str, Any], section: str, value: Dict[str, Any]) -> None:
@@ -53,12 +54,8 @@ def clean(obj: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
-def normalize_attr_value(value: str) -> str:
-    return value.strip(" ").lower()
-
-
 def hash_value(value: str) -> str:
-    return hashlib.md5(normalize_attr_value(value).encode("utf-8")).hexdigest()
+    return NORM_TEXT.sub("", value).lower()
 
 
 class SenzingExporter(Exporter):
@@ -70,7 +67,7 @@ class SenzingExporter(Exporter):
         super().setup()
         self.fh = open(self.path, "wb")
         self.domain_name = "OPEN-SANCTIONS"
-        self.source_name = f"OS-{self.dataset.name.upper()}"
+        self.source_name = f"OS-{self.dataset.name.upper().replace('_', '-')}"
         if self.dataset.is_collection and self.dataset.name != "openownership":
             self.source_name = self.domain_name
 
@@ -262,17 +259,6 @@ class SenzingExporter(Exporter):
 
             if len(addrs_list) != len(addr_hashes):
                 record["ADDRESSES"] = unique_addrs
-
-        # Fix US- prefixed to the state, seen in lei-
-        # Change address from 'CORPORATION TRUST CENTER, WILMINGTON, US-DE 19801' -> 'CORPORATION TRUST CENTER, WILMINGTON, DE, 19801'
-        if entity.id.startswith("lei-"):
-            for addr_index, addr_dict in enumerate(record.get("ADDRESSES", [])):
-                if (addr_str := addr_dict.get("ADDR_FULL", "")) and ", US-" in addr_str:
-                    us_index = addr_str.rindex(" US-")
-                    us_list = addr_str[us_index:].strip().split(" ")
-                    us_list[0] = us_list[0].replace("US-", "")
-                    new_addr = f"{addr_str[:us_index + 1]}{', '.join(us_list)}"
-                    record["ADDRESSES"][addr_index]["ADDR_FULL"] = new_addr
 
         # pprint(record)
         write_json(record, self.fh)
