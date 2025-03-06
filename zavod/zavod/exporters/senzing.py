@@ -11,7 +11,6 @@ from pprint import pprint  # noqa
 from typing import Any, Dict
 
 from followthemoney.types import registry
-from opensearchpy import Q
 from rigour.ids.wikidata import is_qid
 
 from zavod.entity import Entity
