@@ -19,7 +19,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         context,
         street=row.pop("street"),
         city=row.pop("city"),
-        state=row.pop("sta_te"),
+        state=row.pop("state"),
         country_code="US",
         postal_code=zip_code,
     )
@@ -48,4 +48,7 @@ def crawl(context: Context) -> None:
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
     for item in h.parse_pdf_table(context, path, headers_per_page=True):
+        if all([v == "" for v in item.values()]):
+            continue
+
         crawl_item(item, context)
