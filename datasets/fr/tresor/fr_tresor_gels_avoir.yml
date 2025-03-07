@@ -103,6 +103,15 @@ lookups:
         props:
           jurisdiction: ru
           address: "Moscou, Russie"
+      - match: "Lieu d'enregistrement: Fédération de Russie"
+        props:
+          jurisdiction: ru
+      - match: "Lieu d'enregistrement: Turquie"
+        props:
+          jurisdiction: tr
+      - match: "Lieu d'enregistrement: Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
+        props:
+          address: "Lieu d'enregistrement: Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
       - match: "Entités associées : GTLK Europe, GTLK Asia, GTLK Middle East: Société de transport"
         associates:
           - GTLK Europe

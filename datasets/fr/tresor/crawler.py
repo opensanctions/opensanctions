@@ -1,7 +1,7 @@
 import json
 from typing import Any, Dict, Optional
 
-import followthemoney
+from datapatch import Lookup
 from normality import slugify
 from prefixdate import parse_parts
 
@@ -24,10 +24,13 @@ SCHEMATA = {
 
 SEPARATORS = "/:;-. "
 # Order matters, earlier entries will be matched first
+# We don't match free-text fields (currently address) because they could swallow up extra data of unmapped keys.
+# For example, consider "Lieu d'enregistrement: Tehran, Iran - New Key: blabla", "New Key: blabla" would end up in the
+# address field.
 TEXT_KEYS = {
     "Type d'entité": "legalForm",
     "Date d'enregistrement": "incorporationDate",
-    "Lieu d'enregistrement": "address",
+    "Lieu d'enregistrement": None,  # address, which is a free text field we don't auto-parse
     "Principal établissement": "jurisdiction",
     "Principaux établissements": "jurisdiction",
     "Établissement principal": "jurisdiction",
@@ -69,7 +72,7 @@ def clean_key(key: str) -> Optional[str]:
     return slugify(key)
 
 
-def parse_split(context: Context, entity: Entity, full: str):
+def parse_split(full: str):
     full = full.replace("’", "'")
 
     # We try to find any of the keys in TEXT_KEYS and split on them. The basic idea is to not split on separators,
@@ -88,7 +91,9 @@ def parse_split(context: Context, entity: Entity, full: str):
     return cleaned_segments
 
 
-def apply_identification_lookup(context, lookup, entity, segment) -> bool:
+def apply_identification_lookup(
+    context: Context, lookup: Lookup, entity: Entity, segment: str
+) -> bool:
     """Apply a lookup for an identification segment. Returns True if a match was found, else False."""
     result = lookup.match(segment)
 
@@ -144,7 +149,7 @@ def parse_identification(
     ):
         return
 
-    segments = parse_split(context, entity, full)
+    segments = parse_split(full)
     for segment in segments:
         if apply_identification_lookup(
             context, context.get_lookup("identification_segment"), entity, segment
@@ -161,6 +166,19 @@ def parse_identification(
                     )
                 elif propname == "incorporationDate":
                     h.apply_date(entity, propname, value)
+
+                # Special handling for Russian tax/registration numbers, which is most companies on the list
+                elif propname == "registrationNumber":
+                    if rigour.ids.OGRN.is_valid(value):
+                        entity.add("ogrnCode", value)
+                    else:
+                        entity.add("registrationNumber", value)
+                elif propname == "taxNumber":
+                    if rigour.ids.INN.is_valid(value):
+                        entity.add("innCode", value)
+                    else:
+                        entity.add("taxNumber", value)
+
                 else:
                     entity.add(propname, value, lang="fra", original_value=segment)
 
@@ -177,18 +195,6 @@ def parse_identification(
                 segment=segment,
                 full=full,
             )
-
-    # Special handling for Russian tax/registration numbers, which is most companies on the list
-    if followthemoney.model.get("LegalEntity") in entity.schema.schemata:
-        registration_number = entity.first("registrationNumber")
-        if registration_number and rigour.ids.OGRN.is_valid(registration_number):
-            entity.add("ogrnCode", registration_number)
-            entity.remove("registrationNumber", registration_number)
-
-        tax_number = entity.first("taxNumber")
-        if tax_number and rigour.ids.INN.is_valid(tax_number):
-            entity.add("innCode", tax_number)
-            entity.remove("taxNumber", tax_number)
 
 
 def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, value):
