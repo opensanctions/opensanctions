@@ -16,7 +16,6 @@ from structlog.types import Processor
 import sentry_sdk
 from followthemoney.schema import Schema
 from zavod import settings
-from zavod.sentry import SentryProcessor, SENTRY_FINGERPRINT_VARIABLE_MESSAGE
 
 Event = MutableMapping[str, str]
 
@@ -39,11 +38,6 @@ REDACT_IGNORE_LIST = {
 REDACT_MIN_LENGTH = 5
 URI_WITH_CREDENTIALS = r"(\w+)://[^:]+:[^@]+@"
 REGEX_URI_WITH_CREDENTIALS = re.compile(URI_WITH_CREDENTIALS)
-
-# Module level so we can modify the level later
-# After we've managed to regain control of whether we want to log warnings in Entity.add, we can probably
-# clean this up. See https://github.com/opensanctions/opensanctions/issues/1896
-_sentry_processor: Optional[SentryProcessor] = None
 
 
 class RedactingProcessor:
@@ -119,7 +113,7 @@ def configure_sentry_integration() -> None:
             environment=settings.SENTRY_ENVIRONMENT,
             auto_enabling_integrations=False,
             disabled_integrations=[
-                # We disable the default logging integration because we have our custom structlog Processor
+                # We disable the logging integration since we handle that with our issues infrastructure
                 sentry_sdk.integrations.logging.LoggingIntegration  # type: ignore
             ],
             attach_stacktrace=True,
@@ -130,12 +124,6 @@ def set_sentry_dataset_name(dataset_name: str) -> None:
     structlog.contextvars.bind_contextvars(dataset=dataset_name)
     # A Transaction in Sentry parlance is the "current task being executed"
     sentry_sdk.get_current_scope().set_transaction_name(dataset_name)
-
-
-def set_sentry_event_level(level: int) -> None:
-    """Set the level above which events are sent to Sentry."""
-    if _sentry_processor is not None:
-        _sentry_processor.event_level = level
 
 
 def configure_logging(level: int = logging.DEBUG) -> None:
@@ -152,19 +140,6 @@ def configure_logging(level: int = logging.DEBUG) -> None:
     ]
 
     emitting_processors: List[Processor] = [log_issue]
-    if settings.ENABLE_SENTRY:
-        global _sentry_processor
-        _sentry_processor = SentryProcessor(
-            event_level=logging.WARNING,
-            event_dict_as_extra=True,
-            # Attach the dataset name as a tag in Sentry
-            tag_keys=["dataset"],
-            # Disable the default grouping magic, we only want to group by message and dataset. Otherwise, log messages
-            # along the lines of "Problem with entity <id>" might be grouped by the internal magic, even though they are
-            # actually separate data issues.
-            fingerprint=[SENTRY_FINGERPRINT_VARIABLE_MESSAGE, "{{ tag.dataset }}"],
-        )
-        emitting_processors.append(_sentry_processor)
 
     if settings.LOG_JSON:
         formatting_processors = [

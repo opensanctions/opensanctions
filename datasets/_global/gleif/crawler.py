@@ -1,5 +1,4 @@
 import csv
-import logging
 from contextlib import contextmanager
 from io import TextIOWrapper
 from pathlib import Path
@@ -10,7 +9,6 @@ from zipfile import ZipFile
 from lxml import etree, html
 from normality import slugify
 
-import zavod.logs
 from zavod import Context, Entity
 from zavod import helpers as h
 
@@ -315,10 +313,6 @@ def parse_rr_file(context: Context, fh: BinaryIO):
 
 
 def crawl(context: Context):
-    # This crawler emits too many non-actionable warnings, so disable reporting to Sentry for now
-    # TODO(Leon Handreke): Clean this up https://github.com/opensanctions/opensanctions/issues/1908
-    zavod.logs.set_sentry_event_level(logging.ERROR)
-
     lei_file = fetch_lei_file(context)
     rr_file = fetch_rr_file(context)
     with read_zip_file(context, lei_file) as fh:
