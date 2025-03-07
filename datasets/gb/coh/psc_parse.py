@@ -1,6 +1,5 @@
 import csv
 import json
-import logging
 from typing import Optional, Generator, Dict, Any
 from lxml import html
 from zipfile import ZipFile
@@ -8,7 +7,6 @@ from functools import cache
 from io import TextIOWrapper
 from urllib.parse import urljoin
 
-import zavod.logs
 from nomenklatura.util import PathLike
 from followthemoney.types import registry
 from followthemoney.util import join_text
@@ -291,8 +289,5 @@ def parse_psc_data(context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
-    # This crawler emits too many non-actionable warnings, so disable reporting to Sentry for now
-    # TODO(Leon Handreke): Clean this up https://github.com/opensanctions/opensanctions/issues/1908
-    zavod.logs.set_sentry_event_level(logging.ERROR)
     parse_base_data(context)
     parse_psc_data(context)
