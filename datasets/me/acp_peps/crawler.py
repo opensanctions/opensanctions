@@ -147,8 +147,7 @@ def make_affiliation_entities(
     )
     entities = []
     if occupancy:
-        # Switch to declarationDate, once it's introduced in FtM
-        occupancy.add("date", filing_date)
+        occupancy.add("declarationDate", filing_date)
         entities.extend([position, occupancy])
     return entities, categorisation_topics
 
