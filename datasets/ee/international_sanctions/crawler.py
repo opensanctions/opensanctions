@@ -35,7 +35,7 @@ def crawl_item_belarus(context: Context, source_url, raw_name: str):
 
 
 def crawl_item_human_rights(context: Context, source_url, raw_name: str):
-    match = re.search(r"\d+\.\s*([^(\n]+)(?:\s*\(also\s*([^)]+)\))?", raw_name)
+    match = re.search(r"^\d+\.\d*\.?\s*([^(\n]+)(?:\s*\(also\s*([^)]+)\))?", raw_name)
     if match:
         name = match.group(1).strip()
         aliases = match.group(2).split("; ") if match.group(2) else []
