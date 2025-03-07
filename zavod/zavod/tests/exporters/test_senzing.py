@@ -36,7 +36,7 @@ def test_senzing(testdataset1: Dataset):
     assert {"REGISTRATION_COUNTRY": "us"} in company_countries
     company_identifiers = company.pop("IDENTIFIERS")
     assert {"NATIONAL_ID_NUMBER": "8723-BX"} in company_identifiers
-    assert company["DATA_SOURCE"] == "OS_TESTDATASET1"
+    assert company["DATA_SOURCE"] == "OS-TESTDATASET1"
     assert company["RECORD_ID"] == "osv-umbrella-corp"
     assert company["RECORD_TYPE"] == "ORGANIZATION"
     assert "/entities/osv-umbrella-corp" in company["URL"]
@@ -52,6 +52,6 @@ def test_senzing(testdataset1: Dataset):
     assert {"DATE_OF_BIRTH": "1978-09-25"} in person_dates
     person_countries = person.pop("COUNTRIES")
     assert {"NATIONALITY": "dd"} in person_countries
-    assert person["DATA_SOURCE"] == "OS_TESTDATASET1"
+    assert person["DATA_SOURCE"] == "OS-TESTDATASET1"
     assert person["RECORD_ID"] == "osv-hans-gruber"
     assert person["RECORD_TYPE"] == "PERSON"

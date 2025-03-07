@@ -11,7 +11,7 @@ from lxml import etree, html
 from normality import slugify
 
 import zavod.logs
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"  # noqa
@@ -39,17 +39,27 @@ ADDRESS_PARTS: Dict[str, str] = {
     "Region": "state",
     "Country": "country_code",
     "PostalCode": "postal_code",
+    "FirstAddressLine": "street",
+    "AdditionalAddressLine": "street2",
 }
 
 
-def make_address(el: etree._Element) -> str:
-    parts: Dict[str, Union[str, None]] = {"summary": el.text}  # FirstAddressLine
-    parent = el.getparent()
-    if parent is None:
-        return ""
+def parse_address(entity: Entity, el: etree._Element) -> str:
+    parts: Dict[str, Union[str, None]] = {}  # FirstAddressLine
     for tag, key in ADDRESS_PARTS.items():
-        parts[key] = parent.findtext(tag)
-    return h.format_address(**parts)
+        parts[key] = el.findtext(tag)
+    country_code = parts.get("country_code")
+    state = parts.get("state")
+    if state is not None and country_code is not None:
+        if country_code in ("US", "AU"):
+            prefix = f"{country_code}-"
+            if state.startswith(prefix):
+                parts["state"] = state[len(prefix) :]
+        if state == country_code:
+            parts["state"] = None
+    address = h.format_address(**parts)
+    if address is not None:
+        entity.add("address", address, lang=el.get("lang"))
 
 
 def load_elfs() -> Dict[str, str]:
@@ -176,7 +186,8 @@ def parse_lei_file(context: Context, fh: BinaryIO) -> None:
         entity = elc.find("Entity")
         if entity is None:
             continue
-        proxy.add("name", entity.findtext("LegalName"))
+        name = entity.find("LegalName")
+        proxy.add("name", name.text, lang=name.get("lang"))
         proxy.add("jurisdiction", entity.findtext("LegalJurisdiction"))
         status = entity.findtext("EntityStatus")
         if status in ("DUPLICATE", "ANNULLED"):
@@ -227,8 +238,8 @@ def parse_lei_file(context: Context, fh: BinaryIO) -> None:
             succession.add("successor", lei_id(succ_lei))
             context.emit(succession)
 
-        for address_el in el.findall(".//FirstAddressLine"):
-            proxy.add("address", make_address(address_el))
+        parse_address(proxy, entity.find("LegalAddress"))
+        parse_address(proxy, entity.find("HeadquartersAddress"))
 
         el.clear()
         context.emit(proxy)
