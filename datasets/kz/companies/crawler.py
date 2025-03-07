@@ -1,6 +1,3 @@
-import logging
-
-import zavod
 from zavod import Context
 
 CACHE_DAYS = 30
@@ -105,9 +102,6 @@ def crawl(context: Context):
     """
     Main function to crawl and process data from the Kazakhstan data portal.
     """
-    # This crawler emits too many non-actionable warnings, so disable reporting to Sentry for now
-    # TODO(Leon Handreke): Clean this up https://github.com/opensanctions/opensanctions/issues/1908
-    zavod.logs.set_sentry_event_level(logging.ERROR)
 
     num_pages = crawl_page(context, 1)
 
