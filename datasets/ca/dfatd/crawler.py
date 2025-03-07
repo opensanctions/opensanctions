@@ -57,7 +57,7 @@ def parse_entry(context: Context, node: _Element):
     given_name = row.pop("GivenName", None)
     last_name = row.pop("LastName", None)
     dob = row.pop("DateOfBirthOrShipBuildDate", None)
-    title = row.pop("Title", None)
+    title = row.pop("TitleOrShip", None)
     imo_number = row.pop("ShipIMONumber", None)
     schedule = row.pop("Schedule", None)
     if schedule in ("N/A", None):
