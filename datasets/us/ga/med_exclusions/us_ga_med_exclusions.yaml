@@ -32,15 +32,15 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 1000 
+      Person: 1100
       Company: 80
   max:
     schema_entities:
-      Person: 1200
+      Person: 1500
       # They've previously put middle names and aliases in the business name field
       # adding about 140 mistaken companies to the roughly 105 real companies.
       Company: 200
-lookups: 
+lookups:
   type.identifier: 
     options:
       - match: "01/**/1964"
