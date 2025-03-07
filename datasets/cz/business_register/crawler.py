@@ -31,6 +31,10 @@ def make_address(tree: Optional[ElementOrTree] = None) -> Optional[str]:
     if tree is None:
         return None
 
+    full = tree.findtext("text")
+    if full is not None:
+        return full
+
     components = {
         "stat": "state",
         "psc": "postal_code",
@@ -42,7 +46,11 @@ def make_address(tree: Optional[ElementOrTree] = None) -> Optional[str]:
     data = {}
     for path, key in components.items():
         data[key] = tree.findtext(path)
-
+    for k, v in list(data.items()):
+        if v is None:
+            del data[k]
+    if len(data) < 2:
+        return None
     return h.format_address(country_code="cz", **data)
 
 
