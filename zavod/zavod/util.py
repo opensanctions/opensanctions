@@ -1,4 +1,3 @@
-import re
 import orjson
 import logging
 from lxml import etree
