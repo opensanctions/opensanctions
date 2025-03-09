@@ -56,19 +56,3 @@ def write_json(data: Dict[str, Any], fh: IO[bytes]) -> None:
     """Write a JSON object to the given open file handle."""
     opt = orjson.OPT_APPEND_NEWLINE | orjson.OPT_NON_STR_KEYS
     fh.write(orjson.dumps(data, option=opt, default=json_default))
-
-
-# https://stackoverflow.com/a/49146722/330558
-def remove_emoji(string: str) -> str:
-    emoji_pattern = re.compile(
-        "["
-        "\U0001f600-\U0001f64f"  # emoticons
-        "\U0001f300-\U0001f5ff"  # symbols & pictographs
-        "\U0001f680-\U0001f6ff"  # transport & map symbols
-        "\U0001f1e0-\U0001f1ff"  # flags (iOS)
-        "\U00002702-\U000027b0"
-        "\U000024c2-\U0001f251"
-        "]+",
-        flags=re.UNICODE,
-    )
-    return emoji_pattern.sub(r"", string)
