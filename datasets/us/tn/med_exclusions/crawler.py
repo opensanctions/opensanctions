@@ -38,7 +38,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
     sanction.add("reason", row.pop("reason"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row)

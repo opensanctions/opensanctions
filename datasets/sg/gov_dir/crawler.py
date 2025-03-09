@@ -17,6 +17,7 @@ DATA_URLS = [
     "https://www.sgdi.gov.sg/ministries",
     "https://www.sgdi.gov.sg/organs-of-state",
 ]
+SPOKEPERSONS_URL = "https://www.sgdi.gov.sg/spokespersons"
 # A bit of a crawler-specific attempt at capturing expectations for specific pages
 # because I'm not convinced the markup is going to be consistent across the site.
 # There's already two ways of listing people - one under collapsible sections (section-toggle)
@@ -159,7 +160,14 @@ def crawl_person(
 
     rank = official.find(".//div[@class='rank']").text_content().strip()
     full_name = official.find(".//div[@class='name']").text_content().strip()
-    email = official.find(".//div[@class='email info-contact']").text_content().strip()
+    email_elem = official.find(".//div[@class='email info-contact']")
+    if email_elem is not None:
+        email = email_elem.text_content().strip()
+    else:
+        # For spokepersons, the email is in a different format
+        email = official.xpath(
+            ".//div[@class='name']//span[@class='fas fa-envelope']/following-sibling::text()"
+        )[0]
 
     pep_status = is_pep(context, rank)
     position_name = make_position_name(
@@ -199,7 +207,7 @@ def crawl_person(
     if categorisation.is_pep:
         occupancy = h.make_occupancy(context, person, position)
         if occupancy:
-            context.emit(person, target=True)
+            context.emit(person)
             context.emit(position)
             context.emit(occupancy)
             return True
@@ -275,6 +283,38 @@ def crawl_body(context: Context, state: CrawlState, link) -> None:
         crawl_body(context, state, subdivision_link.get("href"))
 
 
+def crawl_spokespersons(context: Context, state: CrawlState):
+    """Crawl the root page to find all spokesperson links and process them."""
+    main_doc = context.fetch_html(SPOKEPERSONS_URL, cache_days=1)
+
+    for list_item in main_doc.xpath(".//ul[@class='contact-list']//a"):
+        # Extract the public body from the text within an <a> element
+        link_url = list_item.get("href")
+        public_body = list_item.text_content().strip()
+        crawl_subpage(context, state, link_url, public_body)
+
+
+def crawl_subpage(
+    context: Context, state: CrawlState, link: str, public_body, agency=None
+):
+    """Crawls a spokesperson page to extract spokesperson details and visit subdivision links."""
+    if link in state.seen_urls:
+        return
+    state.seen_urls.add(link)
+    subpage_doc = context.fetch_html(link)
+    # Main subpage
+    for person in subpage_doc.xpath("//div[@class='section-info']//li"):
+        crawl_person(context, state, person, link, public_body, agency, "", None)
+    # Subsections
+    for subsection_el in subpage_doc.xpath(
+        ".//div[@class='tab-content']//ul[@class='section-listing']//a"
+    ):
+        sub_link = subsection_el.get("href")
+        agency = subsection_el.text_content().strip()
+        if sub_link:
+            crawl_subpage(context, state, sub_link, public_body, agency)
+
+
 def crawl(context: Context):
     assert is_pep(context, "Director of this") is True
     assert is_pep(context, "Deputy director") is True
@@ -300,6 +340,8 @@ def crawl(context: Context):
                 context.log.warning("No org name found", link=link)
                 continue
             crawl_body(context, state, link)
+    # Crawl spokespersons pages
+    crawl_spokespersons(context, state)
     expected = set(PAGE_EXPECTATIONS.keys())
     missing = expected - state.seen_urls
     if missing:

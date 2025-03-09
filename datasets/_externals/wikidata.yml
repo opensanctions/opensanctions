@@ -673,6 +673,7 @@ lookups:
           - Duchy of Aquitaine
           - Principality of Moldavia
           - Duchy of Milan
+          - Manchukuo
         value: null
       - match:
           - Cherokee Nation
@@ -946,6 +947,8 @@ lookups:
           - Edo State
           - Kano State
         value: NG
+      - match: Chadians
+        value: TD
       - match: Kazakh Soviet Socialist Republic
         values:
           - SUHH
@@ -987,6 +990,7 @@ lookups:
           - Basque Country
           - Catalana
           - Basque people
+          - Spaniards
         value: ES
       - match: Muscat and Oman
         value: OM

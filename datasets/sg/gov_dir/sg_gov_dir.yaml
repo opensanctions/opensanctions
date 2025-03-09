@@ -66,6 +66,13 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      # weighted higher than "engineer" for "personal assistant to the ... engineer ..." ambiguous match
+      - is_pep: false
+        weight: 1001
+        regex:
+          - "^personal assistant"
+          - "^pa to"
+
       - is_pep: false
         weight: 1000
         contains:
@@ -82,16 +89,22 @@ lookups:
           - guidance officer
           - welfare officer
           - statistician
+          - feedback
+          - hotline
         regex:
-          - "^pa to"
-          - "^personal assistant"
           - "^secretary to"
           - "^please contact"
           - "^administrative professional"
           - "^manager"
 
+      # weighted higher than "deputy chief" for "deputy chief executive" ambiguous match
       - is_pep: true
-        wight: 10
+        weight: 11
+        contains:
+          - chief executive
+
+      - is_pep: true
+        weight: 10
         contains:
           - minister
           - permanent secretary

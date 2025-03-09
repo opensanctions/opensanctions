@@ -47,6 +47,7 @@ IGNORE_BASE_COLUMNS = [
     "LimitedPartnerships.NumLimPartners",
     "ConfStmtNextDueDate",
     "ConfStmtLastMadeUpDate",
+    "URI",
 ]
 
 
@@ -110,7 +111,11 @@ def parse_base_data(context: Context) -> None:
 
         oc_url = f"https://opencorporates.com/companies/gb/{company_nr}"
         entity.add("opencorporatesUrl", oc_url)
-        entity.add("sourceUrl", row.pop("URI"))
+        # entity.add("sourceUrl", row.pop("URI"))
+        entity.add(
+            "sourceUrl",
+            f"https://find-and-update.company-information.service.gov.uk/company/{company_nr}",
+        )
 
         for i in range(1, 5):
             sector = row.pop(f"SICCode.SicText_{i}")

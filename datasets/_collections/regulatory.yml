@@ -33,6 +33,7 @@ children:
   - no_nbim_exclusions
   - ph_sec_advisories
   - ps_ohchr_settlement
+  - tr_cmb_banned
   - us_bis_oac
   - us_ddtc_debarred
   - us_ddtc_enforcements

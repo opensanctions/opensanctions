@@ -27,13 +27,15 @@ data:
   url: https://www.vm.ee/en/activity/international-sanctions/sanctions-government-republic-estonia
   format: HTML
 
+# as at 2025-03-03
+# 273 + 58 + 28 + 55 = 414
 assertions:
   min:
     schema_entities:
-      Person: 300
+      Person: 350
   max:
     schema_entities:
-      Person: 400
+      Person: 800
 
 lookups:
   type.name:

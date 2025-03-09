@@ -67,7 +67,7 @@ def crawl(context: Context):
             )
 
             # entity.add("date_of_appointment", )
-            context.emit(entity, target=True)
+            context.emit(entity)
             context.emit(position)
             if occupancy is not None:
                 context.emit(occupancy)

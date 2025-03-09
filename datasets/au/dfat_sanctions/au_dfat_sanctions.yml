@@ -71,7 +71,6 @@ lookups:
   type:
     normalize: true
     lowercase: true
-
     options:
       - match:
           - Individual
@@ -81,6 +80,8 @@ lookups:
       - match:
           - Entity
         value: LegalEntity
+      - match: "3590"
+        value: Person
 
   name_type:
     normalize: true

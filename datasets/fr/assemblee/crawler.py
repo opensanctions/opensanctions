@@ -170,7 +170,7 @@ def crawl_acteur(context, data: Dict[str, Any]):
                 entities.extend(crawl_collabos(context, person, uid_text, mandat))
     if entities:
         context.log.debug(f"Emitting PEP entities for {uid_text}")
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         for entity in entities:
             context.emit(entity)

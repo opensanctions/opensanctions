@@ -14,8 +14,7 @@ TITLE_REGEX = re.compile(
     r"^(.*)\b(Admiral|Adm\.)\s+(.*)$"
 )  # Regular expression to match either "Admiral" or "Adm."
 
-# Allow-list of URLs that are allowed to be skipped
-ALLOWED_LEADER_URLS = [
+CATEGORY_URLS = [
     "https://www.navy.mil/Leadership/Flag-Officer-Biographies/",
     "https://www.secnav.navy.mil/donhr/About/Senior-Executives/Pages/Biographies.aspx",
 ]
@@ -37,7 +36,7 @@ def emit_person(
     if categorisation.is_pep:
         occupancy = h.make_occupancy(context, person, position)
         if occupancy:
-            context.emit(person, target=True)
+            context.emit(person)
             context.emit(position)
             context.emit(occupancy)
 
@@ -114,8 +113,8 @@ def parse_html(context):
         leader_divs = div.xpath('.//div[contains(@class, "leader-title")]/a')
         for leader_div in leader_divs:
             leader_url = urljoin(BASE_URL, leader_div.get("href"))
-            # Check if the URL is in the allow-list, skip it if true
-            if leader_url in ALLOWED_LEADER_URLS:
+            # Skip links to categories rather than individual profiles
+            if leader_url in CATEGORY_URLS:
                 continue
             name_element = leader_div.find(".//h3")
             role_element = leader_div.find(".//h2")

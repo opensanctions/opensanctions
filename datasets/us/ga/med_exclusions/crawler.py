@@ -39,7 +39,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("sancdate"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row, ignore=["state"])
@@ -48,7 +48,9 @@ def crawl_item(row: Dict[str, str], context: Context):
 def crawl_excel_url(context: Context):
     doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
-    return doc.find(".//a[@data-text='List of Excluded Individuals']").get("href")
+    return doc.xpath(".//a[contains(@data-text, 'List of Excluded Individuals')]")[
+        0
+    ].get("href")
 
 
 def crawl(context: Context) -> None:

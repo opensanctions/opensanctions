@@ -13,8 +13,8 @@ exports:
   - entities.delta.json
 deploy:
   schedule: "@monthly"
-  memory: "3000Mi"
-  memory_limit: "4000Mi"
+  memory: "3500Mi"
+  memory_limit: "5000Mi"
   disk: "30Gi"
   disk_limit: 30Gi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -57,6 +57,7 @@ inputs:
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
+  - ge_declarations
   - opencorporates
   - sanctions
   - special_interest
@@ -64,7 +65,7 @@ inputs:
 config:
   dataset: ge_company_registry
   index_options:
-    memory_budget: 2000
+    memory_budget: 2500
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1

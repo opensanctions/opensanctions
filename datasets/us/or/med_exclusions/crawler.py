@@ -47,5 +47,5 @@ def crawl(context: Context) -> None:
         sanction = h.make_sanction(context, person)
         sanction.add("sourceUrl", url)
 
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(sanction)

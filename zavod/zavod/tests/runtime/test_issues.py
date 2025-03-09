@@ -49,3 +49,4 @@ def test_issue_logger(testdataset1: Dataset):
     context = Context(testdataset1)
     context.begin(clear=True)
     assert len(list(context.issues.all())) == 0
+    context.close()

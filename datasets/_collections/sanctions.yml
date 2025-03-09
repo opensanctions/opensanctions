@@ -74,6 +74,7 @@ children:
   - il_wmd_sanctions
   - in_mha_banned
   - ir_sanctions
+  - iq_aml_list
   - ie_unlawful_organizations
   - jp_mof_sanctions
   - jp_meti_eul

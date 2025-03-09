@@ -122,7 +122,7 @@ def crawl_item(
 
     if occupancy:
         context.emit(position)
-        context.emit(entity, target=True)
+        context.emit(entity)
         context.emit(occupancy)
 
     context.audit_data(

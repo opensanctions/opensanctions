@@ -41,14 +41,11 @@ def crawl_vessel(context: Context, row: Dict[str, Any]):
         entity.add("notes", status_notes)
         entity.add("notes", status_notes_link)
         if status in ["Active", "Partially Active"]:
-            is_active = True
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
             h.apply_date(sanction, "listingDate", listing_date)
             context.emit(sanction)
-        else:
-            is_active = False
-        context.emit(entity, target=is_active)
+        context.emit(entity)
 
 
 def crawl_company(context: Context, row: Dict[str, Any], country: str):
@@ -78,14 +75,11 @@ def crawl_company(context: Context, row: Dict[str, Any], country: str):
         if country:
             entity.add("country", country)
         if status in ["Active", "Partially Active"]:
-            is_active = True
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
             h.apply_date(sanction, "listingDate", listing_date)
             context.emit(sanction)
-        else:
-            is_active = False
-        context.emit(entity, target=is_active)
+        context.emit(entity)
 
 
 def parse_table(

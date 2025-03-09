@@ -115,7 +115,7 @@ def crawl_mandate(context, url, person, el):
     if occupancy is not None:
         crawl_sources(context, occupancy, source_el)
         occupancy.add("description", position_parts[1:], lang="deu")
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 
@@ -145,7 +145,7 @@ def crawl_title(context, url, person, el):
     if datetime.now().isoformat() > "2025-05-21":
         context.log.warning("Verify again that the site is kept up to date")
     if occupancy is not None:
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 

@@ -23,7 +23,7 @@ def crawl_item(raw_name: str, context: Context):
         "Section 411 of the USA PATRIOT ACT of 2001 (8 U.S.C. § 1182) Terrorist Exclusion List (TEL) ",
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def crawl(context: Context):

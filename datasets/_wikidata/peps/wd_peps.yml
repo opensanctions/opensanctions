@@ -1986,3 +1986,11 @@ lookups:
         code: null
         label: German Empire
         decision: ignore  # historic
+      - match: "Q3937987"
+        code: null
+        label: "Riviera di San Giulio"
+        decision: ignore  # historic
+      - match: "Q30258195"
+        code: null
+        label: Pueblo of Laguna  # a Native American tribe
+        decision: ignore

@@ -11,6 +11,10 @@ from zavod import helpers as h
 NUMBER_SPLITS = [f"({x})" for x in range(1, 50)]
 PUNCTUATION_SPLITS = [". ", ", "]
 REGEX_POSTCODE = re.compile(r"\d+")
+# Intentionally single digit except zero to try and reduce false positives
+# that might occur in phone numbers, e.g. +44(0)82123456
+# or based on real example "(Fax): +375 (17) 123-45-67  (Tel): +375 (17) 234-56-78"
+REGEX_PHONE_SPLIT = re.compile(r"\([1-9]\) |\. |, ")
 
 
 TYPES = {
@@ -31,6 +35,23 @@ NAME_TYPES = {
     "AKA": "alias",
     "FKA": "previousName",
 }
+
+REG_NO_TYPES = {
+    "INN": ("LegalEntity", "innCode"),
+    "KPP": ("Company", "kppCode"),
+    "OGRN": ("LegalEntity", "ogrnCode"),
+    "Russia INN": ("LegalEntity", "innCode"),
+    "Russia KPP": ("Company", "kppCode"),
+    "Russia OGRN": ("LegalEntity", "ogrnCode"),
+    "Russia TIN": ("LegalEntity", "taxNumber"),
+    "TIN": ("LegalEntity", "taxNumber"),
+    "Tax ID No.": ("LegalEntity", "taxNumber"),
+    "UK Company no.": ("LegalEntity", "registrationNumber"),
+}
+REG_NO_TYPES_PATTERN = "|".join(re.escape(k) for k in REG_NO_TYPES.keys())
+REGEX_REG_NO_TYPES = re.compile(
+    rf"^(?P<type>{REG_NO_TYPES_PATTERN})\s*[: –-]\s*(?P<value>\d+)$"
+)
 
 
 def parse_countries(text: Any) -> List[str]:
@@ -55,7 +76,14 @@ def parse_companies(context: Context, value: Optional[str]):
 
 
 def split_reg_no(text: str):
+    text = text.replace("Tax Identification Number: INN", "; INN")
+    text = text.replace("INN:", "; INN:")
+    text = text.replace("TIN:", "; TIN:")
+    text = text.replace("OGRN:", "; OGRN:")
+    text = text.replace("KPP:", "; KPP:")
     text = text.replace("Tax ID No", "; Tax ID No")
+    text = text.replace("Tax ID:", "; Tax ID:")
+    text = text.replace("Tax ID", "; Tax ID")
     text = text.replace("Government Gazette Number", "; Government Gazette Number")
     text = text.replace("Legal Entity Number", "; Legal Entity Number")
     text = text.replace(
@@ -63,6 +91,23 @@ def split_reg_no(text: str):
     )
     text = text.replace("Tax Identification Number", "; Tax Identification Number")
     return h.multi_split(text, NUMBER_SPLITS + [";", " / "])
+
+
+def id_reg_no(value: str):
+    match = REGEX_REG_NO_TYPES.match(value)
+    if match is None:
+        return "LegalEntity", "registrationNumber", value
+    schema, prop = REG_NO_TYPES[match.group("type")]
+    return schema, prop, match.group("value")
+
+
+def split_phone(text: str):
+    # Splits on (1) ... (2) ... if there's more than one index to avoid splitting
+    # when it's just an optional part of the number in parens.
+    values = REGEX_PHONE_SPLIT.split(text)
+    if len(values) > 2:
+        return values
+    return [text]
 
 
 def parse_row(context: Context, row: Dict[str, Any]):
@@ -105,8 +150,10 @@ def parse_row(context: Context, row: Dict[str, Any]):
     entity_type = row.pop("Entity_Type", None)
     entity.add_cast("LegalEntity", "legalForm", entity_type)
 
-    reg_number = row.pop("Entity_BusinessRegNumber", "")
-    entity.add_cast("LegalEntity", "registrationNumber", split_reg_no(reg_number))
+    orig_reg_number = row.pop("Entity_BusinessRegNumber", "")
+    for reg_no in split_reg_no(orig_reg_number):
+        schema, prop, value = id_reg_no(reg_no)
+        entity.add_cast(schema, prop, value, original_value=orig_reg_number)
     row.pop("Ship_Length", None)
     entity.add_cast("Vessel", "flag", row.pop("Ship_Flag", None))
     flags = h.multi_split(row.pop("Ship_PreviousFlags", None), PUNCTUATION_SPLITS)
@@ -227,8 +274,8 @@ def parse_row(context: Context, row: Dict[str, Any]):
     # ni_details = split_items(ni_detail)
     # TODO: where do I stuff this?
 
-    phones = row.pop("PhoneNumber", None)
-    for phone in h.multi_split(phones, PUNCTUATION_SPLITS):
+    phones = row.pop("PhoneNumber", "")
+    for phone in REGEX_PHONE_SPLIT.split(phones):
         entity.add_cast("LegalEntity", "phone", phone, original_value=phones)
     emails = row.pop("EmailAddress", None)
     for email in h.multi_split(emails, PUNCTUATION_SPLITS + NUMBER_SPLITS):

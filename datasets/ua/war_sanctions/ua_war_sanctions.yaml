@@ -30,6 +30,9 @@ description: |
   which are systematically used to target Ukraine's civilian population, alongside their 
   military applications.
 
+  **Executives of War**: Officials, security agencies, and defense industry representatives 
+  shaping Russia’s military-industrial policy, defense orders, and wartime economy.
+
   The objective of the War and Sanctions website is to raise awareness of their conduct,
   and advocate for sanctions against these entities to hold perpetrators accountable and
   deter further actions of this kind.
@@ -59,9 +62,9 @@ assertions:
   min:
     schema_entities:
       Organization: 550
-      Person: 400
-      Vessel: 430
-      LegalEntity: 210
+      Person: 700
+      Vessel: 590
+      LegalEntity: 220
     country_entities:
       ru: 790
       ua: 170
@@ -70,248 +73,83 @@ assertions:
   max:
     schema_entities:
       Organization: 1000
-      Person: 630
-      Vessel: 700
-      LegalEntity: 270
+      Person: 1400
+      Vessel: 1400
+      LegalEntity: 500
 lookups: 
-  overrides: 
-    options: 
-      - match: Tightship Shipping Management (OPC) Pvt Ltd (6344264
-        name: Tightship Shipping Management (OPC) Pvt Ltd
-        registration_number: 6344264
-      - match: Volga-Don Shipping JSC (current company Azovo/Don Shipping JSC) (0555709
-        name: [Volga-Don Shipping JSC, Azovo/Don Shipping JSC]
-        registration_number: 0555709
-      - match: Ocean Speedstar Solutions (OPC) Pvt Ltd (6508844
-        name: Ocean Speedstar Solutions (OPC) Pvt Ltd
-        registration_number: 6508844
-      - match: Elza Shipping SA с/о Tightship Shipping Management (OPC) Pvt Ltd (6243757
-        name: Elza Shipping SA
-        care_of: Tightship Shipping Management (OPC) Pvt Ltd
-        registration_number: 6243757
-      - match: Zara Shipholding Co c/o Ocean Speedstar Solutions (OPC) Pvt Ltd (6485466
-        name: Zara Shipholding Co
-        care_of: Ocean Speedstar Solutions (OPC) Pvt Ltd
-        registration_number: 6485466
-      - match: Lule One Services Inc п/о Ocean Speedstar Solutions (OPC) Pvt Ltd (6495401
-        name: Lule One Services Inc
-        care_of: Ocean Speedstar Solutions (OPC) Pvt Ltd
-        registration_number: 6495401
-      - match: Lathyrus Shipping Co c/o Ocean Speedstar Solutions (OPC) Pvt Ltd (6496885
-        name: Lathyrus Shipping Co
-        care_of: Ocean Speedstar Solutions (OPC) Pvt Ltd
-        registration_number: 6496885
-      - match: Volgo-Don 219 Shipping LTD c/o Volga-Don Shipping JSC (current company Azovo/Don Shipping JSC) (5353052
-        name: Volgo-Don 219 Shipping LTD
-        care_of: [Volga-Don Shipping JSC, Azovo/Don Shipping JSC]
-        registration_number: 5353052
-      - match: HCC Shipmanagement Inc. c/o Adel Ship Management SRL (6333534
-        name: HCC Shipmanagement Inc.
-        care_of: Adel Ship Management SRL
-        registration_number: 6333534
-      - match: Vadimovich SD c/o Arapax LLC (5997971
-        name: Vadimovich SD
-        care_of: Arapax LLC
-        registration_number: 5997971
-      - match: Zelitiko Shipping Co Ltd c/o Gas Carriers SCF MGMT FZCO (5809375
-        name: Zelitiko Shipping Co Ltd
-        care_of: Gas Carriers SCF MGMT FZCO
-        registration_number: 5809375
-      - match: Enson Shipping Inc c/o Matias Ship Management LLC-FZ (0056718
-        name: Enson Shipping Inc
-        care_of: Matias Ship Management LLC-FZ
-        registration_number: 0056718
-      - match: Chamber Marine SA c/o Stream Ship Management FZCO (5463464
-        name: Chamber Marine SA
-        care_of: Stream Ship Management FZCO
-        registration_number: 5463464
-      - match: Camber Shipping Inc c/o Stream Ship Management FZCO (5463447
-        name: Camber Shipping Inc
-        care_of: Stream Ship Management FZCO
-        registration_number: 5463447
-      - match: Sumerton Shipholding Inc c/o Stream Ship Management FZCO (5469861
-        name: Sumerton Shipholding Inc
-        care_of: Stream Ship Management FZCO
-        registration_number: 5469861
-      - match: Chernikov Y c/o Red Shipping LLC (6306591
-        name: Chernikov Y
-        care_of: Red Shipping LLC
-        registration_number: 6306591
-      - match: Anhona Navigation SA c/o Harry Victor Ship Management & Operation LLC (6082772
-        name: Anhona Navigation SA
-        care_of: Harry Victor Ship Management & Operation LLC
-        registration_number: 6082772
-      - match: Iquitos LTD c/o Harry Victor Ship Management & Operation LLC (6488704
-        name: Iquitos LTD
-        care_of: Harry Victor Ship Management & Operation LLC
-        registration_number: 6488704
-      - match: Lindor Vella Co Ltd c/o Derecttor Co Ltd (6382864
-        name: Lindor Vella Co Ltd
-        care_of: Derecttor Co Ltd
-        registration_number: 6382864
-      - match: Koster LLC c/o Kuban Marine Company LLC (6124214
-        name: Koster LLC
-        care_of: Kuban Marine Company LLC
-        registration_number: 6124214
-      - match: Astra LLC c/o Eneya LLC (6314941
-        name: Astra LLC
-        care_of: Eneya LLC
-        registration_number: 6314941
-      - match: Silvero Shipping LTD c/o Baltic Freight Group Ltd (5957503
-        name: Silvero Shipping LTD
-        care_of: Baltic Freight Group Ltd
-        registration_number: 5957503
-      - match: Kalsoy Shipping Ltd c/o Stream Ship Management FZCO (5657822
-        name: Kalsoy Shipping Ltd
-        care_of: Stream Ship Management FZCO
-        registration_number: 5657822
-      - match: Waterside Carriers Inc c/o Stream Ship Management FZCO (4108908
-        name: Waterside Carriers Inc
-        care_of: Stream Ship Management FZCO
-        registration_number: 4108908
-      - match: Kandita Shipping Hk Ltd c/o Stream Ship Management FZCO (6361850
-        name: Kandita Shipping Hk Ltd
-        care_of: Stream Ship Management FZCO
-        registration_number: 6361850
-      - match: Erdington Navigation Corp c/o Stream Ship Management FZCO (5469826
-        name: Erdington Navigation Corp
-        care_of: Stream Ship Management FZCO
-        registration_number: 5469826
-      - match: Ns Breeze Shipping Inc c/o Stream Ship Management FZCO (5512132
-        name: Ns Breeze Shipping Inc
-        registration_number: 5512132
-        care_of: Stream Ship Management FZCO
-      - match: Ns Asia Shipping Inc c/o Stream Ship Management FZCO (5465885
-        name: Ns Asia Shipping Inc
-        registration_number: 5465885
-        care_of: Stream Ship Management FZCO
-      - match: Bassett Oceanway Ltd c/o Stream Ship Management FZCO (4092481
-        name: Bassett Oceanway Ltd
-        registration_number: 4092481
-        care_of: Stream Ship Management FZCO
-      - match: Waterways Tankers Inc c/o Stream Ship Management FZCO (4109234
-        name: Waterways Tankers Inc
-        registration_number: 4109234
-        care_of: Stream Ship Management FZCO
-      - match: Brimwell Inter LTD c/o River Sea Management Co Ltd (5706831
-        name: Brimwell Inter LTD
-        registration_number: 5706831
-        care_of: River Sea Management Co Ltd
-      - match: Alvion Maritime Ltd c/o Tower Shipping Co SA (6351779
-        name: Alvion Maritime Ltd
-        registration_number: 6351779
-        care_of: Tower Shipping Co SA
-      - match: Rostrum Hedonist LTD c/o H Vogemann Reederei Services GmbH & Co KG (6451464
-        name: Rostrum Hedonist LTD
-        registration_number: 6451464
-        care_of: H Vogemann Reederei Services GmbH & Co KG
-      - match: Loire Shipping Inc c/o Oceanlink Maritime DMCC (6137379
-        name: Loire Shipping Inc
-        registration_number: 6137379
-        care_of: Oceanlink Maritime DMCC
-      - match: Lng Alpha Shipping PTE LTD c/o White Fox Ship Management FZCO (4300402
-        name: Lng Alpha Shipping PTE LTD
-        registration_number: 4300402
-        care_of: White Fox Ship Management FZCO
-      - match: Astrea Shipping LTD c/o Stream Ship Management FZCO (5248199
-        name: Astrea Shipping LTD
-        registration_number: 5248199
-        care_of: Stream Ship Management FZCO
-      - match: Buxus Seaway LTD c/o Stream Ship Management FZCO (5934727
-        name: Buxus Seaway LTD
-        registration_number: 5934727
-        care_of: Stream Ship Management FZCO
-      - match: Duport Marine Services Inc c/o Fornax Ship Management FZCO (5346621
-        name: Duport Marine Services Inc
-        registration_number: 5346621
-        care_of: Fornax Ship Management FZCO
-      - match: Zorona Shipping LTD c/o Almuhit Alhadi Marine Services LLC (6425057
-        name: Zorona Shipping LTD
-        registration_number: 6425057
-        care_of: Almuhit Alhadi Marine Services LLC
-      - match: One Alrabiya Shipping Ltd c/o Atos Remote Solutions (0031643
-        name: One Alrabiya Shipping Ltd
-        registration_number: 0031643
-        care_of: Atos Remote Solutions
-      - match: Boribo Shipping Corp c/o Stream Ship Management FZCO (0012462
-        name: Boribo Shipping Corp
-        registration_number: 0012462
-        care_of: Stream Ship Management FZCO
-      - match: HS Hai II LTD c/o Maritas Fleet PVT LTD (6342719
-        name: HS Hai II LTD
-        registration_number: 6342719
-        care_of: Maritas Fleet PVT LTD
-      - match: Leasing Company GPB LLC /current name Leasing Company LLC/ c/o Eco Shiping LLC (6129498
-        name: [Leasing Company GPB LLC, Leasing Company LLC]
+  ship_party: 
+    options:
+      - regex: 'Unknown (.+)'
+        name: null
+      - match: 'Unknown'
+        name: null
+      - match: 'HK Yongye Ship LTD/ Zhang Yong (6360967 / Hong Kong / 01.11.2022)'
+        name: 'HK Yongye Ship LTD'
+        registration_number: 6360967
+        country: Hong Kong
+        date: "2022-11-01"
+      - match: 'Laliya Shipping Corp (6505782 / 22.05.2024)'
+        name: 'Laliya Shipping Corp'
+        registration_number: 6505782
+        date: "2024-05-22"
+      - match: 'Leasing Company GPB LLC /current name Leasing Company LLC/ c/o Eco Shiping LLC (6129498 / russia / 05.11.2019)'
+        name: ["Leasing Company GPB LLC", "Leasing Company LLC"]
         registration_number: 6129498
-        care_of: Eco Shiping LLC
-      - match: Pelagia Shipping LTD /current name Delta Shipping LLC/ c/o Eco Shiping LLC (5863958
-        name: [Pelagia Shipping LTD, Delta Shipping LLC]
+        care_of: 'Eco Shiping LLC'
+        country: Russia
+        date: "2019-11-05"
+      - match: 'Leasing Company GPB LLC /current name Leasing Company LLC/ c/o Eco Shiping LLC (6129498 / russia / 19.01.2022)'
+        name: ["Leasing Company GPB LLC", "Leasing Company LLC"]
+        registration_number: 6129498
+        care_of: 'Eco Shiping LLC'
+        country: Russia
+        date: "2022-01-19"
+      - match: 'Non-Profit Partnership Revival of Maritime Traditions (russia / 2015)'
+        name: 'Non-Profit Partnership Revival of Maritime Traditions'
+        country: Russia
+        date: "2015"
+      - match: 'Pelagia Shipping LTD /current name Delta Shipping LLC/ c/o Eco Shiping LLC (5863958 / russia / 28.02.2017)'
+        name: ["Pelagia Shipping LTD", "Delta Shipping LLC"]
         registration_number: 5863958
-        care_of: Eco Shiping LLC
-      - match: Tansley Trading LTD c/o Ocean Dreams Yachting Services (5839873
-        name: Tansley Trading LTD
-        registration_number: 5839873
-        care_of: Ocean Dreams Yachting Services
-      - match: Almano Holding Ltd c/o Watermark Yacht Management (5730583
-        name: Almano Holding Ltd
-        registration_number: 5730583
-        care_of: Watermark Yacht Management
-      - match: Mazona Offshore LTD c/o One Moon Marine Services LLC (6424650
-        name: Mazona Offshore LTD
-        registration_number: 6424650
-        care_of: One Moon Marine Services LLC
-      - match: Eastern Euro Ship Management (OPC) Pvt Ltd (6210461
-        name: Eastern Euro Ship Management (OPC) Pvt Ltd
-        registration_number: 6210461
-      - match: Trans See Inc с/о Eastern Euro Ship Management (OPC) Pvt Ltd (6202532
-        name: Trans See Inc
-        registration_number: 6202532
-        care_of: Eastern Euro Ship Management (OPC) Pvt Ltd
-      - match: "Danika Robert LTD c/o: Shanghai Legendary Ship Management Co LTD (6371374"
-        name: Danika Robert LTD
-        registration_number: 6371374
-        care_of: Shanghai Legendary Ship Management Co LTD
-      - match: Black Pearl Marine LTD c/o Adel Ship Management SRL (6416500
-        name: Black Pearl Marine LTD
-        registration_number: 6416500
-        care_of: Adel Ship Management SRL
-      - match: "East Victory LTD c/o: Prominent Shipmanagement LTD (6346190"
-        name: East Victory LTD
-        registration_number: 6346190
-        care_of: Prominent Shipmanagement LTD
-      - match: "East Diamond Hong Kong LTD c/o: Prominent Shipmanagement LTD (6350753"
-        name: East Diamond Hong Kong LTD
-        registration_number: 6350753
-        care_of: Prominent Shipmanagement LTD
-      - match: "Star Maritime & Trading Inc c/o: Tokyo Gemi Isletmeciligi AS (6319147"
-        name: Star Maritime & Trading Inc
-        registration_number: 6319147
-        care_of: Tokyo Gemi Isletmeciligi AS
-      - match: Ocean Thunder Shipping Corp c/o Onn Denizcilik ve Danismanlik LTD (6475491
-        name: Ocean Thunder Shipping Corp
-        registration_number: 6475491
-        care_of: Onn Denizcilik ve Danismanlik LTD
-      - match: Trident Infinity LTD c/o Vigor Marine Services LLP (6443583
-        name: Trident Infinity LTD
-        registration_number: 6443583
-        care_of: Vigor Marine Services LLP
-      - match: Selena Lively LTD c/o Munne Co LTD (6358878
-        name: Selena Lively LTD
-        registration_number: 6358878
-        care_of: Munne Co LTD
-      - match: Elitoli Trading Co LTD с/о Tightship Shipping Management (OPC) Pvt Ltd (6139901
-        name: Elitoli Trading Co LTD
-        registration_number: 6139901
-        care_of: Tightship Shipping Management (OPC) Pvt Ltd
-      - match: Altima Inc c/o Eastern Euro Ship Management (6451981
-        name: Altima Inc
-        registration_number: 6451981
-        care_of: Eastern Euro Ship Management
-      - match: "Lalique Co LTD c/o: Qingdao Huitong Shipping Co LTD (6471802"
-        name: Lalique Co LTD
-        registration_number: 6471802
-        care_of: Qingdao Huitong Shipping Co LTD
+        care_of: 'Eco Shiping LLC'
+        country: Russia
+        date: "2017-02-28"
+      - match: 'Rosnefteflot JSC (3025603 / 07.04.2025)'
+        name: 'Rosnefteflot JSC'
+        registration_number: 3025603
+        date: "2025-04-07"
+      - match: 'Rptd Sold Undisclosed Interest (09.02.2023)'
+        name: 'Rptd'
+        date: "2023-02-09"
+      - match: 'Rptd Sold Undisclosed Interest (12.08.2024)'
+        name: 'Rptd'
+        date: "2024-08-12"
+      - match: 'Rptd Sold russia (05.2004)'
+        name: 'Rptd'
+        country: Russia
+        date: "2004-05"
+      - match: 'Sergeevich/Grigoryevna с/о Sanin Yuri Sergeevich (0018872 / russia / 11.07.2024)'
+        name: 'Sergeevich/Grigoryevna'
+        care_of: 'Sanin Yuri Sergeevich'
+        registration_number: 0018872
+        country: Russia
+        date: "2024-07-11"
+      - match: 'Trans-Flot/Vladimirovich PV о/с Trans-flot LLC (6184699 / russia / 03.10.2019)'
+        name: 'Trans-Flot/Vladimirovich PV'
+        care_of: Trans-flot LLC
+        registration_number: 6184699
+        country: Russia
+        date: "2019-10-03"
+      - match: 'Vafa Wholesale Ltd (5266323 / russia / 01.10.2006) (5266323 / russia / 01.10.2006)'
+        name: 'Vafa Wholesale Ltd'
+        registration_number: 5266323
+        country: Russia
+        date: "2006-10-01"
+      - match: 'Vafa Wholesale Ltd (5266323 / russia / 01.10.2006) (5266323 / russia / 01.11.2007)'
+        name: 'Vafa Wholesale Ltd'
+        registration_number: 5266323
+        country: Russia
+        date: "2007-11-01"      
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
@@ -324,6 +162,8 @@ lookups:
           - 2024-01-08
       - match: 08.011.2024)
         value: 2024-01-08
+      - match: 07/03/2023)
+        value: 2023-03-07
       - match: 
           - 07.04.
           - 09.05.20234)
@@ -374,6 +214,7 @@ lookups:
           - 28953
           - 13219
           - 555669
+          - 44396
         prop: registrationNumber
       - match: 10477970849
         value: 1047797084940

@@ -66,7 +66,9 @@ EDGE_IGNORE = [
     "provider",
     "client",
     "lender",
+    "project",
 ]
+NODE_IGNORE = ["project"]
 
 
 def iter_zf_csv(zf: zipfile.ZipFile, name: str) -> CSVIter:
@@ -85,9 +87,9 @@ def crawl_assets(context: Context, rows: CSVIter) -> None:
         entity.add("name", row.pop("name"))
         entity.add("country", row.pop("jurisdiction"))
         entity.add("notes", row.pop("assetType"))
-        entity.add("sourceUrl", row.pop("project"))
+        # entity.add("sourceUrl", row.pop("project"))
         context.emit(entity)
-        context.audit_data(row)
+        context.audit_data(row, ignore=NODE_IGNORE)
 
 
 def crawl_individuals(context: Context, rows: CSVIter) -> None:
@@ -101,10 +103,10 @@ def crawl_individuals(context: Context, rows: CSVIter) -> None:
         entity.add("nationality", row.pop("nationality").split(";"))
         entity.add("notes", row.pop("info"))
         entity.add("summary", row.pop("citation"))
-        entity.add("sourceUrl", row.pop("project"))
+        # entity.add("sourceUrl", row.pop("project"))
         entity.add("topics", "poi")
         context.emit(entity)
-        context.audit_data(row)
+        context.audit_data(row, ignore=NODE_IGNORE)
 
 
 def crawl_entities(context: Context, rows: CSVIter) -> None:
@@ -123,9 +125,9 @@ def crawl_entities(context: Context, rows: CSVIter) -> None:
         entity.add("registrationNumber", row.pop("companyNumber"))
         entity.add("notes", row.pop("info"))
         entity.add("summary", row.pop("citation"))
-        entity.add("sourceUrl", row.pop("project"))
+        # entity.add("sourceUrl", row.pop("project"))
         context.emit(entity)
-        context.audit_data(row)
+        context.audit_data(row, ignore=NODE_IGNORE)
 
 
 def crawl_edge(context: Context, edge_type: str, rows: CSVIter) -> None:

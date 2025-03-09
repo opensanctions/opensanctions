@@ -4,6 +4,10 @@ from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 from zavod.shed.zyte_api import fetch_html, fetch_json
 
+SPLITS = [
+    ", ",
+]
+
 
 def get_json_url(context: Context) -> str:
     """
@@ -64,7 +68,7 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
     input_dict.pop("Sexo")
     entity.add("gender", gender)
 
-    entity.add("email", input_dict.pop("correo"))
+    entity.add("email", h.multi_split(input_dict.pop("correo"), SPLITS))
     entity.add("address", input_dict.pop("direccion"))
     entity.add("political", input_dict.pop("Fraccion"))
     entity.add("website", input_dict.pop("url_sitio"))
@@ -77,7 +81,7 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
         categorisation=categorisation,
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(occupancy)
     context.audit_data(
         input_dict,
@@ -92,6 +96,7 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
             "id",
             "twitter",
             "instagram",
+            "facebook",
             "telefono",
             "extension",
         ],

@@ -30,6 +30,7 @@ REDACT_IGNORE_LIST = {
     "ZAVOD_DATA_PATH",
     "ZAVOD_RESOLVER_PATH",
     "ZAVOD_SYNC_POSITIONS",
+    "ZAVOD_OPENSANCTIONS_API_URL",
     "OPENSANCTIONS_RESOLVER_PATH",
     # The URL redaction will handle these
     "ZAVOD_DATABASE_URI",
@@ -123,6 +124,12 @@ def configure_sentry_integration() -> None:
             ],
             attach_stacktrace=True,
         )
+
+
+def set_sentry_dataset_name(dataset_name: str) -> None:
+    structlog.contextvars.bind_contextvars(dataset=dataset_name)
+    # A Transaction in Sentry parlance is the "current task being executed"
+    sentry_sdk.get_current_scope().set_transaction_name(dataset_name)
 
 
 def set_sentry_event_level(level: int) -> None:

@@ -61,7 +61,7 @@ def crawl_item(input_dict: dict, context: Context):
         sanction, "startDate", input_dict.pop("Date Added to Alert List").split(" ")[0]
     )
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(input_dict)

@@ -4,14 +4,18 @@ import logging
 from pathlib import Path
 from typing import Optional, List
 
-
 from followthemoney.cli.util import InPath, OutPath
 from nomenklatura.tui import dedupe_ui
 from nomenklatura.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
 
 from zavod import settings
-from zavod.logs import configure_logging, get_logger, configure_sentry_integration
+from zavod.logs import (
+    configure_logging,
+    get_logger,
+    configure_sentry_integration,
+    set_sentry_dataset_name,
+)
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
 from zavod.crawl import crawl_dataset
 from zavod.store import get_store
@@ -39,6 +43,7 @@ def _load_dataset(path: Path) -> Dataset:
     dataset = load_dataset_from_path(path)
     if dataset is None:
         raise click.BadParameter("Invalid dataset path: %s" % path)
+    set_sentry_dataset_name(dataset.name)
     return dataset
 
 

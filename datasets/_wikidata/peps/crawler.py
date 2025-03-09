@@ -64,7 +64,9 @@ def crawl_holder(
         # Avoid constructing a proxy which emits a warning
         # before we discard it.
         return
-    entity.add("birthDate", birth_date)
+    if birth_date is not None and birth_date[:10].endswith("-01-01"):
+        birth_date = birth_date[:4]
+    entity.add("birthDate", birth_date, original_value=holder.get("person_birth"))
     entity.add("deathDate", holder.get("person_death"))
 
     occupancy = h.make_occupancy(
@@ -89,7 +91,7 @@ def crawl_holder(
 
     context.emit(position)
     context.emit(occupancy)
-    context.emit(entity, target=True)
+    context.emit(entity)
 
 
 def query_position_holders(
@@ -291,7 +293,7 @@ def crawl(context: Context):
 
         country_res = context.lookup("country_decisions", country["qid"])
         if country_res is None:
-            context.log.warning("Country without decision", country=country)
+            context.log.warning(f"Country without decision: {country}", country=country)
             continue
         if country_res.decision != DECISION_NATIONAL:
             continue
@@ -323,4 +325,4 @@ def crawl(context: Context):
     entity.add("name", "Mark Lipparelli")
     entity.add("topics", "role.pep")
     entity.add("country", "us")
-    context.emit(entity, target=True)
+    context.emit(entity)

@@ -54,8 +54,12 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 80
+      Person: 65
       Organization: 20
+  max:
+    schema_entities:
+      Person: 200
+      Organization: 50
 
 lookups:
   columns:
@@ -65,12 +69,19 @@ lookups:
       - match:
           - idetification_card_number
           - idetificationcard_number
+          - identification_card_number
         value: id_number
       - match:
           - date_ofbirth
         value: date_of_birth
       - match: referen_ce
         value: reference
+      - match: nationalit_y
+        value: nationality
+      - match: date_0f_listed
+        value: date_of_listed
+      - match: other_names
+        value: other_name
   type.country:
     options:
       - match:
@@ -92,6 +103,7 @@ lookups:
           - Filipina (Pemastautin Tetap di Malaysia)
           - Filipina (Pemasautin Tetap di Malaysia)
           - Filipina (PemastautinTetap di Malaysia)
+          - Philippines (Permanent Resident in Malaysia)
         value: Philippines
       - match:
           - Pemastautin Tetap di Malaysia
@@ -102,6 +114,7 @@ lookups:
       - match:
           - 20.02.1976 13.02.1975 15.02.1976 07.01.1977
           - "20.02.197613.02.197515.02.197607.01.1977"
+          - "20.2.197613.2.197515.2.19767.1.1977"
         values:
           - 1976-02-20
           - 1975-02-13

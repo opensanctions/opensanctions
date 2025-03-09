@@ -126,7 +126,13 @@ def test_categorise_new(testdataset1: Dataset):
     context = Context(testdataset1)
     position = make_position(context, "A position", country="ls")
 
-    data = {
+    list_data = {
+        "results": [],
+        "limit": 5000,
+        "offset": 0,
+        "total": {"value": 0, "relation": "eq"},
+    }
+    create_data = {
         "entity_id": position.id,
         "caption": position.caption,
         "countries": ["ls"],
@@ -135,13 +141,21 @@ def test_categorise_new(testdataset1: Dataset):
     }
     with requests_mock.Mocker() as m:
         m.get(
-            "/positions/osv-40a302b7f09ea065880a3c840855681b18ead5a4", status_code=404
+            "/positions/?limit=5000&dataset=testdataset1&offset=0",
+            status_code=200,
+            json=list_data,
         )
-        m.post("/positions/", status_code=201, json=data)
+        m.post("/positions/", status_code=201, json=create_data)
         categorisation = categorise(context, position)
+        assert categorisation.is_pep is None
+        assert categorisation.topics == []
+        assert m.call_count == 2, "categorise() should create a new position"
+        categorisation = categorise(context, position)
+        assert categorisation.is_pep is None
+        assert categorisation.topics == []
+        assert m.call_count == 2, "Second call should use cached position."
 
-    assert categorisation.is_pep is None
-    assert categorisation.topics == []
+
 
 
 def test_categorise_existing(testdataset1: Dataset):
@@ -149,22 +163,31 @@ def test_categorise_existing(testdataset1: Dataset):
     position = make_position(context, "Another position", country="ls")
 
     data = {
-        "entity_id": position.id,
-        "caption": position.caption,
-        "countries": ["ls"],
-        "topics": ["gov.igo"],
-        "is_pep": True,
+        "results": [
+            {
+                "entity_id": position.id,
+                "caption": position.caption,
+                "countries": ["ls"],
+                "topics": ["gov.igo"],
+                "is_pep": True,
+            }
+        ],
+        "limit": 5000,
+        "offset": 0,
+        "total": {"value": 1, "relation": "eq"},
     }
     with requests_mock.Mocker() as m:
         m.get(
-            "/positions/osv-3c5b98b2f63e39d0a341af03d2dde959e25f07f8",
+            "/positions/?limit=5000&dataset=testdataset1&offset=0",
             status_code=200,
             json=data,
         )
         categorisation = categorise(context, position)
+        categorisation = categorise(context, position)
 
     assert categorisation.is_pep is True
     assert categorisation.topics == ["gov.igo"]
+    assert m.call_count == 1, "categorise() should use cached data"
 
 
 def test_categorise_unauthorised(testdataset1: Dataset):
@@ -174,7 +197,17 @@ def test_categorise_unauthorised(testdataset1: Dataset):
     )
 
     with requests_mock.Mocker() as m:
-        m.get(f"/positions/{position.id}", status_code=404)
+        list_data = {
+            "results": [],
+            "limit": 5000,
+            "offset": 0,
+            "total": {"value": 0, "relation": "eq"},
+        }
+        m.get(
+            "/positions/?limit=5000&dataset=testdataset1&offset=0",
+            status_code=200,
+            json=list_data,
+        )
         m.post("/positions/", status_code=401)
         with pytest.raises(requests.exceptions.HTTPError) as exc:
             categorise(context, position)

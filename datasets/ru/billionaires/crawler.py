@@ -22,7 +22,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     topics = [t.strip() for t in row.pop("topics", "").split(";")]
     topics = [t for t in topics if len(t)]
     entity.add("topics", topics)
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.audit_data(row, ignore=["lang", "label"])
 
 

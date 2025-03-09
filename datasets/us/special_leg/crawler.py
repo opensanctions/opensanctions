@@ -28,10 +28,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     sanction.set("authority", row.pop("authority"))
     sanction.set("sourceUrl", source_url)
 
-    target = False
-    if topics != "":
-        target = True
-    context.emit(entity, target=target)
+    context.emit(entity)
     context.emit(sanction)
     context.audit_data(row)
 

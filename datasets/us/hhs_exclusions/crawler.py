@@ -97,7 +97,7 @@ def crawl_item(context: Context, row: Dict[str, Any]):
     reinvdate = row.pop("REINDATE")
     assert reinvdate is None, reinvdate
     context.emit(sanction)
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.audit_data(row)
 
 

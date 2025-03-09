@@ -221,6 +221,7 @@ def iter_local_statements(dataset: "Dataset", external: bool = True) -> Statemen
     """Create a generator that yields all statements in the given dataset."""
     assert not dataset.is_collection
     path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
+    # get_dataset_artifact(dataset.name, STATEMENTS_FILE)
     if not path.exists():
         raise FileNotFoundError(f"Statements not found: {dataset.name}")
     with open(path, "r") as fh:

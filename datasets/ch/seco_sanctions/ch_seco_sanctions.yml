@@ -111,6 +111,12 @@ lookups:
           - 1997-12-01
           - 1999-11-03
           - 2012-01-01
+      - match: 3.1.2003 (founded in 1918)
+        value: 2003-01-03
+      - match: 22.7.1992 (Ukraine), 13.8.2014 (Russian Federation)
+        values:
+          - 1992-07-22
+          - 2014-08-13
   type.gender:
     lowercase: true
     normalize: true

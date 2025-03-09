@@ -20,9 +20,8 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         if name != ""
     ]
 
-    # If there is a name, create a person entity
     person = None
-    if len(names) > 0:
+    if row.get("Passport") or row.get("ID") or len(names) > 0:
         person = context.make("Person")
         person.id = context.make_id(row.get("ID") or row.get("Passport") or names[0])
         for name in row.pop("English Name").split(";"):
@@ -61,6 +60,8 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         h.apply_date(person, "birthDate", row.pop("DOB (dd/mm/yyyy)"))
         context.emit(person)
     else:
+        # There are some rows that only have an email (and not a passport number or ID),
+        # those we do not emit as a Person
         row.pop("Email")
 
     # Get the wallets and binance accounts as a list
@@ -98,7 +99,7 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         if h.is_active(sanction):
             wallet.add("topics", "crime.terror")
         sanction.add("sourceUrl", source_url)
-        context.emit(wallet, target=True)
+        context.emit(wallet)
         context.emit(sanction)
 
     context.audit_data(

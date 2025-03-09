@@ -30,7 +30,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         person_sanction.add("reason", reason)
         h.apply_date(person_sanction, "startDate", startDate)
 
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(person_sanction)
     if business_name and not first_name:
         company = context.make("Company")
@@ -44,7 +44,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         company_sanction.add("reason", reason)
         h.apply_date(company_sanction, "startDate", startDate)
 
-        context.emit(company, target=True)
+        context.emit(company)
         context.emit(company_sanction)
 
     context.audit_data(row)
