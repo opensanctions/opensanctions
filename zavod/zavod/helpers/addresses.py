@@ -19,6 +19,8 @@ def format_address(
     summary: Optional[str] = None,
     po_box: Optional[str] = None,
     street: Optional[str] = None,
+    street2: Optional[str] = None,
+    street3: Optional[str] = None,
     house: Optional[str] = None,
     house_number: Optional[str] = None,
     postal_code: Optional[str] = None,
@@ -37,6 +39,8 @@ def format_address(
         summary: A short description of the address.
         po_box: The PO box/mailbox number.
         street: The street or road name.
+        street2: The street or road name, line 2.
+        street3: The street or road name, line 3.
         house: The descriptive name of the house.
         house_number: The number of the house on the street.
         postal_code: The postal code or ZIP code.
@@ -52,6 +56,7 @@ def format_address(
         A single-line string with the formatted address."""
     if country_code is None and country is not None:
         country_code = registry.country.clean_text(country)
+    street = join_text(street, street2, street3, sep=", ")
     data = {
         "attention": summary,
         "road": street,
