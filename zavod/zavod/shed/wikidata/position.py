@@ -99,7 +99,7 @@ def wikidata_position(
         # jurisdiction:
         if claim.property == "P1001":
             territory = get_territory_by_qid(claim.qid)
-            if territory is None:
+            if territory is None or not territory.is_country:
                 text = claim.text(enricher)
                 text.apply(position, "subnationalArea")
 
