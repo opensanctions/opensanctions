@@ -2,12 +2,11 @@ from pathlib import Path
 from tempfile import mkdtemp
 
 from normality import slugify
-from nomenklatura import CompositeEntity
+from nomenklatura import CompositeEntity, Resolver
 
 from zavod.entity import Entity
 from zavod.integration.duckdb_index import DuckDBIndex
 from zavod.crawl import crawl_dataset
-from zavod.integration import get_resolver
 from zavod.meta.dataset import Dataset
 from zavod.store import get_store
 
@@ -24,10 +23,9 @@ JOHN = {
 }
 
 
-def test_pairs(testdataset_dedupe: Dataset):
+def test_pairs(testdataset_dedupe: Dataset, resolver: Resolver[Entity]):
     crawl_dataset(testdataset_dedupe)
     data_dir = Path(mkdtemp()).resolve()
-    resolver = get_resolver()
     store = get_store(testdataset_dedupe, resolver)
     store.sync(clear=True)
     view = store.view(testdataset_dedupe)
@@ -55,10 +53,11 @@ def test_pairs(testdataset_dedupe: Dataset):
     assert bond == 2.0, bond
 
 
-def test_match(testdataset1: Dataset, testdataset_dedupe: Dataset):
+def test_match(
+    testdataset1: Dataset, testdataset_dedupe: Dataset, resolver: Resolver[Entity]
+):
     crawl_dataset(testdataset_dedupe)
     data_dir = Path(mkdtemp()).resolve()
-    resolver = get_resolver()
     store = get_store(testdataset_dedupe, resolver)
     store.sync(clear=True)
     view = store.view(testdataset_dedupe)
@@ -90,7 +89,7 @@ def test_match(testdataset1: Dataset, testdataset_dedupe: Dataset):
     assert john_matches[0][1] > john_matches[1][1], john_matches[1]
 
 
-def test_stopwords(testdataset1: Dataset):
+def test_stopwords(testdataset1: Dataset, resolver: Resolver[Entity]):
     def e(name: str) -> Entity:
         data = {
             "schema": "Person",
@@ -99,7 +98,6 @@ def test_stopwords(testdataset1: Dataset):
         }
         return resolver.apply(Entity.from_data(testdataset1, data))
 
-    resolver = get_resolver()
     store = get_store(testdataset1, resolver)
     writer = store.writer()
     # 1 first name 5 times
