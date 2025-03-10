@@ -2,7 +2,7 @@ import csv
 import re
 from rigour.mime.types import CSV
 
-from zavod import Context
+from zavod import Context, helpers as h
 
 
 def clean_address(raw_address):
@@ -75,7 +75,9 @@ def crawl(context: Context):
             entity.add("name", name_en_clean)
             for alias in aliases:
                 entity.add("alias", alias, lang="eng")
-            entity.add("address", address)
+            for address in h.multi_split(address, [" and "]):
+                entity.add("address", address)
+
             entity.add("sourceUrl", row.pop("source_url"))
             entity.add("topics", "debarment")
             context.emit(entity)
