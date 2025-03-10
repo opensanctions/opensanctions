@@ -35,6 +35,8 @@ def crawl_item_belarus(context: Context, source_url, raw_name: str):
 
 
 def crawl_item_human_rights(context: Context, source_url, raw_name: str):
+    # "1. Mr. John Doe (also known as John Smith)"
+    # "1.23 Mr. John Doe (also known as John Smith)"
     match = re.search(r"^\d+\.\d*\.?\s*([^(\n]+)(?:\s*\(also\s*([^)]+)\))?", raw_name)
     if match:
         name = match.group(1).strip()
