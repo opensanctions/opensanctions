@@ -2,11 +2,12 @@ from typing import Dict, Optional, Set
 
 from nomenklatura.enrich.wikidata import WikidataEnricher
 from nomenklatura.enrich.wikidata.model import Item
+from rigour.territories import get_territory_by_qid
 
 from zavod import Context, Entity
 from zavod.meta import Dataset
 from zavod.logic.pep import categorise
-from zavod.shed.wikidata.country import is_country, item_countries
+from zavod.shed.wikidata.country import item_countries
 from zavod.shed.wikidata.util import item_types, item_label
 
 Wikidata = WikidataEnricher[Dataset]
@@ -91,14 +92,14 @@ def wikidata_position(
         for label in item.labels:
             label.apply(position, "name")
 
-    countries = item_countries(enricher, item)
-    for country in countries:
+    for country in item_countries(enricher, item):
         country.apply(position, "country")
 
     for claim in item.claims:
         # jurisdiction:
         if claim.property == "P1001":
-            if not is_country(enricher, claim.qid):
+            territory = get_territory_by_qid(claim.qid)
+            if territory is None or not territory.is_country:
                 text = claim.text(enricher)
                 text.apply(position, "subnationalArea")
 
