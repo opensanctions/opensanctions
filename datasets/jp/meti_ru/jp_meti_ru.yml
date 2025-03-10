@@ -1,0 +1,34 @@
+title: Japan METI Russian List
+entry_point: crawler.py
+prefix: jp-meti-ru
+coverage:
+  frequency: weekly
+  start: 2025-03-10
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+summary: >-
+  Restrictions of exports and services to Russia, Belarus, and certain third-country entities 
+  under the Foreign Exchange and Foreign Trade Law.
+description: |
+  Japan's Ministry of Economy, Trade and Industry (METI) requires approval for certain 
+  exports and service transactions to Russia and other specified regions under the Foreign 
+  Exchange and Foreign Trade Law. In principle, such exports and services are not 
+  approved, with limited exceptions. The restrictions apply to Russia and Belarus, covering 
+  specific goods and technologies listed under Japan's Export Trade Control Order. Some 
+  third-country  entities are also subject to these restrictions.
+publisher:
+  name: "Ministry of Economy, Trade and Industry"
+  acronym: METI
+  description: |
+    METI’s mission is to develop Japan’s economy and industry by focusing on promoting
+    economic vitality in private companies and smoothly advancing external economic
+    relationships, and to secure stable and efficient supply of energy and mineral
+    resources.
+  country: jp
+  url: https://www.meti.go.jp/
+  official: true
+url: https://www.meti.go.jp/policy/external_economy/trade_control/02_export/17_russia/russia.html
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSk-oy6G0e2huA2kjskWcDhgcrEKj6ePUISsqnCEfOFptVbZO2XN12V5up3FQhH7oqWwtryTTRMTnyG/pub?output=csv
+  format: CSV
+  lang: jpn
