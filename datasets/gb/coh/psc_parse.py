@@ -47,6 +47,7 @@ IGNORE_BASE_COLUMNS = [
     "LimitedPartnerships.NumLimPartners",
     "ConfStmtNextDueDate",
     "ConfStmtLastMadeUpDate",
+    "URI",
 ]
 
 

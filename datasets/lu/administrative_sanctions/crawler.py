@@ -18,6 +18,7 @@ SUBTITLE_PATTERN = re.compile(
     l’établissement\sde\scrédit|
     cabinet\sde\srévision\sagréé|
     la\ssociété\sd’investissement\sà\scapital\svariable|
+    la\ssociété|
     gestionnaire\sdu\sfonds\sd’investissement
 )?
 \s*

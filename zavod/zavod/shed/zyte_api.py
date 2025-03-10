@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 from lxml import html, etree
 from time import sleep
@@ -25,8 +26,14 @@ class UnblockFailedException(RuntimeError):
         )
 
 
-def get_content_type(headers: List[Dict[str, str]]) -> Tuple[str, str | None]:
-    header = [h["value"] for h in headers if h["name"].lower() == "content-type"][0]
+def get_content_type(headers: List[Dict[str, str]]) -> Tuple[str | None, str | None]:
+    context_type_headers = [
+        h["value"] for h in headers if h["name"].lower() == "content-type"
+    ]
+    if not context_type_headers:
+        return None, None
+    header = context_type_headers[0]
+
     # I kid you not, this is the https://peps.python.org/pep-0594/#cgi recommended
     # way to replace cgi.parse_header
     message = Message()
@@ -123,14 +130,118 @@ def fetch_resource(
     return False, media_type, charset, out_path
 
 
+class ZyteScrapeType(Enum):
+    BROWSER_HTML = "browserHtml"
+    HTTP_RESPONSE_BODY = "httpResponseBody"
+
+
+def get_cache_fingerprint(request_data: Dict[str, Any]) -> str:
+    # Slight abuse of the cache key to produce keys of the usual style.
+    # Technically this isn't the data that's sent
+    # to the target server (url), but technically we're not caching the response
+    # from Zyte API either, we're caching its HTML contents.
+    request_data = request_data.copy()
+    url = request_data.pop("url")
+    return request_hash(url, data=request_data)
+
+
+def fetch(
+    context: Context,
+    url: str,
+    scrape_type: ZyteScrapeType,
+    actions: Optional[List[Dict[str, Any]]] = None,
+    headers: Optional[List[Dict[str, str]]] = None,
+    geolocation: Optional[str] = None,
+    javascript: Optional[bool] = None,
+    cache_days: Optional[int] = None,
+    expected_media_type: Optional[str] = None,
+    expected_charset: Optional[str] = None,
+) -> Tuple[str, bool, str | None, str | None, str]:
+    """
+    Fetch using the Zyte API.
+
+    Note that this function uses the cache, but does not set the cache. This should be done by
+    callers after verifying that the content is valid and worthy of being cached.
+
+    Args:
+        context: The context object.
+        url: The URL of the web page.
+        scrape_type: Whether to use a browser or just use the HTTP response.
+        geolocation: The geolocation to request from.
+        headers: Extra headers to request with.
+        actions: A list of dicts of actions to attempt on a rendered page.
+        javascript: Whether to execute JavaScript on the page.
+        cache_days: The allowed age of a cache hit.
+        expected_charset: Expected charset in the response content-type header to assert.
+        expected_media_type: Expected media type in the response content-type header to assert.
+    Returns:
+        A tuple of:
+            - The cache key, used by callers to set the cache if the content is valid
+            - The media type of the response, None if cached.
+            - The charset of the response, None if cached.
+            - The text content.
+    """
+
+    if settings.ZYTE_API_KEY is None:
+        raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
+
+    zyte_data: Dict[str, Any] = {
+        "url": url,
+        "httpResponseHeaders": True,
+    }
+    if headers is not None:
+        zyte_data["customHttpRequestHeaders"] = headers
+    if geolocation is not None:
+        zyte_data["geolocation"] = geolocation
+    if actions is not None:
+        zyte_data["actions"] = actions
+    if javascript is not None:
+        zyte_data["javascript"] = javascript
+    zyte_data[scrape_type.value] = True
+
+    fingerprint = get_cache_fingerprint(zyte_data)
+
+    if cache_days is not None:
+        text = context.cache.get(fingerprint, max_age=cache_days)
+        if text is not None:
+            context.log.debug("HTTP cache hit", url=url, fingerprint=fingerprint)
+            return fingerprint, True, None, None, text
+
+    context.log.debug(f"Zyte API request: {url}", data=zyte_data)
+    configure_session(context.http)
+
+    api_response = context.http.post(
+        ZYTE_API_URL,
+        auth=(settings.ZYTE_API_KEY, ""),
+        json=zyte_data,
+    )
+    api_response.raise_for_status()
+
+    text = api_response.json()[scrape_type.value]
+    assert text is not None
+    media_type, charset = get_content_type(
+        api_response.json().get("httpResponseHeaders", [])
+    )
+    if scrape_type == ZyteScrapeType.HTTP_RESPONSE_BODY:
+        b64_text = b64decode(text)
+        text = b64_text.decode(charset) if charset is not None else b64_text.decode()
+
+    if expected_media_type:
+        assert media_type == expected_media_type, (media_type, charset, text)
+    if expected_charset:
+        assert charset == expected_charset, (media_type, charset, text)
+
+    return fingerprint, False, media_type, charset, text
+
+
 def fetch_text(
     context: Context,
     url: str,
     headers: List[Dict[str, str]] = [],
+    geolocation: Optional[str] = None,
     cache_days: Optional[int] = None,
     expected_media_type: Optional[str] = None,
     expected_charset: Optional[str] = None,
-    geolocation: Optional[str] = None,
 ) -> Tuple[bool, str | None, str | None, str]:
     """
     Fetch a text document using the Zyte API.
@@ -156,62 +267,21 @@ def fetch_text(
             - The charset of the response, None if cached.
             - The text content.
     """
-    if settings.ZYTE_API_KEY is None:
-        raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
-
-    zyte_data: Dict[str, Any] = {
-        "httpResponseBody": True,
-        "httpResponseHeaders": True,
-        "customHttpRequestHeaders": headers,
-    }
-    if geolocation is not None:
-        zyte_data["geolocation"] = geolocation
-
-    # Slight abuse of the cache key to produce keys of the usual style.
-    # Technically this isn't the data that's sent
-    # to the target server (url), but technically we're not caching the response
-    # from Zyte API either, we're caching its HTML contents.
-    fingerprint = request_hash(url, data=zyte_data)
-
-    if cache_days is not None:
-        text = context.cache.get(fingerprint, max_age=cache_days)
-        if text is not None:
-            context.log.debug("HTTP cache hit", url=url, fingerprint=fingerprint)
-            try:
-                return True, None, None, text
-            except Exception:
-                context.clear_url(fingerprint)
-                raise
-
-    context.log.debug(f"Zyte API request: {url}", data=zyte_data)
-    zyte_data["url"] = url
-    configure_session(context.http)
-
-    api_response = context.http.post(
-        ZYTE_API_URL,
-        auth=(settings.ZYTE_API_KEY, ""),
-        json=zyte_data,
+    cache_fingerprint, cache_hit, media_type, charset, text = fetch(
+        context,
+        scrape_type=ZyteScrapeType.HTTP_RESPONSE_BODY,
+        url=url,
+        headers=headers,
+        geolocation=geolocation,
+        cache_days=cache_days,
+        expected_media_type=expected_media_type,
+        expected_charset=expected_charset,
     )
-    api_response.raise_for_status()
 
-    media_type, charset = get_content_type(api_response.json()["httpResponseHeaders"])
-    text_b64 = api_response.json()["httpResponseBody"]
-    assert text_b64 is not None
-    bytes = b64decode(text_b64)
-    if charset is None:
-        text = bytes.decode()
-    else:
-        text = bytes.decode(charset)
+    if not cache_hit and cache_days is not None:
+        context.cache.set(cache_fingerprint, text)
 
-    if expected_media_type:
-        assert media_type == expected_media_type, (media_type, charset, text)
-    if expected_charset:
-        assert charset == expected_charset, (media_type, charset, text)
-
-    if cache_days is not None:
-        context.cache.set(fingerprint, text)
-
-    return False, media_type, charset, text
+    return cache_hit, media_type, charset, text
 
 
 def fetch_json(
@@ -222,17 +292,28 @@ def fetch_json(
     expected_charset: Optional[str] = "utf-8",
     geolocation: Optional[str] = None,
 ) -> Any:
+    """
+    Returns:
+        A JSON document.
+    """
     headers = [{"name": "Accept", "value": "application/json"}]
-    _, _, _, text = fetch_text(
+
+    cache_fingerprint, cache_hit, _, _, text = fetch(
         context,
-        url,
+        scrape_type=ZyteScrapeType.HTTP_RESPONSE_BODY,
+        url=url,
         headers=headers,
+        geolocation=geolocation,
         cache_days=cache_days,
         expected_media_type=expected_media_type,
         expected_charset=expected_charset,
-        geolocation=geolocation,
     )
-    return json.loads(text)
+
+    doc = json.loads(text)
+
+    if not cache_hit and cache_days is not None:
+        context.cache.set(cache_fingerprint, text)
+    return doc
 
 
 def fetch_html(
@@ -244,7 +325,6 @@ def fetch_html(
     javascript: Optional[bool] = None,
     geolocation: Optional[str] = None,
     cache_days: Optional[int] = None,
-    fingerprint: Optional[str] = None,
     retries: int = 3,
     backoff_factor: int = 3,
     previous_retries: int = 0,
@@ -253,75 +333,34 @@ def fetch_html(
     Fetch a web page using the Zyte API.
 
     Args:
-        context: The context object.
-        url: The URL of the web page.
         unblock_validator: XPath matching at least one element if and only if
             unblocking was successful. This is important to ensure we don't cache
             pages that weren't actually unblocked successfully.
-        actions: A list of dicts of actions to attempt on a rendered page.
         html_source: browserHtml | httpResponseBody
-        javascript: Whether to execute JavaScript on the page.
-        cache_days: The number of days to cache the page.
-        fingerprint: The cache key for this request, if customisation is needed.
         retries: The number of times to retry if unblocking fails.
         backoff_factor: Factor to scale the pause between retries.
 
     Returns:
         The parsed HTML document serialized from the DOM.
     """
-    if settings.ZYTE_API_KEY is None:
-        raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
-
-    zyte_data = {
-        "actions": actions,
-        html_source: True,
-        "httpResponseHeaders": True,
-    }
-    if javascript is not None:
-        zyte_data["javascript"] = javascript
-    if geolocation is not None:
-        zyte_data["geolocation"] = geolocation
-
-    if fingerprint is None:
-        # Slight abuse of the cache key to produce keys of the usual style.
-        # Technically this isn't the data that's sent
-        # to the target server (url), but technically we're not caching the response
-        # from Zyte API either, we're caching its HTML contents.
-        fingerprint = request_hash(url, data=zyte_data)
-    if cache_days is not None:
-        text = context.cache.get(fingerprint, max_age=cache_days)
-        if text is not None:
-            context.log.debug("HTTP cache hit", url=url, fingerprint=fingerprint)
-            try:
-                return html.fromstring(text)
-            except Exception:
-                context.clear_url(fingerprint)
-                raise
-
-    context.log.debug(f"Zyte API request: {url}", data=zyte_data)
-    zyte_data["url"] = url
-    configure_session(context.http)
-    api_response = context.http.post(
-        ZYTE_API_URL,
-        auth=(settings.ZYTE_API_KEY, ""),
-        json=zyte_data,
+    cache_fingerprint, cache_hit, media_type, charset, text = fetch(
+        context,
+        scrape_type=ZyteScrapeType(html_source),
+        url=url,
+        geolocation=geolocation,
+        javascript=javascript,
+        cache_days=cache_days,
+        actions=actions,
     )
-    api_response.raise_for_status()
-    for action in api_response.json().get("actions", []):
-        context.log.info("Zyte action result", **action)
 
-    text = api_response.json()[html_source]
-    assert text is not None
-    if html_source == "httpResponseBody":
-        media_type, charset = get_content_type(
-            api_response.json()["httpResponseHeaders"]
-        )
-        assert charset is not None, zyte_data
-        text = b64decode(text).decode(charset)
     doc = html.fromstring(text)
 
     matches = doc.xpath(unblock_validator)
     if not isinstance(matches, list) or not len(matches) > 0:
+        # If we've cached a response that no longer passes validation (likely because the code changed),
+        # invalidate it so that we don't just get the same cached response on retry.
+        context.cache.delete(cache_fingerprint)
+
         if previous_retries < retries:
             pause = backoff_factor * (2 ** (previous_retries + 1))
             context.log.debug(
@@ -346,6 +385,6 @@ def fetch_html(
         context.log.debug("Unblocking failed", url=url, html=text)
         raise UnblockFailedException(url, unblock_validator)
 
-    if cache_days is not None:
-        context.cache.set(fingerprint, text)
+    if not cache_hit and cache_days is not None:
+        context.cache.set(cache_fingerprint, text)
     return doc

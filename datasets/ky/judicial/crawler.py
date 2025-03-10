@@ -1,57 +1,57 @@
-from urllib.parse import urljoin
-from lxml.etree import tostring
 import re
 
 from normality import collapse_spaces
 
-from zavod import Context
-from zavod import helpers as h
+from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 
 
 REGEX_CLEAN_NAME = re.compile(
-    r"The Chief Justice|President of the Court of Appeal|Justice|Rt[\.\b]|The |Hon[\.\b]|\bLLB\b|\bBSc\b|\bLLD\b|\bCLE\b|\bKC\b|\bCBE\b|\(\w+\)|Sir|, "
+    r"Justice|Rt[\.\b]|Hon[\.\b]|\bKC\b|\bCBE\b|Sir|\bHer\b|\bHis\b|\bMr[\.\b]|\bMrs[\.\b]|\bMs[\.\b]|\bKCMG\b|\bPC\b|"
 )
 
 
-def get_judges(context: Context, doc):
-    tabs = doc.xpath(".//div[contains(@class, 'judicial-tabs')]//a")
-    current_tab = [t for t in tabs if t.text == "Current"][0]
-    current_pane_id = current_tab.get("data-bs-target")[1:]
-    current_pane = doc.xpath(f".//div[@id='{current_pane_id}']")[0]
-    return current_pane.xpath(".//div[contains(@class, 'col-md-6 col-lg-8')]")
+def get_name_pos(container, context: Context):
+    name_el = container.xpath(".//h2[@class='tlp-member-title']")
+    position_el = container.xpath(".//div[@class='tlp-position']")
+    details_el = container.xpath(".//div[@class='tlp-member-detail']")
+
+    name = name_el[0].text_content().strip()
+    # Check for the position_el for cases when position is in the same element as name
+    # Only needed for chief justice at the moment
+    position = position_el[0].text_content().strip() if position_el else None
+    details = details_el[0].text_content().strip()
+
+    override_res = context.lookup("overrides", name)
+    if override_res:
+        name = override_res.name
+        position = override_res.position
+    elif "chief justice" in name.lower() or position is None:
+        context.log.warning(f'No override found for "{name}" and "{position}"')
+
+    name = collapse_spaces(REGEX_CLEAN_NAME.sub("", name))
+    # Check for titles not captured by the regex
+    word_count = len(name.split())
+    if word_count >= 4:
+        context.log.warning(
+            f"Unexpectedly long name: {name}, additional cleanup might be needed"
+        )
+
+    return name, position, details
 
 
-def get_name_pos(context: Context, container, default_position: str):
-    name_els = container.xpath(".//h3")
-    assert len(name_els) == 1, (name_els, tostring(container))
-    name = name_els[0].text_content()
-
-    if "chief justice" in name.lower():
-        position = "Chief Justice"
-    elif "president of the court of appeal" in name.lower():
-        position = "President of the Court of Appeal"
-    else:
-        position = default_position
-
-    name = REGEX_CLEAN_NAME.sub("", name)
-    name = collapse_spaces(name)
-    return name, position
-
-
-def crawl_judges(context: Context, url, default_position, min, max):
-    doc = context.fetch_html(url, cache_days=30)
-    doc.make_links_absolute(url)
-
-    containers = get_judges(context, doc)
-    assert min <= len(containers) <= max, (min, len(containers), max)
-
+def crawl_page(context: Context, person_url):
+    doc = context.fetch_html(person_url, cache_days=1)
+    containers = doc.xpath(
+        '//div[contains(@class, "tlp-member-description-container")]'
+    )
     for judge_container in containers:
-        name, position = get_name_pos(context, judge_container, default_position)
+        name, position, details = get_name_pos(judge_container, context)
         person_proxy = context.make("Person")
         person_proxy.id = context.make_id(name)
-        person_proxy.add("sourceUrl", url)
         h.apply_name(person_proxy, full=name)
+        person_proxy.add("sourceUrl", person_url)
+        person_proxy.add("notes", details)
         person_proxy.add("topics", "role.judge")
 
         position = h.make_position(
@@ -73,10 +73,17 @@ def crawl_judges(context: Context, url, default_position, min, max):
 
 
 def crawl(context: Context):
-    crawl_judges(context, context.data_url, "Chief Justice", 1, 1)
-
-    appeal_court_url = urljoin(context.data_url, "court-of-appeal")
-    crawl_judges(context, appeal_court_url, "Justice of the Court of Appeal", 3, 10)
-
-    grand_court_url = urljoin(context.data_url, "grand-court")
-    crawl_judges(context, grand_court_url, "Judge of the Grand Court", 3, 10)
+    doc = context.fetch_html(context.data_url, cache_days=1)
+    profile_links = [
+        link
+        for link in doc.xpath('//ul[@id="menu-judicial-officers"]//a/@href')
+        if link != "#"
+    ]
+    assert len(profile_links) >= 6, profile_links
+    for url in profile_links:
+        doc = context.fetch_html(url, cache_days=1)
+        person_urls = doc.xpath(
+            '//div[@class="single-team-area"]//a[@class="rt-ream-me-btn"]/@href'
+        )
+        for person_url in person_urls:
+            crawl_page(context, person_url)

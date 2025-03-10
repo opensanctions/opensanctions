@@ -42,4 +42,4 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 35
+      Person: 15

@@ -1,15 +1,15 @@
 import time
-import countrynames
 from collections import defaultdict
 from typing import Dict, Optional, Any, List, Generator
 from fingerprints import clean_brackets
 from rigour.ids.wikidata import is_qid
+from rigour.territories import get_territories, get_territory_by_qid
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import PositionCategorisation, categorise
-from zavod.shed.wikidata.query import run_query, run_raw_query, CACHE_MEDIUM
+from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
 
 DECISION_NATIONAL = "national"
 RETRIES = 5
@@ -42,6 +42,14 @@ def truncate_date(text: Optional[str]) -> Optional[str]:
     return text[:10]
 
 
+def pick_country(*qids: List[str]) -> Optional[str]:
+    for qid in qids:
+        territory = get_territory_by_qid(qid)
+        if territory is not None and territory.ftm_country is not None:
+            return territory.ftm_country
+    return None
+
+
 def crawl_holder(
     context: Context,
     categorisation: PositionCategorisation,
@@ -64,7 +72,9 @@ def crawl_holder(
         # Avoid constructing a proxy which emits a warning
         # before we discard it.
         return
-    entity.add("birthDate", birth_date)
+    if birth_date is not None and birth_date[:10].endswith("-01-01"):
+        birth_date = birth_date[:4]
+    entity.add("birthDate", birth_date, original_value=holder.get("person_birth"))
     entity.add("deathDate", holder.get("person_death"))
 
     occupancy = h.make_occupancy(
@@ -140,26 +150,10 @@ def query_position_holders(
         }
 
 
-def pick_country(context, *qids):
-    """
-    Returns the country for the first national decision country of the given qids, or None
-    """
-    for qid in qids:
-        # e.g. https://www.wikidata.org/.well-known/genid/091bf3144103c0cbaca1bd6eb3762d4d
-        if qid is None or not is_qid(qid):
-            continue
-        country = context.lookup("country_decisions", qid)
-        if country is not None and country.decision == DECISION_NATIONAL:
-            return country
-    return None
-
-
 def query_positions(
     context: Context, position_classes, country
 ) -> Generator[Dict[str, Any], None, None]:
     """
-    Yields an item for each position with all countries selected by pick_country().
-
     May return duplicates
     """
     context.log.info(f"Crawling positions for {country['qid']} ({country['label']})")
@@ -196,27 +190,25 @@ def query_positions(
     country_results.extend(country_response.results)
 
     for bind in country_results:
-        country_res = pick_country(
-            context,
+        country = pick_country(
             bind.plain("country"),
             bind.plain("jurisdiction"),
             country["qid"],
         )
-        if country_res is not None:
-            position_countries[bind.plain("position")].add(country_res.code)
+        if country is not None:
+            position_countries[bind.plain("position")].add(country)
 
     # b) Positions held by politicans from that country
     politician_response = run_query(
         context, "positions/politician", vars, cache_days=CACHE_MEDIUM
     )
     for bind in politician_response.results:
-        country_res = pick_country(
-            context,
+        country = pick_country(
             bind.plain("country"),
             bind.plain("jurisdiction"),
         )
-        if country_res is not None:
-            position_countries[bind.plain("position")].add(country_res.code)
+        if country is not None:
+            position_countries[bind.plain("position")].add(country)
 
     for bind in country_results + politician_response.results:
         if not is_qid(bind.plain("position")):
@@ -232,31 +224,14 @@ def query_positions(
         }
 
 
-def query_countries(context: Context):
-    query = """
-    SELECT ?country ?countryLabel ?countryDescription WHERE {
-        VALUES ?type { wd:Q15634554 wd:Q1335818 wd:Q3624078 wd:Q6256 }
-        ?country wdt:P31 ?type .
-        MINUS {
-        ?country wdt:P31 wd:Q1145276 .
-        }
-    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-    }
-    """
-    response = run_raw_query(context, query, cache_days=CACHE_MEDIUM)
-    for binding in response.results:
-        qid = binding.plain("country")
-        if not is_qid(qid):
+def all_countries():
+    for territory in get_territories():
+        if territory.is_historical:
             continue
-        label = binding.plain("countryLabel")
-        if qid is None or qid == label:
+        code = territory.ftm_country
+        if code is None:
             continue
-        code = countrynames.to_code(label)
-        yield {
-            "qid": qid,
-            "code": code,
-            "label": label,
-        }
+        yield {"qid": territory.qid, "code": code, "label": territory.name}
 
 
 def query_position_classes(context: Context):
@@ -277,25 +252,14 @@ def query_position_classes(context: Context):
 
 
 def crawl(context: Context):
-    seen_countries = set()
     seen_positions = set()
     position_classes = query_position_classes(context)
 
-    for country in query_countries(context):
+    for country in all_countries():
         include_local = False
-        if country["qid"] in seen_countries:
-            continue
-        seen_countries.add(country["qid"])
-
         context.log.info(f"Crawling country: {country['qid']} ({country['label']})")
 
-        country_res = context.lookup("country_decisions", country["qid"])
-        if country_res is None:
-            context.log.warning(f"Country without decision: {country}", country=country)
-            continue
-        if country_res.decision != DECISION_NATIONAL:
-            continue
-        if getattr(country_res, "include_local", False):
+        if country["code"] == "US":
             include_local = True
 
         for wd_position in query_positions(context, position_classes, country):
