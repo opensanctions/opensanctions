@@ -3,7 +3,7 @@ from collections import defaultdict
 from typing import Dict, Optional, Any, List, Generator
 from fingerprints import clean_brackets
 from rigour.ids.wikidata import is_qid
-from rigour.territories import get_ftm_countries, get_territory_by_qid
+from rigour.territories import get_territories, get_territory_by_qid
 
 from zavod import Context
 from zavod import helpers as h
@@ -225,9 +225,13 @@ def query_positions(
 
 
 def all_countries():
-    for territory in get_ftm_countries():
-        for qid in territory.qids:
-            yield {"qid": qid, "code": territory.code, "label": territory.name}
+    for territory in get_territories():
+        if territory.is_historical:
+            continue
+        code = territory.ftm_country
+        if code is None:
+            continue
+        yield {"qid": territory.qid, "code": code, "label": territory.name}
 
 
 def query_position_classes(context: Context):
