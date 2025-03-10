@@ -1,16 +1,16 @@
+from nomenklatura import Resolver
 from nomenklatura.judgement import Judgement
 from nomenklatura.statement import CSV, read_path_statements
 
+from zavod.entity import Entity
 from zavod.meta import Dataset
-from zavod.integration import get_resolver
 from zavod.crawl import crawl_dataset
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.archive import iter_dataset_statements, dataset_state_path
 
 
-def test_dump_file(testdataset1: Dataset):
-    resolver = get_resolver()
-    assert len(resolver.edges) == 0
+def test_dump_file(testdataset1: Dataset, resolver: Resolver[Entity]):
+    assert resolver.get_edge("osv-john-doe", "osv-johnny-does") is None
     crawl_dataset(testdataset1)
 
     stmts = list(iter_dataset_statements(testdataset1))
@@ -33,5 +33,3 @@ def test_dump_file(testdataset1: Dataset):
     assert len(file_stmts) == len(stmts)
     canon_ids = [stmt.canonical_id for stmt in file_stmts]
     assert canonical.id in canon_ids
-
-    get_resolver.cache_clear()

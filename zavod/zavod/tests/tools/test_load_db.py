@@ -3,8 +3,8 @@ from sqlalchemy import MetaData, create_engine
 from sqlalchemy.pool import NullPool
 from nomenklatura.statement.db import make_statement_table
 
+from zavod.integration.dedupe import get_dataset_linker
 from zavod.meta import Dataset
-from zavod.integration import get_resolver
 from zavod.crawl import crawl_dataset
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.archive import iter_dataset_statements, dataset_state_path
@@ -12,7 +12,7 @@ from zavod.archive import iter_dataset_statements, dataset_state_path
 
 def test_load_db(testdataset1: Dataset):
     crawl_dataset(testdataset1)
-    resolver = get_resolver()
+    linker = get_dataset_linker(testdataset1)
 
     stmts = list(iter_dataset_statements(testdataset1))
     assert len(stmts) > 0
@@ -21,7 +21,7 @@ def test_load_db(testdataset1: Dataset):
     assert not db_path.exists()
     db_uri = "sqlite:///%s" % db_path.as_posix()
     batch_size = (len(stmts) // 2) - 1
-    load_dataset_to_db(testdataset1, resolver, db_uri, batch_size=batch_size)
+    load_dataset_to_db(testdataset1, linker, db_uri, batch_size=batch_size)
     assert db_path.exists()
     assert db_path.stat().st_size > 0
 

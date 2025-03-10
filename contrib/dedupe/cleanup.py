@@ -17,9 +17,11 @@ Key = Tuple[Identifier, Identifier, Schema, Temp, Temp]
 
 def cleanup_relations(dataset: Dataset) -> None:
     resolver = get_resolver()
+    resolver.begin()
     resolver.prune()
+    resolver.warm_linker()
     store = get_store(dataset, resolver)
-    store.sync(clear=True)
+    store.sync()
     view = store.default_view()
     used_ids = set()
     for idx, entity in enumerate(view.entities()):
@@ -30,7 +32,7 @@ def cleanup_relations(dataset: Dataset) -> None:
             log.info("Generated %s entities..." % idx)
 
     unused_ids = set()
-    for node in resolver.nodes.keys():
+    for node in resolver.get_nodes():
         if node.canonical:
             continue
         if node.id in used_ids:
@@ -40,7 +42,7 @@ def cleanup_relations(dataset: Dataset) -> None:
         unused_ids.add(node.id)
 
     log.info("Unused IDs: %s" % len(unused_ids))
-    resolver.save()
+    resolver.commit()
 
 
 if __name__ == "__main__":

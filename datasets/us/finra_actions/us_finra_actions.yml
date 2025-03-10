@@ -601,3 +601,7 @@ lookups:
       - match: "smith, brown & groover inc."
         names:
           - Smith, Brown & Groover Inc.
+      - match: robert w. baird & co. inc., hefren-tillotson inc.
+        names:
+          - Robert W. Baird & Co. Inc.
+          - Hefren-Tillotson Inc.
