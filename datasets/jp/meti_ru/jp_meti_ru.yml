@@ -7,15 +7,14 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 summary: >-
-  Restrictions of exports and services to Russia, Belarus, and certain third-country entities 
-  under the Foreign Exchange and Foreign Trade Law.
+  Export and service restrictions to Russia, Belarus, and designated third-country entities 
+  under Japan's Foreign Exchange and Foreign Trade Law.
 description: |
-  Japan's Ministry of Economy, Trade and Industry (METI) requires approval for certain 
-  exports and service transactions to Russia and other specified regions under the Foreign 
-  Exchange and Foreign Trade Law. In principle, such exports and services are not 
-  approved, with limited exceptions. The restrictions apply to Russia and Belarus, covering 
-  specific goods and technologies listed under Japan's Export Trade Control Order. Some 
-  third-country  entities are also subject to these restrictions.
+  Japan's Ministry of Economy, Trade, and Industry (METI) requires approval for certain 
+  exports and services to Russia, Belarus, and specified regions under the Foreign 
+  Exchange and Foreign Trade Law, with approvals generally denied except in limited cases. 
+  Restrictions apply to specific goods and technologies, as well as transactions involving 
+  designated entities.
 publisher:
   name: "Ministry of Economy, Trade and Industry"
   acronym: METI
@@ -31,7 +30,8 @@ url: https://www.meti.go.jp/policy/external_economy/trade_control/02_export/17_r
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSk-oy6G0e2huA2kjskWcDhgcrEKj6ePUISsqnCEfOFptVbZO2XN12V5up3FQhH7oqWwtryTTRMTnyG/pub?output=csv
   format: CSV
-  lang: jpn
+dates: 
+  formats: ["%Y年%m月%d日", "%Y 年%m 月%d 日"]
 
 lookups: 
   type.name:
