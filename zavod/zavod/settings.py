@@ -1,15 +1,9 @@
 from os import environ as env
+
 from pathlib import Path
 from banal import as_bool
-from normality import stringify
-
+from rigour.env import env_str, env_int
 from nomenklatura.versions import Version
-
-
-def env_str(name: str, default: str) -> str:
-    """Ensure the env returns a string even on Windows (#100)."""
-    value = stringify(env.get(name))
-    return default if value is None else value
 
 
 # Logging configuration
@@ -83,10 +77,6 @@ ARCHIVE_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", ARCHIVE_BUCKET)
 ARCHIVE_PATH = Path(env.get("ZAVOD_ARCHIVE_PATH", DATA_PATH.joinpath("archive")))
 BACKFILL_RELEASE = env_str("ZAVOD_BACKFILL_RELEASE", "latest")
 
-# File path for the resolver path used for entity deduplication
-RESOLVER_PATH = env.get("ZAVOD_RESOLVER_PATH")
-RESOLVER_PATH = env.get("OPENSANCTIONS_RESOLVER_PATH", RESOLVER_PATH)
-
 # HTTP settings
 HTTP_TIMEOUT = 1200
 HTTP_USER_AGENT = "Mozilla/5.0 (zavod)"
@@ -97,8 +87,9 @@ HTTP_RETRY_BACKOFF_FACTOR = float(env.get("ZAVOD_HTTP_RETRY_BACKOFF_FACTOR", 1.0
 HTTP_RETRY_BACKOFF_MAX = int(env.get("ZAVOD_HTTP_RETRY_BACKOFF_MAX", 120))
 
 # Database-backed cache settings
-CACHE_DATABASE_URI = env.get("ZAVOD_DATABASE_URI")
-CACHE_DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI", CACHE_DATABASE_URI)
+DATABASE_URI = env.get("ZAVOD_DATABASE_URI")
+DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
+DB_STMT_TIMEOUT = env_int("ZAVOD_DB_STMT_TIMEOUT", 10000)
 
 # Load DB batch size
 DB_BATCH_SIZE = int(env_str("ZAVOD_DB_BATCH_SIZE", "1000"))

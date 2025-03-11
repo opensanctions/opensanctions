@@ -16,11 +16,9 @@ from pywikibot.data import api  # type: ignore
 from rich.console import RenderableType
 from rich.text import Text
 from textual.app import App, ComposeResult
-from textual.containers import Grid
 from textual.reactive import reactive
-from textual.screen import Screen
 from textual.widget import Widget
-from textual.widgets import Header, Footer, Log, ListItem, ListView, Label, Button
+from textual.widgets import Header, Footer, Log, ListItem, ListView
 from textual.message import Message
 from textual import work
 from typing import Any, Dict, Generic, List, Optional, Tuple, cast
@@ -159,8 +157,6 @@ class EditSession(Generic[DS, CE]):
     `publish()` can be called to publish the proposed edits to a new or existing
     item on wikidata. If publishing created a new entity, it will also resolve
     the entity to the new QID and load the next item.
-
-    `save_resolver()` can be called to save the resolver state.
     """
 
     def __init__(
@@ -174,7 +170,6 @@ class EditSession(Generic[DS, CE]):
     ):
         self._store = store
         self._resolver = resolver
-        self.is_resolver_dirty = False
         self._app = app
         self._view = store.default_view(external=False)
         self._country_code = country_code
@@ -198,11 +193,9 @@ class EditSession(Generic[DS, CE]):
 
     def next(self) -> None:
         for entity in self._entities_gen:
-            if self._app.quitting:
-                return
-
             self._reset_entity()
-            if not entity.schema.name == "Person":
+
+            if not entity.schema.is_a("Person"):
                 continue
             if self._focus_dataset and self._focus_dataset not in entity.datasets:
                 continue
@@ -284,7 +277,8 @@ class EditSession(Generic[DS, CE]):
             judgement=Judgement.POSITIVE,
         )
         self._store.update(canonical_id)
-        self.is_resolver_dirty = True
+        self._resolver.commit()
+        self._resolver.begin()
         self.search_results = []
         self._fetch_item()
         self.actions = []
@@ -334,10 +328,6 @@ class EditSession(Generic[DS, CE]):
             self.resolve(qid)
         else:
             self.next()
-
-    def save_resolver(self) -> None:
-        self._resolver.save()
-        self.is_resolver_dirty = False
 
     def _propose_actions(self, entity: CE) -> None:
         if self.qid:
@@ -658,24 +648,6 @@ class SearchDisplay(Widget):
             self.list_view.append(search_item)
 
 
-class QuitScreen(Screen[None]):
-    """Screen with a dialog to quit."""
-
-    def compose(self) -> ComposeResult:
-        yield Grid(
-            Label("You have unsaved changes. Quit without saving?", id="question"),
-            Button("Quit", variant="error", id="quit"),
-            Button("Cancel", variant="primary", id="cancel"),
-            id="dialog",
-        )
-
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "quit":
-            self.app.exit(0)
-        else:
-            self.app.pop_screen()
-
-
 class NextLoaded(Message):
     pass
 
@@ -687,9 +659,7 @@ class LogMessage(Message):
 
 
 class WikidataApp(App[int], Generic[DS, CE]):
-    quitting: bool = False
     session: EditSession[DS, CE]
-    is_dirty: reactive[bool] = reactive(False)
     loading_next: bool = False  # very very poor man's semaphore
 
     CSS_PATH = "wd_up.tcss"
@@ -697,9 +667,7 @@ class WikidataApp(App[int], Generic[DS, CE]):
         ("n", "next", "Next"),
         ("p", "publish", "Publish"),
         ("r", "resolve", "Resolve"),
-        ("s", "save", "Save"),
-        ("w", "exit_save", "Quit & save"),
-        ("q", "exit_hard", "Quit"),
+        ("q", "exit", "Quit"),
     ]
 
     def compose(self) -> ComposeResult:
@@ -799,21 +767,8 @@ class WikidataApp(App[int], Generic[DS, CE]):
         self.session.publish()
         self.post_message(NextLoaded())
 
-    def action_save(self) -> None:
-        self.session.save_resolver()
-        self.log_display.write_line("Saved resolver changes.")
-
-    def action_exit_save(self) -> None:
-        self.session.save_resolver()
-        self.quitting = True
+    def action_exit(self) -> None:
         self.exit(0)
-
-    def action_exit_hard(self) -> None:
-        if self.session.is_resolver_dirty:
-            self.push_screen(QuitScreen())
-        else:
-            self.quitting = True
-            self.exit(0)
 
 
 def run_app(
