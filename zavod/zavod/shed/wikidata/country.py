@@ -44,7 +44,9 @@ def is_historical_country(enricher: Wikidata, qid: str) -> bool:
     return False
 
 
-def item_countries(enricher: Wikidata, item: Item) -> Set[LangText]:
+def item_countries(
+    enricher: Wikidata, item: Item, seen: Optional[Set[str]] = None
+) -> Set[LangText]:
     """Extract the countries linked to an item, traversing up an administrative hierarchy
     via jurisdiction/part of properties."""
     countries: Set[LangText] = set()
@@ -64,17 +66,17 @@ def item_countries(enricher: Wikidata, item: Item) -> Set[LangText]:
                 countries.add(text)
     if len(countries) > 0:
         return countries
+    seen = set() if seen is None else set(seen)
+    seen.add(item.id)
     for claim in item.claims:
         # jurisdiction, capital of, part of:
         if claim.property in ("P1001", "P1376", "P361"):
             if claim.qualifiers.get("P582") or claim.qid is None:
                 continue
-            # if claim.qid in seen:
-            #     continue
+            if claim.qid in seen:
+                continue
             subitem = enricher.fetch_item(claim.qid)
             if subitem is None:
                 continue
-            # print("SUBITEM", repr(subitem))
-            # subseen = seen + [claim.qid]
-            countries.update(item_countries(enricher, subitem))
+            countries.update(item_countries(enricher, subitem, seen=seen))
     return countries
