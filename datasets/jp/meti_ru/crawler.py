@@ -6,8 +6,9 @@ from zavod import Context, helpers as h
 
 
 def clean_address(raw_address):
-    # Use regex to remove the prefix "所在地：" from the start of the string
+    # Remove the 'location' "所在地：" from the start of the string
     cleaned_address = re.sub(r"^所在地：", "", raw_address).strip()
+    cleaned_address = re.sub(r"^所在地:", "", cleaned_address).strip()
     return cleaned_address
 
 
@@ -80,4 +81,13 @@ def crawl(context: Context):
 
             entity.add("sourceUrl", row.pop("source_url"))
             entity.add("topics", "debarment")
+            entity.add("topics", "sanction")
+
+            sanction = h.make_sanction(context, entity)
+            sanction.add("program", row.pop("program"))
+            h.apply_date(sanction, "listingDate", row.pop("designated_date"))
+
             context.emit(entity)
+            context.emit(sanction)
+
+            context.audit_data(row, ["target_country"])
