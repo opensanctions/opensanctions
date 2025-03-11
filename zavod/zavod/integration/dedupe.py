@@ -76,6 +76,7 @@ def blocking_xref(
     review. Candidates above the given threshold score will be merged automatically.
     """
     resolver.prune()
+    resolver.warm_linker()
     log.info(
         "Xref running, algorithm: %r" % algorithm,
         auto_threshold=auto_threshold,
