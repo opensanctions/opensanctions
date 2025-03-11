@@ -33,13 +33,42 @@ data:
 dates: 
   formats: ["%Y年%m月%d日", "%Y 年%m 月%d 日"]
 
-lookups: 
+lookups:
+  names:
+    options: 
+      - match: 23 国防省（連邦軍及び場所を問わず全ての運用部隊を含む）。右には、露連邦の国軍（地上軍、海軍、海軍歩兵部隊、航空宇宙軍及び沿岸部隊）、国家親衛軍と警察、諜報及び偵察機関が含 まれる。
+        name: 国防省（連邦軍及び場所を問わず全ての運用部隊を含む）
+        aliases:
+          - ロシア連邦国防省
+          - ロシア連邦軍
+          - ロシア国家親衛軍
+          - ロシア国家警察
+          - ロシア政府諜報
+      - match: 34 無線技術・情報（RTI）システム
+        name: 無線技術・情報（RTI）システム
+        aliases: []
+      - match: 60 電子機械・情報システム（ELVIS）（別称、株式会社研究開発センター・エルヴィス（ELVEES）及び科学生産センター・エルヴィス）
+        name: 電子機械・情報システム（ELVIS）
+        aliases: 
+          - 株式会社研究開発センター・エルヴィス
+          - ELVEES
+          - 科学生産センター・エルヴィス
   type.name:
     options: 
       - match: Ministry of Defence of the Russian Federation, including the Armed Forces of Russia and all operating units wherever located. This includes the national armed services (army, navy, marine, air force, or coast guard), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Russian Federation.
         values: 
           - Ministry of Defence of the Russian Federation
           - Armed Forces of Russia
+          - National Guard of Russia
+          - National Police of Russia
+          - Government Intelligence of Russia
+      - match: The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located. This includes the national armed services (army and air force), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Republic of Belarus.
+        values: 
+          - Ministry of Defence of the Republic of Belarus
+          - Armed Forces of Belarus
+          - National Guard of Belarus
+          - National Police of Belarus
+          - Government Intelligence of Belarus
   type.address: 
     options:
       - match: '84, Deep Towers, EPIP Industrial Area, Whitefield, Bangalore, Karnataka, 560066, India; #52/A, 1st Cross, 3rd Main KIADB Industrial Area, Hoskote, Bangalore, Karnataka, 562114, India; 3796, 7th Main, Hal II Stage, Bangalore, Karnataka, 560008, India; 493/3 Bramhalingeshwara Complex, Airport Road, Bangalore, Karnataka, 560008, India;'
