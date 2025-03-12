@@ -85,6 +85,8 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
 
 def crawl_person(state: CrawlState, qid: str) -> Optional[Entity]:
     item = state.enricher.fetch_item(qid)
+    if item is None:
+        return None
     entity = wikidata_basic_human(state.context, state.enricher, item, strict=True)
     if entity is None:
         return None
