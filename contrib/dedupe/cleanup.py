@@ -19,7 +19,6 @@ def cleanup_relations(dataset: Dataset) -> None:
     resolver = get_resolver()
     resolver.begin()
     resolver.prune()
-    resolver.warm_linker()
     store = get_store(dataset, resolver)
     store.sync()
     view = store.default_view()
