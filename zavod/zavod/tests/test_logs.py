@@ -1,5 +1,9 @@
+import logging
 import os
 
+import zavod
+from zavod import Context, Dataset
+from zavod.archive import dataset_resource_path, ISSUES_FILE
 from zavod.logs import (
     RedactingProcessor,
     configure_redactor,
@@ -72,3 +76,23 @@ def test_configure_redactor():
 
     env_redacted = processor.redact_str("something something DEADBEEF something")
     assert env_redacted == "something something ${SENSITIVE} something"
+
+
+def test_redacts_issue_logger(testdataset1: Dataset):
+    os.environ["SENSITIVE_SECRET"] = "correcthorsebatterystaple"
+
+    zavod.logs.configure_logging()
+    issues_path = dataset_resource_path(testdataset1.name, ISSUES_FILE)
+    context = Context(testdataset1)
+    context.begin(clear=True)
+    assert not issues_path.exists()
+
+    context.log.warn("This is a warning to correcthorsebatterystaple")
+    # Non-structlog logs take a slightly different path
+    logging.warning("This is a python logging warning to correcthorsebatterystaple")
+    context.close()
+
+    assert issues_path.exists()
+    assert "This is a warning to" in issues_path.read_text()
+    # assert "This is a python logging warning to" in issues_path.read_text()
+    assert "correcthorsebatterystaple" not in issues_path.read_text()
