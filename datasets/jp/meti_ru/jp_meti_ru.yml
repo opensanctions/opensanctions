@@ -33,6 +33,14 @@ data:
 dates: 
   formats: ["%Y年%m月%d日", "%Y 年%m 月%d 日"]
 
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 590
+  max:
+    schema_entities:
+      LegalEntity: 900
+  
 lookups:
   names:
     options: 
