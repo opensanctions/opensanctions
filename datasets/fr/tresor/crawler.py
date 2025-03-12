@@ -29,7 +29,9 @@ SEPARATORS = "/:;-. "
 TEXT_KEYS = {
     "Type d'entité": "legalForm",
     "Date d'enregistrement": "incorporationDate",
-    "Lieu d'enregistrement": None,  # address, which is a free text field we don't auto-parse
+     # address, which is a free text field we don't auto-parse because it's too easy for the value
+     # to silently include a key we don't know about yet.
+    "Lieu d'enregistrement": None,
     "Principal établissement": "jurisdiction",
     "Principaux établissements": "jurisdiction",
     "Établissement principal": "jurisdiction",
