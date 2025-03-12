@@ -29,27 +29,27 @@ def clean_address(raw_address):
     return cleaned_address
 
 
-def clean_up_name(data_string):
+def clean_name_en(data_string):
     # Split the string to separate the primary name from aliases
     if "a.k.a." in data_string:
-        parts = data_string.split(" a.k.a.")
+        parts = data_string.split("a.k.a.")
     elif "the following" in data_string:
         parts = data_string.split("the following")
     else:
         # Default: Return the data string as the name with no aliases
         return data_string.strip(), []
 
-    clean_name = parts[0].strip().rstrip(",")
+    clean_name = parts[0].strip().rstrip(",").rstrip(".").rstrip("a.k.a")
     aliases = []
     if len(parts) > 1:
         aliases_part = parts[1]
         aliases = re.findall(r"[-—]([^;\n]+)(?:;|\.|\n| and |$)", aliases_part)
-        aliases = [alias.strip() for alias in aliases]
+        aliases = [alias.strip().rstrip(".").rstrip(",") for alias in aliases]
 
     return clean_name, aliases
 
 
-def get_names(data_string):
+def clean_name_raw(context, data_string):
     main_name = ""
     aliases = []
 
@@ -62,64 +62,35 @@ def get_names(data_string):
             if alias.strip()
         ]
 
+    if main_name == "" and not aliases:
+        if any(char in main_name for char in ["（", "、", ")", "）"]):
+            result = context.lookup("names", main_name)
+            if result is None:
+                context.log.warning(f"Entry needs manual processing: {main_name}")
+                return
+            if result.names:
+                for name in result.names:
+                    main_name = name.get("name")
+                    aliases = name.get("publicKey")
+
     return main_name, aliases
-
-
-# def clean_japanese_names(data_string):
-#     entries = re.split(r"(?<=\w)(?=\d{1,3}\s)", data_string)
-
-#     for entry in entries:
-#         entry = re.sub(r"^\d{1,3}\s+", "", entry).strip()
-#         # Separate main name and alias part
-#         if "（別称、" in entry:
-#             parts = entry.split("（別称、")
-#             main_name = parts[0].strip()
-#             # Ensure there is an alias part to process
-#             if len(parts) > 1:
-#                 alias_part = parts[1].rstrip("）")
-#                 alias_part = parts[1].rstrip(")")
-#                 # Split aliases using "、" and "及び"
-#                 aliases = re.split(r"、|及び", alias_part)
-#                 aliases = [alias.strip() for alias in aliases if alias.strip()]
-#                 # for alias in aliases:
-#                 # if "）" in alias or ")" in alias:
-#                 #     print(f"Warning: Unprocessed alias: {alias}")
-#             else:
-#                 aliases = []
-#         else:
-#             main_name = entry.strip()
-#             # if "）" in main_name or ")" in main_name:
-#             #     print(f"Warning: Unprocessed entry: {main_name}")
-#             aliases = []
-
-#     return main_name, aliases
 
 
 def crawl_row(context, row):
     name_jap = row.pop("name_raw")
     name_en = row.pop("name_en")
     address = clean_address(row.pop("address"))
-    name_jap_clean, aliases_jap = get_names(name_jap)
-    if name_jap_clean == "" and not aliases_jap:
-        if any(char in name_jap for char in ["（", "、", ")", "）"]):
-            result = context.lookup("names", name_jap)
-            if result is None:
-                context.log.warning(f"Entry needs manual processing: {name_jap}")
-                return
-            if result.names:
-                for name in result.names:
-                    name_jap_clean = name.get("name")
-                    aliases_jap = name.get("publicKey")
+
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name_jap, name_en)
     # Japanese name and alias cleanup
-    # name_jap_clean, aliases = clean_japanese_names(name_jap)
+    name_jap_clean, aliases_jap = clean_name_raw(context, name_jap)
     entity.add("name", name_jap_clean, lang="jpn")
     for alias in aliases_jap:
         entity.add("alias", alias, lang="jpn")
     # English name and alias cleanup
-    name_en_clean, aliases = clean_up_name(name_en)
-    entity.add("name", name_en_clean)
+    name_en_clean, aliases = clean_name_en(name_en)
+    entity.add("name", name_en_clean, lang="eng")
     for alias in aliases:
         entity.add("alias", alias, lang="eng")
     for address in h.multi_split(address, [" and "]):
