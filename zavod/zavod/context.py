@@ -389,17 +389,17 @@ class Context:
             method=method,
             data=data,
         )
-        if text is not None and len(text):
-            try:
-                return html.fromstring(text)
-            except Exception:
-                cache_url = build_url(url, params)
-                fingerprint = request_hash(
-                    cache_url, auth=auth, method=method, data=data
-                )
-                self.clear_url(fingerprint)
-                raise
-        raise ValueError("Invalid HTML document: %s" % url)
+        cache_url = build_url(url, params)
+        fingerprint = request_hash(cache_url, auth=auth, method=method, data=data)
+        if text is None or len(text) == 0:
+            self.clear_url(fingerprint)
+            raise ValueError("Received zero-length text response from: %s" % url)
+
+        try:
+            return html.fromstring(text)
+        except Exception:
+            self.clear_url(fingerprint)
+            raise
 
     def clear_url(self, fingerprint: str) -> None:
         """
