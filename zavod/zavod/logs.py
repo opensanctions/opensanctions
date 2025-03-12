@@ -141,7 +141,7 @@ def set_sentry_event_level(level: int) -> None:
 def configure_logging(level: int = logging.DEBUG) -> None:
     """Configure log levels and structured logging."""
 
-    processors: List[Processor] = [
+    base_processors: List[Processor] = [
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
         structlog.processors.StackInfoRenderer(),
@@ -149,8 +149,21 @@ def configure_logging(level: int = logging.DEBUG) -> None:
         merge_contextvars,
         structlog.dev.set_exc_info,
         structlog.processors.UnicodeDecoder(),
-        log_issue,
     ]
+
+    # Note: Redaction is only happening on string values, so make sure production
+    # environments format logs as strings before the redaction processor.
+    if settings.LOG_JSON:
+        base_processors.append(structlog.processors.TimeStamper(fmt="iso"))
+        base_processors.append(format_json)
+    else:
+        base_processors.append(
+            structlog.processors.TimeStamper(
+                fmt="%Y-%m-%d %H:%M:%S", utc=settings.TIME_ZONE == "UTC"
+            )
+        )
+
+    emitting_processors: List[Processor] = [log_issue]
     if settings.ENABLE_SENTRY:
         global _sentry_processor
         _sentry_processor = SentryProcessor(
@@ -163,49 +176,42 @@ def configure_logging(level: int = logging.DEBUG) -> None:
             # actually separate data issues.
             fingerprint=[SENTRY_FINGERPRINT_VARIABLE_MESSAGE, "{{ tag.dataset }}"],
         )
-        processors.append(_sentry_processor)
+        emitting_processors.append(_sentry_processor)
 
-    # Note: Redaction is only happening on string values, so make sure production
-    # environments format logs as strings before the redaction processor.
-    if settings.LOG_JSON:
-        processors.append(structlog.processors.TimeStamper(fmt="iso"))
-        processors.append(format_json)
-        formatter = structlog.stdlib.ProcessorFormatter(
-            foreign_pre_chain=processors,
-            processor=structlog.processors.JSONRenderer(),
-        )
-    else:
-        processors.append(
-            structlog.processors.TimeStamper(
-                fmt="%Y-%m-%d %H:%M:%S", utc=settings.TIME_ZONE == "UTC"
-            )
-        )
-        formatter = structlog.stdlib.ProcessorFormatter(
-            foreign_pre_chain=processors,
-            processor=structlog.dev.ConsoleRenderer(
-                exception_formatter=structlog.dev.plain_traceback
-            ),
-        )
-
-    all_processors = processors + [
-        configure_redactor(),
-        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
-    ]
+    processors: List[Processor] = (
+        base_processors + [configure_redactor()] + emitting_processors
+    )
 
     # configuration for structlog based loggers
     structlog.configure(
         cache_logger_on_first_use=True,
         wrapper_class=structlog.stdlib.BoundLogger,
-        processors=all_processors,
+        processors=processors
+        + [structlog.stdlib.ProcessorFormatter.wrap_for_formatter],
         logger_factory=structlog.stdlib.LoggerFactory(),
     )
 
+    stderr_renderer: Processor
+    if settings.LOG_JSON:
+        stderr_renderer = structlog.processors.JSONRenderer()
+    else:
+        stderr_renderer = structlog.dev.ConsoleRenderer(
+            exception_formatter=structlog.dev.plain_traceback
+        )
+
     handler = logging.StreamHandler(sys.stderr)
     handler.setLevel(level)
-    handler.setFormatter(formatter)
+    handler.setFormatter(
+        structlog.stdlib.ProcessorFormatter(
+            # Also apply all processor for logs coming in through the standard python logging infrastructure
+            foreign_pre_chain=processors,
+            processor=stderr_renderer,
+        )
+    )
 
     logger = logging.getLogger()
     logger.setLevel(level)
+    logger.handlers.clear()
     logger.addHandler(handler)
 
 
