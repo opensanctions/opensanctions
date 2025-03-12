@@ -13,18 +13,6 @@ from zavod.shed.wikidata.util import item_types
 Wikidata = WikidataEnricher[Dataset]
 countries_type = CountryType()
 
-BLOCK_ITEMS = {
-    "Q2961631",  # Chaumontois
-    "Q124153644",  # Chinland
-    "Q125422413",  # Persia
-    "Q126362486",  # Kerajaan Patipi
-    "Q37362",  # Akrotiri and Dhekelia
-    "Q131008",  # Johnston Atoll
-    "Q498979",  # Panama Canal Zone
-    "Q107357273",  # United States Pacific Island Wildlife Refuges
-}
-SKIP_CODES = {"zz", "dd", "csxx", "zr"}
-
 
 class Country(NamedTuple):
     qid: str
@@ -40,6 +28,9 @@ def is_historical_country(enricher: Wikidata, qid: str) -> bool:
     if "Q19953632" in types:  #  former administrative territorial entity
         return True
     if "Q839954" in types:  # archeological site
+        return True
+    territory = get_territory_by_qid(qid)
+    if territory is not None and territory.is_historical:
         return True
     return False
 
