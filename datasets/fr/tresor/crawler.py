@@ -5,7 +5,6 @@ from datapatch import Lookup
 from normality import slugify
 from prefixdate import parse_parts
 
-import rigour.ids
 from rigour.mime.types import JSON
 
 from zavod import Context, Entity
@@ -35,7 +34,6 @@ TEXT_KEYS = {
     "Principaux établissements": "jurisdiction",
     "Établissement principal": "jurisdiction",
     "Numéro d'identification fiscale (INN)": "innCode",
-    "Numéro d'identification fiscale (NIF)": "innCode",
     "INN (numéro d'identification fiscale)": "innCode",
     "INN (NIF)": "innCode",
     "Numéro d'identification fiscale russe": "innCode",
@@ -59,6 +57,7 @@ TEXT_KEYS = {
     "Numéro d'identification fiscal": "taxNumber",
     "N ° d'identification fiscale": "taxNumber",
     "No d'identification fiscale": "taxNumber",
+    "Numéro d'identification fiscale (NIF)": "taxNumber",
     "Numéro fiscal": "taxNumber",
     "NIF:": "taxNumber",
     "OMI": "imoNumber",
@@ -166,18 +165,6 @@ def parse_identification(
                     )
                 elif propname == "incorporationDate":
                     h.apply_date(entity, propname, value)
-
-                # Special handling for Russian tax/registration numbers, which is most companies on the list
-                elif propname == "registrationNumber":
-                    if rigour.ids.OGRN.is_valid(value):
-                        entity.add("ogrnCode", value)
-                    else:
-                        entity.add("registrationNumber", value)
-                elif propname == "taxNumber":
-                    if rigour.ids.INN.is_valid(value):
-                        entity.add("innCode", value)
-                    else:
-                        entity.add("taxNumber", value)
 
                 else:
                     entity.add(propname, value, lang="fra", original_value=segment)
