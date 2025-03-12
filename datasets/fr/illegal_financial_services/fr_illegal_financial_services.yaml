@@ -38,4 +38,4 @@ assertions:
       LegalEntity: 2400
   max:
     schema_entities:
-      LegalEntity: 2800
+      LegalEntity: 3400
