@@ -65,7 +65,10 @@ def crawl_row(context: Context, declaration_id: int):
     # 'cargos' can be marked as PEPs for all institutions in cl_info_probidad.yml
     res = context.lookup("positions", position_name)
     if not res:
-        context.log.warning(f"A new 'Cargo' (post) '{position_name}' was identified")
+        context.log.warning(
+            f"A new 'Cargo' (post) '{position_name}' was identified",
+            position_name=position_name,
+        )
         return
 
     categorisation = categorise(context, position, res.is_pep)
