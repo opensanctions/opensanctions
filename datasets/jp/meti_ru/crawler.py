@@ -8,6 +8,18 @@ SOURCE_URL = "https://www.meti.go.jp/policy/external_economy/trade_control/02_ex
 HEADER = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
 }
+NAMES_PATTERN = re.compile(
+    r"""
+    ^\d+\s*                     # Match and ignore leading number and optional whitespace
+    (?P<main>[^（）]+?)         # Capture the main name, select lazily
+    \s*                         # Allow optional space before parentheses
+    （別称、                    # Opening parenthesis with '別称、' indicating the start of aliases
+    (?P<aliases>[^）]+)        # Capture aliases content inside the parentheses
+    ）                         # Must-have closing parenthesis for valid matches
+    $                           # End of line
+""",
+    re.VERBOSE | re.MULTILINE,
+)
 
 
 def clean_address(raw_address):
@@ -38,23 +50,10 @@ def clean_up_name(data_string):
 
 
 def get_names(data_string):
-    # Define a regex pattern to match entries with main names and required aliases in parentheses
-    pattern = re.compile(
-        r"""
-        ^\d+\s*                     # Match and ignore leading number and optional whitespace
-        (?P<main>[^（）]+?)         # Capture the main name, select lazily
-        \s*                         # Allow optional space before parentheses
-        （別称、                    # Opening parenthesis with '別称、' indicating the start of aliases
-        (?P<aliases>[^）]+)        # Capture aliases content inside the parentheses
-        ）                         # Must-have closing parenthesis for valid matches
-        $                           # End of line
-    """,
-        re.VERBOSE | re.MULTILINE,
-    )
     main_name = ""
     aliases = []
 
-    for match in pattern.finditer(data_string):
+    for match in NAMES_PATTERN.finditer(data_string):
         main_name = match.group("main").strip()
         aliases_raw = match.group("aliases") or ""
         aliases = [
