@@ -70,7 +70,7 @@ def crawl_xls(context: Context, path: str):
 def fetch_file_url(context: Context) -> str:
     params = {"_": context.data_time.date().isoformat()}
     doc = context.fetch_html(context.data_url, params=params)
-    for link in doc.xpath(".//a[text() = 'Requester List (xls)']"):
+    for link in doc.xpath(".//a[text() = 'Requester List (CSV)']"):
         return urljoin(context.data_url, link.get("href"))
     raise ValueError("Could not find tabular file on the website")
 
