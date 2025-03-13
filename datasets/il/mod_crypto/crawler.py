@@ -126,13 +126,9 @@ def crawl(context: Context):
     # - The table of persons/wallets - does it look like anything's been added there?
     #   Top of bottom?
     #
-    # Save As https://nbctf.mod.gov.il/en/Minister%20Sanctions/PropertyPerceptions/Pages/Blockchain1.aspx
-    # as 'Web Page, HTML only' in chrome to datasets/il/mod_crypto/source.html
-    # We use chrome because curl sometimes gets a bot blocking response.
-    #
-    # Then git diff --word-diff=color datasets/il/mod_crypto/source.html
-    # and see if there's anything in the content that's changed.
-    h.assert_dom_hash(container, "4232572bec290de579d19318c00e02c8e77cce38")
+    # Use screenshot.png in this directory to visually diff the website, then update the screenshot
+    # google-chrome-stable --headless --disable-gpu --screenshot --window-size=1600,6000 $(yq ".url" il_mod_crypto.yml)
+    h.assert_dom_hash(container, "de0bfb47103b25f8717718ae5ac49dd79f5e1da6")
 
     # We don't support rowspan at the time of writing.
     #

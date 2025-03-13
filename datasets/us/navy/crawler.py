@@ -63,43 +63,46 @@ def crawl_person(context: Context, item_html: str) -> None:
     emit_person(context, "us", url, role, name, title=title)
 
 
+def parse_json_or_xml(context: Context, url: str, data: str):
+    try:
+        json_doc = orjson.loads(data)
+        return json_doc
+    except orjson.JSONDecodeError:
+        context.log.info(f"Failed to decode JSON from {url}, trying as XML instead")
+
+    try:
+        root = etree.fromstring(data)
+        html_data = root.xpath(".//*[local-name() = 'data']")[0].text
+        done = root.xpath(".//*[local-name() = 'done']")[0].text
+        return {"data": html_data, "done": done}
+    except etree.XMLSyntaxError as e:
+        context.log.info(f"Failed to parse XML for {url}: {e}")
+
+
 def process_page(context: Context, page_number: int):
     url = API_URL % page_number
     try:
-        data = context.fetch_json(url)
-    except orjson.JSONDecodeError as e:
-        context.log.error(f"Failed to decode JSON from {url}: {e}")
-        return False, False
+        data = context.fetch_text(url, headers={"Accept": "application/xml"})
     except Exception as e:
-        context.log.error(f"Failed to fetch JSON from {url}: {e}")
+        context.log.exception(f"Failed to fetch JSON from {url}: {e}")
         return False, False
 
     if not data:
         context.log.error(f"No data found for page {page_number}")
         return False, False
 
-    if isinstance(data, dict):
-        html_data = data.get("data")
-        done = data.get("done", True)
-    else:
-        try:
-            root = etree.fromstring(data)
-            html_data = root.find(".//data").text
-            done = root.find(".//done").text.lower() == "true"
-        except etree.XMLSyntaxError as e:
-            context.log.error(f"Failed to parse XML for page {page_number}: {e}")
-            return False, False
+    doc = parse_json_or_xml(context, url, data)
 
-    if not html_data:
-        context.log.error(f"No HTML data found for page {page_number}")
-        return False, done
+    if not doc:
+        context.log.error(f"No parseable data found for page {page_number}")
+        return False, False
 
-    items = html.fromstring(html_data).findall(".//li")
+    items = html.fromstring(doc["data"]).findall(".//li")
     for item in items:
         item_html = html.tostring(item, encoding="unicode")
         crawl_person(context, item_html)
 
-    return True, done
+    return True, doc["done"] == "true"
 
 
 def unblock_validator(doc: html.HtmlElement) -> bool:
@@ -142,21 +145,19 @@ def parse_html(context):
 def crawl(context: Context):
     page_number = 0
     done = False
-    error_pages = []
     while not done:
         context.log.info(f"Fetching page {page_number}")
         success, done_flag = process_page(context, page_number)
         if not success:
-            error_pages.append(page_number)
+            # They have a really wonky cache that sometimes serves up XML, sometimes JSON,
+            # sometimes broken data, so just try again once.
+            success, done_flag = process_page(context, page_number)
+            if not success:
+                context.log.error(f"Failed to fetch page {page_number}, bailing out")
+                return
+
         done = done_flag
         page_number += 1
-
-    # Retry the error pages
-    for page_number in error_pages:
-        context.log.info(f"Retrying page {page_number}")
-        success, _ = process_page(context, page_number)
-        if not success:
-            context.log.error(f"Failed again for page {page_number}")
 
     # Parse additional page
     parse_html(context)

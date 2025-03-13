@@ -16,7 +16,6 @@ from structlog.types import Processor
 import sentry_sdk
 from followthemoney.schema import Schema
 from zavod import settings
-from zavod.sentry import SentryProcessor, SENTRY_FINGERPRINT_VARIABLE_MESSAGE
 
 Event = MutableMapping[str, str]
 
@@ -39,11 +38,6 @@ REDACT_IGNORE_LIST = {
 REDACT_MIN_LENGTH = 5
 URI_WITH_CREDENTIALS = r"(\w+)://[^:]+:[^@]+@"
 REGEX_URI_WITH_CREDENTIALS = re.compile(URI_WITH_CREDENTIALS)
-
-# Module level so we can modify the level later
-# After we've managed to regain control of whether we want to log warnings in Entity.add, we can probably
-# clean this up. See https://github.com/opensanctions/opensanctions/issues/1896
-_sentry_processor: Optional[SentryProcessor] = None
 
 
 class RedactingProcessor:
@@ -119,7 +113,7 @@ def configure_sentry_integration() -> None:
             environment=settings.SENTRY_ENVIRONMENT,
             auto_enabling_integrations=False,
             disabled_integrations=[
-                # We disable the default logging integration because we have our custom structlog Processor
+                # We disable the logging integration since we handle that with our issues infrastructure
                 sentry_sdk.integrations.logging.LoggingIntegration  # type: ignore
             ],
             attach_stacktrace=True,
@@ -132,16 +126,10 @@ def set_sentry_dataset_name(dataset_name: str) -> None:
     sentry_sdk.get_current_scope().set_transaction_name(dataset_name)
 
 
-def set_sentry_event_level(level: int) -> None:
-    """Set the level above which events are sent to Sentry."""
-    if _sentry_processor is not None:
-        _sentry_processor.event_level = level
-
-
 def configure_logging(level: int = logging.DEBUG) -> None:
     """Configure log levels and structured logging."""
 
-    processors: List[Processor] = [
+    base_processors: List[Processor] = [
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
         structlog.processors.StackInfoRenderer(),
@@ -149,63 +137,59 @@ def configure_logging(level: int = logging.DEBUG) -> None:
         merge_contextvars,
         structlog.dev.set_exc_info,
         structlog.processors.UnicodeDecoder(),
-        log_issue,
     ]
-    if settings.ENABLE_SENTRY:
-        global _sentry_processor
-        _sentry_processor = SentryProcessor(
-            event_level=logging.WARNING,
-            event_dict_as_extra=True,
-            # Attach the dataset name as a tag in Sentry
-            tag_keys=["dataset"],
-            # Disable the default grouping magic, we only want to group by message and dataset. Otherwise, log messages
-            # along the lines of "Problem with entity <id>" might be grouped by the internal magic, even though they are
-            # actually separate data issues.
-            fingerprint=[SENTRY_FINGERPRINT_VARIABLE_MESSAGE, "{{ tag.dataset }}"],
-        )
-        processors.append(_sentry_processor)
 
-    # Note: Redaction is only happening on string values, so make sure production
-    # environments format logs as strings before the redaction processor.
+    emitting_processors: List[Processor] = [log_issue]
+
     if settings.LOG_JSON:
-        processors.append(structlog.processors.TimeStamper(fmt="iso"))
-        processors.append(format_json)
-        formatter = structlog.stdlib.ProcessorFormatter(
-            foreign_pre_chain=processors,
-            processor=structlog.processors.JSONRenderer(),
-        )
+        formatting_processors = [
+            structlog.processors.TimeStamper(fmt="iso"),
+            format_json,
+        ]
     else:
-        processors.append(
+        formatting_processors = [
             structlog.processors.TimeStamper(
                 fmt="%Y-%m-%d %H:%M:%S", utc=settings.TIME_ZONE == "UTC"
             )
-        )
-        formatter = structlog.stdlib.ProcessorFormatter(
-            foreign_pre_chain=processors,
-            processor=structlog.dev.ConsoleRenderer(
-                exception_formatter=structlog.dev.plain_traceback
-            ),
-        )
+        ]
 
-    all_processors = processors + [
-        configure_redactor(),
-        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
-    ]
+    processors: List[Processor] = (
+        base_processors
+        + [configure_redactor()]
+        + emitting_processors
+        + formatting_processors
+    )
 
     # configuration for structlog based loggers
     structlog.configure(
         cache_logger_on_first_use=True,
         wrapper_class=structlog.stdlib.BoundLogger,
-        processors=all_processors,
+        processors=processors
+        + [structlog.stdlib.ProcessorFormatter.wrap_for_formatter],
         logger_factory=structlog.stdlib.LoggerFactory(),
     )
 
+    stderr_renderer: Processor
+    if settings.LOG_JSON:
+        stderr_renderer = structlog.processors.JSONRenderer()
+    else:
+        stderr_renderer = structlog.dev.ConsoleRenderer(
+            exception_formatter=structlog.dev.plain_traceback
+        )
+
     handler = logging.StreamHandler(sys.stderr)
     handler.setLevel(level)
-    handler.setFormatter(formatter)
+    handler.setFormatter(
+        structlog.stdlib.ProcessorFormatter(
+            # Also apply all processor for logs coming in through the standard python logging infrastructure
+            foreign_pre_chain=processors,
+            processor=stderr_renderer,
+        )
+    )
 
     logger = logging.getLogger()
     logger.setLevel(level)
+    logger.handlers.clear()
     logger.addHandler(handler)
 
 

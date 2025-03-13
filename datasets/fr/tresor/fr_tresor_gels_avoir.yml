@@ -5315,3 +5315,141 @@ lookups:
           jurisdiction: ru
           legalForm: société par actions
           incorporationDate: 2023-01-31
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: République du Tatarstan, Fédération de Russie - Date d'enregistrement: 12.2.2007 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "République du Tatarstan, Fédération de Russie"
+          incorporationDate: 2007-02-12
+      - match: "Numéro d'enregistrement: 1071650002874"
+        props:
+          registrationNumber: 1071650002874
+      - match: "Numéro d'identification fiscale:  1650153253"
+        props:
+          innCode: 1650153253
+      - match: "KPP: 165001001"
+        schema: Company
+        props:
+          kppCode: 165001001
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Minsk, Biélorussie - Date d'enregistrement: 1.8.2013 - Principal établissement: Biélorussie: /"
+        props:
+          jurisdiction: by
+          legalForm: société par actions
+          address: "Minsk, Biélorussie"
+          incorporationDate: 2013-08-01
+      - match: "Numéro d'enregistrement: 100386629"
+        props:
+          registrationNumber: 100386629
+      - match: "Type d'entité: plateforme d'échange de cryptomonnaies - Lieu d'enregistrement: Moscou, Fédération de Russie - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: plateforme d'échange de cryptomonnaies
+          address: "Moscou, Fédération de Russie"
+      - match: "Adresse de portefeuille de chaîne de blocs connues de Garantex: ETH: 0x002471b8A185f9980708d0eAEC5B289714F56f8d"
+        wallets:
+          - currency: ETH
+            publicKey: 0x002471b8A185f9980708d0eAEC5B289714F56f8d
+      - match: "Adresse de portefeuille de chaîne de blocs connues de Garantex: BTC: bc1qwtz3zv95x2flu4w26kgfepf529z50r2sqc5zmlbc1qwxqxd25yk2dtw2ml04vxj9atq3huv4rdytf6vt3My1ffQr5qQzmq4aBFgRqwRYqfB5zPAt8t"
+        wallets:
+          - currency: BTC
+            publicKey: bc1qwtz3zv95x2flu4w26kgfepf529z50r2sqc5zmlbc1qwxqxd25yk2dtw2ml04vxj9atq3huv4rdytf6vt3My1ffQr5qQzmq4aBFgRqwRYqfB5zPAt8t
+      - match: "Adresse de portefeuille de chaîne de blocs connues de Garantex: BSC: 0x3051Ca7cB7f6C599fA2f27385AD75010cf0f2bbF  TRX: TA1hsikRfsgGiW9nEBpT4tEXEySTNYLr2d"
+        wallets:
+          - currency: BSC
+            publicKey: 0x3051Ca7cB7f6C599fA2f27385AD75010cf0f2bbF
+          - currency: TRX
+            publicKey: TA1hsikRfsgGiW9nEBpT4tEXEySTNYLr2d
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 19.7.1993 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "Fédération de Russie"
+          incorporationDate: 1993-07-19
+      - match: "Numéro d'enregistrement:  1037800001304"
+        props:
+          registrationNumber: 1037800001304
+      - match: "Numéro d'identification fiscale: 7801016421"
+        props:
+          innCode: 7801016421
+      - match: "OKPO: 07614320"
+        props:
+          okpoCode: 07614320
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: République du Tatarstan, Fédération de Russie - Date d'enregistrement: 12.2.2007: /"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "République du Tatarstan, Fédération de Russie"
+          incorporationDate: 2007-02-12
+      - match: "Numéro d'enregistrement: 1227800127840"
+        props:
+          registrationNumber: 1227800127840
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: d'abord l'Ukraine, puis, après l'annexion illégale de la Crimée, la Fédération de Russie - Date d'enregistrement: 22.7.1992 (Ukraine), 13.8.2014 (Fédération de Russie) - Principal établissement: Fédération de Russie et Crimée: /"
+        props:
+          jurisdiction: ua-cri
+          legalForm: société par actions
+          address: "Fédération de Russie et Crimée"
+          incorporationDate: ["1992-07-22", "2014-08-13"]
+      - match: "Numéro d'enregistrement: 1149102030186"
+        props:
+          registrationNumber: 1149102030186
+      - match: "INN: 9102019769"
+        props:
+          innCode: 9102019769
+      - match: "OKPO: 00204814"
+        props:
+          okpoCode: 00204814
+      - match: "Type d'entité: société publique par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 27.9.2011 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société publique par actions
+          address: "Fédération de Russie"
+          incorporationDate: 2011-09-27
+      - match: "Numéro d'enregistrement: 1116317006299"
+        props:
+          registrationNumber: 1116317006299
+      - match: "Numéro d'identification fiscale russe: 6317088527"
+        props:
+          innCode: 6317088527
+      - match: "KPP: 631701001"
+        schema: Company
+        props:
+          kppCode: 631701001
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 13.1.2003: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2003-01-13
+      - match: "Numéro d'enregistrement: 1037700016991"
+        props:
+          registrationNumber: 1037700016991
+      - match: "Numéro d'identification fiscale: 7728135260"
+        props:
+          innCode: 7728135260
+      - match: "KPP: 772801001"
+        schema: Company
+        props:
+          kppCode: 772801001
+      - match: "Type d'entité: entreprise unitaire d'État - Lieu d'enregistrement: Komsomolsky Pr. 22, ville de Donetsk, district de Donetsk, soi-disant \"République populaire de Donetsk\": /"
+        props:
+          legalForm: entreprise unitaire d'État
+          address: "Komsomolsky Pr. 22, ville de Donetsk, district de Donetsk, soi-disant République populaire de Donetsk"
+      - match: "Date du premier enregistrement: 28.2.2017 - Date d'enregistrement dans la Fédération de Russie (à la suite des référendums illégaux tenus dans les territoires occupés de l'Ukraine): 30.11.2022 : /"
+        props:
+          incorporationDate: ["2017-02-28", "2022-11-30"]
+      - match: "Principal établissement: zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant \"République populaire de Donetsk\" et \"République populaire de Louhansk\"), de Kherson et de Zaporijjia: /"
+        props:
+          address: "zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant République populaire de Donetsk et République populaire de Louhansk), de Kherson et de Zaporijjia"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 21.7.2023: /"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2023-07-21
+      - match: "Numéro d'enregistrement: 1237800084235"
+        props:
+          registrationNumber: 1237800084235
+      - match: "NIF: 7802942873"
+        props:
+          taxNumber: 7802942873
+      - match: "KPP: 780201001"
+        schema: Company
+        props:
+          kppCode: 780201001

@@ -151,7 +151,7 @@ def query_position_holders(
 
 
 def query_positions(
-    context: Context, position_classes, country
+    context: Context, position_classes, country: Dict[str, str]
 ) -> Generator[Dict[str, Any], None, None]:
     """
     May return duplicates
@@ -190,25 +190,25 @@ def query_positions(
     country_results.extend(country_response.results)
 
     for bind in country_results:
-        country = pick_country(
+        picked_country = pick_country(
             bind.plain("country"),
             bind.plain("jurisdiction"),
             country["qid"],
         )
-        if country is not None:
-            position_countries[bind.plain("position")].add(country)
+        if picked_country is not None:
+            position_countries[bind.plain("position")].add(picked_country)
 
     # b) Positions held by politicans from that country
     politician_response = run_query(
         context, "positions/politician", vars, cache_days=CACHE_MEDIUM
     )
     for bind in politician_response.results:
-        country = pick_country(
+        picked_country = pick_country(
             bind.plain("country"),
             bind.plain("jurisdiction"),
         )
-        if country is not None:
-            position_countries[bind.plain("position")].add(country)
+        if picked_country is not None:
+            position_countries[bind.plain("position")].add(picked_country)
 
     for bind in country_results + politician_response.results:
         if not is_qid(bind.plain("position")):
@@ -259,7 +259,7 @@ def crawl(context: Context):
         include_local = False
         context.log.info(f"Crawling country: {country['qid']} ({country['label']})")
 
-        if country["code"] == "US":
+        if country["code"] == "us":
             include_local = True
 
         for wd_position in query_positions(context, position_classes, country):

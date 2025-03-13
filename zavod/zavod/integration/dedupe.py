@@ -22,7 +22,7 @@ AUTO_USER = "zavod/xref"
 WARNED_EPHEMERAL = False
 EPHEMERAL_WARNING = (
     "No database URI configured."
-    " If you want deduplication to be persistent, set DATABASE_URI."
+    " If you want deduplication to be persistent, set ZAVOD_DATABASE_URI."
 )
 
 

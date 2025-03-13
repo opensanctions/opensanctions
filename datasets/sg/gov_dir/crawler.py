@@ -347,7 +347,9 @@ def crawl(context: Context):
     if missing:
         context.log.warning("Expected URLs not crawled", missing=missing)
     if state.uncategorised:
-        context.log.warning(
+        # TODO: Dial this up to warning once we've categorized them all,
+        # see https://github.com/opensanctions/opensanctions/issues/2017
+        context.log.info(
             "There are uncategorised positions for this crawler.",
             count=len(state.uncategorised),
         )

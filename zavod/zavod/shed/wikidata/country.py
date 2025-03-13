@@ -13,18 +13,6 @@ from zavod.shed.wikidata.util import item_types
 Wikidata = WikidataEnricher[Dataset]
 countries_type = CountryType()
 
-BLOCK_ITEMS = {
-    "Q2961631",  # Chaumontois
-    "Q124153644",  # Chinland
-    "Q125422413",  # Persia
-    "Q126362486",  # Kerajaan Patipi
-    "Q37362",  # Akrotiri and Dhekelia
-    "Q131008",  # Johnston Atoll
-    "Q498979",  # Panama Canal Zone
-    "Q107357273",  # United States Pacific Island Wildlife Refuges
-}
-SKIP_CODES = {"zz", "dd", "csxx", "zr"}
-
 
 class Country(NamedTuple):
     qid: str
@@ -41,10 +29,15 @@ def is_historical_country(enricher: Wikidata, qid: str) -> bool:
         return True
     if "Q839954" in types:  # archeological site
         return True
+    territory = get_territory_by_qid(qid)
+    if territory is not None and territory.is_historical:
+        return True
     return False
 
 
-def item_countries(enricher: Wikidata, item: Item) -> Set[LangText]:
+def item_countries(
+    enricher: Wikidata, item: Item, seen: Optional[Set[str]] = None
+) -> Set[LangText]:
     """Extract the countries linked to an item, traversing up an administrative hierarchy
     via jurisdiction/part of properties."""
     countries: Set[LangText] = set()
@@ -64,17 +57,17 @@ def item_countries(enricher: Wikidata, item: Item) -> Set[LangText]:
                 countries.add(text)
     if len(countries) > 0:
         return countries
+    seen = set() if seen is None else set(seen)
+    seen.add(item.id)
     for claim in item.claims:
         # jurisdiction, capital of, part of:
         if claim.property in ("P1001", "P1376", "P361"):
             if claim.qualifiers.get("P582") or claim.qid is None:
                 continue
-            # if claim.qid in seen:
-            #     continue
+            if claim.qid in seen:
+                continue
             subitem = enricher.fetch_item(claim.qid)
             if subitem is None:
                 continue
-            # print("SUBITEM", repr(subitem))
-            # subseen = seen + [claim.qid]
-            countries.update(item_countries(enricher, subitem))
+            countries.update(item_countries(enricher, subitem, seen=seen))
     return countries
