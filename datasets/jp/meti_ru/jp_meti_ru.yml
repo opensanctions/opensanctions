@@ -332,10 +332,9 @@ lookups:
           - National Guard of Belarus
           - National Police of Belarus
       - match: Government Intelligence or Reconnaissance Organizations of the Republic of Belarus
-        # TODO: take a closer look
         values: 
-          - Government Intelligence of Belarus
-          - Government Reconnaissance of Belarus
+          - State Security Committee of the Republic of Belarus (KGB RB)
+          - Operations and Analysis Center under the President of the Republic of Belarus
       - match: Ministry of Defence of the Russian Federation, including the Armed Forces of Russia and all operating units wherever located
         values:
           - Ministry of Defence of the Russian Federation
@@ -353,10 +352,10 @@ lookups:
           - National Guard of Russia
           - National Police of Russia
       - match: Government Intelligence or Reconnaissance Organizations of the Russian Federation
-        # TODO: take a closer look
         values: 
-          - Government Intelligence of Russia
-          - Government Reconnaissance of Russia
+          - SVR (Foreign Intelligence Service of Russia)
+          - FSB (Federal Security Service of Russia)
+          - GRU (Main Directorate of the General Staff, Russian Federation)
   type.address: 
     options:
       - match: '84, Deep Towers, EPIP Industrial Area, Whitefield, Bangalore, Karnataka, 560066, India; #52/A, 1st Cross, 3rd Main KIADB Industrial Area, Hoskote, Bangalore, Karnataka, 562114, India; 3796, 7th Main, Hal II Stage, Bangalore, Karnataka, 560008, India; 493/3 Bramhalingeshwara Complex, Airport Road, Bangalore, Karnataka, 560008, India;'
