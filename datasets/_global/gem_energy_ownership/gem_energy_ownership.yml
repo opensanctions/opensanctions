@@ -62,3 +62,28 @@ lookups:
         prop: registrationNumber
       - match: L40100GJ1996PLC030533
         prop: registrationNumber
+  type.name: 
+    options:
+      - match: 'Xinjiang Production and Construction Corps Second Division Finance Bureau (Tiemenguan City Finance Bureau, Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission, Tiemenguan City State-owned Assets Supervision and Administration Commission, Xinjiang Production and Construction Corps Second Division Financial Work Office, Tiemenguan City Financial Work Office)'
+        values: 
+          - 'Xinjiang Production and Construction Corps Second Division Finance Bureau'
+          - 'Tiemenguan City Finance Bureau'
+          - 'Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission'
+          - 'Tiemenguan City State-owned Assets Supervision and Administration Commission'
+          - 'Xinjiang Production and Construction Corps Second Division Financial Work Office'
+          - 'Tiemenguan City Financial Work Office'
+      - match: '中电国际新能源（上海）控股有限公司 [former], China Power International New Energy (Shanghai) Holdings [former], China Electric Power International New Energy Holdings, China Electric Power International New Energy Holdings Limited, China Electric Power International New Energy Holdings LTD, China Power International New Energy CO LTD, China Power International New Energy Holding Ltd., China Power International New Energy Holding LTD, China Power International New Energy Holdings CO LTD, CLP International New Energy Holdings CO LTD'
+        values:
+          - China Electric Power International New Energy Holdings
+          - China Electric Power International New Energy Holdings Limited
+          - China Electric Power International New Energy Holdings LTD
+          - China Power International New Energy CO LTD
+          - China Power International New Energy Holding Ltd.
+          - China Power International New Energy Holdings CO LTD
+          - CLP International New Energy Holdings CO LTD
+          - 中电国际新能源（上海）控股有限公司
+          - China Power International New Energy (Shanghai) Holdings
+  type.url:
+    options:
+      - match: Borås Energy and Environment
+        value: null
