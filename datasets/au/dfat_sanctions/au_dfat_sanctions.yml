@@ -249,3 +249,5 @@ lookups:
           - 1948
           - 1949
           - 1950
+      - match: "3 March 1979 (from false passport)"
+        value: "1979-03-03"
