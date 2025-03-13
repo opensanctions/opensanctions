@@ -49,19 +49,6 @@ assertions:
       Company: 17000
 
 lookups:
-  type.url:
-    lowercase: true
-    options:
-      - match: nan,nan
-        value: null
-      - match: nan
-        value: null
-  type.identifier:
-    options:
-      - match: U45100TG2012PTC084829
-        prop: registrationNumber
-      - match: L40100GJ1996PLC030533
-        prop: registrationNumber
   type.name: 
     options:
       - match: 'Xinjiang Production and Construction Corps Second Division Finance Bureau (Tiemenguan City Finance Bureau, Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission, Tiemenguan City State-owned Assets Supervision and Administration Commission, Xinjiang Production and Construction Corps Second Division Financial Work Office, Tiemenguan City Financial Work Office)'
@@ -85,5 +72,8 @@ lookups:
           - China Power International New Energy (Shanghai) Holdings
   type.url:
     options:
-      - match: Borås Energy and Environment
+      - match: 
+          - Borås Energy and Environment
+          - nan
+          - nan,nan
         value: null
