@@ -19,28 +19,15 @@ if TYPE_CHECKING:
 
 log = get_logger(__name__)
 AUTO_USER = "zavod/xref"
-WARNED_EPHEMERAL = False
-EPHEMERAL_WARNING = (
-    "No database URI configured."
-    " If you want deduplication to be persistent, set ZAVOD_DATABASE_URI."
-)
 
 
 def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
-    database_uri = settings.DATABASE_URI
-    if database_uri is None:
-        database_uri = "sqlite:///:memory:"
-        global WARNED_EPHEMERAL
-        if not WARNED_EPHEMERAL:
-            log.warn(EPHEMERAL_WARNING)
-            WARNED_EPHEMERAL = True
-
     connect_args = {}
-    if database_uri.startswith("postgres"):
+    if settings.DATABASE_URI.startswith("postgres"):
         connect_args["options"] = f"-c statement_timeout={settings.DB_STMT_TIMEOUT}"
 
-    engine = create_engine(database_uri, connect_args=connect_args)
+    engine = create_engine(settings.DATABASE_URI, connect_args=connect_args)
     metadata = MetaData()
     resolver = Resolver[Entity](engine, metadata, create=True)
     log.info("Using resolver: %r" % resolver)
@@ -53,10 +40,7 @@ def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
         return Linker[Entity]({})
     resolver = get_resolver()
     log.info("Loading linker from: %r" % resolver)
-    resolver.begin()
-    linker = resolver.get_linker()
-    resolver.rollback()
-    return linker
+    return resolver.get_linker()
 
 
 def blocking_xref(
@@ -76,7 +60,6 @@ def blocking_xref(
     review. Candidates above the given threshold score will be merged automatically.
     """
     resolver.prune()
-    resolver.warm_linker()
     log.info(
         "Xref running, algorithm: %r" % algorithm,
         auto_threshold=auto_threshold,

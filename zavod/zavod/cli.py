@@ -265,7 +265,6 @@ def xref(
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
     resolver.begin()
-    resolver.warm_linker()
     store = get_store(dataset, resolver)
     store.sync(clear=clear)
     blocking_xref(
@@ -302,7 +301,6 @@ def dedupe(dataset_paths: List[Path], clear: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
     resolver.begin()
-    resolver.warm_linker()
     store = get_store(dataset, resolver)
     store.sync(clear=clear)
     resolver.commit()
@@ -439,7 +437,6 @@ def wd_up(
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
     resolver.begin()
-    resolver.warm_linker()
     store = get_store(dataset, resolver)
     store.sync(clear=clear)
     run_app(
