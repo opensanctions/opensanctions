@@ -32,7 +32,7 @@ IGNORE = [
 #     "E100000125842",  # Co-investment by natural persons
 #     "E100000123261",  # natural persons
 # }
-SELF_OWNED = {"E100000002239"}
+SELF_OWNED = {"E100000002236"}
 STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/02/Global-Energy-Ownership-Tracker-February-2025.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
 
@@ -81,7 +81,7 @@ def crawl_company(
     elif entity_type == "person":
         schema = "Person"
     else:
-        schema = "Company"  # 3 universities end up being companies
+        schema = "Company"
 
     entity = context.make(schema)
     entity.id = context.make_slug(id)
@@ -103,6 +103,7 @@ def crawl_company(
         entity.add("website", split_urls(homepage))
     if schema != "Person":
         entity.add("permId", perm_id)
+        # find a way to remap invalid ones
         entity.add("ogrnCode", ru_id)
         entity.add("registrationNumber", br_id)
         entity.add("registrationNumber", uk_id)
@@ -151,9 +152,7 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     if source_urls is not None:
         ownership.add("sourceUrl", split_urls(source_urls))
 
-    context.audit_data(
-        row, ignore=["subject_entity_name", "interested_party_name", "index"]
-    )
+    context.audit_data(row, ignore=["subject_entity_name"])
     context.emit(ownership)
 
 
@@ -163,15 +162,8 @@ def crawl(context: Context):
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     skipped: Set[str] = set()
-    # row_count = 0
-    # for row in h.parse_xlsx_sheet(context, sheet=workbook["All Entities"]):
-    #     if row_count >= 100:
-    #         break  # Stop after processing 100 rows
-    #     crawl_company(context, row, skipped)
-    #     row_count += 1
 
-    unique_entity_types = set()
     for row in h.parse_xlsx_sheet(context, sheet=workbook["All Entities"]):
-        crawl_company(context, row, skipped, unique_entity_types)
-    # for row in h.parse_xlsx_sheet(context, sheet=workbook[""]):
-    #     crawl_rel(context, row, skipped)
+        crawl_company(context, row, skipped)
+    for row in h.parse_xlsx_sheet(context, sheet=workbook["Entity Ownership"]):
+        crawl_rel(context, row, skipped)
