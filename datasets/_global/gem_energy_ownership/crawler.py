@@ -24,14 +24,12 @@ IGNORE = [
 # or legal persons can associate to exert ownership or control over an entity. Parties to an
 # arrangement have no other form of collective legal identity.
 
-# SKIP_IDS = {
-#     "E100001015587",  # Small shareholders
-#     "E100000132388",  # Unknown
-#     "E100000001753",  # Other
-#     "E100000126067",  # Non-promoter shareholders
-#     "E100000125842",  # Co-investment by natural persons
-#     "E100000123261",  # natural persons
-# }
+SKIP_IDS = {
+    "E100001015587",  # Small shareholders
+    "E100000126067",  # Non-promoter shareholders
+    "E100000125842",  # Co-investment by natural persons
+    "E100000123261",  # natural persons
+}
 SELF_OWNED = {"E100000002236"}
 STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/02/Global-Energy-Ownership-Tracker-February-2025.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
@@ -41,14 +39,11 @@ def split_urls(value: str):
     return REGEX_URL_SPLIT.sub("\nhttp", value).split("\n")
 
 
-def crawl_company(
-    context: Context, row: Dict[str, str], skipped: Set[str], unique_entity_types
-):
+def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     id = row.pop("entity_id")
     name = row.pop("name")
     # Skip entities
-    if name is None:  # or id in SKIP_IDS:
-        context.log.warn(f"Skipping entity {id} with no name")
+    if name is None or id in SKIP_IDS:
         skipped.add(id)
         return
     original_name = row.pop("name_local")
@@ -56,9 +51,6 @@ def crawl_company(
     head_country = row.pop("headquarters_country")
     lei_code = row.pop("global_legal_entity_identifier_index")
     entity_type = row.pop("entity_type")
-
-    if entity_type:
-        unique_entity_types.add(entity_type)
     perm_id = row.pop("permid_refinitiv_permanent_identifier")
     sp_cap = row.pop("s_p_capital_iq")
     uk_id = row.pop("uk_companies_house")
