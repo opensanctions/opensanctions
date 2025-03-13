@@ -151,18 +151,6 @@ def configure_logging(level: int = logging.DEBUG) -> None:
         structlog.processors.UnicodeDecoder(),
     ]
 
-    # Note: Redaction is only happening on string values, so make sure production
-    # environments format logs as strings before the redaction processor.
-    if settings.LOG_JSON:
-        base_processors.append(structlog.processors.TimeStamper(fmt="iso"))
-        base_processors.append(format_json)
-    else:
-        base_processors.append(
-            structlog.processors.TimeStamper(
-                fmt="%Y-%m-%d %H:%M:%S", utc=settings.TIME_ZONE == "UTC"
-            )
-        )
-
     emitting_processors: List[Processor] = [log_issue]
     if settings.ENABLE_SENTRY:
         global _sentry_processor
@@ -178,8 +166,23 @@ def configure_logging(level: int = logging.DEBUG) -> None:
         )
         emitting_processors.append(_sentry_processor)
 
+    if settings.LOG_JSON:
+        formatting_processors = [
+            structlog.processors.TimeStamper(fmt="iso"),
+            format_json,
+        ]
+    else:
+        formatting_processors = [
+            structlog.processors.TimeStamper(
+                fmt="%Y-%m-%d %H:%M:%S", utc=settings.TIME_ZONE == "UTC"
+            )
+        ]
+
     processors: List[Processor] = (
-        base_processors + [configure_redactor()] + emitting_processors
+        base_processors
+        + [configure_redactor()]
+        + emitting_processors
+        + formatting_processors
     )
 
     # configuration for structlog based loggers

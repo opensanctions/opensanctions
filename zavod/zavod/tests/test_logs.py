@@ -87,7 +87,10 @@ def test_redacts_issue_logger(testdataset1: Dataset):
     context.begin(clear=True)
     assert not issues_path.exists()
 
-    context.log.warn("This is a warning to correcthorsebatterystaple")
+    context.log.warn(
+        "This is a warning to correcthorsebatterystaple",
+        extra="correcthorsebatterystaple",
+    )
     # Non-structlog logs take a slightly different path
     logging.warning("This is a python logging warning to correcthorsebatterystaple")
     context.close()
