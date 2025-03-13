@@ -6,62 +6,34 @@ from zavod import Context
 from zavod import helpers as h
 
 IGNORE = [
-    "sequence_no",
-    "us_eia_860",
-    "parent_entity_ids",
-    "parents",
-    "headquarters_country",
-    "publicly_listed",
-    "decision_date",
-    "gcpt_announced_mw",
-    "gcpt_cancelled_mw",
-    "gcpt_construction_mw",
-    "gcpt_mothballed_mw",
-    "gcpt_operating_mw",
-    "gcpt_permitted_mw",
-    "gcpt_pre_permit_mw",
-    "gcpt_retired_mw",
-    "gcpt_shelved_mw",
-    "gogpt_announced_mw",
-    "gogpt_cancelled_mw",
-    "gogpt_construction_mw",
-    "gogpt_mothballed_mw",
-    "gogpt_operating_mw",
-    "gogpt_pre_construction_mw",
-    "gogpt_retired_mw",
-    "gogpt_shelved_mw",
-    "gbpt_announced_mw",
-    "gbpt_construction_mw",
-    "gbpt_mothballed_mw",
-    "gbpt_operating_mw",
-    "gbpt_pre_construction_mw",
-    "gbpt_retired_mw",
-    "gbpt_shelved_mw",
-    "gbpt_cancelled_mw",
-    "gcmt_proposed_mtpa",
-    "gcmt_operating_mtpa",
-    "gcmt_shelved_mtpa",
-    "gcmt_mothballed_mtpa",
-    "gcmt_cancelled_mtpa",
-    "gspt_operating_ttpa",
-    "gspt_announced_ttpa",
-    "gspt_construction_ttpa",
-    "gspt_retired_ttpa",
-    "gspt_operating_pre_retirement_ttpa",
-    "gspt_mothballed_ttpa",
-    "gspt_cancelled_ttpa",
-    "total",
+    "registration_subdivision",
+    "publiclylisted",
+    "registration_subdivision",
+    "headquarters_subdivision",
+    "gem_parents",
+    "gem_parents_ids",
 ]
-SKIP_IDS = {
-    "E100001015587",  # Small shareholders
-    "E100000132388",  # Unknown
-    "E100000001753",  # Other
-    "E100000126067",  # Non-promoter shareholders
-    "E100000125842",  # Co-investment by natural persons
-    "E100000123261",  # natural persons
-}
+
+# Some context, please delete after review
+
+# Unique entity types
+# {"person", "unknown entity", "state", "legal entity", "arrangement", "state body"}
+
+# What does 'arrangement' mean?
+# A legal arrangement, agreement, contract or other mechanism via which one or more natural
+# or legal persons can associate to exert ownership or control over an entity. Parties to an
+# arrangement have no other form of collective legal identity.
+
+# SKIP_IDS = {
+#     "E100001015587",  # Small shareholders
+#     "E100000132388",  # Unknown
+#     "E100000001753",  # Other
+#     "E100000126067",  # Non-promoter shareholders
+#     "E100000125842",  # Co-investment by natural persons
+#     "E100000123261",  # natural persons
+# }
 SELF_OWNED = {"E100000002239"}
-STATIC_URL = "https://data.opensanctions.org/contrib/globalenergy/Global_Energy_Ownership_Tracker_June_2024.xlsx"
+STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/02/Global-Energy-Ownership-Tracker-February-2025.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
 
 
@@ -69,17 +41,38 @@ def split_urls(value: str):
     return REGEX_URL_SPLIT.sub("\nhttp", value).split("\n")
 
 
-def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
+def crawl_company(
+    context: Context, row: Dict[str, str], skipped: Set[str], unique_entity_types
+):
     id = row.pop("entity_id")
-    name = row.pop("entity_name")
+    name = row.pop("name")
     # Skip entities
-    if name is None or id in SKIP_IDS:
+    if name is None:  # or id in SKIP_IDS:
+        context.log.warn(f"Skipping entity {id} with no name")
         skipped.add(id)
         return
     original_name = row.pop("name_local")
     reg_country = row.pop("registration_country")
-    lei_code = row.pop("legal_entity_identifier")
+    head_country = row.pop("headquarters_country")
+    lei_code = row.pop("global_legal_entity_identifier_index")
     entity_type = row.pop("entity_type")
+
+    if entity_type:
+        unique_entity_types.add(entity_type)
+    perm_id = row.pop("permid_refinitiv_permanent_identifier")
+    sp_cap = row.pop("s_p_capital_iq")
+    uk_id = row.pop("uk_companies_house")
+    us_sec_id = row.pop("us_sec_central_index_key")
+    us_eia_id = row.pop("us_eia")
+    br_id = row.pop(
+        "brazil_national_registry_of_legal_entities_federal_revenue_service"
+    )
+    in_id = row.pop(
+        "india_corporate_identification_number_ministry_of_corporate_affairs"
+    )
+    ru_id = row.pop(
+        "russia_uniform_state_register_of_legal_entities_of_russian_federation"
+    )
 
     if entity_type == "legal entity":
         schema = "Company"
@@ -94,21 +87,30 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     entity.id = context.make_slug(id)
 
     entity.add("name", name)
+    entity.add("alias", row.pop("full_name"))
     entity.add("name", original_name)
     entity.add("alias", row.pop("name_other"))
     entity.add("weakAlias", row.pop("abbreviation"))
-    if lei_code != "unknown":
+    if lei_code != "not found":
         entity.add("leiCode", lei_code)
     if entity_type != "unknown entity":
         entity.add("description", entity_type)
+    entity.add("classification", row.pop("legal_entity_type"))
     entity.add("country", reg_country)
+    entity.add("mainCountry", head_country)
     homepage = row.pop("home_page")
     if homepage:
         entity.add("website", split_urls(homepage))
     if schema != "Person":
-        entity.add("permId", row.pop("refinitiv_permid"))
+        entity.add("permId", perm_id)
+        entity.add("ogrnCode", ru_id)
+        entity.add("registrationNumber", br_id)
+        entity.add("registrationNumber", uk_id)
+        entity.add("registrationNumber", in_id)
+        entity.add("registrationNumber", us_eia_id)
+        entity.add("registrationNumber", sp_cap)
         if schema != "PublicBody":
-            entity.add("cikCode", row.pop("sec_central_index_key"))
+            entity.add("cikCode", us_sec_id)
     address = h.format_address(
         country=reg_country,
         state=row.pop("registration_subdivision"),
@@ -161,10 +163,15 @@ def crawl(context: Context):
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     skipped: Set[str] = set()
+    # row_count = 0
+    # for row in h.parse_xlsx_sheet(context, sheet=workbook["All Entities"]):
+    #     if row_count >= 100:
+    #         break  # Stop after processing 100 rows
+    #     crawl_company(context, row, skipped)
+    #     row_count += 1
 
-    for row in h.parse_xlsx_sheet(context, sheet=workbook["Immediate Owner Entities"]):
-        crawl_company(context, row, skipped)
-    for row in h.parse_xlsx_sheet(context, sheet=workbook["Parent Entities"]):
-        crawl_company(context, row, skipped)
-    for row in h.parse_xlsx_sheet(context, sheet=workbook["Entity Relationships"]):
-        crawl_rel(context, row, skipped)
+    unique_entity_types = set()
+    for row in h.parse_xlsx_sheet(context, sheet=workbook["All Entities"]):
+        crawl_company(context, row, skipped, unique_entity_types)
+    # for row in h.parse_xlsx_sheet(context, sheet=workbook[""]):
+    #     crawl_rel(context, row, skipped)
