@@ -87,10 +87,9 @@ HTTP_RETRY_BACKOFF_FACTOR = float(env.get("ZAVOD_HTTP_RETRY_BACKOFF_FACTOR", 1.0
 HTTP_RETRY_BACKOFF_MAX = int(env.get("ZAVOD_HTTP_RETRY_BACKOFF_MAX", 120))
 
 # Database-backed cache settings
-DATABASE_URI = env.get("ZAVOD_DATABASE_URI")
-DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
-if DATABASE_URI is None or not len(DATABASE_URI):
-    DATABASE_URI = f"sqlite:///{DATA_PATH.joinpath('zavod.sqlite3').as_posix()}"
+DATABASE_URI = f"sqlite:///{DATA_PATH.joinpath('zavod.sqlite3').as_posix()}"
+DATABASE_URI = env.get("ZAVOD_DATABASE_URI", DATABASE_URI)
+DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
 DB_STMT_TIMEOUT = env_int("ZAVOD_DB_STMT_TIMEOUT", 10000)
 
 # Load DB batch size

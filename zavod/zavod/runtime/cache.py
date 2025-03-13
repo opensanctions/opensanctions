@@ -6,7 +6,6 @@ from nomenklatura.cache import Cache
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.archive import dataset_state_path
 
 log = get_logger(__name__)
 

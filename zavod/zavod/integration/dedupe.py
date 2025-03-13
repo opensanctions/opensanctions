@@ -23,12 +23,11 @@ AUTO_USER = "zavod/xref"
 
 def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
-    database_uri = settings.DATABASE_URI
     connect_args = {}
-    if database_uri.startswith("postgres"):
+    if settings.DATABASE_URI.startswith("postgres"):
         connect_args["options"] = f"-c statement_timeout={settings.DB_STMT_TIMEOUT}"
 
-    engine = create_engine(database_uri, connect_args=connect_args)
+    engine = create_engine(settings.DATABASE_URI, connect_args=connect_args)
     metadata = MetaData()
     resolver = Resolver[Entity](engine, metadata, create=True)
     log.info("Using resolver: %r" % resolver)
