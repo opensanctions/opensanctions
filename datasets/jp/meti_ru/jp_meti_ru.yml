@@ -43,16 +43,7 @@ assertions:
   
 lookups:
   names:
-    options: 
-      # TODO to be double-checked
-      - match: 23 国防省（連邦軍及び場所を問わず全ての運用部隊を含む）。右には、露連邦の国軍（地上軍、海軍、海軍歩兵部隊、航空宇宙軍及び沿岸部隊）、国家親衛軍と警察、諜報及び偵察機関が含 まれる。
-        name: 国防省（連邦軍及び場所を問わず全ての運用部隊を含む）
-        aliases:
-          - ロシア連邦国防省
-          - ロシア連邦軍
-          - ロシア国家親衛軍
-          - ロシア国家警察
-          - ロシア政府諜報
+    options:
       - match: 34 無線技術・情報（RTI）システム
         name: 無線技術・情報（RTI）システム
         aliases: []
@@ -246,10 +237,6 @@ lookups:
           - FGBU 第 27 中央科学研究所
           - 第 27 軍 事学術センター
           - 国防省第 27学術開発センター
-      # TODO to be adjusted:
-      - match: １ 国防省（ベラルーシ軍及び場所を問わず全ての運用部隊を含む。）。これには、ベラルーシ軍（陸 軍及び空軍・防空軍）、国家国境委員会と警察、諜報及び偵察機関が含まれる。
-        name: 国防省（ベラルーシ軍及び場所を問わず全ての運用部隊を含む）
-        aliases: []
       - match: 9 グアンジョウ・オーサイ・テクノロジー有限会社（广州欧赛科技有限公司）
         name: グアンジョウ・オーサイ・テクノロジー有限会社
         aliases: 
@@ -331,22 +318,45 @@ lookups:
           - クリノフィスト･デザイン･アンド･エンジニアリング･ソリューシ ョンズ非公開会社
   type.name:
     options: 
-      - match: Ministry of Defence of the Russian Federation, including the Armed Forces of Russia and all operating units wherever located. This includes the national armed services (army, navy, marine, air force, or coast guard), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Russian Federation.
+      - match: The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located
         values: 
-        # TODO edit a google sheet or a more sophisticated lookup to emit separate entities 
-          - Ministry of Defence of the Russian Federation
-          - Armed Forces of Russia
-          - National Guard of Russia
-          - National Police of Russia
-          - Government Intelligence of Russia
-        # TODO go further into the intelligence organizations
-      - match: The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located. This includes the national armed services (army and air force), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Republic of Belarus.
-        values: 
-          - Ministry of Defence of the Republic of Belarus
+          - The Ministry of Defence of the Republic of Belarus
           - Armed Forces of Belarus
+      - match: National Armed Services (Army and Air Force) of the Republic of Belarus
+        values: 
+          - National Armed Services of the Republic of Belarus
+          - Army of Belarus
+          - Air Force of Belarus
+      - match: National Guard and National Police of the Republic of Belarus
+        values: 
           - National Guard of Belarus
           - National Police of Belarus
+      - match: Government Intelligence or Reconnaissance Organizations of the Republic of Belarus
+        # TODO: take a closer look
+        values: 
           - Government Intelligence of Belarus
+          - Government Reconnaissance of Belarus
+      - match: Ministry of Defence of the Russian Federation, including the Armed Forces of Russia and all operating units wherever located
+        values:
+          - Ministry of Defence of the Russian Federation
+          - Armed Forces of Russia
+      - match: National Armed Services (Army, Navy, Marine, Air Force, or Coast Guard) of the Russian Federation
+        values:
+          - National Armed Services of the Russian Federation
+          - Army of Russia
+          - Navy of Russia
+          - Marine of Russia
+          - Air Force of Russia
+          - Coast Guard of Russia
+      - match: National Guard and National Police of the Russian Federation
+        values: 
+          - National Guard of Russia
+          - National Police of Russia
+      - match: Government Intelligence or Reconnaissance Organizations of the Russian Federation
+        # TODO: take a closer look
+        values: 
+          - Government Intelligence of Russia
+          - Government Reconnaissance of Russia
   type.address: 
     options:
       - match: '84, Deep Towers, EPIP Industrial Area, Whitefield, Bangalore, Karnataka, 560066, India; #52/A, 1st Cross, 3rd Main KIADB Industrial Area, Hoskote, Bangalore, Karnataka, 562114, India; 3796, 7th Main, Hal II Stage, Bangalore, Karnataka, 560008, India; 493/3 Bramhalingeshwara Complex, Airport Road, Bangalore, Karnataka, 560008, India;'
