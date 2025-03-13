@@ -33,14 +33,12 @@ def test_enrich_process(testdataset1: Dataset, enricher: Dataset, disk_db_uri: s
     resolver = get_resolver()
 
     resolver.begin()
-    edges = set(resolver.edges.values())
-    assert len(edges) == 0, edges
+    assert len(resolver.edges) == 0, resolver.edges
     resolver.rollback()
     crawl_dataset(testdataset1)
 
     resolver.begin()
-    edges = set(resolver.edges.values())
-    assert len(edges) == 0, edges
+    assert len(resolver.edges) == 0, resolver.edges
     resolver.rollback()
     stats = crawl_dataset(enricher)
     assert stats.entities > 0, stats.entities
