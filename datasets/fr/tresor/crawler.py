@@ -1,10 +1,12 @@
 import json
 from typing import Any, Dict, Optional
+import re
 
 from datapatch import Lookup
 from normality import slugify
 from prefixdate import parse_parts
 
+from followthemoney.types import registry
 from rigour.mime.types import JSON
 
 from zavod import Context, Entity
@@ -21,6 +23,7 @@ SCHEMATA = {
     "Navire": "Vessel",
 }
 
+REGEX_IDENTIFIER = re.compile(r"^[\w\.]+$")
 SEPARATORS = "/:;-. "
 # Order matters, earlier entries will be matched first
 # We don't match free-text fields (currently address) because they could swallow up extra data of unmapped keys.
@@ -41,6 +44,7 @@ TEXT_KEYS = {
     "Numéro d'identification fiscale russe": "innCode",
     # Contains the : as the prefix because otherwise we also get a match for "Numéro d'identification fiscale (INN)"
     "INN:": "innCode",
+    # "INN": "innCode",  <-- we can't currently add this
     "Numéro d'identification fiscale (OGRN)": "ogrnCode",
     "OGRN:": "ogrnCode",
     "KPP": "kppCode",
@@ -55,6 +59,7 @@ TEXT_KEYS = {
     "Numéro d'enregistrement": "registrationNumber",
     "Numéros d'enregistrement": "registrationNumber",
     "Numéro d'immatriculation": "registrationNumber",
+    "numéro d'identification:": "registrationNumber",
     "Numéro d'identification fiscale": "taxNumber",
     "Numéro d'identification fiscal": "taxNumber",
     "N ° d'identification fiscale": "taxNumber",
@@ -135,6 +140,16 @@ def apply_identification_lookup(
     return True
 
 
+def is_only_value(context: Context, value: str) -> bool:
+    if REGEX_IDENTIFIER.match(value):
+        return True
+    country_override = context.lookup_value("type.country", value, value)
+    country_clean = registry.country.clean(country_override)
+    if country_clean is not None:
+        return True
+    return False
+
+
 def parse_identification(
     context: Context,
     entity: Entity,
@@ -144,7 +159,8 @@ def parse_identification(
     content = value.pop("Identification")
     full = f"{comment}: {content}".strip(SEPARATORS)
 
-    # First, check if we have a lookup for the whole identification field, overriding the segment splitting logic
+    # First, check if we have a lookup for the whole identification field,
+    # overriding the segment splitting logic
     if apply_identification_lookup(
         context, context.get_lookup("identification_full"), entity, full
     ):
@@ -160,6 +176,12 @@ def parse_identification(
         for key, propname in TEXT_KEYS.items():
             if segment.lower().startswith(key.lower()) and propname is not None:
                 value = segment[len(key) :].strip(SEPARATORS)
+                if not is_only_value(context, value):
+                    # Add override to identification_segment or type.country datapatch.
+                    context.log.warning(
+                        "Cannot reliably parse value.", value=value, segment=segment
+                    )
+                    break
 
                 if propname == "kppCode":
                     entity.add_cast(
