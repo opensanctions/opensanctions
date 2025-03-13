@@ -1,7 +1,7 @@
 set -euo pipefail
 
 JSON_PATH=data/resolve.ijson
-SQLITE_PATH=data/resolver.sqlite3
+SQLITE_PATH=data/zavod.sqlite3
 
 echo "Deleting old resolver data ($JSON_PATH, $SQLITE_PATH)"
 rm -f $JSON_PATH $SQLITE_PATH
