@@ -168,7 +168,32 @@ lookups:
       - match: "Entités associées: le soi-disant \"gouvernement\" de la soi-disant \"République populaire de Donetsk\""
         associates:
           - le soi-disant gouvernement de la soi-disant République populaire de Donetsk
-
+      - match: "Type d'entité: entreprise contrôlée par l'État"
+        props:
+          legalForm: entreprise contrôlée par l'État
+      - match: "Type d'entité: Société par actions ouverte"
+        props:
+          legalForm: Société par actions ouverte
+      - match: "Type d'entité: société à responsabilité limitée"
+        props:
+          legalForm: société à responsabilité limitée
+      - match: "Type d'entité: société par actions non publique"
+        props:
+          legalForm: société par actions non publique
+      - match: "Type d'entité: organisation à but non lucratif"
+        props:
+          legalForm: organisation à but non lucratif
+      - match: "Type d'entité: entreprise unitaire d'État"
+        props:
+          legalForm: entreprise unitaire d'État
+      - match: "Type d'entité: société par actions"
+        props:
+          legalForm: société par actions
+      - match: "Numéro d'enregistrement"
+        props: {}
+      - match: "Type d'entité: société par actions"
+        props:
+          legalForm: société par actions
   identification_full:
     lowercase: true
     normalize: true
