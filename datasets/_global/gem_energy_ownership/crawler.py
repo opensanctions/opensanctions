@@ -68,6 +68,8 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
 
     if entity_type == "legal entity":
         schema = "Company"
+    elif entity_type == "arrangement":
+        schema = "LegalEntity"
     elif entity_type == "state body" or entity_type == "state":
         schema = "PublicBody"
     elif entity_type == "person":
@@ -87,7 +89,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         entity.add("leiCode", lei_code)
     if entity_type != "unknown entity":
         entity.add("description", entity_type)
-    entity.add("classification", row.pop("legal_entity_type"))
+    entity.add("legalForm", row.pop("legal_entity_type"))
     entity.add("country", reg_country)
     entity.add("mainCountry", head_country)
     homepage = row.pop("home_page")
@@ -104,6 +106,8 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         entity.add("registrationNumber", sp_cap)
         if schema != "PublicBody":
             entity.add("cikCode", us_sec_id)
+        else:  # PublicBody
+            entity.add("registrationNumber", us_sec_id)
     address = h.format_address(
         country=reg_country,
         state=row.pop("registration_subdivision"),
