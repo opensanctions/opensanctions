@@ -68,7 +68,7 @@ def test_enrich_process(
 
     # Enrich the subject against the target
     resolver.begin()
-    assert len(set(resolver.get_edges())) == 0
+    assert len(resolver.edges) == 0
     resolver.rollback()
     enricher_ds = make_enricher_dataset(DATASET_DATA, testdataset1.name)
     crawl_dataset(enricher_ds)

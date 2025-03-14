@@ -19,7 +19,6 @@ def cleanup_relations(dataset: Dataset) -> None:
     resolver = get_resolver()
     resolver.begin()
     resolver.prune()
-    resolver.warm_linker()
     store = get_store(dataset, resolver)
     store.sync()
     view = store.default_view()
@@ -32,7 +31,7 @@ def cleanup_relations(dataset: Dataset) -> None:
             log.info("Generated %s entities..." % idx)
 
     unused_ids = set()
-    for node in resolver.get_nodes():
+    for node in resolver.nodes:
         if node.canonical:
             continue
         if node.id in used_ids:
