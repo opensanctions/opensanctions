@@ -5352,7 +5352,11 @@ lookups:
       - match: "Adresse de portefeuille de chaîne de blocs connues de Garantex: BTC: bc1qwtz3zv95x2flu4w26kgfepf529z50r2sqc5zmlbc1qwxqxd25yk2dtw2ml04vxj9atq3huv4rdytf6vt3My1ffQr5qQzmq4aBFgRqwRYqfB5zPAt8t"
         wallets:
           - currency: BTC
-            publicKey: bc1qwtz3zv95x2flu4w26kgfepf529z50r2sqc5zmlbc1qwxqxd25yk2dtw2ml04vxj9atq3huv4rdytf6vt3My1ffQr5qQzmq4aBFgRqwRYqfB5zPAt8t
+            publicKey: bc1qwtz3zv95x2flu4w26kgfepf529z50r2sqc5zml
+          - currency: BTC
+            publicKey: bc1qwxqxd25yk2dtw2ml04vxj9atq3huv4rdytf6vt
+          - currency: BTC
+            publicKey: 3My1ffQr5qQzmq4aBFgRqwRYqfB5zPAt8t
       - match: "Adresse de portefeuille de chaîne de blocs connues de Garantex: BSC: 0x3051Ca7cB7f6C599fA2f27385AD75010cf0f2bbF  TRX: TA1hsikRfsgGiW9nEBpT4tEXEySTNYLr2d"
         wallets:
           - currency: BSC
