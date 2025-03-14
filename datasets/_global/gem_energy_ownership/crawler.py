@@ -1,5 +1,6 @@
 import openpyxl
 import re
+import rigour.ids
 from typing import Dict, Set
 
 from zavod import Context
@@ -14,15 +15,8 @@ IGNORE = [
     "gem_parents_ids",
 ]
 
-# Some context, please delete after review
-
 # Unique entity types
 # {"person", "unknown entity", "state", "legal entity", "arrangement", "state body"}
-
-# What does 'arrangement' mean?
-# A legal arrangement, agreement, contract or other mechanism via which one or more natural
-# or legal persons can associate to exert ownership or control over an entity. Parties to an
-# arrangement have no other form of collective legal identity.
 
 SKIP_IDS = {
     "E100001015587",  # Small shareholders
@@ -96,16 +90,19 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     if homepage:
         entity.add("website", split_urls(homepage))
     if schema != "Person":
-        entity.add("permId", perm_id)
-        # find a way to remap invalid ones
-        entity.add("ogrnCode", ru_id)
+        entity.add_cast("Company", "permId", perm_id)
+        # Check if ru_id is a valid OGRN
+        if ru_id and rigour.ids.OGRN.is_valid(ru_id):
+            entity.add("ogrnCode", ru_id)
+        else:  # Remap invalid ones
+            entity.add("registrationNumber", ru_id)
         entity.add("registrationNumber", br_id)
         entity.add("registrationNumber", uk_id)
         entity.add("registrationNumber", in_id)
         entity.add("registrationNumber", us_eia_id)
         entity.add("registrationNumber", sp_cap)
         if schema != "PublicBody":
-            entity.add("cikCode", us_sec_id)
+            entity.add_cast("Company", "cikCode", us_sec_id)
         else:  # PublicBody
             entity.add("registrationNumber", us_sec_id)
     address = h.format_address(
