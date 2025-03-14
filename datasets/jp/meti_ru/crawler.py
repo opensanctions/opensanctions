@@ -49,11 +49,13 @@ def clean_name_en(data_string):
     return clean_name, aliases
 
 
-def clean_name_raw(context, data_string):
+def clean_name_raw(context, name_jap, row):
     main_name = ""
     aliases = []
 
-    for match in NAMES_PATTERN.finditer(data_string):
+    # Attempt to match the entire name
+    match = NAMES_PATTERN.fullmatch(name_jap)
+    if match:
         main_name = match.group("main").strip()
         aliases_raw = match.group("aliases") or ""
         aliases = [
@@ -61,17 +63,25 @@ def clean_name_raw(context, data_string):
             for alias in re.split(r"、|及び", aliases_raw)
             if alias.strip()
         ]
-
+    # Check for cases that require manual processing
     if main_name == "" and not aliases:
-        if any(char in main_name for char in ["（", "、", ")", "）"]):
-            result = context.lookup("names", main_name)
-            if result is None:
-                context.log.warning(f"Entry needs manual processing: {main_name}")
-                return
-            if result.names:
-                for name in result.names:
-                    main_name = name.get("name")
-                    aliases = name.get("publicKey")
+        # Identify complex cases with certain characters
+        if any(char in name_jap for char in ["（", "、", ")", "）"]):
+            main_name = row.pop("name_jpn_cleaned")
+            aliases_raw = row.pop("aliases_jpn_cleaned")
+            aliases = [
+                alias.strip() for alias in aliases_raw.split(";") if alias.strip()
+            ]
+        else:
+            # Remove leading numbers for cases with names only
+            # (e.g. '4 株式会社コンペル')
+            name_jap = re.sub(r"^\d+\s*", "", name_jap)
+            main_name = name_jap
+
+    if not main_name:
+        context.log.warning(
+            f"Entry needs manual processing: {name_jap}. Please fix in the Google Sheet."
+        )
 
     return main_name, aliases
 
@@ -84,7 +94,7 @@ def crawl_row(context, row):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name_jap, name_en)
     # Japanese name and alias cleanup
-    name_jap_clean, aliases_jap = clean_name_raw(context, name_jap)
+    name_jap_clean, aliases_jap = clean_name_raw(context, name_jap, row)
     entity.add("name", name_jap_clean, lang="jpn")
     for alias in aliases_jap:
         entity.add("alias", alias, lang="jpn")
@@ -107,7 +117,13 @@ def crawl_row(context, row):
     context.emit(entity)
     context.emit(sanction)
 
-    context.audit_data(row, ["target_country"])
+    context.audit_data(
+        row,
+        [
+            "target_country",
+            "auto-translated",
+        ],
+    )
 
 
 def crawl(context: Context):
