@@ -20,9 +20,7 @@ IGNORE_FIELDS = [
 MAX_RESULTS = 160
 SEEN_URLS: Set[str] = set()
 SEEN_IDS: Set[str] = set()
-COUNTRIES_URL = (
-    "https://www.interpol.int/en/How-we-work/Notices/Red-Notices/View-Red-Notices"
-)
+COUNTRIES_URL = "https://www.interpol.int/en/notices/data/countries"
 GENDERS = ["M", "F", "U"]
 AGE_MIN = 20
 AGE_MAX = 90
@@ -46,17 +44,9 @@ HEADERS = {
 }
 
 
-def get_countries(context: Context) -> List[Any]:
-    doc = context.fetch_html(COUNTRIES_URL, cache_days=CACHE_VSHORT, headers=HEADERS)
-    path = ".//select[@id='arrestWarrantCountryId']/option"
-    options: List[Any] = []
-    for option in doc.findall(path):
-        # code = stringify(option.get("value"))
-        # if code is None:
-        #     continue
-        # label = collapse_spaces(option.text_content())
-        options.append(option.get("value"))
-    return options
+def get_countries(context: Context) -> List[str]:
+    doc = context.fetch_json(COUNTRIES_URL, cache_days=CACHE_VSHORT, headers=HEADERS)
+    return [v["value"] for v in doc]
 
 
 def patch(query: Dict[str, Any], update: Dict[str, Any]) -> Dict[str, Any]:
@@ -133,7 +123,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
 
 
 def crawl_query(context: Context, query: Dict[str, Any]) -> int:
-    context.inspect(query)
+    context.log.info(f"Running query: {query}", query=query)
     params = query.copy()
     params["resultPerPage"] = MAX_RESULTS
     try:
@@ -179,11 +169,11 @@ def crawl(context: Context) -> None:
     for gender in GENDERS:
         crawl_query(context, {"sexId": gender})
 
-    age_query = patch(query, {"ageMax": AGE_MIN, "ageMin": 0})
+    age_query = {"ageMax": AGE_MIN, "ageMin": 0}
     if crawl_query(context, age_query) > MAX_RESULTS:
         context.log.warn("Adjust min age", query=age_query)
 
-    age_query = patch(query, {"ageMax": 300, "ageMin": AGE_MAX})
+    age_query = {"ageMax": 300, "ageMin": AGE_MAX}
     if crawl_query(context, age_query) > MAX_RESULTS:
         context.log.warn("Adjust max age", query=age_query)
 
