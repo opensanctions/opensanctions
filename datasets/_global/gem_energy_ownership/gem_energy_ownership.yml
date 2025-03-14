@@ -49,17 +49,31 @@ assertions:
       Company: 17000
 
 lookups:
+  associates:
+    options:
+      - match: '新疆生产建设兵团第二师财政局（铁门关市财政局、新疆生产建设兵团第二师国有资产监督管理委员会、铁门关市国有资产监督管理委员会、新疆生产建设兵团第二师金融工作办公室、铁门关市金融工作办公室）'
+        associates:
+          - 铁门关市财政局
+          - 新疆生产建设兵团第二师国有资产监督管理委员会
+          - 铁门关市国有资产监督管理委员会
+          - 新疆生产建设兵团第二师金融工作办公室
+          - 铁门关市金融工作办公室
+      - match: 'Xinjiang Production and Construction Corps Second Division Finance Bureau (Tiemenguan City Finance Bureau, Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission, Tiemenguan City State-owned Assets Supervision and Administration Commission, Xinjiang Production and Construction Corps Second Division Financial Work Office, Tiemenguan City Financial Work Office)'
+        associates:
+          - Tiemenguan City Finance Bureau
+          - Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission
+          - Tiemenguan City State-owned Assets Supervision and Administration Commission
+          - Xinjiang Production and Construction Corps Second Division Financial Work Office
+          - Tiemenguan City Financial Work Office
   type.name: 
     options:
       - match: 'Xinjiang Production and Construction Corps Second Division Finance Bureau (Tiemenguan City Finance Bureau, Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission, Tiemenguan City State-owned Assets Supervision and Administration Commission, Xinjiang Production and Construction Corps Second Division Financial Work Office, Tiemenguan City Financial Work Office)'
         values: 
           - 'Xinjiang Production and Construction Corps Second Division Finance Bureau'
-          - 'Tiemenguan City Finance Bureau'
-          - 'Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission'
-          - 'Tiemenguan City State-owned Assets Supervision and Administration Commission'
-          - 'Xinjiang Production and Construction Corps Second Division Financial Work Office'
-          - 'Tiemenguan City Financial Work Office'
-      - match: '中电国际新能源（上海）控股有限公司 [former], China Power International New Energy (Shanghai) Holdings [former], China Electric Power International New Energy Holdings, China Electric Power International New Energy Holdings Limited, China Electric Power International New Energy Holdings LTD, China Power International New Energy CO LTD, China Power International New Energy Holding Ltd., China Power International New Energy Holding LTD, China Power International New Energy Holdings CO LTD, CLP International New Energy Holdings CO LTD'
+      - match: 新疆生产建设兵团第二师财政局（铁门关市财政局、新疆生产建设兵团第二师国有资产监督管理委员会、铁门关市国有资产监督管理委员会、新疆生产建设兵团第二师金融工作办公室、铁门关市金融工作办公室）
+        values:
+          - 新疆生产建设兵团第二师财政局
+      - match: 'China Electric Power International New Energy Holdings, China Electric Power International New Energy Holdings Limited, China Electric Power International New Energy Holdings LTD, China Power International New Energy CO LTD, China Power International New Energy Holding Ltd., China Power International New Energy Holding LTD, China Power International New Energy Holdings CO LTD, CLP International New Energy Holdings CO LTD'
         values:
           - China Electric Power International New Energy Holdings
           - China Electric Power International New Energy Holdings Limited
