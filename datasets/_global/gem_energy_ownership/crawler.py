@@ -6,6 +6,10 @@ from typing import Dict, Set
 from zavod import Context
 from zavod import helpers as h
 
+
+# Unique entity types
+# {"person", "unknown entity", "state", "legal entity", "arrangement", "state body"}
+
 IGNORE = [
     "registration_subdivision",
     "publiclylisted",
@@ -14,10 +18,7 @@ IGNORE = [
     "gem_parents",
     "gem_parents_ids",
 ]
-
-# Unique entity types
-# {"person", "unknown entity", "state", "legal entity", "arrangement", "state body"}
-
+ALIAS_SPLITS = ["[former],", "[former]", "[former name]", "(former)"]
 SKIP_IDS = {
     "E100001015587",  # Small shareholders
     "E100000126067",  # Non-promoter shareholders
@@ -36,6 +37,8 @@ def split_urls(value: str):
 def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     id = row.pop("entity_id")
     name = row.pop("name")
+    full_name = row.pop("full_name")
+    aliases = row.pop("name_other")
     # Skip entities
     if name is None or id in SKIP_IDS:
         skipped.add(id)
@@ -74,10 +77,32 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     entity = context.make(schema)
     entity.id = context.make_slug(id)
 
+    names_to_lookup = [full_name, original_name]
+    associates = set()
+    for name in names_to_lookup:
+        result = context.lookup("associates", name)
+        if result and result.associates:
+            associates.update(result.associates)
+
+    if associates:
+        for associate in associates:
+            other = context.make("LegalEntity")
+            other.id = context.make_slug("named", associate)
+            other.add("name", associate)
+            context.emit(other)
+
+            link = context.make("UnknownLink")
+            link.id = context.make_id(entity.id, other.id)
+            link.add("subject", entity)
+            link.add("object", other)
+            context.emit(link)
+
     entity.add("name", name)
-    entity.add("alias", row.pop("full_name"))
+    entity.add("name", full_name)
     entity.add("name", original_name)
-    entity.add("alias", row.pop("name_other"))
+    if aliases is not None:
+        for alias in h.multi_split(aliases, ALIAS_SPLITS):
+            entity.add("alias", alias)
     entity.add("weakAlias", row.pop("abbreviation"))
     if lei_code != "not found":
         entity.add("leiCode", lei_code)
