@@ -138,8 +138,7 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
         categorisation=categorisation,
         status=OccupancyStatus.UNKNOWN,
     )
-    # Switch to the declarationDate once it's introduced
-    h.apply_date(occupancy, "date", date)
+    h.apply_date(occupancy, "declarationDate", date)
 
     if occupancy is not None:
         context.emit(position)
