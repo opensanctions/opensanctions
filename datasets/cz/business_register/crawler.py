@@ -118,8 +118,9 @@ def crawl(context: Context):
             if res is None:
                 context.log.warn("Cannot read: %s" % archive_member.name)
                 continue
-            parse_xml(context, res, archive_member.name)
+            with res:
+                parse_xml(context, res, archive_member.name)
             archive_member = f.next()
             if idx and idx % 10_000 == 0:
                 context.log.info("Parse item %d ..." % idx)
-    context.log.info("Parsed %d items." % (idx + 1), fp=data_path.name)
+    context.log.info("Parsed %d items." % idx, fp=data_path.name)
