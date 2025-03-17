@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: "2024-10-15"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   Medical providers terminated from Tennessee's Medicaid program.
 description: |
