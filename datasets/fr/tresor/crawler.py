@@ -23,7 +23,8 @@ SCHEMATA = {
     "Navire": "Vessel",
 }
 
-REGEX_IDENTIFIER = re.compile(r"^[\w\.]+$")
+# Only word-character and dots
+IDENTIFIER_SINGLE_VALUE_REGEX = re.compile(r"^[\w\.]+$")
 SEPARATORS = "/:;-. "
 # Order matters, earlier entries will be matched first
 # We don't match free-text fields (currently address) because they could swallow up extra data of unmapped keys.
@@ -140,14 +141,13 @@ def apply_identification_lookup(
     return True
 
 
-def is_only_value(context: Context, value: str) -> bool:
-    if REGEX_IDENTIFIER.match(value):
+def identifier_value_is_single_value(context: Context, value: str) -> bool:
+    if IDENTIFIER_SINGLE_VALUE_REGEX.match(value):
         return True
+
     country_override = context.lookup_value("type.country", value, value)
     country_clean = registry.country.clean(country_override)
-    if country_clean is not None:
-        return True
-    return False
+    return country_clean is not None
 
 
 def parse_identification(
@@ -176,8 +176,10 @@ def parse_identification(
         for key, propname in TEXT_KEYS.items():
             if segment.lower().startswith(key.lower()) and propname is not None:
                 value = segment[len(key) :].strip(SEPARATORS)
-                if not is_only_value(context, value):
-                    # Add override to identification_segment or type.country datapatch.
+
+                if not identifier_value_is_single_value(context, value):
+                    # Likely multiple values, which we don't auto-parse.
+                    # Add an override to identification_segment (or identification_full if the splitting doesn't make sense) or a type.country datapatch.
                     context.log.warning(
                         "Cannot reliably parse value.", value=value, segment=segment
                     )
