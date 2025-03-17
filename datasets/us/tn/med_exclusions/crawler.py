@@ -1,19 +1,7 @@
 from typing import Dict
 
 from zavod import Context, helpers as h
-from rigour.mime.types import PDF
-
-
-from zavod.shed.gpt import run_image_prompt
-
-
-prompt = """
-  Extract structured data from the following page of a PDF document. Return 
-   a JSON list (`providers`) in which each object represents a medical provider.
-   Each object should have the following fields: `last_name`, `first_name`,
-   `npi`, `effective_date`, `reason`.
-   Return an empty string for unset fields.
- """
+from zavod.shed.zyte_api import fetch_html
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -45,11 +33,15 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.pdf", context.data_url)
-    context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-
-    for page_path in h.make_pdf_page_images(path):
-        data = run_image_prompt(context, prompt, page_path)
-        assert "providers" in data, data
-        for item in data.get("providers", []):
-            crawl_item(item, context)
+    doc = fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=".//table[@id='DataTables_Table_0']",
+        geolocation="us",
+    )
+    table = doc.xpath(".//table[@id='DataTables_Table_0']")
+    assert len(table) == 1, f"Expected 1 table, got {len(table)}"
+    table = table[0]
+    for row in h.parse_html_table(doc.find(".//table")):
+        str_row = h.cells_to_str(row)
+        crawl_item(str_row, context)

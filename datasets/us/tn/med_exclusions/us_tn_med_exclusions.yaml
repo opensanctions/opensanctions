@@ -40,17 +40,16 @@ publisher:
   country: "us"
 url: "https://www.tn.gov/tenncare/fraud-and-abuse/program-integrity.html"
 data:
-  url: https://www.tn.gov/content/dam/tn/tenncare/documents/terminatedproviderlist.pdf
-  format: PDF
-ci_test: false
+  url: "https://www.tn.gov/tenncare/fraud-and-abuse/program-integrity.html"
+  format: HTML
 dates:
-  formats: ["%m/%d/%Y"]
+  formats: ["%d-%b-%Y"]
 
 assertions:
   min:
     schema_entities:
-      Person: 7
-      Company: 3
+      Person: 10
+      Company: 5
   max:
     schema_entities:
       Person: 20
