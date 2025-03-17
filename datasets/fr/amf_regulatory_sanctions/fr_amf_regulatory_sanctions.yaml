@@ -1045,3 +1045,9 @@ lookups:
           - Efigest Conseil
           - Jean-Noël Vignon
           - Sylvain Bruley
+      - match: 'La société SR Capital<br /> M. Denys Sournac<br /> M. Stéphane Reynouard<br /> M. Patrick Orliange'
+        entities:
+          - SR Capital
+          - Denys Sournac
+          - Stéphane Reynouard
+          - Patrick Orliange
