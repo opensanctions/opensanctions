@@ -1,6 +1,5 @@
 import openpyxl
 import re
-import rigour.ids
 from typing import Dict, Set
 
 from zavod import Context
@@ -28,6 +27,7 @@ SKIP_IDS = {
 SELF_OWNED = {"E100000002236"}
 STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/02/Global-Energy-Ownership-Tracker-February-2025.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
+PATTERN = r"\(\s*[^()]*,[^()]*\)"
 
 
 def split_urls(value: str):
@@ -77,14 +77,32 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     entity = context.make(schema)
     entity.id = context.make_slug(id)
 
+    # if re.search(PATTERN, name):
+    #     context.log.warning(f"Potential candidate for associates: {name}")
+
     names_to_lookup = [full_name, original_name]
     associates = set()
     for name in names_to_lookup:
         result = context.lookup("associates", name)
         if result and result.associates:
-            associates.update(result.associates)
+            for associate_data in result.associates:
+                # Update associates
+                associates_names = associate_data.get("associates_names", [])
+                if associates_names:
+                    associates.update(associates_names)
+
+                # Update names based on which one was matched
+                entity_name = associate_data.get("entity")
+                if entity_name:
+                    if name == full_name:
+                        full_name = entity_name
+                        # print(f"Full name updated to {full_name}")
+                    else:
+                        original_name = entity_name
+                        # print(f"Original name updated to {original_name}")
 
     if associates:
+        # print(f"Associates found: {associates}")
         for associate in associates:
             other = context.make("LegalEntity")
             other.id = context.make_slug("named", associate)
@@ -102,7 +120,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     entity.add("name", original_name)
     if aliases is not None:
         for alias in h.multi_split(aliases, ALIAS_SPLITS):
-            entity.add("alias", alias)
+            entity.add("previousName", alias)
     entity.add("weakAlias", row.pop("abbreviation"))
     if lei_code != "not found":
         entity.add("leiCode", lei_code)
@@ -116,11 +134,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         entity.add("website", split_urls(homepage))
     if schema != "Person":
         entity.add_cast("Company", "permId", perm_id)
-        # Check if ru_id is a valid OGRN
-        if ru_id and rigour.ids.OGRN.is_valid(ru_id):
-            entity.add("ogrnCode", ru_id)
-        else:  # Remap invalid ones
-            entity.add("registrationNumber", ru_id)
+        entity.add("ogrnCode", ru_id)
         entity.add("registrationNumber", br_id)
         entity.add("registrationNumber", uk_id)
         entity.add("registrationNumber", in_id)
@@ -128,7 +142,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         entity.add("registrationNumber", sp_cap)
         if schema != "PublicBody":
             entity.add_cast("Company", "cikCode", us_sec_id)
-        else:  # PublicBody
+        if entity.schema.is_a("PublicBody"):
             entity.add("registrationNumber", us_sec_id)
     address = h.format_address(
         country=reg_country,
