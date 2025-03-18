@@ -53,7 +53,9 @@ class RedactingProcessor:
         self.repl_regexes = {re.compile(p): r for p, r in repl_pattrns.items()}
 
     def __call__(self, logger: Any, method_name: str, event_dict: Event) -> Event:
-        return self.redact_dict(event_dict)
+        # stringify performs a deep-ish copy to avoid redacting the original data
+        data: Dict[str, Any] = stringify(dict(event_dict))
+        return self.redact_dict(data)
 
     def redact_dict(self, dict_: Event) -> Event:
         for key, value in dict_.items():
