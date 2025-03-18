@@ -34,6 +34,31 @@ def split_urls(value: str):
     return REGEX_URL_SPLIT.sub("\nhttp", value).split("\n")
 
 
+def get_associates(
+    context: Context,
+    name,
+    associates,
+    full_name,
+    original_name,
+):
+    result = context.lookup("associates", name)
+    if result and result.associates:
+        for associate_data in result.associates:
+            # Update associates
+            associates_names = associate_data.get("associates_names", [])
+            if associates_names:
+                associates.update(associates_names)
+            # Overwrite names based on which one was matched
+            entity_name = associate_data.get("entity")
+            if entity_name:
+                if name == full_name:
+                    full_name = entity_name
+                else:
+                    name = original_name
+                    original_name = entity_name
+    return full_name, original_name, associates
+
+
 def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     id = row.pop("entity_id")
     name = row.pop("name")
@@ -80,29 +105,13 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     # if re.search(PATTERN, name):
     #     context.log.warning(f"Potential candidate for associates: {name}")
 
-    names_to_lookup = [full_name, original_name]
-    associates = set()
-    for name in names_to_lookup:
-        result = context.lookup("associates", name)
-        if result and result.associates:
-            for associate_data in result.associates:
-                # Update associates
-                associates_names = associate_data.get("associates_names", [])
-                if associates_names:
-                    associates.update(associates_names)
-
-                # Update names based on which one was matched
-                entity_name = associate_data.get("entity")
-                if entity_name:
-                    if name == full_name:
-                        full_name = entity_name
-                        # print(f"Full name updated to {full_name}")
-                    else:
-                        original_name = entity_name
-                        # print(f"Original name updated to {original_name}")
+    associates: Set[str] = set()
+    for name in [full_name, original_name]:
+        full_name, original_name, associates = get_associates(
+            context, name, associates, full_name, original_name
+        )
 
     if associates:
-        # print(f"Associates found: {associates}")
         for associate in associates:
             other = context.make("LegalEntity")
             other.id = context.make_slug("named", associate)
