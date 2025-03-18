@@ -14,30 +14,17 @@ def key_from_prefix(row: Dict[str, str], prefix: str) -> str:
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-    first_name = row.pop(key_from_prefix(row, "provider_first"))
-    middle_name = row.pop(key_from_prefix(row, "provider_middle"))
-    last_name = row.pop(key_from_prefix(row, "provider_last"))
-    npi = row.pop("npi")
+    name = row.pop(key_from_prefix(row, "provider_name"))
+    listing_date = row.pop(key_from_prefix(row, "date_added_to_nmep"))
+    npi = row.pop("provider_npi")
     if organization_name := row.pop("organization_name"):
         entity = context.make("Company")
         entity.id = context.make_id(organization_name, npi)
         entity.add("name", organization_name)
-        # Either empty or a copy
-        assert last_name in organization_name, row
     else:
         entity = context.make("Person")
-        entity.id = context.make_id(
-            first_name,
-            middle_name,
-            last_name,
-            npi,
-        )
-        h.apply_name(
-            entity,
-            first_name=first_name,
-            middle_name=middle_name,
-            last_name=last_name,
-        )
+        entity.id = context.make_id(name, npi)
+        entity.add("name", name)
         assert organization_name == "", row
 
     entity.add("npiCode", npi)
@@ -47,7 +34,8 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", row.pop("reason_for_action_code"))
-    h.apply_date(sanction, "startDate", row.pop(key_from_prefix(row, "effective_dat")))
+    h.apply_date(sanction, "startDate", row.pop(key_from_prefix(row, "effective_date")))
+    h.apply_date(sanction, "listingDate", listing_date)
     sanction.add("provisions", row.pop("sanction_code"))
     sanction.add("duration", row.pop("sanction_type_code"))
 
