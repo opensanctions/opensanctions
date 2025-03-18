@@ -15,6 +15,15 @@ OTHER_DEBARRMENT_URL = (
 )
 
 
+def load_sheet(workbook, possible_names):
+    for name in possible_names:
+        try:
+            return workbook[name]
+        except KeyError:
+            continue
+    raise ValueError("None of the worksheet names exist")
+
+
 def crawl_ownership(
     context: Context, owner: Entity, asset_name: str, is_debarred=False
 ):
@@ -62,6 +71,12 @@ def crawl_item(input_dict: dict, context: Context):
         )
         if asset_is_debarred:
             debarreds.append(asset)
+    address = None
+    names = h.multi_split(name, ["(Address :"])
+    if len(names) == 2:
+        name = names[0]
+        address = names[1].replace(")", "").strip()
+        address = address.split(", RTA Folio No:")[0].strip()
 
     # It's a target if it wasn't revoked
     period = input_dict.pop("period")
@@ -69,6 +84,8 @@ def crawl_item(input_dict: dict, context: Context):
     topics = "reg.warn" if is_revoked else "debarment"
 
     entity.add("name", name)
+    if address is not None:
+        entity.add("address", address)
     entity.add("jurisdiction", "in")
     if pan and "not provided" not in pan.lower():
         entity.add("taxNumber", pan)
@@ -121,9 +138,10 @@ def parse_xls_or_xlsx_sheet_from_url(context: Context, url: str, filename: str):
             filepath_tmp, context.get_resource_path(f"{filename}.xlsx")
         )
         mimetype = XLSX
-        items = h.parse_xlsx_sheet(
-            context, openpyxl.load_workbook(filepath)["Working"], extract_links=True
-        )
+        workbook = openpyxl.load_workbook(filepath)
+        # One of the sheets is named "Data" and the other is named "Working" in separate files
+        sheet = load_sheet(workbook, ["Working", "Data"])
+        items = h.parse_xlsx_sheet(context, sheet, extract_links=True)
     else:
         filepath = shutil.move(
             filepath_tmp, context.get_resource_path(f"{filename}.xls")

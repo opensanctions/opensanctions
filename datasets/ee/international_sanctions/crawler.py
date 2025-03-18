@@ -4,6 +4,7 @@ from zavod import Context
 from zavod import helpers as h
 
 BELARUS_DESC = "The sanctions of the Government of the Republic in view of the situation in Belarus"
+RUS_DESC = "Sanction of the Government of the Republic to protect Estonia’s security and interests and against the actions of the Russian Federation in Ukraine"
 HUMAN_RIGHTS_DESC = (
     "Sanction of the Government of the Republic to ensure following of human rights"
 )
@@ -63,6 +64,28 @@ def crawl_item_human_rights(context: Context, source_url, raw_name: str):
     context.emit(sanction)
 
 
+def crawl_item_rus(context: Context, source_url, raw_name: str):
+    match = re.search(r"^\d+\.\d*\.?\s*([^(\n]+)(?:\s*\(also\s*([^)]+)\))?", raw_name)
+    if match:
+        name = match.group(1).strip()
+        alias = match.group(2).strip() if match.group(2) else []
+    else:
+        context.log.warning("Could not parse name", raw_name)
+
+    entity = context.make("Person")
+    entity.id = context.make_id(name)
+    entity.add("name", name, lang="eng")
+    entity.add("alias", alias)
+    entity.add("topics", "sanction")
+
+    sanction = h.make_sanction(context, entity)
+    sanction.add("sourceUrl", source_url)
+    sanction.add("description", RUS_DESC)
+
+    context.emit(entity)
+    context.emit(sanction)
+
+
 def crawl_belarus(context, url):
     doc = context.fetch_html(url)
     main_container = doc.xpath(".//article")
@@ -117,12 +140,32 @@ def crawl_human_rights(context, url):
         directive.getparent().remove(directive)
 
 
+def crawl_rus(context, url):
+    doc = context.fetch_html(url)
+    main_container = doc.xpath(".//article")
+    h.assert_dom_hash(main_container[0], "64d916cd12a0c668a6fab43ad75d060e31a3eaff")
+    assert len(main_container) == 1, (
+        main_container,
+        "Could not find the main container",
+    )
+    raw_names = main_container[0].findall(".//p")
+    last_updated = main_container[0].xpath(".//p[contains(text(), 'Last updated')]")
+    assert len(last_updated) == 1, (
+        last_updated,
+        "Could not find the last updated date",
+    )
+    # Get the text from each <p> tag, excluding the 'Last updated' one
+    names = [p.text_content() for p in raw_names if p not in last_updated]
+    for raw_name in names:
+        crawl_item_rus(context, url, raw_name)
+
+
 def crawl(context: Context):
     index_doc = context.fetch_html(context.data_url)
     index_doc.make_links_absolute(context.data_url)
 
     anchors = index_doc.xpath(".//*[contains(text(), 'LIST OF SUBJECTS')]/ancestor::a")
-    assert len(anchors) == 2, "Could not find the links to the lists"
+    assert len(anchors) == 3, "Could not find the links to the lists"
     for a in anchors:
         url = a.get("href")
         label = a.text_content().lower()
@@ -131,5 +174,7 @@ def crawl(context: Context):
             crawl_belarus(context, url)
         elif "human rights" in label:
             crawl_human_rights(context, url)
+        elif "actions of the russian federation" in label:
+            crawl_rus(context, url)
         else:
             context.log.warning("Unhandled list", url=url, label=label)
