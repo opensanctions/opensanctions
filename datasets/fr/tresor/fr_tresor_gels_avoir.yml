@@ -91,6 +91,10 @@ lookups:
     options:
       # Sometimes for "Numero OGRN" and "Numero OMI", a "Numero" is left over
       - match: "Numero"
+      # Sometimes leftover from "NIF/INN"
+      - match: "NIF"
+      - match: "Numéro d'enregistrement"
+      - match: "Code"
       - match:
           - "Principal établissement: Moscou, Fédération de Russie"
           - "Lieu d'enregistrement: Moscou, Fédération de Russie"
@@ -189,14 +193,124 @@ lookups:
       - match: "Type d'entité: société par actions"
         props:
           legalForm: société par actions
-      - match: "Numéro d'enregistrement"
-        props: {}
       - match: "Type d'entité: société par actions"
         props:
           legalForm: société par actions
       - match: "Type d'entité: société publique par actions"
         props:
           legalForm: société publique par actions
+      - match: "Type d'entité: Banque commerciale anonyme"
+        props:
+          legalForm: Banque commerciale anonyme
+      - match: "Type d'entité: société d'État"
+        props:
+          legalForm: société d'État
+      - match: "Lieu d'enregistrement: Fédération de Russie (197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30)"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie (197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30)"
+      - match: "Lieu d'enregistrement: Fédération de Russie (141983, région de Moscou, Dubna, Zhukovsky Str. 2, building 1)"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie (141983, région de Moscou, Dubna, Zhukovsky Str. 2, building 1)"
+      - match: "Lieu d'enregistrement: Fédération de Russie (Moscou, Proezd-12 Maryina Roshcha, d. 9, str. 1)"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie (Moscou, Proezd-12 Maryina Roshcha, d. 9, str. 1)"
+      - match: "Principaux établissements: Ukraine, Fédération de Russie"
+        props:
+          address: "Ukraine, Fédération de Russie"
+      - match: "Lieu d'enregistrement: Degtyarnyy - Pereulok, 11a, Saint Pétersbourg, 191144, - Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Degtyarnyy - Pereulok, 11a, Saint Pétersbourg, 191144, - Fédération de Russie"
+      - match: "Lieu d'enregistrement: Zelenodolsk, République du Tatarstan, Fédération de Russie (422540, République du Tatarstan, r-n Zelenodolskii, Zelenodolsk, ul. Lenina, 41A)"
+        props:
+          jurisdiction: ru
+          address: "Zelenodolsk, République du Tatarstan, Fédération de Russie (422540, République du Tatarstan, r-n Zelenodolskii, Zelenodolsk, ul. Lenina, 41A)"
+      - match: "Fondée le 27.6.1990"
+        props:
+          incorporationDate: 1990-06-27
+      - match: "Entreprise individuelle enregistrée le 01/04/2018, immatriculée au RCS sous le n° SIRET 83866842400016: SIRET 83866842400016"
+        props:
+          incorporationDate: 2018-04-01
+          registrationNumber: 83866842400016
+      - match: "Lieu d'enregistrement: Ukraine (283001, Donetsk, Komsomolsky prospect, 6a)"
+        props:
+          jurisdiction: ua
+          address: "Ukraine (283001, Donetsk, Komsomolsky prospect, 6a)"
+      - match: "Lieu d'enregistrement: région de Nijni Novgorod, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "région de Nijni Novgorod, Fédération de Russie"
+      - match: "Lieu d'enregistrement: Fédération de Russie (248600, Kalouga, Voskresenskiy per, 28)"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie (248600, Kalouga, Voskresenskiy per, 28)"
+      - match: "Lieu d'enregistrement: Fédération de Russie (194021, Saint-Pétersbourg, ul. Karbysheva, 15)"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie (194021, Saint-Pétersbourg, ul. Karbysheva, 15)"
+      - match: "Lieu d'enregistrement: Professora Popova St., 38, 197376 Saint-Pétersbourg, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Professora Popova St., 38, 197376 Saint-Pétersbourg, Fédération de Russie"
+      - match: "Lieu d'établissement: Kigali, Rwanda"
+        props:
+          jurisdiction: rw
+          address: "Kigali, Rwanda"
+      - match: "Lieu d'enregistrement: Fédération de Russie (105275, Moscou, sh. Entuziastov, 29)"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie (105275, Moscou, sh. Entuziastov, 29)"
+      - match: "Filiale: Société par actions AKIN"
+        associates:
+          - Société par actions AKIN
+      - match: "Filiale: Société par actions AKIN"
+        associates:
+          - Société par actions AKIN
+      - match: "Filiale: OJSC Zavod Elektropribor"
+        associates:
+          - OJSC Zavod Elektropribor
+      - match: "Filiale: Société par actions KB Amethyst"
+        associates:
+          - Société par actions KB Amethyst
+      - match: "Filiale: Société par actions Comet"
+        associates:
+          - Société par actions Comet
+      - match: "Filiale: Société par actions NPP Salyut"
+        associates:
+          - Société par actions NPP Salyut
+      - match: "Filiale: Société par actions PO Binom"
+        associates:
+          - Société par actions PO Binom
+      - match: "Filiale: Société par actions “Institut central de recherche Kurs”"
+        associates:
+          - Société par actions “Institut central de recherche Kurs”
+      - match: "Filiale: Société par actions Plant Topaz"
+        associates:
+          - Société par actions Plant Topaz
+      - match: "Filiale: Société par actions Izumrud"
+        associates:
+          - Société par actions Izumrud
+      - match: "Filiale: Société par actions KGFI"
+        associates:
+          - Société par actions KGFI
+      - match: "Filiale: Société par actions Morinsis-Agat-KIP"
+        associates:
+          - Société par actions Morinsis-Agat-KIP
+      - match: "Filiale: FSPC JSC NPO Mars"
+        associates:
+          - FSPC JSC NPO Mars
+      - match: "Filiale: Société par actions NPF Meridian"
+        associates:
+          - Société par actions NPF Meridian
+      - match: "Filiale: AO Typhoon"
+        associates:
+          - AO Typhoon
+      - match: "Société mère: Rostec"
+        associates:
+          - Rostec
   identification_full:
     lowercase: true
     normalize: true
