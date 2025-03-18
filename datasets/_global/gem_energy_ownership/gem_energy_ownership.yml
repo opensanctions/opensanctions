@@ -44,9 +44,23 @@ assertions:
   min:
     schema_entities:
       Company: 12000
+      LegalEntity: 20
+      PublicBody: 900
+      Person: 1
+    country_entities:
+      cn: 6400
+      us: 1500
+      in: 700
+      id: 590
+      ru: 400
+      gb: 400
+    countries: 150
   max:
     schema_entities:
-      Company: 17000
+      Company: 27000
+      LegalEntity: 50
+      PublicBody: 2000
+      Person: 50
 
 lookups:
   associates:
@@ -71,9 +85,9 @@ lookups:
               - Tiemenguan City Financial Work Office
   type.name: 
     options:
-      # - match: 'Xinjiang Production and Construction Corps Second Division Finance Bureau (Tiemenguan City Finance Bureau, Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission, Tiemenguan City State-owned Assets Supervision and Administration Commission, Xinjiang Production and Construction Corps Second Division Financial Work Office, Tiemenguan City Financial Work Office)'
-      #   values: 
-      #     - 'Xinjiang Production and Construction Corps Second Division Finance Bureau'
+      - match: 'Xinjiang Production and Construction Corps Second Division Finance Bureau (Tiemenguan City Finance Bureau, Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission, Tiemenguan City State-owned Assets Supervision and Administration Commission, Xinjiang Production and Construction Corps Second Division Financial Work Office, Tiemenguan City Financial Work Office)'
+        values: 
+          - 'Xinjiang Production and Construction Corps Second Division Finance Bureau'
       # - match: 新疆生产建设兵团第二师财政局（铁门关市财政局、新疆生产建设兵团第二师国有资产监督管理委员会、铁门关市国有资产监督管理委员会、新疆生产建设兵团第二师金融工作办公室、铁门关市金融工作办公室）
       #   values:
       #     - 新疆生产建设兵团第二师财政局
