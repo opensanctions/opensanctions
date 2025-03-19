@@ -311,6 +311,58 @@ lookups:
       - match: "Société mère: Rostec"
         associates:
           - Rostec
+      - match: 'Principaux établissements: Émirats arabes unis, Fédération de Russie, Union européenne'
+        props:
+          jurisdiction: 
+            - ae
+            - ru
+            - eu
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (125080, Moscou, sh. Volokolamskoe, 1 str. 1, et 5; pom VI; kom 30B"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie (125080, Moscou, sh. Volokolamskoe, 1 str. 1, et 5; pom VI; kom 30B"
+      - match: 'Lieu des activités: Ukraine, Fédération de Russie'
+        props:
+          jurisdiction: 
+            - ua
+            - ru
+      - match: 'Principal établissement: Fédération de Russie, Pays-Bas'
+        props:
+          jurisdiction: 
+            - ru
+            - nl
+      - match: "Lieu d'enregistrement: Russie"
+        props:
+          jurisdiction: ru
+          address: "Russie"
+      - match: "Type d'entité: société à responsabilité limitée (SARL) (LLC)"
+        props:
+          legalForm: société à responsabilité limitée (SARL) (LLC)
+      - match: 'Principal établissement: Arsenyev, Fédération de Russie'
+        props:
+          jurisdiction: ru
+          address: "Arsenyev, Fédération de Russie"
+      - match: "Lieu d'enregistrement: Dubaï, Émirats arabes unis (Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubaï, 507065, Émirats arabes unis)"
+        props:
+          jurisdiction: ae
+          address: "Dubaï, Émirats arabes unis (Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubaï, 507065, Émirats arabes unis)"
+      - match: "Lieu d'enregistrement: Fédération de Russie (606083, région de Nijni Novgorod, district de Volodarsky, Mulino)"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie (606083, région de Nijni Novgorod, district de Volodarsky, Mulino)"
+      # Not sure how to map the following identifiers:
+      - match: 'OKATO  - Ryazanskaya area, citya oblastnogo znacheniya Ryazanskoj area, Ryazan, Oktyabrskij: 61401375'
+        props:
+          address: "Ryazanskaya area, citya oblastnogo znacheniya Ryazanskoj area, Ryazan, Oktyabrskij"
+      - match: "OKFS  - Propriété des sociétés d'État: 61"
+        props:
+          legalForm: Propriété des sociétés d'État
+      - match: "OKOGU - “Technologies russes”, société d'État chargée de promouvoir le développement, la production et l'exportation de produits de haute technologie: 4100304"
+        props: 
+          legalForm: société d'État
+      - match: "OKOPF - Sociétés par actions ouvertes OKTMO: 61701000001: 12247"
+        props:
+          legalForm: Sociétés par actions ouvertes
   identification_full:
     lowercase: true
     normalize: true
