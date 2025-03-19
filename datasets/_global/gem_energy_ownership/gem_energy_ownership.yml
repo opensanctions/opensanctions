@@ -173,6 +173,12 @@ lookups:
             associates_names:
               - 运城市人民政府国有资产监督管理委员会
               - 运城市民营经济发展促进局
+      - match: Tongliao Economic and Information Commission (Tongliao State-owned Assets Supervision and Administration Bureau, Tongliao Small and Medium Enterprise Bureau)
+        associates:
+          - entity: Tongliao Economic and Information Commission
+            associates_names:
+              - Tongliao State-owned Assets Supervision and Administration Bureau
+              - Tongliao Small and Medium Enterprise Bureau
   type.name: 
     options:
       - match: 'China Electric Power International New Energy Holdings, China Electric Power International New Energy Holdings Limited, China Electric Power International New Energy Holdings LTD, China Power International New Energy CO LTD, China Power International New Energy Holding Ltd., China Power International New Energy Holding LTD, China Power International New Energy Holdings CO LTD, CLP International New Energy Holdings CO LTD'
