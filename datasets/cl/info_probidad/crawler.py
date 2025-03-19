@@ -138,6 +138,7 @@ def crawl_row(context: Context, declaration_id: int):
             "subnumeral",
             "Deposito_Plazo_Adicional",  # additional term deposit
             "Ahorro_Previsional_Voluntario_Adicional",  # additional voluntary pension savings
+            "Seguro_Adicional",  # additional insurance
         ],
     )
 
