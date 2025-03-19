@@ -170,7 +170,6 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
 def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     subject_entity_id = row.pop("subject_entity_id")
     interested_party_id = row.pop("interested_party_id")
-    interested_party_name = row.pop("interested_party_name")
 
     # Skip the relationship if either ID is in the skipped set
     if subject_entity_id in skipped or interested_party_id in skipped:
@@ -180,8 +179,6 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
         return
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(interested_party_id)
-    entity.add("name", interested_party_name)
-    context.emit(entity)
 
     ownership = context.make("Ownership")
     ownership.id = context.make_id(subject_entity_id, interested_party_id)
@@ -193,7 +190,7 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     if source_urls is not None:
         ownership.add("sourceUrl", split_urls(source_urls))
 
-    context.audit_data(row, ignore=["subject_entity_name"])
+    context.audit_data(row, ignore=["subject_entity_name", "interested_party_name"])
     context.emit(ownership)
 
 
