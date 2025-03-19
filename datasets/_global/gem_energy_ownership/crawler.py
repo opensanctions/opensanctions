@@ -5,6 +5,10 @@ from typing import Dict, Set
 from zavod import Context
 from zavod import helpers as h
 
+
+# Unique entity types
+# {"person", "unknown entity", "state", "legal entity", "arrangement", "state body"}
+
 IGNORE = [
     "registration_subdivision",
     "publiclylisted",
@@ -13,17 +17,7 @@ IGNORE = [
     "gem_parents",
     "gem_parents_ids",
 ]
-
-# Some context, please delete after review
-
-# Unique entity types
-# {"person", "unknown entity", "state", "legal entity", "arrangement", "state body"}
-
-# What does 'arrangement' mean?
-# A legal arrangement, agreement, contract or other mechanism via which one or more natural
-# or legal persons can associate to exert ownership or control over an entity. Parties to an
-# arrangement have no other form of collective legal identity.
-
+ALIAS_SPLITS = ["[former],", "[former]", "[former name]", "(former)"]
 SKIP_IDS = {
     "E100001015587",  # Small shareholders
     "E100000126067",  # Non-promoter shareholders
@@ -33,15 +27,45 @@ SKIP_IDS = {
 SELF_OWNED = {"E100000002236"}
 STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/02/Global-Energy-Ownership-Tracker-February-2025.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
+NAME_PATTERN = r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)"
 
 
 def split_urls(value: str):
     return REGEX_URL_SPLIT.sub("\nhttp", value).split("\n")
 
 
+def get_associates(
+    context: Context,
+    name,
+    associates,
+    full_name,
+    original_name,
+):
+    result = context.lookup("associates", name)
+    if result is None:
+        context.log.warning(f"Potential candidate for associates: {name}")
+    if result and result.associates:
+        for associate_data in result.associates:
+            # Update associates
+            associates_names = associate_data.get("associates_names", [])
+            if associates_names:
+                associates.update(associates_names)
+            # Overwrite names based on which one was matched
+            entity_name = associate_data.get("entity")
+            if entity_name:
+                if name == full_name:
+                    full_name = entity_name
+                else:
+                    name = original_name
+                    original_name = entity_name
+    return full_name, original_name, associates
+
+
 def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     id = row.pop("entity_id")
     name = row.pop("name")
+    full_name = row.pop("full_name")
+    aliases = row.pop("name_other")
     # Skip entities
     if name is None or id in SKIP_IDS:
         skipped.add(id)
@@ -68,6 +92,8 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
 
     if entity_type == "legal entity":
         schema = "Company"
+    elif entity_type == "arrangement":
+        schema = "LegalEntity"
     elif entity_type == "state body" or entity_type == "state":
         schema = "PublicBody"
     elif entity_type == "person":
@@ -78,24 +104,45 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     entity = context.make(schema)
     entity.id = context.make_slug(id)
 
+    associates: Set[str] = set()
+    for name in [full_name, original_name]:
+        if name and re.search(NAME_PATTERN, name):
+            full_name, original_name, associates = get_associates(
+                context, name, associates, full_name, original_name
+            )
+
+    if associates:
+        for associate in associates:
+            other = context.make("LegalEntity")
+            other.id = context.make_slug("named", associate)
+            other.add("name", associate)
+            context.emit(other)
+
+            link = context.make("UnknownLink")
+            link.id = context.make_id(entity.id, other.id)
+            link.add("subject", entity)
+            link.add("object", other)
+            context.emit(link)
+
     entity.add("name", name)
-    entity.add("alias", row.pop("full_name"))
+    entity.add("name", full_name)
     entity.add("name", original_name)
-    entity.add("alias", row.pop("name_other"))
+    if aliases is not None:
+        for alias in h.multi_split(aliases, ALIAS_SPLITS):
+            entity.add("previousName", alias)
     entity.add("weakAlias", row.pop("abbreviation"))
     if lei_code != "not found":
         entity.add("leiCode", lei_code)
     if entity_type != "unknown entity":
         entity.add("description", entity_type)
-    entity.add("classification", row.pop("legal_entity_type"))
+    entity.add("legalForm", row.pop("legal_entity_type"))
     entity.add("country", reg_country)
     entity.add("mainCountry", head_country)
     homepage = row.pop("home_page")
     if homepage:
         entity.add("website", split_urls(homepage))
     if schema != "Person":
-        entity.add("permId", perm_id)
-        # find a way to remap invalid ones
+        entity.add_cast("Company", "permId", perm_id)
         entity.add("ogrnCode", ru_id)
         entity.add("registrationNumber", br_id)
         entity.add("registrationNumber", uk_id)
@@ -103,7 +150,9 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         entity.add("registrationNumber", us_eia_id)
         entity.add("registrationNumber", sp_cap)
         if schema != "PublicBody":
-            entity.add("cikCode", us_sec_id)
+            entity.add_cast("Company", "cikCode", us_sec_id)
+        if entity.schema.is_a("PublicBody"):
+            entity.add("registrationNumber", us_sec_id)
     address = h.format_address(
         country=reg_country,
         state=row.pop("registration_subdivision"),
@@ -121,7 +170,6 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
 def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     subject_entity_id = row.pop("subject_entity_id")
     interested_party_id = row.pop("interested_party_id")
-    interested_party_name = row.pop("interested_party_name")
 
     # Skip the relationship if either ID is in the skipped set
     if subject_entity_id in skipped or interested_party_id in skipped:
@@ -131,8 +179,6 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
         return
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(interested_party_id)
-    entity.add("name", interested_party_name)
-    context.emit(entity)
 
     ownership = context.make("Ownership")
     ownership.id = context.make_id(subject_entity_id, interested_party_id)
@@ -144,7 +190,7 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     if source_urls is not None:
         ownership.add("sourceUrl", split_urls(source_urls))
 
-    context.audit_data(row, ignore=["subject_entity_name"])
+    context.audit_data(row, ignore=["subject_entity_name", "interested_party_name"])
     context.emit(ownership)
 
 
