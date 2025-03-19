@@ -27,7 +27,7 @@ SKIP_IDS = {
 SELF_OWNED = {"E100000002236"}
 STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/02/Global-Energy-Ownership-Tracker-February-2025.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
-NAME_PATTERN = r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)"
+REGEX_POSSIBLE_ASSOCIATES = re.compile(r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)")
 
 
 def split_urls(value: str):
@@ -65,30 +65,13 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     id = row.pop("entity_id")
     name = row.pop("name")
     full_name = row.pop("full_name")
-    aliases = row.pop("name_other")
     # Skip entities
     if name is None or id in SKIP_IDS:
         skipped.add(id)
         return
     original_name = row.pop("name_local")
     reg_country = row.pop("registration_country")
-    head_country = row.pop("headquarters_country")
-    lei_code = row.pop("global_legal_entity_identifier_index")
     entity_type = row.pop("entity_type")
-    perm_id = row.pop("permid_refinitiv_permanent_identifier")
-    sp_cap = row.pop("s_p_capital_iq")
-    uk_id = row.pop("uk_companies_house")
-    us_sec_id = row.pop("us_sec_central_index_key")
-    us_eia_id = row.pop("us_eia")
-    br_id = row.pop(
-        "brazil_national_registry_of_legal_entities_federal_revenue_service"
-    )
-    in_id = row.pop(
-        "india_corporate_identification_number_ministry_of_corporate_affairs"
-    )
-    ru_id = row.pop(
-        "russia_uniform_state_register_of_legal_entities_of_russian_federation"
-    )
 
     if entity_type == "legal entity":
         schema = "Company"
@@ -106,7 +89,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
 
     associates: Set[str] = set()
     for name in [full_name, original_name]:
-        if name and re.search(NAME_PATTERN, name):
+        if name and REGEX_POSSIBLE_ASSOCIATES.search(name):
             full_name, original_name, associates = get_associates(
                 context, name, associates, full_name, original_name
             )
@@ -127,32 +110,43 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     entity.add("name", name)
     entity.add("name", full_name)
     entity.add("name", original_name)
-    if aliases is not None:
+    if aliases := row.pop("name_other") is not None:
         for alias in h.multi_split(aliases, ALIAS_SPLITS):
-            entity.add("previousName", alias)
+            entity.add("aliases", alias)
     entity.add("weakAlias", row.pop("abbreviation"))
-    if lei_code != "not found":
+    if lei_code := row.pop("global_legal_entity_identifier_index") != "not found":
         entity.add("leiCode", lei_code)
     if entity_type != "unknown entity":
         entity.add("description", entity_type)
     entity.add("legalForm", row.pop("legal_entity_type"))
     entity.add("country", reg_country)
-    entity.add("mainCountry", head_country)
+    entity.add("mainCountry", row.pop("headquarters_country"))
     homepage = row.pop("home_page")
     if homepage:
         entity.add("website", split_urls(homepage))
     if schema != "Person":
-        entity.add_cast("Company", "permId", perm_id)
+        entity.add_cast(
+            "Company", "permId", row.pop("permid_refinitiv_permanent_identifier")
+        )
+        ru_id = row.pop(
+            "russia_uniform_state_register_of_legal_entities_of_russian_federation"
+        )
         entity.add("ogrnCode", ru_id)
+        br_id = row.pop(
+            "brazil_national_registry_of_legal_entities_federal_revenue_service"
+        )
         entity.add("registrationNumber", br_id)
-        entity.add("registrationNumber", uk_id)
+        entity.add("registrationNumber", row.pop("uk_companies_house"))
+        in_id = row.pop(
+            "india_corporate_identification_number_ministry_of_corporate_affairs"
+        )
         entity.add("registrationNumber", in_id)
-        entity.add("registrationNumber", us_eia_id)
-        entity.add("registrationNumber", sp_cap)
-        if schema != "PublicBody":
-            entity.add_cast("Company", "cikCode", us_sec_id)
+        entity.add("registrationNumber", row.pop("us_eia"))
+        entity.add("registrationNumber", row.pop("s_p_capital_iq"))
         if entity.schema.is_a("PublicBody"):
-            entity.add("registrationNumber", us_sec_id)
+            entity.add("registrationNumber", row.pop("us_sec_central_index_key"))
+        else:
+            entity.add_cast("Company", "cikCode", row.pop("us_sec_central_index_key"))
     address = h.format_address(
         country=reg_country,
         state=row.pop("registration_subdivision"),
