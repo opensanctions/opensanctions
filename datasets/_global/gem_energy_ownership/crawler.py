@@ -27,7 +27,7 @@ SKIP_IDS = {
 SELF_OWNED = {"E100000002236"}
 STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/02/Global-Energy-Ownership-Tracker-February-2025.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
-PATTERN = r"\(\s*[^()]*,[^()]*\)"
+NAME_PATTERN = r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)"
 
 
 def split_urls(value: str):
@@ -42,6 +42,8 @@ def get_associates(
     original_name,
 ):
     result = context.lookup("associates", name)
+    if result is None:
+        context.log.warning(f"Potential candidate for associates: {name}")
     if result and result.associates:
         for associate_data in result.associates:
             # Update associates
@@ -102,14 +104,12 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     entity = context.make(schema)
     entity.id = context.make_slug(id)
 
-    # if re.search(PATTERN, name):
-    #     context.log.warning(f"Potential candidate for associates: {name}")
-
     associates: Set[str] = set()
     for name in [full_name, original_name]:
-        full_name, original_name, associates = get_associates(
-            context, name, associates, full_name, original_name
-        )
+        if name and re.search(NAME_PATTERN, name):
+            full_name, original_name, associates = get_associates(
+                context, name, associates, full_name, original_name
+            )
 
     if associates:
         for associate in associates:
