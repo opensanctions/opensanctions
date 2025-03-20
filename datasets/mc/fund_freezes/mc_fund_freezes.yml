@@ -84,7 +84,7 @@ lookups:
         value: 1965
       - match: calendrier grégorien 1965
         value: 1965
-      - match: "Date de naissance possible: 27/12/1977"
+      - match: 27/12/1977 (date naissance possible)
         value: 1977-12-27
       - match: (Abid Hammadou) 12/12/1965
         value: 1965-12-12

@@ -48,7 +48,7 @@ def crawl_common(context: Context, url: str, entity: Entity, sanction: Entity, d
 
     context.emit(entity)
     context.emit(sanction)
-    context.audit_data(data)
+    context.audit_data(data, ["phone-numbers"])
 
 
 def crawl_individual(context: Context, url: str, data: Dict[str, str]):

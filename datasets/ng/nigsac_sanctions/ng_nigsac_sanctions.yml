@@ -89,3 +89,7 @@ lookups:
           entity-name: Boko Haram
           aliases: JAMA'ATU AHLIS SUNNA LIDDA'AWATI WAL-JIHAD
           country: Nigeria
+  type.date:
+    options:
+      - match: 0001-01-01T12:00:00
+        format: null
