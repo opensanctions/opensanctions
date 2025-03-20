@@ -10,6 +10,7 @@ deploy:
   disk: 100Gi
   disk_limit: 200Gi
   memory: 4Gi
+  memory_limit: 7Gi
   # premium: true
 exports:
   - statistics.json

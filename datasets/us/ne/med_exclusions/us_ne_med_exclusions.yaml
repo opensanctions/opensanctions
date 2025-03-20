@@ -37,7 +37,8 @@ data:
 ci_test: false
 
 dates:
-  formats: ["%m/%d/%Y"]
+  # Be careful, it's not the hyphen character
+  formats: ["%Y‐%m‐%d"]
 assertions:
   min:
     schema_entities:
@@ -58,3 +59,5 @@ lookups:
         value: 1558374140
       - match: 179053341
         value: 1790593341
+      - match: 68123
+        value: null

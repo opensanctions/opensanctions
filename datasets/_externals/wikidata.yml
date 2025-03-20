@@ -150,7 +150,6 @@ lookups:
           - Imperial China
           - Empire of China
           - Independent State of Croatia
-          - Iraqi Republic (1958–1968)
           - Irish Free State
           - Jin dynasty
           - Jordanian annexation of the West Bank
@@ -674,6 +673,7 @@ lookups:
           - Principality of Moldavia
           - Duchy of Milan
           - Manchukuo
+          - Fran
         value: null
       - match:
           - Cherokee Nation
@@ -918,6 +918,10 @@ lookups:
         value: HR
       - contains:
           - Ba'athist Iraq
+        value: Iraq
+      - match: 
+          - First Republic of Iraq
+          - Iraqi Republic (1958–1968)
           - Kurdistan Region
         value: Iraq
       - match:

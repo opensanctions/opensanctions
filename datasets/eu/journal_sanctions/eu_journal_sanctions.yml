@@ -37,23 +37,25 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vQZckYoLdt6O3awOs8piaaWCtFlaKtCNpBWcb36bqakVid31-a-JqmHBri0vch2ggB9R-7yq3jiCarN/pub?gid=0&single=true&output=csv
   format: CSV
 dates:
-  formats: ["%d.%m.%Y", "%d %B %Y", "%Y-%m", "%d.%m.%Y’", "%d %B %Y’"]
+  formats: ["%d.%m.%Y", "%d %B %Y", "%Y-%m", "%d.%m.%Y’", "%d %B %Y’", "%B %Y"]
 
 assertions:
   min:
     schema_entities:
-      Company: 530
-      Person: 200
-      LegalEntity: 50
-      Organization: 70
-      Vessel: 65
+      Company: 590
+      Person: 350
+      LegalEntity: 140
+      Organization: 130
+      Vessel: 130
+      CryptoWallet: 5
   max:
     schema_entities:
-      Company: 1300
-      Person: 480
-      LegalEntity: 210
-      Organization: 170
-      Vessel: 160
+      Company: 1400
+      Person: 850
+      LegalEntity: 340
+      Organization: 300
+      Vessel: 300
+      CryptoWallet: 50
 
 lookups:
   type.date:
@@ -62,3 +64,14 @@ lookups:
         value: 2003-01-03
       - match: ', previously registered as southfront.org since 30.4.2015'
         value: 2015-04-30
+  type.identifier:
+    options:
+      - match: 
+          - YBLWST14JJ39
+          - K7VGTQKBDX68
+          - 7838044584
+          - 381000781179
+          - 11177411001388
+          - 7715980551
+          - 7717727466
+        prop: registrationNumber

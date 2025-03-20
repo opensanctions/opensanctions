@@ -70,8 +70,6 @@ lookups:
         value: 1966-05-25
       - match: "08/1961,"
         value: 1961-08
-      - match: Entre août et septembre 1977,
-        value: 1977
       - match: au milieu des années 1940, probablement 1947 1947
         value: 1947
       - match: Othman Ahmed Othman Al Omairah 1973
@@ -140,8 +138,6 @@ lookups:
         value: 1963-05
       - match: 07/1961,
         value: 1961-07
-      - match: 04/1964,
-        value: 1964-04
       - match: Environ 1972
         value: 1972
       - match: Entre 1981 et 1983
@@ -168,10 +164,10 @@ lookups:
         values:
           - 1977
           - 1982
+      - match: Entre août et septembre 1977
+        value: 1977
       - match:
-          - Entre le 01/01/1961 et le 31/12/1963,
           - Entre le 01/01/1961 et le 31/12/1963
-          
           - au milieu des années 1940 1940,
           - entre 1975 et 1979
           - Entre 1965 et 1969
@@ -215,14 +211,6 @@ lookups:
           - "Présumée : RDC"
           - RDC
         value: cd
-      - match:
-          - FRANCE-ALGERIE
-        values:
-          - fr
-          - al
-      - match:
-          - Tchadienne
-        value: td
       - match:
           - SYRIE (présumée)
         value: sy

@@ -147,6 +147,10 @@ lookups:
         values:
           - 1960
           - 1962
+      - match: Aug. and Sep. 1977
+        values:
+          - 1977-08
+          - 1977-09
       - match: 
           - Kandahar
           - Logar

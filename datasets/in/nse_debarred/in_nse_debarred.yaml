@@ -131,6 +131,10 @@ lookups:
         value: Sanvan Software Ltd
       - match: AAACH4113J
         value: SYP Agro Foods Ltd
+      - match: 'Shri Shubh Karan Jain, Trade Name : S. K. Jain'
+        values: 
+          - Shri Shubh Karan Jain
+          - S. K. Jain
   type.url:
     options:
       - match: hhttps://archives.nseindia.com/content/circulars/INVG47850.zip

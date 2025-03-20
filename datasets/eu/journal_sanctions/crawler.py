@@ -11,6 +11,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity_type = row.pop("Type").strip()
     name = row.pop("Name").strip()
     country = row.pop("Country").strip()
+    reg_number = row.pop("registrationNumber").strip()
 
     context.log.info(f"Processing row ID {row_id}: {name}")
     entity = context.make(entity_type)
@@ -28,7 +29,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("alias", h.multi_split(row.pop("Alias"), ";"))
     entity.add_cast("Person", "passportNumber", h.multi_split(row.pop("passport"), ";"))
     entity.add("taxNumber", h.multi_split(row.pop("taxNumber"), ";"), quiet=True)
-    entity.add("registrationNumber", h.multi_split(row.pop("registrationNumber"), ";"))
     entity.add("idNumber", h.multi_split(row.pop("idNumber"), ";"), quiet=True)
     entity.add("imoNumber", row.pop("imoNumber"), quiet=True)
     entity.add("notes", row.pop("Notes").strip())
@@ -36,6 +36,10 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("address", h.multi_split(row.pop("Address", None), ";"), quiet=True)
     entity.add("gender", row.pop("Gender", None), quiet=True)
     entity.add("sourceUrl", h.multi_split(row.pop("Source URL"), ";"))
+    if "ru" in entity.get("country"):
+        entity.add("ogrnCode", h.multi_split(reg_number, ";"))
+    else:
+        entity.add("registrationNumber", h.multi_split(reg_number, ";"))
 
     for related_name in h.multi_split(row.pop("related"), ";"):
         related = context.make("LegalEntity")
