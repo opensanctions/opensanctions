@@ -1,6 +1,6 @@
 import openpyxl
 import re
-from typing import Dict, Set
+from typing import Dict, Set, Tuple
 
 from zavod import Context
 from zavod import helpers as h
@@ -34,43 +34,27 @@ def split_urls(value: str):
     return REGEX_URL_SPLIT.sub("\nhttp", value).split("\n")
 
 
-def get_associates(
-    context: Context,
-    name,
-    associates,
-    full_name,
-    original_name,
-):
-    result = context.lookup("associates", name)
-    if result is None:
-        context.log.warning(f"Potential candidate for associates: {name}")
-    if result and result.associates:
-        for associate_data in result.associates:
-            # Update associates
-            associates_names = associate_data.get("associates_names", [])
-            if associates_names:
-                associates.update(associates_names)
-            # Overwrite names based on which one was matched
-            entity_name = associate_data.get("entity")
-            if entity_name:
-                if name == full_name:
-                    full_name = entity_name
-                else:
-                    name = original_name
-                    original_name = entity_name
-    return full_name, original_name, associates
+def split_associates(context: Context, name):
+    if REGEX_POSSIBLE_ASSOCIATES.search(name):
+        result = context.lookup("associates", name)
+        if result is None:
+            context.log.warning(f"Potential candidate for associates: {name}")
+        else:
+            associates = set()
+            for associate in result.associates_names:
+                associates.add((associate, name))
+            return result.entity, name, associates
+    return name, name, set()
 
 
 def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
-    id = row.pop("entity_id")
-    name = row.pop("name")
-    full_name = row.pop("full_name")
+    id_ = row.pop("entity_id")
     # Skip entities
-    if name is None or id in SKIP_IDS:
-        skipped.add(id)
+    if id_ in SKIP_IDS:
+        skipped.add(id_)
         return
-    original_name = row.pop("name_local")
     reg_country = row.pop("registration_country")
+    headquarters_country = row.pop("headquarters_country")
     entity_type = row.pop("entity_type")
 
     if entity_type == "legal entity":
@@ -85,20 +69,31 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         schema = "Company"
 
     entity = context.make(schema)
-    entity.id = context.make_slug(id)
+    entity.id = context.make_slug(id_)
 
-    associates: Set[str] = set()
-    for name in [full_name, original_name]:
-        if name and REGEX_POSSIBLE_ASSOCIATES.search(name):
-            full_name, original_name, associates = get_associates(
-                context, name, associates, full_name, original_name
-            )
+    original_names = [
+        row.pop("name"),
+        row.pop("full_name"),
+        row.pop("name_local"),
+    ]
+    if not any(original_names):
+        names = [id_]
+    # (potentially trimmed name, original string)
+    associates: Set[Tuple[str, str]] = set()
+    names: Set[Tuple[str, str]] = set()
+    for name in original_names:
+        if name is None:
+            continue
+        name, orig_name, associates_ = split_associates(context, name)
+        names.add((name, orig_name))
+        associates.update(associates_)
 
     if associates:
-        for associate in associates:
+        for associate, orig_name in associates:
             other = context.make("LegalEntity")
             other.id = context.make_slug("named", associate)
-            other.add("name", associate)
+            other.add("name", associate, original_value=orig_name)
+            other.add("country", headquarters_country)
             context.emit(other)
 
             link = context.make("UnknownLink")
@@ -107,24 +102,24 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
             link.add("object", other)
             context.emit(link)
 
-    entity.add("name", name)
-    entity.add("name", full_name)
-    entity.add("name", original_name)
-    if aliases := row.pop("name_other") is not None:
+    for name, orig_name in names:
+        entity.add("name", name, original_value=orig_name)
+    aliases = row.pop("name_other")
+    if aliases is not None:
         for alias in h.multi_split(aliases, ALIAS_SPLITS):
-            entity.add("aliases", alias)
+            entity.add("alias", alias)
     entity.add("weakAlias", row.pop("abbreviation"))
-    if lei_code := row.pop("global_legal_entity_identifier_index") != "not found":
+    if (lei_code := row.pop("global_legal_entity_identifier_index")) != "not found":
         entity.add("leiCode", lei_code)
     if entity_type != "unknown entity":
         entity.add("description", entity_type)
     entity.add("legalForm", row.pop("legal_entity_type"))
     entity.add("country", reg_country)
-    entity.add("mainCountry", row.pop("headquarters_country"))
+    entity.add("mainCountry", headquarters_country)
     homepage = row.pop("home_page")
     if homepage:
         entity.add("website", split_urls(homepage))
-    if schema != "Person":
+    if not entity.schema.is_a("Person"):
         entity.add_cast(
             "Company", "permId", row.pop("permid_refinitiv_permanent_identifier")
         )
