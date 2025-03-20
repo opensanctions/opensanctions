@@ -66,119 +66,100 @@ lookups:
   associates:
     options:
       - match: '新疆生产建设兵团第二师财政局（铁门关市财政局、新疆生产建设兵团第二师国有资产监督管理委员会、铁门关市国有资产监督管理委员会、新疆生产建设兵团第二师金融工作办公室、铁门关市金融工作办公室）'
-        associates:
-          - entity: 新疆生产建设兵团第二师财政局
-            associates_names:
-              - 铁门关市财政局
-              - 新疆生产建设兵团第二师国有资产监督管理委员会
-              - 铁门关市国有资产监督管理委员会
-              - 新疆生产建设兵团第二师金融工作办公室
-              - 铁门关市金融工作办公室
+        entity: 新疆生产建设兵团第二师财政局
+        associates_names:
+          - 铁门关市财政局
+          - 新疆生产建设兵团第二师国有资产监督管理委员会
+          - 铁门关市国有资产监督管理委员会
+          - 新疆生产建设兵团第二师金融工作办公室
+          - 铁门关市金融工作办公室
       - match: 'Xinjiang Production and Construction Corps Second Division Finance Bureau (Tiemenguan City Finance Bureau, Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission, Tiemenguan City State-owned Assets Supervision and Administration Commission, Xinjiang Production and Construction Corps Second Division Financial Work Office, Tiemenguan City Financial Work Office)'
-        associates:
-          - entity: Xinjiang Production and Construction Corps Second Division Finance Bureau
-            associates_names:
-              - Tiemenguan City Finance Bureau
-              - Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission
-              - Tiemenguan City State-owned Assets Supervision and Administration Commission
-              - Xinjiang Production and Construction Corps Second Division Financial Work Office
-              - Tiemenguan City Financial Work Office
+        entity: Xinjiang Production and Construction Corps Second Division Finance Bureau
+        associates_names:
+          - Tiemenguan City Finance Bureau
+          - Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission
+          - Tiemenguan City State-owned Assets Supervision and Administration Commission
+          - Xinjiang Production and Construction Corps Second Division Financial Work Office
+          - Tiemenguan City Financial Work Office
       - match: Finance Bureau of Dinghai District, Zhoushan City (State-owned Assets Supervision and Administration Office of the People's Government of Dinghai District, Zhoushan City)
-        associates:
-          - entity: Finance Bureau of Dinghai District, Zhoushan City
-            associates_names:
-              - State-owned Assets Supervision and Administration Office of the People's Government of Dinghai District, Zhoushan City
+        entity: Finance Bureau of Dinghai District, Zhoushan City
+        associates_names:
+          - State-owned Assets Supervision and Administration Office of the People's Government of Dinghai District, Zhoushan City
       - match: Gaoping City Industry and Information Technology Bureau (Gaoping City Government State-owned Assets Supervision and Administration Bureau, Gaoping City Commerce Bureau, Gaoping City Private Economy Development Promotion Bureau)
-        associates:
-          - entity: Gaoping City Industry and Information Technology Bureau
-            associates_names:
-              - Gaoping City Government State-owned Assets Supervision and Administration Bureau
-              - Gaoping City Commerce Bureau
-              - Gaoping City Private Economy Development Promotion Bureau
+        entity: Gaoping City Industry and Information Technology Bureau
+        associates_names:
+          - Gaoping City Government State-owned Assets Supervision and Administration Bureau
+          - Gaoping City Commerce Bureau
+          - Gaoping City Private Economy Development Promotion Bureau
       - match: 高平市工业和信息化局（高平市政府国有资产监督管理局、高平市商务局、高平市民营经济发展促进局）
-        associates:
-          - entity: 高平市工业和信息化局
-            associates_names:
-              - 高平市政府国有资产监督管理局
-              - 高平市商务局
-              - 高平市民营经济发展促进局
+        entity: 高平市工业和信息化局
+        associates_names:
+          - 高平市政府国有资产监督管理局
+          - 高平市商务局
+          - 高平市民营经济发展促进局
       - match: Guizhou Financial Holding Group Co Ltd (Guizhou Guimin Investment Group Co., Ltd.)
-        associates:
-          - entity: Guizhou Financial Holding Group Co Ltd
-            associates_names: []
+        entity: Guizhou Financial Holding Group Co Ltd
+        associates_names: []
       - match: Hangzhou Qiantang New Area Management Committee (Hangzhou Linjiang High-tech Industrial Development Zone Management Committee, Hangzhou Comprehensive Bonded Zone Management Committee)
-        associates:
-          - entity: Hangzhou Qiantang New Area Management Committee
-            associates_names:
-              - Hangzhou Linjiang High-tech Industrial Development Zone Management Committee
-              - Hangzhou Comprehensive Bonded Zone Management Committee
+        entity: Hangzhou Qiantang New Area Management Committee
+        associates_names:
+          - Hangzhou Linjiang High-tech Industrial Development Zone Management Committee
+          - Hangzhou Comprehensive Bonded Zone Management Committee
       - match: 杭州钱塘新区管理委员会（杭州临江高新技术产业开发区管理委员会、杭州综合保税区管理委员会）
-        associates:
-          - entity: 杭州钱塘新区管理委员会
-            associates_names:
-              - 杭州临江高新技术产业开发区管理委员会
-              - 杭州综合保税区管理委员会
+        entity: 杭州钱塘新区管理委员会
+        associates_names:
+          - 杭州临江高新技术产业开发区管理委员会
+          - 杭州综合保税区管理委员会
       - match: Huadian Luohe Power Generation Co Ltd (sichuan Power , Shandong Power)
-        associates:
-          - entity: Huadian Luohe Power Generation Co Ltd
-            associates_names:
-              - Sichuan Power
-              - Shandong Power
+        entity: Huadian Luohe Power Generation Co Ltd
+        associates_names:
+          - Sichuan Power
+          - Shandong Power
       - match: Liulin County Bureau of Industry and Information Technology (State-owned Assets Supervision and Administration Bureau of Liulin County Government, Liulin County Bureau of Commerce, Liulin County Private Economic Development Promotion Bureau)
-        associates:
-          - entity: Liulin County Bureau of Industry and Information Technology
-            associates_names:
-              - State-owned Assets Supervision and Administration Bureau of Liulin County Government
-              - Liulin County Bureau of Commerce
-              - Liulin County Private Economic Development Promotion Bureau
+        entity: Liulin County Bureau of Industry and Information Technology
+        associates_names:
+          - State-owned Assets Supervision and Administration Bureau of Liulin County Government
+          - Liulin County Bureau of Commerce
+          - Liulin County Private Economic Development Promotion Bureau
       - match: 柳林县工业和信息化局（柳林县政府国有资产监督管理局、柳林县商务局、柳林县民营经济发展促进局）
-        associates:
-          - entity: 柳林县工业和信息化局
-            associates_names:
-              - 柳林县政府国有资产监督管理局
-              - 柳林县商务局
-              - 柳林县民营经济发展促进局
+        entity: 柳林县工业和信息化局
+        associates_names:
+          - 柳林县政府国有资产监督管理局
+          - 柳林县商务局
+          - 柳林县民营经济发展促进局
       - match: Shouda Holdings Limited (Hong Kong, China)
-        associates:
-          - entity: Shouda Holdings Limited
-            associates_names: []
+        entity: Shouda Holdings Limited
+        associates_names: []
       - match: The People's Government of Jiangning District, Nanjing (authorizes the State-owned Assets Management Office of Jiangning District, Nanjing to perform the duties of the investor)
-        associates:
-          - entity: The People's Government of Jiangning District, Nanjing
-            associates_names:
-              - State-owned Assets Management Office of Jiangning District, Nanjing
+        entity: The People's Government of Jiangning District, Nanjing
+        associates_names:
+          - State-owned Assets Management Office of Jiangning District, Nanjing
       - match: TIANHAN DEVELOPMENT LIMITED (Tianhan Development Co., Ltd.)
-        associates:
-          - entity: TIANHAN DEVELOPMENT LIMITED
-            associates_names: []
+        entity: TIANHAN DEVELOPMENT LIMITED
+        associates_names: []
       - match: 通辽市经济和信息化委员会（通辽市国有资产监督管理局、通辽市中小企业局）
-        associates:
-          - entity: 通辽市经济和信息化委员会
-            associates_names:
-              - 通辽市国有资产监督管理局
-              - 通辽市中小企业局
+        entity: 通辽市经济和信息化委员会
+        associates_names:
+          - 通辽市国有资产监督管理局
+          - 通辽市中小企业局
       - match: Xing'an Holdings Limited (Hong Kong, China)
-        associates:
-          - entity: Xing'an Holdings Limited
-            associates_names: []
+        entity: Xing'an Holdings Limited
+        associates_names: []
       - match: Yuncheng Bureau of Industry and Information Technology (State-owned Assets Supervision and Administration Commission of Yuncheng People's Government, Yuncheng Private Economy Development Promotion Bureau)
-        associates:
-          - entity: Yuncheng Bureau of Industry and Information Technology
-            associates_names:
-              - State-owned Assets Supervision and Administration Commission of Yuncheng People's Government
-              - Yuncheng Private Economy Development Promotion Bureau
+        entity: Yuncheng Bureau of Industry and Information Technology
+        associates_names:
+          - State-owned Assets Supervision and Administration Commission of Yuncheng People's Government
+          - Yuncheng Private Economy Development Promotion Bureau
       - match: 运城市工业和信息化局（运城市人民政府国有资产监督管理委员会、运城市民营经济发展促进局）
-        associates:
-          - entity: 运城市工业和信息化局
-            associates_names:
-              - 运城市人民政府国有资产监督管理委员会
-              - 运城市民营经济发展促进局
+        entity: 运城市工业和信息化局
+        associates_names:
+          - 运城市人民政府国有资产监督管理委员会
+          - 运城市民营经济发展促进局
       - match: Tongliao Economic and Information Commission (Tongliao State-owned Assets Supervision and Administration Bureau, Tongliao Small and Medium Enterprise Bureau)
-        associates:
-          - entity: Tongliao Economic and Information Commission
-            associates_names:
-              - Tongliao State-owned Assets Supervision and Administration Bureau
-              - Tongliao Small and Medium Enterprise Bureau
+        entity: Tongliao Economic and Information Commission
+        associates_names:
+          - Tongliao State-owned Assets Supervision and Administration Bureau
+          - Tongliao Small and Medium Enterprise Bureau
   type.name: 
     options:
       - match: 'China Electric Power International New Energy Holdings, China Electric Power International New Energy Holdings Limited, China Electric Power International New Energy Holdings LTD, China Power International New Energy CO LTD, China Power International New Energy Holding Ltd., China Power International New Energy Holding LTD, China Power International New Energy Holdings CO LTD, CLP International New Energy Holdings CO LTD'
