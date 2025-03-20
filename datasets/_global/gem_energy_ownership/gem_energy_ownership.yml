@@ -44,7 +44,7 @@ assertions:
   min:
     schema_entities:
       Company: 12000
-      LegalEntity: 20
+      LegalEntity: 30
       PublicBody: 900
       Person: 1
     country_entities:
@@ -58,7 +58,7 @@ assertions:
   max:
     schema_entities:
       Company: 27000
-      LegalEntity: 50
+      LegalEntity: 100
       PublicBody: 2000
       Person: 50
 
