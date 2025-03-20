@@ -1,114 +1,147 @@
 import openpyxl
 import re
-from typing import Dict, Set
+from typing import Dict, Set, Tuple
 
 from zavod import Context
 from zavod import helpers as h
 
+
+# Unique entity types
+# {"person", "unknown entity", "state", "legal entity", "arrangement", "state body"}
+
 IGNORE = [
-    "sequence_no",
-    "us_eia_860",
-    "parent_entity_ids",
-    "parents",
-    "headquarters_country",
-    "publicly_listed",
-    "decision_date",
-    "gcpt_announced_mw",
-    "gcpt_cancelled_mw",
-    "gcpt_construction_mw",
-    "gcpt_mothballed_mw",
-    "gcpt_operating_mw",
-    "gcpt_permitted_mw",
-    "gcpt_pre_permit_mw",
-    "gcpt_retired_mw",
-    "gcpt_shelved_mw",
-    "gogpt_announced_mw",
-    "gogpt_cancelled_mw",
-    "gogpt_construction_mw",
-    "gogpt_mothballed_mw",
-    "gogpt_operating_mw",
-    "gogpt_pre_construction_mw",
-    "gogpt_retired_mw",
-    "gogpt_shelved_mw",
-    "gbpt_announced_mw",
-    "gbpt_construction_mw",
-    "gbpt_mothballed_mw",
-    "gbpt_operating_mw",
-    "gbpt_pre_construction_mw",
-    "gbpt_retired_mw",
-    "gbpt_shelved_mw",
-    "gbpt_cancelled_mw",
-    "gcmt_proposed_mtpa",
-    "gcmt_operating_mtpa",
-    "gcmt_shelved_mtpa",
-    "gcmt_mothballed_mtpa",
-    "gcmt_cancelled_mtpa",
-    "gspt_operating_ttpa",
-    "gspt_announced_ttpa",
-    "gspt_construction_ttpa",
-    "gspt_retired_ttpa",
-    "gspt_operating_pre_retirement_ttpa",
-    "gspt_mothballed_ttpa",
-    "gspt_cancelled_ttpa",
-    "total",
+    "registration_subdivision",
+    "publiclylisted",
+    "registration_subdivision",
+    "headquarters_subdivision",
+    "gem_parents",
+    "gem_parents_ids",
 ]
+ALIAS_SPLITS = ["[former],", "[former]", "[former name]", "(former)"]
 SKIP_IDS = {
     "E100001015587",  # Small shareholders
-    "E100000132388",  # Unknown
-    "E100000001753",  # Other
     "E100000126067",  # Non-promoter shareholders
     "E100000125842",  # Co-investment by natural persons
     "E100000123261",  # natural persons
 }
-SELF_OWNED = {"E100000002239"}
-STATIC_URL = "https://data.opensanctions.org/contrib/globalenergy/Global_Energy_Ownership_Tracker_June_2024.xlsx"
+SELF_OWNED = {"E100000002236"}
+STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/02/Global-Energy-Ownership-Tracker-February-2025.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
+REGEX_POSSIBLE_ASSOCIATES = re.compile(r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)")
 
 
 def split_urls(value: str):
     return REGEX_URL_SPLIT.sub("\nhttp", value).split("\n")
 
 
+def split_associates(context: Context, name):
+    if REGEX_POSSIBLE_ASSOCIATES.search(name):
+        result = context.lookup("associates", name)
+        if result is None:
+            context.log.warning(f"Potential candidate for associates: {name}")
+        else:
+            associates = set()
+            for associate in result.associates_names:
+                associates.add((associate, name))
+            return result.entity, name, associates
+    return name, name, set()
+
+
 def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
-    id = row.pop("entity_id")
-    name = row.pop("entity_name")
+    id_ = row.pop("entity_id")
     # Skip entities
-    if name is None or id in SKIP_IDS:
-        skipped.add(id)
+    if id_ in SKIP_IDS:
+        skipped.add(id_)
         return
-    original_name = row.pop("name_local")
     reg_country = row.pop("registration_country")
-    lei_code = row.pop("legal_entity_identifier")
+    headquarters_country = row.pop("headquarters_country")
     entity_type = row.pop("entity_type")
 
     if entity_type == "legal entity":
         schema = "Company"
+    elif entity_type == "arrangement":
+        schema = "LegalEntity"
     elif entity_type == "state body" or entity_type == "state":
         schema = "PublicBody"
     elif entity_type == "person":
         schema = "Person"
     else:
-        schema = "Company"  # 3 universities end up being companies
+        schema = "Company"
 
     entity = context.make(schema)
-    entity.id = context.make_slug(id)
+    entity.id = context.make_slug(id_)
 
-    entity.add("name", name)
-    entity.add("name", original_name)
-    entity.add("alias", row.pop("name_other"))
+    original_names = [
+        row.pop("name"),
+        row.pop("full_name"),
+        row.pop("name_local"),
+    ]
+    if not any(original_names):
+        names = [id_]
+    # (potentially trimmed name, original string)
+    associates: Set[Tuple[str, str]] = set()
+    names: Set[Tuple[str, str]] = set()
+    for name in original_names:
+        if name is None:
+            continue
+        name, orig_name, associates_ = split_associates(context, name)
+        names.add((name, orig_name))
+        associates.update(associates_)
+
+    if associates:
+        for associate, orig_name in associates:
+            other = context.make("LegalEntity")
+            other.id = context.make_slug("named", associate)
+            other.add("name", associate, original_value=orig_name)
+            other.add("country", headquarters_country)
+            context.emit(other)
+
+            link = context.make("UnknownLink")
+            link.id = context.make_id(entity.id, other.id)
+            link.add("subject", entity)
+            link.add("object", other)
+            context.emit(link)
+
+    for name, orig_name in names:
+        entity.add("name", name, original_value=orig_name)
+    aliases = row.pop("name_other")
+    if aliases is not None:
+        for alias in h.multi_split(aliases, ALIAS_SPLITS):
+            entity.add("alias", alias)
     entity.add("weakAlias", row.pop("abbreviation"))
-    if lei_code != "unknown":
+    if (lei_code := row.pop("global_legal_entity_identifier_index")) != "not found":
         entity.add("leiCode", lei_code)
     if entity_type != "unknown entity":
         entity.add("description", entity_type)
+    entity.add("legalForm", row.pop("legal_entity_type"))
     entity.add("country", reg_country)
+    entity.add("mainCountry", headquarters_country)
     homepage = row.pop("home_page")
     if homepage:
         entity.add("website", split_urls(homepage))
-    if schema != "Person":
-        entity.add("permId", row.pop("refinitiv_permid"))
-        if schema != "PublicBody":
-            entity.add("cikCode", row.pop("sec_central_index_key"))
+    if not entity.schema.is_a("Person"):
+        entity.add_cast(
+            "Company", "permId", row.pop("permid_refinitiv_permanent_identifier")
+        )
+        ru_id = row.pop(
+            "russia_uniform_state_register_of_legal_entities_of_russian_federation"
+        )
+        entity.add("ogrnCode", ru_id)
+        br_id = row.pop(
+            "brazil_national_registry_of_legal_entities_federal_revenue_service"
+        )
+        entity.add("registrationNumber", br_id)
+        entity.add("registrationNumber", row.pop("uk_companies_house"))
+        in_id = row.pop(
+            "india_corporate_identification_number_ministry_of_corporate_affairs"
+        )
+        entity.add("registrationNumber", in_id)
+        entity.add("registrationNumber", row.pop("us_eia"))
+        entity.add("registrationNumber", row.pop("s_p_capital_iq"))
+        if entity.schema.is_a("PublicBody"):
+            entity.add("registrationNumber", row.pop("us_sec_central_index_key"))
+        else:
+            entity.add_cast("Company", "cikCode", row.pop("us_sec_central_index_key"))
     address = h.format_address(
         country=reg_country,
         state=row.pop("registration_subdivision"),
@@ -126,7 +159,6 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
 def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     subject_entity_id = row.pop("subject_entity_id")
     interested_party_id = row.pop("interested_party_id")
-    interested_party_name = row.pop("interested_party_name")
 
     # Skip the relationship if either ID is in the skipped set
     if subject_entity_id in skipped or interested_party_id in skipped:
@@ -136,8 +168,6 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
         return
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(interested_party_id)
-    entity.add("name", interested_party_name)
-    context.emit(entity)
 
     ownership = context.make("Ownership")
     ownership.id = context.make_id(subject_entity_id, interested_party_id)
@@ -149,9 +179,7 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     if source_urls is not None:
         ownership.add("sourceUrl", split_urls(source_urls))
 
-    context.audit_data(
-        row, ignore=["subject_entity_name", "interested_party_name", "index"]
-    )
+    context.audit_data(row, ignore=["subject_entity_name", "interested_party_name"])
     context.emit(ownership)
 
 
@@ -162,9 +190,7 @@ def crawl(context: Context):
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     skipped: Set[str] = set()
 
-    for row in h.parse_xlsx_sheet(context, sheet=workbook["Immediate Owner Entities"]):
+    for row in h.parse_xlsx_sheet(context, sheet=workbook["All Entities"]):
         crawl_company(context, row, skipped)
-    for row in h.parse_xlsx_sheet(context, sheet=workbook["Parent Entities"]):
-        crawl_company(context, row, skipped)
-    for row in h.parse_xlsx_sheet(context, sheet=workbook["Entity Relationships"]):
+    for row in h.parse_xlsx_sheet(context, sheet=workbook["Entity Ownership"]):
         crawl_rel(context, row, skipped)

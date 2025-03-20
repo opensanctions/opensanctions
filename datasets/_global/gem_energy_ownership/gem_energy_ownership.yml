@@ -44,21 +44,187 @@ assertions:
   min:
     schema_entities:
       Company: 12000
+      LegalEntity: 30
+      PublicBody: 900
+      Person: 1
+    country_entities:
+      cn: 6400
+      us: 1500
+      in: 700
+      id: 590
+      ru: 400
+      gb: 400
+    countries: 150
   max:
     schema_entities:
-      Company: 17000
+      Company: 27000
+      LegalEntity: 100
+      PublicBody: 2000
+      Person: 50
 
 lookups:
-  type.url:
-    lowercase: true
+  associates:
     options:
-      - match: nan,nan
-        value: null
-      - match: nan
+      - match: '新疆生产建设兵团第二师财政局（铁门关市财政局、新疆生产建设兵团第二师国有资产监督管理委员会、铁门关市国有资产监督管理委员会、新疆生产建设兵团第二师金融工作办公室、铁门关市金融工作办公室）'
+        entity: 新疆生产建设兵团第二师财政局
+        associates_names:
+          - 铁门关市财政局
+          - 新疆生产建设兵团第二师国有资产监督管理委员会
+          - 铁门关市国有资产监督管理委员会
+          - 新疆生产建设兵团第二师金融工作办公室
+          - 铁门关市金融工作办公室
+      - match: 'Xinjiang Production and Construction Corps Second Division Finance Bureau (Tiemenguan City Finance Bureau, Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission, Tiemenguan City State-owned Assets Supervision and Administration Commission, Xinjiang Production and Construction Corps Second Division Financial Work Office, Tiemenguan City Financial Work Office)'
+        entity: Xinjiang Production and Construction Corps Second Division Finance Bureau
+        associates_names:
+          - Tiemenguan City Finance Bureau
+          - Xinjiang Production and Construction Corps Second Division State-owned Assets Supervision and Administration Commission
+          - Tiemenguan City State-owned Assets Supervision and Administration Commission
+          - Xinjiang Production and Construction Corps Second Division Financial Work Office
+          - Tiemenguan City Financial Work Office
+      - match: Finance Bureau of Dinghai District, Zhoushan City (State-owned Assets Supervision and Administration Office of the People's Government of Dinghai District, Zhoushan City)
+        entity: Finance Bureau of Dinghai District, Zhoushan City
+        associates_names:
+          - State-owned Assets Supervision and Administration Office of the People's Government of Dinghai District, Zhoushan City
+      - match: Gaoping City Industry and Information Technology Bureau (Gaoping City Government State-owned Assets Supervision and Administration Bureau, Gaoping City Commerce Bureau, Gaoping City Private Economy Development Promotion Bureau)
+        entity: Gaoping City Industry and Information Technology Bureau
+        associates_names:
+          - Gaoping City Government State-owned Assets Supervision and Administration Bureau
+          - Gaoping City Commerce Bureau
+          - Gaoping City Private Economy Development Promotion Bureau
+      - match: 高平市工业和信息化局（高平市政府国有资产监督管理局、高平市商务局、高平市民营经济发展促进局）
+        entity: 高平市工业和信息化局
+        associates_names:
+          - 高平市政府国有资产监督管理局
+          - 高平市商务局
+          - 高平市民营经济发展促进局
+      - match: Guizhou Financial Holding Group Co Ltd (Guizhou Guimin Investment Group Co., Ltd.)
+        entity: Guizhou Financial Holding Group Co Ltd
+        associates_names: []
+      - match: Hangzhou Qiantang New Area Management Committee (Hangzhou Linjiang High-tech Industrial Development Zone Management Committee, Hangzhou Comprehensive Bonded Zone Management Committee)
+        entity: Hangzhou Qiantang New Area Management Committee
+        associates_names:
+          - Hangzhou Linjiang High-tech Industrial Development Zone Management Committee
+          - Hangzhou Comprehensive Bonded Zone Management Committee
+      - match: 杭州钱塘新区管理委员会（杭州临江高新技术产业开发区管理委员会、杭州综合保税区管理委员会）
+        entity: 杭州钱塘新区管理委员会
+        associates_names:
+          - 杭州临江高新技术产业开发区管理委员会
+          - 杭州综合保税区管理委员会
+      - match: Huadian Luohe Power Generation Co Ltd (sichuan Power , Shandong Power)
+        entity: Huadian Luohe Power Generation Co Ltd
+        associates_names:
+          - Sichuan Power
+          - Shandong Power
+      - match: Liulin County Bureau of Industry and Information Technology (State-owned Assets Supervision and Administration Bureau of Liulin County Government, Liulin County Bureau of Commerce, Liulin County Private Economic Development Promotion Bureau)
+        entity: Liulin County Bureau of Industry and Information Technology
+        associates_names:
+          - State-owned Assets Supervision and Administration Bureau of Liulin County Government
+          - Liulin County Bureau of Commerce
+          - Liulin County Private Economic Development Promotion Bureau
+      - match: 柳林县工业和信息化局（柳林县政府国有资产监督管理局、柳林县商务局、柳林县民营经济发展促进局）
+        entity: 柳林县工业和信息化局
+        associates_names:
+          - 柳林县政府国有资产监督管理局
+          - 柳林县商务局
+          - 柳林县民营经济发展促进局
+      - match: Shouda Holdings Limited (Hong Kong, China)
+        entity: Shouda Holdings Limited
+        associates_names: []
+      - match: The People's Government of Jiangning District, Nanjing (authorizes the State-owned Assets Management Office of Jiangning District, Nanjing to perform the duties of the investor)
+        entity: The People's Government of Jiangning District, Nanjing
+        associates_names:
+          - State-owned Assets Management Office of Jiangning District, Nanjing
+      - match: TIANHAN DEVELOPMENT LIMITED (Tianhan Development Co., Ltd.)
+        entity: TIANHAN DEVELOPMENT LIMITED
+        associates_names: []
+      - match: 通辽市经济和信息化委员会（通辽市国有资产监督管理局、通辽市中小企业局）
+        entity: 通辽市经济和信息化委员会
+        associates_names:
+          - 通辽市国有资产监督管理局
+          - 通辽市中小企业局
+      - match: Xing'an Holdings Limited (Hong Kong, China)
+        entity: Xing'an Holdings Limited
+        associates_names: []
+      - match: Yuncheng Bureau of Industry and Information Technology (State-owned Assets Supervision and Administration Commission of Yuncheng People's Government, Yuncheng Private Economy Development Promotion Bureau)
+        entity: Yuncheng Bureau of Industry and Information Technology
+        associates_names:
+          - State-owned Assets Supervision and Administration Commission of Yuncheng People's Government
+          - Yuncheng Private Economy Development Promotion Bureau
+      - match: 运城市工业和信息化局（运城市人民政府国有资产监督管理委员会、运城市民营经济发展促进局）
+        entity: 运城市工业和信息化局
+        associates_names:
+          - 运城市人民政府国有资产监督管理委员会
+          - 运城市民营经济发展促进局
+      - match: Tongliao Economic and Information Commission (Tongliao State-owned Assets Supervision and Administration Bureau, Tongliao Small and Medium Enterprise Bureau)
+        entity: Tongliao Economic and Information Commission
+        associates_names:
+          - Tongliao State-owned Assets Supervision and Administration Bureau
+          - Tongliao Small and Medium Enterprise Bureau
+  type.name: 
+    options:
+      - match: 'China Electric Power International New Energy Holdings, China Electric Power International New Energy Holdings Limited, China Electric Power International New Energy Holdings LTD, China Power International New Energy CO LTD, China Power International New Energy Holding Ltd., China Power International New Energy Holding LTD, China Power International New Energy Holdings CO LTD, CLP International New Energy Holdings CO LTD'
+        values:
+          - China Electric Power International New Energy Holdings
+          - China Electric Power International New Energy Holdings Limited
+          - China Electric Power International New Energy Holdings LTD
+          - China Power International New Energy CO LTD
+          - China Power International New Energy Holding Ltd.
+          - China Power International New Energy Holdings CO LTD
+          - CLP International New Energy Holdings CO LTD
+          - 中电国际新能源（上海）控股有限公司
+          - China Power International New Energy (Shanghai) Holdings
+  type.url:
+    options:
+      - match: 
+          - Borås Energy and Environment
+          - nan
+          - nan,nan
         value: null
   type.identifier:
     options:
-      - match: U45100TG2012PTC084829
-        prop: registrationNumber
-      - match: L40100GJ1996PLC030533
+      - match:
+          - 2323025302
+          - 7708117908
+          - 8709908421
+          - 1901116203
+          - 2723169179
+          - 7734345499
+          - 9308017740
+          - 7705974044
+          - 5247046110
+          - 5247056446
+          - 4218000951
+          - 8904091905
+          - 7838306818
+          - 7709769582
+          - 5504036333
+          - 9705138011
+          - 6505009711
+          - 4205227786
+          - 2460237926
+          - 5247056453
+          - 5247056573
+          - 7708004767
+          - 5247056439
+          - 7707332067
+          - 4214033674
+          - 4232000174
+          - 4205224802
+          - 9403001469
+          - 8913006455
+          - 7706107510
+          - 7705529981
+          - 7719529999
+          - 8700000346
+          - 7727547261
+          - 7736035485
+          - 6168113365
+          - 7750004150
+          - 5001087194
+          - 4234001215
+          - 1644003838
+          - 4205299149
+          - 7707471416
+          - 7536165222
+          - 3442123614
         prop: registrationNumber
