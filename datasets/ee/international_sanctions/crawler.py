@@ -65,7 +65,7 @@ def crawl_item_human_rights(context: Context, source_url, raw_name: str):
 
 
 def crawl_item_rus(context: Context, source_url, raw_name: str):
-    match = re.search(r"^\d+\.", raw_name)
+    match = re.search(r"^\d+\.\d*\.?", raw_name)
     if match:
         prefix = match.group()
         name_part = raw_name[len(prefix) :]
