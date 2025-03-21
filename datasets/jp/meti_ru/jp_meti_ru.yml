@@ -2,10 +2,12 @@ title: Japan METI Russian List
 entry_point: crawler.py
 prefix: jp-meti-ru
 coverage:
-  frequency: weekly
-  start: 2025-03-10
+  frequency: never
+  start: 2025-03-18
+  end: 2025-03-14  # last update of the spreadsheet
+deploy:
+  schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-ci_test: false
 summary: >-
   Export and service restrictions to Russia, Belarus, and designated third-country entities 
   under Japan's Foreign Exchange and Foreign Trade Law.
