@@ -1,5 +1,8 @@
+import json
 from typing import Dict
 import re
+
+from rigour.mime.types import JSON
 
 from zavod import Context, helpers as h
 
@@ -12,8 +15,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     # Clean the name by removing numbers in parentheses
     # The number means the number of cases against the person
     name = re.sub(r"\s*\(\d+\)\s*$", "", name)
-    # MKK Registration Number - not clear whether this applies to the person or
-    # the security.
+    # MKK Registration Number
     # MKK (https://www.mkk.com.tr/en/) is the central registry and securities
     # depository of Türkiye who is responsible for the central custody and
     # dematerialization* of capital market instruments
@@ -24,6 +26,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("name", name)
     entity.add("country", "tr")
     entity.add("topics", "reg.action")
+    entity.add("idNumber", mkk_number)
 
     # Create sanction
     sanction = h.make_sanction(context, entity)
@@ -61,5 +64,9 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl(context: Context) -> None:
-    for item in context.fetch_json(context.data_url):
+    path = context.fetch_resource("source.json", context.data_url)
+    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+    with open(path, "r") as file:
+        data = json.load(file)
+    for item in data:
         crawl_item(item, context)
