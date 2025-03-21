@@ -18,7 +18,7 @@ def extract_judicial_declaration(context, url, doc_id_date) -> Dict[str, Optiona
     """Extract name, role, and organization from the first page of a judicial declaration PDF."""
 
     pdf_path = context.fetch_resource(f"{doc_id_date}.pdf", url)
-    context.export_resource(pdf_path, PDF)
+    # context.export_resource(pdf_path, PDF)
 
     extracted_data = {}
     try:
