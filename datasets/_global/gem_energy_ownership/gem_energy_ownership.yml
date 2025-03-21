@@ -45,7 +45,7 @@ assertions:
     schema_entities:
       Company: 12000
       LegalEntity: 30
-      PublicBody: 900
+      Organization: 900
       Person: 1
     country_entities:
       cn: 6400
@@ -59,7 +59,7 @@ assertions:
     schema_entities:
       Company: 27000
       LegalEntity: 100
-      PublicBody: 2000
+      Organization: 2000
       Person: 50
 
 lookups:
@@ -228,3 +228,5 @@ lookups:
           - 7536165222
           - 3442123614
         prop: registrationNumber
+      - match: not found
+        value: null

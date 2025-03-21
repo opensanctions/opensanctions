@@ -65,10 +65,13 @@ def crawl_item_human_rights(context: Context, source_url, raw_name: str):
 
 
 def crawl_item_rus(context: Context, source_url, raw_name: str):
-    match = re.search(r"^\d+\.\d*\.?\s*([^(\n]+)(?:\s*\(also\s*([^)]+)\))?", raw_name)
+    match = re.search(r"^\d+\.\d*\.?", raw_name)
     if match:
-        name = match.group(1).strip()
-        alias = match.group(2).strip() if match.group(2) else []
+        prefix = match.group()
+        name_part = raw_name[len(prefix) :]
+        parts = h.multi_split(name_part, [" (also ", " ("])
+        name = parts[0].strip()
+        alias = parts[1].rstrip(")") if len(parts) > 1 else ""
     else:
         context.log.warning("Could not parse name", raw_name)
 
@@ -143,19 +146,13 @@ def crawl_human_rights(context, url):
 def crawl_rus(context, url):
     doc = context.fetch_html(url)
     main_container = doc.xpath(".//article")
-    h.assert_dom_hash(main_container[0], "64d916cd12a0c668a6fab43ad75d060e31a3eaff")
+    h.assert_dom_hash(main_container[0], "ee2ce6c8eaec412ae93ecb4e38a305ba627d7a47")
     assert len(main_container) == 1, (
         main_container,
         "Could not find the main container",
     )
     raw_names = main_container[0].findall(".//p")
-    last_updated = main_container[0].xpath(".//p[contains(text(), 'Last updated')]")
-    assert len(last_updated) == 1, (
-        last_updated,
-        "Could not find the last updated date",
-    )
-    # Get the text from each <p> tag, excluding the 'Last updated' one
-    names = [p.text_content() for p in raw_names if p not in last_updated]
+    names = [p.text_content() for p in raw_names]
     for raw_name in names:
         crawl_item_rus(context, url, raw_name)
 

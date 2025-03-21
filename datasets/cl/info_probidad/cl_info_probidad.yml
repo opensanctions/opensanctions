@@ -165,6 +165,7 @@ lookups:
           - SOPORTE TECNICO
           - SOPORTE TECNICO
           - BODEGUERO
+          - ESPECIALISTA EN SONIDO
 
       - is_pep: null  # haven't looked closely yet
         match:
