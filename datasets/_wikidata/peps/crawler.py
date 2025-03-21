@@ -1,4 +1,3 @@
-import time
 from collections import defaultdict
 from typing import Dict, Optional, Any, List, Generator
 from fingerprints import clean_brackets
@@ -9,10 +8,10 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import PositionCategorisation, categorise
-from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
+from zavod.shed.wikidata.query import run_raw_query, CACHE_MEDIUM
+from zavod.shed.wikidata.struct import SparqlValue
 
 DECISION_NATIONAL = "national"
-RETRIES = 5
 
 
 def keyword(topics: List[str]) -> Optional[str]:
@@ -108,24 +107,32 @@ def query_position_holders(
     context.log.info(
         f"Crawling holders of position {wd_position['qid']} ({wd_position['label']})"
     )
-    vars = {"POSITION": wd_position["qid"]}
-    for i in range(1, RETRIES):
-        try:
-            response = run_query(
-                context,
-                "holders/holders",
-                vars,
-                cache_days=CACHE_MEDIUM * i,
-            )
-            break
-        except Exception as e:
-            context.log.info(
-                f"Holder query failed, retrying {i}/{RETRIES}",
-                error=str(e),
-            )
-            if i == RETRIES - 1:
-                raise e
-            time.sleep(i)
+    holders_query = f"""
+        SELECT
+        ?person ?personLabel ?ps
+        ?body ?bodyLabel ?bodyInception ?bodyStart ?bodyAbolished ?bodyEnd
+        ?birth ?death ?positionStart ?positionEnd
+        WHERE {{
+            ?ps ps:P39 wd:{wd_position["qid"]} .
+            ?person p:P39 ?ps .
+            ?person wdt:P31 wd:Q5 .  
+            FILTER NOT EXISTS {{ ?ps wikibase:rank wikibase:DeprecatedRank }}
+            OPTIONAL {{ ?person p:P569 [ a wikibase:BestRank ; psv:P569 [ wikibase:timeValue ?birth ] ] }}
+            OPTIONAL {{ ?person p:P570 [ a wikibase:BestRank ; psv:P570 [ wikibase:timeValue ?death ] ] }}
+            OPTIONAL {{ ?ps pqv:P580 [ wikibase:timeValue ?positionStart ] }}
+            OPTIONAL {{ ?ps pqv:P582 [ wikibase:timeValue ?positionEnd ] }}
+
+            OPTIONAL {{
+            ?ps pq:P5054|pq:P2937 ?body .
+            OPTIONAL {{ ?body p:P571 [ a wikibase:BestRank ; psv:P571 [ wikibase:timeValue ?bodyInception ] ] }}
+            OPTIONAL {{ ?body p:P580 [ a wikibase:BestRank ; psv:P580 [ wikibase:timeValue ?bodyStart ] ] }}
+            OPTIONAL {{ ?body p:P576 [ a wikibase:BestRank ; psv:P576 [ wikibase:timeValue ?bodyAbolished ] ] }}
+            OPTIONAL {{ ?body p:P582 [ a wikibase:BestRank ; psv:P582 [ wikibase:timeValue ?bodyEnd ] ] }}
+            }}
+        SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr". }}
+        }}
+    """
+    response = run_raw_query(context, holders_query, cache_days=CACHE_MEDIUM)
 
     for binding in response.results:
         if not is_qid(binding.plain("person")):
@@ -160,33 +167,44 @@ def query_positions(
     position_countries = defaultdict(set)
 
     # a.1) Instances of one or more subclasses of Q4164871 (position) by jurisdiction/country
-    country_results = []
+    country_results: List[SparqlValue] = []
     for position_class in position_classes:
         context.log.info(
             f"Querying descendants of {position_class['qid']} ({position_class['label']})"
         )
-        vars = {
-            "COUNTRY": country["qid"],
-            "CLASS": position_class.get("qid"),
-            "RELATION": "wdt:P31/wdt:P279*",
-        }
-        country_response = run_query(
+        class_qid = position_class.get("qid")
+        country_query = f"""
+        SELECT ?position ?positionLabel ?country ?jurisdiction ?abolished WHERE {{
+            {{ SELECT ?position WHERE {{ ?position "wdt:P31/wdt:P279*" wd:{class_qid} . }} }}
+            {{ SELECT ?position WHERE {{ ?position wdt:P1001|wdt:P17 wd:{country["qid"]} . }} }}
+            OPTIONAL {{ ?position wdt:P17 ?country }}
+            OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
+            OPTIONAL {{ ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }}
+            SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr". }}
+        }}
+        GROUP BY ?position ?positionLabel ?country ?jurisdiction ?abolished
+        """
+        country_response = run_raw_query(
             context,
-            "positions/country",
-            vars,
+            country_query,
             cache_days=CACHE_MEDIUM,
         )
         country_results.extend(country_response.results)
+
     # a.2) Instances of Q4164871 (position) by jurisdiction/country
     context.log.info("Querying instances of Q4164871 (position)")
-    vars = {
-        "COUNTRY": country["qid"],
-        "CLASS": "Q4164871",
-        "RELATION": "wdt:P31",
-    }
-    country_response = run_query(
-        context, "positions/country", vars, cache_days=CACHE_MEDIUM
-    )
+    country_query = f"""
+        SELECT ?position ?positionLabel ?country ?jurisdiction ?abolished WHERE {{
+            {{ SELECT ?position WHERE {{ ?position "wdt:P31*" wd:Q4164871 . }} }}
+            {{ SELECT ?position WHERE {{ ?position wdt:P1001|wdt:P17 wd:{country["qid"]} . }} }}
+            OPTIONAL {{ ?position wdt:P17 ?country }}
+            OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
+            OPTIONAL {{ ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }}
+            SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr". }}
+        }}
+        GROUP BY ?position ?positionLabel ?country ?jurisdiction ?abolished
+        """
+    country_response = run_raw_query(context, country_query, cache_days=CACHE_MEDIUM)
     country_results.extend(country_response.results)
 
     for bind in country_results:
@@ -199,8 +217,22 @@ def query_positions(
             position_countries[bind.plain("position")].add(picked_country)
 
     # b) Positions held by politicans from that country
-    politician_response = run_query(
-        context, "positions/politician", vars, cache_days=CACHE_MEDIUM
+    politician_query = f"""
+        SELECT ?position ?positionLabel ?jurisdiction ?country ?abolished
+        WHERE {{
+            ?holder wdt:P39 ?position .
+            # ?holder wdt:P31 wd:Q5 .
+            ?holder wdt:P106 wd:Q82955 .  
+            ?holder wdt:P27 wd:{country['qid']} .  
+            OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
+            OPTIONAL {{ ?position wdt:P17 ?country }}
+            OPTIONAL {{ ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }}
+        SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr". }}
+        }}
+        GROUP BY ?position ?positionLabel ?jurisdiction ?country ?abolished
+    """
+    politician_response = run_raw_query(
+        context, politician_query, cache_days=CACHE_MEDIUM
     )
     for bind in politician_response.results:
         picked_country = pick_country(
@@ -235,7 +267,13 @@ def all_countries():
 
 
 def query_position_classes(context: Context):
-    response = run_query(context, "positions/subclasses", cache_days=CACHE_MEDIUM)
+    subclasses_query = """
+        SELECT ?class ?classLabel WHERE {{
+        ?class wdt:P279 wd:Q4164871 .
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr". }
+    }}
+    """
+    response = run_raw_query(context, subclasses_query, cache_days=CACHE_MEDIUM)
     classes = []
     for binding in response.results:
         qid = binding.plain("class")
