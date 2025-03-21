@@ -1,8 +1,9 @@
 import re
 import pdfplumber
 from lxml.html import HtmlElement
-from rigour.mime.types import PDF
-from normality import slugify
+from rigour.text.distance import levenshtein_similarity
+from rigour.env import MAX_NAME_LENGTH
+from normality import normalize
 from typing import Dict, Generator, List, Optional
 
 from zavod import Context, helpers as h
@@ -89,7 +90,11 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
     if not extracted_data:
         return
     name_dec = extracted_data.pop("name")
-    if slugify(name, sep="-") != slugify(name_dec, sep="-"):
+    # Check if the name from the HTML and the name from the PDF are similar
+    similarity = levenshtein_similarity(
+        normalize(name), normalize(name_dec), max_length=MAX_NAME_LENGTH
+    )
+    if similarity < 0.9:  # 90% similarity threshold
         context.log.warning(f"Name mismatch: {name} (HTML) != {name_dec} (PDF)")
     role = extracted_data.pop("role")
     organization = extracted_data.pop("organization")
