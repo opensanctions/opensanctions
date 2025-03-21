@@ -30,15 +30,15 @@ publisher:
   country: zz
   url: https://ebrd.com/
   official: true
-url: https://www.ebrd.com/ineligible-entities.html
+url: https://www.ebrd.com/home/who-we-are/strategies-governance-compliance/ebrd-sanctions-system/ineligible-entities.html#
 data:
-  url: https://www.ebrd.com/ineligible-entities.html
-  format: HTML
+  url: https://www.ebrd.com/bin/ebrd_dxp/filterlistservlet
+  format: JSON
+http:
+  user_agent: zavod (opensanctions.org)
+  retry_statuses: [413, 429, 500, 502, 503, 500]
 dates:
-  formats: ["%d %b %Y", "%d-%b-%Y", "%d %B %Y", "%d/%m/%Y"]
-  months:
-    "Sep": "Sept"
-    "Jul": "July"
+  formats: ["%d-%m-%Y"]
 lookups:
   type.country:
     options:
@@ -58,48 +58,73 @@ lookups:
           - "China China"
           - Peoples Republic of China
         value: cn
+      - match: "Chile, United States of America"
+        values:
+          - cl
+          - us
+      - match: "Panama, United States of America"
+        values:
+          - pa
+          - us
+      - match: "Brazil, United States of America"
+        values:
+          - br
+          - us
+      - match: "Mexico, United States of America"
+        values:
+          - mx
+          - us
+      - match: "Lebanon, Jordan"
+        values:
+          - lb
+          - jo
+      - match: "Canada, Cambodia, Vietnam, Myanmar"
+        values:
+          - ca
+          - kh
+          - vn
+          - mm
   type.date:
     normalize: true
-    lowercase: true 
+    lowercase: true
     options:
-      - match: 
-          - Ongoing
+      - match:
           - Indefinite
-          - Permanent
+          - Ongoing (debarment with conditional release)
         value: null
-  type.address: 
-    options: 
+  type.address:
+    options:
       - match: Xom Bo, Commune Thanh Liet District Thanh Tri Hanoi VIET NAM Room 3016, Building B Vinaconex Building Nguyen Xien Dai Kim Ward Hoang Mai District Hanoi 100000 VIET NAM No. 14, TT6B Urban West Nam Linh Dam Hoang Mai Hanoi 100000 VIET NAM No. 2/20, Lane 255 Hope Street Dong Tam Ward Hai Ba Trung District Hanoi VIET NAM
-        values: 
+        values:
           - Xom Bo, Commune Thanh Liet District Thanh Tri Hanoi VIET NAM
           - Room 3016, Building B Vinaconex Building Nguyen Xien Dai Kim Ward Hoang Mai District Hanoi 100000 VIET NAM
           - No. 14, TT6B Urban West Nam Linh Dam Hoang Mai Hanoi 100000 VIET NAM
           - No. 2/20, Lane 255 Hope Street Dong Tam Ward Hai Ba Trung District Hanoi VIET NAM
       - contains: "Avenida Paulista, 1499 Cjs. 1106/07/08/09 01311-928 Sao Paulo Brazil Counsel: Raquel Lamboglia Guimaraes Manesco, Ramires, Perez, Azevedo Marques Sociedade de Advogados Ed. Santa Catarina. Av. Paulista, 287 7 andar. CEP 01311-000, Sao Paulo SP Brazil"
-        values: 
-          - 'Avenida Paulista, 1499 Cjs. 1106/07/08/09 01311-928 Sao Paulo Brazil'
-          - 'Av. Paulista, 287 7 andar. CEP 01311-000, Sao Paulo SP Brazil'
+        values:
+          - "Avenida Paulista, 1499 Cjs. 1106/07/08/09 01311-928 Sao Paulo Brazil"
+          - "Av. Paulista, 287 7 andar. CEP 01311-000, Sao Paulo SP Brazil"
       - match: Xom Bo, Commune Thanh Liet District Thanh Tri Hanoi VIET NAM Room 3016, Building B, Vinaconex Building Nguyen Xien (Phòng 3016 Tòa B Vinaconex 2 Nguyễn Xiển) Dai Kim Ward, Hoang Mai District (Phường Đại Kim, Quận Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 14, TT6B Urban West Nam Linh Dam, Hoang Mai (Số 14, TT6B Khu đô thị Tây Nam Linh Đàm, Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 2/20, Lane 255, Hope Street (Số 2/20, Ngõ 255, Phố Vọng) Dong Tam Ward, Hai Ba Trung District, Hanoi (Phường Đồng Tâm, Quận Hai Bà Trưng, Hà Nội) VIET NAM
-        values: 
+        values:
           - Xom Bo, Commune Thanh Liet District Thanh Tri Hanoi VIET NAM
           - Room 3016, Building B, Vinaconex Building Nguyen Xien (Phòng 3016 Tò Tòa B Vinaconex 2 Nguyễn Xiển)
           - Dai Kim Ward, Hoang Mai District (Phường Đại Kim, Quận Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM
           - No. 14, TT6B Urban West Nam Linh Dam, Hoang Mai (Số 14, TT6B Khu đô thị Tây Nam Linh Đàm, Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM
           - No. 2/20, Lane 255, Hope Street (Số 2/20, Ngõ 255, Phố Vọng) Dong Tam Ward, Hai Ba Trung District, Hanoi (Phường Đồng Tâm, Quận Hai Bà Trưng, Hà Nội) VIET NAM
       - match: 70 North Chezhan Road, Wan Xiang Xin Tian Building, Furong District, Changsha, Hunan 410007 Station Road No. 70, Wan, Xiang Xin Tian Business Mansion 5, Building No. 31, 32f, Furong District, Changsha, Hunan 23 Chengnanzhong Road, Rongan Building 5th Floor, Changsha, Hunan
-        values: 
+        values:
           - 70 North Chezhan Road, Wan Xiang Xin Tian Building, Furong District, Changsha, Hunan 410007
           - Station Road No. 70, Wan, Xiang Xin Tian Business Mansion 5, Building No. 31, 32f, Furong District, Changsha, Hunan
           - 23 Chengnanzhong Road, Rongan Building 5th Floor, Changsha, Hunan
       - contains: "#27 KING’S COLLEGE CIRCLE TORONTO ONTARIO M5S1A1 CANADA 31BT, PHUM SANSAM KOSAL 1 BOENG TUMPUN MEAN CHEY PHNOM PENH 12351 CAMBODIA #17 KHOUNBOULOM BOAD CHANTHABOURY VIENTIANE CAPITAL LAO PDR 5TH FLOOR SENTINAL PLACE BUILDING 41B LY THAI TO ST. HANOI VIETNAM #12 (0), PHI THU LANE 7 MILE, MAYANGONE OWNSHIP YANGON MYANMAR"
-        values: 
+        values:
           - "27 KING’S COLLEGE CIRCLE TORONTO ONTARIO M5S1A1 CANADA"
           - 31BT, PHUM SANSAM KOSAL 1 BOENG TUMPUN MEAN CHEY PHNOM PENH 12351 CAMBODIA
-          - '17 KHOUNBOULOM BOAD CHANTHABOURY VIENTIANE CAPITAL LAO PDR'
-          - '5TH FLOOR SENTINAL PLACE BUILDING 41B LY THAI TO ST. HANOI VIETNAM'
-          - '12 (0), PHI THU LANE 7 MILE, MAYANGONE OWNSHIP YANGON MYANMAR'
+          - "17 KHOUNBOULOM BOAD CHANTHABOURY VIENTIANE CAPITAL LAO PDR"
+          - "5TH FLOOR SENTINAL PLACE BUILDING 41B LY THAI TO ST. HANOI VIETNAM"
+          - "12 (0), PHI THU LANE 7 MILE, MAYANGONE OWNSHIP YANGON MYANMAR"
       - match: No.21, Jiangsu East Road Caomiaoiaozi Town Weihai Lingang Economic and Technological Development Zone Shandong Province China Previous address No.271-1 Eastern Kaiyuan Road Lingang Economic and Technological Development Zone Weihai Shandong Province China
-        values: 
+        values:
           - No.21, Jiangsu East Road Caomiaoiaozi Town Weihai Lingang Economic and Technological Development Zone Shandong Province China
           - No.271-1 Eastern Kaiyuan Road Lingang Economic and Technological Development Zone Weihai Shandong Province China
       - match: Currently Unknown. Previously:- Flat 3, 48 Mikroraion Zhetysu-2 Street, Almaty 040512, Kazakhstan
@@ -110,10 +135,10 @@ lookups:
         value: Office 305, No. 56A, Samal-2 District, Almaty 050051, Kazakhstan
       - match: Currently Unknown. Previously:- 4th floor, No. 56A, Samal-2 District, Almaty 050059, Kazakhstan
         value: 4th floor, No. 56A, Samal-2 District, Almaty 050059, Kazakhstan
-  type.name: 
+  type.name:
     normalize: true
     lowercase: true
-    options: 
+    options:
       - match:
           - "Mr. Farkhad Akhmedzhanovich Amraev and any entity controlled directly or indirectly by Mr. Farkhad Akhmedzhanovich Amraev, which was established (i.e. in existence) on or before 31 December 2019"
           - "Mr. Farkhad Akhmedzhanovich Amraev and any entity controlled directly"
@@ -121,16 +146,23 @@ lookups:
         value: Farkhad Akhmedzhanovich Amraev
       - match: before 31 December 2019
         value: null
+  schema:
+    options:
+      - match: Firm
+        value: LegalEntity # e.g. "Fedders Lloyd Corporation Limited" or "John B. Katende"
+      - match: Individual
+        value: Person
+
 assertions:
   min:
     schema_entities:
-      Company: 225
-      LegalEntity: 1000
+      LegalEntity: 900
+      Person: 150
     country_entities:
-      cn: 700
+      cn: 500
       ru: 5
       ke: 20
   max:
     schema_entities:
-      Company: 270
-      LegalEntity: 1700
+      LegalEntity: 1800
+      Person: 300
