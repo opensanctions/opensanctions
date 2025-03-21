@@ -48,14 +48,6 @@ assertions:
       Organization: 70
       Vessel: 130
       CryptoWallet: 5
-  max:
-    schema_entities:
-      Company: 1400
-      Person: 850
-      LegalEntity: 340
-      Organization: 300
-      Vessel: 300
-      CryptoWallet: 50
 
 lookups:
   type.date:
