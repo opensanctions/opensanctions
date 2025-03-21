@@ -65,10 +65,13 @@ def crawl_item_human_rights(context: Context, source_url, raw_name: str):
 
 
 def crawl_item_rus(context: Context, source_url, raw_name: str):
-    match = re.search(r"^\d+\.\d*\.?\s*([^(\n]+)(?:\s*\(also\s*([^)]+)\))?", raw_name)
+    match = re.search(r"^\d+\.", raw_name)
     if match:
-        name = match.group(1).strip()
-        alias = match.group(2).strip() if match.group(2) else []
+        prefix = match.group()
+        name_part = raw_name[len(prefix) :]
+        parts = h.multi_split(name_part, [" (also "])
+        name = parts[0].strip()
+        alias = parts[1].rstrip(")") if len(parts) > 1 else ""
     else:
         context.log.warning("Could not parse name", raw_name)
 
