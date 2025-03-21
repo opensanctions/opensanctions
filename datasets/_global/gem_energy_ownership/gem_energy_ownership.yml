@@ -228,3 +228,5 @@ lookups:
           - 7536165222
           - 3442123614
         prop: registrationNumber
+      - match: not found
+        value: null
