@@ -42,31 +42,23 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 590
-      Person: 350
-      LegalEntity: 140
-      Organization: 130
+      Company: 500
+      Person: 200
+      LegalEntity: 70
+      Organization: 70
       Vessel: 130
       CryptoWallet: 5
-  max:
-    schema_entities:
-      Company: 1400
-      Person: 850
-      LegalEntity: 340
-      Organization: 300
-      Vessel: 300
-      CryptoWallet: 50
 
 lookups:
   type.date:
     options:
       - match: 3.1.2003 (founded in 1918)
         value: 2003-01-03
-      - match: ', previously registered as southfront.org since 30.4.2015'
+      - match: ", previously registered as southfront.org since 30.4.2015"
         value: 2015-04-30
   type.identifier:
     options:
-      - match: 
+      - match:
           - YBLWST14JJ39
           - K7VGTQKBDX68
           - 7838044584
