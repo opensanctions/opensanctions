@@ -143,19 +143,13 @@ def crawl_human_rights(context, url):
 def crawl_rus(context, url):
     doc = context.fetch_html(url)
     main_container = doc.xpath(".//article")
-    h.assert_dom_hash(main_container[0], "64d916cd12a0c668a6fab43ad75d060e31a3eaff")
+    h.assert_dom_hash(main_container[0], "ee2ce6c8eaec412ae93ecb4e38a305ba627d7a47")
     assert len(main_container) == 1, (
         main_container,
         "Could not find the main container",
     )
     raw_names = main_container[0].findall(".//p")
-    last_updated = main_container[0].xpath(".//p[contains(text(), 'Last updated')]")
-    assert len(last_updated) == 1, (
-        last_updated,
-        "Could not find the last updated date",
-    )
-    # Get the text from each <p> tag, excluding the 'Last updated' one
-    names = [p.text_content() for p in raw_names if p not in last_updated]
+    names = [p.text_content() for p in raw_names]
     for raw_name in names:
         crawl_item_rus(context, url, raw_name)
 
