@@ -69,7 +69,7 @@ def crawl_item_rus(context: Context, source_url, raw_name: str):
     if match:
         prefix = match.group()
         name_part = raw_name[len(prefix) :]
-        parts = h.multi_split(name_part, [" (also "])
+        parts = h.multi_split(name_part, [" (also ", " ("])
         name = parts[0].strip()
         alias = parts[1].rstrip(")") if len(parts) > 1 else ""
     else:
