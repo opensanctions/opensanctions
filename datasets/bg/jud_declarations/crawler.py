@@ -13,6 +13,39 @@ from zavod.shed.trans import apply_translit_full_name, make_position_translation
 
 TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 POSITION_PROMPT = prompt = make_position_translation_prompt("bul")
+ALLOW_LIST = {
+    ("Елизабет Лопес Петрова-Калпакчиева", "Елизабет Лопес Петрова"),
+    ("Дафина Петрова Димова", "Дафина Петрова Димова-Маратилова"),
+    ("Марина Евгениева Гюрова", "Марина Евгениева Гюрова-Димитрова"),
+}
+DENY_LIST = {
+    ("Георги Иванов Иванов", "ВАНЯ СТОЯНОВА ЛАКОВСКА"),
+    ("Любомир Тодоров Мирчев", "Ваня Желева Атанасова-Янчева"),
+    ("Миглена Раденкова Петрова", "Валери Кръстев Кръстев"),
+    ("Милена Иванова Семерджиева", "Александър Костадинов Заев"),
+    ("Михаил Венци Крушовски", "ГЕРГАНА НИКОЛАЕВА БОЖИЛОВА"),
+    ("Неделина Евгениева Маринова-Парашкевова", "Венцислав Найденов Андреев"),
+    ("Николина Георгиева Сачкова", "Андрей Ангелов Ангелов"),
+    ("Светослав Момчилов Джельов", "Светослав Василев Палов"),
+    ("Симеон Георгиев Захариев", "Свилена Стоянова Давчева"),
+    ("Станой Аспарухов Станоев", "Силвиян Иванов Стоянов"),
+    ("Стелиана Колева Кожухарова", "Кирил Петков Петков"),
+    ("Темислав Малинов Димитров", "Сеслав Димитров Помпулуски"),
+    ("Цветан Руменов Ценов", "АДЕЛИНА ЛЮБЕНОВА ТУШЕВА"),
+    ("Янислав Димчев Димов", "Мария Симеонова Ганева"),
+    ("Владимир Стоянов Вълчев", "Веселина Цонева Топалова"),
+    ("Ганчо Манев Драганов", "Галин Николаев Андонов"),
+    ("Жива Динкова Декова", "Гълъбина Генчева Петрова"),
+    ("Невена Иванова Ковачева", "Мариана Колева Гунчева"),
+    ("Никол Кирилова Николова", "Мартин Лазаров Апостолов"),
+    ("Павлина Стойчева Йоргова", "ГЕОРГИ ХРИСТОВ ХАНДЖИЕВ"),
+    ("Росен Обретинов Станев", "БИЛЯНА ВЕЛИКОВА ВИДОЛОВА"),
+    ("Румен Николов Йосифов", "Катя Николова Михайлова - Янкова"),
+    ("Светлозар Георгиев Георгиев", "Марияна Искренова Качарова"),
+    ("Славка Георгиева Димитрова", "Райна Андреева Гундева"),
+    ("Станислав Дончев Андонов", "Емилиян Димитров Грънчаров"),
+    ("Филип Иванов Георгиев", "Мирослава Стефанова Тодорова"),
+}
 
 
 def extract_judicial_declaration(context, url, doc_id_date) -> Dict[str, Optional[str]]:
@@ -39,7 +72,7 @@ def extract_judicial_declaration(context, url, doc_id_date) -> Dict[str, Optiona
                 extracted_data[key] = match.group(1).strip() if match else None
 
     except Exception as e:
-        context.log.warning(f"Skipping {pdf_path} due to error: {e}")
+        context.log.info(f"Skipping {pdf_path} due to error: {e}")
         return {}
 
     context.log.info(f"Extracted Data: {extracted_data}")
@@ -102,7 +135,13 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
     # Example: "Дебора Миленова Вълкова" and "Дебора Миленова Вълкова-Терзиева"
     # should be treated as a match despite the additional surname.
     if similarity < 0.7:
-        context.log.warning(f"Name mismatch: {name} (HTML) != {name_dec} (PDF)")
+        if (name, name_dec) in ALLOW_LIST:
+            # Overwrite name from HTML with verified match and proceed
+            name = name_dec
+        elif (name, name_dec) in DENY_LIST:
+            return
+        else:
+            context.log.warning("Name mismatch", name_html=name, name_pdf=name_dec)
     role = extracted_data.pop("role")
     organization = extracted_data.pop("organization")
     if organization is None:
