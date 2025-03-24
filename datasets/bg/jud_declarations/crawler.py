@@ -43,7 +43,7 @@ def extract_judicial_declaration(context, url, doc_id_date) -> Dict[str, Optiona
                 if relaxed_match:
                     organization = relaxed_match.group(1).strip()
                     context.log.warning(
-                        f"Organization field needs manual cleanup: {organization}"
+                        f"Organization field needs manual cleanup: {organization, url}"
                     )
                     organization = context.lookup_value("organization", organization)
                     extracted_data["organization"] = organization
@@ -103,9 +103,16 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
     name_dec = extracted_data.pop("name")
     # Check if the name from the HTML and the name from the PDF are similar
     similarity = levenshtein_similarity(
-        normalize(name), normalize(name_dec), max_length=MAX_NAME_LENGTH
+        normalize(name),
+        normalize(name_dec),
+        max_length=MAX_NAME_LENGTH,
+        max_edits=12,
+        max_percent=0.4,
     )
-    if similarity < 0.9:  # 90% similarity threshold
+    # Full last names should be considered the same if they have at least 70% similarity.
+    # Example: "Дебора Миленова Вълкова" and "Дебора Миленова Вълкова-Терзиева"
+    # should be treated as a match despite the additional surname.
+    if similarity < 0.7:
         context.log.warning(f"Name mismatch: {name} (HTML) != {name_dec} (PDF)")
     role = extracted_data.pop("role")
     organization = extracted_data.pop("organization")
