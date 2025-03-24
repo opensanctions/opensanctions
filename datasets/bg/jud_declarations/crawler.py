@@ -204,7 +204,6 @@ def crawl(context: Context):
     alphabet_links = doc.xpath(".//div[@itemprop='articleBody']/p//a[@href]")
     assert len(alphabet_links) >= 58, "Expected at least 58 links in `alphabet_links`."
     # Bulgarian alphabet has 30 letters, but the name can start only with 29 of them
-    # TODO: Check if this is still valid
     # We want to cover the last 2 years at any time
     for a in alphabet_links[:58]:
         link = a.get("href")
