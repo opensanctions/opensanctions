@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, Optional, Any, List, Generator, NamedTuple
+from typing import Dict, Optional, Any, List, Generator, NamedTuple, Set
 from fingerprints import clean_brackets
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories, get_territory_by_qid
@@ -17,6 +17,12 @@ class Country(NamedTuple):
     qid: str
     code: str
     label: Optional[str]
+
+
+class Position(NamedTuple):
+    qid: str
+    label: Optional[str]
+    country_codes: List[str]
 
 
 def keyword(topics: List[str]) -> Optional[str]:
@@ -107,10 +113,10 @@ def crawl_holder(
 
 
 def query_position_holders(
-    context: Context, client: WikidataClient, wd_position: Dict[str, str]
+    context: Context, client: WikidataClient, wd_position: Position
 ) -> Generator[Dict[str, Any], None, None]:
     context.log.info(
-        f"Crawling holders of position {wd_position['qid']} ({wd_position['label']})"
+        f"Crawling holders of position {wd_position.qid} ({wd_position.label})"
     )
     holders_query = f"""
         SELECT
@@ -118,7 +124,7 @@ def query_position_holders(
         ?body ?bodyLabel ?bodyInception ?bodyStart ?bodyAbolished ?bodyEnd
         ?birth ?death ?positionStart ?positionEnd
         WHERE {{
-            ?ps ps:P39 wd:{wd_position["qid"]} .
+            ?ps ps:P39 wd:{wd_position.qid} .
             ?person p:P39 ?ps .
             ?person wdt:P31 wd:Q5 .  
             FILTER NOT EXISTS {{ ?ps wikibase:rank wikibase:DeprecatedRank }}
@@ -165,25 +171,24 @@ def query_position_holders(
 def query_positions(
     context: Context,
     client: WikidataClient,
-    position_classes: List[Dict[str, str]],
+    position_classes: List[Position],
     country: Country,
-) -> Generator[Dict[str, Any], None, None]:
+) -> Generator[Position, None, None]:
     """
     May return duplicates
     """
     context.log.info(f"Crawling positions for {country.qid} ({country.label})")
-    position_countries = defaultdict(set)
+    position_countries: Set[str] = defaultdict(set)
 
     # a.1) Instances of one or more subclasses of Q4164871 (position) by jurisdiction/country
     country_results: List[SparqlValue] = []
     for position_class in position_classes:
         context.log.info(
-            f"Querying descendants of {position_class['qid']} ({position_class['label']!r}) in {country.label!r}"
+            f"Querying descendants of {position_class.qid} ({position_class.label!r}) in {country.label!r}"
         )
-        class_qid = position_class.get("qid")
         country_query = f"""
         SELECT ?position ?positionLabel ?country ?jurisdiction ?abolished WHERE {{
-            {{ SELECT ?position WHERE {{ ?position (wdt:P31|wdt:P279)* wd:{class_qid} . }} }}
+            {{ SELECT ?position WHERE {{ ?position (wdt:P31|wdt:P279)* wd:{position_class.qid} . }} }}
             {{ SELECT ?position WHERE {{ ?position wdt:P1001|wdt:P17 wd:{country.qid} . }} }}
             OPTIONAL {{ ?position wdt:P17 ?country }}
             OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
@@ -215,7 +220,7 @@ def query_positions(
         picked_country = pick_country(
             bind.plain("country"),
             bind.plain("jurisdiction"),
-            country["qid"],
+            country.qid,
         )
         if picked_country is not None:
             position_countries[bind.plain("position")].add(picked_country)
@@ -250,11 +255,11 @@ def query_positions(
         if date_abolished is not None and date_abolished < "2000-01-01":
             context.log.debug(f"Skipping abolished position: {bind.plain('position')}")
             continue
-        yield {
-            "qid": bind.plain("position"),
-            "label": bind.plain("positionLabel"),
-            "country_codes": position_countries[bind.plain("position")],
-        }
+        yield Position(
+            bind.plain("position"),
+            bind.plain("positionLabel"),
+            position_countries[bind.plain("position")],
+        )
 
 
 def all_countries() -> Generator[Country, None, None]:
@@ -267,9 +272,7 @@ def all_countries() -> Generator[Country, None, None]:
         yield Country(territory.qid, code, territory.name)
 
 
-def query_position_classes(
-    context: Context, client: WikidataClient
-) -> List[Dict[str, str]]:
+def query_position_classes(context: Context, client: WikidataClient) -> List[Position]:
     subclasses_query = """
     SELECT ?class ?classLabel WHERE {
         ?class wdt:P279 wd:Q4164871 .
@@ -277,7 +280,7 @@ def query_position_classes(
     }
     """
     response = client.query(subclasses_query)
-    classes: List[Dict[str, str]] = []
+    classes: List[Position] = []
     for binding in response.results:
         qid = binding.plain("class")
         if not is_qid(qid):
@@ -286,7 +289,7 @@ def query_position_classes(
         res = context.lookup("position_subclasses", qid)
         if res:
             if res.maybe_pep:
-                classes.append({"qid": qid, "label": label})
+                classes.append(Position(qid, label, []))
         else:
             context.log.warning(f"Unknown subclass of position: '{qid}' ({label})")
     return classes
@@ -306,14 +309,14 @@ def crawl(context: Context):
             include_local = True
 
         for wd_position in query_positions(context, client, position_classes, country):
-            if wd_position["qid"] in seen_positions:
+            if wd_position.qid in seen_positions:
                 continue
 
             position = h.make_position(
                 context,
-                wd_position["label"],
-                country=wd_position["country_codes"],
-                wikidata_id=wd_position["qid"],
+                wd_position.label,
+                country=wd_position.country_codes,
+                wikidata_id=wd_position.qid,
             )
             categorisation = categorise(context, position, is_pep=None)
             if not categorisation.is_pep:
@@ -323,7 +326,7 @@ def crawl(context: Context):
 
             for holder in query_position_holders(context, client, wd_position):
                 crawl_holder(context, categorisation, position, holder)
-            seen_positions.add(wd_position["qid"])
+            seen_positions.add(wd_position.qid)
 
     entity = context.make("Person")
     entity.id = "Q21258544"
