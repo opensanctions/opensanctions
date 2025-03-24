@@ -17,7 +17,7 @@ jobs:
           cache: "pip"
       - name: Install zavod
         run: |
-          pip install setuptools wheel
+          pip install setuptools==77.0.3 wheel
           pip install --no-cache-dir -q -e "zavod[dev]"
           pip install zeep==4.2.1
       - uses: actions/checkout@v4

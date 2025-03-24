@@ -20,7 +20,10 @@ NAME_SPLITS = [
 RE_NAME_SPLIT = re.compile("|".join(NAME_SPLITS), re.IGNORECASE)
 
 
-def get_schema(context: Context, projectNoticeType: str) -> str:
+def get_schema(context: Context, name: str, projectNoticeType: str) -> str:
+    schema = context.lookup_value("override_schema", name)
+    if schema is not None:
+        return schema
     schema = context.lookup_value("schema", projectNoticeType)
     if schema is None:
         context.log.warning(f"Unknown schema: {projectNoticeType}")
@@ -32,7 +35,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     name_raw = data.pop("title")
     address = data.pop("address")
     country = collapse_spaces(data.pop("nationality"))
-    schema = get_schema(context, data.pop("projectNoticeType"))
+    schema = get_schema(context, name_raw, data.pop("projectNoticeType"))
     entity = context.make(schema)
     entity.id = context.make_id(name_raw, address, country)
     entity.add("name", RE_NAME_SPLIT.split(name_raw))

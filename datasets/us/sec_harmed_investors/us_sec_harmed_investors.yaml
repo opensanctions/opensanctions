@@ -291,6 +291,9 @@ lookups:
           - Bank of America, n.a.
           - Banc of America Mortgage Securities Inc.
           - Merrill Lynch, Pierce, Fenner & Smith Inc
+      - match: merrill lynch, pierce, fenner & smith incorporated
+        names:
+          - Merrill Lynch, Pierce, Fenner & Smith Incorporated
       - match: blackbird capital partners llc, andrew d. kelley, and paul h. shumway
         names:
           - Blackbird Capital Partners LLC
