@@ -81,6 +81,7 @@ assertions:
     schema_entities:
       Person: 775000
 
+lookups:
   type.date:
     options:
       - match:
