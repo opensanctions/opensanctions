@@ -36,9 +36,12 @@ jobs:
       - name: Install zavod dependencies
         working-directory: zavod
         run: |
-          python -m pip install --upgrade setuptools==77.0.3
-          python -m pip install --upgrade pip wheel pyicu==2.14
-          pip install --no-cache-dir -q -e ".[dev]"
+          # --no-build-isolation needed to control setuptools version while figuring out
+          # what's incompatible with setuptools 78 (no more hyphen setup.cfg keys)
+          # That means we're responsible for build dependencies.
+          python -m pip install pip "setuptools<78" wheel hatchling editables
+          python -m pip install --no-build-isolation --upgrade wheel pyicu==2.14
+          pip install --no-build-isolation --no-cache-dir -q -e ".[dev]"
       - name: Check zavod type annotations (strict)
         working-directory: zavod
         run: |

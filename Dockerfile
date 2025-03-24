@@ -19,7 +19,11 @@ RUN pip3 install --no-cache-dir -U pip
 RUN pip3 install --no-cache-dir -U "pyicu==2.14"
 
 COPY zavod /opensanctions/zavod
-RUN pip install --no-cache-dir -e /opensanctions/zavod
+# --no-build-isolation needed to control setuptools version while figuring out
+# what's incompatible with setuptools 78 (no more hyphen setup.cfg keys)
+# That means we're responsible for build dependencies.
+RUN pip install "setuptools<78" wheel hatchling editables
+RUN pip install --no-build-isolation --no-cache-dir -e /opensanctions/zavod
 WORKDIR /opensanctions
 
 # ----------------------------------------------------------------------------------------
@@ -55,7 +59,11 @@ RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 COPY --from=build /venv /venv
 ENV PATH="/venv/bin:$PATH"
 COPY . /opensanctions
-RUN pip install --no-cache-dir -e /opensanctions/zavod
+# --no-build-isolation needed to control setuptools version while figuring out
+# what's incompatible with setuptools 78 (no more hyphen setup.cfg keys)
+# That means we're responsible for build dependencies.
+RUN pip install "setuptools<78" wheel hatchling editables
+RUN pip install --no-build-isolation --no-cache-dir -e /opensanctions/zavod
 WORKDIR /opensanctions
 
 CMD ["zavod"]

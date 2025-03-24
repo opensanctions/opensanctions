@@ -17,8 +17,11 @@ jobs:
           cache: "pip"
       - name: Install zavod
         run: |
-          pip install setuptools==77.0.3 wheel
-          pip install --no-cache-dir -q -e "zavod[dev]"
+          # --no-build-isolation needed to control setuptools version while figuring out
+          # what's incompatible with setuptools 78 (no more hyphen setup.cfg keys)
+          # That means we're responsible for build dependencies.
+          python -m pip install "setuptools<78" wheel hatchling editables
+          pip install --no-build-isolation --no-cache-dir -q -e "zavod[dev]"
           pip install zeep==4.2.1
       - uses: actions/checkout@v4
         with:
