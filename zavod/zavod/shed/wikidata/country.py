@@ -1,18 +1,10 @@
-from typing import NamedTuple, Optional, Set
+from typing import Optional, Set
 from functools import lru_cache
 from nomenklatura.wikidata import WikidataClient, LangText, Item
 from rigour.territories import get_territory_by_qid
 
-from zavod.shed.wikidata.util import item_types
 
-
-class Country(NamedTuple):
-    qid: str
-    code: Optional[str]
-    label: str
-
-
-@lru_cache(maxsize=2000)
+@lru_cache(maxsize=5000)
 def is_historical_country(item: Item) -> bool:
     if item is None:
         return False
