@@ -37,6 +37,12 @@ data:
 dates: 
   formats: ["%d.%m.%Y"]
 lookups: 
+  organization:
+    options:
+      - match: Районна прокуратура – Пазарджик
+        value: Районна прокуратура – Пазарджик
+      - match: Районен съд – Велико Търново
+        value: Районен съд – Велико Търново
   doc_id_date: 
     options: 
       - match: 2340//15.03.2024

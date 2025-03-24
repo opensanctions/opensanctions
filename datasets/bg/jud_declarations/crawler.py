@@ -17,10 +17,7 @@ POSITION_PROMPT = prompt = make_position_translation_prompt("bul")
 
 def extract_judicial_declaration(context, url, doc_id_date) -> Dict[str, Optional[str]]:
     """Extract name, role, and organization from the first page of a judicial declaration PDF."""
-
     pdf_path = context.fetch_resource(f"{doc_id_date}.pdf", url)
-    # context.export_resource(pdf_path, PDF)
-
     extracted_data = {}
     try:
         with pdfplumber.open(pdf_path) as pdf:
@@ -38,6 +35,20 @@ def extract_judicial_declaration(context, url, doc_id_date) -> Dict[str, Optiona
             for key, pattern in patterns.items():
                 match = re.search(pattern, full_text)
                 extracted_data[key] = match.group(1).strip() if match else None
+            # Additional check for 'organization'
+            if extracted_data.get("organization") is None:
+                relaxed_match = re.search(
+                    r"Орган на съдебната власт:\s*(.+)", full_text, re.MULTILINE
+                )
+                if relaxed_match:
+                    organization = relaxed_match.group(1).strip()
+                    context.log.warning(
+                        f"Organization field needs manual cleanup: {organization}"
+                    )
+                    organization = context.lookup_value("organization", organization)
+                    extracted_data["organization"] = organization
+                else:
+                    extracted_data["organization"] = None
     except Exception as e:
         context.log.warning(f"Skipping {pdf_path} due to error: {e}")
         return {}
@@ -104,7 +115,7 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
         )
         return
     # Common pattern: "organization - city"
-    parts = organization.split(" - ")
+    parts = h.multi_split(organization, [" - ", " – "])
     if len(parts) == 2:
         organization = parts[0].strip()
         city = parts[1].strip()
@@ -158,6 +169,7 @@ def crawl(context: Context):
     alphabet_links = doc.xpath(".//div[@itemprop='articleBody']/p//a[@href]")
     assert len(alphabet_links) >= 58, "Expected at least 58 links in `alphabet_links`."
     # Bulgarian alphabet has 30 letters, but the name can start only with 29 of them
+    # TODO: Check if this is still valid
     # We want to cover the last 2 years at any time
     for a in alphabet_links[:58]:
         link = a.get("href")
