@@ -152,7 +152,15 @@ lookups:
         value: LegalEntity # e.g. "Fedders Lloyd Corporation Limited" or "John B. Katende"
       - match: Individual
         value: Person
-
+  override_schema:
+    options:
+      - match:
+          - Inversiones Atlantic S.A. de C.V.
+          - Gesaworld do Brasil Limitada
+          - N.C. Sanitors & Service Corporation
+          - TPF Getinsa Euroestudios S.L.
+          - Bittohin Chasi Somaj Kallyan Sangstha
+        value: Company
 assertions:
   min:
     schema_entities:
