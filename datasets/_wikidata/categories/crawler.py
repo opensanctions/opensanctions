@@ -2,15 +2,12 @@ import csv
 from io import StringIO
 from typing import Any, Dict, List, Optional, Set, Tuple
 from urllib.parse import urlencode
-from nomenklatura.enrich.wikidata import WikidataEnricher
-from nomenklatura.enrich.wikidata.model import Claim
+from nomenklatura.wikidata import WikidataClient, Claim
 
-from zavod import Context, Entity, Dataset
+from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.shed.wikidata.position import wikidata_position
 from zavod.shed.wikidata.human import wikidata_basic_human
-from zavod.shed.wikidata.query import run_raw_query
-from zavod.shed.wikidata.util import item_label
 
 URL = "https://petscan.wmcloud.org/"
 QUERY = {
@@ -30,9 +27,7 @@ MUNI_COUNTRIES = {"us", "fr", "gb"}
 class CrawlState(object):
     def __init__(self, context: Context):
         self.context = context
-        self.enricher: WikidataEnricher[Dataset] = WikidataEnricher(
-            context.dataset, context.cache, context.dataset.config
-        )
+        self.client = WikidataClient(context.cache, session=context.http)
         self.log = context.log
         self.ignore_positions: Set[str] = set()
         self.persons: Set[str] = set()
@@ -48,22 +43,22 @@ def title_name(title: str) -> str:
 
 
 def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
-    item = state.enricher.fetch_item(claim.qid)
+    item = state.client.fetch_item(claim.qid)
     if item is None:
         state.ignore_positions.add(claim.qid)
         return
-    position = wikidata_position(state.context, state.enricher, item)
+    position = wikidata_position(state.context, state.client, item)
     if position is None:
         state.ignore_positions.add(item.id)
         return
 
     start_date: Optional[str] = None
     for qual in claim.qualifiers.get("P580", []):
-        start_date = qual.text(state.enricher).text
+        start_date = qual.text.text
 
     end_date: Optional[str] = None
     for qual in claim.qualifiers.get("P582", []):
-        end_date = qual.text(state.enricher).text
+        end_date = qual.text.text
 
     occupancy = h.make_occupancy(
         state.context,
@@ -84,10 +79,10 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
 
 
 def crawl_person(state: CrawlState, qid: str) -> Optional[Entity]:
-    item = state.enricher.fetch_item(qid)
+    item = state.client.fetch_item(qid)
     if item is None:
         return None
-    entity = wikidata_basic_human(state.context, state.enricher, item, strict=True)
+    entity = wikidata_basic_human(state.context, state.client, item, strict=True)
     if entity is None:
         return None
 
@@ -232,11 +227,11 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
     persons: Set[str] = set([])
     if position_qid in state.ignore_positions:
         return persons
-    item = state.enricher.fetch_item(position_qid)
+    item = state.client.fetch_item(position_qid)
     if item is None:
         state.ignore_positions.add(position_qid)
         return persons
-    position = wikidata_position(state.context, state.enricher, item)
+    position = wikidata_position(state.context, state.client, item)
     if position is None:
         state.ignore_positions.add(position_qid)
         return persons
@@ -246,14 +241,13 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
     if "gov.muni" in topics and MUNI_COUNTRIES.isdisjoint(position.countries):
         return persons
 
-    label = item_label(item)
     query = f"""
     SELECT ?person WHERE {{
         ?person wdt:P39 wd:{position_qid} .
         ?person wdt:P31 wd:Q5
     }}
     """
-    response = run_raw_query(state.context, query, cache_days=7)
+    response = state.client.query(query)
     for result in response.results:
         person_qid = result.plain("person")
         if person_qid is not None:
@@ -264,7 +258,9 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
             if claim.qid is not None:
                 persons.add(claim.qid)
 
-    state.log.info("Found %d holders of %s [%s]" % (len(persons), label, position_qid))
+    state.log.info(
+        "Found %d holders of %s [%s]" % (len(persons), item.label, position_qid)
+    )
     return persons
 
 
@@ -278,7 +274,7 @@ def crawl_position_seeds(state: CrawlState) -> None:
         }}
         """
         roles.add(seed)
-        response = run_raw_query(state.context, query, cache_days=7)
+        response = state.client.query(query)
         # print("QUERY", seed, len(response.results))
         for result in response.results:
             role = result.plain("role")

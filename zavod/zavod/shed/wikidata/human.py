@@ -2,24 +2,20 @@ from typing import Optional
 from datetime import timedelta
 # from fingerprints import clean_brackets
 
-from nomenklatura.enrich.wikidata import WikidataEnricher
-from nomenklatura.enrich.wikidata.model import Item
+from nomenklatura.wikidata import Item, WikidataClient
 
 from zavod import Context, Entity
-from zavod.meta import Dataset
 from zavod.shed.wikidata.country import is_historical_country, item_countries
-from zavod.shed.wikidata.util import item_labels, item_types
 
-Wikidata = WikidataEnricher[Dataset]
 BLOCKED_PERSONS = {"Q1045488"}
 
 
 def wikidata_basic_human(
-    context: Context, enricher: Wikidata, item: Item, strict: bool = False
+    context: Context, client: WikidataClient, item: Item, strict: bool = False
 ) -> Optional[Entity]:
     if item.id in BLOCKED_PERSONS:
         return None
-    types = item_types(enricher, item.id)
+    types = item.types
     if "Q5" not in types:
         return None
     if "Q4164871" in types:  # human is also a position
@@ -37,7 +33,7 @@ def wikidata_basic_human(
         if claim.property == "P569":
             too_young = context.data_time - timedelta(days=365 * 18)
             too_old = context.data_time - timedelta(days=365 * 110)
-            date = claim.text(enricher)
+            date = claim.text
             if date.text is None:
                 continue
             # Skip people from too far ago
@@ -54,7 +50,7 @@ def wikidata_basic_human(
 
         # P570 - death date
         if claim.property == "P570":
-            date = claim.text(enricher)
+            date = claim.text
             # context.log.warning("Person is dead", qid=item.id, date=date)
             if strict and date.text is not None:
                 return None
@@ -63,21 +59,20 @@ def wikidata_basic_human(
 
         # P27 - citizenship
         if claim.property == "P27":
-            if is_historical_country(enricher, claim.qid):
-                is_historical = True
-            elif claim.qid is not None:
-                citizenship = enricher.fetch_item(claim.qid)
+            if claim.qid is not None:
+                citizenship = client.fetch_item(claim.qid)
+                if is_historical_country(citizenship):
+                    is_historical = True
+
                 if citizenship is not None:
-                    for text in item_countries(enricher, citizenship):
+                    for text in item_countries(client, citizenship):
                         text.apply(entity, "citizenship")
 
     # No DoB/DoD, but linked to a historical country - skip:
     if strict and (not is_dated and is_historical):
         return None
 
-    for label in item_labels(item):
-        label.apply(entity, "name")
-        if label.lang == "eng":
-            break
+    if item.label is not None:
+        item.label.apply(entity, "name")
 
     return entity

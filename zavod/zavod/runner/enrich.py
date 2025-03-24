@@ -47,10 +47,12 @@ def enrich(context: Context) -> None:
     store = get_store(scope, resolver)
     store.sync()
     view = store.view(scope)
-    config = dict(context.dataset.config)
-    enricher = make_enricher(context.dataset, context.cache, config)
-    if enricher is None:
-        raise RuntimeError("Cannot load enricher: %r" % config)
+    enricher = make_enricher(
+        context.dataset,
+        context.cache,
+        dict(context.dataset.config),
+        http_session=context.http,
+    )
     try:
         for entity_idx, entity in enumerate(view.entities()):
             if entity_idx > 0 and entity_idx % 1000 == 0:
