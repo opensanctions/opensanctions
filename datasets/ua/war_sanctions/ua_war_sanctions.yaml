@@ -18,7 +18,7 @@ description: |
   children.
 
   **Champions of Terror**: Athletes whom Russia uses to propagate its agenda.
-  
+
   **Marine and Aircraft Assets**: Airports, ports, and vessels involved in the transportation 
   of weapons, stolen Ukrainian goods, and sanctions circumvention efforts.
 
@@ -55,7 +55,7 @@ data:
   url: https://war-sanctions.gur.gov.ua/en
   format: HTML
 
-dates: 
+dates:
   formats: ["%d.%m.%Y", "%d.%m. %Y", "%d.%m.%Y)", "%m.%Y)"]
 
 assertions:
@@ -70,112 +70,131 @@ assertions:
       ua: 170
       ae: 80
     countries: 15
+    entities_with_prop:
+      Ownership:
+        asset: 700
+      UnknownLink:
+        role: 1500
   max:
     schema_entities:
       Organization: 1000
       Person: 1400
       Vessel: 1400
       LegalEntity: 500
-lookups: 
-  ship_party: 
+lookups:
+  ship_party:
     options:
-      - regex: 'Unknown (.+)'
+      - regex: "Unknown (.+)"
         name: null
-      - match: 'Unknown'
+      - match: "Unknown"
         name: null
-      - match: 'HK Yongye Ship LTD/ Zhang Yong (6360967 / Hong Kong / 01.11.2022)'
-        name: 'HK Yongye Ship LTD'
+      - match: "HK Yongye Ship LTD/ Zhang Yong (6360967 / Hong Kong / 01.11.2022)"
+        name: "HK Yongye Ship LTD"
         registration_number: 6360967
         country: Hong Kong
         date: "2022-11-01"
-      - match: 'Laliya Shipping Corp (6505782 / 22.05.2024)'
-        name: 'Laliya Shipping Corp'
+      - match: "Laliya Shipping Corp (6505782 / 22.05.2024)"
+        name: "Laliya Shipping Corp"
         registration_number: 6505782
         date: "2024-05-22"
-      - match: 'Leasing Company GPB LLC /current name Leasing Company LLC/ c/o Eco Shiping LLC (6129498 / russia / 05.11.2019)'
+      - match: "Leasing Company GPB LLC /current name Leasing Company LLC/ c/o Eco Shiping LLC (6129498 / russia / 05.11.2019)"
         name: ["Leasing Company GPB LLC", "Leasing Company LLC"]
         registration_number: 6129498
-        care_of: 'Eco Shiping LLC'
+        care_of: "Eco Shiping LLC"
         country: Russia
         date: "2019-11-05"
-      - match: 'Leasing Company GPB LLC /current name Leasing Company LLC/ c/o Eco Shiping LLC (6129498 / russia / 19.01.2022)'
+      - match: "Leasing Company GPB LLC /current name Leasing Company LLC/ c/o Eco Shiping LLC (6129498 / russia / 19.01.2022)"
         name: ["Leasing Company GPB LLC", "Leasing Company LLC"]
         registration_number: 6129498
-        care_of: 'Eco Shiping LLC'
+        care_of: "Eco Shiping LLC"
         country: Russia
         date: "2022-01-19"
-      - match: 'Non-Profit Partnership Revival of Maritime Traditions (russia / 2015)'
-        name: 'Non-Profit Partnership Revival of Maritime Traditions'
+      - match: "Non-Profit Partnership Revival of Maritime Traditions (russia / 2015)"
+        name: "Non-Profit Partnership Revival of Maritime Traditions"
         country: Russia
         date: "2015"
-      - match: 'Pelagia Shipping LTD /current name Delta Shipping LLC/ c/o Eco Shiping LLC (5863958 / russia / 28.02.2017)'
+      - match: "Pelagia Shipping LTD /current name Delta Shipping LLC/ c/o Eco Shiping LLC (5863958 / russia / 28.02.2017)"
         name: ["Pelagia Shipping LTD", "Delta Shipping LLC"]
         registration_number: 5863958
-        care_of: 'Eco Shiping LLC'
+        care_of: "Eco Shiping LLC"
         country: Russia
         date: "2017-02-28"
-      - match: 'Rosnefteflot JSC (3025603 / 07.04.2025)'
-        name: 'Rosnefteflot JSC'
+      - match: "Rosnefteflot JSC (3025603 / 07.04.2025)"
+        name: "Rosnefteflot JSC"
         registration_number: 3025603
         date: "2025-04-07"
-      - match: 'Rptd Sold Undisclosed Interest (09.02.2023)'
-        name: 'Rptd'
+      - match: "Rptd Sold Undisclosed Interest (09.02.2023)"
+        name: "Rptd"
         date: "2023-02-09"
-      - match: 'Rptd Sold Undisclosed Interest (12.08.2024)'
-        name: 'Rptd'
+      - match: "Rptd Sold Undisclosed Interest (12.08.2024)"
+        name: "Rptd"
         date: "2024-08-12"
-      - match: 'Rptd Sold russia (05.2004)'
-        name: 'Rptd'
+      - match: "Rptd Sold russia (05.2004)"
+        name: "Rptd"
         country: Russia
         date: "2004-05"
-      - match: 'Sergeevich/Grigoryevna с/о Sanin Yuri Sergeevich (0018872 / russia / 11.07.2024)'
-        name: 'Sergeevich/Grigoryevna'
-        care_of: 'Sanin Yuri Sergeevich'
+      - match: "RPTD SOLD RUSSIA (13.11.2024)"
+        name: "Rptd"
+        country: Russia
+        date: "2024-11-13"
+      - match: "RPTD Sold Gambia (9993073 / 24.02.2025)"
+        name: "Rptd"
+        country: Gambia
+        registration_number: 9993073
+        date: "2025-02-24"
+      - match: "Sergeevich/Grigoryevna с/о Sanin Yuri Sergeevich (0018872 / russia / 11.07.2024)"
+        name: "Sergeevich/Grigoryevna"
+        care_of: "Sanin Yuri Sergeevich"
         registration_number: 0018872
         country: Russia
         date: "2024-07-11"
-      - match: 'Trans-Flot/Vladimirovich PV о/с Trans-flot LLC (6184699 / russia / 03.10.2019)'
-        name: 'Trans-Flot/Vladimirovich PV'
+      - match: "Trans-Flot/Vladimirovich PV о/с Trans-flot LLC (6184699 / russia / 03.10.2019)"
+        name: "Trans-Flot/Vladimirovich PV"
         care_of: Trans-flot LLC
         registration_number: 6184699
         country: Russia
         date: "2019-10-03"
-      - match: 'Vafa Wholesale Ltd (5266323 / russia / 01.10.2006) (5266323 / russia / 01.10.2006)'
-        name: 'Vafa Wholesale Ltd'
+      - match: "Vafa Wholesale Ltd (5266323 / russia / 01.10.2006) (5266323 / russia / 01.10.2006)"
+        name: "Vafa Wholesale Ltd"
         registration_number: 5266323
         country: Russia
         date: "2006-10-01"
-      - match: 'Vafa Wholesale Ltd (5266323 / russia / 01.10.2006) (5266323 / russia / 01.11.2007)'
-        name: 'Vafa Wholesale Ltd'
+      - match: "Vafa Wholesale Ltd (5266323 / russia / 01.10.2006) (5266323 / russia / 01.11.2007)"
+        name: "Vafa Wholesale Ltd"
         registration_number: 5266323
         country: Russia
-        date: "2007-11-01"      
+        date: "2007-11-01"
+      - match: "Voyage Guard Shipmanagement LLC (6465812 / 14.02.2025)"
+        name: "Voyage Guard Shipmanagement LLC"
+        registration_number: 6465812
+        date: "2025-02-14"
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
-        values: 
+        values:
           - 1974-06-23
           - 1973-06-23
       - match: 21.08.1959 - 08.01.2024
-        values: 
+        values:
           - 1959-08-21
           - 2024-01-08
       - match: 08.011.2024)
         value: 2024-01-08
       - match: 07/03/2023)
         value: 2023-03-07
-      - match: 
+      - match:
           - 07.04.
           - 09.05.20234)
+          - 22.02.202)
         value: null
-  type.country: 
-    options: 
+  type.country:
+    options:
       - match: Ukraine, russian federation
-        values: 
+        values:
           - Ukraine
           - Russia
       - match: Cyprus, russian federation
-        values: 
+        values:
           - Cyprus
           - Russia
       - match: Israel, russian federation
@@ -186,7 +205,7 @@ lookups:
         value: Ukraine
       - match: Comoro Islands
         value: Comoros
-      - match: ','
+      - match: ","
         value: null
       - match: Bermuda Islands
         value: bm
@@ -198,15 +217,15 @@ lookups:
         values:
           - Netherlands
           - Russia
-  type.name: 
-    options: 
+  type.name:
+    options:
       - match: 'AUTONOMOUS NON-PROFIT ORGANIZATION OF ADDITIONAL PROFESSIONAL EDUCATION "MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
         value: '"MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
-      - match: '-'
+      - match: "-"
         value: null
-  type.identifier: 
-    options: 
-      - match: 
+  type.identifier:
+    options:
+      - match:
           - RS 150443
           - RS 130280
           - 194905962
@@ -219,7 +238,7 @@ lookups:
       - match: 10477970849
         value: 1047797084940
         prop: registrationNumber
-      - regex:  # failed validation for entities registered in so called "people's republics"
+      - regex: # failed validation for entities registered in so called "people's republics"
           - ^122940\d{7}$
           - ^122930\d{7}$
           - ^1239\d{9}$

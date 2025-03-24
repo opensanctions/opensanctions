@@ -9019,3 +9019,13 @@ lookups:
           - name: Wells Fargo Financial, Inc.
             locality: Des Moines, Iowa
             country: US
+      - match: Bank of Hawaii, Honolulu, Hawaii
+        entities:
+          - name: Bank of Hawaii
+            locality: Honolulu, Hawaii, USA
+            country: US
+      - match: Frankewing Bancshares, Inc., Frankewing, Tennessee
+        entities:
+          - name: Frankewing Bancshares, Inc.
+            locality: Frankewing, Tennessee, USA
+            country: US
