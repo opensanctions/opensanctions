@@ -1,6 +1,8 @@
 import re
+from typing import Optional
 
 from zavod import Context, helpers as h
+from zavod.entity import Entity
 from zavod.shed.zyte_api import fetch_html
 
 
@@ -54,7 +56,7 @@ REGEX_SHIP_PARTY = re.compile(
     ^(?P<name>.+?)  # non-greedy to prevent matching the c/o part
     ( [cсп]/[oо]:?\ (?P<care_of>[^\(]+)\ )?
     \(
-    (?P<registration_number>.+)$
+    (?P<imo_number>.+)$
     """,
     re.VERBOSE,
 )
@@ -81,22 +83,6 @@ def apply_dob_pob(entity, dob_pob):
     elif len(dob_pob) == 1:
         dob = dob_pob[0]
         h.apply_date(entity, "birthDate", dob)
-
-
-def emit_care_of(context, entity, unknown_link_name):
-    # create an unknown link entity fo c/o cases in names
-    care_of_entity = context.make("LegalEntity")
-    care_of_entity.id = context.make_id(unknown_link_name)
-    care_of_entity.add("name", unknown_link_name)
-    context.emit(care_of_entity)
-
-    # create and emit the UnknownLink
-    unknown_link = context.make("UnknownLink")
-    unknown_link.id = context.make_id(entity.id, "unknown_link", care_of_entity.id)
-    unknown_link.add("object", entity.id)
-    unknown_link.add("subject", care_of_entity.id)
-    unknown_link.add("role", "c/o")
-    context.emit(unknown_link)
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
@@ -221,7 +207,7 @@ def crawl_vessel(context: Context, link, program):
         ".//div[contains(@class, 'tools-frame')]//a[contains(@class, 'long-text yellow')]"
     )
 
-    name = data.pop("Vessel name (international according to IMO)")
+    name = data.pop("Vessel name")
     type = data.pop("Vessel Type")
     imo_num = data.pop("IMO")
 
@@ -238,6 +224,9 @@ def crawl_vessel(context: Context, link, program):
     vessel.add("flag", data.pop("Flag (Current)"))
     vessel.add("mmsi", data.pop("MMSI"))
     vessel.add("buildDate", data.pop("Build year"))
+    deadweight_tonnage = data.pop("DWT")
+    if deadweight_tonnage != "0":
+        vessel.add("tonnage", deadweight_tonnage)
     for raw_link in web_links:
         link_href = raw_link.get("href", "").strip()
         vessel.add("sourceUrl", link_href)
@@ -256,28 +245,26 @@ def crawl_vessel(context: Context, link, program):
     context.emit(vessel)
     context.emit(sanction)
 
+    pi_club = data.pop("P&I Club")
+    if pi_club != "-":
+        emit_relation(context, vessel, pi_club, rel_role="P&I Club")
+
     crawl_ship_relation(
         context,
         vessel,
-        data.pop("Commercial ship manager (IMO / Country / Date)"),
+        data.pop("Commercial ship manager (IMO / Country / Date)", None),
         "Commercial ship manager",
-        "UnknownLink",
-        "subject",
-        "object",
     )
     crawl_ship_relation(
         context,
         vessel,
         data.pop("Ship Safety Management Manager (IMO / Country / Date)", None),
         "Ship Safety Management Manager",
-        "UnknownLink",
-        "subject",
-        "object",
     )
     crawl_ship_relation(
         context,
         vessel,
-        data.pop("Ship Owner (IMO / Country / Date)"),
+        data.pop("Ship Owner (IMO / Country / Date)", None),
         "Shipowner",
         "Ownership",
         "asset",
@@ -293,7 +280,7 @@ def crawl_vessel(context: Context, link, program):
             "Builder (country)",
             # These always seem to be one of the owner or management companies
             # already included from that section.
-            "The person in connection with whom sanctions have been applied",
+            "The person in connection with whomsanctions have been applied",
         ],
     )
 
@@ -315,11 +302,11 @@ def parse_ship_party(relation_info):
         match = REGEX_SHIP_PARTY.match(entity_name_number)
         if match and not name_looks_unclean(match.group("name")):
             entity_name = match.group("name").strip()
-            registration_number = match.group("registration_number")
+            imo_number = match.group("imo_number")
             care_of = match.group("care_of")
             return {
                 "name": entity_name,
-                "registration_number": registration_number,
+                "imo_number": imo_number,
                 "country": entity_country,
                 "date": entity_date,
                 "care_of": care_of,
@@ -328,20 +315,20 @@ def parse_ship_party(relation_info):
 
 
 def crawl_ship_relation(
-    context,
-    vessel,
+    context: Context,
+    vessel: Entity,
     relation_info,
-    rel_role,
-    rel_schema,
-    from_prop,
-    to_prop,
+    rel_role: Optional[str] = None,
+    rel_schema: str = "UnknownLink",
+    from_prop: str = "subject",
+    to_prop: str = "object",
 ):
     if relation_info is None:
         return
     if result := parse_ship_party(relation_info):
         entity_name = result["name"]
-        registration_number = result["registration_number"]
-        entity_country = result["country"]
+        imo_number = result["imo_number"]
+        country = result["country"]
         entity_date = result["date"]
         care_of = result["care_of"]
     else:
@@ -350,8 +337,8 @@ def crawl_ship_relation(
             if res.name is None:
                 return
             entity_name = res.name
-            registration_number = res.registration_number
-            entity_country = res.country
+            imo_number = res.imo_number
+            country = res.country
             entity_date = res.date
             care_of = res.care_of
         else:
@@ -360,24 +347,58 @@ def crawl_ship_relation(
                 string=relation_info,
             )
             return
-
-    entity = context.make("Organization")
-    entity.id = context.make_id(entity_name, entity_country)
-    entity.add("name", entity_name)
-    entity.add("imoNumber", registration_number)
-    entity.add("country", entity_country)
-    context.emit(entity)
-
-    relation = context.make(rel_schema)
-    relation.id = context.make_id(vessel.id, rel_role, entity.id)
-    relation.add(from_prop, vessel.id)
-    relation.add(to_prop, entity.id)
-    relation.add("role", rel_role)
-    h.apply_date(relation, "startDate", entity_date)
-    context.emit(relation)
+    other_entity = emit_relation(
+        context,
+        vessel,
+        entity_name,
+        country,
+        imo_number,
+        rel_schema,
+        rel_role,
+        from_prop,
+        to_prop,
+        entity_date,
+    )
 
     if care_of is not None:
-        emit_care_of(context, entity, care_of)
+        emit_relation(
+            context,
+            other_entity,
+            care_of,
+            rel_role="c/o",
+            from_prop="object",
+            to_prop="subject",
+        )
+
+
+def emit_relation(
+    context: Context,
+    entity: Entity,
+    name: str,
+    country: Optional[str] = None,
+    imo_number: Optional[str] = None,
+    rel_schema: str = "UnknownLink",
+    rel_role: Optional[str] = None,
+    from_prop: str = "subject",
+    to_prop: str = "object",
+    start_date: Optional[str] = None,
+) -> Entity:
+    other = context.make("LegalEntity")
+    other.id = context.make_id(name, country)
+    other.add("name", name)
+    other.add_cast("Organization", "imoNumber", imo_number)
+    other.add("country", country)
+    context.emit(other)
+
+    relation = context.make(rel_schema)
+    relation.id = context.make_id(entity.id, rel_role, other.id)
+    relation.add(from_prop, entity.id)
+    relation.add(to_prop, other.id)
+    relation.add("role", rel_role)
+    h.apply_date(relation, "startDate", start_date)
+    context.emit(relation)
+
+    return other
 
 
 def crawl_person(context: Context, link, program):
@@ -533,8 +554,13 @@ def crawl(context: Context):
         ".//div[contains(@class, 'tab')]/div[contains(@class, 'justify-content-center')]"
     )
     assert len(transport_tabs_container) == 1, transport_tabs_container
+    # - Captains - in LINKS
+    # - Shadow Fleet - in LINKS
+    # - Air vessels - "soon"
+    # - Ports - "soon"
+    # - Aircraft - "soon"
     h.assert_dom_hash(
-        transport_tabs_container[0], "30a19544db4cf42e1c8678f243974e9d12dfa6aa"
+        transport_tabs_container[0], "da1210b8efb6480150ca06b95e7f22b19b018f44"
     )
 
     for link_info in LINKS:

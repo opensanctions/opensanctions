@@ -78,6 +78,7 @@ children:
   - ie_unlawful_organizations
   - jp_mof_sanctions
   - jp_meti_eul
+  - jp_meti_ru
   - kg_fiu_national
   - kz_afmrk_sanctions
   - lt_fiu_freezes

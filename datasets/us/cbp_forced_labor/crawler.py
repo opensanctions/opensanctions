@@ -144,7 +144,7 @@ def crawl(context: Context):
     doc.make_links_absolute(context.data_url)
 
     for accordion in doc.xpath(accordion_xpath):
-        heading_el = accordion.find(".//h2")
+        heading_el = accordion.find(".//h3")
         heading_text = heading_el.text_content()
         table = accordion.find(".//table")
 
