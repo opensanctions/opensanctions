@@ -29,26 +29,15 @@ def extract_judicial_declaration(context, url, doc_id_date) -> Dict[str, Optiona
                 # Capture up until a newline or end of text
                 "name": r"Име:\s*([А-Яа-яЁё\s-]+)(?=\n|$)",
                 "role": r"Длъжност:\s*([А-Яа-яЁё\s-]+)(?=\n|$)",
-                "organization": r"Орган на съдебната власт:\s*([А-Яа-яЁё\s,.-]+)(?=\n|$)",
+                "organization": r"Орган на съдебната власт:\s*(.+)",
             }
 
             for key, pattern in patterns.items():
-                match = re.search(pattern, full_text)
+                # Apply MULTILINE only for "organization"
+                flags = re.MULTILINE if key == "organization" else 0
+                match = re.search(pattern, full_text, flags)
                 extracted_data[key] = match.group(1).strip() if match else None
-            # Additional check for 'organization'
-            if extracted_data.get("organization") is None:
-                relaxed_match = re.search(
-                    r"Орган на съдебната власт:\s*(.+)", full_text, re.MULTILINE
-                )
-                if relaxed_match:
-                    organization = relaxed_match.group(1).strip()
-                    context.log.warning(
-                        f"Organization field needs manual cleanup: {organization, url}"
-                    )
-                    organization = context.lookup_value("organization", organization)
-                    extracted_data["organization"] = organization
-                else:
-                    extracted_data["organization"] = None
+
     except Exception as e:
         context.log.warning(f"Skipping {pdf_path} due to error: {e}")
         return {}
