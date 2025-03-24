@@ -80,12 +80,8 @@ def wikidata_position(
     position = context.make("Position")
     position.id = item.id
     position.add("wikidataId", item.id)
-    label = item.label
-    if label is not None:
-        label.apply(position, "name")
-    else:
-        for label in item.labels:
-            label.apply(position, "name")
+    if item.label is not None:
+        item.label.apply(position, "name")
 
     for country in item_countries(client, item):
         country.apply(position, "country")

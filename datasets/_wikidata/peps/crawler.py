@@ -3,13 +3,12 @@ from typing import Dict, Optional, Any, List, Generator
 from fingerprints import clean_brackets
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories, get_territory_by_qid
+from nomenklatura.wikidata import WikidataClient, SparqlValue
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import PositionCategorisation, categorise
-from zavod.shed.wikidata.query import run_raw_query, CACHE_MEDIUM
-from zavod.shed.wikidata.struct import SparqlValue
 
 DECISION_NATIONAL = "national"
 
@@ -102,7 +101,7 @@ def crawl_holder(
 
 
 def query_position_holders(
-    context: Context, wd_position: Dict[str, str]
+    context: Context, client: WikidataClient, wd_position: Dict[str, str]
 ) -> Generator[Dict[str, Any], None, None]:
     context.log.info(
         f"Crawling holders of position {wd_position['qid']} ({wd_position['label']})"
@@ -132,7 +131,7 @@ def query_position_holders(
         SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr". }}
         }}
     """
-    response = run_raw_query(context, holders_query, cache_days=CACHE_MEDIUM)
+    response = client.query(holders_query)
 
     for binding in response.results:
         if not is_qid(binding.plain("person")):
@@ -158,7 +157,10 @@ def query_position_holders(
 
 
 def query_positions(
-    context: Context, position_classes, country: Dict[str, str]
+    context: Context,
+    client: WikidataClient,
+    position_classes: List[Dict[str, str]],
+    country: Dict[str, str],
 ) -> Generator[Dict[str, Any], None, None]:
     """
     May return duplicates
@@ -170,12 +172,12 @@ def query_positions(
     country_results: List[SparqlValue] = []
     for position_class in position_classes:
         context.log.info(
-            f"Querying descendants of {position_class['qid']} ({position_class['label']})"
+            f"Querying descendants of {position_class['qid']} ({position_class['label']}) in {country['label']}"
         )
         class_qid = position_class.get("qid")
         country_query = f"""
         SELECT ?position ?positionLabel ?country ?jurisdiction ?abolished WHERE {{
-            {{ SELECT ?position WHERE {{ ?position "wdt:P31/wdt:P279*" wd:{class_qid} . }} }}
+            {{ SELECT ?position WHERE {{ ?position (wdt:P31|wdt:P279)* wd:{class_qid} . }} }}
             {{ SELECT ?position WHERE {{ ?position wdt:P1001|wdt:P17 wd:{country["qid"]} . }} }}
             OPTIONAL {{ ?position wdt:P17 ?country }}
             OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
@@ -184,18 +186,14 @@ def query_positions(
         }}
         GROUP BY ?position ?positionLabel ?country ?jurisdiction ?abolished
         """
-        country_response = run_raw_query(
-            context,
-            country_query,
-            cache_days=CACHE_MEDIUM,
-        )
+        country_response = client.query(country_query)
         country_results.extend(country_response.results)
 
     # a.2) Instances of Q4164871 (position) by jurisdiction/country
     context.log.info("Querying instances of Q4164871 (position)")
     country_query = f"""
         SELECT ?position ?positionLabel ?country ?jurisdiction ?abolished WHERE {{
-            {{ SELECT ?position WHERE {{ ?position "wdt:P31*" wd:Q4164871 . }} }}
+            {{ SELECT ?position WHERE {{ ?position wdt:P31* wd:Q4164871 . }} }}
             {{ SELECT ?position WHERE {{ ?position wdt:P1001|wdt:P17 wd:{country["qid"]} . }} }}
             OPTIONAL {{ ?position wdt:P17 ?country }}
             OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
@@ -204,7 +202,7 @@ def query_positions(
         }}
         GROUP BY ?position ?positionLabel ?country ?jurisdiction ?abolished
         """
-    country_response = run_raw_query(context, country_query, cache_days=CACHE_MEDIUM)
+    country_response = client.query(country_query)
     country_results.extend(country_response.results)
 
     for bind in country_results:
@@ -221,7 +219,6 @@ def query_positions(
         SELECT ?position ?positionLabel ?jurisdiction ?country ?abolished
         WHERE {{
             ?holder wdt:P39 ?position .
-            # ?holder wdt:P31 wd:Q5 .
             ?holder wdt:P106 wd:Q82955 .  
             ?holder wdt:P27 wd:{country['qid']} .  
             OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
@@ -231,9 +228,7 @@ def query_positions(
         }}
         GROUP BY ?position ?positionLabel ?jurisdiction ?country ?abolished
     """
-    politician_response = run_raw_query(
-        context, politician_query, cache_days=CACHE_MEDIUM
-    )
+    politician_response = client.query(politician_query)
     for bind in politician_response.results:
         picked_country = pick_country(
             bind.plain("country"),
@@ -266,15 +261,17 @@ def all_countries():
         yield {"qid": territory.qid, "code": code, "label": territory.name}
 
 
-def query_position_classes(context: Context):
+def query_position_classes(
+    context: Context, client: WikidataClient
+) -> List[Dict[str, str]]:
     subclasses_query = """
-        SELECT ?class ?classLabel WHERE {{
+    SELECT ?class ?classLabel WHERE {
         ?class wdt:P279 wd:Q4164871 .
         SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr". }
-    }}
+    }
     """
-    response = run_raw_query(context, subclasses_query, cache_days=CACHE_MEDIUM)
-    classes = []
+    response = client.query(subclasses_query)
+    classes: List[Dict[str, str]] = []
     for binding in response.results:
         qid = binding.plain("class")
         if not is_qid(qid):
@@ -291,7 +288,9 @@ def query_position_classes(context: Context):
 
 def crawl(context: Context):
     seen_positions = set()
-    position_classes = query_position_classes(context)
+    cache_days = context.dataset.config.get("cache_days", 14)
+    client = WikidataClient(context.cache, context.http, cache_days=cache_days)
+    position_classes = query_position_classes(context, client)
 
     for country in all_countries():
         include_local = False
@@ -300,7 +299,7 @@ def crawl(context: Context):
         if country["code"] == "us":
             include_local = True
 
-        for wd_position in query_positions(context, position_classes, country):
+        for wd_position in query_positions(context, client, position_classes, country):
             if wd_position["qid"] in seen_positions:
                 continue
 
@@ -316,7 +315,7 @@ def crawl(context: Context):
             if not include_local and ("gov.muni" in categorisation.topics):
                 continue
 
-            for holder in query_position_holders(context, wd_position):
+            for holder in query_position_holders(context, client, wd_position):
                 crawl_holder(context, categorisation, position, holder)
             seen_positions.add(wd_position["qid"])
 

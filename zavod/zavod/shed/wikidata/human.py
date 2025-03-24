@@ -72,9 +72,7 @@ def wikidata_basic_human(
     if strict and (not is_dated and is_historical):
         return None
 
-    for label in item.sorted_labels():
-        label.apply(entity, "name")
-        if label.lang == "eng":
-            break
+    if item.label is not None:
+        item.label.apply(entity, "name")
 
     return entity

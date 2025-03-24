@@ -8,7 +8,6 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.shed.wikidata.position import wikidata_position
 from zavod.shed.wikidata.human import wikidata_basic_human
-from zavod.shed.wikidata.query import run_raw_query
 
 URL = "https://petscan.wmcloud.org/"
 QUERY = {
@@ -248,7 +247,7 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
         ?person wdt:P31 wd:Q5
     }}
     """
-    response = run_raw_query(state.context, query, cache_days=7)
+    response = state.client.query(query)
     for result in response.results:
         person_qid = result.plain("person")
         if person_qid is not None:
@@ -275,7 +274,7 @@ def crawl_position_seeds(state: CrawlState) -> None:
         }}
         """
         roles.add(seed)
-        response = run_raw_query(state.context, query, cache_days=7)
+        response = state.client.query(query)
         # print("QUERY", seed, len(response.results))
         for result in response.results:
             role = result.plain("role")
