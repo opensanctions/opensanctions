@@ -56,13 +56,15 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     reg_country = row.pop("registration_country")
     headquarters_country = row.pop("headquarters_country")
     entity_type = row.pop("entity_type")
-
+    perm_id = row.pop("permid_refinitiv_permanent_identifier")
+    topics = None
     if entity_type == "legal entity":
         schema = "Company"
     elif entity_type == "arrangement":
         schema = "LegalEntity"
     elif entity_type == "state body" or entity_type == "state":
-        schema = "PublicBody"
+        schema = "Organization"
+        topics = "gov.soe"
     elif entity_type == "person":
         schema = "Person"
     else:
@@ -120,9 +122,8 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     if homepage:
         entity.add("website", split_urls(homepage))
     if not entity.schema.is_a("Person"):
-        entity.add_cast(
-            "Company", "permId", row.pop("permid_refinitiv_permanent_identifier")
-        )
+        if perm_id != "not found":
+            entity.add_cast("Company", "permId", perm_id)
         ru_id = row.pop(
             "russia_uniform_state_register_of_legal_entities_of_russian_federation"
         )
@@ -138,7 +139,8 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         entity.add("registrationNumber", in_id)
         entity.add("registrationNumber", row.pop("us_eia"))
         entity.add("registrationNumber", row.pop("s_p_capital_iq"))
-        if entity.schema.is_a("PublicBody"):
+        if entity.schema.is_a("Organization") and topics is not None:
+            entity.add("topics", "gov.soe")
             entity.add("registrationNumber", row.pop("us_sec_central_index_key"))
         else:
             entity.add_cast("Company", "cikCode", row.pop("us_sec_central_index_key"))

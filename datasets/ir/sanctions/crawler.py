@@ -64,7 +64,10 @@ def crawl(context: Context):
         qs = urlencode(params)
         url = f"{context.data_url}?{qs}"
         pagenums_xpath = '//*[contains(@class, "pageinationnum")]'
-        doc = fetch_html(context, url, pagenums_xpath, cache_days=1, retries=6)
+        # Geolocation bypasses Cloudflare checks
+        doc = fetch_html(
+            context, url, pagenums_xpath, cache_days=1, retries=6, geolocation="IR"
+        )
         pagenums = [int(el.text_content()) for el in doc.xpath(pagenums_xpath)]
         max_page = max(pagenums)
         rows = parse_table(context, doc.find(".//table"))

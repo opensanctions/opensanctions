@@ -49,12 +49,12 @@ def clean_name_en(data_string):
     return clean_name, aliases
 
 
-def clean_name_raw(context, name_jap, row):
+def clean_name_raw(context, name_jpn, row):
     main_name = ""
     aliases = []
 
     # Attempt to match the entire name
-    match = NAMES_PATTERN.fullmatch(name_jap)
+    match = NAMES_PATTERN.fullmatch(name_jpn)
     if match:
         main_name = match.group("main").strip()
         aliases_raw = match.group("aliases") or ""
@@ -66,7 +66,7 @@ def clean_name_raw(context, name_jap, row):
     # Check for cases that require manual processing
     if main_name == "" and not aliases:
         # Identify complex cases with certain characters
-        if any(char in name_jap for char in ["（", "、", ")", "）"]):
+        if any(char in name_jpn for char in ["（", "、", ")", "）"]):
             main_name = row.pop("name_jpn_cleaned")
             aliases_raw = row.pop("aliases_jpn_cleaned")
             aliases = [
@@ -75,28 +75,28 @@ def clean_name_raw(context, name_jap, row):
         else:
             # Remove leading numbers for cases with names only
             # (e.g. '4 株式会社コンペル')
-            name_jap = re.sub(r"^\d+\s*", "", name_jap)
-            main_name = name_jap
+            name_jpn = re.sub(r"^\d+\s*", "", name_jpn)
+            main_name = name_jpn
 
     if not main_name:
         context.log.warning(
-            f"Entry needs manual processing: {name_jap}. Please fix in the Google Sheet."
+            f"Entry needs manual processing: {name_jpn}. Please fix in the Google Sheet."
         )
 
     return main_name, aliases
 
 
 def crawl_row(context, row):
-    name_jap = row.pop("name_raw")
+    name_jpn = row.pop("name_raw")
     name_en = row.pop("name_en")
     address = clean_address(row.pop("address"))
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(name_jap, name_en)
+    entity.id = context.make_id(name_jpn, name_en)
     # Japanese name and alias cleanup
-    name_jap_clean, aliases_jap = clean_name_raw(context, name_jap, row)
-    entity.add("name", name_jap_clean, lang="jpn")
-    for alias in aliases_jap:
+    name_jpn_clean, aliases_jpn = clean_name_raw(context, name_jpn, row)
+    entity.add("name", name_jpn_clean, lang="jpn")
+    for alias in aliases_jpn:
         entity.add("alias", alias, lang="jpn")
     # English name and alias cleanup
     name_en_clean, aliases = clean_name_en(name_en)
@@ -107,7 +107,7 @@ def crawl_row(context, row):
         entity.add("address", address)
 
     entity.add("sourceUrl", row.pop("source_url"))
-    entity.add("topics", "debarment")
+    entity.add("topics", "export.control")
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)

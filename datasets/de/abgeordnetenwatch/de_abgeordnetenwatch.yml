@@ -35,9 +35,11 @@ ci_test: false
 assertions:
   min:
     schema_entities:
-      Person: 2125
+      Person: 2500
       Position: 15
   max:
     schema_entities:
-      Person: 5000
+      # We kinda wanna see when we need to bump the minimum but it's been fluctuating
+      # inexplicably so we want it a bit tighter than usual
+      Person: 3000
       Position: 30

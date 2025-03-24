@@ -36,7 +36,8 @@ jobs:
       - name: Install zavod dependencies
         working-directory: zavod
         run: |
-          python -m pip install --upgrade pip wheel pyicu
+          python -m pip install --upgrade setuptools==77.0.3
+          python -m pip install --upgrade pip wheel pyicu==2.14
           pip install --no-cache-dir -q -e ".[dev]"
       - name: Check zavod type annotations (strict)
         working-directory: zavod
