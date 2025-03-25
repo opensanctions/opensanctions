@@ -69,10 +69,6 @@ assertions:
       Person: 500
 
 lookups:
-  types:
-    map:
-      Firm: Company
-      Individual: Person
   type.country:
     lowercase: true
     normalize: true

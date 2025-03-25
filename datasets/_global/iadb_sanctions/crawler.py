@@ -55,22 +55,18 @@ def crawl(context: Context):
     shutil.copyfile(data_path, path)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     for row in excel_records(path):
+        # They mis-classify some entities so we don't use this for schema.
         entity_type = row.pop("entity", None)
         if entity_type is None:
             continue
-        schema = context.lookup_value("types", entity_type)
-        if schema is None:
-            context.log.warning("Unknown entity type", entity=entity_type)
-            continue
-        entity = context.make(schema)
         title = row.pop("title")
+        entity = context.make("LegalEntity")
         entity.id = context.make_slug(entity_type, title)
         entity.add("name", title)
         entity.add("alias", row.pop("other_name", None))
         entity.add("country", parse_countries(row.pop("country", None)))
         for country in parse_countries(row.pop("nationality", None)):
-            prop = "nationality" if schema == "Person" else "jurisdiction"
-            entity.add(prop, country)
+            entity.add("country", country)
 
         sanction = h.make_sanction(context, entity)
         # sanction.add("status", row.pop("statusName"))
