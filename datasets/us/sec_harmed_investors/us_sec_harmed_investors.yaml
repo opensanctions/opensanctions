@@ -1047,3 +1047,11 @@ lookups:
       - match: becton, dickinson, and company
         names:
           - Becton, Dickinson and Company  # This is a full company name, see Q813780
+      - match: andrew defrancesco, marlio mauricio diaz cardona, carlos felipe rezk, nikola faukovic, and catherine defrancesco (cool holdings inc.)
+        names:
+          - Andrew Defrancesco
+          - Marlio Mauricio Diaz Cardona
+          - Carlos Felipe Rezk
+          - Nikola Faukovic
+          - Catherine Defrancesco
+          - Cool Holdings Inc.
