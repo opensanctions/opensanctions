@@ -24,6 +24,14 @@ publisher:
 data:
   url: https://www.saps.gov.za/crimestop/wanted/list.php
   format: HTML
+http:
+  retry_statuses:
+    - 404 # usually by the time we check, the page is there.
+    - 413
+    - 429
+    - 500
+    - 502
+    - 503
 
 assertions:
   min:
