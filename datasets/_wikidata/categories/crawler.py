@@ -21,7 +21,7 @@ QUERY = {
     "sortorder": "ascending",
 }
 # TEMP: We're starting to include municipal PEPs for specific countries
-MUNI_COUNTRIES = {"us", "fr", "gb"}
+MUNI_COUNTRIES = {"us", "fr", "gb", "ru"}
 
 
 class CrawlState(object):
@@ -189,18 +189,6 @@ def crawl_category(state: CrawlState, category: Dict[str, Any]) -> None:
             continue
         state.persons.add(person_qid)
 
-        # if person_qid == "Q118477652":
-        #    print(person_qid, cat, row)
-        #    print(
-        #        find_paths(
-        #            state.context,
-        #            "Category:" + cat.replace("_", " "),
-        #            row["title"],
-        #            (),
-        #            query["depth"],
-        #        )
-        #    )
-
         if person_qid not in state.person_topics:
             state.person_topics[person_qid] = set()
         state.person_topics[person_qid].update(topics)
@@ -265,8 +253,8 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
 
 
 def crawl_position_seeds(state: CrawlState) -> None:
-    seeds: List[Dict[str, Any]] = state.context.dataset.config.get("seeds", [])
-    roles = set()
+    seeds: List[str] = state.context.dataset.config.get("seeds", [])
+    roles: Set[str] = set()
     for seed in seeds:
         query = f"""
         SELECT ?role WHERE {{
@@ -286,8 +274,28 @@ def crawl_position_seeds(state: CrawlState) -> None:
     state.context.cache.flush()
 
 
+def crawl_declarator(state: CrawlState) -> None:
+    # Import all profiles which have a Declarator ID, a reference to a Russian PEP
+    # site containing profiles of all elected officials in Russia.
+    query = """
+    SELECT ?person WHERE {
+        ?person wdt:P1883 ?value .
+        ?person wdt:P31 wd:Q5
+    }
+    """
+    response = state.client.query(query)
+    state.log.info("Found %d declarator profiles" % len(response.results))
+    for result in response.results:
+        person = result.plain("person")
+        state.persons.add(person)
+        if person not in state.person_topics:
+            state.person_topics[person] = set()
+        state.person_topics[person].add("role.pep")
+
+
 def crawl(context: Context) -> None:
     state = CrawlState(context)
+    crawl_declarator(state)
     crawl_position_seeds(state)
     categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
     for category in categories:
