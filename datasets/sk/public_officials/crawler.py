@@ -94,7 +94,7 @@ def crawl_person(context: Context, data, href, name_raw):
             categorisation=categorisation,
             status=OccupancyStatus.UNKNOWN,
         )
-        occupancy.add("date", year)
+        occupancy.add("declarationDate", year)
 
         context.emit(position)
         context.emit(occupancy)
