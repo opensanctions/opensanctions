@@ -274,8 +274,28 @@ def crawl_position_seeds(state: CrawlState) -> None:
     state.context.cache.flush()
 
 
+def crawl_declarator(state: CrawlState) -> None:
+    # Import all profiles which have a Declarator ID, a reference to a Russian PEP
+    # site containing profiles of all elected officials in Russia.
+    query = """
+    SELECT ?person WHERE {
+        ?person wdt:P1883 ?value .
+        ?person wdt:P31 wd:Q5
+    }
+    """
+    response = state.client.query(query)
+    state.log.info("Found %d declarator profiles" % len(response.results))
+    for result in response.results:
+        person = result.plain("person")
+        state.persons.add(person)
+        if person not in state.person_topics:
+            state.person_topics[person] = set()
+        state.person_topics[person].add("role.pep")
+
+
 def crawl(context: Context) -> None:
     state = CrawlState(context)
+    crawl_declarator(state)
     crawl_position_seeds(state)
     categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
     for category in categories:
