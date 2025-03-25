@@ -128,7 +128,7 @@ def crawl(context: Context):
     #
     # Use screenshot.png in this directory to visually diff the website, then update the screenshot
     # google-chrome-stable --headless --disable-gpu --screenshot --window-size=1600,6000 $(yq ".url" il_mod_crypto.yml)
-    h.assert_dom_hash(container, "de0bfb47103b25f8717718ae5ac49dd79f5e1da6")
+    h.assert_dom_hash(container, "6bfd51fabd29e29a541660ecfe004b8c67d9acd0")
 
     # We don't support rowspan at the time of writing.
     #
