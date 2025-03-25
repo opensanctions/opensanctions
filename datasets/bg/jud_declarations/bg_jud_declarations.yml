@@ -36,7 +36,7 @@ data:
 
 dates: 
   formats: ["%d.%m.%Y"]
-lookups: 
+lookups:
   doc_id_date: 
     options: 
       - match: 2340//15.03.2024
