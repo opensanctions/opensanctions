@@ -1,15 +1,25 @@
+# The site is down as at 2025-03-25. The agency can't currently give more information
+# about if/when it will be available again, only that we should check back later.
+# The cached data has been archived to keep crawling to keep aligned with FTM updates.
+# Edits are annotated with !!offline-dump
+
 from copy import deepcopy
+import csv
+from lxml import html
 from typing import Set
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
 import re
+
 from followthemoney.types import registry
 from normality import collapse_spaces, slugify
+import orjson
 
 from zavod.context import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import categorise, OccupancyStatus
+from zavod.shed.internal_data import fetch_internal_data
 from zavod.shed.trans import (
     apply_translit_full_name,
     apply_translit_names,
@@ -339,18 +349,44 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     )
 
 
-def query_declaration(context: Context, year: int, name: str, cache_days: int) -> None:
+def query_declaration(
+    context: Context, year: int, name: str, cache_days: int, cache_dump
+) -> None:
     query = {
         "Key": name,
         "YearSelectedValues": year,
     }
     url = f"{context.data_url}?{urlencode(query)}"
-    declarations = context.fetch_json(url, cache_days=cache_days)
+    # !!offline-dump
+    # declarations = context.fetch_json(url, cache_days=cache_days)
+    if url not in cache_dump:
+        return []
+    declarations = orjson.loads(cache_dump[url])
     return declarations
 
 
 def crawl(context: Context) -> None:
-    current_year = datetime.now().year
+    # Check for updates - is the site or API available again?
+    h.assert_url_hash(
+        context, context.dataset.url, "3c9db31eb28019cfdbe443f9d9335459ba4ab6c7"
+    )
+    h.assert_url_hash(
+        context, context.data_url, "33931eb0b677e5258033865daee042cecbddb150"
+    )
+
+    path = context.get_resource_path("cache_dump.csv")
+    fetch_internal_data(
+        "ge_declarations/20250321/ge_declarations-cache-20250321.csv", path
+    )
+    cache_dump = dict()
+    with open(path, "r") as fh:
+        for row in csv.DictReader(fh):
+            if "https://" not in row["key"]:
+                continue
+            url = row["key"].split("[")[0]
+            cache_dump[url] = row["text"]
+
+    current_year = 2024  # !!offline-dump datetime.now().year
     for year in [current_year, current_year - 1]:
         page = 1
         max_page = None
@@ -358,7 +394,9 @@ def crawl(context: Context) -> None:
         while max_page is None or page <= max_page:
             url = f"{DECLARATION_LIST_URL}?yearSelectedValues={year}&page={page}"
             cache_days = 1 if year == current_year else 30
-            doc = context.fetch_html(url, cache_days=cache_days)
+            # !!offline-dump
+            # doc = context.fetch_html(url, cache_days=cache_days)
+            doc = html.fromstring(cache_dump[url])
             page_count_el = doc.find(".//li[@class='PagedList-skipToLast']/a")
             page_count_match = REGEX_CHANGE_PAGE.match(page_count_el.get("onclick"))
             max_page = int(page_count_match.group(1))
@@ -366,7 +404,9 @@ def crawl(context: Context) -> None:
 
             for row in doc.findall(".//div[@class='declaration1']"):
                 name = row.find(".//h3").text_content()
-                declarations = query_declaration(context, year, name, cache_days)
+                declarations = query_declaration(
+                    context, year, name, cache_days, cache_dump
+                )
                 for declaration in declarations:
                     crawl_declaration(context, declaration, year == current_year)
 
