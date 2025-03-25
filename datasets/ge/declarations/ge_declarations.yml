@@ -2,8 +2,11 @@ title: Georgia Public Official Asset Declarations
 entry_point: crawler.py
 prefix: ge-dec
 coverage:
-  frequency: weekly
+  frequency: never
   start: 2024-07-25
+  end: 2024-11-30
+deploy:
+  schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Politically exposed persons from Georgia based on property declarations of public officials.
@@ -17,6 +20,9 @@ description: |
 
   **Note:** This crawler uses an LLM-based approach to transliterate person and company names
   and translate position labels.
+
+  **Paused:** The source website was taken offline shortly after the last update on 2024-11-30.
+  We will resume crawling when the website is back online.
 url: https://declaration.acb.gov.ge/
 data:
   # Don't fetch this without query parameters - it just selects everything and times out
