@@ -65,6 +65,10 @@ IGNORE_TYPES: Set[str] = {
     "Q114962596",  # historical position
     "Q193622",  # order
     "Q60754876",  # grade of an order
+    "Q618779",  # award
+    "Q4240305",  # cross
+    "Q120560",  # minor basilica?
+    "Q2977",  # cathedral
 }
 
 

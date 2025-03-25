@@ -268,6 +268,22 @@ def crawl_position_seeds(state: CrawlState) -> None:
             role = result.plain("role")
             roles.add(role)
 
+    # for territory in get_territories():
+    #     if territory.is_historical:
+    #         continue
+    #     if territory.ftm_country is None:
+    #         continue
+    #     query = f"""
+    #     SELECT ?role WHERE {{
+    #         ?role (wdt:P279|wdt:P31)+ wd:Q4164871 .
+    #         ?role wdt:P1001|wdt:P17 wd:{territory.qid} .
+    #     }}
+    #     """
+    #     response = state.client.query(query)
+    #     for result in response.results:
+    #         role = result.plain("role")
+    #         roles.add(role)
+
     state.log.info("Found %d seed positions" % len(roles))
     for role in roles:
         state.persons.update(crawl_position_holder(state, role))
