@@ -49,7 +49,6 @@ def crawl(context: Context):
 
         first_name = entity_data.get("Meno")
         last_name = entity_data.get("Priezvisko")
-        # birth_date = entity_data.get("DatumNarodenia")
         entity_name = entity_data.get("ObchodneMeno")
         ico = entity_data.get("Ico")
         if entity_name and ico:
@@ -87,13 +86,14 @@ def crawl(context: Context):
             street_number = address.get("OrientacneCislo")
             city = address.get("Mesto")
             postal_code = address.get("Psc")
-            h.make_address(
+            address = h.make_address(
                 context,
                 street=street_name,
                 street2=street_number,
                 city=city,
                 postal_code=postal_code,
             )
+            h.copy_address(entity, address)
         context.emit(entity)
         partner = entity_data.get("Partner", {})
         if partner:
