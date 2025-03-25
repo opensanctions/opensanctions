@@ -61,12 +61,10 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 515
-      Person: 210
+      LegalEntity: 720
   max:
     schema_entities:
-      Company: 1200
-      Person: 500
+      LegalEntity: 1700
 
 lookups:
   type.country:

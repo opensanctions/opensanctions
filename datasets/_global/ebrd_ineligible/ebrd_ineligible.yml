@@ -149,13 +149,11 @@ lookups:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 900
-      Person: 150
+      LegalEntity: 1050
     country_entities:
       cn: 500
       ru: 5
       ke: 20
   max:
     schema_entities:
-      LegalEntity: 1800
-      Person: 300
+      LegalEntity: 2100
