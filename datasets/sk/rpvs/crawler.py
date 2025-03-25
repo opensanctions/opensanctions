@@ -102,7 +102,7 @@ def crawl(context: Context):
         partner = entity_data.get("Partner", {})
         if partner:
             partner_id = partner.get("Id")
-            partner_entry_number = partner.get("CisloVlozky")
+            # partner_entry_number = partner.get("CisloVlozky")
             partner_url = PARTNER_DETAILS_ENDPOINT.format(id=partner_id)
             partner_response = requests.get(partner_url, headers=headers)
             if check_failed_response(context, partner_response, partner_url):
