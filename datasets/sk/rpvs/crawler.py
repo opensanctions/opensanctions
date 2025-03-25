@@ -2,7 +2,6 @@ import requests
 
 from zavod import Context, helpers as h
 
-# import zipfile
 # from zavod.shed.bods import parse_bods_fh
 BASE_URL = "https://rpvs.gov.sk/opendatav2"
 ENTITY_DETAILS_ENDPOINT = (
@@ -37,7 +36,6 @@ def check_failed_response(context, response, url):
 def crawl(context: Context):
     entity_ids = []
     headers = {"Accept": "application/json"}
-    # url = context.data_url
     response = requests.get(context.data_url, headers=headers)
     if check_failed_response(context, response, context.data_url):
         return
@@ -47,7 +45,6 @@ def crawl(context: Context):
     entity_ids = [entry["Id"] for entry in data.get("value")]
     for id in entity_ids:
         details_url = ENTITY_DETAILS_ENDPOINT.format(id=id)
-        # details_url = f"https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/{id}?$expand=Partner,PravnaForma,Adresa"
         details_response = requests.get(details_url, headers=headers)
         if check_failed_response(context, details_response, details_url):
             continue
@@ -107,7 +104,6 @@ def crawl(context: Context):
             partner_id = partner.get("Id")
             partner_entry_number = partner.get("CisloVlozky")
             partner_url = PARTNER_DETAILS_ENDPOINT.format(id=partner_id)
-            # partner_url = f"https://rpvs.gov.sk/opendatav2/Partneri/{id}?$expand=Vymaz,Pokuta,OverenieIdentifikacieKUV,konecniUzivateliaVyhod,verejniFunkcionari,kvalifikovanePodnety"
             partner_response = requests.get(partner_url, headers=headers)
             if check_failed_response(context, partner_response, partner_url):
                 continue
