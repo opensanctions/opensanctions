@@ -8,7 +8,9 @@ ENTITY_DETAILS_ENDPOINT = (
     f"{BASE_URL}/PartneriVerejnehoSektora/{{id}}?$expand=Partner,PravnaForma,Adresa"
 )
 PARTNER_DETAILS_ENDPOINT = f"{BASE_URL}/Partneri/{{id}}?$expand=Vymaz,Pokuta,OverenieIdentifikacieKUV,konecniUzivateliaVyhod,verejniFunkcionari,kvalifikovanePodnety"
-
+BENEFICIAL_OWNERS_ENDPOINT = (
+    f"{BASE_URL}/KonecniUzivateliaVyhod/{{id}}?$expand=Partner,PravnaForma,Adresa"
+)
 
 TOTAL_COUNT = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/$count"
 FIRST_PAGE = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0"
@@ -112,17 +114,44 @@ def crawl(context: Context):
             # fines = partner_data.get("Pokuta", "None")
             # deletion_status = "Deleted" if partner_data.get("Vymaz") else "Active"
 
-            # Extract beneficial owners
-            beneficial_owners = []
-            for owner in partner_data.get("KonecniUzivateliaVyhod", []):
-                owner_name = f"{owner.get('Meno')} {owner.get('Priezvisko')}"
-                owner_dob = owner.get("DatumNarodenia")
-                owner_id = owner.get("Id")
-                beneficial_owners.append((owner_name, owner_dob))
+            beneficial_owner_ids = [
+                owner.get("Id") for owner in partner_data.get("KonecniUzivateliaVyhod")
+            ]
+            for owner_id in beneficial_owner_ids:
+                owner_url = BENEFICIAL_OWNERS_ENDPOINT.format(id=owner_id)
+                owner_response = requests.get(owner_url, headers=headers)
+
+                if check_failed_response(context, owner_response, owner_url):
+                    continue
+
+                owner_data = owner_response.json()
+                owner_first_name = owner_data.get("Meno")
+                owner_last_name = owner_data.get("Priezvisko")
+                owner_dob = owner_data.get("DatumNarodenia")
+                owner_id = owner_data.get("Id")
+
                 owner = context.make("Person")
-                owner.id = context.make_id(owner_name, owner_dob, owner_id)
-                h.apply_name(owner, owner_name)
+                owner.id = context.make_id(owner_first_name, owner_dob)
+                h.apply_name(
+                    owner, first_name=owner_first_name, last_name=owner_last_name
+                )
                 h.apply_date(owner, "birthDate", owner_dob)
+                address = owner_data.get("Adresa")
+                if address:
+                    street_name = address.get("MenoUlice")
+                    street_number = address.get("OrientacneCislo")
+                    city = address.get("Mesto")
+                    city_code = address.get("MestoKod")
+                    postal_code = address.get("Psc")
+
+                    address = h.make_address(
+                        context,
+                        street=street_name + " " + street_number,
+                        city=city,
+                        place=city_code,
+                        postal_code=postal_code,
+                    )
+                    h.copy_address(owner, address)
                 context.emit(owner)
 
                 own = context.make("Ownership")
@@ -132,7 +161,6 @@ def crawl(context: Context):
                 context.emit(own)
 
             # # Extract verification details
-            # verification_status = "Not Verified"
             # verification_data = partner_data.get("OverenieIdentifikacieKUV")
             # if verification_data:
             #     verification_status = (
