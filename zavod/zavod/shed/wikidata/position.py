@@ -5,7 +5,7 @@ from rigour.territories import get_territory_by_qid
 
 from zavod import Context, Entity
 from zavod.logic.pep import categorise
-from zavod.shed.wikidata.country import item_countries
+from zavod.shed.wikidata.country import is_historical_country, item_countries
 
 POSITION_BASICS: Set[str] = {
     "Q4164871",  # position
@@ -91,6 +91,10 @@ def wikidata_position(
         country.apply(position, "country")
 
     for claim in item.claims:
+        if claim.property in ("P1001", "P17") and claim.qid is not None:
+            if is_historical_country(client, claim.qid):
+                return None
+
         # jurisdiction:
         if claim.property == "P1001":
             territory = get_territory_by_qid(claim.qid)

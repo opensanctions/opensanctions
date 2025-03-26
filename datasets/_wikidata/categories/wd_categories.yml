@@ -899,6 +899,9 @@ config:
     - category: Political_office-holders_in_Moldova
       country: md
       topic: role.pep
+    - category: Political_office-holders_in_Ukraine
+      country: ua
+      topic: role.pep
     - category: Political_office-holders_in_San_Marino
       country: sm
       topic: role.pep
@@ -1051,8 +1054,16 @@ config:
 
     # Subregion: Southern Asia
 
-    # country: India
-    # already covered
+    # country:
+    - category: India_MPs_2024–2029
+      topic: role.pep
+      country: in
+    - category: State_legislators_of_Indian_States_by_term
+      country: in
+    - category: Members_of_the_state_Legislative_Assemblies_of_India
+      country: in
+    - category: State_political_office-holders_in_India
+      country: in
 
     # country: Pakistan
     - category: Political_office-holders_in_Pakistan
