@@ -12,6 +12,7 @@ PARTNER_DETAILS_ENDPOINT = f"{BASE_URL}/Partneri/{{id}}?$expand=Vymaz,Pokuta,Ove
 BENEFICIAL_OWNERS_ENDPOINT = (
     f"{BASE_URL}/KonecniUzivateliaVyhod/{{id}}?$expand=Partner,PravnaForma,Adresa"
 )
+PUBLIC_OFFICIALS_ENDPOINT = f"{BASE_URL}/VerejniFunkcionari/{{id}}"
 
 TOTAL_COUNT = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/$count"
 FIRST_PAGE = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0"
@@ -79,6 +80,18 @@ def emit_ownership(context, owner_data, entity_id):
     own.add("owner", owner.id)
     own.add("asset", entity_id)
     context.emit(own)
+
+
+def emit_pep(context, pep_data):
+    pep_first_name = pep_data.get("Meno")
+    pep_last_name = pep_data.get("Priezvisko")
+    pep_dob = pep_data.get("DatumNarodenia")
+
+    pep = context.make("Person")
+    pep.id = context.make_id(pep_first_name, pep_dob)
+    h.apply_name(pep, first_name=pep_first_name, last_name=pep_last_name)
+    h.apply_date(pep, "birthDate", pep_dob)
+    context.emit(pep)
 
 
 def crawl(context: Context):
@@ -171,16 +184,15 @@ def crawl(context: Context):
                 owner_data = owner_response.json()
                 emit_ownership(context, owner_data, entity.id)
 
-            # # Extract verification details
-            # verification_data = partner_data.get("OverenieIdentifikacieKUV")
-            # if verification_data:
-            #     verification_status = verification_data.get("DatumOverenia")
-            #     print(verification_status)
+            public_officials = [
+                pep.get("Id") for pep in partner_data.get("VerejniFunkcionari")
+            ]
+            for pep_id in public_officials:
+                pep_url = PUBLIC_OFFICIALS_ENDPOINT.format(id=pep_id)
+                pep_response = requests.get(pep_url, headers=headers)
+                if check_failed_response(context, pep_response, pep_url):
+                    continue
+                pep_data = pep_response.json()
+                emit_pep(context, pep_data)
 
-            # public_officials = [
-            #     f"{f.get('Meno')} {f.get('Priezvisko')}"
-            #     for f in partner_data.get("VerejniFunkcionari", [])
-            # ]
-            # print(public_officials)
-
-        # url = data.get("@odata.nextLink", None)
+        # url = data.get("@odata.nextLink")
