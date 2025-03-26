@@ -56,6 +56,16 @@ def emit_address(context, entity, address):
     h.copy_address(entity, address)
 
 
+def fetch_owner_data(context, owner_id, endpoint, session):
+    if not owner_id:
+        return None
+    owner_url = endpoint.format(id=owner_id)
+    response = session.get(owner_url, headers={"Accept": "application/json"})
+    if check_failed_response(context, response, owner_url):
+        return None
+    return response.json()
+
+
 def emit_ownership(context, owner_data, entity_id):
     owner_first_name = owner_data.get("Meno")
     owner_last_name = owner_data.get("Priezvisko")
@@ -115,7 +125,7 @@ def crawl(context: Context):
     url = context.data_url
     url_count = 0
 
-    while url and url_count < 3:
+    while url and url_count < 1:
         response = requests.get(url, headers=headers)
         if check_failed_response(context, response, url):
             return
@@ -144,8 +154,6 @@ def crawl(context: Context):
             else:
                 context.log.warn("Unknown schema", entity_data=entity_data)
                 continue
-            # validity_from = entity_data.get("PlatnostOd")
-            # validity_to = entity_data.get("PlatnostDo")
 
             entity = context.make(schema)
             entity.id = context.make_id(entity_id, entry_number)
@@ -176,24 +184,17 @@ def crawl(context: Context):
                     continue
                 partner_data = partner_response.json()
                 entry_number = partner_data.get("CisloVlozky")
-                # fines = partner_data.get("Pokuta", "None")
-                # deletion_status = "Deleted" if partner_data.get("Vymaz") else "Active"
+
                 for owner in partner_data.get("KonecniUzivateliaVyhod"):
-                    owner_id = owner.get("Id")
-                    owner_url = BENEFICIAL_OWNERS_ENDPOINT.format(id=owner_id)
-                    owner_response = requests.get(owner_url, headers=headers)
-                    if check_failed_response(context, owner_response, owner_url):
-                        continue
-                    owner_data = owner_response.json()
+                    owner_data = fetch_owner_data(
+                        context, owner.get("Id"), BENEFICIAL_OWNERS_ENDPOINT, requests
+                    )
                     emit_ownership(context, owner_data, entity.id)
 
                 for pep in partner_data.get("VerejniFunkcionari"):
-                    pep_id = pep.get("Id")
-                    pep_url = PUBLIC_OFFICIALS_ENDPOINT.format(id=pep_id)
-                    pep_response = requests.get(pep_url, headers=headers)
-                    if check_failed_response(context, pep_response, pep_url):
-                        continue
-                    pep_data = pep_response.json()
+                    pep_data = fetch_owner_data(
+                        context, pep.get("Id"), PUBLIC_OFFICIALS_ENDPOINT, requests
+                    )
                     context.log.info("Fetched PEP data", pep_data=pep_data)
                     emit_pep(context, pep_data)
 
