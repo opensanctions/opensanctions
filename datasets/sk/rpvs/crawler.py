@@ -66,57 +66,54 @@ def fetch_owner_data(context, owner_id, endpoint, session):
     return response.json()
 
 
-def emit_ownership(context, owner_data, entity_id):
-    owner_first_name = owner_data.get("Meno")
-    owner_last_name = owner_data.get("Priezvisko")
-    owner_dob = owner_data.get("DatumNarodenia")
-    owner_ico = owner_data.get("Ico")
-    owner_entity_name = owner_data.get("ObchodneMeno")
+def emit_relatioship(context, entity_data, entity_id, is_pep):
+    first_name = entity_data.get("Meno")
+    last_name = entity_data.get("Priezvisko")
+    dob = entity_data.get("DatumNarodenia")
+    ico = entity_data.get("Ico")
+    entity_name = entity_data.get("ObchodneMeno")
 
-    if owner_entity_name and owner_ico:
+    if entity_name and ico:
         schema = "LegalEntity"
-    elif owner_first_name and owner_last_name:
+        make_id = ico, entity_name
+        context.log.warning("Legal entity found", entity_data=entity_data)
+    elif first_name and last_name:
         schema = "Person"
+        make_id = first_name, last_name, dob
     else:
-        context.log.warn("Unknown schema", owner_data=owner_data)
+        context.log.warn("Unknown schema", entity_data=entity_data)
         return
     # owner_id = owner_data.get("Id")
 
-    owner = context.make(schema)
-    owner.id = context.make_id(owner_first_name, owner_dob)
-    if owner.schema.name == "Person":
-        h.apply_name(owner, first_name=owner_first_name, last_name=owner_last_name)
-        h.apply_date(owner, "birthDate", owner_dob)
-    else:
-        owner.add("name", owner_entity_name)
-        owner.add("registrationNumber", owner_ico)
-    address = owner_data.get("Adresa")
+    related = context.make(schema)
+    related.id = context.make_id(make_id)
+    address = entity_data.get("Adresa")
     if address:
-        emit_address(context, owner, address)
-    context.emit(owner)
-
-    own = context.make("Ownership")
-    own.id = context.make_id(entity_id, "owned by", owner.id)
-    own.add("owner", owner.id)
-    own.add("asset", entity_id)
-    context.emit(own)
-
-
-def emit_pep(context, pep_data):
-    pep_first_name = pep_data.get("Meno")
-    pep_last_name = pep_data.get("Priezvisko")
-    pep_dob = pep_data.get("DatumNarodenia")
-
-    pep = context.make("Person")
-    pep.id = context.make_id(pep_first_name, pep_dob)
-    h.apply_name(pep, first_name=pep_first_name, last_name=pep_last_name)
-    h.apply_date(pep, "birthDate", pep_dob)
-    pep.add("title", pep_data.get("TitulPred"))
-    pep.add("title", pep_data.get("TitulZa"))
-    # Because of the internal categorization provided by the source
-    pep.add("topics", "role.pep")
-    pep.add("country", "SK")
-    context.emit(pep)
+        emit_address(context, related, address)
+    if related.schema.name == "LegalEntity":
+        related.add("name", entity_name)
+        related.add("registrationNumber", ico)
+    else:
+        h.apply_name(related, first_name=first_name, last_name=last_name)
+        h.apply_date(related, "birthDate", dob)
+        related.add("title", entity_data.get("TitulPred"))
+        related.add("title", entity_data.get("TitulZa"))
+        if is_pep:
+            # Based on the internal categorization provided by the source
+            related.add("topics", "role.pep")
+            related.add("country", "SK")
+            rel = context.make("UnknownLink")
+            rel.id = context.make_id(related.id, "associated with", entity_id)
+            rel.add("subject", related.id)
+            rel.add("object", entity_id)
+            context.emit(rel)
+        else:
+            own = context.make("Ownership")
+            own.id = context.make_id(entity_id, "owned by", related.id)
+            own.add("owner", related.id)
+            own.add("asset", entity_id)
+            context.emit(own)
+    context.emit(related)
 
 
 def crawl(context: Context):
@@ -189,14 +186,14 @@ def crawl(context: Context):
                     owner_data = fetch_owner_data(
                         context, owner.get("Id"), BENEFICIAL_OWNERS_ENDPOINT, requests
                     )
-                    emit_ownership(context, owner_data, entity.id)
+                    emit_relatioship(context, owner_data, entity.id, is_pep=False)
 
                 for pep in partner_data.get("VerejniFunkcionari"):
                     pep_data = fetch_owner_data(
                         context, pep.get("Id"), PUBLIC_OFFICIALS_ENDPOINT, requests
                     )
                     context.log.info("Fetched PEP data", pep_data=pep_data)
-                    emit_pep(context, pep_data)
+                    emit_relatioship(context, pep_data, entity.id, is_pep=True)
 
         url = data.get("@odata.nextLink")
         url_count += 1  # Increment the counter
