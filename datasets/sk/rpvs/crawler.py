@@ -37,6 +37,25 @@ def check_failed_response(context, response, url):
     return False
 
 
+def emit_address(context, entity, address):
+    if not address:
+        return
+    street_name = address.get("MenoUlice")
+    street_number = address.get("OrientacneCislo", "")
+    city = address.get("Mesto")
+    city_code = address.get("MestoKod", "")
+    postal_code = address.get("Psc")
+
+    address = h.make_address(
+        context,
+        street=f"{street_name} {street_number}".strip(),
+        city=city,
+        place=city_code,
+        postal_code=postal_code,
+    )
+    h.copy_address(entity, address)
+
+
 def emit_ownership(context, owner_data, entity_id):
     owner_first_name = owner_data.get("Meno")
     owner_last_name = owner_data.get("Priezvisko")
@@ -63,22 +82,7 @@ def emit_ownership(context, owner_data, entity_id):
         owner.add("registrationNumber", owner_ico)
     address = owner_data.get("Adresa")
     if address:
-        street_name = address.get("MenoUlice")
-        street_number = address.get("OrientacneCislo")
-        if not street_number:
-            street_number = ""
-        city = address.get("Mesto")
-        city_code = address.get("MestoKod")
-        postal_code = address.get("Psc")
-
-        address = h.make_address(
-            context,
-            street=street_name + " " + street_number,
-            city=city,
-            place=city_code,
-            postal_code=postal_code,
-        )
-        h.copy_address(owner, address)
+        emit_address(context, owner, address)
     context.emit(owner)
 
     own = context.make("Ownership")
@@ -160,17 +164,7 @@ def crawl(context: Context):
 
             address = entity_data.get("Adresa", {})
             if address:
-                street_name = address.get("MenoUlice")
-                street_number = address.get("OrientacneCislo")
-                city = address.get("Mesto")
-                postal_code = address.get("Psc")
-                address = h.make_address(
-                    context,
-                    street=street_name + " " + street_number,
-                    city=city,
-                    postal_code=postal_code,
-                )
-                h.copy_address(entity, address)
+                emit_address(context, entity, address)
             context.emit(entity)
             partner = entity_data.get("Partner", {})
             if partner:
