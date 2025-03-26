@@ -20,6 +20,7 @@ LAST_PAGE = (
     "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skiptoken=Id-261529"
 )
 # TODO add topics for peps and add country everywhere
+# TODO check if we want 'OverenieIdentifikacieKUV'
 # def crawl(context: Context) -> None:
 #     fn = context.fetch_resource("source.zip", context.data_url)
 #     with zipfile.ZipFile(fn, "r") as zf:
@@ -67,19 +68,17 @@ def fetch_owner_data(context, owner_id, endpoint, session):
 
 
 def emit_relatioship(context, entity_data, entity_id, is_pep):
-    first_name = entity_data.get("Meno")
     last_name = entity_data.get("Priezvisko")
     dob = entity_data.get("DatumNarodenia")
     ico = entity_data.get("Ico")
-    entity_name = entity_data.get("ObchodneMeno")
 
-    if entity_name and ico:
+    if entity_name := entity_data.get("ObchodneMeno"):
         schema = "LegalEntity"
-        make_id = ico, entity_name
+        make_id = (ico, entity_name)
         context.log.warning("Legal entity found", entity_data=entity_data)
-    elif first_name and last_name:
+    elif first_name := entity_data.get("Meno"):
         schema = "Person"
-        make_id = first_name, last_name, dob
+        make_id = (first_name, last_name, dob)
     else:
         context.log.warn("Unknown schema", entity_data=entity_data)
         return
@@ -87,9 +86,9 @@ def emit_relatioship(context, entity_data, entity_id, is_pep):
 
     related = context.make(schema)
     related.id = context.make_id(make_id)
-    address = entity_data.get("Adresa")
-    if address:
+    if address := entity_data.get("Adresa"):
         emit_address(context, related, address)
+
     if related.schema.name == "LegalEntity":
         related.add("name", entity_name)
         related.add("registrationNumber", ico)
