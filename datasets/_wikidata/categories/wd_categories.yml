@@ -815,13 +815,25 @@ config:
     - category: Political_office-holders_in_Iceland
       country: is
       topic: role.pep
-    - category: Justices_of_the_Supreme_Court_of_Iceland
+    - category: Dómarar_við_Hæstarétt_Íslands
+      language: is
       country: is
       topic: role.pep
     - category: Members_of_the_Althing_2024–2028
       country: is
       topic: role.pep
     - category: Members_of_the_Althing_2021–2024
+      country: is
+      topic: role.pep
+    - category: Kjörnir_Alþingismenn_2021-2030
+      language: is
+      country: is
+      topic: role.pep
+    - category: Íslenskir_stjórnmálamenn
+      language: is
+      country: is
+    - category: Landsyfirréttur
+      language: is
       country: is
       topic: role.pep
     - category: Political_office-holders_in_the_Czech_Republic
