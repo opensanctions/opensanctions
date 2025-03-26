@@ -26,11 +26,11 @@ def is_historical_country(client: WikidataClient, qid: str) -> bool:
 def item_countries(client: WikidataClient, qid: str) -> Set[LangText]:
     """Extract the countries linked to an item, traversing up an administrative hierarchy
     via jurisdiction/part of properties."""
-    return _crawl_item_countries(client, qid, tuple())
+    return _crawl_item_countries(client, qid, (qid,))
 
 
 def _crawl_item_countries(
-    client: WikidataClient, qid: str, seen: Tuple[str] = None
+    client: WikidataClient, qid: str, seen: Tuple[str]
 ) -> Set[LangText]:
     item = client.fetch_item(qid)
     if item is None:
@@ -52,13 +52,13 @@ def _crawl_item_countries(
                 countries.add(text)
     if len(countries) > 0:
         return countries
-    seen = seen + (item.id,)
+    next_seen = seen + (qid,)
     for claim in item.claims:
         # jurisdiction, capital of, part of:
         if claim.property in ("P1001", "P1376", "P361"):
             if claim.qualifiers.get("P582") or claim.qid is None:
                 continue
-            if claim.qid in seen:
+            if claim.qid in next_seen:
                 continue
-            countries.update(_crawl_item_countries(client, claim.qid, seen=seen))
+            countries.update(_crawl_item_countries(client, claim.qid, seen=next_seen))
     return countries
