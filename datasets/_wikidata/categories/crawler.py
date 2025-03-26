@@ -21,7 +21,7 @@ QUERY = {
     "sortorder": "ascending",
 }
 # TEMP: We're starting to include municipal PEPs for specific countries
-MUNI_COUNTRIES = {"us", "fr", "gb", "ru"}
+MUNI_COUNTRIES = {"us", "fr", "gb", "ru", "is"}
 
 
 class CrawlState(object):
