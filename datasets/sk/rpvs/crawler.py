@@ -61,6 +61,8 @@ def emit_ownership(context, owner_data, entity_id):
     if address:
         street_name = address.get("MenoUlice")
         street_number = address.get("OrientacneCislo")
+        if not street_number:
+            street_number = ""
         city = address.get("Mesto")
         city_code = address.get("MestoKod")
         postal_code = address.get("Psc")
@@ -95,104 +97,112 @@ def emit_pep(context, pep_data):
 
 
 def crawl(context: Context):
-    entity_ids = []
     headers = {"Accept": "application/json"}
-    response = requests.get(context.data_url, headers=headers)
-    if check_failed_response(context, response, context.data_url):
-        return
+    # Get the initial response from context.data_url
+    url = context.data_url
+    url_count = 0
 
-    # while url:
-    data = response.json()
-    entity_ids = [entry["Id"] for entry in data.get("value")]
-    for id in entity_ids:
-        details_url = ENTITY_DETAILS_ENDPOINT.format(id=id)
-        details_response = requests.get(details_url, headers=headers)
-        if check_failed_response(context, details_response, details_url):
-            continue
-        entity_data = details_response.json()
-        entity_id = entity_data.get("Id")
-        entry_number = entity_data.get("CisloVlozky")
+    while url and url_count < 3:
+        response = requests.get(url, headers=headers)
+        if check_failed_response(context, response, url):
+            return
 
-        first_name = entity_data.get("Meno")
-        last_name = entity_data.get("Priezvisko")
-        entity_name = entity_data.get("ObchodneMeno")
-        ico = entity_data.get("Ico")
-        if entity_name and ico:
-            schema = "LegalEntity"
-        elif first_name and last_name:
-            schema = "Person"
-        else:
-            context.log.warn("Unknown schema", entity_data=entity_data)
-            continue
-        # validity_from = entity_data.get("PlatnostOd")
-        # validity_to = entity_data.get("PlatnostDo")
+        data = response.json()
 
-        entity = context.make(schema)
-        entity.id = context.make_id(entity_id, entry_number)
-        if entity.schema.name == "Person":
-            h.apply_name(
-                entity,
-                first_name=first_name,
-                last_name=last_name,
-            )
-            h.apply_date(entity, "birthDate", entity_data.get("DatumNarodenia"))
-        else:
-            entity.add("name", entity_name)
-            entity.add("idNumber", ico)
-        legal_form = entity_data.get("PravnaForma", {})
-        if legal_form:
-            legal_form_name = legal_form.get("Meno")
-            legal_form_code = legal_form.get("StatistickyKod")
-            entity.add("legalForm", legal_form_name)
-            entity.add("classification", legal_form_code)
-
-        address = entity_data.get("Adresa", {})
-        if address:
-            street_name = address.get("MenoUlice")
-            street_number = address.get("OrientacneCislo")
-            city = address.get("Mesto")
-            postal_code = address.get("Psc")
-            address = h.make_address(
-                context,
-                street=street_name + " " + street_number,
-                city=city,
-                postal_code=postal_code,
-            )
-            h.copy_address(entity, address)
-        context.emit(entity)
-        partner = entity_data.get("Partner", {})
-        if partner:
-            partner_id = partner.get("Id")
-            # partner_entry_number = partner.get("CisloVlozky")
-            partner_url = PARTNER_DETAILS_ENDPOINT.format(id=partner_id)
-            partner_response = requests.get(partner_url, headers=headers)
-            if check_failed_response(context, partner_response, partner_url):
+        for entry in data.get("value"):  # Directly iterate over new IDs
+            entity_id = entry["Id"]
+            context.log.info("Fetching entity details", entity_id=entity_id)
+            details_url = ENTITY_DETAILS_ENDPOINT.format(id=entity_id)
+            details_response = requests.get(details_url, headers=headers)
+            if check_failed_response(context, details_response, details_url):
                 continue
-            partner_data = partner_response.json()
-            entry_number = partner_data.get("CisloVlozky")
-            # fines = partner_data.get("Pokuta", "None")
-            # deletion_status = "Deleted" if partner_data.get("Vymaz") else "Active"
+            entity_data = details_response.json()
+            entity_id = entity_data.get("Id")
+            entry_number = entity_data.get("CisloVlozky")
 
-            beneficial_owner_ids = [
-                owner.get("Id") for owner in partner_data.get("KonecniUzivateliaVyhod")
-            ]
-            for owner_id in beneficial_owner_ids:
-                owner_url = BENEFICIAL_OWNERS_ENDPOINT.format(id=owner_id)
-                owner_response = requests.get(owner_url, headers=headers)
-                if check_failed_response(context, owner_response, owner_url):
+            first_name = entity_data.get("Meno")
+            last_name = entity_data.get("Priezvisko")
+            entity_name = entity_data.get("ObchodneMeno")
+            ico = entity_data.get("Ico")
+            if entity_name and ico:
+                schema = "LegalEntity"
+            elif first_name and last_name:
+                schema = "Person"
+            else:
+                context.log.warn("Unknown schema", entity_data=entity_data)
+                continue
+            # validity_from = entity_data.get("PlatnostOd")
+            # validity_to = entity_data.get("PlatnostDo")
+
+            entity = context.make(schema)
+            entity.id = context.make_id(entity_id, entry_number)
+            if entity.schema.name == "Person":
+                h.apply_name(
+                    entity,
+                    first_name=first_name,
+                    last_name=last_name,
+                )
+                h.apply_date(entity, "birthDate", entity_data.get("DatumNarodenia"))
+            else:
+                entity.add("name", entity_name)
+                entity.add("idNumber", ico)
+            legal_form = entity_data.get("PravnaForma", {})
+            if legal_form:
+                legal_form_name = legal_form.get("Meno")
+                legal_form_code = legal_form.get("StatistickyKod")
+                entity.add("legalForm", legal_form_name)
+                entity.add("classification", legal_form_code)
+
+            address = entity_data.get("Adresa", {})
+            if address:
+                street_name = address.get("MenoUlice")
+                street_number = address.get("OrientacneCislo")
+                city = address.get("Mesto")
+                postal_code = address.get("Psc")
+                address = h.make_address(
+                    context,
+                    street=street_name + " " + street_number,
+                    city=city,
+                    postal_code=postal_code,
+                )
+                h.copy_address(entity, address)
+            context.emit(entity)
+            partner = entity_data.get("Partner", {})
+            if partner:
+                partner_id = partner.get("Id")
+                # partner_entry_number = partner.get("CisloVlozky")
+                partner_url = PARTNER_DETAILS_ENDPOINT.format(id=partner_id)
+                partner_response = requests.get(partner_url, headers=headers)
+                if check_failed_response(context, partner_response, partner_url):
                     continue
-                owner_data = owner_response.json()
-                emit_ownership(context, owner_data, entity.id)
+                partner_data = partner_response.json()
+                entry_number = partner_data.get("CisloVlozky")
+                # fines = partner_data.get("Pokuta", "None")
+                # deletion_status = "Deleted" if partner_data.get("Vymaz") else "Active"
 
-            public_officials = [
-                pep.get("Id") for pep in partner_data.get("VerejniFunkcionari")
-            ]
-            for pep_id in public_officials:
-                pep_url = PUBLIC_OFFICIALS_ENDPOINT.format(id=pep_id)
-                pep_response = requests.get(pep_url, headers=headers)
-                if check_failed_response(context, pep_response, pep_url):
-                    continue
-                pep_data = pep_response.json()
-                emit_pep(context, pep_data)
+                beneficial_owner_ids = [
+                    owner.get("Id")
+                    for owner in partner_data.get("KonecniUzivateliaVyhod")
+                ]
+                for owner_id in beneficial_owner_ids:
+                    owner_url = BENEFICIAL_OWNERS_ENDPOINT.format(id=owner_id)
+                    owner_response = requests.get(owner_url, headers=headers)
+                    if check_failed_response(context, owner_response, owner_url):
+                        continue
+                    owner_data = owner_response.json()
+                    emit_ownership(context, owner_data, entity.id)
 
-        # url = data.get("@odata.nextLink")
+                public_officials = [
+                    pep.get("Id") for pep in partner_data.get("VerejniFunkcionari")
+                ]
+                for pep_id in public_officials:
+                    pep_url = PUBLIC_OFFICIALS_ENDPOINT.format(id=pep_id)
+                    pep_response = requests.get(pep_url, headers=headers)
+                    if check_failed_response(context, pep_response, pep_url):
+                        continue
+                    pep_data = pep_response.json()
+                    context.log.info("Fetched PEP data", pep_data=pep_data)
+                    emit_pep(context, pep_data)
+
+        url = data.get("@odata.nextLink")
+        url_count += 1  # Increment the counter
