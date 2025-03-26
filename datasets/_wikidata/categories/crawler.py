@@ -298,12 +298,13 @@ def crawl_declarator(state: CrawlState) -> None:
 def crawl(context: Context) -> None:
     state = CrawlState(context)
     crawl_declarator(state)
-    # crawl_position_seeds(state)
+    crawl_position_seeds(state)
     categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
     for category in categories:
         crawl_category(state, category)
         state.context.cache.flush()
 
+    context.log.info("Generated %d persons" % len(state.persons))
     for idx, person_qid in enumerate(state.persons):
         entity = crawl_person(state, person_qid)
         if entity is None:
@@ -334,4 +335,4 @@ def crawl(context: Context) -> None:
         if idx > 0 and idx % 1000 == 0:
             state.context.cache.flush()
 
-    raise RuntimeError("Crawler is in debug mode, do not release results")
+    # raise RuntimeError("Crawler is in debug mode, do not release results")
