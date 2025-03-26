@@ -413,6 +413,8 @@ config:
     - category: Political_office-holders_in_Africa
       topic: role.pep
       depth: 8
+    - category: South_African_political_people
+      depth: 6
 
     # Basics & essentials
     - category: Sanctioned_people
@@ -779,9 +781,8 @@ config:
     - category: Political_office-holders_in_Belarus
       country: by
       topic: role.pep
-    - category: Political_office-holders_in_Belarus
+    - category: Government_of_Belarus
       country: by
-      topic: role.pep
     - category: Political_office-holders_in_Jersey
       country: je
       topic: role.pep
@@ -854,9 +855,20 @@ config:
     - category: Political_office-holders_in_Sweden
       country: se
       topic: role.pep
+    - category: Svenske_politikere
+      language: "no"
+    - category: Lists_of_political_office-holders_in_Norway
+      country: "no"
+      topic: role.pep
+    - category: Political_office-holders_in_Norway
+      country: "no"
+    - category: Norsk_politikk
+      language: "no"
     - category: Political_office-holders_in_Switzerland
       country: ch
       topic: role.pep
+    - category: Lists_of_Swiss_politicians
+      country: ch
     - category: Political_office-holders_in_Albania
       country: al
       topic: role.pep
@@ -905,6 +917,14 @@ config:
     - category: Political_office-holders_in_the_Faroe_Islands
       country: fo
       topic: role.pep
+    - category: Lists_of_political_office-holders_in_Finland
+      country: fi
+    - category: Lists_of_office-holders_in_Finland
+      country: fi
+    - category: Political_office-holders_in_Finland
+      country: fi
+    - category: Suomen_hallinto
+      language: fi
 
     ############################################################################
     # Asia regional coverage
@@ -972,6 +992,10 @@ config:
 
     # country: Vietnam
     - category: Political_office-holders_in_Vietnam
+      topic: role.pep
+      country: vn
+    - category: Chính_phủ_Quốc_gia_Việt_Nam
+      language: vi
       topic: role.pep
       country: vn
 
