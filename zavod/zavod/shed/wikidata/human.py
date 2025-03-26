@@ -58,15 +58,25 @@ def wikidata_basic_human(
             is_dated = True
 
         # P27 - citizenship
-        if claim.property == "P27":
-            if claim.qid is not None:
-                citizenship = client.fetch_item(claim.qid)
-                if is_historical_country(citizenship):
-                    is_historical = True
+        if claim.property == "P27" and claim.qid is not None:
+            if is_historical_country(client, claim.qid):
+                is_historical = True
 
-                if citizenship is not None:
-                    for text in item_countries(client, citizenship):
-                        text.apply(entity, "citizenship")
+            for text in item_countries(client, claim.qid):
+                text.apply(entity, "citizenship")
+
+    # Try increasingly more desperate ways to find a country linked to the person:
+    if not entity.has("citizenship"):
+        # other country properties
+        for prop in ("P1001", "P17", "P19", "P945", "P495", "P937"):
+            for claim in item.claims:
+                if claim.qid is None:
+                    continue
+                if claim.property == prop:
+                    for text in item_countries(client, claim.qid):
+                        text.apply(entity, "country")
+            if entity.has("country"):
+                break
 
     # No DoB/DoD, but linked to a historical country - skip:
     if strict and (not is_dated and is_historical):

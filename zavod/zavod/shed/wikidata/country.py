@@ -1,11 +1,15 @@
-from typing import Optional, Set
+from typing import Set, Tuple
 from functools import lru_cache
-from nomenklatura.wikidata import WikidataClient, LangText, Item
+from nomenklatura.wikidata import WikidataClient, LangText
 from rigour.territories import get_territory_by_qid
 
 
 @lru_cache(maxsize=5000)
-def is_historical_country(item: Item) -> bool:
+def is_historical_country(client: WikidataClient, qid: str) -> bool:
+    territory = get_territory_by_qid(qid)
+    if territory is not None:
+        return territory.is_historical
+    item = client.fetch_item(qid)
     if item is None:
         return False
     types = item.types
@@ -15,21 +19,26 @@ def is_historical_country(item: Item) -> bool:
         return True
     if "Q839954" in types:  # archeological site
         return True
-    territory = get_territory_by_qid(item.id)
-    if territory is not None and territory.is_historical:
-        return True
     return False
 
 
-def item_countries(
-    client: WikidataClient, item: Item, seen: Optional[Set[str]] = None
-) -> Set[LangText]:
+@lru_cache(maxsize=5000)
+def item_countries(client: WikidataClient, qid: str) -> Set[LangText]:
     """Extract the countries linked to an item, traversing up an administrative hierarchy
     via jurisdiction/part of properties."""
+    return _crawl_item_countries(client, qid, (qid,))
+
+
+def _crawl_item_countries(
+    client: WikidataClient, qid: str, seen: Tuple[str, ...]
+) -> Set[LangText]:
+    item = client.fetch_item(qid)
+    if item is None:
+        return set()
     countries: Set[LangText] = set()
     territory = get_territory_by_qid(item.id)
     if territory is not None and territory.ftm_country is not None:
-        text = LangText(territory.ftm_country, "en", original=item.id)
+        text = LangText(territory.ftm_country, original=item.id)
         return set([text])
 
     for claim in item.claims:
@@ -39,21 +48,17 @@ def item_countries(
                 continue
             territory = get_territory_by_qid(item.id)
             if territory is not None and territory.ftm_country is not None:
-                text = LangText(territory.ftm_country, "en", original=item.id)
+                text = LangText(territory.ftm_country, original=item.id)
                 countries.add(text)
     if len(countries) > 0:
         return countries
-    seen = set() if seen is None else set(seen)
-    seen.add(item.id)
+    next_seen = seen + (qid,)
     for claim in item.claims:
         # jurisdiction, capital of, part of:
         if claim.property in ("P1001", "P1376", "P361"):
             if claim.qualifiers.get("P582") or claim.qid is None:
                 continue
-            if claim.qid in seen:
+            if claim.qid in next_seen:
                 continue
-            subitem = client.fetch_item(claim.qid)
-            if subitem is None:
-                continue
-            countries.update(item_countries(client, subitem, seen=seen))
+            countries.update(_crawl_item_countries(client, claim.qid, seen=next_seen))
     return countries
