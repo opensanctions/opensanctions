@@ -168,7 +168,8 @@ config:
     - "Q17279032" # elective office
     - "Q16060143" # elected person
     - "Q131981747" # -elect
-    - "Q30185" # mayor
+    # skip:
+    # - "Q30185" # mayor
   categories:
     # Mega collections:
     - category: Political_office-holders_in_Asia
