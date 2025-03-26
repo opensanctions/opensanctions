@@ -19,7 +19,7 @@ FIRST_PAGE = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0"
 LAST_PAGE = (
     "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skiptoken=Id-261529"
 )
-
+# TODO add topics for peps and add country everywhere
 # def crawl(context: Context) -> None:
 #     fn = context.fetch_resource("source.zip", context.data_url)
 #     with zipfile.ZipFile(fn, "r") as zf:
@@ -55,8 +55,12 @@ def emit_ownership(context, owner_data, entity_id):
 
     owner = context.make(schema)
     owner.id = context.make_id(owner_first_name, owner_dob)
-    h.apply_name(owner, first_name=owner_first_name, last_name=owner_last_name)
-    h.apply_date(owner, "birthDate", owner_dob)
+    if owner.schema.name == "Person":
+        h.apply_name(owner, first_name=owner_first_name, last_name=owner_last_name)
+        h.apply_date(owner, "birthDate", owner_dob)
+    else:
+        owner.add("name", owner_entity_name)
+        owner.add("registrationNumber", owner_ico)
     address = owner_data.get("Adresa")
     if address:
         street_name = address.get("MenoUlice")
@@ -93,6 +97,11 @@ def emit_pep(context, pep_data):
     pep.id = context.make_id(pep_first_name, pep_dob)
     h.apply_name(pep, first_name=pep_first_name, last_name=pep_last_name)
     h.apply_date(pep, "birthDate", pep_dob)
+    pep.add("title", pep_data.get("TitulPred"))
+    pep.add("title", pep_data.get("TitulZa"))
+    # Because of the internal categorization provided by the source
+    pep.add("topics", "role.pep")
+    pep.add("country", "SK")
     context.emit(pep)
 
 
@@ -137,15 +146,11 @@ def crawl(context: Context):
             entity = context.make(schema)
             entity.id = context.make_id(entity_id, entry_number)
             if entity.schema.name == "Person":
-                h.apply_name(
-                    entity,
-                    first_name=first_name,
-                    last_name=last_name,
-                )
+                h.apply_name(entity, first_name=first_name, last_name=last_name)
                 h.apply_date(entity, "birthDate", entity_data.get("DatumNarodenia"))
             else:
                 entity.add("name", entity_name)
-                entity.add("idNumber", ico)
+                entity.add("registrationNumber", ico)
             legal_form = entity_data.get("PravnaForma", {})
             if legal_form:
                 legal_form_name = legal_form.get("Meno")
@@ -179,12 +184,8 @@ def crawl(context: Context):
                 entry_number = partner_data.get("CisloVlozky")
                 # fines = partner_data.get("Pokuta", "None")
                 # deletion_status = "Deleted" if partner_data.get("Vymaz") else "Active"
-
-                beneficial_owner_ids = [
-                    owner.get("Id")
-                    for owner in partner_data.get("KonecniUzivateliaVyhod")
-                ]
-                for owner_id in beneficial_owner_ids:
+                for owner in partner_data.get("KonecniUzivateliaVyhod"):
+                    owner_id = owner.get("Id")
                     owner_url = BENEFICIAL_OWNERS_ENDPOINT.format(id=owner_id)
                     owner_response = requests.get(owner_url, headers=headers)
                     if check_failed_response(context, owner_response, owner_url):
@@ -192,10 +193,8 @@ def crawl(context: Context):
                     owner_data = owner_response.json()
                     emit_ownership(context, owner_data, entity.id)
 
-                public_officials = [
-                    pep.get("Id") for pep in partner_data.get("VerejniFunkcionari")
-                ]
-                for pep_id in public_officials:
+                for pep in partner_data.get("VerejniFunkcionari"):
+                    pep_id = pep.get("Id")
                     pep_url = PUBLIC_OFFICIALS_ENDPOINT.format(id=pep_id)
                     pep_response = requests.get(pep_url, headers=headers)
                     if check_failed_response(context, pep_response, pep_url):
