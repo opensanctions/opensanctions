@@ -299,10 +299,10 @@ def crawl(context: Context) -> None:
     state = CrawlState(context)
     crawl_declarator(state)
     # crawl_position_seeds(state)
-    # categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
-    # for category in categories:
-    #     crawl_category(state, category)
-    #     state.context.cache.flush()
+    categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
+    for category in categories:
+        crawl_category(state, category)
+        state.context.cache.flush()
 
     for idx, person_qid in enumerate(state.persons):
         entity = crawl_person(state, person_qid)
