@@ -17,7 +17,7 @@ PUBLIC_OFFICIALS_ENDPOINT = f"{BASE_URL}/VerejniFunkcionari/{{id}}"
 TOTAL_COUNT = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/$count"
 FIRST_PAGE = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0"
 LAST_PAGE = (
-    "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skiptoken=Id-261529"
+    "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skiptoken=Id-261611"
 )
 # TODO add topics for peps and add country everywhere
 # TODO check if we want 'OverenieIdentifikacieKUV'
@@ -67,7 +67,7 @@ def fetch_owner_data(context, owner_id, endpoint, session):
     return response.json()
 
 
-def emit_relatioship(context, entity_data, entity_id, is_pep):
+def emit_relationship(context, entity_data, entity_id, is_pep):
     last_name = entity_data.get("Priezvisko")
     dob = entity_data.get("DatumNarodenia")
     ico = entity_data.get("Ico")
@@ -120,7 +120,10 @@ def crawl(context: Context):
     url = context.data_url
     url_count = 0
 
-    while url and url_count < 1:
+    while url:  # and url_count < 1:
+        if url == LAST_PAGE:
+            context.log.info("Stopping crawl: Reached skip token limit.")
+            break
         response = requests.get(url, headers=headers)
         if check_failed_response(context, response, url):
             return
@@ -174,14 +177,14 @@ def crawl(context: Context):
                     owner_data = fetch_owner_data(
                         context, owner.get("Id"), BENEFICIAL_OWNERS_ENDPOINT, requests
                     )
-                    emit_relatioship(context, owner_data, entity.id, is_pep=False)
+                    emit_relationship(context, owner_data, entity.id, is_pep=False)
 
                 for pep in partner_data.get("VerejniFunkcionari"):
                     pep_data = fetch_owner_data(
                         context, pep.get("Id"), PUBLIC_OFFICIALS_ENDPOINT, requests
                     )
                     context.log.info("Fetched PEP data", pep_data=pep_data)
-                    emit_relatioship(context, pep_data, entity.id, is_pep=True)
+                    emit_relationship(context, pep_data, entity.id, is_pep=True)
 
         url = response.json().get("@odata.nextLink")
         url_count += 1  # Increment the counter
