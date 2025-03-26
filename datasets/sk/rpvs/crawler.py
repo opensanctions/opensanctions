@@ -118,7 +118,6 @@ def emit_relatioship(context, entity_data, entity_id, is_pep):
 
 def crawl(context: Context):
     headers = {"Accept": "application/json"}
-    # Get the initial response from context.data_url
     url = context.data_url
     url_count = 0
 
@@ -127,61 +126,51 @@ def crawl(context: Context):
         if check_failed_response(context, response, url):
             return
 
-        data = response.json()
-
-        for entry in data.get("value"):  # Directly iterate over new IDs
+        for entry in response.json().get("value"):  # Directly iterate over new IDs
             entity_id = entry["Id"]
             context.log.info("Fetching entity details", entity_id=entity_id)
             details_url = ENTITY_DETAILS_ENDPOINT.format(id=entity_id)
             details_response = requests.get(details_url, headers=headers)
+
             if check_failed_response(context, details_response, details_url):
                 continue
+
             entity_data = details_response.json()
-            entity_id = entity_data.get("Id")
-            entry_number = entity_data.get("CisloVlozky")
-
-            first_name = entity_data.get("Meno")
-            last_name = entity_data.get("Priezvisko")
-            entity_name = entity_data.get("ObchodneMeno")
-            ico = entity_data.get("Ico")
-            if entity_name and ico:
-                schema = "LegalEntity"
-            elif first_name and last_name:
-                schema = "Person"
-            else:
-                context.log.warn("Unknown schema", entity_data=entity_data)
-                continue
-
-            entity = context.make(schema)
-            entity.id = context.make_id(entity_id, entry_number)
+            entity = context.make(
+                "LegalEntity" if entity_data.get("ObchodneMeno") else "Person"
+            )
+            entity.id = context.make_id(
+                entity_data.get("Id"), entity_data.get("CisloVlozky")
+            )
             if entity.schema.name == "Person":
-                h.apply_name(entity, first_name=first_name, last_name=last_name)
+                h.apply_name(
+                    entity,
+                    first_name=entity_data.get("Meno"),
+                    last_name=entity_data.get("Priezvisko"),
+                )
                 h.apply_date(entity, "birthDate", entity_data.get("DatumNarodenia"))
             else:
-                entity.add("name", entity_name)
-                entity.add("registrationNumber", ico)
-            legal_form = entity_data.get("PravnaForma", {})
-            if legal_form:
-                legal_form_name = legal_form.get("Meno")
-                legal_form_code = legal_form.get("StatistickyKod")
-                entity.add("legalForm", legal_form_name)
-                entity.add("classification", legal_form_code)
+                entity.add("name", entity_data.get("ObchodneMeno"))
+                entity.add("registrationNumber", entity_data.get("Ico"))
 
-            address = entity_data.get("Adresa", {})
-            if address:
+            if legal_form := entity_data.get("PravnaForma"):
+                entity.add("legalForm", legal_form.get("Meno"))
+                entity.add("classification", legal_form.get("StatistickyKod"))
+
+            if address := entity_data.get("Adresa"):
                 emit_address(context, entity, address)
             context.emit(entity)
-            partner = entity_data.get("Partner", {})
-            if partner:
+
+            if partner := entity_data.get("Partner"):
                 partner_id = partner.get("Id")
-                # partner_entry_number = partner.get("CisloVlozky")
                 partner_url = PARTNER_DETAILS_ENDPOINT.format(id=partner_id)
                 partner_response = requests.get(partner_url, headers=headers)
+
                 if check_failed_response(context, partner_response, partner_url):
                     continue
-                partner_data = partner_response.json()
-                entry_number = partner_data.get("CisloVlozky")
 
+                partner_data = partner_response.json()
+                # entry_number = partner_data.get("CisloVlozky")
                 for owner in partner_data.get("KonecniUzivateliaVyhod"):
                     owner_data = fetch_owner_data(
                         context, owner.get("Id"), BENEFICIAL_OWNERS_ENDPOINT, requests
@@ -195,5 +184,5 @@ def crawl(context: Context):
                     context.log.info("Fetched PEP data", pep_data=pep_data)
                     emit_relatioship(context, pep_data, entity.id, is_pep=True)
 
-        url = data.get("@odata.nextLink")
+        url = response.json().get("@odata.nextLink")
         url_count += 1  # Increment the counter
