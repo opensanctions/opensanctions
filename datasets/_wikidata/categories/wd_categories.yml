@@ -182,6 +182,13 @@ config:
     #   depth: 8
     - category: Political_office-holders_in_South_America
 
+    - category: National_supreme_court_judges
+      topic: role.pep
+      depth: 6
+    - category: Central_bankers
+      topic: role.pep
+      depth: 6
+
     # Middle east:
     - category: Political_office-holders_in_the_United_Arab_Emirates
       topic: role.pep
@@ -805,6 +812,9 @@ config:
       country: at
       topic: role.pep
     - category: Political_office-holders_in_Iceland
+      country: is
+      topic: role.pep
+    - category: Justices_of_the_Supreme_Court_of_Iceland
       country: is
       topic: role.pep
     - category: Political_office-holders_in_the_Czech_Republic

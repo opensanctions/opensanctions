@@ -87,7 +87,7 @@ def wikidata_position(
     if item.label is not None:
         item.label.apply(position, "name")
 
-    for country in item_countries(client, item):
+    for country in item_countries(client, item.id):
         country.apply(position, "country")
 
     for claim in item.claims:
