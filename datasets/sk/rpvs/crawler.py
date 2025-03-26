@@ -8,6 +8,7 @@ ENTITY_DETAILS_ENDPOINT = (
     f"{BASE_URL}/PartneriVerejnehoSektora/{{id}}?$expand=Partner,PravnaForma,Adresa"
 )
 PARTNER_DETAILS_ENDPOINT = f"{BASE_URL}/Partneri/{{id}}?$expand=Vymaz,Pokuta,OverenieIdentifikacieKUV,konecniUzivateliaVyhod,verejniFunkcionari,kvalifikovanePodnety"
+# TODO: \u0161
 BENEFICIAL_OWNERS_ENDPOINT = (
     f"{BASE_URL}/KonecniUzivateliaVyhod/{{id}}?$expand=Partner,PravnaForma,Adresa"
 )
@@ -39,9 +40,19 @@ def emit_ownership(context, owner_data, entity_id):
     owner_first_name = owner_data.get("Meno")
     owner_last_name = owner_data.get("Priezvisko")
     owner_dob = owner_data.get("DatumNarodenia")
+    owner_ico = owner_data.get("Ico")
+    owner_entity_name = owner_data.get("ObchodneMeno")
+
+    if owner_entity_name and owner_ico:
+        schema = "LegalEntity"
+    elif owner_first_name and owner_last_name:
+        schema = "Person"
+    else:
+        context.log.warn("Unknown schema", owner_data=owner_data)
+        return
     # owner_id = owner_data.get("Id")
 
-    owner = context.make("Person")
+    owner = context.make(schema)
     owner.id = context.make_id(owner_first_name, owner_dob)
     h.apply_name(owner, first_name=owner_first_name, last_name=owner_last_name)
     h.apply_date(owner, "birthDate", owner_dob)
@@ -163,11 +174,9 @@ def crawl(context: Context):
             # # Extract verification details
             # verification_data = partner_data.get("OverenieIdentifikacieKUV")
             # if verification_data:
-            #     verification_status = (
-            #         f"Verified on {verification_data.get('DatumOverenia')}"
-            #     )
+            #     verification_status = verification_data.get("DatumOverenia")
+            #     print(verification_status)
 
-            # # Extract public officials
             # public_officials = [
             #     f"{f.get('Meno')} {f.get('Priezvisko')}"
             #     for f in partner_data.get("VerejniFunkcionari", [])
