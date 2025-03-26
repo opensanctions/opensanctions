@@ -30,7 +30,7 @@ def item_countries(client: WikidataClient, qid: str) -> Set[LangText]:
 
 
 def _crawl_item_countries(
-    client: WikidataClient, qid: str, seen: Tuple[str]
+    client: WikidataClient, qid: str, seen: Tuple[str, ...]
 ) -> Set[LangText]:
     item = client.fetch_item(qid)
     if item is None:
