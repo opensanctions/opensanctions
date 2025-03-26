@@ -263,26 +263,9 @@ def crawl_position_seeds(state: CrawlState) -> None:
         """
         roles.add(seed)
         response = state.client.query(query)
-        # print("QUERY", seed, len(response.results))
         for result in response.results:
             role = result.plain("role")
             roles.add(role)
-
-    # for territory in get_territories():
-    #     if territory.is_historical:
-    #         continue
-    #     if territory.ftm_country is None:
-    #         continue
-    #     query = f"""
-    #     SELECT ?role WHERE {{
-    #         ?role (wdt:P279|wdt:P31)+ wd:Q4164871 .
-    #         ?role wdt:P1001|wdt:P17 wd:{territory.qid} .
-    #     }}
-    #     """
-    #     response = state.client.query(query)
-    #     for result in response.results:
-    #         role = result.plain("role")
-    #         roles.add(role)
 
     state.log.info("Found %d seed positions" % len(roles))
     for role in roles:
@@ -307,16 +290,19 @@ def crawl_declarator(state: CrawlState) -> None:
         if person not in state.person_topics:
             state.person_topics[person] = set()
         state.person_topics[person].add("role.pep")
+        if person not in state.person_countries:
+            state.person_countries[person] = set()
+        state.person_countries[person].add("ru")
 
 
 def crawl(context: Context) -> None:
     state = CrawlState(context)
     crawl_declarator(state)
-    crawl_position_seeds(state)
-    categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
-    for category in categories:
-        crawl_category(state, category)
-        state.context.cache.flush()
+    # crawl_position_seeds(state)
+    # categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
+    # for category in categories:
+    #     crawl_category(state, category)
+    #     state.context.cache.flush()
 
     for idx, person_qid in enumerate(state.persons):
         entity = crawl_person(state, person_qid)
@@ -347,3 +333,5 @@ def crawl(context: Context) -> None:
         state.context.emit(entity)
         if idx > 0 and idx % 1000 == 0:
             state.context.cache.flush()
+
+    raise RuntimeError("Crawler is in debug mode, do not release results")
