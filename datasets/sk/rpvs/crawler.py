@@ -35,6 +35,41 @@ def check_failed_response(context, response, url):
     return False
 
 
+def emit_ownership(context, owner_data, entity_id):
+    owner_first_name = owner_data.get("Meno")
+    owner_last_name = owner_data.get("Priezvisko")
+    owner_dob = owner_data.get("DatumNarodenia")
+    # owner_id = owner_data.get("Id")
+
+    owner = context.make("Person")
+    owner.id = context.make_id(owner_first_name, owner_dob)
+    h.apply_name(owner, first_name=owner_first_name, last_name=owner_last_name)
+    h.apply_date(owner, "birthDate", owner_dob)
+    address = owner_data.get("Adresa")
+    if address:
+        street_name = address.get("MenoUlice")
+        street_number = address.get("OrientacneCislo")
+        city = address.get("Mesto")
+        city_code = address.get("MestoKod")
+        postal_code = address.get("Psc")
+
+        address = h.make_address(
+            context,
+            street=street_name + " " + street_number,
+            city=city,
+            place=city_code,
+            postal_code=postal_code,
+        )
+        h.copy_address(owner, address)
+    context.emit(owner)
+
+    own = context.make("Ownership")
+    own.id = context.make_id(entity_id, "owned by", owner.id)
+    own.add("owner", owner.id)
+    own.add("asset", entity_id)
+    context.emit(own)
+
+
 def crawl(context: Context):
     entity_ids = []
     headers = {"Accept": "application/json"}
@@ -120,45 +155,10 @@ def crawl(context: Context):
             for owner_id in beneficial_owner_ids:
                 owner_url = BENEFICIAL_OWNERS_ENDPOINT.format(id=owner_id)
                 owner_response = requests.get(owner_url, headers=headers)
-
                 if check_failed_response(context, owner_response, owner_url):
                     continue
-
                 owner_data = owner_response.json()
-                owner_first_name = owner_data.get("Meno")
-                owner_last_name = owner_data.get("Priezvisko")
-                owner_dob = owner_data.get("DatumNarodenia")
-                owner_id = owner_data.get("Id")
-
-                owner = context.make("Person")
-                owner.id = context.make_id(owner_first_name, owner_dob)
-                h.apply_name(
-                    owner, first_name=owner_first_name, last_name=owner_last_name
-                )
-                h.apply_date(owner, "birthDate", owner_dob)
-                address = owner_data.get("Adresa")
-                if address:
-                    street_name = address.get("MenoUlice")
-                    street_number = address.get("OrientacneCislo")
-                    city = address.get("Mesto")
-                    city_code = address.get("MestoKod")
-                    postal_code = address.get("Psc")
-
-                    address = h.make_address(
-                        context,
-                        street=street_name + " " + street_number,
-                        city=city,
-                        place=city_code,
-                        postal_code=postal_code,
-                    )
-                    h.copy_address(owner, address)
-                context.emit(owner)
-
-                own = context.make("Ownership")
-                own.id = context.make_id(entity.id, "owned by", owner.id)
-                own.add("owner", owner.id)
-                own.add("asset", entity.id)
-                context.emit(own)
+                emit_ownership(context, owner_data, entity.id)
 
             # # Extract verification details
             # verification_data = partner_data.get("OverenieIdentifikacieKUV")
