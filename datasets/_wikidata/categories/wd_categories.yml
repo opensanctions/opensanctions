@@ -817,6 +817,12 @@ config:
     - category: Justices_of_the_Supreme_Court_of_Iceland
       country: is
       topic: role.pep
+    - category: Members_of_the_Althing_2024–2028
+      country: is
+      topic: role.pep
+    - category: Members_of_the_Althing_2021–2024
+      country: is
+      topic: role.pep
     - category: Political_office-holders_in_the_Czech_Republic
       country: cz
       topic: role.pep
