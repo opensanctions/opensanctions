@@ -41,24 +41,29 @@ def _crawl_item_countries(
         text = LangText(territory.ftm_country, original=item.id)
         return set([text])
 
+    next_seen = seen + (qid,)
     for claim in item.claims:
         # country:
         if claim.property in ("P17", "P27"):
             if claim.qualifiers.get("P582"):
                 continue
-            territory = get_territory_by_qid(item.id)
-            if territory is not None and territory.ftm_country is not None:
-                text = LangText(territory.ftm_country, original=item.id)
-                countries.add(text)
+            if claim.qid is None or claim.qid in next_seen:
+                continue
+            countries.update(_crawl_item_countries(client, claim.qid, next_seen))
     if len(countries) > 0:
         return countries
-    next_seen = seen + (qid,)
-    for claim in item.claims:
-        # jurisdiction, capital of, part of:
-        if claim.property in ("P1001", "P1376", "P361"):
+
+    # jurisdiction, capital of, part of:
+    for prop in ("P1001", "P1376", "P361"):
+        for claim in item.claims:
+            if claim.property != prop:
+                continue
             if claim.qualifiers.get("P582") or claim.qid is None:
                 continue
             if claim.qid in next_seen:
                 continue
-            countries.update(_crawl_item_countries(client, claim.qid, seen=next_seen))
+            # waaa_seen = next_seen + (claim.property,)
+            countries.update(_crawl_item_countries(client, claim.qid, next_seen))
+            if len(countries) > 0:
+                return countries
     return countries

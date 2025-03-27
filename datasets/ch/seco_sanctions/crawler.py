@@ -267,15 +267,19 @@ def parse_entry(context: Context, target: Element, programs, places):
 
     sanction = h.make_sanction(context, entity)
     sanction.add("authorityId", entity_ssid)
-    sanctioned = True
+    last_modification = None
+    last_modification_type = None
     dates = set()
     for mod in target.findall("./modification"):
         mod_type = mod.get("modification-type")
         effective_date = mod.get("effective-date")
+        if effective_date is not None:
+            if last_modification is None or effective_date > last_modification:
+                last_modification = effective_date
+                last_modification_type = mod_type
         dates.add(mod.get("publication-date"))
         if mod_type == "de-listed":
             sanction.add("endDate", effective_date)
-            sanctioned = False
             continue
         sanction.add("listingDate", mod.get("publication-date"))
         sanction.add("startDate", effective_date)
@@ -283,6 +287,9 @@ def parse_entry(context: Context, target: Element, programs, places):
     if len(dates_):
         entity.add("createdAt", min(dates_))
         entity.add("modifiedAt", max(dates_))
+
+    if last_modification_type == "de-listed":
+        return
 
     ssid = target.get("sanctions-set-id")
     if ssid is None:
@@ -330,8 +337,8 @@ def parse_entry(context: Context, target: Element, programs, places):
     for identity in node.findall("./identity"):
         parse_identity(context, entity, identity, places)
 
-    if sanctioned:
-        entity.add("topics", "sanction")
+    # if not sanctioned:
+    #     return
     context.emit(entity)
     context.emit(sanction)
 
