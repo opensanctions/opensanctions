@@ -47,7 +47,7 @@ def _crawl_item_countries(
         if claim.property in ("P17", "P27"):
             if claim.qualifiers.get("P582"):
                 continue
-            if claim.qid in next_seen:
+            if claim.qid is None or claim.qid in next_seen:
                 continue
             countries.update(_crawl_item_countries(client, claim.qid, next_seen))
     if len(countries) > 0:
