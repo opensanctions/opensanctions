@@ -330,8 +330,8 @@ def parse_entry(context: Context, target: Element, programs, places):
     for identity in node.findall("./identity"):
         parse_identity(context, entity, identity, places)
 
-    if sanctioned:
-        entity.add("topics", "sanction")
+    if not sanctioned:
+        return
     context.emit(entity)
     context.emit(sanction)
 
