@@ -5,11 +5,11 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile, mkdtemp
 import os
 from nomenklatura import Resolver, settings as nk_settings
-from nomenklatura.db import get_engine
 
 from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod.db import get_engine, meta
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.integration import get_resolver
 
@@ -41,6 +41,7 @@ def wrap_test():
     yield
     get_catalog.cache_clear()
     get_engine.cache_clear()
+    meta.clear()
 
 
 @pytest.fixture(scope="function")

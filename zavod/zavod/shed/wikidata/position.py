@@ -4,7 +4,7 @@ from nomenklatura.wikidata import Item, WikidataClient
 from rigour.territories import get_territory_by_qid
 
 from zavod import Context, Entity
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
 POSITION_BASICS: Set[str] = {

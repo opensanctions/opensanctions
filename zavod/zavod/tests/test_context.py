@@ -14,7 +14,6 @@ from zavod.entity import Entity
 from zavod.crawl import crawl_dataset
 from zavod.archive import iter_dataset_statements
 from zavod.runtime.http_ import request_hash
-from zavod.runtime.cache import get_cache, get_engine, get_metadata
 from zavod.runtime.sink import DatasetSink
 from zavod.exc import RunFailedException
 from zavod.runtime.loader import load_entry_point
@@ -147,9 +146,6 @@ def test_context_get_fetchers(testdataset1: Dataset):
     assert adapter.max_retries.allowed_methods == ["POST"]
 
     context.close()
-    get_cache.cache_clear()
-    get_engine.cache_clear()
-    get_metadata.cache_clear()
 
 
 def test_context_post_fetchers(testdataset1: Dataset):
@@ -198,9 +194,6 @@ def test_context_post_fetchers(testdataset1: Dataset):
         assert doc.findtext(".//h1") == "Hello, World!"
 
     context.close()
-    get_cache.cache_clear()
-    get_engine.cache_clear()
-    get_metadata.cache_clear()
 
 
 def test_context_fetchers_exceptions(testdataset1: Dataset):
