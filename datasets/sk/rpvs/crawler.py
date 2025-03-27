@@ -15,10 +15,10 @@ PUBLIC_OFFICIALS_ENDPOINT = f"{BASE_URL}/VerejniFunkcionari/{{id}}"
 TOTAL_COUNT = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/$count"
 FIRST_PAGE = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0"
 LAST_PAGE = (
-    "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skiptoken=Id-261611"
+    "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skiptoken=Id-261694"
 )
-# TODO add topics for peps and add country everywhere
-# TODO check if we want 'OverenieIdentifikacieKUV'
+# TODO do we want to add contry "SK" everywhere?
+
 # def crawl(context: Context) -> None:
 #     fn = context.fetch_resource("source.zip", context.data_url)
 #     with zipfile.ZipFile(fn, "r") as zf:
@@ -27,6 +27,11 @@ LAST_PAGE = (
 #                 continue
 #             with zf.open(name, "r") as fh:
 #                 parse_bods_fh(context, fh)
+
+# Exaple URLs
+# https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/44?$expand=Partner,PravnaForma,Adresa
+# https://rpvs.gov.sk/opendatav2/Partneri/20?$expand=Vymaz,Pokuta,OverenieIdentifikacieKUV,konecniUzivateliaVyhod,verejniFunkcionari,kvalifikovanePodnety
+# https://rpvs.gov.sk/opendatav2/KonecniUzivateliaVyhod/45?$expand=Partner,PravnaForma,Adresa
 
 
 def emit_address(context, entity, address):
@@ -44,6 +49,7 @@ def emit_address(context, entity, address):
         city=city,
         place=city_code,
         postal_code=postal_code,
+        lang="svk",
     )
     h.copy_address(entity, address)
 
@@ -51,8 +57,8 @@ def emit_address(context, entity, address):
 def fetch_related_data(context, related_id, endpoint, headers):
     if not related_id:
         return None
-    owner_url = endpoint.format(id=related_id)
-    response = context.fetch_json(owner_url, headers=headers, cache_days=3)
+    related_url = endpoint.format(id=related_id)
+    response = context.fetch_json(related_url, headers=headers, cache_days=3)
     return response
 
 
@@ -60,6 +66,8 @@ def emit_relationship(context, entity_data, entity_id, is_pep):
     last_name = entity_data.get("Priezvisko")
     dob = entity_data.get("DatumNarodenia")
     ico = entity_data.get("Ico")
+    # One more flag for public officials (used in ownership relationship)
+    public_official = entity_data.get("JeVerejnyCinitel")
 
     if entity_name := entity_data.get("ObchodneMeno"):
         schema = "LegalEntity"
@@ -86,6 +94,9 @@ def emit_relationship(context, entity_data, entity_id, is_pep):
         h.apply_date(related, "birthDate", dob)
         related.add("title", entity_data.get("TitulPred"))
         related.add("title", entity_data.get("TitulZa"))
+        if public_official:
+            related.add("topics", "role.pep")
+            related.add("country", "SK")
         if is_pep:
             # Based on the internal categorization provided by the source
             related.add("topics", "role.pep")
@@ -124,6 +135,7 @@ def process_entry(context, entry, headers):
     else:
         entity.add("name", entity_data.get("ObchodneMeno"))
         entity.add("registrationNumber", entity_data.get("Ico"))
+        entity.add("legalForm", entity_data.get("FormaOsoby"))
 
     if legal_form := entity_data.get("PravnaForma"):
         entity.add("legalForm", legal_form.get("Meno"))
@@ -156,7 +168,7 @@ def process_entry(context, entry, headers):
 def crawl(context: Context):
     headers = {"Accept": "application/json"}
     url = context.data_url
-    # url_count = 0
+    url_count = 0
 
     while url:  # and url_count < 1:
         if url == LAST_PAGE:
@@ -167,4 +179,4 @@ def crawl(context: Context):
         for entry in data.get("value"):  # Directly iterate over new IDs
             process_entry(context, entry, headers)
         url = data.get("@odata.nextLink")
-        # url_count += 1  # Increment the counter
+        url_count += 1  # Increment the counter
