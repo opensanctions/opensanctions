@@ -1,5 +1,3 @@
-import requests
-
 from zavod import Context, helpers as h
 
 # from zavod.shed.bods import parse_bods_fh
@@ -31,13 +29,6 @@ LAST_PAGE = (
 #                 parse_bods_fh(context, fh)
 
 
-def check_failed_response(context, response, url):
-    if response.status_code != 200:
-        context.log.warn("Failed to fetch data", url=url)
-        return True
-    return False
-
-
 def emit_address(context, entity, address):
     if not address:
         return
@@ -57,14 +48,12 @@ def emit_address(context, entity, address):
     h.copy_address(entity, address)
 
 
-def fetch_owner_data(context, owner_id, endpoint, session):
-    if not owner_id:
+def fetch_related_data(context, related_id, endpoint, headers):
+    if not related_id:
         return None
-    owner_url = endpoint.format(id=owner_id)
-    response = session.get(owner_url, headers={"Accept": "application/json"})
-    if check_failed_response(context, response, owner_url):
-        return None
-    return response.json()
+    owner_url = endpoint.format(id=related_id)
+    response = context.fetch_json(owner_url, headers=headers, cache_days=3)
+    return response
 
 
 def emit_relationship(context, entity_data, entity_id, is_pep):
@@ -120,24 +109,18 @@ def crawl(context: Context):
     url = context.data_url
     url_count = 0
 
-    while url:  # and url_count < 1:
+    while url and url_count < 1:
         if url == LAST_PAGE:
             context.log.info("Stopping crawl: Reached skip token limit.")
             break
-        response = requests.get(url, headers=headers)
-        if check_failed_response(context, response, url):
-            return
 
-        for entry in response.json().get("value"):  # Directly iterate over new IDs
+        data = context.fetch_json(url, headers=headers, cache_days=3)
+        for entry in data.get("value"):  # Directly iterate over new IDs
             entity_id = entry["Id"]
             context.log.info("Fetching entity details", entity_id=entity_id)
             details_url = ENTITY_DETAILS_ENDPOINT.format(id=entity_id)
-            details_response = requests.get(details_url, headers=headers)
 
-            if check_failed_response(context, details_response, details_url):
-                continue
-
-            entity_data = details_response.json()
+            entity_data = context.fetch_json(details_url, headers=headers, cache_days=3)
             entity = context.make(
                 "LegalEntity" if entity_data.get("ObchodneMeno") else "Person"
             )
@@ -166,25 +149,21 @@ def crawl(context: Context):
             if partner := entity_data.get("Partner"):
                 partner_id = partner.get("Id")
                 partner_url = PARTNER_DETAILS_ENDPOINT.format(id=partner_id)
-                partner_response = requests.get(partner_url, headers=headers)
+                partner_data = context.fetch_json(partner_url, headers=headers)
 
-                if check_failed_response(context, partner_response, partner_url):
-                    continue
-
-                partner_data = partner_response.json()
                 # entry_number = partner_data.get("CisloVlozky")
                 for owner in partner_data.get("KonecniUzivateliaVyhod"):
-                    owner_data = fetch_owner_data(
-                        context, owner.get("Id"), BENEFICIAL_OWNERS_ENDPOINT, requests
+                    owner_data = fetch_related_data(
+                        context, owner.get("Id"), BENEFICIAL_OWNERS_ENDPOINT, headers
                     )
                     emit_relationship(context, owner_data, entity.id, is_pep=False)
 
                 for pep in partner_data.get("VerejniFunkcionari"):
-                    pep_data = fetch_owner_data(
-                        context, pep.get("Id"), PUBLIC_OFFICIALS_ENDPOINT, requests
+                    pep_data = fetch_related_data(
+                        context, pep.get("Id"), PUBLIC_OFFICIALS_ENDPOINT, headers
                     )
                     context.log.info("Fetched PEP data", pep_data=pep_data)
                     emit_relationship(context, pep_data, entity.id, is_pep=True)
 
-        url = response.json().get("@odata.nextLink")
+        url = data.get("@odata.nextLink")
         url_count += 1  # Increment the counter
