@@ -104,66 +104,67 @@ def emit_relationship(context, entity_data, entity_id, is_pep):
     context.emit(related)
 
 
+def process_entry(context, entry, headers):
+    entity_id = entry["Id"]
+    context.log.info("Fetching entity details", entity_id=entity_id)
+    details_url = ENTITY_DETAILS_ENDPOINT.format(id=entity_id)
+
+    entity_data = context.fetch_json(details_url, headers=headers, cache_days=3)
+    entity = context.make(
+        "LegalEntity" if entity_data.get("ObchodneMeno") else "Person"
+    )
+    entity.id = context.make_id(entity_data.get("Id"), entity_data.get("CisloVlozky"))
+    if entity.schema.name == "Person":
+        h.apply_name(
+            entity,
+            first_name=entity_data.get("Meno"),
+            last_name=entity_data.get("Priezvisko"),
+        )
+        h.apply_date(entity, "birthDate", entity_data.get("DatumNarodenia"))
+    else:
+        entity.add("name", entity_data.get("ObchodneMeno"))
+        entity.add("registrationNumber", entity_data.get("Ico"))
+
+    if legal_form := entity_data.get("PravnaForma"):
+        entity.add("legalForm", legal_form.get("Meno"))
+        entity.add("classification", legal_form.get("StatistickyKod"))
+
+    if address := entity_data.get("Adresa"):
+        emit_address(context, entity, address)
+    context.emit(entity)
+
+    if partner := entity_data.get("Partner"):
+        partner_id = partner.get("Id")
+        partner_url = PARTNER_DETAILS_ENDPOINT.format(id=partner_id)
+        partner_data = context.fetch_json(partner_url, headers=headers)
+
+        # entry_number = partner_data.get("CisloVlozky")
+        for owner in partner_data.get("KonecniUzivateliaVyhod"):
+            owner_data = fetch_related_data(
+                context, owner.get("Id"), BENEFICIAL_OWNERS_ENDPOINT, headers
+            )
+            emit_relationship(context, owner_data, entity.id, is_pep=False)
+
+        for pep in partner_data.get("VerejniFunkcionari"):
+            pep_data = fetch_related_data(
+                context, pep.get("Id"), PUBLIC_OFFICIALS_ENDPOINT, headers
+            )
+            context.log.info("Fetched PEP data", pep_data=pep_data)
+            emit_relationship(context, pep_data, entity.id, is_pep=True)
+
+
 def crawl(context: Context):
     headers = {"Accept": "application/json"}
     url = context.data_url
-    url_count = 0
+    # url_count = 0
 
-    while url and url_count < 1:
+    while url:  # and url_count < 1:
         if url == LAST_PAGE:
             context.log.info("Stopping crawl: Reached skip token limit.")
             break
 
         data = context.fetch_json(url, headers=headers, cache_days=3)
         for entry in data.get("value"):  # Directly iterate over new IDs
-            entity_id = entry["Id"]
-            context.log.info("Fetching entity details", entity_id=entity_id)
-            details_url = ENTITY_DETAILS_ENDPOINT.format(id=entity_id)
-
-            entity_data = context.fetch_json(details_url, headers=headers, cache_days=3)
-            entity = context.make(
-                "LegalEntity" if entity_data.get("ObchodneMeno") else "Person"
-            )
-            entity.id = context.make_id(
-                entity_data.get("Id"), entity_data.get("CisloVlozky")
-            )
-            if entity.schema.name == "Person":
-                h.apply_name(
-                    entity,
-                    first_name=entity_data.get("Meno"),
-                    last_name=entity_data.get("Priezvisko"),
-                )
-                h.apply_date(entity, "birthDate", entity_data.get("DatumNarodenia"))
-            else:
-                entity.add("name", entity_data.get("ObchodneMeno"))
-                entity.add("registrationNumber", entity_data.get("Ico"))
-
-            if legal_form := entity_data.get("PravnaForma"):
-                entity.add("legalForm", legal_form.get("Meno"))
-                entity.add("classification", legal_form.get("StatistickyKod"))
-
-            if address := entity_data.get("Adresa"):
-                emit_address(context, entity, address)
-            context.emit(entity)
-
-            if partner := entity_data.get("Partner"):
-                partner_id = partner.get("Id")
-                partner_url = PARTNER_DETAILS_ENDPOINT.format(id=partner_id)
-                partner_data = context.fetch_json(partner_url, headers=headers)
-
-                # entry_number = partner_data.get("CisloVlozky")
-                for owner in partner_data.get("KonecniUzivateliaVyhod"):
-                    owner_data = fetch_related_data(
-                        context, owner.get("Id"), BENEFICIAL_OWNERS_ENDPOINT, headers
-                    )
-                    emit_relationship(context, owner_data, entity.id, is_pep=False)
-
-                for pep in partner_data.get("VerejniFunkcionari"):
-                    pep_data = fetch_related_data(
-                        context, pep.get("Id"), PUBLIC_OFFICIALS_ENDPOINT, headers
-                    )
-                    context.log.info("Fetched PEP data", pep_data=pep_data)
-                    emit_relationship(context, pep_data, entity.id, is_pep=True)
-
+            process_entry(context, entry, headers)
         url = data.get("@odata.nextLink")
-        url_count += 1  # Increment the counter
+        # url_count += 1  # Increment the counter
