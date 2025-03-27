@@ -33,6 +33,7 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
         )
         entry_point = load_entry_point(dataset)
         entry_point(context)
+        context.flush()
         context.log.info(
             "Run completed",
             entities=context.stats.entities,

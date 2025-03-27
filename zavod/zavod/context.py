@@ -16,6 +16,7 @@ from nomenklatura.versions import Version
 from nomenklatura.cache import Cache
 from nomenklatura.util import PathLike
 from rigour.urls import build_url, ParamsType
+from sqlalchemy.engine import Connection
 from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
@@ -84,6 +85,12 @@ class Context:
         return self._cache
 
     @property
+    def conn(self) -> Connection:
+        """Expose a database connection to the ETL store."""
+        # Transaction management is delegated to the cache.
+        return self.cache.conn
+
+    @property
     def version(self) -> Version:
         """The current version of the dataset."""
         return get_latest(self.dataset.name, backfill=False) or settings.RUN_VERSION
@@ -140,6 +147,11 @@ class Context:
             self.resources.clear()
             self.issues.clear()
         self.stats.reset()
+
+    def flush(self) -> None:
+        """Flush the context to ensure all data is written to disk."""
+        if self._cache is not None:
+            self._cache.flush()
 
     def close(self) -> None:
         """Flush and tear down the context."""

@@ -208,7 +208,7 @@ def crawl_category(state: CrawlState, category: Dict[str, Any]) -> None:
         topics=topics,
         results=results,
     )
-    state.context.cache.flush()
+    state.context.flush()
 
 
 def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
@@ -270,7 +270,7 @@ def crawl_position_seeds(state: CrawlState) -> None:
     state.log.info("Found %d seed positions" % len(roles))
     for role in roles:
         state.persons.update(crawl_position_holder(state, role))
-    state.context.cache.flush()
+    state.context.flush()
 
 
 def crawl_declarator(state: CrawlState) -> None:
@@ -302,7 +302,7 @@ def crawl(context: Context) -> None:
     categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
     for category in categories:
         crawl_category(state, category)
-        state.context.cache.flush()
+        state.context.flush()
 
     context.log.info("Generated %d persons" % len(state.persons))
     for idx, person_qid in enumerate(state.persons):
@@ -333,6 +333,6 @@ def crawl(context: Context) -> None:
         )
         state.context.emit(entity)
         if idx > 0 and idx % 1000 == 0:
-            state.context.cache.flush()
+            state.context.flush()
 
     # raise RuntimeError("Crawler is in debug mode, do not release results")

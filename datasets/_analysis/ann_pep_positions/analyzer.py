@@ -34,11 +34,11 @@ def crawl(context: Context) -> None:
     for entity_idx, entity in enumerate(view.entities()):
         if entity_idx > 0 and entity_idx % 1000 == 0:
             context.log.info("Processed %s entities" % entity_idx)
-            context.cache.flush()
+            context.flush()
 
         if entity.schema.is_a("Position"):
             analyze_position(context, entity)
             position_count += 1
             if position_count % 1000 == 0:
                 context.log.info("Analyzed %s positions" % position_count)
-                context.cache.flush()
+                context.flush()
