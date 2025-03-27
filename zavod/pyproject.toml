@@ -38,7 +38,7 @@ dependencies = [
     "pdfplumber == 0.11.5",
     "prefixdate",
     "psycopg2-binary",
-    "pyicu == 2.14",
+    "pyicu == 2.15",
     "pywikibot==9.6.3",
     "openai >= 1.33.0, < 2.0.0",
     "requests[security]",
