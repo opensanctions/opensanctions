@@ -87,13 +87,12 @@ def wikidata_position(
     if item.label is not None:
         item.label.apply(position, "name")
 
-    for country in item_countries(client, item.id):
-        country.apply(position, "country")
-
     for claim in item.claims:
         if claim.property in ("P1001", "P17") and claim.qid is not None:
             if is_historical_country(client, claim.qid):
                 return None
+            for country in item_countries(client, claim.qid):
+                country.apply(position, "country")
 
         # jurisdiction:
         if claim.property == "P1001":
@@ -121,6 +120,12 @@ def wikidata_position(
         # end date:
         if claim.property == "P582" and not position.has("dissolutionDate"):
             claim.text.apply(position, "dissolutionDate")
+
+    # If no explicit country/jurisdiction is found, try to traverse more obscure
+    # properties, like capital of, part of, jurisdiction, etc.
+    if not position.has("country"):
+        for country in item_countries(client, item.id):
+            country.apply(position, "country")
 
     # Skip all positions that cannot be linked to a country.
     if not position.has("country"):
