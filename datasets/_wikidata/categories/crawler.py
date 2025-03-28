@@ -6,6 +6,7 @@ from nomenklatura.wikidata import WikidataClient, Claim
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.stateful.positions import categorised_position_qids
 from zavod.shed.wikidata.position import wikidata_position
 from zavod.shed.wikidata.human import wikidata_basic_human
 
@@ -22,6 +23,8 @@ QUERY = {
 }
 # TEMP: We're starting to include municipal PEPs for specific countries
 MUNI_COUNTRIES = {"us", "fr", "gb", "ru", "is"}
+# That one time a PEP customer asked to be included....
+ALWAYS_PERSONS = ["Q21258544"]
 
 
 class CrawlState(object):
@@ -30,7 +33,7 @@ class CrawlState(object):
         self.client = WikidataClient(context.cache, session=context.http)
         self.log = context.log
         self.ignore_positions: Set[str] = set()
-        self.persons: Set[str] = set()
+        self.persons: Set[str] = set(ALWAYS_PERSONS)
         self.person_title: Dict[str, str] = {}
         self.person_countries: Dict[str, Set[str]] = {}
         self.person_topics: Dict[str, Set[str]] = {}
@@ -254,7 +257,7 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
 
 def crawl_position_seeds(state: CrawlState) -> None:
     seeds: List[str] = state.context.dataset.config.get("seeds", [])
-    roles: Set[str] = set()
+    roles: Set[str] = set(categorised_position_qids(state.context))
     for seed in seeds:
         query = f"""
         SELECT ?role WHERE {{

@@ -1,7 +1,6 @@
 from typing import List, Optional, TYPE_CHECKING
 
 from pathlib import Path
-from sqlalchemy import MetaData, create_engine
 from followthemoney import model
 from nomenklatura.xref import xref
 from nomenklatura.resolver import Resolver, Identifier, Linker
@@ -9,7 +8,7 @@ from nomenklatura.judgement import Judgement
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
 from zavod.entity import Entity
-from zavod import settings
+from zavod.db import get_engine, meta
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.integration.duckdb_index import DuckDBIndex
@@ -23,13 +22,7 @@ AUTO_USER = "zavod/xref"
 
 def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
-    connect_args = {}
-    if settings.DATABASE_URI.startswith("postgres"):
-        connect_args["options"] = f"-c statement_timeout={settings.DB_STMT_TIMEOUT}"
-
-    engine = create_engine(settings.DATABASE_URI, connect_args=connect_args)
-    metadata = MetaData()
-    resolver = Resolver[Entity](engine, metadata, create=True)
+    resolver = Resolver[Entity](get_engine(), meta, create=True)
     log.info("Using resolver: %r" % resolver)
     return resolver
 

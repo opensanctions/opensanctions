@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Optional, List
 from datetime import datetime, timedelta
+from sqlalchemy import select
+from rigour.ids.wikidata import is_qid
 
 from zavod.context import Context
 from zavod import settings
@@ -64,6 +66,40 @@ def categorise(
     istmt = istmt.values(body)
     context.conn.execute(istmt)
     return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
+
+
+def categorise_many(
+    contextL: Context, position_ids: List[str]
+) -> List[PositionCategorisation]:
+    """Categorise multiple positions at once. This is a performance optimisation to
+    avoid multiple database queries."""
+    stmt = position_table.select()
+    stmt = stmt.filter(position_table.c.entity_id.in_(position_ids))
+    stmt = stmt.filter(position_table.c.deleted_at.is_(None))
+    rows = contextL.conn.execute(stmt).fetchall()
+    categorisations = []
+    for row in rows:
+        categorisations.append(
+            PositionCategorisation(
+                topics=row.topics,
+                is_pep=row.is_pep,
+            )
+        )
+    return categorisations
+
+
+def categorised_position_qids(context: Context) -> List[str]:
+    """Return a list of position QIDs that have been categorised."""
+    stmt = select(position_table.c.entity_id)
+    stmt = stmt.filter(position_table.c.is_pep.is_(True))
+    stmt = stmt.filter(position_table.c.deleted_at.is_(None))
+    stmt = stmt.filter(position_table.c.entity_id.like("Q%"))
+    rows = context.conn.execute(stmt).fetchall()
+    qids = []
+    for row in rows:
+        if is_qid(row.entity_id):
+            qids.append(row.entity_id)
+    return qids
 
 
 def backdate(date: datetime, days: int) -> str:

@@ -36,4 +36,3 @@ def create_db() -> None:
     """Create all stateful database tables."""
     engine = get_engine()
     meta.create_all(bind=engine, checkfirst=True)
-    print("CREATE DB", engine)

@@ -327,10 +327,4 @@ def crawl(context: Context):
             for holder in query_position_holders(context, client, wd_position):
                 crawl_holder(context, categorisation, position, holder)
             seen_positions.add(wd_position.qid)
-
-    entity = context.make("Person")
-    entity.id = "Q21258544"
-    entity.add("name", "Mark Lipparelli")
-    entity.add("topics", "role.pep")
-    entity.add("country", "us")
-    context.emit(entity)
+            context.flush()
