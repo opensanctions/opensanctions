@@ -1,0 +1,45 @@
+title: Singapore Investor Alert List
+entry_point: crawler.py
+prefix: sg-ial
+coverage:
+  frequency: daily
+  start: 2025-03-28
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  The Investor Alert List contains entities that may have been wrongly perceived as licensed, 
+  authorized, or regulated by MAS, or have made misleading investment offers.
+description: |
+   > The Investor Alert List provides a list of persons who, based on information available 
+   > to MAS,
+   > - may be or may have been wrongly perceived as being licensed or in any other way authorised 
+   > or regulated by MAS;
+   > - have made an offer of units in a business trust or collective investment scheme which 
+   > may be or may have been wrongly perceived as being authorised, recognised or registered by MAS;
+   > - have made an offer of investment which may be or may have been wrongly perceived as being 
+   > made in or accompanied by a document lodged or registered with MAS.
+   >
+   > This list is not exhaustive and is based on what was known to MAS at the time of publication.
+publisher:
+  name: Monetary Authority of Singapore
+  acronym: MAS
+  description: |
+    The Monetary Authority of Singapore (MAS) is Singapore’s central bank and
+    integrated financial regulator. MAS also works with the financial industry
+    to develop Singapore as a dynamic international financial centre.
+  url: https://www.mas.gov.sg/who-we-are
+  country: sg
+  official: true
+url: https://www.mas.gov.sg/investor-alert-list
+data:
+  url: https://www.mas.gov.sg/api/v1/ialsearch?json.nl=map&wt=json&q=*:*&sort=date_dt+desc&rows=10&start=0
+  format: JSON
+# dates: 
+#   formats: ["%d %B %Y"]
+
+# assertions:
+#   min:
+#     schema_entities:
+#       Person: 25
+#   max:
+#     schema_entities:
+#       Person: 60
