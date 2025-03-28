@@ -31,8 +31,8 @@ publisher:
     people and organisations to use this data to build trust as well as
     reducing corruption and tax evasion.
 data:
-  url: https://s3.eu-west-1.amazonaws.com/oo-bodsdata/data/slovakia/json.zip
-  format: JSON+ZIP
+  url: https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0
+  format: JSON
 
 lookups:
   type.url:
