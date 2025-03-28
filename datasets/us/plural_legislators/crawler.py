@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 
 from zavod.context import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 API_KEY = os.environ.get("OPENSANCTIONS_PLURAL_API_KEY")
 REGEX_PATH = re.compile(

@@ -7,7 +7,7 @@ from normality import normalize
 from typing import Dict, Generator, List, Optional
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise, OccupancyStatus
+from zavod.stateful.positions import categorise, OccupancyStatus
 from zavod.shed.trans import apply_translit_full_name, make_position_translation_prompt
 
 
@@ -83,7 +83,6 @@ def parse_html_table(
     table: HtmlElement,
     headers: List[str] = [],
 ) -> Generator[Dict[str, HtmlElement], None, None]:
-
     first_row = table.find(".//tr[1]")
     assert len(headers) == len(
         first_row.findall("./td")

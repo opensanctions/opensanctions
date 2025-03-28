@@ -4,7 +4,7 @@ from rigour.mime.types import XLSX
 import openpyxl
 from normality import slugify
 from zavod import helpers as h
-from zavod.logic.pep import OccupancyStatus, categorise
+from zavod.stateful.positions import OccupancyStatus, categorise
 
 
 def sheet_to_dicts(sheet):

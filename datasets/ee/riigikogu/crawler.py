@@ -1,5 +1,5 @@
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 
 def get_members_urls(context: Context) -> list:

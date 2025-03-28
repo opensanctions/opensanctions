@@ -3,7 +3,7 @@ from rigour.ids.wikidata import is_qid
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 
 def make_position(context: Context, parliamentary_period):

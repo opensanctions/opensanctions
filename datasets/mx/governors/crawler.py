@@ -1,7 +1,7 @@
 import re
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 
 def extract_birth_place_and_date(link_governor_page, context: Context):

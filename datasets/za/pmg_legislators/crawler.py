@@ -9,7 +9,7 @@ from orjson import loads
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.logic.pep import OccupancyStatus, categorise
+from zavod.stateful.positions import OccupancyStatus, categorise
 
 # add headers to the request
 

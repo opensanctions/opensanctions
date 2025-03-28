@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Dict, Optional, Tuple, Set
 from zipfile import ZipFile, BadZipFile
 from zavod import Context, Entity, helpers as h
-from zavod.logic.pep import OccupancyStatus, categorise
+from zavod.stateful.positions import OccupancyStatus, categorise
 from zavod.shed.trans import (
     apply_translit_full_name,
     make_position_translation_prompt,

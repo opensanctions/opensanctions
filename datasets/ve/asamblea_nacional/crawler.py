@@ -9,7 +9,7 @@ from urllib.parse import parse_qs, urlparse
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 from zavod.util import ElementOrTree
 from lxml.html import HtmlElement
 

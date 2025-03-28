@@ -1,7 +1,7 @@
 import csv
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 IGNORE = [
     "OrganizationName",

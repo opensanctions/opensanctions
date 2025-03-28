@@ -3,7 +3,7 @@ from xml.etree import ElementTree
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=0):

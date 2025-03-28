@@ -6,7 +6,7 @@ from normality import collapse_spaces
 from followthemoney.types import registry
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 
 TITLE_REGEX = re.compile(

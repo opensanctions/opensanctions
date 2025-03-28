@@ -4,7 +4,7 @@ from rigour.langs import iso_639_alpha3
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
-from zavod.logic.pep import OccupancyStatus, categorise
+from zavod.stateful.positions import OccupancyStatus, categorise
 from zavod.shed.zyte_api import fetch_json
 
 CACHE_SHORT = 1

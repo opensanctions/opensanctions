@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 # 1: CPF
 # 2: PEP_Name

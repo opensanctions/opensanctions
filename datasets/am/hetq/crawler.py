@@ -12,7 +12,7 @@ from lxml.html import document_fromstring, HtmlElement
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 from zavod.shed.internal_data import fetch_internal_data
 
 UNUSED_FIELDS = [
