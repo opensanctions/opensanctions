@@ -83,7 +83,7 @@ def expert_query(
         root = etree.fromstring(response_text.encode("utf-8"))
         # only set if we could parse xml
         context.cache.set(key, response_text)
-        context.cache.flush()
+        context.flush()
         context.log.debug("Cache MISS", args=args)
         return h.remove_namespace(root)
     root = etree.fromstring(response_text.encode("utf-8"))

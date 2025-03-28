@@ -6,6 +6,7 @@ from nomenklatura.wikidata import WikidataClient, Claim
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.stateful.positions import categorised_position_qids
 from zavod.shed.wikidata.position import wikidata_position
 from zavod.shed.wikidata.human import wikidata_basic_human
 
@@ -22,6 +23,8 @@ QUERY = {
 }
 # TEMP: We're starting to include municipal PEPs for specific countries
 MUNI_COUNTRIES = {"us", "fr", "gb", "ru", "is"}
+# That one time a PEP customer asked to be included....
+ALWAYS_PERSONS = ["Q21258544"]
 
 
 class CrawlState(object):
@@ -30,7 +33,7 @@ class CrawlState(object):
         self.client = WikidataClient(context.cache, session=context.http)
         self.log = context.log
         self.ignore_positions: Set[str] = set()
-        self.persons: Set[str] = set()
+        self.persons: Set[str] = set(ALWAYS_PERSONS)
         self.person_title: Dict[str, str] = {}
         self.person_countries: Dict[str, Set[str]] = {}
         self.person_topics: Dict[str, Set[str]] = {}
@@ -208,7 +211,7 @@ def crawl_category(state: CrawlState, category: Dict[str, Any]) -> None:
         topics=topics,
         results=results,
     )
-    state.context.cache.flush()
+    state.context.flush()
 
 
 def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
@@ -254,7 +257,7 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
 
 def crawl_position_seeds(state: CrawlState) -> None:
     seeds: List[str] = state.context.dataset.config.get("seeds", [])
-    roles: Set[str] = set()
+    roles: Set[str] = set(categorised_position_qids(state.context))
     for seed in seeds:
         query = f"""
         SELECT ?role WHERE {{
@@ -270,7 +273,7 @@ def crawl_position_seeds(state: CrawlState) -> None:
     state.log.info("Found %d seed positions" % len(roles))
     for role in roles:
         state.persons.update(crawl_position_holder(state, role))
-    state.context.cache.flush()
+    state.context.flush()
 
 
 def crawl_declarator(state: CrawlState) -> None:
@@ -302,7 +305,7 @@ def crawl(context: Context) -> None:
     categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
     for category in categories:
         crawl_category(state, category)
-        state.context.cache.flush()
+        state.context.flush()
 
     context.log.info("Generated %d persons" % len(state.persons))
     for idx, person_qid in enumerate(state.persons):
@@ -333,6 +336,6 @@ def crawl(context: Context) -> None:
         )
         state.context.emit(entity)
         if idx > 0 and idx % 1000 == 0:
-            state.context.cache.flush()
+            state.context.flush()
 
     # raise RuntimeError("Crawler is in debug mode, do not release results")

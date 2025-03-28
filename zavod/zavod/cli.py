@@ -33,6 +33,7 @@ from zavod.exc import RunFailedException
 from zavod.reset import reset_caches
 from zavod.tools.wikidata import run_app
 from zavod.validators import validate_dataset
+from zavod.stateful.model import create_db
 
 
 log = get_logger(__name__)
@@ -63,6 +64,7 @@ def cli(debug: bool = False) -> None:
 
     level = logging.DEBUG if debug else logging.INFO
     configure_logging(level=level)
+    create_db()
 
 
 @cli.command("crawl", help="Crawl a specific dataset")

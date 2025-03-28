@@ -190,7 +190,7 @@ def crawl(context: Context) -> None:
     gap = 0
     for deklaracija_id in DEKLARACIJA_ID_RANGE:
         if deklaracija_id % 1000 == 0:
-            context.cache.flush()
+            context.flush()
         if not (record := pinreg.get_deklaracija_by_id(deklaracija_id)):
             gap += 1
             if gap > MAX_GAP:
