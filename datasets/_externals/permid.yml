@@ -14,7 +14,7 @@ exports:
 deploy:
   memory: "1000Mi"
   memory_limit: "2000Mi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Permanent Identifier (PermID) is a reference data spine offered by LSEG/Refinitiv
   to help create unique identifiers for organizations that are publicly listed.

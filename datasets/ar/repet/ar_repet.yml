@@ -4,8 +4,8 @@ entry_point: crawler.py
 coverage:
   schedule: "0 */12 * * *"
   frequency: daily
-  start: 2022-02-06  
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+  start: 2022-02-06
+load_statements: true
 summary: >
   Public Registry of Persons and Entities linked to acts of Terrorism and their Financing
 description: |
@@ -37,7 +37,7 @@ assertions:
       Person: 900
       Organization: 200
 
-dates: 
+dates:
   formats: ["%d/%m/%Y"]
 lookups:
   doc_types:
@@ -129,7 +129,7 @@ lookups:
     lowercase: true
     options:
       - match: Hay’at Tahrir al-Sham (HTS) (هيئة تحرير الشام (original script); Hay’at Tahrir al-Sham; Hay’et Tahrir al-Sham; Hayat Tahrir al-Sham; Assembly for the Liberation of Syria; Assembly for the Liberation of the Levant; Liberation of al-Sham Commission; Liberation of the Levant Organisation Tahrir al-Sham; Tahrir al-Sham Hay’at)
-        values: 
+        values:
           - Hay’at Tahrir al-Sham
           - هيئة تحرير الشام
           - Hay’et Tahrir al-Sham

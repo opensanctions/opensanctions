@@ -6,7 +6,7 @@ prefix: gb-proscribed
 coverage:
   frequency: daily
   start: 2024-02-08
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   The United Kingdom's list of Proscribed Organizations under the
   Terrorism Act 2000
@@ -40,7 +40,7 @@ data:
   url: https://www.legislation.gov.uk/ukpga/2000/11/schedule/2?view=plain
   format: HTML
 
-dates: 
+dates:
   formats: ["%d.%m.%Y"]
 assertions:
   min:

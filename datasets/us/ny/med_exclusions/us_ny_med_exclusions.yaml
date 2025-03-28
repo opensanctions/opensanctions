@@ -4,7 +4,7 @@ prefix: us-medny
 coverage:
   frequency: daily
   start: "2024-09-13"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers deemed ineligible to participate in New York State's Medicaid program.
 description: |
@@ -14,9 +14,9 @@ description: |
 publisher:
   name: New York State Office of the Medicaid Inspector General
   description: >
-   > The Office of the Medicaid Inspector General is an independent entity created within
-   the New York State Department of Health to promote and protect the integrity of the Medicaid
-   program in New York State.
+    > The Office of the Medicaid Inspector General is an independent entity created within
+    the New York State Department of Health to promote and protect the integrity of the Medicaid
+    program in New York State.
   acronym: OMIG
   url: https://omig.ny.gov
   official: true
@@ -25,7 +25,6 @@ url: "https://omig.ny.gov/medicaid-fraud/medicaid-exclusions"
 data:
   url: https://apps.omig.ny.gov/exclusions/exporttoexcel.aspx
   format: XLSX
-
 
 dates:
   formats: ["%m/%d/%Y"]
@@ -39,7 +38,7 @@ assertions:
 lookups:
   type.identifier:
     options:
-      - match: 
+      - match:
           - NA
           - none
           - None

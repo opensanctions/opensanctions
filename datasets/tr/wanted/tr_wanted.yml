@@ -5,7 +5,7 @@ prefix: tr-wanted
 coverage:
   frequency: daily
   start: 2024-04-02
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 url: https://en.terorarananlar.pol.tr/
 summary: >
   List of people considered wanted for terrorism by the Türkiye Ministry of Interior

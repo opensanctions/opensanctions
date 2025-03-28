@@ -4,19 +4,19 @@ prefix: us-medga
 coverage:
   frequency: daily
   start: "2024-09-06"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Providers who have been terminated for cause from Georgia's Medicaid program.
 description: |
   > The Georgia Department of Community Health is authorized to exclude certain individuals and entities (providers)
   > from participating in federally funded health care programs, including Medicaid. Excluded individuals and
   > entities are not permitted to receive reimbursement for providing Medicare and Medicaid services in all categories
-  > of service and in any capacity, including managed care. 
+  > of service and in any capacity, including managed care.
 publisher:
   name: Georgia Department of Community Health
   description: |
-   The Georgia Department of Community Health (DCH) manages Georgia's Medicaid, State Health Benefit Plan,
-   and healthcare regulations.
+    The Georgia Department of Community Health (DCH) manages Georgia's Medicaid, State Health Benefit Plan,
+    and healthcare regulations.
   acronym: DCH
   url: https://dch.georgia.gov
   official: true
@@ -27,7 +27,7 @@ data:
   format: HTML
   lang: eng
 
-dates: 
+dates:
   formats: ["%Y%m%d"]
 assertions:
   min:
@@ -41,7 +41,7 @@ assertions:
       # adding about 140 mistaken companies to the roughly 105 real companies.
       Company: 200
 lookups:
-  type.identifier: 
+  type.identifier:
     options:
       - match: "01/**/1964"
         value: null

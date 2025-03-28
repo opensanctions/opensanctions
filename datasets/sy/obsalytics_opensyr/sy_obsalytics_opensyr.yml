@@ -7,7 +7,7 @@ coverage:
   end: "2023-02-01"
 deploy:
   schedule: "@monthly"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >
   A knowledge graph of persons of interest inside Syria, including detailed
@@ -34,7 +34,7 @@ url: https://www.opensyr.com/
 data:
   url: https://data.opensanctions.org/contrib/opensyr/opensyr-20230201.json
   format: FTM
-dates: 
+dates:
   formats: ["%Y%m%d", "%Y0000", "%Y"]
 
 assertions:

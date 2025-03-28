@@ -4,7 +4,7 @@ prefix: br-qgi
 coverage:
   frequency: daily
   start: "2024-01-23"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   The QGI is a dataset from the Central Bank of Brazil listing individuals disqualified from certain roles in financial institutions and consortium administrators.
 description: |

@@ -4,7 +4,7 @@ prefix: tr-parl
 coverage:
   frequency: weekly
   start: "2024-05-02"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Current military members of the Grand National Assembly of Türkiye
 description: |

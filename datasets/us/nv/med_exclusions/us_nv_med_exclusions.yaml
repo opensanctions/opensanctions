@@ -4,7 +4,7 @@ prefix: us-mednv
 coverage:
   frequency: daily
   start: "2024-10-16"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers who have been excluded/sanctioned from the Nevada Medicaid Program.
 description: |
@@ -14,10 +14,10 @@ description: |
 publisher:
   name: Nevada Department of Health and Human Services Division of Health Care Financing and Policy
   description: |
-   > The Division of Health Care Financing and Policy (DHCFP) works in partnership with the Centers
-   > for Medicare & Medicaid Services to assist in providing quality medical care for eligible
-   > individuals and families with low incomes and limited resources. Services are provided through
-   > a combination of traditional fee-for-service provider networks and managed care.
+    > The Division of Health Care Financing and Policy (DHCFP) works in partnership with the Centers
+    > for Medicare & Medicaid Services to assist in providing quality medical care for eligible
+    > individuals and families with low incomes and limited resources. Services are provided through
+    > a combination of traditional fee-for-service provider networks and managed care.
   acronym: DHCFP
   url: https://dhcfp.nv.gov/About/Home/
   official: true
@@ -26,11 +26,10 @@ ci_test: false
 url: "https://dhcfp.nv.gov/Providers/PI/PSExclusions/"
 data:
   url: https://dhcfp.nv.gov/Providers/PI/PSExclusions/
-  format: PDF 
+  format: PDF
 
 dates:
-  formats:
-    ["%m/%d/%Y"]
+  formats: ["%m/%d/%Y"]
 
 assertions:
   min:
@@ -47,7 +46,7 @@ lookups:
     options:
       match: "7/18/2017*"
       value: "2017-07-18"
-  type.identifier: 
+  type.identifier:
     options:
       - match: "1679546139 1285777946"
         values:
@@ -64,7 +63,7 @@ lookups:
         value: 1407145998
       - match: 1942740383
         value: 1942743083
-      - match: 
+      - match:
           - 9005001613
           - 9005051105
           - 9005041064

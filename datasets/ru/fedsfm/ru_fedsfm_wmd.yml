@@ -8,7 +8,7 @@ coverage:
   end: "2022-02-24"
 deploy:
   schedule: "0 22 * * 3"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   List of organizations and individuals in relation to which there is
   information about their involvement in the proliferation of weapons
@@ -57,5 +57,5 @@ data:
   url: https://www.fedsfm.ru/documents/omu-list
   format: HTML
 
-dates: 
+dates:
   formats: ["%d %b. %Y", "%d %B %Y", "%d.%m.%Y"]

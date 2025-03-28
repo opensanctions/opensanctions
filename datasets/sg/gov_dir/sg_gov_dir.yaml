@@ -4,7 +4,7 @@ prefix: sg-gov
 coverage:
   frequency: weekly
   start: 2024-10-23
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >
   Senior officials of ministries, statutory boards and other public bodies in Singapore.

@@ -9,7 +9,7 @@ exports:
   - statistics.json
 deploy:
   memory: "4000Mi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   The largest open database of company data in the world, with data from over 140 registries.
 description: |

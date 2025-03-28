@@ -4,7 +4,7 @@ prefix: us-medar
 coverage:
   frequency: daily
   start: "2024-11-15"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   This dataset contains a list of providers who have been excluded from Arkansas's Medicaid program.
 description: |
@@ -52,14 +52,14 @@ assertions:
       LegalEntity: 1000
 
 lookups:
-  names: 
+  names:
     normalize: true
     options:
       - match: Annie Ray d/b/a CareALot Day Care and Preschool
-        values: 
+        values:
           - Annie Ray
           - CareALot Day Care and Preschool
       - match: Carolyn Meadowa d/b/aMontessori Day Care Centerand Preschool
-        values: 
+        values:
           - Carolyn Meadowa
           - Montessori Day Care Center and Preschool

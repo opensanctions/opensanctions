@@ -4,7 +4,7 @@ prefix: shu-xj
 coverage:
   frequency: monthly
   start: 2024-12-18
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >-
   Companies operating in Xinjiang; some engaged in labour transfer and other XUAR Government Programs.

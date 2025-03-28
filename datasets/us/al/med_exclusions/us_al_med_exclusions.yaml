@@ -4,7 +4,7 @@ prefix: us-medal
 coverage:
   frequency: daily
   start: "2024-11-28"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers excluded from Alabama's Medicaid program.
 description: |

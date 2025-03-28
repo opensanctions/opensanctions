@@ -4,7 +4,7 @@ prefix: us-medmd
 coverage:
   frequency: daily
   start: "2024-10-15"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers deemed ineligible to participate in Maryland's Medicaid program.
 description: |
@@ -42,7 +42,7 @@ assertions:
       Person: 1800
       Company: 200
 lookups:
-  type.identifier: 
+  type.identifier:
     options:
       - match: 5059016900
         prop: registrationNumber

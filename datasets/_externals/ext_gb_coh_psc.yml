@@ -17,7 +17,7 @@ deploy:
   memory_limit: "6000Mi"
   disk: "100Gi"
   disk_limit: 100Gi
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   The database of beneficial owners of companies incorporated in England, Wales,
   Scotland and Northern Ireland.

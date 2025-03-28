@@ -5,7 +5,7 @@ coverage:
   schedule: "0 */9 * * *"
   frequency: daily
   start: 2015-12-05
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   International arrest warrants published by INTERPOL with a view to
   extradition of the wanted individuals.

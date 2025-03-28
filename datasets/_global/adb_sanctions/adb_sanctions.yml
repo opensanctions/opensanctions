@@ -4,7 +4,7 @@ prefix: adb
 coverage:
   frequency: daily
   start: 2021-11-09
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >-
   The ADB's published sanctions list. It contains the names of entities who violated
@@ -76,7 +76,7 @@ lookups:
           - 1 Krasnoarmeiskay A Square, 392023, Tambov, Russian Federation
           - 7A Shirokaya Street, 390218, Tambov, Russian Federation
           - 9/7 Krasnoznamennaya Street, 620012, Yekaterinburg, Russian Federation
-     
+
       - match: c/o Hoang Mai Construction Import and Export Joint Stock Company Xom Bo, Commune Thanh Liet, District Thanh Tri, Hanoi VIET NAM Room 3016, Building B, Vinaconex Building Nguyen Xien (Phòng 3016 Tòa B Vinaconex 2 Nguyễn Xiển) Dai Kim Ward, Hoang Mai District (Phýờng Ðại Kim, Quận Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 14, TT6B Urban West Nam Linh Dam, Hoang Mai (Số 14, TT6B Khu ðô thị Tây Nam Linh Ðàm, Hoàng Mai) Hanoi 100000 (Hà Nội) VIET NAM No. 2/20, Lane 255, Hope Street (Số 2/20, Ngõ 255, Phố Vọng) Dong Tam Ward, Hai Ba Trung District, Hanoi (Phýờng Ðồng Tâm, Quận Hai Bà Trýng, Hà Nội) VIET NAM
         values:
           - c/o Hoang Mai Construction Import and Export Joint Stock Company, Xom Bo, Commune Thanh Liet, District Thanh Tri, Hanoi, VIET NAM

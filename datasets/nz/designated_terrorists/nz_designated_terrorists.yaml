@@ -4,13 +4,13 @@ prefix: nz-terr
 coverage:
   frequency: daily
   start: 2024-04-24
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Individuals and entities that have been designated terrorists by the New Zealand government.
 description: |
   This dataset comprises organizations sanctioned by the government of New Zealand
   in support of UN Security Council Resolution 1373.
-  
+
   In line with its UN Security Council commitments, New Zealand also lists
   organizations and individuals designated under UNSC
   [Resolutions 1267/1989/2253 and 1988](https://www.police.govt.nz/advice/personal-community/counterterrorism/designated-entities/lists-associated-with-resolutions-1267-1989-2253-1988)
@@ -28,7 +28,7 @@ data:
   url: https://www.police.govt.nz/advice/personal-community/counterterrorism/designated-entities/lists-associated-with-resolution-1373
   format: HTML
   lang: eng
-dates: 
+dates:
   formats: ["%d %B %Y"]
 
 assertions:

@@ -4,7 +4,7 @@ prefix: rsdom
 coverage:
   frequency: weekly
   start: 2024-06-13
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Serbias domestic sanctions list is applied together with the UN global lists.
 description: |
@@ -31,7 +31,7 @@ url: https://www.apml.gov.rs/english/targeted-financial-sanctions
 data:
   url: https://www.apml.gov.rs/english/lists-of-designated-persons-search-engine
   format: PDF
-dates: 
+dates:
   formats: ["%d.%m.%Y"]
 
 assertions:

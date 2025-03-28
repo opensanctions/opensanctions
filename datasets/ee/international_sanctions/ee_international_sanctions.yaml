@@ -4,7 +4,7 @@ prefix: ee-san
 coverage:
   frequency: daily
   start: 2024-07-04
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Individuals and entities sanctioned by the Estonia government
 description: |

@@ -17,7 +17,7 @@ deploy:
   memory_limit: "5000Mi"
   disk: "30Gi"
   disk_limit: 30Gi
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >-
   List of companies registered in Georgia, sourced from the official Georgian Company Registry.

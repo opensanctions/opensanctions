@@ -4,7 +4,7 @@ prefix: nl-wanted
 coverage:
   frequency: daily
   start: 2023-01-24
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   The most wanted persons are suspected of serious crimes and are ranked
   high on the police's hit list.
@@ -34,7 +34,7 @@ assertions:
     schema_entities:
       Person: 40
 
-dates: 
+dates:
   formats: ["%d-%m-%Y"]
 lookups:
   type.gender:
@@ -43,9 +43,9 @@ lookups:
     options:
       - match: MALE
         value: male
-  type.country: 
-    options: 
+  type.country:
+    options:
       - match: Spanish / Moroccan
-        values: 
+        values:
           - Spain
           - Morocco

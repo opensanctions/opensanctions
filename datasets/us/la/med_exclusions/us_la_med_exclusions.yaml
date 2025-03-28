@@ -4,7 +4,7 @@ prefix: us-medla
 coverage:
   frequency: daily
   start: "2024-11-07"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers excluded from Louisiana's Medicaid program.
 description: |
@@ -54,7 +54,7 @@ lookups:
     options:
       match: 9199-09-01T00:00:00
       value: 1999-09-01
-  type.identifier: 
+  type.identifier:
     options:
       - match: 1992888493
         prop: registrationNumber

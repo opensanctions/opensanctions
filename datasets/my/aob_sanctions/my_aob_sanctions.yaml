@@ -4,7 +4,7 @@ prefix: my-aob
 coverage:
   frequency: daily
   start: "2024-05-16"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Enforcement actions against auditors by the Malaysian Securities Commission Audit Oversight Board
 description: |
@@ -62,7 +62,7 @@ assertions:
     schema_entities:
       LegalEntity: 100
 
-dates: 
+dates:
   formats: ["%d %B %Y"]
 lookups:
   columns:

@@ -5,7 +5,7 @@ coverage:
   schedule: "0 */6 * * *"
   frequency: daily
   start: 2022-02-06
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   The South African FIC sanctions list, largely based on UN Security Council sanctions.
 description: |
@@ -47,7 +47,7 @@ assertions:
     schema_entities:
       LegalEntity: 230
       Person: 900
-dates: 
+dates:
   formats: ["%d-%m-%Y"]
 lookups:
   type.address:
@@ -115,17 +115,17 @@ lookups:
           - Nungrado Pyongyang   Democratic Peoples Republic of Korea
           - Rakrang No. 1 Rakrang District Pyongyang Korea
           - Chilgol-1 dong, Mangyongdae District Pyongyang   Democratic Peoples Republic of Korea
-      - match: 'Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com'
-        values: 
+      - match: "Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com"
+        values:
           - Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
       - match: Afghanistan/Pakistan border area previous location, Idlib, Aleppo and Khama operation zone Syrian Arab Republic, Not known Faryab Badghis and Jawzjan Provinces  Afghanistan, Not known Khan-Shaykhun  53 km south of Idlib, location as of March 2018  Syrian Arab Republic
         values:
           - Afghanistan/Pakistan border area previous location
           - Idlib, Aleppo and Khama operation zone Syrian Arab Republic
           - Not known Faryab Badghis and Jawzjan Provinces  Afghanistan
-          - Not known Khan-Shaykhun  53 km south of Idlib, 
+          - Not known Khan-Shaykhun  53 km south of Idlib,
           - location as of March 2018  Syrian Arab Republic
-      - match: 'Basse-Kotto    Central African Republic, Bas-Uolo    Democratic Republic of the Congo, Haute-Kotto    Central African Republic, Haut-Mbomou    Central African Republic, Haut-Uolo    Democratic Republic of the Congo, Mbomou    Central African Republic, Reported address: Kafia Kingi (a territory on the border of Sudan and South Sudan whose final status has yet to be determined).    As of January 2015, 500 Lords Resistance Army elements were reportedly expelled from the Sudan., Vakaga    Central African Republic'
+      - match: "Basse-Kotto    Central African Republic, Bas-Uolo    Democratic Republic of the Congo, Haute-Kotto    Central African Republic, Haut-Mbomou    Central African Republic, Haut-Uolo    Democratic Republic of the Congo, Mbomou    Central African Republic, Reported address: Kafia Kingi (a territory on the border of Sudan and South Sudan whose final status has yet to be determined).    As of January 2015, 500 Lords Resistance Army elements were reportedly expelled from the Sudan., Vakaga    Central African Republic"
         values:
           - Basse-Kotto Central African Republic
           - Bas-Uolo Democratic Republic of the Congo
@@ -133,7 +133,7 @@ lookups:
           - Haut-Mbomou Central African Republic
           - Haut-Uolo Democratic Republic of the Congo
           - Mbomou Central African Republic
-          - 'Reported address: Kafia Kingi (a territory on the border of Sudan and South Sudan whose final status has yet to be determined).'
+          - "Reported address: Kafia Kingi (a territory on the border of Sudan and South Sudan whose final status has yet to be determined)."
           - Vakaga Central African Republic
       - match: Changwang Street, Pyongyang    Democratic Peoples Republic of Korea, Chung-Guyok (Central District), Sosong Street, Kyongrim-Dong, Pyongyang    Democratic Peoples Republic of Korea, Second KWP Government Building (Korean - Chongsa, Urban Town (Korean-Dong), Chung Ward, Pyongyang    Democratic Peoples Republic of Korea
         values:
@@ -168,8 +168,8 @@ lookups:
     options:
       - match: Central African Republic armed forces (FACA) Military identification number 911-10-77
         value: FACA 911-10-77
-  type.name: 
-    options: 
-      - match: 
+  type.name:
+    options:
+      - match:
           - None
         value: null

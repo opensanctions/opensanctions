@@ -4,7 +4,7 @@ prefix: us-fed-excl
 coverage:
   frequency: daily
   start: "2024-03-19"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   People and companies excluded from Federally funded health care programs
 description: |
@@ -41,7 +41,7 @@ data:
   format: CSV
   lang: eng
 
-dates: 
+dates:
   formats: ["%Y%m%d"]
 assertions:
   min:

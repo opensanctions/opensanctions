@@ -4,7 +4,7 @@ prefix: us-medoh
 coverage:
   frequency: daily
   start: "2024-11-15"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers excluded or suspended from Ohio's Medicaid program.
 description: |
@@ -46,10 +46,10 @@ assertions:
     schema_entities:
       Person: 1800
       Company: 300
-lookups: 
+lookups:
   type.identifier:
     options:
-      - match: 
+      - match:
           - 1144453199
           - 1679857925
           - 141705081

@@ -3,14 +3,14 @@ entry_point: crawler.py
 prefix: cn-npc-wik
 coverage:
   start: 2024-05-30
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Current members of the Chinese National People's Congress
 description: |
   The National People's Congress (NPC) is the highest organ of
   state power of the People's Republic of China. It is the only 
   branch of the Chinese government, and is unicameral.
-  
+
   The NPC
   is elected for a term of five years, and the last election
   was held in 2023. Delegates to the National People's Congress
@@ -25,8 +25,8 @@ description: |
 publisher:
   name: Wikipedia
   description: |
-   Wikipedia article about the List of deputies
-   to the 14th National People's Congress
+    Wikipedia article about the List of deputies
+    to the 14th National People's Congress
   url: https://zh.wikipedia.org/
   official: false
   country: "zz"
@@ -36,7 +36,7 @@ data:
   format: HTML
 ci_test: false
 
-dates: 
+dates:
   formats: ["%Y年%m月", "%Y年%m月%d日"]
 lookups:
   type.gender:
@@ -49,12 +49,12 @@ lookups:
     options:
       - match: 鹤壁市豫剧团团长
         value: null
-  type.name: 
-    options: 
+  type.name:
+    options:
       - match: 李兴魁3[52]
         value: 李兴魁
-  type.text: 
-    options: 
+  type.text:
+    options:
       - match: 大陆的台湾三代，外婆是嘉义人，1978年随四川省籍丈夫赴川定居[54]
         value: 大陆的台湾三代，外婆是嘉义人，1978年随四川省籍丈夫赴川定居
       - match: 大陆的台湾三代，祖父是澎湖的台湾本省人，20世纪30年代前往厦门定居[53]
@@ -69,7 +69,7 @@ lookups:
       职务: position
       备注: remarks
       代表团: delegation
-      补选日期: date_of_by_election  
+      补选日期: date_of_by_election
       辞职日期: date_of_resignation
       辞职前职务: position_before_resignation
       去世日期: date_of_death

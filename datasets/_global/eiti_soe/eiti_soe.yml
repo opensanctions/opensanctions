@@ -4,7 +4,7 @@ prefix: eiti-soe
 coverage:
   frequency: weekly
   start: "2024-08-09"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   List of all SOEs operating in EITI implementing countries.
 description: |

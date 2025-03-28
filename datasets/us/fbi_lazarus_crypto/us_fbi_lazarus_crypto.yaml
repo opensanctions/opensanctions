@@ -6,7 +6,7 @@ coverage:
   start: "2024-07-26"
 deploy:
   schedule: "@weekly"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Cryptocurrency addresses connected to the $41 million theft from Stake.com, attributed to the Lazarus Group.
 description: |

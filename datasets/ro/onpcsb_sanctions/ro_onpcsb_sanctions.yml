@@ -2,7 +2,7 @@ title: "Romania Government Decision No. 1.272/2005: List of Suspected Terrorists
 url: https://www.onpcsb.ro/en/a/126/legislatie
 entry_point: crawler.py
 prefix: ro-onpcsb
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 coverage:
   frequency: never
   start: 2024-08-05
@@ -24,7 +24,7 @@ description: |
   the Law No. 535 of November 25, 2004 referenced by Decision No. 1.272/2005, the
   transfer of assets by these entities is prohibited and is to be blocked.
 publisher:
-  name: The National Office for the Prevention and Combating of Money Laundering of Romania 
+  name: The National Office for the Prevention and Combating of Money Laundering of Romania
   acronym: ONPCSB
   official: true
   description: |
@@ -42,7 +42,7 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRFekp6FAf9e2-N1J0F29u5m__66hxDTCFHbO6ICm_gKqTXehdLRkPWK_4x3JuhPKt2eHmdYYN2qsOh/pub?gid=846601144&single=true&output=csv
   format: csv
 
-dates: 
+dates:
   formats: ["%m/%d/%Y", "%Y"]
 assertions:
   min:

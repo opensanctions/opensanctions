@@ -4,7 +4,7 @@ prefix: ps-freezing
 coverage:
   frequency: daily
   start: 2024-03-19
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   People who are sanctioned by the PMA in accordance with Security Council 
   Resolutions to combat money laundering and the financing of terrorism.
@@ -31,7 +31,7 @@ url: "https://www.pma.ps/en/Legislation//AMLCFT//LocalFreezingList"
 data:
   url: https://www.pma.ps/en/Legislation//AMLCFT//LocalFreezingList
   format: HTML
-dates: 
+dates:
   formats: ["%d/%m/%Y"]
 
 assertions:

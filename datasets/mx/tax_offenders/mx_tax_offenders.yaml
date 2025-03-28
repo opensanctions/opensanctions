@@ -6,7 +6,7 @@ hidden: true
 coverage:
   frequency: weekly
   start: 2024-09-05
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Entities that are considered tax offenders according to Article 69 of the Federal Tax Code
 description: |

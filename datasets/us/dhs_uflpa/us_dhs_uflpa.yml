@@ -4,7 +4,7 @@ prefix: us-uflpa
 coverage:
   frequency: daily
   start: 2023-10-11
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >-
   The US DHS publishes this list of entities wholly or in part using forced labour

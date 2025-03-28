@@ -4,7 +4,7 @@ prefix: us-medin
 coverage:
   frequency: daily
   start: "2024-10-15"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Providers who have been terminated for cause from Indiana Medicaid and CHIP.
 description: |
@@ -65,7 +65,7 @@ exports:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 25 
+      LegalEntity: 25
   max:
     schema_entities:
-      LegalEntity: 60 
+      LegalEntity: 60

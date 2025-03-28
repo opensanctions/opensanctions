@@ -4,7 +4,7 @@ prefix: az-fiu
 coverage:
   frequency: daily
   start: 2022-07-12
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Domestic list of natural and legal persons subject to sanctions
 description: |

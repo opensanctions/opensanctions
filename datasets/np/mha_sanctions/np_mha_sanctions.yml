@@ -6,16 +6,16 @@ coverage:
   start: "2024-08-16"
 deploy:
   schedule: "@weekly"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   List of Prohibited Persons or Groups in the National Strategy and Action Plan of the 
   Government of Nepal for Prevention of Money Laundering and Financial Investment in Terrorist 
   Activities (2076-2081)
 description: |
-    The list contains individuals or groups identified as prohibited by the Government of 
-    Nepal under the National Strategy and Action Plan (2076-2081) to prevent money 
-    laundering and terrorist financing. The data includes names, aliases, birth dates, 
-    birthplaces, and addresses of these prohibited individuals and groups.
+  The list contains individuals or groups identified as prohibited by the Government of 
+  Nepal under the National Strategy and Action Plan (2076-2081) to prevent money 
+  laundering and terrorist financing. The data includes names, aliases, birth dates, 
+  birthplaces, and addresses of these prohibited individuals and groups.
 publisher:
   name: Ministry of Home Affairs, Government of Nepal
   acronym: MOHA
@@ -44,7 +44,7 @@ assertions:
       Person: 20
       Organization: 55
 
-dates: 
+dates:
   formats: ["%m/%d/%Y"]
 lookups:
   type.identifier:

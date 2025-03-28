@@ -6,7 +6,7 @@ prefix: ky-ja
 coverage:
   frequency: weekly
   start: 2023-09-03
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: Judicial Officers from Cayman Islands Judicial Administration
 description: |
   This lists senior judicial officers of the Cayman Islands judiciary.
@@ -45,7 +45,7 @@ assertions:
       Person: 70
       Position: 20
 
-lookups: 
+lookups:
   overrides:
     options:
       - match: The Chief Justice of the Cayman Islands, The Hon. Justice Margaret Ramsay-Hale

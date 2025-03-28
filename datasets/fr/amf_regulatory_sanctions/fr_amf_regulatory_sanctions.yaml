@@ -4,7 +4,7 @@ url: https://www.amf-france.org/fr/sanction-transaction/Decisions-de-la-commissi
 coverage:
   frequency: daily
   start: 2024-08-16
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 entry_point: crawler.py
 summary: >-
   Decisions of the Sanctions Commission of the AMF (Autorité des marchés financiers).
@@ -78,7 +78,7 @@ lookups:
           - "venant au droits et obligations de"
         entities: []
       - match: MM. Gérard Monnet, Michael Aubourg, Davide Blei, Cyril de Bournet et Marco Perelli-Cippo
-        entities: 
+        entities:
           - Gérard Monnet
           - Michael Aubourg
           - Davide Blei
@@ -95,10 +95,10 @@ lookups:
           - Caisse d'Epargne et de Prévoyance Provence Alpes Corse
           - Caisse d'Epargne et de Prévoyance Loire Drôme Ardèche
           - Ecureuil Gestion
-      - match: 'venant aux droits de la société Néville Gestion'
+      - match: "venant aux droits de la société Néville Gestion"
         entities:
           - Néville Gestion
-      - match: 'CAISSE NATIONALE DES CAISSES D’EPARGNE ET DE PREVOYANCE, CAISSES D’EPARGNE DE PROVENCE ALPES CORSE, BOURGOGNE FRANCHE-COMTE, ILE DE FRANCE (venant aux droits des CAISSES D’EPARGNE D’ILE DE FRANCE PARIS ’ILE DE FRANCE NORD), AQUITAINE POITOU-CHARENTES (venant aux droits des CAISSES D’EPARGNE D’AQUITAINE NORD et de POITOU-CHARENTES), NORMANDIE (venant aux droits de la CAISSE D’EPARGNE DE BASSE NORMANDIE), COTE D’AZUR, ET RHONE-ALPES (venant aux droits des CAISSES D’EPARGNE DE RHONE-ALPES LYON et DES ALPES)'
+      - match: "CAISSE NATIONALE DES CAISSES D’EPARGNE ET DE PREVOYANCE, CAISSES D’EPARGNE DE PROVENCE ALPES CORSE, BOURGOGNE FRANCHE-COMTE, ILE DE FRANCE (venant aux droits des CAISSES D’EPARGNE D’ILE DE FRANCE PARIS ’ILE DE FRANCE NORD), AQUITAINE POITOU-CHARENTES (venant aux droits des CAISSES D’EPARGNE D’AQUITAINE NORD et de POITOU-CHARENTES), NORMANDIE (venant aux droits de la CAISSE D’EPARGNE DE BASSE NORMANDIE), COTE D’AZUR, ET RHONE-ALPES (venant aux droits des CAISSES D’EPARGNE DE RHONE-ALPES LYON et DES ALPES)"
         entities:
           - la Caisse Nationale des Caisses d'Epargne et de Prévoyance
           - la Caisse d'Epargne de Provence Alpes Corse
@@ -146,7 +146,7 @@ lookups:
             to_prop: successor
             to: la Caisse d'Epargne de Normandie
             role: venant aux droits
-          - schema: Succession 
+          - schema: Succession
             from_prop: predecessor
             from: la Caisses d'Epargne de Rhone-Alpes Lyon
             to_prop: successor
@@ -158,15 +158,15 @@ lookups:
             to_prop: successor
             to: la Caisse d'Epargne de Rhone-Alpes
             role: venant aux droits
-      - match: 'la société Skylar France et M. Cédric Chaboud'
+      - match: "la société Skylar France et M. Cédric Chaboud"
         entities:
           - Skylar France
           - Cédric Chaboud
-      - match: 'la société DIGNE CONSEILS & GESTION . Patrice DIGNE'
+      - match: "la société DIGNE CONSEILS & GESTION . Patrice DIGNE"
         entities:
           - Digne Conseils & Gestion
           - Patrice Digne
-      - match: la Société de gestion des fonds d'investissement de Bretagne . Florent de Kersauson 
+      - match: la Société de gestion des fonds d'investissement de Bretagne . Florent de Kersauson
         entities:
           - Société de Gestion des Fonds d'Investissement de Bretagne
           - Florent de Kersauson
@@ -174,23 +174,23 @@ lookups:
         entities:
           - Electricité de France S.A.
           - Henri Proglio
-      - match: 'La société Tec Assurances . Eric Taiclet'
+      - match: "La société Tec Assurances . Eric Taiclet"
         entities:
           - Tec Assurances
           - Eric Taiclet
-      - match: 'La société Groupe CGFI . Jacques Defemme'
+      - match: "La société Groupe CGFI . Jacques Defemme"
         entities:
           - Groupe CGFI
           - Jacques Defemme
-      - match: 'La société CERES FINANCE . Patrick Thierry'
+      - match: "La société CERES FINANCE . Patrick Thierry"
         entities:
           - Ceres Finance
           - Patrick Thierry
-      - match: 'les sociétés Elliott Advisors UK Limited et Elliott Capital Advisors L.P.'
+      - match: "les sociétés Elliott Advisors UK Limited et Elliott Capital Advisors L.P."
         entities:
           - Elliott Advisors UK Limited
           - Elliott Capital Advisors L.P.
-      - match: 'la société Forever Winner International Development Ltd. Guoliang Yao et Mme Yan Lin'
+      - match: "la société Forever Winner International Development Ltd. Guoliang Yao et Mme Yan Lin"
         entities:
           - Forever Winner International Development Ltd.
           - Guoliang Yao
@@ -198,392 +198,392 @@ lookups:
       - match: la société Forever Winner International Development Ltd
         entities:
           - Forever Winner International Development Ltd
-      - match: 'BRED Banque Populaire'
+      - match: "BRED Banque Populaire"
         entities:
           - BRED Banque Populaire
-      - match: 'Sociétés Prologue et Le Quotidien de Paris Editions . Nicolas Miguet'
+      - match: "Sociétés Prologue et Le Quotidien de Paris Editions . Nicolas Miguet"
         entities:
           - Prologue
           - Le Quotidien de Paris Editions
           - Nicolas Miguet
-      - match: 'GSD Gestion et MM. Thierry et Jacques Gautier'
+      - match: "GSD Gestion et MM. Thierry et Jacques Gautier"
         entities:
           - GSD Gestion
           - Thierry Gautier
           - Jacques Gautier
-      - match: 'Société Bloomberg LP'
+      - match: "Société Bloomberg LP"
         entities:
           - Bloomberg LP
-      - match: 'Société Morgan Stanley & Co International Plc'
+      - match: "Société Morgan Stanley & Co International Plc"
         entities:
           - Morgan Stanley & Co International Plc
-      - match: 'Sociétés Novaxia Investissement, Novaxia Développement, Novaxia Gestion, Novaxia . Joachim Azan'
+      - match: "Sociétés Novaxia Investissement, Novaxia Développement, Novaxia Gestion, Novaxia . Joachim Azan"
         entities:
           - Novaxia Investissement
           - Novaxia Développement
           - Novaxia Gestion
           - Novaxia
           - Joachim Azan
-      - match: 'Société Financière Henry IV Société Nouvelle .Tony Csordas'
+      - match: "Société Financière Henry IV Société Nouvelle .Tony Csordas"
         entities:
           - Financière Henry IV Société Nouvelle
           - Tony Csordas
-      - match: 'Société Biophytis . Stanislas Veillet'
+      - match: "Société Biophytis . Stanislas Veillet"
         entities:
           - Biophytis
           - Stanislas Veillet
       - match: Société Biophytis
         entities:
           - Biophytis
-      - match: ', Natixis Asset Management Finance, Natixis Investment Managers International<br />'
+      - match: ", Natixis Asset Management Finance, Natixis Investment Managers International<br />"
         entities:
           - Natixis Asset Management Finance
           - Natixis Investment Managers International
-      - match: 'Société Forest Invest. Olivier Segouin'
+      - match: "Société Forest Invest. Olivier Segouin"
         entities:
           - Forest Invest
           - Olivier Segouin
-      - match: 'Sociétés Invest Securities, Portal Conseil, Exec Finance. Louis Carlotta'
+      - match: "Sociétés Invest Securities, Portal Conseil, Exec Finance. Louis Carlotta"
         entities:
           - Invest Securities
           - Portal Conseil
           - Exec Finance
           - Louis Carlotta
-      - match: 'Sociétés Invest Securities, Portal Conseil, Exec Finance'
+      - match: "Sociétés Invest Securities, Portal Conseil, Exec Finance"
         entities:
           - Invest Securities
           - Portal Conseil
           - Exec Finance
-      - match: 'Société Prado Paradis Patrimoine; Mme Solange Dahan'
+      - match: "Société Prado Paradis Patrimoine; Mme Solange Dahan"
         entities:
           - Prado Paradis Patrimoine
           - Solange Dahan
-      - match: 'Société Prado Paradis Patrimoine;'
+      - match: "Société Prado Paradis Patrimoine;"
         entities:
           - Prado Paradis Patrimoine
-      - match: 'Société Octo Asset Management'
+      - match: "Société Octo Asset Management"
         entities:
           - Octo Asset Management
-      - match: 'Société Infinitis'
+      - match: "Société Infinitis"
         entities:
           - Infinitis
-      - match: 'Société Hedios Patrimoine'
+      - match: "Société Hedios Patrimoine"
         entities:
           - Hedios Patrimoine
-      - match: 'Sociétés Iliad SA;'
+      - match: "Sociétés Iliad SA;"
         entities:
           - Iliad SA
-      - match: 'Sociétés Montaigne Fashion Group, Jekiti Mar Capital, Financière du Pheonix, SCI Plainville'
+      - match: "Sociétés Montaigne Fashion Group, Jekiti Mar Capital, Financière du Pheonix, SCI Plainville"
         entities:
           - Montaigne Fashion Group
           - Jekiti Mar Capital
           - Financière du Pheonix
           - SCI Plainville
-      - match: 'Société Amadéis'
+      - match: "Société Amadéis"
         entities:
           - Amadéis
-      - match: 'Société Axess Finances'
+      - match: "Société Axess Finances"
         entities:
           - Axess Finances
-      - match: 'Société SOFIRO'
+      - match: "Société SOFIRO"
         entities:
           - SOFIRO
-      - match: 'Société Exane Derivatives'
+      - match: "Société Exane Derivatives"
         entities:
           - Exane Derivatives
-      - match: 'Société Keren Finance SAS'
+      - match: "Société Keren Finance SAS"
         entities:
           - Keren Finance SAS
-      - match: 'Société Keren Finance'
+      - match: "Société Keren Finance"
         entities:
           - Keren Finance
-      - match: 'Société Mecelec Composites'
+      - match: "Société Mecelec Composites"
         entities:
           - Mecelec Composites
-      - match: 'Société Soufflet Negoce'
+      - match: "Société Soufflet Negoce"
         entities:
           - Soufflet Negoce
-      - match: 'Société CIBOX INTERACTIVE et AI INVESTMENT ainsi que'
+      - match: "Société CIBOX INTERACTIVE et AI INVESTMENT ainsi que"
         entities:
           - CIBOX INTERACTIVE
           - AI INVESTMENT
-      - match: 'Société IG Markets Limited'
+      - match: "Société IG Markets Limited"
         entities:
           - IG Markets Limited
-      - match: 'Société MB Conseils et Patrimoines'
+      - match: "Société MB Conseils et Patrimoines"
         entities:
           - MB Conseils et Patrimoines
-      - match: 'Société Delta Drone'
+      - match: "Société Delta Drone"
         entities:
           - Delta Drone
-      - match: 'Société Conseil Patrimoine Finance'
+      - match: "Société Conseil Patrimoine Finance"
         entities:
           - Conseil Patrimoine Finance
-      - match: 'Plus Finance'
+      - match: "Plus Finance"
         entities:
           - Plus Finance
-      - match: 'Sociétés Cybergun, Ingeco SARL'
+      - match: "Sociétés Cybergun, Ingeco SARL"
         entities:
           - Cybergun
           - Ingeco SARL
-      - match: 'Société Finance Utile'
+      - match: "Société Finance Utile"
         entities:
           - Finance Utile
-      - match: 'Société Kepler Cheuvreux'
+      - match: "Société Kepler Cheuvreux"
         entities:
           - Kepler Cheuvreux
-      - match: 'Société Trécento Asset Management SAS'
+      - match: "Société Trécento Asset Management SAS"
         entities:
           - Trécento Asset Management SAS
-      - match: 'Société Natixis Asset Management SA'
+      - match: "Société Natixis Asset Management SA"
         entities:
           - Natixis Asset Management SA
-      - match: 'Société La Financière Desselligny'
+      - match: "Société La Financière Desselligny"
         entities:
           - La Financière Desselligny
-      - match: 'Société 3Red Trading LLC'
+      - match: "Société 3Red Trading LLC"
         entities:
           - 3Red Trading LLC
-      - match: ', et la BANQUE TRANSATLANTIQUE'
+      - match: ", et la BANQUE TRANSATLANTIQUE"
         entities:
           - Banque Transatlantique
-      - match: 'Société LMBO, MM. Al'
+      - match: "Société LMBO, MM. Al"
         entities:
           - LMBO
           - Al
-      - match: 'Société Atypik Patrimoine'
+      - match: "Société Atypik Patrimoine"
         entities:
           - Atypik Patrimoine
-      - match: 'Société Sunny Asset Management'
+      - match: "Société Sunny Asset Management"
         entities:
           - Sunny Asset Management
-      - match: 'Société Getco Europe Ltd'
+      - match: "Société Getco Europe Ltd"
         entities:
           - Getco Europe Ltd
-      - match: 'Société AB Science'
+      - match: "Société AB Science"
         entities:
           - AB Science
-      - match: 'Société Banque Postale'
+      - match: "Société Banque Postale"
         entities:
           - Banque Postale
-      - match: 'Société Global Patrimoine Investissement, Société Kalys Investissements'
+      - match: "Société Global Patrimoine Investissement, Société Kalys Investissements"
         entities:
           - Global Patrimoine Investissement
           - Kalys Investissements
-      - match: 'Société Sofra et de'
+      - match: "Société Sofra et de"
         entities:
           - Sofra
-      - match: 'Société Aviva Investors France'
+      - match: "Société Aviva Investors France"
         entities:
           - Aviva Investors France
-      - match: 'la société Skylar France . Cédric Chaboud'
+      - match: "la société Skylar France . Cédric Chaboud"
         entities:
           - Skylar France
           - Cédric Chaboud
-      - match: 'Société Novactifs Patrimoine (anciennement Ageo Patrimoine)'
+      - match: "Société Novactifs Patrimoine (anciennement Ageo Patrimoine)"
         entities:
-          - ['Novactifs Patrimoine', 'Ageo Patrimoine']
-      - match: 'Société Signatures (anciennement ARTECOSA) ...B...'
+          - ["Novactifs Patrimoine", "Ageo Patrimoine"]
+      - match: "Société Signatures (anciennement ARTECOSA) ...B..."
         entities:
-          - ['Signatures', 'ARTECOSA']
-      - match: 'Société Ycap Asset Management'
+          - ["Signatures", "ARTECOSA"]
+      - match: "Société Ycap Asset Management"
         entities:
           - Ycap Asset Management
-      - match: 'Société Tradition Securities and Futures OTC'
+      - match: "Société Tradition Securities and Futures OTC"
         entities:
           - Tradition Securities and Futures OTC
-      - match: ', Bryan Garnier & Co Limited, Santen SAS (anciennement Novagali Pharma SA),B,C'
+      - match: ", Bryan Garnier & Co Limited, Santen SAS (anciennement Novagali Pharma SA),B,C"
         entities:
           - Bryan Garnier & Co Limited
-          - ['Santen SAS', 'Novagali Pharma SA']
-      - match: 'Société Générale'
+          - ["Santen SAS", "Novagali Pharma SA"]
+      - match: "Société Générale"
         entities:
           - Société Générale
       - match: Société Fédéris Gestion d'Actifs
         entities:
           - Fédéris Gestion d'Actifs
-      - match: 'Euronext Paris SA, Virtu Financial Europe Ltd'
+      - match: "Euronext Paris SA, Virtu Financial Europe Ltd"
         entities:
           - Euronext Paris SA
           - Virtu Financial Europe Ltd
-      - match: 'Société Forex Capital Markets Limited'
+      - match: "Société Forex Capital Markets Limited"
         entities:
           - Forex Capital Markets Limited
-      - match: 'Société Faiveley transport'
+      - match: "Société Faiveley transport"
         entities:
           - Faiveley transport
-      - match: 'Société Cabinet de conseil Herios finance'
+      - match: "Société Cabinet de conseil Herios finance"
         entities:
           - Cabinet de conseil Herios finance
-      - match: ', Société GEM Investments America LLC'
+      - match: ", Société GEM Investments America LLC"
         entities:
           - GEM Investments America LLC
-      - match: 'Sociétés Isa Finances, NG Investments, Ormylia, Socodol et UBS France, de et de'
+      - match: "Sociétés Isa Finances, NG Investments, Ormylia, Socodol et UBS France, de et de"
         entities:
           - Isa Finances
           - NG Investments
           - Ormylia
           - Socodol
           - UBS France
-      - match: 'Société Tekka Group, Société Bryan Garnier & co limited'
+      - match: "Société Tekka Group, Société Bryan Garnier & co limited"
         entities:
           - Tekka Group
           - Bryan Garnier & co limited
-      - match: 'Société Eliaxis Conseil, Société Fipac Consultant, Société Guinefolleau Finance, Société Syrah Capital France'
+      - match: "Société Eliaxis Conseil, Société Fipac Consultant, Société Guinefolleau Finance, Société Syrah Capital France"
         entities:
           - Eliaxis Conseil
           - Fipac Consultant
           - Guinefolleau Finance
           - Syrah Capital France
-      - match: ', Société Exane SA, Société Petercam SA'
+      - match: ", Société Exane SA, Société Petercam SA"
         entities:
           - Exane SA
           - Petercam SA
-      - match: 'Société Huis Clos'
+      - match: "Société Huis Clos"
         entities:
           - Huis Clos
-      - match: 'Société Bernheim Dreyfus & co'
+      - match: "Société Bernheim Dreyfus & co"
         entities:
           - Bernheim Dreyfus & co
-      - match: 'Société Héraclès (anciennement dénommée 1855)'
+      - match: "Société Héraclès (anciennement dénommée 1855)"
         entities:
-          - ['Héraclès', '1855']
-      - match: 'Société Air France-KLM et de'
+          - ["Héraclès", "1855"]
+      - match: "Société Air France-KLM et de"
         entities:
           - Air France-KLM
-      - match: 'Société IC telecom et de'
+      - match: "Société IC telecom et de"
         entities:
           - IC telecom
-      - match: 'Société Raymond James Asset Management International et de'
+      - match: "Société Raymond James Asset Management International et de"
         entities:
           - Raymond James Asset Management International
-      - match: 'Société 2020 Patrimoine Finance et de et Claude Hadjadj'
+      - match: "Société 2020 Patrimoine Finance et de et Claude Hadjadj"
         entities:
           - 2020 Patrimoine Finance
           - Claude Hadjadj
-      - match: 'Sociétés Financière du Vignoble et Vermots Finance'
+      - match: "Sociétés Financière du Vignoble et Vermots Finance"
         entities:
           - Financière du Vignoble
           - Vermots Finance
-      - match: 'Société Faurecia et de'
+      - match: "Société Faurecia et de"
         entities:
           - Faurecia
-      - match: 'Société Opportunité et de'
+      - match: "Société Opportunité et de"
         entities:
           - Opportunité
-      - match: 'Sociétés Europacorp'
+      - match: "Sociétés Europacorp"
         entities:
           - Europacorp
-      - match: 'Société Market Bridge Capital et de'
+      - match: "Société Market Bridge Capital et de"
         entities:
           - Market Bridge Capital
-      - match: 'Société Bourse Direct et de'
+      - match: "Société Bourse Direct et de"
         entities:
           - Bourse Direct
-      - match: 'Sociétés Safetic, HSBC France et Arkeon Finance et de'
+      - match: "Sociétés Safetic, HSBC France et Arkeon Finance et de"
         entities:
           - Safetic
           - HSBC France
           - Arkeon Finance
-      - match: 'Sociétés Loyaltouch et Strategic Corporate Finance et de'
+      - match: "Sociétés Loyaltouch et Strategic Corporate Finance et de"
         entities:
           - Loyaltouch
           - Strategic Corporate Finance
-      - match: 'Société CLARESCO GESTION'
+      - match: "Société CLARESCO GESTION"
         entities:
           - CLARESCO GESTION
-      - match: 'Société CLARESCO FINANCE et de'
+      - match: "Société CLARESCO FINANCE et de"
         entities:
           - CLARESCO FINANCE
-      - match: 'Société Risc Group et de'
+      - match: "Société Risc Group et de"
         entities:
           - Risc Group
-      - match: 'Société Turgot Asset Management'
+      - match: "Société Turgot Asset Management"
         entities:
           - Turgot Asset Management
-      - match: 'Société César'
+      - match: "Société César"
         entities:
           - César
-      - match: 'Sociétés Elliott Advisors UK Ltd et Elliott Management Corporation'
+      - match: "Sociétés Elliott Advisors UK Ltd et Elliott Management Corporation"
         entities:
           - Elliott Advisors UK Ltd
           - Elliott Management Corporation
-      - match: 'Société Avenir Finance Investment Managers'
+      - match: "Société Avenir Finance Investment Managers"
         entities:
           - Avenir Finance Investment Managers
-      - match: 'Société Icmos France'
+      - match: "Société Icmos France"
         entities:
           - Icmos France
-      - match: 'Société Adéquation Finance'
+      - match: "Société Adéquation Finance"
         entities:
           - Adéquation Finance
-      - match: 'Société La Société Générale'
+      - match: "Société La Société Générale"
         entities:
           - La Société Générale
-      - match: 'Société Générale Gestion'
+      - match: "Société Générale Gestion"
         entities:
           - Générale Gestion
-      - match: 'Société Solabios'
+      - match: "Société Solabios"
         entities:
           - Solabios
-      - match: 'Société LVMH Moët Hennessy Louis Vuitton'
+      - match: "Société LVMH Moët Hennessy Louis Vuitton"
         entities:
           - LVMH Moët Hennessy Louis Vuitton
-      - match: 'Sociétés ADT, Lado et de'
+      - match: "Sociétés ADT, Lado et de"
         entities:
           - ADT
           - Lado
-      - match: 'Société VIVERIS MANAGEMENT SAS'
+      - match: "Société VIVERIS MANAGEMENT SAS"
         entities:
           - VIVERIS MANAGEMENT SAS
-      - match: 'et la société EXANE'
+      - match: "et la société EXANE"
         entities:
           - EXANE
-      - match: 'Société 123 VENTURE'
+      - match: "Société 123 VENTURE"
         entities:
           - 123 VENTURE
-      - match: 'Société SG SECURITIES (PARIS) SAS'
+      - match: "Société SG SECURITIES (PARIS) SAS"
         entities:
           - SG SECURITIES (PARIS) SAS
-      - match: 'Société Interfi SA'
+      - match: "Société Interfi SA"
         entities:
           - Interfi SA
-      - match: 'et sociétés ARCHOS et SAINT OLIVE GESTION'
+      - match: "et sociétés ARCHOS et SAINT OLIVE GESTION"
         entities:
           - ARCHOS
           - SAINT OLIVE GESTION
       - match: Société BNP Paribas Fin'Ams
         entities:
           - BNP Paribas Fin'Ams
-      - match: 'Société OFI ASSET MANAGEMENT et de' 
+      - match: "Société OFI ASSET MANAGEMENT et de"
         entities:
           - OFI ASSET MANAGEMENT
-      - match: ', anciennement dénommée INNOVEN PARTENAIRES SA'
+      - match: ", anciennement dénommée INNOVEN PARTENAIRES SA"
         entities:
           - INNOVEN PARTENAIRES SA
-      - match: 'Société FIVAL SA'
+      - match: "Société FIVAL SA"
         entities:
           - FIVAL SA
-      - match: 'Société ORCO PROPERTY GROUP'
+      - match: "Société ORCO PROPERTY GROUP"
         entities:
           - ORCO PROPERTY GROUP
-      - match: 'et la société Intouch Investments'
+      - match: "et la société Intouch Investments"
         entities:
           - Intouch Investments
-      - match: 'Société ARKEON FINANCE'
+      - match: "Société ARKEON FINANCE"
         entities:
           - ARKEON FINANCE
-      - match: 'Société ODDO & Cie'
+      - match: "Société ODDO & Cie"
         entities:
           - ODDO & Cie
-      - match: 'Société Bricorama SA et de A'
+      - match: "Société Bricorama SA et de A"
         entities:
           - Bricorama SA
-      - match: 'Sociétés EXANE et BOUSSARD & GAVAUDAN et de'
+      - match: "Sociétés EXANE et BOUSSARD & GAVAUDAN et de"
         entities:
           - EXANE
           - BOUSSARD & GAVAUDAN
-      - match: 'LA SOCIETE GSD GESTION, de et de'
+      - match: "LA SOCIETE GSD GESTION, de et de"
         entities:
           - GSD GESTION
       - match: Allianz Global Investors France, BNP Paribas, la Société Générale
@@ -591,95 +591,98 @@ lookups:
           - Allianz Global Investors France
           - BNP Paribas
           - La Société Générale
-      - match: 'Société Dubus SA'
+      - match: "Société Dubus SA"
         entities:
           - Dubus SA
-      - match: 'Société EIM FRANCE'
+      - match: "Société EIM FRANCE"
         entities:
           - EIM FRANCE
-      - match: 'Société ALTERNATIVE LEADERS FRANCE'
+      - match: "Société ALTERNATIVE LEADERS FRANCE"
         entities:
           - ALTERNATIVE LEADERS FRANCE
-      - match: 'SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS (SGAM AI)'
+      - match: "SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS (SGAM AI)"
         entities:
-          - ['SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS', 'SGAM AI']
-      - match: 'SOCIETE GENERALE ASSET MANAGEMENT (SGAM)'
+          - [
+              "SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS",
+              "SGAM AI",
+            ]
+      - match: "SOCIETE GENERALE ASSET MANAGEMENT (SGAM)"
         entities:
-          - ['SOCIETE GENERALE ASSET MANAGEMENT', 'SGAM']
-      - match: 'Société OFI ASSET MANAGEMENT'
+          - ["SOCIETE GENERALE ASSET MANAGEMENT", "SGAM"]
+      - match: "Société OFI ASSET MANAGEMENT"
         entities:
           - OFI ASSET MANAGEMENT
-      - match: 'Société KRAAY TRADING I BV'
+      - match: "Société KRAAY TRADING I BV"
         entities:
           - KRAAY TRADING I BV
-      - match: 'Société Orgasynth SA et de'
+      - match: "Société Orgasynth SA et de"
         entities:
           - Orgasynth SA
-      - match: 'Société Natixis'
+      - match: "Société Natixis"
         entities:
           - Natixis
-      - match: 'Crédit Agricole Asset Management Alternative Investments'
+      - match: "Crédit Agricole Asset Management Alternative Investments"
         entities:
           - Crédit Agricole Asset Management Alternative Investments
-      - match: '<br /> Les sociétés EADS NV, LAGARDERE SCA, ET DAIMLER AG'
+      - match: "<br /> Les sociétés EADS NV, LAGARDERE SCA, ET DAIMLER AG"
         entities:
           - EADS NV
           - LAGARDERE SCA
           - DAIMLER AG
-      - match: 'Société THEOLIA et société COLIBRI, et MME B'
+      - match: "Société THEOLIA et société COLIBRI, et MME B"
         entities:
           - THEOLIA
           - COLIBRI
-      - match: 'Société Robertet'
+      - match: "Société Robertet"
         entities:
           - Robertet
-      - match: 'Société Oddo et Compagnie'
+      - match: "Société Oddo et Compagnie"
         entities:
           - Oddo et Compagnie
-      - match: 'Société Oddo Asset Management'
+      - match: "Société Oddo Asset Management"
         entities:
           - Oddo Asset Management
-      - match: 'Société Parrot'
+      - match: "Société Parrot"
         entities:
           - Parrot
-      - match: 'la société EGP FONDS ET GESTION'
+      - match: "la société EGP FONDS ET GESTION"
         entities:
           - EGP FONDS ET GESTION
-      - match: 'Société SAFE S.p.a.'
+      - match: "Société SAFE S.p.a."
         entities:
           - SAFE S.p.a.
-      - match: 'Société Euroland Finance'
+      - match: "Société Euroland Finance"
         entities:
           - Euroland Finance
-      - match: 'Société Boussard et gavaudan gestion'
+      - match: "Société Boussard et gavaudan gestion"
         entities:
           - Boussard et gavaudan gestion
-      - match: 'Société Vinci'
+      - match: "Société Vinci"
         entities:
           - Vinci
-      - match: 'Société HSBC France'
+      - match: "Société HSBC France"
         entities:
           - HSBC France
-      - match: 'Société FININFOR ET ASSOCIES MULTIGESTION'
+      - match: "Société FININFOR ET ASSOCIES MULTIGESTION"
         entities:
           - FININFOR ET ASSOCIES MULTIGESTION
-      - match: 'Société EUROPEENNE DE GESTION PRIVEE'
+      - match: "Société EUROPEENNE DE GESTION PRIVEE"
         entities:
           - EUROPEENNE DE GESTION PRIVEE
-      - match: 'Société Générale'
+      - match: "Société Générale"
         entities:
           - Générale
-      - match: 'BNP PARIBAS SA'
+      - match: "BNP PARIBAS SA"
         entities:
           - BNP PARIBAS SA
-      - match: 'Société Agilis'
+      - match: "Société Agilis"
         entities:
           - Agilis
-      - match: 'Sociétés INFOGRAMES ENTERTAINMENT et NATEXIS BLEICHROEDER, aux droits de laquelle vient la société NATIXIS SECURITIES.'
+      - match: "Sociétés INFOGRAMES ENTERTAINMENT et NATEXIS BLEICHROEDER, aux droits de laquelle vient la société NATIXIS SECURITIES."
         entities:
           - INFOGRAMES ENTERTAINMENT
-          - ['NATEXIS BLEICHROEDER', 'NATIXIS SECURITIES']
-      - match: 'La société Biosynex<br /> La société ALA Financière<br /> La société Axodev<br /> La société AJT Financière <br /> M. Larry Abensur<br /> M. Thierry Paper<br /> M. Thomas Lamy<br /> M. Elie Fraenckel'
+          - ["NATEXIS BLEICHROEDER", "NATIXIS SECURITIES"]
+      - match: "La société Biosynex<br /> La société ALA Financière<br /> La société Axodev<br /> La société AJT Financière <br /> M. Larry Abensur<br /> M. Thierry Paper<br /> M. Thomas Lamy<br /> M. Elie Fraenckel"
         entities:
           - Biosynex
           - ALA Financière
@@ -689,24 +692,24 @@ lookups:
           - Thierry Paper
           - Thomas Lamy
           - Elie Fraenckel
-      - match: 'La société Parrot<br /> M. Henri Seydoux<br /> M. Gilles Labossière'
+      - match: "La société Parrot<br /> M. Henri Seydoux<br /> M. Gilles Labossière"
         entities:
           - Parrot
           - Henri Seydoux
           - Gilles Labossière
-      - match: 'La société Inter Gestion REIM<br /> M. Gilbert Rodriguez<br /> M. Jean-François Talon'
+      - match: "La société Inter Gestion REIM<br /> M. Gilbert Rodriguez<br /> M. Jean-François Talon"
         entities:
           - Inter Gestion REIM
           - Gilbert Rodriguez
           - Jean-François Talon
-      - match: 'La société Activ Finance Conseils<br /> Mme Céline Géhin'
+      - match: "La société Activ Finance Conseils<br /> Mme Céline Géhin"
         entities:
           - Activ Finance Conseils
           - Céline Géhin
-      - match: '<br /> M. Clément Miserez<br />'
+      - match: "<br /> M. Clément Miserez<br />"
         entities:
           - Clément Miserez
-      - match: 'M. Sergio Val Allue<br /> M. Francisco Javier Val Aznar<br /> M. Amir Manuel Chabbar Boudet<br /> M. Sami Alfredo Chabbar Boudet<br /> M. Maruan Chabbar Youd<br /> M. Joaquin Aladren Bueno<br /> M. Miguel Angel Eusebio Fustero<br /> M. Francisco Jose Blasco Nonay<br /> M. Raul Mora Lopez<br /> M. Angel Manuel Velazquez Ripoll<br /> M. Jorge Valls Campos<br /> M. Jean-Luc Biamonti'
+      - match: "M. Sergio Val Allue<br /> M. Francisco Javier Val Aznar<br /> M. Amir Manuel Chabbar Boudet<br /> M. Sami Alfredo Chabbar Boudet<br /> M. Maruan Chabbar Youd<br /> M. Joaquin Aladren Bueno<br /> M. Miguel Angel Eusebio Fustero<br /> M. Francisco Jose Blasco Nonay<br /> M. Raul Mora Lopez<br /> M. Angel Manuel Velazquez Ripoll<br /> M. Jorge Valls Campos<br /> M. Jean-Luc Biamonti"
         entities:
           - Sergio Val Allue
           - Francisco Javier Val Aznar
@@ -720,7 +723,7 @@ lookups:
           - Angel Manuel Velazquez Ripoll
           - Jorge Valls Campos
           - Jean-Luc Biamonti
-      - match: 'La société Grantchester Equity Limited<br /> M. Miron Leshem<br /> M. Dirck Van Wylick<br /> Mme Aude Planche<br /> M. Christian Person<br /> M. Léon Lucide<br /> M. Serge Goldner'
+      - match: "La société Grantchester Equity Limited<br /> M. Miron Leshem<br /> M. Dirck Van Wylick<br /> Mme Aude Planche<br /> M. Christian Person<br /> M. Léon Lucide<br /> M. Serge Goldner"
         entities:
           - Grantchester Equity Limited
           - Miron Leshem
@@ -729,36 +732,36 @@ lookups:
           - Christian Person
           - Léon Lucide
           - Serge Goldner
-      - match: 'La société SPI<br /> M. Vincent Rhodes'
+      - match: "La société SPI<br /> M. Vincent Rhodes"
         entities:
           - SPI
           - Vincent Rhodes
-      - match: 'M. Christophe Sapet'
+      - match: "M. Christophe Sapet"
         entities:
           - Christophe Sapet
-      - match: 'La société Séquence 13<br /> M. Jean-Louis Lehmann'
+      - match: "La société Séquence 13<br /> M. Jean-Louis Lehmann"
         entities:
           - Séquence 13
           - Jean-Louis Lehmann
-      - match: 'La société Visiomed Group<br /> La société Negma Group Ltd<br /> M. Eric Sebban<br /> M. Olivier Hua'
+      - match: "La société Visiomed Group<br /> La société Negma Group Ltd<br /> M. Eric Sebban<br /> M. Olivier Hua"
         entities:
           - Visiomed Group
           - Negma Group Ltd
           - Eric Sebban
           - Olivier Hua
-      - match: 'La société France Safe Media<br /> M. Lior Mattouk'
+      - match: "La société France Safe Media<br /> M. Lior Mattouk"
         entities:
           - France Safe Media
           - Lior Mattouk
-      - match: 'M. Rémi Guillet<br /> M. Yohann Catherine'
+      - match: "M. Rémi Guillet<br /> M. Yohann Catherine"
         entities:
           - Rémi Guillet
           - Yohann Catherine
-      - match: 'La société Rallye<br /> M. Franck Hattab'
+      - match: "La société Rallye<br /> M. Franck Hattab"
         entities:
           - Rallye
           - Franck Hattab
-      - match: 'La société Horizon Asset Management<br /> M. Mehdi Gaiji<br /> M. Arnaud Monnet'
+      - match: "La société Horizon Asset Management<br /> M. Mehdi Gaiji<br /> M. Arnaud Monnet"
         entities:
           - Horizon Asset Management
           - Mehdi Gaiji
@@ -767,34 +770,34 @@ lookups:
         entities:
           - Association Nationale des Conseillers Financiers-CIF
           - Patrick Galtier
-      - match: 'La société Eres Gestion'
+      - match: "La société Eres Gestion"
         entities:
           - Eres Gestion
-      - match: 'La Banque CIC SUD-OUEST'
+      - match: "La Banque CIC SUD-OUEST"
         entities:
           - Banque CIC SUD-OUEST
-      - match: 'La société Crédit Industriel et Commercial'
+      - match: "La société Crédit Industriel et Commercial"
         entities:
           - Crédit Industriel et Commercial
-      - match: 'La société Apicap<br /> M. Alain Esnault<br /> M. Jérôme Lescure'
+      - match: "La société Apicap<br /> M. Alain Esnault<br /> M. Jérôme Lescure"
         entities:
           - Apicap
           - Alain Esnault
           - Jérôme Lescure
-      - match: 'La société Foncière Magellan'
+      - match: "La société Foncière Magellan"
         entities:
           - Foncière Magellan
-      - match: 'La société Melanion Capital<br /> M. Jad Comair'
+      - match: "La société Melanion Capital<br /> M. Jad Comair"
         entities:
           - Melanion Capital
           - Jad Comair
-      - match: 'M. Arthur Bonnefoy'
+      - match: "M. Arthur Bonnefoy"
         entities:
           - Arthur Bonnefoy
-      - match: 'La société Capexis'
+      - match: "La société Capexis"
         entities:
           - Capexis
-      - match: 'La sociétés Terreïs<br /> La société THD<br /> La société Option 7<br /> Mme Ghania Begriche<br /> M. Jacques-Antoine Condat<br /> M. Jean-Roger Condat<br /> M. Pascal Lorenzetti<br /> M. Thierry Decré<br /> M. Christophe Mombet<br /> M. Benjamin Pariselle<br /> M. Kilian Heim'
+      - match: "La sociétés Terreïs<br /> La société THD<br /> La société Option 7<br /> Mme Ghania Begriche<br /> M. Jacques-Antoine Condat<br /> M. Jean-Roger Condat<br /> M. Pascal Lorenzetti<br /> M. Thierry Decré<br /> M. Christophe Mombet<br /> M. Benjamin Pariselle<br /> M. Kilian Heim"
         entities:
           - Terreïs
           - THD
@@ -807,22 +810,22 @@ lookups:
           - Christophe Mombet
           - Benjamin Pariselle
           - Kilian Heim
-      - match: 'La société H2O AM LLP<br /> M. Bruno Crastes<br /> M. Vincent Chailley'
+      - match: "La société H2O AM LLP<br /> M. Bruno Crastes<br /> M. Vincent Chailley"
         entities:
           - H2O AM LLP
           - Bruno Crastes
           - Vincent Chailley
-      - match: 'La société Inocap Gestion'
+      - match: "La société Inocap Gestion"
         entities:
           - Inocap Gestion
-      - match: 'La société Salzillo Finance<br /> M. Jean Salzillo'
+      - match: "La société Salzillo Finance<br /> M. Jean Salzillo"
         entities:
           - Salzillo Finance
           - Jean Salzillo
-      - match: 'La société RBC Investor Services Bank France SA'
+      - match: "La société RBC Investor Services Bank France SA"
         entities:
           - RBC Investor Services Bank France SA
-      - match: 'La société AFI ESCA<br /> La société AFI ESCA Holding<br /> La société AFI ESCA IARD<br /> La société AFI ESCA Luxembourg<br /> La société Dôm Finance<br /> M. Christian Burrus'
+      - match: "La société AFI ESCA<br /> La société AFI ESCA Holding<br /> La société AFI ESCA IARD<br /> La société AFI ESCA Luxembourg<br /> La société Dôm Finance<br /> M. Christian Burrus"
         entities:
           - AFI ESCA
           - AFI ESCA Holding
@@ -830,21 +833,21 @@ lookups:
           - AFI ESCA Luxembourg
           - Dôm Finance
           - Christian Burrus
-      - match: 'La société 123 INVESTMENT MANAGERS'
+      - match: "La société 123 INVESTMENT MANAGERS"
         entities:
           - 123 INVESTMENT MANAGERS
-      - match: 'La société Audit Patrimoine Conseil<br /> M. Serge Monin'
+      - match: "La société Audit Patrimoine Conseil<br /> M. Serge Monin"
         entities:
           - Audit Patrimoine Conseil
           - Serge Monin
-      - match: 'La société Nyenburgh Holding BV<br /> La société Tilborg Trading BV<br /> M. Rob Kamsteeg<br /> M. Dionisius Johannes Henricus Van Tilborg<br /> M. Diede Mink Van Den Ouden'
+      - match: "La société Nyenburgh Holding BV<br /> La société Tilborg Trading BV<br /> M. Rob Kamsteeg<br /> M. Dionisius Johannes Henricus Van Tilborg<br /> M. Diede Mink Van Den Ouden"
         entities:
           - Nyenburgh Holding BV
           - Tilborg Trading BV
           - Rob Kamsteeg
           - Dionisius Johannes Henricus Van Tilborg
           - Diede Mink Van Den Ouden
-      - match: 'La société Auvergne Investissement Hôtels<br /> M. Serge Emery'
+      - match: "La société Auvergne Investissement Hôtels<br /> M. Serge Emery"
         entities:
           - Auvergne Investissement Hôtels
           - Serge Emery
@@ -852,36 +855,36 @@ lookups:
         entities:
           - DCT
           - Didier Maurin
-      - match: 'La société AB Science<br /> M. Alain Moussy<br /> M. Olivier Hermine<br /> M. Grégory Pepin'
+      - match: "La société AB Science<br /> M. Alain Moussy<br /> M. Olivier Hermine<br /> M. Grégory Pepin"
         entities:
           - AB Science
           - Alain Moussy
           - Olivier Hermine
           - Grégory Pepin
-      - match: 'La société Quotidien de Paris Editions<br /> La société Nicolas Miguet & Associés<br /> M. Nicolas Miguet'
+      - match: "La société Quotidien de Paris Editions<br /> La société Nicolas Miguet & Associés<br /> M. Nicolas Miguet"
         entities:
           - Quotidien de Paris Editions
           - Nicolas Miguet & Associés
           - Nicolas Miguet
-      - match: 'M. Jean-Louis Roy'
+      - match: "M. Jean-Louis Roy"
         entities:
           - Jean-Louis Roy
-      - match: 'La société Twenty First Capital'
+      - match: "La société Twenty First Capital"
         entities:
           - Twenty First Capital
-      - match: 'La société Acadian Advisors & Associates<br /> M. Didier Hoffelt'
+      - match: "La société Acadian Advisors & Associates<br /> M. Didier Hoffelt"
         entities:
           - Acadian Advisors & Associates
           - Didier Hoffelt
-      - match: 'La -Trade Brokers Dom Maklerski S.A.'
+      - match: "La -Trade Brokers Dom Maklerski S.A."
         entities:
           - Trade Brokers Dom Maklerski S.A.
-      - match: 'La société Fidoma<br /> La société Banque Sainte Olive<br /> M. Didier Domange'
+      - match: "La société Fidoma<br /> La société Banque Sainte Olive<br /> M. Didier Domange"
         entities:
           - Fidoma
           - Banque Sainte Olive
           - Didier Domange
-      - match: 'La société Amundi Asset Management<br /> La société Amundi Intermédiation<br /> La société Tullett Prebon (Europe) Limited<br /> M. Ludovic Delion<br /> M. Gregory Saey<br /> M. Thomas Vignon'
+      - match: "La société Amundi Asset Management<br /> La société Amundi Intermédiation<br /> La société Tullett Prebon (Europe) Limited<br /> M. Ludovic Delion<br /> M. Gregory Saey<br /> M. Thomas Vignon"
         entities:
           - Amundi Asset Management
           - Amundi Intermédiation
@@ -889,97 +892,100 @@ lookups:
           - Ludovic Delion
           - Gregory Saey
           - Thomas Vignon
-      - match: 'Monsieur Rémy Pierre<br /> Monsieur Stéphane Solère'
+      - match: "Monsieur Rémy Pierre<br /> Monsieur Stéphane Solère"
         entities:
           - Rémy Pierre
           - Stéphane Solère
-      - match: 'La société Perial Asset Management'
+      - match: "La société Perial Asset Management"
         entities:
           - Perial Asset Management
-      - match: 'La société Consellior SAS'
+      - match: "La société Consellior SAS"
         entities:
           - Consellior SAS
-      - match: 'La société Arkea Direct Bank'
+      - match: "La société Arkea Direct Bank"
         entities:
           - Arkea Direct Bank
-      - match: 'La société Global Derivative Trading GmbH<br /> M. Thorsten Wagner'
+      - match: "La société Global Derivative Trading GmbH<br /> M. Thorsten Wagner"
         entities:
           - Global Derivative Trading GmbH
           - Thorsten Wagner
-      - match: 'La société Sud Conseils Patrimoine<br /> M. Patrice de Porrata-Doria'
+      - match: "La société Sud Conseils Patrimoine<br /> M. Patrice de Porrata-Doria"
         entities:
           - Sud Conseils Patrimoine
           - Patrice de Porrata-Doria
-      - match: 'La société Corum Asset Management'
+      - match: "La société Corum Asset Management"
         entities:
           - Corum Asset Management
-      - match: 'La société Diana Holding<br /> La société DF Holding<br /> La société Compagnie Financière Européenne de Prises de Participation<br /> Madame Rita Zniber<br /> M. Serge Heringer'
+      - match: "La société Diana Holding<br /> La société DF Holding<br /> La société Compagnie Financière Européenne de Prises de Participation<br /> Madame Rita Zniber<br /> M. Serge Heringer"
         entities:
           - Diana Holding
           - DF Holding
           - Compagnie Financière Européenne de Prises de Participation
           - Rita Zniber
           - Serge Heringer
-      - match: 'Gestys SA <br /> M. Jean-Laurent Bruel'
+      - match: "Gestys SA <br /> M. Jean-Laurent Bruel"
         entities:
           - Gestys SA
           - Jean-Laurent Bruel
-      - match: 'la société Efigest Conseil<br /> M. Jean-Noël Vignon<br /> M. Sylvain Bruley'
+      - match: "la société Efigest Conseil<br /> M. Jean-Noël Vignon<br /> M. Sylvain Bruley"
         entities:
           - Efigest Conseil
           - Jean-Noël Vignon
           - Sylvain Bruley
-      - match: 'La société Financière de Diane'
+      - match: "La société Financière de Diane"
         entities:
           - Financière de Diane
-      - match: 'Sociétés Belvédère SA, Svi SNC, Sobieski SARL, des sociétés civiles Financière du Vignoble et Vermots Finance, de Mmes A et de'
+      - match: "Sociétés Belvédère SA, Svi SNC, Sobieski SARL, des sociétés civiles Financière du Vignoble et Vermots Finance, de Mmes A et de"
         entities:
           - Belvédère SA
           - Svi SNC
           - Sobieski SARL
           - Financière du Vignoble
           - Vermots Finance
-      - match: 'et sociétés Verneuil et Associés, Verneuil Participations, Foch Investissements, FD Conseils et Participations et Duc SA'
+      - match: "et sociétés Verneuil et Associés, Verneuil Participations, Foch Investissements, FD Conseils et Participations et Duc SA"
         entities:
           - Verneuil et Associés
           - Verneuil Participations
           - Foch Investissements
           - FD Conseils et Participations
           - Duc SA
-      - match: 'CRÉDIT AGRICOLE CORPORATE AND INVESTMENT BANK, NATIXIS et société'
+      - match: "CRÉDIT AGRICOLE CORPORATE AND INVESTMENT BANK, NATIXIS et société"
         entities:
           - CRÉDIT AGRICOLE CORPORATE AND INVESTMENT BANK
           - NATIXIS
-      - match: 'Société Avendis Capital SA, la société Accent tonique BV et la société Accent Grave BV'
+      - match: "Société Avendis Capital SA, la société Accent tonique BV et la société Accent Grave BV"
         entities:
           - Avendis Capital SA
           - Accent tonique BV
           - Accent Grave BV
-      - match: 'Société Altivie Asset Management du groupe Altivie'
+      - match: "Société Altivie Asset Management du groupe Altivie"
         entities:
           - Altivie Asset Management
           - Altivie
-      - match: 'et Refco Securities SA'
+      - match: "et Refco Securities SA"
         entities:
           - Refco Securities SA
-      - match: 'La société Sogenial Immobilier<br /> M. Jean-Marie Souclier'
+      - match: "La société Sogenial Immobilier<br /> M. Jean-Marie Souclier"
         entities:
           - Sogenial Immobilier
           - Jean-Marie Souclier
-      - match: 'Société Forest Invest'
+      - match: "Société Forest Invest"
         entities:
           - Forest Invest
       - match: Société Financière Henry IV Société Nouvelle
         entities:
           - Financière Henry IV
           - Nouvelle
-      - match: 'La société Smart Treso Conseil<br /> La société Entrepreneur Invest<br /> La société Eurotitrisation<br /> La société Caceis Bank venant aux droits de Caceis Investor Services Bank France (anciennement RBC Investor Services Bank France)<br /> Mme Edith Lusson<br /> M. Jean-Yves Bajon<br /> . Romain Bertrand<br /> M. Frédéric Zablocki<br /> M. Julien Leleu'
+      - match: "La société Smart Treso Conseil<br /> La société Entrepreneur Invest<br /> La société Eurotitrisation<br /> La société Caceis Bank venant aux droits de Caceis Investor Services Bank France (anciennement RBC Investor Services Bank France)<br /> Mme Edith Lusson<br /> M. Jean-Yves Bajon<br /> . Romain Bertrand<br /> M. Frédéric Zablocki<br /> M. Julien Leleu"
         entities:
           - Smart Treso Conseil
           - Entrepreneur Invest
           - Eurotitrisation
           - Caceis Bank
-          - ['Caceis Investor Services Bank France', 'RBC Investor Services Bank France']
+          - [
+              "Caceis Investor Services Bank France",
+              "RBC Investor Services Bank France",
+            ]
           - Edith Lusson
           - Jean-Yves Bajon
           - Romain Bertrand
@@ -988,17 +994,21 @@ lookups:
         relationships:
           - schema: Succession
             from_prop: predecessor
-            from: ['Caceis Investor Services Bank France', 'RBC Investor Services Bank France']
+            from:
+              [
+                "Caceis Investor Services Bank France",
+                "RBC Investor Services Bank France",
+              ]
             to_prop: successor
             to: Caceis Bank
             role: venant aux droits
-      - match: 'Sociétés Novaxia Investissement, Novaxia Développement, Novaxia Gestion, Novaxia' 
+      - match: "Sociétés Novaxia Investissement, Novaxia Développement, Novaxia Gestion, Novaxia"
         entities:
           - Novaxia Investissement
           - Novaxia Développement
           - Novaxia Gestion
           - Novaxia
-      - match: 'La société European High Growth Opportunities Manco SA<br /> La société Alpha Blue Ocean Inc<br /> La société Auplata Mining Group AMG<br /> La société RSM Paris SAS <br /> M. Stéphane Marie<br /> M. Didier Tamagno<br /> M. Pierre Vannineuse<br />'
+      - match: "La société European High Growth Opportunities Manco SA<br /> La société Alpha Blue Ocean Inc<br /> La société Auplata Mining Group AMG<br /> La société RSM Paris SAS <br /> M. Stéphane Marie<br /> M. Didier Tamagno<br /> M. Pierre Vannineuse<br />"
         entities:
           - European High Growth Opportunities Manco SA
           - Alpha Blue Ocean Inc
@@ -1007,32 +1017,32 @@ lookups:
           - Stéphane Marie
           - Didier Tamagno
           - Pierre Vannineuse
-      - match: 'La société ECOR1 CAPITAL<br /> M. Oleg Nodelman'
+      - match: "La société ECOR1 CAPITAL<br /> M. Oleg Nodelman"
         entities:
           - ECOR1 CAPITAL
           - Oleg Nodelman
       - match: GSD Gestion
         entities:
           - GSD Gestion
-      - match: 'Sociétés Prologue et Le Quotidien de Paris Editions'
+      - match: "Sociétés Prologue et Le Quotidien de Paris Editions"
         entities:
           - Prologue
           - Le Quotidien de Paris Editions
-      - match: 'La société Pharnext<br /> M. Daniel Cohen<br /> M. David Horn Solomon'
+      - match: "La société Pharnext<br /> M. Daniel Cohen<br /> M. David Horn Solomon"
         entities:
           - Pharnext
           - Daniel Cohen
           - David Horn Solomon
-      - match: 'Madame Adriana Marglewska<br /> Monsieur Frédéric Marty<br /> Monsieur Olivier Blin'
+      - match: "Madame Adriana Marglewska<br /> Monsieur Frédéric Marty<br /> Monsieur Olivier Blin"
         entities:
           - Adriana Marglewska
           - Frédéric Marty
           - Olivier Blin
-      - match: 'La société Skylar France . Cédric Chaboud'
+      - match: "La société Skylar France . Cédric Chaboud"
         entities:
           - Skylar France
           - Cédric Chaboud
-      - match: 'La société DIGNE CONSEILS & GESTION . Patrice DIGNE'
+      - match: "La société DIGNE CONSEILS & GESTION . Patrice DIGNE"
         entities:
           - DIGNE CONSEILS & GESTION
           - Patrice DIGNE
@@ -1040,12 +1050,12 @@ lookups:
         entities:
           - Société de gestion des fonds d'investissement de Bretagne
           - Florent de Kersauson
-      - match: 'La société Efigest Conseil<br /> M. Jean-Noël Vignon<br /> M. Sylvain Bruley'
+      - match: "La société Efigest Conseil<br /> M. Jean-Noël Vignon<br /> M. Sylvain Bruley"
         entities:
           - Efigest Conseil
           - Jean-Noël Vignon
           - Sylvain Bruley
-      - match: 'La société SR Capital<br /> M. Denys Sournac<br /> M. Stéphane Reynouard<br /> M. Patrick Orliange'
+      - match: "La société SR Capital<br /> M. Denys Sournac<br /> M. Stéphane Reynouard<br /> M. Patrick Orliange"
         entities:
           - SR Capital
           - Denys Sournac

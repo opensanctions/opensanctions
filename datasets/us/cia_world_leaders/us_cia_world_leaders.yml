@@ -4,7 +4,7 @@ prefix: us-cia
 coverage:
   frequency: daily
   start: "2015-12-05"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   An index of most national-level cabinet members in world governments that
   is publicly maintained by the CIA.
@@ -116,11 +116,11 @@ lookups:
         topics:
           - gov.national
           - gov.security
-  normalize_name: 
+  normalize_name:
     lowercase: true
     normalize: true
-    options: 
-      - match: 
+    options:
+      - match:
           - (VACANT)
           - vacant
         value: null

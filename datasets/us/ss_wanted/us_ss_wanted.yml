@@ -13,7 +13,7 @@ description: |
   The dataset includes details such as the fugitive's name, date of birth, aliases,
   summary of the criminal case, and relevant links to them.
 url: https://www.secretservice.gov/investigations/mostwanted
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 coverage:
   frequency: daily
@@ -37,7 +37,7 @@ data:
   format: HTML
   lang: eng
 
-dates: 
+dates:
   formats: ["%b %d, %Y", "%B %d, %Y", ": %B %d, %Y"]
 assertions:
   min:

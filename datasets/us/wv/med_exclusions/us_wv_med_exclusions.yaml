@@ -4,7 +4,7 @@ prefix: us-medwv
 coverage:
   frequency: daily
   start: "2024-10-04"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medicaid providers sanctioned in West Virginia's Medicaid program.
 description: |
@@ -37,7 +37,7 @@ assertions:
     schema_entities:
       Company: 15
       Person: 200
-lookups: 
+lookups:
   type.identifier:
     options:
       - match:

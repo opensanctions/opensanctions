@@ -6,7 +6,7 @@ coverage:
   start: "2024-07-26"
 deploy:
   schedule: "@weekly"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Regulations aimed at combating terrorism through financial restrictions under the 2010 Sanctions Act.
 description: |

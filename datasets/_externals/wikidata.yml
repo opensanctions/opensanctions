@@ -13,7 +13,7 @@ deploy:
   schedule: "1 0 * * *"
   memory: "3000Mi"
   memory_limit: "3500Mi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Wikidata is the structured data project of the Wikipedia community,
   providing fact-based information edited by humans and machines

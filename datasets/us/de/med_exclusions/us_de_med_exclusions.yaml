@@ -4,7 +4,7 @@ prefix: us-medde
 coverage:
   frequency: daily
   start: "2024-12-13"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >
   List of providers excluded from participating in the Delaware Medicaid program.
@@ -49,10 +49,10 @@ assertions:
       Person: 650
 
 lookups:
-  names: 
-    options: 
+  names:
+    options:
       - match: Devos, LTD d.b.a. Guaranteed Returns
-        values: 
+        values:
           - Devos, LTD
           - Guaranteed Returns
   type.date:

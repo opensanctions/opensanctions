@@ -4,7 +4,7 @@ prefix: us-finra
 coverage:
   frequency: daily
   start: "2024-05-09"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Firms and individuals that have faced FINRA disciplinary actions
 description: |
@@ -38,7 +38,7 @@ assertions:
     schema_entities:
       LegalEntity: 15000
 
-dates: 
+dates:
   formats: ["%m/%d/%Y"]
 lookups:
   comma_names:

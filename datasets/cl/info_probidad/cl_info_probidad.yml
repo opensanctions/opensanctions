@@ -4,7 +4,7 @@ prefix: cl-info-probidad
 coverage:
   frequency: daily
   start: 2024-01-11
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Data on Politically Exposed Persons from asset and interest declarations of Chilean public officials
 description: |
@@ -167,7 +167,7 @@ lookups:
           - BODEGUERO
           - ESPECIALISTA EN SONIDO
 
-      - is_pep: null  # haven't looked closely yet
+      - is_pep: null # haven't looked closely yet
         match:
           - "ABOGADA"
           - "ABOGADO"
@@ -611,7 +611,7 @@ lookups:
           - "TECNOLOGO MEDICO "
           - "TENIENTE CORONEL"
           - "TERCER NIVEL JERARQUICO"
-          - "NINGUNO"  # None
+          - "NINGUNO" # None
           - JEFE CIBERDEFENSA
           - JEFE DE DIVISIÓN
           - ADMINISTRATIVO 2°

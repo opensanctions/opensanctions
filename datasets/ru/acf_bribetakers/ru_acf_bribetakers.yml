@@ -4,7 +4,7 @@ prefix: acf
 coverage:
   frequency: daily
   start: 2022-05-05
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   A list of Russian decision-makers from government and business
   composed by ACF/FBK, the anti-corruption organization

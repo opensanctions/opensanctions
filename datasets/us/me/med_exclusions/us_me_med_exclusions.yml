@@ -4,7 +4,7 @@ prefix: us-medme
 coverage:
   frequency: daily
   start: "2024-12-13"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   List of providers excluded from Maine's Medicaid program.
 description: |
@@ -30,8 +30,8 @@ data:
   url: https://mainecare.maine.gov/PrvExclRpt/Forms/AllItems.aspx
   format: XLSX
 
-lookups: 
-  type.string: 
+lookups:
+  type.string:
     options:
       - match: N/A
         value: null

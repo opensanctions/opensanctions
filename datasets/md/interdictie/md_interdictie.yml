@@ -4,7 +4,7 @@ prefix: md-interdictie
 coverage:
   frequency: daily
   start: 2023-05-15
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   List of economic operators banned from participating public procurement in Moldova.
 description: |

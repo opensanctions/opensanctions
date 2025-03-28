@@ -9,7 +9,7 @@ coverage:
   end: "2023-10-16"
 deploy:
   schedule: "0 12 * * 3"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   A list of persons who have been determined to have taken Actions that Undermine Democratic 
   Processes or Institutions, Significant Corruption, or Obstruction of Such Corruption in

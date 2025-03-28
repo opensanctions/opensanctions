@@ -4,7 +4,7 @@ url: https://www.asambleanacional.gob.ve/diputados
 coverage:
   frequency: weekly
   start: 2024-01-18
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Members of the National Assembly of Venezuela, the country's unicameral
   legislature.
@@ -32,8 +32,9 @@ data:
   url: https://www.asambleanacional.gob.ve/diputados
   format: HTML
 
-dates: 
-  formats: ["%d/%m/%Y", "%d/%m/%y", "%d-%m-%Y", "%d-%m-%y", "%d %b %Y", "%d – %m – %y"]
+dates:
+  formats:
+    ["%d/%m/%Y", "%d/%m/%y", "%d-%m-%Y", "%d-%m-%y", "%d %b %Y", "%d – %m – %y"]
   months:
     Mar: de marzo de
     Apr: de Abril de

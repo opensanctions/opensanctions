@@ -4,7 +4,7 @@ prefix: fatca
 coverage:
   frequency: monthly
   start: "2024-11-11"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 resolve: false
 ci_test: false
 summary: >
