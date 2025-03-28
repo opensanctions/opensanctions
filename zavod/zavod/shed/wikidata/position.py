@@ -88,7 +88,7 @@ def wikidata_position(
         item.label.apply(position, "name")
 
     for claim in item.claims:
-        if claim.property in ("P1001", "P17") and claim.qid is not None:
+        if claim.property in ("P1001", "P17", "P27") and claim.qid is not None:
             if is_historical_country(client, claim.qid):
                 return None
             for country in item_countries(client, claim.qid):
