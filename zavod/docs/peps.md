@@ -84,7 +84,7 @@ a PEP position, and the PEP duration of its scope.
 ![Position categorisation UI](images/position-ui.png)
 
 To allow newly discovered positions to be added to the database, and to use the
-`is_pep` value from the database, call `zavod.logic.pep.categorise` with the Position.
+`is_pep` value from the database, call `zavod.stateful.positions:categorise` with the Position.
 If the data source is known to only include PEP positions, or if the crawler only
 attempts to create positions known to be PEPs, the `is_pep` argument should be `True`.
 Otherwise it should be `None`, denoting that it should be manually categorised
@@ -101,9 +101,9 @@ which we can later categorise manually. The `is_pep` and `topics` values
 from the database will then be used during crawling and [enrichment](https://www.opensanctions.org/datasets/annotations/)
 respectively.
 
-### ::: zavod.logic.pep.categorise
+### ::: zavod.stateful.positions.categorise
 
-### ::: zavod.logic.pep.PositionCategorisation
+### ::: zavod.stateful.positions.PositionCategorisation
 
 
 ## Creating Occupancies
