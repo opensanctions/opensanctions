@@ -1,4 +1,5 @@
 from enum import Enum
+from functools import lru_cache
 from typing import Optional, List
 from datetime import datetime, timedelta
 from sqlalchemy import select
@@ -39,15 +40,34 @@ class PositionCategorisation(object):
         self.is_pep = is_pep
 
 
+@lru_cache(maxsize=2000)
 def categorise(
     context: Context,
     position: Entity,
     is_pep: Optional[bool] = True,
 ) -> PositionCategorisation:
+    countries = sorted(position.get("country"))
     stmt = position_table.select()
     stmt = stmt.filter(position_table.c.entity_id == position.id)
     stmt = stmt.filter(position_table.c.deleted_at.is_(None))
     for row in context.conn.execute(stmt).fetchall():
+        if row.caption != position.caption or sorted(row.countries) != countries:
+            # If the caption or countries have changed, we need to update the row.
+            context.log.debug(
+                "Updating position metadata",
+                entity_id=position.id,
+                caption=position.caption,
+                countries=countries,
+            )
+            ustmt = position_table.update()
+            ustmt = ustmt.where(position_table.c.id == row.id)
+            body = {
+                "caption": position.caption,
+                "countries": countries,
+                # "modified_at": settings.RUN_TIME,
+            }
+            ustmt = ustmt.values(body)
+            context.conn.execute(ustmt)
         return PositionCategorisation(
             topics=row.topics,
             is_pep=row.is_pep,
@@ -56,7 +76,7 @@ def categorise(
     body = {
         "entity_id": position.id,
         "caption": position.caption,
-        "countries": position.get("country"),
+        "countries": countries,
         "topics": position.get("topics"),
         "dataset": position.dataset.name,
         "created_at": settings.RUN_TIME,
