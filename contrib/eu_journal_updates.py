@@ -277,11 +277,20 @@ def main(
 
     # Get all the new items
     new = dict()
+    some_updates = False
     for item in crawl_updates(context, cache_days=cache_days):
+        some_updates = True
         if item["celex"] in seen:
             continue
         new[item["celex"]] = item
     context.log.info(f"Found {len(new)} new items.")
+
+    # If we didn't find any updates, something's probably wrong.
+    if not some_updates:
+        context.log.error(
+            "No legislation or amendments found at all. Something's wrong."
+        )
+        sys.exit(1)
 
     # Prepare the messages in advance to reduce the chance of partial failure
     # and subsequent duplicate messages.
