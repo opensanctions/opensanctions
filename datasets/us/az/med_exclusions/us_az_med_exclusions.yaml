@@ -46,14 +46,14 @@ lookups:
       - match: |
           name-provider-f-a-c-t-s-behavioral-health-npi-1386928414-action-type-suspend-terminate-suspend-effective-date-12-1-2023
           name-provider-none-npi-1235787599-action-type-suspend-terminate-none-effective-date-12-1-2023
-          name-provider-happy-living-care-services-npi-1649850686-action-type-suspend-terminate-suspend-effective-date-12-1-2023
+          name-provider-my-behavioral-health-treatment-center-npi-1376209916-action-type-suspend-terminate-suspend-effective-date-12-1-2023
         rows:
           - name_provider: 'F.A.C.T.S. Behavioral Health'
             npi: ['1386928414', '1235787599']
             action_type_suspend_terminate: 'Suspend'
             effective_date: '12/1/2023'
-          - name_provider: 'Happy Living Care Services'
-            npi: '1649850686'
+          - name_provider: 'My Behavioral Health Treatment Center'
+            npi: '1376209916'
             action_type_suspend_terminate: 'Suspend'
             effective_date: '12/1/2023'
       - match: |
