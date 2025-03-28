@@ -30,6 +30,7 @@ data:
 assertions:
   min:
     schema_entities:
+      # This is important because we skip entities whose name can't be scraped from the page.
       Person: 90
   max:
     schema_entities:
