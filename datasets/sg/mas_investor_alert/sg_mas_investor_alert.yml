@@ -34,10 +34,19 @@ data:
   url: https://www.mas.gov.sg/api/v1/ialsearch?json.nl=map&wt=json&q=*:*&sort=date_dt+desc&rows=1000&start=0
   format: JSON
 
-# assertions:
-#   min:
-#     schema_entities:
-#       Person: 25
-#   max:
-#     schema_entities:
-#       Person: 60
+lookups:
+  type.email:
+    options:
+      - match: 'support@capitalbase.ai\ncompliance@capitalbase.ai'
+        values:
+          - support@capitalbase.ai
+          - compliance@capitalbase.ai
+      - match: 'info@leoniehillcapital.com\ninvest@leoniehillcapital.com'
+        values: 
+          - info@leoniehillcapital.com
+          - invest@leoniehillcapital.com
+      - match: 'vz@staroncapital.com \nscg@staroncapital.com / scg@staroncapital.co'
+        values:
+          - vz@staroncapital.com
+          - scg@staroncapital.com
+          - scg@staroncapital.co
