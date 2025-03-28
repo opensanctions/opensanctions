@@ -4,7 +4,7 @@ from urllib3.util import Retry
 from banal import ensure_list
 from zavod import settings
 
-DEFAULT_RETRY_STATUS_CODES = [500, 502] + list(Retry.RETRY_AFTER_STATUS_CODES)
+DEFAULT_RETRY_STATUS_CODES = [500, 502, 504] + list(Retry.RETRY_AFTER_STATUS_CODES)
 
 
 class HTTP(object):
