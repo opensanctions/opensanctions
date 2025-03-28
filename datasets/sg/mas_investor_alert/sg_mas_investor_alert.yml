@@ -31,10 +31,8 @@ publisher:
   official: true
 url: https://www.mas.gov.sg/investor-alert-list
 data:
-  url: https://www.mas.gov.sg/api/v1/ialsearch?json.nl=map&wt=json&q=*:*&sort=date_dt+desc&rows=10&start=0
+  url: https://www.mas.gov.sg/api/v1/ialsearch?json.nl=map&wt=json&q=*:*&sort=date_dt+desc&rows=1000&start=0
   format: JSON
-# dates: 
-#   formats: ["%d %B %Y"]
 
 # assertions:
 #   min:
