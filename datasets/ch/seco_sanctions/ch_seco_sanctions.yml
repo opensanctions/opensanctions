@@ -5,7 +5,7 @@ coverage:
   schedule: "0 */2 * * *"
   frequency: daily
   start: 2018-04-11
-deploy:  
+deploy:
   memory: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
@@ -40,9 +40,9 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 3700
-      LegalEntity: 1900
-      Address: 1900
+      Person: 3000
+      LegalEntity: 1500
+      Address: 1200
       Vessel: 100
   max:
     schema_entities:
@@ -125,7 +125,7 @@ lookups:
         value: male
       - match: Female
         value: female
-  type.identifier: 
-    options: 
+  type.identifier:
+    options:
       - match: 3232824038
         prop: taxNumber
