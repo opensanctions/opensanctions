@@ -97,6 +97,8 @@ lookups:
         values: [DE, UA]
       - match: ROSJA UKRAINA
         values: [RU, UA]
+      - match: ROSJA IZRAEL
+        values: [RU, IL]
       - match: RUMUNIA MOŁDAWIA
         values: [RO, MD]
       - match: RUMUNIA UKRAINA
