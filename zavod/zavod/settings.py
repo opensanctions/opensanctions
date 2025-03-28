@@ -15,6 +15,7 @@ DEBUG = as_bool(env_str("ZAVOD_DEBUG", "false"))
 # Default paths
 DATA_PATH_ = env_str("ZAVOD_DATA_PATH", "data")
 DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_)).resolve()
+DATA_PATH.mkdir(parents=True, exist_ok=True)
 
 # Per-run timestamp
 TIME_ZONE = env_str("TZ", "UTC")
