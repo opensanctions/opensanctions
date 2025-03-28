@@ -4,7 +4,7 @@ prefix: ir-san
 coverage:
   frequency: daily
   start: "2024-05-02"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Individuals and entities in the sanctions list of the Islamic Republic of Iran
 description: |
@@ -36,7 +36,7 @@ data:
 # requires API key
 ci_test: false
 
-dates: 
+dates:
   formats: ["%B %d %Y"]
 assertions:
   min:

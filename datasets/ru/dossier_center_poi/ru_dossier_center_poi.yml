@@ -38,9 +38,9 @@ publisher:
 data:
   url: https://peps.dossier.center/list/
   format: HTML
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
-dates: 
+dates:
   formats: ["%d.%m.%Y"]
 
 assertions:

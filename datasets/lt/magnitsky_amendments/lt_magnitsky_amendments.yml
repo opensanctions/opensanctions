@@ -8,12 +8,12 @@ summary: >-
 coverage:
   frequency: daily
   start: 2024-07-09
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 description: |
-    The Lithuanian Parliament has introduced the Magnitsky Legislation to prevent individuals involved 
-    in human rights abuses, money laundering, and corruption from entering the country. The bill, 
-    named after Russian lawyer Sergei Magnitsky, seeks to amend Article 133 of the Lithuanian Law on the 
-    Legal Status of Aliens.
+  The Lithuanian Parliament has introduced the Magnitsky Legislation to prevent individuals involved 
+  in human rights abuses, money laundering, and corruption from entering the country. The bill, 
+  named after Russian lawyer Sergei Magnitsky, seeks to amend Article 133 of the Lithuanian Law on the 
+  Legal Status of Aliens.
 publisher:
   name: Migration Department under the Ministry of the Interior of the Republic of Lithuania
   acronym: migracija
@@ -38,14 +38,14 @@ assertions:
     schema_entities:
       Person: 800
 
-lookups: 
+lookups:
   type.date:
     lowercase: true
     normalize: true
     options:
-      - match: 
+      - match:
           - UTPĮ 133 str. 4 d.,
-          - UTPĮ 133 str. 5 d. nustatytas uždraudimo atvykti pagrindas  # Grounds for refusal of entry laid down in Article 133(5) of the UTPA
-          - užsienietis gali kelti grėsmę valstybės saugumui  # the foreigner may pose a threat to national security
-          - Kitos  # Other
+          - UTPĮ 133 str. 5 d. nustatytas uždraudimo atvykti pagrindas # Grounds for refusal of entry laid down in Article 133(5) of the UTPA
+          - užsienietis gali kelti grėsmę valstybės saugumui # the foreigner may pose a threat to national security
+          - Kitos # Other
         value: null

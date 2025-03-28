@@ -7,7 +7,7 @@ coverage:
   end: 2024-11-30
 deploy:
   schedule: "@monthly"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Politically exposed persons from Georgia based on property declarations of public officials.
 description: |

@@ -4,7 +4,7 @@ prefix: us-medwa
 coverage:
   frequency: daily
   start: "2024-10-15"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers terminated or excluded from Washington State's Medicaid program.
 description: |
@@ -34,7 +34,7 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 300
-lookups: 
+lookups:
   type.identifier:
     options:
       - match: None

@@ -6,7 +6,7 @@ coverage:
   schedule: "0 */2 * * *"
   frequency: daily
   start: 2024-05-09
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   UK sanctions collated by the Foreign, Commonwealth & Development Office
 description: |
@@ -32,7 +32,7 @@ data:
   url: https://www.gov.uk/government/publications/the-uk-sanctions-list
   format: HTML
   lang: eng
-dates: 
+dates:
   formats: ["%d/%m/%Y", "dd/mm/%Y", "dd/%m/%Y"]
 
 assertions:

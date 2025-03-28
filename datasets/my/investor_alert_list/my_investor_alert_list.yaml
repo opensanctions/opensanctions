@@ -4,7 +4,7 @@ prefix: my-inval
 coverage:
   frequency: daily
   start: 2024-06-13
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Individuals and entities provide investment services without registration with
   the Malaysia Securities Commission.

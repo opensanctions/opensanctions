@@ -4,7 +4,7 @@ prefix: th-min
 coverage:
   frequency: daily
   start: 2024-10-15
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >
   List of the current members of the Thai Cabinet of Ministers. 

@@ -6,7 +6,7 @@ coverage:
   start: 2023-11-28
 deploy:
   schedule: "50 */3 * * *"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 exports:
   - statistics.json
   - entities.ftm.json

@@ -15,7 +15,7 @@ deploy:
   cpu_limit: "1500m"
   memory: "1000Mi"
   memory_limit: "1500Mi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >
   Automatically generated graph-based topic annotations

@@ -7,6 +7,7 @@ from sqlalchemy import (
     Boolean,
     JSON,
 )
+from nomenklatura.statement.db import make_statement_table
 
 from zavod.db import meta, get_engine
 
@@ -30,9 +31,13 @@ position_table = Table(
     Column("modified_by", Unicode(KEY_LEN), nullable=True),
     Column("deleted_at", DateTime, nullable=True, index=True),  # Index for filtering
 )
+statement_table = make_statement_table(meta)
 
 
 def create_db() -> None:
     """Create all stateful database tables."""
     engine = get_engine()
-    meta.create_all(bind=engine, checkfirst=True)
+    position_table.metadata = meta
+    position_table.create(bind=engine, checkfirst=True)
+    statement_table.metadata = meta
+    statement_table.create(bind=engine, checkfirst=True)

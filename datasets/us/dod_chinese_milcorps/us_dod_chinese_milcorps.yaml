@@ -8,7 +8,7 @@ coverage:
   end: 2025-01-07
 deploy:
   schedule: "@monthly"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   A list of companies identified as Chinese military companies operating in the United States.
 description: |

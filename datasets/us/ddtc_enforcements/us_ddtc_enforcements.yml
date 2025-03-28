@@ -4,7 +4,7 @@ prefix: us-ddtc-enf
 coverage:
   frequency: daily
   start: "2023-10-17"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Consent agreements entered into by parties accused of violating the Arms 
   Export Control Act (AECA) or International Traffic in Arms Regulations (ITAR)

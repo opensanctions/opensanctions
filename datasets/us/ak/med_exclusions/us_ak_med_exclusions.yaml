@@ -4,7 +4,7 @@ prefix: us-medak
 coverage:
   frequency: daily
   start: "2024-10-04"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Individuals and businesses excluded from Alaska Medical Assistance Program
 description: |

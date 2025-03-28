@@ -4,7 +4,7 @@ prefix: us-medor
 coverage:
   frequency: daily
   start: "2024-09-26"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers convicted of medicaid fraud in the state of Oregon
 description: |

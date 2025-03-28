@@ -4,7 +4,7 @@ prefix: wd
 coverage:
   frequency: daily
   start: 2021-12-16
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 exports:
   - statistics.json
   - entities.delta.json

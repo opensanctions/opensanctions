@@ -2,7 +2,7 @@ title: Romania FIU Public Officials
 url: https://www.onpcsb.ro/en/a/101/declarations-of-assets-and-interests
 entry_point: crawler.py
 prefix: ro-fiu
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 coverage:
   frequency: weekly
   start: 2024-12-30

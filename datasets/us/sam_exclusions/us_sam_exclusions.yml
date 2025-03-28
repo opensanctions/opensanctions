@@ -6,7 +6,7 @@ coverage:
   start: "2023-05-25"
 deploy:
   memory: "2Gi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >
   A database of suppliers who have been excluded from participating in US federal

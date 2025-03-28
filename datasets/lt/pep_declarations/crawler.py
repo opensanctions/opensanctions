@@ -3,7 +3,7 @@ from typing import Optional
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.logic.pep import OccupancyStatus, categorise
+from zavod.stateful.positions import OccupancyStatus, categorise
 
 DEKLARACIJA_ID_RANGE = range(301_730, 1_000_000)
 # We'll stop after MAX_GAP consecutive 404s

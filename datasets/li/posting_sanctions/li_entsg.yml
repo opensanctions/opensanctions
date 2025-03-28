@@ -4,7 +4,7 @@ entry_point: crawler.py
 coverage:
   frequency: weekly
   start: 2023-07-10
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Companies and persons against whom a sanction has been imposed for violating the Entsendegesetz
 description: |

@@ -4,7 +4,7 @@ prefix: cuinv
 coverage:
   frequency: monthly
   start: "2023-08-14"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Members of the 10. Legislature of the National Assembly of People's Power
 description: |

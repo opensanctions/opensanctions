@@ -4,7 +4,7 @@ prefix: sgtfs
 coverage:
   frequency: daily
   start: 2022-03-21
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Terrorists and terrorist entities designated by the Singapore government on top
   of the UN security council set of sanctions.
@@ -28,7 +28,7 @@ url: https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-
 data:
   url: https://sso.agc.gov.sg/Act/TSFA2002?ProvIds=Sc1-#Sc1-
   format: HTML
-dates: 
+dates:
   formats: ["%d %B %Y"]
 
 assertions:

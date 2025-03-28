@@ -1,7 +1,7 @@
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.logic.pep import PositionCategorisation, categorise
+from zavod.stateful.positions import PositionCategorisation, categorise
 
 
 def split_name(name):

@@ -12,7 +12,7 @@ exports:
 deploy:
   memory: "1000Mi"
   memory_limit: "1500Mi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >-
   Entity categorisation decisions by the OpenSanctions team.

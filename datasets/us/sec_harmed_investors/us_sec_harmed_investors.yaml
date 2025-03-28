@@ -4,7 +4,7 @@ prefix: us-sec-harm
 coverage:
   frequency: daily
   start: "2024-04-11"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Enforcement actions against persons and firms that had harmed investors
 description: |
@@ -1046,7 +1046,7 @@ lookups:
           - Richard Urciuoli
       - match: becton, dickinson, and company
         names:
-          - Becton, Dickinson and Company  # This is a full company name, see Q813780
+          - Becton, Dickinson and Company # This is a full company name, see Q813780
       - match: andrew defrancesco, marlio mauricio diaz cardona, carlos felipe rezk, nikola faukovic, and catherine defrancesco (cool holdings inc.)
         names:
           - Andrew Defrancesco

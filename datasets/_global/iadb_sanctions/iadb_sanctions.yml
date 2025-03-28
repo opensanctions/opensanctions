@@ -7,7 +7,7 @@ coverage:
   end: 2024-06-13
 deploy:
   schedule: "@monthly"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   The firms and individuals listed have been sanctioned for having engaged in
   fraudulent, corrupt, collusive, coercive or obstructive practices, in
@@ -55,7 +55,7 @@ url: https://www.iadb.org/en/transparency/sanctioned-firms-and-individuals
 data:
   url: https://www.iadb.org/en/who-we-are/transparency/sanctions-system/sanctioned-firms-and-individuals
   format: XLSX
-dates: 
+dates:
   formats: ["%m/%d/%Y %H:00:00 AM", "%b %d, %Y"]
 
 assertions:

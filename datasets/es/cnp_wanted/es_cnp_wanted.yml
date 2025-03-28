@@ -1,6 +1,6 @@
 title: "Spain National Police Most Wanted List"
 url: https://www.policia.es/_es/colabora_masbuscados.php#
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 coverage:
   frequency: daily
   start: 2024-07-26
@@ -33,6 +33,6 @@ assertions:
   min:
     schema_entities:
       Person: 6
-  max: 
+  max:
     schema_entities:
       Person: 20

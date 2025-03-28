@@ -7,7 +7,7 @@ summary: >-
 coverage:
   frequency: weekly
   start: 2024-01-18
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 description: |
   The Seimas of the Republic of Lithuania is the unicameral parliament 
   responsible for exercising legislative power in Lithuania
@@ -35,7 +35,7 @@ data:
   url: https://www.lrs.lt/sip/portal.show?p_r=35299&p_k=2
   format: HTML
 
-dates: 
+dates:
   formats: ["%d %B %Y"]
 assertions:
   min:

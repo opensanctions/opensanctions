@@ -6,7 +6,7 @@ coverage:
   start: 2022-09-06
 deploy:
   schedule: "0 */6 * * *"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   A list of persons and companies sanctioned for involvement with terrorism financing
   released by the government in Bulgaria.
@@ -32,7 +32,7 @@ data:
 dates:
   formats:
     - "%d.%m.%Y"
-  
+
 assertions:
   min:
     schema_entities:
@@ -41,7 +41,7 @@ assertions:
   max:
     schema_entities:
       Person: 840
-      Organization: 330 
+      Organization: 330
 
 lookups:
   type.country:

@@ -6,7 +6,7 @@ coverage:
   start: 2023-11-20
 deploy:
   memory: 1500Mi
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Switzerland's financial regulator maintains and publishes final
   rulings naming those involved in financial misconduct
@@ -31,7 +31,7 @@ data:
   url: https://www.finma.ch/en/api/search/getresult
   format: JSON
 dates:
-  formats: ['%d.%m.%Y']
+  formats: ["%d.%m.%Y"]
 
 assertions:
   min:

@@ -3,7 +3,7 @@ from normality import slugify, collapse_spaces
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 WEB_URL = "https://www.cia.gov/resources/world-leaders/foreign-governments/%s"
 DATA_URL = "https://www.cia.gov/resources/world-leaders/page-data/foreign-governments/%s/page-data.json"

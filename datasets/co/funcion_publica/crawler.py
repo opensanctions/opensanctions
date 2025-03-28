@@ -8,7 +8,7 @@ import re
 
 from zavod import helpers as h
 from zavod.context import Context
-from zavod.logic.pep import OccupancyStatus, backdate, categorise
+from zavod.stateful.positions import OccupancyStatus, backdate, categorise
 
 # NUMERO DOCUMENTO
 # NOMBRE PEP

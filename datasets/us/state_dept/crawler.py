@@ -2,7 +2,7 @@ from typing import Optional
 from normality import collapse_spaces
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 from zavod.shed.zyte_api import fetch_html
 
 

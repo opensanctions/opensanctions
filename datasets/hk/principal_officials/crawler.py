@@ -1,10 +1,10 @@
-from zavod import Context
-from zavod import helpers as h
-from zavod.logic.pep import categorise
-
+import re
 from normality import collapse_spaces
 from xml.etree import ElementTree
-import re
+
+from zavod import Context
+from zavod import helpers as h
+from zavod.stateful.positions import categorise
 
 
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=0):
@@ -18,7 +18,6 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=
 
 
 def crawl_members(context: Context, section: str, elem: ElementTree):
-
     url = elem.get("href")
 
     doc = context.fetch_html(url, cache_days=1)
@@ -69,7 +68,6 @@ def crawl(context: Context):
     doc.make_links_absolute(context.data_url)
 
     for section in doc.xpath('//section[@class="blockItem"]'):
-
         section_name = section.xpath("./h3")[0].text_content()
         officials = section.xpath(".//p//a")
 

@@ -5,7 +5,7 @@ coverage:
   schedule: "0 */8 * * *"
   frequency: daily
   start: "2022-04-29"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Decisions by the Polish Interior Ministry regarding entities linked
   to the aggression in Ukraine.
@@ -74,7 +74,7 @@ lookups:
           - 523931831
       - match: 79090613232)
         value: 79090613232
-  type.name: 
+  type.name:
     options:
       - match: "GO SPORT POLSKA Sp. z o.o. w upadłości"
         value: GO SPORT POLSKA Sp. z o.o.
@@ -126,14 +126,14 @@ lookups:
           address: "Proezd 2-i Industrialnyi D. 1, Pietropawłowsk, Kazachstan"
           idNumber: "220540011771"
           registrationNumber: "220540011771"
-      - match: 'adres: Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan (w języku rosyjskim: проезд Ярослава Гашека, 1 Петропавловск, Казахстан) nr identyfikacyjny BIN: 191040021834'
+      - match: "adres: Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan (w języku rosyjskim: проезд Ярослава Гашека, 1 Петропавловск, Казахстан) nr identyfikacyjny BIN: 191040021834"
         props:
           address: "Proezd Imeni Yaroslava Gasheka D. 1 Pietropawłowsk, Kazachstan"
           registrationNumber: "191040021834"
-      - match: 'adres: ul. Bohaterów II Armii Wojska Polskiego 12, 59-900 Zgorzelec '
+      - match: "adres: ul. Bohaterów II Armii Wojska Polskiego 12, 59-900 Zgorzelec "
         props:
           address: "ul. Bohaterów II Armii Wojska Polskiego 12, 59-900 Zgorzelec"
-      - match: 'adres: ul. Towarowa 28, 00-839 Warszawa '
+      - match: "adres: ul. Towarowa 28, 00-839 Warszawa "
         props:
           address: "ul. Towarowa 28, 00-839 Warszawa"
       - match: w Leningradzie
@@ -151,33 +151,33 @@ lookups:
       - match: urodzonej 6 lipca 1972 r.
         props:
           birthDate: 1972-07-06
-      - match: 'adres: ul. Pobedy 38A, Koptevka, Republika Białorusi (nazwa rosyjskojęzyczna: yл. Поведы, дом 38A, aг. Коптевка, Беларусь) numer rejestrowy: 591534088'
+      - match: "adres: ul. Pobedy 38A, Koptevka, Republika Białorusi (nazwa rosyjskojęzyczna: yл. Поведы, дом 38A, aг. Коптевка, Беларусь) numer rejestrowy: 591534088"
         props:
           address: "ul. Pobedy 38A, Koptevka, Republika Białorusi"
           registrationNumber: "591534088"
-      - match: 'adres: ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa '
+      - match: "adres: ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa "
         props:
           address: "ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa"
-      - match: 'adres: Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa'
+      - match: "adres: Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa"
         props:
           address: "Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa"
-      - match: 'adres: Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie (nazwa arabska: مكتب 02 ملك عابر خلفان محمد خلفان الهاملىالثنية االولى) numer rejestrowy: 2823197'
+      - match: "adres: Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie (nazwa arabska: مكتب 02 ملك عابر خلفان محمد خلفان الهاملىالثنية االولى) numer rejestrowy: 2823197"
         props:
           address: "Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie"
           registrationNumber: "2823197"
-      - match: 'adres: Mińsk, 220137, ul. Naklonnaya 28, Republika Białorusi (nazwa rosyjskojęzyczna: Минск, 220137, ул. Наклонная 28) numer rejestrowy: 193256472'
+      - match: "adres: Mińsk, 220137, ul. Naklonnaya 28, Republika Białorusi (nazwa rosyjskojęzyczna: Минск, 220137, ул. Наклонная 28) numer rejestrowy: 193256472"
         props:
           address: "Mińsk, 220137, ul. Naklonnaya 28, Republika Białorusi"
           registrationNumber: "193256472"
-      - match: 'adres: Republika Białorusi, 220137, Mińsk, ul. Naklonnaya 28 (nazwa rosyjskojęzyczna: Республика Беларусь, 220137, г Минск, ул. Наклонная, д 28) numer rejestrowy: 193648909'
+      - match: "adres: Republika Białorusi, 220137, Mińsk, ul. Naklonnaya 28 (nazwa rosyjskojęzyczna: Республика Беларусь, 220137, г Минск, ул. Наклонная, д 28) numer rejestrowy: 193648909"
         props:
           address: "Republika Białorusi, 220137, Mińsk, ul. Naklonnaya 28"
           registrationNumber: "193648909"
-      - match: 'adres: Pantelis Katelaris, 16, Diagoras Building, Floor 3, Flat 303, 1097 Nicosia, Cyprus, numer rejestrowy: C392309'
+      - match: "adres: Pantelis Katelaris, 16, Diagoras Building, Floor 3, Flat 303, 1097 Nicosia, Cyprus, numer rejestrowy: C392309"
         props:
           address: "Pantelis Katelaris, 16, Diagoras Building, Floor 3, Flat 303, 1097 Nicosia, Cyprus"
           registrationNumber: "C392309"
-      - match: 'adres: Voronyansky 35, Office 8 220007 Mińsk (nazwa rosyjskojęzyczna: ул. Воронянского, 35, пом. 8, 220007, г. Минск) numer rejestrowy: BY193759703'
+      - match: "adres: Voronyansky 35, Office 8 220007 Mińsk (nazwa rosyjskojęzyczna: ул. Воронянского, 35, пом. 8, 220007, г. Минск) numer rejestrowy: BY193759703"
         props:
           address:
             - "Voronyansky 35, Office 8 220007 Mińsk"

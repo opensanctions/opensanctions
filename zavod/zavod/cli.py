@@ -179,9 +179,9 @@ def run(
         reset_caches()
         publish_dataset(dataset, latest=latest)
 
-        if not dataset.is_collection and dataset.load_db_uri is not None:
+        if not dataset.is_collection and dataset.load_statements is not None:
             log.info("Loading dataset into database...", dataset=dataset.name)
-            load_dataset_to_db(dataset, linker, dataset.load_db_uri, external=external)
+            load_dataset_to_db(dataset, linker, external=external)
         log.info("Dataset run is complete :)", dataset=dataset.name)
     except Exception:
         log.exception("Failed to export and publish %r" % dataset.name)
@@ -190,12 +190,10 @@ def run(
 
 @cli.command("load-db", help="Load dataset statements from the archive into a database")
 @click.argument("dataset_path", type=InPath)
-@click.argument("database_uri", type=str)
 @click.option("--batch-size", type=int, default=settings.DB_BATCH_SIZE)
 @click.option("-x", "--external", is_flag=True, default=False)
 def load_db(
     dataset_path: Path,
-    database_uri: str,
     batch_size: int = 5000,
     external: bool = False,
 ) -> None:
@@ -205,7 +203,6 @@ def load_db(
         load_dataset_to_db(
             dataset,
             linker,
-            database_uri,
             batch_size=batch_size,
             external=external,
         )

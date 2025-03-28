@@ -4,7 +4,7 @@ prefix: tr-cmb
 coverage:
   frequency: daily
   start: "2025-01-27"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   This dataset contains a list of banned entities from Türkiye Capital Markets Board.
 description: |
@@ -17,11 +17,11 @@ publisher:
   name: Sermaye Piyasası Kurulu
   name_en: Capital Markets Board of Türkiye
   description: |
-   > Capital Markets Board of Türkiye (CMB) is the regulatory and supervisory
-   > authority in charge of the securities markets in Türkiye. Empowered by
-   > the Capital Markets Law (CML), which was enacted in 1981, the CMB has
-   > been making detailed regulations for organizing the markets and developing
-   > capital market instruments and institutions.
+    > Capital Markets Board of Türkiye (CMB) is the regulatory and supervisory
+    > authority in charge of the securities markets in Türkiye. Empowered by
+    > the Capital Markets Law (CML), which was enacted in 1981, the CMB has
+    > been making detailed regulations for organizing the markets and developing
+    > capital market instruments and institutions.
   acronym: CMB
   url: https://www.cmb.gov.tr
   official: true

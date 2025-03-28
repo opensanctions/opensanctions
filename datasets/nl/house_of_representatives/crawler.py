@@ -7,7 +7,7 @@ from zavod.shed.zyte_api import fetch_html, fetch_json
 from zavod import Context
 from zavod.entity import Entity
 from zavod.helpers import make_position, make_occupancy
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 from zavod import helpers as h
 
 

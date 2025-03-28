@@ -4,7 +4,7 @@ prefix: ca-facfoa
 coverage:
   frequency: weekly
   start: 2023-04-12
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   The Canadian governments maintains a small, Magnitsky-style list of government
   officials that it alleges to be involved in corruption.

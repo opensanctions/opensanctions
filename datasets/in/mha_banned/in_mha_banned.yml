@@ -4,7 +4,7 @@ prefix: in-mha
 coverage:
   frequency: daily
   start: 2023-02-16
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   List of banned organizations under the Unlawful Activities (Prevention) Act
 description: |
@@ -28,11 +28,11 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 57  # In the name of the doc
+      Person: 57 # In the name of the doc
       Organization: 50
 
 lookups:
-  names: 
+  names:
     options:
       - regex: "Organizations listed .+ UN .+ Security Council "
         entities: []

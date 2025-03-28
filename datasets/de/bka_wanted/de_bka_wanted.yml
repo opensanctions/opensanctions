@@ -18,7 +18,7 @@ publisher:
   country: de
   url: https://www.bka.de/DE/Home/home_node.html
   official: true
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 coverage:
   frequency: monthly
   start: "2024-07-05"
@@ -27,7 +27,7 @@ data:
   format: HTML
   lang: deu
 
-dates: 
+dates:
   formats: ["%d.%m.%Y"]
 lookups:
   type.gender:

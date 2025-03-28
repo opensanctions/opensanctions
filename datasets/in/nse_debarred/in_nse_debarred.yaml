@@ -4,7 +4,7 @@ prefix: in-nse-deb
 coverage:
   frequency: daily
   start: "2024-08-05"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   List of Debarred Entities based on orders / directions from SEBI and other Competent Authorities
 description: |
@@ -28,7 +28,7 @@ data:
   format: HTML
   lang: eng
 
-dates: 
+dates:
   formats:
     - "%B %d, %Y"
     - "%d-%b-%Y"
@@ -44,7 +44,7 @@ dates:
     - "REVOKED ON %d %B %Y"
     - "REVOKED ON %B %d, %Y"
     - "REVOKED ON %B %b %Y"
-    - "REVOKED ON %d-%b-%y" 
+    - "REVOKED ON %d-%b-%y"
     - "REVOKED ON %d-%m-%Y"
     - "REVOKED ON %B %d,%Y"
     - "REVOKED ON %d %b %Y"
@@ -131,8 +131,8 @@ lookups:
         value: Sanvan Software Ltd
       - match: AAACH4113J
         value: SYP Agro Foods Ltd
-      - match: 'Shri Shubh Karan Jain, Trade Name : S. K. Jain'
-        values: 
+      - match: "Shri Shubh Karan Jain, Trade Name : S. K. Jain"
+        values:
           - Shri Shubh Karan Jain
           - S. K. Jain
   type.url:
@@ -149,17 +149,17 @@ lookups:
         value: https://archives.nseindia.com/content/circulars/INVG47751.zip
       - match: hhttps://archives.nseindia.com/content/circulars/INVG47784.zip
         value: https://archives.nseindia.com/content/circulars/INVG47784.zip
-  type.identifier: 
-    options: 
+  type.identifier:
+    options:
       - match: NA
         value: null
-  type.text: 
-    options: 
+  type.text:
+    options:
       - match: "NA"
         value: null
-  type.date: 
-    options: 
-      - match: 
+  type.date:
+    options:
+      - match:
           - REVOKED
           - DEBARMENT REVOKED
           - DEBARRMENT REVOKED

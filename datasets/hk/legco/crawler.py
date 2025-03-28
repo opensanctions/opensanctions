@@ -7,7 +7,7 @@ from typing import Any, Dict, NamedTuple, Union
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 MEMBER_URL_FORMAT = (
     "https://app4.legco.gov.hk/mapi/{lang}/api/LASS/getMember?member_id={member_id}"

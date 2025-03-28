@@ -4,7 +4,7 @@ prefix: us-medmn
 coverage:
   frequency: daily
   start: "2024-11-07"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers suspended or terminated from Minnesota Health Care Programs.
 description: |

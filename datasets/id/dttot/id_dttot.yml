@@ -5,7 +5,7 @@ entry_point: crawler
 coverage:
   frequency: daily
   start: "2024-05-29"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: |
   A list of suspected terrorists and terrorist organizations as determined by the Central Jakarta District Court.
 description: >

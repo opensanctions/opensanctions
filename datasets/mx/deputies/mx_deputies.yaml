@@ -4,7 +4,7 @@ prefix: mx-dep
 coverage:
   frequency: weekly
   start: 2024-03-07
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Current members of the Mexican lower house, the Chamber of Deputies
 description: |

@@ -4,7 +4,7 @@ prefix: my-ale
 coverage:
   frequency: daily
   start: 2024-04-23
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Entities who have been wrongly represented as being licensed by the Central Bank of Malaysia.
 description: |
@@ -40,7 +40,7 @@ data:
   lang: eng
 ci_test: false
 
-dates: 
+dates:
   formats: ["%Y/%m/00%d"]
 lookups:
   type.name:
@@ -48,7 +48,7 @@ lookups:
     normalize: true
     options:
       - match: "OctaFX Collecting agents of OctaFX as per following: i. Gavann Entertainment Sdn. Bhd. (1486933P) ii. Pro Niaga Consultation (SA0385991W) iii. Dass City Holdings Sdn. Bhd. (1486888W) iv. Mus Tech Trading Sdn. Bhd. (1472611D) v. Al Mierul International Sdn. Bhd. (1487076A) vi. Wan Energy Solution (M) Sdn. Bhd. (1486752D) vii. Taqara Solutions Sdn. Bhd. (1486752D)"
-        values: 
+        values:
           - OctaFX
 
 assertions:

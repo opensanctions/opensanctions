@@ -9,7 +9,7 @@ deploy:
   cpu: "800m"
   memory: "1500Mi"
   memory_limit: "2500Mi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 exports:
   - statistics.json

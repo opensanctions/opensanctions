@@ -4,7 +4,7 @@ prefix: ua-ws
 coverage:
   frequency: daily
   start: 2024-11-28
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >
   Sponsors and accomplices of Russian armed aggression against Ukraine.

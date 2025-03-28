@@ -17,7 +17,7 @@
 from lxml import etree
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 from zavod.shed.zyte_api import fetch_html
 
 UNBLOCK_ACTIONS = [

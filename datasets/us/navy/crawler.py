@@ -4,7 +4,7 @@ import orjson
 import re
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 from zavod.shed.zyte_api import fetch_html
 
 BASE_URL = "https://www.navy.mil"

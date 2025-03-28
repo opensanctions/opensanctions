@@ -7,7 +7,7 @@ from lxml import html
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.logic.pep import OccupancyStatus, categorise
+from zavod.stateful.positions import OccupancyStatus, categorise
 
 # ID / CC
 # Primer Nombre

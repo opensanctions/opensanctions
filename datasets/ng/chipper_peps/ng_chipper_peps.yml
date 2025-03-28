@@ -4,7 +4,7 @@ prefix: ng-chip
 coverage:
   frequency: daily
   start: 2023-11-22
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   National and sub-national Nigerian Politically Exposed Persons collected by Chipper
 description: |
@@ -29,7 +29,7 @@ url: https://chippercash.com/
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vS-0_pci6BoFHpxfPXbDeMD53jvti_TmovR406JK-Z-9lYPCqbUmTk6vZC0hTSRFxHYGTzJJyFRDCxz/pub?output=csv
   format: CSV
-dates: 
+dates:
   formats: ["%m/%d/%Y"]
 
 assertions:

@@ -1,6 +1,6 @@
 title: "Iran UANI Business Registry"
 url: https://www.unitedagainstnucleariran.com/iran-business-registry
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 coverage:
   frequency: daily

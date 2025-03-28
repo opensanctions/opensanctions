@@ -4,7 +4,7 @@ prefix: us-fdadq
 coverage:
   frequency: daily
   start: "2025-01-16"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Clinical investigators who have been subject to disqualification proceedings
   regarding FDA-regulated clinical investations
@@ -14,7 +14,7 @@ description: |
   Clinical investigators must follow applicable statutes and regulations to ensure
   the integrity of clinical data and, for studies involving human subjects, to
   protect their rights, safety, and welfare.
-  
+
   If the FDA determines that a clinical investigator has violated these requirements
   — such as through data falsification or non-compliance — it may initiate a
   disqualification proceeding.

@@ -4,7 +4,7 @@ prefix: usplum
 coverage:
   frequency: daily
   start: 2024-11-11
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   The PLUM Reporting lists federal positions filled by political appointees, Schedule C
   employees, and other executives.

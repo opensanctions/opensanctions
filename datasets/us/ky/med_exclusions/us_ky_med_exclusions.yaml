@@ -4,7 +4,7 @@ prefix: us-medky
 coverage:
   frequency: daily
   start: "2024-11-15"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers terminated or excluded from Kentucky's Medicaid program.
 description: |
@@ -82,10 +82,10 @@ lookups:
           - NA
           - "Entity: N/A      Owners: 20 years"
           - null
-  type.identifier: 
+  type.identifier:
     options:
       - match: "1104213446\n1174644850"
-        values: 
+        values:
           - 1104213446
           - 1174644850
       - match: 129733376

@@ -5,7 +5,7 @@ coverage:
   frequency: daily
   start: 2021-11-08
 ci_test: false
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Individuals and firms that have been sanctioned by AfDB, for having 
   participated in coercive, collusive, corrupt, fraudulent or obstructive

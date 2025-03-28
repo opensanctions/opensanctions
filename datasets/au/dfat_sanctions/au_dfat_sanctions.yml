@@ -6,7 +6,7 @@ coverage:
   start: 2018-04-11
 deploy:
   schedule: "0 */2 * * *"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   The Consolidated List is a list of all persons and entities who are subject to
   targeted financial sanctions under Australian sanctions law
@@ -53,7 +53,7 @@ dates:
   formats:
     - "%Y-%m-%d"
     - "%d/%m/%Y"
-    - "%d %b. %Y" 
+    - "%d %b. %Y"
     - "%d %b.%Y"
     - "%d %b %Y"
     - "%d %B %Y"
@@ -118,9 +118,9 @@ lookups:
           - n/a
           - na
         value: null
-      - match: 'Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com'
+      - match: "Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com"
         value: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
-     
+
   type.country:
     lowercase: true
     normalize: true
@@ -210,7 +210,7 @@ lookups:
       - match: 23-Apr-68
         value: "1968-04-23"
       - match: 1970-1973
-        values: 
+        values:
           - 1970
           - 1971
           - 1972

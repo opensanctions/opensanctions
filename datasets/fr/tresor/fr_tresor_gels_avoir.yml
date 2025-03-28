@@ -5,7 +5,7 @@ coverage:
   schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-02-12
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   The register lists all persons, entities and vessels subject to asset
   freezing measures in force on French territory, pursuant to national,
@@ -125,8 +125,7 @@ lookups:
         associates:
           - Andrei Leonidowitsch KOSTIN
           - Anton SILUANOV
-      - match:
-          "Personnes associées: Georgieva Elena ALEKSANDROVNA (présidente
+      - match: "Personnes associées: Georgieva Elena ALEKSANDROVNA (présidente
           du conseil de direction) - Andrey Valeryevich KONDRATYEV (président du conseil
           d'administration)"
         associates:
@@ -136,14 +135,12 @@ lookups:
           des technologies): Banque commerciale anonyme"
         associates:
           - Rostec
-      - match:
-          "Entités associées:  Tatneft-Neftekhim;  Nizhnekamskshina;  Nizhnekamsk All-Steel Tyre Plant"
+      - match: "Entités associées:  Tatneft-Neftekhim;  Nizhnekamskshina;  Nizhnekamsk All-Steel Tyre Plant"
         associates:
           - Tatneft-Neftekhim
           - Nizhnekamskshina
           - Nizhnekamsk All-Steel Tyre Plant
-      - match:
-          "Entités associées:  Trading House KAMA  Management Company Tatneft-Neftekhim  Nizhnekamsk All-Steel Tyre Plant"
+      - match: "Entités associées:  Trading House KAMA  Management Company Tatneft-Neftekhim  Nizhnekamsk All-Steel Tyre Plant"
         associates:
           - Trading House KAMA
           - Management Company Tatneft-Neftekhim
@@ -169,7 +166,7 @@ lookups:
         props:
           registrationNumber: 1096659005200
           incorporationDate: 2009-05-15
-      - match: "Entités associées: le soi-disant \"gouvernement\" de la soi-disant \"République populaire de Donetsk\""
+      - match: 'Entités associées: le soi-disant "gouvernement" de la soi-disant "République populaire de Donetsk"'
         associates:
           - le soi-disant gouvernement de la soi-disant République populaire de Donetsk
       - match: "Type d'entité: entreprise contrôlée par l'État"
@@ -311,9 +308,9 @@ lookups:
       - match: "Société mère: Rostec"
         associates:
           - Rostec
-      - match: 'Principaux établissements: Émirats arabes unis, Fédération de Russie, Union européenne'
+      - match: "Principaux établissements: Émirats arabes unis, Fédération de Russie, Union européenne"
         props:
-          jurisdiction: 
+          jurisdiction:
             - ae
             - ru
             - eu
@@ -321,14 +318,14 @@ lookups:
         props:
           jurisdiction: ru
           address: "Moscou, Fédération de Russie (125080, Moscou, sh. Volokolamskoe, 1 str. 1, et 5; pom VI; kom 30B"
-      - match: 'Lieu des activités: Ukraine, Fédération de Russie'
+      - match: "Lieu des activités: Ukraine, Fédération de Russie"
         props:
-          jurisdiction: 
+          jurisdiction:
             - ua
             - ru
-      - match: 'Principal établissement: Fédération de Russie, Pays-Bas'
+      - match: "Principal établissement: Fédération de Russie, Pays-Bas"
         props:
-          jurisdiction: 
+          jurisdiction:
             - ru
             - nl
       - match: "Lieu d'enregistrement: Russie"
@@ -338,7 +335,7 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée (SARL) (LLC)"
         props:
           legalForm: société à responsabilité limitée (SARL) (LLC)
-      - match: 'Principal établissement: Arsenyev, Fédération de Russie'
+      - match: "Principal établissement: Arsenyev, Fédération de Russie"
         props:
           jurisdiction: ru
           address: "Arsenyev, Fédération de Russie"
@@ -350,7 +347,7 @@ lookups:
         props:
           jurisdiction: ru
           address: "Fédération de Russie (606083, région de Nijni Novgorod, district de Volodarsky, Mulino)"
-      - match: 'OKATO  - Ryazanskaya area, citya oblastnogo znacheniya Ryazanskoj area, Ryazan, Oktyabrskij: 61401375'
+      - match: "OKATO  - Ryazanskaya area, citya oblastnogo znacheniya Ryazanskoj area, Ryazan, Oktyabrskij: 61401375"
         note: true
         props:
           address: "Ryazanskaya area, citya oblastnogo znacheniya Ryazanskoj area, Ryazan, Oktyabrskij"
@@ -360,7 +357,7 @@ lookups:
           legalForm: Propriété des sociétés d'État
       - match: "OKOGU - “Technologies russes”, société d'État chargée de promouvoir le développement, la production et l'exportation de produits de haute technologie: 4100304"
         note: true
-        props: 
+        props:
           legalForm: société d'État
       - match: "OKOPF - Sociétés par actions ouvertes OKTMO: 61701000001: 12247"
         note: true
@@ -4504,10 +4501,10 @@ lookups:
         props:
           incorporationDate: 2013-04-16
           registrationNumber: 192003422
-      - match: 'Numéro d’identification fiscale: 3234043140'
+      - match: "Numéro d’identification fiscale: 3234043140"
         props:
           innCode: 3234043140
-      - match: 'Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 22.1.1993 (date d’enregistrement national: 16.6.2002) - Personne associée: Pavel Gennadievich Tochilin (directeur général) (NIF: 504501388297): Numéro d’enregistrement: 1025005917023'
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 22.1.1993 (date d’enregistrement national: 16.6.2002) - Personne associée: Pavel Gennadievich Tochilin (directeur général) (NIF: 504501388297): Numéro d’enregistrement: 1025005917023"
         props:
           jurisdiction: ru
           legalForm: société par actions
@@ -4515,28 +4512,28 @@ lookups:
           registrationNumber: 1025005917023
         associates:
           - Pavel Gennadievich Tochilin
-      - match: 'Numéro d’identification fiscale: 5045002261'
+      - match: "Numéro d’identification fiscale: 5045002261"
         props:
           innCode: 5045002261
-      - match: 'KPP: 504501001'
+      - match: "KPP: 504501001"
         schema: Company
         props:
           kppCode: 504501001
-      - match: 'Numéro d’enregistrement: 1028600508991'
+      - match: "Numéro d’enregistrement: 1028600508991"
         props:
           registrationNumber: 1028600508991
-      - match: 'Principal établissement: Fédération de Russie: Numéro d’identification fiscale: 7204002873'
+      - match: "Principal établissement: Fédération de Russie: Numéro d’identification fiscale: 7204002873"
         props:
           address: "Fédération de Russie"
           innCode: 7204002873
-      - match: 'Date d’enregistrement: 30.5.2023 - Entités associées: — OOO TSK Vektor, autrement connue sous le nom de LLC TSK Vektor — Xiamen Limbach Aviation Engine Co., Ltd: Numéro d’identification fiscale:  91440300MA5HX80Y1Q'
+      - match: "Date d’enregistrement: 30.5.2023 - Entités associées: — OOO TSK Vektor, autrement connue sous le nom de LLC TSK Vektor — Xiamen Limbach Aviation Engine Co., Ltd: Numéro d’identification fiscale:  91440300MA5HX80Y1Q"
         props:
           incorporationDate: 2023-05-30
           taxNumber: 91440300MA5HX80Y1Q
         associates:
           - OOO TSK Vektor
           - Xiamen Limbach Aviation Engine Co., Ltd
-      - match: 'Principal établissement: Fédération de Russie - Personnes associées: Artem Mikhaylovich Yamshchikov - Entités associées: — IEMZ Kupol— Juhang Aviation Technology Shenzhen Co. Limited — Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd — Xiamen Limbach Aviation Engine Co., Ltd: Numéro d’enregistrement: 1153850042246'
+      - match: "Principal établissement: Fédération de Russie - Personnes associées: Artem Mikhaylovich Yamshchikov - Entités associées: — IEMZ Kupol— Juhang Aviation Technology Shenzhen Co. Limited — Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd — Xiamen Limbach Aviation Engine Co., Ltd: Numéro d’enregistrement: 1153850042246"
         props:
           address: "Fédération de Russie"
           registrationNumber: 1153850042246
@@ -4546,17 +4543,17 @@ lookups:
           - Juhang Aviation Technology Shenzhen Co. Limited
           - Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd
           - Xiamen Limbach Aviation Engine Co., Ltd
-      - match: 'Numéro d’identification fiscale: 3849055365'
+      - match: "Numéro d’identification fiscale: 3849055365"
         props:
           innCode: 3849055365
-      - match: 'Date d’enregistrement: 18.3.2021 - Entités associées: — OOO TKS Vektor, autrement connue sous le nom de LLC TSK Vektor— Xiamen Limbach Aviation Engine Co., Ltd: Numéro d’identification fiscale:  91440300MA5GN73B4F'
+      - match: "Date d’enregistrement: 18.3.2021 - Entités associées: — OOO TKS Vektor, autrement connue sous le nom de LLC TSK Vektor— Xiamen Limbach Aviation Engine Co., Ltd: Numéro d’identification fiscale:  91440300MA5GN73B4F"
         props:
           incorporationDate: 2021-03-18
           taxNumber: 91440300MA5GN73B4F
         associates:
           - OOO TKS Vektor
           - Xiamen Limbach Aviation Engine Co., Ltd
-      - match: 'Date d’enregistrement: 20.11.2012 - Entités associées: — OOO TSK Vektor, ou LLC TSK Vektor — Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd — Juhang Aviation Technology Shenzhen Co.: Numéro d’identification fiscale:  91350200051193084R'
+      - match: "Date d’enregistrement: 20.11.2012 - Entités associées: — OOO TSK Vektor, ou LLC TSK Vektor — Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd — Juhang Aviation Technology Shenzhen Co.: Numéro d’identification fiscale:  91350200051193084R"
         props:
           incorporationDate: 2012-11-20
           taxNumber: 91350200051193084R
@@ -4564,7 +4561,7 @@ lookups:
           - OOO TSK Vektor
           - Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd
           - Juhang Aviation Technology Shenzhen Co.
-      - match: 'Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 5.9.1994 - Entité associée: gérée par la United Aircraft Corporation (numéro d’enregistrement: 1067759884598): Numéro d’enregistrement: 1025900895712'
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 5.9.1994 - Entité associée: gérée par la United Aircraft Corporation (numéro d’enregistrement: 1067759884598): Numéro d’enregistrement: 1025900895712"
         props:
           jurisdiction: ru
           legalForm: société par actions
@@ -4572,51 +4569,51 @@ lookups:
           registrationNumber: 1025900895712
         associates:
           - United Aircraft Corporation
-      - match: 'NIF: 5904100329'
+      - match: "NIF: 5904100329"
         props:
           innCode: 5904100329
-      - match: 'KPP: 590401001'
+      - match: "KPP: 590401001"
         schema: Company
         props:
           kppCode: 590401001
-      - match: 'Principal établissement: Fédération de Russie - Personne associée: Tkachuk Vladimir Ilyich (directeur général): Type d’entité: société à responsabilité limitée'
+      - match: "Principal établissement: Fédération de Russie - Personne associée: Tkachuk Vladimir Ilyich (directeur général): Type d’entité: société à responsabilité limitée"
         props:
           address: "Fédération de Russie"
           legalForm: société à responsabilité limitée
         associates:
           - Tkachuk Vladimir Ilyich
-      - match: 'Type d’entité: entreprise d’État fédérale - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 23.3.2006: Numéro d’enregistrement: 1066147003658'
+      - match: "Type d’entité: entreprise d’État fédérale - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 23.3.2006: Numéro d’enregistrement: 1066147003658"
         props:
           jurisdiction: ru
           legalForm: entreprise d’État fédérale
           incorporationDate: 2006-03-23
           registrationNumber: 1066147003658
-      - match: 'Numéro d’identification fiscale: 6147025090'
+      - match: "Numéro d’identification fiscale: 6147025090"
         props:
           innCode: 6147025090
-      - match: 'KPP: 614701001'
+      - match: "KPP: 614701001"
         schema: Company
         props:
           kppCode: 614701001
-      - match: 'Type d’entité: société publique par actions - Principal établissement: Fédération de Russie'
+      - match: "Type d’entité: société publique par actions - Principal établissement: Fédération de Russie"
         props:
           jurisdiction: ru
           legalForm: société publique par actions
           address: "Fédération de Russie"
-      - match: 'Type d’entité: société par actions - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1027739137084'
+      - match: "Type d’entité: société par actions - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1027739137084"
         props:
           jurisdiction: ru
           legalForm: société par actions
           address: "Fédération de Russie"
           registrationNumber: 1027739137084
-      - match: 'Numéro d’identification fiscale: 7713011336'
+      - match: "Numéro d’identification fiscale: 7713011336"
         props:
           innCode: 7713011336
-      - match: 'KPP: 770301001'
+      - match: "KPP: 770301001"
         schema: Company
         props:
           kppCode: 770301001
-      - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Alexander Valerievich Gavrilov (directeur général) - Autres informations d’identification: Limited Liability Company Gumich RTK (filiale): Numéro d’enregistrement: 1187746509081'
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Alexander Valerievich Gavrilov (directeur général) - Autres informations d’identification: Limited Liability Company Gumich RTK (filiale): Numéro d’enregistrement: 1187746509081"
         props:
           jurisdiction: ru
           legalForm: société à responsabilité limitée
@@ -4625,10 +4622,10 @@ lookups:
         associates:
           - Alexander Valerievich Gavrilov
           - Limited Liability Company Gumich RTK (filiale)
-      - match: 'Numéro d’identification fiscale: 9709032552'
+      - match: "Numéro d’identification fiscale: 9709032552"
         props:
           innCode: 9709032552
-      - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Pavel Vladimirovich Babin (directeur général): Numéro d’enregistrement: 5157746030976'
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Pavel Vladimirovich Babin (directeur général): Numéro d’enregistrement: 5157746030976"
         props:
           jurisdiction: ru
           legalForm: société à responsabilité limitée
@@ -4636,20 +4633,20 @@ lookups:
           registrationNumber: 5157746030976
         associates:
           - Pavel Vladimirovich Babin
-      - match: 'Numéro d’identification fiscale: 7729481489'
+      - match: "Numéro d’identification fiscale: 7729481489"
         props:
           innCode: 7729481489
-      - match: 'Type d’entité: société par actions - Lieu d’enregistrement: 428903, Fédération de Russie, République de Tchouvachie, Cheboksary, p. I.Yakovleva, 4 - Date d’enregistrement: 14.10.2011 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1112130013270'
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: 428903, Fédération de Russie, République de Tchouvachie, Cheboksary, p. I.Yakovleva, 4 - Date d’enregistrement: 14.10.2011 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1112130013270"
         props:
           jurisdiction: ru
           legalForm: société par actions
           address: "428903, Fédération de Russie, République de Tchouvachie, Cheboksary, p. I.Yakovleva, 4"
           incorporationDate: 2011-10-14
           registrationNumber: 1112130013270
-      - match: 'Numéro d’identification fiscale: 2130094170'
+      - match: "Numéro d’identification fiscale: 2130094170"
         props:
           innCode: 2130094170
-      - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Samara, Fédération de Russie - Personne associée: Igor Alexandrovich Ganin (directeur général): Numéro d’enregistrement: 1056317028350'
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Samara, Fédération de Russie - Personne associée: Igor Alexandrovich Ganin (directeur général): Numéro d’enregistrement: 1056317028350"
         props:
           jurisdiction: ru
           legalForm: société à responsabilité limitée
@@ -4657,17 +4654,17 @@ lookups:
           registrationNumber: 1056317028350
         associates:
           - Igor Alexandrovich Ganin
-      - match: 'Numéro d’identification fiscale: 6317060306'
+      - match: "Numéro d’identification fiscale: 6317060306"
         props:
           innCode: 6317060306
-      - match: 'Numéro d’identification fiscale: 7722698108'
+      - match: "Numéro d’identification fiscale: 7722698108"
         props:
           innCode: 7722698108
-      - match: 'KPP: 772201001'
+      - match: "KPP: 772201001"
         schema: Company
         props:
           kppCode: 772201001
-      - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Fedor Fedorovich Potekhin (directeur général) - Autres informations d’identification: Limited Liability Company Gumich (société mère): Numéro d’enregistrement: 1227700009349'
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Personne associée: Fedor Fedorovich Potekhin (directeur général) - Autres informations d’identification: Limited Liability Company Gumich (société mère): Numéro d’enregistrement: 1227700009349"
         props:
           jurisdiction: ru
           legalForm: société à responsabilité limitée
@@ -4676,11 +4673,11 @@ lookups:
         associates:
           - Fedor Fedorovich Potekhin
           - Limited Liability Company Gumich
-      - match: 'Numéro d’identification fiscale: 9726005407'
+      - match: "Numéro d’identification fiscale: 9726005407"
         schema: Company
         props:
           innCode: 9726005407
-      - match: 'Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 25.10.2006 - Entité associée: JSC Kalashnikov Concern (société holding) (numéro d’enregistrement: 1111832003018): Numéro d’enregistrement: 1061831040688'
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 25.10.2006 - Entité associée: JSC Kalashnikov Concern (société holding) (numéro d’enregistrement: 1111832003018): Numéro d’enregistrement: 1061831040688"
         props:
           jurisdiction: ru
           legalForm: société à responsabilité limitée
@@ -4688,14 +4685,14 @@ lookups:
           registrationNumber: 1061831040688
         associates:
           - JSC Kalashnikov Concern
-      - match: 'Numéro d’identification fiscale: 1831117433'
+      - match: "Numéro d’identification fiscale: 1831117433"
         props:
           innCode: 1831117433
-      - match: 'KPP: 772501001'
+      - match: "KPP: 772501001"
         schema: Company
         props:
           kppCode: 772501001
-      - match: 'Type d’entité: société par actions - Principal établissement: Fédération de Russie - Personnes associées: Alexander Alekseevich Balashov (directeur général): Numéro d’enregistrement: 11177411001388'
+      - match: "Type d’entité: société par actions - Principal établissement: Fédération de Russie - Personnes associées: Alexander Alekseevich Balashov (directeur général): Numéro d’enregistrement: 11177411001388"
         props:
           jurisdiction: ru
           legalForm: société par actions
@@ -4703,17 +4700,17 @@ lookups:
           registrationNumber: 11177411001388
         associates:
           - Alexander Alekseevich Balashov
-      - match: 'Numéro d’identification fiscale: 7411009901'
+      - match: "Numéro d’identification fiscale: 7411009901"
         props:
           innCode: 7411009901
-      - match: 'Numéro d’identification fiscale: 2635000092'
+      - match: "Numéro d’identification fiscale: 2635000092"
         props:
           innCode: 2635000092
-      - match: 'KPP: 263501001'
+      - match: "KPP: 263501001"
         schema: Company
         props:
           kppCode: 263501001
-      - match: 'Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 28.6.2012 - Principal établissement: Fédération de Russie - Autres informations: JSC “KRET” (société associée): Numéro d’enregistrement: 1124011001058'
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 28.6.2012 - Principal établissement: Fédération de Russie - Autres informations: JSC “KRET” (société associée): Numéro d’enregistrement: 1124011001058"
         props:
           jurisdiction: ru
           legalForm: société par actions
@@ -4722,14 +4719,14 @@ lookups:
           registrationNumber: 1124011001058
         associates:
           - JSC “KRET”
-      - match: 'Numéro d’identification fiscale: 4007017378'
+      - match: "Numéro d’identification fiscale: 4007017378"
         props:
           innCode: 4007017378
-      - match: 'KPP: 400701001'
+      - match: "KPP: 400701001"
         schema: Company
         props:
           kppCode: 400701001
-      - match: 'Type d’entité: société d’État - Lieu d’enregistrement: Donetsk, Ukraine - Personne associée: Andrey Yurievich Kalyuzhny (président faisant fonction du conseil d’administration): Numéro d’enregistrement: 1229300132104'
+      - match: "Type d’entité: société d’État - Lieu d’enregistrement: Donetsk, Ukraine - Personne associée: Andrey Yurievich Kalyuzhny (président faisant fonction du conseil d’administration): Numéro d’enregistrement: 1229300132104"
         props:
           jurisdiction: ua
           legalForm: société d’État
@@ -4737,17 +4734,17 @@ lookups:
           registrationNumber: 1229300132104
         associates:
           - Andrey Yurievich Kalyuzhny
-      - match: 'Numéro d’identification fiscale: 9303024230'
+      - match: "Numéro d’identification fiscale: 9303024230"
         props:
           innCode: 9303024230
-      - match: 'Type d’entité: société par actions - Lieu d’enregistrement: 300002, Fédération de Russie, Tula, Mosina str., 2 - Date d’enregistrement: 29.8.2002 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1027100507114'
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: 300002, Fédération de Russie, Tula, Mosina str., 2 - Date d’enregistrement: 29.8.2002 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1027100507114"
         props:
           jurisdiction: ru
           legalForm: société par actions
           address: "300002, Fédération de Russie, Tula, Mosina str., 2"
           incorporationDate: 2002-08-29
           registrationNumber: 1027100507114
-      - match: 'Numéro d’identification fiscale: 7106002836'
+      - match: "Numéro d’identification fiscale: 7106002836"
         props:
           innCode: 7106002836
       - match: "Numéro d'identification fiscale: 2635000092"
@@ -4947,7 +4944,7 @@ lookups:
           registrationNumber: 1159102083238
           innCode: 9104005842
           address: "Crimée"
-      - match: "Autres entités associées: mouvement panrusse social d'État à destination des enfants et des jeunes \"Le mouvement des premiers\""
+      - match: 'Autres entités associées: mouvement panrusse social d''État à destination des enfants et des jeunes "Le mouvement des premiers"'
         associates:
           - mouvement panrusse social d'État à destination des enfants et des jeunes "Le mouvement des premiers"
       - match: "Date d'enregistrement: 18.8.2023, précédemment enregistrée sous le nom de southfront.org depuis 30.4.2015"
@@ -4959,7 +4956,7 @@ lookups:
           address: "Kirov"
           incorporationDate: 2003-06-02
           registrationNumber: 1034316578680
-      - match: "Lieu d'enregistrement: Komsomolsky Pr. 22, ville de Donetsk, district de Donetsk, soi-disant \"République populaire de Donetsk\""
+      - match: 'Lieu d''enregistrement: Komsomolsky Pr. 22, ville de Donetsk, district de Donetsk, soi-disant "République populaire de Donetsk"'
         props:
           address: "Komsomolsky Pr. 22, ville de Donetsk, district de Donetsk, soi-disant République populaire de Donetsk"
       - match: "Date du premier enregistrement: 28.2.2017"
@@ -4968,7 +4965,7 @@ lookups:
       - match: "Date d'enregistrement dans la Fédération de Russie (à la suite des référendums illégaux tenus dans les territoires occupés de l'Ukraine): 30.11.2022"
         props:
           incorporationDate: 2022-11-30
-      - match: "Principal établissement: zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant \"République populaire de Donetsk\" et \"Répub\""
+      - match: 'Principal établissement: zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant "République populaire de Donetsk" et "Répub"'
         props:
           address: "zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant République populaire de Donetsk et Répub"
       - match: "Numéro OGRN: 1027700590521"
@@ -5326,14 +5323,14 @@ lookups:
         schema: Company
         props:
           kppCode: 772801001
-      - match: "Type d'entité: entreprise unitaire d'État - Lieu d'enregistrement: Komsomolsky Pr. 22, ville de Donetsk, district de Donetsk, soi-disant \"République populaire de Donetsk\": /"
+      - match: 'Type d''entité: entreprise unitaire d''État - Lieu d''enregistrement: Komsomolsky Pr. 22, ville de Donetsk, district de Donetsk, soi-disant "République populaire de Donetsk": /'
         props:
           legalForm: entreprise unitaire d'État
           address: "Komsomolsky Pr. 22, ville de Donetsk, district de Donetsk, soi-disant République populaire de Donetsk"
       - match: "Date du premier enregistrement: 28.2.2017 - Date d'enregistrement dans la Fédération de Russie (à la suite des référendums illégaux tenus dans les territoires occupés de l'Ukraine): 30.11.2022 : /"
         props:
           incorporationDate: ["2017-02-28", "2022-11-30"]
-      - match: "Principal établissement: zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant \"République populaire de Donetsk\" et \"République populaire de Louhansk\"), de Kherson et de Zaporijjia: /"
+      - match: 'Principal établissement: zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant "République populaire de Donetsk" et "République populaire de Louhansk"), de Kherson et de Zaporijjia: /'
         props:
           address: "zones ukrainiennes qui ne sont pas sous le contrôle du gouvernement, à savoir les oblasts de Donetsk et de Louhansk (les soi-disant République populaire de Donetsk et République populaire de Louhansk), de Kherson et de Zaporijjia"
       - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 21.7.2023: /"

@@ -18,7 +18,7 @@ import orjson
 from zavod.context import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.logic.pep import categorise, OccupancyStatus
+from zavod.stateful.positions import categorise, OccupancyStatus
 from zavod.shed.internal_data import fetch_internal_data
 from zavod.shed.trans import (
     apply_translit_full_name,

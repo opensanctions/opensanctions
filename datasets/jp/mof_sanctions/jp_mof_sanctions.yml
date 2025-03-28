@@ -5,7 +5,7 @@ coverage:
   schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-10-21
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Sanctions imposed by Japan under its Foreign Exchange and Foreign Trade Law.
 description: |
@@ -48,8 +48,18 @@ data:
   url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/list.html
   format: XLSX
   lang: jpn
-dates: 
-  formats: ["%Y年%m月%d日", "%Y年%m月%d", "%Y年%m月", "%Y.%m.%d", "おおよそ%Y年", "、%Y年%m月%d", ":%Y年%m月%d", ",%Y年%m月%d"]
+dates:
+  formats:
+    [
+      "%Y年%m月%d日",
+      "%Y年%m月%d",
+      "%Y年%m月",
+      "%Y.%m.%d",
+      "おおよそ%Y年",
+      "、%Y年%m月%d",
+      ":%Y年%m月%d",
+      ",%Y年%m月%d",
+    ]
 
 assertions:
   min:
@@ -190,7 +200,7 @@ lookups:
           - 出生地
           - 出 生 地・出 身 地
         value: birth_place
-      - match: 
+      - match:
           - 国 籍
           - 国籍
         value: citizenship
@@ -239,7 +249,7 @@ lookups:
           - Philippines
           - Russia
         value: null
-      - match: 'Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com'
+      - match: "Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com"
         value: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
   type.country:
     lowercase: true
@@ -381,9 +391,9 @@ lookups:
         value: "2008-12-19"
       - match: （year unknown）
         value: null
-  type.identifier: 
+  type.identifier:
     options:
-      - match: 
+      - match:
           - アルジェリア出生証明書、１９７３年９月２５日に Mehdia, Tiaret Province, Algeria で出生した Djamel Mostefa について発行
           - （Vedensiky District, Repubic of Chechnya, Russian Federationにて、内務省により発行）
           - N°235/MISPAT/DIRCAB/DGPC/DGAEI/SI/SP、2019年3月15日発行（中央アフリカ共和国内務大臣発行）
@@ -432,7 +442,7 @@ lookups:
       - match: イラク国民ＩＤカード番号00405771、2013年5月20日にイラクにて発行（氏名のアラビア語表記：عمر محمود إرحيم الفياض）
         value: 00405771
       - match: 199110092、旅券失効日：2014年3月17日（北朝鮮旅券）；472220503、旅券失効日：2018年6月6日（北朝鮮旅券）；654220197、旅券失効日：2019年5月7日（北朝鮮旅券）
-        values: 
+        values:
           - 199110092
           - 472220503
           - 654220197
@@ -445,7 +455,7 @@ lookups:
       - match: Ｐ04838205（2018年6月10日発行（スーダン共和国バフリで発行。2023年6月9日に失効。旅券番号はモハメド・アダム・ブレマ・アブダラ（Mohamed Adam Brema Abdallah）の名義で発行。）。）
         value: P04838205
       - match: イエメン旅券17979(Ahmed Ali Abdullah Saleh名義)（下記の外交官身分証明書番号31/2013/20/003140に言及あり。）
-        values: 
+        values:
           - 17979
           - 31/2013/20/003140
       - match: アフガニスタン旅券 OR801168 （Said Jan ‘Abd al-Salamの名義で2006年2月28日に発行、2011年2月27日に失効）
@@ -464,11 +474,11 @@ lookups:
         value: A6489694
       - match: イラク国民ＩＤカード番号00813602、2011年9月18日発行（氏名のアラビア語表記：سالم مصطفى محمد ال منصور）
         value: 00813602
-  type.name: 
+  type.name:
     lowercase: true
     normalize: true
     options:
       - match: Federal State Unitary Enterprise Russian Federal Nuclear Center-Academician　E.I. Zababakhin All-Russian Scientific Research Institute of Technical Physics, RFNC - All-Russia Research Institute of Technical Physics named after Academician E.I. Zababakhin
-        values: 
+        values:
           - "Federal State Unitary Enterprise Russian Federal Nuclear Center-Academician　E.I. Zababakhin All-Russian Scientific Research Institute of Technical Physics"
           - RFNC - All-Russia Research Institute of Technical Physics named after Academician E.I. Zababakhin

@@ -4,7 +4,7 @@ prefix: us-medca
 coverage:
   frequency: daily
   start: "2024-11-07"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers suspended from or otherwise deemed ineligible to participate in California's Medicaid program.
 description: |
@@ -49,9 +49,9 @@ description: |
 publisher:
   name: Department of Health Care Services
   description: >
-   The Department of Health Care Services (DHCS) is a department within the California Health and
-   Human Services Agency that finances and administers a number of individual health care service
-   delivery programs, including Medi-Cal, which provides health care services to low-income people.
+    The Department of Health Care Services (DHCS) is a department within the California Health and
+    Human Services Agency that finances and administers a number of individual health care service
+    delivery programs, including Medi-Cal, which provides health care services to low-income people.
   acronym: DHCS
   url: https://www.dhcs.ca.gov
   official: true

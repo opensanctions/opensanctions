@@ -4,7 +4,7 @@ prefix: dk-pep
 coverage:
   frequency: weekly
   start: "2024-05-13"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Official PEP list for Denmark, Faroe Islands and Greenland
 description: |

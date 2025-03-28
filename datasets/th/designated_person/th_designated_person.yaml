@@ -4,7 +4,7 @@ prefix: th-des
 coverage:
   frequency: daily
   start: 2024-04-15
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >
   Designation of persons suspected to be connected with terrorism or terrorism financing
@@ -32,7 +32,7 @@ url: "https://amlo.go.th/index.php/en/high-risk-countries-designated-list/2016-0
 data:
   url: https://aps.amlo.go.th/aps/public/thailandlist/search?un_name=&un_registration_number=&passport_no=&un_id=
   format: HTML
-dates: 
+dates:
   formats: ["%d-%m-%Y"]
 
 assertions:

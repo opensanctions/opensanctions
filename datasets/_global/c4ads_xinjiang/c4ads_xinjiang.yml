@@ -4,7 +4,7 @@ prefix: c4-xj
 coverage:
   frequency: monthly
   start: 2024-12-19
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >-
   Companies linked to the Xinjiang Production and Construction Corps (XPCC)

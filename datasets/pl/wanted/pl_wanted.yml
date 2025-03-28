@@ -6,7 +6,7 @@ prefix: pl-wanted
 coverage:
   frequency: daily
   start: 2025-02-06
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Wanted and suspect persons list of the Police of Poland
 description: |
@@ -26,7 +26,7 @@ data:
   url: https://poszukiwani.policja.gov.pl/pos/form/5,Poszukiwani.html
   format: HTML
   lang: pol
-ci_test: false  # It's too slow to visit 50k pages in CI
+ci_test: false # It's too slow to visit 50k pages in CI
 
 assertions:
   min:
@@ -48,12 +48,12 @@ lookups:
   type.country:
     options:
       - match:
-          - NIEUSTALONE  # unknown
-          - BEZPAŃSTWOWIEC  # stateless
+          - NIEUSTALONE # unknown
+          - BEZPAŃSTWOWIEC # stateless
         value:
       - match: BEZPAŃSTWOWIEC ESTONIA
         value: EE
-      - match: RPA  # REPUBLIKA POŁUDNIOWEJ AFRYKI
+      - match: RPA # REPUBLIKA POŁUDNIOWEJ AFRYKI
         value: ZA
       - match: CEJLON
         value: LK

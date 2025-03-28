@@ -4,7 +4,7 @@ prefix: no-nbim
 coverage:
   frequency: daily
   start: 2023-10-18
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Companies excluded from investment by Norway's Government Pension Fund Global, or listed for observation.
 description: |
@@ -42,7 +42,7 @@ publisher:
 data:
   url: https://www.nbim.no/en/responsible-investment/ethical-exclusions/exclusion-of-companies/
   format: HTML
-dates: 
+dates:
   formats: ["%d.%m.%Y"]
 
 assertions:
