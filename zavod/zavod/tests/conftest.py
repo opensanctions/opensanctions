@@ -12,6 +12,7 @@ from zavod.entity import Entity
 from zavod.db import get_engine, meta
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.integration import get_resolver
+from zavod.stateful.model import create_db
 
 nk_settings.TESTING = True
 settings.DATA_PATH = Path(mkdtemp()).resolve()
@@ -38,6 +39,7 @@ def wrap_test():
     shutil.rmtree(settings.ARCHIVE_PATH, ignore_errors=True)
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
     settings.DATA_PATH = Path(mkdtemp()).resolve()
+    create_db()
     yield
     get_catalog.cache_clear()
     get_engine.cache_clear()
