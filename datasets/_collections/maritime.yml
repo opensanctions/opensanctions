@@ -1,0 +1,39 @@
+type: collection
+title: Maritime-related sanctions
+hidden: true
+deploy:
+  memory: "2000Mi"
+  disk: "100Gi"
+coverage:
+  frequency: daily
+  start: "2025-03-30"
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - senzing.json
+resolve: false
+summary: >
+  A shipping-focussed data subset for screening vessels and owners against sanctions.
+description: |
+  ...
+children:
+  - ua_war_sanctions
+  - us_ofac_sdn
+  - us_ofac_cons
+  - us_trade_csl
+  - kp_rusi_reports
+  - ch_seco_sanctions
+  - gb_fcdo_sanctions
+  - eu_journal_sanctions
+  - eu_fsf
+  - eu_sanctions_map
+  - ca_dfatd_sema_sanctions
+  # - ann_graph_topics
+  - un_1718_vessels
+  - fr_tresor_gels_avoir
+  - mc_fund_freezes
+  - gb_hmt_sanctions
+  - us_cbp_forced_labor
+  - be_fod_sanctions
+  - ae_local_terrorists
+ci_test: false
