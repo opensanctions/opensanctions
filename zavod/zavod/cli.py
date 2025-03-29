@@ -6,6 +6,7 @@ from typing import Optional, List
 
 from followthemoney.cli.util import InPath, OutPath
 from nomenklatura.tui import dedupe_ui
+from nomenklatura.settings import STATEMENT_BATCH
 from nomenklatura.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
 
@@ -190,7 +191,7 @@ def run(
 
 @cli.command("load-db", help="Load dataset statements from the archive into a database")
 @click.argument("dataset_path", type=InPath)
-@click.option("--batch-size", type=int, default=settings.DB_BATCH_SIZE)
+@click.option("--batch-size", type=int, default=STATEMENT_BATCH)
 @click.option("-x", "--external", is_flag=True, default=False)
 def load_db(
     dataset_path: Path,
