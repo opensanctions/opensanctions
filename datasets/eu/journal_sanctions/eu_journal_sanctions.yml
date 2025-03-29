@@ -56,6 +56,10 @@ lookups:
         value: 2003-01-03
       - match: ", previously registered as southfront.org since 30.4.2015"
         value: 2015-04-30
+      - match: "Approximately 1977"
+        value: 1977
+      - match: "Between Aug. and Sep. 1977"
+        value: 1977-08
   type.identifier:
     options:
       - match:

@@ -1,7 +1,7 @@
 from nomenklatura.resolver import Linker
 from nomenklatura.statement.db import insert_dataset
+from nomenklatura.settings import STATEMENT_BATCH
 
-from zavod import settings
 from zavod.db import get_engine
 from zavod.logs import get_logger
 from zavod.meta import Dataset
@@ -15,7 +15,7 @@ log = get_logger(__name__)
 def load_dataset_to_db(
     scope: Dataset,
     linker: Linker[Entity],
-    batch_size: int = settings.DB_BATCH_SIZE,
+    batch_size: int = STATEMENT_BATCH,
     external: bool = True,
 ) -> None:
     """Load a dataset into a database given as a URI. This will delete all

@@ -123,6 +123,7 @@ lookups:
           - transfeminine
           - non-binary woman
           - female organism
+          - feminine
         value: female
       - match:
           - genderfluid
