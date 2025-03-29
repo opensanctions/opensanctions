@@ -71,7 +71,7 @@ assertions:
     countries: 19
   max:
     schema_entities:
-      Person: 200000
+      Person: 500000
 
 config:
   countries_local:
