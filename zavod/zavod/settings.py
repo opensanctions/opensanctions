@@ -92,9 +92,6 @@ DATABASE_URI = f"sqlite:///{DATA_PATH.joinpath('zavod.sqlite3').as_posix()}"
 DATABASE_URI = env.get("ZAVOD_DATABASE_URI", DATABASE_URI)
 DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
 
-# Load DB batch size
-DB_BATCH_SIZE = int(env_str("ZAVOD_DB_BATCH_SIZE", "1000"))
-
 # pywikibot settings for editing Wikidata
 WD_CONSUMER_TOKEN = env.get("ZAVOD_WD_CONSUMER_TOKEN")
 WD_CONSUMER_SECRET = env.get("ZAVOD_WD_CONSUMER_SECRET")
