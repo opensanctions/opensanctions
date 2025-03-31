@@ -55,6 +55,10 @@ lookups:
         values:
           - 'www.excentral-int.com'
           - 'https://excentral-int.net/'
+      - match: 'Pro Markets: www.promarketsonline.com Primecapitec: www.primecapitec.com'
+        values:
+          - 'www.promarketsonline.com'
+          - 'www.primecapitec.com'
       - match: Company com
         value: null
   type.address:
