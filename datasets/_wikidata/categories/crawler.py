@@ -22,7 +22,7 @@ QUERY = {
     "sortorder": "ascending",
 }
 # TEMP: We're starting to include municipal PEPs for specific countries
-MUNI_COUNTRIES = {"us", "fr", "gb", "ru", "is"}
+MUNI_COUNTRIES = {"us", "fr", "gb", "ru", "is", "kr", "by", "ua", "za"}
 # That one time a PEP customer asked to be included....
 ALWAYS_PERSONS = ["Q21258544"]
 
