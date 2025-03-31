@@ -6,7 +6,7 @@ coverage:
   schedule: "@monthly"
   start: 2024-05-02
   end: 2024-07-09
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   A list of companies whose products and/or services are excluded from
   procurement by acts of Congress
@@ -35,7 +35,7 @@ description: |
   reports Foreign Persons who have Knowingly Engaged in Actions that Undermine Democratic 
   Processes or Institutions, Significant Corruption, or Obstruction of Investigations Into 
   Such Acts of Corruption in El Salvador, Guatemala, Honduras, and Nicaragua. 
-  
+
   Since the December 2023 expiration of the Section 353 sanctions authority, individuals 
   designated under the act have been eligible to apply for new visas.
   [Source: Congressional Research Service](https://crsreports.congress.gov/product/pdf/IF/IF12486#:~:text=117%2D54)%2C%20requires%20the,into%20such%20acts%20of%20corruption%2C%20requires%20the,into%20such%20acts%20of%20corruption))
@@ -58,5 +58,5 @@ data:
   format: CSV
   lang: eng
 
-dates: 
+dates:
   formats: ["%Y", "%B %Y"]

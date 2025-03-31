@@ -4,7 +4,7 @@ prefix: is-par
 coverage:
   frequency: daily
   start: 2024-06-20
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Members of the Iceland parliament, known as the Althingi
 description: |
@@ -28,7 +28,7 @@ data:
   lang: eng
 ci_test: false
 
-dates: 
+dates:
   formats: ["Date of Birth: %B %d, %Y"]
 assertions:
   min:

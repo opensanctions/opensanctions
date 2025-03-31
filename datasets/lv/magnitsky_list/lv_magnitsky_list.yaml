@@ -8,12 +8,12 @@ summary: >-
 coverage:
   frequency: daily
   start: 2024-07-09
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 description: |
-    The dataset contains information on individuals targeted by the Republic of Latvia for serious 
-    human rights violations, corruption, and other crimes. Inspired by international precedents, including the US, 
-    Estonia, Canada, the UK, and Lithuania, Latvia aims to implement targeted sanctions such as travel bans and asset 
-    freezes. The goal is to prevent these individuals from entering Latvia, designating them as persona non grata.
+  The dataset contains information on individuals targeted by the Republic of Latvia for serious 
+  human rights violations, corruption, and other crimes. Inspired by international precedents, including the US, 
+  Estonia, Canada, the UK, and Lithuania, Latvia aims to implement targeted sanctions such as travel bans and asset 
+  freezes. The goal is to prevent these individuals from entering Latvia, designating them as persona non grata.
 publisher:
   name: Legal Acts Of The Republic Of Latvia
   acronym: LIKUMI

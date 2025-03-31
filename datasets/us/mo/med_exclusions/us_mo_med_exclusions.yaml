@@ -4,7 +4,7 @@ prefix: us-medmo
 coverage:
   frequency: daily
   start: "2024-11-15"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers suspended from Missouri's Medicaid program.
 description: |
@@ -42,7 +42,7 @@ assertions:
     schema_entities:
       LegalEntity: 300
 lookups:
-  type.identifier: 
+  type.identifier:
     options:
       - match: 1922096211
         value: 1922096221

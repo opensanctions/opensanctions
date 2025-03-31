@@ -4,25 +4,25 @@ prefix: gg-gfsc
 coverage:
   frequency: daily
   start: "2024-07-26"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   List of individuals disqualified as company directors or prohibited from specific functions 
-  by the Guernsey Financial Services Commission. 
+  by the Guernsey Financial Services Commission.
 description: |
   This dataset includes two separate lists: one of individuals disqualified from being company 
   directors under the Companies (Guernsey) Law 2008, and another of prohibition orders issued 
   by the Guernsey Financial Services Commission, detailing individuals prohibited from specific 
   functions since 1 November 2021.
-  
+
   Disqualified directors are sourced from the [Guernsey Registry](https://www.guernseyregistry.com/article/4036/Disqualified-Directors).
 publisher:
   name: Guernsey Financial Services Commission
   acronym: GFSC
   description: |
-   The Guernsey Financial Services Commission (GFSC) is the regulatory body for the finance industry
-   in the Bailiwick of Guernsey. The GFSC is an independent public body funded entirely by the fees 
-   charged to the licensees it regulates and is accountable to the States of Guernsey, which oversees 
-   the Bailiwick's financial services industry and regulatory framework.
+    The Guernsey Financial Services Commission (GFSC) is the regulatory body for the finance industry
+    in the Bailiwick of Guernsey. The GFSC is an independent public body funded entirely by the fees 
+    charged to the licensees it regulates and is accountable to the States of Guernsey, which oversees 
+    the Bailiwick's financial services industry and regulatory framework.
   url: https://www.gfsc.gg
   official: true
   country: "gg"
@@ -31,7 +31,7 @@ data:
   url: https://www.guernseyregistry.com/article/4036/Disqualified-Directors
   format: HTML
 
-dates: 
+dates:
   formats: ["%d.%m.%Y", "%d %B %Y", "%d/%m/%Y"]
 assertions:
   min:

@@ -1,12 +1,24 @@
-from normality import collapse_spaces, slugify
+import logging
+import subprocess
 from pathlib import Path
-from pdfplumber.page import Page
 from tempfile import mkdtemp
 from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
+
 import pdfplumber
-import subprocess
+from normality import collapse_spaces, slugify
+from pdfplumber.page import Page
 
 from zavod.context import Context
+
+
+class IgnoredWarnings(logging.Filter):
+    msg = "CropBox missing from /Page, defaulting to MediaBox"
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.getMessage() != self.msg
+
+
+logging.getLogger("pdfminer.pdfpage").addFilter(IgnoredWarnings())
 
 
 def make_pdf_page_images(pdf_path: Path) -> List[Path]:

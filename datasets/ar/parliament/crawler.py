@@ -3,7 +3,7 @@ from rigour.mime.types import HTML
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 
 def _extract_text(element, xpath_query):

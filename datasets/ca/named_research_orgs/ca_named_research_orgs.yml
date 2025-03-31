@@ -4,7 +4,7 @@ prefix: ca-nro
 coverage:
   frequency: daily
   start: 2024-01-22
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   List of universities, research institutes
   and/or laboratories connected to military, national defence, or state security

@@ -5,7 +5,7 @@ coverage:
   frequency: daily
   schedule: "0 */12 * * *"
   start: "2022-07-12"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   The US banking regulator OCC publishes a list of companies and individuals
   against which punitive measures have been applied.
@@ -33,7 +33,7 @@ data:
   url: "https://apps.occ.gov/EASearch/Search/ExportToJSON?Search=&StartDateMinimum=&StartDateMaximum=&TerminationDateMinimum=&TerminationDateMaximum=&ShowIndividualActionsOnly=false&ShowInstitutionActionsOnly=false&ShowTerminatedActionsOnly=false&ShowActiveOnly=false&Category=&Sort=BankName&AutoCompleteSelection=&CurrentPageIndex=0&ItemsPerPage=10&view=Table&IsAdvanced=true"
   format: JSON
   lang: eng
-dates: 
+dates:
   formats: ["%m/%d/%Y"]
 
 assertions:

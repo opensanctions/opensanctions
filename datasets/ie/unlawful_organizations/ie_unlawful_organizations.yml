@@ -2,7 +2,7 @@ title: Ireland Unlawful Organisation (Suppression) Orders
 url: https://www.irishstatutebook.ie/eli/ResultsTitle.html?q=unlawful+organisation&search_type=all
 entry_point: crawler.py
 prefix: ie-eisb
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 coverage:
   frequency: monthly
   start: 2024-07-11
@@ -18,7 +18,7 @@ description: |
   targets the Irish Republican Army (IRA), also known as Oglaigh na héireann.
   Both orders mandate the suppression of these organisations in the public interest.
 publisher:
-  name: electronic Irish Statute Book 
+  name: electronic Irish Statute Book
   acronym: eISB
   official: true
   description: |

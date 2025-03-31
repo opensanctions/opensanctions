@@ -9,7 +9,7 @@ coverage:
 deploy:
   memory: "2000Mi"
   schedule: "@monthly"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   All members of national legislatures in the world, collected from hundreds of
   government web sites and consolidated via Wikidata.

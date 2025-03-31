@@ -4,7 +4,7 @@ prefix: us-medwy
 coverage:
   frequency: daily
   start: "2024-10-16"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers deemed ineligible to participate in Wyoming's Medicaid program.
 description: |

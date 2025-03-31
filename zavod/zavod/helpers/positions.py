@@ -5,7 +5,11 @@ from datetime import datetime
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod import settings, helpers as h
-from zavod.logic.pep import occupancy_status, OccupancyStatus, PositionCategorisation
+from zavod.stateful.positions import (
+    occupancy_status,
+    OccupancyStatus,
+    PositionCategorisation,
+)
 
 
 def make_position(

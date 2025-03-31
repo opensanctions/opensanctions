@@ -6,7 +6,7 @@ coverage:
   schedule: "@monthly"
   start: "2024-12-13"
   end: "2018-03-08"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Joint ventures between entities in North Korea and other countries to be considered trade risk.
 description: |
@@ -19,11 +19,11 @@ description: |
 
   This advisory includes a list of joint ventures with partners from China and other countries.
   We make this list of joint ventures available as a dataset of entities with noteworthy trade risk.
-  
+
   The UN Security Council resolution 2375 requires Member States to prohibit all joint
   ventures with North Korean entities and individuals, whether new or already existing, 
   subject to very narrow exceptions.
-  
+
   According to the advisory:
 
   > NOTE: This annex lists joint ventures that have operated or are currently operating in

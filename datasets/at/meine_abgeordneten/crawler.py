@@ -8,7 +8,7 @@ from normality import collapse_spaces
 from requests import HTTPError
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import OccupancyStatus, categorise
+from zavod.stateful.positions import OccupancyStatus, categorise
 
 PARTY_NAMES = defaultdict(int)
 PARTY_REGEX = re.compile(r"(\([\w ]+\)|, [\w ]+$)")

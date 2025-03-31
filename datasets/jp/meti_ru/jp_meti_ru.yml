@@ -4,10 +4,10 @@ prefix: jp-meti-ru
 coverage:
   frequency: never
   start: 2025-03-18
-  end: 2025-03-14  # last update of the spreadsheet
+  end: 2025-03-14 # last update of the spreadsheet
 deploy:
   schedule: "@weekly"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Export and service restrictions to Russia, Belarus, and designated third-country entities 
   under Japan's Foreign Exchange and Foreign Trade Law.
@@ -32,7 +32,7 @@ url: https://www.meti.go.jp/policy/external_economy/trade_control/02_export/17_r
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSk-oy6G0e2huA2kjskWcDhgcrEKj6ePUISsqnCEfOFptVbZO2XN12V5up3FQhH7oqWwtryTTRMTnyG/pub?output=csv
   format: CSV
-dates: 
+dates:
   formats: ["%Y年%m月%d日", "%Y 年%m 月%d 日"]
 
 assertions:
@@ -42,25 +42,25 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 900
-  
+
 lookups:
   type.name:
-    options: 
+    options:
       - match: The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located
-        values: 
+        values:
           - The Ministry of Defence of the Republic of Belarus
           - Armed Forces of Belarus
       - match: National Armed Services (Army and Air Force) of the Republic of Belarus
-        values: 
+        values:
           - National Armed Services of the Republic of Belarus
           - Army of Belarus
           - Air Force of Belarus
       - match: National Guard and National Police of the Republic of Belarus
-        values: 
+        values:
           - National Guard of Belarus
           - National Police of Belarus
       - match: Government Intelligence or Reconnaissance Organizations of the Republic of Belarus
-        values: 
+        values:
           - State Security Committee of the Republic of Belarus (KGB RB)
           - Operations and Analysis Center under the President of the Republic of Belarus
       - match: Ministry of Defence of the Russian Federation, including the Armed Forces of Russia and all operating units wherever located
@@ -76,32 +76,32 @@ lookups:
           - Air Force of Russia
           - Coast Guard of Russia
       - match: National Guard and National Police of the Russian Federation
-        values: 
+        values:
           - National Guard of Russia
           - National Police of Russia
       - match: Government Intelligence or Reconnaissance Organizations of the Russian Federation
-        values: 
+        values:
           - SVR (Foreign Intelligence Service of Russia)
           - FSB (Federal Security Service of Russia)
           - GRU (Main Directorate of the General Staff, Russian Federation)
-  type.address: 
+  type.address:
     options:
-      - match: '84, Deep Towers, EPIP Industrial Area, Whitefield, Bangalore, Karnataka, 560066, India; #52/A, 1st Cross, 3rd Main KIADB Industrial Area, Hoskote, Bangalore, Karnataka, 562114, India; 3796, 7th Main, Hal II Stage, Bangalore, Karnataka, 560008, India; 493/3 Bramhalingeshwara Complex, Airport Road, Bangalore, Karnataka, 560008, India;'
-        values: 
+      - match: "84, Deep Towers, EPIP Industrial Area, Whitefield, Bangalore, Karnataka, 560066, India; #52/A, 1st Cross, 3rd Main KIADB Industrial Area, Hoskote, Bangalore, Karnataka, 562114, India; 3796, 7th Main, Hal II Stage, Bangalore, Karnataka, 560008, India; 493/3 Bramhalingeshwara Complex, Airport Road, Bangalore, Karnataka, 560008, India;"
+        values:
           - 84, Deep Towers, EPIP Industrial Area, Whitefield, Bangalore, Karnataka, 560066, India
           - 52/A, 1st Cross, 3rd Main KIADB Industrial Area, Hoskote, Bangalore, Karnataka, 562114, India
           - 3796, 7th Main, Hal II Stage, Bangalore, Karnataka, 560008, India
           - 493/3 Bramhalingeshwara Complex, Airport Road, Bangalore, Karnataka, 560008, India
       - match: Room 13, 27/F, Ho King Commercial Centre, 2-16 Fa Yuen Street, Mongkok, Kowloon, Hong Kong, China; Room 803, Chevalier House,45-51 Chatham Road South, Tsim Sha Tsui, Kowloon, Hong Kong, China; Room 2901B,Bank of Communications, Futian District, Shenzhen, Guangdong, China; 3 Garden Road Central, Hong Kong, China; Unit 3, 6/F, Kam Hon Industrial Building,8 Wang Kwun Road, Kowloon Bay, Hong Kong, China; Room 1901H, Bank of Communications Building, Futian District, Shenzhen, Guangdong, China;
-        values: 
+        values:
           - Room 13, 27/F, Ho King Commercial Centre, 2-16 Fa Yuen Street, Mongkok, Kowloon, Hong Kong, China
           - Room 803, Chevalier House,45-51 Chatham Road South, Tsim Sha Tsui, Kowloon, Hong Kong, China
           - Room 2901B,Bank of Communications, Futian District, Shenzhen, Guangdong, China
           - 3 Garden Road Central, Hong Kong, China
           - Unit 3, 6/F, Kam Hon Industrial Building,8 Wang Kwun Road, Kowloon Bay, Hong Kong, China
           - Room 1901H, Bank of Communications Building, Futian District, Shenzhen, Guangdong, China
-      - match: 'Room 705, 7/F. Fa Yuen Commercial Building, No. 75-77, Fa Yuen Street, Mong Kok, Kowloon, Hong Kong, China; 18E, Building 2, China Phoenix Building, Shennan Road, Futian District,Shenzhen,518000, China; No.59 King Yip Street, King Yip Factory Building, 5th Floor, Unit D5, Kwun Tong, Kowloon, Hong Kong, China; Shennan Middle Road, International Culture Building, Room 2508B, Futian District, Shenzhen, Guangdong, China; Kwun Tong Industrial Center Phase 3, 3rd Floor, Unit L, Kwun Tong, Kowloon, Hong Kong, China; Nos.436–446 Kwun Tong Road, 13th Floor, Unit A15, Kowloon, Hong Kong, China; Shennan Road, Phoenix Building 2, Room 18E, Futian District, Shenzhen, Guangdong, China; Lianqiu Building, No.735 Renmin West Road, Wucheng District, Jinhua, Zhejiang, China;'
-        values: 
+      - match: "Room 705, 7/F. Fa Yuen Commercial Building, No. 75-77, Fa Yuen Street, Mong Kok, Kowloon, Hong Kong, China; 18E, Building 2, China Phoenix Building, Shennan Road, Futian District,Shenzhen,518000, China; No.59 King Yip Street, King Yip Factory Building, 5th Floor, Unit D5, Kwun Tong, Kowloon, Hong Kong, China; Shennan Middle Road, International Culture Building, Room 2508B, Futian District, Shenzhen, Guangdong, China; Kwun Tong Industrial Center Phase 3, 3rd Floor, Unit L, Kwun Tong, Kowloon, Hong Kong, China; Nos.436–446 Kwun Tong Road, 13th Floor, Unit A15, Kowloon, Hong Kong, China; Shennan Road, Phoenix Building 2, Room 18E, Futian District, Shenzhen, Guangdong, China; Lianqiu Building, No.735 Renmin West Road, Wucheng District, Jinhua, Zhejiang, China;"
+        values:
           - Room 705, 7/F. Fa Yuen Commercial Building, No. 75-77, Fa Yuen Street, Mong Kok, Kowloon, Hong Kong, China
           - 18E, Building 2, China Phoenix Building, Shennan Road, Futian District,Shenzhen,518000, China
           - No.59 King Yip Street, King Yip Factory Building, 5th Floor, Unit D5, Kwun Tong, Kowloon, Hong Kong, China
@@ -111,7 +111,7 @@ lookups:
           - Shennan Road, Phoenix Building 2, Room 18E, Futian District, Shenzhen, Guangdong, China
           - Lianqiu Building, No.735 Renmin West Road, Wucheng District, Jinhua, Zhejiang, China
       - match: "50 Olimpiyskiy Prospekt, Mytishchi, Moscow Oblast, 141006, Russia; 24 Mel'nichnyy pereulok, Voronezh, 394030, Russia;\n249 Krasnykh Partizan St., Office 209/2, Krasnodar, 350047, Russia; and\n39 Molodogvardeysky Lane, Office 2, Rostov-on-Don, 344029, Russia."
-        values: 
+        values:
           - 50 Olimpiyskiy Prospekt, Mytishchi, Moscow Oblast, 141006, Russia
           - 24 Mel'nichnyy pereulok, Voronezh, 394030, Russia
           - 249 Krasnykh Partizan St., Office 209/2, Krasnodar, 350047, Russia

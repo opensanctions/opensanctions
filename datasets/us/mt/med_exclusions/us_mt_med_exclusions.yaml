@@ -4,7 +4,7 @@ prefix: us-medmt
 coverage:
   frequency: daily
   start: "2024-09-26"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers excluded or terminated from Montana's Medicaid program.
 description: |
@@ -29,7 +29,6 @@ data:
 
 dates:
   formats: ["%m/%d/%Y"]
-
 
 assertions:
   min:

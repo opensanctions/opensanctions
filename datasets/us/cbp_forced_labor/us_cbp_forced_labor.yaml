@@ -2,7 +2,7 @@ title: "US CBP Withhold Release Orders and Findings"
 url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
 entry_point: crawler.py
 prefix: us-cbpfl
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 coverage:
   frequency: daily
   start: 2024-08-16
@@ -27,7 +27,7 @@ data:
   format: html
 ci_test: false
 
-dates: 
+dates:
   formats: ["%m/%d/%Y"]
 assertions:
   min:
@@ -37,205 +37,205 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 70
-      Vessel: 10 
+      Vessel: 10
 
 lookups:
   name:
     normalize: true
     options:
-      - match: 'Shanghai Select Safety Products Company, Limited and its two subsidiaries from China, Select (Nantong) Safety Products Co. Limited and Select Protective Technology (HK) Limited.'
-        entities: 
+      - match: "Shanghai Select Safety Products Company, Limited and its two subsidiaries from China, Select (Nantong) Safety Products Co. Limited and Select Protective Technology (HK) Limited."
+        entities:
           - name: Shanghai Select Safety Products Company, Limited
           - name: Select (Nantong) Safety Products Co. Limited
           - name: Select Protective Technology (HK) Limited
-      - match: 'Hoshine Silicon Industry Co. Ltd. and Subsidiaries'
-        entities: 
+      - match: "Hoshine Silicon Industry Co. Ltd. and Subsidiaries"
+        entities:
           - name: Hoshine Silicon Industry Co. Ltd.
             notes: and Subsidiaries
-      - match: 'Xinjiang Uyghur Autonomous Region (XUAR)'
-        entities: 
+      - match: "Xinjiang Uyghur Autonomous Region (XUAR)"
+        entities:
           - name: Xinjiang Uyghur Autonomous Region (XUAR)
-      - match: 'Xinjiang Production and Construction Corporation (XPCC) and its subordinates'
-        entities: 
+      - match: "Xinjiang Production and Construction Corporation (XPCC) and its subordinates"
+        entities:
           - name: Xinjiang Production and Construction Corporation (XPCC)
-      - match: 'Hefei Bitland Information Technology Co., Ltd.'
-        entities: 
+      - match: "Hefei Bitland Information Technology Co., Ltd."
+        entities:
           - name: Hefei Bitland Information Technology Co., Ltd.
-      - match: 'Xinjiang Junggar Cotton and Linen Co., Ltd.'
-        entities: 
+      - match: "Xinjiang Junggar Cotton and Linen Co., Ltd."
+        entities:
           - name: Xinjiang Junggar Cotton and Linen Co., Ltd.
-      - match: 'Yili Zhuowan Garment Manufacturing Co., Ltd. and Baoding LYSZD Trade and Business Co., Ltd.'
-        entities: 
+      - match: "Yili Zhuowan Garment Manufacturing Co., Ltd. and Baoding LYSZD Trade and Business Co., Ltd."
+        entities:
           - name: Yili Zhuowan Garment Manufacturing Co., Ltd.
           - name: Baoding LYSZD Trade and Business Co., Ltd.
-      - match: 'No. 4 Vocational Skills Education Training Center (VSETC)'
-        entities: 
+      - match: "No. 4 Vocational Skills Education Training Center (VSETC)"
+        entities:
           - name: No. 4 Vocational Skills Education Training Center (VSETC)
-      - match: 'Lop County Hair Product Industrial Park'
-        entities: 
-          - name: Lop County Hair Product Industrial Park 
-      - match: 'Hero Vast Group'
-        entities: 
+      - match: "Lop County Hair Product Industrial Park"
+        entities:
+          - name: Lop County Hair Product Industrial Park
+      - match: "Hero Vast Group"
+        entities:
           - name: Hero Vast Group
-      - match: 'Lop County Meixin Hair Products Co., Ltd.'
-        entities: 
+      - match: "Lop County Meixin Hair Products Co., Ltd."
+        entities:
           - name: Lop County Meixin Hair Products Co., Ltd.
-      - match: 'Hetian Haolin Hair Accessories Co., Ltd.'
-        entities: 
+      - match: "Hetian Haolin Hair Accessories Co., Ltd."
+        entities:
           - name: Hetian Haolin Hair Accessories Co., Ltd.
-      - match: 'Hetian Taida Apparel Co., Ltd.'
-        entities: 
+      - match: "Hetian Taida Apparel Co., Ltd."
+        entities:
           - name: Hetian Taida Apparel Co., Ltd.
-      - match: 'Huizhou Mink Industrial CO. LTD.'
-        entities: 
+      - match: "Huizhou Mink Industrial CO. LTD."
+        entities:
           - name: Huizhou Mink Industrial CO. LTD.
-      - match: 'Hongchang Fruits & Vegetable Products Co., Ltd.'
-        entities: 
+      - match: "Hongchang Fruits & Vegetable Products Co., Ltd."
+        entities:
           - name: Hongchang Fruits & Vegetable Products Co., Ltd.
-      - match: 'Inner Mongolia Hengzheng Group Baoanzhao Agricultural and Trade LLC'
-        entities: 
+      - match: "Inner Mongolia Hengzheng Group Baoanzhao Agricultural and Trade LLC"
+        entities:
           - name: Inner Mongolia Hengzheng Group Baoanzhao Agricultural and Trade LLC
-      - match: 'Tangshan Sanyou Group and its Subsidiaries'
-        entities: 
+      - match: "Tangshan Sanyou Group and its Subsidiaries"
+        entities:
           - name: Tangshan Sanyou Group
             notes: and its Subsidiaries
-      - match: 'Tianjin Malleable Iron Factory, a/k/a Tianjin Tongbao Fittings Company, a/k/a Tianjin No. 2 Malleable Iron Plant, a/k/a Tianjin Secondary Mugging Factory, a/k/a Tianjin No. 2 Prison'
-        entities: 
+      - match: "Tianjin Malleable Iron Factory, a/k/a Tianjin Tongbao Fittings Company, a/k/a Tianjin No. 2 Malleable Iron Plant, a/k/a Tianjin Secondary Mugging Factory, a/k/a Tianjin No. 2 Prison"
+        entities:
           - name: Tianjin Malleable Iron Factory
-            alias: 
+            alias:
               - Tianjin Tongbao Fittings Company
               - Tianjin No. 2 Malleable Iron Plant
               - Tianjin Secondary Mugging Factory
               - Tianjin No. 2 Prison
-      - match: 'Nanhu Tree Farm, Zhejiang Sanmei Tea Co., Ltd.; Imaizumi Tea Manufacturing & Trading Co., Ltd. (of Nagoya, Japan)'
-        entities: 
+      - match: "Nanhu Tree Farm, Zhejiang Sanmei Tea Co., Ltd.; Imaizumi Tea Manufacturing & Trading Co., Ltd. (of Nagoya, Japan)"
+        entities:
           - name: Nanhu Tree Farm, Zhejiang Sanmei Tea Co., Ltd.
           - name: Imaizumi Tea Manufacturing & Trading Co., Ltd.
             address: Nagoya, Japan
             country: Japan
-      - match: 'Guangzhou No. 1 Reeducation-Through-Labor Camp, a/k/a Guangdong Province No. 1 Reeducation-Through-Labor Camp; Kwong Ngai Industrial Company'
-        entities: 
+      - match: "Guangzhou No. 1 Reeducation-Through-Labor Camp, a/k/a Guangdong Province No. 1 Reeducation-Through-Labor Camp; Kwong Ngai Industrial Company"
+        entities:
           - name: Guangzhou No. 1 Reeducation-Through-Labor Camp
             alias:
               - Guangdong Province No. 1 Reeducation-Through-Labor Camp
               - Kwong Ngai Industrial Company
-      - match: 'Shenyang Xinsheng (New Life) Chemical Works, a/k/a Shenyang Dongbei Assistant Agent Main Factory, a/k/a Xinsheng Chemical Factory, a/k/a Shenyang No. 1 Laogai Detachment, a/k/a Shenyang Reform Through Labor Second Reform Division'
-        entities: 
+      - match: "Shenyang Xinsheng (New Life) Chemical Works, a/k/a Shenyang Dongbei Assistant Agent Main Factory, a/k/a Xinsheng Chemical Factory, a/k/a Shenyang No. 1 Laogai Detachment, a/k/a Shenyang Reform Through Labor Second Reform Division"
+        entities:
           - name: Shenyang Xinsheng (New Life) Chemical Works
             alias:
               - Shenyang Dongbei Assistant Agent Main Factory
               - Xinsheng Chemical Factory
               - Shenyang No. 1 Laogai Detachment
               - Shenyang Reform Through Labor Second Reform Division
-      - match: 'Shenyang New Life Rubber Factory, a/k/a Shenyang Xingsheng (or Xinsheng) (New Life) Rubber Plant, a/k/a Shenyang No. 2 Laogai Detachment, a/k/a Shenyang Dabei Prison, a/k/a Shenyang Model Prison'
-        entities: 
+      - match: "Shenyang New Life Rubber Factory, a/k/a Shenyang Xingsheng (or Xinsheng) (New Life) Rubber Plant, a/k/a Shenyang No. 2 Laogai Detachment, a/k/a Shenyang Dabei Prison, a/k/a Shenyang Model Prison"
+        entities:
           - name: Shenyang New Life Rubber Factory
             alias:
               - Shenyang Xingsheng (or Xinsheng) (New Life) Rubber Plant
               - Shenyang No. 2 Laogai Detachment
               - Shenyang Dabei Prison
               - Shenyang Model Prison
-      - match: 'Wuyi Machinery Plant, a/k/a Zhejiang Light Duty Lifting Machinery Factory China, a/k/a Zhejiang Province No. 1 Prison'
-        entities: 
+      - match: "Wuyi Machinery Plant, a/k/a Zhejiang Light Duty Lifting Machinery Factory China, a/k/a Zhejiang Province No. 1 Prison"
+        entities:
           - name: Wuyi Machinery Plant
             alias:
               - Zhejiang Light Duty Lifting Machinery Factory China
               - Zhejiang Province No. 1 Prison
-      - match: 'Wulin (or Wuling) Machinery Works, a/k/a Hangzhou Wulin Machinery Plant, a/k/a Hangzhou Wulin Machinery Works, a/k/a Zhejiang Province No. 4 Prison'
-        entities: 
+      - match: "Wulin (or Wuling) Machinery Works, a/k/a Hangzhou Wulin Machinery Plant, a/k/a Hangzhou Wulin Machinery Works, a/k/a Zhejiang Province No. 4 Prison"
+        entities:
           - name: Wulin (or Wuling) Machinery Works
             alias:
               - Hangzhou Wulin Machinery Plant
               - Hangzhou Wulin Machinery Works
               - Zhejiang Province No. 4 Prison
-      - match: 'Hsin Kang Asbestos Mine, a/k/a Sichuan (Szechuan) Pin Chiang Enterprise Company'
-        entities: 
+      - match: "Hsin Kang Asbestos Mine, a/k/a Sichuan (Szechuan) Pin Chiang Enterprise Company"
+        entities:
           - name: Hsin Kang Asbestos Mine
             alias:
               - Sichuan (Szechuan) Pin Chiang Enterprise Company
-      - match: 'Sichuan (Szechuan) Xinsheng (New Life) Labor Factory, a/k/a Xinsheng (New Life) Labor Factory'
-        entities: 
+      - match: "Sichuan (Szechuan) Xinsheng (New Life) Labor Factory, a/k/a Xinsheng (New Life) Labor Factory"
+        entities:
           - name: Sichuan (Szechuan) Xinsheng (New Life) Labor Factory
             alias:
               - Xinsheng (New Life) Labor Factory
-      - match: 'Da Wei Chemical Factory'
-        entities: 
+      - match: "Da Wei Chemical Factory"
+        entities:
           - name: Da Wei Chemical Factory
-      - match: 'Zi Gong Machinery Factory, a/k/a Zigong Machinery Factory, a/k/a Sichuan (Szechuan) Zigong Labor Reform Detachment'
-        entities: 
+      - match: "Zi Gong Machinery Factory, a/k/a Zigong Machinery Factory, a/k/a Sichuan (Szechuan) Zigong Labor Reform Detachment"
+        entities:
           - name: Zi Gong Machinery Factory
             alias:
               - Zigong Machinery Factory
               - Sichuan (Szechuan) Zigong Labor Reform Detachment
-      - match: 'Ya An Auto Parts Factory, a/k/a Sichuan (Szechuan) Bin-Jiang Enterprises Company'
-        entities: 
+      - match: "Ya An Auto Parts Factory, a/k/a Sichuan (Szechuan) Bin-Jiang Enterprises Company"
+        entities:
           - name: Ya An Auto Parts Factory
             alias:
               - Sichuan (Szechuan) Bin-Jiang Enterprises Company
-      - match: 'Miao Chi Tea Farm'
-        entities: 
+      - match: "Miao Chi Tea Farm"
+        entities:
           - name: Miao Chi Tea Farm
-      - match: 'Wang Tsang Coal and Iron Factory'
-        entities: 
+      - match: "Wang Tsang Coal and Iron Factory"
+        entities:
           - name: Wang Tsang Coal and Iron Factory
-      - match: 'Qinghai Hide & Garment Factory, a/k/a Qinghai Leather and Wool Bedding and Garment Factory, a/k/a Qinghai Fur and Cloth Factory'
-        entities: 
+      - match: "Qinghai Hide & Garment Factory, a/k/a Qinghai Leather and Wool Bedding and Garment Factory, a/k/a Qinghai Fur and Cloth Factory"
+        entities:
           - name: Qinghai Hide & Garment Factory
             alias:
               - Qinghai Leather and Wool Bedding and Garment Factory
               - Qinghai Fur and Cloth Factory
-      - match: 'Shandong Laiyang Heavy Duty Machinery Factory'
-        entities: 
+      - match: "Shandong Laiyang Heavy Duty Machinery Factory"
+        entities:
           - name: Shandong Laiyang Heavy Duty Machinery Factory
-      - match: 'Xuzhou Forging and Pressing Machine Works'
-        entities: 
-          - name: 
+      - match: "Xuzhou Forging and Pressing Machine Works"
+        entities:
+          - name:
               - Xuzhou Forging and Pressing Machine Works
-      - match: 'Yunnan Machinery, a/k/a Golden Horse (JinMa) Diesel Factory, a/k/a Yunnan 1st Prison'
-        entities: 
+      - match: "Yunnan Machinery, a/k/a Golden Horse (JinMa) Diesel Factory, a/k/a Yunnan 1st Prison"
+        entities:
           - name: Yunnan Machinery
             alias:
               - Golden Horse (JinMa) Diesel Factory
               - Yunnan 1st Prison
-      - match: 'Xiang-Yang Machinery Plant'
-        entities: 
+      - match: "Xiang-Yang Machinery Plant"
+        entities:
           - name: Xiang-Yang Machinery Plant
-      - match: 'Artisanal Small Mines'
-        entities: 
+      - match: "Artisanal Small Mines"
+        entities:
           - name: Artisanal Small Mines
-      - match: 'Central Romana Corporation Limited'
-        entities: 
-          - name: 
+      - match: "Central Romana Corporation Limited"
+        entities:
+          - name:
               - Central Romana Corporation Limited
-      - match: 'Mangalore Ganesh Beedie Works'
-        entities: 
+      - match: "Mangalore Ganesh Beedie Works"
+        entities:
           - name: Mangalore Ganesh Beedie Works
-      - match: 'Fuchu Prison; Union Kogyo Co., Ltd.'
+      - match: "Fuchu Prison; Union Kogyo Co., Ltd."
         entities:
           - name: Fuchu Prison
           - name: Union Kogyo Co., Ltd.
-      - match: 'Tobacco produced in Malawi and products containing tobacco produced in Malawi'
-        entities: 
+      - match: "Tobacco produced in Malawi and products containing tobacco produced in Malawi"
+        entities:
           - name: Tobacco produced in Malawi and products containing tobacco produced in Malawi
-      - match: 'Brightway Holdings Sdn Bhd, Laglove (M) Sdn Bhd, and Biopro (M) Sdn Bhd (collectively, Brightway Group)'
-        entities: 
+      - match: "Brightway Holdings Sdn Bhd, Laglove (M) Sdn Bhd, and Biopro (M) Sdn Bhd (collectively, Brightway Group)"
+        entities:
           - name: Brightway Group
-            alias: 
+            alias:
               - Brightway Holdings Sdn Bhd
               - Laglove (M) Sdn Bhd
               - Biopro (M) Sdn Bhd
-      - match: 'FGV Holdings Berhad and its subsidiaries and joint ventures'
-        entities: 
+      - match: "FGV Holdings Berhad and its subsidiaries and joint ventures"
+        entities:
           - name: FGV Holdings Berhad
             notes: and its subsidiaries and joint ventures
-      - match: 'Agropecuarios Tom S.A. de C.V. and Horticola Tom S.A. de C.V. and their subsidiaries'
-        entities: 
+      - match: "Agropecuarios Tom S.A. de C.V. and Horticola Tom S.A. de C.V. and their subsidiaries"
+        entities:
           - name: Agropecuarios Tom S.A. de C.V.
             notes: and their subsidiaries
           - name: Horticola Tom S.A. de C.V.
             notes: and their subsidiaries
-      - match: 'Kumar Carpet Pvt., Singhe Carpet Pvt., Ltd., Norsang Carpet Industries Pvt., Ltd., Annapurna Carpet, Everest Carpet, Valley Carpet, and K.K. Carpet Industries; Kathmandu.'
-        entities: 
+      - match: "Kumar Carpet Pvt., Singhe Carpet Pvt., Ltd., Norsang Carpet Industries Pvt., Ltd., Annapurna Carpet, Everest Carpet, Valley Carpet, and K.K. Carpet Industries; Kathmandu."
+        entities:
           - name: Kumar Carpet Pvt.
           - name: Singhe Carpet Pvt., Ltd.
           - name: Norsang Carpet Industries Pvt., Ltd.
@@ -243,53 +243,53 @@ lookups:
           - name: Everest Carpet
           - name: Valley Carpet
           - name: K.K. Carpet Industries
-      - match: 'All Turkmenistan Cotton or products produced in whole or in part with Turkmenistan cotton.'
-        entities: 
+      - match: "All Turkmenistan Cotton or products produced in whole or in part with Turkmenistan cotton."
+        entities:
           - name: All Turkmenistan Cotton or products produced in whole or in part with Turkmenistan cotton.
-      - match: 'Marange Diamond Fields'
-        entities: 
+      - match: "Marange Diamond Fields"
+        entities:
           - name: Marange Diamond Fields
-      - match: 'Fishing Vessel: Hangton No. 112'
-        entities: 
-          - name: 'Hangton No. 112'
-      - match: 'Fishing Vessels owned by Dalian Ocean Fishing Co. Ltd.'
-        entities: 
+      - match: "Fishing Vessel: Hangton No. 112"
+        entities:
+          - name: "Hangton No. 112"
+      - match: "Fishing Vessels owned by Dalian Ocean Fishing Co. Ltd."
+        entities:
           - name: Fishing Vessels owned by Dalian Ocean Fishing Co. Ltd.
-      - match: 'Fishing Vessel: Lien Yi Hsing No. 12'
-        entities: 
-          - name: 'Lien Yi Hsing No. 12'
-      - match: 'Fishing Vessel: Da Wang'
-        entities: 
-          - name: 'Da Wang'
-      - match: 'Fishing Vessel: Yu Long No. 2'
-        entities: 
-          - name: 'Yu Long No. 2'
-      - match: 'Inner Mongolia Hengzheng Group Baoanzhao Agriculture, Industry, and Trade Co., Ltd.'
-        entities: 
+      - match: "Fishing Vessel: Lien Yi Hsing No. 12"
+        entities:
+          - name: "Lien Yi Hsing No. 12"
+      - match: "Fishing Vessel: Da Wang"
+        entities:
+          - name: "Da Wang"
+      - match: "Fishing Vessel: Yu Long No. 2"
+        entities:
+          - name: "Yu Long No. 2"
+      - match: "Inner Mongolia Hengzheng Group Baoanzhao Agriculture, Industry, and Trade Co., Ltd."
+        entities:
           - name: Inner Mongolia Hengzheng Group Baoanzhao Agriculture, Industry, and Trade Co., Ltd.
-      - match: 'Tianjin Malleable Iron Factory'
-        entities: 
+      - match: "Tianjin Malleable Iron Factory"
+        entities:
           - name: Tianjin Malleable Iron Factory
-      - match: 'Qinghai Hide and Garment Factory'
-        entities: 
+      - match: "Qinghai Hide and Garment Factory"
+        entities:
           - name: Qinghai Hide and Garment Factory
-      - match: 'Xuzhou Forging and Pressing Machine Works'  
-        entities: 
+      - match: "Xuzhou Forging and Pressing Machine Works"
+        entities:
           - name: Xuzhou Forging and Pressing Machine Works
       - match: 'Golden Horse ("Jinma") Diesel Engine Factory'
-        entities: 
+        entities:
           - name: Golden Horse ("Jinma") Diesel Engine Factory
-      - match: 'State Penitentiary, Ciudad Victoria, Tamaulipas, Mexico'
-        entities: 
+      - match: "State Penitentiary, Ciudad Victoria, Tamaulipas, Mexico"
+        entities:
           - name: State Penitentiary
             address: Ciudad Victoria, Tamaulipas, Mexico
-      - match: 'State Penitentiary, Ciudad Victoria, Tamaulipas, Mexico'
-        entities: 
+      - match: "State Penitentiary, Ciudad Victoria, Tamaulipas, Mexico"
+        entities:
           - name: State Penitentiary
             address: Ciudad Victoria, Tamaulipas, Mexico
-      - match: 'Asli Maydi'
-        entities: 
+      - match: "Asli Maydi"
+        entities:
           - name: Asli Maydi
       - match: Kingtom Aluminio S.R.L.
-        entities: 
+        entities:
           - name: Kingtom Aluminio S.R.L.

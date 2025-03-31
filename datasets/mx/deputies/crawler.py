@@ -1,5 +1,5 @@
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 
 def crawl_item(input_dict: dict, context: Context):
@@ -64,7 +64,6 @@ def crawl_item(input_dict: dict, context: Context):
 
 
 def crawl(context: Context):
-
     json_data = {
         "operationName": None,
         "variables": {},

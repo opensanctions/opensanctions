@@ -47,11 +47,9 @@ def test_validate_dataset():
 
 def test_load_db():
     runner = CliRunner()
-    db_path = dataset_state_path("x") / "dump.sqlite3"
-    db_uri = "sqlite:///%s" % db_path.as_posix()
-    result = runner.invoke(cli, ["load-db", "/dev/null", db_uri])
+    result = runner.invoke(cli, ["load-db", "/dev/null"])
     assert result.exit_code != 0, result.output
-    result = runner.invoke(cli, ["load-db", DATASET_1_YML.as_posix(), db_uri])
+    result = runner.invoke(cli, ["load-db", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
 
 

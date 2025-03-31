@@ -4,7 +4,7 @@ prefix: il-wmd
 coverage:
   frequency: daily
   start: 2024-11-07
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   List of entities and individuals subject to sanctions under the Prevention of
   Distribution and Financing of Weapons of Mass Destruction Law
@@ -108,7 +108,7 @@ lookups:
         value: serial_no
       - match:
           - זהות הגורם הזר המוסמך שהכריז במקור
-          - 'זהות הגורם שהכריז במקור'
+          - "זהות הגורם שהכריז במקור"
         value: originally_declared_by
       - match:
           - 'מועד ההכרזה המקורי: מועד ההכרזה ע"י הגורם הזר המוסמך שהכרזתו אומצה בישראל'

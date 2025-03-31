@@ -4,7 +4,7 @@ prefix: us-medpa
 coverage:
   frequency: daily
   start: "2024-10-04"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers who are precluded from participation in the Medical Assistance Program
 description: |

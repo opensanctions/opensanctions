@@ -3,7 +3,7 @@ import re
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 DEMARCATION_CHANGES_URL = (
     "https://municipaldata.treasury.gov.za/api/cubes/demarcation_changes/facts"

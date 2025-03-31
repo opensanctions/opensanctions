@@ -15,7 +15,7 @@ deploy:
   # schedule: "1 6 * * *"
   memory: "3000Mi"
   memory_limit: "4000Mi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Companies registered in Estonia, including directors and
   beneficial owners which match entities in the OpenSanctions database.

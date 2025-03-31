@@ -4,7 +4,7 @@ prefix: lv-sae
 coverage:
   frequency: weekly
   start: 2024-03-07
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Members of the Saeima, the unicameral parliament of Latvia
 description: |

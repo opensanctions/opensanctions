@@ -6,7 +6,7 @@ from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 
 REGEX_TITLE = re.compile(

@@ -8,7 +8,7 @@ from nomenklatura.wikidata import WikidataClient, SparqlValue
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.logic.pep import PositionCategorisation, categorise
+from zavod.stateful.positions import PositionCategorisation, categorise
 
 DECISION_NATIONAL = "national"
 

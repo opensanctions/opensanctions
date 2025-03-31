@@ -2,7 +2,7 @@ from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 RESOURCES = [
     ("dk", "dan", "dk.xlsx", "PEP_listen.xlsx"),

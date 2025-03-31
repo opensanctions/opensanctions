@@ -4,7 +4,7 @@ prefix: br-slv
 coverage:
   frequency: weekly
   start: 2025-01-13
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   A list of employers who have submitted workers to conditions analogous to slavery.
 description: |
@@ -30,7 +30,7 @@ publisher:
   acronym: MTE
   description: >
     The Ministry of Labour and Employment of Brazil oversees matters relating to
-    worker rights, safety, pay, and work permits 
+    worker rights, safety, pay, and work permits
   url: https://www.gov.br/trabalho-e-emprego
   official: true
 url: https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/combate-ao-trabalho-escravo-e-analogo-ao-de-escravo

@@ -14,7 +14,7 @@ deploy:
   # schedule: "1 2 * * *"
   memory: "3000Mi"
   memory_limit: "4000Mi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Cypriot open data on companies, which names officers but no shareholders.
 description: |

@@ -4,7 +4,7 @@ prefix: fr-il-fin
 coverage:
   frequency: daily
   start: "2024-08-05"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Blacklist of entities not authorized to offer financial products or services in France
 description: |
@@ -17,13 +17,13 @@ description: |
     - The date on which the site/actor was published on the blacklists
 publisher:
   name: Autorité des marchés financiers
-  name_en: Financial Markets Authority 
+  name_en: Financial Markets Authority
   acronym: AMF
   description: |
-   The Autorité des marchés financiers is the securities commission in France.
-   The AMF is an independent public body that is responsible for safeguarding
-   investments in financial instruments and in all other savings and investments,
-   as well as maintaining orderly financial markets.
+    The Autorité des marchés financiers is the securities commission in France.
+    The AMF is an independent public body that is responsible for safeguarding
+    investments in financial instruments and in all other savings and investments,
+    as well as maintaining orderly financial markets.
   url: https://www.amf-france.org/fr
   official: true
   country: "fr"

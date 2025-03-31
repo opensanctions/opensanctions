@@ -6,7 +6,7 @@ coverage:
   start: 2021-10-22
 deploy:
   schedule: "0 */6 * * *"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Cryptocurrency wallets seized by the Israeli government using
   Administrative Seizure Orders
@@ -35,8 +35,8 @@ data:
   # Edit URL: https://docs.google.com/spreadsheets/d/1J0xD7ZyU0HnHxkpwvmN9UpF3TZKZXmJD8XiPC5XpJDg
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRWfPqec5nU9pMkUpcDVdO3a9S5AfPtJzeHkOZ1NEWvp03uk-f8zWy46O0D3pzbeV67Ega1t6DwQ8xd/pub?gid=414584047&single=true&output=csv
   format: CSV
-ci_test: false  # No Zyte key in CI
-dates: 
+ci_test: false # No Zyte key in CI
+dates:
   formats: ["%d/%m/%Y"]
 
 assertions:

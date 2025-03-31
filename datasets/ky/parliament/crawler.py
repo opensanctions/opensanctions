@@ -6,7 +6,7 @@ import re
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 from zavod.util import ElementOrTree
 
 

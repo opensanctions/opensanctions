@@ -2,7 +2,7 @@ from os import environ as env
 
 from pathlib import Path
 from banal import as_bool
-from rigour.env import env_str, env_int
+from rigour.env import env_str
 from nomenklatura.versions import Version
 
 
@@ -15,6 +15,7 @@ DEBUG = as_bool(env_str("ZAVOD_DEBUG", "false"))
 # Default paths
 DATA_PATH_ = env_str("ZAVOD_DATA_PATH", "data")
 DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_)).resolve()
+DATA_PATH.mkdir(parents=True, exist_ok=True)
 
 # Per-run timestamp
 TIME_ZONE = env_str("TZ", "UTC")
@@ -90,17 +91,9 @@ HTTP_RETRY_BACKOFF_MAX = int(env.get("ZAVOD_HTTP_RETRY_BACKOFF_MAX", 120))
 DATABASE_URI = f"sqlite:///{DATA_PATH.joinpath('zavod.sqlite3').as_posix()}"
 DATABASE_URI = env.get("ZAVOD_DATABASE_URI", DATABASE_URI)
 DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
-DB_STMT_TIMEOUT = env_int("ZAVOD_DB_STMT_TIMEOUT", 10000)
 
 # Load DB batch size
 DB_BATCH_SIZE = int(env_str("ZAVOD_DB_BATCH_SIZE", "1000"))
-
-OPENSANCTIONS_API_URL = env.get(
-    "ZAVOD_OPENSANCTIONS_API_URL", "https://api.opensanctions.org"
-)
-OPENSANCTIONS_API_KEY = env.get("ZAVOD_OPENSANCTIONS_API_KEY", None)
-
-SYNC_POSITIONS = as_bool(env_str("ZAVOD_SYNC_POSITIONS", "true"))
 
 # pywikibot settings for editing Wikidata
 WD_CONSUMER_TOKEN = env.get("ZAVOD_WD_CONSUMER_TOKEN")

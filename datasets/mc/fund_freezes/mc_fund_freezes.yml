@@ -4,7 +4,7 @@ prefix: mc-freezes
 coverage:
   frequency: daily
   start: 2024-08-16
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   A list of entities subject to fund and economic resource freezing procedures
 description: |

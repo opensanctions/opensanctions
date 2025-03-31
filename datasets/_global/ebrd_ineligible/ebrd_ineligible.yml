@@ -4,7 +4,7 @@ prefix: ebrd
 coverage:
   frequency: daily
   start: 2021-11-11
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Entities that have been declared ineligible to become EBRD counterparties due to fraud, 
   corruption, collusion, or other prohibited practices.

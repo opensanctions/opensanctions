@@ -1,5 +1,5 @@
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 
 def get_members_urls(context: Context) -> list:
@@ -17,7 +17,7 @@ def crawl_item(member_url: str, context: Context):
     try:
         name = member_page_html.xpath('//*[@id="main"]/header/div/h1/text()')[0]
     except IndexError:
-        context.log.warning("Couldn't find name. Skipping person.", url=member_url)
+        context.log.info("Couldn't find name. Skipping person.", url=member_url)
         return
 
     entity = context.make("Person")

@@ -4,7 +4,7 @@ prefix: rwre
 coverage:
   frequency: weekly
   start: 2022-02-16
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Cryptocurrency addresses linked to payments for ransomware attacks
 description: |

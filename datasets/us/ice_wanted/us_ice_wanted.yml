@@ -2,7 +2,7 @@ title: "US Immigration and Customs Enforcement Most Wanted Fugitives"
 entry_point: crawler.py
 prefix: us-icew
 url: https://www.ice.gov/most-wanted
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 coverage:
   frequency: daily

@@ -4,7 +4,7 @@ prefix: eu-cor
 coverage:
   frequency: weekly
   start: 2021-02-12
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Detailed information on members representing local and regional authorities 
   across the European Union.

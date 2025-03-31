@@ -2,11 +2,10 @@ from datetime import datetime
 import re
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 
 def crawl_item(unid: str, context: Context):
-
     member_url = f"https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf/0/{unid}?OpenDocument&lang=EN"
 
     response = context.fetch_html(member_url)

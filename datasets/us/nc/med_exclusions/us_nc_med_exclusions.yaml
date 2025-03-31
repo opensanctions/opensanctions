@@ -4,19 +4,19 @@ prefix: us-mednc
 coverage:
   frequency: daily
   start: "2024-09-13"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Service providers who have been terminated for cause from North Carolina's Medicaid and other Health Programs.
 description: |
   NC Medicaid can bar providers from participaing in Medicare and/or other Health Programs.
 
   > An excluded provider is not entitled to bill or be reimbursed for medical services
-  > provided to any federal or state health care program beneficiary. 
+  > provided to any federal or state health care program beneficiary.
 publisher:
   name: NC Medicaid Division of Health Benefits
   description: |
-   > NC Medicaid provides health care to eligible low-income adults, children, pregnant
-   > women, seniors and people with disabilities
+    > NC Medicaid provides health care to eligible low-income adults, children, pregnant
+    > women, seniors and people with disabilities
   url: https://medicaid.ncdhhs.gov
   official: true
   country: "us"
@@ -26,7 +26,7 @@ data:
   format: HTML
   lang: eng
 
-dates: 
+dates:
   formats: ["%m/%d/%Y"]
 assertions:
   min:
@@ -35,13 +35,13 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 300
-lookups: 
+lookups:
   type.identifier:
     options:
-      - match:  # NPI/ATYPICAL ID in the source
+      - match: # NPI/ATYPICAL ID in the source
           - 50345490
           - 40401363
-        prop: idNumber 
+        prop: idNumber
       - match: 1265032319
         value: 1265032320
       - match: N/A

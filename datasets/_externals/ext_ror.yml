@@ -15,7 +15,7 @@ deploy:
   memory: "1500Mi"
   memory_limit: "2000Mi"
 ci_test: false
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Identifiers for research organizations, maintained by the Research Organization Registry.
 description: |

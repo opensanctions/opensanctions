@@ -6,7 +6,7 @@ coverage:
   start: 2024-03-08
 deploy:
   schedule: "30 6 * * *"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Individuals and organisations targeted by the Anti-Foreign Sanctions Law,
   Counter-Measures List and the Unreliable Entities List (UEL).

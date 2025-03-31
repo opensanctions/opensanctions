@@ -4,7 +4,7 @@ prefix: at-meine-ab
 coverage:
   start: 2024-03-08
   frequency: daily
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   List of politicians and others officials from Austria.
 description: |
@@ -69,10 +69,10 @@ lookups:
         # zero width space... but why? how?!
       - match: heike.grebien@​parlament.gv.at,
         value: heike.grebien@parlament.gv.at
-  type.date: 
-    options: 
+  type.date:
+    options:
       - match: "?"
-        value: null 
+        value: null
   expected_503:
     options:
       - match: https://www.meineabgeordneten.at/Abgeordnete/manuela.lobnik

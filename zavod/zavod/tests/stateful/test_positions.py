@@ -1,15 +1,14 @@
 from datetime import datetime
-import pytest
-import requests
-import requests_mock
 
-from zavod.logic.pep import (
+from zavod import settings
+from zavod.stateful.positions import (
     PositionCategorisation,
     backdate,
     occupancy_status,
     OccupancyStatus,
     categorise,
 )
+from zavod.stateful.model import position_table
 from zavod.meta import Dataset
 from zavod.context import Context
 from zavod.helpers.positions import make_position
@@ -122,93 +121,36 @@ def test_occupancy_status(testdataset1: Dataset):
     assert status(True, "1950-01-01", "2020-12-31", "1910-01-01") is None
 
 
-def test_categorise_new(testdataset1: Dataset):
+def test_categorise_flow(testdataset1: Dataset):
     context = Context(testdataset1)
     position = make_position(context, "A position", country="ls")
+    assert len(context.conn.execute(position_table.select()).fetchall()) == 0
+    categorisation = categorise(context, position, is_pep=None)
+    assert categorisation.is_pep is None
+    positions = context.conn.execute(position_table.select()).fetchall()
+    assert len(positions) == 1
+    pos = positions[0]
+    assert pos.entity_id == position.id
+    assert pos.caption == position.caption
+    assert pos.countries == ["ls"]
+    assert pos.topics == []
+    assert pos.is_pep is None
+    categorise.cache_clear()
+    categorisation = categorise(context, position, is_pep=True)
+    assert categorisation.is_pep is None
 
-    list_data = {
-        "results": [],
-        "limit": 5000,
-        "offset": 0,
-        "total": {"value": 0, "relation": "eq"},
+    position2 = make_position(context, "Other position", country="de")
+    values = {
+        "entity_id": position2.id,
+        "caption": position2.caption,
+        "countries": position2.get("country"),
+        "topics": ["gov.igo"],
+        "is_pep": True,
+        "dataset": "banana",
+        "created_at": settings.RUN_TIME,
     }
-    create_data = {
-        "entity_id": position.id,
-        "caption": position.caption,
-        "countries": ["ls"],
-        "topics": [],
-        "is_pep": None,
-    }
-    with requests_mock.Mocker() as m:
-        m.get(
-            "/positions/?limit=5000&dataset=testdataset1&offset=0",
-            status_code=200,
-            json=list_data,
-        )
-        m.post("/positions/", status_code=201, json=create_data)
-        categorisation = categorise(context, position)
-        assert categorisation.is_pep is None
-        assert categorisation.topics == []
-        assert m.call_count == 2, "categorise() should create a new position"
-        categorisation = categorise(context, position)
-        assert categorisation.is_pep is None
-        assert categorisation.topics == []
-        assert m.call_count == 2, "Second call should use cached position."
-
-
-
-
-def test_categorise_existing(testdataset1: Dataset):
-    context = Context(testdataset1)
-    position = make_position(context, "Another position", country="ls")
-
-    data = {
-        "results": [
-            {
-                "entity_id": position.id,
-                "caption": position.caption,
-                "countries": ["ls"],
-                "topics": ["gov.igo"],
-                "is_pep": True,
-            }
-        ],
-        "limit": 5000,
-        "offset": 0,
-        "total": {"value": 1, "relation": "eq"},
-    }
-    with requests_mock.Mocker() as m:
-        m.get(
-            "/positions/?limit=5000&dataset=testdataset1&offset=0",
-            status_code=200,
-            json=data,
-        )
-        categorisation = categorise(context, position)
-        categorisation = categorise(context, position)
-
+    ins = position_table.insert().values(**values)
+    context.conn.execute(ins)
+    categorisation = categorise(context, position2, is_pep=True)
     assert categorisation.is_pep is True
     assert categorisation.topics == ["gov.igo"]
-    assert m.call_count == 1, "categorise() should use cached data"
-
-
-def test_categorise_unauthorised(testdataset1: Dataset):
-    context = Context(testdataset1)
-    position = make_position(
-        context, "Another position", country="ls", topics=["gov.igo"]
-    )
-
-    with requests_mock.Mocker() as m:
-        list_data = {
-            "results": [],
-            "limit": 5000,
-            "offset": 0,
-            "total": {"value": 0, "relation": "eq"},
-        }
-        m.get(
-            "/positions/?limit=5000&dataset=testdataset1&offset=0",
-            status_code=200,
-            json=list_data,
-        )
-        m.post("/positions/", status_code=401)
-        with pytest.raises(requests.exceptions.HTTPError) as exc:
-            categorise(context, position)
-        assert exc.value.response.status_code == 401

@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 UNUSED_FIELDS = [
     "Groupe politique",

@@ -4,7 +4,7 @@ prefix: ru-mfa
 coverage:
   frequency: daily
   start: 2025-01-09
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   A list of US citizens under personal sanctions by the Russian Federation.
 description: |
@@ -40,7 +40,7 @@ assertions:
   max:
     schema_entities:
       Person: 3000
-lookups: 
+lookups:
   sanction.program:
     options:
       - match: RU-MFA

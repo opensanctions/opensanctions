@@ -1,7 +1,7 @@
 import re
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise, OccupancyStatus
+from zavod.stateful.positions import categorise, OccupancyStatus
 from zavod.shed.trans import (
     apply_translit_full_name,
     make_position_translation_prompt,
@@ -102,7 +102,6 @@ def crawl_person(context: Context, data, href, name_raw):
 
 
 def crawl(context: Context):
-
     doc = context.fetch_html(context.data_url, cache_days=2)
     # Get necessary form fields
     viewstate = doc.xpath('//input[@name="__VIEWSTATE"]/@value')[0]

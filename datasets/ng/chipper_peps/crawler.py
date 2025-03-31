@@ -7,7 +7,7 @@ from typing import Dict, Optional
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.logic.pep import OccupancyStatus, categorise
+from zavod.stateful.positions import OccupancyStatus, categorise
 
 # Match space before comma or no space after comma
 REGEX_FIX_COMMA = re.compile(r"(\w)\s*,\s*(\w)")

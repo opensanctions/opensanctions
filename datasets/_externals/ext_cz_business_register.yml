@@ -16,7 +16,7 @@ deploy:
   memory_limit: "4000Mi"
   disk: "30Gi"
   disk_limit: 30Gi
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Czech business register with company metadata and directorships as obtained
   from the open data xml dump by ARES.

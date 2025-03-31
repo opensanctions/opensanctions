@@ -4,7 +4,7 @@ prefix: br-ceis
 coverage:
   frequency: daily
   start: "2023-11-29"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   The National Register of Ineligible and Suspended Companies (CEIS) lists individuals and companies sanctioned from public procurement in Brazil.
 description: |

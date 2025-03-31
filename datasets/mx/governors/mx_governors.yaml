@@ -4,7 +4,7 @@ prefix: mx-gov
 coverage:
   frequency: weekly
   start: "2024-02-03"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Current and former governors of Mexico states and the Head of Government of Mexico City.
 description: |

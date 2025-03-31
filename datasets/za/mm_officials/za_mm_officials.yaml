@@ -2,7 +2,7 @@ title: "South Africa Municipal Leadership"
 url: https://municipalmoney.gov.za/
 entry_point: crawler.py
 prefix: za-mm
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 coverage:
   frequency: weekly
   start: 2024-08-20
@@ -67,11 +67,11 @@ lookups:
         values:
           - mmsoffice@map.fs.gov.za
           - nthabisengmo@map.fs.gov.za
-  normalize_name: 
+  normalize_name:
     lowercase: true
     normalize: true
-    options: 
-      - match: 
+    options:
+      - match:
           - Vacant
         value: null
   roles:
@@ -83,7 +83,7 @@ lookups:
           - Deputy Mayor/Executive Mayor
           - Speaker
         is_pep: false
-      - match: 
+      - match:
           - Mayor/Executive Mayor
           - Municipal Manager
           - Chief Financial Officer

@@ -4,7 +4,7 @@ prefix: us-medhi
 coverage:
   frequency: daily
   start: "2024-10-25"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers excluded from Hawaii's Medicaid program.
 description: |
@@ -60,10 +60,10 @@ assertions:
       Company: 20
 
 lookups:
-  names: 
-    options: 
+  names:
+    options:
       - match: MALABED, JR. DBA GGM HANDI TRANSIT
-        values: 
+        values:
           - MALABED, JR
           - GGM HANDI TRANSIT
   type.date:

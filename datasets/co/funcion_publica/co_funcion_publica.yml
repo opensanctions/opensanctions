@@ -5,7 +5,7 @@ ci_test: false
 coverage:
   frequency: daily
   start: 2023-11-02
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: Declarations of Politically Exposed Person status of public servants and politicians in Colombia
 description: |
   The Application for Public Integrity of the Administrative Department of

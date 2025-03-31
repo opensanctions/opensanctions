@@ -8,7 +8,7 @@ coverage:
 deploy:
   memory: "1000Mi"
   memory_limit: "1500Mi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   As part of the Common Foreign Security Policy the European Union publishes
   a sanctions list that is implemented by all member states.

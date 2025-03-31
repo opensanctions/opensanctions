@@ -4,7 +4,7 @@ entry_point: crawler.py
 coverage:
   frequency: weekly
   start: 2025-01-03
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   List of public officials in Slovakia, including their names, positions,
   and other relevant information.
@@ -33,17 +33,17 @@ data:
   format: HTML
   lang: slk
 
-assertions: 
-  min: 
-    schema_entities: 
+assertions:
+  min:
+    schema_entities:
       Person: 1500
-  max: 
-    schema_entities: 
+  max:
+    schema_entities:
       Person: 2500
 lookups:
   position:
     normalize: true
-    options: 
+    options:
       - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (PODPREDSEDA PROTIMONOPOLNÝ ÚRAD SLOVENSKEJ REPUBLIKY )
         value: PODPREDSEDA PROTIMONOPOLNÝ ÚRAD SLOVENSKEJ REPUBLIKY
       - match: verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon (KUNSTHALLE BRATISLAVA)

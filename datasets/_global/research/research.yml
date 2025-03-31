@@ -7,7 +7,7 @@ coverage:
   start: 2023-12-18
 exports:
   - statistics.json
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Additional findings regarding specific entities that have been gathered by
   the OpenSanctions team, included as corrections/errata
