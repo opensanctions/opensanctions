@@ -47,6 +47,11 @@ LINKS = [
         "type": "person",
         "program": "Officials and entities controlling Russia’s military-industrial policy, defense orders, and wartime economy",
     },
+    {  # stealers of heritage
+        "url": "https://war-sanctions.gur.gov.ua/en/stolen/persons",
+        "type": "person",
+        "program": "Persons involved in the theft and destruction of Ukrainian cultural heritage",
+    },
 ]
 
 # e.g. Ocean Dolphin Ship Management (6270796
@@ -458,7 +463,9 @@ def crawl_person(context: Context, link, program):
 
     context.emit(person)
     context.emit(sanction)
-    context.audit_data(data, ignore=["Sanction Jurisdictions"])
+    context.audit_data(
+        data, ignore=["Sanction Jurisdictions", "Permission for illegal excavations"]
+    )
 
 
 def crawl_legal_entity(context: Context, link, program):
@@ -534,7 +541,7 @@ def crawl(context: Context):
     )
     assert len(section_links_section) == 1, section_links_section
     h.assert_dom_hash(
-        section_links_section[0], "b66069bcdb6a9a977a668210ddaddb398998f1b8"
+        section_links_section[0], "6d9e5bb137fbbd3c5698008f0c01ed10318d9b53"
     )
 
     # Has the API link been updated to point to the previously-nonexistent API page?
