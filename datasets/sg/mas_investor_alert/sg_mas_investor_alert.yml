@@ -34,6 +34,14 @@ data:
   url: https://www.mas.gov.sg/api/v1/ialsearch?json.nl=map&wt=json&q=*:*&sort=date_dt+desc&rows=1000&start=0
   format: JSON
 
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 700
+  max:
+    schema_entities:
+      LegalEntity: 1400
+
 lookups:
   type.url:
     normalize: true
