@@ -35,18 +35,200 @@ data:
   format: JSON
 
 lookups:
-  type.email:
+  type.url:
+    normalize: true
     options:
-      - match: 'support@capitalbase.ai\ncompliance@capitalbase.ai'
+      - match: 'www.indexgb.com http://dedydollar.blogspot.sg/2013/10/penawaran-saham-perdana-pra-ipo-www.html  https://www.facebook.com/IndexGB-348924791855465/'
         values:
-          - support@capitalbase.ai
-          - compliance@capitalbase.ai
-      - match: 'info@leoniehillcapital.com\ninvest@leoniehillcapital.com'
-        values: 
-          - info@leoniehillcapital.com
-          - invest@leoniehillcapital.com
-      - match: 'vz@staroncapital.com \nscg@staroncapital.com / scg@staroncapital.co'
+          - 'www.indexgb.com'
+          - 'http://dedydollar.blogspot.sg/2013/10/penawaran-saham-perdana-pra-ipo-www.html'
+          - 'https://www.facebook.com/IndexGB-348924791855465/'
+      - match: 'www.excentral-int.com https://excentral-int.net/'
         values:
-          - vz@staroncapital.com
-          - scg@staroncapital.com
-          - scg@staroncapital.co
+          - 'www.excentral-int.com'
+          - 'https://excentral-int.net/'
+      - match: Company com
+        value: null
+  type.address:
+    normalize: true
+    options:
+      - match: 'TrustNet Chambers , P.O. Box 3444 , Road Town , British Virgin Islands, , 9 Temasek Boulevard , #04-01 Suntec Tower 2 , Singapore 038989, 2nd Floor, 145-157 , St John Street , London EC1V 4PY U.K. , 68A Jalan SS21/62 , Damansara Utama , Petaling Jaya 47400 , Selangor , Malaysia'
+        values:
+          - TrustNet Chambers, P.O. Box 3444, Road Town, British Virgin Islands
+          - '9 Temasek Boulevard, #04-01 Suntec Tower 2, Singapore 038989'
+          - 2nd Floor, 145-157 St John Street, London EC1V 4PY U.K.
+          - 68A Jalan SS21/62, Damansara Utama, Petaling Jaya 47400, Selangor, Malaysia
+      - match: 'Singapore:, The Sail 6, 19F , Marina Boulevard , Marina Financial District , Hong Kong:, One International Finance Center, 20F , 1 Habour View Street , Central Hong Kong , Service Center:, Singapore:, Central Business District , 39A Circular Road, Singapore , Malaysia :, C5-1 South Gate , Sungai Besi , China:, Beijing , National Aquatic Center (Water Cube) Level 4'
+        values:
+          - 'Singapore: The Sail 6, 19F, Marina Boulevard, Marina Financial District'
+          - 'Hong Kong: One International Finance Center, 20F, 1 Habour View Street, Central Hong Kong'
+          - 'Service Center: Singapore: Central Business District, 39A Circular Road, Singapore'
+          - 'Malaysia: C5-1 South Gate, Sungai Besi'
+          - 'China: Beijing, National Aquatic Center (Water Cube) Level 4'
+      - match: 'Registered office, Edsicio Rural Trade Center, 2nd Floor Calle 53, Marbella, Panama City, Panama, , Correspondence Add:, Suite 1402, 14/Floor, First e-bank Tower, 8737 Paseo de Roxas, Makati City, Philippines 1200, Rockwell and Bond, Suite One, Omni Hall, Speightstown, St. Peter, Barbados'
+        values:
+          - 'Registered office, Edsicio Rural Trade Center, 2nd Floor Calle 53, Marbella, Panama City, Panama'
+          - 'Correspondence Add: Suite 1402, 14/Floor, First e-bank Tower, 8737 Paseo de Roxas, Makati City, Philippines 1200'
+          - 'Rockwell and Bond, Suite One, Omni Hall, Speightstown, St. Peter, Barbados'
+      - match: 'Singapore (Head Office):, 6 Temasek Boulevard #21-01 Suntec Tower 4 Singapore 038986 , , Singapore (Developers Office):, No 883 North Bridge Road, #09-04, South Bank Singapore 198784 , Malaysia:, 5, Jalan Wawasan 2/20, Pusat Bandar Puchong 47100 Puchong Selangor,Malaysia , Myanmar:, 256 Aye Zay Di Street, Burma Aye Quarter, Daw Bon Township, Yangon, Myanmar , Hong Kong:, 46 Gloucester Road, Unit 1801-2, Jubilee Centre, Wanchai, Hong Kong'
+        values:
+          - 'Singapore (Head Office): 6 Temasek Boulevard #21-01 Suntec Tower 4 Singapore 038986'
+          - 'Singapore (Developers Office): No 883 North Bridge Road, #09-04, South Bank Singapore 198784'
+          - 'Malaysia: 5, Jalan Wawasan 2/20, Pusat Bandar Puchong 47100 Puchong Selangor, Malaysia'
+          - 'Myanmar: 256 Aye Zay Di Street, Burma Aye Quarter, Daw Bon Township, Yangon, Myanmar'
+          - 'Hong Kong: 46 Gloucester Road, Unit 1801-2, Jubilee Centre, Wanchai, Hong Kong'
+      - match: '72 Bendemeer Road , #05-23 Luzerne Building , Singapore 339941 , Other offices:, Singapore:, 200 Jalan Sultan , #01-30 Textile Center , Singapore 199018 , Indonesia (PT Burung Mas Indonesia): Office 1: , APL Tower Lantai 23 , Unit 8, Central Park 8 , Jarkata Barat, Indonesia , Malaysia:, No. 53-01, Jalan Idaman 3 , Taman Larkin Idaman , 80350 Johor Bahru , Johor, Malaysia, China:, Yiwu International Trade City , District 5, Imported Commodity mart No : 60336, YiWu, China , Vietnam (Viet Sin GB stock trade company): , 58, Tran Thai Tong, Cau Giay , Hanoi'
+        values:
+          - '72 Bendemeer Road, #05-23 Luzerne Building, Singapore 339941'
+          - 'Other offices: Singapore: 200 Jalan Sultan, #01-30 Textile Center, Singapore 199018'
+          - 'Indonesia (PT Burung Mas Indonesia): Office 1: APL Tower Lantai 23, Unit 8, Central Park 8, Jarkata Barat, Indonesia'
+          - 'Malaysia: No. 53-01, Jalan Idaman 3, Taman Larkin Idaman, 80350 Johor Bahru, Johor, Malaysia'
+          - 'China: Yiwu International Trade City, District 5, Imported Commodity mart No : 60336, YiWu, China'
+          - 'Vietnam (Viet Sin GB stock trade company): 58, Tran Thai Tong, Cau Giay, Hanoi'
+      - match: 'Main Office: , 1 Claymore Drive , #08-09 Orchard Towers Rear Block Singapore 229594 , Premier Centre: , 1 Claymore Drive , #08-06 Orchard Towers Rear Block Singapore 229594 , GMC Office: , 400 Orchard Road , #05-27 Orchard Towers , Singapore 238875 , Marketing Division: , 545 Orchard Road , #16-13 Far East Shopping Centre Singapore 238882'
+        values:
+          - 'Main Office: 1 Claymore Drive, #08-09 Orchard Towers Rear Block Singapore 229594'
+          - 'Premier Centre: 1 Claymore Drive, #08-06 Orchard Towers Rear Block Singapore 229594'
+          - 'GMC Office: 400 Orchard Road, #05-27 Orchard Towers, Singapore 238875'
+          - 'Marketing Division: 545 Orchard Road, #16-13 Far East Shopping Centre Singapore 238882'
+      - match: 'London (Correspondence Address):, 27 Old Gloucester St , London WC1N 3AX , United Kingdom , Cayman Islands:, South Church Street, e Town , Grand Cayman , KY1-1104 , Taiwan:, 28F, No. 66, Sec. 1 , Zhongxiao W. Rd. , Zhongzheng Dist. , Taipei City 10018 , Hong Kong:, 31-33 Ng Fong Street, , San Po Kong , Hong Kong'
+        values:
+          - 'London (Correspondence Address): 27 Old Gloucester St, London WC1N 3AX, United Kingdom'
+          - 'Cayman Islands: South Church Street, e Town, Grand Cayman, KY1-1104'
+          - 'Taiwan: 28F, No. 66, Sec. 1, Zhongxiao W. Rd., Zhongzheng Dist., Taipei City 10018'
+          - 'Hong Kong: 31-33 Ng Fong Street, San Po Kong, Hong Kong'
+      - match: "FXZN Investment Limited , Bahnhofstrasse 98/100 CH-8001 Zurich SWITZERLAND , FXZN Client Relation Office, Room 1509, The Center, 99 Queen's Road Central, Hong Kong , FXZN Client Relation Office, Menara prima 27 Floor unit F Jl. Lingkar Mega Kuningan Jakarta, Indonesia 12950, FXZN Client Relation Office 90 Cyberworld Tower 27th Floor, Room No: 2704 Ratchadapisek Road, Huaikhwang Huaikwang, Bangkok. Thailand, FX Zenith Management Limited, Room 1502, 15/F, Harcourt House, 39 Gloucester Road, Wanchai, Hong Kong"
+        values:
+          - "FXZN Investment Limited, Bahnhofstrasse 98/100 CH-8001 Zurich SWITZERLAND"
+          - "FXZN Client Relation Office, Room 1509, The Center, 99 Queen's Road Central, Hong Kong"
+          - "FXZN Client Relation Office, Menara prima 27 Floor unit F Jl. Lingkar Mega Kuningan Jakarta, Indonesia 12950"
+          - "FXZN Client Relation Office 90 Cyberworld Tower 27th Floor, Room No: 2704 Ratchadapisek Road, Huaikhwang Huaikwang, Bangkok. Thailand"
+          - "FX Zenith Management Limited, Room 1502, 15/F, Harcourt House, 39 Gloucester Road, Wanchai, Hong Kong"
+      - match: 'UFUN (S) Pte Ltd, CT Hub @ Kallang, 2 Kallang Ave, #06-10, Singapore 339407, UFun Center, B12-3, North Point, Mid Valley, No.1, Medan Syed Putra Utara, 59200 Kuala Lumpur, UFunStore, S203, 2nd Floor, 1Borneo Hypermall Jalan Sulaman, 88400 Kota Kinabalu, Sabah., UFun Center Hong Kong , 香港九龙尖沙咀,弥敦道132号, 美丽华大厦 19楼06号, UFun Center Guangzhou , 广州市天河区, 林和西路167号, 威尼国际大厦2809-2810, , UFun Center Hanoi, Tang 5, Toa Nha Kinh Do, 292, Tay Son, Dong Da, Hanoi, Vietnam'
+        values:
+          - 'UFUN (S) Pte Ltd, CT Hub @ Kallang, 2 Kallang Ave, #06-10, Singapore 339407'
+          - 'UFun Center, B12-3, North Point, Mid Valley, No.1, Medan Syed Putra Utara, 59200 Kuala Lumpur'
+          - 'UFunStore, S203, 2nd Floor, 1Borneo Hypermall Jalan Sulaman, 88400 Kota Kinabalu, Sabah.'
+          - 'UFun Center Hong Kong, 香港九龙尖沙咀,弥敦道132号, 美丽华大厦 19楼06号'
+          - 'UFun Center Guangzhou, 广州市天河区, 林和西路167号, 威尼国际大厦2809-2810'
+          - 'UFun Center Hanoi, Tang 5, Toa Nha Kinh Do, 292, Tay Son, Dong Da, Hanoi, Vietnam'
+      - match: 'P.O. Box 1312, 18 Shedden Road, Georgetown, Cayman Islands , Level 7 Toranomon 40 MT Building, 5-13-1, Toranomon, Minato-ku Tokyo, Japan , 1802, 18th floor World-Wide House, 19 Des Voeux Road Central, Central Hong Kong , 11/F, No. 289, 3rd Section, Nanjing East Road, Taipei 104'
+        values:
+          - 'P.O. Box 1312, 18 Shedden Road, Georgetown, Cayman Islands'
+          - 'Level 7 Toranomon 40 MT Building, 5-13-1, Toranomon, Minato-ku Tokyo, Japan'
+          - '1802, 18th floor World-Wide House, 19 Des Voeux Road Central, Central Hong Kong'
+          - '11/F, No. 289, 3rd Section, Nanjing East Road, Taipei 104'
+      - match: 'Tokyo:, 2 - 2 - 35 Gold Bldg 3F, Chuo Nakano-ward, Tokyo 164 - 0011, Japan, Osaka:, Osaka Umeda 20F Hankyu Grand Building 8 - 47 Kakuda-cho Kita - ku , Osaka 530 - 0017, Japan , Hong Kong:, Nan Fung Centre Suite 343 #23 264 - 298 , Castle Peak Road Tsuen Wan NT , Hong Kong'
+        values:
+          - 'Tokyo: 2 - 2 - 35 Gold Bldg 3F, Chuo Nakano-ward, Tokyo 164 - 0011, Japan'
+          - 'Osaka: Osaka Umeda 20F Hankyu Grand Building 8 - 47 Kakuda-cho Kita - ku, Osaka 530 - 0017, Japan'
+          - 'Hong Kong: Nan Fung Centre Suite 343 #23 264 - 298, Castle Peak Road Tsuen Wan NT, Hong Kong'
+      - match: '7030 Ang Mo Kio Avenue 5 , #09-10 Northstar @AMK , Singapore 569880 , Other offices:, Singapore:, 200 Jalan Sultan #01-30 Textile Center Singapore 199018 , Indonesia (PT Burung Mas Indonesia): Office 1: APL Tower Lantai 23 Unit 8, Central Park 8 Jarkata Barat, Indonesia , Malaysia:, No. 53-01, Jalan Idaman 3 Taman Larkin Idaman 80350 Johor Bahru Johor, Malaysia, China:, Yiwu International Trade City District 5, Imported Commodity mart No : 60336, YiWu, China , Vietnam (Viet Sin GB stock trade company): , 58, Tran Thai Tong, Cau Giay Hanoi'
+        values:
+          - '7030 Ang Mo Kio Avenue 5, #09-10 Northstar @AMK, Singapore 569880'
+          - 'Other offices: Singapore: 200 Jalan Sultan #01-30 Textile Center Singapore 199018'
+          - 'Indonesia (PT Burung Mas Indonesia): Office 1: APL Tower Lantai 23 Unit 8, Central Park 8 Jarkata Barat, Indonesia'
+          - 'Malaysia: No. 53-01, Jalan Idaman 3 Taman Larkin Idaman 80350 Johor Bahru Johor, Malaysia'
+          - 'China: Yiwu International Trade City District 5, Imported Commodity mart No : 60336, YiWu, China'
+          - 'Vietnam (Viet Sin GB stock trade company): 58, Tran Thai Tong, Cau Giay Hanoi'
+      - match: 'Singapore:, 200 Jalan Sultan , #01-30 Textile Center , Singapore 199018 , Indonesia (PT Burung Mas Indonesia): Office 1: APL Tower Lantai 23 , Unit 8, Central Park 8 , Jarkata Barat, Indonesia , Malaysia:, No. 53-01, Jalan Idaman 3 , Taman Larkin Idaman , 80350 Johor Bahru , Johor, Malaysia, China:, Yiwu International Trade City , District 5, Imported Commodity mart No : 60336 , YiWu, China , Vietnam (Viet Sin GB stock trade company): , 58, Tran Thai Tong, Cau Giay Hanoi'
+        values:
+          - 'Singapore: 200 Jalan Sultan, #01-30 Textile Center, Singapore 199018'
+          - 'Indonesia (PT Burung Mas Indonesia): Office 1: APL Tower Lantai 23, Unit 8, Central Park 8, Jarkata Barat, Indonesia'
+          - 'Malaysia: No. 53-01, Jalan Idaman 3, Taman Larkin Idaman, 80350 Johor Bahru, Johor, Malaysia'
+          - 'China: Yiwu International Trade City, District 5, Imported Commodity mart No : 60336, YiWu, China'
+          - 'Vietnam (Viet Sin GB stock trade company): 58, Tran Thai Tong, Cau Giay Hanoi'
+      - match: 'Singapore:, 200 Jalan Sultan , #01-30 Textile Center , Singapore 199018 , Indonesia (PT Burung Mas Indonesia): , Office 1: , APL Tower Lantai 23 , Unit 8, Central Park 8 , Jarkata Barat, Indonesia , Malaysia: , No. 53-01, Jalan Idaman 3 , Taman Larkin Idaman , 80350 Johor Bahru , Johor, Malaysia , China: , Yiwu International Trade City , District 5, Imported Commodity mart No : 60336, YiWu, China, , Vietnam (Viet Sin GB stock company): , 58, Tran Thai Tong, Cau Giay , Hanoi'
+        values:
+          - 'Singapore: 200 Jalan Sultan, #01-30 Textile Center, Singapore 199018'
+          - 'Indonesia (PT Burung Mas Indonesia): Office 1: APL Tower Lantai 23, Unit 8, Central Park 8, Jarkata Barat, Indonesia'
+          - 'Malaysia: No. 53-01, Jalan Idaman 3, Taman Larkin Idaman, 80350 Johor Bahru, Johor, Malaysia'
+          - 'China: Yiwu International Trade City, District 5, Imported Commodity mart No : 60336, YiWu, China'
+          - 'Vietnam (Viet Sin GB stock company): 58, Tran Thai Tong, Cau Giay, Hanoi'
+      - match: 'Singapore Office:, 200 Jalan Sultan , #01-30 Textile Center , Singapore 199018 , Indonesia (PT Burung Mas Indonesia):, Office 1: APL Tower Lantai 23 , Unit 8, Central Park 8 , Jarkata Barat, Indonesia , Malaysia:, No. 53-01, Jalan Idaman 3, Taman Larkin Idaman , 80350 Johor Bahru , Johor, Malaysia, China:, Yiwu International Trade City , District 5, Imported Commodity mart No : 60336, YiWu, China , Vietnam (Viet Sin GB stock company): 58, Tran Thai Tong, Cau Giay Hanoi'
+        values:
+          - 'Singapore Office: 200 Jalan Sultan, #01-30 Textile Center, Singapore 199018'
+          - 'Indonesia (PT Burung Mas Indonesia): Office 1: APL Tower Lantai 23, Unit 8, Central Park 8, Jarkata Barat, Indonesia'
+          - 'Malaysia: No. 53-01, Jalan Idaman 3, Taman Larkin Idaman, 80350 Johor Bahru, Johor, Malaysia'
+          - 'China: Yiwu International Trade City, District 5, Imported Commodity mart No : 60336, YiWu, China'
+          - 'Vietnam (Viet Sin GB stock company): 58, Tran Thai Tong, Cau Giay, Hanoi'
+      - match: 'Singapore Office: , 200 Jalan Sultan , #01-30 Textile Center , Singapore 199018, Indonesia Office (PT Burung Mas Indonesia): , Office 1: , APL Tower Lantai 23 Unit 8, Central Park 8 , Jarkata Barat, Indonesia , Malaysia Office: , No. 53-01, Jalan Idaman 3 , Taman Larkin Idaman , 80350 Johor Bahru , Johor, Malaysia , China Office: , Yiwu International Trade City , District 5, Imported Commodity , mart No : 60336 , YiWu, China'
+        values:
+          - 'Singapore Office: 200 Jalan Sultan, #01-30 Textile Center, Singapore 199018'
+          - 'Indonesia Office (PT Burung Mas Indonesia): Office 1: APL Tower Lantai 23 Unit 8, Central Park 8, Jarkata Barat, Indonesia'
+          - 'Malaysia Office: No. 53-01, Jalan Idaman 3, Taman Larkin Idaman, 80350 Johor Bahru, Johor, Malaysia'
+          - 'China Office: Yiwu International Trade City, District 5, Imported Commodity mart No : 60336, YiWu, China'
+      - match: 'Unit Level 11(A), Main Office Tower, Financial Park Labuan, Jalan Merdeka, 87000 Labuan FT, Malaysia , P.O Box 1239, Offshore Incorporations Centre, Victoria, Mahe, Republic of Seychelles , 1 Raffles Place Level 24, Tower 1, One Raffles Place, Singapore 048616'
+        values:
+          - 'Unit Level 11(A), Main Office Tower, Financial Park Labuan, Jalan Merdeka, 87000 Labuan FT, Malaysia'
+          - 'P.O Box 1239, Offshore Incorporations Centre, Victoria, Mahe, Republic of Seychelles'
+          - '1 Raffles Place Level 24, Tower 1, One Raffles Place, Singapore 048616'
+      - match: 'Singapore Office: , 200 Jalan Sultan , #01-30 Textile Center , Singapore 199018, , PT Burung Mas Indonesia, Office 1: , APL Tower Lantai 23 , Unit 8, Central Park 8 , Jarkata Barat, Indonesia, No. 53-01, Jalan Idaman 3 , Taman Larkin Idaman , 80350 Johor Bahru , Johor, Malaysia, Yiwu International Trade City , District 5, Imported Commodity mart No : 60336, YiWu, China, Viet Sin GB stock pany, 58, Tran Thai Tong, Cau Giay, Hanoi'
+        values:
+          - 'Singapore Office: 200 Jalan Sultan, #01-30 Textile Center, Singapore 199018'
+          - 'PT Burung Mas Indonesia, Office 1: APL Tower Lantai 23, Unit 8, Central Park 8, Jarkata Barat, Indonesia'
+          - 'No. 53-01, Jalan Idaman 3, Taman Larkin Idaman, 80350 Johor Bahru, Johor, Malaysia'
+          - 'Yiwu International Trade City, District 5, Imported Commodity mart No : 60336, YiWu, China'
+          - 'Viet Sin GB stock pany, 58, Tran Thai Tong, Cau Giay, Hanoi'
+      - match: 'Address of Investment Management Co. Pty Ltd: E/41, Taharoto Road, Takapuna, Auckland 0622, New Zealand, Addresses of its associated companies:, 150 Shellbridge Way, Richmond, BC, Canada V6X2W8, Suite 305, Griffith Corporate Centre, P.O Box 1510, Beachmont, Kingstown, St. Vincent and the Grenadines'
+        values:
+          - 'Address of Investment Management Co. Pty Ltd: E/41, Taharoto Road, Takapuna, Auckland 0622, New Zealand'
+          - 'Addresses of its associated companies: 150 Shellbridge Way, Richmond, BC, Canada V6X2W8'
+          - 'Suite 305, Griffith Corporate Centre, P.O Box 1510, Beachmont, Kingstown, St. Vincent and the Grenadines'
+      - match: 'Singapore: , 16 Raffles Quay, #33-03, Hong Leong Building, Singapore 048581, Australia:, Level 10, 90 Arthur Street, North Sydney NSW 2060, London:, 36-38 Leadenhall Street, London, EC3A 1AT, United Kingdom, Dubai:, Office #105, Al Fattan Currency House Tower 2, DIFC, Dubai, United Arab Emirates'
+        values:
+          - 'Singapore: 16 Raffles Quay, #33-03, Hong Leong Building, Singapore 048581'
+          - 'Australia: Level 10, 90 Arthur Street, North Sydney NSW 2060'
+          - 'London: 36-38 Leadenhall Street, London, EC3A 1AT, United Kingdom'
+          - 'Dubai: Office #105, Al Fattan Currency House Tower 2, DIFC, Dubai, United Arab Emirates'
+      - match: 'Crewire Holdings Ltd: , Beachmont Business Centre, Suite 60 Kingstown, St. Vincent and the Grenadines, P.O. Box 1510, Beachmont Kingstown St. Vincent and the Grenadines, Primecapitec:, Suite 5A, Bahnhofstrasse 52, Paradeplatz, Zurich, 80001 Switzerland'
+        values:
+          - 'Crewire Holdings Ltd: Beachmont Business Centre, Suite 60 Kingstown, St. Vincent and the Grenadines'
+          - 'P.O. Box 1510, Beachmont Kingstown St. Vincent and the Grenadines'
+          - 'Primecapitec: Suite 5A, Bahnhofstrasse 52, Paradeplatz, Zurich, 80001 Switzerland'
+      - match: 'Singapore: One Raffles Place, Tower 2, 1 Raffles Place #27-62 S048616, 22 Ghim Moh Link, #27-206, Ghim Moh Valley, Singapore 271022, London: 110 Bishopsgate, London, EC2N 4AY, Hong Kong: International Finance Centre, 8 Finance Street, Central, Hong Kong'
+        values:
+          - 'Singapore: One Raffles Place, Tower 2, 1 Raffles Place #27-62 S048616'
+          - '22 Ghim Moh Link, #27-206, Ghim Moh Valley, Singapore 271022'
+          - 'London: 110 Bishopsgate, London, EC2N 4AY'
+          - 'Hong Kong: International Finance Centre, 8 Finance Street, Central, Hong Kong'
+      - match: 'Korea: , International Finance Centre , 10 Gukjegeumyung-ro , Youngdeungpo-gu, 150-945 , Seoul, South Korea , Japan: , Abeno Harukas , 1-1-43 Abenosuji , Abeno-ku , Osaka, Japan , Cyprus: , Severis Building , 9 Archbishop Makarios III Avenue , 1065 Nicosia, Cyprus'
+        values:
+          - 'Korea: International Finance Centre, 10 Gukjegeumyung-ro, Youngdeungpo-gu, 150-945, Seoul, South Korea'
+          - 'Japan: Abeno Harukas, 1-1-43 Abenosuji, Abeno-ku, Osaka, Japan'
+          - 'Cyprus: Severis Building, 9 Archbishop Makarios III Avenue, 1065 Nicosia, Cyprus'
+      - match: 'Singapore Main Office Address:, 82 Ubi Ave 4, #06-04 , Edward Boustead Centre , Singapore 408832, Singapore Event Venue:, 10 Anson Road, #10-26 International Plaza Singapore 079903 , Malaysia Office:, 17-6 The Boulevard Office 59200 Lingkaran Syed Putra Mid Valley City , Kuala Lumpur'
+        values:
+          - 'Singapore Main Office Address: 82 Ubi Ave 4, #06-04, Edward Boustead Centre, Singapore 408832'
+          - 'Singapore Event Venue: 10 Anson Road, #10-26 International Plaza Singapore 079903'
+          - 'Malaysia Office: 17-6 The Boulevard Office 59200 Lingkaran Syed Putra Mid Valley City, Kuala Lumpur'
+      - match: 'Singapore Office:, 39 Hong Kong Street #04-01, Singapore 059678 , (Address provided on Facebook Account:, 10 Jalan Besar , #11-05 Sim Lim Tower) , London Office:, Suite 4B 43 Berkeley Square, Mayfair, London , United Kingdom, W1J 5FJ , Hong Kong Office: , 12/f, Ruttonjee House , Central, Hong Kong , South Africa Office: , 14 Newent Street, Kenwyn, Cape Town, South Africa'
+        values:
+          - 'Singapore Office: 39 Hong Kong Street #04-01, Singapore 059678'
+          - 'Address provided on Facebook Account: 10 Jalan Besar, #11-05 Sim Lim Tower'
+          - 'London Office: Suite 4B 43 Berkeley Square, Mayfair, London, United Kingdom, W1J 5FJ'
+          - 'Hong Kong Office: 12/f, Ruttonjee House, Central, Hong Kong'
+          - 'South Africa Office: 14 Newent Street, Kenwyn, Cape Town, South Africa'
+      - match: 'Singapore:, C 7 Traders Singapore Pte Ltd , 100 Pasir Panjang Road #02-08 , Singapore 118518 , London:, C 7 Traders London Ltd , 27 Old Gloucester Street , London WC1N 3AX , Belize:, C 7 Traders Belize Ltd , 16 Hutson Street, Suite 304, , Belize City, Belize, C.A.'
+        values:
+          - 'Singapore: C 7 Traders Singapore Pte Ltd, 100 Pasir Panjang Road #02-08, Singapore 118518'
+          - 'London: C 7 Traders London Ltd, 27 Old Gloucester Street, London WC1N 3AX'
+          - 'Belize: C 7 Traders Belize Ltd, 16 Hutson Street, Suite 304, Belize City, Belize, C.A.'
+      - match: 'London: , Old Broad Street Business Centre, 8th Floor, 55, Old Broad Street, London, UK, EC2M 1RX, Hong Kong: 2 Queens Rd Central, Level 19 Cheung Kong Center, Hong Kong, Sydney: Level 17, 9 Castlereagh Street, Sydney, NSW 2000, Madrid: Torres KIO (Edificio Realia) Paseo de la Castellana, 216 28046 - Madrid. Spain, Lisbon: Avenida Duque de Loulé, 123 Fração 3.1 e 3.2 Lisbon, Portugal, Prague: 14/682 Rybna Str., Prague Stock Exchange, 110 05 Prague, Czech Republic, Budapest: President Centre Regus House, 1054 Budapest, Kalman Imre utca 1, Hungary, Johannesburg: Unit 38 (5th floor) Katherine & West Building, Cnr. Katherine and West Streets, Sandton 2196, Johannesburg, South Africa, Cyprus: 2, Iapetou Str., Agios Athanasios, 4101 Limassol, Cyprus'
+        values:
+          - 'London: Old Broad Street Business Centre, 8th Floor, 55, Old Broad Street, London, UK, EC2M 1RX'
+          - 'Hong Kong: 2 Queens Rd Central, Level 19 Cheung Kong Center, Hong Kong'
+          - 'Sydney: Level 17, 9 Castlereagh Street, Sydney, NSW 2000'
+          - 'Madrid: Torres KIO (Edificio Realia) Paseo de la Castellana, 216 28046 - Madrid. Spain'
+          - 'Lisbon: Avenida Duque de Loulé, 123 Fração 3.1 e 3.2 Lisbon, Portugal'
+          - 'Prague: 14/682 Rybna Str., Prague Stock Exchange, 110 05 Prague, Czech Republic'
+          - 'Budapest: President Centre Regus House, 1054 Budapest, Kalman Imre utca 1, Hungary'
+          - 'Johannesburg: Unit 38 (5th floor) Katherine & West Building, Cnr. Katherine and West Streets, Sandton 2196, Johannesburg, South Africa'
+          - 'Cyprus: 2, Iapetou Str., Agios Athanasios, 4101 Limassol, Cyprus'
+      - match: '50 Chin Swee Road, #09-04 Thong Chai Building, Singapore 169874 , Malaysia 50001 , 2A/8, Majethia Nagar, S.V. Road Kandiwali, Mumbai, Maharashtra 400067, India , 14/1, Old Palasia, 601, Rukmani Plaza, 6th Floor, A.B. Road, Indore 452001, India , 307, Vidyapati Complex, Race Course Road, Janjeerwala Square, Indore, Madhya Pradesh, India'
+        values:
+          - '50 Chin Swee Road, #09-04 Thong Chai Building, Singapore 169874'
+          - 'Malaysia 50001'
+          - '2A/8, Majethia Nagar, S.V. Road Kandiwali, Mumbai, Maharashtra 400067, India'
+          - '14/1, Old Palasia, 601, Rukmani Plaza, 6th Floor, A.B. Road, Indore 452001, India'
+          - '307, Vidyapati Complex, Race Course Road, Janjeerwala Square, Indore, Madhya Pradesh, India'

@@ -1,6 +1,8 @@
 import json
 
 from rigour.mime.types import JSON
+from followthemoney.types import registry
+
 from zavod import Context, helpers as h
 
 
@@ -37,7 +39,10 @@ def crawl(context: Context):
         entity.add("alias", item.pop("alternativename_t"))
         entity.add("previousName", item.pop("formername_t"))
         entity.add("website", item.pop("website_s"))
-        entity.add("email", h.multi_split(item.pop("email_s"), [";", " and "]))
+        for email in h.multi_split(item.pop("email_s"), [";", " and "]):
+            email_clean = registry.email.clean(email)
+            if email_clean is not None:
+                entity.add("email", email)
         entity.add("address", item.pop("address_s"))
         entity.add("notes", item.pop("notes_s"))
         h.apply_date(entity, "modifiedAt", item.pop("modifieddate_dt"))
