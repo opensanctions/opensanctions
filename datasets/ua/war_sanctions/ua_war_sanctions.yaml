@@ -33,6 +33,9 @@ description: |
   **Executives of War**: Officials, security agencies, and defense industry representatives 
   shaping Russia’s military-industrial policy, defense orders, and wartime economy.
 
+  **Stealers of Heritage**: Individuals involved in the theft and destruction of Ukrainian 
+  cultural heritage.
+
   The objective of the War and Sanctions website is to raise awareness of their conduct,
   and advocate for sanctions against these entities to hold perpetrators accountable and
   deter further actions of this kind.
@@ -175,13 +178,27 @@ lookups:
           - 1974-06-23
           - 1973-06-23
       - match: 21.08.1959 - 08.01.2024
-        values:
-          - 1959-08-21
-          - 2024-01-08
+        value: 1959-08-21
       - match: 08.011.2024)
         value: 2024-01-08
       - match: 07/03/2023)
         value: 2023-03-07
+      - match: 29.06.1961- 17.08.2018
+        values: 1961-06-29
+      - match: 06.05.1960 - 21.11.2021
+        value: 1960-05-06
+      - match: 14.09.1940 - 06.07.2016
+        value: 1940-09-14
+      - match: 01.09.1960 - 30.03.2015 - 30.03.2015
+        value: 1960-09-01
+      - match: 18.01.1947 - 16.08.2021 - 16.08.2021
+        value: 1947-01-18
+      - match: 31.12.1956 - 17.05.2019
+        value: 1956-12-31
+      - match: 26.04.1961 - 28.01.2020
+        value: 1961-04-26
+      - match: 27.06.1981 - 22.07.2023 - 22.07.2023
+        value: 1981-06-27
       - match:
           - 07.04.
           - 09.05.20234)
