@@ -31,14 +31,15 @@ def crawl(context: Context):
     for item in data.get("response").get("docs"):
         id = item.pop("id")
         relatedunregulatedpersonsid_s = item.pop("relatedunregulatedpersonsid_s")
-        # relatedunregulatedpersons_s = item.pop("relatedunregulatedpersons_s")
 
         entity = context.make("LegalEntity")
         entity.id = context.make_id(id)
-        entity.add("name", item.pop("unregulatedpersons_t"))
-        entity.add("alias", item.pop("alternativename_t"))
+        # TODO: check '.com' in name
+        for name in h.multi_split(item.pop("unregulatedpersons_t"), [";", " / "]):
+            entity.add("name", name)
+        entity.add("alias", h.multi_split(item.pop("alternativename_t"), [";"]))
         entity.add("previousName", item.pop("formername_t"))
-        entity.add("website", item.pop("website_s"))
+        entity.add("website", h.multi_split(item.pop("website_s"), [";"]))
         for email in h.multi_split(item.pop("email_s"), [";", " and "]):
             email_clean = registry.email.clean(email)
             if email_clean is not None:
