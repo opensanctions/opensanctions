@@ -9,8 +9,7 @@ coverage:
   start: "2025-03-30"
 exports:
   - statistics.json
-  - entities.ftm.json
-  - senzing.json
+  - maritime.csv
 resolve: false
 summary: >
   A shipping-focussed data subset for screening vessels and owners against sanctions.
