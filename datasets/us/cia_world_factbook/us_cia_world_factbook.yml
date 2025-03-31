@@ -176,6 +176,14 @@ lookups:
           - role: Acting President
             name: CHOI Sang-mok
             start_date: 27 December 2024
+      - match: "on 24 March 2025, the Constitutional Court dismissed the 27 December impeachment of HAN Duck-soo, reinstating him as prime minister and acting president"
+        holders:
+          - role: Prime Minister
+            name: HAN Duck-soo
+            start_date: 24 March 2025
+          - role: Acting President
+            name: HAN Duck-soo
+            start_date: 24 March 2025
       # San Marino
       - match: "co-chiefs of state Captains Regent Alessandro ROSSI and Milena GASPERONI (for the period 1 April 2024 - 30 September 2024)"
         holders:
