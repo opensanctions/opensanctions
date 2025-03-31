@@ -45,6 +45,7 @@ def crawl(context: Context):
                 entity.add("email", email)
         entity.add("address", item.pop("address_s"))
         entity.add("notes", item.pop("notes_s"))
+        entity.add("topics", ["fin", "reg.warn"])
         h.apply_date(entity, "modifiedAt", item.pop("modifieddate_dt"))
 
         sanction = h.make_sanction(context, entity)
