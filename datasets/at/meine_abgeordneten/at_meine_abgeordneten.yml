@@ -75,7 +75,7 @@ lookups:
         value: null
   expected_503:
     options:
-      - match: https://www.meineabgeordneten.at/Abgeordnete/manuela.lobnik
+      - match: https://www.meineabgeordneten.at/Abgeordnete/amelie.muthsam
   position:
     options:
       - match: Mitglied des Bundesrates, ÖVPEingetreten für das am 31.5.2010 ausgeschiedene Mitglied des Bundesrates Dr. Georg Spiegelfeld-Schneeburg.

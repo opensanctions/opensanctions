@@ -101,3 +101,7 @@ lookups:
         value: Egyptian
       - match: سوداني
         value: Sudan
+  type.date:
+    options:
+      - match: ال
+        value: null
