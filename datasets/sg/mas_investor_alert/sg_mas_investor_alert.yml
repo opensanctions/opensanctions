@@ -43,6 +43,138 @@ assertions:
       LegalEntity: 1400
 
 lookups:
+  names:
+    options:
+      - match: EFA Investments (https://efainvestments.com/en/?dl=dh)
+        items:
+          - prop: name
+            value: EFA Investments
+          - prop: website
+            value: https://efainvestments.com/en/?dl=d
+      - match: eXcentral (www.excentral-int.com
+        items:
+          - prop: name
+            value: eXcentral
+          - prop: website
+            value: www.excentral-int.com
+      - match: Coinex Foundation Ltd. (Coinex.com) 
+        items:
+          - prop: name
+            value: Coinex Foundation Ltd.
+          - prop: website
+            value: Coinex.com
+      - match: ZB.com
+        items:
+          - prop: website
+            value: ZB.com
+      - match: thdahp.com
+        items:
+          - prop: website
+            value: thdahp.com
+      - match: www.etornso.com
+        items:
+          - prop: website
+            value: www.etornso.com
+      - match: https://sinovaccapital.com 
+        items:
+          - prop: website
+            value: https://sinovaccapital.com
+      - match: https://www.resonamerchantsbank.com/
+        items:
+          - prop: website
+            value: https://www.resonamerchantsbank.com/
+      - match: https://www.facebook.com/iCapitalHoldings
+        items:
+          - prop: website
+            value: https://www.facebook.com/iCapitalHoldings
+      - match: https://yknluxintpte.com/ 
+        items:
+          - prop: website
+            value: https://yknluxintpte.com/
+      - match: https://intcityholdings.com 
+        items:
+          - prop: website
+            value: https://intcityholdings.com
+      - match: https://www.global-fh.com/
+        items:
+          - prop: website
+            value: https://www.global-fh.com/
+      - match: www.rs-im.com
+        items:
+          - prop: website
+            value: www.rs-im.com  
+      - match: https://savio-management.com 
+        items:
+          - prop: website
+            value: https://savio-management.com
+      - match: https://www.precept-sg.com/
+        items:
+          - prop: website
+            value: https://www.precept-sg.com/
+      - match: Kuailiandp.com
+        items:
+          - prop: website
+            value: Kuailiandp.com
+      - match: www.ladyhillcapital.com
+        items:
+          - prop: website
+            value: www.ladyhillcapital.com
+      - match: https://www.reardonpte-ltd.com/ 
+        items:
+          - prop: website
+            value: https://www.reardonpte-ltd.com/
+      - match: https://www.amcorinspte.com/
+        items:
+          - prop: website
+            value: https://www.amcorinspte.com/
+      - match: https://castlepacificinsurance.com/ 
+        items:
+          - prop: website
+            value: https://castlepacificinsurance.com/
+      - match: https://steelcapins.com/
+        items:
+          - prop: website
+            value: https://steelcapins.com/
+      - match: https://www.odeoninsurancepte.com/
+        items:
+          - prop: website
+            value: https://www.odeoninsurancepte.com/
+      - match: www.oecd-oe.com/dist/#/ 
+        items:
+          - prop: website
+            value: www.oecd-oe.com/dist/#/
+      - match: https://asbicinvestment.com/
+        items:
+          - prop: website
+            value: https://asbicinvestment.com/
+      - match: https://spp6c8jale-www.anewwayoffriday.com 
+        items:
+          - prop: website
+            value: https://spp6c8jale-www.anewwayoffriday.com
+      - match: www.spp655.com
+        items:
+          - prop: website
+            value: www.spp655.com
+      - match: www.binance.com
+        items:
+          - prop: website
+            value: www.binance.com
+      - match: Titantrade.com
+        items:  
+          - prop: website
+            value: Titantrade.com
+      - match: https://trade.cryptodealsfx.com
+        items:
+          - prop: website
+            value: https://trade.cryptodealsfx.com
+      - match: www.singaporepassiveincome.com
+        items:
+          - prop: website
+            value: www.singaporepassiveincome.com
+      - match: Opteck.com
+        items:
+          - prop: website
+            value: Opteck.com
   type.url:
     normalize: true
     options:

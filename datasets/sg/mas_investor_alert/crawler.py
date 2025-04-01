@@ -34,9 +34,19 @@ def crawl(context: Context):
 
         entity = context.make("LegalEntity")
         entity.id = context.make_id(id)
-        # TODO: check '.com' in name
-        for name in h.multi_split(item.pop("unregulatedpersons_t"), [";", " / "]):
-            entity.add("name", name)
+        names = h.multi_split(item.pop("unregulatedpersons_t"), [";", " / "])
+        for name in names:
+            if ".com" in name:
+                res = context.lookup("names", name)
+                if res:
+                    for lookup_item in res.items:
+                        entity.add(lookup_item["prop"], lookup_item["value"])
+                else:
+                    context.log.warning(
+                        f'Name "{name}" needs to be remapped', value=name
+                    )
+            else:
+                entity.add("name", name)
         entity.add("alias", h.multi_split(item.pop("alternativename_t"), [";"]))
         entity.add("previousName", item.pop("formername_t"))
         entity.add("website", h.multi_split(item.pop("website_s"), [";"]))
