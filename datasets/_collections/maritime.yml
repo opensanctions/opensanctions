@@ -27,7 +27,7 @@ description: |
   - **type**: Either VESSEL, or ORGANIZATION. Organizations are only included, if one of our
     data sources provides an IMO number assigned to that company or entity. All vessels are
     included in the data export, irrespective of whether an IMO number is available or not.
-  - **name**: The name of the vessel or organization. See [caption](/faq/24/captions/) on how
+  - **caption**: The name of the vessel or organization. See [caption](/faq/24/captions/) on how
     a name is picked from available candidates.
   - **imo**: The IMO number of the vessel or organization. This is a unique identifier for vessels
     and organizations. IMO numbers are assigned by the International Maritime Organization, and 

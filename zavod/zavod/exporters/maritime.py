@@ -11,7 +11,7 @@ from zavod.exporters.common import Exporter
 
 COLUMNS = [
     "type",
-    "name",
+    "caption",
     "imo",
     "risk",
     "countries",

@@ -26,4 +26,4 @@ def test_maritime(testdataset_maritime: Dataset):
             assert "imo" in row
             assert "caption" in row
         assert types["VESSEL"] == 4
-        assert types["ORG"] == 1
+        assert types["ORGANIZATION"] == 1
