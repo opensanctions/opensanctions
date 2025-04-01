@@ -232,6 +232,95 @@ lookups:
         values:
           - 'www.promarketsonline.com'
           - 'www.primecapitec.com'
+      - match: "www.globalixs.com www.globalix.com www.globalix.co www.global-x.io"
+        values:
+          - 'www.globalixs.com'
+          - 'www.globalix.com'
+          - 'www.globalix.co'
+          - 'www.global-x.io'
+      - match: "www.leafgreeninv.com www.petrainv.com"
+        values:
+          - 'http://www.leafgreeninv.com'
+          - 'www.petrainv.com'
+      - match: http://www.fm-fx.com http://www.fmtrader.com
+        values:
+          - 'http://www.fm-fx.com'
+          - 'http://www.fmtrader.com'
+      - match: http://www.ideal-fx.com/ https://www.facebook.com/Ideal-FX-140091152842160 https://www.linkedin.com/company/3803741 https://twitter.com/Ideal_FX
+        values:
+          - 'http://www.ideal-fx.com/'
+          - 'https://www.facebook.com/Ideal-FX-140091152842160'
+          - 'https://www.linkedin.com/company/3803741'
+          - 'https://twitter.com/Ideal_FX'
+      - match: "Opteck.com http://www.opteck.com/"
+        values:
+          - 'http://Opteck.com'
+          - 'http://www.opteck.com/'
+      - match: http://iconsolutions.eu/about/, http://www.itraonline.com/, http://www.realtyaccess.global/portfolio/
+        values:
+          - 'http://iconsolutions.eu/about/'
+          - 'http://www.itraonline.com/'
+          - 'http://www.realtyaccess.global/portfolio/'
+      - match: "http://oneplantationholdings.com/Investment http://oneplantationholdings.com/Company http://www.oneplantation.asia/ www.facebook.com/oneplantationimpactinvestment/"
+        values:
+          - 'http://oneplantationholdings.com/Investment'
+          - 'http://oneplantationholdings.com/Company'
+          - 'http://www.oneplantation.asia/'
+          - 'www.facebook.com/oneplantationimpactinvestment/'
+      - match: https://www.finnciti.com/ https://www.facebook.com/finnciti.egame http://finnciti.blogspot.sg/p/blog-page.html
+        values:
+          - 'https://www.finnciti.com/'
+          - 'https://www.facebook.com/finnciti.egame'
+          - 'http://finnciti.blogspot.sg/p/blog-page.html'
+      - match: http://dedydollar.blogspot.sg/2013/10/penawaran-saham-perdana-pra-ipo-www.html https://www.facebook.com/IndexGB-348924791855465/www.indexgb.com
+        values:
+          - 'http://dedydollar.blogspot.sg/2013/10/penawaran-saham-perdana-pra-ipo-www.html'
+          - 'https://www.facebook.com/IndexGB-348924791855465/'
+          - 'www.indexgb.com'
+      - match: http://sixcapital.sg/ https://www.playtagg.com/
+        values:
+          - 'http://sixcapital.sg/'
+          - 'https://www.playtagg.com/'
+      - match: http://www.suisse.com.sg/ http://suissecollection.com/
+        values:
+          - 'http://www.suisse.com.sg/'
+          - 'http://suissecollection.com/'
+      - match: http://www.w-h-capital.com/http://www.dndci.net/whc/http://www.wh-ci.com/http://www.pe18.com/
+        values:
+          - 'http://www.w-h-capital.com/'
+          - 'http://www.dndci.net/whc/'
+          - 'http://www.wh-ci.com/'
+          - 'http://www.pe18.com/'
+      - match: http://www.dreamkaya.myswisscash.com/ http://www.myswisscash.com/www.Swisscash.biz                 www.swissfund.biz
+        values:
+          - 'http://www.dreamkaya.myswisscash.com/'
+          - 'http://www.myswisscash.com/'
+          - 'www.Swisscash.biz'
+          - 'www.swissfund.biz'
+      - match: "www.apollo_fc.com www.eagle-star.cc/apollo/main.asp"
+        values:
+          - 'www.apollo_fc.com'
+          - 'www.eagle-star.cc/apollo/main.asp'
+      - match: "www.sterlingcapitalcorporation.com www.sterlingcall.com"
+        values:
+          - 'www.sterlingcapitalcorporation.com'
+          - 'www.sterlingcall.com/'
+      - match: http://sixcap.co https://www.playtagg.com
+        values:
+          - 'http://sixcap.co'
+          - 'https://www.playtagg.com'
+      - match: https://www.portablefund.com/support-system/ https://www.portablefund.com/index.php
+        values:
+          - 'https://www.portablefund.com/support-system/'
+          - 'https://www.portablefund.com/index.php'
+      - match: "https://www.uuex.com/ https://www.usdt.com/ https://www.facebook.com/UU_exchange/ https://www.linkedin.com/company/uuex/ https://uuex.medium.com/what-is-uuex-learn-about-uuex-exchange-in-3-minutes-ae2d4f9efb0b https://x.com/UUExchange"
+        values:
+          - 'https://www.uuex.com/'
+          - 'https://www.usdt.com/'
+          - 'https://www.facebook.com/UU_exchange/'
+          - 'https://www.linkedin.com/company/uuex/'
+          - 'https://uuex.medium.com/what-is-uuex-learn-about-uuex-exchange-in-3-minutes-ae2d4f9efb0b'
+          - 'https://x.com/UUExchange'
       - match: Company com
         value: null
   type.address:
