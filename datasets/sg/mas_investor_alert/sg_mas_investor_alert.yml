@@ -178,8 +178,44 @@ lookups:
   ownership:
     options:
       - match: RI Markets (owned by Fcorp Services Ltd)
-        owner_name: Fcorp Services Ltd
+        owner_name: [Fcorp Services Ltd]
         entity_name: RI Markets
+      - match: Juno Markets (managed by Guinevere Global Pte Ltd)
+        owner_name: [Guinevere Global Pte Ltd]
+        entity_name: Juno Markets
+      - match: Interactive-Trading (operated by Advanced Software Solutions Ltd and advertised by Libra Digital Marketing)
+        owner_name: [Advanced Software Solutions Ltd]
+        entity_name: Interactive-Trading
+      - match: in-tan (operated by Investment Management Co. Pty Ltd)
+        owner_name: [Investment Management Co. Pty Ltd]
+        entity_name: in-tan
+      - match: Clearsave (operated by Buen Solutions Ltd and/or Lagoon Technologies Ltd)
+        owner_name: ["Buen Solutions Ltd", "Lagoon Technologies Ltd"]
+        entity_name: Clearsave
+      - match: OctaFX (operated by Octa Markets)
+        owner_name: [Octa Markets]
+        entity_name: OctaFX
+      - match: Mentor FX (operated by Mentor Corp)
+        owner_name: [Mentor Corp]
+        entity_name: Mentor FX
+      - match: TradeLtd (operated by Currency Board OU)
+        owner_name: [Currency Board OU]
+        entity_name: TradeLtd
+      - match: Pro Markets (operated by Crewire Holdings Ltd)
+        owner_name: [Crewire Holdings Ltd]
+        entity_name: Pro Markets
+      - match: BT Save (operated by EZ2Go Ltd)
+        owner_name: [EZ2Go Ltd]
+        entity_name: BT Save
+      - match: IvoryOption, owned and operated by Arya Group Ltd
+        owner_name: [Arya Group Ltd]
+        entity_name: IvoryOption
+      - match: BinaryOnline, operated by Zola Ltd
+        owner_name: [Zola Ltd]
+        entity_name: BinaryOnline
+      - match: https://excentral-int.net/), operated by OM Bridge (Pty) Ltd
+        owner_name: [OM Bridge (Pty) Ltd]
+        entity_name: []
   type.url:
     normalize: true
     options:

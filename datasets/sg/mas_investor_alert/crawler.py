@@ -16,6 +16,7 @@ IGNORE = [
     "approveddate_dt",
     "relatedunregulatedpersons_s",
 ]
+OWNERSHIP_KEYWORDS = ["owned ", "managed ", "operates ", "operated "]
 
 
 def crawl(context: Context):
@@ -45,21 +46,22 @@ def crawl(context: Context):
                     context.log.warning(
                         f'Name "{name}" needs to be remapped', value=name
                     )
-            elif "owned by" in name:
+            elif any(keyword in name for keyword in OWNERSHIP_KEYWORDS):
                 result = context.lookup("ownership", name)
                 if result is not None:
                     entity.add("name", result.entity_name)
-                    owner_name = result.owner_name
-                    owner = context.make("LegalEntity")
-                    owner.id = context.make_id("named", owner_name)
-                    owner.add("name", owner_name)
-                    context.emit(owner)
+                    owner_names = result.owner_name
+                    for owner_name in owner_names:
+                        owner = context.make("LegalEntity")
+                        owner.id = context.make_id("named", owner_name)
+                        owner.add("name", owner_name)
+                        context.emit(owner)
 
-                    link = context.make("Ownership")
-                    link.id = context.make_id(entity.id, owner.id)
-                    link.add("asset", entity)
-                    link.add("owner", owner)
-                    context.emit(link)
+                        own = context.make("Ownership")
+                        own.id = context.make_id(entity.id, owner.id)
+                        own.add("asset", entity)
+                        own.add("owner", owner)
+                        context.emit(own)
                 else:
                     context.log.warning(
                         f'Name "{name}" needs to be remapped', value=name
