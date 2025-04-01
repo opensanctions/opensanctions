@@ -17,6 +17,7 @@ IGNORE = [
     "relatedunregulatedpersons_s",
 ]
 OWNERSHIP_KEYWORDS = ["owned ", "managed ", "operates ", "operated "]
+WEBSITE_KEYWORDS = [".com", ".net", ".org", "https:"]
 
 
 def emit_ownership(context, entity, owner_name, name):
@@ -24,6 +25,7 @@ def emit_ownership(context, entity, owner_name, name):
     if result is not None:
         entity.add("name", result.entity_name)
         owner_names = result.owner_name
+        # Mostly we have only one owner, but sometimes we have multiple
         for owner_name in owner_names:
             owner = context.make("LegalEntity")
             owner.id = context.make_id("named", owner_name)
@@ -53,6 +55,16 @@ def emit_relationship(context, entity, relatedunregulatedpersonsid_s):
         context.emit(rel)
 
 
+def add_lookup_items(context, entity, name):
+    res = context.lookup("names", name)
+    if res:
+        # This lookup may return either a 'name', a 'website', or both.
+        for lookup_item in res.items:
+            entity.add(lookup_item["prop"], lookup_item["value"])
+    else:
+        context.log.warning(f'Name "{name}" needs to be remapped', value=name)
+
+
 def crawl_item(context: Context, item: dict):
     id = item.pop("id")
     relatedunregulatedpersonsid_s = item.pop("relatedunregulatedpersonsid_s")
@@ -61,13 +73,8 @@ def crawl_item(context: Context, item: dict):
     entity.id = context.make_id(id)
     names = h.multi_split(item.pop("unregulatedpersons_t"), [";", " / "])
     for name in names:
-        if ".com" in name:
-            res = context.lookup("names", name)
-            if res:
-                for lookup_item in res.items:
-                    entity.add(lookup_item["prop"], lookup_item["value"])
-            else:
-                context.log.warning(f'Name "{name}" needs to be remapped', value=name)
+        if any(keyword in name for keyword in WEBSITE_KEYWORDS):
+            add_lookup_items(context, entity, name)
         elif any(keyword in name for keyword in OWNERSHIP_KEYWORDS):
             emit_ownership(context, entity, name, name)
         else:
@@ -75,14 +82,14 @@ def crawl_item(context: Context, item: dict):
     entity.add("alias", h.multi_split(item.pop("alternativename_t"), [";"]))
     entity.add("previousName", item.pop("formername_t"))
     entity.add("website", h.multi_split(item.pop("website_s"), [";"]))
-    for email in h.multi_split(item.pop("email_s"), [";", " and "]):
-        email_clean = registry.email.clean(email)
-        if email_clean is not None:
-            entity.add("email", email)
     entity.add("address", item.pop("address_s"))
     entity.add("notes", item.pop("notes_s"))
     entity.add("topics", ["fin", "reg.warn"])
     h.apply_date(entity, "modifiedAt", item.pop("modifieddate_dt"))
+    for email in h.multi_split(item.pop("email_s"), [";", " and "]):
+        email_clean = registry.email.clean(email)
+        if email_clean is not None:
+            entity.add("email", email)
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "listingDate", item.pop("date_dt", None))

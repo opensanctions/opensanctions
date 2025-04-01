@@ -63,6 +63,24 @@ lookups:
             value: Coinex Foundation Ltd.
           - prop: website
             value: Coinex.com
+      - match: Guardian Project on https://riegling.click
+        items:
+          - prop: name
+            value: Guardian Project
+          - prop: website
+            value: https://riegling.click
+      - match: Guardian Project on https://traoe.cc
+        items:
+          - prop: name
+            value: Guardian Project
+          - prop: website
+            value: https://traoe.cc
+      - match: DKG Group Ltd (www.cofinancial.net)
+        items:
+          - prop: name
+            value: DKG Group Ltd
+          - prop: website
+            value: www.cofinancial.net
       - match: ZB.com
         items:
           - prop: website
@@ -175,6 +193,63 @@ lookups:
         items:
           - prop: website
             value: Opteck.com
+      - match: http://icapitalsg.net/
+        items:
+          - prop: website
+            value: http://icapitalsg.net/
+      - match: masguardian.org and projectguardian.digital on https://t.me/QuantumStellarInitiative/36040
+        items:
+          - prop: website
+            value: masguardian.org
+          - prop: website
+            value: projectguardian.digital
+          - prop: website
+            value: https://t.me/QuantumStellarInitiative/36040
+      - match: Projectguardian.digital on https://stellar.expert/explorer/public/account/GB2Z42DRDOLLRLH62JFM3EC35DHD2KPETP6KKMX7EYKLFZEUXGGXG7L6
+        items:
+          - prop: website
+            value: projectguardian.digital
+          - prop: website
+            value: https://stellar.expert/explorer/public/account/GB2Z42DRDOLLRLH62JFM3EC35DHD2KPETP6KKMX7EYKLFZEUXGGXG7L6
+      - match: https://t.me/masofficialchannel and https://t.me/StellarMAS
+        items:
+          - prop: website
+            value: https://t.me/masofficialchannel
+          - prop: website
+            value: https://t.me/StellarMAS
+      - match: https://www.tigerbrokers.asia/#
+        items:
+          - prop: website
+            value: https://www.tigerbrokers.asia/#
+      - match: https://diegria.ink
+        items:
+          - prop: website
+            value: https://diegria.ink
+      - match: https://down.afehp.xyz/
+        items:
+          - prop: website
+            value: https://down.afehp.xyz/
+      - match: https://down.afeapp.info/
+        items:
+          - prop: website
+            value: https://down.afeapp.info/
+      - match: https://www.eztfpo.cn
+        items:
+          - prop: website
+            value: https://www.eztfpo.cn
+      - match: https://Krx.today
+        items:
+          - prop: website
+            value: https://Krx.today
+      - match: https://excentral-int.net/), operated by OM Bridge (Pty) Ltd
+        items:
+          - prop: website
+            value: https://excentral-int.net/
+      - match: Financial.org
+        # I don't think it should be a name but that's all we have in this case
+        items:
+          - prop: name
+            value: Financial.org
   ownership:
     options:
       - match: RI Markets (owned by Fcorp Services Ltd)
