@@ -290,6 +290,7 @@ def parse_entry(context: Context, target: Element, programs, places):
 
     if last_modification_type == "de-listed":
         return
+    entity.add("topics", "sanction")
 
     ssid = target.get("sanctions-set-id")
     if ssid is None:
@@ -337,8 +338,6 @@ def parse_entry(context: Context, target: Element, programs, places):
     for identity in node.findall("./identity"):
         parse_identity(context, entity, identity, places)
 
-    # if not sanctioned:
-    #     return
     context.emit(entity)
     context.emit(sanction)
 
