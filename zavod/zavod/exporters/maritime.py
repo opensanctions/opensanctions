@@ -11,7 +11,7 @@ from zavod.exporters.common import Exporter
 
 COLUMNS = [
     "type",
-    "caption",
+    "name",
     "imo",
     "risk",
     "countries",
@@ -70,7 +70,7 @@ class MaritimeExporter(Exporter):
             if not entity.schema.is_a("Vessel"):
                 return
             imos.append("")
-        row_type = "VESSEL" if entity.schema.is_a("Vessel") else "ORG"
+        row_type = "VESSEL" if entity.schema.is_a("Vessel") else "ORGANIZATION"
         topics = entity.get("topics", quiet=True)
         risk_topics = settings.TARGET_TOPICS.intersection(topics)
         if row_type == "VESSEL":

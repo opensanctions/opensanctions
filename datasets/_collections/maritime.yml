@@ -3,18 +3,50 @@ title: Maritime-related sanctions
 hidden: true
 deploy:
   memory: "2000Mi"
-  disk: "100Gi"
+  disk: "20Gi"
 coverage:
   frequency: daily
-  start: "2025-03-30"
+  start: "2025-04-01"
 exports:
   - statistics.json
   - maritime.csv
 resolve: false
 summary: >
-  A shipping-focussed data subset for screening vessels and owners against sanctions.
+  A shipping-focussed data subset for screening vessels, operators and owners against sanctions.
 description: |
-  ...
+  **NOTICE:** This data product is currently under development and we are looking for user
+  feedback. Please do not rely on the draft tabular structure before the end of Apr. 2025. Please
+  share any feedback with us via the [forum](https://discuss.opensanctions.org/) or [support](/support/)
+  channels.
+
+  This collection contains maritime-related sanctions data, featuring vessels, and organizations
+  linked to them. The dataset includes all watchlists that are relevant to maritime operations,
+  ie. that indicate vessels as sanctioned entities.
+
+  The CSV data structure is as follows:
+  - **type**: Either VESSEL, or ORGANIZATION. Organizations are only included, if one of our
+    data sources provides an IMO number assigned to that company or entity. All vessels are
+    included in the data export, irrespective of whether an IMO number is available or not.
+  - **name**: The name of the vessel or organization. See [caption](/faq/24/captions/) on how
+    a name is picked from available candidates.
+  - **imo**: The IMO number of the vessel or organization. This is a unique identifier for vessels
+    and organizations. IMO numbers are assigned by the International Maritime Organization, and 
+    different schemes are used for vessels and organizations. If no IMO number is available for
+    a vessel, the field is empty. In those cases, more brittle matching on name may be required.
+  - **risk**: Whether the vessel or organization is directly sanctioned, or is mentioned on a
+    watchlist in a secondary capacity. See [topics](/docs/topics/).
+  - **countries**: All countries that the vessel or organization has been linked to.
+  - **flag**: The flag of the vessel. This is the country that the vessel is registered in.
+  - **mmsi**: The MMSI number of the vessel. This is a unique identifier for vessels, and is
+    assigned by the International Telecommunication Union (ITU). It is used for maritime
+    communication and navigation. If no MMSI number is available for a vessel, the field is empty.
+  - **id**: The OpenSanctions ID for the vessel or organization.
+  - **url**: Link to the OpenSanctions profile regarding the vessel or organization.
+  - **datasets**: The list of datasets that mention the vessel or organization. This is a list of
+    OpenSanctions dataset IDs, and can be used to find out where the data comes from.
+  - **aliases**: A list of all names that are linked to the vessel or organization, except for
+    the name that is used in the `name` field.
+
 children:
   - ua_war_sanctions
   - us_ofac_sdn
