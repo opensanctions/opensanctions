@@ -175,6 +175,11 @@ lookups:
         items:
           - prop: website
             value: Opteck.com
+  ownership:
+    options:
+      - match: RI Markets (owned by Fcorp Services Ltd)
+        owner_name: Fcorp Services Ltd
+        entity_name: RI Markets
   type.url:
     normalize: true
     options:
