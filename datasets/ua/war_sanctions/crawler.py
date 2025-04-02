@@ -76,22 +76,27 @@ def extract_label_value_pair(label_elem, value_elem, data):
     return label, value
 
 
+def process_date_range(date_str, entity):
+    parts = h.multi_split(str(date_str), [" - "])
+    if len(parts) > 1:
+        h.apply_date(entity, "birthDate", parts[0])
+        h.apply_date(entity, "deathDate", parts[1])
+        return True
+    return False
+
+
 def apply_dob_pob(context, entity, dob_pob):
     if not dob_pob:
         return
     # Handle list with two elements [dob, pob]
     if isinstance(dob_pob, list) and len(dob_pob) == 2:
         dob, pob = dob_pob
-        h.apply_date(entity, "birthDate", dob)
+        if not process_date_range(dob, entity):
+            h.apply_date(entity, "birthDate", dob)
         entity.add("birthPlace", pob)
+    # Handle string format (single date or date range)
     elif isinstance(dob_pob, str):
-        parts = h.multi_split(dob_pob, [" - "])
-        # Handle date range format (birth-death dates)
-        if len(parts) > 1:
-            h.apply_date(entity, "birthDate", parts[0])
-            h.apply_date(entity, "deathDate", parts[1])
-        # Handle single date
-        else:
+        if not process_date_range(dob_pob, entity):
             h.apply_date(entity, "birthDate", dob_pob)
     else:
         context.log.warning(f"Unexpected dob_pob format: {dob_pob}")
@@ -603,7 +608,7 @@ def crawl(context: Context):
             current_url = next_url
             visited_pages += 1
 
-            if visited_pages >= 100:
+            if visited_pages >= 10:
                 raise Exception(
                     "Emergency limit of 100 visited pages reached. Potential logical inconsistency detected."
                 )
