@@ -52,6 +52,11 @@ LINKS = [
         "type": "person",
         "program": "Persons involved in the theft and destruction of Ukrainian cultural heritage",
     },
+    {  # stealers of heritage
+        "url": "https://war-sanctions.gur.gov.ua/en/stolen/companies",
+        "type": "legal_entity",
+        "program": "Legal entities involved in the theft and destruction of Ukrainian cultural heritage",
+    },
 ]
 
 # e.g. Ocean Dolphin Ship Management (6270796
