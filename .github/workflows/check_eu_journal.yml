@@ -3,7 +3,7 @@ name: eu-journal
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "15 6,8,9,10,12,14,16,18,20 * * *"
+    - cron: "15 6,8,9,10,12,14,16,18 * * *"
 
 jobs:
   check_eu_journal:
