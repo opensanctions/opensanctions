@@ -76,18 +76,25 @@ def extract_label_value_pair(label_elem, value_elem, data):
     return label, value
 
 
-def apply_dob_pob(entity, dob_pob):
+def apply_dob_pob(context, entity, dob_pob):
     if not dob_pob:
         return
-    # If we get more than one part, unpack it into dob and pob
-    if len(dob_pob) == 2:
+    # Handle list with two elements [dob, pob]
+    if isinstance(dob_pob, list) and len(dob_pob) == 2:
         dob, pob = dob_pob
         h.apply_date(entity, "birthDate", dob)
         entity.add("birthPlace", pob)
-    # If there’s only one part, we assume it's just the dob
-    elif len(dob_pob) == 1:
-        dob = dob_pob[0]
-        h.apply_date(entity, "birthDate", dob)
+    elif isinstance(dob_pob, str):
+        parts = h.multi_split(dob_pob, [" - "])
+        # Handle date range format (birth-death dates)
+        if len(parts) > 1:
+            h.apply_date(entity, "birthDate", parts[0])
+            h.apply_date(entity, "deathDate", parts[1])
+        # Handle single date
+        else:
+            h.apply_date(entity, "birthDate", dob_pob)
+    else:
+        context.log.warning(f"Unexpected dob_pob format: {dob_pob}")
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
@@ -142,7 +149,7 @@ def crawl_captain(context: Context, main_grid, program):
         captain.add("taxNumber", tax_number)
         captain.add("topics", "poi")
         if dob_pob:
-            apply_dob_pob(captain, dob_pob)
+            apply_dob_pob(context, captain, dob_pob)
 
         sanction = h.make_sanction(context, captain)
         sanction.add("program", program)
@@ -451,7 +458,7 @@ def crawl_person(context: Context, link, program):
     if archive_links is not None:
         person.add("sourceUrl", archive_links)
     if dob_pob:
-        apply_dob_pob(person, dob_pob)
+        apply_dob_pob(context, person, dob_pob)
     if positions:
         for position in h.multi_split(positions, [" / "]):
             person.add("position", position)
