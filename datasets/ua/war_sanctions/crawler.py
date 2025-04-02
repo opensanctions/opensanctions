@@ -608,7 +608,7 @@ def crawl(context: Context):
             current_url = next_url
             visited_pages += 1
 
-            if visited_pages >= 10:
+            if visited_pages >= 100:
                 raise Exception(
                     "Emergency limit of 100 visited pages reached. Potential logical inconsistency detected."
                 )
