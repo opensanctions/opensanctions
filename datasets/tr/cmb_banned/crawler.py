@@ -51,7 +51,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     sanction.add("reason", row.pop("aciklama"))
 
-    context.emit(entity, target=True)
+    context.emit(entity)
     context.emit(sanction)
 
     if row.get("davaBilgisi") and row.get("davaBilgisi") not in ["Yok", "Var"]:

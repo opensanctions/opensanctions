@@ -1,0 +1,7 @@
+id,type,name,imo,topics
+org-a,Organization,Irrelevant Corp,,sanction
+org-b,Organization,Marine Trans Shipping LLC,IMO6183435,sanction
+vessel-a,Vessel,ADONIA,IMO9242223,sanction.linked
+vessel-b,Vessel,TEMIRO,IMO9209972,sanction
+vessel-c,Vessel,SWIFTSEA RIDER,IMO9318539,
+vessel-d,Vessel,DESTAN,,sanction
