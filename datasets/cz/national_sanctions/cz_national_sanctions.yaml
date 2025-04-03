@@ -23,7 +23,7 @@ publisher:
   country: "cz"
 url: "https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html"
 data:
-  url: https://mzv.gov.cz/jnp/cz/o_ministerstvu/otevrena_data/vnitrostatni_sankcni_seznam/index.html
+  url: https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html
   format: CSV
 
 dates:
@@ -51,6 +51,11 @@ assertions:
       Person: 20
       LegalEntity: 5
 lookups:
+  type.date:
+    normalize: true
+    options:
+      - match: "26. září 1989 ."
+        value: "1989-09-26"
   type.country:
     lowercase: true
     normalize: true
