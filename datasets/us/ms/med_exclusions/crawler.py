@@ -6,13 +6,11 @@ from zavod import Context, helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
-    if not row.get("provider_name"):
-        return
-
     provider_name = row.pop("provider_name")
+    dob = row.pop("date_of_birth")
+    npi = row.pop("npi")
 
-    if row.get("date_of_birth"):
+    if dob:
         schema = "Person"
     else:
         schema = "LegalEntity"
@@ -21,18 +19,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.id = context.make_id(provider_name, row.get("npi"))
 
     entity.add("name", provider_name)
-
-    if row.get("date_of_birth"):
-        entity.add("birthDate", row.pop("date_of_birth"))
-
-    if row.get("npi"):
-        entity.add("npiCode", row.pop("npi").split("\n"))
-    else:
-        row.pop("npi")
-
     entity.add("country", "us")
     entity.add("sector", row.pop("provider_type_specialty"))
     entity.add("address", row.pop("provider_address"))
+    if entity.schema.name == "Person":
+        h.apply_date(entity, "birthDate", dob)
+    if npi:
+        entity.add("npiCode", npi.split("\n"))
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("termination_effective_date"))
@@ -53,11 +46,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     if end_date not in ["Indefinite", "indefinite"]:
         h.apply_date(sanction, "endDate", end_date)
-        is_debarred = False
     else:
-        is_debarred = True
-
-    if is_debarred:
         entity.add("topics", "debarment")
 
     context.emit(entity)
