@@ -562,6 +562,7 @@ class Context:
                 "Emitted %s entities" % self.stats.entities,
                 statements=self.stats.statements,
             )
+            self.flush()
         stamps = {} if self.dry_run else self.timestamps.get(entity.id)
         for stmt in entity.statements:
             if stmt.id is None:
