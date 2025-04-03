@@ -200,9 +200,6 @@ def load_db(
 ) -> None:
     try:
         dataset = _load_dataset(dataset_path)
-        if dataset.is_collection or not dataset.load_statements:
-            log.warning("Dataset cannot be loaded to database: %s" % dataset.name)
-            sys.exit(1)
         linker = get_dataset_linker(dataset)
         load_dataset_to_db(
             dataset,
