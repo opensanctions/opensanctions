@@ -14,6 +14,10 @@ IGNORE = [
 ]
 OWNERSHIP_KEYWORDS = ["owned ", "managed ", "operates ", "operated "]
 WEBSITE_KEYWORDS = [".com", ".net", ".org", "https:", "http:", "www.", ".sq", ".co"]
+NON_EXISTENT_RELATIONS = {"5685", "4891"}
+
+all_entities = set()
+all_related = set()
 
 
 def check_num_found(context, data):
@@ -51,6 +55,14 @@ def emit_ownership(context, entity, owner_name, name):
 def emit_relationship(context, entity, relatedunregulatedpersonsid_s):
     related_ids = relatedunregulatedpersonsid_s.split("|")
     for rel_id in related_ids:
+        if rel_id in NON_EXISTENT_RELATIONS:
+            # Skip non-existent relations
+            continue
+
+        # Add the ID to the set of all related entities
+        global all_related
+        all_related.add(rel_id)
+
         # No need to emit related entities since they're already included
         # at the root level of the response
         related_entity_id = context.make_id(rel_id)
@@ -75,6 +87,9 @@ def add_lookup_items(context, entity, name):
 def crawl_item(context: Context, item: dict):
     id = item.pop("id")
     relatedunregulatedpersonsid_s = item.pop("relatedunregulatedpersonsid_s")
+    # Add the ID to the set of all entities
+    global all_entities
+    all_entities.add(id)
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(id)
@@ -118,3 +133,11 @@ def crawl(context: Context):
     check_num_found(context, data)
     for item in data.get("response").get("docs"):
         crawl_item(context, item)
+
+    # Check for unknown related entity IDs
+    missing_related_ids = all_related - all_entities - NON_EXISTENT_RELATIONS
+    if missing_related_ids:
+        context.log.warning(
+            f"Found {len(missing_related_ids)} new unknown related entity IDs",
+            missing_ids=list(missing_related_ids),
+        )
