@@ -47,6 +47,16 @@ LINKS = [
         "type": "person",
         "program": "Officials and entities controlling Russia’s military-industrial policy, defense orders, and wartime economy",
     },
+    {  # stealers of heritage
+        "url": "https://war-sanctions.gur.gov.ua/en/stolen/persons",
+        "type": "person",
+        "program": "Persons involved in the theft and destruction of Ukrainian cultural heritage",
+    },
+    {  # stealers of heritage
+        "url": "https://war-sanctions.gur.gov.ua/en/stolen/companies",
+        "type": "legal_entity",
+        "program": "Legal entities involved in the theft and destruction of Ukrainian cultural heritage",
+    },
 ]
 
 # e.g. Ocean Dolphin Ship Management (6270796
@@ -71,18 +81,30 @@ def extract_label_value_pair(label_elem, value_elem, data):
     return label, value
 
 
-def apply_dob_pob(entity, dob_pob):
+def apply_life_dates(date_str, entity):
+    parts = h.multi_split(str(date_str), [" - "])
+    if len(parts) > 1:
+        h.apply_date(entity, "birthDate", parts[0])
+        h.apply_date(entity, "deathDate", parts[1])
+        return True
+    return False
+
+
+def apply_dob_pob(context, entity, dob_pob):
     if not dob_pob:
         return
-    # If we get more than one part, unpack it into dob and pob
-    if len(dob_pob) == 2:
+    # Handle list with two elements [dob, pob]
+    if isinstance(dob_pob, list) and len(dob_pob) == 2:
         dob, pob = dob_pob
-        h.apply_date(entity, "birthDate", dob)
+        if not apply_life_dates(dob, entity):
+            h.apply_date(entity, "birthDate", dob)
         entity.add("birthPlace", pob)
-    # If there’s only one part, we assume it's just the dob
-    elif len(dob_pob) == 1:
-        dob = dob_pob[0]
-        h.apply_date(entity, "birthDate", dob)
+    # Handle string format (single date or date range)
+    elif isinstance(dob_pob, str):
+        if not apply_life_dates(dob_pob, entity):
+            h.apply_date(entity, "birthDate", dob_pob)
+    else:
+        context.log.warning(f"Unexpected dob_pob format: {dob_pob}")
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
@@ -137,7 +159,7 @@ def crawl_captain(context: Context, main_grid, program):
         captain.add("taxNumber", tax_number)
         captain.add("topics", "poi")
         if dob_pob:
-            apply_dob_pob(captain, dob_pob)
+            apply_dob_pob(context, captain, dob_pob)
 
         sanction = h.make_sanction(context, captain)
         sanction.add("program", program)
@@ -446,7 +468,7 @@ def crawl_person(context: Context, link, program):
     if archive_links is not None:
         person.add("sourceUrl", archive_links)
     if dob_pob:
-        apply_dob_pob(person, dob_pob)
+        apply_dob_pob(context, person, dob_pob)
     if positions:
         for position in h.multi_split(positions, [" / "]):
             person.add("position", position)
@@ -458,7 +480,9 @@ def crawl_person(context: Context, link, program):
 
     context.emit(person)
     context.emit(sanction)
-    context.audit_data(data, ignore=["Sanction Jurisdictions"])
+    context.audit_data(
+        data, ignore=["Sanction Jurisdictions", "Permission for illegal excavations"]
+    )
 
 
 def crawl_legal_entity(context: Context, link, program):
@@ -533,8 +557,18 @@ def crawl(context: Context):
         ".//section[contains(@class, 'sections')][contains(@class, 'justify-content-center')]"
     )
     assert len(section_links_section) == 1, section_links_section
+    # Child kidnappers
+    # Components in weapons
+    # Instruments of war
+    # Marine and aircraft vessels
+    # Stolen heritage
+    # Partner's sanctions lists
+    # Champions of terror
+    # Kremlin mouthpieces
+    # UAV manufacturers
+    # Executives of war
     h.assert_dom_hash(
-        section_links_section[0], "b66069bcdb6a9a977a668210ddaddb398998f1b8"
+        section_links_section[0], "6d9e5bb137fbbd3c5698008f0c01ed10318d9b53"
     )
 
     # Has the API link been updated to point to the previously-nonexistent API page?
