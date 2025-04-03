@@ -34,7 +34,7 @@ LAST_PAGE = (
 # https://rpvs.gov.sk/opendatav2/KonecniUzivateliaVyhod/45?$expand=Partner,PravnaForma,Adresa
 
 
-def emit_address(context, entity, address):
+def apply_address(context, entity, address):
     if not address:
         return
     street_name = address.get("MenoUlice")
@@ -84,7 +84,7 @@ def emit_relationship(context, entity_data, entity_id, is_pep):
     related = context.make(schema)
     related.id = context.make_id(make_id)
     if address := entity_data.get("Adresa"):
-        emit_address(context, related, address)
+        apply_address(context, related, address)
 
     if related.schema.name == "LegalEntity":
         related.add("name", entity_name)
@@ -142,7 +142,7 @@ def process_entry(context, entry, headers):
         entity.add("classification", legal_form.get("StatistickyKod"))
 
     if address := entity_data.get("Adresa"):
-        emit_address(context, entity, address)
+        apply_address(context, entity, address)
     context.emit(entity)
 
     if partner := entity_data.get("Partner"):
@@ -171,6 +171,7 @@ def crawl(context: Context):
     url_count = 0
 
     while url:  # and url_count < 1:
+        # TODO: check a better condition for stoppings
         if url == LAST_PAGE:
             context.log.info("Stopping crawl: Reached skip token limit.")
             break
