@@ -81,7 +81,7 @@ def extract_label_value_pair(label_elem, value_elem, data):
     return label, value
 
 
-def process_date_range(date_str, entity):
+def apply_life_dates(date_str, entity):
     parts = h.multi_split(str(date_str), [" - "])
     if len(parts) > 1:
         h.apply_date(entity, "birthDate", parts[0])
@@ -96,12 +96,12 @@ def apply_dob_pob(context, entity, dob_pob):
     # Handle list with two elements [dob, pob]
     if isinstance(dob_pob, list) and len(dob_pob) == 2:
         dob, pob = dob_pob
-        if not process_date_range(dob, entity):
+        if not apply_life_dates(dob, entity):
             h.apply_date(entity, "birthDate", dob)
         entity.add("birthPlace", pob)
     # Handle string format (single date or date range)
     elif isinstance(dob_pob, str):
-        if not process_date_range(dob_pob, entity):
+        if not apply_life_dates(dob_pob, entity):
             h.apply_date(entity, "birthDate", dob_pob)
     else:
         context.log.warning(f"Unexpected dob_pob format: {dob_pob}")
