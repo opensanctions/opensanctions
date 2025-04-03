@@ -14,9 +14,10 @@ PUBLIC_OFFICIALS_ENDPOINT = f"{BASE_URL}/VerejniFunkcionari/{{id}}"
 
 TOTAL_COUNT = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/$count"
 FIRST_PAGE = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0"
-LAST_PAGE = (
-    "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skiptoken=Id-261694"
-)
+# UNSTABLE_LAST_PAGE = (
+#     "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skiptoken=Id-261694"
+# )
+
 # TODO do we want to add contry "SK" everywhere?
 
 # def crawl(context: Context) -> None:
@@ -172,12 +173,9 @@ def crawl(context: Context):
 
     while url:  # and url_count < 1:
         # TODO: check a better condition for stoppings
-        if url == LAST_PAGE:
-            context.log.info("Stopping crawl: Reached skip token limit.")
-            break
-
         data = context.fetch_json(url, headers=headers, cache_days=3)
         for entry in data.get("value"):  # Directly iterate over new IDs
             process_entry(context, entry, headers)
+        # Currently it breaks when there is no next link
         url = data.get("@odata.nextLink")
         url_count += 1  # Increment the counter
