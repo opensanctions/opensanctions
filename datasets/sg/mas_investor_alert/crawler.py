@@ -53,9 +53,11 @@ def emit_relationship(context, entity, relatedunregulatedpersonsid_s):
     for rel_id in related_ids:
         # No need to emit related entities since they're already included
         # at the root level of the response
+        related_entity_id = context.make_id(rel_id)
+
         rel = context.make("UnknownLink")
-        rel.id = context.make_id(entity.id, "associated with", context.make_id(rel_id))
-        rel.add("subject", context.make_id(rel_id))
+        rel.id = context.make_id(entity.id, "associated with", related_entity_id)
+        rel.add("subject", related_entity_id)
         rel.add("object", entity.id)
         context.emit(rel)
 
