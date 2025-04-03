@@ -6,10 +6,6 @@ from followthemoney.types import registry
 from zavod import Context, helpers as h
 
 
-HEADERS = {
-    "Accept": "application/json, text/plain, */*",
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
-}
 IGNORE = [
     "phonenumber_s",
     "score",
@@ -17,7 +13,18 @@ IGNORE = [
     "relatedunregulatedpersons_s",
 ]
 OWNERSHIP_KEYWORDS = ["owned ", "managed ", "operates ", "operated "]
-WEBSITE_KEYWORDS = [".com", ".net", ".org", "https:"]
+WEBSITE_KEYWORDS = [".com", ".net", ".org", "https:", "http:", "www.", ".sq", ".co"]
+
+
+def check_num_found(context, data):
+    num_found = data.get("response").get("numFound")
+    if num_found is None:
+        context.log.warn("Response doesn't contain numFound field")
+    else:
+        if num_found > 999:
+            context.log.warn(
+                "More entities than currently covered", source_url=context.data_url
+            )
 
 
 def emit_ownership(context, entity, owner_name, name):
@@ -44,13 +51,11 @@ def emit_ownership(context, entity, owner_name, name):
 def emit_relationship(context, entity, relatedunregulatedpersonsid_s):
     related_ids = relatedunregulatedpersonsid_s.split("|")
     for rel_id in related_ids:
-        # No need to emit, since we have them already
-        related = context.make("LegalEntity")
-        related.id = context.make_id(rel_id)
-
+        # No need to emit related entities since they're already included
+        # at the root level of the response
         rel = context.make("UnknownLink")
-        rel.id = context.make_id(entity.id, "associated with", related.id)
-        rel.add("subject", related.id)
+        rel.id = context.make_id(entity.id, "associated with", context.make_id(rel_id))
+        rel.add("subject", context.make_id(rel_id))
         rel.add("object", entity.id)
         context.emit(rel)
 
@@ -103,14 +108,11 @@ def crawl_item(context: Context, item: dict):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource(
-        "source.json",
-        context.data_url,
-        headers=HEADERS,
-    )
+    path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r", encoding="utf-8") as fh:
         data = json.load(fh)
 
+    check_num_found(context, data)
     for item in data.get("response").get("docs"):
         crawl_item(context, item)

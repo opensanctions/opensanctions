@@ -32,6 +32,9 @@ url: https://www.mas.gov.sg/investor-alert-list
 data:
   url: https://www.mas.gov.sg/api/v1/ialsearch?json.nl=map&wt=json&q=*:*&sort=date_dt+desc&rows=1000&start=0
   format: JSON
+# The default doesn't work, so we need to specify a realistic browser user agent
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)"
 
 assertions:
   min:
@@ -244,6 +247,14 @@ lookups:
         items:
           - prop: website
             value: https://excentral-int.net/
+      - match: www.saccapitalvn.pro
+        items:
+          - prop: website
+            value: www.saccapitalvn.pro
+      - match: www.exmo.xyz/download.aspx
+        items:
+          - prop: website
+            value: www.exmo.xyz/download.aspx
       - match: Financial.org
         # I don't think it should be a name but that's all we have in this case
         items:
