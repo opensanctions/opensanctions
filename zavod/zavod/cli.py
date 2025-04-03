@@ -180,7 +180,7 @@ def run(
         reset_caches()
         publish_dataset(dataset, latest=latest)
 
-        if not dataset.is_collection and dataset.load_statements is not None:
+        if not dataset.is_collection and dataset.load_statements:
             log.info("Loading dataset into database...", dataset=dataset.name)
             load_dataset_to_db(dataset, linker, external=external)
         log.info("Dataset run is complete :)", dataset=dataset.name)
