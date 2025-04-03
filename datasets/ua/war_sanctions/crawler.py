@@ -557,6 +557,16 @@ def crawl(context: Context):
         ".//section[contains(@class, 'sections')][contains(@class, 'justify-content-center')]"
     )
     assert len(section_links_section) == 1, section_links_section
+    # Child kidnappers
+    # Components in weapons
+    # Instruments of war
+    # Marine and aircraft vessels
+    # Stolen heritage
+    # Partner's sanctions lists
+    # Champions of terror
+    # Kremlin mouthpieces
+    # UAV manufacturers
+    # Executives of war
     h.assert_dom_hash(
         section_links_section[0], "6d9e5bb137fbbd3c5698008f0c01ed10318d9b53"
     )
