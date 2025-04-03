@@ -4,7 +4,7 @@ prefix: sg-ial
 coverage:
   frequency: daily
   start: 2025-03-28
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   The Investor Alert List contains entities that may have been wrongly perceived as licensed, 
   authorized, or regulated by MAS, or have made misleading investment offers.
@@ -23,9 +23,8 @@ publisher:
   name: Monetary Authority of Singapore
   acronym: MAS
   description: |
-    The Monetary Authority of Singapore (MAS) is Singapore’s central bank and
-    integrated financial regulator. MAS also works with the financial industry
-    to develop Singapore as a dynamic international financial centre.
+    The Monetary Authority of Singapore (MAS) is Singapore’s central bank and integrated 
+    financial regulator.
   url: https://www.mas.gov.sg/who-we-are
   country: sg
   official: true
