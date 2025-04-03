@@ -35,15 +35,21 @@ data:
   url: https://medicaid.ms.gov/providers/provider-terminations/
   format: HTML
   lang: eng
-
 dates:
   formats: ["%m.%d.%y", "%B %d, %Y", "%B %d,%Y", "%m/%d/%Y"]
+
 assertions:
   min:
     schema_entities:
       LegalEntity: 100
-      Person: 40
+      Person: 80
   max:
     schema_entities:
       LegalEntity: 250
-      Person: 100
+      Person: 200
+
+lookups:
+  end_date:
+    options:
+      - match: 2025-03-07
+        value: Indefinite
