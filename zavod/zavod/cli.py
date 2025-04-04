@@ -136,12 +136,10 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
 @click.argument("dataset_path", type=InPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
 @click.option("-c", "--clear", is_flag=True, default=False)
-@click.option("-x", "--external", is_flag=True, default=True)
 def run(
     dataset_path: Path,
     latest: bool = False,
     clear: bool = False,
-    external: bool = False,
 ) -> None:
     dataset = _load_dataset(dataset_path)
     if clear:
@@ -182,7 +180,7 @@ def run(
 
         if not dataset.is_collection and dataset.load_statements is not None:
             log.info("Loading dataset into database...", dataset=dataset.name)
-            load_dataset_to_db(dataset, linker, external=external)
+            load_dataset_to_db(dataset, linker, external=False)
         log.info("Dataset run is complete :)", dataset=dataset.name)
     except Exception:
         log.exception("Failed to export and publish %r" % dataset.name)

@@ -16,6 +16,7 @@ deploy:
   memory_limit: "5000Mi"
   disk_limit: 50Gi
 load_statements: true
+ci_test: false
 summary: >-
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
 description: |
@@ -52,7 +53,6 @@ publisher:
   url: https://usr.minjust.gov.ua/
   country: ua
   official: true
-ci_test: false
 
 inputs:
   - ann_graph_topics

@@ -16,6 +16,7 @@ deploy:
   disk: 30Gi
   disk_limit: 100Gi
 load_statements: true
+ci_test: false
 summary: >
   Enrichment of companies and other entities found in the Registers of business
   entities in Bosnia and Herzegovina.
@@ -51,7 +52,6 @@ publisher:
     Register of Business Entities in the District Brčko of BiH, Register of Business
     Entities in the Federation of BiH and the Register of Business Entities in Republika Srpska.
   official: true
-ci_test: false
 
 inputs:
   - ann_graph_topics
