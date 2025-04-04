@@ -174,13 +174,17 @@ def process_entry(context, entry, headers):
 def crawl(context: Context):
     headers = {"Accept": "application/json"}
     url = context.data_url
-    url_count = 0
+    total_count = context.fetch_json(TOTAL_COUNT)
+    if not total_count:
+        context.log.warning("Failed to fetch total count")
 
-    while url:  # and url_count < 1:
-        # TODO: check a better condition for stoppings
+    processed = 0
+    while url:
         data = context.fetch_json(url, headers=headers, cache_days=3)
         for entry in data.pop("value"):  # Directly iterate over new IDs
+            if processed >= total_count:  # Additional exit condition
+                break
             process_entry(context, entry, headers)
-        # Currently it breaks when there is no next link
+            processed += 1
+        # It will break when there is no next link
         url = data.pop("@odata.nextLink")
-        url_count += 1  # Increment the counter
