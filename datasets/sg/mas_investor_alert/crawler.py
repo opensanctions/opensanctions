@@ -1,3 +1,4 @@
+import itertools
 import json
 from collections import namedtuple
 
@@ -138,11 +139,11 @@ def crawl(context: Context):
         crawl_item_results.append(res)
 
     seen_ids = set(r.source_id for r in crawl_item_results)
-    related_ids = set()
     for result in crawl_item_results:
-        related_ids.update(result.related_source_ids)
         emit_relationship(context, result.entity, result.related_source_ids, seen_ids)
+
     # Check if we don't get too many missing IDs
+    related_ids = set(itertools.chain(r.related_source_ids for r in crawl_item_results))
     if len(related_ids - seen_ids) > len(related_ids) / 2:
         context.log.warning(
             f"Too many missing IDs: {len(related_ids - seen_ids)}",
