@@ -1,7 +1,5 @@
-import functools
-import re
 from datetime import date
-from typing import Optional, List, Dict, IO, Tuple
+from typing import Optional, Dict, IO
 
 from lxml import etree
 from lxml.etree import _Element as Element
@@ -9,72 +7,6 @@ from lxml.etree import _Element as Element
 from address import parse_address
 from zavod import Context
 from zavod import helpers as h
-
-AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
-
-
-def parse_name(name: Optional[str]) -> List[str]:
-    """
-    A simple rule-based parser for names, which can contain aliases in parentheses.
-    Args:
-        name: The name to parse.
-    Returns:
-        A list of names.
-    """
-    if name is None:
-        return []
-    names: List[str] = []
-    if name.endswith(")"):
-        parts = name.rsplit("(", 1)
-        if len(parts) == 2:
-            name = parts[0].strip()
-            alias = parts[1].strip(")").strip()
-            names.append(alias)
-    names.append(name)
-    return names
-
-
-@functools.cache
-def get_abbreviations(context) -> AbbreviationList:
-    """
-    Load abbreviations and compile regex patterns from the YAML config.
-    Returns:
-    AbbreviationList: A list of tuples containing canonical abbreviations
-    and their compiled regex patterns for substitution.
-    """
-    types = context.dataset.config.get("organizational_types")
-    abbreviations = []
-    for canonical, phrases in types.items():
-        # we want to match the whole word and allow for ["] or ['] at the beginning
-        for phrase in phrases:
-            phrase_pattern = rf"^[ \"']?{re.escape(phrase)}"
-
-            compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
-            # Append the canonical form, compiled regex pattern, and phrase to the list
-            abbreviations.append((canonical, compiled_pattern, phrase))
-    # Reverse-sort by length so that the most specific phrase would match first.
-    abbreviations.sort(key=lambda x: len(x[2]), reverse=True)
-    return abbreviations
-
-
-def substitute_abbreviations(
-    context: Context, name: Optional[str]) -> Optional[str]:
-    """
-    Substitute organisation type in the name with its abbreviation
-    using the compiled regex patterns.
-
-    :param name: The input name where abbreviations should be substituted.
-    :return: The name shorted if possible, otherwise the original
-    """
-    if name is None:
-        return None
-    # Iterate over all abbreviation groups
-    for canonical, regex, phrases in get_abbreviations(context):
-        modified_name = regex.sub(canonical, name)
-        if modified_name != name:
-            return modified_name
-    # If no match, return the original name
-    return name
 
 
 def entity_id(
@@ -148,10 +80,13 @@ def make_person(
         "last_name": last_name,
         "father_name": patronymic,
         "inn_code": inn_code,
-        "countries": countries
+        "countries": countries,
     }
 
-def make_org(context: Context, el: Element, local_id: Optional[str]) -> Optional[Dict[str, str]]:
+
+def make_org(
+    context: Context, el: Element, local_id: Optional[str]
+) -> Optional[Dict[str, str]]:
     """
     Parse an organization from the XML element.
     Args:
@@ -172,7 +107,7 @@ def make_org(context: Context, el: Element, local_id: Optional[str]) -> Optional
         inn = name_el.get("ИНН")
         ogrn = name_el.get("ОГРН")
         org["id"] = entity_id(context, name, inn, ogrn, local_id)
-        org["name"] = parse_name(name)
+        org["name"] = name
         org["inn_code"] = inn
         org["ogrn_code"] = ogrn
 
@@ -236,7 +171,7 @@ def make_owner(context: Context, company: dict, el: Element) -> Optional[dict]:
             }
             owner_union["legal_entity"] = owner
             owner["id"] = entity_id(context, name, inn, ogrn, local_id)
-            owner["name"] = parse_name(name)
+            owner["name"] = name
             owner["inn_code"] = inn
             owner["ogrn_code"] = ogrn
     elif el.tag == "УчрРФСубМО":  # Russian public body
@@ -289,7 +224,7 @@ def make_owner(context: Context, company: dict, el: Element) -> Optional[dict]:
             }
             owner_union["legal_entity"] = owner
             owner["id"] = entity_id(context, name, inn, ogrn, local_id)
-            owner["name"] = parse_name(name)
+            owner["name"] = name
             owner["inn_code"] = inn
             owner["ogrn_code"] = ogrn
     elif el.tag == "УчрРФСубМО":
@@ -301,7 +236,9 @@ def make_owner(context: Context, company: dict, el: Element) -> Optional[dict]:
 
     if owner is None or owner.get("id") is None:
         context.log.warning(
-            "No ID for ownership of company %s, skipping Ownership" % company["id"], el=el, owner=owner
+            "No ID for ownership of company %s, skipping Ownership" % company["id"],
+            el=el,
+            owner=owner,
         )
         return None
 
@@ -309,7 +246,7 @@ def make_owner(context: Context, company: dict, el: Element) -> Optional[dict]:
         "seen_date": context.data_time.date(),
         "date": date.fromisoformat(str(link_date)) if link_date else None,
         "record_id": link_record_id,
-        "summary_1": link_summary
+        "summary_1": link_summary,
     }
 
     if company.get("dissolution_date"):
@@ -333,7 +270,9 @@ def make_owner(context: Context, company: dict, el: Element) -> Optional[dict]:
 
     # NOTE(Leon Handreke): Here we re-key (vs. the old crawler) to detect changes in ownership structure
     # The previous key did not contain shares_count and role
-    ownership["id"] = context.make_id(company["id"], owner["id"], ownership.get("shares_count"), ownership["role"])
+    ownership["id"] = context.make_id(
+        company["id"], owner["id"], ownership.get("shares_count"), ownership["role"]
+    )
 
     reliable_el = el.find("./СвНедДанУчр")
     if reliable_el is not None:
@@ -342,7 +281,9 @@ def make_owner(context: Context, company: dict, el: Element) -> Optional[dict]:
     return ownership
 
 
-def make_directorship(context: Context, company: dict, el: Element) -> Optional[Dict[str, str]]:
+def make_directorship(
+    context: Context, company: dict, el: Element
+) -> Optional[Dict[str, str]]:
     """
     Parse a directorship from the XML element.
     Args:
@@ -372,15 +313,17 @@ def make_directorship(context: Context, company: dict, el: Element) -> Optional[
     }
     start_date_el = role.find("./ГРНДатаПерв")
     if start_date_el is not None:
-        directorship["start_date"] = date.fromisoformat(start_date_el.find("./ГРНДатаПерв").get("ДатаЗаписи"))
+        directorship["start_date"] = date.fromisoformat(
+            start_date_el.find("./ГРНДатаПерв").get("ДатаЗаписи")
+        )
 
     return directorship
+
 
 def build_successor_predecessor(
     context: Context, other_entity: dict, el: Element
 ) -> Optional[dict]:
     name = el.get("НаимЮЛПолн")
-    name_short = substitute_abbreviations(context, name)
     inn = el.get("ИНН")
     ogrn = el.get("ОГРН")
     successor_id = entity_id(
@@ -393,7 +336,10 @@ def build_successor_predecessor(
         entity = {
             "schema": "Company",
             "seen_date": context.data_time.date(),
-            "id": successor_id, "name": name_short, "inn_code": inn, "ogrn_code": ogrn,
+            "id": successor_id,
+            "name_full": name,
+            "inn_code": inn,
+            "ogrn_code": ogrn,
         }
 
         if not entity["ogrn_code"]:
@@ -402,11 +348,9 @@ def build_successor_predecessor(
             entity["inn_code"] = other_entity.get("inn_code")
         return entity
 
+
 def parse_company(context: Context, el: Element) -> dict:
-    company = {
-        "schema": "Company",
-        "seen_date": context.data_time.date()
-    }
+    company = {"schema": "Company", "seen_date": context.data_time.date()}
     inn = el.get("ИНН")
     ogrn = el.get("ОГРН")
     name_full: Optional[str] = None
@@ -415,24 +359,26 @@ def parse_company(context: Context, el: Element) -> dict:
     for name_el in el.findall("./СвНаимЮЛ"):
         name_full = name_el.get("НаимЮЛПолн")
         name_short = name_el.get("НаимЮЛСокр")
-        name_full_short = substitute_abbreviations(context, name_full)
-        name_short_shortened = substitute_abbreviations(context, name_short)
 
-    name = name_full or name_short_shortened
+    name = name_full or name_short
     company["id"] = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     company["jurisdiction"] = "ru"
-    company["name_full"] = name_full_short
-    company["name_short"] = name_short_shortened
+    company["name_full"] = name_full
+    company["name_short"] = name_short
     company["ogrn_code"] = ogrn
     company["inn_code"] = inn
     company["kpp_code"] = el.get("КПП")
     company["legal_form"] = el.get("ПолнНаимОПФ")
     incorporation_date = el.get("ДатаОГРН")
-    company["incorporation_date"] = date.fromisoformat(incorporation_date) if incorporation_date else None
+    company["incorporation_date"] = (
+        date.fromisoformat(incorporation_date) if incorporation_date else None
+    )
 
     for term_el in el.findall("./СвПрекрЮЛ"):
         dissolution_date = term_el.get("ДатаПрекрЮЛ")
-        company["dissolution_date"] = date.fromisoformat(dissolution_date) if dissolution_date else None
+        company["dissolution_date"] = (
+            date.fromisoformat(dissolution_date) if dissolution_date else None
+        )
 
     email_el = el.find("./СвАдрЭлПочты")
     if email_el is not None:
@@ -511,10 +457,8 @@ def parse_sole_trader(context: Context, el: Element) -> Optional[dict]:
     if t["id"] is None:
         context.log.warn("No ID for sole trader")
         return None
-    return {
-        "id": t["id"],
-        "legal_entity": t
-    }
+    return {"id": t["id"], "legal_entity": t}
+
 
 def parse_xml(context: Context, handle: IO[bytes]):
     doc = etree.parse(handle)

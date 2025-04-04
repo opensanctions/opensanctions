@@ -8,6 +8,7 @@ entity_fields = [
 person_schema = StructType(
     entity_fields
     + [
+        # These names are raw, no splittin or abbreviation replacement
         StructField("name", StringType(), True),
         StructField("first_name", StringType(), True),
         StructField("last_name", StringType(), True),
@@ -20,8 +21,11 @@ person_schema = StructType(
 legal_entity_schema = StructType(
     entity_fields
     + [
+        # These names are raw, no splitting or abbreviation replacement
+        # For LegalEntity and Organization
         StructField("name", StringType(), True),
         StructField("name_latin", StringType(), True),
+        # For Company
         StructField("name_full", StringType(), True),
         StructField("name_short", StringType(), True),
         StructField("legal_form", StringType(), True),

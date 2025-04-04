@@ -1,12 +1,59 @@
 import csv
+import functools
 import os
-from typing import Dict, Set, Any
+import re
+from typing import Dict, Set, Any, Optional, List, Tuple
 
 from zavod import Context, Entity
 from zavod.shed.internal_data import fetch_internal_data, list_internal_data
 
 LOCAL_BUCKET_PATH = "/Users/leon/internal-data/"
 PROCESSED_EGRUL_PREFIX = "ru_egrul/processed/current_2025-01-14/"
+
+
+AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
+
+
+@functools.cache
+def get_abbreviations(context) -> AbbreviationList:
+    """
+    Load abbreviations and compile regex patterns from the YAML config.
+    Returns:
+    AbbreviationList: A list of tuples containing canonical abbreviations
+    and their compiled regex patterns for substitution.
+    """
+    types = context.dataset.config.get("organizational_types")
+    abbreviations = []
+    for canonical, phrases in types.items():
+        # we want to match the whole word and allow for ["] or ['] at the beginning
+        for phrase in phrases:
+            phrase_pattern = rf"^[ \"']?{re.escape(phrase)}"
+
+            compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
+            # Append the canonical form, compiled regex pattern, and phrase to the list
+            abbreviations.append((canonical, compiled_pattern, phrase))
+    # Reverse-sort by length so that the most specific phrase would match first.
+    abbreviations.sort(key=lambda x: len(x[2]), reverse=True)
+    return abbreviations
+
+
+def substitute_abbreviations(context: Context, name: Optional[str]) -> Optional[str]:
+    """
+    Substitute organisation type in the name with its abbreviation
+    using the compiled regex patterns.
+
+    :param name: The input name where abbreviations should be substituted.
+    :return: The name shorted if possible, otherwise the original
+    """
+    if name is None:
+        return None
+    # Iterate over all abbreviation groups
+    for canonical, regex, phrases in get_abbreviations(context):
+        modified_name = regex.sub(canonical, name)
+        if modified_name != name:
+            return modified_name
+    # If no match, return the original name
+    return name
 
 
 def emit_person(context: Context, row: dict[str, Any]) -> Entity:
@@ -23,16 +70,43 @@ def emit_person(context: Context, row: dict[str, Any]) -> Entity:
     context.emit(entity)
 
 
+def parse_name(name: Optional[str]) -> List[str]:
+    """
+    A simple rule-based parser for names, which can contain aliases in parentheses.
+    Args:
+        name: The name to parse.
+    Returns:
+        A list of names.
+    """
+    if name is None:
+        return []
+    names: List[str] = []
+    if name.endswith(")"):
+        parts = name.rsplit("(", 1)
+        if len(parts) == 2:
+            name = parts[0].strip()
+            alias = parts[1].strip(")").strip()
+            names.append(alias)
+    names.append(name)
+    return names
+
+
 def emit_legal_entity(
     context: Context, row: dict[str, Any], is_company: bool = False
-) -> Entity:
+) -> None:
     entity = context.make(row["schema"])
 
     entity.id = row["id"]
-    entity.add("name", row["name"])
+
+    # name and name_latin is only set for LegalEntity and Organization, Company has name_full and name_short
+    names = parse_name(row["name"])
+    entity.add("name", names)
     entity.add("name", row["name_latin"])
-    entity.add("name", row["name_full"])
-    entity.add("name", row["name_short"])
+
+    # Only for Company. These need to pass through the abbreviation substitution
+    entity.add("name", substitute_abbreviations(context, row["name_full"]))
+    entity.add("name", substitute_abbreviations(context, row["name_short"]))
+
     entity.add("jurisdiction", row["jurisdiction"])
     entity.add("country", row["country"])
     entity.add("innCode", row["inn_code"])
