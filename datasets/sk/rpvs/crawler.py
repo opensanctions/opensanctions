@@ -63,7 +63,7 @@ def fetch_related_data(context, related_id, endpoint):
     return response
 
 
-def emit_relationship(context, entity_data, entity_id, is_pep):
+def emit_related_entity(context, entity_data, entity_id, is_pep):
     first_name = entity_data.pop("Meno")
     last_name = entity_data.pop("Priezvisko")
     dob = entity_data.pop("DatumNarodenia")
@@ -83,29 +83,32 @@ def emit_relationship(context, entity_data, entity_id, is_pep):
     related.add("title", entity_data.pop("TitulZa"))
     if address := entity_data.pop("Adresa"):
         apply_address(context, related, address)
-    if public_official:
-        related.add("topics", "role.pep")
-        related.add("country", "SK")
-    if is_pep:
+    if public_official or is_pep:
         # Based on the internal categorization provided by the source
         related.add("topics", "role.pep")
         related.add("country", "SK")
-        rel = context.make("UnknownLink")
-        rel.id = context.make_id(related.id, "associated with", entity_id)
-        rel.add("subject", related.id)
-        rel.add("object", entity_id)
-        context.emit(rel)
-    else:
-        own = context.make("Ownership")
-        own.id = context.make_id(entity_id, "owned by", related.id)
-        own.add("owner", related.id)
-        own.add("asset", entity_id)
-        context.emit(own)
-    context.emit(related)
 
+    context.emit(related)
     context.audit_data(
         entity_data, ["@odata.context", "Id", "PlatnostOd", "PlatnostDo", "Partner"]
     )
+    return related
+
+
+def emit_ownership(context, related, entity_id):
+    own = context.make("Ownership")
+    own.id = context.make_id(entity_id, "owned by", related.id)
+    own.add("owner", related.id)
+    own.add("asset", entity_id)
+    context.emit(own)
+
+
+def emit_link(context, related, entity_id):
+    rel = context.make("UnknownLink")
+    rel.id = context.make_id(related.id, "associated with", entity_id)
+    rel.add("subject", related.id)
+    rel.add("object", entity_id)
+    context.emit(rel)
 
 
 def process_entry(context, entry):
@@ -153,14 +156,18 @@ def process_entry(context, entry):
             owner_data = fetch_related_data(
                 context, owner.pop("Id"), BENEFICIAL_OWNERS_ENDPOINT
             )
-            emit_relationship(context, owner_data, entity.id, is_pep=False)
+            rel_entity = emit_related_entity(
+                context, owner_data, entity.id, is_pep=False
+            )
+            emit_ownership(context, rel_entity, entity.id)
 
         for pep in partner_data.pop("VerejniFunkcionari"):
             pep_data = fetch_related_data(
                 context, pep.pop("Id"), PUBLIC_OFFICIALS_ENDPOINT
             )
             context.log.info("Fetched PEP data", pep_data=pep_data)
-            emit_relationship(context, pep_data, entity.id, is_pep=True)
+            rel_entity = emit_related_entity(context, pep_data, entity.id, is_pep=True)
+            emit_link(context, rel_entity, entity.id)
 
 
 def crawl(context: Context):
