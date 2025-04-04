@@ -26,6 +26,7 @@ REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
 EURLEX_WS_URL = "https://eur-lex.europa.eu/EURLexWebService"
 EURLEX_WS_USERNAME = os.environ.get("EURLEX_WS_USERNAME")
 EURLEX_WS_PASSWORD = os.environ.get("EURLEX_WS_PASSWORD")
+HEARTBEAT_URL = os.environ.get("EU_JOURNAL_HEARTBEAT_URL", "")
 PAGE_SIZE = 100
 
 SEEN_PATH = Path(os.environ["EU_JOURNAL_SEEN_PATH"])
@@ -257,6 +258,12 @@ def send_message(context, message):
         return f"Error {response.status_code}\nMessage: {message}\nResponse: {response.text}"
 
 
+def exit_with_error(context: Context, message: str):
+    if HEARTBEAT_URL:
+        context.http.post(HEARTBEAT_URL + "/fail", data=message.encode("utf-8"))
+    sys.exit(1)
+
+
 @click.command()
 @click.option("--debug", is_flag=True, default=False)
 @click.option("--slack", is_flag=True, default=False)
@@ -287,10 +294,9 @@ def main(
 
     # If we didn't find any updates, something's probably wrong.
     if not some_updates:
-        context.log.error(
-            "No legislation or amendments found at all. Something's wrong."
-        )
-        sys.exit(1)
+        error_message = "No legislation or amendments found at all. Something's wrong."
+        context.log.error(error_message)
+        exit_with_error(context, error_message)
 
     # Prepare the messages in advance to reduce the chance of partial failure
     # and subsequent duplicate messages.
@@ -318,7 +324,8 @@ def main(
     if errors:
         for error in errors:
             context.log.error(error)
-        sys.exit(1)
+        error_message = "\n".join(errors)
+        exit_with_error(context, error_message)
 
 
 if __name__ == "__main__":

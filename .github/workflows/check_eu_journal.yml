@@ -3,7 +3,7 @@ name: eu-journal
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "15 6,8,9,10,12,14,16,18 * * *"
+    - cron: "15 6,8,9,10,12,14,16,18,20 * * *"
 
 jobs:
   check_eu_journal:
@@ -41,12 +41,6 @@ jobs:
         run: |
           python contrib/eu_journal_updates.py --slack --update-seen
           curl "$EU_JOURNAL_HEARTBEAT_URL"
-      - name: Log failure to betterstack
-        if: failure()
-        env:
-          EU_JOURNAL_HEARTBEAT_URL: "${{ secrets.EU_JOURNAL_HEARTBEAT_URL }}"
-        run: |
-          curl "$EU_JOURNAL_HEARTBEAT_URL"/fail
       - name: Commit and push changes, if any
         working-directory: eu_journal
         run: |
