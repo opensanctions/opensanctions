@@ -1,4 +1,6 @@
+import itertools
 import json
+from collections import namedtuple
 
 from rigour.mime.types import JSON
 from followthemoney.types import registry
@@ -12,11 +14,7 @@ IGNORE = [
     "relatedunregulatedpersons_s",
 ]
 OWNERSHIP_KEYWORDS = ["owned ", "managed ", "operates ", "operated "]
-WEBSITE_KEYWORDS = [".com", ".net", ".org", "https:", "http:", "www.", ".sq", ".co"]
-NON_EXISTENT_RELATIONS = {"5685", "4891"}
-
-all_entities = set()
-all_related = set()
+WEBSITE_KEYWORDS = [".com", ".net", ".org", "https:", "http:", "www.", ".sg", ".co"]
 
 
 def check_num_found(context, data):
@@ -51,16 +49,12 @@ def emit_ownership(context, entity, owner_name, name):
         context.log.warning(f'Name "{name}" needs to be remapped', value=name)
 
 
-def emit_relationship(context, entity, relatedunregulatedpersonsid_s):
-    related_ids = relatedunregulatedpersonsid_s.split("|")
+def emit_relationship(context, entity, related_ids, root_seen_ids):
     for rel_id in related_ids:
-        if rel_id in NON_EXISTENT_RELATIONS:
-            # Skip non-existent relations
+        if rel_id not in root_seen_ids:
+            # The relations described here should have a peer at the root level, otherwise they are dangling.
+            # Skip those dangling ones here.
             continue
-
-        # Add the ID to the set of all related entities
-        global all_related
-        all_related.add(rel_id)
 
         # No need to emit related entities since they're already included
         # at the root level of the response
@@ -83,12 +77,20 @@ def add_lookup_items(context, entity, name):
         context.log.warning(f'Name "{name}" needs to be remapped', value=name)
 
 
-def crawl_item(context: Context, item: dict):
+CrawlItemResult = namedtuple(
+    "CrawlItemResult", ["entity", "source_id", "related_source_ids"]
+)
+
+
+def crawl_item(context: Context, item: dict) -> CrawlItemResult:
     id = item.pop("id")
+
     relatedunregulatedpersonsid_s = item.pop("relatedunregulatedpersonsid_s")
-    # Add the ID to the set of all entities
-    global all_entities
-    all_entities.add(id)
+    related_ids = (
+        relatedunregulatedpersonsid_s.split("|")
+        if relatedunregulatedpersonsid_s
+        else []
+    )
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(id)
@@ -116,12 +118,11 @@ def crawl_item(context: Context, item: dict):
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "listingDate", item.pop("date_dt", None))
 
-    if relatedunregulatedpersonsid_s:
-        emit_relationship(context, entity, relatedunregulatedpersonsid_s)
-
     context.audit_data(item, IGNORE)
     context.emit(entity)
     context.emit(sanction)
+
+    return CrawlItemResult(entity=entity, source_id=id, related_source_ids=related_ids)
 
 
 def crawl(context: Context):
@@ -131,13 +132,19 @@ def crawl(context: Context):
         data = json.load(fh)
 
     check_num_found(context, data)
-    for item in data.get("response").get("docs"):
-        crawl_item(context, item)
 
-    # Check for unknown related entity IDs
-    missing_related_ids = all_related - all_entities - NON_EXISTENT_RELATIONS
-    if missing_related_ids:
+    crawl_item_results: list[CrawlItemResult] = []
+    for item in data.get("response").get("docs"):
+        res = crawl_item(context, item)
+        crawl_item_results.append(res)
+
+    seen_ids = set(r.source_id for r in crawl_item_results)
+    for result in crawl_item_results:
+        emit_relationship(context, result.entity, result.related_source_ids, seen_ids)
+
+    # Check if we don't get too many missing IDs
+    related_ids = set(itertools.chain(r.related_source_ids for r in crawl_item_results))
+    if len(related_ids - seen_ids) > len(related_ids) / 2:
         context.log.warning(
-            f"Found {len(missing_related_ids)} new unknown related entity IDs",
-            missing_ids=list(missing_related_ids),
+            f"Too many missing IDs: {len(related_ids - seen_ids)}",
         )
