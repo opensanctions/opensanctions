@@ -70,11 +70,7 @@ def emit_relationship(context, entity_data, entity_id, is_pep):
     # One more flag for public officials (used in ownership relationship)
     public_official = entity_data.pop("JeVerejnyCinitel")
 
-    if entity_name := entity_data.pop("ObchodneMeno"):
-        schema = "LegalEntity"
-        make_id = (ico, entity_name)
-        context.log.warning("Legal entity found", entity_data=entity_data)
-    elif first_name := entity_data.pop("Meno"):
+    if first_name := entity_data.pop("Meno"):
         schema = "Person"
         make_id = (first_name, last_name, dob)
     else:
@@ -114,6 +110,10 @@ def emit_relationship(context, entity_data, entity_id, is_pep):
             own.add("asset", entity_id)
             context.emit(own)
     context.emit(related)
+
+    context.audit_data(
+        entity_data, ["@odata.context", "Id", "PlatnostOd", "PlatnostDo", "Partner"]
+    )
 
 
 def process_entry(context, entry):
@@ -173,7 +173,7 @@ def process_entry(context, entry):
 
 def crawl(context: Context):
     url = context.data_url
-    total_count = context.fetch_json(TOTAL_COUNT)
+    total_count = 5  # context.fetch_json(TOTAL_COUNT)
     if not total_count:
         context.log.warning("Failed to fetch total count")
 
