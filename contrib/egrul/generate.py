@@ -42,14 +42,11 @@ def update_company_from_new_company(context: Context, old: Row, new: Row) -> Row
     result = new
     data_date = new.legal_entity.seen_date
 
-    # assert all(
-    #     [o.start_date is not None for o in result.ownerships]
-    # ), "Ownership does not have a start_date"
-
     expired_ownerships = []
     new_ownership_ids = set([o.id for o in result.ownerships])
     for o in old.ownerships:
-        # Ownership.id is built from (owner, asset, shares_count, role), so any change will build a new Ownership
+        # Ownership.id is built from (owner, asset, shares_count, role), so if any of these changes,
+        # we'll add an expired Ownership
         if o.id not in new_ownership_ids:
             o_dict = o.asDict()
             o_dict["end_date"] = day_before(data_date)
@@ -58,7 +55,8 @@ def update_company_from_new_company(context: Context, old: Row, new: Row) -> Row
     expired_directorships = []
     new_directorship_ids = set([o.id for o in result.directorships])
     for d in old.directorships:
-        # Directorship.id is built from (company, director, role)
+        # Directorship.id is built from (company, director, role), so if any of these changes,
+        # we'll add an expired Directorship
         if d.id not in new_directorship_ids:
             # If we already have an end date, use that. It might have been set by
             # a previous run of this function when the new directorship first appeared.
@@ -68,7 +66,7 @@ def update_company_from_new_company(context: Context, old: Row, new: Row) -> Row
                 # We try to find a new directorship with the same role, and if it has a start_date,
                 # we use that as a better end_date for the previous directorship than just the day we saw it.
                 new_directorship_same_role = [
-                    new_d for new_d in result.directorships if new_d.role == d.id
+                    new_d for new_d in result.directorships if new_d.role == d.role
                 ]
                 d_dict = d.asDict()
                 if (
@@ -105,19 +103,23 @@ def update_companies_from_new_companies(
     # We run the python code only on rows where both old and new are present because it's expensive
     to_merge = old.join(new, on="id", how="inner")
 
-    merge_fn = udf(lambda old, new: update_company_from_new_company(context, old, new), company_record_schema)
+    merge_fn = udf(
+        lambda old, new: update_company_from_new_company(context, old, new),
+        company_record_schema,
+    )
     merged = (
-        to_merge
-        .withColumn("merged", merge_fn(struct(col("old.*")), struct(col("new.*"))))
+        to_merge.withColumn(
+            "merged", merge_fn(struct(col("old.*")), struct(col("new.*")))
+        )
         # The select at the end "flattens" the company struct back into the root of the dataframe
         # (instead of being nested in a "new", "old" or "merged" column)
-        .select("merged.*"))
+        .select("merged.*")
+    )
 
     not_to_merge_old = old.join(new, on="id", how="left_anti")
     not_to_merge_new = new.join(old, on="id", how="left_anti")
 
     return merged.union(not_to_merge_old).union(not_to_merge_new)
-
 
 
 def merge_duplicate_company_records(df: DataFrame) -> DataFrame:
@@ -172,7 +174,9 @@ def crawl_archives_for_date(
     parsed_rows_rdd = path_rdd.flatMap(crawl_local_archive)
     # Persist this expensive computation to avoid doing it multiple times during the following join
     # https://spark.apache.org/docs/latest/rdd-programming-guide.html#which-storage-level-to-choose
-    df = spark.createDataFrame(parsed_rows_rdd, schema=company_record_schema).persist(StorageLevel.DISK_ONLY)
+    df = spark.createDataFrame(parsed_rows_rdd, schema=company_record_schema).persist(
+        StorageLevel.DISK_ONLY
+    )
     df = merge_duplicate_company_records(df)
 
     df.write.saveAsTable(table_name, mode="overwrite")
@@ -200,19 +204,27 @@ def write_companies_df_to_csv(df: DataFrame, path_prefix: Path) -> None:
         "owner_id", coalesce(col("owner.person.id"), col("owner.legal_entity.id"))
     ).drop("owner")
 
-    directorships_df = df.withColumn("directorship", explode(col("directorships"))).select("directorship.*")
+    directorships_df = df.withColumn(
+        "directorship", explode(col("directorships"))
+    ).select("directorship.*")
     # Keep directors around for later before we drop it from the directorships table
     directors_df = directorships_df.select("director.*")
     #
-    directorships_df = directorships_df.withColumn("director_id", col("director.id")).drop("director")
+    directorships_df = directorships_df.withColumn(
+        "director_id", col("director.id")
+    ).drop("director")
 
-    successions_df = (df
-                      .withColumn("succession", explode(col("successions")))
-                      .select("succession.*"))
+    successions_df = df.withColumn("succession", explode(col("successions"))).select(
+        "succession.*"
+    )
 
     # Get the successor and predecessor companies, we want to add them to the main company table
-    successor_companies_df = successions_df.where(col("successor").isNotNull()).select("successor.*")
-    predecessor_companies_df = successions_df.where(col("predecessor").isNotNull()).select("predecessor.*")
+    successor_companies_df = successions_df.where(col("successor").isNotNull()).select(
+        "successor.*"
+    )
+    predecessor_companies_df = successions_df.where(
+        col("predecessor").isNotNull()
+    ).select("predecessor.*")
 
     # Drop the successor and predecessor columns from the successions table, we still have the relationships
     # in the successor_id and predecessor_id columns.
@@ -220,12 +232,16 @@ def write_companies_df_to_csv(df: DataFrame, path_prefix: Path) -> None:
 
     # Owner can be either a Person or a LegalEntity, split up the union type
     owners_person_df = owners_df.where(col("person").isNotNull()).select("person.*")
-    owners_legalentity_df = owners_df.where(col("legal_entity").isNotNull()).select("legal_entity.*")
+    owners_legalentity_df = owners_df.where(col("legal_entity").isNotNull()).select(
+        "legal_entity.*"
+    )
 
     # Both directors and owners can be persons, we want to emit them to the same table
     persons_df = owners_person_df.union(directors_df)
     # We use explode_outer here because we want to keep Person records without any countries
-    persons_df = persons_df.withColumn("country", explode_outer(col("countries"))).drop("countries")
+    persons_df = persons_df.withColumn("country", explode_outer(col("countries"))).drop(
+        "countries"
+    )
 
     # Join companies at the root and in the successors and predecessors
     # and explode their addresses array.
@@ -235,9 +251,9 @@ def write_companies_df_to_csv(df: DataFrame, path_prefix: Path) -> None:
         .union(owners_legalentity_df)
     )
     # We use explode_outer here beceause we want to keep records without any addresses
-    all_legal_entities_df = (all_legal_entities_df
-                             .withColumn("address", explode_outer(col("addresses")))
-                             .drop("addresses"))
+    all_legal_entities_df = all_legal_entities_df.withColumn(
+        "address", explode_outer(col("addresses"))
+    ).drop("addresses")
 
     # This is what's required for the Python csv module to read the file with no further options
     csv_options = {"header": True, "escape": '"', "mode": "overwrite"}
@@ -265,7 +281,9 @@ def aggregate_archives_by_date(
     return archives_by_date
 
 
-def merge_company_record_dfs(context: Context, records: Iterable[DataFrame]) -> DataFrame:
+def merge_company_record_dfs(
+    context: Context, records: Iterable[DataFrame]
+) -> DataFrame:
     """Merge company records using update_companies_from_new_companies."""
     result = None
     for record in records:
@@ -274,9 +292,7 @@ def merge_company_record_dfs(context: Context, records: Iterable[DataFrame]) -> 
             result = record
             continue
 
-        result = update_companies_from_new_companies(
-            context, result, record
-        )
+        result = update_companies_from_new_companies(context, result, record)
         # Reduce number of partitions, otherwise it will explode with every iteration (don't ask me why)
         # and eventually grind everything to a halt.
         result = result.coalesce(16)
@@ -284,9 +300,7 @@ def merge_company_record_dfs(context: Context, records: Iterable[DataFrame]) -> 
         # end up with a huge execution plan
         result = result.checkpoint()
 
-        context.log.info(
-            "Updated state has %d company records" % result.count()
-        )
+        context.log.info("Updated state has %d company records" % result.count())
 
     return result
 
@@ -311,7 +325,6 @@ def crawl(context: Context) -> None:
         for d, archives in archives_by_date
         # For debugging (or manual partial resume), process only part of the data
         # if date(2022, 1, 1) <= d <= date(2022, 12, 31)
-
         # Take 2022-01-01 as the starting point
         if date(2022, 1, 1) <= d
     ]
@@ -333,7 +346,11 @@ def crawl(context: Context) -> None:
     # running locally and running sql queries on it.
     year_dfs = []
     for year in [2022, 2023, 2024, 2025]:
-        year_archives = [(archive_date, archives) for archive_date, archives in archives_by_date if archive_date.year == year]
+        year_archives = [
+            (archive_date, archives)
+            for archive_date, archives in archives_by_date
+            if archive_date.year == year
+        ]
         full_archive = year_archives[0]
         partial_archives = year_archives[1:]
 
@@ -352,8 +369,9 @@ def crawl(context: Context) -> None:
                 continue
 
             context.log.info("Processing %d-%d" % (year, month))
-            day_archives = [x for x in partial_archives
-                            if x[0].year == year and x[0].month == month]
+            day_archives = [
+                x for x in partial_archives if x[0].year == year and x[0].month == month
+            ]
             day_dfs = [crawl_archives_for_date(spark, x[0], x[1]) for x in day_archives]
             context.log.info("Merging day records for %d-%d" % (year, month))
             if len(day_dfs) == 0:
