@@ -6,7 +6,6 @@ ENTITY_DETAILS_ENDPOINT = (
     f"{BASE_URL}/PartneriVerejnehoSektora/{{id}}?$expand=Partner,PravnaForma,Adresa"
 )
 PARTNER_DETAILS_ENDPOINT = f"{BASE_URL}/Partneri/{{id}}?$expand=Vymaz,Pokuta,OverenieIdentifikacieKUV,konecniUzivateliaVyhod,verejniFunkcionari,kvalifikovanePodnety"
-# TODO: \u0161
 BENEFICIAL_OWNERS_ENDPOINT = (
     f"{BASE_URL}/KonecniUzivateliaVyhod/{{id}}?$expand=Partner,PravnaForma,Adresa"
 )
@@ -14,9 +13,7 @@ PUBLIC_OFFICIALS_ENDPOINT = f"{BASE_URL}/VerejniFunkcionari/{{id}}"
 
 TOTAL_COUNT = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/$count"
 FIRST_PAGE = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0"
-# UNSTABLE_LAST_PAGE = (
-#     "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skiptoken=Id-261694"
-# )
+
 
 # TODO do we want to add contry "SK" everywhere?
 
@@ -172,7 +169,7 @@ def process_entry(context, entry):
 
 def crawl(context: Context):
     url = context.data_url
-    total_count = 5  # context.fetch_json(TOTAL_COUNT)
+    total_count = context.fetch_json(TOTAL_COUNT)
     if not total_count:
         context.log.warning("Failed to fetch total count")
 
