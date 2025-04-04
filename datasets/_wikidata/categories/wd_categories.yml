@@ -9,7 +9,7 @@ deploy:
   cpu: "800m"
   memory: "1500Mi"
   memory_limit: "2500Mi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 exports:
   - statistics.json
@@ -129,27 +129,45 @@ config:
     - "Q83307" # minister
     - "Q7330070" # foreign minister
     - "Q14212" # prime minister
+    - "Q877955" # deputy prime minister
     - "Q15966511" # deputy minister
     - "Q26204040" # deputy minister
+    - "Q16163440" # chief minister
     - "Q46403368" # deputy at the national level
+    - "Q7603534" # state senator
     - "Q132050" # governor
+    - "Q380782" # commander in chief
+    - "Q599151" # official
+    - "Q294414" # public office
+    - "Q42841" # incumbent
+    - "Q766504" # undersecretary
     - "Q20086425" # shadow minister
+    - "Q2998914" # county executive
     - "Q108290289" # senior government officials
+    - "Q108289363" # legislators and senior officials
+    - "Q372436" # statesperson
     - "Q6635529" # provincial leader of the People's Republic of China
     - "Q117826617" # supreme court judge
     - "Q55736868" # national sup court judge
+    - "Q13554447" # chief judge
     - "Q1501926" # attorney general
     - "Q3368517" # public prosecutor general
+    - "Q7574852" # special prosecutor
     - "Q109607046" # deputy public prosecutor general
     - "Q107363151" # central bank governor
     - "Q1553195" # party leader
     - "Q2746259" # party chair
     - "Q836971" # party secretary
+    - "Q193391" # diplomat
     - "Q29645880" # ambassador of a country
     - "Q29645886" # ambassador to a country
+    - "Q29918335" # class of ambassador to a country
+    - "Q116182667" # diplomat to a country
     - "Q707492" # military chief of staff
     - "Q105434600" # high civil servant
     - "Q17279032" # elective office
+    - "Q16060143" # elected person
+    - "Q131981747" # -elect
     # skip:
     # - "Q30185" # mayor
   categories:
@@ -164,6 +182,13 @@ config:
     #   topic: role.pep
     #   depth: 8
     - category: Political_office-holders_in_South_America
+
+    - category: National_supreme_court_judges
+      topic: role.pep
+      depth: 6
+    - category: Central_bankers
+      topic: role.pep
+      depth: 6
 
     # Middle east:
     - category: Political_office-holders_in_the_United_Arab_Emirates
@@ -388,6 +413,8 @@ config:
     - category: Political_office-holders_in_Africa
       topic: role.pep
       depth: 8
+    - category: South_African_political_people
+      depth: 6
 
     # Basics & essentials
     - category: Sanctioned_people
@@ -754,9 +781,8 @@ config:
     - category: Political_office-holders_in_Belarus
       country: by
       topic: role.pep
-    - category: Political_office-holders_in_Belarus
+    - category: Government_of_Belarus
       country: by
-      topic: role.pep
     - category: Political_office-holders_in_Jersey
       country: je
       topic: role.pep
@@ -790,6 +816,27 @@ config:
     - category: Political_office-holders_in_Iceland
       country: is
       topic: role.pep
+    - category: Dómarar_við_Hæstarétt_Íslands
+      language: is
+      country: is
+      topic: role.pep
+    - category: Members_of_the_Althing_2024–2028
+      country: is
+      topic: role.pep
+    - category: Members_of_the_Althing_2021–2024
+      country: is
+      topic: role.pep
+    - category: Kjörnir_Alþingismenn_2021-2030
+      language: is
+      country: is
+      topic: role.pep
+    - category: Íslenskir_stjórnmálamenn
+      language: is
+      country: is
+    - category: Landsyfirréttur
+      language: is
+      country: is
+      topic: role.pep
     - category: Political_office-holders_in_the_Czech_Republic
       country: cz
       topic: role.pep
@@ -808,9 +855,20 @@ config:
     - category: Political_office-holders_in_Sweden
       country: se
       topic: role.pep
+    - category: Svenske_politikere
+      language: "no"
+    - category: Lists_of_political_office-holders_in_Norway
+      country: "no"
+      topic: role.pep
+    - category: Political_office-holders_in_Norway
+      country: "no"
+    - category: Norsk_politikk
+      language: "no"
     - category: Political_office-holders_in_Switzerland
       country: ch
       topic: role.pep
+    - category: Lists_of_Swiss_politicians
+      country: ch
     - category: Political_office-holders_in_Albania
       country: al
       topic: role.pep
@@ -841,6 +899,9 @@ config:
     - category: Political_office-holders_in_Moldova
       country: md
       topic: role.pep
+    - category: Political_office-holders_in_Ukraine
+      country: ua
+      topic: role.pep
     - category: Political_office-holders_in_San_Marino
       country: sm
       topic: role.pep
@@ -859,6 +920,14 @@ config:
     - category: Political_office-holders_in_the_Faroe_Islands
       country: fo
       topic: role.pep
+    - category: Lists_of_political_office-holders_in_Finland
+      country: fi
+    - category: Lists_of_office-holders_in_Finland
+      country: fi
+    - category: Political_office-holders_in_Finland
+      country: fi
+    - category: Suomen_hallinto
+      language: fi
 
     ############################################################################
     # Asia regional coverage
@@ -928,6 +997,10 @@ config:
     - category: Political_office-holders_in_Vietnam
       topic: role.pep
       country: vn
+    - category: Chính_phủ_Quốc_gia_Việt_Nam
+      language: vi
+      topic: role.pep
+      country: vn
 
     # country: Thailand
     - category: Political_office-holders_in_Thailand
@@ -981,8 +1054,16 @@ config:
 
     # Subregion: Southern Asia
 
-    # country: India
-    # already covered
+    # country:
+    - category: India_MPs_2024–2029
+      topic: role.pep
+      country: in
+    - category: State_legislators_of_Indian_States_by_term
+      country: in
+    - category: Members_of_the_state_Legislative_Assemblies_of_India
+      country: in
+    - category: State_political_office-holders_in_India
+      country: in
 
     # country: Pakistan
     - category: Political_office-holders_in_Pakistan

@@ -4,7 +4,7 @@ prefix: eu-edes
 coverage:
   frequency: daily
   start: 2023-10-16
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   List of persons or entities excluded from contracts financed by the EU budget.
 description: |

@@ -4,7 +4,7 @@ prefix: lu-san
 coverage:
   frequency: daily
   start: "2024-05-29"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Administrative sanctions issued by the Luxembourg financial regulator.
 description: |
@@ -33,7 +33,7 @@ data:
   url: https://www.cssf.lu/fr/publications-donnees/page/1/?content_type=1387%2C623%2C625
   format: HTML
   lang: fra
-dates: 
+dates:
   formats: ["%d %B %Y"]
   months:
     "january": "janvier"
@@ -115,6 +115,9 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-15-octobre-2024/
         names:
           - Aviva Investors Luxembourg S.A.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-24-decembre-2024/
+        names:
+          - ActivTrades Europe S.A.
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/

@@ -5,7 +5,7 @@ from rigour.mime.types import CSV
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 # We predefine expected column headings because the source data repeats
 # the column headings for the tenure details. We use predefined distinct field

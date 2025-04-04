@@ -6,13 +6,11 @@ from zavod import Context, helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
-    if not row.get("provider_name"):
-        return
-
     provider_name = row.pop("provider_name")
+    dob = row.pop("date_of_birth")
+    npi = row.pop("npi")
 
-    if row.get("date_of_birth"):
+    if dob:
         schema = "Person"
     else:
         schema = "LegalEntity"
@@ -21,32 +19,39 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.id = context.make_id(provider_name, row.get("npi"))
 
     entity.add("name", provider_name)
-
-    if row.get("date_of_birth"):
-        entity.add("birthDate", row.pop("date_of_birth"))
-
-    if row.get("npi"):
-        entity.add("npiCode", row.pop("npi").split("\n"))
-    else:
-        row.pop("npi")
-
     entity.add("country", "us")
     entity.add("sector", row.pop("provider_type_specialty"))
     entity.add("address", row.pop("provider_address"))
+    if entity.schema.name == "Person":
+        h.apply_date(entity, "birthDate", dob)
+    if npi:
+        entity.add("npiCode", npi.split("\n"))
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("termination_effective_date"))
     sanction.add("reason", row.pop("termination_reason"))
 
-    end_date = row.pop("exclusion_period").split("-")[1].strip()
-
-    if end_date not in ["Indefinite", "indefinite"]:
-        h.apply_date(sanction, "endDate", end_date)
-        is_debarred = False
+    exclusion_period_str = row.pop("exclusion_period")
+    exclusion_period_lookup_result = context.lookup(
+        "exclusion_period", exclusion_period_str
+    )
+    if exclusion_period_lookup_result:
+        sanction.add("endDate", exclusion_period_lookup_result.end_date)
     else:
-        is_debarred = True
+        exclusion_period_segments = h.multi_split(exclusion_period_str, ["-"])
+        # Only apply if it looks like "start_date - end_date"
+        if len(exclusion_period_segments) == 2:
+            _, end_date_str = exclusion_period_segments
+            if end_date_str.lower() != "indefinite":
+                h.apply_date(sanction, "endDate", end_date_str)
+        else:
+            # You will likely want to add an exclusion_period lookup
+            context.log.warning(
+                'Exclusion period does not look like "start_date - end_date"',
+                exclusion_period=exclusion_period_str,
+            )
 
-    if is_debarred:
+    if h.is_active(sanction):
         entity.add("topics", "debarment")
 
     context.emit(entity)

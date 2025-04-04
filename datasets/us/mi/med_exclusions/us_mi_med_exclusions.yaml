@@ -4,7 +4,7 @@ prefix: us-medmi
 coverage:
   frequency: daily
   start: "2024-09-26"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Providers who have been terminated for cause from Michigan's Medicaid program.
 description: |
@@ -80,7 +80,7 @@ lookups:
         values:
           - 2023-05-31
           - 2024-04-19
-      - match: 
+      - match:
           - MI-Licensing
           - and
           - Regulatory
@@ -186,7 +186,7 @@ lookups:
         value: 2016-12-21
       - match: 02/06/20025
         value: 2025-02-06
-  type.identifier: 
+  type.identifier:
     options:
       - match: 136776577
         value: 1366776577

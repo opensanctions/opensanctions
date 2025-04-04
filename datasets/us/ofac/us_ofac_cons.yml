@@ -9,7 +9,7 @@ deploy:
   memory: 1300Mi
   memory_limit: "2Gi"
   cpu: "200m"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   OFAC is providing all of its non-SDN sanctions lists in a consolidated set
   of data called "the Consolidated Sanctions List".
@@ -82,7 +82,7 @@ lookups:
     options:
       # Re-map invalid ISINs to generic regNr:
       - match:
-          - BRC1EODR004  # CNOOC LIMITED
-          - CND10002K094  # CHINA COMMUNICATIONS CONSTRUCTION COMPANY LIMITED
-          - CND10002G601  # CHINA COMMUNICATIONS CONSTRUCTION COMPANY LIMITED
+          - BRC1EODR004 # CNOOC LIMITED
+          - CND10002K094 # CHINA COMMUNICATIONS CONSTRUCTION COMPANY LIMITED
+          - CND10002G601 # CHINA COMMUNICATIONS CONSTRUCTION COMPANY LIMITED
         prop: registrationNumber

@@ -7,7 +7,7 @@ coverage:
 deploy:
   memory: 1Gi
   memory_limit: 2Gi
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   This datasets encompass brazilian PEPs divulgated by the CGU
 description: |

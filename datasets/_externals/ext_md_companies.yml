@@ -13,7 +13,8 @@ exports:
 deploy:
   memory: "400Mi"
   memory_limit: "4500Mi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
+ci_test: false
 summary: >-
   Companies in Moldova, with information on their founders, beneficial
   owners and directors which match or are related to entities in the OpenSanctions database
@@ -26,7 +27,6 @@ publisher:
   description: |
     The P.I. “Public Services Agency” is a holder of the basic state information resources.
   official: true
-ci_test: false
 
 inputs:
   - ann_graph_topics

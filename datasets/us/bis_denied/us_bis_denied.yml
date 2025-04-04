@@ -5,7 +5,7 @@ coverage:
   schedule: "0 */8 * * *"
   frequency: daily
   start: "2015-12-05"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   The Bureau of Industry and Security publishes this list of entities which
   are relevant with regards to export controls.
@@ -32,7 +32,7 @@ data:
   url: https://www.bis.doc.gov/dpl/dpl.txt
   format: TSV
   lang: eng
-dates: 
+dates:
   formats: ["%m/%d/%Y"]
 
 assertions:

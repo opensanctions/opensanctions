@@ -4,7 +4,7 @@ prefix: ebrd
 coverage:
   frequency: daily
   start: 2021-11-11
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Entities that have been declared ineligible to become EBRD counterparties due to fraud, 
   corruption, collusion, or other prohibited practices.
@@ -146,31 +146,14 @@ lookups:
         value: Farkhad Akhmedzhanovich Amraev
       - match: before 31 December 2019
         value: null
-  schema:
-    options:
-      - match: Firm
-        value: LegalEntity # e.g. "Fedders Lloyd Corporation Limited" or "John B. Katende"
-      - match: Individual
-        value: Person
-  override_schema:
-    options:
-      - match:
-          - Inversiones Atlantic S.A. de C.V.
-          - Gesaworld do Brasil Limitada
-          - N.C. Sanitors & Service Corporation
-          - TPF Getinsa Euroestudios S.L.
-          - Bittohin Chasi Somaj Kallyan Sangstha
-        value: Company
 assertions:
   min:
     schema_entities:
-      LegalEntity: 900
-      Person: 150
+      LegalEntity: 1050
     country_entities:
       cn: 500
       ru: 5
       ke: 20
   max:
     schema_entities:
-      LegalEntity: 1800
-      Person: 300
+      LegalEntity: 2100

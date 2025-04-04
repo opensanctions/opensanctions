@@ -6,7 +6,7 @@ from followthemoney.helpers import post_summary
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 
 PHONE_SPLITS = [",", "/", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)"]
@@ -110,7 +110,8 @@ def parse_person(context: Context, data, country, lastmod) -> None:
     person.add("name", data.pop("name", None))
     person.add("alias", data.pop("sort_name", None))
     for other in data.pop("other_names", []):
-        person.add("alias", other.get("name"))
+        lang = other.get("lang")
+        person.add("alias", other.get("name"), lang=lang)
     person.add("gender", data.pop("gender", None))
     person.add("title", data.pop("honorific_prefix", None))
     person.add("title", data.pop("honorific_suffix", None))

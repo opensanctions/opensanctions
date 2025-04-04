@@ -102,7 +102,9 @@ def crawl(context: Context) -> None:
             if detail_url.startswith(FUGITIVES_URL_PREFIX):
                 crawl_person(context, detail_url)
 
-        next_button = doc.find(".//button[@id='pagination-next-button']")
+        next_button = doc.find(
+            ".//pwc-paginator-navigation-button[@data-name='next-page-button']"
+        )
         assert next_button is not None, "Next page button not found in page"
         if "disabled" in next_button.attrib:
             break

@@ -111,4 +111,4 @@ def crawl(context: Context):
         crawl_page(context, page_number)
         if page_number % 50 == 0:
             context.log.info(f"Processed {page_number} pages")
-            context.cache.flush()
+            context.flush()

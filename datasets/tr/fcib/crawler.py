@@ -6,7 +6,7 @@ from pantomime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.shed.zyte_api import fetch_html, fetch_resource
 from zavod.shed.un_sc import Regime, get_legal_entities, get_persons, load_un_sc
 
 # original link for assertion
@@ -148,12 +148,8 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
 
 
 def crawl_xlsx(context: Context, url: str, program: str, short_name: str):
-    path = context.fetch_resource(f"{short_name}.xlsx", url)
-    context.export_resource(
-        path,
-        XLSX,
-        title=f"{context.SOURCE_TITLE} - {short_name}",
-    )
+    _, _, _, path = fetch_resource(context, f"{short_name}.xlsx", url, XLSX)
+    context.export_resource(path, XLSX, title=f"{context.SOURCE_TITLE} - {short_name}")
     wb = load_workbook(path, read_only=True)
     for sheet in wb.worksheets:
         context.log.info(f"Processing sheet {sheet.title} with program {program}")

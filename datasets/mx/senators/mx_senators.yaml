@@ -4,7 +4,7 @@ prefix: mx-sen
 coverage:
   frequency: weekly
   start: 2024-01-31
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Current members of the Mexican Senate - the upper house of the Mexican Congress
 description: |

@@ -5,7 +5,7 @@ coverage:
   schedule: "@hourly"
   frequency: never
   start: 2023-12-18
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 publisher:
   name: Council of the European Union
   acronym: Council
@@ -56,6 +56,10 @@ lookups:
         value: 2003-01-03
       - match: ", previously registered as southfront.org since 30.4.2015"
         value: 2015-04-30
+      - match: "Approximately 1977"
+        value: 1977
+      - match: "Between Aug. and Sep. 1977"
+        value: 1977-08
   type.identifier:
     options:
       - match:

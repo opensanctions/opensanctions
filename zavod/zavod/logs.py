@@ -5,15 +5,16 @@ from pathlib import Path
 from typing import Callable, Optional
 from typing import Dict, List, Any, MutableMapping
 
+import sentry_sdk
 import structlog
 import sys
 from lxml.etree import _Element, tostring
 from lxml.html import HtmlElement
+from sentry_sdk.integrations.logging import LoggingIntegration
 from structlog.contextvars import merge_contextvars
 from structlog.stdlib import get_logger as get_raw_logger
 from structlog.types import Processor
 
-import sentry_sdk
 from followthemoney.schema import Schema
 from zavod import settings
 
@@ -120,7 +121,7 @@ def configure_sentry_integration() -> None:
             auto_enabling_integrations=False,
             disabled_integrations=[
                 # We disable the logging integration since we handle that with our issues infrastructure
-                sentry_sdk.integrations.logging.LoggingIntegration  # type: ignore
+                LoggingIntegration  # type: ignore
             ],
             attach_stacktrace=True,
         )

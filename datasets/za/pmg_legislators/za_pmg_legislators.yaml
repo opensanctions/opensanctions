@@ -4,20 +4,20 @@ prefix: za-pmg
 coverage:
   frequency: daily
   start: 2024-09-06
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: > 
- Current members of the National Assembly, National Council of Provinces,
- and provincial legislatures and executives in South Africa.
+load_statements: true
+summary: >
+  Current members of the National Assembly, National Council of Provinces,
+  and provincial legislatures and executives in South Africa.
 description: |
-    This dataset includes information about current and recent members of South Africa
-    legislators using data from People's Assembly.
+  This dataset includes information about current and recent members of South Africa
+  legislators using data from People's Assembly.
 
-    The national executive, the national legislatures (National Assembly and the
-    National Council of Provinces), as well as the nine provincial legislatures and
-    executives are covered.
+  The national executive, the national legislatures (National Assembly and the
+  National Council of Provinces), as well as the nine provincial legislatures and
+  executives are covered.
 
-    This data source is licensed under the [Creative Commons Attribution-ShareAlike license (CC-BY-SA)](https://creativecommons.org/licenses/by-sa/4.0/).
-publisher: 
+  This data source is licensed under the [Creative Commons Attribution-ShareAlike license (CC-BY-SA)](https://creativecommons.org/licenses/by-sa/4.0/).
+publisher:
   name: Parliamentary Monitoring Group
   acronym: PMG
   description: |
@@ -65,11 +65,11 @@ lookups:
           - 083 617 8925
           - mphahleles@limpopoleg@gov.za
           - 071 582 8223
-  type.gender: 
+  type.gender:
     lowercase: true
-    options: 
+    options:
       - match: Mal
-        value: Male 
+        value: Male
       - match:
           - 27th May 1991
           - 30 March 1988

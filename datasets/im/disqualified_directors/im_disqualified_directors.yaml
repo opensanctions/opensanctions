@@ -4,7 +4,7 @@ prefix: im-dir
 coverage:
   frequency: daily
   start: "2024-07-18"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Individuals disqualified from working in corporate governance
 description: |
@@ -35,7 +35,7 @@ data:
   format: HTML
   lang: eng
 
-dates: 
+dates:
   formats: ["%d %B %Y", "%d %b %Y"]
 assertions:
   min:

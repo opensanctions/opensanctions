@@ -4,7 +4,7 @@ prefix: us-dos
 coverage:
   frequency: weekly
   start: "2023-10-17"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >-
   Senior officials and diplomats in the US Department of State

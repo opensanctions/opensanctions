@@ -9,7 +9,7 @@ from zipfile import ZipFile
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 REGEX_PATH = re.compile(r"^json/acteur/")
 

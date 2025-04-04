@@ -4,7 +4,7 @@ prefix: us-ddtc
 coverage:
   frequency: daily
   start: "2023-10-13"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Companies and individuals prohibited from participating in export of defence articles
   and services as a consequence of violation of the Arms Export Control Act (AECA)
@@ -43,9 +43,9 @@ publisher:
 data:
   url: "https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_kb_article_page&sys_id=c22d1833dbb8d300d0a370131f9619f0"
   format: XLSX
-dates: 
+dates:
   formats: ["%B %Y", "%B, %Y", "%B,, %Y"]
-  months: 
+  months:
     "February": "Febuary"
 
 assertions:

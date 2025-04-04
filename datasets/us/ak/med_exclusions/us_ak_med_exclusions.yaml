@@ -4,7 +4,8 @@ prefix: us-medak
 coverage:
   frequency: daily
   start: "2024-10-04"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
+ci_test: false
 summary: >
   Individuals and businesses excluded from Alaska Medical Assistance Program
 description: |
@@ -47,11 +48,8 @@ publisher:
   country: "us"
 url: https://health.alaska.gov/Commissioner/Pages/ProgramIntegrity/default.aspx
 data:
-  url: https://health.alaska.gov/Commissioner/Documents/PDF/AlaskaExcludedProviderList.pdf
+  url: https://health.alaska.gov/media/h3ueo2kf/alaskaexcludedproviderlist.pdf
   format: PDF
-
-ci_test: false
-
 dates:
   formats: ["%m/%d/%Y"]
 

@@ -4,7 +4,7 @@ prefix: lt-pinreg
 coverage:
   frequency: monthly
   start: "2024-08-16"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: |
   Lithuanian PEPs based on official declarations of personal interests.
 description: |
@@ -29,7 +29,6 @@ data:
   url: https://pinreg.vtek.lt/app/deklaraciju-paieska
   format: JSON
 ci_test: false
-
 # categories we want: Maybe useful if we could get recaptcha tokens - need one per paginated search page request
 #
 #lookups:
@@ -42,7 +41,7 @@ ci_test: false
 #          - Valstybės pareigūnų pareigos  # State officials
 #          - Valstybės tarnautojų pareigos  # State civil servants
 #          - Teisėjų pareigos  # Judges
-#  
+#
 #      - include: some
 #        match:
 #          - Lietuvos banko darbuotojų pareigybės  # Bank of Lithuania employees

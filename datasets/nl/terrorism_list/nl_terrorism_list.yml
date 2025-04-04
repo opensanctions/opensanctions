@@ -5,7 +5,7 @@ coverage:
   schedule: "0 */6 * * *"
   frequency: daily
   start: 2022-08-22
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   The Dutch government's sanctions list of people suspected of involvement in
   terroristic activities.

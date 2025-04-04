@@ -14,7 +14,8 @@ exports:
 deploy:
   memory: 1000Mi
   memory_limit: 1500Mi
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
+ci_test: false
 summary: >-
   Securities with FIGI identifiers matching risk-linked companies
 description: |
@@ -38,7 +39,6 @@ publisher:
     classes. Using OpenFigi, Financial instruments can be identified and mapped to their
     registered FIGI by various proprietary and standard identifiers.
   url: https://www.openfigi.com/
-ci_test: false
 
 inputs:
   - sanctions

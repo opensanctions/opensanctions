@@ -11,7 +11,7 @@ coverage:
 deploy:
   memory: "3000Mi"
   memory_limit: "4000Mi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >
   All foreign financial institutions and branches with approved FATCA registration.

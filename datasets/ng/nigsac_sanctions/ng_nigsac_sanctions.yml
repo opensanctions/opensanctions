@@ -4,7 +4,7 @@ prefix: nigsac
 coverage:
   frequency: daily
   start: 2023-07-14
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Nigeria enforces the UN Security Council list but also has an independent
   list of designations.
@@ -45,7 +45,7 @@ data:
   url: https://nigsac.gov.ng/IndSancList
   format: HTML
 
-dates: 
+dates:
   formats: "%m/%d/%Y %H:%M:%S %p"
 assertions:
   min:

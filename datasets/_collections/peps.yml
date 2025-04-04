@@ -28,6 +28,7 @@ children:
   - ann_pep_positions
   - ar_parliament
   - at_meine_abgeordneten
+  - bg_jud_declarations
   - br_pep
   - cn_peoples_congress_wikipedia
   - cl_info_probidad
@@ -80,6 +81,7 @@ children:
   - un_ga_protocol
   - uy_pep
   - ve_asamblea_nacional
+  - wd_categories
   - wd_peps
   - za_mm_officials
   - za_pmg_legislators

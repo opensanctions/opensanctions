@@ -4,7 +4,7 @@ prefix: kg-fiu
 coverage:
   frequency: daily
   start: 2021-01-31
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   A simple list of sanctioned individuals and entities published by the
   Kyrgyz' State Financial Intelligence Service.
@@ -27,7 +27,7 @@ data:
   format: xml
   lang: rus
 
-dates:  
+dates:
   formats: ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]
 assertions:
   min:

@@ -5,7 +5,7 @@ disabled: false
 coverage:
   frequency: daily
   start: 2022-11-23
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Most wanted list of criminals and fugitives in Britain,
   maintained by the United Kingdom's National Crime Agency (NCA).

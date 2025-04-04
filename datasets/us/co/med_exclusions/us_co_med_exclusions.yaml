@@ -4,7 +4,7 @@ prefix: us-medco
 coverage:
   frequency: daily
   start: "2024-08-15"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   This dataset contains a list of providers who have been terminated for cause from Colorado's Medicaid program.
 description: |
@@ -13,14 +13,14 @@ description: |
   > terminated for cause may not receive reimbursement under the Medicaid program. A description of the reasons
   > a provider may be terminated for cause can be found under the definition of Good Cause at 10 CCR 2505-10,
   > Section 8.076.1.7.
-  
+
   [Provider Termination page](https://hcpf.colorado.gov/provider-termination)
 publisher:
   name: Colorado Department of Health Care Policy & Financing
   description: |
-   The Department of Health Care Policy and Financing is the federally
-   designated Single State Agency to receive Medicaid funding from the
-   federal government in Colorado.
+    The Department of Health Care Policy and Financing is the federally
+    designated Single State Agency to receive Medicaid funding from the
+    federal government in Colorado.
   acronym: HCPF
   url: https://hcpf.colorado.gov
   official: true
@@ -31,7 +31,7 @@ data:
   format: HTML
 ci_test: false
 
-dates: 
+dates:
   formats: ["%m/%d/%Y"]
 assertions:
   min:

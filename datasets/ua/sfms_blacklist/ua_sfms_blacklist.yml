@@ -5,7 +5,7 @@ coverage:
   schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-02-12
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Ukraine's financial intelligence unit publishes this list of sanctioned
   individuals.
@@ -37,8 +37,21 @@ data:
   url: https://fiu.gov.ua/assets/userfiles/Terror/BlackListFull.xml
   format: XML
 ci_test: false
-dates: 
-  formats: ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y", "%d %b. %Y", "%d %b.%Y", "%d.%m.%Y", "%b. %Y", "c. %Y", "%B %d, %Y"]
+dates:
+  formats:
+    [
+      "%d %b %Y",
+      "%d %B %Y",
+      "%Y",
+      "%b %Y",
+      "%B %Y",
+      "%d %b. %Y",
+      "%d %b.%Y",
+      "%d.%m.%Y",
+      "%b. %Y",
+      "c. %Y",
+      "%B %d, %Y",
+    ]
 
 assertions:
   min:
@@ -100,7 +113,7 @@ lookups:
         value: SS
       - match: Alexandria, Egypt
         value: EG
-      - match: "682"  # ISO 3166-1 numeric code for Saudi Arabia
+      - match: "682" # ISO 3166-1 numeric code for Saudi Arabia
         value: SA
   type.date:
     options:
@@ -120,7 +133,7 @@ lookups:
       - match: Approximatelty 1975
         value: 1975
       - match: 1979-1982
-        values: 
+        values:
           - 1979
           - 1982
       - match: 1962-1963
@@ -151,7 +164,7 @@ lookups:
         values:
           - 1977-08
           - 1977-09
-      - match: 
+      - match:
           - Kandahar
           - Logar
           - (24/06/1402 (Hijri Calendar))

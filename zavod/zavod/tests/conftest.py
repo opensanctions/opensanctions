@@ -5,13 +5,14 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile, mkdtemp
 import os
 from nomenklatura import Resolver, settings as nk_settings
-from nomenklatura.db import get_engine
 
 from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod.db import get_engine, meta
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.integration import get_resolver
+from zavod.stateful.model import create_db
 
 nk_settings.TESTING = True
 settings.DATA_PATH = Path(mkdtemp()).resolve()
@@ -29,6 +30,9 @@ DATASET_3_YML = FIXTURES_PATH / "testdataset3" / "testdataset3.yml"
 DATASET_SECURITIES_YML = (
     FIXTURES_PATH / "testdataset_securities" / "testdataset_securities.yml"
 )
+DATASET_MARITIME_YML = (
+    FIXTURES_PATH / "testdataset_maritime" / "testdataset_maritime.yml"
+)
 COLLECTION_YML = FIXTURES_PATH / "collection.yml"
 XML_DOC = FIXTURES_PATH / "doc.xml"
 
@@ -38,9 +42,11 @@ def wrap_test():
     shutil.rmtree(settings.ARCHIVE_PATH, ignore_errors=True)
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
     settings.DATA_PATH = Path(mkdtemp()).resolve()
+    create_db()
     yield
     get_catalog.cache_clear()
     get_engine.cache_clear()
+    meta.clear()
 
 
 @pytest.fixture(scope="function")
@@ -74,6 +80,13 @@ def testdataset2_export() -> Dataset:
 @pytest.fixture(scope="function")
 def testdataset_securities() -> Dataset:
     dataset = load_dataset_from_path(DATASET_SECURITIES_YML)
+    assert dataset is not None
+    return dataset
+
+
+@pytest.fixture(scope="function")
+def testdataset_maritime() -> Dataset:
+    dataset = load_dataset_from_path(DATASET_MARITIME_YML)
     assert dataset is not None
     return dataset
 

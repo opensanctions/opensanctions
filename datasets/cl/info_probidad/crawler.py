@@ -18,7 +18,7 @@ from rigour.mime.types import JSON
 from zavod import Context
 from zavod import helpers as h
 from zavod.archive import dataset_data_path
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 REGEX_JSON = re.compile(r"var datos =(.+?}]);")
 DECLARATION_URL = "https://www.infoprobidad.cl/Declaracion/descargarDeclaracionJSon"
@@ -88,7 +88,7 @@ def crawl_row(context: Context, declaration_id: int):
 
     if occupancy:
         occupancy.add("sourceUrl", declaration_url)
-        context.emit(person, target=True)
+        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 
@@ -139,6 +139,7 @@ def crawl_row(context: Context, declaration_id: int):
             "Deposito_Plazo_Adicional",  # additional term deposit
             "Ahorro_Previsional_Voluntario_Adicional",  # additional voluntary pension savings
             "Seguro_Adicional",  # additional insurance
+            "Cuenta_de_Ahorro_Adicional",  # additional savings account
         ],
     )
 

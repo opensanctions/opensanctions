@@ -5,7 +5,7 @@ coverage:
   schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-02-12
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Sanctions imposed by Canada on specific countries, organizations, or individuals 
   under the Special Economic Measures Act (SEMA) and JVCFOA

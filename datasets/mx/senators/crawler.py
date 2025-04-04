@@ -1,7 +1,7 @@
 import re
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 from zavod.shed.zyte_api import fetch_html, fetch_json
 
 SPLITS = [
@@ -63,7 +63,9 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
     gender = (
         "male"
         if input_dict["Sexo"] == "Hombre"
-        else "female" if input_dict["Sexo"] == "Mujer" else "other"
+        else "female"
+        if input_dict["Sexo"] == "Mujer"
+        else "other"
     )
     input_dict.pop("Sexo")
     entity.add("gender", gender)

@@ -4,7 +4,7 @@ prefix: ph-sec-adv
 coverage:
   frequency: daily
   start: 2024-07-04
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Individuals and entities with advisories issued by the Philippines Securities and Exchange Commission
 description: |

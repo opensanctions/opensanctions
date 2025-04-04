@@ -4,7 +4,7 @@ prefix: us-medsc
 coverage:
   frequency: daily
   start: "2024-11-07"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Medical providers excluded from South Carolina's Medicaid program.
 description: |
@@ -53,14 +53,14 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 1100
-lookups: 
-  type.identifier: 
-    options: 
+lookups:
+  type.identifier:
+    options:
       - match: 1437418566
         value: 1467418566
       - match: 181989221
         value: 1811989221
-      - match: 
+      - match:
           - NP3981
           - 1362345588
         prop: idNumber

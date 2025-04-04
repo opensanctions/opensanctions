@@ -6,7 +6,7 @@ coverage:
   start: "2021-04-22"
 deploy:
   schedule: "@monthly"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   List of companies that produce equipment and services covered
   by section 2 of the Secure Networks Act

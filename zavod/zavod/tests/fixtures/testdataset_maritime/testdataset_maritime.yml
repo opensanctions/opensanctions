@@ -1,0 +1,14 @@
+entry_point: testentrypoint_maritime
+title: OpenSanctions Maritime Validation Dataset
+prefix: osv
+hidden: true
+resolve: false
+summary: >
+  This dataset is used to validate and test the OpenSanctions data processing pipeline.
+description: "..."
+publisher:
+  name: OpenSanctions
+  description: "..."
+  url: https://www.opensanctions.org
+  official: false
+url: https://github.com/opensanctions/opensanctions

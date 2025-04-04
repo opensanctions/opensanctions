@@ -4,7 +4,7 @@ prefix: us-dos-terr
 coverage:
   frequency: daily
   start: "2024-06-06"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Organizations designated as terrorist for immigration purposes.
 description: |

@@ -4,7 +4,7 @@ url: https://www.assemblee-nationale.fr/dyn/vos-deputes
 coverage:
   frequency: weekly
   start: 2024-03-05
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 entry_point: crawler.py
 summary: >-
   Current and recent Members of the French National Assembly
@@ -62,7 +62,7 @@ lookups:
         value: Korea
       - match: Antilles françaises
         value: France
-  type.url: 
-    options: 
+  type.url:
+    options:
       - match: "/tribun/resources/html/defautDeclarationActeur.html"
         value: Null

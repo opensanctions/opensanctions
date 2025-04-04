@@ -5,7 +5,7 @@ prefix: za-wanted
 coverage:
   frequency: daily
   start: 2024-01-19
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Wanted persons list of South African Police Service
 description: |
@@ -24,6 +24,14 @@ publisher:
 data:
   url: https://www.saps.gov.za/crimestop/wanted/list.php
   format: HTML
+http:
+  retry_statuses:
+    - 404 # usually by the time we check, the page is there.
+    - 413
+    - 429
+    - 500
+    - 502
+    - 503
 
 assertions:
   min:
@@ -33,24 +41,24 @@ assertions:
     schema_entities:
       Person: 920
 
-lookups: 
+lookups:
   type.number:
     lowercase: true
     options:
-      - match: 
+      - match:
           - "0 m"
           - "n/a m"
           - "Unknown m"
           - "Unknnown m"
           - "unknown m"
-        value: null  
-      - match: 
+        value: null
+      - match:
           - "0 kg"
           - "n/a kg"
           - "Unknown kg"
           - "Unkniwn kg"
           - "unknown kg"
-        value: null 
+        value: null
   type.string:
     lowercase: true
     options:
@@ -59,7 +67,7 @@ lookups:
   type.name:
     lowercase: true
     options:
-      - match: 
+      - match:
           - "0"
           - Unknown
           - "n/a"

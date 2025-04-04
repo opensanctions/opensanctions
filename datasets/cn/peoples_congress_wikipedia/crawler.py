@@ -5,7 +5,7 @@ from lxml.html import HtmlElement
 import re
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 from zavod.shed.trans import apply_translit_full_name
 
 

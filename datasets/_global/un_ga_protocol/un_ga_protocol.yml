@@ -4,7 +4,7 @@ prefix: unprot
 coverage:
   frequency: monthly
   start: "2024-06-10"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >
   The UN's list of senior government officials in all of its member states.

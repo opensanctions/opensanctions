@@ -17,7 +17,7 @@ jobs:
           cache: "pip"
       - name: Install zavod
         run: |
-          pip install setuptools==77.0.3 wheel
+          pip install setuptools wheel
           pip install --no-cache-dir -q -e "zavod[dev]"
           pip install zeep==4.2.1
       - uses: actions/checkout@v4
@@ -36,6 +36,7 @@ jobs:
           EURLEX_WS_USERNAME: "${{ secrets.EURLEX_WS_USERNAME }}"
           EURLEX_WS_PASSWORD: "${{ secrets.EURLEX_WS_PASSWORD }}"
           EU_JOURNAL_SEEN_PATH: "${{ github.workspace }}/eu_journal/seen.txt"
+          EU_JOURNAL_HEARTBEAT_URL: "${{ secrets.EU_JOURNAL_HEARTBEAT_URL}}"
           SLACK_WEBHOOK_URL: "${{ secrets.EU_JOURNAL_SLACK_WEBHOOK_URL }}"
         run: |
           python contrib/eu_journal_updates.py --slack --update-seen

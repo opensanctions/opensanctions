@@ -7,7 +7,7 @@ coverage:
   start: "2015-12-05"
 deploy:
   memory: "2Gi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   The United Kingdom's consolidated international sanctions list.
 description: |
@@ -148,7 +148,7 @@ lookups:
       - match: Russia OKPO - 65665578
         prop: okpoCode
         value: 65665578
-      - match: 'Russian TIN: 7718763393'
+      - match: "Russian TIN: 7718763393"
         prop: taxNumber
         value:
       - match: TIN - 7703104630
@@ -181,19 +181,19 @@ lookups:
       - match: 9709056472 - Russia INN
         prop: innCode
         value: 9709056472
-      - match: 'OGRN: 1027700456024'
+      - match: "OGRN: 1027700456024"
         prop: ogrnCode
         value: 1027700456024
-      - match: 'INN: 7725075060'
+      - match: "INN: 7725075060"
         prop: innCode
         value: 7725075060
-      - match: 'TIN: 2539028264'
+      - match: "TIN: 2539028264"
         prop: taxNumber
         value: 2539028264
-      - match: 'OGRN: 1027739090708'
+      - match: "OGRN: 1027739090708"
         prop: ogrnCode
         value: 1027739090708
-      - match: 'INN: 7731018133'
+      - match: "INN: 7731018133"
         prop: innCode
         value: 7731018133
       - match: Tax ID No. 7813491943 (Russia)
@@ -208,91 +208,91 @@ lookups:
       - match: Tax ID No. 7736588433 (Russia)
         prop: taxNumber
         value: 7736588433
-      - match: 'Tax Identification Number: INN 2536210349'
+      - match: "Tax Identification Number: INN 2536210349"
         prop: innCode
         value: 2536210349
-      - match: 'Tax Identification Number: 1657032272'
+      - match: "Tax Identification Number: 1657032272"
         prop: taxNumber
         value: 1657032272
       - match: 9709056472 - Russia INN
         prop: innCode
         value: 9709056472
-      - match: 'Tax Identification Number: INN: 7804001110'
+      - match: "Tax Identification Number: INN: 7804001110"
         prop: innCode
         value: 7804001110
       - match: 11132540008732
         prop: ogrnCode
         value: 1132540008732
-      - match: 'TIN: 1800970008'
+      - match: "TIN: 1800970008"
         prop: taxNumber
         value: 1800970008
-      - match: 'OGRN: 1031624002937'
+      - match: "OGRN: 1031624002937"
         prop: ogrnCode
         value: 1031624002937
-      - match: 'TIN: 1656025681'
+      - match: "TIN: 1656025681"
         prop: taxNumber
         value: 1656025681
-      - match: 'TIN: 7750004023'
+      - match: "TIN: 7750004023"
         prop: taxNumber
         value: 7750004023
-      - match: 'OGRN: 1027739143717'
+      - match: "OGRN: 1027739143717"
         prop: ogrnCode
         value: 1027739143717
-      - match: 'INN: 7723022111'
+      - match: "INN: 7723022111"
         prop: innCode
         value: 7723022111
-      - match: 'OGRN: 1077757840522'
+      - match: "OGRN: 1077757840522"
         prop: ogrnCode
         value: 1077757840522
-      - match: 'TIN: 7729579004'
+      - match: "TIN: 7729579004"
         prop: taxNumber
         value: 7729579004
-      - match: 'OGRN: 1027700456024'
+      - match: "OGRN: 1027700456024"
         prop: ogrnCode
         value: 1027700456024
-      - match: 'INN: 7725075060'
+      - match: "INN: 7725075060"
         prop: innCode
         value: 7725075060
-      - match: 'Tax Identification Number: INN 2536210349'
+      - match: "Tax Identification Number: INN 2536210349"
         prop: innCode
         value: 2536210349
-      - match: 'OGRN: 1122901001475'
+      - match: "OGRN: 1122901001475"
         prop: ogrnCode
         value: 1122901001475
-      - match: 'OGRN: 1207800103301'
+      - match: "OGRN: 1207800103301"
         prop: ogrnCode
         value: 1207800103301
-      - match: 'TIN: 7806575286'
+      - match: "TIN: 7806575286"
         prop: taxNumber
         value: 7806575286
-      - match: 'TIN: 6147025090'
+      - match: "TIN: 6147025090"
         prop: taxNumber
         value: 6147025090
-      - match: 'OGRN: 1066147003658'
+      - match: "OGRN: 1066147003658"
         prop: ogrnCode
         value: 1066147003658
-      - match: 'TIN: 1656025681'
+      - match: "TIN: 1656025681"
         prop: taxNumber
         value: 1656025681
-      - match: 'OGRN: 1026801010994'
+      - match: "OGRN: 1026801010994"
         prop: ogrnCode
         value: 1026801010994
-      - match: 'TIN: 7706191991'
+      - match: "TIN: 7706191991"
         prop: taxNumber
         value: 7706191991
-      - match: '1027739339715 (Russia)'
+      - match: "1027739339715 (Russia)"
         prop: ogrnCode
         value: 1027739339715
-      - match: 'Taxpayer ID: 7727214569'
+      - match: "Taxpayer ID: 7727214569"
         prop: taxNumber
         value: 7727214569
-      - match: 'OGRN 1037739468084'
+      - match: "OGRN 1037739468084"
         prop: ogrnCode
         value: 1037739468084
-      - match: 'TIN: 9724042820'
+      - match: "TIN: 9724042820"
         prop: taxNumber
         value: 9724042820
-      - match: 'Tax Identification Number: INN 7801047839'
+      - match: "Tax Identification Number: INN 7801047839"
         prop: innCode
         value: 7801047839
       - match: TIN - 5408106299
@@ -307,16 +307,16 @@ lookups:
       - match: TIN - 770426257
         prop: taxNumber
         value: 770426257
-      - match: 'OGRN: 1112130013270'
+      - match: "OGRN: 1112130013270"
         prop: ogrnCode
         value: 1112130013270
-      - match: 'TIN: 2130094170'
+      - match: "TIN: 2130094170"
         prop: taxNumber
         value: 2130094170
-      - match: 'Russia INN - 7706196340'
+      - match: "Russia INN - 7706196340"
         prop: innCode
         value: 7706196340
-      - match: 'OGRN: 1027802490540'
+      - match: "OGRN: 1027802490540"
         prop: ogrnCode
         value: 1027802490540
   companies:
@@ -796,9 +796,9 @@ lookups:
           - "TIN: 02012201010017"
           - "OKPO: 27231453"
           - "SWIFT: RINBKG22"
-      - match: 'SUZHOU SHUNYI INVESTMENT CO., LTD'
+      - match: "SUZHOU SHUNYI INVESTMENT CO., LTD"
         value: SUZHOU SHUNYI INVESTMENT CO., LTD
-      - match: '(1) 苏州百胜动力科技有限公司 – SUZHOU YUM POWER TECHNOLOGY CO., LTD. (2)  苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD.'
+      - match: "(1) 苏州百胜动力科技有限公司 – SUZHOU YUM POWER TECHNOLOGY CO., LTD. (2)  苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD."
         values:
           - 苏州百胜动力科技有限公司 - SUZHOU YUM POWER TECHNOLOGY CO., LTD
           - 苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD

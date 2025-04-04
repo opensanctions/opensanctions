@@ -1,12 +1,12 @@
-from sqlalchemy import MetaData, create_engine
-from sqlalchemy.pool import NullPool
 from nomenklatura.resolver import Linker
-from nomenklatura.statement.db import make_statement_table, insert_dataset
+from nomenklatura.statement.db import insert_dataset
+from nomenklatura.settings import STATEMENT_BATCH
 
-from zavod import settings
+from zavod.db import get_engine
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.entity import Entity
+from zavod.stateful.model import statement_table
 from zavod.tools.util import iter_output_statements
 
 log = get_logger(__name__)
@@ -15,8 +15,7 @@ log = get_logger(__name__)
 def load_dataset_to_db(
     scope: Dataset,
     linker: Linker[Entity],
-    database_uri: str,
-    batch_size: int = settings.DB_BATCH_SIZE,
+    batch_size: int = STATEMENT_BATCH,
     external: bool = True,
 ) -> None:
     """Load a dataset into a database given as a URI. This will delete all
@@ -28,14 +27,11 @@ def load_dataset_to_db(
         batch_size: The number of statements to insert in a single batch.
         external: Include statements that are enrichment candidates.
     """
-    engine = create_engine(database_uri, poolclass=NullPool)
-    metadata = MetaData()
-    table = make_statement_table(metadata)
-    metadata.create_all(bind=engine, tables=[table])
+    engine = get_engine()
     for dataset in scope.leaves:
         insert_dataset(
             engine,
-            table,
+            statement_table,
             dataset.name,
             iter_output_statements(dataset, linker, external=external),
             batch_size=batch_size,

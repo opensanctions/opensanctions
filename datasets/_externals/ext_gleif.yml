@@ -16,7 +16,8 @@ deploy:
   memory: "4000Mi"
   memory_limit: "6000Mi"
   disk: "30Gi"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
+ci_test: false
 summary: >-
   A concatenated data file of all entities which have been issued Legal
   Entity Identifier (LEI) codes
@@ -47,7 +48,6 @@ publisher:
     the global financial markets. GLEIF is a supra-national not-for-profit
     organization headquartered in Basel, Switzerland.
   url: https://www.gleif.org/en/about/this-is-gleif
-ci_test: false
 
 inputs:
   - ann_graph_topics

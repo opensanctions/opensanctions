@@ -8,7 +8,7 @@ coverage:
 deploy:
   schedule: "@monthly"
 ci_test: false
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   A list of Russian soldiers, PMC Wagner members and other criminals.
 description: |

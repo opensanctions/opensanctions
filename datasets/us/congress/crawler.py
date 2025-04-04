@@ -5,7 +5,7 @@ from requests.exceptions import HTTPError
 
 from zavod import helpers as h
 from zavod import Context
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 
 API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_API_KEY")
 IGNORE = [

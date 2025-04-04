@@ -4,7 +4,7 @@ prefix: mdrisepep
 coverage:
   frequency: weekly
   start: 2023-05-24
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >
   People of Interest is an interactive database developed and managed by RISE Moldova.
@@ -29,7 +29,7 @@ data:
   url: "https://profiles.rise.md/index.php"
   format: HTML
   lang: ron
-dates: 
+dates:
   formats: ["%d.%m.%Y"]
 
 assertions:

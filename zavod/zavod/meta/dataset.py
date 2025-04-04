@@ -1,6 +1,5 @@
-import os
-from functools import cached_property
 from pathlib import Path
+from functools import cached_property
 from typing import TYPE_CHECKING, Dict, Any, Optional, List, Set
 
 from banal import ensure_list, ensure_dict, as_bool
@@ -52,12 +51,8 @@ class Dataset(NKDataset):
         self.full_dataset: Optional[str] = data.get("full_dataset", None)
         """The bulk full dataset for datasets that result from enrichment."""
 
-        self.load_db_uri: Optional[str] = data.get("load_db_uri", None)
+        self.load_statements: bool = data.get("load_statements", False)
         """Used to load the dataset into a database when doing a complete run."""
-        if self.load_db_uri is not None:
-            self.load_db_uri = os.path.expandvars(self.load_db_uri)
-            if len(self.load_db_uri.strip()) == 0:
-                self.load_db_uri = None
 
         self.disabled: bool = as_bool(data.get("disabled", False))
         """Do not update the crawler at the moment."""

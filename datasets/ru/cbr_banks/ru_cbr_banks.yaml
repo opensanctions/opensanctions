@@ -4,7 +4,7 @@ prefix: ru-bik
 coverage:
   frequency: daily
   start: 2024-11-05
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >
   Banks registered in Russia, including their unique identifiers (BIK, OGRN),
@@ -34,7 +34,7 @@ data:
   format: XML
   lang: rus
 
-dates: 
+dates:
   formats: ["%d.%m.%Y", "%Y-%m-%dT00:00:00+03:00", "%Y-%m-%dT00:00:00+04:00"]
 assertions:
   min:

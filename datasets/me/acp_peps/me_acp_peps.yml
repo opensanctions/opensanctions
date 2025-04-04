@@ -4,15 +4,15 @@ prefix: me-gov
 coverage:
   frequency: weekly
   start: "2024-01-31"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-ci_test: false  # because it takes hours to run
+load_statements: true
+ci_test: false # because it takes hours to run
 summary: >
   Montenegrin Public Officials Subject to Declaration by the Agency for Prevention of Corruption.
 description: |
   This dataset lists Montenegrin PEPs based on declarations of assets, income
   and public functions by current and former public officials required to make these
   declarations. The data is based on their most recent declaration.
-  
+
   It includes information such as the official's name and positions. If an individual
   served at the national level, it also includes any reported relatives.
 publisher:
@@ -29,7 +29,7 @@ url: https://obsidian.antikorupcija.me/registri/pretraga-izvjestaja-o-prihodima-
 data:
   url: https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni
   format: JSON
-  lang: cnr  # Montenegrin (ISO 639-2)
+  lang: cnr # Montenegrin (ISO 639-2)
 
 assertions:
   min:
@@ -44,7 +44,7 @@ assertions:
 lookups:
   type.country:
     lowercase: true
-    options: 
+    options:
       - match: Crnogorsko
         country: me
       - match:
@@ -56,7 +56,7 @@ lookups:
         country: gb
       - match: Tursko
         country: tr
-      - match: 
+      - match:
           - američko
           - Americko
         country: us

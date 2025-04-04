@@ -7,7 +7,7 @@ coverage:
 deploy:
   memory: 1500Mi
 ci_test: false
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Switzerland's financial regulator maintains and publishes a warning list of
   companies and individuals who may be carrying out unauthorised services

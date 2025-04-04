@@ -1,6 +1,6 @@
 title: "US Office of Antiboycott Compliance Requester List"
 url: https://www.bis.gov/OAC
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 coverage:
   frequency: weekly
   start: 2024-08-16
@@ -14,7 +14,7 @@ description: |
 
   These entities have been
   reported to the BIS for making boycott-related requests in U.S. transactions. The list is
-  updated quarterly and is not exhaustive. 
+  updated quarterly and is not exhaustive.
 entry_point: crawler.py
 prefix: us-bis-oac
 publisher:
@@ -22,10 +22,10 @@ publisher:
   acronym: BIS
   official: true
   description: |
-     BIS, part of the U.S. Department of Commerce, manages the intersection of business and 
-     U.S. foreign policy and security interests. The Office of Antiboycott Compliance (OAC) 
-     within BIS enforces the Anti-Boycott Act of 2018, which discourages and sometimes 
-     prohibits U.S. companies from supporting unsanctioned foreign boycotts.
+    BIS, part of the U.S. Department of Commerce, manages the intersection of business and 
+    U.S. foreign policy and security interests. The Office of Antiboycott Compliance (OAC) 
+    within BIS enforces the Anti-Boycott Act of 2018, which discourages and sometimes 
+    prohibits U.S. companies from supporting unsanctioned foreign boycotts.
   country: us
   url: https://www.bis.gov
 data:
@@ -47,6 +47,6 @@ assertions:
   min:
     schema_entities:
       Company: 130
-  max: 
+  max:
     schema_entities:
       Company: 190

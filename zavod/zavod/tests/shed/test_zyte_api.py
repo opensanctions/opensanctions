@@ -4,7 +4,6 @@ from base64 import b64encode
 
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
-from zavod.runtime.cache import get_cache, get_engine, get_metadata
 from zavod.shed.zyte_api import (
     UnblockFailedException,
     fetch_html,
@@ -115,9 +114,6 @@ def test_caching(testdataset1: Dataset):
         assert m.call_count == 1  # still 1 because cache hit
 
     context.close()
-    get_cache.cache_clear()
-    get_engine.cache_clear()
-    get_metadata.cache_clear()
 
 
 def test_fetch_resource(testdataset1: Dataset):

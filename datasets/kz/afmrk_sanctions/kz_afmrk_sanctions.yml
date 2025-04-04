@@ -4,7 +4,7 @@ prefix: kzafm
 coverage:
   frequency: daily
   start: 2021-12-13
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   A combination of two lists of sanctioned individuals and entities published by the
   Financial Monitoring Agency of Kazakhstan.
@@ -33,7 +33,7 @@ url: https://websfm.kz/terrorism
 data:
   url: https://api.websfm.kz/v1/sanctions/sanction-terrorist-old/
   format: xml
-dates: 
+dates:
   formats: ["%d.%m.%Y"]
 assertions:
   min:

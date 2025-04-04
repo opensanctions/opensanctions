@@ -4,7 +4,7 @@ prefix: us-sec-pause
 coverage:
   frequency: daily
   start: 2023-11-23
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Entities that falsely claim to be registered, licensed, and/or located in the
   United States, to be regulators, or impersonate genuine firms.
@@ -92,6 +92,10 @@ lookups:
         value: support@apexglobalf.com
       - match: info.kenilworthma.com
         value: info@kenilworthma.com
+      - match: support@llcicapital.com / support@llcilimited.com
+        values:
+          - support@llcicapital.com
+          - support@llcilimited.com
   type.url:
     options:
       - match:

@@ -4,7 +4,7 @@ prefix: us-cia
 coverage:
   frequency: weekly
   start: "2023-09-21"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   An index of most national-level heads of state and heads of government
   in world governments that is publicly maintained by the CIA.
@@ -83,7 +83,7 @@ lookups:
           - role: Caretaker Prime Minister
             name: Michel BARNIER
             start_date: 5 September 2024
-      - match: 'François BAYROU (since 13 December 2024)'
+      - match: "François BAYROU (since 13 December 2024)"
         holders:
           - role: Head of government
             name: François BAYROU
@@ -171,11 +171,19 @@ lookups:
             name: Richard SULIK
             start_date: 21 March 2020
       # South Korea
-      - match: 'Deputy Prime Minister CHOI Sang-mok became Acting President on 27 December 2024 after the National Assembly impeached and suspended HAN from office'
+      - match: "Deputy Prime Minister CHOI Sang-mok became Acting President on 27 December 2024 after the National Assembly impeached and suspended HAN from office"
         holders:
           - role: Acting President
             name: CHOI Sang-mok
             start_date: 27 December 2024
+      - match: "on 24 March 2025, the Constitutional Court dismissed the 27 December impeachment of HAN Duck-soo, reinstating him as prime minister and acting president"
+        holders:
+          - role: Prime Minister
+            name: HAN Duck-soo
+            start_date: 24 March 2025
+          - role: Acting President
+            name: HAN Duck-soo
+            start_date: 24 March 2025
       # San Marino
       - match: "co-chiefs of state Captains Regent Alessandro ROSSI and Milena GASPERONI (for the period 1 April 2024 - 30 September 2024)"
         holders:
@@ -781,7 +789,6 @@ lookups:
         holders:
           - role: Administrator
             name: Bob FAIRWEATHER
-
 
       # Not additional heads, just notes
       - regex:

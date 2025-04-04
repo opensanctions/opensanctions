@@ -2,7 +2,7 @@ import re
 from normality import collapse_spaces
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 from zavod.shed.trans import apply_translit_full_name, make_position_translation_prompt
 from zavod.shed.zyte_api import fetch_html
 

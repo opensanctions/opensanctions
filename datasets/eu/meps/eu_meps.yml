@@ -4,7 +4,7 @@ prefix: eu-meps
 coverage:
   frequency: weekly
   start: 2018-04-11
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   A set of all the members of the European Union's parliament, which are
   elected per member state.

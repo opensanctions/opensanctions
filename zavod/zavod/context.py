@@ -16,12 +16,14 @@ from nomenklatura.versions import Version
 from nomenklatura.cache import Cache
 from nomenklatura.util import PathLike
 from rigour.urls import build_url, ParamsType
+from sqlalchemy.engine import Connection
 from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
 from zavod.audit import inspect
 from zavod.meta import Dataset, DataResource
 from zavod.entity import Entity
+from zavod.db import get_engine, meta
 from zavod.archive import dataset_resource_path, dataset_data_path
 from zavod.runtime.versions import get_latest
 from zavod.runtime.stats import ContextStats
@@ -29,7 +31,6 @@ from zavod.runtime.sink import DatasetSink
 from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.timestamps import TimeStampIndex
-from zavod.runtime.cache import get_cache
 from zavod.runtime.versions import make_version
 from zavod.runtime.http_ import fetch_file, make_session, request_hash
 from zavod.runtime.http_ import _Auth, _Headers, _Body
@@ -80,8 +81,14 @@ class Context:
     def cache(self) -> Cache:
         """A cache object for storing HTTP responses and other data."""
         if self._cache is None:
-            self._cache = get_cache(self.dataset)
+            self._cache = Cache(get_engine(), meta, self.dataset, create=True)
         return self._cache
+
+    @property
+    def conn(self) -> Connection:
+        """Expose a database connection to the ETL store."""
+        # Transaction management is delegated to the cache.
+        return self.cache.conn
 
     @property
     def version(self) -> Version:
@@ -140,6 +147,11 @@ class Context:
             self.resources.clear()
             self.issues.clear()
         self.stats.reset()
+
+    def flush(self) -> None:
+        """Flush the context to ensure all data is written to disk."""
+        if self._cache is not None:
+            self._cache.flush()
 
     def close(self) -> None:
         """Flush and tear down the context."""
@@ -531,14 +543,11 @@ class Context:
                 f"Unexpected data found in fields: {unexpected_keys}", data=cleaned
             )
 
-    def emit(
-        self, entity: Entity, target: bool = False, external: bool = False
-    ) -> None:
+    def emit(self, entity: Entity, external: bool = False) -> None:
         """Send an entity from the crawling/runner process to be stored.
 
         Args:
             entity: The entity to be stored.
-            target: Whether the entity is a target of the dataset.
             external: Whether the entity is an enrichment candidate or already
                 part of the dataset.
         """
@@ -553,6 +562,7 @@ class Context:
                 "Emitted %s entities" % self.stats.entities,
                 statements=self.stats.statements,
             )
+            self.flush()
         stamps = {} if self.dry_run else self.timestamps.get(entity.id)
         for stmt in entity.statements:
             if stmt.id is None:

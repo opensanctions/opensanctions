@@ -1,31 +1,24 @@
-import csv
-import io
 import re
-from typing import Dict, List
-from rigour.mime.types import CSV
-from normality import slugify
+from typing import Dict
+from openpyxl import load_workbook
+from rigour.mime.types import XLSX
 from rigour.names import pick_name
 
 from zavod import Context, helpers as h
 
 
-# The entire string is mostly question marks, with perhaps a space or hyphen in there.
-REGEX_ENCODING_MISHAP = re.compile(r"^[\? -]+$")
 # detect anything more complex than word/word/word (and handle question mark woopsie)
-REGEX_LAST_NAME = re.compile(r"^[\w\?]+( ?/ ?[\w\?]+)*$")
+REGEX_LAST_NAME = re.compile(r"^[\w\?]+( ?/\s*[\w\?]+)*$")
 
 
-def clean_names(names: List[str]) -> List[str]:
-    return [name for name in names if not REGEX_ENCODING_MISHAP.match(name)]
-
-
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(context: Context, row: Dict[str, str]):
     # Jméno fyzické osoby
     # -> First name of the natural person
-    first_name_field = row.pop("jmeno_fyzicke_osoby", "").strip('"').strip()
+
+    first_name_field = (row.pop("jmeno_fyzicke_osoby") or "").strip('"').strip()
     # Cleaning here rather than via type.string lookup because we assemble full
     # names from these.
-    first_names = clean_names(first_name_field.split("/"))
+    first_names = h.multi_split(first_name_field, ["/"])
 
     # Příjmení fyzické osoby / Název právnické osoby / Označení nebo název entity
     # -> Last name of the natural person / Name of the legal entity / Designation or name of the entity
@@ -44,14 +37,14 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     sanction_props = dict()
     if REGEX_LAST_NAME.match(name_field):
-        names = clean_names(name_field.split("/"))
+        names = h.multi_split(name_field, ["/"])
     else:
         res = context.lookup("name_notes", name_field)
         if res:
             names = res.names
             sanction_props = res.sanction_props
         else:
-            names = clean_names(name_field.split("/"))
+            names = h.multi_split(name_field, ["/"])
             context.log.warning("Name field needs manual cleaning", name=name_field)
 
     if len(first_name_field) == 0:
@@ -71,7 +64,7 @@ def crawl_item(row: Dict[str, str], context: Context):
             first_name=pick_name(first_names),
             last_name=pick_name(names),
         )
-        h.apply_date(entity, "birthDate", birth_date)
+        h.apply_date(entity, "birthDate", birth_date.strip())
         entity.add("nationality", countries.split(", "), lang="ces")
 
     # Další identifikační údaje
@@ -119,35 +112,24 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_csv_url(context: Context):
+def crawl_data_url(context: Context):
     doc = context.fetch_html(context.data_url)
     # (etree.tostring(doc))
     doc.make_links_absolute(context.data_url)
-    anchor = doc.xpath('//a[@title="Vnitrostátní sankční seznam"]')
-    if len(anchor) == 0:
-        raise Exception("No sanctions file link found")
+    anchor = doc.xpath('//a/span[text()="Vnitrostátní sankční seznam"]/..')
+    assert len(anchor) != 1, len(anchor)
     return anchor[0].get("href")
 
 
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
-    csv_url = crawl_csv_url(context)
-    path = context.fetch_resource("source.csv", csv_url)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    data_url = crawl_data_url(context)
+    path = context.fetch_resource("source.xlsx", data_url)
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    with open(path, "r") as fh:
-        fdata = fh.read()
-        fdata = re.sub(
-            r"\"+(?=[^\",])", '"', fdata
-        )  # Singlify all double quotes in front of a non-comma/quote character
-        fdata = re.sub(
-            r"(?<=[^\",])\"+", '"', fdata
-        )  # Singlify all double quotes after a non-comma/quote character
-        fdata = re.sub(
-            r"(?<=,)\"+(?=,)", '""', fdata
-        )  # Switch all quotes between commas with two quotes
-        strio = io.StringIO(fdata)
-        for record in csv.DictReader(strio):
-            row_ = {slugify(k, "_"): str(v) for k, v in record.items() if v is not None}
-            row = {k: v for k, v in row_.items() if k is not None}
-            crawl_item(row, context)
+    wb = load_workbook(path, read_only=True)
+    if len(wb.sheetnames) != 1:
+        raise Exception("Expected only one sheet in the workbook")
+
+    for row in h.parse_xlsx_sheet(context, wb[wb.sheetnames[0]]):
+        crawl_item(context, row)

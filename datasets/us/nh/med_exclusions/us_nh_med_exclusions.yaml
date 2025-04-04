@@ -4,7 +4,7 @@ prefix: us-mednh
 coverage:
   frequency: daily
   start: "2024-09-06"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >
   Providers who have been terminated for cause from New Hampshire's Medicaid program.
 description: |
@@ -18,7 +18,7 @@ publisher:
     for the health, safety and well-being of the citizens of New Hampshire. DHHS provides
     services for individuals, children, families and seniors, and administers programs and
     services such as mental health, developmental disability, substance misuse, and public
-    health. 
+    health.
   acronym: DHHS
   url: https://www.dhhs.nh.gov
   official: true
@@ -29,7 +29,7 @@ data:
   format: HTML
 http:
   user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15"
-dates: 
+dates:
   formats: ["%Y-%m-%d", "%m/%d/%Y"]
 
 assertions:
@@ -43,7 +43,7 @@ assertions:
       Company: 30
 
 lookups:
-  type.identifier: 
-    options: 
+  type.identifier:
+    options:
       - match: 26-3554962 (FEIN)
         prop: registrationNumber

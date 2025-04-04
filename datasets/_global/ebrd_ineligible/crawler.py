@@ -20,23 +20,11 @@ NAME_SPLITS = [
 RE_NAME_SPLIT = re.compile("|".join(NAME_SPLITS), re.IGNORECASE)
 
 
-def get_schema(context: Context, name: str, projectNoticeType: str) -> str:
-    schema = context.lookup_value("override_schema", name)
-    if schema is not None:
-        return schema
-    schema = context.lookup_value("schema", projectNoticeType)
-    if schema is None:
-        context.log.warning(f"Unknown schema: {projectNoticeType}")
-        schema = "LegalEntity"
-    return schema
-
-
 def crawl_entity(context: Context, data: Dict[str, Any]):
     name_raw = data.pop("title")
     address = data.pop("address")
     country = collapse_spaces(data.pop("nationality"))
-    schema = get_schema(context, name_raw, data.pop("projectNoticeType"))
-    entity = context.make(schema)
+    entity = context.make("LegalEntity")
     entity.id = context.make_id(name_raw, address, country)
     entity.add("name", RE_NAME_SPLIT.split(name_raw))
     entity.add("address", address.split("$"))
@@ -53,7 +41,8 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
         entity.add("topics", "debarment")
     context.emit(entity)
     context.emit(sanction)
-    context.audit_data(data)
+    # They mis-classify some persons as companies
+    context.audit_data(data, ignore=["projectNoticeType"])
 
 
 def crawl(context: Context):

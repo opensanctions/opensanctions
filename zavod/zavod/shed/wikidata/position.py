@@ -1,16 +1,11 @@
 from typing import Dict, Optional, Set
 
-from nomenklatura.enrich.wikidata import WikidataEnricher
-from nomenklatura.enrich.wikidata.model import Item
+from nomenklatura.wikidata import Item, WikidataClient
 from rigour.territories import get_territory_by_qid
 
 from zavod import Context, Entity
-from zavod.meta import Dataset
-from zavod.logic.pep import categorise
-from zavod.shed.wikidata.country import item_countries
-from zavod.shed.wikidata.util import item_types, item_label
-
-Wikidata = WikidataEnricher[Dataset]
+from zavod.stateful.positions import categorise
+from zavod.shed.wikidata.country import is_historical_country, item_countries
 
 POSITION_BASICS: Set[str] = {
     "Q4164871",  # position
@@ -70,13 +65,17 @@ IGNORE_TYPES: Set[str] = {
     "Q114962596",  # historical position
     "Q193622",  # order
     "Q60754876",  # grade of an order
+    "Q618779",  # award
+    "Q4240305",  # cross
+    "Q120560",  # minor basilica?
+    "Q2977",  # cathedral
 }
 
 
 def wikidata_position(
-    context: Context, enricher: Wikidata, item: Item
+    context: Context, client: WikidataClient, item: Item
 ) -> Optional[Entity]:
-    types = item_types(enricher, item.id)
+    types = item.types
     if len(types.intersection(POSITION_BASICS)) == 0:
         return None
     if len(types.intersection(IGNORE_TYPES)) > 0:
@@ -85,49 +84,48 @@ def wikidata_position(
     position = context.make("Position")
     position.id = item.id
     position.add("wikidataId", item.id)
-    label = item_label(item)
-    if label is not None:
-        label.apply(position, "name")
-    else:
-        for label in item.labels:
-            label.apply(position, "name")
-
-    for country in item_countries(enricher, item):
-        country.apply(position, "country")
+    if item.label is not None:
+        item.label.apply(position, "name")
 
     for claim in item.claims:
+        if claim.property in ("P1001", "P17", "P27") and claim.qid is not None:
+            if is_historical_country(client, claim.qid):
+                return None
+            for country in item_countries(client, claim.qid):
+                country.apply(position, "country")
+
         # jurisdiction:
         if claim.property == "P1001":
             territory = get_territory_by_qid(claim.qid)
             if territory is None or not territory.is_country:
-                text = claim.text(enricher)
-                text.apply(position, "subnationalArea")
+                claim.text.apply(position, "subnationalArea")
 
         # inception:
         if claim.property == "P571":
-            text = claim.text(enricher)
-            text.apply(position, "inceptionDate")
+            claim.text.apply(position, "inceptionDate")
 
         if claim.property == "P580":
-            text = claim.text(enricher)
-            text.apply(position, "inceptionDate")
+            claim.text.apply(position, "inceptionDate")
 
         # abolished date:
         if claim.property == "P576":
-            text = claim.text(enricher)
-            text.apply(position, "dissolutionDate")
+            claim.text.apply(position, "dissolutionDate")
 
     # Second round:
     for claim in item.claims:
         # start date:
         if claim.property == "P580" and not position.has("inceptionDate"):
-            text = claim.text(enricher)
-            text.apply(position, "inceptionDate")
+            claim.text.apply(position, "inceptionDate")
 
         # end date:
         if claim.property == "P582" and not position.has("dissolutionDate"):
-            text = claim.text(enricher)
-            text.apply(position, "dissolutionDate")
+            claim.text.apply(position, "dissolutionDate")
+
+    # If no explicit country/jurisdiction is found, try to traverse more obscure
+    # properties, like capital of, part of, jurisdiction, etc.
+    if not position.has("country"):
+        for country in item_countries(client, item.id):
+            country.apply(position, "country")
 
     # Skip all positions that cannot be linked to a country.
     if not position.has("country"):

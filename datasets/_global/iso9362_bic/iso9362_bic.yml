@@ -11,7 +11,7 @@ exports:
   - entities.ftm.json
   - entities.delta.json
 ci_test: false
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 summary: >-
   Reference data for SWIFT BIC code, including bank names and addresses
 description: |

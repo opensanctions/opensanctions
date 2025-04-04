@@ -12,7 +12,7 @@ from lxml.html import document_fromstring, HtmlElement
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.stateful.positions import categorise
 from zavod.shed.internal_data import fetch_internal_data
 
 UNUSED_FIELDS = [
@@ -99,7 +99,6 @@ def crawl_person(
     zipfh: ZipFile,
     person_id: int,
     data: Dict[str, Any],
-    is_target: bool,
 ) -> Optional[Entity]:
     """Create person and position/occupancy if applicable."""
     birth_date, birth_place = get_birth_info(context, zipfh, person_id)
@@ -212,7 +211,7 @@ def crawl_missing_pois(
             context.log.debug(f"Already crawled missing POI {person_id}")
             continue
         persons[person_id] = data
-        person = crawl_person(context, zipfh, person_id, data, False)
+        person = crawl_person(context, zipfh, person_id, data)
         if person is not None:
             data["entity"] = person
 
@@ -304,7 +303,7 @@ def crawl_lists(context: Context, zipfh: ZipFile):
     # Now that we have the persons we can grab some personal data and
     # create Persons
     for person_id, data in persons.items():
-        person = crawl_person(context, zipfh, person_id, data, is_target=True)
+        person = crawl_person(context, zipfh, person_id, data)
         if person is not None:
             persons[person_id]["entity"] = person
     # And create relations between entities

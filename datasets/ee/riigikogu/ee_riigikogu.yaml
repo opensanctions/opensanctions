@@ -4,7 +4,7 @@ prefix: ee-rii
 coverage:
   frequency: daily
   start: "2024-02-08"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false
 summary: >-
   Members of the Riigikogu, Estonia's unicameral parliament
@@ -30,6 +30,7 @@ data:
 assertions:
   min:
     schema_entities:
+      # This is important because we skip entities whose name can't be scraped from the page.
       Person: 90
   max:
     schema_entities:

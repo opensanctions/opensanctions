@@ -1,6 +1,6 @@
 title: "US FinCEN 311 and 9714 Special Measures"
 url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 coverage:
   frequency: daily
   start: 2024-07-26
@@ -28,7 +28,7 @@ data:
   url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
   format: html
 
-dates: 
+dates:
   formats: ["%m/%d/%Y"]
 lookups:
   target_type:
@@ -45,7 +45,7 @@ assertions:
     schema_entities:
       PublicBody: 4
       Company: 20
-  max: 
+  max:
     schema_entities:
       PublicBody: 5
       Company: 40
