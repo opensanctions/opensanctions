@@ -179,11 +179,9 @@ def crawl(context: Context):
         context.log.warning("Failed to fetch total count")
 
     processed = 0
-    while url:
+    while url and processed < total_count:
         data = context.fetch_json(url, headers=headers, cache_days=3)
         for entry in data.pop("value"):  # Directly iterate over new IDs
-            if processed >= total_count:  # Additional exit condition
-                break
             process_entry(context, entry, headers)
             processed += 1
         # It will break when there is no next link
