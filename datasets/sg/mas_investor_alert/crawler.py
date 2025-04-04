@@ -7,7 +7,6 @@ from zavod import Context, helpers as h
 
 
 IGNORE = [
-    "phonenumber_s",
     "score",
     "approveddate_dt",
     "relatedunregulatedpersons_s",
@@ -104,6 +103,7 @@ def crawl_item(context: Context, item: dict):
     entity.add("alias", h.multi_split(item.pop("alternativename_t"), [";"]))
     entity.add("previousName", item.pop("formername_t"))
     entity.add("website", h.multi_split(item.pop("website_s"), [";"]))
+    entity.add("phone", h.multi_split(item.pop("phonenumber_s"), ["/ ", "; "]))
     entity.add("address", item.pop("address_s"))
     entity.add("notes", item.pop("notes_s"))
     entity.add("topics", ["fin", "reg.warn"])
