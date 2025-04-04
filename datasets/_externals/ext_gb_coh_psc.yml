@@ -18,6 +18,7 @@ deploy:
   disk: "100Gi"
   disk_limit: 100Gi
 load_statements: true
+ci_test: false
 summary: >-
   The database of beneficial owners of companies incorporated in England, Wales,
   Scotland and Northern Ireland.
@@ -40,7 +41,6 @@ publisher:
   url: https://www.gov.uk/government/organisations/companies-house
   country: gb
   official: true
-ci_test: false
 http:
   retry_methods: [GET, POST]
 

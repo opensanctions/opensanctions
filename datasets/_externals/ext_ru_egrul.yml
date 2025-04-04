@@ -18,7 +18,7 @@ deploy:
   disk_limit: 150Gi
   memory: "6500Mi"
   memory_limit: "7000Mi"
-# load_statements: true
+load_statements: true
 summary: >-
   Companies database of the Russian Federation as maintained and published by
   the Federal Tax Service.

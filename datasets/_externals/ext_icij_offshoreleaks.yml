@@ -13,6 +13,7 @@ deploy:
   memory_limit: "6000Mi"
   disk: "30Gi"
 load_statements: true
+ci_test: false
 coverage:
   start: 2022-05-23
   end: 2023-07-26
@@ -47,7 +48,6 @@ publisher:
     fact-checkers and data journalists who maintain the OffshoreLeaks database.
   url: https://www.icij.org/about/
   official: false
-ci_test: false
 
 inputs:
   - ann_graph_topics
