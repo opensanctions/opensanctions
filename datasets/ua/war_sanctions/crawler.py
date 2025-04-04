@@ -345,7 +345,7 @@ def crawl_ship_relation(
     from_prop: str = "subject",
     to_prop: str = "object",
 ):
-    if relation_info is None:
+    if not relation_info:
         return
     if result := parse_ship_party(relation_info):
         entity_name = result["name"]

@@ -293,3 +293,6 @@ lookups:
       - match: Kingtom Aluminio S.R.L.
         entities:
           - name: Kingtom Aluminio S.R.L.
+      - match: Taepyung Salt Farm
+        entities:
+          - name: Taepyung Salt Farm
