@@ -31,18 +31,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     h.apply_date(sanction, "startDate", row.pop("termination_effective_date"))
     sanction.add("reason", row.pop("termination_reason"))
 
-    end_date = row.pop("exclusion_period")
-    # When in the ISO format (e.g. 2025-03-07) and mirrors the start date
-    # should be set to 'Indefinite'
-    if len(h.multi_split(end_date, ["-"])) > 2:
-        end_date_lookup = context.lookup("end_date", end_date)
-        if not end_date_lookup:
-            context.log.warning("End date not found in lookup", end_date=end_date)
-    # Most common case: 'March 20, 2023 - Indefinite'
-    elif len(h.multi_split(end_date, ["-"])) == 2:
-        end_date = end_date.split("-")[1].strip()
-    else:
-        context.log.warning("Check the splitting logic for end_date", end_date=end_date)
+    end_date = row.pop("exclusion_period").split("-")[1].strip()
 
     if end_date not in ["Indefinite", "indefinite"]:
         h.apply_date(sanction, "endDate", end_date)
