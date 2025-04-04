@@ -54,7 +54,6 @@ def emit_relationship(context, entity, related_ids, root_seen_ids):
         if rel_id not in root_seen_ids:
             # The relations described here should have a peer at the root level, otherwise they are dangling.
             # Skip those dangling ones here.
-            print(rel_id)
             continue
 
         # No need to emit related entities since they're already included
@@ -139,5 +138,12 @@ def crawl(context: Context):
         crawl_item_results.append(res)
 
     seen_ids = set(r.source_id for r in crawl_item_results)
+    related_ids = set()
     for result in crawl_item_results:
+        related_ids.update(result.related_source_ids)
         emit_relationship(context, result.entity, result.related_source_ids, seen_ids)
+    # Check if we don't get too many missing IDs
+    if len(related_ids - seen_ids) > len(related_ids) / 2:
+        context.log.warning(
+            f"Too many missing IDs: {len(related_ids - seen_ids)}",
+        )
