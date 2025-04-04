@@ -31,22 +31,27 @@ def crawl_item(row: Dict[str, str], context: Context):
     h.apply_date(sanction, "startDate", row.pop("termination_effective_date"))
     sanction.add("reason", row.pop("termination_reason"))
 
-    end_date = row.pop("exclusion_period")
-    # When in the ISO format (e.g. 2025-03-07) and mirrors the start date
-    # should be set to 'Indefinite'
-    if len(h.multi_split(end_date, ["-"])) > 2:
-        end_date_lookup = context.lookup("end_date", end_date)
-        if not end_date_lookup:
-            context.log.warning("End date not found in lookup", end_date=end_date)
-    # Most common case: 'March 20, 2023 - Indefinite'
-    elif len(h.multi_split(end_date, ["-"])) == 2:
-        end_date = end_date.split("-")[1].strip()
+    exclusion_period_str = row.pop("exclusion_period")
+    exclusion_period_lookup_result = context.lookup(
+        "exclusion_period", exclusion_period_str
+    )
+    if exclusion_period_lookup_result:
+        sanction.add("endDate", exclusion_period_lookup_result.end_date)
     else:
-        context.log.warning("Check the splitting logic for end_date", end_date=end_date)
+        exclusion_period_segments = h.multi_split(exclusion_period_str, ["-"])
+        # Only apply if it looks like "start_date - end_date"
+        if len(exclusion_period_segments) == 2:
+            _, end_date_str = exclusion_period_segments
+            if end_date_str.lower() != "indefinite":
+                h.apply_date(sanction, "endDate", end_date_str)
+        else:
+            # You will likely want to add an exclusion_period lookup
+            context.log.warning(
+                'Exclusion period does not look like "start_date - end_date"',
+                exclusion_period=exclusion_period_str,
+            )
 
-    if end_date not in ["Indefinite", "indefinite"]:
-        h.apply_date(sanction, "endDate", end_date)
-    else:
+    if h.is_active(sanction):
         entity.add("topics", "debarment")
 
     context.emit(entity)

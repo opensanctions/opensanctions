@@ -49,7 +49,9 @@ assertions:
       Person: 200
 
 lookups:
-  end_date:
+  exclusion_period:
     options:
+      # Just a single date (that happens to be the same as the start date) means indefinite debarment
       - match: 2025-03-07
-        value: Indefinite
+        value:
+          end_date: null
