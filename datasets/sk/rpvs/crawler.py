@@ -64,51 +64,43 @@ def fetch_related_data(context, related_id, endpoint):
 
 
 def emit_relationship(context, entity_data, entity_id, is_pep):
+    first_name = entity_data.pop("Meno")
     last_name = entity_data.pop("Priezvisko")
     dob = entity_data.pop("DatumNarodenia")
-    ico = entity_data.pop("Ico")
+
     # One more flag for public officials (used in ownership relationship)
     public_official = entity_data.pop("JeVerejnyCinitel")
 
-    if first_name := entity_data.pop("Meno"):
-        schema = "Person"
-        make_id = (first_name, last_name, dob)
-    else:
-        context.log.warn("Unknown schema", entity_data=entity_data)
+    if not first_name and not last_name:
+        context.log.warn("No first or last name", entity_data=entity_data)
         return
-    # owner_id = owner_data.pop("Id")
 
-    related = context.make(schema)
-    related.id = context.make_id(make_id)
+    related = context.make("Person")
+    related.id = context.make_id(first_name, last_name, dob)
+    h.apply_name(related, first_name=first_name, last_name=last_name)
+    h.apply_date(related, "birthDate", dob)
+    related.add("title", entity_data.pop("TitulPred"))
+    related.add("title", entity_data.pop("TitulZa"))
     if address := entity_data.pop("Adresa"):
         apply_address(context, related, address)
-
-    if related.schema.name == "LegalEntity":
-        related.add("name", entity_name)
-        related.add("registrationNumber", ico)
+    if public_official:
+        related.add("topics", "role.pep")
+        related.add("country", "SK")
+    if is_pep:
+        # Based on the internal categorization provided by the source
+        related.add("topics", "role.pep")
+        related.add("country", "SK")
+        rel = context.make("UnknownLink")
+        rel.id = context.make_id(related.id, "associated with", entity_id)
+        rel.add("subject", related.id)
+        rel.add("object", entity_id)
+        context.emit(rel)
     else:
-        h.apply_name(related, first_name=first_name, last_name=last_name)
-        h.apply_date(related, "birthDate", dob)
-        related.add("title", entity_data.pop("TitulPred"))
-        related.add("title", entity_data.pop("TitulZa"))
-        if public_official:
-            related.add("topics", "role.pep")
-            related.add("country", "SK")
-        if is_pep:
-            # Based on the internal categorization provided by the source
-            related.add("topics", "role.pep")
-            related.add("country", "SK")
-            rel = context.make("UnknownLink")
-            rel.id = context.make_id(related.id, "associated with", entity_id)
-            rel.add("subject", related.id)
-            rel.add("object", entity_id)
-            context.emit(rel)
-        else:
-            own = context.make("Ownership")
-            own.id = context.make_id(entity_id, "owned by", related.id)
-            own.add("owner", related.id)
-            own.add("asset", entity_id)
-            context.emit(own)
+        own = context.make("Ownership")
+        own.id = context.make_id(entity_id, "owned by", related.id)
+        own.add("owner", related.id)
+        own.add("asset", entity_id)
+        context.emit(own)
     context.emit(related)
 
     context.audit_data(
