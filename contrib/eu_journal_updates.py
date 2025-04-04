@@ -326,6 +326,9 @@ def main(
             context.log.error(error)
         error_message = "\n".join(errors)
         exit_with_error(context, error_message)
+    
+    if HEARTBEAT_URL:
+        context.http.get(HEARTBEAT_URL)
 
 
 if __name__ == "__main__":
