@@ -115,6 +115,9 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-15-octobre-2024/
         names:
           - Aviva Investors Luxembourg S.A.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-24-decembre-2024/
+        names:
+          - ActivTrades Europe S.A.
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
