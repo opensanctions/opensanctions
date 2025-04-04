@@ -55,11 +55,11 @@ def apply_address(context, entity, address):
     h.copy_address(entity, address)
 
 
-def fetch_related_data(context, related_id, endpoint, headers):
+def fetch_related_data(context, related_id, endpoint):
     if not related_id:
         return None
     related_url = endpoint.format(id=related_id)
-    response = context.fetch_json(related_url, headers=headers, cache_days=3)
+    response = context.fetch_json(related_url, cache_days=3)
     return response
 
 
@@ -116,12 +116,12 @@ def emit_relationship(context, entity_data, entity_id, is_pep):
     context.emit(related)
 
 
-def process_entry(context, entry, headers):
+def process_entry(context, entry):
     entity_id = entry["Id"]
     context.log.info("Fetching entity details", entity_id=entity_id)
     details_url = ENTITY_DETAILS_ENDPOINT.format(id=entity_id)
 
-    entity_data = context.fetch_json(details_url, headers=headers, cache_days=3)
+    entity_data = context.fetch_json(details_url, cache_days=3)
     legal_entity_name = entity_data.get("ObchodneMeno", "")
 
     entity = context.make("LegalEntity" if legal_entity_name else "Person")
@@ -154,25 +154,24 @@ def process_entry(context, entry, headers):
     if partner := entity_data.pop("Partner"):
         partner_id = partner.pop("Id")
         partner_url = PARTNER_DETAILS_ENDPOINT.format(id=partner_id)
-        partner_data = context.fetch_json(partner_url, headers=headers)
+        partner_data = context.fetch_json(partner_url)
 
         # entry_number = partner_data.pop("CisloVlozky")
         for owner in partner_data.pop("KonecniUzivateliaVyhod"):
             owner_data = fetch_related_data(
-                context, owner.pop("Id"), BENEFICIAL_OWNERS_ENDPOINT, headers
+                context, owner.pop("Id"), BENEFICIAL_OWNERS_ENDPOINT
             )
             emit_relationship(context, owner_data, entity.id, is_pep=False)
 
         for pep in partner_data.pop("VerejniFunkcionari"):
             pep_data = fetch_related_data(
-                context, pep.pop("Id"), PUBLIC_OFFICIALS_ENDPOINT, headers
+                context, pep.pop("Id"), PUBLIC_OFFICIALS_ENDPOINT
             )
             context.log.info("Fetched PEP data", pep_data=pep_data)
             emit_relationship(context, pep_data, entity.id, is_pep=True)
 
 
 def crawl(context: Context):
-    headers = {"Accept": "application/json"}
     url = context.data_url
     total_count = context.fetch_json(TOTAL_COUNT)
     if not total_count:
@@ -180,9 +179,9 @@ def crawl(context: Context):
 
     processed = 0
     while url and processed < total_count:
-        data = context.fetch_json(url, headers=headers, cache_days=3)
+        data = context.fetch_json(url, cache_days=3)
         for entry in data.pop("value"):  # Directly iterate over new IDs
-            process_entry(context, entry, headers)
+            process_entry(context, entry)
             processed += 1
         # It will break when there is no next link
         url = data.pop("@odata.nextLink")
