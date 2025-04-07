@@ -35,6 +35,70 @@ data:
   format: JSON
 
 lookups:
+  columns:
+    options:
+      - match: Id
+        value: id
+      - match: Meno
+        value: name
+      - match: Priezvisko
+        value: surname
+      - match: DatumNarodenia
+        value: dob
+      - match: TitulPred  # (e.g. academic or professional titles like Mgr., Dr., Ing.)
+        value: title_prefix
+      - match: TitulZa
+        value: title_suffix  # (e.g. PhD., CSc., MBA)
+      - match: ObchodneMeno
+        value: trading_name
+      - match: Ico
+        value: registration_number
+      - match: FormaOsoby
+        value: entity_type
+      - match: PlatnostOd
+        value: valid_from
+      - match: PlatnostDo
+        value: valid_to
+      - match: Adresa
+        value: address
+      - match: Partner
+        value: partner
+      - match: PravnaForma
+        value: legal_form
+      - match: MenoUlice
+        value: street_name
+      - match: OrientacneCislo
+        value: house_number
+      - match: Mesto
+        value: city
+      - match: MestoKod
+        value: city_code
+      - match: Psc
+        value: postal_code
+      - match: JeVerejnyCinitel
+        value: is_public_official
+      - match: KonecniUzivateliaVyhod
+        value: beneficial_owners
+      - match: VerejniFunkcionari
+        value: public_officials
+      - match: StatistickyKod
+        value: economic_classification
+      - match: "@odata.context"
+        value: "@odata.context"
+      - match: SupisneCislo
+        value: reference_number
+      - match: Identifikator
+        value: identifier
+      - match: CisloVlozky
+        value: registry_entry_number
+      - match: Vymaz
+        value: deletion_date
+      - match: Pokuta
+        value: fine
+      - match: OverenieIdentifikacieKUV
+        value: kuv_verification
+      - match: KvalifikovanePodnety
+        value: qualified_reports
   type.url:
     options:
       - regex: /entities/.*
