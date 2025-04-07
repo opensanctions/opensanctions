@@ -25,7 +25,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         in requester
     ):
         return
-    requesting_country = row.pop("REQUESTING COUNTRY").strip()
+    requesting_country = row.pop("LOCATION").strip()
     date_listed = row.pop("DATE LISTED").strip()
     if not requester and not requesting_country and not date_listed:
         return

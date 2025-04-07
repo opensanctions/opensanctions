@@ -98,6 +98,14 @@ lookups:
         value: 2020-05-11
       - match: "Order lifting Suspension\n9/2/2020"
         value: 2020-09-02
+      - match: 09/10,2034
+        value: 2034-10-09
+      - match: 12/10/024
+        value: 2024-10-12
+      - match: 
+          - 12/18/024
+          - 12/19/024
+        value: 2024
   type.identifier:
     lowercase: true
     options:
@@ -135,15 +143,6 @@ lookups:
         value: 1073778361
       - match: 3336C0003X
         prop: sector
-      - match: "LG0000537 L1-0036672 AN-0007759"
-        values:
-          - LG0000537
-          - L1-0036672
-          - AN-0007759
-      - match: "LG-0000732 L1-0036411"
-        values:
-          - LG-0000732
-          - L1-0036411
   license_numbers:
     normalize: true
     options:
@@ -292,3 +291,17 @@ lookups:
         values:
           - PN299600
           - 0001-282341
+      - match: RN708529 (PA) DH067595 (PA)
+        values:
+          - RN708529
+          - DH067595
+      - match: 44SL05600900 (NJ) CW019470 (PA) SW129964 (PA) 089.0134176 (VT)
+        values:
+          - 44SL05600900
+          - CW019470
+          - SW129964
+          - 089.0134176
+      - match: PN311543 (PA) 342620(TX)
+        values:
+          - PN311543
+          - 342620
