@@ -2,14 +2,14 @@ from zavod import Context, helpers as h
 
 # from zavod.shed.bods import parse_bods_fh
 BASE_URL = "https://rpvs.gov.sk/opendatav2"
-ENTITY_DETAILS_ENDPOINT = (
+ENTITY_DETAILS = (
     f"{BASE_URL}/PartneriVerejnehoSektora/{{id}}?$expand=Partner,PravnaForma,Adresa"
 )
-PARTNER_DETAILS_ENDPOINT = f"{BASE_URL}/Partneri/{{id}}?$expand=Vymaz,Pokuta,OverenieIdentifikacieKUV,konecniUzivateliaVyhod,verejniFunkcionari,kvalifikovanePodnety"
-BENEFICIAL_OWNERS_ENDPOINT = (
+PARTNER_DETAILS = f"{BASE_URL}/Partneri/{{id}}?$expand=Vymaz,Pokuta,OverenieIdentifikacieKUV,konecniUzivateliaVyhod,verejniFunkcionari,kvalifikovanePodnety"
+BENEFICIAL_OWNERS = (
     f"{BASE_URL}/KonecniUzivateliaVyhod/{{id}}?$expand=Partner,PravnaForma,Adresa"
 )
-PUBLIC_OFFICIALS_ENDPOINT = f"{BASE_URL}/VerejniFunkcionari/{{id}}"
+PUBLIC_OFFICIALS = f"{BASE_URL}/VerejniFunkcionari/{{id}}"
 
 TOTAL_COUNT = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/$count"
 FIRST_PAGE = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0"
@@ -60,7 +60,7 @@ def fetch_related_data(context, related_id, endpoint):
     return response
 
 
-def emit_related_entity(context, entity_data, entity_id, is_pep):
+def emit_related_entity(context, entity_data, is_pep):
     first_name = entity_data.pop("Meno")
     last_name = entity_data.pop("Priezvisko")
     dob = entity_data.pop("DatumNarodenia")
@@ -111,7 +111,7 @@ def emit_link(context, related, entity_id):
 def process_entry(context, entry):
     entity_id = entry["Id"]
     context.log.info("Fetching entity details", entity_id=entity_id)
-    details_url = ENTITY_DETAILS_ENDPOINT.format(id=entity_id)
+    details_url = ENTITY_DETAILS.format(id=entity_id)
 
     entity_data = context.fetch_json(details_url, cache_days=3)
     legal_entity_name = entity_data.get("ObchodneMeno", "")
@@ -145,25 +145,18 @@ def process_entry(context, entry):
 
     if partner := entity_data.pop("Partner"):
         partner_id = partner.pop("Id")
-        partner_url = PARTNER_DETAILS_ENDPOINT.format(id=partner_id)
+        partner_url = PARTNER_DETAILS.format(id=partner_id)
         partner_data = context.fetch_json(partner_url)
 
         # entry_number = partner_data.pop("CisloVlozky")
         for owner in partner_data.pop("KonecniUzivateliaVyhod"):
-            owner_data = fetch_related_data(
-                context, owner.pop("Id"), BENEFICIAL_OWNERS_ENDPOINT
-            )
-            rel_entity = emit_related_entity(
-                context, owner_data, entity.id, is_pep=False
-            )
+            owner_data = fetch_related_data(context, owner.pop("Id"), BENEFICIAL_OWNERS)
+            rel_entity = emit_related_entity(context, owner_data, is_pep=False)
             emit_ownership(context, rel_entity, entity.id)
 
         for pep in partner_data.pop("VerejniFunkcionari"):
-            pep_data = fetch_related_data(
-                context, pep.pop("Id"), PUBLIC_OFFICIALS_ENDPOINT
-            )
-            context.log.info("Fetched PEP data", pep_data=pep_data)
-            rel_entity = emit_related_entity(context, pep_data, entity.id, is_pep=True)
+            pep_data = fetch_related_data(context, pep.pop("Id"), PUBLIC_OFFICIALS)
+            rel_entity = emit_related_entity(context, pep_data, is_pep=True)
             emit_link(context, rel_entity, entity.id)
 
 
