@@ -13,7 +13,9 @@ PUBLIC_OFFICIALS = f"{BASE_URL}/VerejniFunkcionari/{{id}}"
 
 TOTAL_COUNT = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/$count"
 FIRST_PAGE = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0"
-
+# Start and end dates of validity might not be the same as the dates of incorporation and dissolution
+# @odata.context is a metadata URL
+IGNORE = ["@odata.context", "valid_from", "valid_to"]
 
 # TODO do we want to add contry "SK" everywhere?
 # TODO add some context
@@ -98,9 +100,8 @@ def emit_related_entity(context, entity_data, is_pep):
         related.add("country", "SK")
 
     context.emit(related)
-    context.audit_data(
-        entity_data, ["@odata.context", "valid_from", "valid_to", "partner", "id"]
-    )
+    # We get partner details in process_entry
+    context.audit_data(entity_data, IGNORE + ["id", "partner"])
     return related
 
 
@@ -154,9 +155,6 @@ def process_entry(context, entry):
         address = rename_headers(context, address)
         apply_address(context, entity, address)
     context.emit(entity)
-    context.audit_data(
-        entity_data, ["@odata.context", "valid_from", "valid_to", "partner"]
-    )
 
     if partner := entity_data.pop("partner"):
         partner_id = partner.pop("Id")
@@ -172,17 +170,18 @@ def process_entry(context, entry):
             emit_ownership(context, rel_entity, entity.id)
 
         for pep in partner_data.pop("public_officials"):
-            pep_data = fetch_related_data(context, pep.pop("id"), PUBLIC_OFFICIALS)
+            pep_data = fetch_related_data(context, pep.pop("Id"), PUBLIC_OFFICIALS)
             pep_data = rename_headers(context, pep_data)
             rel_entity = emit_related_entity(context, pep_data, is_pep=True)
             emit_link(context, rel_entity, entity.id)
+
+    context.audit_data(entity_data, IGNORE)
 
 
 def crawl(context: Context):
     url = context.data_url
     total_count = context.fetch_json(TOTAL_COUNT)
-    if not total_count:
-        context.log.warning("Failed to fetch total count")
+    assert total_count is not None
 
     processed = 0
     while url and processed < total_count:
