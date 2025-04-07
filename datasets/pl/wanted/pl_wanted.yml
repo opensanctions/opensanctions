@@ -125,3 +125,5 @@ lookups:
         values: [IE, BY]
       - match: SYJAM
         value: TH
+      - match: WIELKA BRYTANIA WŁOCHY
+        values: [GB, IT]
