@@ -13,7 +13,7 @@ jobs:
       - name: Get modified dataset yamls
         id: changed-yamls
         # pinned v46.0.1
-        uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0
+        uses: tj-actions/changed-files@6cb76d07bee4c9772c6882c06c37837bf82a04d3
         with:
           files: 'datasets/**/*.y*ml'
       - name: Lint modiied dataset yamls
@@ -23,7 +23,7 @@ jobs:
       - name: Get modified dataset python
         id: changed-python
         # pinned v46.0.1
-        uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0
+        uses: tj-actions/changed-files@6cb76d07bee4c9772c6882c06c37837bf82a04d3
         with:
           files: 'datasets/**/*.py'
       - uses: actions/setup-python@v5
