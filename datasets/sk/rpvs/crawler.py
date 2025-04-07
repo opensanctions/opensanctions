@@ -18,7 +18,7 @@ FIRST_PAGE = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0"
 IGNORE = ["@odata.context", "valid_from", "valid_to"]
 
 # TODO do we want to add contry "SK" everywhere?
-# TODO add some context
+
 # def crawl(context: Context) -> None:
 #     fn = context.fetch_resource("source.zip", context.data_url)
 #     with zipfile.ZipFile(fn, "r") as zf:
@@ -32,6 +32,20 @@ IGNORE = ["@odata.context", "valid_from", "valid_to"]
 # https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/44?$expand=Partner,PravnaForma,Adresa
 # https://rpvs.gov.sk/opendatav2/Partneri/20?$expand=Vymaz,Pokuta,OverenieIdentifikacieKUV,konecniUzivateliaVyhod,verejniFunkcionari,kvalifikovanePodnety
 # https://rpvs.gov.sk/opendatav2/KonecniUzivateliaVyhod/45?$expand=Partner,PravnaForma,Adresa
+
+# API documentation: https://rpvs.gov.sk/opendatav2/swagger/index.html
+# The data source provides structured records for:
+# - Legal entities and individuals registered as public sector partners
+# - Their beneficial owners (koneční užívatelia výhod)
+# - Public officials linked to those entities (verejní funkcionári)
+
+# The approach here is:
+# 1. Fetch a paginated list of public sector partner records.
+# 2. For each record:
+#    a. Retrieve expanded details about the main entity.
+#    b. Fetch and emit any related beneficial owners and public officials as separate Person entities.
+#    c. Emit relationships (e.g., Ownership for owners, UnknownLink for public officials) between the main
+#       entity and related people.
 
 
 def rename_headers(context, entry):
@@ -100,7 +114,7 @@ def emit_related_entity(context, entity_data, is_pep):
         related.add("country", "SK")
 
     context.emit(related)
-    # We get partner details in process_entry
+    # We get partner details in 'process_entry' function
     context.audit_data(entity_data, IGNORE + ["id", "partner"])
     return related
 
