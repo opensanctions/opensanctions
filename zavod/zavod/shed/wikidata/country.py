@@ -54,7 +54,7 @@ def _crawl_item_countries(
         return countries
 
     # jurisdiction, capital of, part of:
-    for prop in ("P1001", "P1376", "P361"):
+    for prop in ("P1001", "P1376", "P361", "P749", "P159", "P2389"):
         for claim in item.claims:
             if claim.property != prop:
                 continue
