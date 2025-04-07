@@ -32,7 +32,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("idNumber", h.multi_split(row.pop("idNumber"), ";"), quiet=True)
     entity.add("imoNumber", row.pop("imoNumber"), quiet=True)
     entity.add("notes", row.pop("Notes").strip())
-    entity.add("position", row.pop("Position", None), quiet=True)
+    entity.add("position", h.multi_split(row.pop("Position", None), ";"), quiet=True)
     entity.add("address", h.multi_split(row.pop("Address", None), ";"), quiet=True)
     entity.add("gender", row.pop("Gender", None), quiet=True)
     entity.add("sourceUrl", h.multi_split(row.pop("Source URL"), ";"))
