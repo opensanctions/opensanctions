@@ -268,7 +268,7 @@ def crawl_vessel(context: Context, link, program):
     context.emit(sanction)
 
     pi_club = data.pop("P&I Club")
-    if pi_club != "-":
+    if pi_club != "-" and pi_club != []:
         emit_relation(context, vessel, pi_club, rel_role="P&I Club")
 
     crawl_ship_relation(
