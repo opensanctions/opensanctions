@@ -1,6 +1,5 @@
 from zavod import Context, helpers as h
 
-# from zavod.shed.bods import parse_bods_fh
 BASE_URL = "https://rpvs.gov.sk/opendatav2"
 ENTITY_DETAILS = (
     f"{BASE_URL}/PartneriVerejnehoSektora/{{id}}?$expand=Partner,PravnaForma,Adresa"
@@ -19,16 +18,7 @@ IGNORE = ["@odata.context", "valid_from", "valid_to"]
 
 # TODO do we want to add contry "SK" everywhere?
 
-# def crawl(context: Context) -> None:
-#     fn = context.fetch_resource("source.zip", context.data_url)
-#     with zipfile.ZipFile(fn, "r") as zf:
-#         for name in zf.namelist():
-#             if not name.endswith(".json"):
-#                 continue
-#             with zf.open(name, "r") as fh:
-#                 parse_bods_fh(context, fh)
-
-# Exaple URLs
+# Example URLs
 # https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/44?$expand=Partner,PravnaForma,Adresa
 # https://rpvs.gov.sk/opendatav2/Partneri/20?$expand=Vymaz,Pokuta,OverenieIdentifikacieKUV,konecniUzivateliaVyhod,verejniFunkcionari,kvalifikovanePodnety
 # https://rpvs.gov.sk/opendatav2/KonecniUzivateliaVyhod/45?$expand=Partner,PravnaForma,Adresa
