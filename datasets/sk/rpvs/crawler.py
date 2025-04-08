@@ -1,3 +1,5 @@
+from typing import Any
+
 from zavod import Context, helpers as h
 
 BASE_URL = "https://rpvs.gov.sk/opendatav2"
@@ -12,9 +14,13 @@ PUBLIC_OFFICIALS = f"{BASE_URL}/VerejniFunkcionari/{{id}}"
 
 TOTAL_COUNT = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/$count"
 FIRST_PAGE = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0"
-# Start and end dates of validity might not be the same as the dates of incorporation and dissolution
-# @odata.context is a metadata URL
-IGNORE = ["@odata.context", "valid_from", "valid_to"]
+IGNORE_FIELDS = [
+    # @odata.context is a metadata URL
+    "@odata.context",
+    # Start and end dates of validity might not be the same as the dates of incorporation and dissolution
+    "valid_from",
+    "valid_to",
+]
 
 # TODO do we want to add contry "SK" everywhere?
 
@@ -77,12 +83,13 @@ def fetch_related_data(context, related_id, endpoint):
     return response
 
 
-def emit_related_entity(context, entity_data, is_pep):
+def emit_related_entity(context: Context, entity_data: dict[str, Any], is_pep: bool):
     first_name = entity_data.pop("name")
     last_name = entity_data.pop("surname")
     dob = entity_data.pop("dob")
 
-    # One more flag for public officials (used in ownership relationship)
+    # If pulled from the list of related public officials, is_pep will be set. Beneficial owners
+    # may also be public officials, in which case is_public_official will be set on the entry.
     public_official = entity_data.pop("is_public_official")
 
     if not first_name and not last_name:
@@ -104,8 +111,15 @@ def emit_related_entity(context, entity_data, is_pep):
         related.add("country", "SK")
 
     context.emit(related)
-    # We get partner details in 'process_entry' function
-    context.audit_data(entity_data, IGNORE + ["id", "partner"])
+    context.audit_data(
+        entity_data,
+        IGNORE_FIELDS
+        + [
+            "id",
+            # We get partner details in 'process_entry' function
+            "partner",
+        ],
+    )
     return related
 
 
@@ -179,7 +193,7 @@ def process_entry(context, entry):
             rel_entity = emit_related_entity(context, pep_data, is_pep=True)
             emit_link(context, rel_entity, entity.id)
 
-    context.audit_data(entity_data, IGNORE)
+    context.audit_data(entity_data, IGNORE_FIELDS)
 
 
 def crawl(context: Context):
