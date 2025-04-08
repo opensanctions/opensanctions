@@ -171,6 +171,25 @@ lookups:
         name: "Voyage Guard Shipmanagement LLC"
         registration_number: 6465812
         date: "2025-02-14"
+      - match: "Tian Mu Shipping Ltd (0136621 / 13.02.2025)"
+        name: "Tian Mu Shipping Ltd"
+        registration_number: 0136621
+        date: "2025-02-13"
+      - match: "Capella Shipping LTD-SEY (6149249 / 20.07.2020)"
+        name: "Capella Shipping LTD-SEY"
+        registration_number: 6149249
+        date: "2020-07-20"
+      - match: "Pelagia Shipping Ltd /current Name Delta Shipping Llc/ (5863958 / russian federation / 28.02.2017)"
+        name: ["Pelagia Shipping Ltd", "Delta Shipping Llc"]
+        registration_number: 5863958
+        country: Russia
+        date: "2017-02-28"
+      - match: "Leasing Company Gpb LLC /current Name Leasing Company Llc/ (6129498 / russian federation / 05.11.2019)"
+        name: ["Leasing Company Gpb LLC", "Leasing Company Llc"]
+        registration_number: 6129498
+        country: Russia
+        date: "2019-11-05"
+      - match: 
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
@@ -185,6 +204,18 @@ lookups:
         value: 1961-06-29
       - match: 09.17.1975
         value: 1975
+      - match: 29/11/2023)
+        value: 2023-11-29
+      - match: 02/12/2023)
+        value: 2023-12-02
+      - match: 16/03/2015)
+        value: 2015-03-16
+      - match: 21/02/2005)
+        value: 2005-02-21
+      - match: during 09/2015)
+        value: 2015-09
+      - match: 04/03/2005)
+        value: 2005-03-04
       - match:
           - 07.04.
           - 09.05.20234)

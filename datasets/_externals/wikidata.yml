@@ -137,6 +137,7 @@ lookups:
           - eunuch
           - muxe
           - bigender
+          - neutral sex
         value: other
       - match:
           - MALE

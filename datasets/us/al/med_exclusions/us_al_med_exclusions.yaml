@@ -307,3 +307,10 @@ lookups:
           - Debrah Goodman-Starr
           - Debra Lynn Holland
           - Isabell Kesari Scott
+      - match: "Bullo ck Prevent ive & Fa mily M edicine (G ary M o r g a n B u l l o c k , DO, Ow ne r)"
+        name: "Bullock Preventive & Family Medicine"
+        related_entities:
+          - schema: Ownership
+            name: Gary Morgan Bullock
+            from_prop: asset
+            to_prop: owner
