@@ -31,6 +31,10 @@ def crawl_item(row: Dict[str, str], context: Context):
     npi = row.pop("npi")
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
+    # Header is sometimes on the second row
+    # Setting 'headers_per_page=False' takes the header only from the first page
+    # For each page we skip the header row with this check
+    # Please remove this check if the header is always on the first row
     if "last name" in last_name.lower():
         return
 
