@@ -14,15 +14,21 @@ PUBLIC_OFFICIALS = f"{BASE_URL}/VerejniFunkcionari/{{id}}"
 
 TOTAL_COUNT = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/$count"
 FIRST_PAGE = "https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0"
-IGNORE_FIELDS = [
+IGNORE_ENTITY = [
     # @odata.context is a metadata URL
     "@odata.context",
     # Start and end dates of validity might not be the same as the dates of incorporation and dissolution
     "valid_from",
     "valid_to",
 ]
-
-# TODO do we want to add contry "SK" everywhere?
+IGNORE_PARTNER = [
+    "id",
+    "registry_entry_number",
+    "deletion_date",
+    "qualified_reports",
+    "@odata.context",
+    "kuv_verification",
+]
 
 # Example URLs
 # https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora/44?$expand=Partner,PravnaForma,Adresa
@@ -113,7 +119,7 @@ def emit_related_entity(context: Context, entity_data: dict[str, Any], is_pep: b
     context.emit(related)
     context.audit_data(
         entity_data,
-        IGNORE_FIELDS
+        IGNORE_ENTITY
         + [
             "id",
             # We get partner details in 'process_entry' function
@@ -150,7 +156,7 @@ def process_entry(context, entry):
 
     entity = context.make("LegalEntity" if legal_entity_name else "Person")
     entity.id = context.make_id(
-        entity_data.pop("id"), entity_data.pop("CisloVlozky", "")
+        entity_data.pop("id"), entity_data.pop("registry_entry_number", "")
     )
     if entity.schema.name == "Person":
         h.apply_name(
@@ -180,7 +186,6 @@ def process_entry(context, entry):
         partner_data = context.fetch_json(partner_url)
         partner_data = rename_headers(context, partner_data)
 
-        # entry_number = partner_data.pop("CisloVlozky")
         for owner in partner_data.pop("beneficial_owners"):
             owner_data = fetch_related_data(context, owner.pop("Id"), BENEFICIAL_OWNERS)
             owner_data = rename_headers(context, owner_data)
@@ -193,7 +198,8 @@ def process_entry(context, entry):
             rel_entity = emit_related_entity(context, pep_data, is_pep=True)
             emit_link(context, rel_entity, entity.id)
 
-    context.audit_data(entity_data, IGNORE_FIELDS)
+        context.audit_data(partner_data, IGNORE_PARTNER)
+    context.audit_data(entity_data, IGNORE_ENTITY)
 
 
 def crawl(context: Context):
