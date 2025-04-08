@@ -31,6 +31,8 @@ def crawl_item(row: Dict[str, str], context: Context):
     npi = row.pop("npi")
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
+    if "last name" in last_name.lower():
+        return
 
     if first_name:
         entity = context.make("Person")
@@ -78,7 +80,7 @@ def crawl(context: Context) -> None:
     for item in h.parse_pdf_table(
         context,
         path,
-        headers_per_page=True,
+        headers_per_page=False,
         page_settings=page_settings,
     ):
         crawl_item(item, context)
