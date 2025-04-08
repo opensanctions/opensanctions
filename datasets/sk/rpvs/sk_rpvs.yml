@@ -20,16 +20,21 @@ summary: >-
   Data is collected by the Ministry of Justice of the Slovak Republic in the ‘Register
   partnerov verejného sektora’ (RPVS), and covers entities benefiting from public
   funding or conducting business with the state, so-called ‘Partners of Public
-  Sector’.
+  Sector’. The RPVS is an official register that lists individuals and organizations 
+  that receive money or other assets from the state, local governments, or other public 
+  sector bodies — above a certain legal threshold.
+
+  Participation in the RPVS is mandatory for those who meet the legal criteria, but 
+  voluntary for others who wish to disclose their ties to the public sector.
 publisher:
-  name: OpenOwnership
-  url: https://www.openownership.org
+  name: Ministerstvo spravodlivosti Slovenskej republiky
+  name_en: Ministry of Justice of the Slovak Republic
+  acronym: MSSR
+  url: https://rpvs.gov.sk/rpvs
   description: |
-    OO helps countries generate high quality data on company ownership that
-    complies with international standards and meets the needs of data users
-    across government, civil society, and the private sector. OO supports
-    people and organisations to use this data to build trust as well as
-    reducing corruption and tax evasion.
+    The Ministry of Justice of the Slovak Republic is the central authority of the Slovak 
+    State Administration for the Courts and Bailiffs.
+    [Source: Wikipedia](https://en.wikipedia.org/wiki/Ministry_of_Justice_(Slovakia))
 data:
   url: https://rpvs.gov.sk/opendatav2/PartneriVerejnehoSektora?$skip=0
   format: JSON
