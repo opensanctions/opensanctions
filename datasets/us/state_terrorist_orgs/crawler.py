@@ -10,7 +10,7 @@ def split_clean_name(context, name):
         alias = parts[1].rstrip(")")
         name_former = ""
     elif len(name.split("— ")) > 1:
-        result = context.lookup_value("names", name)
+        result = context.lookup("names", name)
         if result is None:
             context.log.warning("Name override is not found", name=name)
             return name, "", ""

@@ -39,3 +39,15 @@ dates:
 #   max:
 #     schema_entities:
 #       LegalEntity: 70
+
+lookups:
+  names:
+    options: 
+      - match: "ISIS-Sinai Province (formerly Ansar Bayt al-Maqdis)— ISIL Sinai Province Amendment (September 30, 2015)"
+        names:
+          - name_clean: ISIS-Sinai Province
+            name_former: Ansar Bayt al-Maqdis
+      - match: "al-Nusrah Front, aka Hay’at Tahrir al-Sham (ANF/HTS)— Jabhat Fath al-Sham Amendment (November 14, 2016)— Hay’at Tahrir al-Sham Amendment (June 1, 2018)"
+        names:
+          - name_clean: al-Nusrah Front
+            alias: ["Hay’at Tahrir al-Sham", "(ANF/HTS)", "Jabhat Fath al-Sham"]
