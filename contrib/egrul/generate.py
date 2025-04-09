@@ -48,9 +48,14 @@ def update_company_from_new_company(context: Context, old: Row, new: Row) -> Row
         # Ownership.id is built from (owner, asset, shares_count, role), so if any of these changes,
         # we'll add an expired Ownership
         if o.id not in new_ownership_ids:
-            o_dict = o.asDict()
-            o_dict["end_date"] = day_before(data_date)
-            expired_ownerships.append(Row(**o_dict))
+            # If we already have an end date, use that. It might have been set by
+            # a previous run of this function when the new directorship first appeared.
+            if o.end_date:
+                expired_ownerships.append(o)
+            else:
+                o_dict = o.asDict()
+                o_dict["end_date"] = day_before(data_date)
+                expired_ownerships.append(Row(**o_dict))
 
     expired_directorships = []
     new_directorship_ids = set([o.id for o in result.directorships])
