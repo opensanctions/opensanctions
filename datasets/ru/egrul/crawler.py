@@ -167,9 +167,10 @@ def emit_succession(context: Context, row: dict[str, Any]) -> None:
 
 def list_csv_in_internal_bucket(prefix: str) -> Set[str]:
     # For debug: use local paths
+    # from pathlib import Path
     # archives = [
     #     str(name)
-    #     for name in Path(prefix)
+    #     for name in Path(LOCAL_BUCKET_PATH, prefix)
     #     .glob("**/*.csv")
     # ]
     # return set(archives)
