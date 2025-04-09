@@ -84,7 +84,9 @@ lookups:
         value: CZ
       - match: Турецкая Республика
         value: TR
-      - match: Китайская Народная Республика
+      - match:
+        - Китайская Народная Республика
+        - КИТАЙСКАЯ НАРОДНАЯ РЕСПУБЛИКА (КНР)
         value: CN
       - match: Республика Корея
         value: KR
@@ -106,7 +108,9 @@ lookups:
         value: South Korea
       - match: КОРЕЯ, НАРОДНО-ДЕМОКРАТИЧЕСКАЯ РЕСПУБЛИКА
         value: North Korea
-      - match: Республика Азербайджан
+      - match:
+        - Республика Азербайджан
+        - Азербайджанская Республика
         value: AZ
       - match: Эстонская Республика
         value: EE
@@ -124,8 +128,10 @@ lookups:
         value: LT
       - match: Королевство Нидерландов
         value: NL
-      - match: Королевство Бельгии
-        value: BE
+      - match:
+        - Королевство Бельгии
+        - Королевство Бельгия
+        value: BE  # Belgium
       - match: Республика Куба
         value: CU
       - match: Королевство Норвегия
@@ -143,11 +149,15 @@ lookups:
         value: US
       - match: ВИРГИНСКИЕ ОСТРОВА (США)
         value: VI
-      - match: Арабская Республика Египет
+      - match:
+          - Арабская Республика Египет
+          - АРАБСКАЯ РЕСПУБЛИКА ЕГИПЕТ (АРЕ)
         value: EG
       - match: Французская Республика
         value: FR
-      - match: Республика Беларусь
+      - match:
+        - Республика Беларусь
+        - Республика Белоруссия
         value: BY
       - match: Королевство Дания
         value: DK
@@ -155,8 +165,10 @@ lookups:
         value: JE
       - match: Королевство Испания
         value: ES
-      - match: Исламская Республика Афганистан
-        value: AF
+      - match:
+        - Исламская Республика Афганистан
+        - Переходное Исламское Государство Афганистан
+        value: AF  # Afghanistan
       - match: Восточная Республика Уругвай
         value: UY
       - match: СЕВЕРНЫЕ МАРИАНСКИЕ ОСТРОВА
@@ -281,7 +293,9 @@ lookups:
         value: AL  # Albania
       - match: Республика Ангола
         value: AO  # Angola
-      - match: Республика Бенин
+      - match:
+        - Республика Бенин
+        - Народная Республика Бенин
         value: BJ  # Benin
       - match: Республика Ботсвана
         value: BW  # Botswana
@@ -325,6 +339,12 @@ lookups:
         value: AX  # Åland Islands
       - match: Южно-Африканская Республика
         value: ZA  # South Africa
+      - match: Исламская Республика Иран
+        value: IR  # Iran
+      - match: Республика Панама
+        value: PA  # Panama
+      - match: РУАНДИЙСКАЯ РЕСПУБЛИКА
+        value: RW  # Rwanda
 config:
   organizational_types:
     ОТДЕЛ ГПС:
