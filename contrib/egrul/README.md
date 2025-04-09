@@ -21,3 +21,10 @@ The checkpoint directory fills up quickly, don't know why yet.
 
 	brew install openjdk@11
 	export JAVA_HOME=$(/usr/libexec/java_home -v 11)
+
+
+## Copy finished data to internal-data bucket
+
+Until this runs as a cronjobs, here is how:
+
+    gsutil cp -rZ ~/internal-data/ru_egrul/processed/current_2025_01_14 gs://internal-data.opensanctions.org/ru_egrul/processed_2025-01-14
