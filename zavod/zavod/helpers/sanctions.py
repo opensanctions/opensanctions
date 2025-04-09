@@ -4,6 +4,7 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod import helpers as h
 from zavod import settings
+from zavod.stateful import programs
 
 ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 
@@ -27,7 +28,7 @@ def make_sanction(
         entity: The entity to which the sanctions object will be linked.
         key: An optional key to be included in the ID of the sanction.
         program_name: An optional program name.
-        program_key: An optional key for looking up the program ID in the YAML configuration.
+        program_key: An optional OpenSanction program key.
         start_date: An optional start date for the sanction.
         end_date: An optional end date for the sanction.
 
@@ -45,18 +46,25 @@ def make_sanction(
         sanction.add("country", dataset.publisher.country)
     sanction.add("authority", dataset.publisher.name)
     sanction.add("sourceUrl", dataset.url)
+
     if program_name is not None:
         sanction.set("program", program_name)
+
     if program_key is not None:
-        program_id = context.lookup_value("sanction.program", program_key)
-        if program_id is not None:
-            program_url = f"https://www.opensanctions.org/programs/{program_id}"
-            sanction.add("programUrl", program_url)
-            sanction.add("programId", program_id)
+        program = programs.get_program_by_key(context, program_key)
+        if program is not None:
+            sanction.add("programId", program_key)
+            if not program_name:
+                sanction.set("program", program.title)
+            if program.url:
+                sanction.add("programUrl", program.url)
+            else:
+                sanction.add(
+                    "programUrl",
+                    f"https://www.opensanctions.org/programs/{program_key}",
+                )
         else:
-            context.log.warn(
-                f"Program key {program_key!r} not found.", program=program_name
-            )
+            context.log.warn(f"Program key {program_key!r} not found.")
     if start_date is not None:
         h.apply_date(sanction, "startDate", start_date)
     if end_date is not None:
