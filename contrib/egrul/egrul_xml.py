@@ -270,6 +270,7 @@ def make_owner(context: Context, company: dict, el: Element) -> Optional[dict]:
 
     # NOTE(Leon Handreke): Here we re-key (vs. the old crawler) to detect changes in ownership structure
     # The previous key did not contain shares_count and role
+    # This ID will also be used to detect changes in ownership when building historic data
     ownership["id"] = context.make_id(
         company["id"], owner["id"], ownership.get("shares_count"), ownership["role"]
     )
@@ -304,6 +305,7 @@ def make_directorship(
         return None
 
     directorship = {
+        # This ID will also be used to detect changes in directorship when building historic data
         "id": context.make_id(company["id"], director["id"], role.get("ВидДолжн")),
         "seen_date": context.data_time.date(),
         "role": role.get("НаимДолжн"),
