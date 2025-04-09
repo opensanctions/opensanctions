@@ -85,14 +85,15 @@ def fetch_related_data(context, related_id, endpoint):
     if not related_id:
         return None
     related_url = endpoint.format(id=related_id)
-    response = context.fetch_json(related_url, cache_days=3)
+    response = context.fetch_json(related_url)
     return response
 
 
 def emit_related_entity(context: Context, entity_data: dict[str, Any], is_pep: bool):
     first_name = entity_data.pop("name")
     last_name = entity_data.pop("surname")
-    dob = entity_data.pop("dob")
+    # We don't get dob for public officials
+    dob = entity_data.pop("dob", "")
 
     # If pulled from the list of related public officials, is_pep will be set. Beneficial owners
     # may also be public officials, in which case is_public_official will be set on the entry.

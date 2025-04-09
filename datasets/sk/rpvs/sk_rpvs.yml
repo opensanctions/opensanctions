@@ -31,6 +31,7 @@ publisher:
   name_en: Ministry of Justice of the Slovak Republic
   acronym: MSSR
   url: https://www.justice.gov.sk
+  official: true
   description: |
     The Ministry of Justice of the Slovak Republic is the central authority of the Slovak 
     State Administration for the Courts and Bailiffs.
