@@ -32,7 +32,7 @@ data:
   url: https://www.meineabgeordneten.at/Abgeordnete?partei=
   format: HTML
 dates:
-  formats: ["%d. %m %Y", "%d.%m.%Y", "%m/%Y"]
+  formats: ["%d. %m %Y", "%d.%m.%Y", "%m/%Y", "%m %Y"]
   months:
     "01": Januar
     "02": Februar
