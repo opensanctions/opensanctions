@@ -92,23 +92,28 @@ def fetch_related_data(context, related_id, endpoint):
 def emit_related_entity(context: Context, entity_data: dict[str, Any], is_pep: bool):
     first_name = entity_data.pop("name")
     last_name = entity_data.pop("surname")
-    dob = entity_data.pop("dob")
+    # We don't get dob for public officials
+    dob = entity_data.pop("dob", "")
 
     # If pulled from the list of related public officials, is_pep will be set. Beneficial owners
     # may also be public officials, in which case is_public_official will be set on the entry.
-    public_official = entity_data.pop("is_public_official")
+    public_official = entity_data.pop("is_public_official", False)
 
     if not first_name and not last_name:
         context.log.warn("No first or last name", entity_data=entity_data)
         return
 
     related = context.make("Person")
-    related.id = context.make_id(first_name, last_name, dob)
+    # We have very limited pep details, so we use only the name to create the ID
+    # Some peps are sometimes also beneficiaries, so they will be processed twice
+    # Once as a beneficial owner and once as a public official
+    # This way we will have only one ID for them
+    related.id = context.make_id(first_name, last_name)
     h.apply_name(related, first_name=first_name, last_name=last_name)
     h.apply_date(related, "birthDate", dob)
     related.add("title", entity_data.pop("title_prefix"))
     related.add("title", entity_data.pop("title_suffix"))
-    if address := entity_data.pop("address"):
+    if address := entity_data.pop("address", ""):
         address = rename_headers(context, address)
         apply_address(context, related, address)
     if public_official or is_pep:
@@ -209,6 +214,8 @@ def crawl(context: Context):
 
     processed = 0
     while url and processed < total_count:
+        # Since this crawler runs weekly, we set cache_days=3 to ensure
+        # the cache will have expired by the next run, forcing a fresh API call
         data = context.fetch_json(url, cache_days=3)
         for entry in data.pop("value"):  # Directly iterate over new IDs
             process_entry(context, entry)
