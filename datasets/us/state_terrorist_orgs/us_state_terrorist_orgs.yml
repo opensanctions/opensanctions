@@ -6,12 +6,15 @@ coverage:
   start: "2025-04-09"
 load_statements: true
 summary: >
-  Foreign organizations designated in accordance with section 219 of the Immigration 
-  and Nationality Act (INA).
+  Foreign Terrorist Organizations (FTOs) pursuant to section 219 of the Immigration and 
+  Nationality Act (INA).
 description: |
-  Foreign Terrorist Organizations (FTOs) are foreign organizations that are designated 
-  by the Secretary of State in accordance with section 219 of the Immigration and 
-  Nationality Act (INA), as amended.
+  Foreign Terrorist Organizations (FTOs) are entities designated by the U.S. Secretary of State 
+  under Section 219 of the Immigration and Nationality Act (INA). It is unlawful to knowingly 
+  provide these organizations with material support or resources. Non-citizen members of FTOs 
+  may be denied entry into, or removed from, the United States. Additionally, U.S. financial 
+  institutions are required to block and report any assets associated with these organizations 
+  to the U.S. Department of the Treasury.
 publisher:
   name: U.S. Department of State
   acronym: DOS
@@ -32,13 +35,13 @@ http:
 dates:
   formats: ["%B %d, %Y"]
 
-# assertions:
-#   min:
-#     schema_entities:
-#       LegalEntity: 40
-#   max:
-#     schema_entities:
-#       LegalEntity: 70
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 80
+  max:
+    schema_entities:
+      LegalEntity: 200
 
 lookups:
   names:
@@ -95,3 +98,7 @@ lookups:
           - name_clean: ISIS-Sinai Province
             alias: ISIL Sinai Province
             name_former: Ansar Bayt al-Maqdis
+      - match: 'Gama’a al-Islamiyya (Islamic Group – IG)'
+        names:
+          - name_clean: Gama’a al-Islamiyya
+            alias: ["Islamic Group", "IG"]
