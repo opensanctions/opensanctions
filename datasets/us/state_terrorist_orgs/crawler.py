@@ -15,7 +15,7 @@ def split_clean_name(context, name):
             context.log.warning("Name override is not found", name=name)
             return name_clean, name_former, alias
         for name in result.names:
-            name_clean = name.get("name")
+            name_clean = name.get("name_clean")
             name_former = name.get("name_former")
             alias = name.get("alias")
     # Parse inline alias format: e.g., "Organization Name (Alias)"
