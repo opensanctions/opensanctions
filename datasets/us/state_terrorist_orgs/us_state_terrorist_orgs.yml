@@ -42,12 +42,56 @@ dates:
 
 lookups:
   names:
-    options: 
-      - match: "ISIS-Sinai Province (formerly Ansar Bayt al-Maqdis)— ISIL Sinai Province Amendment (September 30, 2015)"
+    options:
+      - match: 'Revolutionary Armed Forces of Colombia – People’s Army (FARC-EP)'
         names:
-          - name_clean: ISIS-Sinai Province
-            name_former: Ansar Bayt al-Maqdis
-      - match: "al-Nusrah Front, aka Hay’at Tahrir al-Sham (ANF/HTS)— Jabhat Fath al-Sham Amendment (November 14, 2016)— Hay’at Tahrir al-Sham Amendment (June 1, 2018)"
+          - name_clean: Revolutionary Armed Forces of Colombia - People’s Army
+            alias: FARC-EP
+      - match: 'Abdallah Azzam Brigades— Marwan Hadid Brigades Amendment (November 2, 2017)'
+        names:
+          - name_clean: Abdallah Azzam Brigades
+            alias: Marwan Hadid Brigades
+      - match: 'Jaysh al-Adl (formerly Jundallah)— Jaysh al-Adl Amendment (July 2, 2019)'
+        names:
+          - name_clean: Jaysh al-Adl
+            name_former: Jundallah
+      - match: 'al-Qa’ida in the Arabian Peninsula (AQAP) — Ansar al-Shari’a Amendment (October 5, 2012)'
+        names:
+          - name_clean: al-Qa’ida in the Arabian Peninsula
+            alias: ["AQAP", "Ansar al-Shari’a"]
+      - match: 'al-Shabaab— al-Hijra Amendment (August 1, 2018)'
+        names:
+          - name_clean: al-Shabaab
+            alias: al-Hijra
+      - match: 'ISIS (formerly al-Qa’ida in Iraq)— Islamic State of Iraq Amendment (January 26, 2012)— al-Hayat Media Center and Amaq News Agency Amendments (March 22, 2019)'
+        names:
+          - name_clean: ISIS
+            alias: ["Islamic State of Iraq", "al-Hayat Media Center", "Amaq News Agency"]
+            name_former: al-Qa’ida in Iraq
+      - match: 'al-Qa’ida in the Islamic Maghreb (formerly Salafist Group for Call and Combat)— AQIM Amendment (February 20, 2008)'
+        names:
+          - name_clean: al-Qa’ida in the Islamic Maghreb
+            alias: AQIM
+            name_former: Salafist Group for Call and Combat
+      - match: 'Lashkar-e-Tayyiba (LeT)— Tehrik-e-Tahafuz Qibla Awwal, Tehrik-e-Hurmat-e-Rasool, and Al-Anfal Trust Amendments (June 26, 2014)— Al Muhammadia Students Amendment (December 30, 2016)— Tehreek-e-Azadi-e-Kashmir and Milli Muslim League Amendments (April 4, 2018)'
+        names:
+          - name_clean: Lashkar-e-Tayyiba
+            alias: ["LeT", "Tehrik-e-Tahafuz Qibla Awwal", "Tehrik-e-Hurmat-e-Rasool", "Al-Anfal Trust", "Al Muhammadia Students", "Tehreek-e-Azadi-e-Kashmir", "Milli Muslim League"]
+      - match: 'New Irish Republican Army (formerly Real IRA)— New IRA Amendment (June 30, 2023)'
+        names:
+          - name_clean: New Irish Republican Army
+            alias: New IRA
+            name_former: Real IRA
+      - match: 'Harakat ul-Mujahidin (HUM)— Ansar ul-Ummah Amendment (August 8, 2014)'
+        names:
+          - name_clean: Harakat ul-Mujahidin
+            alias: ["HUM", "Ansar ul-Ummah"]
+      - match: 'al-Nusrah Front, aka Hay’at Tahrir al-Sham (ANF/HTS)— Jabhat Fath al-Sham Amendment (November 14, 2016)— Hay’at Tahrir al-Sham Amendment (June 1, 2018)'
         names:
           - name_clean: al-Nusrah Front
-            alias: ["Hay’at Tahrir al-Sham", "(ANF/HTS)", "Jabhat Fath al-Sham"]
+            alias: ["Hay’at Tahrir al-Sham", "ANF/HTS", "Jabhat Fath al-Sham"]
+      - match: 'ISIS-Sinai Province (formerly Ansar Bayt al-Maqdis)— ISIL Sinai Province Amendment (September 30, 2015)'
+        names:
+          - name_clean: ISIS-Sinai Province
+            alias: ISIL Sinai Province
+            name_former: Ansar Bayt al-Maqdis
