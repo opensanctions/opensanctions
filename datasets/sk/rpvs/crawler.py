@@ -85,7 +85,7 @@ def fetch_related_data(context, related_id, endpoint):
     if not related_id:
         return None
     related_url = endpoint.format(id=related_id)
-    response = context.fetch_json(related_url, cache_days=1)
+    response = context.fetch_json(related_url, cache_days=3)
     return response
 
 
@@ -214,6 +214,8 @@ def crawl(context: Context):
 
     processed = 0
     while url and processed < total_count:
+        # Since this crawler runs weekly, we set cache_days=3 to ensure
+        # the cache will have expired by the next run, forcing a fresh API call
         data = context.fetch_json(url, cache_days=3)
         for entry in data.pop("value"):  # Directly iterate over new IDs
             process_entry(context, entry)
