@@ -4,24 +4,25 @@ PROGRAM = "Foreign Terrorist Organizations designated under section 219 of the I
 
 
 def split_clean_name(context, name):
-    if len(name.split(" (")) == 2:
-        parts = name.split(" (")
-        name_clean = parts[0]
-        alias = parts[1].rstrip(")")
-        name_former = ""
-    elif len(name.split("— ")) > 1:
+    # Defaults
+    name_clean = name.strip()
+    name_former = ""
+    alias = ""
+    # Lookup override if name contains an em dash or en dash
+    if "—" in name or "–" in name:
         result = context.lookup("names", name)
-        if result is None:
+        if not result or not result.names:
             context.log.warning("Name override is not found", name=name)
-            return name, "", ""
-        if result.names:
-            for name in result.names:
-                name_clean = name.get("name")
-                name_former = name.get("name_former")
-                alias = name.get("alias")
-    else:
-        name_clean = name
-        alias = ""
+            return name_clean, name_former, alias
+        for name in result.names:
+            name_clean = name.get("name")
+            name_former = name.get("name_former")
+            alias = name.get("alias")
+    # Parse inline alias format: e.g., "Organization Name (Alias)"
+    elif len(name.split(" (")) == 2:
+        base, alias_part = name.rsplit(" (", 1)
+        name_clean = base.strip()
+        alias = alias_part.rstrip(")").strip()
         name_former = ""
 
     return name_clean, name_former, alias
@@ -44,8 +45,9 @@ def crawl(context: Context):
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name, start_date)
         entity.add("name", name_clean)
-        entity.add("previousName", name_former)
         entity.add("alias", alias)
+        entity.add("previousName", name_former)
+        entity.add("topics", ["sanction", "crime.terror"])
 
         sanction = h.make_sanction(context, entity)
         h.apply_date(sanction, "startDate", start_date)
