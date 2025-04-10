@@ -99,3 +99,5 @@ lookups:
         value: "2018-12-12"
       - match: "3031-07-16"
         value: "2031-07-16"
+      - match: "9999-12-31"
+        value: null
