@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: 2025-03-12
 load_statements: true
+ci_test: false
 summary: >
   List of judges, prosecutors, and investigators in Bulgaria who are required to submit asset 
   declarations.
