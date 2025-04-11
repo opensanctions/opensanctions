@@ -127,32 +127,30 @@ lookups:
         registration_number: 3025603
         date: "2025-04-07"
       - match: "Rptd Sold Undisclosed Interest (09.02.2023)"
-        name: "Rptd"
+        name: "Rptd Sold Undisclosed Interest"
         date: "2023-02-09"
       - match: "Rptd Sold Undisclosed Interest (12.08.2024)"
-        name: "Rptd"
+        name: "Rptd Sold Undisclosed Interest"
         date: "2024-08-12"
       - match: "Rptd Sold russia (05.2004)"
-        name: "Rptd"
-        country: Russia
+        name: "Rptd Sold Russia"
         date: "2004-05"
       - match: "RPTD SOLD RUSSIA (13.11.2024)"
-        name: "Rptd"
-        country: Russia
+        name: "Rptd Sold Russia"
         date: "2024-11-13"
       - match: "RPTD Sold Gambia (9993073 / 24.02.2025)"
-        name: "Rptd"
+        name: "Rptd Sold Gambia"
         country: Gambia
         registration_number: 9993073
         date: "2025-02-24"
       - match: "Sergeevich/Grigoryevna с/о Sanin Yuri Sergeevich (0018872 / russia / 11.07.2024)"
-        name: "Sergeevich/Grigoryevna"
+        name: ["Sergeevich", "Grigoryevna"]
         care_of: "Sanin Yuri Sergeevich"
         registration_number: 0018872
         country: Russia
         date: "2024-07-11"
       - match: "Trans-Flot/Vladimirovich PV о/с Trans-flot LLC (6184699 / russia / 03.10.2019)"
-        name: "Trans-Flot/Vladimirovich PV"
+        name: ["Trans-Flot", "Vladimirovich PV"]
         care_of: Trans-flot LLC
         registration_number: 6184699
         country: Russia
@@ -189,7 +187,54 @@ lookups:
         registration_number: 6129498
         country: Russia
         date: "2019-11-05"
-      - match: 
+      - match: "Brandex Group Ltd (5261835 / 19.04.2018)"
+        name: "Brandex Group Ltd"
+        registration_number: 5261835
+        date: "2018-04-19"
+      - match: "Harborline Global Maritime Ltd (0178274 / 10.03.2025)"
+        name: "Harborline Global Maritime Ltd"
+        registration_number: 0178274
+        date: "2025-03-10"
+      - match: "Non-profit Partnership Revival of Maritime Traditions (russian federation / 2015)"
+        name: "Non-profit Partnership Revival of Maritime Traditions"
+        country: Russia
+        date: "2015"
+      - match: "Sergeevich/grigoryevna (0018872 / russian federation / 11.07.2024)"
+        name: ["Sergeevich", "Grigoryevna"]
+        registration_number: 0018872
+        country: Russia
+        date: "2024-07-11"
+      - match: "Rptd Sold Russia (05.2004)"
+        name: "Rptd Sold Russia"
+        date: "2004-05"
+      - match: "HK Yongye Ship Ltd/ Zhang Yong (6360967 / Hong Kong / 01.11.2022)" 
+        name: ["HK Yongye Ship Ltd", "Zhang Yong"]
+        registration_number: 6360967
+        country: Hong Kong
+        date: "2022-11-01"
+      - match: "Rptd Sold Gambia (9993073 / 24.02.2025)"
+        name: "Rptd Sold Gambia"
+        registration_number: 9993073
+        date: "2025-02-24"
+      - match: "Uship Management FZ-LLC (04.06.2024)"
+        name: "Uship Management FZ-LLC"
+        date: "2024-06-04"
+      - match: "Trans-flot/vladimirovich Pv о/с Trans-flot LLC (6184699 / russian federation / 03.10.2019)"
+        name: ["Trans-flot", "Vladimirovich Pv"]
+        registration_number: 6184699
+        care_of: Trans-flot LLC
+        country: Russia
+        date: "2019-10-03"
+      - match: "Eastern Euro Ship Management (OPC) Pvt Ltd (21.12.2023)"
+        name: "Eastern Euro Ship Management (OPC) Pvt Ltd"
+        date: "2023-12-21"
+      - match: "Eastern Euro Ship Management (OPC) Pvt Ltd (28.12.2023)"
+        name: "Eastern Euro Ship Management (OPC) Pvt Ltd"
+        date: "2023-12-28"
+      - match: "Rptd Sold Russia (13.11.2024)"
+        name: "Rptd Sold Russia"
+        country: Russia
+        date: "2024-11-13"
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
