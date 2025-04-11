@@ -221,4 +221,4 @@ def crawl(context: Context):
             process_entry(context, entry)
             processed += 1
         # It will break when there is no next link
-        url = data.pop("@odata.nextLink")
+        url = data.pop("@odata.nextLink", None)
