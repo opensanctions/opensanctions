@@ -38,10 +38,10 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 80
+      Organization: 80
   max:
     schema_entities:
-      LegalEntity: 200
+      Organization: 200
 
 lookups:
   names:

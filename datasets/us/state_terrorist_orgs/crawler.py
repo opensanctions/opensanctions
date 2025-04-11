@@ -6,8 +6,8 @@ PROGRAM = "Foreign Terrorist Organizations designated under section 219 of the I
 def split_clean_name(context, name):
     # Defaults
     name_clean = name.strip()
-    name_former = ""
-    alias = ""
+    name_former = None
+    alias = None
     # Lookup override if name contains a dash
     if any(dash in name for dash in ["—", "–"]):
         result = context.lookup("names", name)
@@ -23,7 +23,7 @@ def split_clean_name(context, name):
         base, alias_part = name.rsplit(" (", 1)
         name_clean = base.strip()
         alias = alias_part.rstrip(")").strip()
-        name_former = ""
+        name_former = None
 
     return name_clean, name_former, alias
 
@@ -36,7 +36,7 @@ def crawl_row(context, row):
     end_date = row.pop("date_removed", None)
 
     name_clean, name_former, alias = split_clean_name(context, name)
-    entity = context.make("LegalEntity")
+    entity = context.make("Organization")
     entity.id = context.make_id(name, start_date)
     entity.add("name", name_clean)
     entity.add("alias", alias)
