@@ -212,7 +212,7 @@ lookups:
         registration_number: 6360967
         country: Hong Kong
         date: "2022-11-01"
-      - match: 	Rptd Sold Gambia (9993073 / 24.02.2025)
+      - match: "Rptd Sold Gambia (9993073 / 24.02.2025)"
         name: "Rptd Sold Gambia"
         registration_number: 9993073
         date: "2025-02-24"
