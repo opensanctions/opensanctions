@@ -18,17 +18,17 @@ def crawl(context: Context):
             # AfDB lists several individuals as firms in places where the IADB
             # shows them to be people (and they have normal personal names)
 
-            # type_ = cells.pop("type")
-            # schema = context.lookup_value("types", type_)
-            # if schema is None:
-            #     context.log.error("Unknown entity type", type=type_)
-            #     continue
+            type_ = cells.pop("type")
+            schema = context.lookup_value("types", type_)
+            if schema is None:
+                context.log.error("Unknown entity type", type=type_)
+                continue
 
             name = cells.pop("name").strip()
             if all(v == "" for v in cells.values()):
                 continue
             country = cells.pop("nationality")
-            entity = context.make("LegalEntity")
+            entity = context.make(schema)
             entity.id = context.make_id(name, country)
             entity.add("name", name)
             entity.add("topics", "debarment")
@@ -42,4 +42,4 @@ def crawl(context: Context):
             context.emit(entity)
             context.emit(sanction)
 
-            context.audit_data(cells, ["type", "notes"])
+            context.audit_data(cells, ["notes"])
