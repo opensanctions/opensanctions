@@ -12,7 +12,7 @@ def make_sanction(
     context: Context,
     entity: Entity,
     key: Optional[str] = None,
-    program: Optional[str] = None,
+    program_name: Optional[str] = None,
     program_key: Optional[str] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
@@ -26,7 +26,7 @@ def make_sanction(
         context: The runner context with dataset metadata.
         entity: The entity to which the sanctions object will be linked.
         key: An optional key to be included in the ID of the sanction.
-        program: An optional program name.
+        program_name: An optional program name.
         program_key: An optional key for looking up the program ID in the YAML configuration.
         start_date: An optional start date for the sanction.
         end_date: An optional end date for the sanction.
@@ -45,8 +45,8 @@ def make_sanction(
         sanction.add("country", dataset.publisher.country)
     sanction.add("authority", dataset.publisher.name)
     sanction.add("sourceUrl", dataset.url)
-    if program is not None:
-        sanction.set("program", program)
+    if program_name is not None:
+        sanction.set("program", program_name)
     if program_key is not None:
         program_id = context.lookup_value("sanction.program", program_key)
         if program_id is not None:
@@ -54,7 +54,9 @@ def make_sanction(
             sanction.add("programUrl", program_url)
             sanction.add("programId", program_id)
         else:
-            context.log.warn(f"Program key {program_key!r} not found.", program=program)
+            context.log.warn(
+                f"Program key {program_key!r} not found.", program=program_name
+            )
     if start_date is not None:
         h.apply_date(sanction, "startDate", start_date)
     if end_date is not None:

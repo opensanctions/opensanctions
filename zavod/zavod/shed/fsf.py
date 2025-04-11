@@ -62,7 +62,7 @@ def parse_sanctions(context: Context, entity: Entity, entry: Element) -> None:
         sanction = h.make_sanction(
             context,
             entity,
-            program=program,
+            program_name=program,
             program_key=program,
             key=url,
         )
