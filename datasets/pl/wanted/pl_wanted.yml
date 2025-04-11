@@ -127,3 +127,5 @@ lookups:
         value: TH
       - match: WIELKA BRYTANIA WŁOCHY
         values: [GB, IT]
+      - match: MACEDONIA PÓŁNOCNA
+        value: MK
