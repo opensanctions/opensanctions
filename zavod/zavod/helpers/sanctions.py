@@ -9,6 +9,16 @@ from zavod.stateful import programs
 ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 
 
+def lookup_sanction_program_key(
+    context: Context, source_key: Optional[str]
+) -> Optional[str]:
+    """Lookup the sanction program key based on the source key."""
+    program_key = context.lookup_value("sanction.program", source_key)
+    if program_key is None:
+        context.log.warn(f"Program key {program_key!r} not found.")
+    return program_key
+
+
 def make_sanction(
     context: Context,
     entity: Entity,
