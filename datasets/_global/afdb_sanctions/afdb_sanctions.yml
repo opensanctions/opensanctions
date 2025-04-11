@@ -45,7 +45,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 850
+      LegalEntity: 900
     country_entities:
       cn: 100
       ng: 30
