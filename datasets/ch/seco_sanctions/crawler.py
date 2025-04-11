@@ -295,6 +295,7 @@ def parse_entry(context: Context, target: Element, programs, places):
     ssid = target.get("sanctions-set-id")
     if ssid is None:
         ssid = target.findtext("./sanctions-set-id")
+    # TODO(Leon Handreke): Add lookup from program ssid to OpenSanctions program key
     sanction.add("program", programs.get(ssid))
     foreign_id = target.findtext("./foreign-identifier")
     sanction.add("unscId", foreign_id)
@@ -352,6 +353,7 @@ def crawl(context: Context):
     if date is not None:
         context.data_time = datetime.strptime(date, "%Y-%m-%d")
 
+    # TODO(Leon Handreke): Add a lookup to see if a new sanctions program shows up that we don't have in the database
     programs: Dict[str, MayStr] = {}
     for sanc in doc.findall(".//sanctions-program"):
         sanc_set = sanc.find("./sanctions-set")

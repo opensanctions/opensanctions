@@ -1,0 +1,219 @@
+{"id": 1, "key": "UN-SC-1267", "title": "Islamic State In Iraq And The Levant (Da\u2019esh), Al-Qaida And Associated Individuals", "url": "https://www.un.org/securitycouncil/sanctions/1267"}
+{"id": 2, "key": "US-BIS-EL", "title": "BIS Entity List (EL)", "url": "https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/entity-list"}
+{"id": 3, "key": "CA-JVCFOA", "title": " Justice For Victims Of Corrupt Foreign Officials Act", "url": "https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/victims_corrupt-victimes_corrompus.aspx?lang=eng"}
+{"id": 4, "key": "CA-SEMA", "title": "Special Economic Measures Act", "url": "https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/legislation-lois.aspx?lang=eng"}
+{"id": 5, "key": "US-AFGH", "title": "Afghanistan-Related Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/afghanistan-related-sanctions"}
+{"id": 6, "key": "US-BALKANS", "title": "Balkans-Related Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/balkans-related-sanctions"}
+{"id": 7, "key": "US-BRUS", "title": "Belarus Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/belarus-sanctions"}
+{"id": 8, "key": "US-BURMA", "title": "Burma-Related Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/burma"}
+{"id": 9, "key": "US-CAR", "title": "Central African Republic Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/central-african-republic-sanctions"}
+{"id": 10, "key": "US-CHINA-MIL", "title": "Chinese Military Companies Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/chinese-military-companies-sanctions"}
+{"id": 11, "key": "US-NARCO", "title": "Counter Narcotics Trafficking Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/counter-narcotics-trafficking-sanctions"}
+{"id": 12, "key": "US-TERR", "title": "Counter Terrorism", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/counter-terrorism-sanctions"}
+{"id": 13, "key": "US-CUBA", "title": "Cuba Sanctions ", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/cuba-sanctions"}
+{"id": 14, "key": "US-CYB", "title": "Cyber-Related Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/sanctions-related-to-significant-malicious-cyber-enabled-activities"}
+{"id": 15, "key": "US-DRC", "title": "Democratic Republic Of The Congo-Related Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/democratic-republic-of-the-congo-related-sanctions"}
+{"id": 16, "key": "US-ETHIOPIA", "title": "Ethiopia-Related Sanctions ", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/ethiopia"}
+{"id": 17, "key": "US-FORINT", "title": "Foreign Interference In A United States Election Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/foreign-interference-in-a-united-states-election-sanctions"}
+{"id": 18, "key": "US-GLOMAG", "title": "Global Magnitsky Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/global-magnitsky-sanctions"}
+{"id": 19, "key": "US-HONGKONG", "title": "Hong Kong-Related Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/hong-kong-related-sanctions"}
+{"id": 20, "key": "US-HOSTAGE", "title": "Hostages And Wrongfully Detained U.S. Nationals Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/hostages-and-wrongfully-detained-us-nationals-sanctions"}
+{"id": 21, "key": "US-IRAN", "title": "Iran Sanctions ", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/iran-sanctions"}
+{"id": 22, "key": "US-IRAQ", "title": "Iraq-Related Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/iraq-related-sanctions"}
+{"id": 23, "key": "US-LEBANON", "title": "Lebanon-Related Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/lebanon-related-sanctions"}
+{"id": 24, "key": "US-LIBYA", "title": "Libya Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/libya-sanctions"}
+{"id": 26, "key": "US-MAGNITSKY", "title": "Magnitsky Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/the-magnitsky-sanctions"}
+{"id": 27, "key": "US-MALI", "title": "Mali-Related Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/mali-related-sanctions"}
+{"id": 28, "key": "US-NICARAGUA", "title": "Nicaragua-Related Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/nicaragua-related-sanctions"}
+{"id": 29, "key": "US-NON-PROLIF", "title": "Non-Proliferation Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/non-proliferation-sanctions"}
+{"id": 30, "key": "US-NK", "title": "North Korea Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/north-korea-sanctions"}
+{"id": 31, "key": "US-RUSHAR", "title": "Russian Harmful Foreign Activities Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/russian-harmful-foreign-activities-sanctions"}
+{"id": 32, "key": "US-SOMALIA", "title": "Somalia Sanctions (EO 13620, EO 13536)", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/somalia-sanctions"}
+{"id": 33, "key": "US-SOUTH-SUDAN", "title": "South Sudan-Related Sanctions (EO 13664)", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/south-sudan-related-sanctions"}
+{"id": 34, "key": "US-DARFUR", "title": "Sudan and Darfur Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/sudan-and-darfur-sanctions"}
+{"id": 35, "key": "US-SYR", "title": "Syria Sanctions (EO 13608 et al.)", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/syria-sanctions"}
+{"id": 36, "key": "US-SYR-REL", "title": "Syria-Related Sanctions (EO 13894)", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/syria-related-sanctions"}
+{"id": 37, "key": "US-TCO", "title": "Transnational Criminal Organizations", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/transnational-criminal-organizations"}
+{"id": 38, "key": "US-UKRRUS-REL", "title": "Ukraine-/Russia-Related Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/ukraine-russia-related-sanctions"}
+{"id": 39, "key": "US-VEN", "title": "Venezuela-Related Sanctions", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/venezuela-related-sanctions"}
+{"id": 40, "key": "US-YEMEN", "title": "Yemen-Related Sanctions (EO 13611)", "url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/yemen-related-sanctions"}
+{"id": 41, "key": "US-FCC", "title": "List of Equipment and Services Covered By Section 2 of The Secure Networks Act", "url": "https://www.fcc.gov/supplychain/coveredlist"}
+{"id": 42, "key": "US-BIS-UVL", "title": "BIS Unverified List", "url": "https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/unverified-list"}
+{"id": 43, "key": "US-BIS-DPL", "title": "BIS Denied Persons List (DPL)", "url": "https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/denied-persons-list"}
+{"id": 45, "key": "US-BIS-MEU", "title": "BIS Military End-Users (MEU) List", "url": "https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern"}
+{"id": 46, "key": "US-AECA-DEBARRED", "title": "AECA Debarred List", "url": "https://www.pmddtc.state.gov/ddtc_public?id=ddtc_kb_article_page&sys_id=c22d1833dbb8d300d0a370131f9619f0"}
+{"id": 47, "key": "US-DOS-CU-PAL", "title": "Cuba Prohibited Accommodations List", "url": "https://www.state.gov/cuba-prohibited-accommodations-list-initial-publication/"}
+{"id": 49, "key": "US-FSE", "title": "Foreign Sanctions Evaders (FSE) List", "url": "https://ofac.treasury.gov/other-ofac-sanctions-lists"}
+{"id": 50, "key": "US-SSI", "title": "Sectoral Sanctions Identifications (SSI) List", "url": "https://ofac.treasury.gov/consolidated-sanctions-list-non-sdn-lists/sectoral-sanctions-identifications-ssi-list"}
+{"id": 51, "key": "US-NS-CMIC", "title": "Non-SDN Chinese Military-Industrial Complex Companies", "url": "https://ofac.treasury.gov/other-ofac-sanctions-lists"}
+{"id": 52, "key": "US-NS-PLC", "title": "Palestinian Legislative Council", "url": "https://ofac.treasury.gov/consolidated-sanctions-list/non-sdn-palestinian-legislative-council-ns-plc-list"}
+{"id": 53, "key": "US-MCCAIN-889", "title": "John S. McCain National Defense Authorization Act for Fiscal Year 2019 (889 List)", "url": "https://www.congress.gov/115/plaws/publ232/PLAW-115publ232.pdf"}
+{"id": 54, "key": "US-DOD-1260H", "title": "Chinese Military Companies Sanctions (1260H)", "url": "https://media.defense.gov/2024/Jan/31/2003384819/-1/-1/0/1260H-LIST.PDF"}
+{"id": 55, "key": "US-5949LIST", "title": "James M. Inhofe National Defense Authorization Act (5949 List)", "url": "https://www.congress.gov/117/bills/hr7776/BILLS-117hr7776enr.pdf"}
+{"id": 56, "key": "US-FED-ENF", "title": "US Federal Reserve Enforcement Actions", "url": "https://www.federalreserve.gov/supervisionreg/enforcement-actions-about.htm"}
+{"id": 57, "key": "SECO-AFGH", "title": "Measures Against Persons And Organizations With Links To Usama Bin Laden, Al-Qaeda Or The Taliban", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-personen-und-organisationen-mit-verbindung."}
+{"id": 58, "key": "EU-BLR", "title": "EU Restrictive measures in view of the situation in Belarus and the involvement of Belarus in the Russian aggression against Ukraine", "url": "https://sanctionsmap.eu/#/main/details/2/"}
+{"id": 59, "key": "EU-BOSNIA", "title": "EU Restrictive Measures In View Of The Situation In Bosnia And Herzegovina", "url": "https://sanctionsmap.eu/#/main/details/4/"}
+{"id": 60, "key": "EU-BDI", "title": "EU Restrictive Measures In View Of The Situation In Burundi", "url": "https://sanctionsmap.eu/#/main/details/7/"}
+{"id": 61, "key": "EU-CHEM", "title": "EU Restrictive Measures Against The Proliferation And Use Of Chemical Weapons", "url": "https://sanctionsmap.eu/#/main/details/46/"}
+{"id": 63, "key": "EU-CYB", "title": "EU Restrictive Measures Against Cyber-Attacks Threatening The Union Or Its Member States", "url": "https://sanctionsmap.eu/#/main/details/47/"}
+{"id": 64, "key": "EU-PRK", "title": "EU Restrictive Measures In Relation To The Non-Proliferation Of The Weapons Of Mass Destruction (WMD)", "url": "https://sanctionsmap.eu/#/main/details/20/"}
+{"id": 65, "key": "EU-COD", "title": "EU Restrictive Measures In View Of The Situation In The Democratic Republic Of The Congo", "url": "https://sanctionsmap.eu/#/main/details/11/"}
+{"id": 66, "key": "EU-GTM", "title": "EU Restrictive Measures In View Of The Situation In Guatemala", "url": "https://sanctionsmap.eu/#/main/details/59/"}
+{"id": 67, "key": "EU-GIN", "title": "EU Restrictive Measures In View Of The Situation In Guinea", "url": "https://sanctionsmap.eu/#/main/details/14/"}
+{"id": 68, "key": "EU-HTI", "title": "EU Restrictive Measures In View Of The Situation In Haiti", "url": "https://sanctionsmap.eu/#/main/details/54/"}
+{"id": 69, "key": "EU-HR", "title": "EU Restrictive Measures Against Serious Human Rights Violations And Abuses", "url": "https://sanctionsmap.eu/#/main/details/50/"}
+{"id": 73, "key": "EU-LEBANON", "title": "EU Restrictive Measures In View Of The Situation In Lebanon", "url": "https://sanctionsmap.eu/#/main/details/51/"}
+{"id": 74, "key": "EU-LBY", "title": "EU Restrictive Measures In View Of The Situation In Libya", "url": "https://sanctionsmap.eu/#/main/details/23/"}
+{"id": 75, "key": "EU-MLI", "title": "EU Restrictive Measures In View Of The Situation In Mali", "url": "https://sanctionsmap.eu/#/main/details/42/"}
+{"id": 77, "key": "EU-MDA", "title": "EU Restrictive Measures In View Of Actions Destabilising The Republic Of Moldova", "url": "https://sanctionsmap.eu/#/main/details/55/"}
+{"id": 79, "key": "EU-MMR", "title": "EU Restrictive Measures In View Of The Situation In Myanmar And Burma", "url": "https://sanctionsmap.eu/#/main/details/8/"}
+{"id": 80, "key": "EU-NIC", "title": "EU Restrictive Measures In View Of The Situation In Nicaragua", "url": "https://sanctionsmap.eu/#/main/details/48/"}
+{"id": 81, "key": "EU-NIGER", "title": "EU Restrictive Measures In View Of The Situation In Niger", "url": "https://sanctionsmap.eu/#/main/details/58/"}
+{"id": 84, "key": "EU-SSD", "title": "EU Restrictive Measures In View Of The Situation In South Sudan", "url": "https://sanctionsmap.eu/#/main/details/30/"}
+{"id": 85, "key": "EU-SDNZ", "title": "EU Restrictive Measures In View Of Activities Undermining The Stability And The Political Transition Of Sudan", "url": "https://sanctionsmap.eu/#/main/details/57/"}
+{"id": 86, "key": "EU-SDN", "title": "EU Restrictive Measures In View Of The Situation In Sudan", "url": "https://sanctionsmap.eu/#/main/details/31/"}
+{"id": 87, "key": "EU-SYR", "title": "EU Restrictive Measures Against Syria", "url": "https://sanctionsmap.eu/#/main/details/32/"}
+{"id": 88, "key": "EU-TERR", "title": "EU Specific Measures To Combat Terrorism", "url": "https://sanctionsmap.eu/#/main/details/6"}
+{"id": 89, "key": "EU-TAQA-EUAQ", "title": "EU Restrictive Measures With Respect To ISIL (Da'esh) And Al-Qaida (ISIL/Daesh & Al-Qaida)", "url": "https://sanctionsmap.eu/#/main/details/5/"}
+{"id": 90, "key": "EU-HAM", "title": "EU Restrictive Measures Against Supporters Of Hamas And The Palestinian Islamic Jihad", "url": "https://sanctionsmap.eu/#/main/details/60/"}
+{"id": 91, "key": "EU-TUN", "title": "EU Misappropriation of State Funds Of Tunisia (MSF)", "url": "https://sanctionsmap.eu/#/main/details/33/"}
+{"id": 92, "key": "EU-TUR", "title": "EU Restrictive Measures In View Of Turkey's Unauthorized Drilling In The Eastern Mediterranean", "url": "https://sanctionsmap.eu/#/main/details/49/"}
+{"id": 97, "key": "EU-US-LEG", "title": "EU Measures Protecting Against The Effects Of The Extra-Territorial Application Of Certain US Legislation", "url": "https://sanctionsmap.eu/#/main/details/38/"}
+{"id": 98, "key": "EU-VEN", "title": "EU Restrictive Measures In View Of The Situation In Venezuela", "url": "https://sanctionsmap.eu/#/main/details/44/"}
+{"id": 102, "key": "UN-SC2713", "title": "Al-Shabaab Sanctions ", "url": "https://www.un.org/securitycouncil/sanctions/2713"}
+{"id": 103, "key": "UN-SCISIL", "title": "ISIL & Al-Qaida Sanctions", "url": "https://www.un.org/securitycouncil/sanctions/1267"}
+{"id": 104, "key": "UN-SC1518", "title": "Iraq Sanctions", "url": "https://www.un.org/securitycouncil/sanctions/1518"}
+{"id": 105, "key": "UN-SC1533", "title": "Democratic Republic Of Congo Sanctions", "url": "https://www.un.org/securitycouncil/sanctions/1533"}
+{"id": 106, "key": "UN-SC1591", "title": "Sudan Sanctions", "url": "https://www.un.org/securitycouncil/sanctions/1591"}
+{"id": 107, "key": "UN-SC1636", "title": "Rafiq Hariri Killing Sanctions", "url": "https://www.un.org/securitycouncil/sanctions/1636"}
+{"id": 108, "key": "UN-SC1718", "title": "North Korea Sanctions", "url": "https://www.un.org/securitycouncil/sanctions/1718"}
+{"id": 109, "key": "UN-SC1970", "title": "Libya Sanctions", "url": "https://www.un.org/securitycouncil/sanctions/1970"}
+{"id": 110, "key": "UN-SC1988", "title": "Taliban Sanctions", "url": "https://www.un.org/securitycouncil/sanctions/1988"}
+{"id": 111, "key": "UN-SC2048", "title": "Guinea-Bissau Sanctions", "url": "https://www.un.org/securitycouncil/sanctions/2048"}
+{"id": 112, "key": "UN-SC2127", "title": "Central African Republic Sanctions", "url": "https://www.un.org/securitycouncil/sanctions/2127"}
+{"id": 113, "key": "UN-SC2140", "title": "Yemen Sanctions", "url": "https://www.un.org/securitycouncil/sanctions/2140"}
+{"id": 114, "key": "UN-SC2206", "title": "South Sudan Sanctions ", "url": "https://www.un.org/securitycouncil/sanctions/2206"}
+{"id": 115, "key": "UN-SC2653", "title": "Haiti Sanctions ", "url": "https://www.un.org/securitycouncil/sanctions/2653"}
+{"id": 116, "key": "SECO-IRAQ", "title": "Measures Against The Republic Of Iraq", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/wirtschaftsmassnahmen-gegenueber-der-republik-irak.html"}
+{"id": 117, "key": "SECO-MYANMAR", "title": "Measures Against Myanmar", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-myanmar--burma-.html"}
+{"id": 118, "key": "SECO-ZIM", "title": "Measures Against Zimbabwe", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-simbabwe.html"}
+{"id": 119, "key": "SECO-SUDAN", "title": "Measures Against Sudan", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-sudan.html"}
+{"id": 120, "key": "SECO-DRC", "title": "Measures Against The Democratic Republic Of Congo", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-der-demokratischen-republik-kongo.html"}
+{"id": 121, "key": "SECO-HARIRI", "title": "Measures In Relation With The Rafiq Hariri Assassination", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-bestimmten-personen-in-zusammenhang-mit-de."}
+{"id": 122, "key": "SECO-BRUS", "title": "Measures Against Belarus", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-belarus.html"}
+{"id": 123, "key": "SECO-NORTHKOREA", "title": "Measures Against North Korea", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-der-demokratischen-volksrepublik-korea--no."}
+{"id": 124, "key": "SECO-LEB", "title": "Measures Related To Lebanon", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-betreffend-libanon.html"}
+{"id": 125, "key": "SECO-IRAN", "title": "Measures Against The Islamic Republic Of Iran", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-der-islamischen-republik-iran.html"}
+{"id": 126, "key": "SECO-SOMALIA", "title": "Measures Against Somalia", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-somalia.html"}
+{"id": 127, "key": "SECO-GUINEA", "title": "Measures Against Guinea", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-guinea.html"}
+{"id": 128, "key": "SECO-LIBYA", "title": "Measures Against Libya", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-libyen.html"}
+{"id": 129, "key": "SECO-SYRIA", "title": "Measures Against Syria", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-syrien.html"}
+{"id": 130, "key": "SECO-BISSAU", "title": "Measures Against Guinea Bissau", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-guinea-bissau.html"}
+{"id": 131, "key": "SECO-CAR", "title": "Measures Against The Central African Republic", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-der-zentralafrikanischen-republik.html"}
+{"id": 132, "key": "SECO-UKRAINE", "title": "Measures In Relation To The Situation In Ukraine", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-zur-vermeidung-der-umgehung-internationaler-sanktione."}
+{"id": 133, "key": "SECO-YEMEN", "title": "Measures Against Yemen", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-jemen.html"}
+{"id": 134, "key": "SECO-BURUNDI", "title": "Measures Against Burundi", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-burundi.html"}
+{"id": 135, "key": "SECO-SOUTHSUDAN", "title": "Measures Against South Sudan", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-der-republik-suedsudan.html"}
+{"id": 136, "key": "SECO-MALI", "title": "Measures Against The Republic Of Mali", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen_mali.html"}
+{"id": 137, "key": "SECO-VEN", "title": "Measures Against Venezuela", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-venezuela.html"}
+{"id": 138, "key": "SECO-NICARAGUA", "title": "Measures Against Nicaragua", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-nicaragua.html"}
+{"id": 139, "key": "SECO-HAITI", "title": "Measures In Relation To Haiti", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-haiti.html"}
+{"id": 140, "key": "SECO-MOLDOVA", "title": "Measures In relation To Moldova", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-moldau.html"}
+{"id": 141, "key": "SECO-ERITREA", "title": "Former Measures Against Eritrea", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-eritrea.html"}
+{"id": 142, "key": "SECO-LIBERIA", "title": "Former Measures Against Liberia", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-liberia.html"}
+{"id": 143, "key": "SECO-CDI", "title": "Former Measures Against Ivory Coast", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-cote-d-ivoire.html"}
+{"id": 144, "key": "SECO-YUGO", "title": "Former Measures Against Yugoslavia", "url": "https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-jugoslawien.html"}
+{"id": 145, "key": "CA-FACFOA-TUN", "title": "Freezing Assets of Corrupt Foreign Officials (Tunisia) Regulations (SOR/2011-78)", "url": "https://laws-lois.justice.gc.ca/eng/regulations/SOR-2011-78/index.html"}
+{"id": 147, "key": "CA-NRO", "title": "Policy On Sensitive Technology Research And Affiliations Of Concern", "url": "https://science.gc.ca/site/science/en/safeguarding-your-research/guidelines-and-tools-implement-research-security/sensitive-technology-research-and-affiliations-concern/named-research-organizations"}
+{"id": 152, "key": "CN-AFSL", "title": "Chinese Anti-Foreign Sanctions Law (AFSL)", "url": "https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit#gid=1070466538"}
+{"id": 153, "key": "CN-CML", "title": "Chinese Counter-Measures List", "url": "https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit#gid=1070466538"}
+{"id": 154, "key": "CN-UEL", "title": "Chinese Unreliable Entities List (UEL)", "url": "https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit#gid=1070466538"}
+{"id": 155, "key": "CZ-A1-2023COLL", "title": "Law On Restrictive Measures Against Certain Serious Acts Applied In International Relations (Act No. 1/2023 Coll.)", "url": "https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html"}
+{"id": 156, "key": "FR-CMF-562", "title": "Art L. 562-2 And 562-3 Of The Monetary And Financial Code", "url": "https://www.tresor.economie.gouv.fr/services-aux-entreprises/sanctions-economiques/registre-national-des-gels-foire-aux-questions"}
+{"id": 158, "key": "IN-UAPA", "title": "Unlawful Activities (Prevention) Act, 1967", "url": "https://www.mha.gov.in/en/banned-organisations"}
+{"id": 160, "key": "IR-MFA-SANC", "title": "Individuals And Entities In The Sanction\u2019s List Of The Islamic Republic Of Iran", "url": "https://sanctionlist.mfa.ir/"}
+{"id": 172, "key": "NZ-RSA2022", "title": "Russia Sanctions Act 2022", "url": "https://www.mfat.govt.nz/en/countries-and-regions/europe/ukraine/russian-invasion-of-ukraine/sanctions/"}
+{"id": 176, "key": "PL-AML118", "title": "Art. 118 of the Act of March 1, 2018 on counteracting money laundering and terrorism financing", "url": "https://www.gov.pl/web/finanse/lista-osob-i-podmiotow-wobec-ktorych-stosuje-sie-szczegolne-srodki-ograniczajace-na-podstawie-art-118-ustawy-z-dnia-1-marca-2018-r-o-przeciwdzialaniu-praniu-pieniedzy-i-finansowaniu-terroryzmu"}
+{"id": 178, "key": "SG-TSFA2002", "title": "Terrorism (Suppression of Financing) Act 2002", "url": "https://sso.agc.gov.sg/Act/TSFA2002?ProvIds=Sc1-#Sc1-"}
+{"id": 179, "key": "TH-SEC-7", "title": "List of designated persons under Section 7", "url": "https://aps.amlo.go.th/aps/public/thailandlist/search?un_name=&un_registration_number=&passport_no=&un_id="}
+{"id": 180, "key": "GB-SAMLA", "title": "Sanctions and Anti-Money Laundering Act 2018", "url": "https://www.gov.uk/government/publications/the-uk-sanctions-list"}
+{"id": 183, "key": "UA-SA1644", "title": "Law of Ukraine \"On Sanctions\" No. 1644-VII dated 14 Aug. 2014", "url": "https://drs.nsdc.gov.ua/"}
+{"id": 187, "key": "US-CORRUPT-353", "title": "Section 353 of the Corrupt and Undemocratic Actors Report", "url": "https://www.state.gov/reports/section-353-corrupt-and-undemocratic-actors-report-2023/"}
+{"id": 188, "key": "US-UFLPA", "title": "Uyghur Forced Labor Prevention Act (Public Law No. 117-78)", "url": "https://www.dhs.gov/uflpa"}
+{"id": 194, "key": "AU-SYRIA", "title": "Syria Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/syria-sanctions-regime"}
+{"id": 195, "key": "AU-UKRAINE-REG", "title": "Specified Ukraine Regions Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/specified-ukraine-regions-sanctions-regime"}
+{"id": 196, "key": "AU-DPRK", "title": "Democratic People's Republic Of Korea (North Korea) Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/democratic-peoples-republic-korea-sanctions-regime"}
+{"id": 197, "key": "AU-YUGO", "title": "Former Federal Republic Of Yugoslavia Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/former-federal-republic-yugoslavia-sanctions-regime"}
+{"id": 198, "key": "AU-IRAN", "title": "Iran Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/iran-sanctions-regime"}
+{"id": 199, "key": "AU-IRAQ", "title": "Iraq Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/Pages/iraq-sanctions-regime"}
+{"id": 200, "key": "AU-LIBYA", "title": "Libya Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/libya-sanctions-regime"}
+{"id": 201, "key": "AU-MYANMAR", "title": "Myanmar Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/myanmar-sanctions-regime"}
+{"id": 202, "key": "AU-RUSSIA", "title": "Russia Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/russia-sanctions-regime"}
+{"id": 203, "key": "AU-CRP", "title": "Serious Corruption Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/serious-corruption-sanctions-regime"}
+{"id": 204, "key": "AU-HUMAN", "title": "Serious Violations Or Serious Abuses Of Human Rights Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/serious-violations-or-serious-abuses-human-rights-sanctions-regime"}
+{"id": 205, "key": "AU-CYB", "title": "Significant Cyber Incidents Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/significant-cyber-incidents-sanctions-regime"}
+{"id": 207, "key": "AU-UKRAINE", "title": "Ukraine Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/ukraine-sanctions-regime"}
+{"id": 208, "key": "AU-ZIM", "title": "Zimbabwe Sanctions Regime", "url": "https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/zimbabwe-sanctions-regime"}
+{"id": 209, "key": "BE-FOD-NAT", "title": "National list of terrorist suspects whose assets have been frozen", "url": "https://finance.belgium.be/en/about_fps/structure_and_services/general_administrations/treasury/financial-sanctions/national"}
+{"id": 210, "key": "US-CAATSA2018", "title": "US Section 241 CAATSA Report (2018)", "url": "https://prod-upp-image-read.ft.com/40911a30-057c-11e8-9650-9c0ad2d7c5b5"}
+{"id": 211, "key": "ICIJ-OL", "title": "Offshore Leaks (2013)", "url": "https://www.icij.org/investigations/offshore/"}
+{"id": 212, "key": "ICIJ-PA", "title": "Panama Papers (2016)", "url": "https://www.icij.org/investigations/panama-papers/"}
+{"id": 213, "key": "ICIJ-BA", "title": "Bahamas Leaks (2016)", "url": "https://offshoreleaks.icij.org/investigations/bahamas-leaks"}
+{"id": 214, "key": "ICIJ-PP", "title": "Paradise Papers (2017)", "url": "https://www.icij.org/investigations/paradise-papers/"}
+{"id": 215, "key": "ICIJ-PAP", "title": "Pandora Papers (2021)", "url": "https://www.icij.org/investigations/pandora-papers/"}
+{"id": 217, "key": "CA-FACFOA-UKR", "title": "Freezing Assets of Corrupt Foreign Officials (Ukraine) Regulations (SOR/2014-44)", "url": "https://laws-lois.justice.gc.ca/eng/regulations/SOR-2014-44/index.html"}
+{"id": 218, "key": "US-DOS-CU-REA", "title": "List of Restricted Entities and Subentities Associated With Cuba", "url": "https://www.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list"}
+{"id": 220, "key": "UK-CW", "title": "UK sanctions relating to chemical weapons", "url": "https://www.gov.uk/government/collections/uk-chemical-weapons-sanctions"}
+{"id": 221, "key": "UK-CT", "title": "UK sanctions relating to domestic counter-terrorism", "url": "https://www.gov.uk/government/collections/uk-international-counter-terrorism-sanctions"}
+{"id": 222, "key": "UK-CYB", "title": "UK sanctions relating to cyber activity", "url": "https://www.gov.uk/government/collections/uk-cyber-sanctions"}
+{"id": 223, "key": "UK-AC", "title": "UK sanctions relating to global anti-corruption", "url": "https://www.gov.uk/government/collections/uk-sanctions-relating-to-global-anti-corruption"}
+{"id": 224, "key": "UK-HR", "title": "UK sanctions relating to global human rights", "url": "https://www.gov.uk/government/collections/uk-global-human-rights-sanctions"}
+{"id": 225, "key": "UK-ICT", "title": "UK sanctions relating to international counter-terrorism", "url": "https://www.gov.uk/government/collections/uk-international-counter-terrorism-sanctions"}
+{"id": 226, "key": "UK-ISIL", "title": "UK sanctions relating to ISIL (Da\u2019esh) and Al-Qaida", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-isil-daesh-and-al-qaida"}
+{"id": 227, "key": "UK-DRILL", "title": "UK sanctions relating to unauthorized drilling activities", "url": "https://www.gov.uk/government/collections/uk-sanctions-relating-to-unauthorised-drilling-activities"}
+{"id": 228, "key": "UK-FO", "title": "Financial Sanctions, UK freezing orders", "url": "https://www.gov.uk/government/publications/financial-sanctions-uk-freezing-orders"}
+{"id": 229, "key": "UK-AFG", "title": "UK sanctions relating to Afghanistan", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-afghanistan"}
+{"id": 230, "key": "UK-AA", "title": "UK sanctions relating to Armenia and Azerbaijan", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-armenia-and-azerbaijan"}
+{"id": 231, "key": "UK-BLR", "title": "UK sanctions relating to the Republic of Belarus", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-the-republic-of-belarus"}
+{"id": 232, "key": "UK-BH", "title": "UK sanctions relating to Bosnia and Herzegovina", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-bosnia-and-herzegovina"}
+{"id": 233, "key": "UK-CAR", "title": "UK sanctions relating to the Central African Republic", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-the-central-african-republic"}
+{"id": 234, "key": "UK-CH", "title": "UK arms embargo on mainland China and Hong Kong", "url": "https://www.gov.uk/government/collections/uk-arms-embargo-on-mainland-china-and-hong-kong"}
+{"id": 235, "key": "UK-DPRK", "title": "UK sanctions relating to the Democratic People\u2019s Republic of Korea", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-the-democratic-peoples-republic-of-korea"}
+{"id": 236, "key": "UK-DRC", "title": "UK sanctions relating to the Democratic Republic of the Congo", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-the-democratic-republic-of-the-congo"}
+{"id": 237, "key": "UK-GU", "title": "UK sanctions relating to Guinea", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-guinea"}
+{"id": 238, "key": "UK-GNB", "title": "UK sanctions relating to the Republic of Guinea-Bissau", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-the-republic-of-guinea-bissau"}
+{"id": 239, "key": "UK-HT", "title": "UK Sanctions relating to Haiti", "url": "https://www.gov.uk/government/collections/uk-sanctions-relating-to-haiti"}
+{"id": 240, "key": "UK-IRAN", "title": "UK sanctions relating to Iran", "url": "https://www.gov.uk/government/collections/uk-sanctions-relating-to-iran"}
+{"id": 241, "key": "UK-IRAN-NW", "title": "UK sanctions relating to Iran (nuclear weapons)", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-iran-relating-to-nuclear-weapons"}
+{"id": 242, "key": "UK-IRQ", "title": "UK sanctions relating to Iraq", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-iraq"}
+{"id": 243, "key": "UK-LEB", "title": "UK sanctions relating to Lebanon", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-lebanon"}
+{"id": 244, "key": "UK-LEB-RH", "title": "UK sanctions relating to Lebanon (Assassination of Rafiq Hariri and others)", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-lebanon-assassination-of-rafiq-hariri-and-others"}
+{"id": 245, "key": "UK-LBY", "title": "UK sanctions relating to Libya", "url": "https://www.gov.uk/government/collections/uk-sanctions-relating-to-libya"}
+{"id": 246, "key": "UK-MLI", "title": "UK sanctions relating to Mali", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-mali"}
+{"id": 247, "key": "UK-MMR", "title": "UK sanctions relating to Myanmar", "url": "https://www.gov.uk/government/collections/uk-sanctions-relating-to-myanmar"}
+{"id": 248, "key": "UK-NIC", "title": "UK sanctions relating to Nicaragua", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-nicaragua"}
+{"id": 249, "key": "UK-RUS", "title": "UK sanctions relating to Russia", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-russia"}
+{"id": 250, "key": "UK-SOM", "title": "UK sanctions relating to Somalia", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-somalia"}
+{"id": 251, "key": "UK-SSD", "title": "UK sanctions relating to South Sudan", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-south-sudan"}
+{"id": 252, "key": "UK-SDN", "title": "UK sanctions relating to Sudan", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-sudan"}
+{"id": 253, "key": "UK-SYR", "title": "UK sanctions relating to Syria", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-syria"}
+{"id": 254, "key": "UK-SYR-CP", "title": "UK sanctions relating to Syria cultural property", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-syria-relating-to-cultural-property"}
+{"id": 255, "key": "UK-VEN", "title": "UK sanctions relating to Venezuela", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-venezuela"}
+{"id": 256, "key": "UK-YEM", "title": "UK sanctions relating to Yemen", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-yemen"}
+{"id": 257, "key": "UK-ZIM", "title": "UK sanctions relating to Zimbabwe", "url": "https://www.gov.uk/government/collections/uk-sanctions-on-zimbabwe"}
+{"id": 258, "key": "US-MCCAIN-1286", "title": "Section 1286 of the John S. McCain National Defense Authorization Act for Fiscal Year 2019 (Public Law 115 - 232)", "url": "https://media.defense.gov/2023/Jun/29/2003251160/-1/-1/1/COUNTERING-UNWANTED-INFLUENCE-IN-DEPARTMENT-FUNDED-RESEARCH-AT-INSTITUTIONS-OF-HIGHER-EDUCATION.PDF"}
+{"id": 259, "key": "EU-AFG", "title": "EU Restrictive measures imposed with respect to the Taliban", "url": "https://sanctionsmap.eu/#/main/details/1/"}
+{"id": 260, "key": "EU-CAF", "title": "Restrictive measures in view of the situation in the Central African Republic", "url": "https://sanctionsmap.eu/#/main/details/9/"}
+{"id": 261, "key": "EU-GNB", "title": "EU Restrictive measures in view of the situation in Guinea-Bissau", "url": "https://sanctionsmap.eu/#/main/details/15/"}
+{"id": 262, "key": "EU-IRQ", "title": "EU Restrictive measures on Iraq", "url": "https://sanctionsmap.eu/#/main/details/19/"}
+{"id": 263, "key": "EU-RUS", "title": "EU Sanctions against Russia", "url": "https://sanctionsmap.eu/#/main/details/61,26/"}
+{"id": 264, "key": "EU-SOM", "title": "EU Restrictive measures in view of the situation in Somalia", "url": "https://sanctionsmap.eu/#/main/details/29/"}
+{"id": 265, "key": "EU-YEM", "title": "EU Restrictive measures in view of the situation in Yemen", "url": "https://sanctionsmap.eu/#/main/details/39/"}
+{"id": 266, "key": "EU-ZWE", "title": "EU Restrictive measures in view of the situation in Zimbabwe", "url": "https://sanctionsmap.eu/#/main/details/40/"}
+{"id": 267, "key": "EU-IRN", "title": "EU sanctions against Iran", "url": "https://sanctionsmap.eu/#/main/details/17,18,56/"}
+{"id": 268, "key": "EU-UKR", "title": "EU sanctions related to Ukraine", "url": "https://sanctionsmap.eu/#/main/details/35,36/"}
+{"id": 269, "key": "EU-RUSDA", "title": "EU Restrictive measures in view of Russia's destabilising activities", "url": "https://sanctionsmap.eu/#/main/details/63/"}
+{"id": 270, "key": "RU-MFA", "title": "US citizens under personal sanctions, including a ban on entry into the Russian Federation", "url": "https://mid.ru/ru/maps/us/1814243/"}
+{"id": 271, "key": "US-CAPTA", "title": "Correspondent Account or Payable-Through Account Sanctions List", "url": "https://ofac.treasury.gov/other-ofac-sanctions-lists"}
+{"id": 272, "key": "US-DOS-ISN", "title": "Nonproliferation Sanctions (ISN)", "url": "https://www.state.gov/bureau-of-international-security-and-nonproliferation/nonproliferation-sanctions"}

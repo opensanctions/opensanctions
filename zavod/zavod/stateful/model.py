@@ -1,3 +1,5 @@
+from typing import Optional, cast
+
 from sqlalchemy import (
     Table,
     Column,
@@ -8,7 +10,12 @@ from sqlalchemy import (
     JSON,
 )
 from nomenklatura.statement.db import make_statement_table
-
+from sqlalchemy.orm import (
+    MappedAsDataclass,
+    DeclarativeBase,
+    Mapped,
+    mapped_column,
+)
 from zavod.db import meta, get_engine
 
 KEY_LEN = 255
@@ -34,10 +41,28 @@ position_table = Table(
 statement_table = make_statement_table(meta)
 
 
+class Base(MappedAsDataclass, DeclarativeBase):
+    metadata = meta
+
+
+class Program(Base):
+    __tablename__ = "program"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    key: Mapped[str] = mapped_column(Unicode(KEY_LEN), nullable=False, unique=True)
+    title: Mapped[Optional[str]] = mapped_column(Unicode(VALUE_LEN), nullable=True)
+    url: Mapped[Optional[str]] = mapped_column(Unicode(VALUE_LEN), nullable=True)
+
+
 def create_db() -> None:
     """Create all stateful database tables."""
     engine = get_engine()
-    position_table.metadata = meta
-    position_table.create(bind=engine, checkfirst=True)
-    statement_table.metadata = meta
-    statement_table.create(bind=engine, checkfirst=True)
+    meta.create_all(
+        bind=engine,
+        checkfirst=True,
+        tables=[
+            position_table,
+            statement_table,
+            cast(Table, Program.__table__),
+        ],
+    )

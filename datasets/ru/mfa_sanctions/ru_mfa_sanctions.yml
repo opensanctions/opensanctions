@@ -40,8 +40,3 @@ assertions:
   max:
     schema_entities:
       Person: 3000
-lookups:
-  sanction.program:
-    options:
-      - match: RU-MFA
-        value: RU-MFA
