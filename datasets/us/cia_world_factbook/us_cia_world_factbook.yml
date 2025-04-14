@@ -184,6 +184,23 @@ lookups:
           - role: Acting President
             name: HAN Duck-soo
             start_date: 24 March 2025
+      - match: "Prime Minister HAN Duck-soo became Acting President on 14 December 2024 after the National Assembly impeached and suspended President YOON Suk Yeol (inaugurated 10 May 2022) from office"
+        holders:
+          - role: Acting President
+            name: HAN Duck-soo
+            start_date: 14 December 2024
+      - match: "on 4 April 2025, the Constitutional Court confirmed YOON's impeachment and removal from office"
+        holders: []
+      - match: "under Article 68 of the Constitution, a new presidential election must be held within 60 days of the court's ruling"
+        holders: []
+      - match: "Prime Minister HAN Duck-soo became Acting President on 14 December 2024 after the National Assembly impeached and suspended President YOON Suk Yeol (inaugurated 10 May 2022) from office"
+        holders:
+          - role: Acting President
+            name: HAN Duck-soo
+            start_date: 14 December 2024
+          - role: President
+            name: YOON Suk Yeol
+            end_date: 14 December 2024
       # San Marino
       - match: "co-chiefs of state Captains Regent Alessandro ROSSI and Milena GASPERONI (for the period 1 April 2024 - 30 September 2024)"
         holders:
@@ -200,6 +217,16 @@ lookups:
           - role: Chief of state
             name: TUIMALEALI'IFANO Va’aletoa Sualauvi II
             start_date: 21 July 2017
+      - match: "co-chiefs of state Captains Regent Denise BRONZETTI and Italo RIGHI (for the period 1 April 2025 - 30 September 2025)"
+        holders:
+          - role: Co-chief of state
+            name: Denise BRONZETTI
+            start_date: 1 April 2025
+            end_date: 30 September 2025
+          - role: Co-chief of state
+            name: Italo RIGHI
+            start_date: 1 April 2025
+            end_date: 30 September 2025
       # Russia
       - match: "Deputy Premiers Yuriy TRUTNEV (since 31 August 2013), Tatiana Alekseyevna GOLIKOVA (since 18 May 2018), Dmitriy Yuriyevich GRIGORENKO, Viktoriya Valeriyevna ABRAMCHENKO, Aleksey Logvinovich OVERCHUK, Marat Shakirzyanovich KHUSNULLIN, Dmitriy Nikolayevich CHERNYSHENKO (all since 21 January 2020), Aleksandr NOVAK (since 10 November 2020), Denis Valentinovich MANTUROV (since 15 July 2022)"
         holders:
@@ -415,6 +442,19 @@ lookups:
         holders:
           - role: Acting Prime Minister
             name: Ivica DACIC
+      - match: "Acting Prime Minister Milos VUCEVIC (in office since 2 May 2024"
+        holders:
+          - role: Prime Minister
+            name: Milos VUCEVIC
+            start_date: 2 May 2024
+      - match: "resigned on 28 January 2025 but will remain in an acting capacity until a new prime minister is elected)"
+        holders:
+          - role: Prime Minister
+            name: Milos VUCEVIC
+            end_date: 28 January 2025
+          - role: Acting Prime Minister
+            name: Milos VUCEVIC
+            start_date: 28 January 2025
       # Belgium
       - match: "Deputy Prime Ministers Paul Van TIGCHELT (since 22 October 2023), Vincent VAN PETEGHEM, Frank VANDENBROUCKE, Pierre-Yves DERMAGNE, Petra DE SUTTER, Georges GILKINET (all since 1 October 2020), David CLARINVAL (since 15 July 2022)"
         holders:
