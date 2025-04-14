@@ -55,7 +55,10 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     data = http_get(context, url, cache_days=45)
     if data is None:
         return
-    person = context.make("Person")
+
+    # TODO(Leon Handreke): Clean this up, it seems they added lots of Companies to this list of persons.
+    person = context.make("LegalEntity")
+
     _, officer_id = url.rsplit("/", 1)
     person.id = context.make_slug(officer_id)
 
@@ -65,6 +68,8 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     source_url = urljoin(WEB_URL, links.get("self"))
     person.add("sourceUrl", source_url)
 
+    # TODO(Leon Handreke): Clean this up, it seems they added lots of Companies to this list of persons.
+    person.add_cast("Person", "birthDate", data.pop("date_of_birth", None))
     h.apply_name(
         person,
         first_name=data.pop("forename", None),
@@ -77,7 +82,6 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     nationality = data.pop("nationality", None)
     if nationality is not None:
         person.add("nationality", nationality.split(","))
-    person.add("birthDate", data.pop("date_of_birth", None))
 
     address_data = listing.get("address", {}) or {}
     address = h.make_address(
