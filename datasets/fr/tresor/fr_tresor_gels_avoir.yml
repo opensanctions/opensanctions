@@ -372,6 +372,10 @@ lookups:
       - match: "Date de création: 1989"
         props:
           incorporationDate: 1989
+      - match: "Lieu d'enregistrement: Shiraz, province de Fars, Iran"
+        props:
+          jurisdiction: ir
+          address: "Shiraz, province de Fars, Iran"
 
   ####################################################################################################
   ####################################################################################################
