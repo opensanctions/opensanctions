@@ -78,7 +78,7 @@ def crawl_common(
         res = context.lookup("identifier_type", ident_id)
         if res is None:
             context.log.warn(
-                "Unknown identifier type", id=ident_id, values=ident_values
+                "Unknown identifier type", id=ident_id, values=ident_values, name=name
             )
         elif res.prop:
             note_long_identifier(entity, ident_values)
