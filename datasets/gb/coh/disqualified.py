@@ -90,16 +90,20 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     person.add_cast("Person", "title", data.pop("title", None))
 
     address_data = listing.get("address", {}) or {}
-    address = h.make_address(
-        context,
-        full=listing.get("address_snippet"),
-        street=address_data.get("address_line_1"),
-        street2=address_data.get("premises"),
-        city=address_data.get("locality"),
-        postal_code=address_data.get("postal_code"),
-        region=address_data.get("region"),
-        # country_code=person.first("nationality"),
-    )
+    address_components = {
+        "full": listing.get("address_snippet"),
+        "street": address_data.get("address_line_1"),
+        "street2": address_data.get("premises"),
+        "city": address_data.get("locality"),
+        "postal_code": address_data.get("postal_code"),
+        "region": address_data.get("region"),
+    }
+    cleaned_address_components = {
+        k: v
+        for k, v in address_components.items()
+        if v is not None and v.lower() != "not available"
+    }
+    address = h.make_address(context, **cleaned_address_components)
     h.copy_address(person, address)
 
     for disqual in data.pop("disqualifications", []):
