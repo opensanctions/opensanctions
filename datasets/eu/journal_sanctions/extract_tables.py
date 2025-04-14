@@ -4,9 +4,25 @@ from urllib.parse import parse_qs, urlparse
 import click
 import requests
 from lxml import html
-from normality import collapse_spaces
+from normality import collapse_spaces, slugify
 
 from zavod import helpers as h
+
+
+def extract_identifying(identifying_information: str, default: str) -> dict[str, str]:
+    other = []
+    result = {}
+    for line in identifying_information.split("\n"):
+        if ":" in line:
+            key, value = line.split(":", 1)
+            key = slugify(key, sep="_")
+            result[key] = value.strip()
+        else:
+            if line:
+                other.append(line.strip())
+    if len(other) > 0:
+        result["other"] = "\n".join(other)
+    return result
 
 
 @click.command()
@@ -35,12 +51,29 @@ def extract_tables(url: str) -> None:
             print("Skipping empty table", i, sample, "...")
             continue
 
+        fieldnames = [None, "type"]
         with open(filename, "w") as f:
-            writer = csv.DictWriter(f, fieldnames=rows[0].keys())
+            for row in rows:
+                row.update({k: v.text_content().strip() for k, v in row.items()})
+                row["type"] = ""
+                row.update(extract_identifying(row.pop("identifying_information"), ""))
+
+                for key in row.keys():
+                    if key not in fieldnames:
+                        fieldnames.append(key)
+
+            if "reasons" in fieldnames:
+                fieldnames.remove("reasons")
+                fieldnames.append("reasons")
+            if "date_of_listing" in fieldnames:
+                fieldnames.remove("date_of_listing")
+                fieldnames.append("date_of_listing")
+
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             for row in rows:
-                row = h.cells_to_str(row)
                 writer.writerow(row)
+
         print(f"Extracted table {i} to {filename}")
 
 
