@@ -83,6 +83,7 @@ lookups:
           - "reg:cn"
           - "reg:kz"
           - "reg:ua2"
+          - "reg:bel3"  # Belarus
         prop: registrationNumber
       - match:
           - "doc:passport"
