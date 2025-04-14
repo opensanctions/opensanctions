@@ -89,7 +89,6 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
 
     person.add_cast("Person", "title", data.pop("title", None))
 
-
     address_data = listing.get("address", {}) or {}
     address = h.make_address(
         context,
