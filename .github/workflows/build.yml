@@ -57,7 +57,7 @@ jobs:
       - name: Get any modified dataset files
         id: changed-files
         # pinned v46.0.1
-        uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c
         with:
           files: "datasets/**"
       - name: Crawl modified datasets
