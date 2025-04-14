@@ -83,15 +83,24 @@ lookups:
           - Not Disclosed
         value: null
       - match: Botswanan
-        value: Botswana
+        value: BW
       - match: Citizen Of Seychelles
-        value: Seychelles
+        value: SC
       - match: Brithish
-        value: Great Britain
-      - match: South Sudanese
-        value: South Sudan
+        value: GB
+      - match:
+          - South Sudanese
+          - South Sudaneseese
+        value: SS
       - match: Hong Konger
-        value: Hong Kong
+        value: HK
+      - match: Ukranian
+        value: UA
+      - match: Citizen Of Bosnia And Herzegovina
+        value: BA
+      - match: Guinea-Bissuan
+        value: GW
+
 
   type.date:
     options:
