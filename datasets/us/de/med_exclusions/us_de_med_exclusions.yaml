@@ -118,6 +118,7 @@ lookups:
           - 1750563260
           - 1839329840
           - 00G514380
+          - 1538400000
         prop: registrationNumber
       - match: 12354634983
         value: 1235464983
@@ -305,3 +306,10 @@ lookups:
         values:
           - PN311543
           - 342620
+      - match: "PC0000956(DE) PC004240 (PA) PRC14110(DC)"
+        values:
+          - PC0000956
+          - PC004240
+          - PRC14110
+      - match: "LH-\n0010266"
+        values: ["LH-0010266"]
