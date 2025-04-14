@@ -81,8 +81,10 @@ def extract_tables(url: str) -> None:
         except Exception as e:
             print(f"Error extracting table {i}: {type(e)} {str(e)[:150]}...")
             continue
-    
-    print("\nRemember to make sure you've got all tables, and also changes listed not in tables.")
+
+    print(
+        "\nRemember to make sure you've got all tables, and also changes listed not in tables."
+    )
 
 
 if __name__ == "__main__":
