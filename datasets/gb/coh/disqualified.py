@@ -69,19 +69,26 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     person.add("sourceUrl", source_url)
 
     # TODO(Leon Handreke): Clean this up, it seems they added lots of Companies to this list of persons.
+    nationality = data.pop("nationality", "")
     person.add_cast("Person", "birthDate", data.pop("date_of_birth", None))
-    h.apply_name(
-        person,
-        first_name=data.pop("forename", None),
-        last_name=data.pop("surname", None),
-        middle_name=data.pop("other_forenames", None),
-        lang="eng",
-    )
-    person.add("title", data.pop("title", None))
-
-    nationality = data.pop("nationality", None)
-    if nationality is not None:
+    if person.schema.is_a("Person"):
+        h.apply_name(
+            person,
+            first_name=data.pop("forename", None),
+            last_name=data.pop("surname", None),
+            middle_name=data.pop("other_forenames", None),
+            lang="eng",
+        )
         person.add("nationality", nationality.split(","))
+
+    else:
+        person.add("name", data.pop("forename", None))
+        person.add("name", data.pop("surname", None))
+        person.add("name", data.pop("other_forenames", None))
+        person.add("country", nationality.split(","))
+
+    person.add_cast("Person", "title", data.pop("title", None))
+
 
     address_data = listing.get("address", {}) or {}
     address = h.make_address(
