@@ -54,7 +54,7 @@ def crawl(context: Context) -> None:
     for item in h.parse_pdf_table(
         context,
         path,
-        headers_per_page=True,
+        headers_per_page=False,
         page_settings=lambda page: (page, PAGE_SETTINGS),
     ):
         crawl_item(item, context)
