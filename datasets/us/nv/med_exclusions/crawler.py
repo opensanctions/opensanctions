@@ -3,6 +3,7 @@ from rigour.mime.types import PDF
 from pdfplumber.page import Page
 
 from zavod import Context, helpers as h
+from zavod.shed import zyte_api
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -88,13 +89,20 @@ def page_settings(page: Page):
 
 
 def crawl_pdf_url(context: Context):
-    doc = context.fetch_html(context.data_url)
+    pdf_link_xpath = "//*[text()='NV Exclusion List ']"
+    doc = zyte_api.fetch_html(
+        context, context.data_url, pdf_link_xpath, geolocation="US"
+    )
+    # doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
-    return doc.xpath("//*[text()='NV Exclusion List ']")[0].get("href")
+    return doc.xpath(pdf_link_xpath)[0].get("href")
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.pdf", crawl_pdf_url(context))
+
+    _, _, _, path = zyte_api.fetch_resource(
+        context, "source.pdf", crawl_pdf_url(context), PDF, geolocation="US"
+    )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
     for item in h.parse_pdf_table(
