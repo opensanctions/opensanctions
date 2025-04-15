@@ -78,5 +78,13 @@ assertions:
 lookups:
   type.identifier:
     options:
-      match: N/A
-      value: null
+      - match: N/A
+        value: null
+      - match: "00A400330; 00A400331; 00A400332; 00A400333; 00A400334; 1770766750"
+        values:
+          - 00A400330
+          - 00A400331
+          - 00A400332
+          - 00A400333
+          - 00A400334
+          - 1770766750
