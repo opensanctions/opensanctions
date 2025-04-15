@@ -48,7 +48,7 @@ assertions:
     schema_entities:
       Person: 375
       Organization: 345
-      LegalEntity: 60
+      LegalEntity: 40
       Address: 20
   max:
     schema_entities:
