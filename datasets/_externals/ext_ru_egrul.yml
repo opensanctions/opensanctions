@@ -1,5 +1,5 @@
 type: external
-title: Russian Unified State Register of Legal Entities (as at Jan 1, 2022)
+title: Russian Unified State Register of Legal Entities
 entry_point: zavod.runner.local_enricher:enrich
 full_dataset: ru_egrul
 disabled: false
@@ -7,7 +7,7 @@ hidden: false
 coverage:
   frequency: weekly
   start: 2022-01-01
-  end: 2022-01-01
+  end: 2025-01-14
 exports:
   - statistics.json
   - entities.delta.json
@@ -28,11 +28,11 @@ description: |
   others). The registry data must be purchased from the tax authority, but a
   full version of it has been released online by a Russian IT entrepreneur.
 
-  **Note:** This snapshot is dated 2022-01-01, in order to meet a compromise
-  between using fresh data, and avoiding information loss via intra-war data
-  removals.
-
-  The Government of the Russian Federation has [limited reporting duties for
+  This dataset contains entities up to the latest snapshot available to
+  OpenSanctions. Additionally, it is augmented with historic ownership and
+  directorship data, sourced from snapshots of the source database dating back to
+  2022-01-01. This is to compensate any information loss due to intra-war data
+  removals, as the Government of the Russian Federation has [limited reporting duties for
   legal entities that are subject to foreign restrictive measures](http://publication.pravo.gov.ru/Document/View/0001202203180028?index=1).
 url: https://egrul.itsoft.ru/
 publisher:
