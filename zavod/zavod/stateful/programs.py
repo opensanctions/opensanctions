@@ -8,13 +8,13 @@ from zavod import Context
 from zavod.stateful.model import Program
 
 
-# Since we'll only ever have a few positions, it's cheaper to just read them all once.
+# Since we'll only ever have a few programs, it's cheaper to just read them all once.
 @functools.cache
-def get_all_positions_by_key(context: Context) -> dict[str, Program]:
+def get_all_programs_by_key(context: Context) -> dict[str, Program]:
     session = Session(context.conn)
     programs = session.scalars(select(Program)).all()
     return {p.key: p for p in programs}
 
 
 def get_program_by_key(context: Context, program_key: str) -> Optional[Program]:
-    return get_all_positions_by_key(context).get(program_key, None)
+    return get_all_programs_by_key(context).get(program_key, None)

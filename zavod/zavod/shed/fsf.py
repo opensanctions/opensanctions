@@ -62,7 +62,9 @@ def parse_sanctions(context: Context, entity: Entity, entry: Element) -> None:
         sanction = h.make_sanction(
             context,
             entity,
-            program_key=h.lookup_sanction_program_key(source_program_key),
+            # Map the source program key to the OpenSanctions program key using a lookup (e.g. BE -> BE-FOD-NAT)
+            source_program_key=source_program_key,
+            program_key=h.lookup_sanction_program_key(context, source_program_key),
             key=url,
         )
         sanction.set("sourceUrl", url)

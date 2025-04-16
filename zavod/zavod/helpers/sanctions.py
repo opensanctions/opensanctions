@@ -24,6 +24,7 @@ def make_sanction(
     entity: Entity,
     key: Optional[str] = None,
     program_name: Optional[str] = None,
+    source_program_key: Optional[str] = None,
     program_key: Optional[str] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
@@ -39,6 +40,7 @@ def make_sanction(
         key: An optional key to be included in the ID of the sanction.
         program_name: An optional program name.
         program_key: An optional OpenSanction program key.
+        source_program_key: Program key at the source, will be set as the original value for programId.
         start_date: An optional start date for the sanction.
         end_date: An optional end date for the sanction.
 
@@ -62,7 +64,7 @@ def make_sanction(
     if program_key is not None:
         program = programs.get_program_by_key(context, program_key)
         if program:
-            sanction.set("programId", program_key)
+            sanction.set("programId", program_key, original_value=source_program_key)
             sanction.add("programUrl", program.url)
         else:
             context.log.warn(f"Program with key {program_key!r} not found.")
