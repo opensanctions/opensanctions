@@ -313,11 +313,9 @@ def make_directorship(
         "director": director,
         "organization_id": company["id"],
     }
-    start_date_el = role.find("./ГРНДатаПерв")
+    start_date_el = el.find("./ГРНДатаПерв")
     if start_date_el is not None:
-        directorship["start_date"] = date.fromisoformat(
-            start_date_el.find("./ГРНДатаПерв").get("ДатаЗаписи")
-        )
+        directorship["start_date"] = date.fromisoformat(start_date_el.get("ДатаЗаписи"))
 
     return directorship
 
