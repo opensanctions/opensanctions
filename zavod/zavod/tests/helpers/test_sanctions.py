@@ -1,10 +1,13 @@
 from datetime import timedelta
 
 import pytest
+import structlog
+from sqlalchemy.orm import Session
 
 from zavod import Entity, settings
 from zavod.context import Context
 from zavod.helpers.sanctions import make_sanction, is_active
+from zavod.stateful.model import Program
 
 
 def test_sanctions_helper(vcontext: Context):
@@ -22,6 +25,47 @@ def test_sanctions_helper(vcontext: Context):
 
     sanction3 = make_sanction(vcontext, person, key="other")
     assert sanction.id != sanction3.id
+
+
+def test_sanctions_helper_with_program(vcontext: Context):
+    with Session(vcontext.conn) as session:
+        session.add(
+            Program(
+                id=1,
+                key="OS-TEST",
+                title="Blabla",
+                url="http://important.authority/test",
+            )
+        )
+        session.commit()
+
+    person = vcontext.make("Person")
+    person.id = "jeff"
+    sanction = make_sanction(
+        vcontext, person, program_name="Test Program", program_key="OS-TEST"
+    )
+
+    assert sanction.get("program")[0] == "Test Program"
+    assert sanction.get("programUrl") == ["http://important.authority/test"]
+    assert sanction.get("programId")[0] == "OS-TEST"
+
+
+def test_sanctions_helper_with_unknown_program(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+
+    with structlog.testing.capture_logs() as caplogs:
+        sanction = make_sanction(
+            vcontext, person, program_name="Test Program", program_key="OS-TEST"
+        )
+
+    assert sanction.get("program")[0] == "Test Program"
+    assert sanction.get("programUrl") == []
+    assert sanction.get("programId") == []
+    assert {
+        "event": "Program with key 'OS-TEST' not found.",
+        "log_level": "warning",
+    } in caplogs
 
 
 @pytest.fixture

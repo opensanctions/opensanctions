@@ -57,24 +57,16 @@ def make_sanction(
     sanction.add("authority", dataset.publisher.name)
     sanction.add("sourceUrl", dataset.url)
 
-    if program_name is not None:
-        sanction.set("program", program_name)
+    sanction.set("program", program_name)
 
     if program_key is not None:
         program = programs.get_program_by_key(context, program_key)
-        if program is not None:
-            sanction.add("programId", program_key)
-            if not program_name:
-                sanction.set("program", program.title)
-            if program.url:
-                sanction.add("programUrl", program.url)
-            else:
-                sanction.add(
-                    "programUrl",
-                    f"https://www.opensanctions.org/programs/{program_key}",
-                )
+        if program:
+            sanction.set("programId", program_key)
+            sanction.add("programUrl", program.url)
         else:
-            context.log.warn(f"Program key {program_key!r} not found.")
+            context.log.warn(f"Program with key {program_key!r} not found.")
+
     if start_date is not None:
         h.apply_date(sanction, "startDate", start_date)
     if end_date is not None:
