@@ -563,6 +563,7 @@ lookups:
           - "RELATOR(A) ABOGADO(A)"
           - "RESOLUTOR"
           - "SARGENTO SEGUNDO"
+          - "SARGENTO PRIMERO"
           - "SECR. ABOGADO DEL FISCAL JUDICIAL"
           - "SECR. ABOGADO DEL PRESIDENTE"
           - "SECRETARIA"
@@ -747,3 +748,5 @@ lookups:
           - ANALISTA DE GESTION DEL CAMBIO
           - ANALISTA DE LICITACIONES
           - ANALISTA DE PERSONAL
+          - MAYOR
+          - ACTIVO FIJO
