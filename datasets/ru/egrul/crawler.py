@@ -5,6 +5,7 @@ import re
 from typing import Dict, Set, Any, Optional, List, Tuple
 
 from zavod import Context, Entity
+from zavod import helpers as h
 from zavod.shed.internal_data import fetch_internal_data, list_internal_data
 
 LOCAL_BUCKET_PATH = "/Users/leon/internal-data/"
@@ -60,7 +61,14 @@ def emit_person(context: Context, row: dict[str, Any]) -> Entity:
     entity = context.make("Person")
     entity.id = row["id"]
 
-    entity.add("name", row["first_name"])
+    entity.add(
+        "name",
+        h.make_name(
+            first_name=row["first_name"],
+            patronymic=row["father_name"],
+            last_name=row["last_name"],
+        ),
+    )
     entity.add("firstName", row["first_name"])
     entity.add("fatherName", row["father_name"])
     entity.add("lastName", row["last_name"])
