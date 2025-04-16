@@ -7,7 +7,6 @@ hidden: false
 coverage:
   frequency: weekly
   start: 2022-01-01
-  end: 2025-01-14
 exports:
   - statistics.json
   - entities.delta.json
