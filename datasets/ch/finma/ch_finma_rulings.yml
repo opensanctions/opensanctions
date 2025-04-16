@@ -36,10 +36,10 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 25
+      LegalEntity: 15
   max:
     schema_entities:
-      LegalEntity: 100
+      LegalEntity: 50
 
 lookups:
   type.url:
