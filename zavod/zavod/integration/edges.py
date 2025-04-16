@@ -1,30 +1,32 @@
 """
 Deduplicate edge entities in the graph.
 
-Rules
+Rules implemented:
+
 - Same source, target, schema and temporal extent (and extra keys specified for some schemata)
 - Merge edges with same temporal start and no end, into one of the edges with temporal end
   - Only for allow-listed schemata - see that for why
 
-Rules explored but likely problematic without further investigation
+Rules explored but likely problematic without further investigation:
+
 - Merge edges without temporal extent into one of the edges with temporal extent
   - Family - more specific fiancee might end less specific spouse prematurely.
   - Directorship - might merge "is signatory for" without temporal extent into "is director of" with temporal extent
 
-In future this could also propose candidates for human decisions.
+This could also propose candidates for human decisions.
 """
 
 from collections import defaultdict
-from typing import Dict, NamedTuple, Optional, Set, Tuple, List
+from typing import Dict, List, NamedTuple, Optional, Set, Tuple
 
-from nomenklatura import Resolver
-from nomenklatura.resolver import Identifier
-from nomenklatura.judgement import Judgement
-from followthemoney.schema import Schema
 from followthemoney.property import Property
+from followthemoney.schema import Schema
+from nomenklatura import Resolver
+from nomenklatura.judgement import Judgement
+from nomenklatura.resolver import Identifier
 
-from zavod.logs import get_logger
 from zavod.entity import Entity
+from zavod.logs import get_logger
 from zavod.store import View
 
 log = get_logger(__name__)
@@ -47,25 +49,26 @@ class Key(NamedTuple):
     role: Optional[Tuple[str, ...]] = None
 
 
-# List schemata in order of specificity. We use this ordering to pick the most specific matching schema
+# List schemata in decreasing order of specificity. We use this ordering to pick the most specific matching schema
 EXTRA_KEY_PROPS = {
+    # Don't mix different values/units of ownership
     "Ownership": [
         "percentage",
         "sharesCount",
         "sharesValue",
         "sharesCurrency",
-    ],  # Don't mix different values of these
-    "UnknownLink": ["role"],
-    "Value": ["amount", "currency", "amountUsd"],  # Don't mix different values of these
+    ],
     # It's probably nice to be able to keep different UnknownLinks separate
     # - especially ones without temporal extent -
     # considering role is basically all we have and they could be quite different things
+    "UnknownLink": ["role"],
+    "Value": ["amount", "currency", "amountUsd"],  # Don't mix different values/units
     # "Membership": ["role"],
-    # Directorship": ["role"]  # There aren't that many kinds of directorships, and mixing them when there's no temporal extent isn't a trainsmash
+    # Directorship": ["role"]  # When the temporal extent matches, it seems safe to ignore role
     # "Employment": ["role"]  # Similar to Directorship
-    # "Associate": ["relationship"],  # Maybe deserves similar treatment to UnknownLink, but also feels similar to Representation
-    # "Representation": ["role"],  # It probably doesn't do harm to merge these
-    # "Family": ["relationship"],  # you're probably only going to be family of someone in one way ever, except maybe fiance, partner, spouse, ex, which is ok mixing
+    # "Associate": ["relationship"],
+    # "Representation": ["role"],
+    # "Family": ["relationship"],  # when the temporal extent matches, we can ignore relationship.
     # "Succession": []  # How many ways and times can one entity succeed another in this data?
 }
 EXTRA_KEY_PROPS_COMMON_START = EXTRA_KEY_PROPS.copy()
@@ -73,7 +76,7 @@ EXTRA_KEY_PROPS_COMMON_START = EXTRA_KEY_PROPS.copy()
 EXTRA_KEY_PROPS_COMMON_START["Directorship"] = ["role"]
 ALLOW_COMMON_START = {
     "Occupancy",  # Cleans up cases where one source has an end date and another source doesn't.
-    "Directorship",
+    "Directorship",  # With the caveat of also considering role
     "Ownership",  # Merges e.g. directly consolidated by, with ultimately consolidated by
 }
 
@@ -139,7 +142,7 @@ def group_common_start(
     merge with that one.
 
     If there are more than one non-blank end keys, we don't know which is the correct one
-    to merge with.
+    to merge with, so we don't merge any.
     """
     for common_start_key, values in common_start.items():
         if common_start_key.schema.name not in ALLOW_COMMON_START:
@@ -164,7 +167,7 @@ def group_common_start(
         groups[no_end_keys[0]].append(other_id)
 
 
-def group_relations(resolver: Resolver[Entity], view: View) -> Dict[Key, List[str]]:
+def group_edges(resolver: Resolver[Entity], view: View) -> Dict[Key, List[str]]:
     groups: Dict[Key, List[str]] = defaultdict(list)
     common_start: Dict[Key, Set[Key]] = defaultdict(set)
 
@@ -229,9 +232,9 @@ def merge_groups(
             ).id
             merged_count += 1
         cluster_count += 1
-    log.info("Merged %s relations into %s clusters" % (merged_count, cluster_count))
+    log.info("Merged %s edge entities into %s clusters" % (merged_count, cluster_count))
 
 
-def dedupe_relations(resolver: Resolver[Entity], view: View) -> None:
-    groups = group_relations(resolver, view)
+def dedupe_edges(resolver: Resolver[Entity], view: View) -> None:
+    groups = group_edges(resolver, view)
     merge_groups(resolver, view, groups)
