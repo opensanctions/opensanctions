@@ -1,4 +1,6 @@
 import os
+import re
+
 import time
 import string
 from itertools import count
@@ -6,7 +8,7 @@ from typing import Dict, Any, Optional
 from urllib.parse import urljoin
 from requests.exceptions import HTTPError, RetryError
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 
 
@@ -49,6 +51,36 @@ def http_get(
                 return None
 
 
+def build_address(
+    context: Context, full: str, address_data: dict[str, Optional[str]]
+) -> Entity:
+    address_components = {
+        "full": full,
+        "street": address_data.get("address_line_1"),
+        "street2": address_data.get("premises"),
+        "city": address_data.get("locality"),
+        "region": address_data.get("region"),
+    }
+
+    # Sometimes the PO Box is in the postal code field
+    postal_code = address_data.get("postal_code")
+    if postal_code:
+        po_box_match = re.match(
+            r"^P(\.?)O(\.?) Box (?P<po_box>.+)", postal_code, re.IGNORECASE
+        )
+        if po_box_match:
+            address_components["po_box"] = po_box_match.group("po_box")
+        else:
+            address_components["postal_code"] = postal_code
+
+    cleaned_address_components = {
+        k: v
+        for k, v in address_components.items()
+        if v is not None and v.lower() != "not available"
+    }
+    return h.make_address(context, **cleaned_address_components)
+
+
 def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     links = listing.get("links", {})
     url = urljoin(API_URL, links.get("self"))
@@ -89,21 +121,11 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
 
     person.add_cast("Person", "title", data.pop("title", None))
 
-    address_data = listing.get("address", {}) or {}
-    address_components = {
-        "full": listing.get("address_snippet"),
-        "street": address_data.get("address_line_1"),
-        "street2": address_data.get("premises"),
-        "city": address_data.get("locality"),
-        "postal_code": address_data.get("postal_code"),
-        "region": address_data.get("region"),
-    }
-    cleaned_address_components = {
-        k: v
-        for k, v in address_components.items()
-        if v is not None and v.lower() != "not available"
-    }
-    address = h.make_address(context, **cleaned_address_components)
+    address = build_address(
+        context,
+        full=listing.get("address_snippet"),
+        address_data=(listing.get("address", {})),
+    )
     h.copy_address(person, address)
 
     for disqual in data.pop("disqualifications", []):
@@ -120,16 +142,10 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
         sanction.add("country", "gb")
         context.emit(sanction)
 
-        address_data = disqual.get("address", {}) or {}
-        address = h.make_address(
+        address = build_address(
             context,
             full=listing.get("address_snippet"),
-            street=address_data.get("address_line_1"),
-            street2=address_data.get("premises"),
-            city=address_data.get("locality"),
-            postal_code=address_data.get("postal_code"),
-            region=address_data.get("region"),
-            # country_code=person.first("nationality"),
+            address_data=(disqual.get("address", {})),
         )
 
         for company_name in disqual.get("company_names", []):
