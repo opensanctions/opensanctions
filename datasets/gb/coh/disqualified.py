@@ -56,8 +56,8 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     if data is None:
         return
 
-    # TODO(Leon Handreke): Clean this up, it seems they added lots of Companies to this list of persons.
-    person = context.make("LegalEntity")
+    is_corporate = "/disqualified-officers/corporate/" in url
+    person = context.make("Organization" if is_corporate else "Person")
 
     _, officer_id = url.rsplit("/", 1)
     person.id = context.make_slug(officer_id)
