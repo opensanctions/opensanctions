@@ -331,7 +331,7 @@ def crawl(context: Context) -> None:
         # For debugging (or manual partial resume), process only part of the data
         # if date(2022, 1, 1) <= d <= date(2022, 12, 31)
         # Take 2022-01-01 as the starting point
-        if date(2022, 1, 1) <= d <= date(2025, 1, 14)
+        if date(2022, 1, 1) <= d
     ]
 
     # Process the archives first to have them ready in the warehouse for the
