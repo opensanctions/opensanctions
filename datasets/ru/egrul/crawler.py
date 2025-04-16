@@ -9,7 +9,7 @@ from zavod import helpers as h
 from zavod.shed.internal_data import fetch_internal_data, list_internal_data
 
 LOCAL_BUCKET_PATH = "/Users/leon/internal-data/"
-PROCESSED_EGRUL_PREFIX = "ru_egrul/processed/current_2025-01-14/"
+PROCESSED_EGRUL_PREFIX = "ru_egrul/processed/latest/"
 
 
 AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
