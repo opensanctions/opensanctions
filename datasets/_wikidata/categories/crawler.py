@@ -75,11 +75,19 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
 
     start_date: Optional[str] = None
     for qual in claim.qualifiers.get("P580", []):
-        start_date = qual.text.text
+        qual_date = qual.text.text
+        if qual_date is not None:
+            if start_date is not None:
+                qual_date = min(start_date, qual_date)
+            start_date = qual_date
 
     end_date: Optional[str] = None
     for qual in claim.qualifiers.get("P582", []):
-        end_date = qual.text.text
+        qual_date = qual.text.text
+        if qual_date is not None:
+            if end_date is not None:
+                qual_date = max(end_date, qual_date)
+            end_date = qual_date
 
     occupancy = h.make_occupancy(
         state.context,
