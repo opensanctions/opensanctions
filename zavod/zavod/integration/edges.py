@@ -138,12 +138,16 @@ def group_common_start(
     groups: Dict[Key, List[str]], common_start: Dict[Key, Set[Key]]
 ) -> None:
     """
+    Adds IDs to a group they can be merged with.
+
     If there's a key with only temporal start, and exactly one key with start and end,
     merge with that one.
 
     If there are more than one non-blank end keys, we don't know which is the correct one
     to merge with, so we don't merge any.
     """
+    group_count = 0
+
     for common_start_key, values in common_start.items():
         if common_start_key.schema.name not in ALLOW_COMMON_START:
             log.warning(
@@ -165,6 +169,8 @@ def group_common_start(
         other_key = values.pop()
         other_id = groups[other_key][0]
         groups[no_end_keys[0]].append(other_id)
+        group_count += 1
+    log.info("%d edges to be merged with a group with a common start date" % group_count)
 
 
 def group_edges(resolver: Resolver[Entity], view: View) -> Dict[Key, List[str]]:
