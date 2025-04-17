@@ -426,6 +426,7 @@ def parse_sanctions_entry(
     # context.inspect(entry)
     proxy.add("topics", "sanction")
     sanction = h.make_sanction(context, proxy, key=entry.get("ID"))
+    # TODO(Leon Handreke): Add lookup of program -> OpenSanctions program key
     sanction.set("program", get_ref_text(refs, "List", entry.get("ListID")))
     sanction.set("authorityId", entry.get("ProfileID"))
 

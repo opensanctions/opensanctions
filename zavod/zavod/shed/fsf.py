@@ -58,12 +58,18 @@ def parse_sanctions(context: Context, entity: Entity, entry: Element) -> None:
     for regulation in regulations:
         url = regulation.findtext("./publicationUrl")
         assert url is not None, etree.tostring(regulation)
-        program = regulation.get("programme")
+        source_program_key = regulation.get("programme")
         sanction = h.make_sanction(
             context,
             entity,
-            program=program,
-            program_key=program,
+            program_name=source_program_key,
+            # Map the source program key to the OpenSanctions program key using a lookup (e.g. BE -> BE-FOD-NAT)
+            source_program_key=source_program_key,
+            program_key=(
+                h.lookup_sanction_program_key(context, source_program_key)
+                if source_program_key
+                else None
+            ),
             key=url,
         )
         sanction.set("sourceUrl", url)

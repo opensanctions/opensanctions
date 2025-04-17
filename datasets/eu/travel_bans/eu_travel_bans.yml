@@ -64,8 +64,6 @@ lookups:
         value: Organization
   schema_override:
     options: []
-  sanction.program:
-    options: []
   contact_info:
     options:
       - match: PHONE

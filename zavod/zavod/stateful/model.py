@@ -8,7 +8,6 @@ from sqlalchemy import (
     JSON,
 )
 from nomenklatura.statement.db import make_statement_table
-
 from zavod.db import meta, get_engine
 
 KEY_LEN = 255
@@ -34,10 +33,25 @@ position_table = Table(
 statement_table = make_statement_table(meta)
 
 
+program_table = Table(
+    "program",
+    meta,
+    Column("id", Integer, primary_key=True),
+    Column("key", Unicode(KEY_LEN), nullable=False, unique=True),
+    Column("title", Unicode(VALUE_LEN), nullable=True),
+    Column("url", Unicode(VALUE_LEN), nullable=True),
+)
+
+
 def create_db() -> None:
     """Create all stateful database tables."""
     engine = get_engine()
-    position_table.metadata = meta
-    position_table.create(bind=engine, checkfirst=True)
-    statement_table.metadata = meta
-    statement_table.create(bind=engine, checkfirst=True)
+    meta.create_all(
+        bind=engine,
+        checkfirst=True,
+        tables=[
+            position_table,
+            statement_table,
+            program_table,
+        ],
+    )
