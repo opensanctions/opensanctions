@@ -183,7 +183,7 @@ def group_edges(resolver: Resolver[Entity], view: View) -> Dict[Key, List[str]]:
     common_start: Dict[Key, Set[Key]] = defaultdict(set)
 
     for idx, entity in enumerate(view.entities()):
-        if idx > 0 and idx % 10000 == 0:
+        if idx > 0 and idx % 100000 == 0:
             log.info("Keyed %s entities..." % idx)
 
         if (
