@@ -22,7 +22,7 @@ from zavod.crawl import crawl_dataset
 from zavod.store import get_store
 from zavod.archive import clear_data_path, dataset_state_path
 from zavod.exporters import export_dataset
-from zavod.integration import get_resolver, get_dataset_linker
+from zavod.integration import edges, get_resolver, get_dataset_linker
 from zavod.integration.dedupe import blocking_xref, merge_entities
 from zavod.integration.dedupe import explode_cluster
 from zavod.runtime.versions import make_version
@@ -325,6 +325,24 @@ def merge(entity_ids: List[str], force: bool = False) -> None:
         resolver.commit()
     except ValueError as ve:
         log.error("Cannot merge: %s" % ve)
+        sys.exit(1)
+
+
+@cli.command("dedupe-edges", help="Merge edge entities that are effectively duplicates")
+@click.argument("dataset_paths", type=InPath, nargs=-1)
+@click.option("-c", "--clear", is_flag=True, default=False)
+def dedupe_edges(dataset_paths: List[Path], clear: bool = False) -> None:
+    dataset = _load_datasets(dataset_paths)
+    try:
+        resolver = get_resolver()
+        resolver.begin()
+        store = get_store(dataset, resolver)
+        store.sync(clear=clear)
+        edges.dedupe_edges(resolver, store.view(dataset, external=True))
+        resolver.commit()
+    except Exception:
+        resolver.rollback()
+        log.exception("Failed to dedupe edge entities: %r" % dataset_paths)
         sys.exit(1)
 
 
