@@ -1,8 +1,3 @@
-# TODO: Remove ignore type when https://github.com/alephdata/followthemoney/pull/1725 is in.
-# Currently sqlalchemy2-stubs causes errors, and we can't drop it because FtM still supports
-# on SQLAlchemy 1.x. and happens not to use any features where sqlalchemy2-stubs is broken.
-# mypy: ignore-errors
-
 from sqlalchemy import (
     Table,
     Column,
