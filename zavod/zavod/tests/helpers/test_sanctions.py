@@ -1,13 +1,14 @@
+import dataclasses
 from datetime import timedelta
 
 import pytest
 import structlog
-from sqlalchemy.orm import Session
 
 from zavod import Entity, settings
 from zavod.context import Context
 from zavod.helpers.sanctions import make_sanction, is_active
-from zavod.stateful.model import Program
+from zavod.stateful.model import program_table
+from zavod.stateful.programs import Program
 
 
 def test_sanctions_helper(vcontext: Context):
@@ -28,16 +29,18 @@ def test_sanctions_helper(vcontext: Context):
 
 
 def test_sanctions_helper_with_program(vcontext: Context):
-    with Session(vcontext.conn) as session:
-        session.add(
-            Program(
-                id=1,
-                key="OS-TEST",
-                title="Blabla",
-                url="http://important.authority/test",
+    vcontext.conn.execute(
+        program_table.insert().values(
+            dataclasses.asdict(
+                Program(
+                    id=1,
+                    key="OS-TEST",
+                    title="Blabla",
+                    url="http://important.authority/test",
+                )
             )
         )
-        session.commit()
+    )
 
     person = vcontext.make("Person")
     person.id = "jeff"
