@@ -30,8 +30,8 @@ def e(
     end: Optional[str] = None,
     properties: Dict[str, str] = {},
 ) -> Entity:
-    assert type(start) == str or start is None
-    assert type(end) == str or end is None
+    assert type(start) is str or start is None
+    assert type(end) is str or end is None
     properties["startDate"] = start
     properties["endDate"] = end
     return Entity.from_data(
@@ -101,16 +101,29 @@ def test_dedupe_edges_different_extra_prop(store: Store, resolver: Resolver):
 
 
 def test_no_dedupe_for_different_keys(store: Store, resolver: Resolver):
-    entity1 = e(store.dataset, "Ownership", "e1", None, None, {"owner": "a", "asset": "b"})
+    entity1 = e(
+        store.dataset, "Ownership", "e1", None, None, {"owner": "a", "asset": "b"}
+    )
     # Different schema
     entity2 = e(
-        store.dataset, "Directorship", "e2", None, None, {"director": "a", "organization": "b"}
+        store.dataset,
+        "Directorship",
+        "e2",
+        None,
+        None,
+        {"director": "a", "organization": "b"},
     )
     # Different vertices
-    entity3 = e(store.dataset, "Ownership", "e3", None, None, {"owner": "a", "asset": "c"})
-    entity4 = e(store.dataset, "Ownership", "e4", None, None, {"owner": "c", "asset": "b"})
+    entity3 = e(
+        store.dataset, "Ownership", "e3", None, None, {"owner": "a", "asset": "c"}
+    )
+    entity4 = e(
+        store.dataset, "Ownership", "e4", None, None, {"owner": "c", "asset": "b"}
+    )
     # Different start
-    entity5 = e(store.dataset, "Ownership", "e5", "2024", None, {"owner": "a", "asset": "b"})
+    entity5 = e(
+        store.dataset, "Ownership", "e5", "2024", None, {"owner": "a", "asset": "b"}
+    )
     add_entities(store, [entity1, entity2, entity3, entity4, entity5])
     view = store.default_view()
 
@@ -123,6 +136,7 @@ def test_no_dedupe_for_different_keys(store: Store, resolver: Resolver):
     merges[resolver.get_canonical("e5")].append("e5")
     # No merges should have happened
     assert len(merges) == 5, merges
+
 
 def test_group_common_start(store: Store, resolver: Resolver):
     # common start

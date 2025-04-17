@@ -149,6 +149,13 @@ def group_common_start(
     group_count = 0
 
     for common_start_key, values in common_start.items():
+        if len(values) != 2:
+            continue
+
+        no_end_keys = [v for v in values if v.temporal_end is None]
+        if len(no_end_keys) == 0:
+            continue
+
         if common_start_key.schema.name not in ALLOW_COMMON_START:
             log.warning(
                 "Skipping common start grouping for unapproved schema %s (source=%s target=%s)"
@@ -159,18 +166,16 @@ def group_common_start(
                 )
             )
             continue
-        if len(values) != 2:
-            continue
-        no_end_keys = [v for v in values if v.temporal_end is None]
-        if len(no_end_keys) == 0:
-            continue
+
         assert len(no_end_keys) == 1
         values.remove(no_end_keys[0])
         other_key = values.pop()
         other_id = groups[other_key][0]
         groups[no_end_keys[0]].append(other_id)
         group_count += 1
-    log.info("%d edges to be merged with a group with a common start date" % group_count)
+    log.info(
+        "%d edges to be merged with a group with a common start date" % group_count
+    )
 
 
 def group_edges(resolver: Resolver[Entity], view: View) -> Dict[Key, List[str]]:
@@ -214,13 +219,18 @@ def merge_groups(
 ) -> None:
     merged_count = 0
     cluster_count = 0
+    dataset_counts: Dict[str, int] = defaultdict(int)
 
     for key, values in groups.items():
         if len(values) == 1:
             continue
 
         first_id = values[0]
+        first_entity = view.get_entity(first_id)
+        assert first_entity is not None
         merged_count += 1
+        for dataset in first_entity.datasets:
+            dataset_counts[dataset] += 1
 
         canonical = resolver.get_canonical(first_id)
         for other_id in values[1:]:
@@ -228,6 +238,7 @@ def merge_groups(
             if other_canon == canonical:
                 continue
             other = view.get_entity(other_id)
+            assert other is not None
 
             log.info("Merge edge: %s (%s -> %s)" % (other, other_canon, canonical))
             canonical = resolver.decide(
@@ -236,9 +247,15 @@ def merge_groups(
                 judgement=Judgement.POSITIVE,
                 user="edge-dedupe",
             ).id
+
             merged_count += 1
+            for dataset in other.datasets:
+                dataset_counts[dataset] += 1
+
         cluster_count += 1
     log.info("Merged %s edge entities into %s clusters" % (merged_count, cluster_count))
+    for dataset, count in dataset_counts.items():
+        log.info("Merged %s edges in dataset %s" % (count, dataset))
 
 
 def dedupe_edges(resolver: Resolver[Entity], view: View) -> None:
