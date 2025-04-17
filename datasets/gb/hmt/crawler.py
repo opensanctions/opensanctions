@@ -126,7 +126,7 @@ def parse_row(context: Context, row: Dict[str, Any]):
     sanction = h.make_sanction(
         context,
         entity,
-        program=regime_name,
+        program_name=regime_name,
         source_program_key=regime_name,
         program_key=h.lookup_sanction_program_key(context, regime_name),
         start_date=designated_date,
