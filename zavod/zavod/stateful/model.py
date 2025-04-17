@@ -2,7 +2,6 @@
 # Currently sqlalchemy2-stubs causes errors, and we can't drop it because FtM still supports
 # on SQLAlchemy 1.x. and happens not to use any features where sqlalchemy2-stubs is broken.
 # mypy: ignore-errors
-from typing import Optional, cast
 
 from sqlalchemy import (
     Table,
@@ -14,12 +13,6 @@ from sqlalchemy import (
     JSON,
 )
 from nomenklatura.statement.db import make_statement_table
-from sqlalchemy.orm import (
-    MappedAsDataclass,
-    DeclarativeBase,
-    Mapped,
-    mapped_column,
-)
 from zavod.db import meta, get_engine
 
 KEY_LEN = 255
@@ -45,17 +38,14 @@ position_table = Table(
 statement_table = make_statement_table(meta)
 
 
-class Base(MappedAsDataclass, DeclarativeBase):
-    metadata = meta
-
-
-class Program(Base):
-    __tablename__ = "program"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    key: Mapped[str] = mapped_column(Unicode(KEY_LEN), nullable=False, unique=True)
-    title: Mapped[Optional[str]] = mapped_column(Unicode(VALUE_LEN), nullable=True)
-    url: Mapped[Optional[str]] = mapped_column(Unicode(VALUE_LEN), nullable=True)
+program_table = Table(
+    "program",
+    meta,
+    Column("id", Integer, primary_key=True),
+    Column("key", Unicode(KEY_LEN), nullable=False, unique=True),
+    Column("title", Unicode(VALUE_LEN), nullable=True),
+    Column("url", Unicode(VALUE_LEN), nullable=True),
+)
 
 
 def create_db() -> None:
@@ -67,6 +57,6 @@ def create_db() -> None:
         tables=[
             position_table,
             statement_table,
-            cast(Table, Program.__table__),
+            program_table,
         ],
     )
