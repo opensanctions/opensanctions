@@ -124,7 +124,7 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     address = build_address(
         context,
         full=listing.get("address_snippet"),
-        address_data=(listing.get("address", {})),
+        address_data=listing.get("address", {}) or {},
     )
     h.copy_address(person, address)
 
@@ -145,7 +145,7 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
         address = build_address(
             context,
             full=listing.get("address_snippet"),
-            address_data=(disqual.get("address", {})),
+            address_data=disqual.get("address", {}) or {},
         )
 
         for company_name in disqual.get("company_names", []):
