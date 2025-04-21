@@ -150,4 +150,3 @@ def crawl(context: Context):
     crawl_type(context, "topten", "0f737222c5054a81a120bce207b0446a")
     crawl_type(context, "fugitives", "f7f80a1681ac41a08266bd0920c9d9d8")
     crawl_type(context, "terrorism", "55d8265003c84ff2a7688d7acd8ebd5a")
-    crawl_type(context, "bank-robbers", "2514fe8f611f47d1b2c1aa18f0f6f01b")
