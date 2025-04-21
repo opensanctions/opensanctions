@@ -1314,6 +1314,14 @@ lookups:
           - name: Discover Financial Services
             locality: Riverwoods, Illinois, USA
             country: US
+      - match: Discover Financial Services, Riverwoods, Illinois and DFS Services LLC, Riverwoods, Illinois
+        entities:
+          - name: Discover Financial Services
+            locality: Riverwoods, Illinois
+            country: US
+          - name: DFS Services LLC
+            locality: Riverwoods, Illinois
+            country: US
       - match: BANK OF AMERICA CORPORATION, Charlotte, North Carolina
         entities:
           - name: BANK OF AMERICA CORPORATION
