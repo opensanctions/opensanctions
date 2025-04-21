@@ -1135,6 +1135,41 @@ config:
       topic: role.pep
       country: bn
 
+    - category: Australian_MPs_2022–2025
+      topic: role.pep
+      country: au
+      position:
+        name: Member of the Australian Parliament
+        country: au
+        topics:
+          - gov.legislative
+    - category: 21st-century_Australian_politicians
+      country: au
+    - category: Political_office-holders_in_Australia
+      country: au
+    - category: Members_of_the_Australian_Senate
+      topic: role.pep
+      country: au
+      position:
+        name: Australian Senator
+        country: au
+        topics:
+          - gov.legislative
+
+    - category: Governors-general_of_New_Zealand
+      topic: role.pep
+      country: nz
+    - category: Political_office-holders_in_New_Zealand
+      country: nz
+    - category: Members_of_the_Parliament_of_New_Zealand
+      topic: role.pep
+      country: nz
+      # position:
+      #   name: Member of the New Zealand Parliament
+      #   country: nz
+      #   topics:
+      #     - gov.legislative
+
     # Subregion: Southern Asia
 
     # country:
