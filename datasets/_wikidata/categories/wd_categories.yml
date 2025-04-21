@@ -915,12 +915,78 @@ config:
     - category: Political_office-holders_in_the_Czech_Republic
       country: cz
       topic: role.pep
+    - match: Lists_of_members_of_the_Chamber_of_Deputies_of_the_Czech_Republic
+      country: cz
+    - match: Members_of_the_Parliament_of_the_Czech_Republic
+      country: cz
+    - match: Senát_Parlamentu_České_republiky
+      country: cz
+      language: cs
+    - match: Čeští_politici
+      country: cz
+      language: cs
     - category: Political_office-holders_in_Serbia
       country: rs
       topic: role.pep
     - category: Political_office-holders_in_Slovakia
       country: sk
       topic: role.pep
+    - category: Members_of_the_National_Council_(Slovakia)_2023–2027
+      country: sk
+      topic: role.pep
+      position:
+        name: Member of the National Council
+        country: sk
+        topics:
+          - gov.legislative
+    - category: Poslanci_NR_SR_(2020_–_2023)
+      country: sk
+      language: sk
+      topic: role.pep
+      position:
+        name: Member of the National Council
+        country: sk
+        topics:
+          - gov.legislative
+    - category: Members_of_the_National_Council_(Slovakia)_2020–2023
+      country: sk
+      topic: role.pep
+    - category: 21st-century_Slovak_politicians
+      country: sk
+    - category: Slovenskí_politici
+      country: sk
+      language: sk
+
+    - category: Political_office-holders_in_Hungary
+      country: hu
+    - category: Members_of_the_National_Assembly_of_Hungary_(2022–2026)
+      country: hu
+      topic: role.pep
+      position:
+        name: Member of the National Assembly of Hungary
+        country: hu
+        topics:
+          - gov.legislative
+    - category: Országgyűlési_képviselők_(2022–2026)
+      country: hu
+      language: hu
+      topic: role.pep
+      position:
+        name: Member of the National Assembly of Hungary
+        country: hu
+        topics:
+          - gov.legislative
+    - category: Országgyűlési_képviselők
+      country: hu
+      language: hu
+    - category: Magyarországi_politikusok
+      country: hu
+      language: hu
+    - category: Magyar_alkotmánybírák
+      country: hu
+      language: hu
+      topic: role.pep
+
     - category: Political_office-holders_in_Spain
       country: es
       topic: role.pep
@@ -1169,6 +1235,14 @@ config:
       #   country: nz
       #   topics:
       #     - gov.legislative
+    - category: Members_of_the_Parliament_of_Fiji
+      topic: role.pep
+      country: fj
+    - category: Political_office-holders_in_Fiji
+      country: fj
+    - category: Chief_justices_of_Fiji
+      country: fj
+      topic: role.pep
 
     # Subregion: Southern Asia
 
