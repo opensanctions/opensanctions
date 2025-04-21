@@ -53,8 +53,12 @@ lookups:
         value: false
   identifier_type:
     options:
-      - match: "tax:inn"
+      - match:
+          - "tax:inn"
+          - "tax:inn2"
         prop: innCode
+      - match: tax:number
+        prop: taxNumber
       - match:
           - "reg:odrn"
           - "reg:odrnip"

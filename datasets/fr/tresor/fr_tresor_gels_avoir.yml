@@ -679,6 +679,10 @@ lookups:
         props:
           registrationNumber: W952001402
           incorporationDate: 2010-01-09
+      - match: "Créée le 27 juillet 2018 et déclarée le 1er août 2018 à la préfecture des Hauts-de-Seine (92): W9220127754"
+        props:
+          registrationNumber: W9220127754
+          incorporationDate: 2018-07-27
       - match: "Numéro d'enregistrement - Date d'enregistrement : 25/02/1966: 400051902"
         props:
           registrationNumber:
