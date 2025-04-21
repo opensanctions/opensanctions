@@ -181,7 +181,6 @@ config:
     # - category: Political_office-holders_in_Europe
     #   topic: role.pep
     #   depth: 8
-    - category: Political_office-holders_in_South_America
 
     - category: National_supreme_court_judges
       topic: role.pep
@@ -774,6 +773,36 @@ config:
     - category: Political_office-holders_of_the_European_Union
       topic: role.pep
 
+    # latam
+    - category: Political_office-holders_in_South_America
+    - category: Senadores_do_Brasil_por_unidade_federativa
+      country: br
+      topic: role.pep
+      language: pt
+    - category: Deputados_federais_do_Brasil
+      country: br
+      topic: role.pep
+      language: pt
+    - category: Políticos_do_Brasil_por_cargo_público
+      country: br
+      topic: role.pep
+      language: pt
+    - categories: Funcionários_do_governo_do_Brasil
+      country: br
+      language: pt
+    - category: Diputados_del_Congreso_de_la_Nación_Argentina_por_provincia
+      country: ar
+      topic: role.pep
+      language: es
+    - category: Ministros_y_secretarios_de_Argentina_por_gobierno
+      language: es
+    - category: Gobierno_de_Argentina
+      language: es
+    - category: Gobierno_de_El_Salvador
+      language: es
+    - category: Políticos_de_El_Salvador
+      language: es
+
     # European countries
     - category: Members_of_the_parliaments_of_the_Belgian_communities_and_regions
       country: be
@@ -783,6 +812,40 @@ config:
       topic: role.pep
     - category: Government_of_Belarus
       country: by
+    - category: Members_of_the_Polish_Sejm_2023–2027
+      country: pl
+      topic: role.pep
+      position:
+        name: Member of the Sejm
+        country: pl
+        topics:
+          - gov.legislative
+    - category: Posłowie_na_Sejm_Rzeczypospolitej_Polskiej_X_kadencji
+      country: pl
+      language: pl
+      topic: role.pep
+      position:
+        name: Member of the Sejm
+        country: pl
+        topics:
+          - gov.legislative
+    - category: Senatorowie_XI_kadencji_Senatu_Rzeczypospolitej_Polskiej
+      country: pl
+      language: pl
+      topic: role.pep
+      position:
+        name: Senator of the Republic of Poland
+        country: pl
+        topics:
+          - gov.legislative
+    - category: Posłowie_na_Sejm_III_Rzeczypospolitej_Polskiej
+      country: pl
+      language: pl
+    - category: Senatorowie_III_Rzeczypospolitej
+      country: pl
+      language: pl
+    - category: Polscy_politycy
+      language: pl
     - category: Political_office-holders_in_Jersey
       country: je
       topic: role.pep
@@ -798,12 +861,24 @@ config:
     - category: Members_of_the_States_of_Guernsey
       country: gg
       topic: role.pep
+    - category: Deputati_della_XIX_legislatura_della_Repubblica_Italiana
+      language: it
+      country: it
+      topic: role.pep
+    - category: Politici_italiani_del_XXI_secolo
+      language: it
+      country: it
     - category: Departmental_councillors_(France)
       country: fr
       topic: role.pep
     - category: French_general_councillors
       country: fr
       topic: role.pep
+    - category: Members_of_the_National_Council_(Monaco)
+      country: mc
+      topic: role.pep
+    - category: Political_office-holders_in_Monaco
+      country: mc
     - category: States_of_Alderney_Members
       country: gg
       topic: role.pep
@@ -840,9 +915,6 @@ config:
     - category: Political_office-holders_in_the_Czech_Republic
       country: cz
       topic: role.pep
-    - category: Political_office-holders_in_Cyprus
-      country: cy
-      topic: role.pep
     - category: Political_office-holders_in_Serbia
       country: rs
       topic: role.pep
@@ -872,6 +944,8 @@ config:
     - category: Political_office-holders_in_Albania
       country: al
       topic: role.pep
+    - category: 21st-century_Albanian_politicians
+      country: al
     - category: Political_office-holders_in_Northern_Cyprus
       country: cy-trnc
       topic: role.pep
@@ -894,6 +968,15 @@ config:
       country: hr
       topic: role.pep
     - category: Political_office-holders_in_Malta
+      country: mt
+      topic: role.pep
+    - category: Lists_of_political_office-holders_in_Malta
+      country: mt
+      topic: role.pep
+    - category: Members_of_the_House_of_Representatives_of_Malta
+      country: mt
+      topic: role.pep
+    - category: Mayors_of_places_in_Malta
       country: mt
       topic: role.pep
     - category: Political_office-holders_in_Moldova
@@ -1183,7 +1266,22 @@ config:
     # already covered
 
     # country: Cyprus
-    # already covered
+    - category: Political_office-holders_in_Cyprus
+      country: cy
+      topic: role.pep
+    # cf. https://el.wikipedia.org/wiki/%CE%9A%CE%B1%CF%84%CE%B7%CE%B3%CE%BF%CF%81%CE%AF%CE%B1:%CE%9A%CF%8D%CF%80%CF%81%CE%B9%CE%BF%CE%B9_%CE%B2%CE%BF%CF%85%CE%BB%CE%B5%CF%85%CF%84%CE%AD%CF%82
+    - category: Κύπριοι_βουλευτές
+      country: cy
+      language: el
+    - category: Βουλευτές_ΙΒ΄_Κοινοβουλευτικής_Περιόδου_(Κύπρος)
+      country: cy
+      topic: role.pep
+
+    - category: Greek_MPs_2023–
+      country: gr
+      topic: role.pep
+    - category: 21st-century_Greek_politicians
+      country: gr
 
     # other territories
     # Taiwan
