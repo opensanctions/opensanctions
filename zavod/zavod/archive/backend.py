@@ -100,7 +100,13 @@ class GoogleCloudObject(ArchiveObject):
         if ttl is not None:
             self._blob.cache_control = f"public, max-age={ttl}"
         log.info(f"Uploading blob: {source.name}", blob_name=self.name, max_age=ttl)
-        if settings.GOOGLE_CLOUD_ARCHIVE_BACKEND_GZIP_UPLOAD:
+        if (
+            settings.GOOGLE_CLOUD_ARCHIVE_BACKEND_GZIP_UPLOAD
+            and
+            # TODO(Leon Handreke): Remove this ugly hack to limit how much we can break for now
+            # https://github.com/opensanctions/operations/issues/1224
+            any(self.name.endswith(f) for f in ["statements.pack", "issues.log"])
+        ):
             self._blob.content_encoding = "gzip"
             self._blob.content_type = mime_type
             with fileio.BlobWriter(self._blob) as blob_writer:
