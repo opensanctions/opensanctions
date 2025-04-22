@@ -1,6 +1,6 @@
 from json import load
 
-from zavod import settings
+from zavod import settings, Context
 from zavod.archive import clear_data_path
 from zavod.exporters.statistics import StatisticsExporter
 from zavod.meta import Dataset
@@ -51,3 +51,27 @@ def test_statistics(testdataset1: Dataset):
         "plural": "People",
     } in target_schemata
     assert len(target_schemata) == 2
+
+
+def test_sanction_programs(testdataset1):
+    context = Context(testdataset1)
+
+    company = context.make("Company")
+    company.id = "company-evil"
+    company.set("name", ["Evil Corp."])
+    context.emit(company)
+
+    sanction = context.make("Sanction")
+    sanction.id = "sanction-evil"
+    sanction.set("programId", ["OS-TEST"])
+    context.emit(sanction)
+
+    context.flush()
+    context.close()
+    harnessed_export(StatisticsExporter, testdataset1)
+
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    with open(dataset_path / "statistics.json") as statistics_file:
+        statistics = load(statistics_file)
+
+    assert statistics["sanctions"]["programs"] == [{"id": "OS-TEST", "count": 1}]
