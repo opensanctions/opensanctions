@@ -18,14 +18,14 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
     except IndexError:
         description = None
 
-    if name is None:
+    if not names:
         long_name = li_link.text_content()
         long_name = long_name.replace("SEC Advisory on", "").strip()
         res = context.lookup("names", long_name)
         if not res:
             name = long_name
             description = None
-            # context.log.warning("No lookup for name: %s" % long_name)
+            context.log.warning("No lookup for name: %s" % long_name)
             import json
 
             print("- match: %s" % json.dumps(long_name))
@@ -37,6 +37,8 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
 
         if res.name is not None:
             names = [str(n) for n in ensure_list(res.name)]
+        else:
+            names = [long_name]
         description = cast("str", res.description) or long_name
 
     source_url = li_link.get("href")
