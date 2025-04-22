@@ -3,7 +3,8 @@ title: Regulatory Watchlists
 coverage:
   start: "2024-07-01"
   schedule: "0 */8 * * *"
-  frequency: weekly
+  # schedule trumps frequency, but we should frequency on the website collections overview table
+  frequency: daily
 deploy:
   memory: "1500Mi"
 summary: >
