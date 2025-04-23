@@ -4,40 +4,37 @@ from zavod.shed.zyte_api import fetch_html
 
 
 def crawl(context: Context):
-    tables_xpath = ".//table[contains(@id, 'datatable')]"
-    doc = fetch_html(
-        context, context.data_url, tables_xpath, html_source="httpResponseBody"
-    )
-    # We expect 2 tables (firms and individuals)
-    tables = doc.xpath(tables_xpath)
-    assert len(tables) == 2, f"Expected 2 tables, got {len(tables)}"
-    for table in tables:
+    next_url = context.data_url
+    table_xpath = ".//table[contains(@class, 'views-table')]"
+    while next_url:
+        doc = fetch_html(context, next_url, table_xpath, cache_days=1)
+        doc.make_links_absolute(next_url)
+        next_link = doc.find(".//li[@class='next']/a")
+        next_url = next_link.get("href") if next_link is not None else None
+        tables = doc.xpath(table_xpath)
+        assert len(tables) == 1, tables
+        table = tables[0]
         for row in h.parse_html_table(table):
             cells = h.cells_to_str(row)
-
-            # AfDB lists several individuals as firms in places where the IADB
-            # shows them to be people (and they have normal personal names)
-
             type_ = cells.pop("type")
             schema = context.lookup_value("types", type_)
             if schema is None:
                 context.log.error("Unknown entity type", type=type_)
-                continue
+                schema = "LegalEntity"
 
             name = cells.pop("name").strip()
-            if all(v == "" for v in cells.values()):
-                continue
             country = cells.pop("nationality")
             entity = context.make(schema)
             entity.id = context.make_id(name, country)
             entity.add("name", name)
-            entity.add("topics", "debarment")
             entity.add("country", country)
 
             sanction = h.make_sanction(context, entity)
             sanction.add("reason", cells.pop("basis"))
             h.apply_date(sanction, "startDate", cells.pop("from"))
             h.apply_date(sanction, "endDate", cells.pop("to"))
+            if h.is_active(sanction):
+                entity.add("topics", "debarment")
 
             context.emit(entity)
             context.emit(sanction)
