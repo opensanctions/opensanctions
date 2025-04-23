@@ -39,7 +39,7 @@ data:
   format: HTML
 
 dates:
-  formats: ["%d-%b-%Y", "%d-%m-%Y", "%d-%b-%y"]
+  formats: ["%Y/%m/%d", "%d-%b-%Y", "%d-%m-%Y", "%d-%b-%y"]
   months:
     "Sep": "Sept"
 assertions:
@@ -63,6 +63,7 @@ lookups:
     map:
       FIRM: Company
       INDIVIDUAL: Person
+      "": LegalEntity
   type.country:
     lowercase: true
     normalize: true
@@ -73,15 +74,3 @@ lookups:
         value: Kazakhstan
       - match: Uzbekistan, Rep. of
         value: Uzbekistan
-      - match: CESA HONDURAS
-        value: Honduras
-      - match: CESA PANAMÁ
-        value: Panama
-      - match: Agentina
-        value: Argentina
-  type.date:
-    options:
-      - match: 10/31/23
-        value: 2023-10-31
-      - match: 10/30/28
-        value: 2028-10-30
