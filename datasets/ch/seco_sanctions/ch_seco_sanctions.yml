@@ -100,7 +100,9 @@ lookups:
         values:
           - 2002-06-16
           - 1993-01-22
-      - match: 20.5.2019 (registered as a small and medium sized enterprise); 10.7.2023 (registered as a small sized enterprise)
+      - match:
+          - 20.5.2019 (registered as a small and medium sized enterprise); 10.7.2023 (registered as a small sized enterprise)
+          - 20.5.2019 (registered as a small and medium-sized enterprise); 10.7.2023 (registered as a small enterprise)
         values:
           - 2019-05-20
           - 2023-07-10
