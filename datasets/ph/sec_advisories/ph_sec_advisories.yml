@@ -12,6 +12,10 @@ description: |
   Philippines Securities and Exchange Commission (SEC) against individuals
   and entities. The advisories are issued to warn the public about individuals
   and entities that are not authorized to solicit investments from the public.
+
+  Note: It [appears as though](https://github.com/opensanctions/crawler-planning/issues/325)
+  not all revocations and delinquencies are listed in an advisory.
+  We are looking for a more comprehensive source.
 publisher:
   name: Philippines Securities and Exchange Commission
   acronym: SEC

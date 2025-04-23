@@ -125,11 +125,12 @@ def crawl(context: Context):
         # Crawl current PEP list
         category = None
         for item in h.parse_xlsx_sheet(context, wb[new_sheet], 1, "columns"):
-            if all(v is None for v in item.values()):
+            if not any([item["category"], item["first_name"], item["last_name"]]):
                 continue
             # Meaning "No boards"
             if item["last_name"] == "Ingen styrelser etc.":
                 continue
+
             if (
                 item["category"]
                 and sum(1 if v else 0 for v in list(item.values())) == 1
@@ -139,6 +140,7 @@ def crawl(context: Context):
             else:
                 item["category"] = category
             assert item["category"] is not None, item
+
             crawl_current_pep_item(context, country, lang, item)
 
         assert len(wb.sheetnames) == 2, wb.sheetnames
