@@ -10,7 +10,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(npi, row.get("provider_name"), zip_code)
-    entity.add("name", row.pop("provider_name"))
+    entity.add("name", h.multi_split(row.pop("provider_name"), ["a.k.a."]))
     entity.add("sector", row.pop("title"))
     entity.add("npiCode", h.multi_split(npi.replace("\n", ""), ";/"))
     entity.add("country", "us")
@@ -43,6 +43,12 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
+def translate_keys(
+    context: Context, lookup: str, row: Dict[str, str]
+) -> Dict[str, str]:
+    return {context.lookup_value(lookup, k, k): v for k, v in row.items()}
+
+
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", context.data_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
@@ -50,5 +56,5 @@ def crawl(context: Context) -> None:
     for item in h.parse_pdf_table(context, path, headers_per_page=True):
         if all([v == "" for v in item.values()]):
             continue
-
+        item = translate_keys(context, "headers", item)
         crawl_item(item, context)
