@@ -28,6 +28,7 @@ IGNORE_PARTNER = [
     "qualified_reports",
     "@odata.context",
     "kuv_verification",
+    "fine",
 ]
 
 # Example URLs
@@ -158,6 +159,7 @@ def process_entry(context, entry):
     entity_data = context.fetch_json(details_url, cache_days=3)
     entity_data = rename_headers(context, entity_data)
     legal_entity_name = entity_data.get("trading_name", "")
+    entity_type = entity_data.pop("entity_type", "")
 
     entity = context.make("LegalEntity" if legal_entity_name else "Person")
     entity.id = context.make_id(
@@ -170,10 +172,12 @@ def process_entry(context, entry):
             last_name=entity_data.pop("surname"),
         )
         h.apply_date(entity, "birthDate", entity_data.pop("dob"))
+        entity.add("title", entity_data.pop("title_prefix"))
+        entity.add("title", entity_data.pop("title_suffix"))
     else:
         entity.add("name", entity_data.pop("trading_name"))
         entity.add("registrationNumber", entity_data.pop("registration_number"))
-        entity.add("legalForm", entity_data.pop("entity_type"))
+        entity.add("legalForm", entity_type)
 
     if legal_form := entity_data.pop("legal_form"):
         legal_form = rename_headers(context, legal_form)
