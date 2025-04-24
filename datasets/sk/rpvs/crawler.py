@@ -159,6 +159,7 @@ def process_entry(context, entry):
     entity_data = context.fetch_json(details_url, cache_days=3)
     entity_data = rename_headers(context, entity_data)
     legal_entity_name = entity_data.get("trading_name", "")
+    # Only add 'entity_type' for legal entities; persons are always "Physical person"
     entity_type = entity_data.pop("entity_type", "")
 
     entity = context.make("LegalEntity" if legal_entity_name else "Person")
