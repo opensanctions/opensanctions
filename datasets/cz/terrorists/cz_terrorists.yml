@@ -1,0 +1,440 @@
+title: Czech National Anti-Terrorism Designations (Government Regulation No. 210/2008)
+entry_point: crawler.py
+prefix: cz-terr
+coverage:
+  frequency: daily
+  start: "2025-04-24"
+load_statements: true
+summary: >
+  Individuals and groups designated under Czech Government Regulation No. 210/2008
+  in line with EU anti-terrorism measures.
+description: |
+  This dataset is based on Czech Government Regulation No. 210/2008 Coll., issued on 28 May 2008
+  to support EU efforts against terrorism. It lists individuals and groups that are banned from
+  receiving certain goods, services, or support due to their suspected links to terrorism.
+publisher:
+  name: Vláda České republiky
+  name_en: Government of the Czech Republic
+  url: https://vlada.gov.cz/en/
+  official: true
+  country: "cz"
+url: "https://www.e-sbirka.cz/sb/2008/210/2009-04-01?zalozka=text"
+data:
+  url: https://www.e-sbirka.cz/sb/2008/210/2009-04-01?zalozka=text
+  format: HTML
+dates:
+  formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 30
+      LegalEntity: 15
+  max:
+    schema_entities:
+      Person: 50
+      LegalEntity: 25
+
+lookups:
+  details:
+    options:
+      - match: ' ALBERDI URANGA, Itziar, narozena dne 7.10.1963 v Durangu, Biskajsko (Španělsko), průkaz totožnosti č. 78.865.693 – aktivistka „ETA“'
+        details:
+          - first_name: Itziar
+            last_name: Alberdi Uranga
+            dob: 7.10.1963
+            pob: Durangu, Biskajsko
+            country: es
+            id_num: 78.865.693
+            position: aktivistka „ETA“
+            schema: Person
+      - match: ' ALBISU IRIARTE, Miguel, narozen dne 7.6.1961 v San Sebastiánu, Guipúzcoa (Španělsko), průkaz totožnosti č. 15.954.596 – aktivista „ETA“; člen „Gestoras pro-amnistía“'
+        details:
+          - first_name: Miguel
+            last_name: Albis Iriarte
+            dob: 7.6.1961
+            pob: San Sebastiánu, Guipúzcoa
+            country: es
+            id_num: 15.954.596
+            position: ["aktivista „ETA“", "člen „Gestoras pro-amnistía“"]
+            schema: Person
+      - match: ' ALEGRÍA LOINAZ, Xavier, narozen dne 26.11.1958 v San Sebastiánu, Guipúzcoa (Španělsko), průkaz totožnosti č. 15.239.620 – aktivista „ETA“; člen „Kas“ / „Ekin“'
+        details:
+          - first_name: Xavier
+            last_name: Alegría Loinaz
+            dob: 26.11.1958
+            pob: San Sebastiánu, Guipúzcoa
+            country: es
+            id_num: 15.239.620
+            position: ["aktivista „ETA“", "člen „Kas“ / „Ekin“"]
+            schema: Person
+      - match: ' APAOLAZA SANCHO, Iván, narozen dne 10.11.1971 v Beasainu, Guipúzcoa (Španělsko), průkaz totožnosti č. 44.129.178 – aktivista „ETA“; člen „K. Madrid“'
+        details:
+          - first_name: Iván
+            last_name: Apaolaza Sancho
+            dob: 10.11.1971
+            pob: Beasainu, Guipúzcoa
+            country: es
+            id_num: 44.129.178
+            position: ["aktivista „ETA“", "člen „K. Madrid“"]
+            schema: Person
+      - match: ' ARZALLUS TAPIA, Eusebio, narozen dne 8.11.1957 v Regilu, Guipúzcoa (Španělsko), průkaz totožnosti č. 15.927.207 – aktivista „ETA“'
+        details:
+          - first_name: Eusebio
+            last_name: Arzallus Tapia
+            dob: 8.11.1957
+            pob: Regilu, Guipúzcoa
+            country: es
+            id_num: 15.927.207
+            position: aktivista „ETA“
+            schema: Person
+      - match: ' ASPIAZU RUBINA, Miguel de Garikoitz, narozen dne 6.7.1973 v Bilbau, Vizcaya (Španělsko), průkaz totožnosti č. 14.257.455 – aktivista „ETA“'
+        details:
+          - first_name: Miguel de Garikoitz
+            last_name: Aspiaz Rubina
+            dob: 6.7.1973
+            pob: Bilbau, Vizcaya
+            country: es
+            id_num: 14.257.455
+            position: aktivista „ETA“
+            schema: Person
+      - match: ' BELOQUI RESA, María Elena, narozena dne 12.6.1961 v Aretě, Álava (Španělsko), průkaz totožnosti č. 14.956.327 – aktivistka „ETA“; členka „Xaki“'
+        details:
+          - first_name: María Elena
+            last_name: Beloqui Resa
+            dob: 12.6.1961
+            pob: Aretě, Álava
+            country: es
+            id_num: 14.956.327
+            position: ["aktivistka „ETA“", "členka „Xaki“"]
+            schema: Person
+      - match: ' CAMPOS ALONSO, Miriam, narozena dne 2.9.1971 v Bilbauo, Vizcaya (Španělsko), průkaz totožnosti č. 30.652.316 – aktivistka „ETA“; členka „Xaki“'
+        details:
+          - first_name: Miriam
+            last_name: Campos Alonso
+            dob: 2.9.1971
+            pob: Bilbauo, Vizcaya
+            country: es
+            id_num: 30.652.316
+            position: ["aktivistka „ETA“", "členka „Xaki“"]
+            schema: Person
+      - match: ' CORTA CARRION, Mikel, narozen dne 15.5.1959 ve Villafranca de Ordicia (Guipúzcoa, Španělsko), průkaz totožnosti č. 08.902.967 – aktivista „ETA“; člen „Xaki“'
+        details:
+          - first_name: Mikel
+            last_name: Corta Carrion
+            dob: 15.5.1959
+            pob: Villafranca de Ordicia, Guipúzcoa
+            country: es
+            id_num: 08.902.967
+            position: ["aktivista „ETA“", "člen „Xaki“"]
+            schema: Person
+      - match: ' EGUIBAR MICHELENA, Mikel, narozen dne 14.11.1963 v San Sebastiánu, Guipúzcoa, (Španělsko), průkaz totožnosti č. 44.151.825 – aktivista „ETA“; člen „Xaki“'
+        details:
+          - first_name: Mikel
+            last_name: Eguibar Michelena
+            dob: 14.11.1963
+            pob: San Sebastiánu, Guipúzcoa
+            country: es
+            id_num: 44.151.825
+            position: ["aktivista „ETA“", "člen „Xaki“"]
+            schema: Person
+      - match: ' ECHEBERRIA SIMARRO, Leire, narozena dne 20.12.1977 v Basauri, Biskajsko (Španělsko), průkaz totožnosti č. 45.625.646 – aktivistka ETA'
+        details:
+          - first_name: Leire
+            last_name: Echeberria Simarro
+            dob: 20.12.1977
+            pob: Basauri, Biskajsko
+            country: es
+            id_num: 45.625.646
+            position: aktivistka „ETA“
+            schema: Person
+      - match: ' ECHEGARAY ACHIRICA, Alfonso, narozen dne 10.1.1958 v Plencii, Biskajsko (Španělsko), průkaz totožnosti č. 16.027.051 – aktivista „ETA“'
+        details:
+          - first_name: Alfonso
+            last_name: Echegaray Achirica
+            dob: 10.1.1958
+            pob: Plencii, Biskajsko
+            country: es
+            id_num: 16.027.051
+            position: aktivista „ETA“
+            schema: Person
+      - match: ' GOGEASCOECHEA ARRONATEGUI, Eneko, narozen dne 29.4.1967 v Guernice, Biskajsko (Španělsko), průkaz totožnosti č. 44.556.097 – aktivista „ETA“'
+        details:
+          - first_name: Eneko
+            last_name: Gogeascoechea Arronategui
+            dob: 29.4.1967
+            pob: Guernice, Biskajsko
+            country: es
+            id_num: 44.556.097
+            position: aktivista „ETA“
+            schema: Person
+      - match: ' IPARRAGUIRRE GUENECHEA, María Soledad, narozena dne 25.4.1961 v Escoriaze, Navarra (Španělsko), průkaz totožnosti č. 16.255.819 – aktivistka „ETA“'
+        details:
+          - first_name: María Soledad
+            last_name: Iparraguirre Guenechea
+            dob: 25.4.1961
+            pob: Escoriaze, Navarra
+            country: es
+            id_num: 16.255.819
+            position: aktivistka „ETA“
+            schema: Person
+      - match: ' IRIONDO YARZA, Aitzol, narozen dne 8.3.1977 v San Sebastiánu, Guipúzcoa (Španělsko), průkaz totožnosti č. 72.467.565 – aktivista „ETA“'
+        details:
+          - first_name: Aitzol
+            last_name: Iriondo Yarza
+            dob: 8.3.1977
+            pob: San Sebastiánu, Guipúzcoa
+            country: es
+            id_num: 72.467.565
+            position: aktivista „ETA“
+            schema: Person
+      - match: ' MARTITEGUI LIZASO, Jurdan, narozen dne 10.5.1980 v Durangu, Vizcaya (Španělsko), průkaz totožnosti č. 45.626.584 – aktivista „ETA“'
+        details:
+          - first_name: Jurdan
+            last_name: Martitegui Lizaso
+            dob: 10.5.1980
+            pob: Durangu, Vizcaya
+            country: es
+            id_num: 45.626.584
+            position: aktivista „ETA“
+            schema: Person
+      - match: ' MORCILLO TORRES, Gracia, narozena dne 15.3.1967 v San Sebastiánu, Guipúzcoa (Španělsko), průkaz totožnosti č. 72.439.052 – aktivistka „ETA“; členka „Kas“ / „Ekin“'
+        details:
+          - first_name: Gracia
+            last_name: Morcillo Torres
+            dob: 15.3.1967
+            pob: San Sebastiánu, Guipúzcoa
+            country: es
+            id_num: 72.439.052
+            position: ["aktivistka „ETA“", "členka „Kas“ / „Ekin“"]
+            schema: Person
+      - match: ' NARVÁEZ GOÑI, Juan Jesús, narozen dne 23.2.1961 v Pamploně, Navarra (Španělsko), průkaz totožnosti č. 15.841.101 – aktivista „ETA“'
+        details:
+          - first_name: Juan Jesús
+            last_name: Narváez Goñi
+            dob: 23.2.1961
+            pob: Pamploně, Navarra
+            country: es
+            id_num: 15.841.101
+            position: aktivista „ETA“
+            schema: Person
+      - match: ' OLANO OLANO, Juan María, narozen dne 25.3.1955 v Ganze, Guipúzcoa (Španělsko), průkaz totožnosti č. 15.919.168 – aktivista „ETA“; člen „Gestoras pro-amnistía“ / „Askatasuna“'
+        details:
+          - first_name: Juan María
+            last_name: Olano Olano
+            dob: 25.3.1955
+            pob: Ganze, Guipúzcoa
+            country: es
+            id_num: 15.919.168
+            position: ["aktivista „ETA“", "člen „Gestoras pro-amnistía“ / „Askatasuna“"]
+            schema: Person
+      - match: ' OLARRA AGUIRIANO, José María, narozen dne 27.7.1957 v Tolose, Guipúzcoa (Španělsko), průkaz totožnosti č. 72.428.996 – aktivista „ETA“; člen „Xaki“'
+        details:
+          - first_name: José María
+            last_name: Olarrá Aguiriano
+            dob: 27.7.1957
+            pob: Tolose, Guipúzcoa
+            country: es
+            id_num: 72.428.996
+            position: ["aktivista „ETA“", "člen „Xaki“"]
+            schema: Person
+      - match: ' ORBE SEVILLANO, Zigor, narozen dne 22.9.1975 v Basauri, Biskajsko (Španělsko), průkaz totožnosti č. 45.622.851 – aktivista „ETA“; člen „Jarrai Haika Segi“'
+        details:
+          - first_name: Zigor
+            last_name: Orbe Sevillano
+            dob: 22.9.1975
+            pob: Basauri, Biskajsko
+            country: es
+            id_num: 45.622.851
+            position: ["aktivista „ETA“", "člen „Jarrai Haika Segi“"]
+            schema: Person
+      - match: ' PALACIOS ALDAY, Gorka, narozen dne 17.10.1974 v Baracaldu, Biskajsko (Španělsko), průkaz totožnosti č. 30.654.356 – aktivista „ETA“; člen „K. Madrid“'
+        details:
+          - first_name: Gorka
+            last_name: Palacios Alday
+            dob: 17.10.1974
+            pob: Baracaldu, Biskajsko
+            country: es
+            id_num: 30.654.356
+            position: ["aktivista „ETA“", "člen „K. Madrid“"]
+            schema: Person
+      - match: ' PEREZ ARAMBURU, Jon Iñaki, narozen dne 18.9.1964 v San Sebastiánu, Guipúzcoa (Španělsko), průkaz totožnosti č. 15.976.521 – aktivista „ETA“; člen „Jarrai Haika Segi“'
+        details:
+          - first_name: Jon Iñaki
+            last_name: Pérez Aramburu
+            dob: 18.9.1964
+            pob: San Sebastiánu, Guipúzcoa
+            country: es
+            id_num: 15.976.521
+            position: ["aktivista „ETA“", "člen „Jarrai Haika Segi“"]
+            schema: Person
+      - match: ' QUINTANA ZORROZUA, Asier, narozen dne 27.2.1968 v Bilbau, Biskajsko (Španělsko), průkaz totožnosti č. 30.609.430 – aktivista „ETA“; člen „K. Madrid“'
+        details:
+          - first_name: Asier
+            last_name: Quintana Zorrozu
+            dob: 27.2.1968
+            pob: Bilbau, Biskajsko
+            country: es
+            id_num: 30.609.430
+            position: ["aktivista „ETA“", "člen „K. Madrid“"]
+            schema: Person
+      - match: ' RETA DE FRUTOS, José Ignacio, narozen dne 3.7.1959 v Elorriu, Vizcaya (Španělsko), průkaz totožnosti č. 72.253.056 – aktivista „ETA“; člen „Gestoras pro-amnistía“ / „Askatasuna“'
+        details:
+          - first_name: José Ignacio
+            last_name: Reta de Frutos
+            dob: 3.7.1959
+            pob: Elorriu, Vizcaya
+            country: es
+            id_num: 72.253.056
+            position: ["aktivista „ETA“", "člen „Gestoras pro-amnistía“ / „Askatasuna“"]
+            schema: Person
+      - match: ' RUBENACH ROIG, Juan Luis, narozen dne 18.9.1963 v Bilbau, Biskajsko (Španělsko), průkaz totožnosti č. 18.197.545 – aktivista „ETA“; člen „K. Madrid“'
+        details:
+          - first_name: Juan Luis
+            last_name: Rubenach Roig
+            dob: 18.9.1963
+            pob: Bilbau, Biskajsko
+            country: es
+            id_num: 18.197.545
+            position: ["aktivista „ETA“", "člen „K. Madrid“"]
+            schema: Person
+      - match: ' TXAPARTEGI NIEVES, Nekane, narozena dne 8.1.1973 v Asteasu, Guipúzcoa (Španělsko), průkaz totožnosti č. 44.140.578 – aktivistka „ETA“; členka „Xaki“'
+        details:
+          - first_name: Nekane
+            last_name: Txapartegi Nieves
+            dob: 8.1.1973
+            pob: Asteasu, Guipúzcoa
+            country: es
+            id_num: 44.140.578
+            position: ["aktivistka „ETA“", "členka „Xaki“"]
+            schema: Person
+      - match: ' URANGA ARTOLA, Kemen, narozen dne 25.5.1969 v Ondarroi, Biskajsko (Španělsko), průkaz totožnosti č. 30.627.290 – aktivista „ETA“; člen „Herri Batasuna“ / „Euskal Herritarrok“ / „Batasuna“'
+        details:
+          - first_name: Kemen
+            last_name: Uranga Artola
+            dob: 25.5.1969
+            pob: Ondarroi, Biskajsko
+            country: es
+            id_num: 30.627.290
+            position: ["aktivista „ETA“", "člen „Herri Batasuna“ / „Euskal Herritarrok“ / „Batasuna“"]
+            schema: Person
+      - match: ' URRUTICOECHEA BENGOECHEA, José Antonio, narozen dne 24.12.1950 v Miravalles, Vizcaya (Španělsko), průkaz totožnosti č. 14.884.849 – aktivista „ETA“'
+        details:
+          - first_name: José Antonio
+            last_name: Urruticoechea Bengoetxea
+            dob: 24.12.1950
+            pob: Miravalles, Vizcaya
+            country: es
+            id_num: 14.884.849
+            position: aktivista „ETA“
+            schema: Person
+      - match: ' VALLEJO FRANCO, Iñigo, narozen dne 21.5.1976 v Bilbau, Biskajsko (Španělsko), průkaz totožnosti č. 29.036.694 – aktivista „ETA“'
+        details:
+          - first_name: Iñigo
+            last_name: Vallejo Franco
+            dob: 21.5.1976
+            pob: Bilbau, Biskajsko
+            country: es
+            id_num: 29.036.694
+            position: aktivista „ETA“
+            schema: Person
+      - match: ' VILA MICHELENA, Fermín, narozen dne 12.3.1970 v Irúnu, Guipúzcoa (Španělsko), průkaz totožnosti č. 15.254.214 – aktivista „ETA“; člen „Kas“ / „Ekin“'
+        details:
+          - first_name: Fermín
+            last_name: Vila Michelena
+            dob: 12.3.1970
+            pob: Irúnu, Guipúzcoa
+            country: es
+            id_num: 15.254.214
+            position: ["aktivista „ETA“", "člen „Kas“ / „Ekin“"]
+            schema: Person
+      - match: ' „Brigata XX Luglio“ („Brigáda 20. července“)'
+        details:
+          - name: Brigata XX Luglio
+            alias: Brigáda 20. července
+            schema: Organization
+      - match: ' „Brigate Rosse per la Costruzione del Partito Comunista Combattente“ („Rudé brigády pro budování bojové komunistické strany“)'
+        details:
+          - name: Brigate Rosse per la Costruzione del Partito Comunista Combattente
+            alias: Rudé brigády pro budování bojové komunistické strany
+            schema: Organization
+      - match: ' „Cellula Contro Capitale, Carcere i suoi Carcerieri e le sue Celle“ – „CCCCC“ („Buňka proti kapitálu, vězení, vězeňským dozorcům a vězeňským celám“)'
+        details:
+          - name: Cellula Contro Capitale, Carcere i suoi Carcerieri e le sue Celle"
+            alias: ["CCCCC", "Buňka proti kapitálu, vězení, vězeňským dozorcům a vězeňským celám"]
+            schema: Organization
+      - match: ' „Continuity Irish Republican Army“ – „CIRA“ („Pokračující Irská republikánská armádaarmáda“)'
+        details:
+          - name: Continuity Irish Republican Army
+            alias: ["CIRA", "Pokračující Irská republikánská armáda"]
+            schema: Organization
+      - match: ' „Cooperativa Artigiana Fuoco ed Affini – Occasionalmente Spettacolare“'
+        details:
+          - name: Cooperativa Artigiana Fuoco ed Affini – Occasionalmente Spettacolare
+            schema: Organization
+      - match: ' „Dekati Evdomi Noemvri“ („Revoluční organizace 17. listopadu“)'
+        details:
+          - name: Dekati Evdomi Noemvri
+            alias: Revoluční organizace 17. listopadu
+            schema: Organization
+      - match: ' „Epanastatiki Pirines“ („Revoluční buňky“)'
+        details:
+          - name: Epanastatiki Pirines
+            alias: Revoluční buňky
+            schema: Organization
+      - match: ' „EPANASTATIKOS AGONAS“ („Revoluční boj“)'
+        details:
+          - name: EPANASTATIKOS AGONAS
+            alias: Revoluční boj
+            schema: Organization
+      - match: ' „Federazione Anarchica Informale“ – „FAI“ („Neformální anarchistická federace“)'
+        details:
+          - name: Federazione Anarchica Informale
+            alias: ["FAI", "Neformální anarchistická federace"]
+            schema: Organization
+      - match: ' „Grupos de Resistencia Anti-Fascista Primero de Octubre“ – „GRAPO“ („Antifašistické skupiny odporu prvního října“)'
+        details:
+          - name: Grupos de Resistencia Anti-Fascista Primero de Octubre
+            alias: ["GRAPO", "Antifašistické skupiny odporu prvního října"]
+            schema: Organization
+      - match: ' „Loyalist Volunteer Force“ – „LVF“ („Loajalistický dobrovolnický sbor“)'
+        details:
+          - name: Loyalist Volunteer Force
+            alias: ["LVF", "Loajalistický dobrovolnický sbor"]
+            schema: Organization
+      - match: ' „Nuclei Armati per il Comunismo“ („Ozbrojené jednotky pro komunismus“)'
+        details:
+          - name: Nuclei Armati per il Comunismo
+            alias: Ozbrojené jednotky pro komunismus
+            schema: Organization
+      - match: ' „Orange Volunteers“ – „OV“ („Oranžští dobrovolníci“)'
+        details:
+          - name: Orange Volunteers
+            alias: ["OV", "Oranžští dobrovolníci"]
+            schema: Organization
+      - match: ' „Real IRA“ („Skutečná IRA“)'
+        details:
+          - name: Real IRA
+            alias: "Skutečná IRA"
+            schema: Organization
+      - match: ' „Red Hand Defenders“ – „RHD“ („Obránci rudé ruky“)'
+        details:
+          - name: Red Hand Defenders
+            alias: ["RHD", "Obránci rudé ruky"]
+            schema: Organization
+      - match: ' „Solidarietà Internazionale“ („Mezinárodní solidarita“)'
+        details:
+          - name: Solidarietà Internazionale
+            alias: Mezinárodní solidarita
+            schema: Organization
+      - match: ' „Ulster Defence Association/Ulster Freedom Fighters“ – „UDA/UFF“ („Ulsterské obranné sdružení/Ulsterští bojovníci za svobodu“)'
+        details:
+          - name: Ulster Defence Association/Ulster Freedom Fighters
+            alias: ["UDA/UFF", "Ulsterské obranné sdružení/Ulsterští bojovníci za svobodu"]
+            schema: Organization
+      - match: ' „Euskadi Ta Askatasuna“ / „Tierra Vasca y Libertad“ – „ETA“ (Baskicko a jeho svoboda); tyto organizace jsou součástí teroristické skupiny ETA: „Kas“, „Xaki“, „Ekin“, „Jarrai Haika Segi“, „Gestoras pro-amnistía“, „Askatasuna“, „Batasuna“ (také známa jako „Herri Batasuna“; „Euskal Herritarrok“), „Acción Nacionalista Vasca / Euskal Abertzale Ekintza“ (ANV/EAE), „Partido Comunista de las Tierras Vascas / Euskal Herrialdeetako Alderdi Komunista“ (PCTV/EHAK)'
+        details:
+          - name: Euskadi Ta Askatasuna
+            alias: ["Tierra Vasca y Libertad", "ETA", "Baskicko a jeho svoboda"]
+            notes: "tyto organizace jsou součástí teroristické skupiny ETA: „Kas“, „Xaki“, „Ekin“, „Jarrai Haika Segi“, „Gestoras pro-amnistía“, „Askatasuna“, „Batasuna“ (také známa jako „Herri Batasuna“; „Euskal Herritarrok“), „Acción Nacionalista Vasca / Euskal Abertzale Ekintza“ (ANV/EAE), „Partido Comunista de las Tierras Vascas / Euskal Herrialdeetako Alderdi Komunista“ (PCTV/EHAK)'"
+            schema: Organization
