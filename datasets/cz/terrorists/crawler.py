@@ -4,7 +4,7 @@ from zavod.shed.zyte_api import fetch_html
 
 def crawl_details(context, details):
     result = context.lookup("details", details)
-    if not result and not result.details:
+    if not result or not result.details:
         context.log.warning("Details are not parsed", details=details)
 
     override = result.details[0]
