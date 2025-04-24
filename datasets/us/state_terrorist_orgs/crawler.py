@@ -1,31 +1,33 @@
+import re
+
 from zavod import Context, helpers as h
 
+NORMAL_CASE_RE = r"^(?P<name>[\w\s’'/-]+?)(?:\s*\((?P<alias>[\w\s’'/-]+?)\))?$"
 PROGRAM = "Foreign Terrorist Organizations designated under section 219 of the INA"
 
 
 def split_clean_name(context, name):
-    # Defaults
-    name_clean = name.strip()
+    name = name.strip()
     name_former = None
     alias = None
-    # Lookup override if name contains a dash
-    if any(dash in name for dash in ["—", "–"]):
-        result = context.lookup("names", name)
-        if not result or not result.names:
-            context.log.warning("Name override is not found", name=name)
-            return name_clean, name_former, alias
-        for name in result.names:
-            name_clean = name.get("name_clean")
-            name_former = name.get("name_former")
-            alias = name.get("alias")
-    # Parse inline alias format: e.g., "Organization Name (Alias)"
-    elif len(name.split(" (")) == 2:
-        base, alias_part = name.rsplit(" (", 1)
-        name_clean = base.strip()
-        alias = alias_part.rstrip(")").strip()
-        name_former = None
 
-    return name_clean, name_former, alias
+    match = re.fullmatch(NORMAL_CASE_RE, name)
+    if match:
+        return match.group("name").strip(), name_former, match.group("alias")
+
+    # Override lookup for known complex cases
+    result = context.lookup("names", name)
+    if result and result.names:
+        override = result.names[0]
+        return (
+            override.get("name_clean"),
+            override.get("name_former"),
+            override.get("alias"),
+        )
+
+    context.log.warning("Name override is not found", name=name)
+
+    return name, name_former, alias
 
 
 def crawl_row(context, row):
