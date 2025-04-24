@@ -57,7 +57,7 @@ If you encounter any errors during the installation, please consider googling er
 
     Plyvel on Mac OS X: [issue](https://github.com/wbolster/plyvel/issues/114)
 
-For development you may also want to install `yamllint` - we use that to check for valid and correctly formatted yaml in datasets.
+For development, you may want to use our [pre-commit](https://pre-commit.com/) configuration to automatically lint and typecheck your contributions. Just run `pip install pre-commit && pre-commit install` and the hooks will automatically run the next time you `git commit`. If you're hacking away and just want to make an intermediate commit without the tool getting in your way, you can always temporarily disable these checks by using `git commit --no-verify`.
 
 ## Configuration
 
@@ -73,5 +73,5 @@ For development you may also want to install `yamllint` - we use that to check f
 * `ZAVOD_SYNC_POSITIONS` (default `True`) - When true, attempts to sync PEP positions with our positions database, requiring `ZAVOD_OPENSANCTIONS_API_KEY` to be set with a valid key. Usually best set to `False` in development.
 * `ZAVOD_ARCHIVE_BACKEND` default `FileSystemBackend`.
     - `AnonymousGoogleCloudBackend` is nice for crawler development - it allows backfilling from the OpenSanctions data lake which is handy for delta comparisons to previous production runs. Requires `ZAVOD_ARCHIVE_BUCKET` to be set.
-    - `GoogleCloudBackend` additionally allows publishing to the data lake. gcloud environment credentials are required. 
+    - `GoogleCloudBackend` additionally allows publishing to the data lake. gcloud environment credentials are required.
 * `ZAVOD_ARCHIVE_BUCKET` - e.g. `data.opensanctions.org`
