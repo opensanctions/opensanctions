@@ -102,3 +102,11 @@ lookups:
         names:
           - name_clean: Gama’a al-Islamiyya
             alias: ["Islamic Group", "IG"]
+      - match: 'al-Mulathamun Battalion, aka al-Murabitoun'
+        names:
+          - name_clean: al-Mulathamun Battalion
+            alias: al-Murabitoun
+      - match: 'Shining Path (Sendero Luminoso, SL)'
+        names:
+          - name_clean: Shining Path
+            alias: ["Sendero Luminoso", "SL"]
