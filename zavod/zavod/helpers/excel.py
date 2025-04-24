@@ -5,7 +5,7 @@ from xlrd import XL_CELL_DATE  # type: ignore
 from xlrd.book import Book  # type: ignore
 from xlrd.sheet import Cell, Sheet  # type: ignore
 from xlrd.xldate import xldate_as_datetime  # type: ignore
-from nomenklatura.util import datetime_iso
+from rigour.time import datetime_iso
 from openpyxl.worksheet.worksheet import Worksheet
 
 from zavod.context import Context

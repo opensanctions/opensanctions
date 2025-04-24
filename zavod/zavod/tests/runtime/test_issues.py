@@ -1,9 +1,10 @@
 import json
+from rigour.time import iso_datetime
+
 from zavod.logs import configure_logging
 from zavod.archive import ISSUES_FILE, dataset_resource_path
 from zavod.context import Context
 from zavod.meta import Dataset
-from nomenklatura.util import iso_datetime
 
 
 def test_issue_logger(testdataset1: Dataset):
