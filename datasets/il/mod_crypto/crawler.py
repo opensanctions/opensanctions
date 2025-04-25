@@ -127,12 +127,16 @@ def crawl(context: Context):
     #   Top of bottom?
     #
     # Save As https://nbctf.mod.gov.il/en/Minister%20Sanctions/PropertyPerceptions/Pages/Blockchain1.aspx
-    # as 'Web Page, HTML only' in chrome to datasets/il/mod_crypto/source.html
+    # as 'Web Page, HTML only' in chrome to a temporary location e.g. /tmp/il_crypto.html.
     # We use chrome because curl sometimes gets a bot blocking response.
     #
+    # Then run `xmllint --format --html /tmp/il_crypto.html > datasets/il/mod_crypto/source.html`
+    # Then run `dos2unix datasets/il/mod_crypto/source.html`
     # Then git diff --word-diff=color datasets/il/mod_crypto/source.html
     # and see if there's anything in the content that's changed.
-    h.assert_dom_hash(container, "6be6ea632ca3136812cf023a7a8fb364d12eab47")
+    #
+    # Commit the changes so that we can see what changed from here next time.
+    h.assert_dom_hash(container, "203b99615f06e11bf4af3273e2cb46506c0804c4")
 
     # We don't support rowspan at the time of writing.
     #
