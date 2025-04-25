@@ -2,6 +2,7 @@ from normality import WS
 from rigour.ids import StrictFormat
 from rigour.text.phonetics import metaphone
 from rigour.text.scripts import is_modern_alphabet
+from rigour.addresses import normalize_address, remove_address_keywords
 from typing import Generator, Set, Tuple
 from followthemoney.types import registry
 
@@ -27,7 +28,6 @@ SKIP = (
 )
 EMIT_FULL = (
     registry.name,
-    registry.address,
     registry.identifier,
     registry.country,
     registry.phone,
@@ -77,5 +77,11 @@ def tokenize_entity(entity: CE) -> Generator[Tuple[str, str], None, None]:
             if clean_id is not None:
                 unique.add((type.name, clean_id))
             continue
+        if type == registry.address:
+            norm = normalize_address(value)
+            if norm is not None:
+                norm = remove_address_keywords(norm) or norm
+                for word in norm.split(WS):
+                    unique.add((type.name, norm))
 
     yield from unique
