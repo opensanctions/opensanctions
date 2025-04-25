@@ -1,11 +1,15 @@
 import csv
-from typing import Dict, Iterable
+from typing import Dict
 
+from zavod import Context, Entity
 import zavod.helpers as h
-from zavod import Context
+from nomenklatura.resolver import Linker
+from zavod.integration import get_dataset_linker
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(
+    context: Context, linker: Linker[Entity], row_idx: int, row: Dict[str, str]
+) -> None:
     """Process one row of the CSV data"""
     row_id = row.pop("List ID").strip(" \t.")
     entity_type = row.pop("Type").strip()
@@ -17,6 +21,18 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity = context.make(entity_type)
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
+    canonical_id = linker.get_canonical(entity.id)
+    for other_id in linker.get_referents(canonical_id):
+        if other_id.startswith("eu-fsf-"):
+            context.log.warning(
+                f"Row {row_idx} is also present in FSF XML: {other_id}, can be removed from sheet",
+                row_id=row_id,
+                other_id=other_id,
+                name=name,
+                entity_type=entity_type,
+                country=country,
+            )
+
     entity.add("topics", "sanction")
     dob = row.pop("DOB")
     if entity.schema.is_a("Organization"):
@@ -77,14 +93,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def crawl_csv(context: Context, reader: Iterable[Dict[str, str]]):
-    """Process the CSV data"""
-    for row in reader:
-        crawl_row(context, row)
-
-
 def crawl(context: Context):
     path = context.fetch_resource("source.csv", context.data_url)
+    linker = get_dataset_linker(context.dataset)
     with open(path, "rt") as infh:
-        reader = csv.DictReader(infh)
-        crawl_csv(context, reader)
+        for idx, row in enumerate(csv.DictReader(infh)):
+            crawl_row(context, linker, idx, row)
