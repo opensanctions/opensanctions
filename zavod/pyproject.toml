@@ -76,6 +76,7 @@ dev = [
     "types-openpyxl",
     "types-google-cloud-ndb",
     "types-redis",
+    "pre-commit",
 ]
 docs = [
     "pillow",
