@@ -37,3 +37,16 @@ assertions:
     schema_entities:
       Company: 100
       LegalEntity: 100
+
+lookups:
+  company_name:
+    normalize: true
+    options:
+      - match: AB „Eurochem Logistics International“ (iki 2024 m. gruodžio 11 d. – UAB „Eurochem Logistics International“)
+        name: AB Eurochem Logistics International
+        props:
+          previousName: UAB „Eurochem Logistics International“
+      - match: UAB „PureFert Baltic“ (iki 2024 m. lapkričio 8 d. – UAB „PhosAgro Baltic“)
+        name: UAB PureFert Baltic
+        props:
+          previousName: UAB „PhosAgro Baltic“

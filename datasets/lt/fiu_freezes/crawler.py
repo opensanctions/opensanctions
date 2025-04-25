@@ -30,11 +30,20 @@ def crawl_page(
             continue
         data = dict(zip(headers, cells))
         nr = data.pop("nr")
-        company_name = (
+        company_name_raw = (
             data.pop("fizinio_ar_juridinio_asmens_kurio_turtas_isaldytas_pavadinimas")
             .split("\n")[0]
             .strip()
         )
+        company_name = company_name_raw
+        cleaning_props = {}
+        if "(" in company_name:
+            res = context.lookup("company_name", company_name)
+            if res is None:
+                context.log.warn("Company name might need cleaning", name=company_name)
+            else:
+                company_name = res.name
+                cleaning_props = res.props
         reg_nr = data.pop("imones_kodas")
         measures = data.pop("isaldyto_turto_rusis").split("\n")
         legal_grounds = data.pop("reglamentas_kurio_pagrindu_taikomas_turto_isaldymas")
@@ -42,10 +51,12 @@ def crawl_page(
             "fizinis_ar_juridinis_asmuo_kuriam_taikomos_tarptautines_sankcijos"
         ).split("\n")
         company = context.make("Company")
-        company.id = context.make_slug(nr, company_name)
-        company.add("name", company_name)
+        company.id = context.make_slug(nr, company_name_raw)
+        company.add("name", company_name, original_value=company_name_raw)
         company.add("registrationNumber", reg_nr)
         company.add("topics", "sanction")
+        for prop, value in cleaning_props.items():
+            company.add(prop, value)
         context.emit(company)
 
         sanction = h.make_sanction(context, company)
