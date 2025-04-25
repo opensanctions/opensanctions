@@ -7,7 +7,7 @@ coverage:
 ci_test: false
 load_statements: true
 summary: >-
-  Individuals and firms that have been sanctioned by AfDB, for having 
+  Individuals and firms that have been sanctioned by AfDB, for having
   participated in coercive, collusive, corrupt, fraudulent or obstructive
   practices under the Bank’s sanctions system.
 description: |
@@ -63,7 +63,6 @@ lookups:
     map:
       FIRM: Company
       INDIVIDUAL: Person
-      "": LegalEntity
   type.country:
     lowercase: true
     normalize: true
@@ -74,3 +73,15 @@ lookups:
         value: Kazakhstan
       - match: Uzbekistan, Rep. of
         value: Uzbekistan
+      - match: CESA HONDURAS
+        value: Honduras
+      - match: CESA PANAMÁ
+        value: Panama
+      - match: Agentina
+        value: Argentina
+  type.date:
+    options:
+      - match: 10/31/23
+        value: 2023-10-31
+      - match: 10/30/28
+        value: 2028-10-30
