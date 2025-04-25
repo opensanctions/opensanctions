@@ -110,3 +110,15 @@ lookups:
     options:
       - regex: /entities/.*
         value: null
+  type.string:
+    options:
+      - match: 841 04 Bratislava
+        prop: city
+      - match:
+          - 33 Tseuk Luk Street
+          - 9 Northshore Terrace
+        prop: street
+      - match:
+          - the Palm Jumeirah
+          - Hodkovičky, 147 00
+        prop: region
