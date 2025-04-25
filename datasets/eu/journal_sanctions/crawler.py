@@ -17,7 +17,7 @@ def crawl_row(
     country = row.pop("Country").strip()
     reg_number = row.pop("registrationNumber").strip()
 
-    context.log.info(f"Processing row ID {row_id}: {name}")
+    context.log.info(f"Processing row #{row_idx}: {name}")
     entity = context.make(entity_type)
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
