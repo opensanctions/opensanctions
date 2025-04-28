@@ -49,10 +49,9 @@ def parse_address(entity: Entity, el: etree._Element) -> str:
     country_code = parts.get("country_code")
     state = parts.get("state")
     if state is not None and country_code is not None:
-        if country_code in ("US", "AU"):
-            prefix = f"{country_code}-"
-            if state.startswith(prefix):
-                parts["state"] = state[len(prefix) :]
+        prefix = f"{country_code}-"
+        if state.startswith(prefix):
+            parts["state"] = state[len(prefix) :]
         if state == country_code:
             parts["state"] = None
     address = h.format_address(**parts)
