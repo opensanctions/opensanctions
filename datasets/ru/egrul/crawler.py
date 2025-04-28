@@ -1,8 +1,9 @@
-import csv
-import functools
 import os
-import re
-from typing import Dict, Set, Any, Optional, List, Tuple
+import csv
+from typing import Dict, Set, Any, Optional, List
+from normality import collapse_spaces
+from rigour.names import replace_org_types_display
+from followthemoney.types import registry
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -12,33 +13,7 @@ LOCAL_BUCKET_PATH = "/Users/leon/internal-data/"
 PROCESSED_EGRUL_PREFIX = "ru_egrul/processed/latest/"
 
 
-AbbreviationList = List[Tuple[str, re.Pattern, List[str]]]
-
-
-@functools.cache
-def get_abbreviations(context) -> AbbreviationList:
-    """
-    Load abbreviations and compile regex patterns from the YAML config.
-    Returns:
-    AbbreviationList: A list of tuples containing canonical abbreviations
-    and their compiled regex patterns for substitution.
-    """
-    types = context.dataset.config.get("organizational_types")
-    abbreviations = []
-    for canonical, phrases in types.items():
-        # we want to match the whole word and allow for ["] or ['] at the beginning
-        for phrase in phrases:
-            phrase_pattern = rf"^[ \"']?{re.escape(phrase)}"
-
-            compiled_pattern = re.compile(phrase_pattern, re.IGNORECASE)
-            # Append the canonical form, compiled regex pattern, and phrase to the list
-            abbreviations.append((canonical, compiled_pattern, phrase))
-    # Reverse-sort by length so that the most specific phrase would match first.
-    abbreviations.sort(key=lambda x: len(x[2]), reverse=True)
-    return abbreviations
-
-
-def substitute_abbreviations(context: Context, name: Optional[str]) -> Optional[str]:
+def substitute_abbreviations(name: Optional[str]) -> Optional[str]:
     """
     Substitute organisation type in the name with its abbreviation
     using the compiled regex patterns.
@@ -46,34 +21,24 @@ def substitute_abbreviations(context: Context, name: Optional[str]) -> Optional[
     :param name: The input name where abbreviations should be substituted.
     :return: The name shorted if possible, otherwise the original
     """
+    name = collapse_spaces(name)
     if name is None:
         return None
-    # Iterate over all abbreviation groups
-    for canonical, regex, phrases in get_abbreviations(context):
-        modified_name = regex.sub(canonical, name)
-        if modified_name != name:
-            return modified_name
-    # If no match, return the original name
-    return name
+    if len(name) <= registry.name.max_length:
+        return name
+    return replace_org_types_display(name)
 
 
 def emit_person(context: Context, row: dict[str, Any]) -> Entity:
     entity = context.make("Person")
     entity.id = row["id"]
-
-    entity.add(
-        "name",
-        h.make_name(
-            first_name=row["first_name"],
-            patronymic=row["father_name"],
-            last_name=row["last_name"],
-        ),
+    h.apply_name(
+        first_name=row["first_name"],
+        patronymic=row["father_name"],
+        last_name=row["last_name"],
     )
-    entity.add("firstName", row["first_name"])
-    entity.add("fatherName", row["father_name"])
-    entity.add("lastName", row["last_name"])
     entity.add("country", row["country"])
-    entity.add("innCode", row["inn_code"])
+    entity.add("innCode", row["inn_code"], cleaned=True)
 
     context.emit(entity)
 
@@ -112,13 +77,13 @@ def emit_legal_entity(
     entity.add("name", row["name_latin"])
 
     # Only for Company. These need to pass through the abbreviation substitution
-    entity.add("name", substitute_abbreviations(context, row["name_full"]))
-    entity.add("name", substitute_abbreviations(context, row["name_short"]))
+    entity.add("name", substitute_abbreviations(row["name_full"]))
+    entity.add("name", substitute_abbreviations(row["name_short"]))
 
     entity.add("jurisdiction", row["jurisdiction"])
     entity.add("country", row["country"])
-    entity.add("innCode", row["inn_code"])
-    entity.add("ogrnCode", row["ogrn_code"])
+    entity.add("innCode", row["inn_code"], cleaned=True)
+    entity.add("ogrnCode", row["ogrn_code"], cleaned=True)
     entity.add("publisher", row["publisher"])
     entity.add("registrationNumber", row["registration_number"])
     entity.add("incorporationDate", row["incorporation_date"])
@@ -169,7 +134,6 @@ def emit_succession(context: Context, row: dict[str, Any]) -> None:
     entity.id = row["id"]
     entity.add("predecessor", row["predecessor_id"])
     entity.add("successor", row["successor_id"])
-
     context.emit(entity)
 
 

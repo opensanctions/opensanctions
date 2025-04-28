@@ -2,7 +2,7 @@ import csv
 from typing import Set, Iterable
 from normality import collapse_spaces
 from followthemoney.types import registry
-from nomenklatura.util import bool_text
+from rigour.boolean import bool_text
 
 from zavod.entity import Entity
 from zavod.logs import get_logger
