@@ -1,15 +1,21 @@
 from zavod import Context, helpers as h
 
 
+def log_messy_names(context, name_value):
+    if any(term in name_value for term in ("aka", "a/k/a")):
+        context.log.warning("Name needs to be cleaned up:", name=name_value)
+
+
 def emit_directorship(context, entity_id, principal):
     director = context.make("Person")
     director.id = context.make_id(principal)
     director.add("name", principal)
+    log_messy_names(context, director.get("name")[0])
     director.add("country", "us")
     context.emit(director)
 
     dir = context.make("Directorship")
-    dir.id = context.make_id(director.id, "of", entity_id)
+    dir.id = context.make_id(director.id, "director of", entity_id)
     dir.add("organization", entity_id)
     dir.add("director", director.id)
     context.emit(dir)
@@ -24,6 +30,7 @@ def crawl_row(context, row):
     entity.id = context.make_id(name, company_name)
     if entity.schema.is_a("Person"):
         entity.add("name", name)
+        log_messy_names(context, entity.get("name")[0])
     else:
         entity.add("name", company_name)
         principal = row.pop("principals", None)

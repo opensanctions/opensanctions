@@ -35,12 +35,10 @@ assertions:
     schema_entities:
       Person: 50
       Company: 40
-      Directorship: 20
   max:
     schema_entities:
       Person: 100
       Company: 80
-      Directorship: 50
 
 lookups:
   type.date:
@@ -58,3 +56,23 @@ lookups:
           - 2009-05-28
           - 2010-05-10
           - 2010-08-18
+  type.name:
+    options:
+      - match: 'James, Akiuber Ndoromo: aka "Akube Wuromori Ndoromo"'
+        values:
+          - James, Akiuber Ndoromo
+          - Akube Wuromori Ndoromo
+      - match: Akinyoyenu, Titilayo Akintomide; a/k/a Tommy Akin, a/k/a Tomi
+        values:
+          - Akinyoyenu, Titilayo Akintomide
+          - Tommy Akin
+          - Tomi
+      - match: 'Titilayo Akintomide Akinyoyenu, a/k/a Tommy Akin, a/k/a Tomi'
+        values:
+          - Titilayo Akintomide Akinyoyenu
+          - Tommy Akin
+          - Tomi
+      - match: 'Akiuber Ndoromo James: aka "Akube Wuromori Ndoromo"'
+        values:
+          - Akiuber Ndoromo James
+          - Akube Wuromori Ndoromo
