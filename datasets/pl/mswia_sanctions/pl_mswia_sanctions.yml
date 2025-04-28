@@ -183,3 +183,13 @@ lookups:
             - "Voronyansky 35, Office 8 220007 Mińsk"
             - "ул. Воронянского, 35, пом. 8, 220007, г. Минск"
           registrationNumber: "BY193759703"
+      - match: '(TIN: 246403033635)'
+        props:
+          taxNumber: 246403033635
+      - match: 'urodzony w 1966 roku (TIN: 246000069678)'
+        props:
+          birthDate: 1966
+          taxNumber: 246000069678
+      - match: 'adres: ul. Barska 2B, 02-315 Warszawa '
+        props:
+          address: "ul. Barska 2B, 02-315 Warszawa"
