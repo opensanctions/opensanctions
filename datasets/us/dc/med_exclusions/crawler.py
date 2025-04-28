@@ -6,12 +6,26 @@ def log_messy_names(context, name_value):
         context.log.warning("Name needs to be cleaned up:", name=name_value)
 
 
-def emit_directorship(context, entity_id, principal):
+def lookup_position(context, principal):
+    position = None
+    if "President" in principal:
+        result = context.lookup("director", principal)
+        if result and result.names:
+            principal = result.names[0].get("principal")
+            position = result.names[0].get("position")
+        if not position:
+            context.log.warning(
+                "Could not find position for director", director=principal
+            )
+    return principal, position
+
+
+def emit_directorship(context, entity_id, principal, position):
     director = context.make("Person")
     director.id = context.make_id(principal)
     director.add("name", principal)
     log_messy_names(context, director.get("name")[0])
-    director.add("country", "us")
+    director.add("position", position)
     context.emit(director)
 
     dir = context.make("Directorship")
@@ -35,7 +49,8 @@ def crawl_row(context, row):
         entity.add("name", company_name)
         principal = row.pop("principals", None)
         if principal:
-            emit_directorship(context, entity.id, principal)
+            principal, position = lookup_position(context, principal)
+            emit_directorship(context, entity.id, principal, position)
 
     entity.add("country", "us")
     entity.add("address", row.pop("principal_address"))

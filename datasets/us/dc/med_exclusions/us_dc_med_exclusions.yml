@@ -41,6 +41,32 @@ assertions:
       Company: 80
 
 lookups:
+  director:
+    options:
+      - match: 'Sushil Bansal, President and Chief Executive Officer'
+        names:
+          - position: President and Chief Executive Officer
+            principal: Sushil Bansal
+      - match: 'Monreti Akinleye, President'
+        names:
+          - position: President
+            principal: Monreti Akinleye
+      - match: 'Mir, Sarosh, President'
+        names:
+          - position: President
+            principal: Sarosh Mir
+      - match: 'Fernando J. Villegas, President'
+        names:
+          - position: President
+            principal: Fernando J. Villegas
+      - match: 'Jeffrey L. Jones, President'
+        names:
+          - position: President
+            principal: Jeffrey L. Jones
+      - match: 'Kenneth D. Postell, President'
+        names:
+          - position: President
+            principal: Kenneth D. Postell
   type.date:
     options:
       - match: May 28, 2009 and June 14, 2010
