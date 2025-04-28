@@ -6,23 +6,24 @@ PROGRAM = "Designated Terrorist Entities under Czech Government Regulation 210/2
 START_DATE = "2008-06-17"
 
 
-def crawl_details(context, details):
+def crawl_details(context: Context, details: str) -> None:
     result = context.lookup("details", details)
     if not result or not result.details:
         context.log.warning("Details are not parsed", details=details)
 
     override = result.details[0]
-    name_org = override.get("name")
-    first_name = override.get("first_name")
-    last_name = override.get("last_name")
 
     entity = context.make(override.get("schema"))
-    entity.id = context.make_id(name_org, first_name, last_name)
     if entity.schema.is_a("Organization"):
+        name_org = override.get("name")
+        entity.id = context.make_id(name_org)
         entity.add("name", name_org)
         entity.add("alias", override.get("alias"))
         entity.add("notes", override.get("notes"))
     else:
+        first_name = override.get("first_name")
+        last_name = override.get("last_name")
+        entity.id = context.make_id(first_name, last_name)
         h.apply_name(entity, first_name=first_name, last_name=last_name)
         h.apply_date(entity, "birthDate", override.get("dob"))
         entity.add("birthPlace", override.get("pob"))
