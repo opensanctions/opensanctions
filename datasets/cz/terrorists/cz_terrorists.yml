@@ -28,9 +28,10 @@ dates:
 
 assertions:
   min:
+    # Asserting on exact expected numbers since data is static
     schema_entities:
-      Person: 30
-      Organization: 15
+      Person: 31
+      Organization: 18
   max:
     schema_entities:
       Person: 50
