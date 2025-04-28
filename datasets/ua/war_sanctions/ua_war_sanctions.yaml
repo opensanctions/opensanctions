@@ -255,7 +255,7 @@ lookups:
       - match: "Sergeevich/grigoryevna c/o Sanin Yuri Sergeevich (0018872 / russian federation / 11.07.2024)"
         name: ["Sergeevich", "Grigoryevna"]
         care_of: "Sanin Yuri Sergeevich"
-        registration_number: 0018872
+        registration_number: "0018872"
         country: Russia
         date: "2024-07-11"
       - match: "Blue Wave Shipping LTD-MTA c/o Blue Wave Shipping Ltd (5053266 / 06.05.2005)"
