@@ -80,11 +80,20 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
             name_parts = name.split(" ")
 
             if len(name_parts) >= 2:
-                # IVANOV Ivan
-                first_name = name_parts[1]
-                last_name = name_parts[0]
-                # IVANOV Ivan Ivanovich
-                patronymic = name_parts[2] if len(name_parts) == 3 else None
+                # Check if the name is in Cyrillic script (by checking the first character)
+                is_cyrillic = bool(re.search(r"[а-яА-ЯёЁ]", name_parts[0]))
+
+                if is_cyrillic:
+                    # Ivan Ivanovich Ivanov
+                    first_name = name_parts[0].strip("„")
+                    patronymic = name_parts[1]
+                    last_name = name_parts[2].strip("”")
+                else:
+                    # IVANOV Ivan
+                    first_name = name_parts[1]
+                    last_name = name_parts[0]
+                    # IVANOV Ivan Ivanovich
+                    patronymic = name_parts[2] if len(name_parts) == 3 else None
 
                 h.apply_name(
                     entity,
@@ -92,14 +101,14 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
                     last_name=last_name,
                     patronymic=patronymic,
                 )
-                if last_name != "Sechin":
+                if last_name not in ["Sechin", "Шнайдер"]:
                     assert (
                         last_name.isupper()
                     ), f"Expected last name '{last_name}' to be fully capitalized"
     else:
         entity.add("name", names[0])
     for alias in names[1:]:
-        for alias in h.multi_split(alias, ["obecnie: ", "inaczej:"]):
+        for alias in h.multi_split(alias, ["obecnie: ", "inaczej:", " lub "]):
             entity.add("alias", alias.split(")")[0])
     notes = row.pop("uzasadnienie_wpisu_na_liste")
     entity.add("notes", notes)
