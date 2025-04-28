@@ -103,6 +103,7 @@ lookups:
           - Khan Younis, Gaza
           - אזרחות פלסטינית
           - Gaza
+          - עזה
         value: PS
       - match: תוניס
         value: Tunisia
