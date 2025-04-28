@@ -37,6 +37,16 @@ def get_country_facets(countries: Dict[str, int]) -> List[Any]:
     return facets
 
 
+def get_sanctions_programs_facets(sanctions_programs: Dict[str, int]) -> List[Any]:
+    return [
+        {
+            "id": program_id,
+            "count": count,
+        }
+        for program_id, count in sanctions_programs.items()
+    ]
+
+
 # We don't use followthemoney.Property because we want to track manifestations of property values on specific
 # schemas, even though the property might be defined somewhere higher in the type hierarchy.
 SchemaProperty = namedtuple("SchemaProperty", ["schema", "property"])
@@ -70,6 +80,8 @@ class Statistics(object):
         self.target_countries: Dict[str, int] = defaultdict(int)
         self.target_schemata: Dict[str, int] = defaultdict(int)
 
+        self.sanctions_programs: Dict[str, int] = defaultdict(int)
+
     def observe(self, entity: Entity) -> None:
         self.entity_count += 1
         self.schemata.add(entity.schema.name)
@@ -87,6 +99,10 @@ class Statistics(object):
             self.thing_schemata[entity.schema.name] += 1
             for country in entity.countries:
                 self.thing_countries[country] += 1
+
+        if entity.schema.is_a("Sanction"):
+            for program_key in entity.get("programId"):
+                self.sanctions_programs[program_key] += 1
 
         if entity.target:
             self.target_count += 1
@@ -111,6 +127,9 @@ class Statistics(object):
                 "total": self.target_count,
                 "countries": get_country_facets(self.target_countries),
                 "schemata": get_schema_facets(self.target_schemata),
+            },
+            "sanctions": {
+                "programs": get_sanctions_programs_facets(self.sanctions_programs)
             },
             "things": {
                 "total": self.thing_count,
