@@ -94,10 +94,10 @@ lookups:
         values:
           - 2022-09-09
           - 2019-07-07
-      - match: 09-Sep-22 & 28-Sep-21
+      - match: "09-Sep-22 & 28-Sep-21"
         values:
           - 2022-09-09
-          - 2021-09-28    
+          - 2021-09-28
   normalize_name:
     lowercase: true
     normalize: true
