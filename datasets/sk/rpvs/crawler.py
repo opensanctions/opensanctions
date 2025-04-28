@@ -179,12 +179,11 @@ def process_entry(context, entry):
         entity.add("name", entity_data.pop("trading_name"))
         entity.add("registrationNumber", entity_data.pop("registration_number"))
         entity.add("legalForm", entity_type)
-        # TODO: remove when we figure out from where we get the date of birth
         dob = entity_data.pop("dob")
-        if dob:
-            context.log.warning(
-                "Entity has a date of birth", entity_id=entity.id, dob=dob
-            )
+        # Overwrite the schema when the record is an individual entrepreneur
+        if dob and entity_type == "FyzickaOsobaPodnikatel":
+            entity.add_cast("Person", "birthDate", dob)
+            entity.add_cast("Person", "title", entity_data.pop("title_prefix", ""))
 
     if legal_form := entity_data.pop("legal_form"):
         legal_form = rename_headers(context, legal_form)
