@@ -10,6 +10,7 @@ def crawl_details(context: Context, details: str) -> None:
     result = context.lookup("details", details)
     if not result or not result.details:
         context.log.warning("Details are not parsed", details=details)
+        return
 
     override = result.details[0]
 
