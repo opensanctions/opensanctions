@@ -1,0 +1,60 @@
+title: US DC Medicaid Sanctioned Providers
+entry_point: crawler.py
+prefix: us-meddc
+coverage:
+  frequency: daily
+  start: "2025-04-28"
+load_statements: true
+summary: >
+  List of providers excluded from participating in the District of Columbia Medicaid program.
+description: |
+  District of Columbia may suspend or debar contractors from eligibility for government 
+  contracts and subcontracts. The Excluded Parties List identifies individuals and entities 
+  barred from doing business with the District. While listed, they cannot be awarded contracts, 
+  renewals, or subcontracts.
+publisher:
+  name: DC Office of Contracting and Procurement
+  acronym: OCP
+  description: |
+    The DC Office of Contracting and Procurement (OCP) manages the acquisition of goods, services, 
+    and construction for the District of Columbia government. OCP is also responsible for overseeing 
+    contractor eligibility, including the suspension and debarment of individuals and entities through 
+    the Excluded Parties List.
+  url: https://ocp.dc.gov/page/about-ocp
+  official: true
+  country: "us"
+url: "https://ocp.dc.gov/page/excluded-parties-list%20"
+data:
+  url: https://ocp.dc.gov/page/excluded-parties-list%20
+  format: HTML
+dates:
+  formats: ["%B %d, %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 50
+      Company: 40
+      Directorship: 20
+  max:
+    schema_entities:
+      Person: 100
+      Company: 80
+      Directorship: 50
+
+lookups:
+  type.date:
+    options:
+      - match: May 28, 2009 and June 14, 2010
+        values:
+          - 2009-05-28
+          - 2010-06-14
+      - match: May 28, 2009 and August 18, 2010
+        values:
+          - 2009-05-28
+          - 2010-08-18
+      - match: May 28, 2009, May 10, 2010 and August 18, 2010
+        values:
+          - 2009-05-28
+          - 2010-05-10
+          - 2010-08-18
