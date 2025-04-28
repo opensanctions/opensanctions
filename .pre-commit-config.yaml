@@ -19,4 +19,5 @@ repos:
     - id: mypy
       # Don't run isolated but use the activated venv. Not perfect but better than re-declaring all deps here
       language: system
-      args: ['--strict', '--exclude', 'zavod/zavod/tests']
+      exclude: '^datasets|^zavod/zavod/tests'
+      args: ['--strict']
