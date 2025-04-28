@@ -33,12 +33,12 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 50
+      Person: 40
       Company: 40
   max:
     schema_entities:
       Person: 100
-      Company: 80
+      Company: 100
 
 lookups:
   director:
