@@ -235,6 +235,79 @@ lookups:
         name: "Rptd Sold Russia"
         country: Russia
         date: "2024-11-13"
+      - match: "Pelagia Shipping Ltd /current Name Delta Shipping Llc/ c/o Eco Shiping LLC (5863958 / russian federation / 28.02.2017)"
+        name: ["Pelagia Shipping Ltd", "Delta Shipping Llc"]
+        care_of: "Eco Shiping LLC"
+        registration_number: 5863958
+        country: Russia
+        date: "2017-02-28"
+      - match: "Leasing Company Gpb LLC /current Name Leasing Company Llc/ c/o Eco Shiping LLC (6129498 / russian federation / 05.11.2019)"
+        name: ["Leasing Company Gpb LLC", "Leasing Company Llc"]
+        care_of: "Eco Shiping LLC"
+        registration_number: 6129498
+        country: Russia
+        date: "2019-11-05"
+      - match: "Loukio Shipping Co Ltd c/o Scf Management Services (Cyprus) Ltd (4105917 / 27.05.2008)"
+        name: "Loukio Shipping Co Ltd"
+        care_of: "Scf Management Services (Cyprus) Ltd"
+        registration_number: 4105917
+        date: "2008-05-27"
+      - match: "Sergeevich/grigoryevna c/o Sanin Yuri Sergeevich (0018872 / russian federation / 11.07.2024)"
+        name: ["Sergeevich", "Grigoryevna"]
+        care_of: "Sanin Yuri Sergeevich"
+        registration_number: 0018872
+        country: Russia
+        date: "2024-07-11"
+      - match: "Blue Wave Shipping LTD-MTA c/o Blue Wave Shipping Ltd (5053266 / 06.05.2005)"
+        name: "Blue Wave Shipping LTD-MTA"
+        care_of: "Blue Wave Shipping Ltd"
+        registration_number: 5053266
+        date: "2005-05-06"
+      - match: "Lufindo Holding Ltd c/o Ravel Ship Management Pvt Ltd (6174627 / 04.11.2022)"
+        name: "Lufindo Holding Ltd"
+        care_of: "Ravel Ship Management Pvt Ltd"
+        registration_number: 6174627
+        date: "2022-11-04"
+      - match: "Shore Shipping Inc c/o Gr Shipping Pte Ltd (6404317 / 18.08.2024)"
+        name: "Shore Shipping Inc"
+        care_of: "Gr Shipping Pte Ltd"
+        registration_number: 6404317
+        date: "2024-08-18"
+      - match: "Skyrocket Trading Ltd c/o Lucky Ocean Shipping Ltd (6475990 / 13.03.2024)"
+        name: "Skyrocket Trading Ltd"
+        care_of: "Lucky Ocean Shipping Ltd"
+        registration_number: 6475990
+        date: "2024-03-13"
+      - match: "East Victory Ltd c/o Prominent Shipmanagement Ltd (6346190 / 14.09.2022)"
+        name: "East Victory Ltd"
+        care_of: "Prominent Shipmanagement Ltd"
+        registration_number: 6346190
+        date: "2022-09-14"
+      - match: "Anemone Marine Inc c/o Orion Ship Management (6431909 / 22.12.2023)"
+        name: "Anemone Marine Inc"
+        care_of: "Orion Ship Management"
+        registration_number: 6431909
+        date: "2023-12-22"
+      - match: "Altima Inc c/o Eastern Euro Ship Management (OPC) Pvt Ltd (6451981 / 21.12.2023)"
+        name: "Altima Inc"
+        care_of: "Eastern Euro Ship Management (OPC) Pvt Ltd"
+        registration_number: 6451981
+        date: "2023-12-21"
+      - match: "Trans See Inc c/o Eastern Euro Ship Management (OPC) Pvt Ltd (6202532 / 18.11.2024)"
+        name: "Trans See Inc"
+        care_of: "Eastern Euro Ship Management (OPC) Pvt Ltd"
+        registration_number: 6202532
+        date: "2024-11-18"
+      - match: "Trans See Inc c/o Eastern Euro Ship Management (OPC) Pvt Ltd (6202532 / 17.07.2023)"
+        name: "Trans See Inc"
+        care_of: "Eastern Euro Ship Management (OPC) Pvt Ltd"
+        registration_number: 6202532
+        date: "2023-07-17"
+      - match: "Brain Wave Ship Ltd c/o Zulu Ships Management & Operation - Sole Proprietorship LLC (6467717 / 26.12.2023)"
+        name: "Brain Wave Ship Ltd"
+        care_of: "Zulu Ships Management & Operation - Sole Proprietorship LLC"
+        registration_number: 6467717
+        date: "2023-12-26"
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
