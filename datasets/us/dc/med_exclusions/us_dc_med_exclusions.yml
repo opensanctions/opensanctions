@@ -23,9 +23,9 @@ publisher:
   url: https://ocp.dc.gov/page/about-ocp
   official: true
   country: "us"
-url: "https://ocp.dc.gov/page/excluded-parties-list%20"
+url: "https://ocp.dc.gov/page/excluded-parties-list"
 data:
-  url: https://ocp.dc.gov/page/excluded-parties-list%20
+  url: https://ocp.dc.gov/page/excluded-parties-list
   format: HTML
 dates:
   formats: ["%B %d, %Y"]
