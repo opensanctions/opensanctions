@@ -36,34 +36,32 @@ def emit_directorship(context, entity_id, principal, position):
 
 
 def crawl_row(context, row):
-    name = row.pop("name_of_individual", None)
-    company_name = row.pop("name_of_company", None)
-    schema = "Person" if name else "Company"
+    schema = "Person" if row.get("name_of_individual") else "Company"
+    name_raw = row.pop("name_of_individual", None) or row.pop("name_of_company", None)
+    assert name_raw is not None, "Entity must have a name"
+    end_date = row.pop("expiration_date", row.pop("termination_date", None))
+    assert end_date is not None, "Missing expiration or termination date for sanction"
+    address = row.pop("principal_address")
 
     entity = context.make(schema)
-    entity.id = context.make_id(name, company_name)
+    entity.id = context.make_id(name_raw, address)
+    entity.add("name", name_raw)
     if entity.schema.is_a("Person"):
-        entity.add("name", name)
         log_messy_names(context, entity.get("name")[0])
     else:
-        entity.add("name", company_name)
         principal = row.pop("principals", None)
         if principal:
             principal, position = lookup_position(context, principal)
             emit_directorship(context, entity.id, principal, position)
 
     entity.add("country", "us")
-    entity.add("address", row.pop("principal_address"))
+    entity.add("address", address)
 
     sanction = h.make_sanction(context, entity)
     sanction.set("authority", row.pop("agency_instituting_the_action", None))
     sanction.add("reason", row.pop("reason_for_the_action", None))
     h.apply_date(sanction, "startDate", row.pop("action_date"))
-    h.apply_date(
-        sanction,
-        "endDate",
-        row.pop("expiration_date", row.pop("termination_date", None)),
-    )
+    h.apply_date(sanction, "endDate", end_date)
     if h.is_active(sanction):
         entity.add("topics", "debarment")
 
