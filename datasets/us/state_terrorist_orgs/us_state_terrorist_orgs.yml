@@ -3,17 +3,17 @@ entry_point: crawler.py
 prefix: us-dos-fto
 coverage:
   frequency: daily
-  start: "2025-04-09"
+  start: "2025-04-25"
 load_statements: true
 summary: >
-  Foreign Terrorist Organizations (FTOs) pursuant to section 219 of the Immigration and 
+  Foreign Terrorist Organizations (FTOs) pursuant to section 219 of the Immigration and
   Nationality Act (INA).
 description: |
-  Foreign Terrorist Organizations (FTOs) are entities designated by the U.S. Secretary of State 
-  under Section 219 of the Immigration and Nationality Act (INA). It is unlawful to knowingly 
-  provide these organizations with material support or resources. Non-citizen members of FTOs 
-  may be denied entry into, or removed from, the United States. Additionally, U.S. financial 
-  institutions are required to block and report any assets associated with these organizations 
+  Foreign Terrorist Organizations (FTOs) are entities designated by the U.S. Secretary of State
+  under Section 219 of the Immigration and Nationality Act (INA). It is unlawful to knowingly
+  provide these organizations with material support or resources. Non-citizen members of FTOs
+  may be denied entry into, or removed from, the United States. Additionally, U.S. financial
+  institutions are required to block and report any assets associated with these organizations
   to the U.S. Department of the Treasury.
 publisher:
   name: U.S. Department of State
