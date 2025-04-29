@@ -118,6 +118,7 @@ children:
   - us_ofac_cons
   - us_ofac_sdn
   - us_state_terrorist_exclusion
+  - us_state_terrorist_orgs
   - us_trade_csl
   - us_sanctions
   - za_fic_sanctions
