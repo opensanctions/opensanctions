@@ -69,6 +69,8 @@ lookups:
         # zero width space... but why? how?!
       - match: heike.grebien@​parlament.gv.at,
         value: heike.grebien@parlament.gv.at
+      - match: amelie.muthsam@spoe.at,
+        value: amelie.muthsam@spoe.at
   type.date:
     options:
       - match: "?"
