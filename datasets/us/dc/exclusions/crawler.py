@@ -45,10 +45,12 @@ def crawl_row(context, row):
     entity.id = context.make_id(name_raw, address)
     entity.add("name", name_raw)
     log_messy_names(context, entity.get("name")[0])
-    principal = row.pop("principals", None)
-    if principal:
-        principal, position = lookup_position(context, principal)
-        emit_directorship(context, entity.id, principal, position)
+
+    if not entity.schema.is_a("Person"):
+        principal = row.pop("principals", None)
+        if principal:
+            principal, position = lookup_position(context, principal)
+            emit_directorship(context, entity.id, principal, position)
 
     entity.add("country", "us")
     entity.add("address", address)
