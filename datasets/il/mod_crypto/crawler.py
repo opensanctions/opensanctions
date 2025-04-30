@@ -1,7 +1,7 @@
 import csv
 from typing import Dict
 
-from normality.cleaning import collapse_spaces
+# from normality.cleaning import collapse_spaces
 
 from zavod import Context
 from zavod import helpers as h
@@ -10,107 +10,95 @@ from zavod.shed.zyte_api import fetch_html
 
 def crawl_csv_row(context: Context, row: Dict[str, str]):
     # Create a Person entity if present in the data
-    names = [
-        name
-        for name in [
-            collapse_spaces(row.get("English Name")),
-            collapse_spaces(row.get("Name Hebrew")),
-            collapse_spaces(row.get("Name Arabic")),
-        ]
-        if name != ""
-    ]
-
     person = None
-    if row.get("Passport") or row.get("ID") or len(names) > 0:
+    schema = row.pop("schema")
+    name = row.pop("name", None)
+    if (
+        schema == "Person"
+        and (row.get("ID") or row.get("Passport") or name) is not None
+    ):
         person = context.make("Person")
-        person.id = context.make_id(row.get("ID") or row.get("Passport") or names[0])
-        for name in row.pop("English Name").split(";"):
-            h.apply_name(person, full=name, lang="eng")
-        for name in row.pop("Name Hebrew").split(";"):
-            h.apply_name(person, full=name, lang="heb")
-        for name in row.pop("Name Arabic").split(";"):
-            h.apply_name(person, full=name, lang="ara")
-        for alias in row.pop("Hebrew aliases", "").split(";"):
-            h.apply_name(person, full=alias, lang="heb", alias=True)
-        for alias in row.pop("Arabic aliases", "").split(";"):
-            h.apply_name(person, full=alias, lang="ara", alias=True)
-        for alias in row.pop("English aliases", "").split(";"):
-            h.apply_name(person, full=alias, lang="eng", alias=True)
+        person.id = context.make_id(row.get("ID") or row.get("Passport") or name)
+        h.apply_name(person, full=name, lang="eng")
+        h.apply_date(person, "birthDate", row.pop("dob"))
+        person.add("email", row.pop("email"))
+        person.add("phone", row.pop("phone"))
+        # TODO: move the notes to the identification countries
+        person.add("notes", row.pop("notes"))
+        for name in row.pop("alias").split(";"):
+            h.apply_name(person, full=name)
 
-        if id_number := row.pop("ID"):
+        if id_number := row.pop("id_no"):
             h.make_identification(
                 context,
                 person,
                 id_number,
                 passport=False,
-                country=row.pop("ID Nationality"),
+                # country=row.pop("ID Nationality"),
             )
-        if passport_number := row.pop("Passport"):
+        if passport_number := row.pop("passport_no"):
             h.make_identification(
                 context,
                 person,
                 passport_number,
                 passport=True,
-                country=row.pop("Passport Nationality"),
+                # country=row.pop("Passport Nationality"),
             )
-        for email in row.pop("Email").split(";"):
-            person.add("email", email)
-        for phone in row.pop("Phone").split(";"):
-            person.add("phone", phone)
-        h.apply_date(person, "birthDate", row.pop("DOB (dd/mm/yyyy)"))
+
         context.emit(person)
-    else:
-        # There are some rows that only have an email (and not a passport number or ID),
-        # those we do not emit as a Person
-        row.pop("Email")
+
+    entity = None
+    if schema == "Organization":
+        name = row.pop("name")
+        entity = context.make("Organization")
+        entity.id = context.make_id(name)
+        h.apply_name(entity, full=name, lang="eng")
+        context.emit(entity)
 
     # Get the wallets and binance accounts as a list
     wallets = []
-    if exchange_accounts := row.pop("Account ID"):
-        platform = row.pop("Account platform")
-        for account_id in h.multi_split(exchange_accounts, [";"]):
-            wallet = context.make("CryptoWallet")
-            wallet.id = context.make_id(account_id)
-            wallet.set("mangingExchange", platform)
-            wallet.set("publicKey", account_id)
-            wallets.append(wallet)
-    if wallet_ids := row.pop("Wallet ID"):
-        for wallet_id in h.multi_split(wallet_ids, [";"]):
-            d = h.extract_cryptos(wallet_id)
-            wallet = context.make("CryptoWallet")
-            wallet.id = context.make_id(wallet_id)
-            wallet.set("publicKey", wallet_id)
-            wallets.append(wallet)
-            if wallet_id in d:
-                wallet.set("currency", d[wallet_id])
+    if schema == "Account":
+        account_id = row.pop("account/wallet_id")
+        platform = row.pop("platform")
+        wallet = context.make("CryptoWallet")
+        wallet.id = context.make_id(account_id)
+        wallet.set("mangingExchange", platform)
+        wallet.set("publicKey", account_id)
+        wallets.append(wallet)
+    if schema == "Wallet":
+        wallet_id = row.pop("account/wallet_id")
+        wallet = context.make("CryptoWallet")
+        wallet.id = context.make_id(wallet_id)
+        wallet.set("publicKey", wallet_id)
+        wallets.append(wallet)
+        wallet.set("currency", row.pop("currency"))
 
     # Create a sanction for each Crypto account
-    aso_id = row.pop("Administrative Seizure Order")
-    source_url = row.pop("sourceUrl")
-    start_date = row.pop("Publication date")
-    end_date = row.pop("ASO valid until")
+    aso_id = row.pop("order_id")
+    # TODO: startDate is to be extracted from the orders
+    # start_date = row.pop("Publication date")
     for wallet in wallets:
-        wallet.set("holder", person)
+        if person or entity:
+            wallet.set("holder", person or entity)
 
         sanction = h.make_sanction(context, wallet, key=aso_id)
         sanction.set("authorityId", aso_id)
-        h.apply_date(sanction, "startDate", start_date)
-        h.apply_date(sanction, "endDate", end_date)
+        # h.apply_date(sanction, "startDate", start_date)
+        h.apply_date(sanction, "modifiedAt", row.pop("last_updated"))
+        h.apply_date(sanction, "endDate", row.pop("end_date"))
         if h.is_active(sanction):
             wallet.add("topics", "crime.terror")
-        sanction.add("sourceUrl", source_url)
+        sanction.add("sourceUrl", row.pop("order_url"))
         context.emit(wallet)
         context.emit(sanction)
 
     context.audit_data(
         row,
         ignore=[
-            # Just sequencing in the spreadsheet, not from the source.
-            "#",
             # The wording is "the property of the organization, or used in financing
             # terrorism", i.e. something in the doc belongs to the org, but not
             # necessarily everything.
-            "Organization",
+            # "Organization",
         ],
     )
 
