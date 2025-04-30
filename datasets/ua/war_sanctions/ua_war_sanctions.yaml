@@ -36,6 +36,11 @@ description: |
   **Stealers of Heritage**: Individuals and entities involved in the theft and destruction of 
   Ukrainian cultural heritage.
 
+  **Russian Military-industrial complex**: Enterprises belonging to the three military holdings 
+  of the Russian state corporation Rostec—High-Precision Systems, United Aircraft Corporation, and 
+  United Engine Corporation—which develop and produce missiles, combat aircraft, and engines 
+  used in Russia’s war against Ukraine.
+
   The objective of the War and Sanctions website is to raise awareness of their conduct,
   and advocate for sanctions against these entities to hold perpetrators accountable and
   deter further actions of this kind.
@@ -308,6 +313,46 @@ lookups:
         care_of: "Zulu Ships Management & Operation - Sole Proprietorship LLC"
         registration_number: 6467717
         date: "2023-12-26"
+      - match: "Lorama Shipping Co Ltd c/o Scf Management Services (Cyprus) Ltd (4105921 / 24.02.2009)"
+        name: "Lorama Shipping Co Ltd"
+        care_of: "Scf Management Services (Cyprus) Ltd"
+        registration_number: 4105921
+        date: "2009-02-24"
+      - match: "Am Asia M5 Ltd c/o Salmi Shipmanagement LLC (6187319 / 25.06.2024)"
+        name: "Am Asia M5 Ltd"
+        care_of: "Salmi Shipmanagement LLC"
+        registration_number: 6187319
+        date: "2024-06-25"
+      - match: "Rosemonde Co Ltd c/o Ever Shining Ltd (6393869 / 08.08.2023)"
+        name: "Rosemonde Co Ltd"
+        care_of: "Ever Shining Ltd"
+        registration_number: 6393869
+        date: "2023-08-08"
+      - match: "Yurimaguas Ltd c/o Uship Management FZ-LLC (6489319 / 27.09.2024)"
+        name: "Yurimaguas Ltd"
+        care_of: "Uship Management FZ-LLC"
+        registration_number: 6489319
+        date: "2024-09-27"
+      - match: "Yurimaguas Ltd c/o Uship Management FZ-LLC (6489319 / 10.09.2024)"
+        name: "Yurimaguas Ltd"
+        care_of: "Uship Management FZ-LLC"
+        registration_number: 6489319
+        date: "2024-09-10"
+      - match: "Yurimaguas Ltd c/o Uship Management FZ-LLC (6489319 / 08.06.2024)"
+        name: "Yurimaguas Ltd"
+        care_of: "Uship Management FZ-LLC"
+        registration_number: 6489319
+        date: "2024-06-08"
+      - match: "Gozoso Group Ltd c/o Ocean Dolphin Ship Management Ltd (6264449 / 14.10.2021)"
+        name: "Gozoso Group Ltd"
+        care_of: "Ocean Dolphin Ship Management Ltd"
+        registration_number: 6264449
+        date: "2021-10-14"
+      - match: "Angat Shipping Inc c/o Huang Long Shan Shipmanagement Co Ltd (6474771 / 02.03.2024)"
+        name: "Angat Shipping Inc"
+        care_of: "Huang Long Shan Shipmanagement Co Ltd"
+        registration_number: 6474771
+        date: "2024-03-02"
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973

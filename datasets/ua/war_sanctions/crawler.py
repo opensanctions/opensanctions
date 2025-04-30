@@ -57,6 +57,11 @@ LINKS = [
         "type": "legal_entity",
         "program": "Legal entities involved in the theft and destruction of Ukrainian cultural heritage",
     },
+    {  # russian military-industrial complex
+        "url": "https://war-sanctions.gur.gov.ua/en/rostec",
+        "type": "legal_entity",
+        "program": "Entities from Rostec’s core military holdings producing weapons for Russia’s war against Ukraine.",
+    },
 ]
 
 # e.g. Ocean Dolphin Ship Management (6270796
@@ -70,6 +75,7 @@ REGEX_SHIP_PARTY = re.compile(
     """,
     re.VERBOSE,
 )
+ROSTEC_EMITTED = False
 
 
 def extract_label_value_pair(label_elem, value_elem, data):
@@ -105,6 +111,10 @@ def apply_dob_pob(context, entity, dob_pob):
             h.apply_date(entity, "birthDate", dob_pob)
     else:
         context.log.warning(f"Unexpected dob_pob format: {dob_pob}")
+
+
+def rostec_affiliate_id_parts(abbrev_name):
+    return [abbrev_name, "affiliated with Rostec"]
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
@@ -423,6 +433,43 @@ def emit_relation(
     return other
 
 
+def emit_ownership_chain(context, legal_entity, rostec_ownership):
+    """
+    Creates and emits the ownership chain for a series of entities.
+
+    The first element in the rostec_ownership list is the initial legal entity,
+    and the last element is Rostec. Intermediate elements represent the companies
+    in between the chain. This function sets up the ownership hierarchy.
+    (e.g. ['JSC ODK-KLIMOV', 'JSC UEC', 'ROSTEC'])
+    Full ownership structure is available at: https://war-sanctions.gur.gov.ua/en/rostec
+
+    Args:
+        context: Context
+        legal_entity: The initial legal entity (the first in the ownership chain).
+        rostec_ownership: A list of entities that form the ownership chain, from the legal entity to Rostec.
+    """
+    # `asset` refers to the previous entity in the chain, starting with the first entity
+    asset = legal_entity
+
+    # Iterate over the remaining entities in the rostec_ownership
+    for abbrev_name in rostec_ownership[1:]:
+        # Create the new entity for each linked company
+        owner = context.make("LegalEntity")
+        owner.id = context.make_id(*rostec_affiliate_id_parts(abbrev_name))
+        owner.add("name", abbrev_name)
+        context.emit(owner)
+
+        # Create the ownership link
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(asset.id, "owned by", owner.id)
+        ownership.add("owner", owner)  # The new entity is the owner
+        ownership.add("asset", asset)  # The previous entity is the asset
+        context.emit(ownership)
+
+        # Set the current `owner` as the new `asset` for the next iteration
+        asset = owner
+
+
 def crawl_person(context: Context, link, program):
     detail_page = fetch_html(
         context,
@@ -485,7 +532,7 @@ def crawl_person(context: Context, link, program):
     )
 
 
-def crawl_legal_entity(context: Context, link, program):
+def crawl_legal_entity(context: Context, link, program, is_rostec=False):
     detail_page = fetch_html(
         context,
         link,
@@ -497,21 +544,39 @@ def crawl_legal_entity(context: Context, link, program):
     # Having at least some pop()s without defaults and audit()-ing the rest
     # implies the very generic selectors.
     data = {}
+    rostec_href = None
     for row in detail_page.findall(".//main//div[@class='row']"):
         divs = row.findall("div")
         if len(divs) == 2:
             label_elem, value_elem = divs
             if "yellow" in label_elem.get("class"):
                 label, value = extract_label_value_pair(label_elem, value_elem, data)
+                # Handle special case: Rostec is not listed in the main index,
+                # so we extract its URL from the ownership structure and crawl it separately.
+                if label.strip() == "Within the structure of Rostec" and value:
+                    a_tags = value_elem.findall(".//a")
+                    rostec_href = a_tags[-1].get("href")
                 data[label] = value
     name = data.pop("Name", None)
     if name is None:
         name = data.pop("Full name of legal entity")
     name_abbr = data.pop("Abbreviated name of the legal entity", None)
     reg_num = data.pop("Registration number")
+    rostec_ownership = data.pop("Within the structure of Rostec", None)
+    global ROSTEC_EMITTED
+    if rostec_href and not ROSTEC_EMITTED:
+        ROSTEC_EMITTED = True
+        crawl_legal_entity(context, rostec_href, program, is_rostec=True)
+    if not ROSTEC_EMITTED:
+        context.log.warning("Rostec was never encountered or processed.")
 
     legal_entity = context.make("LegalEntity")
-    legal_entity.id = context.make_id(name, name_abbr, reg_num)
+    # For companies owned by Rostec, we want to create simplified IDs
+    # to tie them to the parent company.
+    if is_rostec or rostec_ownership:
+        legal_entity.id = context.make_id(*rostec_affiliate_id_parts(name_abbr))
+    else:
+        legal_entity.id = context.make_id(name, name_abbr, reg_num)
     legal_entity.add("name", name)
     legal_entity.add("name", name_abbr)
     legal_entity.add("ogrnCode", reg_num)
@@ -522,6 +587,8 @@ def crawl_legal_entity(context: Context, link, program):
     archive_links = data.pop("Archive links", None)
     if archive_links is not None:
         legal_entity.add("sourceUrl", archive_links)
+    if rostec_ownership:
+        emit_ownership_chain(context, legal_entity, rostec_ownership)
 
     legal_entity.add("topics", "poi")
     sanction = h.make_sanction(context, legal_entity)
@@ -567,8 +634,9 @@ def crawl(context: Context):
     # Kremlin mouthpieces
     # UAV manufacturers
     # Executives of war
+    # Agressor's Military Industrial Complex
     h.assert_dom_hash(
-        section_links_section[0], "6d9e5bb137fbbd3c5698008f0c01ed10318d9b53"
+        section_links_section[0], "55e0f15b8c80233466491f0656790ee401da33b4"
     )
 
     # Has the API link been updated to point to the previously-nonexistent API page?
