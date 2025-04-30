@@ -57,6 +57,11 @@ LINKS = [
         "type": "legal_entity",
         "program": "Legal entities involved in the theft and destruction of Ukrainian cultural heritage",
     },
+    {  # russian military-industrial complex
+        "url": "https://war-sanctions.gur.gov.ua/en/rostec",
+        "type": "legal_entity",
+        "program": "Entities directly involved in Russia’s military-industrial complex through affiliation with Rostec",
+    },
 ]
 
 # e.g. Ocean Dolphin Ship Management (6270796
@@ -70,6 +75,7 @@ REGEX_SHIP_PARTY = re.compile(
     """,
     re.VERBOSE,
 )
+ROSTEC_URL = "https://war-sanctions.gur.gov.ua/en/rostec/16"
 
 
 def extract_label_value_pair(label_elem, value_elem, data):
@@ -423,6 +429,48 @@ def emit_relation(
     return other
 
 
+def emit_ownership_chain(context, legal_entity, rostec_ownership):
+    """
+    Creates and emits the ownership chain for a series of entities.
+
+    The first element in the rostec_ownership list is the initial legal entity,
+    and the last element is Rostec. Intermediate elements represent the companies
+    in between the chain. This function sets up the ownership hierarchy.
+    (e.g. ['JSC ODK-KLIMOV', 'JSC UEC', 'ROSTEC'])
+    Full ownership structure is available at: https://war-sanctions.gur.gov.ua/en/rostec
+
+    Args:
+        context: Context
+        legal_entity: The initial legal entity (the first in the ownership chain).
+        rostec_ownership: A list of entities that form the ownership chain, from the legal entity to Rostec.
+    """
+    # `asset` refers to the previous entity in the chain, starting with the first entity
+    asset = legal_entity
+
+    # Iterate over the remaining entities in the rostec_ownership
+    for i in range(len(rostec_ownership)):
+        # For the first iteration, current_entity is already defined
+        # For subsequent iterations, create new entities
+        if i == 0:
+            continue  # Skip first element because it's already handled
+
+        # Create the new entity for each linked company
+        owner = context.make("LegalEntity")
+        owner.id = context.make_id(rostec_ownership[i], "affiliated with Rostec")
+        # owner.add("name", rostec_ownership[i])
+        # context.emit(owner)
+
+        # Create the ownership link
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(asset.id, "owned by", owner.id)
+        ownership.add("owner", owner)  # The new entity is the owner
+        ownership.add("asset", asset)  # The previous entity is the asset
+        context.emit(ownership)
+
+        # Set the current `owner` as the new `asset` for the next iteration
+        asset = owner
+
+
 def crawl_person(context: Context, link, program):
     detail_page = fetch_html(
         context,
@@ -509,9 +557,16 @@ def crawl_legal_entity(context: Context, link, program):
         name = data.pop("Full name of legal entity")
     name_abbr = data.pop("Abbreviated name of the legal entity", None)
     reg_num = data.pop("Registration number")
+    rostec_ownership = data.pop("Within the structure of Rostec", None)
 
     legal_entity = context.make("LegalEntity")
-    legal_entity.id = context.make_id(name, name_abbr, reg_num)
+    # For companies owned by Rostec, we want to create simplified IDs
+    # to tie them to the parent company.
+    legal_entity.id = (
+        context.make_id(name_abbr, "affiliated with Rostec")
+        if rostec_ownership
+        else context.make_id(name, name_abbr, reg_num)
+    )
     legal_entity.add("name", name)
     legal_entity.add("name", name_abbr)
     legal_entity.add("ogrnCode", reg_num)
@@ -522,6 +577,8 @@ def crawl_legal_entity(context: Context, link, program):
     archive_links = data.pop("Archive links", None)
     if archive_links is not None:
         legal_entity.add("sourceUrl", archive_links)
+    if rostec_ownership:
+        emit_ownership_chain(context, legal_entity, rostec_ownership)
 
     legal_entity.add("topics", "poi")
     sanction = h.make_sanction(context, legal_entity)
@@ -568,7 +625,7 @@ def crawl(context: Context):
     # UAV manufacturers
     # Executives of war
     h.assert_dom_hash(
-        section_links_section[0], "6d9e5bb137fbbd3c5698008f0c01ed10318d9b53"
+        section_links_section[0], "55e0f15b8c80233466491f0656790ee401da33b4"
     )
 
     # Has the API link been updated to point to the previously-nonexistent API page?
