@@ -10,7 +10,7 @@ on:
 permissions:
   packages: write
   id-token: write
-  
+
 
 jobs:
   python:
@@ -21,7 +21,7 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.1
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -56,8 +56,7 @@ jobs:
           python3 -m build --wheel
       - name: Get any modified dataset files
         id: changed-files
-        # pinned v46.0.1
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c
+        uses: tj-actions/changed-files@26a38635fc1173cc5820336ce97be6188d0de9f5  # v46.0.2
         with:
           files: "datasets/**"
       - name: Crawl modified datasets
