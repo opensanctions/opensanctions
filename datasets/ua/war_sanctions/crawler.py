@@ -75,7 +75,7 @@ REGEX_SHIP_PARTY = re.compile(
     """,
     re.VERBOSE,
 )
-ROSTEC_URL = "https://war-sanctions.gur.gov.ua/en/rostec/16"
+ROSTEC_EMITTED = False
 
 
 def extract_label_value_pair(label_elem, value_elem, data):
@@ -111,6 +111,10 @@ def apply_dob_pob(context, entity, dob_pob):
             h.apply_date(entity, "birthDate", dob_pob)
     else:
         context.log.warning(f"Unexpected dob_pob format: {dob_pob}")
+
+
+def rostec_affiliate_id_parts(abbrev_name):
+    return [abbrev_name, "affiliated with Rostec"]
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
@@ -448,12 +452,12 @@ def emit_ownership_chain(context, legal_entity, rostec_ownership):
     asset = legal_entity
 
     # Iterate over the remaining entities in the rostec_ownership
-    for entity in rostec_ownership[1:]:
+    for abbrev_name in rostec_ownership[1:]:
         # Create the new entity for each linked company
         owner = context.make("LegalEntity")
-        owner.id = context.make_id(entity, "affiliated with Rostec")
-        # owner.add("name", rostec_ownership[i])
-        # context.emit(owner)
+        owner.id = context.make_id(*rostec_affiliate_id_parts(abbrev_name))
+        owner.add("name", abbrev_name)
+        context.emit(owner)
 
         # Create the ownership link
         ownership = context.make("Ownership")
@@ -528,7 +532,7 @@ def crawl_person(context: Context, link, program):
     )
 
 
-def crawl_legal_entity(context: Context, link, program):
+def crawl_legal_entity(context: Context, link, program, is_rostec=False):
     detail_page = fetch_html(
         context,
         link,
@@ -540,12 +544,20 @@ def crawl_legal_entity(context: Context, link, program):
     # Having at least some pop()s without defaults and audit()-ing the rest
     # implies the very generic selectors.
     data = {}
+    rostec_href = None
     for row in detail_page.findall(".//main//div[@class='row']"):
         divs = row.findall("div")
         if len(divs) == 2:
             label_elem, value_elem = divs
             if "yellow" in label_elem.get("class"):
                 label, value = extract_label_value_pair(label_elem, value_elem, data)
+                # Handle special case: Rostec is not listed in the main index,
+                # so we extract its URL from the ownership structure and crawl it separately.
+                if label.strip() == "Within the structure of Rostec":
+                    a_tags = value_elem.findall(".//a")
+                    # TODO: find out why main rostec is getting here
+                    if a_tags:
+                        rostec_href = a_tags[-1].get("href")
                 data[label] = value
     name = data.pop("Name", None)
     if name is None:
@@ -553,15 +565,18 @@ def crawl_legal_entity(context: Context, link, program):
     name_abbr = data.pop("Abbreviated name of the legal entity", None)
     reg_num = data.pop("Registration number")
     rostec_ownership = data.pop("Within the structure of Rostec", None)
+    global ROSTEC_EMITTED
+    if rostec_href and not ROSTEC_EMITTED:
+        ROSTEC_EMITTED = True
+        crawl_legal_entity(context, rostec_href, program, is_rostec=True)
 
     legal_entity = context.make("LegalEntity")
     # For companies owned by Rostec, we want to create simplified IDs
     # to tie them to the parent company.
-    legal_entity.id = (
-        context.make_id(name_abbr, "affiliated with Rostec")
-        if rostec_ownership
-        else context.make_id(name, name_abbr, reg_num)
-    )
+    if is_rostec or rostec_ownership:
+        legal_entity.id = context.make_id(*rostec_affiliate_id_parts(name_abbr))
+    else:
+        legal_entity.id = context.make_id(name, name_abbr, reg_num)
     legal_entity.add("name", name)
     legal_entity.add("name", name_abbr)
     legal_entity.add("ogrnCode", reg_num)
@@ -619,6 +634,7 @@ def crawl(context: Context):
     # Kremlin mouthpieces
     # UAV manufacturers
     # Executives of war
+    # Agressor's Military Industrial Complex
     h.assert_dom_hash(
         section_links_section[0], "55e0f15b8c80233466491f0656790ee401da33b4"
     )
