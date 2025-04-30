@@ -553,11 +553,9 @@ def crawl_legal_entity(context: Context, link, program, is_rostec=False):
                 label, value = extract_label_value_pair(label_elem, value_elem, data)
                 # Handle special case: Rostec is not listed in the main index,
                 # so we extract its URL from the ownership structure and crawl it separately.
-                if label.strip() == "Within the structure of Rostec":
+                if label.strip() == "Within the structure of Rostec" and value:
                     a_tags = value_elem.findall(".//a")
-                    # TODO: find out why main rostec is getting here
-                    if a_tags:
-                        rostec_href = a_tags[-1].get("href")
+                    rostec_href = a_tags[-1].get("href")
                 data[label] = value
     name = data.pop("Name", None)
     if name is None:
@@ -569,6 +567,8 @@ def crawl_legal_entity(context: Context, link, program, is_rostec=False):
     if rostec_href and not ROSTEC_EMITTED:
         ROSTEC_EMITTED = True
         crawl_legal_entity(context, rostec_href, program, is_rostec=True)
+    if not ROSTEC_EMITTED:
+        context.log.warning("Rostec was never encountered or processed.")
 
     legal_entity = context.make("LegalEntity")
     # For companies owned by Rostec, we want to create simplified IDs
