@@ -74,6 +74,10 @@ lookups:
           - 523931831
       - match: 79090613232)
         value: 79090613232
+  type.name:
+    options:
+      - match: do 3.03.2022 r. – SULZER MIXPAC POLAND Sp. z o.o.
+        value: SULZER MIXPAC POLAND Sp. z o.o.
   details:
     normalize: true
     lowercase: true
