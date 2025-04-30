@@ -448,15 +448,10 @@ def emit_ownership_chain(context, legal_entity, rostec_ownership):
     asset = legal_entity
 
     # Iterate over the remaining entities in the rostec_ownership
-    for i in range(len(rostec_ownership)):
-        # For the first iteration, current_entity is already defined
-        # For subsequent iterations, create new entities
-        if i == 0:
-            continue  # Skip first element because it's already handled
-
+    for entity in rostec_ownership[1:]:
         # Create the new entity for each linked company
         owner = context.make("LegalEntity")
-        owner.id = context.make_id(rostec_ownership[i], "affiliated with Rostec")
+        owner.id = context.make_id(entity, "affiliated with Rostec")
         # owner.add("name", rostec_ownership[i])
         # context.emit(owner)
 
