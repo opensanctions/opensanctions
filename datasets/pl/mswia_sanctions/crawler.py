@@ -109,7 +109,8 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
                         last_name.isupper()
                     ), f"Expected last name '{last_name}' to be fully capitalized"
     else:
-        name = names[0]
+        # "w likwidacji" = in liquidation; "w upadłości" = in bankruptcy
+        name = names[0].rstrip(" w likwidacji").rstrip(" w upadłości")
         entity.add("name", name)
 
         alias = names[1] if len(names) > 1 else ""
@@ -128,7 +129,13 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
             # "lub" = or
             aliases = h.multi_split(alias, ["lub", "obecnie:", "inaczej:"])
             # Aliases are often in quotes
-            cleaned_aliases = [a.replace("„", "").replace("”", "") for a in aliases]
+            cleaned_aliases = [
+                a.rstrip(" w likwidacji")
+                .rstrip(" w upadłości")
+                .replace("„", "")
+                .replace("”", "")
+                for a in aliases
+            ]
             for uncleaned_alias, cleaned_alias in zip(aliases, cleaned_aliases):
                 entity.add("alias", cleaned_alias, original_value=uncleaned_alias)
 

@@ -74,10 +74,6 @@ lookups:
           - 523931831
       - match: 79090613232)
         value: 79090613232
-  type.name:
-    options:
-      - match: "GO SPORT POLSKA Sp. z o.o. w upadłości"
-        value: GO SPORT POLSKA Sp. z o.o.
   details:
     normalize: true
     lowercase: true
