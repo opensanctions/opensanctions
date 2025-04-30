@@ -1,6 +1,7 @@
 import re
 
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 NORMAL_CASE_RE = r"^(?P<name>[\w\s’'/-]+?)(?:\s*\((?P<alias>[\w\s’'/-]+?)\))?$"
 PROGRAM = "Foreign Terrorist Organizations designated under section 219 of the INA"
@@ -35,6 +36,8 @@ def crawl_row(context, row):
     start_date = row.pop("date_designated", None) or row.pop(
         "date_originally_designated", None
     )
+    # Rely on auditing rows to be sure the default of None doesn't mean we miss these
+    # if the column name changes.
     end_date = row.pop("date_removed", None)
 
     name_clean, name_former, alias = split_clean_name(context, name)
@@ -43,13 +46,14 @@ def crawl_row(context, row):
     entity.add("name", name_clean)
     entity.add("alias", alias)
     entity.add("previousName", name_former)
-    entity.add("topics", ["sanction", "crime.terror"])
 
     sanction = h.make_sanction(context, entity)
     sanction.add("program", PROGRAM)
     h.apply_date(sanction, "startDate", start_date)
     if end_date:
         h.apply_date(sanction, "endDate", end_date)
+    if h.is_active(sanction):
+        entity.add("topics", ["sanction", "crime.terror"])
 
     context.emit(entity)
     context.emit(sanction)
@@ -58,7 +62,7 @@ def crawl_row(context, row):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)
+    doc = fetch_html(context, context.data_url, ".//table")
 
     tables = doc.xpath(".//table")
     # We expect designated and delisted entities
