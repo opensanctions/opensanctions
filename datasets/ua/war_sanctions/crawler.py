@@ -60,7 +60,7 @@ LINKS = [
     {  # russian military-industrial complex
         "url": "https://war-sanctions.gur.gov.ua/en/rostec",
         "type": "legal_entity",
-        "program": "Entities directly involved in Russia’s military-industrial complex through affiliation with Rostec",
+        "program": "Entities from Rostec’s core military holdings producing weapons for Russia’s war against Ukraine.",
     },
 ]
 
