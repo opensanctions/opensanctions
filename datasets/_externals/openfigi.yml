@@ -13,7 +13,7 @@ exports:
   - targets.simple.csv
 deploy:
   memory: 1000Mi
-  memory_limit: 1500Mi
+  memory_limit: 2000Mi
 load_statements: true
 ci_test: false
 summary: >-
@@ -35,7 +35,7 @@ url: https://www.openfigi.com/
 publisher:
   name: OpenFIGI
   description: |
-    OpenFIGI is an open system for identifying instruments globally across all asset 
+    OpenFIGI is an open system for identifying instruments globally across all asset
     classes. Using OpenFigi, Financial instruments can be identified and mapped to their
     registered FIGI by various proprietary and standard identifiers.
   url: https://www.openfigi.com/

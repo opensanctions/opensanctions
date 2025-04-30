@@ -13,7 +13,7 @@ exports:
 deploy:
   # schedule: "1 4 * * *"
   memory: "3000Mi"
-  memory_limit: "4000Mi"
+  memory_limit: "4500Mi"
   disk: "30Gi"
   disk_limit: 30Gi
 load_statements: true
