@@ -12,8 +12,8 @@ exports:
   - statements.csv
   - targets.simple.csv
 deploy:
-  memory: 1000Mi
-  memory_limit: 2000Mi
+  memory: 1500Mi
+  memory_limit: 2500Mi
 load_statements: true
 ci_test: false
 summary: >-
