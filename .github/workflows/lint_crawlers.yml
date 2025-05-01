@@ -9,11 +9,10 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@v4
       - name: Get modified dataset yamls
         id: changed-yamls
-        # pinned v46.0.1
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c  # v46.0.5
         with:
           files: 'datasets/**/*.y*ml'
       - name: Lint modiied dataset yamls
@@ -22,8 +21,7 @@ jobs:
           yamllint ${{ steps.changed-yamls.outputs.all_changed_files }}
       - name: Get modified dataset python
         id: changed-python
-        # pinned v46.0.1
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c  # v46.0.5
         with:
           files: 'datasets/**/*.py'
       - uses: actions/setup-python@v5
