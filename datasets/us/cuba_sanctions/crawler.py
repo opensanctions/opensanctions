@@ -30,6 +30,8 @@ def crawl_accommodations(context: Context):
         context, ORIGINAL_ACCOMMODATIONS_URL, CONTENT_XPATH, actions=ACTIONS
     )
     node = doc.find(CONTENT_XPATH)
+    # Chrome save HTML only
+    # xmllint --format --html
     if not h.assert_dom_hash(node, "6dc9087e0ccb2e13fc2389ba4176ab114996ad32"):
         context.log.warning("Accommodations page changed. Check for data updates.")
 
@@ -54,6 +56,8 @@ def crawl_restricted_entities(context: Context):
         context, ORIGINAL_RESTRICTED_ENTITIES_URL, CONTENT_XPATH, actions=ACTIONS
     )
     node = doc.find(CONTENT_XPATH)
+    # Chrome save HTML only
+    # xmllint --format --html
     if not h.assert_dom_hash(node, "1568aa7fc68d86fd44c808e6def0df9a4627903b"):
         context.log.warning("Restricted List content changed. Check for data updates")
 
@@ -92,6 +96,8 @@ def crawl_restricted_entities(context: Context):
 def crawl(context: Context):
     doc = fetch_html(context, context.dataset.url, CONTENT_XPATH, actions=ACTIONS)
     node = doc.find(CONTENT_XPATH)
+    # Chrome save HTML only
+    # xmllint --format --html
     if not h.assert_dom_hash(node, "0355144d3d290c3c617b2dd0077582a3136679f7"):
         context.log.warning("Landing page changed. Check for added/removed lists.")
 
