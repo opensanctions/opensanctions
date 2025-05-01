@@ -29,7 +29,7 @@ EURLEX_WS_PASSWORD = os.environ.get("EURLEX_WS_PASSWORD")
 HEARTBEAT_URL = os.environ.get("EU_JOURNAL_HEARTBEAT_URL", "")
 PAGE_SIZE = 100
 
-SEEN_PATH = Path(os.environ["EU_JOURNAL_SEEN_PATH"])
+SEEN_PATH = Path(os.environ["EU_JOURNAL_STATE_PATH"]) / "seen.txt"
 
 # This selects the channel and includes a secret authorising sending messages.
 SLACK_WEBHOOK_URL = os.environ["SLACK_WEBHOOK_URL"]
@@ -326,7 +326,7 @@ def main(
             context.log.error(error)
         error_message = "\n".join(errors)
         exit_with_error(context, error_message)
-    
+
     if HEARTBEAT_URL:
         context.http.get(HEARTBEAT_URL)
 
