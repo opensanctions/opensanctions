@@ -9,7 +9,7 @@ jobs:
   check_eu_journal:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@v4.2.2
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -20,7 +20,7 @@ jobs:
           pip install setuptools wheel
           pip install --no-cache-dir -q -e "zavod[dev]"
           pip install zeep==4.2.1
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@v4.2.2
         with:
           repository: opensanctions/eu_journal
           ref: 'main'
