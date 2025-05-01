@@ -9,36 +9,36 @@ ci_test: false
 summary: >
   Sponsors and accomplices of Russian armed aggression against Ukraine.
 description: |
-  The War and Sanctions website provides detailed information on ongoing sanctions targeting 
-  Russia and its allies, alongside profiles of individuals and entities that actively support 
-  the war against Ukraine but remain unsanctioned by Western nations. The dataset is 
+  The War and Sanctions website provides detailed information on ongoing sanctions targeting
+  Russia and its allies, alongside profiles of individuals and entities that actively support
+  the war against Ukraine but remain unsanctioned by Western nations. The dataset is
   categorized into the following sections:
 
-  **Child Kidnappers**: Individuals and entities involved in the deportation of Ukrainian 
+  **Child Kidnappers**: Individuals and entities involved in the deportation of Ukrainian
   children.
 
   **Champions of Terror**: Athletes whom Russia uses to propagate its agenda.
 
-  **Marine and Aircraft Assets**: Airports, ports, and vessels involved in the transportation 
+  **Marine and Aircraft Assets**: Airports, ports, and vessels involved in the transportation
   of weapons, stolen Ukrainian goods, and sanctions circumvention efforts.
 
   **Vessel captains**: Captains of vessels involved in sanctions circumvention efforts.
 
   **Propagandists**: Individuals involved in the dissemination of Russian propaganda.
 
-  **UAVs manufacturers**: Companies involved in the production of unmanned aerial vehicles, 
-  which are systematically used to target Ukraine's civilian population, alongside their 
+  **UAVs manufacturers**: Companies involved in the production of unmanned aerial vehicles,
+  which are systematically used to target Ukraine's civilian population, alongside their
   military applications.
 
-  **Executives of War**: Officials, security agencies, and defense industry representatives 
+  **Executives of War**: Officials, security agencies, and defense industry representatives
   shaping Russia’s military-industrial policy, defense orders, and wartime economy.
 
-  **Stealers of Heritage**: Individuals and entities involved in the theft and destruction of 
+  **Stealers of Heritage**: Individuals and entities involved in the theft and destruction of
   Ukrainian cultural heritage.
 
-  **Russian Military-industrial complex**: Enterprises belonging to the three military holdings 
-  of the Russian state corporation Rostec—High-Precision Systems, United Aircraft Corporation, and 
-  United Engine Corporation—which develop and produce missiles, combat aircraft, and engines 
+  **Russian Military-industrial complex**: Enterprises belonging to the three military holdings
+  of the Russian state corporation Rostec—High-Precision Systems, United Aircraft Corporation, and
+  United Engine Corporation—which develop and produce missiles, combat aircraft, and engines
   used in Russia’s war against Ukraine.
 
   The objective of the War and Sanctions website is to raise awareness of their conduct,
@@ -50,10 +50,10 @@ publisher:
   name_en: Defence Intelligence of Ukraine
   acronym: GUR
   description: >
-    The Defence Intelligence of Ukraine is the main intelligence agency of the 
-    Ministry of Defence of Ukraine. It protects the national interests of Ukraine, 
+    The Defence Intelligence of Ukraine is the main intelligence agency of the
+    Ministry of Defence of Ukraine. It protects the national interests of Ukraine,
     counter the threats to national security, and provides intelligence support to
-    the country's leadership and the Armed Forces of Ukraine. 
+    the country's leadership and the Armed Forces of Ukraine.
     [Source: Official Website](https://gur.gov.ua/en/content/directions.html)
   url: https://gur.gov.ua/en.html
   country: ua
@@ -72,7 +72,7 @@ assertions:
       Organization: 550
       Person: 950
       Vessel: 590
-      LegalEntity: 250
+      LegalEntity: 500
     country_entities:
       ru: 790
       ua: 170
@@ -88,7 +88,7 @@ assertions:
       Organization: 1000
       Person: 1800
       Vessel: 1400
-      LegalEntity: 500
+      LegalEntity: 1000
 lookups:
   ship_party:
     options:
@@ -212,7 +212,7 @@ lookups:
       - match: "Rptd Sold Russia (05.2004)"
         name: "Rptd Sold Russia"
         date: "2004-05"
-      - match: "HK Yongye Ship Ltd/ Zhang Yong (6360967 / Hong Kong / 01.11.2022)" 
+      - match: "HK Yongye Ship Ltd/ Zhang Yong (6360967 / Hong Kong / 01.11.2022)"
         name: ["HK Yongye Ship Ltd", "Zhang Yong"]
         registration_number: 6360967
         country: Hong Kong
@@ -353,6 +353,12 @@ lookups:
         care_of: "Huang Long Shan Shipmanagement Co Ltd"
         registration_number: 6474771
         date: "2024-03-02"
+      - match: "Trans-flot/vladimirovich Pv о/с Trans-flot LLC c/o Trans-flot LLC (6184699 / russian federation / 03.10.2019)"
+        name: "Trans-flot/vladimirovich Pv"
+        care_of: Trans-flot LLC
+        registration_number: 6184699
+        country: Russia
+        date: "2019-10-03"
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
@@ -415,7 +421,7 @@ lookups:
           - Netherlands
           - Russia
       - match: Montenegro, russian federation
-        values: 
+        values:
           - Montenegro
           - Russia
       - match: Honduras, Montenegro, russian federation

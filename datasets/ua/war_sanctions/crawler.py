@@ -75,7 +75,6 @@ REGEX_SHIP_PARTY = re.compile(
     """,
     re.VERBOSE,
 )
-ROSTEC_EMITTED = False
 
 
 def extract_label_value_pair(label_elem, value_elem, data):
@@ -433,7 +432,7 @@ def emit_relation(
     return other
 
 
-def emit_ownership_chain(context, legal_entity, rostec_ownership):
+def emit_ownership_chain(context, legal_entity, program, rostec_ownership):
     """
     Creates and emits the ownership chain for a series of entities.
 
@@ -446,17 +445,19 @@ def emit_ownership_chain(context, legal_entity, rostec_ownership):
     Args:
         context: Context
         legal_entity: The initial legal entity (the first in the ownership chain).
-        rostec_ownership: A list of entities that form the ownership chain, from the legal entity to Rostec.
+        rostec_ownership: A list of entity links that form the ownership chain, from the legal entity to Rostec.
     """
     # `asset` refers to the previous entity in the chain, starting with the first entity
     asset = legal_entity
+    first_entity_name = rostec_ownership[0].text_content().strip()
+    assert first_entity_name in legal_entity.get("name"), (
+        first_entity_name,
+        legal_entity.get("name"),
+    )
 
-    # Iterate over the remaining entities in the rostec_ownership
-    for abbrev_name in rostec_ownership[1:]:
+    for owner_link in rostec_ownership[1:]:
         # Create the new entity for each linked company
-        owner = context.make("LegalEntity")
-        owner.id = context.make_id(*rostec_affiliate_id_parts(abbrev_name))
-        owner.add("name", abbrev_name)
+        owner = crawl_legal_entity(context, owner_link.get("href"), program)
         context.emit(owner)
 
         # Create the ownership link
@@ -532,7 +533,7 @@ def crawl_person(context: Context, link, program):
     )
 
 
-def crawl_legal_entity(context: Context, link, program, is_rostec=False):
+def crawl_legal_entity(context: Context, link, program):
     detail_page = fetch_html(
         context,
         link,
@@ -544,39 +545,23 @@ def crawl_legal_entity(context: Context, link, program, is_rostec=False):
     # Having at least some pop()s without defaults and audit()-ing the rest
     # implies the very generic selectors.
     data = {}
-    rostec_href = None
     for row in detail_page.findall(".//main//div[@class='row']"):
         divs = row.findall("div")
         if len(divs) == 2:
             label_elem, value_elem = divs
             if "yellow" in label_elem.get("class"):
                 label, value = extract_label_value_pair(label_elem, value_elem, data)
-                # Handle special case: Rostec is not listed in the main index,
-                # so we extract its URL from the ownership structure and crawl it separately.
-                if label.strip() == "Within the structure of Rostec" and value:
-                    a_tags = value_elem.findall(".//a")
-                    rostec_href = a_tags[-1].get("href")
+                if label.strip() == "Within the structure of Rostec":
+                    value = value_elem.findall(".//a")
                 data[label] = value
     name = data.pop("Name", None)
     if name is None:
         name = data.pop("Full name of legal entity")
     name_abbr = data.pop("Abbreviated name of the legal entity", None)
     reg_num = data.pop("Registration number")
-    rostec_ownership = data.pop("Within the structure of Rostec", None)
-    global ROSTEC_EMITTED
-    if rostec_href and not ROSTEC_EMITTED:
-        ROSTEC_EMITTED = True
-        crawl_legal_entity(context, rostec_href, program, is_rostec=True)
-    if not ROSTEC_EMITTED:
-        context.log.warning("Rostec was never encountered or processed.")
 
     legal_entity = context.make("LegalEntity")
-    # For companies owned by Rostec, we want to create simplified IDs
-    # to tie them to the parent company.
-    if is_rostec or rostec_ownership:
-        legal_entity.id = context.make_id(*rostec_affiliate_id_parts(name_abbr))
-    else:
-        legal_entity.id = context.make_id(name, name_abbr, reg_num)
+    legal_entity.id = context.make_id(name, name_abbr, reg_num)
     legal_entity.add("name", name)
     legal_entity.add("name", name_abbr)
     legal_entity.add("ogrnCode", reg_num)
@@ -587,8 +572,6 @@ def crawl_legal_entity(context: Context, link, program, is_rostec=False):
     archive_links = data.pop("Archive links", None)
     if archive_links is not None:
         legal_entity.add("sourceUrl", archive_links)
-    if rostec_ownership:
-        emit_ownership_chain(context, legal_entity, rostec_ownership)
 
     legal_entity.add("topics", "poi")
     sanction = h.make_sanction(context, legal_entity)
@@ -598,7 +581,13 @@ def crawl_legal_entity(context: Context, link, program, is_rostec=False):
 
     context.emit(legal_entity)
     context.emit(sanction)
+
+    rostec_ownership = data.pop("Within the structure of Rostec", None)
+    if rostec_ownership:
+        emit_ownership_chain(context, legal_entity, program, rostec_ownership)
+
     context.audit_data(data, ignore=["Sanction Jurisdictions", "Products"])
+    return legal_entity
 
 
 def extract_next_page_url(doc):
