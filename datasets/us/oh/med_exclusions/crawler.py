@@ -18,9 +18,14 @@ def crawl_individual(row: Dict[str, str], context: Context):
         row.get("last_name"), row.get("first_name"), row.get("npi")
     )
     last_names = REGEX_AKA.split(row.pop("last_name"))
+    middle_names = REGEX_AKA.split(row.pop("middle_name") or "")
     first_names = REGEX_AKA.split(row.pop("first_name"))
-    for first_name, last_name in product(first_names, last_names):
-        h.apply_name(entity, first_name=first_name, last_name=last_name)
+    for first_name, middle_name, last_name in product(
+        first_names, middle_names, last_names
+    ):
+        h.apply_name(
+            entity, first_name=first_name, middle_name=middle_name, last_name=last_name
+        )
 
     entity.add("country", "us")
     entity.add("sector", row.pop("provider_type"))

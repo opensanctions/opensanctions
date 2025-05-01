@@ -1055,3 +1055,25 @@ lookups:
           - Nikola Faukovic
           - Catherine Defrancesco
           - Cool Holdings Inc.
+      - match: gpl ventures llc, gpl management llc, alexander j. dillon, cosmin i. panait, hempamericana inc., salvador e. rosillo, seaside advisors llc, and lawrence b. adams
+        names:
+          - GPL Ventures LLC
+          - GPL Management LLC
+          - Alexander J. Dillon
+          - Cosmin I. Panait
+          - Hempamericana Inc.
+          - Salvador E. Rosillo
+          - Seaside Advisors LLC
+          - Lawrence B. Adams
+      - match: scana corporation, dominion energy south carolina inc. (f/k/a south carolina electric & gas company), kevin b. marsh, and stephen a. byrne
+        names:
+          - Scana Corporation
+          - Dominion Energy South Carolina Inc.
+          - South Carolina Electric & Gas Company
+          - Kevin B. Marsh
+          - Stephen A. Byrne
+      - match: worldwide markets ltd., thomas plaut, and tab networks inc.
+        names:
+          - Worldwide Markets Ltd.
+          - Thomas Plaut
+          - Tab Networks Inc.
