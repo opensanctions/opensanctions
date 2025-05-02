@@ -17,10 +17,10 @@ exports:
 resolve: false
 ci_test: false
 summary: >-
-  Companies database of the Russian Federation as maintained and published by 
+  Companies database of the Russian Federation as maintained and published by
   the Federal Tax Service
 description: |
-  The tax database of legal entities is probably the most detailed part of the 
+  The tax database of legal entities is probably the most detailed part of the
   companies registry (other fragments are maintained by the statistics body and
   others). The registry data must be purchased from the tax authority, but a
   full version of it has been released online by a Russian IT entrepreneur.
@@ -32,7 +32,7 @@ description: |
   removals, as the Government of the Russian Federation has [limited reporting duties for
   legal entities that are subject to foreign restrictive measures](http://publication.pravo.gov.ru/Document/View/0001202203180028?index=1).
 
-url: https://egrul.itsoft.ru/
+url: https://www.nalog.gov.ru/rn77/service/egrip2/egrip_vzayim/
 publisher:
   name: Федеральная Налоговая Служба
   name_en: Federal Taxation Service
@@ -44,7 +44,7 @@ publisher:
     federal executive body that accredits branches, representative offices of
     foreign legal entities (with the exception of representative offices of foreign
     credit institutions)
-  url: https://www.nalog.gov.ru/rn77/service/egrip2/egrip_vzayim/
+  url: https://www.nalog.gov.ru/eng/aboutfts/mission/
   country: ru
   official: true
 coverage:
