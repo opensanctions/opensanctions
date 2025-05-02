@@ -1,20 +1,23 @@
 #!/bin/bash
-
+#
 #  export EU_JOURNAL_PAT=...havent-gotten-fine-grained-to-work... \
 #  export EURLEX_WS_USERNAME=... \
 #  export EURLEX_WS_PASSWORD=... \
 #  export SLACK_WEBHOOK_URL=https://hooks.slack.com/services/... \
 #  export EU_JOURNAL_STATE_PATH=../eu_journal \  # or wherever you want to clone the repo
 #  export EU_JOURNAL_HEARTBEAT_URL=https://uptime.betterstack.com/api/v1/heartbeat/... \
-#   /etl/scripts/check-eu-journal.sh
+#
+#  contrib/eu_journal/check_updates.sh
 
 set -e -u
 set -o pipefail
 
+SCRIPT_PATH=$(dirname "${BASH_SOURCE[0]}")
+
 git clone https://eu-journal-bot:${EU_JOURNAL_PAT}@github.com/opensanctions/eu_journal.git $EU_JOURNAL_STATE_PATH
 export EU_JOURNAL_SEEN_PATH=/data/eu_journal/seen.txt
 
-python3 contrib/eu_journal_updates.py --slack --update-seen
+python3 ${SCRIPT_PATH}/fetch_updates.py --slack --update-seen
 
 cd $EU_JOURNAL_STATE_PATH
 git diff
