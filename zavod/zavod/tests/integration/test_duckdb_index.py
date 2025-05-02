@@ -70,9 +70,18 @@ def test_match(
     john = CompositeEntity.from_data(testdataset1, JOHN)
     index.add_matching_subject(john)
 
+    # There's a company in the data with the same name as the person
+    assert view.get_entity("matching-john-smith-inc-us").schema.is_a("Company")
     entity_matches = {}
     for entity_id, matches in index.matches():
-        entity_matches[entity_id] = [(match.id, score) for match, score in matches]
+        entity_matches[entity_id] = []
+        for match, score in matches:
+            entity_matches[entity_id].append((match.id, score))
+            # The company didn't match
+            assert not view.get_entity(match.id).schema.is_a("Company"), (
+                entity_id,
+                match.id,
+            )
 
     assert len(entity_matches["id-bond"]) == 1
     assert entity_matches["id-bond"][0][0] == "matching-james-bond-uk-007"
