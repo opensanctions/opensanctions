@@ -88,6 +88,9 @@ lookups:
           - "reg:kz"
           - "reg:ua2"
           - "reg:bel3"  # Belarus
+          - "reg:acc_corpo_reg"
+          - "reg:sw_comm_reg"
+          - "reg:uec"
         prop: registrationNumber
       - match:
           - "doc:passport"
