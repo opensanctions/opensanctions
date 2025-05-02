@@ -28,6 +28,10 @@ STMT_PROPS_TO_MAP = {
     "npiCode": "NPI_NUMBER",
 }
 NORM_TEXT = re.compile(r"[^\w\d]", re.U)
+SOURCE_NAME_OVERRIDES = {
+    "OS-OPENOWNERSHIP": "OPENOWNERSHIP",
+    "OS-GLEIF": "GLEIF",
+}
 
 
 def push(obj: Dict[str, Any], section: str, value: Dict[str, Any]) -> None:
@@ -66,8 +70,9 @@ class SenzingExporter(Exporter):
     def setup(self) -> None:
         super().setup()
         self.fh = open(self.path, "wb")
-        self.domain_name = "OPEN-SANCTIONS"
-        self.source_name = f"OS-{self.dataset.name.upper().replace('_', '-')}"
+        self.domain_name = "OPENSANCTIONS"
+        source_name = f"OS-{self.dataset.name.upper().replace('_', '-')}"
+        self.source_name = SOURCE_NAME_OVERRIDES.get(source_name, source_name)
         if self.dataset.is_collection and self.dataset.name != "openownership":
             self.source_name = self.domain_name
 
