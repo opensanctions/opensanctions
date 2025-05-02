@@ -37,14 +37,16 @@ data:
   format: CSV
 ci_test: false # No Zyte key in CI
 dates:
-  formats: ["%d/%m/%Y"]
+  formats: ["%d/%m/%Y", "%m/%d/%Y", "%d.%m.%Y", "%m.%d.%Y"]
 
 assertions:
   min:
     schema_entities:
-      Person: 120
-      CryptoWallet: 400
+      Person: 800
+      CryptoWallet: 1200
+      LegalEntity: 1
   max:
     schema_entities:
-      Person: 300
-      CryptoWallet: 900
+      Person: 1500
+      CryptoWallet: 2000
+      LegalEntity: 10
