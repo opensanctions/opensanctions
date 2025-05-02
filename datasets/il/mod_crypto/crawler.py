@@ -1,13 +1,12 @@
 import csv
 from typing import Dict
+from pathlib import Path
 
-# from normality.cleaning import collapse_spaces
-
-from zavod import Context
-from zavod import helpers as h
+from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 ID_FIELDS = [("id_no", "id_country"), ("residency_no", "residency_country")]
+LOCAL_PATH = Path(__file__).parent / "upstream_table.csv"
 
 
 def remove_zero_width_space(row):
@@ -15,6 +14,23 @@ def remove_zero_width_space(row):
         k: (v.replace("\u200b", "") if isinstance(v, str) else v)
         for k, v in row.items()
     }
+
+
+def check_csv_diff(container):
+    table = container.xpath(
+        '//table[@class="ms-rteTable-4" and contains(@style, "background-color:#f6f9fe")]'
+    )
+    assert len(table) == 1
+    table = table[0]
+    rows = []
+    for row in h.parse_html_table(table):
+        cells = h.cells_to_str(row)
+        rows.append(cells)
+    if rows:
+        with LOCAL_PATH.open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=rows[0].keys())
+            writer.writeheader()
+            writer.writerows(rows)
 
 
 def crawl_csv_row(context: Context, row: Dict[str, str]):
@@ -114,6 +130,7 @@ def crawl(context: Context):
     content_xpath = ".//main"
     doc = fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
     container = doc.xpath(content_xpath)[0]
+    check_csv_diff(doc)
 
     # The key things to check are
     # - the table of releases - are there any new ones?
