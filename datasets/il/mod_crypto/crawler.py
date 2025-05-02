@@ -16,11 +16,10 @@ def remove_zero_width_space(row):
     }
 
 
-def check_csv_diff(container):
-    table = container.xpath(
-        '//table[@class="ms-rteTable-4" and contains(@style, "background-color:#f6f9fe")]'
-    )
-    assert len(table) == 1
+def check_csv_diff(context, container):
+    table = container.xpath('//table[@class="ms-rteTable-4" and @width="100%"]')
+    if len(table) != 1:
+        context.log.warning(f"We expect one table, but found {len(table)}")
     table = table[0]
     rows = []
     for row in h.parse_html_table(table):
@@ -130,7 +129,7 @@ def crawl(context: Context):
     content_xpath = ".//main"
     doc = fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
     container = doc.xpath(content_xpath)[0]
-    check_csv_diff(doc)
+    check_csv_diff(context, doc)
 
     # The key things to check are
     # - the table of releases - are there any new ones?
