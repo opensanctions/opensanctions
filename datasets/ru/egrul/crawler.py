@@ -33,6 +33,7 @@ def emit_person(context: Context, row: dict[str, Any]) -> Entity:
     entity = context.make("Person")
     entity.id = row["id"]
     h.apply_name(
+        entity,
         first_name=row["first_name"],
         patronymic=row["father_name"],
         last_name=row["last_name"],
