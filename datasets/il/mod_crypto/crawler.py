@@ -34,27 +34,33 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         person.add("phone", row.pop("phone"))
         for alias in row.pop("alias").split(";"):
             h.apply_name(person, full=alias, alias=True)
-
-        # TODO: check why this is not working
+        # Process identification documents (e.g., national ID, residency)
         for id_key, country_key in ID_FIELDS:
             id_number = row.pop(id_key)
             country = row.pop(country_key)
             if id_number:
-                h.make_identification(
+                identification = h.make_identification(
                     context,
                     person,
                     id_number,
                     passport=False,
                     country=country,
                 )
+                # Emit an Identification entity if country is present
+                if identification and country:
+                    context.emit(identification)
+        # Process passport
         if passport_number := row.pop("passport_no"):
-            h.make_identification(
+            passport = h.make_identification(
                 context,
                 person,
                 passport_number,
                 passport=True,
                 country=row.pop("passport_country"),
             )
+            # Emit a Passport entity if country is present
+            if passport and country:
+                context.emit(passport)
 
         context.emit(person)
 
