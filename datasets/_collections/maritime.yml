@@ -14,11 +14,6 @@ resolve: false
 summary: >
   A shipping-focussed data subset for screening vessels, operators and owners against sanctions.
 description: |
-  **NOTICE:** This data product is currently under development and we are looking for user
-  feedback. Please do not rely on the draft tabular structure before the end of Apr. 2025. Please
-  share any feedback with us via the [forum](https://discuss.opensanctions.org/) or [support](/support/)
-  channels.
-
   This collection contains maritime-related sanctions data, featuring vessels, and organizations
   linked to them. The dataset includes all watchlists that are relevant to maritime operations,
   ie. that indicate vessels as sanctioned entities.
