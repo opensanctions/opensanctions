@@ -33,6 +33,8 @@ MUNI_COUNTRIES = {
     "ru",
     "is",
     "it",
+    "id",
+    "mx",
     "kr",
     "by",
     "ua",
