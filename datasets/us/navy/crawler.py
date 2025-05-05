@@ -11,7 +11,7 @@ BASE_URL = "https://www.navy.mil"
 API_URL = "https://www.navy.mil/API/ArticleCS/Public/GetList?moduleID=709&dpage=%d&TabId=119&language=en-US"
 
 TITLE_REGEX = re.compile(
-    r"^(.*)\b(Admiral|Adm\.)\s+(.*)$"
+    r"^(.*)\b(Dr\.|Admiral|Adm\.)\s+(.*)$"
 )  # Regular expression to match either "Admiral" or "Adm."
 
 CATEGORY_URLS = [
@@ -105,28 +105,24 @@ def process_page(context: Context, page_number: int):
     return True, doc["done"] == "true"
 
 
-def unblock_validator(doc: html.HtmlElement) -> bool:
-    return len(doc.xpath(".//div[contains(@class, 'DNNModuleContent')]")) > 0
-
-
 def parse_html(context):
-    section_xpath = './/div[contains(@class, "DNNModuleContent") and contains(@class, "ModPhotoDashboardC")]'
+    section_xpath = './/div[contains(@class, "DNNModuleContent") and contains(@class, "ModDNNHTMLC")]'
     doc = fetch_html(context, context.data_url, section_xpath, cache_days=3)
     for div in doc.xpath(section_xpath):
-        leader_divs = div.xpath('.//div[contains(@class, "leader-title")]/a')
-        for leader_div in leader_divs:
-            leader_url = urljoin(BASE_URL, leader_div.get("href"))
-            # Skip links to categories rather than individual profiles
-            if leader_url in CATEGORY_URLS:
-                continue
-            name_element = leader_div.find(".//h3")
-            role_element = leader_div.find(".//h2")
+        leader_rows = div.xpath('.//div[@class="row"]')
+        for row in leader_rows:
+            name_element = row.xpath(".//h1/a")
+            role_element = row.xpath(".//h3/a")
             if name_element is None or role_element is None:
                 context.log.warning(
-                    f"Skipping incomplete leader entry: {html.tostring(leader_div, pretty_print=True, encoding='unicode')}"
+                    f"Skipping incomplete leader entry: {html.tostring(row, pretty_print=True, encoding='unicode')}"
                 )
                 continue
-            name = name_element.text_content().strip()
+            # Extract name, role, and URL
+            name = name_element[0].text_content().strip()
+            role = role_element[0].text_content().strip()
+            leader_url = urljoin(BASE_URL, name_element[0].get("href"))
+
             match = re.search(TITLE_REGEX, name)
             if match:
                 # Extract the full title (including everything before "Admiral" or "Adm.")
@@ -137,7 +133,6 @@ def parse_html(context):
                 # Log a warning if no title is found
                 context.log.info(f"Failed to extract title from name: {name}")
                 title = None
-            role = role_element.text_content().strip()
             assert name and role, f"Name or role missing: {name}, {role}"
             emit_person(context, "us", leader_url, role, name, title=title)
 
