@@ -677,8 +677,6 @@ config:
       country: cn
 
     # United States
-    - category: People_associated_with_Russian_interference_in_the_2016_United_States_elections
-      topic: poi
     - category: People_associated_with_the_2024_United_States_presidential_election
       topic: poi
     - category: People_associated_with_the_2020_United_States_presidential_election
