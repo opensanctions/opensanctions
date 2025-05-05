@@ -11,8 +11,8 @@ BASE_URL = "https://www.navy.mil"
 API_URL = "https://www.navy.mil/API/ArticleCS/Public/GetList?moduleID=709&dpage=%d&TabId=119&language=en-US"
 
 TITLE_REGEX = re.compile(
-    r"^(.*)\b(Dr\.|Admiral|Adm\.)\s+(.*)$"
-)  # Regular expression to match either "Admiral" or "Adm."
+    r"^(Dr\.|Rear Admiral|Vice Admiral|Rear Adm\.|Admiral|Adm\.)\s+(.+)$"
+)
 
 CATEGORY_URLS = [
     "https://www.navy.mil/Leadership/Flag-Officer-Biographies/",
@@ -20,8 +20,22 @@ CATEGORY_URLS = [
 ]
 
 
+def extract_title_and_name(context, raw_name: str) -> tuple[str, str | None]:
+    match = TITLE_REGEX.match(raw_name)
+    if match:
+        return match.group(2).strip(), match.group(1).strip()
+    context.log.info("Failed to extract title from name:", name=raw_name)
+    return raw_name, None
+
+
 def emit_person(
-    context: Context, country: str, source_url: str, role: str, name: str, title: str
+    context: Context,
+    country: str,
+    source_url: str,
+    role: str,
+    name: str,
+    title: str,
+    notes: str,
 ):
     person = context.make("Person")
     person.id = context.make_id(country, name, role)
@@ -29,6 +43,7 @@ def emit_person(
     person.add("position", role)
     person.add("sourceUrl", source_url)
     person.add("title", title)
+    person.add("notes", notes)
 
     position = h.make_position(context, role, country=country, topics=["gov.security"])
 
@@ -50,17 +65,8 @@ def crawl_person(context: Context, item_html: str) -> None:
     name = link_el.find(".//h2").text_content().strip()
     role = link_el.find(".//h3").text_content().strip()
 
-    match = re.search(TITLE_REGEX, name)
-    if match:
-        # Extract the full title (including everything before "Admiral" or "Adm.")
-        title = match.group(1).strip() + " " + match.group(2).strip()
-        # Extract the name (everything after "Admiral" or "Adm.")
-        name = match.group(3).strip()
-    else:
-        # Log a warning if no title is found
-        context.log.info(f"Failed to extract title from name: {name}")
-        title = None
-    emit_person(context, "us", url, role, name, title=title)
+    name, title = extract_title_and_name(context, name)
+    emit_person(context, "us", url, role, name, title=title, notes="")
 
 
 def parse_json_or_xml(context: Context, url: str, data: str):
@@ -108,33 +114,30 @@ def process_page(context: Context, page_number: int):
 def parse_html(context):
     section_xpath = './/div[contains(@class, "DNNModuleContent") and contains(@class, "ModDNNHTMLC")]'
     doc = fetch_html(context, context.data_url, section_xpath, cache_days=3)
-    for div in doc.xpath(section_xpath):
-        leader_rows = div.xpath('.//div[@class="row"]')
-        for row in leader_rows:
-            name_element = row.xpath(".//h1/a")
-            role_element = row.xpath(".//h3/a")
-            if name_element is None or role_element is None:
+    for section in doc.xpath(section_xpath):
+        for row in section.xpath('.//div[@class="row"]'):
+            # Extract core HTML elements
+            name_el = row.xpath(".//h1/a")
+            role_el = row.xpath(".//h3/a")
+            notes_el = row.xpath('.//p[contains(@class, "bio-sum")]')
+
+            if not name_el or not role_el:
                 context.log.warning(
-                    f"Skipping incomplete leader entry: {html.tostring(row, pretty_print=True, encoding='unicode')}"
+                    "Skipping incomplete leader entry: %s",
+                    html.tostring(row, pretty_print=True, encoding="unicode"),
                 )
                 continue
-            # Extract name, role, and URL
-            name = name_element[0].text_content().strip()
-            role = role_element[0].text_content().strip()
-            leader_url = urljoin(BASE_URL, name_element[0].get("href"))
+            # Extract text content
+            raw_name = name_el[0].text_content().strip()
+            role = role_el[0].text_content().strip()
+            notes = notes_el[0].text_content().strip() if notes_el else ""
+            leader_url = urljoin(BASE_URL, name_el[0].get("href"))
 
-            match = re.search(TITLE_REGEX, name)
-            if match:
-                # Extract the full title (including everything before "Admiral" or "Adm.")
-                title = match.group(1).strip() + " " + match.group(2).strip()
-                # Extract the name (everything after "Admiral" or "Adm.")
-                name = match.group(3).strip()
-            else:
-                # Log a warning if no title is found
-                context.log.info(f"Failed to extract title from name: {name}")
-                title = None
-            assert name and role, f"Name or role missing: {name}, {role}"
-            emit_person(context, "us", leader_url, role, name, title=title)
+            name, title = extract_title_and_name(context, raw_name)
+            if not name or not role:
+                context.log.warning("Missing name or role:", name=name, role=role)
+                continue
+            emit_person(context, "us", leader_url, role, name, title=title, notes=notes)
 
 
 def crawl(context: Context):
