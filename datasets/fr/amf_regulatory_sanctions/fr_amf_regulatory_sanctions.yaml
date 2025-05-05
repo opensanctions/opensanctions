@@ -41,7 +41,7 @@ tags:
   - target.fr                  # Focused on entities in France
   - juris.fr                   # Relevant in the French legal and regulatory context
   - sector.financial           # Focuses on financial market regulations
-  - source_quality.high        # Official, high-quality data source from a regulatory authority
+  - dq.high                    # Official, high-quality data source from a regulatory authority
 
 assertions:
   min:

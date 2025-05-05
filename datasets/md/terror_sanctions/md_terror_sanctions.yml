@@ -61,7 +61,7 @@ tags:
   - juris.md                          # Relevant to the legal jurisdiction of Moldova
   - risk.terror                       # Focus on individuals/groups involved in terrorism
   - issue.proliferation               # Related to the proliferation of weapons of mass destruction
-  - source_quality.high               # High-quality, official data from the Republic of Moldova
+  - dq.high                           # High-quality, official data from the Republic of Moldova
 
 assertions:
   min:

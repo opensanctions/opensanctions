@@ -70,7 +70,7 @@ tags:
   - issuer.eu              # Published by the European Union
   - list.sanctions         # It is a sanctions list
   - juris.eu               # Relevant in the EU legal and regulatory context
-  - source_quality.high    # Official, well-maintained data source
+  - dq.high                # Official, well-maintained data source
 
 assertions:
   min:

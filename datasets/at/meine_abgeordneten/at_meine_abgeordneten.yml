@@ -53,7 +53,7 @@ tags:
   - list.pep                 # Public officials and politicians
   - target.at                # Focused on Austria
   - juris.at                 # Relevant to the legal and political context of Austria
-  - source_quality.high      # High-quality data
+  - dq.high                  # High-quality data
 
 assertions:
   min:
