@@ -20,9 +20,10 @@ CATEGORY_URLS = [
 ]
 
 
-def extract_title_and_name(context, raw_name: str) -> tuple[str, str | None]:
+def extract_name_and_title(context, raw_name: str) -> tuple[str, str | None]:
     match = TITLE_REGEX.match(raw_name)
     if match:
+        # Return the name and title separately
         return match.group(2).strip(), match.group(1).strip()
     context.log.info("Failed to extract title from name:", name=raw_name)
     return raw_name, None
@@ -65,7 +66,7 @@ def crawl_person(context: Context, item_html: str) -> None:
     name = link_el.find(".//h2").text_content().strip()
     role = link_el.find(".//h3").text_content().strip()
 
-    name, title = extract_title_and_name(context, name)
+    name, title = extract_name_and_title(context, name)
     emit_person(context, "us", url, role, name, title=title, notes="")
 
 
@@ -123,8 +124,7 @@ def parse_html(context):
 
             if not name_el or not role_el:
                 context.log.warning(
-                    "Skipping incomplete leader entry: %s",
-                    html.tostring(row, pretty_print=True, encoding="unicode"),
+                    f"Skipping incomplete leader entry:{html.tostring(row, pretty_print=True, encoding="unicode")}"
                 )
                 continue
             # Extract text content
@@ -133,7 +133,7 @@ def parse_html(context):
             notes = notes_el[0].text_content().strip() if notes_el else ""
             leader_url = urljoin(BASE_URL, name_el[0].get("href"))
 
-            name, title = extract_title_and_name(context, raw_name)
+            name, title = extract_name_and_title(context, raw_name)
             if not name or not role:
                 context.log.warning("Missing name or role:", name=name, role=role)
                 continue
