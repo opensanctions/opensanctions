@@ -48,6 +48,12 @@ dates:
     "12": Dezember
 http:
   retry_statuses: [413, 429]
+tags:
+  - issuer.at                # Published by Austria (country-specific dataset)
+  - list.pep                 # Public officials and politicians
+  - target.at                # Focused on Austria
+  - juris.at                 # Relevant to the legal and political context of Austria
+  - source_quality.high      # High-quality data
 
 assertions:
   min:

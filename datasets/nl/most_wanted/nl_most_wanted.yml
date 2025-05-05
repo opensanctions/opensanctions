@@ -25,6 +25,12 @@ data:
   url: "https://www.politie.nl/en/wanted"
   format: HTML
   lang: eng
+tags:
+  - issuer.nl                      # Published by the Netherlands (Dutch authorities)
+  - list.wanted                    # Focused on most wanted persons
+  - target.nl                      # Focused on suspects related to the Netherlands
+  - juris.nl                       # Relevant to Dutch legal and police enforcement context
+  - source_quality.high            # High-quality data from the official Dutch police
 
 assertions:
   min:
