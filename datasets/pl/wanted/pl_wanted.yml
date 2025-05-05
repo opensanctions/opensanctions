@@ -131,3 +131,5 @@ lookups:
         value: MK
       - match: POLSKIE BEZ NR PESEL
         value: PL
+      - match: MACEDONIA PÓŁNOCNA
+        value: MK
