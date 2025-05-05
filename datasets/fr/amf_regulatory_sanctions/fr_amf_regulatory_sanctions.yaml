@@ -611,10 +611,7 @@ lookups:
           - ALTERNATIVE LEADERS FRANCE
       - match: "SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS (SGAM AI)"
         entities:
-          - [
-              "SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS",
-              "SGAM AI",
-            ]
+          - ["SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS", "SGAM AI"]
       - match: "SOCIETE GENERALE ASSET MANAGEMENT (SGAM)"
         entities:
           - ["SOCIETE GENERALE ASSET MANAGEMENT", "SGAM"]
@@ -991,10 +988,7 @@ lookups:
           - Entrepreneur Invest
           - Eurotitrisation
           - Caceis Bank
-          - [
-              "Caceis Investor Services Bank France",
-              "RBC Investor Services Bank France",
-            ]
+          - ["Caceis Investor Services Bank France", "RBC Investor Services Bank France"]
           - Edith Lusson
           - Jean-Yves Bajon
           - Romain Bertrand
@@ -1003,11 +997,7 @@ lookups:
         relationships:
           - schema: Succession
             from_prop: predecessor
-            from:
-              [
-                "Caceis Investor Services Bank France",
-                "RBC Investor Services Bank France",
-              ]
+            from: ["Caceis Investor Services Bank France", "RBC Investor Services Bank France"]
             to_prop: successor
             to: Caceis Bank
             role: venant aux droits
