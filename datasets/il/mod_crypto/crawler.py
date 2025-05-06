@@ -145,7 +145,9 @@ def crawl(context: Context):
     write_csv_for_manual_diff(context, doc)
     h.assert_dom_hash(container, "203b99615f06e11bf4af3273e2cb46506c0804c4")
 
-    # We're doing manual extraction to the google sheet until we support rowspan in the table.
+    # At the time of writing, the table on the web page is missing some public keys, 
+    # so we maintain the data manually in a google sheet, but dump the table to csv
+    # to be able to see what changed quickly.
     src = context.fetch_resource("source.csv", context.data_url)
     with open(src, "r") as f:
         reader = csv.DictReader(f)
