@@ -16,7 +16,7 @@ def remove_zero_width_space(row):
     }
 
 
-def check_csv_diff(context, container):
+def write_csv_for_manual_diff(context, container):
     table = container.xpath('//table[@class="ms-rteTable-4" and @width="100%"]')
     if len(table) != 1:
         context.log.warning(f"We expect one table, but found {len(table)}")
@@ -105,18 +105,25 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
 
     # --- Sanction & Linking ---
     aso_id = row.pop("order_id")
-    # TODO: startDate is to be extracted from the orders
-    # start_date = row.pop("Publication date")
     for wallet in wallets:
         sanction = h.make_sanction(context, wallet, key=aso_id)
         sanction.set("authorityId", aso_id)
-        # h.apply_date(sanction, "startDate", start_date)
+        # Manually extracted from each order (pdf), it's the date it was issued
+        h.apply_date(sanction, "startDate", row.pop("start_date"))
+        # "Last Updated" column in the table of releases
         h.apply_date(sanction, "modifiedAt", row.pop("last_updated"))
+        # "Validity of Issue" column in the table of releases
         h.apply_date(sanction, "endDate", row.pop("end_date"))
         if h.is_active(sanction):
             wallet.add("topics", "crime.terror")
+        # "File Type" column in the table of releases
+        # e.g., "​Seizure order (ASO 16/25) of the Minister of Defense"
         sanction.add("sourceUrl", row.pop("order_url"))
+        # Links from the "Validity of Issue" column in the table of releases
+        # e.g., "​Forfeiture Order (FO​ 18/24)"
         sanction.add("sourceUrl", row.pop("forfeiture_order_url"))
+        # Links from the "File Type" column in the table of releases
+        # e.g., "Annex of the Seizure Order (ASO - 56/23) - Wallet Details"
         sanction.add("sourceUrl", row.pop("annex_url"))
         context.emit(wallet)
         context.emit(sanction)
@@ -129,35 +136,16 @@ def crawl(context: Context):
     content_xpath = ".//main"
     doc = fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
     container = doc.xpath(content_xpath)[0]
-    check_csv_diff(context, doc)
-
+    # Write a CSV snapshot to check the diff manually (git diff).
+    # Review for any new releases or persons/wallets added (top or bottom of table).
     # The key things to check are
     # - the table of releases - are there any new ones?
     # - The table of persons/wallets - does it look like anything's been added there?
-    #   Top of bottom?
-    #
-    # Save As https://nbctf.mod.gov.il/en/Minister%20Sanctions/PropertyPerceptions/Pages/Blockchain1.aspx
-    # as 'Web Page, HTML only' in chrome to a temporary location e.g. /tmp/il_crypto.html.
-    # We use chrome because curl sometimes gets a bot blocking response.
-    #
-    # Then run `xmllint --format --html /tmp/il_crypto.html > datasets/il/mod_crypto/source.html`
-    # Then run `dos2unix datasets/il/mod_crypto/source.html`
-    # Then git diff --word-diff=color datasets/il/mod_crypto/source.html
-    # and see if there's anything in the content that's changed.
-    #
-    # Commit the changes so that we can see what changed from here next time.
+    # If updated, reflect changes in the Google Sheet and commit the new CSV.
+    write_csv_for_manual_diff(context, doc)
     h.assert_dom_hash(container, "203b99615f06e11bf4af3273e2cb46506c0804c4")
 
-    # We don't support rowspan at the time of writing.
-    #
-    # table_xpath = ".//*[contains(text(), 'Full name')]//ancestor::table"
-    # entity_table = doc.xpath(table_xpath)[0]
-    # for row in h.parse_html_table(entity_table):
-    #     print(row)
-
-    # The CSV gives hand-extracted detail like names in arabic and hebrew.
-    # And we're doing manual extraction to the google sheet until we support
-    # rowspan in the table.
+    # We're doing manual extraction to the google sheet until we support rowspan in the table.
     src = context.fetch_resource("source.csv", context.data_url)
     with open(src, "r") as f:
         reader = csv.DictReader(f)
