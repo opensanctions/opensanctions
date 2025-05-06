@@ -90,12 +90,9 @@ class LocalEnricher(BaseEnricher[DS]):
         self._index.close()
 
     def load(self, entity: Entity) -> None:
-        self._index.add_matching_subject(entity)
-
-    def load_wrapped(self, entity: Entity) -> None:
         if not self._filter_entity(entity):
             return
-        self.load(entity)
+        self._index.add_matching_subject(entity)
 
     def candidates(self) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
         yield from self._index.matches()
@@ -215,7 +212,7 @@ def enrich(context: Context) -> None:
     try:
         context.log.info("Loading entities for matching...")
         for entity in subject_view.entities():
-            enricher.load_wrapped(entity)
+            enricher.load(entity)
 
         reset_caches()
 
