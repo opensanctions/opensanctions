@@ -137,7 +137,7 @@ def crawl(context: Context):
     doc = fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
     container = doc.xpath(content_xpath)[0]
     # Write a CSV snapshot to check the diff manually (git diff).
-    # Review for any new releases or persons/wallets added (top or bottom of table).
+    # Review for any new releases or persons/wallets added.
     # The key things to check are
     # - the table of releases - are there any new ones?
     # - The table of persons/wallets - does it look like anything's been added there?
