@@ -1,6 +1,6 @@
 from decimal import Decimal
 import logging
-from typing import Generator, List, Tuple
+from typing import Generator, Iterator, List, Tuple
 from followthemoney.types import registry
 from followthemoney.helpers import check_person_cutoff
 
@@ -89,10 +89,10 @@ class LocalEnricher(BaseEnricher[DS]):
         self.target_store.close()
         self._index.close()
 
-    def load(self, entity: Entity) -> None:
-        if not self._filter_entity(entity):
-            return
-        self._index.add_matching_subject(entity)
+    def load_subjects(self, subjects: Iterator[Entity]) -> None:
+        log.info("Loading entities for matching...")
+        entity_generator = (e for e in subjects if self._filter_entity(e))
+        self._index.load_matching_subjects(entity_generator)
 
     def candidates(self) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
         yield from self._index.matches()
@@ -210,12 +210,8 @@ def enrich(context: Context) -> None:
     config = dict(context.dataset.config)
     enricher = LocalEnricher(context.dataset, context.cache, config)
     try:
-        context.log.info("Loading entities for matching...")
-        for entity in subject_view.entities():
-            enricher.load(entity)
-
+        enricher.load_subjects(subject_view.entities())
         reset_caches()
-
         context.log.info("Matching candidates...")
         for entity_idx, (entity_id, candidate_set) in enumerate(enricher.candidates()):
             if entity_idx > 0 and entity_idx % 10000 == 0:

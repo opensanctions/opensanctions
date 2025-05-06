@@ -119,7 +119,7 @@ def test_enrich_id_match(vcontext: Context):
     crawl_dataset(vcontext.dataset)
     enricher = load_enricher(vcontext, DATASET_DATA, "testdataset1")
     entity = CompositeEntity.from_data(vcontext.dataset, JON_DOVER)
-    enricher.load(entity)
+    enricher.load_subjects([entity])
     candidates = {id_.id: cands for id_, cands in enricher.candidates()}
 
     # Not a match with a different ID
@@ -141,7 +141,7 @@ def test_expand_securities(vcontext: Context, testdataset_securities: Dataset):
     crawl_dataset(testdataset_securities)
     enricher = load_enricher(vcontext, DATASET_DATA, testdataset_securities.name)
     entity = CompositeEntity.from_data(vcontext.dataset, AAA_USD_ISK)
-    enricher.load(entity)
+    enricher.load_subjects([entity])
     candidates = {id_.id: cands for id_, cands in enricher.candidates()}
 
     # Match
@@ -166,7 +166,7 @@ def test_expand_issuers(vcontext: Context, testdataset_securities: Dataset):
     crawl_dataset(testdataset_securities)
     enricher = load_enricher(vcontext, DATASET_DATA, "testdataset_securities")
     entity = CompositeEntity.from_data(vcontext.dataset, AAA_BANK)
-    enricher.load(entity)
+    enricher.load_subjects([entity])
     candidates = {id_.id: cands for id_, cands in enricher.candidates()}
 
     # Match
@@ -195,7 +195,7 @@ def test_cutoff(vcontext: Context):
     dataset_data["config"]["cutoff"] = 0.99
     enricher = load_enricher(vcontext, dataset_data, "testdataset1")
     entity = CompositeEntity.from_data(vcontext.dataset, UMBRELLA_CORP)
-    enricher.load(entity)
+    enricher.load_subjects([entity])
     candidates = {id_.id: cands for id_, cands in enricher.candidates()}
     results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 0, results
@@ -210,7 +210,7 @@ def test_limit(vcontext: Context):
     dataset_data["config"]["limit"] = 0
     enricher = load_enricher(vcontext, dataset_data, "testdataset1")
     entity = CompositeEntity.from_data(vcontext.dataset, UMBRELLA_CORP)
-    enricher.load(entity)
+    enricher.load_subjects([entity])
     candidates = {id_.id: cands for id_, cands in enricher.candidates()}
     results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 0, results

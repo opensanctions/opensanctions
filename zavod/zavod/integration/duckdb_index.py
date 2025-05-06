@@ -100,8 +100,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.duckdb_path = (self.data_dir / "index.duckdb").as_posix()
 
         self.matching_path = self.data_dir / "matching.csv"
-        self.matching_path.unlink(missing_ok=True)
-        self.matching_dump: TextIOWrapper | None = open(self.matching_path, "w")
 
         self._init_db()
 
@@ -125,9 +123,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                 continue
             self.con.execute("INSERT INTO boosts VALUES (?, ?)", [type.name, 1.0])
 
-        self.con.execute(
-            "CREATE OR REPLACE TABLE matching (schema TEXT, id TEXT, field TEXT, token TEXT)"
-        )
         self.con.execute(
             "CREATE OR REPLACE TABLE entries (schema TEXT, id TEXT, field TEXT, token TEXT)"
         )
@@ -156,11 +151,21 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         for field, token in tokenize_entity(entity):
             writer.writerow([entity.schema.name, entity.id, field, token])
 
-    def add_matching_subject(self, entity: CE) -> None:
-        if self.matching_dump is None:
-            raise Exception("Cannot add matching subject after getting candidates.")
-        writer = csv_writer(self.matching_dump)
-        self.dump_entity(writer, entity)
+    def load_matching_subjects(self, entities: Iterable[CE]) -> None:
+        self.matching_path.unlink(missing_ok=True)
+        with open(self.matching_path, "w") as matching_dump:
+            matching_writer = csv_writer(matching_dump)
+            for entity in entities:
+                self.dump_entity(matching_writer, entity)
+
+        log.info("Loading matching subjects...")
+        self.con.execute(
+            "CREATE OR REPLACE TABLE matching (schema TEXT, id TEXT, field TEXT, token TEXT)"
+        )
+        self.con.execute(
+            f"COPY matching FROM '{self.matching_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
+        )
+        log.info("Finished loading matching subjects.")
 
     def _build_field_len(self) -> None:
         log.info("Calculating field lengths...")
@@ -263,15 +268,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self,
     ) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
         self._clear()
-        if self.matching_dump is not None:
-            self.matching_dump.close()
-            self.matching_dump = None
-            log.info("Loading matching subjects...")
-            self.con.execute(
-                f"COPY matching FROM '{self.matching_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
-            )
-            log.info("Finished loading matching subjects.")
-
         res = self.con.execute("SELECT COUNT(DISTINCT id) FROM matching").fetchone()
         num_matching = res[0] if res is not None else 0
         chunks = max(1, num_matching // self.match_batch)
@@ -321,8 +317,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
     def close(self) -> None:
         self.con.close()
-        if self.matching_dump is not None:
-            self.matching_dump.close()
 
     def __repr__(self) -> str:
         return "<DuckDBIndex(%r, %r)>" % (
