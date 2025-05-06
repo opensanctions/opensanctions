@@ -17,6 +17,7 @@ from nomenklatura.store import View
 
 from zavod.integration.tokenizer import tokenize_entity
 from zavod.integration.tokenizer import NAME_PART_FIELD, WORD_FIELD, PHONETIC_FIELD
+from zavod.reset import reset_caches
 
 BlockingMatches = List[Tuple[Identifier, float]]
 
@@ -264,9 +265,14 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             for left, right, score in batch:
                 yield (Identifier.get(left), Identifier.get(right)), score
 
-    def matches(
-        self,
+    def match_entities(
+        self, entities: Iterable[CE]
     ) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
+        self.load_matching_subjects(entities)
+        reset_caches()
+        yield from self.matches()
+
+    def matches(self) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
         self._clear()
         res = self.con.execute("SELECT COUNT(DISTINCT id) FROM matching").fetchone()
         num_matching = res[0] if res is not None else 0

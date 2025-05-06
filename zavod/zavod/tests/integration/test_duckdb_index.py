@@ -67,12 +67,11 @@ def test_match(
 
     bond = CompositeEntity.from_data(testdataset1, BOND)
     john = CompositeEntity.from_data(testdataset1, JOHN)
-    index.load_matching_subjects([bond, john])
 
     # There's a company in the data with the same name as the person
     assert view.get_entity("matching-john-smith-inc-us").schema.is_a("Company")
     entity_matches = {}
-    for entity_id, matches in index.matches():
+    for entity_id, matches in index.match_entities([bond, john]):
         entity_matches[entity_id] = []
         for match, score in matches:
             entity_matches[entity_id].append((match.id, score))
@@ -129,9 +128,11 @@ def test_stopwords(testdataset1: Dataset, resolver: Resolver[Entity]):
     data_dir = Path(mkdtemp()).resolve()
     index = DuckDBIndex(view, data_dir, {"stopwords_pct": 15})
     index.build()
-    index.load_matching_subjects([too_common_first_name, matching_last_name])
+
     entity_matches = {}
-    for entity_id, matches in index.matches():
+    for entity_id, matches in index.match_entities(
+        [too_common_first_name, matching_last_name]
+    ):
         entity_matches[entity_id] = [(match.id, score) for match, score in matches]
 
     assert too_common_first_name.id not in entity_matches
@@ -143,10 +144,11 @@ def test_stopwords(testdataset1: Dataset, resolver: Resolver[Entity]):
     data_dir = Path(mkdtemp()).resolve()
     index = DuckDBIndex(view, data_dir, {"stopwords_pct": 5})
     index.build()
-    index.load_matching_subjects([too_common_first_name, matching_last_name])
 
     entity_matches = {}
-    for entity_id, matches in index.matches():
+    for entity_id, matches in index.match_entities(
+        [too_common_first_name, matching_last_name]
+    ):
         entity_matches[entity_id] = [(match.id, score) for match, score in matches]
 
     assert len(entity_matches[too_common_first_name.id]) == 3

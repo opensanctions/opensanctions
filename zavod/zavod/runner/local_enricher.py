@@ -20,7 +20,6 @@ from zavod.integration.dedupe import get_dataset_linker, get_resolver
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
 from zavod.store import get_store
-from zavod.reset import reset_caches
 from zavod.integration.duckdb_index import DuckDBIndex, BlockingMatches
 
 
@@ -89,13 +88,11 @@ class LocalEnricher(BaseEnricher[DS]):
         self.target_store.close()
         self._index.close()
 
-    def load_subjects(self, subjects: Iterator[Entity]) -> None:
-        log.info("Loading entities for matching...")
+    def candidates(
+        self, subjects: Iterator[Entity]
+    ) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
         entity_generator = (e for e in subjects if self._filter_entity(e))
-        self._index.load_matching_subjects(entity_generator)
-
-    def candidates(self) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
-        yield from self._index.matches()
+        yield from self._index.match_entities(entity_generator)
 
     def match_candidates(
         self, entity: Entity, candidates: BlockingMatches
@@ -210,10 +207,10 @@ def enrich(context: Context) -> None:
     config = dict(context.dataset.config)
     enricher = LocalEnricher(context.dataset, context.cache, config)
     try:
-        enricher.load_subjects(subject_view.entities())
-        reset_caches()
         context.log.info("Matching candidates...")
-        for entity_idx, (entity_id, candidate_set) in enumerate(enricher.candidates()):
+        for entity_idx, (entity_id, candidate_set) in enumerate(
+            enricher.candidates(subject_view.entities())
+        ):
             if entity_idx > 0 and entity_idx % 10000 == 0:
                 context.log.info("Enriched %s entities..." % entity_idx)
             subject_entity = subject_view.get_entity(entity_id.id)
