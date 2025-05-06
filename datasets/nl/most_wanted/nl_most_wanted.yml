@@ -27,7 +27,7 @@ data:
   lang: eng
 tags:
   - list.wanted                    # Focused on most wanted persons
-  - target.zz                      # Focused on suspects related to the Netherlands
+  - target.zz                      # Global coverage
 
 assertions:
   min:
