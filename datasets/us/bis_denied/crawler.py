@@ -1,4 +1,4 @@
-import csv
+import xlrd
 from followthemoney.types import registry
 
 from zavod import Context
@@ -7,37 +7,55 @@ from zavod import helpers as h
 
 def parse_row(context: Context, row):
     entity = context.make("LegalEntity")
-    entity.id = context.make_slug(row.get("Effective_Date"), row.get("Name"))
-    entity.add("name", row.get("Name"))
-    entity.add("notes", row.get("Action"))
-    entity.add("topics", "sanction")
-    entity.add("country", row.get("Country"))
-    entity.add("modifiedAt", row.get("Last_Update"))
+    start_date = row.pop("beginning_date")
+    name = row.pop("name")
+    country = row.pop("country")
 
-    country_code = registry.country.clean(row.get("Country"))
+    entity.id = context.make_slug(start_date, name)
+    entity.add("name", name)
+    entity.add("notes", row.pop("action"))
+    entity.add("topics", "sanction")
+    entity.add("country", country)
+    entity.add("modifiedAt", row.pop("last_update"))
+
+    country_code = registry.country.clean(country)
     address = h.make_address(
         context,
-        street=row.get("Street_Address"),
-        postal_code=row.get("Postal_Code"),
-        city=row.get("City"),
-        region=row.get("State"),
+        street=row.pop("street_address"),
+        postal_code=row.pop("postal_code"),
+        city=row.pop("city"),
+        region=row.pop("state"),
         country_code=country_code,
     )
     h.copy_address(entity, address)
     context.emit(entity)
 
-    citation = row.get("FR_Citation")
-    sanction = h.make_sanction(context, entity, key=citation)
+    citation = row.pop("fr_citation")
+    sanction = h.make_sanction(
+        context,
+        entity,
+        key=citation,
+        program_name=citation,
+        source_program_key=citation,
+        # TODO: mappings
+        # Map the source program key to the OpenSanctions program key using a lookup (e.g. BE -> BE-FOD-NAT)
+        # program_key=(
+        #     h.lookup_sanction_program_key(context, citation) if citation else None
+        # ),
+    )
     sanction.add("program", citation)
-    h.apply_date(sanction, "startDate", row.get("Effective_Date"))
-    h.apply_date(sanction, "endDate", row.get("Expiration_Date"))
-    # pprint(row)
+    h.apply_date(sanction, "startDate", start_date)
+    h.apply_date(sanction, "endDate", row.pop("ending_date"))
     context.emit(sanction)
+
+    context.audit_data(row, ["counter", "standard_order"])
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.tsv", context.data_url)
+    doc = context.fetch_html(context.data_url, cache_days=1)
+    url = doc.xpath(".//a[contains(normalize-space(.), 'Export as CSV')]/@href")
+    assert len(url) == 1, "Expected exactly one URL"
+    path = context.fetch_resource("source.xls", url[0])
     context.export_resource(path, "text/tsv", title=context.SOURCE_TITLE)
-    with open(path, "r") as csvfile:
-        for row in csv.DictReader(csvfile, delimiter="\t"):
-            parse_row(context, row)
+    for row in h.parse_xls_sheet(context, xlrd.open_workbook(path)["dpl"]):
+        parse_row(context, row)
