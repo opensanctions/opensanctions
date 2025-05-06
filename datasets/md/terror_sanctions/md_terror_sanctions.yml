@@ -55,14 +55,8 @@ data:
 dates:
   formats: ["%d.%m.%Y", "%d %b. %Y", "%b. %Y", "%b.%Y"]
 tags:
-  - issuer.md                         # Published by the Republic of Moldova
-  - list.sanction                     # A sanctions list targeting specific persons, entities, and groups
+  - list.sanctions                    # A sanctions list targeting specific persons, entities, and groups
   - target.md                         # Focused on Moldova and relevant legal context
-  - juris.md                          # Relevant to the legal jurisdiction of Moldova
-  - risk.terror                       # Focus on individuals/groups involved in terrorism
-  - issue.proliferation               # Related to the proliferation of weapons of mass destruction
-  - dq.high                           # High-quality, official data from the Republic of Moldova
-
 assertions:
   min:
     schema_entities:

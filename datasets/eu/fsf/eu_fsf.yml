@@ -67,10 +67,8 @@ data:
   url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw
   format: XML
 tags:
-  - issuer.eu              # Published by the European Union
   - list.sanctions         # It is a sanctions list
-  - juris.eu               # Relevant in the EU legal and regulatory context
-  - dq.high                # Official, well-maintained data source
+  - target.zz              # Global coverage
 
 assertions:
   min:

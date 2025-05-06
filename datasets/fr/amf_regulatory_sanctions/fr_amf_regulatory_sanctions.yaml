@@ -36,12 +36,9 @@ data:
   url: https://www.amf-france.org/fr/rest/listing_sanction/91,184,183,325,90,461,89,242,86,462,181/all/all?t=1722860865328&_=1722860865172
   format: json
 tags:
-  - issuer.fr                  # Issuer of the data is a French regulatory authority
-  - list.sanctions             # Sanctions decisions list
+  - list.regulatory            # Regulation and compliance
   - target.fr                  # Focused on entities in France
-  - juris.fr                   # Relevant in the French legal and regulatory context
   - sector.financial           # Focuses on financial market regulations
-  - dq.high                    # Official, high-quality data source from a regulatory authority
 
 assertions:
   min:

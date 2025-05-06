@@ -26,11 +26,8 @@ data:
   format: HTML
   lang: eng
 tags:
-  - issuer.nl                      # Published by the Netherlands (Dutch authorities)
   - list.wanted                    # Focused on most wanted persons
-  - target.nl                      # Focused on suspects related to the Netherlands
-  - juris.nl                       # Relevant to Dutch legal and police enforcement context
-  - dq.high                        # High-quality data from the official Dutch police
+  - target.zz                      # Focused on suspects related to the Netherlands
 
 assertions:
   min:
