@@ -6,7 +6,7 @@ from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 ID_FIELDS = [("id_no", "id_country"), ("residency_no", "residency_country")]
-LOCAL_PATH = Path(__file__).parent / "upstream_table.csv"
+LOCAL_PATH = Path(__file__).parent
 
 
 def remove_zero_width_space(row):
@@ -17,16 +17,18 @@ def remove_zero_width_space(row):
 
 
 def write_csv_for_manual_diff(context, container):
-    table = container.xpath('//table[@class="ms-rteTable-4" and @width="100%"]')
-    if len(table) != 1:
-        context.log.warning(f"We expect one table, but found {len(table)}")
-    table = table[0]
-    rows = []
-    for row in h.parse_html_table(table):
-        cells = h.cells_to_str(row)
-        rows.append(cells)
-    if rows:
-        with LOCAL_PATH.open("w", newline="", encoding="utf-8") as f:
+    tables = container.xpath('//table[@class="ms-rteTable-4"]')
+    if len(tables) != 2:
+        context.log.warning(f"Expected 2 tables, found {len(tables)}")
+
+    output_paths = [
+        LOCAL_PATH / "releases.csv",
+        LOCAL_PATH / "wallets.csv",
+    ]
+
+    for table, path in zip(tables, output_paths):
+        rows = [h.cells_to_str(row) for row in h.parse_html_table(table)]
+        with path.open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=rows[0].keys())
             writer.writeheader()
             writer.writerows(rows)
@@ -141,11 +143,13 @@ def crawl(context: Context):
     # The key things to check are
     # - the table of releases - are there any new ones?
     # - The table of persons/wallets - does it look like anything's been added there?
-    # If updated, reflect changes in the Google Sheet and commit the new CSV.
+    # If updated, reflect changes in the Google Sheet and commit the new CSV:
+    # git add -f datasets/il/mod_crypto/releases.csv
+    # git add -f datasets/il/mod_crypto/wallets.csv
     write_csv_for_manual_diff(context, doc)
     h.assert_dom_hash(container, "203b99615f06e11bf4af3273e2cb46506c0804c4")
 
-    # At the time of writing, the table on the web page is missing some public keys, 
+    # At the time of writing, the table on the web page is missing some public keys,
     # so we maintain the data manually in a google sheet, but dump the table to csv
     # to be able to see what changed quickly.
     src = context.fetch_resource("source.csv", context.data_url)
