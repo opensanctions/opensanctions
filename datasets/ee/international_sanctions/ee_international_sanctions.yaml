@@ -26,6 +26,9 @@ url: https://www.vm.ee/en/activity/international-sanctions/sanctions-government-
 data:
   url: https://www.vm.ee/en/activity/international-sanctions/sanctions-government-republic-estonia
   format: HTML
+tags:
+  - list.sanctions
+  - target.zz
 
 # as at 2025-03-03
 # 273 + 58 + 28 + 55 = 414
