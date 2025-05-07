@@ -44,9 +44,10 @@ publisher:
 data:
   url: "https://www.uaeiec.gov.ae/en-us/un-page?p=2#"
   format: HTML
-
 dates:
   formats: ["%d/%m/%Y", "%Y"]
+tags:
+  - list.sanction
 
 assertions:
   min:
