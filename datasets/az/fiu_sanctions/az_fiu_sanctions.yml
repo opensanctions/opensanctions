@@ -30,7 +30,7 @@ data:
   format: XML
   lang: aze
 tags:
-  - list.sanctions.counter
+  - list.sanction.counter
   - target.az
 
 assertions:

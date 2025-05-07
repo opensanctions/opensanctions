@@ -39,7 +39,7 @@ data:
   # url: "https://data.opensanctions.org/datasets/20231015/au_dfat_sanctions/source.xlsx"
   format: XLSX
 tags:
-  - list.sanctions
+  - list.sanction
 
 assertions:
   min:

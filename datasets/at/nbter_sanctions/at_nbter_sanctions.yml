@@ -48,7 +48,7 @@ dates:
     "11": November
     "12": Dezember
 tags:
-  - list.sanctions
+  - list.sanction
 
 assertions:
   min:

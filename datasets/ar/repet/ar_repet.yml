@@ -27,7 +27,7 @@ data:
   url: https://repet.jus.gob.ar/
   format: JSON
 tags:
-  - list.sanctions
+  - list.sanction
 
 assertions:
   min:
