@@ -32,6 +32,9 @@ publisher:
 data:
   url: https://www.irishstatutebook.ie/eli/ResultsTitle.html?q=Unlawful+Organisation
   format: html
+tags:
+  - list.sanction
+  - target.ie
 
 assertions:
   min:
