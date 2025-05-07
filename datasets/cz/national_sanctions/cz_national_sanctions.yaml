@@ -27,7 +27,6 @@ data:
   format: CSV
 tags:
   - list.sanctions
-  - target.zz
 
 dates:
   formats: ["%d. %m %Y", "%d.%m.%Y"]

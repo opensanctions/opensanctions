@@ -53,7 +53,6 @@ dates:
   formats: ["%d.%m.%y", "%d.%m.%Y"]
 tags:
   - list.sanctions.counter
-  - target.zz
 
 assertions:
   min:

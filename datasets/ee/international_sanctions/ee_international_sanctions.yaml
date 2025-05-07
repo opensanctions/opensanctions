@@ -28,7 +28,6 @@ data:
   format: HTML
 tags:
   - list.sanctions
-  - target.zz
 
 # as at 2025-03-03
 # 273 + 58 + 28 + 55 = 414

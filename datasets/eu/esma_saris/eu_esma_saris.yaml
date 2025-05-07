@@ -41,7 +41,6 @@ data:
   format: CSV
 tags:
   - list.sanctions
-  - target.zz
   - sector.financial
   - sector.securities
 
