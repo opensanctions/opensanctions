@@ -52,7 +52,7 @@ data:
 dates:
   formats: ["%d.%m.%y", "%d.%m.%Y"]
 tags:
-  - list.sanctions.counter
+  - list.sanction.counter
 
 assertions:
   min:

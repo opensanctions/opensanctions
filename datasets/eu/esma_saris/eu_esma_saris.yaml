@@ -40,7 +40,7 @@ data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doExportSarisCsv?core=esma_registers_saris_new
   format: CSV
 tags:
-  - list.sanctions
+  - list.sanction
   - sector.financial
   - sector.securities
 

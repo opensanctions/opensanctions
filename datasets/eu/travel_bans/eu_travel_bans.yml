@@ -43,7 +43,7 @@ data:
   url: https://www.sanctionsmap.eu/api/v1/data?
   format: JSON
 tags:
-  - list.sanctions
+  - list.sanction
 
 assertions:
   min:
