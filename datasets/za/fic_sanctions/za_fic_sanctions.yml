@@ -37,6 +37,9 @@ url: "https://www.fic.gov.za/International/sanctions/SitePages/Home.aspx"
 data:
   url: https://tfs.fic.gov.za/Pages/TFSListDownload?fileType=xml
   format: XML
+tags:
+  - list.sanction
+  - sector.financial
 
 assertions:
   min:

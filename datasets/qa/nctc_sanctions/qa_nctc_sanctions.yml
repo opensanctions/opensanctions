@@ -48,6 +48,8 @@ dates:
     - EXACT_%d/%m/%Y___
     - EXACT_%d-%m-%Y___
     - _%d/%m/%Y___
+tags:
+  - list.sanction
 
 assertions:
   min:

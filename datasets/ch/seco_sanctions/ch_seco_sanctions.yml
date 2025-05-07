@@ -36,6 +36,8 @@ data:
   format: XML
 dates:
   formats: ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%d %b %Y", "%b, %Y"]
+tags:
+  - list.sanction
 
 assertions:
   min:

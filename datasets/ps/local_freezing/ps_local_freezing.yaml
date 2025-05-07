@@ -33,6 +33,8 @@ data:
   format: HTML
 dates:
   formats: ["%d/%m/%Y"]
+tags:
+  - list.sanction
 
 assertions:
   min:

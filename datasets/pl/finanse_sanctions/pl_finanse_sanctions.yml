@@ -38,6 +38,8 @@ data:
   lang: pol
 dates:
   formats: ["%d.%m.%Y r."]
+tags:
+  - list.sanction
 
 assertions:
   min:
