@@ -7,7 +7,7 @@ from functools import cache
 from io import TextIOWrapper
 from urllib.parse import urljoin
 
-from nomenklatura.util import PathLike
+from followthemoney.util import PathLike
 from followthemoney.types import registry
 from followthemoney.util import join_text
 
