@@ -33,7 +33,7 @@ dates:
   formats:
     - "%d.%m.%Y"
 tags:
-  - list.sanctions
+  - list.sanction
 
 assertions:
   min:
