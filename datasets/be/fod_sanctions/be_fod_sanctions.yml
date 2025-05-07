@@ -38,6 +38,9 @@ publisher:
 data:
   url: "https://financien.belgium.be/sites/default/files/thesaurie/Consolidated%20list.zip"
   format: ZIP/XML
+tags:
+  - list.sanctions                    # A sanctions list
+  - target.zz                         # Global coverage
 
 assertions:
   min:
