@@ -39,7 +39,6 @@ data:
   format: XML
 tags:
   - list.sanctions
-  - targets.zz
 
 assertions:
   min:
