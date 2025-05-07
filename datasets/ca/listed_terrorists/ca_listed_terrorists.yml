@@ -38,7 +38,7 @@ data:
   url: "https://www.publicsafety.gc.ca/cnt/_xml/lstd-ntts-eng.xml"
   format: XML
 tags:
-  - list.sanctions
+  - list.sanction
 
 assertions:
   min:
