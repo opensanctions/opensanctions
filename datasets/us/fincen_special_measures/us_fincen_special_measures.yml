@@ -27,9 +27,12 @@ publisher:
 data:
   url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
   format: html
-
 dates:
   formats: ["%m/%d/%Y"]
+tags:
+  - list.sanction
+  - sector.financial
+
 lookups:
   target_type:
     options:
