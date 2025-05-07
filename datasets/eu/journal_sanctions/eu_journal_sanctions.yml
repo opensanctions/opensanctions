@@ -38,6 +38,9 @@ data:
   format: CSV
 dates:
   formats: ["%d.%m.%Y", "%d %B %Y", "%Y-%m", "%d.%m.%Y’", "%d %B %Y’", "%B %Y"]
+tags:
+  - list.sanctions
+  - target.zz
 
 assertions:
   min:

@@ -66,6 +66,10 @@ url: https://www.eeas.europa.eu/eeas/european-union-sanctions_en#10710
 data:
   url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw
   format: XML
+tags:
+  - list.sanctions
+  - target.zz
+  - sector.financial
 
 assertions:
   min:
