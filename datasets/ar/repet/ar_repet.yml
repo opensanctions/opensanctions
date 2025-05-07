@@ -28,7 +28,6 @@ data:
   format: JSON
 tags:
   - list.sanctions
-  - target.zz
 
 assertions:
   min:

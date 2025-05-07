@@ -49,7 +49,6 @@ dates:
     "12": Dezember
 tags:
   - list.sanctions
-  - target.zz
 
 assertions:
   min:

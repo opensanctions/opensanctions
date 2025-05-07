@@ -40,7 +40,6 @@ data:
   format: XLSX
 tags:
   - list.sanctions
-  - target.zz
 
 assertions:
   min:
