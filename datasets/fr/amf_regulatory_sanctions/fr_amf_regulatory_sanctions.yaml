@@ -35,6 +35,11 @@ publisher:
 data:
   url: https://www.amf-france.org/fr/rest/listing_sanction/91,184,183,325,90,461,89,242,86,462,181/all/all?t=1722860865328&_=1722860865172
   format: json
+tags:
+  - list.regulatory            # Regulation and compliance
+  - target.fr                  # Focused on entities in France
+  - sector.financial           # Focuses on financial market regulations
+
 assertions:
   min:
     schema_entities:
@@ -42,6 +47,7 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 450
+
 lookups:
   entities:
     options:
@@ -602,10 +608,7 @@ lookups:
           - ALTERNATIVE LEADERS FRANCE
       - match: "SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS (SGAM AI)"
         entities:
-          - [
-              "SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS",
-              "SGAM AI",
-            ]
+          - ["SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS", "SGAM AI"]
       - match: "SOCIETE GENERALE ASSET MANAGEMENT (SGAM)"
         entities:
           - ["SOCIETE GENERALE ASSET MANAGEMENT", "SGAM"]
@@ -982,10 +985,7 @@ lookups:
           - Entrepreneur Invest
           - Eurotitrisation
           - Caceis Bank
-          - [
-              "Caceis Investor Services Bank France",
-              "RBC Investor Services Bank France",
-            ]
+          - ["Caceis Investor Services Bank France", "RBC Investor Services Bank France"]
           - Edith Lusson
           - Jean-Yves Bajon
           - Romain Bertrand
@@ -994,11 +994,7 @@ lookups:
         relationships:
           - schema: Succession
             from_prop: predecessor
-            from:
-              [
-                "Caceis Investor Services Bank France",
-                "RBC Investor Services Bank France",
-              ]
+            from: ["Caceis Investor Services Bank France", "RBC Investor Services Bank France"]
             to_prop: successor
             to: Caceis Bank
             role: venant aux droits
