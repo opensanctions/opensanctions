@@ -37,6 +37,8 @@ data:
   format: HTML
   lang: eng
 ci_test: false
+tags:
+  - list.sanction
 
 assertions:
   min:
