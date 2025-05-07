@@ -40,7 +40,6 @@ data:
   format: ZIP/XML
 tags:
   - list.sanctions                    # A sanctions list
-  - target.zz                         # Global coverage
 
 assertions:
   min:

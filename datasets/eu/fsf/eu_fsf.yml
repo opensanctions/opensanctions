@@ -68,7 +68,6 @@ data:
   format: XML
 tags:
   - list.sanctions         # It is a sanctions list
-  - target.zz              # Global coverage
 
 assertions:
   min:

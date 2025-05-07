@@ -34,7 +34,6 @@ dates:
     - "%d.%m.%Y"
 tags:
   - list.sanctions
-  - target.zz
 
 assertions:
   min:
