@@ -26,6 +26,9 @@ url: "https://repet.jus.gob.ar/"
 data:
   url: https://repet.jus.gob.ar/
   format: JSON
+tags:
+  - list.sanctions
+  - target.zz
 
 assertions:
   min:

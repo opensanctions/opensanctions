@@ -47,6 +47,10 @@ dates:
     "10": Oktober
     "11": November
     "12": Dezember
+tags:
+  - list.sanctions
+  - target.zz
+
 assertions:
   min:
     schema_entities:

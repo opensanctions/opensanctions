@@ -29,6 +29,9 @@ data:
   url: "http://hms.gov.az/az/siyahi"
   format: XML
   lang: aze
+tags:
+  - list.sanctions.counter
+  - target.az
 
 assertions:
   min:
