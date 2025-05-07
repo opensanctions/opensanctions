@@ -38,6 +38,8 @@ url: "https://www.un.org/securitycouncil/sanctions/information"
 data:
   url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
   format: XML
+tags:
+  - list.sanction
 
 assertions:
   min:
