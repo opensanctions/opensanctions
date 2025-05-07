@@ -32,6 +32,9 @@ url: https://mid.ru/ru/maps/us/1814243/
 data:
   url: https://mid.ru/ru/maps/us/1814243/
   format: HTML
+tags:
+  - list.sanction.counter
+  - target.us
 
 assertions:
   min:
