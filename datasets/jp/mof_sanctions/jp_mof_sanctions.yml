@@ -60,6 +60,9 @@ dates:
       ":%Y年%m月%d",
       ",%Y年%m月%d",
     ]
+tags:
+  - list.sanction
+  - sector.financial
 
 assertions:
   min:
