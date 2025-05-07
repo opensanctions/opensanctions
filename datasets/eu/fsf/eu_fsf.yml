@@ -68,7 +68,6 @@ data:
   format: XML
 tags:
   - list.sanctions
-  - target.zz
   - sector.financial
 
 assertions:
