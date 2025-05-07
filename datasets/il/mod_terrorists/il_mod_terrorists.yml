@@ -42,6 +42,8 @@ dates:
   months:
     "03": מרס
     "05": "May"
+tags:
+  - list.sanction
 
 assertions:
   min:

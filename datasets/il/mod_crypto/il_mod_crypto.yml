@@ -38,6 +38,9 @@ data:
 ci_test: false # No Zyte key in CI
 dates:
   formats: ["%d/%m/%Y"]
+tags:
+  - list.sanction
+  - sector.crypto
 
 assertions:
   min:
