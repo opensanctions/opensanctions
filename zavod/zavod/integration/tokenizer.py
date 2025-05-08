@@ -51,7 +51,8 @@ def tokenize_entity(entity: CE) -> Generator[Tuple[str, str], None, None]:
         if type in EMIT_FULL:
             unique.add((type.name, value[:300].lower()))
         if type in TEXT_TYPES:
-            for word in name_words(clean_text_basic(value), min_length=3):
+            # min 6 to focus on things that could be fairly unique identifiers
+            for word in name_words(clean_text_basic(value), min_length=6):
                 yield WORD_FIELD, word
         if type == registry.date:
             if len(value) > 4:
