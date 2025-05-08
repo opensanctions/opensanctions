@@ -1,9 +1,12 @@
 # Bench Press! ahem Pairs!
 #
 # What portion of current clusters are proposed by the blocker?
+#
+# This counts the number of entities that are connected and also
+# suggested as a pair by the blocker.
+#
 # Run this once with a current version to get a baseline of current recall,
 # then run with changed code to see if recall has gotten worse.
-#
 #
 #                     *umph*
 #
@@ -17,7 +20,7 @@
 #        "                               "
 #             A bench press. Trust me.
 #
-# credit: https://ascii.co.uk/art/weightlifting
+# ASCII art credit: https://ascii.co.uk/art/weightlifting
 
 from collections import defaultdict
 import logging
