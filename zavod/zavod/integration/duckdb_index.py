@@ -4,9 +4,7 @@ import logging
 from io import TextIOWrapper
 from pathlib import Path
 
-# from shutil import rmtree
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
-import duckdb.typing
 from followthemoney.types import registry
 from followthemoney import model
 from nomenklatura.dataset import DS
@@ -14,6 +12,7 @@ from nomenklatura.entity import CE
 from nomenklatura.index.common import BaseIndex
 from nomenklatura.resolver import Pair, Identifier
 from nomenklatura.store import View
+from rigour.ids.wikidata import is_qid
 
 from zavod.integration.tokenizer import tokenize_entity
 from zavod.integration.tokenizer import NAME_PART_FIELD, WORD_FIELD, PHONETIC_FIELD
@@ -26,9 +25,16 @@ log = logging.getLogger(__name__)
 BATCH_SIZE = 10000
 
 
-def can_match(left: str, right: str) -> bool:
-    left_schema = model.get(left)
-    right_schema = model.get(right)
+def can_match(
+    left_id: str,
+    left_schema_name: str,
+    right_id: str,
+    right_schema_name: str,
+) -> bool:
+    if is_qid(left_id) and is_qid(right_id) and left_id != right_id:
+        return False
+    left_schema = model.get(left_schema_name)
+    right_schema = model.get(right_schema_name)
     if left_schema is None or right_schema is None:
         return False
     return left_schema.can_match(right_schema)
@@ -255,7 +261,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             JOIN term_frequencies as "right"
             ON "left".field = "right".field AND "left".token = "right".token
             WHERE "left".id > "right".id
-            AND can_match("left".schema, "right".schema)
+            AND can_match("left".id, "left".schema, "right".id, "right".schema)
             GROUP BY "left".id, "right".id
             ORDER BY score DESC
             LIMIT ?
@@ -295,7 +301,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                 JOIN term_frequencies tf
                 ON m.field = tf.field AND m.token = tf.token
                 WHERE c.chunk = ?
-                AND can_match(m.schema, tf.schema)
+                AND can_match(m.id, m.schema, tf.id, tf.schema)
                 GROUP BY m.id, tf.id
                 ORDER BY m.id, score DESC
             """
