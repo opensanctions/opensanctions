@@ -8,9 +8,9 @@ load_statements: true
 summary: >
   This dataset contains a list of banned entities from Türkiye Capital Markets Board.
 description: |
-  The Capital Markets Board of Türkiye (CMB) maintains a list of individuals and entities that are banned 
-  from trading in stock exchanges and other organized markets. These bans are imposed on parties found to 
-  be involved in market fraud, including market manipulation and speculation. The list may also include 
+  The Capital Markets Board of Türkiye (CMB) maintains a list of individuals and entities that are banned
+  from trading in stock exchanges and other organized markets. These bans are imposed on parties found to
+  be involved in market fraud, including market manipulation and speculation. The list may also include
   entities wanted for terrorism-related activities.
 
 publisher:
@@ -34,7 +34,7 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 50
+      Person: 80
   max:
     schema_entities:
-      Person: 100
+      Person: 200
