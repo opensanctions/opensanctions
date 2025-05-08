@@ -13,7 +13,7 @@ exports:
   - entities.ftm.json
   - statistics.json
 summary: >
-  Profiles of politically exposed persons from Wikidata, the structured data version of 
+  Profiles of politically exposed persons from Wikidata, the structured data version of
   Wikipedia.
 description: |
   This dataset includes the profiles of politically exposed persons from Wikidata into
@@ -32,7 +32,7 @@ description: |
   * Supreme court judges
   * Central bank governors
 
-  Going forward, we will also include sub-national positions, include state legislatures 
+  Going forward, we will also include sub-national positions, include state legislatures
   in federally organized countries, as well as state-level senior executives.
 
   Politically exposed persons are included after they retire from public office for a
@@ -574,3 +574,4 @@ lookups:
           - "Q2382776" # no-show job
           - "Q68887" # Mirwaiz
           - "Q133268450" # Miss Loon-Plage
+          - "Q1757970" # elder
