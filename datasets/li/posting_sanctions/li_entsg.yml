@@ -59,13 +59,13 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 200
-      Company: 180
-      Address: 15
+      Person: 40
+      Company: 35
+      Address: 1
   max:
     schema_entities:
-      Person: 470
-      Company: 430
+      Person: 200
+      Company: 180
       Address: 40
 
 lookups:

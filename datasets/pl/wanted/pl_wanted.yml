@@ -46,6 +46,7 @@ lookups:
       - match: nieznana
         value: null
   type.country:
+    normalize: true
     options:
       - match:
           - NIEUSTALONE # unknown
