@@ -113,6 +113,7 @@ lookups:
           - JAP
           - British Isles
           - ROYAUME UNI ANTILLES
+          - TERRITOIRE DU ROYAUME UNI ANTILLES
         value: null
       - match:
           - IRLANDE, ou EIRE
