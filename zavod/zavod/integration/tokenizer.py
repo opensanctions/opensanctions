@@ -39,7 +39,6 @@ TEXT_TYPES = (
     registry.string,
     registry.address,
     registry.identifier,
-    registry.name,
 )
 
 
