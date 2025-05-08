@@ -3,6 +3,7 @@ from rigour.ids import StrictFormat
 from rigour.text.phonetics import metaphone
 from rigour.text.scripts import is_modern_alphabet
 from rigour.addresses import normalize_address, remove_address_keywords
+from rigour.names import remove_person_prefixes, remove_org_types
 from typing import Generator, Set, Tuple
 from followthemoney.types import registry
 
@@ -60,17 +61,22 @@ def tokenize_entity(entity: CE) -> Generator[Tuple[str, str], None, None]:
             continue
         if type == registry.name:
             norm = fingerprint_name(value)
-            if norm is not None:
-                alpha = is_modern_alphabet(value)
-                unique.add((type.name, norm))
-                for token in norm.split(WS):
-                    if len(token) > 2 and len(token) < 30:
-                        unique.add((NAME_PART_FIELD, token))
-                        # yield WORD_FIELD, token
-                    if alpha and len(token) > 4:
-                        phoneme = metaphone(token)
-                        if len(phoneme) > 3:
-                            unique.add((PHONETIC_FIELD, phoneme))
+            if norm is None:
+                continue
+            if entity.schema.is_a("Person"):
+                norm = remove_person_prefixes(norm)
+            if entity.schema.is_a("Company"):
+                norm = remove_org_types(norm)
+            alpha = is_modern_alphabet(value)
+            unique.add((type.name, norm))
+            for token in norm.split(WS):
+                if len(token) > 2 and len(token) < 30:
+                    unique.add((NAME_PART_FIELD, token))
+                    # yield WORD_FIELD, token
+                if alpha and len(token) > 4:
+                    phoneme = metaphone(token)
+                    if len(phoneme) > 3:
+                        unique.add((PHONETIC_FIELD, phoneme))
             continue
         if type == registry.identifier:
             clean_id = StrictFormat.normalize(value)
