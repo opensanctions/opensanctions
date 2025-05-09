@@ -39,6 +39,8 @@ data:
   url: https://www.state.gov/reports/report-to-congress-on-anti-kleptocracy-and-human-rights-visa-restrictions-public-listing/
   format: HTML
   lang: eng
+tags:
+  - list.sanction
 
 assertions:
   min:

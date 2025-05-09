@@ -34,6 +34,8 @@ data:
   lang: eng
 dates:
   formats: ["%m/%d/%Y"]
+tags:
+  - list.sanction
 
 assertions:
   min:
