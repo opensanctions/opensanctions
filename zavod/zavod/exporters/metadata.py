@@ -195,13 +195,29 @@ def write_delta_index(
             )
         if len(versions) >= max_versions:
             break
+
+    # A hopefully temporary stand-in for tooling that doesn't support iterating
+    # over object keys https://github.com/opensanctions/opensanctions/issues/2216
+    version_list = []
+    for version_id, version_url in versions.items():
+        version_list.append(
+            {
+                "version": version_id,
+                "url": version_url,
+            }
+        )
+
     if len(versions) == 0:
         log.info("No delta versions found", dataset=dataset.name)
         return
     index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
     log.info("Writing delta versions index...", path=index_path.as_posix())
     with open(index_path, "wb") as fh:
-        data = {"versions": versions}
+        data = {
+            "versions": versions,
+            "unstable": {"version_list": version_list},
+        }
+
         write_json(data, fh)
 
 
