@@ -1,12 +1,13 @@
 import json
 from copy import deepcopy
-from typing import Any, Dict
+from pathlib import Path
+from typing import Any, Dict, List
 
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
 from nomenklatura.versions import Version
 from zavod import settings
-from zavod.archive import DELTA_EXPORT_FILE, DATASETS
+from zavod.archive import DELTA_EXPORT_FILE, DATASETS, DELTA_INDEX_FILE
 from zavod.entity import Entity
 from zavod.exporters import export_dataset
 from zavod.meta import Dataset
@@ -19,6 +20,26 @@ ENTITY_B = {"id": "EB", "schema": "Person", "properties": {"name": ["Bob"]}}
 ENTITY_C = {"id": "EC", "schema": "Person", "properties": {"name": ["Carl"]}}
 ENTITY_CX = {"id": "ECX", "schema": "Person", "properties": {"name": ["Carl Sagan"]}}
 ENTITY_D = {"id": "ED", "schema": "Person", "properties": {"name": ["Dory"]}}
+
+
+def _test_delta_index(path: Path, expected_versions: List[str]):
+    with open(path, "r") as fh:
+        index = json.load(fh)
+
+    # No more, no less
+    assert len(index["versions"]) == len(expected_versions)
+    for version in expected_versions:
+        assert version in index["versions"], version
+        assert index["versions"][version].startswith("https://")
+        assert f"{version}/{DELTA_EXPORT_FILE}" in index["versions"][version]
+
+    # All the versions in the dict are also in the list
+    list_version_set = {v["version"] for v in index["unstable"]["version_list"]}
+    assert list_version_set == set(expected_versions)
+
+    # The list is (reverse) sorted
+    list_versions = [v["version"] for v in index["unstable"]["version_list"]]
+    assert "".join(list_versions) == "".join(sorted(list_versions, reverse=True))
 
 
 def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
@@ -47,6 +68,8 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
         assert len(objects) == 4, objects
         for data in objects:
             assert data["op"] == "ADD"
+    versions = [version]
+    _test_delta_index(dataset_path / DELTA_INDEX_FILE, versions)
 
     _publish_artifacts(testdataset1)
 
@@ -74,6 +97,8 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
                 assert data["op"] == "ADD"
             if data["entity"]["id"] == "ED":
                 assert data["op"] == "DEL"
+    versions.append(version2)
+    _test_delta_index(dataset_path / DELTA_INDEX_FILE, versions)
 
     # Round 3: check that the delta exporter can handle resolver changes
     _publish_artifacts(testdataset1)
@@ -105,3 +130,5 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
                 assert data["op"] == "DEL"
             if data["entity"]["id"] == "ECX":
                 assert data["op"] == "DEL"
+    versions.append(version3)
+    _test_delta_index(dataset_path / DELTA_INDEX_FILE, versions)
