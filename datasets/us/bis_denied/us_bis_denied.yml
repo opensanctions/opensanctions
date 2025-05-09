@@ -27,10 +27,10 @@ publisher:
   url: https://www.bis.doc.gov/
   country: us
   official: true
-url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/denied-persons-list
+url: https://www.bis.gov/licensing/end-user-guidance/denied-persons-list-dpl
 data:
-  url: https://www.bis.doc.gov/dpl/dpl.txt
-  format: TSV
+  url: https://www.bis.gov/licensing/end-user-guidance/denied-persons-list-dpl
+  format: HTML
   lang: eng
 dates:
   formats: ["%m/%d/%Y"]
@@ -44,6 +44,10 @@ assertions:
       LegalEntity: 940
 
 lookups:
+  sanction.program:
+    options:
+      - match: "Denied Persons List"
+        value: "BIS Denied Persons List"
   type.country:
     lowercase: true
     normalize: true
