@@ -2,7 +2,7 @@ title: Czech National Anti-Terrorism Designations (Government Regulation No. 210
 entry_point: crawler.py
 prefix: cz-terr
 coverage:
-  frequency: daily
+  frequency: monthly
   start: "2025-04-24"
 load_statements: true
 ci_test: false
@@ -11,17 +11,18 @@ summary: >
   in line with EU anti-terrorism measures.
 description: |
   This dataset is based on Czech Government Regulation No. 210/2008 Coll., issued on 28 May 2008
-  to support EU efforts against terrorism. It lists individuals and groups that are banned from
-  receiving certain goods, services, or support.
+  and amended by Regulation No. 88/2009 Coll. (effective 1 April 2009), to support EU efforts 
+  against terrorism. It lists individuals and groups that are banned from receiving certain goods, 
+  services, or support.
 publisher:
   name: Vláda České republiky
   name_en: Government of the Czech Republic
   url: https://vlada.gov.cz/en/
   official: true
   country: "cz"
-url: "https://www.e-sbirka.cz/sb/2008/210/2009-04-01?zalozka=text"
+url: "https://www.e-sbirka.cz/sb/2008/210"
 data:
-  url: https://www.e-sbirka.cz/sb/2008/210/2009-04-01?zalozka=text
+  url: https://www.e-sbirka.cz/sb/2008/210
   format: HTML
 dates:
   formats: ["%d.%m.%Y"]

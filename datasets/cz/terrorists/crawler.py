@@ -33,8 +33,7 @@ def crawl_details(context: Context, details: str) -> None:
     # Reflects both a sanctions list and terrorist designations
     entity.add("topics", ["sanction", "crime.terror"])
 
-    sanction = h.make_sanction(context, entity)
-    sanction.add("program", PROGRAM)
+    sanction = h.make_sanction(context, entity, program_name=PROGRAM)
     h.apply_date(sanction, "startDate", START_DATE)
 
     context.emit(entity)
