@@ -12,6 +12,19 @@ from zavod import helpers as h
 REGEX_AUTHORITY_ID_SEP = re.compile(r"(\d+ F\.?R\.?)")
 
 
+def emit_relatioship(context: Context, entity_id: str, affiliated: List[str]):
+    related = context.make("LegalEntity")
+    related.id = context.make_id(affiliated)
+    related.add("name", affiliated)
+    context.emit(related)
+
+    rel = context.make("UnknownLink")
+    rel.id = context.make_id(entity_id, "linked to", rel.id)
+    rel.add("subject", entity_id)
+    rel.add("object", related.id)
+    context.emit(rel)
+
+
 def parse_addresses(
     context: Context, addresses: List[Dict[str, str]]
 ) -> Generator[Entity, None, None]:
@@ -110,10 +123,15 @@ def parse_result(context: Context, result: Dict[str, Any]):
     name_with_information_res = context.lookup("name_with_information", name)
     if name_with_information_res is not None:
         entity.add("name", name_with_information_res.properties["name"])
-        entity.add("notes", name_with_information_res.properties["notes"])
+        entity.add("notes", name_with_information_res.properties.get("notes"))
+        affiliated = name_with_information_res.properties.get("related")
+        if affiliated:
+            emit_relatioship(context, entity.id, affiliated)
     else:
         # If it's a really long name, it's likely a name with extra info
-        if len(name) > registry.name.max_length:
+        if len(name) > registry.name.max_length or any(
+            kw in name.lower() for kw in ["affiliated", "subordinate"]
+        ):
             context.log.warning(
                 "Name long is very long, maybe it contains extra information?",
                 name=name,

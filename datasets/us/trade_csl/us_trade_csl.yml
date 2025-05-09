@@ -95,6 +95,119 @@ lookups:
         properties:
           name: Ministry of Defence of the Russian Federation
           notes: Includes the Armed Forces of Russia and all operating units wherever located.  This includes the national armed services (army, navy, marine, air force, or coast guard), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Russian Federation.  All address located in Russia.
+      - match: 'Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Beijing Huawei Longshine Information Technology Co., Ltd.'
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Beijing Huawei Longshine Information Technology Co., Ltd
+          notes: 'Affiliated Entity:  Beijing Huawei Longshine Information Technology Co., Ltd.'
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Hangzhou New Longshine Information Technology Co., Ltd."
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Hangzhou New Longshine Information Technology Co., Ltd
+          notes: "Affiliated Entity: Hangzhou New Longshine Information Technology Co., Ltd."
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Hangzhou Huawei Communication Technology Co., Ltd."
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Hangzhou Huawei Communication Technology Co., Ltd
+          notes: "Affiliated Entity:  Hangzhou Huawei Communication Technology Co., Ltd."
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Digital Technologies (Suzhou) Co., Ltd."
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Huawei Digital Technologies (Suzhou) Co., Ltd
+          notes: "Affiliated Entity:  Huawei Digital Technologies (Suzhou) Co., Ltd."
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Hangzhou Huawei Enterprises"
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Hangzhou Huawei Enterprises
+          notes: "Affiliated Entity:  Hangzhou Huawei Enterprises"
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Marine Networks Co., Ltd."
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Huawei Marine Networks Co., Ltd
+          notes: "Affiliated Entity:  Huawei Marine Networks Co., Ltd."
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Huawei Mobile Technology Ltd."
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Huawei Mobile Technology Ltd
+          notes: "Affiliated Entity: Huawei Mobile Technology Ltd."
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Huawei Tech. Investment Co."
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Huawei Tech. Investment Co
+          notes: "Affiliated Entity: Huawei Tech. Investment Co."
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Technology Co., Ltd. Chengdu Research Institute"
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Huawei Technology Co., Ltd. Chengdu Research Institute
+          notes: "Affiliated Entity:  Huawei Technology Co., Ltd. Chengdu Research Institute"
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Technology Co., Ltd. Hangzhou Research Institute"
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Huawei Technology Co., Ltd. Hangzhou Research Institute
+          notes: "Affiliated Entity:  Huawei Technology Co., Ltd. Hangzhou Research Institute"
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Technologies Co., Ltd., Beijing Research Institute"
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Huawei Technologies Co., Ltd., Beijing Research Institute
+          notes: "Affiliated Entity:  Huawei Technologies Co., Ltd., Beijing Research Institute"
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Technologies Co., Ltd., Material Characterization Lab"
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Huawei Technologies Co., Ltd., Material Characterization Lab
+          notes: "Affiliated Entity:  Huawei Technologies Co., Ltd., Material Characterization Lab"
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Huawei Technologies Co., Ltd., Xi'an Research Institute"
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Huawei Technologies Co., Ltd., Xi'an Research Institute
+          notes: "Affiliated Entity: Huawei Technologies Co., Ltd., Xi'an Research Institute"
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Huawei Terminal (Shenzhen) Co., Ltd. "
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Huawei Terminal (Shenzhen) Co., Ltd.
+          notes: "Affiliated Entity: Huawei Terminal (Shenzhen) Co., Ltd."
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Nanchang Huawei Communication Technology "
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Nanchang Huawei Communication Technology
+          notes: "Affiliated Entity: Nanchang Huawei Communication Technology "
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Ningbo Huawei Computer & Net Co., Ltd."
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Ningbo Huawei Computer & Net Co., Ltd.
+          notes: "Affiliated Entity: Ningbo Huawei Computer & Net Co., Ltd."
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Shanghai Huawei Technologies Co., Ltd."
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Shanghai Huawei Technologies Co., Ltd.
+          notes: "Affiliated Entity: Shanghai Huawei Technologies Co., Ltd."
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Shenzhen Huawei New Technology Co., Ltd."
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Shenzhen Huawei New Technology Co., Ltd.
+          notes: "Affiliated Entity: Shenzhen Huawei New Technology Co., Ltd."
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Shenzhen Huawei Technology Service"
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Shenzhen Huawei Technology Service
+          notes: "Affiliated Entity: Shenzhen Huawei Technology Service"
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Shenzhen Huawei Technologies Software"
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Shenzhen Huawei Technologies Software
+          notes: "Affiliated Entity: Shenzhen Huawei Technologies Software"
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Zhejiang Huawei Communications Technology Co., Ltd."
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Zhejiang Huawei Communications Technology Co., Ltd.
+          notes: "Affiliated Entity: Zhejiang Huawei Communications Technology Co., Ltd."
+      - match: "Affiliated Supply and Consultancy Services"
+        properties:
+          name: Affiliated Supply and Consultancy Services
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Shenzhen Huawei Anjiexin Electricity Co., Ltd."
+        properties:
+          name: Huawei Technologies Co., Ltd. (Huawei)
+          related: Shenzhen Huawei Anjiexin Electricity Co., Ltd
+          notes: "Affiliated Entity:  Shenzhen Huawei Anjiexin Electricity Co., Ltd."
   type.date:
     options:
       - match: "3033-01-17"
