@@ -6,25 +6,25 @@ coverage:
   start: 2021-11-11
 load_statements: true
 summary: >-
-  Entities that have been declared ineligible to become EBRD counterparties due to fraud, 
+  Entities that have been declared ineligible to become EBRD counterparties due to fraud,
   corruption, collusion, or other prohibited practices.
 description: |
-  This dataset lists entities and individuals that are ineligible to participate in 
-  EBRD-financed projects. It includes detailed information such as the firm names, 
-  addresses, periods of ineligibility, and the specific prohibited practices they were 
-  involved in (e.g., fraud, corruption, collusion). The EBRD presents several separate 
-  tables of ineligble entities, including one with cross-debarred entities, those originated 
-  within EBRD, and sanctions resulting from third-party finding. It's unclear if these 
+  This dataset lists entities and individuals that are ineligible to participate in
+  EBRD-financed projects. It includes detailed information such as the firm names,
+  addresses, periods of ineligibility, and the specific prohibited practices they were
+  involved in (e.g., fraud, corruption, collusion). The EBRD presents several separate
+  tables of ineligble entities, including one with cross-debarred entities, those originated
+  within EBRD, and sanctions resulting from third-party finding. It's unclear if these
   overlap.
 publisher:
   name: "European Bank for Reconstruction and Development"
   acronym: EBRD
   description: |
-    Founded in 1991, the EBRD provides project financing mainly for private enterprises, 
-    usually together with other commercial lending partners, in countries that are committed 
-    to, and apply, democratic principles. It also works with public partners to support 
-    privatisation, restructuring and improvement of municipal services. It does this by 
-    financing investments, providing business services and getting involved in high-level 
+    Founded in 1991, the EBRD provides project financing mainly for private enterprises,
+    usually together with other commercial lending partners, in countries that are committed
+    to, and apply, democratic principles. It also works with public partners to support
+    privatisation, restructuring and improvement of municipal services. It does this by
+    financing investments, providing business services and getting involved in high-level
     policy dialogue in these countries to support private sector development.
     [Source](https://economy-finance.ec.europa.eu/investment-support/coordination-european-financial-institutions/coordination-european-bank-reconstruction-and-development_en)
   country: zz
@@ -84,6 +84,21 @@ lookups:
           - kh
           - vn
           - mm
+      - match: "Canada, Cambodia, Vietnam, Lao People's Democratic Republic, Myanmar"
+        values:
+          - ca
+          - kh
+          - vn
+          - la
+          - mm
+      - match: "Canada, People's Republic of China"
+        values:
+          - ca
+          - cn
+      - match: "United Kingdom, Indonesia"
+        values:
+          - gb
+          - id
   type.date:
     normalize: true
     lowercase: true
