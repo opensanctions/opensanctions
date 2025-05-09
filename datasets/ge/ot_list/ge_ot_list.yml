@@ -38,6 +38,10 @@ publisher:
   official: true
 dates:
   formats: ["%d.%m.%Y", "%Y"]
+tags:
+  - list.sanction
+  - target.ge
+
 assertions:
   min:
     schema_entities:

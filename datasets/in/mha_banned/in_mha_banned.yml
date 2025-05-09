@@ -24,6 +24,8 @@ url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radic
 data:
   url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division
   format: HTML
+tags:
+  - list.sanction
 
 assertions:
   min:
