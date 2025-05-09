@@ -34,6 +34,9 @@ data:
   format: CSV
 dates:
   formats: ["%Y年%m月%d日", "%Y 年%m 月%d 日"]
+tags:
+  - list.sanction
+  - target.ru
 
 assertions:
   min:
