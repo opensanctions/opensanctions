@@ -47,7 +47,7 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         person.id = context.make_id(row.get("id_no") or row.get("passport_no") or name)
         h.apply_name(person, full=name, lang="eng")
         h.apply_date(person, "birthDate", row.pop("dob"))
-        person.add("email", row.pop("email"))
+        person.add("email", row.pop("email").split(";"))
         person.add("phone", row.pop("phone"))
         for alias in row.pop("alias").split(";"):
             h.apply_name(person, full=alias, alias=True)
