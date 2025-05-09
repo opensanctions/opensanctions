@@ -48,6 +48,8 @@ data:
   format: JSON
 dates:
   formats: ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
+tags:
+  - list.sanction
 
 assertions:
   min:

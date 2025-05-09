@@ -39,6 +39,9 @@ data:
   format: HTML
 dates:
   formats: ["%B %d, %Y"]
+tags:
+  - list.sanction
+  - target.cn
 
 assertions:
   min:

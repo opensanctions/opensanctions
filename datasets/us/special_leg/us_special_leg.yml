@@ -57,6 +57,8 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSVatiUNMn-TatTYOQhYOPbEBRBwmoBG6LtaJklPPzLju1x-qrJxxBlsDwuis3IyKz77dHp3xvvnMRb/pub?gid=0&single=true&output=csv
   format: CSV
   lang: eng
+tags:
+  - list.debarment
 
 dates:
   formats: ["%Y", "%B %Y"]
