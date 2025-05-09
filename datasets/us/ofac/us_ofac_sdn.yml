@@ -38,6 +38,8 @@ data:
   url: https://www.treasury.gov/ofac/downloads/sanctions/1.0/sdn_advanced.xml
   format: XML
   lang: eng
+tags:
+  - list.sanction
 
 assertions:
   min:
