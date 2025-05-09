@@ -4,23 +4,40 @@ import logging
 from io import TextIOWrapper
 from pathlib import Path
 
-# from shutil import rmtree
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
 from followthemoney.types import registry
+from followthemoney import model
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.index.common import BaseIndex
 from nomenklatura.resolver import Pair, Identifier
 from nomenklatura.store import View
+from rigour.ids.wikidata import is_qid
 
 from zavod.integration.tokenizer import tokenize_entity
 from zavod.integration.tokenizer import NAME_PART_FIELD, WORD_FIELD, PHONETIC_FIELD
+from zavod.reset import reset_caches
 
 BlockingMatches = List[Tuple[Identifier, float]]
 
 log = logging.getLogger(__name__)
 
 BATCH_SIZE = 10000
+
+
+def can_match(
+    left_id: str,
+    left_schema_name: str,
+    right_id: str,
+    right_schema_name: str,
+) -> bool:
+    if is_qid(left_id) and is_qid(right_id) and left_id != right_id:
+        return False
+    left_schema = model.get(left_schema_name)
+    right_schema = model.get(right_schema_name)
+    if left_schema is None or right_schema is None:
+        return False
+    return left_schema.can_match(right_schema)
 
 
 def csv_writer(
@@ -88,17 +105,19 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             self.duckdb_config["memory_limit"] = f"{self.memory_budget}MB"
             self.duckdb_config["max_memory"] = f"{self.memory_budget}MB"
         self.duckdb_path = (self.data_dir / "index.duckdb").as_posix()
-        self.con = duckdb.connect(self.duckdb_path, config=self.duckdb_config)
+
         self.matching_path = self.data_dir / "matching.csv"
-        self.matching_path.unlink(missing_ok=True)
-        self.matching_dump: TextIOWrapper | None = open(self.matching_path, "w")
-        writer = csv_writer(self.matching_dump)
-        writer.writerow(["id", "field", "token"])
+
+        self._init_db()
+
+    def _init_db(self) -> None:
+        self.con = duckdb.connect(self.duckdb_path, config=self.duckdb_config)
+        self.con.create_function("can_match", can_match)
 
     def _clear(self) -> None:
         self.con.execute("CHECKPOINT")
         self.con.close()
-        self.con = duckdb.connect(self.duckdb_path, config=self.duckdb_config)
+        self._init_db()
 
     def build(self) -> None:
         """Index all entities in the dataset."""
@@ -112,10 +131,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             self.con.execute("INSERT INTO boosts VALUES (?, ?)", [type.name, 1.0])
 
         self.con.execute(
-            "CREATE OR REPLACE TABLE matching (id TEXT, field TEXT, token TEXT)"
-        )
-        self.con.execute(
-            "CREATE OR REPLACE TABLE entries (id TEXT, field TEXT, token TEXT)"
+            "CREATE OR REPLACE TABLE entries (schema TEXT, id TEXT, field TEXT, token TEXT)"
         )
         csv_path = self.data_dir / "mentions.csv"
         log.info("Dumping entity tokens to CSV for bulk load into the database...")
@@ -124,8 +140,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             for idx, entity in enumerate(self.view.entities()):
                 if not entity.schema.matchable or entity.id is None:
                     continue
-                for field, token in tokenize_entity(entity):
-                    writer.writerow([entity.id, field, token])
+                self.dump_entity(writer, entity)
 
                 if idx % 50000 == 0 and idx > 0:
                     log.info("Dumped %s entities" % idx)
@@ -138,6 +153,26 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
         self._build_frequencies()
         log.info("Index built.")
+
+    def dump_entity(self, writer: Any, entity: CE) -> None:
+        for field, token in tokenize_entity(entity):
+            writer.writerow([entity.schema.name, entity.id, field, token])
+
+    def load_matching_subjects(self, entities: Iterable[CE]) -> None:
+        self.matching_path.unlink(missing_ok=True)
+        with open(self.matching_path, "w") as matching_dump:
+            matching_writer = csv_writer(matching_dump)
+            for entity in entities:
+                self.dump_entity(matching_writer, entity)
+
+        log.info("Loading matching subjects...")
+        self.con.execute(
+            "CREATE OR REPLACE TABLE matching (schema TEXT, id TEXT, field TEXT, token TEXT)"
+        )
+        self.con.execute(
+            f"COPY matching FROM '{self.matching_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
+        )
+        log.info("Finished loading matching subjects.")
 
     def _build_field_len(self) -> None:
         log.info("Calculating field lengths...")
@@ -155,12 +190,12 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         log.info("Calculating mention counts...")
         mentions_query = """
         CREATE OR REPLACE TABLE mentions as
-            SELECT entries.field, entries.id, entries.token, count(*) AS mentions
+            SELECT entries.schema, entries.field, entries.id, entries.token, count(*) AS mentions
             FROM entries
             LEFT OUTER JOIN stopwords
             ON stopwords.field = entries.field AND stopwords.token = entries.token
             WHERE stopwords.freq is NULL
-            GROUP BY entries.field, entries.id, entries.token
+            GROUP BY entries.schema, entries.field, entries.id, entries.token
         """
         self.con.execute(mentions_query)
 
@@ -208,7 +243,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         log.info("Calculating term frequencies...")
         term_frequencies_query = """
             CREATE OR REPLACE TABLE term_frequencies AS
-            SELECT mentions.field, mentions.token, mentions.id, (mentions/field_len) * ifnull(boo.boost, 1) as tf
+            SELECT mentions.schema, mentions.field, mentions.token, mentions.id, (mentions/field_len) * ifnull(boo.boost, 1) as tf
             FROM field_len
             JOIN mentions
             ON field_len.field = mentions.field AND field_len.id = mentions.id
@@ -226,6 +261,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             JOIN term_frequencies as "right"
             ON "left".field = "right".field AND "left".token = "right".token
             WHERE "left".id > "right".id
+            AND can_match("left".id, "left".schema, "right".id, "right".schema)
             GROUP BY "left".id, "right".id
             ORDER BY score DESC
             LIMIT ?
@@ -235,26 +271,15 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             for left, right, score in batch:
                 yield (Identifier.get(left), Identifier.get(right)), score
 
-    def add_matching_subject(self, entity: CE) -> None:
-        if self.matching_dump is None:
-            raise Exception("Cannot add matching subject after getting candidates.")
-        writer = csv_writer(self.matching_dump)
-        for field, token in tokenize_entity(entity):
-            writer.writerow([entity.id, field, token])
-
-    def matches(
-        self,
+    def match_entities(
+        self, entities: Iterable[CE]
     ) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
-        self._clear()
-        if self.matching_dump is not None:
-            self.matching_dump.close()
-            self.matching_dump = None
-            log.info("Loading matching subjects...")
-            self.con.execute(
-                f"COPY matching FROM '{self.matching_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
-            )
-            log.info("Finished loading matching subjects.")
+        self.load_matching_subjects(entities)
+        reset_caches()
+        yield from self.matches()
 
+    def matches(self) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
+        self._clear()
         res = self.con.execute("SELECT COUNT(DISTINCT id) FROM matching").fetchone()
         num_matching = res[0] if res is not None else 0
         chunks = max(1, num_matching // self.match_batch)
@@ -276,6 +301,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                 JOIN term_frequencies tf
                 ON m.field = tf.field AND m.token = tf.token
                 WHERE c.chunk = ?
+                AND can_match(m.id, m.schema, tf.id, tf.schema)
                 GROUP BY m.id, tf.id
                 ORDER BY m.id, score DESC
             """
@@ -303,8 +329,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
     def close(self) -> None:
         self.con.close()
-        if self.matching_dump is not None:
-            self.matching_dump.close()
 
     def __repr__(self) -> str:
         return "<DuckDBIndex(%r, %r)>" % (

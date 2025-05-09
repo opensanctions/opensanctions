@@ -66,13 +66,20 @@ def test_match(
     index.build()
 
     bond = CompositeEntity.from_data(testdataset1, BOND)
-    index.add_matching_subject(bond)
     john = CompositeEntity.from_data(testdataset1, JOHN)
-    index.add_matching_subject(john)
 
+    # There's a company in the data with the same name as the person
+    assert view.get_entity("matching-john-smith-inc-us").schema.is_a("Company")
     entity_matches = {}
-    for entity_id, matches in index.matches():
-        entity_matches[entity_id] = [(match.id, score) for match, score in matches]
+    for entity_id, matches in index.match_entities([bond, john]):
+        entity_matches[entity_id] = []
+        for match, score in matches:
+            entity_matches[entity_id].append((match.id, score))
+            # The company didn't match
+            assert not view.get_entity(match.id).schema.is_a("Company"), (
+                entity_id,
+                match.id,
+            )
 
     assert len(entity_matches["id-bond"]) == 1
     assert entity_matches["id-bond"][0][0] == "matching-james-bond-uk-007"
@@ -100,21 +107,29 @@ def test_stopwords(testdataset1: Dataset, resolver: Resolver[Entity]):
 
     store = get_store(testdataset1, resolver)
     writer = store.writer()
-    # 1 first name 5 times
-    # 5 last names once each
-    # 5 distinct full names
-    # 11 tokens
+
+    # FirstA 3 times = 1 token
+    # FirstB, FirstC once = 2 tokens
+    # 5 last names once each = 5 tokens
+    # phonemes of these = 4 tokens
+    # 5 distinct full names = 5 tokens
+    # total: 17 tokens
+    #
+    # To treat FirstA and its phoneme as stopwords
+    # we need a stopword pct between 2/17 = 11.8% and 3/17 = 17.6%
     writer.add_entity(e("FirstA LastA"))
     writer.add_entity(e("FirstA LastB"))
     writer.add_entity(e("FirstA LastC"))
     writer.add_entity(e("FirstB LastD"))
-    writer.add_entity(e("First LastE"))
+    writer.add_entity(e("FirstC LastE"))
 
     writer.flush()
     view = store.view(testdataset1)
 
     too_common_first_name = e("FirstA LastF")
-    matching_last_name = e("FirstD LastA")
+    matching_last_name = e(
+        "FirstD LastC"
+    )  # LastC because phoneme of LastC is uniquely LASTK here
 
     # 15% most common tokens as stopwords -> ignore FirstA
 
@@ -122,27 +137,26 @@ def test_stopwords(testdataset1: Dataset, resolver: Resolver[Entity]):
     index = DuckDBIndex(view, data_dir, {"stopwords_pct": 15})
     index.build()
 
-    index.add_matching_subject(too_common_first_name)
-    index.add_matching_subject(matching_last_name)
     entity_matches = {}
-    for entity_id, matches in index.matches():
+    for entity_id, matches in index.match_entities(
+        [too_common_first_name, matching_last_name]
+    ):
         entity_matches[entity_id] = [(match.id, score) for match, score in matches]
 
     assert too_common_first_name.id not in entity_matches
     assert len(entity_matches[matching_last_name.id]) == 1
-    assert entity_matches[matching_last_name.id][0][0] == "id-firsta-lasta"
+    assert entity_matches[matching_last_name.id][0][0] == "id-firsta-lastc"
 
-    # 5% most common tokens as stopwords -> ignore nothing
+    # 0% most common tokens as stopwords -> ignore nothing
 
     data_dir = Path(mkdtemp()).resolve()
-    index = DuckDBIndex(view, data_dir, {"stopwords_pct": 5})
+    index = DuckDBIndex(view, data_dir, {"stopwords_pct": 0})
     index.build()
 
-    index.add_matching_subject(too_common_first_name)
-    index.add_matching_subject(matching_last_name)
-
     entity_matches = {}
-    for entity_id, matches in index.matches():
+    for entity_id, matches in index.match_entities(
+        [too_common_first_name, matching_last_name]
+    ):
         entity_matches[entity_id] = [(match.id, score) for match, score in matches]
 
     assert len(entity_matches[too_common_first_name.id]) == 3
