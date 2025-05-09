@@ -10,10 +10,8 @@ summary: >
   Kyrgyz' State Financial Intelligence Service.
 description: |
   Published by the State Financial Intelligence Service (the Financial Intelligence
-  Unit - FIU) under the Cabinet of Ministers of Kyrgyzstan.
-
-  The list is minimalistic and has limited quality, but I think we're giving points
-  for enthusiasm here.
+  Unit - FIU) under the Cabinet of Ministers of Kyrgyzstan. The list is minimalistic 
+  and has limited quality.
 publisher:
   name: караштуу Финансылык чалгындоо мамлекеттик кызматы
   name_en: Financial Intelligence Kyrgyz Republic
@@ -26,9 +24,11 @@ data:
   url: https://fiu.gov.kg/sked/9?language=ru
   format: xml
   lang: rus
-
 dates:
   formats: ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]
+tags:
+  - list.sanction
+
 assertions:
   min:
     schema_entities:

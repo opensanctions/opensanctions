@@ -50,6 +50,8 @@ dates:
     May: Mei
     February: Februari
     August: Ogos
+tags:
+  - list.sanction
 
 assertions:
   min:

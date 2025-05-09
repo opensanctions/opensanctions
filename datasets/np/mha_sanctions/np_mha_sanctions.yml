@@ -43,9 +43,11 @@ assertions:
     schema_entities:
       Person: 20
       Organization: 55
-
 dates:
   formats: ["%m/%d/%Y"]
+tags:
+  - list.sanction
+
 lookups:
   type.identifier:
     normalize: true
