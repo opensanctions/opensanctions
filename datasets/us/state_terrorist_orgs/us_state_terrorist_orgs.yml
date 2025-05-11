@@ -33,6 +33,8 @@ data:
 ci_test: false
 dates:
   formats: ["%B %d, %Y"]
+tags:
+  - list.sanction
 
 assertions:
   min:
