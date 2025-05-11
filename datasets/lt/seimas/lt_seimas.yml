@@ -1,7 +1,6 @@
 title: Lithuania Members of the Seimas
 entry_point: crawler.py
 prefix: lt-seimas
-url: https://www.lrs.lt/sip/portal.show?p_r=35299&p_k=2
 summary: >-
   Current and recent members of the Seimas, Lithuania's unicameral parliament
 coverage:
@@ -31,6 +30,9 @@ publisher:
   url: https://www.lrs.lt
   country: lt
   official: true
+tags:
+  - list.pep
+url: https://www.lrs.lt/sip/portal.show?p_r=35299&p_k=2
 data:
   url: https://www.lrs.lt/sip/portal.show?p_r=35299&p_k=2
   format: HTML

@@ -20,6 +20,9 @@ description:
   It's important to note that the dataset only includes information on financial
   restrictions imposed on these individuals or entities and does not cover other
   types of sanctions like restrictions on the circulation of goods.
+tags:
+  - list.sanction
+  - juris.eu
 url: https://sankcijas.fid.gov.lv
 publisher:
   name: Finanšu izlūkošanas dienests

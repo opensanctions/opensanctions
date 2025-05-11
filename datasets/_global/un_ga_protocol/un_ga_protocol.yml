@@ -27,6 +27,8 @@ publisher:
   url: "https://www.un.org/dgacm/en/content/protocol"
   official: true
 url: "https://www.un.org/dgacm/en/content/protocol/hshgnfa"
+tags:
+  - list.pep
 data:
   url: https://www.un.org/dgacm/en/content/protocol/hshgnfa
   format: PDF

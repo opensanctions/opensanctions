@@ -49,6 +49,8 @@ publisher:
   url: https://antiteror.sis.md/
   official: true
 url: https://antiteror.sis.md/advanced-page-type/listele-teroriste
+tags:
+  - list.sanction
 data:
   url: https://antiteror.sis.md/lista-terorista-xls
   format: HTML

@@ -14,6 +14,8 @@ description: |
   from the authorities and organisations, which, according
   to the PEP order, must report the names and birthdays of the
   PEPs associated with them.
+tags:
+  - list.pep
 publisher:
   name: Finanstilsynet
   url: https://www.finanstilsynet.dk/

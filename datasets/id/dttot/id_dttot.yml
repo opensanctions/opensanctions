@@ -26,6 +26,9 @@ data:
   url: https://www.ppatk.go.id/link/read/23/dttot-proliferasi-wmd.html
   format: HTML
   lang: ind
+tags:
+  - list.sanction
+
 dates:
   formats: ["%d %B %Y", "%d/%m/%Y", "%d/%m/%Y;", "%d %B %Y;", "00/00/%Y"]
   months:

@@ -58,6 +58,8 @@ publisher:
   url: https://gur.gov.ua/en.html
   country: ua
   official: true
+tags:
+  - target.ru
 url: https://war-sanctions.gur.gov.ua/en
 data:
   url: https://war-sanctions.gur.gov.ua/en

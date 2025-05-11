@@ -67,7 +67,8 @@ data:
   url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw
   format: XML
 tags:
-  - list.sanction         # It is a sanctions list
+  - list.sanction
+  - juris.eu
 
 assertions:
   min:

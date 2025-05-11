@@ -63,6 +63,8 @@ lookups:
         value: 1407145998
       - match: 1942740383
         value: 1942743083
+      - match: 1958777476
+        value: 1952777476 # typo,  BRENT HOFHINES looked up manually at npiregistry.cms.hhs.gov
       - match:
           - 9005001613
           - 9005051105

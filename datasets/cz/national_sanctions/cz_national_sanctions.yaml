@@ -21,6 +21,9 @@ publisher:
   url: https://mzv.gov.cz/jnp/cz/index.html
   official: true
   country: "cz"
+tags:
+  - list.sanction
+  - list.sanction.eu
 url: "https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html"
 data:
   url: https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html

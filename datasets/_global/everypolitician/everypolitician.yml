@@ -30,7 +30,6 @@ description: |
 
   Other sources will eventually replace this dataset completely as we continually
   improve PEP coverage through more current sources.
-
 publisher:
   name: UK Citizens Online Democracy
   acronym: MySociety
@@ -39,6 +38,8 @@ publisher:
     to participate in politics and civic life.
   url: https://www.mysociety.org/
   official: false
+tags:
+  - list.pep
 url: http://everypolitician.org
 data:
   url: https://data.opensanctions.org/contrib/everypolitician/countries.json
