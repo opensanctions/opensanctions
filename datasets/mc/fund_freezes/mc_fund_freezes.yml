@@ -44,6 +44,10 @@ dates:
     - "%b %Y"
   months:
     "Oct": "octobre"
+tags:
+  - list.sanction
+  - sector.financial
+
 assertions:
   min:
     schema_entities:

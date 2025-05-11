@@ -27,6 +27,9 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSunoJfLBwlOnxZhBXw8MjeqyGTts_2hxOwFZWIueWqgksJ21sNiuTnTzM9I9c1BKsDeYaOhH_LK6OD/pub?output=csv
   file_name: source.csv
   format: csv
+tags:
+  - list.sanction
+  - target.ru
 
 assertions:
   min:
