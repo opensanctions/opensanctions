@@ -56,6 +56,9 @@ data:
   format: HTML
 dates:
   formats: ["%d.%m.%Y", "%d %b. %Y", "%b. %Y", "%b.%Y"]
+tags:
+  - list.sanction                    # A sanctions list targeting specific persons, entities, and groups
+  - target.md                         # Focused on Moldova and relevant legal context
 assertions:
   min:
     schema_entities:
