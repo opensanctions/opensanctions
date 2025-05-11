@@ -29,6 +29,8 @@ url: https://drs.nsdc.gov.ua/
 data:
   url: https://api-drs.nsdc.gov.ua/
   format: JSON
+tags:
+  - list.sanction
 
 assertions:
   min:
