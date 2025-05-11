@@ -33,6 +33,8 @@ data:
   lang: fra
 dates:
   formats: ["%d.%m.%Y", "%Y"]
+tags:
+  - list.sanction
 
 assertions:
   min:
