@@ -27,8 +27,6 @@ data:
   url: "https://www.politie.nl/en/wanted"
   format: HTML
   lang: eng
-tags:
-  - list.wanted                    # Focused on most wanted persons
 
 assertions:
   min:
