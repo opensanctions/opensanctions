@@ -42,6 +42,8 @@ url: https://www.sanctionsmap.eu/#/main/travel/ban
 data:
   url: https://www.sanctionsmap.eu/api/v1/data?
   format: JSON
+tags:
+  - list.sanction
 
 assertions:
   min:
