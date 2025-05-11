@@ -49,6 +49,9 @@ publisher:
   country: zz
   url: https://www.iadb.org/
   official: true
+tags:
+  - list.debarment
+  - sector.devbank
 url: https://www.iadb.org/en/transparency/sanctioned-firms-and-individuals
 
 # FIXME: powerbi embed requires manual fetching of the Spreadsheet data export

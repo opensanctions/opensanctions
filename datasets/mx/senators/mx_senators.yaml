@@ -23,6 +23,8 @@ publisher:
   url: https://www.senado.gob.mx/
   official: true
   country: "mx"
+tags:
+  - list.pep
 url: https://micrositios.senado.gob.mx/LGLXVI/datos_abiertos/
 data:
   url: https://www.senado.gob.mx/

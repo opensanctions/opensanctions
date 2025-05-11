@@ -31,6 +31,7 @@ data:
   format: JSON
 tags:
   - list.sanction
+  - target.ru
 
 assertions:
   min:
@@ -89,7 +90,7 @@ lookups:
           - "reg:cn"
           - "reg:kz"
           - "reg:ua2"
-          - "reg:bel3"  # Belarus
+          - "reg:bel3" # Belarus
           - "reg:acc_corpo_reg"
           - "reg:sw_comm_reg"
           - "reg:uec"

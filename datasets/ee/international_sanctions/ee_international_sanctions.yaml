@@ -15,6 +15,10 @@ description: |
   of the Ministry of Foreign Affairs. The subjects of the sanctions
   are designated by a directive of the minister in charge of the
   policy sector.
+tags:
+  - list.sanction
+  - risk.klepto
+  - juris.eu
 publisher:
   name: Välisministeerium
   description: Ministry of Foreign Affairs
@@ -26,8 +30,6 @@ url: https://www.vm.ee/en/activity/international-sanctions/sanctions-government-
 data:
   url: https://www.vm.ee/en/activity/international-sanctions/sanctions-government-republic-estonia
   format: HTML
-tags:
-  - list.sanction
 
 # as at 2025-03-03
 # 273 + 58 + 28 + 55 = 414

@@ -33,13 +33,14 @@ publisher:
   country: us
   url: https://www.treasury.gov/
   official: true
+tags:
+  - list.sanction
+  - juris.us
 url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
 data:
   url: https://www.treasury.gov/ofac/downloads/sanctions/1.0/sdn_advanced.xml
   format: XML
   lang: eng
-tags:
-  - list.sanction
 
 assertions:
   min:

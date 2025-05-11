@@ -44,6 +44,7 @@ data:
   format: JSON
 tags:
   - list.sanction
+  - list.sanction.eu
 
 assertions:
   min:

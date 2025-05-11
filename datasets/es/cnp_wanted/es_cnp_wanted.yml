@@ -1,5 +1,6 @@
 title: "Spain National Police Most Wanted List"
-url: https://www.policia.es/_es/colabora_masbuscados.php#
+entry_point: crawler.py
+prefix: es-mir
 load_statements: true
 coverage:
   frequency: daily
@@ -10,8 +11,6 @@ description: |
   This dataset contains detailed information on persons currently wanted by Spanish law 
   enforcement. Each entry contains the name of the wanted person, a description and a link 
   to more detailed information, facilitating public collaboration in their apprehension.
-entry_point: crawler.py
-prefix: es-mir
 publisher:
   name: National Police Corps of Spain
   acronym: CNP
@@ -23,6 +22,9 @@ publisher:
     whole of the national territory.
   country: es
   url: https://www.policia.es/_es/index.php
+tags:
+  - list.wanted
+url: https://www.policia.es/_es/colabora_masbuscados.php#
 data:
   url: https://www.policia.es/_es/colabora_masbuscados.php#
   format: html

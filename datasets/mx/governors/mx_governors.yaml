@@ -25,6 +25,8 @@ publisher:
   url: https://www.conago.org.mx
   country: "mx"
   official: false
+tags:
+  - list.pep
 url: "https://www.conago.org.mx/gobernadores/historicos"
 data:
   url: https://www.conago.org.mx/gobernadores/historicos

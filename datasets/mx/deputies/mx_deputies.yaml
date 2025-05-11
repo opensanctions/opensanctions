@@ -23,6 +23,8 @@ publisher:
   url: https://www.diputados.gob.mx/
   official: true
   country: "mx"
+tags:
+  - list.pep
 url: "https://web.diputados.gob.mx/inicio/tusDiputados/listadoDiputadosBuscador;nombre=;estado=;cabeceraMunicipal=;grupoParlamentario=;mail="
 data:
   url: https://micrositios.diputados.gob.mx:4001/graphql

@@ -37,6 +37,7 @@ ci_test: false
 tags:
   - list.sanction
   - target.cu
+  - juris.us
 
 assertions:
   min:

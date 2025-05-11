@@ -29,6 +29,7 @@ data:
 ci_test: false
 tags:
   - list.sanction
+  - juris.eu
 
 assertions:
   min:

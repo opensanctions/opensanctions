@@ -27,6 +27,8 @@ description: |
   The function of the Parliament (including the Senate and the
   National Assembly) is to examine and pass laws and to verify and
   evaluate public policy and the functioning of the government.
+tags:
+  - list.pep
 publisher:
   name: National Assembly of France
   description: |

@@ -68,6 +68,7 @@ data:
   format: XML
 tags:
   - list.sanction
+  - list.sanction.eu
 
 assertions:
   min:

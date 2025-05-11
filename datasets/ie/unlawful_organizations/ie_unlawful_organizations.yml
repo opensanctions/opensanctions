@@ -35,6 +35,7 @@ data:
 tags:
   - list.sanction
   - target.ie
+  - jusris.eu
 
 assertions:
   min:

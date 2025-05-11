@@ -27,6 +27,9 @@ publisher:
   country: at
   url: https://www.oenb.at
   official: true
+tags:
+  - list.sanction
+  - juris.eu
 url: https://www.oenb.at/Ueber-Uns/Rechtliche-Grundlagen/Verordnungen-nach-DevG.html
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSuNicMIsLe0OOhS8Xcru4a3QpEZMRvlHmN3E0r4hTLXjvyD7ha0MX8RZuUxsguhel141SkCf1Tm5G-/pub?gid=0&single=true&output=csv
@@ -47,8 +50,6 @@ dates:
     "10": Oktober
     "11": November
     "12": Dezember
-tags:
-  - list.sanction
 
 assertions:
   min:

@@ -42,14 +42,16 @@ publisher:
   country: us
   url: https://www.trade.gov/
   official: true
+tags:
+  - list.sanction
+  - list.export
+  - juris.us
 url: https://www.trade.gov/consolidated-screening-list
 data:
   url: https://api.trade.gov/static/consolidated_screening_list/consolidated.json
   format: JSON
 dates:
   formats: ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
-tags:
-  - list.sanction
 
 assertions:
   min:

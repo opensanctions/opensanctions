@@ -31,6 +31,9 @@ publisher:
   url: https://www.gov.pl/web/finanse/generalny-inspektor-informacji-finansowej
   country: pl
   official: true
+tags:
+  - list.sanction
+  - juris.eu
 url: https://www.gov.pl/web/finanse/lista-osob-i-podmiotow-wobec-ktorych-stosuje-sie-szczegolne-srodki-ograniczajace-na-podstawie-art-118-ustawy-z-dnia-1-marca-2018-r-o-przeciwdzialaniu-praniu-pieniedzy-i-finansowaniu-terroryzmu
 data:
   url: https://www.gov.pl/web/finanse/lista-osob-i-podmiotow-wobec-ktorych-stosuje-sie-szczegolne-srodki-ograniczajace-na-podstawie-art-118-ustawy-z-dnia-1-marca-2018-r-o-przeciwdzialaniu-praniu-pieniedzy-i-finansowaniu-terroryzmu
@@ -38,8 +41,6 @@ data:
   lang: pol
 dates:
   formats: ["%d.%m.%Y r."]
-tags:
-  - list.sanction
 
 assertions:
   min:

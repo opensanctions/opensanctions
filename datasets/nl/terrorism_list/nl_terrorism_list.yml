@@ -19,6 +19,9 @@ description: |
 
   Sanctions are limited to either Dutch people and Dutch entities or people and entities
   operating in the Kingdom of the Netherlands.
+tags:
+  - list.sanction
+  - juris.eu
 url: https://www.government.nl/documents/reports/2016/01/15/national-terrorism-list
 publisher:
   name: Ministry of Foreign Affairs
@@ -31,8 +34,6 @@ publisher:
 data:
   url: https://www.government.nl/binaries/government/documenten/reports/2016/01/15/national-terrorism-list/eng-terrorismelijst.ods
   format: ODS
-tags:
-  - list.sanction
 
 assertions:
   min:
