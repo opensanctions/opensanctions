@@ -44,9 +44,12 @@ url: https://main.un.org/securitycouncil/en/sanctions/1718/materials/1718-Design
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTRPL95PD7IXkZZ0XOiwlPvTawFD6k-LAHCmOYLdkqYn01QBsBan8QlDhF56gKKAiMicg7RPZnRe2Xb/pub?output=csv
   format: CSV
-
 dates:
   formats: ["%d-%b-%y"]
+tags:
+  - list.sanction
+  - sector.maritime
+
 lookups:
   type.date:
     options:

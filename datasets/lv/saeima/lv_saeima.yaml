@@ -18,6 +18,8 @@ publisher:
   url: https://www.saeima.lv/en
   official: true
   country: "lv"
+tags:
+  - list.pep
 url: "https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf/deputies?OpenView&lang=EN&count=1000"
 data:
   url: "https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf/deputies?OpenView&lang=EN&count=1000"

@@ -27,6 +27,9 @@ data:
   url: https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/
   format: html
 ci_test: false
+tags:
+  - list.sanction
+  - juris.eu
 
 assertions:
   min:

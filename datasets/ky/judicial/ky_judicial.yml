@@ -1,6 +1,5 @@
 name: ky_judicial
 title: "Cayman Islands Senior Judicial Officers"
-url: http://www.judicial.ky/
 entry_point: crawler
 prefix: ky-ja
 coverage:
@@ -17,6 +16,9 @@ description: |
   > entrusted with the administration of justice and the preservation
   > of the rule of law and, in so doing, the protection of the rights and liberties
   > guaranteed by the Constitution and laws of the Cayman Islands
+tags:
+  - list.pep
+url: http://www.judicial.ky/
 publisher:
   name: Cayman Islands Judicial Administration
   official: true

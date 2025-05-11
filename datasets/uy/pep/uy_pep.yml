@@ -1,6 +1,5 @@
 name: uy_pep
 title: "Uruguayan Politically Exposed Persons (PEP)"
-url: https://www.gub.uy/secretaria-nacional-lucha-contra-lavado-activos-financiamiento-terrorismo/comunicacion/publicaciones/lista-pep
 prefix: uy-pep
 summary: List of Politically Exposed Persons (PEP) in Uruguay
 coverage:
@@ -21,6 +20,9 @@ publisher:
   country: uy
   url: https://www.gub.uy/secretaria-nacional-lucha-contra-lavado-activos-financiamiento-terrorismo
   official: true
+tags:
+  - list.pep
+url: https://www.gub.uy/secretaria-nacional-lucha-contra-lavado-activos-financiamiento-terrorismo/comunicacion/publicaciones/lista-pep
 data:
   url: https://www.gub.uy/secretaria-nacional-lucha-contra-lavado-activos-financiamiento-terrorismo/sites/secretaria-nacional-lucha-contra-lavado-activos-financiamiento-terrorismo/files/documentos/publicaciones/Lista_PEP_V31.xlsx
   format: XLSX

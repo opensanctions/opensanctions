@@ -26,6 +26,8 @@ publisher:
   url: https://www.dea.gov
   official: true
   country: "us"
+tags:
+  - list.wanted
 url: "https://www.dea.gov/fugitives/all"
 data:
   url: https://www.dea.gov/fugitives/all

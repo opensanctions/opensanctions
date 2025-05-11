@@ -30,6 +30,9 @@ publisher:
   country: zz
   url: https://ebrd.com/
   official: true
+tags:
+  - list.debarment
+  - sector.devbank
 url: https://www.ebrd.com/home/who-we-are/strategies-governance-compliance/ebrd-sanctions-system/ineligible-entities.html#
 data:
   url: https://www.ebrd.com/bin/ebrd_dxp/filterlistservlet

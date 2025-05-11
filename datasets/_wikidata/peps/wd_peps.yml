@@ -46,6 +46,8 @@ publisher:
     sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
   url: https://www.wikidata.org
   official: false
+tags:
+  - list.pep
 url: https://www.opensanctions.org/pep/
 data:
   url: https://query.wikidata.org/

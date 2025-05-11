@@ -34,6 +34,9 @@ publisher:
   country: zz
   url: https://adb.org/
   official: true
+tags:
+  - list.debarment
+  - sector.devbank
 url: https://www.adb.org/who-we-are/integrity/sanctions
 data:
   url: https://apim.adb.org/sanctions/lists/v1/published-list

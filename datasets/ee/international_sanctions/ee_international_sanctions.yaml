@@ -15,6 +15,10 @@ description: |
   of the Ministry of Foreign Affairs. The subjects of the sanctions
   are designated by a directive of the minister in charge of the
   policy sector.
+tags:
+  - list.sanction
+  - risk.klepto
+  - juris.eu
 publisher:
   name: Välisministeerium
   description: Ministry of Foreign Affairs

@@ -14,6 +14,8 @@ description: |
 
   In the source url it's possible to see the crime circumstances
   and other additional details (such as crime date and gender).
+tags:
+  - list.wanted
 url: https://www.saps.gov.za/crimestop/wanted/list.php
 publisher:
   name: South African Police Service

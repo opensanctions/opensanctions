@@ -1,5 +1,4 @@
 title: "South Africa Municipal Leadership"
-url: https://municipalmoney.gov.za/
 entry_point: crawler.py
 prefix: za-mm
 load_statements: true
@@ -24,7 +23,9 @@ publisher:
     transparency, accountability and sound financial controls in the management of public finances.
   country: za
   url: https://www.treasury.gov.za/
-
+tags:
+  - list.pep
+url: https://municipalmoney.gov.za/
 data:
   url: https://municipaldata.treasury.gov.za/api/cubes/officials/facts
   format: json

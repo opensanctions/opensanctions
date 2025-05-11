@@ -24,6 +24,9 @@ description: |
   > human rights, including the wrongful detention of locally employed staff
   > of a United States diplomatic mission or a United States citizen or national,
   > shall be ineligible for entry into the United States.
+tags:
+  - list.sanction
+  - risk.klepto
 url: https://www.state.gov/reports/report-to-congress-on-anti-kleptocracy-and-human-rights-visa-restrictions-public-listing/
 publisher:
   name: US State Department

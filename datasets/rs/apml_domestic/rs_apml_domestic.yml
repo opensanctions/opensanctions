@@ -33,6 +33,8 @@ data:
   format: PDF
 dates:
   formats: ["%d.%m.%Y"]
+tags:
+  - list.sanction
 
 assertions:
   min:

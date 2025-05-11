@@ -31,6 +31,9 @@ publisher:
   url: https://www.state.gov
   official: true
   country: "us"
+tags:
+  - list.sanction
+  - juris.us
 url: "https://www.state.gov/terrorist-exclusion-list/"
 data:
   url: https://www.state.gov/terrorist-exclusion-list/
