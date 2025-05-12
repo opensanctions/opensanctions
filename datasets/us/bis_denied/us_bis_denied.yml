@@ -46,8 +46,8 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match: "Denied Persons List"
-        value: "BIS Denied Persons List"
+      - match: "Denied Persons List (DPL) - Bureau of Industry and Security"
+        value: US-BIS-DPL
   type.country:
     lowercase: true
     normalize: true

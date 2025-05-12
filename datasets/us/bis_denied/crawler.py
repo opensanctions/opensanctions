@@ -4,6 +4,10 @@ from followthemoney.types import registry
 from zavod import Context
 from zavod import helpers as h
 
+# Program name reused from 'us_trade_csl' for consistency
+# Refers to the same BIS Denied Persons List program
+PROGRAM_NAME = "Denied Persons List (DPL) - Bureau of Industry and Security"
+
 
 def parse_row(context: Context, row):
     entity = context.make("LegalEntity")
@@ -35,13 +39,9 @@ def parse_row(context: Context, row):
         context,
         entity,
         key=citation,
-        program_name=citation,
-        source_program_key=citation,
-        # TODO: mappings
-        # Map the source program key to the OpenSanctions program key using a lookup (e.g. BE -> BE-FOD-NAT)
-        # program_key=(
-        #     h.lookup_sanction_program_key(context, citation) if citation else None
-        # ),
+        program_name=PROGRAM_NAME,
+        # Map the source program key to the OpenSanctions program key using a lookup
+        program_key=(h.lookup_sanction_program_key(context, PROGRAM_NAME)),
     )
     sanction.add("program", citation)
     h.apply_date(sanction, "startDate", start_date)
