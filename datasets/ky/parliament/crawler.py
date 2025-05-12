@@ -36,13 +36,15 @@ REGEX_POSITIONISH = re.compile(
 REGEX_NAME = re.compile(r"^[\w\.“”’-]+( [\w\.“”’-]+){1,3}$")
 
 
-def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
+def crawl_card_2025(context: Context, position: str, el: ElementOrTree):
     name_el = el.find("./h1")
     name = name_el.text
     name = re.sub(r",.+", "", name)
     name = name.replace("Hon. ", "")
+    name = name.replace("Hon ", "")
     name = name.replace("Ms. ", "")
     name = name.replace("Mr. ", "")
+    name = name.replace("Mrs. ", "")
     name = name.replace("Sir ", "")
     name = name.replace("Dr. ", "")
     if not REGEX_NAME.match(name):
@@ -75,8 +77,8 @@ def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
             context,
             entity,
             position,
-            start_date="2021",
-            end_date="2025",
+            start_date="2025",
+            end_date="2029",
             categorisation=categorisation,
         )
         context.emit(entity)
@@ -117,8 +119,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
     # crawl_card assumes 2021
-    assert "2021-2025 Members" in doc.text_content()
-    expected_current_member_count = 20
+    assert "2025-2029 Members" in doc.text_content()
+    expected_current_member_count = 22
     current_member_count = 0
     heading = None
     for section in doc.findall(".//section"):
@@ -139,7 +141,7 @@ def crawl(context: Context):
             for el in section.xpath(
                 ".//div[contains(@class, 'member-select-content')]"
             ):
-                if crawl_card_2021(context, heading, el):
+                if crawl_card_2025(context, heading, el):
                     current_member_count += 1
     if current_member_count < 20:
         context.log.warning(
