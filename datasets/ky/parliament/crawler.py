@@ -147,7 +147,13 @@ def crawl(context: Context):
         context.log.warning(
             f"Expected at least {expected_current_member_count} current members but found {current_member_count}"
         )
-
+    # Former members were added to the historical Google Sheet
+    # based on https://parliament.ky/members/former-members/.
+    # Since many individuals in Parliament rotate through different roles,
+    # some entries are duplicated to reflect multiple positions held over
+    # time. Where exact dates are provided (e.g., “November 23, 2023–end of term”),
+    # I used 2025 as the assumed end date. For positions without specific timeframes,
+    # the overall parliamentary term (2021–2025) was used.
     path = context.fetch_resource("historical_data.csv", HISTORICAL_DATA_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
