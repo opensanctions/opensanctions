@@ -28,6 +28,7 @@ publisher:
 tags:
   - list.sanction
   - sector.financial
+  - issuer.west
 url: https://geldefonds.gouv.mc/
 data:
   url: https://geldefonds.gouv.mc/directdownload/sanctions.json

@@ -32,6 +32,7 @@ dates:
 tags:
   - list.sanction
   - sector.financial
+  - issuer.west
 
 lookups:
   target_type:

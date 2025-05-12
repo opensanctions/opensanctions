@@ -45,6 +45,7 @@ data:
 tags:
   - list.sanction
   - list.sanction.eu
+  - issuer.west
 
 assertions:
   min:
