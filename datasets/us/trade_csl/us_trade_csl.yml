@@ -46,6 +46,7 @@ tags:
   - list.sanction
   - list.export
   - juris.us
+  - issuer.west
 url: https://www.trade.gov/consolidated-screening-list
 data:
   url: https://api.trade.gov/static/consolidated_screening_list/consolidated.json

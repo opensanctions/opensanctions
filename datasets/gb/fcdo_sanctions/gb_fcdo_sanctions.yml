@@ -36,6 +36,7 @@ dates:
   formats: ["%d/%m/%Y", "dd/mm/%Y", "dd/%m/%Y"]
 tags:
   - list.sanction
+  - issuer.west
 
 assertions:
   min:
