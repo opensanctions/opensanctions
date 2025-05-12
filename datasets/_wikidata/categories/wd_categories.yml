@@ -682,9 +682,7 @@ config:
     - category: People_associated_with_the_2024_United_States_presidential_election
       topic: poi
     - category: People_associated_with_the_2020_United_States_presidential_election
-      topic: poi
     - category: People_associated_with_the_2016_United_States_presidential_election
-      topic: poi
     - category: Current_justices_of_the_Supreme_Court_of_the_United_States
       topic: role.pep
       country: us
