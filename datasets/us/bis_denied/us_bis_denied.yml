@@ -24,7 +24,7 @@ publisher:
   description: |
     BIS is part of the U.S. Department of Commerce, where it manages the intersection between
     business and the foreign policy and security interests of the U.S.
-  url: https://www.bis.doc.gov/
+  url: https://www.bis.gov
   country: us
   official: true
 tags:
@@ -51,8 +51,8 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match: "Denied Persons List (DPL) - Bureau of Industry and Security"
-        value: US-BIS-DPL
+      - match: Denied Persons List (DPL) - Bureau of Industry and Security
+        value: US-BIS-DPL-2
   type.country:
     lowercase: true
     normalize: true
