@@ -17,6 +17,7 @@ description: |
 url: https://www.publicsafety.gc.ca/cnt/ntnl-scrt/cntr-trrrsm/lstd-ntts/crrnt-lstd-ntts-en.aspx
 tags:
   - list.sanction
+  - issuer.west
 publisher:
   name: "Government of Canada"
   description: |

@@ -30,6 +30,7 @@ ci_test: false
 tags:
   - list.sanction
   - juris.eu
+  - issuer.west
 
 assertions:
   min:
@@ -53,3 +54,7 @@ lookups:
         name: UAB PureFert Baltic
         props:
           previousName: UAB „PhosAgro Baltic“
+      - match: AB „Eurochem Logistics International“ (iki 2024-12-11 – UAB „Eurochem Logistics International“)
+        name: AB Eurochem Logistics International
+        props:
+          previousName: UAB „Eurochem Logistics International“

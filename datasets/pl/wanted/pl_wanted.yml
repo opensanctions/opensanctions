@@ -136,3 +136,5 @@ lookups:
         value: PL
       - match: MACEDONIA PÓŁNOCNA
         value: MK
+      - match: ROSJA NIEMCY
+        values: [RU, DE]

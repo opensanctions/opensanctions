@@ -38,6 +38,7 @@ tags:
   - list.sanction
   - target.cu
   - juris.us
+  - issuer.west
 
 assertions:
   min:
