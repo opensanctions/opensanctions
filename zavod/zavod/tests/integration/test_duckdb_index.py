@@ -1,15 +1,15 @@
 from pathlib import Path
 from tempfile import mkdtemp
 
-from normality import slugify
 from nomenklatura import CompositeEntity, Resolver
+from normality import slugify
 
-from zavod.entity import Entity
-from zavod.integration.duckdb_index import DuckDBIndex
 from zavod.crawl import crawl_dataset
+from zavod.entity import Entity
+from zavod.integration.duckdb_index import DEFAULT_FIELD_STOPWORDS_PCT, DuckDBIndex
+from zavod.integration.tokenizer import NAME_PART_FIELD, PHONETIC_FIELD
 from zavod.meta.dataset import Dataset
 from zavod.store import get_store
-
 
 BOND = {
     "schema": "Person",
@@ -21,6 +21,9 @@ JOHN = {
     "id": "id-john",
     "properties": {"name": ["John Smith"], "country": ["US"]},
 }
+NO_STOPWORDS = DEFAULT_FIELD_STOPWORDS_PCT.copy()
+for field in NO_STOPWORDS:
+    NO_STOPWORDS[field] = 0.0
 
 
 def test_pairs(testdataset_dedupe: Dataset, resolver: Resolver[Entity]):
@@ -30,7 +33,7 @@ def test_pairs(testdataset_dedupe: Dataset, resolver: Resolver[Entity]):
     store.sync(clear=True)
     view = store.view(testdataset_dedupe)
 
-    index = DuckDBIndex(view, data_dir)
+    index = DuckDBIndex(view, data_dir, {"stopwords_pct": NO_STOPWORDS})
     index.build()
     pairs = list(
         ((left.id, right.id), score) for ((left, right), score) in index.pairs()
@@ -62,7 +65,7 @@ def test_match(
     store.sync(clear=True)
     view = store.view(testdataset_dedupe)
 
-    index = DuckDBIndex(view, data_dir)
+    index = DuckDBIndex(view, data_dir, {"stopwords_pct": NO_STOPWORDS})
     index.build()
 
     bond = CompositeEntity.from_data(testdataset1, BOND)
@@ -111,12 +114,12 @@ def test_stopwords(testdataset1: Dataset, resolver: Resolver[Entity]):
     # FirstA 3 times = 1 token
     # FirstB, FirstC once = 2 tokens
     # 5 last names once each = 5 tokens
+    # total: 8 name part tokens
     # phonemes of these = 4 tokens
-    # 5 distinct full names = 5 tokens
-    # total: 17 tokens
     #
-    # To treat FirstA and its phoneme as stopwords
-    # we need a stopword pct between 2/17 = 11.8% and 3/17 = 17.6%
+    # To treat FirstA and its phoneme as stopwords:
+    # we need a name part stopword pct between 1/8 = 12.5% and 2/8 = 25%
+    # we need a phoneme stopword pct between 1/4 = 25% and 2/4 = 50%
     writer.add_entity(e("FirstA LastA"))
     writer.add_entity(e("FirstA LastB"))
     writer.add_entity(e("FirstA LastC"))
@@ -131,10 +134,13 @@ def test_stopwords(testdataset1: Dataset, resolver: Resolver[Entity]):
         "FirstD LastC"
     )  # LastC because phoneme of LastC is uniquely LASTK here
 
-    # 15% most common tokens as stopwords -> ignore FirstA
+    # 18% most common tokens as stopwords -> ignore FirstA
 
     data_dir = Path(mkdtemp()).resolve()
-    index = DuckDBIndex(view, data_dir, {"stopwords_pct": 15})
+    stopword_pcts = NO_STOPWORDS.copy()
+    stopword_pcts[NAME_PART_FIELD] = 15.0
+    stopword_pcts[PHONETIC_FIELD] = 30.0
+    index = DuckDBIndex(view, data_dir, {"stopwords_pct": stopword_pcts})
     index.build()
 
     entity_matches = {}
@@ -150,7 +156,9 @@ def test_stopwords(testdataset1: Dataset, resolver: Resolver[Entity]):
     # 0% most common tokens as stopwords -> ignore nothing
 
     data_dir = Path(mkdtemp()).resolve()
-    index = DuckDBIndex(view, data_dir, {"stopwords_pct": 0})
+    stopword_pcts[NAME_PART_FIELD] = 0.0
+    stopword_pcts[PHONETIC_FIELD] = 0.0
+    index = DuckDBIndex(view, data_dir, {"stopwords_pct": stopword_pcts})
     index.build()
 
     entity_matches = {}

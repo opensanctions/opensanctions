@@ -1,21 +1,25 @@
 import csv
-import duckdb
 import logging
 from io import TextIOWrapper
 from pathlib import Path
-
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
-from followthemoney.types import registry
+
+import duckdb
 from followthemoney import model
+from followthemoney.types import registry
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.index.common import BaseIndex
-from nomenklatura.resolver import Pair, Identifier
+from nomenklatura.resolver import Identifier, Pair
 from nomenklatura.store import View
 from rigour.ids.wikidata import is_qid
 
-from zavod.integration.tokenizer import tokenize_entity
-from zavod.integration.tokenizer import NAME_PART_FIELD, WORD_FIELD, PHONETIC_FIELD
+from zavod.integration.tokenizer import (
+    NAME_PART_FIELD,
+    PHONETIC_FIELD,
+    WORD_FIELD,
+    tokenize_entity,
+)
 from zavod.reset import reset_caches
 
 BlockingMatches = List[Tuple[Identifier, float]]
@@ -23,6 +27,14 @@ BlockingMatches = List[Tuple[Identifier, float]]
 log = logging.getLogger(__name__)
 
 BATCH_SIZE = 10000
+DEFAULT_STOPWORDS_PCT = 0.8
+DEFAULT_FIELD_STOPWORDS_PCT = {
+    registry.phone.name: 0.0,
+    registry.identifier.name: 0.0,
+    registry.country.name: 80.0,
+    PHONETIC_FIELD: 10.0,
+    WORD_FIELD: 10.0,
+}
 
 
 def can_match(
@@ -88,7 +100,8 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         )
         """Memory budget in megabytes"""
         self.max_candidates = int(options.get("max_candidates", 75))
-        self.stopwords_pct: float = float(options.get("stopwords_pct", 0.8))
+        self.stopwords_pct = DEFAULT_FIELD_STOPWORDS_PCT
+        self.stopwords_pct.update(options.get("stopwords_pct", {}))
         self.max_stopwords: int = int(options.get("max_stopwords", 100_000))
         self.match_batch: int = int(options.get("match_batch", 1_000))
         self.data_dir = data_dir.resolve()
@@ -207,34 +220,49 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             GROUP BY field, token
         """
         self.con.execute(token_freq_query)
-        num_tokens_results = self.con.execute("SELECT count(*) FROM tokens").fetchone()
-        assert num_tokens_results is not None
-        num_tokens = num_tokens_results[0]
-        limit = int((num_tokens / 100) * self.stopwords_pct)
+        self.con.execute(
+            "CREATE OR REPLACE TABLE stopwords (field TEXT, token TEXT, freq INT)"
+        )
+        field_counts = self.con.execute(
+            "SELECT field, count(*) FROM tokens GROUP BY field"
+        ).fetchall()
+        for field, count in field_counts:
+            self.build_field_stopwords(field, count)
+
+    def build_field_stopwords(self, field: str, num_tokens: int) -> None:
+        field_stopwords_pct = self.stopwords_pct.get(field, DEFAULT_STOPWORDS_PCT)
+        if field_stopwords_pct == 0.0:
+            log.info("Stopwords disabled for field '%s'.", field)
+            return
+        limit = int((num_tokens / 100) * field_stopwords_pct)
         limit = min(limit, self.max_stopwords)
         log.info(
-            "Treating %d (%s%%) most common tokens as stopwords...",
+            "Treating %d (%s%%) most common tokens as stopwords for field '%s'...",
             limit,
-            self.stopwords_pct,
+            field_stopwords_pct,
+            field,
         )
         self.con.execute(
             """
-            CREATE OR REPLACE TABLE stopwords as
-            SELECT * FROM tokens ORDER BY freq DESC LIMIT ?;
+            INSERT INTO stopwords
+            SELECT * FROM tokens WHERE field = ? ORDER BY freq DESC LIMIT ?;
             """,
-            [limit],
+            [field, limit],
         )
         least_common_query = """
             SELECT field, token, freq
             FROM stopwords
+            WHERE field = ?
             ORDER BY freq ASC
             LIMIT 5;
         """
         least_common = "\n".join(
             f"{freq} {field}:{token}"
-            for field, token, freq in self.con.sql(least_common_query).fetchall()
+            for field, token, freq in self.con.execute(
+                least_common_query, [field]
+            ).fetchall()
         )
-        log.info("5 Least common stopwords:\n%s\n", least_common)
+        log.info("5 Least common stopwords for field '%s':\n%s\n", field, least_common)
 
     def _build_frequencies(self) -> None:
         self._build_stopwords()
