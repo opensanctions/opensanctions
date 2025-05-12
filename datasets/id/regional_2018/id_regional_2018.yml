@@ -4,9 +4,11 @@ url: https://opendata.kpu.go.id/dataset/0276bb839-2cacada2c-ae16c0def-ebbf9
 entry_point: crawler
 prefix: id-reg-2018
 coverage:
-  frequency: monthly
+  frequency: never
   start: 2024-01-05
   end: 2024-04-09
+deploy:
+  schedule: "@monthly"
 load_statements: true
 summary: >-
   Governors, Regents, and Mayors elected in the 2018 Indonesian regional elections
