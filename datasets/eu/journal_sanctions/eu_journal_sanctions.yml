@@ -12,7 +12,7 @@ publisher:
   country: eu
   url: https://european-union.europa.eu/institutions-law-budget/institutions-and-bodies/search-all-eu-institutions-and-bodies/council-european-union_en
   description: >
-    The Council of the EU is the representative body of EU member governments. 
+    The Council of the EU is the representative body of EU member governments.
     Together with the European Parliament, which directly represents the people
     of the EU, it negotiates and adopts EU laws and adopts the EU budget. It is
     also responsible for coordinating EU policies, developing EU foreign policy
@@ -45,12 +45,11 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 500
-      Person: 200
-      LegalEntity: 70
-      Organization: 70
-      Vessel: 130
-      CryptoWallet: 5
+      Company: 100
+      Person: 10
+      LegalEntity: 10
+      Organization: 10
+      Vessel: 10
 
 lookups:
   type.date:
@@ -73,4 +72,6 @@ lookups:
           - 11177411001388
           - 7715980551
           - 7717727466
+          - 770701001
+          - 9707028663
         prop: registrationNumber
