@@ -48,6 +48,7 @@ tags:
   - list.sanction
   - sector.financial
   - issuer.west
+  - sector.financial
 data:
   url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/list.html
   format: XLSX
