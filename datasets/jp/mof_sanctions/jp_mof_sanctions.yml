@@ -46,6 +46,7 @@ publisher:
 url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/gaiyou.html
 tags:
   - list.sanction
+  - sector.financial
 data:
   url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/list.html
   format: XLSX
@@ -62,9 +63,6 @@ dates:
       ":%Y年%m月%d",
       ",%Y年%m月%d",
     ]
-tags:
-  - list.sanction
-  - sector.financial
 
 assertions:
   min:
