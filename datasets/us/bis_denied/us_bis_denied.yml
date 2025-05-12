@@ -27,6 +27,11 @@ publisher:
   url: https://www.bis.doc.gov/
   country: us
   official: true
+tags:
+  - list.sanction
+  - list.export
+  - juris.us
+  - issuer.west
 url: https://www.bis.gov/licensing/end-user-guidance/denied-persons-list-dpl
 data:
   url: https://www.bis.gov/licensing/end-user-guidance/denied-persons-list-dpl
@@ -59,7 +64,7 @@ lookups:
       - match: "3017-08-22"
         value: 2017-08-22
       - match: "3035-04-07"
-        value: 2025-04-07  # since it's a 'modifiedAt' date
+        value: 2025-04-07 # since it's a 'modifiedAt' date
       - match:
           - "3033-01-17"
           - "3033-09-30"

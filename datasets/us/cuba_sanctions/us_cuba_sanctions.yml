@@ -34,6 +34,11 @@ data:
   format: CSV
   lang: eng
 ci_test: false
+tags:
+  - list.sanction
+  - target.cu
+  - juris.us
+  - issuer.west
 
 assertions:
   min:

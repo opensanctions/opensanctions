@@ -11,6 +11,8 @@ summary: >-
 description: |
   This dataset lists current members of the Dutch House of Representatives,
   along with their date and place of birth.
+tags:
+  - list.pep
 url: https://www.tweedekamer.nl/kamerleden_en_commissies/alle_kamerleden
 publisher:
   name: Tweede Kamer der Staten-Generaal

@@ -53,6 +53,10 @@ description: |
 
   - Council Regulation (EC) No 2580/2001 imposing sanctions based on Council Common Position 2001/931/CFSP
   - Council regulation (EU) 2016/1686 imposing sanctions based on Council Decision (CFSP) 2016/1693
+tags:
+  - list.sanction
+  - juris.eu
+  - issuer.west
 publisher:
   name: Directorate‑General for Financial Stability, Financial Services and Capital Markets Union
   acronym: DG FISMA

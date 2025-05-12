@@ -143,8 +143,10 @@ def crawl(context: Context):
         emit_relationship(context, result.entity, result.related_source_ids, seen_ids)
 
     # Check if we don't get too many missing IDs
-    related_ids = set(itertools.chain(r.related_source_ids for r in crawl_item_results))
-    if len(related_ids - seen_ids) > len(related_ids) / 2:
+    related_ids = set(
+        itertools.chain.from_iterable(r.related_source_ids for r in crawl_item_results)
+    )
+    if len(related_ids - seen_ids) > len(related_ids) * 0.1:
         context.log.warning(
             f"Too many missing IDs: {len(related_ids - seen_ids)}",
         )

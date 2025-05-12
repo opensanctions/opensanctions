@@ -24,6 +24,9 @@ description: |
 
   ASO maintains the list and updates it regularly.
 url: https://www.dfat.gov.au/international-relations/security/sanctions/Pages/sanctions
+tags:
+  - list.sanction
+  - issuer.west
 publisher:
   name: "Department of Foreign Affairs and Trade"
   acronym: DFAT

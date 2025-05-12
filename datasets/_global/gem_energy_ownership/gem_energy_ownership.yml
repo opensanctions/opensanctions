@@ -26,6 +26,8 @@ description: |
   This data is from the Global Energy Ownership Tracker by Global Energy Monitor which
   they license under the
   [Creative Commons CC BY 4.0 International license](https://creativecommons.org/licenses/by/4.0/).
+tags:
+  - sector.energy
 url: https://globalenergymonitor.org/projects/global-energy-ownership-tracker/
 publisher:
   name: Global Energy Monitor

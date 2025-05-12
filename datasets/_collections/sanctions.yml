@@ -56,6 +56,7 @@ children:
   - ch_seco_sanctions
   - cn_sanctions
   - cz_national_sanctions
+  - cz_terrorists
   - eu_fsf
   - eu_journal_sanctions
   - eu_sanctions_map

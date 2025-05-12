@@ -4,17 +4,23 @@ url: https://opendata.kpu.go.id/dataset/0276bb839-2cacada2c-ae16c0def-ebbf9
 entry_point: crawler
 prefix: id-reg-2018
 coverage:
-  frequency: weekly
+  frequency: never
   start: 2024-01-05
+  end: 2024-04-09
+deploy:
+  schedule: "@monthly"
 load_statements: true
 summary: >-
   Governors, Regents, and Mayors elected in the 2018 Indonesian regional elections
 description: |
   This provides names and positions of governors, mayors and regents elected in the 2018 regional election in Indonesia.
 
-  The data is sourced from the Indonesian General Election Commission open data portal.
+  The data was originally sourced from the Indonesian General Election Commission open data portal. This datasource now
+  operates on the last archived copy of the original data, retrieved at 2025-04-09, after which the website went
+  offline.
 publisher:
   name: Komisi Pemilihan Umum
+  name_en: General Elections Commission
   acronym: KPI
   official: true
   description: |
@@ -24,16 +30,16 @@ publisher:
   country: id
   url: https://www.kpu.go.id/
 data:
-  # https://web.archive.org/web/20240105095157/https://opendatadev.kpu.go.id/sites/default/files/files/8a0d3612bda85495f2a849a6b8fcbf3d.xlsx
-  url: https://opendatadev.kpu.go.id/sites/default/files/files/8a0d3612bda85495f2a849a6b8fcbf3d.xlsx
+  # https://opendatadev.kpu.go.id/sites/default/files/files/8a0d3612bda85495f2a849a6b8fcbf3d.xlsx
+  url: https://data.opensanctions.org/contrib/id_regional_2018/source.xlsx
   format: XLSX
 
 assertions:
   min:
     schema_entities:
-      Person: 300
-      Position: 300
+      Person: 326
+      Position: 326
   max:
     schema_entities:
-      Person: 700
-      Position: 700
+      Person: 326
+      Position: 326

@@ -35,6 +35,9 @@ data:
   lang: eng
 dates:
   formats: ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
+tags:
+  - list.sanction
+  - issuer.west
 
 # TODO: do we need a separate crawler for the UK Sanctions List?
 # https://www.gov.uk/government/publications/the-uk-sanctions-list

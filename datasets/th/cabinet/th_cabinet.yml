@@ -25,6 +25,8 @@ publisher:
   url: https://www.soc.go.th/
   official: true
   country: "th"
+tags:
+  - list.pep
 url: https://www.soc.go.th/?page_id=182
 data:
   url: https://www.soc.go.th/?page_id=182

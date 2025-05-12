@@ -138,6 +138,7 @@ lookups:
           - muxe
           - bigender
           - neutral sex
+          - non-binary gender
         value: other
       - match:
           - MALE
