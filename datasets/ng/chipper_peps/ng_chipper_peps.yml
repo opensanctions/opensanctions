@@ -25,6 +25,8 @@ publisher:
   country: ng
   official: false
   logo_url: "https://assets.opensanctions.org/images/publishers/chipper-logo.svg"
+tags:
+  - list.pep
 url: https://chippercash.com/
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vS-0_pci6BoFHpxfPXbDeMD53jvti_TmovR406JK-Z-9lYPCqbUmTk6vZC0hTSRFxHYGTzJJyFRDCxz/pub?output=csv

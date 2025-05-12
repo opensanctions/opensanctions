@@ -18,6 +18,8 @@ description: >
 
   ENFAST is a network of police officers available 24/7 who can immediately
   undertake action to locate and arrest fugitives.
+tags:
+  - list.wanted
 url: https://eumostwanted.eu/
 publisher:
   name: European Network of Fugitive Active Search Teams

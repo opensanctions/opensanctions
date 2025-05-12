@@ -25,6 +25,8 @@ description: |
   * The [Navalny 35](/dataset/ru_navalny35/)
   * Forbes List of Russian Billionaires, as of 2021
   * Forbes List of Ukrainian Billionaires
+tags:
+  - risk.klepto
 publisher:
   name: OpenSanctions
   description: |

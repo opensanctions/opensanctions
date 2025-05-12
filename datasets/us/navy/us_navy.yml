@@ -1,5 +1,6 @@
 title: "US Navy Leadership"
-url: https://www.navy.mil/Leadership/
+entry_point: crawler.py
+prefix: us-navy
 load_statements: true
 ci_test: false
 coverage:
@@ -12,8 +13,6 @@ description: |
   The US Navy leadership includes detailed profiles of senior leaders such as the Secretary 
   of the Navy, the Chief of Naval Operations, and other key figures. These profiles feature 
   name, rank, and, where applicable, the full biography can be accessed via source links.
-entry_point: crawler.py
-prefix: us-navy
 publisher:
   name: United States Navy
   acronym: Navy
@@ -27,6 +26,9 @@ publisher:
     ensure readiness and logistics.
   country: us
   url: https://www.navy.mil
+tags:
+  - list.pep
+url: https://www.navy.mil/Leadership/
 data:
   url: https://www.navy.mil/Leadership/
   format: html

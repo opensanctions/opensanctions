@@ -8,6 +8,7 @@ import openpyxl
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
+from zavod.shed import zyte_api
 
 SEBI_DEBARRMENT_URL = "https://nsearchives.nseindia.com/content/press/prs_ra_sebi.xls"
 OTHER_DEBARRMENT_URL = (
@@ -131,7 +132,9 @@ def crawl_item(input_dict: dict, context: Context):
 
 
 def parse_xls_or_xlsx_sheet_from_url(context: Context, url: str, filename: str):
-    filepath_tmp = context.fetch_resource(f"{filename}.temp", url)
+    _, _, _, filepath_tmp = zyte_api.fetch_resource(
+        context, filename=f"{filename}.temp", url=url, geolocation="in"
+    )
     # XLSX is a zipfile internally, sniff for that to detect mimetype
     if zipfile.is_zipfile(filepath_tmp):
         filepath = shutil.move(

@@ -36,6 +36,9 @@ publisher:
     extreme poverty.
   url: https://www.worldbank.org
   official: true
+tags:
+  - list.debarment
+  - sector.devbank
 url: https://www.worldbank.org/en/projects-operations/procurement/debarred-firms
 data:
   url: "https://apigwext.worldbank.org/dvsvc/v1.0/json/APPLICATION/ADOBE_EXPRNCE_MGR/FIRM/SANCTIONED_FIRM"

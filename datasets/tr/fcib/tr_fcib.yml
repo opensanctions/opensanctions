@@ -56,6 +56,9 @@ dates:
     10: Ekim
     11: Kasım
     12: Aralık
+tags:
+  - list.sanction.counter
+  - sector.financial
 
 assertions:
   # A 265 + 91 + 135 + 5

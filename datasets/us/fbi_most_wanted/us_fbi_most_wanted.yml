@@ -23,6 +23,8 @@ description: |
   > The first person added to the list was Thomas J. Holden,
   > a robber and member of the Holden Keating Gang on the day of the list's inception
 url: https://www.fbi.gov/wanted
+tags:
+  - list.wanted
 publisher:
   name: Federal Bureau of Investigation
   acronym: FBI

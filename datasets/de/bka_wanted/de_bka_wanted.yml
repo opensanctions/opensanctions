@@ -8,6 +8,8 @@ description: |
 
   It includes details such as the fugitive's name, nationality, offense,
   time of crime and crime scene.
+tags:
+  - list.wanted
 url: https://www.bka.de/SiteGlobals/Forms/Suche/Fahndungsliste_Personenfahndung_Formular.html
 publisher:
   name: Bundeskriminalamt

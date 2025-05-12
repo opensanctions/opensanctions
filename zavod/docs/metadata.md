@@ -20,7 +20,7 @@ Use the `.yml` extension.
 ### Data Coverage
 
 - `coverage`
-    - `frequency` - e.g. `daily`, `weekly`, `monthly`. This represents how often it is expected that this dataset will be updated. It conveys to users how often to expect updates, and will also be used to generate a crawling schedule unless a specific schedule is defined.
+    - `frequency` - e.g. `daily`, `weekly`, `monthly`, `never`. This represents how often it is expected that this dataset will be updated. It conveys to users how often to expect updates, and will also be used to generate a crawling schedule unless a specific schedule is defined. Data sources that don't receive updates are marked `never` and are usually crawled monthly (e.g. `deploy.schedule: @monthly`) just to keep consistent with FTM updates.
     - `start` - The start date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`.
     - `end` - The end date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`. Future dates imply an expected end to the maintenance and coverage period of the dataset. Past end dates result in the datasets last_change date being fixed to that date, while its last_exported date remains unchanged.
 
@@ -45,9 +45,9 @@ Use the `.yml` extension.
     - `name` - The publisher's official name. If this is by default in a primary non-english language from the originating country, use that language here, and the english form in `publisher.name_en`.
     - `name_en` - Their name in English, ideally the official form, otherwise a translation.
     - `acronym` - Add if there's an official acronym, e.g. check in their domain name, footer, about page.
-    - `description` - This can be one to two paragraphs of text. Use the publisher description field to explain to someone from a country other than the publisher who the publisher is, and why they do what they do. 
+    - `description` - This can be one to two paragraphs of text. Use the publisher description field to explain to someone from a country other than the publisher who the publisher is, and why they do what they do.
     - `url` - The home page of their official website
-    - `country` - The Alpha-2 or two-letter ISO 3166-1 
+    - `country` - The Alpha-2 or two-letter ISO 3166-1
     - `official` - `true` if the publisher is an authority overseeing the subject data, generally a government entity releasing their sanctions list or legislator data, otherwise `false`.
 
 ### Source data
@@ -72,7 +72,7 @@ HTTP requests for GET requests are automatically retried for connection and HTTP
     - `max_retries`: integer in seconds, default `3`
     - `retry_methods`: List of strings, [default](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS) `['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'TRACE']`
     - `retry_statuses`: List of integers of HTTP error codes to retry, default `[413, 429, 500, 502, 503]`.
-  
+
 ### Data assertions
 
 Data assertions are intended to "smoke test" the data. Assertions are checked on export. If assertions aren't met, warnings are emitted.
@@ -99,7 +99,7 @@ It's a good idea to add assertions at the start of writing a crawler, and then s
 assertions:
   min:
     schema_entities:
-      Person: 160  # at least 160 Person entities 
+      Person: 160  # at least 160 Person entities
       Position: 30  # at least 30 Position entities
     country_entities:
       us: 40  # at least 40 entities for the US

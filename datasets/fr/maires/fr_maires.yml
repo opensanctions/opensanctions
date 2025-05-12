@@ -16,6 +16,8 @@ description: |
   government.  The dataset itself is compiled by the French Ministry
   of the Interior and Overseas using information from regional
   prefectures, and is updated quarterly.
+tags:
+  - list.pep
 publisher:
   name: Ministère de l'Intérieur et des Outre-Mer
   acronym: MIOM

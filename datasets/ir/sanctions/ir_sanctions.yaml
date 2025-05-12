@@ -35,6 +35,12 @@ data:
   lang: eng
 # requires API key
 ci_test: false
+tags:
+  - list.sanction.counter
+  - target.us
+  - target.eu
+  - target.gb
+  - target.ca
 
 dates:
   formats: ["%B %d %Y"]

@@ -22,6 +22,8 @@ publisher:
   country: pl
   official: true
   url: https://www.policja.pl
+tags:
+  - list.wanted
 data:
   url: https://poszukiwani.policja.gov.pl/pos/form/5,Poszukiwani.html
   format: HTML
@@ -46,6 +48,7 @@ lookups:
       - match: nieznana
         value: null
   type.country:
+    normalize: true
     options:
       - match:
           - NIEUSTALONE # unknown
