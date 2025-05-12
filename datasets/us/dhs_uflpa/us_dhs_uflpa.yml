@@ -42,6 +42,7 @@ dates:
 tags:
   - list.sanction
   - target.cn
+  - issuer.west
 
 assertions:
   min:
