@@ -34,19 +34,15 @@ REGEX_POSITIONISH = re.compile(
     r"(Minister|Attorney|Governor|Member|Parliamentary|Leader|Speaker)"
 )
 REGEX_NAME = re.compile(r"^[\w\.“”’-]+( [\w\.“”’-]+){1,3}$")
+HONORIFICS = ["Hon. ", "Hon ", "Ms. ", "Mr. ", "Mrs. ", "Sir ", "Dr. "]
 
 
 def crawl_card_2025(context: Context, position: str, el: ElementOrTree):
     name_el = el.find("./h1")
     name = name_el.text
     name = re.sub(r",.+", "", name)
-    name = name.replace("Hon. ", "")
-    name = name.replace("Hon ", "")
-    name = name.replace("Ms. ", "")
-    name = name.replace("Mr. ", "")
-    name = name.replace("Mrs. ", "")
-    name = name.replace("Sir ", "")
-    name = name.replace("Dr. ", "")
+    for honorific in HONORIFICS:
+        name = name.replace(honorific, "")
     if not REGEX_NAME.match(name):
         context.log.warning("Name doesn't look like a name", name=name)
 
