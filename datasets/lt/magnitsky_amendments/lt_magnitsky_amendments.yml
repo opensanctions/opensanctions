@@ -32,6 +32,7 @@ data:
 tags:
   - list.sanction
   - juris.eu
+  - issuer.west
 
 assertions:
   min:
