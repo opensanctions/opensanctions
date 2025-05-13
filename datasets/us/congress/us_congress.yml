@@ -25,6 +25,8 @@ description: >
   group of one-third of the senators is called a 'class'. No state has both
   its senators in the same class. [Source: Wikipedia](https://en.wikipedia.org/wiki/Member_of_Congress)
 url: https://api.congress.gov/
+tags:
+  - list.pep
 data:
   url: https://api.congress.gov/v3/member/
   format: JSON

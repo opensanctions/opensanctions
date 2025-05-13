@@ -20,6 +20,10 @@ description: |
   publishes and updates the national register of asset freezing measures. This
   lists all the people, entities and vessels affected by the asset freezing
   measures in force throughout France.
+tags:
+  - list.sanction
+  - juris.eu
+  - issuer.west
 publisher:
   name: Direction Générale du Trésor
   acronym: DGT

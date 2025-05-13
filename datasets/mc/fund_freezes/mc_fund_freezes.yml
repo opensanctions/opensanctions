@@ -25,6 +25,10 @@ publisher:
   url: https://www.gouv.mc/
   country: mc
   official: true
+tags:
+  - list.sanction
+  - sector.financial
+  - issuer.west
 url: https://geldefonds.gouv.mc/
 data:
   url: https://geldefonds.gouv.mc/directdownload/sanctions.json
@@ -44,6 +48,7 @@ dates:
     - "%b %Y"
   months:
     "Oct": "octobre"
+
 assertions:
   min:
     schema_entities:

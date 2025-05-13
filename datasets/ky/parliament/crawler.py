@@ -34,17 +34,15 @@ REGEX_POSITIONISH = re.compile(
     r"(Minister|Attorney|Governor|Member|Parliamentary|Leader|Speaker)"
 )
 REGEX_NAME = re.compile(r"^[\w\.“”’-]+( [\w\.“”’-]+){1,3}$")
+HONORIFICS = ["Hon. ", "Hon ", "Ms. ", "Mr. ", "Mrs. ", "Sir ", "Dr. "]
 
 
-def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
+def crawl_card_2025(context: Context, position: str, el: ElementOrTree):
     name_el = el.find("./h1")
     name = name_el.text
     name = re.sub(r",.+", "", name)
-    name = name.replace("Hon. ", "")
-    name = name.replace("Ms. ", "")
-    name = name.replace("Mr. ", "")
-    name = name.replace("Sir ", "")
-    name = name.replace("Dr. ", "")
+    for honorific in HONORIFICS:
+        name = name.replace(honorific, "")
     if not REGEX_NAME.match(name):
         context.log.warning("Name doesn't look like a name", name=name)
 
@@ -75,8 +73,8 @@ def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
             context,
             entity,
             position,
-            start_date="2021",
-            end_date="2025",
+            start_date="2025",
+            end_date="2029",
             categorisation=categorisation,
         )
         context.emit(entity)
@@ -117,8 +115,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
     # crawl_card assumes 2021
-    assert "2021-2025 Members" in doc.text_content()
-    expected_current_member_count = 20
+    assert "2025-2029 Members" in doc.text_content()
+    expected_current_member_count = 22
     current_member_count = 0
     heading = None
     for section in doc.findall(".//section"):
@@ -139,13 +137,19 @@ def crawl(context: Context):
             for el in section.xpath(
                 ".//div[contains(@class, 'member-select-content')]"
             ):
-                if crawl_card_2021(context, heading, el):
+                if crawl_card_2025(context, heading, el):
                     current_member_count += 1
     if current_member_count < 20:
         context.log.warning(
             f"Expected at least {expected_current_member_count} current members but found {current_member_count}"
         )
-
+    # Former members were added to the historical Google Sheet
+    # based on https://parliament.ky/members/former-members/.
+    # Since many individuals in Parliament rotate through different roles,
+    # some entries are duplicated to reflect multiple positions held over
+    # time. Where exact dates are provided (e.g., “November 23, 2023–end of term”),
+    # I used 2025 as the assumed end date. For positions without specific timeframes,
+    # the overall parliamentary term (2021–2025) was used.
     path = context.fetch_resource("historical_data.csv", HISTORICAL_DATA_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:

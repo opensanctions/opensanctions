@@ -22,6 +22,8 @@ publisher:
   country: pl
   official: true
   url: https://www.policja.pl
+tags:
+  - list.wanted
 data:
   url: https://poszukiwani.policja.gov.pl/pos/form/5,Poszukiwani.html
   format: HTML
@@ -134,3 +136,5 @@ lookups:
         value: PL
       - match: MACEDONIA PÓŁNOCNA
         value: MK
+      - match: ROSJA NIEMCY
+        values: [RU, DE]

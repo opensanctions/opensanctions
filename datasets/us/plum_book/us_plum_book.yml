@@ -45,6 +45,8 @@ publisher:
   country: us
   url: https://www.opm.gov/
   official: true
+tags:
+  - list.pep
 url: https://www.opm.gov/about-us/open-government/plum-reporting/plum-data/
 data:
   url: https://escs.opm.gov/escs-net/api/pbpub/download-data

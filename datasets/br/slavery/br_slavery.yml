@@ -33,6 +33,8 @@ publisher:
     worker rights, safety, pay, and work permits
   url: https://www.gov.br/trabalho-e-emprego
   official: true
+tags:
+  - issuer.slavery
 url: https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/combate-ao-trabalho-escravo-e-analogo-ao-de-escravo
 data:
   url: https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/cadastro_de_empregadores.csv

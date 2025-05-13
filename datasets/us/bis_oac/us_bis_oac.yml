@@ -1,5 +1,6 @@
 title: "US Office of Antiboycott Compliance Requester List"
-url: https://www.bis.gov/OAC
+entry_point: crawler.py
+prefix: us-bis-oac
 load_statements: true
 coverage:
   frequency: weekly
@@ -15,8 +16,6 @@ description: |
   These entities have been
   reported to the BIS for making boycott-related requests in U.S. transactions. The list is
   updated quarterly and is not exhaustive.
-entry_point: crawler.py
-prefix: us-bis-oac
 publisher:
   name: Bureau of Industry and Security
   acronym: BIS
@@ -28,6 +27,10 @@ publisher:
     prohibits U.S. companies from supporting unsanctioned foreign boycotts.
   country: us
   url: https://www.bis.gov
+url: https://www.bis.gov/OAC
+tags:
+  - list.export
+  - juris.us
 data:
   url: https://www.bis.gov/OAC
   format: html

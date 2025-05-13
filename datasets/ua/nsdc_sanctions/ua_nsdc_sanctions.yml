@@ -29,6 +29,9 @@ url: https://drs.nsdc.gov.ua/
 data:
   url: https://api-drs.nsdc.gov.ua/
   format: JSON
+tags:
+  - list.sanction
+  - target.ru
 
 assertions:
   min:
@@ -87,7 +90,7 @@ lookups:
           - "reg:cn"
           - "reg:kz"
           - "reg:ua2"
-          - "reg:bel3"  # Belarus
+          - "reg:bel3" # Belarus
           - "reg:acc_corpo_reg"
           - "reg:sw_comm_reg"
           - "reg:uec"
@@ -228,6 +231,12 @@ lookups:
         values:
           - Україна, 298403, тимчасово окупована територія Автономної Республіки Крим, м. Бахчисарай, вул. Македонського, буд. 11, прим. 4
           - Украина, 298403, временно оккупированная территория Автономной Республики Крым, г. Бахчисарай, ул. Македонского, д. 11, пом. 4
+      - match: Ісламська Республіка Іран, м. Ісламшехр (Ісламська Республіка Іран, м. Тегеран; Central Sector, Shahrak Rah Ahan, Kamyab Street, Kavoosh Alley, No. 0, Pezeshkan Trita Building, Floor 4, No 59, Islamshahr, Tehran Province 1498711318, Iran; Central Sector, North Persian Gulf Neighborhood Shakhid Shokralah Mohseni Alley, Second Alley, No. 24, Milad Building Block A1, 1st Floor, Unit 1, Tehran, Iran)
+        values:
+          - Ісламська Республіка Іран, м. Ісламшехр
+          - Ісламська Республіка Іран, м. Тегеран
+          - Central Sector, Shahrak Rah Ahan, Kamyab Street, Kavoosh Alley, No. 0, Pezeshkan Trita Building, Floor 4, No 59, Islamshahr, Tehran Province 1498711318, Iran
+          - Central Sector, North Persian Gulf Neighborhood Shakhid Shokralah Mohseni Alley, Second Alley, No. 24, Milad Building Block A1, 1st Floor, Unit 1, Tehran, Iran
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»

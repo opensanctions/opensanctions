@@ -18,6 +18,8 @@ description: |
   The obligated personnel are required to submit asset declarations to designated offices
   upon taking and leaving office and whenever a change in assets occurs that exceeds
   twenty average salaries.
+tags:
+  - list.pep
 publisher:
   name: State Commission for Prevention of Corruption
   acronym: SCPC

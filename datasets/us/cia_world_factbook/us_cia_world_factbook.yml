@@ -23,6 +23,8 @@ description: |
   > transportation, military, terrorism, and transnational issues for 266 world
   > entities.
 url: https://www.cia.gov/the-world-factbook/
+tags:
+  - list.pep
 publisher:
   name: Central Intelligence Agency
   acronym: CIA
@@ -200,6 +202,20 @@ lookups:
             start_date: 14 December 2024
           - role: President
             name: YOON Suk Yeol
+            end_date: 14 December 2024
+      - match: "LEE Ju Ho (Acting President and Prime Minister since 2 May 2025 after Prime Minister and Acting President Han Duck Soo resigned to run for president)"
+        holders:
+          - role: Acting President
+            name: LEE Ju Ho
+            start_date: 2 May 2025
+          - role: Prime Minister
+            name: LEE Ju Ho
+            start_date: 2 May 2025
+      - match: "on 14 December 2024 the National Assembly impeached and suspended President YOON Suk Yeol (inaugurated 10 May 2022) from office"
+        holders:
+          - role: President
+            name: YOON Suk Yeol
+            start_date: 10 May 2022
             end_date: 14 December 2024
       # San Marino
       - match: "co-chiefs of state Captains Regent Alessandro ROSSI and Milena GASPERONI (for the period 1 April 2024 - 30 September 2024)"

@@ -30,6 +30,13 @@ publisher:
 data:
   url: "https://science.gc.ca/site/science/en/safeguarding-your-research/guidelines-and-tools-implement-research-security/named-research-organizations"
   format: HTML
+tags:
+  - list.regulatory
+  - target.ru
+  - target.cn
+  - target.ir
+  - sector.academic
+  - issuer.west
 
 assertions:
   min:

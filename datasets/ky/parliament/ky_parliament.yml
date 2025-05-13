@@ -1,6 +1,5 @@
 name: ky_parliament
 title: Cayman Islands Members of Parliament
-url: https://parliament.ky/members/
 entry_point: crawler
 prefix: ky-la
 coverage:
@@ -15,6 +14,9 @@ description: |
 
   Previous legislative terms are included from a [spreadsheet](https://docs.google.com/spreadsheets/d/e/2PACX-1vRM-hl1drkQMn4wHXxHkHXHZb2TkUyIFWxGXwJ_UqZNRpH00DGWrdHk_zDrHUsZ4YCeVYYojqSMmZuX/pub?output=csv)
   extracted from Former Members pages.
+tags:
+  - list.pep
+url: https://parliament.ky/members/
 publisher:
   name: Parliament of the Cayman Islands
   official: true
@@ -23,7 +25,7 @@ publisher:
     The Parliament of the Cayman Islands was previously known as the Legislative
     Assembly of the Cayman Islands.
   country: ky
-  url: https://archives.gov.ky/sites/legislativeassembly/portal/page/portal/lglhome/members/elected-2021-2025.html
+  url: https://parliament.ky
 data:
   url: https://parliament.ky/members/
   format: HTML
@@ -31,9 +33,11 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 30
+      Person: 40
+      Position: 40
     country_entities:
-      ky: 60
+      ky: 75
   max:
     schema_entities:
       Person: 50
+      Position: 50

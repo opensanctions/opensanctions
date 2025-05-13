@@ -36,6 +36,8 @@ publisher:
   url: "https://pluralpolicy.com/"
   country: us
   official: false
+tags:
+  - list.pep
 url: "https://open.pluralpolicy.com/data/"
 data:
   url: "https://github.com/openstates/people/archive/refs/heads/main.zip"

@@ -29,6 +29,10 @@ data:
   url: https://www.migracija.lt/external/nam/search?pageNo=0&pageSize=500&language=lt
   file_name: source.json
   format: JSON
+tags:
+  - list.sanction
+  - juris.eu
+  - issuer.west
 
 assertions:
   min:

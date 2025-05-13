@@ -22,6 +22,8 @@ publisher:
   official: true
   country: "is"
 url: "https://www.althingi.is/altext/cv/en/"
+tags:
+  - list.pep
 data:
   url: https://www.althingi.is/altext/cv/en/
   format: HTML
