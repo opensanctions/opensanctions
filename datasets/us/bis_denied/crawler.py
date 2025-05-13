@@ -35,14 +35,9 @@ def parse_row(context: Context, row):
     context.emit(entity)
 
     citation = row.pop("fr_citation")
-    sanction = h.make_sanction(
-        context,
-        entity,
-        key=citation,
-        program_name=PROGRAM_NAME,
-        # Map the source program key to the OpenSanctions program key using a lookup
-        program_key=(h.lookup_sanction_program_key(context, PROGRAM_NAME)),
-    )
+    # We don't link it to the website here, since it's included in the us_trade_csl
+    # programs, which is linked to the website.
+    sanction = h.make_sanction(context, entity, key=citation, program_name=PROGRAM_NAME)
     sanction.add("program", citation)
     h.apply_date(sanction, "startDate", start_date)
     h.apply_date(sanction, "endDate", row.pop("ending_date"))

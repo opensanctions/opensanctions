@@ -49,10 +49,6 @@ assertions:
       LegalEntity: 940
 
 lookups:
-  sanction.program:
-    options:
-      - match: Denied Persons List (DPL) - Bureau of Industry and Security
-        value: US-BIS-DPL-2
   type.country:
     lowercase: true
     normalize: true
