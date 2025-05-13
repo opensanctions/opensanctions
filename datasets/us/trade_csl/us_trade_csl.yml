@@ -68,6 +68,20 @@ assertions:
       Address: 35
 
 lookups:
+  sanction.program:
+    options:
+      - match: Nonproliferation Sanctions (ISN) - State Department
+        value: US-DOS-ISN
+      - match: ITAR Debarred (DTC) - State Department
+        value: US-AECA-DEBARRED
+      - match: Unverified List (UVL) - Bureau of Industry and Security
+        value: US-BIS-UVL
+      - match: Entity List (EL) - Bureau of Industry and Security
+        value: US-BIS-EL
+      - match: Denied Persons List (DPL) - Bureau of Industry and Security
+        value: US-BIS-DPL
+      - match: Military End User (MEU) List - Bureau of Industry and Security
+        value: US-BIS-MEU
   type:
     options:
       - match:

@@ -8,6 +8,23 @@ import re
 from zavod import Context, Entity
 from zavod import helpers as h
 
+#     Programs falling under the 'is_ofac=TRUE' check:
+#     "Capta List (CAP) - Treasury Department",
+#     "Palestinian Legislative Council List (PLC) - Treasury Department",
+#     "Foreign Sanctions Evaders (FSE) - Treasury Department",
+#     "Non-SDN Chinese Military-Industrial Complex Companies List (CMIC) - Treasury Department",
+#     "Non-SDN Menu-Based Sanctions List (NS-MBS List) - Treasury Department",
+#     "Specially Designated Nationals (SDN) - Treasury Department",
+#     "Sectoral Sanctions Identifications List (SSI) - Treasury Department",
+
+#     Programs falling under the 'is_ofac=FALSE' check:
+#     "Nonproliferation Sanctions (ISN) - State Department",
+#     "ITAR Debarred (DTC) - State Department",
+#     "Unverified List (UVL) - Bureau of Industry and Security",
+#     "Entity List (EL) - Bureau of Industry and Security",
+#     "Denied Persons List (DPL) - Bureau of Industry and Security",
+#     "Military End User (MEU) List - Bureau of Industry and Security",
+
 
 REGEX_AUTHORITY_ID_SEP = re.compile(r"(\d+ F\.?R\.?)")
 
@@ -95,8 +112,8 @@ def parse_result(context: Context, result: Dict[str, Any]):
 
     entity = context.make(schema)
     entity.id = context.make_slug(result.pop("id"))
-    source = result.pop("source", "")
-    if source.startswith("Unverified List"):
+    source_program = result.pop("source", "")
+    if source_program.startswith("Unverified List"):
         entity.add("topics", "export.control")
     else:
         entity.add("topics", "sanction")
@@ -192,8 +209,17 @@ def parse_result(context: Context, result: Dict[str, Any]):
         context.log.warning("Unknown ID type", id=ident)
 
     sanction = context.make("Sanction")
-    sanction.id = context.make_id(entity.id, "Sanction")
-    sanction.add("entity", entity)
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=source_program,
+        source_program_key=source_program,
+        program_key=(
+            h.lookup_sanction_program_key(context, source_program)
+            if source_program
+            else None
+        ),
+    )
     sanction.add("program", result.pop("programs", []))
     sanction.add("provisions", result.pop("license_policy", []))
     sanction.add("reason", result.pop("license_requirement", []))
@@ -201,10 +227,10 @@ def parse_result(context: Context, result: Dict[str, Any]):
         "authorityId",
         clean_authority(result.pop("federal_register_notice", None)),
     )
-    sanction.add("startDate", result.pop("start_date", None))
-    sanction.add("endDate", result.pop("end_date", None))
+    h.apply_date(sanction, "startDate", result.pop("start_date", None))
+    h.apply_date(sanction, "endDate", result.pop("end_date", None))
     sanction.add("country", "us")
-    sanction.add("authority", source)
+    sanction.add("authority", source_program)
     sanction.add("sourceUrl", result.pop("source_information_url"))
     result.pop("source_list_url")
 
