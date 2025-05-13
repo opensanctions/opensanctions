@@ -198,14 +198,13 @@ def write_delta_index(
 
     # A hopefully temporary stand-in for tooling that doesn't support iterating
     # over object keys https://github.com/opensanctions/opensanctions/issues/2216
-    version_list = []
-    for version_id, version_url in versions.items():
-        version_list.append(
-            {
-                "version": version_id,
-                "url": version_url,
-            }
-        )
+    version_list = [
+        {
+            "version": version_id,
+            "url": version_url,
+        }
+        for version_id, version_url in versions.items()
+    ]
 
     if len(versions) == 0:
         log.info("No delta versions found", dataset=dataset.name)
