@@ -987,8 +987,8 @@ lookups:
           - Entrepreneur Invest
           - Eurotitrisation
           - Caceis Bank
-          - "Caceis Investor Services Bank France"
-          - "RBC Investor Services Bank France"
+          # It's one entity, we include both previous and current names
+          - ["Caceis Investor Services Bank France", "RBC Investor Services Bank France"]
           - Edith Lusson
           - Jean-Yves Bajon
           - Romain Bertrand
@@ -997,9 +997,8 @@ lookups:
         relationships:
           - schema: Succession
             from_prop: predecessor
-            from:
-              - "Caceis Investor Services Bank France"
-              - "RBC Investor Services Bank France"
+            # As one entity, we link it as a predecessor to the 'Caceis Bank'
+            from: ["Caceis Investor Services Bank France", "RBC Investor Services Bank France"]
             to_prop: successor
             to: Caceis Bank
             role: venant aux droits

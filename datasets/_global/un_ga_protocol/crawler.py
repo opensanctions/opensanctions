@@ -1,6 +1,6 @@
 from urllib.parse import urljoin
 from rigour.mime.types import PDF
-from rigour.names import remove_person_prefixes
+from rigour.names.person import remove_person_prefixes
 
 from zavod import Context
 from zavod import helpers as h
