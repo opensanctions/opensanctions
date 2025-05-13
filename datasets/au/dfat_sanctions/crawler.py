@@ -12,6 +12,36 @@ from zavod import helpers as h
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 ADDRESS_SPLITS = [";", "ii) ", "iii) "]
 
+# All sanction regimes:
+# "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)",
+# "1373 (2001)",
+# "1518 (Iraq)",
+# "1533 (Democratic Republic of the Congo)",
+# "1591 (Sudan)",
+# "1718 (DPRK)",
+# "1970 (Libya) 1973 (Libya)",
+# "1970 (Libya)",
+# "1973 (Libya)",
+# "1988 (Taliban)",
+# "2093 (2013)",
+# "2127 (Central African Republic)",
+# "2140 (Yemen)",
+# "2206 (South Sudan)",
+# "2713 (Al-Shabaab)",
+# "751 (Somalia and Eritrea)",
+# "Autonomous (DPRK)",
+# "Autonomous (FFRY)",
+# "Autonomous (Iran)",
+# "Autonomous (Libya)",
+# "Autonomous (Myanmar)",
+# "Autonomous (Russia)",
+# "Autonomous (Syria)",
+# "Autonomous (Thematic - Cyber)",
+# "Autonomous (Thematic - Human Rights)",
+# "Autonomous (Thematic – Corruption)",
+# "Autonomous (Ukraine)",
+# "Autonomous (Zimbabwe)",
+
 
 def clean_date(date):
     splits = [
@@ -110,7 +140,6 @@ def parse_reference(
     entity.id = context.make_slug(reference, primary_name)
     for name_prop, name in names:
         entity.add(name_prop, name)
-    sanction = h.make_sanction(context, entity)
 
     primary_name = None
     for row in rows:
@@ -120,7 +149,16 @@ def parse_reference(
                 for sub_part in h.multi_split(part, ADDRESS_SPLITS):
                     address = h.make_address(context, full=sub_part)
                     h.apply_address(context, entity, address)
-        sanction.add("program", row.pop("committees"))
+        source_program = row.pop("committees")
+        source_program = source_program.strip() if source_program else None
+        sanction = h.make_sanction(
+            context,
+            entity,
+            key=source_program,
+            program_name=source_program,
+            source_program_key=source_program,
+            program_key=h.lookup_sanction_program_key(context, source_program),
+        )
         country = clean_country(row.pop("citizenship"))
         if entity.schema.is_a("Person"):
             entity.add("nationality", country)
