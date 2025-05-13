@@ -20,7 +20,7 @@ def parse_row(context: Context, row):
     entity.add("notes", row.pop("action"))
     entity.add("topics", "sanction")
     entity.add("country", country)
-    entity.add("modifiedAt", row.pop("last_update"))
+    h.apply_date(entity, "modifiedAt", row.pop("last_update"))
 
     country_code = registry.country.clean(country)
     address = h.make_address(
