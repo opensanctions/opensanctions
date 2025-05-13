@@ -22,7 +22,7 @@ def crawl(context: Context) -> None:
             entity.add("sector", row.pop("Industry"), lang="zho")
             entity.add("address", addr_zho, lang="zho")
             entity.add("topics", "export.risk")
-            entity.add("topics", "risk.forced.labor")
+            entity.add("topics", "forced.labor")
             context.emit(entity)
 
             owner = context.make("Organization")

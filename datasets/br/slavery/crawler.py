@@ -38,7 +38,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     else:
         entity.add("address", address)
     entity.add("topics", "reg.action")
-    entity.add("topics", "risk.forced.labor")
+    entity.add("topics", "forced.labor")
 
     # Sometimes the listing date looks like this "05/10/2022 a 13/01/2023, 11/11/2024", indicating that the
     # company was removed and re-added to the list.
