@@ -130,9 +130,8 @@ def test_stopwords(testdataset1: Dataset, resolver: Resolver[Entity]):
     view = store.view(testdataset1)
 
     too_common_first_name = e("FirstA LastF")
-    matching_last_name = e(
-        "FirstD LastC"
-    )  # LastC because phoneme of LastC is uniquely LASTK here
+    # LastC because phoneme of LastC is uniquely LASTK here
+    matching_last_name = e("FirstD LastC")
 
     # 18% most common tokens as stopwords -> ignore FirstA
 
@@ -156,8 +155,8 @@ def test_stopwords(testdataset1: Dataset, resolver: Resolver[Entity]):
     # 0% most common tokens as stopwords -> ignore nothing
 
     data_dir = Path(mkdtemp()).resolve()
-    stopword_pcts[NAME_PART_FIELD] = 0.0
-    stopword_pcts[PHONETIC_FIELD] = 0.0
+    stopword_pcts[NAME_PART_FIELD] = 5.0
+    stopword_pcts[PHONETIC_FIELD] = 5.0
     index = DuckDBIndex(view, data_dir, {"stopwords_pct": stopword_pcts})
     index.build()
 
