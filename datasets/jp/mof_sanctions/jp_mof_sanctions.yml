@@ -46,6 +46,7 @@ publisher:
 url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/gaiyou.html
 tags:
   - list.sanction
+  - sector.financial
   - issuer.west
 data:
   url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/list.html
