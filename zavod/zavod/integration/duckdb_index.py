@@ -34,6 +34,7 @@ DEFAULT_FIELD_STOPWORDS_PCT = {
     registry.country.name: 80.0,
     PHONETIC_FIELD: 10.0,
     WORD_FIELD: 10.0,
+    NAME_PART_FIELD: 2.0,
 }
 
 
