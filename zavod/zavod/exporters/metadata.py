@@ -196,8 +196,11 @@ def write_delta_index(
         if len(versions) >= max_versions:
             break
 
-    # A hopefully temporary stand-in for tooling that doesn't support iterating
+    # Alternatively as a list for tooling that doesn't support iterating
     # over object keys https://github.com/opensanctions/opensanctions/issues/2216
+    # Unstable key because we anticipate replacing this with functionality in
+    # the upcoming data delivery service, so we don't want to suggest that this
+    # is generally available.
     version_list = [
         {
             "version": version_id,
