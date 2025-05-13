@@ -27,6 +27,7 @@ BlockingMatches = List[Tuple[Identifier, float]]
 log = logging.getLogger(__name__)
 
 BATCH_SIZE = 10000
+# Reducing these increases memory usage
 DEFAULT_STOPWORDS_PCT = 0.8
 DEFAULT_FIELD_STOPWORDS_PCT = {
     registry.phone.name: 0.0,
@@ -101,7 +102,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         )
         """Memory budget in megabytes"""
         self.max_candidates = int(options.get("max_candidates", 75))
-        self.stopwords_pct = DEFAULT_FIELD_STOPWORDS_PCT
+        self.stopwords_pct = DEFAULT_FIELD_STOPWORDS_PCT.copy()
         self.stopwords_pct.update(options.get("stopwords_pct", {}))
         self.max_stopwords: int = int(options.get("max_stopwords", 100_000))
         self.match_batch: int = int(options.get("match_batch", 1_000))
@@ -172,7 +173,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         for field, token in tokenize_entity(entity):
             writer.writerow([entity.schema.name, entity.id, field, token])
 
-    def load_matching_subjects(self, entities: Iterable[CE]) -> None:
+    def _load_matching_subjects(self, entities: Iterable[CE]) -> None:
         self.matching_path.unlink(missing_ok=True)
         with open(self.matching_path, "w") as matching_dump:
             matching_writer = csv_writer(matching_dump)
@@ -300,14 +301,20 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             for left, right, score in batch:
                 yield (Identifier.get(left), Identifier.get(right)), score
 
-    def match_entities(
-        self, entities: Iterable[CE]
-    ) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
-        self.load_matching_subjects(entities)
+    def match_entities(self, entities: Iterable[CE]) -> Generator[
+        Tuple[Identifier, BlockingMatches],
+        None,
+        None,
+    ]:
+        self._load_matching_subjects(entities)
         reset_caches()
-        yield from self.matches()
+        yield from self._find_matches()
 
-    def matches(self) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
+    def _find_matches(self) -> Generator[
+        Tuple[Identifier, BlockingMatches],
+        None,
+        None,
+    ]:
         self._clear()
         res = self.con.execute("SELECT COUNT(DISTINCT id) FROM matching").fetchone()
         num_matching = res[0] if res is not None else 0
