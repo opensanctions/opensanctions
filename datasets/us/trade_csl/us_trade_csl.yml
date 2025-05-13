@@ -222,6 +222,164 @@ lookups:
           name: Huawei Technologies Co., Ltd. (Huawei)
           related: Shenzhen Huawei Anjiexin Electricity Co., Ltd
           notes: "Affiliated Entity:  Shenzhen Huawei Anjiexin Electricity Co., Ltd."
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution -  Second Design Department"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: Second Design Department
+          notes: "Subordinate Institution -  Second Design Department"
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 23rd Research Institute"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: 23rd Research Institute
+          notes: "Subordinate Institution - 23rd Research Institute"
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 25th Research Institute"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: 25th Research Institute
+          notes: "Subordinate Institution - 25th Research Institute"
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 201 Research Institute"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: 201 Research Institute
+          notes: "Subordinate Institution - 201 Research Institute"
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 203rd Research Institute"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: 203rd Research Institute
+          notes: "Subordinate Institution - 203rd Research Institute"
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 204th Research Institute"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: 204th Research Institute
+          notes: "Subordinate Institution - 204th Research Institute"
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 206th Research Institute"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: 206th Research Institute
+          notes: "Subordinate Institution - 206th Research Institute"
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 207th Research Institute"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: 207th Research Institute
+          notes: "Subordinate Institution - 207th Research Institute"
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 208th Research Institute"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: 208th Research Institute
+          notes: "Subordinate Institution - 208th Research Institute"
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 210th Research Institute"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: 210th Research Institute
+          notes: "Subordinate Institution - 210th Research Institute"
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 283 Factory"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: 283 Factory
+          notes: "Subordinate Institution - 283 Factory"
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 284 Factory"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: 284 Factory
+          notes: "Subordinate Institution - 284 Factory"
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 699 Factory"
+        properties:
+          name: China Aerospace Science and Industry Corporation Second Academy
+          related: 699 Factory
+          notes: "Subordinate Institution - 699 Factory"
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Bowei Integrated Circuits "
+        properties:
+          name: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+          related: Bowei Integrated Circuits
+          notes: "Subordinate Institution - Bowei Integrated Circuits "
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Envoltek "
+        properties:
+          name: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+          related: Envoltek
+          notes: "Subordinate Institution - Envoltek "
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Hebei Sinopack Electronics"
+        properties:
+          name: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+          related: Hebei Sinopack Electronics
+          notes: "Subordinate Institution - Hebei Sinopack Electronics"
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Hebei Brightway International"
+        properties:
+          name: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+          related: Hebei Brightway International
+          notes: "Subordinate Institution - Hebei Brightway International"
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Hebei Medicines Health"
+        properties:
+          name: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+          related: Hebei Medicines Health
+          notes: "Subordinate Institution - Hebei Medicines Health"
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Hebei Puxing Electronic"
+        properties:
+          name: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+          related: Hebei Puxing Electronic
+          notes: "Subordinate Institution - Hebei Puxing Electronic"
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Micro Electronic Technology"
+        properties:
+          name: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+          related: Micro Electronic Technology
+          notes: "Subordinate Institution - Micro Electronic Technology"
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Shijiazhuang Development Zone Maiteda Microelectronics Technology Development and Application Corporation"
+        properties:
+          name: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+          related: Shijiazhuang Development Zone Maiteda Microelectronics Technology Development and Application Corporation
+          notes: "Subordinate Institution - Shijiazhuang Development Zone Maiteda Microelectronics Technology Development and Application Corporation"
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - MT Microsystems"
+        properties:
+          name: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+          related: MT Microsystems
+          notes: "Subordinate Institution - MT Microsystems"
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - North China Integrated Circuit Corporation"
+        properties:
+          name: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+          related: North China Integrated Circuit Corporation
+          notes: "Subordinate Institution - North China Integrated Circuit Corporation"
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Tonghui Electronics"
+        properties:
+          name: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+          related: Tonghui Electronics
+          notes: "Subordinate Institution - Tonghui Electronics"
+      - match: "China Electronics Technology Group Corporation 14th Research Institute (CETC 14).  Subordinate Institution - Nanjing SunSea Industry Corporation"
+        properties:
+          name: China Electronics Technology Group Corporation 14th Research Institute (CETC 14)
+          related: Nanjing SunSea Industry Corporation
+          notes: "Subordinate Institution - Nanjing SunSea Industry Corporation"
+      - match: "China Electronics Technology Group Corporation 14th Research Institute (CETC 14).  Subordinate Institution - Nanjing Institute of Radio Technology"
+        properties:
+          name: China Electronics Technology Group Corporation 14th Research Institute (CETC 14)
+          related: Nanjing Institute of Radio Technology
+          notes: "Subordinate Institution - Nanjing Institute of Radio Technology"
+      - match: "Pakistan Atomic Energy Commission (PAEC), and subordinate entity National Development Complex (NDC) "
+        properties:
+          name: Pakistan Atomic Energy Commission (PAEC)
+          related: National Development Complex (NDC)
+          notes: "Subordinate entity National Development Complex (NDC)"
+      - match: "Pakistan Atomic Energy Commission (PAEC), and subordinate entity Pakistan Institute for Nuclear Science and Technology (PINSTECH)"
+        properties:
+          name: Pakistan Atomic Energy Commission (PAEC)
+          related: Pakistan Institute for Nuclear Science and Technology (PINSTECH)
+          notes: "Subordinate entity Pakistan Institute for Nuclear Science and Technology (PINSTECH)"
+      - match: "Pakistan Atomic Energy Commission (PAEC), and subordinate entity National Institute of Lasers and Optronics (NILOP)"
+        properties:
+          name: Pakistan Atomic Energy Commission (PAEC)
+          related: National Institute of Lasers and Optronics (NILOP)
+          notes: "Subordinate entity National Institute of Lasers and Optronics (NILOP)"
+      - match: "Guangzhou Hongyu Technology Co., Ltd. (a subordinate institute of CETC-7)"
+        properties:
+          name: CETC-7
+          related: Guangzhou Hongyu Technology Co., Ltd.
+      - match: "Guangzhou Tongguang Communication Technology Co., Ltd. (a subordinate institute of CETC-7)"
+        properties:
+          name: CETC-7
+          related: Guangzhou Tongguang Communication Technology Co., Ltd.
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Hebei Poshing Electronics"
+        properties:
+          name: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+          related: Hebei Poshing Electronics
+          notes: "Subordinate Institution - Hebei Poshing Electronics"
   type.date:
     options:
       - match: "3033-01-17"
