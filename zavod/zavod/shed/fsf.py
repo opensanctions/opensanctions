@@ -84,7 +84,8 @@ def parse_sanctions(context: Context, entity: Entity, entry: Element) -> None:
             entry.get("designationDate"),
             regulation.get("entryIntoForceDate"),
         ]
-        start_date = min([d for d in start_dates if d is not None])
+        valid_start_dates = [d for d in start_dates if d is not None]
+        start_date = min(valid_start_dates) if valid_start_dates else None
         sanction.add("startDate", start_date)
 
         sanction.add("listingDate", regulation.get("publicationDate"))
