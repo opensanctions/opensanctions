@@ -29,7 +29,7 @@ from zavod import helpers as h
 REGEX_AUTHORITY_ID_SEP = re.compile(r"(\d+ F\.?R\.?)")
 
 
-def emit_relatioship(context: Context, entity_id: str, affiliated: List[str]):
+def emit_relationship(context: Context, entity_id: str, affiliated: List[str]):
     related = context.make("LegalEntity")
     related.id = context.make_id(affiliated)
     related.add("name", affiliated)
@@ -143,7 +143,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
         entity.add("notes", name_with_information_res.properties.get("notes"))
         affiliated = name_with_information_res.properties.get("related")
         if affiliated:
-            emit_relatioship(context, entity.id, affiliated)
+            emit_relationship(context, entity.id, affiliated)
     else:
         # If it's a really long name, it's likely a name with extra info
         if len(name) > registry.name.max_length or any(
