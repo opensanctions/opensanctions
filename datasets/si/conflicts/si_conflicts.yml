@@ -26,12 +26,51 @@ publisher:
 data:
   url: https://registri.kpk-rs.si/registri/omejitve_poslovanja/seznam/omejitve.json
   format: JSON
-# ci_test: false
 
-# assertions:
-#   min:
-#     schema_entities:
-#       LegalEntity: 4990
-#   max:
-#     schema_entities:
-#       LegalEntity: 11750
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 5200
+  max:
+    schema_entities:
+      LegalEntity: 10000
+
+lookups:
+  columns:
+    options:
+      - match: organ
+        value: org_name
+      - match: maticna
+        value: org_reg_number
+      - match: davcna
+        value: org_tax_number
+      - match: sifra_pu
+        value: org_internal_id
+      - match: naslov
+        value: org_address
+      - match: posta
+        value: org_place
+      - match: tip_omejitve
+        value: restriction_type
+      - match: ps_naziv
+        value: entity_name
+      - match: drzava
+        value: country
+      - match: ps_maticna
+        value: entity_reg_number
+      - match: ps_davcna
+        value: entity_tax_number
+      - match: ps_naslov
+        value: entity_address
+      - match: ps_posta
+        value: entity_place
+      - match: datum_od
+        value: start_date
+      - match: datum_do
+        value: end_date
+      - match: mid
+        value: mid
+  type.country:
+    options:
+      - match: Srbija in Črna gora
+        values: ["RS", "ME"]
