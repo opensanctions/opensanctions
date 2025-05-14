@@ -8,16 +8,7 @@ import re
 from zavod import Context, Entity
 from zavod import helpers as h
 
-#     Programs falling under the 'is_ofac=TRUE' check:
-#     "Capta List (CAP) - Treasury Department",
-#     "Palestinian Legislative Council List (PLC) - Treasury Department",
-#     "Foreign Sanctions Evaders (FSE) - Treasury Department",
-#     "Non-SDN Chinese Military-Industrial Complex Companies List (CMIC) - Treasury Department",
-#     "Non-SDN Menu-Based Sanctions List (NS-MBS List) - Treasury Department",
-#     "Specially Designated Nationals (SDN) - Treasury Department",
-#     "Sectoral Sanctions Identifications List (SSI) - Treasury Department",
-
-#     Programs falling under the 'is_ofac=FALSE' check:
+#     Programs that we emit in this crawler (is_ofac=False):
 #     "Nonproliferation Sanctions (ISN) - State Department",
 #     "ITAR Debarred (DTC) - State Department",
 #     "Unverified List (UVL) - Bureau of Industry and Security",
@@ -25,6 +16,14 @@ from zavod import helpers as h
 #     "Denied Persons List (DPL) - Bureau of Industry and Security",
 #     "Military End User (MEU) List - Bureau of Industry and Security",
 
+#     Programs that we primarily emit in OFAC (is_ofac=True):
+#     "Capta List (CAP) - Treasury Department",
+#     "Palestinian Legislative Council List (PLC) - Treasury Department",
+#     "Foreign Sanctions Evaders (FSE) - Treasury Department",
+#     "Non-SDN Chinese Military-Industrial Complex Companies List (CMIC) - Treasury Department",
+#     "Non-SDN Menu-Based Sanctions List (NS-MBS List) - Treasury Department",
+#     "Specially Designated Nationals (SDN) - Treasury Department",
+#     "Sectoral Sanctions Identifications List (SSI) - Treasury Department",
 
 REGEX_AUTHORITY_ID_SEP = re.compile(r"(\d+ F\.?R\.?)")
 
