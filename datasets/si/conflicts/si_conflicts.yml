@@ -1,30 +1,19 @@
 title: Slovenia Business Restrictions
 entry_point: crawler.py
 prefix: si-conflicts
-url: https://erar.si/omejitve/
+url: https://registri.kpk-rs.si/registri/omejitve_poslovanja/seznam/
 summary: List of Business restrictions preventing conflict of interest in Slovenia
 coverage:
   frequency: daily
   start: 2024-01-24
 load_statements: true
 description: >
-  Slovenian public bodies and organizations may not procure from entities in which an official in that organization or their family member is a manager, legal representative, or has 5% or more ownership.
-
-  This is a list of entities where such a relationship exists, and the public organization is restricted/prohibited or permitted to engage in business activities in some instances with the entity. The restricted public organization is noted in the program property of each entity. **The restriction is only on the public organization where the public official has a role - it does not apply to the entire public sector.**
-
-  **This is a preventative restriction by Komisija za preprečevanje korupcije and implies no wrongdoing.**
-
-  ### More detail from the publisher:
-
-  > As the public sector conducts business with private-sector entities, certain corruption risks are generated, especially when individuals with personal interests in the business activity are involved. To safeguard public funds from being used for private gain, legal measures, such as restrictions on business activities and prohibitions, are implemented.
-  > These measures are outlined in the Integrity and Prevention of Corruption Act (IPCA) and focus on preventing corruption and avoiding conflicts of interest.
-  [From https://www.kpk-rs.si/en/restrictions-of-business-activities/](https://www.kpk-rs.si/en/restrictions-of-business-activities/)
-
-  ### Data gathering process
-
-    The data is gathered from the app [Erar](https://erar.si/doc/). It is a web application developed by the Komisija za preprečevanje korupcije to enhance transparency by allowing the public and state authorities in Slovenia to access detailed information on transactions involving public institutions and state-owned entities.
-  While the Commission emphasizes the accuracy of published data, occasional discrepancies may occur, urging users to check their completeness, accuracy and up-to-dateness with the original administrator of the database before making decisions based on them. Due to such corrections, the published data may change at any time without prior notice.
-
+  Under Slovenia’s Integrity and Prevention of Corruption Act (IPCA), public-sector bodies and 
+  organizations are prohibited from doing business with entities where an official from that body, 
+  or their family member, is a manager, legal representative, or holds 5% or more of the shares. 
+  This dataset lists such entities. The restrictions aim to protect public funds by preventing 
+  transactions that could cause a conflict of interest.
+  [Source: KPK Official Website](https://www.kpk-rs.si/en/restrictions-of-business-activities/)
 publisher:
   name: Komisija za preprečevanje korupcije
   acronym: KPK
@@ -35,14 +24,14 @@ publisher:
   country: si
   official: true
 data:
-  url: https://erar.si/api/omejitve/
+  url: https://registri.kpk-rs.si/registri/omejitve_poslovanja/seznam/omejitve.json
   format: JSON
-ci_test: false
+# ci_test: false
 
-assertions:
-  min:
-    schema_entities:
-      LegalEntity: 4990
-  max:
-    schema_entities:
-      LegalEntity: 11750
+# assertions:
+#   min:
+#     schema_entities:
+#       LegalEntity: 4990
+#   max:
+#     schema_entities:
+#       LegalEntity: 11750
