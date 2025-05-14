@@ -29,17 +29,54 @@ from zavod import helpers as h
 REGEX_AUTHORITY_ID_SEP = re.compile(r"(\d+ F\.?R\.?)")
 
 
-def emit_relationship(context: Context, entity_id: str, affiliated: List[str]):
+def emit_relationship(
+    context: Context, entity_id: str, affiliated: List[str], result, source_program: str
+):
     related = context.make("LegalEntity")
     related.id = context.make_id(affiliated)
     related.add("name", affiliated)
     context.emit(related)
+
+    make_and_emit_sanction(
+        context,
+        related,
+        source_program=source_program,
+        result=result,
+    )
 
     rel = context.make("UnknownLink")
     rel.id = context.make_id(entity_id, "linked to", rel.id)
     rel.add("subject", entity_id)
     rel.add("object", related.id)
     context.emit(rel)
+
+
+def make_and_emit_sanction(context: Context, entity, source_program: str, result):
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=source_program,
+        source_program_key=source_program,
+        program_key=(
+            h.lookup_sanction_program_key(context, source_program)
+            if source_program
+            else None
+        ),
+    )
+    sanction.add("program", result.pop("programs", []))
+    sanction.add("provisions", result.pop("license_policy", []))
+    sanction.add("reason", result.pop("license_requirement", []))
+    sanction.add(
+        "authorityId",
+        clean_authority(result.pop("federal_register_notice", None)),
+    )
+    h.apply_date(sanction, "startDate", result.pop("start_date", None))
+    h.apply_date(sanction, "endDate", result.pop("end_date", None))
+    sanction.add("country", "us")
+    sanction.add("authority", source_program)
+    sanction.add("sourceUrl", result.pop("source_information_url", None))
+
+    context.emit(sanction)
 
 
 def parse_addresses(
@@ -137,17 +174,18 @@ def parse_result(context: Context, result: Dict[str, Any]):
         name = name.replace("?s ", "'s ")
         name = name.replace("?", " ")
 
-    name_with_information_res = context.lookup("name_with_information", name)
-    if name_with_information_res is not None:
-        entity.add("name", name_with_information_res.properties["name"])
-        entity.add("notes", name_with_information_res.properties.get("notes"))
-        affiliated = name_with_information_res.properties.get("related")
+    name_with_info_res = context.lookup("name_with_info_res", name)
+    if name_with_info_res is not None:
+        entity.add("name", name_with_info_res.properties["name"], original_value=name)
+        entity.add("previousName", name_with_info_res.properties.get("previous_name"))
+        entity.add("notes", name_with_info_res.properties.get("notes"))
+        affiliated = name_with_info_res.properties.get("related")
         if affiliated:
-            emit_relationship(context, entity.id, affiliated)
+            emit_relationship(context, entity.id, affiliated, result, source_program)
     else:
         # If it's a really long name, it's likely a name with extra info
         if len(name) > registry.name.max_length or any(
-            kw in name.lower() for kw in ["affiliated", "subordinate"]
+            kw in name.lower() for kw in ["affiliated", "subordinate", "f.k.a."]
         ):
             context.log.warning(
                 "Name long is very long, maybe it contains extra information?",
@@ -208,33 +246,14 @@ def parse_result(context: Context, result: Dict[str, Any]):
     for ident in result.pop("ids", []):
         context.log.warning("Unknown ID type", id=ident)
 
-    sanction = context.make("Sanction")
-    sanction = h.make_sanction(
+    make_and_emit_sanction(
         context,
         entity,
-        program_name=source_program,
-        source_program_key=source_program,
-        program_key=(
-            h.lookup_sanction_program_key(context, source_program)
-            if source_program
-            else None
-        ),
+        source_program,
+        result,
     )
-    sanction.add("program", result.pop("programs", []))
-    sanction.add("provisions", result.pop("license_policy", []))
-    sanction.add("reason", result.pop("license_requirement", []))
-    sanction.add(
-        "authorityId",
-        clean_authority(result.pop("federal_register_notice", None)),
-    )
-    h.apply_date(sanction, "startDate", result.pop("start_date", None))
-    h.apply_date(sanction, "endDate", result.pop("end_date", None))
-    sanction.add("country", "us")
-    sanction.add("authority", source_program)
-    sanction.add("sourceUrl", result.pop("source_information_url"))
     result.pop("source_list_url")
 
-    context.emit(sanction)
     context.emit(entity)
     context.audit_data(result, ignore=["standard_order"])
 
