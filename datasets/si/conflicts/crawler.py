@@ -1,57 +1,76 @@
-from zavod import Context
 from typing import Any, Dict
 
+from zavod import Context, helpers as h
 
-def create_entities(context: Context, record: Dict[str, Any]):
-    legal_entity = context.make("LegalEntity")
-    subject_name = record.pop("subjekt_naziv")
-    registration_number = record.pop("subjekt_maticna")
+RESTRICTION_NOTE = (
+    "{organization} is restricted from procurement from {subject} "
+    "from {start_date} {until_clause} due to ownership or management role "
+    "of a public official in {organization} or their family member. "
+    "This is a preventative restriction by the Komisija za preprečevanje korupcije "
+    "and implies no wrongdoing."
+)
 
-    if subject_name == "" and registration_number is None:
+
+def crawl_entity(context: Context, record: Dict[str, Any]):
+    subject_name = record.pop("ps_naziv")
+    registration_number = record.pop("ps_maticna")
+    country = record.pop("drzava")
+    start_date = record.pop("datum_od")
+    end_date = record.pop("datum_do")
+    organization_name = record.pop("organ")
+    organization_number = record.pop("sifra_pu")
+
+    if not subject_name and not registration_number:
         context.log.info(
             "Subject name and registration number not found", record=record
         )
         return
 
+    legal_entity = context.make("LegalEntity")
     legal_entity.id = context.make_id(registration_number or subject_name)
     legal_entity.add("name", subject_name)
     legal_entity.add("registrationNumber", registration_number)
-    legal_entity.add("taxNumber", record.pop("subjekt_davcna"))
+    legal_entity.add("taxNumber", record.pop("ps_davcna"))
     legal_entity.add("topics", "debarment")
-    legal_entity.add("country", "si")
+    legal_entity.add("country", country)
 
-    organization_name = record.pop("org_naziv")
-    organization_number = record.pop("org_sifrapu")
+    address = h.make_address(
+        context,
+        street=record.pop("ps_naslov"),
+        place=record.pop("ps_posta"),
+        country=country,
+    )
+    h.copy_address(legal_entity, address)
 
     if registration_number and organization_number:
         legal_entity.add(
             "sourceUrl",
-            f"https://erar.si/transakcija/placnik/{organization_number}/prejemnik/{registration_number}",
+            f"https://registri.kpk-rs.si/registri/omejitve_poslovanja/seznam/#3={organization_number}&8={registration_number}",
         )
-
-    start_date = record.pop("od")
-    end_date = record.pop("do")
-    if end_date.startswith("9999"):
-        end_date = "cancellation"
-    else:
-        end_date = f"to {end_date}"
 
     legal_entity.add(
         "program",
-        f"{organization_name} is restricted from procurement from {subject_name} from {start_date} until {end_date} due to ownership or management role of a public official in {organization_name} or their family member. This is a preventative restriction by Komisija za preprečevanje korupcije and implies no wrongdoing.",
+        RESTRICTION_NOTE.format(
+            organization=organization_name,
+            subject=subject_name,
+            start_date=start_date,
+            until_clause=f"until {end_date}" if end_date else "until further notice",
+        ),
     )
 
+    sanction = h.make_sanction(context, legal_entity)
+    h.apply_date(sanction, "startDate", start_date)
+    h.apply_date(sanction, "endDate", end_date)
+
     context.emit(legal_entity)
-    context.audit_data(record, ignore=["omejitev_do", "st_transakcij"])
+    context.emit(sanction)
 
-
-def parse_data(context: Context, response: Dict[str, Any]):
-    data = response.get("data")
-
-    for record in data:
-        create_entities(context, record)
+    context.audit_data(
+        record, ignore=["tip_omejitve", "posta", "naslov", "maticna", "davcna"]
+    )
 
 
 def crawl(context: Context):
     response = context.fetch_json(context.data_url, cache_days=1)
-    parse_data(context, response)
+    for record in response:
+        crawl_entity(context, record)
