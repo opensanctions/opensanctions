@@ -52,5 +52,6 @@ def crawl(context: Context):
     assert len(url) == 1, "Expected exactly one URL"
     path = context.fetch_resource("source.xls", url[0])
     context.export_resource(path, "text/tsv", title=context.SOURCE_TITLE)
+    assert xlrd.open_workbook(path).sheet_names() == ["dpl", "Sheet2", "Sheet3"]
     for row in h.parse_xls_sheet(context, xlrd.open_workbook(path)["dpl"]):
         parse_row(context, row)
