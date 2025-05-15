@@ -8,7 +8,10 @@ import re
 from zavod import Context, Entity
 from zavod import helpers as h
 
-#     Programs that we emit in this crawler (is_ofac=False):
+# Programs emitted by this crawler (is_ofac=False):
+# These are non-OFAC sanctions or export control lists where entities are emitted
+# with their own unique internal identifiers.
+#
 #     "Nonproliferation Sanctions (ISN) - State Department",
 #     "ITAR Debarred (DTC) - State Department",
 #     "Unverified List (UVL) - Bureau of Industry and Security",
@@ -16,7 +19,10 @@ from zavod import helpers as h
 #     "Denied Persons List (DPL) - Bureau of Industry and Security",
 #     "Military End User (MEU) List - Bureau of Industry and Security",
 
-#     Programs that we primarily emit in OFAC (is_ofac=True):
+# The following programs refer to entities that are emitted with the ID format
+# `ofac-<entity_number>`. This allows them to match directly with existing OFAC data.
+# It prevents duplication across datasets.
+#
 #     "Capta List (CAP) - Treasury Department",
 #     "Palestinian Legislative Council List (PLC) - Treasury Department",
 #     "Foreign Sanctions Evaders (FSE) - Treasury Department",
