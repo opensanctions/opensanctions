@@ -29,28 +29,35 @@ REGEX_AUTHORITY_ID_SEP = re.compile(r"(\d+ F\.?R\.?)")
 
 
 def emit_relationship(
-    context: Context, entity_id: str, affiliated: List[str], result, source_program: str
+    context: Context,
+    entity_id: str,
+    *,
+    related_name: str,
+    list_entry: Dict[str, Any],
+    source_program: str
 ):
-    related = context.make("LegalEntity")
-    related.id = context.make_id(affiliated)
-    related.add("name", affiliated)
-    context.emit(related)
+    related_entity = context.make("LegalEntity")
+    related_entity.id = context.make_id(related_name)
+    related_entity.add("name", related_name)
+    context.emit(related_entity)
 
     make_and_emit_sanction(
         context,
-        related,
+        related_entity,
         source_program=source_program,
-        result=result,
+        list_entry=list_entry,
     )
 
     rel = context.make("UnknownLink")
     rel.id = context.make_id(entity_id, "linked to", rel.id)
     rel.add("subject", entity_id)
-    rel.add("object", related.id)
+    rel.add("object", related_entity.id)
     context.emit(rel)
 
 
-def make_and_emit_sanction(context: Context, entity, source_program: str, result):
+def make_and_emit_sanction(
+    context: Context, entity: Entity, *, source_program: str, list_entry: Dict[str, Any]
+):
     sanction = h.make_sanction(
         context,
         entity,
@@ -62,18 +69,18 @@ def make_and_emit_sanction(context: Context, entity, source_program: str, result
             else None
         ),
     )
-    sanction.add("program", result.pop("programs", []))
-    sanction.add("provisions", result.pop("license_policy", []))
-    sanction.add("reason", result.pop("license_requirement", []))
+    sanction.add("program", list_entry.pop("programs", []))
+    sanction.add("provisions", list_entry.pop("license_policy", []))
+    sanction.add("reason", list_entry.pop("license_requirement", []))
     sanction.add(
         "authorityId",
-        clean_authority(result.pop("federal_register_notice", None)),
+        clean_authority(list_entry.pop("federal_register_notice", None)),
     )
-    h.apply_date(sanction, "startDate", result.pop("start_date", None))
-    h.apply_date(sanction, "endDate", result.pop("end_date", None))
+    h.apply_date(sanction, "startDate", list_entry.pop("start_date", None))
+    h.apply_date(sanction, "endDate", list_entry.pop("end_date", None))
     sanction.add("country", "us")
     sanction.add("authority", source_program)
-    sanction.add("sourceUrl", result.pop("source_information_url", None))
+    sanction.add("sourceUrl", list_entry.pop("source_information_url", None))
 
     context.emit(sanction)
 
@@ -132,29 +139,29 @@ def clean_authority(value: Optional[str]) -> Optional[List[str]]:
     return h.multi_split(value, [";", ", "])
 
 
-def parse_result(context: Context, result: Dict[str, Any]):
-    for k, v in list(result.items()):
+def parse_list_entry(context: Context, list_entry: Dict[str, Any]):
+    for k, v in list(list_entry.items()):
         if isinstance(v, str) and len(v.strip()) == 0:
-            result.pop(k)
+            list_entry.pop(k)
 
-    type_ = result.pop("type", None)
+    type_ = list_entry.pop("type", None)
     schema = context.lookup_value("type", type_)
     if schema is None:
         context.log.error("Unknown result type", type=type_)
         return
-    name = result.pop("name", None)
+    name = list_entry.pop("name", None)
     if name and re.match(r"^Address \d+", name):
         schema = "Address"
 
     entity = context.make(schema)
-    entity.id = context.make_slug(result.pop("id"))
-    source_program = result.pop("source", "")
+    entity.id = context.make_slug(list_entry.pop("id"))
+    source_program = list_entry.pop("source", "")
     if source_program.startswith("Unverified List"):
         entity.add("topics", "export.control")
     else:
         entity.add("topics", "sanction")
 
-    entity_number = result.pop("entity_number", None)
+    entity_number = list_entry.pop("entity_number", None)
     is_ofac = False
     if entity_number is not None:
         assert int(entity_number)
@@ -169,7 +176,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
     name = name.replace("and any successor, sub-unit, or subsidiary thereof", "")
 
     # Handle messed-up unicode in BIS names
-    if "bis.doc.gov" in result.get("source_list_url", ""):
+    if "bis.doc.gov" in list_entry.get("source_list_url", ""):
         name = name.replace("?s ", "'s ")
         name = name.replace("?", " ")
 
@@ -178,9 +185,18 @@ def parse_result(context: Context, result: Dict[str, Any]):
         entity.add("name", name_with_info_res.properties["name"], original_value=name)
         entity.add("previousName", name_with_info_res.properties.get("previous_name"))
         entity.add("notes", name_with_info_res.properties.get("notes"))
-        affiliated = name_with_info_res.properties.get("related")
-        if affiliated:
-            emit_relationship(context, entity.id, affiliated, result, source_program)
+
+        related_names = name_with_info_res.properties.get("related")
+        # For now we only support one related name, even though conceptually there could be multiple
+        assert len(related_names) <= 1
+        if related_names:
+            emit_relationship(
+                context,
+                entity.id,
+                related_name=related_names[0],
+                list_entry=list_entry,
+                source_program=source_program,
+            )
     else:
         # If it's a really long name, it's likely a name with extra info
         if len(name) > registry.name.max_length or any(
@@ -197,64 +213,64 @@ def parse_result(context: Context, result: Dict[str, Any]):
         # Don't double-import OFAC entities
         return
 
-    for alias in ensure_list(result.pop("alt_names", "")):
+    for alias in ensure_list(list_entry.pop("alt_names", "")):
         entity.add("alias", alias.split("; "))
-    entity.add("notes", result.pop("remarks", None))
-    entity.add("country", result.pop("country", None))
+    entity.add("notes", list_entry.pop("remarks", None))
+    entity.add("country", list_entry.pop("country", None))
     if entity.schema.is_a("Person"):
-        entity.add("position", result.pop("title", None))
-        entity.add("nationality", result.pop("nationalities", None))
-        entity.add("citizenship", result.pop("citizenships", None))
-        for dob in ensure_list(result.pop("dates_of_birth", "")):
+        entity.add("position", list_entry.pop("title", None))
+        entity.add("nationality", list_entry.pop("nationalities", None))
+        entity.add("citizenship", list_entry.pop("citizenships", None))
+        for dob in ensure_list(list_entry.pop("dates_of_birth", "")):
             dob = h.multi_split(dob, ["circa ", " to "])
             for date in dob:
                 h.apply_date(entity, "birthDate", date)
-        entity.add("birthPlace", result.pop("places_of_birth", None))
+        entity.add("birthPlace", list_entry.pop("places_of_birth", None))
     elif entity.schema.is_a("Vessel"):
-        entity.add("flag", result.pop("vessel_flag", None))
-        entity.add("callSign", result.pop("call_sign", None))
-        entity.add("type", result.pop("vessel_type", None))
-        grt = result.pop("gross_registered_tonnage", None)
+        entity.add("flag", list_entry.pop("vessel_flag", None))
+        entity.add("callSign", list_entry.pop("call_sign", None))
+        entity.add("type", list_entry.pop("vessel_type", None))
+        grt = list_entry.pop("gross_registered_tonnage", None)
         entity.add("grossRegisteredTonnage", grt)
-        gt = result.pop("gross_tonnage", None)
+        gt = list_entry.pop("gross_tonnage", None)
         entity.add("tonnage", gt)
 
         # TODO: make adjacent owner entity
-        result.pop("vessel_owner", None)
+        list_entry.pop("vessel_owner", None)
 
-    assert result.pop("title", None) is None
+    assert list_entry.pop("title", None) is None
     # print(result)
-    assert not result.pop("nationalities", None)
-    assert not result.pop("citizenships", None)
-    assert not result.pop("dates_of_birth", None)
-    assert not result.pop("places_of_birth", None)
-    result.pop("call_sign", None)
-    assert not result.pop("gross_tonnage", None)
-    assert not result.pop("gross_registered_tonnage", None)
-    assert not result.pop("vessel_flag", None)
-    assert not result.pop("vessel_owner", None)
-    assert not result.pop("vessel_type", None)
+    assert not list_entry.pop("nationalities", None)
+    assert not list_entry.pop("citizenships", None)
+    assert not list_entry.pop("dates_of_birth", None)
+    assert not list_entry.pop("places_of_birth", None)
+    list_entry.pop("call_sign", None)
+    assert not list_entry.pop("gross_tonnage", None)
+    assert not list_entry.pop("gross_registered_tonnage", None)
+    assert not list_entry.pop("vessel_flag", None)
+    assert not list_entry.pop("vessel_owner", None)
+    assert not list_entry.pop("vessel_type", None)
 
-    for obj in parse_addresses(context, result.pop("addresses", [])):
+    for obj in parse_addresses(context, list_entry.pop("addresses", [])):
         # h.apply_address(context, entity, obj)
         if entity.schema.is_a("Address"):
             entity.add("full", obj.get("full"))
         else:
             h.copy_address(entity, obj)
 
-    for ident in result.pop("ids", []):
+    for ident in list_entry.pop("ids", []):
         context.log.warning("Unknown ID type", id=ident)
 
     make_and_emit_sanction(
         context,
         entity,
-        source_program,
-        result,
+        source_program=source_program,
+        list_entry=list_entry,
     )
-    result.pop("source_list_url")
+    list_entry.pop("source_list_url")
 
     context.emit(entity)
-    context.audit_data(result, ignore=["standard_order"])
+    context.audit_data(list_entry, ignore=["standard_order"])
 
 
 def crawl(context: Context):
@@ -262,5 +278,5 @@ def crawl(context: Context):
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as file:
         data = json.load(file)
-        for result in data.get("results"):
-            parse_result(context, result)
+        for list_entry in data.get("results"):
+            parse_list_entry(context, list_entry)
