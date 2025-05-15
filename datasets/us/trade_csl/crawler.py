@@ -194,7 +194,7 @@ def parse_list_entry(context: Context, list_entry: Dict[str, Any]):
 
         related_names = name_with_info_res.properties.get("related")
         # For now we only support one related name, even though conceptually there could be multiple
-        assert len(related_names) <= 1
+        assert isinstance(related_names, str) or related_names is None
         if related_names:
             emit_relationship(
                 context,
