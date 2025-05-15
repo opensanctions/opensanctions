@@ -195,6 +195,11 @@ def parse_list_entry(context: Context, list_entry: Dict[str, Any]):
         related_names = name_with_info_res.properties.get("related")
         # For now we only support one related name, even though conceptually there could be multiple
         assert isinstance(related_names, str) or related_names is None
+        # Example: "Huawei Technologies Co., Ltd. (Huawei). Affiliated Entity: Hangzhou Huawei (...)"
+        # Here, the affiliate (Hangzhou Huawei) is processed directly, while the main entity (Huawei)
+        # is extracted from the 'related' field and emitted via 'emit_relationship'. Since some main
+        # entities might only appear through related names, we also apply 'make_and_emit_sanction'
+        # within 'emit_relationship' to ensure they're not missed.
         if related_names:
             emit_relationship(
                 context,
