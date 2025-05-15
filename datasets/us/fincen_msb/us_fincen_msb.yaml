@@ -15,6 +15,8 @@ description: |
   Network (FinCEN). These services include money transmitting businesses, currency dealers 
   or exchangers, check cashers, issuers of traveler's checks, money orders, or stored value,
   the US Postal Service, etc.
+tags:
+  - sector.banking
 publisher:
   name: Financial Crimes Enforcement Network
   acronym: FinCEN
