@@ -169,7 +169,6 @@ lookups:
           - DRAGON ONE NETWORK TRENDS CORPORATION
           - LETS PHILIPPINES HUMANITARIAN FOUNDATION
           - RU AFFILIATES
-          - FRAUDSTERS IMPERSONATING HIGH PROFILE OR PROMINENT PERSONALITIES THROUGH DEEP FAKE POSTS OR VIDEOS
       - match:
           - "Alien Infiltration of Retail Trade Industry in Negros Province"
           - "Beware of Investment Scams!!!"
@@ -216,6 +215,7 @@ lookups:
           - "Branch Offices of Foreign Stock Corporations and Regional Operating Headquarters (ROHQ)/Regional Headquarters (RHQ) of Multinational Companies"
           - "\u201cONELINE\u201d \u201cMONOLINE\u201d MARKETING SCHEME"
           - "ONELINE MARKETING SCHEME : ONLINE CASH PALUWAGAN"
+          - "FRAUDSTERS IMPERSONATING HIGH PROFILE OR PROMINENT PERSONALITIES THROUGH DEEP FAKE POSTS OR VIDEOS"
         ignore: true
       - match: "HOUSE OF FOREX / H. FLORES BUSINESS CONSULTANCY SERVICES is NOT AUTHORIZED TO SOLICIT INVESTMENTS FROM THE PUBLIC"
         name:
