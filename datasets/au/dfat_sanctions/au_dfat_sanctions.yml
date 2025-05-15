@@ -80,8 +80,10 @@ lookups:
       - match: "Autonomous (Iran)"
         value: AU-IRAN
       # Autonomous sanction regime for Iraq is missing
-      - match: 
-        value: AU-IRAQ
+      # because it's UN related. I think we should remove 
+      # it from the website. 
+      # - match: 
+      #   value: AU-IRAQ
       - match: "Autonomous (Libya)"
         value: AU-LIBYA
       - match: "Autonomous (Myanmar)"
@@ -94,29 +96,15 @@ lookups:
         value: AU-HUMAN
       - match: "Autonomous (Thematic - Cyber)"
         value: AU-CYB
-      - match: "Autonomous (Ukraine)"
-        value: ["AU-UKRAINE", "AU-UKRAINE-REG"]
+      # Only one key in the source data but two different regimes: 
+      # https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/specified-ukraine-regions-sanctions-regime
+      # https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/ukraine-sanctions-regime
+      # - match: "Autonomous (Ukraine)"
+      #   value: ["AU-UKRAINE", "AU-UKRAINE-REG"]
       - match: "Autonomous (Syria)"
         value: AU-SYRIA
       - match: "Autonomous (Zimbabwe)"
         value: AU-ZIM
-# The rest looks like UNSC issued:
-# "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)",
-# "1373 (2001)",
-# "1518 (Iraq)",
-# "1533 (Democratic Republic of the Congo)",
-# "1591 (Sudan)",
-# "1718 (DPRK)",
-# "1970 (Libya) 1973 (Libya)",
-# "1970 (Libya)",
-# "1973 (Libya)",
-# "1988 (Taliban)",
-# "2093 (2013)",
-# "2127 (Central African Republic)",
-# "2140 (Yemen)",
-# "2206 (South Sudan)",
-# "2713 (Al-Shabaab)",
-# "751 (Somalia and Eritrea)",
   type:
     normalize: true
     lowercase: true
