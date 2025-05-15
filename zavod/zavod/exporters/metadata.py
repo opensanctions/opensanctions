@@ -92,6 +92,8 @@ def write_dataset_index(dataset: Dataset) -> None:
         meta["issue_levels"] = issues.by_level()
         meta["issue_count"] = sum(meta["issue_levels"].values())
     meta["last_export"] = settings.RUN_TIME_ISO
+    # NOTE: when adding a another URL here, make sure to update Delivery Service,
+    # it has a static list of URLs to rewrite
     meta["issues_url"] = make_artifact_url(dataset.name, version.id, ISSUES_FILE)
     meta["statistics_url"] = make_artifact_url(
         dataset.name, version.id, STATISTICS_FILE
