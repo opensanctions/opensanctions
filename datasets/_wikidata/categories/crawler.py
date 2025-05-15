@@ -1,14 +1,16 @@
 import csv
+from collections import defaultdict
+from dataclasses import field, dataclass
 from io import StringIO
 from typing import Any, Dict, List, Optional, Set, Tuple
 from urllib.parse import urlencode
-from nomenklatura.wikidata import WikidataClient, Claim
 
+from nomenklatura.wikidata import WikidataClient, Claim
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.stateful.positions import categorised_position_qids
-from zavod.shed.wikidata.position import wikidata_position
 from zavod.shed.wikidata.human import wikidata_basic_human
+from zavod.shed.wikidata.position import wikidata_position
+from zavod.stateful.positions import categorised_position_qids
 
 URL = "https://petscan.wmcloud.org/"
 QUERY = {
@@ -47,13 +49,22 @@ MUNI_COUNTRIES = {
 ALWAYS_PERSONS = ["Q21258544"]
 
 
+@dataclass
+class FoundRecord:
+    from_categories: Set[str] = field(default_factory=set)
+    from_positions: Set[str] = field(default_factory=set)
+
+
 class CrawlState(object):
     def __init__(self, context: Context):
         self.context = context
         self.client = WikidataClient(context.cache, session=context.http)
         self.log = context.log
         self.ignore_positions: Set[str] = set()
-        self.persons: Set[str] = set(ALWAYS_PERSONS)
+
+        self.persons: Dict[str, FoundRecord] = defaultdict(FoundRecord)
+        self.persons.update({qid: FoundRecord() for qid in ALWAYS_PERSONS})
+
         self.person_title: Dict[str, str] = {}
         self.person_countries: Dict[str, Set[str]] = {}
         self.person_topics: Dict[str, Set[str]] = {}
@@ -188,20 +199,20 @@ def find_paths(
     return paths
 
 
-def crawl_category(state: CrawlState, category: Dict[str, Any]) -> None:
-    cache_days = int(category.pop("cache_days", 14))
-    topics: List[str] = category.pop("topics", [])
-    if "topic" in category:
-        topics.append(category.pop("topic"))
-    country: Optional[str] = category.pop("country", None)
+def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> None:
+    cache_days = int(category_crawl_spec.pop("cache_days", 14))
+    topics: List[str] = category_crawl_spec.pop("topics", [])
+    if "topic" in category_crawl_spec:
+        topics.append(category_crawl_spec.pop("topic"))
+    country: Optional[str] = category_crawl_spec.pop("country", None)
 
     query = dict(QUERY)
-    cat: str = category.pop("category", "")
+    cat: str = category_crawl_spec.pop("category", "")
     query["categories"] = cat.strip()
-    query.update(category)
+    query.update(category_crawl_spec)
     state.log.info("Crawl category: %s" % cat)
 
-    position_data: Dict[str, Any] = category.pop("position", {})
+    position_data: Dict[str, Any] = category_crawl_spec.pop("position", {})
     position: Optional[Entity] = None
     if "name" in position_data:
         position = h.make_position(
@@ -218,7 +229,7 @@ def crawl_category(state: CrawlState, category: Dict[str, Any]) -> None:
         person_qid = row["Wikidata"]
         if person_qid is None:
             continue
-        state.persons.add(person_qid)
+        state.persons[person_qid].from_categories.add(cat)
 
         if person_qid not in state.person_topics:
             state.person_topics[person_qid] = set()
@@ -300,8 +311,10 @@ def crawl_position_seeds(state: CrawlState) -> None:
 
     state.log.info("Found %d seed positions" % len(roles))
     for role in roles:
-        state.persons.update(crawl_position_holder(state, role))
-    state.context.flush()
+        for position_holder_qid in crawl_position_holder(state, role):
+            state.persons[position_holder_qid].from_positions.add(role)
+
+        state.context.flush()
 
 
 def crawl_declarator(state: CrawlState) -> None:
@@ -330,13 +343,15 @@ def crawl(context: Context) -> None:
     state = CrawlState(context)
     crawl_declarator(state)
     crawl_position_seeds(state)
-    categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
-    for category in categories:
-        crawl_category(state, category)
+    category_crawl_specs: List[Dict[str, Any]] = context.dataset.config.get(
+        "categories", []
+    )
+    for category_crawl_spec in category_crawl_specs:
+        crawl_category(state, category_crawl_spec)
         state.context.flush()
 
     context.log.info("Generated %d persons" % len(state.persons))
-    for idx, person_qid in enumerate(state.persons):
+    for idx, (person_qid, found_record) in enumerate(state.persons.items()):
         entity = crawl_person(state, person_qid)
         if entity is None:
             continue
@@ -359,8 +374,13 @@ def crawl(context: Context) -> None:
                 state.context.emit(position)
 
         state.log.info(
-            "Crawled person %s: %s %r"
-            % (entity.id, entity.caption, entity.get("topics"))
+            "Crawled person %s (found in %r): %s %r"
+            % (
+                entity.id,
+                found_record.from_positions.union(found_record.from_positions),
+                entity.caption,
+                entity.get("topics"),
+            )
         )
         state.context.emit(entity)
         if idx > 0 and idx % 1000 == 0:
