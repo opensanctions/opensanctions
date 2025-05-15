@@ -2,6 +2,20 @@ from typing import Any, Dict
 
 from zavod import Context, helpers as h
 
+# let's not make Sanction entities for these - this dataset should be handled
+# a bit carefully because it's preventative, not punitive. While we use Sanction
+# entities to describe other debarments, we know some users sometimes over-react
+# when they see them.
+
+IGNORE = [
+    "restriction_type",
+    "org_place",
+    "org_address",
+    "org_reg_number",
+    "org_tax_number",
+    "entity_place",
+    "entity_address",
+]
 RESTRICTION_NOTE = (
     "{organization} is restricted from procurement from {subject} "
     "from {start_date} {until_clause} due to ownership or management role "
@@ -56,32 +70,9 @@ def crawl_entity(context: Context, record: Dict[str, Any]):
             "sourceUrl",
             f"https://registri.kpk-rs.si/registri/omejitve_poslovanja/seznam/#3={org_internal_id}&8={registration_number}",
         )
-
-    address = h.make_address(
-        context,
-        street=record.pop("entity_address"),
-        place=record.pop("entity_place"),
-        country=country,
-    )
-    h.copy_address(legal_entity, address)
-
-    sanction = h.make_sanction(context, legal_entity)
-    h.apply_date(sanction, "startDate", start_date)
-    h.apply_date(sanction, "endDate", end_date)
-
     context.emit(legal_entity)
-    context.emit(sanction)
 
-    context.audit_data(
-        record,
-        ignore=[
-            "restriction_type",
-            "org_place",
-            "org_address",
-            "org_reg_number",
-            "org_tax_number",
-        ],
-    )
+    context.audit_data(record, IGNORE)
 
 
 def crawl(context: Context):
