@@ -374,13 +374,9 @@ def crawl(context: Context) -> None:
                 state.context.emit(position)
 
         state.log.info(
-            "Crawled person %s (found in %r): %s %r"
-            % (
-                entity.id,
-                found_record.from_positions.union(found_record.from_positions),
-                entity.caption,
-                entity.get("topics"),
-            )
+            f"Crawled person {entity.id} "
+            f"(found in categories {found_record.from_categories}, positions {found_record.from_positions}): "
+            f"{entity.caption} {entity.get("topics")}"
         )
         state.context.emit(entity)
         if idx > 0 and idx % 1000 == 0:
