@@ -21,6 +21,9 @@ description: |
   > state and given fair and impartial consideration. La.-R.S. 46:437.13 (C) (2008).
 
   Entities on this list due to the OIG LEIE are not re-listed in this dataset.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Louisiana Department of Health
   description: |

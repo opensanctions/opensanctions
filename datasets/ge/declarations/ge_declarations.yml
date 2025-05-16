@@ -28,6 +28,8 @@ data:
   # Don't fetch this without query parameters - it just selects everything and times out
   url: https://declaration.acb.gov.ge/Api/Declarations
   format: HTML
+tags:
+  - list.pep
 publisher:
   name: ანტიკორუფციული ბიურო
   name_en: Anti-Corruption bureau of Georgia

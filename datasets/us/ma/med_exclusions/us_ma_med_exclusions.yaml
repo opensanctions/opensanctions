@@ -12,6 +12,9 @@ description: |
   > from participating in the MassHealth program. This list is updated monthly and reflects
   > suspensions or exclusions effective on or after March 23, 2010. They are listed according to
   > the provider type at the time of such action.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: MassHealth
   description:

@@ -12,6 +12,9 @@ description: |
   > from participating in federally funded health care programs, including Medicaid. Excluded individuals and
   > entities are not permitted to receive reimbursement for providing Medicare and Medicaid services in all categories
   > of service and in any capacity, including managed care.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Georgia Department of Community Health
   description: |

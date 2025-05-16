@@ -18,7 +18,9 @@ description: |
   policies. The dataset covers a range of sanctions, from temporary suspensions
   to permanent terminations, and includes details on providers' reinstatement
   statuses when applicable.
-
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Delaware Health and Social Services
   description: |

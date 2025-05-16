@@ -15,6 +15,9 @@ description: |
   > state regulation or federal regulation, MMAC is responsible for imposing a sanction on
   > the provider. In determining the appropriate sanction MMAC takes into account the following
   > aggravating and/or mitigating circumstances in accordance with 13 CSR 70-3.030.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Missouri Medicaid Audit & Compliance
   description: |

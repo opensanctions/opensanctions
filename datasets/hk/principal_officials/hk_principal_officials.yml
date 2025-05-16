@@ -17,6 +17,8 @@ description: |
 
   This dataset publishes the name, position and description of the principal officals of Hong Kong.
 entry_point: crawler.py
+tags:
+  - list.pep
 publisher:
   name: GovHK
   description: |

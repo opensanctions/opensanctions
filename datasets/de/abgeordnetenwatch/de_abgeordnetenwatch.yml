@@ -16,6 +16,8 @@ description: |
   in the legislature, provided by the [Abgeordenetenwatch API](https://www.abgeordnetenwatch.de/api).
 
   Data released under CC0 1.0 license.
+tags:
+  - list.pep
 publisher:
   name: Parlamentwatch e.V.
   official: false

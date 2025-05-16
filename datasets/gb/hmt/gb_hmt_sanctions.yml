@@ -38,6 +38,7 @@ dates:
 tags:
   - list.sanction
   - issuer.west
+  - sector.maritime
 
 # TODO: do we need a separate crawler for the UK Sanctions List?
 # https://www.gov.uk/government/publications/the-uk-sanctions-list
