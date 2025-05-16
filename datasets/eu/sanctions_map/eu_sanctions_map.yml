@@ -46,6 +46,7 @@ tags:
   - list.sanction
   - list.sanction.eu
   - issuer.west
+  - sector.maritime
 
 assertions:
   min:

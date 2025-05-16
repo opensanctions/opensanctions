@@ -37,6 +37,7 @@ dates:
 tags:
   - list.sanction
   - issuer.west
+  - sector.maritime
 
 assertions:
   min:
