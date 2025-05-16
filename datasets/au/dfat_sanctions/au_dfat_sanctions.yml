@@ -71,6 +71,40 @@ dates:
     - "c. %Y"
     - "%B, %Y"
 lookups:
+  sanction.program:
+    options:
+      - match: "Autonomous (DPRK)"
+        value: AU-DPRK
+      - match: "Autonomous (FFRY)"
+        value: AU-YUGO
+      - match: "Autonomous (Iran)"
+        value: AU-IRAN
+      # Autonomous sanction regime for Iraq is missing
+      # because it's UN related. I think we should remove 
+      # it from the website. 
+      # - match: 
+      #   value: AU-IRAQ
+      - match: "Autonomous (Libya)"
+        value: AU-LIBYA
+      - match: "Autonomous (Myanmar)"
+        value: AU-MYANMAR
+      - match: "Autonomous (Russia)"
+        value: AU-RUSSIA
+      - match: "Autonomous (Thematic – Corruption)"
+        value: AU-CRP
+      - match: "Autonomous (Thematic - Human Rights)"
+        value: AU-HUMAN
+      - match: "Autonomous (Thematic - Cyber)"
+        value: AU-CYB
+      # Only one key in the source data but two different regimes: 
+      # https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/specified-ukraine-regions-sanctions-regime
+      # https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/ukraine-sanctions-regime
+      # - match: "Autonomous (Ukraine)"
+      #   value: ["AU-UKRAINE", "AU-UKRAINE-REG"]
+      - match: "Autonomous (Syria)"
+        value: AU-SYRIA
+      - match: "Autonomous (Zimbabwe)"
+        value: AU-ZIM
   type:
     normalize: true
     lowercase: true
