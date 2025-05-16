@@ -147,6 +147,7 @@ lookups:
           - cisgender man
           - transmasculine
           - intersex man
+          - male organism
         value: male
       - match:
           - transgender
