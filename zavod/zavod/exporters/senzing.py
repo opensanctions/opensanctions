@@ -118,7 +118,7 @@ class SenzingExporter(Exporter):
         name_hashes.add(hash_value(f"{name_attr}{entity.caption}"))
         push(record, "NAMES", {"NAME_TYPE": "PRIMARY", name_attr: entity.caption})
 
-        for name in entity.get_type_values(registry.name):
+        for name in entity.get_type_values(registry.name, matchable=True):
             if (name_hash := hash_value(f"{name_attr}{name}")) not in name_hashes:
                 name_hashes.add(name_hash)
                 push(record, "NAMES", {"NAME_TYPE": "ALIAS", name_attr: name})
@@ -203,7 +203,7 @@ class SenzingExporter(Exporter):
         for ident in record.get("IDENTIFIERS", []):
             seen_identifiers.update(ident.values())
 
-        for stmt in entity.get_type_statements(registry.identifier):
+        for stmt in entity.get_type_statements(registry.identifier, matchable=True):
             if stmt.value in seen_identifiers:
                 continue
             seen_identifiers.add(stmt.value)
