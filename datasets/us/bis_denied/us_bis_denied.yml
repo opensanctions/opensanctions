@@ -43,10 +43,10 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 400
+      LegalEntity: 1200
   max:
     schema_entities:
-      LegalEntity: 940
+      LegalEntity: 2000
 
 lookups:
   type.country:
