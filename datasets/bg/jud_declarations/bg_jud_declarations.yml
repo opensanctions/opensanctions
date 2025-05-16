@@ -19,6 +19,8 @@ description: |
   and interests annually, with mandatory updates for significant changes. This process identifies 
   politically-exposed persons within Bulgaria's judiciary.
   [Source: ЗАКОН ЗА СЪДЕБНАТА ВЛАСТ](https://www.justice.government.bg/home/normdoc/2135560660)
+tags:
+  - list.pep
 publisher:
   name: Инспекторат към Висшия съдебен съвет
   name_en: Inspectorate to the Supreme Judicial Council
