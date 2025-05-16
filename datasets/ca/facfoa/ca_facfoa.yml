@@ -36,3 +36,11 @@ assertions:
   max:
     schema_entities:
       Person: 16
+
+lookups:
+  sanction.program:
+    options:
+      - match: Politically Exposed Foreign Persons (Tunisia)
+        value: CA-FACFOA-TUN
+      - match: Politically Exposed Foreign Persons (Ukraine)
+        value: CA-FACFOA-UKR

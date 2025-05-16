@@ -92,7 +92,15 @@ def parse_entry(context: Context, node: _Element):
     entity.add("topics", "sanction")
     entity.add("country", country)
 
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=program,
+        source_program_key=program,
+        program_key=(
+            h.lookup_sanction_program_key(context, program) if program else None
+        ),
+    )
     sanction.add("program", program)
     sanction.add("reason", schedule)
     sanction.add("authorityId", row.pop("Item"))

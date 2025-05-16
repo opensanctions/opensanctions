@@ -45,3 +45,9 @@ assertions:
   max:
     schema_entities:
       Organization: 320
+
+lookups:
+  sanction.program:
+    options:
+      - match: "Policy on Sensitive Technology Research and Affiliations of Concern"
+        value: CA-NRO
