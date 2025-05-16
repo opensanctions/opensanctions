@@ -11,6 +11,9 @@ description: |
   The Nevada Department of Health and Human services maintains a list of providers
   whose Medicaid provider agreement has been terminated. Providers listed are not allowed to receive
   reimbursement for Medicaid services in any capacity.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Nevada Department of Health and Human Services Division of Health Care Financing and Policy
   description: |

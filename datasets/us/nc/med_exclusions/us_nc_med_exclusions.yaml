@@ -12,6 +12,9 @@ description: |
 
   > An excluded provider is not entitled to bill or be reimbursed for medical services
   > provided to any federal or state health care program beneficiary.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: NC Medicaid Division of Health Benefits
   description: |

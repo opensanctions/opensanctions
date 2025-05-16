@@ -11,6 +11,9 @@ description: |
   The New Hampshire Department of Health & Human Services maintains a list of providers
   whose Medicaid provider agreement has been terminated. Providers listed are not allowed to receive
   reimbursement for Medicaid services in any capacity.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: New Hampshire Department of Health & Human Services
   description: >

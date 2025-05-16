@@ -20,6 +20,9 @@ description: |
   > on behalf of a Medicaid beneficiary.
 
   This dataset specifically only includes providers excluded by the State of South Carolina.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: South Carolina Department of Health and Human Services
   description: |

@@ -15,6 +15,9 @@ description: |
   > For sanction type LB on the Sanctioned Providers list, verify the provider’s
   > license status through the
   > [Maryland State Board](https://health.maryland.gov/Pages/boards.ASPX).
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Maryland Department of Health
   description: >

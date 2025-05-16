@@ -12,6 +12,9 @@ description: |
   program. Since the report is updated monthly, it may not include providers excluded within the
   last 30 days. In such cases, MaineCare Services recommends conducting a name search using their
   [portal](https://mainecare.maine.gov/mhpviewer.aspx?FID=MEEX).
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Maine Department of Health and Human Services
   description: |

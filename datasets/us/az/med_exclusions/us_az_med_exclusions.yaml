@@ -15,6 +15,9 @@ description: |
   > the Provider Participation Agreement that each provider must sign when they register with AHCCCS. AHCCCS may
   > terminate a provider for a variety of reasons including, but not limited to, lack of licensure, quality of care
   > concerns, and lack of disclosure of certain information or persons.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Arizona Health Care Cost Containment System
   description: |

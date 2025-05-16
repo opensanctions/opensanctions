@@ -16,6 +16,9 @@ description: |
   > for whom you will submit claims to MHCP for reimbursement to. MHCP will
   > deny claims for services or items rendered, ordered, referred or
   > prescribed by excluded providers.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Minnesota Health Care Programs
   description: >
