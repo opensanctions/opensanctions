@@ -45,6 +45,8 @@ def crawl_row(context: Context, row: Dict[str, List[str]]):
     if not (street and listing_date):
         return  # check to exclude the footnotes
 
+    country = country or "USA"
+
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name, street, listing_date, city, state)
     entity.add("name", name)

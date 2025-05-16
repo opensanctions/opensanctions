@@ -26,6 +26,8 @@ description: |
   banks, some banks don't have BICs).
 
   Branch information has been excluded from this dataset.
+tags:
+  - sector.banking
 publisher:
   name: Society for Worldwide Interbank Financial Telecommunication
   acronym: SWIFT

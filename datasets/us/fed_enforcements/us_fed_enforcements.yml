@@ -21,6 +21,8 @@ description: |
   > final orders. Formal enforcement actions include cease and desist orders,
   > written agreements, prompt corrective action directives, removal and prohibition
   > orders, and orders assessing civil money penalties.
+tags:
+  - sector.banking
 publisher:
   name: Federal Reserve Board
   acronym: FRB

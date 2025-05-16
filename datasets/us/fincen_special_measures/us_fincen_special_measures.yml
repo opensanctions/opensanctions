@@ -1,5 +1,6 @@
 title: "US FinCEN 311 and 9714 Special Measures"
-url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
+entry_point: crawler.py
+prefix: us-fincen
 load_statements: true
 coverage:
   frequency: daily
@@ -13,8 +14,12 @@ description: |
   They issue notices of proposed rulemaking for public comment, and measures
   imposing restrictions on banking services that may be offered to named entities
   or jurisdictions.
-entry_point: crawler.py
-prefix: us-fincen
+tags:
+  - sector.banking
+  - list.sanction
+  - sector.financial
+  - issuer.west
+url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
 publisher:
   name: Financial Crimes Enforcement Network
   acronym: FinCEN
@@ -29,10 +34,6 @@ data:
   format: html
 dates:
   formats: ["%m/%d/%Y"]
-tags:
-  - list.sanction
-  - sector.financial
-  - issuer.west
 
 lookups:
   target_type:

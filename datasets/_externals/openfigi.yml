@@ -31,6 +31,8 @@ description: |
   The FIGI standard is issued by Bloomberg L.P. and Kaiko as a Certified Providers
   and distributed by Bloomberg L.P. as the Registration Authority under the auspice
   of OMG® and X9.
+tags:
+  - sector.financial
 url: https://www.openfigi.com/
 publisher:
   name: OpenFIGI
