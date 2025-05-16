@@ -39,6 +39,11 @@ Use the `.yml` extension.
 - `exports` - An array of strings matching the [export formats](https://www.opensanctions.org/docs/bulk/), e.g. `"targets.nested.json"`. The default is best for most cases.
 - `load_db_uri` - Should be `${OPENSANCTIONS_DATABASE_URI}` in most datasets. Used to define the database into which statements will be loaded to be accessed from the statements API. It is not set for datasets including other datasets, or whose data isn't included in full in the main data products.
 
+### Tags
+
+Tags help describe and categorize datasets. They are assigned based on shared attributes—such as target country, legal basis, or list type (e.g. sanctions, PEPs, regulatory actions)—and make it easier to filter, explore, and compare data across sources.
+You can find a full overview of available tags [here](https://www.opensanctions.org/docs/metadata/).
+
 ### Publisher
 
 - `publisher`
