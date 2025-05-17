@@ -378,7 +378,16 @@ def crawl(context: Context) -> None:
             f"(found in categories {found_record.from_categories}, positions {found_record.from_positions}): "
             f"{entity.caption} {entity.get("topics")}"
         )
-        state.context.emit(entity)
+
+        # Some categories we crawl but don't assign topics to. We do this for two reasons:
+        #   1. We only want to discover interesting positions in the category (which then trigger at
+        #      topic assignment), but there are more persons in the category not relevant to us.
+        #   2. We want to discover QIDs for enrichment, just in case the Wikidata enricher (which only searches
+        #      for a single name) doesn't find them. In this case, the xref process will discover the QID for the
+        #      cluster (but not actually pull in the statements marked as external).
+        #  In both cases, we want to emit the statements as external.
+        state.context.emit(entity, external=(len(entity.get("topics")) == 0))
+
         if idx > 0 and idx % 1000 == 0:
             state.context.flush()
 
