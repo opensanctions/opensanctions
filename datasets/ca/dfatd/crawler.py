@@ -91,15 +91,13 @@ def parse_entry(context: Context, node: _Element):
 
     entity.add("topics", "sanction")
     entity.add("country", country)
-
+    program_key = h.lookup_sanction_program_key(context, program) if program else None
     sanction = h.make_sanction(
         context,
         entity,
         program_name=program,
         source_program_key=program,
-        program_key=(
-            h.lookup_sanction_program_key(context, program) if program else None
-        ),
+        program_key=program_key,
     )
     sanction.add("program", program)
     sanction.add("reason", schedule)
