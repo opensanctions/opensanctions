@@ -53,6 +53,7 @@ ALWAYS_PERSONS = ["Q21258544"]
 class FoundRecord:
     from_categories: Set[str] = field(default_factory=set)
     from_positions: Set[str] = field(default_factory=set)
+    from_declarator: bool = False
 
 
 class CrawlState(object):
@@ -329,14 +330,14 @@ def crawl_declarator(state: CrawlState) -> None:
     response = state.client.query(query)
     state.log.info("Found %d declarator profiles" % len(response.results))
     for result in response.results:
-        person = result.plain("person")
-        state.persons.add(person)
-        if person not in state.person_topics:
-            state.person_topics[person] = set()
-        state.person_topics[person].add("role.pep")
-        if person not in state.person_countries:
-            state.person_countries[person] = set()
-        state.person_countries[person].add("ru")
+        person_qid = result.plain("person")
+        state.persons[person_qid] = FoundRecord(from_declarator=True)
+        if person_qid not in state.person_topics:
+            state.person_topics[person_qid] = set()
+        state.person_topics[person_qid].add("role.pep")
+        if person_qid not in state.person_countries:
+            state.person_countries[person_qid] = set()
+        state.person_countries[person_qid].add("ru")
 
 
 def crawl(context: Context) -> None:
