@@ -63,9 +63,7 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
     gender = (
         "male"
         if input_dict["Sexo"] == "Hombre"
-        else "female"
-        if input_dict["Sexo"] == "Mujer"
-        else "other"
+        else "female" if input_dict["Sexo"] == "Mujer" else "other"
     )
     input_dict.pop("Sexo")
     entity.add("gender", gender)
@@ -117,13 +115,7 @@ def crawl(context: Context):
     """
     senators_url = get_json_url(context)
 
-    senators = fetch_json(
-        context,
-        senators_url,
-        expected_charset=None,
-        geolocation="MX",
-        cache_days=1,
-    )
+    senators = fetch_json(context, senators_url, cache_days=1, geolocation="MX")
 
     # We first define the Mexico Senator Position
     position = h.make_position(context, "Member of the Senate of Mexico", country="mx")

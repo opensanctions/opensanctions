@@ -322,7 +322,6 @@ def fetch_json(
     url: str,
     cache_days: Optional[int] = None,
     expected_media_type: Optional[str] = "application/json",
-    expected_charset: Optional[str] = "utf-8",
     geolocation: Optional[str] = None,
 ) -> Any:
     """
@@ -343,12 +342,6 @@ def fetch_json(
     )
     if expected_media_type and zyte_result.media_type:
         assert zyte_result.media_type == expected_media_type, (
-            zyte_result.media_type,
-            zyte_result.charset,
-            url,
-        )
-    if expected_charset and zyte_result.charset:
-        assert zyte_result.charset == expected_charset, (
             zyte_result.media_type,
             zyte_result.charset,
             url,
