@@ -173,8 +173,20 @@ def crawl(context: Context):
             # If it is a ship
             if entity.schema.label == "Vessel":
                 make_ship(context, designation, entity)
+            # Extract the sanctions regime
+            regime_name = [
+                regime.text.strip()
+                for regime in designation.iterfind(".//RegimeName")
+                if regime.text
+            ]
             # Make a sanctions entity
-            sanction = h.make_sanction(context, entity)
+            sanction = h.make_sanction(
+                context,
+                entity,
+                program_name=regime_name[0],
+                source_program_key=regime_name[0],
+                program_key=h.lookup_sanction_program_key(context, regime_name[0]),
+            )
             # Add the unique ID
             sanction.add("authorityId", unique_id)
             # Add the UN reference number
@@ -186,9 +198,6 @@ def crawl(context: Context):
             # Add the creation date
             for date in designation.iterfind(".//DateDesignated"):
                 h.apply_date(sanction, "startDate", date.text)
-            # Get the sanctions regime and add it to the entity
-            for regime in designation.iterfind(".//RegimeName"):
-                sanction.add("program", regime.text)
             # Add the source of the sanction
             for authority in designation.iterfind(".//DesignationSource"):
                 sanction.add("authority", authority.text)
