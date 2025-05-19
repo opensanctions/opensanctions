@@ -70,7 +70,6 @@ def emit_nro(context: Context, nro):
         context,
         entity,
         program_name=PROGRAM_NAME,
-        source_program_key=PROGRAM_NAME,
         program_key=h.lookup_sanction_program_key(context, PROGRAM_NAME),
     )
     context.emit(sanction)
