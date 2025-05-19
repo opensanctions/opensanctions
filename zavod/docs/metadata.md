@@ -84,7 +84,7 @@ HTTP requests for GET requests are automatically retried for connection and HTTP
     - `backoff_factor`: float, default `1`. [Scales the exponential backoff](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS:~:text=with%20None.-,backoff_factor,-(float)%20%E2%80%93).
     - `max_retries`: integer in seconds, default `3`
     - `retry_methods`: List of strings, [default](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS) `['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'TRACE']`
-    - `retry_statuses`: List of integers of HTTP error codes to retry, default `[413, 429, 500, 502, 503]`.
+    - `retry_statuses`: List of integers of HTTP error codes to retry, default `[413, 429, 500, 502, 503, 504]`.
 
 ### Data assertions
 
