@@ -773,6 +773,47 @@ config:
 
     # latam
     - category: Political_office-holders_in_South_America
+
+    - category: Diputados_de_la_LXIV_Legislatura_de_México
+      country: mx
+      language: es
+      topic: role.pep
+      position:
+        name: Member of the Chamber of Deputies
+        country: mx
+        topics:
+          - gov.legislative
+    - category: Diputados_de_la_LXV_Legislatura_de_México
+      country: mx
+      language: es
+      topic: role.pep
+      position:
+        name: Member of the Chamber of Deputies
+        country: mx
+        topics:
+          - gov.legislative
+    - category: Senadores_de_las_LXVI_y_LXVII_Legislaturas_de_México
+      country: mx
+      language: es
+      topic: role.pep
+      position:
+        name: Members of the Senate of the Republic
+        country: mx
+        topics:
+          - gov.legislative
+    - category: Senadores_de_las_LXIV_y_LXV_Legislaturas_de_México
+      country: mx
+      language: es
+      topic: role.pep
+      position:
+        name: Members of the Senate of the Republic
+        country: mx
+        topics:
+          - gov.legislative
+    - category: Políticos_de_México
+      country: mx
+      language: es
+
     - category: Senadores_do_Brasil_por_unidade_federativa
       country: br
       topic: role.pep
