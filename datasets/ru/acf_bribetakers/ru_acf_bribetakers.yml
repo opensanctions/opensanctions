@@ -10,7 +10,7 @@ summary: >
   composed by ACF/FBK, the anti-corruption organization
   founded by Alexei Navalny
 description: |
-  > The Sanctions Tracker website collects the names of those people 
+  > The Sanctions Tracker website collects the names of those people
   > who should be subject to international sanctions for participating
   > in the criminal war against Ukraine, for supporting Russian aggression,
   > or for aiding the Putin regime. Here is a simple and convenient
@@ -106,3 +106,5 @@ lookups:
         value: 1969-05-25
       - match: ".12.1975"
         value: 1975-12
+      - match: "07.04. 1961"
+        value: 1961-04-07
