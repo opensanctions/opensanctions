@@ -57,15 +57,6 @@ assertions:
 
 lookups:
   sanction.program:
-# absent: 
-  # '2720': 'Ordinance of 23 June 1999 on measures against certain persons of the '
-  #        'former Federal Republic of Yugoslavia (SR 946.207), annex 2',
-  # '3973': 'Ordinance of 19 January 2005 on measures against Liberia (SR '
-  #        '946.231.16), annexes 1 and 2',
-  #  '3982': 'Ordinance of 19 January 2005 on measures against Côte d’Ivoire (SR '
-  #        '946.231.13), annex',
-#  '39942': 'Ordinance of 22 November 2017 on measures against the Republic of '
-#           'Mali (SR 946.231.154.1), annex',
     options:
       - match: "Ordinance of 16 March 2022 on measures against Belarus (SR 946.231.116.9), annex 5, 13, 14 and 15"
         value: SECO-BRUS
@@ -114,9 +105,17 @@ lookups:
       - match: "Ordinance of 28 June 2023 on measures concerning Moldova (RS 946.231.156.5), annex"
         value: SECO-MOLDOVA
       - match: "Ordinance of 10 April 2024 on measures against persons and organisations supporting Hamas or the Palestinian Islamic Jihad"
-        value:
+        value: SECO-HAMAS
       - match: "Ordinance of 10 April 2024 on measures concerning Guatemala, annex"
         value: SECO-GUATEMALA
+      - match: "Ordinance of 19 January 2005 on measures against Liberia (SR 946.231.16), annexes 1 and 2"
+        value: SECO-LIBERIA
+      - match: "Ordinance of 23 June 1999 on measures against certain persons of the former Federal Republic of Yugoslavia (SR 946.207), annex 2"
+        value: SECO-YUGO
+      - match: "Ordinance of 22 November 2017 on measures against the Republic of Mali (SR 946.231.154.1), annex"
+        value: SECO-MALI
+      - match: "Ordinance of 19 January 2005 on measures against Côte d’Ivoire (SR 946.231.13), annex"
+        value: SECO-CDI
   relations:
     lowercase: true
     options:
