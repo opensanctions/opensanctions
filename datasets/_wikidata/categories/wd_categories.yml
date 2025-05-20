@@ -877,6 +877,15 @@ config:
         country: pl
         topics:
           - gov.legislative
+    - category: Members_of_the_Senate_of_Poland_2023–2027
+      country: pl
+      language: pl
+      topic: role.pep
+      position:
+        name: Senator of the Republic of Poland
+        country: pl
+        topics:
+          - gov.legislative
     - category: Posłowie_na_Sejm_III_Rzeczypospolitej_Polskiej
       country: pl
       language: pl
