@@ -416,6 +416,36 @@ def parse_id_reg_document(
         context.emit(identification)
 
 
+def extract_sanctions_program(entry: Element, refs: Element) -> Optional[str]:
+    """
+    Extracts the program name associated with a sanctions entry, depending on whether the entry is part of the
+    SDN List or another OFAC list (e.g., Non-SDN CMIC List, Non-SDN Menu-Based Sanctions List).
+
+    Returns:
+        A string representing the program name (e.g., "IRAN-EO13876" or "Non-SDN CMIC List"),
+        or None if no applicable program is found.
+    """
+    # Get the name of the list (e.g., "SDN List", "CAPTA List")
+    list_name = get_ref_text(refs, "List", entry.get("ListID"))
+    # Special handling for SDN List entries:
+    # The SDN List may include multiple SanctionsMeasures, and the actual program name is inside
+    # the <Comment> tag of a <SanctionsMeasure> element where SanctionsTypeID resolves to "Program".
+    if list_name == "SDN List":
+        for measure in entry.findall("./SanctionsMeasure"):
+            sanctions_type_id = measure.get("SanctionsTypeID")
+            sanctions_type = get_ref_text(refs, "SanctionsType", sanctions_type_id)
+            if sanctions_type == "Program":
+                # Extract the actual program name from the <Comment> element, which holds values like "IRAN-EO13876"
+                comment = measure.findtext("Comment")
+                if comment:
+                    return comment  # Return the first matched program name
+        # If no "Program" type measures are found or no comment is available, return None
+        return None
+    else:
+        # For non-SDN list entries, we treat the resolved list name itself as the program
+        return list_name
+
+
 def parse_sanctions_entry(
     context: Context,
     proxy: Entity,
@@ -425,9 +455,17 @@ def parse_sanctions_entry(
 ) -> Entity:
     # context.inspect(entry)
     proxy.add("topics", "sanction")
-    sanction = h.make_sanction(context, proxy, key=entry.get("ID"))
-    # TODO(Leon Handreke): Add lookup of program -> OpenSanctions program key
-    sanction.set("program", get_ref_text(refs, "List", entry.get("ListID")))
+    program = extract_sanctions_program(entry, refs)
+    sanction = h.make_sanction(
+        context,
+        proxy,
+        key=entry.get("ID"),
+        program_name=program,
+        source_program_key=program,
+        program_key=(
+            h.lookup_sanction_program_key(context, program) if program else None
+        ),
+    )
     sanction.set("authorityId", entry.get("ProfileID"))
 
     for event in entry.findall("./EntryEvent"):
