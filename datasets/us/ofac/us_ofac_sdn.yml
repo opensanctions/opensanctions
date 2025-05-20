@@ -111,11 +111,11 @@ lookups:
       - match: NPWMD
         value: US-NON-PROLIF
       - match: 
-        - DPRK
-        - DPRK2
-        - DPRK3
-        - DPRK4
-        - DPRK-NKSPEA
+          - DPRK
+          - DPRK2
+          - DPRK3
+          - DPRK4
+          - DPRK-NKSPEA
         value: US-NK
       - match: 
           - RUSSIA-EO14024
