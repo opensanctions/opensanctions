@@ -47,6 +47,8 @@ description: |
   Additional pieces of legislation may be added to this dataset from time to time.
 
   **This dataset is manually maintained and not automatically updated with new legislation.**
+tags:
+  - list.debarment
 publisher:
   name: United States Congress
   acronym: Congress
@@ -61,8 +63,19 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSVatiUNMn-TatTYOQhYOPbEBRBwmoBG6LtaJklPPzLju1x-qrJxxBlsDwuis3IyKz77dHp3xvvnMRb/pub?gid=0&single=true&output=csv
   format: CSV
   lang: eng
-tags:
-  - list.debarment
-
 dates:
-  formats: ["%Y", "%B %Y"]
+  formats: ["%Y", "%B %Y", "%B %d, %Y"]
+
+lookups:
+  sanction.program:
+    options:
+      - match: "Section 889 of the John S. McCain National Defense Authorization Act for Fiscal Year 2019 (Public Law 115 - 232)"
+        value: US-MCCAIN-889
+      - match: "Section 353(b) of the United States - Northern Triangle Enhanced Engagement Act"
+        value: US-CORRUPT-353
+      - match: "SEC. 154. of the United States National Defense Authorization Act for Fiscal Year 2024"
+        value: US-NDAA-154
+      - match: "Section 1286 of the John S. McCain National Defense Authorization Act for Fiscal Year 2019 (Public Law 115 - 232)"
+        value: US-MCCAIN-1286
+      - match: "Section 5949 of the James M. Inhofe National Defense Authorization Act for Fiscal Year 2023 (Public Law 117-263)"
+        value: US-5949LIST

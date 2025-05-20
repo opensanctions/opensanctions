@@ -12,6 +12,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     report_date = row.pop("report-date")
     topics = row.pop("topics")
     source_url = row.pop("source_url")
+    program = row.pop("program")
     entity = context.make(schema)
     entity.id = context.make_slug(name)
     entity.add("topics", topics)
@@ -20,11 +21,15 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("country", row.pop("country"))
     entity.add("sourceUrl", source_url.strip())
     entity.add("notes", row.pop("notes"))
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=program,
+        program_key=h.lookup_sanction_program_key(context, program),
+    )
     h.apply_date(sanction, "listingDate", report_date)
     h.apply_date(sanction, "startDate", row.pop("start-date"))
     h.apply_date(sanction, "endDate", row.pop("end-date"))
-    sanction.add("program", row.pop("program"))
     sanction.add("reason", row.pop("reason"))
     sanction.add("description", f"Published in {report_date} report.")
     sanction.set("authority", row.pop("authority"))
