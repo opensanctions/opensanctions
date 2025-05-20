@@ -53,3 +53,9 @@ data:
   lang: eng
 dates:
   formats: "%B %d, %Y"
+
+lookups:
+  sanction.program:
+    options:
+      - match: "List of Equipment and Services Covered By Section 2 of The Secure Networks Act"
+        value: US-FCC
