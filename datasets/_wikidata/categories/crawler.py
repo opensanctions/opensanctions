@@ -4,8 +4,8 @@ from dataclasses import field, dataclass
 from io import StringIO
 from typing import Any, Dict, List, Optional, Set, Tuple
 from urllib.parse import urlencode
-
 from nomenklatura.wikidata import WikidataClient, Claim
+
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.shed.wikidata.human import wikidata_basic_human
@@ -44,6 +44,11 @@ MUNI_COUNTRIES = {
     "ke",
     "au",
     "br",
+    "pl",
+    "cz",
+    "sk",
+    "hu",
+    "ro",
 }
 # That one time a PEP customer asked to be included....
 ALWAYS_PERSONS = ["Q21258544"]
@@ -80,10 +85,11 @@ def title_name(title: str) -> str:
 def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
     item = state.client.fetch_item(claim.qid)
     if item is None:
-        state.ignore_positions.add(claim.qid)
+        if claim.qid is not None:
+            state.ignore_positions.add(claim.qid)
         return
     position = wikidata_position(state.context, state.client, item)
-    if position is None:
+    if position is None or position.id is None:
         state.ignore_positions.add(item.id)
         return
 
@@ -308,7 +314,8 @@ def crawl_position_seeds(state: CrawlState) -> None:
         response = state.client.query(query)
         for result in response.results:
             role = result.plain("role")
-            roles.add(role)
+            if role is not None:
+                roles.add(role)
 
     state.log.info("Found %d seed positions" % len(roles))
     for role in roles:
@@ -331,6 +338,8 @@ def crawl_declarator(state: CrawlState) -> None:
     state.log.info("Found %d declarator profiles" % len(response.results))
     for result in response.results:
         person_qid = result.plain("person")
+        if person_qid is None:
+            continue
         state.persons[person_qid] = FoundRecord(from_declarator=True)
         if person_qid not in state.person_topics:
             state.person_topics[person_qid] = set()
@@ -367,6 +376,8 @@ def crawl(context: Context) -> None:
 
         positions = state.person_positions.get(person_qid, [])
         for position in positions:
+            if position.id is None:
+                continue
             occupancy = h.make_occupancy(state.context, entity, position)
             if occupancy is not None:
                 state.context.emit(occupancy)
@@ -377,7 +388,7 @@ def crawl(context: Context) -> None:
         state.log.info(
             f"Crawled person {entity.id} "
             f"(found in categories {found_record.from_categories}, positions {found_record.from_positions}): "
-            f"{entity.caption} {entity.get("topics")}"
+            f"{entity.caption} {entity.get('topics')}"
         )
 
         # Some categories we crawl but don't assign topics to. We do this for two reasons:
