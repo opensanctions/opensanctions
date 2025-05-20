@@ -46,7 +46,6 @@ http:
     - GET
     # a search in OpenFIGI is a POST request
     - POST
-  backoff_factor: 2
 
 inputs:
   - sanctions
