@@ -51,6 +51,8 @@ def crawl_row(
     entity.add("notes", row.pop("Notes").strip())
     entity.add("position", h.multi_split(row.pop("Position", None), ";"), quiet=True)
     entity.add("address", h.multi_split(row.pop("Address", None), ";"), quiet=True)
+    entity.add("email", h.multi_split(row.pop("email"), ";"), quiet=True)
+    entity.add("website", h.multi_split(row.pop("website"), ";"), quiet=True)
     entity.add("gender", row.pop("Gender", None), quiet=True)
     entity.add("sourceUrl", h.multi_split(row.pop("Source URL"), ";"))
     if "ru" in entity.get("country"):
