@@ -49,7 +49,7 @@ assertions:
     schema_entities:
       Person: 7200
       Organization: 2090
-      Vessel: 290
+      Vessel: 400
 
 lookups:
   languages:

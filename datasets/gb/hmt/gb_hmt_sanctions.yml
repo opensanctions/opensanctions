@@ -404,6 +404,7 @@ lookups:
           - AUTEL INTELLIGENT TECHNOLOGY
           - MR TAIQIONG CHEN
           - HK Kongsing Co., Limited
+          - Joint Stock Company Ruschem
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -954,6 +955,8 @@ lookups:
         value: request@mehr-fci.ir
       - match: indoc@SIBANTHRACITE GROUP.ru
         value: indoc@SIBANTHRACITEGROUP.ru
+      - match: satpro1974@gmail.com.
+        value: satpro1974@gmail.com
 
   type.gender:
     lowercase: true
