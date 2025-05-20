@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: 2024-03-07
 load_statements: true
+ci_test: false # No Zyte in CI
 summary: >-
   Current members of the Mexican lower house, the Chamber of Deputies
 description: |
