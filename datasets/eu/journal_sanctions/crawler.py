@@ -42,6 +42,7 @@ def crawl_row(
     entity.add("birthPlace", row.pop("POB"), quiet=True)
     entity.add("country", h.multi_split(country, ";"))
     entity.add("name", h.multi_split(name, ";"))
+    entity.add("previousName", h.multi_split(row.pop("previousName"), ";"))
     entity.add("alias", h.multi_split(row.pop("Alias"), ";"))
     entity.add_cast("Person", "passportNumber", h.multi_split(row.pop("passport"), ";"))
     entity.add("taxNumber", h.multi_split(row.pop("taxNumber"), ";"), quiet=True)
