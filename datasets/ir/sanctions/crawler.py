@@ -33,15 +33,12 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     context.emit(entity)
     context.emit(sanction)
-    context.audit_data(row, ["Number"])
+    context.audit_data(row, ignore=["Number"])
 
 
 def crawl(context: Context):
-    from pprint import pprint
-
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
-            # pprint(row)
             crawl_row(context, row)
