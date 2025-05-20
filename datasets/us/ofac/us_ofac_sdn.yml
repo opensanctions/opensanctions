@@ -80,7 +80,7 @@ lookups:
       - match: 
           - BELARUS
           - BELARUS-EO14038
-        value: US-BELARUS
+        value: US-BRUS
       - match: CAR
         value: US-CAR
       - match: CUBA
@@ -195,6 +195,15 @@ lookups:
         value: US-NON-PROLIF
       - match: TCO
         value: US-TCO
+      - match:
+          - Non-SDN Palestinian Legislative Council List
+          - CAPTA List
+          - FSE List
+          - Non-SDN CMIC List
+          - Non-SDN Menu-Based Sanctions List
+          - Non-SDN Palestinian Legislative Council List
+          - Sectoral Sanctions Identifications List
+        value: null
   relations:
     options:
       - label: Associate Of
