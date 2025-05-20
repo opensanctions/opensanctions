@@ -16,7 +16,7 @@ description: |
   monarch and any local representatives are generally included.
 
   The World Factbook source pages contain much more narrative about each country.
-  From the website: 
+  From the website:
 
   > The World Factbook provides basic intelligence on the history, people,
   > government, economy, energy, geography, environment, communications,
@@ -692,13 +692,17 @@ lookups:
           - role: Presidential Leadership Council member
             name: Aydarus Qasim al-ZUBAYDI
             start_date: 19 April 2022
-      # Yemen
       - match: on 5 February 2024, Foreign Minister Ahmad Awad Bin MUBAREK was appointed prime minister by the Presidential Leadership Council
         holders:
           - role: Prime Minister
             name: Ahmad Awad Bin MUBAREK
             start_date: 5 February 2024
       - match: "Chairperson, Presidential Leadership Council Rashad Muhammad al-ALIMI (since 19 April 2022)"
+        holders:
+          - role: Chairperson, Presidential Leadership Council
+            name: Rashad Muhammad al-ALIMI
+            start_date: 19 April 2022
+      - match: "Chairperson, Presidential Leadership Council Rashad Muhammad al-ALIMI, Dr. (since 19 April 2022)"
         holders:
           - role: Chairperson, Presidential Leadership Council
             name: Rashad Muhammad al-ALIMI
