@@ -26,6 +26,12 @@ description: |
   **Note:** Due to CAPTCHA restrictions on the website, the crawler cannot access data in 
   real-time. Instead, it relies on a static Google Sheet that contains manually extracted 
   data, which may not reflect the most current updates.
+tags:
+  - list.sanction.counter
+  - target.us
+  - target.eu
+  - target.gb
+  - target.ca
 publisher:
   name: Iran Ministry of Foreign Affairs
   acronym: MFA
@@ -35,16 +41,8 @@ publisher:
 url: "https://sanctionlist.mfa.ir"
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTD-saXE-20MExR75lUuAJrA6HKtQ5Go8EEnx6AOYtvKLZabtmeJ-U92B4ZtcO2FWYaUiDnshiq_48_/pub?output=csv
-  format: HTML
+  format: CSV
   lang: eng
-# requires API key
-ci_test: false
-tags:
-  - list.sanction.counter
-  - target.us
-  - target.eu
-  - target.gb
-  - target.ca
 
 dates:
   formats: ["%B %d %Y"]
