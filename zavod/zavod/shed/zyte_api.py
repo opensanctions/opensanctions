@@ -1,5 +1,5 @@
 import json
-from base64 import b64decode
+from base64 import b64decode, b64encode
 from dataclasses import dataclass
 from email.message import Message
 from enum import Enum
@@ -141,9 +141,12 @@ class ZyteAPIRequest:
     """Container dataclass for possible arguments to the Zyte API."""
 
     url: str
-    scrape_type: ZyteScrapeType
+    method: Optional[str] = None  # Defaults to GET server-side
+    body: Optional[bytes] = None
+
+    scrape_type: ZyteScrapeType = ZyteScrapeType.HTTP_RESPONSE_BODY
     actions: Optional[List[Dict[str, Any]]] = None
-    headers: Optional[List[Dict[str, str]]] = None
+    headers: Optional[Dict[str, str]] = None
     geolocation: Optional[str] = None
     # Forces JavaScript execution on a browser request to be enabled
     javascript: Optional[bool] = None
@@ -200,8 +203,15 @@ def fetch(
         "url": zyte_request.url,
         "httpResponseHeaders": True,
     }
+    if zyte_request.method is not None:
+        zyte_data["httpRequestMethod"] = zyte_request.method
+    if zyte_request.body is not None:
+        zyte_data["httpRequestBody"] = b64encode(zyte_request.body).decode("utf-8")
+
     if zyte_request.headers is not None:
-        zyte_data["customHttpRequestHeaders"] = zyte_request.headers
+        zyte_data["customHttpRequestHeaders"] = [
+            {"name": k, "value": v} for k, v in zyte_request.headers.items()
+        ]
     if zyte_request.geolocation is not None:
         zyte_data["geolocation"] = zyte_request.geolocation
     if zyte_request.actions is not None:
@@ -253,7 +263,6 @@ def fetch(
 def fetch_text(
     context: Context,
     url: str,
-    headers: List[Dict[str, str]] = [],
     geolocation: Optional[str] = None,
     cache_days: Optional[int] = None,
     expected_media_type: Optional[str] = None,
@@ -288,7 +297,6 @@ def fetch_text(
         ZyteAPIRequest(
             scrape_type=ZyteScrapeType.HTTP_RESPONSE_BODY,
             url=url,
-            headers=headers,
             geolocation=geolocation,
         ),
         cache_days=cache_days,
@@ -328,14 +336,13 @@ def fetch_json(
     Returns:
         A JSON document.
     """
-    headers = [{"name": "Accept", "value": "application/json"}]
 
     zyte_result = fetch(
         context,
         ZyteAPIRequest(
             scrape_type=ZyteScrapeType.HTTP_RESPONSE_BODY,
             url=url,
-            headers=headers,
+            headers={"Accept": "application/json"},
             geolocation=geolocation,
         ),
         cache_days=cache_days,
