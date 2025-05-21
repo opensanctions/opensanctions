@@ -124,8 +124,14 @@ def crawl_program(
         companies = [main_company] + subsidiaries
         sanctions = []
         for entity in companies:
-            sanction = h.make_sanction(context, entity, section)
-            sanction.add("program", program)
+            sanction = h.make_sanction(
+                context,
+                entity,
+                key=section,
+                program_name=program,
+                source_program_key=program,
+                program_key=h.lookup_sanction_program_key(context, program),
+            )
             h.apply_date(sanction, "startDate", data.pop("effective-date"))
             sanctions.append(sanction)
 
