@@ -1,11 +1,12 @@
 from lxml import etree
 from hashlib import sha1
-from typing import Any, Optional
+from typing import Any, Optional, cast
 from normality import collapse_spaces
 from datetime import datetime
 
 from zavod.logs import get_logger
 from zavod.context import Context
+from zavod.entity import Entity
 from zavod.util import ElementOrTree
 
 log = get_logger(__name__)
@@ -106,12 +107,13 @@ def assert_html_url_hash(
 
 def schedule_manual_check(
     context: Context,
-    last_change: datetime,
+    entity: Entity,
     interval_months: int,
 ) -> None:
     """Emit a warning to manually check the data source based on the most recent entity change."""
+    last_change = cast(datetime, entity.last_change)
     if last_change is None:
-        context.log.warn("No last change date provided.")
+        context.log.warn(f"No last change date for entity {entity.id}.")
         return
 
     now = datetime.utcnow()
