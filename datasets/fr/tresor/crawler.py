@@ -289,7 +289,23 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
         f"https://gels-avoirs.dgtresor.gouv.fr/Gels/RegistreDetail?idRegistre={reg_id}"
     )
     entity.add("sourceUrl", url)
-    sanction = h.make_sanction(context, entity)
+    # Extract all program names from the 'FONDEMENT_JURIDIQUE' sections.
+    program_names = []
+    for detail in data.get("RegistreDetail", []):
+        if detail.get("TypeChamp") == "FONDEMENT_JURIDIQUE":
+            for val in detail.get("Valeur", []):
+                program_name = val.get("FondementJuridiqueLabel")
+                if program_name:
+                    program_names.append(program_name)
+    # For each program name, create a separate sanction.
+    for program_name in program_names:
+        sanction = h.make_sanction(
+            context,
+            entity,
+            program_name=program_name,
+            source_program_key=program_name,
+            program_key=h.lookup_sanction_program_key(context, program_name),
+        )
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")
         for value in detail.pop("Valeur"):
