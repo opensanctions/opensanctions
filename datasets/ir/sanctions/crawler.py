@@ -5,6 +5,10 @@ from typing import Dict
 
 from zavod import Context, helpers as h
 
+PROGRAM_NAME = (
+    "Individuals And Entities In The Sanction’s List Of The Islamic Republic Of Iran"
+)
+
 
 def crawl_row(context: Context, row: Dict[str, str]):
     entity_type = row.pop("Sanction Type")
@@ -25,7 +29,12 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if schema == "Person" and position.replace("-", ""):
         entity.add("position", position)
 
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=PROGRAM_NAME,
+        program_key=h.lookup_sanction_program_key(context, PROGRAM_NAME),
+    )
     sanction_date = collapse_spaces(row.pop("Sanction Date"))
     h.apply_date(sanction, "date", sanction_date)
     sanction.add("description", row.pop("Sanction Title"))

@@ -60,6 +60,10 @@ assertions:
       Person: 500
 
 lookups:
+  sanction.program:
+    options:
+      - match: "Iranian Sanctions List"
+        value: ir_sanctions
   schema:
     map:
       Entity: LegalEntity
