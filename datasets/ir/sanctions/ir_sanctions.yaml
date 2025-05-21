@@ -23,8 +23,8 @@ description: |
   As of April 2024, the persons sanctioned in this list are generally current and former
   members of the US and UK governments, militaries, as well as journalists.
 
-  **Note:** Due to CAPTCHA restrictions on the website, the crawler cannot access data in 
-  real-time. Instead, it relies on a static Google Sheet that contains manually extracted 
+  **Note:** Due to CAPTCHA restrictions on the website, the crawler cannot access data automatically.
+  Instead, it relies on a static extract of the
   data, which may not reflect the most current updates.
 tags:
   - list.sanction.counter
