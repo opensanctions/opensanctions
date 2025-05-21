@@ -24,8 +24,7 @@ description: |
   members of the US and UK governments, militaries, as well as journalists.
 
   **Note:** Due to CAPTCHA restrictions on the website, the crawler cannot access data automatically.
-  Instead, it relies on a static extract of the
-  data, which may not reflect the most current updates.
+  Instead, it relies on a static extract of the data, which may not reflect the most current updates.
 tags:
   - list.sanction.counter
   - target.us
