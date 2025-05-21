@@ -43,3 +43,9 @@ assertions:
   max:
     schema_entities:
       Person: 3000
+
+lookups:
+  sanction.program:
+    options:
+      - match: "Граждане США, находящиеся под персональными санкциями, включая запрет на въезд в Российскую Федерацию"
+        value: RU-MFA
