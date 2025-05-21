@@ -106,16 +106,18 @@ def assert_html_url_hash(
 
 def schedule_manual_check(
     context: Context,
-    reference_date_str: str,
+    last_change: datetime,
     interval_months: int,
 ) -> None:
-    """Emit a warning to manually check the data source based on a fixed date."""
-    now = datetime.utcnow()
-    reference_date = datetime.fromisoformat(reference_date_str)
+    """Emit a warning to manually check the data source based on the most recent entity change."""
+    if last_change is None:
+        context.log.warn("No last change date provided.")
+        return
 
+    now = datetime.utcnow()
     # Calculate how many intervals have passed
     interval_days = interval_months * 30  # Approximate
-    time_since = (now - reference_date).days
+    time_since = (now - last_change).days
 
     if time_since >= interval_days:
         context.log.warn("It's time to manually check the data source for updates.")
