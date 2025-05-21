@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional
 
 from zavod.context import Context
 from zavod.entity import Entity
@@ -10,18 +10,13 @@ ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 
 
 def lookup_sanction_program_key(
-    context: Context,
-    source_key: Optional[str],
-    ignore_source_key: Optional[List[str]] = None,
+    context: Context, source_key: Optional[str]
 ) -> Optional[str]:
-    """Lookup the sanction program key based on the source key, unless it is ignored."""
-    if ignore_source_key and source_key in ignore_source_key:
-        return None
-
-    program_key = context.lookup_value("sanction.program", source_key)
-    if program_key is None:
+    """Lookup the sanction program key based on the source key."""
+    res = context.lookup("sanction.program", source_key)
+    if res is None:
         context.log.warn(f"Program key for {source_key!r} not found.")
-    return program_key
+    return res.value if res is not None else None
 
 
 def make_sanction(
@@ -70,6 +65,7 @@ def make_sanction(
         program = programs.get_program_by_key(context, program_key)
         if program:
             sanction.set("programId", program_key, original_value=source_program_key)
+            entity.add("programId", program_key)
             sanction.add("programUrl", program.url)
         else:
             context.log.warn(f"Program with key {program_key!r} not found.")
