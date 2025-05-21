@@ -40,6 +40,7 @@ TEXT_KEYS = {
     "Principaux établissements": "jurisdiction",
     "Établissement principal": "jurisdiction",
     "Numéro d'identification fiscale (INN)": "innCode",
+    "Numéro personnel d'identification fiscale (INN)": "innCode",
     "INN (numéro d'identification fiscale)": "innCode",
     "INN (NIF)": "innCode",
     "Numéro d'identification fiscale russe": "innCode",
@@ -57,10 +58,13 @@ TEXT_KEYS = {
     "Principal lieu d'activité": "country",
     "Numéro d'enregistrement national principal": "registrationNumber",
     "Numéro d'enregistrement national": "registrationNumber",
+    "Numéro de registre de commerce": "registrationNumber",
     "Numéro d'enregistrement": "registrationNumber",
     "Numéros d'enregistrement": "registrationNumber",
     "Numéro d'immatriculation": "registrationNumber",
     "numéro d'identification:": "registrationNumber",
+    # TODO: This Chinese identifier should have its own field, see https://github.com/opensanctions/opensanctions/issues/2301
+    "Code de crédit social unifié": "registrationNumber",
     "Numéro d'identification fiscale": "taxNumber",
     "Numéro d'identification fiscal": "taxNumber",
     "N ° d'identification fiscale": "taxNumber",
@@ -181,7 +185,10 @@ def parse_identification(
                     # Likely multiple values, which we don't auto-parse.
                     # Add an override to identification_segment (or identification_full if the splitting doesn't make sense) or a type.country datapatch.
                     context.log.warning(
-                        "Cannot reliably parse value.", value=value, segment=segment
+                        "Cannot reliably parse value.",
+                        value=value,
+                        segment=segment,
+                        full=full,
                     )
                     break
 
