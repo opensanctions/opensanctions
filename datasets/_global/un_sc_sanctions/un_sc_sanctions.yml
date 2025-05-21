@@ -54,6 +54,34 @@ assertions:
       LegalEntity: 380
 
 lookups:
+  sanction.program:
+    options:
+      - match: Taliban
+        value: UN-SC1988
+      - match: Al-Qaida
+        value: UN-SCISIL
+      - match: Libya
+        value: UN-SC1970
+      - match: DPRK
+        value: UN-SC1718
+      - match: Sudan
+        value: UN-SC1591
+      - match: GB
+        value: UN-SC2048
+      - match: DRC
+        value: UN-SC1533
+      - match: Somalia
+        value: UN-SC2713
+      - match: Iraq
+        value: UN-SC1518
+      - match: Yemen
+        value: UN-SC2140
+      - match: SouthSudan
+        value: UN-SC2206
+      - match: CAR
+        value: UN-SC2127
+      - match: Haiti
+        value: UN-SC2653
   document_type:
     normalize: true
     options:

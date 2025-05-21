@@ -45,7 +45,8 @@ REGEX_ID = re.compile(
     (
         \ PASAPORTE\ -\ (?P<passport>\d+)|
         \ CEDULA\ DE\ CIUDADANIA\ -\ (?P<cedula>\d+)|
-        \ CEDULA\ DE\ EXTRANJERIA\ -\ (?P<foreign>\d+)
+        \ CEDULA\ DE\ EXTRANJERIA\ -\ (?P<foreign>\d+)|
+        \ PERMISO\ POR\ PROTECCION\ TEMPORAL\ -\ (?P<permiso>\d+)
     )
     $
     """,
@@ -135,6 +136,10 @@ def crawl_table_row(
     if match.group("cedula"):
         id_number = match.group("cedula")
         person.id = context.make_slug(id_number, prefix="co-cedula")
+        person.add("idNumber", id_number)
+    if match.group("permiso"):
+        id_number = match.group("permiso")
+        person.id = context.make_slug(id_number, prefix="co-permiso")
         person.add("idNumber", id_number)
 
     person.add("name", match.group("name"))

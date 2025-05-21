@@ -20,6 +20,8 @@ description: |
   as well as income and asset declarations submitted by officials.
 
   The data has been archived from the data.hetq.am API on 2024-04-22.
+tags:
+  - list.pep
 publisher:
   name: Hetq Online
   country: am

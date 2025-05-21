@@ -11,6 +11,9 @@ description: |
   The Wyoming Department of Health maintains a list of providers that have been excluded from
   the state Medicaid program. Providers listed are not allowed to receive reimbursement for
   Medicaid services in any capacity.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Wyoming Department of Health
   description: |

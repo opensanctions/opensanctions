@@ -41,6 +41,9 @@ description: |
   > [Indiana Medicaid: Providers: IHCP Provider Locator](https://www.in.gov/medicaid/providers/provider-references/ihcp-provider-locator/)
   > that can be used to identify the individuals and business entities that are
   > currently enrolled with Indiana Medicaid.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Indiana Family and Social Services Administration
   acronym: FSSA

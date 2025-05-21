@@ -45,9 +45,9 @@ assertions:
     country_entities:
       ir: 1000
       il: 800
-      sa: 500
-      eg: 500
-      iq: 500
+      sa: 300
+      eg: 300
+      iq: 300
 lookups:
   type.country:
     options:
@@ -773,6 +773,47 @@ config:
 
     # latam
     - category: Political_office-holders_in_South_America
+
+    - category: Diputados_de_la_LXIV_Legislatura_de_México
+      country: mx
+      language: es
+      topic: role.pep
+      position:
+        name: Member of the Chamber of Deputies
+        country: mx
+        topics:
+          - gov.legislative
+    - category: Diputados_de_la_LXV_Legislatura_de_México
+      country: mx
+      language: es
+      topic: role.pep
+      position:
+        name: Member of the Chamber of Deputies
+        country: mx
+        topics:
+          - gov.legislative
+    - category: Senadores_de_las_LXVI_y_LXVII_Legislaturas_de_México
+      country: mx
+      language: es
+      topic: role.pep
+      position:
+        name: Members of the Senate of the Republic
+        country: mx
+        topics:
+          - gov.legislative
+    - category: Senadores_de_las_LXIV_y_LXV_Legislaturas_de_México
+      country: mx
+      language: es
+      topic: role.pep
+      position:
+        name: Members of the Senate of the Republic
+        country: mx
+        topics:
+          - gov.legislative
+    - category: Políticos_de_México
+      country: mx
+      language: es
+
     - category: Senadores_do_Brasil_por_unidade_federativa
       country: br
       topic: role.pep
@@ -828,6 +869,15 @@ config:
         topics:
           - gov.legislative
     - category: Senatorowie_XI_kadencji_Senatu_Rzeczypospolitej_Polskiej
+      country: pl
+      language: pl
+      topic: role.pep
+      position:
+        name: Senator of the Republic of Poland
+        country: pl
+        topics:
+          - gov.legislative
+    - category: Members_of_the_Senate_of_Poland_2023–2027
       country: pl
       language: pl
       topic: role.pep

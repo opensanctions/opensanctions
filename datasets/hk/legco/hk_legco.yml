@@ -26,6 +26,8 @@ description: |
   educational qualifications.
 entry_point: crawler.py
 prefix: hk-legco
+tags:
+  - list.pep
 publisher:
   name: Hong Kong Legislative Council
   official: true

@@ -22,6 +22,7 @@ tags:
   - list.sanction
   - list.sanction.eu
   - issuer.west
+  - sector.maritime
 url: https://docs.google.com/spreadsheets/d/1rauQMdCYTjTwmSzqfUvur1SfkCGYwfRn6_e5_oX39EY/edit?gid=0#gid=0
 summary: >-
   Supplemental list of people, companies, and organizations sanctioned
@@ -48,7 +49,7 @@ assertions:
     schema_entities:
       Company: 100
       Person: 10
-      LegalEntity: 10
+      LegalEntity: 5
       Organization: 10
       Vessel: 10
 

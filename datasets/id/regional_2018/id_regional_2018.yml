@@ -18,6 +18,8 @@ description: |
   The data was originally sourced from the Indonesian General Election Commission open data portal. This datasource now
   operates on the last archived copy of the original data, retrieved at 2025-04-09, after which the website went
   offline.
+tags:
+  - list.pep
 publisher:
   name: Komisi Pemilihan Umum
   name_en: General Elections Commission

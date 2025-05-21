@@ -32,6 +32,9 @@ description: |
   The original data contains a rich set of source documents which we've 
   excluded from the entity network we've imported into OpenSanctions.
 url: https://dprk-reports.org/pages/about
+tags:
+  - target.kp
+  - sector.maritime
 publisher:
   name: Korea Risk Group at RUSI
   acronym: RUSI

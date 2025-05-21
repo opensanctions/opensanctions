@@ -18,6 +18,7 @@ ORG_PARSE_PROMPT = """From the following list of organisations or companies, ple
         include the entity name exactly as stated, without any additions. If only one entity is listed,
         make it the sole item in the JSON array `entities`."""
 NEW_BANK_ORGS = {}
+PROGRAM_NAME = "US Federal Reserve Enforcement Actions"
 
 
 def crawl_item(input_dict: Dict[str, str], context: Context):
@@ -72,7 +73,13 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
         if schema == "Company":
             entity.add("topics", "fin.bank")
 
-        sanction = h.make_sanction(context, entity, key=[effective_date])
+        sanction = h.make_sanction(
+            context,
+            entity,
+            key=[effective_date],
+            program_name=PROGRAM_NAME,
+            program_key=h.lookup_sanction_program_key(context, PROGRAM_NAME),
+        )
         h.apply_date(sanction, "startDate", effective_date)
         sanction.add("provisions", provisions)
         sanction.add("description", sanction_description)

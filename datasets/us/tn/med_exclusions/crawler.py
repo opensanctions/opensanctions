@@ -3,9 +3,7 @@ from zavod.shed import zyte_api
 
 
 def crawl(context: Context) -> None:
-    data = zyte_api.fetch_json(
-        context, context.data_url, expected_charset=None, geolocation="us"
-    )
+    data = zyte_api.fetch_json(context, context.data_url, geolocation="us")
     for row in data["data"]:
         first_name = row.pop("First Name")
         last_name = row.pop("Last Name")

@@ -45,6 +45,9 @@ description: |
    > HHS/OIG-excluded individuals and entities are not allowed to receive
    > reimbursement for providing Kentucky Medicaid services in any capacity,
    > even if they are not on the Kentucky Medicaid list.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Kentucky Department for Medicaid Services
   description: |

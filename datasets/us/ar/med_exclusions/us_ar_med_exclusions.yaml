@@ -25,6 +25,9 @@ description: |
   > services to any clients. Medical providers are liable for all fees paid to them by Arkansas
   > Medicaid for services rendered by excluded individuals and are subject to audits and recoupment
   > of any Medicaid funds paid for services.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Arkansas Department of Human Services
   description: |

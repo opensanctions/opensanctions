@@ -1,4 +1,8 @@
+import orjson
+
 from zavod import Context, helpers as h
+from zavod.shed import zyte_api
+from zavod.shed.zyte_api import ZyteAPIRequest
 from zavod.stateful.positions import categorise
 
 
@@ -91,12 +95,18 @@ def crawl(context: Context):
         }""",
     }
 
-    # We are going to query the graphql endpoint to retrive the data and then process each item
-    response = context.http.post(
-        "https://micrositios.diputados.gob.mx:4001/graphql", json=json_data
+    # We are going to query the graphql endpoint to retrieve the data and then process each item
+    zyte_result = zyte_api.fetch(
+        context,
+        ZyteAPIRequest(
+            url="https://micrositios.diputados.gob.mx:4001/graphql",
+            method="POST",
+            body=orjson.dumps(json_data),
+            headers={"Content-Type": "application/json"},
+            geolocation="MX",
+        ),
     )
-    response.raise_for_status()
-    results = response.json()
+    results = orjson.loads(zyte_result.response_text)
 
     for item in results["data"]["allDiputados"]:
         crawl_item(item, context)

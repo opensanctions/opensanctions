@@ -33,6 +33,7 @@ publisher:
 tags:
   - list.sanction
   - issuer.west
+  - sector.maritime
 url: https://www.seco.admin.ch/seco/en/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos.html
 data:
   url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction
@@ -55,6 +56,66 @@ assertions:
       Vessel: 250
 
 lookups:
+  sanction.program:
+    options:
+      - match: "Ordinance of 16 March 2022 on measures against Belarus (SR 946.231.116.9), annex 5, 13, 14 and 15"
+        value: SECO-BRUS
+      - match: "Ordinance of 30 March 2011 on measures against Libya (SR 946.231.149.82), annexes 2, 3, 4 and 5"
+        value: SECO-LIBYA
+      - match: "Ordinance of 11 November 2015 on measures against the Islamic Republic of Iran (SR 946.231.143.6), annexes 5-7"
+        value: SECO-IRAN
+      - match: "Ordinance of 2 October 2000 on measures against individuals and entities associated with Usama bin Laden, the group «Al-Qaïda» or the Taliban (SR 946.203), annex 2"
+        value: SECO-AFGH
+      - match: "Ordinance of 4 March 2022 on measures related to the situation in Ukraine (RS 946.231.176.72), annexes 2, 8, 9, 10, 11, 12,13, 14, 14a, 15, 15a, 15b, 25 and 33"
+        value: SECO-UKRAINE
+      - match: "Ordinance of 14 March 2014  on measures against the Central African Republic (RS 946.231.123.6), annex"
+        value: SECO-CAR
+      - match: "Ordinance of 5 December 2014 on measures against Yemen (SR 946.231.179.8), annex"
+        value: SECO-YEMEN
+      - match: "Ordinance of 12 August 2015 on measures against the Republic of South Sudan (SR 946.231.169.9), annexes 1 and 2"
+        value: SECO-SOUTHSUDAN
+      - match: "Ordinance of 4 november 2015 on measures against Burundi (SR 946.231.121.8), annex"
+        value: SECO-BURUNDI
+      - match: "Ordinance of 18 May 2016 on measures against North Korea (SR 946.231.127.6), annexes 1 et 6"
+        value: SECO-NORTHKOREA
+      - match: "Ordinance of 22 June 2005 on measures against the Democratic Republic of Congo (SR 946.231.12), annexes 1 and 2"
+        value: SECO-DRC
+      - match: "Ordinance of 28 March 2018 on measures against Venezuela (RS 946.231.178.5), Annex 1"
+        value: SECO-VEN
+      - match: "Ordinance of 17 October 2018 on measures against Myanmar (SR 946.231.157.5), annex 1"
+        value: SECO-MYANMAR
+      - match: "Ordinance of 7 August 1990 on economic measures against the Republic of Iraq (SR 946.206), annex"
+        value: SECO-IRAQ
+      - match: "Ordinance of 25 May 2005 on measures against Sudan (SR 946.231.18), annex"
+        value: SECO-SUDAN
+      - match: "Ordinance of 24 February 2010 on measures against Guinea (SR 946.231.138.1), annex 2"
+        value: SECO-GUINEA
+      - match: "Ordinance of 1 June 2012 on measures against Guinea-Bissau (SR 946.231.138.3), annex 1 and 2"
+        value: SECO-BISSAU
+      - match: "Ordinance of 13 May 2009 on measures against Somalia (SR 946.231.169.4), annex 1"
+        value: SECO-SOMALIA
+      - match: "Ordinance of 8 June 2012 on measures against Syria (SR 946.231.172.7), annex 7"
+        value: SECO-SYRIA
+      - match: "Ordinance of 24 June 2020 on measures against Nicaragua (RS 946.231.158.5), Annex"
+        value: SECO-NICARAGUA
+      - match: "Ordinance of 16 December 2022 on measures concerning Haiti (SR 946.231.139.4), annex"
+        value: SECO-HAITI
+      - match: "Ordinance  of 19 March 2002 on measures against Zimbabwe (SR 946.209.2), annex 2"
+        value: SECO-ZIM
+      - match: "Ordinance of 28 June 2023 on measures concerning Moldova (RS 946.231.156.5), annex"
+        value: SECO-MOLDOVA
+      - match: "Ordinance of 10 April 2024 on measures against persons and organisations supporting Hamas or the Palestinian Islamic Jihad"
+        value: SECO-HAMAS
+      - match: "Ordinance of 10 April 2024 on measures concerning Guatemala, annex"
+        value: SECO-GUATEMALA
+      - match: "Ordinance of 19 January 2005 on measures against Liberia (SR 946.231.16), annexes 1 and 2"
+        value: SECO-LIBERIA
+      - match: "Ordinance of 23 June 1999 on measures against certain persons of the former Federal Republic of Yugoslavia (SR 946.207), annex 2"
+        value: SECO-YUGO
+      - match: "Ordinance of 22 November 2017 on measures against the Republic of Mali (SR 946.231.154.1), annex"
+        value: SECO-MALI
+      - match: "Ordinance of 19 January 2005 on measures against Côte d’Ivoire (SR 946.231.13), annex"
+        value: SECO-CDI
   relations:
     lowercase: true
     options:

@@ -1,4 +1,6 @@
 import csv
+from collections import defaultdict
+from dataclasses import field, dataclass
 from io import StringIO
 from typing import Any, Dict, List, Optional, Set, Tuple
 from urllib.parse import urlencode
@@ -6,9 +8,9 @@ from nomenklatura.wikidata import WikidataClient, Claim
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.stateful.positions import categorised_position_qids
-from zavod.shed.wikidata.position import wikidata_position
 from zavod.shed.wikidata.human import wikidata_basic_human
+from zavod.shed.wikidata.position import wikidata_position
+from zavod.stateful.positions import categorised_position_qids
 
 URL = "https://petscan.wmcloud.org/"
 QUERY = {
@@ -42,9 +44,21 @@ MUNI_COUNTRIES = {
     "ke",
     "au",
     "br",
+    "pl",
+    "cz",
+    "sk",
+    "hu",
+    "ro",
 }
 # That one time a PEP customer asked to be included....
 ALWAYS_PERSONS = ["Q21258544"]
+
+
+@dataclass
+class FoundRecord:
+    from_categories: Set[str] = field(default_factory=set)
+    from_positions: Set[str] = field(default_factory=set)
+    from_declarator: bool = False
 
 
 class CrawlState(object):
@@ -53,7 +67,10 @@ class CrawlState(object):
         self.client = WikidataClient(context.cache, session=context.http)
         self.log = context.log
         self.ignore_positions: Set[str] = set()
-        self.persons: Set[str] = set(ALWAYS_PERSONS)
+
+        self.persons: Dict[str, FoundRecord] = defaultdict(FoundRecord)
+        self.persons.update({qid: FoundRecord() for qid in ALWAYS_PERSONS})
+
         self.person_title: Dict[str, str] = {}
         self.person_countries: Dict[str, Set[str]] = {}
         self.person_topics: Dict[str, Set[str]] = {}
@@ -68,10 +85,11 @@ def title_name(title: str) -> str:
 def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
     item = state.client.fetch_item(claim.qid)
     if item is None:
-        state.ignore_positions.add(claim.qid)
+        if claim.qid is not None:
+            state.ignore_positions.add(claim.qid)
         return
     position = wikidata_position(state.context, state.client, item)
-    if position is None:
+    if position is None or position.id is None:
         state.ignore_positions.add(item.id)
         return
 
@@ -188,20 +206,20 @@ def find_paths(
     return paths
 
 
-def crawl_category(state: CrawlState, category: Dict[str, Any]) -> None:
-    cache_days = int(category.pop("cache_days", 14))
-    topics: List[str] = category.pop("topics", [])
-    if "topic" in category:
-        topics.append(category.pop("topic"))
-    country: Optional[str] = category.pop("country", None)
+def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> None:
+    cache_days = int(category_crawl_spec.pop("cache_days", 14))
+    topics: List[str] = category_crawl_spec.pop("topics", [])
+    if "topic" in category_crawl_spec:
+        topics.append(category_crawl_spec.pop("topic"))
+    country: Optional[str] = category_crawl_spec.pop("country", None)
 
     query = dict(QUERY)
-    cat: str = category.pop("category", "")
+    cat: str = category_crawl_spec.pop("category", "")
     query["categories"] = cat.strip()
-    query.update(category)
+    query.update(category_crawl_spec)
     state.log.info("Crawl category: %s" % cat)
 
-    position_data: Dict[str, Any] = category.pop("position", {})
+    position_data: Dict[str, Any] = category_crawl_spec.pop("position", {})
     position: Optional[Entity] = None
     if "name" in position_data:
         position = h.make_position(
@@ -218,7 +236,7 @@ def crawl_category(state: CrawlState, category: Dict[str, Any]) -> None:
         person_qid = row["Wikidata"]
         if person_qid is None:
             continue
-        state.persons.add(person_qid)
+        state.persons[person_qid].from_categories.add(cat)
 
         if person_qid not in state.person_topics:
             state.person_topics[person_qid] = set()
@@ -296,12 +314,15 @@ def crawl_position_seeds(state: CrawlState) -> None:
         response = state.client.query(query)
         for result in response.results:
             role = result.plain("role")
-            roles.add(role)
+            if role is not None:
+                roles.add(role)
 
     state.log.info("Found %d seed positions" % len(roles))
     for role in roles:
-        state.persons.update(crawl_position_holder(state, role))
-    state.context.flush()
+        for position_holder_qid in crawl_position_holder(state, role):
+            state.persons[position_holder_qid].from_positions.add(role)
+
+        state.context.flush()
 
 
 def crawl_declarator(state: CrawlState) -> None:
@@ -316,27 +337,31 @@ def crawl_declarator(state: CrawlState) -> None:
     response = state.client.query(query)
     state.log.info("Found %d declarator profiles" % len(response.results))
     for result in response.results:
-        person = result.plain("person")
-        state.persons.add(person)
-        if person not in state.person_topics:
-            state.person_topics[person] = set()
-        state.person_topics[person].add("role.pep")
-        if person not in state.person_countries:
-            state.person_countries[person] = set()
-        state.person_countries[person].add("ru")
+        person_qid = result.plain("person")
+        if person_qid is None:
+            continue
+        state.persons[person_qid] = FoundRecord(from_declarator=True)
+        if person_qid not in state.person_topics:
+            state.person_topics[person_qid] = set()
+        state.person_topics[person_qid].add("role.pep")
+        if person_qid not in state.person_countries:
+            state.person_countries[person_qid] = set()
+        state.person_countries[person_qid].add("ru")
 
 
 def crawl(context: Context) -> None:
     state = CrawlState(context)
     crawl_declarator(state)
     crawl_position_seeds(state)
-    categories: List[Dict[str, Any]] = context.dataset.config.get("categories", [])
-    for category in categories:
-        crawl_category(state, category)
+    category_crawl_specs: List[Dict[str, Any]] = context.dataset.config.get(
+        "categories", []
+    )
+    for category_crawl_spec in category_crawl_specs:
+        crawl_category(state, category_crawl_spec)
         state.context.flush()
 
     context.log.info("Generated %d persons" % len(state.persons))
-    for idx, person_qid in enumerate(state.persons):
+    for idx, (person_qid, found_record) in enumerate(state.persons.items()):
         entity = crawl_person(state, person_qid)
         if entity is None:
             continue
@@ -351,6 +376,8 @@ def crawl(context: Context) -> None:
 
         positions = state.person_positions.get(person_qid, [])
         for position in positions:
+            if position.id is None:
+                continue
             occupancy = h.make_occupancy(state.context, entity, position)
             if occupancy is not None:
                 state.context.emit(occupancy)
@@ -359,10 +386,20 @@ def crawl(context: Context) -> None:
                 state.context.emit(position)
 
         state.log.info(
-            "Crawled person %s: %s %r"
-            % (entity.id, entity.caption, entity.get("topics"))
+            f"Crawled person {entity.id} "
+            f"(found in categories {found_record.from_categories}, positions {found_record.from_positions}): "
+            f"{entity.caption} {entity.get('topics')}"
         )
-        state.context.emit(entity)
+
+        # Some categories we crawl but don't assign topics to. We do this for two reasons:
+        #   1. We only want to discover interesting positions in the category (which then trigger at
+        #      topic assignment), but there are more persons in the category not relevant to us.
+        #   2. We want to discover QIDs for enrichment, just in case the Wikidata enricher (which only searches
+        #      for a single name) doesn't find them. In this case, the xref process will discover the QID for the
+        #      cluster (but not actually pull in the statements marked as external).
+        #  In both cases, we want to emit the statements as external.
+        state.context.emit(entity, external=(len(entity.get("topics")) == 0))
+
         if idx > 0 and idx % 1000 == 0:
             state.context.flush()
 

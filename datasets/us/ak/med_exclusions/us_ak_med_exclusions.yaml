@@ -35,6 +35,9 @@ description: |
   >   prohibited from participating or providing services in the Medicaid program in all
   >   categories of service. The exclusion remains in effect until the individual is removed
   >   from this list.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Alaska Department of Health
   description: |

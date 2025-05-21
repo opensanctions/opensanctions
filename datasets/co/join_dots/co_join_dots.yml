@@ -30,6 +30,8 @@ description: |
 
   This dataset currently includes Representatives and Senators, with some company
   ownership information added as notes to these political office-holders.
+tags:
+  - list.pep
 publisher:
   name: Directorio Legislativo/EITI
   description: |

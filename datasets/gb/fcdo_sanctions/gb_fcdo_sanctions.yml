@@ -37,6 +37,7 @@ dates:
 tags:
   - list.sanction
   - issuer.west
+  - sector.maritime
 
 assertions:
   min:
@@ -48,9 +49,44 @@ assertions:
     schema_entities:
       Person: 7200
       Organization: 2090
-      Vessel: 290
+      Vessel: 400
 
 lookups:
+  sanction.program:
+    options:
+      - match: 
+          - "The Afghanistan (Sanctions) (EU Exit) Regulations 2020"
+          - "Isil (Da'esh) and Al-Qaeda (United Nations Sanctions) (EU Exit) Regulations 2019"
+          - "The Republic of Belarus (Sanctions) (EU Exit) Regulations 2019"
+          - "The Bosnia and Herzegovina (Sanctions) (EU Exit) Regulations 2020"
+          - "The Central African Republic (Sanctions) (EU Exit) Regulations 2020"
+          - "The Chemical Weapons (Sanctions) (EU Exit) Regulations 2019"
+          - "The Counter-Terrorism (Sanctions) (EU Exit) Regulations 2019"
+          - "The Counter-Terrorism (International Sanctions) (EU Exit) Regulations 2019"
+          - "The Cyber (Sanctions) (EU Exit) Regulations 2020"
+          - "The Democratic People's Republic of Korea (Sanctions) (EU Exit) Regulations 2019"
+          - "The Global Anti-Corruption Sanctions Regulations 2021"
+          - "The Global Human Rights Sanctions Regulations 2020"
+          - "The Republic of Guinea-Bissau (Sanctions) (EU Exit) Regulations 2019"
+          - "The Guinea (Sanctions) (EU Exit) Regulations 2019"
+          - "The Haiti (Sanctions) Regulations 2022"
+          - "The Iran (Sanctions) (Nuclear) (EU Exit) Regulations 2019"
+          - "The Iran (Sanctions) Regulations 2023"
+          - "The Libya (Sanctions) (EU Exit) Regulations 2020"
+          - "The Mali (Sanctions) (EU Exit) Regulations 2020"
+          - "The Myanmar (Sanctions) Regulations 2021"
+          - "The Russia (Sanctions) (EU Exit) Regulations 2019"
+          - "The Syria (Sanctions) (EU Exit) Regulations 2019"
+          - "The Venezuela (Sanctions) (EU Exit) Regulations 2019"
+          - "The Yemen (Sanctions) (EU Exit) Regulations 2020"
+          - "The Zimbabwe (Sanctions) (EU Exit) Regulations 2019"
+          - "The Sudan (Sanctions) (EU Exit) Regulations 2020"
+          - "The South Sudan (Sanctions) (EU Exit) Regulations 2019"
+          - "The Somalia (Sanctions) (EU Exit) Regulations 2020"
+          - "The Nicaragua (Sanctions) (EU Exit) Regulations 2020"
+          - "The Iraq (Sanctions) (EU Exit) Regulations 2020"
+          - "The Democratic Republic of the Congo (Sanctions) (EU Exit) Regulations 2019"
+        value: GB-SAMLA
   languages:
     options:
       - match: Arabic

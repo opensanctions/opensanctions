@@ -29,6 +29,7 @@ url: https://www.international.gc.ca/world-monde/international_relations-relatio
 tags:
   - list.sanction
   - issuer.west
+  - sector.maritime
 publisher:
   name: "Global Affairs Canada"
   description: |
@@ -54,6 +55,30 @@ assertions:
       LegalEntity: 2480
 
 lookups:
+  sanction.program:
+    options:
+      - match: 
+          - "Russia / Russie"
+          - "Myanmar (Burma) / Myanmar (Birmanie)"
+          - "Nicaragua"
+          - "Belarus / Bélarus"
+          - "Syria / Syrie"
+          - "Ukraine"
+          - "Venezuela "
+          - "Zimbabwe"
+          - "Moldova"
+          - "Iran"
+          - "Haiti / Haïti"
+          - "Guatemala"
+          - "China / Chine"
+          - "South Sudan / Soudan du sud"
+          - "Sri Lanka"
+          - "Sudan / Soudan"
+          - "Hamas Terrorist Attacks / Attaques terroristes du Hamas"
+          - "Extremist Settler Violence / Violence extrémiste des colons"
+        value: CA-SEMA
+      - match: "Justice for Victims of Corrupt Foreign Officials Regulations (JVCFOR) / Règlement relatif à la justice pour les victimes de dirigeants étrangers corrompus (RJVDEC)"
+        value: CA-JVCFOA
   type.country:
     lowercase: true
     normalize: true

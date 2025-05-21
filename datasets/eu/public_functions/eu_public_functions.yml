@@ -45,6 +45,8 @@ description: |
   Since some of the positions are not clearly identified in the original document,
   or left as broad or generic categories, we initially only include the positions
   we could clearly identify as positions which exist in those countries.
+tags:
+  - list.pep
 publisher:
   name: Official Journal of the European Union
   acronym: OJEU

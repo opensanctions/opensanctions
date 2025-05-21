@@ -21,6 +21,9 @@ description: |
   the Department may terminate the organization and/or any individual responsible for the
   violation. A provider shall not submit any claims to NMAP that contain the costs of
   services provided by excluded persons or entities.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Nebraska Department of Health and Human Services
   description: |
