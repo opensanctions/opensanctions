@@ -1,4 +1,6 @@
 name: lint_crawlers
+permissions:
+  contents: read
 
 on:
   - push
