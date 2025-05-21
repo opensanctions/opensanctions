@@ -79,11 +79,6 @@ lookups:
         value: AU-YUGO
       - match: "Autonomous (Iran)"
         value: AU-IRAN
-      # Autonomous sanction regime for Iraq is missing
-      # because it's UN related. I think we should remove 
-      # it from the website. 
-      # - match: 
-      #   value: AU-IRAQ
       - match: "Autonomous (Libya)"
         value: AU-LIBYA
       - match: "Autonomous (Myanmar)"
