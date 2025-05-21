@@ -179,6 +179,7 @@ def crawl(context: Context):
                 for regime in designation.iterfind(".//RegimeName")
                 if regime.text
             ]
+            assert len(regime_name) == 1, regime_name
             # Make a sanctions entity
             sanction = h.make_sanction(
                 context,
