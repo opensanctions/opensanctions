@@ -34,8 +34,12 @@ def crawl(context: Context):
             entity.add("name", names)
             entity.add("topics", "sanction")
 
-            sanction = h.make_sanction(context, entity)
-            sanction.add("program", PROGRAM)
+            sanction = h.make_sanction(
+                context,
+                entity,
+                program_name=PROGRAM,
+                program_key=h.lookup_sanction_program_key(context, PROGRAM),
+            )
 
             for match in IN_BRACKETS.findall(text):
                 # match = match.replace("\xa0", "")
