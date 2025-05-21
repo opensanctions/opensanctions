@@ -53,6 +53,10 @@ assertions:
       LegalEntity: 190
 
 lookups:
+  sanction.program:
+    options:
+      - match: "art. 118 ustawy z dnia 1 marca 2018 r. o przeciwdziałaniu praniu pieniędzy i finansowaniu terroryzmu"
+        value: PL-AML118
   other_information:
     options:
       - match: "a) narodowość: iracka\nb) lokalizacja: Anbar Province, Republika Iraku"

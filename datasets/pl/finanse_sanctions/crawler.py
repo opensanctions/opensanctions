@@ -69,7 +69,12 @@ def crawl_row(context: Context, row: Dict[str, str]):
         )
 
     entity.add("topics", "sanction")
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_key=h.lookup_sanction_program_key(context, POLAND_PROGRAM),
+    )
+    sanction.add("program", POLAND_PROGRAM, lang="pol")
     h.apply_date(sanction, "listingDate", row.pop("data_umieszczenia_na_liscie"))
     sanction.add(
         "reason",
@@ -81,7 +86,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
         row.pop("uzasadnienie_wpisu_na_liste_url"),
         lang="pol",
     )
-    sanction.add("program", POLAND_PROGRAM, "pol")
 
     context.emit(entity)
     context.emit(sanction)
