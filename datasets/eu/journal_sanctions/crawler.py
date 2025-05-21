@@ -21,17 +21,24 @@ def crawl_row(
     entity = context.make(entity_type)
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
-    canonical_id = linker.get_canonical(entity.id)
-    for other_id in linker.get_referents(canonical_id):
-        if other_id.startswith("eu-fsf-"):
-            context.log.warning(
-                f"Row {row_idx} is also present in FSF XML: {other_id}, can be removed from sheet",
-                row_id=row_id,
-                other_id=other_id,
-                name=name,
-                entity_type=entity_type,
-                country=country,
-            )
+
+    # Commented out since the 20 May journal updates added details like IDs and
+    # cyrilic names which aren't in the XML yet but the entities are.
+    # Uncomment when the details are added to FSF expected around 6 June
+    # e.g. check whether https://www.opensanctions.org/statements/NK-VwonxcqhDhAzHKWXCdSdXd/?prop=registrationNumber
+    # has 1674003000 from eu_fsf.
+    #
+    # canonical_id = linker.get_canonical(entity.id)
+    # for other_id in linker.get_referents(canonical_id):
+    #     if other_id.startswith("eu-fsf-"):
+    #         context.log.warning(
+    #             f"Row {row_idx} is also present in FSF XML: {other_id}, can be removed from sheet",
+    #             row_id=row_id,
+    #             other_id=other_id,
+    #             name=name,
+    #             entity_type=entity_type,
+    #             country=country,
+    #         )
 
     entity.add("topics", "sanction")
     dob = row.pop("DOB")
