@@ -41,7 +41,15 @@ Use the `.yml` extension.
 
 ### Tags
 
-Tags help describe and categorize datasets. They are assigned based on shared attributes—such as target country, legal basis, or list type (e.g. sanctions, PEPs, regulatory actions)—and make it easier to filter, explore, and compare data across sources.
+`tags` are a controlled vocabulary used to categorize datasets by shared attributes such as legal basis, list type, target country, or sector. They support cross-referencing within specific scopes, such as distinguishing between sanctions, PEPs, and regulatory actions, and enable users to select the most relevant datasets for a given country, sector, or risk category.
+
+Currently, tags cover the following dimensions: 
+- list type (e.g. `list.sanction`, `list.pep`); 
+- issuer and jurisdiction (e.g. `issuer.west`, `juris.eu`);
+- target countries (e.g. `target.ru`, `target.us`)
+- sectors (e.g. `sector.financial`, `sector.maritime`)
+- risk themes (e.g. `risk.klepto`). 
+
 You can find a full overview of available tags [here](https://www.opensanctions.org/docs/metadata/).
 
 ### Publisher
