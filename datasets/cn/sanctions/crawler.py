@@ -14,6 +14,7 @@ def crawl(context: Context) -> None:
             if name is None:
                 continue
             qid = row.pop("QID", None)
+            program = row.pop("List", None)
             entity.id = qid or context.make_id(name)
             entity.add("wikidataId", qid)
             entity.add("name", name, lang="eng")
@@ -23,9 +24,13 @@ def crawl(context: Context) -> None:
             entity.add("notes", row.pop("Summary", None), lang="eng")
             entity.add("notes", row.pop("Chinese summary", None), lang="zho")
             entity.add("topics", "sanction.counter")
-            sanction = h.make_sanction(context, entity)
+            sanction = h.make_sanction(
+                context,
+                entity,
+                program_name=program,
+                program_key=h.lookup_sanction_program_key(context, program),
+            )
             sanction.set("authority", row.pop("Body", None))
-            sanction.add("program", row.pop("List", None))
             h.apply_date(sanction, "startDate", row.pop("Date", None))
             h.apply_date(sanction, "endDate", row.pop("End date", None))
             sanction.add("sourceUrl", row.pop("Source URL", None))
