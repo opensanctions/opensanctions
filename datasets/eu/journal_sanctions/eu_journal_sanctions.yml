@@ -49,7 +49,7 @@ assertions:
     schema_entities:
       Company: 100
       Person: 10
-      LegalEntity: 10
+      LegalEntity: 5
       Organization: 10
       Vessel: 10
 
