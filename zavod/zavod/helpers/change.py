@@ -2,6 +2,7 @@ from lxml import etree
 from hashlib import sha1
 from typing import Any, Optional
 from normality import collapse_spaces
+from datetime import datetime
 
 from zavod.logs import get_logger
 from zavod.context import Context
@@ -101,3 +102,20 @@ def assert_html_url_hash(
     doc = context.fetch_html(url)
     node = doc.find(path) if path is not None else doc
     return assert_dom_hash(node, hash, raise_exc=raise_exc, text_only=text_only)
+
+
+def schedule_manual_check(
+    context: Context,
+    reference_date_str: str,
+    interval_months: int,
+) -> None:
+    """Emit a warning to manually check the data source based on a fixed date."""
+    now = datetime.utcnow()
+    reference_date = datetime.fromisoformat(reference_date_str)
+
+    # Calculate how many intervals have passed
+    interval_days = interval_months * 30  # Approximate
+    time_since = (now - reference_date).days
+
+    if time_since >= interval_days:
+        context.log.warn("It's time to manually check the data source for updates.")
