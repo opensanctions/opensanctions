@@ -115,12 +115,27 @@ lookups:
       - match: "Lieu d'enregistrement: Fédération de Russie"
         props:
           jurisdiction: ru
+      - match: "Lieu d'enregistrement: Israël"
+        props:
+          jurisdiction: il
       - match: "Lieu d'enregistrement: Turquie"
         props:
           jurisdiction: tr
+      - match: "Lieu d'enregistrement: Hong Kong"
+        props:
+          jurisdiction: hk
       - match: "Lieu d'enregistrement: Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
         props:
           address: "Lieu d'enregistrement: Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
+      - match: "Lieu d'enregistrement: Fédération de Russie - Lieu d'enregistrement: Fédération de Russie"
+        props:
+          jurisdiction: ru
+      - match: "Lieu d'enregistrement: République populaire de Chine"
+        props:
+          jurisdiction: cn
+      - match: "Principal établissement: Crimée, Ukraine"
+        props:
+          address: "Crimée, Ukraine"
       - match: "Entités associées : GTLK Europe, GTLK Asia, GTLK Middle East: Société de transport"
         associates:
           - GTLK Europe
@@ -207,6 +222,12 @@ lookups:
       - match: "Type d'entité: société d'État"
         props:
           legalForm: société d'État
+      - match: "Type d'entité: société anonyme"
+        props:
+          legalForm: société anonyme
+      - match: "Type d'entité: Société d'assurance par actions"
+        props:
+          legalForm: Société d'assurance par actions
       - match: "Lieu d'enregistrement: Fédération de Russie (197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30)"
         props:
           jurisdiction: ru
@@ -381,6 +402,39 @@ lookups:
         props:
           jurisdiction: ir
           address: "Shiraz, province de Fars, Iran"
+      - match: "Entités associées: LLC “Intervesp Company”"
+        associates:
+          - LLC “Intervesp Company”
+      - match: "Entités associées: JSC “Research and Production Corporation ‘Uralvagonzavod’”"
+        associates:
+          - JSC “Research and Production Corporation ‘Uralvagonzavod’”
+      - match: "Lieu d'enregistrement: Crimée, Ukraine"
+        props:
+          jurisdiction: ua-cri
+          address: "Crimée, Ukraine"
+      - match: "Entités associées: JSC MPO-Gidropribor; JSC Tactical Missiles Corporation"
+        associates:
+          - JSC MPO-Gidropribor
+          - JSC Tactical Missiles Corporation
+      - match: "Date d'enregistrement: 1.11.2001, 20.9.2002"
+        props:
+          incorporationDate: [2001-11-01, 2002-09-20]
+      - match: "Type d'entité: société à responsabilité limitée: Lieu d'enregistrement: Mourmansk"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "Mourmansk"
+      - match: "Site internet://nvgushkuynik.ru"
+        props:
+          website: "nvgushkuynik.ru"
+      - match: "Lieu d'enregistrement: Mourmansk"
+        props:
+          jurisdiction: ru
+          address: "Mourmansk"
+      - match: "Lieu d'enregistrement: Istanbul"
+        props:
+          jurisdiction: tr
+          address: "Istanbul"
 
   ####################################################################################################
   ####################################################################################################
@@ -4532,8 +4586,7 @@ lookups:
           registrationNumber: 1107746582052
       - match: "Numéro d'enregistrement: 110108010146888 Code de crédit social unifié: 91110108661572276L"
         props:
-          registrationNumber: 110108010146888
-          idNumber: 91110108661572276L
+          registrationNumber: [110108010146888, 91110108661572276L]
       - match: "Date d'enregistrement: 4.2.2003 Numéro d'enregistrement: 1037700128828"
         props:
           incorporationDate: 2003-02-04
@@ -4705,7 +4758,7 @@ lookups:
           registrationNumber: 110108010146888
       - match: "Code de crédit social unifié: 91110108661572276L"
         props:
-          idNumber: 91110108661572276L
+          registrationNumber: 91110108661572276L
       - match: "Numéro d'enregistrement: 1037700128828"
         props:
           registrationNumber: 1037700128828
@@ -4960,3 +5013,267 @@ lookups:
         schema: Company
         props:
           kppCode: 780201001
+      - match: "49681112 - OKPO"
+        props:
+          okpoCode: 49681112
+      - match: "6671172432 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 6671172432
+      - match: "6671172432 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 6671172432
+      - match: "Type d'entité: musée - Lieu d'enregistrement: Crimée, Ukraine"
+        props:
+          jurisdiction: ua-cri
+          legalForm: musée
+      - match: "7710026574 - numéro d'identification fiscale"
+        props:
+          taxNumber: 7710026574
+      - match: "1027700186062 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1027700186062
+      - match: "7706441909 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 7706441909
+      - match: "1167746856738 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1167746856738
+      - match: "027801001 - KPP"
+        schema: Company
+        props:
+          kppCode: 027801001
+      - match: "0278179819 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 0278179819
+      - match: "1110280031531 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1110280031531
+      - match: "502701001 - KPP"
+        schema: Company
+        props:
+          kppCode: 502701001
+      - match: "5027150193 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 5027150193
+      - match: "1095027006722 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1095027006722
+      - match: "Site internet: 61btrz.ru"
+        props:
+          website: 61btrz.ru
+      - match: "780501001 - KPP"
+        schema: Company
+        props:
+          kppCode: 780501001
+      - match: "04343841 - Numéro d'enregistrement (Royaume Uni)"
+        props:
+          registrationNumber: 04343841
+          jurisdiction: gb
+      - match: "7728804257 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 7728804257
+      - match: "772801001 - KPP"
+        schema: Company
+        props:
+          kppCode: 772801001
+      - match: "1116165003635 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1116165003635
+      - match: "6165169426 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 6165169426
+      - match: "1027802718437 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1027802718437
+      - match: "7805230257 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 7805230257
+      - match: "540201001 - KPP"
+        schema: Company
+        props:
+          kppCode: 540201001
+      - match: "402501001 - KPP"
+        schema: Company
+        props:
+          kppCode: 402501001
+      - match: "21620758 - OKPO"
+        props:
+          okpoCode: 21620758
+      - match: "1245400007346 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1245400007346
+      - match: "1025005326202 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1025005326202
+      - match: "5042010793 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 5042010793
+      - match: "91110000100001529B - Code de crédit social unifié"
+        props:
+          registrationNumber: 91110000100001529B
+      - match: "1097746030030 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1097746030030
+      - match: "7707696113 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 7707696113
+      - match: "770701001 - KPP"
+        schema: Company
+        props:
+          kppCode: 770701001
+      - match: "5177746268530 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 5177746268530
+      - match: "9723038796 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 9723038796
+      - match: "1025203016717 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1025203016717
+      - match: "5260902190 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 5260902190
+      - match: "526001001 - KPP"
+        schema: Company
+        props:
+          kppCode: 526001001
+      - match: "DMCC-850120 - Numéro d'enregistrement"
+        props:
+          registrationNumber: DMCC-850120
+      - match: "1037703022158 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1037703022158
+      - match: "7703371192 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 7703371192
+      - match: "NN (NIF)/ KPP: 2901170107 / 519001001"
+        schema: Company
+        props:
+          taxNumber: 2901170107
+          kppCode: 519001001
+      - match: "1127746262390 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1127746262390
+      - match: "773101001 - KPP"
+        schema: Company
+        props:
+          kppCode: 773101001
+      - match: "1207700173581 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1207700173581
+      - match: "7722488005 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 7722488005
+      - match: "1027400875149 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1027400875149
+      - match: "7415015198 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 7415015198
+      - match: "BIN: 1027739334479"
+        props:
+          registrationNumber: 1027739334479
+      - match: "1164027059382 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1164027059382
+      - match: "4018011096 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 4018011096
+      - match: "401801001 - KPP"
+        schema: Company
+        props:
+          kppCode: 401801001
+      - match: "1229000019346 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1229000019346
+      - match: "9001011019 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 9001011019
+      - match: "1115476008889 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1115476008889
+      - match: "5402534361 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 5402534361
+      - match: "1024000947464 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1024000947464
+      - match: "4025019280 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 4025019280
+      - match: "1225000003458 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1225000003458
+      - match: "5040176793 - numéro d'identification fiscale"
+        props:
+          taxNumber: 5040176793
+      - match: "91210242MA10F83X1K - Code de crédit social unifié"
+        props:
+          idNumber: 91210242MA10F83X1K
+      - match: "504201001 - 504201001"
+        schema: Company
+        props:
+          kppCode: 504201001
+      - match: "91370125MA3F547335 - Code de crédit social unifié"
+        props:
+          registrationNumber: 91370125MA3F547335
+      - match: "1229300088423 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1229300088423
+      - match: "930801335 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 930801335
+      - match: "1097746813010 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1097746813010
+      - match: "7703712332 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 7703712332
+      - match: "771501001 - KPP"
+        schema: Company
+        props:
+          kppCode: 771501001
+      - match: "914201126983165914 - Code de crédit social unifié"
+        props:
+          registrationNumber: 914201126983165914
+      - match: "1237700447324 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1237700447324
+      - match: "7726030449 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 7726030449
+      - match: "1026201260447 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1026201260447
+      - match: "6231006875 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 6231006875
+      - match: "623401001 - KPP"
+        schema: Company
+        props:
+          kppCode: 623401001
+      - match: "1149204071675 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1149204071675
+      - match: "9201502053 - Numéro d'identification fiscale"
+        props:
+          taxNumber: 9201502053
+      - match: "91210213MA0YKTWE4K - Code de crédit social unifié"
+        props:
+          registrationNumber: 91210213MA0YKTWE4K
+      - match: "1216600040194 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 1216600040194
+      - match: "Autres entités associées: Intervesp-M LLC"
+        associates:
+          - Intervesp-M LLC
+      - match: "Date d'enregistrement: 7.7.1998 (ancienne entité), 27.11.2002"
+        props:
+          incorporationDate: ["1998-07-07", "2002-11-27"]
+      - match: "Numéro de registre économique: 12415926"
+        props:
+          registrationNumber: 12415926
+      - match: "Date d'enregistrement: 10.2.2022: 13906017"
+        props:
+          incorporationDate: 2022-02-10
+          registrationNumber: 13906017
