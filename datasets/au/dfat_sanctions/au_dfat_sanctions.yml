@@ -106,22 +106,33 @@ lookups:
         value: AU-SYRIA
       - match: "Autonomous (Zimbabwe)"
         value: AU-ZIM
-      - match:
-          - "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)"
+      - match: "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)"
+        value: UN-SCISIL
           - "1373 (2001)"
           - "1518 (Iraq)"
-          - "1533 (Democratic Republic of the Congo)"
-          - "1591 (Sudan)"
-          - "1718 (DPRK)"
+      - match: "1533 (Democratic Republic of the Congo)"
+        value: UN-SC1533
+      - match: "1591 (Sudan)"
+        value: UN-SC1591
+      - match: "1718 (DPRK)"
+        value: UN-SC1718
+      - match: 
           - "1970 (Libya) 1973 (Libya)"
           - "1970 (Libya)"
           - "1973 (Libya)"
-          - "1988 (Taliban)"
+        value: UN-SC1970
+      - match: "1988 (Taliban)"
+        value: UN-SC1988
+      - match: "2206 (South Sudan)"
+        value: UN-SC2206
+      - match: "2140 (Yemen)"
+        value: UN-SC2140
+      - match: "2713 (Al-Shabaab)"
+        value: UN-SC2713
+      - match: "2127 (Central African Republic)"
+        value: UN-SC2127
+      - match:
           - "2093 (2013)"
-          - "2127 (Central African Republic)"
-          - "2140 (Yemen)"
-          - "2206 (South Sudan)"
-          - "2713 (Al-Shabaab)"
           - "751 (Somalia and Eritrea)"
         value: null
   type:
