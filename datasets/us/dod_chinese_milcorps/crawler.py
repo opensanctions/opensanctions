@@ -1,5 +1,8 @@
-from zavod import Context, helpers
 import csv
+
+from zavod import Context, helpers as h
+
+PROGRAM_NAME = "Section 1260H of the William M. (“Mac”) Thornberry National Defense Authorization Act for Fiscal Year 2021 (Public Law 116-283)"
 
 
 def crawl(context: Context) -> None:
@@ -27,10 +30,11 @@ def crawl(context: Context) -> None:
                 own.add("asset", entity)
                 context.emit(own)
             entity.add("topics", "debarment")
-            sanction = helpers.make_sanction(context, entity)
-            sanction.add(
-                "program",
-                "Section 1260H of the William M. (“Mac”) Thornberry National Defense Authorization Act for Fiscal Year 2021 (Public Law 116-283)",
+            sanction = h.make_sanction(
+                context,
+                entity,
+                program_name=PROGRAM_NAME,
+                program_key=h.lookup_sanction_program_key(context, PROGRAM_NAME),
             )
             sanction.add("startDate", row.pop("Start date", None))
             sanction.add("endDate", row.pop("End date", None))
