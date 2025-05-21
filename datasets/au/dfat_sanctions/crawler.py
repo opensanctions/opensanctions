@@ -11,25 +11,6 @@ from zavod import helpers as h
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 ADDRESS_SPLITS = [";", "ii) ", "iii) "]
-# We don't want to duplicate UNSC resolutions on the website.
-IGNORE_PROGRAM = [
-    "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)",
-    "1373 (2001)",
-    "1518 (Iraq)",
-    "1533 (Democratic Republic of the Congo)",
-    "1591 (Sudan)",
-    "1718 (DPRK)",
-    "1970 (Libya) 1973 (Libya)",
-    "1970 (Libya)",
-    "1973 (Libya)",
-    "1988 (Taliban)",
-    "2093 (2013)",
-    "2127 (Central African Republic)",
-    "2140 (Yemen)",
-    "2206 (South Sudan)",
-    "2713 (Al-Shabaab)",
-    "751 (Somalia and Eritrea)",
-]
 
 
 def clean_date(date):
@@ -146,9 +127,7 @@ def parse_reference(
             key=source_program,
             program_name=source_program,
             source_program_key=source_program,
-            program_key=h.lookup_sanction_program_key(
-                context, source_program, ignore_source_key=IGNORE_PROGRAM
-            ),
+            program_key=h.lookup_sanction_program_key(context, source_program),
         )
         country = clean_country(row.pop("citizenship"))
         if entity.schema.is_a("Person"):

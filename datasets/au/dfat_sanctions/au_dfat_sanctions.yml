@@ -99,12 +99,31 @@ lookups:
       # Only one key in the source data but two different regimes: 
       # https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/specified-ukraine-regions-sanctions-regime
       # https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/ukraine-sanctions-regime
-      # - match: "Autonomous (Ukraine)"
-      #   value: ["AU-UKRAINE", "AU-UKRAINE-REG"]
+      # TODO: check how to map AU-UKRAINE-REG
+      - match: "Autonomous (Ukraine)"
+        value: "AU-UKRAINE"
       - match: "Autonomous (Syria)"
         value: AU-SYRIA
       - match: "Autonomous (Zimbabwe)"
         value: AU-ZIM
+      - match:
+          - "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)"
+          - "1373 (2001)"
+          - "1518 (Iraq)"
+          - "1533 (Democratic Republic of the Congo)"
+          - "1591 (Sudan)"
+          - "1718 (DPRK)"
+          - "1970 (Libya) 1973 (Libya)"
+          - "1970 (Libya)"
+          - "1973 (Libya)"
+          - "1988 (Taliban)"
+          - "2093 (2013)"
+          - "2127 (Central African Republic)"
+          - "2140 (Yemen)"
+          - "2206 (South Sudan)"
+          - "2713 (Al-Shabaab)"
+          - "751 (Somalia and Eritrea)"
+        value: null
   type:
     normalize: true
     lowercase: true
