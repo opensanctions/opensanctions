@@ -15,7 +15,7 @@ def crawl(context: Context):
 
     with open(data_path, "r") as fh:
         for row in csv.DictReader(fh):
-            entity = context.make("Person")
+            entity = context.make(row.pop("schema"))
             entity.id = context.make_slug(list(row.values()))
             entity.add("name", row.pop("name"))
             entity.add("country", row.pop("country"))
