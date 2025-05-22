@@ -14,7 +14,6 @@ def crawl(context: Context) -> None:
             if name is None:
                 continue
             qid = row.pop("QID", None)
-            program = row.pop("List", None)
             entity.id = qid or context.make_id(name)
             entity.add("wikidataId", qid)
             entity.add("name", name, lang="eng")
@@ -24,6 +23,7 @@ def crawl(context: Context) -> None:
             entity.add("notes", row.pop("Summary", None), lang="eng")
             entity.add("notes", row.pop("Chinese summary", None), lang="zho")
             entity.add("topics", "sanction.counter")
+            program = row.pop("List", None)
             sanction = h.make_sanction(
                 context,
                 entity,
