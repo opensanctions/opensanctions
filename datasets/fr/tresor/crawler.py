@@ -33,12 +33,14 @@ SEPARATORS = "/:;-. "
 TEXT_KEYS = {
     "Type d'entité": "legalForm",
     "Date d'enregistrement": "incorporationDate",
+    "Date de constitution": "incorporationDate",
     # address, which is a free text field we don't auto-parse because it's too easy for the value
     # to silently include a key we don't know about yet.
     "Lieu d'enregistrement": None,
     "Principal établissement": "jurisdiction",
     "Principaux établissements": "jurisdiction",
     "Établissement principal": "jurisdiction",
+    "Siège principal d'exploitation": "jurisdiction",
     "Numéro d'identification fiscale (INN)": "innCode",
     "Numéro personnel d'identification fiscale (INN)": "innCode",
     "INN (numéro d'identification fiscale)": "innCode",
@@ -73,6 +75,7 @@ TEXT_KEYS = {
     "Numéro fiscal": "taxNumber",
     "NIF:": "taxNumber",
     "OMI": "imoNumber",
+    "Courriel": "email",
     "Entités associées": None,
     "Entité associée": None,
     "Personnes associées": None,
