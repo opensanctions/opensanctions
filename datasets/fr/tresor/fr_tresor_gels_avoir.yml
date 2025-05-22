@@ -136,6 +136,18 @@ lookups:
       - match: "Principal établissement: Crimée, Ukraine"
         props:
           address: "Crimée, Ukraine"
+      - match: "Siège principal d'exploitation: République populaire de Chine"
+        props:
+          jurisdiction: cn
+      - match: "Lieu d'enregistrement: Prague"
+        props:
+          jurisdiction: cz
+          address: "Prague"
+      - match: "Principal établissement: République populaire de Chine; Fédération de Russie"
+        props:
+          jurisdiction:
+            - cn
+            - ru
       - match: "Entités associées : GTLK Europe, GTLK Asia, GTLK Middle East: Société de transport"
         associates:
           - GTLK Europe
@@ -228,6 +240,18 @@ lookups:
       - match: "Type d'entité: Société d'assurance par actions"
         props:
           legalForm: Société d'assurance par actions
+      - match: "Type d'entité: société de zone franche"
+        props:
+          legalForm: société de zone franche
+      - match: "Type d'entité: société à responsabilité limitée (s.r.o.)"
+        props:
+          legalForm: société à responsabilité limitée (s.r.o.)
+      - match: "Type d'entité: agence fédérale"
+        props:
+          legalForm: agence fédérale
+      - match: "Type d'entité: entreprise d'État fédérale"
+        props:
+          legalForm: entreprise d'État fédérale
       - match: "Lieu d'enregistrement: Fédération de Russie (197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30)"
         props:
           jurisdiction: ru
@@ -357,7 +381,6 @@ lookups:
       - match: "Lieu d'enregistrement: Russie"
         props:
           jurisdiction: ru
-          address: "Russie"
       - match: "Type d'entité: société à responsabilité limitée (SARL) (LLC)"
         props:
           legalForm: société à responsabilité limitée (SARL) (LLC)
@@ -435,6 +458,50 @@ lookups:
         props:
           jurisdiction: tr
           address: "Istanbul"
+      - match: ["Lieu d'enregistrement: Dubaï, Émirats arabes unis", "Lieu d'enregistrement: Émirats arabes unis"]
+        props:
+          jurisdiction: ae
+      - match: "Numéro de licence locale: 2420576.01"
+        props:
+          registrationNumber: 2420576.01
+      - match: "Date d'enregistrement: 2.11.2007: 1201000007889"
+        props:
+          incorporationDate: 2007-11-02
+          registrationNumber: 1201000007889
+      - match: "Courriel: kbis111olga@mail.ru; cannon49@mail.ru"
+        props:
+          email: ["kbis111olga@mail.ru", "cannon49@mail.ru"]
+      - match: "Principal établissement: République tchèque: CZ05185327"
+        props:
+          jurisdiction: cz
+          registrationNumber: CZ05185327
+      - match: "Date d'enregistrement: 24.3.1993, 31.12.2002"
+        props:
+          incorporationDate: [1993-03-24, 2002-12-31]
+      - match: "Numéro d'enregistrement de l'entreprise: 7452016"
+        props:
+          registrationNumber: 7452016
+      - match: "Type d'entité: entreprise de médias"
+        # That's not a legal form
+      - match: "Numéro d'enregistrement: 423277-5"
+        props:
+          registrationNumber: 423277-5
+      - match: "Personnes associées: Alexey Alekseevich Shashkov"
+        associates:
+          - Alexey Alekseevich Shashkov
+      - match: "Date d'enregistrement: 20.1.2022 6"
+        props:
+          incorporationDate: 2022-01-20
+      - match: "Fondateur: Hüseyin Dogru"
+        associates:
+          - Hüseyin Dogru
+      - match: "100000000001523 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 100000000001523
+
+
+
+
 
   ####################################################################################################
   ####################################################################################################
@@ -5277,3 +5344,8 @@ lookups:
         props:
           incorporationDate: 2022-02-10
           registrationNumber: 13906017
+      - match: "Lieu d'enregistrement: Istanbul - Lieu d'enregistrement: Istanbul: No d'identification TVA: 0081804196"
+        props:
+          jurisdiction: tr
+          address: Istanbul
+          taxNumber: 0081804196
