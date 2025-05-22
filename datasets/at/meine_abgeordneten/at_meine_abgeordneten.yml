@@ -48,6 +48,8 @@ dates:
     "12": Dezember
 http:
   retry_statuses: [413, 429]
+tags:
+  - list.pep                 # Public officials and politicians
 
 assertions:
   min:

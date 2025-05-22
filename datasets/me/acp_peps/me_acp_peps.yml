@@ -25,6 +25,8 @@ publisher:
   url: https://www.antikorupcija.me/en/
   country: "me"
   official: true
+tags:
+  - list.pep
 url: https://obsidian.antikorupcija.me/registri/pretraga-izvjestaja-o-prihodima-i-imovini
 data:
   url: https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni

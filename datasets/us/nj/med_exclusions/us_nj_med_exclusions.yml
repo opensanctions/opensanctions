@@ -21,6 +21,9 @@ description: |
   in the New Jersey Office of the Insurance Fraud Prosecutor, and the
   [Medical Debarment Search](https://www.nj.gov/treasury/revenue/debarment/debarsearch-medical.shtml)
   tool at the New Jersey Treasury.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: New Jersey Office of the State Comptroller
   description: >

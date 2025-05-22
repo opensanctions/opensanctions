@@ -30,6 +30,10 @@ description: |
   > the authoritative source for debarment information.
   [DDTC Debarred Parties note](https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_kb_article_page&sys_id=c22d1833dbb8d300d0a370131f9619f0)
 url: "https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_kb_article_page&sys_id=c22d1833dbb8d300d0a370131f9619f0"
+tags:
+  - list.sanction
+  - list.export
+  - juris.us
 publisher:
   name: Directorate of Defense Trade Controls
   acronym: DDTC

@@ -40,13 +40,15 @@ publisher:
   url: https://nigsac.gov.ng/AboutUs
   country: ng
   official: true
+tags:
+  - list.sanction
 url: https://nigsac.gov.ng/IndSancList
 data:
   url: https://nigsac.gov.ng/IndSancList
   format: HTML
-
 dates:
   formats: "%m/%d/%Y %H:%M:%S %p"
+
 assertions:
   min:
     schema_entities:

@@ -26,9 +26,13 @@ data:
   url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
   format: html
 ci_test: false
-
 dates:
   formats: ["%m/%d/%Y"]
+tags:
+  - list.sanction
+  - issuer.west
+  - sector.maritime
+
 assertions:
   min:
     schema_entities:

@@ -3,6 +3,10 @@ from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
 
+PROGRAM_NAME = (
+    "List of Equipment and Services Covered By Section 2 of The Secure Networks Act"
+)
+
 
 def crawl_item(input_dict: dict, context: Context):
     name = input_dict.pop("Entity Name")
@@ -40,7 +44,12 @@ def crawl_item(input_dict: dict, context: Context):
         context.emit(ownership)
         context.emit(subsidiary_sanction)
 
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=PROGRAM_NAME,
+        program_key=h.lookup_sanction_program_key(context, PROGRAM_NAME),
+    )
     sanction.add("description", description)
     sanction.add("description", input_dict.pop("Notes 1"))
     sanction.add("description", input_dict.pop("Notes 2"))

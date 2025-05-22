@@ -6,11 +6,11 @@ coverage:
   start: 2025-02-13
 load_statements: true
 summary: >
-  Individuals and entities suspected of involvement in money laundering or terrorist 
+  Individuals and entities suspected of involvement in money laundering or terrorist
   financing activities, sourced from both international and local lists.
 description: |
-  This dataset comprises information about individuals and entities designated by the 
-  Anti-Money Laundering and Terrorist Financing Office. It covers both international and 
+  This dataset comprises information about individuals and entities designated by the
+  Anti-Money Laundering and Terrorist Financing Office. It covers both international and
   local lists, featuring names of companies and individuals, and listing dates.
 
   The entities required to act upon the listing of individuals or entities, and the
@@ -21,9 +21,9 @@ description: |
 publisher:
   name: Republic of Iraq Anti-Money Laundering and Countering Financing of Terrorism Office
   description: >
-    The Office of Combating Money Laundering and Terrorist Financing, established within the 
-    Central Bank of Iraq, operates with full independence to address financial crimes. Its 
-    mission involves the collection, analysis, and dissemination of information related to 
+    The Office of Combating Money Laundering and Terrorist Financing, established within the
+    Central Bank of Iraq, operates with full independence to address financial crimes. Its
+    mission involves the collection, analysis, and dissemination of information related to
     suspected money laundering and terrorism financing activities.
   url: https://aml.iq/?lang=en
   official: true
@@ -33,7 +33,8 @@ data:
   url: https://aml.iq
   format: HTML
 ci_test: false # No zyte key in CI
-
+tags:
+  - list.sanction
 dates:
   formats: ["%d-%m-%Y"]
 
@@ -71,6 +72,7 @@ lookups:
       - match:
           - "لا يوجد" # nothing
           - /
+          - 32853
         value: null
   type.string:
     options:

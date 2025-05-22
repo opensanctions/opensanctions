@@ -28,6 +28,8 @@ description: |
   > States and Permanent Representatives to the UN, New York, have also been
   > included.
 url: https://www.cia.gov/resources/world-leaders/foreign-governments/
+tags:
+  - list.pep
 publisher:
   name: Central Intelligence Agency
   acronym: CIA

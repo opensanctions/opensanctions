@@ -29,6 +29,8 @@ publisher:
   url: https://www.sgdi.gov.sg
   country: sg
   official: true
+tags:
+  - list.pep
 url: https://www.sgdi.gov.sg
 data:
   url: https://www.sgdi.gov.sg/statutory-boards

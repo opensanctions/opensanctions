@@ -24,6 +24,8 @@ publisher:
   description: >
     Supreme Official Ethics Commission (VTEK) works to ensure that public institutions
     and the persons working in them ethically serve the people.
+tags:
+  - list.pep
 url: https://pinreg.vtek.lt/app/
 data:
   url: https://pinreg.vtek.lt/app/deklaraciju-paieska

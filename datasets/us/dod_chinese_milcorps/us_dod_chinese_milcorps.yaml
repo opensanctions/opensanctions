@@ -48,6 +48,11 @@ publisher:
   country: us
   url: https://www.defense.gov/
   official: true
+  tags:
+    - list.sanction
+    - sector.defense
+    - target.cn
+    - issuer.west
 url: https://www.defense.gov/News/Releases/Release/Article/4023145/dod-releases-list-of-chinese-military-companies-in-accordance-with-section-1260/
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRlrR4f46lTXiAuIijw-0XcW1IXSlWv-duNEc8ha23SpRjGrP_RqJUjnAFv07VDvih025FS0gTdQZbh/pub?gid=0&single=true&output=csv
@@ -61,3 +66,9 @@ assertions:
   max:
     schema_entities:
       Company: 280
+
+lookups:
+  sanction.program:
+    options:
+      - match: "Section 1260H of the William M. (“Mac”) Thornberry National Defense Authorization Act for Fiscal Year 2021 (Public Law 116-283)"
+        value: US-DOD-1260H

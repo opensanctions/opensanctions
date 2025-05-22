@@ -46,6 +46,10 @@ publisher:
     The CBP is a unified border agency within the Department of Homeland Security (DHS) 
     charged with the regulation and facilitation of international trade, collection of 
     import duties, and enforcement of U.S. trade laws.
+tags:
+  - list.risk
+  - target.kp
+  - issuer.west
 url: "https://www.cbp.gov/document/report/north-korea-sanctions-and-enforcement-actions-advisory"
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRfovKtSGNW3_tS80_-Aa25g3utwny-8Oyoi0CAy9kGke4mbIVVFel9Xgy28NlFFwutRroiVW605NXo/pub?gid=0&single=true&output=csv

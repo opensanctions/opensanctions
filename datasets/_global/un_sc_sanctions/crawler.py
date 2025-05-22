@@ -130,15 +130,19 @@ def parse_common(context: Context, entity: Entity, node: Element):
     entity.add("alias", node.findtext("./NAME_ORIGINAL_SCRIPT"))
     entity.add("notes", h.clean_note(node.findtext("./COMMENTS1")))
 
-    # TODO(Leon Handreke): Add lookup from UN_LIST_TYPE -> OpenSanctions program key
-    # and pass that as program_key to make_sanction.
-    sanction = h.make_sanction(context, entity)
+    program = node.findtext("./UN_LIST_TYPE")
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=program,
+        source_program_key=program,
+        program_key=h.lookup_sanction_program_key(context, program),
+    )
     entity.add("createdAt", node.findtext("./LISTED_ON"))
     sanction.add("listingDate", node.findtext("./LISTED_ON"))
     sanction.add("startDate", node.findtext("./LISTED_ON"))
     sanction.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
     entity.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
-    sanction.add("program", node.findtext("./UN_LIST_TYPE"))
     sanction.add("unscId", node.findtext("./REFERENCE_NUMBER"))
     return sanction
 

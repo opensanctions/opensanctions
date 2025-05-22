@@ -65,6 +65,7 @@ def make_sanction(
         program = programs.get_program_by_key(context, program_key)
         if program:
             sanction.set("programId", program_key, original_value=source_program_key)
+            entity.add("programId", program_key)
             sanction.add("programUrl", program.url)
         else:
             context.log.warn(f"Program with key {program_key!r} not found.")

@@ -13,6 +13,10 @@ description: |
   from doing business with the District of Columbia. While listed, these parties are ineligible to
   receive contract awards, renewals, subcontracts, or participate in District government programs,
   including Medicaid.
+tags:
+  - list.debarment
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: DC Office of Contracting and Procurement
   acronym: OCP

@@ -20,6 +20,8 @@ description: |
   guide the operation of the U.s. diplomatic missions within their regional
   jurisdiction.
 url: https://www.state.gov/biographies-list/
+tags:
+  - list.pep
 publisher:
   name: US State Department
   acronym: State

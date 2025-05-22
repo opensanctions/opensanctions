@@ -28,7 +28,9 @@ description: |
    > the Medicaid program must search both lists prior to hiring staff to ensure
    > that any potential employees or contractors have not been excluded from
    > participating in the Medicaid program.
-
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Hawai'i Department of Human Services, Med-QUEST Division
   description: |

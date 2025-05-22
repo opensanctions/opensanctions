@@ -25,7 +25,9 @@ description: |
   > Security Act. Furthermore, the MCCs’ provider agreements require that providers
   > do not employ or contract with any individual or entity that has been excluded
   > or debarred.
-
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: TennCare Office of Program Integrity
   description: >

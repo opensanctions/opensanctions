@@ -51,6 +51,9 @@ data:
   format: CSV
 dates:
   formats: ["%d.%m.%y", "%d.%m.%Y"]
+tags:
+  - list.sanction.counter
+  - target.us
 
 assertions:
   min:

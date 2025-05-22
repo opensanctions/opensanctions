@@ -15,6 +15,9 @@ description: |
   > Section 8.076.1.7.
 
   [Provider Termination page](https://hcpf.colorado.gov/provider-termination)
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Colorado Department of Health Care Policy & Financing
   description: |

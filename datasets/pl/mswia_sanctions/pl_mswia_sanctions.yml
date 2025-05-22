@@ -30,6 +30,11 @@ publisher:
   url: https://www.gov.pl/web/mswia
   country: pl
   official: true
+tags:
+  - list.sanction
+  - target.ru
+  - juris.eu
+  - issuer.west
 url: https://www.gov.pl/web/mswia/decyzje-ministra-swia-w-sprawie-wpisu-na-liste-sankcyjna
 data:
   url: https://www.gov.pl/web/mswia/lista-osob-i-podmiotow-objetych-sankcjami
@@ -76,8 +81,8 @@ lookups:
         value: 79090613232
   type.name:
     options:
-      - match: "GO SPORT POLSKA Sp. z o.o. w upadłości"
-        value: GO SPORT POLSKA Sp. z o.o.
+      - match: do 3.03.2022 r. – SULZER MIXPAC POLAND Sp. z o.o.
+        value: SULZER MIXPAC POLAND Sp. z o.o.
   details:
     normalize: true
     lowercase: true
@@ -183,13 +188,13 @@ lookups:
             - "Voronyansky 35, Office 8 220007 Mińsk"
             - "ул. Воронянского, 35, пом. 8, 220007, г. Минск"
           registrationNumber: "BY193759703"
-      - match: '(TIN: 246403033635)'
+      - match: "(TIN: 246403033635)"
         props:
           taxNumber: 246403033635
-      - match: 'urodzony w 1966 roku (TIN: 246000069678)'
+      - match: "urodzony w 1966 roku (TIN: 246000069678)"
         props:
           birthDate: 1966
           taxNumber: 246000069678
-      - match: 'adres: ul. Barska 2B, 02-315 Warszawa '
+      - match: "adres: ul. Barska 2B, 02-315 Warszawa "
         props:
           address: "ul. Barska 2B, 02-315 Warszawa"

@@ -74,9 +74,22 @@ def parse_sanctions(context: Context, entity: Entity, entry: Element) -> None:
         )
         sanction.set("sourceUrl", url)
         sanction.add("reason", regulation.get("numberTitle"))
-        sanction.add("startDate", regulation.get("entryIntoForceDate"))
+
+        # Sometimes the entity tag doesn't have a designationDate,
+        # and the regulation date is the correct start date.
+        # Sometimes the referenced regulation is an amendment,
+        # not the original regulation introducing the entity.
+        # In case both exist, use the earliest date.
+        start_dates = [
+            entry.get("designationDate"),
+            regulation.get("entryIntoForceDate"),
+        ]
+        valid_start_dates = [d for d in start_dates if d is not None]
+        start_date = min(valid_start_dates, default=None)
+        sanction.add("startDate", start_date)
+
         sanction.add("listingDate", regulation.get("publicationDate"))
-        entity.add("createdAt", regulation.get("publicationDate"))
+        entity.add("modifiedAt", regulation.get("entryIntoForceDate"))
         sanction.add("unscId", entry.get("unitedNationId"))
         sanction.add("authorityId", entry.get("euReferenceNumber"))
         context.emit(sanction)

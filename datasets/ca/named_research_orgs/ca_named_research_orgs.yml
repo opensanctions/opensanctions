@@ -30,6 +30,13 @@ publisher:
 data:
   url: "https://science.gc.ca/site/science/en/safeguarding-your-research/guidelines-and-tools-implement-research-security/named-research-organizations"
   format: HTML
+tags:
+  - list.regulatory
+  - target.ru
+  - target.cn
+  - target.ir
+  - sector.academic
+  - issuer.west
 
 assertions:
   min:
@@ -38,3 +45,9 @@ assertions:
   max:
     schema_entities:
       Organization: 320
+
+lookups:
+  sanction.program:
+    options:
+      - match: "Policy on Sensitive Technology Research and Affiliations of Concern"
+        value: CA-NRO

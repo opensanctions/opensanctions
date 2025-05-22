@@ -73,7 +73,7 @@ def crawl(context: Context):
     }
 
     url = f"https://www.tweedekamer.nl/views/ajax?{urlencode(params)}"
-    data = fetch_json(context, url, expected_charset=None)
+    data = fetch_json(context, url)
 
     # This API returns a couple objects to update DOM state, out of which one
     # is a "insert" object containing the HTML we're interested in

@@ -18,6 +18,8 @@ description: |
   On the first day of each month, a complete new list is published for all entities that have an 
   assigned and approved GIIN as of a specified cut-off date.
   [Source](https://www.irs.gov/businesses/corporations/irs-ffi-list-faqs)
+tags:
+  - sector.banking
 publisher:
   name: Internal Revenue Service
   acronym: IRS

@@ -15,6 +15,9 @@ description: |
   * [Tunisia](https://laws-lois.justice.gc.ca/eng/regulations/SOR-2011-78/index.html)
   * [Ukraine](https://laws-lois.justice.gc.ca/eng/regulations/SOR-2014-44/index.html)
 url: https://www.publicsafety.gc.ca/cnt/ntnl-scrt/cntr-trrrsm/lstd-ntts/crrnt-lstd-ntts-en.aspx
+tags:
+  - list.sanction
+  - issuer.west
 publisher:
   name: "Government of Canada"
   description: |
@@ -33,3 +36,11 @@ assertions:
   max:
     schema_entities:
       Person: 16
+
+lookups:
+  sanction.program:
+    options:
+      - match: Politically Exposed Foreign Persons (Tunisia)
+        value: CA-FACFOA-TUN
+      - match: Politically Exposed Foreign Persons (Ukraine)
+        value: CA-FACFOA-UKR
