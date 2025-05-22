@@ -285,18 +285,26 @@ class DuckDBIndex(BaseIndex[DS, CE]):
     def pairs(
         self, max_pairs: int = BaseIndex.MAX_PAIRS
     ) -> Iterable[Tuple[Pair, float]]:
+        log.info("Calculating pairs...")
         pairs_query = """
-            SELECT "left".id, "right".id, sum(("left".tf + "right".tf)) as score
+            CREATE OR REPLACE TABLE term_pairs AS
+            SELECT "left".id as left_id, "right".id as right_id, ("left".tf + "right".tf) as score
             FROM term_frequencies as "left"
             JOIN term_frequencies as "right"
             ON "left".field = "right".field AND "left".token = "right".token
             WHERE "left".id > "right".id
             AND can_match("left".id, "left".schema, "right".id, "right".schema)
-            GROUP BY "left".id, "right".id
+        """
+        self.con.execute(pairs_query)
+        log.info("Scoring pairs...")
+        scored_query = """
+            SELECT left_id, right_id, sum(score) as score
+            FROM term_pairs
+            GROUP BY left_id, right_id
             ORDER BY score DESC
             LIMIT ?
         """
-        results = self.con.execute(pairs_query, [max_pairs])
+        results = self.con.execute(scored_query, [max_pairs])
         while batch := results.fetchmany(BATCH_SIZE):
             for left, right, score in batch:
                 yield (Identifier.get(left), Identifier.get(right)), score
