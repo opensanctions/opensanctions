@@ -1,3 +1,15 @@
+# Test realistic memory usage with constrained memory because duckdb only spills
+# when it's constrained, but you don't know how much more memory it will use than
+# the memory limit.
+# e.g. docker build . --tag opensanctions and
+# docker run -ti --name xref \
+#            -v ./data:/data
+#            -v .:/opensanctions \
+#            --memory 3G
+#            -e ZAVOD_DATA_PATH=/data
+#            -e ZAVOD_DATABASE_URI=postgresql://postgres:password@host.docker.internal:5432/dev
+#            opensanctions bash
+#
 # Debugging memory usage?
 # https://duckdb.org/docs/stable/guides/troubleshooting/oom_errors
 #
