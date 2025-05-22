@@ -126,3 +126,16 @@ lookups:
           endDate: "2025-02-24"
           status: zrušen
           summary: Zápis byl zrušen ke dni 24. února 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/388.
+      - match: "SUDLIANKOVA / SUDLIANKOVÁ / SUDLENKOVA / СУДЛЯНКОВА / СУДЛЕНКОВА Zápis byl zrušen ke dni 20. května 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/966."
+        names:
+          [
+            "SUDLIANKOVA",
+            "SUDLIANKOVÁ",
+            "SUDLENKOVA",
+            "СУДЛЯНКОВА",
+            "СУДЛЕНКОВА",
+          ]
+        sanction_props:
+          endDate: "2025-05-20"
+          status: zrušen
+          summary: Zápis byl zrušen ke dni 20. května 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/966.
