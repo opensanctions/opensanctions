@@ -498,11 +498,6 @@ lookups:
       - match: "100000000001523 - Numéro d'enregistrement"
         props:
           registrationNumber: 100000000001523
-
-
-
-
-
   ####################################################################################################
   ####################################################################################################
   #
@@ -653,12 +648,6 @@ lookups:
         props:
           jurisdiction: ru
           incorporationDate: 2001
-      #- match: "Numéro d'enregistrement national: 1027739167246"
-      #  props:
-      #    ogrnCode: 1027739167246
-      #- match: "Numéro d'identification fiscale: 7701045732"
-      #  props:
-      #    taxNumber: 7701045732
       - match: "N° d'enregistrement: 1157746088170"
         props:
           ogrnCode: 1157746088170
@@ -678,10 +667,6 @@ lookups:
       - match: "SWIFT/BIC (Libye): AGRULYLT "
         props:
           swiftBic: AGRULYLT
-      - match: "Numéro OMI: 5905801"
-        props:
-          imoNumber: 5905801
-          registrationNumber: 5905801
       - match:
           "Type d’entité: société par actions. Lieu d’enregistrement: Région de Bryansk,
           Bryansk, Fédération de Russie. Date d’enregistrement: 4.4.2008. Numéro d’enregistrement:
@@ -737,9 +722,6 @@ lookups:
           jurisdiction: ru
           incorporationDate: 2007-08-31
           legalForm: agence du gouvernement fédéral russe
-      - match: "Numéro d'enregistrement: 1027700381290"
-        props:
-          ogrnCode: 1027700381290
       - match:
           "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
           (IRGC)  - Lieu d’enregistrement: Azerbaïdjan occidental, Iran - Principal lieu
@@ -890,10 +872,6 @@ lookups:
       - match: "SWIFT/BIC: CMSYSYDA"
         props:
           swiftBic: CMSYSYDA
-      - match: "OMI: 9036387"
-        props:
-          imoNumber: 9036387
-          registrationNumber: 9036387
       - match:
           "numéro d'enregistrement - société anonyme enregistrée à Yangon, Myanmar/
           Birmanie, le 27/04/1990: 156387282"
@@ -1040,12 +1018,6 @@ lookups:
         props:
           jurisdiction: IR
           legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
-      - match: "Numéro d'enregistrement national: 1077762942212"
-        props:
-          ogrnCode: 1077762942212
-      - match: "INN: 9729299794"
-        props:
-          innCode: 9729299794
       - match: "PSRN: 1207700324941"
         props:
           ogrnCode: 1207700324941
@@ -1112,10 +1084,6 @@ lookups:
       - match: "n° d'inscription au registre de commerce: 02142819"
         props:
           registrationNumber: 02142819
-      - match: "n° OMI: 5342883"
-        props:
-          imoNumber: 5342883
-          registrationNumber: 5342883
       - match: "Numéro d'enregistrement - Biélorussie: 190950894"
         props:
           registrationNumber: 190950894
@@ -1131,10 +1099,6 @@ lookups:
       - match: "Immatriculation (numéro OGRN): 1121402000213"
         props:
           ogrnCode: 1121402000213
-          jurisdiction: ru
-      - match: "Numéro d'identification fiscale (INN): 1402015986"
-        props:
-          taxNumber: 1402015986
           jurisdiction: ru
       - match:
           "Type d’entité: société par actions. Lieu d’enregistrement: Fédération de
