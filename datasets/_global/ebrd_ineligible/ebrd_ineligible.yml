@@ -102,6 +102,8 @@ lookups:
         values:
           - gb
           - id
+      - match: "card-tags:ineligible-entities/nationality/république-démocratique-du-congo"
+        value: cd
   type.date:
     normalize: true
     lowercase: true
