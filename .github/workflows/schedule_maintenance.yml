@@ -1,0 +1,25 @@
+name: schedule_alert
+
+on:
+  schedule:
+    - cron: '0 9 1 */1 *'  # Every month on the first day at 09:00 UTC
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  create-issue:
+    name: Create an issue
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Create an issue
+        uses: JasonEtco/create-an-issue@v2.9.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          update_existing: false
+          filename: .github/ISSUE_TEMPLATE/schedule_maintenance.md
