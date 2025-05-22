@@ -104,7 +104,7 @@ lookups:
         value: 2034-10-09
       - match: 12/10/024
         value: 2024-10-12
-      - match: 
+      - match:
           - 12/18/024
           - 12/19/024
         value: 2024
@@ -114,6 +114,8 @@ lookups:
       - match:
           - N/A
           - A000000123
+          - n N/A
+          - "1538\n400000"
         value: null
       - match:
           - D000045167
@@ -146,6 +148,14 @@ lookups:
         value: 1073778361
       - match: 3336C0003X
         prop: sector
+      - match: "1093 379521"
+        value: 1093379521
+      - match: 103195716
+        value: 1023195716
+      - match: "1093\n379521"
+        value: 1093379521
+      - match: LC1366678260
+        value: 1366678260
   license_numbers:
     normalize: true
     options:
@@ -315,3 +325,17 @@ lookups:
           - PRC14110
       - match: "LH-\n0010266"
         values: ["LH-0010266"]
+      - match: "764 907(NY)"
+        values: ["764 907"]
+      - match: "100305 20(PA)"
+        values: ["100305 20"]
+      - match: "140646( NC)"
+        values: ["140646"]
+      - match: "R0 065074(OK)"
+        values: ["R0 065074"]
+      - match: "RN3489 87L(PA)"
+        values: ["RN3489 87L"]
+      - match: "0001158032 (VA)"
+        values: ["0001158032"]
+      - match: "SP011438 / RN571698"
+        values: ["SP011438", "RN571698"]
