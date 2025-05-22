@@ -1,3 +1,22 @@
+# Debugging memory usage?
+# https://duckdb.org/docs/stable/guides/troubleshooting/oom_errors
+#
+# Most DuckDB operations spill to disk when its memory_limit setting is reached.
+#
+# DuckDB uses more memory than its memory_limit setting.
+# > This limit only applies to the buffer manager.
+# https://duckdb.org/docs/1.2/operations_manual/limits
+#
+# Beyond that, other things in zavod also use memory.
+#
+# When duckdb's memory_limit is reached and it cannot spill to disk,
+# it will throw an error like duckdb.duckdb.OutOfMemoryException:
+# Out of Memory Error: could not allocate block of size 30.5 MiB (32.8 MiB/47.6 MiB used)
+#
+# When the process is killed due to the operating system running out of memory,
+# making memory_limit smaller might help fit what the buffer manager manages,
+# plus all the additional DuckDB and non-DuckDB memory usage.
+
 import csv
 import logging
 from io import TextIOWrapper
@@ -21,6 +40,7 @@ from zavod.integration.tokenizer import (
     tokenize_entity,
 )
 from zavod.reset import reset_caches
+from zavod import settings
 
 BlockingMatches = List[Tuple[Identifier, float]]
 
@@ -91,7 +111,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self, view: View[DS, CE], data_dir: Path, options: Dict[str, Any] = {}
     ):
         self.view = view
-        memory_budget = options.get("memory_budget")
+        memory_budget = options.get("memory_budget", settings.XREF_MEMORY)
         # https://duckdb.org/docs/guides/performance/environment
         # > For ideal performance,
         # > aggregation-heavy workloads require approx. 5 GB memory per thread and
@@ -113,7 +133,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.duckdb_config = {
             "preserve_insertion_order": False,
             # > If you have a limited amount of memory, try to limit the number of threads
-            "threads": 1,
+            "threads": int(settings.XREF_THREADS),
             "temp_directory": (self.data_dir / "index.duckdb.tmp").as_posix(),
         }
         if self.memory_budget is not None:
@@ -149,16 +169,20 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             "CREATE OR REPLACE TABLE entries (schema TEXT, id TEXT, field TEXT, token TEXT)"
         )
         csv_path = self.data_dir / "mentions.csv"
-        log.info("Dumping entity tokens to CSV for bulk load into the database...")
-        with open(csv_path, "w") as fh:
-            writer = csv_writer(fh)
-            for idx, entity in enumerate(self.view.entities()):
-                if not entity.schema.matchable or entity.id is None:
-                    continue
-                self.dump_entity(writer, entity)
+        # if csv_path.exists():
+        #   log.info("Token dump already exists at %s" % csv_path)
+        # else:
+        if True:
+            log.info("Dumping entity tokens to CSV for bulk load into the database...")
+            with open(csv_path, "w") as fh:
+                writer = csv_writer(fh)
+                for idx, entity in enumerate(self.view.entities()):
+                    if not entity.schema.matchable or entity.id is None:
+                        continue
+                    self.dump_entity(writer, entity)
 
-                if idx % 50000 == 0 and idx > 0:
-                    log.info("Dumped %s entities" % idx)
+                    if idx % 50000 == 0 and idx > 0:
+                        log.info("Dumped %s entities" % idx)
 
         log.info("Loading data...")
         self.con.execute(
@@ -285,7 +309,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
     def pairs(
         self, max_pairs: int = BaseIndex.MAX_PAIRS
     ) -> Iterable[Tuple[Pair, float]]:
-        log.info("Calculating pairs...")
+        log.info("Generating pairs...")
         pairs_query = """
             CREATE OR REPLACE TABLE term_pairs AS
             SELECT "left".id as left_id, "right".id as right_id, ("left".tf + "right".tf) as score
@@ -297,14 +321,21 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         """
         self.con.execute(pairs_query)
         log.info("Scoring pairs...")
-        scored_query = """
+        score_query = """
+            CREATE OR REPLACE TABLE term_pairs_score AS
             SELECT left_id, right_id, sum(score) as score
             FROM term_pairs
             GROUP BY left_id, right_id
+        """
+        self.con.execute(score_query)
+        log.info("Selecting top pairs...")
+        top_pairs_query = """
+            SELECT left_id, right_id, score
+            FROM term_pairs_score
             ORDER BY score DESC
             LIMIT ?
         """
-        results = self.con.execute(scored_query, [max_pairs])
+        results = self.con.execute(top_pairs_query, [max_pairs])
         while batch := results.fetchmany(BATCH_SIZE):
             for left, right, score in batch:
                 yield (Identifier.get(left), Identifier.get(right)), score
