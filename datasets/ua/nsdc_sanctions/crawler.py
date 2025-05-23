@@ -65,12 +65,16 @@ def crawl_common(
         entity.add("name", match.groups())
     else:
         entity.add("name", name, lang="ukr")
+    # Aliases contains a name in Russian and English which is high-enough value for us to put it in the name field
+    # (and allows us to have a good latin caption)
+    entity.add("name", item.pop("aliases"))
 
+    # The transliteration is just a literal transliteration of the Ukrainian name
     name_translit = item.pop("translit")
     if match := REGEX_NAME_3_PARTS.match(name_translit):
-        entity.add("name", match.groups())
+        entity.add("alias", match.groups())
     else:
-        entity.add("name", name_translit, lang="eng")
+        entity.add("alias", name_translit)
 
     identifiers = item.pop("identifiers") or []
     for ident in identifiers:
@@ -175,7 +179,6 @@ def crawl_individual(context: Context, item: Dict[str, Any]) -> None:
     subject_id = item.pop("sid")
     entity = context.make("Person")
     entity.id = context.make_slug(subject_id, item.get("name"))
-    entity.add("alias", item.pop("aliases"))
     entity.add("citizenship", item.pop("citizenships"))
     entity.add("birthDate", item.pop("bd"))
     entity.add("deathDate", item.pop("dd"))
@@ -186,7 +189,6 @@ def crawl_legal(context: Context, item: Dict[str, Any]) -> None:
     subject_id = item.pop("sid")
     entity = context.make("Organization")
     entity.id = context.make_slug(subject_id, item.get("name"))
-    entity.add("alias", item.pop("aliases"))
     entity.add("jurisdiction", item.pop("citizenships"))
     entity.add("incorporationDate", item.pop("bd"))
     entity.add("dissolutionDate", item.pop("dd"))
