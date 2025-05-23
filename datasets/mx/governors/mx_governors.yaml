@@ -4,7 +4,7 @@ prefix: mx-gov
 coverage:
   frequency: never
   start: "2024-02-03"
-  end: "2029-01-01" # After every term has ended, to avoid warnings because of occupancy end dates
+  end: "2024-09-06"
 deploy:
   schedule: "@monthly"
 load_statements: true
@@ -12,7 +12,7 @@ summary: >
   Current and former governors of Mexico states and the Head of Government of Mexico City.
 description: |
   This dataset includes information about current and
-  former state governors from Mexico.
+  former state governors from Mexico, as of 2024-09-06.
 
   Mexico is a federation comprising 32 states, each with its own governor. The
   Head of Government of Mexico City is not considered a governorship but is

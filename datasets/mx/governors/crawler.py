@@ -60,7 +60,11 @@ def crawl_item(input_html, context: Context):
     if match is None:
         context.log.warning("Unable to extract information from HTML element")
 
-    state, start_date, end_date = match.group(1), match.group(2), match.group(3)
+    state, start_date, end_date = (  # noqa: F841
+        match.group(1),
+        match.group(2),
+        match.group(3),
+    )
 
     # The names in the card always have a title as the first word, for example,
     # Ing. Carlos Lozano de la Torre, where Ing. stands for Engineer
@@ -88,9 +92,10 @@ def crawl_item(input_html, context: Context):
         context,
         person,
         position,
-        no_end_implies_current=True,
+        no_end_implies_current=False,
         start_date=start_date,
-        end_date=end_date,
+        # No end_date because the source is no longer being updated, so the only thing
+        # we can reliably state is the start date - if the term ended prematurely, we wouldn't know.
         categorisation=categorisation,
     )
 
