@@ -2,8 +2,11 @@ title: Iran Sanctions List
 entry_point: crawler.py
 prefix: ir-san
 coverage:
-  frequency: daily
+  frequency: never
   start: "2024-05-02"
+  end: "2025-05-23"
+deploy:
+  schedule: "@monthly"
 load_statements: true
 summary: >
   Individuals and entities in the sanctions list of the Islamic Republic of Iran
@@ -22,6 +25,15 @@ description: |
 
   As of April 2024, the persons sanctioned in this list are generally current and former
   members of the US and UK governments, militaries, as well as journalists.
+
+  **Note:** Due to CAPTCHA restrictions on the website, the crawler cannot access data automatically.
+  Instead, it relies on a static extract of the data, which may not reflect the most current updates.
+tags:
+  - list.sanction.counter
+  - target.us
+  - target.eu
+  - target.gb
+  - target.ca
 publisher:
   name: Iran Ministry of Foreign Affairs
   acronym: MFA
@@ -30,17 +42,9 @@ publisher:
   country: "ir"
 url: "https://sanctionlist.mfa.ir"
 data:
-  url: https://sanctionlist.mfa.ir/portal/catalogsearch/139
-  format: HTML
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTD-saXE-20MExR75lUuAJrA6HKtQ5Go8EEnx6AOYtvKLZabtmeJ-U92B4ZtcO2FWYaUiDnshiq_48_/pub?output=csv
+  format: CSV
   lang: eng
-# requires API key
-ci_test: false
-tags:
-  - list.sanction.counter
-  - target.us
-  - target.eu
-  - target.gb
-  - target.ca
 
 dates:
   formats: ["%B %d %Y"]
@@ -59,6 +63,10 @@ assertions:
       Person: 500
 
 lookups:
+  sanction.program:
+    options:
+      - match: "Individuals And Entities In The Sanction’s List Of The Islamic Republic Of Iran"
+        value: IR-MFA-SANC
   schema:
     map:
       Entity: LegalEntity
