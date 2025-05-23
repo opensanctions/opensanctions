@@ -16,7 +16,25 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install zavod
+        run: |
+          pip install setuptools wheel
+          pip install --no-cache-dir -q -e "zavod[dev]"
+          pip install zeep==4.2.1
+
+      - name: Run manual updates check
+        id: check_manual_updates
+        run: |
+          python contrib/schedule_maintenance.py > update_output.md
+
       - name: Create an issue
+        if: ${{ success() }}
         uses: JasonEtco/create-an-issue@v2.9.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

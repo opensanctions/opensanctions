@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from typing import List
 from datetime import datetime
@@ -55,5 +56,7 @@ if __name__ == "__main__":
         print("## Datasets due for manual review\n")
         for name in due:
             print(f"- {name}")
+        sys.exit(0)
     else:
         print("No datasets are currently due for manual review.")
+        sys.exit(1)
