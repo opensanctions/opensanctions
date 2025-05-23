@@ -68,7 +68,147 @@ assertions:
       Security: 100
       LegalEntity: 100
 
+# To be mapped (based on https://ofac.treasury.gov/specially-designated-nationals-list-sdn-list/program-tag-definitions-for-ofac-sanctions-lists)
+
+# CAATSA - IRAN
+# CAATSA - RUSSIA
+# Unknown
+# WEST-BANK-EO14115
+
 lookups:
+  sanction.program:
+    options:
+      - match: 
+          - BALKANS
+          - BALKANS-EO14033
+        value: US-BALKANS
+      - match: 
+          - BELARUS
+          - BELARUS-EO14038
+        value: US-BRUS
+      - match: CAR
+        value: US-CAR
+      - match: CUBA
+        value: US-CUBA
+      - match: 
+          - ILLICIT-DRUGS-EO14059
+          - SDNT
+          - SDNTK
+        value: US-NARCO
+      - match: CYBER2
+        value: US-CYB
+      - match: DRCONGO
+        value: US-DRC
+      - match: ETHIOPIA-EO14046
+        value: US-ETHIOPIA
+      - match: 
+          - GLOMAG
+          - UHRPA
+        value: US-GLOMAG
+      - match: MAGNIT
+        value: US-MAGNITSKY
+      - match: MALI-EO13882
+        value: US-MALI
+      - match: 
+          - NICARAGUA
+          - NICARAGUA-NHRAA
+        value: US-NICARAGUA
+      - match: NPWMD
+        value: US-NON-PROLIF
+      - match: 
+          - DPRK
+          - DPRK2
+          - DPRK3
+          - DPRK4
+          - DPRK-NKSPEA
+        value: US-NK
+      - match: 
+          - RUSSIA-EO14024
+          - PEESA-EO14039
+        value: US-RUSHAR
+      - match: SOMALIA
+        value: US-SOMALIA
+      - match: SOUTH SUDAN
+        value: US-SOUTH-SUDAN
+      - match: 
+          - DARFUR
+          - BPI-Sudan-14098
+          - SUDAN-EO14098
+        value: US-DARFUR
+      - match: SYRIA-EO13894
+        value: US-SYR-REL
+      - match: 
+          - HRIT-SY
+          - SYRIA
+          - SYRIA-CAESAR
+        value: US-SYR
+      - match:
+          - VENEZUELA
+          - VENEZUELA-EO13850
+          - VENEZUELA-EO13884
+        value: US-VEN
+      - match: YEMEN
+        value: US-YEMEN
+      - match:
+          - UKRAINE-EO13660
+          - UKRAINE-EO13661
+          - UKRAINE-EO13662
+          - UKRAINE-EO13685
+          - RUSSIA-EO14065
+          - SSIDES
+        value: US-UKRRUS-REL
+      - match: 
+          - LIBYA2
+          - LIBYA3
+        value: US-LIBYA
+      - match: LEBANON
+        value: US-LEBANON
+      - match:
+          - IRAQ2
+          - IRAQ3
+        value: US-IRAQ
+      - match:
+          - HRIT-IR
+          - IRAN-EO13846
+          - IRAN-EO13876
+          - IRAN-EO13871
+          - IRAN-EO13902
+          - IRAN-HR
+          - IRAN
+          - IRAN-CON-ARMS-EO
+          - IRAN-TRA
+          - ISA
+          - IRGC
+          - IFSR
+        value: US-IRAN
+      - match: BURMA-EO14014
+        value: US-BURMA
+      - match: NS-PLC
+        value: US-NS-PLC
+      - match: ELECTION-EO13848
+        value: US-FORINT
+      - match: HOSTAGES-EO14078
+        value: US-HOSTAGE
+      - match: HK-EO13936
+        value: US-HONGKONG
+      - match:  
+          - FTO
+          - HIFPAA
+          - SDGT
+        value: US-TERR
+      - match: IFCA
+        value: US-NON-PROLIF
+      - match: TCO
+        value: US-TCO
+      - match:
+          - Non-SDN Palestinian Legislative Council List
+          - CAPTA List
+          - FSE List
+          - Non-SDN CMIC List
+          - Non-SDN Menu-Based Sanctions List
+          - Non-SDN Palestinian Legislative Council List
+          - Sectoral Sanctions Identifications List
+        value: null
   relations:
     options:
       - label: Associate Of
