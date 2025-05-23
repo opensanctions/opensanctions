@@ -302,27 +302,22 @@ def parse_distinct_party(
 
     # Sanctions designations
     entry_path = f"SanctionsEntries/SanctionsEntry[@ProfileID='{profile_id}']"
+    # Assert that each entity has at least one sanction linked to it
+    sanction_found = False
+    sanction_entity = None
     for sanctions_entry in doc.findall(entry_path):
-        parse_sanctions_entry(context, proxy, refs, features, sanctions_entry)
+        sanction_entity = parse_sanctions_entry(
+            context, proxy, refs, features, sanctions_entry
+        )
+        if sanction_entity is not None:
+            sanction_found = True
 
-    # Testing script to check whether each entity ends up with a sanction
-    #
-    # sanction_found = False
-    # sanction_entity = None
-    # for sanctions_entry in doc.findall(entry_path):
-    #     sanction_entity = parse_sanctions_entry(
-    #         context, proxy, refs, features, sanctions_entry
-    #     )
-    #     if sanction_entity is not None:
-    #         sanction_found = True
-
-    #     sanction_entities = [
-    #         parse_sanctions_entry(context, proxy, refs, features, sanctions_entry)
-    #         for sanctions_entry in doc.findall(entry_path)
-    #     ]
-    #     sanction_found = any([sanction is not None for sanction in sanction_entities])
-
-    #     assert sanction_found
+        sanction_entities = [
+            parse_sanctions_entry(context, proxy, refs, features, sanctions_entry)
+            for sanctions_entry in doc.findall(entry_path)
+        ]
+        sanction_found = any([sanction is not None for sanction in sanction_entities])
+        assert sanction_found
 
     for feat_label, values in features.items():
         for feat_value in values:
