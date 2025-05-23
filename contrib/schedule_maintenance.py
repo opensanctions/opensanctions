@@ -50,7 +50,11 @@ if __name__ == "__main__":
 
     due = get_due_datasets(datasets, current_month)
 
-    print("::set-output name=due_datasets::" + ", ".join(due))
+    github_output = os.getenv("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a") as output_file:
+            output_file.write(f"due_datasets={','.join(due)}\n")
+    print("Due datasets: " + ", ".join(due))
 
     if due:
         print("## Datasets due for manual review\n")
