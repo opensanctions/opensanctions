@@ -46,14 +46,14 @@ assertions:
       Organization: 950
       LegalEntity: 40
       Vessel: 35
-      Company: 25
+      Company: 50
   max:
     schema_entities:
       Person: 8070
       Organization: 2240
       LegalEntity: 120
       Vessel: 80
-      Company: 60
+      Company: 120
 
 lookups:
   schema_override:
