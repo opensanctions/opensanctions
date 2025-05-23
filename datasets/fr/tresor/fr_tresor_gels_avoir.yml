@@ -90,12 +90,17 @@ lookups:
           - "Fédération de Russie"
           - "Fédération de Russi e"
         value: RU
+  type.identifier:
+    options:
+      match: 644101001 # listed as INN, is actually a KPP
+      value: null
   identification_segment:
     lowercase: true
     normalize: true
     options:
       # Sometimes for "Numero OGRN" and "Numero OMI", a "Numero" is left over
       - match: "Numero"
+      - match: "n°"
       # Sometimes leftover from "NIF/INN"
       - match: "NIF"
       - match: "Numéro d'enregistrement"
@@ -5313,3 +5318,6 @@ lookups:
           jurisdiction: tr
           address: Istanbul
           taxNumber: 0081804196
+      - match: "100000000001523 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 100000000001523
