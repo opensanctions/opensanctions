@@ -16,7 +16,8 @@ def lookup_sanction_program_key(
     res = context.lookup("sanction.program", source_key)
     if res is None:
         context.log.warn(f"Program key for {source_key!r} not found.")
-    return res.value if res is not None else None
+        return None
+    return res.value
 
 
 def make_sanction(
