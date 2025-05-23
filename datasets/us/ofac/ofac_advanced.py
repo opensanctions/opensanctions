@@ -305,6 +305,25 @@ def parse_distinct_party(
     for sanctions_entry in doc.findall(entry_path):
         parse_sanctions_entry(context, proxy, refs, features, sanctions_entry)
 
+    # Testing script to check whether each entity ends up with a sanction
+    #
+    # sanction_found = False
+    # sanction_entity = None
+    # for sanctions_entry in doc.findall(entry_path):
+    #     sanction_entity = parse_sanctions_entry(
+    #         context, proxy, refs, features, sanctions_entry
+    #     )
+    #     if sanction_entity is not None:
+    #         sanction_found = True
+
+    #     sanction_entities = [
+    #         parse_sanctions_entry(context, proxy, refs, features, sanctions_entry)
+    #         for sanctions_entry in doc.findall(entry_path)
+    #     ]
+    #     sanction_found = any([sanction is not None for sanction in sanction_entities])
+
+    #     assert sanction_found
+
     for feat_label, values in features.items():
         for feat_value in values:
             apply_feature(context, proxy, feat_label, feat_value)
@@ -452,10 +471,23 @@ def parse_sanctions_entry(
     refs: Element,
     features: Dict[str, FeatureValues],
     entry: Element,
-) -> Entity:
+) -> Optional[Entity]:
     # context.inspect(entry)
     proxy.add("topics", "sanction")
     program = extract_sanctions_program(entry, refs)
+
+    dataset = context.dataset.name
+    list_id = get_ref_text(refs, "List", entry.get("ListID"))
+    # For us_ofac_sdn, only process entries with list_id 'SDN List'
+    if dataset == "us_ofac_sdn" and list_id != "SDN List":
+        return
+    # For us_ofac_cons, only process entries that are not part of the SDN List
+    # (i.e., process entries with list_id 'Non-SDN Menu-Based Sanctions List' or 'Non-SDN CMIC List')
+    if dataset == "us_ofac_cons" and list_id in (
+        "Consolidated List",
+        "SDN List",
+    ):
+        return
     sanction = h.make_sanction(
         context,
         proxy,
