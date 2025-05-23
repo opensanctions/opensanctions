@@ -33,6 +33,11 @@ publisher:
   country: us
   url: https://www.treasury.gov/
   official: true
+tags:
+  - list.sanction
+  - juris.us
+  - issuer.west
+  - sector.maritime
 url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
 data:
   url: https://www.treasury.gov/ofac/downloads/sanctions/1.0/sdn_advanced.xml
@@ -606,6 +611,8 @@ lookups:
         value: 253400MZGXVN18GHCN57
       - match: 25400B8Y0FNJP628S19
         value: 253400B8Y0FNJP628S19
+      - match: 836800L3VBP3FOFDTP68
+        value: 836800L3VBP3F0FDTP68
       - match: IMO 543400 # Hwasong typo
         value: 5434300
       - match: IMO 9207391 # Derecttor typo

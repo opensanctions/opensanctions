@@ -16,6 +16,8 @@ description: |
   a national election for a four year term. In addition to approving legislation,
   the Parliament appoints high officials, including the prime minister, and
   elects the president.
+tags:
+  - list.pep
 publisher:
   name: Riigikogu
   description: Estonia Parliament

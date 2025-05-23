@@ -1,0 +1,113 @@
+title: US Washington DC Excluded Parties List
+entry_point: crawler.py
+prefix: us-dc-excl
+coverage:
+  frequency: daily
+  start: "2025-04-28"
+load_statements: true
+summary: >
+  List of individuals and entities excluded from doing business with the District of Columbia
+  government, including but not limited to the Medicaid program.
+description: |
+  The Excluded Parties List identifies individuals and entities that have been suspended or debarred
+  from doing business with the District of Columbia. While listed, these parties are ineligible to
+  receive contract awards, renewals, subcontracts, or participate in District government programs,
+  including Medicaid.
+tags:
+  - list.debarment
+  - sector.medical
+  - sector.usmed.debarment
+publisher:
+  name: DC Office of Contracting and Procurement
+  acronym: OCP
+  description: |
+    The DC Office of Contracting and Procurement (OCP) manages the acquisition of goods, services,
+    and construction for the District of Columbia government. OCP is also responsible for overseeing
+    contractor eligibility, including the suspension and debarment of individuals and entities through
+    the Excluded Parties List.
+  url: https://ocp.dc.gov/page/about-ocp
+  official: true
+  country: "us"
+url: "https://ocp.dc.gov/page/excluded-parties-list"
+data:
+  url: https://ocp.dc.gov/page/excluded-parties-list
+  format: HTML
+dates:
+  formats: ["%B %d, %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 40
+      Company: 40
+  max:
+    schema_entities:
+      Person: 100
+      Company: 100
+
+lookups:
+  director:
+    options:
+      - match: 'Sushil Bansal, President and Chief Executive Officer'
+        names:
+          - position: President and Chief Executive Officer
+            principal: Sushil Bansal
+      - match: 'Monreti Akinleye, President'
+        names:
+          - position: President
+            principal: Monreti Akinleye
+      - match: 'Mir, Sarosh, President'
+        names:
+          - position: President
+            principal: Sarosh Mir
+      - match: 'Fernando J. Villegas, President'
+        names:
+          - position: President
+            principal: Fernando J. Villegas
+      - match: 'Jeffrey L. Jones, President'
+        names:
+          - position: President
+            principal: Jeffrey L. Jones
+      - match: 'Kenneth D. Postell, President'
+        names:
+          - position: President
+            principal: Kenneth D. Postell
+  type.date:
+    options:
+      - match: May 28, 2009 and June 14, 2010
+        values:
+          - 2009-05-28
+          - 2010-06-14
+      - match: May 28, 2009 and August 18, 2010
+        values:
+          - 2009-05-28
+          - 2010-08-18
+      - match: May 28, 2009, May 10, 2010 and August 18, 2010
+        values:
+          - 2009-05-28
+          - 2010-05-10
+          - 2010-08-18
+  type.name:
+    options:
+      - match: 'James, Akiuber Ndoromo: aka "Akube Wuromori Ndoromo"'
+        values:
+          - James, Akiuber Ndoromo
+          - Akube Wuromori Ndoromo
+      - match: Akinyoyenu, Titilayo Akintomide; a/k/a Tommy Akin, a/k/a Tomi
+        values:
+          - Akinyoyenu, Titilayo Akintomide
+          - Tommy Akin
+          - Tomi
+      - match: 'Titilayo Akintomide Akinyoyenu, a/k/a Tommy Akin, a/k/a Tomi'
+        values:
+          - Titilayo Akintomide Akinyoyenu
+          - Tommy Akin
+          - Tomi
+      - match: 'Akiuber Ndoromo James: aka "Akube Wuromori Ndoromo"'
+        values:
+          - Akiuber Ndoromo James
+          - Akube Wuromori Ndoromo
+      - match: General Services, Inc. aka General Construction Services, Inc
+        values:
+          - General Services, Inc.
+          - General Construction Services, Inc.

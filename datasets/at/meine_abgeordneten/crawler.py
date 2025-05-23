@@ -137,13 +137,9 @@ def crawl_title(context, url, person, el):
         position,
         no_end_implies_current=False,
         categorisation=categorisation,
-        # At 2024-05-21 I saw a position updated 2024-01-19 so this site is maintained.
-        # https://www.meineabgeordneten.at/Abgeordnete/wolfgang.handler
         status=OccupancyStatus.UNKNOWN,
     )
     context.log.info("Using position from title section", url=url)
-    if datetime.now().isoformat() > "2025-05-21":
-        context.log.warning("Verify again that the site is kept up to date")
     if occupancy is not None:
         context.emit(person)
         context.emit(position)
@@ -198,6 +194,14 @@ def crawl_item(url_info_page: str, context: Context):
 
 def crawl(context: Context):
     response = context.fetch_html(context.data_url)
+
+    if datetime.now().isoformat() > "2026-05-21":
+        # Since this is an unofficial source, check periodically whether the site is maintained.
+        # As of 2025-05-22, there is a "NEUES AUS DEN DOSSIERS" section on the front page
+        # https://www.meineabgeordneten.at/ that showcases recently updated entities.
+        # As of 2026-05-22, the showcased dossier contains an update from 2025-03-03, so this site
+        # is still being maintained.
+        context.log.warning("Verify again that the site is kept up to date")
 
     # XPath to the url for the pages of each politician
     xpath_politician_page = (

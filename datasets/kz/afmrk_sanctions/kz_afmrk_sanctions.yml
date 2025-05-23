@@ -35,6 +35,9 @@ data:
   format: xml
 dates:
   formats: ["%d.%m.%Y"]
+tags:
+  - list.sanction
+
 assertions:
   min:
     schema_entities:

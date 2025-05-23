@@ -27,6 +27,8 @@ description: |
 
   The declarations are published by a joint initiative between the Consejo para la Transparencia (CPLT) and
   the Contraloría General de la República (CGR).
+tags:
+  - list.pep
 publisher:
   name: Consejo para la Transparencia
   acronym: CPLT
@@ -469,6 +471,7 @@ lookups:
           - "JEFE UNIDAD"
           - "JEFE UNIDAD CONTROL DE GESTION Y COORDINACION"
           - "JEFE UNIDAD DE GESTION DE APOYO"
+          - "JEFE(A) UNIDAD DE DERECHO DE ACCESO A LA INFORMACIÓN"
           - "JEFE(A) DE DEPARTAMENTO"
           - "JEFE/A ÁREA"
           - "JEFE/A DE DEPARTAMENTO"

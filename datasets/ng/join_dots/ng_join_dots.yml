@@ -33,6 +33,8 @@ publisher:
   url: https://peps.directoriolegislativo.org/nigeria/
   country: ng
   official: false
+tags:
+  - list.pep
 url: https://peps.directoriolegislativo.org/nigeria/open-data
 data:
   url: https://peps.directoriolegislativo.org/

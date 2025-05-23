@@ -16,23 +16,23 @@ description: |
   Such action from the AOB may not necessary imply the audited
   financial statement does not give a true and fair view.
 
-  Potential sanctions are: 
+  Potential sanctions are:
 
     - Directing the person in breach to comply with the
     provisions of Part IIIA of the SCA or any condition,
-    written notice or guidelines; 
-    - Reprimand; 
-    - Requiring professional education to be undertaken; 
+    written notice or guidelines;
+    - Reprimand;
+    - Requiring professional education to be undertaken;
     - Assigning a reviewer to oversee an audit
-    that is undertaken by the auditor concerned; 
-    - Financial penalty of not exceeding RM500,000; 
+    that is undertaken by the auditor concerned;
+    - Financial penalty of not exceeding RM500,000;
     - Prohibit the person concerned from accepting any
     public interest entity or schedule fund as its clients
     or preparing reports in relation to financial
     information of any public interest entity or schedule
     fund, as may be required under the securities laws
     or guidelines issued by the Commission,
-    for a period not exceeding twelve months; and 
+    for a period not exceeding twelve months; and
     - Prohibit the person concerned from auditing financial
     statements or preparing reports in relation to
     financial information of a public interest entity
@@ -86,3 +86,8 @@ lookups:
   name:
     map:
       UHY Hacker Young LLP: UHY Hacker Young
+
+  type.date:
+    options:
+      - match: 15 Janury 2025
+        value: 2025-01-15

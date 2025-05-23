@@ -31,6 +31,8 @@ publisher:
   official: false
   url: https://pmg.org.za/
   country: "za"
+tags:
+  - list.pep
 url: https://pa.org.za/help/api
 data:
   url: https://pa.org.za/media_root/popolo_json/pombola.json

@@ -34,6 +34,11 @@ data:
   format: CSV
   lang: eng
 ci_test: false
+tags:
+  - list.sanction
+  - target.cu
+  - juris.us
+  - issuer.west
 
 assertions:
   min:
@@ -42,3 +47,9 @@ assertions:
   max:
     schema_entities:
       Company: 1100
+
+lookups:
+  sanction.program:
+    options:
+      - match: "Cuba Restricted List"
+        value: US-DOS-CU-REA

@@ -57,6 +57,11 @@ LINKS = [
         "type": "legal_entity",
         "program": "Legal entities involved in the theft and destruction of Ukrainian cultural heritage",
     },
+    {  # russian military-industrial complex
+        "url": "https://war-sanctions.gur.gov.ua/en/rostec",
+        "type": "legal_entity",
+        "program": "Entities from Rostec’s core military holdings producing weapons for Russia’s war against Ukraine.",
+    },
 ]
 
 # e.g. Ocean Dolphin Ship Management (6270796
@@ -105,6 +110,10 @@ def apply_dob_pob(context, entity, dob_pob):
             h.apply_date(entity, "birthDate", dob_pob)
     else:
         context.log.warning(f"Unexpected dob_pob format: {dob_pob}")
+
+
+def rostec_affiliate_id_parts(abbrev_name):
+    return [abbrev_name, "affiliated with Rostec"]
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
@@ -423,6 +432,45 @@ def emit_relation(
     return other
 
 
+def emit_ownership_chain(context, legal_entity, program, rostec_ownership):
+    """
+    Creates and emits the ownership chain for a series of entities.
+
+    The first element in the rostec_ownership list is the initial legal entity,
+    and the last element is Rostec. Intermediate elements represent the companies
+    in between the chain. This function sets up the ownership hierarchy.
+    (e.g. ['JSC ODK-KLIMOV', 'JSC UEC', 'ROSTEC'])
+    Full ownership structure is available at: https://war-sanctions.gur.gov.ua/en/rostec
+
+    Args:
+        context: Context
+        legal_entity: The initial legal entity (the first in the ownership chain).
+        rostec_ownership: A list of entity links that form the ownership chain, from the legal entity to Rostec.
+    """
+    # `asset` refers to the previous entity in the chain, starting with the first entity
+    asset = legal_entity
+    first_entity_name = rostec_ownership[0].text_content().strip()
+    assert first_entity_name in legal_entity.get("name"), (
+        first_entity_name,
+        legal_entity.get("name"),
+    )
+
+    for owner_link in rostec_ownership[1:]:
+        # Create the new entity for each linked company
+        owner = crawl_legal_entity(context, owner_link.get("href"), program)
+        context.emit(owner)
+
+        # Create the ownership link
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(asset.id, "owned by", owner.id)
+        ownership.add("owner", owner)  # The new entity is the owner
+        ownership.add("asset", asset)  # The previous entity is the asset
+        context.emit(ownership)
+
+        # Set the current `owner` as the new `asset` for the next iteration
+        asset = owner
+
+
 def crawl_person(context: Context, link, program):
     detail_page = fetch_html(
         context,
@@ -503,6 +551,8 @@ def crawl_legal_entity(context: Context, link, program):
             label_elem, value_elem = divs
             if "yellow" in label_elem.get("class"):
                 label, value = extract_label_value_pair(label_elem, value_elem, data)
+                if label.strip() == "Within the structure of Rostec":
+                    value = value_elem.findall(".//a")
                 data[label] = value
     name = data.pop("Name", None)
     if name is None:
@@ -531,7 +581,13 @@ def crawl_legal_entity(context: Context, link, program):
 
     context.emit(legal_entity)
     context.emit(sanction)
+
+    rostec_ownership = data.pop("Within the structure of Rostec", None)
+    if rostec_ownership:
+        emit_ownership_chain(context, legal_entity, program, rostec_ownership)
+
     context.audit_data(data, ignore=["Sanction Jurisdictions", "Products"])
+    return legal_entity
 
 
 def extract_next_page_url(doc):
@@ -567,8 +623,9 @@ def crawl(context: Context):
     # Kremlin mouthpieces
     # UAV manufacturers
     # Executives of war
+    # Agressor's Military Industrial Complex
     h.assert_dom_hash(
-        section_links_section[0], "6d9e5bb137fbbd3c5698008f0c01ed10318d9b53"
+        section_links_section[0], "55e0f15b8c80233466491f0656790ee401da33b4"
     )
 
     # Has the API link been updated to point to the previously-nonexistent API page?

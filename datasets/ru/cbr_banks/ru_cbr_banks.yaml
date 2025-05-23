@@ -17,6 +17,8 @@ description: |
 
   The dataset also tracks important dates, including incorporation, inclusion in the deposit 
   insurance system, and significant status changes such as license removals and related codes.
+tags:
+  - sector.banking
 publisher:
   name: Bank of Russia
   acronym: CBR

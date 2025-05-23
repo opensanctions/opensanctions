@@ -42,6 +42,12 @@ publisher:
   country: us
   url: https://www.trade.gov/
   official: true
+tags:
+  - list.sanction
+  - list.export
+  - juris.us
+  - issuer.west
+  - sector.maritime
 url: https://www.trade.gov/consolidated-screening-list
 data:
   url: https://api.trade.gov/static/consolidated_screening_list/consolidated.json
@@ -68,6 +74,20 @@ assertions:
       Address: 35
 
 lookups:
+  sanction.program:
+    options:
+      - match: Nonproliferation Sanctions (ISN) - State Department
+        value: US-DOS-ISN
+      - match: ITAR Debarred (DTC) - State Department
+        value: US-AECA-DEBARRED
+      - match: Unverified List (UVL) - Bureau of Industry and Security
+        value: US-BIS-UVL
+      - match: Entity List (EL) - Bureau of Industry and Security
+        value: US-BIS-EL
+      - match: Denied Persons List (DPL) - Bureau of Industry and Security
+        value: US-BIS-DPL
+      - match: Military End User (MEU) List - Bureau of Industry and Security
+        value: US-BIS-MEU
   type:
     options:
       - match:
@@ -81,7 +101,7 @@ lookups:
         value: Vessel
       - match: Aircraft
         value: Airplane
-  name_with_information:
+  name_with_info_res:
     options:
       - match: The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located.  This includes the national armed services (army and air force), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Republic of Belarus.  All addresses located in Belarus.
         properties:
@@ -95,6 +115,228 @@ lookups:
         properties:
           name: Ministry of Defence of the Russian Federation
           notes: Includes the Armed Forces of Russia and all operating units wherever located.  This includes the national armed services (army, navy, marine, air force, or coast guard), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Russian Federation.  All address located in Russia.
+      - match: 'Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Beijing Huawei Longshine Information Technology Co., Ltd.'
+        properties:
+          name: Beijing Huawei Longshine Information Technology Co., Ltd.
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Hangzhou New Longshine Information Technology Co., Ltd."
+        properties:
+          name: Hangzhou New Longshine Information Technology Co., Ltd.
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Hangzhou Huawei Communication Technology Co., Ltd."
+        properties:
+          name: Hangzhou Huawei Communication Technology Co., Ltd.
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Digital Technologies (Suzhou) Co., Ltd."
+        properties:
+          name: Huawei Digital Technologies (Suzhou) Co., Ltd.
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Hangzhou Huawei Enterprises"
+        properties:
+          name: Hangzhou Huawei Enterprises
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Marine Networks Co., Ltd."
+        properties:
+          name: Huawei Marine Networks Co., Ltd.
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Huawei Mobile Technology Ltd."
+        properties:
+          name: Huawei Mobile Technology Ltd.
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Huawei Tech. Investment Co."
+        properties:
+          name: Huawei Tech. Investment Co.
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Technology Co., Ltd. Chengdu Research Institute"
+        properties:
+          name: Huawei Technology Co., Ltd. Chengdu Research Institute
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Technology Co., Ltd. Hangzhou Research Institute"
+        properties:
+          name: Huawei Technology Co., Ltd. Hangzhou Research Institute
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Technologies Co., Ltd., Beijing Research Institute"
+        properties:
+          name: Huawei Technologies Co., Ltd., Beijing Research Institute
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Technologies Co., Ltd., Material Characterization Lab"
+        properties:
+          name: Huawei Technologies Co., Ltd., Material Characterization Lab
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Huawei Technologies Co., Ltd., Xi'an Research Institute"
+        properties:
+          name: Huawei Technologies Co., Ltd., Xi'an Research Institute
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Huawei Terminal (Shenzhen) Co., Ltd. "
+        properties:
+          name: Huawei Terminal (Shenzhen) Co., Ltd.
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Nanchang Huawei Communication Technology "
+        properties:
+          name: Nanchang Huawei Communication Technology
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Ningbo Huawei Computer & Net Co., Ltd."
+        properties:
+          name: Ningbo Huawei Computer & Net Co., Ltd.
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Shanghai Huawei Technologies Co., Ltd."
+        properties:
+          name: Shanghai Huawei Technologies Co., Ltd.
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Shenzhen Huawei New Technology Co., Ltd."
+        properties:
+          name: Shenzhen Huawei New Technology Co., Ltd.
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Shenzhen Huawei Technology Service"
+        properties:
+          name: Shenzhen Huawei Technology Service
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Shenzhen Huawei Technologies Software"
+        properties:
+          name: Shenzhen Huawei Technologies Software
+          related: Huawei Technologies Co., Ltd.
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Zhejiang Huawei Communications Technology Co., Ltd."
+        properties:
+          name: Zhejiang Huawei Communications Technology Co., Ltd.
+          related: Huawei Technologies Co., Ltd.
+      - match: "Affiliated Supply and Consultancy Services"
+        properties:
+          name: Affiliated Supply and Consultancy Services
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Shenzhen Huawei Anjiexin Electricity Co., Ltd."
+        properties:
+          name: Shenzhen Huawei Anjiexin Electricity Co., Ltd.
+          related: Huawei Technologies Co., Ltd.
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution -  Second Design Department"
+        properties:
+          name: Second Design Department of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 23rd Research Institute"
+        properties:
+          name: 23rd Research Institute of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 25th Research Institute"
+        properties:
+          name: 25th Research Institute of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 201 Research Institute"
+        properties:
+          name: 201 Research Institute of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 203rd Research Institute"
+        properties:
+          name: 203rd Research Institute of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 204th Research Institute"
+        properties:
+          name: 204th Research Institute of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 206th Research Institute"
+        properties:
+          name: 206th Research Institute of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 207th Research Institute"
+        properties:
+          name: 207th Research Institute of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 208th Research Institute"
+        properties:
+          name: 208th Research Institute of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 210th Research Institute"
+        properties:
+          name: 210th Research Institute of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 283 Factory"
+        properties:
+          name: 283 Factory of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 284 Factory"
+        properties:
+          name: 284 Factory of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Aerospace Science and Industry Corporation Second Academy.  Subordinate Institution - 699 Factory"
+        properties:
+          name: 699 Factory of the China Aerospace Science and Industry Corporation Second Academy
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Bowei Integrated Circuits "
+        properties:
+          name: Bowei Integrated Circuits
+          related: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Envoltek "
+        properties:
+          name: Envoltek
+          related: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Hebei Sinopack Electronics"
+        properties:
+          name: Hebei Sinopack Electronics
+          related: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Hebei Brightway International"
+        properties:
+          name: Hebei Brightway International
+          related: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Hebei Medicines Health"
+        properties:
+          name: Hebei Medicines Health
+          related: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Hebei Puxing Electronic"
+        properties:
+          name: Hebei Puxing Electronic
+          related: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Micro Electronic Technology"
+        properties:
+          name: Micro Electronic Technology
+          related: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Shijiazhuang Development Zone Maiteda Microelectronics Technology Development and Application Corporation"
+        properties:
+          name: Shijiazhuang Development Zone Maiteda Microelectronics Technology Development and Application Corporation
+          related: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - MT Microsystems"
+        properties:
+          name: MT Microsystems
+          related: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - North China Integrated Circuit Corporation"
+        properties:
+          name: North China Integrated Circuit Corporation
+          related: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Tonghui Electronics"
+        properties:
+          name: Tonghui Electronics
+          related: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+      - match: "China Electronics Technology Group Corporation 14th Research Institute (CETC 14).  Subordinate Institution - Nanjing SunSea Industry Corporation"
+        properties:
+          name: Nanjing SunSea Industry Corporation
+          related: China Electronics Technology Group Corporation 14th Research Institute (CETC 14)
+      - match: "China Electronics Technology Group Corporation 14th Research Institute (CETC 14).  Subordinate Institution - Nanjing Institute of Radio Technology"
+        properties:
+          name: Nanjing Institute of Radio Technology
+          related: China Electronics Technology Group Corporation 14th Research Institute (CETC 14)
+      - match: "Pakistan Atomic Energy Commission (PAEC), and subordinate entity National Development Complex (NDC) "
+        properties:
+          name: National Development Complex (NDC)
+          related: Pakistan Atomic Energy Commission (PAEC)
+      - match: "Pakistan Atomic Energy Commission (PAEC), and subordinate entity Pakistan Institute for Nuclear Science and Technology (PINSTECH)"
+        properties:
+          name: Pakistan Institute for Nuclear Science and Technology (PINSTECH)
+          related: Pakistan Atomic Energy Commission (PAEC)
+      - match: "Pakistan Atomic Energy Commission (PAEC), and subordinate entity National Institute of Lasers and Optronics (NILOP)"
+        properties:
+          name: National Institute of Lasers and Optronics (NILOP)
+          related: Pakistan Atomic Energy Commission (PAEC)
+      - match: "Guangzhou Hongyu Technology Co., Ltd. (a subordinate institute of CETC-7)"
+        properties:
+          name: Guangzhou Hongyu Technology Co., Ltd.
+          related: CETC-7
+      - match: "Guangzhou Tongguang Communication Technology Co., Ltd. (a subordinate institute of CETC-7)"
+        properties:
+          name: Guangzhou Tongguang Communication Technology Co., Ltd.
+          related: CETC-7
+      - match: "China Electronics Technology Group Corporation 13th Research Institute (CETC 13).  Subordinate Institution - Hebei Poshing Electronics"
+        properties:
+          name: Hebei Poshing Electronics
+          related: China Electronics Technology Group Corporation 13th Research Institute (CETC 13)
+      - match: "Resort Nizhnyaya Oreanda (f.k.a., Federalnoe Gosudarstvennoe Byudzhetnoe Uchrezhdenie Sanatori Nizhnyaya Oreanda Upravleniya)"
+        properties:
+          name: Resort Nizhnyaya Oreanda
+          previous_name: Federalnoe Gosudarstvennoe Byudzhetnoe Uchrezhdenie Sanatori Nizhnyaya Oreanda Upravleniya
+      - match: "OAO Volgogradneftemash (f.k.a. Dochernee Aktsionernoe Obshchestvo Otkrytogo Tipa Volgogradneftemash Rossiiskogo Aktsionernogo Obshchestva Gazprom)"
+        properties:
+          name: OAO Volgogradneftemash
+          previous_name: Dochernee Aktsionernoe Obshchestvo Otkrytogo Tipa Volgogradneftemash Rossiiskogo Aktsionernogo Obshchestva Gazprom
+      - match: "LTS Holding Limited (f.k.a. IPP-International Petroleum Products Ltd.)"
+        properties:
+          name: LTS Holding Limited
+          previous_name: IPP-International Petroleum Products Ltd.
+      - match: "SGM Most OOO (f.k.a., Obshchestvo S Ogranichennoi Otvetstvennostyu SGM Most)"
+        properties:
+          name: SGM Most OOO
+          previous_name: Obshchestvo S Ogranichennoi Otvetstvennostyu SGM Most
   type.date:
     options:
       - match: "3033-01-17"

@@ -22,6 +22,8 @@ description: |
   Attribution-Share Alike 4.0.
 
   See also their [official website](http://www.npc.gov.cn).
+tags:
+  - list.pep
 publisher:
   name: Wikipedia
   description: |

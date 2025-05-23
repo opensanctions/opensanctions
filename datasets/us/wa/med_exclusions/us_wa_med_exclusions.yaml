@@ -12,6 +12,9 @@ description: |
   program has been terminated for cause under the provision of WAC 182-502-0030 (HCA)
   or 388-113-0020; 388-113-0030; 388-71-0540 (DSHS) and Medicaid providers who have
   been excluded from participation (see 42 CFR 1001).
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Washington State Health Care Authority
   description: |

@@ -35,6 +35,12 @@ def crawl_item(context: Context, row: Dict[str, str]):
     # -> Nationality of the natural person / registered office of the legal entity
     countries = row.pop("statni_prislusnost_fyzicke_osoby_sidlo_pravnicke_osoby")
 
+    # Ustanovení předpisu Evropské unie, jehož skutkovou podstatu subjekt jednáním naplnil
+    # -> Provision of the European Union regulation, the factual basis of which the subject fulfilled by action
+    provision = row.pop(
+        "ustanoveni_predpisu_evropske_unie_jehoz_skutkovou_podstatu_subjekt_jednanim_naplnil"
+    )
+
     sanction_props = dict()
     if REGEX_LAST_NAME.match(name_field):
         names = h.multi_split(name_field, ["/"])
@@ -71,7 +77,13 @@ def crawl_item(context: Context, row: Dict[str, str]):
     # -> Other identification data
     entity.add("notes", row.pop("dalsi_identifikacni_udaje"), lang="ces")
 
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(
+        context,
+        entity,
+        source_program_key=provision,
+        program_key=h.lookup_sanction_program_key(context, provision),
+    )
+    sanction.add("program", provision, lang="ces")
     h.apply_date(sanction, "startDate", row.pop("datum_zapisu"))
     for prop, value in sanction_props.items():
         if "date" in prop.lower():
@@ -98,13 +110,6 @@ def crawl_item(context: Context, row: Dict[str, str]):
     # Číslo usnesení vlády
     # -> Government resolution number
     sanction.add("recordId", row.pop("cislo_usneseni_vlady"), lang="ces")
-
-    # Ustanovení předpisu Evropské unie, jehož skutkovou podstatu subjekt jednáním naplnil
-    # -> Provision of the European Union regulation, the factual basis of which the subject fulfilled by action
-    provision = row.pop(
-        "ustanoveni_predpisu_evropske_unie_jehoz_skutkovou_podstatu_subjekt_jednanim_naplnil"
-    )
-    sanction.add("program", provision, lang="ces")
 
     context.emit(entity)
     context.emit(sanction)

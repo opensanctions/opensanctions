@@ -12,6 +12,8 @@ description: |
   National Deputies (Members of the Parliament) - Representatives elected directly
   by the people of the provinces and the city of Buenos Aires of Argentina. The
   chamber of deputies is one of two houses of parliament in Argentina.
+tags:
+  - list.pep
 publisher:
   name: Honorable Cámara de Diputados de la Nación Argentina
   acronym: HCDN

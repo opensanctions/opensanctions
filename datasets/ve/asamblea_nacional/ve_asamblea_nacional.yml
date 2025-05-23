@@ -1,6 +1,5 @@
 name: ve_asamblea_nacional
 title: Venezuela Members of the National Assembly
-url: https://www.asambleanacional.gob.ve/diputados
 coverage:
   frequency: weekly
   start: 2024-01-18
@@ -28,6 +27,9 @@ publisher:
     reserved for representatives of Indigenous communities.
   country: ve
   url: https://www.asambleanacional.gob.ve/
+tags:
+  - list.pep
+url: https://www.asambleanacional.gob.ve/diputados
 data:
   url: https://www.asambleanacional.gob.ve/diputados
   format: HTML

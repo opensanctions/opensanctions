@@ -46,7 +46,9 @@ def crawl(context: Context):
         person.add("citizenship", "us")
         person.add("topics", "sanction.counter")
 
-        sanction = h.make_sanction(context, person, program_key="RU-MFA")
+        sanction = h.make_sanction(
+            context, person, program_key=h.lookup_sanction_program_key(context, PROGRAM)
+        )
         sanction.add("program", PROGRAM, lang="rus")
 
         context.emit(person)

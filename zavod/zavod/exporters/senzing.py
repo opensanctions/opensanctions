@@ -28,6 +28,10 @@ STMT_PROPS_TO_MAP = {
     "npiCode": "NPI_NUMBER",
 }
 NORM_TEXT = re.compile(r"[^\w\d]", re.U)
+SOURCE_NAME_OVERRIDES = {
+    "OS-OPENOWNERSHIP": "OPENOWNERSHIP",
+    "OS-GLEIF": "GLEIF",
+}
 
 
 def push(obj: Dict[str, Any], section: str, value: Dict[str, Any]) -> None:
@@ -66,8 +70,9 @@ class SenzingExporter(Exporter):
     def setup(self) -> None:
         super().setup()
         self.fh = open(self.path, "wb")
-        self.domain_name = "OPEN-SANCTIONS"
-        self.source_name = f"OS-{self.dataset.name.upper().replace('_', '-')}"
+        self.domain_name = "OPENSANCTIONS"
+        source_name = f"OS-{self.dataset.name.upper().replace('_', '-')}"
+        self.source_name = SOURCE_NAME_OVERRIDES.get(source_name, source_name)
         if self.dataset.is_collection and self.dataset.name != "openownership":
             self.source_name = self.domain_name
 
@@ -113,7 +118,7 @@ class SenzingExporter(Exporter):
         name_hashes.add(hash_value(f"{name_attr}{entity.caption}"))
         push(record, "NAMES", {"NAME_TYPE": "PRIMARY", name_attr: entity.caption})
 
-        for name in entity.get_type_values(registry.name):
+        for name in entity.get_type_values(registry.name, matchable=True):
             if (name_hash := hash_value(f"{name_attr}{name}")) not in name_hashes:
                 name_hashes.add(name_hash)
                 push(record, "NAMES", {"NAME_TYPE": "ALIAS", name_attr: name})
@@ -198,7 +203,7 @@ class SenzingExporter(Exporter):
         for ident in record.get("IDENTIFIERS", []):
             seen_identifiers.update(ident.values())
 
-        for stmt in entity.get_type_statements(registry.identifier):
+        for stmt in entity.get_type_statements(registry.identifier, matchable=True):
             if stmt.value in seen_identifiers:
                 continue
             seen_identifiers.add(stmt.value)

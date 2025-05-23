@@ -1,5 +1,6 @@
-from rigour.mime.types import PDF
 from urllib.parse import urljoin
+from rigour.mime.types import PDF
+from rigour.names.person import remove_person_prefixes
 
 from zavod import Context
 from zavod import helpers as h
@@ -32,6 +33,7 @@ def crawl(context: Context):
         assert "holders" in data, data
         for holder in data.get("holders", []):
             person_name = holder.get("person_name")
+            person_name = remove_person_prefixes(holder.get("person_name"))
             person_name = context.lookup_value(
                 "normalize_name", person_name, person_name
             )
@@ -50,9 +52,14 @@ def crawl(context: Context):
                 continue
             country = holder.get("country")
             entity = context.make("Person")
-            entity.id = context.make_id(country, person_name)
+            entity.id = context.make_id(country, holder.get("person_name"))
             entity.add("topics", "role.pep")
-            entity.add("name", holder.get("person_name"))
+            if norm_name != holder.get("person_name"):
+                context.log.debug(
+                    "Modified name: %r" % holder.get("person_name"),
+                    clean=norm_name,
+                )
+            entity.add("name", norm_name)
             entity.add("title", holder.get("honorary_prefix"))
             entity.add("country", country)
 

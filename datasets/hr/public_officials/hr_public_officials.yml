@@ -18,6 +18,8 @@ description: >
   Only officials who have held some position falling within our PEP criteria within our
   PEP retention period are included.
 entry_point: crawler.py
+tags:
+  - list.pep
 publisher:
   name: Povjerenstvo za odlučivanje o sukobu interesa
   acronym: Sukobu Interesa

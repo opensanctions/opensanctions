@@ -14,7 +14,7 @@ deploy:
   cpu: "1000m"
   cpu_limit: "2000m"
   memory: 4000Mi
-  memory_limit: 4500Mi
+  memory_limit: 5000Mi
   disk: 100Gi
   disk_limit: 300Gi
 load_statements: true
@@ -25,6 +25,9 @@ description: |
   This is a dataset of financial instruments and their reference data, as published
   by ESMA. The data establishes connections between financial instruments and their
   issuers, and includes information such as the instrument's name, ISIN, and LEI.
+tags:
+  - sector.financial
+url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_registers_firds_files
 publisher:
   name: European Securities and Markets Authority
   acronym: ESMA
@@ -35,7 +38,6 @@ publisher:
   country: eu
   url: https://www.esma.europa.eu/
   official: true
-url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_registers_firds_files
 data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doRelativeSearch
   format: JSON

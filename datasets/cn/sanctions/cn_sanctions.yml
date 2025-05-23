@@ -51,6 +51,9 @@ data:
   format: CSV
 dates:
   formats: ["%d.%m.%y", "%d.%m.%Y"]
+tags:
+  - list.sanction.counter
+  - target.us
 
 assertions:
   min:
@@ -63,3 +66,16 @@ assertions:
       Person: 220
       Company: 100
       Organization: 45
+
+lookups:
+  sanction.program:
+    options:
+      - match: AFSL
+        value: CN-AFSL
+      - match: UEL
+        value: CN-UEL
+      - match:
+          - Decision on Countermeasures against U.S. military-industry enterprises and senior managers
+          - Decision on Countermeasures against U.S. Military-industry Enterprises
+          - Decision on countermeasures against U.S. Congressman McGowern
+        value: CN-CML

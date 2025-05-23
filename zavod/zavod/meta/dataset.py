@@ -2,13 +2,13 @@ from pathlib import Path
 from functools import cached_property
 from typing import TYPE_CHECKING, Dict, Any, Optional, List, Set
 
+from rigour.time import datetime_iso
 from banal import ensure_list, ensure_dict, as_bool
 from datapatch import get_lookups, Lookup
 from normality import slugify
 
 from nomenklatura.dataset import DataCoverage
 from nomenklatura.dataset import Dataset as NKDataset
-from nomenklatura.util import datetime_iso
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta.assertion import Assertion, parse_assertions, Comparison, Metric

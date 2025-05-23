@@ -13,6 +13,8 @@ description: >
   data on the members who represent local and regional authorities in the EU. It includes 
   each member's function, status, country of representation, and the bodies they are 
   affiliated with, such as political groups and commissions.
+tags:
+  - list.pep
 publisher:
   name: European Committee of the Regions
   acronym: CoR

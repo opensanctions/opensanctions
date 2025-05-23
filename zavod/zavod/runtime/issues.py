@@ -1,11 +1,10 @@
 import orjson
 from pathlib import Path
-from rigour.time import utc_now
+from rigour.time import utc_now, datetime_iso
 from banal import is_mapping, hash_data
 from datetime import datetime
 from followthemoney.proxy import EntityProxy
 from typing import Any, Dict, Generator, Optional, TypedDict, BinaryIO, cast
-from nomenklatura.util import datetime_iso
 
 from zavod.meta import Dataset
 from zavod.archive import dataset_resource_path, get_dataset_artifact

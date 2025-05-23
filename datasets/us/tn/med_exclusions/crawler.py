@@ -1,8 +1,9 @@
 from zavod import Context, helpers as h
+from zavod.shed import zyte_api
 
 
 def crawl(context: Context) -> None:
-    data = context.fetch_json(context.data_url)
+    data = zyte_api.fetch_json(context, context.data_url, geolocation="us")
     for row in data["data"]:
         first_name = row.pop("First Name")
         last_name = row.pop("Last Name")

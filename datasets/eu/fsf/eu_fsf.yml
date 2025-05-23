@@ -26,7 +26,7 @@ description: |
   > particular responsibility to credit and financial institutions, since they are
   > involved in the bulk of financial transfers and transactions affected by the relevant
   > Regulations.
-  > 
+  >
   > In order to facilitate the application of financial sanctions, the European
   > Banking Federation, the European Savings Banks Group, the European Association of
   > Co-operative Banks and the European Association of Public Banks ("the EU Credit Sector
@@ -37,7 +37,7 @@ description: |
   > the database and keep it up-to-date. This database was developed first and foremost
   > to assist the members of the EU Credit Sector Federations in their compliance with
   > financial sanctions.
-  > 
+  >
   > **Disclaimer:** While every effort is made to ensure that the database and the
   > consolidated list correctly reproduce all relevant data of the officially adopted
   > texts published in the Official Journal of the European Union, neither the Commission
@@ -53,6 +53,11 @@ description: |
 
   - Council Regulation (EC) No 2580/2001 imposing sanctions based on Council Common Position 2001/931/CFSP
   - Council regulation (EU) 2016/1686 imposing sanctions based on Council Decision (CFSP) 2016/1693
+tags:
+  - list.sanction
+  - juris.eu
+  - issuer.west
+  - sector.maritime
 publisher:
   name: Directorate‑General for Financial Stability, Financial Services and Capital Markets Union
   acronym: DG FISMA
@@ -310,6 +315,16 @@ lookups:
         values:
           - v.myshevskaya@rostvert.ru
           - g.bunyaeva@rostvert.ru
+      - match: "kbisl 11olqa@m ail.ru"
+        value: "kbisl11olqa@mail.ru"
+      - match:
+          - "cannon49(a)mail"
+          - "ru"
+        value: null
+      - match: "alarm@pzsignal. ru"
+        value: alarm@pzsignal.ru
+      - match: "info@chersones os-sev.ru"
+        value: "info@chersonesos-sev.ru"
   type.gender:
     lowercase: true
     normalize: true

@@ -10,8 +10,10 @@ ORIGINAL_ACCOMMODATIONS_URL = (
     "https://www.state.gov/cuba-prohibited-accommodations-list-initial-publication/"
 )
 ACCOMMODATIONS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=1890354374&single=true&output=csv"
+ACCOMODATIONS_PROGRAM = "Cuba Prohibited Accommodations List"
 ORIGINAL_RESTRICTED_ENTITIES_URL = "https://www.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list"
 RESTRICTED_ENTITIES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=0&single=true&output=csv"
+RESTRICTED_ENTITIES_PROGRAM = "Cuba Restricted List"
 CONTENT_XPATH = ".//div[@class='entry-content']"
 ACTIONS = [
     {
@@ -30,7 +32,9 @@ def crawl_accommodations(context: Context):
         context, ORIGINAL_ACCOMMODATIONS_URL, CONTENT_XPATH, actions=ACTIONS
     )
     node = doc.find(CONTENT_XPATH)
-    if not h.assert_dom_hash(node, "7a2be818841181e19a1988c4d86789087d245c31"):
+    # Chrome save HTML only
+    # xmllint --format --html
+    if not h.assert_dom_hash(node, "6dc9087e0ccb2e13fc2389ba4176ab114996ad32"):
         context.log.warning("Accommodations page changed. Check for data updates.")
 
     path = context.fetch_resource("accommodations.csv", ACCOMMODATIONS_URL)
@@ -54,6 +58,8 @@ def crawl_restricted_entities(context: Context):
         context, ORIGINAL_RESTRICTED_ENTITIES_URL, CONTENT_XPATH, actions=ACTIONS
     )
     node = doc.find(CONTENT_XPATH)
+    # Chrome save HTML only
+    # xmllint --format --html
     if not h.assert_dom_hash(node, "1568aa7fc68d86fd44c808e6def0df9a4627903b"):
         context.log.warning("Restricted List content changed. Check for data updates")
 
@@ -71,7 +77,14 @@ def crawl_restricted_entities(context: Context):
             proxy.add("classification", row.pop("Category"))
             proxy.add("sourceUrl", row.pop("SourceURL").split(";"))
 
-            sanction = h.make_sanction(context, proxy)
+            sanction = h.make_sanction(
+                context,
+                proxy,
+                program_name=RESTRICTED_ENTITIES_PROGRAM,
+                program_key=h.lookup_sanction_program_key(
+                    context, RESTRICTED_ENTITIES_PROGRAM
+                ),
+            )
             sanction.add("startDate", row.pop("EffectiveDate"))
             if h.is_active(sanction):
                 proxy.add("topics", "sanction")
@@ -92,7 +105,9 @@ def crawl_restricted_entities(context: Context):
 def crawl(context: Context):
     doc = fetch_html(context, context.dataset.url, CONTENT_XPATH, actions=ACTIONS)
     node = doc.find(CONTENT_XPATH)
-    if not h.assert_dom_hash(node, "68b8e034bd290f5d384ab74bebf24f60b43db282"):
+    # Chrome save HTML only
+    # xmllint --format --html
+    if not h.assert_dom_hash(node, "0355144d3d290c3c617b2dd0077582a3136679f7"):
         context.log.warning("Landing page changed. Check for added/removed lists.")
 
     crawl_accommodations(context)

@@ -14,10 +14,10 @@ from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
 from nomenklatura.versions import Version
 from nomenklatura.cache import Cache
-from nomenklatura.util import PathLike
 from rigour.urls import build_url, ParamsType
 from sqlalchemy.engine import Connection
 from structlog.contextvars import bind_contextvars, reset_contextvars
+from followthemoney.util import PathLike
 
 from zavod import settings
 from zavod.audit import inspect

@@ -12,6 +12,8 @@ description: |
   The dataset contains information about public officials in Slovakia, including
   their names, positions, and other relevant information. The data is collected
   from the official website of the National Council of the Slovak Republic.
+tags:
+  - list.pep
 publisher:
   name: Národná rada Slovenskej republiky
   name_en: National Council of the Slovak Republic

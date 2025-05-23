@@ -264,8 +264,17 @@ def parse_entry(context: Context, target: Element, programs, places):
         else:
             # print(value, other.attrib)
             entity.add("notes", h.clean_note(value))
+    ssid = target.get("sanctions-set-id")
+    if ssid is None:
+        ssid = target.findtext("./sanctions-set-id")
 
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=programs.get(ssid),
+        source_program_key=programs.get(ssid),
+        program_key=h.lookup_sanction_program_key(context, programs.get(ssid)),
+    )
     sanction.add("authorityId", entity_ssid)
     last_modification = None
     last_modification_type = None
@@ -292,11 +301,6 @@ def parse_entry(context: Context, target: Element, programs, places):
         return
     entity.add("topics", "sanction")
 
-    ssid = target.get("sanctions-set-id")
-    if ssid is None:
-        ssid = target.findtext("./sanctions-set-id")
-    # TODO(Leon Handreke): Add lookup from program ssid to OpenSanctions program key
-    sanction.add("program", programs.get(ssid))
     foreign_id = target.findtext("./foreign-identifier")
     sanction.add("unscId", foreign_id)
 

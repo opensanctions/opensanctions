@@ -30,6 +30,8 @@ description: |
   the criteria for selection is unclear. While their Excel file data dictionary states that
   currently-held positions will have a blank end date, that is not currently
   the case so we include the stated end date but indicate occupancy status as unknown.
+tags:
+  - list.pep
 publisher:
   name: Deparatamento Administrativo del la Funcion Publica
   name_en: Administrative Department of Public Service

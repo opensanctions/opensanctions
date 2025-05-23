@@ -301,6 +301,9 @@ lookups:
       - match: https://excentral-int.net/), operated by OM Bridge (Pty) Ltd
         owner_name: [OM Bridge (Pty) Ltd]
         entity_name: []
+      - match: Openblock (operated by DSSQ Pte. Ltd)
+        owner_name: [DSSQ Pte. Ltd]
+        entity_name: Openblock
   type.url:
     normalize: true
     options:
@@ -591,3 +594,8 @@ lookups:
           - '2A/8, Majethia Nagar, S.V. Road Kandiwali, Mumbai, Maharashtra 400067, India'
           - '14/1, Old Palasia, 601, Rukmani Plaza, 6th Floor, A.B. Road, Indore 452001, India'
           - '307, Vidyapati Complex, Race Course Road, Janjeerwala Square, Indore, Madhya Pradesh, India'
+      - match: 'GLOBIANCE PTE. LIMITED: , 150 Beach Road, #35-62, Gateway West, Singapore 189720, GLOBIANCEPAY HOLDINGS PTE. LTD.:, 531A Upper Cross Street, #04-95, Hong Lim Complex, Singapore 051531, GLOBIANCEPAY PTE. LTD.:, 531A Upper Cross Street, #04-95, Hong Lim Complex, Singapore 051531'
+        values:
+          - 'GLOBIANCE PTE. LIMITED: 150 Beach Road, #35-62, Gateway West, Singapore 189720'
+          - 'GLOBIANCEPAY HOLDINGS PTE. LTD.: 531A Upper Cross Street, #04-95, Hong Lim Complex, Singapore 051531'
+          - 'GLOBIANCEPAY PTE. LTD.: 531A Upper Cross Street, #04-95, Hong Lim Complex, Singapore 051531'

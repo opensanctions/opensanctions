@@ -42,6 +42,8 @@ dates:
   months:
     "03": מרס
     "05": "May"
+tags:
+  - list.sanction
 
 assertions:
   min:
@@ -103,6 +105,7 @@ lookups:
           - Khan Younis, Gaza
           - אזרחות פלסטינית
           - Gaza
+          - עזה
         value: PS
       - match: תוניס
         value: Tunisia

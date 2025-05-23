@@ -33,13 +33,16 @@ SEPARATORS = "/:;-. "
 TEXT_KEYS = {
     "Type d'entité": "legalForm",
     "Date d'enregistrement": "incorporationDate",
+    "Date de constitution": "incorporationDate",
     # address, which is a free text field we don't auto-parse because it's too easy for the value
     # to silently include a key we don't know about yet.
     "Lieu d'enregistrement": None,
     "Principal établissement": "jurisdiction",
     "Principaux établissements": "jurisdiction",
     "Établissement principal": "jurisdiction",
+    "Siège principal d'exploitation": "jurisdiction",
     "Numéro d'identification fiscale (INN)": "innCode",
+    "Numéro personnel d'identification fiscale (INN)": "innCode",
     "INN (numéro d'identification fiscale)": "innCode",
     "INN (NIF)": "innCode",
     "Numéro d'identification fiscale russe": "innCode",
@@ -57,10 +60,13 @@ TEXT_KEYS = {
     "Principal lieu d'activité": "country",
     "Numéro d'enregistrement national principal": "registrationNumber",
     "Numéro d'enregistrement national": "registrationNumber",
+    "Numéro de registre de commerce": "registrationNumber",
     "Numéro d'enregistrement": "registrationNumber",
     "Numéros d'enregistrement": "registrationNumber",
     "Numéro d'immatriculation": "registrationNumber",
     "numéro d'identification:": "registrationNumber",
+    # TODO: This Chinese identifier should have its own field, see https://github.com/opensanctions/opensanctions/issues/2301
+    "Code de crédit social unifié": "registrationNumber",
     "Numéro d'identification fiscale": "taxNumber",
     "Numéro d'identification fiscal": "taxNumber",
     "N ° d'identification fiscale": "taxNumber",
@@ -69,6 +75,7 @@ TEXT_KEYS = {
     "Numéro fiscal": "taxNumber",
     "NIF:": "taxNumber",
     "OMI": "imoNumber",
+    "Courriel": "email",
     "Entités associées": None,
     "Entité associée": None,
     "Personnes associées": None,
@@ -181,7 +188,10 @@ def parse_identification(
                     # Likely multiple values, which we don't auto-parse.
                     # Add an override to identification_segment (or identification_full if the splitting doesn't make sense) or a type.country datapatch.
                     context.log.warning(
-                        "Cannot reliably parse value.", value=value, segment=segment
+                        "Cannot reliably parse value.",
+                        value=value,
+                        segment=segment,
+                        full=full,
                     )
                     break
 
@@ -282,7 +292,23 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
         f"https://gels-avoirs.dgtresor.gouv.fr/Gels/RegistreDetail?idRegistre={reg_id}"
     )
     entity.add("sourceUrl", url)
-    sanction = h.make_sanction(context, entity)
+    # Extract all program names from the 'FONDEMENT_JURIDIQUE' sections.
+    program_names = []
+    for detail in data.get("RegistreDetail", []):
+        if detail.get("TypeChamp") == "FONDEMENT_JURIDIQUE":
+            for val in detail.get("Valeur", []):
+                program_name = val.get("FondementJuridiqueLabel")
+                if program_name:
+                    program_names.append(program_name)
+    # For each program name, create a separate sanction.
+    for program_name in program_names:
+        sanction = h.make_sanction(
+            context,
+            entity,
+            program_name=program_name,
+            source_program_key=program_name,
+            program_key=h.lookup_sanction_program_key(context, program_name),
+        )
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")
         for value in detail.pop("Valeur"):

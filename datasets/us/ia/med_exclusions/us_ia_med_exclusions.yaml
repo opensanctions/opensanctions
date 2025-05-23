@@ -12,6 +12,9 @@ description: |
   enrollment of a Medicaid enrolled provider has been terminated “for cause”. Services rendered or ordered by
   sanctioned providers are not eligible for Medicaid reimbursement. In addition, services provided by entities
   owned or managed by sanctioned providers are not eligible for Medicaid reimbursement.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Iowa Health & Human Services
   description:

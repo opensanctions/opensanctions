@@ -13,6 +13,7 @@ def crawl(context: Context):
             proxy = context.make("Person")
             name = row.pop("name").strip()
             index = row.pop("index").strip()
+            program = row.pop("list").strip()
             proxy.id = context.make_slug(index, name)
             proxy.add("name", name)
             proxy.add("alias", row.pop("aka", None))
@@ -21,8 +22,13 @@ def crawl(context: Context):
             proxy.add("birthPlace", row.pop("pob"))
             proxy.add("notes", row.pop("notes"))
 
-            sanction = h.make_sanction(context, proxy)
-            sanction.add("program", row.pop("list"))
+            sanction = h.make_sanction(
+                context,
+                proxy,
+                program_name=program,
+                source_program_key=program,
+                program_key=h.lookup_sanction_program_key(context, program),
+            )
             sanction.add("sourceUrl", row.pop("source_url"))
 
             sanction.add("startDate", row.pop("start_date", None))

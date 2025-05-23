@@ -49,11 +49,15 @@ publisher:
   url: https://antiteror.sis.md/
   official: true
 url: https://antiteror.sis.md/advanced-page-type/listele-teroriste
+tags:
+  - list.sanction
+  - target.md
 data:
   url: https://antiteror.sis.md/lista-terorista-xls
   format: HTML
 dates:
   formats: ["%d.%m.%Y", "%d %b. %Y", "%b. %Y", "%b.%Y"]
+
 assertions:
   min:
     schema_entities:

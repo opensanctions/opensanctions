@@ -11,6 +11,9 @@ description: |
   The West Virginia Medicaid Management Information System maintains a list of providers
   who have been terminated or excluded from the state Medicaid program. Providers listed
   are not allowed to receive reimbursement for Medicaid services in any capacity.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Medicaid Management Information System
   description: |

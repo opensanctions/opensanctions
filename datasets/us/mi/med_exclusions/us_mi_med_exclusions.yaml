@@ -20,6 +20,9 @@ description: |
   > prescriptions written by a sanctioned provider must not be dispensed beyond the effective date of the sanction
   > letter. Claims for services/items rendered/ordered/prescribed by a provider for whom sanctions have been removed
   > will be honored retroactively to the date the sanction ended.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Michigan Department of Health & Human Services
   acronym: MDHHS

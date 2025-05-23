@@ -12,6 +12,8 @@ description: |
   The dataset includes details of public officials in the Financial Intelligence Unit 
   of Romania required to file asset declarations. These declarations are part of measures 
   aimed at ensuring transparency and preventing illicit financial activities.
+tags:
+  - list.pep
 publisher:
   name: OFICIUL NAȚIONAL DE PREVENIRE ȘI COMBATERE A SPĂLĂRII BANILOR
   name_en: The National Office for Preventing and Combating Money Laundering

@@ -24,6 +24,8 @@ url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radic
 data:
   url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division
   format: HTML
+tags:
+  - list.sanction
 
 assertions:
   min:
@@ -32,6 +34,13 @@ assertions:
       Organization: 50
 
 lookups:
+  sanction.program:
+    options:
+      - match: 
+          - "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
+          - "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
+          - "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
+        value: IN-UAPA
   names:
     options:
       - regex: "Organizations listed .+ UN .+ Security Council "

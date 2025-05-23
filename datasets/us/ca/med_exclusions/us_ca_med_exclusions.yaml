@@ -45,7 +45,9 @@ description: |
   > by the federal Office of Inspector General regarding the suspension or exclusion of individuals
   > or entities from the federal Medicare and Medicaid programs, to identify suspended, excluded
   > or otherwise ineligible providers.
-
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Department of Health Care Services
   description: >

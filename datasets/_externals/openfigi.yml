@@ -12,8 +12,8 @@ exports:
   - statements.csv
   - targets.simple.csv
 deploy:
-  memory: 1000Mi
-  memory_limit: 1500Mi
+  memory: 1500Mi
+  memory_limit: 2500Mi
 load_statements: true
 ci_test: false
 summary: >-
@@ -31,14 +31,21 @@ description: |
   The FIGI standard is issued by Bloomberg L.P. and Kaiko as a Certified Providers
   and distributed by Bloomberg L.P. as the Registration Authority under the auspice
   of OMG® and X9.
+tags:
+  - sector.financial
 url: https://www.openfigi.com/
 publisher:
   name: OpenFIGI
   description: |
-    OpenFIGI is an open system for identifying instruments globally across all asset 
+    OpenFIGI is an open system for identifying instruments globally across all asset
     classes. Using OpenFigi, Financial instruments can be identified and mapped to their
     registered FIGI by various proprietary and standard identifiers.
   url: https://www.openfigi.com/
+http:
+  retry_methods:
+    - GET
+    # a search in OpenFIGI is a POST request
+    - POST
 
 inputs:
   - sanctions
@@ -51,7 +58,7 @@ config:
   api_key: ${OPENFIGI_API_KEY}
   schemata:
     - Security
-  cache_days: 90
+  cache_days: 120
 
 assertions:
   min:

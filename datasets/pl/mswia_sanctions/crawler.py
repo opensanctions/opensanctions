@@ -65,26 +65,38 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
         return
 
     entity = context.make(TYPES[table_title])
-    name = row.pop("nazwisko_i_imie", None)
-    name = row.pop("nazwa_podmiotu", name)
-    if name is None:
+    name_raw = row.pop("nazwisko_i_imie", None) or row.pop("nazwa_podmiotu", None)
+    if name_raw is None:
         context.log.warn("No name", row=row)
         return
 
-    entity.id = context.make_slug(table_title, name)
-    names = name.split("(")
+    entity.id = context.make_slug(table_title, name_raw)
+    # Normal case: LASTNAME Firstname (Alias) / Company Name (Alias)
+    # "lub" = or
+    names = h.multi_split(name_raw, ["(", ")", "lub"])
+
     if entity.schema.name == "Person":
+        # For Persons, we apply all available names as name (not alias), because they are
+        # usually just different scripts or spelling, not different names.
         for name in names:
-            # Remove any trailing ')' for clean parsing
-            name = name.replace(")", "").strip()
+            name = name.strip("„”")
             name_parts = name.split(" ")
 
             if len(name_parts) >= 2:
-                # IVANOV Ivan
-                first_name = name_parts[1]
-                last_name = name_parts[0]
-                # IVANOV Ivan Ivanovich
-                patronymic = name_parts[2] if len(name_parts) == 3 else None
+                # Check if the name is in Cyrillic script (by checking the first character)
+                is_cyrillic = bool(re.search(r"[а-яА-ЯёЁ]", name_parts[0]))
+
+                if is_cyrillic:
+                    # Ivan Ivanovich Ivanov
+                    first_name = name_parts[0]
+                    patronymic = name_parts[1]
+                    last_name = name_parts[2]
+                else:
+                    # IVANOV Ivan
+                    first_name = name_parts[1]
+                    last_name = name_parts[0]
+                    # IVANOV Ivan Ivanovich
+                    patronymic = name_parts[2] if len(name_parts) == 3 else None
 
                 h.apply_name(
                     entity,
@@ -92,15 +104,41 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
                     last_name=last_name,
                     patronymic=patronymic,
                 )
-                if last_name != "Sechin":
+                if last_name not in ["Sechin", "Шнайдер"]:
                     assert (
                         last_name.isupper()
                     ), f"Expected last name '{last_name}' to be fully capitalized"
     else:
-        entity.add("name", names[0])
-    for alias in names[1:]:
-        for alias in h.multi_split(alias, ["obecnie: ", "inaczej:"]):
-            entity.add("alias", alias.split(")")[0])
+        # "w likwidacji" = in liquidation; "w upadłości" = in bankruptcy
+        name = names[0].rstrip(" w likwidacji").rstrip(" w upadłości")
+        entity.add("name", name)
+
+        alias = names[1] if len(names) > 1 else ""
+        # "nazwa rosyjskojęzyczna" = russian name / "rosyjskim" = Russian
+        if alias.startswith("nazwa rosyjskojęzyczna: ") or "rosyjskim: " in alias:
+            entity.add("name", alias.split(": ", 1)[1], lang="ru")
+        # "nazwa arabska" = arabic name
+        elif alias.startswith("nazwa arabska: "):
+            entity.add("name", alias.removeprefix("nazwa arabska: "), lang="ara")
+        # "poprzednio" = previously
+        elif alias.startswith("poprzednio: "):
+            entity.add("previousName", alias.removeprefix("poprzednio: "))
+        else:
+            # "obecnie" = currently
+            # "inaczej" = otherwise
+            # "lub" = or
+            aliases = h.multi_split(alias, ["lub", "obecnie:", "inaczej:"])
+            # Aliases are often in quotes
+            cleaned_aliases = [
+                a.rstrip(" w likwidacji")
+                .rstrip(" w upadłości")
+                .replace("„", "")
+                .replace("”", "")
+                for a in aliases
+            ]
+            for uncleaned_alias, cleaned_alias in zip(aliases, cleaned_aliases):
+                entity.add("alias", cleaned_alias, original_value=uncleaned_alias)
+
     notes = row.pop("uzasadnienie_wpisu_na_liste")
     entity.add("notes", notes)
 

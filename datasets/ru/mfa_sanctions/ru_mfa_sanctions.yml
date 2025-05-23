@@ -32,6 +32,9 @@ url: https://mid.ru/ru/maps/us/1814243/
 data:
   url: https://mid.ru/ru/maps/us/1814243/
   format: HTML
+tags:
+  - list.sanction.counter
+  - target.us
 
 assertions:
   min:
@@ -40,3 +43,9 @@ assertions:
   max:
     schema_entities:
       Person: 3000
+
+lookups:
+  sanction.program:
+    options:
+      - match: "Граждане США, находящиеся под персональными санкциями, включая запрет на въезд в Российскую Федерацию"
+        value: RU-MFA

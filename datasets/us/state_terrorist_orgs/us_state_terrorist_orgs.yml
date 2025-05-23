@@ -3,17 +3,17 @@ entry_point: crawler.py
 prefix: us-dos-fto
 coverage:
   frequency: daily
-  start: "2025-04-09"
+  start: "2025-04-25"
 load_statements: true
 summary: >
-  Foreign Terrorist Organizations (FTOs) pursuant to section 219 of the Immigration and 
+  Foreign Terrorist Organizations (FTOs) pursuant to section 219 of the Immigration and
   Nationality Act (INA).
 description: |
-  Foreign Terrorist Organizations (FTOs) are entities designated by the U.S. Secretary of State 
-  under Section 219 of the Immigration and Nationality Act (INA). It is unlawful to knowingly 
-  provide these organizations with material support or resources. Non-citizen members of FTOs 
-  may be denied entry into, or removed from, the United States. Additionally, U.S. financial 
-  institutions are required to block and report any assets associated with these organizations 
+  Foreign Terrorist Organizations (FTOs) are entities designated by the U.S. Secretary of State
+  under Section 219 of the Immigration and Nationality Act (INA). It is unlawful to knowingly
+  provide these organizations with material support or resources. Non-citizen members of FTOs
+  may be denied entry into, or removed from, the United States. Additionally, U.S. financial
+  institutions are required to block and report any assets associated with these organizations
   to the U.S. Department of the Treasury.
 publisher:
   name: U.S. Department of State
@@ -25,13 +25,15 @@ publisher:
   url: https://www.state.gov
   official: true
   country: "us"
+tags:
+  - list.sanction
+  - juris.us
 url: https://www.state.gov/foreign-terrorist-organizations/
 data:
   url: https://www.state.gov/foreign-terrorist-organizations/
   format: HTML
   lang: eng
-http:
-  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)"
+ci_test: false
 dates:
   formats: ["%B %d, %Y"]
 
@@ -46,67 +48,81 @@ assertions:
 lookups:
   names:
     options:
-      - match: 'Revolutionary Armed Forces of Colombia – People’s Army (FARC-EP)'
+      - match: "Revolutionary Armed Forces of Colombia – People’s Army (FARC-EP)"
         names:
           - name_clean: Revolutionary Armed Forces of Colombia - People’s Army
             alias: FARC-EP
-      - match: 'Abdallah Azzam Brigades— Marwan Hadid Brigades Amendment (November 2, 2017)'
+      - match: "Abdallah Azzam Brigades— Marwan Hadid Brigades Amendment (November 2, 2017)"
         names:
           - name_clean: Abdallah Azzam Brigades
             alias: Marwan Hadid Brigades
-      - match: 'Jaysh al-Adl (formerly Jundallah)— Jaysh al-Adl Amendment (July 2, 2019)'
+      - match: "Jaysh al-Adl (formerly Jundallah)— Jaysh al-Adl Amendment (July 2, 2019)"
         names:
           - name_clean: Jaysh al-Adl
             name_former: Jundallah
-      - match: 'al-Qa’ida in the Arabian Peninsula (AQAP) — Ansar al-Shari’a Amendment (October 5, 2012)'
+      - match: "al-Qa’ida in the Arabian Peninsula (AQAP) — Ansar al-Shari’a Amendment (October 5, 2012)"
         names:
           - name_clean: al-Qa’ida in the Arabian Peninsula
             alias: ["AQAP", "Ansar al-Shari’a"]
-      - match: 'al-Shabaab— al-Hijra Amendment (August 1, 2018)'
+      - match: "al-Shabaab— al-Hijra Amendment (August 1, 2018)"
         names:
           - name_clean: al-Shabaab
             alias: al-Hijra
-      - match: 'ISIS (formerly al-Qa’ida in Iraq)— Islamic State of Iraq Amendment (January 26, 2012)— al-Hayat Media Center and Amaq News Agency Amendments (March 22, 2019)'
+      - match: "ISIS (formerly al-Qa’ida in Iraq)— Islamic State of Iraq Amendment (January 26, 2012)— al-Hayat Media Center and Amaq News Agency Amendments (March 22, 2019)"
         names:
           - name_clean: ISIS
-            alias: ["Islamic State of Iraq", "al-Hayat Media Center", "Amaq News Agency"]
+            alias:
+              [
+                "Islamic State of Iraq",
+                "al-Hayat Media Center",
+                "Amaq News Agency",
+              ]
             name_former: al-Qa’ida in Iraq
-      - match: 'al-Qa’ida in the Islamic Maghreb (formerly Salafist Group for Call and Combat)— AQIM Amendment (February 20, 2008)'
+      - match: "al-Qa’ida in the Islamic Maghreb (formerly Salafist Group for Call and Combat)— AQIM Amendment (February 20, 2008)"
         names:
           - name_clean: al-Qa’ida in the Islamic Maghreb
             alias: AQIM
             name_former: Salafist Group for Call and Combat
-      - match: 'Lashkar-e-Tayyiba (LeT)— Tehrik-e-Tahafuz Qibla Awwal, Tehrik-e-Hurmat-e-Rasool, and Al-Anfal Trust Amendments (June 26, 2014)— Al Muhammadia Students Amendment (December 30, 2016)— Tehreek-e-Azadi-e-Kashmir and Milli Muslim League Amendments (April 4, 2018)'
+      - match: "Lashkar-e-Tayyiba (LeT)— Tehrik-e-Tahafuz Qibla Awwal, Tehrik-e-Hurmat-e-Rasool, and Al-Anfal Trust Amendments (June 26, 2014)— Al Muhammadia Students Amendment (December 30, 2016)— Tehreek-e-Azadi-e-Kashmir and Milli Muslim League Amendments (April 4, 2018)"
         names:
           - name_clean: Lashkar-e-Tayyiba
-            alias: ["LeT", "Tehrik-e-Tahafuz Qibla Awwal", "Tehrik-e-Hurmat-e-Rasool", "Al-Anfal Trust", "Al Muhammadia Students", "Tehreek-e-Azadi-e-Kashmir", "Milli Muslim League"]
-      - match: 'New Irish Republican Army (formerly Real IRA)— New IRA Amendment (June 30, 2023)'
+            alias:
+              [
+                "LeT",
+                "Tehrik-e-Tahafuz Qibla Awwal",
+                "Tehrik-e-Hurmat-e-Rasool",
+                "Al-Anfal Trust",
+                "Al Muhammadia Students",
+                "Tehreek-e-Azadi-e-Kashmir",
+                "Milli Muslim League",
+              ]
+      - match: "New Irish Republican Army (formerly Real IRA)— New IRA Amendment (June 30, 2023)"
         names:
           - name_clean: New Irish Republican Army
             alias: New IRA
             name_former: Real IRA
-      - match: 'Harakat ul-Mujahidin (HUM)— Ansar ul-Ummah Amendment (August 8, 2014)'
+      - match: "Harakat ul-Mujahidin (HUM)— Ansar ul-Ummah Amendment (August 8, 2014)"
         names:
           - name_clean: Harakat ul-Mujahidin
             alias: ["HUM", "Ansar ul-Ummah"]
-      - match: 'al-Nusrah Front, aka Hay’at Tahrir al-Sham (ANF/HTS)— Jabhat Fath al-Sham Amendment (November 14, 2016)— Hay’at Tahrir al-Sham Amendment (June 1, 2018)'
+      - match: "al-Nusrah Front, aka Hay’at Tahrir al-Sham (ANF/HTS)— Jabhat Fath al-Sham Amendment (November 14, 2016)— Hay’at Tahrir al-Sham Amendment (June 1, 2018)"
         names:
           - name_clean: al-Nusrah Front
             alias: ["Hay’at Tahrir al-Sham", "ANF/HTS", "Jabhat Fath al-Sham"]
-      - match: 'ISIS-Sinai Province (formerly Ansar Bayt al-Maqdis)— ISIL Sinai Province Amendment (September 30, 2015)'
+      - match: "ISIS-Sinai Province (formerly Ansar Bayt al-Maqdis)— ISIL Sinai Province Amendment (September 30, 2015)"
         names:
           - name_clean: ISIS-Sinai Province
             alias: ISIL Sinai Province
             name_former: Ansar Bayt al-Maqdis
-      - match: 'Gama’a al-Islamiyya (Islamic Group – IG)'
+      - match: "Gama’a al-Islamiyya (Islamic Group – IG)"
         names:
           - name_clean: Gama’a al-Islamiyya
             alias: ["Islamic Group", "IG"]
-      - match: 'al-Mulathamun Battalion, aka al-Murabitoun'
+      - match: "al-Mulathamun Battalion, aka al-Murabitoun"
         names:
           - name_clean: al-Mulathamun Battalion
             alias: al-Murabitoun
-      - match: 'Shining Path (Sendero Luminoso, SL)'
+      - match: "Shining Path (Sendero Luminoso, SL)"
         names:
           - name_clean: Shining Path
             alias: ["Sendero Luminoso", "SL"]

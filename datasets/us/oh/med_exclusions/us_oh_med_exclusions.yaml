@@ -19,7 +19,9 @@ description: |
    > recipients or receiving direct or indirect reimbursement of Medicaid funds in the
    > form of salary, shared fees, contracts, kickbacks, or rebates from or through any
    > participating provider or risk contractor.
-
+tags:
+  - sector.medical
+  - sector.usmed.debarment
 publisher:
   name: Ohio Department of Medicaid
   description: |
@@ -54,6 +56,9 @@ lookups:
           - 1679857925
           - 141705081
           - 1750400000
+          - 141985156
+          - 1235342559
+          - "010902965"
         prop: registrationNumber
       - match: "IP:"
         value: null

@@ -9,11 +9,11 @@ entry_point: crawler.py
 summary: >-
   Decisions of the Sanctions Commission of the AMF (Autorité des marchés financiers).
 description: |
-  This dataset lists the decisions of the Sanctions Commission of the AMF (Autorité 
-  des marchés financiers) in France. It includes information about the sanctions imposed 
-  and the entities involved, with brief notes on the reasons for the sanctions. Detailed 
-  reports are linked where available for more comprehensive information. The Sanctions 
-  Commission is responsible for ensuring the compliance of market participants with the 
+  This dataset lists the decisions of the Sanctions Commission of the AMF (Autorité
+  des marchés financiers) in France. It includes information about the sanctions imposed
+  and the entities involved, with brief notes on the reasons for the sanctions. Detailed
+  reports are linked where available for more comprehensive information. The Sanctions
+  Commission is responsible for ensuring the compliance of market participants with the
   financial regulations in France.
 
   Detail of which entities were penalised and which were exonerated in a given case are
@@ -24,10 +24,10 @@ publisher:
   name_en: Financial Markets Authority
   acronym: AMF
   description: |
-    The Autorité des marchés financiers (AMF) is an independent public body responsible 
-    for safeguarding investments in financial products, ensuring that investors receive 
-    material information, and maintaining orderly financial markets. The AMF publishes 
-    comprehensive information about its regulatory and supervisory activities, including 
+    The Autorité des marchés financiers (AMF) is an independent public body responsible
+    for safeguarding investments in financial products, ensuring that investors receive
+    material information, and maintaining orderly financial markets. The AMF publishes
+    comprehensive information about its regulatory and supervisory activities, including
     decisions of the Sanctions Commission, on its official website.
   country: fr
   url: https://www.amf-france.org/en
@@ -35,6 +35,11 @@ publisher:
 data:
   url: https://www.amf-france.org/fr/rest/listing_sanction/91,184,183,325,90,461,89,242,86,462,181/all/all?t=1722860865328&_=1722860865172
   format: json
+tags:
+  - list.regulatory            # Regulation and compliance
+  - target.fr                  # Focused on entities in France
+  - sector.financial           # Focuses on financial market regulations
+
 assertions:
   min:
     schema_entities:
@@ -42,6 +47,7 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 450
+
 lookups:
   entities:
     options:
@@ -602,13 +608,12 @@ lookups:
           - ALTERNATIVE LEADERS FRANCE
       - match: "SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS (SGAM AI)"
         entities:
-          - [
-              "SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS",
-              "SGAM AI",
-            ]
+          - "SOCIETE GENERALE ASSET MANAGEMENT ALTERNATIVE INVESTMENTS"
+          - "SGAM AI"
       - match: "SOCIETE GENERALE ASSET MANAGEMENT (SGAM)"
         entities:
-          - ["SOCIETE GENERALE ASSET MANAGEMENT", "SGAM"]
+          - "SOCIETE GENERALE ASSET MANAGEMENT"
+          - "SGAM"
       - match: "Société OFI ASSET MANAGEMENT"
         entities:
           - OFI ASSET MANAGEMENT
@@ -982,10 +987,8 @@ lookups:
           - Entrepreneur Invest
           - Eurotitrisation
           - Caceis Bank
-          - [
-              "Caceis Investor Services Bank France",
-              "RBC Investor Services Bank France",
-            ]
+          # It's one entity, we include both previous and current names
+          - ["Caceis Investor Services Bank France", "RBC Investor Services Bank France"]
           - Edith Lusson
           - Jean-Yves Bajon
           - Romain Bertrand
@@ -994,11 +997,8 @@ lookups:
         relationships:
           - schema: Succession
             from_prop: predecessor
-            from:
-              [
-                "Caceis Investor Services Bank France",
-                "RBC Investor Services Bank France",
-              ]
+            # As one entity, we link it as a predecessor to the 'Caceis Bank'
+            from: ["Caceis Investor Services Bank France", "RBC Investor Services Bank France"]
             to_prop: successor
             to: Caceis Bank
             role: venant aux droits
@@ -1061,3 +1061,9 @@ lookups:
           - Denys Sournac
           - Stéphane Reynouard
           - Patrick Orliange
+      - match: "La société Mikostart<br /> Mme Karen Pignet-Aiach<br /> M. Gad Aiach<br /> M. Michaël Chetrit"
+        entities:
+          - Mikostart
+          - Karen Pignet-Aiach
+          - Gad Aiach
+          - Michaël Chetrit
