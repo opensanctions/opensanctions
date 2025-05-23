@@ -1,10 +1,12 @@
 from lxml import etree
 from hashlib import sha1
-from typing import Any, Optional
+from typing import Any, Optional, cast
 from normality import collapse_spaces
+from datetime import datetime
 
 from zavod.logs import get_logger
 from zavod.context import Context
+from zavod.entity import Entity
 from zavod.util import ElementOrTree
 
 log = get_logger(__name__)
@@ -101,3 +103,23 @@ def assert_html_url_hash(
     doc = context.fetch_html(url)
     node = doc.find(path) if path is not None else doc
     return assert_dom_hash(node, hash, raise_exc=raise_exc, text_only=text_only)
+
+
+def schedule_manual_check(
+    context: Context,
+    entity: Entity,
+    interval_months: int,
+) -> None:
+    """Emit a warning to manually check the data source based on the most recent entity change."""
+    last_change = cast(datetime, entity.last_change)
+    if last_change is None:
+        context.log.warn(f"No last change date for entity {entity.id}.")
+        return
+
+    now = datetime.utcnow()
+    # Calculate how many intervals have passed
+    interval_days = interval_months * 30  # Approximate
+    time_since = (now - last_change).days
+
+    if time_since >= interval_days:
+        context.log.warn("It's time to manually check the data source for updates.")
