@@ -30,12 +30,14 @@ BATCH_SIZE = 10000
 # Reducing these increases memory usage
 DEFAULT_STOPWORDS_PCT = 0.8
 DEFAULT_FIELD_STOPWORDS_PCT = {
+    registry.name.name: 0.2,
     registry.phone.name: 0.0,
     registry.identifier.name: 0.0,
-    registry.country.name: 80.0,
-    PHONETIC_FIELD: 10.0,
-    WORD_FIELD: 10.0,
-    NAME_PART_FIELD: 2.0,
+    registry.country.name: 85.0,
+    registry.address.name: 10.0,
+    PHONETIC_FIELD: 20.0,
+    WORD_FIELD: 15.0,
+    NAME_PART_FIELD: 4.0,
 }
 
 
@@ -45,8 +47,11 @@ def can_match(
     right_id: str,
     right_schema_name: str,
 ) -> bool:
-    if is_qid(left_id) and is_qid(right_id) and left_id != right_id:
-        return False
+    if left_id[0] == "Q":
+        if is_qid(left_id) and is_qid(right_id) and left_id != right_id:
+            return False
+    if left_schema_name == right_schema_name:
+        return True
     left_schema = model.get(left_schema_name)
     right_schema = model.get(right_schema_name)
     if left_schema is None or right_schema is None:
@@ -78,10 +83,10 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         NAME_PART_FIELD: 2.0,
         WORD_FIELD: 0.5,
         PHONETIC_FIELD: 2.0,
-        registry.name.name: 10.0,
-        registry.phone.name: 3.0,
-        registry.email.name: 3.0,
-        registry.address.name: 2.5,
+        registry.name.name: 15.0,
+        registry.phone.name: 10.0,
+        registry.email.name: 10.0,
+        registry.address.name: 1.0,
         registry.identifier.name: 6.0,
     }
 
@@ -152,12 +157,14 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         log.info("Dumping entity tokens to CSV for bulk load into the database...")
         with open(csv_path, "w") as fh:
             writer = csv_writer(fh)
-            for idx, entity in enumerate(self.view.entities()):
+            idx = 0
+            for entity in self.view.entities():
                 if not entity.schema.matchable or entity.id is None:
                     continue
                 self.dump_entity(writer, entity)
+                idx += 1
 
-                if idx % 50000 == 0 and idx > 0:
+                if idx % 50000 == 0:
                     log.info("Dumped %s entities" % idx)
 
         log.info("Loading data...")
@@ -301,7 +308,9 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             for left, right, score in batch:
                 yield (Identifier.get(left), Identifier.get(right)), score
 
-    def match_entities(self, entities: Iterable[CE]) -> Generator[
+    def match_entities(
+        self, entities: Iterable[CE]
+    ) -> Generator[
         Tuple[Identifier, BlockingMatches],
         None,
         None,
@@ -310,7 +319,9 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         reset_caches()
         yield from self._find_matches()
 
-    def _find_matches(self) -> Generator[
+    def _find_matches(
+        self,
+    ) -> Generator[
         Tuple[Identifier, BlockingMatches],
         None,
         None,
