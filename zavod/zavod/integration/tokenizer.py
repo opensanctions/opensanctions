@@ -1,3 +1,4 @@
+import re
 from normality import WS, ascii_text, collapse_spaces
 from rigour.ids import StrictFormat
 from rigour.text.phonetics import metaphone
@@ -10,6 +11,7 @@ from followthemoney.types import registry
 from followthemoney.schema import Schema
 from nomenklatura.entity import CompositeEntity
 
+NON_LETTER = re.compile(r"[^a-z0-9]+")
 WORD_FIELD = "wd"
 NAME_PART_FIELD = "np"
 PHONETIC_FIELD = "ph"
@@ -26,17 +28,25 @@ SKIP = (
     registry.checksum,
     registry.language,
 )
+PREFIXES = {
+    registry.name: "n",
+    registry.identifier: "i",
+    registry.country: "c",
+    registry.phone: "p",
+    registry.address: "a",
+    registry.date: "d",
+}
 EMIT_FULL = (
     # registry.name,
     # registry.identifier,
     registry.country,
     registry.phone,
-    registry.iban,
+    # registry.iban,
 )
 TEXT_TYPES = (
     registry.text,
     registry.string,
-    registry.address,
+    # registry.address,  # normalized, then added to text type
     registry.identifier,
 )
 
@@ -69,6 +79,7 @@ def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None
         ascii_token = ascii_text(token)
         if ascii_token is None or len(ascii_token) < 2:
             continue
+        ascii_token = NON_LETTER.sub("", ascii_token)
         yield NAME_PART_FIELD, ascii_token
 
         phoneme = metaphone(ascii_token)
@@ -86,7 +97,8 @@ def tokenize_entity(entity: CompositeEntity) -> Generator[Tuple[str, str], None,
         if not prop.matchable or type in SKIP:
             continue
         if type in EMIT_FULL:
-            unique.add((type.name, value[:300].lower()))
+            full_value = value[:300].lower()
+            unique.add((type.name, full_value))
         if type in TEXT_TYPES:
             lvalue = value.lower()
             # min 6 to focus on things that could be fairly unique identifiers
@@ -113,6 +125,9 @@ def tokenize_entity(entity: CompositeEntity) -> Generator[Tuple[str, str], None,
             if norm is not None:
                 norm = remove_address_keywords(norm) or norm
                 for word in norm.split(WS):
-                    unique.add((type.name, word))
+                    if len(word) > 3 and len(word) < 30:
+                        unique.add((type.name, word))
+                    if len(word) > 6 and len(word) < 30:
+                        yield WORD_FIELD, word
 
     yield from unique
