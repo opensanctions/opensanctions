@@ -1,13 +1,13 @@
 import os
 import re
-
-import time
 import string
 from itertools import count
 from typing import Dict, Any, Optional
 from urllib.parse import urljoin
+
 from requests.exceptions import HTTPError, RetryError
 
+import time
 from zavod import Context, Entity
 from zavod import helpers as h
 
@@ -53,14 +53,22 @@ def http_get(
 
 def build_address(
     context: Context, full: str, address_data: dict[str, Optional[str]]
-) -> Entity:
+) -> Optional[Entity]:
+
     address_components = {
-        "full": full,
         "street": address_data.get("address_line_1"),
         "street2": address_data.get("premises"),
         "city": address_data.get("locality"),
         "region": address_data.get("region"),
     }
+
+    # If some address components are available, they build an actual (partial) address string from them.
+    # But when no address components are available, this is what they helpfully set the full address to.
+    if (
+        full
+        != "Not Available, Not Available, Not Available, Not Available, NOT AVAILABLE"
+    ):
+        address_components["full"] = full
 
     # Sometimes the PO Box is in the postal code field
     postal_code = address_data.get("postal_code")
@@ -78,6 +86,10 @@ def build_address(
         for k, v in address_components.items()
         if v is not None and v.lower() != "not available"
     }
+    # If no components are available, don't return an Address entity
+    if not cleaned_address_components:
+        return None
+
     return h.make_address(context, **cleaned_address_components)
 
 
@@ -126,7 +138,8 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
         full=listing.get("address_snippet"),
         address_data=listing.get("address", {}) or {},
     )
-    h.copy_address(person, address)
+    if address is not None:
+        h.copy_address(person, address)
 
     for disqual in data.pop("disqualifications", []):
         case_id = disqual.get("case_identifier")
@@ -154,7 +167,8 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
             company.add("name", company_name)
             company.add("jurisdiction", "gb")
             # company.add("topics", "crime")
-            h.copy_address(company, address)
+            if address is not None:
+                h.copy_address(company, address)
             context.emit(company)
 
             directorship = context.make("Directorship")
