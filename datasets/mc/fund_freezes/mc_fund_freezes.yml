@@ -172,6 +172,10 @@ lookups:
           - 1982
       - match: Entre août et septembre 1977
         value: 1977
+      - match: probablement 1973
+        value: 1973
+      - match: 08/07//1988
+        value: 1988-07-08
       - match:
           - Entre le 01/01/1961 et le 31/12/1963
           - au milieu des années 1940 1940,
