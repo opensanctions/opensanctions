@@ -79,3 +79,5 @@ lookups:
           - Decision on Countermeasures against U.S. Military-industry Enterprises
           - Decision on countermeasures against U.S. Congressman McGowern
         value: CN-CML
+      - match: ""
+        value: null

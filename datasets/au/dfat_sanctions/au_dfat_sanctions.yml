@@ -103,8 +103,10 @@ lookups:
         value: AU-ZIM
       - match: "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)"
         value: UN-SCISIL
-          - "1373 (2001)"
-          - "1518 (Iraq)"
+      - match: "1373 (2001)"
+        value: UN-SC1373
+      - match: "1518 (Iraq)"
+        value: UN-SC1518
       - match: "1533 (Democratic Republic of the Congo)"
         value: UN-SC1533
       - match: "1591 (Sudan)"

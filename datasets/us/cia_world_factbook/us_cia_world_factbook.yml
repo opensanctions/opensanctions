@@ -849,6 +849,11 @@ lookups:
         holders:
           - role: Administrator
             name: Bob FAIRWEATHER
+      - match: "both reside in the UK and are represented by Commander Andrew WILLIAMS, RN, the officer commanding British Forces on Diego Garcia (since January 2025)"
+        holders:
+          - role: Officer Commanding British Forces on Diego Garcia
+            name: Andrew WILLIAMS
+            start_date: January 2025
 
       # Not additional heads, just notes
       - regex:
