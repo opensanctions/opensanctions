@@ -1,3 +1,34 @@
+# Test realistic memory usage with constrained memory because duckdb only spills
+# when it's constrained, but you don't know how much more memory it will use than
+# the memory limit.
+# e.g. docker build . --tag opensanctions and
+# docker run -ti --name xref \
+#            -v ./data:/data
+#            -v .:/opensanctions \
+#            --memory 3G
+#            -e ZAVOD_DATA_PATH=/data
+#            -e ZAVOD_DATABASE_URI=postgresql://postgres:password@host.docker.internal:5432/dev
+#            opensanctions bash
+#
+# Debugging memory usage?
+# https://duckdb.org/docs/stable/guides/troubleshooting/oom_errors
+#
+# Most DuckDB operations spill to disk when its memory_limit setting is reached.
+#
+# DuckDB uses more memory than its memory_limit setting.
+# > This limit only applies to the buffer manager.
+# https://duckdb.org/docs/1.2/operations_manual/limits
+#
+# Beyond that, other things in zavod also use memory.
+#
+# When duckdb's memory_limit is reached and it cannot spill to disk,
+# it will throw an error like duckdb.duckdb.OutOfMemoryException:
+# Out of Memory Error: could not allocate block of size 30.5 MiB (32.8 MiB/47.6 MiB used)
+#
+# When the process is killed due to the operating system running out of memory,
+# making memory_limit smaller might help fit what the buffer manager manages,
+# plus all the additional DuckDB and non-DuckDB memory usage.
+
 import csv
 import logging
 from io import TextIOWrapper
@@ -20,6 +51,7 @@ from zavod.integration.tokenizer import (
     tokenize_entity,
 )
 from zavod.reset import reset_caches
+from zavod import settings
 
 BlockingMatches = List[Tuple[Identifier, float]]
 
@@ -77,7 +109,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self, view: View[DS, CE], data_dir: Path, options: Dict[str, Any] = {}
     ):
         self.view = view
-        memory_budget = options.get("memory_budget")
+        memory_budget = options.get("memory_budget", settings.XREF_MEMORY)
         # https://duckdb.org/docs/guides/performance/environment
         # > For ideal performance,
         # > aggregation-heavy workloads require approx. 5 GB memory per thread and
@@ -99,7 +131,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.duckdb_config = {
             "preserve_insertion_order": False,
             # > If you have a limited amount of memory, try to limit the number of threads
-            "threads": 1,
+            "threads": int(settings.XREF_THREADS),
             "temp_directory": (self.data_dir / "index.duckdb.tmp").as_posix(),
         }
         if self.memory_budget is not None:
@@ -277,18 +309,33 @@ class DuckDBIndex(BaseIndex[DS, CE]):
     def pairs(
         self, max_pairs: int = BaseIndex.MAX_PAIRS
     ) -> Iterable[Tuple[Pair, float]]:
+        log.info("Generating pairs...")
         pairs_query = """
-            SELECT "left".id, "right".id, sum(("left".tf + "right".tf)) as score
+            CREATE OR REPLACE TABLE term_pairs AS
+            SELECT "left".id as left_id, "right".id as right_id, ("left".tf + "right".tf) as score
             FROM term_frequencies as "left"
-            JOIN term_frequencies as "right"
-            ON "left".token = "right".token
+            JOIN term_frequencies as "right" ON "left".token = "right".token
             INNER JOIN schemata ON schemata.left = "left".schema AND schemata.right = "right".schema
             WHERE "left".id > "right".id
             GROUP BY "left".id, "right".id
+        """
+        self.con.execute(pairs_query)
+        log.info("Scoring pairs...")
+        score_query = """
+            CREATE OR REPLACE TABLE term_pairs_score AS
+            SELECT left_id, right_id, sum(score) as score
+            FROM term_pairs
+            GROUP BY left_id, right_id
+        """
+        self.con.execute(score_query)
+        log.info("Selecting top pairs...")
+        top_pairs_query = """
+            SELECT left_id, right_id, score
+            FROM term_pairs_score
             ORDER BY score DESC
             LIMIT ?
         """
-        results = self.con.execute(pairs_query, [max_pairs])
+        results = self.con.execute(top_pairs_query, [max_pairs])
         while batch := results.fetchmany(BATCH_SIZE):
             for left, right, score in batch:
                 yield (Identifier.get(left), Identifier.get(right)), score
