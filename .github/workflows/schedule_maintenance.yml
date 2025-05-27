@@ -1,4 +1,4 @@
-name: schedule_alert
+name: schedule_maintenance
 
 on:
   schedule:
@@ -22,11 +22,9 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Install zavod
+      - name: Install dependencies
         run: |
-          pip install setuptools wheel
-          pip install --no-cache-dir -q -e "zavod[dev]"
-          pip install zeep==4.2.1
+          pip install ruamel.yaml
 
       - name: Run manual updates check
         id: check_manual_updates
