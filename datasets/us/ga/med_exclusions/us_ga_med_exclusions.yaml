@@ -4,6 +4,11 @@ prefix: us-medga
 coverage:
   frequency: daily
   start: "2024-09-06"
+# Testing the schedule_maintenance workflow
+manual_check:
+  last_checked: "2024-01-27"
+  interval: 30  # days
+  message: Reminder to review this dataset for any updates.
 load_statements: true
 summary: >
   Providers who have been terminated for cause from Georgia's Medicaid program.
