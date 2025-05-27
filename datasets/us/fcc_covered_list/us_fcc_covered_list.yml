@@ -4,11 +4,6 @@ prefix: us-fcc-cov
 coverage:
   frequency: never
   start: "2021-04-22"
-# Testing the schedule_maintenance workflow
-manual_check:
-  last_checked: "2025-01-27"
-  interval: 90  # days
-  message: Reminder to review this dataset for any updates.
 deploy:
   schedule: "@monthly"
 load_statements: true
