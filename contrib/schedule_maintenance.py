@@ -59,7 +59,7 @@ def update_last_checked(manual_check: dict):
     manual_check["last_checked"] = datetime.today().strftime("%Y-%m-%d")
 
 
-def process_datasets(root: Path) -> List[str]:
+def process_datasets(root: Path) -> List[tuple]:
     """Process datasets and return names that are due for manual review."""
     due = []
     # TODO: Remove this once all extensions are migrated to .yml
@@ -74,7 +74,7 @@ def process_datasets(root: Path) -> List[str]:
 
             if is_due_for_manual_check(manual_check):
                 message = manual_check.get("message", "Dataset due for manual review.")
-                due.append(f"- {dataset_name}: {message}")
+                due.append((dataset_name, message))
 
                 update_last_checked(manual_check)
                 save_yaml_file(data, yml_path)
@@ -88,9 +88,13 @@ if __name__ == "__main__":
 
     if due_datasets:
         print("## Datasets due for manual review\n")
-        for line in due_datasets:
-            print(f"- [ ] {line}")
+        for dataset_name, message in due_datasets:
+            link = f"https://www.opensanctions.org/datasets/{dataset_name}/"
+            print(f"- [ ] [{dataset_name}]({link}): {message}")
         sys.exit(0)
+    # Although a lot of programs use nonzero exit for some status other than an error,
+    # in github actions, it's usually considered an error condition and the job will be
+    # marked failed and it'll email the last committer to the action. That's why we use
+    # truthiness of the otuput to determine if the job was successful or not.
     else:
-        print("No datasets are currently due for manual review.")
-        sys.exit(1)
+        sys.exit(0)

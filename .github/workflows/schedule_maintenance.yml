@@ -25,19 +25,29 @@ jobs:
       - name: Install dependencies
         run: |
           pip install ruamel.yaml
-
+        # If there is any output (non-empty), set should_create_issue to true.
+        # Otherwise, set it to false.
+        # Then export the DATASETS variable to the GitHub Actions environment
+        # so it can be accessed later, when creating the issue.
       - name: Generate datasets list
+        id: generate
         run: |
           DATASETS=$(python contrib/schedule_maintenance.py)
-          echo "DATASETS<<EOF" >> $GITHUB_ENV
-          echo "$DATASETS" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          if [ -n "$DATASETS" ]; then
+            echo "should_create_issue=true" >> $GITHUB_OUTPUT
+            echo "DATASETS<<EOF" >> $GITHUB_ENV
+            echo "$DATASETS" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          else
+            echo "should_create_issue=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Create an issue
-        if: ${{ success() }}
+        if: ${{ steps.generate.outputs.should_create_issue == 'true' }}
         uses: JasonEtco/create-an-issue@v2.9.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DATASETS: ${{ env.DATASETS }}
         with:
           update_existing: false
           filename: .github/ISSUE_TEMPLATE/schedule_maintenance.md
