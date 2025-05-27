@@ -12,7 +12,6 @@ from nomenklatura.entity import CE
 from nomenklatura.index.common import BaseIndex
 from nomenklatura.resolver import Identifier, Pair
 from nomenklatura.store import View
-from rigour.ids.wikidata import is_qid
 
 from zavod.integration.tokenizer import (
     NAME_PART_FIELD,
@@ -39,24 +38,6 @@ DEFAULT_FIELD_STOPWORDS_PCT = {
     WORD_FIELD: 15.0,
     NAME_PART_FIELD: 4.0,
 }
-
-
-def can_match(
-    left_id: str,
-    left_schema_name: str,
-    right_id: str,
-    right_schema_name: str,
-) -> bool:
-    if left_id[0] == "Q":
-        if is_qid(left_id) and is_qid(right_id) and left_id != right_id:
-            return False
-    if left_schema_name == right_schema_name:
-        return True
-    left_schema = model.get(left_schema_name)
-    right_schema = model.get(right_schema_name)
-    if left_schema is None or right_schema is None:
-        return False
-    return left_schema.can_match(right_schema)
 
 
 def csv_writer(
@@ -132,7 +113,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
     def _init_db(self) -> None:
         self.con = duckdb.connect(self.duckdb_path, config=self.duckdb_config)
-        self.con.create_function("can_match", can_match)
 
     def _clear(self) -> None:
         self.con.execute("CHECKPOINT")
@@ -149,6 +129,13 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             if type.name in self.BOOSTS:
                 continue
             self.con.execute("INSERT INTO boosts VALUES (?, ?)", [type.name, 1.0])
+
+        q = """CREATE OR REPLACE TABLE schemata ("left" TEXT, "right" TEXT)"""
+        self.con.execute(q)
+        for left in model.schemata.values():
+            for right in left.matchable_schemata:
+                q = "INSERT INTO schemata VALUES (?, ?)", [left.name, right.name]
+                self.con.execute(q)
 
         self.con.execute(
             "CREATE OR REPLACE TABLE entries (schema TEXT, id TEXT, field TEXT, token TEXT)"
@@ -297,8 +284,8 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             FROM term_frequencies as "left"
             JOIN term_frequencies as "right"
             ON "left".field = "right".field AND "left".token = "right".token
+            INNER JOIN schemata ON schemata.left = "left".schema AND schemata.right = "right".schema
             WHERE "left".id > "right".id
-            AND can_match("left".id, "left".schema, "right".id, "right".schema)
             GROUP BY "left".id, "right".id
             ORDER BY score DESC
             LIMIT ?
@@ -347,8 +334,9 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                 JOIN matching m ON c.id = m.id
                 JOIN term_frequencies tf
                 ON m.field = tf.field AND m.token = tf.token
+                INNER JOIN schemata s
+                ON s.left = m.schema AND s.right = tf.schema
                 WHERE c.chunk = ?
-                AND can_match(m.id, m.schema, tf.id, tf.schema)
                 GROUP BY m.id, tf.id
                 ORDER BY m.id, score DESC
             """
