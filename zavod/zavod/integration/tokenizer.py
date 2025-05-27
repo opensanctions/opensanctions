@@ -74,20 +74,21 @@ def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None
 
         # yield WORD_FIELD, token
         if not is_modern_alphabet(token) or token.isnumeric():
-            yield NAME_PART_FIELD, token
+            yield NAME_PART_FIELD, f"{NAME_PART_FIELD}:{token}"
             continue
         ascii_token = ascii_text(token)
         if ascii_token is None or len(ascii_token) < 2:
             continue
         ascii_token = NON_LETTER.sub("", ascii_token)
-        yield NAME_PART_FIELD, ascii_token
+        yield NAME_PART_FIELD, f"{NAME_PART_FIELD}:{ascii_token}"
 
         phoneme = metaphone(ascii_token)
         if len(phoneme) > 3:
-            yield PHONETIC_FIELD, phoneme
+            yield PHONETIC_FIELD, f"{PHONETIC_FIELD}:{phoneme}"
 
     name_fp = "".join(sorted(name_tokens))
-    yield (registry.name.name, name_fp[:300])
+    prefix = PREFIXES.get(registry.name, "n")
+    yield (registry.name.name, f"{prefix}:{name_fp[:300]}")
 
 
 def tokenize_entity(entity: CompositeEntity) -> Generator[Tuple[str, str], None, None]:
@@ -96,9 +97,10 @@ def tokenize_entity(entity: CompositeEntity) -> Generator[Tuple[str, str], None,
         type = prop.type
         if not prop.matchable or type in SKIP:
             continue
+        prefix = PREFIXES.get(type, type.name)
         if type in EMIT_FULL:
             full_value = value[:300].lower()
-            unique.add((type.name, full_value))
+            unique.add((type.name, f"{prefix}:{full_value}"))
         if type in TEXT_TYPES:
             lvalue = value.lower()
             # min 6 to focus on things that could be fairly unique identifiers
@@ -106,11 +108,11 @@ def tokenize_entity(entity: CompositeEntity) -> Generator[Tuple[str, str], None,
                 if len(token) > 30:
                     continue
                 # unique.add((WORD_FIELD, token))
-                yield WORD_FIELD, token
+                yield WORD_FIELD, f"{WORD_FIELD}:{token}"
         if type == registry.date:
             # if len(value) > 4:
             #     unique.add((type.name, value[:4]))
-            unique.add((type.name, value[:10]))
+            unique.add((type.name, f"{prefix}:{value[:10]}"))
             continue
         if type == registry.name:
             unique.update(tokenize_name_(entity.schema, value))
@@ -118,7 +120,7 @@ def tokenize_entity(entity: CompositeEntity) -> Generator[Tuple[str, str], None,
         if type == registry.identifier:
             clean_id = StrictFormat.normalize(value)
             if clean_id is not None:
-                unique.add((type.name, clean_id))
+                unique.add((type.name, f"{prefix}:{clean_id}"))
             continue
         if type == registry.address:
             norm = normalize_address(value)
@@ -126,8 +128,8 @@ def tokenize_entity(entity: CompositeEntity) -> Generator[Tuple[str, str], None,
                 norm = remove_address_keywords(norm) or norm
                 for word in norm.split(WS):
                     if len(word) > 3 and len(word) < 30:
-                        unique.add((type.name, word))
+                        unique.add((type.name, f"{prefix}:{word}"))
                     if len(word) > 6 and len(word) < 30:
-                        yield WORD_FIELD, word
+                        yield WORD_FIELD, f"{WORD_FIELD}:{word}"
 
     yield from unique

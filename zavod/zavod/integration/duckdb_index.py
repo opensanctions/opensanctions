@@ -134,8 +134,8 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.con.execute(q)
         for left in model.schemata.values():
             for right in left.matchable_schemata:
-                q = "INSERT INTO schemata VALUES (?, ?)", [left.name, right.name]
-                self.con.execute(q)
+                q = "INSERT INTO schemata VALUES (?, ?)"
+                self.con.execute(q, [left.name, right.name])
 
         self.con.execute(
             "CREATE OR REPLACE TABLE entries (schema TEXT, id TEXT, field TEXT, token TEXT)"
@@ -189,7 +189,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         CREATE OR REPLACE TABLE field_len as
             SELECT entries.field, entries.id, count(*) as field_len FROM entries
             LEFT OUTER JOIN stopwords
-            ON stopwords.field = entries.field AND stopwords.token = entries.token
+            ON stopwords.token = entries.token
             WHERE stopwords.freq is NULL
             GROUP BY entries.field, entries.id
         """
@@ -202,7 +202,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             SELECT entries.schema, entries.field, entries.id, entries.token, count(*) AS mentions
             FROM entries
             LEFT OUTER JOIN stopwords
-            ON stopwords.field = entries.field AND stopwords.token = entries.token
+            ON stopwords.token = entries.token
             WHERE stopwords.freq is NULL
             GROUP BY entries.schema, entries.field, entries.id, entries.token
         """
@@ -246,17 +246,15 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             [field, limit],
         )
         least_common_query = """
-            SELECT field, token, freq
+            SELECT token, freq
             FROM stopwords
             WHERE field = ?
             ORDER BY freq ASC
             LIMIT 5;
         """
         least_common = "\n".join(
-            f"{freq} {field}:{token}"
-            for field, token, freq in self.con.execute(
-                least_common_query, [field]
-            ).fetchall()
+            f"{freq} {token}"
+            for token, freq in self.con.execute(least_common_query, [field]).fetchall()
         )
         log.info("5 Least common stopwords for field '%s':\n%s\n", field, least_common)
 
@@ -283,7 +281,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             SELECT "left".id, "right".id, sum(("left".tf + "right".tf)) as score
             FROM term_frequencies as "left"
             JOIN term_frequencies as "right"
-            ON "left".field = "right".field AND "left".token = "right".token
+            ON "left".token = "right".token
             INNER JOIN schemata ON schemata.left = "left".schema AND schemata.right = "right".schema
             WHERE "left".id > "right".id
             GROUP BY "left".id, "right".id
@@ -333,7 +331,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                 FROM matching_chunks c
                 JOIN matching m ON c.id = m.id
                 JOIN term_frequencies tf
-                ON m.field = tf.field AND m.token = tf.token
+                ON m.token = tf.token
                 INNER JOIN schemata s
                 ON s.left = m.schema AND s.right = tf.schema
                 WHERE c.chunk = ?
