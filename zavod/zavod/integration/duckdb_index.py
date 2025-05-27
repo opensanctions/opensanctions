@@ -1,3 +1,34 @@
+# Test realistic memory usage with constrained memory because duckdb only spills
+# when it's constrained, but you don't know how much more memory it will use than
+# the memory limit.
+# e.g. docker build . --tag opensanctions and
+# docker run -ti --name xref \
+#            -v ./data:/data
+#            -v .:/opensanctions \
+#            --memory 3G
+#            -e ZAVOD_DATA_PATH=/data
+#            -e ZAVOD_DATABASE_URI=postgresql://postgres:password@host.docker.internal:5432/dev
+#            opensanctions bash
+#
+# Debugging memory usage?
+# https://duckdb.org/docs/stable/guides/troubleshooting/oom_errors
+#
+# Most DuckDB operations spill to disk when its memory_limit setting is reached.
+#
+# DuckDB uses more memory than its memory_limit setting.
+# > This limit only applies to the buffer manager.
+# https://duckdb.org/docs/1.2/operations_manual/limits
+#
+# Beyond that, other things in zavod also use memory.
+#
+# When duckdb's memory_limit is reached and it cannot spill to disk,
+# it will throw an error like duckdb.duckdb.OutOfMemoryException:
+# Out of Memory Error: could not allocate block of size 30.5 MiB (32.8 MiB/47.6 MiB used)
+#
+# When the process is killed due to the operating system running out of memory,
+# making memory_limit smaller might help fit what the buffer manager manages,
+# plus all the additional DuckDB and non-DuckDB memory usage.
+
 import csv
 import logging
 from io import TextIOWrapper
@@ -10,9 +41,8 @@ from followthemoney.types import registry
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.index.common import BaseIndex
-from nomenklatura.resolver import Identifier, Pair
+from nomenklatura.resolver import Identifier
 from nomenklatura.store import View
-from rigour.ids.wikidata import is_qid
 
 from zavod.integration.tokenizer import (
     NAME_PART_FIELD,
@@ -21,6 +51,7 @@ from zavod.integration.tokenizer import (
     tokenize_entity,
 )
 from zavod.reset import reset_caches
+from zavod import settings
 
 BlockingMatches = List[Tuple[Identifier, float]]
 
@@ -39,24 +70,6 @@ DEFAULT_FIELD_STOPWORDS_PCT = {
     WORD_FIELD: 15.0,
     NAME_PART_FIELD: 4.0,
 }
-
-
-def can_match(
-    left_id: str,
-    left_schema_name: str,
-    right_id: str,
-    right_schema_name: str,
-) -> bool:
-    if left_id[0] == "Q":
-        if is_qid(left_id) and is_qid(right_id) and left_id != right_id:
-            return False
-    if left_schema_name == right_schema_name:
-        return True
-    left_schema = model.get(left_schema_name)
-    right_schema = model.get(right_schema_name)
-    if left_schema is None or right_schema is None:
-        return False
-    return left_schema.can_match(right_schema)
 
 
 def csv_writer(
@@ -96,7 +109,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self, view: View[DS, CE], data_dir: Path, options: Dict[str, Any] = {}
     ):
         self.view = view
-        memory_budget = options.get("memory_budget")
+        memory_budget = options.get("memory_budget", settings.XREF_MEMORY)
         # https://duckdb.org/docs/guides/performance/environment
         # > For ideal performance,
         # > aggregation-heavy workloads require approx. 5 GB memory per thread and
@@ -118,7 +131,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.duckdb_config = {
             "preserve_insertion_order": False,
             # > If you have a limited amount of memory, try to limit the number of threads
-            "threads": 1,
+            "threads": int(settings.XREF_THREADS),
             "temp_directory": (self.data_dir / "index.duckdb.tmp").as_posix(),
         }
         if self.memory_budget is not None:
@@ -132,7 +145,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
     def _init_db(self) -> None:
         self.con = duckdb.connect(self.duckdb_path, config=self.duckdb_config)
-        self.con.create_function("can_match", can_match)
 
     def _clear(self) -> None:
         self.con.execute("CHECKPOINT")
@@ -149,6 +161,13 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             if type.name in self.BOOSTS:
                 continue
             self.con.execute("INSERT INTO boosts VALUES (?, ?)", [type.name, 1.0])
+
+        q = """CREATE OR REPLACE TABLE schemata ("left" TEXT, "right" TEXT)"""
+        self.con.execute(q)
+        for left in model.schemata.values():
+            for right in left.matchable_schemata:
+                q = "INSERT INTO schemata VALUES (?, ?)"
+                self.con.execute(q, [left.name, right.name])
 
         self.con.execute(
             "CREATE OR REPLACE TABLE entries (schema TEXT, id TEXT, field TEXT, token TEXT)"
@@ -202,7 +221,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         CREATE OR REPLACE TABLE field_len as
             SELECT entries.field, entries.id, count(*) as field_len FROM entries
             LEFT OUTER JOIN stopwords
-            ON stopwords.field = entries.field AND stopwords.token = entries.token
+            ON stopwords.token = entries.token
             WHERE stopwords.freq is NULL
             GROUP BY entries.field, entries.id
         """
@@ -215,7 +234,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             SELECT entries.schema, entries.field, entries.id, entries.token, count(*) AS mentions
             FROM entries
             LEFT OUTER JOIN stopwords
-            ON stopwords.field = entries.field AND stopwords.token = entries.token
+            ON stopwords.token = entries.token
             WHERE stopwords.freq is NULL
             GROUP BY entries.schema, entries.field, entries.id, entries.token
         """
@@ -259,17 +278,15 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             [field, limit],
         )
         least_common_query = """
-            SELECT field, token, freq
+            SELECT token, freq
             FROM stopwords
             WHERE field = ?
             ORDER BY freq ASC
             LIMIT 5;
         """
         least_common = "\n".join(
-            f"{freq} {field}:{token}"
-            for field, token, freq in self.con.execute(
-                least_common_query, [field]
-            ).fetchall()
+            f"{freq} {token}"
+            for token, freq in self.con.execute(least_common_query, [field]).fetchall()
         )
         log.info("5 Least common stopwords for field '%s':\n%s\n", field, least_common)
 
@@ -291,14 +308,41 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
     def pairs(
         self, max_pairs: int = BaseIndex.MAX_PAIRS
-    ) -> Iterable[Tuple[Pair, float]]:
+    ) -> Iterable[Tuple[Tuple[Identifier, Identifier], float]]:
+        log.info("Generating pairs...")
+        # pairs_query = """
+        #     CREATE OR REPLACE TABLE term_pairs AS
+        #     SELECT "left".id as left_id, "right".id as right_id, ("left".tf + "right".tf) as score
+        #     FROM term_frequencies as "left"
+        #     JOIN term_frequencies as "right" ON "left".token = "right".token
+        #     INNER JOIN schemata ON schemata.left = "left".schema AND schemata.right = "right".schema
+        #     WHERE "left".id > "right".id
+        #     GROUP BY "left".id, "right".id
+        # """
+        # self.con.execute(pairs_query)
+        # log.info("Scoring pairs...")
+        # score_query = """
+        #     CREATE OR REPLACE TABLE term_pairs_score AS
+        #     SELECT left_id, right_id, sum(score) as score
+        #     FROM term_pairs
+        #     GROUP BY left_id, right_id
+        # """
+        # self.con.execute(score_query)
+        # log.info("Selecting top pairs...")
+        # top_pairs_query = """
+        #     SELECT left_id, right_id, score
+        #     FROM term_pairs_score
+        #     ORDER BY score DESC
+        #     LIMIT ?
+        # """
+        # results = self.con.execute(top_pairs_query, [max_pairs])
         pairs_query = """
             SELECT "left".id, "right".id, sum(("left".tf + "right".tf)) as score
             FROM term_frequencies as "left"
             JOIN term_frequencies as "right"
-            ON "left".field = "right".field AND "left".token = "right".token
+            ON "left".token = "right".token
+            INNER JOIN schemata ON schemata.left = "left".schema AND schemata.right = "right".schema
             WHERE "left".id > "right".id
-            AND can_match("left".id, "left".schema, "right".id, "right".schema)
             GROUP BY "left".id, "right".id
             ORDER BY score DESC
             LIMIT ?
@@ -346,9 +390,10 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                 FROM matching_chunks c
                 JOIN matching m ON c.id = m.id
                 JOIN term_frequencies tf
-                ON m.field = tf.field AND m.token = tf.token
+                ON m.token = tf.token
+                INNER JOIN schemata s
+                ON s.left = m.schema AND s.right = tf.schema
                 WHERE c.chunk = ?
-                AND can_match(m.id, m.schema, tf.id, tf.schema)
                 GROUP BY m.id, tf.id
                 ORDER BY m.id, score DESC
             """
