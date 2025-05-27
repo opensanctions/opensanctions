@@ -308,34 +308,46 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
     def pairs(
         self, max_pairs: int = BaseIndex.MAX_PAIRS
-    ) -> Iterable[Tuple[Pair, float]]:
+    ) -> Iterable[Tuple[Tuple[Identifier, Identifier], float]]:
         log.info("Generating pairs...")
+        # pairs_query = """
+        #     CREATE OR REPLACE TABLE term_pairs AS
+        #     SELECT "left".id as left_id, "right".id as right_id, ("left".tf + "right".tf) as score
+        #     FROM term_frequencies as "left"
+        #     JOIN term_frequencies as "right" ON "left".token = "right".token
+        #     INNER JOIN schemata ON schemata.left = "left".schema AND schemata.right = "right".schema
+        #     WHERE "left".id > "right".id
+        #     GROUP BY "left".id, "right".id
+        # """
+        # self.con.execute(pairs_query)
+        # log.info("Scoring pairs...")
+        # score_query = """
+        #     CREATE OR REPLACE TABLE term_pairs_score AS
+        #     SELECT left_id, right_id, sum(score) as score
+        #     FROM term_pairs
+        #     GROUP BY left_id, right_id
+        # """
+        # self.con.execute(score_query)
+        # log.info("Selecting top pairs...")
+        # top_pairs_query = """
+        #     SELECT left_id, right_id, score
+        #     FROM term_pairs_score
+        #     ORDER BY score DESC
+        #     LIMIT ?
+        # """
+        # results = self.con.execute(top_pairs_query, [max_pairs])
         pairs_query = """
-            CREATE OR REPLACE TABLE term_pairs AS
-            SELECT "left".id as left_id, "right".id as right_id, ("left".tf + "right".tf) as score
+            SELECT "left".id, "right".id, sum(("left".tf + "right".tf)) as score
             FROM term_frequencies as "left"
-            JOIN term_frequencies as "right" ON "left".token = "right".token
+            JOIN term_frequencies as "right"
+            ON "left".token = "right".token
             INNER JOIN schemata ON schemata.left = "left".schema AND schemata.right = "right".schema
             WHERE "left".id > "right".id
             GROUP BY "left".id, "right".id
-        """
-        self.con.execute(pairs_query)
-        log.info("Scoring pairs...")
-        score_query = """
-            CREATE OR REPLACE TABLE term_pairs_score AS
-            SELECT left_id, right_id, sum(score) as score
-            FROM term_pairs
-            GROUP BY left_id, right_id
-        """
-        self.con.execute(score_query)
-        log.info("Selecting top pairs...")
-        top_pairs_query = """
-            SELECT left_id, right_id, score
-            FROM term_pairs_score
             ORDER BY score DESC
             LIMIT ?
         """
-        results = self.con.execute(top_pairs_query, [max_pairs])
+        results = self.con.execute(pairs_query, [max_pairs])
         while batch := results.fetchmany(BATCH_SIZE):
             for left, right, score in batch:
                 yield (Identifier.get(left), Identifier.get(right)), score
