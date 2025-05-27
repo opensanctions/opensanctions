@@ -89,7 +89,7 @@ if __name__ == "__main__":
     if due_datasets:
         print("## Datasets due for manual review\n")
         for line in due_datasets:
-            print(line)
+            print(f"- [ ] {line}")
         sys.exit(0)
     else:
         print("No datasets are currently due for manual review.")

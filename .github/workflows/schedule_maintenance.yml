@@ -29,10 +29,12 @@ jobs:
         run: |
           pip install ruamel.yaml
 
-      - name: Run manual updates check
-        id: check_manual_updates
+      - name: Generate datasets list
         run: |
-          python contrib/schedule_maintenance.py > update_output.md
+          DATASETS=$(python contrib/schedule_maintenance.py)
+          echo "DATASETS<<EOF" >> $GITHUB_ENV
+          echo "$DATASETS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Create an issue
         if: ${{ success() }}
