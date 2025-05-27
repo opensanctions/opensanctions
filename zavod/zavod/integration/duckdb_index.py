@@ -41,7 +41,7 @@ from followthemoney.types import registry
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.index.common import BaseIndex
-from nomenklatura.resolver import Identifier, Pair
+from nomenklatura.resolver import Identifier
 from nomenklatura.store import View
 
 from zavod.integration.tokenizer import (
