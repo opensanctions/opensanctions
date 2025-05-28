@@ -25,7 +25,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity = context.make("Person")
         entity.id = context.make_id(name, npi)
         entity.add("name", name)
-        assert organization_name == "", row
+        assert organization_name in ("", None), row
 
     entity.add("npiCode", npi)
     entity.add("sector", row.pop("provider_type_code"))
