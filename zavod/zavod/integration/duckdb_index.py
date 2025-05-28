@@ -158,8 +158,8 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                 for (field, token), count in counts.items():
                     row = [entity.schema.name, entity.id, field, token, count]
                     writer.writerow(row)
-                idx += 1
 
+                idx += 1
                 if idx % 50000 == 0:
                     log.info("Dumped %s entities" % idx)
         self.con.execute(f"""
