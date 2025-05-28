@@ -22,7 +22,7 @@ description: |
   > Register of registered organizations in Cyprus, kept at the office of
   > the Registrar of Companies and Intellectual Property. The register
   > includes 5 types of organizations:
-  > 
+  >
   > (a) Companies
   > (b) Foreign Companies
   > (c) Trade Names
@@ -67,8 +67,6 @@ inputs:
 
 config:
   dataset: cy_companies
-  index_options:
-    memory_budget: 2000
   strip_namespace: true
   fuzzy: false
   threshold: 0.7

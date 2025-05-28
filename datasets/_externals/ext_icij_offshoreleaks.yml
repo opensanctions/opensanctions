@@ -44,7 +44,7 @@ publisher:
   acronym: ICIJ
   description: |
     ICIJ is a global network of reporters and media organizations that cooperate on
-    large-scale cross-border investigations. Its core team is a group of editors, 
+    large-scale cross-border investigations. Its core team is a group of editors,
     fact-checkers and data journalists who maintain the OffshoreLeaks database.
   url: https://www.icij.org/about/
   official: false
@@ -71,7 +71,6 @@ inputs:
 config:
   dataset: icij_offshoreleaks
   index_options:
-    memory_budget: 2500
     match_batch: 300
   strip_namespace: true
   threshold: 0.7

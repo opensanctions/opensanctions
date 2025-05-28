@@ -77,7 +77,6 @@ config:
   dataset: gleif
   index_options:
     max_candidates: 25
-    memory_budget: 2500
     match_batch: 300
   strip_namespace: true
   fuzzy: false
