@@ -1,7 +1,7 @@
 from pathlib import Path
 from tempfile import mkdtemp
 
-from nomenklatura import CompositeEntity, Resolver
+from nomenklatura import Resolver
 from normality import slugify
 
 from zavod.crawl import crawl_dataset
@@ -49,7 +49,7 @@ def test_pairs(testdataset_dedupe: Dataset, resolver: Resolver[Entity]):
         "matching-john-smith-us",
         "matching-john-gregory-smith-us",
     ), pairs[1]
-    assert 1 < pairs[1][1] < 7, pairs[1]
+    assert 1 < pairs[1][1] < 12, pairs[1]
 
     # One token matching scores poorly
     bond = scores[("matching-john-smith-uk", "matching-james-bond-uk-007")]
@@ -68,8 +68,8 @@ def test_match(
     index = DuckDBIndex(view, data_dir, {"stopwords_pct": NO_STOPWORDS})
     index.build()
 
-    bond = CompositeEntity.from_data(testdataset1, BOND)
-    john = CompositeEntity.from_data(testdataset1, JOHN)
+    bond = Entity.from_data(testdataset1, BOND)
+    john = Entity.from_data(testdataset1, JOHN)
 
     # There's a company in the data with the same name as the person
     assert view.get_entity("matching-john-smith-inc-us").schema.is_a("Company")

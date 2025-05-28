@@ -29,9 +29,9 @@
 # making memory_limit smaller might help fit what the buffer manager manages,
 # plus all the additional DuckDB and non-DuckDB memory usage.
 
+from collections import defaultdict
 import csv
 import logging
-from io import TextIOWrapper
 from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
 
@@ -72,17 +72,6 @@ DEFAULT_FIELD_STOPWORDS_PCT = {
 }
 
 
-def csv_writer(
-    fh: TextIOWrapper,
-) -> Any:  # Any because csv writer types seem to be special
-    return csv.writer(
-        fh,
-        dialect=csv.unix_dialect,
-        escapechar="\\",
-        doublequote=False,
-    )
-
-
 class DuckDBIndex(BaseIndex[DS, CE]):
     """
     An index using DuckDB for token matching and scoring, keeping data in memory
@@ -93,14 +82,14 @@ class DuckDBIndex(BaseIndex[DS, CE]):
     """
 
     BOOSTS = {
-        NAME_PART_FIELD: 2.0,
+        NAME_PART_FIELD: 5.0,
         WORD_FIELD: 0.5,
         PHONETIC_FIELD: 2.0,
         registry.name.name: 15.0,
         registry.phone.name: 10.0,
         registry.email.name: 10.0,
         registry.address.name: 1.0,
-        registry.identifier.name: 6.0,
+        registry.identifier.name: 10.0,
     }
 
     __slots__ = "view", "fields", "tokenizer", "entities"
@@ -138,9 +127,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             self.duckdb_config["memory_limit"] = f"{self.memory_budget}MB"
             self.duckdb_config["max_memory"] = f"{self.memory_budget}MB"
         self.duckdb_path = (self.data_dir / "index.duckdb").as_posix()
-
-        self.matching_path = self.data_dir / "matching.csv"
-
         self._init_db()
 
     def _init_db(self) -> None:
@@ -150,6 +136,39 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.con.execute("CHECKPOINT")
         self.con.close()
         self._init_db()
+
+    def load_entities(self, table: str, entities: Iterable[CE]) -> None:
+        path = self.data_dir / f"{table}.csv"
+        log.info("Dumping tokenized entities to CSV: %r", table)
+        with open(path, "w") as fh:
+            writer = csv.writer(
+                fh,
+                dialect=csv.unix_dialect,
+                escapechar="\\",
+                doublequote=False,
+            )
+            idx = 0
+            for entity in entities:
+                if not entity.schema.matchable or entity.id is None:
+                    continue
+                counts: Dict[Tuple[str, str], int] = defaultdict(int)
+                for field, token in tokenize_entity(entity):
+                    counts[(field, token)] += 1
+
+                for (field, token), count in counts.items():
+                    row = [entity.schema.name, entity.id, field, token, count]
+                    writer.writerow(row)
+
+                idx += 1
+                if idx % 50000 == 0:
+                    log.info("Dumped %s entities" % idx)
+        self.con.execute(f"""
+        CREATE OR REPLACE TABLE {table}
+            (schema TEXT, id TEXT, field TEXT, token TEXT, count INT)
+        """)
+        log.info("Loading data to table %r...", table)
+        q = f"COPY {table} FROM '{path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
+        self.con.execute(q)
 
     def build(self) -> None:
         """Index all entities in the dataset."""
@@ -169,81 +188,14 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                 q = "INSERT INTO schemata VALUES (?, ?)"
                 self.con.execute(q, [left.name, right.name])
 
-        self.con.execute(
-            "CREATE OR REPLACE TABLE entries (schema TEXT, id TEXT, field TEXT, token TEXT)"
-        )
-        csv_path = self.data_dir / "mentions.csv"
-        log.info("Dumping entity tokens to CSV for bulk load into the database...")
-        with open(csv_path, "w") as fh:
-            writer = csv_writer(fh)
-            idx = 0
-            for entity in self.view.entities():
-                if not entity.schema.matchable or entity.id is None:
-                    continue
-                self.dump_entity(writer, entity)
-                idx += 1
-
-                if idx % 50000 == 0:
-                    log.info("Dumped %s entities" % idx)
-
-        log.info("Loading data...")
-        self.con.execute(
-            f"COPY entries FROM '{csv_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
-        )
-        log.info("Done.")
-
+        self.load_entities("entries", self.view.entities())
         self._build_frequencies()
         log.info("Index built.")
-
-    def dump_entity(self, writer: Any, entity: CE) -> None:
-        for field, token in tokenize_entity(entity):
-            writer.writerow([entity.schema.name, entity.id, field, token])
-
-    def _load_matching_subjects(self, entities: Iterable[CE]) -> None:
-        self.matching_path.unlink(missing_ok=True)
-        with open(self.matching_path, "w") as matching_dump:
-            matching_writer = csv_writer(matching_dump)
-            for entity in entities:
-                self.dump_entity(matching_writer, entity)
-
-        log.info("Loading matching subjects...")
-        self.con.execute(
-            "CREATE OR REPLACE TABLE matching (schema TEXT, id TEXT, field TEXT, token TEXT)"
-        )
-        self.con.execute(
-            f"COPY matching FROM '{self.matching_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
-        )
-        log.info("Finished loading matching subjects.")
-
-    def _build_field_len(self) -> None:
-        log.info("Calculating field lengths...")
-        field_len_query = """
-        CREATE OR REPLACE TABLE field_len as
-            SELECT entries.field, entries.id, count(*) as field_len FROM entries
-            LEFT OUTER JOIN stopwords
-            ON stopwords.token = entries.token
-            WHERE stopwords.freq is NULL
-            GROUP BY entries.field, entries.id
-        """
-        self.con.execute(field_len_query)
-
-    def _build_mentions(self) -> None:
-        log.info("Calculating mention counts...")
-        mentions_query = """
-        CREATE OR REPLACE TABLE mentions as
-            SELECT entries.schema, entries.field, entries.id, entries.token, count(*) AS mentions
-            FROM entries
-            LEFT OUTER JOIN stopwords
-            ON stopwords.token = entries.token
-            WHERE stopwords.freq is NULL
-            GROUP BY entries.schema, entries.field, entries.id, entries.token
-        """
-        self.con.execute(mentions_query)
 
     def _build_stopwords(self) -> None:
         token_freq_query = """
         CREATE OR REPLACE TABLE tokens AS
-            SELECT field, token, count(*) as freq
+            SELECT field, token, sum("count") as freq
             FROM entries
             GROUP BY field, token
         """
@@ -290,19 +242,32 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         )
         log.info("5 Least common stopwords for field '%s':\n%s\n", field, least_common)
 
+    def _apply_stopwords(self, origin_table: str, target_table: str) -> None:
+        log.info("Filtering stopwords from %r, as %r...", origin_table, target_table)
+        q = f"""
+        CREATE OR REPLACE TABLE {target_table} as
+            SELECT e.*
+            FROM {origin_table} AS e
+            LEFT OUTER JOIN stopwords ON stopwords.token = e.token
+            WHERE stopwords.token is NULL
+        """
+        self.con.execute(q)
+
     def _build_frequencies(self) -> None:
         self._build_stopwords()
-        self._build_field_len()
-        self._build_mentions()
+        self._apply_stopwords("entries", "entries_filtered")
         log.info("Calculating term frequencies...")
         term_frequencies_query = """
-            CREATE OR REPLACE TABLE term_frequencies AS
-            SELECT mentions.schema, mentions.field, mentions.token, mentions.id, (mentions/field_len) * ifnull(boo.boost, 1) as tf
-            FROM field_len
-            JOIN mentions
-            ON field_len.field = mentions.field AND field_len.id = mentions.id
-            LEFT OUTER JOIN boosts boo
-            ON field_len.field = boo.field
+        CREATE OR REPLACE TABLE term_frequencies AS
+            WITH field_len AS (
+                SELECT e.field, e.id, sum(e.count) as len
+                    FROM entries_filtered e
+                    GROUP BY e.field, e.id
+            )
+            SELECT e.schema, e.field, e.token, e.id, (e.count/f.len) * ifnull(boo.boost, 1) as tf
+            FROM entries_filtered AS e
+            JOIN field_len AS f ON f.field = e.field AND f.id = e.id
+            LEFT OUTER JOIN boosts boo ON f.field = boo.field
         """
         self.con.execute(term_frequencies_query)
 
@@ -310,37 +275,10 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self, max_pairs: int = BaseIndex.MAX_PAIRS
     ) -> Iterable[Tuple[Tuple[Identifier, Identifier], float]]:
         log.info("Generating pairs...")
-        # pairs_query = """
-        #     CREATE OR REPLACE TABLE term_pairs AS
-        #     SELECT "left".id as left_id, "right".id as right_id, ("left".tf + "right".tf) as score
-        #     FROM term_frequencies as "left"
-        #     JOIN term_frequencies as "right" ON "left".token = "right".token
-        #     INNER JOIN schemata ON schemata.left = "left".schema AND schemata.right = "right".schema
-        #     WHERE "left".id > "right".id
-        #     GROUP BY "left".id, "right".id
-        # """
-        # self.con.execute(pairs_query)
-        # log.info("Scoring pairs...")
-        # score_query = """
-        #     CREATE OR REPLACE TABLE term_pairs_score AS
-        #     SELECT left_id, right_id, sum(score) as score
-        #     FROM term_pairs
-        #     GROUP BY left_id, right_id
-        # """
-        # self.con.execute(score_query)
-        # log.info("Selecting top pairs...")
-        # top_pairs_query = """
-        #     SELECT left_id, right_id, score
-        #     FROM term_pairs_score
-        #     ORDER BY score DESC
-        #     LIMIT ?
-        # """
-        # results = self.con.execute(top_pairs_query, [max_pairs])
         pairs_query = """
             SELECT "left".id, "right".id, sum(("left".tf + "right".tf)) as score
             FROM term_frequencies as "left"
-            JOIN term_frequencies as "right"
-            ON "left".token = "right".token
+            JOIN term_frequencies as "right" ON "left".token = "right".token
             INNER JOIN schemata ON schemata.left = "left".schema AND schemata.right = "right".schema
             WHERE "left".id > "right".id
             GROUP BY "left".id, "right".id
@@ -359,7 +297,8 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         None,
         None,
     ]:
-        self._load_matching_subjects(entities)
+        self.load_entities("matching", entities)
+        self._apply_stopwords("matching", "matching_filtered")
         reset_caches()
         yield from self._find_matches()
 
@@ -371,13 +310,14 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         None,
     ]:
         self._clear()
-        res = self.con.execute("SELECT COUNT(DISTINCT id) FROM matching").fetchone()
+        q = "SELECT COUNT(DISTINCT id) FROM matching_filtered"
+        res = self.con.execute(q).fetchone()
         num_matching = res[0] if res is not None else 0
         chunks = max(1, num_matching // self.match_batch)
 
         chunk_table_query = """
         CREATE OR REPLACE TABLE matching_chunks AS
-            WITH ids AS (SELECT DISTINCT id FROM matching)
+            WITH ids AS (SELECT DISTINCT id FROM matching_filtered)
             SELECT id, ntile(?) OVER (ORDER BY id) as chunk FROM ids
         """
         self.con.execute(chunk_table_query, [chunks])
@@ -388,7 +328,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             chunk_query = """
             SELECT m.id AS matching_id, tf.id AS matches_id, SUM(tf.tf) AS score
                 FROM matching_chunks c
-                JOIN matching m ON c.id = m.id
+                JOIN matching_filtered m ON c.id = m.id
                 JOIN term_frequencies tf
                 ON m.token = tf.token
                 INNER JOIN schemata s
