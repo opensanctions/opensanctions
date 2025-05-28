@@ -93,8 +93,8 @@ if __name__ == "__main__":
             print(f"- [ ] [{dataset_name}]({link}): {message}")
         sys.exit(0)
     # Although a lot of programs use nonzero exit for some status other than an error,
-    # in github actions, it's usually considered an error condition and the job will be
-    # marked failed and it'll email the last committer to the action. That's why we use
-    # truthiness of the otuput to determine if the job was successful or not.
+    # this is intended for github actions which considers nonzero an error condition,
+    # marking the job as failed.
+    # So we use no output to mean nothing to be done (no github issue needs to be created)
     else:
         sys.exit(0)
