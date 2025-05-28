@@ -31,7 +31,6 @@
 
 import csv
 import logging
-from io import TextIOWrapper
 from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
 
@@ -70,17 +69,6 @@ DEFAULT_FIELD_STOPWORDS_PCT = {
     WORD_FIELD: 15.0,
     NAME_PART_FIELD: 4.0,
 }
-
-
-def csv_writer(
-    fh: TextIOWrapper,
-) -> Any:  # Any because csv writer types seem to be special
-    return csv.writer(
-        fh,
-        dialect=csv.unix_dialect,
-        escapechar="\\",
-        doublequote=False,
-    )
 
 
 class DuckDBIndex(BaseIndex[DS, CE]):
