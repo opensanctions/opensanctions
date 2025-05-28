@@ -88,7 +88,7 @@ def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None
 
     name_fp = "".join(sorted(name_tokens))
     prefix = PREFIXES.get(registry.name, "n")
-    yield (registry.name.name, f"{prefix}:{name_fp[:300]}")
+    yield (registry.name.name, f"{prefix}:{name_fp[:200]}")
 
 
 def tokenize_entity(entity: CompositeEntity) -> Generator[Tuple[str, str], None, None]:
@@ -130,6 +130,6 @@ def tokenize_entity(entity: CompositeEntity) -> Generator[Tuple[str, str], None,
                     if len(word) > 3 and len(word) < 30:
                         unique.add((type.name, f"{prefix}:{word}"))
                     if len(word) > 6 and len(word) < 30:
-                        yield WORD_FIELD, f"{WORD_FIELD}:{word}"
+                        unique.add((WORD_FIELD, f"{WORD_FIELD}:{word}"))
 
     yield from unique
