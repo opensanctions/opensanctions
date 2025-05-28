@@ -138,9 +138,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
             self.duckdb_config["memory_limit"] = f"{self.memory_budget}MB"
             self.duckdb_config["max_memory"] = f"{self.memory_budget}MB"
         self.duckdb_path = (self.data_dir / "index.duckdb").as_posix()
-
-        self.matching_path = self.data_dir / "matching.csv"
-
         self._init_db()
 
     def _init_db(self) -> None:
@@ -150,6 +147,25 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.con.execute("CHECKPOINT")
         self.con.close()
         self._init_db()
+
+    def dump_entities(self, path: Path, entities: Iterable[CE]) -> None:
+        with open(path, "w") as fh:
+            writer = csv.writer(
+                fh,
+                dialect=csv.unix_dialect,
+                escapechar="\\",
+                doublequote=False,
+            )
+            idx = 0
+            for entity in entities:
+                if not entity.schema.matchable or entity.id is None:
+                    continue
+                for field, token in tokenize_entity(entity):
+                    writer.writerow([entity.schema.name, entity.id, field, token])
+                idx += 1
+
+                if idx % 50000 == 0:
+                    log.info("Dumped %s entities" % idx)
 
     def build(self) -> None:
         """Index all entities in the dataset."""
@@ -174,17 +190,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         )
         csv_path = self.data_dir / "mentions.csv"
         log.info("Dumping entity tokens to CSV for bulk load into the database...")
-        with open(csv_path, "w") as fh:
-            writer = csv_writer(fh)
-            idx = 0
-            for entity in self.view.entities():
-                if not entity.schema.matchable or entity.id is None:
-                    continue
-                self.dump_entity(writer, entity)
-                idx += 1
-
-                if idx % 50000 == 0:
-                    log.info("Dumped %s entities" % idx)
+        self.dump_entities(csv_path, self.view.entities())
 
         log.info("Loading data...")
         self.con.execute(
@@ -195,23 +201,16 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self._build_frequencies()
         log.info("Index built.")
 
-    def dump_entity(self, writer: Any, entity: CE) -> None:
-        for field, token in tokenize_entity(entity):
-            writer.writerow([entity.schema.name, entity.id, field, token])
-
     def _load_matching_subjects(self, entities: Iterable[CE]) -> None:
-        self.matching_path.unlink(missing_ok=True)
-        with open(self.matching_path, "w") as matching_dump:
-            matching_writer = csv_writer(matching_dump)
-            for entity in entities:
-                self.dump_entity(matching_writer, entity)
+        csv_path = self.data_dir / "matching.csv"
+        self.dump_entities(csv_path, entities)
 
         log.info("Loading matching subjects...")
         self.con.execute(
             "CREATE OR REPLACE TABLE matching (schema TEXT, id TEXT, field TEXT, token TEXT)"
         )
         self.con.execute(
-            f"COPY matching FROM '{self.matching_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
+            f"COPY matching FROM '{csv_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
         )
         log.info("Finished loading matching subjects.")
 
@@ -310,32 +309,6 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self, max_pairs: int = BaseIndex.MAX_PAIRS
     ) -> Iterable[Tuple[Tuple[Identifier, Identifier], float]]:
         log.info("Generating pairs...")
-        # pairs_query = """
-        #     CREATE OR REPLACE TABLE term_pairs AS
-        #     SELECT "left".id as left_id, "right".id as right_id, ("left".tf + "right".tf) as score
-        #     FROM term_frequencies as "left"
-        #     JOIN term_frequencies as "right" ON "left".token = "right".token
-        #     INNER JOIN schemata ON schemata.left = "left".schema AND schemata.right = "right".schema
-        #     WHERE "left".id > "right".id
-        #     GROUP BY "left".id, "right".id
-        # """
-        # self.con.execute(pairs_query)
-        # log.info("Scoring pairs...")
-        # score_query = """
-        #     CREATE OR REPLACE TABLE term_pairs_score AS
-        #     SELECT left_id, right_id, sum(score) as score
-        #     FROM term_pairs
-        #     GROUP BY left_id, right_id
-        # """
-        # self.con.execute(score_query)
-        # log.info("Selecting top pairs...")
-        # top_pairs_query = """
-        #     SELECT left_id, right_id, score
-        #     FROM term_pairs_score
-        #     ORDER BY score DESC
-        #     LIMIT ?
-        # """
-        # results = self.con.execute(top_pairs_query, [max_pairs])
         pairs_query = """
             SELECT "left".id, "right".id, sum(("left".tf + "right".tf)) as score
             FROM term_frequencies as "left"
