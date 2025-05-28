@@ -5,7 +5,7 @@ on:
     - cron: '0 9 1 * *'  # Every month on the first day at 09:00 UTC
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 jobs:
@@ -33,17 +33,28 @@ jobs:
         id: generate
         run: |
           DATASETS=$(python contrib/schedule_maintenance.py)
-          if [ -n "$DATASETS" ]; then
-            echo "should_create_issue=true" >> $GITHUB_OUTPUT
-            echo "DATASETS<<EOF" >> $GITHUB_ENV
-            echo "$DATASETS" >> $GITHUB_ENV
-            echo "EOF" >> $GITHUB_ENV
+          # the heredoc (<<EOF) syntax is to set a multiline value as env var
+          echo "DATASETS<<EOF" >> $GITHUB_ENV
+          echo "$DATASETS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add datasets/*.yml datasets/*.yaml
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
           else
-            echo "should_create_issue=false" >> $GITHUB_OUTPUT
+            git commit -m "chore: update last_checked dates in the metadata files"
+            git push
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create an issue
-        if: ${{ steps.generate.outputs.should_create_issue == 'true' }}
+        if: ${{ env.DATASETS }}
         uses: JasonEtco/create-an-issue@v2.9.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
