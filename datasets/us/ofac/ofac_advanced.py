@@ -305,7 +305,6 @@ def parse_distinct_party(
     # We skip emitting entries with ListId "Consolidated List" because they always have a second,
     # more specific ListId attached (such as "CAPTA List"). This assert ensures that this assumption
     # always holds so that we don't skip emitting a Sanction for every entity on the list.
-    sanction_found = False
     sanction_entities = [
         emit_sanctions_entry(context, proxy, refs, features, sanctions_entry)
         for sanctions_entry in doc.findall(entry_path)
@@ -424,34 +423,28 @@ def parse_id_reg_document(
         context.emit(identification)
 
 
-def extract_sanctions_program(entry: Element, refs: Element) -> Optional[str]:
+def extract_sdn_sanctions_measure_name(entry: Element, refs: Element) -> Optional[str]:
     """
-    Extracts the program name associated with a sanctions entry, depending on whether the entry is part of the
-    SDN List or another OFAC list (e.g., Non-SDN CMIC List, Non-SDN Menu-Based Sanctions List).
+    Extracts the program name associated with a sanctions entry on the SDN List.
 
     Returns:
-        A string representing the program name (e.g., "IRAN-EO13876" or "Non-SDN CMIC List"),
-        or None if no applicable program is found.
+        A string representing the program name (e.g., "IRAN-EO13876")
     """
-    # Get the name of the list (e.g., "SDN List", "CAPTA List")
     list_name = get_ref_text(refs, "List", entry.get("ListID"))
-    # Special handling for SDN List entries:
+    assert list_name == "SDN List"
+
     # The SDN List may include multiple SanctionsMeasures, and the actual program name is inside
     # the <Comment> tag of a <SanctionsMeasure> element where SanctionsTypeID resolves to "Program".
-    if list_name == "SDN List":
-        for measure in entry.findall("./SanctionsMeasure"):
-            sanctions_type_id = measure.get("SanctionsTypeID")
-            sanctions_type = get_ref_text(refs, "SanctionsType", sanctions_type_id)
-            if sanctions_type == "Program":
-                # Extract the actual program name from the <Comment> element, which holds values like "IRAN-EO13876"
-                comment = measure.findtext("Comment")
-                if comment:
-                    return comment  # Return the first matched program name
-        # If no "Program" type measures are found or no comment is available, return None
-        return None
-    else:
-        # For non-SDN list entries, we treat the resolved list name itself as the program
-        return list_name
+    for measure in entry.findall("./SanctionsMeasure"):
+        sanctions_type_id = measure.get("SanctionsTypeID")
+        sanctions_type = get_ref_text(refs, "SanctionsType", sanctions_type_id)
+        if sanctions_type == "Program":
+            # Extract the actual program name from the <Comment> element, which holds values like "IRAN-EO13876"
+            comment = measure.findtext("Comment")
+            if comment:
+                return comment  # Return the first matched program name
+    # If no "Program" type measures are found or no comment is available, return None
+    return None
 
 
 def emit_sanctions_entry(
@@ -469,22 +462,24 @@ def emit_sanctions_entry(
     # For entries on the SDN list, the XML contains a more specific sanctions program designation
     # For the various lists that are part of the Consolidated List, we use the list name as the program.
     program = (
-        extract_sanctions_program(entry, refs) if list_id == "SDN List" else list_id
+        extract_sdn_sanctions_measure_name(entry, refs)
+        if list_id == "SDN List"
+        else list_id
     )
     # For us_ofac_sdn, only process entries with list_id 'SDN List'
     if dataset == "us_ofac_sdn" and list_id != "SDN List":
-        return
+        return None
     # For us_ofac_cons, only process entries that are not part of the SDN List
     # (i.e., process entries with list_id 'Non-SDN Menu-Based Sanctions List').
     # 'Consolidated List' is more of a meta-tag — all entries labeled with it also have a
     # more specific list_id attached (e.g., 'Non-SDN CMIC List'). We have a check
     # aearlier that ensures at least one specific Sanction will be emitted for each entity.
     # Therefore, it's safe to skip processing entries under 'Consolidated List' list_id here.
-    if dataset == "us_ofac_cons" and list_id in (
+    if dataset == "us_ofac_cons" and list_id in {
         "Consolidated List",
         "SDN List",
-    ):
-        return
+    }:
+        return None
     sanction = h.make_sanction(
         context,
         proxy,
