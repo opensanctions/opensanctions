@@ -302,22 +302,16 @@ def parse_distinct_party(
 
     # Sanctions designations
     entry_path = f"SanctionsEntries/SanctionsEntry[@ProfileID='{profile_id}']"
-    # Assert that each entity has at least one sanction linked to it
+    # We skip emitting entries with ListId "Consolidated List" because they always have a second,
+    # more specific ListId attached (such as "CAPTA List"). This assert ensures that this assumption
+    # always holds so that we don't skip emitting a Sanction for every entity on the list.
     sanction_found = False
-    sanction_entity = None
-    for sanctions_entry in doc.findall(entry_path):
-        sanction_entity = parse_sanctions_entry(
-            context, proxy, refs, features, sanctions_entry
-        )
-        if sanction_entity is not None:
-            sanction_found = True
-
-        sanction_entities = [
-            parse_sanctions_entry(context, proxy, refs, features, sanctions_entry)
-            for sanctions_entry in doc.findall(entry_path)
-        ]
-        sanction_found = any([sanction is not None for sanction in sanction_entities])
-        assert sanction_found
+    sanction_entities = [
+        emit_sanctions_entry(context, proxy, refs, features, sanctions_entry)
+        for sanctions_entry in doc.findall(entry_path)
+    ]
+    sanction_found = any(sanction is not None for sanction in sanction_entities)
+    assert sanction_found
 
     for feat_label, values in features.items():
         for feat_value in values:
@@ -460,7 +454,7 @@ def extract_sanctions_program(entry: Element, refs: Element) -> Optional[str]:
         return list_name
 
 
-def parse_sanctions_entry(
+def emit_sanctions_entry(
     context: Context,
     proxy: Entity,
     refs: Element,
@@ -469,15 +463,23 @@ def parse_sanctions_entry(
 ) -> Optional[Entity]:
     # context.inspect(entry)
     proxy.add("topics", "sanction")
-    program = extract_sanctions_program(entry, refs)
 
     dataset = context.dataset.name
     list_id = get_ref_text(refs, "List", entry.get("ListID"))
+    # For entries on the SDN list, the XML contains a more specific sanctions program designation
+    # For the various lists that are part of the Consolidated List, we use the list name as the program.
+    program = (
+        extract_sanctions_program(entry, refs) if list_id == "SDN List" else list_id
+    )
     # For us_ofac_sdn, only process entries with list_id 'SDN List'
     if dataset == "us_ofac_sdn" and list_id != "SDN List":
         return
     # For us_ofac_cons, only process entries that are not part of the SDN List
-    # (i.e., process entries with list_id 'Non-SDN Menu-Based Sanctions List' or 'Non-SDN CMIC List')
+    # (i.e., process entries with list_id 'Non-SDN Menu-Based Sanctions List').
+    # 'Consolidated List' is more of a meta-tag — all entries labeled with it also have a
+    # more specific list_id attached (e.g., 'Non-SDN CMIC List'). We have a check
+    # aearlier that ensures at least one specific Sanction will be emitted for each entity.
+    # Therefore, it's safe to skip processing entries under 'Consolidated List' list_id here.
     if dataset == "us_ofac_cons" and list_id in (
         "Consolidated List",
         "SDN List",
@@ -489,6 +491,8 @@ def parse_sanctions_entry(
         key=entry.get("ID"),
         program_name=program,
         source_program_key=program,
+        # For entries on the SDN list, the XML contains a more specific sanctions program designation
+        # For the various lists that are part of the Consolidated List, we use the list name as the program.
         program_key=(
             h.lookup_sanction_program_key(context, program) if program else None
         ),
