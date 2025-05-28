@@ -62,7 +62,6 @@ lookups:
           - art L. 562-3 du code monétaire et financier
           - art L. 562-2 du code monétaire et financier
         value: "FR-CMF-562"
-      # TODO: map the programs to the program keys
       - contains: "ONU République démocratique du Congo - RCSNU 1533 (2004) et R (CE) 1183/2005"
         value: UN-SC1533
       - contains: "ONU Afghanistan/Taliban - Résolution 1988 (2011) du CSNU et R (UE) 753/2011"
