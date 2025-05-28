@@ -137,7 +137,9 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.con.close()
         self._init_db()
 
-    def dump_entities(self, path: Path, entities: Iterable[CE]) -> None:
+    def load_entities(self, table: str, entities: Iterable[CE]) -> None:
+        path = self.data_dir / f"{table}.csv"
+        log.info("Dumping tokenized entities to CSV: %r", table)
         with open(path, "w") as fh:
             writer = csv.writer(
                 fh,
@@ -160,6 +162,13 @@ class DuckDBIndex(BaseIndex[DS, CE]):
 
                 if idx % 50000 == 0:
                     log.info("Dumped %s entities" % idx)
+        self.con.execute(f"""
+        CREATE OR REPLACE TABLE {table}
+            (schema TEXT, id TEXT, field TEXT, token TEXT, count INT)
+        """)
+        log.info("Loading data to table %r...", table)
+        q = f"COPY {table} FROM '{path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
+        self.con.execute(q)
 
     def build(self) -> None:
         """Index all entities in the dataset."""
@@ -179,34 +188,9 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                 q = "INSERT INTO schemata VALUES (?, ?)"
                 self.con.execute(q, [left.name, right.name])
 
-        self.con.execute("""
-        CREATE OR REPLACE TABLE entries
-            (schema TEXT, id TEXT, field TEXT, token TEXT, count INT)
-        """)
-        csv_path = self.data_dir / "entries.csv"
-        log.info("Dumping entity tokens to CSV for bulk load into the database...")
-        self.dump_entities(csv_path, self.view.entities())
-
-        log.info("Loading data...")
-        q = f"COPY entries FROM '{csv_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
-        self.con.execute(q)
-        log.info("Done.")
-
+        self.load_entities("entries", self.view.entities())
         self._build_frequencies()
         log.info("Index built.")
-
-    def _load_matching_subjects(self, entities: Iterable[CE]) -> None:
-        csv_path = self.data_dir / "matching_entries.csv"
-        self.dump_entities(csv_path, entities)
-
-        log.info("Loading matching subjects...")
-        self.con.execute("""
-        CREATE OR REPLACE TABLE matching
-            (schema TEXT, id TEXT, field TEXT, token TEXT, count INT)
-        """)
-        q = f"COPY matching FROM '{csv_path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
-        self.con.execute(q)
-        self._apply_stopwords("matching", "matching_filtered")
 
     def _build_stopwords(self) -> None:
         token_freq_query = """
@@ -313,7 +297,8 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         None,
         None,
     ]:
-        self._load_matching_subjects(entities)
+        self.load_entities("matching", entities)
+        self._apply_stopwords("matching", "matching_filtered")
         reset_caches()
         yield from self._find_matches()
 
