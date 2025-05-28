@@ -71,8 +71,6 @@ inputs:
 
 config:
   dataset: ba_companies
-  index_options:
-    memory_budget: 1000
   strip_namespace: true
   threshold: 0.5
   algorithm: regression-v1

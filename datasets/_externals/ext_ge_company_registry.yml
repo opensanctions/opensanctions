@@ -22,7 +22,7 @@ ci_test: false
 summary: >-
   List of companies registered in Georgia, sourced from the official Georgian Company Registry.
 description: |
-  This dataset contains detailed information about companies registered in Georgia. It includes 
+  This dataset contains detailed information about companies registered in Georgia. It includes
   the company name, registration date, legal address, legal form, director, and partner details.
 
   **Note:** It is a snapshot of the official Georgian Company Registry.
@@ -64,8 +64,6 @@ inputs:
 
 config:
   dataset: ge_company_registry
-  index_options:
-    memory_budget: 2500
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1

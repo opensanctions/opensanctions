@@ -77,7 +77,6 @@ config:
   max_bin: 14
   index_options:
     max_candidates: 200
-    memory_budget: 3000
   dataset: ru_egrul
   strip_namespace: true
   fuzzy: false

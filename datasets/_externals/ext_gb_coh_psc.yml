@@ -29,7 +29,7 @@ description: |
   > your company. They’re sometimes called ‘beneficial owners’.
 
   This includes major shareholders (25%+) in any UK company, identified by
-  name, date of birth and nationality. Companies House may not enforce the 
+  name, date of birth and nationality. Companies House may not enforce the
   correct filing of PSC reports, so errors in the data must be assumed.
 url: https://www.gov.uk/guidance/people-with-significant-control-pscs
 publisher:
@@ -66,7 +66,6 @@ config:
   max_bin: 14
   index_options:
     max_candidates: 200
-    memory_budget: 2000
     match_batch: 300
   dataset: gb_coh_psc
   strip_namespace: true
