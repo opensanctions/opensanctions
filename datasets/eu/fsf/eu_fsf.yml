@@ -263,6 +263,8 @@ lookups:
         prop: registrationNumber
       - match: fiscalcode
         prop: taxNumber
+      - match: euvat
+        prop: vatCode
 
   type.address:
     lowercase: true
