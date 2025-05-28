@@ -83,7 +83,11 @@ lookups:
         value: UN-SC2127
       - contains: "ONU Soudan du sud - RCSNU 2206 (2015)  et R (UE) 2015/735"
         value: UN-SC2206
-      - contains: "UE Ukraine intégrité territoriale - R (UE) 269/2014"
+      - contains: "ONU Soudan - RCSNU  1591 (2005) et R (UE) 747/2014"
+        value: UN-SC1591
+      - contains: 
+          - "UE Ukraine intégrité territoriale - R (UE) 269/2014"
+          - "UE Ukraine biens mal acquis - R (UE) 208/2014"
         value: EU-UKR
       - contains: "UE Libye - R (UE) 2016/44"
         value: EU-LBY
@@ -91,8 +95,11 @@ lookups:
           - "UE Iran prolifération - R (UE) 267/2012"
           - "UE Iran répression - R (UE) 359/2011"
           - "UE Iran - Soutien militaire dans le conflit Russie/Ukraine  - R(UE) 2023/1529"
+          - "ONU Iran prolifération - RCSNU 1737 (2006) et R (UE) 267/2012"
         value: EU-IRN
-      - contains: "UE Etat islamique - Al Qaida - R (UE) 2016/1686"
+      - contains: 
+          - "UE Etat islamique - Al Qaida - R (UE) 2016/1686"
+          - "UE Al Qaeda - Etat Islamique - règlement (UE) 881/2002"
         value: EU-TAQA-EUAQ
       - contains: "UE Biélorussie - R (CE) 765/2006"
         value: EU-BLR
@@ -118,28 +125,32 @@ lookups:
         value: EU-BDI
       - contains: UE Guinée-Bissau - R (UE) 377/2012
         value: EU-GNB
-      - contains: "ONU Soudan - RCSNU  1591 (2005) et R (UE) 747/2014"
-        value: UN-SC1591
-      - match: 
-          - ONU Iran prolifération - RCSNU 1737 (2006) et R (UE) 267/2012)"
-          - ONU Somalie - RCSNU 751 (1992) et R (UE) 356/2010)"
-          - ONU Soudan - RCSNU  1591 (2005) et R (UE) 747/2014)"
-          - UE Al Qaeda - Etat Islamique - règlement (UE) 881/2002)"
-          - UE Guatemala - R (UE) 2024/287)"
-          - UE Hamas - Jihad islamique palestinien - R (UE) 2024/386)"
-          - UE Lutte contre la prolifération des armes chimiques - R (UE) 2018/1542)"
-          - UE Mali - R (UE) 2017/1770)"
-          - UE Moldavie  - R (UE) 2023/888)"
-          - UE Nicaragua - R (UE) 2019/1716)"
-          - UE République de Guinée - R (UE) 1284/2009)"
-          - UE Russie - Activités déstabilisatrices - R (UE) 2024/2642)"
-          - UE Russie répression R (UE) 2024/1485)"
-          - UE Soudan - Activités compromettant la stabilité et la transition politique - R (UE) 2023/2147)"
-          - UE Soudan du sud - R (UE) 2015/735)"
-          - UE Tunisie - R (UE) 101/2011)"
-          - UE Turquie - R (UE) 2019/1890)"
-          - UE Ukraine biens mal acquis - R (UE) 208/2014)"
-        value: null
+      - contains: "UE Guatemala - R (UE) 2024/287"
+        value: EU-GTM
+      - contains: "UE Hamas - Jihad islamique palestinien - R (UE) 2024/386"
+        value: EU-HAM
+      - contains: "UE Lutte contre la prolifération des armes chimiques - R (UE) 2018/1542"
+        value: EU-CHEM
+      - contains: "UE Mali - R (UE) 2017/1770"
+        value: EU-MLI
+      - contains: UE Moldavie  - R (UE) 2023/888
+        value: EU-MDA
+      - contains: "UE République de Guinée - R (UE) 1284/2009"
+        value: EU-GIN
+      - contains: "UE Russie - Activités déstabilisatrices - R (UE) 2024/2642"
+        value: EU-RUSDA
+      - contains: "UE Russie répression R (UE) 2024/1485"
+        value: EU-RUS
+      - contains: "UE Soudan du sud - R (UE) 2015/735"
+        value: EU-SSD
+      - contains: "UE Tunisie - R (UE) 101/2011"
+        value: EU-TUN
+      - contains: "UE Turquie - R (UE) 2019/1890)"
+        value: EU-TUR
+      - contains: "ONU Somalie - RCSNU 751 (1992) et R (UE) 356/2010"
+        value: EU-SOM
+      - contains: "UE Soudan - Activités compromettant la stabilité et la transition politique - R (UE) 2023/2147"
+        value: EU-SDNZ
   schema_override:
     options:
       - match:
