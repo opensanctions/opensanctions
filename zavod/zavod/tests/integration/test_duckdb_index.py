@@ -1,7 +1,7 @@
 from pathlib import Path
 from tempfile import mkdtemp
 
-from nomenklatura import CompositeEntity, Resolver
+from nomenklatura import Resolver
 from normality import slugify
 
 from zavod.crawl import crawl_dataset
