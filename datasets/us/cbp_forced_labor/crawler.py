@@ -22,7 +22,7 @@ def crawl_vessel(context: Context, row: Dict[str, Any]):
     # if REGEX_VESSEL.search(country, re.IGNORECASE):
     internal_id = row.pop("id")
     name = row.pop("entities")
-    listing_date = row.pop("date")
+    effective_date = row.pop("effective-date")
     status = row.pop("status")
     status_notes = row.pop("status-notes")
     status_notes_link = row.pop("status_notes_link", None)
@@ -43,7 +43,7 @@ def crawl_vessel(context: Context, row: Dict[str, Any]):
         if status in ["Active", "Partially Active"]:
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
-            h.apply_date(sanction, "listingDate", listing_date)
+            h.apply_date(sanction, "startDate", effective_date)
             context.emit(sanction)
         context.emit(entity)
 
@@ -51,7 +51,7 @@ def crawl_vessel(context: Context, row: Dict[str, Any]):
 def crawl_company(context: Context, row: Dict[str, Any], country: str):
     internal_id = row.pop("id")
     name = row.pop("entities")
-    listing_date = row.pop("date")
+    effective_date = row.pop("effective-date")
     merchandise = row.pop("merchandise")
     status = row.pop("status")
     status_notes = row.pop("status-notes")
@@ -77,7 +77,7 @@ def crawl_company(context: Context, row: Dict[str, Any], country: str):
         if status in ["Active", "Partially Active"]:
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
-            h.apply_date(sanction, "listingDate", listing_date)
+            h.apply_date(sanction, "startDate", effective_date)
             context.emit(sanction)
         context.emit(entity)
 
