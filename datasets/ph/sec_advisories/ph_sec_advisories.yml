@@ -48,6 +48,7 @@ dates:
 lookups:
   names:
     lowercase: true
+    normalize: true
     options:
       - match:
           - "ADS ZENS BROKER, CORPORATION"
