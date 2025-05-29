@@ -9,8 +9,8 @@ coverage:
 summary: >
   Withhold Release Orders (WROs) and Findings related to imports that may involve forced labor.
 description: |
-  The CBP Withhold Release Orders and Findings dataset includes information about specific 
-  shipments and products that may be tainted by forced labor practices. The data provides 
+  The CBP Withhold Release Orders and Findings dataset includes information about specific
+  shipments and products that may be tainted by forced labor practices. The data provides
   details such as the company name, product description, and date of issuance of the order.
 publisher:
   name: U.S. Customs and Border Protection
@@ -18,8 +18,8 @@ publisher:
   official: true
   url: https://www.cbp.gov/
   description: |
-    The CBP is a unified border agency within the Department of Homeland Security (DHS) 
-    charged with the regulation and facilitation of international trade, collection of 
+    The CBP is a unified border agency within the Department of Homeland Security (DHS)
+    charged with the regulation and facilitation of international trade, collection of
     import duties, and enforcement of U.S. trade laws.
 country: us
 data:
@@ -46,6 +46,7 @@ assertions:
 lookups:
   name:
     normalize: true
+    lowercase: true
     options:
       - match: "Shanghai Select Safety Products Company, Limited and its two subsidiaries from China, Select (Nantong) Safety Products Co. Limited and Select Protective Technology (HK) Limited."
         entities:
@@ -268,6 +269,9 @@ lookups:
       - match: "Fishing Vessel: Yu Long No. 2"
         entities:
           - name: "Yu Long No. 2"
+      - match: "Fishing Vessel: Zhen Fa 7"
+        entities:
+          - name: "Zhen Fa 7"
       - match: "Inner Mongolia Hengzheng Group Baoanzhao Agriculture, Industry, and Trade Co., Ltd."
         entities:
           - name: Inner Mongolia Hengzheng Group Baoanzhao Agriculture, Industry, and Trade Co., Ltd.
