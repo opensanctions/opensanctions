@@ -82,6 +82,8 @@ lookups:
         value: Panama
       - match: Agentina
         value: Argentina
+      - match: Philipines
+        value: Philippines
   type.date:
     options:
       - match: 10/31/23
