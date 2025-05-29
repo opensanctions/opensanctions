@@ -40,6 +40,7 @@ data:
 http:
   user_agent: zavod (opensanctions.org)
   retry_statuses: [413, 429, 500, 502, 503, 500]
+  retry_methods: [POST]
 dates:
   formats: ["%d-%m-%Y"]
 lookups:

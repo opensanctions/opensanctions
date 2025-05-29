@@ -27,6 +27,13 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name_raw, address, country)
     entity.add("name", RE_NAME_SPLIT.split(name_raw))
+    subtitle = data.pop("subtitle", "")
+    if subtitle and " and " not in subtitle:
+        # Tell us when new ones show up perhaps needing different splitting
+        context.log.warning("New subtitle format", subtitle=subtitle)
+    aliases = h.multi_split(subtitle, [" and "])
+    for alias in aliases:
+        entity.add("alias", alias)
     entity.add("address", address.split("$"))
     entity.add("country", country)
 
