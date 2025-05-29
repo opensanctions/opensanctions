@@ -173,7 +173,7 @@ assertions:
     country_entities:
       cn: 500
       ru: 5
-      ke: 20
+      ke: 5
   max:
     schema_entities:
       LegalEntity: 2100
