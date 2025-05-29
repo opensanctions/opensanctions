@@ -32,7 +32,9 @@ class Dataset(NKDataset):
                 dataset=self.name,
                 summary=self.summary,
             )
-        self.prefix: str = data.get("prefix", slugify(self.name, sep="-")).strip()
+        prefix = data.get("prefix", slugify(self.name, sep="-"))
+        assert isinstance(prefix, str), "Dataset prefix must be a string"
+        self.prefix: str = prefix.strip()
         assert self.prefix == slugify(self.prefix, sep="-"), (
             "Dataset prefix is invalid: %s" % self.prefix
         )
@@ -79,7 +81,7 @@ class Dataset(NKDataset):
         )
         """
         List of assertions which should be considered warnings if they fail.
-        
+
         Configured as follows:
 
         ```yaml
