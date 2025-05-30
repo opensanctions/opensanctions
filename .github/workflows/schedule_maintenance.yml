@@ -25,10 +25,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install ruamel.yaml
-        # If there is any output (non-empty), set should_create_issue to true.
-        # Otherwise, set it to false.
-        # Then export the DATASETS variable to the GitHub Actions environment
-        # so it can be accessed later, when creating the issue.
       - name: Generate datasets list
         id: generate
         run: |
