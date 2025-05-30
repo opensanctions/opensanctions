@@ -64,16 +64,12 @@ def parse_xml_file(context: Context, path: Path) -> None:
 
 
 def get_full_dumps_index(context: Context):
-    query = {
-        "q": "file_type:FULINS",
-        "from": 0,
-        "size": 100,
-        "pretty": "true",
-    }
+    page = 0
+    size = 100
     total = None
     while True:
-        resp = context.http.get(context.data_url, params=query)
-        data = resp.json()
+        url = f"{context.data_url}?q=file_type:FULINS&from={page * size}&size={size}&pretty=true"
+        data = context.fetch_json(url)
         if total is None:
             total = data["hits"]["total"]
             context.log.info(f"Total FIRDS files to fetch: {total}")
@@ -81,10 +77,10 @@ def get_full_dumps_index(context: Context):
         if not hits:
             break
         for hit in hits:
-            result = hit["_source"]
-            yield result["file_name"], result["download_link"]
-        query["from"] += query["size"]
-        if query["from"] >= total:
+            src = hit["_source"]
+            yield src["file_name"], src["download_link"]
+        page += 1
+        if page * size >= total:
             break
 
 
