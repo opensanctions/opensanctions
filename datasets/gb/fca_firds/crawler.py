@@ -64,10 +64,28 @@ def parse_xml_file(context: Context, path: Path) -> None:
 
 
 def get_full_dumps_index(context: Context):
-    resp = context.fetch_json(context.data_url)
-    for hit in resp["hits"]["hits"]:
-        src = hit["_source"]
-        yield src["file_name"], src["download_link"]
+    query = {
+        "q": "file_type:FULINS",
+        "from": 0,
+        "size": 100,
+        "pretty": "true",
+    }
+    total = None
+    while True:
+        resp = context.http.get(context.data_url, params=query)
+        data = resp.json()
+        if total is None:
+            total = data["hits"]["total"]
+            context.log.info(f"Total FIRDS files to fetch: {total}")
+        hits = data["hits"]["hits"]
+        if not hits:
+            break
+        for hit in hits:
+            result = hit["_source"]
+            yield result["file_name"], result["download_link"]
+        query["from"] += query["size"]
+        if query["from"] >= total:
+            break
 
 
 def crawl(context: Context) -> None:

@@ -35,5 +35,5 @@ publisher:
   official: true
 url: https://data.fca.org.uk/#/download
 data:
-  url: https://api.data.fca.org.uk/fca_data_firds_files?q=file_type:FULINS&from=0&size=100&pretty=true
+  url: https://api.data.fca.org.uk/fca_data_firds_files
   format: JSON
