@@ -32,12 +32,6 @@ def load_yaml_file(yml_path: Path):
         return yaml.load(f)
 
 
-def save_yaml_file(data, yml_path: Path):
-    """Save YAML file using ruamel.yaml."""
-    with yml_path.open("w") as f:
-        yaml.dump(data, f)
-
-
 def is_due_for_manual_check(manual_check: dict) -> bool:
     """Check if manual check is due."""
     last_checked_str = manual_check.get("last_checked")
@@ -54,9 +48,20 @@ def is_due_for_manual_check(manual_check: dict) -> bool:
     return datetime.today() >= (last_checked + timedelta(days=interval_days))
 
 
-def update_last_checked(manual_check: dict):
-    """Update 'last_checked' to today."""
-    manual_check["last_checked"] = datetime.today().strftime("%Y-%m-%d")
+def patch_last_checked_line(path: Path):
+    today = datetime.today().strftime("%Y-%m-%d")
+    with path.open("r", encoding="utf-8") as f:
+        lines = f.readlines()
+    lines = [
+        (
+            f'  last_checked: "{today}"\n'
+            if line.lstrip().startswith("last_checked:") and line.startswith("  ")
+            else line
+        )
+        for line in lines
+    ]
+    with path.open("w", encoding="utf-8") as f:
+        f.writelines(lines)
 
 
 def process_datasets(root: Path) -> List[tuple]:
@@ -76,8 +81,7 @@ def process_datasets(root: Path) -> List[tuple]:
                 message = manual_check.get("message", "Dataset due for manual review.")
                 due.append((dataset_name, message))
 
-                update_last_checked(manual_check)
-                save_yaml_file(data, yml_path)
+            patch_last_checked_line(yml_path)
 
     return due
 
