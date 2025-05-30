@@ -1,0 +1,60 @@
+name: schedule_maintenance
+
+on:
+  schedule:
+    - cron: '0 9 1 * *'  # Every month on the first day at 09:00 UTC
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  create-issue:
+    name: Create an issue
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install ruamel.yaml
+      - name: Generate datasets list
+        id: generate
+        run: |
+          DATASETS=$(python contrib/schedule_maintenance.py)
+          # the heredoc (<<EOF) syntax is to set a multiline value as env var
+          echo "DATASETS<<EOF" >> $GITHUB_ENV
+          echo "$DATASETS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add datasets/*.yml datasets/*.yaml
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: update last_checked dates in the metadata files"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create an issue
+        if: ${{ env.DATASETS }}
+        uses: JasonEtco/create-an-issue@v2.9.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DATASETS: ${{ env.DATASETS }}
+        with:
+          update_existing: false
+          filename: .github/ISSUE_TEMPLATE/schedule_maintenance.md
