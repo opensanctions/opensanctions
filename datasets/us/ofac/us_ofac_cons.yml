@@ -63,7 +63,23 @@ assertions:
       Person: 160
       Company: 50
 
+# Consolidated List
+# SDN List
 lookups:
+  sanction.program:
+    options:
+      - match: CAPTA List
+        value: US-CAPTA
+      - match: FSE List
+        value: US-FSE
+      - match: Non-SDN CMIC List
+        value: US-NS-CMIC
+      - match: Non-SDN Menu-Based Sanctions List
+        value: US-NS-MBS
+      - match: Non-SDN Palestinian Legislative Council List
+        value: US-NS-PLC
+      - match: Sectoral Sanctions Identifications List
+        value: US-SSI
   type.address:
     lowercase: true
     options:
