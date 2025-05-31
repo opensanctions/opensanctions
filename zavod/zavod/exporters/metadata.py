@@ -4,6 +4,7 @@ from nomenklatura.versions import Version
 
 from zavod import settings
 from zavod.logs import get_logger
+from zavod.store import View
 from zavod.meta import Dataset, get_catalog
 from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE
 from zavod.archive import CATALOG_FILE, DELTA_INDEX_FILE, DELTA_EXPORT_FILE
