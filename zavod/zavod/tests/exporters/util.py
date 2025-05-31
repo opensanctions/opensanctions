@@ -1,5 +1,6 @@
 from zavod.context import Context
 from zavod.store import get_store
+from zavod.exporters.fragment import ViewFragment
 from zavod.integration import get_dataset_linker
 
 
@@ -12,11 +13,12 @@ def harnessed_export(exporter_class, dataset, linker=None) -> None:
     store.sync()
     view = store.view(dataset)
 
-    exporter = exporter_class(context, view)
+    exporter = exporter_class(context)
     exporter.setup()
     for entity in view.entities():
-        exporter.feed(entity)
-    exporter.finish()
+        fragment = ViewFragment(view, entity)
+        exporter.feed(entity, fragment)
+    exporter.finish(view)
 
     context.close()
     store.close()
