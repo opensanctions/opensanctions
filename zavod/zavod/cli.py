@@ -333,8 +333,8 @@ def merge(entity_ids: List[str], force: bool = False) -> None:
 @click.option("-c", "--clear", is_flag=True, default=False)
 def dedupe_edges(dataset_paths: List[Path], clear: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
+    resolver = get_resolver()
     try:
-        resolver = get_resolver()
         resolver.begin()
         store = get_store(dataset, resolver)
         store.sync(clear=clear)
