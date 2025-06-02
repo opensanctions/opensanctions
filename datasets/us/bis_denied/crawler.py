@@ -47,7 +47,15 @@ def parse_row(context: Context, row):
 
     context.emit(entity)
 
-    context.audit_data(row, ["counter", "standard_order"])
+    context.audit_data(
+        row,
+        [
+            "counter",
+            "standard_order",
+            "type_of_denial",
+            "name_and_address",
+        ],
+    )
 
 
 def crawl(context: Context):
