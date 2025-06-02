@@ -27,7 +27,7 @@ publisher:
     efforts and cooperation with the relevant bodies as well as the implementation
     of the articles of conventions and laws to combat terrorism.
 
-    The Committee is keen to coordinate efforts among all its members to implement 
+    The Committee is keen to coordinate efforts among all its members to implement
     the obligations contained in the resolutions of the UN Security Council and
     the United Nations resolutions relating to combating terrorism.
   url: https://portal.moi.gov.qa/wps/portal/NCTC/aboutCommittee/profile/
@@ -217,3 +217,11 @@ lookups:
           - 1958-03-05
           - 1960-03-18
           - 1958-12-08
+      - match: BETWEEN___1982_1987
+        values:
+          - 1982
+          - 1987
+      - match: BETWEEN___1987_1989
+        values:
+          - 1987
+          - 1989
