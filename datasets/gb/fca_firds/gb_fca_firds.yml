@@ -1,4 +1,4 @@
-title: "UK Financial Instruments Reference Data System (FIRDS)"
+title: UK Financial Instruments Reference Data System (FIRDS)
 entry_point: crawler.py
 prefix: gb-firds
 coverage:

@@ -1,0 +1,83 @@
+type: external
+title: UK Financial Instruments Reference Data System (FIRDS)
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: gb_fca_firds
+disabled: false
+hidden: false
+coverage:
+  frequency: weekly
+  start: 2025-06-02
+exports:
+  - statistics.json
+  - entities.delta.json
+deploy:
+  cpu: "1000m"
+  cpu_limit: "2000m"
+  memory: "5000Mi"
+  memory_limit: "6000Mi"
+  disk: "100Gi"
+  disk_limit: 100Gi
+load_statements: true
+ci_test: false
+summary: >-
+  List of financial instruments and their reference data, as published by the
+  Financial Conduct Authority (FCA) in the UK.
+description: |
+  This is a dataset of financial instruments and their reference data, as published
+  by the Financial Conduct Authority (FCA) in the UK. The data establishes
+  connections between financial instruments and their issuers, and includes
+  information such as the instrument's name, ISIN, and LEI.
+url: https://data.fca.org.uk/#/download
+publisher:
+  name: UK Financial Conduct Authority
+  acronym: FCA
+  description: |
+    The FCA is the conduct regulator for financial services firms and financial
+    markets in the UK. It publishes a number of databases and registers, including
+    the Financial Instruments Reference Data System (FIRDS).
+  url: https://data.fca.org.uk/#/homepage
+  country: gb
+  official: true
+
+inputs:
+  - ann_graph_topics
+  - debarment
+  - ext_cy_companies
+  - ext_cz_business_register
+  - ext_ee_ariregister
+  - ext_gb_coh_psc
+  - ext_gb_fca_firds
+  - ext_gleif
+  - ext_icij_offshoreleaks
+  - ext_lv_business_register
+  - ext_md_companies
+  - ext_ru_egrul
+  - ext_ua_edr
+  - opencorporates
+  - sanctions
+  - special_interest
+
+config:
+  limit: 100
+  max_bin: 14
+  index_options:
+    max_candidates: 200
+    match_batch: 300
+  dataset: gb_fca_firds
+  strip_namespace: true
+  threshold: 0.7
+  algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - debarment
+    - asset.frozen
+    - poi
+    - gov.soe
+  schemata:
+    - Company
+    - Organization
+    - LegalEntity
+    - Person
