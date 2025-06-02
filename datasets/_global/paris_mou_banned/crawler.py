@@ -7,7 +7,11 @@ from zavod import Context, helpers as h
 
 
 def clean(value: Optional[str]) -> Optional[str]:
-    return None if not value or "n/a" in value.lower() else value
+    if not isinstance(value, str):
+        return None
+    if any(bad in value.lower() for bad in ("n/a", "unknown")):
+        return None
+    return value
 
 
 def crawl_vessel(context: Context, item: Dict[str, Any]) -> None:
