@@ -1,6 +1,13 @@
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from zavod import Context, helpers as h
+
+# Full URL for the Paris MoU Banned Ships
+# https://portal.emsa.europa.eu/o/portlet-public/rest/ban/getBanShips.json?banSituationIds=VALIDATED&page=1&start=0&limit=200
+
+
+def clean(value: Optional[str]) -> Optional[str]:
+    return None if not value or "n/a" in value.lower() else value
 
 
 def crawl_vessel(context: Context, item: Dict[str, Any]) -> None:
@@ -16,18 +23,27 @@ def crawl_vessel(context: Context, item: Dict[str, Any]) -> None:
     vessel.add("country", flag.get("description"))
 
     ism = item.pop("ismCompany", {})
-    if ism:
+    name = clean(ism.get("name")) if ism else None
+    if ism and name:
         company = context.make("Company")
         company.id = context.make_slug("org", ism.get("id"))
         company.add("name", ism.get("name"))
         company.add("imoNumber", ism.get("imoNumber"))
         company.add("country", ism.get("countryCode"))
+        address = h.make_address(
+            context,
+            street=clean(ism.get("address")),
+            city=clean(ism.get("city")),
+            country=clean(ism.get("countryDescription")),
+        )
+        h.copy_address(company, address)
         context.emit(company)
         vessel.add("owner", company.id)
 
-    # ban_status = item.get("banOrderStatus", {}).get("description")
-    # if ban_status == "True":
-    #     vessel.add("status", "")
+    ban_status = item.get("banOrderStatus", {}).get("active")
+    if ban_status:
+        vessel.add("topics", "sanction")
+
     sanction = h.make_sanction(context, vessel)
     h.apply_date(sanction, "startDate", item.pop("banDate"))
     sanction.add("reason", item.get("banReason", {}).get("description"))
@@ -52,16 +68,19 @@ def crawl_vessel(context: Context, item: Dict[str, Any]) -> None:
 
 def crawl(context: Context) -> None:
     start = 0
-    limit = 100
-    page = 1
+    limit = 150
     total = None
 
     while True:
-        url = f"{context.data_url}?banSituationIds=VALIDATED&page={page}&start={start}&limit={limit}"
-        data = context.fetch_json(url)
+        url = (
+            f"{context.data_url}?banSituationIds=VALIDATED&start={start}&limit={limit}"
+        )
+        data = context.fetch_json(url, cache_days=1)
 
         if total is None:
             total = data.get("total")
+            if not total:
+                context.log.warning("No total count found in response.")
             context.log.info(f"Total banned ships to fetch: {total}")
 
         results = data.get("results", [])

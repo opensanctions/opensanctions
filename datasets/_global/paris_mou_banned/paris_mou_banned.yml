@@ -1,4 +1,4 @@
-title: Paris MoU Ban List
+title: Paris MoU Banned List
 entry_point: crawler.py
 prefix: mou-ban-list
 coverage:
@@ -6,7 +6,7 @@ coverage:
   start: "2025-05-30"
 load_statements: true
 summary: >
-  This list contains all ships that are currently banned from the Paris MoU region.
+  All ships that are currently banned from the Paris MoU region.
 description: |
   The Paris MoU Ban List includes all ships that are currently banned from the
   Paris MoU region. A ship may be banned for various reasons, including safety
@@ -28,7 +28,6 @@ tags:
 url: https://parismou.org/Inspection-Database/current-bannings
 data:
   url: https://portal.emsa.europa.eu/o/portlet-public/rest/ban/getBanShips.json
-  # https://portal.emsa.europa.eu/o/portlet-public/rest/ban/getBanShips.json?banSituationIds=VALIDATED&page=1&start=0&limit=200
   format: JSON
   lang: eng
 dates:
@@ -37,7 +36,17 @@ dates:
 assertions:
   min:
     schema_entities:
-      Organization: 80
+      Company: 100
+      Vessel: 100
   max:
     schema_entities:
-      Organization: 200
+      Company: 300
+      Vessel: 300
+
+lookups:
+  type.country:
+    options:
+      - match: 
+          - REGISTER_WITHDRAWN
+          - Register Withdrawn
+        value: null
