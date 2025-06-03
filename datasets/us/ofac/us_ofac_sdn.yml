@@ -71,11 +71,11 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match: 
+      - match:
           - BALKANS
           - BALKANS-EO14033
         value: US-BALKANS
-      - match: 
+      - match:
           - BELARUS
           - BELARUS-EO14038
         value: US-BRUS
@@ -83,18 +83,20 @@ lookups:
         value: US-CAR
       - match: CUBA
         value: US-CUBA
-      - match: 
+      - match:
           - ILLICIT-DRUGS-EO14059
           - SDNT
           - SDNTK
         value: US-NARCO
-      - match: CYBER2
+      - match:
+          - CYBER2
+          - CYBER3
         value: US-CYB
       - match: DRCONGO
         value: US-DRC
       - match: ETHIOPIA-EO14046
         value: US-ETHIOPIA
-      - match: 
+      - match:
           - GLOMAG
           - UHRPA
         value: US-GLOMAG
@@ -102,20 +104,20 @@ lookups:
         value: US-MAGNITSKY
       - match: MALI-EO13882
         value: US-MALI
-      - match: 
+      - match:
           - NICARAGUA
           - NICARAGUA-NHRAA
         value: US-NICARAGUA
       - match: NPWMD
         value: US-NON-PROLIF
-      - match: 
+      - match:
           - DPRK
           - DPRK2
           - DPRK3
           - DPRK4
           - DPRK-NKSPEA
         value: US-NK
-      - match: 
+      - match:
           - RUSSIA-EO14024
           - PEESA-EO14039
         value: US-RUSHAR
@@ -123,14 +125,14 @@ lookups:
         value: US-SOMALIA
       - match: SOUTH SUDAN
         value: US-SOUTH-SUDAN
-      - match: 
+      - match:
           - DARFUR
           - BPI-Sudan-14098
           - SUDAN-EO14098
         value: US-DARFUR
       - match: SYRIA-EO13894
         value: US-SYR-REL
-      - match: 
+      - match:
           - HRIT-SY
           - SYRIA
           - SYRIA-CAESAR
@@ -150,7 +152,7 @@ lookups:
           - RUSSIA-EO14065
           - SSIDES
         value: US-UKRRUS-REL
-      - match: 
+      - match:
           - LIBYA2
           - LIBYA3
         value: US-LIBYA
@@ -184,7 +186,7 @@ lookups:
         value: US-HOSTAGE
       - match: HK-EO13936
         value: US-HONGKONG
-      - match:  
+      - match:
           - FTO
           - HIFPAA
           - SDGT
