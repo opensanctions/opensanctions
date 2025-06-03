@@ -14,7 +14,7 @@ from followthemoney.types import registry
 from rigour.ids.wikidata import is_qid
 
 from zavod.entity import Entity
-from zavod.exporters.common import Exporter, ExportView
+from zavod.exporters.common import Exporter
 from zavod.runtime.urls import make_entity_url
 from zavod.util import write_json
 
@@ -76,7 +76,7 @@ class SenzingExporter(Exporter):
         if self.dataset.is_collection and self.dataset.name != "openownership":
             self.source_name = self.domain_name
 
-    def feed(self, entity: Entity, view: ExportView) -> None:
+    def feed(self, entity: Entity) -> None:
         if not entity.schema.matchable:
             return None
 
@@ -161,7 +161,7 @@ class SenzingExporter(Exporter):
         map(entity, "dunsCode", record, "IDENTIFIERS", "DUNS_NUMBER")
         map(entity, "sourceUrl", record, "SOURCE_LINKS", "SOURCE_URL")
 
-        for _, adj in view.get_adjacent(entity):
+        for _, adj in self.view.get_adjacent(entity):
             if adj.schema.name == "Address":
                 adj_data = {"ADDR_FULL": adj.first("full")}
                 push(record, "ADDRESSES", clean(adj_data))
@@ -268,6 +268,6 @@ class SenzingExporter(Exporter):
         # pprint(record)
         write_json(record, self.fh)
 
-    def finish(self, view: ExportView) -> None:
+    def finish(self) -> None:
         self.fh.close()
-        super().finish(view)
+        super().finish()

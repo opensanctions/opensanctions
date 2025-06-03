@@ -6,7 +6,7 @@ from followthemoney.util import join_text
 
 from zavod.entity import Entity
 from zavod.meta import get_catalog
-from zavod.exporters.common import Exporter, ExportView
+from zavod.exporters.common import Exporter
 
 
 class SimpleCSVExporter(Exporter):
@@ -61,7 +61,7 @@ class SimpleCSVExporter(Exporter):
         self.writer = csv.writer(self.fh, dialect=csv.unix_dialect)
         self.writer.writerow(self.HEADERS)
 
-    def feed(self, entity: Entity, view: ExportView) -> None:
+    def feed(self, entity: Entity) -> None:
         if not entity.target:
             return
         countries = set(entity.get_type_values(registry.country))
@@ -71,7 +71,7 @@ class SimpleCSVExporter(Exporter):
         sanctions = set()
         addresses = set(entity.get("address"))
 
-        for _, adjacent in view.get_adjacent(entity):
+        for _, adjacent in self.view.get_adjacent(entity):
             if adjacent.schema.is_a("Sanction"):
                 sanctions.add(self.sanction_text(adjacent))
 
@@ -105,6 +105,6 @@ class SimpleCSVExporter(Exporter):
         ]
         self.writer.writerow(row)
 
-    def finish(self, view: ExportView) -> None:
+    def finish(self) -> None:
         self.fh.close()
-        super().finish(view)
+        super().finish()

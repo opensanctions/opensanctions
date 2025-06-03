@@ -32,13 +32,12 @@ class Dataset(NKDataset):
                 dataset=self.name,
                 summary=self.summary,
             )
-        prefix_: Optional[str] = data.get("prefix", slugify(self.name, sep="-"))
-        assert prefix_ is not None, "Dataset prefix cannot be None"
-        assert prefix_ == slugify(prefix_, sep="-"), (
-            "Dataset prefix is invalid: %s" % prefix_
+        prefix = data.get("prefix", slugify(self.name, sep="-"))
+        assert isinstance(prefix, str), "Dataset prefix must be a string"
+        self.prefix: str = prefix.strip()
+        assert self.prefix == slugify(self.prefix, sep="-"), (
+            "Dataset prefix is invalid: %s" % self.prefix
         )
-        self.prefix = prefix_.strip()
-
         if self.updated_at is None:
             self.updated_at = datetime_iso(settings.RUN_TIME)
         self.hidden: bool = as_bool(data.get("hidden", False))

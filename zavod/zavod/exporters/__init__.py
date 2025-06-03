@@ -15,7 +15,6 @@ from zavod.exporters.securities import SecuritiesExporter
 from zavod.exporters.statements import StatementsCSVExporter
 from zavod.exporters.maritime import MaritimeExporter
 from zavod.exporters.delta import DeltaExporter
-from zavod.exporters.fragment import ViewFragment
 from zavod.exporters.metadata import write_dataset_index, write_issues
 from zavod.exporters.metadata import write_catalog, write_delta_index
 
@@ -57,7 +56,7 @@ def export_data(context: Context, view: View) -> None:
         if clazz is None:
             log.error(f"No exporter found for target: {name}")
             continue
-        exporters.append(clazz(context))
+        exporters.append(clazz(context, view))
 
     log.info(
         "Exporting dataset...",
@@ -68,20 +67,19 @@ def export_data(context: Context, view: View) -> None:
         exporter.setup()
 
     for idx, entity in enumerate(view.entities()):
-        fragment = ViewFragment(view, entity)
         if idx > 0 and idx % 10000 == 0:
             log.info("Exported %s entities..." % idx, dataset=context.dataset.name)
         for exporter in exporters:
-            exporter.feed(entity, fragment)
+            exporter.feed(entity)
 
     for exporter in exporters:
-        exporter.finish(view)
+        exporter.finish()
 
 
 def export_dataset(dataset: Dataset, view: View) -> None:
     """Dump the contents of the dataset to the output directory."""
-    context = Context(dataset)
     try:
+        context = Context(dataset)
         context.begin(clear=False)
         export_data(context, view)
 

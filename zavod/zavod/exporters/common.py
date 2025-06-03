@@ -1,10 +1,6 @@
-from nomenklatura.store import View
-
-from zavod.meta import Dataset
 from zavod.entity import Entity
+from zavod.store import View
 from zavod.context import Context
-
-ExportView = View[Dataset, Entity]
 
 
 class Exporter(object):
@@ -14,19 +10,20 @@ class Exporter(object):
     TITLE = ""
     MIME_TYPE = "text/plain"
 
-    def __init__(self, context: Context):
+    def __init__(self, context: Context, view: View):
         self.context = context
         self.dataset = context.dataset
         self.resource_name = f"{self.FILE_NAME}"
         self.path = context.get_resource_path(self.resource_name)
+        self.view = view
 
     def setup(self) -> None:
         pass
 
-    def feed(self, entity: Entity, view: ExportView) -> None:
+    def feed(self, entity: Entity) -> None:
         raise NotImplementedError()
 
-    def finish(self, view: ExportView) -> None:
+    def finish(self) -> None:
         try:
             resource = self.context.export_resource(
                 self.path,

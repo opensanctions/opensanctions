@@ -1,4 +1,4 @@
-from zavod.exporters.common import Exporter, ExportView
+from zavod.exporters.common import Exporter
 from zavod.util import write_json
 from zavod.entity import Entity
 
@@ -12,11 +12,11 @@ class NestedTargetsJSONExporter(Exporter):
         super().setup()
         self.fh = open(self.path, "wb")
 
-    def feed(self, entity: Entity, view: ExportView) -> None:
+    def feed(self, entity: Entity) -> None:
         if entity.target:
-            data = entity.to_nested_dict(view)
+            data = entity.to_nested_dict(self.view)
             write_json(data, self.fh)
 
-    def finish(self, view: ExportView) -> None:
+    def finish(self) -> None:
         self.fh.close()
-        super().finish(view)
+        super().finish()

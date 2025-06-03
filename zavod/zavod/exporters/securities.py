@@ -7,7 +7,7 @@ from rigour.boolean import bool_text
 from zavod.entity import Entity
 from zavod.logs import get_logger
 from zavod.runtime.urls import make_entity_url
-from zavod.exporters.common import Exporter, ExportView
+from zavod.exporters.common import Exporter
 
 COLUMNS = [
     "caption",
@@ -61,10 +61,10 @@ class SecuritiesExporter(Exporter):
         self._count_isins = 0
         self._count_leis = 0
 
-    def _get_isins(self, entity: Entity, view: ExportView) -> Set[str]:
+    def _get_isins(self, entity: Entity) -> Set[str]:
         # TODO: normalize ISINs
         isins = set(entity.get("isinCode", quiet=True))
-        for _, adjacent in view.get_adjacent(entity):
+        for _, adjacent in self.view.get_adjacent(entity):
             if adjacent.schema.is_a("Security"):
                 isins.update(adjacent.get("isin"))
         return isins
@@ -77,7 +77,7 @@ class SecuritiesExporter(Exporter):
                 names.add(name_)
         return names
 
-    def feed(self, entity: Entity, view: ExportView) -> None:
+    def feed(self, entity: Entity) -> None:
         if not entity.schema.is_a("Organization"):
             return
         topics = entity.get("topics", quiet=True)
@@ -90,7 +90,7 @@ class SecuritiesExporter(Exporter):
         self._count_entities += 1
         leis = entity.get("leiCode", quiet=True)
         self._count_leis += len(leis)
-        isins = self._get_isins(entity, view)
+        isins = self._get_isins(entity)
         self._count_isins += len(isins)
         key_datasets = set(entity.datasets).difference(CONTEXT_DATASETS)
         row = [
@@ -112,9 +112,9 @@ class SecuritiesExporter(Exporter):
         ]
         self.csv.writerow(row)
 
-    def finish(self, view: ExportView) -> None:
+    def finish(self) -> None:
         self.fh.close()
-        super().finish(view)
+        super().finish()
         log.info(
             "Exported securities",
             entities=self._count_entities,
