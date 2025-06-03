@@ -2,7 +2,7 @@ from normality.encoding import DEFAULT_ENCODING
 from nomenklatura.statement.serialize import CSVStatementWriter
 
 from zavod.entity import Entity
-from zavod.exporters.common import Exporter
+from zavod.exporters.common import Exporter, ExportView
 
 
 class StatementsCSVExporter(Exporter):
@@ -15,10 +15,10 @@ class StatementsCSVExporter(Exporter):
         self.fh = open(self.path, "w", encoding=DEFAULT_ENCODING)
         self.writer = CSVStatementWriter(self.fh)
 
-    def feed(self, entity: Entity) -> None:
+    def feed(self, entity: Entity, view: ExportView) -> None:
         for stmt in entity.statements:
             self.writer.write(stmt)
 
-    def finish(self) -> None:
+    def finish(self, view: ExportView) -> None:
         self.writer.close()
-        super().finish()
+        super().finish(view)

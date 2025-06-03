@@ -1,11 +1,11 @@
 from collections import defaultdict, namedtuple
 from typing import Dict, List, Any, Optional, Set
-
 from followthemoney import model
 from followthemoney.types import registry
-from zavod.archive import STATISTICS_FILE
+
 from zavod.entity import Entity
-from zavod.exporters.common import Exporter
+from zavod.archive import STATISTICS_FILE
+from zavod.exporters.common import Exporter, ExportView
 from zavod.util import write_json
 
 
@@ -151,10 +151,10 @@ class StatisticsExporter(Exporter):
         super().setup()
         self.stats = Statistics()
 
-    def feed(self, entity: Entity) -> None:
+    def feed(self, entity: Entity, view: ExportView) -> None:
         self.stats.observe(entity)
 
-    def finish(self) -> None:
+    def finish(self, view: ExportView) -> None:
         with open(self.path, "wb") as fh:
             write_json(self.stats.as_dict(), fh)
-        super().finish()
+        super().finish(view)
