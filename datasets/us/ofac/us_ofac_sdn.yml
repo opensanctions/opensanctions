@@ -67,14 +67,7 @@ assertions:
       Company: 100
       Security: 100
       LegalEntity: 100
-
-# To be mapped (based on https://ofac.treasury.gov/specially-designated-nationals-list-sdn-list/program-tag-definitions-for-ofac-sanctions-lists)
-
-# CAATSA - IRAN
-# CAATSA - RUSSIA
-# Unknown
-# WEST-BANK-EO14115
-
+# Program tags URL: https://ofac.treasury.gov/specially-designated-nationals-list-sdn-list/program-tag-definitions-for-ofac-sanctions-lists
 lookups:
   sanction.program:
     options:
@@ -200,6 +193,10 @@ lookups:
         value: US-NON-PROLIF
       - match: TCO
         value: US-TCO
+      - match:
+          - CAATSA - IRAN
+          - CAATSA - RUSSIA
+        value: US-CAATSA
       - match:
           - Non-SDN Palestinian Legislative Council List
           - CAPTA List
