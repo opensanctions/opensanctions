@@ -1,0 +1,38 @@
+title: Philippines Anti-Money Laundering Council Sanctions
+entry_point: crawler.py
+prefix: ph-amlc
+coverage:
+  frequency: never
+  start: "2025-06-02"
+deploy:
+  schedule: "@weekly"
+load_statements: true
+summary: >
+  Individuals and entities sanctioned by the Philippines Anti-Money Laundering Council.
+description: |
+  This dataset contains designations of individuals, groups, and organizations sanctioned by the 
+  Philippines Anti-Money Laundering Council (AMLC) pursuant to Republic Act No. 10168 (Terrorism 
+  Financing Prevention and Suppression Act of 2012) and related legislation. These sanctions are 
+  issued through AMLC resolutions implementing [Anti-Terrorism Council (ATC) designations](https://dfa.gov.ph/search?searchword=Anti-Terrorism%20Council&searchphrase=all).
+publisher:
+  name: Republic of the Philippines Anti-Money Laundering Council
+  acronym: AMLC
+  country: ph
+  description: |
+    The Anti-Money Laundering Council (AMLC) is the Philippines’ financial intelligence unit and 
+    primary agency responsible for implementing laws and policies to detect, investigate, and 
+    prevent money laundering and terrorism financing.
+  url: http://www.amlc.gov.ph
+  official: true
+url: http://www.amlc.gov.ph/laws/terrorism-financing/resolution-related-to-terrorism-financing
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSx2vPQN4-ngJcicYOHesRnRDU6qm8fRGwQuuFGWszngpqEUQUtMJZDUr8ohjb8-f_i3F_ku3grsdkW/pub?output=csv
+  format: csv
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 120
+  max:
+    schema_entities:
+      LegalEntity: 200
