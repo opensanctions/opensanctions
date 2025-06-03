@@ -2,8 +2,6 @@ type: external
 title: UK Financial Instruments Reference Data System (FIRDS)
 entry_point: zavod.runner.local_enricher:enrich
 full_dataset: gb_fca_firds
-disabled: false
-hidden: false
 coverage:
   frequency: weekly
   start: 2025-06-02
@@ -38,31 +36,24 @@ publisher:
   url: https://data.fca.org.uk/#/homepage
   country: gb
   official: true
+data:
+  url: https://api.data.fca.org.uk/fca_data_firds_files
+  format: JSON
 
 inputs:
   - ann_graph_topics
-  - debarment
-  - ext_cy_companies
-  - ext_cz_business_register
-  - ext_ee_ariregister
-  - ext_gb_coh_psc
-  - ext_gb_fca_firds
   - ext_gleif
-  - ext_icij_offshoreleaks
-  - ext_lv_business_register
-  - ext_md_companies
-  - ext_ru_egrul
-  - ext_ua_edr
-  - opencorporates
+  - ext_us_irs_ffi
+  - ext_eu_esma_firds
+  - ext_gb_coh_psc
   - sanctions
+  - securities
+  - regulatory
   - special_interest
 
 config:
   limit: 100
   max_bin: 14
-  index_options:
-    max_candidates: 200
-    match_batch: 300
   dataset: gb_fca_firds
   strip_namespace: true
   threshold: 0.7
@@ -72,6 +63,7 @@ config:
     - role.rca
     - sanction
     - sanction.linked
+    - sanction.counter
     - debarment
     - asset.frozen
     - poi
@@ -80,4 +72,3 @@ config:
     - Company
     - Organization
     - LegalEntity
-    - Person
