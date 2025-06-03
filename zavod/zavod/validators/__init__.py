@@ -74,8 +74,8 @@ def validate_dataset(dataset: Dataset, view: View) -> None:
 
     Returns True if publication should be aborted.
     """
+    context = Context(dataset)
     try:
-        context = Context(dataset)
         context.begin(clear=False)
         context.log.info(
             "Validating dataset",
