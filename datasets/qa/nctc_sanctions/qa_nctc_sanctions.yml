@@ -46,6 +46,7 @@ dates:
     - APPROXIMATELY_%d/%m/%Y___
     - EXACT_%Y-%m-%d_X_X_X
     - EXACT_%Y___
+    - EXACT__%Y__
     - EXACT_%d/%m/%Y___
     - EXACT_%d-%m-%Y___
     - _%d/%m/%Y___
@@ -217,10 +218,26 @@ lookups:
           - 1958-03-05
           - 1960-03-18
           - 1958-12-08
+      - match: BETWEEN___1954_1955
+        values:
+          - 1954
+          - 1955
+      - match: BETWEEN___1975_1980
+        values:
+          - 1975
+          - 1980
+      - match: BETWEEN___1981_1982
+        values:
+          - 1981
+          - 1982
       - match: BETWEEN___1982_1987
         values:
           - 1982
           - 1987
+      - match: BETWEEN___1983_1984
+        values:
+          - 1983
+          - 1984
       - match: BETWEEN___1987_1989
         values:
           - 1987
