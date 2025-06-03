@@ -52,10 +52,13 @@ def extract_listing_date(decision_number: str) -> Optional[str]:
 
 
 def crawl_row(row: dict, context: Context):
+    row.pop("id", None)
+    # Skip empty rows
+    if not any(row.values()):
+        return
     raw_entity_name = row.pop("entity_name", None)
     decision_number = row.pop("decision_no")
     entity_name = clean_entity_name(raw_entity_name)
-    listing_date = extract_listing_date(decision_number)
 
     if entity_name:
         entity = context.make("LegalEntity")
@@ -96,6 +99,7 @@ def crawl_row(row: dict, context: Context):
 
     sanction = h.make_sanction(context, entity)
     sanction.add("recordId", decision_number)
+    listing_date = extract_listing_date(decision_number)
     h.apply_date(sanction, "listingDate", listing_date)
 
     context.emit(entity)
@@ -111,6 +115,7 @@ def process_xlsx(
     title: str,
     ignore_sheets: list = [],
 ):
+    context.log.info(f"Processing {filename} from {url}")
     excel_link_xpath = (
         '//article[contains(@id, "post-")]//a[contains(@href, "xlsx")]/@href'
     )
@@ -128,6 +133,7 @@ def process_xlsx(
     wb = load_workbook(path, read_only=True)
     processed_sheets = set()
     for sheet in wb.sheetnames:
+        context.log.info(f"Processing sheet: {sheet}")
         if sheet in ignore_sheets:
             continue
         for row in h.parse_xlsx_sheet(

@@ -29,6 +29,7 @@ COLUMNS = [
 SANCTIONED = "sanction"
 PUBLIC = "corp.public"
 EO_14071 = "ru_nsd_isin"
+NBIM = "no_nbim_exclusions"
 CONTEXT_DATASETS = set(["ru_nsd_isin", "permid", "openfigi", "research", "ext_gleif"])
 
 log = get_logger(__name__)
@@ -83,7 +84,8 @@ class SecuritiesExporter(Exporter):
         is_sanctioned = SANCTIONED in topics
         is_public = PUBLIC in topics
         is_eo_14071 = EO_14071 in entity.datasets
-        if not is_sanctioned and not is_eo_14071:
+        is_nbim = NBIM in entity.datasets
+        if not is_sanctioned and not is_eo_14071 and not is_nbim:
             return
         self._count_entities += 1
         leis = entity.get("leiCode", quiet=True)

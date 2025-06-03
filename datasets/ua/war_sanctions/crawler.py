@@ -264,7 +264,7 @@ def crawl_vessel(context: Context, link, program):
     vessel.add("notes", data.pop("Category"))
     for pr_name in h.multi_split(data.pop("Former ship names"), [" / "]):
         vessel.add("previousName", pr_name)
-    for past_flag in h.multi_split(data.pop("Flags (former)"), [" /"]):
+    for past_flag in h.multi_split(data.pop("Flags (former)"), ["/"]):
         vessel.add("pastFlags", past_flag)
     vessel.add("topics", "poi")
     vessel.add("sourceUrl", link)

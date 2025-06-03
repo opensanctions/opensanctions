@@ -82,7 +82,7 @@ class Dataset(NKDataset):
         )
         """
         List of assertions which should be considered warnings if they fail.
-        
+
         Configured as follows:
 
         ```yaml
