@@ -7,14 +7,13 @@ on:
   # schedule:
   #   - cron: '0 9 1 * *'  # Every month on the first day at 09:00 UTC
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   create-pr:
     name: Create a PR
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
