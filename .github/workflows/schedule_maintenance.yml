@@ -38,10 +38,15 @@ jobs:
           echo "$DATASETS" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Commit changes
+          - name: Configure Git
+          run: |
+            git config --global user.name 'github-actions[bot]'
+            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+  
+      - name: Create commit and PR if needed
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          BRANCH_NAME="auto/update-dataset-metadata"
+          git checkout -b $BRANCH_NAME
 
           git add datasets/*.yml
 
@@ -51,16 +56,20 @@ jobs:
           fi
 
           git commit -m "chore: update last_checked dates in the metadata files"
-          git push origin auto/update-dataset-metadata
+          git push origin $BRANCH_NAME
 
-          # Create the PR
           gh pr create \
             --title "[Auto] Update dataset metadata" \
-            --body "This PR updates the last_checked fields in the dataset metadata files." \
-            --head auto/update-dataset-metadata \
+            --body "${DATASETS:-This PR updates the last_checked fields in the dataset metadata files.}" \
+            --head $BRANCH_NAME \
             --base main \
             --label "automated pr,report" \
             --reviewer nvmbrasserie \
             --assignee nvmbrasserie
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+      # - name: Install GitHub CLI (if not available)
+      #   run: |
+      #     sudo apt update
+      #     sudo apt install gh -y
