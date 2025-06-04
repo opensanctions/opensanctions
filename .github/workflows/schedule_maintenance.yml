@@ -38,10 +38,10 @@ jobs:
           echo "$DATASETS" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-          - name: Configure Git
-          run: |
-            git config --global user.name 'github-actions[bot]'
-            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
   
       - name: Create commit and PR if needed
         run: |
