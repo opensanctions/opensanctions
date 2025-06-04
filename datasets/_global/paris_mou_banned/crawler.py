@@ -1,3 +1,4 @@
+from normality import stringify
 from typing import Dict, Any, Optional
 
 from zavod import Context, helpers as h
@@ -7,11 +8,10 @@ from zavod import Context, helpers as h
 
 
 def clean(value: Optional[str]) -> Optional[str]:
-    if not isinstance(value, str):
+    value_str = stringify(value)
+    if value_str and value_str.lower() in ("n/a", "unknown", "any"):
         return None
-    if any(bad in value.lower() for bad in ("n/a", "unknown")):
-        return None
-    return value
+    return value_str
 
 
 def crawl_vessel(context: Context, item: Dict[str, Any]) -> None:
@@ -54,6 +54,7 @@ def crawl_vessel(context: Context, item: Dict[str, Any]) -> None:
 
     authority = item.get("banningAuthority", {})
     sanction.add("authority", authority.get("description"))
+    sanction.add("duration", clean(item.get("minimumDuration", {}).get("message")))
 
     context.emit(vessel)
     context.emit(sanction)

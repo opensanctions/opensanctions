@@ -1,8 +1,8 @@
 title: Paris MoU Banned List
 entry_point: crawler.py
-prefix: mou-ban-list
+prefix: par-mou
 coverage:
-  frequency: weekly
+  frequency: daily
   start: "2025-05-30"
 load_statements: true
 summary: >
