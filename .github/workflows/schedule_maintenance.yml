@@ -44,6 +44,8 @@ jobs:
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
   
       - name: Create commit and PR if needed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH_NAME="auto/update-dataset-metadata"
           git checkout -b $BRANCH_NAME
@@ -66,8 +68,6 @@ jobs:
             --label "automated pr,report" \
             --reviewer nvmbrasserie \
             --assignee nvmbrasserie
-          env:
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
       # - name: Install GitHub CLI (if not available)
       #   run: |
