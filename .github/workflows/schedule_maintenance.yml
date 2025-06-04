@@ -1,10 +1,6 @@
 name: schedule_maintenance
 
 on:
-  push:
-    branches:
-      - github-action-datasets-check
-      - main
   schedule:
     - cron: '0 9 1 * *'  # Every month on the first day at 09:00 UTC
 
@@ -24,10 +20,6 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-
-      - name: Install dependencies
-        run: |
-          pip install ruamel.yaml
 
       - name: Generate datasets list
         id: generate
@@ -50,7 +42,7 @@ jobs:
           BRANCH_NAME="auto/update-dataset-metadata-$(date +%Y%m%d%H%M%S)"
           git checkout -b $BRANCH_NAME
 
-          git add datasets/*.yml
+          git add datasets/\*.yml
 
           if git diff --cached --quiet; then
             echo "No changes to commit. Skipping PR."
