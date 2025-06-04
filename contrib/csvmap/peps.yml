@@ -1,9 +1,44 @@
-dataset: default
+url: "https://data.opensanctions.org/datasets/latest/peps/targets.nested.json"
 filters:
   topics:
     - role.pep
     - role.rca
+  schemata:
+    - Person
 
 columns:
   id:
     path: id
+  name:
+    path: caption
+  alias:
+    path: properties.name[*] || properties.alias[*] | [?caption != null && !contains(caption, @)]
+    multi: row
+  first_name:
+    path: properties.firstName[*]
+    multi: row
+  middle_name:
+    path: properties.middleName[*] || properties.secondName[*]
+    multi: row
+  patronymic:
+    path: properties.fatherName[*] || properties.motherName[*]
+  last_name:
+    path: properties.lastName[*]
+    multi: row
+  birth_date:
+    path: properties.birthDate[*]
+    multi: row
+  birth_place:
+    path: properties.birthPlace[*]
+    multi: row
+  country:
+    path: properties.nationality[*] || properties.citizenship[*] || properties.country[*] || properties.birthCountry[*]
+    multi: row
+    unique: true
+  gender:
+    path: properties.gender[*]
+    multi: row
+  sources:
+    path: datasets
+    multi: join
+    join: "; "
