@@ -1,16 +1,19 @@
 name: schedule_maintenance
 
 on:
-  schedule:
-    - cron: '0 9 1 * *'  # Every month on the first day at 09:00 UTC
+  push:
+    branches:
+      - main
+  # schedule:
+  #   - cron: '0 9 1 * *'  # Every month on the first day at 09:00 UTC
 
 permissions:
-  contents: write
-  issues: write
+  contents: read
+  pull-requests: write
 
 jobs:
-  create-issue:
-    name: Create an issue
+  create-pr:
+    name: Create a PR
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -25,6 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install ruamel.yaml
+
       - name: Generate datasets list
         id: generate
         run: |
@@ -34,27 +38,29 @@ jobs:
           echo "$DATASETS" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Commit and push changes
+      - name: Commit changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add datasets/*.yml datasets/*.yaml
+
+          git add datasets/*.yml
 
           if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "chore: update last_checked dates in the metadata files"
-            git push
+            echo "No changes to commit. Skipping PR."
+            exit 0
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create an issue
-        if: ${{ env.DATASETS }}
-        uses: JasonEtco/create-an-issue@v2.9.1
+          git commit -m "chore: update last_checked dates in the metadata files"
+          git push origin auto/update-dataset-metadata
+
+          # Create the PR
+          gh pr create \
+            --title "[Auto] Update dataset metadata" \
+            --body "This PR updates the last_checked fields in the dataset metadata files." \
+            --head auto/update-dataset-metadata \
+            --base main \
+            --label "automated pr,report" \
+            --reviewer nvmbrasserie \
+            --assignee nvmbrasserie
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DATASETS: ${{ env.DATASETS }}
-        with:
-          update_existing: false
-          filename: .github/ISSUE_TEMPLATE/schedule_maintenance.md
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
