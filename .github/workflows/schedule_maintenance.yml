@@ -61,7 +61,7 @@ jobs:
           git push origin $BRANCH_NAME
 
           gh pr create \
-            --title "[Auto] Update dataset metadata" \
+            --title "[Auto] Update manually-checked sources" \
             --body "${DATASETS:-This PR updates the last_checked fields in the dataset metadata files.}" \
             --head $BRANCH_NAME \
             --base main \
