@@ -1,0 +1,30 @@
+title: Tokyo MoU Detention List
+entry_point: crawler.py
+prefix: mou-det
+coverage:
+  frequency: weekly
+  start: "2025-06-04"
+load_statements: true
+summary: >
+  Ships detained by Port State Control (PSC) authorities within the Tokyo MOU region.
+description: |
+  The Tokyo MoU Detention List provides information on ships that have been detained
+  by Port State Control (PSC) authorities in the Asia-Pacific region. The list includes
+  details such as the ship's name, IMO number, flag, detention date, and reason for detention.
+publisher:
+  name: Tokyo Memorandum of Understanding
+  acronym: Tokyo MoU
+  description: |
+    The Tokyo MoU on Port State Control is an agreement among Asia-Pacific
+    countries to ensure that ships comply with international safety, environmental,
+    and labor standards.
+  url: https://www.tokyo-mou.org
+  official: true
+  country: "zz"
+tags:
+  - sector.maritime
+url: https://www.tokyo-mou.org/inspections-detentions/detention-list/
+data:
+  url: https://apcis.tmou.org/isss/public_apcis.php?Mode=DetList
+  format: HTML
+  lang: eng
