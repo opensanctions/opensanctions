@@ -3,7 +3,7 @@ name: schedule_maintenance
 on:
   push:
     branches:
-      - main
+      - github-action-datasets-check
   # schedule:
   #   - cron: '0 9 1 * *'  # Every month on the first day at 09:00 UTC
 
