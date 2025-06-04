@@ -47,7 +47,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          BRANCH_NAME="auto/update-dataset-metadata"
+          BRANCH_NAME="auto/update-dataset-metadata-$(date +%Y%m%d%H%M%S)"
           git checkout -b $BRANCH_NAME
 
           git add datasets/*.yml
