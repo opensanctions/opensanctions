@@ -65,7 +65,6 @@ jobs:
             --body "${DATASETS:-This PR updates the last_checked fields in the dataset metadata files.}" \
             --head $BRANCH_NAME \
             --base main \
-            --label "automated pr,report" \
             --reviewer nvmbrasserie \
             --assignee nvmbrasserie
   
