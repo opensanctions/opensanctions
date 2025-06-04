@@ -153,7 +153,7 @@ lookups:
           name-provider-gifted-behavioral-health-llc-npi-1659944817-action-type-suspend-terminate-suspend-effective-date-11-3-2023
           name-provider-blume-support-group-llc-na-starr-innovations-npi-1023723475-n1619541091-action-type-suspend-terminate-suspend-effective-date-11-3-2023-n10-13-2023
           name-provider-none-npi-none-action-type-suspend-terminate-suspend-effective-date-none
-          name-provider-beyond-blue-npi-1205415957-action-type-suspend-terminate-suspend-effective-date-10-13-2023
+          name-provider-dreams-2-reality-npi-1164170635-action-type-suspend-terminate-suspend-effective-date-10-13-2023
         rows:
           - name_provider: 'Gifted Behavioral Health, LLC'
             npi: '1659944817'
@@ -167,7 +167,7 @@ lookups:
             npi: '1619541091'
             action_type_suspend_terminate: 'Suspend'
             effective_date: '10/13/2023'
-          - name_provider: 'Beyond Blue'
-            npi: '1205415957'
+          - name_provider: 'Dreams 2 Reality'
+            npi: '1164170635'
             action_type_suspend_terminate: 'Suspend'
             effective_date: '10/13/2023'
