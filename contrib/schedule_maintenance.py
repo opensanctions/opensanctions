@@ -22,7 +22,8 @@ It outputs a Markdown-formatted summary of datasets due for manual review.
 """
 
 log = logging.getLogger(__name__)
-LAST_CHECKED = r'^\s*last_checked:\s*"\d{4}-\d{2}-\d{2}"\s*$'
+# Strictly match the line: `  last_checked: "YYYY-MM-DD"`
+LAST_CHECKED = r'^(?P<indent>\s*)last_checked:\s*"\d{4}-\d{2}-\d{2}"\s*$'
 
 
 def load_yaml_file(yml_path: Path):
@@ -49,13 +50,14 @@ def is_due_for_manual_check(manual_check: dict) -> bool:
 
 def patch_last_checked_line(path: Path):
     today = datetime.today().strftime("%Y-%m-%d")
-    replacement = f'  last_checked: "{today}"'
-
+    replacement = r'\g<indent>last_checked: "{}"'.format(today)
     with path.open("r", encoding="utf-8") as f:
-        lines = f.readlines()
-    lines = [re.sub(LAST_CHECKED, replacement, line) for line in lines]
+        content = f.read()
+    # Replace only the last_checked line — no multiline overreach
+    new_content = re.sub(LAST_CHECKED, replacement, content, flags=re.MULTILINE)
+
     with path.open("w", encoding="utf-8") as f:
-        f.writelines(lines)
+        f.write(new_content)
 
 
 def process_datasets(root: Path) -> List[tuple]:
