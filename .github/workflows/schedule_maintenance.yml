@@ -8,7 +8,7 @@ on:
   #   - cron: '0 9 1 * *'  # Every month on the first day at 09:00 UTC
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
