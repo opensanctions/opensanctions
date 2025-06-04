@@ -46,6 +46,8 @@ lookups:
           - none
           - None
         value: null
+      - regex: '^_+$'
+        value: null
       - match: 1790886636
         prop: registrationNumber
       - match: 127586337
