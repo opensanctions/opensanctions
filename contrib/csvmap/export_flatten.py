@@ -1,4 +1,3 @@
-import itertools
 import sys
 import csv
 import yaml
@@ -6,10 +5,9 @@ import click
 import orjson
 import logging
 import requests
-import jmespath
-from banal import is_listish
+import jq  # type: ignore
+import itertools
 from functools import cached_property
-from jmespath.parser import ParsedResult
 from typing import Any, Dict, Generator, List, Literal, Set, Tuple
 from pydantic import BaseModel, model_validator
 from followthemoney import model
@@ -46,8 +44,8 @@ class MappingColumn(BaseModel):
     repeat: bool = True
 
     @cached_property
-    def expr(self) -> ParsedResult:
-        return jmespath.compile(self.path)
+    def program(self) -> jq._Program:
+        return jq.compile(self.path)
 
     @property
     def is_multi_column(self) -> bool:
@@ -140,11 +138,9 @@ def transform_object(
     values: Dict[Tuple[MappingColumn, str], List[str]] = {}
     max_rows = 1
     for column in mapping.columns:
-        val = column.expr.search(data)
-        if val is None:
-            continue
-        if not is_listish(val):
-            val = [val]
+        val: List[str] = column.program.input_value(data).all()
+        if len(val) > 0 and isinstance(val[0], list):
+            val = list(itertools.chain.from_iterable(val))
         if column.unique:
             val = list(set(val))
         if column.sort:

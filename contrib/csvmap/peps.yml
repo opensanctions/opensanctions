@@ -8,39 +8,49 @@ filters:
 
 columns:
   id:
-    path: id
+    path: .id
   name:
-    path: caption
+    path: .caption
   alias:
-    path: "{names: [properties.name[*], properties.alias[*]] | flatten(@), caption: caption} | names[? @ != caption]"
+    path: . as $root | ((.properties.name // []) + (.properties.alias // [])) - [$root.caption] | .[]
     multi: row
     unique: true
     sort: true
   first_name:
-    path: properties.firstName[*]
+    path: .properties.firstName[]?
     multi: row
+    repeat: false
   middle_name:
-    path: properties.middleName[*] || properties.secondName[*]
+    path: (.properties.middleName // []) + (.properties.secondName // []) | .[]
     multi: row
+    repeat: false
   patronymic:
-    path: properties.fatherName[*] || properties.motherName[*]
+    path: (.properties.fatherName // []) + (.properties.motherName // []) | .[]
+    multi: row
+    repeat: false
   last_name:
-    path: properties.lastName[*]
+    path: .properties.lastName[]?
     multi: row
+    repeat: false
   birth_date:
-    path: properties.birthDate[*]
+    path: .properties.birthDate[]?
     multi: row
+    repeat: false
   birth_place:
-    path: properties.birthPlace[*]
+    path: .properties.birthPlace[]?
     multi: row
+    repeat: false
   country:
-    path: properties.nationality[*] || properties.citizenship[*] || properties.country[*] || properties.birthCountry[*]
+    path: (.properties.nationality // []) + (.properties.citizenship // []) + (.properties.country // []) + (.properties.birthCountry // []) | .[]
     multi: row
     unique: true
+    repeat: false
   gender:
-    path: properties.gender[*]
+    path: .properties.gender[]?
     multi: row
+    repeat: false
   sources:
-    path: datasets
+    path: .datasets | .[]
+    sort: true
     multi: join
     join: "; "
