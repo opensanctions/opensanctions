@@ -46,7 +46,7 @@ def crawl_vessel(context: Context, item: Dict[str, Any]) -> None:
 
     ban_status = item.get("banOrderStatus", {}).get("active")
     if ban_status:
-        vessel.add("topics", "sanction")
+        vessel.add("topics", "reg.warn")
 
     sanction = h.make_sanction(context, vessel)
     h.apply_date(sanction, "startDate", item.pop("banDate"))
