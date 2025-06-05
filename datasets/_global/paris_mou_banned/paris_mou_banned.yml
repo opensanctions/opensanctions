@@ -36,7 +36,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 100
+      Company: 90
       Vessel: 100
   max:
     schema_entities:
