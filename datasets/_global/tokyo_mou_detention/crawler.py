@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from zavod import Context, helpers as h
 
 
@@ -69,12 +71,33 @@ def crawl_row(context: Context, clean_row: dict):
 
 
 def crawl(context: Context):
-    url = "https://apcis.tmou.org/isss/public_apcis.php?Mode=DetList"
-    doc = context.fetch_html(url, data=data, method="POST", cache_days=1)
-    table = doc.xpath("//table[@cellspacing=1]")
-    assert len(table) == 1, "Expected one table in the document"
-    table = table[0]
-    for row in h.parse_html_table(table, header_tag="td", skiprows=1):
-        str_row = h.cells_to_str(row)
-        clean_row = {k: v for k, v in str_row.items() if k is not None}
-        crawl_row(context, clean_row)
+    now = datetime.utcnow()
+    for year in [2024, 2025]:
+        for month in range(1, 13):
+            # Skip months in the future
+            if year == now.year and month > now.month:
+                continue
+            data = {
+                "Mode": "DetList",
+                "MOU": "TMOU",
+                "Src": "online",
+                "Type": "Auth",
+                "Month": f"{month:02}",  # pad month to two digits
+                "Year": str(year),
+                "SaveFile": "",
+            }
+            doc = context.fetch_html(
+                context.data_url, data=data, method="POST", cache_days=1
+            )
+            table = doc.xpath("//table[@cellspacing=1]")
+            if not table:
+                context.log.warning(
+                    f"No table found for year {year}, month {month:02}. Data: {data}"
+                )
+                continue
+            assert len(table) == 1, "Expected one table in the document"
+            table = table[0]
+            for row in h.parse_html_table(table, header_tag="td", skiprows=1):
+                str_row = h.cells_to_str(row)
+                clean_row = {k: v for k, v in str_row.items() if k is not None}
+                crawl_row(context, clean_row)
