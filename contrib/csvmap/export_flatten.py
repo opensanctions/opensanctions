@@ -8,7 +8,7 @@ import requests
 import jq  # type: ignore
 import itertools
 from functools import cached_property
-from typing import Any, Dict, Generator, List, Literal, Set, Tuple
+from typing import Any, Dict, Generator, List, Literal, Optional, Set, Tuple
 from pydantic import BaseModel, model_validator
 from followthemoney import model
 from followthemoney.schema import Schema
@@ -37,6 +37,8 @@ class MappingColumn(BaseModel):
     name: str
     path: str
     multi: Literal["row", "column", "join"] = "row"
+    rewrite: Optional[Dict[str, str]] = None
+    rewrite_missing: Literal["remove", "warn", "keep"] = "warn"
     join: str = ";"
     max: int = 1000
     unique: bool = False
@@ -108,6 +110,25 @@ def has_schema(schema: Schema, schemata: List[str]) -> bool:
     return any(schema.is_a(s) for s in schemata)
 
 
+def convert(column: MappingColumn, value: Any) -> str:
+    """Convert the value based on the column's rewrite rules."""
+    svalue = stringify(value)
+    if column.rewrite is None:
+        return svalue
+    rvalue = column.rewrite.get(svalue, None)
+    if rvalue is not None:
+        return rvalue
+    if column.rewrite_missing == "remove":
+        return ""
+    if column.rewrite_missing == "warn":
+        log.warning(
+            "Column %s has no rewrite rule for value %r",
+            column.name,
+            svalue,
+        )
+    return svalue
+
+
 def stringify(value: Any) -> str:
     if isinstance(value, str):
         return value.strip()
@@ -139,6 +160,7 @@ def transform_object(
     max_rows = 1
     for column in mapping.columns:
         val: List[str] = column.program.input_value(data).all()
+        # print(val)
         if len(val) > 0 and isinstance(val[0], list):
             val = list(itertools.chain.from_iterable(val))
         if column.unique:
@@ -152,16 +174,17 @@ def transform_object(
                 column.max,
             )
             val = val[: column.max]
+        converted = [convert(column, v) for v in val]
+        converted = [v for v in converted if len(v) > 0]
         if column.is_multi_row:
-            max_rows = max(max_rows, len(val))
-            values[(column, column.name)] = [stringify(v) for v in val]
+            max_rows = max(max_rows, len(converted))
+            values[(column, column.name)] = converted
         elif column.is_multi_column:
-            for idx, v in enumerate(val):
+            for idx, v in enumerate(converted):
                 col_name = column.column_name(idx)
-                values[(column, col_name)] = [stringify(v)]
+                values[(column, col_name)] = [v]
         else:
-            val = [column.join.join(stringify(v) for v in val)]
-            values[(column, column.name)] = val
+            values[(column, column.name)] = [column.join.join(converted)]
 
     for idx in range(max_rows):
         row: Dict[str, str] = {}

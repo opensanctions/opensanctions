@@ -9,6 +9,14 @@ filters:
 columns:
   id:
     path: .id
+  type:
+    path: .properties.topics[]?
+    multi: join
+    join: "/"
+    rewrite:
+      role.pep: PEP
+      role.rca: RCA
+    rewrite_missing: remove
   name:
     path: .caption
   alias:
@@ -48,6 +56,27 @@ columns:
   gender:
     path: .properties.gender[]?
     multi: row
+    repeat: false
+  position_names:
+    path: "(.properties.positionOccupancies // []) | (.[].properties.post // []) | (.[].properties.name // []) | .[]"
+    sort: true
+    unique: true
+    multi: join
+    join: "; "
+    repeat: false
+  position_country:
+    path: "(.properties.positionOccupancies // []) | (.[].properties.post // []) | (.[].properties.country // []) | .[]"
+    sort: true
+    unique: true
+    multi: join
+    join: "; "
+    repeat: false
+  position_status:
+    path: "(.properties.positionOccupancies // []) | (.[].properties.status // []) | .[]"
+    sort: true
+    unique: true
+    multi: join
+    join: "; "
     repeat: false
   sources:
     path: .datasets | .[]
