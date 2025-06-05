@@ -1,0 +1,61 @@
+name: schedule_maintenance
+
+on:
+  schedule:
+    - cron: '0 9 1 * *'  # Every month on the first day at 09:00 UTC
+
+jobs:
+  check-schedule:
+    name: Check for scheduled updates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write 
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Generate datasets list
+        id: generate
+        run: |
+          DATASETS=$(python contrib/schedule_maintenance.py)
+          # the heredoc (<<EOF) syntax is to set a multiline value as env var
+          echo "DATASETS<<EOF" >> $GITHUB_ENV
+          echo "$DATASETS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+  
+      - name: Create commit and PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME="auto/update-dataset-metadata-$(date +%Y%m%d%H%M%S)"
+          git checkout -b $BRANCH_NAME
+
+          git add datasets/\*.yml
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit. Skipping PR."
+            exit 0
+          fi
+
+          git commit -m "chore: update last_checked dates in the metadata files"
+          git push origin $BRANCH_NAME
+
+          gh pr create \
+            --title "[Auto] Update manually-checked sources" \
+            --body "${DATASETS:-This PR updates the last_checked fields in the dataset metadata files.}" \
+            --head $BRANCH_NAME \
+            --base main \
+            --reviewer nvmbrasserie \
+            --assignee nvmbrasserie
