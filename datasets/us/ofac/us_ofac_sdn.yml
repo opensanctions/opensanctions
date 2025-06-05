@@ -100,6 +100,8 @@ lookups:
           - GLOMAG
           - UHRPA
         value: US-GLOMAG
+      - match: ICC-EO14203
+        value: US-ICC
       - match: MAGNIT
         value: US-MAGNITSKY
       - match: MALI-EO13882

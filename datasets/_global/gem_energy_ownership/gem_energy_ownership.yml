@@ -5,6 +5,9 @@ coverage:
   frequency: never
   start: 2024-09-23
   end: 2024-06-30
+manual_check:
+  last_checked: "2024-09-23"
+  interval: 30
 deploy:
   schedule: "@monthly"
 exports:
