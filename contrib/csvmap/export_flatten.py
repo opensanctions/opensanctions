@@ -72,7 +72,7 @@ class MappingColumn(BaseModel):
 class Mapping(BaseModel):
     url: str
     encoding: str = "utf-8"
-    sample_size: int = 100_000
+    sample_size: int = 10_000
     filters: MappingFilters = MappingFilters()
     dialect: MappingCsvDialect = MappingCsvDialect()
     columns: List[MappingColumn]
@@ -186,11 +186,9 @@ def stream_lines(mapping: Mapping) -> Generator[str, None, None]:
     try:
         response = requests.get(mapping.url, stream=True)
         response.raise_for_status()
-        for idx, line in enumerate(response.iter_lines(chunk_size=10 * 8192)):
+        for line in response.iter_lines(chunk_size=10 * 8192):
             if not line:
                 continue
-            if idx > 0 and idx % 10000 == 0:
-                log.info(f"Processed {idx} lines...")
             yield line
 
     except requests.RequestException as e:

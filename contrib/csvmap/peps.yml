@@ -1,4 +1,4 @@
-url: "https://data.opensanctions.org/datasets/latest/peps/targets.nested.json"
+url: "https://data.opensanctions.org/datasets/latest/default/targets.nested.json"
 filters:
   topics:
     - role.pep
@@ -12,8 +12,10 @@ columns:
   name:
     path: caption
   alias:
-    path: properties.name[*] || properties.alias[*] | [?caption != null && !contains(caption, @)]
+    path: "{names: [properties.name[*], properties.alias[*]] | flatten(@), caption: caption} | names[? @ != caption]"
     multi: row
+    unique: true
+    sort: true
   first_name:
     path: properties.firstName[*]
     multi: row
