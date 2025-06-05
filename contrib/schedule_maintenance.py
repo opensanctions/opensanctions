@@ -42,7 +42,7 @@ def is_due_for_manual_check(manual_check: dict) -> bool:
     try:
         last_checked = datetime.strptime(last_checked_str, "%Y-%m-%d")
     except ValueError:
-        log.info("Couldn't parse last_checked %s in %s" % (last_checked_str))
+        log.info("Couldn't parse last_checked %s" % (last_checked_str))
         return True  # Malformed date, better to check
 
     return datetime.today() >= (last_checked + timedelta(days=interval_days))
