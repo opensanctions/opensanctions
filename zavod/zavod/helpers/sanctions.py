@@ -69,7 +69,10 @@ def make_sanction(
             entity.add("programId", program_key)
             sanction.add("programUrl", program.url)
         else:
-            context.log.warn(f"Program with key {program_key!r} not found.")
+            context.log.warn(
+                f"Program with key {program_key!r} not found.",
+                entity_id=entity.id,
+            )
 
     if start_date is not None:
         h.apply_date(sanction, "startDate", start_date)
