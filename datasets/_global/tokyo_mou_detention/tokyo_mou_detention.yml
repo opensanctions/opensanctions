@@ -2,22 +2,26 @@ title: Tokyo MoU Detention List
 entry_point: crawler.py
 prefix: mou-det
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: "2025-06-04"
 load_statements: true
 summary: >
-  Ships detained by Port State Control (PSC) authorities within the Tokyo MOU region.
+  Ships detained by Port State Control (PSC) authorities within the Tokyo MoU region.
 description: |
-  The Tokyo MoU Detention List provides information on ships that have been detained
-  by Port State Control (PSC) authorities in the Asia-Pacific region. The list includes
-  details such as the ship's name, IMO number, flag, detention date, and reason for detention.
+  The Tokyo MoU Detention List tracks ships detained by Port State Control (PSC) authorities
+  across the Asia-Pacific region. It includes the ship’s name, flag, owner, classification 
+  society, and reasons for detention, among other details. The data reflects monthly snapshots 
+  published by the Tokyo MoU and may not capture all detentions in real time.
 publisher:
   name: Tokyo Memorandum of Understanding
   acronym: Tokyo MoU
   description: |
-    The Tokyo MoU on Port State Control is an agreement among Asia-Pacific
-    countries to ensure that ships comply with international safety, environmental,
-    and labor standards.
+    The Tokyo MoU on Port State Control is an agreement among Asia-Pacific countries to ensure 
+    that ships comply with international safety, environmental, and labor standards.
+    > Port State control (PSC) comes into the scene when shipowners, recognized organizations and 
+    > flag State administrations have failed to comply with the requirements of the international 
+    > maritime conventions.
+    [Source: Official Website](https://www.tokyo-mou.org/about/)
   url: https://www.tokyo-mou.org
   official: true
   country: "zz"
@@ -30,6 +34,33 @@ data:
   lang: eng
 http:
   user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15"
-
 dates:
   formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 1500
+      Organization: 2500
+      Vessel: 1500
+  max:
+    schema_entities:
+      Company: 5000
+      Organization: 10000
+      Vessel: 5000
+
+lookups:
+  type.country:
+    options:
+      - match: 
+          - Gibraltar (GB)
+        value: "GI"
+      - match:
+          - Isle of Man (GB)
+        value: "IM"
+      - match: Ship registration withdrawn
+        value: null
+  type.identifier:
+    options:
+      - match: 0
+        value: null
