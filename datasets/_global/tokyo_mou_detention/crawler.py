@@ -1,42 +1,63 @@
-from zavod import Context
-from lxml import etree
+from zavod import Context, helpers as h
 
-headers = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Accept-Language": "en-GB,en;q=0.9",
-    "Content-Type": "application/x-www-form-urlencoded",
-    "Origin": "https://apcis.tmou.org",
-    "Referer": "https://apcis.tmou.org/isss/public_apcis.php?Mode=DetList",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "same-origin",
-}
 
 data = {
-    "MIME Type": "application/x-www-form-urlencoded",
     "Mode": "DetList",
     "MOU": "TMOU",
-    # "Auth": "Src",
-    # "Src": "online",
+    "Src": "online",
     "Type": "Auth",
-    "Month": "04",
+    "Month": "06",
     "Year": "2025",
+    "SaveFile": "",
 }
+
+
+def crawl_row(context: Context, clean_row: dict):
+    ship_name = clean_row.pop("ship_name")
+    imo = clean_row.pop("imo_no")
+
+    vessel = context.make("Vessel")
+    vessel.id = context.make_id(ship_name, imo)
+    vessel.add("name", ship_name)
+    vessel.add("imoNumber", imo)
+    vessel.add("flag", clean_row.pop("ship_flag"))
+    vessel.add("buildDate", clean_row.pop("year_of_build"))
+    vessel.add("grossRegisteredTonnage", clean_row.pop("gross_tonnage"))
+    vessel.add("type", clean_row.pop("ship_type"))
+    vessel.add("topics", "reg.warn")
+
+    sanction = h.make_sanction(
+        context,
+        vessel,
+        start_date=clean_row.pop("date_of_detention"),
+        end_date=clean_row.pop("date_of_release", None),
+    )
+
+    sanction.add("summary", clean_row.pop("nature_of_deficiencies"))
+
+    context.emit(vessel)
+    context.emit(sanction)
+
+    context.audit_data(
+        clean_row,
+        ignore=[
+            "classification_society",
+            "related_ros",
+            "company",
+            "place_of_detention",
+            "nature_of_deficiencies",
+            "",
+        ],
+    )
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(
-        context.data_url,
-        method="POST",
-        headers=headers,
-        data=data,
-    )
-    html_string = etree.tostring(
-        doc,
-        pretty_print=True,
-        encoding="unicode",
-    )
-
-    print(html_string)
+    url = "https://apcis.tmou.org/isss/public_apcis.php?Mode=DetList"
+    doc = context.fetch_html(url, data=data, method="POST", cache_days=1)
+    table = doc.xpath("//table[@cellspacing=1]")
+    assert len(table) == 1, "Expected one table in the document"
+    table = table[0]
+    for row in h.parse_html_table(table, header_tag="td", skiprows=1):
+        str_row = h.cells_to_str(row)
+        clean_row = {k: v for k, v in str_row.items() if k is not None}
+        crawl_row(context, clean_row)
