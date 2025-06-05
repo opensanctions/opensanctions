@@ -14,6 +14,11 @@ exports:
 deploy:
   memory: "1000Mi"
   memory_limit: "2500Mi"
+http:
+  retry_methods:
+    - GET
+    # a match in PermID is a POST request
+    - POST
 load_statements: true
 ci_test: false
 summary: >-

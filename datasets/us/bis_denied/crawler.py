@@ -18,7 +18,6 @@ def parse_row(context: Context, row):
     entity.id = context.make_slug(start_date, name)
     entity.add("name", name)
     entity.add("notes", row.pop("action"))
-    entity.add("topics", "sanction")
     entity.add("country", country)
     h.apply_date(entity, "modifiedAt", row.pop("last_update"))
 
@@ -32,7 +31,6 @@ def parse_row(context: Context, row):
         country_code=country_code,
     )
     h.copy_address(entity, address)
-    context.emit(entity)
 
     citation = row.pop("fr_citation")
     # We don't link it to the website here, since it's included in the us_trade_csl
@@ -41,9 +39,22 @@ def parse_row(context: Context, row):
     sanction.add("program", citation)
     h.apply_date(sanction, "startDate", start_date)
     h.apply_date(sanction, "endDate", row.pop("ending_date"))
+
+    if h.is_active(sanction):
+        entity.add("topics", "sanction")
+
+    context.emit(entity)
     context.emit(sanction)
 
-    context.audit_data(row, ["counter", "standard_order"])
+    context.audit_data(
+        row,
+        [
+            "counter",
+            "standard_order",
+            "type_of_denial",
+            "name_and_address",
+        ],
+    )
 
 
 def crawl(context: Context):

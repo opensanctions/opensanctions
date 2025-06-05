@@ -48,6 +48,7 @@ dates:
 lookups:
   names:
     lowercase: true
+    normalize: true
     options:
       - match:
           - "ADS ZENS BROKER, CORPORATION"
@@ -216,6 +217,9 @@ lookups:
           - "\u201cONELINE\u201d \u201cMONOLINE\u201d MARKETING SCHEME"
           - "ONELINE MARKETING SCHEME : ONLINE CASH PALUWAGAN"
           - "FRAUDSTERS IMPERSONATING HIGH PROFILE OR PROMINENT PERSONALITIES THROUGH DEEP FAKE POSTS OR VIDEOS"
+          - 'ADVISORY ON THE UNAUTHORIZED USE OF PERSONAL FINANCIAL ACCOUNTS OR BEING “MONEY MULES”'
+          - 'BABALA LABAN SA PAGPAPAGAMIT NG PERSONAL NA FINANCIAL ACCOUNT O PAGIGING “MONEY MULE”'
+          - "SEC WARNING ON \u201cADVANCE FEE LOAN SCAMS\u00a0and MONEY MULING\u201d"
         ignore: true
       - match: "HOUSE OF FOREX / H. FLORES BUSINESS CONSULTANCY SERVICES is NOT AUTHORIZED TO SOLICIT INVESTMENTS FROM THE PUBLIC"
         name:
@@ -459,3 +463,5 @@ lookups:
           - "Boracay Multiple Properties Developers, Inc."
       - match: "Profit Clicking JSS-Tripler Justbeenpaid"
         name: "Profit Clicking JSS-Tripler Justbeenpaid"
+      - match: SEC ADVISORY AGAINST BMJ DATA PROCESSING SERVICES
+        name: "BMJ DATA PROCESSING SERVICES"

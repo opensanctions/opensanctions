@@ -15,9 +15,9 @@ publisher:
   name: United States Immigration and Customs Enforcement
   acronym: ICE
   description: |
-    The U.S. Immigration and Customs Enforcement (ICE) is a federal law enforcement agency under the 
-    U.S. Department of Homeland Security. ICE's stated mission is to protect the United States from cross-border 
-    crime and undocumented immigration that threaten national security and public safety. 
+    The U.S. Immigration and Customs Enforcement (ICE) is a federal law enforcement agency under the
+    U.S. Department of Homeland Security. ICE's stated mission is to protect the United States from cross-border
+    crime and undocumented immigration that threaten national security and public safety.
     [Source](https://en.wikipedia.org/wiki/U.S._Immigration_and_Customs_Enforcement)
   country: us
   url: https://www.ice.gov/
@@ -44,4 +44,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 15
+      Person: 7
+  max:
+    schema_entities:
+      Person: 30  # above this we should check if pagination was added

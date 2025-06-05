@@ -32,10 +32,13 @@ class Dataset(NKDataset):
                 dataset=self.name,
                 summary=self.summary,
             )
-        self.prefix: str = data.get("prefix", slugify(self.name, sep="-")).strip()
-        assert self.prefix == slugify(self.prefix, sep="-"), (
-            "Dataset prefix is invalid: %s" % self.prefix
+        prefix_: Optional[str] = data.get("prefix", slugify(self.name, sep="-"))
+        assert prefix_ is not None, "Dataset prefix cannot be None"
+        assert prefix_ == slugify(prefix_, sep="-"), (
+            "Dataset prefix is invalid: %s" % prefix_
         )
+        self.prefix = prefix_.strip()
+
         if self.updated_at is None:
             self.updated_at = datetime_iso(settings.RUN_TIME)
         self.hidden: bool = as_bool(data.get("hidden", False))
@@ -79,7 +82,7 @@ class Dataset(NKDataset):
         )
         """
         List of assertions which should be considered warnings if they fail.
-        
+
         Configured as follows:
 
         ```yaml

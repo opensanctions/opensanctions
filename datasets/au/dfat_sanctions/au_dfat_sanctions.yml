@@ -71,6 +71,67 @@ dates:
     - "c. %Y"
     - "%B, %Y"
 lookups:
+  sanction.program:
+    options:
+      - match: "Autonomous (DPRK)"
+        value: AU-DPRK
+      - match: "Autonomous (FFRY)"
+        value: AU-YUGO
+      - match: "Autonomous (Iran)"
+        value: AU-IRAN
+      - match: "Autonomous (Libya)"
+        value: AU-LIBYA
+      - match: "Autonomous (Myanmar)"
+        value: AU-MYANMAR
+      - match: "Autonomous (Russia)"
+        value: AU-RUSSIA
+      - match: "Autonomous (Thematic – Corruption)"
+        value: AU-CRP
+      - match: "Autonomous (Thematic - Human Rights)"
+        value: AU-HUMAN
+      - match: "Autonomous (Thematic - Cyber)"
+        value: AU-CYB
+      # Only one key in the source data but two different regimes: 
+      # https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/specified-ukraine-regions-sanctions-regime
+      # https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/ukraine-sanctions-regime
+      # TODO: check how to map 'AU-UKRAINE-REG' and 'AU-UKRAINE'
+      # - match: "Autonomous (Ukraine)"
+      #   value: "AU-UKRAINE"
+      - match: "Autonomous (Syria)"
+        value: AU-SYRIA
+      - match: "Autonomous (Zimbabwe)"
+        value: AU-ZIM
+      - match: "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)"
+        value: UN-SCISIL
+      - match: "1373 (2001)"
+        value: UN-SC1373
+      - match: "1518 (Iraq)"
+        value: UN-SC1518
+      - match: "1533 (Democratic Republic of the Congo)"
+        value: UN-SC1533
+      - match: "1591 (Sudan)"
+        value: UN-SC1591
+      - match: "1718 (DPRK)"
+        value: UN-SC1718
+      - match: 
+          - "1970 (Libya) 1973 (Libya)"
+          - "1970 (Libya)"
+          - "1973 (Libya)"
+        value: UN-SC1970
+      - match: "1988 (Taliban)"
+        value: UN-SC1988
+      - match: "2206 (South Sudan)"
+        value: UN-SC2206
+      - match: "2140 (Yemen)"
+        value: UN-SC2140
+      - match: "2713 (Al-Shabaab)"
+        value: UN-SC2713
+      - match: "2127 (Central African Republic)"
+        value: UN-SC2127
+      - match:
+          - "2093 (2013)"
+          - "751 (Somalia and Eritrea)"
+        value: null
   type:
     normalize: true
     lowercase: true

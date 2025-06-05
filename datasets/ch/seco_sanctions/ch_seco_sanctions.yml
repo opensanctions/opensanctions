@@ -25,7 +25,7 @@ publisher:
   name: State Secretariat for Economic Affairs
   acronym: SECO
   description: |
-    The State Secretariat for Economic Affairs is the Swiss governments 
+    The State Secretariat for Economic Affairs is the Swiss governments
     center of competence for economic, labour and trade matters.
   country: ch
   url: https://www.seco.admin.ch/
@@ -53,7 +53,7 @@ assertions:
       Person: 8500
       LegalEntity: 4400
       Address: 4300
-      Vessel: 250
+      Vessel: 700
 
 lookups:
   sanction.program:
@@ -94,7 +94,9 @@ lookups:
         value: SECO-BISSAU
       - match: "Ordinance of 13 May 2009 on measures against Somalia (SR 946.231.169.4), annex 1"
         value: SECO-SOMALIA
-      - match: "Ordinance of 8 June 2012 on measures against Syria (SR 946.231.172.7), annex 7"
+      - match:
+          - "Ordinance of 8 June 2012 on measures against Syria (SR 946.231.172.7), annex 7"
+          - "Ordinance of 8 June 2012 on measures against Syria (SR 946.231.172.7)"
         value: SECO-SYRIA
       - match: "Ordinance of 24 June 2020 on measures against Nicaragua (RS 946.231.158.5), Annex"
         value: SECO-NICARAGUA
@@ -116,6 +118,10 @@ lookups:
         value: SECO-MALI
       - match: "Ordinance of 19 January 2005 on measures against Côte d’Ivoire (SR 946.231.13), annex"
         value: SECO-CDI
+      - match: Ordinance on measures against individuals and groups associated with the Taliban
+        value: SECO-TALIBAN
+      - match: "Ordinance on measures against persons, groups, undertakings and entities associated with ISIL (Da'esh) and Al-Qaida"
+        value: SECO-ISIL
   relations:
     lowercase: true
     options:

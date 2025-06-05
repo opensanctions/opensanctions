@@ -41,6 +41,11 @@ publisher:
     classes. Using OpenFigi, Financial instruments can be identified and mapped to their
     registered FIGI by various proprietary and standard identifiers.
   url: https://www.openfigi.com/
+http:
+  retry_methods:
+    - GET
+    # a search in OpenFIGI is a POST request
+    - POST
 
 inputs:
   - sanctions
@@ -53,7 +58,7 @@ config:
   api_key: ${OPENFIGI_API_KEY}
   schemata:
     - Security
-  cache_days: 90
+  cache_days: 120
 
 assertions:
   min:

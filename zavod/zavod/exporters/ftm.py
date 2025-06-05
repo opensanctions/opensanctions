@@ -1,7 +1,7 @@
 from followthemoney.cli.util import write_entity
 
 from zavod.entity import Entity
-from zavod.exporters.common import Exporter
+from zavod.exporters.common import Exporter, ExportView
 
 
 class FtMExporter(Exporter):
@@ -13,9 +13,9 @@ class FtMExporter(Exporter):
         super().setup()
         self.fh = open(self.path, "wb")
 
-    def feed(self, entity: Entity) -> None:
+    def feed(self, entity: Entity, view: ExportView) -> None:
         write_entity(self.fh, entity)
 
-    def finish(self) -> None:
+    def finish(self, view: ExportView) -> None:
         self.fh.close()
-        super().finish()
+        super().finish(view)

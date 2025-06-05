@@ -8,17 +8,17 @@ load_statements: true
 summary: >
   Data on Politically Exposed Persons from asset and interest declarations of Chilean public officials
 description: |
-  The Chilean Law of Probity in Public Function and Prevention of Conflicts of 
-  Interest (Law N° 20.880) mandates the disclosure of interests and assets by 
-  public officials and civil servants. 
+  The Chilean Law of Probity in Public Function and Prevention of Conflicts of
+  Interest (Law N° 20.880) mandates the disclosure of interests and assets by
+  public officials and civil servants.
 
-  The law applies to a broad range of public officials, 
-  including the President, 
-  ministers, 
-  undersecretaries, 
-  regional governors, 
-  legislative and judicial authorities, 
-  military and police officers, 
+  The law applies to a broad range of public officials,
+  including the President,
+  ministers,
+  undersecretaries,
+  regional governors,
+  legislative and judicial authorities,
+  military and police officers,
   and leaders of political parties.
 
   The list of individuals required to comply are similar to those considered PEPs.
@@ -33,9 +33,9 @@ publisher:
   name: Consejo para la Transparencia
   acronym: CPLT
   description: |
-    The Council for Transparency (CPLT) is an autonomous public organization established by the 
+    The Council for Transparency (CPLT) is an autonomous public organization established by the
     Law on the Transparency of Public Functions and Access to Information on Public Administration
-    in charge of guaranteeing citizens' right of access to public information, 
+    in charge of guaranteeing citizens' right of access to public information,
     with powers to enforce the law and impose penalties.
   url: https://www.consejotransparencia.cl/
   official: true
@@ -84,7 +84,6 @@ lookups:
           - "CONCEJAL/A"
           - "CONCEJALA"
           - "CONCEJALES"
-          - "DIRECTIVO JEFE DE DEPARTAMENTO"
           - "EMBAJADOR"
           - "EMBAJADOR PRIMERA CATEGORÍA EXTERIOR"
           - "EMBAJADORA"
@@ -92,10 +91,6 @@ lookups:
           - "GOBERNADOR REGIONAL"
           - "GOBERNADORA REGIONAL"
           - "JUEZ"
-          - "JEFE GABINETE"
-          - "JEFE(A) DE GABINETE MINISTRO(A)"
-          - "JEFE DEPARTAMENTO DE BIENESTAR"
-          - "JEFE SECCION AUDITORIA PROYECTOS DE INVERSION"
           - "SENADOR(A)"
           - "SEREMI"
           - "MINISTRA"
@@ -146,6 +141,7 @@ lookups:
           - "PRIMER SECRETARIO O CÓNSUL DE PRIMERA CLASE, CUARTA CATEGORÍA EXTERIOR"
           - "PRIMERA SECRETARIA O CÓNSUL DE PRIMERA CLASE, CUARTA CATEGORÍA EXTERIOR"
           - "CONSEJERO O CÓNSUL GENERAL SEGUNDA CLASE, TERCERA CATEGORÍA EXTERIOR"
+          - "CONSEJERO CONSEJO DE MONUMENTOS NACIONALES"
           - "SEGUNDO SECRETARIO O CÓNSUL DE SEGUNDA CLASE, QUINTA CATEGORÍA EXTERIOR"
           - "SEGUNDA SECRETARIA O CÓNSUL DE SEGUNDA CLASE, QUINTA CATEGORÍA EXTERIOR"
 
@@ -164,11 +160,6 @@ lookups:
           - ESPECIALISTA EN SONIDO
           - ESPECIALISTA EN CLIMATIZACION
           - INGENIERO EN GESTION DE SOPORTE DE OPERACIONES
-          - JEFE DE PROYECTOS DE DISEÑO
-          - JEFE RELACIONES PUBLICAS
-          - JEFE SECCION ADQUISICIONES Y MANTENIMIENTO
-          - JEFE SUBDEPTO. DE AUDITORIA DE PROCESOS CENTRALES
-          - JEFE SUBDEPTO. DE CALIDAD DE LAS OPERACIONES
           - NOTARIO Y CONSERVADOR
           - PROFESIONAL AREA INFRAESTRUCTURA
           - SOPORTE TECNICO
@@ -183,8 +174,13 @@ lookups:
           - OFICIAL DE SALA
           - SUBADMINISTRADOR ZONAL
           - SUBJEFE DEPTO. DE RECURSOS HUMANOS
+          - MERCADO_PÚBLICO
 
       - is_pep: null # haven't looked closely yet
+        regex:
+          - ".*\\bJEFE\\b"
+          - ".*\\bDIRECTOR\\b"
+      - is_pep: null
         match:
           - "ABOGADA"
           - "ABOGADO"
@@ -192,11 +188,9 @@ lookups:
           - "ABOGADO CONSEJERO"
           - "ABOGADO INTEGRANTE"
           - "ABOGADO SECRETARIO DE COMISIONES"
-          - "ABOGADO SECRETARIO JEFE DE COMISIONES"
           - "ABOGADO(A)"
           - "ABOGADO/A PANEL TÉCNICO CONCESIONES "
           - "ABOGADO/A PANEL TÉCNICO DE CONCESIONES "
-          - "ABOGADO JEFE"
           - "ACADEMICO"
           - "ACADÉMICO/A"
           - "ACALDE SUPLENTE "
@@ -242,7 +236,6 @@ lookups:
           - "CATEGORÍA A NIVEL 4"
           - "CHOFER"
           - "CIRUJANO DENTISTA"
-          - "COMANDANTE EN JEFE"
           - "COMISIONADO"
           - "COMISIONADO Y PRESIDENTE DEL CONSEJO DE LA COMISION PARA EL MERCADO FINANCIERO"
           - "CONDUCTOR"
@@ -279,76 +272,7 @@ lookups:
           - "DELEGADO PRESIDENCIAL REGIONAL"
           - "DIPUTADO/DA"
           - "DIRECTIVO"
-          - "DIRECTIVO JEFE DE SECCION"
           - "DIRECTIVOS"
-          - "DIRECTOR"
-          - "DIRECTOR (A) NACIONAL"
-          - "DIRECTOR (A) NACIONAL DE ARQUITECTURA"
-          - "DIRECTOR (A) NACIONAL SUBROGANTE"
-          - "DIRECTOR (A) SALUD"
-          - "DIRECTOR /A"
-          - "DIRECTOR ACADEMIA DIPLOMÁTICA ANDRÉS BELLO"
-          - "DIRECTOR ADJUNTO"
-          - "DIRECTOR COLEGIO"
-          - "DIRECTOR CORPORACION"
-          - "DIRECTOR CORPORACION MUNICIPAL"
-          - "DIRECTOR CRSM"
-          - "DIRECTOR DAEM"
-          - "DIRECTOR DE ADMINISTRACIÓN"
-          - "DIRECTOR DE CONTROL"
-          - "DIRECTOR DE DERECHOS HUMANOS\t"
-          - "DIRECTOR DE DESARROLLO COMUNITARIO"
-          - "DIRECTOR DE ESCUELA"
-          - "DIRECTOR DE ESCUELA BÁSICA"
-          - "DIRECTOR DE ESTABLECIMIENTO"
-          - "DIRECTOR DE ESTABLECIMIENTO EDUCACIONAL"
-          - "DIRECTOR DE LA AGENCIA DE COOPERACION INTERNACIONAL DE CHILE (AGCI)"
-          - "DIRECTOR DE OBRAS"
-          - "DIRECTOR DE OBRAS MUNICIPALES"
-          - "DIRECTOR DE OPERACIONES"
-          - "DIRECTOR DE SERVICIO"
-          - "DIRECTOR DEPARTAMENTO"
-          - "DIRECTOR DESAM"
-          - "DIRECTOR DIDECO"
-          - "DIRECTOR EJECUTIVO "
-          - "DIRECTOR EJECUTIVO NACIONAL"
-          - "DIRECTOR EJECUTIVO REGIONAL"
-          - "DIRECTOR GENERAL"
-          - "DIRECTOR GENERAL DE AGUAS"
-          - "DIRECTOR GENERAL DE ASUNTOS CONSULARES, INMIGRACIÓN Y CHILENOS EN EL EXTERIOR"
-          - "DIRECTOR GENERAL DE PROMOCION DE EXPORTACIONES"
-          - "DIRECTOR GENERAL HOSPITAL CLINICO"
-          - "DIRECTOR HOSPITAL O INSTITUTO"
-          - "DIRECTOR LEMS"
-          - "DIRECTOR NACIONAL"
-          - "DIRECTOR NACIONAL (S)"
-          - "DIRECTOR PARQUE METROPOLITANO"
-          - "DIRECTOR REGIONAL"
-          - "DIRECTOR REGIONAL (S)"
-          - "DIRECTOR REGIONAL CENTRO EXPORTADOR DE ARICA Y PARINACOTA"
-          - "DIRECTOR REGIONAL CENTRO EXPORTADOR DE LOS RIOS"
-          - "DIRECTOR REGIONAL CENTRO EXPORTADOR DE VALPARAISO"
-          - "DIRECTOR/A REGIONAL DE MAULE"
-          - "DIRECTOR SERVICIO"
-          - "DIRECTOR SERVICIO DE SALUD"
-          - "DIRECTOR SERVIU REGIÓN DE AYSÉN"
-          - "DIRECTOR UNIDAD"
-          - "DIRECTOR(A) NACIONAL"
-          - "DIRECTOR(A) PARQUE METROPOLITANO DE SANTIAGO"
-          - "DIRECTOR(A) REGIONAL"
-          - "DIRECTOR(A) SERVICIO DE VIVIENDA Y URBANIZACIÓN"
-          - "DIRECTOR/A GENERAL"
-          - "DIRECTOR/A NACIONAL"
-          - "DIRECTOR/A REGIONAL"
-          - "DIRECTOR/A REGIONAL SUPLENTE"
-          - "DIRECTOR/A REGIONAL DE VALPARAÍSO"
-          - "DIRECTORA"
-          - "DIRECTORA COMUNICACIONES"
-          - "DIRECTORA DE ESTUDIOS"
-          - "DIRECTORA NACIONAL "
-          - "DIRECTORA REGIONAL"
-          - "DIRECTORA REGIONAL SUBROGANTE"
-          - "DIRECTORA SERVICIOS INCORPORADOS"
           - "DOCENTE"
           - "DOCENTE AULA"
           - "DOCENTE DIRECTIVO"
@@ -378,7 +302,6 @@ lookups:
           - "EXPERTO"
           - "FISCAL "
           - "FISCAL ADJUNTO"
-          - "FISCAL ADJUNTO JEFE"
           - "FISCAL JUDICIAL"
           - "FISCAL NACIONAL"
           - "FISCAL NACIONAL ECONÓMICO"
@@ -389,7 +312,6 @@ lookups:
           - "FONOAUDIOLOGO"
           - "FUNCIÓN FISCALIZACIÓN O APOYO A FISCALIZACIÓN "
           - "GENERAL DE EJERCITO"
-          - "GENERAL DIRECTOR"
           - "GERENTE"
           - "GERENTE GENERAL"
           - "GERENTE GENERAL INTERINO"
@@ -425,59 +347,6 @@ lookups:
           - "JEFATURA DE PROYECTOS"
           - "JEFATURA DE UNIDAD"
           - "JEFATURA SEGUNDO NIVEL JERÁRQUICO"
-          - "JEFE"
-          - "JEFE CENTRO DE COMPUTACION"
-          - "JEFE  DE SECTOR"
-          - "JEFE DE AREA"
-          - "JEFE DE BODEGA"
-          - "JEFE DE COMITE"
-          - "JEFE DE DEPARTAMENTO"
-          - "JEFE DE DIVISION"
-          - "JEFE DE GABINETE"
-          - "JEFE DE LA REDACCIÓN DE SESIONES"
-          - "JEFE DE OFICINA"
-          - "JEFE DE PROYECTO SOLUCIONES INFORMATICAS"
-          - "JEFE DE SALUD MENTAL"
-          - "JEFE DE SECCION"
-          - "JEFE DE SECTOR"
-          - "JEFE DE SERVICIO"
-          - "JEFE DE SUBDEPARTAMENTO "
-          - "JEFE DE SUBDIVISION"
-          - "JEFE DE TESORERIA"
-          - "JEFE DE UNIDAD"
-          - "JEFE DEPARTAMENTO"
-          - "JEFE DEPARTAMENTO DE DESARROLLO INSTITUCIONAL"
-          - "JEFE DEPARTAMENTO ECONOMICO DE LA EMBAJADA DE CHILE EN ARGENTINA"
-          - "JEFE DEPARTAMENTO ECONOMICO DE LA EMBAJADA DE CHILE EN HOLANDA"
-          - "JEFE DEPARTAMENTO JURIDICO"
-          - "JEFE DEPARTAMENTO O EQUIVALENTE"
-          - "JEFE DEPARTAMENTO PLANIFICACION Y COORDINACION"
-          - "JEFE DEPARTAMENTO RRHH"
-          - "JEFE ADMINISTRATIVO"
-          - "JEFE DE CIBERRIESGO"
-          - "JEFE DE PROCESOS"
-          - "JEFE DE RIESGOS DE CIBER SEGURIDAD"
-          - "JEFE DE SECCION APOYO TECNICO ADMINISTRATIVO"
-          - "JEFE DE SECCION DE CAPACITACION"
-          - "JEFE DE SECCION DE LICITACIONES"
-          - "JEFE ESTADO MAYOR CONJUNTO"
-          - "JEFE JURIDICO SERVICIO"
-          - "JEFE OFICINA DE INFORMACIONES"
-          - "JEFE PROVINCIAL"
-          - "JEFE SERVICIO"
-          - "JEFE SUPERIOR DE SERVICIO"
-          - "JEFE SUPERIOR DEL SERVICIO"
-          - "JEFE TECNICO"
-          - "JEFE UNIDAD"
-          - "JEFE UNIDAD CONTROL DE GESTION Y COORDINACION"
-          - "JEFE UNIDAD DE GESTION DE APOYO"
-          - "JEFE(A) UNIDAD DE DERECHO DE ACCESO A LA INFORMACIÓN"
-          - "JEFE(A) DE DEPARTAMENTO"
-          - "JEFE/A ÁREA"
-          - "JEFE/A DE DEPARTAMENTO"
-          - "JEFE/A DE SERVIVIO"
-          - "JEFE/A DEPARTAMENTO COORDINACION DE LA ADM DE ACUERDOS COMERCIALES"
-          - "JEFE SUBDEPTO. DE OPERACIONES INFORMATICAS"
           - "JUEZ  DE POLICIA  LOCAL"
           - "JUEZ (A) POLICÍA LOCAL"
           - "JUEZ DE POLICIA LOCAL"
@@ -661,13 +530,8 @@ lookups:
           - "TENIENTE CORONEL"
           - "TERCER NIVEL JERARQUICO"
           - "NINGUNO" # None
-          - JEFE CIBERDEFENSA
-          - JEFE DE DIVISIÓN
-          - JEFE DE PROYECTOS
-          - JEFE AREA DE FABRICA
           - INGENIERO DE PLATAFORMA
           - AUDITOR INTERNO
-          - JEFE DE PROYECTOS
           - INGENIERO DE GESTION DE OPERACIONES DE PLATAFORMAS
           - ESPECIALISTA MECANICO
           - AUDITOR INTERNO
@@ -676,74 +540,31 @@ lookups:
           - ADMINISTRATIVO DE GESTION
           - ADMINISTRATIVO DE CONTRATOS
           - ADMINISTRATIVO DE CONTROL LEY SUBCONTRATACION
-          - ADMINISTRATIVO JEFE
-          - JEFE DE PROYECTOS DE INFRAESTRUCTURA
-          - JEFE DE CONTABILIDAD Y FINANZAS
           - AUDITOR INTERNO
           - ENCARGADO INFORMATICO
-          - JEFE SECCION AUDITORIA CUENTAS CORRIENTES JURISDICCIONALES
-          - DIRECTOR/A EJECUTIVO
           - SUBSECRETARIA DE RELACIONES EXTERIORES
           - SUPERINTEDENTA (S)
           - PROFESIONAL SUBDEPARTAMENTO DE COMUNICACIONES
-          - JEFE DE SECCION DE COMPRAS
-          - JEFE SECCION FINANZAS Y PRESUPUESTO
           - AUDITOR INTERNO INFRAESTRUCTURA
           - AUDITOR INTERNO DE AUDITORIA CONTINUA Y FORENSE
           - COORDINADOR AREA AVANCE FISICO
           - SUBJEFE DEPTO. INFORMATICA Y COMPUTACION
+          - SUBJEFE DEPTO. DE FINANZAS Y PRESUPUESTO
           - COORDINADOR DE TRIBUNAL
-          - JEFE SECCION DE CONSTRUCCION ZONA SUR
           - ESPECIALISTA EN CORRIENTES DEBILES
-          - JEFE OFICINA SEGURIDAD PODER JUDICIAL
           - COORDINADOR ADMINISTRACIONES ZONALES
           - ANALISTA DE COMUNICACIONES
           - PROFESIONAL DE ANALISIS DE CONTRATOS
-          - JEFE SECCION AUDITORIA DE GESTION
           - PROFESSIONAL COMPLIANCE
           - INGENIERO EN GESTION DE PROCESOS INFORMATICOS
           - COORDINADOR DE ESPECIALIDADES
-          - JEFE AREA DE SOPORTE Y MANTENCION PC
-          - JEFE DE SECCION DE GESTION Y PROYECTOS
           - ESPECIALISTA BIM
-          - JEFE DE AREA DE SELECCION
           - ESPECIALISTA SANITARIO
           - COORDINADOR DE DISEÑO
-          - JEFE SECCION DE COMUNICACIONES
           - ESPECIALISTA EN METODOS Y PROCEDIMIENTOS
-          - JEFE SUBDEPTO. DE DESARROLLO DE SISTEMAS
-          - JEFE SECCION DE GESTION
-          - JEFE DE SECCION DE CONTRATOS
           - ANALISTA DE CONTRATOS
-          - JEFE SECCION DE SERVICIOS
-          - JEFE SECCION AUDITORIA ADM. ZONALES
-          - JEFE SECCION AUDITORIA PRESUPUESTARIA
-          - JEFE SECCION AUDITORIA TRIBUNALES
-          - JEFE SECCION DE AUDITORIA DE PROCESOS CENTRALES
-          - JEFE SECCION DE CONSTRUCCION ZONA NORTE
-          - JEFE SECCION DE DISEÑO
-          - JEFE SUBDEPTO. DE AUDITORIA INFORMATICA Y COMPUTACION
           - ASISTENTE DE CONTRATOS
-          - JEFE SUBDEPTO. DE AUDITORIA FINANCIERA
-          - JEFE SUBDEPTO. AUDITORIA CUENTAS CORRIENTES JURISDICCIONALES
-          - JEFE SUBDEPTO. DE ADQUISICIONES
-          - JEFE SUBDEPTO. DE ATENCION DE USUARIOS
-          - JEFE SUBDEPTO. DE AUDITORIA ADMINISTRATIVA
-          - JEFE SUBDEPTO. DE CONTABILIDAD Y TESORERIA
-          - JEFE SUBDEPTO. DE COORDINACION Y METAS DE GESTION
-          - JEFE SUBDEPTO. DE ESTADISTICAS
-          - JEFE SUBDEPTO. DE INFRAESTRUCTURA
-          - JEFE SUBDEPTO. DE MANTENIMIENTO
-          - JEFE SUBDEPTO. DE MODERNIZACION
-          - JEFE SUBDEPTO. DE PERSONAL
-          - JEFE SUBDEPTO. DE SALUD OCUPACIONAL
-          - JEFE SUBDEPTO. DE SOLUCIONES INFORMATICAS
-          - JEFE SUBDEPTO. DE SOPORTE A USUARIOS
-          - JEFE SUBDEPTO. DESARROLLO ORGANIZACIONAL
-          - JEFE SUBDEPTO. PRESUPUESTOS
-          - JEFE SUBDEPTO. RECLUTAMIENTO Y SELECCION
           - AUDITOR INFORMATICO
-          - JEFE DE PROYECTO DE DESARROLLO DE SISTEMAS
           - ABOGADO ASESOR
           - ANALISTA DE CAPACITACION
           - ANALISTA DE COMPRAS

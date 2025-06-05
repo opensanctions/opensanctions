@@ -302,8 +302,15 @@ def parse_distinct_party(
 
     # Sanctions designations
     entry_path = f"SanctionsEntries/SanctionsEntry[@ProfileID='{profile_id}']"
-    for sanctions_entry in doc.findall(entry_path):
-        parse_sanctions_entry(context, proxy, refs, features, sanctions_entry)
+    # We skip emitting entries with ListId "Consolidated List" because they always have a second,
+    # more specific ListId attached (such as "CAPTA List"). This assert ensures that this assumption
+    # always holds so that we don't skip emitting a Sanction for every entity on the list.
+    sanction_entities = [
+        emit_sanctions_entry(context, proxy, refs, features, sanctions_entry)
+        for sanctions_entry in doc.findall(entry_path)
+    ]
+    sanction_found = any(sanction is not None for sanction in sanction_entities)
+    assert sanction_found
 
     for feat_label, values in features.items():
         for feat_value in values:
@@ -416,18 +423,75 @@ def parse_id_reg_document(
         context.emit(identification)
 
 
-def parse_sanctions_entry(
+def extract_sdn_sanctions_measure_name(entry: Element, refs: Element) -> Optional[str]:
+    """
+    Extracts the program name associated with a sanctions entry on the SDN List.
+
+    Returns:
+        A string representing the program name (e.g., "IRAN-EO13876")
+    """
+    list_name = get_ref_text(refs, "List", entry.get("ListID"))
+    assert list_name == "SDN List"
+
+    # The SDN List may include multiple SanctionsMeasures, and the actual program name is inside
+    # the <Comment> tag of a <SanctionsMeasure> element where SanctionsTypeID resolves to "Program".
+    for measure in entry.findall("./SanctionsMeasure"):
+        sanctions_type_id = measure.get("SanctionsTypeID")
+        sanctions_type = get_ref_text(refs, "SanctionsType", sanctions_type_id)
+        if sanctions_type == "Program":
+            # Extract the actual program name from the <Comment> element, which holds values like "IRAN-EO13876"
+            comment = measure.findtext("Comment")
+            if comment:
+                return comment  # Return the first matched program name
+    # If no "Program" type measures are found or no comment is available, return None
+    return None
+
+
+def emit_sanctions_entry(
     context: Context,
     proxy: Entity,
     refs: Element,
     features: Dict[str, FeatureValues],
     entry: Element,
-) -> Entity:
+) -> Optional[Entity]:
     # context.inspect(entry)
     proxy.add("topics", "sanction")
-    sanction = h.make_sanction(context, proxy, key=entry.get("ID"))
-    # TODO(Leon Handreke): Add lookup of program -> OpenSanctions program key
-    sanction.set("program", get_ref_text(refs, "List", entry.get("ListID")))
+
+    dataset = context.dataset.name
+    list_id = get_ref_text(refs, "List", entry.get("ListID"))
+    # For entries on the SDN list, the XML contains a more specific sanctions program designation
+    # For the various lists that are part of the Consolidated List, we use the list name as the program.
+    program = (
+        extract_sdn_sanctions_measure_name(entry, refs)
+        if list_id == "SDN List"
+        else list_id
+    )
+    # For us_ofac_sdn, only process entries with list_id 'SDN List'
+    if dataset == "us_ofac_sdn" and list_id != "SDN List":
+        return None
+    # For us_ofac_cons, only process entries that are not part of the SDN List
+    # (i.e., process entries with list_id 'Non-SDN Menu-Based Sanctions List').
+    # 'Consolidated List' is more of a meta-tag — all entries labeled with it also have a
+    # more specific list_id attached (e.g., 'Non-SDN CMIC List'). We have a check
+    # aearlier that ensures at least one specific Sanction will be emitted for each entity.
+    # Therefore, it's safe to skip processing entries under 'Consolidated List' list_id here.
+    if dataset == "us_ofac_cons" and list_id in {
+        "Consolidated List",
+        "SDN List",
+    }:
+        return None
+    sanction = h.make_sanction(
+        context,
+        proxy,
+        key=entry.get("ID"),
+        program_name=program,
+        source_program_key=program,
+        # For entries on the SDN list, the XML contains a more specific sanctions program designation
+        # For the various lists that are part of the Consolidated List, we use the list name as the program.
+        program_key=(
+            h.lookup_sanction_program_key(context, program) if program else None
+        ),
+    )
     sanction.set("authorityId", entry.get("ProfileID"))
 
     for event in entry.findall("./EntryEvent"):

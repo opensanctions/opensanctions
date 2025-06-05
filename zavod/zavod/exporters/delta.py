@@ -1,7 +1,7 @@
 from typing import Any, Generator
 from zavod.entity import Entity
 from zavod.archive import DELTA_EXPORT_FILE
-from zavod.exporters.common import Exporter
+from zavod.exporters.common import Exporter, ExportView
 from zavod.runtime.delta import HashDelta
 from zavod.util import write_json
 
@@ -21,22 +21,22 @@ class DeltaExporter(Exporter):
             "DEL": 0,
         }
 
-    def feed(self, entity: Entity) -> None:
+    def feed(self, entity: Entity, view: ExportView) -> None:
         self.delta.feed(entity)
 
-    def generate(self) -> Generator[Any, None, None]:
+    def generate(self, view: ExportView) -> Generator[Any, None, None]:
         for op, entity_id in self.delta.generate():
             if op == "DEL":
                 yield {"op": "DEL", "entity": {"id": entity_id}}
                 continue
-            entity = self.view.get_entity(entity_id)
+            entity = view.get_entity(entity_id)
             if entity is None:  # watman
                 continue
             yield {"op": op, "entity": entity.to_dict()}
 
-    def finish(self) -> None:
+    def finish(self, view: ExportView) -> None:
         with open(self.path, "wb") as fh:
-            for op in self.generate():
+            for op in self.generate(view):
                 self.counts[op["op"]] += 1
                 write_json(op, fh)
         self.delta.close()
@@ -50,4 +50,4 @@ class DeltaExporter(Exporter):
             deleted=self.counts["DEL"],
         )
 
-        super().finish()
+        super().finish(view)

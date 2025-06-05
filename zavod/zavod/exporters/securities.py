@@ -7,7 +7,7 @@ from rigour.boolean import bool_text
 from zavod.entity import Entity
 from zavod.logs import get_logger
 from zavod.runtime.urls import make_entity_url
-from zavod.exporters.common import Exporter
+from zavod.exporters.common import Exporter, ExportView
 
 COLUMNS = [
     "caption",
@@ -29,6 +29,7 @@ COLUMNS = [
 SANCTIONED = "sanction"
 PUBLIC = "corp.public"
 EO_14071 = "ru_nsd_isin"
+NBIM = "no_nbim_exclusions"
 CONTEXT_DATASETS = set(["ru_nsd_isin", "permid", "openfigi", "research", "ext_gleif"])
 
 log = get_logger(__name__)
@@ -60,10 +61,10 @@ class SecuritiesExporter(Exporter):
         self._count_isins = 0
         self._count_leis = 0
 
-    def _get_isins(self, entity: Entity) -> Set[str]:
+    def _get_isins(self, entity: Entity, view: ExportView) -> Set[str]:
         # TODO: normalize ISINs
         isins = set(entity.get("isinCode", quiet=True))
-        for _, adjacent in self.view.get_adjacent(entity):
+        for _, adjacent in view.get_adjacent(entity):
             if adjacent.schema.is_a("Security"):
                 isins.update(adjacent.get("isin"))
         return isins
@@ -76,19 +77,20 @@ class SecuritiesExporter(Exporter):
                 names.add(name_)
         return names
 
-    def feed(self, entity: Entity) -> None:
+    def feed(self, entity: Entity, view: ExportView) -> None:
         if not entity.schema.is_a("Organization"):
             return
         topics = entity.get("topics", quiet=True)
         is_sanctioned = SANCTIONED in topics
         is_public = PUBLIC in topics
         is_eo_14071 = EO_14071 in entity.datasets
-        if not is_sanctioned and not is_eo_14071:
+        is_nbim = NBIM in entity.datasets
+        if not is_sanctioned and not is_eo_14071 and not is_nbim:
             return
         self._count_entities += 1
         leis = entity.get("leiCode", quiet=True)
         self._count_leis += len(leis)
-        isins = self._get_isins(entity)
+        isins = self._get_isins(entity, view)
         self._count_isins += len(isins)
         key_datasets = set(entity.datasets).difference(CONTEXT_DATASETS)
         row = [
@@ -110,9 +112,9 @@ class SecuritiesExporter(Exporter):
         ]
         self.csv.writerow(row)
 
-    def finish(self) -> None:
+    def finish(self, view: ExportView) -> None:
         self.fh.close()
-        super().finish()
+        super().finish(view)
         log.info(
             "Exported securities",
             entities=self._count_entities,

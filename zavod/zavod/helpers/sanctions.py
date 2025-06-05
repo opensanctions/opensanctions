@@ -13,10 +13,11 @@ def lookup_sanction_program_key(
     context: Context, source_key: Optional[str]
 ) -> Optional[str]:
     """Lookup the sanction program key based on the source key."""
-    program_key = context.lookup_value("sanction.program", source_key)
-    if program_key is None:
-        context.log.warn(f"Program key {program_key!r} not found.")
-    return program_key
+    res = context.lookup("sanction.program", source_key)
+    if res is None:
+        context.log.warn(f"Program key for {source_key!r} not found.")
+        return None
+    return res.value
 
 
 def make_sanction(

@@ -48,8 +48,6 @@ inputs:
 
 config:
   dataset: ror
-  index_options:
-    memory_budget: 800
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1

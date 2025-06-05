@@ -1,0 +1,39 @@
+title: UK Financial Instruments Reference Data System (FIRDS)
+entry_point: crawler.py
+prefix: gb-firds
+coverage:
+  frequency: monthly
+  start: 2024-03-02
+deploy:
+  cpu: 1000m
+  memory: 3500Mi
+  memory_limit: 4000Mi
+  disk: 150Gi
+resolve: false
+ci_test: false
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - senzing.json
+summary: >
+  List of financial instruments and their reference data, as published by the
+  Financial Conduct Authority (FCA) in the UK.
+description: |
+  This is a dataset of financial instruments and their reference data, as published
+  by the Financial Conduct Authority (FCA) in the UK. The data establishes
+  connections between financial instruments and their issuers, and includes
+  information such as the instrument's name, ISIN, and LEI.
+publisher:
+  name: Financial Conduct Authority
+  acronym: FCA
+  description: |
+    The FCA is the conduct regulator for financial services firms and financial
+    markets in the UK. It publishes a number of databases and registers, including
+    the Financial Instruments Reference Data System (FIRDS).
+  country: gb
+  url: https://data.fca.org.uk/#/homepage
+  official: true
+url: https://data.fca.org.uk/#/download
+data:
+  url: https://api.data.fca.org.uk/fca_data_firds_files
+  format: JSON

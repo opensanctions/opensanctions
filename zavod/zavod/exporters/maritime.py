@@ -7,7 +7,7 @@ from zavod import settings
 from zavod.entity import Entity
 from zavod.logs import get_logger
 from zavod.runtime.urls import make_entity_url
-from zavod.exporters.common import Exporter
+from zavod.exporters.common import Exporter, ExportView
 
 COLUMNS = [
     "type",
@@ -62,7 +62,7 @@ class MaritimeExporter(Exporter):
                 names.add(name_)
         return names
 
-    def feed(self, entity: Entity) -> None:
+    def feed(self, entity: Entity, view: ExportView) -> None:
         if "imoNumber" not in entity.schema.properties:
             return
         imos = entity.get("imoNumber")
@@ -94,9 +94,9 @@ class MaritimeExporter(Exporter):
             ]
             self.csv.writerow(row)
 
-    def finish(self) -> None:
+    def finish(self, view: ExportView) -> None:
         self.fh.close()
-        super().finish()
+        super().finish(view)
         log.info(
             "Exported maritime vessels and IMO organizations",
             orgs=self._count_orgs,

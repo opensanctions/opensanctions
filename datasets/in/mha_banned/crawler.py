@@ -62,8 +62,14 @@ def crawl_entity(
     entity.add("sourceUrl", detail_url)
     entity.add("topics", "sanction")
 
-    sanction = h.make_sanction(context, entity, key=program)
-    sanction.add("program", program)
+    sanction = h.make_sanction(
+        context,
+        entity,
+        key=program,
+        program_name=program,
+        source_program_key=program,
+        program_key=h.lookup_sanction_program_key(context, program),
+    )
     sanction.add("authorityId", authority_id)
 
     context.emit(entity)

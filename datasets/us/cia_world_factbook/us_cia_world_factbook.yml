@@ -697,12 +697,7 @@ lookups:
           - role: Prime Minister
             name: Ahmad Awad Bin MUBAREK
             start_date: 5 February 2024
-      - match: "Chairperson, Presidential Leadership Council Rashad Muhammad al-ALIMI (since 19 April 2022)"
-        holders:
-          - role: Chairperson, Presidential Leadership Council
-            name: Rashad Muhammad al-ALIMI
-            start_date: 19 April 2022
-      - match: "Chairperson, Presidential Leadership Council Rashad Muhammad al-ALIMI, Dr. (since 19 April 2022)"
+      - match: "Presidential Leadership Council Chairperson Dr. Rashad Muhammad al-ALIMI (since 19 April 2022)"
         holders:
           - role: Chairperson, Presidential Leadership Council
             name: Rashad Muhammad al-ALIMI
@@ -849,6 +844,11 @@ lookups:
         holders:
           - role: Administrator
             name: Bob FAIRWEATHER
+      - match: "both reside in the UK and are represented by Commander Andrew WILLIAMS, RN, the officer commanding British Forces on Diego Garcia (since January 2025)"
+        holders:
+          - role: Officer Commanding British Forces on Diego Garcia
+            name: Andrew WILLIAMS
+            start_date: January 2025
 
       # Not additional heads, just notes
       - regex:

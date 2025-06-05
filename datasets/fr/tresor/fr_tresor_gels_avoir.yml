@@ -46,16 +46,110 @@ assertions:
       Organization: 950
       LegalEntity: 40
       Vessel: 35
-      Company: 25
+      Company: 50
   max:
     schema_entities:
       Person: 8070
       Organization: 2240
       LegalEntity: 120
       Vessel: 80
-      Company: 60
+      Company: 120
 
 lookups:
+  sanction.program:
+    options:
+      - contains:
+          - art L. 562-3 du code monétaire et financier
+          - art L. 562-2 du code monétaire et financier
+        value: "FR-CMF-562"
+      - contains: "ONU République démocratique du Congo - RCSNU 1533 (2004) et R (CE) 1183/2005"
+        value: UN-SC1533
+      - contains: "ONU Afghanistan/Taliban - Résolution 1988 (2011) du CSNU et R (UE) 753/2011"
+        value: UN-SC1988
+      - contains: "ONU Al Qaeda Etat - Islamique - RCSNU 1267 (1999) et R (UE) 881/2002"
+        value: UN-SCISIL
+      - contains: "ONU Corée du Nord - RCSNU 1718 (2006) et R (UE) 2017/1509"
+        value: UN-SC1718
+      - contains: "ONU Haïti - RCSNU 2653 (2022)  - R (UE) 2022/2309"
+        value: UN-SC2653
+      - contains: "ONU Yemen - RCSNU 2140 (2014) et R (UE) 1352/2014"
+        value: UN-SC2140
+      - contains: "ONU Libye - RCSNU 1970/2011 et R (UE) 2016/44"
+        value: UN-SC1970
+      - contains: "ONU Irak - RCSNU 1518 (2003) et R (CE) 1210/2003"
+        value: UN-SC1518
+      - contains: "ONU République centrafricaine - RCSNU 2127 (2013) et R (UE) 224/2014"
+        value: UN-SC2127
+      - contains: "ONU Soudan du sud - RCSNU 2206 (2015)  et R (UE) 2015/735"
+        value: UN-SC2206
+      - contains: "ONU Soudan - RCSNU  1591 (2005) et R (UE) 747/2014"
+        value: UN-SC1591
+      - contains: 
+          - "UE Ukraine intégrité territoriale - R (UE) 269/2014"
+          - "UE Ukraine biens mal acquis - R (UE) 208/2014"
+        value: EU-UKR
+      - contains: "UE Libye - R (UE) 2016/44"
+        value: EU-LBY
+      - contains: 
+          - "UE Iran prolifération - R (UE) 267/2012"
+          - "UE Iran répression - R (UE) 359/2011"
+          - "UE Iran - Soutien militaire dans le conflit Russie/Ukraine  - R(UE) 2023/1529"
+          - "ONU Iran prolifération - RCSNU 1737 (2006) et R (UE) 267/2012"
+        value: EU-IRN
+      - contains: 
+          - "UE Etat islamique - Al Qaida - R (UE) 2016/1686"
+          - "UE Al Qaeda - Etat Islamique - règlement (UE) 881/2002"
+        value: EU-TAQA-EUAQ
+      - contains: "UE Biélorussie - R (CE) 765/2006"
+        value: EU-BLR
+      - contains: "UE République démocratique du Congo - R (UE) 1183/2005"
+        value: EU-COD
+      - contains: "UE Syrie - R (UE) 36/2012"
+        value: EU-SYR
+      - contains: "UE Nicaragua - R (UE) 2019/1716"
+        value: EU-NIC
+      - contains: "UE Myanmar (ex Birmanie) - R (UE) 401/2013"
+        value: EU-MMR
+      - contains: "UE Venezuela - R (UE) 2017/2063"
+        value: EU-VEN
+      - contains: "UE Corée du Nord - Règlement (UE) 2017/1509"
+        value: EU-PRK
+      - contains: "UE Cyberattaques - R (UE) 2019/796"
+        value: EU-CYB
+      - contains: "UE personnes impliquées dans des actes de terrorisme - R (UE) 2580/2001"
+        value: EU-TERR
+      - contains: "UE Violation des droits de l'homme - R (UE) 2020/1998"
+        value: EU-HR
+      - contains: "UE Burundi - R (UE) 2015/1755)"
+        value: EU-BDI
+      - contains: UE Guinée-Bissau - R (UE) 377/2012
+        value: EU-GNB
+      - contains: "UE Guatemala - R (UE) 2024/287"
+        value: EU-GTM
+      - contains: "UE Hamas - Jihad islamique palestinien - R (UE) 2024/386"
+        value: EU-HAM
+      - contains: "UE Lutte contre la prolifération des armes chimiques - R (UE) 2018/1542"
+        value: EU-CHEM
+      - contains: "UE Mali - R (UE) 2017/1770"
+        value: EU-MLI
+      - contains: UE Moldavie  - R (UE) 2023/888
+        value: EU-MDA
+      - contains: "UE République de Guinée - R (UE) 1284/2009"
+        value: EU-GIN
+      - contains: "UE Russie - Activités déstabilisatrices - R (UE) 2024/2642"
+        value: EU-RUSDA
+      - contains: "UE Russie répression R (UE) 2024/1485"
+        value: EU-RUS
+      - contains: "UE Soudan du sud - R (UE) 2015/735"
+        value: EU-SSD
+      - contains: "UE Tunisie - R (UE) 101/2011"
+        value: EU-TUN
+      - contains: "UE Turquie - R (UE) 2019/1890)"
+        value: EU-TUR
+      - contains: "ONU Somalie - RCSNU 751 (1992) et R (UE) 356/2010"
+        value: EU-SOM
+      - contains: "UE Soudan - Activités compromettant la stabilité et la transition politique - R (UE) 2023/2147"
+        value: EU-SDNZ
   schema_override:
     options:
       - match:
@@ -90,12 +184,17 @@ lookups:
           - "Fédération de Russie"
           - "Fédération de Russi e"
         value: RU
+  type.identifier:
+    options:
+      match: 644101001 # listed as INN, is actually a KPP
+      value: null
   identification_segment:
     lowercase: true
     normalize: true
     options:
       # Sometimes for "Numero OGRN" and "Numero OMI", a "Numero" is left over
       - match: "Numero"
+      - match: "n°"
       # Sometimes leftover from "NIF/INN"
       - match: "NIF"
       - match: "Numéro d'enregistrement"
@@ -5313,3 +5412,6 @@ lookups:
           jurisdiction: tr
           address: Istanbul
           taxNumber: 0081804196
+      - match: "100000000001523 - Numéro d'enregistrement"
+        props:
+          registrationNumber: 100000000001523

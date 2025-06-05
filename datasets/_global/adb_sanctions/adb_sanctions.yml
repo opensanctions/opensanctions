@@ -130,6 +130,11 @@ lookups:
         values:
           - 15th Floor, Taihong Yangguang Building, Intersection of Zhongzhou Avenue and Xinyuan Road, Zhengzhou, Henan Province, 450002 People's Republic of China
           - 5th Floor, Jinzhu Building, North of the New Bridge, Huangchuan, Henan Province, 465150 People's Republic of China
+      - match: "Republic of Uzbekistan, Fergana region, Fergana city, Ma'rifat MFY, Alisher shoh ko’chasi, 6A-uy [O'zbekiston Respublikasi, Farg'ona viloyati, Farg'ona shahar, Ma'rifat MFY, Alisher Navoi shoh ko’chasi, 6a-ui Маърифат МФЙ, Алишер Навоий шох кучаси,6а-уй]"
+        values:
+          - Republic of Uzbekistan, Fergana region, Fergana city, Ma'rifat MFY, Alisher shoh ko’chasi, 6A-uy
+          - O'zbekiston Respublikasi, Farg'ona viloyati, Farg'ona shahar, Ma'rifat MFY, Alisher Navoi shoh ko’chasi, 6a-ui
+          - Маърифат МФЙ, Алишер Навоий шох кучаси,6а-уй
 
   type.country:
     lowercase: true

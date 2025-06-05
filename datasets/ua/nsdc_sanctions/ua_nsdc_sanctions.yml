@@ -98,6 +98,9 @@ lookups:
           - "reg:acc_corpo_reg"
           - "reg:sw_comm_reg"
           - "reg:uec"
+          - "reg:cw_legal"
+          - "reg:cy_2"
+          - "reg:ua"
         prop: registrationNumber
       - match:
           - "doc:passport"
@@ -106,6 +109,8 @@ lookups:
           - "doc:s_passport"
           - "doc:in_passport"
           - "doc:sm_passport"
+          - "doc:f_passports_ru"
+          - "doc:passport_ru"
         identification:
           is_passport: true
       - match: "doc:residence"

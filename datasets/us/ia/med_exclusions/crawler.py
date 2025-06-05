@@ -18,7 +18,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     if enrollment_type is None:
         return
 
-    if enrollment_type.lower() in {"individual", "indivdual"}:
+    if enrollment_type.lower() in {"individual", "indivdual", "indvidual"}:
         first_name = row.pop("first_name")
         last_name = row.pop("last_name")
         entity = context.make("Person")

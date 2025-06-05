@@ -52,6 +52,10 @@ assertions:
       Person: 1200
       Company: 120
 lookups:
+  type.name:
+    options:
+      - match: Kyanna Pierce (aka Pierce, Kyonna)
+        values: ["Kyanna Pierce", "Kyonna Pierce"]
   type.identifier:
     options:
       - match: 15788Chore58
