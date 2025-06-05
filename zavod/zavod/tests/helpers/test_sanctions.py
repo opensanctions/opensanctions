@@ -68,6 +68,7 @@ def test_sanctions_helper_with_unknown_program(vcontext: Context):
     assert {
         "event": "Program with key 'OS-TEST' not found.",
         "log_level": "warning",
+        "entity_id": person.id,
     } in caplogs
 
 
