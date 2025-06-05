@@ -2,16 +2,12 @@ from datetime import datetime
 
 from zavod import Context, helpers as h
 
+YEARS = [2024, 2025]
+MONTHS = range(1, 13)
 
-data = {
-    "Mode": "DetList",
-    "MOU": "TMOU",
-    "Src": "online",
-    "Type": "Auth",
-    "Month": "06",
-    "Year": "2025",
-    "SaveFile": "",
-}
+
+def is_future_month(year: int, month: int, now: datetime) -> bool:
+    return (year > now.year) or (year == now.year and month > now.month)
 
 
 def emit_linked_org(context, vessel_id, names, role):
@@ -72,10 +68,10 @@ def crawl_row(context: Context, clean_row: dict):
 
 def crawl(context: Context):
     now = datetime.utcnow()
-    for year in [2024, 2025]:
-        for month in range(1, 13):
+    for year in YEARS:
+        for month in MONTHS:
             # Skip months in the future
-            if year == now.year and month > now.month:
+            if is_future_month(year, month, now):
                 continue
             data = {
                 "Mode": "DetList",
@@ -90,11 +86,6 @@ def crawl(context: Context):
                 context.data_url, data=data, method="POST", cache_days=1
             )
             table = doc.xpath("//table[@cellspacing=1]")
-            if not table:
-                context.log.warning(
-                    f"No table found for year {year}, month {month:02}. Data: {data}"
-                )
-                continue
             assert len(table) == 1, "Expected one table in the document"
             table = table[0]
             for row in h.parse_html_table(table, header_tag="td", skiprows=1):
