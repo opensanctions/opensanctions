@@ -126,20 +126,16 @@ def crawl_person(context: Context, url: str, wanted_for: str):
         "description",
         [
             f"Age: {age}",
-            # f"Weight: {weight}",
-            # f"Height: {height}",
             f"Skin tone: {skin_tone}",
-            # f"Eyes: {eyes}",
-            # f"Hair: {hair}",
         ],
     )
     person.add(
         "notes",
         [
-            f"Wanted For: {wanted_for}"
-            f"Wanted Category: {mw_category}"
-            f"Wanted Status: {mw_status}"
-            f"Crime Details: {wanted_title}"
+            wanted_for,
+            f"Wanted Category: {mw_category}",
+            f"Wanted Status: {mw_status}",
+            f"Crime Details: {wanted_title}",
         ],
     )
 
@@ -147,7 +143,7 @@ def crawl_person(context: Context, url: str, wanted_for: str):
 
 
 def crawl(context: Context):
-    wanted_xpath = './/div[@class="mw-wantfor"]'
+    wanted_xpath = './/div[contains(text(), "Wanted for:")]'
     doc = fetch_html(
         context,
         context.data_url,
@@ -157,7 +153,9 @@ def crawl(context: Context):
     )
     doc.make_links_absolute(context.data_url)
 
-    for person_node in doc.xpath('.//li[@class="grid"]//a'):
+    for person_node in doc.xpath(
+        './/div[contains(@class, "most-wanted-landing")]//li//a'
+    ):
         url = person_node.get("href")
         wanted_for = person_node.xpath(wanted_xpath)[0].text_content()
         crawl_person(context, url, wanted_for)
