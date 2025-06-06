@@ -1,3 +1,5 @@
+import random
+import time
 from datetime import datetime
 
 from zavod import Context, helpers as h
@@ -92,16 +94,26 @@ def crawl(context: Context):
             "auth": "0",
             "held": "0",
         }
-        doc = context.fetch_html(
-            context.data_url, headers=HEADERS, data=data, method="POST", cache_days=1
-        )
-        table = doc.xpath("//table[@id='dvData']")
-        assert len(table) == 1, "Expected one table in the document"
-        table = table[0]
-        for row in h.parse_html_table(table):  # , header_tag="th", skiprows=1):
-            str_row = h.cells_to_str(row)
-            clean_row = {k: v for k, v in str_row.items() if k is not None}
-            crawl_row(context, clean_row)
+        try:
+            doc = context.fetch_html(
+                context.data_url,
+                headers=HEADERS,
+                data=data,
+                method="POST",
+                # cache_days=1,
+            )
+            table = doc.xpath("//table[@id='dvData']")
+            assert len(table) == 1, "Expected one table in the document"
+            table = table[0]
+            for row in h.parse_html_table(table):  # , header_tag="th", skiprows=1):
+                str_row = h.cells_to_str(row)
+                clean_row = {k: v for k, v in str_row.items() if k is not None}
+                crawl_row(context, clean_row)
+        except Exception as e:
+            context.log.error(f"Skipping {year}-{month:02} due to fetch failure: {e}")
+
+        # Random sleep to avoid overwhelming the server (and hitting 500 Server Error)
+        time.sleep(random.uniform(1.5, 3.0))  # sleep for 1.5–3 seconds
 
         # Increment month and roll over year
         if month == 12:
