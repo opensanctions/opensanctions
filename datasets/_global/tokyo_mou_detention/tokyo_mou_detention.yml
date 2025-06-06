@@ -40,14 +40,14 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 1500
-      Organization: 2500
-      Vessel: 1500
+      Company: 3000
+      Organization: 150
+      Vessel: 4200
   max:
     schema_entities:
-      Company: 5000
-      Organization: 10000
-      Vessel: 5000
+      Company: 7000
+      Organization: 300
+      Vessel: 9000
 
 lookups:
   type.country:
