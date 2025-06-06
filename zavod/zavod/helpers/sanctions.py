@@ -74,9 +74,9 @@ def make_sanction(
                 entity_id=entity.id,
             )
 
-    if start_date is not None:
+    if start_date:
         h.apply_date(sanction, "startDate", start_date)
-    if end_date is not None:
+    if end_date:
         h.apply_date(sanction, "endDate", end_date)
         iso_end_date = max(sanction.get("endDate"))
         is_active = iso_end_date >= settings.RUN_TIME_ISO
