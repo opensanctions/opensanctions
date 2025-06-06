@@ -47,6 +47,9 @@ lookups:
         value: female
       - match: nieznana
         value: null
+  # We split manually to avoid outputting country values where one part is
+  # a valid country name. E.g. even if we get a warning on SERBIA I CZARNOGÓRA,
+  # we don't want to emit "SERBIA" and "MONTENEGRO" as separate values.
   type.country:
     normalize: true
     options:
