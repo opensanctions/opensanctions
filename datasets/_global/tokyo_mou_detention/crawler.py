@@ -2,7 +2,7 @@ from datetime import datetime
 
 from zavod import Context, helpers as h
 
-START_YEAR = 2024
+START_YEAR = 2019
 START_MONTH = 1
 
 

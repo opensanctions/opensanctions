@@ -55,9 +55,10 @@ lookups:
       - match: 
           - Gibraltar (GB)
         value: "GI"
-      - match:
-          - Isle of Man (GB)
+      - match: Isle of Man (GB)
         value: "IM"
+      - match: Cayman Islands (GB)
+        value: "KY"
       - match: Ship registration withdrawn
         value: null
   type.identifier:
