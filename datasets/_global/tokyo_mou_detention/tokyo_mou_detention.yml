@@ -2,7 +2,7 @@ title: Tokyo MoU Detention List
 entry_point: crawler.py
 prefix: tok-mou-det
 coverage:
-  frequency: monthly
+  frequency: weekly
   start: "2025-06-04"
 load_statements: true
 summary: >
