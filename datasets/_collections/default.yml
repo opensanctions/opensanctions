@@ -43,6 +43,7 @@ children:
   - wanted
   - enrichers
   - special_interest
+  - maritime
 
   # banks
   - iso9362_bic

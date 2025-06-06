@@ -62,4 +62,5 @@ children:
   - us_cbp_forced_labor
   - be_fod_sanctions
   - ae_local_terrorists
+  - paris_mou_banned
 ci_test: false
