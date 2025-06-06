@@ -2,15 +2,14 @@ from datetime import datetime
 
 from zavod import Context, helpers as h
 
-START_YEAR = 2025
+START_YEAR = 2019
 START_MONTH = 1
 
-headers = {
+HEADERS = {
     "X-Requested-With": "XMLHttpRequest",
     "Content-Type": "application/x-www-form-urlencoded",
     "Referer": "https://bsis.bsmou.org/public_det/",
     "Origin": "https://bsis.bsmou.org",
-    # include cookies or session management if needed
 }
 
 
@@ -80,33 +79,33 @@ def crawl_row(context: Context, clean_row: dict):
 
 
 def crawl(context: Context):
-    # now = datetime.utcnow()
-    # year = START_YEAR
-    # month = START_MONTH
-    # while (year, month) <= (now.year, now.month):
-    #     # Break if the month is in the future
-    #     if is_future_month(year, month, now):
-    #         break
-    data = {
-        "month": "05",  # pad month to two digits
-        "year": "2025",  # pad year to four digits
-        "auth": "0",
-        "held": "0",
-    }
-    doc = context.fetch_html(
-        context.data_url, headers=headers, data=data, method="POST", cache_days=1
-    )
-    table = doc.xpath("//table[@id='dvData']")
-    assert len(table) == 1, "Expected one table in the document"
-    table = table[0]
-    for row in h.parse_html_table(table):  # , header_tag="th", skiprows=1):
-        str_row = h.cells_to_str(row)
-        clean_row = {k: v for k, v in str_row.items() if k is not None}
-        crawl_row(context, clean_row)
+    now = datetime.utcnow()
+    year = START_YEAR
+    month = START_MONTH
+    while (year, month) <= (now.year, now.month):
+        # Break if the month is in the future
+        if is_future_month(year, month, now):
+            break
+        data = {
+            "month": f"{month:02}",  # pad month to two digits
+            "year": str(year),
+            "auth": "0",
+            "held": "0",
+        }
+        doc = context.fetch_html(
+            context.data_url, headers=HEADERS, data=data, method="POST", cache_days=1
+        )
+        table = doc.xpath("//table[@id='dvData']")
+        assert len(table) == 1, "Expected one table in the document"
+        table = table[0]
+        for row in h.parse_html_table(table):  # , header_tag="th", skiprows=1):
+            str_row = h.cells_to_str(row)
+            clean_row = {k: v for k, v in str_row.items() if k is not None}
+            crawl_row(context, clean_row)
 
-    # # Increment month and roll over year
-    # if month == 12:
-    #     month = 1
-    #     year += 1
-    # else:
-    #     month += 1
+        # Increment month and roll over year
+        if month == 12:
+            month = 1
+            year += 1
+        else:
+            month += 1
