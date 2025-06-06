@@ -29,8 +29,8 @@ def crawl_row(context: Context, clean_row: dict):
     ship_name = clean_row.pop("ship_name")
     imo = clean_row.pop("imo_no")
     company_name = clean_row.pop("company")
-    ros = clean_row.pop("related_ros")
-    cs = clean_row.pop("classification_society")
+    related_ros = clean_row.pop("related_ros")
+    class_soc = clean_row.pop("classification_society")
 
     vessel = context.make("Vessel")
     vessel.id = context.make_id(ship_name, imo)
