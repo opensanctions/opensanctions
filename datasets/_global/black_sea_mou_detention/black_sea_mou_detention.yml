@@ -9,7 +9,7 @@ summary: >
   Ships detained by Port State Control (PSC) authorities within the Black Sea MoU region.
 description: |
   The Black Sea MoU Detention List tracks ships detained by Port State Control (PSC) authorities
-   at ports in the Black Sea region. It includes the ship’s name, flag, owner, classification 
+  at ports in the Black Sea region. It includes the ship’s name, flag, owner, classification 
   society, and reasons for detention, among other details. The data reflects monthly snapshots 
   published by the Black Sea MoU and may not capture all detentions in real time.
 publisher:
@@ -18,6 +18,10 @@ publisher:
   description: |
     The Black Sea MoU on Port State Control is an agreement among Black Sea countries to ensure 
     that ships comply with international safety, environmental, and labor standards.
+    > Port State control (PSC) comes into the scene when shipowners, classification societies 
+    > and flag State administrations have failed to comply with the requirements of the 
+    > international maritime conventions.
+    [Source: Official Website](https://bsmou.org/about/)
   url: https://bsmou.org
   official: true
   country: "zz"
@@ -31,14 +35,16 @@ data:
 http:
   user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15"
 dates:
-  formats: ["%d/%m/%Y"]
+  formats: ["%d.%m.%Y"]
 
 assertions:
   min:
     schema_entities:
-      Company: 90
-      Vessel: 100
+      Company: 700
+      Vessel: 900
+      Organization: 40
   max:
     schema_entities:
-      Company: 300
-      Vessel: 300
+      Company: 1800
+      Vessel: 2000
+      Organization: 100
