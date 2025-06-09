@@ -1,15 +1,26 @@
-from typing import Dict, Generator, Optional, cast
+from typing import Dict, Generator, Optional, Set, cast
 from normality import slugify, collapse_spaces
 from lxml.html import HtmlElement
+from zavod.logs import get_logger
+
+
+log = get_logger(__name__)
 
 
 def parse_html_table(
     table: HtmlElement,
     header_tag: str = "th",
     skiprows: int = 0,
+    ignore_colspan: Optional[Set[str]] = None,
 ) -> Generator[Dict[Optional[str], HtmlElement], None, None]:
     """
     Parse an HTML table into a generator yielding a dict for each row.
+
+    Args:
+        table
+        header_tag: Default th, allows treating tr as header
+        skiprows: Number of rows to skip before expecting the header row.
+        ignore_colspan: colspans to ignore, e.g. when a full span means a subheading
 
     Returns:
         Generator of dict per row, where the keys are the _-slugified table headings
@@ -34,7 +45,16 @@ def parse_html_table(
             continue
 
         cells = row.findall("./td")
-        assert len(headers) == len(cells), (headers, cells)
+        if len(headers) != len(cells):
+            str_cells = [c.text_content() for c in cells]
+            colspans = set([c.get("colspan") for c in cells])
+            if ignore_colspan and colspans == set(ignore_colspan):
+                log.info(f"Ignoring row {rownum} with colspan: {str_cells}")
+                continue
+            else:
+                msg = f"Expected {len(headers)} cells, found {len(cells)} on row {rownum} {str_cells}"
+                assert len(headers) == len(cells), msg
+
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
