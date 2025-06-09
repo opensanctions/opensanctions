@@ -27,7 +27,10 @@ def write_csv_for_manual_diff(context, container):
     ]
 
     for table, path in zip(tables, output_paths):
-        rows = [h.cells_to_str(row) for row in h.parse_html_table(table)]
+        rows = [
+            h.cells_to_str(row)
+            for row in h.parse_html_table(table, ignore_colspan={"7"})
+        ]
         with path.open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=rows[0].keys())
             writer.writeheader()
