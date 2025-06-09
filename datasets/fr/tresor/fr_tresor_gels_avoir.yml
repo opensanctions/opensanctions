@@ -84,19 +84,19 @@ lookups:
         value: UN-SC2206
       - contains: "ONU Soudan - RCSNU  1591 (2005) et R (UE) 747/2014"
         value: UN-SC1591
-      - contains: 
+      - contains:
           - "UE Ukraine intégrité territoriale - R (UE) 269/2014"
           - "UE Ukraine biens mal acquis - R (UE) 208/2014"
         value: EU-UKR
       - contains: "UE Libye - R (UE) 2016/44"
         value: EU-LBY
-      - contains: 
+      - contains:
           - "UE Iran prolifération - R (UE) 267/2012"
           - "UE Iran répression - R (UE) 359/2011"
           - "UE Iran - Soutien militaire dans le conflit Russie/Ukraine  - R(UE) 2023/1529"
           - "ONU Iran prolifération - RCSNU 1737 (2006) et R (UE) 267/2012"
         value: EU-IRN
-      - contains: 
+      - contains:
           - "UE Etat islamique - Al Qaida - R (UE) 2016/1686"
           - "UE Al Qaeda - Etat Islamique - règlement (UE) 881/2002"
         value: EU-TAQA-EUAQ
@@ -580,6 +580,9 @@ lookups:
       - match: "Numéro d'enregistrement de l'entreprise: 7452016"
         props:
           registrationNumber: 7452016
+      - match: "Numéro d'enregistrement de l'entreprise: 74520161"
+        props:
+          registrationNumber: 74520161
       - match: "Type d'entité: entreprise de médias"
         # That's not a legal form
       - match: "Numéro d'enregistrement: 423277-5"
