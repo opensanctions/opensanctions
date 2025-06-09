@@ -150,7 +150,7 @@ def crawl(context: Context):
     # git add -f datasets/il/mod_crypto/releases.csv
     # git add -f datasets/il/mod_crypto/wallets.csv
     write_csv_for_manual_diff(context, doc)
-    h.assert_dom_hash(container, "203b99615f06e11bf4af3273e2cb46506c0804c4")
+    h.assert_dom_hash(container, "6cdf93a67e3281397ba41214609700912de75a2f")
 
     # At the time of writing, the table on the web page is missing some public keys,
     # so we maintain the data manually in a google sheet, but dump the table to csv
