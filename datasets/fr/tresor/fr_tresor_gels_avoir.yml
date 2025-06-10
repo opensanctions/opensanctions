@@ -351,6 +351,12 @@ lookups:
       - match: "Type d'entité: entreprise d'État fédérale"
         props:
           legalForm: entreprise d'État fédérale
+      - match: "Type d'entité: entreprise publique de droit privé"
+        props:
+          legalForm: entreprise publique de droit privé
+      - match: "Type d'entité: société à responsabilité limitée (LLC)"
+        props:
+          legalForm: société à responsabilité limitée (LLC)
       - match: "Lieu d'enregistrement: Fédération de Russie (197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30)"
         props:
           jurisdiction: ru
@@ -600,6 +606,34 @@ lookups:
       - match: "100000000001523 - Numéro d'enregistrement"
         props:
           registrationNumber: 100000000001523
+      - match: "Lieu d'enregistrement: Lattaquié, Syrie"
+        props:
+          jurisdiction: sy
+          address: "Lattaquié, Syrie"
+      - match:
+          - "Lieu d'enregistrement: Damas, Syrie"
+          - "Principal établissement: Damas, Syrie"
+        props:
+          jurisdiction: sy
+          address: "Damas, Syrie"
+      - match: "Principal établissement: Damas-Campagne, Syrie"
+        props:
+          jurisdiction: sy
+          address: "Damas-Campagne, Syrie"
+      - match: "Lieu d'enregistrement: Damas-Campagne"
+        props:
+          jurisdiction: sy
+          address: "Damas-Campagne"
+      - match: "Principal établissement: territoire du régime syrien en Syrie"
+        props:
+          jurisdiction: sy
+      - match: "Sous le numéro: 394678"
+        props:
+          registrationNumber: 394678
+      - match: "Date de création: 29.6. 2015"
+        props:
+          incorporationDate: 2015-06-29
+
   ####################################################################################################
   ####################################################################################################
   #
@@ -2990,19 +3024,11 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée (Limited Company): /"
         props:
           legalForm: Limited Company
-      - match: "Lieu d’enregistrement: Damas, Syrie - Principal établissement: Syrie: /"
-        props:
-          jurisdiction: sy
-          address: "Damas, Syrie"
       - match: "Lieu d’enregistrement: Syrie, Dubaï - Principal établissement: Damas, Syrie: /"
         props:
           jurisdiction:
             - sy
             - ae
-          address: "Damas, Syrie"
-      - match: "Lieu d’enregistrement: Damas, Syrie - Principal établissement: Damas, Syrie: /"
-        props:
-          jurisdiction: sy
           address: "Damas, Syrie"
       - match: "Type d'entité: entreprise contrôlée par l'État - Date d'enregistrement: 1997: /"
         props:
@@ -3483,11 +3509,6 @@ lookups:
           address: "Prague"
           incorporationDate: 2023-03-14
           registrationNumber: CZ05185327
-      - match: "Lieu d'enregistrement: Damas, Syrie - Date d'enregistrement: 2007 - Principal établissement: Syrie: /"
-        props:
-          jurisdiction: sy
-          address: "Damas, Syrie"
-          incorporationDate: 2007
       - match: "Type d’entité: entité publique - Lieu d’enregistrement: Bandar Abbas, Iran - Date d’enregistrement: 1981 - Principal établissement: Iran: /"
         props:
           jurisdiction: ir
@@ -5418,3 +5439,9 @@ lookups:
       - match: "100000000001523 - Numéro d'enregistrement"
         props:
           registrationNumber: 100000000001523
+      - match: "Type d’entité: société à responsabilité limitée - Date de création: 22.10.2017 - Siège: Damas"
+        props:
+          jurisdiction: sy
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2017-10-22
+          address: Damas
