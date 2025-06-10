@@ -5,6 +5,13 @@ repos:
       - id: check-yaml
       - id: trailing-whitespace
       - id: check-merge-conflict
+  - repo: local
+    hooks:
+      - id: forbid-yaml-extension
+        name: Forbid .yaml files (use .yml instead)
+        entry: '.yaml files are not allowed. Please use .yml extension instead.'
+        language: fail
+        files: 'datasets/.*\.yaml$'
   - repo: https://github.com/psf/black
     rev: 25.1.0
     hooks:
