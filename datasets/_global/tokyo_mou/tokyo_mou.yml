@@ -1,0 +1,42 @@
+title: Tokyo MoU PSC Database
+entry_point: crawler.py
+prefix: mou-psc
+coverage:
+  frequency: weekly
+  start: "2025-06-03"
+load_statements: true
+summary: >
+  Tokyon MoU Port State Control (PSC) database provides information on ships...
+description: |
+  The Tokyo Memorandum of Understanding (MoU) on Port State Control is an
+  agreement among countries in the Asia-Pacific region to ensure that ships
+  comply with international safety, environmental, and labor standards.
+  This database provides information on ships that have been banned from
+  entering ports in the region due to non-compliance with these standards.
+publisher:
+  name: Tokyo Memorandum of Understanding
+  acronym: Tokyo MoU
+  description: |
+    The Tokyo MoU on Port State Control is an agreement among Asia-Pacific
+    countries to ensure that ships comply with international safety, environmental,
+    and labor standards.
+  url: https://parismou.org
+  official: true
+  country: "zz"
+tags:
+  - sector.maritime
+url: https://www.tokyo-mou.org/inspections_detentions/psc_database.php
+data:
+  url: https://www.tokyo-mou.org/inspections_detentions/psc_database.php
+  format: HTML
+  lang: eng
+
+# assertions:
+#   min:
+#     schema_entities:
+#       Company: 100
+#       Vessel: 100
+#   max:
+#     schema_entities:
+#       Company: 300
+#       Vessel: 300
