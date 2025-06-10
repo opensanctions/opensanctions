@@ -91,12 +91,8 @@ lookups:
         value: AU-HUMAN
       - match: "Autonomous (Thematic - Cyber)"
         value: AU-CYB
-      # Only one key in the source data but two different regimes: 
-      # https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/specified-ukraine-regions-sanctions-regime
-      # https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/ukraine-sanctions-regime
-      # TODO: check how to map 'AU-UKRAINE-REG' and 'AU-UKRAINE'
-      # - match: "Autonomous (Ukraine)"
-      #   value: "AU-UKRAINE"
+      - match: "Autonomous (Ukraine)"
+        value: AU-UKRAINE
       - match: "Autonomous (Syria)"
         value: AU-SYRIA
       - match: "Autonomous (Zimbabwe)"
@@ -113,7 +109,7 @@ lookups:
         value: UN-SC1591
       - match: "1718 (DPRK)"
         value: UN-SC1718
-      - match: 
+      - match:
           - "1970 (Libya) 1973 (Libya)"
           - "1970 (Libya)"
           - "1973 (Libya)"
