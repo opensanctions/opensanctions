@@ -139,6 +139,7 @@ lookups:
           - bigender
           - neutral sex
           - non-binary gender
+          - hijra # third gender of South Asian cultures
         value: other
       - match:
           - MALE
