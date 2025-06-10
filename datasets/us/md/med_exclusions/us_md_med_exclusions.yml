@@ -47,5 +47,8 @@ assertions:
 lookups:
   type.identifier:
     options:
-      - match: 5059016900
+      - match:
+          - 5059016900
+          - 5654229800
+          - 5887370400
         prop: registrationNumber
