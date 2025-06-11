@@ -142,8 +142,8 @@ def parse_xls_or_xlsx_sheet_from_url(context: Context, url: str, filename: str):
         )
         mimetype = XLSX
         workbook = openpyxl.load_workbook(filepath)
-        # One of the sheets is named "Data" and the other is named "Working" in separate files
-        sheet = load_sheet(workbook, ["Working", "Data"])
+        # One of the sheets is named "Data" or "Sheet1" and the other is named "Working" in separate files
+        sheet = load_sheet(workbook, ["Working", "Data", "Sheet1"])
         items = h.parse_xlsx_sheet(context, sheet, extract_links=True)
     else:
         filepath = shutil.move(
