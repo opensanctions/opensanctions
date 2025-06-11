@@ -112,7 +112,8 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
             desc = context.lookup_value("description", desc) or desc.strip()
             if desc.startswith("Born on "):
                 _, dob = desc.split("Born on ", 1)
-                person.add_cast("Person", "birthDate", dob.strip())
+                person.add_schema("Person")
+                h.apply_date(person, "birthDate", dob.strip())
             else:
                 person.add("notes", desc)
     person.add("topics", "corp.disqual")
