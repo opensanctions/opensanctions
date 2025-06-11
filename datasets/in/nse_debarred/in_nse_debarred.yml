@@ -173,3 +173,5 @@ lookups:
           - REVOKED AS PER NSE CIRCULAR NO. NSE/INVG/21772
           - REVOKED AS PER NSE CIRCULAR NSE/INVG/20504
         value: null
+      - match: "REVOKED ON 16.05.20025"
+        value: "2025-05-16"
