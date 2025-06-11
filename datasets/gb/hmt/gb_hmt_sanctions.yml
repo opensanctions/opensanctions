@@ -935,6 +935,8 @@ lookups:
       - match:
           - Iraq (previous address)
         value: IQ
+      - match: Occupied Golan Heights
+        value: IL # Currently under Israeli civilian law, but internationally recognized as part of Syria
   type.email:
     options:
       - match: "Email: scot50@scn-net.org"
