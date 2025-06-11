@@ -1,4 +1,5 @@
 from xml.etree import ElementTree
+
 from normality import collapse_spaces
 
 from zavod import Context
@@ -153,9 +154,7 @@ def crawl(context: Context):
     )
     doc.make_links_absolute(context.data_url)
 
-    for person_node in doc.xpath(
-        './/div[contains(@class, "most-wanted-landing")]//li//a'
-    ):
+    for person_node in doc.xpath('.//ul[contains(@class, "usa-card-group")]//li//a'):
         url = person_node.get("href")
         wanted_for = person_node.xpath(wanted_xpath)[0].text_content()
         crawl_person(context, url, wanted_for)
