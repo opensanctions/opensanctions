@@ -56,6 +56,9 @@ data:
 http:
   retry_statuses: [503, 429, 403, 504]
 
+dates:
+  formats: ["%d %B %Y", "%d %b %Y", "%Y-%m-%d"]
+
 assertions:
   min:
     schema_entities:
@@ -67,6 +70,12 @@ assertions:
       Company: 13030
 
 lookups:
+  description:
+    options:
+      - match:
+          - Disqualified
+        value: null
+
   type.address:
     lowercase: true
     options:
@@ -100,7 +109,6 @@ lookups:
         value: BA
       - match: Guinea-Bissuan
         value: GW
-
 
   type.date:
     options:

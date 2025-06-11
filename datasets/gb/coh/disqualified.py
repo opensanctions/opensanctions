@@ -54,7 +54,6 @@ def http_get(
 def build_address(
     context: Context, full: str, address_data: dict[str, Optional[str]]
 ) -> Optional[Entity]:
-
     address_components = {
         "street": address_data.get("address_line_1"),
         "street2": address_data.get("premises"),
@@ -107,7 +106,15 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     person.id = context.make_slug(officer_id)
 
     person.add("name", listing.get("title"))
-    person.add("notes", listing.get("description"))
+    description = listing.get("description", "")
+    if description is not None and len(description) > 0:
+        for desc in description.split(" - "):
+            desc = context.lookup_value("description", desc) or desc.strip()
+            if desc.startswith("Born on "):
+                _, dob = desc.split("Born on ", 1)
+                person.add_cast("Person", "birthDate", dob.strip())
+            else:
+                person.add("notes", desc)
     person.add("topics", "corp.disqual")
     source_url = urljoin(WEB_URL, links.get("self"))
     person.add("sourceUrl", source_url)
