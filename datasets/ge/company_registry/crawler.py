@@ -1,4 +1,5 @@
 import csv
+from typing import Any, Dict
 from normality.cleaning import collapse_spaces
 from followthemoney.types import registry
 
@@ -6,7 +7,7 @@ from zavod import Context, helpers as h
 from zavod.shed.internal_data import fetch_internal_data
 
 
-def crawl_row(context: Context, row: list) -> None:
+def crawl_row(context: Context, row: Dict[str, Any]) -> None:
     id = row.pop("id")
     name = row.pop("name")
     legal_form = row.pop("legal_form")
@@ -31,6 +32,7 @@ def crawl_row(context: Context, row: list) -> None:
     entity.id = context.make_id(id, name, reg_date)
     entity.add("name", name)
     entity.add("legalForm", legal_form)
+    entity.add("jurisdiction", "ge")
     if reg_date != "NULL":
         h.apply_date(entity, "incorporationDate", reg_date)
     for add in h.multi_split(row.pop("address"), ["; ", " / "]):
@@ -72,7 +74,7 @@ def crawl_row(context: Context, row: list) -> None:
 def emit_rel(
     context: Context,
     schema_name: str,
-    row: list,
+    row: Dict[str, Any],
     name: str,
     entity,
     id: str,
