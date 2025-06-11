@@ -171,3 +171,50 @@ lookups:
             npi: '1164170635'
             action_type_suspend_terminate: 'Suspend'
             effective_date: '10/13/2023'
+      - match: |
+          name-provider-serene-health-center-llc-npi-1861128563-action-type-suspend-terminate-suspend-effective-date-11-3-2023
+          name-provider-gifted-behavioral-health-llc-na-starr-innovations-npi-1659944817-n1619541091-action-type-suspend-terminate-suspend-effective-date-11-3-2023-n10-13-2023
+          name-provider-none-npi-none-action-type-suspend-terminate-suspend-effective-date-none
+          name-provider-east-harmony-point-llc-npi-1225742505-action-type-suspend-terminate-suspend-effective-date-10-13-2023
+        rows:
+          - name_provider: 'Serene Health Center, LLC'
+            npi: '1861128563'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '11/3/2023'
+          - name_provider: 'Gifted Behavioral Health, LLC'
+            npi: '1659944817'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '11/3/2023'
+          - name_provider: 'A Starr Innovations'
+            npi: '1619541091'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '10/13/2023'
+          - name_provider: 'East Harmony Point, LLC'
+            npi: '1225742505'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '10/13/2023'
+      - match: |
+          name-provider-legacy-healing-health-community-llc-npi-1083356877-action-type-suspend-terminate-suspend-effective-date-11-9-2023
+          name-provider-helping-handz-counseling-services-outpatent-ntreatment-center-corp-npi-1811597552-action-type-suspend-terminate-suspend-effective-date-11-9-2023
+          name-provider-none-npi-1518567254-action-type-suspend-terminate-none-effective-date-11-9-2023
+          name-provider-none-npi-1891395604-action-type-suspend-terminate-none-effective-date-11-9-2023
+          name-provider-harmony-and-wellness-ngrand-services-and-more-llc-npi-1235850959-n1336885912-action-type-suspend-terminate-suspend-nsuspend-effective-date-11-9-2023
+          name-provider-none-npi-none-action-type-suspend-terminate-none-effective-date-11-9-2023
+          name-provider-true-answer-community-wellness-npi-1790411825-action-type-suspend-terminate-suspend-effective-date-11-3-2023
+        rows:
+          - name_provider: 'Legacy Healing Health Community LLC'
+            npi: '1083356877'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '11/9/2023'
+          - name_provider: 'Helping Handz Counseling Services Outpatent Treatment Center, Corp'
+            npi: ['1811597552', '1518567254', '1891395604']
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '11/9/2023'
+          - name_provider: 'Harmony and Wellness Grand Services and More, LLC'
+            npi: ['1235850959', '1336885912']
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '11/9/2023'
+          - name_provider: 'True Answer Community Wellness'
+            npi: '1790411825'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '11/3/2023'
