@@ -110,6 +110,11 @@ def split_phone(text: str):
     return [text]
 
 
+def filter_unknown(value: List[str]) -> List[str]:
+    """Filter out '-'."""
+    return [v for v in value if v.strip() not in ["-"]]
+
+
 def parse_row(context: Context, row: Dict[str, Any]):
     group_type = row.pop("GroupTypeDescription")
     listing_date = row.pop("DateListed")
@@ -184,7 +189,9 @@ def parse_row(context: Context, row: Dict[str, Any]):
     title = h.multi_split(text, NUMBER_SPLITS)
     entity.add("title", title, quiet=True)
 
-    pobs = h.multi_split(row.pop("Individual_TownOfBirth", None), NUMBER_SPLITS)
+    pobs = filter_unknown(
+        h.multi_split(row.pop("Individual_TownOfBirth", None), NUMBER_SPLITS)
+    )
     entity.add_cast("Person", "birthPlace", pobs)
 
     dob = row.pop("Individual_DateOfBirth", None)
@@ -269,7 +276,7 @@ def parse_row(context: Context, row: Dict[str, Any]):
     # TODO: where do I stuff this?
 
     ni_number = row.pop("Individual_NINumber", None)
-    ni_numbers = h.multi_split(ni_number, NUMBER_SPLITS)
+    ni_numbers = filter_unknown(h.multi_split(ni_number, NUMBER_SPLITS))
     entity.add_cast("Person", "idNumber", ni_numbers)
     row.pop("Individual_NIDetails", None)
     # ni_details = split_items(ni_detail)
