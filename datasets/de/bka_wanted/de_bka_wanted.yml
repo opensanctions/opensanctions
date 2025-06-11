@@ -74,6 +74,8 @@ lookups:
         value: lb
       - match: griechisch
         value: gr
+      - match: ukrainisch
+        value: ua
 assertions:
   min:
     schema_entities:
