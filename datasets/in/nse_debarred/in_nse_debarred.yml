@@ -12,6 +12,7 @@ description: |
   Stock Exchange of India (NSE) based on orders / directions from the Securities
   and Exchange Board of India (SEBI) and other Competent Authorities.
   The debarred entities are prohibited from selling securities in the market.
+ci_test: false # Uses Zyte for requests, which is not supported in CI
 
 publisher:
   name: National Stock Exchange of India Limited
