@@ -1,0 +1,108 @@
+url: "https://data.opensanctions.org/datasets/latest/default/targets.nested.json"
+# datase: default
+
+# delivery.opensanctions.org/csv/formats/customer_x/index.json?api_key=
+# delivery.opensanctions.org/csv/formats/customer_x/latest.csv?api_key=
+
+filters:
+  # and:
+  # or:
+  topics:
+    - role.pep
+    - role.rca
+  schemata:
+    - Person
+
+sample_size: 150000
+columns:
+  id:
+    path: .id
+  type:
+    path: .properties.topics[]?
+    multi: join
+    join: "/"
+    rewrite:
+      role.pep: PEP
+      role.rca: RCA
+    rewrite_missing: remove
+  name:
+    path: .caption
+  alias:
+    path: . as $root | ((.properties.name // []) + (.properties.alias // [])) - [$root.caption] | .[]
+    multi: column
+    unique: true
+    sort: true
+    max: 5
+  first_name:
+    path: .properties.firstName[]?
+    multi: column
+    repeat: false
+    unique: true
+    max: 5
+  middle_name:
+    path: (.properties.middleName // []) + (.properties.secondName // []) | .[]
+    multi: column
+    repeat: false
+    unique: true
+    max: 5
+  patronymic:
+    path: (.properties.fatherName // []) + (.properties.motherName // []) | .[]
+    multi: column
+    repeat: false
+    unique: true
+    max: 5
+  last_name:
+    path: .properties.lastName[]?
+    multi: column
+    repeat: false
+    unique: true
+    max: 5
+  birth_date:
+    path: .properties.birthDate[]?
+    multi: column
+    repeat: false
+    max: 3
+  birth_place:
+    path: .properties.birthPlace[]?
+    multi: column
+    repeat: false
+    max: 3
+  country:
+    path: (.properties.nationality // []) + (.properties.citizenship // []) + (.properties.country // []) + (.properties.birthCountry // []) | .[]
+    multi: column
+    unique: true
+    repeat: false
+    # labels: true
+    max: 5
+  gender:
+    path: .properties.gender[]?
+    multi: row
+    repeat: false
+    max: 1
+  position_names:
+    path: "(.properties.positionOccupancies // []) | (.[].properties.post // []) | (.[].properties.name // []) | .[]"
+    sort: true
+    unique: true
+    # ascii: true
+    multi: join
+    join: "; "
+    repeat: false
+  position_country:
+    path: "(.properties.positionOccupancies // []) | (.[].properties.post // []) | (.[].properties.country // []) | .[]"
+    sort: true
+    unique: true
+    multi: join
+    join: "; "
+    repeat: false
+  position_status:
+    path: "(.properties.positionOccupancies // []) | (.[].properties.status // []) | .[]"
+    sort: true
+    unique: true
+    multi: join
+    join: "; "
+    repeat: false
+  sources:
+    path: .datasets | .[]
+    sort: true
+    multi: join
+    join: "; "

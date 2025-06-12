@@ -1,0 +1,85 @@
+url: "https://data.opensanctions.org/datasets/latest/default/targets.nested.json"
+filters:
+  topics:
+    - role.pep
+    - role.rca
+  schemata:
+    - Person
+
+columns:
+  id:
+    path: .id
+  type:
+    path: .properties.topics[]?
+    multi: join
+    join: "/"
+    rewrite:
+      role.pep: PEP
+      role.rca: RCA
+    rewrite_missing: remove
+  name:
+    path: .caption
+  alias:
+    path: . as $root | ((.properties.name // []) + (.properties.alias // [])) - [$root.caption] | .[]
+    multi: row
+    unique: true
+    sort: true
+  first_name:
+    path: .properties.firstName[]?
+    multi: row
+    repeat: false
+  middle_name:
+    path: (.properties.middleName // []) + (.properties.secondName // []) | .[]
+    multi: row
+    repeat: false
+  patronymic:
+    path: (.properties.fatherName // []) + (.properties.motherName // []) | .[]
+    multi: row
+    repeat: false
+  last_name:
+    path: .properties.lastName[]?
+    multi: row
+    repeat: false
+  birth_date:
+    path: .properties.birthDate[]?
+    multi: row
+    repeat: false
+  birth_place:
+    path: .properties.birthPlace[]?
+    multi: row
+    repeat: false
+  country:
+    path: (.properties.nationality // []) + (.properties.citizenship // []) + (.properties.country // []) + (.properties.birthCountry // []) | .[]
+    multi: row
+    unique: true
+    repeat: false
+  gender:
+    path: .properties.gender[]?
+    multi: row
+    repeat: false
+  position_names:
+    path: "(.properties.positionOccupancies // []) | (.[].properties.post // []) | (.[].properties.name // []) | .[]"
+    sort: true
+    unique: true
+    multi: join
+    join: "; "
+    repeat: false
+  position_country:
+    path: "(.properties.positionOccupancies // []) | (.[].properties.post // []) | (.[].properties.country // []) | .[]"
+    sort: true
+    unique: true
+    multi: join
+    join: "; "
+    repeat: false
+  position_status:
+    path: "(.properties.positionOccupancies // []) | (.[].properties.status // []) | .[]"
+    sort: true
+    unique: true
+    multi: join
+    join: "; "
+    repeat: false
+  sources:
+    path: .datasets | .[]
+    sort: true
+    multi: join
+    join: "; "
