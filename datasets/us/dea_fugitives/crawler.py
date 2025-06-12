@@ -59,14 +59,19 @@ def crawl_item(fugitive_url: str, context: Context):
     entity.add("eyeColor", info_dict.pop("Eye Color", None))
     entity.add("notes", info_dict.pop("Notes", None))
 
-    description = "".join(
-        [
-            d.text_content()
-            for d in response.findall('.//div[@class="meta"]')
-            if "Wanted for the following" in d.text_content()
-        ]
-    )
-    entity.add("notes", description)
+    for meta in response.findall('.//div[@class="meta"]'):
+        heading = meta.findtext("./h3")
+        if heading is None:
+            context.log.warning("No heading found in meta, skipping", url=fugitive_url)
+            continue
+        text = meta.findtext("./div")
+        if text is None:
+            context.log.warning("No text found in meta, skipping", url=fugitive_url)
+            continue
+        if "Wanted for the following" in heading:
+            entity.add("notes", text)
+        if "AKA" in heading:
+            entity.add("weakAlias", text.split(","))
 
     for key, val in info_dict.items():
         entity.add("notes", f"{key}: {val}")
