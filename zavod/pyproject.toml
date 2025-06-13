@@ -35,7 +35,7 @@ dependencies = [
     "orjson == 3.10.18",
     "ijson > 3.2, < 4.0",
     "pantomime == 0.6.1",
-    "pdfplumber == 0.11.6",
+    "pdfplumber == 0.11.7",
     "prefixdate",
     "psycopg2-binary",
     "pyicu == 2.15.2",
