@@ -53,7 +53,7 @@ def crawl_item(fugitive_url: str, context: Context):
             continue
 
         if "Wanted for the following" in heading:
-            entity.add("notes", text)
+            entity.add("notes", f"{heading} {text}")
 
         if "AKA" in heading:
             aliases = h.multi_split(text, [" and ", ";", "/", ","])
