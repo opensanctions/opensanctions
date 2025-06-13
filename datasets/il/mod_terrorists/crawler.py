@@ -75,7 +75,7 @@ def crawl_individuals(context: Context):
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     for record in excel_records(path):
         seq_id = record.pop("internal_seq_id", None)
-        if seq_id is None:
+        if seq_id in [None, '="-"']:
             continue
         name_en = record.pop("name_of_individual_english", None)
         name_he = record.pop("name_of_individual_hebrew", None)
@@ -104,6 +104,7 @@ def crawl_individuals(context: Context):
         sanction.add("program", record.pop("designation", None))
         sanction.add("program", record.pop("foreign_designation", None))
         sanction.add("authority", lang_pick(record, "designated_by"))
+        entity.add("notes", record.pop("additional_information", None))
 
         lang_pick(record, "designated_by_abroad")
         record.pop("date_of_foreign_designation_date", None)
@@ -113,7 +114,9 @@ def crawl_individuals(context: Context):
 
         context.emit(entity)
         context.emit(sanction)
-        context.audit_data(record)
+        context.audit_data(
+            record, ignore=["header"]  # Seems to always be empty, not sure what this is
+        )
 
 
 def crawl_organizations(context: Context):

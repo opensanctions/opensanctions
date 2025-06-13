@@ -149,7 +149,9 @@ lookups:
         value: Yemen
   type.date:
     options:
-      - match: '="---"'
+      - match:
+          - '="---"'
+          - '="-"'
         value: null
       - match:
           - לינק להכרזה
