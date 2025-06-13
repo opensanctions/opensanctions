@@ -1,6 +1,7 @@
 from time import sleep
 
 from zavod import Context
+from zavod import helpers as h
 
 # 1s delay seems to be enough to avoid getting blocked, while it takes a long
 # time to get unblocked after about 10 requests.
@@ -53,18 +54,25 @@ def crawl_item(fugitive_url: str, context: Context):
     entity.add("notes", info_dict.pop("Notes", None))
 
     for meta in response.findall('.//div[@class="meta"]'):
-        heading = meta.findtext("./h3")
+        heading = meta.findtext("./*[@class='meta__heading']")
         if heading is None:
             context.log.warning("No heading found in meta, skipping", url=fugitive_url)
             continue
-        text = meta.findtext("./div")
+        text = meta.findtext("./*[@class='meta__value']")
         if text is None:
             context.log.warning("No text found in meta, skipping", url=fugitive_url)
             continue
+
         if "Wanted for the following" in heading:
             entity.add("notes", text)
+
         if "AKA" in heading:
-            entity.add("weakAlias", text.split(","))
+            aliases = h.multi_split(text, [" and ", ";", "/", ","])
+            aliases = [a for a in aliases if a.strip() not in ["None", "N/A", "-"]]
+            # Sometimes aliases are quoted
+            aliases = [a.strip('"') for a in aliases]
+
+            entity.add("weakAlias", aliases)
 
     for key, val in info_dict.items():
         entity.add("notes", f"{key}: {val}")
