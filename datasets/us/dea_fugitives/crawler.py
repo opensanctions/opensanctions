@@ -17,25 +17,14 @@ HEADERS = {
 }
 
 
-def parse_table(table):
-    """This function is used to parse the table of Labels and Descriptions
-    about the fugitive and return as a dict.
-    """
-    info_dict = {}
-    # The first row will always be the header (Label, Description)
-    # So we can skip it.
-    for row in table.findall(".//tr")[1:]:
-        label = row.findtext(".//td[1]")
-        description = row.findtext(".//td[2]")
-        info_dict[label] = description
-    return info_dict
-
-
 def crawl_item(fugitive_url: str, context: Context):
     response = context.fetch_html(fugitive_url, cache_days=7, headers=HEADERS)
 
     name = response.findtext('.//h2[@class="fugitive__title"]')
-    info_dict = parse_table(response.find(".//table"))
+    info_dict = {
+        row["label"].text_content(): row["description"].text_content()
+        for row in h.parse_html_table(response.find(".//table"))
+    }
 
     entity = context.make("Person")
     entity.id = context.make_id(fugitive_url)
