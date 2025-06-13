@@ -1067,3 +1067,9 @@ lookups:
           - Karen Pignet-Aiach
           - Gad Aiach
           - Michaël Chetrit
+      - match: "Société European TopSoho<br /> Société Dynamic Treasure Group<br /> Société SMCP SA<br /> Mme Chenran Qiu"
+        entities:
+          - European TopSoho
+          - Dynamic Treasure Group
+          - SMCP SA
+          - Chenran Qiu
