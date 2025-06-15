@@ -16,7 +16,7 @@ from zavod.exporters.statements import StatementsCSVExporter
 from zavod.exporters.maritime import MaritimeExporter
 from zavod.exporters.delta import DeltaExporter
 
-# from zavod.exporters.fragment import ViewFragment
+from zavod.exporters.fragment import ViewFragment
 from zavod.exporters.metadata import write_dataset_index, write_issues
 from zavod.exporters.metadata import write_catalog, write_delta_index
 
@@ -70,11 +70,11 @@ def export_data(context: Context, view: View) -> None:
 
     for idx, entity in enumerate(view.entities()):
         # Use it once we figure memory explosion out
-        # fragment = ViewFragment(view, entity)
+        fragment = ViewFragment(view, entity)
         if idx > 0 and idx % 10000 == 0:
             log.info("Exported %s entities..." % idx, dataset=context.dataset.name)
         for exporter in exporters:
-            exporter.feed(entity, view)
+            exporter.feed(entity, fragment)
 
     for exporter in exporters:
         exporter.finish(view)

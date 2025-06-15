@@ -12,10 +12,12 @@ class ViewFragment(View[Dataset, Entity]):
     from a larger View. It is useful for accelerating multiple exporters that access the same entity context.
     """
 
+    MAX_BUFFER = 1_000
+
     def __init__(self, view: ZavodView, entity: Entity):
         self.view: ZavodView = view
         self.entity = entity
-        self._entities: Dict[str, Entity] = {}
+        self._entities: Dict[str, Optional[Entity]] = {}
         self._inverted: Dict[str, List[str]] = {}
         if entity.id is not None:
             self._entities[entity.id] = entity
@@ -27,7 +29,7 @@ class ViewFragment(View[Dataset, Entity]):
         if id in self._entities:
             return self._entities[id]
         entity = self.view.get_entity(id)
-        if entity is not None:
+        if len(self._entities) < self.MAX_BUFFER:
             self._entities[id] = entity
         return entity
 
@@ -49,7 +51,5 @@ class ViewFragment(View[Dataset, Entity]):
                 yield prop, entity
 
     def entities(self) -> Generator[Entity, None, None]:
-        for entity in self.view.entities():
-            if entity.id is not None:
-                self._entities[entity.id] = entity
-            yield entity
+        # Don't cache entities here
+        yield from self.view.entities()
