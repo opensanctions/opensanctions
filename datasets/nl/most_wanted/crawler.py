@@ -93,18 +93,14 @@ def crawl(context: Context) -> None:
     for page in itertools.count(start=1):
         doc = context.fetch_html(context.data_url, params={"page": page}, cache_days=1)
         doc.make_links_absolute(context.data_url)
-        for detail_url in doc.xpath(
-            "//a[contains(@test-id, 'wantedmissing-link')]/@href"
-        ):
-            if not detail_url:
-                context.log.warning("Missing detail URL")
+        detail_url_xpath = "//a[contains(@test-id, 'wantedmissing-link')]/@href"
+        detail_urls = doc.xpath(detail_url_xpath)
+        if not detail_urls:
+            context.log.info("No more pages found, stopping crawl")
+            break
+        for detail_url in detail_urls:
             # The website also contains some other search notices that we don't care about
             if detail_url.startswith(FUGITIVES_URL_PREFIX):
                 crawl_person(context, detail_url)
 
-        next_button = doc.find(
-            ".//pwc-paginator-navigation-button[@data-name='next-page-button']"
-        )
-        assert next_button is not None, "Next page button not found in page"
-        if "disabled" in next_button.attrib:
-            break
+        assert page < 100, "Unlikely to have more than 100 pages, maybe broken."

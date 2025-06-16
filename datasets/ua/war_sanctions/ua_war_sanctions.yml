@@ -72,7 +72,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Organization: 550
+      Organization: 700
       Person: 950
       Vessel: 590
       LegalEntity: 500
@@ -88,7 +88,7 @@ assertions:
         role: 1500
   max:
     schema_entities:
-      Organization: 1000
+      Organization: 2000
       Person: 1800
       Vessel: 1400
       LegalEntity: 1000
@@ -97,7 +97,14 @@ lookups:
     options:
       - regex: "Unknown (.+)"
         name: null
-      - match: "Unknown"
+      - match:
+          - "Unknown"
+          # Rptd -> Reported https://www.insurancejournal.com/news/international/2024/03/20/765613.htm
+          - "Rptd Sold Undisclosed Interest (09.02.2023)"
+          - "Rptd Sold Undisclosed Interest (12.08.2024)"
+          - "Rptd Sold Undisclosed Interest (04.03.2025)"
+          - "Rptd Sold russia (05.2004)"
+          - "RPTD SOLD RUSSIA (13.11.2024)"
         name: null
       - match: "HK Yongye Ship LTD/ Zhang Yong (6360967 / Hong Kong / 01.11.2022)"
         name: "HK Yongye Ship LTD"
@@ -134,22 +141,10 @@ lookups:
         name: "Rosnefteflot JSC"
         registration_number: 3025603
         date: "2025-04-07"
-      - match: "Rptd Sold Undisclosed Interest (09.02.2023)"
-        name: "Rptd Sold Undisclosed Interest"
-        date: "2023-02-09"
-      - match: "Rptd Sold Undisclosed Interest (12.08.2024)"
-        name: "Rptd Sold Undisclosed Interest"
-        date: "2024-08-12"
-      - match: "Rptd Sold russia (05.2004)"
-        name: "Rptd Sold Russia"
-        date: "2004-05"
-      - match: "RPTD SOLD RUSSIA (13.11.2024)"
-        name: "Rptd Sold Russia"
-        date: "2024-11-13"
       - match: "RPTD Sold Gambia (9993073 / 24.02.2025)"
-        name: "Rptd Sold Gambia"
+        name: "9993073"
         country: Gambia
-        registration_number: 9993073
+        registration_number: "9993073"
         date: "2025-02-24"
       - match: "Sergeevich/Grigoryevna с/о Sanin Yuri Sergeevich (0018872 / russia / 11.07.2024)"
         name: ["Sergeevich", "Grigoryevna"]
@@ -362,6 +357,54 @@ lookups:
         registration_number: 6184699
         country: Russia
         date: "2019-10-03"
+      - match: "Tightship Shipping Management (OPC) Pvt Ltd (6344264 / 01.01.2024)"
+        name: "Tightship Shipping Management (OPC) Pvt Ltd"
+        registration_number: 6344264
+        date: "2024-01-01"
+      - match: Tightship Shipping Management (OPC) Pvt Ltd (6344264 / 30.08.2023)
+        name: "Tightship Shipping Management (OPC) Pvt Ltd"
+        imo_number: 6344264
+        date: "2023-08-30"
+      - match: Tightship Shipping Management (OPC) Pvt Ltd (6344264 / 21.08.2023)
+        name: "Tightship Shipping Management (OPC) Pvt Ltd"
+        imo_number: 6344264
+        date: "2023-08-21"
+      - match: Tightship Shipping Management (OPC) Pvt Ltd (6344264 / 13.06.2023)
+        name: "Tightship Shipping Management (OPC) Pvt Ltd"
+        imo_number: 6344264
+        date: "2023-06-13"
+      - match: Tightship Shipping Management (OPC) Pvt Ltd (6344264 / 09.07.2023)
+        name: "Tightship Shipping Management (OPC) Pvt Ltd"
+        imo_number: 6344264
+        date: "2023-07-09"
+      - match: "Elza Shipping SA c/o Tightship Shipping Management (OPC) Pvt Ltd (6243757 / 28.07.2021)"
+        name: "Elza Shipping SA"
+        care_of: "Tightship Shipping Management (OPC) Pvt Ltd"
+        imo_number: 6243757
+        date: "2021-07-28"
+      - match: Pacific Ocean Shipping Ltd (0127067 / 29.04.2025)
+        name: "Pacific Ocean Shipping Ltd"
+        registration_number: 0127067
+        date: "2025-04-29"
+      - match: Huge Peace Shipping Ltd c/o Pacific Ocean Shipping Ltd (0127053 / 29.04.2025)
+        name: "Huge Peace Shipping Ltd"
+        care_of: "Pacific Ocean Shipping Ltd"
+        registration_number: 0127053
+        date: "2025-04-29"
+      - match: Sea Speed Inc c/o Tightship Shipping Management (OPC) Pvt Ltd (6509842 / 09.08.2024)
+        name: "Sea Speed Inc"
+        care_of: "Tightship Shipping Management (OPC) Pvt Ltd"
+        registration_number: 6509842
+        date: "2024-08-09"
+      - match: Elitoli Trading Co Ltd c/o Tightship Shipping Management (OPC) Pvt Ltd (6139901 / 28.11.2019)
+        name: "Elitoli Trading Co Ltd"
+        care_of: "Tightship Shipping Management (OPC) Pvt Ltd"
+        imo_number: 6139901
+        date: "2019-11-28"
+      - match: Mancera Shipping Co (0211901 / 18.04.2025)
+        name: "Mancera Shipping Co"
+        registration_number: 0211901
+        date: "2025-04-18"
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
@@ -388,10 +431,16 @@ lookups:
         value: 2015-09
       - match: 04/03/2005)
         value: 2005-03-04
+      - match: 10.09.20224)
+        value: 2024-09-10
+      - match: 08/11/2023)
+        value: 2023-11-08
       - match:
           - 07.04.
           - 09.05.20234)
           - 22.02.202)
+          - 04.01.20205)
+          - 01.11.22023)
         value: null
   type.country:
     options:

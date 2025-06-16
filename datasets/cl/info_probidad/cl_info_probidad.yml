@@ -175,11 +175,12 @@ lookups:
           - SUBADMINISTRADOR ZONAL
           - SUBJEFE DEPTO. DE RECURSOS HUMANOS
           - MERCADO_PÚBLICO
+          - DEFENSOR(A) NACIONAL
 
       - is_pep: null # haven't looked closely yet
         regex:
           - ".*\\bJEFE\\b"
-          - ".*\\bDIRECTOR\\b"
+          - ".*\\bDIRECTORA?\\b"
       - is_pep: null
         match:
           - "ABOGADA"
