@@ -5,6 +5,7 @@ from followthemoney.property import Property
 from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.store import View as ZavodView
+from zavod.exporters.consolidate import consolidate_entity
 
 
 class ViewFragment(View[Dataset, Entity]):
@@ -29,8 +30,10 @@ class ViewFragment(View[Dataset, Entity]):
         if id in self._entities:
             return self._entities[id]
         entity = self.view.get_entity(id)
-        if len(self._entities) < self.MAX_BUFFER:
-            self._entities[id] = entity
+        if entity is not None:
+            entity = consolidate_entity(self.view.store.linker, entity)
+            if len(self._entities) < self.MAX_BUFFER:
+                self._entities[id] = entity
         return entity
 
     def get_inverted(self, id: str) -> Generator[Tuple[Property, Entity], None, None]:

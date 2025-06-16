@@ -1,5 +1,6 @@
 from typing import List, Dict, Type, Set
 
+from zavod.exporters.consolidate import consolidate_entity
 from zavod.logs import get_logger
 from zavod.store import View
 from zavod.context import Context
@@ -70,6 +71,7 @@ def export_data(context: Context, view: View) -> None:
 
     for idx, entity in enumerate(view.entities()):
         # Use it once we figure memory explosion out
+        entity = consolidate_entity(view.store.linker, entity)
         fragment = ViewFragment(view, entity)
         if idx > 0 and idx % 10000 == 0:
             log.info("Exported %s entities..." % idx, dataset=context.dataset.name)
