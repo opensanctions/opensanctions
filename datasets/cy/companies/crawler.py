@@ -42,7 +42,9 @@ def parse_organisations(
         entity = context.make("Company")
         entity.id = company_id(org_type, reg_nr)
         if entity.id is None:
-            context.log.error("Could not make ID", org_type=org_type, reg_nr=reg_nr)
+            context.log.error(
+                "Could not make ID", org_type=org_type, reg_nr=reg_nr, row=row
+            )
             continue
         entity.add("name", row.pop("ORGANISATION_NAME"), lang="mul")
         entity.add("status", row.pop("ORGANISATION_STATUS"))
