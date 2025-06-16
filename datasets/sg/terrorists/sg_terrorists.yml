@@ -28,9 +28,7 @@ url: https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-
 data:
   url: https://sso.agc.gov.sg/Act/TSFA2002?ProvIds=Sc1-#Sc1-
   format: HTML
-http:
-  # If no User-Agent set, Cloudfront serves a 403
-  user_agent: "Mozilla/5.0 (X11; Linux x86_64; rv:136.0) Gecko/20100101 Firefox/136.0 (zavod; opensanctions.org)"
+ci_test: false # Uses Zyte for requests, which is not supported in CI
 dates:
   formats: ["%d %B %Y"]
 tags:
