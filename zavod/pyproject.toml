@@ -45,7 +45,7 @@ dependencies = [
     "requests_oauthlib",
     "sqlalchemy[mypy]",
     "structlog",
-    "xlrd == 2.0.1",
+    "xlrd == 2.0.2",
     "cryptography",
     "duckdb == 1.2.2",
     "sentry-sdk >= 2.20.0, <3.0.0",
