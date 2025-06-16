@@ -376,6 +376,7 @@ def crawl_ship_relation(
             context.log.warning(
                 f"Couldn't parse vessel-related party '{relation_info}'",
                 string=relation_info,
+                vessel=vessel.id,
             )
             return
     other_entity = emit_relation(
