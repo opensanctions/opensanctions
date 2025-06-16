@@ -4,6 +4,7 @@ from rigour.mime.types import HTML
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed import zyte_api
 
 IN_BRACKETS = re.compile(r"\(([^\)]*)\)")
 PROGRAM = "Terrorism (Suppression of Financing) Act 2002; Schedule 2"
@@ -12,10 +13,12 @@ PASSPORT = "Passport No."
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.html", context.data_url)
-    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
-        doc = html.parse(fh)
+    _, _, _, html_source = zyte_api.fetch_text(context, context.data_url)
+    doc = html.fromstring(html_source)
+
+    html_resource_path = context.get_resource_path("source.html")
+    html_resource_path.write_text(html_source)
+    context.export_resource(html_resource_path, HTML, title=context.SOURCE_TITLE)
 
     for node in doc.findall(".//td[@class='tailSTxt']"):
         if not node.text_content().startswith("2."):
