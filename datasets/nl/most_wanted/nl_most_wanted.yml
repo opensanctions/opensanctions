@@ -15,7 +15,7 @@ description: |
   > police's hit list.
 tags:
   - list.wanted
-url: https://www.politie.nl/en/wanted-and-missing/most-wanted
+url: https://www.politie.nl/en/wanted/most-wanted-list
 publisher:
   name: Korps Nationale Politie
   description: |
@@ -24,7 +24,7 @@ publisher:
   url: https://www.government.nl/ministries/ministry-of-foreign-affairs
   official: true
 data:
-  url: "https://www.politie.nl/en/wanted"
+  url: "https://www.politie.nl/en/wanted/most-wanted-list"
   format: HTML
   lang: eng
 
