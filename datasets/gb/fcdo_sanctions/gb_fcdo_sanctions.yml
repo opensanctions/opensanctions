@@ -54,7 +54,7 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match: 
+      - match:
           - "The Afghanistan (Sanctions) (EU Exit) Regulations 2020"
           - "Isil (Da'esh) and Al-Qaeda (United Nations Sanctions) (EU Exit) Regulations 2019"
           - "The Republic of Belarus (Sanctions) (EU Exit) Regulations 2019"
@@ -125,6 +125,10 @@ lookups:
         value: kat
       - match: Thai
         value: tha
+      - match: Polish
+        value: pol
+      - match: Czech
+        value: ces
   name_type:
     lowercase: true
     normalize: true

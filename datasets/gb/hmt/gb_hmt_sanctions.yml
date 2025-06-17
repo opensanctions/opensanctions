@@ -323,6 +323,8 @@ lookups:
       - match: "OGRN: 1027802490540"
         prop: ogrnCode
         value: 1027802490540
+      - match: 774376344
+        value: 7743763446  # ru_egrul
   companies:
     normalize: true
     options:
@@ -406,6 +408,7 @@ lookups:
           - HK Kongsing Co., Limited
           - Joint Stock Company Ruschem
           - LLC MC FORTIS-INVEST
+          - PJSC Rosneft
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
