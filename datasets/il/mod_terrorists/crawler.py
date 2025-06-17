@@ -9,7 +9,7 @@ from zavod import helpers as h
 
 ORG_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx"
 PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel%20designation%20Individuals_XL.xlsx"
-NA_VALUE = re.compile(r"^[\-\/]+$")
+NA_VALUE = re.compile(r"^=?[\"\-\/]+$")
 END_TAG = re.compile(r"בוטל ביום", re.U)
 SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n"]
 DATE_SPLITS = ["OR", ";", " - ", "a) ", "b) ", "c) "]
