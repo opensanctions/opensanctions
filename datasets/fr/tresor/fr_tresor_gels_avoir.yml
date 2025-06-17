@@ -927,6 +927,10 @@ lookups:
         props:
           registrationNumber: W9220127754
           incorporationDate: 2018-07-27
+      - match: "déclarée à la sous-préfecture de Château-Chinon (58) le 18 juin 1990 sous le numéro W581000677: W581000677"
+        props:
+          registrationNumber: W581000677
+          incorporationDate: 1990-06-18
       - match: "Numéro d'enregistrement - Date d'enregistrement : 25/02/1966: 400051902"
         props:
           registrationNumber:

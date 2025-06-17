@@ -66,5 +66,7 @@ lookups:
         value: 1558374140
       - match: 179053341
         value: 1790593341
-      - match: 68123
+      - match:
+          - 68123
+          - 1013706432
         value: null
