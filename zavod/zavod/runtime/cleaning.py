@@ -65,7 +65,7 @@ def value_clean(
                 )
         if prop_.type == registry.name and clean is not None and not is_name(clean):
             log.warning(
-                f"Property {prop_.name!r} is not a valid name: {value}",
+                f"Property value {prop_.name!r} is not a valid name: {value}",
                 entity_id=entity.id,
                 value=value,
                 clean=clean,
