@@ -4,8 +4,11 @@ from followthemoney.property import Property
 
 from zavod.meta import Dataset
 from zavod.entity import Entity
+from zavod.logs import get_logger
 from zavod.store import View as ZavodView
 from zavod.exporters.consolidate import consolidate_entity
+
+log = get_logger(__name__)
 
 
 class ViewFragment(View[Dataset, Entity]):
@@ -50,9 +53,17 @@ class ViewFragment(View[Dataset, Entity]):
                 if entity.id is None:
                     continue
                 self._inverted[id].append(entity.id)
-                self._entities[entity.id] = entity
+                if len(self._entities) < self.MAX_BUFFER:
+                    self._entities[entity.id] = entity
                 yield prop, entity
+
+            if len(self._inverted[id]) > self.MAX_BUFFER:
+                log.warning(
+                    "Adjacency list for %s is greater than buffer limit (%d entries)",
+                    id,
+                    len(self._inverted[id]),
+                )
 
     def entities(self) -> Generator[Entity, None, None]:
         # Don't cache entities here
-        yield from self.view.entities()
+        raise NotImplementedError("This method should not be called on a ViewFragment!")
