@@ -7,7 +7,7 @@ coverage:
   start: 2021-02-12
 load_statements: true
 summary: >-
-  Sanctions imposed by Canada on specific countries, organizations, or individuals 
+  Sanctions imposed by Canada on specific countries, organizations, or individuals
   under the Special Economic Measures Act (SEMA) and JVCFOA
 description: |
   Sanctions imposed by Canada on specific countries, organizations, or individuals vary
@@ -33,7 +33,7 @@ tags:
 publisher:
   name: "Global Affairs Canada"
   description: |
-    The Canadian government body responsible for trade, travel, foreign affairs and 
+    The Canadian government body responsible for trade, travel, foreign affairs and
     international development.
   country: ca
   url: https://www.international.gc.ca/global-affairs-affaires-mondiales/home-accueil.aspx?lang=eng
@@ -49,6 +49,9 @@ assertions:
     schema_entities:
       Person: 2760
       LegalEntity: 1050
+    entities_with_prop:
+      Sanction:
+        listingDate: 2500
   max:
     schema_entities:
       Person: 6500
@@ -57,7 +60,7 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match: 
+      - match:
           - "Russia / Russie"
           - "Myanmar (Burma) / Myanmar (Birmanie)"
           - "Nicaragua"
@@ -109,6 +112,8 @@ lookups:
         value: null
       - match: born in the early 1970s
         values: [1970, 1971, 1972, 1973, 1974]
+      - match: "1975-19-25"
+        value: "1975"
   type.name:
     normalize: true
     lowercase: true

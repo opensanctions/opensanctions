@@ -102,7 +102,7 @@ def parse_entry(context: Context, node: _Element):
     sanction.add("program", program)
     sanction.add("reason", schedule)
     sanction.add("authorityId", row.pop("Item"))
-    h.apply_date(sanction, "listingDate", row.pop("DateOfListing"))
+    h.apply_date(sanction, "listingDate", row.pop("DateOfListing", None))
 
     names = collapse_spaces(row.pop("Aliases", ""))
     if names is not None:
