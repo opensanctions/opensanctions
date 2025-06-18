@@ -58,6 +58,7 @@ lookups:
           - Devos, LTD
           - Guaranteed Returns
   type.date:
+    normalize: true
     options:
       # is_debarred for Reinstated Date mapped to null.
       # Based on how they use these terms in the comments since no definition was found.
@@ -156,6 +157,8 @@ lookups:
         value: 1093379521
       - match: LC1366678260
         value: 1366678260
+      - match: "10\n93379521"
+        value: 1093379521
   license_numbers:
     normalize: true
     options:
@@ -339,3 +342,56 @@ lookups:
         values: ["0001158032"]
       - match: "SP011438 / RN571698"
         values: ["SP011438", "RN571698"]
+      - match: "DE Lic#\nC10002433"
+        values: ["C10002433"]
+      - match: "C7-0003062-\nExpired"
+        values: ["C7-0003062-Expired"]
+      - match: "PROMISe#10301\n9967"
+        values: ["PROMISe#103019967"]
+      - match: "PROMISe#10238\n9195"
+        values: ["PROMISe#102389195"]
+      - match: "DE: E1-\n000198"
+        values: ["E1-000198"]
+      - match: "PROMIS#001400\n491 MA049957"
+        values: ["PROMIS#001400491", "MA049957"]
+      - match: "PROMISe#0011261\n05"
+        values: ["PROMISe#001126105"]
+      - match: "APP-\n000402687(OH)"
+        values: ["APP-000402687"]
+      - match: "25MB0\n4184600(NJ)"
+        values: ["25MB04184600"]
+      - match: "OK\nO000003(PA)"
+        values: ["OKO000003"]
+      - match: "RN2\n879412(FL)"
+        values: ["RN2879412"]
+      - match: "4429\n4(HI)R149156(MD\n)"
+        values: ["44294", "R149156"]
+      - match: "254\n128(OH)"
+        values: ["254128"]
+      - match: "R006507\n4(OK)"
+        values: ["R0065074"]
+      - match: "000115803\n2(VA)"
+        values: ["0001158032"]
+      - match: "26NN1131100\n(NJ)"
+        values: ["26NN1131100"]
+      - match: "PN\n314465"
+        values: ["PN314465"]
+      - match: "1003\n0520(PA)"
+        values: ["10030520"]
+      - match: "7\n64907(NY)"
+        values: ["764907"]
+      - match: "PN305\n385"
+        values: ["PN305385"]
+      - match: "38M00753200(NJ\n)"
+        values: ["38M00753200"]
+      - match: "DC011252\n(PA)"
+        values: ["DC011252"]
+      - match: "0104557268\n(VA)"
+        values: ["0104557268"]
+      - match: "RN707737 (PA)\nPN299600 (PA)\n0001-282341 (VA)"
+        values:
+          - RN707737
+          - PN299600
+          - 0001-282341
+      - match: "26NP07943800(N\nJ)"
+        values: ["26NP07943800"]
