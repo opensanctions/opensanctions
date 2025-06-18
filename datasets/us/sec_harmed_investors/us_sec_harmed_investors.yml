@@ -1077,3 +1077,9 @@ lookups:
           - Worldwide Markets Ltd.
           - Thomas Plaut
           - Tab Networks Inc.
+      - match: rimar capital usa inc., rimar capital llc, itai royi liptz, and clifford todd boro
+        names:
+          - Rimar Capital USA Inc.
+          - Rimar Capital LLC
+          - Itai Royi Liptz
+          - Clifford Todd Boro
