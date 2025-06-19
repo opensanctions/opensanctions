@@ -1,13 +1,13 @@
 from collections import defaultdict
 from typing import List, Optional, Dict, Any
 
-from lxml.etree import Element
+from lxml.etree import _Element
 
-from zavod import helpers as h
 from zavod import Context
+from zavod import helpers as h
 
 
-def dput(data: Dict[str, List[str | None]], name: str, value: Optional[str]) -> None:
+def dput(data: Dict[str, List[str]], name: str, value: Optional[str]) -> None:
     """
     A setter for the address data dictionary.
     Address data dictionary allows to accumulate values under the same key.
@@ -20,14 +20,13 @@ def dput(data: Dict[str, List[str | None]], name: str, value: Optional[str]) -> 
         None
     """
 
-    if value is None or not value.strip():
-        return
-    dd = value.replace("-", "")
-    if not dd.strip():
+    # If value is empty or contains only dashes, do not add it
+    if value is None or not value.replace("-", "").strip():
         return
     data[name].append(value)
 
-def elattr(el: Optional[Element], attr: str) -> Any:
+
+def elattr(el: Optional[_Element], attr: str) -> Any:
     """
     Get an attribute from an XML element.
     Args:
@@ -40,19 +39,16 @@ def elattr(el: Optional[Element], attr: str) -> Any:
     if el is not None:
         return el.get(attr)
 
-def parse_address(context: Context, el: Element) -> str:
+
+def parse_address(context: Context, el: _Element) -> Optional[str]:
     """
     Parse an address from the XML element and set to entity.
     Args:
         context: The processing context.
-        entity: The entity to attach the address to.
         el: The XML element.
-    Returns:
-        None
     """
+    data: Dict[str, List[str]] = defaultdict(list)
 
-    data: Dict[str, Optional[List[str]]] = defaultdict(list)
-    country = "ru"
     # ФИАС - Федеральная информационная адресная система (since 2011,
     # https://ru.wikipedia.org/wiki/Федеральная_информационная_адресная_система)
     # КЛАДР - Классификатор адресов Российской Федерации (old one, since 17.11.2005)
@@ -72,7 +68,7 @@ def parse_address(context: Context, el: Element) -> str:
         return None  # ignore this one entirely
     else:
         context.log.warn("Unknown address type", tag=el.tag)
-        return
+        return None
 
     # Still a mess, but at least I gave it some love and order
 
@@ -110,13 +106,19 @@ def parse_address(context: Context, el: Element) -> str:
     # # Район (District or area within a city)
     # dput(data, "road", elattr(el.find("./Район"), "НаимРайон"))
 
-    # To be honest I don't understand the difference between these house and house_number fields
+    # Дом (House number) and Корпус (Building or block within a house number)
+    # Both already contain their abbreviations (Д. and К.) in the data, so no need to add them
     dput(data, "house_number", el.get("Дом"))
     dput(data, "house_number", el.get("Корпус"))
-
+    # Sometimes the same class of information is contained in Здание, Тип will be "Д." and Номер will be
+    # the house number. Luckily, the information doesn't seem to be duplicated, either this or the Дом/Корпус
+    # fields will be present, but not both.
     for bld in el.findall("./Здание"):
-        dput(data, "house_number", bld.get("Тип"))
-        dput(data, "house_number", bld.get("Номер"))
+        dput(
+            data,
+            "house_number",
+            f"{bld.get("Тип") or ""} {bld.get("Номер") or ""}".strip(),
+        )
 
     # To @pudo: this is an apartment/flat number/floor number/office number which is not
     # directly supported by the addressformatting library. I'm commenting it out for now.
@@ -131,6 +133,6 @@ def parse_address(context: Context, el: Element) -> str:
         city=" ".join(data.get("city", "")),
         state=" ".join(data.get("state", "")),
         state_district=" ".join(data.get("municipality", "")),
-        country_code=country,
+        country_code="ru",
     )
     return address
