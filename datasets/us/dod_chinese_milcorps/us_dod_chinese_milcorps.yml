@@ -58,6 +58,8 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRlrR4f46lTXiAuIijw-0XcW1IXSlWv-duNEc8ha23SpRjGrP_RqJUjnAFv07VDvih025FS0gTdQZbh/pub?gid=0&single=true&output=csv
   format: CSV
   lang: eng
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15"
 
 assertions:
   min:

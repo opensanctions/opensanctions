@@ -6,6 +6,12 @@ PROGRAM_NAME = "Section 1260H of the William M. (“Mac”) Thornberry National 
 
 
 def crawl(context: Context) -> None:
+    doc = context.fetch_html(context.dataset.url, cache_days=1)
+    main_section = doc.xpath(".//div[@class='body']")
+    assert len(main_section) == 1, "Expected exactly one section in the document"
+    h.assert_dom_hash(main_section[0], "df1e70a47d309cdc5b44a951803af7ceedf139fd")
+    # Last updated: Jan. 7, 2025
+
     source_file = context.fetch_resource("source.csv", context.data_url)
     with open(source_file, "r") as f:
         reader = csv.DictReader(f)
