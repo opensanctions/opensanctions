@@ -15,10 +15,6 @@ HEADERS = {
 }
 
 
-def is_future_month(year: int, month: int, now: datetime) -> bool:
-    return (year > now.year) or (year == now.year and month > now.month)
-
-
 def emit_linked_org(context, vessel_id, names, role):
     for name in h.multi_split(names, ";"):
         org = context.make("Organization")
@@ -76,7 +72,7 @@ def crawl_row(context: Context, clean_row: dict):
 
     context.emit(vessel)
     context.emit(sanction)
-
+    # "place" is where the vessel was detained
     context.audit_data(clean_row, ["place"])
 
 
@@ -85,9 +81,6 @@ def crawl(context: Context):
     year = START_YEAR
     month = START_MONTH
     while (year, month) <= (now.year, now.month):
-        # Break if the month is in the future
-        if is_future_month(year, month, now):
-            break
         data = {
             "month": f"{month:02}",  # pad month to two digits
             "year": str(year),
