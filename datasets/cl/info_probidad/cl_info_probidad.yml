@@ -73,18 +73,20 @@ lookups:
           - "EMBAJADOR.*"
           - "TESORER.*"
           - "SEREMI.*"
-          - "PRIMER SECRETARI.*"
-          - "SEGUND. SECRETARI.*"
-          - "TERCER SECRETARI.*"
+          - "PRIMER.* SECRETARI.*"
+          - "SEGUND.* SECRETARI.*"
+          - "TERCER.* SECRETARI.*"
           - ".*ENCARGAD.* DE COMPRAS.*"
           - "VICEPRESIDENT.* EJECUTIV.*"
       - is_pep: true
         match:
+          - "CONSEJERO O CÓNSUL GENERAL SEGUNDA CLASE, TERCERA CATEGORÍA EXTERIOR"
+          - "CONSEJERO CONSEJO DE MONUMENTOS NACIONALES"
           - "EX ALCALDE 2021-2024"
+          - "JUEZ"
           - "PRESIDENTE COMPIN"
           - "VICEPRESIDENTE"
           - "VICEPRESIDENTE EJECUTIVO"
-          - "JUEZ"
 
       - is_pep: false
         contains:
@@ -102,6 +104,7 @@ lookups:
       - is_pep: false
         match:
           - BODEGUERO
+          - CONSEJERO TECNICO
           - DEFENSOR(A) NACIONAL
           - ENCARGADO DE BODEGA
           - ENCARGADO DE MANTENIMIENTO
@@ -166,7 +169,6 @@ lookups:
           - "CONSEJERO(A)"
           - "CONSEJERO/A CONSEJO DE CONCESIONES "
           - "CONSEJERO/A"
-          - "CONSEJERO TECNICO"
           - "CONSEJEROS"
           - "CONSERVADOR Y ARCHIVERO"
           - "CONSERVADOR"
