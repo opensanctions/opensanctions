@@ -5,8 +5,6 @@ from followthemoney.exc import InvalidData
 from nomenklatura.statement import Statement
 from nomenklatura.resolver import Linker
 from nomenklatura.store.level import LevelDBStore, LevelDBView
-from nomenklatura.publish.dates import simplify_dates
-from nomenklatura.publish.edges import simplify_undirected
 
 from zavod.logs import get_logger
 from zavod.entity import Entity
@@ -47,11 +45,6 @@ class Store(LevelDBStore[Dataset, Entity]):
             ]
             log.error("Assemble error: %s" % inv, statements=dbg_stmts)
             return None
-        if entity is not None:
-            if entity.id is not None:
-                entity.extra_referents.update(self.linker.get_referents(entity.id))
-            entity = simplify_dates(entity)
-            entity = simplify_undirected(entity)
         return entity
 
     def sync(self, clear: bool = False) -> None:
