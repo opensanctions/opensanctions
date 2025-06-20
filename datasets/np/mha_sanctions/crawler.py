@@ -96,6 +96,14 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
+    doc = context.fetch_html(context.dataset.url, cache_days=1)
+    url = doc.xpath(".//a[contains(text(), 'Sanction_List_for_All.pdf')]/@href")
+    assert len(url) == 1, "Expected exactly 1 link in the document"
+    h.assert_url_hash(context, url[0], "c31312f5c4680c9ca5e0cdffbe2d9a2d52d29fd5")
+    # ALI MAYCHOU
+    # ...
+    # STATE TRADING COMPANY FOR CONSTRUCTION MATERIALS
+
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "r", encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
