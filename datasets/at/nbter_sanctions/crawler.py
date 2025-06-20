@@ -59,6 +59,15 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
+    doc = context.fetch_html(context.dataset.url, cache_days=1)
+    doc.make_links_absolute(context.dataset.url)
+    urls = doc.xpath(".//a[contains(text(), 'Kundmachung DL')]/@href")
+    assert len(urls) == 2, "Expected exactly 2 links in the document"
+    h.assert_url_hash(context, urls[0], "789ade7d1cbb8e3e710b75dd8e9376a45f08a4f3")
+    # Kundmachung DL 2/2002 der OeNB – September 2002 (PDF, 35,9 KB)
+    h.assert_url_hash(context, urls[1], "90eb57b3b927a57916b15cf6637737d761c2d139")
+    # Kundmachung DL 1/2009 der OeNB – März 2009 (PDF, 72,8 KB)
+
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "r", encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
