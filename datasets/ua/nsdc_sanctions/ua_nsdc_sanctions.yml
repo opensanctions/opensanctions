@@ -278,6 +278,14 @@ lookups:
         values:
           - Акціонерне товариство ''Банк ''Сприяння громадським ініціативам'', АТ ''Собінбанк''
           - Акционерное общество ''Банк ''Содействие общественным инициативам'', АТ ''Собинбанк''
+      - match: Китайська Народна Республіка, особливий адміністративний район Гонконг (Room 8, 11/F, Wang Fai Industrial Building, 29 Luk Hop Street, San Po Kong, Kowloon, Hong Kong, China; Room 13, 9/F, Thriving Industrial Building, No.26–38 Sha Tsui Road, Tseun Wan, New Territories, Hong Kong, China)
+        values:
+          - Room 8, 11/F, Wang Fai Industrial Building, 29 Luk Hop Street, San Po Kong, Kowloon, Hong Kong, China
+          - Room 13, 9/F, Thriving Industrial Building, No.26–38 Sha Tsui Road, Tseun Wan, New Territories, Hong Kong, China
+      - match: Китайська Народна Республіка, особливий адміністративний район Гонконг (Китайська Народна Республіка, м. Шеньчжень; Room 1005(B), 10/F, Ho Kong Commercial Center, 2–16 Fa Yuen St., Mong Kok, Hong Kong, China; Room 10B, Block A, Guangbo Modern Window Building, Zhenhua Road, Futian District, Shenzhen, Guangdong, 518028, China)
+        values:
+          - Room 1005(B), 10/F, Ho Kong Commercial Center, 2–16 Fa Yuen St., Mong Kok, Hong Kong, China
+          - Room 10B, Block A, Guangbo Modern Window Building, Zhenhua Road, Futian District, Shenzhen, Guangdong, 518028, China
   type.identifier:
     options:
       - match: 20432 (Ємен, виданий у 2018 р., військовий ідентифікаційний номер Ємену)
