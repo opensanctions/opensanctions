@@ -1,7 +1,9 @@
 import warnings
-from typing import Any, Optional, Tuple, Mapping, Union, List
+from typing import Any, Optional, Tuple, Mapping
 from functools import partial
 from pathlib import Path
+
+import requests
 from banal import hash_data
 from requests import Session
 from requests.adapters import HTTPAdapter
@@ -15,9 +17,9 @@ from zavod.meta.http import HTTP
 log = get_logger(__name__)
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 
-_Auth = Optional[Tuple[str, str]]
-_Headers = Optional[Mapping[str, str]]
-_Body = Optional[Union[Mapping[str, str], List[Tuple[str, str]]]]
+type _Auth = Optional[Tuple[str, str]]
+type _Headers = Optional[Mapping[str, str]]
+type _Body = requests.sessions._Data
 
 
 def make_session(http_conf: HTTP) -> Session:
@@ -68,7 +70,7 @@ def fetch_file(
     auth: Optional[Any] = None,
     headers: Optional[Any] = None,
     method: str = "GET",
-    data: _Body = None,
+    data: Optional[_Body] = None,
 ) -> Path:
     """Fetch a (large) file via HTTP to the data path."""
     out_path = data_path.joinpath(name)
