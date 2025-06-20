@@ -78,6 +78,15 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
+    doc = context.fetch_html(context.dataset.url, cache_days=1)
+    doc.make_links_absolute(context.dataset.url)
+    url = doc.xpath(".//a[contains(text(), 'HG nr. 1.272/2005')]/@href")
+    assert len(url) == 1, "Expected exactly one link in the document"
+    h.assert_url_hash(context, url[0], "583e5e471beabb3b5bde7b259770998952bdfea0")
+    # AL-ZINDANI, Shaykh Abd-al-Majid
+    # ...
+    # AL AKHTAR TRUST
+
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "r", encoding="utf-8") as fh:
         reader = csv.DictReader(fh)

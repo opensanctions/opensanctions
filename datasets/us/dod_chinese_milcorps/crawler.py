@@ -6,6 +6,21 @@ PROGRAM_NAME = "Section 1260H of the William M. (“Mac”) Thornberry National 
 
 
 def crawl(context: Context) -> None:
+    doc = context.fetch_html(
+        "https://www.defense.gov/News/Releases/Search/1260H/", cache_days=1
+    )
+    search_results = doc.xpath(".//div[@class='alist stories release-list']")
+    assert len(search_results) == 1, "Expected exactly one section in the document"
+    h.assert_dom_hash(search_results[0], "74d8423cf48059dbfa34a49178dbc98a5d6c19bc")
+    # Jan. 7, 2025
+    # DOD Releases List of Chinese Military Companies in Accordance with Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
+    # Jan. 31, 2024
+    # DOD Releases List of People's Republic of China (PRC) Military Companies in Accordance With Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
+    # Oct. 5, 2022
+    # DOD Releases List of People's Republic of China (PRC) Military Companies in Accordance With Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
+    # June 3, 2021
+    # DOD Releases List of Chinese Military Companies in Accordance With Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
+
     source_file = context.fetch_resource("source.csv", context.data_url)
     with open(source_file, "r") as f:
         reader = csv.DictReader(f)
