@@ -1,7 +1,8 @@
 import warnings
-from typing import Any, Optional, Tuple, Mapping, Union, List
+from typing import Any, Optional, Tuple, Mapping, Iterable, Union
 from functools import partial
 from pathlib import Path
+
 from banal import hash_data
 from requests import Session
 from requests.adapters import HTTPAdapter
@@ -17,7 +18,16 @@ warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 
 _Auth = Optional[Tuple[str, str]]
 _Headers = Optional[Mapping[str, str]]
-_Body = Optional[Union[Mapping[str, str], List[Tuple[str, str]]]]
+# Copied from requests-stubs because it's impossible to import from stubs
+_Body = Union[
+    Iterable[bytes]
+    | str
+    | bytes
+    # | SupportsRead[str | bytes]
+    | list[tuple[Any, Any]]
+    | tuple[tuple[Any, Any], ...]
+    | Mapping[Any, Any]
+]
 
 
 def make_session(http_conf: HTTP) -> Session:
@@ -68,7 +78,7 @@ def fetch_file(
     auth: Optional[Any] = None,
     headers: Optional[Any] = None,
     method: str = "GET",
-    data: _Body = None,
+    data: Optional[_Body] = None,
 ) -> Path:
     """Fetch a (large) file via HTTP to the data path."""
     out_path = data_path.joinpath(name)

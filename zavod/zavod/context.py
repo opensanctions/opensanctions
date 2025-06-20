@@ -204,7 +204,7 @@ class Context:
         auth: Optional[Any] = None,
         headers: Optional[Any] = None,
         method: str = "GET",
-        data: _Body = None,
+        data: Optional[_Body] = None,
     ) -> Path:
         """Fetch a URL into a file located in the current run folder,
         if it does not exist."""
@@ -225,7 +225,7 @@ class Context:
         headers: _Headers = None,
         auth: _Auth = None,
         method: str = "GET",
-        data: _Body = None,
+        data: Optional[_Body] = None,
     ) -> Response:
         """Execute an HTTP request using the contexts' session.
 
@@ -275,7 +275,7 @@ class Context:
         auth: _Auth = None,
         cache_days: Optional[int] = None,
         method: str = "GET",
-        data: _Body = None,
+        data: Optional[_Body] = None,
     ) -> Optional[str]:
         """Execute an HTTP request using the contexts' session and return
         the decoded response body. If a `cache_days` argument is provided, a
@@ -330,7 +330,7 @@ class Context:
         auth: _Auth = None,
         cache_days: Optional[int] = None,
         method: str = "GET",
-        data: _Body = None,
+        data: Optional[_Body] = None,
     ) -> Any:
         """Execute an HTTP request using the contexts' session and return
         a JSON-decoded object based on the response. If a `cache_days` argument
@@ -376,7 +376,7 @@ class Context:
         auth: _Auth = None,
         cache_days: Optional[int] = None,
         method: str = "GET",
-        data: _Body = None,
+        data: Optional[_Body] = None,
     ) -> etree._Element:
         """Execute an HTTP request using the contexts' session and return
         an HTML DOM object based on the response. If a `cache_days` argument
