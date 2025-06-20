@@ -2,11 +2,8 @@ title: Inter-American Development Bank Sanctions
 entry_point: crawler.py
 prefix: iadb
 coverage:
-  frequency: never
   start: 2021-10-22
-  end: 2024-06-13
-deploy:
-  schedule: "@monthly"
+  schedule: "@weekly"
 load_statements: true
 summary: >-
   The firms and individuals listed have been sanctioned for having engaged in
@@ -54,9 +51,8 @@ tags:
   - sector.devbank
 url: https://www.iadb.org/en/transparency/sanctioned-firms-and-individuals
 
-# FIXME: powerbi embed requires manual fetching of the Spreadsheet data export
 data:
-  url: https://www.iadb.org/en/who-we-are/transparency/sanctions-system/sanctioned-firms-and-individuals
+  url: https://wabi-us-east2-redirect.analysis.windows.net/export/xlsx
   format: XLSX
 dates:
   formats: ["%m/%d/%Y %H:00:00 AM", "%b %d, %Y"]
