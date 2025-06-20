@@ -47,8 +47,8 @@ class Influence:
             else:
                 self.topic_status[topic] = OccupancyStatus.UNKNOWN.value
 
-    def make_keywords(self) -> List[str]:
-        keywords = []
+    def format_values(self) -> List[str]:
+        values = []
         for topic, status in self.topic_status.items():
             level = INFLUENCE_TOPICS.get(topic, None)
             if level is None:
@@ -56,8 +56,8 @@ class Influence:
             status_label = STATUSES.get(status, None)
             if status_label is None:
                 continue
-            keywords.append(f"{level} ({status_label})")
-        return keywords
+            values.append(f"{level} ({status_label})")
+        return values
 
 
 def analyze_position(context: Context, entity: Entity) -> Set[str]:
@@ -119,10 +119,10 @@ def crawl(context: Context) -> None:
 
                     influence.add(topics, occupancy.get("status"))
 
-            keywords = influence.make_keywords()
-            if not keywords:
+            influence_values = influence.format_values()
+            if not influence_values:
                 continue
             person_proxy = context.make("Person")
             person_proxy.id = entity.id
-            person_proxy.add("keywords", keywords)
+            person_proxy.add("classification", influence_values)
             context.emit(person_proxy)
