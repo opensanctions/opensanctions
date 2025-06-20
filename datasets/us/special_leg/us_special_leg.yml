@@ -2,7 +2,7 @@ title: "US Special Legislative Exclusions"
 entry_point: crawler.py
 prefix: us-leg
 manual_check:
-  last_check: 2025-06-20
+  last_check: "2025-06-20"
   interval: 90
   message: Please check whether any amendments have been made to the legislation listed in this dataset.
 coverage:
