@@ -80,6 +80,7 @@ lookups:
           - "VICEPRESIDENT.* EJECUTIV.*"
       - is_pep: true
         match:
+          - "ALACALDE"  # typo of ALCALDE I think
           - "CONSEJERO O CÓNSUL GENERAL SEGUNDA CLASE, TERCERA CATEGORÍA EXTERIOR"
           - "CONSEJERO CONSEJO DE MONUMENTOS NACIONALES"
           - "EX ALCALDE 2021-2024"

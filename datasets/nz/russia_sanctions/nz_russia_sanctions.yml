@@ -69,3 +69,7 @@ lookups:
         value: 2024-05-19
       - match: 45625
         value: 2024-11-29
+      - match: "xx/xx/1967-1969"
+        values:
+          - 1967
+          - 1969
