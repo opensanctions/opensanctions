@@ -1,4 +1,4 @@
-title: Philippines Top Most Wanted Persons in the Cordillera Regions
+title: Philippines Most Wanted Persons
 entry_point: crawler.py
 prefix: ph-crw
 coverage:
@@ -8,23 +8,27 @@ deploy:
   schedule: "@weekly"
 load_statements: true
 summary: >
-  The dataset contains information about individuals currently most wanted by the Philippine National Police in the Cordillera Region.
+  Most wanted individuals by the Philippine National Police.
 description: |
-  The dataset contains detailed information about individuals wanted by the police authorities in the Cordillera Region. It includes
-  various categories of criminals and terrorists. The dataset includes each person's
-  name, reward amount, offences, and case-control number (CC No.).
+  The dataset contains detailed information about individuals currently wanted by police authorities in the Philippines. 
+  It aggregates data from three most wanted categories:
+    - Most Wanted Persons with Reward
+    - Communist Terrorist Group
+    - Local Terrorist Group
+  For each individual, the dataset provides their name, reward amount (if applicable), alleged offenses, 
+  and associated case-control number (CC No.).
 publisher:
   name: Philippine National Police
   acronym: PNP
   country: ph
   description: |
-    The Cordillera Autonomous Region was established in 1987, leading to the creation of the Police Regional Office Cordillera,
-    which is responsible for maintaining peace and order in the Cordillera Region. The Philippine Constabulary was replaced by
-    the Philippine National Police in January 1991. Their main duty is to enforce the law, prevent and control crimes,
-    maintain peace and order, and ensure public safety and internal security with the active support of the community.
-  url: https://procor.pnp.gov.ph
+    The Philippine National Police (PNP) is the primary law enforcement agency responsible 
+    for maintaining peace and order across the Philippines. They are responsible for crime 
+    prevention, investigation, and community protection, including maintainance of the national 
+    most wanted lists.
+  url: https://pnp.gov.ph
   official: true
-url: https://procor.pnp.gov.ph/crime-investigation/most-wanted-persons/
+url: https://pnp.gov.ph/most-wanted-persons-with-reward/
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRzdHciKqVlSVaHkD-OfiEuTghAZnOePxSHoCpxbUp6j1YQCcu2TdW9A8xJZAv09PfIXDfQJ5_EDe7f/pub?gid=0&single=true&output=csv
   format: csv
