@@ -24,25 +24,32 @@ class Influence:
     def __init__(self) -> None:
         # influence topic -> best status
         # e.g. {"gov.national": "current"}
-        self.topics: Dict[str, str] = {}
+        self.topic_status: Dict[str, str] = {}
 
     def add(self, topics: Set[str], statuses: List[str]) -> None:
         for topic in topics:
             if topic not in INFLUENCE_TOPICS:
                 continue
-            seen_status = self.topics.get(topic, None)
-            for status in statuses:
-                match (seen_status, status):
-                    case (OccupancyStatus.CURRENT.value, _):
-                        return  # Current trumps all
-                    case (OccupancyStatus.UNKNOWN.value, OccupancyStatus.ENDED.value):
-                        return  # Unknown trumps ended
-                    case _:
-                        self.topics[topic] = status
+            seen_status = self.topic_status.get(topic, None)
+            if seen_status == OccupancyStatus.CURRENT.value:
+                continue  # Current trumps all
+
+            if (
+                seen_status == OccupancyStatus.UNKNOWN.value
+                and OccupancyStatus.CURRENT.value not in statuses
+            ):
+                continue  # Let current replace unknown
+
+            if OccupancyStatus.CURRENT.value in statuses:
+                self.topic_status[topic] = OccupancyStatus.CURRENT.value
+            elif OccupancyStatus.ENDED.value in statuses:
+                self.topic_status[topic] = OccupancyStatus.ENDED.value
+            else:
+                self.topic_status[topic] = OccupancyStatus.UNKNOWN.value
 
     def make_keywords(self) -> List[str]:
         keywords = []
-        for topic, status in self.topics.items():
+        for topic, status in self.topic_status.items():
             level = INFLUENCE_TOPICS.get(topic, None)
             if level is None:
                 continue
