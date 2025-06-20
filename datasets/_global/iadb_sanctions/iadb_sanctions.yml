@@ -4,6 +4,10 @@ prefix: iadb
 coverage:
   start: 2021-10-22
   schedule: "@weekly"
+manual_check:
+  last_checked: "2025-06-20"
+  interval: 30
+  message: Please check if one of the IDs (either in REQUEST_DATA or GET_TOKEN_URL) changes when the data is updated. We need to make sure we get the latest data.
 load_statements: true
 summary: >-
   The firms and individuals listed have been sanctioned for having engaged in
