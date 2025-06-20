@@ -5,6 +5,10 @@ coverage:
   frequency: never
   start: "2024-05-02"
   end: "2025-05-23"
+manual_check:
+  last_checked: "2025-06-20"
+  interval: 30
+  message: Please check the website for any updates to the sanctions list.
 deploy:
   schedule: "@monthly"
 load_statements: true

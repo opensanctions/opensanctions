@@ -1,6 +1,10 @@
 title: "US Special Legislative Exclusions"
 entry_point: crawler.py
 prefix: us-leg
+manual_check:
+  last_check: "2025-06-20"
+  interval: 90
+  message: Please check whether any amendments have been made to the legislation listed in this dataset.
 coverage:
   frequency: never
   schedule: "@monthly"
@@ -36,9 +40,9 @@ description: |
   Processes or Institutions, Significant Corruption, or Obstruction of Investigations Into 
   Such Acts of Corruption in El Salvador, Guatemala, Honduras, and Nicaragua. 
 
-  Since the December 2023 expiration of the Section 353 sanctions authority, individuals 
-  designated under the act have been eligible to apply for new visas.
-  [Source: Congressional Research Service](https://crsreports.congress.gov/product/pdf/IF/IF12486#:~:text=117%2D54)%2C%20requires%20the,into%20such%20acts%20of%20corruption%2C%20requires%20the,into%20such%20acts%20of%20corruption))
+  Since the December 2023 expiration of the Section 353 sanctions authority, individuals
+  designated under the [act](https://www.state.gov/reports/section-353-corrupt-and-undemocratic-actors-report/) have been eligible to apply for new visas.
+  [Source: Congressional Research Service](https://www.congress.gov/crs-product/IF12486)
 
   Section 154 of the [National Defense Authorization Act for Fiscal Year 2024 (Public Law 118-31)](https://www.congress.gov/118/plaws/publ31/PLAW-118publ31.pdf)
   prohibits the Department of Defense, beginning October 1, 2027, from obligating or expending 

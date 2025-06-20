@@ -4,6 +4,10 @@ prefix: cn-sanc
 coverage:
   frequency: never
   start: 2024-03-08
+manual_check:
+  last_checked: "2025-06-20"
+  interval: 45
+  message: Please do a quick research to find out whether the Chinese government has introduced any new sanctions.
 deploy:
   schedule: "30 6 * * *"
 load_statements: true
