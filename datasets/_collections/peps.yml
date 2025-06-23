@@ -1,5 +1,5 @@
 type: collection
-title: Politically Exposed Persons (PEPs)
+title: Politically Exposed Persons Core Data
 coverage:
   start: "2021-12-01"
   frequency: daily
@@ -23,6 +23,10 @@ description: |
   multiple sources. We include lists of office-holders both directly from
   official sources like governments and also from third-party sources that
   have been aggregated by other organizations.
+
+  **IMPORTANT: We discourage the use of this collection on its own, as it does
+  not include some relevant information from enrichment sources. [Read the FAQ
+  item](https://www.opensanctions.org/faq/165/peps-only/).**
 children:
   - am_hetq_officials
   - ann_pep_positions
