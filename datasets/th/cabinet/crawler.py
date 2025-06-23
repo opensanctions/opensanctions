@@ -11,7 +11,7 @@ ROLE_PATTERNS = re.compile(
 )
 # Pattern specifically for "นายกรัฐมนตรี" (Prime Minister)
 PRIME_MINISTER_PATTERN = re.compile(r"(?P<role>นายกรัฐมนตรี)\s*(?P<name>.*)")
-REGEX_TITLES = re.compile(r"^(นางสาว|นาง|นาย|พลตำรวจเอก|พันตำรวจเอก|พลเอก)")
+REGEX_TITLES = re.compile(r"^(นางสาว|นาง|นาย|พลตำรวจเอก|พันตำรวจเอก|พลเอก|-)")
 POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
 TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 
@@ -61,6 +61,9 @@ def crawl(context: Context):
             context.log.warning("Could not match title in name.", name=name)
             continue
         name = REGEX_TITLES.sub("", name)
+        # Skip if name is empty after removing titles
+        if not name:
+            continue
         person.add("name", name, lang="tha")
         person.add("topics", "role.pep")
 

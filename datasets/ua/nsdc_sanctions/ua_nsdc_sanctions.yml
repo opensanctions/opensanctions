@@ -101,6 +101,7 @@ lookups:
           - "reg:cw_legal"
           - "reg:cy_2"
           - "reg:ua"
+          - "reg:by"
         prop: registrationNumber
       - match:
           - "doc:passport"
@@ -246,6 +247,14 @@ lookups:
           - Ісламська Республіка Іран, м. Тегеран
           - Central Sector, Shahrak Rah Ahan, Kamyab Street, Kavoosh Alley, No. 0, Pezeshkan Trita Building, Floor 4, No 59, Islamshahr, Tehran Province 1498711318, Iran
           - Central Sector, North Persian Gulf Neighborhood Shakhid Shokralah Mohseni Alley, Second Alley, No. 24, Milad Building Block A1, 1st Floor, Unit 1, Tehran, Iran
+      - match: Китайська Народна Республіка, особливий адміністративний район Гонконг (Room 8, 11/F, Wang Fai Industrial Building, 29 Luk Hop Street, San Po Kong, Kowloon, Hong Kong, China; Room 13, 9/F, Thriving Industrial Building, No.26–38 Sha Tsui Road, Tseun Wan, New Territories, Hong Kong, China)
+        values:
+          - Room 8, 11/F, Wang Fai Industrial Building, 29 Luk Hop Street, San Po Kong, Kowloon, Hong Kong, China
+          - Room 13, 9/F, Thriving Industrial Building, No.26–38 Sha Tsui Road, Tseun Wan, New Territories, Hong Kong, China
+      - match: Китайська Народна Республіка, особливий адміністративний район Гонконг (Китайська Народна Республіка, м. Шеньчжень; Room 1005(B), 10/F, Ho Kong Commercial Center, 2–16 Fa Yuen St., Mong Kok, Hong Kong, China; Room 10B, Block A, Guangbo Modern Window Building, Zhenhua Road, Futian District, Shenzhen, Guangdong, 518028, China)
+        values:
+          - Room 1005(B), 10/F, Ho Kong Commercial Center, 2–16 Fa Yuen St., Mong Kok, Hong Kong, China
+          - Room 10B, Block A, Guangbo Modern Window Building, Zhenhua Road, Futian District, Shenzhen, Guangdong, 518028, China
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»
@@ -278,14 +287,6 @@ lookups:
         values:
           - Акціонерне товариство ''Банк ''Сприяння громадським ініціативам'', АТ ''Собінбанк''
           - Акционерное общество ''Банк ''Содействие общественным инициативам'', АТ ''Собинбанк''
-      - match: Китайська Народна Республіка, особливий адміністративний район Гонконг (Room 8, 11/F, Wang Fai Industrial Building, 29 Luk Hop Street, San Po Kong, Kowloon, Hong Kong, China; Room 13, 9/F, Thriving Industrial Building, No.26–38 Sha Tsui Road, Tseun Wan, New Territories, Hong Kong, China)
-        values:
-          - Room 8, 11/F, Wang Fai Industrial Building, 29 Luk Hop Street, San Po Kong, Kowloon, Hong Kong, China
-          - Room 13, 9/F, Thriving Industrial Building, No.26–38 Sha Tsui Road, Tseun Wan, New Territories, Hong Kong, China
-      - match: Китайська Народна Республіка, особливий адміністративний район Гонконг (Китайська Народна Республіка, м. Шеньчжень; Room 1005(B), 10/F, Ho Kong Commercial Center, 2–16 Fa Yuen St., Mong Kok, Hong Kong, China; Room 10B, Block A, Guangbo Modern Window Building, Zhenhua Road, Futian District, Shenzhen, Guangdong, 518028, China)
-        values:
-          - Room 1005(B), 10/F, Ho Kong Commercial Center, 2–16 Fa Yuen St., Mong Kok, Hong Kong, China
-          - Room 10B, Block A, Guangbo Modern Window Building, Zhenhua Road, Futian District, Shenzhen, Guangdong, 518028, China
   type.identifier:
     options:
       - match: 20432 (Ємен, виданий у 2018 р., військовий ідентифікаційний номер Ємену)
