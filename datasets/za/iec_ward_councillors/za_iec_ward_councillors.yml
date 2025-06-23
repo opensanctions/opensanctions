@@ -1,0 +1,24 @@
+title: "South Africa Ward Councillors by the Electoral Commission"
+url: https://www.elections.org.za/pw/StatsData/List-Of-Current-Ward-Councillors
+coverage:
+  frequency: daily
+  start: 2024-03-19
+
+description: |
+  Councillors
+
+entry_point: crawler.py
+
+prefix: za-iecward
+
+publisher:
+  name: Electoral Commission of South Africa
+  acronym: IEC
+  official: true
+  description: The IEC
+  country: za
+  url: https://www.elections.org.za/pw/StatsData/List-Of-Current-Ward-Councillors
+
+data:
+  url: https://www.elections.org.za/pw/StatsData/List-Of-Current-Ward-Councillors
+  format: HTML
