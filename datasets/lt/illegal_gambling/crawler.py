@@ -49,6 +49,10 @@ def crawl_item(item, context: Context):
     contacts = item.pop("Contacts")
     ruling_information = item.pop("Court information")
 
+    # Skip empty row at the end of the table
+    if not name and not domain and not contacts and not ruling_information:
+        return
+
     entity = context.make("Company")
     entity.id = context.make_id(name)
 
