@@ -170,6 +170,7 @@ config:
     - "Q17279032" # elective office
     - "Q16060143" # elected person
     - "Q131981747" # -elect
+    - "Q220098" # warlord
     # skip:
     # - "Q30185" # mayor
   categories:
