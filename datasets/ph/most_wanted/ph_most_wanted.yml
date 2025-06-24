@@ -38,10 +38,13 @@ data:
   format: csv
 ci_test: false # GPT key not available in CI
 
+dates:
+  formats: ["%d %B %Y"]
+
 assertions:
   min:
     schema_entities:
-      Person: 83
+      Person: 1000
   max:
     schema_entities:
-      Person: 87
+      Person: 1500
