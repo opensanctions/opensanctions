@@ -34,7 +34,7 @@ publisher:
   official: true
 url: https://pnp.gov.ph/most-wanted-persons-with-reward/
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRzdHciKqVlSVaHkD-OfiEuTghAZnOePxSHoCpxbUp6j1YQCcu2TdW9A8xJZAv09PfIXDfQJ5_EDe7f/pub?gid=0&single=true&output=csv
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRzdHciKqVlSVaHkD-OfiEuTghAZnOePxSHoCpxbUp6j1YQCcu2TdW9A8xJZAv09PfIXDfQJ5_EDe7f/pub?gid=1285331341&single=true&output=csv
   format: csv
 ci_test: false # GPT key not available in CI
 
