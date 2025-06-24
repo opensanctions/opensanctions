@@ -71,6 +71,13 @@ def consolidate_influence(
 
 def analyze_position(context: Context, entity: Entity) -> Set[str]:
     """Analyze a position entity and emit the categorisation."""
+
+    # Skip if this is the only dataset containing this Position. This should be implicit
+    # from other conditions, but let's be sure this dataset doesn't feed itself
+    # removed Positions.
+    if entity.datasets == {context.dataset.name}:
+        return
+
     topics = set()
 
     assert entity.id is not None
@@ -107,6 +114,12 @@ def crawl(context: Context) -> None:
             context.log.info("Processed %s entities" % entity_idx)
 
         if not entity.schema.is_a("Person") or "role.pep" not in entity.get("topics"):
+            continue
+
+        # Skip if this is the only dataset containing this PEP. This should be implicit
+        # from other conditions, but let's be sure this dataset doesn't feed itself
+        # removed PEPs.
+        if entity.datasets == {context.dataset.name}:
             continue
 
         pep_count += 1
