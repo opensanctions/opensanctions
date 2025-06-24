@@ -7,7 +7,7 @@ coverage:
 manual_check:
   last_checked: "2025-06-20"
   interval: 90
-  message: Please review all three source links and update the sheet if any changes are found.
+  message: Please review all three source links and update the sheet if any changes are found. Source PDFs are located in this repository.
 deploy:
   schedule: "@weekly"
 load_statements: true
