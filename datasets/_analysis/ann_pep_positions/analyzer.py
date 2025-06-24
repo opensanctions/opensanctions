@@ -102,43 +102,44 @@ def crawl(context: Context) -> None:
     pep_count = 0
 
     for entity_idx, entity in enumerate(view.entities()):
+
         if entity_idx > 0 and entity_idx % 10000 == 0:
             context.log.info("Processed %s entities" % entity_idx)
 
-        if entity.schema.is_a("Person") and "role.pep" in entity.get("topics"):
-            pep_count += 1
-            if pep_count > 0 and pep_count % 10000 == 0:
-                context.log.info("Processed %s PEPs" % pep_count)
+        if not entity.schema.is_a("Person") or "role.pep" not in entity.get("topics"):
+            continue
 
-            topic_to_seen_statuses: Dict[str, Set[OccupancyStatus]] = defaultdict(set)
+        pep_count += 1
+        if pep_count > 0 and pep_count % 10000 == 0:
+            context.log.info("Processed %s PEPs" % pep_count)
 
-            for prop, adjacent in view.get_adjacent(entity):
-                if prop.name != "positionOccupancies":
-                    continue
+        topic_to_seen_statuses: Dict[str, Set[OccupancyStatus]] = defaultdict(set)
 
-                occupancy = adjacent
-
-                # Only one position expected per occupancy but handle surprises
-                for position_id in occupancy.get("post"):
-                    position = view.get_entity(position_id)
-                    if position is None:
-                        continue
-                    topics = analyze_position(context, position)
-                    if not topics:
-                        continue
-
-                    for topic in topics:
-                        if topic not in INFLUENCE_TOPIC_LABELS:
-                            continue
-                        topic_to_seen_statuses[topic].add(
-                            get_best_occupancy_status(occupancy)
-                        )
-
-            # For each topic, we determine the best status seen and build the label from it.
-            influence_labels = consolidate_influence(topic_to_seen_statuses)
-            if not influence_labels:
+        for prop, adjacent in view.get_adjacent(entity):
+            if prop.name != "positionOccupancies":
                 continue
-            person_proxy = context.make("Person")
-            person_proxy.id = entity.id
-            person_proxy.add("classification", influence_labels)
-            context.emit(person_proxy)
+
+            occupancy = adjacent
+
+            # Only one position expected per occupancy but handle surprises
+            for position_id in occupancy.get("post"):
+                position = view.get_entity(position_id)
+                if position is None:
+                    continue
+                topics = analyze_position(context, position)
+
+                for topic in topics:
+                    if topic not in INFLUENCE_TOPIC_LABELS:
+                        continue
+                    topic_to_seen_statuses[topic].add(
+                        get_best_occupancy_status(occupancy)
+                    )
+
+        # For each topic, we determine the best status seen and build the label from it.
+        influence_labels = consolidate_influence(topic_to_seen_statuses)
+        if not influence_labels:
+            continue
+        person_proxy = context.make("Person")
+        person_proxy.id = entity.id
+        person_proxy.add("classification", influence_labels)
+        context.emit(person_proxy)
