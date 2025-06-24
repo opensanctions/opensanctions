@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Set, Optional
+from typing import Dict, Set, Optional
 
 from zavod import Context, Entity
 from zavod.integration import get_dataset_linker
@@ -14,24 +14,35 @@ INFLUENCE_TOPIC_LABELS = {
     "gov.muni": "Local government",
 }
 OCCUPANCY_STATUS_LABELS = {
-    OccupancyStatus.CURRENT.value: "current",
-    OccupancyStatus.ENDED.value: "past",
-    OccupancyStatus.UNKNOWN.value: "unknown status",
+    OccupancyStatus.CURRENT: "current",
+    OccupancyStatus.ENDED: "past",
+    OccupancyStatus.UNKNOWN: "unknown status",
 }
 
 
-def get_best_status(statuses: Set[str]) -> OccupancyStatus:
-    """Get the best status from a list of statuses.
+def get_best_occupancy_status(occupancy: Entity) -> OccupancyStatus:
+    """Get the best occupancy status for a given occupancy entity."""
+    statuses = occupancy.get("status")
+    # If a given occupancy has status ended and potentially another value, prefer ended.
+    # At the time of writing, this can happen when an ENDED and an UNKNOWN were merged.
+    if OccupancyStatus.ENDED.value in statuses:
+        return OccupancyStatus.ENDED
 
-    If we've seen a CURRENT, that trumps all. If not, we prefer UNKNOWN over ENDED to play it safe.
-    We emit ENDED only if we're totally sure."""
     if OccupancyStatus.CURRENT.value in statuses:
         return OccupancyStatus.CURRENT
 
-    if OccupancyStatus.UNKNOWN.value in statuses:
+    return OccupancyStatus.UNKNOWN
+
+
+def get_best_status(statuses: Set[OccupancyStatus]) -> OccupancyStatus:
+    """Get the best status from all occupancies for a given influence level"""
+    if OccupancyStatus.CURRENT in statuses:
+        return OccupancyStatus.CURRENT
+
+    if OccupancyStatus.UNKNOWN in statuses:
         return OccupancyStatus.UNKNOWN
 
-    if OccupancyStatus.ENDED.value in statuses:
+    if OccupancyStatus.ENDED in statuses:
         return OccupancyStatus.ENDED
 
     # Usually this means len(statuses) == 0, but could also be an unexpected status value
@@ -39,12 +50,23 @@ def get_best_status(statuses: Set[str]) -> OccupancyStatus:
 
 
 def format_influence_label(topic: str, status: OccupancyStatus) -> Optional[str]:
+    # If it's not an influence topic, we don't want it
     level_label = INFLUENCE_TOPIC_LABELS.get(topic, None)
     status_label = OCCUPANCY_STATUS_LABELS.get(status, None)
     if status_label is None or level_label is None:
         return None
 
     return f"{level_label} ({status_label})"
+
+
+def consolidate_influence(
+    topic_to_seen_statuses: dict[str, Set[OccupancyStatus]],
+) -> list[str]:
+    formatted = [
+        format_influence_label(topic, get_best_status(seen_statuses))
+        for topic, seen_statuses in topic_to_seen_statuses.items()
+    ]
+    return [f for f in formatted if f is not None]
 
 
 def analyze_position(context: Context, entity: Entity) -> Set[str]:
@@ -88,7 +110,7 @@ def crawl(context: Context) -> None:
             if pep_count > 0 and pep_count % 10000 == 0:
                 context.log.info("Processed %s PEPs" % pep_count)
 
-            topic_to_seen_statuses = defaultdict(set)
+            topic_to_seen_statuses: Dict[str, Set[OccupancyStatus]] = defaultdict(set)
 
             for prop, adjacent in view.get_adjacent(entity):
                 if prop.name != "positionOccupancies":
@@ -106,13 +128,16 @@ def crawl(context: Context) -> None:
                         continue
 
                     for topic in topics:
-                        topic_to_seen_statuses[topic].add(occupancy.get("status"))
+                        if topic not in INFLUENCE_TOPIC_LABELS:
+                            continue
+                        topic_to_seen_statuses[topic].add(
+                            get_best_occupancy_status(occupancy)
+                        )
 
             # For each topic, we determine the best status seen and build the label from it.
-            influence_labels = [
-                format_influence_label(topic, get_best_status(seen_statuses))
-                for topic, seen_statuses in topic_to_seen_statuses.items()
-            ]
+            influence_labels = consolidate_influence(topic_to_seen_statuses)
+            if not influence_labels:
+                continue
             person_proxy = context.make("Person")
             person_proxy.id = entity.id
             person_proxy.add("classification", influence_labels)

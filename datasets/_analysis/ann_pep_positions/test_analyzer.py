@@ -1,43 +1,56 @@
-from .analyzer import Influence
+from collections import defaultdict
+
+from zavod import Entity, Dataset
+from .analyzer import consolidate_influence, get_best_occupancy_status
 
 
-def test_influence():
+def test_influence() -> None:
+    dataset = Dataset({"name": "test", "title": "test"})
+
+    def o(statuses: list[str]) -> Entity:
+        data = {
+            "schema": "Occupancy",
+            "id": "occupancy-id",
+            "properties": {"status": statuses},
+        }
+        return Entity.from_data(dataset, data)
+
     # Current trumps all
     # Both for different occupancies for same influence
     # And merged occupancies with two statuses
-    influence = Influence()
-    influence.add({"gov.national"}, ["unknown"])
-    influence.add({"gov.national"}, ["current"])
-    assert influence.format_values() == ["National government (current)"]
+    influence = defaultdict(set)
+    influence["gov.national"].add(get_best_occupancy_status(o(["unknown"])))
+    influence["gov.national"].add(get_best_occupancy_status(o(["current"])))
+    assert consolidate_influence(influence) == ["National government (current)"]
 
-    influence = Influence()
-    influence.add({"gov.national"}, ["unknown", "current"])
-    assert influence.format_values() == ["National government (current)"]
+    influence = defaultdict(set)
+    influence["gov.national"].add(get_best_occupancy_status(o(["unknown", "current"])))
+    assert consolidate_influence(influence) == ["National government (current)"]
 
-    influence = Influence()
-    influence.add({"gov.national"}, ["current", "unknown"])
-    assert influence.format_values() == ["National government (current)"]
+    influence = defaultdict(set)
+    influence["gov.national"].add(get_best_occupancy_status(o(["current", "unknown"])))
+    assert consolidate_influence(influence) == ["National government (current)"]
 
-    influence = Influence()
-    influence.add({"gov.national"}, ["current"])
-    influence.add({"gov.national"}, ["ended"])
-    assert influence.format_values() == ["National government (current)"]
+    influence = defaultdict(set)
+    influence["gov.national"].add(get_best_occupancy_status(o(["current"])))
+    influence["gov.national"].add(get_best_occupancy_status(o(["ended"])))
+    assert consolidate_influence(influence) == ["National government (current)"]
 
     # Different occupancies for same influence
     # Unknown trumps ended
-    influence = Influence()
-    influence.add({"gov.national"}, ["ended"])
-    influence.add({"gov.national"}, ["unknown"])
-    assert influence.format_values() == ["National government (unknown status)"]
-    influence = Influence()
-    influence.add({"gov.national"}, ["unknown"])
-    influence.add({"gov.national"}, ["ended"])
-    assert influence.format_values() == ["National government (unknown status)"]
+    influence = defaultdict(set)
+    influence["gov.national"].add(get_best_occupancy_status(o(["ended"])))
+    influence["gov.national"].add(get_best_occupancy_status(o(["unknown"])))
+    assert consolidate_influence(influence) == ["National government (unknown status)"]
+    influence = defaultdict(set)
+    influence["gov.national"].add(get_best_occupancy_status(o(["unknown"])))
+    influence["gov.national"].add(get_best_occupancy_status(o(["ended"])))
+    assert consolidate_influence(influence) == ["National government (unknown status)"]
 
     # Same occupancy, ended trumps unknown
-    influence = Influence()
-    influence.add({"gov.national"}, ["ended", "unknown"])
-    assert influence.format_values() == ["National government (past)"]
-    influence = Influence()
-    influence.add({"gov.national"}, ["unknown", "ended"])
-    assert influence.format_values() == ["National government (past)"]
+    influence = defaultdict(set)
+    influence["gov.national"].add(get_best_occupancy_status(o(["ended", "unknown"])))
+    assert consolidate_influence(influence) == ["National government (past)"]
+    influence = defaultdict(set)
+    influence["gov.national"].add(get_best_occupancy_status(o(["unknown", "ended"])))
+    assert consolidate_influence(influence) == ["National government (past)"]
