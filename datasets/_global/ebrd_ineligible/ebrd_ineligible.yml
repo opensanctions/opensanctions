@@ -61,6 +61,7 @@ lookups:
       - match:
           - "China China"
           - Peoples Republic of China
+          - "card-tags:ineligible-entities/nationality/people’s-republic-of-china"
         value: cn
       - match: "Chile, United States of America"
         values:
