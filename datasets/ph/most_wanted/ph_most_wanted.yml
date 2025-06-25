@@ -1,6 +1,6 @@
 title: Philippines Most Wanted Persons
 entry_point: crawler.py
-prefix: ph-crw
+prefix: ph-mwp
 coverage:
   frequency: never
   start: "2024-07-23"
@@ -14,13 +14,13 @@ load_statements: true
 summary: >
   Most wanted individuals by the Philippine National Police.
 description: |
-  The dataset contains detailed information about individuals currently wanted by police authorities in the Philippines. 
-  It aggregates data from three most wanted categories:
+  The dataset contains detailed information about individuals currently wanted by police 
+  authorities in the Philippines. It aggregates data from three most wanted categories:
     - Most Wanted Persons with Reward
     - Communist Terrorist Group
     - Local Terrorist Group
-  For each individual, the dataset provides their name, reward amount (if applicable), alleged offenses, 
-  and associated case-control number (CC No.).
+  For each individual, the dataset provides their name, reward amount (if applicable), 
+  alleged offenses, and associated case-control number (CC No.).
 publisher:
   name: Philippine National Police
   acronym: PNP
