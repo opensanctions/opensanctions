@@ -10,7 +10,7 @@ def is_future_month(year: int, month: int, now: datetime) -> bool:
     return (year > now.year) or (year == now.year and month > now.month)
 
 
-def emit_linked_org(context, vessel_id, names, role):
+def emit_linked_org(context, vessel_id, names, role, start_date):
     for name in h.multi_split(names, ";"):
         org = context.make("Organization")
         org.id = context.make_id("org", name)
@@ -22,10 +22,11 @@ def emit_linked_org(context, vessel_id, names, role):
         link.add("role", role)
         link.add("subject", org.id)
         link.add("object", vessel_id)
+        h.apply_date(link, "date", start_date)
         context.emit(link)
 
 
-def crawl_row(context: Context, clean_row: dict):
+def crawl_row(context: Context, clean_row: dict, row: dict):
     ship_name = clean_row.pop("ship_name")
     imo = clean_row.pop("imo_no")
     company_name = clean_row.pop("company")
@@ -38,29 +39,48 @@ def crawl_row(context: Context, clean_row: dict):
     vessel.add("buildDate", clean_row.pop("year_of_build"))
     vessel.add("grossRegisteredTonnage", clean_row.pop("gross_tonnage"))
     vessel.add("type", clean_row.pop("ship_type"))
+
+    start_date = clean_row.pop("date_of_detention")
     if company_name:
         company = context.make("Company")
         company.id = context.make_id("org", company_name)
         company.add("name", company_name)
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(vessel.id, company.id, "owner")
+        ownership.add("asset", vessel.id)
+        ownership.add("owner", company.id)
+        h.apply_date(ownership, "date", start_date)
         context.emit(company)
-        vessel.add("owner", company.id)
+        context.emit(ownership)
 
     related_ros = clean_row.pop("related_ros")
     if related_ros:
         emit_linked_org(
-            context, vessel.id, related_ros, "Related Recognised Organization"
+            context,
+            vessel.id,
+            related_ros,
+            "Related Recognised Organization",
+            start_date,
         )
     class_soc = clean_row.pop("classification_society")
     if class_soc:
-        emit_linked_org(context, vessel.id, class_soc, "Classification society")
+        emit_linked_org(
+            context, vessel.id, class_soc, "Classification society", start_date
+        )
 
+    end_date = clean_row.pop("date_of_release", None)
+    reasons_cell = row.pop("nature_of_deficiencies")
+    for br in reasons_cell.xpath(".//br"):
+        br.tail = br.tail + "\n" if br.tail else "\n"
+    reason = reasons_cell.text_content().split("\n")
     sanction = h.make_sanction(
         context,
         vessel,
-        start_date=clean_row.pop("date_of_detention"),
-        end_date=clean_row.pop("date_of_release", None),
+        start_date=start_date,
+        end_date=end_date,
+        key=[start_date, end_date, reason],
     )
-    sanction.add("reason", clean_row.pop("nature_of_deficiencies"))
+    sanction.add("reason", reason)
 
     if h.is_active(sanction):
         vessel.add("topics", "reg.warn")
@@ -68,7 +88,7 @@ def crawl_row(context: Context, clean_row: dict):
     context.emit(vessel)
     context.emit(sanction)
 
-    context.audit_data(clean_row, ["place_of_detention"])
+    context.audit_data(clean_row, ["place_of_detention", "nature_of_deficiencies"])
 
 
 def crawl(context: Context):
@@ -97,7 +117,7 @@ def crawl(context: Context):
         for row in h.parse_html_table(table, header_tag="td", skiprows=1):
             str_row = h.cells_to_str(row)
             clean_row = {k: v for k, v in str_row.items() if k is not None}
-            crawl_row(context, clean_row)
+            crawl_row(context, clean_row, row)
 
         # Increment month and roll over year
         if month == 12:
