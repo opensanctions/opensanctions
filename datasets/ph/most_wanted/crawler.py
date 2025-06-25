@@ -21,10 +21,6 @@ def parse_name(context, name):
         suffix = ""
         full_name = f"{first_name} {last_name}".strip()
     else:
-        context.log.warning(
-            "Unexpected name format, expected 'Last, First'",
-            name=name,
-        )
         full_name = name.strip()
         first_name = ""
         last_name = ""
@@ -35,6 +31,9 @@ def parse_name(context, name):
 
 def crawl_row(context: Context, row: Dict[str, str]):
     full_name = row.pop("name")
+    # If no name is provided, skip the row
+    if not full_name:
+        return
     offense = row.pop("offense")
     case_number = row.pop("case number")
     full_clean, first_name, last_name, suffix = parse_name(context, full_name)
