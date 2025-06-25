@@ -15,7 +15,7 @@ HEADERS = {
 }
 
 
-def emit_linked_org(context, vessel_id, names, role):
+def emit_linked_org(context, vessel_id, names, role, date):
     for name in h.multi_split(names, ";"):
         org = context.make("Organization")
         org.id = context.make_id("org", name)
@@ -27,6 +27,7 @@ def emit_linked_org(context, vessel_id, names, role):
         link.add("role", role)
         link.add("subject", org.id)
         link.add("object", vessel_id)
+        h.apply_date(link, "date", date)
         context.emit(link)
 
 
@@ -43,29 +44,48 @@ def crawl_row(context: Context, clean_row: dict):
     vessel.add("buildDate", clean_row.pop("year_of_build"))
     vessel.add("grossRegisteredTonnage", clean_row.pop("tonnage"))
     vessel.add("type", clean_row.pop("type"))
+    start_date = clean_row.pop("date_of_detention")
     if company_name:
         company = context.make("Company")
         company.id = context.make_id("org", company_name)
         company.add("name", company_name)
+        own = context.make("Ownership")
+        own.id = context.make_id(vessel.id, company.id, "owner")
+        own.add("asset", vessel.id)
+        own.add("owner", company.id)
+        h.apply_date(own, "date", start_date)
         context.emit(company)
-        vessel.add("owner", company.id)
+        context.emit(own)
 
     related_ros = clean_row.pop("ros")
     if related_ros:
         emit_linked_org(
-            context, vessel.id, related_ros, "Related Recognised Organization"
+            context,
+            vessel.id,
+            related_ros,
+            "Related Recognised Organization",
+            start_date,
         )
     class_soc = clean_row.pop("class")
     if class_soc:
-        emit_linked_org(context, vessel.id, class_soc, "Classification society")
+        emit_linked_org(
+            context,
+            vessel.id,
+            class_soc,
+            "Classification society",
+            start_date,
+        )
 
+    end_date = clean_row.pop("date_of_release", None)
+    reason = clean_row.pop("nature_of_deficiencies")
     sanction = h.make_sanction(
         context,
         vessel,
-        start_date=clean_row.pop("date_of_detention"),
-        end_date=clean_row.pop("date_of_release", None),
+        start_date=start_date,
+        end_date=end_date,
+        key=[start_date, end_date, reason],
     )
-    sanction.add("reason", clean_row.pop("nature_of_deficiencies"))
+    sanction.add("reason", reason)
 
     if h.is_active(sanction):
         vessel.add("topics", "reg.warn")
@@ -106,7 +126,7 @@ def crawl(context: Context):
             context.log.error(f"Skipping {year}-{month:02} due to fetch failure: {e}")
 
         # Random sleep to avoid overwhelming the server (and hitting 500 Server Error)
-        time.sleep(random.uniform(1.5, 3.0))  # sleep for 1.5–3 seconds
+        time.sleep(random.uniform(0.5, 2.0))  # sleep for 1.5–3 seconds
 
         # Increment month and roll over year
         if month == 12:
