@@ -12,6 +12,14 @@ from zavod import Context
 MAX_RETRIES = 5
 RETRY_DELAY = 5  # seconds
 
+HEADERS = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Referer": "https://apcis.tmou.org/public/",
+    "User-Agent": "Mozilla/5.0",
+    "X-Requested-With": "XMLHttpRequest",
+    "Origin": "https://apcis.tmou.org",
+}
+
 
 def solve_arithmetic(expression: str) -> str:
     match = re.search(r"(\d+)\s*([+\-*/])\s*(\d+)", expression)
@@ -42,12 +50,7 @@ def crawl(context: Context):
         login_resp = client.post(
             "https://apcis.tmou.org/public/?action=login",
             data=login_data,
-            headers={
-                "User-Agent": "Mozilla/5.0",
-                "Referer": "https://apcis.tmou.org/public/",
-                "X-Requested-With": "XMLHttpRequest",
-                "Origin": "https://apcis.tmou.org",
-            },
+            headers=HEADERS,
         )
 
         print("Login response snippet:")
@@ -79,16 +82,7 @@ def crawl(context: Context):
             search_resp = client.post(
                 "https://apcis.tmou.org/public/?action=getinspections",
                 data=search_data,
-                headers={
-                    "Accept": "*/*",
-                    "Accept-Encoding": "gzip, deflate, br",
-                    "Accept-Language": "en-GB,en;q=0.9",
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "Origin": "https://apcis.tmou.org",
-                    "Referer": "https://apcis.tmou.org/public/",
-                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
-                    "X-Requested-With": "XMLHttpRequest",
-                },
+                headers=HEADERS,
             )
             if search_resp.status_code == 200 and search_resp.text.strip():
                 break  # success!
@@ -120,12 +114,7 @@ def crawl(context: Context):
                 detail_resp = client.post(
                     "https://apcis.tmou.org/public/?action=getshipinsp",
                     data=detail_data,
-                    headers={
-                        "Content-Type": "application/x-www-form-urlencoded",
-                        "Referer": "https://apcis.tmou.org/public/",
-                        "User-Agent": "Mozilla/5.0",
-                        "X-Requested-With": "XMLHttpRequest",
-                    },
+                    headers=HEADERS,
                 )
                 detail_resp.raise_for_status()
                 pprint(detail_resp.text)
