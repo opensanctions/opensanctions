@@ -49,13 +49,13 @@ def crawl_row(context: Context, clean_row: dict):
         company = context.make("Company")
         company.id = context.make_id("org", company_name)
         company.add("name", company_name)
-        own = context.make("Ownership")
-        own.id = context.make_id(vessel.id, company.id, "owner")
-        own.add("asset", vessel.id)
-        own.add("owner", company.id)
-        h.apply_date(own, "date", start_date)
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(vessel.id, company.id, "owner")
+        ownership.add("asset", vessel.id)
+        ownership.add("owner", company.id)
+        h.apply_date(ownership, "date", start_date)
         context.emit(company)
-        context.emit(own)
+        context.emit(ownership)
 
     related_ros = clean_row.pop("ros")
     if related_ros:
@@ -77,7 +77,7 @@ def crawl_row(context: Context, clean_row: dict):
         )
 
     end_date = clean_row.pop("date_of_release", None)
-    reason = clean_row.pop("nature_of_deficiencies")
+    reason = clean_row.pop("nature_of_deficiencies").split(";")
     sanction = h.make_sanction(
         context,
         vessel,
@@ -113,7 +113,7 @@ def crawl(context: Context):
                 headers=HEADERS,
                 data=data,
                 method="POST",
-                # cache_days=1,
+                cache_days=1,
             )
             table = doc.xpath("//table[@id='dvData']")
             assert len(table) == 1, "Expected one table in the document"
