@@ -102,6 +102,7 @@ lookups:
           - "reg:cy_2"
           - "reg:ua"
           - "reg:by"
+          - "reg:pr_cz"
         prop: registrationNumber
       - match:
           - "doc:passport"
