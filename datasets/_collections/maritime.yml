@@ -25,7 +25,7 @@ description: |
   - **caption**: The name of the vessel or organization. See [caption](/faq/24/captions/) on how
     a name is picked from available candidates.
   - **imo**: The IMO number of the vessel or organization. This is a unique identifier for vessels
-    and organizations. IMO numbers are assigned by the International Maritime Organization, and 
+    and organizations. IMO numbers are assigned by the International Maritime Organization, and
     different schemes are used for vessels and organizations. If no IMO number is available for
     a vessel, the field is empty. In those cases, more brittle matching on name may be required.
   - **risk**: Whether the vessel or organization is directly sanctioned, or is mentioned on a
@@ -63,4 +63,5 @@ children:
   - be_fod_sanctions
   - ae_local_terrorists
   - paris_mou_banned
+  - black_sea_mou_detention
 ci_test: false
