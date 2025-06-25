@@ -30,6 +30,12 @@ data:
   url: https://www.tokyo-mou.org/inspections_detentions/psc_database.php
   format: HTML
   lang: eng
+http:
+  retry_statuses: [500]
+  total_retries: 5
+  backoff_factor: 2
+  retry_methods: POST
+
 
 # assertions:
 #   min:
