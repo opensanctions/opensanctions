@@ -8,7 +8,7 @@ from time import sleep
 
 from zavod import Context
 
-imo = "8817007"
+# imo = "8817007"
 MAX_RETRIES = 5
 RETRY_DELAY = 5  # seconds
 
@@ -53,17 +53,15 @@ def crawl(context: Context):
         print("Login response snippet:")
         print(login_resp.text[:500])
 
-        # Step 4: Search ships by IMO
+        # Step 4: Load PSC inspection page
         search_data = {
             "Param": "0",
-            "Value": imo,
-            "imo": imo,
             "callsign": "",
             "name": "",
             "compimo": "",
             "compname": "",
-            "From": "03.05.2025",
-            "Till": "03.06.2025",
+            "From": "25.05.2025",
+            "Till": "25.06.2025",
             "authority": "0",
             "flag": "0",
             "class": "0",
@@ -79,7 +77,7 @@ def crawl(context: Context):
 
         for attempt in range(MAX_RETRIES):
             search_resp = client.post(
-                "https://apcis.tmou.org/public/?action=getships",
+                "https://apcis.tmou.org/public/?action=getinspections",
                 data=search_data,
                 headers={
                     "Accept": "*/*",
@@ -94,14 +92,14 @@ def crawl(context: Context):
             )
             if search_resp.status_code == 200 and search_resp.text.strip():
                 break  # success!
-            print(
-                f"[warn] Retry {attempt + 1}/{MAX_RETRIES}: Server returned {search_resp.status_code}, retrying in {RETRY_DELAY}s"
+            context.log.warn(
+                f"Retry {attempt + 1}/{MAX_RETRIES}: Server returned {search_resp.status_code}, retrying in {RETRY_DELAY}s"
             )
             sleep(RETRY_DELAY)
         else:
             raise RuntimeError("Failed to get valid search response after retries.")
 
-        # Step 5: Extract the shipuid from the getships response
+        # Step 5: Extract the shipuid from the getinspections response
         search_tree = html.fromstring(search_resp.text)
         print(etree.tostring(search_tree, pretty_print=True, encoding="unicode"))
         shipuid = search_tree.xpath(
@@ -110,13 +108,17 @@ def crawl(context: Context):
         if not shipuid:
             raise RuntimeError("Failed to extract shipuid from search response")
         print(f"Extracted shipuid: {shipuid}")
-        detail_data = {"shipuid": shipuid}
+        detail_data = {
+            "MIME Type": "application/x-www-form-urlencoded",
+            "UID": f"{shipuid}",
+            "initiator": "insp",
+        }
 
         # Step 6: POST to get full ship profile using shipuid
         for attempt in range(1, MAX_RETRIES + 2):  # +2 because range is exclusive
             try:
                 detail_resp = client.post(
-                    "https://apcis.tmou.org/public/?action=getship",
+                    "https://apcis.tmou.org/public/?action=getshipinsp",
                     data=detail_data,
                     headers={
                         "Content-Type": "application/x-www-form-urlencoded",
