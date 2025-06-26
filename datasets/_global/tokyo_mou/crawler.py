@@ -1,10 +1,11 @@
 import re
 from lxml import html
 from typing import Optional
+from datetime import datetime, timedelta
 
 from zavod import Context, helpers as h
 
-
+TODAY = datetime.today()
 HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded",
     "Referer": "https://apcis.tmou.org/public/",
@@ -18,8 +19,9 @@ SEARCH_DATA = {
     "name": "",
     "compimo": "",
     "compname": "",
-    "From": "25.05.2025",
-    "Till": "25.06.2025",
+    "From": f"{TODAY}",
+    # Go back ~6 months (approximate as 182 days)
+    "Till": f"{TODAY - timedelta(days=182)}",
     "authority": "0",
     "flag": "0",
     "class": "0",
