@@ -75,6 +75,52 @@ def emit_unknown_link(context, vessel_id, org_id, role):
     context.emit(link)
 
 
+def crawl_ship_data(context: Context, str_row: dict):
+    ship_name = str_row.pop("ship_name")
+    imo = str_row.pop("imo_number")
+    vessel = context.make("Vessel")
+    vessel.id = context.make_id(ship_name, imo)
+    vessel.add("name", ship_name)
+    vessel.add("imoNumber", imo)
+    vessel.add("type", str_row.pop("type"))
+    vessel.add("callSign", str_row.pop("callsign"))
+    vessel.add("mmsi", str_row.pop("mmsi"))
+    vessel.add("grossRegisteredTonnage", str_row.pop("tonnage"))
+    # TODO: map the 'deadweight' once we have a property for it
+    # TODO: add the topic (most likely 'mar.detained') once we have it
+    vessel.add("flag", str_row.pop("flag"))
+    context.emit(vessel)
+
+    class_soc = str_row.pop("classificationsociety")
+    if class_soc:
+        org = context.make("Organization")
+        org.id = context.make_id("org", class_soc)
+        org.add("name", class_soc)
+        context.emit(org)
+
+        emit_unknown_link(context, vessel.id, org.id, "Classification society")
+    context.audit_data(str_row, ["date_keel_laid", "deadweight"])
+    # We return the vessel_id here so it can be processed in 'crawl_company_details'
+    return vessel.id
+
+
+def crawl_company_details(context: Context, str_row: dict, vessel_id):
+    company_name = str_row.pop("name")
+    company_imo = str_row.pop("imo_number")
+    company = context.make("Company")
+    company.id = context.make_slug(company_name, company_imo)
+    company.add("name", company_name)
+    company.add("imoNumber", company_imo)
+    company.add("mainCountry", str_row.pop("registered"))
+    company.add("jurisdiction", str_row.pop("residence"))
+    company.add("email", str_row.pop("email"))
+    company.add("phone", str_row.pop("phone"))
+    context.emit(company)
+
+    emit_unknown_link(context, vessel_id, company.id, None)
+    context.audit_data(str_row, ["fax"])
+
+
 def crawl_vessel(context: Context, shipuid: str):
     print(f"Processing shipuid: {shipuid}")
     detail_data = {
@@ -96,48 +142,12 @@ def crawl_vessel(context: Context, shipuid: str):
     ship_data = tables[1]
     for row in h.parse_html_table(ship_data):
         str_row = h.cells_to_str(row)
-        ship_name = str_row.pop("ship_name")
-        imo = str_row.pop("imo_number")
-        vessel = context.make("Vessel")
-        vessel.id = context.make_id(ship_name, imo)
-        vessel.add("name", ship_name)
-        vessel.add("imoNumber", imo)
-        vessel.add("type", str_row.pop("type"))
-        vessel.add("callSign", str_row.pop("callsign"))
-        vessel.add("mmsi", str_row.pop("mmsi"))
-        vessel.add("grossRegisteredTonnage", str_row.pop("tonnage"))
-        # TODO: map the 'deadweight' once we have a property for it
-        # TODO: add the topic (most likely 'mar.detained') once we have it
-        vessel.add("flag", str_row.pop("flag"))
-        context.emit(vessel)
-
-        class_soc = str_row.pop("classificationsociety")
-        if class_soc:
-            org = context.make("Organization")
-            org.id = context.make_id("org", class_soc)
-            org.add("name", class_soc)
-            context.emit(org)
-
-            emit_unknown_link(context, vessel.id, org.id, "Classification society")
-        context.audit_data(str_row, ["date_keel_laid", "deadweight"])
+        vessel_id = crawl_ship_data(context, str_row)
 
     company_data = tables[2]
     for row in h.parse_html_table(company_data):
         str_row = h.cells_to_str(row)
-        company_name = str_row.pop("name")
-        company_imo = str_row.pop("imo_number")
-        company = context.make("Company")
-        company.id = context.make_slug(company_name, company_imo)
-        company.add("name", company_name)
-        company.add("imoNumber", company_imo)
-        company.add("mainCountry", str_row.pop("registered"))
-        company.add("jurisdiction", str_row.pop("residence"))
-        company.add("email", str_row.pop("email"))
-        company.add("phone", str_row.pop("phone"))
-        context.emit(company)
-
-        emit_unknown_link(context, vessel.id, company.id, None)
-        context.audit_data(str_row, ["fax"])
+        crawl_company_details(context, str_row, vessel_id)
 
 
 def crawl_page(context: Context, page: int, search_tree: html.HtmlElement):
