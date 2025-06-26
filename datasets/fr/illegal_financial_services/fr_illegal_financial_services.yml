@@ -27,9 +27,9 @@ publisher:
   url: https://www.amf-france.org/fr
   official: true
   country: "fr"
-url: "https://www.data.gouv.fr/fr/datasets/listes-noires-des-entites-non-autorisees-a-proposer-des-produits-ou-services-financiers-en-france/#/information"
+url: "https://www.data.gouv.fr/fr/datasets/listes-noires-des-entites-non-autorisees-a-proposer-des-produits-ou-services-financiers-en-france/"
 data:
-  url: https://www.data.gouv.fr/fr/datasets/listes-noires-des-entites-non-autorisees-a-proposer-des-produits-ou-services-financiers-en-france/#/information
+  url: https://www.data.gouv.fr/fr/datasets/listes-noires-des-entites-non-autorisees-a-proposer-des-produits-ou-services-financiers-en-france/
   format: HTML
 
 assertions:
