@@ -1,12 +1,10 @@
 import re
-
 from lxml import html
-from pprint import pprint
 from typing import Optional
 
 from zavod import Context, helpers as h
 
-# imo = "8817007"
+
 HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded",
     "Referer": "https://apcis.tmou.org/public/",
@@ -67,6 +65,16 @@ def parse_total_pages(context, tree: html.HtmlElement) -> Optional[int]:
     return int(match.group(1)) if match else None
 
 
+def emit_unknown_link(context, vessel_id, org_id, role):
+    link = context.make("UnknownLink")
+    link.id = context.make_id(vessel_id, org_id, role)
+    if role:
+        link.add("role", role)
+    link.add("subject", org_id)
+    link.add("object", vessel_id)
+    context.emit(link)
+
+
 def crawl_vessel(context: Context, shipuid: str):
     print(f"Processing shipuid: {shipuid}")
     detail_data = {
@@ -88,12 +96,48 @@ def crawl_vessel(context: Context, shipuid: str):
     ship_data = tables[1]
     for row in h.parse_html_table(ship_data):
         str_row = h.cells_to_str(row)
-        pprint(str_row)
+        ship_name = str_row.pop("ship_name")
+        imo = str_row.pop("imo_number")
+        vessel = context.make("Vessel")
+        vessel.id = context.make_id(ship_name, imo)
+        vessel.add("name", ship_name)
+        vessel.add("imoNumber", imo)
+        vessel.add("type", str_row.pop("type"))
+        vessel.add("callSign", str_row.pop("callsign"))
+        vessel.add("mmsi", str_row.pop("mmsi"))
+        vessel.add("grossRegisteredTonnage", str_row.pop("tonnage"))
+        # TODO: map the 'deadweight' once we have a property for it
+        # TODO: add the topic (most likely 'mar.detained') once we have it
+        vessel.add("flag", str_row.pop("flag"))
+        context.emit(vessel)
+
+        class_soc = str_row.pop("classificationsociety")
+        if class_soc:
+            org = context.make("Organization")
+            org.id = context.make_id("org", class_soc)
+            org.add("name", class_soc)
+            context.emit(org)
+
+            emit_unknown_link(context, vessel.id, org.id, "Classification society")
+        context.audit_data(str_row, ["date_keel_laid", "deadweight"])
 
     company_data = tables[2]
     for row in h.parse_html_table(company_data):
         str_row = h.cells_to_str(row)
-        pprint(str_row)
+        company_name = str_row.pop("name")
+        company_imo = str_row.pop("imo_number")
+        company = context.make("Company")
+        company.id = context.make_slug(company_name, company_imo)
+        company.add("name", company_name)
+        company.add("imoNumber", company_imo)
+        company.add("mainCountry", str_row.pop("registered"))
+        company.add("jurisdiction", str_row.pop("residence"))
+        company.add("email", str_row.pop("email"))
+        company.add("phone", str_row.pop("phone"))
+        context.emit(company)
+
+        emit_unknown_link(context, vessel.id, company.id, None)
+        context.audit_data(str_row, ["fax"])
 
 
 def crawl_page(context: Context, page: int, search_tree: html.HtmlElement):
@@ -147,5 +191,5 @@ def crawl(context: Context):
     search_tree = html.fromstring(search_resp.text)
     total_pages = parse_total_pages(context, search_tree)
     assert total_pages is not None, "Failed to parse total pages"
-    for page in range(0, total_pages):
+    for page in range(0, total_pages):  # inclusive of 0, exclusive of total_pages
         crawl_page(context, page, search_tree)
