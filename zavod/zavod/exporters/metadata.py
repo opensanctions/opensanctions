@@ -54,13 +54,7 @@ def get_base_dataset_metadata(
         if res.name in ARTIFACT_FILES:
             # TODO: we could make artifact URLs here?
             continue
-        res_data = res.to_opensanctions_dict()
-        if version is not None:
-            # Attach a cache-busting version identifier to the resource URLs:
-            url = res_data.get("url")
-            if url is not None and "?" not in url:
-                res_data["url"] = f"{url}?v={version.id}"
-        res_datas.append(res_data)
+        res_datas.append(res.to_opensanctions_dict())
     meta["resources"] = res_datas
     return meta
 
