@@ -15,16 +15,16 @@ def parse_name(context, name):
 
     if len(parts) == 3:
         last_name, first_name, suffix = parts
-        full_name = f"{first_name} {last_name} {suffix}".strip()
+        full_name = None
     elif len(parts) == 2:
         last_name, first_name = parts
-        suffix = ""
-        full_name = f"{first_name} {last_name}".strip()
+        suffix = None
+        full_name = None
     else:
         full_name = name.strip()
-        first_name = ""
-        last_name = ""
-        suffix = ""
+        first_name = None
+        last_name = None
+        suffix = None
 
     return full_name, first_name, last_name, suffix
 
@@ -43,9 +43,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
     h.apply_name(
         entity,
         full=full_clean,
-        first_name=first_name.strip(),
-        second_name=last_name.strip(),
-        suffix=suffix.strip(),
+        first_name=first_name,
+        second_name=last_name,
+        suffix=suffix,
     )
     entity.add("alias", row.pop("alias", "").split(";"))
     entity.add("position", row.pop("position", "").split(";"))
