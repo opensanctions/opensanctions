@@ -405,6 +405,10 @@ lookups:
         name: "Mancera Shipping Co"
         registration_number: 0211901
         date: "2025-04-18"
+      - match: "Rptd Sold Undisclosed Interest (9991942 / 18.10.2024)"
+        name: "Rptd Sold Undisclosed Interest"
+        registration_number: 9991942
+        date: "2024-10-18"
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
@@ -441,6 +445,7 @@ lookups:
           - 22.02.202)
           - 04.01.20205)
           - 01.11.22023)
+          - 17.03.20205)
         value: null
   type.country:
     options:
@@ -460,7 +465,9 @@ lookups:
         value: Ukraine
       - match: Comoro Islands
         value: Comoros
-      - match: ","
+      - match: 
+          - ","
+          - unknown
         value: null
       - match: Bermuda Islands
         value: bm
