@@ -7,7 +7,21 @@ coverage:
 manual_check:
   last_checked: "2025-06-20"
   interval: 90
-  message: Please review all three source links and update the sheet if any changes are found. Source PDFs are located in this repository.
+  message: |
+    Please review all three source links and update the sheet if any changes are found:
+    - https://pnp.gov.ph/most-wanted-persons-with-reward/
+    - https://pnp.gov.ph/communist-terrorist-group/
+    - https://pnp.gov.ph/local-terrorist-group/
+
+    Source PDFs can be found in this repository.
+    You can use ChatGPT OCR (max 2 pages at a time), Claude, or any reliable OCR tool, 
+    but be aware of their limits—Claude may crash on large files. Manual, page-by-page 
+    review is essential to catch OCR errors and maintain data quality.
+    How-To:
+    Split large PDFs if needed.
+    OCR 1–2 pages at a time.
+    Compare results with the original PDF and correct errors.
+    Update the Google Sheet only after thorough review.
 deploy:
   schedule: "@weekly"
 load_statements: true
