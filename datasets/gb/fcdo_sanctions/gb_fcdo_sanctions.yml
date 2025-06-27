@@ -165,5 +165,5 @@ lookups:
         prop: website
   type.date:
     options:
-      match: 00/00/1975
-      value: 1975
+      - match: 00/00/1975
+        value: 1975
