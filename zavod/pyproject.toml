@@ -30,7 +30,7 @@ dependencies = [
     "google-cloud-storage",
     "jinja2",
     "types-jinja2",
-    "lxml == 5.4.0",
+    "lxml == 6.0.0",
     "openpyxl == 3.1.5",
     "orjson == 3.10.18",
     "ijson > 3.2, < 4.0",
