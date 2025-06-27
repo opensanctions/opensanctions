@@ -54,6 +54,8 @@ inputs:
 config:
   limit: 100
   max_bin: 14
+  index_options:
+    match_batch: 300
   dataset: gb_fca_firds
   strip_namespace: true
   threshold: 0.7
