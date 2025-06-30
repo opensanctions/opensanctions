@@ -182,6 +182,8 @@ lookups:
         values:
           - 1987
           - 1988
+      - match: 27/03//1976
+        value: 1976-03-27
       - match:
           - Entre le 01/01/1961 et le 31/12/1963
           - au milieu des années 1940 1940,
