@@ -1073,3 +1073,6 @@ lookups:
           - Dynamic Treasure Group
           - SMCP SA
           - Chenran Qiu
+      - match: "La société CERES FINANCE"
+        entities:
+          - CERES FINANCE
