@@ -167,3 +167,5 @@ lookups:
     options:
       - match: 00/00/1975
         value: 1975
+      - match: 15/08/19yy
+        value: null # We don't have a way to represent day-month birthdays
