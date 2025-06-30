@@ -1,9 +1,13 @@
+from datetime import datetime, timedelta
 from zavod import Context
-from zavod.shed.firds import parse_xml_file
+from zavod.shed.firds import parse_xml_file, latest_full_set
 
 
-def get_full_dumps_index(context: Context):
+def get_recent_full_dump_urls(context: Context):
+    from_date = (datetime.now() - timedelta(days=30)).isoformat()[:10]
+    to_date = datetime.now().isoformat()[:10]
     query = {
+        "fq": f"publication_date:[{from_date} TO {to_date}]",
         "core": "esma_registers_firds_files",
         "pagingSize": "100",
         "start": 0,
@@ -30,7 +34,7 @@ def get_full_dumps_index(context: Context):
 
 
 def crawl(context: Context) -> None:
-    for file_name, url in get_full_dumps_index(context):
+    for file_name, url in latest_full_set(context, get_recent_full_dump_urls(context)):
         context.log.info("Fetching %s" % file_name, url=url)
         path = context.fetch_resource(file_name, url)
         parse_xml_file(context, path)
