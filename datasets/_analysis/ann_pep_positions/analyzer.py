@@ -21,27 +21,34 @@ OCCUPANCY_STATUS_LABELS = {
 
 
 def get_best_occupancy_status(occupancy: Entity) -> OccupancyStatus:
-    """Get the best occupancy status for a given occupancy entity."""
+    """Get the best occupancy status for a given occupancy entity.
+
+    Multiple statuses usually happens for merged occupancies."""
     statuses = occupancy.get("status")
-    # If a given occupancy has status ended and potentially another value, prefer ended.
-    # At the time of writing, this can happen when an ENDED and an UNKNOWN were merged.
+    # If the occupancy has an any ENDED or CURRENT status (i.e. at least one source where we have
+    # better information than UNKNOWN), we prefer that.
+    # At the time of writing, we don't expect ENDED and CURRENT to be present at the same time.
     if OccupancyStatus.ENDED.value in statuses:
         return OccupancyStatus.ENDED
-
     if OccupancyStatus.CURRENT.value in statuses:
         return OccupancyStatus.CURRENT
 
     return OccupancyStatus.UNKNOWN
 
 
-def get_best_status(statuses: Set[OccupancyStatus]) -> OccupancyStatus:
-    """Get the best status from all occupancies for a given influence level"""
+def get_best_influence_status(statuses: Set[OccupancyStatus]) -> OccupancyStatus:
+    """Get the best status from all occupancies for a given influence level."""
+
+    # If any of the occupancies at this influence level is CURRENT, we prefer that
     if OccupancyStatus.CURRENT in statuses:
         return OccupancyStatus.CURRENT
 
+    # If none are CURRENT, but some are UNKNOWN (and maybe some are ENDED as well), we prefer UNKNOWN
+    # since we can't say for sure that the influence is ended.
     if OccupancyStatus.UNKNOWN in statuses:
         return OccupancyStatus.UNKNOWN
 
+    # If none are CURRENT or UNKNOWN, that usually means all are ENDED
     if OccupancyStatus.ENDED in statuses:
         return OccupancyStatus.ENDED
 
@@ -50,20 +57,22 @@ def get_best_status(statuses: Set[OccupancyStatus]) -> OccupancyStatus:
 
 
 def format_influence_label(topic: str, status: OccupancyStatus) -> Optional[str]:
-    # If it's not an influence topic, we don't want it
     level_label = INFLUENCE_TOPIC_LABELS.get(topic, None)
     status_label = OCCUPANCY_STATUS_LABELS.get(status, None)
+    # If it's not an influence topic, we don't want it
     if status_label is None or level_label is None:
         return None
 
     return f"{level_label} ({status_label})"
 
 
-def consolidate_influence(
+def build_consolidated_influence_labels(
     topic_to_seen_statuses: dict[str, Set[OccupancyStatus]],
 ) -> list[str]:
+    """For a mapping of influence topics to sets of seen statuses for their occupancies,
+    build human-readable influence labels for each of them."""
     formatted = [
-        format_influence_label(topic, get_best_status(seen_statuses))
+        format_influence_label(topic, get_best_influence_status(seen_statuses))
         for topic, seen_statuses in topic_to_seen_statuses.items()
     ]
     return [f for f in formatted if f is not None]
@@ -149,7 +158,7 @@ def crawl(context: Context) -> None:
                     )
 
         # For each topic, we determine the best status seen and build the label from it.
-        influence_labels = consolidate_influence(topic_to_seen_statuses)
+        influence_labels = build_consolidated_influence_labels(topic_to_seen_statuses)
         if not influence_labels:
             continue
         person_proxy = context.make("Person")
