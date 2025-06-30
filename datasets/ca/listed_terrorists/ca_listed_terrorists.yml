@@ -7,7 +7,7 @@ coverage:
   start: 2022-01-31
 load_statements: true
 summary: >-
-  The Canadian governments own list of people and organizations associated with 
+  The Canadian government's own list of people and organizations associated with
   terrorism
 description: |
   > The listing of an entity is a public means of identifying a group or individual as
@@ -32,7 +32,7 @@ tags:
 publisher:
   name: "Public Safety Canada"
   description: |
-    The list is composed by the Minister of Public Safety, and approved by the 
+    The list is composed by the Minister of Public Safety, and approved by the
     Governor in Council.
   country: ca
   url: https://www.publicsafety.gc.ca/index-en.aspx
