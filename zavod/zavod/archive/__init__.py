@@ -11,6 +11,7 @@ from nomenklatura.versions import Version, VersionHistory
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.archive.backend import get_archive_backend, ArchiveObject
+from zavod.archive.cdn import invalidate_archive_cache
 
 if TYPE_CHECKING:
     from zavod.meta.dataset import Dataset
@@ -43,7 +44,7 @@ ARTIFACT_FILES = [
     HASH_FILE,
 ]
 TTL_SHORT = 10 * 60
-TTL_MEDIUM = 12 * 60 * 60
+TTL_MEDIUM = 24 * 60 * 60
 TTL_LONG = 7 * 24 * 60 * 60
 
 
@@ -162,7 +163,8 @@ def publish_dataset_version(dataset_name: str) -> None:
     backend = get_archive_backend()
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     object = backend.get_object(name)
-    object.publish(path, mime_type=JSON, ttl=TTL_SHORT)
+    object.publish(path, mime_type=JSON, ttl=TTL_MEDIUM)
+    invalidate_archive_cache(name)
     get_versions_data.cache_clear()
 
 
@@ -195,11 +197,13 @@ def publish_resource(
     release_name = f"{DATASETS}/{settings.RELEASE}/{resource}"
     release_object = backend.get_object(release_name)
     release_object.publish(path, mime_type=mime_type, ttl=TTL_MEDIUM)
+    invalidate_archive_cache(release_name)
 
     if latest and settings.RELEASE != "latest":
         latest_name = f"{DATASETS}/latest/{resource}"
         latest_object = backend.get_object(latest_name)
         latest_object.republish(release_name)
+        invalidate_archive_cache(latest_name)
 
 
 def _read_fh_statements(fh: TextIO, external: bool) -> StatementGen:
