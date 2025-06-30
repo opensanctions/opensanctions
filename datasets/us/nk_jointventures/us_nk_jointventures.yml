@@ -21,7 +21,7 @@ description: |
   We make this list of joint ventures available as a dataset of entities with noteworthy trade risk.
 
   The UN Security Council resolution 2375 requires Member States to prohibit all joint
-  ventures with North Korean entities and individuals, whether new or already existing, 
+  ventures with North Korean entities and individuals, whether new or already existing,
   subject to very narrow exceptions.
 
   According to the advisory:
@@ -43,8 +43,8 @@ publisher:
   official: true
   url: https://www.cbp.gov/
   description: |
-    The CBP is a unified border agency within the Department of Homeland Security (DHS) 
-    charged with the regulation and facilitation of international trade, collection of 
+    The CBP is a unified border agency within the Department of Homeland Security (DHS)
+    charged with the regulation and facilitation of international trade, collection of
     import duties, and enforcement of U.S. trade laws.
 tags:
   - list.risk
@@ -54,6 +54,7 @@ url: "https://www.cbp.gov/document/report/north-korea-sanctions-and-enforcement-
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRfovKtSGNW3_tS80_-Aa25g3utwny-8Oyoi0CAy9kGke4mbIVVFel9Xgy28NlFFwutRroiVW605NXo/pub?gid=0&single=true&output=csv
   format: CSV
+ci_test: false
 
 assertions:
   min:
