@@ -213,6 +213,8 @@ def query_positions(
             position_countries[bind.plain("position")].add(picked_country)
 
     # b) Positions held by politicans from that country
+    # occupation (P106) == politician (Q82955)
+    # country of citizenship (P27) == country.qid
     politician_query = f"""
         SELECT ?position ?positionLabel ?jurisdiction ?country ?abolished
         WHERE {{
