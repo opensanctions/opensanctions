@@ -1,13 +1,17 @@
+from collections import defaultdict
 import os
+from typing import List, Tuple
 from lxml import etree
 from pathlib import Path
 from zipfile import ZipFile
 from rigour.ids import ISIN
 from tempfile import TemporaryDirectory
+import re
 
 from zavod import Context
 from zavod import helpers as h
 
+REGEX_DATE = re.compile(r"_(20\d{6})_")
 NS = "{urn:iso:std:iso:20022:tech:xsd:auth.017.001.02}"
 
 
@@ -61,3 +65,20 @@ def parse_xml_file(context: Context, path: Path) -> None:
                 context.log.info("Reading XML file", path=tmpfile)
                 parse_xml_doc(context, tmpfile)
                 os.unlink(tmpfile)
+
+
+def latest_full_set(
+    context: Context, dump_urls: List[Tuple[str, str]]
+) -> List[Tuple[str, str]]:
+    """Given a list of (file_name, url) tuples, return the items for the latest date
+    occurring in the list."""
+    date_sets = defaultdict(list)
+    for file_name, url in dump_urls:
+        match = REGEX_DATE.search(url)
+        if not match:
+            context.log.warning(f"URL {url} does not match expected date format.")
+            continue
+        date_str = match.group(1)
+        date_sets[date_str].append((file_name, url))
+    latest = max(date_sets.keys())
+    return date_sets[latest]
