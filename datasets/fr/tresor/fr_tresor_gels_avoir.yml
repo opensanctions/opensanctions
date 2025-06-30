@@ -5449,3 +5449,7 @@ lookups:
           legalForm: société à responsabilité limitée
           incorporationDate: 2017-10-22
           address: Damas
+      - match: "enregistrée le 17/04/2018: numéro 11314143"
+        props:
+          registrationNumber: 11314143
+          incorporationDate: 2018-04-17
