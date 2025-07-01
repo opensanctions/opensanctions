@@ -1,9 +1,10 @@
 from lxml import html
+from rigour.mime.types import JSON
 
 from zavod import Context, helpers as h
 
 
-def access_html(tree, field_text):
+def extract_html_field(tree, field_text):
     """
     Extracts the text from the <span> immediately following a <strong>
     containing the given field_text (case-sensitive).
@@ -20,25 +21,27 @@ def crawl_item(context: Context, item: dict):
     sponsor_name = item.pop("sponsorname")
     abn = item.pop("abn")
     obligation_breached = item.pop("obligationbreached")
-    # The description field contains HTML with more details.
+    # The 'description' field contains an HTML snippet with additional sanction details.
     description = item.pop("description")
-    # There are 2 more available fields in the HTML: "Infringement notice issued" and "Amount",
-    # but we don't want them because there are no properties they'd fit in.
+    # The HTML contains two additional fields, "Infringement notice issued" and "Amount",
+    # which are intentionally ignored as there are no matching properties.
     tree = html.fromstring(description)
-    sanction_imposed = access_html(tree, "Sanction imposed")
-    obligation_breached = access_html(tree, "Obligation breached")
-    date_of_infringement_notice = access_html(tree, "Date of infringement notice")
+    # Extract details from the HTML.
+    sanction_imposed = extract_html_field(tree, "Sanction imposed")
+    obligation_breached = extract_html_field(tree, "Obligation breached")
+    date_of_infringement_notice = extract_html_field(
+        tree, "Date of infringement notice"
+    )
     # We expect at least one of these fields to be present.
     if not any((sanction_imposed, obligation_breached, date_of_infringement_notice)):
         context.log.warn(
-            "Suspicious bahaviour of the HTML structure, 'description' filed could be off"
+            "No expected fields found in the 'description' HTML. Structure may have changed."
         )
-        return
 
     entity = context.make("Company")
     entity.id = context.make_id(trading_name, abn)
     entity.add("name", trading_name)
-    entity.add("alias", sponsor_name)
+    entity.add("name", sponsor_name)
     entity.add("registrationNumber", abn)
     entity.add("country", "au")
     entity.add("topics", "sanction")
@@ -55,6 +58,7 @@ def crawl_item(context: Context, item: dict):
     )
     sanction.add("reason", obligation_breached)
     sanction.add("provisions", sanction_imposed)
+    sanction.add("provisions", item.pop("sanctionimposed"))
     h.apply_date(sanction, "date", date_of_infringement_notice)
     h.apply_date(sanction, "date", item.pop("sanctioninfrinoticedate"))
 
@@ -64,11 +68,10 @@ def crawl_item(context: Context, item: dict):
     context.audit_data(
         item,
         ignore=[
-            "sanctionimposed",
-            "sanctionimposeddate",
+            "sanctionimposeddate",  # is the same as sanctionimposeddatetext
             "amountstatus",
             "sanctioninfrinoticeamount",
-            "sanctioninfribreachnotice",
+            "sanctioninfribreachnotice",  # is usually covered by obligationbreached
         ],
     )
 
@@ -84,6 +87,6 @@ def crawl(context: Context):
         data="{}",
         method="POST",
     )
-    # print("Fetched data:", data)
+    context.export_resource(data, JSON, title=context.SOURCE_TITLE)
     for item in data.get("d", {}).get("data", []):
         crawl_item(context, item)
