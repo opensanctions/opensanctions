@@ -6,16 +6,17 @@ coverage:
   start: 2025-07-01
 load_statements: true
 summary: >-
-  A list of sponsors of skilled foreign workers who have been sanctioned by the
-  Australian Border Force (ABF) for non-compliance with sponsorship obligations.
+  Details of sponsors who have breached their sponsorship obligations since 18 March 2015.
 description: |
   The Australian Border Force (ABF) maintains a list of sponsors of skilled foreign workers
   who have been sanctioned for non-compliance with sponsorship obligations. This includes
-  employers who have had their sponsorship cancelled or suspended, or who have been barred
-  from sponsoring new workers.
+  employers who have had their sponsorship cancelled, or who have been barred from sponsoring 
+  new workers.
 
-  **Note:** This source is subject to monthly updates. Sponsors who have been found to have 
-  breached their obligations and are subject to sanctions may not appear until updates are applied.
+  **Note:** The dataset source is subject to monthly updates. Sponsors who have been 
+  found to have breached their obligations and are subject to sanctions may not appear 
+  until updates are applied.
+  [Source: Official Website](https://www.abf.gov.au/about-us/what-we-do/sponsor-sanctions/register-of-sanctioned-sponsors#)
 url: https://www.abf.gov.au/about-us/what-we-do/sponsor-sanctions/register-of-sanctioned-sponsors#
 tags:
   - list.sanction
