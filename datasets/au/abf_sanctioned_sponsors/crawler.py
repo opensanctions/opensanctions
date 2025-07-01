@@ -1,4 +1,4 @@
-import json
+import orjson
 from lxml import html
 from rigour.mime.types import JSON
 
@@ -45,7 +45,7 @@ def crawl_item(context: Context, item: dict):
     entity.add("name", sponsor_name)
     entity.add("registrationNumber", abn)
     entity.add("country", "au")
-    entity.add("topics", "sanction")
+    entity.add("topics", "debarment")
     address = h.make_address(
         context, state=item.pop("state"), postal_code=item.pop("postcode")
     )
@@ -89,7 +89,7 @@ def crawl(context: Context):
         method="POST",
     )
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
-        data = json.load(fh)
+    with open(path, "rb") as fh:
+        data = orjson.loads(fh.read())
     for item in data.get("d", {}).get("data", []):
         crawl_item(context, item)

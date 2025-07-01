@@ -6,7 +6,7 @@ coverage:
   start: 2025-07-01
 load_statements: true
 summary: >-
-  Details of sponsors who have breached their sponsorship obligations since 18 March 2015.
+  Details of visa sponsors who have breached their sponsorship obligations since 18 March 2015.
 description: |
   The Australian Border Force (ABF) maintains a list of sponsors of skilled foreign workers
   who have been sanctioned for non-compliance with sponsorship obligations. This includes
@@ -19,7 +19,7 @@ description: |
   [Source: Official Website](https://www.abf.gov.au/about-us/what-we-do/sponsor-sanctions/register-of-sanctioned-sponsors#)
 url: https://www.abf.gov.au/about-us/what-we-do/sponsor-sanctions/register-of-sanctioned-sponsors#
 tags:
-  - list.sanction
+  - list.debarment
   - issuer.west
 publisher:
   name: Australian Border Force
