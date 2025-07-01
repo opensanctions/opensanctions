@@ -1,41 +1,39 @@
-import sys
-import click
 import logging
+import sys
 from pathlib import Path
 from typing import Optional, List
 
+import click
+
 from followthemoney.cli.util import InPath, OutPath
-from nomenklatura.tui import dedupe_ui
+from nomenklatura.matching import DefaultAlgorithm
 from nomenklatura.settings import STATEMENT_BATCH
 from nomenklatura.statement import CSV, FORMATS
-from nomenklatura.matching import DefaultAlgorithm
-
+from nomenklatura.tui import dedupe_ui
 from zavod import settings
-from zavod.logs import (
-    configure_logging,
-    get_logger,
-    configure_sentry_integration,
-    set_sentry_dataset_name,
-)
-from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
-from zavod.crawl import crawl_dataset
-from zavod.store import get_store
 from zavod.archive import clear_data_path, dataset_state_path
+from zavod.crawl import crawl_dataset
+from zavod.exc import RunFailedException
 from zavod.exporters import export_dataset
 from zavod.integration import edges, get_resolver, get_dataset_linker
 from zavod.integration.dedupe import blocking_xref, merge_entities
 from zavod.integration.dedupe import explode_cluster
-from zavod.runtime.versions import make_version
+from zavod.logs import (
+    configure_logging,
+    get_logger,
+    set_logging_context_dataset_name,
+)
+from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
 from zavod.publish import publish_dataset, publish_failure
-from zavod.tools.load_db import load_dataset_to_db
-from zavod.tools.dump_file import dump_dataset_to_file
-from zavod.tools.summarize import summarize as _summarize
-from zavod.exc import RunFailedException
 from zavod.reset import reset_caches
+from zavod.runtime.versions import make_version
+from zavod.stateful.model import create_db
+from zavod.store import get_store
+from zavod.tools.dump_file import dump_dataset_to_file
+from zavod.tools.load_db import load_dataset_to_db
+from zavod.tools.summarize import summarize as _summarize
 from zavod.tools.wikidata import run_app
 from zavod.validators import validate_dataset
-from zavod.stateful.model import create_db
-
 
 log = get_logger(__name__)
 STMT_FORMATS = click.Choice(FORMATS, case_sensitive=False)
@@ -45,7 +43,7 @@ def _load_dataset(path: Path) -> Dataset:
     dataset = load_dataset_from_path(path)
     if dataset is None:
         raise click.BadParameter("Invalid dataset path: %s" % path)
-    set_sentry_dataset_name(dataset.name)
+    set_logging_context_dataset_name(dataset.name)
     return dataset
 
 
@@ -60,8 +58,6 @@ def _load_datasets(paths: List[Path]) -> Dataset:
 @click.option("--debug", is_flag=True, default=False)
 def cli(debug: bool = False) -> None:
     settings.DEBUG = debug
-
-    configure_sentry_integration()
 
     level = logging.DEBUG if debug else logging.INFO
     configure_logging(level=level)

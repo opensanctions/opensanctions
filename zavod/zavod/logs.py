@@ -1,16 +1,14 @@
 import logging
 import os
 import re
+import sys
 from pathlib import Path
 from typing import Callable, Optional
 from typing import Dict, List, Any, MutableMapping
 
-import sentry_sdk
 import structlog
-import sys
 from lxml.etree import _Element, tostring
 from lxml.html import HtmlElement
-from sentry_sdk.integrations.logging import LoggingIntegration
 from structlog.contextvars import merge_contextvars
 from structlog.stdlib import get_logger as get_raw_logger
 from structlog.types import Processor
@@ -36,8 +34,6 @@ REDACT_IGNORE_LIST = {
     # The URL redaction will handle these
     "ZAVOD_DATABASE_URI",
     "OPENSANCTIONS_DATABASE_URI",
-    "ZAVOD_ENABLE_SENTRY",
-    "ZAVOD_SENTRY_ENVIRONMENT",
     "ZAVOD_HTTP_RETRY_TOTAL",
     "ZAVOD_HTTP_RETRY_BACKOFF_FACTOR",
     "ZAVOD_HTTP_RETRY_BACKOFF_MAX",
@@ -111,29 +107,9 @@ def configure_redactor() -> Callable[[Any, str, Event], Event]:
     return RedactingProcessor(pattern_map)
 
 
-def configure_sentry_integration() -> None:
-    if settings.ENABLE_SENTRY:
-        if not settings.SENTRY_DSN:
-            raise RuntimeError("Sentry integration is enabled, but not DSN set.")
-        if not settings.SENTRY_ENVIRONMENT:
-            raise RuntimeError("Sentry integration is enabled, but no environment set.")
-
-        sentry_sdk.init(
-            dsn=settings.SENTRY_DSN,
-            environment=settings.SENTRY_ENVIRONMENT,
-            auto_enabling_integrations=False,
-            disabled_integrations=[
-                # We disable the logging integration since we handle that with our issues infrastructure
-                LoggingIntegration  # type: ignore
-            ],
-            attach_stacktrace=True,
-        )
-
-
-def set_sentry_dataset_name(dataset_name: str) -> None:
+def set_logging_context_dataset_name(dataset_name: str) -> None:
+    """Sets the dataset name in the logging context, so all log messages will have a dataset attached to them."""
     structlog.contextvars.bind_contextvars(dataset=dataset_name)
-    # A Transaction in Sentry parlance is the "current task being executed"
-    sentry_sdk.get_current_scope().set_transaction_name(dataset_name)
 
 
 def configure_logging(level: int = logging.DEBUG) -> None:
