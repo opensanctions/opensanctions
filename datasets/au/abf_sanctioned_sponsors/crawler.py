@@ -1,3 +1,4 @@
+import json
 from lxml import html
 from rigour.mime.types import JSON
 
@@ -77,9 +78,9 @@ def crawl_item(context: Context, item: dict):
 
 
 def crawl(context: Context):
-    data = context.fetch_json(
+    path = context.fetch_resource(
+        "source.json",
         context.data_url,
-        cache_days=1,
         headers={
             "Content-Type": "application/json",
             "Accept": "application/json;odata=verbose",
@@ -87,6 +88,8 @@ def crawl(context: Context):
         data="{}",
         method="POST",
     )
-    context.export_resource(data, JSON, title=context.SOURCE_TITLE)
+    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+    with open(path, "r") as fh:
+        data = json.load(fh)
     for item in data.get("d", {}).get("data", []):
         crawl_item(context, item)
