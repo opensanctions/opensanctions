@@ -29,7 +29,7 @@ def simplify_names(entity: Entity) -> Entity:
         names = entity.get(prop)
         reduced = reduce_names(names)
         if len(reduced) < len(names):
-            stmts = entity._statements.get(prop_, set())
+            stmts = list(entity._statements.get(prop_, set()))
             for stmt in stmts:
                 if stmt.value not in reduced:
                     entity._statements[prop_].remove(stmt)
