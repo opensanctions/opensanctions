@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 from typing import Optional, Generator, Tuple
 from rigour.ids import get_identifier_format
+from rigour.names import is_name
 from prefixdate.precision import Precision
 from followthemoney.types import registry
 from followthemoney.property import Property
@@ -62,6 +63,14 @@ def value_clean(
                     fuzzy=fuzzy,
                     format=format,
                 )
+        if prop_.type == registry.name and clean is not None and not is_name(clean):
+            log.warning(
+                f"Property value {prop_.name!r} is not a valid name: {value}",
+                entity_id=entity.id,
+                value=value,
+                clean=clean,
+            )
+            continue
         if prop_.type == registry.date and clean is not None:
             # none of the information in OpenSanctions is time-critical
             clean = clean[: Precision.DAY.value]

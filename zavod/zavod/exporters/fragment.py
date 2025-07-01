@@ -4,7 +4,11 @@ from followthemoney.property import Property
 
 from zavod.meta import Dataset
 from zavod.entity import Entity
+from zavod.logs import get_logger
 from zavod.store import View as ZavodView
+from zavod.exporters.consolidate import consolidate_entity
+
+log = get_logger(__name__)
 
 
 class ViewFragment(View[Dataset, Entity]):
@@ -12,10 +16,12 @@ class ViewFragment(View[Dataset, Entity]):
     from a larger View. It is useful for accelerating multiple exporters that access the same entity context.
     """
 
+    MAX_BUFFER = 1_000
+
     def __init__(self, view: ZavodView, entity: Entity):
         self.view: ZavodView = view
         self.entity = entity
-        self._entities: Dict[str, Entity] = {}
+        self._entities: Dict[str, Optional[Entity]] = {}
         self._inverted: Dict[str, List[str]] = {}
         if entity.id is not None:
             self._entities[entity.id] = entity
@@ -28,7 +34,9 @@ class ViewFragment(View[Dataset, Entity]):
             return self._entities[id]
         entity = self.view.get_entity(id)
         if entity is not None:
-            self._entities[id] = entity
+            entity = consolidate_entity(self.view.store.linker, entity)
+            if len(self._entities) < self.MAX_BUFFER:
+                self._entities[id] = entity
         return entity
 
     def get_inverted(self, id: str) -> Generator[Tuple[Property, Entity], None, None]:
@@ -45,11 +53,17 @@ class ViewFragment(View[Dataset, Entity]):
                 if entity.id is None:
                     continue
                 self._inverted[id].append(entity.id)
-                self._entities[entity.id] = entity
+                if len(self._entities) < self.MAX_BUFFER:
+                    self._entities[entity.id] = entity
                 yield prop, entity
 
+            if len(self._inverted[id]) > self.MAX_BUFFER:
+                log.warning(
+                    "Adjacency list for %s is greater than buffer limit (%d entries)",
+                    id,
+                    len(self._inverted[id]),
+                )
+
     def entities(self) -> Generator[Entity, None, None]:
-        for entity in self.view.entities():
-            if entity.id is not None:
-                self._entities[entity.id] = entity
-            yield entity
+        # Don't cache entities here
+        raise NotImplementedError("This method should not be called on a ViewFragment!")
