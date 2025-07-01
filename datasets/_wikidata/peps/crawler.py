@@ -25,18 +25,6 @@ class Position(NamedTuple):
     country_codes: List[str]
 
 
-def keyword(topics: List[str]) -> Optional[str]:
-    if "gov.national" in topics:
-        return "National government"
-    if "gov.state" in topics:
-        return "State government"
-    if "gov.igo" in topics:
-        return "International organization"
-    if "gov.muni" in topics:
-        return "Local government"
-    return None
-
-
 def date_value(value: Any) -> Optional[str]:
     if value is None:
         return None
@@ -105,7 +93,6 @@ def crawl_holder(
 
     if holder.get("person_label") != qid:
         entity.add("name", clean_brackets(holder.get("person_label")).strip())
-    entity.add("keywords", keyword(categorisation.topics))
 
     context.emit(position)
     context.emit(occupancy)
@@ -126,7 +113,7 @@ def query_position_holders(
         WHERE {{
             ?ps ps:P39 wd:{wd_position.qid} .
             ?person p:P39 ?ps .
-            ?person wdt:P31 wd:Q5 .  
+            ?person wdt:P31 wd:Q5 .
             FILTER NOT EXISTS {{ ?ps wikibase:rank wikibase:DeprecatedRank }}
             OPTIONAL {{ ?person p:P569 [ a wikibase:BestRank ; psv:P569 [ wikibase:timeValue ?birth ] ] }}
             OPTIONAL {{ ?person p:P570 [ a wikibase:BestRank ; psv:P570 [ wikibase:timeValue ?death ] ] }}
@@ -226,12 +213,14 @@ def query_positions(
             position_countries[bind.plain("position")].add(picked_country)
 
     # b) Positions held by politicans from that country
+    # occupation (P106) == politician (Q82955)
+    # country of citizenship (P27) == country.qid
     politician_query = f"""
         SELECT ?position ?positionLabel ?jurisdiction ?country ?abolished
         WHERE {{
             ?holder wdt:P39 ?position .
-            ?holder wdt:P106 wd:Q82955 .  
-            ?holder wdt:P27 wd:{country.qid} .  
+            ?holder wdt:P106 wd:Q82955 .
+            ?holder wdt:P27 wd:{country.qid} .
             OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
             OPTIONAL {{ ?position wdt:P17 ?country }}
             OPTIONAL {{ ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }}
