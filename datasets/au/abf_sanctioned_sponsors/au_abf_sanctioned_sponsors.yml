@@ -1,0 +1,45 @@
+title: "Australian Sanctions Imposed on Sponsors of Skilled Foreign Workers"
+entry_point: crawler.py
+prefix: au-abf
+coverage:
+  frequency: daily
+  start: 2025-07-01
+load_statements: true
+summary: >-
+  A list of sponsors of skilled foreign workers who have been sanctioned by the
+  Australian Border Force (ABF) for non-compliance with sponsorship obligations.
+description: |
+  The Australian Border Force (ABF) maintains a list of sponsors of skilled foreign workers
+  who have been sanctioned for non-compliance with sponsorship obligations. This includes
+  employers who have had their sponsorship cancelled or suspended, or who have been barred
+  from sponsoring new workers.
+
+  **Note:** This source is subject to monthly updates. Sponsors who have been found to have 
+  breached their obligations and are subject to sanctions may not appear until updates are applied.
+url: https://www.abf.gov.au/about-us/what-we-do/sponsor-sanctions/register-of-sanctioned-sponsors#
+tags:
+  - list.sanction
+  - issuer.west
+publisher:
+  name: Australian Border Force
+  acronym: ABF
+  description: |
+    The Australian Border Force (ABF) is the operational arm of the Department of Home Affairs,
+    responsible for managing the security and integrity of Australia's borders, including customs.
+  country: au
+  url: https://www.abf.gov.au/
+  official: true
+data:
+  url: "https://www.abf.gov.au/_layouts/15/api/Data.aspx/GetSanctionsData"
+  format: JSON
+  lang: eng
+dates:
+  formats: ["%d-%b-%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 1500
+  max:
+    schema_entities:
+      Company: 3000
