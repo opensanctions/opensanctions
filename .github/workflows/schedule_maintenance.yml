@@ -2,7 +2,7 @@ name: schedule_maintenance
 
 on:
   schedule:
-    - cron: '0 9 1 * *'  # Every month on the first day at 09:00 UTC
+    - cron: '0 16 1 * *'  # Every month on the first day at 16:00 UTC
 
 jobs:
   check-schedule:
@@ -20,6 +20,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
+        
+      - name: Install PyYAML
+        run: pip install pyyaml
 
       - name: Generate datasets list
         id: generate
