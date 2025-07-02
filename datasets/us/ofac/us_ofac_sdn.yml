@@ -133,7 +133,7 @@ lookups:
           - SUDAN-EO14098
         value: US-DARFUR
       - match: PAARSSR-EO13894
-        value: US-PAARSS
+        value: US-SYR-REL
       - match:
           - HRIT-SY
           - SYRIA
