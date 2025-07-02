@@ -3,6 +3,31 @@ from typing import Dict
 
 from zavod import Context, helpers as h
 
+# from rigour.mime.types import PDF
+# from pathlib import Path
+# from zavod.shed.gpt import run_image_prompt
+
+# prompt = """
+# Extract structured data from the following page of a PDF document.
+
+# Return a JSON list (`mvps`). For each person entry, return a JSON object with these fields:
+# - `name`
+# - `alias` (as a list, splitting at semicolons)
+# - `offenses`
+# - `issuing_court`
+# - `criminal_case_numbers`
+# - `reward`
+# - `dilg_mc_no`
+# - `region`
+
+# If any field is missing or not specified, return an empty string or an empty list as appropriate.
+# Be as faithful to the original text as possible—do not add or infer information.
+# For example, if a reward is listed as `1,200,000.00`, use this exact value.
+# Preserve line breaks and punctuation from the original where possible.
+
+# Return your answer as a single JSON object.
+# """
+
 
 def parse_name(context, name):
     """
@@ -65,6 +90,15 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
+    # A way to update the data in the future in case the source changes
+    #
+    # path = Path(__file__).parent / "most_wanted_persons.pdf"
+    # for page_path in h.make_pdf_page_images(path):
+    #     data = run_image_prompt(context, prompt, page_path)
+    #     assert "mvps" in data, data
+    #     for holder in data.get("mvps", []):
+    #         pprint(holder)
+
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "r", encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
