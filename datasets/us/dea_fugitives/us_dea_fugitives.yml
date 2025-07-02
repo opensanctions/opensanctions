@@ -43,6 +43,13 @@ assertions:
       Person: 1200
 
 lookups:
+  type.name:
+    options:
+      - match: 
+          - 42
+          - "--"
+          - 27
+        value: null
   type.gender:
     options:
       - match: Unknown
