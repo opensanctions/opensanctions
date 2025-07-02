@@ -43,6 +43,14 @@ assertions:
 dates:
   formats: ["%m/%d/%Y"]
 lookups:
+  type.name:
+    options:
+      - match:
+          - 142866
+          - 2017054848101
+          - 20130
+          - 1
+        value: null
   comma_names:
     lowercase: true
     options:
