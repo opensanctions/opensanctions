@@ -45,6 +45,10 @@ assertions:
       Person: 24000
 
 lookups:
+  type.name:
+    options:
+      - match: "-"
+        value: null
   type.email:
     lowercase: true
     normalize: true
