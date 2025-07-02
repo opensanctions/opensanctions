@@ -63,19 +63,15 @@ def value_clean(
                     fuzzy=fuzzy,
                     format=format,
                 )
-        if (
-            prop_.type == registry.name
-            and prop_.schema != "Vessel"
-            and clean is not None
-            and not is_name(clean)
-        ):
-            log.warning(
-                f"Property value {prop_.name!r} is not a valid name: {value}",
-                entity_id=entity.id,
-                value=value,
-                clean=clean,
-            )
-            continue
+        if prop_.type == registry.name and clean is not None:
+            if entity.schema.is_a("LegalEntity") and not is_name(clean):
+                log.warning(
+                    f"Property value {prop_.name!r} is not a valid name: {value}",
+                    entity_id=entity.id,
+                    value=value,
+                    clean=clean,
+                )
+                continue
         if prop_.type == registry.date and clean is not None:
             # none of the information in OpenSanctions is time-critical
             clean = clean[: Precision.DAY.value]
