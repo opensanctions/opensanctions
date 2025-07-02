@@ -50,6 +50,13 @@ assertions:
       Person: 900
 
 lookups:
+  type.name:
+    options:
+      - match:
+          - 18
+          - 1028
+          - "”"
+        value: null
   type.country:
     lowercase: true
     normalize: true
