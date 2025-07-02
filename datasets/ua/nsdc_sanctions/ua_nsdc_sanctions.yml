@@ -256,6 +256,30 @@ lookups:
         values:
           - Room 1005(B), 10/F, Ho Kong Commercial Center, 2–16 Fa Yuen St., Mong Kok, Hong Kong, China
           - Room 10B, Block A, Guangbo Modern Window Building, Zhenhua Road, Futian District, Shenzhen, Guangdong, 518028, China
+      - match: Türkiye Cumhuriyeti, İstanbul ili, Sarıyer ilçesi, Huzur mahallesi, Azerbaycan Caddesi 4B/397, Skyland Kompleksi, Ofis B), Турецька Республіка, м. Стамбул, район Кягитхане, мікрорайон Центральний, вул. Сечкін, 2-4 A, офіс Z (Türkiye Cumhuriyeti, İstanbul ili, Kağıthane ilçesi, Merkez mahallesi, Seçkin Sokak 2-4A, Ofis Z
+        values:
+          - Türkiye Cumhuriyeti, İstanbul ili, Sarıyer ilçesi, Huzur mahallesi, Azerbaycan Caddesi 4B/397, Skyland Kompleksi, Ofis B
+          - Турецька Республіка, м. Стамбул, район Кягитхане, мікрорайон Центральний, вул. Сечкін, 2-4 A, офіс Z
+          - Türkiye Cumhuriyeti, İstanbul ili, Kağıthane ilçesi, Merkez mahallesi, Seçkin Sokak 2-4A, Ofis Z
+      - match: PRC, HKSAR, Kowloon, 2 Tai Yau Street, Vong King Industrial Building, 3rd Floor, Room D19); Китайська Народна Республіка, провінція Гуандун, м. Шеньчжень, район Футянь, будинок міжнародної науки і технологій, кімн. 2501 (PRC, Guangdong Province, Shenzhen City, Futian District, International Science and Technology Building, Room 2501
+        values:
+          - PRC, HKSAR, Kowloon, 2 Tai Yau Street, Vong King Industrial Building, 3rd Floor, Room D19
+          - Китайська Народна Республіка, провінція Гуандун, м. Шеньчжень, район Футянь, будинок міжнародної науки і технологій, кімн. 2501
+          - PRC, Guangdong Province, Shenzhen City, Futian District, International Science and Technology Building, Room 2501
+      - match: PRC, HKSAR, Yau Ma Tei District, 430–436 Nathan Road, Nathan Commercial Building, 8th Floor, Room A); Китайська Народна Республіка, Особливий адміністративний район Гонконг, м. Коулун, шосе Хой Юен 45, БЦ Яу Лі, блок 89, поверх 3 (PRC, HKSAR, Kowloon, 45 Hoi Yuen Road, Yau Lee Commercial Building, Unit 89, 3rd Floor
+        values:
+          - PRC, HKSAR, Yau Ma Tei District, 430–436 Nathan Road, Nathan Commercial Building, 8th Floor, Room A
+          - Китайська Народна Республіка, Особливий адміністративний район Гонконг, м. Коулун, шосе Хой Юен 45, БЦ Яу Лі, блок 89, поверх 3
+          - PRC, HKSAR, Kowloon, 45 Hoi Yuen Road, Yau Lee Commercial Building, Unit 89, 3rd Floor
+      - match: Российская Федерация, 115280, г. Москва, ул. Ленинская Слобода, д. 9, помещ. 1/1), Російська Федерація, 115280, м. Москва, вул. Автозаводська, буд. 23, корпус 15 (Российская Федерация, 115280, г. Москва, ул. Автозаводская, д. 23, корпус 15), Російська Федерація, 115280, м. Москва, вул. Автозаводська, 25, корпус 2, поверх 6, приміщення 1 (Российская Федерация, 115280, г. Москва, ул. Автозаводская, 25, корпус 2, этаж 6, помещение 1), Російська Федерація, 127411, м. Москва, а/с 4, Дмитрівське шосе, 157, корпус 8 (Российская Федерация, 127411, г. Москва, а/с 4, Дмитровское шоссе, 157, корпус 8
+        values:
+          - Российская Федерация, 115280, г. Москва, ул. Ленинская Слобода, д. 9, помещ. 1/1
+          - Російська Федерація, 115280, м. Москва, вул. Автозаводська, буд. 23, корпус 15
+          - Российская Федерация, 115280, г. Москва, ул. Автозаводская, д. 23, корпус 15
+          - Російська Федерація, 115280, м. Москва, вул. Автозаводська, 25, корпус 2, поверх 6, приміщення 1
+          - Российская Федерация, 115280, г. Москва, ул. Автозаводская, 25, корпус 2, этаж 6, помещение 1
+          - Російська Федерація, 127411, м. Москва, а/с 4, Дмитрівське шосе, 157, корпус 8
+          - Российская Федерация, 127411, г. Москва, а/с 4, Дмитровское шоссе, 157, корпус 8
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»
@@ -288,6 +312,11 @@ lookups:
         values:
           - Акціонерне товариство ''Банк ''Сприяння громадським ініціативам'', АТ ''Собінбанк''
           - Акционерное общество ''Банк ''Содействие общественным инициативам'', АТ ''Собинбанк''
+      - match: 
+          - '3"'
+          - '11"'
+          - '12"'
+        value: null
   type.identifier:
     options:
       - match: 20432 (Ємен, виданий у 2018 р., військовий ідентифікаційний номер Ємену)
