@@ -59,6 +59,8 @@ lookups:
         value: "IM"
       - match: Cayman Islands (GB)
         value: "KY"
+      - match: Bermuda (GB)
+        value: "BM"
       - match: Ship registration withdrawn
         value: null
   type.identifier:
