@@ -59,9 +59,7 @@ class ViewFragment(View[Dataset, Entity]):
 
             if len(self._inverted[id]) > self.MAX_BUFFER:
                 log.warning(
-                    "Adjacency list for %s is greater than buffer limit (%d entries)",
-                    id,
-                    len(self._inverted[id]),
+                    f"Adjacency list for {id} is greater than buffer limit ({len(self._inverted[id])} entries)"
                 )
 
     def entities(self) -> Generator[Entity, None, None]:
