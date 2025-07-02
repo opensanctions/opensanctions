@@ -166,6 +166,47 @@ lookups:
         associates_names:
           - Tongliao State-owned Assets Supervision and Administration Bureau
           - Tongliao Small and Medium Enterprise Bureau
+      - match: Xinzhou Industry and Information Technology Bureau (Xinzhou Municipal People's Government State-owned Assets Supervision and Administration Commission, Xinzhou Private Economy Development Promotion Bureau, Xinzhou Big Data Application Bureau)
+        entity: Xinzhou Industry and Information Technology Bureau
+        associates_names:
+          - Xinzhou Municipal People's Government State-owned Assets Supervision and Administration Commission
+          - Xinzhou Private Economy Development Promotion Bureau
+          - Xinzhou Big Data Application Bureau
+      - match: Taiyuan Coal Exchange Market (co., Ltd.)
+        entity: Taiyuan Coal Exchange Market
+        associates_names: []
+      - match: Lvliang City Bureau of Industry and Information Technology (Lvliang City People's Government State-owned Assets Supervision and Administration Commission, Lvliang City Private Economy Development Promotion Bureau)
+        entity: Lvliang City Bureau of Industry and Information Technology
+        associates_names:
+          - Lvliang City People's Government State-owned Assets Supervision and Administration Commission
+          - Lvliang City Private Economy Development Promotion Bureau
+      - match: Zezhou County Industry and Information Technology Bureau (Zezhou County Government State-owned Assets Supervision and Administration Bureau, Zezhou County Commerce Bureau, Zezhou County Private Economic Development Promotion Bureau)
+        entity: Zezhou County Industry and Information Technology Bureau
+        associates_names:
+          - Zezhou County Government State-owned Assets Supervision and Administration Bureau
+          - Zezhou County Commerce Bureau
+          - Zezhou County Private Economic Development Promotion Bureau
+      - match: 吕梁市工业和信息化局（吕梁市人民政府国有资产监督管理委员会、吕梁市民营经济发展促进局）
+        entity: 吕梁市工业和信息化局
+        associates_names:
+          - 吕梁市人民政府国有资产监督管理委员会
+          - 吕梁市民营经济发展促进局
+      - match: 忻州市工业和信息化局（忻州市人民政府国有资产监督管理委员会、忻州市民营经济发展促进局、忻州市大数据应用局）
+        entity: 忻州市工业和信息化局
+        associates_names:
+          - 忻州市人民政府国有资产监督管理委员会
+          - 忻州市民营经济发展促进局
+          - 忻州市大数据应用局
+      - match: 泽州县工业和信息化局（泽州县政府国有资产监督管理局、泽州县商务局、泽州县民营经济发展促进局）
+        entity: 泽州县工业和信息化局
+        associates_names:
+          - 泽州县政府国有资产监督管理局
+          - 泽州县商务局
+          - 泽州县民营经济发展促进局
+      - match: 'Dong Huayou (the equity was pledged on January 30, 2011. Pledgee: Sinochem Corporation)'
+        entity: Dong Huayou
+        associates_names:
+          - Sinochem Corporation
   type.name:
     options:
       - match: "China Electric Power International New Energy Holdings, China Electric Power International New Energy Holdings Limited, China Electric Power International New Energy Holdings LTD, China Power International New Energy CO LTD, China Power International New Energy Holding Ltd., China Power International New Energy Holding LTD, China Power International New Energy Holdings CO LTD, CLP International New Energy Holdings CO LTD"
@@ -179,6 +220,26 @@ lookups:
           - CLP International New Energy Holdings CO LTD
           - 中电国际新能源（上海）控股有限公司
           - China Power International New Energy (Shanghai) Holdings
+      - match:
+          - OJSC
+          - Ooo 
+          - PLC
+          - ltd
+          - Inc
+          - S.A.
+          - L.P.
+          - LLC
+          - ПАО
+          - АО
+          - Inc.
+          - Ooo
+          - OOO
+          - Ltd.
+          - Ltd
+          - LP
+          - ООО
+          - S.L.
+        value: null
   type.url:
     options:
       - match:
@@ -233,6 +294,125 @@ lookups:
           - 7707471416
           - 7536165222
           - 3442123614
+          - 2205001753
+          - 3808229774
+          - 3808076711
+          - 0277077282
+          - 7729604395
+          - 7722245108
+          - 9731011220
+          - 7705031674
+          - 6144009894
+          - 9717102362
+          - 6671156423
+          - 9703067485
+          - 9309013467
+          - 3906382033
+          - 6623000680
+          - 1434031363
+          - 2540154785
+          - 4716016979
+          - 7203162698
+          - 7703323030
+          - 8904006547
+          - 7814382859
+          - 1902029747
+          - 7703414865
+          - 7840346335
+          - 7701296415
+          - 7704784450
+          - 3800000220
+          - 4100000668
+          - 5045067325
+          - 4205243192
+          - 1650239253
+          - 3459080648
+          - "0262035515"
+          - "0262035226"
+          - 4200000333
+          - 4205049090
+          - 4220014581
+          - 7730290591
+          - 2624033219
+          - 3435098928
+          - 5406437129
+          - 4214000252
+          - 1655043430
+          - 4202050996
+          - 2223046193
+          - 7702165310
+          - 2460237901
+          - 7802873820
+          - 7726030449
+          - 1651057954
+          - 1651000010
+          - 7704392364
+          - 7704004212
+          - 9704039787
+          - 6501163102
+          - 2457081355
+          - 6316031581
+          - 4205243185
+          - 7727047526
+          - 2607018122
+          - 7708795808
+          - 7730279936
+          - 7530000048
+          - 2526006778
+          - 9725118461
+          - 6829012680
+          - 2801133630
+          - 4214002316
+          - 3811174483
+          - 4205375400
+          - 1435270798
+          - 7706206983
+          - 7706413348
+          - 7706016076
+          - 7705630445
+          - 7701560370
+          - 7703546678
+          - 7706757331
+          - 6506006431
+          - 1435142972
+          - 2540273768
+          - 7718904157
+          - 2224152758
+          - 5405270340
+          - 4231001947
+          - 4212030766
+          - 6155047757
+          - 4205381530
+          - 7709832989
+          - 4214000608
+          - 7730281389
+          - 1655070635
+          - 1121003135
+          - 1655414195
+          - 1657036630
+          - 7707470275
+          - 7841312071
+          - 5406323202
+          - 7534018889
+          - 1655189422
+          - 7403005526
+          - 6315376946
+          - 7706061801
+          - 6906011179
+          - 7707471448
+          - 8602067092
+          - 7705522866
+          - 6606013640
+          - 7727568649
+          - 1004013588
+          - 1901067718
+          - 4214021365
+          - 4222010511
+          - 9705207321
+          - 4205398171
+          - 1408004469
         prop: registrationNumber
-      - match: not found
+      - match: 
+          - not found
+          - not applicable
         value: null
