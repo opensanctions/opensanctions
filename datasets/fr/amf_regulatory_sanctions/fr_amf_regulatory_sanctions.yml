@@ -49,6 +49,10 @@ assertions:
       LegalEntity: 450
 
 lookups:
+  type.name:
+    options:
+      - match: 1855
+        value: null
   entities:
     options:
       - match:
