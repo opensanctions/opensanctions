@@ -17,7 +17,7 @@ IGNORE = [
     "gem_parents",
     "gem_parents_ids",
 ]
-ALIAS_SPLITS = ["[former],", "[former]", "[former name]", "(former)"]
+ALIAS_SPLITS = ["[former],", "[former]", "[former name]", "(former)", ", "]
 SKIP_IDS = {
     "E100001015587",  # Small shareholders
     "E100000126067",  # Non-promoter shareholders
@@ -25,7 +25,7 @@ SKIP_IDS = {
     "E100000123261",  # natural persons
 }
 SELF_OWNED = {"E100000002236"}
-STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/02/Global-Energy-Ownership-Tracker-February-2025.xlsx"
+STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/05/Global-Energy-Ownership-Tracker-May-2025-V2.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
 REGEX_POSSIBLE_ASSOCIATES = re.compile(r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)")
 
@@ -109,7 +109,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     aliases = row.pop("name_other")
     if aliases is not None:
         for alias in h.multi_split(aliases, ALIAS_SPLITS):
-            entity.add("alias", alias)
+            entity.add("alias", alias.strip(", "))
     entity.add("weakAlias", row.pop("abbreviation"))
     if (lei_code := row.pop("global_legal_entity_identifier_index")) != "not found":
         entity.add("leiCode", lei_code)
