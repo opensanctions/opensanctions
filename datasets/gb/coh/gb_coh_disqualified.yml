@@ -55,7 +55,6 @@ data:
   format: json
 http:
   retry_statuses: [503, 429, 403, 504]
-
 dates:
   formats: ["%d %B %Y", "%d %b %Y", "%Y-%m-%d"]
 
@@ -75,7 +74,6 @@ lookups:
       - match:
           - Disqualified
         value: null
-
   type.address:
     lowercase: true
     options:
@@ -109,7 +107,6 @@ lookups:
         value: BA
       - match: Guinea-Bissuan
         value: GW
-
   type.date:
     options:
       - match: "3018-12-12"
@@ -117,4 +114,37 @@ lookups:
       - match: "3031-07-16"
         value: "2031-07-16"
       - match: "9999-12-31"
+        value: null
+  type.name:
+    options:
+      - match: 
+          - 4183578
+          - 4998909
+          - 5490686
+          - 5526282
+          - 09818186
+          - 5191/2015
+          - 2158318
+          - 4019084
+          - 4146318
+          - 4208566
+          - 4957900
+          - 4996518
+          - 5359108
+          - 5359252
+          - 5535155
+          - 5569541
+          - 5692507
+          - 5769343
+          - 5823678
+          - 6026977
+          - 6056794
+          - 6131704
+          - 6323147
+          - 5700336
+          - 5885179
+          - 5890195
+          - 5890223
+          - 5944048
+          - 6036299
         value: null
