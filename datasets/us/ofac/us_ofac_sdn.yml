@@ -132,7 +132,7 @@ lookups:
           - BPI-Sudan-14098
           - SUDAN-EO14098
         value: US-DARFUR
-      - match: SYRIA-EO13894
+      - match: PAARSSR-EO13894
         value: US-SYR-REL
       - match:
           - HRIT-SY
