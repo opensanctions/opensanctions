@@ -214,3 +214,16 @@ lookups:
           - 9664149
           - 123456789
         prop: registrationNumber
+  type.name:
+    options:
+      - match: 
+          - 445308000
+          - 925
+          - 1818
+          - 4457
+          - "201-2-89%"
+          - 350-3
+          - 65170-5
+          - 9
+          - 841
+        value: null
