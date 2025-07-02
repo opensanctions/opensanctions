@@ -68,6 +68,14 @@ lookups:
         value: Organization
       - match: Navire
         value: Vessel
+  type.name:
+    options:
+      - match: 
+          - ")"
+          - "\""
+          - "“"
+          - ","
+        value: null
   type.date:
     options:
       - match: 24/06/1402 (calendrier hégirien)
