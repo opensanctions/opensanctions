@@ -974,6 +974,65 @@ config:
     - match: Čeští_politici
       country: cz
       language: cs
+    - match: Poslanci_Parlamentu_České_republiky_(2021–2025)
+      country: cz
+      topic: role.pep
+      position:
+        name: Member of the Chamber of Deputies
+        country: cz
+        topics:
+          - gov.legislative
+    # We don't mark these as peps, since some of them have been out of office for more than 20 years
+    - match: Poslanci_Parlamentu_České_republiky
+      country: cz
+      position:
+        name: Member of the Chamber of Deputies
+        country: cz
+        topics:
+          - gov.legislative
+    - match: Senátoři_Parlamentu_České_republiky
+      country: cz
+      position:
+        name: Senator of the Czech Republic
+        country: cz
+        topics:
+          - gov.legislative
+    - match: Prezidenti_České_republiky
+      country: cz
+      position:
+        name: President of the Czech Republic
+        country: cz
+        topics:
+          - gov.head
+    - match: Ministři_vlád_České_republiky
+      country: cz
+      topic: role.pep
+      position:
+        name: Minister of the Czech Republic
+        country: cz
+        topics:
+          - gov.executive
+    - match: Soudci_Nejvyššího_soudu_České_republiky
+      country: cz
+      position:
+        name: Judge of the Supreme Court of the Czech Republic
+        country: cz
+        topics:
+          - gov.judicial
+    - match: Soudci_Nejvyššího_správního_soudu_České_republiky
+      country: cz
+      position:
+        name: Judge of the Supreme Administrative Court of the Czech Republic
+        country: cz
+        topics:
+          - gov.judicial
+    - match: Soudci_Ústavního_soudu_České_republiky
+      country: cz
+      position:
+        name: Judge of the Constitutional Court of the Czech Republic
+        country: cz
+        topics:
+          - gov.judicial
     - category: Political_office-holders_in_Serbia
       country: rs
       topic: role.pep
