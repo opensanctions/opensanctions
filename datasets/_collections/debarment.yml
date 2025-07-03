@@ -15,6 +15,7 @@ description: |
 children:
   - adb_sanctions
   - afdb_sanctions
+  - au_abf_sanctioned_sponsors
   - br_bcb_prohibited
   - br_ceis
   - br_tcu_debarred

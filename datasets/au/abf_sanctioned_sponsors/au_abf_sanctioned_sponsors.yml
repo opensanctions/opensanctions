@@ -1,4 +1,4 @@
-title: "Australian Sanctions Imposed on Sponsors of Visas for Skilled Foreign Workers"
+title: "Australian Sanctions Imposed on Sponsors of Skilled Foreign Worker Visas"
 entry_point: crawler.py
 prefix: au-bfspon
 coverage:
@@ -8,7 +8,7 @@ load_statements: true
 summary: >-
   Details of visa sponsors who have breached their sponsorship obligations since 18 March 2015.
 description: |
-  The Australian Border Force (ABF) maintains a list of sponsors of skilled foreign workers
+  The Australian Border Force (ABF) maintains a list of skilled foreign worker visa sponsors
   who have been sanctioned for non-compliance with sponsorship obligations. This includes
   employers who have had their sponsorship cancelled, or who have been barred from sponsoring
   new workers.
