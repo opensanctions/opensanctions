@@ -25,7 +25,7 @@ SKIP_IDS = {
     "E100000123261",  # natural persons
 }
 SELF_OWNED = {"E100000002236"}
-STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/02/Global-Energy-Ownership-Tracker-February-2025.xlsx"
+STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/05/Global-Energy-Ownership-Tracker-May-2025-V2.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
 REGEX_POSSIBLE_ASSOCIATES = re.compile(r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)")
 
