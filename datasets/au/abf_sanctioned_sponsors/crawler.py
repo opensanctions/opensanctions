@@ -85,7 +85,6 @@ def crawl(context: Context):
             "Content-Type": "application/json",
             "Accept": "application/json;odata=verbose",
         },
-        data="{}",
         method="POST",
     )
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)

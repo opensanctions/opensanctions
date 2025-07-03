@@ -1,6 +1,6 @@
 title: "Australian Sanctions Imposed on Sponsors of Visas for Skilled Foreign Workers"
 entry_point: crawler.py
-prefix: au-abf
+prefix: au-bfspon
 coverage:
   frequency: daily
   start: 2025-07-01
@@ -16,7 +16,6 @@ description: |
   **Note:** The dataset source is subject to monthly updates. Sponsors who have been
   found to have breached their obligations and are subject to sanctions may not appear
   until updates are applied.
-  [Source: Official Website](https://www.abf.gov.au/about-us/what-we-do/sponsor-sanctions/register-of-sanctioned-sponsors#)
 url: https://www.abf.gov.au/about-us/what-we-do/sponsor-sanctions/register-of-sanctioned-sponsors#
 tags:
   - list.debarment
