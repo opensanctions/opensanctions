@@ -11,8 +11,8 @@ exports:
   - entities.ftm.json
 deploy:
   schedule: "1 0 * * *"
-  memory: "3000Mi"
-  memory_limit: "3500Mi"
+  memory: "4000Mi"
+  memory_limit: "4000Mi"
 load_statements: true
 ci_test: false
 summary: >-
