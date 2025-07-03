@@ -17,7 +17,7 @@ IGNORE = [
     "gem_parents",
     "gem_parents_ids",
 ]
-ALIAS_SPLITS = ["[former],", "[former]", "[former name]", "(former)", ", "]
+ALIAS_SPLITS = ["[former],", "[former]", "[former name]", "(former)"]
 SKIP_IDS = {
     "E100001015587",  # Small shareholders
     "E100000126067",  # Non-promoter shareholders
@@ -109,7 +109,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     aliases = row.pop("name_other")
     if aliases is not None:
         for alias in h.multi_split(aliases, ALIAS_SPLITS):
-            entity.add("alias", alias.strip(", "))
+            entity.add("alias", alias)
     entity.add("weakAlias", row.pop("abbreviation"))
     if (lei_code := row.pop("global_legal_entity_identifier_index")) != "not found":
         entity.add("leiCode", lei_code)

@@ -220,26 +220,6 @@ lookups:
           - CLP International New Energy Holdings CO LTD
           - 中电国际新能源（上海）控股有限公司
           - China Power International New Energy (Shanghai) Holdings
-      - match:
-          - OJSC
-          - Ooo 
-          - PLC
-          - ltd
-          - Inc
-          - S.A.
-          - L.P.
-          - LLC
-          - ПАО
-          - АО
-          - Inc.
-          - Ooo
-          - OOO
-          - Ltd.
-          - Ltd
-          - LP
-          - ООО
-          - S.L.
-        value: null
   type.url:
     options:
       - match:
