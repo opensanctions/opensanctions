@@ -45,7 +45,6 @@ def crawl_item(context: Context, item: dict):
     entity.add("name", sponsor_name)
     entity.add("registrationNumber", abn)
     entity.add("country", "au")
-    entity.add("topics", "debarment")
     address = h.make_address(
         context, state=item.pop("state"), postal_code=item.pop("postcode")
     )
@@ -62,6 +61,9 @@ def crawl_item(context: Context, item: dict):
     sanction.add("provisions", item.pop("sanctionimposed"))
     h.apply_date(sanction, "date", date_of_infringement_notice)
     h.apply_date(sanction, "date", item.pop("sanctioninfrinoticedate"))
+
+    if h.is_active(sanction):
+        entity.add("topics", "debarment")
 
     context.emit(entity)
     context.emit(sanction)
