@@ -67,6 +67,7 @@ lookups:
           - 'čl. 1 odst. 1 písm. a), d) a e) a čl. 2 odst. 1 písm. a), f) a g) rozhodnutí Rady 2014/145/SZBP ze dne 17. března 2014 o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny'
           - 'čl. 2 odst. 1 písm. f) a g) rozhodnutí Rady 2014/145/SZBP ze dne 17. března 2014 o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny'
           - 'čl. 1 odst. 1 písm. d) a e) a čl. 2 odst. 1 písm. f) a g) rozhodnutí Rady 2014/145/SZBP ze dne 17. března 2014 o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny'
+          - 'čl. 1 odst. 1 písm. a) a čl. 2 odst. 1 písm. a) rozhodnutí Rady (SZBP) 2014/145 ze dne 17. března 2014 o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny, ve znění pozdějších předpisů a tzv. asociační kritérium dle čl. 1 odst. 1 rozhodnutí'
         value: CZ-A1-2023COLL
   type.date:
     normalize: true
