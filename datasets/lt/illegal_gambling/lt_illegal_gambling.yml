@@ -32,6 +32,13 @@ data:
   format: HTML
 
 lookups:
+  type.name:
+    options:
+      - match: 
+          - ","
+          - "("
+          - "),"
+        value: null
   type.email:
     options:
       - match: support@royalpanda.com.
