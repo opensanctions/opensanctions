@@ -183,8 +183,9 @@ def crawl(context: Context):
             table = h3.getparent().getnext()
         else:
             continue
-
-        if table.tag != "table":
+        # There are cases where the table is not immediately after the <h3>
+        # so we look until we get the next <table> element
+        while table is not None and table.tag != "table":
             table = table.getnext()
         assert table.tag == "table"
         for row in parse_table(context, table):
