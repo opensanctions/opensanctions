@@ -29,7 +29,7 @@ def crawl(context: Context) -> None:
         # Seen as both "130" and "FCC 130"—likely due to data validation.
         # Map to "130 - FCCCFRP1" if BIC is "FCCCFRP1" for consistency.
         if legal_name == "130" and bic == "FCCCFRP1":
-            legal_name = "130 FCCCFRP1"
+            legal_name = "130 - FCCCFRP1"
         entity = context.make("Organization")
         entity.id = f"bic-{bic}"
         entity.add("name", legal_name)
