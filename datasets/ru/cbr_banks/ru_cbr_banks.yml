@@ -35,9 +35,9 @@ data:
   url: https://cbr.ru/scripts/XML_bic2.asp
   format: XML
   lang: rus
-
 dates:
   formats: ["%d.%m.%Y", "%Y-%m-%dT00:00:00+03:00", "%Y-%m-%dT00:00:00+04:00"]
+
 assertions:
   min:
     schema_entities:
@@ -45,3 +45,9 @@ assertions:
   max:
     schema_entities:
       Company: 700
+
+lookups:
+  type.name:
+    options:
+      - match: "-"
+        value: null

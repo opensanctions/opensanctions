@@ -45,8 +45,21 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     entity.id = context.make_id("mc-freezes", entity_id)
     entity.add("topics", "sanction")
     details = data.pop("mesureDetails")
-    alias = details.pop("alias")
-    entity.add("alias", re.split(r"[;”]", alias))
+    aliases = details.pop("alias")
+    for alias in h.multi_split(aliases, [";;", ",;", ";"]):
+        alias = alias.strip()
+        if not alias:
+            continue
+        if "/" in alias:
+            result = context.lookup("aliases", alias)
+            if not result:
+                context.log.warn(f"Alias not found in the lookups: {alias.strip()}")
+                entity.add("alias", alias)
+            else:
+                for a in result.aliases:
+                    entity.add("alias", a)
+        else:
+            entity.add("alias", alias.strip())
     address = details.pop("adresse")
     entity.add("address", clean_address(address))
     entity.add("notes", details.pop("autresInfos"))

@@ -452,8 +452,9 @@ lookups:
         entities:
           - Bernheim Dreyfus & co
       - match: "Société Héraclès (anciennement dénommée 1855)"
+        # Workaround to avoid invalid entity name
         entities:
-          - ["Héraclès", "1855"]
+          - ["Héraclès", "1855.com"]
       - match: "Société Air France-KLM et de"
         entities:
           - Air France-KLM
