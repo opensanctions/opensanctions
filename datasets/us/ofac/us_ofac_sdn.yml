@@ -91,6 +91,7 @@ lookups:
       - match:
           - CYBER2
           - CYBER3
+          - CYBER4
         value: US-CYB
       - match: DRCONGO
         value: US-DRC
