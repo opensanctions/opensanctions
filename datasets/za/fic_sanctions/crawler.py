@@ -92,6 +92,8 @@ def crawl_row(context: Context, data: Dict[str, str]):
 
         aliases = data.pop("IndividualAlias", None)
         for alias in h.multi_split(aliases, [", ", "Good", "Low"]):
+            if "?" in alias:
+                continue
             entity.add("alias", alias)
         passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
         entity.add("passportNumber", passports)
