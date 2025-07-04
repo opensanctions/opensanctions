@@ -49,7 +49,7 @@ lookups:
   type.name:
     options:
       - match: 130
-        value: null
+        value: 130 - FCCCFRP1
   type.country:
     options:
       - match: UT
