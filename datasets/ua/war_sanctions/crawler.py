@@ -451,10 +451,15 @@ def emit_ownership_chain(context, legal_entity, program, rostec_ownership):
     # `asset` refers to the previous entity in the chain, starting with the first entity
     asset = legal_entity
     first_entity_name = rostec_ownership[0].text_content().strip()
-    assert first_entity_name in legal_entity.get("name"), (
-        first_entity_name,
-        legal_entity.get("name"),
-    )
+    # That's a special case, with the typo in the source data (abbreviation is invalid)
+    if (
+        legal_entity.get("name")
+        != "AVIATION TECHNOLOGIES TECHNOPARK LIMITED LIABILITY COMPANY"
+    ):
+        assert first_entity_name in legal_entity.get("name"), (
+            first_entity_name,
+            legal_entity.get("name"),
+        )
 
     for owner_link in rostec_ownership[1:]:
         # Create the new entity for each linked company
