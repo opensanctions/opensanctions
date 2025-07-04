@@ -80,6 +80,13 @@ assertions:
       LegalEntity: 1200
 
 lookups:
+  type.name:
+    options:
+      - match: 0520665064/0520673467
+        prop: passportNumber
+        values:
+          - 0520665064
+          - 0520673467
   type.country:
     lowercase: true
     normalize: true

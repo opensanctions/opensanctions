@@ -55,6 +55,10 @@ assertions:
       LegalEntity: 1000
 
 lookups:
+  type.name:
+    options:
+      - match: "\\"
+        value: null
   names:
     normalize: true
     options:

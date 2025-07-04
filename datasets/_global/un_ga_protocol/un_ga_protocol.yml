@@ -48,6 +48,7 @@ lookups:
           - Jul-21
           - Jul-19
           - Feb-17
+          - May-13
           - 09-Sep-2207
           - 09-Sep-2201
           - 09-Sep-2228
@@ -120,6 +121,14 @@ lookups:
         values:
           - 2022-09-09
           - 2021-09-28
+      - match: 09-Sep-22, 14-Aug-14
+        values:
+          - 2022-09-09
+          - 2014-08-14
+      - match: 09-Sep-22 or 27-May-21
+        values:
+          - 2022-09-09
+          - 2021-05-27
   normalize_name:
     lowercase: true
     normalize: true

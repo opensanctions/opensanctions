@@ -92,6 +92,11 @@ def crawl_row(context: Context, data: Dict[str, str]):
 
         aliases = data.pop("IndividualAlias", None)
         for alias in h.multi_split(aliases, [", ", "Good", "Low"]):
+            if all(c in {"?", " "} for c in alias):
+                continue
+            if "?" in alias:
+                context.log.warning("Alias contains '?', skipping", alias=alias)
+                continue
             entity.add("alias", alias)
         passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
         entity.add("passportNumber", passports)
@@ -107,6 +112,9 @@ def crawl_row(context: Context, data: Dict[str, str]):
             # if we split on a comma, we will separate ", LTD" from the name
             alias = alias.rstrip(",")
             if "?" in alias:
+                context.log.warning("Alias contains '?', skipping", alias=alias)
+                continue
+            if all(c in {"?", " "} for c in alias):
                 continue
             entity.add("alias", alias)
     listed_on = data.pop("ListedOn", None)
