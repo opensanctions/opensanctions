@@ -58,8 +58,8 @@ def crawl_item(item, context: Context):
 
     names = []
     #                               They differ. Really.
-    for name in h.multi_split(name, ["“, „", "“ „", "“", "”", "„"]):
-        if name.strip():
+    for name in h.multi_split(name, ["“, „", "“ „", "“),", "“", "”", "(„", "„"]):
+        if name.strip(","):
             names.append(name.strip())
     entity.add("name", names)
     entity.add("website", domain)
