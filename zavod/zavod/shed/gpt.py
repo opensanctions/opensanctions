@@ -5,7 +5,7 @@ import mimetypes
 from hashlib import sha1
 from pathlib import Path
 from openai import OpenAI, AzureOpenAI
-from typing import Optional, Any
+from typing import Optional, Any, Type, TypeVar
 from functools import cache
 
 from pydantic import BaseModel
@@ -17,6 +17,8 @@ from zavod.exc import ConfigurationException
 
 log = get_logger(__name__)
 logging.getLogger("httpx").setLevel(logging.WARNING)
+
+T = TypeVar("T", bound=BaseModel)
 
 
 @cache
@@ -91,7 +93,7 @@ def run_text_prompt(
     max_tokens: int = 3000,
     cache_days: int = 100,
     model: str = "gpt-4o",
-    response_type: Optional[BaseModel] = None,
+    response_type: Optional[Type[T]] = None,
 ) -> Any:
     """Run a text prompt."""
     client = get_client()
@@ -123,3 +125,24 @@ def run_text_prompt(
     data = json.loads(response.choices[0].message.content)
     context.cache.set_json(cache_key, data)
     return data
+
+
+def run_typed_text_prompt(
+    context: Context,
+    prompt: str,
+    string: str,
+    response_type: Type[T],
+    max_tokens: int = 3000,
+    cache_days: int = 100,
+    model: str = "gpt-4o",
+) -> T:
+    data = run_text_prompt(
+        context,
+        prompt,
+        string,
+        max_tokens,
+        cache_days,
+        model,
+        response_type,
+    )
+    return response_type.model_validate(data)
