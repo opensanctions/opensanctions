@@ -6,7 +6,7 @@ from lxml.etree import tostring
 
 from zavod.context import Context
 from zavod import helpers as h
-from zavod.shed.gpt import run_text_prompt
+from zavod.shed.gpt import run_text_prompt, run_typed_text_prompt
 from zavod.stateful.extraction import extract_items
 
 
@@ -53,15 +53,15 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     doc = context.fetch_html(url, cache_days=30)
     article = doc.xpath(".//article")[0]
     html = tostring(article, pretty_print=True).decode("utf-8")
-    result = run_text_prompt(context, PROMPT, html, response_type=Defendants)
+    result = run_typed_text_prompt(context, PROMPT, html, response_type=Defendants)
     for item in extract_items(
         context,
         key=url,
-        raw_data=result,
+        raw_data=result.defendants,
         source_url=url,
-        model_type=Defendants,
+        model_type=Defendant,
     ):
-        entity = context.make_entity(item.schema)
+        entity = context.make(item.schema)
         entity.add("name", item.name)
         entity.add("address", item.address)
         entity.add("country", item.country)
@@ -99,4 +99,3 @@ def crawl(context: Context) -> None:
         else:
             next_url = None
         crawl_index_page(context, doc)
-        pprint(Defendants.model_json_schema())
