@@ -68,6 +68,112 @@ lookups:
         value: Organization
       - match: Navire
         value: Vessel
+  aliases:
+    options:
+      - match: Hussam/Hossam Ahmed/Mohammed/Muhammad al-Katerji
+        aliases:
+          - Hussam al-Katerji
+          - Hossam Ahmed al-Katerji
+          - Mohammed al-Katerji
+          - Muhammad al-Katerji
+      - match: "Samir Foz/Fawz"
+        aliases:
+          - Samir Foz
+          - Samir Fawz
+      - match: Qatirji/Khatirji/Katarji/Katerji Group
+        aliases:
+          - Qatirji Group
+          - Khatirji Group
+          - Katarji Group
+          - Katerji Group
+      - match: (Mohammed) Khaled/Khalid (Bassam) (al-) Zubaidi/Zubedi
+        aliases:
+          - Khaled Zubaidi
+          - Khaled al-Zubaidi
+          - Khaled Zubedi
+          - Khaled al-Zubedi
+          - Khaled Bassam Zubaidi
+          - Khaled Bassam al-Zubaidi
+          - Khaled Bassam Zubedi
+          - Khaled Bassam al-Zubedi
+          - Khalid Zubaidi
+          - Khalid al-Zubaidi
+          - Khalid Zubedi
+          - Khalid al-Zubedi
+          - Khalid Bassam Zubaidi
+          - Khalid Bassam al-Zubaidi
+          - Khalid Bassam Zubedi
+          - Khalid Bassam al-Zubedi
+          - Mohammed Khaled Zubaidi
+          - Mohammed Khaled al-Zubaidi
+          - Mohammed Khaled Zubedi
+          - Mohammed Khaled al-Zubedi
+          - Mohammed Khaled Bassam Zubaidi
+          - Mohammed Khaled Bassam al-Zubaidi
+          - Mohammed Khaled Bassam Zubedi
+          - Mohammed Khaled Bassam al-Zubedi
+          - Mohammed Khalid Zubaidi
+          - Mohammed Khalid al-Zubaidi
+          - Mohammed Khalid Zubedi
+          - Mohammed Khalid al-Zubedi
+          - Mohammed Khalid Bassam Zubaidi
+          - Mohammed Khalid Bassam al-Zubaidi
+          - Mohammed Khalid Bassam Zubedi
+          - Mohammed Khalid Bassam al-Zubedi
+      - match: Viktor Arkadievich CHEVTSOV/ SHEVTSOV
+        aliases:
+          - Viktor Arkadievich Chevtsov
+          - Viktor Arkadievich Shevtsov
+          - Viktor Chevtsov
+          - Viktor Shevtsov
+      - match: DHKP/C
+        aliases: [DHKP/C]
+      - match: Dev Sol (Armée/Front/Parti révolutionnaire populaire de libération)
+        aliases:
+          - Dev Sol
+          - Dev Sol Armée
+          - Dev Sol Front
+          - Dev Sol Parti révolutionnaire populaire de libération
+      - match: Department 140/14
+        aliases: [Department 140/14]
+      - match: Safia Farkash Mohammed Al-Hadad - née le 01/01/1953
+        aliases: [Safia Farkash Mohammed Al-Hadad]
+      - match: RFNC-VNIITF / VNIITF
+        aliases:
+          - RFNC-VNIITF
+          - RFNC VNIITF
+      - match: Korea Ryenha Machinery J/V Corporation
+        aliases: [Korea Ryenha Machinery J/V Corporation]
+      - match: JSC “Obukhov Plant” / JSC “GOZ Obukhov plant”
+        aliases:
+          - JSC “Obukhov Plant”
+          - JSC “GOZ Obukhov plant”
+      - match: Gharargah Sazandegi Ghaem/Khatam Ghaem
+        aliases:
+          - Gharargah Sazandegi Ghaem
+          - Khatam Ghaem
+      - match: Department 140/16
+        aliases: [Department 140/16]
+      - match: "Lord's Resistance Movement/Army (LRM/A),                        Lord's Resistance Army"
+        aliases:
+          - Lord's Resistance Movement/Army (LRM/A)
+          - Lord's Resistance Army
+      - match: The Organization Base of Jihad/Country of the Two Rivers
+        aliases: [The Organization Base of Jihad/Country of the Two Rivers]
+      - match: The Organization Base of Jihad/Mesopotamia
+        aliases: [The Organization Base of Jihad/Mesopotamia]
+      - match: Tanzeem Qa'idat al Jihad/Bilad al Raafidaini
+        aliases: [Tanzeem Qa'idat al Jihad/Bilad al Raafidaini]
+      - match: Front for the Conquest of Syria/the Levant
+        aliases: [Front for the Conquest of Syria/the Levant]
+      - match: Al Qa'ida/armée islamique
+        aliases: [Al Qa'ida/armée islamique]
+      - match: ADF/NALU
+        aliases:
+          - ADF
+          - NALU
+      - match: 7th of Tir Industries of Isfahan/Esfahan
+        aliases: [7th of Tir Industries of Isfahan/Esfahan]
   type.date:
     options:
       - match: 24/06/1402 (calendrier hégirien)

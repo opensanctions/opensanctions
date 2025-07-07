@@ -14,6 +14,7 @@ from followthemoney.types.identifier import IdentifierType
 from zavod import Context, Entity
 from zavod import helpers as h
 
+# Match non-brackets inside an opening and closing pair of brackets
 BRACKETED = re.compile(r"([(（][^\(\)]*[)）]|\[[^\[\]]*\])")
 
 SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
@@ -76,23 +77,34 @@ def parse_date(text: List[str]) -> List[str]:
 
 def parse_names(names: List[str]) -> List[str]:
     cleaned = []
+    # We split on numbering e.g. (a), (b) when reading the rows of the excel file
+    # so we might have split a cell-wide opening and closing parenthesis
+    split_open = len([n.startswith("(") and n.count(")") == 0 for n in names])
+    split_close = len([n.endswith(")") and n.count("(") == 0 for n in names])
+    split_bracketed = split_open == split_close
     for name in names:
         # (a.k.a.:
         # Full width colon. Yes really.
-        name = re.sub(r"[(（]a\.k\.a\.?[:：]? ?", "", name)
+        name = re.sub(r"[(（]a\.k\.a\.? ?[:：]? ?", "", name)
         name = re.sub(r"[（(]original script[:：]\s*(.*?)[）)]", r"\1", name)
+        # It's come up in the opposite order after a U+202B right-to-left embedding char
+        name = re.sub(r"[（(](.*?)\s*[:：]original script[）)]", r"\1", name)
         name = re.sub(r"[（(]f.k.a.:\s*(.*?)[）)]", r"\1", name)
+
         # in Excel, it has this value as (previously listed as), (Previously listed as some name)
         name = name.replace("(previously listed as)", "")
         name = name.replace("(formerly listed as", "")
         name = name.replace("a.k.a., the following three aliases:", "")
-        # name = name.replace(")", "")
-        if name.count("(") == 0 and name.endswith(")"):
+        if split_bracketed and name.count("(") == 0 and name.endswith(")"):
             name = name.rstrip(")")
+        if split_bracketed and name.count(")") == 0 and name.startswith("("):
+            name = name.lstrip("(")
         # e.g: Al Qaïda au Maghreb islamique (AQMI))
         name = name.replace("))", ")")
         name = name.strip(" 、")
-        cleaned.append(name)
+        # U+202B Right to left embedding indicates a part of a string will be right to left
+        if name and name != "\u202b":
+            cleaned.append(name)
         no_brackets = BRACKETED.sub(" ", name).strip()
         if no_brackets != name and len(no_brackets):
             cleaned.append(no_brackets)
