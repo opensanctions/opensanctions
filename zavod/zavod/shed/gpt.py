@@ -8,6 +8,8 @@ from openai import OpenAI, AzureOpenAI
 from typing import Optional, Any
 from functools import cache
 
+from pydantic import BaseModel
+
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.context import Context
@@ -89,6 +91,7 @@ def run_text_prompt(
     max_tokens: int = 3000,
     cache_days: int = 100,
     model: str = "gpt-4o",
+    response_type: Optional[BaseModel] = None,
 ) -> Any:
     """Run a text prompt."""
     client = get_client()
@@ -100,7 +103,7 @@ def run_text_prompt(
         log.info("GPT cache hit: %s" % string[:50])
         return cached_data
     log.info("Prompting %r for: %s" % (model, string[:50]))
-    response = client.chat.completions.create(
+    response = client.chat.completions.parse(
         model=model,
         messages=[
             {
@@ -111,7 +114,7 @@ def run_text_prompt(
                 ],
             }
         ],
-        response_format={"type": "json_object"},
+        response_format=response_type or {"type": "json_object"},
         max_tokens=max_tokens,
     )
     assert len(response.choices) > 0
