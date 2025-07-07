@@ -1077,3 +1077,6 @@ lookups:
       - match: "La société CERES FINANCE"
         entities:
           - CERES FINANCE
+      - match: "La société Groupe CGFI"
+        entities:
+          - Groupe CGFI
