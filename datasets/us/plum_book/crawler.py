@@ -20,7 +20,13 @@ def crawl(context: Context):
             agency_name = row.pop("AgencyName")
             position_title = row.pop("PositionTitle")
             appointment_type = row.pop("AppointmentTypeDescription")
+            # 'Expiration date (for term and time-limited appointments)'
+            # The assumption here is that it's the date when the position expires
             expiration_date = row.pop("ExpirationDate")
+            # 'IncumbentBeginDate' is the date when the person started
+            start_date = row.pop("IncumbentBeginDate")
+            # 'IncumbentVacateDate' is the date when the person vacated the position
+            end_date = row.pop("IncumbentVacateDate")
             location = row.pop("Location")
             incumbent_first_name = row.pop("IncumbentFirstName")
             incumbent_last_name = row.pop("IncumbentLastName")
@@ -42,13 +48,18 @@ def crawl(context: Context):
                 name=position_name,
                 subnational_area=location,
                 country="us",
+                dissolution_date=expiration_date,
             )
 
             categorisation = categorise(context, position, is_pep=True)
             if not categorisation.is_pep:
                 continue
             occupancy = h.make_occupancy(
-                context, person, position, end_date=expiration_date
+                context,
+                person,
+                position,
+                start_date=start_date,
+                end_date=end_date,
             )
             if occupancy is not None:
                 occupancy.add("description", appointment_type)
