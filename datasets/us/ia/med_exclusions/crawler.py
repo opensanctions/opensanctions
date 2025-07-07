@@ -75,9 +75,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     context.audit_data(
         row,
-        ignore=[
-            "eligible_to_reapply_date",
-        ],
+        ignore=["eligible_to_reapply_date", "column_14"],
     )
 
 
