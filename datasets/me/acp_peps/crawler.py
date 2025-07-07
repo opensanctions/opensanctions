@@ -68,7 +68,7 @@ def read_csv_rows(context: Context, zip_path: Path, file_pattern: str) -> List[D
 def family_row_entity(context: Context, row) -> Entity:
     first_name = row.pop("IME_CLANA_PORODICE")
     last_name = row.pop("PREZIME_CLANA_PORODICE")
-    maiden_name = row.pop("RODJENO_PREZIME_CLANA_PORODICE")
+    maiden_name = row.pop("RODJENO_PREZIME_CLANA_PORODICE").strip("/").strip("-")
     city = row.pop("MESTO")
     entity = context.make("Person")
     entity.id = context.make_id(first_name, last_name, city)
