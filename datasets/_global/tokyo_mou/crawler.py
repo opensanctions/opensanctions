@@ -137,7 +137,7 @@ def crawl_vessel(context: Context, shipuid: str):
         data=detail_data,
         headers=HEADERS,
         method="POST",
-        # cache_days=1,
+        # cache_days=30,
     )
     tables = detail_resp.xpath("//table[@class='table']")
     assert len(tables) >= 3, "Expected at least 3 tables in the response"
@@ -158,18 +158,14 @@ def crawl_vessel(context: Context, shipuid: str):
         crawl_company_details(context, str_row, vessel_id)
 
 
-def crawl_page(context: Context, page: int, doc: html.HtmlElement):
-    if page == 0:
-        doc = doc  # use already-fetched tree
-    else:
-        doc = context.fetch_html(
-            "https://apcis.tmou.org/public/?action=getinspections",
-            data=make_search_data(page),
-            headers=HEADERS,
-            method="POST",
-            # cache_days=1,
-        )
-
+def crawl_page(context: Context, page: int):
+    doc = context.fetch_html(
+        "https://apcis.tmou.org/public/?action=getinspections",
+        data=make_search_data(page),
+        headers=HEADERS,
+        method="POST",
+    )
+    # Parse the response to find shipuids
     shipuids = doc.xpath(
         "///tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value"
     )
@@ -178,10 +174,15 @@ def crawl_page(context: Context, page: int, doc: html.HtmlElement):
         context.log.warn("Not enough shipuids found, double check the logic.")
     for shipuid in shipuids:
         crawl_vessel(context, shipuid)
+    # Extract and return total pages
+    total_pages = parse_total_pages(context, doc)
+    assert total_pages is not None, "Failed to parse total pages"
+    print(f"Processed page {page}, total pages: {total_pages}")
+    return total_pages
 
 
 def crawl(context: Context):
-    # Step 1: Submit login form
+    # Submit login form
     login_page = context.http.get("https://apcis.tmou.org/public/")
     tree = html.fromstring(login_page.text)
     # Solve the arithmetic CAPTCHA
@@ -193,20 +194,8 @@ def crawl(context: Context):
     login_resp = context.http.post(login_url, data=login_data, headers=HEADERS)
     print("Login status:", login_resp.status_code)
 
-    # Step 2: Load PSC inspection page
-    # First, fetch page 0 to get total_pages
-    search_data = make_search_data(0)
-    search_resp = context.fetch_html(
-        "https://apcis.tmou.org/public/?action=getinspections",
-        data=search_data,
-        headers=HEADERS,
-        method="POST",
-        # cache_days=1,
-    )
-
-    # Step 3: Extract the shipuid from the getinspections response
-    total_pages = parse_total_pages(context, search_resp)
-    print(f"Total pages found: {total_pages}")
-    assert total_pages is not None, "Failed to parse total pages"
-    for page in range(0, total_pages):  # inclusive of 0, exclusive of total_pages
-        crawl_page(context, page, search_resp)
+    total_pages = None
+    page = 0
+    while total_pages is None or page < total_pages:
+        total_pages = crawl_page(context, page)
+        page += 1
