@@ -37,7 +37,7 @@ http:
   retry_statuses: [500]
   total_retries: 5
   backoff_factor: 2
-  retry_methods: POST
+  retry_methods: [POST, GET]
 
 assertions:
   min:
