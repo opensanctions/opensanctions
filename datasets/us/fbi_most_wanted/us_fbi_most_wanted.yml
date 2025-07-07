@@ -50,6 +50,14 @@ assertions:
       Person: 900
 
 lookups:
+  type.name:
+    # These are the real aliases of
+    # https://www.fbi.gov/wanted/cyber/yasar-balaghi
+    # https://www.fbi.gov/wanted/cyber/masoud-jalili
+    - match: "18"
+      value: 18
+    - match: "1028"
+      value: 1028
   type.country:
     lowercase: true
     normalize: true
