@@ -73,8 +73,7 @@ lookups:
       - match: Hussam/Hossam Ahmed/Mohammed/Muhammad al-Katerji
         aliases:
           - Hussam al-Katerji
-          - Hossam al-Katerji
-          - Ahmed al-Katerji
+          - Hossam Ahmed al-Katerji
           - Mohammed al-Katerji
           - Muhammad al-Katerji
       - match: "Samir Foz/Fawz"
