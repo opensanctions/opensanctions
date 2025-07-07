@@ -9,7 +9,7 @@ TODAY = datetime.today()
 HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded",
     "Referer": "https://apcis.tmou.org/public/",
-    "User-Agent": "Mozilla/5.0",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
     "X-Requested-With": "XMLHttpRequest",
     "Origin": "https://apcis.tmou.org",
 }
@@ -19,9 +19,9 @@ SEARCH_DATA = {
     "name": "",
     "compimo": "",
     "compname": "",
-    "From": f"{TODAY}",
     # Go back ~6 months (approximate as 182 days)
-    "Till": f"{TODAY - timedelta(days=182)}",
+    "From": f"{(TODAY - timedelta(days=182)).strftime("%d.%m.%Y")}",
+    "Till": f"{TODAY.strftime("%d.%m.%Y")}",
     "authority": "0",
     "flag": "0",
     "class": "0",
@@ -132,38 +132,45 @@ def crawl_vessel(context: Context, shipuid: str):
     }
 
     # Step 4: POST to get full ship profile using shipuid
-    detail_resp = context.http.post(
+    detail_resp = context.fetch_html(
         "https://apcis.tmou.org/public/?action=getshipinsp",
         data=detail_data,
         headers=HEADERS,
+        method="POST",
+        # cache_days=1,
     )
-    detail_resp.raise_for_status()
-    tree = html.fromstring(detail_resp.text)
-    tables = tree.xpath("//table[@class='table']")
+    tables = detail_resp.xpath("//table[@class='table']")
     assert len(tables) >= 3, "Expected at least 3 tables in the response"
-    ship_data = tables[1]
-    for row in h.parse_html_table(ship_data):
+    ship_data = detail_resp.xpath(
+        "//h2[text()='Ship data']/following-sibling::table[1]"
+    )
+    assert len(ship_data) == 1, "Expected exactly one ship data table"
+    for row in h.parse_html_table(ship_data[0]):
         str_row = h.cells_to_str(row)
         vessel_id = crawl_ship_data(context, str_row)
 
-    company_data = tables[2]
-    for row in h.parse_html_table(company_data):
+    company_data = detail_resp.xpath(
+        "//h2[text()='Company details']/following-sibling::table[1]"
+    )
+    assert len(company_data) == 1, "Expected exactly one company data table"
+    for row in h.parse_html_table(company_data[0]):
         str_row = h.cells_to_str(row)
         crawl_company_details(context, str_row, vessel_id)
 
 
-def crawl_page(context: Context, page: int, search_tree: html.HtmlElement):
+def crawl_page(context: Context, page: int, doc: html.HtmlElement):
     if page == 0:
-        tree = search_tree  # use already-fetched tree
+        doc = doc  # use already-fetched tree
     else:
-        resp = context.http.post(
+        doc = context.fetch_html(
             "https://apcis.tmou.org/public/?action=getinspections",
             data=make_search_data(page),
             headers=HEADERS,
+            method="POST",
+            # cache_days=1,
         )
-        tree = html.fromstring(resp.text)
 
-    shipuids = tree.xpath(
+    shipuids = doc.xpath(
         "///tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value"
     )
     print(f"Found {len(shipuids)} shipuids in the search response")
@@ -181,11 +188,7 @@ def crawl(context: Context):
     question = tree.xpath("string(//span[contains(text(), '=')])").strip(" =")
     answer = solve_arithmetic(question)
 
-    login_data = {
-        "user": "apcismgr",
-        "password": "mgrsicpa11",
-        "captcha": answer,
-    }
+    login_data = {"captcha": answer}
     login_url = "https://apcis.tmou.org/public/?action=login"
     login_resp = context.http.post(login_url, data=login_data, headers=HEADERS)
     print("Login status:", login_resp.status_code)
@@ -193,15 +196,17 @@ def crawl(context: Context):
     # Step 2: Load PSC inspection page
     # First, fetch page 0 to get total_pages
     search_data = make_search_data(0)
-    search_resp = context.http.post(
+    search_resp = context.fetch_html(
         "https://apcis.tmou.org/public/?action=getinspections",
         data=search_data,
         headers=HEADERS,
+        method="POST",
+        # cache_days=1,
     )
 
     # Step 3: Extract the shipuid from the getinspections response
-    search_tree = html.fromstring(search_resp.text)
-    total_pages = parse_total_pages(context, search_tree)
+    total_pages = parse_total_pages(context, search_resp)
+    print(f"Total pages found: {total_pages}")
     assert total_pages is not None, "Failed to parse total pages"
     for page in range(0, total_pages):  # inclusive of 0, exclusive of total_pages
-        crawl_page(context, page, search_tree)
+        crawl_page(context, page, search_resp)
