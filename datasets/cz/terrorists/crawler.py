@@ -47,7 +47,7 @@ def crawl(context: Context):
         ".//div[contains(@class, 'wrapper')]",
         cache_days=1,
     )
-    items = doc.xpath(".//div[@class='left level-5    type-bod-dd']")
+    items = doc.xpath(".//div[contains(@class, 'type-bod-dd')]")
     # We expect exactly 49 items, since it's a static page
     assert len(items) == 49
     for details_el in items:
