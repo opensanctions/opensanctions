@@ -99,6 +99,7 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
             "facebook",
             "telefono",
             "extension",
+            "youtube",
         ],
     )
 
