@@ -131,25 +131,23 @@ def crawl_vessel(context: Context, shipuid: str):
         "initiator": "insp",
     }
 
-    # Step 4: POST to get full ship profile using shipuid
-    detail_resp = context.fetch_html(
+    # POST to get full ship profile using shipuid
+    detail_doc = context.fetch_html(
         "https://apcis.tmou.org/public/?action=getshipinsp",
         data=detail_data,
         headers=HEADERS,
         method="POST",
-        # cache_days=30,
+        cache_days=30,
     )
-    tables = detail_resp.xpath("//table[@class='table']")
+    tables = detail_doc.xpath("//table[@class='table']")
     assert len(tables) >= 3, "Expected at least 3 tables in the response"
-    ship_data = detail_resp.xpath(
-        "//h2[text()='Ship data']/following-sibling::table[1]"
-    )
+    ship_data = detail_doc.xpath("//h2[text()='Ship data']/following-sibling::table[1]")
     assert len(ship_data) == 1, "Expected exactly one ship data table"
     for row in h.parse_html_table(ship_data[0]):
         str_row = h.cells_to_str(row)
         vessel_id = crawl_ship_data(context, str_row)
 
-    company_data = detail_resp.xpath(
+    company_data = detail_doc.xpath(
         "//h2[text()='Company details']/following-sibling::table[1]"
     )
     assert len(company_data) == 1, "Expected exactly one company data table"
