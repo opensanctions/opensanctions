@@ -183,16 +183,17 @@ def crawl_page(context: Context, page: int):
 
 def crawl(context: Context):
     # Submit login form
-    login_page = context.http.get("https://apcis.tmou.org/public/")
-    tree = html.fromstring(login_page.text)
+    login_page = context.fetch_html("https://apcis.tmou.org/public/")
     # Solve the arithmetic CAPTCHA
-    question = tree.xpath("string(//span[contains(text(), '=')])").strip(" =")
+    question = login_page.xpath("string(//span[contains(text(), '=')])").strip(" =")
     answer = solve_arithmetic(question)
 
     login_data = {"captcha": answer}
     login_url = "https://apcis.tmou.org/public/?action=login"
-    login_resp = context.http.post(login_url, data=login_data, headers=HEADERS)
-    print("Login status:", login_resp.status_code)
+    login_resp = context.fetch_html(
+        login_url, data=login_data, headers=HEADERS, method="POST"
+    )
+    assert login_resp is not None, "Login failed, response is None"
 
     total_pages = None
     page = 0
