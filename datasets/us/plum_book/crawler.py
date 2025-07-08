@@ -20,13 +20,11 @@ def crawl(context: Context):
             agency_name = row.pop("AgencyName")
             position_title = row.pop("PositionTitle")
             appointment_type = row.pop("AppointmentTypeDescription")
-            # 'Expiration date (for term and time-limited appointments)'
-            # The assumption here is that it's the date when the position expires
-            expiration_date = row.pop("ExpirationDate")
-            # 'IncumbentBeginDate' is the date when the person started
             start_date = row.pop("IncumbentBeginDate")
+            # 'Expiration date (for term and time-limited appointments) is the date
+            #  when the person has to vacate the position
             # 'IncumbentVacateDate' is the date when the person vacated the position
-            end_date = row.pop("IncumbentVacateDate")
+            end_date = row.pop("IncumbentVacateDate", row.pop("ExpirationDate"))
             location = row.pop("Location")
             incumbent_first_name = row.pop("IncumbentFirstName")
             incumbent_last_name = row.pop("IncumbentLastName")
@@ -48,7 +46,6 @@ def crawl(context: Context):
                 name=position_name,
                 subnational_area=location,
                 country="us",
-                dissolution_date=expiration_date,
             )
 
             categorisation = categorise(context, position, is_pep=True)
