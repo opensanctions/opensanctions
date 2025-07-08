@@ -580,7 +580,15 @@ lookups:
           country: country
       - match: Issuer Name
         prop: name
-
+  type.name: 
+    options:
+    # Invalid aliases:
+      - match: 
+          - "40"
+          - "42"
+          - "07"
+          - "27"
+        value: null
   type.identifier:
     options:
       # Re-map invalid LEIs to generic regNr:
