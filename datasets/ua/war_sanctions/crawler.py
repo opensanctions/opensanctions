@@ -453,7 +453,7 @@ def emit_ownership_chain(context, legal_entity, program, rostec_ownership):
     first_entity_name = rostec_ownership[0].text_content().strip()
     # That's a special case, with the typo in the source data (abbreviation is invalid)
     if (
-        legal_entity.get("name")
+        legal_entity.get("name")[0]
         != "AVIATION TECHNOLOGIES TECHNOPARK LIMITED LIABILITY COMPANY"
     ):
         assert first_entity_name in legal_entity.get("name"), (

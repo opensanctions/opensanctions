@@ -978,10 +978,11 @@ lookups:
         value: null
   type.date:
     options:
-      - match: 00/00/0
+      - match: 
+          - 00/00/0
+          - 15/08/19 # Shows up as 15/08/19yy in gb_fcdo_sanctions, but we don't have a way to represent day-month birthdays
+          - 15/08/0
         value: null
-      - match: 15/08/19 # Shows up as 15/08/19yy in gb_fcdo_sanctions
-        value: null # We don't have a way to represent day-month birthdays
   type.string:
     options:
       - match: "(1) 603950 (2) 603107"

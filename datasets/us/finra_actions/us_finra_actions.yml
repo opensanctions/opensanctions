@@ -43,6 +43,15 @@ assertions:
 dates:
   formats: ["%m/%d/%Y"]
 lookups:
+  type.name:
+    options:
+    # Map invalid names to correct entities based, manually looked up in the source website in the "Case Summary" column.
+      - match: 142866
+        value: SHOPOFF SECURITIES, INC.
+      - match: 20130
+        value: Traderfield Securities Inc.
+      - match: 2017054848101
+        value: Jonathon Hartwig
   comma_names:
     lowercase: true
     options:

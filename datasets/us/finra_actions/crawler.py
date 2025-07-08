@@ -12,6 +12,7 @@ the time we check the issue, or whether there's a bug. Keeping an eye on this
 for a bit longer (2024-07-31)
 """
 
+import re
 from typing import Generator, Dict, Tuple, Optional
 from lxml.etree import _Element
 from normality import slugify
@@ -49,6 +50,8 @@ def crawl_item(input_dict: dict, context: Context):
     schema = "LegalEntity"
     names = []
     for dirty_name in input_dict.pop("firms-individuals")[0].split("\n"):
+        # for one known instance of ,1 at the end of the name
+        dirty_name = re.sub(r",1$", "", dirty_name)
         names.extend(h.split_comma_names(context, dirty_name))
     case_summary = input_dict.pop("case-summary")[0].strip()
     case_id, source_url = input_dict.pop("case-id")
