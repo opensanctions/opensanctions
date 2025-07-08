@@ -55,6 +55,9 @@ def crawl_item(input_dict: dict, context: Context):
     date = input_dict.pop("action-date-sort-ascending")[0].strip()
 
     for name in names:
+        # Skip invalid names
+        if name == "1":
+            continue
         entity = context.make(schema)
         entity.id = context.make_slug(name)
         entity.add("name", name)
