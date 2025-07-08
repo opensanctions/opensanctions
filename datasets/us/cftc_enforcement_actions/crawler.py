@@ -12,30 +12,28 @@ from zavod.stateful.extraction import extract_items
 class Associate(BaseModel):
     name: str
     address: Optional[str] = Field(
-        description=(
-            "The address or even just the state of the defendant, "
-            "if in the source text."
-        )
+        description=("The address or even just the district/state of the defendant.")
     )
 
 
 class Defendant(BaseModel):
     schema: Literal["Person", "Company", "LegalEntity"]
     name: str
-    aliases: Optional[List[str]] = None
+    aliases: Optional[List[str]] = []
     address: Optional[str] = Field(
-        description=(
-            "The address or even just the state of the defendant,"
-            " if in the source text."
-        )
+        default=None,
+        description=("The address or even just the district/state of the defendant."),
     )
     country: Optional[str] = None
-    owners: Optional[List[str]] = Field(
-        description=(
-            "The names of the owners of a Company defendant, " "if in the source text."
-        )
+    owners: List[str] = Field(
+        default=[], description=("The names of the owners of a Company defendant.")
     )
-    associates: Optional[List[Associate]] = None
+    associates: List[Associate] = Field(
+        default=[],
+        description=(
+            "The names of the associates of a defendant excluding relief defendants."
+        ),
+    )
     authority: Optional[str] = None
 
 
@@ -45,6 +43,8 @@ class Defendants(BaseModel):
 
 PROMPT = """
 Extract the defendants or entities added to the Red List in the attached article.
+Leave out any relief defendants. Leave fields null or lists empty if values are not
+present in the source text.
 """
 
 
