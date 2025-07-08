@@ -1,4 +1,3 @@
-from pprint import pprint
 from typing import Optional, List, Literal
 from pydantic import BaseModel, Field
 
@@ -6,7 +5,7 @@ from lxml.etree import tostring
 
 from zavod.context import Context
 from zavod import helpers as h
-from zavod.shed.gpt import run_text_prompt, run_typed_text_prompt
+from zavod.shed.gpt import run_typed_text_prompt
 from zavod.stateful.extraction import extract_items
 
 
@@ -54,13 +53,15 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     article = doc.xpath(".//article")[0]
     html = tostring(article, pretty_print=True).decode("utf-8")
     result = run_typed_text_prompt(context, PROMPT, html, response_type=Defendants)
-    for item in extract_items(
+    accepted_result = extract_items(
         context,
         key=url,
-        raw_data=result.defendants,
+        raw_data=result,
         source_url=url,
-        model_type=Defendant,
-    ):
+    )
+    if not accepted_result:
+        return
+    for item in accepted_result.defendants:
         entity = context.make(item.schema)
         entity.add("name", item.name)
         entity.add("address", item.address)
