@@ -45,7 +45,7 @@ dates:
 lookups:
   type.name:
     options:
-    # Map invalid names to correct entities based on the source data
+    # Map invalid names to correct entities based, manually looked up in the source website in the "Case Summary" column.
       - match: 142866
         value: SHOPOFF SECURITIES, INC.
       - match: 20130
