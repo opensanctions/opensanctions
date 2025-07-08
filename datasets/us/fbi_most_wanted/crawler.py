@@ -99,10 +99,12 @@ def crawl_person(context: Context, url: str) -> None:
 
     aliases = doc.findtext('.//div[@class="wanted-person-aliases"]/p')
     if aliases is not None:
-        for alias in aliases.split(","):
-            alias = alias.strip()
-            prop = "alias" if " " in alias else "weakAlias"
-            person.add(prop, alias)
+        aliases = aliases.replace(",”, “", "”, “")
+        for raw_alias in aliases.split(","):
+            alias = raw_alias.strip("”").strip()
+            if alias:
+                prop = "alias" if " " in alias else "weakAlias"
+                person.add(prop, alias)
 
     # context.inspect(person)
     context.emit(person)
