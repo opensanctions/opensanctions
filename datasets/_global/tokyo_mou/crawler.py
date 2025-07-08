@@ -51,9 +51,7 @@ def solve_arithmetic(expression: str) -> str:
 
 
 def make_search_data(page):
-    data = dict(SEARCH_DATA)
-    data["Page"] = str(page)
-    return data
+    return {**SEARCH_DATA, "Page": str(page)}
 
 
 def parse_total_pages(context, tree: html.HtmlElement) -> Optional[int]:
@@ -90,6 +88,7 @@ def crawl_ship_data(context: Context, str_row: dict):
     vessel.add("grossRegisteredTonnage", str_row.pop("tonnage"))
     # TODO: map the 'deadweight' once we have a property for it
     # TODO: add the topic (most likely 'mar.detained') once we have it
+    # https://github.com/opensanctions/followthemoney/issues/1
     vessel.add("flag", str_row.pop("flag"))
     context.emit(vessel)
 
@@ -124,7 +123,7 @@ def crawl_company_details(context: Context, str_row: dict, vessel_id):
 
 
 def crawl_vessel(context: Context, shipuid: str):
-    print(f"Processing shipuid: {shipuid}")
+    context.log.debug(f"Processing shipuid: {shipuid}")
     detail_data = {
         "MIME Type": "application/x-www-form-urlencoded",
         "UID": f"{shipuid}",
@@ -167,7 +166,7 @@ def crawl_page(context: Context, page: int):
     shipuids = doc.xpath(
         "///tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value"
     )
-    print(f"Found {len(shipuids)} shipuids in the search response")
+    context.log.info(f"Found {len(shipuids)} shipuids in the search response")
     if len(shipuids) < 15:
         context.log.warn("Not enough shipuids found, double check the logic.")
     for shipuid in shipuids:

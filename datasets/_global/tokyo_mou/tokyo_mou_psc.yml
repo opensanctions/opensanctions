@@ -13,6 +13,7 @@ description: |
   identity, flag, and associated company.
 
   **Note:** This dataset is updated regularly and typically contains records from the last 6 months.
+  Older entries are removed in each update.
 publisher:
   name: Tokyo Memorandum of Understanding
   acronym: Tokyo MoU
