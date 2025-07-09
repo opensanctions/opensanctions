@@ -161,7 +161,7 @@ def crawl_vessel(context: Context, shipuid: str):
         emit_unknown_link(context, object=vessel_id, subject=company_id, role=None)
 
 
-def crawl_page(context: Context, page: int):
+def crawl_list_page(context: Context, page: int):
     doc = context.fetch_html(
         "https://apcis.tmou.org/public/?action=getinspections",
         data=make_search_data(page),
