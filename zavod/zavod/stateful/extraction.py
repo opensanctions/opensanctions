@@ -45,8 +45,8 @@ def extract_items(
                 schema=schema,
                 source_url=source_url,
                 accepted=False,
-                raw_data=raw_data_dump,
-                raw_data_hash=data_hash,
+                orig_extraction_data=raw_data_dump,
+                orig_extraction_data_hash=data_hash,
                 extracted_data=raw_data_dump,
                 last_seen_version=context.version.id,
                 modified_at=now,
@@ -55,9 +55,15 @@ def extract_items(
             conn.execute(ins)
             return None
         # Row exists
-        if row["raw_data_hash"] == data_hash:
+        if row["orig_extraction_data_hash"] == data_hash:
             context.log.debug(
                 "Extraction key hit, hash matches", key=key, accepted=row["accepted"]
+            )
+            # Update last_seen_version to current context.version.id
+            conn.execute(
+                update(extraction_table)
+                .where(extraction_table.c.id == row["id"])
+                .values(last_seen_version=context.version.id)
             )
             if row["accepted"]:
                 return type(raw_data).model_validate(row["extracted_data"])
@@ -76,8 +82,8 @@ def extract_items(
             schema=type(raw_data).model_json_schema(),
             source_url=source_url,
             accepted=False,
-            raw_data=raw_data_dump,
-            raw_data_hash=data_hash,
+            orig_extraction_data=raw_data_dump,
+            orig_extraction_data_hash=data_hash,
             extracted_data=raw_data_dump,
             last_seen_version=context.version.id,
             modified_at=now,
