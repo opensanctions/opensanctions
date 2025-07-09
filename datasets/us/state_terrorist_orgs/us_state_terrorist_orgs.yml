@@ -126,3 +126,7 @@ lookups:
         names:
           - name_clean: Shining Path
             alias: ["Sendero Luminoso", "SL"]
+      - match: al-Nusrah Front, aka Hay’at Tahrir al-Sham (ANF/HTS)
+        names:
+          - name_clean: al-Nusrah Front
+            alias: ["Hay’at Tahrir al-Sham", "ANF/HTS"]
