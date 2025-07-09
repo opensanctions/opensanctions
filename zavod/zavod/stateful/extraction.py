@@ -30,6 +30,7 @@ def extract_items(
     dataset = context.dataset.name
     schema = type(raw_data).model_json_schema(schema_generator=MyGenerateJsonSchema)
     engine = get_engine()
+    now = datetime.utcnow()
     with engine.begin() as conn:
         select_stmt = select(extraction_table).where(
             extraction_table.c.key == key, extraction_table.c.deleted_at == None
@@ -48,7 +49,8 @@ def extract_items(
                 raw_data_hash=data_hash,
                 extracted_data=raw_data_dump,
                 last_seen_version=context.version.id,
-                created_at=datetime.utcnow(),
+                modified_at=now,
+                modified_by="zavod",
             )
             conn.execute(ins)
             return None
@@ -63,7 +65,6 @@ def extract_items(
                 return None
         # Hash differs, mark old row as deleted and insert new row
         context.log.debug("Extraction key hit, hash differs", key=key)
-        now = datetime.utcnow()
         conn.execute(
             update(extraction_table)
             .where(extraction_table.c.id == row["id"])
@@ -79,7 +80,8 @@ def extract_items(
             raw_data_hash=data_hash,
             extracted_data=raw_data_dump,
             last_seen_version=context.version.id,
-            created_at=now,
+            modified_at=now,
+            modified_by="zavod",
         )
         conn.execute(ins)
         return None
