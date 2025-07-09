@@ -54,8 +54,10 @@ extraction_table = Table(
     Column("schema", JSON, nullable=False),
     Column("source_url", JSON, nullable=True),
     Column("accepted", Boolean, nullable=False),
-    Column("raw_data", JSON, nullable=False),  # only to be edited by the crawler
-    Column("raw_data_hash", Unicode(KEY_LEN), nullable=False),
+    Column(
+        "orig_extraction_data", JSON, nullable=False
+    ),  # only to be edited by the crawler
+    Column("orig_extraction_data_hash", Unicode(KEY_LEN), nullable=False),
     Column("extracted_data", JSON, nullable=False),  # editable by the reviewer
     Column("last_seen_version", Unicode(KEY_LEN), nullable=False),  # version id
     Column("modified_at", DateTime, nullable=False),
