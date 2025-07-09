@@ -87,7 +87,7 @@ def crawl_ship_data(context: Context, str_row: dict):
     vessel.add("mmsi", str_row.pop("mmsi"))
     vessel.add("grossRegisteredTonnage", str_row.pop("tonnage"))
     # TODO: map the 'deadweight' once we have a property for it
-    # TODO: add the topic (most likely 'mar.detained') once we have it
+    # TODO: add the topic (most likely 'mar.control') once we have it
     # https://github.com/opensanctions/followthemoney/issues/1
     vessel.add("flag", str_row.pop("flag"))
     context.emit(vessel)
@@ -173,7 +173,7 @@ def crawl_list_page(context: Context, page: int):
         "///tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value"
     )
     context.log.info(f"Found {len(shipuids)} shipuids in the search response")
-    if len(shipuids) < 15:
+    if len(shipuids) < 2:
         context.log.warn("Not enough shipuids found, double check the logic.")
     for shipuid in shipuids:
         crawl_vessel(context, shipuid)
@@ -201,5 +201,5 @@ def crawl(context: Context):
     total_pages = None
     page = 0
     while total_pages is None or page < total_pages:
-        total_pages = crawl_page(context, page)
+        total_pages = crawl_list_page(context, page)
         page += 1
