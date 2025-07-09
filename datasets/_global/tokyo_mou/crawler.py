@@ -65,13 +65,13 @@ def parse_total_pages(context, tree: html.HtmlElement) -> Optional[int]:
     return int(match.group(1)) if match else None
 
 
-def emit_unknown_link(context, vessel_id, org_id, role):
+def emit_unknown_link(context, object, subject, role):
     link = context.make("UnknownLink")
-    link.id = context.make_id(vessel_id, org_id, role)
+    link.id = context.make_id(object, subject, role)
     if role:
         link.add("role", role)
-    link.add("subject", org_id)
-    link.add("object", vessel_id)
+    link.add("subject", subject)
+    link.add("object", object)
     context.emit(link)
 
 
@@ -98,11 +98,12 @@ def crawl_ship_data(context: Context, str_row: dict):
         org.id = context.make_id("org", class_soc)
         org.add("name", class_soc)
         context.emit(org)
+        # we return the vessel_id and org_id here so it can be processed in 'emit_unknown_link'
+        return vessel.id, org.id
 
-        emit_unknown_link(context, vessel.id, org.id, "Classification society")
     context.audit_data(str_row, ["date_keel_laid", "deadweight"])
     # We return the vessel_id here so it can be processed in 'crawl_company_details'
-    return vessel.id
+    return vessel.id, None
 
 
 def crawl_company_details(context: Context, str_row: dict, vessel_id):
@@ -118,8 +119,8 @@ def crawl_company_details(context: Context, str_row: dict, vessel_id):
     company.add("phone", str_row.pop("phone"))
     context.emit(company)
 
-    emit_unknown_link(context, vessel_id, company.id, None)
     context.audit_data(str_row, ["fax"])
+    return company.id
 
 
 def crawl_vessel(context: Context, shipuid: str):
@@ -144,7 +145,11 @@ def crawl_vessel(context: Context, shipuid: str):
     assert len(ship_data) == 1, "Expected exactly one ship data table"
     for row in h.parse_html_table(ship_data[0]):
         str_row = h.cells_to_str(row)
-        vessel_id = crawl_ship_data(context, str_row)
+        vessel_id, org_id = crawl_ship_data(context, str_row)
+        if vessel_id and org_id:
+            emit_unknown_link(
+                context, object=vessel_id, subject=org_id, role="Classification society"
+            )
 
     company_data = detail_doc.xpath(
         "//h2[text()='Company details']/following-sibling::table[1]"
@@ -152,7 +157,8 @@ def crawl_vessel(context: Context, shipuid: str):
     assert len(company_data) == 1, "Expected exactly one company data table"
     for row in h.parse_html_table(company_data[0]):
         str_row = h.cells_to_str(row)
-        crawl_company_details(context, str_row, vessel_id)
+        company_id = crawl_company_details(context, str_row, vessel_id)
+        emit_unknown_link(context, object=vessel_id, subject=company_id, role=None)
 
 
 def crawl_page(context: Context, page: int):
