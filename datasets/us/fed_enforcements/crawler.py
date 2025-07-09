@@ -1,4 +1,5 @@
 import csv
+from normality import slugify
 import yaml  # noqa
 from typing import Dict
 from urllib.parse import urljoin
@@ -7,7 +8,9 @@ from rigour.mime.types import CSV
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.gpt import run_text_prompt
+from zavod.shed.gpt import run_typed_text_prompt
+from zavod.stateful.extraction import extract_items
+from pydantic import BaseModel
 
 
 ORG_PARSE_PROMPT = """From the following list of organisations or companies, please extract an array of
@@ -17,11 +20,21 @@ ORG_PARSE_PROMPT = """From the following list of organisations or companies, ple
         ISO code of the country reflected by the `locality`. Do not include any other information and
         include the entity name exactly as stated, without any additions. If only one entity is listed,
         make it the sole item in the JSON array `entities`."""
-NEW_BANK_ORGS = {}
 PROGRAM_NAME = "US Federal Reserve Enforcement Actions"
 
 
+class BankOrgEntity(BaseModel):
+    name: str
+    locality: str | None = None
+    country: str | None = None
+
+
+class BankOrgsResult(BaseModel):
+    entities: list[BankOrgEntity]
+
+
 def crawl_item(input_dict: Dict[str, str], context: Context):
+    url = input_dict.get("URL", None)
     if input_dict["Individual"]:
         schema = "Person"
         party_name = input_dict.pop("Individual")
@@ -33,26 +46,27 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
         elif len(party_name) > 50:
             context.log.warn("Name too long", name=party_name)
         affiliation = input_dict.pop("Individual Affiliation")
-        entities = [{"name": name, "locality": None, "country": None} for name in names]
+        entities = [
+            BankOrgEntity(name=name, locality=None, country=None) for name in names
+        ]
     else:
         schema = "Company"
         affiliation = None
         party_name = input_dict.pop("Banking Organization")
 
-        result = context.lookup("bank_orgs", party_name)
-        if result is None:
-            result = run_text_prompt(
-                context, prompt=ORG_PARSE_PROMPT, string=party_name
-            )
-            entities = result.get("entities", [])
-            context.log.warn(
-                "Banking organizations have not been mapped explicitly",
-                match=party_name,
-                entities=entities,
-            )
-            NEW_BANK_ORGS[party_name] = entities
-        else:
-            entities = result.entities
+        prompt_result = run_typed_text_prompt(
+            context,
+            prompt=ORG_PARSE_PROMPT,
+            string=party_name,
+            response_type=BankOrgsResult,
+        )
+        accepted_result = extract_items(
+            context,
+            key=slugify(party_name),
+            raw_data=prompt_result,
+            source_url=url or "",
+        )
+        entities = accepted_result.entities if accepted_result else []
 
     effective_date = input_dict.pop("Effective Date")
     termination_date = input_dict.pop("Termination Date")
@@ -61,14 +75,12 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
     url = input_dict.pop("URL", None)
     for ent in entities:
         entity = context.make(schema)
-        name = ent.get("name")
-        locality = ent.get("locality")
-        entity.id = context.make_id(party_name, name, affiliation, locality)
-        entity.add("name", name)
+        entity.id = context.make_id(party_name, ent.name, affiliation, ent.locality)
+        entity.add("name", ent.name)
 
-        if locality:
-            entity.add("address", locality)
-        entity.add("country", ent.get("country"), original_value=locality)
+        if ent.locality:
+            entity.add("address", ent.locality)
+        entity.add("country", ent.country, original_value=ent.locality)
 
         if schema == "Company":
             entity.add("topics", "fin.bank")
