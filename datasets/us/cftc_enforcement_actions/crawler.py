@@ -23,6 +23,8 @@ class Associate(BaseModel):
     )
 
 
+# Heads-up associates seems to be a bit different each time making potentially
+# unnecessary invalidations when the cache expires.
 class Defendant(BaseModel):
     schema: Literal["Person", "Company", "LegalEntity"]
     name: str
@@ -38,7 +40,7 @@ class Defendant(BaseModel):
     associates: List[Associate] = Field(
         default=[],
         description=(
-            "The names of the associates of a defendant excluding relief defendants."
+            "The names of the associates of a defendant excluding relief defendants. Prefer listing people under a company rather than companies under people."
         ),
     )
     authority: Optional[str] = None
