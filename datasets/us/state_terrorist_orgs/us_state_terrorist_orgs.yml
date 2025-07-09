@@ -108,7 +108,7 @@ lookups:
       - match: "al-Nusrah Front, aka Hay’at Tahrir al-Sham (ANF/HTS)— Jabhat Fath al-Sham Amendment (November 14, 2016)— Hay’at Tahrir al-Sham Amendment (June 1, 2018)"
         names:
           - name_clean: al-Nusrah Front
-            alias: ["Hay’at Tahrir al-Sham", "ANF/HTS", "Jabhat Fath al-Sham"]
+            alias: ["Hay’at Tahrir al-Sham", "ANF", "HTS", "Jabhat Fath al-Sham"]
       - match: "ISIS-Sinai Province (formerly Ansar Bayt al-Maqdis)— ISIL Sinai Province Amendment (September 30, 2015)"
         names:
           - name_clean: ISIS-Sinai Province
@@ -129,4 +129,4 @@ lookups:
       - match: al-Nusrah Front, aka Hay’at Tahrir al-Sham (ANF/HTS)
         names:
           - name_clean: al-Nusrah Front
-            alias: ["Hay’at Tahrir al-Sham", "ANF/HTS"]
+            alias: ["Hay’at Tahrir al-Sham", "ANF", "HTS"]
