@@ -13,8 +13,8 @@ deploy:
   schedule: "1 10 * * *"
   cpu: "1000m"
   cpu_limit: "2000m"
-  memory: 5000Mi
-  memory_limit: 5000Mi
+  memory: 6000Mi
+  memory_limit: 6000Mi
   disk: 100Gi
   disk_limit: 300Gi
 load_statements: true
