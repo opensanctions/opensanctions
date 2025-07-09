@@ -75,7 +75,7 @@ def emit_unknown_link(context, object, subject, role):
     context.emit(link)
 
 
-def crawl_ship_data(context: Context, str_row: dict):
+def crawl_vessel_row(context: Context, str_row: dict):
     ship_name = str_row.pop("ship_name")
     imo = str_row.pop("imo_number")
     vessel = context.make("Vessel")
@@ -98,15 +98,16 @@ def crawl_ship_data(context: Context, str_row: dict):
         org.id = context.make_id("org", class_soc)
         org.add("name", class_soc)
         context.emit(org)
-        # we return the vessel_id and org_id here so it can be processed in 'emit_unknown_link'
-        return vessel.id, org.id
+        emit_unknown_link(
+            context, object=vessel.id, subject=org.id, role="Classification society"
+        )
 
     context.audit_data(str_row, ["date_keel_laid", "deadweight"])
-    # We return the vessel_id here so it can be processed in 'crawl_company_details'
-    return vessel.id, None
+    # Return vessel_id here so it can be processed in emit_unknown_link for company
+    return vessel.id
 
 
-def crawl_company_details(context: Context, str_row: dict, vessel_id):
+def crawl_company_details(context: Context, str_row: dict):
     company_name = str_row.pop("name")
     company_imo = str_row.pop("imo_number")
     company = context.make("Company")
@@ -123,7 +124,7 @@ def crawl_company_details(context: Context, str_row: dict, vessel_id):
     return company.id
 
 
-def crawl_vessel(context: Context, shipuid: str):
+def crawl_vessel_page(context: Context, shipuid: str):
     context.log.debug(f"Processing shipuid: {shipuid}")
     detail_data = {
         "MIME Type": "application/x-www-form-urlencoded",
@@ -143,13 +144,10 @@ def crawl_vessel(context: Context, shipuid: str):
     assert len(tables) >= 3, "Expected at least 3 tables in the response"
     ship_data = detail_doc.xpath("//h2[text()='Ship data']/following-sibling::table[1]")
     assert len(ship_data) == 1, "Expected exactly one ship data table"
-    for row in h.parse_html_table(ship_data[0]):
-        str_row = h.cells_to_str(row)
-        vessel_id, org_id = crawl_ship_data(context, str_row)
-        if vessel_id and org_id:
-            emit_unknown_link(
-                context, object=vessel_id, subject=org_id, role="Classification society"
-            )
+    row = list(h.parse_html_table(ship_data[0]))
+    assert len(row) == 1, "Expected exactly one row in ship data table"
+    str_row = h.cells_to_str(row[0])
+    vessel_id = crawl_vessel_row(context, str_row)
 
     company_data = detail_doc.xpath(
         "//h2[text()='Company details']/following-sibling::table[1]"
@@ -157,7 +155,7 @@ def crawl_vessel(context: Context, shipuid: str):
     assert len(company_data) == 1, "Expected exactly one company data table"
     for row in h.parse_html_table(company_data[0]):
         str_row = h.cells_to_str(row)
-        company_id = crawl_company_details(context, str_row, vessel_id)
+        company_id = crawl_company_details(context, str_row)
         emit_unknown_link(context, object=vessel_id, subject=company_id, role=None)
 
 
@@ -176,7 +174,7 @@ def crawl_list_page(context: Context, page: int):
     if len(shipuids) < 2:
         context.log.warn("Not enough shipuids found, double check the logic.")
     for shipuid in shipuids:
-        crawl_vessel(context, shipuid)
+        crawl_vessel_page(context, shipuid)
     # Extract and return total pages
     total_pages = parse_total_pages(context, doc)
     assert total_pages is not None, "Failed to parse total pages"
