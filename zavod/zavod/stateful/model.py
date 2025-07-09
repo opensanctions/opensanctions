@@ -56,13 +56,10 @@ extraction_table = Table(
     Column("accepted", Boolean, nullable=False),
     Column("raw_data", JSON, nullable=False),  # only to be edited by the crawler
     Column("raw_data_hash", Unicode(KEY_LEN), nullable=False),
-    Column(
-        "extracted_data", JSON, nullable=False
-    ),  # the version accepted by the reviewer
+    Column("extracted_data", JSON, nullable=False),  # editable by the reviewer
     Column("last_seen_version", Unicode(KEY_LEN), nullable=False),  # version id
-    Column("created_at", DateTime, nullable=False, index=True),  # Index for sorting
-    Column("modified_at", DateTime, nullable=True),  # for human edits
-    Column("modified_by", Unicode(KEY_LEN), nullable=True),
+    Column("modified_at", DateTime, nullable=False),
+    Column("modified_by", Unicode(KEY_LEN), nullable=False),
     Column("deleted_at", DateTime, nullable=True, index=True),  # Index for filtering
 )
 
