@@ -54,7 +54,7 @@ data:
   lang: eng
 
 dates:
-  formats: ["%m/%d/%Y 00:00:00"]
+  formats: ["%m/%d/%Y 00:00:00", "%m/%d/%Y 00:00:00 AM"]
 assertions:
   min:
     schema_entities:

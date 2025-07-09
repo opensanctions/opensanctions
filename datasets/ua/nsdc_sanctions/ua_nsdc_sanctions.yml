@@ -104,6 +104,8 @@ lookups:
           - "reg:by"
           - "reg:pr_cz"
           - "reg:ir_pr"
+          - "reg:cn_tr"
+          - "reg:cn_tr_hk"
         prop: registrationNumber
       - match:
           - "doc:passport"
@@ -425,6 +427,90 @@ lookups:
           - Российская Федерация, 115280, г. Москва, ул. Автозаводская, 25, корпус 2, этаж 6, помещение 1
           - Російська Федерація, 127411, м. Москва, а/с 4, Дмитрівське шосе, 157, корпус 8
           - Российская Федерация, 127411, г. Москва, а/с 4, Дмитровское шоссе, 157, корпус 8
+      - match: "Сінгапур, Анг Мо Кіо Авеню 5, офіс 04-05, Техплейс Лі, 089053 (Singapore, 5 Ang Mo Kio Avenue, #04-05, Techplace Li, 089053); Сінгапур, 73 Апе Пая Лєбар Дорога, офіс 06-01c, Центро Біянко, 534818 (Singapore, 73 Ayer Paya Lebar Road, 06-01c, Centro Bianco, 534818)"
+        values:
+          - Сінгапур, Анг Мо Кіо Авеню 5, офіс 04-05, Техплейс Лі, 089053
+          - 'Singapore, 5 Ang Mo Kio Avenue, #04-05, Techplace Li, 089053'
+          - Сінгапур, 73 Апе Пая Лєбар Дорога, офіс 06-01c, Центро Біянко, 534818
+          - Singapore, 73 Ayer Paya Lebar Road, 06-01c, Centro Bianco, 534818
+      - match: PRC, HKSAR, Kwun Tong, 36 Chong Yip Street, Ricky Centre, 6/F, Room 611); КНР, ОАР Гонконг, Квун Тонг, вул. Хоі Юен, 56, промислова будівля Женплас, 1-й поверх, кімната 101a (PRC, HKSAR, Kwun Tong, 56 Hoi Yuen Road, Genplas Industrial Building, 1/F, Room 101a
+        values:
+          - PRC, HKSAR, Kwun Tong, 36 Chong Yip Street, Ricky Centre, 6/F, Room 611
+          - КНР, ОАР Гонконг, Квун Тонг, вул. Хоі Юен, 56, промислова будівля Женплас, 1-й поверх, кімната 101a
+          - PRC, HKSAR, Kwun Tong, 56 Hoi Yuen Road, Genplas Industrial Building, 1/F, Room 101a
+      - match: PRC, HKSAR, Kowloon, Kwun Tong, 18 Shing Yip Street, New East Sun Industrial Building, 1/F, Room A105); КНР, м. Шеньчжень, район Футянь, вулиця Шеннан Середня, 2070, будівля Electronic Technology, блок А, 35-й поверх, кімната A08 (PRC, Shenzhen, Futian District, 2070 Shennan Middle Road, Electronic Technology Building, Block A, 35/F, Room A08
+        values:
+          - PRC, HKSAR, Kowloon, Kwun Tong, 18 Shing Yip Street, New East Sun Industrial Building, 1/F, Room A105
+          - КНР, м. Шеньчжень, район Футянь, вулиця Шеннан Середня, 2070, будівля Electronic Technology, блок А, 35-й поверх, кімната A08
+          - PRC, Shenzhen, Futian District, 2070 Shennan Middle Road, Electronic Technology Building, Block A, 35/F, Room A08
+      - match: КНР, м. Шанхай, вул. Мейшен, 177 (PRC, Pudong District, Shanghai, 177 Meishen Street); КНР, м. Шанхай, округ Сунцзян, провулок Ронгюе, вул. Чжуншань, 208, Фуюе Плаза, блок C, кімната C2001 (PRC, Shanghai, Songjiang District, 208 Rongyue Lane, Zhongshan Street, Fuyue Plaza, Block C, Room C2001)
+        values:
+          - КНР, м. Шанхай, вул. Мейшен, 177
+          - PRC, Pudong District, Shanghai, 177 Meishen Street
+          - КНР, м. Шанхай, округ Сунцзян, провулок Ронгюе, вул. Чжуншань, 208, Фуюе Плаза, блок C, кімната C2001
+          - PRC, Shanghai, Songjiang District, 208 Rongyue Lane, Zhongshan Street, Fuyue Plaza, Block C, Room C2001
+      - match: PRC, Guangdong Province, Shenzhen, Longhua District, Minzhi Subdistrict, Baishilong Community, Baishilong 1st Area, Building 125, Room 807, 518131); КНР, м. Шеньчжень, район Футянь, Північна вул. Хуацян, будівля Банку зв’язку, приміщення 2701-F (PRC, Shenzhen, Futian District, Huaqiang North Street, Bank of Communications Building, Unit 2701-F
+        values:
+          - PRC, Guangdong Province, Shenzhen, Longhua District, Minzhi Subdistrict, Baishilong Community, Baishilong 1st Area, Building 125, Room 807, 518131
+          - КНР, м. Шеньчжень, район Футянь, Північна вул. Хуацян, будівля Банку зв’язку, приміщення 2701-F
+          - PRC, Shenzhen, Futian District, Huaqiang North Street, Bank of Communications Building, Unit 2701-F
+      - match: PRC, Guangdong Province, Shenzhen, Futian District, 1019 Huaqiang North Road, Block A, Huaqiang Plaza, Room 17F); КНР, ОАР Гонконг, Коулун, Сан По Конг, вул. Нг Фонг, 8, індустріальна будівля «Лі Ка», 11-й поверх, кімната 32 (PRC, HKSAR, Kowloon, San Po Kong, 8 Ng Fong Street, Lee Ka Industrial Building, 11/F, Room 32
+        values:
+          - PRC, Guangdong Province, Shenzhen, Futian District, 1019 Huaqiang North Road, Block A, Huaqiang Plaza, Room 17F
+          - КНР, ОАР Гонконг, Коулун, Сан По Конг, вул. Нг Фонг, 8, індустріальна будівля «Лі Ка», 11-й поверх, кімната 32
+          - PRC, HKSAR, Kowloon, San Po Kong, 8 Ng Fong Street, Lee Ka Industrial Building, 11/F, Room 32
+      - match: PRC, HKSAR, Kowloon, Tai Kok Tsui, 9 Walnut Street, 6/F, Room 603); КНР, ОАР Гонконг, Коулун, Монгкок, дорога Натана, 721–725, будівля Бельгійського банку, 14-й поверх, буд. 1402A (PRC, HKSAR, Kowloon, Mong Kok, 721–725 Nathan Road, The Belgian Bank Building, 14/F, Unit 1402A
+        values:
+          - PRC, HKSAR, Kowloon, Tai Kok Tsui, 9 Walnut Street, 6/F, Room 603
+          - КНР, ОАР Гонконг, Коулун, Монгкок, дорога Натана, 721–725, будівля Бельгійського банку, 14-й поверх, буд. 1402A
+          - PRC, HKSAR, Kowloon, Mong Kok, 721–725 Nathan Road, The Belgian Bank Building, 14/F, Unit 1402A
+      - match: PRC, HKSAR, Kowloon, 706 Prince Edward Road, Prince Regent Park Industrial Building, 24/F, Room A29); КНР, м. Шеньчжень, район Футянь, вул. Хауфу, 1006, будівля «Hangdu», 26-й поверх, кімната G (PRC, Shenzhen, Futian District, No. 1006 Haufu Road, Hangdu Building, 26/F, Room G
+        values:
+          - PRC, HKSAR, Kowloon, 706 Prince Edward Road, Prince Regent Park Industrial Building, 24/F, Room A29
+          - КНР, м. Шеньчжень, район Футянь, вул. Хауфу, 1006, будівля «Hangdu», 26-й поверх, кімната G
+          - PRC, Shenzhen, Futian District, No. 1006 Haufu Road, Hangdu Building, 26/F, Room G
+      - match: PRC, HKSAR, Kowloon, Mong Kok, 2–16 Fa Yuen Street, Ho King Commercial Centre, 16/F, Room 04); КНР, ОАР Гонконг, Сан По Конг, вул. Кінг Фук, 100–102, промислова будівля «Тай Кінг», 10-й поверх, кв. A, кімната D08 (PRC, HKSAR, San Po Kong, 100–102 King Fuk Street, Tai King Industrial Building, 10/F, Apartment A, Room D08
+        values:
+          - PRC, HKSAR, Kowloon, Mong Kok, 2–16 Fa Yuen Street, Ho King Commercial Centre, 16/F, Room 04
+          - КНР, ОАР Гонконг, Сан По Конг, вул. Кінг Фук, 100–102, промислова будівля «Тай Кінг», 10-й поверх, кв. A, кімната D08
+          - PRC, HKSAR, San Po Kong, 100–102 King Fuk Street, Tai King Industrial Building, 10/F, Apartment A, Room D08
+      - match: PRC, HKSAR, Mong Kok, 2–16 Fa Yuen Street, Ho King Commercial Centre, 16/F, Room 04); КНР, ОАР Гонконг, Коулун, Сан По Конг, вул. Кінг Фук, 100–102, промислова будівля «Тай Кінг», 10-й поверх, кв. A, кімната D06 (PRC, HKSAR, Kowloon, San Po Kong, 100–102 King Fuk Street, Tai King Industrial Building, 10/F, Apartment A, Room D06
+        values:
+          - PRC, HKSAR, Mong Kok, 2–16 Fa Yuen Street, Ho King Commercial Centre, 16/F, Room 04
+          - КНР, ОАР Гонконг, Коулун, Сан По Конг, вул. Кінг Фук, 100–102, промислова будівля «Тай Кінг», 10-й поверх, кв. A, кімната D06
+          - PRC, HKSAR, Kowloon, San Po Kong, 100–102 King Fuk Street, Tai King Industrial Building, 10/F, Apartment A, Room D06
+      - match: PRC, Shenzhen, Futian District, 1058 Huaqiang North Road, Modern Window Building, Block A, Room 12G); КНР, ОАР Гонконг, Монгкок, вул. Фа Юень, 75–77, комерційна будівля «Фа Юень», 7-й поверх, кімната 705 (PRC, HKSAR, Mong Kok, 75–77 Fa Yuen Street, Fa Yuen Commercial Building, 7/F, Room 705
+        values:
+          - PRC, Shenzhen, Futian District, 1058 Huaqiang North Road, Modern Window Building, Block A, Room 12G
+          - КНР, ОАР Гонконг, Монгкок, вул. Фа Юень, 75–77, комерційна будівля «Фа Юень», 7-й поверх, кімната 705
+          - PRC, HKSAR, Mong Kok, 75–77 Fa Yuen Street, Fa Yuen Commercial Building, 7/F, Room 705
+      - match: КНР, ОАР Гонконг, Ваньчай, One Capital Place, блок D, 16-й поверх (PRC, HKSAR, Wan Chai, One Capital Place, Block D, 16/F); КНР, ОАР Гонконг, Коулун, Квун Тонг, 56 Hoi Yuen Road, промислова будівля Genplas, 1-й поверх, кімната 101a (PRC, HKSAR, Kowloon, Kwun Tong, 56 Hoi Yuen Road, Genplas Industrial Building, 1/F, Room 101a)
+        values:
+          - КНР, ОАР Гонконг, Ваньчай, One Capital Place, блок D, 16-й поверх
+          - PRC, HKSAR, Wan Chai, One Capital Place, Block D, 16/F
+          - КНР, ОАР Гонконг, Коулун, Квун Тонг, 56 Hoi Yuen Road, промислова будівля Genplas, 1-й поверх, кімната 101a
+          - PRC, HKSAR, Kowloon, Kwun Tong, 56 Hoi Yuen Road, Genplas Industrial Building, 1/F, Room 101a
+      - match: КНР, ОАР Гонконг, Шеунг Ван, 111 Бонем Стрэнд, вежа MW, 7-й поверх; КНР (PRC, HKSAR, Sheung Wan, 111 Bonham Strand, MW Tower, 7/F); КНР, ОАР Гонконг, Коулун, Квун Тонг, 45 Hoi Yuen Road, Центр Яу Лі, 5-й поверх, кімната 5058 (PRC, HKSAR, Kowloon, Kwun Tong, 45 Hoi Yuen Road, Yau Lee Centre, 5/F, Room 5058)
+        values:
+          - КНР, ОАР Гонконг, Шеунг Ван, 111 Бонем Стрэнд, вежа MW, 7-й поверх
+          - PRC, HKSAR, Sheung Wan, 111 Bonham Strand, MW Tower, 7/F
+          - КНР, ОАР Гонконг, Коулун, Квун Тонг, 45 Hoi Yuen Road, Центр Яу Лі, 5-й поверх, кімната 5058
+          - PRC, HKSAR, Kowloon, Kwun Tong, 45 Hoi Yuen Road, Yau Lee Centre, 5/F, Room 5058
+      - match: Ісламська Республіка Іран, м. Тегеран, (Unit 6, No.7, Mahbod Alley, Laleh St., Jomhuri St., Tehran, Iran), (No 12, 21th Alley, Ahmad Ghasir St., Argentina Sq, Tehran, Iran; No. 9 Lale Alley, First Floor, Unit 2, Hatef Alley, Crossroad Hafez Neighborhood, Central Sector, Tehran City, Tehran Province, Iran)
+        values:
+          - Ісламська Республіка Іран, м. Тегеран, (Unit 6, No.7, Mahbod Alley, Laleh St., Jomhuri St., Tehran, Iran)
+          - No 12, 21th Alley, Ahmad Ghasir St., Argentina Sq, Tehran, Iran
+          - No. 9 Lale Alley, First Floor, Unit 2, Hatef Alley, Crossroad Hafez Neighborhood, Central Sector, Tehran City, Tehran Province, Iran
+      - match: Российская Федерация, 115533, г. Москва, Муниципальный округ Нагатино-Садовники, ул. Нагатинская, д. 6, помещ. 7А/1), Російська Федерація, 113054, м. Москва, Великий Строченовський провулок, 13, будівля 1 (Российская Федерация, 113054, г. Москва, Большой Строченовский переулок, 13, строение 1
+        values:
+          - Российская Федерация, 115533, г. Москва, Муниципальный округ Нагатино-Садовники, ул. Нагатинская, д. 6, помещ. 7А/1
+          - Російська Федерація, 113054, м. Москва, Великий Строченовський провулок, 13, будівля 1
+          - Российская Федерация, 113054, г. Москва, Большой Строченовский переулок, 13, строение 1
+      - match: Китайська Народна Республіка, м. Шеньчжень (4208B, SEG Plaza, No. 1002 Huaqiang North Road, Fuqiang North Street, Futian District, Shenzhen, China; No. 2204-2205, Building A, World Trade Plaza, No. 9 Fuhong Road, Futian District, Shenzhen, China; Room 23B, Block B, Huaqiang North Metropolis, Futian District, Shenzhen, China)
+        values:
+          - Китайська Народна Республіка, м. Шеньчжень, 4208B, SEG Plaza, No. 1002 Huaqiang North Road, Fuqiang North Street, Futian District, Shenzhen, China
+          - No. 2204-2205, Building A, World Trade Plaza, No. 9 Fuhong Road, Futian District, Shenzhen, China
+          - Room 23B, Block B, Huaqiang North Metropolis, Futian District, Shenzhen, China
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»

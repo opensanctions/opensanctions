@@ -161,7 +161,7 @@ def crawl_person(
     rank = official.find(".//div[@class='rank']").text_content().strip()
     full_name = official.find(".//div[@class='name']").text_content().strip()
     # Skip empty names
-    if full_name.strip() == "-":
+    if not full_name.strip().strip("-"):
         return False
     email_elem = official.find(".//div[@class='email info-contact']")
     if email_elem is not None:
