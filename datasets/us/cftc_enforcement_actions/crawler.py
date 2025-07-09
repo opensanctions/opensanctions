@@ -12,7 +12,14 @@ from zavod.stateful.extraction import extract_items
 class Associate(BaseModel):
     name: str
     address: Optional[str] = Field(
-        description=("The address or even just the district/state of the defendant.")
+        default=None,
+        description=("The address or even just the district/state of the defendant."),
+    )
+    relationship: Optional[str] = Field(
+        default=None,
+        description=(
+            "The relationship of the associate to the defendant e.g. owner, officer, etc."
+        ),
     )
 
 
@@ -63,10 +70,12 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         return
     for item in accepted_result.defendants:
         entity = context.make(item.schema)
+        entity.id = context.make_id(item.name, item.address, item.country)
         entity.add("name", item.name)
         entity.add("address", item.address)
         entity.add("country", item.country)
-        entity.add("aliases", item.aliases)
+        entity.add("alias", item.aliases)
+        context.emit(entity)
 
 
 def crawl_index_page(context: Context, doc) -> None:
