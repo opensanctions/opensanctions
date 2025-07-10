@@ -1,0 +1,21 @@
+services:
+
+  postgres:
+    image: pgrouting/pgrouting:15-3.5-3.7
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - os-db:/var/lib/postgresql/data
+
+  opensanctions:
+    build:
+      context: .
+    environment:
+      ZAVOD_DATABASE_URI: postgresql://postgres:password@postgres:5432/dev
+
+volumes:
+  os-db: null
