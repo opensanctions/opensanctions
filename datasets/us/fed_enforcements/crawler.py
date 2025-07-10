@@ -63,7 +63,10 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
         accepted_result = extract_items(
             context,
             key=slugify(party_name),
-            raw_data=prompt_result,
+            source_value=party_name,
+            source_content_type="text/plain",
+            source_label="Banking Organization",
+            orig_extraction_data=prompt_result,
             source_url=url or "",
         )
         entities = accepted_result.entities if accepted_result else []

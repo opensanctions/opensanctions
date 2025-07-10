@@ -52,6 +52,7 @@ def run_image_prompt(
     max_tokens: int = 3000,
     cache_days: int = 100,
     model: str = "gpt-4o",
+    response_type: Optional[Type[T]] = None,
 ) -> Any:
     """Run an image prompt."""
     client = get_client()
@@ -84,6 +85,27 @@ def run_image_prompt(
     data = json.loads(response.choices[0].message.content)
     context.cache.set_json(cache_key, data)
     return data
+
+
+def run_typed_image_prompt(
+    context: Context,
+    prompt: str,
+    image_path: Path,
+    response_type: Type[T],
+    max_tokens: int = 3000,
+    cache_days: int = 100,
+    model: str = "gpt-4o",
+) -> T:
+    data = run_image_prompt(
+        context,
+        prompt,
+        image_path,
+        max_tokens,
+        cache_days,
+        model,
+        response_type,
+    )
+    return response_type.model_validate(data)
 
 
 def run_text_prompt(
