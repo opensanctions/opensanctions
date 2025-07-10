@@ -65,7 +65,7 @@ def run_image_prompt(
         log.info("GPT cache hit: %s" % image_path.name)
         return cached_data
     log.info("Prompting %r for: %s" % (model, image_path.name))
-    response = client.chat.completions.create(
+    response = client.chat.completions.parse(
         model=model,
         messages=[
             {
@@ -76,7 +76,7 @@ def run_image_prompt(
                 ],
             }
         ],
-        response_format={"type": "json_object"},
+        response_format=response_type or {"type": "json_object"},
         max_tokens=max_tokens,
     )
     assert len(response.choices) > 0
