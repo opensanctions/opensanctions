@@ -20,15 +20,23 @@ class MyGenerateJsonSchema(GenerateJsonSchema):
 
 
 def extract_items(
-    context: Context, key: str, raw_data: T, source_url: str
+    context: Context,
+    key: str,
+    source_value: Optional[str],
+    source_content_type: Optional[str],
+    source_label: Optional[str],
+    source_url: Optional[str],
+    orig_extraction_data: T,
 ) -> Optional[T]:
     """Add raw data to the extraction table and return accepted extracted data if hash matches, else empty list."""
-    raw_data_dump = raw_data.model_dump()
+    raw_data_dump = orig_extraction_data.model_dump()
     # TODO: might need to sort arrays too
     raw_data_json = json.dumps(raw_data_dump, sort_keys=True)
     data_hash = sha1(raw_data_json.encode("utf-8")).hexdigest()
     dataset = context.dataset.name
-    schema = type(raw_data).model_json_schema(schema_generator=MyGenerateJsonSchema)
+    schema = type(orig_extraction_data).model_json_schema(
+        schema_generator=MyGenerateJsonSchema
+    )
     engine = get_engine()
     now = datetime.utcnow()
     with engine.begin() as conn:
@@ -43,6 +51,9 @@ def extract_items(
                 key=key,
                 dataset=dataset,
                 schema=schema,
+                source_value=source_value,
+                source_content_type=source_content_type,
+                source_label=source_label,
                 source_url=source_url,
                 accepted=False,
                 orig_extraction_data=raw_data_dump,
@@ -66,7 +77,7 @@ def extract_items(
                 .values(last_seen_version=context.version.id)
             )
             if row["accepted"]:
-                return type(raw_data).model_validate(row["extracted_data"])
+                return type(orig_extraction_data).model_validate(row["extracted_data"])
             else:
                 return None
         # Hash differs, mark old row as deleted and insert new row
@@ -79,7 +90,10 @@ def extract_items(
         ins = insert(extraction_table).values(
             key=key,
             dataset=dataset,
-            schema=type(raw_data).model_json_schema(),
+            schema=type(orig_extraction_data).model_json_schema(),
+            source_value=source_value,
+            source_content_type=source_content_type,
+            source_label=source_label,
             source_url=source_url,
             accepted=False,
             orig_extraction_data=raw_data_dump,

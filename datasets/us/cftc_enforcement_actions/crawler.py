@@ -65,7 +65,10 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     accepted_result = extract_items(
         context,
         key=url,
-        raw_data=result,
+        source_value=html,
+        source_content_type="text/html",
+        source_label="Enforcement Action Notice",
+        orig_extraction_data=result,
         source_url=url,
     )
     if not accepted_result:

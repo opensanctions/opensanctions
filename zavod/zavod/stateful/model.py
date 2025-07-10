@@ -52,6 +52,9 @@ extraction_table = Table(
     Column("key", Unicode(KEY_LEN), nullable=False),
     Column("dataset", Unicode(KEY_LEN), nullable=False),
     Column("schema", JSON, nullable=False),
+    Column("source_value", Unicode(VALUE_LEN), nullable=True),
+    Column("source_content_type", Unicode(VALUE_LEN), nullable=True),
+    Column("source_label", Unicode(VALUE_LEN), nullable=True),
     Column("source_url", JSON, nullable=True),
     Column("accepted", Boolean, nullable=False),
     Column(
