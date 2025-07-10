@@ -40,6 +40,7 @@ dates:
     - "%d %b %Y"
     - "%d %B %Y"
     - "%d. %m %Y"
+    - "t %d.%m.%Y"
   months:
     "01":
       - "Januar"
