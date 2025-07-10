@@ -1,4 +1,5 @@
 import contextvars
+import shutil
 
 import orjson
 from pathlib import Path
@@ -218,6 +219,16 @@ class Context:
             method=method,
             data=data,
         )
+    
+    def archive_resource(self, path: Path, mime_type: str, archive_key: str) -> str:
+        """Archive a resource and return a URL to access it publicly"""
+        resource_dir = settings.ARCHIVE_PATH / "public_stuff" / self.dataset.name
+        resource_dir.mkdir(parents=True, exist_ok=True)
+        resource_path = resource_dir / archive_key
+        shutil.copy(path, resource_path)
+        url = f"http://localhost:3001/{self.dataset.name}/{archive_key}"
+        return url
+
 
     def fetch_response(
         self,
