@@ -7,8 +7,7 @@ from zavod import Context
 from rigour.mime.types import PDF, PNG
 from zavod import helpers as h
 from zavod.shed.gpt import run_typed_image_prompt
-from zavod.shed.zyte_api import fetch_resource
-from zavod.stateful.extraction import extract_items
+from zavod.stateful.extraction import extract_items, assert_all_accepted
 
 
 PROMPT = """
@@ -45,11 +44,13 @@ def crawl_person(context: Context, person: WantedPerson):
 
 
 def crawl(context: Context):
-    #path = fetch_resource(context, "source.pdf", context.data_url)
+    # path = fetch_resource(context, "source.pdf", context.data_url)
     path = Path(__file__).parent / "source.pdf"
-    #context.export_resource(path, PDF, title=context.SOURCE_TITLE)
+    # context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for page_num, page_path in enumerate(h.make_pdf_page_images(path)):
-        if page_num > 10:
+        if page_num < 3:
+            continue
+        if page_num > 13:
             break
         # We want this to be consistent across crawls
         extraction_key = slugify([context.data_url, "page", page_num])
@@ -75,3 +76,5 @@ def crawl(context: Context):
             continue
         for person in accepted_result.persons:
             crawl_person(context, person)
+
+    assert_all_accepted(context)
