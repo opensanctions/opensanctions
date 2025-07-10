@@ -41,12 +41,13 @@ def crawl_vessel(context: Context, item: Dict[str, Any]) -> None:
             country=clean(ism.get("countryDescription")),
         )
         h.copy_address(company, address)
-        ownership = context.make("Ownership")
-        ownership.id = context.make_id(vessel.id, company.id, "owner")
-        ownership.add("asset", vessel.id)
-        ownership.add("owner", company.id)
+        link = context.make("UnknownLink")
+        link.id = context.make_id(vessel.id, company.id, "linked")
+        link.add("object", vessel.id)
+        link.add("subject", company.id)
+        link.add("role", "ISM company")
         context.emit(company)
-        context.emit(ownership)
+        context.emit(link)
 
     ban_status = item.get("banOrderStatus", {}).get("active")
     if ban_status:

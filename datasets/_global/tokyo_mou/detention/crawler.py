@@ -10,17 +10,17 @@ def is_future_month(year: int, month: int, now: datetime) -> bool:
     return (year > now.year) or (year == now.year and month > now.month)
 
 
-def emit_linked_org(context, vessel_id, names, role, start_date):
+def emit_linked_org(context, vessel_id, names, role, start_date, schema):
     for name in h.multi_split(names, ";"):
-        org = context.make("Organization")
-        org.id = context.make_id("org", name)
-        org.add("name", name)
-        context.emit(org)
+        entity = context.make(schema)
+        entity.id = context.make_id("entity", name)
+        entity.add("name", name)
+        context.emit(entity)
 
         link = context.make("UnknownLink")
-        link.id = context.make_id(vessel_id, org.id, role)
+        link.id = context.make_id(vessel_id, entity.id, role)
         link.add("role", role)
-        link.add("subject", org.id)
+        link.add("subject", entity.id)
         link.add("object", vessel_id)
         h.apply_date(link, "date", start_date)
         context.emit(link)
@@ -42,16 +42,14 @@ def crawl_row(context: Context, clean_row: dict, row: dict):
 
     start_date = clean_row.pop("date_of_detention")
     if company_name:
-        company = context.make("Company")
-        company.id = context.make_id("org", company_name)
-        company.add("name", company_name)
-        ownership = context.make("Ownership")
-        ownership.id = context.make_id(vessel.id, company.id, "owner")
-        ownership.add("asset", vessel.id)
-        ownership.add("owner", company.id)
-        h.apply_date(ownership, "date", start_date)
-        context.emit(company)
-        context.emit(ownership)
+        emit_linked_org(
+            context,
+            vessel.id,
+            company_name,
+            "Company",
+            start_date,
+            "Company",
+        )
 
     related_ros = clean_row.pop("related_ros")
     if related_ros:
@@ -61,11 +59,17 @@ def crawl_row(context: Context, clean_row: dict, row: dict):
             related_ros,
             "Related Recognised Organization",
             start_date,
+            "Organization",
         )
     class_soc = clean_row.pop("classification_society")
     if class_soc:
         emit_linked_org(
-            context, vessel.id, class_soc, "Classification society", start_date
+            context,
+            vessel.id,
+            class_soc,
+            "Classification society",
+            start_date,
+            "Organization",
         )
 
     end_date = clean_row.pop("date_of_release", None)
