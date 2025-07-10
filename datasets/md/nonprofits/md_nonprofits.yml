@@ -1,0 +1,33 @@
+title: Moldovan Registry of Non-Profit Organizations
+entry_point: crawler.py
+prefix: md-nonprofits
+coverage:
+  frequency: daily
+  start: 2025-07-10
+load_statements: true
+summary: >
+  List of non-profit organizations registered in the Republic of Moldova.
+description: |
+  The dataset contains a list of non-profit organizations registered in the Republic of Moldova.
+publisher:
+  name: "Government of the Republic of Moldova"
+  descrition: |
+    
+  country: md
+  url: https://www.mf.gov.md/
+  official: true
+url: https://dataset.gov.md/dataset/18516-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-organizatiile-necomerciale
+data:
+  url: https://dataset.gov.md/dataset/18516-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-organizatiile-necomerciale
+  format: HTML
+  lang: ron
+dates:
+  formats: ["%d.%m.%Y"]
+
+# assertions:
+#   min:
+#     schema_entities:
+#       LegalEntity: 20
+#   max:
+#     schema_entities:
+#       LegalEntity: 30
