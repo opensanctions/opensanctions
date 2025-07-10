@@ -1,11 +1,13 @@
+from pathlib import Path
 from typing import List, Optional
 
 from normality import slugify
 from pydantic import BaseModel
 from zavod import Context
-from rigour.mime.types import PDF
+from rigour.mime.types import PDF, PNG
 from zavod import helpers as h
 from zavod.shed.gpt import run_typed_image_prompt
+from zavod.shed.zyte_api import fetch_resource
 from zavod.stateful.extraction import extract_items
 
 
@@ -43,8 +45,9 @@ def crawl_person(context: Context, person: WantedPerson):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.pdf", context.data_url)
-    context.export_resource(path, PDF, title=context.SOURCE_TITLE)
+    #path = fetch_resource(context, "source.pdf", context.data_url)
+    path = Path(__file__).parent / "source.pdf"
+    #context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for page_num, page_path in enumerate(h.make_pdf_page_images(path)):
         if page_num > 10:
             break
@@ -63,8 +66,8 @@ def crawl(context: Context):
             context,
             key=extraction_key,
             source_value=image_url,
-            source_content_type="text/plain",
-            source_label="Banking Organization",
+            source_content_type=PNG,
+            source_label="Screenshot of page in source PDF",
             orig_extraction_data=prompt_result,
             source_url=context.data_url,
         )
