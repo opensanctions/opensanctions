@@ -105,3 +105,22 @@ def extract_items(
         )
         conn.execute(ins)
         return None
+
+
+def assert_all_accepted(context: Context):
+    """
+    Raise an exception with the number of unacpeted itemsif any extraction
+    entries for the current dataset and version are not accepted.
+    """
+    engine = get_engine()
+    with engine.begin() as conn:
+        select_stmt = select(extraction_table).where(
+            extraction_table.c.dataset == context.dataset.name,
+            extraction_table.c.last_seen_version == context.version.id,
+            extraction_table.c.accepted == False,
+        )
+        rows = conn.execute(select_stmt).mappings().all()
+        if len(rows) > 0:
+            raise Exception(
+                f"There are {len(rows)} unaccepted items for dataset {context.dataset.name} and version {context.version.id}"
+            )
