@@ -37,7 +37,6 @@ inputs:
   - wd_curated
   - wd_categories
   - wikidata
-  - sy_obsalytics_opensyr
   - md_rise_profiles
   - kp_rusi_reports
 

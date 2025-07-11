@@ -7,6 +7,7 @@ import logging
 import requests
 import jq  # type: ignore
 import itertools
+from normality import ascii_text
 from functools import cached_property
 from typing import Any, Dict, Generator, List, Literal, Optional, Set, Tuple
 from pydantic import BaseModel, model_validator
@@ -44,6 +45,7 @@ class MappingColumn(BaseModel):
     unique: bool = False
     sort: bool = False
     repeat: bool = True
+    ascii: bool = False
 
     @cached_property
     def program(self) -> jq._Program:
@@ -113,6 +115,9 @@ def has_schema(schema: Schema, schemata: List[str]) -> bool:
 def convert(column: MappingColumn, value: Any) -> str:
     """Convert the value based on the column's rewrite rules."""
     svalue = stringify(value)
+    if column.ascii:
+        svalue = ascii_text(svalue) or svalue
+        svalue = svalue.replace("?", " ")
     if column.rewrite is None:
         return svalue
     rvalue = column.rewrite.get(svalue, None)
