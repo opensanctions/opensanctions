@@ -1,110 +1,228 @@
-import json
-from typing import Optional, TypeVar
-from pydantic import BaseModel
+from normality import slugify
+import orjson
+from typing import Generic, Optional, Type, TypeVar
+from pydantic import BaseModel, JsonValue
 from pydantic.json_schema import GenerateJsonSchema
+from sqlalchemy.sql import Select
 from zavod.context import Context
 from zavod.db import get_engine
 from zavod.stateful.model import extraction_table
 from sqlalchemy import insert, select, update
+from sqlalchemy.engine import Connection
 from datetime import datetime
 from hashlib import sha1
 
-T = TypeVar("T", bound=BaseModel)
+ModelType = TypeVar("ModelType", bound=BaseModel)
 
 
-class MyGenerateJsonSchema(GenerateJsonSchema):
+class SchemaGenerator(GenerateJsonSchema):
     def generate(self, schema, mode="validation"):
         json_schema = super().generate(schema, mode=mode)
         json_schema["$schema"] = self.schema_dialect
         return json_schema
 
 
-def extract_items(
-    context: Context,
-    key: str,
-    source_value: Optional[str],
-    source_content_type: Optional[str],
-    source_label: Optional[str],
-    source_url: Optional[str],
-    orig_extraction_data: T,
-) -> Optional[T]:
-    """Add raw data to the extraction table and return accepted extracted data if hash matches, else empty list."""
-    raw_data_dump = orig_extraction_data.model_dump()
-    # TODO: might need to sort arrays too
-    raw_data_json = json.dumps(raw_data_dump, sort_keys=True)
-    data_hash = sha1(raw_data_json.encode("utf-8")).hexdigest()
-    dataset = context.dataset.name
-    schema = type(orig_extraction_data).model_json_schema(
-        schema_generator=MyGenerateJsonSchema
-    )
-    engine = get_engine()
-    now = datetime.utcnow()
-    with engine.begin() as conn:
+class Review(BaseModel, Generic[ModelType]):
+    """
+    A review is the smallest unit of data that's convenient to extract data from,
+    as well as information about the source data, whether it's been accepted, and by whom.
+    """
+
+    id: Optional[int] = None
+    key: str
+    dataset: str
+    extraction_schema: JsonValue
+    source_value: str
+    source_content_type: str
+    source_label: str
+    source_url: Optional[str]
+    orig_extraction_data: ModelType
+    orig_extraction_data_hash: str
+    extracted_data: ModelType
+    accepted: bool
+    last_seen_version: str
+    modified_at: datetime
+    modified_by: str
+    deleted_at: Optional[datetime] = None
+
+    @classmethod
+    def load(
+        cls, conn: Connection, data_model: Type[ModelType], stmt: Select
+    ) -> Optional["Review"]:
+        res = conn.execute(stmt)
+        rows = list(res.fetchall())
+        assert len(rows) <= 1
+        if rows == []:
+            return None
+        print(rows[0]._mapping)
+        review = cls.model_validate(rows[0]._mapping)
+        review.orig_extraction_data = data_model.model_validate(
+            rows[0]._mapping["orig_extraction_data"]
+        )
+        review.extracted_data = data_model.model_validate(
+            rows[0]._mapping["extracted_data"]
+        )
+        return review
+
+    @classmethod
+    def by_key(
+        cls, conn: Connection, data_model: Type[ModelType], dataset: str, key: str
+    ) -> Optional["Review[ModelType]"]:
         select_stmt = select(extraction_table).where(
-            extraction_table.c.key == key, extraction_table.c.deleted_at == None
+            extraction_table.c.dataset == dataset,
+            extraction_table.c.key == key,
+            extraction_table.c.deleted_at == None,
         )
         row = conn.execute(select_stmt).mappings().first()
-        if row is None:
+        return cls.load(conn, data_model, select_stmt)
+
+    def save(self, conn: Connection) -> None:
+        if self.id:
+            conn.execute(
+                update(extraction_table)
+                .where(extraction_table.c.id == self.id)
+                .values(deleted_at=datetime.now())
+            )
+        ins = insert(extraction_table).values(
+            key=self.key,
+            dataset=self.dataset,
+            schema=self.extraction_schema,
+            source_value=self.source_value,
+            source_content_type=self.source_content_type,
+            source_label=self.source_label,
+            source_url=self.source_url,
+            orig_extraction_data=self.orig_extraction_data.model_dump(),
+            orig_extraction_data_hash=self.orig_extraction_data_hash,
+            extracted_data=self.extracted_data.model_dump(),
+            accepted=self.accepted,
+            last_seen_version=self.last_seen_version,
+            modified_at=self.modified_at,
+            modified_by=self.modified_by,
+        )
+        conn.execute(ins)
+
+    def update_version(self, conn: Connection, version_id: str) -> None:
+        """Update the last_seen_version without adding a historical row."""
+        assert self.id is not None
+        conn.execute(
+            update(extraction_table)
+            .where(extraction_table.c.id == self.id)
+            .values(last_seen_version=version_id)
+        )
+
+
+def sort_arrays_in_value(value: JsonValue) -> JsonValue:
+    """Recursively sort arrays within a json-serializable value to ensure consistent ordering."""
+    if isinstance(value, list):
+        # Recursively sort array elements and then sort the array itself
+        return sorted(
+            [sort_arrays_in_value(item) for item in value],
+            key=lambda x: orjson.dumps(x, option=orjson.OPT_SORT_KEYS),
+        )
+    elif isinstance(value, dict):
+        # Recursively handle nested objects
+        return {k: sort_arrays_in_value(v) for k, v in value.items()}
+    return value
+
+
+def hash_data(data: BaseModel) -> str:
+    """
+    Generate a consistent SHA-1 hash of orjson-serializable data.
+    Arrays within the data are sorted to ensure the same hash regardless of order.
+    """
+    raw_data_dump = data.model_dump()
+    # Sort arrays recursively to ensure consistent ordering
+    sorted_data = sort_arrays_in_value(raw_data_dump)
+    # Sort dictionary keys and convert to orjson
+    raw_data_json = orjson.dumps(sorted_data, option=orjson.OPT_SORT_KEYS)
+    return sha1(raw_data_json).hexdigest()
+
+
+def get_accepted_data(
+    context: Context,
+    key: str | list[str],
+    source_value: str,
+    source_content_type: str,
+    source_label: str,
+    source_url: Optional[str],
+    orig_extraction_data: ModelType,
+    default_accepted: bool = False,
+) -> Optional[ModelType]:
+    """
+    Add automatically extracted data for review and
+    return extracted data if it's marked as accepted.
+
+    Args:
+        key: The key will be slugified. Should be unique within the dataset,
+             and as consistent as possible between runs.
+        source_label: Where the source value is from for reviewer context
+             e.g. "Banking Organization field in CSV" or "Screenshot of PDF page"
+        source_value: The value of the original text, or a url to an archived original
+             to be used as evidence by the reviewer and for provenance if we're challenged.
+        source_url: The url where source_value was fetched from.
+        orig_extraction_data: An instance of a pydantic model of data extracted
+             from the source. Any changes to the data will be validated against
+             this model.
+    """
+    key_slug = slugify(key)
+    assert key_slug is not None
+    data_hash = hash_data(orig_extraction_data)
+    dataset = context.dataset.name
+    schema = type(orig_extraction_data).model_json_schema(
+        schema_generator=SchemaGenerator
+    )
+    engine = get_engine()
+    now = datetime.now()
+    with engine.begin() as conn:
+        review = Review[ModelType].by_key(
+            conn, type(orig_extraction_data), dataset, key_slug
+        )
+        if review is None:
             # First insert
             context.log.debug("Extraction key miss", key=key)
-            ins = insert(extraction_table).values(
-                key=key,
+            review = Review[ModelType](
+                key=key_slug,
                 dataset=dataset,
-                schema=schema,
+                extraction_schema=schema,
                 source_value=source_value,
                 source_content_type=source_content_type,
                 source_label=source_label,
                 source_url=source_url,
-                accepted=False,
-                orig_extraction_data=raw_data_dump,
+                orig_extraction_data=orig_extraction_data,
                 orig_extraction_data_hash=data_hash,
-                extracted_data=raw_data_dump,
+                extracted_data=orig_extraction_data,
+                accepted=default_accepted,
                 last_seen_version=context.version.id,
                 modified_at=now,
                 modified_by="zavod",
             )
-            conn.execute(ins)
-            return None
+            review.save(conn)
+
         # Row exists
-        if row["orig_extraction_data_hash"] == data_hash:
-            context.log.debug(
-                "Extraction key hit, hash matches", key=key, accepted=row["accepted"]
-            )
-            # Update last_seen_version to current context.version.id
-            conn.execute(
-                update(extraction_table)
-                .where(extraction_table.c.id == row["id"])
-                .values(last_seen_version=context.version.id)
-            )
-            if row["accepted"]:
-                return type(orig_extraction_data).model_validate(row["extracted_data"])
-            else:
-                return None
+        elif review.orig_extraction_data_hash == data_hash:
+            context.log.debug("Extraction key hit, hash matches", key=key)
+            # Update last_seen_version to current version
+            review.update_version(conn, context.version.id)
+            print(review.last_seen_version)
+
         # Hash differs, mark old row as deleted and insert new row
-        context.log.debug("Extraction key hit, hash differs", key=key)
-        conn.execute(
-            update(extraction_table)
-            .where(extraction_table.c.id == row["id"])
-            .values(deleted_at=now, modified_at=now)
-        )
-        ins = insert(extraction_table).values(
-            key=key,
-            dataset=dataset,
-            schema=type(orig_extraction_data).model_json_schema(),
-            source_value=source_value,
-            source_content_type=source_content_type,
-            source_label=source_label,
-            source_url=source_url,
-            accepted=False,
-            orig_extraction_data=raw_data_dump,
-            orig_extraction_data_hash=data_hash,
-            extracted_data=raw_data_dump,
-            last_seen_version=context.version.id,
-            modified_at=now,
-            modified_by="zavod",
-        )
-        conn.execute(ins)
-        return None
+        else:
+            context.log.debug("Extraction key hit, hash differs", key=key_slug)
+            review.extraction_schema = type(orig_extraction_data).model_json_schema()
+            review.source_value = source_value
+            review.source_content_type = source_content_type
+            review.source_label = source_label
+            review.source_url = source_url
+            review.orig_extraction_data = orig_extraction_data
+            review.orig_extraction_data_hash = data_hash
+            review.extracted_data = orig_extraction_data
+            review.accepted = default_accepted
+            review.last_seen_version = context.version.id
+            review.modified_at = now
+            review.modified_by = "zavod"
+            review.save(conn)
+
+        return review.extracted_data if review.accepted else None
 
 
 def assert_all_accepted(context: Context):
@@ -122,5 +240,8 @@ def assert_all_accepted(context: Context):
         rows = conn.execute(select_stmt).mappings().all()
         if len(rows) > 0:
             raise Exception(
-                f"There are {len(rows)} unaccepted items for dataset {context.dataset.name} and version {context.version.id}"
+                (
+                    f"There are {len(rows)} unaccepted items for dataset "
+                    f"{context.dataset.name} and version {context.version.id}"
+                )
             )
