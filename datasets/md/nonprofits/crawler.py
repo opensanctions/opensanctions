@@ -15,12 +15,16 @@ def get_most_recent_link(context, doc):
 
     for link in links:
         href = link.get("href")
-        # Exclude a known outdated file and any from 2019
-        # It's safe bacause we assert that the latest link is from the last 30 days
+        # The XPath selects all downloadable XLSX links on the page, including outdated ones.
+        # However, we're only interested in the most recent file, so we filter out known outdated links,
+        # such as one with a hardcoded 2024 date and any from 2019.
+        # These older links follow a different URL format and lack consistent date patterns.
+        # Since we assert that the latest link must be within the last 30 days,
+        # it's safe and more efficient to exclude them upfront to simplify parsing.
         if "17.06.2024" in href or re.search(r"resources/2019-\d{2}", href):
             continue
-        # Full date: YYYY.MM.DD or YYYY-MM-DD
-        match = re.search(r"(\d{4})[.\-](\d{2})[.\-](\d{2})", href)
+        # Full date: YYYY.MM.DD
+        match = re.search(r"(\d{4})[.](\d{2})[.](\d{2})", href)
         if match:
             date_obj = datetime.strptime(match.group(0), "%Y.%m.%d")
             dated_links.append((date_obj, href))
@@ -38,9 +42,6 @@ def crawl_row(context, row):
     tax_number = row.pop("tax_number")
     name = row.pop("name")
     director = row.pop("director")
-    if not tax_number and not name:
-        context.log.warning("Row is missing 'tax_number' and 'name', skipping")
-        return
     entity = context.make("Organization")
     entity.id = context.make_id(tax_number, name)
     entity.add("name", name)
