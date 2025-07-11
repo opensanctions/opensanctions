@@ -1,70 +1,76 @@
 import re
-from datetime import datetime
-from rigour.mime.types import XLSX
+from datetime import datetime, timedelta
 from openpyxl import load_workbook
+from rigour.mime.types import XLSX
 
 from zavod import Context, helpers as h
 
 
 def get_most_recent_link(context, doc):
-    links = doc.xpath("//a[contains(@class, 'resource-url-analytics')]")
+    # Select all .xlsx resource links within resource-item elements
+    links = doc.xpath(
+        "//li[contains(@class, 'resource-item')]//a[contains(@class, 'resource-url-analytics') and contains(@href, '.xlsx')]"
+    )
     dated_links = []
 
     for link in links:
         href = link.get("href")
-        if not href:
+        # Exclude a known outdated file and any from 2019
+        # It's safe bacause we assert that the latest link is from the last 30 days
+        if "17.06.2024" in href or re.search(r"resources/2019-\d{2}", href):
             continue
-
-        # Try to find a date in the URL (e.g. 2023.06.05)
+        # Full date: YYYY.MM.DD or YYYY-MM-DD
         match = re.search(r"(\d{4})[.\-](\d{2})[.\-](\d{2})", href)
         if match:
             date_obj = datetime.strptime(match.group(0), "%Y.%m.%d")
             dated_links.append((date_obj, href))
-        # else:
-        # context.log.warning(f"Link {href} does not contain a date")
-    if not dated_links:
-        return None
+        else:
+            context.log.warning(f"Link {href} does not contain a date")
+    # Select the most recent dated link
+    latest_link = max(dated_links, key=lambda x: x[0])
+    # Ensure the latest file is from the last 30 days
+    assert datetime.now() - timedelta(days=30) < latest_link[0]
 
-    # Return the href with the latest date
-    return max(dated_links, key=lambda x: x[0])[1]
+    return latest_link[1]
 
 
-def crawl_item(row, context):
-    id = row.pop("idno")
-    name = row.pop("denumirea")
-    if not id and not name:
-        context.log.warning("Row is missing 'idno', skipping")
+def crawl_row(context, row):
+    tax_number = row.pop("tax_number")
+    name = row.pop("name")
+    director = row.pop("director")
+    if not tax_number and not name:
+        context.log.warning("Row is missing 'tax_number' and 'name', skipping")
         return
     entity = context.make("Organization")
-    entity.id = context.make_id(id, name)
+    entity.id = context.make_id(tax_number, name)
     entity.add("name", name)
-    entity.add("legalForm", row.pop("forma_juridica"))
+    entity.add("legalForm", row.pop("legal_form"))
     entity.add("country", "md")
-    entity.add("address", row.pop("adresa"))
-    entity.add("registrationNumber", id)
+    entity.add("taxNumber", tax_number)
+    address = h.make_address(
+        context,
+        full=row.pop("address"),
+        place=row.pop("admin_unit_code"),
+    )
+    h.copy_address(entity, address)
+    h.apply_date(entity, "incorporationDate", row.pop("incorporation_date"))
+    h.apply_date(entity, "dissolutionDate", row.pop("dissolution_date"))
 
-    # Registration date
-    h.apply_date(entity, "incorporationDate", row.pop("data_inreg"))
-    # Dissolution (liquidation) date if available
-    h.apply_date(entity, "dissolutionDate", row.pop("data_lichidarii"))
+    if director:
+        dir = context.make("Person")
+        dir.id = context.make_id(director)
+        dir.add("name", director)
 
-    # Person in charge
-    if officer := row.pop("conducator"):
-        officer = context.make("Person")
-        officer.id = context.make_id(entity.id)
-        officer.add("name", officer)
-
-        # Link person to the organization
         directorship = context.make("Directorship")
-        directorship.id = context.make_id(entity.id, officer.id)
-        directorship.add("organization", entity)
-        directorship.add("director", officer)
+        directorship.id = context.make_id(entity.id, dir.id)
+        directorship.add("organization", entity.id)
+        directorship.add("director", dir.id)
 
-        context.emit(officer)
+        context.emit(dir)
         context.emit(directorship)
 
     context.emit(entity)
-    context.audit_data(row, ["cuatm"])
+    context.audit_data(row)
 
 
 def crawl(context: Context):
@@ -74,6 +80,9 @@ def crawl(context: Context):
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
+    assert set(wb.sheetnames) == {wb.active.title}
 
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=4):
-        crawl_item(item, context)
+    for row in h.parse_xlsx_sheet(
+        context, wb["organizations"], skiprows=4, header_lookup="columns"
+    ):
+        crawl_row(context, row)
