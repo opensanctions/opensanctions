@@ -29,6 +29,7 @@ data:
 http:
   retry_statuses:
     - 404 # usually by the time we check, the page is there.
+    - 408
     - 413
     - 429
     - 500
