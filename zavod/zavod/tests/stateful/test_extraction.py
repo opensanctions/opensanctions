@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-from zavod import settings
-from zavod.stateful.model import extraction_table
-from zavod.stateful.extraction import get_accepted_data
-from zavod.context import Context
 
+from zavod import settings
+from zavod.context import Context
+from zavod.stateful.extraction import get_accepted_data
+from zavod.stateful.model import extraction_table
 
 SOURCE_LABEL = "test"
 SOURCE_URL = "http://source"
@@ -17,7 +17,7 @@ class DummyModel(BaseModel):
 
 def get_row(conn, key):
     sel = extraction_table.select().where(
-        extraction_table.c.key == key, extraction_table.c.deleted_at == None
+        extraction_table.c.key == key, extraction_table.c.deleted_at.is_(None)
     )
     return conn.execute(sel).mappings().first()
 
@@ -116,7 +116,8 @@ def test_different_hash_marks_old_deleted_and_inserts_new(testdataset1, monkeypa
     old = (
         context2.conn.execute(
             extraction_table.select().where(
-                extraction_table.c.key == "key3", extraction_table.c.deleted_at != None
+                extraction_table.c.key == "key3",
+                extraction_table.c.deleted_at.is_(None),
             )
         )
         .mappings()
