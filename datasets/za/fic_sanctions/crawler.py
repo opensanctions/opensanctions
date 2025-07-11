@@ -95,7 +95,7 @@ def crawl_row(context: Context, data: Dict[str, str]):
             if all(c in {"?", " "} for c in alias):
                 continue
             entity.add("alias", alias)
-            if "?" in entity.get("alias"):
+            if any(["?" in a for a in entity.get("alias")]):
                 context.log.warning("Alias contains '?'", alias=alias)
         passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
         entity.add("passportNumber", passports)
@@ -113,7 +113,7 @@ def crawl_row(context: Context, data: Dict[str, str]):
             if all(c in {"?", " "} for c in alias):
                 continue
             entity.add("alias", alias)
-            if "?" in entity.get("alias"):
+            if any(["?" in a for a in entity.get("alias")]):
                 context.log.warning("Alias contains '?'", alias=alias)
     listed_on = data.pop("ListedOn", None)
     h.apply_date(entity, "createdAt", listed_on)
