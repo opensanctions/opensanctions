@@ -18,7 +18,7 @@ from zavod.exporters.maritime import MaritimeExporter
 from zavod.exporters.delta import DeltaExporter
 
 from zavod.exporters.fragment import ViewFragment
-from zavod.exporters.metadata import write_dataset_index, write_issues
+from zavod.exporters.metadata import write_dataset_index
 from zavod.exporters.metadata import write_catalog, write_delta_index
 
 log = get_logger(__name__)
@@ -45,7 +45,7 @@ EXPORTERS: Dict[str, Type[Exporter]] = {
     DeltaExporter.FILE_NAME: DeltaExporter,
 }
 
-__all__ = ["export_dataset", "write_dataset_index", "write_issues"]
+__all__ = ["export_dataset", "write_dataset_index"]
 
 
 def export_data(context: Context, view: View) -> None:
@@ -90,7 +90,6 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         export_data(context, view)
 
         # Export full metadata
-        write_issues(dataset)
         write_delta_index(dataset)
         write_dataset_index(dataset)
         write_catalog(dataset)
