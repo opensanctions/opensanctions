@@ -27,6 +27,7 @@
     "turndown": "^7.2.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/pg": "^8.15.4",
     "@types/react": "^18",
