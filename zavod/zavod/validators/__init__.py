@@ -99,5 +99,8 @@ def validate_dataset(dataset: Dataset, view: View) -> None:
         if abort:
             raise RunFailedException("Validation caused abort.")
 
+    except Exception as exc:
+        context.log.exception("Validation failed: %s" % str(exc))
+        raise RunFailedException() from exc
     finally:
         context.close()

@@ -82,10 +82,10 @@ def write_dataset_index(dataset: Dataset) -> None:
     meta.pop("sources", None)
     meta.pop("collections", None)
 
-    if not dataset.is_collection:
-        issues = DatasetIssues(dataset)
-        meta["issue_levels"] = issues.by_level()
-        meta["issue_count"] = sum(meta["issue_levels"].values())
+    issues = DatasetIssues(dataset)
+    meta["issue_levels"] = issues.by_level()
+    meta["issue_count"] = sum(meta["issue_levels"].values())
+
     meta["last_export"] = settings.RUN_TIME_ISO
     # NOTE: when adding a another URL here, make sure to update Delivery Service,
     # it has a static list of URLs to rewrite

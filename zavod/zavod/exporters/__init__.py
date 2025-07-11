@@ -1,5 +1,6 @@
 from typing import List, Dict, Type, Set
 
+from zavod.exc import RunFailedException
 from zavod.exporters.consolidate import consolidate_entity
 from zavod.logs import get_logger
 from zavod.store import View
@@ -86,7 +87,10 @@ def export_dataset(dataset: Dataset, view: View) -> None:
     """Dump the contents of the dataset to the output directory."""
     context = Context(dataset)
     try:
-        context.begin(clear=False)
+        # For collections, export is the beginning of the lifecycle, as we don't run the crawl/validate stages for them.
+        # For normal datasets, we clear the context in crawl_dataset, preventing a backfill from a previous run.
+        # Ideally, this would happen in some sort of business logic layer, but alas, there is none between here and CLI.
+        context.begin(clear=dataset.is_collection)
         export_data(context, view)
 
         # Export full metadata
@@ -94,5 +98,8 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         write_dataset_index(dataset)
         write_catalog(dataset)
         log.info("Exported dataset: %s" % dataset.name, dataset=dataset.name)
+    except Exception as exc:
+        context.log.exception("Export failed: %s" % str(exc))
+        raise RunFailedException() from exc
     finally:
         context.close()

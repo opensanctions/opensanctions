@@ -70,7 +70,6 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     """Upload failure information about a dataset to the archive."""
     # Clear out interim artifacts so they cannot pollute the metadata we're
     # generating.
-    assert not dataset.is_collection
     dataset_resource_path(dataset.name, STATEMENTS_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, STATISTICS_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, INDEX_FILE).unlink(missing_ok=True)

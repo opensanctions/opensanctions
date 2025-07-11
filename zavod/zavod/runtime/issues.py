@@ -88,10 +88,8 @@ class DatasetIssues(object):
     def all(self) -> Generator[Issue, None, None]:
         """Iterate over all issues in the log."""
         self.close()
-        for scope in self.dataset.leaves:
-            path = get_dataset_artifact(scope.name, ISSUES_LOG)
-            if not path.is_file():
-                continue
+        path = get_dataset_artifact(self.dataset.name, ISSUES_LOG)
+        if path.is_file():
             with open(path, "rb") as fh:
                 for line in fh:
                     yield cast(Issue, orjson.loads(line))
