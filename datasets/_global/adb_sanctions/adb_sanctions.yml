@@ -435,3 +435,11 @@ lookups:
         items:
           - prop: taxNumber
             value: 305967596
+      - match: Registration No. 121/1988
+        items:
+          - prop: registrationNumber
+            value: 121/1988
+      - match: Registration No. 2014/C274
+        items:
+          - prop: registrationNumber
+            value: 2014/C274

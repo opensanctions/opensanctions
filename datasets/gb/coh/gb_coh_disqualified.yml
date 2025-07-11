@@ -109,7 +109,6 @@ lookups:
         value: BA
       - match: Guinea-Bissuan
         value: GW
-
   type.date:
     options:
       - match: "3018-12-12"
@@ -118,3 +117,12 @@ lookups:
         value: "2031-07-16"
       - match: "9999-12-31"
         value: null
+  type.name:
+    options:
+      # Case reference 5191/2015 comes up under "Disqualified for conduct while acting for" for Osman MALIK, 
+      # and "Gse London limited" comes up under "Court". https://find-and-update.company-information.service.gov.uk/disqualified-officers/natural/RAeM4waKfNhmhG18i5FA7hRE-fc
+      # In the same case, https://find-and-update.company-information.service.gov.uk/disqualified-officers/natural/nPada61zCehhR2wnbTffM3PbVXA 
+      # Ayaan MALIK is disqualified for conduct while acting for GSE LONDON LIMITED
+      # So let's assume for Osman they also meant "GSE London Limited"
+      - match: '5191/2015'
+        value: GSE LONDON LIMITED

@@ -265,7 +265,10 @@ lookups:
         prop: taxNumber
       - match: euvat
         prop: vatCode
-
+  type.name:
+    options:
+      - match: '-'
+        value: null
   type.address:
     lowercase: true
     options:

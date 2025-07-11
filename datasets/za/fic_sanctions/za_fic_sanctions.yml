@@ -173,6 +173,10 @@ lookups:
         value: FACA 911-10-77
   type.name:
     options:
+      - match: Jin Tiesan (???)
+        value: Jin Tiesan
+      - match: ??? ?????? (Abdullah Sindhi)
+        value: Abdullah Sindhi
       - match:
           - None
         value: null

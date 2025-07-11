@@ -54,7 +54,7 @@ assertions:
       co: 1
   max:
     schema_entities:
-      Person: 15_000
+      Person: 17_000
       Position: 6000
 
 lookups:
