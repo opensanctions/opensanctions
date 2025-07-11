@@ -1,5 +1,4 @@
 import csv
-from normality import slugify
 import yaml  # noqa
 from typing import Dict
 from urllib.parse import urljoin
@@ -9,7 +8,7 @@ from rigour.mime.types import CSV
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.gpt import run_typed_text_prompt
-from zavod.stateful.extraction import extract_items
+from zavod.stateful.extraction import get_accepted_data
 from pydantic import BaseModel
 
 
@@ -60,16 +59,16 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
             string=party_name,
             response_type=BankOrgsResult,
         )
-        accepted_result = extract_items(
+        result = get_accepted_data(
             context,
-            key=slugify(party_name),
+            key=party_name,
             source_value=party_name,
             source_content_type="text/plain",
-            source_label="Banking Organization",
+            source_label="Banking Organization field in CSV",
+            source_url=None,
             orig_extraction_data=prompt_result,
-            source_url=url or "",
         )
-        entities = accepted_result.entities if accepted_result else []
+        entities = result.entities if result else []
 
     effective_date = input_dict.pop("Effective Date")
     termination_date = input_dict.pop("Termination Date")

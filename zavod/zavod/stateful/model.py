@@ -57,12 +57,12 @@ extraction_table = Table(
     Column("source_label", Unicode(VALUE_LEN), nullable=True),
     Column("source_url", JSON, nullable=True),
     Column("accepted", Boolean, nullable=False),
-    Column(
-        "orig_extraction_data", JSON, nullable=False
-    ),  # only to be edited by the crawler
+    # only to be edited by the crawler
+    Column("orig_extraction_data", JSON, nullable=False),
     Column("orig_extraction_data_hash", Unicode(KEY_LEN), nullable=False),
-    Column("extracted_data", JSON, nullable=False),  # editable by the reviewer
-    Column("last_seen_version", Unicode(KEY_LEN), nullable=False),  # version id
+    # editable by the reviewer
+    Column("extracted_data", JSON, nullable=False),
+    Column("last_seen_version", Unicode(KEY_LEN), nullable=False),
     Column("modified_at", DateTime, nullable=False),
     Column("modified_by", Unicode(KEY_LEN), nullable=False),
     Column("deleted_at", DateTime, nullable=True, index=True),  # Index for filtering
@@ -70,8 +70,9 @@ extraction_table = Table(
 
 
 Index(
-    "ix_extraction_key_unique_not_deleted",
+    "ix_extraction_key_dataset_unique_not_deleted",
     extraction_table.c.key,
+    extraction_table.c.dataset,
     unique=True,
     sqlite_where=text("deleted_at IS NULL"),
     postgresql_where=text("deleted_at IS NULL"),
