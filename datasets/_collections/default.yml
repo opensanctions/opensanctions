@@ -52,25 +52,7 @@ children:
 
   # misc
   - ann_graph_topics
-  - ir_uani_business_registry
-  - kp_rusi_reports
-  - md_rise_profiles
   - ransomwhere
   - research
-  - ru_acf_bribetakers
-  - ru_billionaires_2021
-  - ru_dossier_center_poi
-  - ru_myrotvorets_wagner
-  - ru_navalny35
   - ru_nsd_isin
-  - thesentry_atlas
-  - sy_obsalytics_opensyr
-  - wd_categories
-  - wd_curated
-  - wd_oligarchs
-  - eiti_soe
-  - gem_energy_ownership
-  - ua_war_sanctions
-  - us_nk_jointventures
-  # - us_fara_filings
 ci_test: false
