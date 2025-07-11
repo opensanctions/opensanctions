@@ -1,13 +1,13 @@
 from datetime import datetime
 from hashlib import sha1
-from typing import Any, Dict, Generic, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, Optional, Type, TypeVar, cast
 
 import orjson
 from normality import slugify
 from pydantic import BaseModel, JsonValue
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode
 from pydantic_core import CoreSchema
-from sqlalchemy import insert, select, update
+from sqlalchemy import func, insert, not_, select, update
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
 
@@ -75,9 +75,8 @@ class Review(BaseModel, Generic[ModelType]):
         select_stmt = select(extraction_table).where(
             extraction_table.c.dataset == dataset,
             extraction_table.c.key == key,
-            extraction_table.c.deleted_at == None,
+            extraction_table.c.deleted_at.is_(None),
         )
-        row = conn.execute(select_stmt).mappings().first()
         return cls.load(conn, data_model, select_stmt)
 
     def save(self, conn: Connection) -> None:
@@ -113,6 +112,15 @@ class Review(BaseModel, Generic[ModelType]):
             .where(extraction_table.c.id == self.id)
             .values(last_seen_version=version_id)
         )
+
+    @classmethod
+    def count_unaccepted(cls, conn: Connection, dataset: str, version_id: str) -> int:
+        select_stmt = select(func.count(extraction_table)).where(
+            extraction_table.c.dataset == dataset,
+            extraction_table.c.last_seen_version == version_id,
+            not_(extraction_table.c.accepted),
+        )
+        return cast(int, conn.execute(select_stmt).scalar_one())
 
 
 def sort_arrays_in_value(value: JsonValue) -> JsonValue:
@@ -235,16 +243,11 @@ def assert_all_accepted(context: Context) -> None:
     """
     engine = get_engine()
     with engine.begin() as conn:
-        select_stmt = select(extraction_table).where(
-            extraction_table.c.dataset == context.dataset.name,
-            extraction_table.c.last_seen_version == context.version.id,
-            extraction_table.c.accepted == False,
-        )
-        rows = conn.execute(select_stmt).mappings().all()
-        if len(rows) > 0:
+        count = Review.count_unaccepted(conn, context.dataset.name, context.version.id)
+        if count > 0:
             raise Exception(
                 (
-                    f"There are {len(rows)} unaccepted items for dataset "
+                    f"There are {count} unaccepted items for dataset "
                     f"{context.dataset.name} and version {context.version.id}"
                 )
             )
