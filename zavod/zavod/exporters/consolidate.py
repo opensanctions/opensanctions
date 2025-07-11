@@ -21,7 +21,8 @@ NAME_PROPS = (
 
 def simplify_names(entity: Entity) -> Entity:
     """Simplify the names of an entity, removing variants in case and names which do not include a letter."""
-    # TODO: put birthPlace in this list? It often has the same issue as names.
+    if not entity.schema.is_a("LegalEntity"):
+        return entity
     for prop_ in NAME_PROPS:
         prop = entity.schema.get(prop_)
         if prop is None:
