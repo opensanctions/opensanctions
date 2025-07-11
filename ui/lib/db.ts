@@ -1,14 +1,11 @@
 import {
-  ColumnType,
   Dialect,
   Generated,
   Insertable,
-  InsertType,
   JSONColumnType,
   Kysely,
   PostgresDialect,
   Selectable,
-  SelectType,
   SqliteDialect,
   Updateable,
   sql,
@@ -20,13 +17,14 @@ export interface ReviewTable {
   id: Generated<number>
   key: string
   dataset: string
-  extraction_schema: JSONColumnType<object, string, string>
+  extraction_schema: JSONColumnType<object, object, object>
   source_value: string
   source_content_type: string
   source_label: string
-  source_url: string
+  source_url: string | null
   accepted: boolean
-  orig_extraction_data: JSONColumnType<object, string, string>
+  orig_extraction_data: JSONColumnType<object, object, object>
+  extracted_data: JSONColumnType<object, object, object>
   last_seen_version: string
   modified_at: string
   modified_by: string
@@ -58,12 +56,12 @@ if (isPostgres) {
       ? dbUrl.replace('sqlite:///', '/')
       : dbUrl.replace('sqlite://', '');
   dialect = new SqliteDialect({
-    database: new Database({filename: dbFile})
-    });
+    database: new Database(dbFile)
+  });
 } else {
   throw new Error(`Unsupported database type ${dbUrl}`);
 }
-export const db = new Kysely<ReviewDatabase>({dialect})
+export const db = new Kysely<ReviewDatabase>({dialect, log: ['query', 'error']})
 
 
 
@@ -144,137 +142,71 @@ export async function getExtractionEntry(dataset: string, key: string) {
   // Use Kysely to fetch the latest entry for the given dataset and key
   return await db
     .selectFrom('review')
-    .select([
-      'id',
-      'key',
-      'source_url',
-      'modified_at',
-      'accepted',
-      'orig_extraction_data',
-      'extraction_schema',
-      'last_seen_version',
-      'source_value',
-      'source_content_type',
-      'source_label',
-    ])
     .where('dataset', '=', dataset)
     .where('key', '=', key)
     .where('deleted_at', 'is', null)
+    .selectAll()
     .executeTakeFirst();
 }
 
-export async function updateExtractionEntry({ dataset, key, accepted, extractedData }: { dataset: string, key: string, accepted: boolean, extractedData: string }) {
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) throw new Error('DATABASE_URL not set');
-  const isPostgres = dbUrl.startsWith('postgres');
-  const isSqlite = dbUrl.startsWith('sqlite');
+export async function updateExtractionEntry({ dataset, key, accepted, extractedData }: { dataset: string, key: string, accepted: boolean, extractedData: object }) {
   const now = new Date().toISOString();
-
-  if (isPostgres) {
-    const { Client } = await import('pg');
-    const client = new Client({ connectionString: dbUrl });
-    await client.connect();
+  await db.transaction().execute(async (trx) => {
     // Mark current as deleted
-    await client.query(
-      `UPDATE extraction SET deleted_at = $1 WHERE dataset = $2 AND key = $3 AND deleted_at IS NULL`,
-      [now, dataset, key]
-    );
-    // Insert new row copying fields, updating accepted/extracted_data/modified_at
-    await client.query(
-      `INSERT INTO extraction (dataset, last_seen_version, orig_extraction_data, orig_extraction_data_hash, key, source_url, schema, accepted, extracted_data, modified_at, modified_by, source_value, source_content_type, source_label)
-       SELECT dataset, last_seen_version, orig_extraction_data, orig_extraction_data_hash, key, source_url, schema, $3, $4, $5, $6, source_value, source_content_type, source_label
-       FROM extraction
-       WHERE dataset = $1 AND key = $2
-       ORDER BY modified_at DESC
-       LIMIT 1`,
-      [dataset, key, accepted, extractedData, now, 'zavod ui user']
-    );
-    await client.end();
-  } else if (isSqlite) {
-    const sqlite3 = await import('sqlite3');
-    const { open } = await import('sqlite');
-    const dbFile = dbUrl.startsWith('sqlite:///')
-      ? dbUrl.replace('sqlite:///', '/')
-      : dbUrl.replace('sqlite://', '');
-    const db = await open({ filename: dbFile, driver: sqlite3.Database });
-    await db.run(
-      `UPDATE extraction SET deleted_at = ? WHERE dataset = ? AND key = ? AND deleted_at IS NULL`,
-      [now, dataset, key]
-    );
-    await db.run(
-      `INSERT INTO extraction (dataset, last_seen_version, orig_extraction_data, orig_extraction_data_hash, key, source_url, schema, accepted, extracted_data, modified_at, modified_by, source_value, source_content_type, source_label)
-       SELECT dataset, last_seen_version, orig_extraction_data, orig_extraction_data_hash, key, source_url, schema, ?, ?, ?, ?, source_value, source_content_type, source_label
-       FROM extraction
-       WHERE dataset = ? AND key = ?
-       ORDER BY modified_at DESC
-       LIMIT 1`,
-      [accepted, extractedData, now, 'zavod ui user', dataset, key]
-    );
-    await db.close();
-  } else {
-    throw new Error('Unsupported database type');
-  }
+    await trx
+      .updateTable('review')
+      .set({ deleted_at: now })
+      .where('dataset', '=', dataset)
+      .where('key', '=', key)
+      .where('deleted_at', 'is', null)
+      .execute();
+
+    // Get the latest previous row for this dataset/key
+    const prev = await trx
+      .selectFrom('review')
+      .selectAll()
+      .where('dataset', '=', dataset)
+      .where('key', '=', key)
+      .executeTakeFirst();
+    if (!prev) return;
+
+    // Insert new row, copying fields but updating accepted, extractedData, modified_at, modified_by
+    const { id, ...rest } = prev;
+    const newRow: NewReview = {
+      ...rest,
+      extracted_data: extractedData,
+      accepted: accepted,
+      modified_at: now,
+      modified_by: 'zavod ui user',
+      deleted_at: null,
+    };
+    console.log(newRow);
+    await trx
+      .insertInto('review')
+      .values(newRow)
+      .execute();
+  });
 }
 
 export async function getNextUnacceptedEntryKey(dataset: string): Promise<string | null> {
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) throw new Error('DATABASE_URL not set');
-  const isPostgres = dbUrl.startsWith('postgres');
-  const isSqlite = dbUrl.startsWith('sqlite');
-  let key: string | null = null;
-  if (isPostgres) {
-    const { Client } = await import('pg');
-    const client = new Client({ connectionString: dbUrl });
-    await client.connect();
-    // First get the latest version for this dataset
-    const versionRes = await client.query(`
-      SELECT MAX(last_seen_version) AS latest_version
-      FROM extraction
-      WHERE dataset = $1 AND deleted_at IS NULL
-    `, [dataset]);
-    const latestVersion = versionRes.rows[0]?.latest_version;
-    if (latestVersion) {
-      const res = await client.query(`
-        SELECT key FROM extraction
-        WHERE dataset = $1
-        AND deleted_at IS NULL
-        AND accepted = false
-        AND last_seen_version = $2
-        ORDER BY modified_at DESC
-        LIMIT 1
-      `, [dataset, latestVersion]);
-      if (res.rows.length > 0) key = res.rows[0].key;
-    }
-    await client.end();
-  } else if (isSqlite) {
-    const sqlite3 = await import('sqlite3');
-    const { open } = await import('sqlite');
-    const dbFile = dbUrl.startsWith('sqlite:///')
-      ? dbUrl.replace('sqlite:///', '/')
-      : dbUrl.replace('sqlite://', '');
-    const db = await open({ filename: dbFile, driver: sqlite3.Database });
-    // First get the latest version for this dataset
-    const versionRow = await db.get(`
-      SELECT MAX(last_seen_version) AS latest_version
-      FROM extraction
-      WHERE dataset = ? AND deleted_at IS NULL
-    `, [dataset]);
-    const latestVersion = versionRow?.latest_version;
-    if (latestVersion) {
-      const rows = await db.all(`
-        SELECT key FROM extraction
-        WHERE dataset = ?
-        AND deleted_at IS NULL
-        AND accepted = 0
-        AND last_seen_version = ?
-        ORDER BY modified_at DESC
-        LIMIT 1
-      `, [dataset, latestVersion]);
-      if (rows.length > 0) key = rows[0].key;
-    }
-    await db.close();
-  } else {
-    throw new Error('Unsupported database type');
-  }
-  return key;
+  // Subquery to get the latest version for the dataset
+  const latestVersionSubquery = db
+    .selectFrom('review')
+    .select(db.fn.max('last_seen_version').as('latest_version'))
+    .where('dataset', '=', dataset)
+    .where('deleted_at', 'is', null)
+    .as('lv');
+
+  // Join review with the subquery on last_seen_version and filter for unaccepted
+  const row = await db
+    .selectFrom('review')
+    .innerJoin(latestVersionSubquery, 'review.last_seen_version', 'lv.latest_version')
+    .select('review.key')
+    .where('review.dataset', '=', dataset)
+    .where('review.deleted_at', 'is', null)
+    .where('review.accepted', '=', false)
+    .orderBy('review.modified_at', 'desc')
+    .limit(1)
+    .executeTakeFirst();
+  return row?.key ?? null;
 }
