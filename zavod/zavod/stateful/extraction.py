@@ -13,7 +13,7 @@ from sqlalchemy.sql import Select
 
 from zavod.context import Context
 from zavod.db import get_engine
-from zavod.stateful.model import extraction_table
+from zavod.stateful.model import review_table
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
 
@@ -72,24 +72,24 @@ class Review(BaseModel, Generic[ModelType]):
     def by_key(
         cls, conn: Connection, data_model: Type[ModelType], dataset: str, key: str
     ) -> Optional["Review[ModelType]"]:
-        select_stmt = select(extraction_table).where(
-            extraction_table.c.dataset == dataset,
-            extraction_table.c.key == key,
-            extraction_table.c.deleted_at.is_(None),
+        select_stmt = select(review_table).where(
+            review_table.c.dataset == dataset,
+            review_table.c.key == key,
+            review_table.c.deleted_at.is_(None),
         )
         return cls.load(conn, data_model, select_stmt)
 
     def save(self, conn: Connection) -> None:
         if self.id:
             conn.execute(
-                update(extraction_table)
-                .where(extraction_table.c.id == self.id)
+                update(review_table)
+                .where(review_table.c.id == self.id)
                 .values(deleted_at=datetime.now())
             )
-        ins = insert(extraction_table).values(
+        ins = insert(review_table).values(
             key=self.key,
             dataset=self.dataset,
-            schema=self.extraction_schema,
+            extraction_schema=self.extraction_schema,
             source_value=self.source_value,
             source_content_type=self.source_content_type,
             source_label=self.source_label,
@@ -108,17 +108,17 @@ class Review(BaseModel, Generic[ModelType]):
         """Update the last_seen_version without adding a historical row."""
         assert self.id is not None
         conn.execute(
-            update(extraction_table)
-            .where(extraction_table.c.id == self.id)
+            update(review_table)
+            .where(review_table.c.id == self.id)
             .values(last_seen_version=version_id)
         )
 
     @classmethod
     def count_unaccepted(cls, conn: Connection, dataset: str, version_id: str) -> int:
-        select_stmt = select(func.count(extraction_table.c.id)).where(
-            extraction_table.c.dataset == dataset,
-            extraction_table.c.last_seen_version == version_id,
-            not_(extraction_table.c.accepted),
+        select_stmt = select(func.count(review_table.c.id)).where(
+            review_table.c.dataset == dataset,
+            review_table.c.last_seen_version == version_id,
+            not_(review_table.c.accepted),
         )
         return cast(int, conn.execute(select_stmt).scalar_one())
 
@@ -219,7 +219,7 @@ def get_accepted_data(
         # Hash differs, mark old row as deleted and insert new row
         else:
             context.log.debug("Extraction key hit, hash differs", key=key_slug)
-            review.extraction_schema = type(orig_extraction_data).model_json_schema()
+            review.extraction_schema = schema
             review.source_value = source_value
             review.source_content_type = source_content_type
             review.source_label = source_label

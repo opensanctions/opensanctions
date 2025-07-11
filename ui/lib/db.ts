@@ -1,78 +1,108 @@
-// NOTE: You must install 'pg', 'sqlite3', and 'sqlite' as dependencies for this to work.
-// npm install pg sqlite3 sqlite
+import {
+  ColumnType,
+  Dialect,
+  Generated,
+  Insertable,
+  InsertType,
+  JSONColumnType,
+  Kysely,
+  PostgresDialect,
+  Selectable,
+  SelectType,
+  SqliteDialect,
+  Updateable,
+} from 'kysely'
+import { Pool } from 'pg'
+import Database from 'better-sqlite3'
+
+export interface ReviewTable {
+  id: Generated<number>
+  key: string
+  dataset: string
+  extraction_schema: JSONColumnType<object, string, string>
+  source_value: string
+  source_content_type: string
+  source_label: string
+  source_url: string
+  accepted: boolean
+  orig_extraction_data: JSONColumnType<object, string, string>
+  last_seen_version: string
+  modified_at: string
+  modified_by: string
+  deleted_at: string | null
+}
+export type Review = Selectable<ReviewTable>
+export type NewReview = Insertable<ReviewTable>
+export type ReviewUpdate = Updateable<ReviewTable>
+
+export interface ReviewDatabase {
+  review: ReviewTable
+}
+
+
+const dbUrl = process.env.DATABASE_URL;
+if (!dbUrl) throw new Error('DATABASE_URL not set');
+const isPostgres = dbUrl.startsWith('postgres');
+const isSqlite = dbUrl.startsWith('sqlite');
+let dialect: Dialect
+if (isPostgres) {
+  dialect = new PostgresDialect({
+    pool: new Pool({
+      connectionString: dbUrl,
+      max: 10,
+    }),
+  })
+} else if (isSqlite) {
+  const dbFile = dbUrl.startsWith('sqlite:///')
+      ? dbUrl.replace('sqlite:///', '/')
+      : dbUrl.replace('sqlite://', '');
+  dialect = new SqliteDialect({
+    database: new Database({filename: dbFile})
+    });
+} else {
+  throw new Error(`Unsupported database type ${dbUrl}`);
+}
+export const db = new Kysely<ReviewDatabase>({dialect})
+
+
 
 export async function getDatasetStats() {
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) throw new Error('DATABASE_URL not set');
+  // Use Kysely db instance for both Postgres and SQLite
+  // 1. Get all datasets and their latest version
+  const datasetVersions = await db
+    .selectFrom('review')
+    .select([
+      'dataset',
+      db.fn.max('last_seen_version').as('latest_version'),
+    ])
+    .where('deleted_at', 'is', null)
+    .groupBy('dataset')
+    .execute();
 
-  // Determine DB type
-  const isPostgres = dbUrl.startsWith('postgres');
-  const isSqlite = dbUrl.startsWith('sqlite');
-
-  let results: { dataset: string; total: number; unaccepted: number }[] = [];
-
-  if (isPostgres) {
-    const { Client } = await import('pg');
-    const client = new Client({ connectionString: dbUrl });
-    await client.connect();
-    // Get all datasets and their latest version
-    const versionRes = await client.query(`
-      SELECT dataset, MAX(last_seen_version) AS latest_version
-      FROM extraction
-      WHERE deleted_at IS NULL
-      GROUP BY dataset
-    `);
-    const datasetVersions = versionRes.rows;
-    let resultsArr: { dataset: string; total: number; unaccepted: number }[] = [];
-    for (const { dataset, latest_version } of datasetVersions) {
-      if (!latest_version) continue;
-      const res = await client.query(`
-        SELECT COUNT(*) as total,
-          SUM(CASE WHEN accepted = false THEN 1 ELSE 0 END) as unaccepted
-        FROM extraction
-        WHERE dataset = $1 AND deleted_at IS NULL AND last_seen_version = $2
-      `, [dataset, latest_version]);
-      resultsArr.push({
-        dataset,
-        total: Number(res.rows[0].total),
-        unaccepted: Number(res.rows[0].unaccepted),
-      });
-    }
-    results = resultsArr;
-    await client.end();
-  } else if (isSqlite) {
-    const sqlite3 = await import('sqlite3');
-    const { open } = await import('sqlite');
-    const db = await open({ filename: dbUrl.replace('sqlite://', ''), driver: sqlite3.Database });
-    // Get all datasets and their latest version
-    const versionRows = await db.all(`
-      SELECT dataset, MAX(last_seen_version) AS latest_version
-      FROM extraction
-      WHERE deleted_at IS NULL
-      GROUP BY dataset
-    `);
-    let resultsArr: { dataset: string; total: number; unaccepted: number }[] = [];
-    for (const { dataset, latest_version } of versionRows) {
-      if (!latest_version) continue;
-      const rows = await db.all(`
-        SELECT COUNT(*) as total,
-          SUM(CASE WHEN accepted = 0 THEN 1 ELSE 0 END) as unaccepted
-        FROM extraction
-        WHERE dataset = ? AND deleted_at IS NULL AND last_seen_version = ?
-      `, [dataset, latest_version]);
-      resultsArr.push({
-        dataset,
-        total: Number(rows[0].total),
-        unaccepted: Number(rows[0].unaccepted),
-      });
-    }
-    results = resultsArr;
-    await db.close();
-  } else {
-    throw new Error('Unsupported database type');
+  let resultsArr: { dataset: string; total: number; unaccepted: number }[] = [];
+  for (const { dataset, latest_version } of datasetVersions) {
+    if (!latest_version) continue;
+    // For each dataset/version, count total and unaccepted
+    const res = await db
+      .selectFrom('review')
+      .select([
+        db.fn.count<number>('id').as('total'),
+        db.fn.sum<number>('accepted').as('accepted_sum'),
+      ])
+      .where('dataset', '=', dataset)
+      .where('deleted_at', 'is', null)
+      .where('last_seen_version', '=', latest_version)
+      .executeTakeFirst();
+    // accepted_sum is the number of accepted rows (true=1, false=0), so unaccepted = total - accepted_sum
+    const total = Number(res?.total ?? 0);
+    const acceptedSum = Number(res?.accepted_sum ?? 0);
+    resultsArr.push({
+      dataset,
+      total,
+      unaccepted: total - acceptedSum,
+    });
   }
-
-  return results;
+  return resultsArr;
 }
 
 export async function getExtractionEntries(dataset: string) {
