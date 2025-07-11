@@ -1,24 +1,24 @@
-import json
 import base64
+import json
 import logging
 import mimetypes
+from functools import cache
 from hashlib import sha1
 from pathlib import Path
-from openai import OpenAI, AzureOpenAI
-from typing import Optional, Any, Type, TypeVar
-from functools import cache
+from typing import Any, Optional, Type, TypeVar
 
-from pydantic import BaseModel
+from openai import AzureOpenAI, NotGiven, OpenAI
+from pydantic import BaseModel, JsonValue
 
 from zavod import settings
-from zavod.logs import get_logger
 from zavod.context import Context
 from zavod.exc import ConfigurationException
+from zavod.logs import get_logger
 
 log = get_logger(__name__)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
-T = TypeVar("T", bound=BaseModel)
+ResponseType = TypeVar("ResponseType", bound=BaseModel)
 
 
 @cache
@@ -52,7 +52,7 @@ def run_image_prompt(
     max_tokens: int = 3000,
     cache_days: int = 100,
     model: str = "gpt-4o",
-    response_type: Optional[Type[T]] = None,
+    response_type: Optional[Type[ResponseType]] = None,
 ) -> Any:
     """Run an image prompt."""
     client = get_client()
@@ -76,7 +76,7 @@ def run_image_prompt(
                 ],
             }
         ],
-        response_format=response_type or {"type": "json_object"},
+        response_format=response_type or NotGiven(),
         max_tokens=max_tokens,
     )
     assert len(response.choices) > 0
@@ -91,11 +91,11 @@ def run_typed_image_prompt(
     context: Context,
     prompt: str,
     image_path: Path,
-    response_type: Type[T],
+    response_type: Type[ResponseType],
     max_tokens: int = 3000,
     cache_days: int = 100,
     model: str = "gpt-4o",
-) -> T:
+) -> ResponseType:
     data = run_image_prompt(
         context,
         prompt,
@@ -115,7 +115,7 @@ def run_text_prompt(
     max_tokens: int = 3000,
     cache_days: int = 100,
     model: str = "gpt-4o",
-    response_type: Optional[Type[T]] = None,
+    response_type: Optional[Type[ResponseType]] = None,
 ) -> Any:
     """Run a text prompt."""
     client = get_client()
@@ -140,7 +140,7 @@ def run_text_prompt(
                 ],
             }
         ],
-        response_format=response_type or {"type": "json_object"},
+        response_format=response_type or NotGiven(),
         max_tokens=max_tokens,
     )
     assert len(response.choices) > 0
@@ -155,11 +155,11 @@ def run_typed_text_prompt(
     context: Context,
     prompt: str,
     string: str,
-    response_type: Type[T],
+    response_type: Type[ResponseType],
     max_tokens: int = 3000,
     cache_days: int = 100,
     model: str = "gpt-4o",
-) -> T:
+) -> ResponseType:
     data = run_text_prompt(
         context,
         prompt,
