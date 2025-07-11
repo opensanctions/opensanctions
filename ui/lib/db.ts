@@ -67,7 +67,6 @@ export const db = new Kysely<ReviewDatabase>({dialect})
 
 
 export async function getDatasetStats() {
-  // Use Kysely db instance for both Postgres and SQLite
   // 1. Get all datasets and their latest version
   const datasetVersions = await db
     .selectFrom('review')
@@ -106,84 +105,41 @@ export async function getDatasetStats() {
 }
 
 export async function getExtractionEntries(dataset: string) {
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) throw new Error('DATABASE_URL not set');
+  // Subquery to get the latest version for the dataset
+  const latestVersionSubquery = db
+    .selectFrom('review')
+    .select(db.fn.max('last_seen_version').as('latest_version'))
+    .where('dataset', '=', dataset)
+    .where('deleted_at', 'is', null)
+    .as('lv');
 
-  const isPostgres = dbUrl.startsWith('postgres');
-  const isSqlite = dbUrl.startsWith('sqlite');
-
-  let entries: any[] = [];
-
-  if (isPostgres) {
-    const { Client } = await import('pg');
-    const client = new Client({ connectionString: dbUrl });
-    await client.connect();
-    // Get the latest version for the dataset
-    const versionRes = await client.query(`
-      SELECT MAX(last_seen_version) AS latest_version
-      FROM extraction
-      WHERE dataset = $1 AND deleted_at IS NULL
-    `, [dataset]);
-    const latestVersion = versionRes.rows[0]?.latest_version;
-    if (!latestVersion) {
-      await client.end();
-      return [];
-    }
-    const res = await client.query(`
-      SELECT id, key, source_url, modified_at, modified_by, accepted, orig_extraction_data
-      FROM extraction
-      WHERE dataset = $1 AND deleted_at IS NULL AND last_seen_version = $2
-      ORDER BY accepted ASC, modified_at DESC
-    `, [dataset, latestVersion]);
-    entries = res.rows.map((row: any) => ({
-      id: row.id,
-      key: row.key,
-      source_url: Array.isArray(row.source_url) ? row.source_url[0] : row.source_url,
-      modified_at: row.modified_at,
-      modified_by: row.modified_by,
-      accepted: row.accepted,
-      raw_data_snippet: JSON.stringify(row.orig_extraction_data).slice(0, 100),
-    }));
-    await client.end();
-  } else if (isSqlite) {
-    const sqlite3 = await import('sqlite3');
-    const { open } = await import('sqlite');
-    const dbFile = dbUrl.startsWith('sqlite:///')
-      ? dbUrl.replace('sqlite:///', '/')
-      : dbUrl.replace('sqlite://', '');
-    const db = await open({ filename: dbFile, driver: sqlite3.Database });
-    // Get the latest version for the dataset
-    const versionRow = await db.get(`
-      SELECT MAX(last_seen_version) AS latest_version
-      FROM extraction
-      WHERE dataset = ? AND deleted_at IS NULL
-    `, [dataset]);
-    const latestVersion = versionRow?.latest_version;
-    if (!latestVersion) {
-      await db.close();
-      return [];
-    }
-    const rows = await db.all(`
-      SELECT id, key, source_url, modified_at, modified_by, accepted, orig_extraction_data
-      FROM extraction
-      WHERE dataset = ? AND deleted_at IS NULL AND last_seen_version = ?
-      ORDER BY accepted ASC, modified_at DESC
-    `, [dataset, latestVersion]);
-    entries = rows.map((row: any) => ({
-      id: row.id,
-      key: row.key,
-      source_url: Array.isArray(row.source_url) ? row.source_url[0] : row.source_url,
-      modified_at: row.modified_at,
-      modified_by: row.modified_by,
-      accepted: row.accepted,
-      raw_data_snippet: JSON.stringify(row.orig_extraction_data).slice(0, 100),
-    }));
-    await db.close();
-  } else {
-    throw new Error('Unsupported database type');
-  }
-
-  return entries;
+  // Join review with the subquery on last_seen_version
+  const rows = await db
+    .selectFrom('review')
+    .innerJoin(latestVersionSubquery, 'review.last_seen_version', 'lv.latest_version')
+    .select([
+      'review.id',
+      'review.key',
+      'review.source_url',
+      'review.modified_at',
+      'review.modified_by',
+      'review.accepted',
+      'review.orig_extraction_data',
+    ])
+    .where('review.dataset', '=', dataset)
+    .where('review.deleted_at', 'is', null)
+    .orderBy('review.accepted', 'asc')
+    .orderBy('review.modified_at', 'desc')
+    .execute();
+  return rows.map((row: any) => ({
+    id: row.id,
+    key: row.key,
+    source_url: Array.isArray(row.source_url) ? row.source_url[0] : row.source_url,
+    modified_at: row.modified_at,
+    modified_by: row.modified_by,
+    accepted: row.accepted,
+    raw_data_snippet: JSON.stringify(row.orig_extraction_data).slice(0, 100),
+  }));
 }
 
 export async function getExtractionEntry(dataset: string, key: string) {
