@@ -7,7 +7,7 @@ from zavod import Context
 from rigour.mime.types import PDF, PNG
 from zavod import helpers as h
 from zavod.shed.gpt import run_typed_image_prompt
-from zavod.stateful.extraction import extract_items, assert_all_accepted
+from zavod.stateful.extraction import get_accepted_data, assert_all_accepted
 
 
 PROMPT = """
@@ -44,37 +44,35 @@ def crawl_person(context: Context, person: WantedPerson):
 
 
 def crawl(context: Context):
-    # path = fetch_resource(context, "source.pdf", context.data_url)
     path = Path(__file__).parent / "source.pdf"
-    # context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for page_num, page_path in enumerate(h.make_pdf_page_images(path)):
         if page_num < 3:
             continue
         if page_num > 13:
             break
         # We want this to be consistent across crawls
-        extraction_key = slugify([context.data_url, "page", page_num])
-        assert extraction_key is not None
+        extraction_key_parts = [context.data_url, "page", page_num]
         # We want this to be distinct between versions so that garbage collecting a
         # version garbage collects only the resources for that version and not resources
         # referenced by versions we don't want to delete yet..
-        archive_key = slugify([context.data_url, "page", page_num, context.version.id])
+        archive_key = slugify(extraction_key_parts + [context.version.id])
+        assert archive_key is not None
         image_url = context.archive_resource(page_path, PDF, archive_key)
         prompt_result = run_typed_image_prompt(
             context, PROMPT, page_path, WantedPersonList
         )
-        accepted_result = extract_items(
+        result = get_accepted_data(
             context,
-            key=extraction_key,
+            key=extraction_key_parts,
             source_value=image_url,
             source_content_type=PNG,
             source_label="Screenshot of page in source PDF",
-            orig_extraction_data=prompt_result,
             source_url=context.data_url,
+            orig_extraction_data=prompt_result,
         )
-        if accepted_result is None:
+        if result is None:
             continue
-        for person in accepted_result.persons:
+        for person in result.persons:
             crawl_person(context, person)
 
     assert_all_accepted(context)
