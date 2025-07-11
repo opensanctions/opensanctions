@@ -1,22 +1,27 @@
-from normality import slugify
+from datetime import datetime
+from hashlib import sha1
+from typing import Any, Dict, Generic, Optional, Type, TypeVar
+
 import orjson
-from typing import Generic, Optional, Type, TypeVar
+from normality import slugify
 from pydantic import BaseModel, JsonValue
-from pydantic.json_schema import GenerateJsonSchema
+from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode
+from pydantic_core import CoreSchema
+from sqlalchemy import insert, select, update
+from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
+
 from zavod.context import Context
 from zavod.db import get_engine
 from zavod.stateful.model import extraction_table
-from sqlalchemy import insert, select, update
-from sqlalchemy.engine import Connection
-from datetime import datetime
-from hashlib import sha1
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
 
 
 class SchemaGenerator(GenerateJsonSchema):
-    def generate(self, schema, mode="validation"):
+    def generate(
+        self, schema: CoreSchema, mode: JsonSchemaMode = "validation"
+    ) -> Dict[str, Any]:
         json_schema = super().generate(schema, mode=mode)
         json_schema["$schema"] = self.schema_dialect
         return json_schema
@@ -48,13 +53,12 @@ class Review(BaseModel, Generic[ModelType]):
     @classmethod
     def load(
         cls, conn: Connection, data_model: Type[ModelType], stmt: Select
-    ) -> Optional["Review"]:
+    ) -> Optional["Review[ModelType]"]:
         res = conn.execute(stmt)
         rows = list(res.fetchall())
         assert len(rows) <= 1
         if rows == []:
             return None
-        print(rows[0]._mapping)
         review = cls.model_validate(rows[0]._mapping)
         review.orig_extraction_data = data_model.model_validate(
             rows[0]._mapping["orig_extraction_data"]
@@ -203,7 +207,6 @@ def get_accepted_data(
             context.log.debug("Extraction key hit, hash matches", key=key)
             # Update last_seen_version to current version
             review.update_version(conn, context.version.id)
-            print(review.last_seen_version)
 
         # Hash differs, mark old row as deleted and insert new row
         else:
@@ -225,7 +228,7 @@ def get_accepted_data(
         return review.extracted_data if review.accepted else None
 
 
-def assert_all_accepted(context: Context):
+def assert_all_accepted(context: Context) -> None:
     """
     Raise an exception with the number of unacpeted itemsif any extraction
     entries for the current dataset and version are not accepted.
