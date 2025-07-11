@@ -1,22 +1,21 @@
-from typing import cast
 from datetime import datetime
+from typing import cast
 
+import orjson
 import pytest
 import requests_mock
 from requests.adapters import HTTPAdapter
-import orjson
-from lxml import etree
 
 from zavod import settings
-from zavod.context import Context
-from zavod.meta import Dataset
-from zavod.entity import Entity
-from zavod.crawl import crawl_dataset
 from zavod.archive import iter_dataset_statements
-from zavod.runtime.http_ import request_hash
-from zavod.runtime.sink import DatasetSink
+from zavod.context import Context
+from zavod.crawl import crawl_dataset
+from zavod.entity import Entity
 from zavod.exc import RunFailedException
+from zavod.meta import Dataset
+from zavod.runtime.http_ import request_hash
 from zavod.runtime.loader import load_entry_point
+from zavod.runtime.sink import DatasetSink
 from zavod.tests.conftest import XML_DOC
 
 
