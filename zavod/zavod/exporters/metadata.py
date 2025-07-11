@@ -12,7 +12,7 @@ from zavod.archive import get_dataset_artifact, get_artifact_object
 from zavod.archive import iter_dataset_versions, dataset_resource_path
 from zavod.runtime.urls import make_published_url, make_artifact_url
 from zavod.runtime.resources import DatasetResources
-from zavod.runtime.issues import DatasetIssues, Issue
+from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.versions import get_latest
 from zavod.util import write_json
 
@@ -140,27 +140,6 @@ def get_catalog_datasets(scope: Dataset) -> List[Dict[str, Any]]:
     for dataset in scope.datasets:
         datasets.append(get_catalog_dataset(dataset))
     return datasets
-
-
-def write_issues(dataset: Dataset, max_export: int = 1_000) -> None:
-    """Export list of data issues from crawl stage."""
-    if dataset.is_collection:
-        return
-    issues = DatasetIssues(dataset)
-    export_issues: List[Issue] = []
-    for issue in issues.all():
-        if len(export_issues) >= max_export:
-            log.warning(
-                "Maximum issue count for export exceeded, check the issue log instead.",
-                max_export=max_export,
-            )
-            break
-        export_issues.append(issue)
-    issues_path = dataset_resource_path(dataset.name, ISSUES_FILE)
-    log.info("Writing dataset issues list...", path=issues_path.as_posix())
-    with open(issues_path, "wb") as fh:
-        data = {"issues": export_issues}
-        write_json(data, fh)
 
 
 def write_delta_index(
