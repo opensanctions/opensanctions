@@ -180,7 +180,6 @@ export async function updateExtractionEntry({ dataset, key, accepted, extractedD
       modified_by: 'zavod ui user',
       deleted_at: null,
     };
-    console.log(newRow);
     await trx
       .insertInto('review')
       .values(newRow)
