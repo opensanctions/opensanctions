@@ -45,13 +45,13 @@ program_table = Table(
 )
 
 
-extraction_table = Table(
-    "extraction",
+review_table = Table(
+    "review",
     meta,
     Column("id", Integer, primary_key=True),
     Column("key", Unicode(KEY_LEN), nullable=False, index=True),
     Column("dataset", Unicode(KEY_LEN), nullable=False, index=True),
-    Column("schema", JSON, nullable=False),
+    Column("extraction_schema", JSON, nullable=False),
     Column("source_value", Unicode(VALUE_LEN), nullable=True),
     Column("source_content_type", Unicode(VALUE_LEN), nullable=True),
     Column("source_label", Unicode(VALUE_LEN), nullable=True),
@@ -70,9 +70,9 @@ extraction_table = Table(
 
 
 Index(
-    "ix_extraction_key_dataset_unique_not_deleted",
-    extraction_table.c.key,
-    extraction_table.c.dataset,
+    "ix_review_key_dataset_unique_not_deleted",
+    review_table.c.key,
+    review_table.c.dataset,
     unique=True,
     sqlite_where=text("deleted_at IS NULL"),
     postgresql_where=text("deleted_at IS NULL"),
@@ -89,6 +89,6 @@ def create_db() -> None:
             position_table,
             statement_table,
             program_table,
-            extraction_table,
+            review_table,
         ],
     )
