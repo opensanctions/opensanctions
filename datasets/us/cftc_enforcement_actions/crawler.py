@@ -6,7 +6,7 @@ from lxml.etree import tostring
 from zavod.context import Context
 from zavod import helpers as h
 from zavod.shed.gpt import run_typed_text_prompt
-from zavod.stateful.extraction import extract_items
+from zavod.stateful.extraction import get_accepted_data
 
 
 class Associate(BaseModel):
@@ -61,19 +61,21 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     doc = context.fetch_html(url, cache_days=30)
     article = doc.xpath(".//article")[0]
     html = tostring(article, pretty_print=True).decode("utf-8")
-    result = run_typed_text_prompt(context, PROMPT, html, response_type=Defendants)
-    accepted_result = extract_items(
+    prompt_result = run_typed_text_prompt(
+        context, PROMPT, html, response_type=Defendants
+    )
+    result = get_accepted_data(
         context,
         key=url,
         source_value=html,
         source_content_type="text/html",
         source_label="Enforcement Action Notice",
-        orig_extraction_data=result,
         source_url=url,
+        orig_extraction_data=prompt_result,
     )
-    if not accepted_result:
+    if not result:
         return
-    for item in accepted_result.defendants:
+    for item in result.defendants:
         entity = context.make(item.schema)
         entity.id = context.make_id(item.name, item.address, item.country)
         entity.add("name", item.name)
