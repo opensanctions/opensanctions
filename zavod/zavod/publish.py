@@ -10,7 +10,7 @@ from zavod.archive import VERSIONS_FILE, ARTIFACT_FILES
 from zavod.archive import DELTA_EXPORT_FILE, DELTA_INDEX_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.versions import get_latest
-from zavod.exporters import write_dataset_index, write_issues
+from zavod.exporters import write_dataset_index
 
 log = get_logger(__name__)
 
@@ -86,7 +86,7 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, DELTA_EXPORT_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, DELTA_INDEX_FILE).unlink(missing_ok=True)
-    write_issues(dataset)
+
     write_dataset_index(dataset)
     path = dataset_resource_path(dataset.name, INDEX_FILE)
     if not path.is_file():
