@@ -55,7 +55,7 @@ review_table = Table(
     Column("source_value", Unicode(VALUE_LEN), nullable=True),
     Column("source_content_type", Unicode(VALUE_LEN), nullable=True),
     Column("source_label", Unicode(VALUE_LEN), nullable=True),
-    Column("source_url", JSON, nullable=True),
+    Column("source_url", Unicode(VALUE_LEN), nullable=True),
     Column("accepted", Boolean, nullable=False, index=True),
     # only to be edited by the crawler
     Column("orig_extraction_data", JSON, nullable=False),
