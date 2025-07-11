@@ -295,8 +295,8 @@ class Context:
         """
         url = build_url(url, params)
 
+        fingerprint = request_hash(url, auth=auth, method=method, data=data)
         if cache_days is not None:
-            fingerprint = request_hash(url, auth=auth, method=method, data=data)
             text = None
 
             if method == "GET":
@@ -402,17 +402,15 @@ class Context:
             method=method,
             data=data,
         )
-        if text is not None and len(text):
-            try:
-                return html.fromstring(text)
-            except Exception:
-                cache_url = build_url(url, params)
-                fingerprint = request_hash(
-                    cache_url, auth=auth, method=method, data=data
-                )
-                self.clear_url(fingerprint)
-                raise
-        raise ValueError("Invalid HTML document: %s" % url)
+        try:
+            if text is None or len(text) == 0:
+                raise ValueError("Invalid HTML document: %s" % url)
+            return html.fromstring(text)
+        except Exception as exc:
+            cache_url = build_url(url, params)
+            fingerprint = request_hash(cache_url, auth=auth, method=method, data=data)
+            self.clear_url(fingerprint)
+            raise exc
 
     def clear_url(self, fingerprint: str) -> None:
         """

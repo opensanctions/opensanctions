@@ -225,10 +225,9 @@ def test_context_fetchers_exceptions(testdataset1: Dataset):
     assert list(context.cache.all(None)) == []
 
     # Test that HTML parse failure clears its cache entry
-
-    with pytest.raises(etree.ParserError, match="Document is empty"):
+    with pytest.raises(ValueError):
         with requests_mock.Mocker() as m:
-            m.post("/bla", text="<")
+            m.post("/bla", text="")
             context.fetch_html(
                 "https://test.com/bla",
                 method="POST",
@@ -253,9 +252,9 @@ def test_crawl_dataset(testdataset1: Dataset):
     func = load_entry_point(testdataset1)
     func(context)
     assert context.stats.entities > 5, context.stats.entities
-    assert (
-        context.stats.statements > context.stats.entities * 2
-    ), context.stats.statements
+    assert context.stats.statements > context.stats.entities * 2, (
+        context.stats.statements
+    )
     assert len(context.resources.all()) == 1
     context.close()
     assert len(list(iter_dataset_statements(testdataset1))) == context.stats.statements
