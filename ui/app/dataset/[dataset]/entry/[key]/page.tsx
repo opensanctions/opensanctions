@@ -54,9 +54,9 @@ export default async function EntryPage(props: { params: { dataset: string, key:
             <h2 className="h5 text-break d-flex">Extracted data</h2>
 
             <ExtractionView
-              rawData={entry.raw_data}
+              rawData={entry.orig_extraction_data}
               extractedData={entry.extracted_data}
-              schema={entry.schema}
+              schema={entry.extraction_schema}
               accepted={entry.accepted}
               entryKey={key}
               dataset={dataset}

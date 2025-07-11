@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     return new Response('<h1>Error: Unsupported content type</h1>', { status: 400, headers: { 'Content-Type': 'text/html' } });
   }
   try {
-    await updateExtractionEntry({ dataset, key, accepted, extractedData });
+    await updateExtractionEntry({ dataset, key, accepted, extractedData: JSON.parse(extractedData) as object });
     let redirectUrl = `/dataset/${encodeURIComponent(dataset)}`;
     if (acceptAndContinue) {
       const nextKey = await getNextUnacceptedEntryKey(dataset);
