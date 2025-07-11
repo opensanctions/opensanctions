@@ -163,12 +163,13 @@ def run(
         view = store.view(dataset, external=False)
         if not dataset.is_collection:
             validate_dataset(dataset, view)
-    except Exception:
+    except RunFailedException:
         log.exception("Validation failed for %r" % dataset.name)
         publish_failure(dataset, latest=latest)
         store.close()
         sys.exit(1)
-    # Export and Publish
+
+    # Export, publish and load to DB
     try:
         export_dataset(dataset, view)
         reset_caches()
@@ -180,6 +181,7 @@ def run(
         log.info("Dataset run is complete :)", dataset=dataset.name)
     except Exception:
         log.exception("Failed to export and publish %r" % dataset.name)
+        publish_failure(dataset, latest=latest)
         sys.exit(1)
 
 
