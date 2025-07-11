@@ -1,0 +1,49 @@
+name: UI Jest Tests
+
+on:
+  push:
+    paths:
+      - 'opensanctions/ui/**'
+  pull_request:
+    paths:
+      - 'opensanctions/ui/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U testuser -d testdb" --health-interval=5s --health-timeout=5s --health-retries=10
+    defaults:
+      run:
+        working-directory: opensanctions/ui
+    env:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_HOST: localhost
+      DATABASE_URL: postgres://testuser:testpass@localhost:5432/testdb
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Wait for Postgres
+        run: |
+          for i in {1..20}; do
+            pg_isready -h localhost -U testuser -d testdb && break
+            sleep 2
+          done
+      - name: Run Jest tests
+        run: npm test
