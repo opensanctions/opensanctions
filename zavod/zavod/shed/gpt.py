@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Optional, Type, TypeVar
 
 from openai import AzureOpenAI, NotGiven, OpenAI
-from pydantic import BaseModel, JsonValue
+from pydantic import BaseModel
 
 from zavod import settings
 from zavod.context import Context
