@@ -11,6 +11,7 @@ import {
   SelectType,
   SqliteDialect,
   Updateable,
+  sql,
 } from 'kysely'
 import { Pool } from 'pg'
 import Database from 'better-sqlite3'
@@ -67,8 +68,8 @@ export const db = new Kysely<ReviewDatabase>({dialect})
 
 
 export async function getDatasetStats() {
-  // 1. Get all datasets and their latest version
-  const datasetVersions = await db
+  // Subquery to get the latest version for each dataset
+  const latestVersionSubquery = db
     .selectFrom('review')
     .select([
       'dataset',
@@ -76,32 +77,29 @@ export async function getDatasetStats() {
     ])
     .where('deleted_at', 'is', null)
     .groupBy('dataset')
+    .as('lv');
+
+  // Join review with the subquery on dataset and last_seen_version, then aggregate
+  const rows = await db
+    .selectFrom('review')
+    .innerJoin(latestVersionSubquery, join =>
+      join.onRef('review.dataset', '=', 'lv.dataset')
+          .onRef('review.last_seen_version', '=', 'lv.latest_version')
+    )
+    .select([
+      'review.dataset',
+      db.fn.count<number>('review.id').as('total'),
+      db.fn.sum<number>(sql<number>`CAST(review.accepted AS integer)`).as('accepted_sum'),
+    ])
+    .where('review.deleted_at', 'is', null)
+    .groupBy('review.dataset')
     .execute();
 
-  let resultsArr: { dataset: string; total: number; unaccepted: number }[] = [];
-  for (const { dataset, latest_version } of datasetVersions) {
-    if (!latest_version) continue;
-    // For each dataset/version, count total and unaccepted
-    const res = await db
-      .selectFrom('review')
-      .select([
-        db.fn.count<number>('id').as('total'),
-        db.fn.sum<number>('accepted').as('accepted_sum'),
-      ])
-      .where('dataset', '=', dataset)
-      .where('deleted_at', 'is', null)
-      .where('last_seen_version', '=', latest_version)
-      .executeTakeFirst();
-    // accepted_sum is the number of accepted rows (true=1, false=0), so unaccepted = total - accepted_sum
-    const total = Number(res?.total ?? 0);
-    const acceptedSum = Number(res?.accepted_sum ?? 0);
-    resultsArr.push({
-      dataset,
-      total,
-      unaccepted: total - acceptedSum,
-    });
-  }
-  return resultsArr;
+  return rows.map(row => ({
+    dataset: row.dataset,
+    total: Number(row.total ?? 0),
+    unaccepted: Number(row.total ?? 0) - Number(row.accepted_sum ?? 0),
+  }));
 }
 
 export async function getExtractionEntries(dataset: string) {
@@ -143,76 +141,26 @@ export async function getExtractionEntries(dataset: string) {
 }
 
 export async function getExtractionEntry(dataset: string, key: string) {
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) throw new Error('DATABASE_URL not set');
-
-  const isPostgres = dbUrl.startsWith('postgres');
-  const isSqlite = dbUrl.startsWith('sqlite');
-
-  let entry: any = null;
-
-  if (isPostgres) {
-    const { Client } = await import('pg');
-    const client = new Client({ connectionString: dbUrl });
-    await client.connect();
-    const res = await client.query(`
-      SELECT id, key, source_url, modified_at, accepted, orig_extraction_data, schema, extracted_data, source_value, source_content_type, source_label
-      FROM extraction
-      WHERE dataset = $1 AND key = $2 AND deleted_at IS NULL
-      ORDER BY modified_at DESC
-      LIMIT 1
-    `, [dataset, key]);
-    if (res.rows.length > 0) {
-      const row = res.rows[0];
-      entry = {
-        id: row.id,
-        key: row.key,
-        source_url: Array.isArray(row.source_url) ? row.source_url[0] : row.source_url,
-        modified_at: row.modified_at,
-        accepted: row.accepted,
-        raw_data: row.orig_extraction_data,
-        schema: row.schema,
-        extracted_data: row.extracted_data,
-        source_value: row.source_value,
-        source_content_type: row.source_content_type,
-        source_label: row.source_label,
-      };
-    }
-    await client.end();
-  } else if (isSqlite) {
-    const sqlite3 = await import('sqlite3');
-    const { open } = await import('sqlite');
-    const dbFile = dbUrl.startsWith('sqlite:///')
-      ? dbUrl.replace('sqlite:///', '/')
-      : dbUrl.replace('sqlite://', '');
-    const db = await open({ filename: dbFile, driver: sqlite3.Database });
-    const rows = await db.all(`
-      SELECT id, key, source_url, modified_at, accepted, orig_extraction_data, schema, extracted_data, source_value
-      FROM extraction
-      WHERE dataset = ? AND key = ? AND deleted_at IS NULL
-      ORDER BY modified_at DESC
-      LIMIT 1
-    `, [dataset, key]);
-    if (rows.length > 0) {
-      const row = rows[0];
-      entry = {
-        id: row.id,
-        key: row.key,
-        source_url: Array.isArray(row.source_url) ? row.source_url[0] : row.source_url,
-        modified_at: row.modified_at,
-        accepted: row.accepted,
-        raw_data: row.orig_extraction_data,
-        schema: row.schema,
-        extracted_data: row.extracted_data,
-        source_value: row.source_value,
-      };
-    }
-    await db.close();
-  } else {
-    throw new Error('Unsupported database type');
-  }
-
-  return entry;
+  // Use Kysely to fetch the latest entry for the given dataset and key
+  return await db
+    .selectFrom('review')
+    .select([
+      'id',
+      'key',
+      'source_url',
+      'modified_at',
+      'accepted',
+      'orig_extraction_data',
+      'extraction_schema',
+      'last_seen_version',
+      'source_value',
+      'source_content_type',
+      'source_label',
+    ])
+    .where('dataset', '=', dataset)
+    .where('key', '=', key)
+    .where('deleted_at', 'is', null)
+    .executeTakeFirst();
 }
 
 export async function updateExtractionEntry({ dataset, key, accepted, extractedData }: { dataset: string, key: string, accepted: boolean, extractedData: string }) {
