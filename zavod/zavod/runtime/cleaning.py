@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from typing import Optional, Generator, Tuple
 from rigour.ids import get_identifier_format
-from rigour.names import is_name
+from rigour.names import is_name, prenormalize_name
 from prefixdate.precision import Precision
 from followthemoney.types import registry
 from followthemoney.property import Property
@@ -23,6 +23,7 @@ VALIDATE_FORMATS = (
     "npi",
     "uei",
     "qid",
+    "uscc",
 )
 log = get_logger(__name__)
 
@@ -64,6 +65,7 @@ def value_clean(
                     format=format,
                 )
         if prop_.type == registry.name and clean is not None:
+            clean = prenormalize_name(clean)
             if entity.schema.is_a("LegalEntity") and not is_name(clean):
                 log.warning(
                     f"Property value {prop_.name!r} is not a valid name: {value}",
