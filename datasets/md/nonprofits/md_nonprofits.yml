@@ -2,19 +2,26 @@ title: Moldovan Registry of Non-Profit Organizations
 entry_point: crawler.py
 prefix: md-nonprofits
 coverage:
-  frequency: daily
-  start: 2025-07-10
+  frequency: weekly
+  start: 2025-07-11
 load_statements: true
 summary: >
   List of non-profit organizations registered in the Republic of Moldova.
 description: |
-  The dataset contains a list of non-profit organizations registered in the Republic of Moldova.
+  This dataset covers non-commercial organizations registered in the Republic of Moldova.
+  It contains tax identification numbers, legal forms, names, and dates of registration 
+  and liquidation, among other details.
 publisher:
-  name: "Government of the Republic of Moldova"
+  name: Agenția Servicii Publice
+  name_en: Public Services Agency
+  acronym: ASP
   descrition: |
-    
+    The Public Services Agency (ASP) is a government institution responsible for 
+    implementing public policies in areas such as information technology, state 
+    registration, and business licensing. It manages core national registers, including 
+    those for legal entities, non-profit organizations, and vehicles.
   country: md
-  url: https://www.mf.gov.md/
+  url: https://www.asp.gov.md/en
   official: true
 url: https://dataset.gov.md/dataset/18516-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-organizatiile-necomerciale
 data:
@@ -24,10 +31,32 @@ data:
 dates:
   formats: ["%d.%m.%Y"]
 
-# assertions:
-#   min:
-#     schema_entities:
-#       LegalEntity: 20
-#   max:
-#     schema_entities:
-#       LegalEntity: 30
+assertions:
+  min:
+    schema_entities:
+      Organization: 16000
+      Person: 15000
+  max:
+    schema_entities:
+      Organization: 25000
+      Person: 25000
+
+lookups:
+  columns:
+    options:
+      - match: IDNO
+        value: tax_number
+      - match: Data înreg.
+        value: incorporation_date
+      - match: Forma juridică
+        value: legal_form
+      - match: Denumirea
+        value: name
+      - match: CUATM
+        value: admin_unit_code
+      - match: Adresa
+        value: address
+      - match: Conducător
+        value: director
+      - match: Data lichidării
+        value: dissolution_date
