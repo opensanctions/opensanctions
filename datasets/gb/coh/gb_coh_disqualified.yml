@@ -109,7 +109,6 @@ lookups:
         value: BA
       - match: Guinea-Bissuan
         value: GW
-
   type.date:
     options:
       - match: "3018-12-12"
@@ -118,3 +117,8 @@ lookups:
         value: "2031-07-16"
       - match: "9999-12-31"
         value: null
+  type.name:
+    options:
+      # as per https://find-and-update.company-information.service.gov.uk/disqualified-officers/natural/nPada61zCehhR2wnbTffM3PbVXA
+      - match: '5191/2015'
+        value: GSE LONDON LIMITED
