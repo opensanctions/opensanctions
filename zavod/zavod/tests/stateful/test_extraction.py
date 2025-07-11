@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from zavod import settings
 from zavod.context import Context
 from zavod.stateful.extraction import get_accepted_data
-from zavod.stateful.model import extraction_table
+from zavod.stateful.model import review_table
 
 SOURCE_LABEL = "test"
 SOURCE_URL = "http://source"
@@ -16,8 +16,8 @@ class DummyModel(BaseModel):
 
 
 def get_row(conn, key):
-    sel = extraction_table.select().where(
-        extraction_table.c.key == key, extraction_table.c.deleted_at.is_(None)
+    sel = review_table.select().where(
+        review_table.c.key == key, review_table.c.deleted_at.is_(None)
     )
     return conn.execute(sel).mappings().first()
 
@@ -56,8 +56,8 @@ def test_same_hash_updates_last_seen_version(testdataset1, monkeypatch):
         model,
     )
     context1.conn.execute(
-        extraction_table.update()
-        .where(extraction_table.c.key == "key2")
+        review_table.update()
+        .where(review_table.c.key == "key2")
         .values(accepted=True, extracted_data={"foo": "baz"})
     )
     row = get_row(context1.conn, "key2")
@@ -98,9 +98,7 @@ def test_different_hash_marks_old_deleted_and_inserts_new(testdataset1, monkeypa
         model,
     )
     context1.conn.execute(
-        extraction_table.update()
-        .where(extraction_table.c.key == "key3")
-        .values(accepted=True)
+        review_table.update().where(review_table.c.key == "key3").values(accepted=True)
     )
     model2 = DummyModel(foo="baz")
     context2 = Context(testdataset1)
@@ -115,9 +113,9 @@ def test_different_hash_marks_old_deleted_and_inserts_new(testdataset1, monkeypa
     )
     old = (
         context2.conn.execute(
-            extraction_table.select().where(
-                extraction_table.c.key == "key3",
-                extraction_table.c.deleted_at.is_(None),
+            review_table.select().where(
+                review_table.c.key == "key3",
+                review_table.c.deleted_at.is_(None),
             )
         )
         .mappings()
