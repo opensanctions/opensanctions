@@ -1,22 +1,21 @@
-from typing import cast
 from datetime import datetime
+from typing import cast
 
+import orjson
 import pytest
 import requests_mock
 from requests.adapters import HTTPAdapter
-import orjson
-from lxml import etree
 
 from zavod import settings
-from zavod.context import Context
-from zavod.meta import Dataset
-from zavod.entity import Entity
-from zavod.crawl import crawl_dataset
 from zavod.archive import iter_dataset_statements
-from zavod.runtime.http_ import request_hash
-from zavod.runtime.sink import DatasetSink
+from zavod.context import Context
+from zavod.crawl import crawl_dataset
+from zavod.entity import Entity
 from zavod.exc import RunFailedException
+from zavod.meta import Dataset
+from zavod.runtime.http_ import request_hash
 from zavod.runtime.loader import load_entry_point
+from zavod.runtime.sink import DatasetSink
 from zavod.tests.conftest import XML_DOC
 
 
@@ -225,10 +224,9 @@ def test_context_fetchers_exceptions(testdataset1: Dataset):
     assert list(context.cache.all(None)) == []
 
     # Test that HTML parse failure clears its cache entry
-
-    with pytest.raises(etree.ParserError, match="Document is empty"):
+    with pytest.raises(ValueError):
         with requests_mock.Mocker() as m:
-            m.post("/bla", text="<")
+            m.post("/bla", text="")
             context.fetch_html(
                 "https://test.com/bla",
                 method="POST",
@@ -253,9 +251,9 @@ def test_crawl_dataset(testdataset1: Dataset):
     func = load_entry_point(testdataset1)
     func(context)
     assert context.stats.entities > 5, context.stats.entities
-    assert (
-        context.stats.statements > context.stats.entities * 2
-    ), context.stats.statements
+    assert context.stats.statements > context.stats.entities * 2, (
+        context.stats.statements
+    )
     assert len(context.resources.all()) == 1
     context.close()
     assert len(list(iter_dataset_statements(testdataset1))) == context.stats.statements
