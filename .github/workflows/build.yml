@@ -38,6 +38,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel pyicu==2.14
           pip install --no-cache-dir -q -e ".[dev]"
+          pip freeze
       - name: Test crawlers with tests
         run: pytest datasets
       - name: Check zavod type annotations (strict)
