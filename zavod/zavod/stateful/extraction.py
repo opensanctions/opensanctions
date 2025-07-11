@@ -115,7 +115,7 @@ class Review(BaseModel, Generic[ModelType]):
 
     @classmethod
     def count_unaccepted(cls, conn: Connection, dataset: str, version_id: str) -> int:
-        select_stmt = select(func.count(extraction_table)).where(
+        select_stmt = select(func.count(extraction_table.c.id)).where(
             extraction_table.c.dataset == dataset,
             extraction_table.c.last_seen_version == version_id,
             not_(extraction_table.c.accepted),

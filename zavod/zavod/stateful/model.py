@@ -49,23 +49,23 @@ extraction_table = Table(
     "extraction",
     meta,
     Column("id", Integer, primary_key=True),
-    Column("key", Unicode(KEY_LEN), nullable=False),
-    Column("dataset", Unicode(KEY_LEN), nullable=False),
+    Column("key", Unicode(KEY_LEN), nullable=False, index=True),
+    Column("dataset", Unicode(KEY_LEN), nullable=False, index=True),
     Column("schema", JSON, nullable=False),
     Column("source_value", Unicode(VALUE_LEN), nullable=True),
     Column("source_content_type", Unicode(VALUE_LEN), nullable=True),
     Column("source_label", Unicode(VALUE_LEN), nullable=True),
     Column("source_url", JSON, nullable=True),
-    Column("accepted", Boolean, nullable=False),
+    Column("accepted", Boolean, nullable=False, index=True),
     # only to be edited by the crawler
     Column("orig_extraction_data", JSON, nullable=False),
     Column("orig_extraction_data_hash", Unicode(KEY_LEN), nullable=False),
     # editable by the reviewer
     Column("extracted_data", JSON, nullable=False),
-    Column("last_seen_version", Unicode(KEY_LEN), nullable=False),
+    Column("last_seen_version", Unicode(KEY_LEN), nullable=False, index=True),
     Column("modified_at", DateTime, nullable=False),
     Column("modified_by", Unicode(KEY_LEN), nullable=False),
-    Column("deleted_at", DateTime, nullable=True, index=True),  # Index for filtering
+    Column("deleted_at", DateTime, nullable=True, index=True),
 )
 
 
