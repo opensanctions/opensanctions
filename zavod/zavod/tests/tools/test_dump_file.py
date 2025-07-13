@@ -24,7 +24,7 @@ def test_dump_file(testdataset1: Dataset, resolver: Resolver[Entity]):
     )
     out_path = dataset_state_path(testdataset1.name) / "dump.csv"
     assert not out_path.exists()
-    testdataset1.resolve = True
+    testdataset1.model.resolve = True
     dump_dataset_to_file(testdataset1, resolver, out_path, format=CSV)
     assert out_path.exists()
     assert out_path.stat().st_size > 0
