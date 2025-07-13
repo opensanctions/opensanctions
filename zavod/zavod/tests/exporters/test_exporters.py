@@ -1,12 +1,10 @@
 from csv import DictReader
 from followthemoney.cli.util import path_entities
-from followthemoney.proxy import EntityProxy
+from followthemoney import EntityProxy, ValueEntity, Statement
+from followthemoney.statement import CSV, read_path_statements
 from json import load, loads
 from nomenklatura import Resolver
 from nomenklatura.judgement import Judgement
-from nomenklatura.stream import StreamEntity
-from nomenklatura.statement import Statement, CSV
-from nomenklatura.statement.serialize import read_path_statements
 from datetime import datetime
 
 from zavod import settings
@@ -156,7 +154,7 @@ def test_ftm(testdataset1: Dataset):
     crawl_dataset(testdataset1)
     harnessed_export(FtMExporter, testdataset1)
 
-    entities = list(path_entities(dataset_path / "entities.ftm.json", StreamEntity))
+    entities = list(path_entities(dataset_path / "entities.ftm.json", ValueEntity))
     for entity in entities:
         # Fail if incorrect format
         assert entity.first_seen is not None

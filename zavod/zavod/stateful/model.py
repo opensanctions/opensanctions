@@ -7,7 +7,7 @@ from sqlalchemy import (
     Boolean,
     JSON,
 )
-from nomenklatura.statement.db import make_statement_table
+from nomenklatura.db import make_statement_table
 from zavod.db import meta, get_engine
 
 KEY_LEN = 255

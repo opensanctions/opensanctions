@@ -28,7 +28,7 @@ def main(file_paths: Tuple[Path]):
         path_name = path.as_posix()
         if dataset is None:
             raise click.BadParameter("Invalid dataset path: %s" % path_name)
-        if dataset.ci_test:
+        if dataset.model.ci_test:
             print(path_name)
 
 

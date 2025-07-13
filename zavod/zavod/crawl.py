@@ -19,7 +19,7 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
     """Load the dataset entry point, configure a context, and then execute the entry
     point; finally disband the context."""
     context = Context(dataset, dry_run=dry_run)
-    if dataset.disabled:
+    if dataset.model.disabled:
         context.log.info("Source is disabled", dataset=dataset.name)
         return context.stats
 

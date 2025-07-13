@@ -2,7 +2,7 @@ import shutil
 import plyvel  # type: ignore
 from typing import List, Optional
 from followthemoney.exc import InvalidData
-from nomenklatura.statement import Statement
+from followthemoney import Statement
 from nomenklatura.resolver import Linker
 from nomenklatura.store.level import LevelDBStore, LevelDBView
 

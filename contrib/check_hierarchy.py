@@ -22,7 +22,7 @@ def main(datasets_path: Path):
     collections: Set[Dataset] = set()
     children: Set[Dataset] = set()
     for dataset in catalog.datasets:
-        if not len(dataset._children) and dataset.entry_point is None:
+        if not len(dataset.model.children) and dataset.model.entry_point is None:
             log.warn(
                 f"Dataset {dataset.name!r} has neither children nor an entry_point for crawling"
             )

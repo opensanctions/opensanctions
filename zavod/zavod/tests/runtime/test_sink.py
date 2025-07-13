@@ -1,5 +1,4 @@
-from nomenklatura.statement import read_statements
-from nomenklatura.statement.serialize import PACK
+from followthemoney.statement import read_statements, PACK
 
 from zavod import settings
 from zavod.meta import Dataset

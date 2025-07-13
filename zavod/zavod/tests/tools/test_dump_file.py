@@ -1,6 +1,6 @@
+from followthemoney.statement import CSV, read_path_statements
 from nomenklatura import Resolver
 from nomenklatura.judgement import Judgement
-from nomenklatura.statement import CSV, read_path_statements
 
 from zavod.entity import Entity
 from zavod.meta import Dataset

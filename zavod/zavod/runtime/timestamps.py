@@ -1,7 +1,7 @@
 import plyvel  # type: ignore
 from typing import Dict, Iterable
-from nomenklatura.statement import Statement
 from rigour.env import ENCODING as E
+from followthemoney import Statement
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset

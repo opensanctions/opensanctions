@@ -1,5 +1,5 @@
 from nomenklatura.resolver import Linker
-from nomenklatura.statement.db import insert_dataset
+from nomenklatura.db import insert_statements
 from nomenklatura.settings import STATEMENT_BATCH
 
 from zavod.db import get_engine
@@ -29,7 +29,7 @@ def load_dataset_to_db(
     """
     engine = get_engine()
     for dataset in scope.leaves:
-        insert_dataset(
+        insert_statements(
             engine,
             statement_table,
             dataset.name,

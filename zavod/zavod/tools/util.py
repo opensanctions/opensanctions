@@ -1,6 +1,6 @@
 from typing import Generator, Set
+from followthemoney import Statement
 from nomenklatura.resolver import Linker
-from nomenklatura.statement import Statement
 
 from zavod.meta import Dataset
 from zavod.entity import Entity

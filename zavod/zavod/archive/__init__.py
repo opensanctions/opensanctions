@@ -4,8 +4,8 @@ from functools import lru_cache
 from typing import TYPE_CHECKING
 from typing import Optional, Generator, TextIO, Set
 from rigour.mime.types import JSON
-from nomenklatura.statement import Statement
-from nomenklatura.statement.serialize import read_pack_statements_decoded
+from followthemoney import Statement
+from followthemoney.statement.serialize import read_pack_statements_decoded
 from nomenklatura.versions import Version, VersionHistory
 
 from zavod import settings

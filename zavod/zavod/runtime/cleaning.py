@@ -4,8 +4,7 @@ from typing import Optional, Generator, Tuple
 from rigour.ids import get_identifier_format
 from rigour.names import is_name
 from prefixdate.precision import Precision
-from followthemoney.types import registry
-from followthemoney.property import Property
+from followthemoney import registry, Property
 
 from zavod.logs import get_logger
 from zavod.runtime.lookups import prop_lookup

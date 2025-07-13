@@ -2,12 +2,8 @@ from typing import Any, Dict, Optional, Union
 from followthemoney import model
 from followthemoney.exc import InvalidData, InvalidModel
 from followthemoney.util import gettext
-from followthemoney.types import registry
-from followthemoney.schema import Schema
-from followthemoney.property import Property
-from nomenklatura.entity import CompositeEntity
-from nomenklatura.statement import Statement
-from nomenklatura.util import string_list
+from followthemoney import registry, Schema, Property, StatementEntity, Statement
+from followthemoney.value import string_list
 
 from zavod import settings
 from zavod.meta import Dataset
@@ -17,7 +13,7 @@ from zavod.runtime.cleaning import value_clean
 log = get_logger(__name__)
 
 
-class Entity(CompositeEntity):
+class Entity(StatementEntity):
     """Entity for sanctions list entries and adjacent objects.
 
     Add utility methods to the [EntityProxy](https://followthemoney.tech/reference/python/followthemoney/proxy.html#EntityProxy) for
@@ -44,6 +40,7 @@ class Entity(CompositeEntity):
         seen: Optional[str] = None,
         lang: Optional[str] = None,
         original_value: Optional[str] = None,
+        origin: Optional[str] = None,
     ) -> None:
         """Add a statement to the entity, possibly the value."""
         if value is None or len(value) == 0:
@@ -75,6 +72,7 @@ class Entity(CompositeEntity):
                 value=clean,
                 dataset=dataset or self.dataset.name,
                 lang=lang,
+                origin=origin,
                 original_value=original_value,
                 first_seen=seen,
             )

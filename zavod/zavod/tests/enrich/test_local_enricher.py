@@ -1,10 +1,10 @@
 import shutil
 from copy import deepcopy
 
-from nomenklatura.entity import CompositeEntity
 from nomenklatura.judgement import Judgement
 
 from zavod import settings
+from zavod.entity import Entity
 from zavod.archive import clear_data_path
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
@@ -118,7 +118,7 @@ def test_enrich_id_match(vcontext: Context):
     """We match an entity with same ID"""
     crawl_dataset(vcontext.dataset)
     enricher = load_enricher(vcontext, DATASET_DATA, "testdataset1")
-    entity = CompositeEntity.from_data(vcontext.dataset, JON_DOVER)
+    entity = Entity.from_data(vcontext.dataset, JON_DOVER)
     candidates = {id_.id: cands for id_, cands in enricher.candidates([entity])}
 
     # Not a match with a different ID
@@ -139,7 +139,7 @@ def test_expand_securities(vcontext: Context, testdataset_securities: Dataset):
     """test that we don't expand to sibling securities via the issuer"""
     crawl_dataset(testdataset_securities)
     enricher = load_enricher(vcontext, DATASET_DATA, testdataset_securities.name)
-    entity = CompositeEntity.from_data(vcontext.dataset, AAA_USD_ISK)
+    entity = Entity.from_data(vcontext.dataset, AAA_USD_ISK)
     candidates = {id_.id: cands for id_, cands in enricher.candidates([entity])}
 
     # Match
@@ -163,7 +163,7 @@ def test_expand_issuers(vcontext: Context, testdataset_securities: Dataset):
     """test that we expand to the securities of an issuer"""
     crawl_dataset(testdataset_securities)
     enricher = load_enricher(vcontext, DATASET_DATA, "testdataset_securities")
-    entity = CompositeEntity.from_data(vcontext.dataset, AAA_BANK)
+    entity = Entity.from_data(vcontext.dataset, AAA_BANK)
     candidates = {id_.id: cands for id_, cands in enricher.candidates([entity])}
 
     # Match
@@ -191,7 +191,7 @@ def test_cutoff(vcontext: Context):
     dataset_data = deepcopy(DATASET_DATA)
     dataset_data["config"]["cutoff"] = 0.99
     enricher = load_enricher(vcontext, dataset_data, "testdataset1")
-    entity = CompositeEntity.from_data(vcontext.dataset, UMBRELLA_CORP)
+    entity = Entity.from_data(vcontext.dataset, UMBRELLA_CORP)
     candidates = {id_.id: cands for id_, cands in enricher.candidates([entity])}
     results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 0, results
@@ -205,7 +205,7 @@ def test_limit(vcontext: Context):
     dataset_data = deepcopy(DATASET_DATA)
     dataset_data["config"]["limit"] = 0
     enricher = load_enricher(vcontext, dataset_data, "testdataset1")
-    entity = CompositeEntity.from_data(vcontext.dataset, UMBRELLA_CORP)
+    entity = Entity.from_data(vcontext.dataset, UMBRELLA_CORP)
     candidates = {id_.id: cands for id_, cands in enricher.candidates([entity])}
     results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 0, results

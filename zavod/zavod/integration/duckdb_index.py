@@ -36,10 +36,8 @@ from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
 
 import duckdb
-from followthemoney import model
+from followthemoney import model, DS, SE
 from followthemoney.types import registry
-from nomenklatura.dataset import DS
-from nomenklatura.entity import CE
 from nomenklatura.index.common import BaseIndex
 from nomenklatura.resolver import Identifier
 from nomenklatura.store import View
@@ -72,7 +70,7 @@ DEFAULT_FIELD_STOPWORDS_PCT = {
 }
 
 
-class DuckDBIndex(BaseIndex[DS, CE]):
+class DuckDBIndex(BaseIndex[DS, SE]):
     """
     An index using DuckDB for token matching and scoring, keeping data in memory
     until it needs to spill to disk as it approaches the configured memory limit.
@@ -95,7 +93,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
     __slots__ = "view", "fields", "tokenizer", "entities"
 
     def __init__(
-        self, view: View[DS, CE], data_dir: Path, options: Dict[str, Any] = {}
+        self, view: View[DS, SE], data_dir: Path, options: Dict[str, Any] = {}
     ):
         self.view = view
         memory_budget = options.get("memory_budget", settings.XREF_MEMORY)
@@ -137,7 +135,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
         self.con.close()
         self._init_db()
 
-    def load_entities(self, table: str, entities: Iterable[CE]) -> None:
+    def load_entities(self, table: str, entities: Iterable[SE]) -> None:
         path = self.data_dir / f"{table}.csv"
         log.info("Dumping tokenized entities to CSV: %r", table)
         with open(path, "w") as fh:
@@ -291,7 +289,7 @@ class DuckDBIndex(BaseIndex[DS, CE]):
                 yield (Identifier.get(left), Identifier.get(right)), score
 
     def match_entities(
-        self, entities: Iterable[CE]
+        self, entities: Iterable[SE]
     ) -> Generator[
         Tuple[Identifier, BlockingMatches],
         None,

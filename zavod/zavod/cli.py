@@ -6,9 +6,9 @@ from typing import Optional, List
 import click
 
 from followthemoney.cli.util import InPath, OutPath
+from followthemoney.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
 from nomenklatura.settings import STATEMENT_BATCH
-from nomenklatura.statement import CSV, FORMATS
 from nomenklatura.tui import dedupe_ui
 from zavod import settings
 from zavod.archive import clear_data_path, dataset_state_path
@@ -83,7 +83,7 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 @click.option("-c", "--clear", is_flag=True, default=False)
 def validate(dataset_path: Path, clear: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
-    if dataset.disabled:
+    if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
         sys.exit(0)
     linker = get_dataset_linker(dataset)
@@ -102,7 +102,7 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
 @click.option("-c", "--clear", is_flag=True, default=False)
 def export(dataset_path: Path, clear: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
-    if dataset.disabled:
+    if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
         sys.exit(0)
     linker = get_dataset_linker(dataset)
@@ -140,12 +140,12 @@ def run(
     dataset = _load_dataset(dataset_path)
     if clear:
         clear_data_path(dataset.name)
-    if dataset.disabled:
+    if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
         publish_failure(dataset, latest=latest)
         sys.exit(0)
     # Crawl
-    if dataset.entry_point is not None and not dataset.is_collection:
+    if dataset.model.entry_point is not None and not dataset.is_collection:
         try:
             crawl_dataset(dataset, dry_run=False)
         except RunFailedException:
