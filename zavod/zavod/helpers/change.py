@@ -1,3 +1,4 @@
+from pathlib import Path
 from lxml import etree
 from hashlib import sha1
 from typing import Any, Optional
@@ -35,6 +36,31 @@ def assert_url_hash(
                 expected=hash,
                 actual=actual,
                 url=url,
+            )
+        return False
+    return True
+
+
+def assert_file_hash(
+    path: Path,
+    hash: str,
+    raise_exc: bool = False,
+) -> bool:
+    """Assert that a file has a given SHA1 hash."""
+    digest = sha1()
+    with open(path, "rb") as fh:
+        digest.update(fh.read())
+    actual = digest.hexdigest()
+    if actual != hash:
+        if raise_exc:
+            msg = f"Expected hash {hash}, got {actual} for {path.name}"
+            raise AssertionError(msg)
+        else:
+            log.warning(
+                "File hash changed: %s" % path.name,
+                expected=hash,
+                actual=actual,
+                name=path.name,
             )
         return False
     return True

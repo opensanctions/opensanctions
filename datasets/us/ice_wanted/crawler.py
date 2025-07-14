@@ -144,7 +144,7 @@ def crawl_person(context: Context, url: str, wanted_for: str):
 
 
 def crawl(context: Context):
-    wanted_xpath = './/div[contains(text(), "Wanted for:")]'
+    wanted_xpath = './/span[contains(text(), "Wanted for:")]'
     doc = fetch_html(
         context,
         context.data_url,

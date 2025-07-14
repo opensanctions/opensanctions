@@ -92,6 +92,22 @@ def build_address(
     return h.make_address(context, **cleaned_address_components)
 
 
+def resolve_company_name_by_number(
+    context: Context, company_number: str
+) -> Optional[str]:
+    """If the company_number is found on Companies House, return its name, else None."""
+    search_url = f"https://find-and-update.company-information.service.gov.uk/search?q={company_number}"
+    doc = context.fetch_html(search_url, cache_days=7)
+    if len(doc.xpath(".//div[@id='no-results']")) > 0:
+        return None
+    results = doc.xpath(".//ul[@class='results-list']//a")
+    assert len(results) > 0
+    for link in results:
+        if f"/company/{company_number}" in link.get("href"):
+            return link.text_content().strip()
+    return None
+
+
 def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     links = listing.get("links", {})
     url = urljoin(API_URL, links.get("self"))
@@ -170,6 +186,16 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
         )
 
         for company_name in disqual.get("company_names", []):
+            # If company_name is numeric, search for the company by number
+            if company_name.isdigit():
+                resolved_name = resolve_company_name_by_number(context, company_name)
+                if resolved_name:
+                    company_name = resolved_name
+                else:
+                    context.log.info(
+                        f"Skipping numeric company with no match: {company_name}"
+                    )
+                    continue
             company = context.make("Company")
             company.id = context.make_slug("named", company_name)
             company.add("name", company_name)

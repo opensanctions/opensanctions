@@ -1080,3 +1080,15 @@ lookups:
       - match: "La société Groupe CGFI"
         entities:
           - Groupe CGFI
+      - match: "La société MND (anciennement Montagne & Neige Developpement SA)<br /> La société EURL COUGAR INVEST<br /> M. Xavier Gallot-Lavallée<br /> M. Jean-François Bertrand<br /> M. Harry-Davidson Ayache<br /> M. Huseyin Cetinkaya<br /> M. Philippe Gaillard<br /> M. Mikaël Nacivet<br /> M. Jacques Simoncini<br /> M. Laurent-Olivier Orset"
+        entities:
+          - MND
+          - EURL COUGAR INVEST
+          - Xavier Gallot-Lavallée
+          - Jean-François Bertrand
+          - Harry-Davidson Ayache
+          - Huseyin Cetinkaya
+          - Philippe Gaillard
+          - Mikaël Nacivet
+          - Jacques Simoncini
+          - Laurent-Olivier Orset

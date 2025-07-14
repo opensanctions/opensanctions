@@ -20,12 +20,9 @@ def parse_header(header: str) -> str:
 def crawl_row(context: Context, row: Dict[str, str]):
     requester = row.pop("REQUESTER").strip()
     # Skip the footer
-    if (
-        "This list is provided to assist U.S. persons to fulfill the reporting requirements"
-        in requester
-    ):
+    if "this list is provided to assist" in requester.lower():
         return
-    requesting_country = row.pop("LOCATION").strip()
+    requesting_country = row.pop("REQUESTING COUNTRY").strip()
     date_listed = row.pop("DATE LISTED").strip()
     if not requester and not requesting_country and not date_listed:
         return
@@ -45,13 +42,16 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.emit(sanction)
 
 
-def crawl_csv(context: Context, path: str):
-    with open(path, encoding="utf-8-sig") as fh:
-        # Skip the first three lines
-        for _ in range(3):
-            next(fh)
-        for row in DictReader(fh):
-            crawl_row(context, row)
+def crawl_csv(context: Context, path: str, encoding: str):
+    with open(path, encoding=encoding) as fh:
+
+        # Read the file all at once to trigger any encoding errors
+        # before we start emitting entities.
+        lines = fh.readlines()
+
+    # Skip the first three lines
+    for row in DictReader(lines[3:]):
+        crawl_row(context, row)
 
 
 def crawl_xls(context: Context, path: str):
@@ -97,4 +97,9 @@ def crawl(context: Context):
     if mime_type == XLS:
         crawl_xls(context, path)
     elif mime_type == CSV:
-        crawl_csv(context, path)
+        try:
+            crawl_csv(context, path, "utf-8-sig")
+        except UnicodeDecodeError as e:
+            context.log.info(f"Failed to decode CSV file as utf-8-sig: {e}")
+            # https://en.wikipedia.org/wiki/%C3%9C as 9A
+            crawl_csv(context, path, "CP437")

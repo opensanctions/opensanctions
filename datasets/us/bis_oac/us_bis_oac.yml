@@ -8,9 +8,9 @@ coverage:
 summary: >
   Entities reported for making boycott-related requests in U.S. transactions
 description: |
-  The antiboycott provisions of the Export Administration Regulations (EAR) encourage, 
-  and in specified cases, require U.S. persons to refuse to participate in unsanctioned 
-  foreign boycotts. They have  the effect of preventing U.S. persons from advancing foreign 
+  The antiboycott provisions of the Export Administration Regulations (EAR) encourage,
+  and in specified cases, require U.S. persons to refuse to participate in unsanctioned
+  foreign boycotts. They have  the effect of preventing U.S. persons from advancing foreign
   policies of other  nations that run counter to U.S. policy.
 
   These entities have been
@@ -21,9 +21,9 @@ publisher:
   acronym: BIS
   official: true
   description: |
-    BIS, part of the U.S. Department of Commerce, manages the intersection of business and 
-    U.S. foreign policy and security interests. The Office of Antiboycott Compliance (OAC) 
-    within BIS enforces the Anti-Boycott Act of 2018, which discourages and sometimes 
+    BIS, part of the U.S. Department of Commerce, manages the intersection of business and
+    U.S. foreign policy and security interests. The Office of Antiboycott Compliance (OAC)
+    within BIS enforces the Anti-Boycott Act of 2018, which discourages and sometimes
     prohibits U.S. companies from supporting unsanctioned foreign boycotts.
   country: us
   url: https://www.bis.gov
@@ -36,7 +36,7 @@ data:
   format: html
 
 dates:
-  formats: ["%b-%y"]
+  formats: ["%b-%y", "%B %Y"]
 
 lookups:
   type.country:

@@ -204,6 +204,9 @@ lookups:
       # Venezuela
       - match: VEN # implementing Regulation (EU) 2017/2063 concerning restrictive measures in view of the situation in Venezuela
         value: EU-VEN
+      # According to DG FISMA, this is an initial value used until an EU act is adopted corrsponding to the UN program
+      - match: UNLI
+        value: EU-UNLI
       # Yemen
       - match: YEM
         value: EU-YEM
