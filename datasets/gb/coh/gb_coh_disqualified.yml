@@ -119,10 +119,41 @@ lookups:
         value: null
   type.name:
     options:
-      # Case reference 5191/2015 comes up under "Disqualified for conduct while acting for" for Osman MALIK, 
+      # Case reference 5191/2015 comes up under "Disqualified for conduct while acting for" for Osman MALIK,
       # and "Gse London limited" comes up under "Court". https://find-and-update.company-information.service.gov.uk/disqualified-officers/natural/RAeM4waKfNhmhG18i5FA7hRE-fc
-      # In the same case, https://find-and-update.company-information.service.gov.uk/disqualified-officers/natural/nPada61zCehhR2wnbTffM3PbVXA 
+      # In the same case, https://find-and-update.company-information.service.gov.uk/disqualified-officers/natural/nPada61zCehhR2wnbTffM3PbVXA
       # Ayaan MALIK is disqualified for conduct while acting for GSE LONDON LIMITED
       # So let's assume for Osman they also meant "GSE London Limited"
       - match: '5191/2015'
         value: GSE LONDON LIMITED
+      - match: "09818186"
+        # previous name according to https://find-and-update.company-information.service.gov.uk/company/09818186
+        value: "FARROW & BALL ORANGERIES LTD"
+      - match: "4146318"
+        # https://find-and-update.company-information.service.gov.uk/company/04146318
+        value: RAVJANI CORPORATION LIMITED
+      - match: "4208566"
+        value: FUTURE COMMUNICATIONS (UK) LTD
+      - match: "5359108"
+        value: ONE BANK LTD
+      - match: "5359252"
+        value: ELITE GATEWAY LTD
+      - match: "5535155"
+        value: ONE CARD UK LTD
+      - match: "5569541"
+        value: INNOVATIVE GLOBAL BUSINESS GROUP LTD
+      - match: "5692507"
+        value: QUICK BRIDGE LTD
+      - match: "5769343"
+        value: BRANDSHIFT INTERNATIONAL LTD
+
+  # It looks like a bunch of company numbers listed among names under
+  # "Disqualified for conduct while acting for:" don't have pages on
+  # Companies House anymore.
+  nonexistent_numbers:
+    options:
+      - match:
+          - "2158318"
+          - "4019084"
+          - "4957900"
+          - "4996518"
