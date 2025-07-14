@@ -1,20 +1,17 @@
 from pathlib import Path
 from functools import cached_property
-from typing import TYPE_CHECKING, Dict, Any, Optional, List, Set
+from typing import TYPE_CHECKING, Dict, Any, Optional, List
 
-from pydantic import field_validator
-from rigour.time import datetime_iso
 from banal import ensure_list, ensure_dict
 from datapatch import get_lookups, Lookup
-from normality import slugify
+
 from followthemoney.dataset import Dataset as FollowTheMoneyDataset
-from followthemoney.dataset.dataset import DatasetModel as FollowTheMoneyDatasetModel
 from followthemoney.dataset.coverage import DataCoverage
 
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta.assertion import Assertion, parse_assertions, Comparison, Metric
-from zavod.meta.data import Data
+from zavod.meta.model import DataModel, OpenSanctionsDatasetModel
 from zavod.meta.dates import DatesSpec
 from zavod.meta.http import HTTP
 
@@ -22,38 +19,6 @@ if TYPE_CHECKING:
     from zavod.meta.catalog import ArchiveBackedCatalog
 
 log = get_logger(__name__)
-
-
-class OpenSanctionsDatasetModel(FollowTheMoneyDatasetModel):
-    entry_point: Optional[str] = None
-    """Code location for the crawler script"""
-
-    prefix: str
-
-    disabled: bool = False
-    """Do not update the crawler at the moment."""
-
-    hidden: bool = False
-    """Do not show this dataset in the website and other UIs."""
-
-    resolve: bool = True
-    """Resolve entities in this dataset to canonical IDs."""
-
-    exports: Set[str] = set()
-
-    ci_test: bool = True
-    """Whether this dataset should be automatically run in CI environments."""
-
-    @field_validator("prefix", mode="after")
-    @classmethod
-    def check_prefix(cls, prefix: str) -> str:
-        if prefix != slugify(prefix, sep="-"):
-            msg = f"Dataset prefix is invalid: {prefix!r}. Must be a slugified string"
-            raise ValueError(msg)
-        prefix = prefix.strip("-")
-        if len(prefix) == 0:
-            raise ValueError("Dataset prefix cannot be empty")
-        return prefix
 
 
 class Dataset(FollowTheMoneyDataset):
@@ -68,17 +33,7 @@ class Dataset(FollowTheMoneyDataset):
                 dataset=self.name,
                 summary=self.model.summary,
             )
-
-        if self.updated_at is None:
-            self.updated_at = datetime_iso(settings.RUN_TIME)
-
         self.prefix = self.model.prefix
-
-        self.full_dataset: Optional[str] = data.get("full_dataset", None)
-        """The bulk full dataset for datasets that result from enrichment."""
-
-        self.load_statements: bool = data.get("load_statements", False)
-        """Used to load the dataset into a database when doing a complete run."""
 
         # This will make disabled crawlers visible in the metadata:
         if self.model.disabled:
@@ -137,12 +92,9 @@ class Dataset(FollowTheMoneyDataset):
         config = self._data.get("lookups", {})
         return get_lookups(config, debug=settings.DEBUG)
 
-    @cached_property
-    def data(self) -> Optional[Data]:
-        data_config = self._data.get("data", {})
-        if not isinstance(data_config, dict) or not len(data_config):
-            return None
-        return Data(data_config)
+    @property
+    def data(self) -> Optional[DataModel]:
+        return self.model.data
 
     def to_dict(self) -> Dict[str, Any]:
         """Generate a metadata export, not including operational details."""
@@ -151,10 +103,8 @@ class Dataset(FollowTheMoneyDataset):
         data["disabled"] = self.model.disabled
         if not self.model.resolve:
             data["resolve"] = False
-        if self.data:
-            data["data"] = self.data.to_dict()
-        if self.full_dataset is not None:
-            data["full_dataset"] = self.full_dataset
+        if self.model.full_dataset is not None:
+            data["full_dataset"] = self.model.full_dataset
         return data
 
     def to_opensanctions_dict(self, catalog: "ArchiveBackedCatalog") -> Dict[str, Any]:
