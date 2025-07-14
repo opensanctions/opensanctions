@@ -1,9 +1,16 @@
 from datetime import datetime
+import re
 
 from zavod import Context, helpers as h
 
 START_YEAR = 2019
 START_MONTH = 1
+REGEX_AMPERSAND = re.compile(r"&? ?amp;", re.IGNORECASE)
+
+
+def clean_name(name: str) -> str:
+    name = REGEX_AMPERSAND.sub("&", name)
+    return name
 
 
 def is_future_month(year: int, month: int, now: datetime) -> bool:
@@ -45,7 +52,7 @@ def crawl_row(context: Context, clean_row: dict, row: dict):
         emit_linked_org(
             context,
             vessel.id,
-            company_name,
+            clean_name(company_name),
             "Company",
             start_date,
             "Company",
@@ -56,7 +63,7 @@ def crawl_row(context: Context, clean_row: dict, row: dict):
         emit_linked_org(
             context,
             vessel.id,
-            related_ros,
+            clean_name(related_ros),
             "Related Recognised Organization",
             start_date,
             "Organization",
@@ -66,7 +73,7 @@ def crawl_row(context: Context, clean_row: dict, row: dict):
         emit_linked_org(
             context,
             vessel.id,
-            class_soc,
+            clean_name(class_soc),
             "Classification society",
             start_date,
             "Organization",
