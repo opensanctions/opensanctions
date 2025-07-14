@@ -1,16 +1,17 @@
 from datetime import datetime
 import os
 from typing import Optional, Set
-from pydantic import BaseModel, Field, HttpUrl, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from normality import slugify
 from followthemoney import registry
 from followthemoney.dataset.dataset import DatasetModel as FollowTheMoneyDatasetModel
+from followthemoney.dataset.util import Url
 from zavod import settings
 
 
 class DataModel(BaseModel):
-    url: HttpUrl
+    url: Url
     mode: Optional[str] = None
     format: Optional[str] = None
     api_key: Optional[str] = Field(None, exclude=True)
@@ -62,6 +63,12 @@ class OpenSanctionsDatasetModel(FollowTheMoneyDatasetModel):
 
     data: Optional[DataModel] = None
     """Data source specification."""
+
+    summary: Optional[str] = Field(
+        default=None,
+        description="A short summary of the dataset, used in the website and other UIs.",
+        min_length=50,
+    )
 
     @field_validator("prefix", mode="after")
     @classmethod

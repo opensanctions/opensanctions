@@ -181,9 +181,9 @@ def occupancy_status(
                 # end_date is within after-office threshold
                 return OccupancyStatus.ENDED
         elif (
-            context.dataset.coverage
-            and context.dataset.coverage.end
-            and context.dataset.coverage.end < current_iso
+            context.dataset.model.coverage
+            and context.dataset.model.coverage.end
+            and context.dataset.model.coverage.end < current_iso
         ):  # end_date is in the future and dataset is beyond its coverage.
             # Don't trust future end dates beyond the known coverage date of the dataset
             context.log.warning(

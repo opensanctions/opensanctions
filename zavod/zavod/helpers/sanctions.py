@@ -50,7 +50,7 @@ def make_sanction(
     """
     assert entity.schema.is_a("Thing"), entity.schema
     assert entity.id is not None, entity.id
-    dataset = context.dataset
+    dataset = context.dataset.model
     assert dataset.publisher is not None
     sanction = context.make("Sanction")
     sanction.id = context.make_id("Sanction", entity.id, key)

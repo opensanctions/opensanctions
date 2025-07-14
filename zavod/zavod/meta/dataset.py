@@ -11,7 +11,6 @@ from followthemoney.dataset import Dataset as FollowTheMoneyDataset
 from followthemoney.dataset.coverage import DataCoverage
 from followthemoney.dataset.resource import DataResource
 
-from pydantic import HttpUrl
 from zavod import settings
 from zavod.archive import dataset_data_path
 from zavod.logs import get_logger
@@ -30,14 +29,8 @@ class Dataset(FollowTheMoneyDataset):
     Model = OpenSanctionsDatasetModel
 
     def __init__(self, data: Dict[str, Any]):
-        super().__init__(data)
-        self.model = self.Model.model_validate(data)
-        if len(self.model.summary or "") < 50:
-            log.warning(
-                "Dataset summary must be at least 50 chars.",
-                dataset=self.name,
-                summary=self.model.summary,
-            )
+        self.model: OpenSanctionsDatasetModel = self.Model.model_validate(data)
+        self.name = self.model.name
         self.prefix = self.model.prefix
 
         # This will make disabled crawlers visible in the metadata:
@@ -133,7 +126,7 @@ class Dataset(FollowTheMoneyDataset):
             checksum=checksum,
             mime_type=mime_type,
             size=size,
-            url=HttpUrl(make_published_url(self.name, name)),
+            url=make_published_url(self.name, name),
         )
 
     def to_dict(self) -> Dict[str, Any]:
