@@ -19,7 +19,7 @@ class DatasetResources(object):
         with open(self.path, "w") as fh:
             objs: List[Dict[str, Any]] = []
             for resource in resources:
-                data = resource.model_dump(exclude_none=True)
+                data = resource.model_dump(mode="json", exclude_none=True)
                 data["path"] = resource.name
                 objs.append(data)
             json.dump({"resources": objs}, fh, indent=2)

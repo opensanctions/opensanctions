@@ -1,9 +1,10 @@
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Self, Union
 from followthemoney import model
 from followthemoney.exc import InvalidData, InvalidModel
 from followthemoney.util import gettext
 from followthemoney import registry, Schema, Property, StatementEntity, Statement
 from followthemoney.value import string_list
+from nomenklatura.store import View
 
 from zavod import settings
 from zavod.meta import Dataset
@@ -131,6 +132,32 @@ class Entity(StatementEntity):
     def target(self) -> bool:
         topics = self.get("topics", quiet=True)
         return len(settings.TARGET_TOPICS.intersection(topics)) > 0
+
+    def _to_nested_dict(
+        self: Self, view: "View[Dataset, Entity]", depth: int, path: List[str]
+    ) -> Dict[str, Any]:
+        next_depth = depth if self.schema.edge else depth - 1
+        next_path = list(path)
+        if self.id is not None:
+            next_path.append(self.id)
+        data = self.to_dict()
+        if next_depth < 0:
+            return data
+        nested: Dict[str, List[Any]] = {}
+        for prop, adjacent in view.get_adjacent(self):
+            if adjacent.id in next_path:
+                continue
+            value = adjacent._to_nested_dict(view, next_depth, next_path)
+            if prop.name not in nested:
+                nested[prop.name] = []
+            nested[prop.name].append(value)
+        data["properties"].update(nested)
+        return data
+
+    def to_nested_dict(
+        self: Self, view: "View[Dataset, Entity]", depth: int = 1
+    ) -> Dict[str, Any]:
+        return self._to_nested_dict(view, depth=depth, path=[])
 
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()

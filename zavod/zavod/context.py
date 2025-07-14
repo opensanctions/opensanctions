@@ -68,9 +68,12 @@ class Context:
         self._data_time: datetime = settings.RUN_TIME
         # If the dataset has a fixed end time which is in the past,
         # use that as the data time:
-        if dataset.coverage is not None and dataset.coverage.end is not None:
-            if dataset.coverage.end < settings.RUN_TIME_ISO:
-                prefix = DatePrefix(dataset.coverage.end)
+        if (
+            dataset.model.coverage is not None
+            and dataset.model.coverage.end is not None
+        ):
+            if dataset.model.coverage.end < settings.RUN_TIME_ISO:
+                prefix = DatePrefix(dataset.model.coverage.end)
                 self._data_time = prefix.dt or self._data_time
 
         self.lang: Optional[str] = None
@@ -475,6 +478,7 @@ class Context:
         if hashed is None:
             return None
         prefix = self.dataset.prefix if prefix is None else prefix
+        assert prefix is not None, "Prefix must be set for entity ID"
         return prefixed_hash_id(prefix, hashed)
 
     def lookup_value(

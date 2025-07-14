@@ -49,7 +49,7 @@ __all__ = ["export_dataset", "write_dataset_index", "write_issues"]
 
 
 def export_data(context: Context, view: View) -> None:
-    exporter_names = set(context.dataset.exports)
+    exporter_names = set(context.dataset.model.exports)
     if not len(exporter_names):
         exporter_names.update(DEFAULT_EXPORTERS)
     exporter_names.add(StatisticsExporter.FILE_NAME)
