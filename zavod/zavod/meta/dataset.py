@@ -1,3 +1,5 @@
+from hashlib import sha1
+import mimetypes
 from pathlib import Path
 from functools import cached_property
 from typing import TYPE_CHECKING, Dict, Any, Optional, List
@@ -7,8 +9,11 @@ from datapatch import get_lookups, Lookup
 
 from followthemoney.dataset import Dataset as FollowTheMoneyDataset
 from followthemoney.dataset.coverage import DataCoverage
+from followthemoney.dataset.resource import DataResource
 
+from pydantic import HttpUrl
 from zavod import settings
+from zavod.archive import dataset_data_path
 from zavod.logs import get_logger
 from zavod.meta.assertion import Assertion, parse_assertions, Comparison, Metric
 from zavod.meta.model import DataModel, OpenSanctionsDatasetModel
@@ -96,6 +101,41 @@ class Dataset(FollowTheMoneyDataset):
     def data(self) -> Optional[DataModel]:
         return self.model.data
 
+    def resource_from_path(
+        self,
+        path: Path,
+        mime_type: Optional[str] = None,
+        title: Optional[str] = None,
+    ) -> "DataResource":
+        """Create a resource description object from a local file path."""
+        from zavod.runtime.urls import make_published_url
+
+        if not path.exists():
+            raise ValueError("File does not exist: %s" % path)
+        if mime_type is None:
+            mime_type, _ = mimetypes.guess_type(path.as_posix(), strict=False)
+        dataset_path_ = dataset_data_path(self.name)
+        name = path.relative_to(dataset_path_).as_posix()
+
+        digest = sha1()
+        size = 0
+        with open(path, "rb") as fh:
+            while True:
+                chunk = fh.read(65536)
+                if not chunk:
+                    break
+                size += len(chunk)
+                digest.update(chunk)
+        checksum = digest.hexdigest()
+        return DataResource(
+            name=name,
+            title=title,
+            checksum=checksum,
+            mime_type=mime_type,
+            size=size,
+            url=HttpUrl(make_published_url(self.name, name)),
+        )
+
     def to_dict(self) -> Dict[str, Any]:
         """Generate a metadata export, not including operational details."""
         data = super().to_dict()
@@ -105,6 +145,8 @@ class Dataset(FollowTheMoneyDataset):
             data["resolve"] = False
         if self.model.full_dataset is not None:
             data["full_dataset"] = self.model.full_dataset
+        for resource in data.get("resources", []):
+            resource["path"] = resource["name"]
         return data
 
     def to_opensanctions_dict(self, catalog: "ArchiveBackedCatalog") -> Dict[str, Any]:

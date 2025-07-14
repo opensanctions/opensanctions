@@ -13,8 +13,8 @@ class DataModel(BaseModel):
     url: HttpUrl
     mode: Optional[str] = None
     format: Optional[str] = None
-    api_key: Optional[str] = Field(exclude=True)
-    lang: Optional[str] = Field(exclude=True)
+    api_key: Optional[str] = Field(None, exclude=True)
+    lang: Optional[str] = Field(None, exclude=True)
 
     @field_validator("api_key", mode="before")
     @classmethod
@@ -35,7 +35,8 @@ class OpenSanctionsDatasetModel(FollowTheMoneyDatasetModel):
     entry_point: Optional[str] = None
     """Code location for the crawler script"""
 
-    prefix: str
+    prefix: Optional[str] = None
+    """A prefix for the dataset, used to generate entity IDs."""
 
     disabled: bool = False
     """Do not update the crawler at the moment."""
@@ -64,7 +65,9 @@ class OpenSanctionsDatasetModel(FollowTheMoneyDatasetModel):
 
     @field_validator("prefix", mode="after")
     @classmethod
-    def check_prefix(cls, prefix: str) -> str:
+    def check_prefix(cls, prefix: Optional[str]) -> Optional[str]:
+        if prefix is None:
+            return None
         if prefix != slugify(prefix, sep="-"):
             msg = f"Dataset prefix is invalid: {prefix!r}. Must be a slugified string"
             raise ValueError(msg)

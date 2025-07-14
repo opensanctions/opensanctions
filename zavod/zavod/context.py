@@ -12,6 +12,7 @@ from lxml import html, etree
 from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
+from followthemoney.dataset import DataResource
 from nomenklatura.versions import Version
 from nomenklatura.cache import Cache
 from rigour.urls import build_url, ParamsType
@@ -21,7 +22,7 @@ from followthemoney.util import PathLike
 
 from zavod import settings
 from zavod.audit import inspect
-from zavod.meta import Dataset, DataResource
+from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.db import get_engine, meta
 from zavod.archive import dataset_resource_path, dataset_data_path
@@ -190,8 +191,8 @@ class Context:
         Returns:
             The generated resource object which has been saved.
         """
-        resource = DataResource.from_path(
-            self.dataset, path, mime_type=mime_type, title=title
+        resource = self.dataset.resource_from_path(
+            path, mime_type=mime_type, title=title
         )
         if not self.dry_run:
             self.resources.save(resource)
