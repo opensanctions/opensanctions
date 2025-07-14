@@ -68,3 +68,7 @@ lookups:
     options:
       - match: 0001-01-01
         value: null
+      - match: 3024-11-02T00:00:00
+        value: 2024-11-02
+      - match: 3024-03-09T00:00:00
+        value: 2024-03-09
