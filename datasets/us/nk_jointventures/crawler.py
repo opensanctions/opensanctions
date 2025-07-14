@@ -1,9 +1,9 @@
 from typing import Dict
-from rigour.mime.types import CSV
+from rigour.mime.types import CSV, PDF
 import csv
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 
 def crawl_item(context: Context, row: Dict[str, str]):
@@ -35,10 +35,11 @@ def crawl(context: Context) -> None:
     # Expect
     # North Korea Sanctions & Enforcement Actions Advisory | 827.97 KB | 08/03/2018
     # Assert hash of linked PDF (hopefully less fickle than HTML)
-    h.assert_url_hash(context, link[0], "cd9894479b1330bf0db3885ded3254e580af7acd")
+    _, _, _, pdf_path = fetch_resource(context, "source.pdf", link[0], PDF)
+    h.assert_file_hash(pdf_path, "cd9894479b1330bf0db3885ded3254e580af7acd")
 
-    path = context.fetch_resource("source.csv", context.data_url)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    csv_path = context.fetch_resource("source.csv", context.data_url)
+    context.export_resource(csv_path, CSV, title=context.SOURCE_TITLE)
+    with open(csv_path, "r") as fh:
         for row in csv.DictReader(fh):
             crawl_item(context, row)
