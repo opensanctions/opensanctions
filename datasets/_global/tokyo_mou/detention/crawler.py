@@ -89,7 +89,7 @@ def crawl_row(context: Context, clean_row: dict, row: dict):
         vessel,
         start_date=start_date,
         end_date=end_date,
-        key=[start_date, end_date, reason],
+        key=[start_date, end_date, sorted(reason)],
     )
     sanction.add("reason", reason)
 
