@@ -1,6 +1,6 @@
+from hashlib import sha1
 import shutil
 import plyvel  # type: ignore
-from banal import hash_data
 from typing import Optional, Generator, Tuple
 from nomenklatura.versions import Version
 
@@ -15,7 +15,6 @@ log = get_logger(__name__)
 
 
 class HashDelta(object):
-
     def __init__(self, dataset: Dataset):
         self.dataset = dataset
         self.curr = get_latest(dataset.name, backfill=False)
@@ -48,7 +47,18 @@ class HashDelta(object):
     def feed(self, entity: Entity) -> None:
         if entity.id is None or self.curr is None:
             return
-        entity_hash = hash_data((entity.id, entity.schema.name, entity.properties))
+        digest = sha1()
+        digest.update(entity.id.encode("utf-8"))
+        digest.update(entity.schema.name.encode("utf-8"))
+        for prop, values in sorted(entity.properties.items()):
+            digest.update(prop.encode("utf-8"))
+            for value in sorted(values):
+                digest.update(value.encode("utf-8"))
+        entity_hash = digest.hexdigest()
+        # entity_hash = hash_data((entity.id, entity.schema.name, entity.properties))
+        # assert entity_hash == digest.hexdigest(), (
+        #     f"Hash mismatch for {entity.id}: {entity_hash} != {digest.hexdigest()}"
+        # )
         self.fh.write(f"{entity.id}:{entity_hash}\n")
         key = f"{entity.id}:{self.curr.id}".encode("utf-8")
         self.db.put(key, entity_hash.encode("utf-8"))
