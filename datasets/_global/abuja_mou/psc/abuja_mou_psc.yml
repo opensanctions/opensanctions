@@ -12,17 +12,17 @@ description: |
   of Abuja MoU member Authorities. Each record includes, but is not limited to, the ship’s 
   identity, flag, and associated company.
 
-# **Note:** This dataset is updated regularly and typically contains records from the last 6 months.
-# Older entries are removed in each update.
+  **Note:** This dataset is updated regularly and typically contains records from the last 6 months.
+  Older entries are removed in each update.
 publisher:
   name: Abuja Memorandum of Understanding
   acronym: Abuja MoU
   description: |
-    The Abuja MoU on Port State Control is an agreement among Asia-Pacific countries to ensure 
-    that ships comply with international safety, environmental, and labor standards.
-    > Operating under a Cooperative Agreement with IMO, Abuja MoU was established as 
-    > an inter-governmental organization comprising the Maritime Administrations of 
-    > twenty-two Countries abutting the Atlantic Coast of Africa.
+    > The Memorandum of Understanding on Port State Control for West and Central African 
+    > Region (Abuja MoU) is one of the 9 Regional MoUs and 1 National MoU established pursuant 
+    > to IMO Resolution A.682(17) of 1991. Operating under a Cooperative Agreement with IMO, 
+    > Abuja MoU was established as an inter-governmental organization comprising the Maritime 
+    > Administrations of twenty-two Countries abutting the Atlantic Coast of Africa.
   url: https://abujamou.org/en/
   official: true
   country: "zz"

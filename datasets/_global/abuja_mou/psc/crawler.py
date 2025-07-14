@@ -91,8 +91,6 @@ def crawl_vessel_page(context: Context, shipuid: str):
 
 
 def crawl(context: Context):
-    # doc = context.fetch_html("https://abujamou.org/en/inspection-database/")
-    # assert doc is not None, "Failed to fetch the main page, response is None"
     doc = context.fetch_html(
         "https://abuja.marinet.ru/public.php/?action=getinsppublicall",
         data=SEARCH_DATA,
