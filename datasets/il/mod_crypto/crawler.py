@@ -100,7 +100,7 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         wallet.set("publicKey", account_id)
         platform = row.pop("platform")
         if platform:
-            wallet.set("mangingExchange", platform)
+            wallet.set("managingExchange", platform)
         currency = row.pop("currency")
         if currency:
             wallet.set("currency", currency)
