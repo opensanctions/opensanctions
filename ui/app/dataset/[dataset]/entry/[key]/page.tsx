@@ -3,11 +3,10 @@ import { notFound } from 'next/navigation';
 import React from 'react';
 import ExtractionView from './ExtractionView';
 import Link from 'next/link';
-import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import SourceView from './SourceView';
-
+//import { compileSchema, SchemaNode } from "json-schema-library";
 
 export default async function EntryPage(props: { params: { dataset: string, key: string } }) {
   const params = await props.params;
@@ -15,6 +14,8 @@ export default async function EntryPage(props: { params: { dataset: string, key:
   const key = decodeURIComponent(params.key);
   const entry = await getExtractionEntry(dataset, key);
   if (!entry) return notFound();
+
+  //const schemaNode: SchemaNode = compileSchema(entry.extraction_schema);
 
   return (
     <div className="p-4 bg-light d-flex flex-column" style={{ height: '100vh', minHeight: 0 }}>
@@ -57,6 +58,7 @@ export default async function EntryPage(props: { params: { dataset: string, key:
               rawData={entry.orig_extraction_data}
               extractedData={entry.extracted_data}
               schema={entry.extraction_schema}
+              //schemaNode={schemaNode}
               accepted={entry.accepted}
               entryKey={key}
               dataset={dataset}

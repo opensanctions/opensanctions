@@ -6,6 +6,9 @@ import Tab from 'react-bootstrap/Tab';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { jsonSchema } from "codemirror-json-schema";
 import { json } from "@codemirror/lang-json";
+import { Draft04 } from 'json-schema-library';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 
 interface EntryTabsProps {
@@ -19,7 +22,24 @@ interface EntryTabsProps {
 
 export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset }: EntryTabsProps) {
   const [accepted, setAccepted] = useState(initialAccepted);
-  const [extracted, setExtracted] = useState(JSON.stringify(extractedData, null, 2));
+  const [editorExtracted, setEditorExtracted] = useState(JSON.stringify(extractedData, null, 2));
+
+  const schemaNode = new Draft04(schema);  // version selected to match
+
+  let errors: string[];
+  try {
+    const editorExtractedParsed = JSON.parse(editorExtracted)
+    errors = schemaNode.validate(editorExtractedParsed).map(e => e.message);
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      errors = [e.toString()];
+    } else {
+      errors = ['Unknown validationerror'];
+    }
+  }
+
+  const valid = errors.length === 0;
+  const errorSummary = errors.length === 0 ? undefined : `${errors.length} error(s) in Extracted JSON: ${errors.join('; ')}`;
 
   return (
     <div className="entry-tabs flex-grow-1 d-flex flex-column" style={{ height: '100%' }}>
@@ -41,12 +61,12 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
           <Tab eventKey="extracted" title="Extracted JSON">
             <div style={{ height: '100%' }}>
               <CodeMirror
-                value={extracted}
+                value={editorExtracted}
                 extensions={[jsonSchema(schema), EditorView.lineWrapping]}
                 height="100%"
                 style={{ height: '100%' }}
                 width="100%"
-                onChange={setExtracted}
+                onChange={setEditorExtracted}
               />
             </div>
           </Tab>
@@ -70,7 +90,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
         >
           <input type="hidden" name="dataset" value={dataset} />
           <input type="hidden" name="key" value={entryKey} />
-          <input type="hidden" name="extractedData" value={extracted} />
+          <input type="hidden" name="extractedData" value={editorExtracted} />
           <input type="hidden" name="accepted" value={accepted ? 'true' : 'false'} />
           <input type="hidden" name="accept_and_continue" value="false" />
           <div className="form-check">
@@ -85,23 +105,34 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
               Accepted
             </label>
           </div>
-          <button className="btn btn-primary ms-2" type="submit">
-            Save
-          </button>
-          <button
-            className="btn btn-success ms-2"
-            type="submit"
-            onClick={e => {
-              // Set accept to true and accept_and_continue to true before submit
-              const form = e.currentTarget.form;
-              if (form) {
-                (form.accepted as HTMLInputElement).value = 'true';
-                (form.accept_and_continue as HTMLInputElement).value = 'true';
-              }
-            }}
-          >
-            Accept and continue
-          </button>
+          {/* spans to give the trigger a non-disabled element to attach
+          to for the disabled button's pointer events to trigger the tooltip.*/}
+          <OverlayTrigger overlay={<Tooltip id="tooltip-save">Cannot save: {errorSummary}</Tooltip>}>
+            <span>
+              <button className="btn btn-primary ms-2" type="submit" disabled={!valid}>
+                Save
+              </button>
+            </span>
+          </OverlayTrigger>
+          <OverlayTrigger overlay={<Tooltip id="tooltip-accept-continue">Cannot save: {errorSummary}</Tooltip>}>
+            <span>
+              <button
+                className="btn btn-success ms-2"
+                type="submit"
+                onClick={e => {
+                  const form = e.currentTarget.form;
+                  if (form) {
+                    (form.accepted as HTMLInputElement).value = 'true';
+                    (form.accept_and_continue as HTMLInputElement).value = 'true';
+                  }
+                }}
+                disabled={!valid}
+                style={{ pointerEvents: 'none' }}
+              >
+                Accept and continue
+              </button>
+            </span>
+          </OverlayTrigger>
         </form>
       </div>
     </div>
