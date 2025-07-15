@@ -1,5 +1,3 @@
-import re
-from datetime import datetime, timedelta
 from lxml import html
 from openpyxl import Workbook, load_workbook
 from rigour.mime.types import XLSX
@@ -11,9 +9,10 @@ from zavod import Context, Entity, helpers as h
 # This parser handles two separate data sources:
 # 1. State Register of legal entities in the Republic of Moldova
 # 2. Moldovan Registry of Non-Profit Organizations
-# Although the extraction logic for each is distinct and unrelated,
-# they are grouped under the same parser to allow unified processing
-# and enrichment through a shared enricher.
+#
+# Only the 'read_ckan' function is shared between them; the rest of the
+# extraction logic is unrelated. Grouping them under the same parser
+# allows us to streamline enrichment and maintain them together.
 
 IGNORE_COLUMNS = [
     "Codul unităţii administrativ-teritoriale",
