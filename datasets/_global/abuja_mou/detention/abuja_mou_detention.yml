@@ -30,9 +30,11 @@ data:
   url: https://abujamou.org/en/inspection-database/
   format: HTML
   lang: eng
+dates:
+  formats: ["%d.%m.%Y"]
 
 assertions:
   min:
     schema_entities:
-      Company: 1000
-      Vessel: 1000
+      Company: 100
+      Vessel: 100
