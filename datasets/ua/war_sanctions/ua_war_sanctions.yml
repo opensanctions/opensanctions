@@ -409,6 +409,18 @@ lookups:
         name: "Rptd Sold Undisclosed Interest"
         registration_number: 9991942
         date: "2024-10-18"
+      - match: "Peak Shipping Lines Inc (6216426 / 19.07.2021)"
+        name: "Peak Shipping Lines Inc"
+        registration_number: 6216426
+        date: "2021-07-19"
+      - match: "Kaifu Shipping Ltd (0136021 / 27.01.2025)"
+        name: "Kaifu Shipping Ltd"
+        registration_number: 0136021
+        date: "2025-01-27"
+      - match: "Staksel Co Ltd (4234210 / russian federation)"
+        name: "Staksel Co Ltd"
+        registration_number: 4234210
+        country: Russia
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
@@ -439,6 +451,8 @@ lookups:
         value: 2024-09-10
       - match: 08/11/2023)
         value: 2023-11-08
+      - match: 096.05.2025)
+        value: 2025-05
       - match:
           - 07.04.
           - 09.05.20234)
@@ -465,7 +479,7 @@ lookups:
         value: Ukraine
       - match: Comoro Islands
         value: Comoros
-      - match: 
+      - match:
           - ","
           - unknown
         value: null
@@ -492,7 +506,7 @@ lookups:
     options:
       - match: 'AUTONOMOUS NON-PROFIT ORGANIZATION OF ADDITIONAL PROFESSIONAL EDUCATION "MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
         value: '"MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
-      - match: 
+      - match:
           - "-"
           - "2"
         value: null
