@@ -1,40 +1,43 @@
 import contextvars
-
-import orjson
-from pathlib import Path
 from datetime import datetime
 from functools import cached_property
-from typing import Any, Optional, Union, Dict, List, Mapping
+from pathlib import Path
+from typing import Any, Dict, List, Mapping, Optional, Union
 
-from requests import Response
-from prefixdate import DatePrefix
-from lxml import html, etree
-from datapatch import LookupException, Result, Lookup
+import orjson
+from datapatch import Lookup, LookupException, Result
 from followthemoney.schema import Schema
-from followthemoney.util import make_entity_id
-from nomenklatura.versions import Version
+from followthemoney.util import PathLike, make_entity_id
+from lxml import etree, html
 from nomenklatura.cache import Cache
-from rigour.urls import build_url, ParamsType
+from nomenklatura.versions import Version
+from prefixdate import DatePrefix
+from requests import Response
+from rigour.urls import ParamsType, build_url
 from sqlalchemy.engine import Connection
 from structlog.contextvars import bind_contextvars, reset_contextvars
-from followthemoney.util import PathLike
 
 from zavod import settings
+from zavod.archive import dataset_data_path, dataset_resource_path
 from zavod.audit import inspect
-from zavod.meta import Dataset, DataResource
-from zavod.entity import Entity
 from zavod.db import get_engine, meta
-from zavod.archive import dataset_resource_path, dataset_data_path
-from zavod.runtime.versions import get_latest
-from zavod.runtime.stats import ContextStats
-from zavod.runtime.sink import DatasetSink
+from zavod.entity import Entity
+from zavod.logs import get_logger
+from zavod.meta import DataResource, Dataset
+from zavod.runtime.http_ import (
+    _Auth,
+    _Body,
+    _Headers,
+    fetch_file,
+    make_session,
+    request_hash,
+)
 from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
+from zavod.runtime.sink import DatasetSink
+from zavod.runtime.stats import ContextStats
 from zavod.runtime.timestamps import TimeStampIndex
-from zavod.runtime.versions import make_version
-from zavod.runtime.http_ import fetch_file, make_session, request_hash
-from zavod.runtime.http_ import _Auth, _Headers, _Body
-from zavod.logs import get_logger
+from zavod.runtime.versions import get_latest, make_version
 from zavod.util import join_slug, prefixed_hash_id
 
 
@@ -295,8 +298,8 @@ class Context:
         """
         url = build_url(url, params)
 
+        fingerprint = request_hash(url, auth=auth, method=method, data=data)
         if cache_days is not None:
-            fingerprint = request_hash(url, auth=auth, method=method, data=data)
             text = None
 
             if method == "GET":
@@ -402,17 +405,15 @@ class Context:
             method=method,
             data=data,
         )
-        if text is not None and len(text):
-            try:
-                return html.fromstring(text)
-            except Exception:
-                cache_url = build_url(url, params)
-                fingerprint = request_hash(
-                    cache_url, auth=auth, method=method, data=data
-                )
-                self.clear_url(fingerprint)
-                raise
-        raise ValueError("Invalid HTML document: %s" % url)
+        try:
+            if text is None or len(text) == 0:
+                raise ValueError("Invalid HTML document: %s" % url)
+            return html.fromstring(text)
+        except Exception as exc:
+            cache_url = build_url(url, params)
+            fingerprint = request_hash(cache_url, auth=auth, method=method, data=data)
+            self.clear_url(fingerprint)
+            raise exc
 
     def clear_url(self, fingerprint: str) -> None:
         """

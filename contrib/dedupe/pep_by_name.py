@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Dict, Set, Optional
 from collections import defaultdict
 from itertools import combinations
-from fingerprints import fingerprint
 from nomenklatura.stream import StreamEntity
 from nomenklatura.matching import NameQualifiedMatcher
 

@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Dict, Set, Optional
 from collections import defaultdict
 from itertools import combinations
-from fingerprints import clean_name_ascii
+from nomenklatura.matching.compat import clean_name_ascii
 from nomenklatura.stream import StreamEntity
-from nomenklatura.util import levenshtein_similarity
+from rigour.text.distance import levenshtein_similarity
 
 from zavod.meta import Dataset
 from zavod.integration import get_resolver

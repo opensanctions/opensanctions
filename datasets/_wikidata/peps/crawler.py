@@ -1,6 +1,6 @@
 from collections import defaultdict
 from typing import Dict, Optional, Any, List, Generator, NamedTuple, Set
-from fingerprints import clean_brackets
+from rigour.text import remove_bracketed_text
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories, get_territory_by_qid
 from nomenklatura.wikidata import WikidataClient, SparqlValue
@@ -92,7 +92,9 @@ def crawl_holder(
     # print(holder.person_qid, death, start_date, end_date)
 
     if holder.get("person_label") != qid:
-        entity.add("name", clean_brackets(holder.get("person_label")).strip())
+        person_label = holder.get("person_label")
+        if person_label is not None:
+            entity.add("name", remove_bracketed_text(person_label).strip())
 
     context.emit(position)
     context.emit(occupancy)
