@@ -26,11 +26,7 @@ jobs:
       run:
         working-directory: opensanctions/ui
     env:
-      POSTGRES_DB: testdb
-      POSTGRES_USER: testuser
-      POSTGRES_PASSWORD: testpass
-      POSTGRES_HOST: localhost
-      DATABASE_URL: postgres://testuser:testpass@localhost:5432/testdb
+      ZAVOD_DATABASE_URI: postgres://testuser:testpass@localhost:5432/testdb
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js 20
