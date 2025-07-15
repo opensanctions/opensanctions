@@ -23,20 +23,20 @@ NONPROFITS_URL = "https://dataset.gov.md/dataset/18516-date-din-registrul-de-sta
 LEGAL_ENTITIES_URL = "https://dataset.gov.md/ro/dataset/11736-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-intreprinderile-inregistrate-in-repu"
 
 
-def read_ckan(context: Context, source_url) -> str:
-    path = context.fetch_resource("dataset.html", source_url)
+def read_ckan(context: Context, source_url, label) -> str:
+    path = context.fetch_resource(f"{label}_dataset.html", source_url)
     with open(path, "r") as fh:
         doc = html.fromstring(fh.read())
 
     resource_url = None
     for res_anchor in doc.findall('.//li[@class="resource-item"]/a'):
         res_href = res_anchor.get("href", "")
-        resource_url = urljoin(context.dataset.url, res_href)
+        resource_url = urljoin(source_url, res_href)
 
     if resource_url is None:
         raise RuntimeError("No resource URL on data catalog page!")
 
-    path = context.fetch_resource("resource.html", resource_url)
+    path = context.fetch_resource(f"{label}_resource.html", resource_url)
     with open(path, "r") as fh:
         doc = html.fromstring(fh.read())
 
@@ -226,7 +226,7 @@ def parse_nonprofits(context, wb):
 
 def crawl(context: Context) -> None:
     # Companies
-    legal_entities_url = read_ckan(context, LEGAL_ENTITIES_URL)
+    legal_entities_url = read_ckan(context, LEGAL_ENTITIES_URL, "companies")
     data_le_path = context.fetch_resource("legal_entities.xlsx", legal_entities_url)
     context.export_resource(
         data_le_path, XLSX, title="State Register of Legal Entities"
@@ -235,7 +235,7 @@ def crawl(context: Context) -> None:
     parse_companies(context, wb)
 
     # Nonprofits
-    nonprofits_url = read_ckan(context, NONPROFITS_URL)
+    nonprofits_url = read_ckan(context, NONPROFITS_URL, "nonprofits")
     data_np_path = context.fetch_resource("nonprofits.xlsx", nonprofits_url)
     context.export_resource(
         data_np_path, XLSX, title="State Register of Non-Profit Organizations"
