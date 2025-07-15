@@ -21,12 +21,11 @@ IGNORE_COLUMNS = [
     "Genuri de activitate licentiate",
 ]
 NONPROFITS_URL = "https://dataset.gov.md/dataset/18516-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-organizatiile-necomerciale"
+LEGAL_ENTITIES_URL = "https://dataset.gov.md/ro/dataset/11736-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-intreprinderile-inregistrate-in-repu"
 
 
 def read_ckan(context: Context) -> str:
-    if context.dataset.url is None:
-        raise RuntimeError("No dataset url")
-    path = context.fetch_resource("dataset.html", context.dataset.url)
+    path = context.fetch_resource("dataset.html", LEGAL_ENTITIES_URL)
     with open(path, "r") as fh:
         doc = html.fromstring(fh.read())
 
