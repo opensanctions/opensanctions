@@ -1,7 +1,7 @@
 type: external
-title: State Register of legal entities in the Republic of Moldova
+title: State Registers of Legal Entities and Non-Profit Organizations in the Republic of Moldova
 entry_point: zavod.runner.local_enricher:enrich
-full_dataset: md_companies
+full_dataset: md_companies_nonprofits
 disabled: false
 hidden: false
 coverage:
@@ -16,16 +16,20 @@ deploy:
 load_statements: true
 ci_test: false
 summary: >-
-  Companies in Moldova, with information on their founders, beneficial
-  owners and directors which match or are related to entities in the OpenSanctions database
+  Entities registered in the Republic of Moldova, including both companies and
+  non-profit organizations, which match or are related to entities in the OpenSanctions database.
 url: https://date.gov.md/ckan/ro/dataset/11736-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-intreprinderile-inregistrate-in-repu
 publisher:
   name: Agenția Servicii Publice
+  name_en: Public Services Agency
   acronym: ASP
+  descrition: |
+    The Public Services Agency (ASP) is a government institution responsible for 
+    implementing public policies in areas such as information technology, state 
+    registration, and business licensing. It manages core national registers, including 
+    those for legal entities, non-profit organizations, and vehicles.
   country: md
-  url: http://asp.gov.md/
-  description: |
-    The P.I. “Public Services Agency” is a holder of the basic state information resources.
+  url: https://www.asp.gov.md/en
   official: true
 
 inputs:
