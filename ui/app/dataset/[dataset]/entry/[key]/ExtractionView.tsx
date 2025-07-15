@@ -11,7 +11,44 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
 
-interface EntryTabsProps {
+function InvalidTooltipWrapper({ children, isValid, help, id }: { children: React.ReactNode, id: string, isValid: boolean, help: string | null }) {
+  return isValid ? children : (
+    <OverlayTrigger overlay={<Tooltip id={id}>{help}</Tooltip>}>
+      {/* span to give the trigger a non-disabled element to attach
+      to for the disabled button's pointer events to trigger the tooltip.*/}
+      <span>{children}</span>
+    </OverlayTrigger>
+  );
+}
+
+function SaveButton({ isValid, help }: { isValid: boolean, help: string | null }) {
+  const button = <button className="btn btn-primary ms-2" type="submit" disabled={!isValid} style={isValid ? {} : { pointerEvents: 'none' }}>
+    Save
+  </button>;
+  return InvalidTooltipWrapper({ children: button, isValid, help, id: "save-tooltip" });
+}
+
+function AcceptAndContinueButton({ isValid, help }: { isValid: boolean, help: string | null }) {
+  const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const form = e.currentTarget.form;
+    if (form) {
+      (form.accepted as HTMLInputElement).value = 'true';
+      (form.accept_and_continue as HTMLInputElement).value = 'true';
+    }
+  }
+  const button = <button
+    className="btn btn-success ms-2"
+    type="submit"
+    onClick={onClick}
+    disabled={!isValid}
+    style={isValid ? {} : { pointerEvents: 'none' }}
+  >
+    Accept and continue
+  </button>
+  return InvalidTooltipWrapper({ children: button, isValid, help, id: "accept-continue-tooltip" });
+}
+
+interface ExtractionViewProps {
   rawData: any;
   extractedData: any;
   schema: any;
@@ -20,7 +57,7 @@ interface EntryTabsProps {
   dataset: string;
 }
 
-export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset }: EntryTabsProps) {
+export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset }: ExtractionViewProps) {
   const [accepted, setAccepted] = useState(initialAccepted);
   const [editorExtracted, setEditorExtracted] = useState(JSON.stringify(extractedData, null, 2));
 
@@ -39,7 +76,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
   }
 
   const valid = errors.length === 0;
-  const errorSummary = errors.length === 0 ? undefined : `${errors.length} error(s) in Extracted JSON: ${errors.join('; ')}`;
+  const errorSummary = errors.length === 0 ? null : `${errors.length} error(s) in Extracted JSON: ${errors.join('; ')}`;
 
   return (
     <div className="entry-tabs flex-grow-1 d-flex flex-column" style={{ height: '100%' }}>
@@ -105,34 +142,8 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
               Accepted
             </label>
           </div>
-          {/* spans to give the trigger a non-disabled element to attach
-          to for the disabled button's pointer events to trigger the tooltip.*/}
-          <OverlayTrigger overlay={<Tooltip id="tooltip-save">Cannot save: {errorSummary}</Tooltip>}>
-            <span>
-              <button className="btn btn-primary ms-2" type="submit" disabled={!valid}>
-                Save
-              </button>
-            </span>
-          </OverlayTrigger>
-          <OverlayTrigger overlay={<Tooltip id="tooltip-accept-continue">Cannot save: {errorSummary}</Tooltip>}>
-            <span>
-              <button
-                className="btn btn-success ms-2"
-                type="submit"
-                onClick={e => {
-                  const form = e.currentTarget.form;
-                  if (form) {
-                    (form.accepted as HTMLInputElement).value = 'true';
-                    (form.accept_and_continue as HTMLInputElement).value = 'true';
-                  }
-                }}
-                disabled={!valid}
-                style={{ pointerEvents: 'none' }}
-              >
-                Accept and continue
-              </button>
-            </span>
-          </OverlayTrigger>
+          <SaveButton isValid={valid} help={errorSummary} />
+          <AcceptAndContinueButton isValid={valid} help={errorSummary} />
         </form>
       </div>
     </div>

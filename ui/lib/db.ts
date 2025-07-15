@@ -11,7 +11,6 @@ import {
   sql,
 } from 'kysely'
 import { Pool } from 'pg'
-import Database from 'better-sqlite3'
 
 export interface ReviewTable {
   id: Generated<number>
@@ -39,10 +38,9 @@ export interface ReviewDatabase {
 }
 
 
-const dbUrl = process.env.DATABASE_URL;
-if (!dbUrl) throw new Error('DATABASE_URL not set');
+const dbUrl = process.env.ZAVOD_DATABASE_URI;
+if (!dbUrl) throw new Error('ZAVOD_DATABASE_URI not set');
 const isPostgres = dbUrl.startsWith('postgres');
-const isSqlite = dbUrl.startsWith('sqlite');
 let dialect: Dialect
 if (isPostgres) {
   dialect = new PostgresDialect({
@@ -51,13 +49,6 @@ if (isPostgres) {
       max: 10,
     }),
   })
-} else if (isSqlite) {
-  const dbFile = dbUrl.startsWith('sqlite:///')
-      ? dbUrl.replace('sqlite:///', '/')
-      : dbUrl.replace('sqlite://', '');
-  dialect = new SqliteDialect({
-    database: new Database(dbFile)
-  });
 } else {
   throw new Error(`Unsupported database type ${dbUrl}`);
 }
@@ -149,7 +140,7 @@ export async function getExtractionEntry(dataset: string, key: string) {
     .executeTakeFirst();
 }
 
-export async function updateExtractionEntry({ dataset, key, accepted, extractedData }: { dataset: string, key: string, accepted: boolean, extractedData: object }) {
+export async function updateExtractionEntry({ dataset, key, accepted, extractedData, modifiedBy }: { dataset: string, key: string, accepted: boolean, extractedData: object, modifiedBy: string }) {
   const now = new Date().toISOString();
   await db.transaction().execute(async (trx) => {
     // Mark current as deleted
@@ -177,7 +168,7 @@ export async function updateExtractionEntry({ dataset, key, accepted, extractedD
       extracted_data: extractedData,
       accepted: accepted,
       modified_at: now,
-      modified_by: 'zavod ui user',
+      modified_by: modifiedBy,
       deleted_at: null,
     };
     await trx
