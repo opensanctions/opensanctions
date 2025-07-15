@@ -43,7 +43,7 @@ describe('updateExtractionEntry integration', () => {
       extracted_data: { b: 2 },
       last_seen_version: 'v1',
       modified_at: now,
-      modified_by: 'tester',
+      modified_by: 'zavod ui',
       deleted_at: null,
     };
     // Insert initial row
@@ -57,6 +57,7 @@ describe('updateExtractionEntry integration', () => {
       key: 'k1',
       accepted: newAccepted,
       extractedData: newExtracted,
+      modifiedBy: 'test@user.com',
     });
 
     // Check old row is marked as deleted
@@ -91,6 +92,6 @@ describe('updateExtractionEntry integration', () => {
     expect(newRows[0].source_url).toBe(initial.source_url);
     expect(newRows[0].last_seen_version).toBe(initial.last_seen_version);
     expect(newRows[0].deleted_at).toBeNull();
-    expect(newRows[0].modified_by).toBe('zavod ui user');
+    expect(newRows[0].modified_by).toBe('test@user.com');
   });
 });
