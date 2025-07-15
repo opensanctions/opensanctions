@@ -42,8 +42,40 @@ publisher:
   official: true
 data:
   lang: ron
+dates:
+  formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 16000
+      Person: 15000
+      Companies: 250000
+  max:
+    schema_entities:
+      Organization: 25000
+      Person: 25000
+      Companies: 500000
 
 lookups:
+  columns:
+    options:
+      - match: IDNO
+        value: tax_number
+      - match: Data înreg.
+        value: incorporation_date
+      - match: Forma juridică
+        value: legal_form
+      - match: Denumirea
+        value: name
+      - match: CUATM
+        value: admin_unit_code
+      - match: Adresa
+        value: address
+      - match: Conducător
+        value: director
+      - match: Data lichidării
+        value: dissolution_date
   type.date:
     options:
       - match:
