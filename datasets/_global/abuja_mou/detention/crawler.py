@@ -4,7 +4,8 @@ from zavod import Context, helpers as h
 
 
 DATA = {
-    "from": "01.01.2019",
+    # last 10 years (we can do it in one request and it's still only 175 ships)
+    "from": "01.01.2015",
     "till": datetime.now().strftime("%d.%m.%Y"),
     "auth": "0",
     "held": "0",
@@ -80,7 +81,7 @@ def crawl_row(context: Context, row: dict):
             "Organization",
         )
 
-    end_date = row.pop("date_of_release", None)
+    end_date = row.pop("date_of_release")
     sanction = h.make_sanction(
         context,
         vessel,
@@ -90,14 +91,14 @@ def crawl_row(context: Context, row: dict):
     reasons = row.pop("nature_of_deficiencies")
     for reason in reasons.split(";"):
         sanction.add("reason", reason.strip())
-
+    # Most of the ships (even from 2019) have no end_date, most of them will be marked as active
     if h.is_active(sanction):
         vessel.add("topics", "reg.warn")
 
     context.emit(vessel)
     context.emit(sanction)
 
-    context.audit_data(row, ["place", "nature_of_deficiencies", "None"])
+    context.audit_data(row, ["place", "nature_of_deficiencies"])
 
 
 def crawl(context: Context):

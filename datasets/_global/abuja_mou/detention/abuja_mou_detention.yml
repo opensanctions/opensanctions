@@ -36,5 +36,5 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 100
-      Vessel: 100
+      Company: 150
+      Vessel: 150
