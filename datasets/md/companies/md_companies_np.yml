@@ -1,5 +1,5 @@
-name: md_companies_np
-title: State Registers of legal entities and non-profit organizations in the Republic of Moldova
+name: md_companies_nonprofits
+title: State Registers of Legal Entities and Non-Profit Organizations in the Republic of Moldova
 prefix: md-com-np
 disabled: false
 entry_point: parse.py
