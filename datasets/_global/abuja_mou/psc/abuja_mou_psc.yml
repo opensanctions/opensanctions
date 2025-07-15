@@ -1,4 +1,4 @@
-title: Abuja MoU PSC Database
+title: Abuja MoU Port State Control Inspections
 entry_point: crawler.py
 prefix: abuja-mou-psc
 coverage:
