@@ -1,7 +1,7 @@
 type: external
 title: State Registers of Legal Entities and Non-Profit Organizations in the Republic of Moldova
 entry_point: zavod.runner.local_enricher:enrich
-full_dataset: md_companies_nonprofits
+full_dataset: md_companies
 disabled: false
 hidden: false
 coverage:
