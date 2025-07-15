@@ -228,13 +228,17 @@ def crawl(context: Context) -> None:
     # Companies
     legal_entities_url = read_ckan(context, LEGAL_ENTITIES_URL)
     data_le_path = context.fetch_resource("legal_entities.xlsx", legal_entities_url)
-    context.export_resource(data_le_path, XLSX, title=context.SOURCE_TITLE)
+    context.export_resource(
+        data_le_path, XLSX, title="State Register of Legal Entities"
+    )
     wb = load_workbook(data_le_path, read_only=True, data_only=True)
     parse_companies(context, wb)
 
     # Nonprofits
     nonprofits_url = read_ckan(context, NONPROFITS_URL)
     data_np_path = context.fetch_resource("nonprofits.xlsx", nonprofits_url)
-    context.export_resource(data_np_path, XLSX, title=context.SOURCE_TITLE)
+    context.export_resource(
+        data_np_path, XLSX, title="State Register of Non-Profit Organizations"
+    )
     wb = load_workbook(data_np_path, read_only=True)
     parse_nonprofits(context, wb)
