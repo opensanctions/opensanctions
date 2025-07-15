@@ -86,7 +86,7 @@ def crawl(context: Context):
     # Detect if new sanctions programs are added
     index_doc = fetch_html(
         context,
-        context.dataset.url,
+        context.dataset.model.url,
         ".//*[contains(text(), 'Tarptautinės finansinės sankcijos. Įgyvendinimas')]",
         cache_days=1,
     )

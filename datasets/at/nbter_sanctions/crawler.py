@@ -59,8 +59,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.dataset.url, cache_days=1)
-    doc.make_links_absolute(context.dataset.url)
+    doc = context.fetch_html(context.dataset.model.url, cache_days=1)
+    doc.make_links_absolute(context.dataset.model.url)
     urls = doc.xpath(".//a[contains(text(), 'Kundmachung DL')]/@href")
     assert len(urls) == 2, "Expected exactly 2 links in the document"
     h.assert_url_hash(context, urls[0], "789ade7d1cbb8e3e710b75dd8e9376a45f08a4f3")

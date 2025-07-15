@@ -184,8 +184,8 @@ def parse_names(field: str) -> List[str]:
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.dataset.url, cache_days=1)
-    doc.make_links_absolute(context.dataset.url)
+    doc = context.fetch_html(context.dataset.model.url, cache_days=1)
+    doc.make_links_absolute(context.dataset.model.url)
 
     associations_url = get_link_by_label(doc, ASSOCIATIONS_LABEL)
     crawl_organisations(

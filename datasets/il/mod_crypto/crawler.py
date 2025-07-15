@@ -139,7 +139,7 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
 def crawl(context: Context):
     # Get a warning when a notice has been issued
     content_xpath = ".//main"
-    doc = fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
+    doc = fetch_html(context, context.dataset.model.url, content_xpath, cache_days=1)
     container = doc.xpath(content_xpath)[0]
     # Write a CSV snapshot to check the diff manually (git diff).
     # Review for any new releases or persons/wallets added.
