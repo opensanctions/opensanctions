@@ -29,8 +29,8 @@ class Dataset(FollowTheMoneyDataset):
     Model = OpenSanctionsDatasetModel
 
     def __init__(self, data: Dict[str, Any]):
+        super().__init__(data)
         self.model: OpenSanctionsDatasetModel = self.Model.model_validate(data)
-        self.name = self.model.name
         self.prefix = self.model.prefix
 
         # This will make disabled crawlers visible in the metadata:
