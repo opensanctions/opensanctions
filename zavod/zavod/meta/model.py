@@ -50,7 +50,8 @@ class OpenSanctionsDatasetModel(FollowTheMoneyDatasetModel):
 
     updated_at: Optional[datetime] = Field(default_factory=lambda: settings.RUN_TIME)
 
-    exports: Set[str] = set()
+    exports: Set[str] = Field(set(), exclude=True)
+    """Names of all the exporters enabled for this dataset."""
 
     ci_test: bool = True
     """Whether this dataset should be automatically run in CI environments."""

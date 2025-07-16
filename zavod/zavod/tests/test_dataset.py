@@ -1,5 +1,5 @@
 import pytest
-from nomenklatura.exceptions import MetadataException
+from followthemoney.exc import MetadataException
 from zavod import settings
 
 from zavod.meta import get_catalog, Dataset, get_multi_dataset
@@ -39,15 +39,15 @@ def test_basic():
     assert len(catalog.datasets) == 2
     assert catalog.has("test") is True
     assert catalog.require("test") == test_ds
-    assert catalog.has("testX") is False
+    assert catalog.has("test_x") is False
     with pytest.raises(MetadataException):
-        catalog.require("testX")
+        catalog.require("test_x")
 
-    assert test_ds.hidden is True
+    assert test_ds.model.hidden is True
     assert test_ds.prefix == "xx"
     assert test_ds.is_collection is False
-    assert test_ds.data.url is not None
-    assert test_ds.disabled is False
+    assert test_ds.model.data.url is not None
+    assert test_ds.model.disabled is False
     assert not len(test_ds.inputs)
     url = make_published_url(test_ds.name, "foo.json")
     assert url.startswith("https://data.opensanctions.org/datasets/"), url
@@ -55,15 +55,15 @@ def test_basic():
     os_data = test_ds.to_opensanctions_dict(catalog)
     assert os_data["name"] == "test", os_data
     assert os_data["collections"] == ["collection"], os_data
-    assert test_ds.resolve is False
+    assert test_ds.model.resolve is False
     assert os_data["resolve"] is False, os_data
     # Explicit True is also read correctly
     resolve_meta = TEST_DATASET.copy()
     resolve_meta["resolve"] = True
     resolve_ds = catalog.make_dataset(resolve_meta)
-    assert resolve_ds.resolve is True
+    assert resolve_ds.model.resolve is True
 
-    assert coll_ds.hidden is False
+    assert coll_ds.model.hidden is False
     assert coll_ds.is_collection is True
     assert len(coll_ds.children) == 1
     assert coll_ds.data is None
@@ -72,7 +72,7 @@ def test_basic():
     assert os_data["datasets"] == ["test"], os_data
     # When resolve isn't set in the metadata, it defaults to True.
     assert "resolve" not in TEST_COLLECTION
-    assert coll_ds.resolve is True
+    assert coll_ds.model.resolve is True
     # When it's true, it isn't dumped.
     assert "resolve" not in os_data, os_data
 
@@ -85,9 +85,9 @@ def test_basic():
 
 def test_validation(testdataset1: Dataset, testdataset3: Dataset):
     assert testdataset1.name == "testdataset1"
-    assert testdataset1.publisher is not None
-    assert testdataset1.publisher.name == "OpenSanctions"
-    assert testdataset1.publisher.official is False
+    assert testdataset1.model.publisher is not None
+    assert testdataset1.model.publisher.name == "OpenSanctions"
+    assert testdataset1.model.publisher.official is False
     assert len(testdataset1.children) == 0
     assert len(testdataset1.datasets) == 1
     assert len(testdataset1.inputs) == 0

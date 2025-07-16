@@ -111,7 +111,12 @@ def test_occupancy_not_same_start_end_id(testdataset1: Dataset):
 def test_occupancy_dataset_coverage():
     # If coverage end is in the future, we trust the future end date
     dataset1 = Dataset(
-        {"name": "dataset1", "title": "Dataset 1", "coverage": {"end": "2021-01-04"}},
+        {
+            "name": "dataset1",
+            "title": "Dataset 1",
+            "coverage": {"end": "2021-01-04"},
+            "prefix": "dataset1",
+        },
     )
     context1 = Context(dataset1)
     pos = make_position(context1, name="A position", country="ls")
@@ -130,7 +135,12 @@ def test_occupancy_dataset_coverage():
 
     # If coverage end date has passed, we don't trust the future end date
     dataset2 = Dataset(
-        {"name": "dataset2", "title": "Dataset 2", "coverage": {"end": "2021-01-02"}},
+        {
+            "name": "dataset2",
+            "title": "Dataset 2",
+            "coverage": {"end": "2021-01-02"},
+            "prefix": "dataset2",
+        },
     )
     context2 = Context(dataset2)
     pos2 = make_position(context2, name="A position", country="ls")
