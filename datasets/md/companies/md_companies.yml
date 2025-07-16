@@ -58,7 +58,7 @@ assertions:
       Companies: 500000
 
 lookups:
-  columns:
+  nonprofit_headers:
     options:
       - match: IDNO
         value: tax_number

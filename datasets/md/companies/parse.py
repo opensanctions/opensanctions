@@ -181,7 +181,7 @@ def parse_companies(context: Context, book: Workbook) -> None:
 def parse_nonprofits(context, wb):
     assert set(wb.sheetnames) == {wb.active.title}
     for row in h.parse_xlsx_sheet(
-        context, wb["organizations"], skiprows=4, header_lookup="columns"
+        context, wb["organizations"], skiprows=4, header_lookup="nonprofit_headers"
     ):
         tax_number = row.pop("tax_number")
         name = row.pop("name")
