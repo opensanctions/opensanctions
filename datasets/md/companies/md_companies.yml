@@ -1,5 +1,5 @@
 name: md_companies
-title: State Register of legal entities in the Republic of Moldova
+title: State Registers of Legal Entities and Non-Profit Organizations in the Republic of Moldova
 prefix: md
 disabled: false
 entry_point: parse.py
@@ -16,21 +16,66 @@ exports:
 resolve: false
 ci_test: false
 summary: >-
-  All companies in Moldova, with information on their founders, beneficial
-  owners and directors.
+  Entities registered in the Republic of Moldova, including both companies and
+  non-profit organizations, with key ownership and registration details.
+description: |
+  This dataset combines two distinct official registers from the Republic of Moldova:
+
+  - **State Register of Legal Entities**: Covers commercial companies, providing information 
+    on founders, beneficial owners, and directors.
+  
+  - **State Register of Non-Profit Organizations**: Includes associations, foundations, 
+    and other nonprofit entities, with data on tax identification numbers, legal form, 
+    registration and liquidation dates, and directors.
 url: https://dataset.gov.md/ro/dataset/11736-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-intreprinderile-inregistrate-in-repu
 publisher:
   name: Agenția Servicii Publice
+  name_en: Public Services Agency
   acronym: ASP
+  descrition: |
+    The Public Services Agency (ASP) is a government institution responsible for 
+    implementing public policies in areas such as information technology, state 
+    registration, and business licensing. It manages core national registers, including 
+    those for legal entities, non-profit organizations, and vehicles.
   country: md
-  url: http://asp.gov.md/
-  description: |
-    The P.I. “Public Services Agency” is a holder of the basic state information resources.
+  url: https://www.asp.gov.md/en
   official: true
 data:
   lang: ron
+dates:
+  formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 16000
+      Person: 15000
+      Companies: 250000
+  max:
+    schema_entities:
+      Organization: 25000
+      Person: 25000
+      Companies: 500000
 
 lookups:
+  nonprofit_headers:
+    options:
+      - match: IDNO
+        value: tax_number
+      - match: Data înreg.
+        value: incorporation_date
+      - match: Forma juridică
+        value: legal_form
+      - match: Denumirea
+        value: name
+      - match: CUATM
+        value: admin_unit_code
+      - match: Adresa
+        value: address
+      - match: Conducător
+        value: director
+      - match: Data lichidării
+        value: dissolution_date
   type.date:
     options:
       - match:

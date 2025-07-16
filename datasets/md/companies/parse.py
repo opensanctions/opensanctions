@@ -1,38 +1,41 @@
-from lxml import html
 from openpyxl import Workbook, load_workbook
+from rigour.mime.types import XLSX
 from typing import Optional, Dict, Any, List
 from urllib.parse import urljoin
 
-from zavod import Context, Entity
+from zavod import Context, Entity, helpers as h
+
+# This parser handles two separate data sources:
+# 1. State Register of legal entities in the Republic of Moldova
+# 2. Moldovan Registry of Non-Profit Organizations
+#
+# Only the 'read_ckan' function is shared between them; the rest of the
+# extraction logic is unrelated. Grouping them under the same parser
+# allows us to streamline enrichment and maintain them together.
 
 IGNORE_COLUMNS = [
     "Codul unităţii administrativ-teritoriale",
     "Genuri de activitate nelicentiate",
     "Genuri de activitate licentiate",
 ]
+NONPROFITS_URL = "https://dataset.gov.md/dataset/18516-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-organizatiile-necomerciale"
+LEGAL_ENTITIES_URL = "https://dataset.gov.md/ro/dataset/11736-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-intreprinderile-inregistrate-in-repu"
 
 
-def read_ckan(context: Context) -> str:
-    if context.dataset.url is None:
-        raise RuntimeError("No dataset url")
-    path = context.fetch_resource("dataset.html", context.dataset.url)
-    with open(path, "r") as fh:
-        doc = html.fromstring(fh.read())
+def read_ckan(context: Context, source_url, label) -> str:
+    resource_list_doc = context.fetch_html(source_url)
 
-    resource_url = None
-    for res_anchor in doc.findall('.//li[@class="resource-item"]/a'):
-        res_href = res_anchor.get("href", "")
-        resource_url = urljoin(context.dataset.url, res_href)
+    resource_item_els = list(
+        resource_list_doc.findall('.//li[@class="resource-item"]/a')
+    )
+    if len(resource_item_els) == 0:
+        raise RuntimeError("No resource URLs on data catalog page!")
+    resource_url = urljoin(source_url, resource_item_els[-1].get("href", ""))
 
-    if resource_url is None:
-        raise RuntimeError("No resource URL on data catalog page!")
+    resource_detail_doc = context.fetch_html(resource_url)
 
-    path = context.fetch_resource("resource.html", resource_url)
-    with open(path, "r") as fh:
-        doc = html.fromstring(fh.read())
-
-    for action_anchor in doc.findall('.//div[@class="actions"]//a'):
-        return action_anchor.get("href")
+    for action_anchor_el in resource_detail_doc.findall('.//div[@class="actions"]//a'):
+        return action_anchor_el.get("href")
 
     raise RuntimeError("No data URL on data resource page!")
 
@@ -175,9 +178,61 @@ def parse_companies(context: Context, book: Workbook) -> None:
             context.log.info("Read %d companies..." % idx)
 
 
+def parse_nonprofits(context, wb):
+    assert set(wb.sheetnames) == {wb.active.title}
+    for row in h.parse_xlsx_sheet(
+        context, wb["organizations"], skiprows=4, header_lookup="nonprofit_headers"
+    ):
+        tax_number = row.pop("tax_number")
+        name = row.pop("name")
+        director = row.pop("director")
+        entity = context.make("Organization")
+        entity.id = context.make_id(tax_number, name)
+        entity.add("name", name)
+        entity.add("legalForm", row.pop("legal_form"))
+        entity.add("country", "md")
+        entity.add("taxNumber", tax_number)
+        address = h.make_address(
+            context,
+            full=row.pop("address"),
+            place=row.pop("admin_unit_code"),
+        )
+        h.copy_address(entity, address)
+        h.apply_date(entity, "incorporationDate", row.pop("incorporation_date"))
+        h.apply_date(entity, "dissolutionDate", row.pop("dissolution_date"))
+
+        if director:
+            dir = context.make("Person")
+            dir.id = context.make_id(director)
+            dir.add("name", director)
+
+            directorship = context.make("Directorship")
+            directorship.id = context.make_id(entity.id, dir.id)
+            directorship.add("organization", entity.id)
+            directorship.add("director", dir.id)
+
+            context.emit(dir)
+            context.emit(directorship)
+
+        context.emit(entity)
+        context.audit_data(row)
+
+
 def crawl(context: Context) -> None:
-    data_url = read_ckan(context)
-    data_path = context.fetch_resource("data.xlsx", data_url)
-    # data_path = context.get_resource_path("data.xlsx")
-    wb = load_workbook(data_path, read_only=True, data_only=True)
+    # Companies
+    legal_entities_url = read_ckan(context, LEGAL_ENTITIES_URL, "companies")
+    data_le_path = context.fetch_resource("legal_entities.xlsx", legal_entities_url)
+    context.export_resource(
+        data_le_path, XLSX, title="State Register of Legal Entities"
+    )
+    wb = load_workbook(data_le_path, read_only=True, data_only=True)
     parse_companies(context, wb)
+
+    # Nonprofits
+    nonprofits_url = read_ckan(context, NONPROFITS_URL, "nonprofits")
+    data_np_path = context.fetch_resource("nonprofits.xlsx", nonprofits_url)
+    context.export_resource(
+        data_np_path, XLSX, title="State Register of Non-Profit Organizations"
+    )
+    wb = load_workbook(data_np_path, read_only=True)
+    parse_nonprofits(context, wb)
