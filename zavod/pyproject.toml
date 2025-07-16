@@ -75,6 +75,7 @@ dev = [
     "types-openpyxl",
     "types-google-cloud-ndb",
     "types-redis",
+    "types-PyYAML",
     "pre-commit",
 ]
 docs = [

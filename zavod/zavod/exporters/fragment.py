@@ -1,4 +1,5 @@
 from typing import Generator, List, Optional, Dict, Tuple
+from followthemoney import Schema
 from nomenklatura.store import View
 from followthemoney.property import Property
 
@@ -63,6 +64,8 @@ class ViewFragment(View[Dataset, Entity]):
                     % (id, len(self._inverted[id])),
                 )
 
-    def entities(self) -> Generator[Entity, None, None]:
+    def entities(
+        self, include_schemata: Optional[List[Schema]] = None
+    ) -> Generator[Entity, None, None]:
         # Don't cache entities here
         raise NotImplementedError("This method should not be called on a ViewFragment!")
