@@ -46,6 +46,12 @@ assertions:
 dates:
   formats: ["%d %B %Y"]
 lookups:
+  # Just a quick way to skip entities that are not perpetrators, e.g. victims of deepfakes
+  # until we sort out a better way to get this data
+  # https://github.com/opensanctions/opensanctions/issues/2363
+  urgent_skip:
+    options:
+      - match: DEEPFAKE SCAMS INVOLVING LANCE GOKONGWEI
   names:
     lowercase: true
     normalize: true

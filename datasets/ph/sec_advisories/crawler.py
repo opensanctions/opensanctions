@@ -41,6 +41,10 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
             names = [long_name]
         description = cast("str", res.description) or long_name
 
+    if any(context.lookup("urgent_skip", name) for name in names):
+        context.log.info("Skipping %s" % name)
+        return
+
     source_url = li_link.get("href")
     date = li_tag.findtext(".//*[@class='myDate']").strip()
 
