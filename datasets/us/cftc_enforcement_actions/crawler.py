@@ -1,7 +1,9 @@
 from typing import Optional, List, Literal
+from normality import slugify
 from pydantic import BaseModel, Field
 
 from lxml.etree import tostring
+from playwright.sync_api import sync_playwright
 
 from zavod.context import Context
 from zavod import helpers as h
@@ -58,6 +60,16 @@ present in the source text.
 
 
 def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
+    page = context.browser.new_page()
+    page.goto(url)
+    page.wait_for_load_state("networkidle")
+    client = page.context.new_cdp_session(page)
+    mhtml = client.send("Page.captureSnapshot")['data']
+    with open(slugify(url) + ".mhtml", "w") as f:
+        f.write(mhtml)
+    page.close()
+    return
+
     doc = context.fetch_html(url, cache_days=30)
     article = doc.xpath(".//article")[0]
     html = tostring(article, pretty_print=True).decode("utf-8")
