@@ -59,7 +59,7 @@ lookups:
       - match:
           - "18"
           - "1028"
-        prop: weakAlias
+        value: null
   type.country:
     lowercase: true
     normalize: true
