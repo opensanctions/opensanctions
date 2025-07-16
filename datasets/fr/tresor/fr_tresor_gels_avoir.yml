@@ -357,6 +357,12 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée (LLC)"
         props:
           legalForm: société à responsabilité limitée (LLC)
+      - match: "Type d'entité: Bloc politique"
+        props:
+          legalForm: Bloc politique
+      - match: "Type d'entité: Organisation autonome à but non lucratif"
+        props:
+          legalForm: Organisation autonome à but non lucratif
       - match: "Lieu d'enregistrement: Fédération de Russie (197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30)"
         props:
           jurisdiction: ru
@@ -589,6 +595,11 @@ lookups:
       - match: "Numéro d'enregistrement de l'entreprise: 74520161"
         props:
           registrationNumber: 74520161
+      - match: "Numéro d'enregistrement: 9705215107/770501001"
+        props:
+          registrationNumber:
+            - "9705215107"
+            - "770501001"
       - match: "Type d'entité: entreprise de médias"
         # That's not a legal form
       - match: "Numéro d'enregistrement: 423277-5"
@@ -5453,3 +5464,10 @@ lookups:
         props:
           registrationNumber: 11314143
           incorporationDate: 2018-04-17
+      - match: "Date d’enregistrement: 18.8.1983 - Principaux lieux d’activité: Iran, Turquie, Europe"
+        props:
+          incorporationDate: 1983-08-18
+          country:
+            - ir
+            - tr
+            - eu
