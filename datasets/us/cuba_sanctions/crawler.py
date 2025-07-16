@@ -60,7 +60,7 @@ def crawl_restricted_entities(context: Context):
     node = doc.find(CONTENT_XPATH)
     # Chrome save HTML only
     # xmllint --format --html
-    if not h.assert_dom_hash(node, "1568aa7fc68d86fd44c808e6def0df9a4627903b"):
+    if not h.assert_dom_hash(node, "cb1331044fe9d7addec7ff7d7223e745e560781b"):
         context.log.warning("Restricted List content changed. Check for data updates")
 
     path = context.fetch_resource("restricted_entities.csv", RESTRICTED_ENTITIES_URL)

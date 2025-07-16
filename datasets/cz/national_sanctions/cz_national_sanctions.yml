@@ -57,7 +57,7 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match: 
+      - match:
           - 'čl. 1 odst. 1 písm. e) a čl. 2 odst. 1 písm. g) rozhodnutí Rady 2014/145/SZBP ze dne 17. března 2014 o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny'
           - 'čl. 1 odst. 1 písm. d) bod iii) a iv) rozhodnutí Rady (SZBP) 2020/1999 ze dne 7. prosince 2020 o omezujících opatřeních proti závažnému porušování a zneužívání lidských práv, ve znění pozdějších předpisů'
           - 'čl. 1 odst. 1 písm. a) bodu iv) a odst. 1 písm. b) a čl. 2 odst. 1 písm. a) bod iv) a odst. 1 písm. b) rozhodnutí Rady (SZBP) 2024/2643 ze dne 8. října 2024 o omezujících opatřeních vzhledem k destabilizujícím činnostem Ruska, ve znění pozdějších předpisů'
@@ -153,3 +153,9 @@ lookups:
           endDate: "2025-05-20"
           status: zrušen
           summary: Zápis byl zrušen ke dni 20. května 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/966.
+      - match: "ŠAVROV / SHAVROV / ШАВРОВ Zápis byl zrušen ke dni 15. července 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/1443"
+        names: ["ŠAVROV", "SHAVROV", "ШАВРОВ"]
+        sanction_props:
+          endDate: "2025-07-15"
+          status: zrušen
+          summary: Zápis byl zrušen ke dni 15. července 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/1443

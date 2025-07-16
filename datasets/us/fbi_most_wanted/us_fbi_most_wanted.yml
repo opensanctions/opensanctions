@@ -51,14 +51,15 @@ assertions:
 
 lookups:
   type.name:
-    # These are the real aliases of
-    # https://www.fbi.gov/wanted/cyber/yasar-balaghi
-    # https://www.fbi.gov/wanted/cyber/masoud-jalili
-    # having these as names would make for quite rubbish matching results in a lot of cases.
-    - match: 
-        - "18"
-        - "1028"
-      prop: weakAlias
+    options:
+      # These are the real aliases of
+      # https://www.fbi.gov/wanted/cyber/yasar-balaghi
+      # https://www.fbi.gov/wanted/cyber/masoud-jalili
+      # having these as names would make for quite rubbish matching results in a lot of cases.
+      - match:
+          - "18"
+          - "1028"
+        value: null
   type.country:
     lowercase: true
     normalize: true

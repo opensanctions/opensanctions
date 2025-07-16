@@ -54,7 +54,7 @@ def parse_table(
 def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
     context.log.info("Crawling entity", url=url)
     validator = ".//h1[contains(@class, 'page-title__heading')]"
-    doc = fetch_html(context, url, validator, cache_days=1)
+    doc = fetch_html(context, url, validator, cache_days=7)
     res = context.lookup("schema", category)
     if res is None or not isinstance(res.schema, str):
         context.log.warning("No schema found for category", category=category)

@@ -1,13 +1,13 @@
 from urllib.parse import urljoin
 from rigour.mime.types import PDF
-from rigour.names.person import remove_person_prefixes
+from rigour.names import remove_person_prefixes
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.gpt import run_image_prompt
 
 prompt = """
-Extract structured data from the following page of a PDF document. Return 
+Extract structured data from the following page of a PDF document. Return
 a JSON list (`holders`) in which each object represents an office-holder
 (e.g. head of government, head of state, minister of foreign affairs).
 Each object should have the following fields: `country`, `full_title`,

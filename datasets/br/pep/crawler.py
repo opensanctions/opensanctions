@@ -6,6 +6,11 @@ from datetime import datetime, timedelta
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
+from zavod.shed.zyte_api import fetch_resource
+
+
+ZIP = "application/x-zip-compressed"
+
 
 # 1: CPF
 # 2: PEP_Name
@@ -87,7 +92,9 @@ def crawl(context: Context):
     :param context: The context object.
     """
     csv_url = get_csv_url(context)
-    path = context.fetch_resource("source.zip", csv_url)
+    _, _, _, path = fetch_resource(
+        context, "source.zip", csv_url, ZIP, geolocation="BR"
+    )
     work_dir = path.parent / "files"
     work_dir.mkdir(exist_ok=True)
     with ZipFile(path) as zip_file:

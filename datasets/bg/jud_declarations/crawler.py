@@ -3,7 +3,7 @@ import pdfplumber
 from lxml.html import HtmlElement
 from rigour.text.distance import levenshtein_similarity
 from rigour.env import MAX_NAME_LENGTH
-from normality import normalize
+from normality import normalize, slugify
 from typing import Dict, Generator, List, Optional
 
 from zavod import Context, helpers as h
@@ -13,44 +13,24 @@ from zavod.shed.trans import apply_translit_full_name, make_position_translation
 
 TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 POSITION_PROMPT = prompt = make_position_translation_prompt("bul")
+# e.g. (name_html, name_pdf)
+# {
+#     ("Георги Иванов Иванов", "ВАНЯ СТОЯНОВА ЛАКОВСКА"),
+#     ("Любомир Тодоров Мирчев", "Ваня Желева Атанасова-Янчева"),
+# }
 ALLOW_LIST = {
     ("Елизабет Лопес Петрова-Калпакчиева", "Елизабет Лопес Петрова"),
     ("Дафина Петрова Димова", "Дафина Петрова Димова-Маратилова"),
     ("Марина Евгениева Гюрова", "Марина Евгениева Гюрова-Димитрова"),
 }
-DENY_LIST = {
-    ("Георги Иванов Иванов", "ВАНЯ СТОЯНОВА ЛАКОВСКА"),
-    ("Любомир Тодоров Мирчев", "Ваня Желева Атанасова-Янчева"),
-    ("Миглена Раденкова Петрова", "Валери Кръстев Кръстев"),
-    ("Милена Иванова Семерджиева", "Александър Костадинов Заев"),
-    ("Михаил Венци Крушовски", "ГЕРГАНА НИКОЛАЕВА БОЖИЛОВА"),
-    ("Неделина Евгениева Маринова-Парашкевова", "Венцислав Найденов Андреев"),
-    ("Николина Георгиева Сачкова", "Андрей Ангелов Ангелов"),
-    ("Светослав Момчилов Джельов", "Светослав Василев Палов"),
-    ("Симеон Георгиев Захариев", "Свилена Стоянова Давчева"),
-    ("Станой Аспарухов Станоев", "Силвиян Иванов Стоянов"),
-    ("Стелиана Колева Кожухарова", "Кирил Петков Петков"),
-    ("Темислав Малинов Димитров", "Сеслав Димитров Помпулуски"),
-    ("Цветан Руменов Ценов", "АДЕЛИНА ЛЮБЕНОВА ТУШЕВА"),
-    ("Янислав Димчев Димов", "Мария Симеонова Ганева"),
-    ("Владимир Стоянов Вълчев", "Веселина Цонева Топалова"),
-    ("Ганчо Манев Драганов", "Галин Николаев Андонов"),
-    ("Жива Динкова Декова", "Гълъбина Генчева Петрова"),
-    ("Невена Иванова Ковачева", "Мариана Колева Гунчева"),
-    ("Никол Кирилова Николова", "Мартин Лазаров Апостолов"),
-    ("Павлина Стойчева Йоргова", "ГЕОРГИ ХРИСТОВ ХАНДЖИЕВ"),
-    ("Росен Обретинов Станев", "БИЛЯНА ВЕЛИКОВА ВИДОЛОВА"),
-    ("Румен Николов Йосифов", "Катя Николова Михайлова - Янкова"),
-    ("Светлозар Георгиев Георгиев", "Марияна Искренова Качарова"),
-    ("Славка Георгиева Димитрова", "Райна Андреева Гундева"),
-    ("Станислав Дончев Андонов", "Емилиян Димитров Грънчаров"),
-    ("Филип Иванов Георгиев", "Мирослава Стефанова Тодорова"),
-}
+DENY_LIST = set()
 
 
-def extract_judicial_declaration(context, url, doc_id_date) -> Dict[str, Optional[str]]:
+def extract_judicial_declaration(
+    context, name, url, doc_id_date
+) -> Dict[str, Optional[str]]:
     """Extract name, role, and organization from the first page of a judicial declaration PDF."""
-    pdf_path = context.fetch_resource(f"{doc_id_date}.pdf", url)
+    pdf_path = context.fetch_resource(f"{slugify([name, doc_id_date])}.pdf", url)
     extracted_data = {}
     try:
         with pdfplumber.open(pdf_path) as pdf:
@@ -93,7 +73,7 @@ def parse_html_table(
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def crawl_row(context: Context, row: Dict[str, HtmlElement]):
+def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str):
     str_row = h.cells_to_str(row)
     name = str_row.pop("name")
     doc_id_date = str_row.pop("doc_id_date")
@@ -109,13 +89,16 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
     else:
         date = context.lookup_value("doc_id_date", doc_id_date)
         if date is None:
-            context.log.warning(f"Invalid doc_id_date: {doc_id_date}")
+            context.log.warning(
+                f"Invalid doc_id_date: {doc_id_date}", index_url=index_url
+            )
         return
     # Link is in the same cell as the name
     name_link_elem = HtmlElement(row["name"]).find(".//a")
     declaration_url = name_link_elem.get("href")
     extracted_data = extract_judicial_declaration(
         context,
+        name,
         declaration_url,
         doc_id_date,
     )
@@ -140,12 +123,20 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
         elif (name, name_dec) in DENY_LIST:
             return
         else:
-            context.log.warning("Name mismatch", name_html=name, name_pdf=name_dec)
+            context.log.warning(
+                "Name mismatch",
+                name_html=name,
+                name_pdf=name_dec,
+                declaration_url=declaration_url,
+                index_url=index_url,
+            )
     role = extracted_data.pop("role")
     organization = extracted_data.pop("organization")
     if organization is None:
         context.log.warning(
-            f"Missing organization for {name}", declaration_url=declaration_url
+            f"Missing organization for {name}",
+            declaration_url=declaration_url,
+            index_url=index_url,
         )
         return
     # Common pattern: "organization - city"
@@ -214,4 +205,4 @@ def crawl(context: Context):
         table = table[0]
         for row in parse_html_table(table, headers=["name", "doc_id_date"]):
             doc.make_links_absolute(context.data_url)
-            crawl_row(context, row)
+            crawl_row(context, row, link)
