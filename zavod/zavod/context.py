@@ -1,4 +1,5 @@
 import contextvars
+import os
 import shutil
 import orjson
 from pathlib import Path
@@ -13,6 +14,7 @@ from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
 from followthemoney.dataset import DataResource
 from lxml import etree, html
+from playwright.sync_api import Browser, sync_playwright
 from nomenklatura.cache import Cache
 from nomenklatura.versions import Version
 from prefixdate import DatePrefix
@@ -45,6 +47,10 @@ from zavod.runtime.versions import get_latest, make_version
 from zavod.util import join_slug, prefixed_hash_id
 
 
+BRIGHT_USERNAME = os.environ.get("BRIGHTDATA_BROWSER_USERNAME")
+BRIGHT_PASSWORD = os.environ.get("BRIGHTDATA_BROWSER_PASSWORD")
+SBR_WS_CDP = f"wss://{BRIGHT_USERNAME}:{BRIGHT_PASSWORD}@brd.superproxy.io:9222"
+
 class Context:
     """The context is a utility object that is passed as an argument into crawlers
     and other runners.
@@ -70,6 +76,7 @@ class Context:
         self._structlog_contextvars_tokens: Optional[
             Mapping[str, contextvars.Token[Any]]
         ] = None
+        self._browser: Optional[Browser] = None
 
         self._data_time: datetime = settings.RUN_TIME
         # If the dataset has a fixed end time which is in the past,
@@ -142,6 +149,14 @@ class Context:
     def data_time_iso(self) -> str:
         """String representation of `data_time` in ISO format."""
         return self.data_time.isoformat(sep="T", timespec="seconds")
+    
+    @property
+    def browser(self) -> Browser:
+        """A browser instance for the context."""
+        if self._browser is None:
+            print("starting playwright")
+            self._browser = sync_playwright().start().chromium.connect_over_cdp(SBR_WS_CDP)
+        return self._browser
 
     def begin(self, clear: bool = False) -> None:
         """Prepare the context for running the exporter.
@@ -176,6 +191,8 @@ class Context:
         self.issues.close()
         if not self.dry_run:
             self.issues.export()
+        if self._browser is not None:
+            self._browser.close()
 
     def get_resource_path(self, name: PathLike) -> Path:
         """Get the path to a file in the dataset data folder.
