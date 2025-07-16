@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: "2025-06-26"
 load_statements: false
+ci_test: false
 summary: >
   Records detailing inspections of ships by member Authorities under the Tokyo MoU.
 description: |

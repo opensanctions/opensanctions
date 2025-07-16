@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: "2025-07-14"
 load_statements: false
+ci_test: false
 summary: >
   Records detailing inspections of ships by member Authorities under the Abuja MoU.
 description: |
