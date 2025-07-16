@@ -4,7 +4,7 @@ prefix: tokyo-mou-psc
 coverage:
   frequency: weekly
   start: "2025-06-26"
-load_statements: true
+load_statements: false
 summary: >
   Records detailing inspections of ships by member Authorities under the Tokyo MoU.
 description: |
@@ -12,7 +12,7 @@ description: |
   of Tokyo MoU member Authorities. Each record includes, but is not limited to, the ship’s 
   identity, flag, and associated company.
 
-  **Note:** This dataset is updated regularly and typically contains records from the last 6 months.
+  **Note:** This dataset is updated regularly and typically contains records from the last 3 years.
   Older entries are removed in each update.
 publisher:
   name: Tokyo Memorandum of Understanding
