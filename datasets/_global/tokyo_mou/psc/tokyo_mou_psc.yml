@@ -1,4 +1,4 @@
-title: Tokyo MoU PSC Database
+title: Tokyo MoU Port State Control Inspections
 entry_point: crawler.py
 prefix: tokyo-mou-psc
 coverage:
