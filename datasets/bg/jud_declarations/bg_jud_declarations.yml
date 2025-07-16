@@ -7,16 +7,16 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >
-  List of judges, prosecutors, and investigators in Bulgaria who are required to submit asset 
+  List of judges, prosecutors, and investigators in Bulgaria who are required to submit asset
   declarations.
 description: |
   This dataset provides a list of judges, prosecutors, and investigators in Bulgaria with links
   to their asset declarations.
 
-  Article 175 of the Judicial System Act (Закон за съдебната власт) outlines the requirements 
-  and procedures for asset and interest declarations by judges, prosecutors, and investigators 
-  in Bulgaria. These provisions require senior members of the judiciary to disclose their assets 
-  and interests annually, with mandatory updates for significant changes. This process identifies 
+  Article 175 of the Judicial System Act (Закон за съдебната власт) outlines the requirements
+  and procedures for asset and interest declarations by judges, prosecutors, and investigators
+  in Bulgaria. These provisions require senior members of the judiciary to disclose their assets
+  and interests annually, with mandatory updates for significant changes. This process identifies
   politically-exposed persons within Bulgaria's judiciary.
   [Source: ЗАКОН ЗА СЪДЕБНАТА ВЛАСТ](https://www.justice.government.bg/home/normdoc/2135560660)
 tags:
@@ -26,8 +26,8 @@ publisher:
   name_en: Inspectorate to the Supreme Judicial Council
   acronym: ИВСС
   description: |
-    The Inspectorate to the Supreme Judicial Council is an independent body within Bulgaria's 
-    judiciary. Its primary function is to oversee the administrative activities of courts, 
+    The Inspectorate to the Supreme Judicial Council is an independent body within Bulgaria's
+    judiciary. Its primary function is to oversee the administrative activities of courts,
     prosecutors, and investigative bodies without compromising their independence.
   url: https://www.inspectoratvss.bg/en
   country: bg
@@ -52,6 +52,10 @@ lookups:
         value: 17.05.2023
       - match: 7005.11.05.2023
         value: 11.05.2023
+      - match: 8084//16.05.2025
+        value: 16.05.2025
+      - match: 7747/15/05/2025
+        value: 15.05.2025
   type.date:
     options:
       - match: 15.50.2024
@@ -68,6 +72,8 @@ lookups:
         value: 2023-10-03
       - match: 27.10.20.23
         value: 2023-10-27
+      - match: "05.2025"
+        value: 2025-05
       # weird ones:
       - match: 07.04.2023
         value: 2023-04-07
@@ -75,5 +81,7 @@ lookups:
         value: 2023-12-08
       - match: 12.06.2023
         value: 2023-06-12
+      - match: 22.05.2025
+        value: 2025-05-22
       - match: 30.02.2024
         value: null
