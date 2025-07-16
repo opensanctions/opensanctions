@@ -45,7 +45,7 @@ class OpenSanctionsDatasetModel(FollowTheMoneyDatasetModel):
     hidden: bool = False
     """Do not show this dataset in the website and other UIs."""
 
-    resolve: bool = True
+    resolve: bool = Field(True, exclude=True)
     """Resolve entities in this dataset to canonical IDs."""
 
     updated_at: Optional[datetime] = Field(default_factory=lambda: settings.RUN_TIME)
@@ -53,10 +53,10 @@ class OpenSanctionsDatasetModel(FollowTheMoneyDatasetModel):
     exports: Set[str] = Field(set(), exclude=True)
     """Names of all the exporters enabled for this dataset."""
 
-    ci_test: bool = True
+    ci_test: bool = Field(True, exclude=True)
     """Whether this dataset should be automatically run in CI environments."""
 
-    load_statements: bool = False
+    load_statements: bool = Field(False, exclude=True)
     """Whether this dataset should be loaded into the database."""
 
     full_dataset: Optional[str] = None
