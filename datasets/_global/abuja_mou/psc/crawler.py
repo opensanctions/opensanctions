@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from urllib.parse import urlencode
 
 from zavod import Context, helpers as h
 
@@ -74,7 +75,7 @@ def crawl_vessel_page(context: Context, shipuid: str):
 
     # POST to get full ship profile using shipuid
     detail_doc = context.fetch_html(
-        "https://abuja.marinet.ru/public.php/?action=getinsppublic",
+        f"{context.data_url}/?{urlencode({'action': 'getinsppublic'})}",
         data=detail_data,
         headers=HEADERS,
         method="POST",
@@ -90,7 +91,7 @@ def crawl_vessel_page(context: Context, shipuid: str):
 
 def crawl(context: Context):
     doc = context.fetch_html(
-        "https://abuja.marinet.ru/public.php/?action=getinsppublicall",
+        f"{context.data_url}/?{urlencode({'action': 'getinsppublicall'})}",
         data=SEARCH_DATA,
         headers=HEADERS,
         method="POST",
