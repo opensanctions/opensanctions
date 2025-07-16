@@ -1,4 +1,3 @@
-from lxml import html
 from openpyxl import Workbook, load_workbook
 from rigour.mime.types import XLSX
 from typing import Optional, Dict, Any, List
@@ -24,24 +23,19 @@ LEGAL_ENTITIES_URL = "https://dataset.gov.md/ro/dataset/11736-date-din-registrul
 
 
 def read_ckan(context: Context, source_url, label) -> str:
-    path = context.fetch_resource(f"{label}_dataset.html", source_url)
-    with open(path, "r") as fh:
-        doc = html.fromstring(fh.read())
+    resource_list_doc = context.fetch_html(source_url)
 
-    resource_url = None
-    for res_anchor in doc.findall('.//li[@class="resource-item"]/a'):
-        res_href = res_anchor.get("href", "")
-        resource_url = urljoin(source_url, res_href)
+    resource_item_els = list(
+        resource_list_doc.findall('.//li[@class="resource-item"]/a')
+    )
+    if len(resource_item_els) == 0:
+        raise RuntimeError("No resource URLs on data catalog page!")
+    resource_url = urljoin(source_url, resource_item_els[-1].get("href", ""))
 
-    if resource_url is None:
-        raise RuntimeError("No resource URL on data catalog page!")
+    resource_detail_doc = context.fetch_html(resource_url)
 
-    path = context.fetch_resource(f"{label}_resource.html", resource_url)
-    with open(path, "r") as fh:
-        doc = html.fromstring(fh.read())
-
-    for action_anchor in doc.findall('.//div[@class="actions"]//a'):
-        return action_anchor.get("href")
+    for action_anchor_el in resource_detail_doc.findall('.//div[@class="actions"]//a'):
+        return action_anchor_el.get("href")
 
     raise RuntimeError("No data URL on data resource page!")
 
