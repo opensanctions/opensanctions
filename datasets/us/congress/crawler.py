@@ -69,7 +69,7 @@ def crawl_member(context: Context, bioguide_id: str):
     person.add("lastName", member.pop("lastName"))
     person.add("middleName", member.pop("middleName", None))
     person.add("title", member.pop("honorificName", None))
-    previous_names = member.pop("previousNames")
+    previous_names = member.pop("previousNames", [])
     # It looks like in a lot of cases it's the same name over and over, perhaps
     # with an initial added/removed. But in theory this should capture name changes.
     for entry in previous_names:
