@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { getExtractionEntries } from '../../../lib/db';
 import { notFound } from 'next/navigation';
+import { PageProps } from '@/lib/pageProps';
 
-export default async function DatasetPage({ params }: { params: { dataset: string } }) {
+export default async function DatasetPage({ params }: PageProps) {
   const awaitedParams = await params;
   const entries = await getExtractionEntries(awaitedParams.dataset);
   if (!entries) return notFound();
