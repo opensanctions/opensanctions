@@ -2,7 +2,7 @@ import re
 from normality import slugify
 from functools import lru_cache
 from typing import Optional, Tuple
-from followthemoney.types import registry
+from followthemoney import registry
 from followthemoney.util import join_text, make_entity_id
 from rigour.addresses import format_address_line
 
@@ -210,9 +210,9 @@ def apply_address(context: Context, entity: Entity, address: Optional[Entity]) -
     if address is None:
         return
     assert address.schema.is_a("Address"), "address must be an Address"
-    assert (
-        entity.schema.get("addressEntity") is not None
-    ), "Entity must have addressEntity"
+    assert entity.schema.get("addressEntity") is not None, (
+        "Entity must have addressEntity"
+    )
     entity.add("country", address.get("country"))
     if address.has("full"):
         entity.add("addressEntity", address)

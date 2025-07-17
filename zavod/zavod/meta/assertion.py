@@ -4,9 +4,6 @@ from typing import Any, Dict, Generator, Optional
 from followthemoney import model
 
 
-from followthemoney.types import registry
-
-
 class Metric(Enum):
     ENTITY_COUNT = "entity_count"
     """Number of entities matching the filter in the dataset."""

@@ -36,8 +36,7 @@ from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
 
 import duckdb
-from followthemoney import model, DS, SE
-from followthemoney.types import registry
+from followthemoney import model, registry, DS, SE
 from nomenklatura.index.common import BaseIndex
 from nomenklatura.resolver import Identifier
 from nomenklatura.store import View

@@ -1,6 +1,6 @@
 from typing import Set
 from normality import collapse_spaces
-from followthemoney.types import registry
+from followthemoney import registry
 
 from zavod.exporters.common import Exporter, ExportView
 from zavod.entity import Entity

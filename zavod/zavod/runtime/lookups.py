@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, List, Optional, Tuple
 from datapatch.lookup import Lookup
-from followthemoney.property import Property
+from followthemoney import Property
 from followthemoney.types.common import PropertyType
 
 from zavod.logs import get_logger

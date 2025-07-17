@@ -1,7 +1,7 @@
 import io
 import csv
 from typing import List, Iterable
-from followthemoney.types import registry
+from followthemoney import registry
 from followthemoney.util import join_text
 
 from zavod.entity import Entity

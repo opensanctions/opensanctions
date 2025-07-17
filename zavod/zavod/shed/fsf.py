@@ -3,7 +3,7 @@ from lxml.etree import _Element as Element
 from banal import as_bool
 from typing import Optional
 from prefixdate import parse_parts
-from followthemoney.types import registry
+from followthemoney import registry
 from rigour.langs import iso_639_alpha3
 import re
 

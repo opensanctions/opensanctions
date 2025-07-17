@@ -3,7 +3,7 @@ from functools import lru_cache
 from prefixdate import parse_formats
 from datetime import datetime, date, timezone
 from typing import Tuple, Union, Iterable, Set, Optional, List
-from followthemoney.types import registry
+from followthemoney import registry
 
 from zavod.logs import get_logger
 from zavod.entity import Entity

@@ -1,5 +1,5 @@
 from typing import List, Type
-from followthemoney.types import registry
+from followthemoney import registry
 
 from zavod.archive import dataset_data_path
 from zavod.context import Context

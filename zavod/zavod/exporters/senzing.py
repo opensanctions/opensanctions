@@ -10,7 +10,7 @@ from itertools import product
 from pprint import pprint  # noqa
 from typing import Any, Dict
 
-from followthemoney.types import registry
+from followthemoney import registry
 from rigour.ids.wikidata import is_qid
 
 from zavod.entity import Entity
