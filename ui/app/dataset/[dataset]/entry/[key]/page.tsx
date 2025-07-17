@@ -8,7 +8,7 @@ import Col from 'react-bootstrap/Col';
 import SourceView from './SourceView';
 import { PageProps } from '@/lib/pageProps';
 
-export default async function EntryPage({params} : PageProps) {
+export default async function EntryPage({ params }: PageProps) {
   const awaitedParams = await params;
   const dataset = decodeURIComponent(awaitedParams.dataset);
   const key = decodeURIComponent(awaitedParams.key);
@@ -33,23 +33,24 @@ export default async function EntryPage({params} : PageProps) {
           </li>
         </ol>
       </nav>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="h4 text-break mb-0">Review extraction</h1>
-        {entry.source_url && (
-        <a
-          href={entry.source_url}
-          className="link-primary fw-semibold fs-5"
-          target="_blank"
-          rel="noopener noreferrer"
-          >
-            View Source
-          </a>
-        )}
-      </div>
       <div className="flex-grow-1 d-flex flex-column mb-4" style={{ minHeight: 0 }}>
         <Row style={{ height: '100%' }}>
-          <Col className="d-flex flex-column"  style={{ height: '100%' }}>
-            <h2 className="h5 text-break d-flex">Source data</h2>
+          <Col className="d-flex flex-column" style={{ height: '100%' }}>
+            <h2 className="h5 text-break d-flex">
+              Source data
+              {entry.source_url && (
+                <span>
+                  &nbsp;
+                  <a
+                    href={entry.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    (View Source)
+                  </a>
+                </span>
+              )}
+            </h2>
             <SourceView sourceValue={entry.source_value} sourceContentType={entry.source_content_type} sourceLabel={entry.source_label} />
           </Col>
           <Col className="d-flex flex-column" style={{ height: '100%' }}>
