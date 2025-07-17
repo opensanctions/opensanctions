@@ -1,10 +1,12 @@
 from copy import deepcopy
-from typing import Set
+from typing import List, Set
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
 import re
+
 from followthemoney.types import registry
 from normality import collapse_spaces, slugify
+from requests.exceptions import RetryError
 
 from zavod.context import Context
 from zavod import helpers as h
@@ -339,14 +341,28 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     )
 
 
-def query_declaration(context: Context, year: int, name: str, cache_days: int) -> None:
+def query_declaration(
+    context: Context, year: int, name: str, cache_days: int
+) -> List[dict]:
     query = {
         "Key": name,
         "YearSelectedValues": year,
     }
     url = f"{context.data_url}?{urlencode(query)}"
-    declarations = context.fetch_json(url, cache_days=cache_days)
-    return declarations
+    try:
+        declarations = context.fetch_json(url, cache_days=cache_days)
+        return declarations
+    except RetryError as e:
+        if context.lookup("known_errors", name):
+            context.log.info(
+                f"Known error querying declaration: {e}", name=name, year=year, url=url
+            )
+            return []
+        else:
+            context.log.warning(
+                f"Error querying declaration: {e}", name=name, year=year, url=url
+            )
+            return []
 
 
 def crawl(context: Context) -> None:
