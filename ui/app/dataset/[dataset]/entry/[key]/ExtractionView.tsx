@@ -61,7 +61,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
   const [accepted, setAccepted] = useState(initialAccepted);
   const [editorExtracted, setEditorExtracted] = useState(JSON.stringify(extractedData, null, 2));
 
-  const schemaNode = new Draft04(schema);  // version selected to match
+  const schemaNode = new Draft04(schema);  // version selected to match that used in codemirror-json-schema
 
   let errors: string[];
   try {
@@ -71,7 +71,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
     if (e instanceof SyntaxError) {
       errors = [e.toString()];
     } else {
-      errors = ['Unknown validationerror'];
+      errors = ['Unknown validation error'];
     }
   }
 

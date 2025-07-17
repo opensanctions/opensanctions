@@ -1,3 +1,5 @@
+// https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-nodejs
+
 import { OAuth2Client } from 'google-auth-library';
 
 const oAuth2Client = new OAuth2Client();
