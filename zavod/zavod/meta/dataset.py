@@ -149,10 +149,13 @@ class Dataset(FollowTheMoneyDataset):
         assert self._type in ("collection", "source", "external"), self._type
         data.pop("resources", None)
         data.pop("version", None)
-        # data.pop("children", None)
-        # data.pop("datasets", None)
+
         data["type"] = self._type
         if not self.is_collection:
+            # Should be empty for non-collection datasets, they are dumped from the model as empty lists.
+            data.pop("datasets", None)
+            data.pop("children", None)
+
             collections = [
                 p.name for p in catalog.datasets if self in p.datasets and p != self
             ]
