@@ -141,6 +141,10 @@ class Dataset(FollowTheMoneyDataset):
             # HACK backwards compatibility
             data["datasets"] = [d.name for d in self.datasets]
             data["datasets"].remove(self.name)
+        else:
+            # Should be empty for non-collection datasets, they are dumped from the model as empty lists.
+            data.pop("datasets", None)
+            data.pop("children", None)
         return data
 
     def to_opensanctions_dict(self, catalog: "ArchiveBackedCatalog") -> Dict[str, Any]:
@@ -152,10 +156,6 @@ class Dataset(FollowTheMoneyDataset):
 
         data["type"] = self._type
         if not self.is_collection:
-            # Should be empty for non-collection datasets, they are dumped from the model as empty lists.
-            data.pop("datasets", None)
-            data.pop("children", None)
-
             collections = [
                 p.name for p in catalog.datasets if self in p.datasets and p != self
             ]
