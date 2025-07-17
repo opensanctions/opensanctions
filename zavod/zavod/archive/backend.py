@@ -172,7 +172,7 @@ class FileSystemObject(ArchiveObject):
         shutil.copyfile(source, self.path)
 
     def republish(self, source: str) -> None:
-        source_path = settings.ARCHIVE_PATH / source
+        source_path = self.backend.path / source
         log.info(
             f"Copying file: {self.path.name} to archive",
             source=source_path,

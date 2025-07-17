@@ -73,7 +73,7 @@ WEB_SITE = env_str("ZAVOD_WEB_SITE", "https://www.opensanctions.org")
 
 # Bucket to back-fill missing data artifacts from
 ARCHIVE_BACKEND = env.get("ZAVOD_ARCHIVE_BACKEND", "FileSystemBackend")
-ARCHIVE_BUCKET = env.get("ZAVOD_ARCHIVE_BUCKET", None)
+ARCHIVE_BUCKET = env.get("ZAVOD_ARCHIVE_BUCKET", "data.opensanctions.org")
 ARCHIVE_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", ARCHIVE_BUCKET)
 ARCHIVE_PATH = Path(env.get("ZAVOD_ARCHIVE_PATH", DATA_PATH.joinpath("archive")))
 BACKFILL_RELEASE = env_str("ZAVOD_BACKFILL_RELEASE", "latest")
