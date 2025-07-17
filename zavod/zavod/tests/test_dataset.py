@@ -107,6 +107,8 @@ def test_validation_os_dict(testdataset1: Dataset, collection: Dataset):
     assert osa["data"]["format"] == "CSV"
     assert "hidden" in osa
     assert "exports" not in osa
+    assert "children" not in osa
+    assert "datasets" not in osa
     assert "summary" in osa
     assert "description" in osa
     assert osa["entry_point"] == "testentrypoint1"
