@@ -36,7 +36,7 @@ class ZavodDatasetModel(FTMDatasetModel):
     entry_point: Optional[str] = None
     """Code location for the crawler script"""
 
-    prefix: Optional[str] = None
+    prefix: Optional[str] = Field(None, exclude=True)
     """A prefix for the dataset, used to generate entity IDs."""
 
     disabled: bool = False
