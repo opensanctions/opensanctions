@@ -8,6 +8,9 @@ on:
     paths:
       - 'opensanctions/ui/**'
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -47,6 +50,9 @@ jobs:
   docker:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs: [test]
     steps:
       - uses: actions/checkout@v4
