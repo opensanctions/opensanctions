@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from normality import slugify
 from followthemoney import registry
-from followthemoney.dataset.dataset import DatasetModel as FollowTheMoneyDatasetModel
+from followthemoney.dataset.dataset import DatasetModel as FTMDatasetModel
 from followthemoney.dataset.util import Url
 from zavod import settings
 
@@ -32,7 +32,7 @@ class DataModel(BaseModel):
         return value
 
 
-class OpenSanctionsDatasetModel(FollowTheMoneyDatasetModel):
+class ZavodDatasetModel(FTMDatasetModel):
     entry_point: Optional[str] = None
     """Code location for the crawler script"""
 

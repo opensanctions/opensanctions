@@ -15,7 +15,7 @@ from zavod import settings
 from zavod.archive import dataset_data_path
 from zavod.logs import get_logger
 from zavod.meta.assertion import Assertion, parse_assertions, Comparison, Metric
-from zavod.meta.model import DataModel, OpenSanctionsDatasetModel
+from zavod.meta.model import DataModel, ZavodDatasetModel
 from zavod.meta.dates import DatesSpec
 from zavod.meta.http import HTTP
 
@@ -28,9 +28,7 @@ log = get_logger(__name__)
 class Dataset(FollowTheMoneyDataset):
     def __init__(self, data: Dict[str, Any]):
         super().__init__(data)
-        self.model: OpenSanctionsDatasetModel = (
-            OpenSanctionsDatasetModel.model_validate(data)
-        )
+        self.model: ZavodDatasetModel = ZavodDatasetModel.model_validate(data)
         self.prefix = self.model.prefix
 
         # This will make disabled crawlers visible in the metadata:
