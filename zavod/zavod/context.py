@@ -1,14 +1,11 @@
 import contextvars
 import os
-import shutil
 import orjson
 from pathlib import Path
 from datetime import datetime
 from functools import cached_property
-from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Union
 
-import orjson
 from datapatch import Lookup, LookupException, Result
 from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
@@ -50,6 +47,7 @@ from zavod.util import join_slug, prefixed_hash_id
 BRIGHT_USERNAME = os.environ.get("BRIGHTDATA_BROWSER_USERNAME")
 BRIGHT_PASSWORD = os.environ.get("BRIGHTDATA_BROWSER_PASSWORD")
 SBR_WS_CDP = f"wss://{BRIGHT_USERNAME}:{BRIGHT_PASSWORD}@brd.superproxy.io:9222"
+
 
 class Context:
     """The context is a utility object that is passed as an argument into crawlers
@@ -149,13 +147,15 @@ class Context:
     def data_time_iso(self) -> str:
         """String representation of `data_time` in ISO format."""
         return self.data_time.isoformat(sep="T", timespec="seconds")
-    
+
     @property
     def browser(self) -> Browser:
         """A browser instance for the context."""
         if self._browser is None:
             print("starting playwright")
-            self._browser = sync_playwright().start().chromium.connect_over_cdp(SBR_WS_CDP)
+            self._browser = (
+                sync_playwright().start().chromium.connect_over_cdp(SBR_WS_CDP)
+            )
         return self._browser
 
     def begin(self, clear: bool = False) -> None:
@@ -245,16 +245,6 @@ class Context:
             method=method,
             data=data,
         )
-    
-    def archive_resource(self, path: Path, mime_type: str, archive_key: str) -> str:
-        """Archive a resource and return a URL to access it publicly"""
-        resource_dir = settings.ARCHIVE_PATH / "public_stuff" / self.dataset.name
-        resource_dir.mkdir(parents=True, exist_ok=True)
-        resource_path = resource_dir / archive_key
-        shutil.copy(path, resource_path)
-        url = f"http://localhost:3001/{self.dataset.name}/{archive_key}"
-        return url
-
 
     def fetch_response(
         self,
