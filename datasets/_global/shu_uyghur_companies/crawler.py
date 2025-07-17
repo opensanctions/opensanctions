@@ -2,6 +2,8 @@ import openpyxl
 
 from zavod import Context, helpers as h
 
+OPERATING_URL = "https://data.opensanctions.org/contrib/shu_uyghur_companies/Companies%20Operating%20in%20XUAR-web.archive.org-20240331100003.xlsx"
+LABOUR_TRANSFERS_URL = "https://data.opensanctions.org/contrib/shu_uyghur_companies/2023-07-03%20Companies%20Named%20in%20Reports%20v2-web.archive.org-20250102144725.xlsx"
 
 LABOUR_SHEETS = [
     "1. Labor Transfers in XUAR",
@@ -31,7 +33,7 @@ def apply_addresses(context, entity, addr, addr_en, city, city_en):
 
 
 def crawl_labour_transfers(context: Context, labour_transfers_url):
-    path = context.fetch_resource("labour_transfers.xlsx", labour_transfers_url[0])
+    path = context.fetch_resource("labour_transfers.xlsx", labour_transfers_url)
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     assert set(workbook.sheetnames) == set(APP_LABOUR_SHEETS)
     for sheet in LABOUR_SHEETS:
@@ -132,7 +134,7 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
 
 
 def crawl_operating(context: Context, companies_url):
-    path = context.fetch_resource("companies_registry.xlsx", companies_url[0])
+    path = context.fetch_resource("companies_registry.xlsx", companies_url)
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     assert set(workbook.sheetnames) == OPERATING_SHEETS
     for row in h.parse_xlsx_sheet(
@@ -165,19 +167,5 @@ def crawl_operating(context: Context, companies_url):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url, cache_days=1)
-    companies_url = doc.xpath(
-        './/a[contains(text(), "Companies Operating in the Uyghur Region")]/@href'
-    )
-    if not companies_url:
-        context.log.error("No operating companies URL found!", index=context.data_url)
-    else:
-        crawl_operating(context, companies_url)
-
-    labour_transfers_url = doc.xpath(
-        './/a[contains(text(), "Companies Named in Media and Academic Reports as engaging in Labour Transfers or other XUAR Government Programs")]/@href'
-    )
-    if not labour_transfers_url:
-        context.log.error("No labour transfers URL found!", index=context.data_url)
-    else:
-        crawl_labour_transfers(context, labour_transfers_url)
+    crawl_operating(context, OPERATING_URL)
+    crawl_labour_transfers(context, LABOUR_TRANSFERS_URL)
