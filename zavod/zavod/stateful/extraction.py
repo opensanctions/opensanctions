@@ -1,6 +1,5 @@
 from datetime import datetime
 from hashlib import sha1
-from pathlib import Path
 from typing import Any, Dict, Generic, Optional, Type, TypeVar, cast
 
 import orjson
@@ -12,7 +11,6 @@ from sqlalchemy import func, insert, not_, select, update
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
 
-from zavod.archive.backend import get_evidence_backend
 from zavod.context import Context
 from zavod.db import get_engine
 from zavod.stateful.model import review_table
@@ -253,16 +251,3 @@ def assert_all_accepted(context: Context) -> None:
                     f"{context.dataset.name} and version {context.version.id}"
                 )
             )
-
-
-def upload_evidence(
-    context: Context, local_path: Path, mime_type: str, archive_key: str
-) -> str:
-    """Archive a resource and return a path that can be concatenated to the evidence base URL"""
-    # We want this to be distinct between versions so that garbage collecting a
-    # version garbage collects only the resources for that version and not resources
-    # referenced by versions we don't want to delete yet..
-    upload_path = f"dataset/{context.version.id}/{context.dataset.name}/{archive_key}"
-    evidence_backend = get_evidence_backend()
-    evidence_backend.get_object(upload_path).publish(local_path, mime_type)
-    return upload_path
