@@ -36,9 +36,9 @@ data:
   url: https://www.amf-france.org/fr/rest/listing_sanction/91,184,183,325,90,461,89,242,86,462,181/all/all?t=1722860865328&_=1722860865172
   format: json
 tags:
-  - list.regulatory            # Regulation and compliance
-  - target.fr                  # Focused on entities in France
-  - sector.financial           # Focuses on financial market regulations
+  - list.regulatory # Regulation and compliance
+  - target.fr # Focused on entities in France
+  - sector.financial # Focuses on financial market regulations
 
 assertions:
   min:
@@ -989,7 +989,10 @@ lookups:
           - Eurotitrisation
           - Caceis Bank
           # It's one entity, we include both previous and current names
-          - ["Caceis Investor Services Bank France", "RBC Investor Services Bank France"]
+          - [
+              "Caceis Investor Services Bank France",
+              "RBC Investor Services Bank France",
+            ]
           - Edith Lusson
           - Jean-Yves Bajon
           - Romain Bertrand
@@ -999,7 +1002,11 @@ lookups:
           - schema: Succession
             from_prop: predecessor
             # As one entity, we link it as a predecessor to the 'Caceis Bank'
-            from: ["Caceis Investor Services Bank France", "RBC Investor Services Bank France"]
+            from:
+              [
+                "Caceis Investor Services Bank France",
+                "RBC Investor Services Bank France",
+              ]
             to_prop: successor
             to: Caceis Bank
             role: venant aux droits
@@ -1092,3 +1099,7 @@ lookups:
           - Mikaël Nacivet
           - Jacques Simoncini
           - Laurent-Olivier Orset
+      - match: "La société Saxo Bank A/S, venant aux droits de la société BinckBank NV"
+        entities:
+          - Saxo Bank A/S
+          - BinckBank NV

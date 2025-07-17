@@ -1,6 +1,7 @@
 name: id_dttot
 title: Indonesian List of Suspected Terrorists and Terrorist Organizations
 url: https://www.ppatk.go.id/link/read/23/dttot-proliferasi-wmd.html
+prefix: id-dttot
 entry_point: crawler
 coverage:
   frequency: daily
