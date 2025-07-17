@@ -7,7 +7,11 @@ from zavod import Context
 from rigour.mime.types import PDF, PNG
 from zavod import helpers as h
 from zavod.shed.gpt import run_typed_image_prompt
-from zavod.stateful.extraction import get_accepted_data, assert_all_accepted
+from zavod.stateful.extraction import (
+    get_accepted_data,
+    assert_all_accepted,
+    upload_evidence,
+)
 
 
 PROMPT = """
@@ -55,16 +59,16 @@ def crawl(context: Context):
         # We want this to be distinct between versions so that garbage collecting a
         # version garbage collects only the resources for that version and not resources
         # referenced by versions we don't want to delete yet..
-        archive_key = slugify(extraction_key_parts + [context.version.id])
+        archive_key = slugify(extraction_key_parts + [context.version.id]) + ".png"
         assert archive_key is not None
-        image_url = context.archive_resource(page_path, PDF, archive_key)
+        evidence_path = upload_evidence(context, page_path, PDF, archive_key)
         prompt_result = run_typed_image_prompt(
             context, PROMPT, page_path, WantedPersonList
         )
         result = get_accepted_data(
             context,
             key=extraction_key_parts,
-            source_value=image_url,
+            source_value=evidence_path,
             source_content_type=PNG,
             source_label="Screenshot of page in source PDF",
             source_url=context.data_url,
