@@ -1,5 +1,5 @@
-from hashlib import sha1
 import mimetypes
+from hashlib import sha1
 from pathlib import Path
 from functools import cached_property
 from typing import TYPE_CHECKING, Dict, Any, Optional, List
@@ -140,6 +140,10 @@ class Dataset(FollowTheMoneyDataset):
             data["full_dataset"] = self.model.full_dataset
         for resource in data.get("resources", []):
             resource["path"] = resource["name"]
+        if self.is_collection:
+            # HACK backwards compatibility
+            data["datasets"] = [d.name for d in self.datasets]
+            data["datasets"].remove(self.name)
         return data
 
     def to_opensanctions_dict(self, catalog: "ArchiveBackedCatalog") -> Dict[str, Any]:

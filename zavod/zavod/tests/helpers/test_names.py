@@ -1,14 +1,7 @@
 from structlog.testing import capture_logs
 
 from zavod.context import Context
-from zavod.entity import Entity
 from zavod.helpers import make_name, apply_name, split_comma_names
-
-
-ENTITY = {
-    "id": "bla",
-    "schema": "Person",
-}
 
 
 def test_make_name():
@@ -16,8 +9,9 @@ def test_make_name():
     assert name == "John Doe"
 
 
-def test_entity_name():
-    entity = Entity.from_dict(ENTITY)
+def test_entity_name(vcontext: Context):
+    entity = vcontext.make("Person")
+    entity.id = "bla"
     apply_name(
         entity,
         first_name="John",
@@ -30,8 +24,9 @@ def test_entity_name():
         assert stmt.lang == "eng"
 
 
-def test_full_name():
-    entity = Entity.from_dict(ENTITY)
+def test_full_name(vcontext: Context):
+    entity = vcontext.make("Person")
+    entity.id = "bla"
     apply_name(
         entity,
         full="Zorro",
@@ -45,8 +40,9 @@ def test_full_name():
         assert stmt.lang == "eng"
 
 
-def test_alias_name():
-    entity = Entity.from_dict(ENTITY)
+def test_alias_name(vcontext: Context):
+    entity = vcontext.make("Person")
+    entity.id = "bla"
     apply_name(
         entity,
         first_name="John",

@@ -263,11 +263,11 @@ def test_crawl_dataset_wrapper(testdataset1: Dataset):
     stats = crawl_dataset(testdataset1)
     assert stats.entities > 10
 
-    testdataset1.disabled = True
+    testdataset1.model.disabled = True
     stats = crawl_dataset(testdataset1)
     assert stats.entities == 0
 
-    testdataset1.disabled = False
+    testdataset1.model.disabled = False
     assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
     with pytest.raises(RunFailedException):
