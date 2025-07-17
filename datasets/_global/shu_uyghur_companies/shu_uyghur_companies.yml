@@ -29,8 +29,8 @@ description: |
   This list is not exhaustive, nor does it provide data on companies that were 
   registered, de-registered, or otherwise changed status after that time.
   English translation is machine-generated and may not be accurate.
-  [Source: Helena Kennedy Centre for International Justice](https://www.shu.ac.uk/helena-kennedy-centre-international-justice/research-and-projects/all-projects/useful-resources)
-url: https://www.shu.ac.uk/helena-kennedy-centre-international-justice/research-and-projects/all-projects/useful-resources
+  [Source: Helena Kennedy Centre for International Justice](https://www.shu.ac.uk/helena-kennedy-centre-international-justice)
+url: https://www.shu.ac.uk/helena-kennedy-centre-international-justice
 publisher:
   name: Helena Kennedy Centre for International Justice at Sheffield Hallam University
   acronym: SHU
@@ -42,7 +42,7 @@ publisher:
   url: https://www.shu.ac.uk/helena-kennedy-centre-international-justice
   official: false
 data:
-  url: https://www.shu.ac.uk/helena-kennedy-centre-international-justice/research-and-projects/all-projects/useful-resources
+  url: https://www.shu.ac.uk/helena-kennedy-centre-international-justice
   format: HTML
 
 assertions:
