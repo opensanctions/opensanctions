@@ -48,7 +48,7 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 650
-      Person: 650
+      Person: 1000
 
 lookups:
   names:
@@ -395,3 +395,15 @@ lookups:
           - 0001-282341
       - match: "26NP07943800(N\nJ)"
         values: ["26NP07943800"]
+      - match: "25MB04184600(\nNJ)"
+        values: ["25MB04184600"]
+      - match: "RN2879412(F\nL)"
+        values: ["RN2879412"]
+      - match: "R\n0065074(OK)"
+        values: ["R0065074"]
+      - match: "RN348987L(\nPA)"
+        values: ["RN348987L"]
+      - match: "214272\n(NY)"
+        values: ["214272"]
+      - match: "764907(N\nY)"
+        values: [764907]

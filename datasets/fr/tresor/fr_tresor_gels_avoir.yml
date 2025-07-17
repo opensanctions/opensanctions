@@ -635,6 +635,18 @@ lookups:
         props:
           jurisdiction: sy
           address: "Damas-Campagne"
+      - match: "Lieu d'enregistrement: Ul. Dinamovskaya D.1a, Bureau 409, Moscou, RUS, 109044"
+        props:
+          jurisdiction: ru
+          address: "Ul. Dinamovskaya D.1a, Bureau 409, Moscou, RUS, 109044"
+      - match: "Lieu d'enregistrement: 295000, République de Crimée, Simferopol, Oktyabirskaya Street, 3, Office 408"
+        props:
+          jurisdiction: ua-cri
+          address: "295000, République de Crimée, Simferopol, Oktyabirskaya Street, 3, Office 408"
+      - match: "Lieu d'enregistrement: 13, Korolyov street, Moscou, Russie"
+        props:
+          jurisdiction: ru
+          address: "13, Korolyov street, Moscou, Russie"
       - match: "Principal établissement: territoire du régime syrien en Syrie"
         props:
           jurisdiction: sy
@@ -644,6 +656,12 @@ lookups:
       - match: "Date de création: 29.6. 2015"
         props:
           incorporationDate: 2015-06-29
+      - match: "Date de création: 23.3.2021"
+        props:
+          incorporationDate: 2021-03-23
+      - match: "ОГРН: 1027739456084"
+        props:
+          ogrnCode: 1027739456084
 
   ####################################################################################################
   ####################################################################################################
@@ -668,6 +686,14 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      - match: "Type d’entité: unités militaires - Lieu d’enregistrement: région de Kaliningrad, Fédération de Russie"
+        props:
+          legalForm: unités militaires
+          jurisdiction: ru
+          address: "région de Kaliningrad, Fédération de Russie"
+      - match: "Numéro d’enregistrement: ИНН: 7717127211"
+        props:
+          innCode: 7717127211
       - match:
           "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
           (IRGC)  - Lieu d’enregistrement: Kermanshah, Iran  - Principal lieu d’activité:
@@ -1797,6 +1823,10 @@ lookups:
           address: "305502, région de Koursk, pos. Marshal Zhukov, military unit 32406"
           incorporationDate: 2009-11-26
           innCode: 4611010810
+      - match: "Unité militaire: 09643"
+        props:
+          legalForm: unités militaires
+          registrationNumber: 09643
       - match:
           "Lieu d’enregistrement: Fédération de Russie (606083, région de Nizhny Novgorod,
           district de Volodarsky, Mulino) - Date d’enregistrement: 14.12.2009 - Principal
