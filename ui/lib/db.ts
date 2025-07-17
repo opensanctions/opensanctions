@@ -39,46 +39,58 @@ export interface ReviewDatabase {
 
 
 const dbUrl = process.env.ZAVOD_DATABASE_URI;
-if (!dbUrl) throw new Error('ZAVOD_DATABASE_URI not set');
-const isPostgres = dbUrl.startsWith('postgres');
-let dialect: Dialect
-if (isPostgres) {
-  dialect = new PostgresDialect({
-    pool: new Pool({
-      connectionString: dbUrl,
-      max: 10,
-    }),
-  })
+let db: Kysely<ReviewDatabase> | null = null;
+
+if (dbUrl) {
+  const isPostgres = dbUrl.startsWith('postgres');
+  let dialect: Dialect
+  if (isPostgres) {
+    dialect = new PostgresDialect({
+      pool: new Pool({
+        connectionString: dbUrl,
+        max: 10,
+      }),
+    })
+  } else {
+    throw new Error(`Unsupported database type ${dbUrl}`);
+  }
+  db = new Kysely<ReviewDatabase>({ dialect, log: ['error'] })
 } else {
-  throw new Error(`Unsupported database type ${dbUrl}`);
+  console.error('ZAVOD_DATABASE_URI not set');
 }
-export const db = new Kysely<ReviewDatabase>({dialect, log: ['error']})
+
+export function getDb() {
+  if (!db) {
+    throw new Error('Database not initialized');
+  }
+  return db;
+}
 
 
 
 export async function getDatasetStats() {
   // Subquery to get the latest version for each dataset
-  const latestVersionSubquery = db
+  const latestVersionSubquery = getDb()
     .selectFrom('review')
     .select([
       'dataset',
-      db.fn.max('last_seen_version').as('latest_version'),
+      getDb().fn.max('last_seen_version').as('latest_version'),
     ])
     .where('deleted_at', 'is', null)
     .groupBy('dataset')
     .as('lv');
 
   // Join review with the subquery on dataset and last_seen_version, then aggregate
-  const rows = await db
+  const rows = await getDb()
     .selectFrom('review')
     .innerJoin(latestVersionSubquery, join =>
       join.onRef('review.dataset', '=', 'lv.dataset')
-          .onRef('review.last_seen_version', '=', 'lv.latest_version')
+        .onRef('review.last_seen_version', '=', 'lv.latest_version')
     )
     .select([
       'review.dataset',
-      db.fn.count<number>('review.id').as('total'),
-      db.fn.sum<number>(sql<number>`CAST(review.accepted AS integer)`).as('accepted_sum'),
+      getDb().fn.count<number>('review.id').as('total'),
+      getDb().fn.sum<number>(sql<number>`CAST(review.accepted AS integer)`).as('accepted_sum'),
     ])
     .where('review.deleted_at', 'is', null)
     .groupBy('review.dataset')
@@ -93,15 +105,15 @@ export async function getDatasetStats() {
 
 export async function getExtractionEntries(dataset: string) {
   // Subquery to get the latest version for the dataset
-  const latestVersionSubquery = db
+  const latestVersionSubquery = getDb()
     .selectFrom('review')
-    .select(db.fn.max('last_seen_version').as('latest_version'))
+    .select(getDb().fn.max('last_seen_version').as('latest_version'))
     .where('dataset', '=', dataset)
     .where('deleted_at', 'is', null)
     .as('lv');
 
   // Join review with the subquery on last_seen_version
-  const rows = await db
+  const rows = await getDb()
     .selectFrom('review')
     .innerJoin(latestVersionSubquery, 'review.last_seen_version', 'lv.latest_version')
     .select([
@@ -131,7 +143,7 @@ export async function getExtractionEntries(dataset: string) {
 
 export async function getExtractionEntry(dataset: string, key: string) {
   // Use Kysely to fetch the latest entry for the given dataset and key
-  return await db
+  return await getDb()
     .selectFrom('review')
     .where('dataset', '=', dataset)
     .where('key', '=', key)
@@ -142,7 +154,7 @@ export async function getExtractionEntry(dataset: string, key: string) {
 
 export async function updateExtractionEntry({ dataset, key, accepted, extractedData, modifiedBy }: { dataset: string, key: string, accepted: boolean, extractedData: object, modifiedBy: string }) {
   const now = new Date().toISOString();
-  await db.transaction().execute(async (trx) => {
+  await getDb().transaction().execute(async (trx) => {
     // Mark current as deleted
     await trx
       .updateTable('review')
@@ -180,15 +192,15 @@ export async function updateExtractionEntry({ dataset, key, accepted, extractedD
 
 export async function getNextUnacceptedEntryKey(dataset: string): Promise<string | null> {
   // Subquery to get the latest version for the dataset
-  const latestVersionSubquery = db
+  const latestVersionSubquery = getDb()
     .selectFrom('review')
-    .select(db.fn.max('last_seen_version').as('latest_version'))
+    .select(getDb().fn.max('last_seen_version').as('latest_version'))
     .where('dataset', '=', dataset)
     .where('deleted_at', 'is', null)
     .as('lv');
 
   // Join review with the subquery on last_seen_version and filter for unaccepted
-  const row = await db
+  const row = await getDb()
     .selectFrom('review')
     .innerJoin(latestVersionSubquery, 'review.last_seen_version', 'lv.latest_version')
     .select('review.key')
