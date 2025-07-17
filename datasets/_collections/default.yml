@@ -6,7 +6,7 @@ coverage:
 deploy:
   memory: "2000Mi"
   memory_limit: "3000Mi"
-  cpu: "800m"
+  cpu: "1200m"
   disk: "50Gi"
   command: /etl/scripts/export-default.sh
   premium: true
