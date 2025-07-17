@@ -18,6 +18,7 @@ from zavod.meta.assertion import Assertion, parse_assertions, Comparison, Metric
 from zavod.meta.model import DataModel, ZavodDatasetModel
 from zavod.meta.dates import DatesSpec
 from zavod.meta.http import HTTP
+from zavod.runtime.urls import make_published_url
 
 if TYPE_CHECKING:
     from zavod.meta.catalog import ArchiveBackedCatalog
@@ -99,8 +100,6 @@ class Dataset(FollowTheMoneyDataset):
         title: Optional[str] = None,
     ) -> "DataResource":
         """Create a resource description object from a local file path."""
-        from zavod.runtime.urls import make_published_url
-
         if not path.exists():
             raise ValueError("File does not exist: %s" % path)
         if mime_type is None:
