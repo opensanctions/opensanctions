@@ -38,4 +38,4 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 - `ZAVOD_DATABASE_URI` - (e.g. `postgresql://user:pw@host.com/db`) - only postgres supported.
 - `ZAVOD_IAP_AUDIENCE` - https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-nodejs
-- `ZAVOD_IAP_AUTH_DISABLED` (default `false`; e.g. `true`) - skip IAP-based authentication **DON'T ENABLE WHEN PUBLICLY ACCESSIBLE**
+- `ZAVOD_UNSAFE_IAP_AUTH_DISABLED` (default `false`; e.g. `true`) - skip IAP-based authentication **DON'T ENABLE WHEN PUBLICLY ACCESSIBLE**
