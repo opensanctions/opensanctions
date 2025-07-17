@@ -6,15 +6,13 @@ coverage:
   start: 2025-07-17
 load_statements: true
 summary: >
-  Designation of entities involved in the production, sale, or distribution of
+  Entities involved in the production, sale, or distribution of
   strategic high-tech commodities that may contribute to the development of
   weapons of mass destruction or military applications.
 description: |
-  This dataset comprises information about entities designated by Taiwan's
-  Ministry of Economic Affairs (MOEA) under the Strategic High-Tech Commodities
-  Control Act. The list includes entities involved in the production, sale, or
-  distribution of strategic high-tech commodities that may contribute to the
-  development of weapons of mass destruction or military applications.
+  This dataset lists entities designated by Taiwan's Ministry of Economic Affairs (MOEA) 
+  that are involved in the production, sale, or distribution of strategic high-tech commodities 
+  that may contribute to the development of weapons of mass destruction or military applications.
 publisher:
   name: Ministry of Economic Affairs
   acronym: MOEA
@@ -40,3 +38,19 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 15000
+
+lookups:
+  type.identifier:
+    options:
+      - match: 'Counterfeit Danish driving licence number 20645897 note:made out to Ali Barkani, born on 22 Aug. 1973 in Morocco'
+        value: '20645897'
+      - match: 'note:issued for Djamel Mostefa, born on 25 Sep. 1973 in Mehdia, Tiaret province, Algeria'
+        prop: 'description'
+      - match: 'Central African Republic armed forces (FACA) Military identificationnumber 911-10-77'
+        value: '911-10-77'
+  type.address:
+    options:
+      - match: 'Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com'
+        value: 'Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan'
+      - match: 'Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com'
+        value: 'Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan'
