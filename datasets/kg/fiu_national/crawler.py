@@ -45,7 +45,7 @@ def parse_common(context: Context, node: Element, entity: Entity):
 
 
 def crawl_index(context: Context) -> Optional[str]:
-    doc = context.fetch_html(context.dataset.url, cache_days=1)
+    doc = context.fetch_html(context.dataset.model.url, cache_days=1)
     for link in doc.findall(".//a"):
         href = link.get("href")
         if href.endswith(".xml"):
@@ -56,7 +56,7 @@ def crawl_index(context: Context) -> Optional[str]:
 def crawl(context: Context):
     url = crawl_index(context)
     if url is None:
-        context.log.error("Could not locate XML file", url=context.dataset.url)
+        context.log.error("Could not locate XML file", url=context.dataset.model.url)
         return
     path = context.fetch_resource("source.xml", url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)

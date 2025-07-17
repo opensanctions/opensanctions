@@ -1,15 +1,7 @@
-from followthemoney import model
-from nomenklatura.entity import CompositeEntity
 from structlog.testing import capture_logs
 
 from zavod.context import Context
 from zavod.helpers import make_name, apply_name, split_comma_names
-
-
-ENTITY = {
-    "id": "bla",
-    "schema": "Person",
-}
 
 
 def test_make_name():
@@ -17,8 +9,9 @@ def test_make_name():
     assert name == "John Doe"
 
 
-def test_entity_name():
-    entity = CompositeEntity.from_dict(model, ENTITY)
+def test_entity_name(vcontext: Context):
+    entity = vcontext.make("Person")
+    entity.id = "bla"
     apply_name(
         entity,
         first_name="John",
@@ -31,8 +24,9 @@ def test_entity_name():
         assert stmt.lang == "eng"
 
 
-def test_full_name():
-    entity = CompositeEntity.from_dict(model, ENTITY)
+def test_full_name(vcontext: Context):
+    entity = vcontext.make("Person")
+    entity.id = "bla"
     apply_name(
         entity,
         full="Zorro",
@@ -46,8 +40,9 @@ def test_full_name():
         assert stmt.lang == "eng"
 
 
-def test_alias_name():
-    entity = CompositeEntity.from_dict(model, ENTITY)
+def test_alias_name(vcontext: Context):
+    entity = vcontext.make("Person")
+    entity.id = "bla"
     apply_name(
         entity,
         first_name="John",
@@ -106,10 +101,9 @@ def test_split_comma_names(vcontext: Context, caplog):
     assert split_comma_names(vcontext, "A, B and C Ltd.") == ["A, B and C Ltd."]
     # Would have been nice if this could be split
     assert split_comma_names(
-        vcontext,
-        "songyan li, junhong xiong, k. ivan gothner and edward pazdro"
+        vcontext, "songyan li, junhong xiong, k. ivan gothner and edward pazdro"
     ) == ["songyan li, junhong xiong, k. ivan gothner and edward pazdro"]
-    
+
     with capture_logs() as cap_logs:
         # Would have been nice if this could be split
         assert split_comma_names(vcontext, "A B and C, D E F") == ["A B and C, D E F"]

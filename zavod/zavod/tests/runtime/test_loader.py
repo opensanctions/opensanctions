@@ -12,15 +12,15 @@ def test_load_entry_point(testdataset1: Dataset):
 
 
 def test_load_module_by_name(testdataset1: Dataset, analyzer: Dataset):
-    testdataset1.entry_point = "zavod.runtime.loader:example_function"
+    testdataset1.model.entry_point = "zavod.runtime.loader:example_function"
     func = load_entry_point(testdataset1)
     assert func is not None
     assert func == example_function
 
     with pytest.raises(RuntimeError):
-        testdataset1.entry_point = "zavod.runtime.loader:does_not_exist"
+        testdataset1.model.entry_point = "zavod.runtime.loader:does_not_exist"
         load_entry_point(testdataset1)
 
     with pytest.raises(RuntimeError):
-        testdataset1.entry_point = None
+        testdataset1.model.entry_point = None
         load_entry_point(testdataset1)

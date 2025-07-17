@@ -8,6 +8,7 @@ import orjson
 from datapatch import Lookup, LookupException, Result
 from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
+from followthemoney.dataset import DataResource
 from lxml import etree, html
 from nomenklatura.cache import Cache
 from nomenklatura.versions import Version
@@ -20,10 +21,10 @@ from structlog.contextvars import bind_contextvars, reset_contextvars
 from zavod import settings
 from zavod.archive import dataset_data_path, dataset_resource_path
 from zavod.audit import inspect
-from zavod.db import get_engine, meta
+from zavod.meta import Dataset
 from zavod.entity import Entity
+from zavod.db import get_engine, meta
 from zavod.logs import get_logger
-from zavod.meta import DataResource, Dataset
 from zavod.runtime.http_ import (
     _Auth,
     _Body,
@@ -70,9 +71,12 @@ class Context:
         self._data_time: datetime = settings.RUN_TIME
         # If the dataset has a fixed end time which is in the past,
         # use that as the data time:
-        if dataset.coverage is not None and dataset.coverage.end is not None:
-            if dataset.coverage.end < settings.RUN_TIME_ISO:
-                prefix = DatePrefix(dataset.coverage.end)
+        if (
+            dataset.model.coverage is not None
+            and dataset.model.coverage.end is not None
+        ):
+            if dataset.model.coverage.end < settings.RUN_TIME_ISO:
+                prefix = DatePrefix(dataset.model.coverage.end)
                 self._data_time = prefix.dt or self._data_time
 
         self.lang: Optional[str] = None
@@ -193,8 +197,8 @@ class Context:
         Returns:
             The generated resource object which has been saved.
         """
-        resource = DataResource.from_path(
-            self.dataset, path, mime_type=mime_type, title=title
+        resource = self.dataset.resource_from_path(
+            path, mime_type=mime_type, title=title
         )
         if not self.dry_run:
             self.resources.save(resource)
@@ -475,6 +479,7 @@ class Context:
         if hashed is None:
             return None
         prefix = self.dataset.prefix if prefix is None else prefix
+        assert prefix is not None, "Prefix must be set for entity ID"
         return prefixed_hash_id(prefix, hashed)
 
     def lookup_value(

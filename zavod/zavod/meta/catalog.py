@@ -1,7 +1,7 @@
 import yaml
 from typing import Optional
 from pathlib import Path
-from nomenklatura.dataset import DataCatalog
+from followthemoney.dataset import DataCatalog
 
 from zavod.meta.dataset import Dataset
 from zavod.archive import get_dataset_artifact, INDEX_FILE
@@ -19,7 +19,7 @@ class ArchiveBackedCatalog(DataCatalog[Dataset]):
         dataset = Dataset(data)
         dataset.base_path = path.parent
         self.add(dataset)
-        for name in dataset._children:
+        for name in dataset.model.children:
             self.get(name)
         return dataset
 

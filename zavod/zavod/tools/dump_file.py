@@ -1,6 +1,6 @@
 from pathlib import Path
+from followthemoney.statement.serialize import get_statement_writer
 from nomenklatura.resolver import Linker
-from nomenklatura.statement.serialize import get_statement_writer
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset

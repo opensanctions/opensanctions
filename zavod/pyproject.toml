@@ -18,11 +18,11 @@ classifiers = [
 ]
 requires-python = ">= 3.11"
 dependencies = [
-    "followthemoney == 3.8.*",
-    "nomenklatura[leveldb] == 3.17.5",
+    "followthemoney == 4.0.2",
+    "nomenklatura[leveldb] == 4.0.*",
     "countrynames >= 1.16.10, < 2.0",
     "plyvel == 1.5.1",
-    "rigour == 0.14.3",
+    "rigour == 1.0.*",
     "datapatch >= 1.1,< 1.3",
     "certifi",
     "colorama",
@@ -74,6 +74,7 @@ dev = [
     "types-openpyxl",
     "types-google-cloud-ndb",
     "types-redis",
+    "types-PyYAML",
     "pre-commit",
 ]
 docs = [

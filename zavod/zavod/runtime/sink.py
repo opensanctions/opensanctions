@@ -1,8 +1,7 @@
 from typing import Optional, TextIO
 from normality.encoding import DEFAULT_ENCODING
-from nomenklatura.statement import Statement
-from nomenklatura.statement.serialize import PackStatementWriter
-
+from followthemoney import Statement
+from followthemoney.statement.serialize import PackStatementWriter
 
 from zavod.meta import Dataset
 from zavod.archive import dataset_resource_path, STATEMENTS_FILE

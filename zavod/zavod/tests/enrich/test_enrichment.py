@@ -1,7 +1,7 @@
 from typing import Generator
 
+from followthemoney import SE
 from nomenklatura.enrich import Enricher
-from nomenklatura.entity import CE
 from nomenklatura.judgement import Judgement
 from normality import slugify
 
@@ -14,7 +14,7 @@ from zavod.meta import Dataset
 class StubEnricher(Enricher):
     __test__ = False
 
-    def match(self, entity: CE) -> Generator[CE, None, None]:
+    def match(self, entity: SE) -> Generator[SE, None, None]:
         if entity.schema.name != "Person":
             return
         result = self.make_entity(entity, "Person")
@@ -25,7 +25,7 @@ class StubEnricher(Enricher):
         result.add("sourceUrl", "https://enrichment.os.org")
         yield result
 
-    def expand(self, entity: CE, match: CE) -> Generator[CE, None, None]:
+    def expand(self, entity: SE, match: SE) -> Generator[SE, None, None]:
         yield match
 
 

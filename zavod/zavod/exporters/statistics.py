@@ -1,7 +1,6 @@
 from collections import defaultdict, namedtuple
 from typing import Dict, List, Any, Optional, Set
-from followthemoney import model
-from followthemoney.types import registry
+from followthemoney import model, registry
 
 from zavod.entity import Entity
 from zavod.archive import STATISTICS_FILE

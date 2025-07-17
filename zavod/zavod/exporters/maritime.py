@@ -1,6 +1,6 @@
 import csv
 from typing import Set, Iterable
-from followthemoney.types import registry
+from followthemoney import registry
 
 from normality import collapse_spaces
 from zavod import settings

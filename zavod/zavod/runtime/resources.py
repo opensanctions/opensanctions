@@ -1,7 +1,8 @@
 import json
 from typing import Dict, Any, List
+from followthemoney.dataset import DataResource
 
-from zavod.meta import Dataset, DataResource
+from zavod.meta import Dataset
 from zavod.archive import dataset_resource_path
 from zavod.archive import RESOURCES_FILE
 
@@ -16,7 +17,11 @@ class DatasetResources(object):
 
     def _store_resources(self, resources: List[DataResource]) -> None:
         with open(self.path, "w") as fh:
-            objs = [r.to_opensanctions_dict() for r in resources]
+            objs: List[Dict[str, Any]] = []
+            for resource in resources:
+                data = resource.model_dump(mode="json", exclude_none=True)
+                data["path"] = resource.name
+                objs.append(data)
             json.dump({"resources": objs}, fh, indent=2)
 
     def save(self, resource: DataResource) -> None:
@@ -38,7 +43,7 @@ class DatasetResources(object):
             with open(self.path, "r") as fh:
                 data = json.load(fh)
         for raw in data.get("resources", []):
-            resources.append(DataResource(raw))
+            resources.append(DataResource.model_validate(raw))
         return resources
 
     def clear(self) -> None:

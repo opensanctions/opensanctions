@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from nomenklatura.statement.db import make_statement_table
+from nomenklatura.db import make_statement_table
 
 from zavod.db import meta, get_engine
 from zavod.meta import Dataset

@@ -1,7 +1,7 @@
 type: collection
 title: A test collection for testing collection thingies
 summary: >
-  This is not real data. It is test stuffies.
+  This is not real data. It is test stuffies. Yet it is very verbose to meet the summary length requirements.
 children:
   - testdataset1
   - testdataset2

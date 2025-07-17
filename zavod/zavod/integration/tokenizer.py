@@ -7,9 +7,7 @@ from rigour.addresses import normalize_address, remove_address_keywords
 from rigour.names import tokenize_name
 from rigour.names import remove_person_prefixes, remove_org_types
 from typing import Generator, Optional, Set, Tuple
-from followthemoney.types import registry
-from followthemoney.schema import Schema
-from nomenklatura.entity import CompositeEntity
+from followthemoney import registry, Schema, StatementEntity
 
 NON_LETTER = re.compile(r"[^a-z0-9]+")
 WORD_FIELD = "wd"
@@ -91,7 +89,7 @@ def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None
     yield (registry.name.name, f"{prefix}:{name_fp[:200]}")
 
 
-def tokenize_entity(entity: CompositeEntity) -> Generator[Tuple[str, str], None, None]:
+def tokenize_entity(entity: StatementEntity) -> Generator[Tuple[str, str], None, None]:
     unique: Set[Tuple[str, str]] = set()
     for prop, value in entity.itervalues():
         type = prop.type

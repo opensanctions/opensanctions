@@ -2,14 +2,13 @@ from pathlib import Path
 from banal import hash_data
 from typing import Optional, List
 from functools import cache
-from nomenklatura.exceptions import MetadataException
+from followthemoney.exc import MetadataException
 
 from zavod.logs import get_logger
 from zavod.meta.dataset import Dataset
-from zavod.meta.resource import DataResource
 from zavod.meta.catalog import ArchiveBackedCatalog
 
-__all__ = ["Dataset", "DataResource"]
+__all__ = ["Dataset"]
 log = get_logger(__name__)
 
 

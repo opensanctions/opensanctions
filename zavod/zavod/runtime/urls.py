@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from typing import Optional
 from urllib.parse import urljoin
 
+import zavod
 from zavod import settings
-from zavod.entity import Entity
 from zavod.archive import DATASETS, ARTIFACTS
 
 
@@ -20,7 +22,7 @@ def make_artifact_url(dataset_name: str, version: str, path: str) -> str:
     return urljoin(url, path)
 
 
-def make_entity_url(entity: Entity) -> Optional[str]:
+def make_entity_url(entity: "zavod.entity.Entity") -> Optional[str]:
     """Generate a public URL for a file within the dataset context."""
     # TODO: implement check if the entity is in default, if not return None
     if entity.id is None:

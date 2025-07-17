@@ -1,7 +1,7 @@
 from decimal import Decimal
 import logging
 from typing import Generator, Iterator, List, Tuple
-from followthemoney.types import registry
+from followthemoney import registry, DS
 from followthemoney.helpers import check_person_cutoff
 
 from nomenklatura.enrich.common import EnricherConfig
@@ -11,7 +11,6 @@ from nomenklatura.matching import get_algorithm, LogicV1
 from nomenklatura.resolver import Identifier
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
-from nomenklatura.dataset import DS
 from nomenklatura.cache import Cache
 
 from zavod.archive import dataset_state_path

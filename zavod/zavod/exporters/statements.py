@@ -1,5 +1,5 @@
 from normality.encoding import DEFAULT_ENCODING
-from nomenklatura.statement.serialize import CSVStatementWriter
+from followthemoney.statement.serialize import CSVStatementWriter
 
 from zavod.entity import Entity
 from zavod.exporters.common import Exporter, ExportView

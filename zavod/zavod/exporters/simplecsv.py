@@ -1,7 +1,7 @@
 import io
 import csv
 from typing import List, Iterable
-from followthemoney.types import registry
+from followthemoney import registry
 from followthemoney.util import join_text
 
 from zavod.entity import Entity
@@ -85,7 +85,7 @@ class SimpleCSVExporter(Exporter):
         datasets: List[str] = []
         for dataset in entity.datasets:
             ds = get_catalog().require(dataset)
-            datasets.append(ds.title)
+            datasets.append(ds.model.title)
         row = [
             entity.id,
             entity.schema.name,

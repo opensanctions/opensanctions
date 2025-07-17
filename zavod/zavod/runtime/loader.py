@@ -16,9 +16,9 @@ def load_entry_point(dataset: Dataset, method: str = "crawl") -> Callable[[Any],
     by specifying a file name relative to the dataset.base_path, or a proper
     Python module name."""
     invalidate_caches()
-    if dataset.entry_point is None:
+    if dataset.model.entry_point is None:
         raise RuntimeError("The dataset has no entry point!")
-    module_name = dataset.entry_point
+    module_name = dataset.model.entry_point
     if ":" in module_name:
         module_name, method = module_name.rsplit(":", 1)
     module: Optional[ModuleType] = None
@@ -40,7 +40,7 @@ def load_entry_point(dataset: Dataset, method: str = "crawl") -> Callable[[Any],
                     spec.loader.exec_module(module)
                     break
     if module is None:
-        raise RuntimeError("Could not load entry point: %s" % dataset.entry_point)
+        raise RuntimeError("Could not load entry point: %s" % dataset.model.entry_point)
     try:
         method_ = getattr(module, method)
         return cast(Callable[[Any], None], method_)

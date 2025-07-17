@@ -42,7 +42,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     person.add("birthDate", date_of_birth)
     person.add(
         "program",
-        f"{context.dataset.title} - {colour_en(row.pop('TKategoriAdi'))} List",
+        f"{context.dataset.model.title} - {colour_en(row.pop('TKategoriAdi'))} List",
     )
     person.add("topics", "sanction.counter")
     # person.add("topics", "wanted")

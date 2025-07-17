@@ -1,7 +1,7 @@
 import csv
 from typing import Set, Iterable
 from normality import collapse_spaces
-from followthemoney.types import registry
+from followthemoney import registry
 from rigour.boolean import bool_text
 
 from zavod.entity import Entity

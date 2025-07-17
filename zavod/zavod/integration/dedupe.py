@@ -29,7 +29,7 @@ def get_resolver() -> Resolver[Entity]:
 
 def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
     """Get a resolver linker for the given dataset."""
-    if not dataset.resolve:
+    if not dataset.model.resolve:
         return Linker[Entity]({})
     resolver = get_resolver()
     log.info("Loading linker from: %r" % resolver)

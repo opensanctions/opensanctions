@@ -4,10 +4,6 @@ from typing import Any, Dict, Generator, Optional
 from followthemoney import model
 
 
-from followthemoney.types import registry
-from nomenklatura.dataset.util import type_require
-
-
 class Metric(Enum):
     ENTITY_COUNT = "entity_count"
     """Number of entities matching the filter in the dataset."""
@@ -63,7 +59,7 @@ def parse_filters(
     config: Dict[str, Any],
 ) -> Generator[Assertion, None, None]:
     for key, value in config.items():
-        threshold = int(type_require(registry.number, value))
+        threshold = int(value)
         yield Assertion(metric, comparison, threshold, filter_attribute, key)
 
 
@@ -104,7 +100,7 @@ def parse_metrics(
                             (schema_name, prop_name),
                         )
             case "countries":
-                threshold = int(type_require(registry.number, value))
+                threshold = int(value)
                 yield Assertion(Metric.COUNTRY_COUNT, comparison, threshold, None, None)
             case _:
                 raise ValueError(f"Unknown metric: {key}")

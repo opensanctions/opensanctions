@@ -54,7 +54,8 @@ def get_base_dataset_metadata(
         if res.name in ARTIFACT_FILES:
             # TODO: we could make artifact URLs here?
             continue
-        res_data = res.to_opensanctions_dict()
+        res_data = res.model_dump(mode="json", exclude_none=True)
+        res_data["path"] = res.name
         res_datas.append(res_data)
     meta["resources"] = res_datas
     return meta
