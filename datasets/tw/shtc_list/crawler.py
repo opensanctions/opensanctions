@@ -4,14 +4,30 @@ from zavod import Context, helpers as h
 
 ADDRESS_SPLITS = [
     ";",
-    "i)",
-    "ii)",
     "iii)",
+    "ii)",
+    "i)",
     "iv)",
     "v)",
     "vi)",
-    "vii)",
     "viii)",
+    "vii)",
+    "Branch Office 1:",
+    "Branch Office 2:",
+    "Branch Office 3:",
+    "Branch Office 4:",
+    "Branch Office 5:",
+    "Branch Office 6:",
+    "Branch Office 7:",
+    "Branch Office 8:",
+    "Branch Office 9:",
+    "Branch Office 10:",
+    "Branch Office 11:",
+    "Branch Office 12:",
+    "Branch Office 13:",
+    "Branch Office 14:",
+    "Branch Office 15:",
+    "Branch Office 16:",
 ]
 
 
@@ -26,22 +42,23 @@ def crawl(context: Context):
                 .replace(" ", "_"): v.strip() if isinstance(v, str) else v
                 for k, v in row.items()
             }
-            item = row.pop("項次item")
-            name = row.pop("名稱name")
-            entity = context.make("LegalEntity")
-            entity.id = context.make_id(item, name)
-            for n in name.split(";"):
-                entity.add("name", n)
+            names = row.pop("名稱name")
             aliases = row.pop("別名alias")
+            if not any([names, aliases]):
+                continue
+            entity = context.make("LegalEntity")
+            entity.id = context.make_id(names, aliases)
+            for name in names.split(";"):
+                entity.add("name", name)
             for alias in aliases.split(";"):
-                entity.add("alias", alias.strip())
-            countries = row.pop("國家代碼country_code")
-            for country in countries.split(";"):
-                entity.add("country", country.strip())
-            addresses = row.pop("地址address")
-            for address in h.multi_split(addresses, ADDRESS_SPLITS):
-                entity.add("address", address.strip())
-            entity.add("registrationNumber", row.pop("護照號碼id_number"))
+                entity.add("alias", alias)
+            for country in row.pop("國家代碼country_code").split(";"):
+                entity.add("country", country)
+            for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
+                entity.add("address", address)
+            for id in row.pop("護照號碼id_number").split(";"):
+                entity.add("idNumber", id)
             entity.add("topics", "debarment")
+
             context.emit(entity)
-            context.audit_data(row)
+            context.audit_data(row, ["項次item"])
