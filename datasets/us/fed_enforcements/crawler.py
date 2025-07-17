@@ -8,7 +8,7 @@ from rigour.mime.types import CSV
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.gpt import run_typed_text_prompt
-from zavod.stateful.extraction import get_accepted_data
+from zavod.stateful.review import get_accepted_data
 from pydantic import BaseModel
 
 

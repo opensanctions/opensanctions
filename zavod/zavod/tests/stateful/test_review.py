@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 from zavod import settings
 from zavod.context import Context
-from zavod.stateful.extraction import get_accepted_data
+from zavod.stateful.review import get_accepted_data
 from zavod.stateful.model import review_table
 
 SOURCE_LABEL = "test"

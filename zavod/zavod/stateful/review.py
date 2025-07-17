@@ -238,7 +238,7 @@ def get_accepted_data(
 
 def assert_all_accepted(context: Context) -> None:
     """
-    Raise an exception with the number of unacpeted itemsif any extraction
+    Raise an exception with the number of unaccepted items if any extraction
     entries for the current dataset and version are not accepted.
     """
     engine = get_engine()

@@ -6,7 +6,7 @@ from lxml.etree import tostring
 from zavod.context import Context
 from zavod import helpers as h
 from zavod.shed.gpt import run_typed_text_prompt
-from zavod.stateful.extraction import get_accepted_data
+from zavod.stateful.review import get_accepted_data
 
 
 class Associate(BaseModel):
