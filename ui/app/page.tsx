@@ -9,17 +9,17 @@ export default async function Home() {
   return (
     <>
       <Head>
-        <title>Zavod Extraction</title>
+        <title>Zavod Reviews</title>
       </Head>
       <div className="container-fluid vh-100 d-flex flex-column p-4 bg-light">
-        <h1 className="text-2xl font-bold mb-4">Zavod Extraction</h1>
-        <p className="mb-3">Unaccepted items are pending human verification.</p>
+        <h1 className="text-2xl font-bold mb-4">Zavod Reviews</h1>
+        <p className="mb-3">Unaccepted reviews are pending human verification. Only reviews for the latest version of each dataset are shown.</p>
         <table className="table table-bordered w-100">
           <thead>
             <tr>
               <th>Dataset</th>
-              <th>Total Items</th>
-              <th>Unaccepted Items</th>
+              <th>Total Reviews</th>
+              <th>Unaccepted Reviews</th>
             </tr>
           </thead>
           <tbody>
