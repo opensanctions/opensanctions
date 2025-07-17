@@ -1,11 +1,11 @@
-import { db, NewReview, updateExtractionEntry } from './db';
+import { getDb, NewReview, updateExtractionEntry } from './db';
 
 
 describe('updateExtractionEntry integration', () => {
   beforeEach(async () => {
     // Clean up the table and create if needed
-    await db.schema.dropTable('review').ifExists().execute();
-    await db.schema
+    await getDb().schema.dropTable('review').ifExists().execute();
+    await getDb().schema
       .createTable('review')
       .addColumn('id', 'serial', (col) => col.primaryKey())
       .addColumn('key', 'text')
@@ -25,7 +25,7 @@ describe('updateExtractionEntry integration', () => {
       .execute();
   });
   afterEach(async () => {
-    await db.schema.dropTable('review').ifExists().execute();
+    await getDb().schema.dropTable('review').ifExists().execute();
   });
 
   it('marks old row as deleted and inserts new row with updated values', async () => {
@@ -47,7 +47,7 @@ describe('updateExtractionEntry integration', () => {
       deleted_at: null,
     };
     // Insert initial row
-    await db.insertInto('review').values(initial).execute();
+    await getDb().insertInto('review').values(initial).execute();
 
     // Call updateExtractionEntry
     const newAccepted = true;
@@ -61,7 +61,7 @@ describe('updateExtractionEntry integration', () => {
     });
 
     // Check old row is marked as deleted
-    const oldRows = await db.selectFrom('review')
+    const oldRows = await getDb().selectFrom('review')
       .selectAll()
       .where('dataset', '=', 'd1')
       .where('key', '=', 'k1')
@@ -72,7 +72,7 @@ describe('updateExtractionEntry integration', () => {
     expect(oldRows[0].extracted_data).toEqual({ b: 2 });
 
     // Check new row is inserted with updated values
-    const newRows = await db.selectFrom('review')
+    const newRows = await getDb().selectFrom('review')
       .selectAll()
       .where('dataset', '=', 'd1')
       .where('key', '=', 'k1')
