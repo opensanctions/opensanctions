@@ -3,7 +3,7 @@ import warnings
 from pathlib import Path
 from functools import cache
 from typing import cast, Dict, Optional, Type, TextIO
-from google.cloud.storage import Client, Blob
+from google.cloud.storage import Client, Blob  # type: ignore
 
 from zavod import settings
 from zavod.logs import get_logger
