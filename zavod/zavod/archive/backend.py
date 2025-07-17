@@ -47,9 +47,6 @@ class ArchiveObject(object):
 
 
 class ArchiveBackend(object):
-    def __init__(self, bucket_name: str) -> None:
-        raise NotImplementedError
-
     def get_object(self, name: str) -> ArchiveObject:
         raise NotImplementedError
 
@@ -118,24 +115,28 @@ class GoogleCloudObject(ArchiveObject):
 
 
 class GoogleCloudBackend(ArchiveBackend):
-    def __init__(self, bucket_name: str) -> None:
+    def __init__(self) -> None:
+        if settings.ARCHIVE_BUCKET is None:
+            raise ConfigurationException("No backfill bucket configured")
         self.client = Client()
-        self.bucket = self.client.get_bucket(bucket_name)
+        self.bucket = self.client.get_bucket(settings.ARCHIVE_BUCKET)
 
     def get_object(self, name: str) -> GoogleCloudObject:
         return GoogleCloudObject(self, name)
 
 
 class AnonymousGoogleCloudBackend(GoogleCloudBackend):
-    def __init__(self, bucket_name: str) -> None:
+    def __init__(self) -> None:
+        if settings.ARCHIVE_BUCKET is None:
+            raise ConfigurationException("No backfill bucket configured")
         self.client = Client.create_anonymous_client()
-        self.bucket = self.client.get_bucket(bucket_name)
+        self.bucket = self.client.get_bucket(settings.ARCHIVE_BUCKET)
 
 
 class FileSystemObject(ArchiveObject):
     def __init__(self, backend: "FileSystemBackend", name: str) -> None:
         self.backend = backend
-        self.path = backend.path / name
+        self.path = settings.ARCHIVE_PATH / name
         self.name = name
 
     def exists(self) -> bool:
@@ -183,9 +184,6 @@ class FileSystemObject(ArchiveObject):
 
 
 class FileSystemBackend(ArchiveBackend):
-    def __init__(self, bucket_name: str) -> None:
-        self.path = settings.DATA_PATH / bucket_name
-
     def get_object(self, name: str) -> FileSystemObject:
         return FileSystemObject(self, name)
 
@@ -198,28 +196,8 @@ backends: Dict[str, Type[ArchiveBackend]] = {
 
 
 @cache
-def get_backend(backend_name: str, bucket_name: str) -> ArchiveBackend:
-    if backend_name not in backends:
-        msg = "Invalid archive backend: %s" % backend_name
-        raise ConfigurationException(msg)
-    return backends[backend_name](bucket_name)
-
-
 def get_archive_backend() -> ArchiveBackend:
     if settings.ARCHIVE_BACKEND not in backends:
         msg = "Invalid archive backend: %s" % settings.ARCHIVE_BACKEND
         raise ConfigurationException(msg)
-
-    if settings.ARCHIVE_BUCKET is None:
-        raise ConfigurationException("No backfill bucket configured")
-    return get_backend(settings.ARCHIVE_BACKEND, settings.ARCHIVE_BUCKET)
-
-
-def get_evidence_backend() -> ArchiveBackend:
-    if settings.EVIDENCE_BACKEND not in backends:
-        msg = "Invalid evidence backend: %s" % settings.EVIDENCE_BACKEND
-        raise ConfigurationException(msg)
-
-    if settings.EVIDENCE_BUCKET is None:
-        raise ConfigurationException("No evidence bucket configured")
-    return get_backend(settings.EVIDENCE_BACKEND, settings.EVIDENCE_BUCKET)
+    return backends[settings.ARCHIVE_BACKEND]()

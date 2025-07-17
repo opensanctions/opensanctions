@@ -26,7 +26,7 @@ publisher:
   official: true
 url: https://procor.pnp.gov.ph/crime-investigation/most-wanted-persons/
 data:
-  url: https://pnp.gov.ph/wp-content/uploads/2022/10/AsOfOct13_MWPs-with-Reward-criminality_1665621706.pdf
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRzdHciKqVlSVaHkD-OfiEuTghAZnOePxSHoCpxbUp6j1YQCcu2TdW9A8xJZAv09PfIXDfQJ5_EDe7f/pub?gid=0&single=true&output=csv
   format: csv
 assertions:
   min:
