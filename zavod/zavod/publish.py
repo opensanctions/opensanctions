@@ -68,10 +68,18 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
 
 def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     """Upload failure information about a dataset to the archive."""
+    # Collections currently should never call publish_failure (as that only gets called for crawl and validate).
+    # But if they ever did (for example to publish a failure in the export stage), we should think very well about
+    # what exactly a failed index.json for default should look like. Currently, it would have empty resources,
+    # and our clients likely wouldn't appreciate that.
+    assert not dataset.is_collection
     # Clear out interim artifacts so they cannot pollute the metadata we're
     # generating.
-    assert not dataset.is_collection
     dataset_resource_path(dataset.name, STATEMENTS_FILE).unlink(missing_ok=True)
+    # TODO: The statistics file gets pulled in by write_dataset_index,
+    #  so they get published as part of the artifacts anyway.
+    #  For a brief discussion of our currently broken failure semantics,
+    #  see https://github.com/opensanctions/opensanctions/pull/2483
     dataset_resource_path(dataset.name, STATISTICS_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, INDEX_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, CATALOG_FILE).unlink(missing_ok=True)
