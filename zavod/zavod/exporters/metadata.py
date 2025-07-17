@@ -118,19 +118,30 @@ def write_dataset_index(dataset: Dataset) -> None:
 
 
 def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
-    """Get a metadata description of a single dataset, retaining timestamp information
-    for the last export, but updating some other metadata."""
-    catalog = get_catalog()
+    """Get a metadata description of a single dataset for the catalog.
+
+    Uses run information from the latest published index file, but patches it with the latest metadata from
+    the dataset object to allow us to quickly patch the catalog without waiting for another export.
+    """
+    # Get a barebones metadata object, only relevant before the first export
     meta = get_base_dataset_metadata(dataset)
+
+    # Use the latest published index file, if available.
     path = get_dataset_artifact(dataset.name, INDEX_FILE)
     if path.is_file():
         with open(path, "r") as fh:
             meta.update(json.load(fh))
     else:
-        log.error("No index file found", dataset=dataset.name, report_issue=False)
-    meta.update(dataset.to_opensanctions_dict(catalog))
-    if len(meta["resources"]) == 0:
-        log.info("Dataset has no resources", dataset=dataset.name)
+        log.warn(
+            "No index file found, dataset likely hasn't run yet",
+            dataset=dataset.name,
+            report_issue=False,
+        )
+
+    # Overwrite with latest metadata (without any run information), useful to quickly patch up the catalog
+    # for datasets that don't get exported often.
+    meta.update(dataset.to_opensanctions_dict(get_catalog()))
+
     return meta
 
 
