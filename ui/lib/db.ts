@@ -52,7 +52,7 @@ if (isPostgres) {
 } else {
   throw new Error(`Unsupported database type ${dbUrl}`);
 }
-export const db = new Kysely<ReviewDatabase>({dialect, log: ['query', 'error']})
+export const db = new Kysely<ReviewDatabase>({dialect, log: ['error']})
 
 
 
