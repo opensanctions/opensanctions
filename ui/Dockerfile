@@ -1,5 +1,5 @@
 # Test with e.g.
-# docker run -ti -p3000:3000 --rm -e ZAVOD_DATABASE_URI=postgresql://postgres:password@host.docker.internal:5432/dev -e ZAVOD_IAP_AUTH_DISABLED=true zavod-ui
+# docker run -ti -p3000:3000 --rm -e ZAVOD_DATABASE_URI=postgresql://postgres:password@host.docker.internal:5432/dev -e ZAVOD_UNSAFE_IAP_AUTH_DISABLED=true zavod-ui
 
 FROM node:24-slim
 
