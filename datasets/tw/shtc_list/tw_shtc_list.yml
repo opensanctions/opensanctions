@@ -1,0 +1,42 @@
+title: Taiwan Strategic High-Tech Commodities Entity List
+entry_point: crawler.py
+prefix: tw-shtc
+coverage:
+  frequency: daily
+  start: 2025-07-17
+load_statements: true
+summary: >
+  Designation of entities involved in the production, sale, or distribution of
+  strategic high-tech commodities that may contribute to the development of
+  weapons of mass destruction or military applications.
+description: |
+  This dataset comprises information about entities designated by Taiwan's
+  Ministry of Economic Affairs (MOEA) under the Strategic High-Tech Commodities
+  Control Act. The list includes entities involved in the production, sale, or
+  distribution of strategic high-tech commodities that may contribute to the
+  development of weapons of mass destruction or military applications.
+publisher:
+  name: Ministry of Economic Affairs
+  acronym: MOEA
+  description: >
+    The MOEA is responsible for the formulation and implementation of policies
+    related to economic affairs, trade, and industry in Taiwan.
+  url: https://www.moea.gov.tw/
+  official: true
+  country: "tw"
+url: "https://www.trade.gov.tw/english/Pages/List.aspx?nodeid=298"
+data:
+  url: https://publicinfo.trade.gov.tw/icp/Download.action?file=ZgPKOWuRLCD%2B8S4%2FZhAeuw%3D%3D
+  format: CSV
+tags:
+  - list.regulatory
+  - list.risk
+  - issuer.west
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 9000
+  max:
+    schema_entities:
+      LegalEntity: 15000
