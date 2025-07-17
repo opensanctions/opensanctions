@@ -152,7 +152,7 @@ def crawl(context: Context):
     # Check if new menu items have been added that we potentially want to crawl.
     # Expected items listed below.
     menu_xpath = ".//ul[contains(@class, 'section-menu')]"
-    doc = fetch_html(context, context.dataset.url, menu_xpath)
+    doc = fetch_html(context, context.dataset.model.url, menu_xpath)
     [menu] = doc.xpath(menu_xpath)
     h.assert_dom_hash(menu, "8c4476503900c45adeb407a980cbc7663688aa1f")
 
