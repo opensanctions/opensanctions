@@ -1,6 +1,6 @@
 from datetime import datetime
 from hashlib import sha1
-from typing import Any, Dict, Generic, Optional, Type, TypeVar, cast
+from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
 import orjson
 from normality import slugify
@@ -52,7 +52,10 @@ class Review(BaseModel, Generic[ModelType]):
 
     @classmethod
     def load(
-        cls, conn: Connection, data_model: Type[ModelType], stmt: Select
+        cls,
+        conn: Connection,
+        data_model: Type[ModelType],
+        stmt: Select,  # type: ignore
     ) -> Optional["Review[ModelType]"]:
         res = conn.execute(stmt)
         rows = list(res.fetchall())
@@ -120,7 +123,7 @@ class Review(BaseModel, Generic[ModelType]):
             review_table.c.last_seen_version == version_id,
             not_(review_table.c.accepted),
         )
-        return cast(int, conn.execute(select_stmt).scalar_one())
+        return conn.execute(select_stmt).scalar_one()
 
 
 def sort_arrays_in_value(value: JsonValue) -> JsonValue:
