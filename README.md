@@ -13,9 +13,9 @@ We build on top of the [Follow the Money](https://www.followthemoney.tech) frame
 * [OpenSanctions Website](https://www.opensanctions.org/)
     * [Datasets](https://www.opensanctions.org/datasets/)
     * [FAQs](https://www.opensanctions.org/faq/)
+    * [Licensing](https://www.opensanctions.org/licensing/)
 * [Contributing](https://www.opensanctions.org/docs/opensource/contributing/)
 * [zavod Documentation](https://zavod.opensanctions.org/)
-* [Data Licensing Details](https://www.opensanctions.org/licensing/)
 * [API Documentation](https://api.opensanctions.org/)
 * [Contact](https://www.opensanctions.org/contact/)
 
