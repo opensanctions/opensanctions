@@ -6,16 +6,15 @@ import Link from 'next/link';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import SourceView from './SourceView';
-//import { compileSchema, SchemaNode } from "json-schema-library";
+import { PageProps } from '@/lib/pageProps';
 
-export default async function EntryPage(props: { params: { dataset: string, key: string } }) {
-  const params = await props.params;
-  const dataset = decodeURIComponent(params.dataset);
-  const key = decodeURIComponent(params.key);
+export default async function EntryPage({params} : PageProps) {
+  const awaitedParams = await params;
+  const dataset = decodeURIComponent(awaitedParams.dataset);
+  const key = decodeURIComponent(awaitedParams.key);
   const entry = await getExtractionEntry(dataset, key);
   if (!entry) return notFound();
 
-  //const schemaNode: SchemaNode = compileSchema(entry.extraction_schema);
 
   return (
     <div className="p-4 bg-light d-flex flex-column" style={{ height: '100vh', minHeight: 0 }}>
@@ -36,14 +35,16 @@ export default async function EntryPage(props: { params: { dataset: string, key:
       </nav>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="h4 text-break mb-0">Review extraction</h1>
+        {entry.source_url && (
         <a
           href={entry.source_url}
           className="link-primary fw-semibold fs-5"
           target="_blank"
           rel="noopener noreferrer"
-        >
-          View Source
-        </a>
+          >
+            View Source
+          </a>
+        )}
       </div>
       <div className="flex-grow-1 d-flex flex-column mb-4" style={{ minHeight: 0 }}>
         <Row style={{ height: '100%' }}>

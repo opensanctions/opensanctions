@@ -1,6 +1,7 @@
-import Link from 'next/link';
 import { getDatasetStats } from '../lib/db';
 import Head from 'next/head';
+
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const stats = await getDatasetStats();
