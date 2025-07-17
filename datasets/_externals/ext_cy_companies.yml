@@ -14,6 +14,7 @@ deploy:
   # schedule: "1 2 * * *"
   memory: "3000Mi"
   memory_limit: "4000Mi"
+  disk: "100Gi"
 load_statements: true
 ci_test: false
 summary: >-
