@@ -15,8 +15,8 @@ description: |
   and other penalties under various Brazilian laws like the Bidding Law and the Anti-Corruption Law.
 
   The CEIS not only promotes transparency for citizens but also serves
-  as a crucial reference for public managers in governmental procurement processes, 
-  ensuring compliance at all federal levels. 
+  as a crucial reference for public managers in governmental procurement processes,
+  ensuring compliance at all federal levels.
 
   The database is maintained under the mandate of the Anti-Corruption Law (Law No. 12.846/2013),
   with the entries being directly fed by public entities responsible for the sanctions.
@@ -42,3 +42,10 @@ assertions:
       Company: 15700
       Person: 13500
       LegalEntity: 16
+
+lookups:
+  type.name:
+    options:
+      - match: "13200478118"
+        # "Trade name" in the dataset
+        value: TERRA EDITORA E GRAFICA
