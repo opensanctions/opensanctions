@@ -28,6 +28,8 @@ url: https://procor.pnp.gov.ph/crime-investigation/most-wanted-persons/
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRzdHciKqVlSVaHkD-OfiEuTghAZnOePxSHoCpxbUp6j1YQCcu2TdW9A8xJZAv09PfIXDfQJ5_EDe7f/pub?gid=0&single=true&output=csv
   format: csv
+ci_test: false # GPT key not available in CI
+
 assertions:
   min:
     schema_entities:
