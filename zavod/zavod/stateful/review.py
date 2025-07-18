@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from hashlib import sha1
 from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
@@ -82,7 +82,7 @@ class Review(BaseModel, Generic[ModelType]):
             conn.execute(
                 update(review_table)
                 .where(review_table.c.id == review.id)
-                .values(deleted_at=datetime.now())
+                .values(deleted_at=datetime.now(timezone.utc))
             )
             return None
         return review
@@ -103,7 +103,7 @@ class Review(BaseModel, Generic[ModelType]):
             conn.execute(
                 update(review_table)
                 .where(review_table.c.id == self.id)
-                .values(deleted_at=datetime.now())
+                .values(deleted_at=datetime.now(timezone.utc))
             )
         ins = insert(review_table).values(
             key=self.key,
@@ -203,7 +203,7 @@ def get_accepted_data(
         schema_generator=SchemaGenerator
     )
     engine = get_engine()
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     with engine.begin() as conn:
         review = Review[ModelType].by_key(
             conn, type(orig_extraction_data), dataset, key_slug
