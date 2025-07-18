@@ -39,7 +39,7 @@ data:
   format: HTML
   lang: eng
 dates:
-  formats: ["%m.%d.%y", "%B %d, %Y", "%B %d,%Y", "%m/%d/%Y"]
+  formats: ["%m.%d.%y", "%B %d, %Y", "%B %d,%Y", "%m/%d/%Y", "%m/%d/%y"]
 
 assertions:
   min:
