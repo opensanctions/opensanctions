@@ -17,27 +17,34 @@ MAX_POSITION_NAME_LENGTH = 120
 
 def extract_dates(context: Context, url, el):
     active_date_el = el.find('.//span[@class="aktiv"]')
-    inactive_dates_el = el.find('.//span[@class="inaktiv"]')
+    inactive_dates_el = [
+        el.find('.//span[@class="inaktiv"]'),
+        el.find('.//div[@class="text-right ml-auto flex-grow-1"]'),
+    ]
+    start_date = None
+    end_date = None
+    assume_current = False
     if active_date_el is not None:
         start_date = active_date_el.text_content().replace("seit ", "")
-        end_date = None
         assume_current = True
     elif inactive_dates_el is not None:
-        inactive_dates = inactive_dates_el.text_content().replace("ab ", "")
-        if " - " in inactive_dates:
-            start_date, end_date = inactive_dates.split(" - ")
-            end_date = end_date.strip()
-        else:
-            start_date = None
-            end_date = None
-        assume_current = False
+        for date in inactive_dates_el:
+            if date is None:
+                continue
+            inactive_dates = date.text_content().replace("ab ", "")
+            if " - " in inactive_dates:
+                start_date, end_date = inactive_dates.split(" - ")
+                start_date = start_date.strip()
+                end_date = end_date.strip()
+                break
+            elif inactive_dates:
+                start_date = inactive_dates
+                end_date = None
+                break
     else:
         context.log.debug(
             "Can't parse date for mandate", url=url, text=el.text_content().strip()
         )
-        start_date = None
-        end_date = None
-        assume_current = False
     return start_date, end_date, assume_current
 
 
