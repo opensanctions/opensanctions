@@ -1,0 +1,20 @@
+name: UI Jest Tests
+
+on:
+  push:
+    paths:
+      - 'opensanctions/ui/**'
+  pull_request:
+    paths:
+      - 'opensanctions/ui/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: echo
+        run: echo "Hello, world!"
