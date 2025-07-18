@@ -19,8 +19,8 @@ SEARCH_DATA = {
     "name": "",
     "compimo": "",
     "compname": "",
-    # Go back ~6 months (approximate as 182 days)
-    "From": f"{(TODAY - timedelta(days=182)).strftime("%d.%m.%Y")}",
+    # Go back ~3 years (approximate as 1095 days)
+    "From": f"{(TODAY - timedelta(days=1095)).strftime("%d.%m.%Y")}",
     "Till": f"{TODAY.strftime("%d.%m.%Y")}",
     "authority": "0",
     "flag": "0",
@@ -138,10 +138,8 @@ def crawl_vessel_page(context: Context, shipuid: str):
         data=detail_data,
         headers=HEADERS,
         method="POST",
-        cache_days=30,
+        cache_days=182,  # Cache for 6 months
     )
-    tables = detail_doc.xpath("//table[@class='table']")
-    assert len(tables) >= 3, "Expected at least 3 tables in the response"
     ship_data = detail_doc.xpath("//h2[text()='Ship data']/following-sibling::table[1]")
     assert len(ship_data) == 1, "Expected exactly one ship data table"
     row = list(h.parse_html_table(ship_data[0]))

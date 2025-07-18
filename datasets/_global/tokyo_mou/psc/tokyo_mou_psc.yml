@@ -1,27 +1,30 @@
-title: Tokyo MoU PSC Database
+title: Tokyo MoU Port State Control Inspections
 entry_point: crawler.py
 prefix: tokyo-mou-psc
 coverage:
   frequency: weekly
   start: "2025-06-26"
-load_statements: true
+# We only enrich from this dataset, we load the statements only from the enricher.
+load_statements: false
+# Long-running and needs the cache, so not workable in CI
+ci_test: false
 summary: >
   Records detailing inspections of ships by member Authorities under the Tokyo MoU.
 description: |
-  The dataset contains inspection records for ships visiting ports under the jurisdiction 
-  of Tokyo MoU member Authorities. Each record includes, but is not limited to, the ship’s 
+  The dataset contains inspection records for ships visiting ports under the jurisdiction
+  of Tokyo MoU member Authorities. Each record includes, but is not limited to, the ship’s
   identity, flag, and associated company.
 
-  **Note:** This dataset is updated regularly and typically contains records from the last 6 months.
+  **Note:** This dataset is updated regularly and typically contains records from the last 3 years.
   Older entries are removed in each update.
 publisher:
   name: Tokyo Memorandum of Understanding
   acronym: Tokyo MoU
   description: |
-    The Tokyo MoU on Port State Control is an agreement among Asia-Pacific countries to ensure 
+    The Tokyo MoU on Port State Control is an agreement among Asia-Pacific countries to ensure
     that ships comply with international safety, environmental, and labor standards.
-    > Port State control (PSC) comes into the scene when shipowners, recognized organizations and 
-    > flag State administrations have failed to comply with the requirements of the international 
+    > Port State control (PSC) comes into the scene when shipowners, recognized organizations and
+    > flag State administrations have failed to comply with the requirements of the international
     > maritime conventions.
     [Source: Official Website](https://www.tokyo-mou.org/about/)
   url: https://www.tokyo-mou.org
