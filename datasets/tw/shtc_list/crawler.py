@@ -63,7 +63,8 @@ def crawl_row(context, row):
 
 
 def crawl(context: Context):
-    # Assert URL hash
+    # On the dataset page is a link to a PDF file that contains a link to the CSV file.
+    # Assert on the URL of the PDF file in the hope that it changes when the list is updated.
     url_xpath = ".//a[@title='SHTC Entity List']/@href"
     doc = fetch_html(
         context,
@@ -72,9 +73,9 @@ def crawl(context: Context):
         cache_days=1,
     )
     url = doc.xpath(url_xpath)
-    assert len(url) == 1, "Expected exactly 1 URL in the document"
-    h.assert_url_hash(context, url[0], "d046359c5be70faccb040a94035bba54faff6e80")
+    assert len(url) == 1, 'Expected exactly one document called "SHTC Entity List"'
     # 2025-03-04	SHTC Entity List
+    h.assert_url_hash(context, url[0], "d046359c5be70faccb040a94035bba54faff6e80")
 
     # Crawl the CSV file
     path = context.fetch_resource("shtc_list.csv", context.data_url)
