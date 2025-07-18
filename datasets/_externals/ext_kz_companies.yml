@@ -13,8 +13,7 @@ exports:
 deploy:
   memory: "3000Mi"
   memory_limit: "4000Mi"
-  disk: 30Gi
-  disk_limit: 100Gi
+  disk: 100Gi
 load_statements: true
 ci_test: false
 summary: >-

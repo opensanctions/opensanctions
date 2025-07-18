@@ -14,7 +14,7 @@ deploy:
   schedule: "@monthly"
   memory: "4500Mi"
   memory_limit: "5500Mi"
-  disk_limit: 50Gi
+  disk: "100Gi"
 load_statements: true
 ci_test: false
 summary: >-
