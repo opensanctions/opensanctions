@@ -1,0 +1,24 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Add any additional global styles below */
+.entry-tabs .tab-content {
+    display:flex;
+    flex-grow: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.entry-tabs .tab-pane {
+    height: 100%;
+}
+
+.source-view .tab-content {
+    display:flex;
+    flex-grow: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.source-view .tab-pane {
+    height: 100%;
+}
