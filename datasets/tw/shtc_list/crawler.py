@@ -34,6 +34,8 @@ ADDRESS_SPLITS = [
 
 def crawl_row(context, row):
     row = {
+        # BOM in the middle of a file, probably a Microsoft artifact, should be ignored,
+        # see https://www.unicode.org/faq/utf_bom.html#bom6
         k.lstrip("\ufeff")
         .strip()
         .lower()
@@ -59,7 +61,13 @@ def crawl_row(context, row):
     entity.add("topics", "debarment")
 
     context.emit(entity)
-    context.audit_data(row, ["項次item"])
+    context.audit_data(
+        row,
+        [
+            # Running number, too unstable to build and ID from.
+            "項次item"
+        ],
+    )
 
 
 def crawl(context: Context):
