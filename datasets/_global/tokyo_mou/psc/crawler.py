@@ -169,6 +169,8 @@ def crawl_list_page(context: Context, page: int):
         "///tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value"
     )
     context.log.info(f"Found {len(shipuids)} shipuids in the search response")
+    if len(shipuids) < 2:
+        context.log.warn("Not enough shipuids found, double check the logic.")
     for shipuid in shipuids:
         crawl_vessel_page(context, shipuid)
     # Extract and return total pages
