@@ -25,6 +25,7 @@ publisher:
 data:
   url: https://www.cftc.gov/LawRegulation/EnforcementActions/index.htm
   format: HTML
+ci_test: false # GPT key not available in CI
 
 assertions:
   min:
