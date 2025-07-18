@@ -13,11 +13,13 @@ def crawl(context: Context):
     table = tables[0]
     for row in h.parse_html_table(table):
         cells = h.cells_to_str(row)
+        if not any(cells.values()):  # Skip empty rows
+            continue
 
         type_ = cells.pop("type")
         schema = context.lookup_value("types", type_)
         if schema is None:
-            context.log.error("Unknown entity type", type=type_)
+            context.log.error("Unknown entity type", type=type_, item=cells)
             continue
 
         name = cells.pop("name").strip()
