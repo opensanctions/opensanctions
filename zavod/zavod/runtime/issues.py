@@ -88,13 +88,12 @@ class DatasetIssues(object):
     def all(self) -> Generator[Issue, None, None]:
         """Iterate over all issues in the log."""
         self.close()
-        for scope in self.dataset.leaves:
-            path = get_dataset_artifact(scope.name, ISSUES_LOG)
-            if not path.is_file():
-                continue
-            with open(path, "rb") as fh:
-                for line in fh:
-                    yield cast(Issue, orjson.loads(line))
+        path = get_dataset_artifact(self.dataset.name, ISSUES_LOG)
+        if not path.is_file():
+            return
+        with open(path, "rb") as fh:
+            for line in fh:
+                yield cast(Issue, orjson.loads(line))
 
     def by_level(self) -> Dict[str, int]:
         """Count the number of issues by severity level."""
