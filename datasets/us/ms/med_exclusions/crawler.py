@@ -1,14 +1,18 @@
 from typing import Dict
-from rigour.mime.types import XLSX
-from openpyxl import load_workbook
+import csv
+
+from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-    provider_name = row.pop("provider_name")
-    dob = row.pop("date_of_birth")
-    npi = row.pop("npi")
+    if not any(row.values()):  # Skip empty rows
+        return
+
+    provider_name = row.pop("Provider Name")
+    dob = row.pop("Date of Birth")
+    npi = row.pop("NPI")
 
     if dob:
         schema = "Person"
@@ -20,18 +24,18 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     entity.add("name", provider_name)
     entity.add("country", "us")
-    entity.add("sector", row.pop("provider_type_specialty"))
-    entity.add("address", row.pop("provider_address"))
+    entity.add("sector", row.pop("Provider Type/Specialty"))
+    entity.add("address", row.pop("Provider Address"))
     if entity.schema.name == "Person":
         h.apply_date(entity, "birthDate", dob)
     if npi:
         entity.add("npiCode", npi.split("\n"))
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("termination_effective_date"))
-    sanction.add("reason", row.pop("termination_reason"))
+    h.apply_date(sanction, "startDate", row.pop("Termination Effective Date"))
+    sanction.add("reason", row.pop("Termination Reason"))
 
-    exclusion_period_str = row.pop("exclusion_period")
+    exclusion_period_str = row.pop("Exclusion Period")
     exclusion_period_lookup_result = context.lookup(
         "exclusion_period", exclusion_period_str
     )
@@ -57,22 +61,23 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.emit(entity)
     context.emit(sanction)
 
-    context.audit_data(row, ignore=["sanction_type", "column_0"])
+    context.audit_data(row, ignore=["Sanction Type", ""])
 
 
-def crawl_excel_url(context: Context):
+def crawl_data_url(context: Context):
     doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
     return doc.xpath("//a[contains(text(), 'Sanctioned Provider List')]/@href")[0]
 
 
 def crawl(context: Context) -> None:
-    # First we find the link to the excel file
-    excel_url = crawl_excel_url(context)
-    path = context.fetch_resource("list.xlsx", excel_url)
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+    data_url = crawl_data_url(context)
+    path = context.fetch_resource("source.csv", data_url)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
+    with open(path, "r", encoding="latin-1") as f:
+        lines = f.readlines()
 
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=8):
-        crawl_item(item, context)
+    # Skip the first 8 lines
+    for row in csv.DictReader(lines[9:]):
+        crawl_item(row, context)

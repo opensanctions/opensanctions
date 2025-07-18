@@ -5501,3 +5501,8 @@ lookups:
             - ir
             - tr
             - eu
+      - match: "Type d’entité: unités militaires - Lieu d’enregistrement: région de Kaliningrad, Fédération de Russie"
+        props:
+          legalForm: unités militaires
+          country: ru
+          address: région de Kaliningrad

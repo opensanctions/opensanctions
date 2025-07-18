@@ -90,6 +90,10 @@ class Dataset(FollowTheMoneyDataset):
         return get_lookups(config, debug=settings.DEBUG)
 
     @property
+    def url(self) -> Optional[str]:
+        return self.model.url
+
+    @property
     def data(self) -> Optional[DataModel]:
         return self.model.data
 
