@@ -1,6 +1,7 @@
 name: UI Jest Tests
 
 on:
+  workflow_dispatch: {}
   push:
     paths:
       - 'opensanctions/ui/**'
@@ -27,23 +28,17 @@ jobs:
           --health-cmd="pg_isready -U testuser -d testdb" --health-interval=5s --health-timeout=5s --health-retries=10
     defaults:
       run:
-        working-directory: opensanctions/ui
+        working-directory: ui
     env:
       ZAVOD_DATABASE_URI: postgres://testuser:testpass@localhost:5432/testdb
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js 20
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - name: Install dependencies
         run: npm ci
-      - name: Wait for Postgres
-        run: |
-          for i in {1..20}; do
-            pg_isready -h localhost -U testuser -d testdb && break
-            sleep 2
-          done
       - name: Run Jest tests
         run: npm test
 
