@@ -11,12 +11,9 @@ exports:
   - entities.delta.json
 deploy:
   schedule: "1 10 * * *"
-  cpu: "1000m"
-  cpu_limit: "2000m"
-  memory: 6000Mi
-  memory_limit: 6000Mi
-  disk: 100Gi
-  disk_limit: 300Gi
+  cpu: "2000m"
+  memory: "9000Mi"
+  disk: "150Gi"
 load_statements: true
 summary: >
   List of financial instruments and their reference data, as published by the European

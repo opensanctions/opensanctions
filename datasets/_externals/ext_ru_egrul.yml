@@ -14,9 +14,7 @@ deploy:
   cpu: "1000m"
   cpu_limit: "2000m"
   disk: "150Gi"
-  disk_limit: 150Gi
-  memory: "6500Mi"
-  memory_limit: "7000Mi"
+  memory: "9000Mi"
 load_statements: true
 summary: >-
   Companies database of the Russian Federation as maintained and published by

@@ -9,8 +9,7 @@ coverage:
   frequency: weekly
   start: "2024-11-11"
 deploy:
-  memory: "3000Mi"
-  memory_limit: "4000Mi"
+  memory: "4000Mi"
 load_statements: true
 ci_test: false
 summary: >
