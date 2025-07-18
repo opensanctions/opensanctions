@@ -1,8 +1,14 @@
 import csv
 import re
+
+from normality import slugify
 from rigour.mime.types import CSV
+from lxml import html
+import pdfplumber
 
 from zavod import Context, helpers as h
+from zavod.archive import dataset_data_path
+
 
 SOURCE_URL = "https://www.meti.go.jp/policy/external_economy/trade_control/02_export/17_russia/russia.html"
 HEADER = {
@@ -127,11 +133,34 @@ def crawl_row(context, row):
 
 
 def crawl(context: Context):
-    # Checking whether the hash of the page has changed
-    doc = context.fetch_html(SOURCE_URL, headers=HEADER)
-    dom = doc.xpath(".//div[@class='wrapper2011']")
-    assert len(dom) == 1, f"Too many divs: {len(dom)}"
-    h.assert_dom_hash(dom[0], "43ed0739eb39b8a87c87d10a8d353ccdf0ebf2cb")
+    html_path = context.fetch_resource("source.html", SOURCE_URL, headers=HEADER)
+    with open(html_path, "r") as fh:
+        doc = html.fromstring(fh.read())
+    doc.make_links_absolute(SOURCE_URL)
+    divs = doc.xpath(".//div[@class='wrapper2011']")
+    assert len(divs) == 1, len(divs)
+    # Check hash of the content part of the page
+    h.assert_dom_hash(divs[0], "43ed0739eb39b8a87c87d10a8d353ccdf0ebf2cb")
+    # Update local copy of the page to diff easily when there are changes.
+    # Commit changes once they're handled.
+    local_html_path = dataset_data_path(context.dataset.name)
+    with open(local_html_path, "w") as fh:
+        fh.write(html.tostring(divs[0], pretty_print=True).decode("utf-8"))
+
+    # Save the text of all the PDFs linked to from the page for easy diffing.
+    # Commit changes once they're handled.
+    for pdf_url in divs[0].xpath(".//a[contains(@href, '.pdf')]/@href"):
+        pdf_path = context.fetch_resource(slugify(pdf_url) + ".pdf", pdf_url)
+        pdf_text = ""
+        with pdfplumber.open(pdf_path) as pdf:
+            for page in pdf.pages:
+                pdf_text += page.extract_text()
+        pdf_text_path = (
+            dataset_data_path(context.dataset.name) / f"{slugify(pdf_url)}.txt"
+        )
+        with open(pdf_text_path, "w") as fh:
+            fh.write(pdf_text)
+
     # Crawling the google sheet
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
