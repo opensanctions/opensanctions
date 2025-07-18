@@ -1,0 +1,68 @@
+title: Taiwan Strategic High-Tech Commodities Entity List
+entry_point: crawler.py
+prefix: tw-shtc
+coverage:
+  frequency: weekly
+  start: 2025-07-17
+load_statements: true
+ci_test: false
+summary: >
+  Entities subject to export restrictions due to concerns about the end-use or end-users, 
+  particularly relating to weapons of mass destruction (WMD) or other military applications.
+description: |
+  This dataset lists entities designated by Taiwan's Ministry of Economic Affairs (MOEA).
+  The entities are subject to restrictions due to concerns that the end-use or end-users may 
+  be linked to the development or production of weapons of mass destruction (WMD), including 
+  nuclear, chemical, or biological weapons, or related military applications. While the framework 
+  focuses on strategic and high-tech commodities, not all entities on the list are necessarily 
+  involved in high-tech industries.
+publisher:
+  name: Ministry of Economic Affairs
+  acronym: MOEA
+  description: >
+    The MOEA is responsible for the formulation and implementation of policies
+    related to economic affairs, trade, and industry in Taiwan.
+  url: https://www.moea.gov.tw/
+  official: true
+  country: "tw"
+url: https://www.trade.gov.tw/english/Pages/List.aspx?nodeid=298
+data:
+  url: https://publicinfo.trade.gov.tw/icp/Download.action?file=ZgPKOWuRLCD%2B8S4%2FZhAeuw%3D%3D
+  format: CSV
+tags:
+  - list.regulatory
+  - list.risk
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 9000
+  max:
+    schema_entities:
+      LegalEntity: 15000
+
+lookups:
+  details:
+    options:
+      - match: 'Counterfeit Danish driving licence number 20645897 note:made out to Ali Barkani, born on 22 Aug. 1973 in Morocco'
+        details:
+          - name: Ali Barkani
+            dob: 1973-08-22
+            pob: Morocco
+            id_num: 20645897
+            notes: 'Counterfeit Danish driving licence number 20645897 note:made out to Ali Barkani, born on 22 Aug. 1973 in Morocco'
+      - match: 'note:issued for Djamel Mostefa, born on 25 Sep. 1973 in Mehdia, Tiaret province, Algeria'
+        details:
+          - name: Djamel Mostefa
+            dob: 1973-09-25
+            pob: Mehdia, Tiaret province, Algeria
+            notes: 'note:issued for Djamel Mostefa, born on 25 Sep. 1973 in Mehdia, Tiaret province, Algeria'
+      - match: 'Central African Republic armed forces (FACA) Military identificationnumber 911-10-77'
+        details:
+          - id_num: 911-10-77
+            notes: 'Central African Republic armed forces (FACA) Military identificationnumber 911-10-77'
+      - match: 'Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com'
+        details:
+          - address: 'Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan'
+            telephone: [+93-202-103386, +93-202-101714, 0202-104748, +93-797-059059, +93-702-222222]
+            email: 'helmand_exchange_msp@yahoo.com'
