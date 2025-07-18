@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: 2025-07-17
 load_statements: true
+ci_test: false
 summary: >
   Entities involved in the production, sale, or distribution of strategic high-tech 
   commodities with potential military or weapons-related applications.
