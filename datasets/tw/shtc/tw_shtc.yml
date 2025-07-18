@@ -42,17 +42,27 @@ assertions:
       LegalEntity: 15000
 
 lookups:
-  type.identifier:
+  details:
     options:
       - match: 'Counterfeit Danish driving licence number 20645897 note:made out to Ali Barkani, born on 22 Aug. 1973 in Morocco'
-        value: '20645897'
+        details:
+          - name: Ali Barkani
+            dob: 1973-08-22
+            pob: Morocco
+            id_num: 20645897
+            notes: 'Counterfeit Danish driving licence number 20645897 note:made out to Ali Barkani, born on 22 Aug. 1973 in Morocco'
       - match: 'note:issued for Djamel Mostefa, born on 25 Sep. 1973 in Mehdia, Tiaret province, Algeria'
-        prop: 'description'
+        details:
+          - name: Djamel Mostefa
+            dob: 1973-09-25
+            pob: Mehdia, Tiaret province, Algeria
+            notes: 'note:issued for Djamel Mostefa, born on 25 Sep. 1973 in Mehdia, Tiaret province, Algeria'
       - match: 'Central African Republic armed forces (FACA) Military identificationnumber 911-10-77'
-        value: '911-10-77'
-  type.address:
-    options:
-      - match: 'Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com'
-        value: 'Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan'
+        details:
+          - id_num: 911-10-77
+            notes: 'Central African Republic armed forces (FACA) Military identificationnumber 911-10-77'
       - match: 'Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com'
-        value: 'Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan'
+        details:
+          - address: 'Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan'
+            telephone: [+93-202-103386, +93-202-101714, 0202-104748, +93-797-059059, +93-702-222222]
+            email: 'helmand_exchange_msp@yahoo.com'

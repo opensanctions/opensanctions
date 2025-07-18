@@ -42,20 +42,43 @@ def crawl_row(context, row):
     }
     names = row.pop("名稱name")
     aliases = row.pop("別名alias")
+    addresses = row.pop("地址address")
+    ids = row.pop("護照號碼ID Number")
     if not any([names, aliases]):
         return
     entity = context.make("LegalEntity")
     entity.id = context.make_id(names, aliases)
+
+    for address in h.multi_split(addresses, ADDRESS_SPLITS):
+        result = context.lookup("details", address)
+        if result is not None:
+            override = result.details[0]
+            if override:
+                entity.add("address", override.get("address"))
+                entity.add("email", override.get("email"))
+                entity.add("phone", override.get("telephone"))
+        else:
+            entity.add("address", address)
+
+    for id in ids.split(";"):
+        result = context.lookup("details", id)
+        if result is not None:
+            override = result.details[0]
+            if override:
+                entity.add("name", override.get("name"))
+                entity.add_cast("Person", "birthDate", override.get("dob"))
+                entity.add_cast("Person", "birthPlace", override.get("pob"))
+                entity.add("notes", override.get("notes"))
+                entity.add("idNumber", override.get("id_num"))
+        else:
+            entity.add("idNumber", id)
+
     for name in names.split(";"):
         entity.add("name", name)
     for alias in aliases.split(";"):
         entity.add("alias", alias)
     for country in row.pop("國家代碼country code").split(";"):
         entity.add("country", country)
-    for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
-        entity.add("address", address)
-    for id in row.pop("護照號碼ID Number").split(";"):
-        entity.add("idNumber", id)
     entity.add("topics", "export.control")
 
     context.emit(entity)
