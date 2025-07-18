@@ -153,25 +153,24 @@ export async function getExtractionEntry(dataset: string, key: string) {
 }
 
 export async function updateExtractionEntry({ dataset, key, accepted, extractedData, modifiedBy }: { dataset: string, key: string, accepted: boolean, extractedData: object, modifiedBy: string }) {
-  const now = new Date().toISOString();
+  const now = new Date().toUTCString();
   await getDb().transaction().execute(async (trx) => {
-    // Mark current as deleted
-    await trx
-      .updateTable('review')
-      .set({ deleted_at: now })
-      .where('dataset', '=', dataset)
-      .where('key', '=', key)
-      .where('deleted_at', 'is', null)
-      .execute();
-
-    // Get the latest previous row for this dataset/key
+    // Get the current non-deleted row
     const prev = await trx
       .selectFrom('review')
       .selectAll()
       .where('dataset', '=', dataset)
       .where('key', '=', key)
+      .where('deleted_at', 'is', null)
       .executeTakeFirst();
     if (!prev) return;
+
+    // Mark that specific row as deleted
+    await trx
+      .updateTable('review')
+      .set({ deleted_at: now })
+      .where('id', '=', prev.id)
+      .execute();
 
     // Insert new row, copying fields but updating accepted, extractedData, modified_at, modified_by
     const { id, ...rest } = prev;
