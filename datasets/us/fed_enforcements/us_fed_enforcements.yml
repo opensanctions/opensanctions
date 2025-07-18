@@ -5,7 +5,7 @@ coverage:
   frequency: daily
   start: 2024-04-10
 load_statements: true
-ci_test: false
+ci_test: false  # GPT key not available in CI
 summary: >
   Enforcement actions against entities and individuals for violations of laws, rules, or regulations
 description: |
