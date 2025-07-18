@@ -4,16 +4,19 @@ from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
 import orjson
 from normality import slugify
-from pydantic import BaseModel, JsonValue
+from pydantic import BaseModel, JsonValue, ValidationError
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode
 from pydantic_core import CoreSchema
 from sqlalchemy import func, insert, not_, select, update
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
+from logging import getLogger
 
 from zavod.context import Context
 from zavod.db import get_engine
 from zavod.stateful.model import review_table
+
+log = getLogger(__name__)
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
 
@@ -63,12 +66,25 @@ class Review(BaseModel, Generic[ModelType]):
         if rows == []:
             return None
         review = cls.model_validate(rows[0]._mapping)
-        review.orig_extraction_data = data_model.model_validate(
-            rows[0]._mapping["orig_extraction_data"]
-        )
-        review.extracted_data = data_model.model_validate(
-            rows[0]._mapping["extracted_data"]
-        )
+        try:
+            review.orig_extraction_data = data_model.model_validate(
+                rows[0]._mapping["orig_extraction_data"]
+            )
+            review.extracted_data = data_model.model_validate(
+                rows[0]._mapping["extracted_data"]
+            )
+        except ValidationError:
+            log.info(
+                "Existing data doesn't validate against current model. key=%s version=%s",
+                review.key,
+                review.last_seen_version,
+            )
+            conn.execute(
+                update(review_table)
+                .where(review_table.c.id == review.id)
+                .values(deleted_at=datetime.now())
+            )
+            return None
         return review
 
     @classmethod
