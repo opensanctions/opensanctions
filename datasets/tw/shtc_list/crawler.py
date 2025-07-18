@@ -69,7 +69,6 @@ def crawl(context: Context):
         context,
         context.dataset.model.url,
         url_xpath,
-        html_source="httpResponseBody",
         cache_days=1,
     )
     url = doc.xpath(url_xpath)
