@@ -406,4 +406,8 @@ lookups:
       - match: "214272\n(NY)"
         values: ["214272"]
       - match: "764907(N\nY)"
-        values: [764907]
+        values: ["764907"]
+      - match: "AJ008885\n(PA)"
+        values: ["AJ008885"]
+      - match: "PN310619\n(PA)"
+        values: ["PN310619"]
