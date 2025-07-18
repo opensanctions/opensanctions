@@ -7,13 +7,15 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >
-  Entities involved in the production, sale, or distribution of strategic high-tech 
-  commodities with potential military or weapons-related applications.
+  Entities subject to export restrictions due to concerns about the end-use or end-users, 
+  particularly relating to weapons of mass destruction (WMD) or other military applications.
 description: |
-  This dataset lists entities designated by Taiwan's Ministry of Economic Affairs (MOEA) 
-  that are involved in the production, sale, or distribution of strategic high-tech commodities.
-  These entities are believed to be involved in activities related to high-tech goods that may pose 
-  national security or proliferation concerns.
+  This dataset lists entities designated by Taiwan's Ministry of Economic Affairs (MOEA).
+  The entities are subject to restrictions due to concerns that the end-use or end-users may 
+  be linked to the development or production of weapons of mass destruction (WMD), including 
+  nuclear, chemical, or biological weapons, or related military applications. While the framework 
+  focuses on strategic and high-tech commodities, not all entities on the list are necessarily 
+  involved in high-tech industries.
 publisher:
   name: Ministry of Economic Affairs
   acronym: MOEA

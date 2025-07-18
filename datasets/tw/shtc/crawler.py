@@ -1,4 +1,5 @@
 import csv
+from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
@@ -36,10 +37,7 @@ def crawl_row(context, row):
     row = {
         # BOM in the middle of a file, probably a Microsoft artifact, should be ignored,
         # see https://www.unicode.org/faq/utf_bom.html#bom6
-        k.lstrip("\ufeff")
-        .strip()
-        .lower()
-        .replace(" ", "_"): v.strip() if isinstance(v, str) else v
+        k.lstrip("\ufeff"): v.strip() if isinstance(v, str) else v
         for k, v in row.items()
     }
     names = row.pop("名稱name")
@@ -52,13 +50,13 @@ def crawl_row(context, row):
         entity.add("name", name)
     for alias in aliases.split(";"):
         entity.add("alias", alias)
-    for country in row.pop("國家代碼country_code").split(";"):
+    for country in row.pop("國家代碼country code").split(";"):
         entity.add("country", country)
     for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
         entity.add("address", address)
-    for id in row.pop("護照號碼id_number").split(";"):
+    for id in row.pop("護照號碼ID Number").split(";"):
         entity.add("idNumber", id)
-    entity.add("topics", "debarment")
+    entity.add("topics", "export.control")
 
     context.emit(entity)
     context.audit_data(
@@ -87,6 +85,7 @@ def crawl(context: Context):
 
     # Crawl the CSV file
     path = context.fetch_resource("shtc_list.csv", context.data_url)
+    context.export_resource(path, mime_type=CSV, title=context.SOURCE_TITLE)
     with open(path, "rt", encoding="utf-8") as infh:
         for row in csv.DictReader(infh):
             crawl_row(context, row)
