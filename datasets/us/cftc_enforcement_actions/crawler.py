@@ -26,7 +26,7 @@ class Associate(BaseModel):
 # Heads-up associates seems to be a bit different each time making potentially
 # unnecessary invalidations when the cache expires.
 class Defendant(BaseModel):
-    schema: Literal["Person", "Company", "LegalEntity"]
+    entity_schema: Literal["Person", "Company", "LegalEntity"]
     name: str
     aliases: Optional[List[str]] = []
     address: Optional[str] = Field(
@@ -76,7 +76,7 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     if not result:
         return
     for item in result.defendants:
-        entity = context.make(item.schema)
+        entity = context.make(item.entity_schema)
         entity.id = context.make_id(item.name, item.address, item.country)
         entity.add("name", item.name)
         entity.add("address", item.address)
