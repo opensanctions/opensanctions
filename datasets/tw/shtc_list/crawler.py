@@ -1,6 +1,7 @@
 import csv
 
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 ADDRESS_SPLITS = [
     ";",
@@ -31,34 +32,53 @@ ADDRESS_SPLITS = [
 ]
 
 
+def crawl_row(context, row):
+    row = {
+        k.lstrip("\ufeff")
+        .strip()
+        .lower()
+        .replace(" ", "_"): v.strip() if isinstance(v, str) else v
+        for k, v in row.items()
+    }
+    names = row.pop("名稱name")
+    aliases = row.pop("別名alias")
+    if not any([names, aliases]):
+        return
+    entity = context.make("LegalEntity")
+    entity.id = context.make_id(names, aliases)
+    for name in names.split(";"):
+        entity.add("name", name)
+    for alias in aliases.split(";"):
+        entity.add("alias", alias)
+    for country in row.pop("國家代碼country_code").split(";"):
+        entity.add("country", country)
+    for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
+        entity.add("address", address)
+    for id in row.pop("護照號碼id_number").split(";"):
+        entity.add("idNumber", id)
+    entity.add("topics", "debarment")
+
+    context.emit(entity)
+    context.audit_data(row, ["項次item"])
+
+
 def crawl(context: Context):
+    # Assert URL hash
+    url_xpath = ".//a[@title='SHTC Entity List']/@href"
+    doc = fetch_html(
+        context,
+        context.dataset.model.url,
+        url_xpath,
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
+    url = doc.xpath(url_xpath)
+    assert len(url) == 1, "Expected exactly 1 URL in the document"
+    h.assert_url_hash(context, url[0], "d046359c5be70faccb040a94035bba54faff6e80")
+    # 2025-03-04	SHTC Entity List
+
+    # Crawl the CSV file
     path = context.fetch_resource("shtc_list.csv", context.data_url)
     with open(path, "rt", encoding="utf-8") as infh:
         for row in csv.DictReader(infh):
-            row = {
-                k.lstrip("\ufeff")
-                .strip()
-                .lower()
-                .replace(" ", "_"): v.strip() if isinstance(v, str) else v
-                for k, v in row.items()
-            }
-            names = row.pop("名稱name")
-            aliases = row.pop("別名alias")
-            if not any([names, aliases]):
-                continue
-            entity = context.make("LegalEntity")
-            entity.id = context.make_id(names, aliases)
-            for name in names.split(";"):
-                entity.add("name", name)
-            for alias in aliases.split(";"):
-                entity.add("alias", alias)
-            for country in row.pop("國家代碼country_code").split(";"):
-                entity.add("country", country)
-            for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
-                entity.add("address", address)
-            for id in row.pop("護照號碼id_number").split(";"):
-                entity.add("idNumber", id)
-            entity.add("topics", "debarment")
-
-            context.emit(entity)
-            context.audit_data(row, ["項次item"])
+            crawl_row(context, row)
