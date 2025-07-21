@@ -4,7 +4,7 @@ from rigour.ids import StrictFormat
 from rigour.text.phonetics import metaphone
 from rigour.text.scripts import is_modern_alphabet
 from rigour.addresses import normalize_address, remove_address_keywords
-from rigour.names import tokenize_name
+from rigour.names import tokenize_name, is_stopword
 from rigour.names import remove_person_prefixes, remove_org_types
 from typing import Generator, Optional, Set, Tuple
 from followthemoney import registry, Schema, StatementEntity
@@ -67,7 +67,7 @@ def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None
     name_tokens: Set[str] = set()
     for token in tokenize_name(name):
         name_tokens.add(token)
-        if len(token) < 3 or len(token) > 30:
+        if len(token) < 3 or len(token) > 30 or is_stopword(token):
             continue
 
         # yield WORD_FIELD, token
@@ -85,8 +85,9 @@ def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None
             yield PHONETIC_FIELD, f"{PHONETIC_FIELD}:{phoneme}"
 
     name_fp = "".join(sorted(name_tokens))
-    prefix = PREFIXES.get(registry.name, "n")
-    yield (registry.name.name, f"{prefix}:{name_fp[:200]}")
+    if len(name_fp) > 3 and len(name_fp) < 200:
+        prefix = PREFIXES.get(registry.name, "n")
+        yield (registry.name.name, f"{prefix}:{name_fp}")
 
 
 def tokenize_entity(entity: StatementEntity) -> Generator[Tuple[str, str], None, None]:
@@ -103,7 +104,7 @@ def tokenize_entity(entity: StatementEntity) -> Generator[Tuple[str, str], None,
             lvalue = value.lower()
             # min 6 to focus on things that could be fairly unique identifiers
             for token in tokenize_name(lvalue, token_min_length=6):
-                if len(token) > 30:
+                if len(token) > 30 or is_stopword(token):
                     continue
                 # unique.add((WORD_FIELD, token))
                 yield WORD_FIELD, f"{WORD_FIELD}:{token}"
@@ -127,7 +128,7 @@ def tokenize_entity(entity: StatementEntity) -> Generator[Tuple[str, str], None,
                 for word in norm.split(WS):
                     if len(word) > 3 and len(word) < 30:
                         unique.add((type.name, f"{prefix}:{word}"))
-                    if len(word) > 6 and len(word) < 30:
+                    if len(word) > 6 and len(word) < 30 and not is_stopword(word):
                         unique.add((WORD_FIELD, f"{WORD_FIELD}:{word}"))
 
     yield from unique
