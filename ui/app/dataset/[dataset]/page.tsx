@@ -1,9 +1,27 @@
 import Link from 'next/link';
 import { getExtractionEntries } from '../../../lib/db';
+import { verify } from '../../../lib/auth';
+import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { PageProps } from '@/lib/pageProps';
 
 export default async function DatasetPage({ params }: PageProps) {
+  // Check authorization
+  const headersList = await headers();
+  const email = await verify(headersList);
+
+  if (!email) {
+    return (
+      <div className="container-fluid vh-100 d-flex flex-column justify-content-center align-items-center p-4 bg-light">
+        <div className="text-center">
+          <h1 className="text-danger mb-4">Access Denied</h1>
+          <p className="lead mb-3">You are not authorized to access this application.</p>
+          <p className="text-muted">Please contact your administrator if you believe this is an error.</p>
+        </div>
+      </div>
+    );
+  }
+
   const awaitedParams = await params;
   const entries = await getExtractionEntries(awaitedParams.dataset);
   if (!entries) return notFound();
