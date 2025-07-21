@@ -67,7 +67,7 @@ class Store(LevelDBStore[Dataset, Entity]):
                     )
                 writer.add_statement(stmt)
         self.db.put(ds_key, b"1")
-        self.db.compact_range()
+        self.optimize()
         log.info(
             "Local LevelDB aggregator is ready.",
             scope=self.dataset.name,
