@@ -36,7 +36,10 @@ def crawl(context: Context):
     doc = context.fetch_html(context.dataset.url, cache_days=1)
     table = doc.xpath(".//div[@class='item-page']/table")
     assert len(table) == 1, "Expected exactly one table in the document"
-    h.assert_dom_hash(table[0], "610161c244c92e33c5e09fdec94c54c8f5b89280")
+    h.assert_dom_hash(table[0], "8ba11e0b3f463d5c4d5b2de281aaf9a23ac78104")
+    # AMLC Resolution TF -108
+    # AMLC Resolution TF -104
+    # AMLC Resolution TF -102
     # AMLC Resolution TF -90
     # AMLC Resolution TF -88
     # AMLC Resolution TF -87
