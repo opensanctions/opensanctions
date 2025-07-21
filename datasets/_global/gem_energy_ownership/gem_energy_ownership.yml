@@ -69,43 +69,6 @@ assertions:
       Person: 50
 
 lookups:
-  type.name:
-    options: 
-      - match: 'EVRAZ Consolidated West-Siberian Metallurgical Plant, ЕВРАЗ ЗСМК, АО "ЕВРАЗ ЗСМК", "ЕВРАЗ ОБЪЕДИНЕННЫЙ ЗАПАДНО-СИБИРСКИЙ МЕТАЛЛУРГИЧЕСКИЙ КОМБИНАТ", Zapadno-Sibirskaya TEZ - Filial AO EVRAZ ZSMK, "ЗАПАДНО-СИБИРСКАЯ ТЭЦ" - ФИЛИАЛ АО "ЕВРАЗ ОБЪЕДИНЕННЫЙ ЗАПАДНО-СИБИРСКИЙ МЕТАЛЛУРГИЧЕСКИЙ КОМБИНАТ", ФЛ АО "ЕВРАЗ ЗСМК" - "ЗАПАДНО-СИБИРСКАЯ ТЭЦ", ЗАПАДНО-СИБИРСКАЯ ТЭЦ, Zapadno-Sibirskaya TETs'
-        values:
-          - EVRAZ Consolidated West-Siberian Metallurgical Plant
-          - ЕВРАЗ ЗСМК
-          - АО "ЕВРАЗ ЗСМК"
-          - "ЕВРАЗ ОБЪЕДИНЕННЫЙ ЗАПАДНО-СИБИРСКИЙ МЕТАЛЛУРГИЧЕСКИЙ КОМБИНАТ"
-          - Zapadno-Sibirskaya TEZ - Filial AO EVRAZ ZSMK
-          - '"ЗАПАДНО-СИБИРСКАЯ ТЭЦ" - ФИЛИАЛ АО "ЕВРАЗ ОБЪЕДИНЕННЫЙ ЗАПАДНО-СИБИРСКИЙ МЕТАЛЛУРГИЧЕСКИЙ КОМБИНАТ"'
-          - ФЛ АО "ЕВРАЗ ЗСМК" - "ЗАПАДНО-СИБИРСКАЯ ТЭЦ"
-          - ЗАПАДНО-СИБИРСКАЯ ТЭЦ
-          - Zapadno-Sibirskaya TETs
-      - match: 'Саратовский филиал ПАО "Т Плюс", T Plus PJSC Saratov Branch, ФЛ "Самарский" ПАО "Т Плюс", Самарский филиал ПАО "Т Плюс", T Plus PJSC Samara branch, T Plus PJSC Perm Branch, Пермский филиал ПАО "Т Плюс", Оренбургский филиал ПАО "Т Плюс", T Plus PJSC Orenburg Branch, Филиал Марий Эл и Чувашии ПАО "Т Плюс", T Plus PJSC Vladimir Branch, Владимирский филиал ПАО "Т Плюс", T Plus PJSC Nizhny Novgorod Branch, Нижегородский филиал ПАО "Т Плюс", T Plus PJSC Ulyanovsk Branch, Ульяновский филиал ПАО "Т Плюс", T Plus PJSC Sverdlovsk Branch, Свердловский филиал ПАО "Т Плюс", T Plus PJSC Kirov Branch, Кировский филиал ПАО "Т Плюс", T Plus PJSC Mordovian branch, Мордовский филиал ПАО "Т Плюс"'
-        values:
-          - Саратовский филиал ПАО "Т Плюс"
-          - T Plus PJSC Saratov Branch
-          - ФЛ "Самарский" ПАО "Т Плюс"
-          - Самарский филиал ПАО "Т Плюс"
-          - T Plus PJSC Samara branch
-          - T Plus PJSC Perm Branch
-          - Пермский филиал ПАО "Т Плюс"
-          - Оренбургский филиал ПАО "Т Плюс"
-          - T Plus PJSC Orenburg Branch
-          - Филиал Марий Эл и Чувашии ПАО "Т Плюс"
-          - T Plus PJSC Vladimir Branch
-          - Владимирский филиал ПАО "Т Плюс"
-          - T Plus PJSC Nizhny Novgorod Branch
-          - Нижегородский филиал ПАО "Т Плюс"
-          - T Plus PJSC Ulyanovsk Branch
-          - Ульяновский филиал ПАО "Т Плюс"
-          - T Plus PJSC Sverdlovsk Branch
-          - Свердловский филиал ПАО "Т Плюс"
-          - T Plus PJSC Kirov Branch
-          - Кировский филиал ПАО "Т Плюс"
-          - T Plus PJSC Mordovian branch
-          - Мордовский филиал ПАО "Т Плюс"
   associates:
     options:
       - match: "新疆生产建设兵团第二师财政局（铁门关市财政局、新疆生产建设兵团第二师国有资产监督管理委员会、铁门关市国有资产监督管理委员会、新疆生产建设兵团第二师金融工作办公室、铁门关市金融工作办公室）"
@@ -257,6 +220,41 @@ lookups:
           - CLP International New Energy Holdings CO LTD
           - 中电国际新能源（上海）控股有限公司
           - China Power International New Energy (Shanghai) Holdings
+      - match: 'EVRAZ Consolidated West-Siberian Metallurgical Plant, ЕВРАЗ ЗСМК, АО "ЕВРАЗ ЗСМК", "ЕВРАЗ ОБЪЕДИНЕННЫЙ ЗАПАДНО-СИБИРСКИЙ МЕТАЛЛУРГИЧЕСКИЙ КОМБИНАТ", Zapadno-Sibirskaya TEZ - Filial AO EVRAZ ZSMK, "ЗАПАДНО-СИБИРСКАЯ ТЭЦ" - ФИЛИАЛ АО "ЕВРАЗ ОБЪЕДИНЕННЫЙ ЗАПАДНО-СИБИРСКИЙ МЕТАЛЛУРГИЧЕСКИЙ КОМБИНАТ", ФЛ АО "ЕВРАЗ ЗСМК" - "ЗАПАДНО-СИБИРСКАЯ ТЭЦ", ЗАПАДНО-СИБИРСКАЯ ТЭЦ, Zapadno-Sibirskaya TETs'
+        values:
+          - EVRAZ Consolidated West-Siberian Metallurgical Plant
+          - ЕВРАЗ ЗСМК
+          - АО "ЕВРАЗ ЗСМК"
+          - "ЕВРАЗ ОБЪЕДИНЕННЫЙ ЗАПАДНО-СИБИРСКИЙ МЕТАЛЛУРГИЧЕСКИЙ КОМБИНАТ"
+          - Zapadno-Sibirskaya TEZ - Filial AO EVRAZ ZSMK
+          - '"ЗАПАДНО-СИБИРСКАЯ ТЭЦ" - ФИЛИАЛ АО "ЕВРАЗ ОБЪЕДИНЕННЫЙ ЗАПАДНО-СИБИРСКИЙ МЕТАЛЛУРГИЧЕСКИЙ КОМБИНАТ"'
+          - ФЛ АО "ЕВРАЗ ЗСМК" - "ЗАПАДНО-СИБИРСКАЯ ТЭЦ"
+          - ЗАПАДНО-СИБИРСКАЯ ТЭЦ
+          - Zapadno-Sibirskaya TETs
+      - match: 'Саратовский филиал ПАО "Т Плюс", T Plus PJSC Saratov Branch, ФЛ "Самарский" ПАО "Т Плюс", Самарский филиал ПАО "Т Плюс", T Plus PJSC Samara branch, T Plus PJSC Perm Branch, Пермский филиал ПАО "Т Плюс", Оренбургский филиал ПАО "Т Плюс", T Plus PJSC Orenburg Branch, Филиал Марий Эл и Чувашии ПАО "Т Плюс", T Plus PJSC Vladimir Branch, Владимирский филиал ПАО "Т Плюс", T Plus PJSC Nizhny Novgorod Branch, Нижегородский филиал ПАО "Т Плюс", T Plus PJSC Ulyanovsk Branch, Ульяновский филиал ПАО "Т Плюс", T Plus PJSC Sverdlovsk Branch, Свердловский филиал ПАО "Т Плюс", T Plus PJSC Kirov Branch, Кировский филиал ПАО "Т Плюс", T Plus PJSC Mordovian branch, Мордовский филиал ПАО "Т Плюс"'
+        values:
+          - Саратовский филиал ПАО "Т Плюс"
+          - T Plus PJSC Saratov Branch
+          - ФЛ "Самарский" ПАО "Т Плюс"
+          - Самарский филиал ПАО "Т Плюс"
+          - T Plus PJSC Samara branch
+          - T Plus PJSC Perm Branch
+          - Пермский филиал ПАО "Т Плюс"
+          - Оренбургский филиал ПАО "Т Плюс"
+          - T Plus PJSC Orenburg Branch
+          - Филиал Марий Эл и Чувашии ПАО "Т Плюс"
+          - T Plus PJSC Vladimir Branch
+          - Владимирский филиал ПАО "Т Плюс"
+          - T Plus PJSC Nizhny Novgorod Branch
+          - Нижегородский филиал ПАО "Т Плюс"
+          - T Plus PJSC Ulyanovsk Branch
+          - Ульяновский филиал ПАО "Т Плюс"
+          - T Plus PJSC Sverdlovsk Branch
+          - Свердловский филиал ПАО "Т Плюс"
+          - T Plus PJSC Kirov Branch
+          - Кировский филиал ПАО "Т Плюс"
+          - T Plus PJSC Mordovian branch
+          - Мордовский филиал ПАО "Т Плюс"
   type.url:
     options:
       - match:
