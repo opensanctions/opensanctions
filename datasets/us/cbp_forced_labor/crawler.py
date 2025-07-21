@@ -25,7 +25,7 @@ def crawl_row(context: Context, row: dict):
             continue
         schema = "Vessel" if "Fishing Vessels" in country else "LegalEntity"
         entity = context.make(schema)
-        entity.id = context.make_id(match_entity.get("name"))
+        entity.id = context.make_id(match_entity.get("name"), country)
         entity.add("name", match_entity.get("name"))
         for prop, value in match_entity.items():
             entity.add(prop, value)
