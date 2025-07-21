@@ -811,6 +811,8 @@ lookups:
         values:
           - 苏州百胜动力科技有限公司 - SUZHOU YUM POWER TECHNOLOGY CO., LTD
           - 苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD
+      - match: INITSIAVIVA-23
+        value: INITSIAVIVA-23
   type.name:
     options:
       - match: "BIC: 136001"

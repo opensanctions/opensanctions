@@ -23,7 +23,7 @@ publisher:
     import duties, and enforcement of U.S. trade laws.
 country: us
 data:
-  url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
+  url: https://www.cbp.gov/document/stats/withhold-release-orders-findings
   format: html
 ci_test: false
 dates:
@@ -44,6 +44,14 @@ assertions:
       Vessel: 10
 
 lookups:
+  type.url:
+    options:
+      - match: N/A
+        value: null
+  type.country:
+    options:
+      - match: Fishing Vessels
+        value: null
   name:
     normalize: true
     lowercase: true

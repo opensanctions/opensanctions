@@ -64,7 +64,7 @@ assertions:
   max:
     schema_entities:
       Company: 27000
-      LegalEntity: 100
+      LegalEntity: 150
       Organization: 2000
       Person: 50
 
@@ -220,6 +220,41 @@ lookups:
           - CLP International New Energy Holdings CO LTD
           - 中电国际新能源（上海）控股有限公司
           - China Power International New Energy (Shanghai) Holdings
+      - match: 'EVRAZ Consolidated West-Siberian Metallurgical Plant, ЕВРАЗ ЗСМК, АО "ЕВРАЗ ЗСМК", "ЕВРАЗ ОБЪЕДИНЕННЫЙ ЗАПАДНО-СИБИРСКИЙ МЕТАЛЛУРГИЧЕСКИЙ КОМБИНАТ", Zapadno-Sibirskaya TEZ - Filial AO EVRAZ ZSMK, "ЗАПАДНО-СИБИРСКАЯ ТЭЦ" - ФИЛИАЛ АО "ЕВРАЗ ОБЪЕДИНЕННЫЙ ЗАПАДНО-СИБИРСКИЙ МЕТАЛЛУРГИЧЕСКИЙ КОМБИНАТ", ФЛ АО "ЕВРАЗ ЗСМК" - "ЗАПАДНО-СИБИРСКАЯ ТЭЦ", ЗАПАДНО-СИБИРСКАЯ ТЭЦ, Zapadno-Sibirskaya TETs'
+        values:
+          - EVRAZ Consolidated West-Siberian Metallurgical Plant
+          - ЕВРАЗ ЗСМК
+          - АО "ЕВРАЗ ЗСМК"
+          - "ЕВРАЗ ОБЪЕДИНЕННЫЙ ЗАПАДНО-СИБИРСКИЙ МЕТАЛЛУРГИЧЕСКИЙ КОМБИНАТ"
+          - Zapadno-Sibirskaya TEZ - Filial AO EVRAZ ZSMK
+          - '"ЗАПАДНО-СИБИРСКАЯ ТЭЦ" - ФИЛИАЛ АО "ЕВРАЗ ОБЪЕДИНЕННЫЙ ЗАПАДНО-СИБИРСКИЙ МЕТАЛЛУРГИЧЕСКИЙ КОМБИНАТ"'
+          - ФЛ АО "ЕВРАЗ ЗСМК" - "ЗАПАДНО-СИБИРСКАЯ ТЭЦ"
+          - ЗАПАДНО-СИБИРСКАЯ ТЭЦ
+          - Zapadno-Sibirskaya TETs
+      - match: 'Саратовский филиал ПАО "Т Плюс", T Plus PJSC Saratov Branch, ФЛ "Самарский" ПАО "Т Плюс", Самарский филиал ПАО "Т Плюс", T Plus PJSC Samara branch, T Plus PJSC Perm Branch, Пермский филиал ПАО "Т Плюс", Оренбургский филиал ПАО "Т Плюс", T Plus PJSC Orenburg Branch, Филиал Марий Эл и Чувашии ПАО "Т Плюс", T Plus PJSC Vladimir Branch, Владимирский филиал ПАО "Т Плюс", T Plus PJSC Nizhny Novgorod Branch, Нижегородский филиал ПАО "Т Плюс", T Plus PJSC Ulyanovsk Branch, Ульяновский филиал ПАО "Т Плюс", T Plus PJSC Sverdlovsk Branch, Свердловский филиал ПАО "Т Плюс", T Plus PJSC Kirov Branch, Кировский филиал ПАО "Т Плюс", T Plus PJSC Mordovian branch, Мордовский филиал ПАО "Т Плюс"'
+        values:
+          - Саратовский филиал ПАО "Т Плюс"
+          - T Plus PJSC Saratov Branch
+          - ФЛ "Самарский" ПАО "Т Плюс"
+          - Самарский филиал ПАО "Т Плюс"
+          - T Plus PJSC Samara branch
+          - T Plus PJSC Perm Branch
+          - Пермский филиал ПАО "Т Плюс"
+          - Оренбургский филиал ПАО "Т Плюс"
+          - T Plus PJSC Orenburg Branch
+          - Филиал Марий Эл и Чувашии ПАО "Т Плюс"
+          - T Plus PJSC Vladimir Branch
+          - Владимирский филиал ПАО "Т Плюс"
+          - T Plus PJSC Nizhny Novgorod Branch
+          - Нижегородский филиал ПАО "Т Плюс"
+          - T Plus PJSC Ulyanovsk Branch
+          - Ульяновский филиал ПАО "Т Плюс"
+          - T Plus PJSC Sverdlovsk Branch
+          - Свердловский филиал ПАО "Т Плюс"
+          - T Plus PJSC Kirov Branch
+          - Кировский филиал ПАО "Т Плюс"
+          - T Plus PJSC Mordovian branch
+          - Мордовский филиал ПАО "Т Плюс"
   type.url:
     options:
       - match:

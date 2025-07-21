@@ -5506,3 +5506,22 @@ lookups:
           legalForm: unités militaires
           country: ru
           address: région de Kaliningrad
+      - match: "Type d'entité: société minière - Date d'enregistrement: dans les années 1960 - Principal établissement: Émirats arabes unis'"
+        props:
+          legalForm: société minière
+          jurisdiction: ae
+      - match: "Numéro d'enregistrement: identifiant de groupe: 16463"
+        props:
+          registrationNumber: 16463
+      - match: "Type d’entité: établissement financier - Principal établissement: Khartoum, Soudan"
+        props:
+          legalForm: établissement financier
+          address: Khartoum, Soudan
+      - match: "Numéro d’enregistrement: SUDAN-EO14098"
+        props:
+          registrationNumber: SUDAN-EO14098
+      - match: "Type d’entité: unités militaire - Lieu d’enregistrement: région de Kaliningrand, Fédération de Russie"
+        props:
+          legalForm: unités militaire
+          jurisdiction: ru
+          address: région de Kaliningrand, Fédération de Russie
