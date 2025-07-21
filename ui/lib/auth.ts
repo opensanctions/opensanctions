@@ -9,17 +9,17 @@ const oAuth2Client = new OAuth2Client();
 //expectedAudience = `/projects/${projectNumber}/global/backendServices/${backendServiceId}`;
 const expectedAudience = process.env.ZAVOD_IAP_AUDIENCE;
 
-export async function verify(request: Request) {
+export async function verify(headers: Headers) {
     if (process.env.ZAVOD_UNSAFE_IAP_AUTH_DISABLED === 'true') {
         return "anonymous"
     }
 
     // Verify the id_token, and access the claims.
-    const iapJwt = request.headers.get('x-goog-iap-jwt-assertion');
+    const iapJwt = headers.get('x-goog-iap-jwt-assertion');
     if (!iapJwt) {
         console.log(
             "No 'x-goog-iap-jwt-assertion' header in request",
-            { ip: request.headers.get('x-forwarded-for') }
+            { ip: headers.get('x-forwarded-for') }
         );
         return null;
     }
