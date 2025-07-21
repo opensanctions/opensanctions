@@ -18,7 +18,7 @@ The unit of work is called a "review".
 
 ## Getting Started
 
-For local development, you'll want to connect to your local etl db using `ZAVOD_DATABASE_URI` and disable authentication using `ZAVOD_IAP_DISABLED`
+For local development, you'll want to connect to your local etl db using `ZAVOD_DATABASE_URI` and disable authentication using `ZAVOD_UNSAFE_IAP_DISABLED`
 
 ```bash
 npm run dev
