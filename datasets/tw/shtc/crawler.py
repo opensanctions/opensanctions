@@ -1,7 +1,9 @@
 import csv
+
+import datapatch
 from rigour.mime.types import CSV
 
-from zavod import Context, helpers as h
+from zavod import Context, helpers as h, Entity
 from zavod.shed.zyte_api import fetch_html
 
 ADDRESS_SPLITS = [
@@ -33,7 +35,22 @@ ADDRESS_SPLITS = [
 ]
 
 
-def crawl_row(context, row):
+def apply_details_override(
+    context: Context, entity: Entity, lookup_result: datapatch.Result
+):
+    details = lookup_result.details[0]
+
+    entity.add("name", details.get("name"))
+    entity.add_cast("Person", "birthDate", details.get("dob"))
+    entity.add_cast("Person", "birthPlace", details.get("pob"))
+    entity.add("notes", details.get("notes"))
+    entity.add("idNumber", details.get("id_num"))
+    entity.add("address", details.get("address"))
+    entity.add("email", details.get("email"))
+    entity.add("phone", details.get("telephone"))
+
+
+def crawl_row(context: Context, row):
     row = {
         # BOM in the middle of a file, probably a Microsoft artifact, should be ignored,
         # see https://www.unicode.org/faq/utf_bom.html#bom6
@@ -50,28 +67,20 @@ def crawl_row(context, row):
     entity.id = context.make_id(names, aliases)
 
     for address in h.multi_split(addresses, ADDRESS_SPLITS):
-        result = context.lookup("details", address)
-        if result is not None:
-            override = result.details[0]
-            if override:
-                entity.add("address", override.get("address"))
-                entity.add("email", override.get("email"))
-                entity.add("phone", override.get("telephone"))
+        # Generic override to map more details in the address field
+        details_lookup_result = context.lookup("details", address)
+        if details_lookup_result is not None:
+            apply_details_override(context, entity, details_lookup_result)
         else:
             entity.add("address", address)
 
-    for id in ids.split(";"):
-        result = context.lookup("details", id)
-        if result is not None:
-            override = result.details[0]
-            if override:
-                entity.add("name", override.get("name"))
-                entity.add_cast("Person", "birthDate", override.get("dob"))
-                entity.add_cast("Person", "birthPlace", override.get("pob"))
-                entity.add("notes", override.get("notes"))
-                entity.add("idNumber", override.get("id_num"))
+    for id_number in ids.split(";"):
+        # Generic override to map more details in the ID number field
+        details_lookup_result = context.lookup("details", id_number)
+        if details_lookup_result is not None:
+            apply_details_override(context, entity, details_lookup_result)
         else:
-            entity.add("idNumber", id)
+            entity.add("idNumber", id_number)
 
     for name in names.split(";"):
         entity.add("name", name)
