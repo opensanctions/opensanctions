@@ -57,8 +57,8 @@ lookups:
       # https://www.fbi.gov/wanted/cyber/masoud-jalili
       # having these as names would make for quite rubbish matching results in a lot of cases.
       - match:
-          - "18"
-          - "1028"
+          - '"18"'
+          - '"1028"'
         value: null
   type.country:
     lowercase: true
