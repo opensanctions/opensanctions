@@ -18,7 +18,7 @@ The unit of work is called a "review".
 
 ## Getting Started
 
-For local development, you'll want to connect to your local etl db using `ZAVOD_DATABASE_URI` and disable authentication using `ZAVOD_UNSAFE_IAP_DISABLED`
+For local development, you'll want to connect to your local etl db using `ZAVOD_DATABASE_URI` and disable authentication using `ZAVOD_ALLOW_UNAUTHENTICATED`
 
 ```bash
 npm run dev
@@ -38,4 +38,4 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 - `ZAVOD_DATABASE_URI` - (e.g. `postgresql://user:pw@host.com/db`) - only postgres supported.
 - `ZAVOD_IAP_AUDIENCE` - https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-nodejs
-- `ZAVOD_UNSAFE_IAP_AUTH_DISABLED` (default `false`; e.g. `true`) - skip IAP-based authentication **DON'T ENABLE WHEN PUBLICLY ACCESSIBLE**
+- `ZAVOD_ALLOW_UNAUTHENTICATED` (default `false`; e.g. `true`) - skip IAP-based authentication **DON'T ENABLE WHEN PUBLICLY ACCESSIBLE**

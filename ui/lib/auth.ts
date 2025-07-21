@@ -10,7 +10,7 @@ const oAuth2Client = new OAuth2Client();
 const expectedAudience = process.env.ZAVOD_IAP_AUDIENCE;
 
 export async function verify(headers: Headers) {
-    if (process.env.ZAVOD_UNSAFE_IAP_AUTH_DISABLED === 'true') {
+    if (process.env.ZAVOD_ALLOW_UNAUTHENTICATED === 'true') {
         return "anonymous"
     }
 
