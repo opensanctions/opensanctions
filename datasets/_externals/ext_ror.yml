@@ -44,6 +44,8 @@ inputs:
   - us_sec_harmed_investors
   - us_sec_pause
   - us_special_leg
+  - us_trade_csl
+  - us_bis_denied
 
 config:
   dataset: ror

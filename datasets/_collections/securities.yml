@@ -34,6 +34,9 @@ children:
   - ext_gleif
   - gb_hmt_invbans
   - gb_hmt_sanctions
+  - jp_meti_eul
+  - jp_meti_ru
+  - jp_mof_sanctions
   - no_nbim_exclusions
   - openfigi
   - permid
