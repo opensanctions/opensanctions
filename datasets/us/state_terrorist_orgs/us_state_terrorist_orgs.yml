@@ -83,7 +83,7 @@ lookups:
           - name_clean: al-Qa’ida in the Islamic Maghreb
             alias: AQIM
             name_former: Salafist Group for Call and Combat
-      - match: "Lashkar-e-Tayyiba (LeT)— Tehrik-e-Tahafuz Qibla Awwal, Tehrik-e-Hurmat-e-Rasool, and Al-Anfal Trust Amendments (June 26, 2014)— Al Muhammadia Students Amendment (December 30, 2016)— Tehreek-e-Azadi-e-Kashmir and Milli Muslim League Amendments (April 4, 2018)"
+      - match: Lashkar-e-Tayyiba (LeT)— Tehrik-e-Tahafuz Qibla Awwal, Tehrik-e-Hurmat-e-Rasool, and Al-Anfal Trust Amendments (June 26, 2014)— Al Muhammadia Students Amendment (December 30, 2016)— Tehreek-e-Azadi-e-Kashmir and Milli Muslim League Amendments (April 4, 2018)— The Resistance Front Amendment (July 18, 2025)
         names:
           - name_clean: Lashkar-e-Tayyiba
             alias:
@@ -95,6 +95,7 @@ lookups:
                 "Al Muhammadia Students",
                 "Tehreek-e-Azadi-e-Kashmir",
                 "Milli Muslim League",
+                "The Resistance Front",
               ]
       - match: "New Irish Republican Army (formerly Real IRA)— New IRA Amendment (June 30, 2023)"
         names:
