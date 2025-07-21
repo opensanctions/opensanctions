@@ -16,13 +16,11 @@ jest.mock('google-auth-library', () => {
 
 describe('verify', () => {
   it('returns email for valid token', async () => {
-    const req = new Request('http://localhost', {
-      headers: {
-        'x-goog-iap-jwt-assertion': 'valid.jwt.token',
-      },
+    const headers = new Headers({
+      'x-goog-iap-jwt-assertion': 'valid.jwt.token',
     });
     process.env.ZAVOD_IAP_AUDIENCE = 'test-audience';
-    const email = await verify(req);
+    const email = await verify(headers);
     expect(email).toBe('user@example.com');
   });
 });

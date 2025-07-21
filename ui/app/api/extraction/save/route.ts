@@ -15,7 +15,7 @@ function getAsBool(formData: FormData, key: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const email = await verify(req);
+  const email = await verify(req.headers);
   if (!email) {
     return new Response(
       '<h1>Error: Unauthorized</h1>',
