@@ -813,6 +813,11 @@ lookups:
           - 苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD
       - match: INITSIAVIVA-23
         value: INITSIAVIVA-23
+      # These appear in <Entity_Subsidiaries>(1) Kyrgz BIK number: 136001...
+      # Confirmed these are theirs and not subsidiaries:
+      # bik via ofac_sdn
+      # TIN, OKPO via https://record.minjust.gov.kg/view/02012201010017
+      # SWIFT via https://wise.com/gb/swift-codes/bic-swift-code-checker?code=RINBKG22
       - match: "(1) Kyrgz BIK number: 136001 (2) TIN: 02012201010017 (3) OKPO: 27231453 (4) SWIFT: RINBKG22"
         values:
           - "Kyrgz BIK number: 136001"
