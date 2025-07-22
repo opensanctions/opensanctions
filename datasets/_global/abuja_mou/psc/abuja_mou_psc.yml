@@ -44,5 +44,25 @@ http:
 assertions:
   min:
     schema_entities:
-      Company: 1000
+      Organization: 1000
       Vessel: 1000
+
+lookups:
+  type.country:
+    options:
+      - match: Gibraltar (GB)
+        value: "GI"
+      - match: Isle of Man (GB)
+        value: "IM"
+      - match: Cayman Islands (GB)
+        value: "KY"
+      - match: Bermuda (GB)
+        value: "BM"
+      - match: Libyan Arab Jamahiriya
+        value: Libya
+  type.identifier:
+    options:
+      - match: 636019170
+        prop: mmsi
+      - match: 91764126
+        value: 9176412
