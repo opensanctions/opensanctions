@@ -3,9 +3,8 @@ entry_point: crawler.py
 prefix: trade-csl
 coverage:
   frequency: daily
-  start: 2021-06-18
-deploy:
   schedule: "20 */3 * * *"
+  start: 2021-06-18
 load_statements: true
 summary: >-
   The Consolidated Screening List (CSL) is a list of parties for which the United
@@ -115,7 +114,7 @@ lookups:
         properties:
           name: Ministry of Defence of the Russian Federation
           notes: Includes the Armed Forces of Russia and all operating units wherever located.  This includes the national armed services (army, navy, marine, air force, or coast guard), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Russian Federation.  All address located in Russia.
-      - match: 'Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Beijing Huawei Longshine Information Technology Co., Ltd.'
+      - match: "Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Beijing Huawei Longshine Information Technology Co., Ltd."
         properties:
           name: Beijing Huawei Longshine Information Technology Co., Ltd.
           related: Huawei Technologies Co., Ltd.

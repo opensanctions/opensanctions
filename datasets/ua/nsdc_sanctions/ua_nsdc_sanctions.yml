@@ -2,7 +2,7 @@ title: Ukraine NSDC State Register of Sanctions
 entry_point: crawler.py
 prefix: ua-nsdc
 coverage:
-  schedule: "0 */3 * * *"
+  schedule: "0 */8 * * *"
   frequency: daily
   start: 2021-11-17
 deploy:
@@ -430,7 +430,7 @@ lookups:
       - match: "Сінгапур, Анг Мо Кіо Авеню 5, офіс 04-05, Техплейс Лі, 089053 (Singapore, 5 Ang Mo Kio Avenue, #04-05, Techplace Li, 089053); Сінгапур, 73 Апе Пая Лєбар Дорога, офіс 06-01c, Центро Біянко, 534818 (Singapore, 73 Ayer Paya Lebar Road, 06-01c, Centro Bianco, 534818)"
         values:
           - Сінгапур, Анг Мо Кіо Авеню 5, офіс 04-05, Техплейс Лі, 089053
-          - 'Singapore, 5 Ang Mo Kio Avenue, #04-05, Techplace Li, 089053'
+          - "Singapore, 5 Ang Mo Kio Avenue, #04-05, Techplace Li, 089053"
           - Сінгапур, 73 Апе Пая Лєбар Дорога, офіс 06-01c, Центро Біянко, 534818
           - Singapore, 73 Ayer Paya Lebar Road, 06-01c, Centro Bianco, 534818
       - match: PRC, HKSAR, Kwun Tong, 36 Chong Yip Street, Ricky Centre, 6/F, Room 611); КНР, ОАР Гонконг, Квун Тонг, вул. Хоі Юен, 56, промислова будівля Женплас, 1-й поверх, кімната 101a (PRC, HKSAR, Kwun Tong, 56 Hoi Yuen Road, Genplas Industrial Building, 1/F, Room 101a
@@ -543,7 +543,7 @@ lookups:
         values:
           - Акціонерне товариство ''Банк ''Сприяння громадським ініціативам'', АТ ''Собінбанк''
           - Акционерное общество ''Банк ''Содействие общественным инициативам'', АТ ''Собинбанк''
-      - match: 
+      - match:
           - '3"'
           - '11"'
           - '12"'

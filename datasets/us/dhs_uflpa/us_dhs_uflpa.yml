@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: us-uflpa
 coverage:
   frequency: daily
+  schedule: "0 */6 * * *"
   start: 2023-10-11
 load_statements: true
 ci_test: false
@@ -57,10 +58,10 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match: 
-          - 'A list of facilities and entities, including the Xinjiang Production and Construction Corps, that source material from Xinjiang or from persons working with the government of Xinjiang or the Xinjiang Production and Construction Corps for purposes of the ‘‘poverty alleviation’’ program or the ‘‘pairing-assistance’’ program or any other government-labor scheme that uses forced labor - Section 2(d)(2)(B)(v)'
-          - 'A list of entities working with the government of Xinjiang to recruit, transport, transfer, harbor or receive forced labor or Uyghurs, Kazakhs, Kyrgyz, or members of other persecuted groups out of Xinjiang - Section 2(d)(2)(B)(ii)'
-          - 'A list of entities in Xinjiang that mine, produce, or manufacture wholly or in part any goods, wares, articles and merchandise with forced labor - Section 2(d)(2)(B)(i)'
+      - match:
+          - "A list of facilities and entities, including the Xinjiang Production and Construction Corps, that source material from Xinjiang or from persons working with the government of Xinjiang or the Xinjiang Production and Construction Corps for purposes of the ‘‘poverty alleviation’’ program or the ‘‘pairing-assistance’’ program or any other government-labor scheme that uses forced labor - Section 2(d)(2)(B)(v)"
+          - "A list of entities working with the government of Xinjiang to recruit, transport, transfer, harbor or receive forced labor or Uyghurs, Kazakhs, Kyrgyz, or members of other persecuted groups out of Xinjiang - Section 2(d)(2)(B)(ii)"
+          - "A list of entities in Xinjiang that mine, produce, or manufacture wholly or in part any goods, wares, articles and merchandise with forced labor - Section 2(d)(2)(B)(i)"
         value: US-UFLPA
   names:
     normalize: true

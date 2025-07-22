@@ -2,10 +2,8 @@ title: Philippines Anti-Money Laundering Council Sanctions
 entry_point: crawler.py
 prefix: ph-amlc
 coverage:
-  frequency: never
+  frequency: weekly
   start: "2025-06-02"
-deploy:
-  schedule: "@weekly"
 load_statements: true
 summary: >
   Individuals and entities sanctioned by the Philippines Anti-Money Laundering Council.
