@@ -104,24 +104,24 @@ def crawl(context: Context) -> None:
         else:
             entity.add("topics", "debarment")
         cross_ref = row.pop("Cross-Reference", None)
-        if (
-            cross_ref is not None
-            and cross_ref.startswith("(also ")
-            and cross_ref.endswith(")")
-        ):
-            cross_ref = cross_ref[len("(also ") :].rstrip(")")
-            cross_ref = cross_ref.replace(", LLC", " LLC")
-            cross_ref = cross_ref.replace(", INC", " INC")
-            cross_ref = cross_ref.replace(", JR", " JR")
-            aliases = []
-            for alias in cross_ref.split(", "):
-                if len(alias) < 5 and len(aliases):
-                    aliases[-1] += ", " + alias
-                else:
-                    aliases.append(alias)
-            entity.add("alias", aliases, lang="eng")
-        else:
-            entity.add("notes", cross_ref, lang="eng")
+        # if (
+        #     cross_ref is not None
+        #     and cross_ref.startswith("(also ")
+        #     and cross_ref.endswith(")")
+        # ):
+        #     cross_ref = cross_ref[len("(also ") :].rstrip(")")
+        #     cross_ref = cross_ref.replace(", LLC", " LLC")
+        #     cross_ref = cross_ref.replace(", INC", " INC")
+        #     cross_ref = cross_ref.replace(", JR", " JR")
+        #     aliases = []
+        #     for alias in cross_ref.split(", "):
+        #         if len(alias) < 5 and len(aliases):
+        #             aliases[-1] += ", " + alias
+        #         else:
+        #             aliases.append(alias)
+        #     entity.add("alias", aliases, lang="eng")
+        # else:
+        entity.add("notes", cross_ref, lang="eng")
         uei = row.pop("Unique Entity ID", None)
         if entity.schema.is_a("LegalEntity"):
             entity.add("uniqueEntityId", uei)
