@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateExtractionEntry, getNextUnacceptedEntryKey } from '../../../../lib/db';
 import { verify } from '../../../../lib/auth';
+import { BASE_URL } from '@/lib/constants';
 
 function getAsString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
         redirectUrl = `/dataset/${encodeURIComponent(dataset)}/entry/${encodeURIComponent(nextKey)}`;
       }
     }
-    return NextResponse.redirect(new URL(redirectUrl, req.nextUrl.origin));
+    return NextResponse.redirect(new URL(redirectUrl, BASE_URL));
   } catch (e: any) {
     // Log the error but do not expose details to the user
     console.error('Extraction save error:', e);
