@@ -32,8 +32,8 @@ class SchemaGenerator(GenerateJsonSchema):
 
 class Review(BaseModel, Generic[ModelType]):
     """
-    A review is the smallest unit of data that's convenient to extract data from,
-    as well as information about the source data, whether it's been accepted, and by whom.
+    A review is the smallest unit of data that's convenient to extract data from and review,
+    along with info about the source data, whether it's been accepted, and by who.
     """
 
     id: Optional[int] = None
