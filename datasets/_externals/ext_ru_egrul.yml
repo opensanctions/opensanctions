@@ -11,6 +11,7 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
+  premium: true
   cpu: "1000m"
   cpu_limit: "2000m"
   disk: "150Gi"
