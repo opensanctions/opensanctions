@@ -29,7 +29,7 @@ http:
   backoff_factor: 3
   # 503 is a ban for a few seconds.
   # 403 seems to mean you're banned for hours or more.
-  retry_statuses: [503]
+  additional_retry_statuses: [503]
 ci_test: false
 
 dates:
