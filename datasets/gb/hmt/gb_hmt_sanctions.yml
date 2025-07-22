@@ -813,9 +813,18 @@ lookups:
           - 苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD
       - match: INITSIAVIVA-23
         value: INITSIAVIVA-23
+      - match: "(1) Kyrgz BIK number: 136001 (2) TIN: 02012201010017 (3) OKPO: 27231453 (4) SWIFT: RINBKG22"
+        values:
+          - "Kyrgz BIK number: 136001"
+          - "TIN: 02012201010017"
+          - "OKPO: 27231453"
+          - "SWIFT: RINBKG22"
   type.name:
     options:
       - match: "BIC: 136001"
+        prop: bikCode
+        value: 136001
+      - match: "Kyrgz BIK number: 136001"
         prop: bikCode
         value: 136001
       - match: "TIN: 02012201010017"
