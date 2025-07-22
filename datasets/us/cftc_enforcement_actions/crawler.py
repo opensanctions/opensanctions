@@ -8,11 +8,22 @@ from zavod import helpers as h
 from zavod.shed.gpt import run_typed_text_prompt
 from zavod.stateful.review import get_accepted_data
 
+Schema = Literal["Person", "Company", "LegalEntity"]
+Status = Literal[
+    "Filed",
+    "Dismissed",
+    "Settled",
+    "Default judgement",
+    "Final judgement",
+    "Supplemental consent order",
+    "Other",
+]
+
 
 # Not extracting relationships for now because the results were inconsistent
-# between GPT queries. Let's start simple.
+# between GPT queries.
 class Defendant(BaseModel):
-    entity_schema: Literal["Person", "Company", "LegalEntity"] = Field(
+    entity_schema: Schema = Field(
         description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
     )
     name: str
@@ -22,15 +33,22 @@ class Defendant(BaseModel):
         description=("The address or even just the district/state of the defendant."),
     )
     country: Optional[str] = None
+    status: Status = Field(
+        description=(
+            "The status of the enforcement action notice."
+            " If `Other`, add the text used as the status in the source to `notes`."
+        )
+    )
+    notes: Optional[str] = Field(
+        default=None, description=("Only used if `status` is `Other`.")
+    )
     original_press_release_number: Optional[str] = Field(
         default=None,
         description=(
-            (
-                "The original press release number of the enforcement action notice."
-                " When announcing charges, this is the press release number of the "
-                "announcement. When announcing court orders or dropped charges, "
-                "this is the reference to the original press release."
-            )
+            "The original press release number of the enforcement action notice."
+            " When announcing charges, this is the press release number of the"
+            " announcement. When announcing court orders or dropped charges,"
+            " this is the reference to the original press release."
         ),
     )
 
@@ -43,6 +61,9 @@ PROMPT = """
 Extract the defendants or entities added to the Red List in the attached article.
 Leave out any relief defendants. Leave fields null or lists empty if values are not
 present in the source text.
+
+Trading/D.B.A. names looking like company rather than person names should be extracted
+as companies, not aliases of a person.
 """
 
 
@@ -71,13 +92,26 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         entity.add("address", item.address)
         entity.add("country", item.country)
         entity.add("alias", item.aliases)
-        entity.add("topics", "reg.action")
+        if item.status != "Dismissed":
+            entity.add("topics", "reg.action")
 
+        press_release_num = doc.xpath(".//h1[contains(@class, 'press-release-title')]")[
+            0
+        ].text_content()
+        press_release_num = press_release_num.replace("Release Number", "").strip()
+        # We try to link press releases that refer to an original press release number
+        # back to the original press release.
+        # In practice often the entity ID differs initially because of different levels
+        # of address details in the press release.
         sanction = h.make_sanction(
             context, entity, key=item.original_press_release_number
         )
         h.apply_date(sanction, "date", date.strip())
         sanction.add("sourceUrl", url)
+        sanction.add("status", item.status)
+        sanction.add("summary", item.notes)
+        sanction.add("authorityId", press_release_num)
+        sanction.add("authorityId", item.original_press_release_number)
 
         context.emit(entity)
         context.emit(sanction)
