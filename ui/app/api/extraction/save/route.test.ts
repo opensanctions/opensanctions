@@ -6,7 +6,7 @@ jest.mock('../../../../lib/auth', () => ({
 }));
 
 describe('POST /api/extraction/save', () => {
-  it('returns 401 for valid JWT header but unauthorized', async () => {
+  it('responds 401 if unauthorised', async () => {
     // Create a mock request with a valid JWT header
     const form = new URLSearchParams({
       dataset: 'test',
@@ -19,7 +19,7 @@ describe('POST /api/extraction/save', () => {
       method: 'POST',
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
-        'x-goog-iap-jwt-assertion': 'valid.jwt.token',
+        'x-goog-iap-jwt-assertion': 'a.jwt.token',
       },
       body: form,
     } as any);
