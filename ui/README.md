@@ -18,7 +18,11 @@ The unit of work is called a "review".
 
 ## Getting Started
 
-For local development, you'll want to connect to your local etl db using `ZAVOD_DATABASE_URI` and disable authentication using `ZAVOD_ALLOW_UNAUTHENTICATED`
+For local development, you'll want to
+
+1. connect to your local etl db using `ZAVOD_DATABASE_URI`
+2. disable authentication using `ZAVOD_ALLOW_UNAUTHENTICATED`
+3. set `NEXT_PUBLIC_BASE_URL` to `http://localhost:3000`
 
 ```bash
 npm run dev
@@ -36,6 +40,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Configuration
 
+- `NEXT_PUBLIC_BASE_URL` - Base URL used for absolute URLs, e.g. in dev probably `http://localhost:3000`
 - `ZAVOD_DATABASE_URI` - (e.g. `postgresql://user:pw@host.com/db`) - only postgres supported.
 - `ZAVOD_IAP_AUDIENCE` - https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-nodejs
 - `ZAVOD_ALLOW_UNAUTHENTICATED` (default `false`; e.g. `true`) - skip IAP-based authentication **DON'T ENABLE WHEN PUBLICLY ACCESSIBLE**
