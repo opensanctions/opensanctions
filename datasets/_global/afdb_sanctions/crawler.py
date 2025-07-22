@@ -19,7 +19,7 @@ NAME_SPLITS = [
     "formerly",
     "previously",
 ]
-DETECT_ALIAS_RE = re.compile("|".join(NAME_SPLITS), re.IGNORECASE)
+DETECT_ALIAS_RE = re.compile("|".join(re.escape(s) for s in NAME_SPLITS), re.IGNORECASE)
 NAME_REGEX = re.compile(r"^(?P<name>[^()]+?)\s*\(\s*(?P<alias>[^()]+?)\s*\)$")
 
 
