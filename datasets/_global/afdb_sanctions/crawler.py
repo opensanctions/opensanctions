@@ -40,6 +40,8 @@ def apply_clean_name(context: Context, entity, name):
         context.log.warn(
             "Name looks like it might contain an alias, but no lookup found", name=name
         )
+        # We apply the name anyway in this case not to lose it until it's fixed
+        entity.add("name", name)
     else:
         entity.add("name", name)
 
