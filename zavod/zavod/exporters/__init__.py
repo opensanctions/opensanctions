@@ -88,11 +88,11 @@ def export_dataset(dataset: Dataset, view: View) -> None:
     try:
         context.begin(clear=False)
         export_data(context, view)
-
-        # Export full metadata
-        write_delta_index(dataset)
-        write_dataset_index(dataset)
-        write_catalog(dataset)
-        log.info("Exported dataset: %s" % dataset.name, dataset=dataset.name)
     finally:
         context.close()
+
+    # Export metadata and issues (after the context is closed & flushed)
+    write_delta_index(dataset)
+    write_dataset_index(dataset)
+    write_catalog(dataset)
+    log.info("Exported dataset: %s" % dataset.name, dataset=dataset.name)
