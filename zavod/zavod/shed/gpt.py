@@ -124,10 +124,12 @@ def run_typed_image_prompt(
     )
     assert len(response.choices) > 0
     assert response.choices[0].message is not None
+    assert response.choices[0].message.content is not None
+    json_data = json.loads(response.choices[0].message.content)
+    context.cache.set_json(cache_key, json_data)
     assert response.choices[0].message.parsed is not None
-    data = response.choices[0].message.parsed
-    context.cache.set_json(cache_key, data)
-    return data
+    structured_data = response.choices[0].message.parsed
+    return structured_data
 
 
 def run_text_prompt(
