@@ -174,7 +174,7 @@ assertions:
       LegalEntity: 900
     country_entities:
       cn: 300
-      ru: 5
+      ru: 4
       ke: 5
   max:
     schema_entities:
