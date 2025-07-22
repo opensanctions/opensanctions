@@ -33,6 +33,8 @@ ADDRESS_SPLITS = [
     "Branch Office 15:",
     "Branch Office 16:",
 ]
+# ;, Traditional Chinese:, Simplified Chinese:
+NAME_SPLITS = [";", "繁體中文：", "簡體中文："]
 
 
 def apply_details_override(
@@ -82,10 +84,13 @@ def crawl_row(context: Context, row):
         else:
             entity.add("idNumber", id_number)
 
-    for name in names.split(";"):
+    for name in h.multi_split(names, NAME_SPLITS):
         entity.add("name", name)
-    for alias in aliases.split(";"):
-        entity.add("alias", alias)
+    for alias in h.multi_split(aliases, NAME_SPLITS):
+        if len(alias.split()) == 1:
+            entity.add("weakAlias", alias)
+        else:
+            entity.add("alias", alias)
     for country in row.pop("國家代碼country code").split(";"):
         entity.add("country", country)
     entity.add("topics", "export.control")
