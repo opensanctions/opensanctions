@@ -61,6 +61,218 @@ assertions:
       Person: 500
 
 lookups:
+  names:
+    options:
+      - match: 'Hebei Construction Group (Ningbo) Supply Chain Management Co., Ltd.'
+        names:
+          - name: Hebei Construction Group (Ningbo) Supply Chain Management Co., Ltd.
+      - match: 'Construcciones Del Siglo 21 S.A.S. (“Siglo 21”) (Formerlyconstructora Fajardo Nieto Ltda.)'
+        names:
+          - name: Construcciones Del Siglo 21 S.A.S.
+            alias: "Siglo 21"
+            previous_name: "constructora Fajardo Nieto Ltda."
+      - match: 'Interyer Inşaat” Məhdud Məsuliyyətli Cəmiyyəti (“Interyerinşaat'
+        names:
+          - name: Interyer Inşaat Məhdud Məsuliyyətli Cəmiyyəti
+            alias: "Interyerinşaat"
+      - match: 'Marseille For Engineering & Trading S.A.L. Offshore (Doing Business As Mue Group)'
+        names:
+          - name: Marseille For Engineering & Trading S.A.L. Offshore
+            alias: "Mue Group"
+      - match: 'Al Ula Engineering Bureau (Doing Business As Mue Group)'
+        names:
+          - name: Al Ula Engineering Bureau
+            alias: "Mue Group"
+      - match: 'Taihan Electric Wire Co., Ltd. (Also Known As Taihan Cable & Solution Co., Ltd.)'
+        names:
+          - name: Taihan Electric Wire Co., Ltd.
+            alias: "Taihan Cable & Solution Co., Ltd."
+      - match: 'China Henan International Cooperation Group (Proprietary) Limited'
+        names:
+          - name: China Henan International Cooperation Group (Proprietary) Limited
+      - match: 'Solutions For Development Support (Pvt.) Ltd.'
+        names:
+          - name: Solutions For Development Support (Pvt.) Ltd.
+      - match: 'Xinjiang Jiaotong Logistics Co. Ltd. (Also Known As Xccg Logistics Co. Ltd.) (新疆交建物流有限公司)'
+        names:
+          - name: Xinjiang Jiaotong Logistics Co. Ltd.
+            alias: ["Xccg Logistics Co. Ltd.", "新疆交建物流有限公司"]
+      - match: 'Xinjiang Communication Construction Municipal Engineering Co. Ltd. (Also Known As Xccg Municipal Works Construction Co. Ltd.) (新疆交建市政工程有限责任公司)'
+        names:
+          - name: Xinjiang Communication Construction Municipal Engineering Co. Ltd.
+            alias: ["Xccg Municipal Works Construction Co. Ltd.", "新疆交建市政工程有限责任公司"]
+      - match: 'Multi-Tech Consult (Pty) Ltd'
+        names:
+          - name: Multi-Tech Consult (Pty) Ltd
+      - match: 'Shaanxi Herui Technology Development Co. Ltd. Formerly Shaanxi Neoplan Trading Co. Ltd.'
+        names:
+          - name: Shaanxi Herui Technology Development Co. Ltd.
+            previous_name: "Shaanxi Neoplan Trading Co. Ltd."
+      - match: 'Gesaworld S.A. Or Gesaworld Group S.A.'
+        names:
+          - name: Gesaworld S.A.
+            alias: "Gesaworld Group S.A."
+      - match: 'Allonward Hydro-Generating Equipment (Hongkong) Co.Ltd.'
+        names:
+          - name: Allonward Hydro-Generating Equipment (Hongkong) Co.Ltd.
+      - match: 'Mr. Joram Opala Otieno (Also Known As Mr. Joram Opala)'
+        names:
+          - name: Joram Opala Otieno
+            alias: "Joram Opala"
+      - match: 'A2Z Waste Management (Aligarh) Ltd.'
+        names:
+          - name: A2Z Waste Management (Aligarh) Ltd.
+      - match: 'A2Z Waste Management (Ludhiana) Ltd.'
+        names:
+          - name: A2Z Waste Management (Ludhiana) Ltd.
+      - match: 'Rishikesh Waste Management Ltd. (Formerly Known As A2Z Powertech Ltd.)'
+        names:
+          - name: Rishikesh Waste Management Ltd.
+            previous_name: "A2Z Powertech Ltd."
+      - match: 'A2Z Waste Management (Nainital) Private Limited'
+        names:
+          - name: A2Z Waste Management (Nainital) Private Limited
+      - match: 'A2Z Waste Management (Jaipur) Limited'
+        names:
+          - name: A2Z Waste Management (Jaipur) Limited
+      - match: 'A2Z Waste Management (Aligarh) Ltd.'
+        names:
+          - name: A2Z Waste Management (Aligarh) Ltd.
+      - match: 'A2Z Waste Management (Ludhiana) Ltd.'
+        names:
+          - name: A2Z Waste Management (Ludhiana) Ltd.
+      - match: 'Global Interjapan (Kenya) Limited'
+        names:
+          - name: Global Interjapan (Kenya) Limited
+      - match: 'Cesa De Honduras S.A. (“Cesa Honduras”'
+        names:
+          - name: Cesa De Honduras S.A.
+            alias: "Cesa Honduras"
+      - match: 'Founder International (Beijing) Co. Ltd.'
+        names:
+          - name: Founder International (Beijing) Co. Ltd.
+      - match: 'Flowbird Société Par Actions Simplifiée (Formerly Operating As: Parkeon Société Par Actions Simplifiée) (“Flowbird Sas”)'
+        names:
+          - name: Flowbird Société Par Actions Simplifiée
+            alias: "Flowbird Sas"
+            previous_name: "Parkeon Société Par Actions Simplifiée"
+      - match: 'Flowbird Transport Limited (Formerly Operating As: Parkeon Transit Limited) (“Flowbird Transport”)'
+        names:
+          - name: Flowbird Transport Limited
+            alias: "Flowbird Transport"
+            previous_name: "Parkeon Transit Limited"
+      - match: 'Sangar & Associates (Nigeria) Limited'
+        names:
+          - name: Sangar & Associates (Nigeria) Limited
+      - match: 'Mr Bamidele Obiniyi Also Known As Mr Bamidele Abayomi'
+        names:
+          - name: Bamidele Obiniyi
+            alias: Bamidele Abayomi
+      - match: 'Guangrongfeng (Hong Kong) Industrial Co. Limited'
+        names:
+          - name: Guangrongfeng (Hong Kong) Industrial Co. Limited
+      - match: 'Entreprise De Construction Urbaine Et Rurales (Ecur) Sarl'
+        names:
+          - name: Entreprise De Construction Urbaine Et Rurales (Ecur) Sarl
+      - match: 'Lloyd Infotech (India) Private Limited'
+        names:
+          - name: Lloyd Infotech (India) Private Limited
+      - match: 'Elmcrest Group Limited Formerly Known As Landmarc Limited'
+        names:
+          - name: Elmcrest Group Limited
+            previous_name: "Landmarc Limited"
+      - match: 'Private Enterprise (Pe) Rabmer'
+        names:
+          - name: Private Enterprise (Pe) Rabmer
+      - match: 'Laxminarayan Mallick Also Doing Business Under Laxmi Narayan Construction Or Laxminarayan Construction'
+        names:
+          - name: Laxminarayan Mallick
+            alias: ["Laxmi Narayan Construction", "Laxminarayan Construction"]
+      - match: 'Development And Relief Corporation B.V. (Also Known As Drc B.V.)'
+        names:
+          - name: Development And Relief Corporation B.V.
+            alias: "Drc B.V."
+      - match: 'Multistar Holdings Limited (Formerly Multi-Con Systems Pte Ltd.)'
+        names:
+          - name: Multistar Holdings Limited
+            previous_name: "Multi-Con Systems Pte Ltd."
+      - match: 'Uralkotloservice Pkf Zao (Tambov) (Also Known As Uralkotloservice Commercial Production FIRM Closed Joint-Stock Co.)'
+        names:
+          - name: Uralkotloservice Pkf Zao (Tambov)
+            alias: "Uralkotloservice Commercial Production FIRM Closed Joint-Stock Co."
+      - match: 'A2Z Infra Engineering Limited (Previously Known As A2Z Maintenance & Engineering Services Limited) (“A2Z Infra”)'
+        names:
+          - name: A2Z Infra Engineering Limited
+            previous_name: "A2Z Maintenance & Engineering Services Limited"
+            alias: "A2Z Infra"
+      - match: 'Nishan Engineers (PVT) Limited (“Nishan”)'
+        names:
+          - name: Nishan Engineers (PVT) Limited
+            alias: "Nishan"
+      - match: 'Nishan Engineers (Pvt) Limited (“Nishan”)'
+        names:
+          - name: Nishan Engineers (Pvt) Limited
+            alias: "Nishan"
+      - match: 'Xinjiang Communications Construction Group Co. Ltd. (“XCCG”) (新疆交通建设集团股份有限公司 新疆交建)'
+        names:
+          - name: Xinjiang Communications Construction Group Co. Ltd.
+            alias: ["XCCG", "新疆交通建设集团股份有限公司 新疆交建"]
+      - match: 'Henan Geological And Mining Construction Engineering (Group) Co. Ltd. (河南省地矿建设工程(集团)有限公司)'
+        names:
+          - name: Henan Geological And Mining Construction Engineering (Group) Co. Ltd.
+            alias: "河南省地矿建设工程(集团)有限公司"
+      - match: 'Henan Geology And Mineral Construction Engineering (Group) Anhui Co. Ltd. (河南省地矿建设工程(集团)安徽有)'
+        names:
+          - name: Henan Geology And Mineral Construction Engineering (Group) Anhui Co. Ltd.
+            alias: "河南省地矿建设工程(集团)安徽有"
+      - match: 'Henan Geology And Mineral Construction Engineering (Group) Dalian Municipal Engineering Co. Ltd. (河南省地矿建设工程(集团)大连市政工程有限公司)'
+        names:
+          - name: Henan Geology And Mineral Construction Engineering (Group) Dalian Municipal Engineering Co. Ltd.
+            alias: "河南省地矿建设工程(集团)大连市政工程有限公司"
+      - match: 'Zhongchen Road & Bridge Construction (Beijing) Co. Ltd. ("Zhongchen Road & Bridge")'
+        names:
+          - name: Zhongchen Road & Bridge Construction (Beijing) Co. Ltd.
+            alias: "Zhongchen Road & Bridge"
+      - match: 'Kenoster (Nigeria) Limited ("Kenoster")'
+        names:
+          - name: Kenoster (Nigeria) Limited
+            alias: "Kenoster"
+      - match: 'Tengwangge Construction Engineering Group Co., Ltd., (滕王阁建工集团股份有限公司) (Tengwangge Construction)'
+        names:
+          - name: Tengwangge Construction Engineering Group Co., Ltd.
+            alias: ["滕王阁建工集团股份有限公司", "Tengwangge Construction"]
+      - match: 'Fazl-Ur-Rehman Constructior (Pvt) Limited ( Likyano)'
+        names:
+          - name: Fazl-Ur-Rehman Constructior (Pvt) Limited
+            alias: "Likyano"
+      - match: 'Baraka Qurilish Servis Llc (“Bqs”)'
+        names:
+          - name: Baraka Qurilish Servis Llc
+            alias: "Bqs"
+      - match: 'Ecograph Llc Aka Ecography Company (Ecograph)'
+        names:
+          - name: Ecograph Llc
+            alias: ["Ecography Company", "Ecograph"]
+      - match: 'De Leon Angelita Banal (A.K.A. Cielo De Leon)'
+        names:
+          - name: De Leon Angelita Banal
+            alias: "Cielo De Leon"
+      - match: 'Dela Paz Flores Lorena (A.K.A. Lorena Paz Flores Bruno)'
+        names:
+          - name: Dela Paz Flores Lorena
+            alias: "Lorena Paz Flores Bruno"
+      - match: 'Peter Lee (Aka Mr. Li Yi)'
+        names:
+          - name: Peter Lee
+            alias: "Mr. Li Yi"
+      - match: 'Compuaids Inc. D/B/A Groupe Systèmes Et Solutions D’Entreprise Ess Group Enterprise Systems And Solutions Group'
+        names:
+          - name: Compuaids Inc.
+            alias: ["Groupe Systèmes Et Solutions D’Entreprise Ess Group", "Enterprise Systems And Solutions Group"]
+      - match: 'J.M. Comercio De Equipamentos Ltda (Currently D/B/A Pick Up Car Auto Peas)'
+        names:
+          - name: J.M. Comercio De Equipamentos Ltda
+            alias: "Pick Up Car Auto Peas"
   types:
     lowercase: true
     map:

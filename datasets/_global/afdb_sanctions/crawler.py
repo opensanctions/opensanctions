@@ -1,6 +1,49 @@
+import re
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
+
+NAME_SPLITS = [
+    "doing business as",
+    "also known as",
+    " or ",
+    "a.k.a.",
+    "aka ",
+    "f/k/a",
+    "d/b/a",
+    "dba",
+    "d.b.a.",
+    "a/k/a",
+    "operating",
+    "formerly",
+    "previously",
+]
+DETECT_ALIAS_RE = re.compile("|".join(re.escape(s) for s in NAME_SPLITS), re.IGNORECASE)
+NAME_REGEX = re.compile(r"^(?P<name>[^()]+?)\s*\(\s*(?P<alias>[^()]+?)\s*\)$")
+
+
+def apply_clean_name(context: Context, entity, name):
+    names_lookup_result = context.lookup("names", name)
+    if names_lookup_result is not None:
+        details = names_lookup_result.names[0]
+        entity.add("name", details.get("name"))
+        entity.add("alias", details.get("alias"))
+        entity.add("previousName", details.get("previous_name"))
+    # Only allow the normal "Name (Alias)" format if no alias-y terms were found
+    elif NAME_REGEX.match(name) and not DETECT_ALIAS_RE.search(name):
+        match = NAME_REGEX.match(name)
+        entity.add("name", match.group("name").strip())
+        entity.add("alias", match.group("alias").strip('“”"'))
+    # If the name looks like it might contain an alias, log a warning
+    elif "(" in name or DETECT_ALIAS_RE.search(name):
+        context.log.warn(
+            "Name looks like it might contain an alias, but no lookup found", name=name
+        )
+        # We apply the name anyway in this case not to lose it until it's fixed
+        entity.add("name", name)
+    else:
+        entity.add("name", name)
 
 
 def crawl(context: Context):
@@ -28,7 +71,7 @@ def crawl(context: Context):
         country = cells.pop("nationality")
         entity = context.make(schema)
         entity.id = context.make_id(name, country)
-        entity.add("name", name)
+        apply_clean_name(context, entity, name)
         entity.add("topics", "debarment")
         entity.add("country", country)
 
