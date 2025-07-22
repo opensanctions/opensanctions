@@ -19,26 +19,29 @@ NAME_SPLITS = [
     "formerly",
     "previously",
 ]
-RE_ALIAS = re.compile("|".join(NAME_SPLITS), re.IGNORECASE)
+DETECT_ALIAS_RE = re.compile("|".join(NAME_SPLITS), re.IGNORECASE)
 NAME_REGEX = re.compile(r"^(?P<name>[^()]+?)\s*\(\s*(?P<alias>[^()]+?)\s*\)$")
 
 
 def apply_clean_name(context: Context, entity, name):
-    if "(" in name and NAME_REGEX.match(name) and not RE_ALIAS.search(name):
+    names_lookup_result = context.lookup("names", name)
+    if names_lookup_result is not None:
+        details = names_lookup_result.names[0]
+        entity.add("name", details.get("name"))
+        entity.add("alias", details.get("alias"))
+        entity.add("previousName", details.get("previous_name"))
+    # Only allow the normal "Name (Alias)" format if no alias-y terms were found
+    elif NAME_REGEX.match(name) and not DETECT_ALIAS_RE.search(name):
         match = NAME_REGEX.match(name)
         entity.add("name", match.group("name").strip())
         entity.add("alias", match.group("alias").strip('“”"'))
-    elif "(" not in name and not RE_ALIAS.search(name):
-        entity.add("name", name)
+    # If the name looks like it might contain an alias, log a warning
+    elif "(" in name or DETECT_ALIAS_RE.search(name):
+        context.log.warn(
+            "Name looks like it might contain an alias, but no lookup found", name=name
+        )
     else:
-        names_lookup_result = context.lookup("names", name)
-        if names_lookup_result is not None:
-            details = names_lookup_result.names[0]
-            entity.add("name", details.get("name"))
-            entity.add("alias", details.get("alias"))
-            entity.add("previousName", details.get("previous_name"))
-        else:
-            context.log.warn("No lookup result for name", name=name)
+        entity.add("name", name)
 
 
 def crawl(context: Context):
