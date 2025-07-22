@@ -9,24 +9,12 @@ from zavod.shed.gpt import run_typed_text_prompt
 from zavod.stateful.review import get_accepted_data
 
 
-class Associate(BaseModel):
-    name: str
-    address: Optional[str] = Field(
-        default=None,
-        description=("The address or even just the district/state of the defendant."),
-    )
-    relationship: Optional[str] = Field(
-        default=None,
-        description=(
-            "The relationship of the associate to the defendant e.g. owner, officer, etc."
-        ),
-    )
-
-
-# Heads-up associates seems to be a bit different each time making potentially
-# unnecessary invalidations when the cache expires.
+# Not extracting relationships for now because the results were inconsistent
+# between GPT queries. Let's start simple.
 class Defendant(BaseModel):
-    entity_schema: Literal["Person", "Company", "LegalEntity"]
+    entity_schema: Literal["Person", "Company", "LegalEntity"] = Field(
+        description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
+    )
     name: str
     aliases: Optional[List[str]] = []
     address: Optional[str] = Field(
@@ -34,16 +22,17 @@ class Defendant(BaseModel):
         description=("The address or even just the district/state of the defendant."),
     )
     country: Optional[str] = None
-    owners: List[str] = Field(
-        default=[], description=("The names of the owners of a Company defendant.")
-    )
-    associates: List[Associate] = Field(
-        default=[],
+    original_press_release_number: Optional[str] = Field(
+        default=None,
         description=(
-            "The names of the associates of a defendant excluding relief defendants. Prefer listing people under a company rather than companies under people."
+            (
+                "The original press release number of the enforcement action notice."
+                " When announcing charges, this is the press release number of the "
+                "announcement. When announcing court orders or dropped charges, "
+                "this is the reference to the original press release."
+            )
         ),
     )
-    authority: Optional[str] = None
 
 
 class Defendants(BaseModel):
@@ -82,7 +71,16 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         entity.add("address", item.address)
         entity.add("country", item.country)
         entity.add("alias", item.aliases)
+        entity.add("topics", "reg.action")
+
+        sanction = h.make_sanction(
+            context, entity, key=item.original_press_release_number
+        )
+        h.apply_date(sanction, "date", date.strip())
+        sanction.add("sourceUrl", url)
+
         context.emit(entity)
+        context.emit(sanction)
 
 
 def crawl_index_page(context: Context, doc) -> None:
@@ -90,7 +88,7 @@ def crawl_index_page(context: Context, doc) -> None:
     tables = doc.xpath(table_xpath)
     assert len(tables) == 1
     for row in h.parse_html_table(tables[0]):
-        date = row["date"]
+        date = row["date"].text_content()
         action_cell = row["enforcement_actions"]
         # Remove related links so we can assert that there's one key link
         for ul in action_cell.xpath(".//ul"):
@@ -104,9 +102,6 @@ def crawl_index_page(context: Context, doc) -> None:
 def crawl(context: Context) -> None:
     next_url: Optional[str] = context.data_url
     while next_url:
-        # Dev
-        if "1" in next_url:
-            break
         doc = context.fetch_html(next_url)
         doc.make_links_absolute(next_url)
         next_urls = doc.xpath(".//a[@rel='next']/@href")

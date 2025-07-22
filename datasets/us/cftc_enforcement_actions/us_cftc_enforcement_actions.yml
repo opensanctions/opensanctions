@@ -27,6 +27,9 @@ data:
   format: HTML
 ci_test: false # GPT key not available in CI
 
+dates:
+  formats: ["%m/%d/%Y"]
+
 assertions:
   min:
     schema_entities:
