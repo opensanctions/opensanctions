@@ -1,6 +1,44 @@
+import re
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
+
+NAME_SPLITS = [
+    "doing business as",
+    "also known as",
+    " or ",
+    "a.k.a.",
+    "aka ",
+    "f/k/a",
+    "d/b/a",
+    "dba",
+    "d.b.a.",
+    "a/k/a",
+    "operating",
+    "formerly",
+    "previously",
+]
+RE_ALIAS = re.compile("|".join(NAME_SPLITS), re.IGNORECASE)
+NAME_REGEX = re.compile(r"^(?P<name>[^()]+?)\s*\(\s*(?P<alias>[^()]+?)\s*\)$")
+
+
+def apply_clean_name(context: Context, entity, name):
+    if "(" in name and NAME_REGEX.match(name) and not RE_ALIAS.search(name):
+        match = NAME_REGEX.match(name)
+        entity.add("name", match.group("name").strip())
+        entity.add("alias", match.group("alias").strip('“”"'))
+    elif "(" not in name and not RE_ALIAS.search(name):
+        entity.add("name", name)
+    else:
+        names_lookup_result = context.lookup("names", name)
+        if names_lookup_result is not None:
+            details = names_lookup_result.names[0]
+            entity.add("name", details.get("name"))
+            entity.add("alias", details.get("alias"))
+            entity.add("previousName", details.get("previous_name"))
+        else:
+            context.log.warn("No lookup result for name", name=name)
 
 
 def crawl(context: Context):
@@ -28,7 +66,7 @@ def crawl(context: Context):
         country = cells.pop("nationality")
         entity = context.make(schema)
         entity.id = context.make_id(name, country)
-        entity.add("name", name)
+        apply_clean_name(context, entity, name)
         entity.add("topics", "debarment")
         entity.add("country", country)
 
