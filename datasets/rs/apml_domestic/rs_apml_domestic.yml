@@ -2,7 +2,7 @@ title: Serbian Domestic List of Designated Persons
 entry_point: crawler.py
 prefix: rsdom
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2024-06-13
 load_statements: true
 summary: >

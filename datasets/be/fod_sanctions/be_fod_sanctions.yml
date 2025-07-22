@@ -3,9 +3,8 @@ entry_point: crawler.py
 prefix: be-fod
 coverage:
   frequency: daily
-  start: 2022-04-27
-deploy:
   schedule: "0 */3 * * *"
+  start: 2022-04-27
 load_statements: true
 summary: >-
   Belgium extends the European FSF sanctions list on the basis of a national terrorist

@@ -2,7 +2,6 @@ title: Ukraine SFMS Blacklist
 entry_point: crawler.py
 prefix: ua-sfms
 coverage:
-  schedule: "0 */3 * * *"
   frequency: daily
   start: 2021-02-12
 load_statements: true

@@ -2,7 +2,7 @@ title: Japan METI End User List
 entry_point: crawler.py
 prefix: jp-eul
 coverage:
-  frequency: weekly
+  frequency: daily
   start: 2024-06-10
 load_statements: true
 ci_test: false
