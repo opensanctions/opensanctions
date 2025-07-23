@@ -7,6 +7,7 @@ import ExtractionView from './ExtractionView';
 import Link from 'next/link';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import { BoxArrowUpRight } from 'react-bootstrap-icons';
 import SourceView from './SourceView';
 import { PageProps } from '@/lib/pageProps';
 
@@ -57,14 +58,14 @@ export default async function EntryPage({ params }: PageProps) {
             <h2 className="h5 text-break d-flex">
               Source data
               {entry.source_url && (
-                <span>
+                <span className="h6 d-flex gap-1">
                   &nbsp;
                   <a
                     href={entry.source_url}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    (View Source)
+                   <BoxArrowUpRight />
                   </a>
                 </span>
               )}
