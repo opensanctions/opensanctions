@@ -38,7 +38,7 @@ NAME_SPLITS = [
     "繁體中文：",  # Traditional Chinese:
     "簡體中文：",  # Simplified Chinese:
 ]
-PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<reg_number>.+?)）")
+PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）")
 
 
 def apply_details_override(
