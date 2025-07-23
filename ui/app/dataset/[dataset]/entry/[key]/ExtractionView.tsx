@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
@@ -11,21 +11,17 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
 
-function InvalidTooltipWrapper({ children, isValid, help, id }: { children: React.ReactNode, id: string, isValid: boolean, help: string | null }) {
-  return isValid ? children : (
-    <OverlayTrigger overlay={<Tooltip id={id}>{help}</Tooltip>}>
-      {/* span to give the trigger a non-disabled element to attach
-      to for the disabled button's pointer events to trigger the tooltip.*/}
-      <span>{children}</span>
-    </OverlayTrigger>
-  );
-}
-
 function SaveButton({ isValid, help }: { isValid: boolean, help: string | null }) {
   const button = <button className="btn btn-primary ms-2" type="submit" disabled={!isValid} style={isValid ? {} : { pointerEvents: 'none' }}>
-    Save
+    Save <span className="text-muted" style={{ fontSize: '0.8em' }}></span>
   </button>;
-  return InvalidTooltipWrapper({ children: button, isValid, help, id: "save-tooltip" });
+  return (
+    <OverlayTrigger overlay={<Tooltip id="save-tooltip">{isValid ? "Ctrl/Cmd+s" : help}</Tooltip>}>
+      {/* span to give the trigger a non-disabled element to attach
+      to for the disabled button's pointer events to trigger the tooltip.*/}
+      <span>{button}</span>
+    </OverlayTrigger>
+  );
 }
 
 function AcceptAndContinueButton({ isValid, help }: { isValid: boolean, help: string | null }) {
@@ -43,9 +39,15 @@ function AcceptAndContinueButton({ isValid, help }: { isValid: boolean, help: st
     disabled={!isValid}
     style={isValid ? {} : { pointerEvents: 'none' }}
   >
-    Accept and continue
+    Accept and continue <span className="text-muted" style={{ fontSize: '0.8em' }}></span>
   </button>
-  return InvalidTooltipWrapper({ children: button, isValid, help, id: "accept-continue-tooltip" });
+  return (
+    <OverlayTrigger overlay={<Tooltip id="accept-continue-tooltip">{isValid ? "Ctrl/Cmd+Enter" : help}</Tooltip>}>
+      {/* span to give the trigger a non-disabled element to attach
+  to for the disabled button's pointer events to trigger the tooltip.*/}
+      <span>{button}</span>
+    </OverlayTrigger>
+  );
 }
 
 interface ExtractionViewProps {
@@ -60,6 +62,33 @@ interface ExtractionViewProps {
 export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset }: ExtractionViewProps) {
   const [accepted, setAccepted] = useState(initialAccepted);
   const [editorExtracted, setEditorExtracted] = useState(JSON.stringify(extractedData, null, 2));
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    function handler(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
+        e.preventDefault();
+        setAccepted(a => !a);
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        // Save
+        formRef.current?.requestSubmit();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        // Accept and continue
+        if (formRef.current) {
+          (formRef.current.accepted as HTMLInputElement).value = 'true';
+          (formRef.current.accept_and_continue as HTMLInputElement).value = 'true';
+          formRef.current.requestSubmit();
+        }
+      }
+    }
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   const schemaNode = new Draft04(schema);  // version selected to match that used in codemirror-json-schema
 
@@ -121,6 +150,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
           </Tab>
         </Tabs>
         <form
+          ref={formRef}
           method="POST"
           action="/api/extraction/save"
           className="d-flex justify-content-end align-items-center mt-3 gap-3 w-100"
@@ -130,18 +160,20 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
           <input type="hidden" name="extractedData" value={editorExtracted} />
           <input type="hidden" name="accepted" value={accepted ? 'true' : 'false'} />
           <input type="hidden" name="accept_and_continue" value="false" />
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="acceptedCheck"
-              checked={accepted}
-              onChange={e => setAccepted(e.target.checked)}
-            />
-            <label className="form-check-label" htmlFor="acceptedCheck">
-              Accepted
-            </label>
-          </div>
+          <OverlayTrigger overlay={<Tooltip id="accepted-tooltip">Ctrl/Cmd+e</Tooltip>}>
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="acceptedCheck"
+                checked={accepted}
+                onChange={e => setAccepted(e.target.checked)}
+              />
+              <label className="form-check-label" htmlFor="acceptedCheck">
+                Accepted
+              </label>
+            </div>
+          </OverlayTrigger>
           <SaveButton isValid={valid} help={errorSummary} />
           <AcceptAndContinueButton isValid={valid} help={errorSummary} />
         </form>

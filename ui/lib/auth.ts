@@ -6,8 +6,7 @@ const oAuth2Client = new OAuth2Client();
 // Expected Audience for App Engine.
 // expectedAudience = `/projects/${projectNumber}/apps/${projectId}`;
 // Expected Audience for Compute Engine, Cloud Run looks the same
-//expectedAudience = `/projects/${projectNumber}/global/backendServices/${backendServiceId}`;
-//projects/783058060410/global/backendServices/4459482250359222829
+// expectedAudience = `/projects/${projectNumber}/global/backendServices/${backendServiceId}`;
 const expectedAudience = process.env.ZAVOD_IAP_AUDIENCE;
 
 export async function verify(headers: Headers) {
