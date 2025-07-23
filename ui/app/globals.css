@@ -22,3 +22,16 @@
 .source-view .tab-pane {
     height: 100%;
 }
+
+
+.editor-flash-invalid {
+    animation: flash-red 0.45s;
+    border: 2px solid #dc3545 !important;
+    border-radius: 4px;
+  }
+  @keyframes flash-red {
+    0% { border-color: #dc3545; }
+    33% { border-color: transparent; }
+    66% { border-color: #dc3545; }
+    100% { border-color: transparent; }
+  }
