@@ -6,6 +6,7 @@ This project allows users to see automated data extraction results, fix any erro
 ## Data model
 
 The data is in the database defined by zavod.stateful.model.review_table.
+This is declared for a typescript querybuilder in `lib/db.ts`.
 
 The unit of work is called a "review".
 
@@ -18,11 +19,23 @@ The unit of work is called a "review".
 
 ## Getting Started
 
-For local development, you'll want to
+For local development, start a postgres db, and configure the site for local development. E.g.
 
-1. connect to your local etl db using `ZAVOD_DATABASE_URI`
-2. disable authentication using `ZAVOD_ALLOW_UNAUTHENTICATED`
-3. set `NEXT_PUBLIC_BASE_URL` to `http://localhost:3000`
+Run
+
+```bash
+docker compose -f ../docker-compose.yml up -d db # Bring up a dev database
+```
+
+Set environment variables, e.g. via .env.local file
+
+```
+ZAVOD_DATABASE_URI=postgresql://postgres:password@localhost:5432/dev
+ZAVOD_ALLOW_UNAUTHENTICATED=true  # Unsafe if an untrusted network can reach this
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+```
+
+Then run
 
 ```bash
 npm run dev
@@ -30,6 +43,12 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+
+### Running tests
+
+```bash
+npm test
+```
 
 ## Tech stack
 
