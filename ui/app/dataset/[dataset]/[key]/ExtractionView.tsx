@@ -39,7 +39,7 @@ function AcceptAndContinueButton({ isValid, help }: { isValid: boolean, help: st
     disabled={!isValid}
     style={isValid ? {} : { pointerEvents: 'none' }}
   >
-    Accept and continue <span className="text-muted" style={{ fontSize: '0.8em' }}></span>
+    Accept &gt; <span className="text-muted" style={{ fontSize: '0.8em' }}></span>
   </button>
   return (
     <OverlayTrigger overlay={<Tooltip id="accept-continue-tooltip">{isValid ? "Ctrl/Cmd+Enter" : help}</Tooltip>}>
@@ -112,7 +112,6 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
       <div className="d-flex flex-column" style={{ minHeight: 0, height: '100%' }}>
         <Tabs defaultActiveKey="extracted" className="flex-shrink-0">
           <Tab eventKey="raw" title="Original extraction">
-            <button>Reset to this version</button>
             <div style={{ height: '100%' }}>
               <CodeMirror
                 value={JSON.stringify(rawData, null, 2)}
@@ -160,6 +159,20 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
           <input type="hidden" name="extractedData" value={editorExtracted} />
           <input type="hidden" name="accepted" value={accepted ? 'true' : 'false'} />
           <input type="hidden" name="accept_and_continue" value="false" />
+          <OverlayTrigger overlay={<Tooltip id="reset-tooltip">
+            Ctrl/Cmd+t<br/>
+            Reset to original extraction
+          </Tooltip>}>
+            <span>
+              <button
+                type="button"
+                className="btn btn-outline-secondary me-2"
+                onClick={() => setEditorExtracted(JSON.stringify(rawData, null, 2))}
+              >
+                Reset
+              </button>
+            </span>
+          </OverlayTrigger>
           <OverlayTrigger overlay={<Tooltip id="accepted-tooltip">Ctrl/Cmd+e</Tooltip>}>
             <div className="form-check">
               <input
