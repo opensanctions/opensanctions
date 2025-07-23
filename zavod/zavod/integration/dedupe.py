@@ -106,7 +106,7 @@ def merge_entities(
             edge = resolver.get_resolved_edge(canonical_id, other_id)
             if edge is not None:
                 if force is True or edge.judgement == Judgement.UNSURE:
-                    log.warn("Removing existing edge", edge=str(edge))
+                    log.warn("Removing existing edge", edge=edge)
                     resolver._remove_edge(edge)
                 else:
                     raise ValueError(
