@@ -25,16 +25,18 @@ export async function verify(headers: Headers) {
         return null;
     }
     const response = await oAuth2Client.getIapPublicKeys();
-    const ticket = await oAuth2Client.verifySignedJwtWithCertsAsync(
-        iapJwt,
-        response.pubkeys,
-        expectedAudience!, // exclamation asserts non-null
-        ['https://cloud.google.com/iap'],
-    );
-    // TODO: Remove after initial deployment when we've seen a token for a positive test.
-    console.log(ticket);
-    console.log(ticket.getPayload())
-    return ticket.getPayload()?.email;
+    try {
+        const ticket = await oAuth2Client.verifySignedJwtWithCertsAsync(
+            iapJwt,
+            response.pubkeys,
+            expectedAudience!, // exclamation asserts non-null
+            ['https://cloud.google.com/iap'],
+        );
+        return ticket.getPayload()?.email;
+    } catch (error) {
+        console.error(error, iapJwt);
+    }
+    return null;
 }
 
 
