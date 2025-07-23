@@ -4394,7 +4394,7 @@ lookups:
       - match: "Date d’enregistrement: 30.5.2023 - Entités associées: — OOO TSK Vektor, autrement connue sous le nom de LLC TSK Vektor — Xiamen Limbach Aviation Engine Co., Ltd: Numéro d’identification fiscale:  91440300MA5HX80Y1Q"
         props:
           incorporationDate: 2023-05-30
-          taxNumber: 91440300MA5HX80Y1Q
+          uscCode: 91440300MA5HX80Y1Q
         associates:
           - OOO TSK Vektor
           - Xiamen Limbach Aviation Engine Co., Ltd
@@ -4414,14 +4414,14 @@ lookups:
       - match: "Date d’enregistrement: 18.3.2021 - Entités associées: — OOO TKS Vektor, autrement connue sous le nom de LLC TSK Vektor— Xiamen Limbach Aviation Engine Co., Ltd: Numéro d’identification fiscale:  91440300MA5GN73B4F"
         props:
           incorporationDate: 2021-03-18
-          taxNumber: 91440300MA5GN73B4F
+          uscCode: 91440300MA5GN73B4F
         associates:
           - OOO TKS Vektor
           - Xiamen Limbach Aviation Engine Co., Ltd
       - match: "Date d’enregistrement: 20.11.2012 - Entités associées: — OOO TSK Vektor, ou LLC TSK Vektor — Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd — Juhang Aviation Technology Shenzhen Co.: Numéro d’identification fiscale:  91350200051193084R"
         props:
           incorporationDate: 2012-11-20
-          taxNumber: 91350200051193084R
+          uscCode: 91350200051193084R
         associates:
           - OOO TSK Vektor
           - Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd
@@ -4785,7 +4785,8 @@ lookups:
           registrationNumber: 1107746582052
       - match: "Numéro d'enregistrement: 110108010146888 Code de crédit social unifié: 91110108661572276L"
         props:
-          registrationNumber: [110108010146888, 91110108661572276L]
+          registrationNumber: 110108010146888
+          uscCode: 91110108661572276L
       - match: "Date d'enregistrement: 4.2.2003 Numéro d'enregistrement: 1037700128828"
         props:
           incorporationDate: 2003-02-04
@@ -4957,7 +4958,7 @@ lookups:
           registrationNumber: 110108010146888
       - match: "Code de crédit social unifié: 91110108661572276L"
         props:
-          registrationNumber: 91110108661572276L
+          uscCode: 91110108661572276L
       - match: "Numéro d'enregistrement: 1037700128828"
         props:
           registrationNumber: 1037700128828
@@ -5309,7 +5310,7 @@ lookups:
           taxNumber: 5042010793
       - match: "91110000100001529B - Code de crédit social unifié"
         props:
-          registrationNumber: 91110000100001529B
+          uscCode: 91110000100001529B
       - match: "1097746030030 - Numéro d'enregistrement"
         props:
           registrationNumber: 1097746030030
@@ -5408,14 +5409,14 @@ lookups:
           taxNumber: 5040176793
       - match: "91210242MA10F83X1K - Code de crédit social unifié"
         props:
-          idNumber: 91210242MA10F83X1K
+          uscCode: 91210242MA10F83X1K
       - match: "504201001 - 504201001"
         schema: Company
         props:
           kppCode: 504201001
       - match: "91370125MA3F547335 - Code de crédit social unifié"
         props:
-          registrationNumber: 91370125MA3F547335
+          uscCode: 91370125MA3F547335
       - match: "1229300088423 - Numéro d'enregistrement"
         props:
           registrationNumber: 1229300088423
@@ -5434,7 +5435,7 @@ lookups:
           kppCode: 771501001
       - match: "914201126983165914 - Code de crédit social unifié"
         props:
-          registrationNumber: 914201126983165914
+          uscCode: 914201126983165914
       - match: "1237700447324 - Numéro d'enregistrement"
         props:
           registrationNumber: 1237700447324
@@ -5459,7 +5460,7 @@ lookups:
           taxNumber: 9201502053
       - match: "91210213MA0YKTWE4K - Code de crédit social unifié"
         props:
-          registrationNumber: 91210213MA0YKTWE4K
+          uscCode: 91210213MA0YKTWE4K
       - match: "1216600040194 - Numéro d'enregistrement"
         props:
           registrationNumber: 1216600040194
