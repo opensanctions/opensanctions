@@ -1,5 +1,5 @@
-import { getExtractionEntry } from '../../../../../lib/db';
-import { verify } from '../../../../../lib/auth';
+import { getExtractionEntry } from '@/lib/db';
+import { verify } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import React from 'react';
