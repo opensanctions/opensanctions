@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     if (acceptAndContinue) {
       const nextKey = await getNextUnacceptedEntryKey(dataset);
       if (nextKey) {
-        redirectUrl = `/dataset/${encodeURIComponent(dataset)}/entry/${encodeURIComponent(nextKey)}`;
+        redirectUrl = `/dataset/${encodeURIComponent(dataset)}/${encodeURIComponent(nextKey)}`;
       }
     }
     return NextResponse.redirect(new URL(redirectUrl, BASE_URL));

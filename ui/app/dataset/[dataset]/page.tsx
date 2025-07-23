@@ -55,7 +55,7 @@ export default async function DatasetPage({ params }: PageProps) {
             {entries.map((entry: any) => (
               <tr key={entry.id}>
                 <td>
-                  <Link href={`/dataset/${encodeURIComponent(awaitedParams.dataset)}/entry/${encodeURIComponent(entry.key)}`} className="text-primary text-decoration-underline">
+                  <Link href={`/dataset/${encodeURIComponent(awaitedParams.dataset)}/${encodeURIComponent(entry.key)}`} className="text-primary text-decoration-underline">
                     {entry.key.length > 23
                       ? `${entry.key.slice(0, 10)}...${entry.key.slice(-10)}`
                       : entry.key}

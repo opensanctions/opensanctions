@@ -10,24 +10,29 @@ import { markdown } from "@codemirror/lang-markdown";
 
 export default function SourceView({ sourceValue, sourceContentType, sourceLabel }: { sourceValue: string, sourceContentType: string, sourceLabel: string }) {
   const tabs: React.ReactNode[] = [];
-  const defaultViewer = <CodeMirror
-    value={sourceValue}
-    height="100%"
-    width="100%"
-    editable={false}
-    style={{ height: '100%', width: '100%' }}
-    extensions={[EditorView.lineWrapping]}
-    title={sourceLabel}
-  />;
+  const tab = (title: string, content: React.ReactNode | null = null) => {
+    return <Tab key={title} eventKey={title} title={title}>
+      {content ? content : <CodeMirror
+        value={sourceValue}
+        height="100%"
+        width="100%"
+        editable={false}
+        style={{ height: '100%', width: '100%' }}
+        extensions={[EditorView.lineWrapping]}
+        title={sourceLabel}
+      />}
+    </Tab>
+  }
 
   if (sourceContentType === 'text/html') {
-    tabs.push(<Tab eventKey="rendered" title="As web page">
+    tabs.push(tab("As web page",
       <div
-      style={{ height: '100%', width: '100%', overflow: 'auto', backgroundColor: '#fff', padding: '10px' }}
-      dangerouslySetInnerHTML={{ __html: sourceValue }} />
-    </Tab>)
-    var turndownService = new TurndownService();
-    tabs.push(<Tab eventKey="markdown" title="As Markdown">
+        style={{ height: '100%', width: '100%', overflow: 'auto', backgroundColor: '#fff', padding: '10px' }}
+        dangerouslySetInnerHTML={{ __html: sourceValue }} />
+    ))
+
+    const turndownService = new TurndownService();
+    tabs.push(tab("As Markdown",
       <CodeMirror
         value={turndownService.turndown(sourceValue)}
         height="100%"
@@ -37,14 +42,15 @@ export default function SourceView({ sourceValue, sourceContentType, sourceLabel
         extensions={[markdown(), EditorView.lineWrapping]}
         title={sourceLabel}
       />
-    </Tab>)
-    tabs.push(<Tab eventKey="source" title="Original HTML">{defaultViewer}</Tab>)
+    ))
+
+    tabs.push(tab("Original HTML"))
   } else if (sourceContentType === 'text/plain') {
-    tabs.push(<Tab eventKey="source" title="Original Plain Text">{defaultViewer}</Tab>)
+    tabs.push(tab("Original Plain Text"))
   } else if (sourceContentType === 'image/png') {
-    tabs.push(<Tab eventKey="source" title="Original PNG"><img src={sourceValue} alt={sourceLabel} /></Tab>)
+    tabs.push(tab("Original PNG", <img src={sourceValue} alt={sourceLabel} />))
   } else {
-    tabs.push(<Tab eventKey="source" title={sourceContentType}>{defaultViewer}</Tab>)
+    tabs.push(tab(sourceContentType))
   }
   return (
     <div className="flex-grow-1 d-flex flex-column source-view" style={{ height: '100%' }}>
