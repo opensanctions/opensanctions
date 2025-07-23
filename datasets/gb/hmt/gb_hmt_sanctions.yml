@@ -130,6 +130,8 @@ lookups:
         value: UK-VEN
       - match: Democratic People's Republic of Korea
         value: UK-DPRK
+      - match: Global Irregular Migration and Trafficking in Persons
+        value: UK-GIMTP
   type.identifier:
     options:
       - match: Legal Entity Number 2534006SJ05GGKETEY75 (Russia)  Registration Number 1027739179160 (Russia)
