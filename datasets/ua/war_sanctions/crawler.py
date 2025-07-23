@@ -255,7 +255,7 @@ def crawl_vessel(context: Context, link, program):
     vessel.add("flag", data.pop("Flag (Current)"))
     vessel.add("mmsi", data.pop("MMSI"))
     vessel.add("buildDate", data.pop("Build year"))
-    vessel.add("grossRegisteredTonnage", data.pop("Gross tonnage"))
+    vessel.add("grossRegisteredTonnage", data.pop("Gross tonnage", None))
     deadweight_tonnage = data.pop("DWT")
     if deadweight_tonnage != "0":
         vessel.add("tonnage", deadweight_tonnage)
