@@ -114,6 +114,8 @@ lookups:
           - British Isles
           - ROYAUME UNI ANTILLES
           - TERRITOIRE DU ROYAUME UNI ANTILLES
+          # Probably Army Post Office addresses
+          - Apo (Us)
         value: null
       - match:
           - IRLANDE, ou EIRE
