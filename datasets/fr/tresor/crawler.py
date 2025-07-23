@@ -65,8 +65,10 @@ TEXT_KEYS = {
     "Numéros d'enregistrement": "registrationNumber",
     "Numéro d'immatriculation": "registrationNumber",
     "numéro d'identification:": "registrationNumber",
-    # TODO: This Chinese identifier should have its own field, see https://github.com/opensanctions/opensanctions/issues/2301
-    "Code de crédit social unifié": "registrationNumber",
+    "Numéro d'identification de l'entreprise": "registrationNumber",
+    "Numéro d'inscription au registre du commerce": "registrationNumber",
+    "Numéro d'enregistrement de l'entreprise": "registrationNumber",
+    "Code de crédit social unifié": "uscCode",
     "Numéro d'identification fiscale": "taxNumber",
     "Numéro d'identification fiscal": "taxNumber",
     "N ° d'identification fiscale": "taxNumber",
