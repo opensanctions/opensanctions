@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateExtractionEntry, getNextUnacceptedEntryKey } from '../../../../lib/db';
 import { verify } from '../../../../lib/auth';
-import { BASE_URL } from '@/lib/constants';
+import { BASE_URL } from '../../../../lib/constants';
 
 function getAsString(formData: FormData, key: string) {
   const value = formData.get(key);
