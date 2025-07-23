@@ -52,7 +52,7 @@ def blocking_xref(
     dataset against each other, and stores the highest-scoring candidates for human
     review. Candidates above the given threshold score will be merged automatically.
     """
-    resolver.prune()
+    # resolver.prune()
     log.info(
         "Xref running, algorithm: %r" % algorithm,
         auto_threshold=auto_threshold,
