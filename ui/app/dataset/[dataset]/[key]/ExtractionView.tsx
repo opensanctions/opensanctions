@@ -41,8 +41,15 @@ function AcceptAndContinueButton({ isValid, help }: { isValid: boolean, help: st
   >
     Accept &gt; <span className="text-muted" style={{ fontSize: '0.8em' }}></span>
   </button>
+  const tooltip = <Tooltip id="accept-continue-tooltip">
+    {isValid ? (
+      <>"Ctrl/Cmd+Enter"<br />
+        Accept and continue to next review</>
+    ) : help}
+
+  </Tooltip>
   return (
-    <OverlayTrigger overlay={<Tooltip id="accept-continue-tooltip">{isValid ? "Ctrl/Cmd+Enter" : help}</Tooltip>}>
+    <OverlayTrigger overlay={tooltip}>
       {/* span to give the trigger a non-disabled element to attach
   to for the disabled button's pointer events to trigger the tooltip.*/}
       <span>{button}</span>
@@ -62,33 +69,15 @@ interface ExtractionViewProps {
 export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset }: ExtractionViewProps) {
   const [accepted, setAccepted] = useState(initialAccepted);
   const [editorExtracted, setEditorExtracted] = useState(JSON.stringify(extractedData, null, 2));
+  const [flashInvalid, setFlashInvalid] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    function handler(e: KeyboardEvent) {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
-        e.preventDefault();
-        setAccepted(a => !a);
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        // Save
-        formRef.current?.requestSubmit();
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        // Accept and continue
-        if (formRef.current) {
-          (formRef.current.accepted as HTMLInputElement).value = 'true';
-          (formRef.current.accept_and_continue as HTMLInputElement).value = 'true';
-          formRef.current.requestSubmit();
-        }
-      }
-    }
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, []);
+  function triggerFlash() {
+    setFlashInvalid(true);
+    setTimeout(() => setFlashInvalid(false), 150);
+    setTimeout(() => setFlashInvalid(true), 300);
+    setTimeout(() => setFlashInvalid(false), 450);
+  }
 
   const schemaNode = new Draft04(schema);  // version selected to match that used in codemirror-json-schema
 
@@ -107,6 +96,42 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
   const valid = errors.length === 0;
   const errorSummary = errors.length === 0 ? null : `${errors.length} error(s) in Extracted JSON: ${errors.join('; ')}`;
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    function handler(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
+        e.preventDefault();
+        setAccepted(a => !a);
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (valid) {
+          formRef.current?.requestSubmit();
+        } else {
+          triggerFlash();
+        }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (valid) {
+          if (formRef.current) {
+            (formRef.current.accepted as HTMLInputElement).value = 'true';
+            (formRef.current.accept_and_continue as HTMLInputElement).value = 'true';
+            formRef.current.requestSubmit();
+          }
+        } else {
+          triggerFlash();
+        }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 't') {
+        e.preventDefault();
+        setEditorExtracted(JSON.stringify(rawData, null, 2));
+      }
+    }
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [valid, rawData]);
+
   return (
     <div className="entry-tabs flex-grow-1 d-flex flex-column" style={{ height: '100%' }}>
       <div className="d-flex flex-column" style={{ minHeight: 0, height: '100%' }}>
@@ -124,7 +149,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
             </div>
           </Tab>
           <Tab eventKey="extracted" title="Extracted JSON">
-            <div style={{ height: '100%' }}>
+            <div style={{ height: '100%' }} className={flashInvalid ? 'editor-flash-invalid' : ''}>
               <CodeMirror
                 value={editorExtracted}
                 extensions={[jsonSchema(schema), EditorView.lineWrapping]}
@@ -160,7 +185,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
           <input type="hidden" name="accepted" value={accepted ? 'true' : 'false'} />
           <input type="hidden" name="accept_and_continue" value="false" />
           <OverlayTrigger overlay={<Tooltip id="reset-tooltip">
-            Ctrl/Cmd+t<br/>
+            Ctrl/Cmd+t<br />
             Reset to original extraction
           </Tooltip>}>
             <span>
