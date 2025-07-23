@@ -1,5 +1,5 @@
 import csv
-
+import re
 import datapatch
 from rigour.mime.types import CSV
 
@@ -33,8 +33,12 @@ ADDRESS_SPLITS = [
     "Branch Office 15:",
     "Branch Office 16:",
 ]
-# ;, Traditional Chinese:, Simplified Chinese:
-NAME_SPLITS = [";", "繁體中文：", "簡體中文："]
+NAME_SPLITS = [
+    ";",
+    "繁體中文：",  # Traditional Chinese:
+    "簡體中文：",  # Simplified Chinese:
+]
+PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<reg_number>.+?)）")
 
 
 def apply_details_override(
@@ -84,10 +88,15 @@ def crawl_row(context: Context, row):
         else:
             entity.add("idNumber", id_number)
 
-    for name in h.multi_split(names, NAME_SPLITS):
-        entity.add("name", name)
+    match = PERMANENT_ID_RE.match(names)
+    if match:
+        entity.add("name", match.group("name").strip())
+        entity.add("registrationNumber", match.group("reg_number").strip())
+    else:
+        for name in h.multi_split(names, NAME_SPLITS):
+            entity.add("name", name)
     for alias in h.multi_split(aliases, NAME_SPLITS):
-        if len(alias.split()) == 1:
+        if len(alias.split()) == 1 and len(alias) < 7:
             entity.add("weakAlias", alias)
         else:
             entity.add("alias", alias)
