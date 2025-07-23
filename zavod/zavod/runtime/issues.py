@@ -67,7 +67,7 @@ class DatasetIssues(object):
             record["entity"] = {"id": entity}
         record["data"] = data
         record["id"] = hash_data(record)
-        out = orjson.dumps(record, option=orjson.OPT_APPEND_NEWLINE)
+        out = orjson.dumps(record, option=orjson.OPT_APPEND_NEWLINE, default=repr)
         self.fh.write(out)
 
     def clear(self) -> None:
