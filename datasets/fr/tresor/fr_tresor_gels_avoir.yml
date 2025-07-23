@@ -5525,3 +5525,80 @@ lookups:
           legalForm: unités militaire
           jurisdiction: ru
           address: région de Kaliningrand, Fédération de Russie
+      - match: "Type d’entité: société publique par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 20.11.2002 / 16.5.1964"
+        props:
+          jurisdiction: ru
+          legalForm: société publique par actions
+          incorporationDate: ["2002-11-20", "1964-05-16"]
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Singapour - Date d’enregistrement: 11.12.2014"
+        props:
+          jurisdiction: sg
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2014-12-11
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Biélorussie - Date d'enregistrement: 10.2.2017 - Principal établissement: Minsk, Biélorussie"
+        props:
+          jurisdiction: by
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2017-02-10
+          address: Minsk, Biélorussie
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: République de Maurice - Date d’enregistrement: 27.10.2003"
+        props:
+          jurisdiction: mu
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2003-10-27
+      - match: "Numéro d'enregistrement: DSO-ZZCO-16068"
+        props:
+          registrationNumber: DSO-ZZCO-16068
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Inde - Date d’enregistrement: 11.9.1989"
+        props:
+          jurisdiction: in
+          legalForm: société à responsabilité limitée
+          incorporationDate: 1989-09-11
+      - match: "Type d’entité: Société de droit public - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 20.10.2017"
+        props:
+          jurisdiction: ru
+          legalForm: Société de droit public
+          incorporationDate: 2017-10-20
+      - match: "Type d’entité: entreprise unitaire publique fédérale - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 25.2.2003"
+        props:
+          jurisdiction: ru
+          legalForm: entreprise unitaire publique fédérale
+          incorporationDate: 2003-02-25
+      - match: "Type d'entité: société par actions ouverte - Lieu d'enregistrement: Vitebsk, Biélorussie - Date d'enregistrement: 1.2.1994 - Principal établissement: Biélorussie"
+        props:
+          jurisdiction: by
+          legalForm: société par actions ouverte
+          incorporationDate: 1994-02-01
+          address: Vitebsk, Biélorussie
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Inde - Date d’enregistrement: 2.11.2018"
+        props:
+          jurisdiction: in
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2018-11-02
+      - match: "Numéro d'identification de l'entreprise: U74990MH2018PTC316730"
+        props:
+          registrationNumber: U74990MH2018PTC316730
+      - match: "Code d’entreprise d’importation et d’exportation: 3700MA3ERW0G0"
+        props:
+          registrationNumber: 3700MA3ERW0G0
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Azerbaïdjan - Date d’enregistrement: 15.8.2024"
+        props:
+          jurisdiction: az
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2024-08-15
+      - match: "Type d’entité: entreprise d’État - Lieu d’enregistrement: Biélorussie - Date d’enregistrement: 26.5.1992: Type d'entité: entreprise d'État"
+        props:
+          jurisdiction: by
+          legalForm: entreprise d'État
+          incorporationDate: 1992-05-26
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Biélorussie - Date d'enregistrement: 24.2.2000 - Principal établissement: Minsk, Biélorussie"
+        props:
+          jurisdiction: by
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2000-02-24
+          address: Minsk, Biélorussie
+      - match: "Type d’entité: constituée en société - Lieu d’enregistrement: République de Maurice - Date d’enregistrement: 11.1.2024"
+        props:
+          jurisdiction: mu
+          legalForm: constituée en société
+          incorporationDate: 2024-01-11
