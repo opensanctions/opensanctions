@@ -5,8 +5,9 @@ import { OAuth2Client } from 'google-auth-library';
 const oAuth2Client = new OAuth2Client();
 // Expected Audience for App Engine.
 // expectedAudience = `/projects/${projectNumber}/apps/${projectId}`;
-// Expected Audience for Compute Engine
+// Expected Audience for Compute Engine, Cloud Run looks the same
 //expectedAudience = `/projects/${projectNumber}/global/backendServices/${backendServiceId}`;
+//projects/783058060410/global/backendServices/4459482250359222829
 const expectedAudience = process.env.ZAVOD_IAP_AUDIENCE;
 
 export async function verify(headers: Headers) {
@@ -27,7 +28,7 @@ export async function verify(headers: Headers) {
     const ticket = await oAuth2Client.verifySignedJwtWithCertsAsync(
         iapJwt,
         response.pubkeys,
-        expectedAudience,
+        expectedAudience!, // exclamation asserts non-null
         ['https://cloud.google.com/iap'],
     );
     // TODO: Remove after initial deployment when we've seen a token for a positive test.
