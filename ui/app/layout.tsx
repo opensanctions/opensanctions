@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Zavod Extraction",
+  title: "Zavod Reviews",
   description: "Review, correct and accept automated data extraction results.",
 };
 
