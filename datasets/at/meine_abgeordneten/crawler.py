@@ -18,7 +18,6 @@ MAX_POSITION_NAME_LENGTH = 120
 def extract_dates(context: Context, url, el):
     active_date_el = el.find('.//span[@class="aktiv"]')
     inactive_dates_el = el.find('.//span[@class="inaktiv"]')
-    # el.find('.//div[@class="text-right ml-auto flex-grow-1"]'),
     start_date = None
     end_date = None
     assume_current = False
@@ -26,9 +25,6 @@ def extract_dates(context: Context, url, el):
         start_date = active_date_el.text_content().replace("seit ", "")
         assume_current = True
     elif inactive_dates_el is not None:
-        # for date in inactive_dates_el:
-        #     if date is None:
-        #         continue
         inactive_dates = inactive_dates_el.text_content().replace("ab ", "")
         if " - " in inactive_dates:
             start_date, end_date = inactive_dates.split(" - ")
@@ -38,25 +34,28 @@ def extract_dates(context: Context, url, el):
             start_date = inactive_dates
             end_date = None
     else:
-        # context.log.info("No aktiv or inaktiv element found", url=url)
-        # If we didn't find an aktiv or an inaktiv element
-        # assert that el (which is funktionseile) has two children
+        # Some date elements are not semantically marked up with "aktiv" or "inaktiv".
+        # Instead, they're nested in layout-only HTML structure.
+        #
+        # This fallback assumes the following structure inside the first child of `funktionszeile`:
+        #   <div>
+        #     <div>…</div>
+        #     <div>…</div>
+        #     <div>? - 2021</div>  ← date range
+        #   </div>
         children = list(el)
         assert (
             len(children) == 2
         ), f"Expected funktionseile to have 2 children, got {len(children)}, url: {url}"
-        # take the first child (this has sources and dates)
+        # take the first child
         first_child = children[0]
-        # assert it has three children
         first_child_children = list(first_child)
         assert (
             len(first_child_children) == 3
         ), f"Expected first child to have 3 children, got {len(first_child_children)}, url: {url}"
         # take the third child (this has dates)
         third_child = first_child_children[2]
-        # take its contents as the date string
         date_string = third_child.text_content().strip()
-
         if " - " in date_string:
             start_date, end_date = date_string.split(" - ")
             start_date = start_date.strip()
@@ -65,7 +64,7 @@ def extract_dates(context: Context, url, el):
             start_date = date_string
             end_date = None
         else:
-            context.log.debug(
+            context.log.warn(
                 "Can't parse date for mandate", url=url, text=el.text_content().strip()
             )
     return start_date, end_date, assume_current
@@ -211,8 +210,10 @@ def crawl_item(url_info_page: str, context: Context):
     )
 
     parsed_some_mandatee_date = False
+    # Only parse the mandate rows that are not hidden
+    # (i.e. not containing the class "d-block d-lg-none")
     for row in info_page.xpath(
-        '//div[@id="mandate"]//div[contains(@class, "funktionszeile") and not(contains(@class, "none"))]'
+        '//div[@id="mandate"]//div[contains(@class, "funktionszeile") and not(contains(@class, "d-block d-lg-none"))]'
     ):
         if crawl_mandate(context, url_info_page, person, row):
             parsed_some_mandatee_date = True
