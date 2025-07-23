@@ -91,7 +91,6 @@ def crawl_row(context: Context, row):
     match = PERMANENT_ID_RE.match(names)
     if match:
         entity.add("name", match.group("name").strip())
-        entity.add("registrationNumber", match.group("reg_number").strip())
     else:
         for name in h.multi_split(names, NAME_SPLITS):
             entity.add("name", name)
@@ -103,6 +102,11 @@ def crawl_row(context: Context, row):
     for country in row.pop("國家代碼country code").split(";"):
         entity.add("country", country)
     entity.add("topics", "export.control")
+
+    if match:
+        sanction = h.make_sanction(context, entity)
+        sanction.add("unscId", match.group("unsc_num").strip())
+        context.emit(sanction)
 
     context.emit(entity)
     context.audit_data(
