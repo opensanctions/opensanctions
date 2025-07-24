@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "node scripts/write-version.js",
+    "predev": "node scripts/write-version.js",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
