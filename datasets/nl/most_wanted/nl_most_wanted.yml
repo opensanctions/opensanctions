@@ -27,6 +27,10 @@ data:
   url: "https://www.politie.nl/en/wanted/most-wanted-list"
   format: HTML
   lang: eng
+http:
+  total_retries: 5
+  backoff_factor: 2
+  retry_statuses: [500]
 
 assertions:
   min:

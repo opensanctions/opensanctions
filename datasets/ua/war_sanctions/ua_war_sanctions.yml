@@ -421,6 +421,36 @@ lookups:
         name: "Staksel Co Ltd"
         registration_number: 4234210
         country: Russia
+      - match: "Alexandria Seaways Ltd С/о Matias Ship Management LLC-FZ (0094819 / United Arab Emirates / 02.09.2024)"
+        name: "Alexandria Seaways Ltd"
+        care_of: "Matias Ship Management LLC-FZ"
+        registration_number: 0094819
+        country: United Arab Emirates
+        date: "2024-09-02"
+      - match: "Clio Navigation Ltd С/о Thunder Shipmanagement LLC-FZ (0059624 / United Arab Emirates / 24.09.2024)"
+        name: "Clio Navigation Ltd"
+        care_of: "Thunder Shipmanagement LLC-FZ"
+        registration_number: 0059624
+        country: United Arab Emirates
+        date: "2024-09-24"
+      - match: "Caladium Transport Inc С/о Thunder Shipmanagement LLC-FZ (0130123 / United Arab Emirates / 18.10.2024)"
+        name: "Caladium Transport Inc"
+        care_of: "Thunder Shipmanagement LLC-FZ"
+        registration_number: 0130123
+        country: United Arab Emirates
+        date: "2024-10-18"
+      - match: "Ephesus Marine Inc С/о Thunder Shipmanagement LLC-FZ (0097345 / United Arab Emirates / 02.10.2024)"
+        name: "Ephesus Marine Inc"
+        care_of: "Thunder Shipmanagement LLC-FZ"
+        registration_number: 0097345
+        country: United Arab Emirates
+        date: "2024-10-02"
+      - match: "Garnet Maritime INC-SEY С/о Thunder Shipmanagement LLC-FZ (0081747 / United Arab Emirates / 16.09.2024)"
+        name: "Garnet Maritime INC-SEY"
+        care_of: "Thunder Shipmanagement LLC-FZ"
+        registration_number: 0081747
+        country: United Arab Emirates
+        date: "2024-09-16"
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973

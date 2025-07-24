@@ -150,7 +150,7 @@ def crawl(context: Context):
         context,
         "https://aml.iq/?page_id=2169",
         "international.xlsx",
-        "القائمة-الدولية-المحدثة",  # Updated International List
+        "القائمة-الدولية",  # International List
     )
     process_xlsx(
         context,
