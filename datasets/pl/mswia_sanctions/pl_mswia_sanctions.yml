@@ -67,7 +67,7 @@ assertions:
   max:
     schema_entities:
       Person: 450
-      Company: 110
+      Company: 200
 
 lookups:
   type.identifier:
@@ -213,3 +213,7 @@ lookups:
             - "PR-KT Bukhar Zhyrau D. 92/2, Karaganda, Kazachstan"
             - "Проспект Бухар Жырау, дom 92/2, Караганда, Казахстан"
           idNumber: "KZ220540008721"
+      - match: 'adres: Bulvar Mulyavina 6, 220005 Mińsk, Republika Białorusi) numer rejestrowy: BY192039638'
+        props:
+          address: "Bulvar Mulyavina 6, 220005 Mińsk, Republika Białorusi"
+          registrationNumber: "BY192039638"
