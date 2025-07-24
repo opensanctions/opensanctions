@@ -210,8 +210,8 @@ def crawl_item(url_info_page: str, context: Context):
     )
 
     parsed_some_mandatee_date = False
-    # Only parse the mandate rows that are not hidden
-    # (i.e. not containing the class "d-block d-lg-none")
+    # Only parse the mandate rows that are shown on desktop
+    # i.e. skip the rows with same content but different layout for mobile ("d-block d-lg-none")
     for row in info_page.xpath(
         '//div[@id="mandate"]//div[contains(@class, "funktionszeile") and not(contains(@class, "d-block d-lg-none"))]'
     ):
