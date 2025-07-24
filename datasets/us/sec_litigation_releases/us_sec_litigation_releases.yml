@@ -1,0 +1,45 @@
+title: "US CFTC Enforcement Actions"
+summary: >
+  List of enforcement actions published by the CFTC, including respondent names, case details, and links to official documents.
+
+url: https://www.sec.gov/enforcement-litigation/litigation-releases
+load_statements: true
+coverage:
+  frequency: weekly
+  start: 2025-07-07
+
+description: >
+  The U.S. Commodity Futures Trading Commission (CFTC) publishes a list of enforcement actions taken against individuals and entities that have violated the Commodity Exchange Act (CEA) and CFTC regulations. This dataset includes details of enforcement actions, such as the names of respondents, case numbers, dates, and links to official documents. The data is collected from the official CFTC website and is intended to support due diligence, compliance, and investigative research.
+
+entry_point: crawler.py
+prefix: us-sec
+publisher:
+  name: U.S. Commodity Futures Trading Commission
+  acronym: CFTC
+  official: true
+  description: >
+    The SEC is an independent agency of the US government. Its primary purpose is to enforce laws against market manipulation.
+  country: us
+  url: https://www.sec.gov/
+
+data:
+  url: https://www.sec.gov/enforcement-litigation/litigation-releases
+  format: HTML
+http:
+  # Modeled after sample at https://www.sec.gov/about/webmaster-frequently-asked-questions#developers
+  user_agent: "OpenSanctions/zavod tech@opensanctions.org"
+ci_test: false # GPT key not available in CI
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 10
+      Company: 10
+    countries: 1
+  max:
+    schema_entities:
+      Person: 1000
+      Company: 1000
