@@ -34,7 +34,8 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add("address", address)
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("date_excluded"))
+    h.apply_date(sanction, "startDate", row.pop("action_date"))
+    sanction.add("status", row.pop("excluded_terminated"))
 
     context.emit(entity)
     context.emit(sanction)
@@ -43,7 +44,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    file_xpath = ".//a[contains(text(), 'South Carolina Excluded Providers')]"
+    file_xpath = ".//a[contains(text(), 'South Carolina Medicaid Excluded/Terminated Providers')]"
     doc = fetch_html(context, context.data_url, file_xpath)
     return doc.xpath(file_xpath)[0].get("href")
 
