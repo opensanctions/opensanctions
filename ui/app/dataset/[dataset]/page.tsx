@@ -39,7 +39,7 @@ export default async function DatasetPage({ params }: PageProps) {
         </ol>
       </nav>
       <h1 className="text-2xl font-bold mb-4">Reviews</h1>
-      <div className="table-responsive-">
+      <div className="">
         <table className="table table-bordered ">
           <thead>
             <tr>
