@@ -88,8 +88,10 @@ def value_clean(
                 )
                 # clean = clean[: prop.type.max_length]
 
-            # FIXME at 2025-12-01: remove this workaround for the introduction of
-            # USCC codes.
+            # FIXME at 2025-12-01: We're emitting USCC codes *both* in the usccCode
+            # and registrationNumber props (where they used to live). See
+            # https://github.com/opensanctions/opensanctions/issues/2542 to track
+            # removal of this.
             if prop_.format == "uscc":
                 fallback_prop = entity.schema.get("registrationNumber")
                 if fallback_prop is not None:
