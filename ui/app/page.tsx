@@ -34,10 +34,10 @@ export default async function Home() {
       <Head>
         <title>Zavod Reviews</title>
       </Head>
-      <div className="container-fluid vh-100 d-flex flex-column p-4 bg-light">
+      <div className="container-fluid d-flex flex-column p-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h1 className="text-2xl font-bold mb-0">Zavod Reviews</h1>
-          <div className="text-muted">
+          <div className="">
             Welcome, <strong>{email}</strong>
           </div>
         </div>

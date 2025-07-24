@@ -28,6 +28,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <footer className="p-3" style={{ fontSize: '0.9em', height: '50px' }}>
+          Zavod UI ALPHA vsn: baa4dd4
+        </footer>
       </body>
     </html>
   );
