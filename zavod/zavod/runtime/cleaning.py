@@ -94,7 +94,6 @@ def value_clean(
                 fallback_prop = entity.schema.get("registrationNumber")
                 if fallback_prop is not None:
                     yield fallback_prop, clean
-                    continue
 
             yield prop_, clean
             continue
