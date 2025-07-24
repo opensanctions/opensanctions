@@ -272,6 +272,10 @@ lookups:
     options:
       - match: '-'
         value: null
+  type.string:
+    options:
+      - match: '-'
+        value: null
   type.address:
     lowercase: true
     options:

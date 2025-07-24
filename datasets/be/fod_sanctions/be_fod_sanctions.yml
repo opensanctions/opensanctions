@@ -222,6 +222,10 @@ lookups:
       - match: fiscalcode
         prop: taxNumber
 
+  type.name:
+    options:
+      - match: "-"
+        value: null
   type.address:
     lowercase: true
     options:
