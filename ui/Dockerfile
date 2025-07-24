@@ -5,7 +5,7 @@ FROM node:24-slim
 
 LABEL org.opencontainers.image.title="Zavod UI"
 
-RUN apt-get update && apt-get install -y --no-install-recommends locales \
+RUN apt-get update && apt-get install -y --no-install-recommends locales git \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -19,6 +19,10 @@ RUN useradd -u 10000 -s /bin/false app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Add build arg and env for git revision
+ARG GIT_REVISION=unknown
+ENV ZAVOD_UI_GIT_REVISION=$GIT_REVISION
 
 RUN mkdir /app
 COPY . /app
