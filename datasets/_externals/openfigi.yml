@@ -12,7 +12,7 @@ exports:
   - statements.csv
   - targets.simple.csv
 deploy:
-  memory: 2500Mi
+  memory: 4000Mi
   disk: "20Gi"
 load_statements: true
 ci_test: false
