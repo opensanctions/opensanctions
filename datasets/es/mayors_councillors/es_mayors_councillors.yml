@@ -1,0 +1,39 @@
+title: "Spain Mayors and Councillors"
+entry_point: crawler.py
+prefix: es-mc
+load_statements: true
+coverage:
+  frequency: daily
+  start: 2025-07-24
+summary: >
+  Individuals holding mayoral or councillor positions in Spain.
+description: |
+  This dataset contains detailed information on individuals holding mayoral or councillor 
+  positions in Spain. Each entry includes the name of the official, their position, 
+  contact information, and political affiliation.
+publisher:
+  name: Ministerio de Política Territorial y Memoria Democrática
+  name_en: Ministry of Territorial Policy and Democratic Memory
+  acronym: MPT
+  official: true
+  description: |
+    The Ministry of Territorial Policy and Democratic Memory is responsible for promoting 
+    and coordinating policies related to territorial organization, local administration, 
+    and democratic memory in Spain.
+  country: es
+  url: https://mpt.gob.es/en/ministerio.html
+tags:
+  - list.pep
+url: https://mpt.gob.es/en/politica-territorial/local/sistema_de_informacion_local_-SIL-/alcaldes_y_concejales.html
+data:
+  url: https://concejales.redsara.es/consulta/
+  format: html
+  lang: spa
+
+# assertions:
+#   min:
+#     schema_entities:
+#       Person: 6
+#   max:
+#     schema_entities:
+#       Person: 20
