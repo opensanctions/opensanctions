@@ -88,6 +88,14 @@ def value_clean(
                 )
                 # clean = clean[: prop.type.max_length]
 
+            # FIXME at 2025-12-01: remove this workaround for the introduction of
+            # USCC codes.
+            if prop_.format == "uscc":
+                fallback_prop = entity.schema.get("registrationNumber")
+                if fallback_prop is not None:
+                    yield fallback_prop, clean
+                    continue
+
             yield prop_, clean
             continue
         if prop_.type == registry.phone:
