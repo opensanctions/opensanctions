@@ -9,6 +9,7 @@ import { json } from "@codemirror/lang-json";
 import { Draft04 } from 'json-schema-library';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { keymap } from '@codemirror/view';
 
 
 function SaveButton({ isValid, help }: { isValid: boolean, help: string | null }) {
@@ -71,6 +72,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
   const [editorExtracted, setEditorExtracted] = useState(JSON.stringify(extractedData, null, 2));
   const [flashInvalid, setFlashInvalid] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const editorRef = useRef<any>(null);
 
   function triggerFlash() {
     setFlashInvalid(true);
@@ -101,7 +103,8 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
     function handler(e: KeyboardEvent) {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
         e.preventDefault();
-        setAccepted(a => !a);
+        // Focus the CodeMirror editor
+        editorRef.current?.view?.focus();
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
@@ -132,6 +135,16 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
     return () => window.removeEventListener('keydown', handler);
   }, [valid, rawData]);
 
+  const escapeBlurKeymap = keymap.of([
+    {
+      key: 'Escape',
+      run: (view) => {
+        view.contentDOM.blur();
+        return true;
+      },
+    },
+  ]);
+
   return (
     <div className="entry-tabs flex-grow-1 d-flex flex-column" style={{ height: '100%' }}>
       <div className="d-flex flex-column" style={{ minHeight: 0, height: '100%' }}>
@@ -151,12 +164,14 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
           <Tab eventKey="extracted" title="Extracted JSON">
             <div style={{ height: '100%' }} className={flashInvalid ? 'editor-flash-invalid' : ''}>
               <CodeMirror
+                ref={editorRef}
                 value={editorExtracted}
-                extensions={[jsonSchema(schema), EditorView.lineWrapping]}
+                extensions={[jsonSchema(schema), EditorView.lineWrapping, escapeBlurKeymap]}
                 height="100%"
                 style={{ height: '100%' }}
                 width="100%"
                 onChange={setEditorExtracted}
+                title="Press ctrl/cmd+e to jump to editor, or escape to be able to tab to the next field"
               />
             </div>
           </Tab>
@@ -198,20 +213,19 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
               </button>
             </span>
           </OverlayTrigger>
-          <OverlayTrigger overlay={<Tooltip id="accepted-tooltip">Ctrl/Cmd+e</Tooltip>}>
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="acceptedCheck"
-                checked={accepted}
-                onChange={e => setAccepted(e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="acceptedCheck">
-                Accepted
-              </label>
-            </div>
-          </OverlayTrigger>
+
+          <div className="form-check">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="acceptedCheck"
+              checked={accepted}
+              onChange={e => setAccepted(e.target.checked)}
+            />
+            <label className="form-check-label" htmlFor="acceptedCheck">
+              Accepted
+            </label>
+          </div>
           <SaveButton isValid={valid} help={errorSummary} />
           <AcceptAndContinueButton isValid={valid} help={errorSummary} />
         </form>
