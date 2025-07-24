@@ -213,7 +213,7 @@ lookups:
         items:
           - prop: alias
             value: 国基建设集团有限公司
-          - prop: registrationNumber
+          - prop: uscCode
             value: 911400007159997781
       - match: "សាខាក្រុមហ៊ុន ហឺបី ខនស្ត្រាក់សិន គ្រុប ខបភើរេសិន, Registration No. 0055729"
         items:
@@ -237,13 +237,13 @@ lookups:
         items:
           - prop: alias
             value: 河南乾坤路桥工程有限公司
-          - prop: registrationNumber
+          - prop: uscCode
             value: 914107277474029059
       - match: "和田陆港枢纽中心管理有限公司,ID: 91653201MA793N9JXR"
         items:
           - prop: alias
             value: 和田陆港枢纽中心管理有限公司
-          - prop: registrationNumber
+          - prop: uscCode
             value: 91653201MA793N9JXR
       - match: "Aliases: Stephen Wasi, Steven Hoki Wasi, Stepano Hoki"
         items:
@@ -258,13 +258,13 @@ lookups:
             value: 宏盛建业投资集团有限公司
           - prop: previousName
             value: 江西宏盛建业投资集团有限公司
-          - prop: registrationNumber
+          - prop: uscCode
             value: 91361122615315079
       - match: "井陉新交建项目管理有限公司,ID: 91130121MA7HPNK01K"
         items:
           - prop: alias
             value: 井陉新交建项目管理有限公司
-          - prop: registrationNumber
+          - prop: uscCode
             value: 91130121MA7HPNK01K
       - match: "Registration no. 2000/007692/07"
         items:
@@ -421,10 +421,14 @@ lookups:
         items:
           - prop: alias
             value: 新疆交建路友道路材料科技有限公司
+          - prop: uscCode
+            value: 91650100053184907Q
       - match: "新疆北朋土木工程检测咨询有限公司,ID: 91650104766801418W"
         items:
           - prop: alias
             value: 新疆北朋土木工程检测咨询有限公司
+          - prop: uscCode
+            value: 91650104766801418W
       - match: "យឹម គឹ មឈាន, ID No. 011148692"
         items:
           - prop: name

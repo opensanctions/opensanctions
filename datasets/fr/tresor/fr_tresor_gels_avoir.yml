@@ -4394,7 +4394,7 @@ lookups:
       - match: "Date d’enregistrement: 30.5.2023 - Entités associées: — OOO TSK Vektor, autrement connue sous le nom de LLC TSK Vektor — Xiamen Limbach Aviation Engine Co., Ltd: Numéro d’identification fiscale:  91440300MA5HX80Y1Q"
         props:
           incorporationDate: 2023-05-30
-          taxNumber: 91440300MA5HX80Y1Q
+          uscCode: 91440300MA5HX80Y1Q
         associates:
           - OOO TSK Vektor
           - Xiamen Limbach Aviation Engine Co., Ltd
@@ -4414,14 +4414,14 @@ lookups:
       - match: "Date d’enregistrement: 18.3.2021 - Entités associées: — OOO TKS Vektor, autrement connue sous le nom de LLC TSK Vektor— Xiamen Limbach Aviation Engine Co., Ltd: Numéro d’identification fiscale:  91440300MA5GN73B4F"
         props:
           incorporationDate: 2021-03-18
-          taxNumber: 91440300MA5GN73B4F
+          uscCode: 91440300MA5GN73B4F
         associates:
           - OOO TKS Vektor
           - Xiamen Limbach Aviation Engine Co., Ltd
       - match: "Date d’enregistrement: 20.11.2012 - Entités associées: — OOO TSK Vektor, ou LLC TSK Vektor — Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd — Juhang Aviation Technology Shenzhen Co.: Numéro d’identification fiscale:  91350200051193084R"
         props:
           incorporationDate: 2012-11-20
-          taxNumber: 91350200051193084R
+          uscCode: 91350200051193084R
         associates:
           - OOO TSK Vektor
           - Redlepus TSK Vektor Industrial (Shenzhen) Co., Ltd

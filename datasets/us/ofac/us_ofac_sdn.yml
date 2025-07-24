@@ -381,8 +381,6 @@ lookups:
           - C.U.I. # guatemala
           - N.I.E. # spain foreigners
           - Residency Number
-          - United Social Credit Code Certificate (USCCC)
-          - Unified Social Credit Code (USCC)
           - CNP (Personal Numerical Code)
           - Romanian Permanent Resident
           - Numero Unico de Identificacao Tributaria (NUIT)
@@ -390,6 +388,10 @@ lookups:
           - Romanian C.R.
         identification: true
         prop: idNumber
+      - match:
+          - United Social Credit Code Certificate (USCCC)
+          - Unified Social Credit Code (USCC)
+        value: uscCode
       - match:
           - SSN
         prop: socialSecurityNumber

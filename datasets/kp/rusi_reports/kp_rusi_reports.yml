@@ -113,9 +113,11 @@ lookups:
           - Uniform Social Credit Code
           - Unified Credit Number
           - USCI
+          - China ID
+        value: uscCode
+      - match: 
           - ID
           - Identification Number
-          - China ID
           - National identification number
           - Mega International Commercial Bank I/D number
           - Identification Code
