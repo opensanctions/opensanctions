@@ -272,10 +272,6 @@ lookups:
     options:
       - match: '-'
         value: null
-  type.string:
-    options:
-      - match: '-'
-        value: null
   type.address:
     lowercase: true
     options:
@@ -351,3 +347,5 @@ lookups:
     options:
       - match: PO Box 1406 - 60455
         value: 60455
+      - match: '-'
+        value: null
