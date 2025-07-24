@@ -45,3 +45,11 @@ assertions:
       # inexplicably so we want it a bit tighter than usual
       Person: 3000
       Position: 30
+
+lookups:
+  type.name:
+    options:
+      # Geburtsname: 04.12
+      # https://www.abgeordnetenwatch.de/profile/anne-koenig
+      - match: '04.12.'
+        value: null

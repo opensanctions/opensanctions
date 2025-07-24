@@ -92,3 +92,5 @@ lookups:
         value: Tiefenackerstrasse 59, CH-9450 Altstätten
       - match: Langenhagstrasse 31, CH 9424 Rheineck
         value: Langenhagstrasse 31, CH-9424 Rheineck
+      - match: Friedenstrasse 18, 9320 Arbon
+        value: Friedenstrasse 18, CH-9320 Arbon
