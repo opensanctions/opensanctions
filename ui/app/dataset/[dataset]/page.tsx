@@ -27,13 +27,13 @@ export default async function DatasetPage({ params }: PageProps) {
   if (!entries) return notFound();
 
   return (
-    <div className="container-fluid  p-4 bg-light">
+    <div className="container-fluid  p-4">
       <nav aria-label="breadcrumb" className="mb-3">
         <ol className="breadcrumb">
           <li className="breadcrumb-item">
             <Link href="/">Home</Link>
           </li>
-          <li className="breadcrumb-item active" aria-current="page">
+          <li className="breadcrumb-item" aria-current="page">
             {awaitedParams.dataset}
           </li>
         </ol>

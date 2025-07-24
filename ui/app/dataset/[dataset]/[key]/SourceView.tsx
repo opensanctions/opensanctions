@@ -11,7 +11,7 @@ import { markdown } from "@codemirror/lang-markdown";
 export default function SourceView({ sourceValue, sourceContentType, sourceLabel }: { sourceValue: string, sourceContentType: string, sourceLabel: string }) {
   const tabs: React.ReactNode[] = [];
   const tab = (title: string, content: React.ReactNode | null = null) => {
-    return <Tab key={title} eventKey={title} title={title}>
+    return <Tab key={title} eventKey={title} title={title} >
       {content ? content : <CodeMirror
         value={sourceValue}
         height="100%"
