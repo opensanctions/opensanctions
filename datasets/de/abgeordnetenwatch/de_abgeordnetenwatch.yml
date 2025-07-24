@@ -49,5 +49,7 @@ assertions:
 lookups:
   type.name:
     options:
+      # Geburtsname: 04.12
+      # https://www.abgeordnetenwatch.de/profile/anne-koenig
       - match: '04.12.'
         value: null
