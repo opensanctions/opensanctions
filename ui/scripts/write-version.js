@@ -2,7 +2,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const gitHash = execSync('git rev-parse --short HEAD').toString().trim();
+const gitHash = process.env.ZAVOD_UI_GIT_REVISION || execSync('git rev-parse --short HEAD').toString().trim();
 const buildTime = new Date().toISOString();
 
 const versionInfo = {
