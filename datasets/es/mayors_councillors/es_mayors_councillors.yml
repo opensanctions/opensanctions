@@ -1,4 +1,4 @@
-title: "Spain Mayors and Councillors"
+title: Spain Mayors and Councillors
 entry_point: crawler.py
 prefix: es-mc
 load_statements: true
@@ -29,6 +29,8 @@ data:
   url: https://concejales.redsara.es/consulta/
   format: html
   lang: spa
+dates:
+  formats: ["%d/%m/%Y"]
 
 # assertions:
 #   min:
@@ -37,3 +39,23 @@ data:
 #   max:
 #     schema_entities:
 #       Person: 20
+
+lookups:
+  columns:
+    options:
+      - match: NOMBRE
+        value: name
+      - match: PROVINCIA
+        value: province
+      - match: MUNICIPIO
+        value: municipality
+      - match: FECHA POSESIÓN
+        value: start_date
+      - match: FECHA BAJA
+        value: end_date
+      - match: COMUNIDAD AUTÓNOMA
+        value: autonomous_community
+      - match: CÓDIGO INE
+        value: ine_code
+      - match: LISTA
+        value: list
