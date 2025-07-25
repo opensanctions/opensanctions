@@ -255,6 +255,8 @@ lookups:
           - residentperm
           - drivinglicence
           - NRN
+          # United Nations Social Security Number
+          - unssn
         schema: Identification
       - match: passport
         schema: Passport
@@ -264,7 +266,9 @@ lookups:
         prop: imoNumber
       - match: regnumber
         prop: registrationNumber
-      - match: fiscalcode
+      - match: 
+          - fiscalcode
+          - taxid
         prop: taxNumber
       - match: euvat
         prop: vatCode
