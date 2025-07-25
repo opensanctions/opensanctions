@@ -989,10 +989,7 @@ lookups:
           - Eurotitrisation
           - Caceis Bank
           # It's one entity, we include both previous and current names
-          - [
-              "Caceis Investor Services Bank France",
-              "RBC Investor Services Bank France",
-            ]
+          - ["Caceis Investor Services Bank France", "RBC Investor Services Bank France"]
           - Edith Lusson
           - Jean-Yves Bajon
           - Romain Bertrand
