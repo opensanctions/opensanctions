@@ -203,4 +203,6 @@ lookups:
           - "S.A. DE C.V."
           - "S.A.P.I. DE C.V."
           - "S.R.O."
+          # "Individual","","","YUKI","","****", (invalid lastName)
+          - "****"
         value: null
