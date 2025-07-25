@@ -1,0 +1,7 @@
+.envrc
+.env.local
+node_modules/
+.next/
+.vscode
+Dockerfile
+README.md

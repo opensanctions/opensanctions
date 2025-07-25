@@ -1,0 +1,71 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+
+body {
+    font-family: monospace;
+}
+
+/* Add any additional global styles below */
+.entry-tabs .tab-content {
+    display:flex;
+    flex-grow: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.entry-tabs .tab-pane {
+    height: 100%;
+}
+
+.tab-pane {
+    border-color: black;
+    border-left: 1px solid black; /* #dee2e6; */
+    border-right: 1px solid black; /* #dee2e6; */
+    border-bottom: 1px solid black; /* #dee2e6; */
+}
+
+.source-view .tab-content {
+    display:flex;
+    flex-grow: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.source-view .tab-pane {
+    height: 100%;
+}
+
+
+.editor-flash-invalid {
+    animation: flash-red 0.45s;
+    border: 2px solid #dc3545 !important;
+    border-radius: 4px;
+  }
+  @keyframes flash-red {
+    0% { border-color: #dc3545; }
+    33% { border-color: transparent; }
+    66% { border-color: #dc3545; }
+    100% { border-color: transparent; }
+  }
+
+/* Make tab button borders black and remove roundness */
+.nav-tabs .nav-link {
+  border: 1.5px solid #000 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: #111 !important;
+}
+
+.nav-tabs .nav-link.active {
+  background: #eee !important;
+  color: #000 !important;
+  border-bottom-color: #fff !important;
+}
+
+.nav-tabs {
+    border-bottom: 1px solid black;
+}
+
+table.table {
+    border: 1px solid black;
+}
