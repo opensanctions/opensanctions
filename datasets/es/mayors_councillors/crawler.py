@@ -9,9 +9,9 @@ IGNORE = [
     "column_0",
     "column_1",
     "column_2",
-    "comunidad_autonoma",
-    "codigo_ine",
-    "lista",
+    "autonomous_community",
+    "ine_code",
+    "list",
     "column_11",
     "column_12",
     "column_13",
@@ -23,9 +23,13 @@ IGNORE = [
 
 
 def crawl_item(context: Context, row: Dict[str, str]):
-    name = row.pop("nombre")
-    province = row.pop("provincia")
-    municipality = row.pop("municipio")
+    name = row.pop("name")
+    province = row.pop("province")
+    municipality = row.pop("municipality")
+
+    if not name or not province or not municipality:
+        context.log.warning("Missing required fields", row=row)
+        return
 
     pep = context.make("Person")
     pep.id = context.make_id(name, province, municipality)
@@ -34,6 +38,9 @@ def crawl_item(context: Context, row: Dict[str, str]):
         context,
         "Mayor",
         country="es",
+        subnational_area=f"{municipality}, {province}",
+        # organization=row.pop("list"), # Name of the political party
+        lang="spa",
     )
     categorisation = categorise(context, position, is_pep=True)
 
@@ -41,11 +48,11 @@ def crawl_item(context: Context, row: Dict[str, str]):
         context,
         pep,
         position,
-        start_date=row.pop("fecha_posesion"),
-        end_date=row.pop("fecha_baja"),
+        start_date=row.pop("start_date"),
+        end_date=row.pop("end_date"),
         categorisation=categorisation,
     )
-    if categorisation.is_pep:
+    if occupancy:
         context.emit(occupancy)
         context.emit(pep)
 
@@ -64,7 +71,9 @@ def crawl(context: Context):
     if len(wb.sheetnames) != 1:
         raise Exception("Expected only one sheet in the workbook")
 
-    for row in h.parse_xlsx_sheet(context, wb[wb.sheetnames[0]], skiprows=7):
+    for row in h.parse_xlsx_sheet(
+        context, wb[wb.sheetnames[0]], skiprows=7, header_lookup="columns"
+    ):
         crawl_item(context, row)
 
     doc = context.fetch_html(context.data_url, cache_days=1)
