@@ -65,6 +65,7 @@ def crawl(context: Context):
     hist_url = hist_doc.xpath(
         ".//div[@class='com-listado com-listado--destacado']//a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href"
     )
+    assert len(hist_url) == 1, "Expected exactly one historical URL"
     path = context.fetch_resource("historical.xlsx", hist_url[0])
     context.export_resource(path, XLSX, title="Mayors 2019-2023")
     wb = load_workbook(path, read_only=True)
@@ -76,10 +77,12 @@ def crawl(context: Context):
     ):
         crawl_item(context, row)
 
-    doc = context.fetch_html(context.data_url, cache_days=1)
-    doc.make_links_absolute(context.data_url)
-    url = doc.xpath(
-        '//div[@id="descargas_legislatura"]/a[@id="legislatura_link"]/@href'
-    )
-    path = context.fetch_resource("mayors.xlsx", url[0])
-    context.export_resource(path, XLSX, title="Mayors 2023-2027")
+    path = context.fetch_resource("mayors_councillors.xlsx", "https://concejales.redsara.es/consulta/getConcejalesLegislatura")
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+    workbook = load_workbook(path, read_only=True)
+    if len(workbook.sheetnames) != 1:
+        raise Exception("Expected only one sheet in the workbook")
+
+    for row in h.parse_xlsx_sheet(context,  workbook[workbook.sheetnames[0]], skiprows=5, header_lookup="columns"):
+        print(row)
+        crawl_item(context, row)
