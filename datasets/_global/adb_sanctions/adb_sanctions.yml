@@ -258,8 +258,9 @@ lookups:
             value: 宏盛建业投资集团有限公司
           - prop: previousName
             value: 江西宏盛建业投资集团有限公司
+          # fixed typo in the source data based on: https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.qcc.com/firm/859d61920c82b45584399f8406bf4813.html&ved=2ahUKEwjg2rO7y9eOAxUrg_0HHW9zJeoQFnoECBcQAQ&usg=AOvVaw2fXuAEDg6SHHXSy5i9tp77
           - prop: uscCode
-            value: 91361122615315079
+            value: 913611221615315079
       - match: "井陉新交建项目管理有限公司,ID: 91130121MA7HPNK01K"
         items:
           - prop: alias

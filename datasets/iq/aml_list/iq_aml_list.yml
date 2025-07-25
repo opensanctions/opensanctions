@@ -36,7 +36,7 @@ ci_test: false # No zyte key in CI
 tags:
   - list.sanction
 dates:
-  formats: ["%d-%m-%Y"]
+  formats: ["%d-%m-%Y", "%d/%m/%Y"]
 
 assertions:
   min:

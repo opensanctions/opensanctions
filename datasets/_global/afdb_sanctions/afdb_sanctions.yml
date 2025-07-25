@@ -273,6 +273,10 @@ lookups:
         names:
           - name: J.M. Comercio De Equipamentos Ltda
             alias: "Pick Up Car Auto Peas"
+      - match: 'Société Emmettrice de Document Sécurisé en Centrafrique (SEDOSEC) SURL'
+        names:
+          - name: Société Emmettrice de Document Sécurisé en Centrafrique SURL
+            alias: "SEDOSEC"
   types:
     lowercase: true
     map:
