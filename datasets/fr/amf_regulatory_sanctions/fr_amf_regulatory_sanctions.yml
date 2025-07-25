@@ -1103,3 +1103,6 @@ lookups:
         entities:
           - Saxo Bank A/S
           - BinckBank NV
+      - match: 'La société Tec Assurances'
+        entities:
+          - Tec Assurances
