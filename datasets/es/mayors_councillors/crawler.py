@@ -5,7 +5,22 @@ from typing import Dict
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
-IGNORE = ["column_0", "column_1", "column_2", "comunidad_autonoma", "codigo_ine", "lista", "column_11", "column_12", "column_13", "column_14", "column_15", "column_16", "column_17"]
+IGNORE = [
+    "column_0",
+    "column_1",
+    "column_2",
+    "comunidad_autonoma",
+    "codigo_ine",
+    "lista",
+    "column_11",
+    "column_12",
+    "column_13",
+    "column_14",
+    "column_15",
+    "column_16",
+    "column_17",
+]
+
 
 def crawl_item(context: Context, row: Dict[str, str]):
     name = row.pop("nombre")
@@ -16,40 +31,46 @@ def crawl_item(context: Context, row: Dict[str, str]):
     pep.id = context.make_id(name, province, municipality)
     pep.add("name", name)
     position = h.make_position(
-            context,
-            "Mayor",
-            country="es",
+        context,
+        "Mayor",
+        country="es",
     )
     categorisation = categorise(context, position, is_pep=True)
 
     occupancy = h.make_occupancy(
-            context, 
-            pep, 
-            position,
-            start_date=row.pop("fecha_posesion"), 
-            end_date=row.pop("fecha_baja"), 
-            categorisation=categorisation,
-                                 )
+        context,
+        pep,
+        position,
+        start_date=row.pop("fecha_posesion"),
+        end_date=row.pop("fecha_baja"),
+        categorisation=categorisation,
+    )
     if categorisation.is_pep:
         context.emit(occupancy)
         context.emit(pep)
 
     context.audit_data(row, IGNORE)
+
+
 def crawl(context: Context):
-   hist_doc = context.fetch_html(context.dataset.model.url, cache_days = 1)
-   hist_doc.make_links_absolute(context.dataset.model.url)
-   hist_url = hist_doc.xpath(".//div[@class='com-listado com-listado--destacado']//a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href")
-   path = context.fetch_resource("historical.xlsx", hist_url[0])
-   context.export_resource(path, XLSX, title="Mayors 2019-2023")
-   wb = load_workbook(path, read_only=True)
-   if len(wb.sheetnames) != 1:
-       raise Exception("Expected only one sheet in the workbook")
+    hist_doc = context.fetch_html(context.dataset.model.url, cache_days=1)
+    hist_doc.make_links_absolute(context.dataset.model.url)
+    hist_url = hist_doc.xpath(
+        ".//div[@class='com-listado com-listado--destacado']//a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href"
+    )
+    path = context.fetch_resource("historical.xlsx", hist_url[0])
+    context.export_resource(path, XLSX, title="Mayors 2019-2023")
+    wb = load_workbook(path, read_only=True)
+    if len(wb.sheetnames) != 1:
+        raise Exception("Expected only one sheet in the workbook")
 
-   for row in h.parse_xlsx_sheet(context, wb[wb.sheetnames[0]], skiprows=7):
-       crawl_item(context, row)
+    for row in h.parse_xlsx_sheet(context, wb[wb.sheetnames[0]], skiprows=7):
+        crawl_item(context, row)
 
-   doc = context.fetch_html(context.data_url, cache_days=1)
-   doc.make_links_absolute(context.data_url)
-   url = doc.xpath('//div[@id="descargas_legislatura"]/a[@id="legislatura_link"]/@href')
-   path = context.fetch_resource("mayors.xlsx", url[0])
-   context.export_resource(path, XLSX, title="Mayors 2023-2027")
+    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc.make_links_absolute(context.data_url)
+    url = doc.xpath(
+        '//div[@id="descargas_legislatura"]/a[@id="legislatura_link"]/@href'
+    )
+    path = context.fetch_resource("mayors.xlsx", url[0])
+    context.export_resource(path, XLSX, title="Mayors 2023-2027")
