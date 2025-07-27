@@ -1,7 +1,7 @@
 import os
 import csv
 from typing import Dict, Set, Any, Optional, List
-from normality import collapse_spaces
+from normality import squash_spaces
 from rigour.names import replace_org_types_display
 from followthemoney.types import registry
 
@@ -21,8 +21,10 @@ def substitute_abbreviations(name: Optional[str]) -> Optional[str]:
     :param name: The input name where abbreviations should be substituted.
     :return: The name shorted if possible, otherwise the original
     """
-    name = collapse_spaces(name)
     if name is None:
+        return None
+    name = squash_spaces(name)
+    if len(name) == 0:
         return None
     if len(name) <= registry.name.max_length:
         return name

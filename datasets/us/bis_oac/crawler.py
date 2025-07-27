@@ -1,5 +1,5 @@
 from csv import DictReader
-from normality import collapse_spaces, stringify
+from normality import squash_spaces, stringify
 from openpyxl import load_workbook
 from rigour.mime.types import XLS, CSV
 from typing import Dict
@@ -44,7 +44,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 def crawl_csv(context: Context, path: str, encoding: str):
     with open(path, encoding=encoding) as fh:
-
         # Read the file all at once to trigger any encoding errors
         # before we start emitting entities.
         lines = fh.readlines()
@@ -58,7 +57,7 @@ def crawl_xls(context: Context, path: str):
     wb = load_workbook(path, read_only=True)
     for sheet in wb.worksheets:
         headers = [
-            collapse_spaces(str(c.value))
+            squash_spaces(str(c.value))
             for c in list(sheet.iter_rows(min_row=1, max_row=1))[0]
         ]
 

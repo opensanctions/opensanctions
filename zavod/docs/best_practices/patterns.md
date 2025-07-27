@@ -52,7 +52,7 @@ for name in h.multi_split(names, SPLITS):
     import sys
 
     # Third-party imports
-    from normality import collapse_spaces, stringify
+    from normality import squash_spaces, stringify
 
     # Local application imports
     from zavod import helpers as h
@@ -215,7 +215,7 @@ An editor like VS Code highlights characters like this by default, and a hex edi
 
 To handle these cases, you can use string cleaning methods such as:
 
-- `normality.collapse_spaces`
+- `normality.squash_spaces`
 - `normality.remove_unsafe_chars`
 - `.replace`
 
@@ -227,7 +227,7 @@ text = text.replace("\xa0", " ")
 
 # When the source data contains messy or excessively repeated whitespace,
 # e.g., collapsing whitespace from text extracted from HTML
-cleaned_text = normality.collapse_spaces(text)
+cleaned_text = normality.squash_spaces(text)
 ```
 
 ## Use datapatch lookups to clean or map values from external forms to OpenSanctions

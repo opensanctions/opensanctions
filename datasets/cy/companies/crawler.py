@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 from typing import Dict, Generator, Iterable, Optional
-from normality.cleaning import collapse_spaces, remove_unsafe_chars
+from normality.cleaning import squash_spaces, remove_unsafe_chars
 from followthemoney.util import join_text
 
 from zavod import Context
@@ -23,8 +23,8 @@ def iter_rows(path: Path) -> Generator[Dict[str, str], None, None]:
         for row in csv.DictReader(fh):
             data = {}
             for k, v in row.items():
-                sv = collapse_spaces(remove_unsafe_chars(v))
-                if sv is not None:
+                sv = squash_spaces(remove_unsafe_chars(v))
+                if len(sv) > 0:
                     data[k] = sv
             yield data
 
