@@ -1,6 +1,6 @@
 from typing import Dict, Generator, List, Optional, Union
 from datetime import datetime
-from normality import slugify, stringify
+from normality import slugify_text, stringify
 from xlrd import XL_CELL_DATE  # type: ignore
 from xlrd.book import Book  # type: ignore
 from xlrd.sheet import Cell, Sheet  # type: ignore
@@ -97,7 +97,7 @@ def parse_xls_sheet(
                 for col_idx, cell in enumerate(cells):
                     if not cell:
                         continue
-                    headers[col_idx] += f"_{slugify(cell, sep='_')}"
+                    headers[col_idx] += f"_{slugify_text(cell, sep='_')}"
                 join_header_rows -= 1
             else:
                 # Initialise first row of headers
@@ -105,7 +105,7 @@ def parse_xls_sheet(
                 for idx, cell in enumerate(cells):
                     if not cell:
                         cell = f"column_{idx}"
-                    headers.append(slugify(cell, "_") or "")
+                    headers.append(slugify_text(cell, "_") or "")
             continue
 
         for header, value in zip(headers, cells):
@@ -149,15 +149,13 @@ def parse_xlsx_sheet(
         if headers is None:
             headers = []
             for idx, header in enumerate(cells):
+                header = stringify(header)
                 if header is None:
                     header = f"column_{idx}"
                 if header_lookup:
-                    header = context.lookup_value(
-                        header_lookup,
-                        stringify(header),
-                        stringify(header),
-                    )
-                headers.append(slugify(header, sep="_"))
+                    header_ = context.lookup_value(header_lookup, header)
+                    header = header_ or header
+                headers.append(slugify_text(header, sep="_"))
             continue
 
         record = {}

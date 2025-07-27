@@ -2,7 +2,7 @@ from pathlib import Path
 from lxml import etree
 from hashlib import sha1
 from typing import Any, Optional
-from normality import collapse_spaces
+from normality import squash_spaces
 
 from zavod.logs import get_logger
 from zavod.context import Context
@@ -85,8 +85,8 @@ def _compute_node_hash(
             pretty_print=True,
             method="c14n2",
         )
-    text = collapse_spaces(serialised.decode("utf-8").lower())
-    if text is None:
+    text = squash_spaces(serialised.decode("utf-8").lower())
+    if len(text) == 0:
         return None
     digest.update(text.replace(" ", "").encode("utf-8"))
     return digest.hexdigest()

@@ -1,5 +1,5 @@
 from typing import List, Optional, cast
-from normality import collapse_spaces
+from normality import squash_spaces
 from followthemoney.util import join_text
 import re
 
@@ -56,9 +56,10 @@ def make_name(
     Returns:
         The full name.
     """
-    full = collapse_spaces(full)
-    if full is not None and len(full) > 1:
-        return full
+    if full is not None:
+        full = squash_spaces(full)
+        if len(full) > 0:
+            return full
     return join_text(
         prefix,
         name1,
@@ -198,8 +199,8 @@ def split_comma_names(context: Context, text: str) -> List[str]:
     attribute. If no match is found, the name is returned as a single item list,
     and a warning emitted.
     """
-    text = collapse_spaces(text) or ""
-    if not text:
+    text = squash_spaces(text)
+    if len(text) == 0:
         return []
 
     text = REGEX_CLEAN_COMMA.sub(r" \1", text)

@@ -1,6 +1,6 @@
 import csv
 from typing import Set, Iterable
-from normality import collapse_spaces
+from normality import squash_spaces
 from followthemoney import registry
 from rigour.boolean import bool_text
 
@@ -72,8 +72,8 @@ class SecuritiesExporter(Exporter):
     def _get_aliases(self, entity: Entity) -> Set[str]:
         names: Set[str] = set()
         for name in entity.get_type_values(registry.name, matchable=True):
-            name_ = collapse_spaces(name)
-            if name_ is not None:
+            name_ = squash_spaces(name)
+            if len(name_) > 0:
                 names.add(name_)
         return names
 

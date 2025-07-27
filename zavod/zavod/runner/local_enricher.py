@@ -1,5 +1,5 @@
-from decimal import Decimal
 import logging
+from decimal import Decimal
 from typing import Generator, Iterator, List, Tuple
 from followthemoney import registry, DS
 from followthemoney.helpers import check_person_cutoff
@@ -7,7 +7,7 @@ from followthemoney.helpers import check_person_cutoff
 from nomenklatura.enrich.common import EnricherConfig
 from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura.enrich.common import BaseEnricher
-from nomenklatura.matching import get_algorithm, LogicV1
+from nomenklatura.matching import get_algorithm, LogicV1, ScoringConfig
 from nomenklatura.resolver import Identifier
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
@@ -80,6 +80,9 @@ class LocalEnricher(BaseEnricher[DS]):
         if _algorithm is None:
             raise Exception(f"Unknown algorithm: {algo_name}")
         self._algorithm = _algorithm
+        self._algo_config = ScoringConfig.defaults()
+        if hasattr(_algorithm, "default_config"):
+            self._algo_config = _algorithm.default_config()
         self._cutoff = float(config.get("cutoff", 0.5))
         self._limit = int(config.get("limit", 5))
         self._max_bin = int(config.get("max_bin", 10))
@@ -123,7 +126,7 @@ class LocalEnricher(BaseEnricher[DS]):
             if not entity.schema.can_match(match.schema):
                 continue
 
-            result = self._algorithm.compare(entity, match)
+            result = self._algorithm.compare(entity, match, self._algo_config)
             if result.score < self._cutoff:
                 continue
 

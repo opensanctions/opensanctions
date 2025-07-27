@@ -1,5 +1,5 @@
 from typing import Dict, Generator, Optional, Set, cast
-from normality import slugify, collapse_spaces
+from normality import slugify, squash_spaces
 from lxml.html import HtmlElement
 from zavod.logs import get_logger
 
@@ -64,7 +64,14 @@ def cells_to_str(row: Dict[str, HtmlElement]) -> Dict[str, str | None]:
 
     Useful when all you need is the string value of each cell in a table row.
     """
-    return {k: collapse_spaces(v.text_content()) for k, v in row.items()}
+    values: Dict[str, str | None] = {}
+    for k, v in row.items():
+        v = squash_spaces(v.text_content())
+        if v:
+            values[k] = v
+        else:
+            values[k] = None
+    return values
 
 
 def links_to_dict(el: HtmlElement) -> Dict[str | None, str | None]:
