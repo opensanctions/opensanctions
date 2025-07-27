@@ -116,7 +116,7 @@ def load_addresses(rows: Iterable[Dict[str, str]]) -> Dict[str, str]:
         if address is not None:
             address = address.replace(",,", ",")
             address = address.replace("_", "")
-            address = collapse_spaces(address)
+            address = squash_spaces(address)
             if address is not None:
                 addresses[seq_no] = address
     return addresses
