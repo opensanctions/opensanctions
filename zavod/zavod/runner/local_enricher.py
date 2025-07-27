@@ -80,9 +80,7 @@ class LocalEnricher(BaseEnricher[DS]):
         if _algorithm is None:
             raise Exception(f"Unknown algorithm: {algo_name}")
         self._algorithm = _algorithm
-        self._algo_config = ScoringConfig.defaults()
-        if hasattr(_algorithm, "default_config"):
-            self._algo_config = _algorithm.default_config()
+        self._algo_config = _algorithm.default_config()
         self._cutoff = float(config.get("cutoff", 0.5))
         self._limit = int(config.get("limit", 5))
         self._max_bin = int(config.get("max_bin", 10))
