@@ -7,7 +7,7 @@ from followthemoney.helpers import check_person_cutoff
 from nomenklatura.enrich.common import EnricherConfig
 from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura.enrich.common import BaseEnricher
-from nomenklatura.matching import get_algorithm, LogicV1, ScoringConfig
+from nomenklatura.matching import get_algorithm, LogicV1
 from nomenklatura.resolver import Identifier
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
