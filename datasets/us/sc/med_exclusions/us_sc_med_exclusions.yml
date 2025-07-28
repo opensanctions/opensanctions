@@ -10,13 +10,13 @@ summary: >
 description: |
   According to their [website](https://www.scdhhs.gov/fraud):
 
-  > The Bureau of Internal Audit and Program Integrity compiles a list of 
+  > The Bureau of Internal Audit and Program Integrity compiles a list of
   > individuals and entities that have been excluded by the federal government
-  > and/or the State of South Carolina. Anyone appearing on the following lists 
+  > and/or the State of South Carolina. Anyone appearing on the following lists
   > should not submit claims for Medicaid reimbursement and should not be affiliated
   > with any organization or facility that participates in the Medicaid program.
   > In addition, providers cannot bill for any medicines, medical supplies or
-  > medical equipment that is prescribed or authorized by an excluded provider 
+  > medical equipment that is prescribed or authorized by an excluded provider
   > on behalf of a Medicaid beneficiary.
 
   This dataset specifically only includes providers excluded by the State of South Carolina.
@@ -55,7 +55,7 @@ assertions:
       LegalEntity: 900
   max:
     schema_entities:
-      LegalEntity: 1100
+      LegalEntity: 1500
 lookups:
   type.identifier:
     options:
@@ -72,4 +72,5 @@ lookups:
           - Found
           - Not
           - found
+          - NPI
         value: null
