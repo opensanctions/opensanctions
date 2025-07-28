@@ -143,3 +143,5 @@ lookups:
         values: [RU, DE]
       - match: ARMENIA HOLANDIA
         values: [AM, NL]
+      - match: UGANDA RWANDA
+        values: [UG, RW]
