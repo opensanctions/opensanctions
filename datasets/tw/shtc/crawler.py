@@ -57,12 +57,6 @@ def apply_details_override(
 
 
 def crawl_row(context: Context, row):
-    row = {
-        # BOM in the middle of a file, probably a Microsoft artifact, should be ignored,
-        # see https://www.unicode.org/faq/utf_bom.html#bom6
-        k.lstrip("\ufeff"): v.strip() if isinstance(v, str) else v
-        for k, v in row.items()
-    }
     names = row.pop("名稱name")
     aliases = row.pop("別名alias")
     addresses = row.pop("地址address")
@@ -136,6 +130,7 @@ def crawl(context: Context):
     # Crawl the CSV file
     path = context.fetch_resource("shtc_list.csv", context.data_url)
     context.export_resource(path, mime_type=CSV, title=context.SOURCE_TITLE)
-    with open(path, "rt", encoding="utf-8") as infh:
+    # utf-8-sig filters out weird Microsoft BOM artifacts
+    with open(path, "rt", encoding="utf-8-sig") as infh:
         for row in csv.DictReader(infh):
             crawl_row(context, row)
