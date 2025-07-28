@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: "2024-12-13"
 load_statements: true
+ci_test: false  # Zyte is not available in CI
 summary: >
   List of providers excluded from Maine's Medicaid program.
 description: |
