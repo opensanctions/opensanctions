@@ -129,6 +129,15 @@ lookups:
         values:
           - 2022-09-09
           - 2021-05-27
+      - match: 09-Sep-22 28-Sep-21
+        values:
+          - 2022-09-09
+          - 2021-09-28
+      - match: 09-Sep-2207-Jul-24
+        values:
+          - 2022-09-09
+          - 2024-07-07
+
   normalize_name:
     lowercase: true
     normalize: true
