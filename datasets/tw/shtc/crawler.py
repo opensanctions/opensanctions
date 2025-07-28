@@ -130,6 +130,7 @@ def crawl(context: Context):
     # Crawl the CSV file
     path = context.fetch_resource("shtc_list.csv", context.data_url)
     context.export_resource(path, mime_type=CSV, title=context.SOURCE_TITLE)
+    # utf-8-sig filters out weird Microsoft BOM artifacts
     with open(path, "rt", encoding="utf-8-sig") as infh:
         for row in csv.DictReader(infh):
             crawl_row(context, row)
