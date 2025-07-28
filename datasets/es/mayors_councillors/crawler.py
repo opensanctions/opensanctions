@@ -104,13 +104,14 @@ def crawl(context: Context) -> None:
         skiprows=7
     )
     # Process current mayors and councillors data
-    current_url = (
-        "https://concejales.redsara.es/consulta/getConcejalesLegislatura"
-    )
+    current_doc = context.fetch_html(context.data_url, cache_days=1)
+    current_doc.make_links_absolute(context.data_url)
+    current_url = current_doc.xpath(".//a[@id='concejales_legislatura']/@href")
+    assert len(current_url) == 1, "Expected exactly one current URL"
     process_excel(
         context=context,
         filename="current.xlsx",
-        url=current_url,
+        url=current_url[0],
         title=context.SOURCE_TITLE,
         skiprows=5
     )
