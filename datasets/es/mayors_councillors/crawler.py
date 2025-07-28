@@ -11,7 +11,7 @@ IGNORE = [
     "column_2",
     "autonomous_community",
     "ine_code",
-    "list",
+    "party",
     "column_11",
     "column_12",
     "column_13",
@@ -26,6 +26,9 @@ def crawl_item(context: Context, row: Dict[str, str]):
     name = row.pop("name")
     province = row.pop("province")
     municipality = row.pop("municipality")
+    first_last_name = row.pop("last_name", None)
+    second_last_name = row.pop("second_last_name", None)
+    position = row.pop("position", None)
 
     if not name or not province or not municipality:
         context.log.warning("Missing required fields", row=row)
@@ -33,13 +36,18 @@ def crawl_item(context: Context, row: Dict[str, str]):
 
     pep = context.make("Person")
     pep.id = context.make_id(name, province, municipality)
-    pep.add("name", name)
+    if first_last_name or second_last_name:
+        last_name = f"{first_last_name} {second_last_name}"
+        h.apply_name(pep, first_name=name, last_name=last_name)
+    else:
+        pep.add("name", name)
     position = h.make_position(
         context,
-        "Mayor",
+        # Positions are available for the current officials, historical data lists only mayors
+        position if position else "Mayor",
         country="es",
         subnational_area=f"{municipality}, {province}",
-        # organization=row.pop("list"), # Name of the political party
+        # organization=row.pop("party"), # Name of the political party
         lang="spa",
     )
     categorisation = categorise(context, position, is_pep=True)
@@ -49,7 +57,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
         pep,
         position,
         start_date=row.pop("start_date"),
-        end_date=row.pop("end_date"),
+        end_date=row.pop("end_date", None),
         categorisation=categorisation,
     )
     if occupancy:
@@ -84,5 +92,4 @@ def crawl(context: Context):
         raise Exception("Expected only one sheet in the workbook")
 
     for row in h.parse_xlsx_sheet(context,  workbook[workbook.sheetnames[0]], skiprows=5, header_lookup="columns"):
-        print(row)
         crawl_item(context, row)
