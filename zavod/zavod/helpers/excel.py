@@ -153,8 +153,7 @@ def parse_xlsx_sheet(
                 if header is None:
                     header = f"column_{idx}"
                 if header_lookup:
-                    header_ = context.lookup_value(header_lookup, header)
-                    header = header_ or header
+                    header = context.lookup_value(header_lookup, header) or header
                 headers.append(slugify_text(header, sep="_"))
             continue
 

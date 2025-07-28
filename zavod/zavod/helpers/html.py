@@ -64,14 +64,11 @@ def cells_to_str(row: Dict[str, HtmlElement]) -> Dict[str, str | None]:
 
     Useful when all you need is the string value of each cell in a table row.
     """
-    values: Dict[str, str | None] = {}
-    for k, v in row.items():
-        v = squash_spaces(v.text_content())
-        if v:
-            values[k] = v
-        else:
-            values[k] = None
-    return values
+    return {
+        # Empty cells are None, not the empty string
+        k: squash_spaces(v.text_content()) or None
+        for k, v in row.items()
+    }
 
 
 def links_to_dict(el: HtmlElement) -> Dict[str | None, str | None]:
