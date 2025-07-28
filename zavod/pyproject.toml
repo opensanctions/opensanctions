@@ -22,7 +22,7 @@ dependencies = [
     "nomenklatura[leveldb] == 4.0.4",
     "countrynames >= 1.16.10, < 2.0",
     "plyvel == 1.5.1",
-    "rigour == 1.0.4",
+    "rigour == 1.1.1",
     "datapatch >= 1.1,< 1.3",
     "certifi",
     "colorama",
