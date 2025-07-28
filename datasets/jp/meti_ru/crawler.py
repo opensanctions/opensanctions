@@ -29,6 +29,7 @@ NAMES_PATTERN = re.compile(
 """,
     re.VERBOSE | re.MULTILINE,
 )
+TRAILING_WHITESPACE_PATTERN = re.compile(r"\s+$", re.MULTILINE)
 LOCAL_PATH = Path(__file__).parent
 EXPECTED_HASHES = {
     "list_belarus_tokutei.pdf": "cd99cd520f06110ad39f354d6c961fe5c36260e3",
@@ -155,10 +156,15 @@ def crawl(context: Context):
 
     # Update local copy of just the content part of the page to diff easily when
     # there are changes. Commit changes once they're handled.
-    with open(LOCAL_PATH / "source.html", "wb") as fh:
-        fh.write(
-            html.tostring(divs[0], pretty_print=True, method="text", encoding="utf-8")
-        )
+    with open(LOCAL_PATH / "page_content.txt", "w") as fh:
+        text = html.tostring(
+            divs[0],
+            pretty_print=True,
+            method="text",
+            encoding="utf-8",
+        ).decode("utf-8")
+        text = TRAILING_WHITESPACE_PATTERN.sub("", text)
+        fh.write(text)
 
     for pdf_url in divs[0].xpath(PDF_XPATH):
         pdf_name = Path(urlparse(pdf_url).path).name
