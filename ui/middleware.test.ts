@@ -1,11 +1,11 @@
-import { POST } from './route';
 import { NextRequest } from 'next/server';
+import middleware from './middleware';
 
-jest.mock('../../../../lib/auth', () => ({
+jest.mock('./lib/auth', () => ({
   verify: jest.fn().mockResolvedValue(null),
 }));
 
-describe('POST /api/extraction/save', () => {
+describe('middleware', () => {
   it('responds 401 if unauthorised', async () => {
     // Create a mock request with a valid JWT header
     const form = new URLSearchParams({
@@ -15,7 +15,7 @@ describe('POST /api/extraction/save', () => {
       extractedData: '{}',
       accept_and_continue: 'false',
     });
-    const req = new NextRequest('http://localhost', {
+    const req = new NextRequest('http://localhost/api/extraction/save', {
       method: 'POST',
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
@@ -24,7 +24,7 @@ describe('POST /api/extraction/save', () => {
       body: form,
     } as any);
 
-    const res = await POST(req);
+    const res = await middleware(req);
     expect(res.status).toBe(401);
     const text = await res.text();
     expect(text).toContain('Unauthorized');

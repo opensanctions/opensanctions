@@ -17,12 +17,6 @@ function getAsBool(formData: FormData, key: string) {
 
 export async function POST(req: NextRequest) {
   const email = await verify(req.headers);
-  if (!email) {
-    return new Response(
-      '<h1>Error: Unauthorized</h1>',
-      { status: 401, headers: { 'Content-Type': 'text/html' } }
-    );
-  }
 
   const contentType = req.headers.get('content-type') || '';
   if (!contentType.includes('application/x-www-form-urlencoded')) {
@@ -43,7 +37,7 @@ export async function POST(req: NextRequest) {
       key,
       accepted,
       extractedData: JSON.parse(extractedData) as object,
-      modifiedBy: email,
+      modifiedBy: email!,
     });
 
     let redirectUrl = `/dataset/${encodeURIComponent(dataset)}`;

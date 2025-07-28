@@ -1,18 +1,22 @@
-import { verify } from './auth';
-
 describe('verify', () => {
+  beforeEach(() => {
+    // Mock fetch globally to return test public keys
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        'whatever': '-----BEGIN PUBLIC KEY-----\nwhatever\n-----END PUBLIC KEY-----\n'
+      })
+    });
+  });
+
   it('returns email for valid token', async () => {
     jest.resetModules();
-    jest.doMock('google-auth-library', () => {
+    jest.doMock('jose', () => {
       return {
-        OAuth2Client: jest.fn().mockImplementation(() => ({
-          getIapPublicKeys: jest.fn().mockResolvedValue({}),
-          verifySignedJwtWithCertsAsync: jest.fn().mockImplementation((token, pubkeys, audience, issuers) => {
-            return {
-              getPayload: () => ({ email: 'user@example.com' })
-            };
-          })
-        }))
+        jwtVerify: jest.fn().mockResolvedValue({ payload: { email: 'user@example.com' } }),
+        importSPKI: jest.fn().mockResolvedValue({ type: 'public' }),
+        exportJWK: jest.fn().mockResolvedValue({ kty: 'EC', crv: 'P-256' }),
+        decodeProtectedHeader: jest.fn().mockReturnValue({ kid: 'whatever' }),
       };
     });
     // Re-import after mocking
@@ -25,16 +29,14 @@ describe('verify', () => {
     expect(email).toBe('user@example.com');
   });
 
-  it('returns null if verifySignedJwtWithCertsAsync throws', async () => {
+  it('returns null if jwtVerify rejects', async () => {
     jest.resetModules();
-    jest.doMock('google-auth-library', () => {
+    jest.doMock('jose', () => {
       return {
-        OAuth2Client: jest.fn().mockImplementation(() => ({
-          getIapPublicKeys: jest.fn().mockResolvedValue({}),
-          verifySignedJwtWithCertsAsync: jest.fn().mockImplementation(() => {
-            throw new Error('JWT verification failed');
-          }),
-        }))
+        jwtVerify: jest.fn().mockRejectedValue(new Error('JWT verification failed')),
+        importSPKI: jest.fn().mockResolvedValue({ type: 'public' }),
+        exportJWK: jest.fn().mockResolvedValue({ kty: 'EC', crv: 'P-256' }),
+        decodeProtectedHeader: jest.fn().mockReturnValue({ kid: 'whatever' }),
       };
     });
     // Re-import after mocking

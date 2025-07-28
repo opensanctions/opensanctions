@@ -17,7 +17,7 @@
     "@uiw/react-codemirror": "^4.24.0",
     "bootstrap": "^5.3.7",
     "codemirror-json-schema": "^0.8.1",
-    "google-auth-library": "^10.1.0",
+    "jose": "^6.0.12",
     "json-schema-library": "^9.3.5",
     "kysely": "^0.28.2",
     "next": "15.3.5",

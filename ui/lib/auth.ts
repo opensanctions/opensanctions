@@ -1,41 +1,65 @@
 // https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-nodejs
 
-import { OAuth2Client } from 'google-auth-library';
+import { jwtVerify, importSPKI, exportJWK, decodeProtectedHeader } from 'jose';
+import { ALLOW_UNAUTHENTICATED, IAP_AUDIENCE } from './constants';
 
-const oAuth2Client = new OAuth2Client();
-// Expected Audience for App Engine.
-// expectedAudience = `/projects/${projectNumber}/apps/${projectId}`;
-// Expected Audience for Compute Engine, Cloud Run looks the same
-// expectedAudience = `/projects/${projectNumber}/global/backendServices/${backendServiceId}`;
-const expectedAudience = process.env.ZAVOD_IAP_AUDIENCE;
+const CACHE_DURATION = 6 * 60 * 60; // 6 hours
 
-export async function verify(headers: Headers) {
-    if (process.env.ZAVOD_ALLOW_UNAUTHENTICATED === 'true') {
-        return "anonymous"
-    }
-
-    // Verify the id_token, and access the claims.
-    const iapJwt = headers.get('x-goog-iap-jwt-assertion');
-    if (!iapJwt) {
-        console.log(
-            "No 'x-goog-iap-jwt-assertion' header in request",
-            { ip: headers.get('x-forwarded-for') }
-        );
-        return null;
-    }
-    const response = await oAuth2Client.getIapPublicKeys();
-    try {
-        const ticket = await oAuth2Client.verifySignedJwtWithCertsAsync(
-            iapJwt,
-            response.pubkeys,
-            expectedAudience!, // exclamation asserts non-null
-            ['https://cloud.google.com/iap'],
-        );
-        return ticket.getPayload()?.email;
-    } catch (error) {
-        console.error(error, iapJwt);
-    }
-    return null;
+async function fetchPublicKeys(): Promise<Record<string, string>> {
+  const options: RequestInit = {
+    cache: 'force-cache',
+    next: {
+      revalidate: CACHE_DURATION,
+    },
+  }
+  const response = await fetch('https://www.gstatic.com/iap/verify/public_key', options);
+  return await response.json();
 }
 
+export async function verify(headers: Headers) {
+  if (ALLOW_UNAUTHENTICATED) {
+    return "anonymous"
+  }
+
+  // Verify the id_token, and access the claims.
+  const iapJwt = headers.get('x-goog-iap-jwt-assertion');
+  if (!iapJwt) {
+    console.log(
+      "No 'x-goog-iap-jwt-assertion' header in request",
+      { ip: headers.get('x-forwarded-for') }
+    );
+    return null;
+  }
+
+  try {
+    // Get public keys
+    const publicKeys = await fetchPublicKeys();
+
+    const claims = decodeProtectedHeader(iapJwt);
+    const keyId = claims.kid
+
+    if (!keyId || typeof keyId !== 'string') {
+      throw new Error(`No valid key ID in JWT ${keyId}`);
+    }
+
+    const publicPem = publicKeys[keyId];
+    if (!publicPem) {
+      throw new Error(`Public key not found for key ID: ${keyId}`);
+    }
+
+    const publicKey = await importSPKI(publicPem, 'ES256', {extractable: true})
+    const publicJwk = await exportJWK(publicKey)
+
+    // Verify the JWT
+    const {payload} = await jwtVerify(iapJwt, publicJwk, {
+      issuer: 'https://cloud.google.com/iap',
+      audience: IAP_AUDIENCE,
+    });
+
+    return payload.email as string;
+  } catch (error) {
+    console.error('JWT verification error:', error, iapJwt);
+  }
+  return null;
+}
 

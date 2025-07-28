@@ -6,11 +6,11 @@ import {
   Kysely,
   PostgresDialect,
   Selectable,
-  SqliteDialect,
   Updateable,
   sql,
 } from 'kysely'
 import { Pool } from 'pg'
+import { DATABASE_URI } from './constants';
 
 export interface ReviewTable {
   id: Generated<number>
@@ -38,7 +38,7 @@ export interface ReviewDatabase {
 }
 
 
-const dbUrl = process.env.ZAVOD_DATABASE_URI;
+const dbUrl = DATABASE_URI;
 let db: Kysely<ReviewDatabase> | null = null;
 
 if (dbUrl) {
