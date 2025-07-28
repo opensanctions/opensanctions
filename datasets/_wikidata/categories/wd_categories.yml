@@ -1096,10 +1096,94 @@ config:
       country: hu
       language: hu
       topic: role.pep
-
+    # country: Spain
     - category: Political_office-holders_in_Spain
       country: es
       topic: role.pep
+    - category: Members_of_the_Congress_of_Deputies_(Spain)
+      country: es
+      topic: role.pep
+      position:
+        name: Member of the Congress of Deputies
+        country: es
+        topics:
+          - gov.legislative
+    - category: Members_of_the_Senate_of_Spain
+      country: es
+      topic: role.pep
+      position:
+        name: Senator of Spain
+        country: es
+        topics:
+          - gov.legislative
+    - category: Presidents_of_the_Congress_of_Deputies_(Spain)
+      country: es
+      topic: role.pep
+      position:
+        name: President of the Congress of Deputies
+        country: es
+        topics:
+          - gov.legislative
+    - category: Presidents_of_the_Senate_of_Spain
+      country: es
+      topic: role.pep
+      position:
+        name: President of the Senate of Spain
+        country: es
+        topics:
+          - gov.legislative
+    - category: Prime_ministers_of_Spain
+      country: es
+      topic: role.pep
+      position:
+        name: Prime Minister of Spain
+        country: es
+        topics:
+          - gov.head
+    - category: Deputy_Prime_Ministers_of_Spain
+      country: es
+      topic: role.pep
+      position:
+        name: Deputy Prime Minister of Spain
+        country: es
+        topics:
+          - gov.executive
+    - category: Government_ministers_of_Spain
+      country: es
+      topic: role.pep
+      position:
+        name: Minister of Spain
+        country: es
+        topics:
+          - gov.executive
+    - category: Judiciary_of_Spain
+      country: es
+      topic: role.pep
+    - category: Presidents_of_the_autonomous_communities_of_Spain
+      country: es
+      topic: role.pep
+      position:
+        name: President of the autonomous community of Spain
+        country: es
+        topics:
+          - gov.head
+          - gov.state
+    - category: Ministers_of_Spanish_autonomous_communities
+      country: es
+      topic: role.pep
+    - category: Mayors_of_places_in_Spain
+      country: es
+      topic: role.pep
+      position:
+        name: Mayor (Spain)
+        country: es
+        topics:
+          - gov.head
+          - gov.muni
+    - category: 21st-century_Spanish_politicians
+      country: es
+      topic: role.pep
+    # country: Sweden
     - category: Political_office-holders_in_Sweden
       country: se
       topic: role.pep
