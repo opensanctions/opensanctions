@@ -42,6 +42,7 @@ assertions:
 dates:
   formats: ["%d/%m/%Y"]
 lookups:
+  # Maps to a document_schema or prop, never to both
   doc_types:
     lowercase: true
     normalize: true
@@ -50,7 +51,7 @@ lookups:
           - Passport
         contains:
           - Pasaporte
-        value: Passport
+        document_schema: Passport
       - match:
           - National Identification Number
           - ""
@@ -67,8 +68,13 @@ lookups:
           - cédula de identidad
           - cedula de identidad
           - Registro Nacional para
-          - CUIL
-        value: Identification
+          - CUIL  # Código Único de Identificación Laboral, Argentina
+        document_schema: Identification
+
+      - match:
+          - CUIT  # Clave Única de Identificación Tributaria, Argentina
+        prop: taxNumber
+
   type.address:
     lowercase: true
     options:
