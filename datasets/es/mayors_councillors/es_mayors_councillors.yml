@@ -9,17 +9,18 @@ summary: >
   Individuals holding mayoral or councillor positions in Spain.
 description: |
   This dataset contains detailed information on individuals holding mayoral or councillor 
-  positions in Spain. Each entry includes the name of the official, their position, 
-  contact information, and political affiliation.
+  positions in Spain. Each entry includes the name of the official, their position, and 
+  political affiliation. The data covers current officials and historical data from the 
+  2019-2023 term.
 publisher:
   name: Ministerio de Política Territorial y Memoria Democrática
   name_en: Ministry of Territorial Policy and Democratic Memory
-  acronym: MPT
+  acronym: MPTMD
   official: true
   description: |
-    The Ministry of Territorial Policy and Democratic Memory is responsible for promoting 
-    and coordinating policies related to territorial organization, local administration, 
-    and democratic memory in Spain.
+    The Ministry of Territorial Policy and Democratic Memory is the government department 
+    responsible for proposing and executing policy on relations and cooperation with 
+    autonomous communities and local administrations.
   country: es
   url: https://mpt.gob.es/en/ministerio.html
 tags:
@@ -32,13 +33,10 @@ data:
 dates:
   formats: ["%d/%m/%Y"]
 
-# assertions:
-#   min:
-#     schema_entities:
-#       Person: 6
-#   max:
-#     schema_entities:
-#       Person: 20
+assertions:
+  min:
+    schema_entities:
+      Person: 70000
 
 lookups:
   columns:
