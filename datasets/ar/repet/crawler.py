@@ -130,24 +130,39 @@ def crawl_persons(context: Context):
         for doc in data.pop("INDIVIDUAL_DOCUMENT", []):
             type_ = doc.pop("TYPE_OF_DOCUMENT", None)
             number = doc.pop("NUMBER", None)
-            schema = context.lookup_value("doc_types", type_)
-            if schema is None:
-                context.log.warning("Unknown document type", type=type_)
+            doc_type_res = context.lookup("doc_types", type_)
+            if doc_type_res is None:
+                context.log.warning(
+                    "Unknown document type", type=type_, number=number, doc=doc
+                )
                 continue
-            passport = context.make(schema)
-            passport.id = context.make_id("ID", entity.id, number)
-            passport.add("holder", entity)
-            passport.add("type", type_)
-            passport.add("number", number)
-            passport.add("type", doc.pop("TYPE_OF_DOCUMENT2", None))
-            h.apply_dates(
-                passport, "startDate", parse_date(doc.pop("DATE_OF_ISSUE", None))
-            )
-            passport.add("country", doc.pop("ISSUING_COUNTRY", None))
-            passport.add("country", doc.pop("COUNTRY_OF_ISSUE", None))
-            passport.add("summary", doc.pop("NOTE", None))
-            context.emit(passport)
-            context.audit_data(doc, ignore=["CITY_OF_ISSUE"])
+
+            # Map to a document schema
+            elif doc_type_res.document_schema is not None:
+                passport = context.make(doc_type_res.document_schema)
+                passport.id = context.make_id("ID", entity.id, number)
+                passport.add("holder", entity)
+                passport.add("type", type_)
+                passport.add("number", number)
+                passport.add("type", doc.pop("TYPE_OF_DOCUMENT2", None))
+                h.apply_dates(
+                    passport, "startDate", parse_date(doc.pop("DATE_OF_ISSUE", None))
+                )
+                passport.add("country", doc.pop("ISSUING_COUNTRY", None))
+                passport.add("country", doc.pop("COUNTRY_OF_ISSUE", None))
+                passport.add("summary", doc.pop("NOTE", None))
+                context.emit(passport)
+                context.audit_data(doc, ignore=["CITY_OF_ISSUE"])
+
+            # Map to a prop
+            elif doc_type_res.prop is not None:
+                entity.add(doc_type_res.prop, number)
+                # Make sure that the rest of the data is empty if we just map to a prop
+                context.audit_data(doc)
+            else:
+                context.log.warning(
+                    "Invalid doc_type lookup result for type", type=type_
+                )
 
         for addr in data.pop("INDIVIDUAL_ADDRESS", []):
             address = parse_address(context, addr)
