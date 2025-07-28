@@ -52,4 +52,4 @@ lookups:
   sanction.program:
     options:
       - match: Russia
-        value: UK-RUS
+        value: GB-RUS
