@@ -88,7 +88,7 @@ def set_name_part(
         if quiet:
             return
         raise TypeError("Invalid prop: %s [value: %r]" % (prop, value))
-    entity.unsafe_add(prop_, value, lang=lang)
+    entity.add(prop_, value, lang=lang)
 
 
 def apply_name(
