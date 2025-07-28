@@ -137,7 +137,7 @@ def process_xlsx(
         if sheet in ignore_sheets:
             continue
         for row in h.parse_xlsx_sheet(
-            context, wb[sheet], skiprows=3, header_lookup="columns"
+            context, wb[sheet], skiprows=3, header_lookup=context.get_lookup("columns")
         ):
             crawl_row(row, context)
             processed_sheets.add(sheet)

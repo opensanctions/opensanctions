@@ -135,16 +135,24 @@ def crawl(context: Context):
 
     wb = load_workbook(path, read_only=True)
 
-    for item in h.parse_xlsx_sheet(context, wb["الإرهابيين"], header_lookup="columns"):
+    for item in h.parse_xlsx_sheet(
+        context, wb["الإرهابيين"], header_lookup=context.get_lookup("columns")
+    ):
         crawl_terrorist(item, context)
 
     for item in h.parse_xlsx_sheet(
-        context, wb["الكيانات الإرهابية"], skiprows=1, header_lookup="columns"
+        context,
+        wb["الكيانات الإرهابية"],
+        skiprows=1,
+        header_lookup=context.get_lookup("columns"),
     ):
         crawl_terrorist_entities(item, context)
 
     for item in h.parse_xlsx_sheet(
-        context, wb["الشخصيات الاعتبارية"], skiprows=1, header_lookup="columns"
+        context,
+        wb["الشخصيات الاعتبارية"],
+        skiprows=1,
+        header_lookup=context.get_lookup("columns"),
     ):
         crawl_legal_persons(item, context)
 

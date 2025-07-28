@@ -114,7 +114,9 @@ def crawl(context: Context):
             if "Tidligere PEP'ere" in wb.sheetnames
             else "Tidligere PEP'er"
         )
-        for item in h.parse_xlsx_sheet(context, wb[old_sheet], header_lookup="columns"):
+        for item in h.parse_xlsx_sheet(
+            context, wb[old_sheet], header_lookup=context.get_lookup("columns")
+        ):
             crawl_old_pep_item(context, country, lang, item)
 
         new_sheet = (
@@ -124,7 +126,9 @@ def crawl(context: Context):
         )
         # Crawl current PEP list
         category = None
-        for item in h.parse_xlsx_sheet(context, wb[new_sheet], 1, "columns"):
+        for item in h.parse_xlsx_sheet(
+            context, wb[new_sheet], 1, header_lookup=context.get_lookup("columns")
+        ):
             if not any([item["category"], item["first_name"], item["last_name"]]):
                 continue
             # Meaning "No boards"
