@@ -10,23 +10,23 @@ load_statements: true
 summary: >
   The dataset contains information about individuals currently most wanted by the Philippine National Police in the Cordillera Region.
 description: |
-  The dataset contains detailed information about individuals wanted by the police authorities in the Cordillera Region. It includes
-  various categories of criminals and terrorists. The dataset includes each person's
+  The dataset contains detailed information about individuals wanted by the police authorities in the Cordillera Region. It includes 
+  various categories of criminals and terrorists. The dataset includes each person's 
   name, reward amount, offences, and case-control number (CC No.).
 publisher:
   name: Philippine National Police
   acronym: PNP
   country: ph
   description: |
-    The Cordillera Autonomous Region was established in 1987, leading to the creation of the Police Regional Office Cordillera,
-    which is responsible for maintaining peace and order in the Cordillera Region. The Philippine Constabulary was replaced by
-    the Philippine National Police in January 1991. Their main duty is to enforce the law, prevent and control crimes,
+    The Cordillera Autonomous Region was established in 1987, leading to the creation of the Police Regional Office Cordillera, 
+    which is responsible for maintaining peace and order in the Cordillera Region. The Philippine Constabulary was replaced by 
+    the Philippine National Police in January 1991. Their main duty is to enforce the law, prevent and control crimes, 
     maintain peace and order, and ensure public safety and internal security with the active support of the community.
   url: https://procor.pnp.gov.ph
   official: true
 url: https://procor.pnp.gov.ph/crime-investigation/most-wanted-persons/
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRzdHciKqVlSVaHkD-OfiEuTghAZnOePxSHoCpxbUp6j1YQCcu2TdW9A8xJZAv09PfIXDfQJ5_EDe7f/pub?gid=1285331341&single=true&output=csv
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRzdHciKqVlSVaHkD-OfiEuTghAZnOePxSHoCpxbUp6j1YQCcu2TdW9A8xJZAv09PfIXDfQJ5_EDe7f/pub?gid=0&single=true&output=csv
   format: csv
 assertions:
   min:
