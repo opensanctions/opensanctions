@@ -11,7 +11,6 @@ IGNORE = [
     "column_2",
     "autonomous_community",
     "ine_code",
-    "party",
     "column_11",
     "column_12",
     "column_13",
@@ -41,13 +40,13 @@ def crawl_item(context: Context, row: Dict[str, str]):
         h.apply_name(pep, first_name=name, last_name=last_name)
     else:
         pep.add("name", name)
+    pep.add("political", row.pop("party"))
     position = h.make_position(
         context,
-        # Positions are available for the current officials, historical data lists only mayors
+        # Positions are available for the current officials; historical data lists only mayors
         position if position else "Mayor",
         country="es",
         subnational_area=f"{municipality}, {province}",
-        # organization=row.pop("party"), # Name of the political party
         lang="spa",
     )
     categorisation = categorise(context, position, is_pep=True)
@@ -66,30 +65,53 @@ def crawl_item(context: Context, row: Dict[str, str]):
 
     context.audit_data(row, IGNORE)
 
-
-def crawl(context: Context):
-    hist_doc = context.fetch_html(context.dataset.model.url, cache_days=1)
-    hist_doc.make_links_absolute(context.dataset.model.url)
-    hist_url = hist_doc.xpath(
-        ".//div[@class='com-listado com-listado--destacado']//a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href"
-    )
-    assert len(hist_url) == 1, "Expected exactly one historical URL"
-    path = context.fetch_resource("historical.xlsx", hist_url[0])
-    context.export_resource(path, XLSX, title="Mayors 2019-2023")
-    wb = load_workbook(path, read_only=True)
-    if len(wb.sheetnames) != 1:
-        raise Exception("Expected only one sheet in the workbook")
-
+def process_excel(
+    context: Context, 
+    filename: str, 
+    url: str, 
+    title: str, 
+    skiprows: int,
+) -> None:
+    path = context.fetch_resource(filename, url)
+    context.export_resource(path, XLSX, title=title)
+    workbook = load_workbook(path, read_only=True)
+    if len(workbook.sheetnames) != 1:
+        context.log.warn(
+            "Expected only one sheet in the workbook, found multiple",
+            sheetnames=workbook.sheetnames
+        )
+    sheet = workbook[workbook.sheetnames[0]]
     for row in h.parse_xlsx_sheet(
-        context, wb[wb.sheetnames[0]], skiprows=7, header_lookup="columns"
+        context, sheet, skiprows=skiprows, header_lookup="columns"
     ):
         crawl_item(context, row)
 
-    path = context.fetch_resource("mayors_councillors.xlsx", "https://concejales.redsara.es/consulta/getConcejalesLegislatura")
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    workbook = load_workbook(path, read_only=True)
-    if len(workbook.sheetnames) != 1:
-        raise Exception("Expected only one sheet in the workbook")
 
-    for row in h.parse_xlsx_sheet(context,  workbook[workbook.sheetnames[0]], skiprows=5, header_lookup="columns"):
-        crawl_item(context, row)
+def crawl(context: Context) -> None:
+    """Crawl Spanish mayors and councillors data from official sources."""
+    # Process historical mayors data (2019-2023)
+    hist_doc = context.fetch_html(context.dataset.model.url, cache_days=1)
+    hist_doc.make_links_absolute(context.dataset.model.url)
+    hist_url = hist_doc.xpath(
+             ".//div[@class='com-listado com-listado--destacado']//a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href"
+    )
+    assert len(hist_url) == 1, "Expected exactly one historical URL"
+    process_excel(
+        context=context,
+        filename="historical.xlsx",
+        url=hist_url[0],
+        title="Mayors 2019-2023",
+        skiprows=7
+    )
+    # Process current mayors and councillors data
+    current_url = (
+        "https://concejales.redsara.es/consulta/getConcejalesLegislatura"
+    )
+    process_excel(
+        context=context,
+        filename="current.xlsx",
+        url=current_url,
+        title=context.SOURCE_TITLE,
+        skiprows=5
+    )
+
