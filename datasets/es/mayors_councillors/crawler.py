@@ -65,11 +65,12 @@ def crawl_item(context: Context, row: Dict[str, str]):
 
     context.audit_data(row, IGNORE)
 
+
 def process_excel(
-    context: Context, 
-    filename: str, 
-    url: str, 
-    title: str, 
+    context: Context,
+    filename: str,
+    url: str,
+    title: str,
     skiprows: int,
 ) -> None:
     path = context.fetch_resource(filename, url)
@@ -78,7 +79,7 @@ def process_excel(
     if len(workbook.sheetnames) != 1:
         context.log.warn(
             "Expected only one sheet in the workbook, found multiple",
-            sheetnames=workbook.sheetnames
+            sheetnames=workbook.sheetnames,
         )
     sheet = workbook[workbook.sheetnames[0]]
     for row in h.parse_xlsx_sheet(
@@ -93,7 +94,7 @@ def crawl(context: Context) -> None:
     hist_doc = context.fetch_html(context.dataset.model.url, cache_days=1)
     hist_doc.make_links_absolute(context.dataset.model.url)
     hist_url = hist_doc.xpath(
-             ".//div[@class='com-listado com-listado--destacado']//a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href"
+        ".//div[@class='com-listado com-listado--destacado']//a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href"
     )
     assert len(hist_url) == 1, "Expected exactly one historical URL"
     process_excel(
@@ -101,7 +102,7 @@ def crawl(context: Context) -> None:
         filename="historical.xlsx",
         url=hist_url[0],
         title="Mayors 2019-2023",
-        skiprows=7
+        skiprows=7,
     )
     # Process current mayors and councillors data
     current_doc = context.fetch_html(context.data_url, cache_days=1)
@@ -113,6 +114,5 @@ def crawl(context: Context) -> None:
         filename="current.xlsx",
         url=current_url[0],
         title=context.SOURCE_TITLE,
-        skiprows=5
+        skiprows=5,
     )
-

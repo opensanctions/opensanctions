@@ -77,3 +77,10 @@ lookups:
         value: second_last_name
       - match: Cargo
         value: position
+  type.date:
+    options:
+      # 2 dates in the start_date column, end_date is in the right column
+      - match: '15/06/2019- 03/07/2021'
+        values: ["2019-06-15", "2021-07-03"]
+      - match: SIN FECHA
+        value: null
