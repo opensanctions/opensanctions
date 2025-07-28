@@ -4,7 +4,7 @@ from typing import Optional, Generator, Tuple
 from rigour.ids import get_identifier_format
 from rigour.names import is_name
 from prefixdate.precision import Precision
-from followthemoney import registry, Property
+from followthemoney import registry, Property, model
 
 from zavod.logs import get_logger
 from zavod.runtime.lookups import prop_lookup
@@ -25,6 +25,20 @@ VALIDATE_FORMATS = (
     "qid",
     "uscc",
 )
+
+# These are not type name properties for reasons described in
+# https://github.com/opensanctions/followthemoney/blob/cf0bdb11146a6eaf2de8a1ecba43683432259ffe/followthemoney/schema/Person.yaml#L28
+# (TLDR: they're string types because we don't want to match on them and we don't have
+# a NamePart type yet, see https://github.com/opensanctions/followthemoney/issues/71)
+VALIDATE_AS_NAME_PROPS = {
+    model.get_qname("Person:firstName"),
+    model.get_qname("Person:secondName"),
+    model.get_qname("Person:middleName"),
+    model.get_qname("Person:lastName"),
+    model.get_qname("Person:fatherName"),
+    model.get_qname("Person:motherName"),
+}
+
 log = get_logger(__name__)
 
 
@@ -64,7 +78,13 @@ def value_clean(
                     fuzzy=fuzzy,
                     format=format,
                 )
-        if prop_.type == registry.name and clean is not None:
+        # We validate Person:*Name properties as names cause they're strings
+        # in the FtM model.
+        # See https://github.com/opensanctions/followthemoney/issues/71
+        # to track creation of a NamePart type.
+        if (
+            prop_.type == registry.name or prop_ in VALIDATE_AS_NAME_PROPS
+        ) and clean is not None:
             clean = unicodedata.normalize("NFC", clean)
             if entity.schema.is_a("LegalEntity") and not is_name(clean):
                 log.warning(
