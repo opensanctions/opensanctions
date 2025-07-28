@@ -87,9 +87,9 @@ def fetch_resource(
     Returns:
         A tuple of:
             - A boolean indicating whether the file was cached.
-            - The path to the saved file.
             - The media type of the response, None if cached.
             - The charset of the response, None if cached.
+            - The path to the saved file.
     """
     data_path = dataset_data_path(context.dataset.name)
     out_path = data_path.joinpath(filename)

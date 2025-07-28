@@ -4,6 +4,7 @@ from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
+from zavod.shed import zyte_api
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -94,7 +95,9 @@ def crawl_excel_url(context: Context):
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
-    path = context.fetch_resource("list.xlsx", excel_url)
+    _, _, _, path = zyte_api.fetch_resource(
+        context, filename="list.xlsx", url=excel_url
+    )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
