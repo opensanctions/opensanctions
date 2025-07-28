@@ -43,19 +43,39 @@ dates:
 lookups:
   columns:
     options:
-      - match: NOMBRE
+      - match: 
+          - NOMBRE
+          - Nombre
         value: name
-      - match: PROVINCIA
+      - match: 
+          - PROVINCIA
+          - Provincia
         value: province
-      - match: MUNICIPIO
+      - match: 
+          - MUNICIPIO
+          - Municipio
         value: municipality
-      - match: FECHA POSESIÓN
+      - match: 
+          - FECHA POSESIÓN
+          - Fecha de Posesión
         value: start_date
       - match: FECHA BAJA
         value: end_date
-      - match: COMUNIDAD AUTÓNOMA
+      - match: 
+          - COMUNIDAD AUTÓNOMA
+          - Comunidad Autónoma
         value: autonomous_community
-      - match: CÓDIGO INE
+      - match: 
+          - CÓDIGO INE
+          - Código INE
         value: ine_code
-      - match: LISTA
-        value: list
+      - match: 
+          - LISTA
+          - Partido
+        value: party
+      - match: 1er Apellido
+        value: last_name
+      - match: 2º Apellido
+        value: second_last_name
+      - match: Cargo
+        value: position
