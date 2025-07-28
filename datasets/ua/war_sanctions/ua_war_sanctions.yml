@@ -452,6 +452,12 @@ lookups:
         registration_number: 0081747
         country: United Arab Emirates
         date: "2024-09-16"
+      - match: "Miltonia Navigation Co С/о Thunder Shipmanagement LLC-FZ (0109114 / United Arab Emirates / 17.10.2024)"
+        name: "Miltonia Navigation Co"
+        care_of: "Thunder Shipmanagement LLC-FZ"
+        registration_number: 0109114
+        country: United Arab Emirates
+        date: "2024-10-17"
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
