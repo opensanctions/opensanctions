@@ -1,17 +1,14 @@
 import csv
 import re
+from pathlib import Path
 from urllib.parse import urlparse
 
 import pdfplumber
-from rigour.mime.types import CSV
 from lxml import html
-from pathlib import Path
+from rigour.mime.types import CSV
 
-# from urllib.parse import urlparse
-# import pdfplumber
-
-from zavod import Context, helpers as h
-
+from zavod import Context
+from zavod import helpers as h
 
 SOURCE_URL = "https://www.meti.go.jp/policy/external_economy/trade_control/02_export/17_russia/russia.html"
 HEADER = {
@@ -36,7 +33,6 @@ EXPECTED_HASHES = {
     "list_russia_tokutei.pdf": "16719d740db257758b99f944e4d693797e36a686",
     "list_daisangoku_tokutei.pdf": "c17f5f3b8c7db73177ac3ce4896aded633304c42",
 }
-PDF_XPATH = ".//a[contains(@href, '.pdf') and contains(@href, '17_russia/list')]/@href"
 
 
 def clean_address(raw_address):
@@ -152,7 +148,11 @@ def crawl(context: Context):
     assert len(divs) == 1, len(divs)
     # Check hash of the content part of the page
     h.assert_dom_hash(divs[0], "66a811a8670ae6958bc081fa93a533b6939aab26")
-    assert len(divs[0].xpath(PDF_XPATH)) == 3, "Expected exactly 3 PDFs"
+    pdf_xpath = (
+        ".//a[contains(@href, '.pdf') and contains(@href, '17_russia/list')]/@href"
+    )
+    pdf_urls = divs[0].xpath(pdf_xpath)
+    assert len(pdf_urls) == 3, "Expected exactly 3 PDFs"
 
     # Update local copy of just the content part of the page to diff easily when
     # there are changes. Commit changes once they're handled.
@@ -166,7 +166,7 @@ def crawl(context: Context):
         text = TRAILING_WHITESPACE_PATTERN.sub("", text)
         fh.write(text)
 
-    for pdf_url in divs[0].xpath(PDF_XPATH):
+    for pdf_url in pdf_urls:
         pdf_name = Path(urlparse(pdf_url).path).name
         pdf_path = context.fetch_resource(pdf_name, pdf_url, headers=HEADER)
         h.assert_file_hash(pdf_path, EXPECTED_HASHES.get(pdf_name))
