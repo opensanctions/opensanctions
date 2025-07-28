@@ -1,8 +1,14 @@
 import csv
 import re
+from pathlib import Path
+from urllib.parse import urlparse
+
+import pdfplumber
+from lxml import html
 from rigour.mime.types import CSV
 
-from zavod import Context, helpers as h
+from zavod import Context
+from zavod import helpers as h
 
 SOURCE_URL = "https://www.meti.go.jp/policy/external_economy/trade_control/02_export/17_russia/russia.html"
 HEADER = {
@@ -20,6 +26,13 @@ NAMES_PATTERN = re.compile(
 """,
     re.VERBOSE | re.MULTILINE,
 )
+TRAILING_WHITESPACE_PATTERN = re.compile(r"\s+$", re.MULTILINE)
+LOCAL_PATH = Path(__file__).parent
+EXPECTED_HASHES = {
+    "list_belarus_tokutei.pdf": "cd99cd520f06110ad39f354d6c961fe5c36260e3",
+    "list_russia_tokutei.pdf": "16719d740db257758b99f944e4d693797e36a686",
+    "list_daisangoku_tokutei.pdf": "c17f5f3b8c7db73177ac3ce4896aded633304c42",
+}
 
 
 def clean_address(raw_address):
@@ -127,11 +140,47 @@ def crawl_row(context, row):
 
 
 def crawl(context: Context):
-    # Checking whether the hash of the page has changed
-    doc = context.fetch_html(SOURCE_URL, headers=HEADER)
-    dom = doc.xpath(".//div[@class='wrapper2011']")
-    assert len(dom) == 1, f"Too many divs: {len(dom)}"
-    h.assert_dom_hash(dom[0], "43ed0739eb39b8a87c87d10a8d353ccdf0ebf2cb")
+    html_path = context.fetch_resource("source.html", SOURCE_URL, headers=HEADER)
+    with open(html_path, "r") as fh:
+        doc = html.fromstring(fh.read())
+    doc.make_links_absolute(SOURCE_URL)
+    divs = doc.xpath(".//div[@class='wrapper2011']")
+    assert len(divs) == 1, len(divs)
+    # Check hash of the content part of the page
+    h.assert_dom_hash(divs[0], "66a811a8670ae6958bc081fa93a533b6939aab26")
+    pdf_xpath = (
+        ".//a[contains(@href, '.pdf') and contains(@href, '17_russia/list')]/@href"
+    )
+    pdf_urls = divs[0].xpath(pdf_xpath)
+    assert len(pdf_urls) == 3, "Expected exactly 3 PDFs"
+
+    # Update local copy of just the content part of the page to diff easily when
+    # there are changes. Commit changes once they're handled.
+    with open(LOCAL_PATH / "page_content.txt", "w") as fh:
+        text = html.tostring(
+            divs[0],
+            pretty_print=True,
+            method="text",
+            encoding="utf-8",
+        ).decode("utf-8")
+        text = TRAILING_WHITESPACE_PATTERN.sub("", text)
+        fh.write(text)
+
+    for pdf_url in pdf_urls:
+        pdf_name = Path(urlparse(pdf_url).path).name
+        pdf_path = context.fetch_resource(pdf_name, pdf_url, headers=HEADER)
+        h.assert_file_hash(pdf_path, EXPECTED_HASHES.get(pdf_name))
+
+        # Save the text of the PDFs linked to from the page for easy diffing.
+        # Commit changes once they're handled.
+        pdf_text = ""
+        with pdfplumber.open(pdf_path) as pdf:
+            for page in pdf.pages:
+                pdf_text += page.extract_text()
+        pdf_text_path = LOCAL_PATH / f"{pdf_name}.txt"
+        with open(pdf_text_path, "w") as fh:
+            fh.write(pdf_text)
+
     # Crawling the google sheet
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
