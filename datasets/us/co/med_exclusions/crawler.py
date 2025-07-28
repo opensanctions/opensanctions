@@ -3,7 +3,7 @@ from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.shed import zyte_api
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -33,17 +33,21 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     file_xpath = ".//*[@about='/provider-termination']"
-    doc = fetch_html(context, context.data_url, file_xpath)
-    return doc.find(file_xpath).find(".//a").get("href")
+    doc = zyte_api.fetch_html(context, context.data_url, file_xpath)
+    for a in doc.find(file_xpath).xpath(".//a"):
+        if "Terminated Provider List" in a.text_content():
+            return a.get("href")
+
+    raise RuntimeError("No link to excel file found")
 
 
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
-    _, _, _, path = fetch_resource(
-        context, "source.xlsx", excel_url, expected_media_type=XLSX
+    _, _, _, path = zyte_api.fetch_resource(
+        context, filename="source.xlsx", url=excel_url, expected_media_type=XLSX
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
