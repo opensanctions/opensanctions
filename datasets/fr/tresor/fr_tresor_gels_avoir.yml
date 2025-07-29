@@ -357,6 +357,12 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée (LLC)"
         props:
           legalForm: société à responsabilité limitée (LLC)
+      - match: "Type d'entité: société privée par actions"
+        props:
+          legalForm: société privée par actions
+      - match: "Type d'entité: société par actions fermée"
+        props:
+          legalForm: société par actions fermée
       - match: "Type d'entité: Bloc politique"
         props:
           legalForm: Bloc politique
@@ -662,6 +668,26 @@ lookups:
       - match: "ОГРН: 1027739456084"
         props:
           ogrnCode: 1027739456084
+      - match:
+          - "Lieu d'enregistrement: Téhéran, Iran"
+          - "Principal établissement: Téhéran, Iran"
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+      - match: "Lieu d'enregistrement: Izmir, Turquie"
+        props:
+          jurisdiction: tr
+          address: "Izmir, Turquie"
+      - match: "Numéro de pièce nationale d'identité: 10103191030"
+        props:
+          idNumber: 10103191030
+      - match: "Lieu d'enregistrement: Bojnord — North Khorasan Province, Iran"
+        props:
+          jurisdiction: ir
+          address: "Bojnord — North Khorasan Province, Iran"
+
+
+
 
   ####################################################################################################
   ####################################################################################################
