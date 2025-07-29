@@ -19,7 +19,7 @@ IGNORE = [
     "column_17",
 ]
 DEFAULT_TOPICS = ["gov.muni"]
-MAYOR_TOPICS = ["gov.muni", "gov.head"] 
+MAYOR_TOPICS = ["gov.muni", "gov.head"]
 COUNCILLOR_TOPICS = ["gov.muni", "gov.legislative"]
 
 
@@ -52,12 +52,17 @@ def crawl_item(context: Context, row: Dict[str, str]):
         translated = context.lookup_value("positions", position.strip())
         if translated:
             position = f"{translated} of {municipality}, {province}"
-            topics = (MAYOR_TOPICS if "Mayor" in translated 
-                    else COUNCILLOR_TOPICS if "Councillor" in translated 
-                    else DEFAULT_TOPICS)
+            topics = (
+                MAYOR_TOPICS
+                if "Mayor" in translated
+                else COUNCILLOR_TOPICS if "Councillor" in translated else DEFAULT_TOPICS
+            )
         else:
             context.log.warning("Unknown position", position=position.strip())
-            position, topics = f"{position.strip()} of {municipality}, {province}", DEFAULT_TOPICS
+            position, topics = (
+                f"{position.strip()} of {municipality}, {province}",
+                DEFAULT_TOPICS,
+            )
     position = h.make_position(
         context,
         position,
