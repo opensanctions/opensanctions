@@ -1,0 +1,63 @@
+title: Spain Parliament Members
+entry_point: crawler.py
+prefix: es-par
+load_statements: true
+coverage:
+  frequency: weekly
+  start: 2025-07-29
+summary: >
+  Individuals holding parliamentary positions in Spain.
+description: |
+  This dataset contains information on current members of the Spanish Parliament, including
+  both Senators and Deputies. It includes their names, positions, and political affiliations.
+publisher:
+  name: Congreso de los Diputados
+  name_en: Congress of Deputies of Spain
+  official: true
+  description: |
+    The Congress of Deputies is the lower house of the Cortes Generales, the Spanish Parliament.
+  country: es
+  url: https://www.congreso.es/en/
+tags:
+  - list.pep
+url: https://www.congreso.es/en/web/guest/busqueda-de-diputados
+data:
+  url: https://www.congreso.es/en/web/guest/busqueda-de-diputados
+  format: html
+  lang: spa
+dates:
+  formats: ["%d/%m/%Y"]
+
+# assertions:
+#   min:
+#     schema_entities:
+#       Person: 70000
+
+
+lookups:
+  columns:
+    options:
+      - match: nombre
+        value: first_name
+      - match: apellidos
+        value: last_name
+      - match: apellidosNombre
+        value: full_name
+      - match: codParlamentario
+        value: parliament_member_id
+      - match: fchAlta
+        value: start_date
+      - match: fchBaja
+        value: end_date
+      - match: formacion
+        value: party
+      - match: genero
+        value: gender
+      - match: grupo
+        value: parliamentary_group
+      - match: idCircunscripcion
+        value: constituency_id
+      - match: idLegislatura
+        value: legislative_term_id
+      - match: nombreCircunscripcion
+        value: constituency_name
