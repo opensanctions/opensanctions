@@ -45,6 +45,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
     else:
         pep.add("name", name)
     pep.add("political", row.pop("party"))
+    pep.add("topics", "role.pep")
     # Positions are available for the current officials; historical data lists only mayors
     if not position:
         position, topics = f"Mayor of {municipality}, {province}", MAYOR_TOPICS
