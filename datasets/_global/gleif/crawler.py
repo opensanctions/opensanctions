@@ -290,6 +290,13 @@ def parse_rr_file(context: Context, fh: BinaryIO):
         proxy.add("role", rel_type.replace("_", " "))
         proxy.add("status", rel.findtext("RelationshipStatus"))
 
+        if rel_schema == "Ownership":
+            # Organization entities cannot be assets, so we re-emit the asset entity as a Company
+            assert start_prop == "asset"
+            asset = context.make("Company")
+            asset.id = lei_id(start_lei)
+            context.emit(asset)
+
         for period in rel.findall(".//RelationshipPeriod"):
             period_type = period.findtext("PeriodType")
             if period_type == "RELATIONSHIP_PERIOD":
