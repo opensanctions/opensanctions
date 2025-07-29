@@ -1,0 +1,100 @@
+title: Spain Mayors and Councillors
+entry_point: crawler.py
+prefix: es-mc
+load_statements: true
+coverage:
+  frequency: weekly
+  start: 2025-07-24
+summary: >
+  Individuals holding mayoral or councillor positions in Spain.
+description: |
+  This dataset contains detailed information on individuals holding mayoral or councillor 
+  positions in Spain. Each entry includes the name of the official, their position, and 
+  political affiliation. The data covers current officials and historical data from the 
+  2019-2023 term.
+publisher:
+  name: Ministerio de Política Territorial y Memoria Democrática
+  name_en: Ministry of Territorial Policy and Democratic Memory
+  acronym: MPTMD
+  official: true
+  description: |
+    The Ministry of Territorial Policy and Democratic Memory is the government department 
+    responsible for proposing and executing policy on relations and cooperation with 
+    autonomous communities and local administrations.
+  country: es
+  url: https://mpt.gob.es/en/ministerio.html
+tags:
+  - list.pep
+url: https://mpt.gob.es/en/politica-territorial/local/sistema_de_informacion_local_-SIL-/alcaldes_y_concejales.html
+data:
+  url: https://concejales.redsara.es/consulta/
+  format: html
+  lang: spa
+dates:
+  formats: ["%d/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 70000
+
+lookups:
+  positions:
+    options:
+      - match: 
+          - Alcalde
+          - Alcalde en Funciones
+        value: Mayor
+      - match: Concejal
+        value: Councillor
+      - match: Teniente de Alcalde
+        value: Deputy Mayor
+      - match: Presidente Gestor
+        value: Managing President
+      - match: Vocal gestor
+        value: Managing Councillor
+  columns:
+    options:
+      - match: 
+          - NOMBRE
+          - Nombre
+        value: name
+      - match: 
+          - PROVINCIA
+          - Provincia
+        value: province
+      - match: 
+          - MUNICIPIO
+          - Municipio
+        value: municipality
+      - match: 
+          - FECHA POSESIÓN
+          - Fecha de Posesión
+        value: start_date
+      - match: FECHA BAJA
+        value: end_date
+      - match: 
+          - COMUNIDAD AUTÓNOMA
+          - Comunidad Autónoma
+        value: autonomous_community
+      - match: 
+          - CÓDIGO INE
+          - Código INE
+        value: ine_code
+      - match: 
+          - LISTA
+          - Partido
+        value: party
+      - match: 1er Apellido
+        value: last_name
+      - match: 2º Apellido
+        value: second_last_name
+      - match: Cargo
+        value: position
+  type.date:
+    options:
+      # 2 dates in the start_date column, end_date is in the right column
+      - match: '15/06/2019- 03/07/2021'
+        values: ["2019-06-15", "2021-07-03"]
+      - match: SIN FECHA
+        value: null
