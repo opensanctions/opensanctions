@@ -181,6 +181,10 @@ lookups:
     options:
       - match: "P.O. Box Beirut-Hamra 113/5647"
         value: "PO Box 113/5647"
+      - match:
+          # found in Person:somethingName
+          - "****"
+        value: null
   type.country:
     lowercase: true
     normalize: true
@@ -204,5 +208,4 @@ lookups:
           - "S.A.P.I. DE C.V."
           - "S.R.O."
           # "Individual","","","YUKI","","****", (invalid lastName)
-          - "****"
         value: null
