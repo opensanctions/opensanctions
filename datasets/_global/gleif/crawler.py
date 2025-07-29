@@ -292,6 +292,7 @@ def parse_rr_file(context: Context, fh: BinaryIO):
 
         if rel_schema == "Ownership":
             # Organization entities cannot be assets, so we re-emit the asset entity as a Company
+            assert start_prop == "asset"
             asset = context.make("Company")
             asset.id = lei_id(start_lei)
             context.emit(asset)
