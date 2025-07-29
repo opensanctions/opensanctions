@@ -24,7 +24,7 @@ def values(node):
 
 def parse_alias(entity: Entity, node: Element):
     names = node.findtext("./ALIAS_NAME")
-    quality = node.findtext("./QUALITY") or "Good"
+    quality = node.findtext("./QUALITY")
     name_prop = NAME_QUALITY[quality]
     if names is None or name_prop is None:
         return
