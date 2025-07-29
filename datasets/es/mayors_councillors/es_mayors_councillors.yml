@@ -39,6 +39,20 @@ assertions:
       Person: 70000
 
 lookups:
+  positions:
+    options:
+      - match: 
+          - Alcalde
+          - Alcalde en Funciones
+        value: Mayor
+      - match: Concejal
+        value: Councillor
+      - match: Teniente de Alcalde
+        value: Deputy Mayor
+      - match: Presidente Gestor
+        value: Managing President
+      - match: Vocal gestor
+        value: Managing Councillor
   columns:
     options:
       - match: 

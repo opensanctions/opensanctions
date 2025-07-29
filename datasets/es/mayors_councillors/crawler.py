@@ -10,7 +10,6 @@ IGNORE = [
     "column_1",
     "column_2",
     "autonomous_community",
-    "ine_code",
     "column_11",
     "column_12",
     "column_13",
@@ -19,6 +18,9 @@ IGNORE = [
     "column_16",
     "column_17",
 ]
+DEFAULT_TOPICS = ["gov.muni"]
+MAYOR_TOPICS = ["gov.muni", "gov.head"] 
+COUNCILLOR_TOPICS = ["gov.muni", "gov.legislative"]
 
 
 def crawl_item(context: Context, row: Dict[str, str]):
@@ -34,20 +36,35 @@ def crawl_item(context: Context, row: Dict[str, str]):
         return
 
     pep = context.make("Person")
-    pep.id = context.make_id(name, province, municipality)
+    pep.id = context.make_id(
+        name, province, municipality, first_last_name, second_last_name
+    )
     if first_last_name or second_last_name:
         last_name = f"{first_last_name} {second_last_name}"
         h.apply_name(pep, first_name=name, last_name=last_name)
     else:
         pep.add("name", name)
     pep.add("political", row.pop("party"))
+    # Positions are available for the current officials; historical data lists only mayors
+    if not position:
+        position, topics = f"Mayor of {municipality}, {province}", MAYOR_TOPICS
+    else:
+        translated = context.lookup_value("positions", position.strip())
+        if translated:
+            position = f"{translated} of {municipality}, {province}"
+            topics = (MAYOR_TOPICS if "Mayor" in translated 
+                    else COUNCILLOR_TOPICS if "Councillor" in translated 
+                    else DEFAULT_TOPICS)
+        else:
+            context.log.warning("Unknown position", position=position.strip())
+            position, topics = f"{position.strip()} of {municipality}, {province}", DEFAULT_TOPICS
     position = h.make_position(
         context,
-        # Positions are available for the current officials; historical data lists only mayors
-        position if position else "Mayor",
+        position,
         country="es",
-        subnational_area=f"{municipality}, {province}",
+        subnational_area=row.pop("ine_code"),
         lang="spa",
+        topics=topics,
     )
     categorisation = categorise(context, position, is_pep=True)
 
@@ -61,6 +78,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
     )
     if occupancy:
         context.emit(occupancy)
+        context.emit(position)
         context.emit(pep)
 
     context.audit_data(row, IGNORE)
