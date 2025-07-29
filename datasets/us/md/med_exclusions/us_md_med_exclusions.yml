@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: "2024-10-15"
 load_statements: true
+ci_test: false  # Zyte is not available in CI
 summary: >
   Medical providers deemed ineligible to participate in Maryland's Medicaid program.
 description: |
