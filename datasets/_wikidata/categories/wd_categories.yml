@@ -730,6 +730,7 @@ config:
       topic: role.pep
     - category: Lists_of_political_office-holders_in_the_United_States
       topic: role.pep
+
       # country: us
     - category: Political_office-holders_in_the_United_States
       topic: role.pep
@@ -1096,7 +1097,13 @@ config:
       country: hu
       language: hu
       topic: role.pep
+
     # country: Spain
+    # 
+    # Note: Provincial deputies are elected from the provinces. No clear wikipedia categories of provincial deputies.
+    # The provincial deputies corresponding to each political party are elected to each jurisdiction from among 
+    # and by the councillors who belong to the municipalities comprising each district.
+    # http://www.elecciones.mir.es/locales2023/en/informacion-general/resuelva-sus-dudas/diputaciones-provinciales-y-diputados/
     - category: Political_office-holders_in_Spain
       country: es
       topic: role.pep
@@ -1108,6 +1115,7 @@ config:
         country: es
         topics:
           - gov.legislative
+          - gov.national
     - category: Members_of_the_Senate_of_Spain
       country: es
       topic: role.pep
@@ -1116,6 +1124,7 @@ config:
         country: es
         topics:
           - gov.legislative
+          - gov.national
     - category: Presidents_of_the_Congress_of_Deputies_(Spain)
       country: es
       topic: role.pep
@@ -1124,6 +1133,7 @@ config:
         country: es
         topics:
           - gov.legislative
+          - gov.national
     - category: Presidents_of_the_Senate_of_Spain
       country: es
       topic: role.pep
@@ -1132,6 +1142,7 @@ config:
         country: es
         topics:
           - gov.legislative
+          - gov.national
     - category: Prime_ministers_of_Spain
       country: es
       topic: role.pep
@@ -1140,6 +1151,7 @@ config:
         country: es
         topics:
           - gov.head
+          - gov.national
     - category: Deputy_Prime_Ministers_of_Spain
       country: es
       topic: role.pep
@@ -1148,6 +1160,7 @@ config:
         country: es
         topics:
           - gov.executive
+          - gov.national
     - category: Government_ministers_of_Spain
       country: es
       topic: role.pep
@@ -1156,6 +1169,7 @@ config:
         country: es
         topics:
           - gov.executive
+          - gov.national
     - category: Judiciary_of_Spain
       country: es
       topic: role.pep
@@ -1183,6 +1197,7 @@ config:
     - category: 21st-century_Spanish_politicians
       country: es
       topic: role.pep
+
     # country: Sweden
     - category: Political_office-holders_in_Sweden
       country: se
