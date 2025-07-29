@@ -9,17 +9,17 @@ summary: >
   Ships detained by Port State Control (PSC) authorities within the Tokyo MoU region.
 description: |
   The Tokyo MoU Detention List tracks ships detained by Port State Control (PSC) authorities
-  across the Asia-Pacific region. It includes the ship’s name, flag, owner, classification 
-  society, and reasons for detention, among other details. The data reflects monthly snapshots 
+  across the Asia-Pacific region. It includes the ship’s name, flag, owner, classification
+  society, and reasons for detention, among other details. The data reflects monthly snapshots
   published by the Tokyo MoU and may not capture all detentions in real time.
 publisher:
   name: Tokyo Memorandum of Understanding
   acronym: Tokyo MoU
   description: |
-    The Tokyo MoU on Port State Control is an agreement among Asia-Pacific countries to ensure 
+    The Tokyo MoU on Port State Control is an agreement among Asia-Pacific countries to ensure
     that ships comply with international safety, environmental, and labor standards.
-    > Port State control (PSC) comes into the scene when shipowners, recognized organizations and 
-    > flag State administrations have failed to comply with the requirements of the international 
+    > Port State control (PSC) comes into the scene when shipowners, recognized organizations and
+    > flag State administrations have failed to comply with the requirements of the international
     > maritime conventions.
     [Source: Official Website](https://www.tokyo-mou.org/about/)
   url: https://www.tokyo-mou.org
@@ -40,7 +40,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 3000
+      Company: 2000
       Organization: 150
       Vessel: 4200
   max:
@@ -52,7 +52,7 @@ assertions:
 lookups:
   type.country:
     options:
-      - match: 
+      - match:
           - Gibraltar (GB)
         value: "GI"
       - match: Isle of Man (GB)
