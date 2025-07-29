@@ -6,7 +6,7 @@ from lxml.etree import tostring
 from zavod.context import Context
 from zavod import helpers as h
 from zavod.shed.gpt import run_typed_text_prompt
-from zavod.stateful.review import get_accepted_data
+from zavod.stateful.review import request_review, get_review
 
 Schema = Literal["Person", "Company", "LegalEntity"]
 Status = Literal[
@@ -18,6 +18,9 @@ Status = Literal[
     "Supplemental consent order",
     "Other",
 ]
+
+MODEL_VERSION = 1
+MIN_MODEL_VERSION = 1
 
 
 # Not extracting relationships for now because the results were inconsistent
@@ -71,21 +74,25 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     doc = context.fetch_html(url, cache_days=30)
     article = doc.xpath(".//article")[0]
     html = tostring(article, pretty_print=True).decode("utf-8")
-    prompt_result = run_typed_text_prompt(
-        context, PROMPT, html, response_type=Defendants
-    )
-    result = get_accepted_data(
-        context,
-        key=url,
-        source_value=html,
-        source_content_type="text/html",
-        source_label="Enforcement Action Notice",
-        source_url=url,
-        orig_extraction_data=prompt_result,
-    )
-    if not result:
+    review = get_review(context, Defendants, url, MIN_MODEL_VERSION)
+    if review is None:
+        prompt_result = run_typed_text_prompt(
+            context, PROMPT, html, response_type=Defendants
+        )
+        review = request_review(
+            context,
+            url,
+            html,
+            "text/html",
+            "Enforcement Action Notice",
+            url,
+            prompt_result,
+            MODEL_VERSION,
+        )
+    if not review.accepted:
         return
-    for item in result.defendants:
+
+    for item in review.extracted_data.defendants:
         entity = context.make(item.entity_schema)
         entity.id = context.make_id(item.name, item.address, item.country)
         entity.add("name", item.name)

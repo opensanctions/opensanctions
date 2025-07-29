@@ -8,7 +8,7 @@ from rigour.mime.types import CSV
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.gpt import run_typed_text_prompt
-from zavod.stateful.review import get_accepted_data
+from zavod.stateful.review import get_review, request_review
 from pydantic import BaseModel
 
 
@@ -20,6 +20,9 @@ ORG_PARSE_PROMPT = """From the following list of organisations or companies, ple
         include the entity name exactly as stated, without any additions. If only one entity is listed,
         make it the sole item in the JSON array `entities`."""
 PROGRAM_NAME = "US Federal Reserve Enforcement Actions"
+
+MODEL_VERSION = 1
+MIN_MODEL_VERSION = 1
 
 
 class BankOrgEntity(BaseModel):
@@ -59,16 +62,24 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
             string=party_name,
             response_type=BankOrgsResult,
         )
-        result = get_accepted_data(
+        review = get_review(
             context,
-            key=party_name,
-            source_value=party_name,
-            source_content_type="text/plain",
-            source_label="Banking Organization field in CSV",
-            source_url=None,
-            orig_extraction_data=prompt_result,
+            BankOrgsResult,
+            party_name,
+            MIN_MODEL_VERSION,
         )
-        entities = result.entities if result else []
+        if review is None:
+            review = request_review(
+                context,
+                party_name,
+                party_name,
+                "text/plain",
+                "Banking Organization field in CSV",
+                party_name,
+                prompt_result,
+                MODEL_VERSION,
+            )
+        entities = review.extracted_data.entities if review.accepted else []
 
     effective_date = input_dict.pop("Effective Date")
     termination_date = input_dict.pop("Termination Date")

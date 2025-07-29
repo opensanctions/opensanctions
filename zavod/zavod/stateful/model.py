@@ -59,9 +59,10 @@ review_table = Table(
     Column("accepted", Boolean, nullable=False, index=True),
     # only to be edited by the crawler
     Column("orig_extraction_data", JSON, nullable=False),
-    Column("orig_extraction_data_hash", Unicode(KEY_LEN), nullable=False),
+    Column("model_version", Integer, nullable=False),
     # editable by the reviewer
     Column("extracted_data", JSON, nullable=False),
+    # The crawl version that last saw this review key
     Column("last_seen_version", Unicode(KEY_LEN), nullable=False, index=True),
     Column("modified_at", DateTime, nullable=False),
     Column("modified_by", Unicode(KEY_LEN), nullable=False),
