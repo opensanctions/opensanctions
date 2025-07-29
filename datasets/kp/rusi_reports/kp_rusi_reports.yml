@@ -29,7 +29,7 @@ description: |
   > private-sector institutions with information that can assist with
   > sanctions implementation efforts such as due diligence and compliance.
 
-  The original data contains a rich set of source documents which we've 
+  The original data contains a rich set of source documents which we've
   excluded from the entity network we've imported into OpenSanctions.
 url: https://dprk-reports.org/pages/about
 tags:
@@ -115,7 +115,7 @@ lookups:
           - USCI
           - China ID
         value: uscCode
-      - match: 
+      - match:
           - ID
           - Identification Number
           - National identification number
@@ -215,6 +215,9 @@ lookups:
           - 8674268
           - 9664149
           - 123456789
-          - 22010219660804333X
           - 9140001102533
         prop: registrationNumber
+      - match:
+          - 22010219660804333X
+        # Is not a valid USCC, and if we remap to registrationNumber, its occurence in Identification:number will throw an error.
+        value: null
