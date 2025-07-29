@@ -453,6 +453,11 @@ lookups:
           - role: Chairperson of the Council of Ministers
             name: Borjana KRISTO
             start_date: 25 January 2023
+      - match: "Chairperson of the Presidency Zeljko KOMSIC (chairperson since 16 July 2025"
+        holders:
+          - role: Chairperson of the Presidency
+            name: Zeljko KOMSIC
+            start_date: 16 July 2025
       # Serbia
       - match: "Ivica DACIC will be acting prime minister until the next election (date not yet set)"
         holders:
