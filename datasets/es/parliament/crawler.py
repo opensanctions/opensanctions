@@ -1,7 +1,11 @@
+from urllib.parse import urlparse, parse_qs
+
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 
+SENATORS_URL = "https://www.senado.es/web/composicionorganizacion/senadores/composicionsenado/consultaordenalfabetico/index.html"
+DEPUTIES_URL = "https://www.congreso.es/en/busqueda-de-diputados?p_p_id=diputadomodule&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view&p_p_resource_id=searchDiputados&p_p_cacheability=cacheLevelPage"
 HEADERS = {
     "Accept": "application/json",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
@@ -75,8 +79,9 @@ def crawl_item(context, item):
 
 
 def crawl(context: Context):
+    # Crawl Deputies
     data = context.fetch_json(
-        "https://www.congreso.es/en/busqueda-de-diputados?p_p_id=diputadomodule&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view&p_p_resource_id=searchDiputados&p_p_cacheability=cacheLevelPage",
+        DEPUTIES_URL,
         method="POST",
         cache_days=1,
         headers=HEADERS,
@@ -85,3 +90,21 @@ def crawl(context: Context):
     for item in data["data"]:
         item = rename_headers(context, item)
         crawl_item(context, item)
+
+    # Crawl Senators
+    for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+        url = f"{SENATORS_URL}?id={letter}"
+        doc = context.fetch_html(url, cache_days=1)
+        doc.make_links_absolute(url)
+        senator_links = doc.xpath(".//ul[@class='lista-alterna']//@href")
+        for link in senator_links:
+            parsed_url = urlparse(link)
+            query_params = parse_qs(parsed_url.query)
+            senator_id = query_params["id1"][0]
+            legis = query_params["legis"][0]
+            xml_url = f"https://www.senado.es/web/ficopendataservlet?tipoFich=1&cod={senator_id}&legis={legis}"
+            path = context.fetch_resource(f"source_{senator_id}.xml", xml_url)
+            doc = context.parse_resource_xml(path)
+            doc_ = h.remove_namespace(doc)
+            # for entry in doc_.findall(".//fichaSenador"):
+            #     print(entry)
