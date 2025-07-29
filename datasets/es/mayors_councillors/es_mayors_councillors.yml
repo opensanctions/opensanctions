@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: es-mc
 load_statements: true
 coverage:
-  frequency: monthly
+  frequency: weekly
   start: 2025-07-24
 summary: >
   Individuals holding mayoral or councillor positions in Spain.
