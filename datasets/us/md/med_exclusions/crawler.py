@@ -3,6 +3,7 @@ from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
+from zavod.shed import zyte_api
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -47,16 +48,22 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
-    doc = context.fetch_html(context.data_url)
-    doc.make_links_absolute(context.data_url)
-    return doc.xpath(
+def crawl_excel_url(context: Context) -> str:
+    provider_list_xpath = (
         ".//a[contains(text(), 'Maryland Medicaid Sanctioned Provider List')]"
-    )[0].get("href")
+    )
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=provider_list_xpath,
+    )
+    return doc.xpath(provider_list_xpath)[0].get("href")
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("list.xlsx", crawl_excel_url(context))
+    _, _, _, path = zyte_api.fetch_resource(
+        context, filename="list.xlsx", url=crawl_excel_url(context)
+    )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
