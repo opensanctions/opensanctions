@@ -158,6 +158,7 @@ def request_review(
     context: Context,
     key: str | list[str],
     source_value: str,
+    source_data_hash: str,
     source_content_type: str,
     source_label: str,
     source_url: Optional[str],
@@ -198,6 +199,7 @@ def request_review(
                 dataset=dataset,
                 extraction_schema=schema,
                 source_value=source_value,
+                source_data_hash=source_data_hash,
                 source_content_type=source_content_type,
                 source_label=source_label,
                 source_url=source_url,
@@ -218,6 +220,7 @@ def request_review(
             context.log.debug("Re-requesting review", key=key_slug)
             review.extraction_schema = schema
             review.source_value = source_value
+            review.source_data_hash = source_data_hash
             review.source_content_type = source_content_type
             review.source_label = source_label
             review.source_url = source_url
@@ -237,7 +240,8 @@ def get_review(
     context: Context,
     data_model: Type[ModelType],
     key: str,
-    min_model_version: int,
+    min_crawler_version: int,
+    source_data_hash: str,
 ) -> Optional[Review[ModelType]]:
     """
     Get a review for a given key if it exists and its model is up to date.
@@ -249,23 +253,29 @@ def get_review(
         review = Review[ModelType].by_key(
             conn, data_model, context.dataset.name, key_slug
         )
+
         if review is None:
             context.log.debug("Review not found", key=key_slug)
             return None
-        if review.model_version < min_model_version:
+
+        if review.crawler_version < min_crawler_version:
             context.log.debug(
                 "Review model version is too old",
                 key=key_slug,
-                min_model_version=min_model_version,
-                model_version=review.model_version,
+                min_crawler_version=min_crawler_version,
+                crawler_version=review.crawler_version,
             )
             return None
+
+        if review.accepted and review.source_data_hash != source_data_hash:
+            context.log.warning("Review source data hash mismatch", key=key_slug)
+
         context.log.debug("Review found, updating last_seen_version", key=key_slug)
         review.update_version(conn, context.version.id)
         return review
 
 
-def assert_all_accepted(context: Context) -> None:
+def assert_all_accepted(context: Context, raise_on_unaccepted=True) -> None:
     """
     Raise an exception with the number of unaccepted items if any extraction
     entries for the current dataset and version are not accepted.
@@ -273,9 +283,11 @@ def assert_all_accepted(context: Context) -> None:
     with get_engine().begin() as conn:
         count = Review.count_unaccepted(conn, context.dataset.name, context.version.id)
         if count > 0:
-            raise Exception(
-                (
-                    f"There are {count} unaccepted items for dataset "
-                    f"{context.dataset.name} and version {context.version.id}"
-                )
+            message = (
+                f"There are {count} unaccepted items for dataset "
+                f"{context.dataset.name} and version {context.version.id}"
             )
+            if raise_on_unaccepted:
+                raise Exception(message)
+            else:
+                context.log.warning(message)

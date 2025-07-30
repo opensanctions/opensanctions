@@ -53,13 +53,19 @@ review_table = Table(
     Column("dataset", Unicode(KEY_LEN), nullable=False, index=True),
     Column("extraction_schema", JSON, nullable=False),
     Column("source_value", Unicode(VALUE_LEN), nullable=True),
+    # This is used to detect changes to the source data that might affect extraction
+    # and requires our attention. It might not be unique between different reviews,
+    # e.g. multiple items with different keys could correctly have an empty value.
+    Column("source_data_hash", Unicode(KEY_LEN), nullable=False),
     Column("source_content_type", Unicode(VALUE_LEN), nullable=True),
     Column("source_label", Unicode(VALUE_LEN), nullable=True),
     Column("source_url", Unicode(VALUE_LEN), nullable=True),
     Column("accepted", Boolean, nullable=False, index=True),
     # only to be edited by the crawler
     Column("orig_extraction_data", JSON, nullable=False),
-    Column("model_version", Integer, nullable=False),
+    # This is used to indicate when the crawler has changed in a way where we want to
+    # trigger a re-review or perform a data migration.
+    Column("crawler_version", Integer, nullable=False),
     # editable by the reviewer
     Column("extracted_data", JSON, nullable=False),
     # The crawl version that last saw this review key
