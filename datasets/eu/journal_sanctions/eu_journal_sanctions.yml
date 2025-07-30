@@ -77,3 +77,9 @@ lookups:
           - 770701001
           - 9707028663
         prop: registrationNumber
+  type.email:
+    options:
+      - match: "general@angstrem.r"
+        value: "general@angstrem.ru"
+      - match: "mss@korund_m.ru"
+        value: "mss@korund-m.ru"
