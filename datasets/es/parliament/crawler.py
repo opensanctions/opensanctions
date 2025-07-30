@@ -91,32 +91,22 @@ def crawl_senator(context, doc_xml, link):
     legislatura = doc_xml.find(".//legislatura")
     credencial = legislatura.find(".//credencial") if legislatura is not None else None
     grupo = legislatura.find(".//grupoParlamentario")
-
     web_id = datos.findtext("idweb")
     first_name = datos.findtext("nombre")
     last_name = datos.findtext("apellidos")
-    dob = datos.findtext("fechaNacimiento")
-    pob = datos.findtext("lugarNacimiento")
-    biography = datos.findtext("biografia")
-    date_of_death = datos.findtext("fechaFallecimiento")
-
     if credencial is not None:
-        party_acronym = credencial.findtext("partidoSiglas")
-        # election_date = credencial.findtext("procedFecha")
+        election_date = credencial.findtext("procedFecha")
         # party_name = credencial.findtext("partidoNombre")
-
-    if grupo is not None:
-        parliamentary_group = grupo.findtext("grupoNombre")
-
     pep = context.make("Person")
     pep.id = context.make_id(web_id, first_name, last_name)
     h.apply_name(pep, first_name=first_name, last_name=last_name)
-    h.apply_date(pep, "birthDate", dob)
-    h.apply_date(pep, "deathDate", date_of_death)
-    pep.add("birthPlace", pob)
-    pep.add("political", party_acronym)
-    pep.add("political", parliamentary_group)
-    pep.add("notes", biography)
+    h.apply_date(pep, "birthDate", datos.findtext("fechaNacimiento"))
+    h.apply_date(pep, "deathDate", datos.findtext("fechaFallecimiento"))
+    pep.add("birthPlace", datos.findtext("lugarNacimiento"))
+    if credencial is not None or grupo is not None:
+        pep.add("political", credencial.findtext("partidoSiglas"))
+        pep.add("political", grupo.findtext("grupoNombre"))
+    pep.add("notes", datos.findtext("biografia"))
     pep.add("sourceUrl", link)
     pep.add("topics", "role.pep")
     emit_pep_position(
