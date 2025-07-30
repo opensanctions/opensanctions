@@ -132,7 +132,7 @@ def crawl_senator(context, doc_xml, link):
             None,
             # there are a lot of parliamentary postions, do we want to go into the details?
             # example: MEMBER OF THE COMMITTEE ON EDUCATION, VOCATIONAL TRAINING, AND SPORTS
-            is_pep=None,
+            is_pep=True,
         )
 
 
