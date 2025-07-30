@@ -1,3 +1,4 @@
+import string
 from urllib.parse import urlparse, parse_qs
 
 from zavod import Context, helpers as h
@@ -6,20 +7,13 @@ from zavod.stateful.positions import categorise
 
 SENATORS_URL = "https://www.senado.es/web/composicionorganizacion/senadores/composicionsenado/consultaordenalfabetico/index.html"
 DEPUTIES_URL = "https://www.congreso.es/en/busqueda-de-diputados?p_p_id=diputadomodule&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view&p_p_resource_id=searchDiputados&p_p_cacheability=cacheLevelPage"
-HEADERS = {
-    "Accept": "application/json",
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
-}
 FORM_DATA = {
     "_diputadomodule_idLegislatura": "15",
     "_diputadomodule_genero": "0",
     "_diputadomodule_grupo": "all",
     "_diputadomodule_tipo": "0",
-    "_diputadomodule_nombre": "",
-    "_diputadomodule_apellidos": "",
     "_diputadomodule_formacion": "all",
     "_diputadomodule_filtroProvincias": "[]",
-    "_diputadomodule_nombreCircunscripcion": "",
 }
 IGNORE = ["constituency_id", "legislative_term_id", "gender"]
 
@@ -103,9 +97,7 @@ def crawl_senator(context, doc_xml, link):
     web_id = datos.findtext("idweb")
     first_name = datos.findtext("nombre")
     last_name = datos.findtext("apellidos")
-    # if credencial is not None:
-    #     election_date = credencial.findtext("procedFecha")
-    # party_name = credencial.findtext("partidoNombre")
+
     pep = context.make("Person")
     pep.id = context.make_id(web_id, first_name, last_name)
     h.apply_name(pep, first_name=first_name, last_name=last_name)
@@ -150,7 +142,7 @@ def crawl(context: Context):
         DEPUTIES_URL,
         method="POST",
         cache_days=1,
-        headers=HEADERS,
+        headers={"Accept": "application/json"},
         data=FORM_DATA,
     )
     for item in data["data"]:
@@ -158,7 +150,7 @@ def crawl(context: Context):
         crawl_deputy(context, item)
 
     # Crawl Senators
-    for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+    for letter in string.ascii_uppercase:
         url = f"{SENATORS_URL}?id={letter}"
         doc = context.fetch_html(url, cache_days=1)
         doc.make_links_absolute(url)

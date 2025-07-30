@@ -1,4 +1,4 @@
-title: Spain Parliament Members
+title: Spain Members of Parliament
 entry_point: crawler.py
 prefix: es-par
 load_statements: true
@@ -6,18 +6,22 @@ coverage:
   frequency: weekly
   start: 2025-07-29
 summary: >
-  Individuals holding parliamentary positions in Spain.
+  Current members of both chambers of the Spanish Parliament (Cortes Generales), 
+  including Senators and Deputies.
 description: |
-  This dataset contains information on current members of the Spanish Parliament, including
-  both Senators and Deputies. It includes their names, positions, and political affiliations.
+  This dataset lists individuals currently serving in the two chambers of the Spanish Parliament:
+  the Congress of Deputies (Congreso de los Diputados) and the Senate (Senado).
+  It includes personal details, political affiliations, roles, and parliamentary positions.
 publisher:
-  name: Congreso de los Diputados
-  name_en: Congress of Deputies of Spain
+  name: Cortes Generales
+  name_en: Spanish Parliament
   official: true
   description: |
-    The Congress of Deputies is the lower house of the Cortes Generales, the Spanish Parliament.
+    The Cortes Generales is Spain’s bicameral legislature, composed of the lower house
+    (Congress of Deputies) and the upper house (Senate). This dataset combines official data
+    from both chambers.
   country: es
-  url: https://www.congreso.es/en/
+  url: http://www.cortesgenerales.es
 tags:
   - list.pep
 url: https://www.congreso.es/en/web/guest/busqueda-de-diputados
@@ -28,16 +32,16 @@ data:
 dates:
   formats: ["%d/%m/%Y"]
 http:
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15
   total_retries: 5
   backoff_factor: 2
-  retry_statuses: [443, 429, 503, 500]
+  retry_statuses: [443]
   retry_methods: [GET, POST]
 
 assertions:
   min:
     schema_entities:
       Person: 550
-
 
 lookups:
   columns:
