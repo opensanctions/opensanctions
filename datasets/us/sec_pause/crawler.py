@@ -1,6 +1,5 @@
-from typing import Dict, Generator, Optional, Tuple
 from lxml.etree import _Element
-from normality import slugify, collapse_spaces
+from normality import squash_spaces
 from time import sleep
 
 from zavod import Context
@@ -29,29 +28,7 @@ CONTACTS = [
 ]
 
 
-def parse_table(
-    table: _Element,
-) -> Generator[Dict[str, Tuple[str, Optional[str]]], None, None]:
-    headers = None
-    for row in table.findall(".//tr"):
-        if headers is None:
-            headers = []
-            for el in row.findall("./th"):
-                headers.append(slugify(el.text_content()))
-            continue
-        cells = []
-        for el in row.findall("./td"):
-            a = el.find(".//a")
-            if a is None:
-                cells.append((collapse_spaces(el.text_content()), None))
-            else:
-                cells.append((collapse_spaces(a.text_content()), a.get("href")))
-
-        assert len(headers) == len(cells)
-        yield {hdr: c for hdr, c in zip(headers, cells)}
-
-
-def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
+def crawl_entity(context: Context, *, url: str, name: str, category: str) -> None:
     context.log.info("Crawling entity", url=url)
     validator = ".//h1[contains(@class, 'page-title__heading')]"
     doc = fetch_html(context, url, validator, cache_days=7)
@@ -121,14 +98,11 @@ def crawl(context: Context) -> None:
     doc.make_links_absolute(context.data_url)
 
     table = doc.xpath(table_xpath)[0]
-    for row in parse_table(table):
+    for row in h.parse_html_table(table):
         sleep(SLEEP)
-        name, url = row.pop("name")
-        if url is None:
-            context.log.warning("No URL", name=name)
-            continue
-        name = name.replace("Name: ", "")
-        category, _ = row.pop("category")
-        category = category.replace("Category:", "").strip()
-        crawl_entity(context, url, name, category)
+        name_a_el = row.pop("name").find(".//a")
+        name, url = name_a_el.text_content(), name_a_el.get("href")
+        category = squash_spaces(row.pop("category").text_content())
+
+        crawl_entity(context, url=url, name=name, category=category)
         context.audit_data(row)
