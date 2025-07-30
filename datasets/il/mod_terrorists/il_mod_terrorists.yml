@@ -60,32 +60,10 @@ assertions:
       Address: 55
 
 lookups:
-  type.string:
-    options:
-      match: '="---"'
-      value: null
-  type.text:
-    options:
-      match: '="---"'
-      value: null
-  type.name:
-    options:
-      match: '="---"'
-      value: null
-  type.phone:
-    options:
-      match: '="---"'
-      value: null
-  type.identifier:
-    options:
-      match: '="---"'
-      value: null
   type.country:
     lowercase: true
     normalize: true
     options:
-      - match: '="---"'
-        value: null
       - match:
           - BENGHAZI
           - DERNA
@@ -150,10 +128,6 @@ lookups:
   type.date:
     options:
       - match:
-          - '="---"'
-          - '="-"'
-        value: null
-      - match:
           - לינק להכרזה
           - בוטל ביום
           - הכרזה בוטלה
@@ -174,16 +148,12 @@ lookups:
           - 1969
   type.email:
     options:
-      - match: '="---"'
-        value: null
       - match: admin@europalforum org.uk
         value: admin@europalforum.org.uk
       - contains: "101193998017268"
         value: null
   type.url:
     options:
-      - match: '="---"'
-        value: null
       - match: "טוויטר: @PalesAbroadE"
         value: https://twitter.com/PalesAbroadE
       - contains: Samidoun.net
@@ -196,10 +166,6 @@ lookups:
         value: https://twitter.com/Addameer
   key_operatives:
     options:
-      - match:
-          - '="---"'
-          - null
-        operatives: []
       - match: "•  Farid Ae Rahman Mohammed Abu Dayer\nID card: 926760927\nDate of birth: 25/01/1983\nTelephone no.: 0905076536228\n•  Mohamed Merouan Ae Raouf Khaledi\nID card: 801289307\nDate of birth: 18/02/1987\nTelephone no.: 0905315044351\n•  Ahmed Dahesh Mahmoud Abu Nada\nID card: 400032637\nDate of birth: 14/06/1994\nTelephone no.: 0905316527351"
         operatives:
           - schema: Person
