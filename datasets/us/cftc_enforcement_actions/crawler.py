@@ -1,12 +1,18 @@
 from typing import Optional, List, Literal
 from pydantic import BaseModel, Field
 
-from lxml.etree import tostring
+from lxml.html import fromstring, tostring
 
 from zavod.context import Context
 from zavod import helpers as h
 from zavod.shed.gpt import run_typed_text_prompt
-from zavod.stateful.review import request_review, get_review
+from zavod.stateful.review import (
+    assert_all_accepted,
+    request_review,
+    get_review,
+    model_hash,
+    html_to_text_hash,
+)
 
 Schema = Literal["Person", "Company", "LegalEntity"]
 Status = Literal[
@@ -21,6 +27,18 @@ Status = Literal[
 
 MODEL_VERSION = 1
 MIN_MODEL_VERSION = 1
+
+
+PROMPT = """
+Extract the defendants or entities added to the Red List in the attached article.
+Leave out any relief defendants. Leave fields null or lists empty if values are not
+present in the source text.
+
+Trading/D.B.A. names which follow a person name but look like company can just be
+aliases of the person.
+"""
+
+something_changed = False
 
 
 # Not extracting relationships for now because the results were inconsistent
@@ -60,35 +78,83 @@ class Defendants(BaseModel):
     defendants: List[Defendant]
 
 
-PROMPT = """
-Extract the defendants or entities added to the Red List in the attached article.
-Leave out any relief defendants. Leave fields null or lists empty if values are not
-present in the source text.
-
-Trading/D.B.A. names looking like company rather than person names should be extracted
-as companies, not aliases of a person.
-"""
-
-
 def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
+    # Try the article in the main page first.
     doc = context.fetch_html(url, cache_days=30)
+    doc.make_links_absolute(url)
     article = doc.xpath(".//article")[0]
-    html = tostring(article, pretty_print=True).decode("utf-8")
+    redirect_link = article.xpath(
+        ".//div[contains(@class, 'press-release-open-link-pdf-link')]//a/@href"
+    )
+    if redirect_link and len(article.text_content()) > 200:
+        raise Exception("Has redirect link but isn't tiny", url=url)
+    if not redirect_link and len(article.text_content()) < 200:
+        raise Exception("Is tiny but doesn't have a redirect link", url=url)
+    # If no article in main page, try the redirect link.
+    if redirect_link and len(article.text_content()) < 200:
+        article = context.fetch_html(redirect_link[0], cache_days=30)
+    assert len(article.text_content()) > 200
+
+    article_html_string = tostring(article, pretty_print=True).decode("utf-8")
+
     review = get_review(context, Defendants, url, MIN_MODEL_VERSION)
     if review is None:
+        # The key doesn't exist or we've bumped MIN_MODEL_VERSION to require a re-review
         prompt_result = run_typed_text_prompt(
-            context, PROMPT, html, response_type=Defendants
+            context, PROMPT, article_html_string, Defendants
         )
         review = request_review(
             context,
             url,
-            html,
+            article_html_string,
             "text/html",
             "Enforcement Action Notice",
             url,
             prompt_result,
             MODEL_VERSION,
         )
+    seen_article = fromstring(review.source_value)
+    if html_to_text_hash(seen_article) != html_to_text_hash(article):
+        # The key exists but the current source data looks different from the existing version
+        # in spite of heavy normalisation.
+
+        # In the first iteration, we're being super conservative and rejecting
+        # export if the source content has changed regardless of whether the
+        # extraction result has changed. If we see this happening and we see that
+        # the extraction result reliably identifies real data changes, we can move
+        # this into the clause where the extraction result has changed.
+        global something_changed
+        something_changed = True
+
+        prompt_result = run_typed_text_prompt(
+            context, PROMPT, article_html_string, Defendants
+        )
+        if model_hash(prompt_result) != model_hash(review.orig_extraction_data):
+            # A new extraction result looks different from the known original extraction
+            context.log.warning(
+                "The extracted data has changed",
+                url=url,
+                orig_extracted_data=review.orig_extraction_data.model_dump(),
+                prompt_result=prompt_result.model_dump(),
+            )
+        else:
+            context.log.warning(
+                "The source content has changed but the extracted data has not",
+                url=url,
+                seen_source_value=review.source_value,
+                new_source_value=article_html_string,
+            )
+            return
+
+    #    #prompt_result = run_typed_text_prompt(
+    #    #    context, PROMPT, html, response_type=Defendants
+    #    #)
+    #    #if model_hash(prompt_result) == model_hash(review.orig_extracted_data):
+    #    #    accepted = True
+    #    #else:
+    #    #    accepted = False
+    #    #request_review(..., default_accepted=accepted)
+
     if not review.accepted:
         return
 
@@ -99,19 +165,18 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         entity.add("address", item.address)
         entity.add("country", item.country)
         entity.add("alias", item.aliases)
-        if item.status != "Dismissed":
-            entity.add("topics", "reg.action")
-
-        press_release_num = doc.xpath(".//h1[contains(@class, 'press-release-title')]")[
-            0
-        ].text_content()
+        release_num_xpath = ".//h1[contains(@class, 'press-release-title')]"
+        press_release_num = doc.xpath(release_num_xpath)[0].text_content()
         press_release_num = press_release_num.replace("Release Number", "").strip()
         # We try to link press releases that refer to an original press release number
-        # back to the original press release.
+        # back to the original press release by using that in the sanction key.
+
         # In practice often the entity ID differs initially because of different levels
         # of address details in the press release.
         sanction = h.make_sanction(
-            context, entity, key=item.original_press_release_number
+            context,
+            entity,
+            key=item.original_press_release_number or press_release_num,
         )
         h.apply_date(sanction, "date", date.strip())
         sanction.add("sourceUrl", url)
@@ -143,7 +208,7 @@ def crawl_index_page(context: Context, doc) -> None:
 def crawl(context: Context) -> None:
     next_url: Optional[str] = context.data_url
     while next_url:
-        doc = context.fetch_html(next_url)
+        doc = context.fetch_html(next_url + "?page=200", cache_days=1)  # TODO dev
         doc.make_links_absolute(next_url)
         next_urls = doc.xpath(".//a[@rel='next']/@href")
         assert len(next_urls) <= 1
@@ -152,3 +217,10 @@ def crawl(context: Context) -> None:
         else:
             next_url = None
         crawl_index_page(context, doc)
+
+    assert_all_accepted(context)
+    global something_changed
+    if something_changed:
+        raise Exception(
+            "Something changed. See what changed to determine whether to trigger re-review."
+        )
