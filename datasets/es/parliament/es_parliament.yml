@@ -27,6 +27,11 @@ data:
   lang: spa
 dates:
   formats: ["%d/%m/%Y"]
+http:
+  total_retries: 5
+  backoff_factor: 2
+  retry_statuses: [443, 429, 503, 500]
+  retry_methods: [GET, POST]
 
 # assertions:
 #   min:
