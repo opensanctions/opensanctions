@@ -52,6 +52,8 @@ lookups:
           - 09-Sep-2207
           - 09-Sep-2201
           - 09-Sep-2228
+          - 09-Jan-0721
+          - 09-Sep-2221
         value: null
       - match: 09-Sep-2227-May-21
         values:
@@ -137,6 +139,10 @@ lookups:
         values:
           - 2022-09-09
           - 2024-07-07
+      - match: 09-Sep-22 28-Sep-21
+        values:
+          - 2022-09-09
+          - 2021-09-28
 
   normalize_name:
     lowercase: true
