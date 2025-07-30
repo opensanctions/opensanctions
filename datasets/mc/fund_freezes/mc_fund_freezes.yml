@@ -174,6 +174,11 @@ lookups:
           - NALU
       - match: 7th of Tir Industries of Isfahan/Esfahan
         aliases: [7th of Tir Industries of Isfahan/Esfahan]
+      - match: "Step Istanbul/Standart Teknik Parca San. Ve Tic. A.S."
+        aliases:
+          - Step Istanbul
+          - Standart Teknik Parca San. Ve Tic. A.S.
+
   type.date:
     options:
       - match: 24/06/1402 (calendrier hégirien)
