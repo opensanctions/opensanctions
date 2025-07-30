@@ -266,7 +266,7 @@ lookups:
         prop: imoNumber
       - match: regnumber
         prop: registrationNumber
-      - match: 
+      - match:
           - fiscalcode
           - taxid
         prop: taxNumber
@@ -347,7 +347,6 @@ lookups:
         value: female
   type.string:
     lowercase: true
-    normalize: true
     options:
       - match: PO Box 1406 - 60455
         value: 60455
