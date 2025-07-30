@@ -95,8 +95,8 @@ def crawl_senator(context, doc_xml, link):
     web_id = datos.findtext("idweb")
     first_name = datos.findtext("nombre")
     last_name = datos.findtext("apellidos")
-    if credencial is not None:
-        election_date = credencial.findtext("procedFecha")
+    # if credencial is not None:
+    #     election_date = credencial.findtext("procedFecha")
         # party_name = credencial.findtext("partidoNombre")
     pep = context.make("Person")
     pep.id = context.make_id(web_id, first_name, last_name)
