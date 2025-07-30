@@ -80,9 +80,6 @@ def crawl_individuals(context: Context):
         name_en = record.pop("name_of_individual_english", None)
         name_he = record.pop("name_of_individual_hebrew", None)
         name_ar = record.pop("name_of_individual_arabic", None)
-        name_en = name_en.replace('="---"', "") if name_en else None
-        name_he = name_he.replace('="---"', "") if name_he else None
-        name_ar = name_ar.replace('="---"', "") if name_ar else None
         entity = context.make("Person")
         entity.id = context.make_id(name_en, name_he, name_ar)
         if entity.id is None:
