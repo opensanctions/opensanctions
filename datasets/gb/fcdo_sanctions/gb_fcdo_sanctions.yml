@@ -165,6 +165,7 @@ lookups:
           - www.mtsbank.ru
           - indoc@SIBANTHRACITE
           - GROUP.ru
+          - S@synesis.y
         value: null
       - match: www.bloodandhonour.co.uk
         prop: website
