@@ -971,6 +971,8 @@ lookups:
           - www.gtbir.com
           - "www.taghtiran.ir (Email address):"
         value: null
+      - match: S@synesis.y
+        value: null
       - match: and millim@silibank.com
         value: millim@silibank.com
       - match: info@etemad mobin.com
@@ -996,7 +998,7 @@ lookups:
         value: null
   type.date:
     options:
-      - match: 
+      - match:
           - 00/00/0
           - 15/08/19 # Shows up as 15/08/19yy in gb_fcdo_sanctions, but we don't have a way to represent day-month birthdays
           - 15/08/0
