@@ -35,7 +35,7 @@ def rename_headers(context, entry):
     return result
 
 
-def emit_pep_position(context, pep, title, start_date, end_date, subnational_area):
+def emit_pep_position(context, pep, title, start_date, end_date, subnational_area, is_pep):
     position = h.make_position(
         context,
         name=title,
@@ -44,7 +44,7 @@ def emit_pep_position(context, pep, title, start_date, end_date, subnational_are
         lang="spa",
         topics=["gov.legislative", "gov.national"],
     )
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, is_pep=is_pep)
     occupancy = h.make_occupancy(
         context,
         pep,
@@ -81,7 +81,8 @@ def crawl_deputy(context, item):
         "Member of Parliament",
         item.pop("start_date"),
         item.pop("end_date", None),
-        None,
+        item.pop("constituency_name"),
+        is_pep=True,
     )
     context.audit_data(item, IGNORE)
 
@@ -116,6 +117,7 @@ def crawl_senator(context, doc_xml, link):
         grupo.findtext("grupoAltaFec"),
         grupo.findtext("grupoBajaFec"),
         None,
+        is_pep=True,
     )
     # Parliamentary roles (cargos)
     for cargo in legislatura.findall(".//cargo"):
@@ -128,6 +130,9 @@ def crawl_senator(context, doc_xml, link):
             cargo.findtext("cargoAltaFec"),
             cargo.findtext("cargoBajaFec"),
             None,
+            # there are a lot of parliamentary postions, do we want to go into the details? 
+            # example: MEMBER OF THE COMMITTEE ON EDUCATION, VOCATIONAL TRAINING, AND SPORTS
+            is_pep=None,
         )
 
 
