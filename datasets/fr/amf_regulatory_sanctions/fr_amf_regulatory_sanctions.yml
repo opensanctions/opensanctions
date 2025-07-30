@@ -1103,3 +1103,6 @@ lookups:
       - match: 'La société Tec Assurances'
         entities:
           - Tec Assurances
+      - match: "La société Electricité de France S.A."
+        entities:
+          - Electricité de France S.A.
