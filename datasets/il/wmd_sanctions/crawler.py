@@ -160,7 +160,9 @@ def crawl(context: Context):
 
     wb = openpyxl.load_workbook(source_path, read_only=True)
     for row_num, row in enumerate(
-        h.parse_xlsx_sheet(context, wb.active, header_lookup="columns", skiprows=2)
+        h.parse_xlsx_sheet(
+            context, wb.active, header_lookup=context.get_lookup("columns"), skiprows=2
+        )
     ):
         # Check that additional header rows are consistent with first row
         if row["record_id"] == 'מס"ד':
