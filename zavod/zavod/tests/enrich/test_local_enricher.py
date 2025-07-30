@@ -72,6 +72,7 @@ def test_enrich_process(
     resolver.rollback()
     enricher_ds = make_enricher_dataset(DATASET_DATA, testdataset1.name)
     crawl_dataset(enricher_ds)
+    assert enricher_ds.name == "test_enricher"
 
     resolver.begin()
     store = get_store(enricher_ds, resolver)

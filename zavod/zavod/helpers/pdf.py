@@ -5,7 +5,7 @@ from tempfile import mkdtemp
 from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
 
 import pdfplumber
-from normality import collapse_spaces, slugify
+from normality import squash_spaces, slugify
 from pdfplumber.page import Page
 
 from zavod.context import Context
@@ -46,7 +46,7 @@ def header_slug(text: str, preserve_newlines: bool) -> str:
         rows = text.split("\n")
         return "\n".join(slugify(row, sep="_") or "" for row in rows)
     else:
-        return slugify(collapse_spaces(text) or "", sep="_") or ""
+        return slugify(squash_spaces(text), sep="_") or ""
 
 
 def parse_pdf_table(

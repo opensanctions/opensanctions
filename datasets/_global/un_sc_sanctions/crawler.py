@@ -1,5 +1,5 @@
 from typing import Optional
-from normality import collapse_spaces
+from normality import squash_spaces
 from lxml.etree import _Element as Element
 import re
 
@@ -22,18 +22,15 @@ def values(node):
     return [c.text for c in node.findall("./VALUE")]
 
 
-def parse_alias(entity: Entity, node: Element):
+def parse_alias(entity: Entity, node: Element) -> None:
     names = node.findtext("./ALIAS_NAME")
-    quality = node.findtext("./QUALITY")
+    quality = node.findtext("./QUALITY") or ""
     name_prop = NAME_QUALITY[quality]
     if names is None or name_prop is None:
         return
 
     for name in names.split("; "):
-        name = collapse_spaces(name)
-        if not len(name):
-            continue
-        entity.add(name_prop, name)
+        entity.add(name_prop, squash_spaces(name))
 
 
 def parse_address(context: Context, node: Element):

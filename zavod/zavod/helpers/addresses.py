@@ -1,5 +1,5 @@
 import re
-from normality import slugify
+from normality import slugify_text
 from functools import lru_cache
 from typing import Optional, Tuple
 from followthemoney import registry
@@ -85,7 +85,7 @@ def _make_id(
             return None
         return f"addr-{country_id}"
     for norm in type_lookup(entity.dataset, registry.address, full):
-        norm_full = slugify(norm)
+        norm_full = slugify_text(norm)
         if norm_full is None:
             continue
         hashed_id = make_entity_id(country_code, norm_full, key)

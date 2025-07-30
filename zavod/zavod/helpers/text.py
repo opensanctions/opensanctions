@@ -1,7 +1,7 @@
 import re
 from banal import is_listish, ensure_list
 from typing import Optional, List, Union, Iterable
-from normality import collapse_spaces
+from normality import squash_spaces
 
 PREFIX_ = r"INTERPOL-UN\s*Security\s*Council\s*Special\s*Notice\s*web\s*link:?"
 PREFIX = re.compile(PREFIX_, re.IGNORECASE)
@@ -32,8 +32,8 @@ def clean_note(text: Union[Optional[str], List[Optional[str]]]) -> List[str]:
     if isinstance(text, str):
         text = PREFIX.sub(" ", text)
         text = INTERPOL_URL.sub(" ", text)
-        text = collapse_spaces(text)
-        if text is None:
+        text = squash_spaces(text)
+        if len(text) == 0:
             return out
         return [text]
     return out

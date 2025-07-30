@@ -1,11 +1,11 @@
 import re
-from normality import WS, ascii_text, collapse_spaces
+from normality import WS, ascii_text, squash_spaces
 from rigour.ids import StrictFormat
 from rigour.text.phonetics import metaphone
 from rigour.text.scripts import is_modern_alphabet
-from rigour.addresses import normalize_address, remove_address_keywords
+from rigour.addresses import normalize_address
 from rigour.names import tokenize_name, is_stopword
-from rigour.names import remove_person_prefixes, remove_org_types
+from rigour.names import remove_person_prefixes
 from typing import Generator, Optional, Set, Tuple
 from followthemoney import registry, Schema, StatementEntity
 
@@ -54,15 +54,19 @@ def normalize_name(text: Optional[str]) -> Optional[str]:
     if text is None:
         return None
     text = text.lower()
-    return collapse_spaces(text)
+    text = squash_spaces(text)
+    if len(text) == 0:
+        return None
+    return text
 
 
 def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None, None]:
     name = normalize_name(name) or name
     if schema.is_a("Person"):
         name = remove_person_prefixes(name)
-    if schema.is_a("Organization"):
-        name = remove_org_types(name, normalizer=normalize_name)
+    # Disabled because this has an outsized cost in terms of performance:
+    # if schema.is_a("Organization"):
+    #     name = remove_org_types(name, normalizer=normalize_name)
 
     name_tokens: Set[str] = set()
     for token in tokenize_name(name):
@@ -75,7 +79,7 @@ def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None
             yield NAME_PART_FIELD, f"{NAME_PART_FIELD}:{token}"
             continue
         ascii_token = ascii_text(token)
-        if ascii_token is None or len(ascii_token) < 2:
+        if len(ascii_token) < 2:
             continue
         ascii_token = NON_LETTER.sub("", ascii_token)
         yield NAME_PART_FIELD, f"{NAME_PART_FIELD}:{ascii_token}"
@@ -106,7 +110,6 @@ def tokenize_entity(entity: StatementEntity) -> Generator[Tuple[str, str], None,
             for token in tokenize_name(lvalue, token_min_length=6):
                 if len(token) > 30 or is_stopword(token):
                     continue
-                # unique.add((WORD_FIELD, token))
                 yield WORD_FIELD, f"{WORD_FIELD}:{token}"
         if type == registry.date:
             # if len(value) > 4:
@@ -124,11 +127,14 @@ def tokenize_entity(entity: StatementEntity) -> Generator[Tuple[str, str], None,
         if type == registry.address:
             norm = normalize_address(value)
             if norm is not None:
-                norm = remove_address_keywords(norm) or norm
+                # Disable this for now, as it is not performant:
+                # norm = remove_address_keywords(norm) or norm
                 for word in norm.split(WS):
-                    if len(word) > 3 and len(word) < 30:
+                    if len(word) > 30 or is_stopword(word):
+                        continue
+                    if len(word) > 3:
                         unique.add((type.name, f"{prefix}:{word}"))
-                    if len(word) > 6 and len(word) < 30 and not is_stopword(word):
+                    if len(word) > 6:
                         unique.add((WORD_FIELD, f"{WORD_FIELD}:{word}"))
 
     yield from unique

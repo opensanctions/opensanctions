@@ -1,6 +1,6 @@
 from xml.etree import ElementTree
 
-from normality import collapse_spaces
+from normality import squash_spaces
 
 from zavod import Context
 from zavod.shed.zyte_api import fetch_html
@@ -25,7 +25,7 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
     for string in to_remove:
         element_text = element_text.replace(string, "")
 
-    return collapse_spaces(element_text.strip())
+    return squash_spaces(element_text.strip())
 
 
 def crawl_person(context: Context, url: str, wanted_for: str):

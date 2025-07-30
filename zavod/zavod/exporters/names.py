@@ -1,5 +1,5 @@
 from typing import Set
-from normality import collapse_spaces
+from normality import squash_spaces
 from followthemoney import registry
 
 from zavod.exporters.common import Exporter, ExportView
@@ -18,8 +18,8 @@ class NamesExporter(Exporter):
 
     def feed(self, entity: Entity, view: ExportView) -> None:
         for name in entity.get_type_values(registry.name):
-            name_collapsed = collapse_spaces(name)
-            if name_collapsed is not None:
+            name_collapsed = squash_spaces(name)
+            if len(name_collapsed) > 0:
                 key = hash(name_collapsed.lower())
                 if len(name_collapsed) > 3 and key not in self.seen_hashes:
                     self.seen_hashes.add(key)

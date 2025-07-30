@@ -2,7 +2,7 @@ import csv
 from typing import Set, Iterable
 from followthemoney import registry
 
-from normality import collapse_spaces
+from normality import squash_spaces
 from zavod import settings
 from zavod.entity import Entity
 from zavod.logs import get_logger
@@ -57,8 +57,8 @@ class MaritimeExporter(Exporter):
         for name in entity.get_type_values(registry.name, matchable=True):
             if name == entity.caption:
                 continue
-            name_ = collapse_spaces(name)
-            if name_ is not None:
+            name_ = squash_spaces(name)
+            if len(name_) > 0:
                 names.add(name_)
         return names
 
