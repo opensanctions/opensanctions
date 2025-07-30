@@ -265,7 +265,7 @@ def get_review(
         return review
 
 
-def assert_all_accepted(context: Context) -> None:
+def assert_all_accepted(context: Context, raise_on_unaccepted: bool = True) -> None:
     """
     Raise an exception with the number of unaccepted items if any extraction
     entries for the current dataset and version are not accepted.
@@ -273,9 +273,11 @@ def assert_all_accepted(context: Context) -> None:
     with get_engine().begin() as conn:
         count = Review.count_unaccepted(conn, context.dataset.name, context.version.id)
         if count > 0:
-            raise Exception(
-                (
-                    f"There are {count} unaccepted items for dataset "
-                    f"{context.dataset.name} and version {context.version.id}"
-                )
+            message = (
+                f"There are {count} unaccepted items for dataset "
+                f"{context.dataset.name} and version {context.version.id}"
             )
+            if raise_on_unaccepted:
+                raise Exception(message)
+            else:
+                context.log.warning(message)

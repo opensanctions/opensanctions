@@ -15,6 +15,8 @@ from zavod.context import Context
 from zavod.exc import ConfigurationException
 from zavod.logs import get_logger
 
+DEFAULT_MODEL = "gpt-4o"
+
 log = get_logger(__name__)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
@@ -51,7 +53,7 @@ def run_image_prompt(
     image_path: Path,
     max_tokens: int = 3000,
     cache_days: int = 100,
-    model: str = "gpt-4o",
+    model: str = DEFAULT_MODEL,
 ) -> Any:
     """Run an image prompt."""
     client = get_client()
@@ -93,7 +95,7 @@ def run_typed_image_prompt(
     response_type: Type[ResponseType],
     max_tokens: int = 3000,
     cache_days: int = 100,
-    model: str = "gpt-4o",
+    model: str = DEFAULT_MODEL,
 ) -> ResponseType:
     """Run an image prompt."""
     client = get_client()
@@ -138,7 +140,7 @@ def run_text_prompt(
     string: str,
     max_tokens: int = 3000,
     cache_days: int = 100,
-    model: str = "gpt-4o",
+    model: str = DEFAULT_MODEL,
 ) -> Any:
     """Run a text prompt."""
     client = get_client()
@@ -179,7 +181,7 @@ def run_typed_text_prompt(
     response_type: Type[ResponseType],
     max_tokens: int = 3000,
     cache_days: int = 100,
-    model: str = "gpt-4o",
+    model: str = DEFAULT_MODEL,
 ) -> ResponseType:
     """Run a text prompt."""
     client = get_client()
