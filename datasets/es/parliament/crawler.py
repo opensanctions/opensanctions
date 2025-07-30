@@ -35,7 +35,15 @@ def rename_headers(context, entry):
     return result
 
 
-def emit_pep_position(context, pep, title, start_date, end_date, subnational_area, is_pep):
+def emit_pep_position(
+    context,
+    pep,
+    title,
+    start_date,
+    end_date,
+    subnational_area,
+    is_pep,
+):
     position = h.make_position(
         context,
         name=title,
@@ -97,7 +105,7 @@ def crawl_senator(context, doc_xml, link):
     last_name = datos.findtext("apellidos")
     # if credencial is not None:
     #     election_date = credencial.findtext("procedFecha")
-        # party_name = credencial.findtext("partidoNombre")
+    # party_name = credencial.findtext("partidoNombre")
     pep = context.make("Person")
     pep.id = context.make_id(web_id, first_name, last_name)
     h.apply_name(pep, first_name=first_name, last_name=last_name)
@@ -130,7 +138,7 @@ def crawl_senator(context, doc_xml, link):
             cargo.findtext("cargoAltaFec"),
             cargo.findtext("cargoBajaFec"),
             None,
-            # there are a lot of parliamentary postions, do we want to go into the details? 
+            # there are a lot of parliamentary postions, do we want to go into the details?
             # example: MEMBER OF THE COMMITTEE ON EDUCATION, VOCATIONAL TRAINING, AND SPORTS
             is_pep=None,
         )
