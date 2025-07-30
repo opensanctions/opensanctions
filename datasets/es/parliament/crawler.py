@@ -35,6 +35,33 @@ def rename_headers(context, entry):
     return result
 
 
+def emit_parliamentary_position(context, pep, cargo):
+    role_title = cargo.findtext("cargoNombre")
+    role_body = cargo.findtext("cargoOrganoNombre")
+    role_start_date = cargo.findtext("cargoAltaFec")
+    role_end_date = cargo.findtext("cargoBajaFec")
+    position = h.make_position(
+        context,
+        name=f"{role_title}, {role_body}",
+        country="es",
+        lang="spa",
+        topics=["gov.legislative", "gov.national"],
+    )
+    context.emit(position)
+    categorisation = categorise(context, position, is_pep=True)
+    occupancy = h.make_occupancy(
+        context,
+        pep,
+        position,
+        start_date=role_start_date,
+        end_date=role_end_date,
+        categorisation=categorisation,
+    )
+    if occupancy:
+        context.emit(occupancy)
+        context.emit(position)
+
+
 def crawl_deputy(context, item):
     name = item.pop("full_name")
     id = item.pop("parliament_member_id")
@@ -99,8 +126,7 @@ def crawl_senator(context, doc_xml, link):
         # origin = credencial.findtext("procedLiteral")
 
     if grupo is not None:
-        parliamentary_group = grupo.findtext("grupoNombre") 
-
+        parliamentary_group = grupo.findtext("grupoNombre")
 
     pep = context.make("Person")
     pep.id = context.make_id(web_id, first_name, last_name)
@@ -123,32 +149,7 @@ def crawl_senator(context, doc_xml, link):
     )
     # Parliamentary roles (cargos)
     for cargo in legislatura.findall(".//cargo"):
-        role_title = cargo.findtext("cargoNombre")
-        role_body = cargo.findtext("cargoOrganoNombre")
-        role_start_date = cargo.findtext("cargoAltaFec")
-        role_end_date = cargo.findtext("cargoBajaFec")
-        position = h.make_position(
-            context,
-            name=f"{role_title}, {role_body}",
-            country="es",
-            lang="spa",
-            topics=["gov.legislative", "gov.national"],
-        )
-        context.emit(position)
-        categorisation = categorise(context, position, is_pep=True)
-        occupancy = h.make_occupancy(
-            context,
-            pep,
-            position,
-            start_date=role_start_date,
-            end_date=role_end_date,
-            categorisation=categorisation,
-        )
-        if occupancy:
-            context.emit(occupancy)
-            context.emit(position)
-
-
+        emit_parliamentary_position(context, pep, cargo)
 
     categorisation = categorise(context, position, is_pep=True)
 
@@ -156,8 +157,8 @@ def crawl_senator(context, doc_xml, link):
         context,
         pep,
         position,
-        start_date= grupo.findtext("grupoAltaFec"),
-        end_date= grupo.findtext("grupoBajaFec"),
+        start_date=grupo.findtext("grupoAltaFec"),
+        end_date=grupo.findtext("grupoBajaFec"),
         categorisation=categorisation,
     )
     if occupancy:
@@ -165,8 +166,6 @@ def crawl_senator(context, doc_xml, link):
         context.emit(position)
         context.emit(pep)
 
-
-    
 
 def crawl(context: Context):
     # Crawl Deputies
