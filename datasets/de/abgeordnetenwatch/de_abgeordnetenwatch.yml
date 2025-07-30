@@ -47,9 +47,10 @@ assertions:
       Position: 30
 
 lookups:
-  type.name:
+  type.string:
     options:
       # Geburtsname: 04.12
       # https://www.abgeordnetenwatch.de/profile/anne-koenig
+      # type.string because it's a lastName
       - match: '04.12.'
         value: null
