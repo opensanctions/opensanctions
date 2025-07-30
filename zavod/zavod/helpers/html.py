@@ -12,7 +12,7 @@ def parse_html_table(
     header_tag: str = "th",
     skiprows: int = 0,
     ignore_colspan: Optional[Set[str]] = None,
-) -> Generator[Dict[Optional[str], HtmlElement], None, None]:
+) -> Generator[Dict[str, HtmlElement], None, None]:
     """
     Parse an HTML table into a generator yielding a dict for each row.
 
@@ -41,7 +41,9 @@ def parse_html_table(
                 # Workaround because lxml-stubs doesn't yet support HtmlElement
                 # https://github.com/lxml/lxml-stubs/pull/71
                 eltree = cast(HtmlElement, el)
-                headers.append(slugify(eltree.text_content(), sep="_"))
+                header_text = slugify(eltree.text_content(), sep="_")
+                assert header_text is not None, "No table header text"
+                headers.append(header_text)
             continue
 
         cells = row.findall("./td")
