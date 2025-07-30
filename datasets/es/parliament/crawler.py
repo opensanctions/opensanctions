@@ -38,8 +38,6 @@ def rename_headers(context, entry):
 def emit_parliamentary_position(context, pep, cargo):
     role_title = cargo.findtext("cargoNombre")
     role_body = cargo.findtext("cargoOrganoNombre")
-    role_start_date = cargo.findtext("cargoAltaFec")
-    role_end_date = cargo.findtext("cargoBajaFec")
     position = h.make_position(
         context,
         name=f"{role_title}, {role_body}",
@@ -47,19 +45,42 @@ def emit_parliamentary_position(context, pep, cargo):
         lang="spa",
         topics=["gov.legislative", "gov.national"],
     )
-    context.emit(position)
     categorisation = categorise(context, position, is_pep=True)
     occupancy = h.make_occupancy(
         context,
         pep,
         position,
-        start_date=role_start_date,
-        end_date=role_end_date,
+        start_date=cargo.findtext("cargoAltaFec"),
+        end_date=cargo.findtext("cargoBajaFec"),
         categorisation=categorisation,
     )
     if occupancy:
         context.emit(occupancy)
         context.emit(position)
+
+
+def emit_main_position(context, pep, start_date, end_date, subnational_area):
+    position = h.make_position(
+        context,
+        name="Member of Parliament",
+        country="es",
+        subnational_area=subnational_area,
+        lang="spa",
+        topics=["gov.legislative", "gov.national"],
+    )
+    categorisation = categorise(context, position, is_pep=True)
+    occupancy = h.make_occupancy(
+        context,
+        pep,
+        position,
+        start_date=start_date,
+        end_date=end_date,
+        categorisation=categorisation,
+    )
+    if occupancy:
+        context.emit(occupancy)
+        context.emit(position)
+        context.emit(pep)
 
 
 def crawl_deputy(context, item):
@@ -79,28 +100,13 @@ def crawl_deputy(context, item):
     pep.add("political", item.pop("parliamentary_group"))
     pep.add("topics", "role.pep")
 
-    position = h.make_position(
-        context,
-        name="Member of Parliament",
-        country="es",
-        subnational_area=item.pop("constituency_name"),
-        lang="spa",
-        topics=["gov.legislative", "gov.national"],
-    )
-    categorisation = categorise(context, position, is_pep=True)
-
-    occupancy = h.make_occupancy(
+    emit_main_position(
         context,
         pep,
-        position,
-        start_date=item.pop("start_date"),
-        end_date=item.pop("end_date", None),
-        categorisation=categorisation,
+        item.pop("start_date"),
+        item.pop("end_date", None),
+        None,
     )
-    if occupancy:
-        context.emit(occupancy)
-        context.emit(position)
-        context.emit(pep)
 
     context.audit_data(item, IGNORE)
 
@@ -121,9 +127,8 @@ def crawl_senator(context, doc_xml, link):
 
     if credencial is not None:
         party_acronym = credencial.findtext("partidoSiglas")
-        election_date = credencial.findtext("procedFecha")
+        # election_date = credencial.findtext("procedFecha")
         # party_name = credencial.findtext("partidoNombre")
-        # origin = credencial.findtext("procedLiteral")
 
     if grupo is not None:
         parliamentary_group = grupo.findtext("grupoNombre")
@@ -140,53 +145,39 @@ def crawl_senator(context, doc_xml, link):
     pep.add("sourceUrl", link)
     pep.add("topics", "role.pep")
 
-    position = h.make_position(
-        context,
-        name="Member of Parliament",
-        country="es",
-        lang="spa",
-        topics=["gov.legislative", "gov.national"],
-    )
     # Parliamentary roles (cargos)
     for cargo in legislatura.findall(".//cargo"):
         emit_parliamentary_position(context, pep, cargo)
 
-    categorisation = categorise(context, position, is_pep=True)
-
-    occupancy = h.make_occupancy(
+    emit_main_position(
         context,
         pep,
-        position,
-        start_date=grupo.findtext("grupoAltaFec"),
-        end_date=grupo.findtext("grupoBajaFec"),
-        categorisation=categorisation,
+        grupo.findtext("grupoAltaFec"),
+        grupo.findtext("grupoBajaFec"),
+        None,
     )
-    if occupancy:
-        context.emit(occupancy)
-        context.emit(position)
-        context.emit(pep)
 
 
 def crawl(context: Context):
     # Crawl Deputies
-    data = context.fetch_json(
-        DEPUTIES_URL,
-        method="POST",
-        cache_days=1,
-        headers=HEADERS,
-        data=FORM_DATA,
-    )
-    for item in data["data"]:
-        item = rename_headers(context, item)
-        crawl_deputy(context, item)
+    # data = context.fetch_json(
+    #     DEPUTIES_URL,
+    #     method="POST",
+    #     cache_days=1,
+    #     headers=HEADERS,
+    #     data=FORM_DATA,
+    # )
+    # for item in data["data"]:
+    #     item = rename_headers(context, item)
+    #     crawl_deputy(context, item)
 
     # Crawl Senators
-    for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+    for letter in "A":  # BCDEFGHIJKLMNOPQRSTUVWXYZ":
         url = f"{SENATORS_URL}?id={letter}"
         doc = context.fetch_html(url, cache_days=1)
         doc.make_links_absolute(url)
         senator_links = doc.xpath(".//ul[@class='lista-alterna']//@href")
-        for link in senator_links:
+        for link in senator_links[:1]:
             parsed_url = urlparse(link)
             query_params = parse_qs(parsed_url.query)
             senator_id = query_params["id1"][0]
