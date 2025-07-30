@@ -850,7 +850,6 @@ lookups:
         value: Moscow
   type.country:
     lowercase: true
-    normalize: true
     options:
       - match:
           - Belarusian SSR,
@@ -871,6 +870,7 @@ lookups:
       - match:
           - Ukrainian SSR (now Ukraine)
           - former USSR, now Ukraine
+          - Ukrainian SSR now Ukraine
         values:
           - SUHH
           - UA
@@ -899,7 +899,8 @@ lookups:
           - KG
       - match:
           - Former USSR Currently Belarus
-          - Former USSR Now Belarus
+          - Former USSR now Belarus
+          - former USSR (now Belarus)
           - Russia (now Belarus)
           - Belarusian SSR, (now Belarus)
         values:
@@ -947,6 +948,7 @@ lookups:
       - match: to   Morocco
         value: Morocco
       - match:
+          - Congo (Democratic Republic).
           - Congo (Democratic Republic)
           - Congo (Democratic Republic of the)
         value: CD
