@@ -75,8 +75,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    response = context.fetch_response(context.data_url)
-    txt = response.text
+    _, _, _, txt = zyte_api.fetch_text(context, context.data_url)
     # Parse out the table data JSON embedded in the HTML
     table_data = json.loads(
         txt[txt.find("WPQ2ListData") + 15 : txt.find("WPQ2SchemaData") - 5]
