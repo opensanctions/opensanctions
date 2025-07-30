@@ -92,7 +92,7 @@ lookups:
   type.email:
     options:
       - match: PRIYEMNAYA@YGDU
-        value: PRIYEMNAYA@ygdu_gazprom.ru
+        value: null
   type.gender:
     lowercase: true
     normalize: true
