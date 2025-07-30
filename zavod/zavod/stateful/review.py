@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
+from hashlib import sha1
 from typing import Any, Dict, Generic, Optional, Type, TypeVar
+from logging import getLogger
 
 from normality import slugify
 from pydantic import BaseModel, JsonValue, PrivateAttr
@@ -8,7 +10,8 @@ from pydantic_core import CoreSchema
 from sqlalchemy import func, insert, not_, select, update
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
-from logging import getLogger
+from lxml import html
+import orjson
 
 from zavod.context import Context
 from zavod.db import get_engine
@@ -281,3 +284,36 @@ def assert_all_accepted(context: Context, raise_on_unaccepted: bool = True) -> N
                 raise Exception(message)
             else:
                 context.log.warning(message)
+
+
+def html_to_text_hash(html: html.HtmlElement) -> str:
+    slug = slugify(html.text_content())
+    assert slug is not None
+    return sha1(slug.encode("utf-8")).hexdigest()
+
+
+def sort_arrays_in_value(value: JsonValue) -> JsonValue:
+    """
+    Recursively sort and serialize arrays within a json-serializable value.
+    """
+    if isinstance(value, list):
+        return sorted(
+            [sort_arrays_in_value(item) for item in value],
+            key=lambda x: orjson.dumps(x, option=orjson.OPT_SORT_KEYS),
+        )
+    elif isinstance(value, dict):
+        return {k: sort_arrays_in_value(v) for k, v in value.items()}
+    return value
+
+
+def model_hash(data: BaseModel) -> str:
+    """
+    Generate a consistent SHA-1 hash of orjson-serializable data.
+    Arrays within the data are sorted to ensure the same hash regardless of order.
+    """
+    raw_data_dump = data.model_dump()
+    # Sort arrays recursively to ensure consistent ordering
+    sorted_data = sort_arrays_in_value(raw_data_dump)
+    # Sort dictionary keys and convert to orjson
+    raw_data_json = orjson.dumps(sorted_data, option=orjson.OPT_SORT_KEYS)
+    return sha1(raw_data_json).hexdigest()
