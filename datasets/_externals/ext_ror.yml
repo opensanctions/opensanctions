@@ -13,6 +13,7 @@ exports:
   - entities.delta.json
 deploy:
   memory: "2500Mi"
+  memory_limit: "5000Mi"
 ci_test: false
 load_statements: true
 summary: >
