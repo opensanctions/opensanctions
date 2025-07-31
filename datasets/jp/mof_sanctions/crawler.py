@@ -7,7 +7,7 @@ from openpyxl.cell import Cell
 from rigour.mime.types import XLSX, XLS
 from urllib.parse import urljoin
 from typing import Dict, List, Optional
-from normality import collapse_spaces, stringify
+from normality import squash_spaces, stringify
 from normality.cleaning import decompose_nfkd
 from followthemoney.types.identifier import IdentifierType
 
@@ -232,7 +232,7 @@ def crawl_xlsx(context: Context, url: str):
     for sheet in wb.worksheets:
         row0 = [str_cell(c) for c in list(sheet.iter_rows(0, 1))[0]]
         sections = [str(c) for c in row0 if c is not None]
-        section = collapse_spaces(" / ".join(sections))
+        section = squash_spaces(" / ".join(sections))
         if section is None:
             context.log.warning("No section found", sheet=sheet.title)
             continue
@@ -269,7 +269,7 @@ def crawl_xlsx(context: Context, url: str):
                 # print("SHEET", sheet, row)
                 headers = []
                 for cell in row:
-                    cell = collapse_spaces(cell)
+                    cell = squash_spaces(cell)
                     header = context.lookup_value("columns", cell)
                     if header is None:
                         context.log.warning(
@@ -287,7 +287,7 @@ def crawl_xls(context: Context, url: str):
         headers = None
         row0 = [h.convert_excel_cell(xls, c) for c in sheet.row(0)]
         sections = [c for c in row0 if c is not None]
-        section = collapse_spaces(" / ".join(sections))
+        section = squash_spaces(" / ".join(sections))
         if section is None:
             context.log.warning("No section found", sheet=sheet.name)
             continue
@@ -323,7 +323,7 @@ def crawl_xls(context: Context, url: str):
                 # print("SHEET", sheet, row)
                 headers = []
                 for cell in row:
-                    cell = collapse_spaces(cell)
+                    cell = squash_spaces(cell)
                     header = context.lookup_value("columns", cell)
                     if header is None:
                         context.log.warning(
