@@ -84,7 +84,6 @@ lookups:
       - match: do 3.03.2022 r. – SULZER MIXPAC POLAND Sp. z o.o.
         value: SULZER MIXPAC POLAND Sp. z o.o.
   details:
-    normalize: true
     lowercase: true
     options:
       - match:
@@ -116,7 +115,7 @@ lookups:
         props:
           birthPlace: Vilnius
           citizenship: RU
-      - match: Plac Dąbrowskiego 1, 00-057 Warszawa,
+      - match: "Plac Dąbrowskiego 1, 00-057 Warszawa "
         props:
           address: Plac Dąbrowskiego 1, 00-057 Warszawa
       - match: "prowadzący działalność gospodarczą pod adresem: 00-844 Warszawa, ul. Grzybowska 87, REGON 147421934"
@@ -204,12 +203,12 @@ lookups:
           citizenship: BY
       - match: 'adres: Brivibas iela 155A, Riga, LV-1012, Łotwa (poprzedni adres: Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa)'
         props:
-          address: 
+          address:
             - "Brivibas iela 155A, Riga, LV-1012, Łotwa"
             - "Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa"
       - match: 'adres: PR-KT Bukhar Zhyrau D. 92/2, Karaganda, Kazachstan (w języku rosyjskim: Проспект Бухар Жырау, дom 92/2, Караганда, Казахстан) numer identyfikacyjny BIN: KZ220540008721'
         props:
-          address: 
+          address:
             - "PR-KT Bukhar Zhyrau D. 92/2, Karaganda, Kazachstan"
             - "Проспект Бухар Жырау, дom 92/2, Караганда, Казахстан"
           idNumber: "KZ220540008721"
