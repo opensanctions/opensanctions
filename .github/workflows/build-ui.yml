@@ -1,4 +1,4 @@
-name: UI Jest Tests
+name: Build Zavod UI
 
 on:
   workflow_dispatch: {}
@@ -71,7 +71,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: ghcr.io/opensanctions/zavod-ui:latest
+          tags: "ghcr.io/opensanctions/zavod-ui:${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}"
           build-args: |
             BUILD_DATE=${{ env.BUILD_DATE }}
           cache-from: type=gha
