@@ -1,24 +1,30 @@
 title: "US CFTC Enforcement Actions"
-summary: >
-  List of enforcement actions published by the CFTC, including respondent names, case details, and links to official documents.
-
 url: https://www.cftc.gov/LawRegulation/EnforcementActions/index.htm
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: weekly
-  start: 2025-07-07
-
-description: >
-  The U.S. Commodity Futures Trading Commission (CFTC) publishes a list of enforcement actions taken against individuals and entities that have violated the Commodity Exchange Act (CEA) and CFTC regulations. This dataset includes details of enforcement actions, such as the names of respondents, case numbers, dates, and links to official documents. The data is collected from the official CFTC website and is intended to support due diligence, compliance, and investigative research.
-
+  start: 2025-08-01
 entry_point: crawler.py
 prefix: us-cftc
+summary: >
+  List of enforcement actions published by the CFTC, including respondent names
+  and links to official documents.
+description: >
+  The U.S. Commodity Futures Trading Commission (CFTC) publishes a list of
+  enforcement actions taken against individuals and entities that have violated
+  the Commodity Exchange Act (CEA) and CFTC regulations. This dataset includes
+  details of enforcement actions, such as the names of respondents, case
+  numbers, dates, and links to official documents. The data is collected from
+  the official CFTC website and is intended to support due diligence,
+  compliance, and investigative research.
 publisher:
   name: U.S. Commodity Futures Trading Commission
   acronym: CFTC
   official: true
   description: >
-    The CFTC is an independent agency of the US government that regulates the U.S. derivatives markets, including futures, swaps, and certain kinds of options.
+    The CFTC is an independent agency of the US government that regulates the
+    U.S. derivatives markets, including futures, swaps, and certain kinds of
+    options.
   country: us
   url: https://www.cftc.gov/
 
@@ -33,10 +39,10 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 10
-      Company: 10
+      Person: 500
+      Company: 500
     countries: 1
   max:
     schema_entities:
-      Person: 1000
-      Company: 1000
+      Person: 3000
+      Company: 3000

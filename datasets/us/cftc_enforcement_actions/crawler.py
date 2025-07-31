@@ -1,11 +1,12 @@
 from typing import Optional, List, Literal
 from pydantic import BaseModel, Field
+import re
 
 from lxml.html import fromstring, tostring
 
 from zavod.context import Context
 from zavod import helpers as h
-from zavod.shed.gpt import run_typed_text_prompt
+from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     assert_all_accepted,
     request_review,
@@ -37,6 +38,8 @@ present in the source text.
 Trading/D.B.A. names which follow a person name but look like company can just be
 aliases of the person.
 """
+
+REGEX_RELEASE_ID = re.compile(r"(\w{2,8}-\w{2,4}[\w #-]*)$")
 
 something_changed = False
 
@@ -78,6 +81,13 @@ class Defendants(BaseModel):
     defendants: List[Defendant]
 
 
+def get_release_id(url: str) -> str:
+    path_suffix = url.split("/")[-1]
+    match = REGEX_RELEASE_ID.search(path_suffix)
+    assert match, f"Invalid release ID: {path_suffix}"
+    return match.group(1)
+
+
 def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     # TODO: handle length limit
     if url == "https://www.cftc.gov/PressRoom/PressReleases/7274-15":
@@ -105,8 +115,8 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     assert len(article.text_content()) > 200
 
     article_html_string = tostring(article, pretty_print=True).decode("utf-8")
-
-    review = get_review(context, Defendants, url, MIN_MODEL_VERSION)
+    release_id = get_release_id(url)
+    review = get_review(context, Defendants, release_id, MIN_MODEL_VERSION)
     if review is None:
         # The key doesn't exist or we've bumped MIN_MODEL_VERSION to require a re-review
         prompt_result = run_typed_text_prompt(
@@ -114,7 +124,7 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         )
         review = request_review(
             context,
-            url,
+            release_id,
             article_html_string,
             "text/html",
             "Enforcement Action Notice",
@@ -161,29 +171,30 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     for item in review.extracted_data.defendants:
         entity = context.make(item.entity_schema)
         entity.id = context.make_id(item.name, item.address, item.country)
-        entity.add("name", item.name)
-        entity.add("address", item.address)
-        entity.add("country", item.country)
-        entity.add("alias", item.aliases)
-        release_num_xpath = ".//h1[contains(@class, 'press-release-title')]"
-        press_release_num = doc.xpath(release_num_xpath)[0].text_content()
-        press_release_num = press_release_num.replace("Release Number", "").strip()
+        entity.add("name", item.name, origin=DEFAULT_MODEL)
+        entity.add("address", item.address, origin=DEFAULT_MODEL)
+        entity.add("country", item.country, origin=DEFAULT_MODEL)
+        entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
+        entity.add("topics", "reg.action")
+
         # We try to link press releases that refer to an original press release number
         # back to the original press release by using that in the sanction key.
 
-        # In practice often the entity ID differs initially because of different levels
-        # of address details in the press release.
+        # In practice often the entity ID and thus sanction ID differs because of
+        # different levels of address details in the press releases.
         sanction = h.make_sanction(
             context,
             entity,
-            key=item.original_press_release_number or press_release_num,
+            key=item.original_press_release_number or release_id,
         )
         h.apply_date(sanction, "date", date.strip())
-        sanction.add("sourceUrl", url)
-        sanction.add("status", item.status)
-        sanction.add("summary", item.notes)
-        sanction.add("authorityId", press_release_num)
-        sanction.add("authorityId", item.original_press_release_number)
+        sanction.set("sourceUrl", url)
+        sanction.add("status", item.status, origin=DEFAULT_MODEL)
+        sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
+        sanction.add("authorityId", release_id)
+        sanction.add(
+            "authorityId", item.original_press_release_number, origin=DEFAULT_MODEL
+        )
 
         context.emit(entity)
         context.emit(sanction)
@@ -208,7 +219,7 @@ def crawl_index_page(context: Context, doc) -> None:
 def crawl(context: Context) -> None:
     next_url: Optional[str] = context.data_url
     while next_url:
-        doc = context.fetch_html(next_url, cache_days=1)
+        doc = context.fetch_html(next_url, cache_days=30)
         doc.make_links_absolute(next_url)
         next_urls = doc.xpath(".//a[@rel='next']/@href")
         assert len(next_urls) <= 1
