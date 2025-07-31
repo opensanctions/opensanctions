@@ -79,6 +79,9 @@ class Defendants(BaseModel):
 
 
 def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
+    # TODO: handle length limit
+    if url == "https://www.cftc.gov/PressRoom/PressReleases/7274-15":
+        return
     # Try the article in the main page first.
     doc = context.fetch_html(url, cache_days=30)
     doc.make_links_absolute(url)
@@ -87,11 +90,16 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         ".//div[contains(@class, 'press-release-open-link-pdf-link')]//a/@href"
     )
     if redirect_link and len(article.text_content()) > 200:
-        raise Exception("Has redirect link but isn't tiny", url=url)
+        context.log.warning("Has redirect link but isn't tiny.", url=url)
     if not redirect_link and len(article.text_content()) < 200:
-        raise Exception("Is tiny but doesn't have a redirect link", url=url)
+        context.log.warning("Is tiny but doesn't have a redirect link.", url=url)
+        return
     # If no article in main page, try the redirect link.
     if redirect_link and len(article.text_content()) < 200:
+        # TODO: handle PDF
+        if redirect_link[0].endswith(".pdf"):
+            context.log.warning("Has PDF redirect link.", url=url)
+            return
         article = context.fetch_html(redirect_link[0], cache_days=30)
     assert len(article.text_content()) > 200
 
@@ -208,7 +216,7 @@ def crawl_index_page(context: Context, doc) -> None:
 def crawl(context: Context) -> None:
     next_url: Optional[str] = context.data_url
     while next_url:
-        doc = context.fetch_html(next_url + "?page=200", cache_days=1)  # TODO dev
+        doc = context.fetch_html(next_url, cache_days=1)
         doc.make_links_absolute(next_url)
         next_urls = doc.xpath(".//a[@rel='next']/@href")
         assert len(next_urls) <= 1
