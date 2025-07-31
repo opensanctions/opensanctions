@@ -52,7 +52,7 @@ def parse_details(context: Context, entity: Entity, text: str):
         return
     result = context.lookup("details", text)
     if result is None:
-        context.log.warning("Unhandled details", details=repr(text))
+        context.log.warning("Unhandled details", details=text)
     else:
         for prop, value in result.props.items():
             entity.add(prop, value)
