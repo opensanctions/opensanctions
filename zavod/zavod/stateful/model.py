@@ -6,6 +6,8 @@ from sqlalchemy import (
     Unicode,
     Boolean,
     JSON,
+    Index,
+    text,
 )
 from nomenklatura.db import make_statement_table
 from zavod.db import meta, get_engine
@@ -43,6 +45,41 @@ program_table = Table(
 )
 
 
+review_table = Table(
+    "review",
+    meta,
+    Column("id", Integer, primary_key=True),
+    Column("key", Unicode(KEY_LEN), nullable=False, index=True),
+    Column("dataset", Unicode(KEY_LEN), nullable=False, index=True),
+    Column("extraction_schema", JSON, nullable=False),
+    Column("source_value", Unicode(VALUE_LEN), nullable=True),
+    Column("source_mime_type", Unicode(VALUE_LEN), nullable=True),
+    Column("source_label", Unicode(VALUE_LEN), nullable=True),
+    Column("source_url", Unicode(VALUE_LEN), nullable=True),
+    Column("accepted", Boolean, nullable=False, index=True),
+    Column("model_version", Integer, nullable=False),
+    # only to be edited by the crawler
+    Column("orig_extraction_data", JSON, nullable=False),
+    # editable by the reviewer
+    Column("extracted_data", JSON, nullable=False),
+    # The crawl version that last saw this review key
+    Column("last_seen_version", Unicode(KEY_LEN), nullable=False, index=True),
+    Column("modified_at", DateTime, nullable=False),
+    Column("modified_by", Unicode(KEY_LEN), nullable=False),
+    Column("deleted_at", DateTime, nullable=True, index=True),
+)
+
+
+Index(
+    "ix_review_key_dataset_unique_not_deleted",
+    review_table.c.key,
+    review_table.c.dataset,
+    unique=True,
+    sqlite_where=text("deleted_at IS NULL"),
+    postgresql_where=text("deleted_at IS NULL"),
+)
+
+
 def create_db() -> None:
     """Create all stateful database tables."""
     engine = get_engine()
@@ -53,5 +90,6 @@ def create_db() -> None:
             position_table,
             statement_table,
             program_table,
+            review_table,
         ],
     )

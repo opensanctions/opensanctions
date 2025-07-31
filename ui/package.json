@@ -1,0 +1,42 @@
+{
+  "name": "zavod-ui",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "prebuild": "node scripts/write-version.js",
+    "predev": "node scripts/write-version.js",
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@codemirror/lang-json": "^6.0.2",
+    "@codemirror/lang-markdown": "^6.3.3",
+    "@uiw/react-codemirror": "^4.24.0",
+    "bootstrap": "^5.3.7",
+    "codemirror-json-schema": "^0.8.1",
+    "jose": "^6.0.12",
+    "json-schema-library": "^9.3.5",
+    "kysely": "^0.28.2",
+    "next": "15.3.5",
+    "pg": "^8.16.3",
+    "react": "^18.0.0",
+    "react-bootstrap": "^2.10.10",
+    "react-bootstrap-icons": "^1.11.6",
+    "react-dom": "^18.0.0",
+    "turndown": "^7.2.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20",
+    "@types/pg": "^8.15.4",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/turndown": "^5.0.5",
+    "jest": "^30.0.4",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5"
+  }
+}

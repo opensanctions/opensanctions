@@ -1,27 +1,55 @@
 import csv
-import yaml  # noqa
-from typing import Dict
-from urllib.parse import urljoin
+from hashlib import sha1
+from normality import slugify
+from typing import Dict, List
+from urllib.parse import urljoin, urlparse
 
 from rigour.mime.types import CSV
+from pydantic import BaseModel, Field
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.gpt import run_text_prompt
+from zavod.shed.gpt import run_typed_text_prompt, DEFAULT_MODEL
+from zavod.stateful.review import assert_all_accepted, get_review, request_review
 
 
-ORG_PARSE_PROMPT = """From the following list of organisations or companies, please extract an array of
-        JSON objects (named `entities`) for each separate entity with the following structure: `name`,
-        containing the  name of the company, exactly as spelled in the text, and `locality`, containing
-        the city, state and country of the company. Include a field called `country` with the two-letter
-        ISO code of the country reflected by the `locality`. Do not include any other information and
-        include the entity name exactly as stated, without any additions. If only one entity is listed,
-        make it the sole item in the JSON array `entities`."""
-NEW_BANK_ORGS = {}
+ORG_PARSE_PROMPT = """Extract the entities in the following attached string.
+Only included information in the provided string. Leave missing fields as null."""
 PROGRAM_NAME = "US Federal Reserve Enforcement Actions"
 
+MODEL_VERSION = 1
+MIN_MODEL_VERSION = 1
 
-def crawl_item(input_dict: Dict[str, str], context: Context):
+
+class BankOrgEntity(BaseModel):
+    name: str = Field(
+        description="The name of the company, exactly as spelled in the text."
+    )
+    locality: str | None = Field(
+        description="The city, state and country of the company, only if indicated in the text.",
+        default=None,
+    )
+    country: str | None = Field(
+        description="The two-letter ISO code of the country reflected by the `locality`.",
+        default=None,
+    )
+
+
+class BankOrgsResult(BaseModel):
+    entities: list[BankOrgEntity]
+
+
+def review_key(string: str) -> str:
+    slug = slugify(string)
+    if len(string) <= 255:
+        return string
+    else:
+        hash = sha1(string.encode("utf-8")).hexdigest()[:10]
+        return f"{slug[:80]}-{hash}"
+
+
+def crawl_item(context: Context, original_filename: str, input_dict: Dict[str, str]):
+    origin = None
     if input_dict["Individual"]:
         schema = "Person"
         party_name = input_dict.pop("Individual")
@@ -30,29 +58,43 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
         result = context.lookup("individual_name", party_name)
         if result:
             names = result.values
-        elif len(party_name) > 50:
-            context.log.warn("Name too long", name=party_name)
+            origin = "hand-extracted"
+        else:
+            origin = original_filename
+            if len(party_name) > 50:
+                context.log.warn("Name too long", name=party_name)
         affiliation = input_dict.pop("Individual Affiliation")
-        entities = [{"name": name, "locality": None, "country": None} for name in names]
+        entities = [BankOrgEntity(name=name) for name in names]
     else:
+        origin = DEFAULT_MODEL
         schema = "Company"
         affiliation = None
         party_name = input_dict.pop("Banking Organization")
 
-        result = context.lookup("bank_orgs", party_name)
-        if result is None:
-            result = run_text_prompt(
-                context, prompt=ORG_PARSE_PROMPT, string=party_name
+        review = get_review(
+            context,
+            BankOrgsResult,
+            party_name,
+            MIN_MODEL_VERSION,
+        )
+        if review is None:
+            prompt_result = run_typed_text_prompt(
+                context,
+                prompt=ORG_PARSE_PROMPT,
+                string=party_name,
+                response_type=BankOrgsResult,
             )
-            entities = result.get("entities", [])
-            context.log.warn(
-                "Banking organizations have not been mapped explicitly",
-                match=party_name,
-                entities=entities,
+            review = request_review(
+                context=context,
+                key=review_key(party_name),
+                source_value=party_name,
+                source_mime_type="text/plain",
+                source_label="Banking Organization field in CSV",
+                source_url=None,
+                orig_extraction_data=prompt_result,
+                model_version=MODEL_VERSION,
             )
-            NEW_BANK_ORGS[party_name] = entities
-        else:
-            entities = result.entities
+        entities = review.extracted_data.entities if review.accepted else []
 
     effective_date = input_dict.pop("Effective Date")
     termination_date = input_dict.pop("Termination Date")
@@ -61,14 +103,12 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
     url = input_dict.pop("URL", None)
     for ent in entities:
         entity = context.make(schema)
-        name = ent.get("name")
-        locality = ent.get("locality")
-        entity.id = context.make_id(party_name, name, affiliation, locality)
-        entity.add("name", name)
+        entity.id = context.make_id(party_name, ent.name, affiliation, ent.locality)
+        entity.add("name", ent.name, origin=origin)
 
-        if locality:
-            entity.add("address", locality)
-        entity.add("country", ent.get("country"), original_value=locality)
+        if ent.locality:
+            entity.add("address", ent.locality, origin=origin)
+        entity.add("country", ent.country, original_value=ent.locality, origin=origin)
 
         if schema == "Company":
             entity.add("topics", "fin.bank")
@@ -98,6 +138,35 @@ def crawl_item(input_dict: Dict[str, str], context: Context):
 
 
 def crawl(context: Context):
+    # Load up the previously-accepted reviews
+    context.log.warning("Remove initial load of hand-extracted data")
+    for option in context.get_lookup("bank_orgs").options:
+        source_value = option.config["match"]
+        key = review_key(source_value)
+        review = get_review(context, BankOrgsResult, key, MIN_MODEL_VERSION)
+        if review is not None:
+            continue
+        entities: List[BankOrgEntity] = []
+
+        for entity_config in option.config["entities"]:
+            entity = BankOrgEntity(**entity_config)
+            entities.append(entity)
+
+        hand_extracted = BankOrgsResult(entities=entities)
+
+        request_review(
+            context=context,
+            key=key,
+            source_value=source_value,
+            source_mime_type="text/plain",
+            source_label="Banking Organization field in CSV",
+            source_url=None,
+            orig_extraction_data=hand_extracted,
+            model_version=MODEL_VERSION,
+            default_accepted=True,
+        )
+
+    original_filename = urlparse(context.data_url).path.split("/")[-1]
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
@@ -106,7 +175,6 @@ def crawl(context: Context):
             url = item.pop("URL")
             if url != "DNE":
                 item["URL"] = urljoin(context.data_url, url)
-            crawl_item(item, context)
+            crawl_item(context, original_filename, item)
 
-    # sections = [{"match": k, "entities": v} for k, v in NEW_BANK_ORGS.items()]
-    # print(yaml.dump({"options": sections}, sort_keys=False))
+    assert_all_accepted(context, raise_on_unaccepted=False)
