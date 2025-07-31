@@ -87,4 +87,4 @@ jobs:
         with:
           token: ${{ secrets.OPERATIONS_PAT }}
           repository: opensanctions/operations
-          event-type: "${{ github.ref == 'refs/heads/main' ? 'zavod-ui-prod' : 'zavod-ui-test' }}"
+          event-type: "${{ github.ref == 'refs/heads/main' && 'zavod-ui-prod' || 'zavod-ui-test' }}"
