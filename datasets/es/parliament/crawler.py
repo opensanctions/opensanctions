@@ -38,6 +38,7 @@ def emit_pep_position(
     subnational_area,
     is_pep,
 ):
+    pep.add("position", title)
     position = h.make_position(
         context,
         name=title,
