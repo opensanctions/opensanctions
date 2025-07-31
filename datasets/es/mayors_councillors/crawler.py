@@ -64,6 +64,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
                 f"{position.strip()} of {municipality}, {province}",
                 DEFAULT_TOPICS,
             )
+    pep.add("position", position)
     position = h.make_position(
         context,
         position,
