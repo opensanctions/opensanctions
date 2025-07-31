@@ -2,7 +2,7 @@ from typing import Generator, Dict
 from lxml import html
 import re
 import json
-from normality import collapse_spaces
+from normality import squash_spaces
 from followthemoney.types import registry
 
 from zavod import Context, helpers as h
@@ -27,7 +27,7 @@ def parse_table(table_data) -> Generator[Dict[str, str], None, None]:
     for row in table_data["rows"]:
         cells = []
         for el in row:
-            cells.append(collapse_spaces(html.fromstring(el).text_content()))
+            cells.append(squash_spaces(html.fromstring(el).text_content()))
         assert len(cells) == len(headers)
 
         # The table has a last row with all empty values
