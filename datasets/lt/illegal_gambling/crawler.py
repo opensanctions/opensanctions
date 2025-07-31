@@ -1,7 +1,7 @@
 import re
 from typing import Generator, Dict, Tuple
 
-from normality import collapse_spaces
+from normality import squash_spaces
 from zavod import Context
 from zavod import helpers as h
 
@@ -35,7 +35,7 @@ def parse_table(
     """
 
     for row_ix, row in enumerate(table.findall(".//tr")):
-        cells = [collapse_spaces(cell.text_content()) for cell in row.findall("./td")]
+        cells = [squash_spaces(cell.text_content()) for cell in row.findall("./td")]
         if row_ix < len(EXPECTED_HEADERS):
             assert cells == EXPECTED_HEADERS[row_ix], cells
             continue
