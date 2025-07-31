@@ -221,3 +221,7 @@ lookups:
           - 22010219660804333X
         # Is not a valid USCC, and if we remap to registrationNumber, its occurence in Identification:number will throw an error.
         value: null
+  type.email:
+    options:
+      - match: "?@ryongnamsan.edu.kp"
+        value: null
