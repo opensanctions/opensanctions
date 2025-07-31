@@ -139,6 +139,7 @@ def crawl_item(context: Context, original_filename: str, input_dict: Dict[str, s
 
 def crawl(context: Context):
     # Load up the previously-accepted reviews
+    context.log.warning("Remove initial load of hand-extracted data")
     for option in context.get_lookup("bank_orgs").options:
         source_value = option.config["match"]
         key = review_key(source_value)

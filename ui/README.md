@@ -11,10 +11,9 @@ This is declared for a typescript querybuilder in `lib/db.ts`.
 The unit of work is called a "review".
 
 
-## How it works
+## Usage
 
-1. OpenSanctions Crawlers call `zavod.stateful.extraction.get_accepted_data` to add the results of automated data extraction to the review database, which returns the value if a matching review entry is marked `accepted`.
-2. Human reviewers visit the user interface, review any non-accepted reviews
+See [Data Reviews](../zavod/docs/data_reviews.md)
 
 
 ## Getting Started
@@ -55,6 +54,7 @@ npm test
 - Next.js for the reviews website
   - Server side pages directly query the database to show data and handle form posts to update data. There's no API.
 - SQLAlchemy is used for Python-based crawlers to maintain review entries in the reviews table.
+- Kysely as querybuilder for the typescript side.
 
 
 ## Configuration
