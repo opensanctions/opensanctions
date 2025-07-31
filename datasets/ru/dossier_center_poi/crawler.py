@@ -1,5 +1,5 @@
 import re
-from normality import collapse_spaces
+from normality import squash_spaces
 from xml.etree import ElementTree
 
 from zavod import Context, helpers as h
@@ -15,7 +15,7 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=
     for string in to_remove:
         element_text = element_text.replace(string, "")
 
-    return collapse_spaces(element_text.strip())
+    return squash_spaces(element_text.strip())
 
 
 def paginate_crawl(context: Context, func, page_url: str, accomplices: bool = False):
@@ -85,14 +85,14 @@ def crawl_person(context: Context, url: str, accomplice: bool = False):
         '//div[contains(@class,"b-pr-section")][contains(.//*//text(), "Почему")]/*'
     )
     reason_on_list = " | ".join(
-        [collapse_spaces(tag.text_content()) for tag in reason_on_list]
+        [squash_spaces(tag.text_content()) for tag in reason_on_list]
     )
 
     possible_violation = doc.xpath(
         '//div[contains(@class,"b-pr-section")][contains(.//*//text(), "Возможные")]/*'
     )
     possible_violation = " | ".join(
-        [collapse_spaces(tag.text_content()) for tag in possible_violation]
+        [squash_spaces(tag.text_content()) for tag in possible_violation]
     )
 
     person = context.make("Person")
