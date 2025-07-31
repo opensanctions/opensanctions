@@ -4,7 +4,7 @@ import re
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_resource
-from normality import collapse_spaces
+from normality import squash_spaces
 
 REGEX_AKA = re.compile(r"\baka\b|a\.k\.a\.?", re.IGNORECASE)
 # Ruth Diane Jones, DO
@@ -14,7 +14,7 @@ REGEX_JOB_ROLE = re.compile(r"^(?P<name>.+)[,\s]+(?P<role>([A-Z\.,/-]+|\([^\)]+\
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-    raw_name = collapse_spaces(row.pop("sanctioned_provider_name"))
+    raw_name = squash_spaces(row.pop("sanctioned_provider_name"))
     npi = row.pop("npi")
     # Skip empty rows
     if raw_name == "" and npi == "":
@@ -66,11 +66,11 @@ def crawl_item(row: Dict[str, str], context: Context):
                     "Unhandled license number", license_number=license_num
                 )
         else:
-            entity.add("idNumber", collapse_spaces(license_num))
+            entity.add("idNumber", squash_spaces(license_num))
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("description", collapse_spaces(row.pop("comments")))
-    sanction.set("authority", collapse_spaces(row.pop("oig_medicaid_sanction")))
+    sanction.add("description", squash_spaces(row.pop("comments")))
+    sanction.set("authority", squash_spaces(row.pop("oig_medicaid_sanction")))
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
     reinstated_date = row.pop("reinstated_date")
     h.apply_date(sanction, "endDate", reinstated_date)
