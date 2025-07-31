@@ -12,8 +12,8 @@ summary: >
   countries, domestic decisions, and efforts to counter the financing of proliferation
   of weapons of mass destruction.
 description: |
-  The asset freezing decisions published by the Republic of Türkiye include comprehensive 
-  lists of individuals, entities, and organizations subject to financial sanctions. These 
+  The asset freezing decisions published by the Republic of Türkiye include comprehensive
+  lists of individuals, entities, and organizations subject to financial sanctions. These
   sanctions are implemented under the following categories:
   sanctions are implemented under the following categories:
 
@@ -32,9 +32,9 @@ publisher:
   acronym: MASAK
   official: true
   description: |
-    The Turkish Financial Crimes Investigation Board (MASAK), a part of the Ministry of 
-    Treasury and Finance, is responsible for preventing and combating financial crimes, 
-    including money laundering and financing of terrorism. It implements measures to freeze 
+    The Turkish Financial Crimes Investigation Board (MASAK), a part of the Ministry of
+    Treasury and Finance, is responsible for preventing and combating financial crimes,
+    including money laundering and financing of terrorism. It implements measures to freeze
     assets of designated individuals, entities, and organizations.
   country: tr
   url: https://en.hmb.gov.tr
@@ -362,7 +362,6 @@ lookups:
         value: null
   type.string:
     lowercase: true
-    normalize: true
     options:
       - match: "-"
         value: null
