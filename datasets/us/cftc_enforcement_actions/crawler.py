@@ -86,6 +86,7 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     doc = context.fetch_html(url, cache_days=30)
     doc.make_links_absolute(url)
     article = doc.xpath(".//article")[0]
+    # All but one are HTML, not PDF.
     redirect_link = article.xpath(
         ".//div[contains(@class, 'press-release-open-link-pdf-link')]//a/@href"
     )
@@ -154,15 +155,6 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
             )
             return
 
-    #    #prompt_result = run_typed_text_prompt(
-    #    #    context, PROMPT, html, response_type=Defendants
-    #    #)
-    #    #if model_hash(prompt_result) == model_hash(review.orig_extracted_data):
-    #    #    accepted = True
-    #    #else:
-    #    #    accepted = False
-    #    #request_review(..., default_accepted=accepted)
-
     if not review.accepted:
         return
 
@@ -228,7 +220,6 @@ def crawl(context: Context) -> None:
 
     assert_all_accepted(context)
     global something_changed
-    if something_changed:
-        raise Exception(
-            "Something changed. See what changed to determine whether to trigger re-review."
-        )
+    assert (
+        not something_changed
+    ), "See what changed to determine whether to trigger re-review."

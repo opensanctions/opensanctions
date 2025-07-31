@@ -2,6 +2,7 @@
 # docker run -ti -p3000:3000 --rm -e ZAVOD_DATABASE_URI=postgresql://postgres:password@host.docker.internal:5432/dev -e ZAVOD_ALLOW_UNAUTHENTICATED=true zavod-ui
 
 FROM node:24-slim
+ARG BUILD_DATE=static
 
 LABEL org.opencontainers.image.title="Zavod UI"
 
