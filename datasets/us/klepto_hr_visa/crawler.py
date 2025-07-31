@@ -1,5 +1,5 @@
 from typing import Optional
-from normality import collapse_spaces
+from normality import squash_spaces
 from followthemoney.types import registry
 import re
 
@@ -23,7 +23,7 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
 
     program = section.find(".//h3[@class='report__section-subtitle']").text_content()
     program = program.replace("(Generally Listed in Chronological Order)", "")
-    program = collapse_spaces(program.replace("Since Previous Report", ""))
+    program = squash_spaces(program.replace("Since Previous Report", ""))
 
     items = section.findall(".//li")
     if len(items) == 0:
@@ -32,7 +32,7 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
         context.log.warning(f"Empty list for program {program}")
 
     for item in items:
-        item_text = collapse_spaces(item.text_content())
+        item_text = squash_spaces(item.text_content())
         if item_text == "":
             continue
         if item_text.startswith("* Denotes an action"):
@@ -40,9 +40,9 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
 
         match = REGEX_ITEM.match(item_text)
         if match:
-            name = collapse_spaces(match.group("name"))
-            countries = [collapse_spaces(c) for c in match.group("country").split("/")]
-            reason = collapse_spaces(match.group("reason"))
+            name = squash_spaces(match.group("name"))
+            countries = [squash_spaces(c) for c in match.group("country").split("/")]
+            reason = squash_spaces(match.group("reason"))
 
             if not all([registry.country.clean(c) for c in countries]):
                 res = context.lookup("unparsed", item_text)
