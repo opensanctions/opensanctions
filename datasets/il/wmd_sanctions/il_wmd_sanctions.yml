@@ -13,9 +13,9 @@ description: |
   activity in Israel, and with whom economic activity by Israeli parties, is
   restricted or banned under the Trading with the Enemy Ordinance – 1939, and the
   Prevention of Distribution and Financing of Weapons of Mass Destruction Law – 2018.
-   
+
   > According to Section 5 of
-  > [the Prevention of Distribution and Financing of Weapons of Mass Destruction Law – 2018](https://www.gov.il/BlobFolder/dynamiccollectorresultitem/mass-destruction-weapons-english/he/legal-docs_mass_distruction_weapons_english.pdf), 
+  > [the Prevention of Distribution and Financing of Weapons of Mass Destruction Law – 2018](https://www.gov.il/BlobFolder/dynamiccollectorresultitem/mass-destruction-weapons-english/he/legal-docs_mass_distruction_weapons_english.pdf),
   economic activity with a designated entity or individual or a party related to a
   > designated entity or individual is forbidden, and the termination of existing
   > economic activity is mandatory. It is also mandatory to report suspicion of such
@@ -74,6 +74,10 @@ lookups:
     options:
       - match: "563120368, issued on 22 Mar. 2013 (Passport expiration date: March 22, 2018)"
         value: "563120368, issued 22 Mar. 2013, expires March 22, 2018"
+  type.name:
+    options:
+      - match: ":"
+        value: null
   schema:
     options:
       - contains:
