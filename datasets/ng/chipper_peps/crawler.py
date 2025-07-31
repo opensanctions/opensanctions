@@ -1,6 +1,6 @@
 import re
 import csv
-from normality import collapse_spaces
+from normality import squash_spaces
 from rigour.mime.types import CSV
 from typing import Dict, Optional
 
@@ -113,17 +113,17 @@ def crawl_row(context: Context, row: Dict[str, str]):
         middle_name=middle_name,
         last_name=last_name,
     )
-    entity.add("title", collapse_spaces(row.pop("Title")))
+    entity.add("title", squash_spaces(row.pop("Title")))
     entity.add("gender", row.pop("Gender"))
     h.apply_date(entity, "birthDate", row.pop("Date of Birth").strip())
-    entity.add("address", collapse_spaces(row.pop("Official Address")))
+    entity.add("address", squash_spaces(row.pop("Official Address")))
     # confirming if this assumption is ok:
     # entity.add("birthPlace", row.pop("State Of Origin"))
 
-    previous_pos = collapse_spaces(row.pop("Previous Position")).strip()
+    previous_pos = squash_spaces(row.pop("Previous Position")).strip()
     if previous_pos:
         crawl_position(context, entity, previous_pos)
-    present_pos = collapse_spaces(row.pop("Present Position")).strip()
+    present_pos = squash_spaces(row.pop("Present Position")).strip()
     if present_pos:
         crawl_position(context, entity, present_pos)
 
