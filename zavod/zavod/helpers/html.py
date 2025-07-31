@@ -18,7 +18,7 @@ def parse_html_table(
 
     Args:
         table
-        header_tag: Default th, allows treating tr as header
+        header_tag: Default th, allows treating td as header
         skiprows: Number of rows to skip before expecting the header row.
         ignore_colspan: colspans to ignore, e.g. when a full span means a subheading
 
