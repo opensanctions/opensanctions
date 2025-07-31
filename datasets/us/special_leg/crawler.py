@@ -33,7 +33,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     sanction.add("reason", row.pop("reason"))
     sanction.add("description", f"Published in {report_date} report.")
     sanction.set("authority", row.pop("authority"))
-    sanction.set("sourceUrl", source_url)
+    sanction.set("sourceUrl", h.multi_split(source_url, ";"))
 
     context.emit(entity)
     context.emit(sanction)
