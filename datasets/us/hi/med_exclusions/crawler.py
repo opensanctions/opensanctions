@@ -3,7 +3,7 @@ from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
-from normality import collapse_spaces
+from normality import squash_spaces
 
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 
@@ -78,5 +78,5 @@ def crawl(context: Context) -> None:
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for item in h.parse_pdf_table(context, path, headers_per_page=True):
         for key, value in item.items():
-            item[key] = collapse_spaces(value)
+            item[key] = squash_spaces(value)
         crawl_item(item, context)
