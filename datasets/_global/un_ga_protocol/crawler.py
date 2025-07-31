@@ -12,6 +12,10 @@ a JSON list (`holders`) in which each object represents an office-holder
 (e.g. head of government, head of state, minister of foreign affairs).
 Each object should have the following fields: `country`, `full_title`,
 `honorary_prefix`, `person_name`, `date_of_appointment`.
+
+When multiple people are listed in one section with concatenated dates, 
+assign dates sequentially (first date to first person, second date to second 
+person). Return each person as a separate object.
 Return an empty string for unset fields.
 """
 
