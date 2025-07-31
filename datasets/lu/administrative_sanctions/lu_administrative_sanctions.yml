@@ -118,6 +118,9 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-24-decembre-2024/
         names:
           - ActivTrades Europe S.A.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-2-mai-2025/
+        names:
+          - Banque et Caisse d’Epargne de l’Etat, Luxembourg
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
@@ -175,4 +178,5 @@ lookups:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du-10-janvier-2025/
           - https://www.cssf.lu/fr/Document/sanction-administrative-du-20-decembre-2024/
           - https://www.cssf.lu/fr/Document/sanction-administrative-pecuniaire-du-16-avril-2025/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-10-juin-2025/
         names: []
