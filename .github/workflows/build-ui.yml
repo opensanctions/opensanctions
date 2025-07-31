@@ -19,18 +19,16 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: testdb
+          POSTGRES_DB: test
           POSTGRES_USER: testuser
           POSTGRES_PASSWORD: testpass
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U testuser -d testdb" --health-interval=5s --health-timeout=5s --health-retries=10
+          --health-cmd="pg_isready -U testuser -d test" --health-interval=5s --health-timeout=5s --health-retries=10
     defaults:
       run:
         working-directory: ui
-    env:
-      ZAVOD_DATABASE_URI: postgres://testuser:testpass@localhost:5432/testdb
     steps:
       - uses: actions/checkout@v4
       - name: Install Node.js
