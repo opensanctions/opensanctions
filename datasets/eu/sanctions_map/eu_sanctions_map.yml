@@ -59,3 +59,10 @@ assertions:
       LegalEntity: 1340
       Vessel: 230
       Person: 50
+
+lookups:
+  type.identifier:
+    options:
+      - match:
+          - 09346732 # Invalid IMO
+        prop: registrationNumber
