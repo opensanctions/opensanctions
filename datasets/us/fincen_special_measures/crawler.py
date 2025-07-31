@@ -1,7 +1,7 @@
 from lxml import html
 import re
 from zavod import Context, helpers as h
-from normality import slugify
+from normality import slugify, squash_spaces
 from typing import Dict, Generator, cast
 from typing import List
 from normality import collapse_spaces
@@ -29,7 +29,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
     final_rule = collapse_spaces(
         row.get("final-rule", "").text_content().strip().lower()
     )
-    rescinded_date = collapse_spaces(row.get("rescinded").text_content())
+    rescinded_date = squash_spaces(row.get("rescinded").text_content())
     if (
         final_rule
         and final_rule != "---"
