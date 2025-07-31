@@ -8,7 +8,7 @@ import TurndownService from 'turndown';
 import { markdown } from "@codemirror/lang-markdown";
 
 
-export default function SourceView({ sourceValue, sourceContentType, sourceLabel }: { sourceValue: string, sourceContentType: string, sourceLabel: string }) {
+export default function SourceView({ sourceValue, sourceMimeType, sourceLabel }: { sourceValue: string, sourceMimeType: string, sourceLabel: string }) {
   const tabs: React.ReactNode[] = [];
   const tab = (title: string, content: React.ReactNode | null = null) => {
     return <Tab key={title} eventKey={title} title={title} >
@@ -24,7 +24,7 @@ export default function SourceView({ sourceValue, sourceContentType, sourceLabel
     </Tab>
   }
 
-  if (sourceContentType === 'text/html') {
+  if (sourceMimeType === 'text/html') {
     tabs.push(tab("As web page",
       <div
         style={{ height: '100%', width: '100%', overflow: 'auto', backgroundColor: '#fff', padding: '10px' }}
@@ -45,12 +45,12 @@ export default function SourceView({ sourceValue, sourceContentType, sourceLabel
     ))
 
     tabs.push(tab("Original HTML"))
-  } else if (sourceContentType === 'text/plain') {
+  } else if (sourceMimeType === 'text/plain') {
     tabs.push(tab("Original Plain Text"))
-  } else if (sourceContentType === 'image/png') {
+  } else if (sourceMimeType === 'image/png') {
     tabs.push(tab("Original PNG", <img src={sourceValue} alt={sourceLabel} />))
   } else {
-    tabs.push(tab(sourceContentType))
+    tabs.push(tab(sourceMimeType))
   }
   return (
     <div className="flex-grow-1 d-flex flex-column source-view" style={{ height: '100%' }}>

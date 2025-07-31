@@ -54,7 +54,7 @@ export default async function EntryPage({ params }: PageProps) {
                 </span>
               )}
             </h2>
-            <SourceView sourceValue={entry.source_value} sourceContentType={entry.source_content_type} sourceLabel={entry.source_label} />
+            <SourceView sourceValue={entry.source_value} sourceMimeType={entry.source_mime_type} sourceLabel={entry.source_label} />
           </Col>
           <Col className="d-flex flex-column" style={{ height: '100%' }}>
             <h2 className="h5 text-break d-flex">Extracted data</h2>

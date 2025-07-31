@@ -87,7 +87,7 @@ def crawl_page(context: Context, url: str, page: _Element) -> None:
             key=notice_id(url),
             source_value=html,
             source_data_hash=text_hash,
-            source_content_type="text/html",
+            source_mime_type="text/html",
             source_label="Enforcement Action Notice",
             source_url=url,
             orig_extraction_data=prompt_result,

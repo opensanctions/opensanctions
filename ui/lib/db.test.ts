@@ -4,18 +4,19 @@ import { getDb, NewReview, updateExtractionEntry } from './db';
 describe('updateExtractionEntry integration', () => {
   beforeEach(async () => {
     // Clean up the table and create if needed
-    await getDb().schema.dropTable('review').ifExists().execute();
-    await getDb().schema
+    await (await getDb(false)).schema.dropTable('review').ifExists().execute();
+    await (await getDb(false)).schema
       .createTable('review')
       .addColumn('id', 'serial', (col) => col.primaryKey())
       .addColumn('key', 'text')
       .addColumn('dataset', 'text')
       .addColumn('extraction_schema', 'json')
       .addColumn('source_value', 'text')
-      .addColumn('source_content_type', 'text')
+      .addColumn('source_mime_type', 'text')
       .addColumn('source_label', 'text')
       .addColumn('source_url', 'text')
       .addColumn('accepted', 'boolean')
+      .addColumn('model_version', 'integer')
       .addColumn('orig_extraction_data', 'json')
       .addColumn('extracted_data', 'json')
       .addColumn('last_seen_version', 'text')
@@ -25,7 +26,7 @@ describe('updateExtractionEntry integration', () => {
       .execute();
   });
   afterEach(async () => {
-    await getDb().schema.dropTable('review').ifExists().execute();
+    await (await getDb(false)).schema.dropTable('review').ifExists().execute();
   });
 
   it('marks old row as deleted and inserts new row with updated values', async () => {
@@ -35,7 +36,7 @@ describe('updateExtractionEntry integration', () => {
       dataset: 'd1',
       extraction_schema: { foo: 'bar' },
       source_value: 'sv',
-      source_content_type: 'ct',
+      source_mime_type: 'ct',
       source_label: 'lbl',
       source_url: 'url',
       accepted: false,
@@ -45,9 +46,10 @@ describe('updateExtractionEntry integration', () => {
       modified_at: now,
       modified_by: 'zavod ui',
       deleted_at: null,
+      model_version: 1,
     };
     // Insert initial row
-    await getDb().insertInto('review').values(initial).execute();
+    await (await getDb()).insertInto('review').values(initial).execute();
 
     // Call updateExtractionEntry
     const newAccepted = true;
@@ -61,7 +63,7 @@ describe('updateExtractionEntry integration', () => {
     });
 
     // Check old row is marked as deleted
-    const oldRows = await getDb().selectFrom('review')
+    const oldRows = await (await getDb()).selectFrom('review')
       .selectAll()
       .where('dataset', '=', 'd1')
       .where('key', '=', 'k1')
@@ -72,7 +74,7 @@ describe('updateExtractionEntry integration', () => {
     expect(oldRows[0].extracted_data).toEqual({ b: 2 });
 
     // Check new row is inserted with updated values
-    const newRows = await getDb().selectFrom('review')
+    const newRows = await (await getDb()).selectFrom('review')
       .selectAll()
       .where('dataset', '=', 'd1')
       .where('key', '=', 'k1')
@@ -87,7 +89,7 @@ describe('updateExtractionEntry integration', () => {
     expect(newRows[0].extraction_schema).toEqual(initial.extraction_schema);
     expect(newRows[0].orig_extraction_data).toEqual(initial.orig_extraction_data);
     expect(newRows[0].source_value).toBe(initial.source_value);
-    expect(newRows[0].source_content_type).toBe(initial.source_content_type);
+    expect(newRows[0].source_mime_type).toBe(initial.source_mime_type);
     expect(newRows[0].source_label).toBe(initial.source_label);
     expect(newRows[0].source_url).toBe(initial.source_url);
     expect(newRows[0].last_seen_version).toBe(initial.last_seen_version);

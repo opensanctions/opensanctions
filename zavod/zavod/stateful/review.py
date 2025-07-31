@@ -42,7 +42,7 @@ class Review(BaseModel, Generic[ModelType]):
     dataset: str
     extraction_schema: JsonValue
     source_value: str
-    source_content_type: str
+    source_mime_type: str
     source_label: str
     source_url: Optional[str]
     data_model: Type[ModelType]
@@ -124,7 +124,7 @@ class Review(BaseModel, Generic[ModelType]):
             dataset=self.dataset,
             extraction_schema=self.extraction_schema,
             source_value=self.source_value,
-            source_content_type=self.source_content_type,
+            source_mime_type=self.source_mime_type,
             source_label=self.source_label,
             source_url=self.source_url,
             model_version=self.model_version,
@@ -161,7 +161,7 @@ def request_review(
     context: Context,
     key: str | list[str],
     source_value: str,
-    source_content_type: str,
+    source_mime_type: str,
     source_label: str,
     source_url: Optional[str],
     orig_extraction_data: ModelType,
@@ -201,7 +201,7 @@ def request_review(
                 dataset=dataset,
                 extraction_schema=schema,
                 source_value=source_value,
-                source_content_type=source_content_type,
+                source_mime_type=source_mime_type,
                 source_label=source_label,
                 source_url=source_url,
                 data_model=type(orig_extraction_data),
@@ -221,7 +221,7 @@ def request_review(
             context.log.debug("Re-requesting review", key=key_slug)
             review.extraction_schema = schema
             review.source_value = source_value
-            review.source_content_type = source_content_type
+            review.source_mime_type = source_mime_type
             review.source_label = source_label
             review.source_url = source_url
             review.model_version = model_version

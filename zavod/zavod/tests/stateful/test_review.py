@@ -7,7 +7,7 @@ from zavod.stateful.model import review_table
 
 SOURCE_LABEL = "test"
 SOURCE_URL = "http://source"
-SOURCE_CONTENT_TYPE = "text/plain"
+SOURCE_MIME_TYPE = "text/plain"
 SOURCE_VALUE = "unstructured data"
 
 
@@ -29,7 +29,7 @@ def test_new_key_saved_and_accepted_false(testdataset1):
         context,
         "key1",
         SOURCE_VALUE,
-        SOURCE_CONTENT_TYPE,
+        SOURCE_MIME_TYPE,
         SOURCE_LABEL,
         SOURCE_URL,
         model,
@@ -51,7 +51,7 @@ def test_current_model_version_updates_last_seen_version(testdataset1, monkeypat
         context1,
         "key2",
         SOURCE_VALUE,
-        SOURCE_CONTENT_TYPE,
+        SOURCE_MIME_TYPE,
         SOURCE_LABEL,
         SOURCE_URL,
         data,
@@ -83,7 +83,7 @@ def test_expired_model_version_returns_none(testdataset1, monkeypatch):
         context,
         "key3",
         SOURCE_VALUE,
-        SOURCE_CONTENT_TYPE,
+        SOURCE_MIME_TYPE,
         SOURCE_LABEL,
         SOURCE_URL,
         data,
@@ -112,7 +112,7 @@ def test_re_request_deletes_old_and_inserts_new(testdataset1, monkeypatch):
         context1,
         "key3",
         SOURCE_VALUE,
-        SOURCE_CONTENT_TYPE,
+        SOURCE_MIME_TYPE,
         SOURCE_LABEL,
         SOURCE_URL,
         data,
@@ -126,7 +126,7 @@ def test_re_request_deletes_old_and_inserts_new(testdataset1, monkeypatch):
         context2,
         "key3",
         SOURCE_VALUE,
-        SOURCE_CONTENT_TYPE,
+        SOURCE_MIME_TYPE,
         SOURCE_LABEL,
         SOURCE_URL,
         data2,

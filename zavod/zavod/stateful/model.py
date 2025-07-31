@@ -53,13 +53,13 @@ review_table = Table(
     Column("dataset", Unicode(KEY_LEN), nullable=False, index=True),
     Column("extraction_schema", JSON, nullable=False),
     Column("source_value", Unicode(VALUE_LEN), nullable=True),
-    Column("source_content_type", Unicode(VALUE_LEN), nullable=True),
+    Column("source_mime_type", Unicode(VALUE_LEN), nullable=True),
     Column("source_label", Unicode(VALUE_LEN), nullable=True),
     Column("source_url", Unicode(VALUE_LEN), nullable=True),
     Column("accepted", Boolean, nullable=False, index=True),
+    Column("model_version", Integer, nullable=False),
     # only to be edited by the crawler
     Column("orig_extraction_data", JSON, nullable=False),
-    Column("model_version", Integer, nullable=False),
     # editable by the reviewer
     Column("extracted_data", JSON, nullable=False),
     # The crawl version that last saw this review key

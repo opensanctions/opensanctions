@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const db = getDb();
+    const db = (await getDb());
     const result = await db
       .selectFrom('review')
       .select(({ fn }) => [fn.count('dataset').distinct().as('count')])

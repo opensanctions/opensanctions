@@ -33,10 +33,10 @@ jobs:
       ZAVOD_DATABASE_URI: postgres://testuser:testpass@localhost:5432/testdb
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js 22
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - name: Install dependencies
         run: npm ci
       - name: Run Jest tests
