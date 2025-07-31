@@ -4,18 +4,18 @@ prefix: es-mc
 load_statements: true
 coverage:
   frequency: weekly
-  start: 2025-07-24
+  start: 2025-07-31
 summary: >
-  Individuals holding mayoral or councillor positions in Spain.
+  Individuals holding mayoral or municipal councillor positions in Spain.
 description: |
-  This dataset contains detailed information on individuals holding mayoral or councillor 
-  positions in Spain. Each entry includes the name of the official, their position, and 
-  political affiliation. The data covers current officials and historical data from the 
-  2019-2023 term.
+  This dataset contains information on individuals currently serving as mayors or councillors 
+  in Spanish municipalities. It includes their names, roles, political affiliations, and 
+  relevant administrative details. The dataset reflects current officeholders and includes 
+  historical data from the 2019–2023 municipal term.
 publisher:
   name: Ministerio de Política Territorial y Memoria Democrática
   name_en: Ministry of Territorial Policy and Democratic Memory
-  acronym: MPTMD
+  acronym: MPT
   official: true
   description: |
     The Ministry of Territorial Policy and Democratic Memory is the government department 
