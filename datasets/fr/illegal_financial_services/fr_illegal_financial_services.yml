@@ -39,3 +39,10 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 3400
+
+lookups:
+  type.email:
+    options:
+      # Could be infos@banque-france.cc (already in the dataset), but let's not assume
+      - match: "infos@banque-france.c"
+        value: null
