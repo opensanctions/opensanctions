@@ -30,7 +30,7 @@
 # plus all the additional DuckDB and non-DuckDB memory usage.
 
 from collections import defaultdict
-import csv
+import orjson
 import logging
 from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
@@ -136,26 +136,27 @@ class DuckDBIndex(BaseIndex[DS, SE]):
         self._init_db()
 
     def load_entities(self, table: str, entities: Iterable[SE]) -> None:
-        path = self.data_dir / f"{table}.csv"
-        log.info("Dumping tokenized entities to CSV: %r", table)
-        with open(path, "w") as fh:
-            writer = csv.writer(
-                fh,
-                dialect=csv.unix_dialect,
-                escapechar="\\",
-                doublequote=False,
-            )
+        path = self.data_dir / f"{table}.ndjson"
+        log.info("Dumping tokenized entities to NDJSON: %r", table)
+        with open(path, "wb") as fh:
             idx = 0
             for entity in entities:
                 if not entity.schema.matchable or entity.id is None:
                     continue
                 counts: Dict[Tuple[str, str], int] = defaultdict(int)
                 for field, token in tokenize_entity(entity):
+                    token = token[:100]  # Limit token length to 100 characters
                     counts[(field, token)] += 1
 
                 for (field, token), count in counts.items():
-                    row = [entity.schema.name, entity.id, field, token, count]
-                    writer.writerow(row)
+                    data = {
+                        "schema": entity.schema.name,
+                        "id": entity.id,
+                        "field": field,
+                        "token": token,
+                        "count": count,
+                    }
+                    fh.write(orjson.dumps(data, option=orjson.OPT_APPEND_NEWLINE))
 
                 idx += 1
                 if idx % 50000 == 0:
@@ -165,8 +166,9 @@ class DuckDBIndex(BaseIndex[DS, SE]):
             (schema TEXT, id TEXT, field TEXT, token TEXT, count INT)
         """)
         log.info("Loading data to table %r...", table)
-        q = f"COPY {table} FROM '{path}' (HEADER false, AUTO_DETECT false, ESCAPE '\\')"
-        self.con.execute(q)
+        self.con.execute(f"COPY {table} FROM '{path}'")
+        path.unlink(missing_ok=True)
+        self._clear()
 
     def build(self) -> None:
         """Index all entities in the dataset."""
@@ -242,6 +244,15 @@ class DuckDBIndex(BaseIndex[DS, SE]):
 
     def _apply_stopwords(self, origin_table: str, target_table: str) -> None:
         log.info("Filtering stopwords from %r, as %r...", origin_table, target_table)
+        # FIXME: this doesn't work for enrichment:
+        # q = f"""
+        # CREATE OR REPLACE TABLE {target_table} as
+        #     SELECT e.*
+        #     FROM {origin_table} AS e
+        #     LEFT JOIN tokens AS t ON t.token = e.token
+        #     LEFT OUTER JOIN stopwords ON stopwords.token = e.token
+        #     WHERE stopwords.token is NULL AND t.freq > 1
+        # """
         q = f"""
         CREATE OR REPLACE TABLE {target_table} as
             SELECT e.*
@@ -268,6 +279,7 @@ class DuckDBIndex(BaseIndex[DS, SE]):
             LEFT OUTER JOIN boosts boo ON f.field = boo.field
         """
         self.con.execute(term_frequencies_query)
+        self._clear()
 
     def pairs(
         self, max_pairs: int = BaseIndex.MAX_PAIRS
