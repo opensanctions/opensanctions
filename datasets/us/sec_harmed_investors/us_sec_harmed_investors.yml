@@ -23,9 +23,9 @@ publisher:
   url: https://www.sec.gov
   official: true
   country: us
-url: https://www.sec.gov/enforce/information-for-harmed-investors
+url: https://www.sec.gov/enforcement-litigation/distributions-harmed-investors
 data:
-  url: https://www.sec.gov/enforce/information-for-harmed-investors
+  url: https://www.sec.gov/enforcement-litigation/distributions-harmed-investors
   format: HTML
 
 assertions:
