@@ -71,7 +71,7 @@ jobs:
         env:
           BUILD_DATE: ${{ env.BUILD_DATE }}
         with:
-          context: .
+          context: ui
           pull: true
           push: true
           tags: "ghcr.io/opensanctions/zavod-ui:${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}"
