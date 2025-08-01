@@ -5177,9 +5177,10 @@ lookups:
           registrationNumber: 4492923740039
           incorporationDate: 2023-07-16
       - match: "Etablissement secondaire de la société “SODELIM” dénommé “Centre Tawhid”, enregistré le 16 juillet 2023, immatriculée au RCS sous le numéro SIRET 4492923740039: SIRET 4492923740039,"
+        schema: Company
         props:
           name: Centre Tawhid
           registrationNumber: 4492923740039
           incorporationDate: 2023-07-16
-          associates:
-            - SODELIM
+        associates:
+          - SODELIM
