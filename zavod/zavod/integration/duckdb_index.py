@@ -63,8 +63,9 @@ DEFAULT_FIELD_STOPWORDS_PCT = {
     registry.identifier.name: 0.0,
     registry.country.name: 85.0,
     registry.address.name: 10.0,
-    PHONETIC_FIELD: 20.0,
-    WORD_FIELD: 15.0,
+    registry.date.name: 85.0,
+    PHONETIC_FIELD: 30.0,
+    WORD_FIELD: 10.0,
     NAME_PART_FIELD: 4.0,
 }
 
@@ -212,7 +213,7 @@ class DuckDBIndex(BaseIndex[DS, SE]):
             log.info("Stopwords disabled for field '%s'.", field)
             return
         limit = int((num_tokens / 100) * field_stopwords_pct)
-        limit = min(limit, self.max_stopwords)
+        # limit = min(limit, self.max_stopwords)
         log.info(
             "Treating %d (%s%%) most common tokens as stopwords for field '%s'...",
             limit,
