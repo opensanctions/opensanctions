@@ -5182,5 +5182,5 @@ lookups:
           name: Centre Tawhid
           registrationNumber: 4492923740039
           incorporationDate: 2023-07-16
-          associates:
-            - SODELIM
+        associates:
+          - SODELIM
