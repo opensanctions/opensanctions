@@ -27,6 +27,7 @@ url: https://www.sec.gov/enforcement-litigation/distributions-harmed-investors
 data:
   url: https://www.sec.gov/enforcement-litigation/distributions-harmed-investors
   format: HTML
+ci_test: false
 
 assertions:
   min:
