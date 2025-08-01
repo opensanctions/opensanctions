@@ -2,6 +2,7 @@ title: Spain Members of Parliament
 entry_point: crawler.py
 prefix: es-par
 load_statements: true
+ci_test: false
 coverage:
   frequency: weekly
   start: 2025-07-29
