@@ -33,6 +33,8 @@ SKIP_PROPERTIES = {
     "publisherUrl",
     "programId",
     "recordId",
+    "legalForm",
+    "status",
 }
 PREFIXES = {
     registry.name: "n",
@@ -105,7 +107,7 @@ def tokenize_entity(entity: StatementEntity) -> Generator[Tuple[str, str], None,
             lvalue = value.lower()
             # min 6 to focus on things that could be fairly unique identifiers
             for token in tokenize_name(lvalue, token_min_length=6):
-                if len(token) > 30 or is_stopword(token):
+                if is_stopword(token):
                     continue
                 yield WORD_FIELD, f"{WORD_FIELD}:{token}"
         if type == registry.date:
@@ -127,7 +129,7 @@ def tokenize_entity(entity: StatementEntity) -> Generator[Tuple[str, str], None,
                 # Disable this for now, as it is not performant:
                 # norm = remove_address_keywords(norm) or norm
                 for word in norm.split(WS):
-                    if len(word) > 30 or is_stopword(word):
+                    if is_stopword(word):
                         continue
                     if len(word) > 3:
                         unique.add((type.name, f"{prefix}:{word}"))

@@ -58,14 +58,14 @@ BATCH_SIZE = 10000
 # Reducing these increases memory usage
 DEFAULT_STOPWORDS_PCT = 0.8
 DEFAULT_FIELD_STOPWORDS_PCT = {
-    registry.name.name: 0.2,
+    registry.name.name: 0.5,
     registry.phone.name: 0.0,
     registry.identifier.name: 0.0,
-    registry.country.name: 85.0,
+    registry.country.name: 90.0,
     registry.address.name: 10.0,
-    registry.date.name: 85.0,
+    registry.date.name: 40.0,
     PHONETIC_FIELD: 30.0,
-    WORD_FIELD: 10.0,
+    WORD_FIELD: 5.0,
     NAME_PART_FIELD: 4.0,
 }
 
@@ -145,7 +145,7 @@ class DuckDBIndex(BaseIndex[DS, SE]):
                     continue
                 counts: Dict[Tuple[str, str], int] = defaultdict(int)
                 for field, token in tokenize_entity(entity):
-                    token = token[:100]  # Limit token length to 100 characters
+                    token = token[:40]  # Limit token length
                     counts[(field, token)] += 1
 
                 for (field, token), count in counts.items():
