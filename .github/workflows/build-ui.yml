@@ -49,6 +49,8 @@ jobs:
       contents: read
       packages: write
     needs: [test]
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
       - name: Set build date
@@ -67,6 +69,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push release
+        id: build
         uses: docker/build-push-action@v6
         env:
           BUILD_DATE: ${{ env.BUILD_DATE }}
@@ -74,7 +77,11 @@ jobs:
           context: ui
           pull: true
           push: true
-          tags: "ghcr.io/opensanctions/zavod-ui:${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}"
+          images: "ghcr.io/opensanctions/zavod-ui"
+          tags: |
+            type=raw,value=${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}"
+            type=raw,value=latest
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
           build-args: |
             BUILD_DATE=${{ env.BUILD_DATE }}
           cache-from: type=gha
@@ -92,4 +99,7 @@ jobs:
         with:
           token: ${{ secrets.OPERATIONS_PAT }}
           repository: opensanctions/operations
-          event-type: "${{ github.ref == 'refs/heads/main' && 'zavod-ui-prod' || 'zavod-ui-test' }}"
+          event-type: release
+          client-payload: |
+            environment: "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}"
+            image_version: "@sha256:${{ needs.docker.outputs.digest }}"
