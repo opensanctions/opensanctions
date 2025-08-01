@@ -32,6 +32,8 @@ data:
   url: https://obsidian.antikorupcija.me/api/ask-interni-pretraga/ank-izvjestaj-imovine/pretraga-izvjestaj-imovine-javni
   format: JSON
   lang: cnr # Montenegrin (ISO 639-2)
+dates:
+  formats: ["%d.%m.%Y", "%d.%m.%Y."]
 
 assertions:
   min:
@@ -64,3 +66,7 @@ lookups:
         country: us
       - match: Makedonsko
         country: mk
+  type.date:
+    options:
+      - match: '.'
+        value: null

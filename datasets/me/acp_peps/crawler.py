@@ -1,4 +1,5 @@
 import io
+import re
 from csv import DictReader
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple, Set
@@ -69,6 +70,11 @@ def family_row_entity(context: Context, row) -> Entity:
     first_name = row.pop("IME_CLANA_PORODICE")
     last_name = row.pop("PREZIME_CLANA_PORODICE")
     maiden_name = row.pop("RODJENO_PREZIME_CLANA_PORODICE").strip("/").strip("-")
+    # If the maiden name is actually a birthdate (i.e. only digits and dots),
+    # treat it as the date of birth and clear the maiden name field
+    dob = maiden_name if re.fullmatch(r"[.\d]+", maiden_name) else None
+    maiden_name = None if dob else maiden_name
+
     city = row.pop("MESTO")
     entity = context.make("Person")
     entity.id = context.make_id(first_name, last_name, city)
@@ -76,6 +82,7 @@ def family_row_entity(context: Context, row) -> Entity:
     h.apply_name(
         entity, first_name=first_name, last_name=last_name, maiden_name=maiden_name
     )
+    h.apply_date(entity, "birthDate", dob)
     address = h.make_address(context, city=city, place=row.pop("BORAVISTE"), lang="cnr")
     h.copy_address(entity, address)
     context.audit_data(row, ignore=["FUNKCIONER_IME", "FUNKCIONER_PREZIME"])
