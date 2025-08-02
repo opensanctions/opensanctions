@@ -14,6 +14,7 @@ WORD_FIELD = "wd"
 NAME_PART_FIELD = "np"
 PHONETIC_FIELD = "ph"
 SKIP = (
+    registry.country,  # turns out.
     registry.url,
     registry.topic,
     registry.entity,
@@ -39,7 +40,7 @@ SKIP_PROPERTIES = {
 PREFIXES = {
     registry.name: "n",
     registry.identifier: "i",
-    registry.country: "c",
+    # registry.country: "c",
     registry.phone: "p",
     registry.address: "a",
     registry.date: "d",
@@ -47,7 +48,7 @@ PREFIXES = {
 EMIT_FULL = (
     # registry.name,
     # registry.identifier,
-    registry.country,
+    # registry.country,
     registry.phone,
     # registry.iban,
 )

@@ -58,10 +58,10 @@ BATCH_SIZE = 10000
 # Reducing these increases memory usage
 DEFAULT_STOPWORDS_PCT = 0.8
 DEFAULT_FIELD_STOPWORDS_PCT = {
-    registry.name.name: 0.5,
+    registry.name.name: 0.2,
     registry.phone.name: 0.0,
     registry.identifier.name: 0.0,
-    registry.country.name: 90.0,
+    # registry.country.name: 90.0,
     registry.address.name: 10.0,
     registry.date.name: 40.0,
     PHONETIC_FIELD: 30.0,
