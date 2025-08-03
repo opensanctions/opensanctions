@@ -66,7 +66,7 @@ DEFAULT_FIELD_STOPWORDS_PCT = {
     registry.date.name: 40.0,
     PHONETIC_FIELD: 30.0,
     WORD_FIELD: 5.0,
-    NAME_PART_FIELD: 4.0,
+    NAME_PART_FIELD: 3.0,
 }
 
 
@@ -188,7 +188,8 @@ class DuckDBIndex(BaseIndex[DS, SE]):
                 q = "INSERT INTO schemata VALUES (?, ?)"
                 self.con.execute(q, [left.name, right.name])
 
-        self.load_entities("entries", self.view.entities())
+        schemata = list(model.matchable_schemata())
+        self.load_entities("entries", self.view.entities(include_schemata=schemata))
         self._build_frequencies()
         log.info("Index built.")
 
