@@ -2,14 +2,14 @@ title: US Kentucky Terminated and Excluded Providers
 entry_point: crawler.py
 prefix: us-medky
 coverage:
-  frequency: daily
   start: "2024-11-15"
+  schedule: "13 4 1,15 * *"
 load_statements: true
 summary: >
   Medical providers terminated or excluded from Kentucky's Medicaid program.
 description: |
   This dataset contains individuals and companies that have been terminated
-  from Kentucky's Medicaid Program. The following text from their website explains the 
+  from Kentucky's Medicaid Program. The following text from their website explains the
   conditions and implications of such terminations or exclusions,
   including the restrictions on reimbursement, re-enrollment criteria,
   and responsibilities for Medicaid providers in screening employees and
@@ -18,7 +18,7 @@ description: |
    > An individual or entity terminated or excluded from participating in
    > the Kentucky Medicaid program will not be reimbursed for services
    > provided in any capacity or in any category under the Kentucky Medicaid
-   > program. 
+   > program.
    >
    > The termination or exclusion remains in effect until the
    > provider is removed from this list. Where applicable and when determined,

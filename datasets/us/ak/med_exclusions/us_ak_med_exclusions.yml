@@ -2,8 +2,9 @@ title: US Alaska Medical Assistance Excluded Provider List
 entry_point: crawler.py
 prefix: us-medak
 coverage:
-  frequency: daily
   start: "2024-10-04"
+  schedule: "0 4 1,15 * *"
+
 load_statements: true
 ci_test: false
 summary: >

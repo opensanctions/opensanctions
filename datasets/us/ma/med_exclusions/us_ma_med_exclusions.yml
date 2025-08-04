@@ -2,8 +2,8 @@ title: US Massachusetts Suspensions and Exclusions from MassHealth
 entry_point: crawler.py
 prefix: us-medma
 coverage:
-  frequency: daily
   start: "2024-08-15"
+  schedule: "15 4 1,15 * *"
 load_statements: true
 summary: >
   Providers who have been suspended or excluded from the MassHealth program.

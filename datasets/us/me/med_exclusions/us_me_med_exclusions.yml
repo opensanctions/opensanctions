@@ -2,8 +2,8 @@ title: US Maine Medicaid Excluded Providers
 entry_point: crawler.py
 prefix: us-medme
 coverage:
-  frequency: daily
   start: "2024-12-13"
+  schedule: "17 4 1,15 * *"
 load_statements: true
 ci_test: false  # Zyte is not available in CI
 summary: >

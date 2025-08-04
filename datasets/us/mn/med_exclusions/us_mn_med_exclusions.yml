@@ -2,8 +2,8 @@ title: US Minnesota Health Care Programs Excluded Providers
 entry_point: crawler.py
 prefix: us-medmn
 coverage:
-  frequency: daily
   start: "2024-11-07"
+  schedule: "19 4 1,15 * *"
 load_statements: true
 summary: >
   Medical providers suspended or terminated from Minnesota Health Care Programs.

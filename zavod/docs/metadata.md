@@ -20,14 +20,14 @@ Use the `.yml` extension.
 ### Data Coverage
 
 - `coverage`
-    - `frequency` - e.g. `daily`, `weekly`, `monthly`, `never`. This represents how often it is expected that this dataset will be updated. It conveys to users how often to expect updates, and will also be used to generate a crawling schedule unless a specific schedule is defined. Data sources that don't receive updates are marked `never` and are usually crawled monthly (e.g. `deploy.schedule: @monthly`) just to keep consistent with FTM updates.
+    - `frequency` - e.g. `daily`, `weekly`, `monthly`, `never`. This represents how often it is expected that this dataset will be updated. It conveys to users how often to expect updates, and will also be used to generate a crawling schedule unless a specific schedule is defined. Data sources that don't receive updates are marked `never` and are usually crawled monthly (e.g. `coverage.schedule: @monthly`) just to keep consistent with FTM updates.
     - `start` - The start date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`.
     - `end` - The end date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`. Future dates imply an expected end to the maintenance and coverage period of the dataset. Past end dates result in the datasets last_change date being fixed to that date, while its last_exported date remains unchanged.
+    - `schedule` - `string` - a cron style schedule defining what time and frequency a crawler should run, e.g `30 */6 * * *`
 
 ### Deployment
 
 - `deploy`
-    - `schedule` - `string` - a cron style schedule defining what time and frequency a crawler should run, e.g `30 */6 * * *`
     - `premium` - `boolean` - whether its compute instance may be evicted, restarting the job. Set to `true` for jobs running for several hours.
 
 ### Continuous Integration
@@ -43,12 +43,12 @@ Use the `.yml` extension.
 
 `tags` are a controlled vocabulary used to categorize datasets by shared attributes such as legal basis, list type, target country, or sector. They support cross-referencing within specific scopes, such as distinguishing between sanctions, PEPs, and regulatory actions, and enable users to select the most relevant datasets for a given country, sector, or risk category.
 
-Currently, tags cover the following dimensions: 
-- list type (e.g. `list.sanction`, `list.pep`); 
+Currently, tags cover the following dimensions:
+- list type (e.g. `list.sanction`, `list.pep`);
 - issuer and jurisdiction (e.g. `issuer.west`, `juris.eu`);
 - target countries (e.g. `target.ru`, `target.us`)
 - sectors (e.g. `sector.financial`, `sector.maritime`)
-- risk themes (e.g. `risk.klepto`). 
+- risk themes (e.g. `risk.klepto`).
 
 You can find a full overview of available tags [here](https://www.opensanctions.org/docs/metadata/).
 

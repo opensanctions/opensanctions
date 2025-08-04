@@ -2,8 +2,8 @@ title: US Hawaii Medicaid Exclusions and Reinstatements
 entry_point: crawler.py
 prefix: us-medhi
 coverage:
-  frequency: daily
   start: "2024-10-25"
+  schedule: "9 4 1,15 * *"
 load_statements: true
 summary: >
   Medical providers excluded from Hawaii's Medicaid program.
