@@ -104,6 +104,8 @@ jobs:
           token: ${{ secrets.OPERATIONS_PAT }}
           repository: opensanctions/operations
           event-type: release
-          client-payload: |
-            environment: "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}"
-            image_version: "@sha256:${{ needs.docker.outputs.digest }}"
+          client-payload: |-
+            {
+              "environment": "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}",
+              "image_version": "@sha256:${{ needs.docker.outputs.digest }}"
+            }
