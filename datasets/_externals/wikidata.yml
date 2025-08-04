@@ -139,6 +139,7 @@ lookups:
           - neutral sex
           - non-binary gender
           - hijra # third gender of South Asian cultures
+          - kathoey # third gender of Thai culture
         value: other
       - match:
           - MALE
