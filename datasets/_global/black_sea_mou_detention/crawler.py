@@ -1,6 +1,9 @@
 import random
 import time
 from datetime import datetime
+from lxml.html import HtmlElement
+from normality import slugify
+from typing import Dict, Generator
 
 from zavod import Context, helpers as h
 
@@ -13,6 +16,37 @@ HEADERS = {
     "Referer": "https://bsis.bsmou.org/public_det/",
     "Origin": "https://bsis.bsmou.org",
 }
+
+
+def parse_html_table(
+    table: HtmlElement,
+    header_tag: str = "th",
+) -> Generator[Dict[str, HtmlElement], None, None]:
+    """
+    Parse an HTML table using the first row as headers.
+
+    Custom implementation to handle edge cases like '#' headers that cause
+    issues with the standard h.parse_html_table function.
+    """
+    rows = table.findall(".//tr")
+    if not rows:
+        raise ValueError("No <tr> elements found in table")
+
+    header_cells = rows[0].findall(f".//{header_tag}")
+    if not header_cells:
+        raise ValueError("No header cells found")
+
+    headers = []
+    for el in header_cells:
+        text = el.text_content().strip()
+        header_text = slugify(text, sep="_") or text.replace(" ", "_")
+        assert header_text, "Header text cannot be empty"
+        headers.append(header_text)
+
+    for row in rows[1:]:
+        cells = row.findall("./td")
+        assert len(cells) == len(headers), "Row does not match header length"
+        yield {hdr: cell for hdr, cell in zip(headers, cells)}
 
 
 def emit_linked_org(context, vessel_id, names, role, date):
@@ -93,7 +127,7 @@ def crawl_row(context: Context, clean_row: dict):
     context.emit(vessel)
     context.emit(sanction)
     # "place" is where the vessel was detained
-    context.audit_data(clean_row, ["place"])
+    context.audit_data(clean_row, ["place", "#"])
 
 
 def crawl(context: Context):
@@ -118,10 +152,8 @@ def crawl(context: Context):
             table = doc.xpath("//table[@id='dvData']")
             assert len(table) == 1, "Expected one table in the document"
             table = table[0]
-            for row in h.parse_html_table(table):  # , header_tag="th", skiprows=1):
-                str_row = h.cells_to_str(row)
-                clean_row = {k: v for k, v in str_row.items() if k is not None}
-                crawl_row(context, clean_row)
+            for row in parse_html_table(table):
+                crawl_row(context, h.cells_to_str(row))
         except Exception as e:
             context.log.error(f"Skipping {year}-{month:02} due to fetch failure: {e}")
 
