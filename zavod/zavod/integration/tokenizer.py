@@ -1,12 +1,12 @@
 import re
-from normality import WS, ascii_text, squash_spaces
+from normality import WS, ascii_text
 from rigour.ids import StrictFormat
 from rigour.text.phonetics import metaphone
-from rigour.text.scripts import is_modern_alphabet
+from rigour.text.scripts import can_latinize
 from rigour.addresses import normalize_address
 from rigour.names import tokenize_name, is_stopword
 from rigour.names import remove_person_prefixes
-from typing import Generator, Optional, Set, Tuple
+from typing import Generator, Set, Tuple
 from followthemoney import registry, Schema, StatementEntity
 
 NON_LETTER = re.compile(r"[^a-z0-9]+")
@@ -14,6 +14,7 @@ WORD_FIELD = "wd"
 NAME_PART_FIELD = "np"
 PHONETIC_FIELD = "ph"
 SKIP = (
+    # registry.country,
     registry.url,
     registry.topic,
     registry.entity,
@@ -26,20 +27,27 @@ SKIP = (
     registry.checksum,
     registry.language,
 )
+SKIP_PROPERTIES = {
+    "wikidataId",
+    "wikipediaUrl",
+    "publisher",
+    "publisherUrl",
+    "programId",
+    "recordId",
+    "legalForm",
+    "status",
+}
 PREFIXES = {
     registry.name: "n",
     registry.identifier: "i",
-    registry.country: "c",
+    # registry.country: "c",
     registry.phone: "p",
     registry.address: "a",
     registry.date: "d",
 }
 EMIT_FULL = (
-    # registry.name,
-    # registry.identifier,
     registry.country,
     registry.phone,
-    # registry.iban,
 )
 TEXT_TYPES = (
     registry.text,
@@ -49,19 +57,8 @@ TEXT_TYPES = (
 )
 
 
-def normalize_name(text: Optional[str]) -> Optional[str]:
-    """Normalize a name for comparison."""
-    if text is None:
-        return None
-    text = text.lower()
-    text = squash_spaces(text)
-    if len(text) == 0:
-        return None
-    return text
-
-
 def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None, None]:
-    name = normalize_name(name) or name
+    name = name.lower()
     if schema.is_a("Person"):
         name = remove_person_prefixes(name)
     # Disabled because this has an outsized cost in terms of performance:
@@ -75,7 +72,7 @@ def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None
             continue
 
         # yield WORD_FIELD, token
-        if not is_modern_alphabet(token) or token.isnumeric():
+        if not can_latinize(token) or token.isnumeric():
             yield NAME_PART_FIELD, f"{NAME_PART_FIELD}:{token}"
             continue
         ascii_token = ascii_text(token)
@@ -98,17 +95,18 @@ def tokenize_entity(entity: StatementEntity) -> Generator[Tuple[str, str], None,
     unique: Set[Tuple[str, str]] = set()
     for prop, value in entity.itervalues():
         type = prop.type
-        if not prop.matchable or type in SKIP:
+        if not prop.matchable or type in SKIP or prop.name in SKIP_PROPERTIES:
             continue
         prefix = PREFIXES.get(type, type.name)
         if type in EMIT_FULL:
             full_value = value[:300].lower()
             unique.add((type.name, f"{prefix}:{full_value}"))
+            continue
         if type in TEXT_TYPES:
             lvalue = value.lower()
             # min 6 to focus on things that could be fairly unique identifiers
             for token in tokenize_name(lvalue, token_min_length=6):
-                if len(token) > 30 or is_stopword(token):
+                if is_stopword(token):
                     continue
                 yield WORD_FIELD, f"{WORD_FIELD}:{token}"
         if type == registry.date:
@@ -130,7 +128,7 @@ def tokenize_entity(entity: StatementEntity) -> Generator[Tuple[str, str], None,
                 # Disable this for now, as it is not performant:
                 # norm = remove_address_keywords(norm) or norm
                 for word in norm.split(WS):
-                    if len(word) > 30 or is_stopword(word):
+                    if is_stopword(word):
                         continue
                     if len(word) > 3:
                         unique.add((type.name, f"{prefix}:{word}"))

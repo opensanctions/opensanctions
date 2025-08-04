@@ -1,7 +1,7 @@
 import logging
 from decimal import Decimal
 from typing import Generator, Iterator, List, Tuple
-from followthemoney import registry, DS
+from followthemoney import registry, model, DS
 from followthemoney.helpers import check_person_cutoff
 
 from nomenklatura.enrich.common import EnricherConfig
@@ -210,9 +210,12 @@ def enrich(context: Context) -> None:
     reset_caches()
     try:
         context.log.info("Matching candidates...")
-        for entity_idx, (entity_id, candidate_set) in enumerate(
-            enricher.candidates(subject_view.entities())
-        ):
+        schemata = list(model.matchable_schemata())
+        if len(enricher._filter_schemata):
+            schemata = [s for s in schemata if s.name in enricher._filter_schemata]
+        entities = subject_view.entities(include_schemata=schemata)
+        candidates = enricher.candidates(entities)
+        for entity_idx, (entity_id, candidate_set) in enumerate(candidates):
             if entity_idx > 0 and entity_idx % 10000 == 0:
                 context.log.info("Enriched %s entities..." % entity_idx)
             subject_entity = subject_view.get_entity(entity_id.id)
