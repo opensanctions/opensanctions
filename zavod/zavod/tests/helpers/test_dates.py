@@ -107,4 +107,5 @@ def test_apply_date(testdataset1: Dataset):
         apply_date(person, "birthDate", 25722)  # type: ignore
         # apply_date(person, "birthDate", 2572)  # type: ignore
     assert not len(person.pop("birthDate"))
-    assert cap_logs == [], cap_logs
+    assert len(cap_logs) == 1, cap_logs
+    assert cap_logs[0]["prop"] == "birthDate", cap_logs
