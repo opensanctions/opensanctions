@@ -337,6 +337,8 @@ lookups:
         value: alarm@pzsignal.ru
       - match: "info@chersones os-sev.ru"
         value: "info@chersonesos-sev.ru"
+      - match: "https://moscow.rtrs.ru/"
+        prop: website
   type.gender:
     lowercase: true
     normalize: true
