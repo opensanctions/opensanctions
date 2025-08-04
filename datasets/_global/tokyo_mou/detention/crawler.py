@@ -1,6 +1,8 @@
 from datetime import datetime
 import re
 
+from lxml.html import HtmlElement
+
 from zavod import Context, helpers as h
 
 START_YEAR = 2019
@@ -33,21 +35,21 @@ def emit_linked_org(context, vessel_id, names, role, start_date, schema):
         context.emit(link)
 
 
-def crawl_row(context: Context, clean_row: dict, row: dict):
-    ship_name = clean_row.pop("ship_name")
-    imo = clean_row.pop("imo_no")
-    company_name = clean_row.pop("company")
+def crawl_row(context: Context, row: dict, reasons_cell: HtmlElement):
+    ship_name = row.pop("Ship Name")
+    imo = row.pop("IMO No.")
+    company_name = row.pop("Company")
 
     vessel = context.make("Vessel")
     vessel.id = context.make_id(ship_name, imo)
     vessel.add("name", ship_name)
     vessel.add("imoNumber", imo)
-    vessel.add("flag", clean_row.pop("ship_flag"))
-    vessel.add("buildDate", clean_row.pop("year_of_build"))
-    vessel.add("grossRegisteredTonnage", clean_row.pop("gross_tonnage"))
-    vessel.add("type", clean_row.pop("ship_type"))
+    vessel.add("flag", row.pop("Ship Flag"))
+    vessel.add("buildDate", row.pop("Year of build"))
+    vessel.add("grossRegisteredTonnage", row.pop("Gross Tonnage"))
+    vessel.add("type", row.pop("Ship Type"))
 
-    start_date = clean_row.pop("date_of_detention")
+    start_date = row.pop("Date of detention")
     if company_name:
         emit_linked_org(
             context,
@@ -58,7 +60,7 @@ def crawl_row(context: Context, clean_row: dict, row: dict):
             "Company",
         )
 
-    related_ros = clean_row.pop("related_ros")
+    related_ros = row.pop("Related ROs")
     if related_ros:
         emit_linked_org(
             context,
@@ -68,7 +70,7 @@ def crawl_row(context: Context, clean_row: dict, row: dict):
             start_date,
             "Organization",
         )
-    class_soc = clean_row.pop("classification_society")
+    class_soc = row.pop("Classification society")
     if class_soc:
         emit_linked_org(
             context,
@@ -79,8 +81,7 @@ def crawl_row(context: Context, clean_row: dict, row: dict):
             "Organization",
         )
 
-    end_date = clean_row.pop("date_of_release", None)
-    reasons_cell = row.pop("nature_of_deficiencies")
+    end_date = row.pop("Date of release", None)
     for br in reasons_cell.xpath(".//br"):
         br.tail = br.tail + "\n" if br.tail else "\n"
     reason = reasons_cell.text_content().split("\n")
@@ -99,7 +100,7 @@ def crawl_row(context: Context, clean_row: dict, row: dict):
     context.emit(vessel)
     context.emit(sanction)
 
-    context.audit_data(clean_row, ["place_of_detention", "nature_of_deficiencies"])
+    context.audit_data(row, ["Place of detention", "Nature of deficiencies", "�"])
 
 
 def crawl(context: Context):
@@ -125,10 +126,10 @@ def crawl(context: Context):
         table = doc.xpath("//table[@cellspacing=1]")
         assert len(table) == 1, "Expected one table in the document"
         table = table[0]
-        for row in h.parse_html_table(table, header_tag="td", skiprows=1):
-            str_row = h.cells_to_str(row)
-            clean_row = {k: v for k, v in str_row.items() if k is not None}
-            crawl_row(context, clean_row, row)
+        for row in h.parse_html_table(
+            table, header_tag="td", skiprows=1, slugify_headers=False
+        ):
+            crawl_row(context, h.cells_to_str(row), row.pop("Nature of deficiencies"))
 
         # Increment month and roll over year
         if month == 12:
