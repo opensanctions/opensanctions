@@ -2,6 +2,8 @@ import random
 import time
 from datetime import datetime
 
+from requests.exceptions import RetryError
+
 from zavod import Context, helpers as h
 
 START_YEAR = 2019
@@ -31,20 +33,20 @@ def emit_linked_org(context, vessel_id, names, role, date):
         context.emit(link)
 
 
-def crawl_row(context: Context, clean_row: dict):
-    ship_name = clean_row.pop("name")
-    imo = clean_row.pop("imo_number")
-    company_name = clean_row.pop("company")
+def crawl_row(context: Context, row: dict):
+    ship_name = row.pop("Name")
+    imo = row.pop("IMO number")
+    company_name = row.pop("Company")
 
     vessel = context.make("Vessel")
     vessel.id = context.make_id(ship_name, imo)
     vessel.add("name", ship_name)
     vessel.add("imoNumber", imo)
-    vessel.add("flag", clean_row.pop("flag"))
-    vessel.add("buildDate", clean_row.pop("year_of_build"))
-    vessel.add("grossRegisteredTonnage", clean_row.pop("tonnage"))
-    vessel.add("type", clean_row.pop("type"))
-    start_date = clean_row.pop("date_of_detention")
+    vessel.add("flag", row.pop("Flag"))
+    vessel.add("buildDate", row.pop("Year of build"))
+    vessel.add("grossRegisteredTonnage", row.pop("Tonnage"))
+    vessel.add("type", row.pop("Type"))
+    start_date = row.pop("Date of detention")
     if company_name:
         company = context.make("Company")
         company.id = context.make_id("org", company_name)
@@ -57,7 +59,7 @@ def crawl_row(context: Context, clean_row: dict):
         context.emit(company)
         context.emit(link)
 
-    related_ros = clean_row.pop("ros")
+    related_ros = row.pop("ROs")
     if related_ros:
         emit_linked_org(
             context,
@@ -66,7 +68,7 @@ def crawl_row(context: Context, clean_row: dict):
             "Related Recognised Organization",
             start_date,
         )
-    class_soc = clean_row.pop("class")
+    class_soc = row.pop("Class")
     if class_soc:
         emit_linked_org(
             context,
@@ -76,8 +78,8 @@ def crawl_row(context: Context, clean_row: dict):
             start_date,
         )
 
-    end_date = clean_row.pop("date_of_release", None)
-    reason = clean_row.pop("nature_of_deficiencies").split(";")
+    end_date = row.pop("Date of release", None)
+    reason = row.pop("Nature of deficiencies").split(";")
     sanction = h.make_sanction(
         context,
         vessel,
@@ -93,7 +95,7 @@ def crawl_row(context: Context, clean_row: dict):
     context.emit(vessel)
     context.emit(sanction)
     # "place" is where the vessel was detained
-    context.audit_data(clean_row, ["place"])
+    context.audit_data(row, ["Place", "#"])
 
 
 def crawl(context: Context):
@@ -118,11 +120,9 @@ def crawl(context: Context):
             table = doc.xpath("//table[@id='dvData']")
             assert len(table) == 1, "Expected one table in the document"
             table = table[0]
-            for row in h.parse_html_table(table):  # , header_tag="th", skiprows=1):
-                str_row = h.cells_to_str(row)
-                clean_row = {k: v for k, v in str_row.items() if k is not None}
-                crawl_row(context, clean_row)
-        except Exception as e:
+            for row in h.parse_html_table(table, slugify_headers=False):
+                crawl_row(context, h.cells_to_str(row))
+        except RetryError as e:
             context.log.error(f"Skipping {year}-{month:02} due to fetch failure: {e}")
 
         # Random sleep to avoid overwhelming the server (and hitting 500 Server Error)
