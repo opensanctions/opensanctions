@@ -53,6 +53,15 @@ jobs:
       digest: ${{ steps.build.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/opensanctions/zavod-ui
+          tags: |
+            type=ref,event=branch
+            type=raw,value=${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}
+            type=raw,value=latest
       - name: Set build date
         run: echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
       - name: Get git revision
@@ -77,15 +86,10 @@ jobs:
           context: ui
           pull: true
           push: true
-          images: "ghcr.io/opensanctions/zavod-ui"
-          tags: |
-            type=raw,value=${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}"
-            type=raw,value=latest
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
           build-args: |
             BUILD_DATE=${{ env.BUILD_DATE }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   dispatch:
     if: |
@@ -100,6 +104,8 @@ jobs:
           token: ${{ secrets.OPERATIONS_PAT }}
           repository: opensanctions/operations
           event-type: release
-          client-payload: |
-            environment: "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}"
-            image_version: "@sha256:${{ needs.docker.outputs.digest }}"
+          client-payload: |-
+            {
+              "environment": "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}",
+              "image_version": "@${{ needs.docker.outputs.digest }}"
+            }
