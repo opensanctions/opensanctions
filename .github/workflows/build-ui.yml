@@ -107,5 +107,5 @@ jobs:
           client-payload: |-
             {
               "environment": "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}",
-              "image_version": "@sha256:${{ needs.docker.outputs.digest }}"
+              "image_version": "@${{ needs.docker.outputs.digest }}"
             }
