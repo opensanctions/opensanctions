@@ -1,5 +1,8 @@
-from datetime import datetime
 import re
+from datetime import datetime
+from lxml.html import HtmlElement
+from normality import slugify
+from typing import Dict, Generator
 
 from zavod import Context, helpers as h
 
@@ -15,6 +18,40 @@ def clean_name(name: str) -> str:
 
 def is_future_month(year: int, month: int, now: datetime) -> bool:
     return (year > now.year) or (year == now.year and month > now.month)
+
+
+def parse_html_table(
+    table: HtmlElement,
+    header_tag: str = "th",
+    skiprows: int = 0,
+) -> Generator[Dict[str, HtmlElement], None, None]:
+    """
+    Parse an HTML table using the first row as headers.
+
+    Custom implementation to handle edge cases like "�" headers that cause
+    issues with the standard h.parse_html_table function.
+    """
+    rows = table.findall(".//tr")
+    if not rows or len(rows) <= skiprows:
+        raise ValueError("No <tr> elements found in table")
+
+    # Use the correct row after skipping
+    header_row = rows[skiprows]
+    header_cells = header_row.findall(f".//{header_tag}")
+    if not header_cells:
+        raise ValueError("No header cells found")
+
+    headers = []
+    for i, el in enumerate(header_cells):
+        text = el.text_content().strip()
+        header_text = slugify(text, sep="_") or f"col_{i}"
+        assert header_text, "Header text cannot be empty"
+        headers.append(header_text)
+
+    for row in rows[skiprows + 1 :]:
+        cells = row.findall("./td")
+        assert len(cells) == len(headers), "Row does not match header length"
+        yield {hdr: cell for hdr, cell in zip(headers, cells)}
 
 
 def emit_linked_org(context, vessel_id, names, role, start_date, schema):
@@ -99,7 +136,7 @@ def crawl_row(context: Context, clean_row: dict, row: dict):
     context.emit(vessel)
     context.emit(sanction)
 
-    context.audit_data(clean_row, ["place_of_detention", "nature_of_deficiencies"])
+    context.audit_data(clean_row, ["place_of_detention", "nature_of_deficiencies", "�"])
 
 
 def crawl(context: Context):
@@ -125,10 +162,8 @@ def crawl(context: Context):
         table = doc.xpath("//table[@cellspacing=1]")
         assert len(table) == 1, "Expected one table in the document"
         table = table[0]
-        for row in h.parse_html_table(table, header_tag="td", skiprows=1):
-            str_row = h.cells_to_str(row)
-            clean_row = {k: v for k, v in str_row.items() if k is not None}
-            crawl_row(context, clean_row, row)
+        for row in parse_html_table(table, header_tag="td", skiprows=1):
+            crawl_row(context, h.cells_to_str(row), row)
 
         # Increment month and roll over year
         if month == 12:
