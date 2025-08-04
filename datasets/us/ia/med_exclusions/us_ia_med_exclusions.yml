@@ -45,9 +45,8 @@ assertions:
 lookups:
   type.identifier:
     options:
-      - regex: 
-          - X000\d{6}
-          - X000\d{7}
+      - regex:
+          - X00\d{6,9}
         prop: idNumber
       - match: "40980"
         prop: idNumber
