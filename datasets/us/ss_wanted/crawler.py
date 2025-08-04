@@ -30,7 +30,7 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
 
 
 def crawl(context: Context):
-    person_xpath = './/div[@id="block-af1-content"]//div[contains(@class, "grid-col")][not(contains(@class, "hidden-card"))]//a'
+    person_xpath = './/div[@class="wanted-card"]//div[@class="button-container"]/a'
     doc = fetch_html(
         context,
         context.data_url,
