@@ -2,8 +2,8 @@ title: US Delaware Medicaid Sanctioned Providers
 entry_point: crawler.py
 prefix: us-medde
 coverage:
-  frequency: daily
   start: "2024-12-13"
+  schedule: "7 4 1,15 * *"
 load_statements: true
 ci_test: false
 summary: >

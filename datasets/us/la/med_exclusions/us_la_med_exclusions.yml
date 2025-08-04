@@ -2,8 +2,8 @@ title: US Louisiana Department of Health Adverse Actions List
 entry_point: crawler.py
 prefix: us-medla
 coverage:
-  frequency: daily
   start: "2024-11-07"
+  schedule: "14 4 1,15 * *"
 load_statements: true
 summary: >
   Medical providers excluded from Louisiana's Medicaid program.

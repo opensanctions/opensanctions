@@ -2,8 +2,8 @@ title: US Arkansas Medicaid Excluded Provider List
 entry_point: crawler.py
 prefix: us-medar
 coverage:
-  frequency: daily
   start: "2024-11-15"
+  schedule: "2 4 1,15 * *"
 load_statements: true
 summary: >
   This dataset contains a list of providers who have been excluded from Arkansas's Medicaid program.

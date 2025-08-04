@@ -2,8 +2,8 @@ title: US Indiana Medicaid Terminated Provider List
 entry_point: crawler.py
 prefix: us-medin
 coverage:
-  frequency: daily
   start: "2024-10-15"
+  schedule: "11 4 1,15 * *"
 load_statements: true
 summary: >
   Providers who have been terminated for cause from Indiana Medicaid and CHIP.
@@ -35,7 +35,7 @@ description: |
 
   > In general, if the provider has requested to enrol with the Medicaid program
   > again and their application has been processed and approved, the “Terminated”
-  > list would be updated to remove the provider’s name. However, 
+  > list would be updated to remove the provider’s name. However,
   > the best way to determine if a provider on the Terminated list has re-enrolled
   > with Indiana Medicaid is to use the Provider Locator on our website
   > [Indiana Medicaid: Providers: IHCP Provider Locator](https://www.in.gov/medicaid/providers/provider-references/ihcp-provider-locator/)

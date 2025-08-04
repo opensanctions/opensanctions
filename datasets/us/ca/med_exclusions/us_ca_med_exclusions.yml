@@ -2,13 +2,13 @@ title: US California Medicaid Suspended and ineligible providers
 entry_point: crawler.py
 prefix: us-medca
 coverage:
-  frequency: daily
   start: "2024-11-07"
+  schedule: "4 4 1,15 * *"
 load_statements: true
 summary: >
   Medical providers suspended from or otherwise deemed ineligible to participate in California's Medicaid program.
 description: |
-  This dataset contains information about individuals and entities suspended from 
+  This dataset contains information about individuals and entities suspended from
   the California State Medicaid Program. The following text extracted from their website
   explains the reasons a provider might be suspended and the provisions taken:
 

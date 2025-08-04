@@ -2,8 +2,8 @@ title: US Iowa Medicaid Terminated Provider List
 entry_point: crawler.py
 prefix: us-media
 coverage:
-  frequency: daily
   start: "2024-09-06"
+  schedule: "10 4 1,15 * *"
 load_statements: true
 summary: >
   This dataset contains a list of providers who have been terminated for cause from Iowa's Medicaid program.

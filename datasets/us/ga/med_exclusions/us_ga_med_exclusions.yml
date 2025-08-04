@@ -2,8 +2,8 @@ title: US Georgia Healthcare provider exclusions
 entry_point: crawler.py
 prefix: us-medga
 coverage:
-  frequency: daily
   start: "2024-09-06"
+  schedule: "8 4 1,15 * *"
 load_statements: true
 summary: >
   Providers who have been terminated for cause from Georgia's Medicaid program.

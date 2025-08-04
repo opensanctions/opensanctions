@@ -2,8 +2,8 @@ title: US Colorado Medicaid Terminated Provider List
 entry_point: crawler.py
 prefix: us-medco
 coverage:
-  frequency: daily
   start: "2024-08-15"
+  schedule: "5 4 1,15 * *"
 load_statements: true
 summary: >
   This dataset contains a list of providers who have been terminated for cause from Colorado's Medicaid program.
