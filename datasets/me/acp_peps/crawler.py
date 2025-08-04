@@ -69,7 +69,8 @@ def read_csv_rows(context: Context, zip_path: Path, file_pattern: str) -> List[D
 def family_row_entity(context: Context, row) -> Entity:
     first_name = row.pop("IME_CLANA_PORODICE")
     last_name = row.pop("PREZIME_CLANA_PORODICE")
-    maiden_name = row.pop("RODJENO_PREZIME_CLANA_PORODICE").strip("/").strip("-")
+    # We're dealing with: '-/-'
+    maiden_name = row.pop("RODJENO_PREZIME_CLANA_PORODICE").strip("-").strip("/")
     # If the maiden name is actually a birthdate (i.e. only digits and dots),
     # treat it as the date of birth and clear the maiden name field
     dob = maiden_name if re.fullmatch(r"[.\d]+", maiden_name) else None
