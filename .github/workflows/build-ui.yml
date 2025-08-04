@@ -77,15 +77,9 @@ jobs:
           context: ui
           pull: true
           push: true
-          images: "ghcr.io/opensanctions/zavod-ui"
-          tags: |
-            type=raw,value=${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}"
-            type=raw,value=latest
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+          tags: "opensanctions/zavod-ui:latest,opensanctions/zavod-ui:${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}"
           build-args: |
             BUILD_DATE=${{ env.BUILD_DATE }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
   dispatch:
     if: |
