@@ -46,11 +46,8 @@ PREFIXES = {
     registry.date: "d",
 }
 EMIT_FULL = (
-    # registry.name,
-    # registry.identifier,
-    # registry.country,
+    registry.country,
     registry.phone,
-    # registry.iban,
 )
 TEXT_TYPES = (
     registry.text,
@@ -104,6 +101,7 @@ def tokenize_entity(entity: StatementEntity) -> Generator[Tuple[str, str], None,
         if type in EMIT_FULL:
             full_value = value[:300].lower()
             unique.add((type.name, f"{prefix}:{full_value}"))
+            continue
         if type in TEXT_TYPES:
             lvalue = value.lower()
             # min 6 to focus on things that could be fairly unique identifiers
