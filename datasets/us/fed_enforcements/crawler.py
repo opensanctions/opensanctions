@@ -1,7 +1,7 @@
 import csv
 from hashlib import sha1
 from normality import slugify
-from typing import Dict, List
+from typing import Dict
 from urllib.parse import urljoin, urlparse
 
 from rigour.mime.types import CSV
@@ -138,34 +138,6 @@ def crawl_item(context: Context, original_filename: str, input_dict: Dict[str, s
 
 
 def crawl(context: Context):
-    # Load up the previously-accepted reviews
-    context.log.warning("Remove initial load of hand-extracted data")
-    for option in context.get_lookup("bank_orgs").options:
-        source_value = option.config["match"]
-        key = review_key(source_value)
-        review = get_review(context, BankOrgsResult, key, MIN_MODEL_VERSION)
-        if review is not None:
-            continue
-        entities: List[BankOrgEntity] = []
-
-        for entity_config in option.config["entities"]:
-            entity = BankOrgEntity(**entity_config)
-            entities.append(entity)
-
-        hand_extracted = BankOrgsResult(entities=entities)
-
-        request_review(
-            context=context,
-            key=key,
-            source_value=source_value,
-            source_mime_type="text/plain",
-            source_label="Banking Organization field in CSV",
-            source_url=None,
-            orig_extraction_data=hand_extracted,
-            model_version=MODEL_VERSION,
-            default_accepted=True,
-        )
-
     original_filename = urlparse(context.data_url).path.split("/")[-1]
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
