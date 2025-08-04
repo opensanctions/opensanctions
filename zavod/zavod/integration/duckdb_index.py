@@ -65,7 +65,7 @@ DEFAULT_FIELD_STOPWORDS_PCT = {
     registry.address.name: 10.0,
     registry.date.name: 40.0,
     PHONETIC_FIELD: 30.0,
-    WORD_FIELD: 5.0,
+    WORD_FIELD: 15.0,
     NAME_PART_FIELD: 3.0,
 }
 

@@ -14,7 +14,7 @@ WORD_FIELD = "wd"
 NAME_PART_FIELD = "np"
 PHONETIC_FIELD = "ph"
 SKIP = (
-    registry.country,  # turns out.
+    # registry.country,
     registry.url,
     registry.topic,
     registry.entity,
