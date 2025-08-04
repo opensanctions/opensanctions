@@ -2,7 +2,7 @@ title: US South Carolina Excluded Providers
 entry_point: crawler.py
 prefix: us-medsc
 coverage:
-  frequency: daily
+  schedule: "33 4 1,15 * *"
   start: "2024-11-07"
 load_statements: true
 summary: >

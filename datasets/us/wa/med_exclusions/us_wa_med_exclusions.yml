@@ -2,7 +2,7 @@ title: US Washington State Provider Termination and Exclusion List
 entry_point: crawler.py
 prefix: us-medwa
 coverage:
-  frequency: daily
+  schedule: "35 4 1,15 * *"
   start: "2024-10-15"
 load_statements: true
 summary: >

@@ -2,7 +2,7 @@ title: US Pennsylvania Medicheck list
 entry_point: crawler.py
 prefix: us-medpa
 coverage:
-  frequency: daily
+  schedule: "32 4 1,15 * *"
   start: "2024-10-04"
 load_statements: true
 summary: >

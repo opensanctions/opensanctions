@@ -2,7 +2,7 @@ title: US Oregon State Medicaid Fraud Convictions
 entry_point: crawler.py
 prefix: us-medor
 coverage:
-  frequency: daily
+  schedule: "31 4 1,15 * *"
   start: "2024-09-26"
 load_statements: true
 summary: >
