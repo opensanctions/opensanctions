@@ -2,7 +2,7 @@ title: US Nebraska Medicaid Sanctioned Providers
 entry_point: crawler.py
 prefix: us-medne
 coverage:
-  frequency: daily
+  schedule: "25 4 1,15 * *"
   start: "2024-11-28"
 load_statements: true
 summary: >

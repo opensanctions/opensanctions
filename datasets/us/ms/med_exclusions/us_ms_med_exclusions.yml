@@ -2,7 +2,7 @@ title: US Mississippi Medicaid Terminated Provider List
 entry_point: crawler.py
 prefix: us-medms
 coverage:
-  frequency: daily
+  schedule: "21 4 1,15 * *"
   start: "2024-09-06"
 load_statements: true
 summary: >

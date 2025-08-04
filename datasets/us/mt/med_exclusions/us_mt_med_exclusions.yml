@@ -2,13 +2,13 @@ title: US Montana Medicaid Excluded and Terminated Providers
 entry_point: crawler.py
 prefix: us-medmt
 coverage:
-  frequency: daily
+  schedule: "22 4 1,15 * *"
   start: "2024-09-26"
 load_statements: true
 summary: >
   Medical providers excluded or terminated from Montana's Medicaid program.
 description: |
-  The Montana Department of Public Health & Human Services maintains a list 
+  The Montana Department of Public Health & Human Services maintains a list
   of providers who needs to be terminated or excluded from the Medicaid
   program under 42 CFR 1002.210.
 tags:

@@ -2,7 +2,7 @@ title: US North Dakota Medicaid Terminated Provider List
 entry_point: crawler.py
 prefix: us-mednd
 coverage:
-  frequency: daily
+  schedule: "24 4 1,15 * *"
   start: "2024-09-13"
 load_statements: true
 summary: >
