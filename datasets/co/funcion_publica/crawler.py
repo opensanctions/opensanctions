@@ -8,6 +8,7 @@ import re
 
 from zavod import helpers as h
 from zavod.context import Context
+from zavod.entity import Entity
 from zavod.stateful.positions import OccupancyStatus, backdate, categorise
 
 # NUMERO DOCUMENTO
@@ -54,6 +55,26 @@ REGEX_ID = re.compile(
 )
 
 
+def build_position(context: Context, *, role: str, entity_name: str) -> Entity:
+    """
+    Builds a position entity from a role and entity (usually a government division or department) name.
+
+    Returns:
+        Tuple of (is_pep, position) where is_pep is a boolean indicating if this is a PEP position
+    """
+    res = context.lookup("positions", role)
+    append_entity_name = res.append_entity_name if res else True
+    topics = res.topics if res else None
+
+    position_name = f"{role} - {entity_name}" if append_entity_name else role
+
+    position = h.make_position(
+        context, position_name, country="co", topics=topics, lang="spa"
+    )
+
+    return position
+
+
 def crawl_sheet_row(context: Context, row: Dict[str, str]):
     person = context.make("Person")
     id_number = row.pop("NUMERO_DOCUMENTO")
@@ -77,21 +98,12 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
 
     role = row.pop("DENOMINACION_CARGO")
     entity_name = row.pop("NOMBRE_ENTIDAD")
-    res = context.lookup("positions", role)
-    add_entity = True
-    topics = None
-    if res:
-        add_entity = res.add_entity
-        topics = res.topics
-    position_name = role
-    if add_entity:
-        position_name += " - " + entity_name
-    position = h.make_position(
-        context, position_name, country="co", topics=topics, lang="spa"
-    )
+
+    position = build_position(context, role=role, entity_name=entity_name)
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
+
     occupancy = h.make_occupancy(
         context,
         person,
@@ -145,6 +157,10 @@ def crawl_table_row(
     person.add("name", match.group("name"))
 
     role = str_row.pop("cargo")
+    if role is None:
+        context.log.info("Skipping row with no role", row=str_row)
+        return
+
     entity_name = str_row.pop("entidad")
     key = slugify([id_number, role, entity_name])
 
@@ -171,22 +187,12 @@ def crawl_table_row(
         ),
     )
 
-    res = context.lookup("positions", role)
-    add_entity = True
-    topics = None
-    if res:
-        add_entity = res.add_entity
-        topics = res.topics
-    position_name = role
-    if add_entity:
-        position_name += " - " + entity_name
-
-    position = h.make_position(
-        context, position_name, country="co", topics=topics, lang="spa"
-    )
+    assert role and entity_name
+    position = build_position(context, role=role, entity_name=entity_name)
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
+
     occupancy = h.make_occupancy(
         context,
         person,
@@ -212,7 +218,7 @@ def crawl(context: Context):
     next_link = "https://www.funcionpublica.gov.co/fdci/consultaCiudadana/consultaPEP?find=FindNext&tipoRegistro=4&offset=0&max=50"
     while next_link:
         context.log.info("Fetching page", url=next_link)
-        doc = context.fetch_html(next_link)
+        doc = context.fetch_html(next_link, cache_days=1)
         doc.make_links_absolute(next_link)
         step_anchors = doc.xpath("//a[contains(@class, 'step')]")
         context.log.info("Pages", pagenums=[a.text_content() for a in step_anchors])
