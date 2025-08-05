@@ -2,6 +2,7 @@ import csv
 from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
+from zavod.shed import zyte_api
 
 SPLITS = [
     "1: ",
@@ -21,13 +22,20 @@ PROGRAMS = [
 
 
 def crawl(context: Context):
-    # Fetch the HTML and assert the hash of the source URL
-    doc = context.fetch_html(URL, cache_days=1)
-    source_url = doc.xpath(
+    # Fetch the HTML and assert the hash of the PDF file
+    pdf_link_xpath = (
         ".//div[a[contains(text(), '1718 Designated Vessels List (Pdf )')]]//a/@href"
-    )[0]
-    h.assert_url_hash(context, source_url, "739524554d940a60f462b8a20fdda9dc6e4f274c")
-    # Fetch the CSV file
+    )
+    doc = zyte_api.fetch_html(
+        context, URL, unblock_validator=pdf_link_xpath, cache_days=1
+    )
+    source_url = str(doc.xpath(pdf_link_xpath)[0])
+    _, _, _, path = zyte_api.fetch_resource(
+        context, filename="source.pdf", url=source_url
+    )
+    h.assert_file_hash(path, "739524554d940a60f462b8a20fdda9dc6e4f274c")
+
+    # Fetch the CSV file, no need for Zyte since it's from Google Sheets
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
