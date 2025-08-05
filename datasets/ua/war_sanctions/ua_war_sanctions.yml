@@ -490,6 +490,8 @@ lookups:
         value: 2023-11-08
       - match: 096.05.2025)
         value: 2025-05
+      - match: 2007HQZS3
+        value: 2007
       - match:
           - 07.04.
           - 09.05.20234)
