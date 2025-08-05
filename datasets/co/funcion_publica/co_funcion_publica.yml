@@ -64,12 +64,12 @@ lookups:
         topics:
           - gov.muni
           - gov.head
-        add_entity: true
+        append_entity_name: true
       - match: ALCALDE LOCAL
         topics:
           - gov.muni
           - gov.head
-        add_entity: true
+        append_entity_name: true
       - match: AUDITOR GENERAL
         topics:
           - gov.financial
@@ -88,7 +88,7 @@ lookups:
       - match: FISCAL DELEGADO ANTE JUECES MUNICIPALES Y PROMISCUOS
         topics:
           - gov.judicial
-        add_entity: true
+        append_entity_name: true
       - match: FISCAL DELEGADO ANTE JUECES PENALES CIRCUITO ESPECIALIZADOS
         topics:
           - gov.judicial
@@ -100,21 +100,21 @@ lookups:
         topics:
           - gov.judicial
           - gov.state
-        add_entity: true
+        append_entity_name: true
       - match: GOBERNADOR
         topics:
           - gov.state
           - gov.head
-        add_entity: true
+        append_entity_name: true
       - match: MINISTRO
         topics:
           - gov.national
           - gov.executive
-        add_entity: true
+        append_entity_name: true
       - match: PRESIDENTE DE AGENCIA
         topics:
           - gov.soe
-        add_entity: true
+        append_entity_name: true
       - match: PRESIDENTE DE LA REPÚBLICA
         topics:
           - gov.national
@@ -123,7 +123,7 @@ lookups:
         topics:
           - gov.national
           - gov.executive
-        add_entity: true
+        append_entity_name: true
       - match: SECRETARIO GENERAL DEL MINISTERIO DE DEFENSA
         topics:
           - gov.national
@@ -132,7 +132,7 @@ lookups:
         topics:
           - gov.national
           - gov.executive
-        add_entity: true
+        append_entity_name: true
       - match: VICEPRESIDENTE DE LA REPÚBLICA
         topics:
           - gov.national
