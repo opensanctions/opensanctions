@@ -7,18 +7,22 @@ from zavod import helpers as h
 
 def parse_person(context: Context, node: Element):
     entity = context.make("Person")
+
+    name = node.findtext("./Name")
+    patronymic = node.findtext("./Patronomic")
+    surname = node.findtext("./Surname")
     entity.id = context.make_id(
         node.tag,
         node.findtext("./DateInclusion"),
-        node.findtext("./Name"),
-        node.findtext("./Patronomic"),
-        node.findtext("./Surname"),
+        name,
+        patronymic,
+        surname,
     )
     h.apply_name(
         entity,
-        given_name=node.findtext("./Name"),
-        patronymic=node.findtext("./Patronomic"),
-        last_name=node.findtext("./Surname"),
+        given_name=name,
+        patronymic=patronymic if patronymic != "-" else None,
+        last_name=surname,
     )
     h.apply_date(entity, "birthDate", node.findtext("./DataBirth"))
     entity.add("birthPlace", node.findtext("./PlaceBirth"))
