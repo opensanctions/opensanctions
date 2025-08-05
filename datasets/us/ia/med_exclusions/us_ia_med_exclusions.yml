@@ -45,11 +45,10 @@ assertions:
 lookups:
   type.identifier:
     options:
-      - regex:
-          - X00\d{6,9}
-        prop: idNumber
+      - regex: X00\d{6,9}
+        prop: registrationNumber
       - match: "40980"
-        prop: idNumber
+        prop: registrationNumber
       - match: N/A
         value: null
   type.date:
