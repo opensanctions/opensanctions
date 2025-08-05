@@ -58,6 +58,8 @@ dates:
       "%Y年%m月%d日",
       "%Y年%m月%d",
       "%Y年%m月",
+      "%Y年",
+      "%Y年頃", # approximate year
       "%Y.%m.%d",
       "おおよそ%Y年",
       "、%Y年%m月%d",
