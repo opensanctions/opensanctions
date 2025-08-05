@@ -8,7 +8,7 @@ summary: >
   Current members of the Chinese National People's Congress
 description: |
   The National People's Congress (NPC) is the highest organ of
-  state power of the People's Republic of China. It is the only 
+  state power of the People's Republic of China. It is the only
   branch of the Chinese government, and is unicameral.
 
   The NPC
@@ -39,7 +39,7 @@ data:
 ci_test: false
 
 dates:
-  formats: ["%Y年%m月", "%Y年%m月%d日"]
+  formats: ["%Y年%m月", "%Y年%m月%d日", "%Y年"]
 lookups:
   type.gender:
     options:
