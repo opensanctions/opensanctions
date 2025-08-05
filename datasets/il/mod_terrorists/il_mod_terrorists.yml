@@ -128,6 +128,9 @@ lookups:
   type.date:
     options:
       - match:
+          - 24657
+        value: null
+      - match:
           - לינק להכרזה
           - בוטל ביום
           - הכרזה בוטלה
