@@ -40,6 +40,10 @@ class BankOrgsResult(BaseModel):
 
 
 def review_key(string: str) -> str:
+    """Generates a unique key for a given string of party names.
+    If the slug would be longer than 255 chars, we include a truncated hash of the
+    string with part of the slug to ensure it's consistent, unique, and short enough.
+    """
     slug = slugify(string)
     if len(string) <= 255:
         return string
@@ -74,7 +78,7 @@ def crawl_item(context: Context, original_filename: str, input_dict: Dict[str, s
         review = get_review(
             context,
             BankOrgsResult,
-            party_name,
+            review_key(party_name),
             MIN_MODEL_VERSION,
         )
         if review is None:
