@@ -29,7 +29,7 @@ STMT_PROPS_TO_MAP = {
 }
 NORM_TEXT = re.compile(r"[^\w\d]", re.U)
 SOURCE_NAME_OVERRIDES = {
-    "OS-OPENOWNERSHIP": "OPENOWNERSHIP",
+    "OS-OPENOWNERSHIP": "OPEN_OWNERSHIP",
     "OS-GLEIF": "GLEIF",
 }
 
@@ -70,8 +70,8 @@ class SenzingExporter(Exporter):
     def setup(self) -> None:
         super().setup()
         self.fh = open(self.path, "wb")
-        self.domain_name = "OPENSANCTIONS"
-        source_name = f"OS-{self.dataset.name.upper().replace('_', '-')}"
+        self.domain_name = "OPEN_SANCTIONS"
+        source_name = f"OS_{self.dataset.name.upper()}"
         self.source_name = SOURCE_NAME_OVERRIDES.get(source_name, source_name)
         if self.dataset.is_collection and self.dataset.name != "openownership":
             self.source_name = self.domain_name
