@@ -8,34 +8,35 @@ coverage:
 deploy:
   schedule: "@monthly"
 load_statements: true
+ci_test: false  # No Zyte in CI
 summary: >
-  Vessels designated under UN Security Council sanctions, including asset freezes, 
+  Vessels designated under UN Security Council sanctions, including asset freezes,
   port entry bans, and other restrictions.
 description: |
-  The 1718 Designated Vessels List details vessels subject to sanctions under various 
+  The 1718 Designated Vessels List details vessels subject to sanctions under various
   UN Security Council resolutions. These measures include:
 
-  - Asset freezes, financial restrictions, and the freezing of economic resources, 
+  - Asset freezes, financial restrictions, and the freezing of economic resources,
     as specified in resolutions 1718 (2006) and 2270 (2016).
-  - De-flagging, port entry bans, and asset freezes for vessels linked to nuclear 
+  - De-flagging, port entry bans, and asset freezes for vessels linked to nuclear
     or ballistic missile activities under resolution 2321 (2016).
-  - Port entry restrictions for vessels involved in prohibited activities under 
-    resolutions 2371 (2017) and 2375 (2017), with exceptions for emergencies or approved 
+  - Port entry restrictions for vessels involved in prohibited activities under
+    resolutions 2371 (2017) and 2375 (2017), with exceptions for emergencies or approved
     humanitarian reasons.
-  - Sanctions on vessels controlled or operated by Ocean Maritime Management (KPe.020) 
+  - Sanctions on vessels controlled or operated by Ocean Maritime Management (KPe.020)
     under resolution 2270 (2016), recognizing them as economic resources.
 publisher:
   name: United Nations Security Council
   acronym: UNSC
   description: |
-    The Security Council has primary responsibility for the maintenance of international 
-    peace and security. Under the Charter of the United Nations, all Member States are 
+    The Security Council has primary responsibility for the maintenance of international
+    peace and security. Under the Charter of the United Nations, all Member States are
     obligated to comply with Council decisions.
 
-    The Security Council takes the lead in determining the existence of a threat to the 
-    peace or act of aggression. It calls upon the parties to a dispute to settle it by 
-    peaceful means and recommends methods of adjustment or terms of settlement. In some 
-    cases, the Security Council can resort to imposing sanctions or even authorize the 
+    The Security Council takes the lead in determining the existence of a threat to the
+    peace or act of aggression. It calls upon the parties to a dispute to settle it by
+    peaceful means and recommends methods of adjustment or terms of settlement. In some
+    cases, the Security Council can resort to imposing sanctions or even authorize the
     use of force to maintain or restore international peace and security.
     [Source: Official Website](https://main.un.org/securitycouncil/en)
   url: https://main.un.org/securitycouncil/en
