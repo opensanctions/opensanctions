@@ -1,5 +1,6 @@
 import re
 from functools import lru_cache
+from normality import stringify
 from prefixdate import parse_formats
 from datetime import datetime, date, timezone
 from typing import Tuple, Union, Iterable, Set, Optional, List
@@ -10,7 +11,7 @@ from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
 
 log = get_logger(__name__)
-NUMBERS = re.compile(r"\d+")
+NUMBERS = re.compile(r"\b\d+\b")
 # We always want to accept ISO prefix dates.
 ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 DateValue = Union[str, date, datetime, None]
@@ -113,15 +114,13 @@ def apply_date(
         log.warning("Property is not a date: %s" % prop, text=text)
         return
 
+    if not isinstance(text, str):
+        text = stringify(text)
     if text is None:
         return None
-    if isinstance(text, datetime) or isinstance(text, date):
-        original = str(text)
-    else:
-        original = text
 
     dates = extract_date(entity.dataset, text, formats=formats)
-    return entity.add(prop_, dates, original_value=original)
+    return entity.add(prop_, dates, original_value=text)
 
 
 def apply_dates(entity: Entity, prop: str, texts: Iterable[DateValue]) -> None:

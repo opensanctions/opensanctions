@@ -98,8 +98,14 @@ def test_apply_date(testdataset1: Dataset):
     assert cap_logs == [], cap_logs
 
     # date
-
     with capture_logs() as cap_logs:
         apply_date(person, "birthDate", now.date())
     assert bd in person.pop("birthDate")
     assert cap_logs == [], cap_logs
+
+    with capture_logs() as cap_logs:
+        apply_date(person, "birthDate", 25722)  # type: ignore
+        # apply_date(person, "birthDate", 2572)  # type: ignore
+    assert not len(person.pop("birthDate"))
+    assert len(cap_logs) == 1, cap_logs
+    assert cap_logs[0]["prop"] == "birthDate", cap_logs
