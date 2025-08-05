@@ -12,12 +12,12 @@ description: |
   as part of the Joining the Dots project.
 
   This is a civil-society project using official sources as far as possible,
-  complemented by other public sources. It aims to improve natural resource governance in Nigeria 
+  complemented by other public sources. It aims to improve natural resource governance in Nigeria
   by enabling the discovery of relationships between people in political office
   and companies in the extractives industry.
 
   The Joining the Dots Nigeria project also publishes a dataset of companies in the
-  extractives industry and their beneficial owners. It further lists 
+  extractives industry and their beneficial owners. It further lists
   [possible name matches between these beneficial owners and PEPs](https://peps.directoriolegislativo.org/nigeria/monitoring)
   and their relatives.
 
@@ -55,6 +55,12 @@ lookups:
     options:
       match: Non
       value: null
+  type.date:
+    options:
+      - match: 22019
+        value: 2019
+      - match: 22015
+        value: 2015
 
   position:
     options:
