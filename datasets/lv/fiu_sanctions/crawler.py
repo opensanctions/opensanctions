@@ -1,9 +1,16 @@
 from typing import Optional
+
 from lxml.etree import _Element
-from rigour.mime.types import XML
+from normality import slugify
+from openpyxl import load_workbook
+from rigour.mime.types import XLSX, XML
+from followthemoney.types import registry
 
 from zavod import Context, Entity
 from zavod import helpers as h
+
+
+FROZEN_ASSETS_URL = "https://sankcijas.fid.gov.lv/uploads/sankciju_subjekti_tabula.xlsx"
 
 
 def crawl_person(context: Context, node: _Element) -> Optional[Entity]:
@@ -120,7 +127,7 @@ def crawl_organization(context: Context, node: _Element) -> Optional[Entity]:
     return entity
 
 
-def crawl(context: Context):
+def crawl_sanctions_xml(context: Context):
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
@@ -152,3 +159,76 @@ def crawl(context: Context):
 
         context.emit(entity)
         context.emit(sanction)
+
+
+def crawl_listed_names(
+    context: Context,
+    frozen_asset: Entity,
+    frozen_assets_type: str,
+    listed_names: str,
+):
+    for listed_name in listed_names.split("\n"):
+        entity = context.make("LegalEntity")
+        entity.id = context.make_id(listed_name)
+        entity.add("name", listed_name)
+
+        link = context.make("UnknownLink")
+        link.id = context.make_id(entity.id, frozen_assets_type, frozen_asset.id)
+        link.add("subject", entity)
+        link.add("object", frozen_asset)
+        link.add("role", frozen_assets_type)
+
+        context.emit(entity)
+        context.emit(link)
+
+
+def crawl_assets_xlsx(context: Context):
+    path = context.fetch_resource("source.xlsx", FROZEN_ASSETS_URL)
+    context.export_resource(path, XLSX, title="Assets of listed entities")
+    wb = load_workbook(path, read_only=True)
+    assert set(wb.sheetnames) == {"Dati", "Informācija par datiem"}
+
+    for row in h.parse_xlsx_sheet(context, wb["Dati"], header_lookup="columns"):
+        name = row.pop("freeze_subject_name")
+        birth_date_or_id = row.pop("birth_date_or_id")
+        id_values = [name, birth_date_or_id]
+        countries = row.pop("nationality").split(",")
+
+        if birth_date_or_id and registry.date.clean_text(birth_date_or_id):
+            entity = context.make("Person")
+            entity.id = context.make_id(*id_values)
+            entity.add("birthDate", birth_date_or_id)
+            entity.add("nationality", countries)
+        else:
+            entity = context.make("LegalEntity")
+            entity.id = context.make_id(*id_values)
+            entity.add("registrationNumber", birth_date_or_id)
+            entity.add("country", countries)
+
+        entity.add("name", name)
+        sanction = h.make_sanction(context, entity)
+        h.apply_date(sanction, "startDate", row.pop("first_published_date"))
+        frozen_assets_type = row.pop("frozen_assets_type")
+        sanction.add("provisions", frozen_assets_type)
+        sanction.add("reason", row.pop("reason"))
+        sanction.add("program", row.pop("law_references").split("\n"))
+
+        listed_names_str = row.pop("listed_subject_names")
+        if slugify(name) == slugify(listed_names_str):
+            # We're re-stating that whatever assets of this entity can be identified
+            # should be consideered frozen.
+            entity.add("topics", "sanction")
+        else:
+            # We're primarily listing identified assets of this entity
+            entity.add("topics", "asset.frozen")
+            crawl_listed_names(context, entity, frozen_assets_type, listed_names_str)
+
+        context.emit(entity)
+        context.emit(sanction)
+
+        context.audit_data(row, ["start_dates", "fiu_verified"])
+
+
+def crawl(context: Context):
+    crawl_sanctions_xml(context)
+    crawl_assets_xlsx(context)
