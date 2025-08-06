@@ -17,9 +17,16 @@ description:
   in the Law on International Sanctions and National Sanctions of the Republic of
   Latvia.
 
+  It further includes
+  [entities owned or controlled by individuals or entities listed in sanctions lists](https://sankcijas.fid.gov.lv/sankciju-subjekti).
+  The listed entity's stake or interest is considered a frozen asset and is included
+  here to aid in the enforcement of sanctions.
+
   It's important to note that the dataset only includes information on financial
   restrictions imposed on these individuals or entities and does not cover other
   types of sanctions like restrictions on the circulation of goods.
+
+
 tags:
   - list.sanction
   - juris.eu
@@ -38,7 +45,9 @@ publisher:
   official: true
 data:
   url: https://sankcijas.fid.gov.lv/files/LV_national_v2.xml
-  format: XML
+  format: XLSX
+dates:
+  formats: ["%d/%m/%y", "%d.%m.%Y."]
 
 assertions:
   min:
@@ -51,3 +60,41 @@ assertions:
       Person: 50
       Address: 50
       Organization: 50
+
+lookups:
+  type.country:
+    options:
+      - match: "Apvienotā Karaliste"
+        value: GB
+      - match: "Britu Virdžīnu salas"
+        value: VG
+      - match: "Honkonga"
+        value: HK
+      - match: "N/a"
+        value: null
+  type.date:
+    options:
+      - match: "N/a"
+        value: null
+  columns:
+    options:
+      - match: "1. Sankciju subjekts, kā līdzekļi vai saimnieciskie resursi ir iesaldēti (vārds, uzvārds / nosaukums)"
+        value: freeze_subject_name
+      - match: "2. Dzimšanas datums vai LR personas kods/ reģistrācijas Nr."
+        value: birth_date_or_id
+      - match: "3. Valstspiederība / reģistrācijas valsts"
+        value: nationality
+      - match: "4. Iesaldēto līdzekļu vai saimniecisko resursu veids"
+        value: frozen_assets_type
+      - match: "5. Līdzekļu vai saimniecisko resursu iesaldēšanas pamatojums"
+        value: reason
+      - match: "6. Sankciju sarakstā iekļautās personas vārds, uzvārds vai nosaukums"
+        value: listed_subject_names
+      - match: "7. Datums, no kura spēkā ir sankcijas, pret 6. kolonnā norādīto personu"
+        value: start_dates
+      - match: "8. Normatīvais akts, saskaņā ar ko veikta iesaldēšana"
+        value: law_references
+      - match: "9. FID pārbaudīts*"
+        value: fiu_verified
+      - match: "10. Datums, kad FID pirmo reizi publicējis informāciju par sankciju subjektu"
+        value: first_published_date
