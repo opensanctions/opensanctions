@@ -18,7 +18,7 @@ classifiers = [
 ]
 requires-python = ">= 3.11"
 dependencies = [
-    "followthemoney == 4.1.1",
+    "followthemoney == 4.1.2",
     "nomenklatura == 4.1.0",
     "countrynames >= 1.16.10, < 2.0",
     "plyvel == 1.5.1",
