@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional, Dict, IO
+from typing import Generator, Optional, Dict, IO
 
 from lxml import etree
 from lxml.etree import _Element as Element
@@ -460,7 +460,7 @@ def parse_sole_trader(context: Context, el: Element) -> Optional[dict]:
     return {"id": t["id"], "legal_entity": t}
 
 
-def parse_xml(context: Context, handle: IO[bytes]):
+def parse_xml(context: Context, handle: IO[bytes]) -> Generator[dict, None, None]:
     doc = etree.parse(handle)
     for el in doc.findall(".//СвЮЛ"):
         res = parse_company(context, el)
