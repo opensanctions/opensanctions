@@ -17,7 +17,7 @@ description:
   in the Law on International Sanctions and National Sanctions of the Republic of
   Latvia.
 
-  It further includes
+  This dataset further includes
   [entities owned or controlled by individuals or entities listed in sanctions lists](https://sankcijas.fid.gov.lv/sankciju-subjekti).
   The listed entity's stake or interest is considered a frozen asset and is included
   here to aid in the enforcement of sanctions.
@@ -25,7 +25,6 @@ description:
   It's important to note that the dataset only includes information on financial
   restrictions imposed on these individuals or entities and does not cover other
   types of sanctions like restrictions on the circulation of goods.
-
 
 tags:
   - list.sanction
@@ -52,14 +51,16 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 1
+      Person: 5
       Address: 1
       Organization: 1
+      LegalEntity: 150
   max:
     schema_entities:
       Person: 50
       Address: 50
       Organization: 50
+      LegalEntity: 300
 
 lookups:
   type.country:

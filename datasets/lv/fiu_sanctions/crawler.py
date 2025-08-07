@@ -167,7 +167,7 @@ def crawl_listed_names(
     frozen_assets_type: str,
     listed_names: str,
 ):
-    for listed_name in listed_names.split("\n"):
+    for listed_name in h.multi_split(listed_names, ["\n", ";"]):
         entity = context.make("LegalEntity")
         entity.id = context.make_id(listed_name)
         entity.add("name", listed_name)
@@ -211,7 +211,7 @@ def crawl_assets_xlsx(context: Context):
         frozen_assets_type = row.pop("frozen_assets_type")
         sanction.add("provisions", frozen_assets_type)
         sanction.add("reason", row.pop("reason"))
-        sanction.add("program", row.pop("law_references").split("\n"))
+        sanction.add("program", h.multi_split(row.pop("law_references"), ["\n", ";"]))
 
         listed_names_str = row.pop("listed_subject_names")
         if slugify(name) == slugify(listed_names_str):
