@@ -19,6 +19,7 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
     attributes = dict()
     for el in name_el.find("./..").getnext().getchildren():
         text = collapse_spaces(el.text_content())
+        # It picks up one empty element (website's fault), we check the URL to skip only that one
         if (
             url == "https://profiles.rise.md/connection.php?id=191024070929"
             and not text
