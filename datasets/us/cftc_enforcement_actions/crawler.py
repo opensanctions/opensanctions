@@ -6,6 +6,7 @@ from lxml.html import fromstring, tostring
 
 from zavod.context import Context
 from zavod import helpers as h
+from zavod.settings import MIN_ENFORCEMENTS_DATE
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     assert_all_accepted,
@@ -200,12 +201,16 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         context.emit(sanction)
 
 
-def crawl_index_page(context: Context, doc) -> None:
+def crawl_index_page(context: Context, doc) -> bool:
+    """Returns false if we should stop crawling."""
     table_xpath = ".//div[contains(@class, 'view-content')]//table"
     tables = doc.xpath(table_xpath)
     assert len(tables) == 1
     for row in h.parse_html_table(tables[0]):
-        date = row["date"].text_content()
+        date = row["date"].text_content().strip()
+        date = h.extract_date(context.dataset, date)[0]
+        if date < MIN_ENFORCEMENTS_DATE:
+            return False
         action_cell = row["enforcement_actions"]
         # Remove related links so we can assert that there's one key link
         for ul in action_cell.xpath(".//ul"):
@@ -214,6 +219,7 @@ def crawl_index_page(context: Context, doc) -> None:
         assert len(urls) == 1
         url = urls[0]
         crawl_enforcement_action(context, date, url)
+    return True
 
 
 def crawl(context: Context) -> None:
@@ -227,7 +233,8 @@ def crawl(context: Context) -> None:
             next_url = next_urls[0]
         else:
             next_url = None
-        crawl_index_page(context, doc)
+        if not crawl_index_page(context, doc):
+            break
 
     assert_all_accepted(context)
     global something_changed

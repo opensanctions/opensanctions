@@ -1,4 +1,5 @@
 from os import environ as env
+from datetime import datetime, timedelta
 
 from pathlib import Path
 from banal import as_bool
@@ -108,3 +109,5 @@ AZURE_OPENAI_ENDPOINT = env.get("OPENSANCTIONS_AZURE_OPENAI_ENDPOINT", None)
 
 XREF_MEMORY = env.get("ZAVOD_XREF_MEMORY", "8000")  # megabytes
 XREF_THREADS = env.get("ZAVOD_XREF_THREADS", "1")  # threads
+
+MIN_ENFORCEMENTS_DATE = (datetime.now() - timedelta(days=365 * 5)).strftime("%Y-%m-%d")
