@@ -1,5 +1,6 @@
 import csv
 import re
+from typing import List, Optional, Tuple
 import datapatch
 from rigour.mime.types import CSV
 
@@ -38,7 +39,7 @@ NAME_SPLITS = [
     "繁體中文：",  # Traditional Chinese:
     "簡體中文：",  # Simplified Chinese:
 ]
-PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）")
+PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
 
 
 def apply_details_override(
@@ -56,17 +57,76 @@ def apply_details_override(
     entity.add("phone", details.get("telephone"))
 
 
-def crawl_row(context: Context, row):
-    names = row.pop("名稱name")
-    aliases = row.pop("別名alias")
-    addresses = row.pop("地址address")
-    ids = row.pop("護照號碼ID Number")
-    if not any([names, aliases]):
-        return
-    entity = context.make("LegalEntity")
-    entity.id = context.make_id(names, aliases)
+def clean_names(
+    context: Context, names_str: str, aliases_str: str
+) -> Tuple[List[str], List[str], List[str], Optional[str]]:
+    names = []
+    aliases = []
+    weak_aliases = []
+    unsc_num = None
 
-    for address in h.multi_split(addresses, ADDRESS_SPLITS):
+    # Deal with UNSC numbers in names
+    perm_id_match = PERMANENT_ID_RE.match(names_str)
+    if perm_id_match:
+        names_str = perm_id_match.group("name")
+        unsc_num = perm_id_match.group("unsc_num")
+    if "永久參考號" in names_str:
+        context.log.warning(
+            "Failed to separate name and UNSC number", names_str=names_str
+        )
+
+    split_names = h.multi_split(names_str, NAME_SPLITS)
+    has_multipart_name = any(len(name.split()) > 1 for name in split_names)
+
+    for name in split_names:
+        if has_multipart_name and len(name.split()) == 1:
+            if len(name) < 5:
+                # probably an acronym
+                aliases.append(name)
+                print("name probably an acronym", name)
+            else:
+                # propbably a name part
+                weak_aliases.append(name)
+                print("name probably a name part", name)
+        else:
+            names.append(name)
+
+    for alias in h.multi_split(aliases_str, NAME_SPLITS):
+        # Drop duplicates already in their place
+        if alias in names or alias in aliases or alias in weak_aliases:
+            continue
+        if len(alias.split()) == 1 and alias.isupper() and len(alias) < 5:
+            # probably an acronym
+            aliases.append(alias)
+            print("probably an acronym", alias)
+            continue
+        if len(alias.split()) == 1 and len(alias) < 7:
+            weak_aliases.append(alias)
+            print("not very unique alias", alias, "--", names)
+            continue
+        aliases.append(alias)
+        print("fairly unique alias", alias)
+
+    return names, aliases, weak_aliases, unsc_num
+
+
+def crawl_row(context: Context, row):
+    names_str = row.pop("名稱name")
+    aliases_str = row.pop("別名alias")
+    if not any([names_str, aliases_str]):
+        return
+
+    entity = context.make("LegalEntity")
+    entity.id = context.make_id(names_str, aliases_str)
+
+    names, aliases, weak_aliases, unsc_num = clean_names(
+        context, names_str, aliases_str
+    )
+    entity.add("name", names)
+    entity.add("alias", aliases)
+    entity.add("weakAlias", weak_aliases)
+
+    for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
         # Generic override to map more details in the address field
         details_lookup_result = context.lookup("details", address)
         if details_lookup_result is not None:
@@ -74,7 +134,7 @@ def crawl_row(context: Context, row):
         else:
             entity.add("address", address)
 
-    for id_number in ids.split(";"):
+    for id_number in row.pop("護照號碼ID Number").split(";"):
         # Generic override to map more details in the ID number field
         details_lookup_result = context.lookup("details", id_number)
         if details_lookup_result is not None:
@@ -82,24 +142,13 @@ def crawl_row(context: Context, row):
         else:
             entity.add("idNumber", id_number)
 
-    match = PERMANENT_ID_RE.match(names)
-    if match:
-        entity.add("name", match.group("name").strip())
-    else:
-        for name in h.multi_split(names, NAME_SPLITS):
-            entity.add("name", name)
-    for alias in h.multi_split(aliases, NAME_SPLITS):
-        if len(alias.split()) == 1 and len(alias) < 7:
-            entity.add("weakAlias", alias)
-        else:
-            entity.add("alias", alias)
     for country in row.pop("國家代碼country code").split(";"):
         entity.add("country", country)
     entity.add("topics", "export.control")
 
-    if match:
+    if unsc_num:
         sanction = h.make_sanction(context, entity)
-        sanction.add("unscId", match.group("unsc_num").strip())
+        sanction.add("unscId", unsc_num)
         context.emit(sanction)
 
     context.emit(entity)
