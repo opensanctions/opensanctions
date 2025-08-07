@@ -61,7 +61,9 @@ def crawl_item(
 ):
     name_el = input_dict.pop("name")
     reference = name_el.find(".//sup")
-    if reference:
+    # Make sure to explicitly check if the element is not None.
+    # Avoid using implicit truthiness, as it may lead to incorrect results in future versions.
+    if reference is not None:
         reference.getparent().remove(reference)
     name = name_el.text_content()
     ethnicity = clean_text(input_dict.pop("ethnicity").text_content())

@@ -60,6 +60,10 @@ assertions:
       Position: 2000
 
 lookups:
+  type.string:
+    options:
+      - match: "."
+        value: null
   positions:
     options:
       - is_pep: true

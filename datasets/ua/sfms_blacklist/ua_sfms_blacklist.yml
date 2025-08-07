@@ -50,6 +50,7 @@ dates:
       "%b. %Y",
       "c. %Y",
       "%B %d, %Y",
+      "%Y%m%d",
     ]
 tags:
   - list.sanction

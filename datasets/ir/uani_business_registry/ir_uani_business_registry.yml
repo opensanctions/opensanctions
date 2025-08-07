@@ -60,3 +60,8 @@ lookups:
         values:
           - Netherlands
           - United Kingdom
+  type.text:
+    options:
+    # Nulling empty notes
+      - match: "--"
+        value: null

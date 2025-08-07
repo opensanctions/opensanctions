@@ -19,7 +19,7 @@ def parse_facts_list(container: HtmlElement) -> Dict[str, List[HtmlElement]]:
           and the value element is the value.
     """
     rows_xpath = './/div[contains(@class, "c-full-node__info--row")]'
-    key_xpath = './/label[contains(@class, "field-label-inline")]'
+    key_xpath = './/label[contains(@class, "field__label")]'
     values_xpath = "./span"
     data = {}
     for row in container.xpath(rows_xpath):
