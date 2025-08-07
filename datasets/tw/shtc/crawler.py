@@ -40,6 +40,12 @@ NAME_SPLITS = [
     "簡體中文：",  # Simplified Chinese:
 ]
 PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
+# This is not trying to be secure against XSS, it's just basic cleaning of html from a CSV string
+HTML_RE = re.compile(r"<[^>]+>")
+
+
+def contains_part(part: str, name: str) -> bool:
+    return re.search(r"\b" + re.escape(part) + r"\b", name) is not None
 
 
 def apply_details_override(
@@ -62,7 +68,6 @@ def clean_names(
 ) -> Tuple[List[str], List[str], List[str], Optional[str]]:
     names = []
     aliases = []
-    weak_aliases = []
     unsc_num = None
 
     # Deal with UNSC numbers in names
@@ -75,39 +80,38 @@ def clean_names(
             "Failed to separate name and UNSC number", names_str=names_str
         )
 
+    names_str = HTML_RE.sub("", names_str)
+    aliases_str = HTML_RE.sub("", aliases_str)
+
     split_names = h.multi_split(names_str, NAME_SPLITS)
-    has_multipart_name = any(len(name.split()) > 1 for name in split_names)
+    # initially just add multipart names
+    names.extend([name for name in split_names if len(name.split()) > 1])
+    single_part_names = [name for name in split_names if len(name.split()) == 1]
 
-    for name in split_names:
-        if has_multipart_name and len(name.split()) == 1:
-            if len(name) < 5:
-                # probably an acronym
-                aliases.append(name)
-                print("name probably an acronym", name)
-            else:
-                # propbably a name part
-                weak_aliases.append(name)
-                print("name probably a name part", name)
-        else:
-            names.append(name)
+    split_aliases = h.multi_split(aliases_str, NAME_SPLITS)
+    # initially just add multipart aliases
+    aliases.extend([alias for alias in split_aliases if len(alias.split()) > 1])
+    single_part_aliases = [alias for alias in split_aliases if len(alias.split()) == 1]
 
-    for alias in h.multi_split(aliases_str, NAME_SPLITS):
-        # Drop duplicates already in their place
-        if alias in names or alias in aliases or alias in weak_aliases:
+    for name in single_part_names:
+        # Skip single part names that are already in multipart names,
+        # e.g. Abdul in Abdul Kader
+        if any(contains_part(name, added) for added in names):
             continue
-        if len(alias.split()) == 1 and alias.isupper() and len(alias) < 5:
-            # probably an acronym
-            aliases.append(alias)
-            print("probably an acronym", alias)
+        # Prefer putting single-part names that also occur in aliases into aliases
+        if name in single_part_aliases:
             continue
-        if len(alias.split()) == 1 and len(alias) < 7:
-            weak_aliases.append(alias)
-            print("not very unique alias", alias, "--", names)
+        names.append(name)
+
+    for alias in single_part_aliases:
+        # Skip single part alises that are already in a multipart name or alias
+        if any(contains_part(alias, added) for added in names):
+            continue
+        if any(contains_part(alias, added) for added in aliases):
             continue
         aliases.append(alias)
-        print("fairly unique alias", alias)
 
-    return names, aliases, weak_aliases, unsc_num
+    return names, aliases, unsc_num
 
 
 def crawl_row(context: Context, row):
@@ -119,12 +123,9 @@ def crawl_row(context: Context, row):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(names_str, aliases_str)
 
-    names, aliases, weak_aliases, unsc_num = clean_names(
-        context, names_str, aliases_str
-    )
+    names, aliases, unsc_num = clean_names(context, names_str, aliases_str)
     entity.add("name", names)
     entity.add("alias", aliases)
-    entity.add("weakAlias", weak_aliases)
 
     for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
         # Generic override to map more details in the address field
