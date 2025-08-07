@@ -395,6 +395,80 @@ lookups:
         value: null
       - match: "200812.19"
         value: "2008-12-19"
+      # Around 1955-1958
+      - match: 1955年-1958年頃
+        values:
+          - 1955
+          - 1958
+      # Around 1945-1950
+      - match: 1945年-1950年頃
+        values:
+          - 1945
+          - 1950
+      # Between 1963 and 1968
+      - match: 1963年から1968年の間
+        values:
+          - 1963
+          - 1968
+      - match: 1958年から1963年の間
+        values:
+          - 1958
+          - 1963
+      - match: 1968年から1973年の間
+        values:
+          - 1968
+          - 1973
+      - match: 1966年から1967年頃
+        values:
+          - 1966
+          - 1967
+      - match: 1962年-1963年頃
+        values:
+          - 1962
+          - 1963
+      - match: 1953年から1958年の間
+        values:
+          - 1953
+          - 1958
+      - match: 1956年から1957年の間
+        values:
+          - 1956
+          - 1957
+      - match: 1972年から1973年までの間
+        values:
+          - 1972
+          - 1973
+      - match: 1954年-1955年
+        values:
+          - 1954
+          - 1955
+      - match: 1940年-1941年
+        values:
+          - 1940
+          - 1941
+      - match: 1978年の頃
+        values:
+          - 1978
+      - match: 1967年から1969年までの間
+        values:
+          - 1967
+          - 1969
+      - match: 1946年から1956年
+        values:
+          - 1946
+          - 1956
+      - match: 2000年2月20/29
+        values:
+          - "2000-02-20"
+          - "2000-02-29"
+      - match: 1984年から1986年までの間
+        values:
+          - 1984
+          - 1986
+      - match: 1983年23月10
+        values:
+          - "1983-02-10"
+          - "1983-03-10"
       - match: （year unknown）
         value: null
   type.identifier:
