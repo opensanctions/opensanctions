@@ -22,7 +22,7 @@ def crawl_item(unid: str, context: Context):
     year_of_birth_el = response.xpath(
         './/*[text()=\'writeJsTrArr("form_birth_date_year",". gadā")\']/..'
     )
-    entity.add("birthDate", year_of_birth_el[0].text_content())
+    h.apply_date(entity, "birthDate", year_of_birth_el[0].text_content())
 
     email_el = response.xpath(
         './/*[text()=\'writeJsTrArr("form_email","E-pasta adrese")\']/../../span/a'
