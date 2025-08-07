@@ -1,5 +1,6 @@
 import csv
 import re
+from typing import List, Optional, Tuple
 import datapatch
 from rigour.mime.types import CSV
 
@@ -38,7 +39,13 @@ NAME_SPLITS = [
     "繁體中文：",  # Traditional Chinese:
     "簡體中文：",  # Simplified Chinese:
 ]
-PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）")
+PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
+# This is not trying to be secure against XSS, it's just basic cleaning of html from a CSV string
+HTML_RE = re.compile(r"<[^>]+>")
+
+
+def contains_part(part: str, name: str) -> bool:
+    return re.search(r"\b" + re.escape(part) + r"\b", name) is not None
 
 
 def apply_details_override(
@@ -56,17 +63,71 @@ def apply_details_override(
     entity.add("phone", details.get("telephone"))
 
 
-def crawl_row(context: Context, row):
-    names = row.pop("名稱name")
-    aliases = row.pop("別名alias")
-    addresses = row.pop("地址address")
-    ids = row.pop("護照號碼ID Number")
-    if not any([names, aliases]):
-        return
-    entity = context.make("LegalEntity")
-    entity.id = context.make_id(names, aliases)
+def clean_names(
+    context: Context, names_str: str, aliases_str: str
+) -> Tuple[List[str], List[str], List[str], Optional[str]]:
+    names = []
+    aliases = []
+    unsc_num = None
 
-    for address in h.multi_split(addresses, ADDRESS_SPLITS):
+    # Deal with UNSC numbers in names
+    perm_id_match = PERMANENT_ID_RE.match(names_str)
+    if perm_id_match:
+        names_str = perm_id_match.group("name")
+        unsc_num = perm_id_match.group("unsc_num")
+    if "永久參考號" in names_str:
+        context.log.warning(
+            "Failed to separate name and UNSC number", names_str=names_str
+        )
+
+    names_str = HTML_RE.sub("", names_str)
+    aliases_str = HTML_RE.sub("", aliases_str)
+
+    split_names = h.multi_split(names_str, NAME_SPLITS)
+    # initially just add multipart names
+    names.extend([name for name in split_names if len(name.split()) > 1])
+    single_part_names = [name for name in split_names if len(name.split()) == 1]
+
+    split_aliases = h.multi_split(aliases_str, NAME_SPLITS)
+    # initially just add multipart aliases
+    aliases.extend([alias for alias in split_aliases if len(alias.split()) > 1])
+    single_part_aliases = [alias for alias in split_aliases if len(alias.split()) == 1]
+
+    for name in single_part_names:
+        # Skip single part names that are already in multipart names,
+        # e.g. Abdul in Abdul Kader
+        if any(contains_part(name, added) for added in names):
+            continue
+        # Prefer putting single-part names that also occur in aliases into aliases
+        if name in single_part_aliases:
+            continue
+        names.append(name)
+
+    for alias in single_part_aliases:
+        # Skip single part alises that are already in a multipart name or alias
+        if any(contains_part(alias, added) for added in names):
+            continue
+        if any(contains_part(alias, added) for added in aliases):
+            continue
+        aliases.append(alias)
+
+    return names, aliases, unsc_num
+
+
+def crawl_row(context: Context, row):
+    names_str = row.pop("名稱name")
+    aliases_str = row.pop("別名alias")
+    if not any([names_str, aliases_str]):
+        return
+
+    entity = context.make("LegalEntity")
+    entity.id = context.make_id(names_str, aliases_str)
+
+    names, aliases, unsc_num = clean_names(context, names_str, aliases_str)
+    entity.add("name", names)
+    entity.add("alias", aliases)
+
+    for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
         # Generic override to map more details in the address field
         details_lookup_result = context.lookup("details", address)
         if details_lookup_result is not None:
@@ -74,7 +135,7 @@ def crawl_row(context: Context, row):
         else:
             entity.add("address", address)
 
-    for id_number in ids.split(";"):
+    for id_number in row.pop("護照號碼ID Number").split(";"):
         # Generic override to map more details in the ID number field
         details_lookup_result = context.lookup("details", id_number)
         if details_lookup_result is not None:
@@ -82,24 +143,13 @@ def crawl_row(context: Context, row):
         else:
             entity.add("idNumber", id_number)
 
-    match = PERMANENT_ID_RE.match(names)
-    if match:
-        entity.add("name", match.group("name").strip())
-    else:
-        for name in h.multi_split(names, NAME_SPLITS):
-            entity.add("name", name)
-    for alias in h.multi_split(aliases, NAME_SPLITS):
-        if len(alias.split()) == 1 and len(alias) < 7:
-            entity.add("weakAlias", alias)
-        else:
-            entity.add("alias", alias)
     for country in row.pop("國家代碼country code").split(";"):
         entity.add("country", country)
     entity.add("topics", "export.control")
 
-    if match:
+    if unsc_num:
         sanction = h.make_sanction(context, entity)
-        sanction.add("unscId", match.group("unsc_num").strip())
+        sanction.add("unscId", unsc_num)
         context.emit(sanction)
 
     context.emit(entity)
