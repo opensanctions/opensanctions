@@ -15,7 +15,7 @@ FORM_DATA = {
     "_diputadomodule_formacion": "all",
     "_diputadomodule_filtroProvincias": "[]",
 }
-IGNORE = ["constituency_id", "legislative_term_id", "gender"]
+IGNORE = ["constituency_id", "constituency_name", "legislative_term_id", "gender"]
 
 
 def rename_headers(context, entry):
@@ -29,28 +29,29 @@ def rename_headers(context, entry):
     return result
 
 
-def emit_pep_position(
+def emit_pep_entities(
     context,
-    pep,
+    person,
     title,
+    lang,
     start_date,
     end_date,
-    subnational_area,
     is_pep,
+    wikidata_id=None,
 ):
-    pep.add("position", title)
+    person.add("position", title)
     position = h.make_position(
         context,
         name=title,
         country="es",
-        subnational_area=subnational_area,
-        lang="spa",
+        lang=lang,
         topics=["gov.legislative", "gov.national"],
+        wikidata_id=wikidata_id,
     )
     categorisation = categorise(context, position, is_pep=is_pep)
     occupancy = h.make_occupancy(
         context,
-        pep,
+        person,
         position,
         start_date=start_date,
         end_date=end_date,
@@ -59,7 +60,7 @@ def emit_pep_position(
     if occupancy:
         context.emit(occupancy)
         context.emit(position)
-        context.emit(pep)
+        context.emit(person)
 
 
 def crawl_deputy(context, item):
@@ -67,25 +68,27 @@ def crawl_deputy(context, item):
     id = item.pop("parliament_member_id")
     party = item.pop("party")
 
-    pep = context.make("Person")
-    pep.id = context.make_id(id, name, party)
+    person = context.make("Person")
+    person.id = context.make_id(id, name, party)
+    first_names = item.pop("first_name").split(" ", 1)
     h.apply_name(
-        pep,
+        person,
         full=name,
-        first_name=item.pop("first_name"),
+        first_name=first_names[0],
+        second_name=first_names[1] if len(first_names) > 1 else None,
         last_name=item.pop("last_name"),
     )
-    pep.add("political", party)
-    pep.add("political", item.pop("parliamentary_group"))
-    pep.add("topics", "role.pep")
-    emit_pep_position(
+    person.add("political", party)
+    person.add("political", item.pop("parliamentary_group"))
+    emit_pep_entities(
         context,
-        pep,
-        "Member of Parliament",
+        person,
+        "Member of the Congress of Deputies of Spain",
+        "eng",
         item.pop("start_date"),
         item.pop("end_date", None),
-        item.pop("constituency_name"),
         is_pep=True,
+        wikidata_id="Q18171345",
     )
     context.audit_data(item, IGNORE)
 
@@ -96,41 +99,46 @@ def crawl_senator(context, doc_xml, link):
     credencial = legislatura.find(".//credencial") if legislatura is not None else None
     grupo = legislatura.find(".//grupoParlamentario")
     web_id = datos.findtext("idweb")
-    first_name = datos.findtext("nombre")
+    first_names = datos.findtext("nombre").split(" ", 1)
     last_name = datos.findtext("apellidos")
 
-    pep = context.make("Person")
-    pep.id = context.make_id(web_id, first_name, last_name)
-    h.apply_name(pep, first_name=first_name, last_name=last_name)
-    h.apply_date(pep, "birthDate", datos.findtext("fechaNacimiento"))
-    h.apply_date(pep, "deathDate", datos.findtext("fechaFallecimiento"))
-    pep.add("birthPlace", datos.findtext("lugarNacimiento"))
+    person = context.make("Person")
+    person.id = context.make_id(web_id, first_names, last_name)
+    h.apply_name(
+        person,
+        first_name=first_names[0],
+        second_name=first_names[1] if len(first_names) > 1 else None,
+        last_name=last_name,
+    )
+    h.apply_date(person, "birthDate", datos.findtext("fechaNacimiento"))
+    h.apply_date(person, "deathDate", datos.findtext("fechaFallecimiento"))
+    person.add("birthPlace", datos.findtext("lugarNacimiento"))
     if credencial is not None or grupo is not None:
-        pep.add("political", credencial.findtext("partidoSiglas"))
-        pep.add("political", grupo.findtext("grupoNombre"))
-    pep.add("notes", datos.findtext("biografia"))
-    pep.add("sourceUrl", link)
-    pep.add("topics", "role.pep")
-    emit_pep_position(
+        person.add("political", credencial.findtext("partidoSiglas"))
+        person.add("political", grupo.findtext("grupoNombre"))
+    person.add("notes", datos.findtext("biografia"))
+    person.add("sourceUrl", link)
+    emit_pep_entities(
         context,
-        pep,
-        "Member of Parliament",
+        person,
+        "Member of the Senate of Spain",
+        "eng",
         grupo.findtext("grupoAltaFec"),
         grupo.findtext("grupoBajaFec"),
-        None,
         is_pep=True,
+        wikidata_id="Q19323171",
     )
     # Parliamentary roles (cargos)
     for cargo in legislatura.findall(".//cargo"):
         role_title = cargo.findtext("cargoNombre")
         role_body = cargo.findtext("cargoOrganoNombre")
-        emit_pep_position(
+        emit_pep_entities(
             context,
-            pep,
+            person,
             f"{role_title}, {role_body}",
+            "spa",
             cargo.findtext("cargoAltaFec"),
             cargo.findtext("cargoBajaFec"),
-            None,
             # there are a lot of parliamentary postions, do we want to go into the details?
             # example: MEMBER OF THE COMMITTEE ON EDUCATION, VOCATIONAL TRAINING, AND SPORTS
             is_pep=True,
