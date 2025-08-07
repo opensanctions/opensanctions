@@ -19,6 +19,11 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
     attributes = dict()
     for el in name_el.find("./..").getnext().getchildren():
         text = collapse_spaces(el.text_content())
+        if (
+            url == "https://profiles.rise.md/connection.php?id=191024070929"
+            and not text
+        ):
+            continue
         parts = text.split(": ")
         if len(parts) == 2:
             attributes[slugify(parts[0])] = collapse_spaces(parts[1])
