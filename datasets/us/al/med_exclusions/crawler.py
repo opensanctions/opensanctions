@@ -6,7 +6,7 @@ from rigour.mime.types import PDF
 from rigour.names.org_types import extract_org_types
 from pdfplumber.page import Page
 
-from zavod import Context, helpers as h
+from zavod import Context, entity, helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 from zavod.stateful.review import get_review, request_review, assert_all_accepted
@@ -43,15 +43,18 @@ NAME_WITH_SUFFIX_REGEX = re.compile(
 NAME_WITH_ROLE_REGEX = re.compile(
     rf"(?P<name>{SIMPLE_NAME_PATTERN}), (?P<role>(([A-Z][a-z]+ ?)+|[A-Z]{{2,4}}))"
 )
-MODEL_VERSION = 1
-MIN_MODEL_VERSION = 1
+MODEL_VERSION = 2
+MIN_MODEL_VERSION = 2
 
-sector_field = Field(
-    default=None,
+positions_field = Field(
+    default=[],
     description=(
-        "The sector, qualification or professional title of the entity if included "
-        "along with their name. Often an acronym. Don't fill this based on my prompt, "
-        "only from the text."
+        (
+            "The positions held by the person for an entity who is a person. "
+            "Populate this precisely as listed in the text when the text indicates "
+            "the job role of a person, otherwise leave empty. Sometimes this is an "
+            "abbreviation of a job title, e.g. RN for Registered Nurse."
+        )
     ),
 )
 
@@ -60,7 +63,7 @@ class Entity(BaseModel):
     name: str
     name_suffix: Optional[str] = None
     aliases: List[str] = []
-    sector: Optional[str] = sector_field
+    positions: List[str] = positions_field
     address: Optional[str] = None
 
 
@@ -91,6 +94,24 @@ Extract the entities from the attached text. The text is details of debarred med
 Leave anything blank that is not present in the text. Never infer values that are not
 explicitly stated. Don't rearrange names from last name, first name order to full names.
 """
+
+
+def apply_comma_name(entity: entity.Entity, name: str):
+    parts = name.split(",")
+    if len(parts) == 2 and not extract_org_types(name):
+        entity.add_schema("Person")
+        forenames = parts[1].split()
+        h.apply_name(
+            entity,
+            first_name=forenames[0],
+            second_name=forenames[1] if len(forenames) > 1 else None,
+            middle_name=forenames[2] if len(forenames) > 2 else None,
+            name4=forenames[3] if len(forenames) > 3 else None,
+            name5=forenames[4] if len(forenames) > 4 else None,
+            last_name=parts[0],
+        )
+    else:
+        entity.add("name", name)
 
 
 def crawl_row(context, names, category, start_date, filename: str):
@@ -129,7 +150,7 @@ def crawl_row(context, names, category, start_date, filename: str):
             )
             entity_data = RootEntity(
                 name=match.group("name"),
-                sector=match.group("role"),
+                positions=[match.group("role")],
             )
             origin = filename
 
@@ -156,17 +177,17 @@ def crawl_row(context, names, category, start_date, filename: str):
         origin = DEFAULT_MODEL
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(entity_data.name, entity_data.sector)
-    entity.add("name", entity_data.name, origin=origin)
+    entity.id = context.make_id(entity_data.name, entity_data.positions)
+    apply_comma_name(entity, entity_data.name)
     entity.add_cast("Person", "nameSuffix", entity_data.name_suffix)
     entity.add("alias", entity_data.aliases, origin=origin)
     entity.add("address", entity_data.address, origin=origin)
     entity.add("country", "us")
     entity.add("topics", "debarment")
-    if entity_data.sector and "imposter" in entity_data.sector.lower():
-        entity.add("description", entity_data.sector, origin=origin)
+    if any("imposter" in p.lower() for p in entity_data.positions):
+        entity.add("description", entity_data.positions, origin=origin)
     else:
-        entity.add("sector", entity_data.sector, origin=origin)
+        entity.add_cast("Person", "position", entity_data.positions)
     entity.add("sector", category, origin=filename)
 
     sanction = h.make_sanction(context, entity)
@@ -177,17 +198,17 @@ def crawl_row(context, names, category, start_date, filename: str):
 
     for item in entity_data.related_entities:
         related = context.make("LegalEntity")
-        related.id = context.make_id(item.name, item.sector)
-        related.add("name", item.name, origin=origin)
+        related.id = context.make_id(item.name, item.positions)
+        apply_comma_name(related, item.name)
         related.add_cast("Person", "nameSuffix", item.name_suffix)
         related.add("alias", item.aliases, origin=origin)
         related.add("address", item.address, origin=origin)
         related.add("country", "us")
         related.add("topics", "debarment")
-        if item.sector and "imposter" in item.sector.lower():
-            related.add("description", item.sector, origin=origin)
+        if any("imposter" in p.lower() for p in item.positions):
+            related.add("description", item.positions, origin=origin)
         else:
-            related.add("sector", item.sector, origin=origin)
+            related.add_cast("Person", "position", item.positions)
         related.add("sector", category, origin=filename)
 
         # Extracting directionality is tricky because sometimes the asset is
