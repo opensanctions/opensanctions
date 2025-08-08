@@ -6,7 +6,7 @@ from rigour.mime.types import PDF
 from rigour.names.org_types import extract_org_types
 from pdfplumber.page import Page
 
-from zavod import Context, helpers as h
+from zavod import Context, entity, helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 from zavod.stateful.review import get_review, request_review, assert_all_accepted
@@ -96,6 +96,22 @@ explicitly stated. Don't rearrange names from last name, first name order to ful
 """
 
 
+def apply_comma_name(entity: entity.Entity, name: str):
+    parts = name.split(",")
+    if len(parts) == 2 and not extract_org_types(name):
+        entity.add_schema("Person")
+        forenames = parts[1].split()
+        h.apply_name(
+            entity,
+            first_name=forenames[0],
+            second_name=forenames[1] if len(forenames) > 1 else None,
+            middle_name=forenames[2] if len(forenames) > 2 else None,
+            last_name=parts[0],
+        )
+    else:
+        entity.add("name", name)
+
+
 def crawl_row(context, names, category, start_date, filename: str):
     origin = None
     entity_data = None
@@ -160,7 +176,7 @@ def crawl_row(context, names, category, start_date, filename: str):
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(entity_data.name, entity_data.positions)
-    entity.add("name", entity_data.name, origin=origin)
+    apply_comma_name(entity, entity_data.name)
     entity.add_cast("Person", "nameSuffix", entity_data.name_suffix)
     entity.add("alias", entity_data.aliases, origin=origin)
     entity.add("address", entity_data.address, origin=origin)
@@ -181,7 +197,7 @@ def crawl_row(context, names, category, start_date, filename: str):
     for item in entity_data.related_entities:
         related = context.make("LegalEntity")
         related.id = context.make_id(item.name, item.positions)
-        related.add("name", item.name, origin=origin)
+        apply_comma_name(related, item.name)
         related.add_cast("Person", "nameSuffix", item.name_suffix)
         related.add("alias", item.aliases, origin=origin)
         related.add("address", item.address, origin=origin)
