@@ -1,58 +1,173 @@
-from typing import Dict
+from typing import Dict, List, Optional
+import re
+
+from pydantic import BaseModel, Field
 from rigour.mime.types import PDF
+from rigour.names.org_types import extract_org_types
 from pdfplumber.page import Page
 
 from zavod import Context, helpers as h
+from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.stateful.review import get_review, request_review, assert_all_accepted
+
+# Cases
+#
+# last name, forenames or initials
+# Baer, Gregory Sherwin
+#
+# last name, forenames or initials, name suffix
+# Hereford, Sonnie, W., III
+#
+# Last name, forenames or initials, qualification/role
+# !!! similar to name suffix example
+# Caldwell, John Ed, Pharmacist
+# Bishop, Lisa Renee, RN
+#
+# Company name, Legal form, City, State
+# Dunn Medical, Inc., Eufaula, Alabama
+# !!! similar to person names with roles
 
 
-def crawl_row(context, name, category, start_date):
-    full_name = None
-    alias = None
-    if "(aka" in name:
-        full_name, alias = name.split("(aka")
-        alias = alias.replace(")", "")
-    if "(dba" in name:
-        full_name, alias = name.split("(dba")
-        alias = alias.replace(")", "")
+# Surname, First Name, Middle Name
+# Maybe followed by an initial, and maybe a period.
+# Watch out for accepting same suffix as part of simple names e.g. Jr. or III
+SIMPLE_NAME_PATTERN = r"[A-Z][a-z]+, ([A-Z][a-z]+ )*[A-Z]([a-z]*|\.)"
+SIMPLE_NAME_REGEX = re.compile(SIMPLE_NAME_PATTERN)
+NAME_SUFFIX_PATTERN = r"[IVX]{2,3}|Jr\.?|Sr\.?"
+NAME_SUFFIX_REGEX = re.compile(NAME_SUFFIX_PATTERN)
+NAME_WITH_SUFFIX_REGEX = re.compile(
+    rf"(?P<name>{SIMPLE_NAME_PATTERN}), (?P<suffix>{NAME_SUFFIX_PATTERN})$"
+)
+# Simple name, comma, and one word or an acronym
+NAME_WITH_ROLE_REGEX = re.compile(
+    rf"(?P<name>{SIMPLE_NAME_PATTERN}), (?P<role>(([A-Z][a-z]+ ?)+|[A-Z]{{2,4}}))"
+)
+MODEL_VERSION = 1
+MIN_MODEL_VERSION = 1
 
-    owners = []
-    if "Owner)" in name and len(name.split(" (")) == 2:
-        full_name, owner_names = name.split(" (")
-        owner_names = owner_names.replace("Owner)", "")
-        owners = h.multi_split(owner_names, ["Owner &", "&", "Owner ;", ";"])
+sector_field = Field(
+    default=None,
+    description=(
+        "The sector, qualification or professional title of the entity if included "
+        "along with their name. Often an acronym. Don't fill this based on my prompt, "
+        "only from the text."
+    ),
+)
 
-    sector = None
-    name_parts = h.multi_split(name, [","])
-    if full_name is None and len(name_parts) > 2:
-        full_name = ", ".join(name_parts[:2])
-        sector = name_parts[2:]
 
-    if full_name is None:
-        full_name = name
+class Entity(BaseModel):
+    name: str
+    name_suffix: Optional[str] = None
+    aliases: List[str] = []
+    sector: Optional[str] = sector_field
+    address: Optional[str] = None
 
-    # If it's still not clean
-    related_entities = []
-    if context.lookup("unclean_names", full_name) is not None:
-        res = context.lookup("override", name)
-        if res:
-            full_name = res.name
-            sector = res.sector
-            alias = res.alias
-            related_entities = res.related_entities
-        else:
-            context.log.warning(
-                "Probably not a clean name", name=full_name, full_string=name
+
+class RelatedEntity(Entity):
+    relationship_role: Optional[str] = Field(
+        description=(
+            "Relationship between the entities e.g. `Owner` or `Vice President`."
+        )
+    )
+
+
+class RootEntity(Entity):
+    related_entities: List[RelatedEntity] = Field(
+        description=(
+            "Owners or other officers of a company if listed. If the "
+            "first entity looks like a person and a single owner name is included in"
+            " parentheses, then only give one entity - the person. Don't make a company"
+            " out of the person's name."
+        ),
+        default=[],
+    )
+
+
+PROMPT = """
+Extract the entities from the attached text. The text is details of debarred medicaid
+ providers.
+
+Leave anything blank that is not present in the text. Never infer values that are not
+explicitly stated. Don't rearrange names from last name, first name order to full names.
+"""
+
+
+def crawl_row(context, names, category, start_date, filename: str):
+    origin = None
+    entity_data = None
+    if SIMPLE_NAME_REGEX.fullmatch(names):
+        if extract_org_types(names):
+            context.log.debug(
+                "Name looks like a company name, not as simple as persons", names=names
             )
+        elif NAME_SUFFIX_REGEX.search(names):
+            context.log.debug("name contains suffix", names=names)
+        else:
+            entity_data = RootEntity(name=names)
+            origin = filename
+
+    if entity_data is None:
+        if match := NAME_WITH_SUFFIX_REGEX.fullmatch(names):
+            context.log.debug(
+                "name with suffix",
+                name=match.group("name"),
+                suffix=match.group("suffix"),
+            )
+            entity_data = RootEntity(
+                name=match.group("name"),
+                name_suffix=match.group("suffix"),
+            )
+            origin = filename
+
+    if entity_data is None:
+        if match := NAME_WITH_ROLE_REGEX.fullmatch(names):
+            context.log.debug(
+                "name with role",
+                name=match.group("name"),
+                role=match.group("role"),
+            )
+            entity_data = RootEntity(
+                name=match.group("name"),
+                sector=match.group("role"),
+            )
+            origin = filename
+
+    if entity_data is None:
+        context.log.debug("unsure about", names=names)
+        review = get_review(context, RootEntity, names, MIN_MODEL_VERSION)
+        if review is None:
+            prompt_result = run_typed_text_prompt(
+                context, PROMPT, names, response_type=RootEntity
+            )
+            review = request_review(
+                context,
+                key_parts=names,
+                source_value=names,
+                source_mime_type="text/plain",
+                source_label="Debarred entities",
+                source_url=None,
+                orig_extraction_data=prompt_result,
+                model_version=MODEL_VERSION,
+            )
+        if not review.accepted:
+            return
+        entity_data = review.extracted_data
+        origin = DEFAULT_MODEL
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(full_name, sector)
-    entity.add("name", full_name)
-    entity.add("alias", alias)
+    entity.id = context.make_id(entity_data.name, entity_data.sector)
+    entity.add("name", entity_data.name, origin=origin)
+    entity.add_cast("Person", "nameSuffix", entity_data.name_suffix)
+    entity.add("alias", entity_data.aliases, origin=origin)
+    entity.add("address", entity_data.address, origin=origin)
     entity.add("country", "us")
     entity.add("topics", "debarment")
-    entity.add("sector", sector)
-    entity.add("sector", category)
+    if entity_data.sector and "imposter" in entity_data.sector.lower():
+        entity.add("description", entity_data.sector, origin=origin)
+    else:
+        entity.add("sector", entity_data.sector, origin=origin)
+    entity.add("sector", category, origin=filename)
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", start_date)
@@ -60,34 +175,28 @@ def crawl_row(context, name, category, start_date):
     context.emit(entity)
     context.emit(sanction)
 
-    for owner in owners:
-        owner_entity = context.make("LegalEntity")
-        owner_entity.id = context.make_id(owner)
-        owner_entity.add("name", owner)
-        owner_entity.add("country", "us")
-        owner_entity.add("topics", "debarment")
-
-        relation = context.make("Ownership")
-        relation.id = context.make_id(entity.id, owner_entity.id)
-        relation.add("asset", entity)
-        relation.add("owner", owner_entity)
-
-        sanction = h.make_sanction(context, entity)
-        h.apply_date(sanction, "startDate", start_date)
-        context.emit(owner_entity)
-        context.emit(relation)
-
-    for item in related_entities if related_entities else []:
+    for item in entity_data.related_entities:
         related = context.make("LegalEntity")
-        related.id = context.make_id(item["name"], entity.id)
-        related.add("name", item["name"])
+        related.id = context.make_id(item.name, item.sector)
+        related.add("name", item.name, origin=origin)
+        related.add_cast("Person", "nameSuffix", item.name_suffix)
+        related.add("alias", item.aliases, origin=origin)
+        related.add("address", item.address, origin=origin)
         related.add("country", "us")
         related.add("topics", "debarment")
+        if item.sector and "imposter" in item.sector.lower():
+            related.add("description", item.sector, origin=origin)
+        else:
+            related.add("sector", item.sector, origin=origin)
+        related.add("sector", category, origin=filename)
 
-        relation = context.make(item["schema"])
+        # Extracting directionality is tricky because sometimes the asset is
+        # the first entity, sometimes it's in parentheses.
+        relation = context.make("UnknownLink")
         relation.id = context.make_id(entity.id, related.id)
-        relation.add(item["from_prop"], entity)
-        relation.add(item["to_prop"], related)
+        relation.add("subject", entity)
+        relation.add("object", related)
+        relation.add("role", item.relationship_role, origin=origin)
 
         sanction = h.make_sanction(context, entity)
         h.apply_date(sanction, "startDate", start_date)
@@ -127,14 +236,17 @@ def crawl(context: Context) -> None:
     url = crawl_data_url(context)
     _, _, _, path = fetch_resource(context, "source.pdf", url, expected_media_type=PDF)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
+    filename = url.split("/")[-1]
+    assert ".pdf" in filename, filename
 
     try:
         category = None
         for row in h.parse_pdf_table(context, path, page_settings=page_settings):
-            name = row.pop("name_of_provider").replace("\n", " ")
+            name = row.pop("name_of_provider").replace("\n", " ").strip()
             if name == "":
                 continue
-            start_date = row.pop("suspension_effective_date")
+            start_date = row.pop("suspension_effective_date").strip()
+            # When there's no date, we're probably at a category header row.
             if start_date == "":
                 if context.lookup("categories", name):
                     category = name
@@ -145,7 +257,8 @@ def crawl(context: Context) -> None:
                         category=name,
                     )
                 continue
-            crawl_row(context, name, category, start_date)
+            crawl_row(context, name, category, start_date, filename)
+        assert_all_accepted(context)
     except Exception as e:
         if "No table found on page 49" in str(e):
             # this is where the right-hand side of the table starts wrapping

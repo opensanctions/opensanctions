@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 from zavod import settings
 from zavod.context import Context
-from zavod.stateful.review import get_review, request_review
+from zavod.stateful.review import get_review, request_review, review_key
 from zavod.stateful.model import review_table
 
 SOURCE_LABEL = "test"
@@ -149,3 +149,16 @@ def test_re_request_deletes_old_and_inserts_new(testdataset1, monkeypatch):
     assert new["accepted"] is False
     assert new["orig_extraction_data"]["foo"] == "baz"
     assert review.accepted is False
+
+
+def test_review_key():
+    assert review_key("key1") == "key1"
+    assert review_key(["part1", "part2"]) == "part1-part2"
+    assert (
+        review_key("key1" * 100)
+        == "key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1-0ed37245d1"
+    )
+    assert (
+        review_key(["key1"] * 100)
+        == "key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1--5611368bed"
+    )

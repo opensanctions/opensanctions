@@ -1,6 +1,4 @@
 import csv
-from hashlib import sha1
-from normality import slugify
 from typing import Dict
 from urllib.parse import urljoin, urlparse
 
@@ -39,19 +37,6 @@ class BankOrgsResult(BaseModel):
     entities: list[BankOrgEntity]
 
 
-def review_key(string: str) -> str:
-    """Generates a unique key for a given string of party names.
-    If the slug would be longer than 255 chars, we include a truncated hash of the
-    string with part of the slug to ensure it's consistent, unique, and short enough.
-    """
-    slug = slugify(string)
-    if len(string) <= 255:
-        return string
-    else:
-        hash = sha1(string.encode("utf-8")).hexdigest()[:10]
-        return f"{slug[:80]}-{hash}"
-
-
 def crawl_item(context: Context, original_filename: str, input_dict: Dict[str, str]):
     origin = None
     if input_dict["Individual"]:
@@ -78,7 +63,7 @@ def crawl_item(context: Context, original_filename: str, input_dict: Dict[str, s
         review = get_review(
             context,
             BankOrgsResult,
-            review_key(party_name),
+            party_name,
             MIN_MODEL_VERSION,
         )
         if review is None:
@@ -90,7 +75,7 @@ def crawl_item(context: Context, original_filename: str, input_dict: Dict[str, s
             )
             review = request_review(
                 context=context,
-                key=review_key(party_name),
+                key_parts=party_name,
                 source_value=party_name,
                 source_mime_type="text/plain",
                 source_label="Banking Organization field in CSV",

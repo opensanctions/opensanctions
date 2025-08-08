@@ -157,9 +157,24 @@ class Review(BaseModel, Generic[ModelType]):
         return conn.execute(select_stmt).scalar_one()
 
 
+def review_key(parts: str | list[str]) -> str:
+    """Generates a unique key for a given string of party names.
+    If the slug would be longer than 255 chars, we include a truncated hash of the
+    string with part of the slug to ensure it's consistent, unique, and short enough.
+    """
+    slug = slugify(parts)
+    assert slug is not None
+    # Hardcoding based on model.KEY_LEN to prevent inadvertent key changes
+    if len(slug) <= 255:
+        return slug
+    else:
+        hash = sha1(slug.encode("utf-8")).hexdigest()
+        return f"{slug[:80]}-{hash[:10]}"
+
+
 def request_review(
     context: Context,
-    key: str | list[str],
+    key_parts: str | list[str],
     source_value: str,
     source_mime_type: str,
     source_label: str,
@@ -184,7 +199,7 @@ def request_review(
              from the source. Any changes to the data will be validated against
              this model.
     """
-    key_slug = slugify(key)
+    key_slug = review_key(key_parts)
     assert key_slug is not None
     dataset = context.dataset.name
     schema = type(orig_extraction_data).model_json_schema(
@@ -195,7 +210,7 @@ def request_review(
         review = Review.by_key(conn, type(orig_extraction_data), dataset, key_slug)
         if review is None:
             # First insert
-            context.log.debug("Requesting review", key=key)
+            context.log.debug("Requesting review", key=key_slug)
             review = Review(
                 key=key_slug,
                 dataset=dataset,
@@ -239,14 +254,14 @@ def request_review(
 def get_review(
     context: Context,
     data_model: Type[ModelType],
-    key: str,
+    key_parts: str | list[str],
     min_model_version: int,
 ) -> Optional[Review[ModelType]]:
     """
     Get a review for a given key if it exists and its model is up to date.
     Returned reviews will have had their last_seen_version updated to the current version.
     """
-    key_slug = slugify(key)
+    key_slug = review_key(key_parts)
     assert key_slug is not None
     with get_engine().begin() as conn:
         review = Review[ModelType].by_key(
