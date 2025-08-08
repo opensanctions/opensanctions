@@ -7,9 +7,9 @@ from rigour.names.org_types import extract_org_types
 from pdfplumber.page import Page
 
 from zavod import Context, helpers as h
-from zavod.shed.gpt import run_typed_text_prompt
+from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.shed.zyte_api import fetch_html, fetch_resource
-from zavod.stateful.review import get_review, request_review
+from zavod.stateful.review import get_review, request_review, assert_all_accepted
 
 # Cases
 #
@@ -59,21 +59,20 @@ sector_field = Field(
 class Entity(BaseModel):
     name: str
     name_suffix: Optional[str] = None
-    aliases: Optional[str] = None
+    aliases: List[str] = []
     sector: Optional[str] = sector_field
+    address: Optional[str] = None
 
 
 class RelatedEntity(Entity):
     relationship_role: Optional[str] = Field(
         description=(
-            "Use `owner` if they are listed as the owner, otherwise use the "
-            "relationship role precisely as listed, e.g. `Vice President`."
+            "Relationship between the entities e.g. `Owner` or `Vice President`."
         )
     )
 
 
 class RootEntity(Entity):
-    address: Optional[str] = None
     related_entities: List[RelatedEntity] = Field(
         description=(
             "Owners or other officers of a company if listed. If the "
@@ -89,11 +88,13 @@ PROMPT = """
 Extract the entities from the attached text. The text is details of debarred medicaid
  providers.
 
-Leave anything blank that is not present in the text.
+Leave anything blank that is not present in the text. Never infer values that are not
+explicitly stated. Don't rearrange names from last name, first name order to full names.
 """
 
 
-def crawl_row(context, names, category, start_date):
+def crawl_row(context, names, category, start_date, filename: str):
+    origin = None
     entity_data = None
     if SIMPLE_NAME_REGEX.fullmatch(names):
         if extract_org_types(names):
@@ -104,6 +105,7 @@ def crawl_row(context, names, category, start_date):
             context.log.debug("name contains suffix", names=names)
         else:
             entity_data = RootEntity(name=names)
+            origin = filename
 
     if entity_data is None:
         if match := NAME_WITH_SUFFIX_REGEX.fullmatch(names):
@@ -116,6 +118,7 @@ def crawl_row(context, names, category, start_date):
                 name=match.group("name"),
                 name_suffix=match.group("suffix"),
             )
+            origin = filename
 
     if entity_data is None:
         if match := NAME_WITH_ROLE_REGEX.fullmatch(names):
@@ -128,6 +131,7 @@ def crawl_row(context, names, category, start_date):
                 name=match.group("name"),
                 sector=match.group("role"),
             )
+            origin = filename
 
     if entity_data is None:
         context.log.debug("unsure about", names=names)
@@ -149,18 +153,21 @@ def crawl_row(context, names, category, start_date):
         if not review.accepted:
             return
         entity_data = review.extracted_data
+        origin = DEFAULT_MODEL
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(entity_data.name, entity_data.sector)
-    entity.add("name", entity_data.name)
-    entity.add("alias", entity_data.aliases)
+    entity.add("name", entity_data.name, origin=origin)
+    entity.add_cast("Person", "nameSuffix", entity_data.name_suffix)
+    entity.add("alias", entity_data.aliases, origin=origin)
+    entity.add("address", entity_data.address, origin=origin)
     entity.add("country", "us")
     entity.add("topics", "debarment")
     if entity_data.sector and "imposter" in entity_data.sector.lower():
-        entity.add("description", entity_data.sector)
+        entity.add("description", entity_data.sector, origin=origin)
     else:
-        entity.add("sector", entity_data.sector)
-    entity.add("sector", category)
+        entity.add("sector", entity_data.sector, origin=origin)
+    entity.add("sector", category, origin=filename)
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", start_date)
@@ -171,27 +178,25 @@ def crawl_row(context, names, category, start_date):
     for item in entity_data.related_entities:
         related = context.make("LegalEntity")
         related.id = context.make_id(item.name, item.sector)
-        related.add("name", item.name)
+        related.add("name", item.name, origin=origin)
+        related.add_cast("Person", "nameSuffix", item.name_suffix)
+        related.add("alias", item.aliases, origin=origin)
+        related.add("address", item.address, origin=origin)
         related.add("country", "us")
         related.add("topics", "debarment")
         if item.sector and "imposter" in item.sector.lower():
-            related.add("description", item.sector)
+            related.add("description", item.sector, origin=origin)
         else:
-            related.add("sector", item.sector)
+            related.add("sector", item.sector, origin=origin)
+        related.add("sector", category, origin=filename)
 
-        if item.role == "owner":
-            schema = "Ownership"
-            from_prop = "owner"
-            to_prop = "asset"
-        else:
-            schema = "UnknownLink"
-            from_prop = "subject"
-            to_prop = "object"
-        relation = context.make(schema)
+        # Extracting directionality is tricky because sometimes the asset is
+        # the first entity, sometimes it's in parentheses.
+        relation = context.make("UnknownLink")
         relation.id = context.make_id(entity.id, related.id)
-        relation.add(from_prop, entity)
-        relation.add(to_prop, related)
-        relation.add("role", item.role)
+        relation.add("subject", entity)
+        relation.add("object", related)
+        relation.add("role", item.relationship_role, origin=origin)
 
         sanction = h.make_sanction(context, entity)
         h.apply_date(sanction, "startDate", start_date)
@@ -231,6 +236,8 @@ def crawl(context: Context) -> None:
     url = crawl_data_url(context)
     _, _, _, path = fetch_resource(context, "source.pdf", url, expected_media_type=PDF)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
+    filename = url.split("/")[-1]
+    assert ".pdf" in filename, filename
 
     try:
         category = None
@@ -250,7 +257,8 @@ def crawl(context: Context) -> None:
                         category=name,
                     )
                 continue
-            crawl_row(context, name, category, start_date)
+            crawl_row(context, name, category, start_date, filename)
+        assert_all_accepted(context)
     except Exception as e:
         if "No table found on page 49" in str(e):
             # this is where the right-hand side of the table starts wrapping
