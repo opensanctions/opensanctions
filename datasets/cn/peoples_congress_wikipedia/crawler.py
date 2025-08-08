@@ -78,7 +78,7 @@ def crawl_item(
 
     birth_date_el = input_dict.pop("date_of_birth", None)
     if birth_date_el is not None:
-        birth_date = birth_date_el.text_content()
+        birth_date = birth_date_el.text_content().strip()
     else:
         birth_date = None
 
