@@ -65,6 +65,7 @@ config:
     max_candidates: 200
     match_batch: 300
   dataset: gb_coh_psc
+  memory: 3000
   strip_namespace: true
   threshold: 0.5
   algorithm: regression-v1

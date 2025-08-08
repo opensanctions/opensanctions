@@ -10,7 +10,6 @@ exports:
 deploy:
   cpu: "1000m"
   memory: "9000Mi"
-  xref_memory: "4000Mi"
   disk: "100Gi"
 load_statements: true
 ci_test: false
@@ -74,6 +73,7 @@ config:
     match_batch: 300
   strip_namespace: true
   threshold: 0.7
+  memory: 4000
   algorithm: regression-v1
   topics:
     - role.pep

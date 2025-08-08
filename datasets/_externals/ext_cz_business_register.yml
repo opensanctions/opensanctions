@@ -54,6 +54,7 @@ inputs:
 
 config:
   dataset: cz_business_register
+  memory: 3000
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1

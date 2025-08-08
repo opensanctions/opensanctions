@@ -14,7 +14,6 @@ deploy:
   schedule: "@monthly"
   memory: "4500Mi"
   memory_limit: "5500Mi"
-  xref_memory: "2000Mi"
   disk: "100Gi"
 load_statements: true
 ci_test: false
@@ -73,6 +72,7 @@ inputs:
 
 config:
   dataset: ua_edr
+  memory: 2000
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
