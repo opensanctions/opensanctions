@@ -998,6 +998,84 @@ config:
       position:
         country: ec
 
+    # Columbia
+    - category: Members_of_the_Congress_of_Colombia
+      country: co
+      topic: role.pep
+      position:
+        name: Member of the Congress of Colombia
+        country: co
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_Colombia
+      country: co
+      topic: role.pep
+      position:
+        name: President of Colombia
+        country: co
+        topics:
+          - gov.head
+          - gov.national
+    - category: Government_ministers_of_Colombia
+      country: co
+      topic: role.pep
+      position:
+        name: Minister of Colombia
+        country: co
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Mayors_of_Bogotá
+      country: co
+      topic: role.pep
+      position:
+        name: Mayor of Bogotá
+        country: co
+        topics:
+          - gov.muni
+          - gov.head
+    - category: Lists_of_political_office-holders_in_Colombia
+      country: co
+      topic: role.pep
+    - category: Senadores_de_Colombia
+      country: co
+      language: es
+      topic: role.pep
+      position:
+        name: Senator
+        country: co
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Diputados_de_Colombia
+      country: co
+      language: es
+      topic: role.pep
+    - category: Presidentes_de_Colombia
+      country: co
+      language: es
+      topic: role.pep
+      position:
+        name: President of Colombia
+        country: co
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vicepresidencia_de_Colombia
+      country: co
+      language: es
+      topic: role.pep
+      position:
+        name: Vice President of Colombia
+        country: co
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Políticos_de_Colombia
+      country: co
+      language: es
+      topic: role.pep
 
     # European countries
     - category: Members_of_the_parliaments_of_the_Belgian_communities_and_regions
