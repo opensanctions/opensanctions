@@ -13,8 +13,8 @@ exports:
   - entities.delta.json
 deploy:
   schedule: "@monthly"
-  memory: "3500Mi"
-  memory_limit: "5000Mi"
+  memory: "5000Mi"
+  memory_limit: "6000Mi"
   disk: "100Gi"
 load_statements: true
 ci_test: false
@@ -63,6 +63,7 @@ inputs:
 
 config:
   dataset: ge_company_registry
+  memory: 3000
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1

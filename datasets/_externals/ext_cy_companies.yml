@@ -11,7 +11,6 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  # schedule: "1 2 * * *"
   memory: "2000Mi"
   memory_limit: "5500Mi"
   disk: "100Gi"

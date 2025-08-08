@@ -78,7 +78,7 @@ config:
     max_candidates: 200
     match_batch: 300
   dataset: ru_egrul
-  memory: 4000
+  memory: 5000
   strip_namespace: true
   fuzzy: false
   threshold: 0.7

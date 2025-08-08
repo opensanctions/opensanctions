@@ -40,6 +40,7 @@ from nomenklatura.index.common import BaseIndex
 from nomenklatura.resolver import Identifier
 from nomenklatura.store import View
 
+from zavod import settings
 from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.logs import get_logger
@@ -66,8 +67,8 @@ DEFAULT_FIELD_STOPWORDS_PCT = {
     registry.address.name: 10.0,
     registry.date.name: 40.0,
     PHONETIC_FIELD: 30.0,
-    WORD_FIELD: 15.0,
-    NAME_PART_FIELD: 3.0,
+    WORD_FIELD: 10.0,
+    NAME_PART_FIELD: 1.0,
 }
 
 
@@ -114,7 +115,7 @@ class DuckDBIndex(BaseIndex[Dataset, Entity]):
             "threads": 1,
             "temp_directory": tmp_dir.as_posix(),
         }
-        self.memory_budget = int(options.get("memory", "2000"))
+        self.memory_budget = int(options.get("memory", settings.DUCKDB_MEMORY))
         """Memory budget in megabytes"""
         # https://duckdb.org/docs/guides/performance/environment
         # > For ideal performance,

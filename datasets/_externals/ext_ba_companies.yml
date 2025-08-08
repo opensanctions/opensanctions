@@ -11,8 +11,8 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "1000Mi"
-  memory_limit: "2500Mi"
+  memory: "4000Mi"
+  memory_limit: "6000Mi"
   disk: 100Gi
 load_statements: true
 ci_test: false
@@ -70,6 +70,7 @@ inputs:
 
 config:
   dataset: ba_companies
+  memory: 3000
   strip_namespace: true
   threshold: 0.5
   algorithm: regression-v1
