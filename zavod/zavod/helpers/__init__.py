@@ -46,9 +46,15 @@ from zavod.helpers.sanctions import (
 )
 from zavod.helpers.addresses import make_address, format_address
 from zavod.helpers.addresses import copy_address, apply_address, postcode_pobox
-from zavod.helpers.dates import extract_years
-from zavod.helpers.dates import parse_formats, apply_date, apply_dates, extract_date
-from zavod.helpers.dates import replace_months
+from zavod.helpers.dates import (
+    extract_years,
+    parse_formats,
+    apply_date,
+    apply_dates,
+    extract_date,
+    replace_months,
+    backdate,
+)
 from zavod.helpers.identification import make_identification
 from zavod.helpers.securities import make_security
 from zavod.helpers.excel import convert_excel_cell, convert_excel_date, parse_xls_sheet
@@ -81,6 +87,7 @@ __all__ = [
     "apply_dates",
     "extract_date",
     "replace_months",
+    "backdate",
     "convert_excel_cell",
     "convert_excel_date",
     "make_security",
