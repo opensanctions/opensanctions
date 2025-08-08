@@ -29,18 +29,20 @@
 # making memory_limit smaller might help fit what the buffer manager manages,
 # plus all the additional DuckDB and non-DuckDB memory usage.
 
-from collections import defaultdict
 import orjson
-import logging
 from pathlib import Path
-from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
+from collections import defaultdict
+from typing import Any, Dict, Generator, Iterable, List, Tuple
 
 import duckdb
-from followthemoney import model, registry, DS, SE
+from followthemoney import model, registry
 from nomenklatura.index.common import BaseIndex
 from nomenklatura.resolver import Identifier
 from nomenklatura.store import View
 
+from zavod.meta import Dataset
+from zavod.entity import Entity
+from zavod.logs import get_logger
 from zavod.integration.tokenizer import (
     NAME_PART_FIELD,
     PHONETIC_FIELD,
@@ -48,11 +50,10 @@ from zavod.integration.tokenizer import (
     tokenize_entity,
 )
 from zavod.reset import reset_caches
-from zavod import settings
 
 BlockingMatches = List[Tuple[Identifier, float]]
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 BATCH_SIZE = 10000
 # Reducing these increases memory usage
@@ -70,7 +71,7 @@ DEFAULT_FIELD_STOPWORDS_PCT = {
 }
 
 
-class DuckDBIndex(BaseIndex[DS, SE]):
+class DuckDBIndex(BaseIndex[Dataset, Entity]):
     """
     An index using DuckDB for token matching and scoring, keeping data in memory
     until it needs to spill to disk as it approaches the configured memory limit.
@@ -93,37 +94,37 @@ class DuckDBIndex(BaseIndex[DS, SE]):
     __slots__ = "view", "fields", "tokenizer", "entities"
 
     def __init__(
-        self, view: View[DS, SE], data_dir: Path, options: Dict[str, Any] = {}
+        self, view: View[Dataset, Entity], data_dir: Path, options: Dict[str, Any] = {}
     ):
         self.view = view
-        memory_budget = options.get("memory_budget", settings.XREF_MEMORY)
+        self.max_candidates = int(options.get("max_candidates", 75))
+        self.stopwords_pct = DEFAULT_FIELD_STOPWORDS_PCT.copy()
+        self.stopwords_pct.update(options.get("stopwords_pct", {}))
+        # self.max_stopwords: int = int(options.get("max_stopwords", 100_000))
+        self.match_batch: int = int(options.get("match_batch", 1_000))
+        self.data_dir = data_dir.resolve()
+        # if self.data_dir.exists():
+        #     rmtree(self.data_dir)
+        tmp_dir = self.data_dir / "tmp"
+        tmp_dir.mkdir(parents=True, exist_ok=True)
+        self.duckdb_config = {
+            "preserve_insertion_order": False,
+            # > If you have a limited amount of memory, try to limit the number of threads
+            # "threads": int(settings.XREF_THREADS),
+            "threads": 1,
+            "temp_directory": tmp_dir.as_posix(),
+        }
+        self.memory_budget = int(options.get("memory", "2000"))
+        """Memory budget in megabytes"""
         # https://duckdb.org/docs/guides/performance/environment
         # > For ideal performance,
         # > aggregation-heavy workloads require approx. 5 GB memory per thread and
         # > join-heavy workloads require approximately 10 GB memory per thread.
         # > Aim for 5-10 GB memory per thread.
-        self.memory_budget: Optional[int] = (
-            int(memory_budget) if memory_budget else None
-        )
-        """Memory budget in megabytes"""
-        self.max_candidates = int(options.get("max_candidates", 75))
-        self.stopwords_pct = DEFAULT_FIELD_STOPWORDS_PCT.copy()
-        self.stopwords_pct.update(options.get("stopwords_pct", {}))
-        self.max_stopwords: int = int(options.get("max_stopwords", 100_000))
-        self.match_batch: int = int(options.get("match_batch", 1_000))
-        self.data_dir = data_dir.resolve()
-        # if self.data_dir.exists():
-        #     rmtree(self.data_dir)
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.duckdb_config = {
-            "preserve_insertion_order": False,
-            # > If you have a limited amount of memory, try to limit the number of threads
-            "threads": int(settings.XREF_THREADS),
-            "temp_directory": (self.data_dir / "index.duckdb.tmp").as_posix(),
-        }
         if self.memory_budget is not None:
             self.duckdb_config["memory_limit"] = f"{self.memory_budget}MB"
             self.duckdb_config["max_memory"] = f"{self.memory_budget}MB"
+        log.info("DuckDB index configured", **self.duckdb_config)
         self.duckdb_path = (self.data_dir / "index.duckdb").as_posix()
         self._init_db()
 
@@ -135,9 +136,9 @@ class DuckDBIndex(BaseIndex[DS, SE]):
         self.con.close()
         self._init_db()
 
-    def load_entities(self, table: str, entities: Iterable[SE]) -> None:
+    def load_entities(self, table: str, entities: Iterable[Entity]) -> None:
         path = self.data_dir / f"{table}.ndjson"
-        log.info("Dumping tokenized entities to NDJSON: %r", table)
+        log.info("Dumping tokenized entities to NDJSON: %r" % table)
         with open(path, "wb") as fh:
             idx = 0
             for entity in entities:
@@ -165,14 +166,14 @@ class DuckDBIndex(BaseIndex[DS, SE]):
         CREATE OR REPLACE TABLE {table}
             (schema TEXT, id TEXT, field TEXT, token TEXT, count INT)
         """)
-        log.info("Loading data to table %r...", table)
+        log.info("Loading data to table %r..." % table)
         self.con.execute(f"COPY {table} FROM '{path}'")
         path.unlink(missing_ok=True)
         self._clear()
 
     def build(self) -> None:
         """Index all entities in the dataset."""
-        log.info("Building index from: %r...", self.view)
+        log.info("Building index from: %r..." % self.view)
         self.con.execute("CREATE OR REPLACE TABLE boosts (field TEXT, boost FLOAT)")
         for field, boost in self.BOOSTS.items():
             self.con.execute("INSERT INTO boosts VALUES (?, ?)", [field, boost])
@@ -213,15 +214,16 @@ class DuckDBIndex(BaseIndex[DS, SE]):
     def build_field_stopwords(self, field: str, num_tokens: int) -> None:
         field_stopwords_pct = self.stopwords_pct.get(field, DEFAULT_STOPWORDS_PCT)
         if field_stopwords_pct == 0.0:
-            log.info("Stopwords disabled for field '%s'.", field)
+            log.info("Stopwords disabled for field '%s'." % field)
             return
         limit = int((num_tokens / 100) * field_stopwords_pct)
         # limit = min(limit, self.max_stopwords)
         log.info(
-            "Treating %d (%s%%) most common tokens as stopwords for field '%s'...",
-            limit,
-            field_stopwords_pct,
-            field,
+            "Treating %d (%s%%) most common tokens as stopwords for field '%s'..." % (
+                limit,
+                field_stopwords_pct,
+                field,
+            )
         )
         self.con.execute(
             """
@@ -241,10 +243,10 @@ class DuckDBIndex(BaseIndex[DS, SE]):
             f"{freq} {token}"
             for token, freq in self.con.execute(least_common_query, [field]).fetchall()
         )
-        log.info("5 Least common stopwords for field '%s':\n%s\n", field, least_common)
+        log.info("5 Least common stopwords for field '%s':\n%s\n" % (field, least_common))
 
     def _apply_stopwords(self, origin_table: str, target_table: str) -> None:
-        log.info("Filtering stopwords from %r, as %r...", origin_table, target_table)
+        log.info("Filtering stopwords from %r, as %r..." % (origin_table, target_table))
         # FIXME: this doesn't work for enrichment:
         # q = f"""
         # CREATE OR REPLACE TABLE {target_table} as
@@ -302,7 +304,7 @@ class DuckDBIndex(BaseIndex[DS, SE]):
                 yield (Identifier.get(left), Identifier.get(right)), score
 
     def match_entities(
-        self, entities: Iterable[SE]
+        self, entities: Iterable[Entity]
     ) -> Generator[
         Tuple[Identifier, BlockingMatches],
         None,
@@ -334,7 +336,7 @@ class DuckDBIndex(BaseIndex[DS, SE]):
         self.con.execute(chunk_table_query, [chunks])
         self._clear()
 
-        log.info("Matching %d entities in %d chunks...", num_matching, chunks)
+        log.info("Matching %d entities in %d chunks..." % (num_matching, chunks))
         for chunk in range(1, chunks + 1):
             chunk_query = """
             SELECT m.id AS matching_id, tf.id AS matches_id, SUM(tf.tf) AS score
