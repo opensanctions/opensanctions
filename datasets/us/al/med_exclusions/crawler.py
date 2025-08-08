@@ -43,15 +43,18 @@ NAME_WITH_SUFFIX_REGEX = re.compile(
 NAME_WITH_ROLE_REGEX = re.compile(
     rf"(?P<name>{SIMPLE_NAME_PATTERN}), (?P<role>(([A-Z][a-z]+ ?)+|[A-Z]{{2,4}}))"
 )
-MODEL_VERSION = 1
-MIN_MODEL_VERSION = 1
+MODEL_VERSION = 2
+MIN_MODEL_VERSION = 2
 
-sector_field = Field(
-    default=None,
+positions_field = Field(
+    default=[],
     description=(
-        "The sector, qualification or professional title of the entity if included "
-        "along with their name. Often an acronym. Don't fill this based on my prompt, "
-        "only from the text."
+        (
+            "The positions held by the person for an entity who is a person. "
+            "Populate this precisely as listed in the text when the text indicates "
+            "the job role of a person, otherwise leave empty. Sometimes this is an "
+            "abbreviation of a job title, e.g. RN for Registered Nurse."
+        )
     ),
 )
 
@@ -60,7 +63,7 @@ class Entity(BaseModel):
     name: str
     name_suffix: Optional[str] = None
     aliases: List[str] = []
-    sector: Optional[str] = sector_field
+    positions: List[str] = positions_field
     address: Optional[str] = None
 
 
@@ -129,7 +132,7 @@ def crawl_row(context, names, category, start_date, filename: str):
             )
             entity_data = RootEntity(
                 name=match.group("name"),
-                sector=match.group("role"),
+                positions=[match.group("role")],
             )
             origin = filename
 
@@ -156,17 +159,17 @@ def crawl_row(context, names, category, start_date, filename: str):
         origin = DEFAULT_MODEL
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(entity_data.name, entity_data.sector)
+    entity.id = context.make_id(entity_data.name, entity_data.positions)
     entity.add("name", entity_data.name, origin=origin)
     entity.add_cast("Person", "nameSuffix", entity_data.name_suffix)
     entity.add("alias", entity_data.aliases, origin=origin)
     entity.add("address", entity_data.address, origin=origin)
     entity.add("country", "us")
     entity.add("topics", "debarment")
-    if entity_data.sector and "imposter" in entity_data.sector.lower():
-        entity.add("description", entity_data.sector, origin=origin)
+    if any("imposter" in p.lower() for p in entity_data.positions):
+        entity.add("description", entity_data.positions, origin=origin)
     else:
-        entity.add("sector", entity_data.sector, origin=origin)
+        entity.add_cast("Person", "position", entity_data.positions)
     entity.add("sector", category, origin=filename)
 
     sanction = h.make_sanction(context, entity)
@@ -177,17 +180,17 @@ def crawl_row(context, names, category, start_date, filename: str):
 
     for item in entity_data.related_entities:
         related = context.make("LegalEntity")
-        related.id = context.make_id(item.name, item.sector)
+        related.id = context.make_id(item.name, item.positions)
         related.add("name", item.name, origin=origin)
         related.add_cast("Person", "nameSuffix", item.name_suffix)
         related.add("alias", item.aliases, origin=origin)
         related.add("address", item.address, origin=origin)
         related.add("country", "us")
         related.add("topics", "debarment")
-        if item.sector and "imposter" in item.sector.lower():
-            related.add("description", item.sector, origin=origin)
+        if any("imposter" in p.lower() for p in item.positions):
+            related.add("description", item.positions, origin=origin)
         else:
-            related.add("sector", item.sector, origin=origin)
+            related.add_cast("Person", "position", item.positions)
         related.add("sector", category, origin=filename)
 
         # Extracting directionality is tricky because sometimes the asset is
