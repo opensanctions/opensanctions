@@ -1,8 +1,9 @@
-from typing import Dict, List, Literal, Optional
+from typing import Dict, List, Optional
 import re
 
 from pydantic import BaseModel, Field
 from rigour.mime.types import PDF
+from rigour.names.org_types import extract_org_types
 from pdfplumber.page import Page
 
 from zavod import Context, helpers as h
@@ -10,12 +11,38 @@ from zavod.shed.gpt import run_typed_text_prompt
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 from zavod.stateful.review import get_review, request_review
 
-Schema = Literal["Person", "Company", "LegalEntity"]
+# Cases
+#
+# last name, forenames or initials
+# Baer, Gregory Sherwin
+#
+# last name, forenames or initials, name suffix
+# Hereford, Sonnie, W., III
+#
+# Last name, forenames or initials, qualification/role
+# !!! similar to name suffix example
+# Caldwell, John Ed, Pharmacist
+# Bishop, Lisa Renee, RN
+#
+# Company name, Legal form, City, State
+# Dunn Medical, Inc., Eufaula, Alabama
+# !!! similar to person names with roles
+
 
 # Surname, First Name, Middle Name
 # Maybe followed by an initial, and maybe a period.
-# Watch out for accepting Jr. or III
-SIMPLE_NAME_REGEX = re.compile(r"^[A-Z][a-z]+, ([A-Z][a-z]+ )*[A-Z]([a-z]*|\.)$")
+# Watch out for accepting same suffix as part of simple names e.g. Jr. or III
+SIMPLE_NAME_PATTERN = r"[A-Z][a-z]+, ([A-Z][a-z]+ )*[A-Z]([a-z]*|\.)"
+SIMPLE_NAME_REGEX = re.compile(SIMPLE_NAME_PATTERN)
+NAME_SUFFIX_PATTERN = r"[IVX]{2,3}|Jr\.?|Sr\.?"
+NAME_SUFFIX_REGEX = re.compile(NAME_SUFFIX_PATTERN)
+NAME_WITH_SUFFIX_REGEX = re.compile(
+    rf"(?P<name>{SIMPLE_NAME_PATTERN}), (?P<suffix>{NAME_SUFFIX_PATTERN})$"
+)
+# Simple name, comma, and one word or an acronym
+NAME_WITH_ROLE_REGEX = re.compile(
+    rf"(?P<name>{SIMPLE_NAME_PATTERN}), (?P<role>(([A-Z][a-z]+ ?)+|[A-Z]{{2,4}}))"
+)
 MODEL_VERSION = 1
 MIN_MODEL_VERSION = 1
 
@@ -23,16 +50,21 @@ sector_field = Field(
     default=None,
     description=(
         "The sector, qualification or professional title of the entity if included "
-        "along with their name. Often an acronym."
+        "along with their name. Often an acronym. Don't fill this based on my prompt, "
+        "only from the text."
     ),
 )
 
 
-class RelatedEntity(BaseModel):
+class Entity(BaseModel):
     name: str
+    name_suffix: Optional[str] = None
+    aliases: Optional[str] = None
     sector: Optional[str] = sector_field
-    notes: Optional[str] = None
-    role: Optional[str] = Field(
+
+
+class RelatedEntity(Entity):
+    relationship_role: Optional[str] = Field(
         description=(
             "Use `owner` if they are listed as the owner, otherwise use the "
             "relationship role precisely as listed, e.g. `Vice President`."
@@ -40,28 +72,17 @@ class RelatedEntity(BaseModel):
     )
 
 
-class Entity(BaseModel):
-    entity_schema: Schema
-    name: str
-    name_suffix: Optional[str] = Field(
-        description=(
-            "e.g. Jr. or III for a person, but not the company legal form like "
-            "LLC or Inc."
-        ),
-        default=None,
-    )
-    aliases: Optional[str] = None
+class RootEntity(Entity):
     address: Optional[str] = None
     related_entities: List[RelatedEntity] = Field(
         description=(
-            "Owners if the entity is a company and the owners are listed. If the "
+            "Owners or other officers of a company if listed. If the "
             "first entity looks like a person and a single owner name is included in"
             " parentheses, then only give one entity - the person. Don't make a company"
             " out of the person's name."
         ),
         default=[],
     )
-    sector: Optional[str] = sector_field
 
 
 PROMPT = """
@@ -73,18 +94,51 @@ Leave anything blank that is not present in the text.
 
 
 def crawl_row(context, names, category, start_date):
-    if SIMPLE_NAME_REGEX.match(names):
-        print("simple name", names)
-        entity_data = Entity(entity_schema="Person", name=names)
-    else:
-        review = get_review(context, Entity, names, MIN_MODEL_VERSION)
+    entity_data = None
+    if SIMPLE_NAME_REGEX.fullmatch(names):
+        if extract_org_types(names):
+            context.log.debug(
+                "Name looks like a company name, not as simple as persons", names=names
+            )
+        elif NAME_SUFFIX_REGEX.search(names):
+            context.log.debug("name contains suffix", names=names)
+        else:
+            entity_data = RootEntity(name=names)
+
+    if entity_data is None:
+        if match := NAME_WITH_SUFFIX_REGEX.fullmatch(names):
+            context.log.debug(
+                "name with suffix",
+                name=match.group("name"),
+                suffix=match.group("suffix"),
+            )
+            entity_data = RootEntity(
+                name=match.group("name"),
+                name_suffix=match.group("suffix"),
+            )
+
+    if entity_data is None:
+        if match := NAME_WITH_ROLE_REGEX.fullmatch(names):
+            context.log.debug(
+                "name with role",
+                name=match.group("name"),
+                role=match.group("role"),
+            )
+            entity_data = RootEntity(
+                name=match.group("name"),
+                sector=match.group("role"),
+            )
+
+    if entity_data is None:
+        context.log.debug("unsure about", names=names)
+        review = get_review(context, RootEntity, names, MIN_MODEL_VERSION)
         if review is None:
             prompt_result = run_typed_text_prompt(
-                context, PROMPT, names, response_type=Entity
+                context, PROMPT, names, response_type=RootEntity
             )
             review = request_review(
                 context,
-                key=names,
+                key_parts=names,
                 source_value=names,
                 source_mime_type="text/plain",
                 source_label="Debarred entities",
@@ -96,7 +150,7 @@ def crawl_row(context, names, category, start_date):
             return
         entity_data = review.extracted_data
 
-    entity = context.make(entity_data.entity_schema)
+    entity = context.make("LegalEntity")
     entity.id = context.make_id(entity_data.name, entity_data.sector)
     entity.add("name", entity_data.name)
     entity.add("alias", entity_data.aliases)
@@ -124,7 +178,6 @@ def crawl_row(context, names, category, start_date):
             related.add("description", item.sector)
         else:
             related.add("sector", item.sector)
-        related.add("notes", item.notes)
 
         if item.role == "owner":
             schema = "Ownership"
