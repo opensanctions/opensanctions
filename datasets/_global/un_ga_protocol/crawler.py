@@ -12,6 +12,10 @@ a JSON list (`holders`) in which each object represents an office-holder
 (e.g. head of government, head of state, minister of foreign affairs).
 Each object should have the following fields: `country`, `full_title`,
 `honorary_prefix`, `person_name`, `date_of_appointment`.
+
+When multiple people are listed in one section, return the raw date string 
+exactly as it appears in the document for the `date_of_appointment` field - 
+do not attempt to parse or split dates. Return each person as a separate object. 
 Return an empty string for unset fields.
 """
 
@@ -69,9 +73,20 @@ def crawl(context: Context):
                 country=country,
                 topics=["gov.national"],
             )
-            occupancy = h.make_occupancy(
-                context, entity, position, start_date=holder.get("date_of_appointment")
-            )
+            start_dates = holder.get("date_of_appointment")
+            if len(start_dates) == len("09-Sep-2207-May-13"):
+                start_dates = start_dates[:9] + "-" + start_dates[9:]
+            else:
+                start_dates = h.multi_split(start_dates, [" ", ", ", " & ", " / "])
+            for start_date in start_dates:
+                occupancy = h.make_occupancy(
+                    context, entity, position, start_date=start_date
+                )
+                if occupancy is not None:
+                    context.emit(occupancy)
+            # occupancy = h.make_occupancy(
+            #     context, entity, position, start_date=holder.get("date_of_appointment")
+            # )
 
             # entity.add("date_of_appointment", )
             context.emit(entity)
