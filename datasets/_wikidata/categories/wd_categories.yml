@@ -1171,6 +1171,90 @@ config:
       language: es
       topic: role.pep
 
+    # Nicaragua
+    - category: Members_of_the_National_Assembly_(Nicaragua)
+      country: ni
+      topic: role.pep
+      position:
+        name: Member of the National Assembly
+        country: ni
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_Nicaragua
+      country: ni
+      topic: role.pep
+      position:
+        name: President of Nicaragua
+        country: ni
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vice_presidents_of_Nicaragua
+      country: ni
+      topic: role.pep
+      position:
+        name: Vice President of Nicaragua
+        country: ni
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Government_ministers_of_Nicaragua
+      country: ni
+      topic: role.pep
+      position:
+        name: Minister of Nicaragua
+        country: ni
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Mayors_of_Managua
+      country: ni
+      topic: role.pep
+      position:
+        name: Mayor of Managua
+        country: ni
+        topics:
+          - gov.muni
+          - gov.head
+    - category: Nicaraguan_politicians
+      country: ni
+      topic: role.pep
+    - category: Presidentes_de_Nicaragua
+      country: ni
+      language: es
+      topic: role.pep
+      position:
+        name: President of Nicaragua
+        country: ni
+        topics:
+          - gov.head
+          - gov.national
+    - category: Ministros_de_Nicaragua
+      country: ni
+      language: es
+      topic: role.pep
+      position:
+        name: Minister of Nicaragua
+        country: ni
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Alcaldes_de_Nicaragua
+      country: ni
+      language: es
+      topic: role.pep
+      position:
+        name: Mayor
+        country: ni
+        topics:
+          - gov.muni
+          - gov.head
+    - category: Políticos_de_Nicaragua
+      country: ni
+      language: es
+      topic: role.pep
+
     # European countries
     - category: Members_of_the_parliaments_of_the_Belgian_communities_and_regions
       country: be
