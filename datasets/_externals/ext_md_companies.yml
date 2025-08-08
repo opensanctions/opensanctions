@@ -53,6 +53,7 @@ inputs:
 config:
   dataset: md_companies
   strip_namespace: true
+  memory: 3000
   threshold: 0.7
   algorithm: regression-v1
   topics:
