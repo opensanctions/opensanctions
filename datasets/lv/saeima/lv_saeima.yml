@@ -24,6 +24,9 @@ url: "https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf/dep
 data:
   url: "https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf/deputies?OpenView&lang=EN&count=1000"
   format: HTML
+dates:
+  formats: 
+    - '%YwriteJsTrArr("form_birth_date_year",". gadā")"'
 
 assertions:
   min:
