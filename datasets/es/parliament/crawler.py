@@ -1,3 +1,4 @@
+import os
 import string
 from urllib.parse import urlparse, parse_qs
 
@@ -171,5 +172,8 @@ def crawl(context: Context):
             legis = query_params["legis"][0]
             xml_url = f"https://www.senado.es/web/ficopendataservlet?tipoFich=1&cod={senator_id}&legis={legis}"
             path = context.fetch_resource(f"source_{senator_id}.xml", xml_url)
+            if os.path.getsize(path) == 0:
+                context.log.warn("Empty XML file", url=xml_url)
+                continue
             doc_xml = context.parse_resource_xml(path)
             crawl_senator(context, doc_xml, link)
