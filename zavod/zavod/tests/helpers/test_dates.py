@@ -3,7 +3,7 @@ from structlog.testing import capture_logs
 
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
-from zavod.helpers.dates import extract_years, extract_date
+from zavod.helpers.dates import extract_years, extract_date, backdate
 from zavod.helpers.dates import replace_months, apply_date, apply_dates
 
 FORMATS = ["%b %Y", "%d.%m.%Y", "%Y-%m"]
@@ -109,3 +109,8 @@ def test_apply_date(testdataset1: Dataset):
     assert not len(person.pop("birthDate"))
     assert len(cap_logs) == 1, cap_logs
     assert cap_logs[0]["prop"] == "birthDate", cap_logs
+
+
+def test_backdate():
+    assert backdate(datetime(2023, 8, 3), 0) == "2023-08-03"
+    assert backdate(datetime(2023, 8, 3), 182) == "2023-02-02"

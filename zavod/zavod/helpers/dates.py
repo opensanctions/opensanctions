@@ -2,7 +2,7 @@ import re
 from functools import lru_cache
 from normality import stringify
 from prefixdate import parse_formats
-from datetime import datetime, date, timezone
+from datetime import datetime, date, timedelta, timezone
 from typing import Tuple, Union, Iterable, Set, Optional, List
 from followthemoney import registry
 
@@ -133,3 +133,9 @@ def apply_dates(entity: Entity, prop: str, texts: Iterable[DateValue]) -> None:
     """
     for text in texts:
         apply_date(entity, prop, text)
+
+
+def backdate(date: datetime, days: int) -> str:
+    """Return a partial ISO8601 date string backdated by the number of days provided"""
+    dt = date - timedelta(days=days)
+    return dt.isoformat()[:10]

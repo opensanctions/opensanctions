@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import lru_cache
 from typing import Optional, List
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlalchemy import select
 from rigour.ids.wikidata import is_qid
 
@@ -9,6 +9,7 @@ from zavod.context import Context
 from zavod import settings
 from zavod.entity import Entity
 from zavod.stateful.model import position_table
+from zavod import helpers as h
 
 NOTIFIED_SYNC_POSITIONS = False
 
@@ -122,12 +123,6 @@ def categorised_position_qids(context: Context) -> List[str]:
     return qids
 
 
-def backdate(date: datetime, days: int) -> str:
-    """Return a partial ISO8601 date string backdated by the number of days provided"""
-    dt = date - timedelta(days=days)
-    return dt.isoformat()[:10]
-
-
 def get_after_office(topics: List[str]) -> int:
     if "gov.national" in topics:
         if "gov.head" in topics:
@@ -151,11 +146,11 @@ def occupancy_status(
     categorisation: Optional[PositionCategorisation] = None,
 ) -> Optional[OccupancyStatus]:
     current_iso = current_time.isoformat()
-    if death_date is not None and death_date < backdate(current_time, AFTER_DEATH):
+    if death_date is not None and death_date < h.backdate(current_time, AFTER_DEATH):
         # If they died longer ago than AFTER_DEATH threshold, don't consider a PEP.
         return None
 
-    if birth_date is not None and birth_date < backdate(current_time, MAX_AGE):
+    if birth_date is not None and birth_date < h.backdate(current_time, MAX_AGE):
         # If they're unrealistically old, assume they're not a PEP.
         return None
 
@@ -174,7 +169,7 @@ def occupancy_status(
 
     if end_date:
         if end_date < current_iso:  # end_date is in the past
-            if end_date < backdate(current_time, after_office):
+            if end_date < h.backdate(current_time, after_office):
                 # end_date is beyond after-office threshold
                 return None
             else:
@@ -201,12 +196,12 @@ def occupancy_status(
         dis_date = max(position.get("dissolutionDate"), default=None)
         # dissolution date is in the past:
         if dis_date is not None and dis_date < current_iso:
-            if dis_date > backdate(current_time, after_office):
+            if dis_date > h.backdate(current_time, after_office):
                 return OccupancyStatus.ENDED
             else:
                 return None
 
-        if start_date is not None and start_date < backdate(current_time, MAX_OFFICE):
+        if start_date is not None and start_date < h.backdate(current_time, MAX_OFFICE):
             # start_date is older than MAX_OFFICE threshold for assuming they're still
             # a PEP
             return None

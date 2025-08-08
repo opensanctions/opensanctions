@@ -3,7 +3,6 @@ from datetime import datetime
 from zavod import settings
 from zavod.stateful.positions import (
     PositionCategorisation,
-    backdate,
     occupancy_status,
     OccupancyStatus,
     categorise,
@@ -12,11 +11,6 @@ from zavod.stateful.model import position_table
 from zavod.meta import Dataset
 from zavod.context import Context
 from zavod.helpers.positions import make_position
-
-
-def test_backdate():
-    assert backdate(datetime(2023, 8, 3), 0) == "2023-08-03"
-    assert backdate(datetime(2023, 8, 3), 182) == "2023-02-02"
 
 
 def test_occupancy_status(testdataset1: Dataset):
