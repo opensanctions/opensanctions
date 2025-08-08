@@ -12,7 +12,7 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "2500Mi"
+  memory: "4000Mi"
   memory_limit: "5000Mi"
 ci_test: false
 load_statements: true
@@ -52,7 +52,7 @@ config:
   dataset: ror
   strip_namespace: true
   threshold: 0.7
-  memory: 2000
+  memory: 3000
   algorithm: regression-v1
   topics:
     - role.pep

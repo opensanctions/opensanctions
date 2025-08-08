@@ -13,8 +13,8 @@ exports:
   - entities.delta.json
 deploy:
   # schedule: "1 6 * * *"
-  memory: "3000Mi"
-  memory_limit: "4000Mi"
+  memory: "4000Mi"
+  memory_limit: "6000Mi"
   disk: "100Gi"
 load_statements: true
 ci_test: false
@@ -52,6 +52,7 @@ inputs:
 
 config:
   dataset: ee_ariregister
+  memory: 3500
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1

@@ -12,7 +12,7 @@ exports:
   - entities.delta.json
 deploy:
   memory: "3000Mi"
-  memory_limit: "4000Mi"
+  memory_limit: "5000Mi"
   disk: 100Gi
 load_statements: true
 ci_test: false
@@ -60,6 +60,7 @@ inputs:
 
 config:
   dataset: kz_companies
+  memory: 3500
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
