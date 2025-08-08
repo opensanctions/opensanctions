@@ -775,7 +775,7 @@ config:
     - category: Political_office-holders_of_the_European_Union
       topic: role.pep
 
-    # latam
+    # Latin America
     - category: Political_office-holders_in_South_America
 
     - category: Diputados_de_la_LXIV_Legislatura_de_México
@@ -845,6 +845,159 @@ config:
       language: es
     - category: Políticos_de_El_Salvador
       language: es
+    
+    # Ecuador
+    - category: Political_office-holders_in_Ecuador
+      country: ec
+      topic: role.pep
+    - category: Members_of_the_National_Assembly_(Ecuador)
+      country: ec
+      topic: role.pep
+      position:
+        name: Member of the National Assembly
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Members_of_the_National_Congress_(Ecuador)
+      country: ec
+      topic: role.pep
+      position:
+        name: Member of the National Congress
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_the_National_Assembly_(Ecuador)
+      country: ec
+      topic: role.pep
+      position:
+        name: President of the National Assembly
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_the_National_Congress_(Ecuador)
+      country: ec
+      topic: role.pep
+      position:
+        name: President of the National Congress
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_the_Senate_of_Ecuador
+      country: ec
+      topic: role.pep
+      position:
+        name: President of the Senate of Ecuador
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_Ecuador
+      country: ec
+      topic: role.pep
+      position:
+        name: President of Ecuador
+        country: ec
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vice_presidents_of_Ecuador
+      country: ec
+      topic: role.pep
+      position:
+        name: Vice President of Ecuador
+        country: ec
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Government_ministers_of_Ecuador
+      country: ec
+      topic: role.pep
+      position:
+        name: Minister of Ecuador
+        country: ec
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Women_government_ministers_of_Ecuador
+      country: ec
+      topic: role.pep
+      position:
+        name: Minister of Ecuador
+        country: ec
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Asambleístas_y_diputados_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+      position:
+        name: Member of the National Assembly
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidentes_del_Congreso_Nacional_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+      position:
+        name: President of the National Congress
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidentes_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+      position:
+        name: President of Ecuador
+        country: ec
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vicepresidentes_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+      position:
+        name: Vice President of Ecuador
+        country: ec
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Ministros_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+      position:
+        name: Minister of Ecuador
+        country: ec
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Ministras_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+      position:
+        name: Minister of Ecuador
+        country: ec
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Políticas_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+      position:
+        country: ec
+
 
     # European countries
     - category: Members_of_the_parliaments_of_the_Belgian_communities_and_regions
