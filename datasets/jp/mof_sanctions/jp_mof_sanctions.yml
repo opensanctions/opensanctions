@@ -469,6 +469,10 @@ lookups:
         values:
           - "1983-02-10"
           - "1983-03-10"
+      - match: 1960年-1962年頃
+        values:
+          - 1960
+          - 1962
       - match: （year unknown）
         value: null
   type.identifier:

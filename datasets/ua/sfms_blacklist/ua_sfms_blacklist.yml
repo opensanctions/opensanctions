@@ -166,6 +166,10 @@ lookups:
         values:
           - 1977-08
           - 1977-09
+      - match: 19810205, 19720101
+        values:
+          - 1981-02-05
+          - 1972-01-01
       - match:
           - Kandahar
           - Logar
