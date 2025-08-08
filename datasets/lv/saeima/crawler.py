@@ -19,10 +19,17 @@ def crawl_item(unid: str, context: Context):
 
     entity.add("sourceUrl", member_url)
 
-    year_of_birth_el = response.xpath(
-        './/*[text()=\'writeJsTrArr("form_birth_date_year",". gadā")\']/..'
+    year = response.xpath(
+        "//div/span[normalize-space(text()) and not(@class)]/text()[1]"
     )
-    h.apply_date(entity, "birthDate", year_of_birth_el[0].text_content())
+    if len(year) == 1:
+        h.apply_date(entity, "birthDate", year[0])
+    elif len(year) == 2:
+        # The year is in the second element, the first one is the previous name
+        # e.g. '09.12.2019. Name (Previous) Surname'
+        h.apply_date(entity, "birthDate", year[1])
+    else:
+        context.log.warning(f"Could not find birth date for {full_name}")
 
     email_el = response.xpath(
         './/*[text()=\'writeJsTrArr("form_email","E-pasta adrese")\']/../../span/a'
