@@ -67,7 +67,10 @@ def replace_months(dataset: Dataset, text: str) -> str:
 
 @lru_cache(maxsize=5000)
 def extract_date(
-    dataset: Dataset, text: DateValue, formats: Optional[Tuple[str]] = None
+    dataset: Dataset,
+    text: DateValue,
+    formats: Optional[Tuple[str]] = None,
+    fallback_to_original: bool = True,
 ) -> List[str]:
     """
     Extract a date from the provided text using predefined `formats` in the metadata.
@@ -93,7 +96,9 @@ def extract_date(
         years = extract_years(text)
         if len(years):
             return years
-    return [text]
+    if fallback_to_original:
+        return [text]
+    raise ValueError(f"Invalid date: {text}")
 
 
 def apply_date(

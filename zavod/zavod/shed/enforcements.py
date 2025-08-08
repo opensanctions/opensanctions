@@ -14,5 +14,5 @@ def within_max_age(
 ) -> bool:
     if isinstance(date, str):
         date = date.strip()
-    date = h.extract_date(context.dataset, date)[0]
-    return date > h.backdate(datetime.now(), max_age_days)
+    cleaned_date = h.extract_date(context.dataset, date, fallback_to_original=False)[0]
+    return cleaned_date > h.backdate(datetime.now(), max_age_days)
