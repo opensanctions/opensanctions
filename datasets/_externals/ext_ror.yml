@@ -52,6 +52,7 @@ config:
   dataset: ror
   strip_namespace: true
   threshold: 0.7
+  memory: 2000
   algorithm: regression-v1
   topics:
     - role.pep

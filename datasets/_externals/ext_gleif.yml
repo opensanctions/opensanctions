@@ -14,7 +14,6 @@ exports:
 deploy:
   cpu: "2000m"
   memory: "9000Mi"
-  xref_memory: "4000Mi"
   disk: "30Gi"
 load_statements: true
 ci_test: false
@@ -78,6 +77,7 @@ config:
   index_options:
     max_candidates: 25
     match_batch: 300
+  memory: 4000
   strip_namespace: true
   fuzzy: false
   threshold: 0.5

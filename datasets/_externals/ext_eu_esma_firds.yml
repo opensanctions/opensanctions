@@ -67,6 +67,7 @@ config:
   max_bin: 14
   index_options:
     match_batch: 300
+  memory: 3000
   fuzzy: false
   threshold: 0.6
   algorithm: logic-v1

@@ -14,7 +14,6 @@ deploy:
   # schedule: "1 2 * * *"
   memory: "2000Mi"
   memory_limit: "5500Mi"
-  xref_memory: "2000Mi"
   disk: "100Gi"
 load_statements: true
 ci_test: false
@@ -73,6 +72,7 @@ config:
   fuzzy: false
   threshold: 0.7
   algorithm: regression-v1
+  memory: 2000
   topics:
     - role.pep
     - role.rca

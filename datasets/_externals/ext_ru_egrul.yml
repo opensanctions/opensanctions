@@ -16,7 +16,6 @@ deploy:
   cpu_limit: "2000m"
   disk: "150Gi"
   memory: "12Gi"
-  xref_memory: "5000Mi"
 load_statements: true
 summary: >-
   Companies database of the Russian Federation as maintained and published by
@@ -79,6 +78,7 @@ config:
     max_candidates: 200
     match_batch: 300
   dataset: ru_egrul
+  memory: 4000
   strip_namespace: true
   fuzzy: false
   threshold: 0.7

@@ -53,6 +53,7 @@ config:
   max_bin: 14
   index_options:
     match_batch: 300
+  memory: 4000
   dataset: gb_fca_firds
   strip_namespace: true
   threshold: 0.7
