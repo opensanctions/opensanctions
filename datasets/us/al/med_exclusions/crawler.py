@@ -106,6 +106,8 @@ def apply_comma_name(entity: entity.Entity, name: str):
             first_name=forenames[0],
             second_name=forenames[1] if len(forenames) > 1 else None,
             middle_name=forenames[2] if len(forenames) > 2 else None,
+            name4=forenames[3] if len(forenames) > 3 else None,
+            name5=forenames[4] if len(forenames) > 4 else None,
             last_name=parts[0],
         )
     else:
