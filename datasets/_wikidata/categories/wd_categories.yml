@@ -1255,6 +1255,113 @@ config:
       language: es
       topic: role.pep
 
+    # Guatemala
+    - category: Guatemalan_politicians
+      country: gt
+      topic: role.pep
+    - category: Political_office-holders_in_Guatemala
+      country: gt
+      topic: role.pep
+    - category: Presidents_of_Guatemala
+      country: gt
+      topic: role.pep
+      position:
+        name: President of Guatemala
+        country: gt
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vice_presidents_of_Guatemala
+      country: gt
+      topic: role.pep
+      position:
+        name: Vice President of Guatemala
+        country: gt
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Government_ministers_of_Guatemala
+      country: gt
+      topic: role.pep
+      position:
+        name: Minister of Guatemala
+        country: gt
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Mayors_of_Guatemala_City
+      country: gt
+      topic: role.pep
+      position:
+        name: Mayor of Guatemala City
+        country: gt
+        topics:
+          - gov.muni
+          - gov.head
+    - category: Members_of_the_Congress_of_Guatemala
+      country: gt
+      topic: role.pep
+      position:
+        name: Member of the Congress of Guatemala
+        country: gt
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Políticos_de_Guatemala 
+      country: gt
+      language: es
+      topic: role.pep
+    - category: Presidentes_de_Guatemala
+      country: gt
+      language: es
+      topic: role.pep
+      position:
+        name: President of Guatemala
+        country: gt
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vicepresidentes_de_Guatemala
+      country: gt
+      language: es
+      topic: role.pep
+      position:
+        name: Vice President of Guatemala
+        country: gt
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Ministros_de_Guatemala
+      country: gt
+      language: es
+      topic: role.pep
+      position:
+        name: Minister of Guatemala
+        country: gt
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Diputados_de_Guatemala 
+      country: gt
+      language: es
+      topic: role.pep
+      position:
+        name: Member of the Congress of Guatemala
+        country: gt
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Alcaldes_de_Guatemala
+      country: gt
+      language: es
+      topic: role.pep
+      position:
+        name: Mayor
+        country: gt
+        topics:
+          - gov.muni
+          - gov.head
+
     # European countries
     - category: Members_of_the_parliaments_of_the_Belgian_communities_and_regions
       country: be
