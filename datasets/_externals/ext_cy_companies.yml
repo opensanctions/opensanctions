@@ -11,8 +11,8 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "2000Mi"
-  memory_limit: "5500Mi"
+  memory: "5000Mi"
+  memory_limit: "6500Mi"
   disk: "100Gi"
 load_statements: true
 ci_test: false
@@ -71,7 +71,7 @@ config:
   fuzzy: false
   threshold: 0.7
   algorithm: regression-v1
-  memory: 2000
+  memory: 3000
   topics:
     - role.pep
     - role.rca
