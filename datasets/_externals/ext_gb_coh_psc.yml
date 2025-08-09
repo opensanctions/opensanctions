@@ -12,8 +12,8 @@ exports:
   - entities.delta.json
 deploy:
   cpu: "2000m"
-  memory: "8000Mi"
-  memory_limit: "10000Mi"
+  memory: "11Gi"
+  memory_limit: "12Gi"
   disk: "150Gi"
 load_statements: true
 ci_test: false
@@ -66,7 +66,7 @@ config:
     max_candidates: 200
     match_batch: 300
   dataset: gb_coh_psc
-  memory: 3500
+  memory: 4500
   strip_namespace: true
   threshold: 0.5
   algorithm: regression-v1
