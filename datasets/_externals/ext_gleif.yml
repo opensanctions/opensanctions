@@ -70,6 +70,7 @@ inputs:
   - regulatory
   - ru_cbr_banks
   - sanctions
+  - enforcement
   - special_interest
 
 config:
