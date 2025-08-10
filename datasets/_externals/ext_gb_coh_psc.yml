@@ -57,6 +57,7 @@ inputs:
   - ext_ua_edr
   - opencorporates
   - sanctions
+  - enforcement
   - special_interest
 
 config:
