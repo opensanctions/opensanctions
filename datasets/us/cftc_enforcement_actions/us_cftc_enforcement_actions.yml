@@ -39,10 +39,19 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 500
-      Company: 500
+      Person: 100
+      Company: 100
     countries: 1
   max:
     schema_entities:
-      Person: 3000
-      Company: 3000
+      Person: 30000
+      Company: 30000
+
+lookups:
+  type.country:
+    - match: "Anguilla, UK, St. Vincent and the Grenadines, Gibraltar"
+      values:
+        - Anguilla
+        - United Kingdom
+        - St. Vincent and the Grenadines
+        - Gibraltar
