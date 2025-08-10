@@ -49,9 +49,10 @@ assertions:
 
 lookups:
   type.country:
-    - match: "Anguilla, UK, St. Vincent and the Grenadines, Gibraltar"
-      values:
-        - Anguilla
-        - United Kingdom
-        - St. Vincent and the Grenadines
-        - Gibraltar
+    options:
+      - match: "Anguilla, UK, St. Vincent and the Grenadines, Gibraltar"
+        values:
+          - Anguilla
+          - United Kingdom
+          - St. Vincent and the Grenadines
+          - Gibraltar
