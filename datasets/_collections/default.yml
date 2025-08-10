@@ -10,6 +10,7 @@ deploy:
   disk: "50Gi"
   command: /etl/scripts/export-default.sh
   premium: true
+ci_test: false
 exports:
   - statistics.json
   - entities.ftm.json
@@ -55,4 +56,4 @@ children:
   - ransomwhere
   - research
   - ru_nsd_isin
-ci_test: false
+
