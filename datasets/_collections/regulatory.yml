@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   memory: "1500Mi"
+ci_test: false
 summary: >
   Entities that are subject to regulatory actions and restrictions
 description: |
@@ -46,4 +47,3 @@ children:
   - us_sec_pause
   - us_fdic_failed_banks
   - us_special_leg
-ci_test: false

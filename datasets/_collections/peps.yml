@@ -7,6 +7,7 @@ deploy:
   memory: "1500Mi"
   memory_limit: "2000Mi"
   cpu: "500m"
+ci_test: false
 exports:
   - statistics.json
   - entities.ftm.json
@@ -90,4 +91,3 @@ children:
   - wd_peps
   - za_mm_officials
   - za_pmg_legislators
-ci_test: false

@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   memory: "1500Mi"
+ci_test: false
 summary: >
   Companies and people implicated in or convicted of criminal activity, including
   the "Most Wanted" lists of various countries and international authorities.
@@ -37,4 +38,3 @@ children:
   - gb_proscribed_orgs
   - im_disqualified_directors
   - us_fbi_lazarus_crypto
-ci_test: false

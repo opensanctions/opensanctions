@@ -1,12 +1,13 @@
 type: collection
 title: Maritime-related sanctions
 hidden: true
-deploy:
-  memory: "2000Mi"
-  disk: "20Gi"
 coverage:
   frequency: daily
   start: "2025-04-01"
+deploy:
+  memory: "2000Mi"
+  disk: "20Gi"
+ci_test: false
 exports:
   - statistics.json
   - maritime.csv
@@ -65,4 +66,3 @@ children:
   - paris_mou_banned
   - black_sea_mou_detention
   - tokyo_mou_detention
-ci_test: false

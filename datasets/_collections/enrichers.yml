@@ -6,6 +6,7 @@ coverage:
   frequency: monthly
 deploy:
   memory: "2000Mi"
+ci_test: false
 exports:
   - statistics.json
 summary: >
@@ -31,5 +32,3 @@ children:
   - wikidata
   - openfigi
   - permid
-
-ci_test: false
