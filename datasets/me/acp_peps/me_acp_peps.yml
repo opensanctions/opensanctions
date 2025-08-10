@@ -66,6 +66,10 @@ lookups:
         country: us
       - match: Makedonsko
         country: mk
+  type.string:
+    options:
+      - match: "%"
+        value: null
   type.date:
     options:
       - match: '.'
