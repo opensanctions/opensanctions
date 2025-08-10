@@ -41,6 +41,7 @@ children:
   - peps
   - debarment
   - regulatory
+  - enforcement
   - wanted
   - enrichers
   - special_interest

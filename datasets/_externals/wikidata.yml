@@ -61,6 +61,7 @@ inputs:
   - us_fbi_most_wanted
   - us_klepto_hr_visa
   - wanted
+  - enforcement
   - wd_categories
   - wd_curated
   - wd_oligarchs
