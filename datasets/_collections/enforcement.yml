@@ -1,0 +1,20 @@
+type: collection
+title: Enforcement Actions and Regulatory Notices
+coverage:
+  start: "2025-08-10"
+  frequency: daily
+deploy:
+  memory: "1000Mi"
+summary: >
+  Entities involved in enforcement actions and regulatory notices.
+description: |
+  This collection combines data from enforcement actions and regulatory notices
+  across various jurisdictions and agencies. US federal agencies make up a
+  significant portion of the collection.
+children:
+  - us_cftc_enforcement_actions
+  - us_fed_enforcements
+  - us_ddtc_debarred
+  - us_ddtc_enforcements
+  - us_sec_pause
+  - us_fdic_failed_banks
