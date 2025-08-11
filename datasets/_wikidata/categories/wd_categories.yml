@@ -982,9 +982,6 @@ config:
     - category: Políticas_de_Ecuador
       country: ec
       language: es
-      topic: role.pep
-      position:
-        country: ec
 
     # Columbia
     - category: Members_of_the_Congress_of_Colombia
@@ -1100,7 +1097,6 @@ config:
       topic: role.pep
     - category: Venezuelan_politicians
       country: ve
-      topic: role.pep
     - category: Diputados_de_Venezuela
       country: ve
       language: es
@@ -1209,7 +1205,6 @@ config:
     - category: Políticos_de_Nicaragua
       country: ni
       language: es
-      topic: role.pep
 
     # Guatemala
     - category: Guatemalan_politicians
@@ -1259,7 +1254,6 @@ config:
     - category: Políticos_de_Guatemala 
       country: gt
       language: es
-      topic: role.pep
     - category: Presidentes_de_Guatemala
       country: gt
       language: es
