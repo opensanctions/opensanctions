@@ -1,27 +1,26 @@
-import re
 from typing import Dict
 from urllib.parse import parse_qs, urlparse
 
 from lxml import html
-from requests.exceptions import HTTPError
+from normality import collapse_spaces
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 
-REGEX_NAME_REASON_STATUS = re.compile(r"(.+)\((.+)\)(.+)")
+
+UNKNOWNS = {"unknown", "uknown"}
 
 
-def parse_detail_page(context: Context, source_url: str) -> Dict[str, str] | None:
+def crawl_detail_page(
+    context: Context, person: Entity, source_url: str
+) -> Dict[str, str] | None:
     """Fetch and parse detailed information from a person's detail page."""
-    try:
-        doc = context.fetch_html(source_url, cache_days=1)
-    except HTTPError as e:
-        context.log.error("HTTP error getting details", url=source_url, error=str(e))
-        return None
+    doc = context.fetch_html(source_url, cache_days=7)
 
     # Extract details using XPath based on the provided HTML structure
     details = {
-        # "crime": "//td[b[contains(text(), 'Crime:')]]/following-sibling::td/text()",
+        "crime": "//td[b[contains(text(), 'Crime:')]]/following-sibling::td/text()",
         "crime_circumstances": "//td[b[contains(text(), 'Crime Circumstances:')]]/following-sibling::td/p/text()",
         "crime_date": "//td[b[contains(text(), 'Crime Date:')]]/following-sibling::td/text()",
         "aliases": "//td[b[contains(text(), 'Aliases:')]]/following-sibling::td/text()",
@@ -42,58 +41,81 @@ def parse_detail_page(context: Context, source_url: str) -> Dict[str, str] | Non
         key: (doc.xpath(xpath)[0].strip() if doc.xpath(xpath) else "")
         for key, xpath in details.items()
     }
+    status = doc.xpath("//p[@align='center']/font[@color='blue']/text()")[0]
+    if status not in {"Wanted", "Suspect"}:
+        status = None
+        context.log.warning(f"Unknown status: {status}")
 
-    return info
+    if info.get("aliases"):
+        person.add(
+            "alias",
+            [a for a in info["aliases"].split("; ") if a.lower() not in UNKNOWNS],
+        )
+    person.add("notes", info.get("crime_circumstances"))
+    person.add("gender", info.get("gender"))
+    person.add("eyeColor", info.get("eye_color"))
+    person.add("hairColor", info.get("hair_color"))
+    person.add("height", info.get("height"))
+    person.add("weight", info.get("weight"))
+
+    person.add("notes", f"{status} - {info["crime"]}")
+
+    context.emit(person)
 
 
-def crawl_person(context: Context, cell: html.HtmlElement):
-    source_url = cell.xpath(".//a/@href")[0]
-    match = REGEX_NAME_REASON_STATUS.match(cell.text_content())
+def crawl_person(context: Context, row: Dict[str, html.HtmlElement]):
+    detail_url = row["Surname"].xpath(".//a/@href")[0]
 
-    if not match:
-        context.log.warning("Regex did not match data for person %s" % source_url)
-        return
+    # There can be additional text outside the link, e.g. "international sought"
+    names_els = row.pop("Name").xpath("./a")
+    assert len(names_els) == 1, len(names_els)
+    forenames = names_els[0].text_content()
+    forename_list = forenames.split(" ")
 
-    name, crime, status = map(str.strip, match.groups())
+    last_name_els = row.pop("Surname").xpath(".//a")
+    assert len(last_name_els) == 1, len(last_name_els)
+    last_name = last_name_els[0].text_content()
 
-    # only emit a person if the name is not unknown
-    unknown_spellings = ["Unknown", "Uknown", "unknown", "UNKNOWN"]
-    if sum(name.count(x) for x in unknown_spellings) >= 1:
+    names = [last_name] + forename_list
+
+    if any(n.lower() in UNKNOWNS for n in names):
         return
 
     person = context.make("Person")
 
     # each wanted person has a dedicated details page
     # which appears to be a unique identifier
-    id = parse_qs(urlparse(source_url).query)["bid"][0]
+    id = parse_qs(urlparse(detail_url).query)["bid"][0]
     person.id = context.make_slug(id)
 
-    h.apply_name(person, full=name)
+    h.apply_name(
+        person,
+        first_name=forename_list[0],
+        second_name=forename_list[1] if len(forename_list) > 1 else None,
+        middle_name=forename_list[2] if len(forename_list) > 2 else None,
+        last_name=last_name,
+    )
+    assert len(forename_list) <= 3, len(forename_list)
 
-    person.add("sourceUrl", source_url)
-    person.add("notes", f"{status} - {crime}")
+    person.add("sourceUrl", detail_url)
     person.add("topics", "crime")
     person.add("topics", "wanted")
     person.add("country", "za")
 
-    # Fetch and parse additional information from the detail page
-    additional_info = parse_detail_page(context, source_url)
-    if additional_info:
-        if additional_info.get("aliases"):
-            person.add("alias", additional_info["aliases"].split("; "))
-        person.add("notes", additional_info.get("crime_circumstances"))
-        person.add("gender", additional_info.get("gender"))
-        person.add("eyeColor", additional_info.get("eye_color"))
-        person.add("hairColor", additional_info.get("hair_color"))
-        person.add("height", additional_info.get("height"))
-        person.add("weight", additional_info.get("weight"))
-    context.emit(person)
+    crawl_detail_page(context, person, detail_url)
 
 
 def crawl(context):
-    doc = context.fetch_html(context.dataset.data.url, cache_days=1)
-    # makes it easier to extract dedicated details page
-    doc.make_links_absolute(context.dataset.data.url)
-    cells = doc.xpath("//td[.//a[contains(@href, 'detail.php')]]")
-    for cell in cells:
-        crawl_person(context, cell)
+    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc.make_links_absolute(context.data_url)
+
+    tables = doc.xpath("//table")
+    assert len(tables) == 1, len(tables)
+    trs = tables[0].xpath(".//tr")
+    headers = [collapse_spaces(h.text_content()) for h in trs[2].xpath(".//th")]
+    for tr in trs[3:]:
+        cells = [c for c in tr.xpath(".//*[self::td or self::th]")]
+        if not cells:
+            continue
+        row = dict(zip(headers, cells))
+        crawl_person(context, row)

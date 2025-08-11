@@ -24,9 +24,9 @@ publisher:
   official: true
   country: "us"
 ci_test: false
-url: "https://www.wvmmis.com/WV%20Medicaid%20Provider%20SanctionedExclusion/Forms/AllItems.aspx"
+url: "https://www.wvmmis.com/SitePages/Medicaid%20Provider%20SanctionedExclusion"
 data:
-  url: https://www.wvmmis.com/WV%20Medicaid%20Provider%20SanctionedExclusion/Forms/AllItems.aspx
+  url: https://www.wvmmis.com/SitePages/Medicaid%20Provider%20SanctionedExclusion
   format: PDF
 dates:
   formats: ["%m/%d/%Y", "%m/%d/%y"]
