@@ -56,3 +56,7 @@ lookups:
           - United Kingdom
           - St. Vincent and the Grenadines
           - Gibraltar
+      - match: "USA; Canada"
+        values:
+          - United States
+          - Canada
