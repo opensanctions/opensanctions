@@ -2,6 +2,8 @@ import csv
 from typing import Dict
 from pathlib import Path
 
+from normality import collapse_spaces
+
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
 
@@ -16,25 +18,15 @@ def remove_zero_width_space(row):
     }
 
 
-def write_csv_for_manual_diff(context, container):
-    tables = container.xpath('//table[@class="ms-rteTable-4"]')
-    if len(tables) != 2:
-        context.log.warning(f"Expected 2 tables, found {len(tables)}")
-
-    output_paths = [
-        LOCAL_PATH / "releases.csv",
-        LOCAL_PATH / "wallets.csv",
-    ]
-
-    for table, path in zip(tables, output_paths):
-        rows = [
-            h.cells_to_str(row)
-            for row in h.parse_html_table(table, ignore_colspan={"7"})
-        ]
-        with path.open("w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=rows[0].keys())
-            writer.writeheader()
-            writer.writerows(rows)
+def write_csv_for_manual_diff(table, path):
+    with open(path, "w") as f:
+        writer = csv.writer(f)
+        for row in table.findall(".//tr"):
+            cells = [
+                collapse_spaces(c.text_content())
+                for c in row.xpath(".//*[self::td or self::th]")
+            ]
+            writer.writerow(cells)
 
 
 def crawl_csv_row(context: Context, row: Dict[str, str]):
@@ -149,8 +141,13 @@ def crawl(context: Context):
     # If updated, reflect changes in the Google Sheet and commit the new CSV:
     # git add -f datasets/il/mod_crypto/releases.csv
     # git add -f datasets/il/mod_crypto/wallets.csv
-    write_csv_for_manual_diff(context, doc)
-    h.assert_dom_hash(container, "e5f8078b56dd1a1147fed9d1187dd72d00923ecb")
+    tables = container.xpath('//table[@class="ms-rteTable-4"]')
+    if len(tables) != 2:
+        context.log.warning(f"Expected 2 tables, found {len(tables)}")
+
+    write_csv_for_manual_diff(tables[0], LOCAL_PATH / "releases.csv")
+    write_csv_for_manual_diff(tables[1], LOCAL_PATH / "wallets.csv")
+    h.assert_dom_hash(container, "5ab748b6e96780d08d068462d695e7858659d84b")
 
     # At the time of writing, the table on the web page is missing some public keys,
     # so we maintain the data manually in a google sheet, but dump the table to csv

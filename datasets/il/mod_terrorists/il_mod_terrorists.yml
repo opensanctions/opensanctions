@@ -111,10 +111,6 @@ lookups:
           - Algeria
           - PS
       - match:
-          - Judea and Samaria Region
-        value:
-          - IL
-      - match:
           - "עיראק ולבנט - דרום מזרח אסיה"
         values:
           - Iraq
