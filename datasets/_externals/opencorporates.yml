@@ -99,7 +99,6 @@ lookups:
         value: Platz vor dem Neuen Tor 2, 10115 Berlin
   type.country:
     lowercase: true
-    normalize: true
     options:
       - match:
           - YYY
