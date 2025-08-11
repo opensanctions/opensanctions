@@ -28,10 +28,41 @@ def crawl_pdf_url(context: Context) -> str:
     raise ValueError("No PDF found")
 
 
+def process_holder_date(
+    context, start_dates, last_concatenated_date=None, person_count_for_date=0
+):
+    if not start_dates:
+        return "", last_concatenated_date, person_count_for_date
+    # Check if this is a concatenated date (18 characters like "09-Sep-2207-May-13" or longer)
+    if len(start_dates) >= 18:
+        if last_concatenated_date != start_dates:
+            # New concatenated date - first person gets first part
+            first_part = start_dates[:9]  # "09-Sep-22"
+            return first_part, start_dates, 1
+        else:
+            # Same concatenated date as previous person
+            new_count = person_count_for_date + 1
+            if new_count == 2:
+                # Second person gets second part
+                second_part = start_dates[-9:]  # "07-May-13"
+                return second_part, start_dates, new_count
+            else:
+                # More than two people with same concatenated date
+                context.log.warn(
+                    f"Found {new_count} people with same concatenated date: {start_dates}. Cannot determine date assignment."
+                )
+                return "", start_dates, new_count
+    else:
+        # Not a concatenated date - reset state and return as-is
+        return start_dates, None, 0
+
+
 def crawl(context: Context):
     pdf_url = crawl_pdf_url(context)
     path = context.fetch_resource("source.pdf", pdf_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
+    last_concatenated_date = None
+    person_count_for_date = 0
     for page_path in h.make_pdf_page_images(path):
         data = run_image_prompt(context, prompt, page_path)
         assert "holders" in data, data
@@ -73,22 +104,24 @@ def crawl(context: Context):
                 country=country,
                 topics=["gov.national"],
             )
-            start_dates = holder.get("date_of_appointment")
-            if len(start_dates) == len("09-Sep-2207-May-13"):
-                start_dates = start_dates[:9] + "-" + start_dates[9:]
-            else:
-                start_dates = h.multi_split(start_dates, [" ", ", ", " & ", " / "])
-            for start_date in start_dates:
-                occupancy = h.make_occupancy(
-                    context, entity, position, start_date=start_date
-                )
-                if occupancy is not None:
-                    context.emit(occupancy)
-            # occupancy = h.make_occupancy(
-            #     context, entity, position, start_date=holder.get("date_of_appointment")
-            # )
 
-            # entity.add("date_of_appointment", )
+            start_date, last_concatenated_date, person_count_for_date = (
+                process_holder_date(
+                    context,
+                    holder.get("date_of_appointment"),
+                    last_concatenated_date,
+                    person_count_for_date,
+                )
+            )
+            print(
+                f"Processing {entity.id} with start date: {start_date}, last concatenated date: {last_concatenated_date}, person count for date: {person_count_for_date}"
+            )
+            occupancy = h.make_occupancy(
+                context, entity, position, start_date=start_date
+            )
+            if occupancy is not None:
+                context.emit(occupancy)
+
             context.emit(entity)
             context.emit(position)
             if occupancy is not None:
