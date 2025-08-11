@@ -113,9 +113,6 @@ def crawl(context: Context):
                     person_count_for_date,
                 )
             )
-            print(
-                f"Processing {entity.id} with start date: {start_date}, last concatenated date: {last_concatenated_date}, person count for date: {person_count_for_date}"
-            )
             occupancy = h.make_occupancy(
                 context, entity, position, start_date=start_date
             )
