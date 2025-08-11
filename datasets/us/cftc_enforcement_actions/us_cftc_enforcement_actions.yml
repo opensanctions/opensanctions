@@ -60,3 +60,7 @@ lookups:
         values:
           - United States
           - Canada
+      - match: "UK; USA"
+        values:
+          - United Kingdom
+          - United States
