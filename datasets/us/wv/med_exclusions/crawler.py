@@ -5,7 +5,7 @@ from rigour.mime.types import PDF
 
 
 prompt = """
- Extract structured data from the following page of a PDF document. Return 
+ Extract structured data from the following page of a PDF document. Return
   a JSON list (`providers`) in which each object represents an medical provider.
   Each object should have the following fields: `last_name`, `first_name`,
   `npi`, `address_1`, `address_2`, `city`, `state`, `zip`, `action_date`,
@@ -64,13 +64,15 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_pdf_url(context: Context):
-    doc = context.fetch_text(context.data_url)
-    # The link is inside a JSON in a script
-    info_txt = doc[doc.find("FileLeafRef") :]
-    return (
-        "https://www.wvmmis.com/WV%20Medicaid%20Provider%20SanctionedExclusion/"
-        + info_txt[15 : info_txt.find(",") - 1]
-    )
+    doc = context.fetch_html(context.data_url)
+    # Construct the URL from bits in the table because they'd rather do that than just construct a working URL.
+    rows = doc.xpath("//tr[@class='rgRow']")  # RadGrid row
+    assert len(rows) == 1, len(rows)
+    row = rows[0]
+    link_element = row.xpath(".//a[contains(@href, 'javascript:__doPostBack')]")[0]
+    doc_name = link_element.text_content().strip().replace(" ", "%20")
+    parent_folder = row.xpath(".//td[@style='display:none;']")[0].text_content().strip()
+    return f"https://www.wvmmis.com/SharepointDownload?parent={parent_folder}&docname={doc_name}"
 
 
 def page_settings(page):
@@ -78,7 +80,9 @@ def page_settings(page):
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.pdf", crawl_pdf_url(context))
+    path = context.fetch_resource(
+        "source.pdf", crawl_pdf_url(context), headers={"Referer": context.data_url}
+    )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
     for item in h.parse_pdf_table(
