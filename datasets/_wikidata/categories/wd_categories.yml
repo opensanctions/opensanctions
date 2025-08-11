@@ -845,7 +845,7 @@ config:
       language: es
     - category: Políticos_de_El_Salvador
       language: es
-    
+
     # Ecuador
     - category: Political_office-holders_in_Ecuador
       country: ec
@@ -1109,7 +1109,6 @@ config:
       country: ve
       language: es
       topic: role.pep
-      position:
     - category: Alcaldes_de_Venezuela
       country: ve
       language: es
@@ -1239,7 +1238,7 @@ config:
         topics:
           - gov.legislative
           - gov.national
-    - category: Políticos_de_Guatemala 
+    - category: Políticos_de_Guatemala
       country: gt
       language: es
     - category: Presidentes_de_Guatemala
@@ -1266,7 +1265,7 @@ config:
       country: gt
       language: es
       topic: role.pep
-    - category: Diputados_de_Guatemala 
+    - category: Diputados_de_Guatemala
       country: gt
       language: es
       topic: role.pep
@@ -1540,9 +1539,9 @@ config:
       topic: role.pep
 
     # country: Spain
-    # 
+    #
     # Note: Provincial deputies are elected from the provinces. No clear wikipedia categories of provincial deputies.
-    # The provincial deputies corresponding to each political party are elected to each jurisdiction from among 
+    # The provincial deputies corresponding to each political party are elected to each jurisdiction from among
     # and by the councillors who belong to the municipalities comprising each district.
     # http://www.elecciones.mir.es/locales2023/en/informacion-general/resuelva-sus-dudas/diputaciones-provinciales-y-diputados/
     - category: Political_office-holders_in_Spain
