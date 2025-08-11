@@ -916,21 +916,9 @@ config:
     - category: Government_ministers_of_Ecuador
       country: ec
       topic: role.pep
-      position:
-        name: Minister of Ecuador
-        country: ec
-        topics:
-          - gov.executive
-          - gov.national
     - category: Women_government_ministers_of_Ecuador
       country: ec
       topic: role.pep
-      position:
-        name: Minister of Ecuador
-        country: ec
-        topics:
-          - gov.executive
-          - gov.national
     - category: Asambleístas_y_diputados_de_Ecuador
       country: ec
       language: es
