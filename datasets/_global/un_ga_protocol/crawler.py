@@ -33,28 +33,23 @@ def process_holder_date(
 ):
     if not start_dates:
         return "", last_concatenated_date, person_count_for_date
-    # Check if this is a concatenated date (18 characters like "09-Sep-2207-May-13" or longer)
-    if len(start_dates) >= 18:
-        if last_concatenated_date != start_dates:
-            # New concatenated date - first person gets first part
-            first_part = start_dates[:9]  # "09-Sep-22"
-            return first_part, start_dates, 1
-        else:
-            # Same concatenated date as previous person
-            new_count = person_count_for_date + 1
-            if new_count == 2:
-                # Second person gets second part
-                second_part = start_dates[-9:]  # "07-May-13"
-                return second_part, start_dates, new_count
-            else:
-                # More than two people with same concatenated date
-                context.log.warn(
-                    f"Found {new_count} people with same concatenated date: {start_dates}. Cannot determine date assignment."
-                )
-                return "", start_dates, new_count
-    else:
-        # Not a concatenated date - reset state and return as-is
+    if len(start_dates) < 18:
+        # Single date - reset state and return as-is
         return start_dates, None, 0
+    # Handle concatenated dates (length >= 18)
+    if start_dates != last_concatenated_date:
+        # New concatenated date - first person gets first 9 chars
+        return start_dates[:9], start_dates, 1  # "09-Sep-22"
+    # Same concatenated date as previous
+    person_count_for_date += 1
+    if person_count_for_date == 2:
+        # Second person gets last 9 chars
+        return start_dates[-9:], start_dates, person_count_for_date  # "07-May-13"
+    # More than two people with same concatenated date - log warning and return empty
+    context.log.warn(
+        f"Found {person_count_for_date} people with same concatenated date: {start_dates}. Cannot determine date assignment."
+    )
+    return "", start_dates, person_count_for_date
 
 
 def crawl(context: Context):
