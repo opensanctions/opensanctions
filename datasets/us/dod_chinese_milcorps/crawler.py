@@ -1,17 +1,22 @@
 import csv
 
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 PROGRAM_NAME = "Section 1260H of the William M. (“Mac”) Thornberry National Defense Authorization Act for Fiscal Year 2021 (Public Law 116-283)"
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(
-        "https://www.defense.gov/News/Releases/Search/1260H/", cache_days=1
+    results_xpath = ".//div[@class='alist stories release-list']"
+    doc = fetch_html(
+        context,
+        "https://www.defense.gov/News/Releases/Search/1260H/",
+        results_xpath,
+        cache_days=1,
     )
-    search_results = doc.xpath(".//div[@class='alist stories release-list']")
+    search_results = doc.xpath(results_xpath)
     assert len(search_results) == 1, "Expected exactly one section in the document"
-    h.assert_dom_hash(search_results[0], "74d8423cf48059dbfa34a49178dbc98a5d6c19bc")
+    h.assert_dom_hash(search_results[0], "8631af15f87fd72db8ff79b9a6accd3294e702fb")
     # Jan. 7, 2025
     # DOD Releases List of Chinese Military Companies in Accordance with Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
     # Jan. 31, 2024
