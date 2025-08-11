@@ -775,7 +775,7 @@ config:
     - category: Political_office-holders_of_the_European_Union
       topic: role.pep
 
-    # latam
+    # Latin America
     - category: Political_office-holders_in_South_America
 
     - category: Diputados_de_la_LXIV_Legislatura_de_México
@@ -845,6 +845,447 @@ config:
       language: es
     - category: Políticos_de_El_Salvador
       language: es
+    
+    # Ecuador
+    - category: Political_office-holders_in_Ecuador
+      country: ec
+      topic: role.pep
+    - category: Members_of_the_National_Assembly_(Ecuador)
+      country: ec
+      topic: role.pep
+      position:
+        name: Member of the National Assembly
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Members_of_the_National_Congress_(Ecuador)
+      country: ec
+      topic: role.pep
+      position:
+        name: Member of the National Congress
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_the_National_Assembly_(Ecuador)
+      country: ec
+      topic: role.pep
+      position:
+        name: President of the National Assembly
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_the_National_Congress_(Ecuador)
+      country: ec
+      topic: role.pep
+      position:
+        name: President of the National Congress
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_the_Senate_of_Ecuador
+      country: ec
+      topic: role.pep
+      position:
+        name: President of the Senate of Ecuador
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_Ecuador
+      country: ec
+      topic: role.pep
+      position:
+        name: President of Ecuador
+        country: ec
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vice_presidents_of_Ecuador
+      country: ec
+      topic: role.pep
+      position:
+        name: Vice President of Ecuador
+        country: ec
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Government_ministers_of_Ecuador
+      country: ec
+      topic: role.pep
+    - category: Women_government_ministers_of_Ecuador
+      country: ec
+      topic: role.pep
+    - category: Asambleístas_y_diputados_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+      position:
+        name: Member of the National Assembly
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidentes_del_Congreso_Nacional_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+      position:
+        name: President of the National Congress
+        country: ec
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidentes_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+      position:
+        name: President of Ecuador
+        country: ec
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vicepresidentes_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+      position:
+        name: Vice President of Ecuador
+        country: ec
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Ministros_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+    - category: Ministras_de_Ecuador
+      country: ec
+      language: es
+      topic: role.pep
+    - category: Políticas_de_Ecuador
+      country: ec
+      language: es
+
+    # Columbia
+    - category: Members_of_the_Congress_of_Colombia
+      country: co
+      topic: role.pep
+      position:
+        name: Member of the Congress of Colombia
+        country: co
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_Colombia
+      country: co
+      topic: role.pep
+      position:
+        name: President of Colombia
+        country: co
+        topics:
+          - gov.head
+          - gov.national
+    - category: Government_ministers_of_Colombia
+      country: co
+      topic: role.pep
+    - category: Mayors_of_Bogotá
+      country: co
+      topic: role.pep
+      position:
+        name: Mayor of Bogotá
+        country: co
+        topics:
+          - gov.muni
+          - gov.head
+    - category: Lists_of_political_office-holders_in_Colombia
+      country: co
+      topic: role.pep
+    - category: Senadores_de_Colombia
+      country: co
+      language: es
+      topic: role.pep
+      position:
+        name: Senator
+        country: co
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Diputados_de_Colombia
+      country: co
+      language: es
+      topic: role.pep
+    - category: Presidentes_de_Colombia
+      country: co
+      language: es
+      topic: role.pep
+      position:
+        name: President of Colombia
+        country: co
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vicepresidencia_de_Colombia
+      country: co
+      language: es
+      topic: role.pep
+      position:
+        name: Vice President of Colombia
+        country: co
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Políticos_de_Colombia
+      country: co
+      language: es
+
+    # Venezuela
+    - category: Members_of_the_National_Assembly_(Venezuela)
+      country: ve
+      topic: role.pep
+      position:
+        name: Member of the National Assembly
+        country: ve
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Members_of_the_Senate_of_Venezuela
+      country: ve
+      topic: role.pep
+      position:
+        name: Member of the Senate of Venezuela
+        country: ve
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_Venezuela
+      country: ve
+      topic: role.pep
+      position:
+        name: President of Venezuela
+        country: ve
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vice_presidents_of_Venezuela
+      country: ve
+      topic: role.pep
+      position:
+        name: Vice President of Venezuela
+        country: ve
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Government_ministers_of_Venezuela
+      country: ve
+      topic: role.pep
+    - category: Venezuelan_politicians
+      country: ve
+    - category: Diputados_de_Venezuela
+      country: ve
+      language: es
+      topic: role.pep
+      position:
+        name: Deputy of Venezuela
+        country: ve
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidentes_de_Venezuela
+      country: ve
+      language: es
+      topic: role.pep
+      position:
+        name: President of Venezuela
+        country: ve
+        topics:
+          - gov.head
+          - gov.national
+    - category: Ministros_por_presidente_de_Venezuela
+      country: ve
+      language: es
+      topic: role.pep
+      position:
+    - category: Alcaldes_de_Venezuela
+      country: ve
+      language: es
+      topic: role.pep
+      position:
+        name: Mayor
+        country: ve
+        topics:
+          - gov.muni
+          - gov.head
+    - category: Políticos_de_Venezuela
+      country: ve
+      language: es
+
+    # Nicaragua
+    - category: Members_of_the_National_Assembly_(Nicaragua)
+      country: ni
+      topic: role.pep
+      position:
+        name: Member of the National Assembly
+        country: ni
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Presidents_of_Nicaragua
+      country: ni
+      topic: role.pep
+      position:
+        name: President of Nicaragua
+        country: ni
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vice_presidents_of_Nicaragua
+      country: ni
+      topic: role.pep
+      position:
+        name: Vice President of Nicaragua
+        country: ni
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Government_ministers_of_Nicaragua
+      country: ni
+      topic: role.pep
+    - category: Mayors_of_Managua
+      country: ni
+      topic: role.pep
+      position:
+        name: Mayor of Managua
+        country: ni
+        topics:
+          - gov.muni
+          - gov.head
+    - category: Nicaraguan_politicians
+      country: ni
+    - category: Presidentes_de_Nicaragua
+      country: ni
+      language: es
+      topic: role.pep
+      position:
+        name: President of Nicaragua
+        country: ni
+        topics:
+          - gov.head
+          - gov.national
+    - category: Ministros_de_Nicaragua
+      country: ni
+      language: es
+      topic: role.pep
+    - category: Alcaldes_de_Nicaragua
+      country: ni
+      language: es
+      topic: role.pep
+      position:
+        name: Mayor of a Municipality in Nicaragua
+        country: ni
+        topics:
+          - gov.muni
+          - gov.head
+    - category: Políticos_de_Nicaragua
+      country: ni
+      language: es
+
+    # Guatemala
+    - category: Guatemalan_politicians
+      country: gt
+    - category: Political_office-holders_in_Guatemala
+      country: gt
+      topic: role.pep
+    - category: Presidents_of_Guatemala
+      country: gt
+      topic: role.pep
+      position:
+        name: President of Guatemala
+        country: gt
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vice_presidents_of_Guatemala
+      country: gt
+      topic: role.pep
+      position:
+        name: Vice President of Guatemala
+        country: gt
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Government_ministers_of_Guatemala
+      country: gt
+      topic: role.pep
+    - category: Mayors_of_Guatemala_City
+      country: gt
+      topic: role.pep
+      position:
+        name: Mayor of Guatemala City
+        country: gt
+        topics:
+          - gov.muni
+          - gov.head
+    - category: Members_of_the_Congress_of_Guatemala
+      country: gt
+      topic: role.pep
+      position:
+        name: Member of the Congress of Guatemala
+        country: gt
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Políticos_de_Guatemala 
+      country: gt
+      language: es
+    - category: Presidentes_de_Guatemala
+      country: gt
+      language: es
+      topic: role.pep
+      position:
+        name: President of Guatemala
+        country: gt
+        topics:
+          - gov.head
+          - gov.national
+    - category: Vicepresidentes_de_Guatemala
+      country: gt
+      language: es
+      topic: role.pep
+      position:
+        name: Vice President of Guatemala
+        country: gt
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Ministros_de_Guatemala
+      country: gt
+      language: es
+      topic: role.pep
+    - category: Diputados_de_Guatemala 
+      country: gt
+      language: es
+      topic: role.pep
+      position:
+        name: Member of the Congress of Guatemala
+        country: gt
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Alcaldes_de_Guatemala
+      country: gt
+      language: es
+      topic: role.pep
+      position:
+        name: Mayor of a Municipality in Guatemala
+        country: gt
+        topics:
+          - gov.muni
+          - gov.head
 
     # European countries
     - category: Members_of_the_parliaments_of_the_Belgian_communities_and_regions
