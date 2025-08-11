@@ -975,22 +975,10 @@ config:
       country: ec
       language: es
       topic: role.pep
-      position:
-        name: Minister of Ecuador
-        country: ec
-        topics:
-          - gov.executive
-          - gov.national
     - category: Ministras_de_Ecuador
       country: ec
       language: es
       topic: role.pep
-      position:
-        name: Minister of Ecuador
-        country: ec
-        topics:
-          - gov.executive
-          - gov.national
     - category: Políticas_de_Ecuador
       country: ec
       language: es
@@ -1020,12 +1008,6 @@ config:
     - category: Government_ministers_of_Colombia
       country: co
       topic: role.pep
-      position:
-        name: Minister of Colombia
-        country: co
-        topics:
-          - gov.executive
-          - gov.national
     - category: Mayors_of_Bogotá
       country: co
       topic: role.pep
@@ -1075,7 +1057,6 @@ config:
     - category: Políticos_de_Colombia
       country: co
       language: es
-      topic: role.pep
 
     # Venezuela
     - category: Members_of_the_National_Assembly_(Venezuela)
@@ -1117,12 +1098,6 @@ config:
     - category: Government_ministers_of_Venezuela
       country: ve
       topic: role.pep
-      position:
-        name: Minister of Venezuela
-        country: ve
-        topics:
-          - gov.executive
-          - gov.national
     - category: Venezuelan_politicians
       country: ve
       topic: role.pep
@@ -1151,11 +1126,6 @@ config:
       language: es
       topic: role.pep
       position:
-        name: Minister of Venezuela
-        country: ve
-        topics:
-          - gov.executive
-          - gov.national
     - category: Alcaldes_de_Venezuela
       country: ve
       language: es
@@ -1169,7 +1139,6 @@ config:
     - category: Políticos_de_Venezuela
       country: ve
       language: es
-      topic: role.pep
 
     # Nicaragua
     - category: Members_of_the_National_Assembly_(Nicaragua)
@@ -1202,12 +1171,6 @@ config:
     - category: Government_ministers_of_Nicaragua
       country: ni
       topic: role.pep
-      position:
-        name: Minister of Nicaragua
-        country: ni
-        topics:
-          - gov.executive
-          - gov.national
     - category: Mayors_of_Managua
       country: ni
       topic: role.pep
@@ -1219,7 +1182,6 @@ config:
           - gov.head
     - category: Nicaraguan_politicians
       country: ni
-      topic: role.pep
     - category: Presidentes_de_Nicaragua
       country: ni
       language: es
@@ -1234,18 +1196,12 @@ config:
       country: ni
       language: es
       topic: role.pep
-      position:
-        name: Minister of Nicaragua
-        country: ni
-        topics:
-          - gov.executive
-          - gov.national
     - category: Alcaldes_de_Nicaragua
       country: ni
       language: es
       topic: role.pep
       position:
-        name: Mayor
+        name: Mayor of a Municipality in Nicaragua
         country: ni
         topics:
           - gov.muni
@@ -1258,7 +1214,6 @@ config:
     # Guatemala
     - category: Guatemalan_politicians
       country: gt
-      topic: role.pep
     - category: Political_office-holders_in_Guatemala
       country: gt
       topic: role.pep
@@ -1283,12 +1238,6 @@ config:
     - category: Government_ministers_of_Guatemala
       country: gt
       topic: role.pep
-      position:
-        name: Minister of Guatemala
-        country: gt
-        topics:
-          - gov.executive
-          - gov.national
     - category: Mayors_of_Guatemala_City
       country: gt
       topic: role.pep
@@ -1335,12 +1284,6 @@ config:
       country: gt
       language: es
       topic: role.pep
-      position:
-        name: Minister of Guatemala
-        country: gt
-        topics:
-          - gov.executive
-          - gov.national
     - category: Diputados_de_Guatemala 
       country: gt
       language: es
@@ -1356,7 +1299,7 @@ config:
       language: es
       topic: role.pep
       position:
-        name: Mayor
+        name: Mayor of a Municipality in Guatemala
         country: gt
         topics:
           - gov.muni
