@@ -1,4 +1,3 @@
-from datetime import datetime
 from normality import slugify
 from rigour.mime.types import CSV
 from typing import Dict
@@ -9,7 +8,8 @@ import re
 from zavod import helpers as h
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod.stateful.positions import OccupancyStatus, backdate, categorise
+from zavod.stateful.positions import OccupancyStatus, categorise
+from zavod import settings
 
 # NUMERO DOCUMENTO
 # NOMBRE PEP
@@ -167,7 +167,7 @@ def crawl_table_row(
     if key in seen:
         return
 
-    if str_row.pop("fecha_publicacion") < backdate(datetime.now(), 365 * 5):
+    if str_row.pop("fecha_publicacion") < h.backdate(settings.RUN_TIME, 365 * 5):
         context.log.warning("Skipping potentially too old position", key=key)
         return
 
