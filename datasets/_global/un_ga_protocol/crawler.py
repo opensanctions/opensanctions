@@ -31,6 +31,25 @@ def crawl_pdf_url(context: Context) -> str:
 def process_holder_date(
     context, start_dates, last_concatenated_date=None, person_count_for_date=0
 ):
+    """
+    Processes a start_dates string that may contain either:
+      1. A single date (e.g., "09-Sep-22"), or
+      2. Two concatenated dates for two different people
+         (e.g., "09-Sep-2207-May-13" — length ≥ 18).
+
+    Tracks the last concatenated date processed and how many people have
+    already been assigned dates from it.
+
+    Logic flow:
+      - Empty input → Return empty date, keep state unchanged.
+      - Short string (< 18 chars) → Treat as a single date; reset stored
+        concatenated date and counter.
+      - New concatenated date → Assign first 9 characters (first person's date),
+        remember the concatenated string, reset count to 1.
+      - Same concatenated date again → Assign last 9 characters (second person's date),
+        increment count.
+      - More than 2 people for same concatenated date → Log a warning and return an empty date.
+    """
     if not start_dates:
         return "", last_concatenated_date, person_count_for_date
     if len(start_dates) < 18:
@@ -113,8 +132,5 @@ def crawl(context: Context):
             )
             if occupancy is not None:
                 context.emit(occupancy)
-
-            context.emit(entity)
-            context.emit(position)
-            if occupancy is not None:
-                context.emit(occupancy)
+                context.emit(entity)
+                context.emit(position)
