@@ -16,6 +16,7 @@ def crawl(context: Context):
         regime_data.pop("legal_acts", None)
         regime_data.pop("general_guidances", None)
         regime_data.pop("guidances", None)
+        programme = regime_data.pop("programme")
         authority = regime_data["adopted_by"]["data"]["title"]
 
         for measure in measures["data"]:
@@ -58,8 +59,15 @@ def crawl(context: Context):
                                 entity.add("imoNumber", value)
                             if "MMSI" in type_:
                                 entity.add("mmsi", value)
-
-                    sanction = h.make_sanction(context, entity, key=regime_data["id"])
+                    for prog in programme:
+                        sanction = h.make_sanction(
+                            context,
+                            entity,
+                            key=regime_data["id"],
+                            source_program_key=prog,
+                            program_name=prog,
+                            program_key=h.lookup_sanction_program_key(context, prog),
+                        )
                     sanction.set("authority", authority)
                     sanction.set("reason", member["reason"])
                     sanction.add("summary", regime_data["specification"])

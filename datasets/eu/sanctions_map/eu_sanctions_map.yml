@@ -66,3 +66,117 @@ lookups:
       - match:
           - 09346732 # Invalid IMO
         prop: registrationNumber
+  sanction.program:
+    # in accordance with https://sanctionsmap.eu/#/main?search=%7B%22value%22:%22%22,%22searchType%22:%7B%7D%7D
+    options:
+      # Afghanistan
+      - match: AFG
+        value: EU-AFG
+      # Belarus
+      - match: BLR # implementing Article 8a of Regulation (EC) No 765/2006 concerning restrictive measures in view of the situation in Belarus
+        value: EU-BLR
+      # Burundi
+      - match: BDI # implementing Regulation (EU) 2015/1755 concerning restrictive measures in view of the situation in Burundi
+        value: EU-BDI
+      # Central African Republic
+      - match: CAF # implementing Article 17(3) of Regulation (EU) No 224/2014 concerning restrictive measures in view of the situation in the Central African Republic
+        value: EU-CAF
+      # Chemical weapons
+      - match: CHEM # implementing Regulation (EU) 2018/1542 concerning restrictive measures against the proliferation and use of chemical weapons
+        value: EU-CHEM
+      # Cyber-attacks
+      - match: CYB
+        value: EU-CYB
+      # Democratic People's Republic of Korea (DPRK – North Korea)
+      - match: PRK
+        value: EU-PRK
+      # Democratic Republic of the Congo
+      - match: COD # implementing Article 9(5) of Regulation (EC) No 1183/2005 imposing certain specific restrictive measures directed against persons acting in violation of the arms embargo with regard to the Democratic Republic of the Congo
+        value: EU-COD
+      # Guatemala
+      - match: GTM # implementing Regulation (EU) 2024/287 concerning restrictive measures in view of the situation in Guatemala
+        value: EU-GTM
+      # Guinea
+      - match: GIN # implementing Regulation (EU) No 1284/2009 imposing certain specific restrictive measures in respect of the Republic of Guinea
+        value: EU-GIN
+      # Guinea-Bissau
+      - match: GNB # mplementing Article 11(1) of Regulation (EU) No 377/2012 concerning restrictive measures directed against certain persons, entities and bodies threatening the peace, security or stability of the Republic of Guinea-Bissau
+        value: EU-GNB
+      # Haiti
+      - match: HTI # implementing Regulation (EU) 2022/2309 concerning restrictive measures in view of the situation in Haiti
+        value: EU-HTI
+      # Human rights
+      - match: HR
+        value: EU-HR
+      # Iran
+      - match:
+          IRN # implementing Regulation (EU) No 267/2012 concerning restrictive measures against Iran
+          # implementing Regulation (EU) 2023/1529 concerning restrictive measures in view of Iran’s military support to Russia’s war of aggression against Ukraine and to armed groups and entities in the Middle East and the Red Sea region
+        value: EU-IRN
+      # Iraq
+      - match: IRQ
+        value: EU-IRQ
+      # Libya
+      - match: LBY # implementing Article 21(5) of Regulation (EU) 2016/44 concerning restrictive measures in view of the situation in Libya
+        value: EU-LBY
+      # Mali
+      - match: MLI # implementing Article 12(2) of Regulation (EU) 2017/1770 concerning restrictive measures in view of the situation in Mali
+        value: EU-MLI
+      # Moldova
+      - match: MDA # implementing Regulation (EU) 2023/888 concerning restrictive measures in view of actions destabilising the Republic of Moldova
+        value: EU-MDA
+      # Myanmar (Burma)
+      - match: MMR # implementing Regulation (EU) No 401/2013 concerning restrictive measures in respect of Myanmar/Burma
+        value: EU-MMR
+      # Nicaragua
+      - match: NIC # implementing Regulation (EU) 2019/1716 concerning restrictive measures in view of the situation in Nicaragua
+        value: EU-NIC
+      # Russia
+      - match: RUS # implementing Regulation (EU) 2024/1485 concerning restrictive measures in view of the situation in Russia
+        value: EU-RUS
+      - match: RUSDA
+        value: EU-RUSDA
+      # Somalia
+      - match: SOM
+        value: EU-SOM
+      # South Sudan
+      - match: SSD #  Article 20(3) of Regulation (EU) 2015/735 concerning restrictive measures in respect of the situation in South Sudan
+        value: EU-SSD
+      # Sudan
+      - match: SDN # implementing Article 15(3) of Regulation (EU) No 747/2014 concerning restrictive measures in view of the situation in Sudan
+        value: EU-SDN
+      - match: SDNZ # implementing Regulation (EU) 2023/2147 concerning restrictive measures in view of activities undermining the stability and political transition of Sudan
+        value: EU-SDNZ
+      # Syria
+      - match: SYR # Council Regulation concerning restrictive measures in view of the situation in Syria and repealing Regulation (EU) No 442/2011
+        value: EU-SYR
+      # Terrorism
+      - match: TERR
+        value: EU-TERR # implementing Article 2(3) of Regulation (EC) No 2580/2001 on specific restrictive measures directed against certain persons and entities with a view to combating terrorism
+      - match:
+          - TAQA
+          - EUAQ
+        value: EU-TAQA-EUAQ # Council Regulation (EC) No 881/2002 imposing certain specific restrictive measures directed against certain persons and entities associated with the Al Qaida network
+      - match: HAM
+        value: EU-HAM # COUNCIL REGULATION (EU) 2024/386 of 19 January 2024 establishing restrictive measures against those who support, facilitate or enable violent actions by Hamas and the Palestinian Islamic Jihad
+      # Tunisia
+      - match: TUN # implementing Regulation (EU) No 101/2011 concerning restrictive measures directed against certain persons, entities and bodies in view of the situation in Tunisia
+        value: EU-TUN
+      # Türkiye
+      - match: TUR # implementing Regulation (EU) 2019/1890 concerning restrictive measures in view of Turkey’s unauthorised drilling activities in the Eastern Mediterranean
+        value: EU-TUR
+      # Ukraine
+      - match: UKR
+        value: EU-UKR
+      # Venezuela
+      - match: VEN # implementing Regulation (EU) 2017/2063 concerning restrictive measures in view of the situation in Venezuela
+        value: EU-VEN
+      # According to DG FISMA, this is an initial value used until an EU act is adopted corrsponding to the UN program
+      - match: UNLI
+        value: EU-UNLI
+      # Yemen
+      - match: YEM
+        value: EU-YEM
+      # Zimbabwe
+      - match: ZWE
+        value: EU-ZWE
