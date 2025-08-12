@@ -83,3 +83,34 @@ lookups:
         value: "general@angstrem.ru"
       - match: "mss@korund_m.ru"
         value: "mss@korund-m.ru"
+  programs:
+    options:
+      - match: 
+          - "amending Decision 2014/145/CFSP concerning restrictive measures in respect of actions undermining or threatening the territorial integrity, sovereignty and independence of Ukraine"
+          - "amending Regulation (EU) No 833/2014 concerning restrictive measures in view of Russia's actions destabilising the situation in Ukraine"
+          - "amending Decision 2014/512/CFSP concerning restrictive measures in view of Russia’s actions destabilising the situation in Ukraine"
+          - "amending Regulation (EU) No 833/2014 concerning restrictive measures in view of Russia’s actions destabilising the situation in Ukraine"
+          - "amending Regulation (EU) No 833/2014 concerning restrictive measures in view of Russia's actions destabilising the situation in Ukraine"
+        value: EU-UKR
+      - match: 
+          - "implementing Decision 2013/255/CFSP concerning restrictive measures in view of the situation in Syria"
+        value: EU-SYR
+      - match: "implementing Regulation (EU) 2024/1485 concerning restrictive measures in view of the situation in Russia"
+        value: EU-RUS
+      - match: 
+          - "implementing Regulation (EU) 2024/2642 concerning restrictive measures in view of Russia’s destabilising activities"
+          - "amending Decision (CFSP) 2024/2643 concerning restrictive measures in view of Russia’s destabilising activities"
+        value: EU-RUSDA
+      - match: "amending Decision (CFSP) 2024/254 concerning restrictive measures in view of the situation in Guatemala"
+        value: EU-GTM
+      - match: 
+          - "amending Decision (CFSP) 2020/1999 concerning restrictive measures against serious human rights violations and abuses"
+          - "implementing Regulation (EU) 2020/1998 concerning restrictive measures against serious human rights violations and abuses"
+        value: EU-HR
+      - match: 
+          - "amending Regulation (EU) 2023/1529 concerning restrictive measures in view of Iran’s military support to Russia’s war of aggression against Ukraine and to armed groups and entities in the Middle East and the Red Sea region"
+          - "amending Decision 2011/235/CFSP concerning restrictive measures directed against certain persons and entities in view of the situation in Iran"
+          - "implementing Regulation (EU) No\xa0359/2011 concerning restrictive measures directed against certain persons, entities and bodies in view of the situation in Iran"
+        value: EU-IRN
+      - match: "implementing Regulation (EU) 2018/1542 concerning restrictive measures against the proliferation and use of chemical weapons"
+        value: EU-CHEM

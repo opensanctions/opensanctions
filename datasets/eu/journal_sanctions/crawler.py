@@ -1,10 +1,37 @@
 import csv
 from typing import Dict
+from requests.exceptions import HTTPError
 
 from zavod import Context, Entity
 import zavod.helpers as h
 from nomenklatura.resolver import Linker
 from zavod.integration import get_dataset_linker
+
+
+def extract_program_key(context, source_url):
+    try:
+        doc = context.fetch_html(source_url, cache_days=1)
+    except HTTPError as e:
+        context.log.warning(f"Page not found: {source_url}")
+        return
+    if doc is None:
+        return
+    program_info = doc.xpath(
+        "//div[@class='eli-main-title']/p[@class='oj-doc-ti']/text()"
+    )
+    if program_info:
+        program_info = program_info[-1]
+        result = context.lookup_value("programs", program_info)
+        if not result:
+            context.log.warning(
+                f"Could not find program for {source_url}: {program_info}",
+                source_url=source_url,
+                program_info=program_info,
+            )
+        return result
+    else:
+        context.log.warning(f"Could not find program for {source_url}")
+        return
 
 
 def crawl_row(
@@ -16,6 +43,8 @@ def crawl_row(
     name = row.pop("Name").strip()
     country = row.pop("Country").strip()
     reg_number = row.pop("registrationNumber").strip()
+    source_url = row.pop("Source URL").strip()
+    extract_program_key(context, source_url)
 
     context.log.info(f"Processing row #{row_idx}: {name}")
     entity = context.make(entity_type)
@@ -61,7 +90,7 @@ def crawl_row(
     entity.add("email", h.multi_split(row.pop("email"), ";"), quiet=True)
     entity.add("website", h.multi_split(row.pop("website"), ";"), quiet=True)
     entity.add("gender", row.pop("Gender", None), quiet=True)
-    entity.add("sourceUrl", h.multi_split(row.pop("Source URL"), ";"))
+    entity.add("sourceUrl", h.multi_split(source_url, ";"))
     if "ru" in entity.get("country"):
         entity.add("ogrnCode", h.multi_split(reg_number, ";"))
     else:
