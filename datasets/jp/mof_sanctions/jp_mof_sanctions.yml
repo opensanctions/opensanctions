@@ -167,7 +167,9 @@ lookups:
           - そ の 他 の 情 報
           - その他の情報
         value: other_information
-      - match: リスト掲載日
+      - match:
+          - リスト掲載日
+          - リ ス ト 掲 載 日
         value: publication_date
       - match:
           - 住 所
@@ -242,6 +244,8 @@ lookups:
           - 国連制裁委員会による指定日
           - 国連制裁員会による指定日
         value: designated_date_un
+      - match: 国 連 参 照 番 号
+        value: unsc_id
       - match: 決議1483上の根拠
         value: reason_res1483
       - match: 詳 細
@@ -475,6 +479,82 @@ lookups:
           - 1962
       - match: （year unknown）
         value: null
+      - match: "BornatPozarevac,RepublicofSerbia,on20August1941"
+        value: "1941-08-20"
+      - match: "Born1970"
+        value: "1970"
+      - match: "Bornon10July1942"
+        value: "1942-07-10"
+      - match: "Born1936"
+        value: "1936"
+      - match: "Born1965"
+        value: "1965"
+      - match: "Bornon2July1974"
+        value: "1974-07-02"
+      - match: "BornatBelgrade,RepublicofSerbia,on19December1942"
+        value: "1942-12-19"
+      - match: "BornatRavni,RepublicofSerbia,on1June1941"
+        value: "1941-06-01"
+      - match: "BornatBor,RepublicofSerbia,on7December1948"
+        value: "1948-12-07"
+      - match: "1937年セルビア共和国マーラ・クルスナ"
+        value: "1937"
+      - match: "BornatMalaKrsna,RepublicofSerbia,in1937"
+        value: "1937"
+      - match: "1937年~1945年"
+        values:
+          - 1937
+          - 1945
+      - match: "1958年から1964年までの間"
+        values:
+          - 1958
+          - 1964
+      - match: "ヒジュラ暦"
+        value: null
+      - match: "偽造旅券より"
+        value: null
+      - match: "1968年から1970年の間"
+        values:
+          - 1968
+          - 1970
+      - match: "1969年から1971年の間"
+        values:
+          - 1969
+          - 1971
+      - match: "1975年から1976年の間"
+        values:
+          - 1975
+          - 1976
+      - match: "1977年-1982年"
+        values:
+          - 1977
+          - 1982
+      - match: "1975年から1979年の間"
+        values:
+          - 1975
+          - 1979
+      - match: "1965年から1969年の間"
+        values:
+          - 1965
+          - 1969
+      - match: "およそ1970年"
+        value: "1970"
+      - match: "1973年から1974年までの間"
+        values:
+          - 1973
+          - 1974
+      - match: "1979年から1982年頃"
+        values:
+          - 1979
+          - 1982
+      - match: "1957年から1962年までの間"
+        values:
+          - 1957
+          - 1962
+      - match: "1957年から1959年の間"
+        values:
+          - 1957
+          - 1959
   type.identifier:
     options:
       - match:

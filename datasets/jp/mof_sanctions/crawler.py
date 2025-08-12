@@ -166,10 +166,11 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add("previousName", parse_names(row.pop("past_alias", [])))
     entity.add("previousName", parse_names(row.pop("old_name", [])))
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
-    if entity.schema.is_a("Person"):
-        birth_date = parse_date(row.pop("birth_date", []))
-        if birth_date != []:
-            h.apply_dates(entity, "birthDate", birth_date)
+
+    birth_date = parse_date(row.pop("birth_date", []))
+    if birth_date != []:
+        entity.add_schema("Person")
+        h.apply_dates(entity, "birthDate", birth_date)
     entity.add_cast("Person", "birthPlace", row.pop("birth_place", []))
 
     note_long_ids(entity, passport_number)
@@ -213,6 +214,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     sanction.add("reason", row.pop("root_nomination", None))
     sanction.add("reason", row.pop("reason_res1483", None))
     sanction.add("authorityId", row.pop("notification_number", None))
+    sanction.add("unscId", row.pop("unsc_id", None))
     h.apply_dates(sanction, "startDate", parse_date(row.pop("designated_date_un", [])))
     h.apply_dates(sanction, "startDate", parse_date(row.pop("notification_date", [])))
     h.apply_dates(sanction, "listingDate", parse_date(row.pop("publication_date", [])))
@@ -222,6 +224,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add("topics", "sanction")
     context.emit(entity)
     context.emit(sanction)
+    context.audit_data(row)
 
 
 def crawl_xlsx(context: Context, url: str):
