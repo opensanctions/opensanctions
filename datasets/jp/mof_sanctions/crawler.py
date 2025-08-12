@@ -213,6 +213,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     sanction.add("reason", row.pop("root_nomination", None))
     sanction.add("reason", row.pop("reason_res1483", None))
     sanction.add("authorityId", row.pop("notification_number", None))
+    sanction.add("unscId", row.pop("unsc_id", None))
     h.apply_dates(sanction, "startDate", parse_date(row.pop("designated_date_un", [])))
     h.apply_dates(sanction, "startDate", parse_date(row.pop("notification_date", [])))
     h.apply_dates(sanction, "listingDate", parse_date(row.pop("publication_date", [])))

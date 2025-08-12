@@ -167,7 +167,9 @@ lookups:
           - そ の 他 の 情 報
           - その他の情報
         value: other_information
-      - match: リスト掲載日
+      - match:
+          - リスト掲載日
+          - リ ス ト 掲 載 日
         value: publication_date
       - match:
           - 住 所
@@ -241,7 +243,9 @@ lookups:
       - match:
           - 国連制裁委員会による指定日
           - 国連制裁員会による指定日
-        value: designated_date_un
+        value: designated_date
+      - match: 国 連 参 照 番 号
+        value: unsc_id
       - match: 決議1483上の根拠
         value: reason_res1483
       - match: 詳 細
