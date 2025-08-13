@@ -246,7 +246,11 @@ def crawl_row(context, names, category, start_date, filename: str):
 
     for item in entity_data.related_entities:
         related = context.make("LegalEntity")
-        related.id = context.make_id(item.name, item.positions)
+        related_id = context.make_id(item.name, item.positions)
+        if related_id == entity.id:
+            continue
+        related.id = related_id
+
         apply_comma_name(related, item.name)
         related.add_cast("Person", "nameSuffix", item.name_suffix)
         related.add("alias", item.aliases, origin=origin)
