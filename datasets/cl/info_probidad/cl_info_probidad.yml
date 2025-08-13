@@ -92,6 +92,7 @@ lookups:
           - "PRESIDENTE COMPIN"
           - "VICEPRESIDENTE"
           - "VICEPRESIDENTE EJECUTIVO"
+          - "ALMIRANTE"
 
       - is_pep: false
         contains:

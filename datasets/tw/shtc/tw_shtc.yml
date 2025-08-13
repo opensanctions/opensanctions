@@ -2,19 +2,19 @@ title: Taiwan Strategic High-Tech Commodities Entity List
 entry_point: crawler.py
 prefix: tw-shtc
 coverage:
-  frequency: weekly
+  frequency: daily
   start: 2025-07-17
 load_statements: true
 ci_test: false
 summary: >
-  Entities subject to export restrictions due to concerns about the end-use or end-users, 
+  Entities subject to export restrictions due to concerns about the end-use or end-users,
   particularly relating to weapons of mass destruction (WMD) or other military applications.
 description: |
   This dataset lists entities designated by Taiwan's Ministry of Economic Affairs (MOEA).
-  The entities are subject to restrictions due to concerns that the end-use or end-users may 
-  be linked to the development or production of weapons of mass destruction (WMD), including 
-  nuclear, chemical, or biological weapons, or related military applications. While the framework 
-  focuses on strategic and high-tech commodities, not all entities on the list are necessarily 
+  The entities are subject to restrictions due to concerns that the end-use or end-users may
+  be linked to the development or production of weapons of mass destruction (WMD), including
+  nuclear, chemical, or biological weapons, or related military applications. While the framework
+  focuses on strategic and high-tech commodities, not all entities on the list are necessarily
   involved in high-tech industries.
 publisher:
   name: Ministry of Economic Affairs

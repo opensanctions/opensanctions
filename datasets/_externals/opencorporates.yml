@@ -130,6 +130,7 @@ lookups:
       - match:
           - Corée du Sud ( Rép. de )
           - COREE (REPUBLIQUE DE)
+          - CORÉE, RÉPUBLIQUE DE
           - SKO
         value: South Korea
       - match:

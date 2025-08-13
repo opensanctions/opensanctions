@@ -4,6 +4,8 @@ from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_html
+
 
 FUGITIVES_URL_PREFIX = "https://www.politie.nl/en/wanted/fugitives"
 
@@ -38,10 +40,11 @@ FIELDS = {
 
 
 def crawl_person(context: Context, source_url: str) -> None:
-    doc = context.fetch_html(source_url)
+    facts_xpath = "//ul[@test-id='dossier-report-list']/li/text()"
+    doc = fetch_html(context, source_url, facts_xpath, cache_days=1)
 
     facts = {}
-    for fact_text in doc.xpath("//ul[@test-id='dossier-report-list']/li/text()"):
+    for fact_text in doc.xpath(facts_xpath):
         if ": " not in fact_text:
             context.log.warn(
                 f'Unparseable fact text "{fact_text}"',
@@ -91,9 +94,10 @@ def crawl_person(context: Context, source_url: str) -> None:
 
 def crawl(context: Context) -> None:
     for page in itertools.count(start=1):
-        doc = context.fetch_html(context.data_url, params={"page": page}, cache_days=1)
-        doc.make_links_absolute(context.data_url)
         detail_url_xpath = "//a[contains(@test-id, 'wantedmissing-link')]/@href"
+        url = f"{context.data_url}?page={page}"
+        doc = fetch_html(context, url, detail_url_xpath)
+        doc.make_links_absolute(context.data_url)
         detail_urls = doc.xpath(detail_url_xpath)
         if not detail_urls:
             context.log.info("No more pages found, stopping crawl")
