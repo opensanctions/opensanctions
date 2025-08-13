@@ -1290,11 +1290,125 @@ config:
     - category: Members_of_the_parliaments_of_the_Belgian_communities_and_regions
       country: be
       topic: role.pep
+
+    # Belarus
     - category: Political_office-holders_in_Belarus
       country: by
       topic: role.pep
     - category: Government_of_Belarus
       country: by
+    - category: Government_ministers_of_Belarus
+      country: by
+      topic: role.pep
+    - category: Prime_ministers_of_Belarus
+      country: by
+      topic: role.pep
+      position:
+        name: Prime Minister
+        country: by
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Deputy_prime_ministers_of_Belarus
+      country: by
+      topic: role.pep
+      position:
+        name: Deputy Prime Minister
+        country: by
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Foreign_ministers_of_Belarus
+      country: by
+      topic: role.pep
+      position:
+        name: Minister of Foreign Affairs
+        country: by
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Defence_ministers_of_Belarus
+      country: by
+      topic: role.pep
+      position:
+        name: Minister of Defence
+        country: by
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Finance_ministers_of_Belarus
+      country: by
+      topic: role.pep
+      position:
+        name: Minister of Finance
+        country: by
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Interior_ministers_of_Belarus
+      country: by
+      topic: role.pep
+      position:
+        name: Minister of Internal Affairs
+        country: by
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Justice_ministers_of_Belarus
+      country: by
+      topic: role.pep
+      position:
+        name: Minister of Justice
+        country: by
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Health_ministers_of_Belarus
+      country: by
+      topic: role.pep
+      position:
+        name: Minister of Health Care
+        country: by
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Transport_ministers_of_Belarus
+      country: by
+      topic: role.pep
+      position:
+        name: Minister of Transport and Communications
+        country: by
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Communications_ministers_of_Belarus
+      country: by
+      topic: role.pep
+      position:
+        name: Minister of Telecommunications and Informatisation
+        country: by
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Industry_ministers_of_Belarus
+      country: by
+      topic: role.pep
+      position:
+        name: Minister of Industry
+        country: by
+        topics:
+          - gov.executive
+          - gov.national
+    - category: Information_ministers_of_Belarus
+      country: by
+      topic: role.pep
+      position:
+        name: Minister of Information
+        country: by
+        topics:
+          - gov.executive
+          - gov.national
+
     - category: Members_of_the_Polish_Sejm_2023–2027
       country: pl
       topic: role.pep
