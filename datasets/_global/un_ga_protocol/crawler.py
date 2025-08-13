@@ -41,6 +41,7 @@ def crawl(context: Context):
                 continue
             full_title = holder.get("full_title")
             country = holder.get("country")
+            start_date = holder.get("date_of_appointment")
             norm_name = context.lookup_value("names", person_name, person_name)
             if norm_name is None or len(norm_name.strip()) == 0:
                 if full_title is not None and len(full_title.strip()):
@@ -69,8 +70,9 @@ def crawl(context: Context):
                 country=country,
                 topics=["gov.national"],
             )
+            start_date = start_date if len(start_date) < 18 else None
             occupancy = h.make_occupancy(
-                context, entity, position, start_date=holder.get("date_of_appointment")
+                context, entity, position, start_date=start_date
             )
 
             # entity.add("date_of_appointment", )
