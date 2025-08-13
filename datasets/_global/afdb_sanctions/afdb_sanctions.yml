@@ -277,6 +277,10 @@ lookups:
         names:
           - name: Société Emmettrice de Document Sécurisé en Centrafrique SURL
             alias: "SEDOSEC"
+      - match: 'Sichuan Yitu Landscape Engineering Co., Ltd. (“Sichuan Yitu”) 四川一土园林绿化工程有限公司'
+        names:
+          - name: Sichuan Yitu Landscape Engineering Co., Ltd.
+            alias: ["Sichuan Yitu", "四川一土园林绿化工程有限公司"]
   types:
     lowercase: true
     map:
