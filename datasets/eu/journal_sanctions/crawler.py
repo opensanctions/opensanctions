@@ -38,7 +38,7 @@ def extract_program_code(context, source_url):
             f"No EU codes found in program name: {title}",
             source_url=source_url,
         )
-        return None
+        return
     return match.group(1)
 
 
