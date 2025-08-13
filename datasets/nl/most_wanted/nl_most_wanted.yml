@@ -31,6 +31,7 @@ http:
   total_retries: 5
   backoff_factor: 2
   retry_statuses: [500]
+ci_test: false  # No zyte key in CI
 
 assertions:
   min:
