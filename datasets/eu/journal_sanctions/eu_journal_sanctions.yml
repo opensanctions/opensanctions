@@ -83,3 +83,46 @@ lookups:
         value: "general@angstrem.ru"
       - match: "mss@korund_m.ru"
         value: "mss@korund-m.ru"
+  sanction.program:
+    options:
+      - match:
+          - 2024/2642
+          - 2024/2643
+        value: EU-RUSDA
+      - match: 
+          - 2024/1485
+          - 2014/512
+          - 833/2014
+        value: EU-RUS
+      - match:
+          - 2020/1999
+          - 2020/1998
+        value: EU-HR
+      - match:
+          - 2023/1529
+          - 2011/235
+          - 359/2011
+          - 267/2012
+        value: EU-IRN
+      - match: 2014/145
+        value: EU-UKR
+      - match: 765/2006
+        value: EU-BLR
+      - match: 2018/1542
+        value: EU-CHEM
+      - match: 881/2002
+        value: EU-TAQA-EUAQ
+      - match: 2022/2319
+        value: EU-HTI
+      - match: 2023/888
+        value: EU-MDA
+      - match: 2023/2135
+        value: EU-SDNZ
+      - match: 2001/931
+        value: EU-TERR
+      - match: 1210/2003
+        value: EU-IRQ
+      - match: 2013/255
+        value: EU-SYR
+      - match: 2024/254
+        value: EU-GTM

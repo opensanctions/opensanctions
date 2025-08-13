@@ -1,10 +1,47 @@
 import csv
+import re
 from typing import Dict
+from normality import squash_spaces
+from functools import cache
+from nomenklatura.resolver import Linker
 
 from zavod import Context, Entity
-import zavod.helpers as h
-from nomenklatura.resolver import Linker
 from zavod.integration import get_dataset_linker
+import zavod.helpers as h
+
+# Some entities come from the full text of the consolidated COUNCIL REGULATION (EU) No 833/2014.
+#  This consolidated document is treated differently from standard EUR-Lex lookups.
+SPECIAL_CASE_URL = (
+    "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02014R0833-20240625"
+)
+# year/number or number/year with optional suffix
+FIRST_CODE_RE = re.compile(
+    r"\b(?:No\s+)?(\d{1,4}/\d{1,4})(?:/[A-Z]{2,5})?\b", re.IGNORECASE
+)
+
+
+@cache
+def extract_program_code(context, source_url):
+    """Fetch EU act code from a EUR-Lex page."""
+    if SPECIAL_CASE_URL in source_url:
+        return "833/2014"
+    doc = context.fetch_html(source_url, cache_days=365)
+    program_nodes = doc.xpath(
+        "//div[@class='eli-main-title']/p[@class='oj-doc-ti']/text()"
+    )
+    if not program_nodes:
+        context.log.warning(f"Could not find program for {source_url}")
+        return
+    title = squash_spaces(program_nodes[-1])  # always the last one
+    # Extract the first EU act code (e.g., '2024/254') from a title.
+    match = FIRST_CODE_RE.search(title)
+    if not match:
+        context.log.warning(
+            f"No EU codes found in program name: {title}",
+            source_url=source_url,
+        )
+        return
+    return match.group(1)
 
 
 def crawl_row(
@@ -16,6 +53,8 @@ def crawl_row(
     name = row.pop("Name").strip()
     country = row.pop("Country").strip()
     reg_number = row.pop("registrationNumber").strip()
+    source_url = row.pop("Source URL").strip()
+    program_code = extract_program_code(context, source_url)
 
     context.log.info(f"Processing row #{row_idx}: {name}")
     entity = context.make(entity_type)
@@ -61,7 +100,7 @@ def crawl_row(
     entity.add("email", h.multi_split(row.pop("email"), ";"), quiet=True)
     entity.add("website", h.multi_split(row.pop("website"), ";"), quiet=True)
     entity.add("gender", row.pop("Gender", None), quiet=True)
-    entity.add("sourceUrl", h.multi_split(row.pop("Source URL"), ";"))
+    entity.add("sourceUrl", h.multi_split(source_url, ";"))
     if "ru" in entity.get("country"):
         entity.add("ogrnCode", h.multi_split(reg_number, ";"))
     else:
@@ -80,7 +119,12 @@ def crawl_row(
         context.emit(related)
         context.emit(rel)
 
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(
+        context,
+        entity,
+        key=program_code,
+        program_key=h.lookup_sanction_program_key(context, program_code),
+    )
     start_date = row.pop("startDate")
     h.apply_date(sanction, "startDate", start_date)
 
@@ -91,7 +135,12 @@ def crawl_row(
         wallet.add("holder", entity)
         wallet.add("topics", "sanction")
 
-        wallet_sanction = h.make_sanction(context, wallet)
+        wallet_sanction = h.make_sanction(
+            context,
+            wallet,
+            key=program_code,
+            program_key=h.lookup_sanction_program_key(context, program_code),
+        )
         h.apply_date(wallet_sanction, "startDate", start_date)
 
         context.emit(wallet)
