@@ -1,6 +1,7 @@
 import csv
 from typing import Dict
 from requests.exceptions import HTTPError
+from normality import squash_spaces
 
 from zavod import Context, Entity
 import zavod.helpers as h
@@ -8,30 +9,42 @@ from nomenklatura.resolver import Linker
 from zavod.integration import get_dataset_linker
 
 
+SPECIAL_CASE_URL = (
+    "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02014R0833-20240625"
+)
+
+
 def extract_program_key(context, source_url):
+    """Fetch program key from a EUR-Lex page and map it via the lookups."""
+
+    # Handle known special case
+    if SPECIAL_CASE_URL in source_url:
+        return "EU-UKR"
+    # Extract the program key from the source URL
     try:
         doc = context.fetch_html(source_url, cache_days=1)
-    except HTTPError as e:
-        context.log.warning(f"Page not found: {source_url}")
+    except HTTPError as exc:
+        context.log.error(f"HTTP error fetching {source_url}: {exc}")
         return
-    if doc is None:
+    if not doc:
+        context.log.warning(f"No HTML returned for {source_url}")
         return
-    program_info = doc.xpath(
+    # Extract program info from HTML
+    program_info_nodes = doc.xpath(
         "//div[@class='eli-main-title']/p[@class='oj-doc-ti']/text()"
     )
-    if program_info:
-        program_info = program_info[-1]
-        result = context.lookup_value("programs", program_info)
-        if not result:
-            context.log.warning(
-                f"Could not find program for {source_url}: {program_info}",
-                source_url=source_url,
-                program_info=program_info,
-            )
-        return result
-    else:
+    if not program_info_nodes:
         context.log.warning(f"Could not find program for {source_url}")
         return
+    program_info = squash_spaces(program_info_nodes[-1])
+    result = context.lookup_value("programs", program_info)
+    if not result:
+        context.log.warning(
+            f"Could not find program mapping for {source_url}: {program_info}",
+            source_url=source_url,
+            program_info=program_info,
+        )
+    return result
 
 
 def crawl_row(
