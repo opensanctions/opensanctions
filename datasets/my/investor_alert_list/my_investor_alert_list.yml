@@ -37,7 +37,7 @@ assertions:
       LegalEntity: 1400
   max:
     schema_entities:
-      LegalEntity: 1700
+      LegalEntity: 3000
 
 lookups:
   type.url:
