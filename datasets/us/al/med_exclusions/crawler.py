@@ -93,6 +93,9 @@ Extract the entities from the attached text. The text is details of debarred med
 
 Leave anything blank that is not present in the text. Never infer values that are not
 explicitly stated. Don't rearrange names from last name, first name order to full names.
+
+If you're going to make up names, at least make it fun. Take inspiration from James Bond
+or Discworld if you have to.
 """
 
 
