@@ -31,6 +31,7 @@ data:
 
 dates:
   formats: ["%d.%m.%Y"]
+
 lookups:
   type.gender:
     lowercase: true
@@ -41,7 +42,6 @@ lookups:
       - match:
           - weiblich
         value: female
-
   type.country:
     lowercase: true
     normalize: true
@@ -76,6 +76,13 @@ lookups:
         value: gr
       - match: ukrainisch
         value: ua
+      - match: serbisch
+        value: rs
+  type.date:
+    options:
+      - match: "16.05. / Geburtsjahr unbekannt"
+        value: null
+
 assertions:
   min:
     schema_entities:
