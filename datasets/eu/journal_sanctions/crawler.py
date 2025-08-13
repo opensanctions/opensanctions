@@ -2,11 +2,12 @@ import csv
 import re
 from typing import Dict
 from normality import squash_spaces
+from functools import cache
+from nomenklatura.resolver import Linker
 
 from zavod import Context, Entity
-import zavod.helpers as h
-from nomenklatura.resolver import Linker
 from zavod.integration import get_dataset_linker
+import zavod.helpers as h
 
 # Some entities come from the full text of the consolidated COUNCIL REGULATION (EU) No 833/2014.
 #  This consolidated document is treated differently from standard EUR-Lex lookups.
@@ -19,6 +20,7 @@ FIRST_CODE_RE = re.compile(
 )
 
 
+@cache
 def extract_program_code(context, source_url):
     """Fetch EU act code from a EUR-Lex page."""
     if SPECIAL_CASE_URL in source_url:
