@@ -1,4 +1,5 @@
 import csv
+import re
 from typing import Dict
 from normality import squash_spaces
 
@@ -12,20 +13,33 @@ from zavod.integration import get_dataset_linker
 SPECIAL_CASE_URL = (
     "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02014R0833-20240625"
 )
+# year/number or number/year with optional suffix
+FIRST_CODE_RE = re.compile(
+    r"\b(?:No\s+)?(\d{1,4}/\d{1,4})(?:/[A-Z]{2,5})?\b", re.IGNORECASE
+)
 
 
-def extract_sanction_program(context, source_url):
-    """Fetch program name (subtitle) from a EUR-Lex page."""
+def extract_program_code(context, source_url):
+    """Fetch EU act code from a EUR-Lex page."""
     if SPECIAL_CASE_URL in source_url:
-        return "Regulation (EU) No 833/2014"
+        return "833/2014"
     doc = context.fetch_html(source_url, cache_days=365)
-    program_info_nodes = doc.xpath(
+    program_nodes = doc.xpath(
         "//div[@class='eli-main-title']/p[@class='oj-doc-ti']/text()"
     )
-    if not program_info_nodes:
+    if not program_nodes:
         context.log.warning(f"Could not find program for {source_url}")
         return
-    return squash_spaces(program_info_nodes[-1])
+    title = squash_spaces(program_nodes[-1])  # always the last one
+    # Extract the first EU act code (e.g., '2024/254') from a title.
+    match = FIRST_CODE_RE.search(title)
+    if not match:
+        context.log.warning(
+            f"No EU codes found in program name: {title}",
+            source_url=source_url,
+        )
+        return None
+    return match.group(1)
 
 
 def crawl_row(
@@ -38,7 +52,7 @@ def crawl_row(
     country = row.pop("Country").strip()
     reg_number = row.pop("registrationNumber").strip()
     source_url = row.pop("Source URL").strip()
-    program_name = extract_sanction_program(context, source_url)
+    program_code = extract_program_code(context, source_url)
 
     context.log.info(f"Processing row #{row_idx}: {name}")
     entity = context.make(entity_type)
@@ -106,8 +120,8 @@ def crawl_row(
     sanction = h.make_sanction(
         context,
         entity,
-        key=program_name,
-        program_key=h.lookup_sanction_program_key(context, program_name),
+        key=program_code,
+        program_key=h.lookup_sanction_program_key(context, program_code),
     )
     start_date = row.pop("startDate")
     h.apply_date(sanction, "startDate", start_date)
@@ -122,8 +136,8 @@ def crawl_row(
         wallet_sanction = h.make_sanction(
             context,
             wallet,
-            key=program_name,
-            program_key=h.lookup_sanction_program_key(context, program_name),
+            key=program_code,
+            program_key=h.lookup_sanction_program_key(context, program_code),
         )
         h.apply_date(wallet_sanction, "startDate", start_date)
 
