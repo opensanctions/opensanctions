@@ -1,6 +1,7 @@
 from enum import Enum
 from pathlib import Path
 from typing import Generator, List, Optional, Tuple
+from lxml.etree import _Element as Element
 
 from zavod import Context, Entity
 from zavod.meta import load_dataset_from_path
@@ -30,7 +31,7 @@ def get_persons(
     prefix: str,
     doc: ElementOrTree,
     include_prefixes: Optional[List[Regime]] = None,
-) -> Generator[Tuple[ElementOrTree, Entity], None, None]:
+) -> Generator[Tuple[Element, Entity], None, None]:
     yield from get_entities(
         context, prefix, doc, include_prefixes, "INDIVIDUAL", "Person"
     )
@@ -41,7 +42,7 @@ def get_legal_entities(
     prefix: str,
     doc: ElementOrTree,
     include_prefixes: Optional[List[Regime]] = None,
-) -> Generator[Tuple[ElementOrTree, Entity], None, None]:
+) -> Generator[Tuple[Element, Entity], None, None]:
     yield from get_entities(
         context, prefix, doc, include_prefixes, "ENTITY", "LegalEntity"
     )
@@ -54,7 +55,7 @@ def get_entities(
     include_prefixes: Optional[List[Regime]],
     tag: str,
     schema: str,
-) -> Generator[Tuple[ElementOrTree, Entity], None, None]:
+) -> Generator[Tuple[Element, Entity], None, None]:
     for node in doc.findall(f".//{tag}"):
         perm_ref = node.findtext("./REFERENCE_NUMBER")
         if (
@@ -68,7 +69,7 @@ def get_entities(
 
 
 def make_entity(
-    context: Context, prefix: str, schema: str, node: ElementOrTree
+    context: Context, prefix: str, schema: str, node: Element
 ) -> Entity:
     """Make an entity, set its ID, and add the name and sanction topic so that there is
     at least one property, making it useful and ready to emit."""

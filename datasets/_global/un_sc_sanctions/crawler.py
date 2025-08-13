@@ -1,13 +1,14 @@
-from typing import Optional
+import re
+from typing import Optional, List, Dict
 from normality import squash_spaces
 from lxml.etree import _Element as Element
-import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.shed.un_sc import get_legal_entities, get_persons
 
-NAME_QUALITY = {
+
+NAME_QUALITY: Dict[str, Optional[str]] = {
     "Low": "weakAlias",
     "Good": "alias",
     "a.k.a.": "alias",
@@ -16,10 +17,10 @@ NAME_QUALITY = {
 }
 
 
-def values(node):
+def values(node: Optional[Element]) -> List[str]:
     if node is None:
         return []
-    return [c.text for c in node.findall("./VALUE")]
+    return [c.text for c in node.findall("./VALUE") if c.text is not None]
 
 
 def parse_alias(entity: Entity, node: Element) -> None:
@@ -33,7 +34,7 @@ def parse_alias(entity: Entity, node: Element) -> None:
         entity.add(name_prop, squash_spaces(name))
 
 
-def parse_address(context: Context, node: Element):
+def parse_address(context: Context, node: Element) -> Optional[Entity]:
     post_code = node.findtext("./ZIP_CODE")
     state_province = node.findtext("./STATE_PROVINCE")
     if post_code and not re.search(r"\d", post_code):
@@ -53,7 +54,7 @@ def parse_address(context: Context, node: Element):
     )
 
 
-def parse_entity(context: Context, node: Element, entity: Entity):
+def parse_entity(context: Context, node: Element, entity: Entity) -> None:
     sanction = parse_common(context, entity, node)
 
     for alias in node.findall("./ENTITY_ALIAS"):
@@ -66,7 +67,7 @@ def parse_entity(context: Context, node: Element, entity: Entity):
     context.emit(sanction)
 
 
-def parse_individual(context: Context, node: Element, person: Entity):
+def parse_individual(context: Context, node: Element, person: Entity) -> None:
     sanction = parse_common(context, person, node)
     person.add("title", values(node.find("./TITLE")))
     person.add("position", values(node.find("./DESIGNATION")))
@@ -123,7 +124,7 @@ def parse_individual(context: Context, node: Element, person: Entity):
     context.emit(sanction)
 
 
-def parse_common(context: Context, entity: Entity, node: Element):
+def parse_common(context: Context, entity: Entity, node: Element) -> Entity:
     entity.add("alias", node.findtext("./NAME_ORIGINAL_SCRIPT"))
     entity.add("notes", h.clean_note(node.findtext("./COMMENTS1")))
 
@@ -155,7 +156,7 @@ def crawl_index(context: Context) -> Optional[str]:
     return None
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # xml_url = crawl_index(context)
     # if xml_url is None:
     #     raise ValueError("No XML file found on %s" % context.data_url)
@@ -163,8 +164,11 @@ def crawl(context: Context):
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
 
-    for node, entity in get_persons(context, context.dataset.prefix, doc):
+    prefix = context.dataset.prefix
+    assert prefix is not None, "Dataset prefix is required"
+
+    for node, entity in get_persons(context, prefix, doc):
         parse_individual(context, node, entity)
 
-    for node, entity in get_legal_entities(context, context.dataset.prefix, doc):
+    for node, entity in get_legal_entities(context, prefix, doc):
         parse_entity(context, node, entity)
