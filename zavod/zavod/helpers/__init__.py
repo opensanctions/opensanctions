@@ -64,6 +64,7 @@ from zavod.helpers.crypto import extract_cryptos
 from zavod.helpers.change import assert_dom_hash, assert_file_hash
 from zavod.helpers.change import assert_url_hash, assert_html_url_hash
 from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
+from zavod.helpers.articles import make_related_article
 
 __all__ = [
     "clean_note",
@@ -76,6 +77,7 @@ __all__ = [
     "copy_address",
     "postcode_pobox",
     "make_sanction",
+    "make_related_article",
     "is_active",
     "lookup_sanction_program_key",
     "make_identification",
