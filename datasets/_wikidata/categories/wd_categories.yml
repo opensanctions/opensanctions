@@ -1323,7 +1323,7 @@ config:
       country: by
       topic: role.pep
       position:
-        name: Foreign Minister
+        name: Minister of Foreign Affairs
         country: by
         topics:
           - gov.executive
@@ -1332,7 +1332,7 @@ config:
       country: by
       topic: role.pep
       position:
-        name: Defence Minister
+        name: Minister of Defence
         country: by
         topics:
           - gov.executive
@@ -1341,7 +1341,7 @@ config:
       country: by
       topic: role.pep
       position:
-        name: Finance Minister
+        name: Minister of Finance
         country: by
         topics:
           - gov.executive
@@ -1350,7 +1350,7 @@ config:
       country: by
       topic: role.pep
       position:
-        name: Interior Minister
+        name: Minister of Internal Affairs
         country: by
         topics:
           - gov.executive
@@ -1359,7 +1359,7 @@ config:
       country: by
       topic: role.pep
       position:
-        name: Justice Minister
+        name: Minister of Justice
         country: by
         topics:
           - gov.executive
@@ -1368,7 +1368,7 @@ config:
       country: by
       topic: role.pep
       position:
-        name: Health Minister
+        name: Minister of Health Care
         country: by
         topics:
           - gov.executive
@@ -1377,7 +1377,7 @@ config:
       country: by
       topic: role.pep
       position:
-        name: Transport Minister
+        name: Minister of Transport and Communications
         country: by
         topics:
           - gov.executive
@@ -1386,7 +1386,7 @@ config:
       country: by
       topic: role.pep
       position:
-        name: Communications Minister
+        name: Minister of Telecommunications and Informatisation
         country: by
         topics:
           - gov.executive
@@ -1395,7 +1395,7 @@ config:
       country: by
       topic: role.pep
       position:
-        name: Industry Minister
+        name: Minister of Industry
         country: by
         topics:
           - gov.executive
@@ -1404,7 +1404,7 @@ config:
       country: by
       topic: role.pep
       position:
-        name: Information Minister
+        name: Minister of Information
         country: by
         topics:
           - gov.executive
