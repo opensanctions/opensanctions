@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 import re
 
 from pydantic import BaseModel, Field
@@ -9,7 +9,12 @@ from pdfplumber.page import Page
 from zavod import Context, entity, helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.shed.zyte_api import fetch_html, fetch_resource
-from zavod.stateful.review import get_review, request_review, assert_all_accepted
+from zavod.stateful.review import (
+    Review,
+    get_review,
+    request_review,
+    assert_all_accepted,
+)
 
 # Cases
 #
@@ -61,44 +66,68 @@ positions_field = Field(
 
 class Entity(BaseModel):
     name: str
-    name_suffix: Optional[str] = None
+    name_suffix: str | None = None
     aliases: List[str] = []
     positions: List[str] = positions_field
-    address: Optional[str] = None
+    address: str | None = None
+
+
+relationship_field = Field(
+    description=("Relationship between the entities e.g. `Owner` or `Vice President`.")
+)
 
 
 class RelatedEntity(Entity):
-    relationship_role: Optional[str] = Field(
-        description=(
-            "Relationship between the entities e.g. `Owner` or `Vice President`."
-        )
-    )
+    relationship_role: str | None = relationship_field
+
+
+related_entities_field = Field(
+    description=(
+        "Owners or other officers of a company if listed. If the "
+        "first entity looks like a person and a single owner name is included in"
+        " parentheses, then only give one entity - the person. Don't make a company"
+        " out of the person's name."
+    ),
+    default=[],
+)
 
 
 class RootEntity(Entity):
-    related_entities: List[RelatedEntity] = Field(
-        description=(
-            "Owners or other officers of a company if listed. If the "
-            "first entity looks like a person and a single owner name is included in"
-            " parentheses, then only give one entity - the person. Don't make a company"
-            " out of the person's name."
-        ),
-        default=[],
-    )
+    related_entities: List[RelatedEntity] = related_entities_field
 
 
-PROMPT = """
+PROMPT = f"""
 Extract the entities from the attached text. The text is details of debarred medicaid
  providers.
 
-Leave anything blank that is not present in the text. Never infer values that are not
-explicitly stated. Don't rearrange names from last name, first name order to full names.
+Leave fields blank if information is not present in the source material.
+NEVER infer, assume, or generate values that are not directly stated.
+
+NEVER rearrange names from last name, first name order to full names.
+
+Names may contain a suffix, e.g. Jr. or III. They may also include a role, e.g.
+RN or Registered Nurse. Leave the suffix as part of the name but move the role
+to the positions field.
+
+Specific fields:
+
+`related_entities`: {related_entities_field.description}
+
+`positions`: {positions_field.description}
+
+`relationship_role`: {relationship_field.description}
+
+`name_suffix`: This field MUST be null.
 """
 
 
 def apply_comma_name(entity: entity.Entity, name: str):
     parts = name.split(",")
-    if len(parts) == 2 and not extract_org_types(name):
+    if (
+        len(parts) == 2
+        and not extract_org_types(name)
+        and not NAME_SUFFIX_REGEX.search(name)
+    ):
         entity.add_schema("Person")
         forenames = parts[1].split()
         h.apply_name(
@@ -112,6 +141,23 @@ def apply_comma_name(entity: entity.Entity, name: str):
         )
     else:
         entity.add("name", name)
+
+
+def suffix_requires_fix(name: str, suffix: str | None) -> bool:
+    if not suffix:
+        return False
+    if suffix.strip(".").lower() in name.lower():
+        return False
+    return True
+
+
+def review_requires_fix(context: Context, review: Review[RootEntity]) -> bool:
+    # We mistakenly removed the name suffix from the name in the past.
+    extracted = review.extracted_data
+    requires_fix = suffix_requires_fix(extracted.name, extracted.name_suffix)
+    for related in extracted.related_entities:
+        requires_fix |= suffix_requires_fix(related.name, related.name_suffix)
+    return requires_fix
 
 
 def crawl_row(context, names, category, start_date, filename: str):
@@ -129,6 +175,8 @@ def crawl_row(context, names, category, start_date, filename: str):
             origin = filename
 
     if entity_data is None:
+        # It's correct to include the suffix in the name, but we want to identify
+        # the case to distinguish it from a role after a comma.
         if match := NAME_WITH_SUFFIX_REGEX.fullmatch(names):
             context.log.debug(
                 "name with suffix",
@@ -136,7 +184,7 @@ def crawl_row(context, names, category, start_date, filename: str):
                 suffix=match.group("suffix"),
             )
             entity_data = RootEntity(
-                name=match.group("name"),
+                name=names,
                 name_suffix=match.group("suffix"),
             )
             origin = filename
@@ -157,7 +205,7 @@ def crawl_row(context, names, category, start_date, filename: str):
     if entity_data is None:
         context.log.debug("unsure about", names=names)
         review = get_review(context, RootEntity, names, MIN_MODEL_VERSION)
-        if review is None:
+        if review is None or review_requires_fix(context, review):
             prompt_result = run_typed_text_prompt(
                 context, PROMPT, names, response_type=RootEntity
             )
@@ -198,7 +246,11 @@ def crawl_row(context, names, category, start_date, filename: str):
 
     for item in entity_data.related_entities:
         related = context.make("LegalEntity")
-        related.id = context.make_id(item.name, item.positions)
+        related_id = context.make_id(item.name, item.positions)
+        if related_id == entity.id:
+            continue
+        related.id = related_id
+
         apply_comma_name(related, item.name)
         related.add_cast("Person", "nameSuffix", item.name_suffix)
         related.add("alias", item.aliases, origin=origin)
