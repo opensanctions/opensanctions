@@ -55,9 +55,11 @@ assertions:
   min:
     schema_entities:
       LegalEntity: 2000
+      Person: 10
   max:
     schema_entities:
       LegalEntity: 2400
+      Person: 400
 
 lookups:
   unclean_names:
