@@ -83,18 +83,22 @@ lookups:
         value: "general@angstrem.ru"
       - match: "mss@korund_m.ru"
         value: "mss@korund-m.ru"
-  programs:
+  sanction.program:
     options:
       - match:
           - "amending Decision 2014/145/CFSP concerning restrictive measures in respect of actions undermining or threatening the territorial integrity, sovereignty and independence of Ukraine"
-          - "amending Regulation (EU) No 833/2014 concerning restrictive measures in view of Russia’s actions destabilising the situation in Ukraine"
-          - "amending Regulation (EU) No 833/2014 concerning restrictive measures in view of Russia's actions destabilising the situation in Ukraine"
-          - "amending Decision 2014/512/CFSP concerning restrictive measures in view of Russia’s actions destabilising the situation in Ukraine"
         value: EU-UKR
       - match:
           - "implementing Regulation (EU) 2024/2642 concerning restrictive measures in view of Russia’s destabilising activities"
           - "amending Decision (CFSP) 2024/2643 concerning restrictive measures in view of Russia’s destabilising activities"
         value: EU-RUSDA
+      - match: 
+          - "implementing Regulation (EU) 2024/1485 concerning restrictive measures in view of the situation in Russia"
+          - "amending Decision 2014/512/CFSP concerning restrictive measures in view of Russia’s actions destabilising the situation in Ukraine"
+          - "amending Regulation (EU) No 833/2014 concerning restrictive measures in view of Russia’s actions destabilising the situation in Ukraine"
+          - "amending Regulation (EU) No 833/2014 concerning restrictive measures in view of Russia's actions destabilising the situation in Ukraine"
+          - "Regulation (EU) No 833/2014"
+        value: EU-RUS
       - match:
           - "amending Decision (CFSP) 2020/1999 concerning restrictive measures against serious human rights violations and abuses"
           - "implementing Regulation (EU) 2020/1998 concerning restrictive measures against serious human rights violations and abuses"
@@ -126,7 +130,5 @@ lookups:
         value: EU-IRQ
       - match: "implementing Decision 2013/255/CFSP concerning restrictive measures in view of the situation in Syria"
         value: EU-SYR
-      - match: "implementing Regulation (EU) 2024/1485 concerning restrictive measures in view of the situation in Russia"
-        value: EU-RUS
       - match: "amending Decision (CFSP) 2024/254 concerning restrictive measures in view of the situation in Guatemala"
         value: EU-GTM
