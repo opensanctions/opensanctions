@@ -1,6 +1,5 @@
 import csv
 from typing import Dict
-from requests.exceptions import HTTPError
 from normality import squash_spaces
 
 from zavod import Context, Entity
@@ -8,43 +7,25 @@ import zavod.helpers as h
 from nomenklatura.resolver import Linker
 from zavod.integration import get_dataset_linker
 
-
+# Some entities come from the full text of the consolidated COUNCIL REGULATION (EU) No 833/2014.
+#  This consolidated document is treated differently from standard EUR-Lex lookups.
 SPECIAL_CASE_URL = (
     "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02014R0833-20240625"
 )
 
 
-def extract_program_key(context, source_url):
-    """Fetch program key from a EUR-Lex page and map it via the lookups."""
-
-    # Handle known special case
+def extract_sanction_program(context, source_url):
+    """Fetch program name (subtitle) from a EUR-Lex page."""
     if SPECIAL_CASE_URL in source_url:
-        return "EU-UKR"
-    # Extract the program key from the source URL
-    try:
-        doc = context.fetch_html(source_url, cache_days=1)
-    except HTTPError as exc:
-        context.log.error(f"HTTP error fetching {source_url}: {exc}")
-        return
-    if not doc:
-        context.log.warning(f"No HTML returned for {source_url}")
-        return
-    # Extract program info from HTML
+        return "Regulation (EU) No 833/2014"
+    doc = context.fetch_html(source_url, cache_days=365)
     program_info_nodes = doc.xpath(
         "//div[@class='eli-main-title']/p[@class='oj-doc-ti']/text()"
     )
     if not program_info_nodes:
         context.log.warning(f"Could not find program for {source_url}")
         return
-    program_info = squash_spaces(program_info_nodes[-1])
-    result = context.lookup_value("programs", program_info)
-    if not result:
-        context.log.warning(
-            f"Could not find program mapping for {source_url}: {program_info}",
-            source_url=source_url,
-            program_info=program_info,
-        )
-    return result
+    return squash_spaces(program_info_nodes[-1])
 
 
 def crawl_row(
@@ -57,7 +38,7 @@ def crawl_row(
     country = row.pop("Country").strip()
     reg_number = row.pop("registrationNumber").strip()
     source_url = row.pop("Source URL").strip()
-    extract_program_key(context, source_url)
+    program_name = extract_sanction_program(context, source_url)
 
     context.log.info(f"Processing row #{row_idx}: {name}")
     entity = context.make(entity_type)
@@ -122,7 +103,12 @@ def crawl_row(
         context.emit(related)
         context.emit(rel)
 
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(
+        context,
+        entity,
+        key=program_name,
+        program_key=h.lookup_sanction_program_key(context, program_name),
+    )
     start_date = row.pop("startDate")
     h.apply_date(sanction, "startDate", start_date)
 
@@ -133,7 +119,12 @@ def crawl_row(
         wallet.add("holder", entity)
         wallet.add("topics", "sanction")
 
-        wallet_sanction = h.make_sanction(context, wallet)
+        wallet_sanction = h.make_sanction(
+            context,
+            wallet,
+            key=program_name,
+            program_key=h.lookup_sanction_program_key(context, program_name),
+        )
         h.apply_date(wallet_sanction, "startDate", start_date)
 
         context.emit(wallet)
