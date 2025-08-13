@@ -85,32 +85,48 @@ lookups:
         value: "mss@korund-m.ru"
   programs:
     options:
-      - match: 
+      - match:
           - "amending Decision 2014/145/CFSP concerning restrictive measures in respect of actions undermining or threatening the territorial integrity, sovereignty and independence of Ukraine"
+          - "amending Regulation (EU) No 833/2014 concerning restrictive measures in view of Russia’s actions destabilising the situation in Ukraine"
           - "amending Regulation (EU) No 833/2014 concerning restrictive measures in view of Russia's actions destabilising the situation in Ukraine"
           - "amending Decision 2014/512/CFSP concerning restrictive measures in view of Russia’s actions destabilising the situation in Ukraine"
-          - "amending Regulation (EU) No 833/2014 concerning restrictive measures in view of Russia’s actions destabilising the situation in Ukraine"
-          - "amending Regulation (EU) No 833/2014 concerning restrictive measures in view of Russia's actions destabilising the situation in Ukraine"
         value: EU-UKR
-      - match: 
-          - "implementing Decision 2013/255/CFSP concerning restrictive measures in view of the situation in Syria"
-        value: EU-SYR
-      - match: "implementing Regulation (EU) 2024/1485 concerning restrictive measures in view of the situation in Russia"
-        value: EU-RUS
-      - match: 
+      - match:
           - "implementing Regulation (EU) 2024/2642 concerning restrictive measures in view of Russia’s destabilising activities"
           - "amending Decision (CFSP) 2024/2643 concerning restrictive measures in view of Russia’s destabilising activities"
         value: EU-RUSDA
-      - match: "amending Decision (CFSP) 2024/254 concerning restrictive measures in view of the situation in Guatemala"
-        value: EU-GTM
-      - match: 
+      - match:
           - "amending Decision (CFSP) 2020/1999 concerning restrictive measures against serious human rights violations and abuses"
           - "implementing Regulation (EU) 2020/1998 concerning restrictive measures against serious human rights violations and abuses"
         value: EU-HR
-      - match: 
+      - match:
           - "amending Regulation (EU) 2023/1529 concerning restrictive measures in view of Iran’s military support to Russia’s war of aggression against Ukraine and to armed groups and entities in the Middle East and the Red Sea region"
+          - "implementing Regulation (EU) 2023/1529 concerning restrictive measures in view of Iran’s military support to Russia’s war of aggression against Ukraine and to armed groups and entities in the Middle East and the Red Sea region"
           - "amending Decision 2011/235/CFSP concerning restrictive measures directed against certain persons and entities in view of the situation in Iran"
-          - "implementing Regulation (EU) No\xa0359/2011 concerning restrictive measures directed against certain persons, entities and bodies in view of the situation in Iran"
+          - "implementing Regulation (EU) No 359/2011 concerning restrictive measures directed against certain persons, entities and bodies in view of the situation in Iran"
+          - "implementing Regulation (EU) No 267/2012 concerning restrictive measures against Iran"
         value: EU-IRN
+      - match:
+          - "implementing Article 8a(1) of Regulation (EC) No 765/2006 concerning restrictive measures in view of the situation in Belarus and the involvement of Belarus in the Russian aggression against Ukraine"
+          - "amending Regulation (EC) No 765/2006 concerning restrictive measures in view of the situation in Belarus and the involvement of Belarus in the Russian aggression against Ukraine"
+        value: EU-BLR
       - match: "implementing Regulation (EU) 2018/1542 concerning restrictive measures against the proliferation and use of chemical weapons"
         value: EU-CHEM
+      - match: "amending for the 348th time Council Regulation (EC) No 881/2002 imposing certain specific restrictive measures directed against certain persons and entities associated with the ISIL (Da’esh) and Al-Qaida organisations"
+        value: EU-TAQA-EUAQ
+      - match: "amending Decision (CFSP) 2022/2319 concerning restrictive measures in view of the situation in Haiti"
+        value: EU-HTI
+      - match: "implementing Regulation (EU) 2023/888 concerning restrictive measures in view of actions destabilising the Republic of Moldova"
+        value: EU-MDA
+      - match: "amending Decision (CFSP) 2023/2135 concerning restrictive measures in view of activities undermining the stability and political transition of Sudan"
+        value: EU-SDNZ
+      - match: "updating the list of persons, groups and entities covered by Common Position 2001/931/CFSP on the application of specific measures to combat terrorism, and repealing Decision (CFSP) 2025/207"
+        value: EU-TERR
+      - match: "amending Council Regulation (EC) No 1210/2003 concerning certain specific restrictions on economic and financial relations with Iraq"
+        value: EU-IRQ
+      - match: "implementing Decision 2013/255/CFSP concerning restrictive measures in view of the situation in Syria"
+        value: EU-SYR
+      - match: "implementing Regulation (EU) 2024/1485 concerning restrictive measures in view of the situation in Russia"
+        value: EU-RUS
+      - match: "amending Decision (CFSP) 2024/254 concerning restrictive measures in view of the situation in Guatemala"
+        value: EU-GTM
