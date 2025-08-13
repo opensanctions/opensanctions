@@ -12,10 +12,6 @@ a JSON list (`holders`) in which each object represents an office-holder
 (e.g. head of government, head of state, minister of foreign affairs).
 Each object should have the following fields: `country`, `full_title`,
 `honorary_prefix`, `person_name`, `date_of_appointment`.
-
-When multiple people are listed in one section, return the raw date string 
-exactly as it appears in the document for the `date_of_appointment` field - 
-do not attempt to parse or split dates. Return each person as a separate object. 
 Return an empty string for unset fields.
 """
 
@@ -28,55 +24,10 @@ def crawl_pdf_url(context: Context) -> str:
     raise ValueError("No PDF found")
 
 
-def process_holder_date(
-    context, start_dates, last_concatenated_date=None, person_count_for_date=0
-):
-    """
-    Processes a start_dates string that may contain either:
-      1. A single date (e.g., "09-Sep-22"), or
-      2. Two concatenated dates for two different people
-         (e.g., "09-Sep-2207-May-13" — length ≥ 18).
-
-    Tracks the last concatenated date processed and how many people have
-    already been assigned dates from it.
-
-    Logic flow:
-      - Empty input → Return empty date, keep state unchanged.
-      - Short string (< 18 chars) → Treat as a single date; reset stored
-        concatenated date and counter.
-      - New concatenated date → Assign first 9 characters (first person's date),
-        remember the concatenated string, reset count to 1.
-      - Same concatenated date again → Assign last 9 characters (second person's date),
-        increment count.
-      - More than 2 people for same concatenated date → Log a warning and return an empty date.
-    """
-    if not start_dates:
-        return "", last_concatenated_date, person_count_for_date
-    if len(start_dates) < 18:
-        # Single date - reset state and return as-is
-        return start_dates, None, 0
-    # Handle concatenated dates (length >= 18)
-    if start_dates != last_concatenated_date:
-        # New concatenated date - first person gets first 9 chars
-        return start_dates[:9], start_dates, 1  # "09-Sep-22"
-    # Same concatenated date as previous
-    person_count_for_date += 1
-    if person_count_for_date == 2:
-        # Second person gets last 9 chars
-        return start_dates[-9:], start_dates, person_count_for_date  # "07-May-13"
-    # More than two people with same concatenated date - log warning and return empty
-    context.log.warn(
-        f"Found {person_count_for_date} people with same concatenated date: {start_dates}. Cannot determine date assignment."
-    )
-    return "", start_dates, person_count_for_date
-
-
 def crawl(context: Context):
     pdf_url = crawl_pdf_url(context)
     path = context.fetch_resource("source.pdf", pdf_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-    last_concatenated_date = None
-    person_count_for_date = 0
     for page_path in h.make_pdf_page_images(path):
         data = run_image_prompt(context, prompt, page_path)
         assert "holders" in data, data
@@ -90,6 +41,7 @@ def crawl(context: Context):
                 continue
             full_title = holder.get("full_title")
             country = holder.get("country")
+            start_date = holder.get("date_of_appointment")
             norm_name = context.lookup_value("names", person_name, person_name)
             if norm_name is None or len(norm_name.strip()) == 0:
                 if full_title is not None and len(full_title.strip()):
@@ -118,19 +70,13 @@ def crawl(context: Context):
                 country=country,
                 topics=["gov.national"],
             )
-
-            start_date, last_concatenated_date, person_count_for_date = (
-                process_holder_date(
-                    context,
-                    holder.get("date_of_appointment"),
-                    last_concatenated_date,
-                    person_count_for_date,
-                )
-            )
+            start_date = start_date if len(start_date) < 18 else None
             occupancy = h.make_occupancy(
                 context, entity, position, start_date=start_date
             )
+
+            # entity.add("date_of_appointment", )
+            context.emit(entity)
+            context.emit(position)
             if occupancy is not None:
                 context.emit(occupancy)
-                context.emit(entity)
-                context.emit(position)
