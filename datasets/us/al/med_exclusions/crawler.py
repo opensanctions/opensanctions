@@ -10,7 +10,6 @@ from zavod import Context, entity, helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 from zavod.stateful.review import (
-    Review,
     get_review,
     request_review,
     assert_all_accepted,
@@ -143,23 +142,6 @@ def apply_comma_name(entity: entity.Entity, name: str):
         entity.add("name", name)
 
 
-def suffix_requires_fix(name: str, suffix: str | None) -> bool:
-    if not suffix:
-        return False
-    if suffix.strip(".").lower() in name.lower():
-        return False
-    return True
-
-
-def review_requires_fix(context: Context, review: Review[RootEntity]) -> bool:
-    # We mistakenly removed the name suffix from the name in the past.
-    extracted = review.extracted_data
-    requires_fix = suffix_requires_fix(extracted.name, extracted.name_suffix)
-    for related in extracted.related_entities:
-        requires_fix |= suffix_requires_fix(related.name, related.name_suffix)
-    return requires_fix
-
-
 def crawl_row(context, names, category, start_date, filename: str):
     origin = None
     entity_data = None
@@ -183,18 +165,13 @@ def crawl_row(context, names, category, start_date, filename: str):
                 name=match.group("name"),
                 suffix=match.group("suffix"),
             )
-            entity_data = RootEntity(
-                name=names,
-                name_suffix=match.group("suffix"),
-            )
+            entity_data = RootEntity(name=names, name_suffix=match.group("suffix"))
             origin = filename
 
     if entity_data is None:
         if match := NAME_WITH_ROLE_REGEX.fullmatch(names):
             context.log.debug(
-                "name with role",
-                name=match.group("name"),
-                role=match.group("role"),
+                "name with role", name=match.group("name"), role=match.group("role")
             )
             entity_data = RootEntity(
                 name=match.group("name"),
@@ -205,7 +182,7 @@ def crawl_row(context, names, category, start_date, filename: str):
     if entity_data is None:
         context.log.debug("unsure about", names=names)
         review = get_review(context, RootEntity, names, MIN_MODEL_VERSION)
-        if review is None or review_requires_fix(context, review):
+        if review is None:
             prompt_result = run_typed_text_prompt(
                 context, PROMPT, names, response_type=RootEntity
             )

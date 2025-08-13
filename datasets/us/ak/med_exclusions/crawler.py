@@ -2,11 +2,10 @@ from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
-
 from zavod.shed.gpt import run_image_prompt
 
 prompt = """
-Extract structured data from the following page of a PDF document. Return 
+Extract structured data from the following page of a PDF document. Return
 a JSON list (`providers`) in which each object represents an medical provider.
 Distinct record rows alternate between grey and white backgrounds. The name
 of a provider might be split onto the next row within a record.
