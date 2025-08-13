@@ -275,8 +275,12 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
             context.emit(related_company_entity)
             context.emit(link)
 
+        article, documentation = h.make_related_article(entity, url)
+
         context.emit(entity)
         context.emit(sanction)
+        context.emit(article)
+        context.emit(documentation)
 
 
 def crawl_index_page(context: Context, doc) -> bool:
