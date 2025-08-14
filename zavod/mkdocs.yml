@@ -61,5 +61,6 @@ nav:
       - best_practices/merge_checklist.md
       - best_practices/xpath_and_html.md
   - PEPs: peps.md
+  - Enforcements: enforcements.md
   - Data Reviews: data_reviews.md
   - Wikidata: wikidata.md
