@@ -78,7 +78,7 @@ class Defendants(BaseModel):
     defendants: List[Defendant]
 
 
-PROMPT = """
+PROMPT = f"""
 Extract the defendants or entities added to the Red List in the attached article.
 NEVER include relief defendants.
 NEVER infer, assume, or generate values that are not directly stated in the source text.
@@ -88,14 +88,11 @@ aliases of the person. If the name is a person name, use `Person` as the entity_
 
 Specific fields:
 
-- entity_schema: {schema_field}
-- name: {name_field}
-- aliases: {aliases_field}
-- address: {address_field}
-- country: {country_field}
-- status: {status_field}
-- notes: {notes_field}
-- original_press_release_number: {original_press_release_number_field}
+- entity_schema: {schema_field.description}
+- address: {address_field.description}
+- status: {status_field.description}
+- notes: {notes_field.description}
+- original_press_release_number: {original_press_release_number_field.description}
 """
 
 
@@ -106,10 +103,10 @@ def get_release_id(url: str) -> str:
     return match.group(1)
 
 
-def fetch_article(context: Context, url: str) -> HtmlElement:
+def fetch_article(context: Context, url: str) -> HtmlElement | None:
     # TODO: handle length limit
     if url == "https://www.cftc.gov/PressRoom/PressReleases/7274-15":
-        return
+        return None
     # Try the article in the main page first.
     doc = context.fetch_html(url, cache_days=30)
     doc.make_links_absolute(url)
@@ -122,13 +119,13 @@ def fetch_article(context: Context, url: str) -> HtmlElement:
         context.log.warning("Has redirect link but isn't tiny.", url=url)
     if not redirect_link and len(article_element.text_content()) < 200:
         context.log.warning("Is tiny but doesn't have a redirect link.", url=url)
-        return
+        return None
     # If no article in main page, try the redirect link.
     if redirect_link and len(article_element.text_content()) < 200:
         # TODO: handle PDF
         if redirect_link[0].endswith(".pdf"):
             context.log.warning("Has PDF redirect link.", url=url)
-            return
+            return None
         article_element = context.fetch_html(redirect_link[0], cache_days=30)
     assert len(article_element.text_content()) > 200
     return article_element
@@ -178,6 +175,8 @@ def check_something_changed(
 
 def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     article_element = fetch_article(context, url)
+    if article_element is None:
+        return
     article_html = tostring(article_element, pretty_print=True).decode("utf-8")
     release_id = get_release_id(url)
     review = get_review(context, Defendants, release_id, MIN_MODEL_VERSION)
