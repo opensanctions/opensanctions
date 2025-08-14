@@ -40,7 +40,7 @@ data:
 http:
   additional_retry_statuses: [500]
   total_retries: 5
-  backoff_factor: 2
+  backoff_factor: 3
   retry_methods: [POST, GET]
 
 assertions:
@@ -48,7 +48,12 @@ assertions:
     schema_entities:
       Company: 1000
       Vessel: 1000
-  # max:
-  #   schema_entities:
-  #     Company: 300
-  #     Vessel: 300
+
+lookups:
+  type.identifier:
+    options:
+      - match: 
+          - 0
+          - 1892617
+          - 0783218
+        value: null
