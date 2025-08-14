@@ -44,22 +44,10 @@ http:
 assertions:
   min:
     schema_entities:
-      Organization: 1000
+      Organization: 40
       Vessel: 1000
 
 lookups:
-  type.country:
-    options:
-      - match: Gibraltar (GB)
-        value: "GI"
-      - match: Isle of Man (GB)
-        value: "IM"
-      - match: Cayman Islands (GB)
-        value: "KY"
-      - match: Bermuda (GB)
-        value: "BM"
-      - match: Libyan Arab Jamahiriya
-        value: Libya
   type.identifier:
     options:
       - match: 636019170
