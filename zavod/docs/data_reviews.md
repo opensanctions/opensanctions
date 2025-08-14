@@ -39,6 +39,7 @@ The basic workflow is:
     4.2. Request a review (optionally with accepted=True if the risk of bad extraction is extremely low)
 
 5. Assert that all the reviews related to a given crawler are accepted, opting to either emit a warning, or raise an exception. An exception is useful to prevent publishing a partial dataset - if we would prefer to hold off publishing a new release until the data has been accepted.
+6. After the crawler has run, reviewers can review the data in Zavod UI and correct/accept extraction results. The crawler can then use the accepted data in its next run.
 
 For example, imagine a crawler crawling web pages with regulatory notices.
 
@@ -51,12 +52,15 @@ MIN_VERSION = 1
 
 Schema = Literal["Person", "Company", "LegalEntity"]
 
-class Defendant(BaseModel):
-    entity_schema: Schema = Field(
-        description=(
-            "Use LegalEntity if it isn't clear whether the entity is a person or a company."
-        )
+schema_field = Field(
+    description=(
+        "Use LegalEntity if it isn't clear whether the entity is a person or a company."
     )
+)
+
+
+class Defendant(BaseModel):
+    entity_schema: Schema = schema_field
     name: str
 
 
@@ -64,9 +68,13 @@ class Defendants(BaseModel):
     defendants: List[Defendant]
 
 
-PROMPT = """
-Extract the defendants in the attached article. Only include names mentioned
+PROMPT = f"""
+Extract the defendants in the attached article. ONLY include names mentioned
 in the article text.
+
+Instructions for specific fields:
+
+  - entity_schema: {schema_field.description}
 """
 
 def crawl_page(context: Context, url: str, page: _Element) -> None:
@@ -84,9 +92,8 @@ def crawl_page(context: Context, url: str, page: _Element) -> None:
         # (e.g. with an older crawler version)
         review = request_review(
             context,
-            key=notice_id(url),
+            key_parts=notice_id(url),
             source_value=html,
-            source_data_hash=text_hash,
             source_mime_type="text/html",
             source_label="Enforcement Action Notice",
             source_url=url,
@@ -108,11 +115,16 @@ def crawl(context: Context) -> None:
         ...
         crawl_page(context, url, page)
 
-    # This will raise an exception unless all the reviews fetched or
-    # validate during a given crawl have `accepted == True`.
+    # This will raise an exception unless all the reviews fetched
+    # during a given crawl have `accepted == True`.
     assert_all_accepted(context)
 ```
 
+### ::: zavod.stateful.review.request_review
+
+### ::: zavod.stateful.review.get_review
+
+### ::: zavod.stateful.review.assert_all_accepted
 
 ## Best practices
 
@@ -129,7 +141,9 @@ For web pages, e.g. of regulatory notices, try and use the notice ID if one can 
 ### Model Documentation
 
 Use model documentation (e.g. `fieldname: MyEnum = Field(description="...")`) to explain how fields should be extracted. This gets
-included in the JSON schema so it's made available to both the LLM and the human reviewer.
+included in the JSON schema so it's made available to the human reviewer in Zavod UI.
+
+OpenAI's structued output API doesn't seem to support JSON schema description properties yet so include it explicitly in the prompt.
 
 
 ## Handling changes
