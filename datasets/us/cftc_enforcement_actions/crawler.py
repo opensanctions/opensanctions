@@ -1,6 +1,7 @@
 from typing import Optional, List, Literal
 from pydantic import BaseModel, Field
 import re
+from zavod.entity import Entity
 from zavod.shed import enforcements
 
 from lxml.html import HtmlElement, fromstring, tostring
@@ -43,8 +44,8 @@ schema_field = Field(
     description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
 )
 address_field = Field(
-    default=None,
-    description=("The address or even just the district/state of the defendant."),
+    default=[],
+    description=("The addresses or even just the districts/states of the defendant."),
 )
 status_field = Field(
     description=(
@@ -63,15 +64,21 @@ original_press_release_number_field = Field(
 )
 
 
+class RelatedCompany(BaseModel):
+    name: str
+    relationship: str
+
+
 class Defendant(BaseModel):
     entity_schema: Schema = schema_field
     name: str
-    aliases: Optional[List[str]] = []
-    address: Optional[str] = address_field
-    country: str | List[str] | None = None
+    aliases: List[str] = []
+    address: str | List[str] = address_field
+    country: str | List[str] = []
     status: Status = status_field
     notes: Optional[str] = notes_field
     original_press_release_number: Optional[str] = original_press_release_number_field
+    related_companies: List[RelatedCompany] = []
 
 
 class Defendants(BaseModel):
@@ -90,9 +97,12 @@ Specific fields:
 
 - entity_schema: {schema_field.description}
 - address: {address_field.description}
+- country: Any countries explicitly associated with the defendant in the text. Leave empty if not explicitly stated.
 - status: {status_field.description}
 - notes: {notes_field.description}
 - original_press_release_number: {original_press_release_number_field.description}
+- related_companies: If the defendant is a person and a related company is mentioned in the source text, add it here.
+    - relationship: Use text verbatim from the source. If it's ambiguous, e.g. "agents and owners", use that text exactly as it is, plural and all.
 """
 
 
@@ -173,6 +183,24 @@ def check_something_changed(
         return False
 
 
+def make_related_company(context: Context, name: str) -> Entity:
+    entity = context.make("Company")
+    entity.id = context.make_id(name)
+    entity.add("name", name)
+    return entity
+
+
+def make_company_link(
+    context: Context, entity: Entity, related_company: Entity, relationship: str
+) -> Entity:
+    link = context.make("UnknownLink")
+    link.id = context.make_id("Related company", entity.id, related_company.id)
+    link.add("subject", entity)
+    link.add("object", related_company)
+    link.add("role", relationship)
+    return link
+
+
 def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     article_element = fetch_article(context, url)
     if article_element is None:
@@ -238,6 +266,14 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         sanction.add(
             "authorityId", item.original_press_release_number, origin=DEFAULT_MODEL
         )
+
+        for related_company in item.related_companies:
+            related_company_entity = make_related_company(context, related_company.name)
+            link = make_company_link(
+                context, entity, related_company_entity, related_company.relationship
+            )
+            context.emit(related_company_entity)
+            context.emit(link)
 
         context.emit(entity)
         context.emit(sanction)
