@@ -18,7 +18,7 @@ def parse_html_table(
     Parse an HTML table into a generator yielding a dict for each row.
 
     Args:
-        table
+        table: The table HTML element to parse
         header_tag: Default th, allows treating td as header
         skiprows: Number of rows to skip before expecting the header row.
         ignore_colspan: colspans to ignore, e.g. when a full span means a subheading

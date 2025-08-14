@@ -85,6 +85,8 @@ def extract_date(
             text = text.astimezone(timezone.utc)
         iso = text.date().isoformat()
         return [iso]
+    elif isinstance(text, str):
+        text = text.strip()
 
     replaced_text = replace_months(dataset, text)
     dataset_formats_ = dataset.dates.formats + ALWAYS_FORMATS
