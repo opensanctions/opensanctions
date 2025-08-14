@@ -68,7 +68,7 @@ class Defendant(BaseModel):
     name: str
     aliases: Optional[List[str]] = []
     address: Optional[str] = address_field
-    country: Optional[str] = None
+    country: str | List[str] | None = None
     status: Status = status_field
     notes: Optional[str] = notes_field
     original_press_release_number: Optional[str] = original_press_release_number_field
@@ -214,7 +214,8 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         entity = context.make(item.entity_schema)
         entity.id = context.make_id(item.name, item.address, item.country)
         entity.add("name", item.name, origin=DEFAULT_MODEL)
-        entity.add("address", item.address, origin=DEFAULT_MODEL)
+        if item.address != item.country:
+            entity.add("address", item.address, origin=DEFAULT_MODEL)
         entity.add("country", item.country, origin=DEFAULT_MODEL)
         entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
         entity.add("topics", "reg.action")
