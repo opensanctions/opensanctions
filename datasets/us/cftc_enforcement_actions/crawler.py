@@ -1,14 +1,16 @@
 from typing import Optional, List, Literal
 from pydantic import BaseModel, Field
 import re
+from zavod.entity import Entity
 from zavod.shed import enforcements
 
-from lxml.html import fromstring, tostring
+from lxml.html import HtmlElement, fromstring, tostring
 
 from zavod.context import Context
 from zavod import helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
+    Review,
     assert_all_accepted,
     request_review,
     get_review,
@@ -30,16 +32,6 @@ Status = Literal[
 MODEL_VERSION = 1
 MIN_MODEL_VERSION = 1
 
-
-PROMPT = """
-Extract the defendants or entities added to the Red List in the attached article.
-Leave out any relief defendants. Leave fields null or lists empty if values are not
-present in the source text.
-
-Trading/D.B.A. names which follow a person name but look like company can just be
-aliases of the person.
-"""
-
 REGEX_RELEASE_ID = re.compile(r"(\w{2,8}-\w{2,4}[\w #-]*)$")
 
 something_changed = False
@@ -47,39 +39,71 @@ something_changed = False
 
 # Not extracting relationships for now because the results were inconsistent
 # between GPT queries.
-class Defendant(BaseModel):
-    entity_schema: Schema = Field(
-        description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
+
+schema_field = Field(
+    description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
+)
+address_field = Field(
+    default=[],
+    description=("The addresses or even just the districts/states of the defendant."),
+)
+status_field = Field(
+    description=(
+        "The status of the enforcement action notice."
+        " If `Other`, add the text used as the status in the source to `notes`."
     )
+)
+notes_field = Field(default=None, description=("Only used if `status` is `Other`."))
+original_press_release_number_field = Field(
+    description=(
+        "The original press release number of the enforcement action notice."
+        " When announcing charges, this is the press release number of the"
+        " announcement. When announcing court orders or dropped charges,"
+        " this is the reference to the original press release."
+    )
+)
+
+
+class RelatedCompany(BaseModel):
     name: str
-    aliases: Optional[List[str]] = []
-    address: Optional[str] = Field(
-        default=None,
-        description=("The address or even just the district/state of the defendant."),
-    )
-    country: Optional[str] = None
-    status: Status = Field(
-        description=(
-            "The status of the enforcement action notice."
-            " If `Other`, add the text used as the status in the source to `notes`."
-        )
-    )
-    notes: Optional[str] = Field(
-        default=None, description=("Only used if `status` is `Other`.")
-    )
-    original_press_release_number: Optional[str] = Field(
-        default=None,
-        description=(
-            "The original press release number of the enforcement action notice."
-            " When announcing charges, this is the press release number of the"
-            " announcement. When announcing court orders or dropped charges,"
-            " this is the reference to the original press release."
-        ),
-    )
+    relationship: str
+
+
+class Defendant(BaseModel):
+    entity_schema: Schema = schema_field
+    name: str
+    aliases: List[str] = []
+    address: str | List[str] = address_field
+    country: str | List[str] = []
+    status: Status = status_field
+    notes: Optional[str] = notes_field
+    original_press_release_number: Optional[str] = original_press_release_number_field
+    related_companies: List[RelatedCompany] = []
 
 
 class Defendants(BaseModel):
     defendants: List[Defendant]
+
+
+PROMPT = f"""
+Extract the defendants or entities added to the Red List in the attached article.
+NEVER include relief defendants.
+NEVER infer, assume, or generate values that are not directly stated in the source text.
+
+Trading/D.B.A. names which follow a person name but look like company can just be
+aliases of the person. If the name is a person name, use `Person` as the entity_schema.
+
+Specific fields:
+
+- entity_schema: {schema_field.description}
+- address: {address_field.description}
+- country: Any countries explicitly associated with the defendant in the text. Leave empty if not explicitly stated.
+- status: {status_field.description}
+- notes: {notes_field.description}
+- original_press_release_number: {original_press_release_number_field.description}
+- related_companies: If the defendant is a person and a related company is mentioned in the source text, add it here.
+    - relationship: Use text verbatim from the source. If it's ambiguous, e.g. "agents and owners", use that text exactly as it is, plural and all.
+"""
 
 
 def get_release_id(url: str) -> str:
@@ -89,82 +113,127 @@ def get_release_id(url: str) -> str:
     return match.group(1)
 
 
-def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
+def fetch_article(context: Context, url: str) -> HtmlElement | None:
     # TODO: handle length limit
     if url == "https://www.cftc.gov/PressRoom/PressReleases/7274-15":
-        return
+        return None
     # Try the article in the main page first.
     doc = context.fetch_html(url, cache_days=30)
     doc.make_links_absolute(url)
-    article = doc.xpath(".//article")[0]
+    article_element = doc.xpath(".//article")[0]
     # All but one are HTML, not PDF.
-    redirect_link = article.xpath(
+    redirect_link = article_element.xpath(
         ".//div[contains(@class, 'press-release-open-link-pdf-link')]//a/@href"
     )
-    if redirect_link and len(article.text_content()) > 200:
+    if redirect_link and len(article_element.text_content()) > 200:
         context.log.warning("Has redirect link but isn't tiny.", url=url)
-    if not redirect_link and len(article.text_content()) < 200:
+    if not redirect_link and len(article_element.text_content()) < 200:
         context.log.warning("Is tiny but doesn't have a redirect link.", url=url)
-        return
+        return None
     # If no article in main page, try the redirect link.
-    if redirect_link and len(article.text_content()) < 200:
+    if redirect_link and len(article_element.text_content()) < 200:
         # TODO: handle PDF
         if redirect_link[0].endswith(".pdf"):
             context.log.warning("Has PDF redirect link.", url=url)
-            return
-        article = context.fetch_html(redirect_link[0], cache_days=30)
-    assert len(article.text_content()) > 200
+            return None
+        article_element = context.fetch_html(redirect_link[0], cache_days=30)
+    assert len(article_element.text_content()) > 200
+    return article_element
 
-    article_html_string = tostring(article, pretty_print=True).decode("utf-8")
+
+def source_changed(review: Review, article_element: HtmlElement) -> bool:
+    """
+    The key exists but the current source data looks different from the existing version
+    in spite of heavy normalisation.
+    """
+    seen_element = fromstring(review.source_value)
+    return html_to_text_hash(seen_element) != html_to_text_hash(article_element)
+
+
+def check_something_changed(
+    context: Context,
+    review: Review,
+    article_html: str,
+    article_element: HtmlElement,
+) -> bool:
+    """
+    Returns True if the source content has changed.
+
+    In that case it also reprompts to log whether the extracted data has changed.
+    """
+    if source_changed(review, article_element):
+        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
+        if model_hash(prompt_result) == model_hash(review.orig_extraction_data):
+            context.log.warning(
+                "The source content has changed but the extracted data has not",
+                url=review.source_url,
+                seen_source_value=review.source_value,
+                new_source_value=article_html,
+            )
+        else:
+            # A new extraction result looks different from the known original extraction
+            context.log.warning(
+                "The extracted data has changed",
+                url=review.source_url,
+                orig_extracted_data=review.orig_extraction_data.model_dump(),
+                prompt_result=prompt_result.model_dump(),
+            )
+        return True
+    else:
+        return False
+
+
+def make_related_company(context: Context, name: str) -> Entity:
+    entity = context.make("Company")
+    entity.id = context.make_id(name)
+    entity.add("name", name)
+    return entity
+
+
+def make_company_link(
+    context: Context, entity: Entity, related_company: Entity, relationship: str
+) -> Entity:
+    link = context.make("UnknownLink")
+    link.id = context.make_id("Related company", entity.id, related_company.id)
+    link.add("subject", entity)
+    link.add("object", related_company)
+    link.add("role", relationship)
+    return link
+
+
+def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
+    article_element = fetch_article(context, url)
+    if article_element is None:
+        return
+    article_html = tostring(article_element, pretty_print=True).decode("utf-8")
     release_id = get_release_id(url)
     review = get_review(context, Defendants, release_id, MIN_MODEL_VERSION)
     if review is None:
-        # The key doesn't exist or we've bumped MIN_MODEL_VERSION to require a re-review
-        prompt_result = run_typed_text_prompt(
-            context, PROMPT, article_html_string, Defendants
-        )
+        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
         review = request_review(
             context,
             release_id,
-            article_html_string,
+            article_html,
             "text/html",
             "Enforcement Action Notice",
             url,
             prompt_result,
             MODEL_VERSION,
         )
-    seen_article = fromstring(review.source_value)
-    if html_to_text_hash(seen_article) != html_to_text_hash(article):
-        # The key exists but the current source data looks different from the existing version
-        # in spite of heavy normalisation.
 
+    if check_something_changed(context, review, article_html, article_element):
         # In the first iteration, we're being super conservative and rejecting
         # export if the source content has changed regardless of whether the
         # extraction result has changed. If we see this happening and we see that
-        # the extraction result reliably identifies real data changes, we can move
-        # this into the clause where the extraction result has changed.
+        # the extraction result reliably identifies real data changes, we can
+        # relax this to only reject if the extraction result has changed.
+
+        # Similarly if we see that broad markup changes don't trigger massive
+        # re-reviews but legitimate changes are reliably detected, we can allow
+        # it to automatically request re-reviews upon extraction changes.
         global something_changed
         something_changed = True
-
-        prompt_result = run_typed_text_prompt(
-            context, PROMPT, article_html_string, Defendants
-        )
-        if model_hash(prompt_result) != model_hash(review.orig_extraction_data):
-            # A new extraction result looks different from the known original extraction
-            context.log.warning(
-                "The extracted data has changed",
-                url=url,
-                orig_extracted_data=review.orig_extraction_data.model_dump(),
-                prompt_result=prompt_result.model_dump(),
-            )
-        else:
-            context.log.warning(
-                "The source content has changed but the extracted data has not",
-                url=url,
-                seen_source_value=review.source_value,
-                new_source_value=article_html_string,
-            )
-            return
+        return
 
     if not review.accepted:
         return
@@ -173,7 +242,8 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         entity = context.make(item.entity_schema)
         entity.id = context.make_id(item.name, item.address, item.country)
         entity.add("name", item.name, origin=DEFAULT_MODEL)
-        entity.add("address", item.address, origin=DEFAULT_MODEL)
+        if item.address != item.country:
+            entity.add("address", item.address, origin=DEFAULT_MODEL)
         entity.add("country", item.country, origin=DEFAULT_MODEL)
         entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
         entity.add("topics", "reg.action")
@@ -196,6 +266,14 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         sanction.add(
             "authorityId", item.original_press_release_number, origin=DEFAULT_MODEL
         )
+
+        for related_company in item.related_companies:
+            related_company_entity = make_related_company(context, related_company.name)
+            link = make_company_link(
+                context, entity, related_company_entity, related_company.relationship
+            )
+            context.emit(related_company_entity)
+            context.emit(link)
 
         context.emit(entity)
         context.emit(sanction)
