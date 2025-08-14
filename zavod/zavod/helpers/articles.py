@@ -1,35 +1,46 @@
-from typing import Optional, Tuple
+from typing import Optional
 
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod import helpers as h
 
 
-def make_related_article(
+def make_article(
     context: Context,
-    entity: Entity,
     url: str,
-    article_key_extra: Optional[str] = None,
-    documentation_key_extra: Optional[str] = None,
+    key_extra: Optional[str] = None,
     title: Optional[str] = None,
     published_at: Optional[str] = None,
-) -> Tuple[Entity, Entity]:
-    """Create an article entity and a documentation entity to link it to a related entity.
-
-    This is useful to link a number of entities mentioned in the same article, whether
-    they are otherwise related or not.
-    """
+) -> Entity:
+    """Create an article based on a published URL."""
 
     article = context.make("Article")
-    article.id = context.make_id(url, article_key_extra)
+    article.id = context.make_id("Article", url, key_extra)
     article.add("sourceUrl", url)
     article.add("title", title)
     h.apply_date(article, "publishedAt", published_at)
 
+    return article
+
+
+def make_documentation(
+    context: Context,
+    entity: Entity,
+    article: Entity,
+    key_extra: Optional[str] = None,
+) -> Entity:
+    """
+    Create a documentation entity to link an article to a related entity.
+
+    This is useful to link one or more entities to an article they were mentioned in.
+    """
+
     documentation = context.make("Documentation")
     assert entity.id is not None
-    documentation.id = context.make_id(url, entity.id, documentation_key_extra)
+    assert article.id is not None
+    documentation.id = context.make_id(
+        "Documentation", entity.id, article.id, key_extra
+    )
     documentation.add("entity", entity)
     documentation.add("document", article)
-
-    return article, documentation
+    return documentation

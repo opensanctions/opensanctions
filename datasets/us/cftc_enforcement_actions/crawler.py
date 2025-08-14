@@ -275,7 +275,8 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
             context.emit(related_company_entity)
             context.emit(link)
 
-        article, documentation = h.make_related_article(entity, url)
+        article = h.make_article(context, url)
+        documentation = h.make_documentation(context, entity, article, date=date)
 
         context.emit(entity)
         context.emit(sanction)
