@@ -201,6 +201,13 @@ def make_company_link(
     return link
 
 
+def get_title(article_element: HtmlElement) -> str:
+    titles = article_element.xpath(".//h1")
+    assert len(titles) == 2
+    assert "Release Number" in titles[0].text_content()
+    return titles[1].text_content()
+
+
 def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     article_element = fetch_article(context, url)
     if article_element is None:
@@ -258,7 +265,7 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
             entity,
             key=item.original_press_release_number or release_id,
         )
-        h.apply_date(sanction, "date", date.strip())
+        h.apply_date(sanction, "date", date)
         sanction.set("sourceUrl", url)
         sanction.add("status", item.status, origin=DEFAULT_MODEL)
         sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
@@ -275,7 +282,7 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
             context.emit(related_company_entity)
             context.emit(link)
 
-        article = h.make_article(context, url)
+        article = h.make_article(context, url, title=get_title(article_element), published_at=date)
         documentation = h.make_documentation(context, entity, article, date=date)
 
         context.emit(entity)
@@ -290,7 +297,7 @@ def crawl_index_page(context: Context, doc) -> bool:
     tables = doc.xpath(table_xpath)
     assert len(tables) == 1
     for row in h.parse_html_table(tables[0]):
-        enforcement_date = row["date"].text_content()
+        enforcement_date = row["date"].text_content().strip()
         if not enforcements.within_max_age(context, enforcement_date):
             return False
         action_cell = row["enforcement_actions"]
