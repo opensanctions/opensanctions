@@ -40,11 +40,11 @@ FIELDS = {
 
 
 def crawl_person(context: Context, source_url: str) -> None:
-    facts_xpath = "//ul[@test-id='dossier-report-list']/li/text()"
-    doc = fetch_html(context, source_url, facts_xpath, cache_days=1)
+    title_xpath = ".//h1[@test-id='title']"
+    doc = fetch_html(context, source_url, title_xpath, cache_days=7)
 
     facts = {}
-    for fact_text in doc.xpath(facts_xpath):
+    for fact_text in doc.xpath("//ul[@test-id='dossier-report-list']/li/text()"):
         if ": " not in fact_text:
             context.log.warn(
                 f'Unparseable fact text "{fact_text}"',
@@ -56,7 +56,7 @@ def crawl_person(context: Context, source_url: str) -> None:
         facts[facts_key] = value_text
 
     person = context.make("Person")
-    name = doc.findtext(".//h1[@test-id='title']")
+    name = doc.findtext(title_xpath)
 
     person.id = context.make_slug(
         name,

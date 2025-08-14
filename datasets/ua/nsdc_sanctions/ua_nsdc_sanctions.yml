@@ -33,6 +33,9 @@ tags:
   - list.sanction
   - target.ru
 
+dates:
+  formats: ["%d.%m.%Y"]
+
 assertions:
   min:
     schema_entities:
