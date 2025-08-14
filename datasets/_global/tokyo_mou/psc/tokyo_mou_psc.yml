@@ -52,8 +52,9 @@ assertions:
 lookups:
   type.identifier:
     options:
+      - match: 0
+        value: null
       - match: 
-          - 0
           - 1892617
           - 0783218
-        value: null
+        prop: registrationNumber
