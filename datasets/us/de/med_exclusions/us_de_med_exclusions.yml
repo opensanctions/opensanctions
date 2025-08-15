@@ -411,3 +411,13 @@ lookups:
         values: ["AJ008885"]
       - match: "PN310619\n(PA)"
         values: ["PN310619"]
+      - match: "RN691829\n(PA)"
+        values: ["RN691829"]
+      - match: "RN741306\n(PA)"
+        values: ["RN741306"]
+      - match: "1406\n46(NC)"
+        values: ["140646"]
+      - match: "00011\n58032(VA)"
+        values: ["0001158032"]
+      - match: "RN598766\n(PA)"
+        values: ["RN598766"]

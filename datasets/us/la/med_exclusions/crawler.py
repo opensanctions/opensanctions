@@ -11,6 +11,7 @@ from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 REGEX_DBA = re.compile(r"\bdba\b", re.IGNORECASE)
 REGEX_AKA = re.compile(r"\(?a\.?k\.?a\b\.?|\)", re.IGNORECASE)
+REGEX_WORD = re.compile(r"\w{2,}")
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -22,7 +23,9 @@ def crawl_item(row: Dict[str, str], context: Context):
     address = row.pop(" State and Zip")
     birth_date = row.pop(" Birthdate")
 
-    if raw_first_name := row.pop("First Name").strip():
+    raw_first_name = row.pop("First Name")
+    if raw_first_name and REGEX_WORD.search(raw_first_name):
+        raw_first_name = raw_first_name.strip()
         entity = context.make("Person")
         entity.id = context.make_id(
             raw_first_name, raw_last_entity_name, birth_date, address, npi

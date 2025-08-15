@@ -48,3 +48,15 @@ lookups:
     options:
       - match: "01/**/1964"
         value: null
+  type.date:
+    options:
+      - match: "20223108"
+        value: "2022-08-31"
+      - match: "20222109"
+        value: "2022-09-21"
+      - match: "20222209"
+        value: "2022-09-22"
+      - match: "20222311"
+        value: "2022-11-23"
+      - match: "20212309"
+        value: "2021-09-23"

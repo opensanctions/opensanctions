@@ -316,7 +316,7 @@ def crawl_index_page(context: Context, doc) -> bool:
 def crawl(context: Context) -> None:
     next_url: Optional[str] = context.data_url
     while next_url:
-        doc = context.fetch_html(next_url, cache_days=30)
+        doc = context.fetch_html(next_url)
         doc.make_links_absolute(next_url)
         next_urls = doc.xpath(".//a[@rel='next']/@href")
         assert len(next_urls) <= 1
