@@ -21,11 +21,11 @@ def element_text(el: Element, squash: bool = True) -> str:
         The text content of the element, or an empty string if empty.
     """
     # Workaround because lxml-stubs doesn't yet support HtmlElement
-    # https://github.com/lxml/lxml-stubs/pull/71            
+    # https://github.com/lxml/lxml-stubs/pull/71
     try:
         text = str(cast(HtmlElement, el).text_content())
     except AttributeError:
-        text = str(el.xpath('string()', smart_strings=False))
+        text = str(el.xpath("string()", smart_strings=False))
 
     if squash:
         text = squash_spaces(text)

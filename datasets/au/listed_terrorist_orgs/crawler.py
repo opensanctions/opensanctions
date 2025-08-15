@@ -11,7 +11,7 @@ def parse_listing_dates(date_text: Optional[str]) -> Optional[str]:
 
     # Split by common delimiters and get the first date
     # Format appears to be: "Initial date, Re-listed: date1, Re-listed: date2"
-    parts = date_text.split(',')
+    parts = date_text.split(",")
     if parts:
         first_date = parts[0].strip()
         # Remove any "Re-listed:" prefix if present
@@ -26,23 +26,23 @@ def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
 
     # Find the table containing terrorist organizations
-    table = doc.find('.//table')
+    table = doc.find(".//table")
     if table is None:
         context.log.error("Could not find terrorist organizations table")
         return
 
     headers = None
-    for row in table.findall('.//tr'):
+    for row in table.findall(".//tr"):
         if headers is None:
             # Extract headers from the first row
-            header_cells = row.findall('./th') or row.findall('./td')
+            header_cells = row.findall("./th") or row.findall("./td")
             if header_cells:
                 headers = [h.element_text(cell) for cell in header_cells]
                 context.log.info("Found headers", headers=headers)
                 continue
 
         # Process data rows
-        cells = row.findall('./td')
+        cells = row.findall("./td")
         if len(cells) < 2:
             continue
 
@@ -82,7 +82,9 @@ def crawl(context: Context) -> None:
             h.apply_date(sanction, "startDate", listing_date)
 
         # Add additional sanction details
-        sanction.set("reason", "Listed as terrorist organisation under Criminal Code Act 1995")
+        sanction.set(
+            "reason", "Listed as terrorist organisation under Criminal Code Act 1995"
+        )
         sanction.set("authority", "Attorney-General of Australia")
 
         context.emit(organization)
