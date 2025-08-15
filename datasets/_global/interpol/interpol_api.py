@@ -1,4 +1,5 @@
 from collections import defaultdict
+import time
 from typing import Dict, Any, List, Optional, Set
 from requests.exceptions import HTTPError
 
@@ -7,6 +8,7 @@ from zavod import helpers as h
 
 # Useful notes: https://www.fer.xyz/2021/08/interpol
 
+SLEEP_SECS = 1
 CACHE_VSHORT = 1
 CACHE_SHORT = 3
 CACHE_LONG = 14
@@ -40,7 +42,7 @@ HEADERS = {
     "sec-fetch-site": "none",
     "sec-fetch-user": "?1",
     "upgrade-insecure-requests": "1",
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 (zavod; opensanctions.org)",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
 }
 
 
@@ -143,6 +145,7 @@ def crawl_query(context: Context, query: Dict[str, Any]) -> int:
     total: int = data.get("total", 0)
     notices = data.get("_embedded", {}).get("notices", [])
     for notice in notices:
+        time.sleep(SLEEP_SECS)
         crawl_notice(context, notice)
 
     return total
