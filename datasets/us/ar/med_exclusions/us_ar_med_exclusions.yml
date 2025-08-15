@@ -60,13 +60,26 @@ lookups:
       - match: "\\"
         value: null
   names:
-    normalize: true
     options:
       - match: Annie Ray d/b/a CareALot Day Care and Preschool
-        values:
-          - Annie Ray
-          - CareALot Day Care and Preschool
+        name: Annie Ray
+        alias: CareALot Day Care and Preschool
       - match: Carolyn Meadowa d/b/aMontessori Day Care Centerand Preschool
-        values:
-          - Carolyn Meadowa
-          - Montessori Day Care Center and Preschool
+        name: Carolyn Meadowa
+        alias: Montessori Day Care Center and Preschool
+      - match: "J. Hampton, R. J."
+        name: "J. Hampton, R. J."
+      - match: "Hampton, R.J. "
+        name: "Hampton, R.J. "
+      - match: "A., Meyer Julie"
+        name: "A., Meyer Julie"
+      - match: "G., Beck-Fuller Teresa"
+        name: "G., Beck-Fuller Teresa"
+      - match: "L., Hart. Dave"
+        name: "L., Hart. Dave"
+      - match: "S, Downing Tamera"
+        name: "S, Downing Tamera"
+      - match: ",  "
+        name: null
+      - match: "-, Precious Jewels In Home Care LLC "
+        name: "Precious Jewels In Home Care LLC "

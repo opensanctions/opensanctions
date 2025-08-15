@@ -77,9 +77,9 @@ def crawl_item(row: Dict[str, str], context: Context):
 def crawl_excel_url(context: Context):
     _, _, _, txt = zyte_api.fetch_text(context, context.data_url)
     # Parse out the table data JSON embedded in the HTML
-    table_data = json.loads(
-        txt[txt.find("WPQ2ListData") + 15 : txt.find("WPQ2SchemaData") - 5]
-    )
+    table_json = txt[txt.find("WPQ2ListData") + 15 : txt.find("WPQ2SchemaData") - 5]
+    context.log.debug("table json", json=table_json)
+    table_data = json.loads(table_json)
     # Assert that the table is in descending date order (using ID as proxy for date)
     last_id = None
     for row in table_data["Row"]:
