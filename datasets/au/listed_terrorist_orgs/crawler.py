@@ -58,15 +58,9 @@ def crawl(context: Context) -> None:
         organization.id = context.make_id(org_name)
         organization.add("name", org_name)
         organization.add("topics", "crime.terror")
-        organization.add("country", "au", quiet=True)  # Listed by Australia
 
         # Parse and add listing date
         listing_date = parse_listing_dates(listing_date_text)
-
-        # Add program/source information
-        organization.add("program", "Australia Listed Terrorist Organisations")
-        organization.add("publisher", "Department of Home Affairs")
-        organization.add("sourceUrl", context.data_url)
 
         # Create sanction entity
         sanction = h.make_sanction(
@@ -85,6 +79,7 @@ def crawl(context: Context) -> None:
         sanction.set(
             "reason", "Listed as terrorist organisation under Criminal Code Act 1995"
         )
+        sanction.add("program", "Australia Listed Terrorist Organisations")
         sanction.set("authority", "Attorney-General of Australia")
 
         context.emit(organization)
