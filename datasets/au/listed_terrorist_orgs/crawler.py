@@ -1,5 +1,4 @@
 from typing import Optional
-from normality import collapse_spaces
 
 from zavod import Context
 from zavod import helpers as h
@@ -38,7 +37,7 @@ def crawl(context: Context) -> None:
             # Extract headers from the first row
             header_cells = row.findall('./th') or row.findall('./td')
             if header_cells:
-                headers = [collapse_spaces(h.get_text(cell)) for cell in header_cells]
+                headers = [h.element_text(cell) for cell in header_cells]
                 context.log.info("Found headers", headers=headers)
                 continue
         
@@ -46,10 +45,10 @@ def crawl(context: Context) -> None:
         cells = row.findall('./td')
         if len(cells) < 2:
             continue
-            
-        org_name = collapse_spaces(h.get_text(cells[0]))
-        listing_date_text = collapse_spaces(h.get_text(cells[1]))
-        
+
+        org_name = h.element_text(cells[0])
+        listing_date_text = h.element_text(cells[1])
+
         if not org_name:
             context.log.warning("Empty organization name")
             continue
@@ -63,10 +62,7 @@ def crawl(context: Context) -> None:
         
         # Parse and add listing date
         listing_date = parse_listing_dates(listing_date_text)
-        parsed_date = None
-        if listing_date:
-            parsed_date = h.apply_date(organization, "createdAt", listing_date)
-        
+
         # Add program/source information
         organization.add("program", "Australia Listed Terrorist Organisations")
         organization.add("publisher", "Department of Home Affairs")

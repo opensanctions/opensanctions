@@ -1,6 +1,4 @@
-name: au_listed_terrorist_orgs
 title: Australia Listed Terrorist Organisations
-url: https://www.nationalsecurity.gov.au/what-australia-is-doing/terrorist-organisations/listed-terrorist-organisations
 entry_point: crawler.py
 prefix: au-to
 coverage:
@@ -12,14 +10,13 @@ summary: >-
 description: |
   Under Australia's Criminal Code Act 1995, the Attorney-General may list an organisation as a terrorist organisation if they are satisfied on reasonable grounds that the organisation is directly or indirectly engaged in, preparing, planning, assisting in or fostering the doing of a terrorist act.
 
-  There are two ways in which an organisation may be identified as a terrorist organisation:
-  
+  There are two ways in which an organisation is identified as a terrorist organisation:
+
   1. By being specified by name in the regulations (a listed terrorist organisation); or
   2. By being an organisation that is directly or indirectly engaged in, preparing, planning, assisting in or fostering the doing of a terrorist act whether or not the terrorist act occurs (an unlisted terrorist organisation).
 
-  For an effective counter-terrorism regime, it is vital that Australia's laws target not only terrorist acts, but also the organisations that plan, finance and carry out such acts.
-
   As of recent legislative changes, regulations listing terrorist organisations continue indefinitely, rather than ceasing to have effect after three years.
+url: https://www.nationalsecurity.gov.au/what-australia-is-doing/terrorist-organisations/listed-terrorist-organisations
 publisher:
   name: Department of Home Affairs
   description: >-
@@ -49,3 +46,9 @@ assertions:
   max:
     schema_entities:
       Organization: 500
+
+lookups:
+  type.date:
+    options:
+      - match: Formerly listed as Al-Murabitun on 5 November 2014
+        value: 2014-11-05
