@@ -1,5 +1,6 @@
 from typing import Dict, Generator, List, Optional, Union
 from datetime import datetime
+from datapatch import Lookup
 from normality import slugify_text, stringify
 from xlrd import XL_CELL_DATE  # type: ignore
 from xlrd.book import Book  # type: ignore
@@ -122,7 +123,7 @@ def parse_xlsx_sheet(
     context: Context,
     sheet: Worksheet,
     skiprows: int = 0,
-    header_lookup: Optional[str] = None,
+    header_lookup: Optional[Lookup] = None,
     extract_links: bool = False,
 ) -> Generator[Dict[str | None, str | None], None, None]:
     """
@@ -153,7 +154,7 @@ def parse_xlsx_sheet(
                 if header is None:
                     header = f"column_{idx}"
                 if header_lookup:
-                    header = context.lookup_value(header_lookup, header) or header
+                    header = header_lookup.get_value(header) or header
                 headers.append(slugify_text(header, sep="_"))
             continue
 
