@@ -1,6 +1,8 @@
 title: US OFAC Enforcement Actions
 entry_point: crawler.py
 prefix: ofac-ea
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false # GPT key not available in CI
 coverage:
   frequency: weekly
   start: "2025-08-15"
