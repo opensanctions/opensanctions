@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta
 import os
 from pathlib import Path
 import tempfile
-from typing import Optional, List, Iterable, Dict
+from typing import Generator, Optional, List, Iterable, Dict
 from zipfile import ZipFile
 from dataclasses import dataclass
 
@@ -30,10 +30,13 @@ from zavod import Dataset
 LOCAL_BUCKET_CACHE_DIR = Path(
     os.environ.get("LOCAL_BUCKET_CACHE_DIR", tempfile.gettempdir())
 )
-# _406 denotes the format version
 SOURCE_DATA_BUCKET_NAME = "internal-data.opensanctions.org"
-SOURCE_DATA_PREFIX = "ru_egrul/egrul.itsoft.ru/EGRUL_406/"
 PROCESSESED_PREFIX = "ru_egrul/processed/"
+
+# The two formats don't seem to be different enough to make a difference to us, fortunately.
+# The overlap between the two formats is quite long, we use 2025-01-01 as the switchover date.
+SOURCE_DATA_PREFIX_OLD = "ru_egrul/egrul.itsoft.ru/EGRUL_406/"
+SOURCE_DATA_PREFIX_NEW = "ru_egrul/egrul.itsoft.ru/EGRUL_407/"
 
 
 @dataclass
@@ -187,7 +190,7 @@ def get_local_archive_path(blob_url: BlobURL) -> Path:
     return LOCAL_BUCKET_CACHE_DIR / str(blob_url.name)
 
 
-def crawl_archive(blob_url: BlobURL):
+def crawl_archive(blob_url: BlobURL) -> Generator[dict, None, None]:
     data_date = get_archive_date_from_blob_url(blob_url)
     context = get_context(data_date)
 
@@ -226,7 +229,7 @@ def crawl_archives_for_date(
     spark: SparkSession,
     archive_date: date,
     archives: List[BlobURL],
-):
+) -> DataFrame:
     table_name = archive_date.isoformat().replace("-", "_")
     if spark.catalog.tableExists(table_name):
         return spark.table(table_name)
@@ -392,7 +395,18 @@ def crawl(context: Context) -> None:
     spark.sparkContext.setCheckpointDir("env/spark-checkpoint")
     spark.sparkContext.setLogLevel("WARN")
 
-    archives = list_archives(SOURCE_DATA_BUCKET_NAME, SOURCE_DATA_PREFIX)
+    # We split the archives into old and new because the format changed. The switchover date is a bit arbitrary, the overlap was quite long.
+    archives_old = [
+        a
+        for a in list_archives(SOURCE_DATA_BUCKET_NAME, SOURCE_DATA_PREFIX_OLD)
+        if get_archive_date_from_blob_url(a) < date(2025, 1, 1)
+    ]
+    archives_new = [
+        a
+        for a in list_archives(SOURCE_DATA_BUCKET_NAME, SOURCE_DATA_PREFIX_NEW)
+        if get_archive_date_from_blob_url(a) >= date(2025, 1, 1)
+    ]
+    archives = archives_old + archives_new
 
     archives_by_date = sorted(aggregate_archives_by_date(archives).items())
     archives_by_date = [
@@ -492,7 +506,7 @@ def get_context(data_time: Optional[date] = None) -> Context:
     return context
 
 
-def main():
+def main() -> None:
     context = get_context()
     crawl(context)
 
