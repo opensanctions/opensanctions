@@ -119,6 +119,9 @@ def crawl_common(
 
         if result is not None:
             if result.prop is not None:
+                if "Date" in result.prop:
+                    h.apply_date(entity, result.prop, value)
+                    continue
                 if result.prop == "address":
                     value = clean_address(value)
                 entity.add(result.prop, value, lang="ukr")
