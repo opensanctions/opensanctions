@@ -1,0 +1,51 @@
+name: au_listed_terrorist_orgs
+title: Australia Listed Terrorist Organisations
+url: https://www.nationalsecurity.gov.au/what-australia-is-doing/terrorist-organisations/listed-terrorist-organisations
+entry_point: crawler.py
+prefix: au-to
+coverage:
+  frequency: daily
+  start: 2025-08-15
+load_statements: true
+summary: >-
+  Australia's list of terrorist organisations as listed under the Criminal Code Act 1995
+description: |
+  Under Australia's Criminal Code Act 1995, the Attorney-General may list an organisation as a terrorist organisation if they are satisfied on reasonable grounds that the organisation is directly or indirectly engaged in, preparing, planning, assisting in or fostering the doing of a terrorist act.
+
+  There are two ways in which an organisation may be identified as a terrorist organisation:
+  
+  1. By being specified by name in the regulations (a listed terrorist organisation); or
+  2. By being an organisation that is directly or indirectly engaged in, preparing, planning, assisting in or fostering the doing of a terrorist act whether or not the terrorist act occurs (an unlisted terrorist organisation).
+
+  For an effective counter-terrorism regime, it is vital that Australia's laws target not only terrorist acts, but also the organisations that plan, finance and carry out such acts.
+
+  As of recent legislative changes, regulations listing terrorist organisations continue indefinitely, rather than ceasing to have effect after three years.
+publisher:
+  name: Department of Home Affairs
+  description: >-
+    The Department of Home Affairs brings together Australia's federal law enforcement, 
+    national and transport security, criminal justice, emergency management, multicultural 
+    affairs, settlement services and immigration and border-related functions, working 
+    together to keep Australia safe.
+  url: https://www.homeaffairs.gov.au/
+  country: au
+  official: true
+data:
+  url: "https://www.nationalsecurity.gov.au/what-australia-is-doing/terrorist-organisations/listed-terrorist-organisations"
+  format: HTML
+
+dates:
+  formats: ["%d %B %Y", "%B %Y"]
+
+tags:
+  - list.terror
+  - target.global
+  - issuer.au
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 20
+  max:
+    schema_entities:
+      Organization: 500
