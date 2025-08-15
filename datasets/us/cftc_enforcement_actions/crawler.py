@@ -72,7 +72,7 @@ class RelatedCompany(BaseModel):
 class Defendant(BaseModel):
     entity_schema: Schema = schema_field
     name: str
-    aliases: List[str] = []
+    aliases: List[str] | None = []
     address: str | List[str] | None = address_field
     country: str | List[str] | None = []
     status: Status = status_field
