@@ -64,7 +64,7 @@ def parse_html_table(
         if headers is None:
             headers = []
             for el in row.findall(f"./{header_tag}"):
-                header_text = element_text(el)
+                header_text: Optional[str] = element_text(el)
                 if slugify_headers:
                     header_text = slugify(header_text, sep="_")
                 assert header_text is not None, "No table header text"
