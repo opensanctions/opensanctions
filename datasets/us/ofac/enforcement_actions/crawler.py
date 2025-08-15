@@ -102,13 +102,76 @@ Specific fields:
 """
 
 
+def make_related_company(context: Context, name: str) -> Entity:
+    entity = context.make("Company")
+    entity.id = context.make_id(name)
+    entity.add("name", name)
+    return entity
+
+
+def make_company_link(
+    context: Context, entity: Entity, related_company: Entity, relationship: str
+) -> Entity:
+    link = context.make("UnknownLink")
+    link.id = context.make_id("Related company", entity.id, related_company.id)
+    link.add("subject", entity)
+    link.add("object", related_company)
+    link.add("role", relationship)
+    return link
+
+
+def source_changed(review: Review, article_element: HtmlElement) -> bool:
+    """
+    The key exists but the current source data looks different from the existing version
+    in spite of heavy normalisation.
+    """
+    seen_element = fromstring(review.source_value)
+    return html_to_text_hash(seen_element) != html_to_text_hash(article_element)
+
+
+def check_something_changed(
+    context: Context,
+    review: Review,
+    article_html: str,
+    article_element: HtmlElement,
+) -> bool:
+    """
+    Returns True if the source content has changed.
+
+    In that case it also reprompts to log whether the extracted data has changed.
+    """
+    if source_changed(review, article_element):
+        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
+        if model_hash(prompt_result) == model_hash(review.orig_extraction_data):
+            context.log.warning(
+                "The source content has changed but the extracted data has not",
+                url=review.source_url,
+                seen_source_value=review.source_value,
+                new_source_value=article_html,
+            )
+        else:
+            # A new extraction result looks different from the known original extraction
+            context.log.warning(
+                "The extracted data has changed",
+                url=review.source_url,
+                orig_extracted_data=review.orig_extraction_data.model_dump(),
+                prompt_result=prompt_result.model_dump(),
+            )
+        return True
+    else:
+        return False
+
+
 def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
-    doc = context.fetch_html(url, cache_days=1)
-    name = doc.xpath("//span[@class='treas-page-title']/text()")
-    article_text = doc.xpath(
-        "//div[@id='block-ofac-content']//div[@class='field__item']/p/text()"
+    article = context.fetch_html(url, cache_days=1)
+    if article is None:
+        return
+    article_html = tostring(article, pretty_print=True).decode("utf-8")
+    name = article.xpath("//span[@class='treas-page-title']/text()")
+    article_text = article.xpath(
+        "//div[@id='block-ofac-content']//div[@class='field__item']/p"
     )
-    source_pdf = doc.xpath(
+    source_pdf = article.xpath(
         "//div[@id='block-ofac-content']//a[@data-entity-type='media']/@href"
     )
     assert all([name, article_text, source_pdf]), "One or more fields are empty"
@@ -129,22 +192,22 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
             MODEL_VERSION,
         )
 
-    # if check_something_changed(context, review, article_html, article_element):
-    #     # In the first iteration, we're being super conservative and rejecting
-    #     # export if the source content has changed regardless of whether the
-    #     # extraction result has changed. If we see this happening and we see that
-    #     # the extraction result reliably identifies real data changes, we can
-    #     # relax this to only reject if the extraction result has changed.
+    if check_something_changed(context, review, article_html, article):
+        # In the first iteration, we're being super conservative and rejecting
+        # export if the source content has changed regardless of whether the
+        # extraction result has changed. If we see this happening and we see that
+        # the extraction result reliably identifies real data changes, we can
+        # relax this to only reject if the extraction result has changed.
 
-    #     # Similarly if we see that broad markup changes don't trigger massive
-    #     # re-reviews but legitimate changes are reliably detected, we can allow
-    #     # it to automatically request re-reviews upon extraction changes.
-    #     global something_changed
-    #     something_changed = True
-    #     return
+        # Similarly if we see that broad markup changes don't trigger massive
+        # re-reviews but legitimate changes are reliably detected, we can allow
+        # it to automatically request re-reviews upon extraction changes.
+        global something_changed
+        something_changed = True
+        return
 
-    # if not review.accepted:
-    #     return
+    if not review.accepted:
+        return
 
     for item in review.extracted_data.defendants:
         entity = context.make(item.entity_schema)
@@ -174,13 +237,13 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
             "authorityId", item.original_press_release_number, origin=DEFAULT_MODEL
         )
 
-        # for related_company in item.related_companies:
-        #     related_company_entity = make_related_company(context, related_company.name)
-        #     link = make_company_link(
-        #         context, entity, related_company_entity, related_company.relationship
-        #     )
-        #     context.emit(related_company_entity)
-        #     context.emit(link)
+        for related_company in item.related_companies:
+            related_company_entity = make_related_company(context, related_company.name)
+            link = make_company_link(
+                context, entity, related_company_entity, related_company.relationship
+            )
+            context.emit(related_company_entity)
+            context.emit(link)
 
         # article = h.make_article(
         #     context, url, title=get_title(article_element), published_at=date
@@ -212,7 +275,7 @@ def crawl_index_page(context: Context, link: str):
     if not enforcements.within_max_age(context, enforcement_date[0]):
         return False
 
-    crawl_enforcement_action(context, enforcement_date, link)
+    crawl_enforcement_action(context, enforcement_date[0], link)
     return True
 
 
@@ -225,3 +288,5 @@ def crawl(context: Context):
     for link in links:
         if not crawl_index_page(context, link):
             break
+
+    # assert_all_accepted(context)
