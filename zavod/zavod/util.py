@@ -7,6 +7,7 @@ from normality import slugify
 from followthemoney.util import ENTITY_ID_LEN
 
 log = logging.getLogger(__name__)
+Element = etree._Element
 ElementOrTree = Union[etree._Element, etree._ElementTree]
 ID_SEP = "-"
 
