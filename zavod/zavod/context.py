@@ -39,7 +39,7 @@ from zavod.runtime.sink import DatasetSink
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.timestamps import TimeStampIndex
 from zavod.runtime.versions import get_latest, make_version
-from zavod.util import join_slug, prefixed_hash_id
+from zavod.util import join_slug, prefixed_hash_id, Element
 
 
 class Context:
@@ -384,7 +384,7 @@ class Context:
         cache_days: Optional[int] = None,
         method: str = "GET",
         data: Optional[_Body] = None,
-    ) -> etree._Element:
+    ) -> Element:
         """Execute an HTTP request using the contexts' session and return
         an HTML DOM object based on the response. If a `cache_days` argument
         is provided, a cache will be used for the given number of days.
