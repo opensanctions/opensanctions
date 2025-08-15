@@ -1,5 +1,3 @@
-import itertools
-
 from normality import slugify
 
 from zavod import Context
@@ -93,18 +91,22 @@ def crawl_person(context: Context, source_url: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    for page in itertools.count(start=1):
+    next_page = 1
+
+    while next_page:
         detail_url_xpath = "//a[contains(@test-id, 'wantedmissing-link')]/@href"
-        url = f"{context.data_url}?page={page}"
+        url = f"{context.data_url}?page={next_page}"
         doc = fetch_html(context, url, detail_url_xpath)
         doc.make_links_absolute(context.data_url)
         detail_urls = doc.xpath(detail_url_xpath)
-        if not detail_urls:
-            context.log.info("No more pages found, stopping crawl")
-            break
         for detail_url in detail_urls:
             # The website also contains some other search notices that we don't care about
             if detail_url.startswith(FUGITIVES_URL_PREFIX):
                 crawl_person(context, detail_url)
+        next_button = doc.find(".//*[@id='paginator-next-button']")
 
-        assert page < 100, "Unlikely to have more than 100 pages, maybe broken."
+        # <button disabled> is '', <button> is None.
+        if next_button.get("disabled") == "":
+            next_page = None
+        else:
+            next_page = next_page + 1
