@@ -82,8 +82,8 @@ def crawl(context: Context) -> None:
             h.apply_date(sanction, "startDate", listing_date)
             
         # Add additional sanction details
-        sanction.add("reason", "Listed as terrorist organisation under Criminal Code Act 1995")
-        sanction.add("authority", "Attorney-General of Australia")
+        sanction.set("reason", "Listed as terrorist organisation under Criminal Code Act 1995")
+        sanction.set("authority", "Attorney-General of Australia")
         
         context.emit(organization)
         context.emit(sanction)
