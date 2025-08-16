@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 from typing import Dict
-from pantomime.types import CSV
+from rigour.mime.types import CSV
 
 from zavod.context import Context
 from zavod.helpers.addresses import make_address

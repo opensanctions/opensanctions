@@ -12,7 +12,7 @@ check whether an action date is within scope:
 
 ```python
     for row in h.parse_html_table(table):
-        enforcement_date = row["date"].text_content().strip()
+        enforcement_date = h.element_text(row["date"])
         if not enforcements.within_max_age(context, enforcement_date):
             return
 ```

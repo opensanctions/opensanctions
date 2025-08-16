@@ -185,8 +185,7 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      # work around current countrynames limitation
-      # https://github.com/opensanctions/countrynames/blob/main/countrynames/data.yaml#L7435
+      # work around current rigour.territories limitation
       - match: مصر
         value: Egypt
       - match: السعودية / الكويت
