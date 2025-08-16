@@ -3,7 +3,7 @@ from rigour.ids.wikidata import is_qid
 from typing import Dict, Optional
 from urllib.parse import unquote
 import re
-from pantomime.types import JSON
+from rigour.mime.types import JSON
 from orjson import loads
 
 from zavod import Context

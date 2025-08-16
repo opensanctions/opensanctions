@@ -1,6 +1,6 @@
 import csv
 from typing import Optional
-from pantomime.types import CSV
+from rigour.mime.types import CSV
 from nomenklatura.util import is_qid
 
 from opensanctions.core import Context

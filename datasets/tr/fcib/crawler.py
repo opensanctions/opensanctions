@@ -2,7 +2,7 @@ from normality import collapse_spaces
 from openpyxl import load_workbook
 from typing import Dict, List, Optional
 import re
-from pantomime.types import XLSX
+from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h

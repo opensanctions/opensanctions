@@ -1,7 +1,7 @@
 import io
 from datetime import datetime
 from lxml import etree
-from pantomime.types import ZIP
+from rigour.mime.types import ZIP
 from pathlib import Path
 from typing import Any, Dict, Generator
 from zipfile import ZipFile

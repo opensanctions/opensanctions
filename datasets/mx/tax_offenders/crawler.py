@@ -1,5 +1,5 @@
 import csv
-from pantomime.types import CSV
+from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
 
@@ -44,7 +44,6 @@ def replace_key(d: dict, context: Context) -> dict:
 
 
 def crawl_item(input_dict: dict, context: Context):
-
     schema = context.lookup_value("person_type", input_dict.get("person_type"))
 
     if not schema:
@@ -92,7 +91,6 @@ def get_files_urls(context: Context):
 
 
 def crawl(context: Context):
-
     for label, url in get_files_urls(context):
         fname = url.split("/")[-1]
         source_file = context.fetch_resource(fname, url)

@@ -1,5 +1,5 @@
 import csv
-from pantomime.types import CSV
+from rigour.mime.types import CSV
 
 from zavod import Context
 
