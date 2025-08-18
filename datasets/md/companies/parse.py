@@ -56,7 +56,7 @@ def parse_directors(
         except ValueError:
             pass
 
-        director = director.strip()
+        director = director.strip(".").strip()
         if len(director) < 3:
             continue
 
