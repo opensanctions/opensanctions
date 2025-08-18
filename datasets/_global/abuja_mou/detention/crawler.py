@@ -36,20 +36,20 @@ def emit_linked_org(context, vessel_id, names, role, start_date, schema):
 
 
 def crawl_row(context: Context, row: dict):
-    ship_name = row.pop("name")
-    imo = row.pop("imo_number")
-    company_name = row.pop("company")
+    ship_name = row.pop("Name")
+    imo = row.pop("IMO number")
+    company_name = row.pop("Company")
 
     vessel = context.make("Vessel")
     vessel.id = context.make_id(ship_name, imo)
     vessel.add("name", ship_name)
     vessel.add("imoNumber", imo)
-    vessel.add("flag", row.pop("flag"))
-    vessel.add("buildDate", row.pop("year_of_build"))
-    vessel.add("grossRegisteredTonnage", row.pop("tonnage"))
-    vessel.add("type", row.pop("type"))
+    vessel.add("flag", row.pop("Flag"))
+    vessel.add("buildDate", row.pop("Year of build"))
+    vessel.add("grossRegisteredTonnage", row.pop("Tonnage"))
+    vessel.add("type", row.pop("Type"))
 
-    start_date = row.pop("date_of_detention")
+    start_date = row.pop("Date of detention")
     if company_name:
         emit_linked_org(
             context,
@@ -60,7 +60,7 @@ def crawl_row(context: Context, row: dict):
             "Company",
         )
 
-    related_ros = row.pop("related_ros")
+    related_ros = row.pop("Related ROs")
     if related_ros:
         emit_linked_org(
             context,
@@ -70,7 +70,7 @@ def crawl_row(context: Context, row: dict):
             start_date,
             "Organization",
         )
-    class_soc = row.pop("class")
+    class_soc = row.pop("Class")
     if class_soc:
         emit_linked_org(
             context,
@@ -81,14 +81,14 @@ def crawl_row(context: Context, row: dict):
             "Organization",
         )
 
-    end_date = row.pop("date_of_release")
+    end_date = row.pop("Date of release")
     sanction = h.make_sanction(
         context,
         vessel,
         start_date=start_date,
         end_date=end_date,
     )
-    reasons = row.pop("nature_of_deficiencies")
+    reasons = row.pop("Nature of deficiencies")
     for reason in reasons.split(";"):
         sanction.add("reason", reason.strip())
     # Most of the ships (even from 2019) have no end_date, most of them will be marked as active
@@ -98,7 +98,7 @@ def crawl_row(context: Context, row: dict):
     context.emit(vessel)
     context.emit(sanction)
 
-    context.audit_data(row, ["place", "nature_of_deficiencies"])
+    context.audit_data(row, ["#", "Place"])
 
 
 def crawl(context: Context):
@@ -111,7 +111,7 @@ def crawl(context: Context):
     table = doc.xpath("//table[@id='dvData']")
     assert len(table) == 1, "Expected exactly one table"
     table = table[0]
-    for row in h.parse_html_table(table):
+    for row in h.parse_html_table(table, slugify_headers=False):
         str_row = h.cells_to_str(row)
         cleaned_row = {k: v for k, v in str_row.items() if isinstance(k, str)}
         crawl_row(context, cleaned_row)
