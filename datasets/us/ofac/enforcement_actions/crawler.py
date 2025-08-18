@@ -50,14 +50,6 @@ status_field = Field(
     )
 )
 notes_field = Field(default=None, description=("Only used if `status` is `Other`."))
-original_press_release_number_field = Field(
-    description=(
-        "The original press release number of the enforcement action notice."
-        " When announcing charges, this is the press release number of the"
-        " announcement. When announcing court orders or dropped charges,"
-        " this is the reference to the original press release."
-    )
-)
 
 
 class RelatedCompany(BaseModel):
@@ -73,7 +65,6 @@ class Defendant(BaseModel):
     country: str | List[str] | None = []
     status: Status = status_field
     notes: Optional[str] = notes_field
-    original_press_release_number: Optional[str] = original_press_release_number_field
     related_companies: List[RelatedCompany] = []
 
 
@@ -96,9 +87,8 @@ Specific fields:
 - country: Any countries explicitly associated with the defendant in the text. Leave empty if not explicitly stated.
 - status: {status_field.description}
 - notes: {notes_field.description}
-- original_press_release_number: {original_press_release_number_field.description}
 - related_companies: If the defendant is a person and a related company is mentioned in the source text, add it here.
-    - relationship: Use text verbatim from the source. If it's ambiguous, e.g. "agents and owners", use that text exactly as it is, plural and all.
+- relationship: Use text verbatim from the source. If it's ambiguous, e.g. "agents and owners", use that text exactly as it is, plural and all.
 """
 
 
@@ -166,7 +156,10 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     article = context.fetch_html(url, cache_days=1)
     if article is None:
         return
-    article_html = tostring(article, pretty_print=True).decode("utf-8")
+    article_element = article.xpath(
+        "//div[@id='block-ofac-content']//div[@class='field__item']/p"
+    )
+    article_html = tostring(article_element[0], pretty_print=True).decode("utf-8")
     name = article.xpath("//span[@class='treas-page-title']/text()")
     article_text = article.xpath(
         "//div[@id='block-ofac-content']//div[@class='field__item']/p"
@@ -176,15 +169,13 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     )
     assert all([name, article_text, source_pdf]), "One or more fields are empty"
 
-    review = get_review(context, Defendants, name, MIN_MODEL_VERSION)
+    review = get_review(context, Defendants, name[0], MIN_MODEL_VERSION)
     if review is None:
-        prompt_result = run_typed_text_prompt(
-            context, PROMPT, article_text[0], Defendants
-        )
+        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
         review = request_review(
             context,
             name[0],
-            article_text[0],
+            article_html,
             "text",
             "Enforcement Action Notice",
             url,
@@ -192,7 +183,7 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
             MODEL_VERSION,
         )
 
-    if check_something_changed(context, review, article_html, article):
+    if check_something_changed(context, review, article_html, article_element[0]):
         # In the first iteration, we're being super conservative and rejecting
         # export if the source content has changed regardless of whether the
         # extraction result has changed. If we see this happening and we see that
@@ -227,15 +218,11 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         sanction = h.make_sanction(
             context,
             entity,
-            key=item.original_press_release_number,
         )
         h.apply_date(sanction, "date", date)
         sanction.set("sourceUrl", url)
         sanction.add("status", item.status, origin=DEFAULT_MODEL)
         sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
-        sanction.add(
-            "authorityId", item.original_press_release_number, origin=DEFAULT_MODEL
-        )
 
         for related_company in item.related_companies:
             related_company_entity = make_related_company(context, related_company.name)
