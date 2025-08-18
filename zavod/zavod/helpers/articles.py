@@ -37,10 +37,10 @@ def make_documentation(
     entity: Entity,
     article: Entity,
     key_extra: Optional[str] = None,
-    date: Optional[str] = None,
 ) -> Entity:
     """
-    Create a documentation entity to link an article to a related entity.
+    Creates a documentation entity to link an article to a related entity.
+    The article's publishedAt date is added to the Documentation date property.
 
     This is useful to link one or more entities to an article they were mentioned in.
 
@@ -51,7 +51,6 @@ def make_documentation(
         entity: The entity related to the article.
         article: The related article.
         key_extra: An optional value to be included in the generated Documentation ID hash.
-        date: The publication date of the article, added to the Documentation date property.
     """
 
     documentation = context.make("Documentation")
@@ -62,5 +61,5 @@ def make_documentation(
     )
     documentation.add("entity", entity)
     documentation.add("document", article)
-    h.apply_date(documentation, "date", date)
+    documentation.set("date", article.get("publishedAt"))
     return documentation
