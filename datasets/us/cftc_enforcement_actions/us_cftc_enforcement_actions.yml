@@ -1,31 +1,33 @@
 title: "US CFTC Enforcement Actions"
 url: https://www.cftc.gov/LawRegulation/EnforcementActions/index.htm
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 coverage:
   frequency: weekly
-  start: 2025-08-01
+  start: 2025-08-10
 entry_point: crawler.py
 prefix: us-cftc
 summary: >
-  List of enforcement actions published by the CFTC, including respondent names
-  and links to official documents.
+  Entities subject to enforcement actions by the CFTC.
 description: >
   The U.S. Commodity Futures Trading Commission (CFTC) publishes a list of
   enforcement actions taken against individuals and entities that have violated
-  the Commodity Exchange Act (CEA) and CFTC regulations. This dataset includes
-  details of enforcement actions, such as the names of respondents, case
-  numbers, dates, and links to official documents. The data is collected from
-  the official CFTC website and is intended to support due diligence,
-  compliance, and investigative research.
+  the Commodity Exchange Act (CEA) and CFTC regulations.
+
+  This dataset lists the persons and companies that are subject to enforcement
+  actions by the CFTC, including but not limited to cases that have been settled
+  or where a judgment has been entered. Our standard period of enforcements coverage
+  applies.
 publisher:
   name: U.S. Commodity Futures Trading Commission
   acronym: CFTC
   official: true
   description: >
-    The CFTC is an independent agency of the US government that regulates the
-    U.S. derivatives markets, including futures, swaps, and certain kinds of
-    options.
-  country: us
+    The CFTC is an agency of the US government that regulates the
+    U.S. derivatives markets.
+
+    > The Commission consists of five Commissioners appointed by the President,
+    > with the advice and consent of the Senate, to serve staggered five-year
+    > terms
   url: https://www.cftc.gov/
 
 data:
@@ -39,13 +41,16 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 100
-      Company: 100
-    countries: 1
+      Person: 200
+      Company: 400
+    country_entities:
+      us: 100
+      ca: 1
+      gb: 1
   max:
     schema_entities:
-      Person: 30000
-      Company: 30000
+      Person: 800
+      Company: 1000
 
 lookups:
   type.country:
