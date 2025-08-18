@@ -26,6 +26,7 @@ class SimpleCSVExporter(Exporter):
         "sanctions",
         "phones",
         "emails",
+        "program_ids",
         "dataset",
         "first_seen",
         "last_seen",
@@ -64,8 +65,11 @@ class SimpleCSVExporter(Exporter):
     def feed(self, entity: Entity, view: ExportView) -> None:
         if not entity.target:
             return
+        program_ids = set(entity.get("programId"))
         countries = set(entity.get_type_values(registry.country))
-        identifiers = set(entity.get_type_values(registry.identifier))
+        # Don't include program_ids in identifiers, they are already in program_ids
+        # and they don't really identify the entity, which is the purpose of this field.
+        identifiers = set(entity.get_type_values(registry.identifier)) - program_ids
         names = set(entity.get_type_values(registry.name))
         names.discard(entity.caption)
         sanctions = set()
@@ -98,6 +102,7 @@ class SimpleCSVExporter(Exporter):
             self.concat_values(sanctions),
             self.concat_values(entity.get_type_values(registry.phone)),
             self.concat_values(entity.get_type_values(registry.email)),
+            self.concat_values(program_ids),
             self.concat_values(datasets),
             entity.first_seen,
             entity.last_seen,
