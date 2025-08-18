@@ -2,6 +2,7 @@ from openpyxl import Workbook, load_workbook
 from rigour.mime.types import XLSX
 from typing import Optional, Dict, Any, List
 from urllib.parse import urljoin
+import re
 
 from zavod import Context, Entity, helpers as h
 
@@ -20,6 +21,7 @@ IGNORE_COLUMNS = [
 ]
 NONPROFITS_URL = "https://dataset.gov.md/dataset/18516-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-organizatiile-necomerciale"
 LEGAL_ENTITIES_URL = "https://dataset.gov.md/ro/dataset/11736-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-intreprinderile-inregistrate-in-repu"
+REGEX_CONTAINS_WORDS = re.compile(r"\w{2}")
 
 
 def read_ckan(context: Context, source_url, label) -> str:
@@ -56,12 +58,15 @@ def parse_directors(
         except ValueError:
             pass
 
-        director = director.strip()
         if len(director) < 3:
             continue
 
         dir = context.make("LegalEntity")
         dir.id = context.make_id(company.id, director)
+
+        if not REGEX_CONTAINS_WORDS.search(director):
+            continue
+
         dir.add("name", director)
         context.emit(dir)
 
@@ -204,15 +209,21 @@ def parse_nonprofits(context, wb):
         if director:
             dir = context.make("Person")
             dir.id = context.make_id(director)
-            dir.add("name", director)
 
-            directorship = context.make("Directorship")
-            directorship.id = context.make_id(entity.id, dir.id)
-            directorship.add("organization", entity.id)
-            directorship.add("director", dir.id)
+            director = director.replace(
+                "RADIAT RADIAT DATELE PRIVIND ADMINISTRATORUL", ""
+            ).strip()
+            director = director.replace("RADIAT DIN REGISTRU", "").strip()
+            if REGEX_CONTAINS_WORDS.search(director):
+                dir.add("name", director)
 
-            context.emit(dir)
-            context.emit(directorship)
+                directorship = context.make("Directorship")
+                directorship.id = context.make_id(entity.id, dir.id)
+                directorship.add("organization", entity.id)
+                directorship.add("director", dir.id)
+
+                context.emit(dir)
+                context.emit(directorship)
 
         context.emit(entity)
         context.audit_data(row)
