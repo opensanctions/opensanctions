@@ -81,7 +81,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         context.emit(facility)
         context.emit(sanction)
 
-    if provider_name and entity_name:
+    if provider.get("name") and entity_name:
         link = context.make("UnknownLink")
         link.id = context.make_id(provider.id, facility.id)
         link.add("object", facility.id)
