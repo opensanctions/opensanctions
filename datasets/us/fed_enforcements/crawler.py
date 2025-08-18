@@ -11,8 +11,6 @@ from zavod.shed.gpt import run_typed_text_prompt, DEFAULT_MODEL
 from zavod.stateful.review import assert_all_accepted, get_review, request_review
 
 
-ORG_PARSE_PROMPT = """Extract the entities in the following attached string.
-Only included information in the provided string. Leave missing fields as null."""
 PROGRAM_NAME = "US Federal Reserve Enforcement Actions"
 
 MODEL_VERSION = 1
@@ -24,7 +22,7 @@ class BankOrgEntity(BaseModel):
         description="The name of the company, exactly as spelled in the text."
     )
     locality: str | None = Field(
-        description="The city, state and country of the company, only if indicated in the text.",
+        description="The city, state and country of the company, if explicitly stated in the text.",
         default=None,
     )
     country: str | None = Field(
@@ -35,6 +33,59 @@ class BankOrgEntity(BaseModel):
 
 class BankOrgsResult(BaseModel):
     entities: list[BankOrgEntity]
+
+
+ORG_PARSE_PROMPT = f"""
+Extract the entities in the attached string.
+
+NEVER infer, assume, or generate values that are not directly stated in the source text.
+
+Instructions for specific fields:
+
+ - name: {BankOrgEntity.model_fields["name"].description}
+ - locality: {BankOrgEntity.model_fields["locality"].description}
+ - country: {BankOrgEntity.model_fields["country"].description}
+"""
+
+
+def crawl_bank_entities(context: Context, party_name: str) -> list[BankOrgEntity]:
+    review = get_review(
+        context,
+        BankOrgsResult,
+        party_name,
+        MIN_MODEL_VERSION,
+    )
+    if review is None:
+        prompt_result = run_typed_text_prompt(
+            context,
+            prompt=ORG_PARSE_PROMPT,
+            string=party_name,
+            response_type=BankOrgsResult,
+        )
+        review = request_review(
+            context=context,
+            key_parts=party_name,
+            source_value=party_name,
+            source_mime_type="text/plain",
+            source_label="Banking Organization field in CSV",
+            source_url=None,
+            orig_extraction_data=prompt_result,
+            model_version=MODEL_VERSION,
+        )
+    return review.extracted_data.entities if review.accepted else []
+
+
+def crawl_article(context: Context, url: str) -> str:
+    if url.endswith(".pdf") or "boarddocs" in url:
+        title = [None]
+        published_at = [None]
+    else:
+        doc = context.fetch_html(url, cache_days=90)
+        title = doc.xpath(".//h3[@class='title']/text()")
+        published_at = doc.xpath(".//p[@class='article__time']/text()")
+    article = h.make_article(context, url, title=title, published_at=published_at[0])
+    context.emit(article)
+    return article
 
 
 def crawl_item(context: Context, original_filename: str, input_dict: Dict[str, str]):
@@ -60,36 +111,14 @@ def crawl_item(context: Context, original_filename: str, input_dict: Dict[str, s
         affiliation = None
         party_name = input_dict.pop("Banking Organization")
 
-        review = get_review(
-            context,
-            BankOrgsResult,
-            party_name,
-            MIN_MODEL_VERSION,
-        )
-        if review is None:
-            prompt_result = run_typed_text_prompt(
-                context,
-                prompt=ORG_PARSE_PROMPT,
-                string=party_name,
-                response_type=BankOrgsResult,
-            )
-            review = request_review(
-                context=context,
-                key_parts=party_name,
-                source_value=party_name,
-                source_mime_type="text/plain",
-                source_label="Banking Organization field in CSV",
-                source_url=None,
-                orig_extraction_data=prompt_result,
-                model_version=MODEL_VERSION,
-            )
-        entities = review.extracted_data.entities if review.accepted else []
+        entities = crawl_bank_entities(context, party_name)
 
     effective_date = input_dict.pop("Effective Date")
     termination_date = input_dict.pop("Termination Date")
     provisions = input_dict.pop("Action")
     sanction_description = input_dict.pop("Note")
     url = input_dict.pop("URL", None)
+    article = crawl_article(context, url)
     for ent in entities:
         entity = context.make(schema)
         entity.id = context.make_id(party_name, ent.name, affiliation, ent.locality)
@@ -119,8 +148,11 @@ def crawl_item(context: Context, original_filename: str, input_dict: Dict[str, s
         if is_active:
             entity.add("topics", "reg.action")
 
+        documentation = h.make_documentation(context, entity, article)
+
         context.emit(entity)
         context.emit(sanction)
+        context.emit(documentation)
 
     # Name = the string that appears in the url column
     context.audit_data(input_dict, ignore=["Name"])

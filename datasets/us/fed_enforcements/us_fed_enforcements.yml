@@ -48,6 +48,9 @@ assertions:
       Company: 3300
       Person: 2330
 
+dates:
+  formats: ["%B %d, %Y"]
+
 lookups:
   sanction.program:
     options:
