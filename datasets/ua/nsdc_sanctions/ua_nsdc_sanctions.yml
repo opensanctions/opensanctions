@@ -105,6 +105,7 @@ lookups:
           - "reg:cy_2"
           - "reg:ua"
           - "reg:by"
+          - "reg:by2"
           - "reg:pr_cz"
           - "reg:ir_pr"
           - "reg:cn_tr"
@@ -518,6 +519,11 @@ lookups:
         values:
           - No. 611, 6th Floor, Huafeng International Business Building, No. 4018 Bao'an Avenue, Bao'an District, Shenzhen, Guangdong, 518100, China
           - No. 50, Bagua 1st Road, Hualin Community Yaunling St, Futian District, Shenzhen, China
+      - match: 'Китайська Народна Республіка, м. Шеньчжень (5th Floor, Building K, Longhua District, Digital Economy Cross-Border E-Commerce Industrial Park, No 54-6 Guanlan Avenue, Longhua District, Shenzhen, China; Building C8, Guanian High-Tech Industrial Park, Guanghu Street, Longhua District, Shenzhen, China; A1-5 Building High-Tech Industrial Park, Guangming Street, Guangming New District, Shenzhen, China)'
+        values:
+          - 5th Floor, Building K, Longhua District, Digital Economy Cross-Border E-Commerce Industrial Park, No 54-6 Guanlan Avenue, Longhua District, Shenzhen, China
+          - Building C8, Guanian High-Tech Industrial Park, Guanghu Street, Longhua District, Shenzhen, China
+          - A1-5 Building High-Tech Industrial Park, Guangming Street, Guangming New District, Shenzhen, China
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»
