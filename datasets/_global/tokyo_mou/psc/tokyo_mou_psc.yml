@@ -9,14 +9,13 @@ load_statements: false
 # Long-running and needs the cache, so not workable in CI
 ci_test: false
 summary: >
-  Records detailing inspections of ships by member Authorities under the Tokyo MoU.
+  Vessels inspected by member authorities under the Tokyo MoU.
 description: |
-  The dataset contains inspection records for ships visiting ports under the jurisdiction
-  of Tokyo MoU member Authorities. Each record includes, but is not limited to, the ship’s
+  This dataset contains ships inspected by port state control while visiting ports under the jurisdiction
+  of Tokyo MoU member authorities. Each record includes, but is not limited to, the ship's
   identity, flag, and associated company.
 
-  **Note:** This dataset is updated regularly and typically contains records from the last 3 years.
-  Older entries are removed in each update.
+  **Note:** We only include the latest 3 years of data from the source.
 publisher:
   name: Tokyo Memorandum of Understanding
   acronym: Tokyo MoU
@@ -54,7 +53,7 @@ lookups:
     options:
       - match: 0
         value: null
-      - match: 
+      - match:
           - 1892617
           - 0783218
         prop: registrationNumber
