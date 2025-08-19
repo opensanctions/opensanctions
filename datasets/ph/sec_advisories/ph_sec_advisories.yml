@@ -472,3 +472,5 @@ lookups:
         name: "Profit Clicking JSS-Tripler Justbeenpaid"
       - match: SEC ADVISORY AGAINST BMJ DATA PROCESSING SERVICES
         name: "BMJ DATA PROCESSING SERVICES"
+      - match: GAINEXPRESS
+        name: "GAINEXPRESS"
