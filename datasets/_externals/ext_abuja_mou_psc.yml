@@ -10,8 +10,6 @@ coverage:
 exports:
   - statistics.json
   - entities.delta.json
-deploy:
-  memory: "5000Mi"
 load_statements: true
 ci_test: false
 summary: >-
