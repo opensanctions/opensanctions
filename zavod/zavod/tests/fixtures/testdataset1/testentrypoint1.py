@@ -18,9 +18,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("topics", row.pop("topics"))
     entity.add("notes", row.pop("notes"))
 
-    program_ids = (row.pop("program_ids") or "").split(";")
-    entity.add("programId", program_ids)
-
     address = make_address(
         context,
         street=row.pop("street"),
