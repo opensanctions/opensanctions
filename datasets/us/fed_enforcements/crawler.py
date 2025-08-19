@@ -1,5 +1,5 @@
 import csv
-from typing import Dict
+from typing import Dict, Optional
 from urllib.parse import urljoin, urlparse
 
 from rigour.mime.types import CSV
@@ -75,8 +75,8 @@ def crawl_bank_entities(context: Context, party_name: str) -> list[BankOrgEntity
     return review.extracted_data.entities if review.accepted else []
 
 
-def crawl_article(context: Context, url: str) -> str:
-    if url.endswith(".pdf") or "boarddocs" in url:
+def crawl_article(context: Context, url: Optional[str]) -> str:
+    if url and (url.endswith(".pdf") or "boarddocs" in url):
         title = [None]
         published_at = [None]
     else:
@@ -88,7 +88,9 @@ def crawl_article(context: Context, url: str) -> str:
     return article
 
 
-def crawl_item(context: Context, original_filename: str, input_dict: Dict[str, str]):
+def crawl_item(
+    context: Context, original_filename: str, input_dict: Dict[str, Optional[str]]
+):
     origin = None
     if input_dict["Individual"]:
         schema = "Person"
