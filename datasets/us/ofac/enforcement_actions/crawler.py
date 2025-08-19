@@ -1,10 +1,12 @@
 from lxml.html import HtmlElement, fromstring, tostring
 from pydantic import BaseModel, Field
 from typing import Optional, List, Literal
+from datetime import date, datetime
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.shed import enforcements
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     Review,
@@ -15,13 +17,11 @@ from zavod.stateful.review import (
     html_to_text_hash,
 )
 
-# from zavod.shed import enforcements
-
 NAME_XPATH = "//span[@class='treas-page-title']/text()"
 BODY_XPATH = "//div[@id='block-ofac-content']//div[@class='field__item']/p"
 DATE_XPATH = "//div[@id='block-ofac-content']//div[@class='field__item']/text()"
 PDF_XPATH = "//div[@id='block-ofac-content']//a[@data-entity-type='media']/@href"
-
+MAX_AGE_DAYS = (date.today() - date(2016, 7, 28)).days
 
 Schema = Literal["Person", "Company", "LegalEntity"]
 Status = Literal[
@@ -163,6 +163,25 @@ def check_something_changed(
         return False
 
 
+def break_the_loop(context, enforcement_dates) -> bool:
+    """
+    Check if any enforcement date exceeds the maximum allowed age.
+    """
+    for date_str in enforcement_dates:
+        clean_date = date_str.strip().removesuffix(" -")
+        if not clean_date:
+            continue  # Skip empty strings
+        try:
+            parsed_date = datetime.strptime(clean_date, "%B %d, %Y").date()
+        except ValueError:
+            context.log.warning("Invalid enforcement date format", date=date_str)
+            continue
+        # Traveling back to summer of 2016 (the first full pdf enforcement was issued on July 27, 2016)
+        if not enforcements.within_max_age(context, parsed_date, MAX_AGE_DAYS):
+            return True  # Stop crawling
+    return False
+
+
 def crawl_enforcement_action(context: Context, url: str) -> None:
     article = context.fetch_html(url, cache_days=1)
     article.make_links_absolute(context.data_url)
@@ -258,6 +277,11 @@ def crawl(context: Context):
         links = doc.xpath(
             "//div[@class='view-content']//a[contains(@href, 'recent-actions') and not(contains(@href, 'enforcement-actions'))]/@href"
         )
+        enforcement_dates = doc.xpath(
+            "//div[contains(@class,'margin-top-1') and contains(., 'Enforcement Actions')]/text()[normalize-space()]"
+        )
+        if break_the_loop(context, enforcement_dates):
+            break
         if not links:
             break
         for link in links:
