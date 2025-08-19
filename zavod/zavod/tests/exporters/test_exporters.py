@@ -269,7 +269,6 @@ def test_targets_simple(testdataset1: Dataset):
         "sanctions",
         "phones",
         "emails",
-        "program_ids",
         "dataset",
         "first_seen",
         "last_seen",
@@ -287,7 +286,6 @@ def test_targets_simple(testdataset1: Dataset):
         "sanctions": "",
         "phones": "",
         "emails": "",
-        "program_ids": "ZZ-TEST1;ZZ-TEST2",
         "dataset": "OpenSanctions Validation Dataset",  # Dataset title
         "first_seen": settings.RUN_TIME_ISO,  # Seconds string format
         "last_seen": settings.RUN_TIME_ISO,
