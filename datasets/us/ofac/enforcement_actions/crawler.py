@@ -1,13 +1,10 @@
-from pydantic import BaseModel, Field
-import re
-from typing import Optional, List, Literal
-from zavod.entity import Entity
-from zavod.shed import enforcements
-
 from lxml.html import HtmlElement, fromstring, tostring
+from pydantic import BaseModel, Field
+from typing import Optional, List, Literal
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     Review,
@@ -18,21 +15,35 @@ from zavod.stateful.review import (
     html_to_text_hash,
 )
 
+# from zavod.shed import enforcements
+
+NAME_XPATH = "//span[@class='treas-page-title']/text()"
+BODY_XPATH = "//div[@id='block-ofac-content']//div[@class='field__item']/p"
+DATE_XPATH = "//div[@id='block-ofac-content']//div[@class='field__item']/text()"
+PDF_XPATH = "//div[@id='block-ofac-content']//a[@data-entity-type='media']/@href"
+
+
 Schema = Literal["Person", "Company", "LegalEntity"]
 Status = Literal[
     "Filed",
     "Dismissed",
     "Settled",
-    "Default judgement",
     "Final judgement",
-    "Supplemental consent order",
     "Other",
 ]
 
+# Settlement Agreement
+# Penalty Notice to an Individual
+# Finding of Violation
+# Sanctions Compliance Guidance
+# Issuance of Sanctions Regulations
+# Civil Monetary Penalty
+# Release of OFAC Enforcement Information
+# Release​ of Civil Penalties Information
+# Recent OFAC Actions
+
 MODEL_VERSION = 1
 MIN_MODEL_VERSION = 1
-
-REGEX_RELEASE_ID = re.compile(r"(\w{2,8}-\w{2,4}[\w #-]*)$")
 
 something_changed = False
 
@@ -152,29 +163,26 @@ def check_something_changed(
         return False
 
 
-def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
+def crawl_enforcement_action(context: Context, url: str) -> None:
     article = context.fetch_html(url, cache_days=1)
+    article.make_links_absolute(context.data_url)
     if article is None:
         return
-    article_element = article.xpath(
-        "//div[@id='block-ofac-content']//div[@class='field__item']/p"
-    )
-    article_html = tostring(article_element[0], pretty_print=True).decode("utf-8")
-    name = article.xpath("//span[@class='treas-page-title']/text()")
-    article_text = article.xpath(
-        "//div[@id='block-ofac-content']//div[@class='field__item']/p"
-    )
-    source_pdf = article.xpath(
-        "//div[@id='block-ofac-content']//a[@data-entity-type='media']/@href"
-    )
-    assert all([name, article_text, source_pdf]), "One or more fields are empty"
+    article_name = article.xpath(NAME_XPATH)[0]
+    article_element = article.xpath(BODY_XPATH)[0]
+    date = article.xpath(DATE_XPATH)[0]
+    article_pdf = article.xpath(PDF_XPATH)[0]
+    article_html = tostring(article_element, pretty_print=True).decode("utf-8")
+    assert all(
+        [article_name, article_pdf, article_html, date]
+    ), "One or more fields are empty"
 
-    review = get_review(context, Defendants, name[0], MIN_MODEL_VERSION)
+    review = get_review(context, Defendants, article_name, MIN_MODEL_VERSION)
     if review is None:
         prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
         review = request_review(
             context,
-            name[0],
+            article_name,
             article_html,
             "text",
             "Enforcement Action Notice",
@@ -183,7 +191,7 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
             MODEL_VERSION,
         )
 
-    if check_something_changed(context, review, article_html, article_element[0]):
+    if check_something_changed(context, review, article_html, article_element):
         # In the first iteration, we're being super conservative and rejecting
         # export if the source content has changed regardless of whether the
         # extraction result has changed. If we see this happening and we see that
@@ -215,12 +223,10 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
 
         # In practice often the entity ID and thus sanction ID differs because of
         # different levels of address details in the press releases.
-        sanction = h.make_sanction(
-            context,
-            entity,
-        )
+        sanction = h.make_sanction(context, entity)
         h.apply_date(sanction, "date", date)
         sanction.set("sourceUrl", url)
+        sanction.add("sourceUrl", article_pdf)
         sanction.add("status", item.status, origin=DEFAULT_MODEL)
         sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
 
@@ -232,48 +238,34 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
             context.emit(related_company_entity)
             context.emit(link)
 
-        # article = h.make_article(
-        #     context, url, title=get_title(article_element), published_at=date
-        # )
-        # documentation = h.make_documentation(context, entity, article, date=date)
+        article = h.make_article(context, url, title=article_name, published_at=date)
+        documentation = h.make_documentation(context, entity, article, date=date)
 
         context.emit(entity)
         context.emit(sanction)
-        # context.emit(article)
-        # context.emit(documentation)
-
-
-def crawl_index_page(context: Context, link: str):
-    doc = context.fetch_html(link, cache_days=1)
-    name = doc.xpath("//span[@class='treas-page-title']/text()")
-    enforcement_date = doc.xpath(
-        "//div[@id='block-ofac-content']//div[@class='field__item']/text()"
-    )
-    text = doc.xpath(
-        "//div[@id='block-ofac-content']//div[@class='field__item']/p/text()"
-    )
-    source_pdf = doc.xpath(
-        "//div[@id='block-ofac-content']//a[@data-entity-type='media']/@href"
-    )
-    assert all(
-        [name, enforcement_date, text, source_pdf]
-    ), "One or more fields are empty"
-
-    if not enforcements.within_max_age(context, enforcement_date[0]):
-        return False
-
-    crawl_enforcement_action(context, enforcement_date[0], link)
-    return True
+        context.emit(article)
+        context.emit(documentation)
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url, cache_days=1)
-    doc.make_links_absolute(context.data_url)
-    links = doc.xpath(
-        "//div[@class='view-content']//a[contains(@href, 'recent-actions') and not(contains(@href, 'enforcement-actions'))]/@href"
-    )
-    for link in links:
-        if not crawl_index_page(context, link):
+    page = 0
+    while True:
+        base_url = (
+            f"https://ofac.treasury.gov/recent-actions/enforcement-actions?page={page}"
+        )
+        doc = context.fetch_html(base_url, cache_days=1)
+        doc.make_links_absolute(context.data_url)
+        links = doc.xpath(
+            "//div[@class='view-content']//a[contains(@href, 'recent-actions') and not(contains(@href, 'enforcement-actions'))]/@href"
+        )
+        if not links:
             break
+        for link in links:
+            crawl_enforcement_action(context, link)
+        page += 1
 
-    # assert_all_accepted(context)
+    assert_all_accepted(context)
+    global something_changed
+    assert (
+        not something_changed
+    ), "See what changed to determine whether to trigger re-review."
